@@ -1,15 +1,15 @@
-import { IContext, IModels } from '../../connectionResolver';
-import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
+import { IContext, IModels } from "../../connectionResolver";
+import QueryBuilder, { IListArgs } from "../../conversationQueryBuilder";
 import {
   checkPermission,
   moduleRequireLogin
-} from '@erxes/api-utils/src/permissions';
+} from "@erxes/api-utils/src/permissions";
 
-import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
-import { IMessageDocument } from '../../models/definitions/conversationMessages';
-import { countByConversations } from '../../conversationUtils';
-import { paginate } from '@erxes/api-utils/src';
-import { sendFormsMessage } from '../../messageBroker';
+import { CONVERSATION_STATUSES } from "../../models/definitions/constants";
+import { IMessageDocument } from "../../models/definitions/conversationMessages";
+import { countByConversations } from "../../conversationUtils";
+import { paginate } from "@erxes/api-utils/src";
+import { sendCoreMessage } from "../../messageBroker";
 
 interface ICountBy {
   [index: string]: number;
@@ -35,7 +35,7 @@ const conversationQueries: any = {
     params: IListArgs,
     { user, models, subdomain, serverTiming }: IContext
   ) {
-    serverTiming.startTime('conversations');
+    serverTiming.startTime("conversations");
 
     // filter by ids of conversations
     if (params && params.ids) {
@@ -47,7 +47,7 @@ const conversationQueries: any = {
         .limit(params.limit || 0);
     }
 
-    serverTiming.startTime('buildQuery');
+    serverTiming.startTime("buildQuery");
 
     // initiate query builder
     const qb = new QueryBuilder(models, subdomain, params, {
@@ -59,18 +59,18 @@ const conversationQueries: any = {
 
     await qb.buildAllQueries();
 
-    serverTiming.endTime('buildQuery');
+    serverTiming.endTime("buildQuery");
 
-    serverTiming.startTime('conversationsQuery');
+    serverTiming.startTime("conversationsQuery");
 
     const conversations = await models.Conversations.find(qb.mainQuery())
       .sort({ updatedAt: -1 })
       .skip(params.skip || 0)
       .limit(params.limit || 0);
 
-    serverTiming.endTime('conversationsQuery');
+    serverTiming.endTime("conversationsQuery");
 
-    serverTiming.endTime('conversations');
+    serverTiming.endTime("conversations");
 
     return conversations;
   },
@@ -189,7 +189,7 @@ const conversationQueries: any = {
     // resolved count
     response.resolved = await count(models, {
       ...mainQuery,
-      ...qb.statusFilter(['closed'])
+      ...qb.statusFilter(["closed"])
     });
 
     // awaiting response count
@@ -204,7 +204,11 @@ const conversationQueries: any = {
   /**
    * Get one conversation
    */
-  async conversationDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async conversationDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
     return models.Conversations.findOne({ _id });
   },
 
@@ -258,7 +262,7 @@ const conversationQueries: any = {
     _args,
     { user, models, subdomain, serverTiming }: IContext
   ) {
-    serverTiming.startTime('buildQuery');
+    serverTiming.startTime("buildQuery");
 
     // initiate query builder
     const qb = new QueryBuilder(
@@ -270,16 +274,16 @@ const conversationQueries: any = {
 
     await qb.buildAllQueries();
 
-    serverTiming.endTime('buildQuery');
+    serverTiming.endTime("buildQuery");
 
-    serverTiming.startTime('integrationFilter');
+    serverTiming.startTime("integrationFilter");
 
     // get all possible integration ids
     const integrationsFilter = await qb.integrationsFilter();
 
-    serverTiming.endTime('integrationFilter');
+    serverTiming.endTime("integrationFilter");
 
-    serverTiming.startTime('query');
+    serverTiming.startTime("query");
 
     const response = await models.Conversations.find({
       ...integrationsFilter,
@@ -288,7 +292,7 @@ const conversationQueries: any = {
       $and: [{ $or: qb.userRelevanceQuery() }]
     }).countDocuments();
 
-    serverTiming.endTime('query');
+    serverTiming.endTime("query");
 
     return response;
   },
@@ -304,23 +308,23 @@ const conversationQueries: any = {
       device: []
     };
 
-    const customerGroup = await sendFormsMessage({
+    const customerGroup = await sendCoreMessage({
       subdomain,
-      action: 'fieldsGroups.findOne',
+      action: "fieldsGroups.findOne",
       data: {
         query: {
-          contentType: 'contacts:customer',
+          contentType: "core:customer",
           isDefinedByErxes: true,
-          name: 'Basic information'
+          name: "Basic information"
         }
       },
       isRPC: true
     });
 
     if (customerGroup) {
-      response.customer = await sendFormsMessage({
+      response.customer = await sendCoreMessage({
         subdomain,
-        action: 'fields.find',
+        action: "fields.find",
         data: {
           query: {
             groupId: customerGroup._id
@@ -331,23 +335,23 @@ const conversationQueries: any = {
       });
     }
 
-    const conversationGroup = await sendFormsMessage({
+    const conversationGroup = await sendCoreMessage({
       subdomain,
-      action: 'fieldsGroups.findOne',
+      action: "fieldsGroups.findOne",
       data: {
         query: {
-          contentType: 'inbox:conversation',
+          contentType: "inbox:conversation",
           isDefinedByErxes: true,
-          name: 'Basic information'
+          name: "Basic information"
         }
       },
       isRPC: true
     });
 
     if (conversationGroup) {
-      response.conversation = await sendFormsMessage({
+      response.conversation = await sendCoreMessage({
         subdomain,
-        action: 'fields.find',
+        action: "fields.find",
         data: {
           query: {
             groupId: conversationGroup._id
@@ -358,23 +362,23 @@ const conversationQueries: any = {
       });
     }
 
-    const deviceGroup = await sendFormsMessage({
+    const deviceGroup = await sendCoreMessage({
       subdomain,
-      action: 'fieldsGroups.findOne',
+      action: "fieldsGroups.findOne",
       data: {
         query: {
-          contentType: 'contacts:device',
+          contentType: "core:device",
           isDefinedByErxes: true,
-          name: 'Basic information'
+          name: "Basic information"
         }
       },
       isRPC: true
     });
 
     if (deviceGroup) {
-      response.device = await sendFormsMessage({
+      response.device = await sendCoreMessage({
         subdomain,
-        action: 'fields.find',
+        action: "fields.find",
         data: {
           query: {
             groupId: deviceGroup._id
@@ -407,7 +411,7 @@ const conversationQueries: any = {
 
 moduleRequireLogin(conversationQueries);
 
-checkPermission(conversationQueries, 'conversations', 'showConversations', []);
+checkPermission(conversationQueries, "conversations", "showConversations", []);
 
 conversationQueries.conversationMessage = (
   _,

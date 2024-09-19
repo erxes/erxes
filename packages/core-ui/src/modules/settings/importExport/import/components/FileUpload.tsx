@@ -2,20 +2,21 @@ import {
   FileUploadBox,
   FullContent,
   ImportHeader,
-  UploadText,
+  UploadText
 } from "../../styles";
 import { FlexItem, FlexPad } from "modules/common/components/step/styles";
-import { __, loadDynamicComponent } from "modules/common/utils";
+import { __ } from "modules/common/utils";
 
 import { IAttachment } from "modules/common/types";
-import { IImportHistoryContentType } from "../../types";
+import { IContentType } from "../../types";
 import React from "react";
 import Uploader from "@erxes/ui/src/components/Uploader";
 import { renderText } from "../../utils";
+import ColumnChooser from "modules/forms/components/ColumnChooser";
 
 type Props = {
   onChangeAttachment: (files: IAttachment[], contentType: string) => void;
-  contentTypes: IImportHistoryContentType[];
+  contentTypes: IContentType[];
   type: string;
 };
 
@@ -23,17 +24,15 @@ class FileUpload extends React.Component<Props, {}> {
   rendertContent = () => {
     const { contentTypes, onChangeAttachment } = this.props;
 
-    return contentTypes.map((contentType) => {
-      const onChange = (attachmentsAtt) =>
+    return contentTypes.map(contentType => {
+      const onChange = attachmentsAtt =>
         onChangeAttachment(attachmentsAtt, contentType.contentType);
 
       return (
         <FileUploadBox key={contentType.contentType}>
           <UploadText>
             <p>{renderText(contentType.contentType)}</p>
-            {loadDynamicComponent("importExportUploadForm", {
-              contentType: contentType.contentType,
-            })}
+            <ColumnChooser contentType={contentType.contentType} />
           </UploadText>
 
           <Uploader

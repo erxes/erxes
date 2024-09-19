@@ -1,4 +1,4 @@
-import { IContext, sendCommonMessage } from '../../../messageBroker';
+import { IContext, sendCommonMessage } from "../../../messageBroker";
 
 const meetingMutations = {
   // /**
@@ -10,8 +10,8 @@ const meetingMutations = {
     if (!title && companyId) {
       const company = await sendCommonMessage({
         subdomain,
-        serviceName: 'contacts',
-        action: 'companies.findOne',
+        serviceName: "core",
+        action: "companies.findOne",
         data: {
           _id: companyId
         },
@@ -21,7 +21,7 @@ const meetingMutations = {
       if (company) {
         doc.title = company.primaryName;
       } else {
-        throw new Error('Company not found');
+        throw new Error("Company not found");
       }
     }
     const allParticipantIds =
@@ -39,8 +39,8 @@ const meetingMutations = {
     if (!title && companyId) {
       const company = await sendCommonMessage({
         subdomain,
-        serviceName: 'contacts',
-        action: 'companies.findOne',
+        serviceName: "core",
+        action: "companies.findOne",
         data: {
           _id: companyId
         },
@@ -50,7 +50,7 @@ const meetingMutations = {
       if (company) {
         doc.title = company.primaryName;
       } else {
-        throw new Error('Company not found');
+        throw new Error("Company not found");
       }
     }
     return models.Meetings.updateMeeting(doc, user);
@@ -60,7 +60,7 @@ const meetingMutations = {
    */
   async meetingRemove(_root, { _id }, { models, user }: IContext) {
     await models.Meetings.removeMeeting(_id, user);
-    return 'removed';
+    return "removed";
   }
 };
 

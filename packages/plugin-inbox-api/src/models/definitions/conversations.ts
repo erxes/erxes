@@ -40,7 +40,6 @@ export interface IConversation {
 
   isCustomerRespondedLast?: boolean;
   customFieldsData?: ICustomField[];
-  bookingProductId?: string;
 }
 
 // Conversation schema
@@ -105,8 +104,6 @@ export const conversationSchemaOptions = {
     type: 'Boolean',
     label: 'Last responder is customer'
   }),
-
-  bookingProductId: field({ type: 'String' })
 };
 
 export const conversationSchema = new Schema({

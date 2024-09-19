@@ -29,7 +29,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   listQuery: DepartmentsMainQueryResponse;
-  queryParams: any;
+  queryParams: Record<string, string>;
   deleteDepartments: (ids: string[], callback: () => void) => void;
 };
 

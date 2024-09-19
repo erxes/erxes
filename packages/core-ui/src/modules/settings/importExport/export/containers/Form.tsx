@@ -1,19 +1,17 @@
-import * as compose from 'lodash.flowright';
-import Form from '../components/Form';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { mutations } from '../graphql';
-import { Alert, withProps } from 'modules/common/utils';
+import * as compose from "lodash.flowright";
+import Form from "../components/Form";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { mutations } from "../graphql";
+import { Alert, withProps } from "modules/common/utils";
+import { ExportHistoryCreateMutationResponse } from "../../types";
 
 type Props = {
   contentType: string;
 };
 
-type FinalProps = {
-  fieldsQuery: any;
-  exportHistoriesCreate: any;
-} & Props;
+type FinalProps = Props & ExportHistoryCreateMutationResponse;
 
 type State = {
   loading: boolean;
@@ -27,8 +25,8 @@ class FormContainer extends React.Component<FinalProps, State> {
 
     this.state = {
       loading: false,
-      count: '',
-      name: ''
+      count: "",
+      name: "",
     };
   }
 
@@ -36,16 +34,16 @@ class FormContainer extends React.Component<FinalProps, State> {
     const { exportHistoriesCreate } = this.props;
     const { count, loading } = this.state;
 
-    const saveExport = doc => {
+    const saveExport = (doc) => {
       exportHistoriesCreate({
-        variables: doc
+        variables: doc,
       })
         .then(() => {
-          Alert.success('You successfully exported');
+          Alert.success("You successfully exported");
 
           window.location.href = `/settings/exportHistories?type=${doc.contentType}`;
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     };
@@ -64,7 +62,7 @@ class FormContainer extends React.Component<FinalProps, State> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(mutations.exportHistoriesCreate), {
-      name: 'exportHistoriesCreate'
+      name: "exportHistoriesCreate",
     })
   )(FormContainer)
 );

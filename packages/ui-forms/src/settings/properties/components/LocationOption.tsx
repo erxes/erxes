@@ -1,18 +1,19 @@
-import Button from '@erxes/ui/src/components/Button';
 import {
   ControlLabel,
   FormControl,
-  FormGroup
-} from '@erxes/ui/src/components/form';
-import { ILocationOption } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useEffect } from 'react';
+  FormGroup,
+} from "@erxes/ui/src/components/form";
 import {
   LogicItem,
   LogicRow,
-  RowSmall
-} from '@erxes/ui-forms/src/forms/styles';
-import { Column } from '@erxes/ui/src/styles/main';
+  RowSmall,
+} from "@erxes/ui-forms/src/forms/styles";
+
+import Button from "@erxes/ui/src/components/Button";
+import { Column } from "@erxes/ui/src/styles/main";
+import { ILocationOption } from "@erxes/ui/src/types";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   onChangeOption: (option: ILocationOption, index: number) => void;
@@ -24,16 +25,16 @@ type Props = {
 function LocationOption(props: Props) {
   const { option, onChangeOption, removeOption, index } = props;
 
-  const onChangeDescription = e => {
+  const onChangeDescription = (e) => {
     option.description = e.target.value;
     onChangeOption(option, index);
   };
 
-  const onChangeLat = e => {
+  const onChangeLat = (e) => {
     onChangeOption({ ...option, lat: Number(e.target.value) }, index);
   };
 
-  const onChangeLng = e => {
+  const onChangeLng = (e) => {
     onChangeOption({ ...option, lng: Number(e.target.value) }, index);
   };
 
@@ -47,7 +48,7 @@ function LocationOption(props: Props) {
         <Column>
           <LogicRow>
             <RowSmall>
-              <ControlLabel htmlFor="lat">{__('Latitude')}:</ControlLabel>
+              <ControlLabel htmlFor="lat">{__("Latitude")}:</ControlLabel>
               <FormControl
                 value={option.lat}
                 name="lat"
@@ -56,7 +57,7 @@ function LocationOption(props: Props) {
               />
             </RowSmall>
             <Column>
-              <ControlLabel htmlFor="lng">{__('Longitude')}:</ControlLabel>
+              <ControlLabel htmlFor="lng">{__("Longitude")}:</ControlLabel>
               <FormControl
                 value={option.lng}
                 name="lng"
@@ -67,7 +68,7 @@ function LocationOption(props: Props) {
           </LogicRow>
           <FormGroup>
             <ControlLabel htmlFor="description">
-              {__('Description')}:
+              {__("Description")}:
             </ControlLabel>
             <FormControl
               defaultValue={option.description}

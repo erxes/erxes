@@ -4,7 +4,7 @@ import { IEngageMessage, IEngageMessenger } from "@erxes/ui-engage/src/types";
 import {
   MESSAGE_KINDS,
   MESSAGE_KIND_FILTERS,
-  METHODS,
+  METHODS
 } from "@erxes/ui-engage/src/constants";
 
 import ActionButtons from "@erxes/ui/src/components/ActionButtons";
@@ -139,7 +139,7 @@ class Row extends React.Component<Props> {
     return [...links, live];
   }
 
-  renderRemoveButton = (onClick) => {
+  renderRemoveButton = onClick => {
     const { message } = this.props;
     const { runCount } = message;
 
@@ -153,16 +153,16 @@ class Row extends React.Component<Props> {
     );
   };
 
-  toggleBulk = (e) => {
+  toggleBulk = e => {
     this.props.toggleBulk(this.props.message, e.target.checked);
   };
 
   renderSegments(message) {
     let segments = message.segments || ([] as ISegment[]);
 
-    segments = segments.filter((segment) => segment && segment._id);
+    segments = segments.filter(segment => segment && segment._id);
 
-    return segments.map((segment) => (
+    return segments.map(segment => (
       <HelperText key={segment._id}>
         <Icon icon="chart-pie" /> {segment.name}
       </HelperText>
@@ -173,7 +173,7 @@ class Row extends React.Component<Props> {
     const messenger = message.messenger || ({} as IEngageMessenger);
     const rules = messenger.rules || [];
 
-    return rules.map((rule) => (
+    return rules.map(rule => (
       <HelperText key={rule._id}>
         <Icon icon="sign-alt" /> {rule.text} {rule.condition} {rule.value}
       </HelperText>
@@ -183,7 +183,7 @@ class Row extends React.Component<Props> {
   renderBrands(message) {
     const brands = message.brands || ([] as IBrand[]);
 
-    return brands.map((brand) => (
+    return brands.map(brand => (
       <HelperText key={brand._id}>
         <Icon icon="award" /> {brand.name}
       </HelperText>
@@ -230,7 +230,7 @@ class Row extends React.Component<Props> {
         break;
     }
 
-    const kind = MESSAGE_KIND_FILTERS.find((item) => item.name === msg.kind);
+    const kind = MESSAGE_KIND_FILTERS.find(item => item.name === msg.kind);
 
     return (
       <div>
@@ -281,16 +281,11 @@ class Row extends React.Component<Props> {
           {dayjs(message.createdAt).format("DD MMM YYYY")}
         </td>
 
-        {isEnabled("tags") && (
-          <td>
-            <Tags
-              tags={[
-                ...(message.customerTags || []),
-                ...(message.getTags || []),
-              ]}
-            />
-          </td>
-        )}
+        <td>
+          <Tags
+            tags={[...(message.customerTags || []), ...(message.getTags || [])]}
+          />
+        </td>
 
         <td>
           <ActionButtons>

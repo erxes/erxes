@@ -1,35 +1,35 @@
-import * as _ from 'underscore';
-import { Model } from 'mongoose';
-import { getOwner } from './utils';
-import { IModels } from '../connectionResolver';
+import * as _ from "underscore";
+import { Model } from "mongoose";
+import { getOwner } from "./utils";
+import { IModels } from "../connectionResolver";
 import {
   IScoreLogDocument,
   scoreLogSchema,
   IScoreLog
-} from './definitions/scoreLog';
+} from "./definitions/scoreLog";
 import {
   sendClientPortalMessage,
   sendCommonMessage,
   sendContactsMessage,
   sendCoreMessage
-} from '../messageBroker';
+} from "../messageBroker";
 
-import { IScoreParams } from './definitions/common';
-import { paginate } from '@erxes/api-utils/src';
-import { debugError } from '@erxes/api-utils/src/debuggers';
+import { IScoreParams } from "./definitions/common";
+import { paginate } from "@erxes/api-utils/src";
+import { debugError } from "@erxes/api-utils/src/debuggers";
 
 const OWNER_TYPES = {
   customer: {
-    serviceName: 'contacts',
-    contentType: 'customers'
+    serviceName: "core",
+    contentType: "customers"
   },
   company: {
-    serviceName: 'contacts',
-    contentType: 'companies'
+    serviceName: "core",
+    contentType: "companies"
   },
   user: {
-    serviceName: 'core',
-    contentType: 'users'
+    serviceName: "core",
+    contentType: "users"
   }
 };
 
@@ -63,14 +63,14 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const scoreLog = await models.ScoreLogs.findOne({ _id }).lean();
 
       if (!scoreLog) {
-        throw new Error('not found scoreLog rule');
+        throw new Error("not found scoreLog rule");
       }
 
       return scoreLog;
     }
 
     public static async getScoreLogs(doc: IScoreParams) {
-      const { order = -1, orderType = 'createdAt' } = doc;
+      const { order = -1, orderType = "createdAt" } = doc;
       const filter = generateFilter(doc);
       const list = await paginate(
         models.ScoreLogs.find(filter).sort({ [orderType]: order } as any),
@@ -86,7 +86,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         ownerIds,
         changeScore,
         description,
-        createdBy = ''
+        createdBy = ""
       } = doc;
       const { serviceName, contentType } = OWNER_TYPES[ownerType] || {};
 
@@ -100,7 +100,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         serviceName,
         action: `${contentType}.find`,
         data:
-          contentType === 'users'
+          contentType === "users"
             ? { query: { ...ownerFilter } }
             : { ...ownerFilter },
         isRPC: true,
@@ -108,7 +108,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       }).catch(error => debugError(error.message));
 
       if (!owners?.length) {
-        throw new Error('Not found owners');
+        throw new Error("Not found owners");
       }
 
       try {
@@ -152,7 +152,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         ownerId,
         changeScore,
         description,
-        createdBy = ''
+        createdBy = ""
       } = doc;
 
       const score = Number(changeScore);
@@ -177,7 +177,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       });
 
       if (!response || !Object.keys(response || {})?.length) {
-        throw new Error('Something went wrong for give score');
+        throw new Error("Something went wrong for give score");
       }
       return await models.ScoreLogs.create({
         ownerId,
@@ -189,10 +189,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       });
     }
     static async updateOwnerScore({ subdomain, ownerType, ownerId, newScore }) {
-      if (ownerType === 'user') {
+      if (ownerType === "user") {
         return await sendCoreMessage({
           subdomain,
-          action: 'users.updateOne',
+          action: "users.updateOne",
           data: {
             selector: { _id: ownerId },
             modifier: { $set: { score: newScore } }
@@ -201,10 +201,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           defaultValue: null
         });
       }
-      if (ownerType === 'customer') {
+      if (ownerType === "customer") {
         return await sendContactsMessage({
           subdomain,
-          action: 'customers.updateOne',
+          action: "customers.updateOne",
           data: {
             selector: { _id: ownerId },
             modifier: { $set: { score: newScore } }
@@ -213,10 +213,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           defaultValue: null
         });
       }
-      if (ownerType === 'company') {
+      if (ownerType === "company") {
         return await sendContactsMessage({
           subdomain,
-          action: 'companies.updateCommon',
+          action: "companies.updateCommon",
           data: {
             selector: { _id: ownerId },
             modifier: { $set: { score: newScore } }
@@ -225,10 +225,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           defaultValue: null
         });
       }
-      if (ownerType === 'cpUser') {
+      if (ownerType === "cpUser") {
         const cpUser = await sendClientPortalMessage({
           subdomain,
-          action: 'clientPortalUsers.findOne',
+          action: "clientPortalUsers.findOne",
           data: {
             _id: ownerId
           },
@@ -237,11 +237,11 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         });
 
         if (!cpUser) {
-          throw new Error('Not Found Owner');
+          throw new Error("Not Found Owner");
         }
         return await sendContactsMessage({
           subdomain,
-          action: 'customers.updateOne',
+          action: "customers.updateOne",
           data: {
             selector: { _id: cpUser.erxesCustomerId },
             modifier: { $set: { score: newScore } }

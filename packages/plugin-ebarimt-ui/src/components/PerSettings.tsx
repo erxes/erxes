@@ -4,13 +4,13 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon,
+  Icon
 } from "@erxes/ui/src/components";
-import { FlexBetween } from '@erxes/ui-settings/src/styles';
-import { FormColumn, FormWrapper, } from "@erxes/ui/src/styles/main";
+import { FlexBetween } from "@erxes/ui-settings/src/styles";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 import React, { useState } from "react";
 
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
 import { DISTRICTS } from "../constants";
 import { IConfigsMap } from "../types";
 import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
@@ -29,36 +29,36 @@ const PerSettings: React.FC<Props> = (props: Props) => {
   const [state, setState] = useState({ config: config });
 
   const onChangeBoard = (boardId: string) => {
-    setState((prevState) => {
+    setState(prevState => {
       const updatedConfig = { ...prevState.config, boardId };
 
       return {
-        config: updatedConfig,
+        config: updatedConfig
       };
     });
   };
 
   const onChangePipeline = (pipelineId: string) => {
-    setState((prevState) => {
+    setState(prevState => {
       const updatedConfig = { ...prevState.config, pipelineId };
 
       return {
-        config: updatedConfig,
+        config: updatedConfig
       };
     });
   };
 
   const onChangeStage = (stageId: string) => {
-    setState((prevState) => {
+    setState(prevState => {
       const updatedConfig = { ...prevState.config, stageId };
 
       return {
-        config: updatedConfig,
+        config: updatedConfig
       };
     });
   };
 
-  const onSave = (e) => {
+  const onSave = e => {
     e.preventDefault();
     const key = state.config.stageId;
 
@@ -72,7 +72,7 @@ const PerSettings: React.FC<Props> = (props: Props) => {
     save({ ...configsMap, stageInEbarimt });
   };
 
-  const onDelete = (e) => {
+  const onDelete = e => {
     e.preventDefault();
 
     props.delete(currentConfigKey);
@@ -83,11 +83,11 @@ const PerSettings: React.FC<Props> = (props: Props) => {
   };
 
   const onChangeConfig = (code: string, value) => {
-    setState((prevState) => {
+    setState(prevState => {
       const updatedConfig = { ...prevState.config, [code]: value };
 
       return {
-        config: updatedConfig,
+        config: updatedConfig
       };
     });
   };
@@ -160,30 +160,36 @@ const PerSettings: React.FC<Props> = (props: Props) => {
               onChangeStage={onChangeStage}
             />
           </FormGroup>
-          {renderInput('posNo', 'pos No', '')}
-          {renderInput('branchNo', 'branch No', '')}
+          {renderInput("posNo", "pos No", "")}
+          {renderInput("branchNo", "branch No", "")}
           {renderCheckbox(
-            'skipPutData',
-            'skip Ebarimt',
-            'When checked only  print inner bill'
+            "skipPutData",
+            "skip Ebarimt",
+            "When checked only  print inner bill"
           )}
         </FormColumn>
         <FormColumn>
           {renderInput("companyName", "company Name")}
-          {renderInput('companyRD', 'company RD', '')}
-          {renderInput('merchantTin', 'merchantTin', '')}
+          {renderInput("companyRD", "company RD", "")}
+          {renderInput("merchantTin", "merchantTin", "")}
           <FlexBetween>
             <FormGroup>
               <ControlLabel>Branch of Provice / District</ControlLabel>
               <FormControl
                 componentclass="select"
-                value={(state.config['districtCode'] as string)?.substring(0, 2) || ''}
+                value={
+                  (state.config["districtCode"] as string)?.substring(0, 2) ||
+                  ""
+                }
                 options={[
-                  { value: '', label: '' },
-                  ...DISTRICTS.map(d => ({ value: d.branchCode, label: d.branchName }))
+                  { value: "", label: "" },
+                  ...DISTRICTS.map(d => ({
+                    value: d.branchCode,
+                    label: d.branchName
+                  }))
                 ]}
-                onChange={(e) => {
-                  onChangeConfig('districtCode', (e.target as any).value)
+                onChange={e => {
+                  onChangeConfig("districtCode", (e.target as any).value);
                 }}
                 required={true}
               />
@@ -192,20 +198,31 @@ const PerSettings: React.FC<Props> = (props: Props) => {
               <ControlLabel>SUB Provice / District</ControlLabel>
               <FormControl
                 componentclass="select"
-                value={(state.config['districtCode'] as string)?.substring(2, 4) || ''}
+                value={
+                  (state.config["districtCode"] as string)?.substring(2, 4) ||
+                  ""
+                }
                 options={[
-                  { value: '', label: '' },
-                  ...(DISTRICTS.find(d => (
-                    d.branchCode === (state.config['districtCode'] as string)?.substring(0, 2)
-                  ))?.subBranches || []).map(sd => (
-                    { value: sd.subBranchCode, label: sd.subBranchName })
-                  )
+                  { value: "", label: "" },
+                  ...(
+                    DISTRICTS.find(
+                      d =>
+                        d.branchCode ===
+                        (state.config["districtCode"] as string)?.substring(
+                          0,
+                          2
+                        )
+                    )?.subBranches || []
+                  ).map(sd => ({
+                    value: sd.subBranchCode,
+                    label: sd.subBranchName
+                  }))
                 ]}
-                onChange={(e) => {
+                onChange={e => {
                   onChangeConfig(
-                    'districtCode',
-                    `${(state.config['districtCode'] as string)?.substring(0, 2)}${(e.target as any).value}`
-                  )
+                    "districtCode",
+                    `${(state.config["districtCode"] as string)?.substring(0, 2)}${(e.target as any).value}`
+                  );
                 }}
                 required={true}
               />
@@ -213,17 +230,17 @@ const PerSettings: React.FC<Props> = (props: Props) => {
             <FormGroup>
               <ControlLabel>District Code</ControlLabel>
               <FormControl
-                value={state.config['districtCode']}
-                onChange={onChangeInput.bind(this, 'districtCode')}
+                value={state.config["districtCode"]}
+                onChange={onChangeInput.bind(this, "districtCode")}
                 required={true}
               />
             </FormGroup>
           </FlexBetween>
-          {renderInput('defaultGSCode', 'default united code', '')}
-          {renderCheckbox('hasVat', 'has Vat', '')}
-          {renderInput('vatPercent', 'vat Percent', '')}
-          {renderCheckbox('hasCitytax', 'has Citytax', '')}
-          {renderInput('cityTaxPercent', 'cityTax Percent', '')}
+          {renderInput("defaultGSCode", "default united code", "")}
+          {renderCheckbox("hasVat", "has Vat", "")}
+          {renderInput("vatPercent", "vat Percent", "")}
+          {renderCheckbox("hasCitytax", "has Citytax", "")}
+          {renderInput("cityTaxPercent", "cityTax Percent", "")}
         </FormColumn>
       </FormWrapper>
       <ModalFooter>

@@ -1,8 +1,8 @@
-import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendSegmentsMessage } from '../messageBroker';
-import { goalSchema, IGoal, IGoalDocument } from './definitions/goals';
-import { CONTRIBUTIONTYPE, TEAMGOALTYPE } from '../constants';
+import { Model } from "mongoose";
+import { IModels } from "../connectionResolver";
+import { sendCoreMessage, sendSalesMessage } from "../messageBroker";
+import { goalSchema, IGoal, IGoalDocument } from "./definitions/goals";
+import { CONTRIBUTIONTYPE, TEAMGOALTYPE } from "../constants";
 export interface IGoalModel extends Model<IGoalDocument> {
   getGoal(_id: string): Promise<IGoalDocument>;
   createGoal(doc: IGoal): Promise<IGoalDocument>;
@@ -28,7 +28,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       });
 
       if (!goal) {
-        throw new Error('goal not found');
+        throw new Error("goal not found");
       }
       return goal;
     }
@@ -77,7 +77,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         return data === true ? true : false;
       } catch (error) {
         // Handle the error appropriately
-        console.error('Error fetching progress IDs goals:', error);
+        console.error("Error fetching progress IDs goals:", error);
         return []; // Return an empty array or handle the error accordingly
       }
     }
@@ -145,9 +145,9 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         }
       }
       // Send the request
-      amount = await sendCardsMessage({
+      amount = await sendSalesMessage({
         subdomain,
-        action: item.entity + 's.find',
+        action: item.entity + "s.find",
         data: {
           ...requestData, // Spread the requestData to include its properties
           stageId: item.stageId
@@ -160,10 +160,10 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       try {
         // Assuming 'item' is the object containing segmentIds
         for (const segment of item.segmentIds || []) {
-          const cIds = await sendSegmentsMessage({
+          const cIds = await sendCoreMessage({
             isRPC: true,
             subdomain,
-            action: 'fetchSegment',
+            action: "fetchSegment",
             data: { segmentId: segment }
           });
 
@@ -190,7 +190,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       let progress;
       let amountData;
 
-      if (item.metric === 'Value') {
+      if (item.metric === "Value") {
         // Your existing goals fetching logic
         const filteredGoals: Goal[] = await getFilteredGoals(item, amount);
 
@@ -199,7 +199,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         let totalAmount = 0;
 
         // Type for updated goals without filteredAmount
-        type GoalWithoutFilteredAmount = Omit<Goal, 'filteredAmount'>;
+        type GoalWithoutFilteredAmount = Omit<Goal, "filteredAmount">;
 
         const updatedGoals: GoalWithoutFilteredAmount[] = [];
 
@@ -209,8 +209,8 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
 
           // Calculate totalAmount for each goal
           for (const items of goal.filteredAmount) {
-            if (items.productsData && items.status === 'active') {
-              items.productsData.forEach((product) => {
+            if (items.productsData && items.status === "active") {
+              items.productsData.forEach(product => {
                 if (product.amount) {
                   goalTotalAmount += product.amount;
                 }
@@ -266,10 +266,10 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
           allGoals: Goal[]
         ): Goal[] {
           const updatedGoalsMap = new Map(
-            existingGoals.map((goal) => [goal._id, goal])
+            existingGoals.map(goal => [goal._id, goal])
           );
 
-          return allGoals.map((goal) => {
+          return allGoals.map(goal => {
             const existingGoal = updatedGoalsMap.get(goal._id);
 
             return {
@@ -300,11 +300,11 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
             }
           );
         } catch (error) {
-          console.error('Error updating goals:', error);
+          console.error("Error updating goals:", error);
         }
-      } else if (item.metric === 'Count') {
+      } else if (item.metric === "Count") {
         function calculateProgressAndCurrent(filteredGoals: Goal[]): Goal[] {
-          return filteredGoals.map((goal) => {
+          return filteredGoals.map(goal => {
             let current = 0;
 
             // Calculate total amount or count for each goal
@@ -331,10 +331,10 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
           specificPeriodGoals: Goal[]
         ): Goal[] {
           const updatedGoalsMap = new Map(
-            countUpdateGoal.map((goal) => [goal._id, goal])
+            countUpdateGoal.map(goal => [goal._id, goal])
           );
 
-          return specificPeriodGoals.map((goal) => {
+          return specificPeriodGoals.map(goal => {
             const updatedGoal = updatedGoalsMap.get(goal._id);
 
             return {
@@ -355,7 +355,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
             }
           );
         } catch (error) {
-          console.error('Error updating goals:', error);
+          console.error("Error updating goals:", error);
         }
       }
 
@@ -441,7 +441,7 @@ function filterAmountsForGoal(goal, amounts) {
     return [];
   }
 
-  return amounts.filter((entry) => {
+  return amounts.filter(entry => {
     const createdAt = new Date(entry.createdAt);
     return createdAt >= goalStartDate && createdAt <= goalEndDate;
   });
@@ -450,9 +450,9 @@ function filterAmountsForGoal(goal, amounts) {
 // Function to process specific period goals and filter associated amounts
 function getFilteredGoals(item, amounts) {
   return item.specificPeriodGoals
-    .map((goal) => ({
+    .map(goal => ({
       ...goal,
       filteredAmount: filterAmountsForGoal(goal, amounts)
     }))
-    .filter((goal) => goal.filteredAmount.length > 0); // Keep goals with at least one filtered amount
+    .filter(goal => goal.filteredAmount.length > 0); // Keep goals with at least one filtered amount
 }

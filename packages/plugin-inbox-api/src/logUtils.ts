@@ -5,69 +5,65 @@ import {
   LogDesc,
   IDescriptions,
   gatherNames,
-  getSchemaLabels,
-} from '@erxes/api-utils/src/logUtils';
-import {
-  sendCoreMessage,
-  sendFormsMessage,
-  sendTagsMessage,
-} from './messageBroker';
-import { LOG_MAPPINGS, MODULE_NAMES } from './constants';
-import { IModels } from './connectionResolver';
-import { collectConversations } from './receiveMessage';
-import { IChannelDocument } from './models/definitions/channels';
-import { IIntegrationDocument } from './models/definitions/integrations';
+  getSchemaLabels
+} from "@erxes/api-utils/src/logUtils";
+import { sendCoreMessage } from "./messageBroker";
+import { LOG_MAPPINGS, MODULE_NAMES } from "./constants";
+import { IModels } from "./connectionResolver";
+import { collectConversations } from "./receiveMessage";
+import { IChannelDocument } from "./models/definitions/channels";
+import { IIntegrationDocument } from "./models/definitions/integrations";
 
 const LOG_ACTIONS = {
-  CREATE: 'create',
-  UPDATE: 'update',
-  DELETE: 'delete',
+  CREATE: "create",
+  UPDATE: "update",
+  DELETE: "delete"
 };
 
 const findFromCore = async (
   subdomain: string,
   ids: string[],
-  collectionName: string,
+  collectionName: string
 ) => {
   return sendCoreMessage({
     subdomain,
     action: `${collectionName}.find`,
     data: {
-      query: { _id: { $in: ids } },
+      query: { _id: { $in: ids } }
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 };
 
 const findTags = async (subdomain: string, ids: string[]) => {
-  return sendTagsMessage({
+  return sendCoreMessage({
     subdomain,
-    action: 'find',
+    action: "tagFind",
     data: {
-      _id: { $in: ids },
+      _id: { $in: ids }
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 };
 
-const findForms = async (subdomain: string, ids: string[]) => {
-  return sendFormsMessage({
+const formsFind = async (subdomain: string, ids: string[]) => {
+  return sendCoreMessage({
     subdomain,
-    action: 'find',
+    action: "formsFind",
     data: {
-      query: { _id: { $in: ids } },
+      query: { _id: { $in: ids } }
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 };
 
 export const gatherIntegrationFieldNames = async (
   subdomain: string,
   doc: IIntegrationDocument,
-  prevList?: LogDesc[],
+  prevList?: LogDesc[]
 ) => {
   let options: LogDesc[] = [];
 
@@ -77,37 +73,37 @@ export const gatherIntegrationFieldNames = async (
 
   if (doc.createdUserId) {
     options = await gatherNames({
-      nameFields: ['email', 'username'],
-      foreignKey: 'createdUserId',
+      nameFields: ["email", "username"],
+      foreignKey: "createdUserId",
       prevList: options,
-      items: await findFromCore(subdomain, [doc.createdUserId], 'users'),
+      items: await findFromCore(subdomain, [doc.createdUserId], "users")
     });
   }
 
   if (doc.brandId) {
     options = await gatherNames({
-      foreignKey: 'brandId',
+      foreignKey: "brandId",
       prevList: options,
-      nameFields: ['name'],
-      items: await findFromCore(subdomain, [doc.brandId], 'brands'),
+      nameFields: ["name"],
+      items: await findFromCore(subdomain, [doc.brandId], "brands")
     });
   }
 
   if (doc.tagIds && doc.tagIds.length > 0) {
     options = await gatherNames({
-      foreignKey: 'tagIds',
+      foreignKey: "tagIds",
       prevList: options,
-      nameFields: ['name'],
-      items: await findTags(subdomain, doc.tagIds),
+      nameFields: ["name"],
+      items: await findTags(subdomain, doc.tagIds)
     });
   }
 
   if (doc.formId) {
     options = await gatherNames({
-      foreignKey: 'formId',
+      foreignKey: "formId",
       prevList: options,
-      nameFields: ['title'],
-      items: await findForms(subdomain, [doc.formId]),
+      nameFields: ["title"],
+      items: await formsFind(subdomain, [doc.formId])
     });
   }
 
@@ -118,7 +114,7 @@ export const gatherChannelFieldNames = async (
   models: IModels,
   subdomain: string,
   doc: IChannelDocument,
-  prevList?: LogDesc[],
+  prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -128,30 +124,30 @@ export const gatherChannelFieldNames = async (
 
   if (doc.userId) {
     options = await gatherNames({
-      nameFields: ['userId'],
-      foreignKey: 'userId',
+      nameFields: ["userId"],
+      foreignKey: "userId",
       prevList: options,
-      items: await findFromCore(subdomain, [doc.userId], 'users'),
+      items: await findFromCore(subdomain, [doc.userId], "users")
     });
   }
 
   if (doc.memberIds && doc.memberIds.length > 0) {
     options = await gatherNames({
-      nameFields: ['memberIds'],
-      foreignKey: 'memberIds',
+      nameFields: ["memberIds"],
+      foreignKey: "memberIds",
       prevList: options,
-      items: await findFromCore(subdomain, doc.memberIds, 'users'),
+      items: await findFromCore(subdomain, doc.memberIds, "users")
     });
   }
 
   if (doc.integrationIds && doc.integrationIds.length > 0) {
     options = await gatherNames({
-      foreignKey: 'integrationIds',
+      foreignKey: "integrationIds",
       prevList: options,
-      nameFields: ['name'],
+      nameFields: ["name"],
       items: await models.Integrations.findIntegrations({
-        _id: { $in: doc.integrationIds },
-      }),
+        _id: { $in: doc.integrationIds }
+      })
     });
   }
 
@@ -161,7 +157,7 @@ export const gatherChannelFieldNames = async (
 const gatherDescriptions = async (
   models: IModels,
   subdomain: string,
-  params: any,
+  params: any
 ): Promise<IDescriptions> => {
   const { action, type, object, updatedDocument } = params;
 
@@ -177,7 +173,7 @@ const gatherDescriptions = async (
           models,
           subdomain,
           updatedDocument,
-          extraDesc,
+          extraDesc
         );
       }
 
@@ -189,7 +185,7 @@ const gatherDescriptions = async (
         extraDesc = await gatherIntegrationFieldNames(
           subdomain,
           updatedDocument,
-          extraDesc,
+          extraDesc
         );
       }
 
@@ -211,9 +207,9 @@ const gatherDescriptions = async (
 
       if (brandIds.length > 0) {
         extraDesc = await gatherNames({
-          nameFields: ['name'],
-          foreignKey: 'brandId',
-          items: await findFromCore(subdomain, brandIds, 'brands'),
+          nameFields: ["name"],
+          foreignKey: "brandId",
+          items: await findFromCore(subdomain, brandIds, "brands")
         });
       }
 
@@ -229,21 +225,21 @@ export const putDeleteLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user,
+  user
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.DELETE,
-    },
+      action: LOG_ACTIONS.DELETE
+    }
   );
 
   await commonPutDeleteLog(
     subdomain,
     { ...logDoc, description, extraDesc, type: `inbox:${logDoc.type}` },
-    user,
+    user
   );
 };
 
@@ -251,21 +247,21 @@ export const putUpdateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user,
+  user
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.UPDATE,
-    },
+      action: LOG_ACTIONS.UPDATE
+    }
   );
 
   await commonPutUpdateLog(
     subdomain,
     { ...logDoc, description, extraDesc, type: `inbox:${logDoc.type}` },
-    user,
+    user
   );
 };
 
@@ -273,31 +269,31 @@ export const putCreateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user,
+  user
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.CREATE,
-    },
+      action: LOG_ACTIONS.CREATE
+    }
   );
 
   await commonPutCreateLog(
     subdomain,
     { ...logDoc, description, extraDesc, type: `inbox:${logDoc.type}` },
-    user,
+    user
   );
 };
 
 export default {
   collectItems: async ({ subdomain, data }) => ({
     data: await collectConversations(subdomain, data),
-    status: 'success',
+    status: "success"
   }),
   getSchemaLabels: ({ data: { type } }) => ({
-    status: 'success',
-    data: getSchemaLabels(type, LOG_MAPPINGS),
-  }),
+    status: "success",
+    data: getSchemaLabels(type, LOG_MAPPINGS)
+  })
 };

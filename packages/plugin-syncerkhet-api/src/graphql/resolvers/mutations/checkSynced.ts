@@ -1,9 +1,9 @@
-import { getConfig, sendCardInfo } from '../../../utils/utils';
-import { getPostData as getPostDataOrders } from '../../../utils/orders';
-import { getMoveData, getPostData } from '../../../utils/ebarimtData';
-import { generateModels, IContext } from '../../../connectionResolver';
-import { sendCardsMessage, sendPosMessage } from '../../../messageBroker';
-import { sendRPCMessage, sendTRPCMessage } from '../../../messageBrokerErkhet';
+import { getConfig, sendCardInfo } from "../../../utils/utils";
+import { getPostData as getPostDataOrders } from "../../../utils/orders";
+import { getMoveData, getPostData } from "../../../utils/ebarimtData";
+import { generateModels, IContext } from "../../../connectionResolver";
+import { sendPosMessage, sendSalesMessage } from "../../../messageBroker";
+import { sendRPCMessage, sendTRPCMessage } from "../../../messageBrokerErkhet";
 
 const checkSyncedMutations = {
   async toCheckSynced(
@@ -11,10 +11,10 @@ const checkSyncedMutations = {
     { ids }: { ids: string[] },
     { subdomain }: IContext
   ) {
-    const config = await getConfig(subdomain, 'ERKHET', {});
+    const config = await getConfig(subdomain, "ERKHET", {});
 
     if (!config.apiToken || !config.apiKey || !config.apiSecret) {
-      throw new Error('Erkhet config not found');
+      throw new Error("Erkhet config not found");
     }
 
     const postData = {
@@ -25,16 +25,16 @@ const checkSyncedMutations = {
     };
 
     const response = await sendTRPCMessage(
-      'rpc_queue:erxes-automation-erkhet',
+      "rpc_queue:erxes-automation-erkhet",
       {
-        action: 'check-order-synced',
+        action: "check-order-synced",
         payload: JSON.stringify(postData),
         thirdService: true
       }
     );
     const result = JSON.parse(response);
 
-    if (result.status === 'error') {
+    if (result.status === "error") {
       throw new Error(result.message);
     }
 
@@ -67,21 +67,21 @@ const checkSyncedMutations = {
       success: []
     };
 
-    const configs = await getConfig(subdomain, 'ebarimtConfig', {});
-    const moveConfigs = await getConfig(subdomain, 'stageInMoveConfig', {});
-    const mainConfig = await getConfig(subdomain, 'ERKHET', {});
+    const configs = await getConfig(subdomain, "ebarimtConfig", {});
+    const moveConfigs = await getConfig(subdomain, "stageInMoveConfig", {});
+    const mainConfig = await getConfig(subdomain, "ERKHET", {});
 
     const models = await generateModels(subdomain);
 
-    const deals = await sendCardsMessage({
+    const deals = await sendSalesMessage({
       subdomain,
-      action: 'deals.find',
+      action: "deals.find",
       data: { _id: { $in: dealIds } },
       isRPC: true
     });
 
     const syncLogDoc = {
-      contentType: 'cards:deal',
+      contentType: "sales:deal",
       createdAt: new Date(),
       createdBy: user._id
     };
@@ -105,9 +105,9 @@ const checkSyncedMutations = {
           const response = await sendRPCMessage(
             models,
             syncLog,
-            'rpc_queue:erxes-automation-erkhet',
+            "rpc_queue:erxes-automation-erkhet",
             {
-              action: 'get-response-send-order-info',
+              action: "get-response-send-order-info",
               isEbarimt: false,
               payload: JSON.stringify(postData),
               thirdService: true,
@@ -160,9 +160,9 @@ const checkSyncedMutations = {
           const response = await sendRPCMessage(
             models,
             syncLog,
-            'rpc_queue:erxes-automation-erkhet',
+            "rpc_queue:erxes-automation-erkhet",
             {
-              action: 'get-response-inv-movement-info',
+              action: "get-response-inv-movement-info",
               isEbarimt: false,
               payload: JSON.stringify(postData),
               thirdService: true,
@@ -215,7 +215,7 @@ const checkSyncedMutations = {
 
     const orders = await sendPosMessage({
       subdomain,
-      action: 'orders.find',
+      action: "orders.find",
       data: { _id: { $in: orderIds } },
       isRPC: true,
       defaultValue: []
@@ -225,7 +225,7 @@ const checkSyncedMutations = {
     const models = await generateModels(subdomain);
     const poss = await sendPosMessage({
       subdomain,
-      action: 'configs.find',
+      action: "configs.find",
       data: { token: { $in: posTokens } },
       isRPC: true,
       defaultValue: []
@@ -237,7 +237,7 @@ const checkSyncedMutations = {
     }
 
     const syncLogDoc = {
-      contentType: 'pos:order',
+      contentType: "pos:order",
       createdAt: new Date(),
       createdBy: user._id
     };
@@ -255,15 +255,15 @@ const checkSyncedMutations = {
         const postData = await getPostDataOrders(subdomain, pos, order);
         if (!postData) {
           result.skipped.push(order._id);
-          throw new Error('maybe, has not config');
+          throw new Error("maybe, has not config");
         }
 
         const response = await sendRPCMessage(
           models,
           syncLog,
-          'rpc_queue:erxes-automation-erkhet',
+          "rpc_queue:erxes-automation-erkhet",
           {
-            action: 'get-response-send-order-info',
+            action: "get-response-send-order-info",
             isEbarimt: false,
             payload: JSON.stringify(postData),
             thirdService: true,
@@ -279,7 +279,7 @@ const checkSyncedMutations = {
 
           await sendPosMessage({
             subdomain,
-            action: 'orders.updateOne',
+            action: "orders.updateOne",
             data: {
               selector: { _id: order._id },
               modifier: {

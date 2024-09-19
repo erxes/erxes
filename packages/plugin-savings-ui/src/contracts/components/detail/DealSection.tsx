@@ -1,11 +1,11 @@
-import React from 'react';
-import { IContract } from '../../types';
-import { gql } from '@apollo/client';
-import { queries } from '@erxes/ui-cards/src/deals/graphql';
-import Items from '@erxes/ui-cards/src/boards/components/portable/Items';
-import options from '@erxes/ui-cards/src/deals/options';
-import { IDeal } from '@erxes/ui-cards/src/deals/types';
-import { useQuery } from '@apollo/client';
+import React from "react";
+import { IContract } from "../../types";
+import { gql } from "@apollo/client";
+import { queries } from "@erxes/ui-sales/src/deals/graphql";
+import Items from "@erxes/ui-sales/src/boards/components/portable/Items";
+import options from "@erxes/ui-sales/src/deals/options";
+import { IDeal } from "@erxes/ui-sales/src/deals/types";
+import { useQuery } from "@apollo/client";
 
 interface Props {
   contract: IContract;
@@ -13,11 +13,11 @@ interface Props {
 
 function DealSection(props: Props) {
   const onChange: any = () => {
-    console.log('onChange');
+    console.log("onChange");
   };
 
   const dealsData = useQuery(gql(queries.deals), {
-    variables: { _ids: [props.contract.dealId] },
+    variables: { _ids: [props.contract.dealId] }
   });
 
   return (

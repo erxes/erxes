@@ -11,8 +11,8 @@ type Props = {
   id: string;
   mainType: string;
 };
-const getContentType = (mainType) => {
-  if (mainType === "customer") return "contacts:customer";
+const getContentType = mainType => {
+  if (mainType === "customer") return "core:customer";
   if (mainType.includes(":")) return mainType;
   return `default:${mainType}`;
 };
@@ -21,18 +21,18 @@ const CustomerSidebarContainer = (props: Props) => {
   const detail = useQuery(gql(queries.detail), {
     variables: {
       contentTypeId: props.id,
-      contentType,
+      contentType
     },
-    fetchPolicy: "network-only",
+    fetchPolicy: "network-only"
   });
 
   const serviceChoosen = useQuery(gql(queries.serviceChoosen), {
-    fetchPolicy: "network-only",
+    fetchPolicy: "network-only"
   });
 
   const xypServiceList = useQuery(gql(queries.xypServiceList), {});
   const [xypRequest] = useLazyQuery(gql(queries.xypRequest), {
-    fetchPolicy: "network-only",
+    fetchPolicy: "network-only"
   });
 
   const [add] = useMutation(gql(mutations.add));
@@ -45,24 +45,24 @@ const CustomerSidebarContainer = (props: Props) => {
     xypRequest({
       variables: {
         wsOperationName: operation.wsOperationName,
-        params,
-      },
+        params
+      }
     }).then(({ data }) => {
       if (data?.xypRequest?.return?.resultCode === 0) {
         const xypData = [
           {
             serviceName: operation.wsOperationName,
             serviceDescription: operation.wsOperationDetail,
-            data: data?.xypRequest?.return?.response,
-          },
+            data: data?.xypRequest?.return?.response
+          }
         ];
         if (!detail?.data?.xypDataDetail) {
           add({
             variables: {
               contentType,
               contentTypeId: props.id,
-              data: xypData,
-            },
+              data: xypData
+            }
           }).then(({ data }) => {
             detail.refetch();
             if (data.xypDataAdd?._id) {
@@ -73,7 +73,7 @@ const CustomerSidebarContainer = (props: Props) => {
           });
         } else {
           const unique = detail?.data?.xypDataDetail.data.filter(
-            (d) => d.serviceName !== operation.wsOperationName
+            d => d.serviceName !== operation.wsOperationName
           );
           edit({
             variables: {
@@ -81,8 +81,8 @@ const CustomerSidebarContainer = (props: Props) => {
               contentType,
               contentTypeId: props.id,
               customerID: props.id,
-              data: [...unique, ...xypData],
-            },
+              data: [...unique, ...xypData]
+            }
           }).then(({ data }) => {
             detail.refetch();
             if (data.xypDataUpdate?._id) {
@@ -99,7 +99,7 @@ const CustomerSidebarContainer = (props: Props) => {
   };
   const convertToProperty = () => {
     xypConvertToCustomeFields({
-      variables: { id: props.id },
+      variables: { id: props.id }
     })
       .then(({ data }) => {
         if (data?.xypConvertToCustomeFields === "ok") {
@@ -108,7 +108,7 @@ const CustomerSidebarContainer = (props: Props) => {
           Alert.error("error");
         }
       })
-      .catch((e) => {
+      .catch(e => {
         console.log(e);
         Alert.error("error");
       });
@@ -127,8 +127,8 @@ const CustomerSidebarContainer = (props: Props) => {
     serviceChoosenLoading: serviceChoosen.loading,
     list: serviceChoosen?.data?.xypServiceListChoosen,
     convertToProperty: convertToProperty,
-    showConvertButton: contentType === "contacts:customer",
-    fetchData,
+    showConvertButton: contentType === "core:customer",
+    fetchData
   };
 
   return <CustomerSidebar {...updatedProps} />;

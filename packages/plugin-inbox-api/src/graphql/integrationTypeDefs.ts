@@ -1,13 +1,8 @@
-export const types = ({ products, tags, forms }) => `
-  ${forms
-    ? `
-      extend type Form @key(fields: "_id") {
-        _id: String! @external
-      }
-    `
-    : ''
+export const types = `
+  extend type Form @key(fields: "_id") {
+    _id: String! @external
   }
-
+    
   input InputRule {
     _id : String!,
     kind: String!,
@@ -27,9 +22,8 @@ export const types = ({ products, tags, forms }) => `
     tagIds: [String]
     createdAt: Date
 
-    ${tags ? `tags: [Tag]` : ''}
-    
-    leadData: JSON
+    tags: [Tag]
+  
     messengerData: JSON
     uiOptions: JSON
     isActive: Boolean
@@ -38,7 +32,7 @@ export const types = ({ products, tags, forms }) => `
 
     brand: Brand
 
-    ${forms ? `form: Form` : ''}
+    form: Form
     channels: [Channel]
 
     websiteMessengerApps: [MessengerApp]
@@ -46,38 +40,10 @@ export const types = ({ products, tags, forms }) => `
     leadMessengerApps: [MessengerApp]
     healthStatus: JSON
 
-    bookingData: BookingData
-
     visibility: String
     departmentIds: [String]
 
     details: JSON
-  }
-
-  type BookingData {
-    name: String
-    image: Attachment
- 
-    description: String
-    userFilters: [String]
-    productCategoryId: String
-
-    style: JSON
-    displayBlock: JSON
-    viewCount: Int
-
-    categoryTree: JSON
-
-    ${products
-    ? `
-        mainProductCategory: ProductCategory
-      `
-    : ''
-  }
-
-    navigationText: String
-    bookingFormText: String
-    productFieldIds: [String]
   }
 
   type integrationsTotalCount {
@@ -92,57 +58,6 @@ export const types = ({ products, tags, forms }) => `
   type integrationsGetUsedTypes {
     _id: String
     name: String
-  }
-
-  input IntegrationLeadData {
-    loadType: String
-    successAction: String
-    fromEmail: String,
-    userEmailTitle: String
-    userEmailContent: String
-    adminEmails: [String]
-    adminEmailTitle: String
-    adminEmailContent: String
-    thankTitle: String
-    thankContent: String
-    redirectUrl: String
-    themeColor: String
-    callout: JSON,
-    rules: [InputRule]
-    isRequireOnce: Boolean
-    saveAsCustomer: Boolean
-    templateId: String
-    attachments: [AttachmentInput]
-    css: String
-    successImage: String
-    successImageSize: String
-    verifyEmail: Boolean
-  }
-
-  input BookingStyleInput {
-    itemShape: String
-    widgetColor: String
-
-    productAvailable: String
-    baseFont: String
-
-    line: String
-    rows: Int
-    columns: Int
-    margin: Int
-  }
-
-  input IntegrationBookingData {
-    name: String
-    description: String
-    image: AttachmentInput
-    style: BookingStyleInput
-   
-    productCategoryId: String
-
-    navigationText: String
-    bookingFormText: String
-    productFieldIds: [String]
   }
 
   input MessengerOnlineHoursSchema {
@@ -260,27 +175,6 @@ export const mutations = `
     _id: String!,
     messengerData: IntegrationMessengerData): Integration
 
-  integrationsCreateLeadIntegration(
-    name: String!,
-    brandId: String!,
-    channelIds: [String]
-    visibility: String,
-    departmentIds: [String],
-    languageCode: String,
-    formId: String!,
-    leadData: IntegrationLeadData!): Integration
-
-  integrationsEditLeadIntegration(
-    _id: String!
-    name: String!,
-    brandId: String!,
-    visibility: String,
-    departmentIds: [String],
-    channelIds: [String]
-    languageCode: String,
-    formId: String!,
-    leadData: IntegrationLeadData!): Integration
-
   integrationsCreateExternalIntegration(
     kind: String!,
     name: String!,
@@ -299,26 +193,17 @@ export const mutations = `
 
   integrationsSendSms(integrationId: String!, content: String!, to: String!): JSON
 
-  integrationsCopyLeadIntegration(_id: String!): Integration
-
-  integrationsCreateBookingIntegration(
-    name: String!
-    brandId: String!
+  integrationsCreateLeadIntegration(
+    name: String!,
+    brandId: String!,
     channelIds: [String]
-    languageCode: String
-    formId: String
-    leadData: IntegrationLeadData
-    bookingData: IntegrationBookingData
-  ): Integration
+    ): Integration
 
-  integrationsEditBookingIntegration(
+  integrationsEditLeadIntegration(
     _id: String!
-    name: String!
-    brandId: String!
+    name: String!,
+    brandId: String!,
     channelIds: [String]
-    languageCode: String
-    formId: String
-    leadData: IntegrationLeadData
-    bookingData: IntegrationBookingData
   ): Integration
+  integrationsCopyLeadIntegration(_id: String!): Integration
 `;

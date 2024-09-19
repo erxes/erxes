@@ -3,9 +3,7 @@ import { ruleSchema } from '@erxes/api-utils/src/definitions/common';
 import { channelSchema } from './models/definitions/channels';
 import { responseTemplateSchema } from './models/definitions/responseTemplates';
 import {
-  calloutSchema,
   integrationSchema,
-  leadDataSchema,
 } from './models/definitions/integrations';
 
 export const MODULE_NAMES = {
@@ -28,7 +26,7 @@ export const LOG_MAPPINGS = [
   },
   {
     name: MODULE_NAMES.INTEGRATION,
-    schemas: [calloutSchema, integrationSchema, leadDataSchema, ruleSchema],
+    schemas: [integrationSchema, ruleSchema],
   },
 ];
 

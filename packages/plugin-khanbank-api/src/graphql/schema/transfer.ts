@@ -6,13 +6,13 @@ export const types = `
     systemDate: String
   }
 
-  enum TransferType {
+  enum KhanbankTransferType {
     domestic
     interbank
   }
 
-  input TransferInput {
-    type: TransferType!
+  input KhanbankTransferInput {
+    type: KhanbankTransferType!
     fromAccount: String!
     toAccount: String!
     amount: Float!
@@ -29,5 +29,5 @@ export const types = `
 
 // TODO: Replace mutation return type with KhanbankTransferResult after testing. Not tested yet because of lack of credentials.
 export const mutations = `
-  khanbankTransfer(configId: String!, transfer: TransferInput): JSON
+  khanbankTransfer(configId: String!, transfer: KhanbankTransferInput): JSON
 `;

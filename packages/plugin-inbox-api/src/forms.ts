@@ -1,12 +1,12 @@
-import { generateFieldsFromSchema } from '@erxes/api-utils/src';
-import { generateModels, IModels } from './connectionResolver';
-import { CONVERSATION_INFO } from './constants';
-import { sendCoreMessage, sendTagsMessage } from './messageBroker';
+import { generateFieldsFromSchema } from "@erxes/api-utils/src";
+import { generateModels, IModels } from "./connectionResolver";
+import { CONVERSATION_INFO } from "./constants";
+import { sendCoreMessage } from "./messageBroker";
 
 const getTags = async (subdomain: string) => {
-  const tags = await sendTagsMessage({
+  const tags = await sendCoreMessage({
     subdomain,
-    action: 'find',
+    action: "tagFind",
     data: {
       type: `inbox:conversation`
     },
@@ -25,9 +25,9 @@ const getTags = async (subdomain: string) => {
 
   return {
     _id: Math.random(),
-    name: 'tagIds',
-    label: 'Tag',
-    type: 'tag',
+    name: "tagIds",
+    label: "Tag",
+    type: "tag",
     selectOptions
   };
 };
@@ -37,16 +37,16 @@ const getIntegrations = async (models: IModels) => {
     {
       $project: {
         _id: 0,
-        label: '$name',
-        value: '$_id'
+        label: "$name",
+        value: "$_id"
       }
     }
   ]);
 
   return {
     _id: Math.random(),
-    name: 'integrationId',
-    label: 'Integration',
+    name: "integrationId",
+    label: "Integration",
     selectOptions
   };
 };
@@ -59,7 +59,7 @@ const generateUsersOptions = async (
 ) => {
   const users = await sendCoreMessage({
     subdomain,
-    action: 'users.find',
+    action: "users.find",
     data: {
       query: {}
     },
@@ -68,7 +68,7 @@ const generateUsersOptions = async (
 
   const options: Array<{ label: string; value: any }> = users.map(user => ({
     value: user._id,
-    label: user.username || user.email || ''
+    label: user.username || user.email || ""
   }));
 
   return {
@@ -96,7 +96,7 @@ const generateFields = async ({ subdomain }) => {
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 
-  fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
+  fields = [...fields, ...(await generateFieldsFromSchema(schema, ""))];
 
   for (const name of Object.keys(schema.paths)) {
     const path = schema.paths[name];
@@ -116,23 +116,23 @@ const generateFields = async ({ subdomain }) => {
   fields = [...fields, tags, integrations];
 
   const assignedUserOptions = await generateUsersOptions(
-    'assignedUserId',
-    'Assigned to',
-    'user',
+    "assignedUserId",
+    "Assigned to",
+    "user",
     subdomain
   );
 
   const participatedUserOptions = await generateUsersOptions(
-    'participatedUserIds',
-    'Participating team member',
-    'user',
+    "participatedUserIds",
+    "Participating team member",
+    "user",
     subdomain
   );
 
   const closedUserOptions = await generateUsersOptions(
-    'closedUserId',
-    'Resolved by',
-    'user',
+    "closedUserId",
+    "Resolved by",
+    "user",
     subdomain
   );
 
@@ -147,8 +147,8 @@ const generateFields = async ({ subdomain }) => {
 export default {
   types: [
     {
-      description: 'Conversation details',
-      type: 'conversation'
+      description: "Conversation details",
+      type: "conversation"
     }
   ],
   fields: generateFields,

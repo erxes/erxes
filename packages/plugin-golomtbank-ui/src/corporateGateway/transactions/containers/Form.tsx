@@ -15,27 +15,27 @@ type Props = {
 
 const TransactionFormContainer = (props: Props) => {
   const [transferMutation] = useMutation(gql(mutations.transferMutation), {
-    refetchQueries: getRefetchQueries(props.configId, props.accountNumber),
+    refetchQueries: getRefetchQueries(props.configId, props.accountNumber)
   });
   const submit = (transfer: IGolomtBankTransactionInput) => {
     transferMutation({
       variables: {
         transfer: transfer,
-        configId: props.configId,
-      },
+        configId: props.configId
+      }
     })
       .then(() => {
         props.closeModal();
         window.location.reload();
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
 
   const updatedProps = {
     ...props,
-    submit,
+    submit
   };
 
   return <TransactionForm {...updatedProps} />;
@@ -47,9 +47,9 @@ const getRefetchQueries = (configId?: string, accountNumber?: string) => {
       query: gql(queries.transactionsQuery),
       variables: {
         accountId: accountNumber,
-        configId: configId,
-      },
-    },
+        configId: configId
+      }
+    }
   ];
 };
 

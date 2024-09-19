@@ -22,7 +22,7 @@ const ConfigForm = (props: Props) => {
     IGolomtBankConfigsItem | undefined
   >(
     config && {
-      ...config,
+      ...config
     }
   );
 
@@ -46,11 +46,11 @@ const ConfigForm = (props: Props) => {
       finalValues.apiUrl = configObject.apiUrl;
     }
     return {
-      ...finalValues,
+      ...finalValues
     };
   };
 
-  const onChangeInput = (e) => {
+  const onChangeInput = e => {
     const { id, value } = e.target;
 
     const obj: any = configObject || {};
@@ -163,7 +163,7 @@ const ConfigForm = (props: Props) => {
             values: generateDoc(),
             isSubmitted,
             callback: closeModal,
-            object: config,
+            object: config
           })}
         </ModalFooter>
       </>

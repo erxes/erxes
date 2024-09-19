@@ -20,6 +20,11 @@ import { getUserActionsMap } from '@erxes/api-utils/src';
 export default {
   __resolveReference: async ({ _id }, { models }: IContext) => {
     const user = await models.Users.findOne({ _id });
+    
+    if (!user) {
+      return null;
+    }
+
     return user;
   },
 

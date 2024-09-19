@@ -16,9 +16,11 @@ import Tip from "modules/common/components/Tip";
 import dayjs from "dayjs";
 import queryString from "query-string";
 import { renderText } from "modules/settings/importExport/utils";
+import { IImportHistory } from "../../../types";
+import { IUser } from 'modules/auth/types';
 
 type Props = {
-  history?: any;
+  history: IImportHistory;
   removeHistory: (historyId: string, contentType: string) => void;
 };
 
@@ -182,8 +184,8 @@ class HistoryRow extends React.Component<Props> {
   render() {
     const { history } = this.props;
 
-    const { user = {} } = history;
-    const { details = {} } = user || {};
+    const { user = {} as IUser } = history;
+    const { details = {} } = user;
 
     const renderValue = (value) => {
       if (!value || value === 0) {

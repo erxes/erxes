@@ -9,13 +9,13 @@ import { withProps } from "@erxes/ui/src/utils";
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
 import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
 import { queries as companyQueries } from "@erxes/ui-contacts/src/companies/graphql";
-import { queries as dealQueries } from "@erxes/ui-cards/src/deals/graphql";
+import { queries as dealQueries } from "@erxes/ui-sales/src/deals/graphql";
 
 import { IMeeting, RemoveMutationResponse } from "../../../types";
 import { mutations } from "../../../graphql";
 import { MeetingForm } from "../../../components/myCalendar/meeting/Form";
 import { CompaniesQueryResponse } from "@erxes/ui-contacts/src/companies/types";
-import { DealsQueryResponse } from "@erxes/ui-cards/src/deals/types";
+import { DealsQueryResponse } from "@erxes/ui-sales/src/deals/types";
 
 type Props = {
   queryParams: any;
@@ -43,13 +43,13 @@ const MeetingFormContainer = (props: FinalProps) => {
     values,
     isSubmitted,
     callback,
-    object,
+    object
   }: IButtonMutateProps) => {
     values.title =
       values?.title ||
       (companiesQuery &&
         companiesQuery.companies &&
-        companiesQuery.companies.find((c) => c._id === values?.companyId)
+        companiesQuery.companies.find(c => c._id === values?.companyId)
           ?.primaryName) ||
       "";
     return (
@@ -69,7 +69,7 @@ const MeetingFormContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    renderButton,
+    renderButton
   };
 
   if (
@@ -85,13 +85,13 @@ export default withProps<Props>(
   compose(
     graphql(gql(companyQueries.companies), {
       name: "companiesQuery",
-      options: () => ({}),
+      options: () => ({})
     }),
     graphql(gql(dealQueries.deals), {
       name: "dealsQuery",
       options: () => ({
-        fetchPolicy: "network-only",
-      }),
+        fetchPolicy: "network-only"
+      })
     })
   )(withCurrentUser(MeetingFormContainer))
 );

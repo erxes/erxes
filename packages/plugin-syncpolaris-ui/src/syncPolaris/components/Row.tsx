@@ -8,13 +8,13 @@ type Props = {
 };
 
 function CustomerRow({ item, toggleBulk, isChecked, type }: Props) {
-  const onChange = (e) => {
+  const onChange = e => {
     if (toggleBulk) {
       toggleBulk(item, e.target.checked);
     }
   };
 
-  const onClick = (e) => {
+  const onClick = e => {
     e.stopPropagation();
   };
 
@@ -27,12 +27,10 @@ function CustomerRow({ item, toggleBulk, isChecked, type }: Props) {
           onChange={onChange}
         />
       </td>
-      <td>{type === "contacts:customer" ? item?.code : item?.number}</td>
-      <td>{type === "contacts:customer" ? item?.lastName : item?.status}</td>
-      <td>
-        {type === "contacts:customer" ? item?.firstName : item?.startDate}
-      </td>
-      <td>{type === "contacts:customer" ? item?.phones : item?.endDate}</td>
+      <td>{type === "core:customer" ? item?.code : item?.number}</td>
+      <td>{type === "core:customer" ? item?.lastName : item?.status}</td>
+      <td>{type === "core:customer" ? item?.firstName : item?.startDate}</td>
+      <td>{type === "core:customer" ? item?.phones : item?.endDate}</td>
     </tr>
   );
 }

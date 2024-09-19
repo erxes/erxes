@@ -1,14 +1,14 @@
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { ISegment, ITrigger } from '../../types';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import SegmentsForm from '../../components/form/SegmentsForm';
-import { mutations, queries } from '../../graphql';
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { ISegment, ITrigger } from "../../types";
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { withProps } from "@erxes/ui/src/utils";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import SegmentsForm from "../../components/form/SegmentsForm";
+import { mutations, queries } from "../../graphql";
 import {
   AddMutationResponse,
   EditMutationResponse,
@@ -17,7 +17,7 @@ import {
   ISegmentCondition,
   SegmentDetailQueryResponse,
   SegmentsQueryResponse
-} from '../../types';
+} from "../../types";
 
 type Props = {
   contentType: string;
@@ -29,8 +29,8 @@ type Props = {
   filterContent?: (values: any) => void;
   afterSave?: () => void;
   hideDetailForm?: boolean;
-  serviceConfig?:any
-  segmentData?:ISegment
+  serviceConfig?: any;
+  segmentData?: ISegment;
 };
 
 type FinalProps = {
@@ -64,13 +64,8 @@ class SegmentsFormContainer extends React.Component<
     object,
     text
   }: IButtonMutateProps) => {
-    const {
-      contentType,
-      history,
-      addConfig,
-      activeTrigger,
-      closeModal
-    } = this.props;
+    const { contentType, history, addConfig, activeTrigger, closeModal } =
+      this.props;
 
     const callBackResponse = data => {
       if (history) {
@@ -103,7 +98,7 @@ class SegmentsFormContainer extends React.Component<
         type="submit"
         successMessage={`Success`}
       >
-        {text || 'Save'}
+        {text || "Save"}
       </ButtonMutate>
     );
   };
@@ -133,7 +128,7 @@ class SegmentsFormContainer extends React.Component<
           config,
           conditionsConjunction
         },
-        fetchPolicy: 'network-only'
+        fetchPolicy: "network-only"
       })
       .then(({ data }) => {
         this.setState({
@@ -166,23 +161,20 @@ class SegmentsFormContainer extends React.Component<
     const segments = segmentsQuery.segments || [];
     const isModal = history ? false : true;
 
-    const getSegment = () =>{
-
+    const getSegment = () => {
       if (!segment && segmentData) {
         return { ...segmentData, subSegmentConditions: [segmentData] };
       }
-      return segment
-    }
+      return segment;
+    };
 
     const updatedProps = {
       ...this.props,
-      segment:getSegment(),
-      headSegments: headSegments.filter((s) =>
+      segment: getSegment(),
+      headSegments: headSegments.filter(s =>
         s.contentType === contentType && segment ? s._id !== segment._id : true
       ),
-      segments: segments.filter((s) =>
-        segment ? s._id !== segment._id : true
-      ),
+      segments: segments.filter(s => (segment ? s._id !== segment._id : true)),
       events,
       renderButton: this.renderButton,
       previewCount: this.previewCount,
@@ -202,9 +194,9 @@ export default withProps<Props>(
     graphql<Props, SegmentDetailQueryResponse, { _id?: string }>(
       gql(queries.segmentDetail),
       {
-        name: 'segmentDetailQuery',
+        name: "segmentDetailQuery",
         options: ({ id }) => ({
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
           variables: { _id: id }
         })
       }
@@ -212,7 +204,7 @@ export default withProps<Props>(
     graphql<Props, HeadSegmentsQueryResponse, { contentType: string }>(
       gql(queries.headSegments),
       {
-        name: 'headSegmentsQuery',
+        name: "headSegmentsQuery",
         options: ({ contentType }) => ({
           variables: { contentType }
         })
@@ -221,16 +213,16 @@ export default withProps<Props>(
     graphql<Props, SegmentsQueryResponse, { contentTypes: string[] }>(
       gql(queries.segments),
       {
-        name: 'segmentsQuery',
+        name: "segmentsQuery",
         options: ({ contentType }) => ({
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
           variables: { contentTypes: [contentType] }
         })
       }
     ),
 
     graphql<Props>(gql(queries.events), {
-      name: 'eventsQuery',
+      name: "eventsQuery",
       options: ({ contentType }) => ({
         variables: { contentType }
       })

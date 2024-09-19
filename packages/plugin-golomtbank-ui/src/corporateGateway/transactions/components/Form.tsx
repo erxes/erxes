@@ -61,7 +61,7 @@ const TransactionForm = (props: Props) => {
             onChange={(e: any) => setType(e.target.value)}
           >
             <option value="">Select type</option>
-            {TRANSACTION_TYPES.map((transctionType) => (
+            {TRANSACTION_TYPES.map(transctionType => (
               <option key={transctionType.value} value={transctionType.value}>
                 {transctionType.label}
               </option>
@@ -107,7 +107,7 @@ const TransactionForm = (props: Props) => {
             onChange={(e: any) => setToBank(e.target.value)}
           >
             <option value=""> Select receive bank</option>
-            {BANK_CODES.map((bank) => (
+            {BANK_CODES.map(bank => (
               <option key={bank.value} value={bank.value}>
                 {bank.label}
               </option>
@@ -180,7 +180,7 @@ const TransactionForm = (props: Props) => {
                 fromCurrency,
                 amount,
                 refCode,
-                type,
+                type
               });
             }}
           >

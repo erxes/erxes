@@ -1,8 +1,8 @@
-import * as _ from 'underscore';
-import redis from './redis';
-import { IUserDocument } from './types';
-import { isEnabled } from './serviceDiscovery';
-import { sendMessage, consumeRPCQueue } from './messageBroker';
+import * as _ from "underscore";
+import redis from "./redis";
+import { IUserDocument } from "./types";
+import { isEnabled } from "./serviceDiscovery";
+import { sendMessage,  } from "./messageBroker";
 
 export interface ILogDataParams {
   type: string;
@@ -61,7 +61,7 @@ export const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
 
   for (const item of items) {
     if (item && item._id) {
-      let name: string = '';
+      let name: string = "";
 
       for (const n of nameFields) {
         // first level field
@@ -80,15 +80,15 @@ export const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
 };
 
 export const gatherUsernames = async (
-  params: ILogNameParams,
+  params: ILogNameParams
 ): Promise<LogDesc[]> => {
   const { foreignKey, prevList, items = [] } = params;
 
   return gatherNames({
     foreignKey,
     prevList,
-    nameFields: ['email', 'username'],
-    items,
+    nameFields: ["email", "username"],
+    items
   });
 };
 
@@ -97,9 +97,9 @@ interface IFinalLogParams extends ILogDataParams {
 }
 
 export const LOG_ACTIONS = {
-  CREATE: 'create',
-  UPDATE: 'update',
-  DELETE: 'delete',
+  CREATE: "create",
+  UPDATE: "update",
+  DELETE: "delete"
 };
 
 export type LogDesc = {
@@ -109,30 +109,30 @@ export type LogDesc = {
 export const putCreateLog = async (
   subdomain: string,
   params: ILogDataParams,
-  user: IUserDocument,
+  user: IUserDocument
 ) => {
-  const isAutomationsAvailable = await isEnabled('automations');
+  const isAutomationsAvailable = await isEnabled("automations");
 
   if (isAutomationsAvailable) {
-    sendMessage('automations:trigger', {
+    sendMessage("automations:trigger", {
       subdomain,
       data: {
         type: `${params.type}`,
-        targets: [params.object],
-      },
+        targets: [params.object]
+      }
     });
   }
 
-  const isWebhooksAvailable = await isEnabled('webhooks');
+  const isWebhooksAvailable = await isEnabled("webhooks");
 
   if (isWebhooksAvailable) {
-    sendMessage('webhooks:send', {
+    sendMessage("webhooks:send", {
       subdomain,
       data: {
         action: LOG_ACTIONS.CREATE,
         type: params.type,
-        params,
-      },
+        params
+      }
     });
   }
 
@@ -147,30 +147,30 @@ export const putCreateLog = async (
 export const putUpdateLog = async (
   subdomain: string,
   params: ILogDataParams,
-  user: IUserDocument,
+  user: IUserDocument
 ) => {
-  const isAutomationsAvailable = await isEnabled('automations');
+  const isAutomationsAvailable = await isEnabled("automations");
 
   if (isAutomationsAvailable) {
-    sendMessage('automations:trigger', {
+    sendMessage("automations:trigger", {
       subdomain,
       data: {
         type: `${params.type}`,
-        targets: [params.updatedDocument],
-      },
+        targets: [params.updatedDocument]
+      }
     });
   }
 
-  const isWebhooksAvailable = await isEnabled('webhooks');
+  const isWebhooksAvailable = await isEnabled("webhooks");
 
   if (isWebhooksAvailable) {
-    sendMessage('webhooks:send', {
+    sendMessage("webhooks:send", {
       subdomain,
       data: {
         action: LOG_ACTIONS.UPDATE,
         type: params.type,
-        params,
-      },
+        params
+      }
     });
   }
 
@@ -185,18 +185,18 @@ export const putUpdateLog = async (
 export const putDeleteLog = async (
   subdomain: string,
   params: ILogDataParams,
-  user: IUserDocument,
+  user: IUserDocument
 ) => {
-  const isWebhooksAvailable = await isEnabled('webhooks');
+  const isWebhooksAvailable = await isEnabled("webhooks");
 
   if (isWebhooksAvailable) {
-    sendMessage('webhooks:send', {
+    sendMessage("webhooks:send", {
       subdomain,
       data: {
         action: LOG_ACTIONS.DELETE,
         type: params.type,
-        params,
-      },
+        params
+      }
     });
   }
 
@@ -206,10 +206,10 @@ export const putDeleteLog = async (
 const putLog = async (
   subdomain: string,
   params: IFinalLogParams,
-  user: IUserDocument,
+  user: IUserDocument
 ) => {
-  const value = await redis.get('afterMutations');
-  const afterMutations = JSON.parse(value || '{}');
+  const value = await redis.get("afterMutations");
+  const afterMutations = JSON.parse(value || "{}");
 
   if (
     afterMutations[params.type] &&
@@ -224,19 +224,13 @@ const putLog = async (
           object: params.object,
           newData: params.newData,
           extraDesc: params.extraDesc,
-          user,
-        },
+          user
+        }
       });
     }
   }
 
-  const isLoggerAvailable = await isEnabled('logs');
-
-  if (!isLoggerAvailable) {
-    return;
-  }
-
-  return sendMessage('putLog', {
+  return sendMessage("putLog", {
     subdomain,
     data: {
       ...params,
@@ -244,8 +238,8 @@ const putLog = async (
       unicode: user.username || user.email || user._id,
       object: JSON.stringify(params.object),
       newData: JSON.stringify(params.newData),
-      extraDesc: JSON.stringify(params.extraDesc),
-    },
+      extraDesc: JSON.stringify(params.extraDesc)
+    }
   });
 };
 
@@ -292,7 +286,7 @@ const buildLabelList = (obj = {}): INameLabel[] => {
 
   for (const name of fieldNames) {
     const field: any = obj[name];
-    const label: string = field && field.label ? field.label : '';
+    const label: string = field && field.label ? field.label : "";
 
     list.push({ name, label });
   }
@@ -304,7 +298,7 @@ export const getSchemaLabels = (type: string, schemaMappings: ISchemaMap[]) => {
   let fieldNames: INameLabel[] = [];
 
   const found: ISchemaMap | undefined = schemaMappings.find(
-    (m) => m.name === type,
+    m => m.name === type
   );
 
   if (found) {
@@ -322,7 +316,7 @@ export const getSchemaLabels = (type: string, schemaMappings: ISchemaMap[]) => {
         }
 
         // nested object field names
-        if (typeof field === 'object' && field.type && field.type.obj) {
+        if (typeof field === "object" && field.type && field.type.obj) {
           fieldNames = fieldNames.concat(buildLabelList(field.type.obj));
         }
       }
@@ -330,57 +324,4 @@ export const getSchemaLabels = (type: string, schemaMappings: ISchemaMap[]) => {
   } // end schema name mapping
 
   return fieldNames;
-};
-
-export const logConsumers = (params: {
-  name;
-  getActivityContent?;
-  getContentTypeDetail?;
-  collectItems?;
-  getContentIds?;
-  getSchemalabels?;
-}) => {
-  const {
-    name,
-    getActivityContent,
-    getContentTypeDetail,
-    collectItems,
-    getContentIds,
-    getSchemalabels,
-  } = params;
-
-  if (getActivityContent) {
-    consumeRPCQueue(`${name}:logs.getActivityContent`, async (args) => ({
-      status: 'success',
-      data: await getActivityContent(args),
-    }));
-  }
-
-  if (getContentTypeDetail) {
-    consumeRPCQueue(`${name}:logs.getContentTypeDetail`, async (args) => ({
-      status: 'success',
-      data: await getContentTypeDetail(args),
-    }));
-  }
-
-  if (collectItems) {
-    consumeRPCQueue(`${name}:logs.collectItems`, async (args) => ({
-      status: 'success',
-      data: await collectItems(args),
-    }));
-  }
-
-  if (getContentIds) {
-    consumeRPCQueue(`${name}:logs.getContentIds`, async (args) => ({
-      status: 'success',
-      data: await getContentIds(args),
-    }));
-  }
-
-  if (getSchemalabels) {
-    consumeRPCQueue(`${name}:logs.getSchemaLabels`, (args) => ({
-      status: 'success',
-      data: getSchemalabels(args),
-    }));
-  }
 };

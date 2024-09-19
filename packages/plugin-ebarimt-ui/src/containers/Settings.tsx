@@ -1,13 +1,13 @@
-import { Alert } from '@erxes/ui/src/utils';
-import { ConfigsQueryResponse, IConfig, IConfigsMap } from '../types';
-import { mutations, queries } from '../graphql';
+import { Alert } from "@erxes/ui/src/utils";
+import { ConfigsQueryResponse, IConfig, IConfigsMap } from "../types";
+import { mutations, queries } from "../graphql";
 
-import React from 'react';
-import { Spinner } from '@erxes/ui/src/components';
-import { gql } from '@apollo/client';
-import { useQuery, useMutation } from '@apollo/client';
+import React from "react";
+import { Spinner } from "@erxes/ui/src/components";
+import { gql } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import { queries as formQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   component: any;
@@ -16,17 +16,17 @@ type Props = {
 
 type FinalProps = {} & Props;
 
-const SettingsContainer: React.FC<FinalProps> = (props) => {
+const SettingsContainer: React.FC<FinalProps> = props => {
   const configsQuery = useQuery<ConfigsQueryResponse>(gql(queries.configs), {
     variables: {
-      code: props.configCode,
+      code: props.configCode
     },
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only"
   });
 
   const fieldsQuery = useQuery(gql(formQueries.fieldsGroups), {
-    variables: { contentType: 'cards:deal' },
-    skip: !isEnabled("forms") || props.configCode !== 'EBARIMT',
+    variables: { contentType: "sales:deal" },
+    skip: props.configCode !== "EBARIMT"
   });
 
   const [updateConfigs] = useMutation(gql(mutations.updateConfigs));
@@ -47,14 +47,14 @@ const SettingsContainer: React.FC<FinalProps> = (props) => {
   // create or update action
   const save = (map: IConfigsMap) => {
     updateConfigs({
-      variables: { configsMap: map },
+      variables: { configsMap: map }
     })
       .then(() => {
         configsQuery.refetch();
 
-        Alert.success('You successfully updated ebarimt settings');
+        Alert.success("You successfully updated ebarimt settings");
       })
-      .catch((error) => {
+      .catch(error => {
         Alert.error(error.message);
       });
   };
@@ -65,7 +65,14 @@ const SettingsContainer: React.FC<FinalProps> = (props) => {
   const configsMap = { [config.code]: config.value };
   const Component = props.component;
 
-  return <Component {...props} configsMap={configsMap} save={save} fieldGroups={fieldGroups} />;
+  return (
+    <Component
+      {...props}
+      configsMap={configsMap}
+      save={save}
+      fieldGroups={fieldGroups}
+    />
+  );
 };
 
 export default SettingsContainer;

@@ -5,7 +5,7 @@ import { IPutResponse } from "../types";
 import PerResponse from "./PerResponse";
 import React from "react";
 import Response from "./Response";
-import WithPermission from "coreui/withPermission";
+import WithPermission from "@erxes/ui/src/components/WithPermission";
 import _ from "lodash";
 import dayjs from "dayjs";
 
@@ -42,7 +42,7 @@ class DetailDuplicated extends React.Component<IProps, State> {
       .then(() => {
         onReturnBill(putResponse._id);
       })
-      .catch((error) => {
+      .catch(error => {
         Alert.error(error.message);
       });
   };
@@ -84,7 +84,7 @@ class DetailDuplicated extends React.Component<IProps, State> {
           </tr>
         </thead>
         <tbody id="putResponses">
-          {(putResponses || []).map((putResponse) => (
+          {(putResponses || []).map(putResponse => (
             <tr key={putResponse._id}>
               <td key={"BillID"}>{putResponse.id} </td>
               <td key={"number"}>{putResponse.number} </td>
@@ -103,10 +103,10 @@ class DetailDuplicated extends React.Component<IProps, State> {
               </td>
               <td key={"status"}>{displayValue(putResponse, "status")}</td>
               <td key={"type"}>{displayValue(putResponse, "type")}</td>
-              <td key={"totalAmount"}>{displayValue(putResponse, "totalAmount")}</td>
-              <td key={"inactiveId"}>
-                {putResponse.sendInfo?.inactiveId}{" "}
+              <td key={"totalAmount"}>
+                {displayValue(putResponse, "totalAmount")}
               </td>
+              <td key={"inactiveId"}>{putResponse.sendInfo?.inactiveId} </td>
               <td key={"actions"}>
                 <Button
                   btnStyle="link"

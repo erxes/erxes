@@ -5,7 +5,7 @@ import {
   commonPaginateTypes,
   commonRiskIndicatorFormParams,
   commonRiskIndicatorParams
-} from './common';
+} from "./common";
 
 const configParams = `
     _id:String,
@@ -31,7 +31,7 @@ stageId:String
 customFieldId:String
 `;
 
-export const types = tagsAvailable => `
+export const types = () => `
 
     input IRiskIndicator  {
         ${commonRiskIndicatorParams}
@@ -48,7 +48,7 @@ export const types = tagsAvailable => `
         calculateLogics:[CalculateLogicType]
         forms:[RiskIndicatorFormType]
         isWithDescription:Boolean
-        ${tagsAvailable ? `tags:[Tag]` : ''}
+        tags:[Tag]
         
     }
     
@@ -109,7 +109,7 @@ export const types = tagsAvailable => `
         name:String,
         description:String
         tagIds:[String]
-        ${tagsAvailable ? `tags:[Tag]` : ''}
+        tags:[Tag]
         calculateMethod:String,
         calculateLogics:[CalculateLogicType]
         groups:[GroupsOfGroupTypes]

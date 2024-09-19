@@ -3,7 +3,7 @@ import { __ } from 'modules/common/utils';
 
 type Options = {
   _id: string;
-  name?: any;
+  name?: string;
 };
 
 export function selectOptions(array: Options[] = []) {

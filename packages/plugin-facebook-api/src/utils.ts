@@ -515,3 +515,19 @@ export const createAWS = async (subdomain: string) => {
   // initialize s3
   return new AWS.S3(options);
 };
+
+export const checkIsAdsOpenThread = (entry: any[] = []) => {
+  const messaging = entry[0]?.messaging || [];
+
+  const referral = (messaging || [])[0]?.message?.referral;
+
+  if (!referral) {
+    return false;
+  }
+
+  const isSourceAds = referral?.source === 'ADS';
+  const isTypeOpenThread = referral?.type === 'OPEN_THREAD';
+  const hasAdsContextData = !referral?.ads_context_data;
+
+  return isSourceAds && isTypeOpenThread && hasAdsContextData;
+};

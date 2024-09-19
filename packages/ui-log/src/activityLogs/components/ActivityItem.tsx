@@ -1,15 +1,17 @@
-import { ActivityIcon, ActivityRow } from '../styles';
-import { formatText, getIconAndColor } from '../utils';
+import { ActivityIcon, ActivityRow } from "../styles";
+import { formatText, getIconAndColor } from "../utils";
 
-import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
-import { IActivityLog } from '../types';
-import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import InternalNote from '../containers/items/InternalNote';
-import React from 'react';
-import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
-import Tip from '@erxes/ui/src/components/Tip';
+import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
+import { IActivityLog } from "../types";
+import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import InternalNote from "../containers/items/InternalNote";
+import React from "react";
+import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
+import Tip from "@erxes/ui/src/components/Tip";
+import ContactsActivityLog from "@erxes/ui-contacts/src/components/activityLogs/activityLog";
+import TaggedLog from "@erxes/ui-tags/src/components/activityLogs/activityLog";
 
 type Props = {
   activity: IActivityLog;
@@ -23,13 +25,14 @@ type Props = {
 class ActivityItem extends React.Component<Props> {
   render() {
     const { activity, currentUser } = this.props;
-    const { contentType, _id, contentTypeDetail } = activity;
 
-    const type = contentType.split(':')[1];
+    const { contentType, _id, contentTypeDetail, action } = activity;
+
+    const type = contentType.split(":")[1];
 
     const plugins: any[] = (window as any).plugins || [];
 
-    if (type === 'note') {
+    if (type === "internalNote") {
       const iconAndColor = getIconAndColor(type);
 
       return (
@@ -48,21 +51,54 @@ class ActivityItem extends React.Component<Props> {
       );
     }
 
-    const pluginName = contentType.split(':')[0];
+    const pluginName = contentType.split(":")[0];
+
+    if (pluginName === "core") {
+      switch (action) {
+        case "tagged":
+          return (
+            <TaggedLog
+              activity={activity}
+              contentType={contentType}
+              currentUser={currentUser}
+            />
+          );
+      }
+
+      switch (type) {
+        case "customer":
+          return (
+            <ContactsActivityLog
+              activity={activity}
+              currentUser={currentUser}
+              contentType={contentType}
+            />
+          );
+
+        case "company":
+          return (
+            <ContactsActivityLog
+              activity={activity}
+              currentUser={currentUser}
+              contentType={contentType}
+            />
+          );
+      }
+    }
 
     for (const plugin of plugins) {
       const hasIntegration =
-        contentType.includes('conversation') &&
+        contentType.includes("conversation") &&
         contentTypeDetail &&
         contentTypeDetail.integration;
-      let kind = '';
+      let kind = "";
       let scope = plugin.scope;
       let component = plugin.activityLog;
 
       if (hasIntegration) {
         const integration = (contentTypeDetail.integration ||
           {}) as IIntegration;
-        kind = integration.kind.split('-')[0];
+        kind = integration.kind.split("-")[0];
       }
 
       if (kind) {

@@ -1,18 +1,15 @@
-import * as _ from 'lodash';
-import { IContext } from '../../../connectionResolver';
-import {
-  sendProductsMessage,
-  sendSegmentsMessage
-} from '../../../messageBroker';
-import { IPricingPlanDocument } from '../../../models/definitions/pricingPlan';
-import { getChildCategories, getChildTags } from '../../../utils/product';
+import * as _ from "lodash";
+import { IContext } from "../../../connectionResolver";
+import { sendProductsMessage, sendCoreMessage } from "../../../messageBroker";
+import { IPricingPlanDocument } from "../../../models/definitions/pricingPlan";
+import { getChildCategories, getChildTags } from "../../../utils/product";
 
 const PricingPlan = {
   createdUser(pricingPlan: IPricingPlanDocument) {
     if (!pricingPlan.createdBy) return;
 
     return {
-      __typename: 'User',
+      __typename: "User",
       _id: pricingPlan.createdBy
     };
   },
@@ -21,7 +18,7 @@ const PricingPlan = {
     if (!pricingPlan.updatedBy) return;
 
     return {
-      __typename: 'User',
+      __typename: "User",
       _id: pricingPlan.updatedBy
     };
   },
@@ -30,18 +27,18 @@ const PricingPlan = {
     let productIds: string[] = [];
 
     switch (plan.applyType) {
-      case 'product': {
+      case "product": {
         productIds = plan.products || [];
         break;
       }
 
-      case 'segment': {
+      case "segment": {
         let productIdsInSegments: string[] = [];
         for (const segment of plan.segments || []) {
           productIdsInSegments = productIdsInSegments.concat(
-            await sendSegmentsMessage({
+            await sendCoreMessage({
               subdomain,
-              action: 'fetchSegment',
+              action: "fetchSegment",
               data: { segmentId: segment },
               isRPC: true,
               defaultValue: []
@@ -52,10 +49,10 @@ const PricingPlan = {
         break;
       }
 
-      case 'vendor': {
+      case "vendor": {
         const limit = await sendProductsMessage({
           subdomain,
-          action: 'count',
+          action: "count",
           data: {
             query: {
               vendorId: { $in: plan.vendors || [] }
@@ -67,7 +64,7 @@ const PricingPlan = {
 
         const products = await sendProductsMessage({
           subdomain,
-          action: 'find',
+          action: "find",
           data: {
             query: {
               vendorId: { $in: plan.vendors || [] }
@@ -82,7 +79,7 @@ const PricingPlan = {
         break;
       }
 
-      case 'category': {
+      case "category": {
         const includeCatIds = await getChildCategories(
           subdomain,
           plan.categories
@@ -97,7 +94,7 @@ const PricingPlan = {
         );
         const limit = await sendProductsMessage({
           subdomain,
-          action: 'count',
+          action: "count",
           data: {
             query: {
               categoryId: { $in: plansCategoryIds },
@@ -110,7 +107,7 @@ const PricingPlan = {
 
         const products = await sendProductsMessage({
           subdomain,
-          action: 'find',
+          action: "find",
           data: {
             query: {
               categoryId: { $in: plansCategoryIds },
@@ -126,7 +123,7 @@ const PricingPlan = {
         productIds = products.map(p => p._id);
         break;
       }
-      case 'tag': {
+      case "tag": {
         const includeTagIds = await getChildTags(subdomain, plan.tags);
         const excludeTagIds = await getChildTags(
           subdomain,
@@ -138,7 +135,7 @@ const PricingPlan = {
         );
         const limit = await sendProductsMessage({
           subdomain,
-          action: 'count',
+          action: "count",
           data: {
             query: {
               tagIds: { $in: plansTagIds },
@@ -151,7 +148,7 @@ const PricingPlan = {
 
         const products = await sendProductsMessage({
           subdomain,
-          action: 'find',
+          action: "find",
           data: {
             query: {
               tagIds: { $in: plansTagIds },

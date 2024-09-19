@@ -1,11 +1,12 @@
 import * as compose from "lodash.flowright";
 
-import { IConfigsMap, IProduct } from "../types";
 import {
+  IConfigsMap,
+  IProduct,
   ProductCategoriesQueryResponse,
   ProductsConfigsQueryResponse,
   UomsQueryResponse,
-} from "@erxes/ui-products/src/types";
+} from "../types";
 import { mutations, queries } from "../graphql";
 
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";

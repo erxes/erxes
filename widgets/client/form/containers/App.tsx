@@ -161,7 +161,7 @@ const WithContext = () => (
           isFormVisible,
           isCalloutVisible,
           setHeight,
-          getIntegrationConfigs,
+          getFormConfigs,
           setCallSubmit,
           setExtraContent,
           onChangeCurrentStatus,
@@ -179,7 +179,7 @@ const WithContext = () => (
 
         return (
           <App
-            loadType={getIntegrationConfigs().loadType}
+            loadType={getFormConfigs().loadType}
             isPopupVisible={isPopupVisible}
             isFormVisible={isFormVisible}
             isCalloutVisible={isCalloutVisible}

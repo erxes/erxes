@@ -1,7 +1,7 @@
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarList,
+  SidebarList
 } from "@erxes/ui/src/layout/styles";
 import { __, router } from "coreui/utils";
 
@@ -58,14 +58,12 @@ const Sidebar = (props: Props) => {
     <Wrapper.Sidebar hasBorder={true}>
       {renderStatusFilter()}
 
-      {isEnabled("tags") && (
-        <CountsByTag
-          tags={tags}
-          manageUrl="/settings/tags?type=engages:engageMessage"
-          counts={tagCounts}
-          loading={false}
-        />
-      )}
+      <CountsByTag
+        tags={tags}
+        manageUrl="/settings/tags?type=engages:engageMessage"
+        counts={tagCounts}
+        loading={false}
+      />
     </Wrapper.Sidebar>
   );
 };

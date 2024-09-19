@@ -325,7 +325,7 @@ const tickets = gql`
   query tickets(
     $pipelineId: String,
     $stageId: String,
-    $date: ItemDate,
+    $date: TicketsItemDate,
     $skip: Int,
     $limit: Int,
     ${ticketsCommonParams}
@@ -356,7 +356,7 @@ const ticketsTotalCount = gql`
   query ticketsTotalCount(
     $pipelineId: String,
     $stageId: String,
-    $date: ItemDate,
+    $date: TicketsItemDate,
     $skip: Int,
     $search: String,
     ${ticketsCommonParams}

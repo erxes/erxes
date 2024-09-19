@@ -5,12 +5,7 @@
     "moduleResolution": "node",
     "module": "esnext",
     "target": "es5",
-    "lib": [
-      "es6",
-      "dom",
-      "es2018",
-      "esnext.asynciterable"
-    ],
+    "lib": ["es6", "dom", "es2018", "esnext.asynciterable"],
     "sourceMap": true,
     "jsx": "react",
     "rootDir": "src",
@@ -29,12 +24,8 @@
     "noUnusedLocals": true
   },
   "include": [
-    "src"
+    "src",
+    "../ui-products/src/containers/form/propertyGroupForm.tsx"
   ],
-  "exclude": [
-    "node_modules",
-    "build",
-    "scripts",
-    "webpack"
-  ]
+  "exclude": ["node_modules", "build", "scripts", "webpack"]
 }

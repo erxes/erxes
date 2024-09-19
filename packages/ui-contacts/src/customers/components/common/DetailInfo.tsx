@@ -5,8 +5,8 @@ import {
   SidebarList,
 } from "@erxes/ui/src/layout/styles";
 
-import { GENDER_TYPES } from "@erxes/ui-contacts/src/customers/constants";
-import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { GENDER_TYPES } from "../../constants";
+import { ICustomer } from "../../types";
 import { IField } from "@erxes/ui/src/types";
 import { IFieldsVisibility } from "../../types";
 import PrimaryEmail from "./PrimaryEmail";

@@ -16,7 +16,7 @@ type Props = {
   allDatas: any[];
   title: string;
   removeItem: (_id: string) => void;
-  queryParams: string;
+  queryParams: Record<string, string>;
   queryType: string;
   listQuery: any;
 };

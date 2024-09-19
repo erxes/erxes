@@ -1,11 +1,11 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from "react-router-dom";
 
-import { Nav } from '../../styles';
-import NavigationItem from './NavigationItem';
-import NavigationMore from './NavigationMore';
-import { Plugin } from './types';
-import React from 'react';
-import { pluginNavigations } from './utils';
+import { Nav } from "../../styles";
+import NavigationItem from "./NavigationItem";
+import NavigationMore from "./NavigationMore";
+import { Plugin } from "./types";
+import React from "react";
+import { pluginNavigations } from "./utils";
 
 type Props = {
   navCollapse: number;
@@ -18,15 +18,45 @@ type State = {
   countOfPinnedPlugins: number;
 };
 
+const CORE_PLUGINS = [
+  {
+    text: "Contacts",
+    url: "/contacts/customer",
+    icon: "icon-user",
+    location: "mainNavigation",
+    permission: "showCustomers"
+  },
+  {
+    text: "Segments",
+    url: "/segments",
+    icon: "icon-chart-pie-alt",
+    location: "mainNavigation",
+    permission: "showSegments"
+  },
+  {
+    text: "Forms",
+    url: "/forms",
+    icon: "icon-laptop",
+    location: "mainNavigation",
+    permission: "showForms"
+  },
+  {
+    text: "Insight",
+    url: "/insight",
+    icon: "icon-reload",
+    location: "mainNavigation"
+  }
+];
+
 export default class NavigationList extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
     this.state = {
       showMenu: false,
-      clickedMenu: '',
-      pinnedPlugins: JSON.parse(localStorage.getItem('pinnedPlugins') || '[]'),
-      countOfPinnedPlugins: window.innerHeight > 900 ? 7 : 5,
+      clickedMenu: "",
+      pinnedPlugins: JSON.parse(localStorage.getItem("pinnedPlugins") || "[]"),
+      countOfPinnedPlugins: window.innerHeight > 900 ? 7 : 5
     };
   }
 
@@ -41,7 +71,7 @@ export default class NavigationList extends React.Component<Props, State> {
   updatePinnedPlugins = (plugins: Plugin[]): void => {
     this.setState({ pinnedPlugins: plugins });
 
-    localStorage.setItem('pinnedPlugins', JSON.stringify(plugins));
+    localStorage.setItem("pinnedPlugins", JSON.stringify(plugins));
   };
 
   render() {
@@ -69,7 +99,7 @@ export default class NavigationList extends React.Component<Props, State> {
           <Route path="/" key="root" element={index()} />
         </Routes>
         <Nav id="navigation">
-          {plugins.map((plugin: any, i: number) => (
+          {plugins.map((plugin: Plugin, i: number) => (
             <NavigationItem
               key={i}
               plugin={plugin}

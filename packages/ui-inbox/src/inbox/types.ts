@@ -1,5 +1,6 @@
+import { IFacebookComment, IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { ITag } from '@erxes/ui-tags/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { QueryResponse } from '@erxes/ui/src/types';
@@ -62,8 +63,6 @@ export interface IConversation {
   customFieldsData?: {
     [key: string]: any;
   };
-
-  bookingProductId?: string;
 }
 
 interface IEngageDataRules {
@@ -177,7 +176,6 @@ export interface IMessage {
   customer?: ICustomer;
   createdAt: Date;
   updatedAt: Date;
-  bookingWidgetData?: any;
   mid?: string;
 }
 
@@ -295,6 +293,11 @@ export type ConversationsTotalCountQueryResponse = {
 export type UnreadConversationsTotalCountQueryResponse = {
   conversationsTotalUnreadCount: number;
   subscribeToMore: (variables) => void;
+} & QueryResponse;
+
+export type FacebookCommentsQueryResponse = {
+  facebookGetComments: IFacebookComment[];
+  fetchMore: (variables) => void;
 } & QueryResponse;
 
 export type EditCustomFieldsMutationVariables = {

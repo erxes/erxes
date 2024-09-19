@@ -18,137 +18,133 @@ const receiveMessage = async (
       { kind: INTEGRATION_KINDS.MESSENGER }
     ]
   });
+
   if (!integration) {
     throw new Error('Instagram Integration not found ');
   }
+  const userId = sender.id;
+  const pageId = recipient.id;
+  const { text, attachments } = message;
+  // get or create customer
+
   const { facebookPageTokensMap, facebookPageId } = integration;
-  if (facebookPageId && facebookPageTokensMap) {
-    const userId = sender.id;
-    const pageId = recipient.id;
-    const { text, attachments } = message;
-    // get or create customer
-    const customer = await getOrCreateCustomer(
-      models,
-      subdomain,
-      pageId,
-      userId,
-      facebookPageId,
-      INTEGRATION_KINDS.MESSENGER,
-      facebookPageTokensMap
-    );
+  const customer = await getOrCreateCustomer(
+    models,
+    subdomain,
+    pageId,
+    userId,
+    facebookPageId,
+    INTEGRATION_KINDS.MESSENGER,
+    facebookPageTokensMap
+  );
+  if (!customer) {
+    throw new Error('Failed to get or create customer');
+  }
+  // get conversation
+  let conversation = await models.Conversations.findOne({
+    senderId: userId,
+    recipientId: recipient.id
+  });
 
-    // get conversation
-    let conversation = await models.Conversations.findOne({
-      senderId: userId,
-      recipientId: recipient.id
-    });
-
-    // create conversation
-    if (!conversation) {
-      // save on integrations db
-      try {
-        conversation = await models.Conversations.create({
-          timestamp,
-          senderId: userId,
-          recipientId: recipient.id,
-          content: text,
-          integrationId: integration._id
-        });
-      } catch (e) {
-        throw new Error(
-          e.message.includes('duplicate')
-            ? 'Concurrent request: conversation duplication'
-            : e
-        );
-      }
-    }
-
-    const formattedAttachments = (attachments || [])
-      .filter((att) => att.type !== 'fallback')
-      .map((att) => ({
-        type: att.type,
-        url: att.payload ? att.payload.url : ''
-      }));
-
-    // save on api
+  // create conversation
+  if (!conversation) {
+    // save on integrations db
     try {
-      const apiConversationResponse = await sendInboxMessage({
-        subdomain,
-        action: 'integrations.receive',
-        data: {
-          action: 'create-or-update-conversation',
-          payload: JSON.stringify({
-            customerId: customer.erxesApiId,
-            integrationId: integration.erxesApiId,
-            content: text || '',
-            attachments: formattedAttachments,
-            conversationId: conversation.erxesApiId,
-            updatedAt: timestamp
-          })
-        },
-        isRPC: true
+      conversation = await models.Conversations.create({
+        timestamp,
+        senderId: userId,
+        recipientId: recipient.id,
+        content: text,
+        integrationId: integration._id
       });
-      conversation.erxesApiId = apiConversationResponse._id;
-
-      await conversation.save();
     } catch (e) {
-      await models.Conversations.deleteOne({ _id: conversation._id });
-      throw new Error(e);
+      throw new Error(
+        e.message.includes('duplicate')
+          ? 'Concurrent request: conversation duplication'
+          : e
+      );
     }
-    // get conversation message
-    const conversationMessage = await models.ConversationMessages.findOne({
-      mid: message.mid
-    });
+  }
 
-    if (!conversationMessage) {
-      // save on integrations db
-      try {
-        const created = await models.ConversationMessages.create({
-          mid: message.mid,
-          timestamp,
-          senderId: userId,
-          recipientId: recipient.id,
-          content: text,
-          integrationId: integration._id,
-          conversationId: conversation._id,
-          createdAt: timestamp,
+  const formattedAttachments = (attachments || [])
+    .filter((att) => att.type !== 'fallback')
+    .map((att) => ({
+      type: att.type,
+      url: att.payload ? att.payload.url : ''
+    }));
+
+  // save on api
+  try {
+    const apiConversationResponse = await sendInboxMessage({
+      subdomain,
+      action: 'integrations.receive',
+      data: {
+        action: 'create-or-update-conversation',
+        payload: JSON.stringify({
           customerId: customer.erxesApiId,
-          attachments: formattedAttachments
-        });
+          integrationId: integration.erxesApiId,
+          content: text || '',
+          attachments: formattedAttachments,
+          conversationId: conversation.erxesApiId,
+          updatedAt: timestamp
+        })
+      },
+      isRPC: true
+    });
+    conversation.erxesApiId = apiConversationResponse._id;
 
-        // // save message on api
-        await sendInboxMessage({
-          subdomain,
-          action: 'conversationClientMessageInserted',
-          data: {
+    await conversation.save();
+  } catch (e) {
+    await models.Conversations.deleteOne({ _id: conversation._id });
+    throw new Error(e);
+  }
+  // get conversation message
+  const conversationMessage = await models.ConversationMessages.findOne({
+    mid: message.mid
+  });
+
+  if (!conversationMessage) {
+    // save on integrations db
+    try {
+      const created = await models.ConversationMessages.create({
+        mid: message.mid,
+        timestamp,
+        senderId: userId,
+        recipientId: recipient.id,
+        content: text,
+        integrationId: integration._id,
+        conversationId: conversation._id,
+        createdAt: timestamp,
+        customerId: customer.erxesApiId,
+        attachments: formattedAttachments
+      });
+
+      // // save message on api
+      await sendInboxMessage({
+        subdomain,
+        action: 'conversationClientMessageInserted',
+        data: {
+          ...created.toObject(),
+          conversationId: conversation.erxesApiId
+        }
+      });
+
+      graphqlPubsub.publish(
+        `conversationMessageInserted:${conversation.erxesApiId}`,
+        {
+          conversationMessageInserted: {
             ...created.toObject(),
             conversationId: conversation.erxesApiId
           }
-        });
-
-        graphqlPubsub.publish(
-          `conversationMessageInserted:${conversation.erxesApiId}`,
-          {
-            conversationMessageInserted: {
-              ...created.toObject(),
-              conversationId: conversation.erxesApiId
-            }
-          }
-        );
-      } catch (e) {
-        throw new Error(
-          e.message.includes('duplicate')
-            ? 'Concurrent request: conversation message duplication'
-            : e
-        );
-      }
+        }
+      );
+    } catch (e) {
+      throw new Error(
+        e.message.includes('duplicate')
+          ? 'Concurrent request: conversation message duplication'
+          : e
+      );
     }
-  } else {
-    return {
-      message: 'Both facebookPageTokensMap and facebookPageId are required.',
-      facebookPageTokensMap: facebookPageTokensMap,
-      facebookPageId: facebookPageId
-    };
   }
 };
 

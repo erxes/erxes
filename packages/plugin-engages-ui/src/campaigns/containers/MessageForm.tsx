@@ -1,12 +1,12 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
-import MessageForm from '../components/MessageForm';
-import { queries } from '@erxes/ui-engage/src/graphql';
-import { EngageMessageDetailQueryResponse } from '@erxes/ui-engage/src/types';
-import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils";
+import MessageForm from "../components/MessageForm";
+import { queries } from "@erxes/ui-engage/src/graphql";
+import { EngageMessageDetailQueryResponse } from "@erxes/ui-engage/src/types";
+import { BrandsQueryResponse } from "@erxes/ui/src/brands/types";
 
 type Props = {
   kind?: string;
@@ -28,11 +28,11 @@ const MessageFormContainer = (props: FinalProps) => {
   const message = engageMessageDetailQuery.engageMessageDetail;
   const brands = brandsQuery.brands || [];
 
-  let segmentType = 'contacts:lead';
+  let segmentType = "core:lead";
 
   if (message && message.segments && message.segments.length > 0) {
     const segment = message.segments[message.segments.length - 1];
-    segmentType = segment ? segment.contentType : '';
+    segmentType = segment ? segment.contentType : "";
   }
 
   const updatedProps = {
@@ -51,7 +51,7 @@ export default withProps<Props>(
     graphql<Props, EngageMessageDetailQueryResponse, { _id?: string }>(
       gql(queries.engageMessageDetail),
       {
-        name: 'engageMessageDetailQuery',
+        name: "engageMessageDetailQuery",
         options: ({ messageId }) => ({
           variables: {
             _id: messageId
@@ -60,7 +60,7 @@ export default withProps<Props>(
       }
     ),
     graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
-      name: 'brandsQuery'
+      name: "brandsQuery"
     })
   )(MessageFormContainer)
 );

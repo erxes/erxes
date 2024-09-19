@@ -41,27 +41,27 @@ const ConversationCustomFieldsSection = asyncComponent(
 const PortableDeals = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ "@erxes/ui-cards/src/deals/components/PortableDeals"
+      /* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ "@erxes/ui-sales/src/deals/components/PortableDeals"
     )
 );
 
 const PortableTasks = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ "@erxes/ui-cards/src/tasks/components/PortableTasks"
+      /* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ "@erxes/ui-tasks/src/tasks/components/PortableTasks"
     )
 );
 
 const PortableTickets = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ "@erxes/ui-cards/src/tickets/components/PortableTickets"
+      /* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ "@erxes/ui-tickets/src/tickets/components/PortableTickets"
     )
 );
 const PortablePurchases = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-Sidebar-PortablePurchases" */ "@erxes/ui-cards/src/purchases/components/PortablePurchases"
+      /* webpackChunkName:"Inbox-Sidebar-PortablePurchases" */ "@erxes/ui-purchases/src/purchases/components/PortablePurchases"
     )
 );
 
@@ -158,15 +158,15 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
 
     this.state = {
       currentTab: "customer",
-      currentSubTab: "details",
+      currentSubTab: "details"
     };
   }
 
-  onTabClick = (currentTab) => {
+  onTabClick = currentTab => {
     this.setState({ currentTab });
   };
 
-  onSubtabClick = (currentSubTab) => {
+  onSubtabClick = currentSubTab => {
     this.setState({ currentSubTab });
   };
 
@@ -183,7 +183,7 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
     customer,
     kind,
     fields,
-    toggleSection,
+    toggleSection
   }: IRenderData) => {
     if (!(kind === "messenger" || kind === "form")) {
       return null;
@@ -213,7 +213,7 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
       customerVisibility,
       deviceFields,
       conversationFields,
-      customerFields,
+      customerFields
     } = this.props;
 
     const { kind = "" } = customer.integration || {};
@@ -244,21 +244,19 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
             />
             <ConversationCustomFieldsSection conversation={conversation} />
           </Box>
-          {isEnabled("tags") && (
-            <TaggerSection
-              data={customer}
-              type="contacts:customer"
-              refetchQueries={taggerRefetchQueries}
-              collapseCallback={toggleSection}
-            />
-          )}
+          <TaggerSection
+            data={customer}
+            type="core:customer"
+            refetchQueries={taggerRefetchQueries}
+            collapseCallback={toggleSection}
+          />
 
           {this.renderTrackedData({ customer, kind, toggleSection })}
           {this.renderDeviceProperties({
             customer,
             kind,
             fields: deviceFields,
-            toggleSection,
+            toggleSection
           })}
           <WebsiteActivity urlVisits={customer.urlVisits || []} />
 
@@ -267,7 +265,7 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
             customer,
             customerId: customer._id,
             contentType: "inbox:conversations",
-            contentTypeId: conversation._id,
+            contentTypeId: conversation._id
           })}
         </TabContent>
       );
@@ -285,10 +283,21 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
 
     return (
       <>
-        <PortableDeals mainType="customer" mainTypeId={customer._id} />
-        <PortableTickets mainType="customer" mainTypeId={customer._id} />
-        <PortableTasks mainType="customer" mainTypeId={customer._id} />
-        <PortablePurchases mainType="customer" mainTypeId={customer._id} />
+        {isEnabled("sales") && (
+          <PortableDeals mainType="customer" mainTypeId={customer._id} />
+        )}
+
+        {isEnabled("purchases") && (
+          <PortablePurchases mainType="customer" mainTypeId={customer._id} />
+        )}
+
+        {isEnabled("tickets") && (
+          <PortableTickets mainType="customer" mainTypeId={customer._id} />
+        )}
+
+        {isEnabled("tasks") && (
+          <PortableTasks mainType="customer" mainTypeId={customer._id} />
+        )}
       </>
     );
   }
@@ -315,22 +324,21 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
             >
               {__("Details")}
             </TabTitle>
-            {isEnabled("logs") && (
+            {
               <TabTitle
                 className={currentSubTab === "activity" ? "active" : ""}
                 onClick={activityOnClick}
               >
                 {__("Activity")}
               </TabTitle>
-            )}
-            {isEnabled("cards") && (
-              <TabTitle
-                className={currentSubTab === "related" ? "active" : ""}
-                onClick={relatedOnClick}
-              >
-                {__("Related")}
-              </TabTitle>
-            )}
+            }
+
+            <TabTitle
+              className={currentSubTab === "related" ? "active" : ""}
+              onClick={relatedOnClick}
+            >
+              {__("Related")}
+            </TabTitle>
           </Tabs>
           {this.renderTabSubContent()}
         </>

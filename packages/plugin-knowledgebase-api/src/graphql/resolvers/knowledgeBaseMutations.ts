@@ -1,12 +1,12 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from "@erxes/api-utils/src/permissions";
 
-import { ITopic } from '../../models/definitions/knowledgebase';
-import { IArticleCreate, ICategoryCreate } from '../../models/KnowledgeBase';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
-import { MODULE_NAMES } from '../../constants';
-import { IContext } from '../../connectionResolver';
-import { sendCoreMessage, sendSegmentsMessage } from '../../messageBroker';
-import { stripHtml } from '@erxes/api-utils/src/core';
+import { ITopic } from "../../models/definitions/knowledgebase";
+import { IArticleCreate, ICategoryCreate } from "../../models/KnowledgeBase";
+import { putCreateLog, putDeleteLog, putUpdateLog } from "../../logUtils";
+import { MODULE_NAMES } from "../../constants";
+import { IContext } from "../../connectionResolver";
+import { sendCoreMessage } from "../../messageBroker";
+import { stripHtml } from "@erxes/api-utils/src/core";
 
 const knowledgeBaseMutations = {
   /**
@@ -229,9 +229,9 @@ const knowledgeBaseMutations = {
     });
 
     if (topic && topic.notificationSegmentId) {
-      const userIds = await sendSegmentsMessage({
+      const userIds = await sendCoreMessage({
         subdomain,
-        action: 'fetchSegment',
+        action: "fetchSegment",
         data: {
           segmentId: topic.notificationSegmentId
         },
@@ -240,13 +240,13 @@ const knowledgeBaseMutations = {
 
       sendCoreMessage({
         subdomain,
-        action: 'sendMobileNotification',
+        action: "sendMobileNotification",
         data: {
           title: doc.title,
           body: stripHtml(doc.content),
           receivers: userIds.filter((userId) => userId !== user._id),
           data: {
-            type: 'knowledge',
+            type: "knowledge",
             id: kbArticle._id
           }
         }
@@ -314,50 +314,50 @@ const knowledgeBaseMutations = {
 
 checkPermission(
   knowledgeBaseMutations,
-  'knowledgeBaseTopicsAdd',
-  'manageKnowledgeBase'
+  "knowledgeBaseTopicsAdd",
+  "manageKnowledgeBase"
 );
 checkPermission(
   knowledgeBaseMutations,
-  'knowledgeBaseTopicsEdit',
-  'manageKnowledgeBase'
+  "knowledgeBaseTopicsEdit",
+  "manageKnowledgeBase"
 );
 checkPermission(
   knowledgeBaseMutations,
-  'knowledgeBaseTopicsRemove',
-  'manageKnowledgeBase'
-);
-
-checkPermission(
-  knowledgeBaseMutations,
-  'knowledgeBaseCategoriesAdd',
-  'manageKnowledgeBase'
-);
-checkPermission(
-  knowledgeBaseMutations,
-  'knowledgeBaseCategoriesEdit',
-  'manageKnowledgeBase'
-);
-checkPermission(
-  knowledgeBaseMutations,
-  'knowledgeBaseCategoriesRemove',
-  'manageKnowledgeBase'
+  "knowledgeBaseTopicsRemove",
+  "manageKnowledgeBase"
 );
 
 checkPermission(
   knowledgeBaseMutations,
-  'knowledgeBaseArticlesAdd',
-  'manageKnowledgeBase'
+  "knowledgeBaseCategoriesAdd",
+  "manageKnowledgeBase"
 );
 checkPermission(
   knowledgeBaseMutations,
-  'knowledgeBaseArticlesEdit',
-  'manageKnowledgeBase'
+  "knowledgeBaseCategoriesEdit",
+  "manageKnowledgeBase"
 );
 checkPermission(
   knowledgeBaseMutations,
-  'knowledgeBaseArticlesRemove',
-  'manageKnowledgeBase'
+  "knowledgeBaseCategoriesRemove",
+  "manageKnowledgeBase"
+);
+
+checkPermission(
+  knowledgeBaseMutations,
+  "knowledgeBaseArticlesAdd",
+  "manageKnowledgeBase"
+);
+checkPermission(
+  knowledgeBaseMutations,
+  "knowledgeBaseArticlesEdit",
+  "manageKnowledgeBase"
+);
+checkPermission(
+  knowledgeBaseMutations,
+  "knowledgeBaseArticlesRemove",
+  "manageKnowledgeBase"
 );
 
 export default knowledgeBaseMutations;

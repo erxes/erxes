@@ -1,7 +1,7 @@
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
-} from '@erxes/ui-cards/src/conformity';
+} from "@erxes/ui-sales/src/conformity";
 
 export const packageFields = `
   _id

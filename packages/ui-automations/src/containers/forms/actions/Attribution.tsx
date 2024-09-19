@@ -1,17 +1,16 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   FieldsCombinedByType,
-  FieldsCombinedByTypeQueryResponse
-} from '@erxes/ui-forms/src/settings/properties/types';
+  FieldsCombinedByTypeQueryResponse,
+} from "@erxes/ui-forms/src/settings/properties/types";
 
-import Form from '../../../components/forms/actions/placeHolder/Attribution';
-import React from 'react';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import Form from "../../../components/forms/actions/placeHolder/Attribution";
+import React from "react";
+import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   config: any;
@@ -50,7 +49,7 @@ class Attribution extends React.Component<FinalProps, State> {
 
     const extendedProps = {
       ...this.props,
-      attributions
+      attributions,
     };
     return <Form {...extendedProps} />;
   }
@@ -61,14 +60,14 @@ export default withProps<Props>(
     graphql<Props, FieldsCombinedByTypeQueryResponse, State>(
       gql(formQueries.fieldsCombinedByContentType),
       {
-        name: 'fieldsCombinedByTypeQuery',
-        skip: () => !isEnabled('forms'),
+        name: "fieldsCombinedByTypeQuery",
+
         options: ({ triggerType, attrConfig }) => ({
           variables: {
             contentType: triggerType,
-            config: attrConfig ? attrConfig : undefined
-          }
-        })
+            config: attrConfig ? attrConfig : undefined,
+          },
+        }),
       }
     )
   )(Attribution)

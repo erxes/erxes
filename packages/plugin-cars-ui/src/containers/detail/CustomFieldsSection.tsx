@@ -1,15 +1,15 @@
-import { IItemParams, SaveMutation } from '@erxes/ui-cards/src/boards/types';
-import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { gql, useQuery, useMutation } from '@apollo/client';
-import React from 'react';
+import { IItemParams, SaveMutation } from "@erxes/ui-sales/src/boards/types";
+import GenerateCustomFields from "@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields";
+import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
+import { FieldsGroupsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { gql, useQuery, useMutation } from "@apollo/client";
+import React from "react";
 
-import { mutations, queries } from '../../graphql';
-import { DetailQueryResponse } from '../../types';
+import { mutations, queries } from "../../graphql";
+import { DetailQueryResponse } from "../../types";
 
 type Props = {
   isDetail: boolean;
@@ -22,18 +22,17 @@ const CustomFieldsSection = (props: Props) => {
   const fieldsGroupsQuery = useQuery<FieldsGroupsQueryResponse>(
     gql(fieldQueries.fieldsGroups),
     {
-      skip: !isEnabled('forms') ? true : false,
       variables: {
-        contentType: 'cars:car',
-        isDefinedByErxes: false,
-      },
-    },
+        contentType: "cars:car",
+        isDefinedByErxes: false
+      }
+    }
   );
 
   const carDetailQuery = useQuery<DetailQueryResponse>(gql(queries.carDetail), {
     variables: {
-      _id: id,
-    },
+      _id: id
+    }
   });
 
   const [editMutation] = useMutation<SaveMutation>(gql(mutations.carsEdit));
@@ -52,12 +51,12 @@ const CustomFieldsSection = (props: Props) => {
   }
   const save = (data, callback) => {
     editMutation({
-      variables: { _id: id, ...data },
+      variables: { _id: id, ...data }
     })
       .then(() => {
         callback();
       })
-      .catch((e) => {
+      .catch(e => {
         callback(e);
       });
   };
@@ -69,7 +68,7 @@ const CustomFieldsSection = (props: Props) => {
       ? fieldsGroupsQuery?.data?.fieldsGroups
       : [],
     isDetail,
-    object: carDetailQuery,
+    object: carDetailQuery
   };
 
   return <GenerateCustomFields {...updatedProps} />;

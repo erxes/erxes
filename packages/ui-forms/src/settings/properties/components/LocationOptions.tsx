@@ -1,9 +1,10 @@
-import { FormGroup } from '@erxes/ui/src';
-import Icon from '@erxes/ui/src/components/Icon';
-import { ILocationOption } from '@erxes/ui/src/types';
-import { LinkButton } from '@erxes/ui/src/styles/main';
-import React, { useEffect, useState } from 'react';
-import LocationOption from './LocationOption';
+import React, { useEffect, useState } from "react";
+
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ILocationOption } from "@erxes/ui/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { LinkButton } from "@erxes/ui/src/styles/main";
+import LocationOption from "./LocationOption";
 
 type Props = {
   onChange: (value: ILocationOption[]) => void;
@@ -19,7 +20,7 @@ function LocationOptions(props: Props) {
       return {
         lat,
         lng,
-        description
+        description,
       };
     })
   );
@@ -45,7 +46,7 @@ function LocationOptions(props: Props) {
     const option: any = currentLocation || {
       lat: 0.0,
       lng: 0.0,
-      description: ''
+      description: "",
     };
 
     setOptions([...options, option]);

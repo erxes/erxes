@@ -1,7 +1,8 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
+
+import { SortItem } from '@erxes/ui/src/styles/sort';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { SortItem } from '@erxes/ui/src/styles/sort';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 
@@ -205,6 +206,33 @@ const Divider = styled.hr`
   border-top: 4px solid ${colors.borderDarker};
 `;
 
+const Footer = styled.div`
+  padding-top: 8px;
+  margin-top: 8px;
+  border-top: 1px dotted ${colors.borderPrimary};
+  font-size: 11px;
+  ul {
+    float: left;
+  }
+  > i {
+    padding: 3px;
+  }
+`;
+
+const Row = styled.div`
+  display: flex;
+
+  .Select {
+    flex: 1;
+  }
+
+  button {
+    flex-shrink: 0;
+    margin-left: 10px;
+    align-self: baseline;
+  }
+`;
+
 export {
   PropertyList,
   DropIcon,
@@ -221,5 +249,7 @@ export {
   FlexRow,
   ObjectListItemContainer,
   Divider,
-  SidebarFooter
+  SidebarFooter,
+  Footer,
+  Row
 };

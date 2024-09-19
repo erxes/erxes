@@ -23,7 +23,7 @@ const Drawer: React.FC<Props> = ({
   btnStyle,
   side = "right",
   width = 20,
-  height = 25,
+  height = 25
 }) => {
   const [visible, setVisible] = useState("none");
   const [show, setShow] = useState(false);
@@ -33,7 +33,7 @@ const Drawer: React.FC<Props> = ({
       setVisible("flex");
       setShow(!show);
     }
-    console.log("sss", show);
+
     setVisible("none");
     setShow(!show);
   };

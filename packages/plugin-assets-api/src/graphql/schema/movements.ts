@@ -1,9 +1,9 @@
 import {
   movementFilters,
   commonFilterParams
-} from '../../common/graphql/movement';
+} from "../../common/graphql/movement";
 
-export const types = contactsAvailable => `
+export const types = `
 
     type ItemSourceLocation {
         branchId:String,
@@ -12,17 +12,11 @@ export const types = contactsAvailable => `
         movementId:String,
         teamMemberId:String,
         companyId:String,
-        ${
-          contactsAvailable
-            ? `
-              customer:JSON
-              company:JSON
-              branch:JSON
-              teamMember:JSON
-              department:JSON
-              `
-            : ``
-        }
+        customer:JSON
+        company:JSON
+        branch:JSON
+        teamMember:JSON
+        department:JSON
     }
 
     type MovementItem{
@@ -38,18 +32,11 @@ export const types = contactsAvailable => `
         teamMemberId:String,
         companyId:String,
         createdAt:Date
-
-        ${
-          contactsAvailable
-            ? `
-            customer:JSON
-            company:JSON
-            branch:JSON
-            teamMember:JSON
-            department:JSON
-            `
-            : ``
-        }
+        customer:JSON
+        company:JSON
+        branch:JSON
+        teamMember:JSON
+        department:JSON
     }
 
     type Movement {
@@ -61,7 +48,7 @@ export const types = contactsAvailable => `
         itemIds:[String]
         description:String
         
-        ${contactsAvailable ? `user:JSON` : ``}
+        user:JSON
         
         items:[MovementItem]
     }
