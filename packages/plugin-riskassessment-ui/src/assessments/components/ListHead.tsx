@@ -35,7 +35,7 @@ export function TableHead({ children, filter, sort }: Props) {
             iconColor={filter?.actionBar && colors.colorCoreBlue}
           >
             <ActionBar>{filter?.actionBar}</ActionBar>
-            {filter?.main}
+            <div style={{ minWidth: '250px' }}>{filter?.main}</div>
           </DetailPopOver>
         )}
       </THeadContainer>

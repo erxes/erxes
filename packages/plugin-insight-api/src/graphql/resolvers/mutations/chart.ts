@@ -140,6 +140,23 @@ const chartsMutations = {
   async chartsRemove(_root, _id: string, { models }: IContext) {
     return await models.Charts.removeChart(_id);
   },
+
+  async chartDuplicate(_root, _id: string, { models, user }: IContext) {
+    const chart = await models.Charts.findById(_id);
+
+    if (!chart) {
+      throw new Error('Chart not found');
+    }
+
+    const { _id: _, ...dup } = chart.toObject();
+
+    const duplicatedChart = await models.Charts.createChart({
+      ...dup,
+      name: `${chart.name} copied`,
+    });
+
+    return duplicatedChart
+  },
 };
 
 export default chartsMutations;

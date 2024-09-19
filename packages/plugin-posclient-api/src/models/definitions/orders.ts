@@ -41,6 +41,7 @@ export interface IOrder {
   mobileAmount?: number;
   mobileAmounts?: IMobileAmount[];
   directDiscount?: number;
+  directIsAmount?: boolean;
   paidAmounts?: IPaidAmount[];
   totalAmount: number;
   finalAmount?: number;
@@ -162,6 +163,9 @@ export const orderSchema = schemaHooksWrapper(
     directDiscount: getNumberFieldDefinition({
       ...commonAttributes,
       label: 'Direct Discount'
+    }),
+    directIsAmount: field({
+      type: Boolean, optional: true, label: 'Direct Discount is percent'
     }),
     mobileAmount: getNumberFieldDefinition({
       ...commonAttributes,

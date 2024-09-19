@@ -133,6 +133,7 @@ export const RichTextEditorLinkControl = (
                 }
               >
                 <button
+                  type="button"
                   onClick={() => setExternal((e) => !e)}
                   data-active={external || undefined}
                 >
@@ -143,7 +144,7 @@ export const RichTextEditorLinkControl = (
               </Tip>
             </InputAction>
           </InputWrapper>
-          <LinkButton onClick={handleSave}>
+          <LinkButton type="button" onClick={handleSave}>
             {ctx.labels.linkEditorSave}
           </LinkButton>
         </LinkWrapper>

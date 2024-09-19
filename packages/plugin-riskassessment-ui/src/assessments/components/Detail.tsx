@@ -5,22 +5,22 @@ import {
   FormContainer,
   FormContent,
   TableRow,
-  TriggerTabs,
-} from "../../styles";
-import React, { useState } from "react";
-import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
-import { removeParams, setParams } from "@erxes/ui/src/utils/router";
-import { useLocation, useNavigate } from "react-router-dom";
+  TriggerTabs
+} from '../../styles';
+import React, { useState } from 'react';
+import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
+import { removeParams, setParams } from '@erxes/ui/src/utils/router';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-import Attachment from "@erxes/ui/src/components/Attachment";
-import Button from "@erxes/ui/src/components/Button";
-import CollapseContent from "@erxes/ui/src/components/CollapseContent";
-import { DetailPopOver } from "../common/utils";
-import Icon from "@erxes/ui/src/components/Icon";
-import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
-import Table from "@erxes/ui/src/components/table";
-import { __ } from "@erxes/ui/src/utils/core";
-import colors from "@erxes/ui/src/styles/colors";
+import Attachment from '@erxes/ui/src/components/Attachment';
+import Button from '@erxes/ui/src/components/Button';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import { DetailPopOver } from '../common/utils';
+import Icon from '@erxes/ui/src/components/Icon';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import Table from '@erxes/ui/src/components/table';
+import { __ } from '@erxes/ui/src/utils/core';
+import colors from '@erxes/ui/src/styles/colors';
 
 type Props = {
   riskAssessment: any;
@@ -37,7 +37,7 @@ type State = {
   currentUserId: string;
 };
 
-const isJsonString = (value) => {
+const isJsonString = value => {
   try {
     JSON.parse(value);
   } catch (e) {
@@ -47,48 +47,50 @@ const isJsonString = (value) => {
 };
 
 export function renderSubmission(fields) {
-  return fields.map((field) => {
+  return fields.map(field => {
     const updateProps: any = {
       key: field.fieldId,
       description: field.description,
-      compact: true,
+      compact: true
     };
 
     let children;
 
-    if (isJsonString(field.value)) {
-      updateProps.title = field.text;
+    // if (isJsonString(field.value)) {
+    //   updateProps.title = field.text;
 
-      const attachments = JSON.parse(field.value);
+    //   const attachments = JSON.parse(field.value);
 
-      children = (
-        <>
-          {attachments.map((attachment) => (
-            <Attachment key={Math.random()} attachment={attachment} />
-          ))}
-        </>
-      );
-    } else {
-      updateProps.title = `${field?.text}: ${field?.value}`;
+    //   console.log({ attachments });
 
-      if (field.isFlagged) {
-        updateProps.beforeTitle = (
-          <Icon
-            icon="flag"
-            color={colors.colorCoreRed}
-            style={{ marginRight: 10, fontSize: 15 }}
-          />
-        );
-      }
+    //   children = (
+    //     <>
+    //       {(attachments || []).map(attachment => (
+    //         <Attachment key={Math.random()} attachment={attachment} />
+    //       ))}
+    //     </>
+    //   );
+    // } else {
+    updateProps.title = `${field?.text}: ${field?.value}`;
 
-      children = (
-        <>
-          {(field?.optionsValues?.split("\n") || []).map((value) => (
-            <p key={Math.random()}>{__(value)}</p>
-          ))}
-        </>
+    if (field.isFlagged) {
+      updateProps.beforeTitle = (
+        <Icon
+          icon="flag"
+          color={colors.colorCoreRed}
+          style={{ marginRight: 10, fontSize: 15 }}
+        />
       );
     }
+
+    children = (
+      <>
+        {(field?.optionsValues?.split('\n') || []).map(value => (
+          <p key={Math.random()}>{__(value)}</p>
+        ))}
+      </>
+    );
+    // }
 
     return <CollapseContent {...updateProps}>{children}</CollapseContent>;
   });
@@ -97,20 +99,20 @@ export function renderSubmission(fields) {
 const Detail = (props: Props) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [currentGroupId, setCurrentGroupId] = useState("");
-  const [currentIndicatorId, setCurrentIndicatorId] = useState("");
-  const [currentUserId, setCurrentUserId] = useState("");
+  const [currentGroupId, setCurrentGroupId] = useState('');
+  const [currentIndicatorId, setCurrentIndicatorId] = useState('');
+  const [currentUserId, setCurrentUserId] = useState('');
 
   const renderUsers = () => {
     const { assignedUsers } = props;
 
-    const renderStatus = (submitStatus) => {
+    const renderStatus = submitStatus => {
       switch (submitStatus) {
-        case "inProgress":
+        case 'inProgress':
           return <Icon icon="loading" color={colors.colorCoreBlue} />;
-        case "pending":
+        case 'pending':
           return <Icon icon="wallclock" color={colors.colorCoreOrange} />;
-        case "submitted":
+        case 'submitted':
           return <Icon icon="checked" color={colors.colorCoreGreen} />;
         default:
           return;
@@ -123,11 +125,11 @@ const Detail = (props: Props) => {
         title="Assigned Members"
         icon="downarrow-2"
       >
-        {assignedUsers.map((user) => (
+        {assignedUsers.map(user => (
           <div key={user._id}>
             <FormContainer $row $spaceBetween>
               <NameCard user={user} />
-              {renderStatus(user?.submitStatus || "")}
+              {renderStatus(user?.submitStatus || '')}
             </FormContainer>
             <Divider />
           </div>
@@ -152,9 +154,9 @@ const Detail = (props: Props) => {
           <Table>
             <thead>
               <TableRow>
-                <th>{__("Score")}</th>
-                <th>{__("Result")}</th>
-                <th>{__("Status Color")}</th>
+                <th>{__('Score')}</th>
+                <th>{__('Result')}</th>
+                <th>{__('Status Color')}</th>
               </TableRow>
             </thead>
             <tbody>
@@ -162,7 +164,7 @@ const Detail = (props: Props) => {
                 <td>{score}</td>
                 <td>{status}</td>
                 <td>
-                  <ColorBox color={color} style={{ marginRight: "30px" }} />
+                  <ColorBox color={color} style={{ marginRight: '30px' }} />
                 </td>
               </TableRow>
             </tbody>
@@ -172,7 +174,7 @@ const Detail = (props: Props) => {
     );
   };
 
-  const renderSubmissions = (submissions) => {
+  const renderSubmissions = submissions => {
     if (!currentUserId) {
       return;
     }
@@ -183,10 +185,10 @@ const Detail = (props: Props) => {
     return <>{renderSubmission(fields)}</>;
   };
 
-  const renderAssignedUsers = (submissions) => {
+  const renderAssignedUsers = submissions => {
     const { assignedUsers } = props;
 
-    const handleSelect = (id) => {
+    const handleSelect = id => {
       setCurrentUserId(id);
     };
 
@@ -196,7 +198,7 @@ const Detail = (props: Props) => {
           <Tabs full>
             {(submissions || []).map(({ _id }) => {
               const assignedUser = assignedUsers.find(
-                (user) => user?._id === _id
+                user => user?._id === _id
               );
               if (!assignedUser) {
                 return;
@@ -204,7 +206,7 @@ const Detail = (props: Props) => {
               return (
                 <TabTitle
                   key={_id}
-                  className={currentUserId === _id ? "active" : ""}
+                  className={currentUserId === _id ? 'active' : ''}
                   onClick={handleSelect.bind(this, _id)}
                 >
                   <NameCard user={assignedUser} />
@@ -218,7 +220,7 @@ const Detail = (props: Props) => {
     );
   };
 
-  const renderIndicator = (indicator) => {
+  const renderIndicator = indicator => {
     if (!indicator) {
       return;
     }
@@ -228,15 +230,15 @@ const Detail = (props: Props) => {
         {renderTable({
           score: indicator.resultScore,
           status: indicator.status,
-          color: indicator.statusColor,
+          color: indicator.statusColor
         })}
         {renderAssignedUsers(indicator?.submissions)}
       </>
     );
   };
 
-  const renderIndicators = (indicatorsAssessment) => {
-    const handleChangeTabs = (id) => {
+  const renderIndicators = indicatorsAssessment => {
+    const handleChangeTabs = id => {
       setCurrentIndicatorId(id);
     };
 
@@ -244,11 +246,11 @@ const Detail = (props: Props) => {
       <>
         <TriggerTabs>
           <Tabs full>
-            {(indicatorsAssessment || []).map((indicator) => (
+            {(indicatorsAssessment || []).map(indicator => (
               <TabTitle
                 key={indicator._id}
                 onClick={handleChangeTabs.bind(this, indicator._id)}
-                className={currentIndicatorId === indicator._id ? "active" : ""}
+                className={currentIndicatorId === indicator._id ? 'active' : ''}
               >{`${indicator?.name}`}</TabTitle>
             ))}
           </Tabs>
@@ -256,16 +258,16 @@ const Detail = (props: Props) => {
         {currentIndicatorId &&
           renderIndicator(
             indicatorsAssessment.find(
-              (indicator) => indicator._id === currentIndicatorId
+              indicator => indicator._id === currentIndicatorId
             )
           )}
       </>
     );
   };
 
-  const renderGroup = (groupId) => {
+  const renderGroup = groupId => {
     const { groupAssessment } = props;
-    const group = groupAssessment.find((group) => group._id === groupId);
+    const group = groupAssessment.find(group => group._id === groupId);
 
     if (!group) {
       return;
@@ -276,7 +278,7 @@ const Detail = (props: Props) => {
         {renderTable({
           score: group.resultScore,
           status: group.status,
-          color: group.statusColor,
+          color: group.statusColor
         })}
         {renderIndicators(group?.indicatorsAssessments)}
       </>
@@ -286,7 +288,7 @@ const Detail = (props: Props) => {
   const renderGroups = () => {
     const { groupAssessment } = props;
 
-    const handleChangeTabs = (id) => {
+    const handleChangeTabs = id => {
       setCurrentGroupId(id);
     };
 
@@ -298,7 +300,7 @@ const Detail = (props: Props) => {
               <TabTitle
                 key={group._id}
                 onClick={handleChangeTabs.bind(this, group._id)}
-                className={currentGroupId === group._id ? "active" : ""}
+                className={currentGroupId === group._id ? 'active' : ''}
               >{`Group ${i + 1}`}</TabTitle>
             ))}
           </Tabs>
@@ -312,7 +314,7 @@ const Detail = (props: Props) => {
 
   const handleShowFlagged = () => {
     if (queryParams.showFlagged) {
-      return removeParams(navigate, location, "showFlagged");
+      return removeParams(navigate, location, 'showFlagged');
     }
     setParams(navigate, location, { showFlagged: true });
   };
@@ -322,26 +324,26 @@ const Detail = (props: Props) => {
       <FormContainer $row $gap $spaceBetween>
         <FormContainer $row $gap>
           {renderCard({
-            title: "Score",
-            content: <h4>{detail.resultScore}</h4>,
+            title: 'Score',
+            content: <h4>{detail.resultScore}</h4>
           })}
           {renderCard({
-            title: "Status",
+            title: 'Status',
             content: (
-              <h4 style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+              <h4 style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                 {detail?.status}
                 <ColorBox color={detail?.statusColor} />
               </h4>
-            ),
+            )
           })}
         </FormContainer>
         {renderUsers()}
       </FormContainer>
       <Button
-        icon={queryParams.showFlagged ? "eye-slash" : "eye"}
+        icon={queryParams.showFlagged ? 'eye-slash' : 'eye'}
         onClick={handleShowFlagged}
       >
-        {__("Show only flagged")}
+        {__('Show only flagged')}
       </Button>
       {groupAssessment && renderGroups()}
       {!groupAssessment?.length &&

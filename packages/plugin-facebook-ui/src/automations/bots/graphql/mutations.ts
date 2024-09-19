@@ -4,7 +4,9 @@ const params = `
   $pageId: String,
   $persistentMenus: [BotPersistentMenuInput],
   $greetText: String,
-  $tag: String
+  $tag: String,
+  $isEnabledBackBtn:Boolean,
+  $backButtonText:String
 `;
 
 const paramsDef = `
@@ -14,6 +16,8 @@ const paramsDef = `
   persistentMenus: $persistentMenus,
   greetText: $greetText
   tag: $tag
+  isEnabledBackBtn: $isEnabledBackBtn,
+  backButtonText:$backButtonText
 `;
 
 const addBot = `

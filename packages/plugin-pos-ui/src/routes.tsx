@@ -44,6 +44,13 @@ const PosOrdesByCustomers = asyncComponent(
     )
 );
 
+const PosOrdersBySubs = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PosOrdesBySubscriptions" */ "./orders/containers/OrdersBySubs"
+    )
+);
+
 const SettingsComponent = () => {
   const location = useLocation();
   return <List queryParams={queryString.parse(location.search)} />;
@@ -89,6 +96,11 @@ const OrdersByCustomersCompoenent = () => {
   );
 };
 
+const OrdersBySubsCompoenent = () => {
+  const location = useLocation();
+  return <PosOrdersBySubs queryParams={queryString.parse(location.search)} />;
+};
+
 const routes = () => {
   return (
     <Routes>
@@ -128,6 +140,11 @@ const routes = () => {
         key="/pos-orders-by-customers"
         path="/pos-orders-by-customers"
         element={<OrdersByCustomersCompoenent />}
+      />
+      <Route
+        key="/pos-orders-by-subscriptions"
+        path="/pos-orders-by-subscriptions"
+        element={<OrdersBySubsCompoenent />}
       />
     </Routes>
   );

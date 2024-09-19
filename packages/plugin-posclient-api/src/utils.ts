@@ -473,7 +473,8 @@ export const prepareSettlePayment = async (
 
           if (
             isForSubscription &&
-            subscriptionConfig?.rule === 'startPaidDate'
+            subscriptionConfig?.rule === 'startPaidDate' &&
+            !subscriptionConfig?.subsRenewable
           ) {
             const period = (subscriptionConfig?.period || '').replace('ly', '');
 

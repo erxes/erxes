@@ -9,7 +9,7 @@ import {
   doWaitingResponseAction
 } from './actions/wait';
 import { generateModels } from './connectionResolver';
-import { receiveTrigger } from './utils';
+import { executePrevAction, receiveTrigger } from './utils';
 import {
   consumeQueue,
   consumeRPCQueue
@@ -87,6 +87,17 @@ export const setupMessageConsumers = async () => {
       data: await models.Automations.countDocuments(query)
     };
   });
+
+  consumeRPCQueue(
+    'automations:excutePrevActionExecution',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      return {
+        status: 'success',
+        data: await executePrevAction(models, subdomain, data)
+      };
+    }
+  );
 };
 
 export const sendCommonMessage = async (

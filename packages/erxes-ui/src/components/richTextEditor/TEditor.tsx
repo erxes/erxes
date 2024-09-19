@@ -102,7 +102,7 @@ const RichTextEditor = forwardRef(function RichTextEditor(
     limit,
     toolbar,
     autoFocus,
-    onCtrlEnter
+    onCtrlEnter,
   } = props;
   const editorContentProps = {
     height,
@@ -125,6 +125,8 @@ const RichTextEditor = forwardRef(function RichTextEditor(
     extensions,
     parseOptions: { preserveWhitespace: true },
     autofocus: autoFocus,
+    immediatelyRender: true,
+    shouldRerenderOnTransaction: false,
   });
 
   useEffect(() => {
@@ -224,8 +226,8 @@ const RichTextEditor = forwardRef(function RichTextEditor(
   );
 
   useEffect(() => {
-    window.addEventListener("keydown", handleKeyEvents);
-    return () => window.removeEventListener("keydown", handleKeyEvents);
+    window.addEventListener('keydown', handleKeyEvents);
+    return () => window.removeEventListener('keydown', handleKeyEvents);
   }, [handleKeyEvents]);
 
   function handleKeyEvents(event: KeyboardEvent) {
@@ -233,7 +235,7 @@ const RichTextEditor = forwardRef(function RichTextEditor(
 
     if (!isFocused) return;
 
-    if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+    if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
       onCtrlEnter && onCtrlEnter();
     }
   }
