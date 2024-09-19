@@ -563,8 +563,8 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       body: queryOptions
     });
 
-    if (action === "count") {
-      return response && response.count ? response.count : 0;
+    if (action === 'count') {
+      return response?.count || 0;
     }
 
     const list = response.hits.hits.map((hit) => {
