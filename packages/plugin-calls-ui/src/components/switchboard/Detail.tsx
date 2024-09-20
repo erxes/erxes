@@ -1,12 +1,9 @@
 import React from 'react';
-
 import { Table } from '@erxes/ui/src/components';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-
 import { Row } from './Row';
 import { dimensions } from '@erxes/ui/src/styles';
 import { IQueueDoc, IWaitingCall } from '../../types';
-
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import {
@@ -19,6 +16,7 @@ import {
   Td,
   Th,
 } from '../../styles';
+import { formatTime } from '../../utils';
 
 type IProps = {
   waitingList: IWaitingCall | string;
@@ -27,6 +25,7 @@ type IProps = {
   initialTalkingCall: any;
   initialWaitingCall: any;
 };
+
 function Detail(props: IProps) {
   const {
     waitingList,
@@ -35,36 +34,35 @@ function Detail(props: IProps) {
     initialTalkingCall,
     initialWaitingCall,
   } = props;
-  function formatName(firstName, lastName) {
-    const lastInitial = lastName?.charAt(0).toUpperCase();
 
+  const formatName = (firstName, lastName) => {
+    const lastInitial = lastName?.charAt(0).toUpperCase();
     return `${lastInitial}.${firstName}`;
-  }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    return dateString.slice(5, 16);
+  };
 
   const renderTable = (list, isWaitinglist) => {
     return (
       <DashboardTable color={isWaitinglist ? '#dc9012e8' : '#46a621d9'}>
         <Table>
-          <thead
-            style={{
-              backgroundColor: isWaitinglist ? '#dc9012e8' : '#46a621d9 ',
-            }}
-          >
+          <thead>
             <tr>
-              <Th backgroundColor={isWaitinglist ? '#dc9012e8' : '#46a621d9 '}>
+              <Th backgroundColor={isWaitinglist ? '#dc9012e8' : '#46a621d9'}>
                 {'Status'}
               </Th>
-              <Th backgroundColor={isWaitinglist ? '#dc9012e8' : '#46a621d9 '}>
+              <Th backgroundColor={isWaitinglist ? '#dc9012e8' : '#46a621d9'}>
                 {'Caller'}
               </Th>
               {!isWaitinglist && (
-                <Th
-                  backgroundColor={isWaitinglist ? '#dc9012e8' : '#46a621d9 '}
-                >
+                <Th backgroundColor={isWaitinglist ? '#dc9012e8' : '#46a621d9'}>
                   {'Callee'}
                 </Th>
               )}
-              <Th backgroundColor={isWaitinglist ? '#dc9012e8' : '#46a621d9 '}>
+              <Th backgroundColor={isWaitinglist ? '#dc9012e8' : '#46a621d9'}>
                 {isWaitinglist ? 'Wait time' : 'Talk time'}
               </Th>
             </tr>
@@ -94,7 +92,6 @@ function Detail(props: IProps) {
       typeof waitingList === 'string'
         ? JSON.parse(waitingList).member
         : waitingList?.member;
-
     let initialMembers =
       typeof initialWaitingCall === 'string'
         ? JSON.parse(initialWaitingCall).member
@@ -166,10 +163,10 @@ function Detail(props: IProps) {
       Idle: 3,
       Paused: 4,
     };
+
     const sortedAgent = members?.sort((a, b) => {
       const statusA = statusPriority[a.status] || Number.MAX_VALUE;
       const statusB = statusPriority[b.status] || Number.MAX_VALUE;
-
       return statusA - statusB;
     });
 
@@ -179,10 +176,11 @@ function Detail(props: IProps) {
         <div
           style={{
             border: '1px solid #eee',
-            borderRadius: `${dimensions.unitSpacing - 2}px ${dimensions.unitSpacing - 2}px`,
+            borderRadius: `${dimensions.unitSpacing - 2}px ${
+              dimensions.unitSpacing - 2
+            }px`,
             overflowY: 'auto',
-            fontSize: '20px',
-            fontWeight: 'bold',
+            overflowX: 'auto',
             background: '#6aecff',
           }}
         >
@@ -193,6 +191,8 @@ function Detail(props: IProps) {
                 <Th backgroundColor={'#6aecff'}>Extention</Th>
                 <Th backgroundColor={'#6aecff'}>Name</Th>
                 <Th backgroundColor={'#6aecff'}>Answered</Th>
+                <Th backgroundColor={'#6aecff'}>Pause time</Th>
+                <Th backgroundColor={'#6aecff'}>Talk time</Th>
               </tr>
             </thead>
             <tbody>
@@ -236,6 +236,22 @@ function Detail(props: IProps) {
                       >
                         {data.answer}
                       </Td>
+                      <Td
+                        color={data.status === 'Paused' ? 'red' : 'black'}
+                        fontWeight={
+                          data.status === 'Paused' ? 'normal' : 'bold'
+                        }
+                      >
+                        {formatDate(data.pausetime)}
+                      </Td>
+                      <Td
+                        color={data.status === 'Paused' ? 'red' : 'black'}
+                        fontWeight={
+                          data.status === 'Paused' ? 'normal' : 'bold'
+                        }
+                      >
+                        {formatTime(data.talktime)}
+                      </Td>
                     </tr>
                   )
                 );
@@ -246,6 +262,7 @@ function Detail(props: IProps) {
       </Item3>
     );
   };
+
   const queues =
     JSON.parse(localStorage.getItem('config:call_integrations') || '{}')
       .queues || [];
@@ -260,15 +277,13 @@ function Detail(props: IProps) {
       header={<Wrapper.Header title={'Call Dashboard'} submenu={subMenu} />}
       content={
         <GridContainer>
-          {
-            <DataWithLoader
-              data={AgentDetail()}
-              loading={false}
-              count={memberList?.member?.length}
-              emptyText={'Theres no agent'}
-              emptyImage="/images/actions/18.svg"
-            />
-          }
+          <DataWithLoader
+            data={AgentDetail()}
+            loading={false}
+            count={memberList?.member?.length}
+            emptyText={'Theres no agent'}
+            emptyImage="/images/actions/18.svg"
+          />
           {waitingDetail()}
           {proceedingDetail()}
         </GridContainer>

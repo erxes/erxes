@@ -1,4 +1,4 @@
-const posOrderFields = (contactsEnabled) => `
+const posOrderFields = contactsEnabled => `
   _id: String,
   createdAt: Date,
   status: String,
@@ -81,6 +81,15 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     totalAmount:Int
   }
 
+  type PosOrdersBySubs {
+    _id: String,
+    customerType: String,
+    customerId:String,
+    customer:JSON,
+    status:String
+    closeDate:Date
+  }
+
   type PosProduct {
     _id: String!
     name: String
@@ -139,6 +148,16 @@ const groupParams = `
   groupField: String
 `;
 
+const commonSubsQueryParams = `
+  ${commonQueryParams}
+  customerId:String,
+  userId:String,
+  companyId:String,
+  status:String,
+  closeFrom:String,
+  closeTo:String,
+`;
+
 export const queries = `
   posOrders(${queryParams}): [PosOrder]
   posOrderDetail(_id: String): PosOrderDetail
@@ -150,7 +169,8 @@ export const queries = `
   posOrderRecordsCount(${queryParams}): Int
   posOrderCustomers(${commonQueryParams}):[PosOrdersByCustomer]
   posOrderCustomersTotalCount(${commonQueryParams}):Int
-  checkSubscription(customerId:String, productId:String): PosOrder
+  checkSubscription(customerId:String, productId:String,productIds:[String]): PosOrder
+  posOrderBySubscriptions(${commonSubsQueryParams}):[PosOrdersBySubs]
 `;
 
 export const mutations = `

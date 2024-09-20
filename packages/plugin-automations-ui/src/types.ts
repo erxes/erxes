@@ -15,6 +15,7 @@ export type ITrigger = {
   position?: any;
   isAvailableOptionalConnect?: boolean;
   isCustom?: boolean;
+  workflowId?: string;
 
   count?: number;
 };

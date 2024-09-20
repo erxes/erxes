@@ -6,6 +6,7 @@ import {
   ITransactionDocument
 } from "../../../models/definitions/transactions";
 import { createLog, deleteLog, updateLog } from "../../../logUtils";
+import { loansSchedulesChanged } from "./schedules";
 
 const transactionMutations = {
   transactionsAdd: async (
@@ -17,6 +18,10 @@ const transactionMutations = {
       subdomain,
       doc
     );
+
+    if (transaction.contractId) {
+      await loansSchedulesChanged(transaction.contractId);
+    }
 
     const logData = {
       type: "transaction",
@@ -57,6 +62,10 @@ const transactionMutations = {
       doc
     );
 
+    if (transaction.contractId) {
+      await loansSchedulesChanged(transaction.contractId);
+    }
+
     const logData = {
       type: "transaction",
       newData: doc,
@@ -87,6 +96,10 @@ const transactionMutations = {
       _id,
       doc
     );
+
+    if (updated.contractId) {
+      await loansSchedulesChanged(updated.contractId);
+    }
 
     const logData = {
       type: "transaction",
@@ -119,6 +132,10 @@ const transactionMutations = {
       doc,
       subdomain
     );
+
+    if (updated.contractId) {
+      await loansSchedulesChanged(updated.contractId);
+    }
 
     const logData = {
       type: "transaction",
@@ -160,7 +177,7 @@ const transactionMutations = {
         extraParams: { models }
       };
 
-      if (!!transaction.ebarimt && transaction.isManual)
+      if (!!transaction.ebarimt && transaction.isManual) {
         await sendMessageBroker(
           {
             action: "putresponses.returnBill",
@@ -173,12 +190,18 @@ const transactionMutations = {
           },
           "ebarimt"
         );
+      }
+
+      if (transaction.contractId) {
+        await loansSchedulesChanged(transaction.contractId);
+      }
 
       await deleteLog(subdomain, user, logData);
     }
 
     return transactionIds;
   },
+
   createEBarimtOnTransaction: async (
     _root,
     {

@@ -178,6 +178,7 @@ export type ContractsQueryResponse = {
   contracts: IContract[];
   loading: boolean;
   refetch: () => void;
+  subscribeToMore: any;
 };
 
 export type ListConfigQueryResponse = {

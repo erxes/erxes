@@ -1,6 +1,6 @@
 import {
   Content,
-  MessengerPreview,
+  MessengerPreview
 } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import Steps from '@erxes/ui/src/components//step/Steps';
 import Button from '@erxes/ui/src/components/Button';
@@ -19,17 +19,20 @@ import { __ } from '@erxes/ui/src/utils/core';
 import React, { useEffect, useState } from 'react';
 import Accounts from '../../../containers/Accounts';
 import ButtonsGenerator from '../../components/action/ButtonGenerator';
-import { FieldInfo, Padding } from '../../styles';
+import { Container, FieldInfo, Padding } from '../../styles';
 import { EmulatorWrapper, Features, MobileEmulator } from '../styles';
 import { SelectAccountPages, fetchPageDetail } from '../utils';
 import { Avatar } from '@erxes/ui-cards/src/boards/styles/item';
 import Icon from '@erxes/ui/src/components/Icon';
 import { FacebookTagText } from '../../../components/conversationDetail/workarea/styles';
+import { FlexRow } from '@erxes/ui-settings/src/styles';
+import { Toggle } from '@erxes/ui/src/components';
+import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 
 const tags = [
   { label: 'Confirmed Event Update', value: 'CONFIRMED_EVENT_UPDATE' },
   { label: 'Post-Purchase Update', value: 'POST_PURCHASE_UPDATE' },
-  { label: 'Account Update', value: 'ACCOUNT_UPDATE' },
+  { label: 'Account Update', value: 'ACCOUNT_UPDATE' }
 ];
 
 type Props = {
@@ -74,7 +77,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
         setDoc({
           ...doc,
           profileUrl: response?.profileUrl,
-          page: { ...doc.page, name: response?.name },
+          page: { ...doc.page, name: response?.name }
         });
       });
     }
@@ -91,17 +94,26 @@ function Form({ renderButton, bot, returnToList }: Props) {
       setDoc({ ...doc, [name]: value });
     };
 
+    const onChange = (name, value) => {
+      setDoc({ ...doc, [name]: value });
+    };
+
     const onChangeGreetText = (e) => {
       const { value } = e.currentTarget as HTMLInputElement;
 
-      if (doc.greetText > 160) {
+      if (value.length > 160) {
         return null;
       }
 
-      setDoc({
-        ...doc,
-        greetText: value,
-      });
+      onChange('greetText', value);
+    };
+
+    const onChangeBackButtonInput = (e) => {
+      const { value } = e.currentTarget as HTMLInputElement;
+      if (value.length > 20) {
+        return null;
+      }
+      onChange('backButtonText', value);
     };
 
     return (
@@ -161,21 +173,21 @@ function Form({ renderButton, bot, returnToList }: Props) {
                 />
               </FormGroup>
               <ControlLabel>
-                <Flex>
+                <FlexRow $alignItems="center">
                   {__('Persistent Menu')}
 
                   <HelpPopover title="">
                     "A Persistent Menu is a quick-access toolbar in your chat.
                     Customize it below for easy navigation to key bot features."
                   </HelpPopover>
-                </Flex>
+                </FlexRow>
               </ControlLabel>
               <ButtonsGenerator
                 _id=""
                 buttons={doc.persistentMenus || []}
                 addButtonLabel="Add Persistent Menu"
                 onChange={(_id, _name, values) =>
-                  setDoc({ ...doc, persistentMenus: values })
+                  onChange('persistentMenus', values)
                 }
                 limit={5}
               />
@@ -185,7 +197,8 @@ function Form({ renderButton, bot, returnToList }: Props) {
             title="Additional Bot Setup"
             noButton
             img="/images/icons/erxes-12.svg"
-            back={() => setLastStep(false)}
+            back={() => setLastStep(true)}
+            onClick={() => setLastStep(true)}
           >
             <Padding>
               <FormGroup>
@@ -216,7 +229,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
                   onChange={(e) =>
                     setDoc({
                       ...doc,
-                      tag: (e.currentTarget as HTMLInputElement)?.value,
+                      tag: (e.currentTarget as HTMLInputElement)?.value
                     })
                   }
                 >
@@ -245,6 +258,35 @@ function Form({ renderButton, bot, returnToList }: Props) {
                   </a>
                 </FacebookTagText>
               </FormGroup>
+              <FormGroup>
+                <ControlLabel>
+                  Enable Back Button on Persistence menu
+                </ControlLabel>
+                <Toggle
+                  defaultChecked={false}
+                  checked={doc?.isEnabledBackBtn}
+                  onChange={() =>
+                    onChange('isEnabledBackBtn', !doc?.isEnabledBackBtn)
+                  }
+                />
+                {doc?.isEnabledBackBtn && (
+                  <Container>
+                    <FormGroup>
+                      <ControlLabel>
+                        {'Back Button Text (optional)'}
+                      </ControlLabel>
+                      <FieldInfo
+                        error={doc?.backButtonText?.length > 20}
+                      >{`${doc?.backButtonText?.length || 0}/20`}</FieldInfo>
+                      <FormControl
+                        placeholder="Set custom back button text for the persistent menu"
+                        value={doc.backButtonText || ''}
+                        onChange={onChangeBackButtonInput}
+                      />
+                    </FormGroup>
+                  </Container>
+                )}
+              </FormGroup>
             </Padding>
           </Step>
         </Steps>
@@ -257,7 +299,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
               name: 'Bot',
               values: generateDoc(values),
               isSubmitted,
-              object: bot,
+              object: bot
             })}
           </Padding>
         </ModalFooter>
@@ -269,9 +311,9 @@ function Form({ renderButton, bot, returnToList }: Props) {
     { title: __('Settings'), link: '/settings' },
     {
       title: __('Bots config'),
-      link: '/settings/automations/bots',
+      link: '/settings/automations/bots'
     },
-    { title: __(bot ? `Edit ${bot.name}` : 'Create Bot') },
+    { title: __(bot ? `Edit ${bot.name}` : 'Create Bot') }
   ];
 
   return (
@@ -343,9 +385,20 @@ function Form({ renderButton, bot, returnToList }: Props) {
                       <div className="persistentMenu">
                         <div className="dragger" />
                         <ul>
-                          {(doc?.persistentMenus || []).map((menu) => (
-                            <li key={menu._id}>{menu.text || ''}</li>
-                          ))}
+                          {(doc?.persistentMenus || [])
+                            .concat(
+                              doc?.isEnabledBackBtn
+                                ? [
+                                    {
+                                      _id: Math.random(),
+                                      text: doc?.backButtonText || 'Back'
+                                    }
+                                  ]
+                                : []
+                            )
+                            .map((menu) => (
+                              <li key={menu._id}>{menu.text || ''}</li>
+                            ))}
                         </ul>
                       </div>
                     </>

@@ -178,6 +178,15 @@ export type OrdersByCustomer = {
   totalAmount: number;
 };
 
+export type PosOrdersBySub = {
+  _id: string;
+  customerType: string;
+  customerId: string;
+  customer: any;
+  status: string;
+  closeDate: string;
+};
+
 export type CoversQueryResponse = {
   posCovers: ICover[];
   loading: boolean;
@@ -193,6 +202,10 @@ export type CoversCountQueryResponse = {
 export type OrderByCustomersQueryResponse = {
   posOrderCustomers: OrdersByCustomer[];
   posOrderCustomersTotalCount: number;
+} & QueryResponse;
+
+export type OrderBySubsQueryResponse = {
+  posOrderBySubscriptions: PosOrdersBySub[];
 } & QueryResponse;
 
 export type CoverDetailQueryResponse = {

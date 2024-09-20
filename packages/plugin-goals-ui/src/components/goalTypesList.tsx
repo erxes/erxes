@@ -147,9 +147,6 @@ const goalTypesList = (props: Props) => {
               <th>{__('metric')}</th>
               <th>{__('startDate')}</th>
               <th>{__('endDate')}</th>
-              <th>{__('current')}</th>
-              <th>{__('target')}</th>
-              <th>{__('progress(%)')}</th>
               <th>{__('Action')}</th>
             </tr>
           </thead>

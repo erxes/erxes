@@ -218,6 +218,7 @@ const listParamsValue = `
 
 const insuranceTypeFields = `
   _id
+  name
   entity
   stageId
   pipelineId

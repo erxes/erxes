@@ -1013,13 +1013,11 @@ const DashboardTable = styledTS<{ color: string }>(styled.div)`
   border-radius: ${dimensions.unitSpacing - 2}px ${dimensions.unitSpacing - 2}px;
   height: 400px;
   overflow-y: auto;
-  font-size: 20px;
-  font-weight: bold;
   background: ${(props) => props.color} !important;
 `;
 const GridContainer = styled.div`
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: 50% auto;
   grid-gap: 10px;
   padding: 0 5px 0 5px;
 `;
@@ -1042,13 +1040,12 @@ const Label = styledTS<{ $color: string }>(styled.span)`
   border-radius: 5px;
   padding: 3px 9px;
   white-space: nowrap;
-  font-size: 15px;
   display: inline-block;
   line-height: 1.32857143;
   background: ${(props) => rgba(props.$color, 0.15)};
   color: ${(props) => props.$color};
   border: none;
-  font-weight: 600;
+  
   margin-left: 20%;
   &:hover {
     cursor: default;
@@ -1062,6 +1059,28 @@ const Label = styledTS<{ $color: string }>(styled.span)`
     text-align: center;
     font-weight: normal;
   }
+  
+  @media (max-width: 768px) {
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 1024px) {
+    font-size: 11px;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 12px;
+  }
+
+  @media (min-width: 1280px) {
+    font-size: 13px;
+  }
+
+  @media (min-width: 2000px) {
+    font-weight: 600;
+    font-size: 15px;
+  }
 `;
 
 const Th = styledTS<{ backgroundColor: string; color?: string }>(styled.th)`
@@ -1071,8 +1090,30 @@ const Th = styledTS<{ backgroundColor: string; color?: string }>(styled.th)`
 
 const Td = styledTS<{ color?: string; fontWeight?: string }>(styled.td)`
   color: ${(props) => props.color && props.color} !important;
-  font-weight: ${(props) => props.fontWeight && props.fontWeight} !important;
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 1024px) {
+    font-size: 13px;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 14px;
+  }
+
+  @media (min-width: 1280px) {
+    font-size: 15px;
+  }
+
+  @media (min-width: 2000px) {
+    font-size: 20px;
+    font-weight: ${(props) => props.fontWeight && props.fontWeight} !important;
+  }
 `;
+
 export {
   ActivityRow,
   ActivityIcon,

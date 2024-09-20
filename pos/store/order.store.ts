@@ -69,8 +69,10 @@ export const orderTotalAmountAtom = atom<number>(0)
 export const cashAmountAtom = atom<number>(0)
 export const mobileAmountAtom = atom<number>(0)
 export const directDiscountAtom = atom<number>(0)
-export const directDiscountTypeAtom = atom<"percent" | "amount">("amount")
-export const savedDirectDiscountAtom = atom<number>(0)
+export const directIsAmountAtom = atomWithStorage<boolean>(
+  "directIsAmount",
+  false
+)
 export const paidAmountsAtom = atom<IPaidAmount[]>([])
 export const payByProductAtom = atom<PayByProductItem[]>([])
 
@@ -225,6 +227,7 @@ export const setOrderStatesAtom = atom(
       dueDate,
       isPre,
       directDiscount,
+      directIsAmount,
     }: IOrder
   ) => {
     set(activeOrderIdAtom, _id || null)
@@ -234,12 +237,8 @@ export const setOrderStatesAtom = atom(
       get(permissionConfigAtom) || {}
     const discount = directDiscount ?? 0
     if (allowDirectDiscount && directDiscountLimit) {
-      const discountValue =
-        get(directDiscountTypeAtom) === "percent"
-          ? discount
-          : (totalAmount * discount) / (100 - discount)
-      set(directDiscountAtom, discountValue)
-      set(savedDirectDiscountAtom, discountValue)
+      set(directDiscountAtom, discount)
+      set(directIsAmountAtom, !!directIsAmount)
     }
 
     set(customerTypeAtom, customerType || "")
@@ -275,10 +274,8 @@ export const setOnOrderChangeAtom = atom(
 export const orderValuesAtom = atom((get) => ({
   items: get(orderItemInput),
   totalAmount: get(totalAmountAtom),
-  directDiscount:
-    get(directDiscountTypeAtom) === "percent"
-      ? get(directDiscountAtom)
-      : (get(directDiscountAtom) / get(totalAmountAtom)) * 100,
+  directDiscount: get(directDiscountAtom),
+  directIsAmount: get(directDiscountAtom) ? get(directIsAmountAtom) : undefined,
   type: get(orderTypeAtom),
   _id: get(activeOrderIdAtom),
   customerType: get(customerTypeAtom),
