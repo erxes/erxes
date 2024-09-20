@@ -62,6 +62,7 @@ import {
 } from "./data/modules/coc/verifierUtils";
 import { buildFile } from "./exporterByUrl";
 import documents from "./documents";
+import reports from "./reports/reports";
 
 const {
   JWT_TOKEN_SECRET,
@@ -442,7 +443,8 @@ httpServer.listen(PORT, async () => {
       exporter,
       cronjobs: {
         handle10MinutelyJobAvailable: VERSION === "saas" ? true : false
-      }
+      },
+      reports
     }
   });
 

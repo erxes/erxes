@@ -581,7 +581,7 @@ export default {
   collectItems: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    return sendSuccess(await collectItems(models, subdomain, data));
+    return sendSuccess(await collectItems(subdomain, data));
   },
 
   getSchemaLabels: ({ data: { type } }) => {
