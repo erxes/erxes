@@ -1,6 +1,7 @@
 import React, { type ChangeEvent } from "react"
+import { modeAtom } from "@/store"
 import { totalAmountAtom } from "@/store/cart.store"
-import { permissionConfigAtom } from "@/store/config.store"
+import { directDiscountConfigAtom } from "@/store/config.store"
 import { directDiscountAtom, directIsAmountAtom } from "@/store/order.store"
 import { useAtom, useAtomValue } from "jotai"
 
@@ -10,11 +11,10 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const DirectDiscount: React.FC = () => {
-  const permissionConfig = useAtomValue(permissionConfigAtom)
-  const { directDiscount: directDiscountCheck, directDiscountLimit } =
-    permissionConfig || {}
-
-  const allowDirectDiscount = directDiscountCheck && directDiscountLimit
+  const mode = useAtomValue(modeAtom)
+  const { allowDirectDiscount, directDiscountLimit } = useAtomValue(
+    directDiscountConfigAtom
+  )
   const [directDiscount, setDirectDiscount] = useAtom(directDiscountAtom)
   const [isAmount, setIsAmount] = useAtom(directIsAmountAtom)
   const totalAmount = useAtomValue(totalAmountAtom)
@@ -50,7 +50,7 @@ const DirectDiscount: React.FC = () => {
 
   return (
     <>
-      <Separator />
+      {mode === "main" && <Separator />}
       <div>
         <Label htmlFor="directDiscount" className="block pb-2">
           Хямдарлын {isAmount ? "дүн" : "хувь"} оруулах (max:
