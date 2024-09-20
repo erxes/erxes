@@ -7,7 +7,7 @@ export const checkDirectDiscount = (
   config: IConfigDocument,
   posUser: IPosUserDocument
 ): IOrderInput => {
-  const { directDiscount, items } = orderInput;
+  const { directDiscount, directIsAmount, items, totalAmount } = orderInput;
   const { adminIds, cashierIds, permissionConfig } = config;
   const output = { ...orderInput, directDiscount: 0 };
   if (
@@ -23,17 +23,18 @@ export const checkDirectDiscount = (
 
   if (!staffConfig?.directDiscount) return output;
 
-  const limit = parseFloat(staffConfig?.directDiscountLimit);
+  const limitPercent = parseFloat(staffConfig?.directDiscountLimit);
 
-  if (isNaN(limit)) return output;
+  if (isNaN(limitPercent)) return output;
 
-  if (directDiscount > limit) {
+  if ((!directIsAmount && directDiscount > limitPercent) || (directIsAmount && directDiscount > totalAmount / 100 * limitPercent)) {
     throw new Error(
       `Direct discount limit of ${isAdmin ? 'admins' : 'cashiers'} exceeded`
     );
   }
 
-  applyDiscount(items, directDiscount);
+  const discountPercent = directIsAmount ? directDiscount * 100 / totalAmount : directDiscount;
+  applyDiscount(items, discountPercent);
 
   return orderInput;
 };

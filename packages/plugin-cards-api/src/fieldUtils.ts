@@ -10,6 +10,7 @@ import {
   sendProductsMessage,
   sendSegmentsMessage
 } from './messageBroker';
+import { PROBABILITY } from './models/definitions/constants';
 
 const generateProductsOptions = async (
   subdomain: string,
@@ -368,6 +369,15 @@ export const generateFields = async ({ subdomain, data }) => {
 
     fields = [...fields, ...extendExport];
   }
+  const stageProbabilityOptions = {
+    _id: Math.random(),
+    name: 'stageProbability',
+    label: 'Stage probability',
+    type: 'stage',
+    selectOptions: PROBABILITY.ALL.map(item => ({ label: item, value: item }))
+  };
+
+  fields = [...fields, stageProbabilityOptions];
 
   if (segmentId || pipelineId) {
     const segment = segmentId
@@ -398,7 +408,7 @@ export const generateFields = async ({ subdomain, data }) => {
       type: 'stage'
     };
 
-    fields = [...fields, stageOptions];
+    fields = [...fields, stageOptions, stageProbabilityOptions];
   }
 
   return fields;

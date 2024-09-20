@@ -51,8 +51,8 @@ const uomsAdd = `
 `;
 
 const uomsEdit = `
-  mutation uomsEdit($id: String!,${commonUomParams}) {
-    uomsEdit(_id: $id, ${commonUomParamsDef}) {
+  mutation uomsEdit($_id: String!,${commonUomParams}) {
+    uomsEdit(_id: $_id, ${commonUomParamsDef}) {
       _id
       name
       code
@@ -84,5 +84,5 @@ export default {
   uomsEdit,
   uomsRemove,
 
-  productsConfigsUpdate,
+  productsConfigsUpdate
 };

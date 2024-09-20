@@ -6,6 +6,7 @@ import {
   ITransactionDocument
 } from "../../../models/definitions/transactions";
 import { createLog, deleteLog, updateLog } from "../../../logUtils";
+import { savingsContractChanged } from "./contracts";
 
 const transactionMutations = {
   savingsTransactionsAdd: async (
@@ -18,6 +19,13 @@ const transactionMutations = {
       subdomain
     );
 
+    if (transaction.contractId) {
+      const contract = await models.Contracts.findOne({ _id: transaction.contractId });
+      if (contract) {
+        await savingsContractChanged(contract);
+      }
+    }
+
     const logData = {
       type: "transaction",
       newData: doc,
@@ -29,6 +37,7 @@ const transactionMutations = {
 
     return transaction;
   },
+
   clientSavingsTransactionsAdd: async (
     _root,
     doc: ITransaction & { secondaryPassword: string },
@@ -56,6 +65,13 @@ const transactionMutations = {
       subdomain
     );
 
+    if (transaction.contractId) {
+      const contract = await models.Contracts.findOne({ _id: transaction.contractId });
+      if (contract) {
+        await savingsContractChanged(contract);
+      }
+    }
+
     const logData = {
       type: "transaction",
       newData: doc,
@@ -82,6 +98,13 @@ const transactionMutations = {
     });
 
     const updated = await models.Transactions.updateTransaction(_id, doc);
+
+    if (updated.contractId) {
+      const contract = await models.Contracts.findOne({ _id: updated.contractId });
+      if (contract) {
+        await savingsContractChanged(contract);
+      }
+    }
 
     const logData = {
       type: "transaction",
@@ -111,6 +134,12 @@ const transactionMutations = {
 
     const updated = await models.Transactions.changeTransaction(_id, doc);
 
+    if (updated.contractId) {
+      const contract = await models.Contracts.findOne({ _id: updated.contractId });
+      if (contract) {
+        await savingsContractChanged(contract);
+      }
+    }
     const logData = {
       type: "transaction",
       object: transaction,
@@ -148,6 +177,13 @@ const transactionMutations = {
         object: transaction,
         extraParams: { models }
       };
+
+      if (transaction.contractId) {
+        const contract = await models.Contracts.findOne({ _id: transaction.contractId });
+        if (contract) {
+          await savingsContractChanged(contract);
+        }
+      }
 
       // if (transaction.ebarimt && transaction.isManual){
       //   await sendMessageBroker(
