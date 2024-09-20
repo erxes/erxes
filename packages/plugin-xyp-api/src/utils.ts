@@ -3,6 +3,7 @@ import { IXypDataDocument } from './models/definitions/xypdata';
 
 import { nanoid } from 'nanoid';
 import { IModels } from './connectionResolver';
+import { ISyncRuleDocument } from './models/definitions/syncRule';
 
 /*
  * Mongoose field options wrapper
@@ -192,12 +193,12 @@ const getObject = async (subdomain: string, type: string, doc: IXypDataDocument)
   return;
 }
 
-const saveObject =async  (subdomain, type) => {
+const saveObject = async (subdomain, type, object, modifier) => {
   if (type === 'contacts:customer') {
     return await sendContactsMessage({
       subdomain,
       action: 'customers.updateOne',
-      // data: { _id: customerId },
+      data: { selector: { _id: object._id }, modifier },
       isRPC: true,
       defaultValue: {}
     });
@@ -210,7 +211,7 @@ export const syncData = async (subdomain: string, models: IModels, doc: IXypData
       continue;
     }
 
-    const syncRules = await models.SyncRules.find({ serviceName });
+    const syncRules: ISyncRuleDocument[] = await models.SyncRules.find({ serviceName }).lean();
     if (!syncRules.length) {
       continue;
     }
@@ -226,19 +227,38 @@ export const syncData = async (subdomain: string, models: IModels, doc: IXypData
       const objSyncRules = syncRules.filter(sr => sr.objectType === objectType);
       const relObject = await getObject(subdomain, objectType, doc);
 
-      // sendFormsMessage({
-      //   subdomain,
-      //   action: 'fields.find',
-      //   data: {
-      //     query: {
+      const fields = await sendFormsMessage({
+        subdomain,
+        action: 'fields.find',
+        data: {
+          query: {
+            _id: { $in: objSyncRules.map(osr => osr.formField) }
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
 
-      //     }
-      //   }
-      // })
+      const toUpdateData: any = { customFieldsData: relObject.customFieldsData };
+      for (const field of fields) {
+        for (const responseKey of Object.keys(data)) {
+          if (field.isDefinedByErxes) {
+            toUpdateData[field.field] = data[responseKey]
+          } else {
+            if (toUpdateData.map(cfd => cfd.field).includes(field._id)) {
+              toUpdateData.customFieldsData = toUpdateData.customFieldsData.filter(cfd => cfd.field !== field._id)
+            }
 
-      // await saveObject()
+            toUpdateData.customFieldsData.push({
+              field: field._id,
+              value: data[responseKey],
+              stringValue: data[responseKey].toString(),
+            })
+          }
+        }
+      }
+
+      await saveObject(subdomain, objectType, relObject, toUpdateData)
     }
   }
-
-
 }
