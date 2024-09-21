@@ -47,15 +47,18 @@ export const single = async (email: string, hostname: string) => {
 
   if (emailOnDb) {
     debugBase(`This email is already verified`, email);
-
-    return sendRequest({
-      url: `${hostname}/verifier/webhook`,
-      method: 'POST',
-      body: {
-        email: { email, status: emailOnDb.status },
-        source: EMAIL_VALIDATION_SOURCES.ERXES,
-      },
-    });
+    try {
+      return sendRequest({
+        url: `${hostname}/verifier/webhook`,
+        method: 'POST',
+        body: {
+          email: { email, status: emailOnDb.status },
+          source: EMAIL_VALIDATION_SOURCES.ERXES,
+        },
+      });
+    } catch (e) {
+      throw e;
+    }
   }
 
   if (MAIL_VERIFIER_SERVICE === 'clearout') {

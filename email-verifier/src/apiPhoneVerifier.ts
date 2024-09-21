@@ -57,7 +57,7 @@ const bulkClearOut = async (unverifiedPhones: string[], hostname: string) => {
   });
 
   await csvWriter.writeRecords(
-    unverifiedPhones.map((phone) => ({ number: phone })),
+    unverifiedPhones.map((phone) => ({ number: phone }))
   );
 
   try {
@@ -98,14 +98,17 @@ export const validateSinglePhone = async (phone: string, hostname: string) => {
 
   if (phoneOnDb) {
     debugBase(`This phone number is already verified`);
-
-    return sendRequest({
-      url: `${hostname}/verifier/webhook`,
-      method: 'POST',
-      body: {
-        phone: { phone, status: phoneOnDb.status },
-      },
-    });
+    try {
+      return sendRequest({
+        url: `${hostname}/verifier/webhook`,
+        method: 'POST',
+        body: {
+          phone: { phone, status: phoneOnDb.status },
+        },
+      });
+    } catch (e) {
+      throw e;
+    }
   }
 
   if (!phone.includes('+')) {
@@ -117,49 +120,52 @@ export const validateSinglePhone = async (phone: string, hostname: string) => {
 
   try {
     debugBase(
-      `Phone number is not found on verifier DB. Sending request to clearoutphone`,
+      `Phone number is not found on verifier DB. Sending request to clearoutphone`
     );
     response = await singleClearOut(phone);
     debugBase(`Received single phone validation status`);
   } catch (e) {
     return { phone, status: PHONE_VALIDATION_STATUSES.UNKNOWN };
   }
+  try {
+    if (response.status === 'success') {
+      const data = response.data;
+      await savePhone({
+        phone,
+        status: data.status,
+        lineType: data.lineType,
+        carrier: data.carrier,
+        internationalFormat: data.internationalFormat,
+        localFormat: data.localFormat,
+      });
 
-  if (response.status === 'success') {
-    const data = response.data;
-    await savePhone({
-      phone,
-      status: data.status,
-      lineType: data.lineType,
-      carrier: data.carrier,
-      internationalFormat: data.internationalFormat,
-      localFormat: data.localFormat,
-    });
+      debugBase(`Sending single phone validation status to erxes-api`);
 
-    debugBase(`Sending single phone validation status to erxes-api`);
-
-    await sendRequest({
-      url: `${hostname}/verifier/webhook`,
-      method: 'POST',
-      body: {
-        phone: { phone, status: data.status },
-      },
-    });
-  } else {
-    // if status is not success
-    await sendRequest({
-      url: `${hostname}/verifier/webhook`,
-      method: 'POST',
-      body: {
-        phone: { phone, status: PHONE_VALIDATION_STATUSES.UNKNOWN },
-      },
-    });
+      await sendRequest({
+        url: `${hostname}/verifier/webhook`,
+        method: 'POST',
+        body: {
+          phone: { phone, status: data.status },
+        },
+      });
+    } else {
+      // if status is not success
+      await sendRequest({
+        url: `${hostname}/verifier/webhook`,
+        method: 'POST',
+        body: {
+          phone: { phone, status: PHONE_VALIDATION_STATUSES.UNKNOWN },
+        },
+      });
+    }
+  } catch (e) {
+    throw e;
   }
 };
 
 export const validateBulkPhones = async (
   phones: string[],
-  hostname: string,
+  hostname: string
 ) => {
   phones = phones.map((phone) => phone.toString());
   const phonesOnDb = await Phones.find({ phone: { $in: phones } });
@@ -168,7 +174,7 @@ export const validateBulkPhones = async (
     ({ phone, status }) => ({
       phone,
       status,
-    }),
+    })
   );
 
   const verifiedPhones = phonesMap.map((verified) => ({
@@ -177,7 +183,7 @@ export const validateBulkPhones = async (
   }));
 
   const unverifiedPhones: string[] = phones.filter(
-    (phone) => !verifiedPhones.some((p) => p.phone === phone),
+    (phone) => !verifiedPhones.some((p) => p.phone === phone)
   );
 
   if (verifiedPhones.length > 0) {
