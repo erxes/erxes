@@ -29,6 +29,7 @@ interface IFacetedFilter {
   }[]
   onSelect?: (value: string[]) => void
   values?: string[]
+  className?: string
 }
 
 export function FacetedFilter({
@@ -36,6 +37,7 @@ export function FacetedFilter({
   title,
   options,
   values,
+  className,
 }: IFacetedFilter) {
   const vals = values || []
   return (
@@ -44,7 +46,7 @@ export function FacetedFilter({
         <Button
           variant="outline"
           size="sm"
-          className="h-10 w-full justify-start border-dashed"
+          className={cn("h-10 w-full justify-start border-dashed", className)}
         >
           <PlusCircleIcon className="mr-2 h-4 w-4" />
           {title}

@@ -170,7 +170,7 @@ export const getProductsData = async (
       isRPC: true,
       isMQ: true,
       defaultValue: {},
-      timeout: 50000
+      timeout: 290000
     });
 
     for (const product of products) {

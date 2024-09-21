@@ -20,6 +20,11 @@ const subscriptionConfigSchema = new Schema({
     label: 'Subscription Start Day',
     optional: true,
   }),
+  subsRenewable: field({
+    type: Boolean,
+    label: 'Subscription Renewable',
+    optional: true,
+  }),
 });
 
 export const uomSchema = schemaWrapper(

@@ -13,6 +13,7 @@ import Select from 'react-select';
 import { Box } from '@erxes/ui/src/components/step/style';
 import { FlexRow } from '@erxes/ui/src/components/filterableList/styles';
 import { DaySelector } from './DaySelector';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   uom?: IUom;
@@ -135,11 +136,24 @@ const BrandForm = (props: Props) => {
             )}
             <DaySelector
               type={subsConfig?.period}
-              onSelect={(value) => handleSubsConfigChange('specificDay', value)}
+              onSelect={value => handleSubsConfigChange('specificDay', value)}
               selectedValue={subsConfig?.specificDay}
             />
           </FormGroup>
         )}
+
+        <FormGroup>
+          <FormControl
+            componentclass="checkbox"
+            checked={subsConfig.subsRenewable}
+            onChange={() =>
+              handleSubsConfigChange('subsRenewable', !subsConfig.subsRenewable)
+            }
+          />
+          <ControlLabel>
+            {__('Is able Subscription renew before close')}
+          </ControlLabel>
+        </FormGroup>
       </>
     );
   };

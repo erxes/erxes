@@ -3,13 +3,17 @@ import { ButtonMutate, Spinner, __ } from '@erxes/ui/src';
 import {
   BranchesMainQueryResponse,
   DepartmentsMainQueryResponse,
-  UnitsMainQueryResponse,
+  UnitsMainQueryResponse
 } from '@erxes/ui/src/team/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import GoalTypeForm from '../components/goalForm';
 import { mutations, queries } from '../graphql';
 import { IGoalType } from '../types';
+import { CompaniesQueryResponse } from '@erxes/ui-contacts/src/companies/types';
+import { queries as companyQueries } from '@erxes/ui-contacts/src/companies/graphql';
+import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
+import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
 
 type Props = {
   goalType: IGoalType;
@@ -24,27 +28,27 @@ const goalForm = (props: Props) => {
     gql(queries.branchesMain),
     {
       variables: {
-        withoutUserFilter: true,
-      },
-    },
+        withoutUserFilter: true
+      }
+    }
   );
 
   const unitListQuery = useQuery<UnitsMainQueryResponse>(
     gql(queries.unitsMain),
     {
       variables: {
-        withoutUserFilter: true,
-      },
-    },
+        withoutUserFilter: true
+      }
+    }
   );
 
   const departmentListQuery = useQuery<DepartmentsMainQueryResponse>(
     gql(queries.departmentsMain),
     {
       variables: {
-        withoutUserFilter: true,
-      },
-    },
+        withoutUserFilter: true
+      }
+    }
   );
 
   if (
@@ -59,7 +63,7 @@ const goalForm = (props: Props) => {
     name,
     values,
     isSubmitted,
-    object,
+    object
   }: IButtonMutateProps) => {
     const afterSave = (data) => {
       closeModal();
@@ -75,11 +79,10 @@ const goalForm = (props: Props) => {
         callback={afterSave}
         refetchQueries={['goalTypesMain', 'goalTypeDetail', 'goalTypes']}
         isSubmitted={isSubmitted}
-        type="submit"
+        type='submit'
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
-        } a ${name}`}
-      >
+        } a ${name}`}>
         {__('Save')}
       </ButtonMutate>
     );
@@ -87,9 +90,14 @@ const goalForm = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    renderButton,
+    renderButton
   };
-  return <GoalTypeForm segmentIds={[]} {...updatedProps} />;
+  return (
+    <GoalTypeForm
+      segmentIds={[]}
+      {...updatedProps}
+    />
+  );
 };
 
 export default goalForm;
