@@ -127,7 +127,7 @@ const fields = `
         logicOperator
         logicValue
       }
-      groupName
+      
       objectListConfigs{
         key
         label

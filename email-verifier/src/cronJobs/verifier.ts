@@ -96,17 +96,21 @@ schedule.scheduleJob('2 * * * * *', async () => {
     const unfinished = listIds.filter((item) => item.listId !== listId);
 
     await setArray('erxes_email_verifier_list_ids', unfinished);
+    try {
+      if (hostname.length) {
+        debugBase(`Sending bulk email validation result to erxes-api`);
 
-    if (hostname.length) {
-      debugBase(`Sending bulk email validation result to erxes-api`);
-
-      await sendRequest({
-        url: `${hostname}/verifier/webhook`,
-        method: 'POST',
-        body: {
-          emails,
-        },
-      });
+        await sendRequest({
+          url: `${hostname}/verifier/webhook`,
+          method: 'POST',
+          body: {
+            emails,
+          },
+        });
+      }
+    } catch (e) {
+      console.log(e);
+      throw e
     }
   }
 });
