@@ -204,6 +204,7 @@ const saveObject = async (subdomain, type, object, modifier) => {
     });
   }
 }
+
 export const syncData = async (subdomain: string, models: IModels, doc: IXypDataDocument) => {
   for (const docData of doc.data) {
     const { serviceName, data } = docData;
@@ -216,23 +217,22 @@ export const syncData = async (subdomain: string, models: IModels, doc: IXypData
       continue;
     }
 
-    const objectTypes = [...new Set(syncRules.map(sr => sr.objectType))];
+    const syncRulesObjTypes = [...new Set(syncRules.map(sr => sr.objectType))];
 
-    if (!objectTypes.length) {
+    if (!syncRulesObjTypes.length) {
       continue;
     }
 
-    for (const objectType of objectTypes) {
-      //
-      const objSyncRules = syncRules.filter(sr => sr.objectType === objectType);
-      const relObject = await getObject(subdomain, objectType, doc);
+    for (const syncRulesObjType of syncRulesObjTypes) {
+      const filteredSyncRules = syncRules.filter(sr => sr.serviceName === serviceName && sr.objectType === syncRulesObjType);
+      const relObject = await getObject(subdomain, syncRulesObjType, doc);
 
       const fields = await sendFormsMessage({
         subdomain,
         action: 'fields.find',
         data: {
           query: {
-            _id: { $in: objSyncRules.map(osr => osr.formField) }
+            _id: { $in: filteredSyncRules.map(osr => osr.formField) }
           }
         },
         isRPC: true,
@@ -241,24 +241,31 @@ export const syncData = async (subdomain: string, models: IModels, doc: IXypData
 
       const toUpdateData: any = { customFieldsData: relObject.customFieldsData };
       for (const field of fields) {
-        for (const responseKey of Object.keys(data)) {
-          if (field.isDefinedByErxes) {
-            toUpdateData[field.field] = data[responseKey]
-          } else {
-            if (toUpdateData.map(cfd => cfd.field).includes(field._id)) {
-              toUpdateData.customFieldsData = toUpdateData.customFieldsData.filter(cfd => cfd.field !== field._id)
-            }
+        const syncRule = filteredSyncRules.find(fsr => fsr.formField === field._id);
 
-            toUpdateData.customFieldsData.push({
-              field: field._id,
-              value: data[responseKey],
-              stringValue: data[responseKey].toString(),
-            })
-          }
+        const responseKey = syncRule?.responseKey || '';
+
+        if (!responseKey) {
+          continue;
         }
+
+        if (field.isDefinedByErxes) {
+          toUpdateData[field.type] = data[responseKey]
+        } else {
+          if (toUpdateData.customFieldsData.map(cfd => cfd.field).includes(field._id)) {
+            toUpdateData.customFieldsData = toUpdateData.customFieldsData.filter(cfd => cfd.field !== field._id)
+          }
+
+          toUpdateData.customFieldsData.push({
+            field: field._id,
+            value: data[responseKey],
+            stringValue: (data[responseKey] || '').toString(),
+          })
+        }
+
       }
 
-      await saveObject(subdomain, objectType, relObject, toUpdateData)
+      await saveObject(subdomain, syncRulesObjType, relObject, toUpdateData)
     }
   }
 }

@@ -31,7 +31,6 @@ type Props = {
   loading: any;
   error: string;
   showConvertButton: boolean;
-  convertToProperty: () => void;
 };
 
 function Sidebar({
@@ -43,7 +42,6 @@ function Sidebar({
   showConvertButton,
   error,
   loading,
-  convertToProperty
 }: Props) {
   const [params, setParams] = useState({});
   const [operation, setOperation] = useState<IOperation>({
@@ -85,7 +83,7 @@ function Sidebar({
       <>
         <Select
           placeholder={__('Type to search...')}
-          value={operationList.find(o=>o.value === operation.wsOperationName)}
+          value={operationList.find(o => o.value === operation.wsOperationName)}
           onChange={onChangeTag}
           isLoading={props.loading}
           options={operationList}
@@ -116,7 +114,7 @@ function Sidebar({
               <Button
                 btnStyle="simple"
                 uppercase={false}
-                onClick={() => {}}
+                onClick={() => { }}
                 icon="times-circle"
               >
                 Cancel
@@ -124,7 +122,7 @@ function Sidebar({
               <Button
                 btnStyle="success"
                 onClick={() => {
-                  fetchData(operation, params, {}, () => {});
+                  fetchData(operation, params, {}, () => { });
                 }}
                 icon="check-circle"
                 uppercase={false}
@@ -201,16 +199,6 @@ function Sidebar({
         {showConvertButton && (
           <div>
             {' '}
-            <Button
-              btnStyle="success"
-              onClick={() => {
-                convertToProperty();
-              }}
-              icon="check-circle"
-              uppercase={false}
-            >
-              Convert to property
-            </Button>
           </div>
         )}
       </Table>

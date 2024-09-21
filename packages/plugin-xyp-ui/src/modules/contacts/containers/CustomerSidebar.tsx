@@ -37,9 +37,6 @@ const CustomerSidebarContainer = (props: Props) => {
 
   const [add] = useMutation(gql(mutations.add));
   const [edit] = useMutation(gql(mutations.edit));
-  const [xypConvertToCustomeFields] = useMutation(
-    gql(mutations.xypConvertToCustomeFields)
-  );
 
   const fetchData = (operation: IOperation, params: any) => {
     xypRequest({
@@ -97,22 +94,6 @@ const CustomerSidebarContainer = (props: Props) => {
       }
     });
   };
-  const convertToProperty = () => {
-    xypConvertToCustomeFields({
-      variables: { id: props.id },
-    })
-      .then(({ data }) => {
-        if (data?.xypConvertToCustomeFields === "ok") {
-          Alert.success("Successful");
-        } else {
-          Alert.error("error");
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-        Alert.error("error");
-      });
-  };
 
   if (detail.loading) {
     return <Spinner objective={true} />;
@@ -126,7 +107,6 @@ const CustomerSidebarContainer = (props: Props) => {
     xypServiceList: xypServiceList?.data?.xypServiceList || [],
     serviceChoosenLoading: serviceChoosen.loading,
     list: serviceChoosen?.data?.xypServiceListChoosen,
-    convertToProperty: convertToProperty,
     showConvertButton: contentType === "contacts:customer",
     fetchData,
   };
