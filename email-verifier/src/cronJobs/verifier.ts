@@ -123,7 +123,7 @@ schedule.scheduleJob('20 20 20 * * *', async () => {
     verifiedAt: { $lt: oneMonthAgo },
   }).cursor();
 
-  const BATCH_SIZE = 1000;
+  const BATCH_SIZE = 45000;
 
   const batch = [];
 
