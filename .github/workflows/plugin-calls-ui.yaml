@@ -8,6 +8,7 @@ on:
       - rc
       - staging
       - build-test
+      - v1
     paths:
       - 'packages/erxes-ui/**'
       - 'packages/ui-plugin-template/**'
@@ -33,6 +34,7 @@ on:
       - rc
       - staging
       - build-test
+      - v1
     paths:
       - 'packages/erxes-ui/**'
       - 'packages/ui-plugin-template/**'

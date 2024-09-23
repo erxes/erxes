@@ -8,6 +8,7 @@ on:
       - rc
       - staging
       - build-test
+      - v1
     paths:
       - 'client-portal/**'
       - '.github/workflows/client_portal.yaml'

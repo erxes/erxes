@@ -8,6 +8,7 @@ on:
       - rc
       - staging
       - build-test
+      - v1
     paths:
       - 'scripts/pluginsMap.js'
       - '.github/workflows/plugins-map.yaml'
@@ -18,6 +19,7 @@ on:
       - rc
       - staging
       - build-test
+      - v1
     paths:
       - 'scripts/pluginsMap.js'
       - '.github/workflows/plugins-map.yaml'

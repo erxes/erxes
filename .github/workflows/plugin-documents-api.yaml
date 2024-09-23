@@ -8,6 +8,7 @@ on:
       - rc
       - staging
       - build-test
+      - v1
     paths:
       - 'packages/api-utils/**'
       - 'packages/plugin-documents-api/**'
@@ -19,6 +20,7 @@ on:
       - rc
       - staging
       - build-test
+      - v1
     paths:
       - 'packages/api-utils/**'
       - 'packages/plugin-documents-api/**'
