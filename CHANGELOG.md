@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.17.1](https://github.com/erxes/erxes/compare/1.18.0-rc.0...1.17.1) (2024-09-23)
+
+
+### Features
+
+* show remainder when hover on remainder ([#5646](https://github.com/erxes/erxes/issues/5646)) ([8984713](https://github.com/erxes/erxes/commit/8984713799992364a79427c0c209ad933542b295))
+
+
+### Bug Fixes
+
+* posOrder ebarimt totalAmount with round ([134b446](https://github.com/erxes/erxes/commit/134b446915c75640ee8a39d773961ce694026089))
+
 ## [1.18.0-rc.0](https://github.com/erxes/erxes/compare/1.17.0...1.18.0-rc.0) (2024-09-17)
 
 
