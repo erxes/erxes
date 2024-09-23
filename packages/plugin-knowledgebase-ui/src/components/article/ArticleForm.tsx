@@ -383,8 +383,8 @@ class ArticleForm extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Code')}</ControlLabel>
-          <FormControl {...formProps} name='code' defaultValue={object.code} />
+          <ControlLabel required={true}>{__('Code')}</ControlLabel>
+          <FormControl {...formProps} name='code' defaultValue={object.code} required={true} />
         </FormGroup>
 
         <FormGroup>
@@ -600,9 +600,10 @@ class ArticleForm extends React.Component<Props, State> {
           <RichTextEditor
             content={content}
             onChange={this.onChange}
-            isSubmitted={isSubmitted}
+            required={true}
             height={300}
             name={`knowledgeBase_${article ? article._id : 'create'}`}
+            {...formProps}
           />
         </FormGroup>
 
