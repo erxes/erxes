@@ -1,9 +1,10 @@
-import { getCollection } from './models/utils';
-import { CARD_PROPERTIES_INFO, MODULE_NAMES } from './constants';
-import { generateModels, IModels } from './connectionResolver';
-import { sendCoreMessage } from './messageBroker';
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import { debugError } from '@erxes/api-utils/src/debuggers';
+import { getCollection } from "./models/utils";
+import { CARD_PROPERTIES_INFO, MODULE_NAMES } from "./constants";
+import { generateModels, IModels } from "./connectionResolver";
+import { sendCoreMessage, sendTasksMessage } from "./messageBroker";
+import { IUserDocument } from "@erxes/api-utils/src/types";
+import { debugError } from "@erxes/api-utils/src/debuggers";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 export const configReplacer = config => {
   const now = new Date();
@@ -22,55 +23,63 @@ export const collectItems = async (
 ) => {
   let tasks: any[] = [];
 
-  if (contentType === 'activity') {
+  if (contentType === "activity") {
     return;
   }
 
-  // const relatedTaskIds = await sendCoreMessage({
-  //   subdomain,
-  //   action: "conformities.savedConformity",
-  //   data: {
-  //     mainType: contentType.split(":")[1],
-  //     mainTypeId: contentId,
-  //     relTypes: ["task"]
-  //   },
-  //   isRPC: true,
-  //   defaultValue: []
-  // });
+  if (!isEnabled("tasks")) {
+    return tasks;
+  }
 
-  // if (contentType !== "cards:task") {
-  //   tasks = await models.Tasks.aggregate([
-  //     {
-  //       $match: {
-  //         $and: [
-  //           { _id: { $in: relatedTaskIds } },
-  //           { status: { $ne: "archived" } }
-  //         ]
-  //       }
-  //     },
-  //     {
-  //       $addFields: { contentType: "cards:taskDetail" }
-  //     },
-  //     {
-  //       $project: {
-  //         _id: 1,
-  //         contentType: 1,
-  //         createdAt: {
-  //           $switch: {
-  //             branches: [
-  //               {
-  //                 case: { $gt: ["$closeDate", null] },
-  //                 then: "$closeDate"
-  //               }
-  //             ],
-  //             default: "$createdAt"
-  //           }
-  //         }
-  //       }
-  //     },
-  //     { $sort: { closeDate: 1 } }
-  //   ]);
-  // }
+  const relatedTaskIds = await sendCoreMessage({
+    subdomain,
+    action: "conformities.savedConformity",
+    data: {
+      mainType: contentType.split(":")[1],
+      mainTypeId: contentId,
+      relTypes: ["task"]
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  tasks = await sendTasksMessage({
+    subdomain,
+    action: "aggregate",
+    data: [
+      {
+        $match: {
+          $and: [
+            { _id: { $in: relatedTaskIds } },
+            { status: { $ne: "archived" } }
+          ]
+        }
+      },
+      {
+        $addFields: { contentType: "tasks:taskDetail" }
+      },
+      {
+        $project: {
+          _id: 1,
+          contentType: 1,
+          createdAt: {
+            $switch: {
+              branches: [
+                {
+                  case: { $gt: ["$closeDate", null] },
+                  then: "$closeDate"
+                }
+              ],
+              default: "$createdAt"
+            }
+          }
+        }
+      },
+      { $sort: { closeDate: 1 } }
+    ],
+    isRPC: true,
+    defaultValue: []
+  });
 
   return tasks;
 };
@@ -80,7 +89,7 @@ export const generateConditionStageIds = async (
   {
     boardId,
     pipelineId,
-    options,
+    options
   }: {
     boardId?: string;
     pipelineId?: string;
@@ -99,8 +108,8 @@ export const generateConditionStageIds = async (
     const pipelines = await models.Pipelines.find(
       {
         _id: {
-          $in: pipelineId ? [pipelineId] : board.pipelines || [],
-        },
+          $in: pipelineId ? [pipelineId] : board.pipelines || []
+        }
       },
       { _id: 1 }
     );
@@ -123,15 +132,15 @@ export const getContentItem = async (subdomain, data) => {
   const { action, content, contentType, contentId } = data;
 
   const type =
-    contentType && typeof contentType === 'string'
-      ? contentType.split(':')[1]
-      : '';
+    contentType && typeof contentType === "string"
+      ? contentType.split(":")[1]
+      : "";
 
-  if (action === 'moved') {
+  if (action === "moved") {
     let item = {};
 
     switch (type) {
-      case 'purchase':
+      case "purchase":
         item = await Purchases.getPurchase(contentId);
       default:
         break;
@@ -140,7 +149,7 @@ export const getContentItem = async (subdomain, data) => {
     const { oldStageId, destinationStageId } = content;
 
     const destinationStage = await Stages.findOne({
-      _id: destinationStageId,
+      _id: destinationStageId
     }).lean();
     const oldStage = await Stages.findOne({ _id: oldStageId }).lean();
 
@@ -148,20 +157,20 @@ export const getContentItem = async (subdomain, data) => {
       return {
         destinationStage: destinationStage.name,
         oldStage: oldStage.name,
-        item,
+        item
       };
     }
 
     return {
-      text: content.text,
+      text: content.text
     };
   }
 
-  if (action === 'moved') {
+  if (action === "moved") {
     let item = {};
 
     switch (type) {
-      case 'purchase':
+      case "purchase":
         item = await Purchases.getPurchase(contentId);
       default:
         break;
@@ -170,7 +179,7 @@ export const getContentItem = async (subdomain, data) => {
     const { oldStageId, destinationStageId } = content;
 
     const destinationStage = await Stages.findOne({
-      _id: destinationStageId,
+      _id: destinationStageId
     }).lean();
     const oldStage = await Stages.findOne({ _id: oldStageId }).lean();
 
@@ -178,42 +187,42 @@ export const getContentItem = async (subdomain, data) => {
       return {
         destinationStage: destinationStage.name,
         oldStage: oldStage.name,
-        item,
+        item
       };
     }
 
     return {
-      text: content.text,
+      text: content.text
     };
   }
 
-  if (action === 'assignee') {
+  if (action === "assignee") {
     let addedUsers: IUserDocument[] = [];
     let removedUsers: IUserDocument[] = [];
 
     if (content) {
       addedUsers = await sendCoreMessage({
         subdomain,
-        action: 'users.find',
+        action: "users.find",
         data: {
           query: {
-            _id: { $in: content.addedUserIds },
-          },
+            _id: { $in: content.addedUserIds }
+          }
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       removedUsers = await sendCoreMessage({
         subdomain,
-        action: 'users.find',
+        action: "users.find",
         data: {
           query: {
-            _id: { $in: content.removedUserIds },
-          },
+            _id: { $in: content.removedUserIds }
+          }
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
     }
 
@@ -225,19 +234,19 @@ export const getContentTypeDetail = async (subdomain, data) => {
   const models = await generateModels(subdomain);
 
   const { ChecklistItems, Checklists, Purchases } = models;
-  const { contentType = '', contentId, content } = data;
+  const { contentType = "", contentId, content } = data;
 
   let item = {};
 
   try {
-    switch (contentType.split(':')[1]) {
-      case 'checklist':
+    switch (contentType.split(":")[1]) {
+      case "checklist":
         item = (await Checklists.findOne({ _id: content._id })) || {};
         break;
-      case 'checklistitem':
+      case "checklistitem":
         item = (await ChecklistItems.findOne({ _id: content._id })) || {};
         break;
-      case 'purchase':
+      case "purchase":
         item = await Purchases.getPurchase(contentId);
         break;
     }
@@ -256,11 +265,11 @@ export const getCardContentIds = async (
   { pipelineId, contentType }
 ) => {
   const type =
-    contentType.indexOf(':') !== -1 ? contentType.split(':')[1] : contentType;
-  const stageIds = await models.Stages.find({ pipelineId }).distinct('_id');
+    contentType.indexOf(":") !== -1 ? contentType.split(":")[1] : contentType;
+  const stageIds = await models.Stages.find({ pipelineId }).distinct("_id");
   const { collection } = getCollection(models, type);
 
-  return collection.find({ stageId: { $in: stageIds } }).distinct('_id');
+  return collection.find({ stageId: { $in: stageIds } }).distinct("_id");
 };
 
 export const getCardItem = async (
@@ -296,7 +305,7 @@ export const getBoardsAndPipelines = doc => {
   const boardsPipelines = config.boardsPipelines || [];
 
   for (const item of boardsPipelines) {
-    boardIds.push(item.boardId || '');
+    boardIds.push(item.boardId || "");
 
     const pipelines = item.pipelineIds || [];
 
@@ -326,7 +335,7 @@ export const generateSystemFields = ({ data: { groupId, type } }) => {
       groupId,
       options: e.options,
       contentType: `purchases:${type}`,
-      isDefinedByErxes: true,
+      isDefinedByErxes: true
     });
   });
 

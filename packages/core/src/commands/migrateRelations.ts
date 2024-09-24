@@ -190,7 +190,11 @@ const command = async () => {
         {
           $set: {
             contentType: {
-              $replaceOne: { input: "$contentType", find: "insight:", replacement: "core:" }
+              $replaceOne: {
+                input: "$contentType",
+                find: "insight:",
+                replacement: "core:"
+              }
             }
           }
         }

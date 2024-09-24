@@ -7,6 +7,7 @@
 # local env files
 .env*.local
 .env
+**/public/js/env.js
 
 # typescript
 *.tsbuildinfo

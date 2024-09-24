@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.0.0](https://github.com/erxes/erxes/compare/1.18.0-rc.0...2.0.0) (2024-09-20)
+
+
+### Bug Fixes
+
+* **core:** fix tagsTag mutation ([bae5118](https://github.com/erxes/erxes/commit/bae5118bd56562112baffdf1c44c2987bc6fcd9c))
+
+## [2.0.0-rc.0](https://github.com/erxes/erxes/compare/1.18.0-rc.0...2.0.0) (2024-08-18)
+
+
+### Bug Fixes
+
+* fix typescript any types ([6f254b6](https://github.com/erxes/erxes/commit/6f254b654973f79036a6b30c810f0e386ff9f61a))
+
 <<<<<<< HEAD
 =======
 

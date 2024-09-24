@@ -1,9 +1,10 @@
 import { getCollection } from "./models/utils";
 import { CARD_PROPERTIES_INFO, MODULE_NAMES } from "./constants";
 import { generateModels, IModels } from "./connectionResolver";
-import { sendCoreMessage } from "./messageBroker";
+import { sendCoreMessage, sendTasksMessage } from "./messageBroker";
 import { IUserDocument } from "@erxes/api-utils/src/types";
 import { debugError } from "@erxes/api-utils/src/debuggers";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 export const configReplacer = config => {
   const now = new Date();
@@ -16,7 +17,6 @@ export const configReplacer = config => {
 };
 
 export const collectItems = async (
-  models: IModels,
   subdomain: string,
   { contentType, contentId }
 ) => {
@@ -26,51 +26,59 @@ export const collectItems = async (
     return;
   }
 
-  // const relatedTaskIds = await sendCoreMessage({
-  //   subdomain,
-  //   action: "conformities.savedConformity",
-  //   data: {
-  //     mainType: contentType.split(":")[1],
-  //     mainTypeId: contentId,
-  //     relTypes: ["task"]
-  //   },
-  //   isRPC: true,
-  //   defaultValue: []
-  // });
+  if (!isEnabled("tasks")) {
+    return tasks;
+  }
 
-  // if (contentType !== "cards:task") {
-  //   tasks = await models.Tasks.aggregate([
-  //     {
-  //       $match: {
-  //         $and: [
-  //           { _id: { $in: relatedTaskIds } },
-  //           { status: { $ne: "archived" } }
-  //         ]
-  //       }
-  //     },
-  //     {
-  //       $addFields: { contentType: "cards:taskDetail" }
-  //     },
-  //     {
-  //       $project: {
-  //         _id: 1,
-  //         contentType: 1,
-  //         createdAt: {
-  //           $switch: {
-  //             branches: [
-  //               {
-  //                 case: { $gt: ["$closeDate", null] },
-  //                 then: "$closeDate"
-  //               }
-  //             ],
-  //             default: "$createdAt"
-  //           }
-  //         }
-  //       }
-  //     },
-  //     { $sort: { closeDate: 1 } }
-  //   ]);
-  // }
+  const relatedTaskIds = await sendCoreMessage({
+    subdomain,
+    action: "conformities.savedConformity",
+    data: {
+      mainType: contentType.split(":")[1],
+      mainTypeId: contentId,
+      relTypes: ["task"]
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  tasks = await sendTasksMessage({
+    subdomain,
+    action: "aggregate",
+    data: [
+      {
+        $match: {
+          $and: [
+            { _id: { $in: relatedTaskIds } },
+            { status: { $ne: "archived" } }
+          ]
+        }
+      },
+      {
+        $addFields: { contentType: "tasks:taskDetail" }
+      },
+      {
+        $project: {
+          _id: 1,
+          contentType: 1,
+          createdAt: {
+            $switch: {
+              branches: [
+                {
+                  case: { $gt: ["$closeDate", null] },
+                  then: "$closeDate"
+                }
+              ],
+              default: "$createdAt"
+            }
+          }
+        }
+      },
+      { $sort: { closeDate: 1 } }
+    ],
+    isRPC: true,
+    defaultValue: []
+  });
 
   return tasks;
 };

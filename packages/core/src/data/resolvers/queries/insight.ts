@@ -31,10 +31,12 @@ const insightQueries = {
 
     for (const serviceName of serviceNames) {
       const service = await getService(serviceName);
-      const chartTemplates = service.config?.meta?.reports?.chartTemplates;
+      const reportTemplates = service.config?.meta?.reports?.reportTemplates
 
-      if (chartTemplates && chartTemplates.length) {
-        totalServicesNamesList.push(serviceName);
+      if (reportTemplates) {
+        for (const reportTemplate of reportTemplates) {
+          totalServicesNamesList.push(reportTemplate['serviceLabel']);
+        }
       }
     }
 
