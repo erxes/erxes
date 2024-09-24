@@ -11,19 +11,20 @@ import { generateModels, IModels } from './connectionResolver';
 import { IUserDocument } from './db/models/definitions/users';
 import { fetchSegment, sendFormsMessage } from './messageBroker';
 import { InterMessage } from '@erxes/api-utils/src/messageBroker';
+import { Query, promise, BoardItemsFilter, Data, ContactsFilter, Header, ExcelHeader, Docs} from "react-router-dom";
 
 const prepareData = async (
   models: IModels,
   subdomain: string,
-  query: any,
-): Promise<any[]> => {
+  query: Query,
+): Promise<promise[]> => {
   const { segmentData, page, perPage } = query;
 
-  const boardItemsFilter: any = {};
+  const boardItemsFilter: BoardItemsFilter = {};
   let itemIds = [];
   const skip = (page - 1) * perPage;
 
-  let data: any[] = [];
+  let data: Data[] = [];
 
   if (segmentData.conditions) {
     itemIds = await fetchSegment(subdomain, '', { page, perPage }, segmentData);
@@ -46,13 +47,13 @@ const prepareData = async (
 const prepareDataCount = async (
   models: IModels,
   subdomain: string,
-  query: any,
-): Promise<any> => {
+  query: Query,
+): Promise<promise> => {
   const { segmentData } = query;
 
   let data = 0;
 
-  const contactsFilter: any = {};
+  const contactsFilter: ContactsFilter = {};
 
   if (segmentData.conditions) {
     const itemIds = await fetchSegment(
@@ -148,8 +149,8 @@ export default {
     const { columnsConfig } = data;
 
     let totalCount = 0;
-    const headers = [] as any;
-    const excelHeader = [] as any;
+    const headers = [] as Header;
+    const excelHeader = [] as ExcelHeader;
 
     try {
       const results = await prepareDataCount(models, subdomain, data);
@@ -194,8 +195,8 @@ export default {
 
     const { columnsConfig } = data;
 
-    const docs = [] as any;
-    const headers = [] as any;
+    const docs = [] as Docs;
+    const headers = [] as Header;
 
     try {
       const results = await prepareData(models, subdomain, data);
