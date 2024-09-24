@@ -109,7 +109,7 @@ class Form extends React.Component<Props, State> {
         onClick={() => {
           const data = {
             ...values,
-            conditions: values.conditionSegments[0].conditions
+            conditions: values.conditionSegments.flatMap(segment => segment.conditions)
           };
 
           delete data.conditionSegments;
