@@ -1,20 +1,20 @@
-import * as moment from "moment";
-import { IModels } from "../connectionResolver";
-import { debugError } from "../debuggers";
-import { sendAutomationsMessage, sendInboxMessage } from "../messageBroker";
-import { IBotDocument } from "../models/definitions/bots";
-import { IConversation } from "../models/definitions/conversations";
-import { ICustomer } from "../models/definitions/customers";
-import { sendReply } from "../utils";
-import { Message } from "./types";
+import * as moment from 'moment';
+import { IModels } from '../connectionResolver';
+import { debugError } from '../debuggers';
+import { sendAutomationsMessage, sendInboxMessage } from '../messageBroker';
+import { IBotDocument } from '../models/definitions/bots';
+import { IConversation } from '../models/definitions/conversations';
+import { ICustomer } from '../models/definitions/customers';
+import { sendReply } from '../utils';
+import { Message } from './types';
 import {
   checkContentConditions,
   generateBotData,
   generatePayloadString,
   getUrl
-} from "./utils";
-import { getEnv } from "../commonUtils";
-import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
+} from './utils';
+import { getEnv } from '../commonUtils';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 const generateMessages = async (
   subdomain: string,
@@ -29,8 +29,8 @@ const generateMessages = async (
 
     for (const button of buttons) {
       const obj: any = {
-        type: "postback",
-        title: (button.text || "").trim(),
+        type: 'postback',
+        title: (button.text || '').trim(),
         payload: generatePayloadString(
           conversation,
           button,
@@ -40,7 +40,7 @@ const generateMessages = async (
 
       if (button.link) {
         delete obj.payload;
-        obj.type = "web_url";
+        obj.type = 'web_url';
         obj.url = button.link;
       }
 
@@ -51,7 +51,7 @@ const generateMessages = async (
   };
 
   const quickRepliesIndex = messages.findIndex(
-    ({ type }) => type === "quickReplies"
+    ({ type }) => type === 'quickReplies'
   );
 
   if (quickRepliesIndex !== -1) {
@@ -66,9 +66,9 @@ const generateMessages = async (
     text,
     cards = [],
     quickReplies,
-    image = "",
-    video = "",
-    audio = "",
+    image = '',
+    video = '',
+    audio = '',
     input
   } of messages) {
     const botData = generateBotData(subdomain, {
@@ -80,7 +80,7 @@ const generateMessages = async (
       image
     });
 
-    if (["text", "input"].includes(type) && !buttons?.length) {
+    if (['text', 'input'].includes(type) && !buttons?.length) {
       generatedMessages.push({
         text: input ? input.text : text,
         botData,
@@ -88,13 +88,13 @@ const generateMessages = async (
       });
     }
 
-    if (["text", "input"].includes(type) && !!buttons?.length) {
+    if (['text', 'input'].includes(type) && !!buttons?.length) {
       generatedMessages.push({
         attachment: {
-          type: "template",
+          type: 'template',
           payload: {
-            template_type: "button",
-            text: (input ? input.text : text || "").trim(),
+            template_type: 'button',
+            text: (input ? input.text : text || '').trim(),
             buttons: generateButtons(buttons)
           }
         },
@@ -103,14 +103,14 @@ const generateMessages = async (
       });
     }
 
-    if (type === "card" && cards?.length > 0) {
+    if (type === 'card' && cards?.length > 0) {
       generatedMessages.push({
         attachment: {
-          type: "template",
+          type: 'template',
           payload: {
-            template_type: "generic",
+            template_type: 'generic',
             elements: cards.map(
-              ({ title = "", subtitle = "", image = "", buttons = [] }) => ({
+              ({ title = '', subtitle = '', image = '', buttons = [] }) => ({
                 title,
                 subtitle,
                 image_url: getUrl(subdomain, image),
@@ -123,12 +123,12 @@ const generateMessages = async (
       });
     }
 
-    if (type === "quickReplies") {
+    if (type === 'quickReplies') {
       generatedMessages.push({
-        text: text || "",
-        quick_replies: quickReplies.map(quickReply => ({
-          content_type: "text",
-          title: quickReply?.text || "",
+        text: text || '',
+        quick_replies: quickReplies.map((quickReply) => ({
+          content_type: 'text',
+          title: quickReply?.text || '',
           payload: generatePayloadString(
             conversation,
             quickReply,
@@ -139,7 +139,7 @@ const generateMessages = async (
       });
     }
 
-    if (["image", "audio", "video"].includes(type)) {
+    if (['image', 'audio', 'video'].includes(type)) {
       const url = image || video || audio;
 
       url &&
@@ -171,17 +171,17 @@ export const checkMessageTrigger = async (subdomain, { target, config }) => {
   if (persistentMenuId && isBackBtn) {
     await sendAutomationsMessage({
       subdomain,
-      action: "excutePrevActionExecution",
+      action: 'excutePrevActionExecution',
       data: {
         query: {
-          triggerType: "facebook:messages",
-          "target.botId": botId,
-          "target.conversationId": target.conversationId,
-          "target.customerId": target.customerId
+          triggerType: 'facebook:messages',
+          'target.botId': botId,
+          'target.conversationId': target.conversationId,
+          'target.customerId': target.customerId
         }
       },
       isRPC: true
-    }).catch(error => {
+    }).catch((error) => {
       debugError(error.message);
     });
 
@@ -195,20 +195,20 @@ export const checkMessageTrigger = async (subdomain, { target, config }) => {
     conditions: directMessageCondtions = []
   } of conditions) {
     if (isSelected) {
-      if (type === "getStarted" && target.content === "Get Started") {
+      if (type === 'getStarted' && target.content === 'Get Started') {
         return true;
       }
 
-      if (type === "persistentMenu" && payload) {
+      if (type === 'persistentMenu' && payload) {
         if ((persistentMenuIds || []).includes(String(persistentMenuId))) {
           return true;
         }
       }
 
-      if (type === "direct") {
+      if (type === 'direct') {
         if (directMessageCondtions?.length > 0) {
           return !!checkContentConditions(
-            target?.content || "",
+            target?.content || '',
             directMessageCondtions
           );
         } else if (!!target?.content) {
@@ -236,39 +236,39 @@ const generateObjectToWait = ({
     conversationId: conversation._id,
     customerId: customer.erxesApiId
   };
-  let propertyName = "payload.btnId";
+  let propertyName = 'payload.btnId';
 
-  if (messages.some(msg => msg.type === "input")) {
+  if (messages.some((msg) => msg.type === 'input')) {
     const inputMessageConfig =
-      messages.find(msg => msg.type === "input")?.input || {};
+      messages.find((msg) => msg.type === 'input')?.input || {};
 
-    if (inputMessageConfig.timeType === "day") {
+    if (inputMessageConfig.timeType === 'day') {
       obj.startWaitingDate = moment()
-        .add(inputMessageConfig.value || 0, "day")
+        .add(inputMessageConfig.value || 0, 'day')
         .toDate();
     }
 
-    if (inputMessageConfig.timeType === "hour") {
+    if (inputMessageConfig.timeType === 'hour') {
       obj.startWaitingDate = moment()
-        .add(inputMessageConfig.value || 0, "hour")
+        .add(inputMessageConfig.value || 0, 'hour')
         .toDate();
     }
-    if (inputMessageConfig.timeType === "minute") {
+    if (inputMessageConfig.timeType === 'minute') {
       obj.startWaitingDate = moment()
-        .add(inputMessageConfig.value || 0, "minute")
+        .add(inputMessageConfig.value || 0, 'minute')
         .toDate();
     }
 
     const actionIdIfNotReply =
       optionalConnects.find(
-        connect => connect?.optionalConnectId === "ifNotReply"
+        (connect) => connect?.optionalConnectId === 'ifNotReply'
       )?.actionId || null;
 
     obj.waitingActionId = actionIdIfNotReply;
 
-    propertyName = "botId";
+    propertyName = 'botId';
   } else {
-    obj.startWaitingDate = moment().add(24, "hours").toDate();
+    obj.startWaitingDate = moment().add(24, 'hours').toDate();
     obj.waitingActionId = null;
   }
 
@@ -290,10 +290,10 @@ const sendMessage = async (
   try {
     await sendReply(
       models,
-      "me/messages",
+      'me/messages',
       {
         recipient: { id: senderId },
-        sender_action: "typing_on",
+        sender_action: 'typing_on',
         tag
       },
       recipientId,
@@ -301,7 +301,7 @@ const sendMessage = async (
     );
     const resp = await sendReply(
       models,
-      "me/messages",
+      'me/messages',
       {
         recipient: { id: senderId },
         message,
@@ -317,7 +317,7 @@ const sendMessage = async (
   } catch (error) {
     if (
       error.message.includes(
-        "This message is sent outside of allowed window"
+        'This message is sent outside of allowed window'
       ) &&
       bot?.tag &&
       !isLoop
@@ -348,7 +348,7 @@ const getData = async (
   target: any,
   config: any
 ) => {
-  if (triggerType === "facebook:comments") {
+  if (triggerType === 'facebook:comments') {
     const { senderId, recipientId, erxesApiId } = target;
 
     const { botId } = config;
@@ -380,11 +380,11 @@ const getData = async (
     const bot = await models.Bots.findOne({ _id: botId });
 
     if (!bot) {
-      throw new Error("Bot not found");
+      throw new Error('Bot not found');
     }
 
     const DOMAIN = getEnv({
-      name: "DOMAIN",
+      name: 'DOMAIN',
       subdomain
     });
 
@@ -395,15 +395,15 @@ const getData = async (
           timestamp,
           senderId,
           recipientId,
-          content: "Start conversation from comment",
+          content: 'Start conversation from comment',
           integrationId: integration._id,
           isBot: true,
           botId
         });
       } catch (e) {
         throw new Error(
-          e.message.includes("duplicate")
-            ? "Concurrent request: conversation duplication"
+          e.message.includes('duplicate')
+            ? 'Concurrent request: conversation duplication'
             : e
         );
       }
@@ -413,13 +413,13 @@ const getData = async (
     try {
       const apiConversationResponse = await sendInboxMessage({
         subdomain,
-        action: "integrations.receive",
+        action: 'integrations.receive',
         data: {
-          action: "create-or-update-conversation",
+          action: 'create-or-update-conversation',
           payload: JSON.stringify({
             customerId: customer.erxesApiId,
             integrationId: integration.erxesApiId,
-            content: "Start conversation from comment",
+            content: 'Start conversation from comment',
             conversationId: conversation.erxesApiId,
             updatedAt: timestamp
           })
@@ -437,22 +437,22 @@ const getData = async (
 
     const created = await models.ConversationMessages.addMessage({
       conversationId: conversation._id,
-      content: "<p>Bot Message</p>",
+      content: '<p>Bot Message</p>',
       internal: true,
       botId,
       botData: [
         {
-          type: "text",
+          type: 'text',
           text: `${DOMAIN}/inbox/index?_id=${erxesApiId}`
         }
       ],
       fromBot: true,
-      mid: ""
+      mid: ''
     });
 
     await sendInboxMessage({
       subdomain,
-      action: "conversationClientMessageInserted",
+      action: 'conversationClientMessageInserted',
       data: {
         ...created.toObject(),
         conversationId: conversation.erxesApiId
@@ -485,7 +485,7 @@ const getData = async (
   });
 
   if (!conversation) {
-    throw new Error("Conversation not found");
+    throw new Error('Conversation not found');
   }
 
   const integration = await models.Integrations.findOne({
@@ -493,7 +493,7 @@ const getData = async (
   });
 
   if (!integration) {
-    throw new Error("Integration not found");
+    throw new Error('Integration not found');
   }
   const { recipientId, senderId, botId } = conversation;
 
@@ -532,11 +532,11 @@ export const actionCreateMessage = async (
   const { config } = action || {};
 
   if (
-    !["facebook:messages", "facebook:comments", "facebook:ads"].includes(
+    !['facebook:messages', 'facebook:comments', 'facebook:ads'].includes(
       triggerType
     )
   ) {
-    throw new Error("Unsupported trigger type");
+    throw new Error('Unsupported trigger type');
   }
   const {
     conversation,
@@ -559,7 +559,7 @@ export const actionCreateMessage = async (
     );
 
     if (!messages?.length) {
-      return "There are no generated messages to send.";
+      return 'There are no generated messages to send.';
     }
 
     for (const { botData, inputData, ...message } of messages) {
@@ -578,12 +578,12 @@ export const actionCreateMessage = async (
       }
 
       if (!resp) {
-        throw new Error("Something went wrong to send this message");
+        throw new Error('Something went wrong to send this message');
       }
 
       const conversationMessage = await models.ConversationMessages.addMessage({
         conversationId: conversation._id,
-        content: "<p>Bot Message</p>",
+        content: '<p>Bot Message</p>',
         internal: false,
         mid: resp.message_id,
         botId,
@@ -593,7 +593,7 @@ export const actionCreateMessage = async (
 
       sendInboxMessage({
         subdomain,
-        action: "conversationClientMessageInserted",
+        action: 'conversationClientMessageInserted',
         data: {
           ...conversationMessage.toObject(),
           conversationId: conversation.erxesApiId

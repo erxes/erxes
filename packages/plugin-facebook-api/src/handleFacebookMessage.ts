@@ -104,7 +104,11 @@ export const handleFacebookMessage = async (
         isRPC: true,
         subdomain,
         action: 'conversations.findOne',
-        data: { query: { _id: conversationId } }
+        data: {
+          query: {
+            _id: conversationId
+          }
+        }
       });
       await sendReply(
         models,

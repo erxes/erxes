@@ -1,22 +1,22 @@
-import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
-import { CONVERSATION_STATUSES } from "./models/definitions/constants";
-import { sendContactsMessage, sendCoreMessage } from "./messageBroker";
-import { generateModels } from "./connectionResolver";
-import { IConversationDocument } from "./models/definitions/conversations";
-import { pConversationClientMessageInserted } from "./graphql/resolvers/widgetMutations";
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { CONVERSATION_STATUSES } from './models/definitions/constants';
+import { sendContactsMessage, sendCoreMessage } from './messageBroker';
+import { generateModels } from './connectionResolver';
+import { IConversationDocument } from './models/definitions/conversations';
+import { pConversationClientMessageInserted } from './graphql/resolvers/widgetMutations';
 import {
   RPError,
   RPResult,
   RPSuccess
-} from "@erxes/api-utils/src/messageBroker";
+} from '@erxes/api-utils/src/messageBroker';
 
 const sendError = (message): RPError => ({
-  status: "error",
+  status: 'error',
   errorMessage: message
 });
 
 const sendSuccess = (data): RPSuccess => ({
-  status: "success",
+  status: 'success',
   data
 });
 
@@ -29,9 +29,9 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
   const { Integrations, ConversationMessages, Conversations } =
     await generateModels(subdomain);
 
-  const doc = JSON.parse(payload || "{}");
+  const doc = JSON.parse(payload || '{}');
 
-  if (action === "get-create-update-customer") {
+  if (action === 'get-create-update-customer') {
     const integration = await Integrations.findOne({
       _id: doc.integrationId
     });
@@ -44,10 +44,10 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
 
     let customer;
 
-    const getCustomer = async selector =>
+    const getCustomer = async (selector) =>
       sendContactsMessage({
         subdomain,
-        action: "customers.findOne",
+        action: 'customers.findOne',
         data: selector,
         isRPC: true
       });
@@ -58,7 +58,7 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
       if (customer) {
         await sendContactsMessage({
           subdomain,
-          action: "customers.updateCustomer",
+          action: 'customers.updateCustomer',
           data: {
             _id: customer._id,
             doc
@@ -79,7 +79,7 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
     } else {
       customer = await sendContactsMessage({
         subdomain,
-        action: "customers.createCustomer",
+        action: 'customers.createCustomer',
         data: {
           ...doc,
           scopeBrandIds: integration.brandId
@@ -91,17 +91,16 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
     return sendSuccess({ _id: customer._id });
   }
 
-  if (action === "create-or-update-conversation") {
+  if (action === 'create-or-update-conversation') {
     const { conversationId, content, owner, updatedAt } = doc;
 
     let user;
-
     if (owner) {
       user = await sendCoreMessage({
         subdomain,
-        action: "users.findOne",
+        action: 'users.findOne',
         data: {
-          "details.operatorPhone": owner
+          'details.operatorPhone': owner
         },
         isRPC: true,
         defaultValue: {}
@@ -145,6 +144,7 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
         };
         await Conversations.createConversation(formattedDoc);
       }
+      // console.log(conversationId, 'conversationId');
 
       return sendSuccess({ _id: conversationId });
     }
@@ -156,7 +156,7 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
     return sendSuccess({ _id: conversation._id });
   }
 
-  if (action === "create-conversation-message") {
+  if (action === 'create-conversation-message') {
     const message = await ConversationMessages.createMessage(doc);
 
     const conversationDoc: {
@@ -175,7 +175,7 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
       readUserIds: []
     };
 
-    if (message.content && metaInfo === "replaceContent") {
+    if (message.content && metaInfo === 'replaceContent') {
       conversationDoc.content = message.content;
     }
 
@@ -203,10 +203,10 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
     return sendSuccess({ _id: message._id });
   }
 
-  if (action === "get-configs") {
+  if (action === 'get-configs') {
     const configs = await sendCoreMessage({
       subdomain,
-      action: "getConfigs",
+      action: 'getConfigs',
       data: {},
       isRPC: true
     });
@@ -214,16 +214,16 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
     return sendSuccess({ configs });
   }
 
-  if (action === "getUserIds") {
+  if (action === 'getUserIds') {
     const users = await sendCoreMessage({
       subdomain,
-      action: "users.getIds",
+      action: 'users.getIds',
       data: {},
       isRPC: true,
       defaultValue: []
     });
 
-    return sendSuccess({ userIds: users.map(user => user._id) });
+    return sendSuccess({ userIds: users.map((user) => user._id) });
   }
   throw new Error(`Unknown action: ${action}`);
 };
@@ -236,8 +236,8 @@ export const receiveIntegrationsNotification = async (subdomain, msg) => {
 
   const models = await generateModels(subdomain);
 
-  if (action === "external-integration-entry-added") {
-    graphqlPubsub.publish("conversationExternalIntegrationMessageInserted", {});
+  if (action === 'external-integration-entry-added') {
+    graphqlPubsub.publish('conversationExternalIntegrationMessageInserted', {});
 
     if (conversationId) {
       await models.Conversations.reopen(conversationId);
@@ -247,13 +247,13 @@ export const receiveIntegrationsNotification = async (subdomain, msg) => {
       // });
     }
 
-    return sendSuccess({ status: "ok" });
+    return sendSuccess({ status: 'ok' });
   }
 
-  if (action === "sync-calendar-event") {
-    graphqlPubsub.publish("calendarEventUpdated", {});
+  if (action === 'sync-calendar-event') {
+    graphqlPubsub.publish('calendarEventUpdated', {});
 
-    return sendSuccess({ status: "ok" });
+    return sendSuccess({ status: 'ok' });
   }
 };
 
@@ -273,11 +273,11 @@ export const collectConversations = async (
 
   const activities = await sendCoreMessage({
     subdomain,
-    action: "activityLogs.findMany",
+    action: 'activityLogs.findMany',
     data: {
       query: {
         contentId,
-        action: "convert"
+        action: 'convert'
       },
       options: {
         content: 1
@@ -287,7 +287,7 @@ export const collectConversations = async (
     defaultValue: []
   });
 
-  const contentIds = activities.map(activity => activity.content);
+  const contentIds = activities.map((activity) => activity.content);
 
   let conversations: IConversationDocument[] = [];
 
@@ -304,7 +304,7 @@ export const collectConversations = async (
   for (const c of conversations) {
     results.push({
       _id: c._id,
-      contentType: "inbox:conversation",
+      contentType: 'inbox:conversation',
       contentId,
       createdAt: c.createdAt,
       contentTypeDetail: {

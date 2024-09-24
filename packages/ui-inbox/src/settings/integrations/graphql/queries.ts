@@ -1,4 +1,4 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const users = `
   query users {
@@ -96,7 +96,6 @@ const integrations = `
       }
       createdAt
       webhookData
-      leadData
       formId
       tagIds
       tags {
