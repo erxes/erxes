@@ -7,6 +7,7 @@ const params = `
   $tag: String,
   $isEnabledBackBtn:Boolean,
   $backButtonText:String
+  $adAccountId: String
 `;
 
 const paramsDef = `
@@ -17,7 +18,8 @@ const paramsDef = `
   greetText: $greetText
   tag: $tag
   isEnabledBackBtn: $isEnabledBackBtn,
-  backButtonText:$backButtonText
+  backButtonText:$backButtonText,
+  adAccountId: $adAccountId
 `;
 
 const addBot = `

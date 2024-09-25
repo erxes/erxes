@@ -1,13 +1,13 @@
-import { IContext, IModels } from "../../connectionResolver";
-import { INTEGRATION_KINDS } from "../../constants";
-import { sendInboxMessage } from "../../messageBroker";
-import { IConversationMessageDocument } from "../../models/definitions/conversationMessages";
+import { IContext, IModels } from '../../connectionResolver';
+import { INTEGRATION_KINDS } from '../../constants';
+import { sendInboxMessage } from '../../messageBroker';
+import { IConversationMessageDocument } from '../../models/definitions/conversationMessages';
 import {
   fetchPagePost,
   fetchPagePosts,
   getPageList,
-  graphRequest
-} from "../../utils";
+  graphRequest,
+} from '../../utils';
 
 interface IKind {
   kind: string;
@@ -37,10 +37,10 @@ interface IMessagesParams extends IConversationId, IPageParams {
 }
 
 const buildSelector = async (conversationId: string, model: any) => {
-  const query = { conversationId: "" };
+  const query = { conversationId: '' };
 
   const conversation = await model.findOne({
-    erxesApiId: conversationId
+    erxesApiId: conversationId,
   });
 
   if (conversation) {
@@ -81,10 +81,10 @@ const facebookQueries = {
       isResolved,
       commentId,
       senderId,
-      limit = 10
+      limit = 10,
     } = args;
     const post = await models.PostConversations.findOne({
-      erxesApiId: conversationId
+      erxesApiId: conversationId,
     });
 
     const query: {
@@ -93,71 +93,71 @@ const facebookQueries = {
       parentId?: string;
       senderId?: string;
     } = {
-      postId: post ? post.postId || "" : "",
-      isResolved: isResolved === true
+      postId: post ? post.postId || '' : '',
+      isResolved: isResolved === true,
     };
 
-    if (senderId && senderId !== "undefined") {
+    if (senderId && senderId !== 'undefined') {
       const customer = await models.Customers.findOne({ erxesApiId: senderId });
 
       if (customer && customer.userId) {
         query.senderId = customer.userId;
       }
     } else {
-      query.parentId = commentId !== "undefined" ? commentId : "";
+      query.parentId = commentId !== 'undefined' ? commentId : '';
     }
 
     const result = await models.CommentConversation.aggregate([
       {
-        $match: query
+        $match: query,
       },
       {
         $lookup: {
-          from: "customers_facebooks",
-          localField: "senderId",
-          foreignField: "userId",
-          as: "customer"
-        }
+          from: 'customers_facebooks',
+          localField: 'senderId',
+          foreignField: 'userId',
+          as: 'customer',
+        },
       },
       {
         $unwind: {
-          path: "$customer",
-          preserveNullAndEmptyArrays: true
-        }
+          path: '$customer',
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $lookup: {
-          from: "posts_conversations_facebooks",
-          localField: "postId",
-          foreignField: "postId",
-          as: "post"
-        }
+          from: 'posts_conversations_facebooks',
+          localField: 'postId',
+          foreignField: 'postId',
+          as: 'post',
+        },
       },
       {
         $unwind: {
-          path: "$post",
-          preserveNullAndEmptyArrays: true
-        }
+          path: '$post',
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $lookup: {
-          from: "comments_facebooks",
-          localField: "commentId",
-          foreignField: "parentId",
-          as: "replies"
-        }
+          from: 'comments_facebooks',
+          localField: 'commentId',
+          foreignField: 'parentId',
+          as: 'replies',
+        },
       },
       {
         $addFields: {
-          commentCount: { $size: "$replies" },
-          "customer.avatar": "$customer.profilePic",
-          "customer._id": "$customer.erxesApiId",
-          conversationId: "$post.erxesApiId"
-        }
+          commentCount: { $size: '$replies' },
+          'customer.avatar': '$customer.profilePic',
+          'customer._id': '$customer.erxesApiId',
+          conversationId: '$post.erxesApiId',
+        },
       },
 
       { $sort: { timestamp: -1 } },
-      { $limit: limit }
+      { $limit: limit },
     ]);
 
     return result.reverse();
@@ -167,32 +167,32 @@ const facebookQueries = {
     const { conversationId, isResolved = false } = args;
 
     const commentCount = await models.CommentConversation.countDocuments({
-      erxesApiId: conversationId
+      erxesApiId: conversationId,
     });
 
     const comments = await models.CommentConversation.find({
-      erxesApiId: conversationId
+      erxesApiId: conversationId,
     });
     // Extracting comment_ids from the comments array
     const comment_ids = comments?.map(item => item.comment_id);
 
     // Using the extracted comment_ids to search for matching comments
     const search = await models.CommentConversation.find({
-      comment_id: { $in: comment_ids } // Using $in to find documents with comment_ids in the extracted array
+      comment_id: { $in: comment_ids }, // Using $in to find documents with comment_ids in the extracted array
     });
 
     if (search.length > 0) {
       // Returning the count of matching comments
       return {
         commentCount: commentCount,
-        searchCount: search.length
+        searchCount: search.length,
       };
     }
 
     // If no matching comments are found, return only the commentCount
     return {
       commentCount: commentCount,
-      searchCount: 0
+      searchCount: 0,
     };
   },
 
@@ -205,10 +205,10 @@ const facebookQueries = {
     try {
       pages = await getPageList(models, accessToken, kind);
     } catch (e) {
-      if (!e.message.includes("Application request limit reached")) {
+      if (!e.message.includes('Application request limit reached')) {
         await models.Integrations.updateOne(
           { accountId },
-          { $set: { healthStatus: "account-token", error: `${e.message}` } }
+          { $set: { healthStatus: 'account-token', error: `${e.message}` } }
         );
       }
     }
@@ -236,7 +236,7 @@ const facebookQueries = {
     const { conversationId, limit, skip, getFirst } = args;
 
     const conversation = await models.Conversations.findOne({
-      erxesApiId: conversationId
+      erxesApiId: conversationId,
     });
     let messages: IConversationMessageDocument[] = [];
     const query = await buildSelector(conversationId, models.Conversations);
@@ -261,14 +261,14 @@ const facebookQueries = {
       let comment: any[] = [];
       const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
       comment = await models.CommentConversation.find({
-        erxesApiId: conversationId
+        erxesApiId: conversationId,
       })
         .sort(sort)
         .skip(skip || 0);
 
       const comment_ids = comment?.map(item => item.comment_id);
       const search = await models.CommentConversationReply.find({
-        parentId: comment_ids
+        parentId: comment_ids,
       })
         .sort(sort)
         .skip(skip || 0);
@@ -303,12 +303,12 @@ const facebookQueries = {
     { models }: IContext
   ) {
     const comment = await models.CommentConversation.findOne({
-      erxesApiId: erxesApiId
+      erxesApiId: erxesApiId,
     });
 
     if (comment) {
       const postConversation = await models.PostConversations.findOne({
-        postId: comment.postId
+        postId: comment.postId,
       });
 
       return postConversation; // Return the postConversation when comment is found
@@ -322,7 +322,7 @@ const facebookQueries = {
     const bot = await models.Bots.findOne({ _id: botId });
 
     if (!bot) {
-      throw new Error("Bot not found");
+      throw new Error('Bot not found');
     }
 
     return await fetchPagePosts(bot.pageId, bot.token);
@@ -331,7 +331,7 @@ const facebookQueries = {
     const bot = await models.Bots.findOne({ _id: botId });
 
     if (!bot) {
-      throw new Error("Bot not found");
+      throw new Error('Bot not found');
     }
 
     return await fetchPagePost(postId, bot.token);
@@ -341,27 +341,24 @@ const facebookQueries = {
     const bot = await models.Bots.findOne({ _id: botId });
 
     if (!bot) {
-      throw new Error("Bot not found");
+      throw new Error('Bot not found');
     }
 
-    const adAccounts = await graphRequest.get(
-      `${bot.uid}/adaccounts?access_token=${bot.token}`
-    );
-
-    const adAccountId = adAccounts?.data[0]?.id;
+    const { token, adAccountId } = bot;
 
     if (!adAccountId) {
-      throw new Error("Something went wrong during fetch ads");
+      throw new Error('Something went wrong during fetch ads');
     }
 
     const { data } = await graphRequest.get(
-      `${adAccountId}/adsets?fields=id,name,adcreatives{thumbnail_url},ads{id}&access_token=${bot.token}`
+      `act_${adAccountId}/adsets?fields=id,name,adcreatives{thumbnail_url},ads{id}`,
+      token
     );
 
     return data.map(data => ({
       _id: data?.ads?.data[0]?.id,
       name: data.name,
-      thumbnail: data?.adcreatives?.data[0]?.thumbnail_url
+      thumbnail: data?.adcreatives?.data[0]?.thumbnail_url,
     }));
   },
 
@@ -373,8 +370,8 @@ const facebookQueries = {
     const commonParams = { isRPC: true, subdomain };
     const inboxConversation = await sendInboxMessage({
       ...commonParams,
-      action: "conversations.findOne",
-      data: { query: { _id: conversationId } }
+      action: 'conversations.findOne',
+      data: { query: { _id: conversationId } },
     });
 
     let integration;
@@ -382,8 +379,8 @@ const facebookQueries = {
     if (inboxConversation) {
       integration = await sendInboxMessage({
         ...commonParams,
-        action: "integrations.findOne",
-        data: { _id: inboxConversation.integrationId }
+        action: 'integrations.findOne',
+        data: { _id: inboxConversation.integrationId },
       });
     }
 
@@ -396,7 +393,7 @@ const facebookQueries = {
     const messages = await models.ConversationMessages.find({
       ...query,
       customerId: { $exists: true },
-      createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+      createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) },
     })
       .limit(2)
       .lean();
@@ -442,7 +439,7 @@ const facebookQueries = {
   },
   async facebootMessengerBot(_root, { _id }, { models }: IContext) {
     return await models.Bots.findOne({ _id });
-  }
+  },
 };
 
 export default facebookQueries;

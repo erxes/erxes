@@ -7,7 +7,7 @@ import {
   removeAccount,
   removeCustomers,
   removeIntegration,
-  repairIntegrations
+  repairIntegrations,
 } from './helpers';
 import { handleFacebookMessage } from './handleFacebookMessage';
 import { userIds } from './middlewares/userMiddleware';
@@ -21,7 +21,7 @@ import {
   RPResult,
   consumeQueue,
   consumeRPCQueue,
-  sendRPCMessage
+  sendRPCMessage,
 } from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
@@ -36,7 +36,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         data: await models.Accounts.find(selector).lean(),
-        status: 'success'
+        status: 'success',
       };
     }
   );
@@ -47,13 +47,13 @@ export const setupMessageConsumers = async () => {
       const details = JSON.parse(doc.data);
 
       const integration = await models.Integrations.findOne({
-        erxesApiId: integrationId
+        erxesApiId: integrationId,
       });
 
       if (!integration) {
         return {
           status: 'error',
-          errorMessage: 'Integration not found.'
+          errorMessage: 'Integration not found.',
         };
       }
       await models.Integrations.updateOne(
@@ -62,7 +62,7 @@ export const setupMessageConsumers = async () => {
       );
 
       return {
-        status: 'success'
+        status: 'success',
       };
     }
   );
@@ -74,7 +74,7 @@ export const setupMessageConsumers = async () => {
 
       const { action, type } = data;
       let response: RPResult = {
-        status: 'success'
+        status: 'success',
       };
 
       try {
@@ -96,7 +96,7 @@ export const setupMessageConsumers = async () => {
       } catch (e) {
         response = {
           status: 'error',
-          errorMessage: e.message
+          errorMessage: e.message,
         };
       }
 
@@ -111,23 +111,23 @@ export const setupMessageConsumers = async () => {
       const models = await generateModels(subdomain);
 
       const integration = await models.Integrations.findOne({
-        erxesApiId: integrationId
+        erxesApiId: integrationId,
       });
 
       let result = {
-        status: 'healthy'
+        status: 'healthy',
       } as any;
 
       if (integration) {
         result = {
           status: integration.healthStatus || 'healthy',
-          error: integration.error
+          error: integration.error,
         };
       }
 
       return {
         data: result,
-        status: 'success'
+        status: 'success',
       };
     }
   );
@@ -140,7 +140,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         data: await models.PostConversations.findOne({ erxesApiId }),
-        status: 'success'
+        status: 'success',
       };
     }
   );
@@ -151,7 +151,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       data: await facebookGetCustomerPosts(models, data),
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -166,7 +166,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: 'error',
-        errorMessage: 'Wrong kind'
+        errorMessage: 'Wrong kind',
       };
     }
   );
@@ -207,7 +207,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: 'success',
-        data: await models.ConversationMessages.find(data).lean()
+        data: await models.ConversationMessages.find(data).lean(),
       };
     }
   );
@@ -227,7 +227,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: 'success',
-        data: filter
+        data: filter,
       };
     }
   );
@@ -238,23 +238,30 @@ export const sendCoreMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
 
 export const sendAutomationsMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'automations',
-    ...args
+    ...args,
   });
 };
 
-export const getFileUploadConfigs = async (subdomain) =>
+export const sendContactsMessage = (args: MessageArgsOmitService) => {
+  return sendCommonMessage({
+    serviceName: 'contacts',
+    ...args,
+  });
+};
+
+export const getFileUploadConfigs = async subdomain =>
   sendRPCMessage('core:getFileUploadConfigs', { subdomain });

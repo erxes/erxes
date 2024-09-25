@@ -1,6 +1,6 @@
 import {
   Content,
-  MessengerPreview
+  MessengerPreview,
 } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import Steps from '@erxes/ui/src/components//step/Steps';
 import Button from '@erxes/ui/src/components/Button';
@@ -32,7 +32,7 @@ import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 const tags = [
   { label: 'Confirmed Event Update', value: 'CONFIRMED_EVENT_UPDATE' },
   { label: 'Post-Purchase Update', value: 'POST_PURCHASE_UPDATE' },
-  { label: 'Account Update', value: 'ACCOUNT_UPDATE' }
+  { label: 'Account Update', value: 'ACCOUNT_UPDATE' },
 ];
 
 type Props = {
@@ -56,7 +56,7 @@ function removeNullAndTypename(obj) {
       cleanedObj[key] = removeNullAndTypename(obj[key]);
     }
     if (key === 'persistentMenus' && Array.isArray(obj[key])) {
-      cleanedObj[key] = obj[key].map((item) => {
+      cleanedObj[key] = obj[key].map(item => {
         const { isEditing, ...rest } = item;
         return removeNullAndTypename(rest);
       });
@@ -73,17 +73,17 @@ function Form({ renderButton, bot, returnToList }: Props) {
 
   useEffect(() => {
     if (!bot && selectedAccount) {
-      fetchPageDetail(selectedAccount, doc.pageId).then((response) => {
+      fetchPageDetail(selectedAccount, doc.pageId).then(response => {
         setDoc({
           ...doc,
           profileUrl: response?.profileUrl,
-          page: { ...doc.page, name: response?.name }
+          page: { ...doc.page, name: response?.name },
         });
       });
     }
   }, [doc.pageId]);
 
-  const generateDoc = (values) => {
+  const generateDoc = values => {
     return { ...removeNullAndTypename(doc || {}), ...values };
   };
 
@@ -98,7 +98,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
       setDoc({ ...doc, [name]: value });
     };
 
-    const onChangeGreetText = (e) => {
+    const onChangeGreetText = e => {
       const { value } = e.currentTarget as HTMLInputElement;
 
       if (value.length > 160) {
@@ -108,7 +108,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
       onChange('greetText', value);
     };
 
-    const onChangeBackButtonInput = (e) => {
+    const onChangeBackButtonInput = e => {
       const { value } = e.currentTarget as HTMLInputElement;
       if (value.length > 20) {
         return null;
@@ -202,63 +202,6 @@ function Form({ renderButton, bot, returnToList }: Props) {
           >
             <Padding>
               <FormGroup>
-                <ControlLabel>{__('Greet Message (Optional)')}</ControlLabel>
-                <FieldInfo
-                  error={doc?.greetText?.length > 160}
-                >{`${doc?.greetText?.length || 0}/160`}</FieldInfo>
-                <FormControl
-                  name="greetMessage"
-                  componentclass="textarea"
-                  placeholder="Type a greet message for your messenger"
-                  defaultValue={doc.greetText}
-                  onChange={onChangeGreetText}
-                />
-              </FormGroup>
-              <FormGroup>
-                <p>
-                  You are sending a message outside the 7 days messaging window.
-                  Facebook requires a tag to be added to this message. Select
-                  one of the following tags to send the message.
-                </p>
-                <ControlLabel>Tag</ControlLabel>
-                <FormControl
-                  id="facebook-message-tag"
-                  componentclass="select"
-                  placeholder={__('Select Facebook Tag') as string}
-                  defaultValue={doc.tag || ''}
-                  onChange={(e) =>
-                    setDoc({
-                      ...doc,
-                      tag: (e.currentTarget as HTMLInputElement)?.value
-                    })
-                  }
-                >
-                  <option key={''} value={''}>
-                    {''}
-                  </option>
-                  {tags.map((tag) => (
-                    <option key={tag.value} value={tag.value}>
-                      {tag.label}
-                    </option>
-                  ))}
-                </FormControl>
-
-                <FacebookTagText>
-                  Message tags may not be used to send promotional content,
-                  including but not limited to deals,purchases offers, coupons,
-                  and discounts. Use of tags outside of the approved use cases
-                  may result in restrictions on the Page's ability to send
-                  messages.
-                  <a
-                    href="https://developers.facebook.com/docs/messenger-platform/send-messages/message-tags/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {__('Learn more')}
-                  </a>
-                </FacebookTagText>
-              </FormGroup>
-              <FormGroup>
                 <ControlLabel>
                   Enable Back Button on Persistence menu
                 </ControlLabel>
@@ -287,6 +230,76 @@ function Form({ renderButton, bot, returnToList }: Props) {
                   </Container>
                 )}
               </FormGroup>
+              <FormGroup>
+                <ControlLabel>{__('Greet Message (Optional)')}</ControlLabel>
+                <FieldInfo
+                  error={doc?.greetText?.length > 160}
+                >{`${doc?.greetText?.length || 0}/160`}</FieldInfo>
+                <FormControl
+                  name="greetMessage"
+                  componentclass="textarea"
+                  placeholder="Type a greet message for your messenger"
+                  defaultValue={doc.greetText}
+                  onChange={onChangeGreetText}
+                />
+              </FormGroup>
+              <FormGroup>
+                <p>
+                  You are sending a message outside the 7 days messaging window.
+                  Facebook requires a tag to be added to this message. Select
+                  one of the following tags to send the message.
+                </p>
+                <ControlLabel>Tag</ControlLabel>
+                <FormControl
+                  id="facebook-message-tag"
+                  componentclass="select"
+                  placeholder={__('Select Facebook Tag') as string}
+                  defaultValue={doc.tag || ''}
+                  onChange={e =>
+                    setDoc({
+                      ...doc,
+                      tag: (e.currentTarget as HTMLInputElement)?.value,
+                    })
+                  }
+                >
+                  <option key={''} value={''}>
+                    {''}
+                  </option>
+                  {tags.map(tag => (
+                    <option key={tag.value} value={tag.value}>
+                      {tag.label}
+                    </option>
+                  ))}
+                </FormControl>
+
+                <FacebookTagText>
+                  Message tags may not be used to send promotional content,
+                  including but not limited to deals,purchases offers, coupons,
+                  and discounts. Use of tags outside of the approved use cases
+                  may result in restrictions on the Page's ability to send
+                  messages.
+                  <a
+                    href="https://developers.facebook.com/docs/messenger-platform/send-messages/message-tags/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {__('Learn more')}
+                  </a>
+                </FacebookTagText>
+              </FormGroup>
+
+              <FormGroup>
+                <ControlLabel>{__('Ad Account Id')}</ControlLabel>
+                <FormControl
+                  value={doc.adAccountId || ''}
+                  onChange={e =>
+                    onChange(
+                      'adAccountId',
+                      (e.currentTarget as HTMLInputElement).value
+                    )
+                  }
+                />
+              </FormGroup>
             </Padding>
           </Step>
         </Steps>
@@ -299,7 +312,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
               name: 'Bot',
               values: generateDoc(values),
               isSubmitted,
-              object: bot
+              object: bot,
             })}
           </Padding>
         </ModalFooter>
@@ -311,9 +324,9 @@ function Form({ renderButton, bot, returnToList }: Props) {
     { title: __('Settings'), link: '/settings' },
     {
       title: __('Bots config'),
-      link: '/settings/automations/bots'
+      link: '/settings/automations/bots',
     },
-    { title: __(bot ? `Edit ${bot.name}` : 'Create Bot') }
+    { title: __(bot ? `Edit ${bot.name}` : 'Create Bot') },
   ];
 
   return (
@@ -391,12 +404,12 @@ function Form({ renderButton, bot, returnToList }: Props) {
                                 ? [
                                     {
                                       _id: Math.random(),
-                                      text: doc?.backButtonText || 'Back'
-                                    }
+                                      text: doc?.backButtonText || 'Back',
+                                    },
                                   ]
                                 : []
                             )
-                            .map((menu) => (
+                            .map(menu => (
                               <li key={menu._id}>{menu.text || ''}</li>
                             ))}
                         </ul>

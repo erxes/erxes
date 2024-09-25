@@ -10,6 +10,7 @@ import initialSetup from './initialSetup';
 import segments from './segments';
 import dashboards from './dashboards';
 import templates from './templates';
+import automations from './automations';
 
 export default {
   name: 'forms',
@@ -22,6 +23,7 @@ export default {
     // for fixing permissions
     permissions,
     segments,
+    automations,
   },
   graphql: async () => {
     return {
