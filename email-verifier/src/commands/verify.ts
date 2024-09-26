@@ -1,6 +1,8 @@
 import * as dotenv from 'dotenv';
 import { Collection, Db, MongoClient } from 'mongodb';
-import { bulkMailsso } from '../utils';
+import fetch = require('node-fetch');
+import redis from '../redis';
+
 
 dotenv.config();
 
@@ -9,6 +11,47 @@ const { MONGO_URL } = process.env;
 if (!MONGO_URL) {
   throw new Error(`Environment variable MONGO_URL not set.`);
 }
+
+export const setArray = async (key, array) => {
+  const jsonArray = JSON.stringify(array);
+  await redis.set(key, jsonArray);
+};
+
+export const getArray = async (key) => {
+  const jsonArray = await redis.get(key);
+
+  if (!jsonArray) {
+    return [];
+  }
+
+  return JSON.parse(jsonArray);
+};
+
+export const bulkMailsso = async (emails: string[], hostname?: string) => {
+  console.log('bulkMailsso', emails);
+  const MAILS_SO_KEY = process.env.MAILS_SO_KEY;
+  console.log('MAILS_SO_KEY', MAILS_SO_KEY);
+  const body = { emails };
+  const redisKey = 'erxes_email_verifier_list_ids';
+
+  fetch('https://api.mails.so/v1/batch', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-mails-api-key': MAILS_SO_KEY,
+    },
+    body: JSON.stringify(body),
+  })
+    .then((response) => response.json())
+    .then(async (result) => {
+      const listIds = await getArray(redisKey);
+
+      listIds.push({ listId: result.id, hostname });
+
+      setArray(redisKey, listIds);
+    })
+    .catch((error) => console.error('Error:', error));
+};
 
 const client = new MongoClient(MONGO_URL);
 
@@ -38,8 +81,10 @@ const command = async () => {
         break; // No more documents to process
       }
 
+      const emailsArray = emailsBatch.map((email) => email.email);
+
       // Send the batch to the third-party verification service
-      await bulkMailsso(emailsBatch);
+      await bulkMailsso(emailsArray);
 
       console.log(`Processed ${skip + emailsBatch.length} / ${totalEmails}`);
 
