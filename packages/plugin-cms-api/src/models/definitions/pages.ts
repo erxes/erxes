@@ -1,6 +1,7 @@
 import { Document, Schema } from 'mongoose';
 import slugify from 'slugify';
 import { componentSchema } from './components';
+import {nanoid} from 'nanoid';
 
 export interface IPage {
   name: string;
@@ -19,6 +20,7 @@ export interface IPageDocument extends IPage, Document {
 
 export const pageSchema = new Schema<IPageDocument>(
   {
+    _id: { type: String, default: () => nanoid() },
     name: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
     layout: { type: String, required: true },

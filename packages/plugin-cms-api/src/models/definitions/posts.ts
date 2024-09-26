@@ -1,5 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import slugify from 'slugify';
+import {nanoid} from 'nanoid';
 
 export interface IPost {
   title: string;
@@ -23,6 +24,7 @@ export interface IPostDocument extends IPost, Document {
 
 export const postSchema = new Schema<IPostDocument>(
   {
+    _id: { type: String, default: () => nanoid() },
     title: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
     content: { type: String },

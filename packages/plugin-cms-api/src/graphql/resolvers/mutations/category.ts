@@ -4,6 +4,7 @@ import {
 } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../../connectionResolver';
+import slugify from 'slugify';
 
 const mutations = {
   /**
@@ -16,8 +17,13 @@ const mutations = {
   ): Promise<any> => {
     const { models } = context;
     const { input } = args;
+    const doc: any = input
 
-    const category = new models.Categories(input);
+    if (!input.slug) {
+      doc.slug = slugify(doc.name, { lower: true });
+    }
+
+    const category = new models.Categories(doc);
     console.log(category, 'category');
     return category.save();
   },
