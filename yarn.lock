@@ -21748,6 +21748,11 @@ slug@^5.3.0:
   resolved "https://registry.yarnpkg.com/slug/-/slug-5.3.0.tgz#d63d3a5a88d5508c1adcf2b8aeeb045c3f43760b"
   integrity sha512-h7yD2UDVyMcQRv/WLSjq7HDH6ToO/22MB381zfx6/ebtdWUlGcyxpJNVHl6WFvKjIMHf5ZxANFp/srsy4mfT/w==
 
+slugify@^1.6.6:
+  version "1.6.6"
+  resolved "https://registry.yarnpkg.com/slugify/-/slugify-1.6.6.tgz#2d4ac0eacb47add6af9e04d3be79319cbcc7924b"
+  integrity sha512-h+z7HKHYXj6wJU+AnS/+IH8Uh9fdcX1Lrhg1/VMdf9PwoBQXFcXiAdsy2tSK0P6gKwJLXp02r90ahUCqHk9rrw==
+
 smooch-core@^8.8.0:
   version "8.11.4"
   resolved "https://registry.yarnpkg.com/smooch-core/-/smooch-core-8.11.4.tgz#d7b11392c290db57b2d3a9d8d9239c8e19d96f5c"
