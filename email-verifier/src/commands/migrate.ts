@@ -25,9 +25,9 @@ const command = async () => {
 const emails = await Emails.find({}).toArray();
 
 for (const email of emails) {
-  if (!email.verifiedAt) {
+ 
     await Emails.updateOne({ _id: email._id }, { $set: { verifiedAt: email.created } });
-  }
+  
 }
   console.log(`Process finished at: ${new Date()}`);
 
