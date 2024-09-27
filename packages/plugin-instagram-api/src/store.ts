@@ -163,19 +163,20 @@ export const getOrCreateCustomer = async (
     profile_pic: string;
     id: string;
   };
+  let firstName;
 
   try {
-    instagramUser = await getInstagramUser(
+    const instagramUser = await getInstagramUser(
       userId,
       facebookPageId || '',
       facebookPageTokensMap
     );
+    firstName =
+      instagramUser?.name || instagramUser?.username || 'Unknown User';
   } catch (e) {
-    debugError(`Error during get customer info: ${e.message}`);
+    debugError(`Error during get customer info: ${e}`);
   }
-  // save on integrations db
-  const firstName = instagramUser.name || instagramUser.username;
-
+  console.log(firstName, 'firstName');
   try {
     customer = await models.Customers.create({
       userId,
