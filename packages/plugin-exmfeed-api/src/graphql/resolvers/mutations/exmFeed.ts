@@ -66,9 +66,9 @@ const exmFeedMutations = {
       });
     }
 
-    const receiversEmail = receivers.map(r => r.email);
+    const receiversEmail = receivers.map((r) => r.email);
 
-    receivers = receivers.map(r => r._id);
+    receivers = receivers.map((r) => r._id);
 
     if (doc.contentType === 'bravo') {
       receivers = doc.recipientIds;
@@ -147,7 +147,11 @@ const exmFeedMutations = {
   },
 
   exmFeedRemove: async (_root, { _id }, { models, user, messageBroker }) => {
-    const exmFeed = await models.ExmFeed.removeExmFeed(_id);
+    const result = await models.ExmFeed.deleteOne({ _id: _id });
+    if (result.deletedCount === 0) {
+      throw new Error('No ExmFeed found with that ID');
+    }
+    return { success: true, message: 'ExmFeed successfully deleted' };
 
     // await putDeleteLog(
     //   messageBroker,
@@ -160,7 +164,7 @@ const exmFeedMutations = {
     //   user
     // );
 
-    return exmFeed;
+    // return exmFeed;
   },
 
   exmFeedToggleIsPinned: async (_root, { _id }, { models }) => {
