@@ -3,7 +3,7 @@ import {
   FormControl,
   Form,
   FormGroup,
-  ControlLabel
+  ControlLabel,
 } from '@erxes/ui/src/components';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
@@ -26,7 +26,14 @@ type Props = {
 
 const SUBSCRIPTION_PERIOD = [
   { label: 'Weekly', value: 'weekly' },
-  { label: 'Monthly', value: 'monthly' }
+  { label: 'Monthly', value: 'monthly' },
+];
+
+const TIMELY_PERIOD = [
+  { label: 'Daily', value: 'daily' },
+  { label: 'Weekly', value: 'weekly' },
+  { label: 'Monthly', value: 'monthly' },
+  { label: 'Seasonally', value: 'seasonally' },
 ];
 
 const BrandForm = (props: Props) => {
@@ -34,9 +41,12 @@ const BrandForm = (props: Props) => {
   const object = uom || ({} as IUom);
   const [subsConfig, setSubsConfig] = useState({
     isForSubscription: uom?.isForSubscription,
-    ...(uom?.subscriptionConfig || {})
+    ...(uom?.subscriptionConfig || {}),
   } as any);
-
+  const [timelyConfig, setTimelyConfig] = useState({
+    haveTimely: !!uom?.timely,
+    timely: uom?.timely,
+  } as any);
   const renderFooter = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
@@ -49,15 +59,16 @@ const BrandForm = (props: Props) => {
     const updatedValues = {
       ...values,
       isForSubscription,
-      subscriptionConfig
+      subscriptionConfig,
+      timely: timelyConfig?.timely || '',
     };
 
     return (
       <ModalFooter>
         <Button
-          btnStyle="simple"
-          type="button"
-          icon="times-circle"
+          btnStyle='simple'
+          type='button'
+          icon='times-circle'
           onClick={closeModal}
         >
           Cancel
@@ -68,7 +79,7 @@ const BrandForm = (props: Props) => {
           values: updatedValues,
           isSubmitted,
           callback: closeModal || afterSave,
-          object: uom
+          object: uom,
         })}
       </ModalFooter>
     );
@@ -99,7 +110,7 @@ const BrandForm = (props: Props) => {
             onChange={({ value }) =>
               setSubsConfig({
                 isForSubscription: subsConfig.isForSubscription,
-                period: value
+                period: value,
               })
             }
           />
@@ -113,8 +124,8 @@ const BrandForm = (props: Props) => {
                 { value: 'fromExpiredDate', label: 'Start from Expired Date' },
                 {
                   value: 'fromSpecificDate',
-                  label: 'Start from Specific Date'
-                }
+                  label: 'Start from Specific Date',
+                },
               ].map(({ value, label }) => (
                 <Box
                   key={value}
@@ -144,7 +155,7 @@ const BrandForm = (props: Props) => {
 
         <FormGroup>
           <FormControl
-            componentclass="checkbox"
+            componentclass='checkbox'
             checked={subsConfig.subsRenewable}
             onChange={() =>
               handleSubsConfigChange('subsRenewable', !subsConfig.subsRenewable)
@@ -166,7 +177,7 @@ const BrandForm = (props: Props) => {
 
           <FormControl
             {...formProps}
-            name="name"
+            name='name'
             defaultValue={object.name}
             required={true}
             autoFocus={true}
@@ -178,7 +189,7 @@ const BrandForm = (props: Props) => {
 
           <FormControl
             {...formProps}
-            name="code"
+            name='code'
             defaultValue={object.code}
             required={true}
           />
@@ -187,8 +198,8 @@ const BrandForm = (props: Props) => {
         <FormGroup>
           <FormControl
             {...formProps}
-            name="isForSubscription"
-            componentclass="checkbox"
+            name='isForSubscription'
+            componentclass='checkbox'
             checked={subsConfig?.isForSubscription}
             onChange={() =>
               handleSubsConfigChange(
@@ -202,6 +213,43 @@ const BrandForm = (props: Props) => {
         </FormGroup>
 
         {renderSubsConfig(formProps)}
+        <FormGroup>
+          <FormControl
+            {...formProps}
+            name='isForSubscription'
+            componentclass='checkbox'
+            checked={timelyConfig?.haveTimely}
+            onChange={() =>
+              setTimelyConfig(prev => ({
+                ...prev,
+                haveTimely: !timelyConfig?.haveTimely,
+              }))
+            }
+          />
+
+          <ControlLabel>{'Uom for timely'}</ControlLabel>
+        </FormGroup>
+        {timelyConfig?.haveTimely && (
+          <FormGroup>
+            <ControlLabel required>{'Timely Period'}</ControlLabel>
+            <Select
+              {...formProps}
+              placeholder={'Select a period'}
+              options={TIMELY_PERIOD as any}
+              value={
+                TIMELY_PERIOD.find(
+                  ({ value }) => timelyConfig?.timely === value
+                ) as any
+              }
+              onChange={({ value }) =>
+                setTimelyConfig(prev => ({
+                  ...prev,
+                  timely: value,
+                }))
+              }
+            />
+          </FormGroup>
+        )}
 
         {renderFooter({ ...formProps })}
       </>

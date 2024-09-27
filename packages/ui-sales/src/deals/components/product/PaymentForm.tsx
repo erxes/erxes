@@ -3,19 +3,19 @@ import {
   ContentRowTitle,
   Divider,
   WrongLess,
-} from "../../styles";
-import Select, { components } from "react-select";
+} from '../../styles';
+import Select, { components } from 'react-select';
 
-import CURRENCIES from "@erxes/ui/src/constants/currencies";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { Flex } from "@erxes/ui/src/styles/main";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import { IPaymentsData } from "../../types";
-import { PAYMENT_TYPES } from "../../constants";
-import React from "react";
-import { __ } from "@erxes/ui/src/utils";
-import { pluginsOfPaymentForm } from "coreui/pluginUtils";
-import { selectConfigOptions } from "../../utils";
+import CURRENCIES from '@erxes/ui/src/constants/currencies';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Flex } from '@erxes/ui/src/styles/main';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IDeal, IPaymentsData } from '../../types';
+import { PAYMENT_TYPES } from '../../constants';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
+import { pluginsOfPaymentForm } from 'coreui/pluginUtils';
+import { selectConfigOptions } from '../../utils';
 
 type Props = {
   total: { [currency: string]: number };
@@ -24,6 +24,7 @@ type Props = {
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
   calcChangePay: () => void;
   changePayData: { currency?: string; amount?: number };
+  pipelineDetail: any;
 };
 
 type State = {
@@ -53,7 +54,7 @@ class PaymentForm extends React.Component<Props, State> {
   }
 
   renderTotal(value) {
-    return Object.keys(value).map((key) => (
+    return Object.keys(value).map(key => (
       <div key={key}>
         {this.renderAmount(value[key])} <b>{key}</b>
       </div>
@@ -74,8 +75,8 @@ class PaymentForm extends React.Component<Props, State> {
     onChangePaymentsData(paymentsData);
   };
 
-  selectOption = (option) => (
-    <div className="simple-option">
+  selectOption = option => (
+    <div className='simple-option'>
       <span>{option.label}</span>
     </div>
   );
@@ -84,31 +85,31 @@ class PaymentForm extends React.Component<Props, State> {
     const { currencies, changePayData } = this.props;
     const { paymentsData } = this.state;
 
-    const onChange = (e) => {
+    const onChange = e => {
       if (
         (!paymentsData[type.name] || !paymentsData[type.name].currency) &&
         currencies.length > 0
       ) {
-        this.paymentStateChange("currency", type.name, currencies[0]);
+        this.paymentStateChange('currency', type.name, currencies[0]);
       }
 
       this.paymentStateChange(
-        "amount",
+        'amount',
         type.name,
-        parseFloat((e.target as HTMLInputElement).value || "0")
+        parseFloat((e.target as HTMLInputElement).value || '0')
       );
     };
 
-    const currencyOnChange = (currency) => {
+    const currencyOnChange = currency => {
       this.paymentStateChange(
-        "currency",
+        'currency',
         type.name,
-        currency ? currency.value : ""
+        currency ? currency.value : ''
       );
     };
 
     const onClick = () => {
-      Object.keys(changePayData).forEach((key) => {
+      Object.keys(changePayData).forEach(key => {
         if (
           changePayData[key] > 0 &&
           (!paymentsData[type.name] || !paymentsData[type.name].amount)
@@ -130,7 +131,7 @@ class PaymentForm extends React.Component<Props, State> {
       });
     };
 
-    const Option = (props) => {
+    const Option = props => {
       return (
         <components.Option {...props}>
           {this.selectOption(props.data)}
@@ -139,7 +140,7 @@ class PaymentForm extends React.Component<Props, State> {
     };
 
     const selectOptions = selectConfigOptions(currencies, CURRENCIES);
-
+    const KEY = type.name || type.type;
     return (
       <Flex key={type.name}>
         <ContentColumn>
@@ -147,11 +148,9 @@ class PaymentForm extends React.Component<Props, State> {
         </ContentColumn>
         <ContentColumn>
           <FormControl
-            value={
-              paymentsData[type.name] ? paymentsData[type.name].amount : ""
-            }
-            type="number"
-            placeholder={__("Type amount")}
+            value={paymentsData[KEY] ? paymentsData[KEY].amount : ''}
+            type='number'
+            placeholder={__('Type amount')}
             min={0}
             name={type.name}
             onChange={onChange}
@@ -161,11 +160,11 @@ class PaymentForm extends React.Component<Props, State> {
         <ContentColumn>
           <Select
             name={type.name}
-            placeholder={__("Choose currency")}
+            placeholder={__('Choose currency')}
             value={selectOptions.find(
-              (option) =>
+              option =>
                 option.value ===
-                (paymentsData[type.name] ? paymentsData[type.name].currency : 0)
+                (paymentsData[KEY] ? paymentsData[KEY].currency : 0)
             )}
             onChange={currencyOnChange}
             components={{ Option }}
@@ -178,7 +177,15 @@ class PaymentForm extends React.Component<Props, State> {
   }
 
   renderPayments() {
-    return PAYMENT_TYPES.map((type) => this.renderPaymentsByType(type));
+    console.log('pisda');
+    console.log(this.props.pipelineDetail);
+    console.log('pisda jajaj');
+    console.log(this.props.payments);
+    const part1 = PAYMENT_TYPES.map(type => this.renderPaymentsByType(type));
+    const part2 = this.props.pipelineDetail.paymentTypes.map(type =>
+      this.renderPaymentsByType(type)
+    );
+    return [...part1, ...part2];
   }
 
   render() {
@@ -199,7 +206,7 @@ class PaymentForm extends React.Component<Props, State> {
         <Divider />
 
         {this.renderPayments()}
-        {pluginsOfPaymentForm((type) => this.renderPaymentsByType(type))}
+        {pluginsOfPaymentForm(type => this.renderPaymentsByType(type))}
       </>
     );
   }

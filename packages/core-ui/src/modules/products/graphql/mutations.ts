@@ -30,13 +30,15 @@ const commonUomParams = `
   $code: String
   $isForSubscription:Boolean
   $subscriptionConfig:JSON
+  $timely: TimelyType
 `;
 
 const commonUomParamsDef = `
   name: $name,
   code: $code,
   isForSubscription: $isForSubscription,
-  subscriptionConfig:$subscriptionConfig
+  subscriptionConfig: $subscriptionConfig,
+  timely: $timely
 `;
 
 const uomsAdd = `
@@ -44,6 +46,7 @@ const uomsAdd = `
     uomsAdd(${commonUomParamsDef}) {
       _id
       name
+      timely
       code
       createdAt
     }
@@ -55,6 +58,7 @@ const uomsEdit = `
     uomsEdit(_id: $_id, ${commonUomParamsDef}) {
       _id
       name
+      timely
       code
       createdAt
     }
@@ -84,5 +88,5 @@ export default {
   uomsEdit,
   uomsRemove,
 
-  productsConfigsUpdate
+  productsConfigsUpdate,
 };

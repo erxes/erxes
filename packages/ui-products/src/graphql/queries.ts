@@ -1,4 +1,4 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const vendorField = `
   vendor {
@@ -169,6 +169,7 @@ const uoms = `
       createdAt
       isForSubscription
       subscriptionConfig
+      timely
     }
   }
 `;
@@ -198,5 +199,5 @@ export default {
   productCategories,
   productsConfigs,
   uoms,
-  uomsTotalCount
+  uomsTotalCount,
 };

@@ -51,6 +51,12 @@ const pipelines = `
           fullName
         } 
       }
+      initialCategoryIds
+      excludeCategoryIds
+      excludeProductIds
+      paymentIds
+      paymentTypes
+      erxesAppToken
     }
   }
 `;
@@ -104,5 +110,5 @@ export default {
   stages,
   boardGetLast,
   boardDetail,
-  expenses
+  expenses,
 };

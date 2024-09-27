@@ -1,21 +1,22 @@
 import {
   checkPermission,
-  requireLogin
-} from "@erxes/api-utils/src/permissions";
-import { afterQueryWrapper, paginate } from "@erxes/api-utils/src";
-import { escapeRegExp } from "@erxes/api-utils/src/core";
-import { IContext, IModels } from "../../../connectionResolver";
-import { sendSalesMessage } from "../../../messageBroker";
+  requireLogin,
+} from '@erxes/api-utils/src/permissions';
+import { afterQueryWrapper, paginate } from '@erxes/api-utils/src';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
+import { IContext, IModels } from '../../../connectionResolver';
+import { sendSalesMessage } from '../../../messageBroker';
 import {
   getSimilaritiesProducts,
-  getSimilaritiesProductsCount
-} from "../../../maskUtils";
+  getSimilaritiesProductsCount,
+} from '../../../maskUtils';
 import {
   ProductQueriesBuilder,
   countBySegmentProduct,
-  countByTagProduct
-} from "../../modules/product/productUtils";
-import { PRODUCT_STATUSES } from "../../../db/models/definitions/products";
+  countByTagProduct,
+} from '../../modules/product/productUtils';
+import { PRODUCT_STATUSES } from '../../../db/models/definitions/products';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 interface IQueryParams {
   ids?: string[];
@@ -54,7 +55,8 @@ const generateFilter = async (
     ids,
     excludeIds,
     segment,
-    segmentData
+    segmentData,
+    pipelineId,
   } = params;
   const filter: any = commonQuerySelector;
 
@@ -67,9 +69,21 @@ const generateFilter = async (
     filter.type = type;
   }
 
+  const isEnabledSales = await isEnabled('sales');
+  console.log('isEnabledSales', isEnabledSales);
+  const onePipeline = await sendSalesMessage({
+    subdomain,
+    action: 'pipelines.findOne',
+    data: { _id: pipelineId },
+    isRPC: true,
+    defaultValue: null,
+  });
+
+  console.log('onePipeline', onePipeline);
+
   if (categoryId) {
     const category = await models.ProductCategories.findOne({
-      _id: categoryId
+      _id: categoryId,
     }).lean();
 
     const productCategoryIds = category
@@ -82,14 +96,14 @@ const generateFilter = async (
     filter.categoryId = { $in: productCategoryIds };
   } else {
     const notActiveCategories = await models.ProductCategories.find({
-      status: { $nin: [null, "active"] }
+      status: { $nin: [null, 'active'] },
     });
 
     filter.categoryId = { $nin: notActiveCategories.map(e => e._id) };
   }
 
   if (ids && ids.length > 0) {
-    filter._id = { [excludeIds ? "$nin" : "$in"]: ids };
+    filter._id = { [excludeIds ? '$nin' : '$in']: ids };
   }
 
   if (tag) {
@@ -98,17 +112,17 @@ const generateFilter = async (
 
   // search =========
   if (searchValue) {
-    const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, "i");
+    const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
 
     let codeFilter = { code: { $in: [regex] } };
     if (
-      searchValue.includes(".") ||
-      searchValue.includes("_") ||
-      searchValue.includes("*")
+      searchValue.includes('.') ||
+      searchValue.includes('_') ||
+      searchValue.includes('*')
     ) {
       const codeRegex = new RegExp(
-        `^${searchValue.replace(/\*/g, ".").replace(/_/g, ".")}$`,
-        "igu"
+        `^${searchValue.replace(/\*/g, '.').replace(/_/g, '.')}$`,
+        'igu'
       );
       codeFilter = { code: { $in: [codeRegex] } };
     }
@@ -116,7 +130,7 @@ const generateFilter = async (
     filter.$or = [
       codeFilter,
       { name: { $in: [regex] } },
-      { barcodes: { $in: [searchValue] } }
+      { barcodes: { $in: [searchValue] } },
     ];
   }
 
@@ -153,12 +167,12 @@ const generateFilterCat = async ({
   searchValue,
   meta,
   brand,
-  status
+  status,
 }) => {
   const filter: any = {};
-  filter.status = { $nin: ["disabled", "archived"] };
+  filter.status = { $nin: ['disabled', 'archived'] };
 
-  if (status && status !== "active") {
+  if (status && status !== 'active') {
     filter.status = status;
   }
 
@@ -167,7 +181,7 @@ const generateFilterCat = async ({
       const category = await (
         models as IModels
       ).ProductCategories.getProductCategory({
-        _id: parentId
+        _id: parentId,
       });
 
       const relatedCategoryIds = (
@@ -196,7 +210,7 @@ const generateFilterCat = async ({
   }
 
   if (searchValue) {
-    filter.name = new RegExp(`.*${searchValue}.*`, "i");
+    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
   }
 
   return filter;
@@ -242,7 +256,7 @@ const productQueries = {
 
     return afterQueryWrapper(
       subdomain,
-      "products",
+      'products',
       params,
       await paginate(
         models.Products.find(filter).sort(sort).lean(),
@@ -281,25 +295,25 @@ const productQueries = {
   ) {
     const counts = {
       bySegment: {},
-      byTag: {}
+      byTag: {},
     };
 
     const { only } = params;
 
     const qb = new ProductQueriesBuilder(models, subdomain, params, {
       commonQuerySelector,
-      commonQuerySelectorElk
+      commonQuerySelectorElk,
     });
 
     switch (only) {
-      case "byTag":
-        counts.byTag = await countByTagProduct(models, "core:product", qb);
+      case 'byTag':
+        counts.byTag = await countByTagProduct(models, 'core:product', qb);
         break;
 
-      case "bySegment":
+      case 'bySegment':
         counts.bySegment = await countBySegmentProduct(
           models,
-          "core:product",
+          'core:product',
           qb
         );
         break;
@@ -315,19 +329,19 @@ const productQueries = {
   ) {
     const product = await models.Products.getProduct({ _id });
 
-    if (groupedSimilarity === "config") {
+    if (groupedSimilarity === 'config') {
       const getRegex = str => {
         return new RegExp(
           `^${str
-            .replace(/\./g, "\\.")
-            .replace(/\*/g, ".")
-            .replace(/_/g, ".")}.*`,
-          "igu"
+            .replace(/\./g, '\\.')
+            .replace(/\*/g, '.')
+            .replace(/_/g, '.')}.*`,
+          'igu'
         );
       };
 
       const similarityGroups =
-        await models.ProductsConfigs.getConfig("similarityGroup");
+        await models.ProductsConfigs.getConfig('similarityGroup');
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = (product.customFieldsData || []).map(
@@ -345,7 +359,7 @@ const productQueries = {
 
       if (!matchedMasks.length) {
         return {
-          products: await models.Products.find({ _id })
+          products: await models.Products.find({ _id }),
         };
       }
 
@@ -368,19 +382,19 @@ const productQueries = {
         $and: [
           {
             $or: codeRegexs,
-            "customFieldsData.field": { $in: fieldIds }
-          }
-        ]
+            'customFieldsData.field': { $in: fieldIds },
+          },
+        ],
       };
 
       return {
         products: await models.Products.find(filters).sort({ code: 1 }),
-        groups
+        groups,
       };
     }
 
     const category = await models.ProductCategories.getProductCategory({
-      _id: product.categoryId
+      _id: product.categoryId,
     });
     if (
       !category.isSimilarity ||
@@ -388,7 +402,7 @@ const productQueries = {
       !category.similarities.length
     ) {
       return {
-        products: await models.Products.find({ _id })
+        products: await models.Products.find({ _id }),
       };
     }
 
@@ -397,9 +411,9 @@ const productQueries = {
       $and: [
         {
           categoryId: category._id,
-          "customFieldsData.field": { $in: fieldIds }
-        }
-      ]
+          'customFieldsData.field': { $in: fieldIds },
+        },
+      ],
     };
 
     const groups: {
@@ -409,7 +423,7 @@ const productQueries = {
 
     return {
       products: await models.Products.find(filters).sort({ code: 1 }),
-      groups
+      groups,
     };
   },
 
@@ -425,7 +439,7 @@ const productQueries = {
       withChild,
       searchValue,
       brand,
-      meta
+      meta,
     });
 
     const sortParams: any = { order: 1 };
@@ -445,7 +459,7 @@ const productQueries = {
       searchValue,
       status,
       brand,
-      meta
+      meta,
     });
     return models.ProductCategories.find(filter).countDocuments();
   },
@@ -465,12 +479,12 @@ const productQueries = {
   async productCountByTags(_root, _params, { models, subdomain }: IContext) {
     const counts = {};
 
-    const tags = await models.Tags.find({ type: "core:product" }).lean();
+    const tags = await models.Tags.find({ type: 'core:product' }).lean();
 
     for (const tag of tags) {
       counts[tag._id] = await models.Products.find({
         tagIds: tag._id,
-        status: { $ne: PRODUCT_STATUSES.DELETED }
+        status: { $ne: PRODUCT_STATUSES.DELETED },
       }).countDocuments();
     }
 
@@ -495,7 +509,7 @@ const productQueries = {
       page,
       perPage,
       pipelineId,
-      excludeStageIds
+      excludeStageIds,
     } = params;
 
     const pagintationArgs = { page, perPage };
@@ -515,26 +529,26 @@ const productQueries = {
     if (pipelineId) {
       const allStages = await sendSalesMessage({
         subdomain,
-        action: "stages.find",
+        action: 'stages.find',
         data: { pipelineId },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       const allStageIds = allStages.map(s => s._id);
 
       const deals = await sendSalesMessage({
         subdomain,
-        action: "deals.find",
+        action: 'deals.find',
         data: {
           stageId: {
-            $in: allStageIds.filter(s => !(excludeStageIds || []).includes(s))
+            $in: allStageIds.filter(s => !(excludeStageIds || []).includes(s)),
           },
-          status: { $in: ["active", ""] },
-          "productsData.productId": { $in: products.map(p => p._id) }
+          status: { $in: ['active', ''] },
+          'productsData.productId': { $in: products.map(p => p._id) },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       for (const deal of deals) {
@@ -552,18 +566,18 @@ const productQueries = {
     }
 
     return products;
-  }
+  },
 };
 
-requireLogin(productQueries, "productsTotalCount");
-checkPermission(productQueries, "products", "showProducts", []);
+requireLogin(productQueries, 'productsTotalCount');
+checkPermission(productQueries, 'products', 'showProducts', []);
 checkPermission(
   productQueries,
-  "productsCheckUsedPipeline",
-  "showProducts",
+  'productsCheckUsedPipeline',
+  'showProducts',
   []
 );
-checkPermission(productQueries, "productCategories", "showProducts", []);
-checkPermission(productQueries, "productCountByTags", "showProducts", []);
+checkPermission(productQueries, 'productCategories', 'showProducts', []);
+checkPermission(productQueries, 'productCountByTags', 'showProducts', []);
 
 export default productQueries;

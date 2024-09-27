@@ -13,10 +13,10 @@ import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import Select, { components } from 'react-select';
 import styled from 'styled-components';
-import { PAYMENT_TYPE_ICONS } from '../../../constants';
-import { Block, Description, FlexColumn, FlexItem } from '../../../styles';
-import { IPos, ISlot } from '../../../types';
+// import { Block, Description, FlexColumn, FlexItem } from '../../../styles';
 
+import { PAYMENT_TYPE_ICONS } from '../../boards/constants';
+import { IPipeline } from '@erxes/ui-sales/src/boards/types';
 export const SelectValue = styled.div`
   display: flex;
   justify-content: left;
@@ -26,43 +26,41 @@ export const SelectValue = styled.div`
 `;
 
 type Props = {
-  onChange: (name: 'pos', value: any) => void;
-  pos: IPos;
-  posSlots: ISlot[];
-  envs: any;
+  onChange: (name: string, value: any) => void;
+  paymentIds?: string[];
+  paymentTypes?: any[];
+  erxesAppToken?: string;
 };
 
 const PaymentsStep = (props: Props) => {
-  const { onChange, pos, posSlots, envs } = props;
-
-  const [slots, setSlots] = useState(posSlots || []);
+  const { onChange, paymentIds, paymentTypes, erxesAppToken } = props;
 
   const onChangeFunction = (name: any, value: any) => {
     onChange(name, value);
   };
 
   const onChangePayments = ids => {
-    onChangeFunction('pos', { ...pos, paymentIds: ids });
+    onChangeFunction('paymentIds', ids);
   };
 
   const onChangeInput = e => {
-    onChangeFunction('pos', {
-      ...pos,
-      [e.target.id]: (e.currentTarget as HTMLInputElement).value,
-    });
+    onChangeFunction(
+      [e.target.id],
+      (e.currentTarget as HTMLInputElement).value
+    );
   };
 
   const onClickAddPayments = () => {
-    const paymentTypes = [...(pos.paymentTypes || [])];
+    const paymentTypes_ = [...(props.paymentTypes || [])];
 
-    paymentTypes.push({
+    paymentTypes_.push({
       _id: Math.random().toString(),
       type: '',
       title: '',
       icon: '',
     });
-
-    onChange('pos', { ...pos, paymentTypes });
+    console.log('paumenttypes', paymentTypes_);
+    onChange('paymentTypes', paymentTypes_);
   };
 
   const content = (option): React.ReactNode => (
@@ -92,11 +90,11 @@ const PaymentsStep = (props: Props) => {
 
   const renderPaymentType = (paymentType: any) => {
     const editPayment = (name, value) => {
-      let paymentTypes = [...(pos.paymentTypes || [])];
+      let paymentTypes = [...(props.paymentTypes || [])];
       paymentTypes = (paymentTypes || []).map(p =>
         p._id === paymentType._id ? { ...p, [name]: value } : p
       );
-      onChange('pos', { ...pos, paymentTypes });
+      onChange('paymentTypes', paymentTypes);
     };
 
     const onChangeInput = e => {
@@ -111,8 +109,8 @@ const PaymentsStep = (props: Props) => {
 
     const removePayment = () => {
       const paymentTypes =
-        (pos.paymentTypes || []).filter(m => m._id !== paymentType._id) || [];
-      onChange('pos', { ...pos, paymentTypes });
+        (props.paymentTypes || []).filter(m => m._id !== paymentType._id) || [];
+      onChange('paymentTypes', paymentTypes);
     };
 
     const getTipText = type => {
@@ -194,82 +192,77 @@ const PaymentsStep = (props: Props) => {
   };
 
   return (
-    <FlexItem>
-      <FlexColumn>
-        <LeftItem>
-          {isEnabled('payment') && (
-            <>
-              {loadDynamicComponent('selectPayments', {
-                defaultValue: pos.paymentIds || [],
-                onChange: (ids: string[]) => onChangePayments(ids),
-              })}
+    <div>
+      {isEnabled('payment') && (
+        <>
+          {loadDynamicComponent('selectPayments', {
+            defaultValue: props.paymentIds || [],
+            onChange: (ids: string[]) => onChangePayments(ids),
+          })}
 
-              <Block>
-                <FormGroup>
-                  <ControlLabel>Erxes App Token:</ControlLabel>
-                  <FormControl
-                    id='erxesAppToken'
-                    type='text'
-                    value={pos.erxesAppToken || ''}
-                    onChange={onChangeInput}
-                  />
-                </FormGroup>
-              </Block>
-            </>
-          )}
-
-          <Block>
-            <h4>{__('Other payments')}</h4>
-            <Description>
-              type is must latin, some default types: golomtCard, khaanCard,
-              TDBCard
-            </Description>
-            <Description>
-              Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: "skipEbarimt: true",
-              Харилцагч сонгосон үед л харагдах бол: "mustCustomer: true", Хэрэв
-              хуваах боломжгүй бол: "notSplit: true" Урьдчилж төлсөн төлбөрөөр
-              (Татвар тооцсон) бол: "preTax: true"
-            </Description>
-
+          <div>
             <FormGroup>
-              <div key={Math.random()}>
-                <FormWrapper>
-                  <FormColumn>
-                    <FormGroup>
-                      <ControlLabel>Type</ControlLabel>
-                    </FormGroup>
-                  </FormColumn>
-                  <FormColumn>
-                    <FormGroup>
-                      <ControlLabel>Title</ControlLabel>
-                    </FormGroup>
-                  </FormColumn>
-                  <FormColumn>
-                    <FormGroup>
-                      <ControlLabel>Icon</ControlLabel>
-                    </FormGroup>
-                  </FormColumn>
-                  <FormColumn>
-                    <FormGroup>
-                      <ControlLabel>Config</ControlLabel>
-                    </FormGroup>
-                  </FormColumn>
-                  <FormColumn></FormColumn>
-                </FormWrapper>
-              </div>
-              {(pos.paymentTypes || []).map(item => renderPaymentType(item))}
+              <ControlLabel>Erxes App Token:</ControlLabel>
+              <FormControl
+                id='erxesAppToken'
+                type='text'
+                value={props.erxesAppToken || ''}
+                onChange={onChangeInput}
+              />
             </FormGroup>
-            <Button
-              btnStyle='primary'
-              icon='plus-circle'
-              onClick={onClickAddPayments}
-            >
-              Add payment
-            </Button>
-          </Block>
-        </LeftItem>
-      </FlexColumn>
-    </FlexItem>
+          </div>
+        </>
+      )}
+
+      <div>
+        <h4>{__('Other payments')}</h4>
+        <div>
+          type is must latin, some default types: golomtCard, khaanCard, TDBCard
+        </div>
+        <div>
+          Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: "skipEbarimt: true",
+          Харилцагч сонгосон үед л харагдах бол: "mustCustomer: true", Хэрэв
+          хуваах боломжгүй бол: "notSplit: true" Урьдчилж төлсөн төлбөрөөр
+          (Татвар тооцсон) бол: "preTax: true"
+        </div>
+
+        <FormGroup>
+          <div key={Math.random()}>
+            <FormWrapper>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>Type</ControlLabel>
+                </FormGroup>
+              </FormColumn>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>Title</ControlLabel>
+                </FormGroup>
+              </FormColumn>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>Icon</ControlLabel>
+                </FormGroup>
+              </FormColumn>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>Config</ControlLabel>
+                </FormGroup>
+              </FormColumn>
+              <FormColumn></FormColumn>
+            </FormWrapper>
+          </div>
+          {(props.paymentTypes || []).map(item => renderPaymentType(item))}
+        </FormGroup>
+        <Button
+          btnStyle='primary'
+          icon='plus-circle'
+          onClick={onClickAddPayments}
+        >
+          Add payment
+        </Button>
+      </div>
+    </div>
   );
 };
 

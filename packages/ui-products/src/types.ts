@@ -18,6 +18,7 @@ export interface IUom {
   createdAt: Date;
   isForSubscription?: boolean;
   subscriptionConfig?: any;
+  timely?: string;
 }
 
 export interface IVariant {
