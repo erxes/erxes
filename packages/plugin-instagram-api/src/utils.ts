@@ -214,11 +214,11 @@ export const getInstagramUser = async (
       facebookPageId,
       facebookPageTokensMap
     );
-    const accounInfo: any = await graphRequest.get(
+    const accountInfo: any = await graphRequest.get(
       `${userId}?fields=name,username,profile_pic`,
       token
     );
-    return accounInfo;
+    return accountInfo;
   } else {
     throw new Error(
       'facebookPageTokensMap is undefined. Unable to get Instagram user.'
