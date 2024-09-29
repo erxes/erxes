@@ -7,7 +7,7 @@ import {
   __,
 } from '@erxes/ui/src';
 import { Card } from './styles';
-import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import BoardSelect from '@erxes/ui-tickets/src/boards/containers/BoardSelect';
 import CardActionComponent from './ActionComponent';
 
 type Props = {

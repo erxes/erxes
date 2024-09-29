@@ -1,5 +1,5 @@
 import { generateModels } from './connectionResolver';
-import { sendCardsMessage, sendCommonMessage } from './messageBroker';
+import { sendCommonMessage } from './messageBroker';
 
 export async function doAction(
   subdomain,
@@ -18,21 +18,23 @@ export async function doAction(
   };
 
   if (action === 'changeStage') {
-    await sendCardsMessage({
+    await sendCommonMessage({
+      serviceName: `${data?.type}s`,
       subdomain,
       action: 'editItem',
       data,
-      isRPC: true
+      isRPC: true,
     });
     return 'success';
   }
 
   if (action === 'createRelatedCard') {
-    await sendCardsMessage({
+    await sendCommonMessage({
+      serviceName: `${data?.type}s`,
       subdomain,
       action: 'createRelatedItem',
       data,
-      isRPC: true
+      isRPC: true,
     });
 
     return 'success';
@@ -69,11 +71,12 @@ export const doLogicAfterAction = async (
         stageId: logic?.targetStageId
       };
 
-      await sendCardsMessage({
+      await sendCommonMessage({
+        serviceName: `${sourceType}s`,
         subdomain,
         action: 'editItem',
         data: doc,
-        isRPC: true
+        isRPC: true,
       });
     }
   }
