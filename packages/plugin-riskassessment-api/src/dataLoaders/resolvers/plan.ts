@@ -1,6 +1,6 @@
 import { PLAN_STATUSES } from '../../common/constants';
 import { IContext } from '../../connectionResolver';
-import { sendCardsMessage, sendCoreMessage } from '../../messageBroker';
+import { sendCommonMessage, sendCoreMessage } from '../../messageBroker';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -17,20 +17,20 @@ export default {
           subdomain,
           action: 'branches.findOne',
           data: {
-            _id: structureTypeId
+            _id: structureTypeId,
           },
           isRPC: true,
-          defaultValue: null
+          defaultValue: null,
         });
       case 'department':
         return await sendCoreMessage({
           subdomain,
           action: 'departments.findOne',
           data: {
-            _id: structureTypeId
+            _id: structureTypeId,
           },
           isRPC: true,
-          defaultValue: null
+          defaultValue: null,
         });
       case 'operation':
         return await models.Operations.findOne({ _id: structureTypeId }).lean();
@@ -44,10 +44,10 @@ export default {
       subdomain,
       action: 'users.findOne',
       data: {
-        _id: plannerId
+        _id: plannerId,
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
   },
 
@@ -60,12 +60,13 @@ export default {
       return null;
     }
 
-    const cards = await sendCardsMessage({
+    const cards = await sendCommonMessage({
+      serviceName: `${configs.cardType}s`,
       subdomain,
       action: `${configs.cardType}s.find`,
       data: { _id: { $in: cardIds } },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     return cards;
@@ -101,43 +102,45 @@ export default {
               $cond: {
                 if: { $eq: ['$status', 'In Progress'] },
                 then: null,
-                else: '$resultScore'
-              }
-            }
+                else: '$resultScore',
+              },
+            },
           },
           submittedAssessmentCount: {
-            $sum: { $cond: [{ $ne: ['$status', 'In Progress'] }, 1, 0] }
-          }
-        }
-      }
+            $sum: { $cond: [{ $ne: ['$status', 'In Progress'] }, 1, 0] },
+          },
+        },
+      },
     ]).then(result => {
       averangeAssessment = result[0]?.avarangeScore || 0;
       submittedAssessmentCount = result[0]?.submittedAssessmentCount || 0;
     });
 
-    const stages = await sendCardsMessage({
+    const stages = await sendCommonMessage({
+      serviceName: `${configs.cardType}s`,
       subdomain,
       action: 'stages.find',
       data: {
         probability: 'Resolved',
         status: 'active',
-        pipelineId: configs.pipelineId
+        pipelineId: configs.pipelineId,
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const stageIds = stages.map(stage => stage._id);
 
-    const cards = await sendCardsMessage({
+    const cards = await sendCommonMessage({
+      serviceName: `${configs.cardType}s`,
       subdomain,
       action: `${configs.cardType}s.find`,
       data: {
         _id: { $in: cardIds },
-        stageId: { $in: stageIds }
+        stageId: { $in: stageIds },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     resolvedCardsCount = cards?.length || 0;
@@ -146,7 +149,7 @@ export default {
       totalCards,
       averangeAssessment,
       submittedAssessmentCount,
-      resolvedCardsCount
+      resolvedCardsCount,
     };
-  }
+  },
 };
