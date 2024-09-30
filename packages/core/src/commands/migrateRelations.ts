@@ -23,7 +23,6 @@ let Webhooks: Collection<any>;
 let ActivityLogs: Collection<any>;
 let Charts: Collection<any>;
 let Reports: Collection<any>;
-let Logs: Collection<any>;
 
 const switchContentType = contentType => {
   let changedContentType = contentType;
@@ -81,7 +80,6 @@ const command = async () => {
   Webhooks = db.collection("webhooks");
   Charts = db.collection("insight_charts");
   Reports = db.collection("reports");
-  Logs = db.collection("logs");
 
   try {
     await Segments.find({}).forEach(doc => {
@@ -111,17 +109,15 @@ const command = async () => {
       FieldGroups.updateOne({ _id: doc._id }, { $set: { contentType } });
     });
 
+    console.log("migrating fields");
+
     await Fields.find({}).forEach(doc => {
       const contentType = switchContentType(doc.contentType);
 
       Fields.updateOne({ _id: doc._id }, { $set: { contentType } });
     });
 
-    await Logs.find({}).forEach(doc => {
-      const contentType = switchContentType(doc.contentType);
-
-      Logs.updateOne({ _id: doc._id }, { $set: { contentType } });
-    });
+    console.log("migratings activity logs");
 
     await ActivityLogs.find({}).forEach(doc => {
       const contentType = switchContentType(doc.contentType);
@@ -129,17 +125,23 @@ const command = async () => {
       ActivityLogs.updateOne({ _id: doc._id }, { $set: { contentType } });
     });
 
+    console.log("migrating tags");
+
     await Tags.find({}).forEach(doc => {
       const contentType = switchContentType(doc.type);
 
       Tags.updateOne({ _id: doc._id }, { $set: { type: contentType } });
     });
 
+    console.log("migrating internal notes");
+
     await InternalNotes.find({}).forEach(doc => {
       const contentType = switchContentType(doc.contentType);
 
       InternalNotes.updateOne({ _id: doc._id }, { $set: { contentType } });
     });
+
+    console.log("migrating webhooks");
 
     await Webhooks.find({}).forEach(webhook => {
       const actions = webhook.actions || [];
@@ -163,6 +165,8 @@ const command = async () => {
         }
       );
     });
+
+    console.log("migrating charts");
 
     await Charts.updateMany(
       { templateType: { $regex: new RegExp("Deal") } },
@@ -200,6 +204,8 @@ const command = async () => {
         }
       ]
     );
+
+    console.log("migrating reports");
 
     await Reports.updateMany(
       { serviceType: "task" },
