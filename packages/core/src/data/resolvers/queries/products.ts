@@ -69,18 +69,6 @@ const generateFilter = async (
     filter.type = type;
   }
 
-  const isEnabledSales = await isEnabled('sales');
-  console.log('isEnabledSales', isEnabledSales);
-  const onePipeline = await sendSalesMessage({
-    subdomain,
-    action: 'pipelines.findOne',
-    data: { _id: pipelineId },
-    isRPC: true,
-    defaultValue: null,
-  });
-
-  console.log('onePipeline', onePipeline);
-
   if (categoryId) {
     const category = await models.ProductCategories.findOne({
       _id: categoryId,
@@ -157,6 +145,25 @@ const generateFilter = async (
     filter.scopeBrandIds = { $in: [brand] };
   }
 
+  const isEnabledSales = await isEnabled('sales');
+
+  if (isEnabledSales) {
+    const onePipeline = await sendSalesMessage({
+      subdomain,
+      action: 'pipelines.findOne',
+      data: { _id: pipelineId },
+      isRPC: true,
+      defaultValue: null,
+    });
+
+    return {
+      $and: [
+        filter,
+        { categoryId: { $nin: onePipeline.excludeCategoryIds } },
+        { _id: { $nin: onePipeline.excludeProductIds } },
+      ],
+    };
+  }
   return filter;
 };
 
