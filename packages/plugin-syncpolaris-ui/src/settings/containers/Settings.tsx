@@ -6,6 +6,7 @@ import { mutations, queries } from '../graphql';
 import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
+import { Spinner } from '@erxes/ui/src/components';
 
 type Props = {
   component: any;
@@ -36,6 +37,10 @@ class SettingsContainer extends React.Component<FinalProps> {
           Alert.error(error.message);
         });
     };
+
+    if (configsQuery.loading) {
+      return <Spinner />
+    }
 
     const config = configsQuery.configsGetValue || [];
 

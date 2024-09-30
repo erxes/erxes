@@ -245,9 +245,10 @@ const FormWrapper = styled.div`
   }
 `;
 
-const FormColumn = styled.div`
+const FormColumn = styledTS<{ maxwidth?: string }>(styled.div)`
   flex: 1;
   padding-right: 40px;
+  max-width: ${(props) => props.maxwidth};
 
   &:last-of-type {
     padding: 0;

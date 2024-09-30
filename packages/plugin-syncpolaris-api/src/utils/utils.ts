@@ -7,6 +7,7 @@ import { ISyncLogDocument } from '../models/definitions/syncLog';
 interface IParams {
   op: string;
   subdomain: string;
+  polarisConfig: any;
   models?: IModels;
   syncLog?: ISyncLogDocument;
   data?: any;
@@ -18,9 +19,8 @@ type CustomFieldType =
   | 'savings:contract';
 
 export const fetchPolaris = async (args: IParams) => {
-  const { op, data, subdomain, models, syncLog } = args;
-
-  const config = await getConfig(subdomain, 'POLARIS', {});
+  const { op, data, subdomain, models, syncLog, polarisConfig } = args;
+  const config = polarisConfig;
 
   const headers = {
     Op: op,
@@ -186,6 +186,55 @@ export const getDepositAccount = async (
     data: { customerId },
     isRPC: true
   });
+};
+
+export const genObjectOfRule = async (
+  subdomain,
+  customFieldType: CustomFieldType,
+  object,
+  convertConfig
+) => {
+  const result = {};
+  const fields = await sendCommonMessage({
+    subdomain,
+    serviceName: 'forms',
+    action: 'fields.find',
+    data: {
+      query: {
+        contentType: customFieldType
+      },
+      projection: {
+        groupId: 1,
+        code: 1,
+        isDefinedByErxes: 1,
+        type: 1,
+        _id: 1
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  for (const key of Object.keys(convertConfig)) {
+    const conf = convertConfig[key];
+    if (!conf.value || !conf.propType || !conf.fieldId) {
+      continue;
+    }
+
+    if (conf.type === 'form') {
+      if (conf.propType) {
+        result[key] = object[conf.propType]
+      } else {
+        const field = fields.find(f => f._id === conf.fieldId)
+        const customData = (object.customFieldsData || []).find(cfd => cfd.field === field._id);
+        result[key] = customData?.value;
+      }
+    } else {
+      result[key] = conf.value;
+    }
+  }
+
+  return result;
 };
 
 export const customFieldToObject = async (
