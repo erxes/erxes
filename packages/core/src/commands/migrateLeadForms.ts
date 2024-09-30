@@ -39,7 +39,8 @@ const command = async () => {
         tagIds: integration.tagIds,
         kind: integration.kind,
         languageCode: integration.languageCode,
-        integrationId: integration._id
+        integrationId: integration._id,
+        status: integration.isActive ? "active" : "archived",
       };
 
       await Forms.updateOne({ _id: form._id }, { $set: formDoc });
