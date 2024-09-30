@@ -147,11 +147,20 @@ const exmFeedMutations = {
   },
 
   exmFeedRemove: async (_root, { _id }, { models, user, messageBroker }) => {
-    const result = await models.ExmFeed.deleteOne({ _id: _id });
-    if (result.deletedCount === 0) {
-      throw new Error('No ExmFeed found with that ID');
+    try {
+      const result = await models.ExmFeed.deleteOne({ _id });
+
+      if (!result.deletedCount) {
+        throw new Error(`No ExmFeed found with ID: ${_id}`);
+      }
+
+      return {
+        success: true,
+        message: 'ExmFeed successfully deleted'
+      };
+    } catch (error) {
+      throw new Error(`Deletion failed: ${error.message}`);
     }
-    return { success: true, message: 'ExmFeed successfully deleted' };
 
     // await putDeleteLog(
     //   messageBroker,
@@ -163,8 +172,6 @@ const exmFeedMutations = {
     //   },
     //   user
     // );
-
-    // return exmFeed;
   },
 
   exmFeedToggleIsPinned: async (_root, { _id }, { models }) => {
