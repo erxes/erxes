@@ -33,7 +33,7 @@ const command = async () => {
       const formDoc = {
         brandId: integration.brandId,
         leadData: integration.leadData,
-        name: form.name,
+        name: integration.name,
         visibility: integration.visibility,
         departmentIds: integration.departmentIds,
         tagIds: integration.tagIds,
