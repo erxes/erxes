@@ -45,7 +45,6 @@ const listParamsDef = `
   $searchValue: String
   $sortField: String
   $sortDirection: Int
-  $isDeposit: Boolean
 `;
 
 const listParamsValue = `
@@ -55,7 +54,6 @@ const listParamsValue = `
   searchValue: $searchValue
   sortField: $sortField
   sortDirection: $sortDirection
-  isDeposit: $isDeposit
 `;
 
 export const contractTypeFields = `
@@ -73,9 +71,17 @@ export const contractTypeFields = `
   isDeposit
 `;
 
-export const contractTypes = `
-  query SavingsContractTypes(${listParamsDef}) {
-    savingsContractTypes(${listParamsValue}) {
+export const savingsContractTypes = `
+  query SavingsContractTypes(${listParamsDef}, $isDeposit: Boolean) {
+    savingsContractTypes(${listParamsValue}, isDeposit: $isDeposit) {
+      ${contractTypeFields}
+    }
+  }
+`;
+
+export const loansContractTypes = `
+  query LoansContractTypes(${listParamsDef}) {
+    loansContractTypes(${listParamsValue}) {
       ${contractTypeFields}
     }
   }
@@ -86,5 +92,6 @@ export default {
   list,
   totalCount,
   listSyncpolarisTypes,
-  contractTypes,
+  savingsContractTypes,
+  loansContractTypes
 };

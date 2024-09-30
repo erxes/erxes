@@ -43,7 +43,7 @@ type Props = {
   configsMap: IConfigsMap;
 };
 
-const GeneralSettings = (props: Props) => {
+const LoanSettings = (props: Props) => {
   const [fieldGroups, setFieldGroups] = useState<IFieldGroup[]>([]);
   const [contractTypes, setContractType] = useState<any[]>([]);
   const [openKey, setOpenKey] = useState<string>('');
@@ -70,7 +70,7 @@ const GeneralSettings = (props: Props) => {
     if (isEnabled("loans")) {
       client
         .query({
-          query: gql(queries.contractTypes),
+          query: gql(queries.loansContractTypes),
           variables: {},
         })
         .then(({ data }) => {
@@ -205,4 +205,4 @@ const GeneralSettings = (props: Props) => {
   );
 }
 
-export default GeneralSettings;
+export default LoanSettings;

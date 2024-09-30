@@ -63,7 +63,7 @@ const SavingSettings = (props: Props) => {
     if (isEnabled("savings")) {
       client
         .query({
-          query: gql(queries.contractTypes),
+          query: gql(queries.savingsContractTypes),
           variables: {
             isDeposit: false
           },
