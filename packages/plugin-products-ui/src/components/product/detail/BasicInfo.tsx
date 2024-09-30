@@ -137,7 +137,9 @@ const BasicInfo: React.FC<Props> = (props) => {
       return null;
     }
 
-    return <Attachment attachment={item} />;
+    const attachments = [item] as IAttachment[]
+
+    return <Attachment attachment={item} attachments={attachments} />;
   };
 
   const renderProductContent = () => {
