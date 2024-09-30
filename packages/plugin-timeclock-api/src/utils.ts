@@ -115,7 +115,7 @@ const returnNewTimeLogsFromEmpData = async (
     }
 
     const checkTimeLogAlreadyExists = existingTimeLogs.find(
-      existingTimeLog =>
+      (existingTimeLog) =>
         existingTimeLog.userId === newTimeLog.userId &&
         existingTimeLog.timelog?.getTime() === newTimeLog.timelog.getTime()
     );
@@ -176,7 +176,7 @@ const createTimelogs = async (
     if (currEmpNumber) {
       const teamMemberId = teamMembersObj[currEmpNumber];
       currentEmpId = currEmpId;
-      const currEmpData = queryData.filter(row => row.ID === currEmpId);
+      const currEmpData = queryData.filter((row) => row.ID === currEmpId);
       totalTimeLogs.push(
         ...(await returnNewTimeLogsFromEmpData(
           currEmpData,
@@ -288,7 +288,7 @@ const connectAndQueryFromMsSql = async (
     .then(async () => {
       console.log('Connected to MSSQL');
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err);
       return err;
     });
@@ -320,10 +320,10 @@ const connectAndQueryFromMsSql = async (
       extractRequired: true,
     });
 
-    const deviceSerialNumbers = devicesList.map(device => device.serialNo);
+    const deviceSerialNumbers = devicesList.map((device) => device.serialNo);
 
     const query = `SELECT * FROM ${MYSQL_TABLE} WHERE authDateTime >= '${startDate}' AND authDateTime <= '${endDate}' AND ISNUMERIC(ID)=1 AND ID IN (${teamEmployeeIds}) AND deviceSerialNo IN (${deviceSerialNumbers.map(
-      serialNo => `'${serialNo}'`
+      (serialNo) => `'${serialNo}'`
     )}) ORDER BY ID, authDateTime`;
 
     const queryData = await sequelize.query(query, {
@@ -632,12 +632,12 @@ const getShiftStartAndEndIdx = (
 
   getShiftStartIdx = unfinishedShiftStart
     ? empData.findIndex(
-        timeLog =>
+        (timeLog) =>
           parseInt(timeLog.ID, 10) === empId &&
           dayjs(timeLog.authDateTime) >= getShiftStart
       )
     : empData.findIndex(
-        timeLog =>
+        (timeLog) =>
           dayjs(timeLog.authDateTime) >= checkInStart &&
           dayjs(timeLog.authDateTime) <= checkInEnd
       );
@@ -683,13 +683,13 @@ const getShiftStartAndEndIdx = (
 
   getShiftEndIdx = unfinishedShiftStart
     ? getReverseData.findIndex(
-        timeLog =>
+        (timeLog) =>
           parseInt(timeLog.ID, 10) === empId &&
           dayjs(timeLog.authDateTime) >= checkOutStart &&
           dayjs(timeLog.authDateTime) <= checkOutEnd
       )
     : getReverseData.findIndex(
-        timeLog =>
+        (timeLog) =>
           dayjs(timeLog.authDateTime) >= checkOutStart &&
           dayjs(timeLog.authDateTime) <= checkOutEnd
       );
@@ -713,7 +713,7 @@ const filterExistingTimeclocks = (
     }
   }
 
-  const returnNewTimeclocks: ITimeClock[] = userData.filter(timeclock => {
+  const returnNewTimeclocks: ITimeClock[] = userData.filter((timeclock) => {
     if (
       timeclock.shiftStart.getTime() in existingTimeclocksDict ||
       (timeclock.shiftEnd &&
@@ -846,7 +846,7 @@ const createScheduleObjOfMembers = async (
     ],
   });
 
-  const totalScheduleIds = totalSchedules.map(schedule => schedule._id);
+  const totalScheduleIds = totalSchedules.map((schedule) => schedule._id);
 
   const totalScheduleShifts = await models.Shifts.find({
     $and: [
@@ -1096,7 +1096,7 @@ const createTeamMembersObjectWithFullName = async (
     subdomain,
     action: 'users.find',
     data: {
-      query: { _id: { $in: userIds }, isActive: true },
+      query: { _id: { $in: userIds } },
     },
     isRPC: true,
     defaultValue: [],
@@ -1150,7 +1150,7 @@ const returnSupervisedUsers = async (
       isRPC: true,
       defaultValue: [],
     })
-  ).map(dept => dept._id);
+  ).map((dept) => dept._id);
 
   const supervisedBranchIds = (
     await sendCoreMessage({
@@ -1164,7 +1164,7 @@ const returnSupervisedUsers = async (
       isRPC: true,
       defaultValue: [],
     })
-  ).map(branch => branch._id);
+  ).map((branch) => branch._id);
 
   const findTotalSupervisedUsers: IUserDocument[] = [];
 
@@ -1228,7 +1228,7 @@ const generateFilter = async (
 
   if (!isCurrentUserAdmin) {
     scheduleFilter = {
-      userId: { $in: totalSupervisedUsers.map(usr => usr._id) },
+      userId: { $in: totalSupervisedUsers.map((usr) => usr._id) },
     };
   }
 
@@ -1259,7 +1259,7 @@ const generateFilter = async (
   const scheduleShifts = await models.Shifts.find(scheduleShiftSelector);
 
   const scheduleIds = new Set(
-    scheduleShifts.map(scheduleShift => scheduleShift.scheduleId)
+    scheduleShifts.map((scheduleShift) => scheduleShift.scheduleId)
   );
 
   let returnFilter: any = { _id: { $in: [...scheduleIds] }, ...scheduleFilter };
@@ -1280,7 +1280,7 @@ const generateFilter = async (
     returnFilter = {};
     if (!isCurrentUserAdmin) {
       returnFilter = {
-        userId: { $in: totalSupervisedUsers.map(usr => usr._id) },
+        userId: { $in: totalSupervisedUsers.map((usr) => usr._id) },
       };
     }
     returnFilter = {
@@ -1391,15 +1391,15 @@ const generateCommonUserIds = async (
     departmentIds && (await findDepartmentUsers(subdomain, departmentIds));
 
   const branchUserIds =
-    branchUsers && branchUsers.map(branchUser => branchUser._id);
+    branchUsers && branchUsers.map((branchUser) => branchUser._id);
 
   const departmentUserIds =
     departmentUsers &&
-    departmentUsers.map(departmentUser => departmentUser._id);
+    departmentUsers.map((departmentUser) => departmentUser._id);
 
   // if both branch and department are given find common users between them
   if (branchIds && departmentIds) {
-    const intersectionOfUserIds = branchUserIds.filter(branchUserId =>
+    const intersectionOfUserIds = branchUserIds.filter((branchUserId) =>
       departmentUserIds.includes(branchUserId)
     );
 
