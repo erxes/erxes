@@ -442,8 +442,8 @@ export const prepareOrderDoc = async (
     const fixedUnitPrice = Number(
       Number(
         ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
-        item.unitPrice ||
-        0
+          item.unitPrice ||
+          0
       ).toFixed(2)
     );
 
@@ -468,12 +468,11 @@ export const prepareOrderDoc = async (
           customerId: doc?.customerId,
           'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.ACTIVE
         })
-          .sort({ createdAt: -1 })
+          .sort({ createdAt: -1, 'items.closeDate': -1 })
           .lean();
 
         const prevSubscriptionItem = await models.OrderItems.findOne({
           orderId: { $in: prevSubscriptions.map(({ _id }) => _id) },
-          productId: item.productId,
           closeDate: { $gte: new Date() }
         })
           .sort({ createdAt: -1 })

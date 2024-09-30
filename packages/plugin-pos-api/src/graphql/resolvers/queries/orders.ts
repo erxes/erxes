@@ -921,23 +921,23 @@ const queries = {
 
   async checkSubscription(
     _root,
-    { customerId, productId,productIds },
+    { customerId, productId, productIds },
     { models }: IContext
   ) {
-
-    const filter:any = {
+    const filter: any = {
       customerId,
       'items.productId': productId,
       'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.ACTIVE,
       'items.closeDate': { $gte: new Date() }
-    }
+    };
 
     if (productIds) {
       filter['items.productId'] = productIds;
     }
 
-
-    const subscription = await models.PosOrders.findOne(filter).sort({createdAt:-1});
+    const subscription = await models.PosOrders.findOne(filter).sort({
+      createdAt: -1
+    });
 
     if (!subscription) {
       throw new Error(`Cannot find subscription`);
@@ -955,8 +955,8 @@ const queries = {
           $match: {
             'subscriptionInfo.subscriptionId': { $nin: [null, '', undefined] },
             customerId: { $nin: [null, '', undefined] },
-            ...filter,
-          },
+            ...filter
+          }
         },
         { $unwind: '$items' },
         { $sort: { createdAt: -1, 'items.closeDate': -1 } },
@@ -973,14 +973,15 @@ const queries = {
                 $cond: {
                   if: { $ne: ['$items.closeDate', null] },
                   then: '$$ROOT',
-                  else: '$$REMOVE',
-                },
-              },
-            },
-          },
+                  else: '$$REMOVE'
+                }
+              }
+            }
+          }
         },
+        { $sort: { closeDate: -1 } }
       ]),
-      params,
+      params
     );
   }
 };
