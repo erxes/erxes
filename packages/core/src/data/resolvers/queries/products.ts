@@ -147,7 +147,7 @@ const generateFilter = async (
 
   const isEnabledSales = await isEnabled('sales');
 
-  if (isEnabledSales) {
+  if (isEnabledSales && pipelineId) {
     const onePipeline = await sendSalesMessage({
       subdomain,
       action: 'pipelines.findOne',
@@ -155,14 +155,15 @@ const generateFilter = async (
       isRPC: true,
       defaultValue: null,
     });
-
-    return {
-      $and: [
-        filter,
-        { categoryId: { $nin: onePipeline.excludeCategoryIds } },
-        { _id: { $nin: onePipeline.excludeProductIds } },
-      ],
-    };
+    if (onePipeline) {
+      return {
+        $and: [
+          filter,
+          { categoryId: { $nin: onePipeline.excludeCategoryIds } },
+          { _id: { $nin: onePipeline.excludeProductIds } },
+        ],
+      };
+    }
   }
   return filter;
 };
