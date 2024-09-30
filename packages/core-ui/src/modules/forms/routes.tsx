@@ -36,6 +36,22 @@ const EditLead = asyncComponent(
   () => import(/* webpackChunkName: "EditLead" */ './leads/containers/EditLead')
 );
 
+const ResponseList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - FormResponse" */ './containers/ResponseList'
+    )
+);
+
+const Responses = () => {
+  const location = useLocation();
+
+  const queryParams = queryString.parse(location.search);
+  const { formId } = useParams();
+
+  return <ResponseList queryParams={queryParams} formId={formId} />;
+};
+
 const Forms = () => {
   return <FormsContainer />;
 };
@@ -71,14 +87,9 @@ const CreateLeadComponent = () => {
 const EditLeadComponent = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
-  const {formId} = useParams();
+  const { formId } = useParams();
 
-  return (
-    <EditLead
-      queryParams={queryParams}
-      formId={formId}
-    />
-  );
+  return <EditLead queryParams={queryParams} formId={formId} />;
 };
 
 const routes = () => (
@@ -91,6 +102,11 @@ const routes = () => (
       key='/forms/leads/edit/:formId'
       path='/forms/leads/edit/:formId'
       element={<EditLeadComponent />}
+    />
+    <Route
+      key='/forms/responses/:formId?'
+      path='/forms/responses/:formId?'
+      element={<Responses />}
     />
   </Routes>
 );
