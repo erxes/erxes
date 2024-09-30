@@ -164,19 +164,19 @@ export const getOrCreateCustomer = async (
     id: string;
   };
   let firstName;
-
   try {
-    const instagramUser = await getInstagramUser(
+    instagramUser = await getInstagramUser(
       userId,
       facebookPageId || '',
       facebookPageTokensMap
     );
-    firstName =
-      instagramUser?.name || instagramUser?.username || 'Unknown User';
+    if (instagramUser) {
+      firstName =
+        instagramUser.username || instagramUser.name || 'Unknown User';
+    }
   } catch (e) {
     debugError(`Error during get customer info: ${e}`);
   }
-  console.log(firstName, 'firstName');
   try {
     customer = await models.Customers.create({
       userId,
