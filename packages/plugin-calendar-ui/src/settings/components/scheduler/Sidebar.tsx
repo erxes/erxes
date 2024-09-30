@@ -1,10 +1,10 @@
-import { BoardItem } from '@erxes/ui-cards/src/settings/boards/styles';
-import { Header } from '@erxes/ui-settings/src/styles';
-import { ICalendar } from '../../types';
-import { Link } from 'react-router-dom';
-import { SidebarList as List } from '@erxes/ui/src/layout/styles';
-import React from 'react';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { BoardItem } from "@erxes/ui-sales/src/settings/boards/styles";
+import { Header } from "@erxes/ui-settings/src/styles";
+import { ICalendar } from "../../types";
+import { Link } from "react-router-dom";
+import { SidebarList as List } from "@erxes/ui/src/layout/styles";
+import React from "react";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 
 type Props = {
   accountId?: string;

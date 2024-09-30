@@ -1,13 +1,3 @@
-import { IFieldGroup } from "@erxes/ui-forms/src/settings/properties/types";
-import { GroupWrapper } from "@erxes/ui-segments/src/styles";
-import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
-import Button from "@erxes/ui/src/components/Button";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import CommonForm from "@erxes/ui/src/components/form/Form";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import Tip from "@erxes/ui/src/components/Tip";
-import Uploader from "@erxes/ui/src/components/Uploader";
 import {
   FormColumn,
   FormWrapper,
@@ -22,12 +12,23 @@ import {
   extractAttachment,
   generateCategoryOptions,
 } from "@erxes/ui/src/utils";
-import { ICategory } from "@erxes/ui/src/utils/categories";
-import { __ } from "@erxes/ui/src/utils/core";
-import React from "react";
-import { PRODUCT_CATEGORY_STATUSES } from "../constants";
+
+import Button from "@erxes/ui/src/components/Button";
 import CategoryMask from "../containers/CategoryMask";
+import CommonForm from "@erxes/ui/src/components/form/Form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { GroupWrapper } from "../styles";
+import { ICategory } from "@erxes/ui/src/utils/categories";
+import { IFieldGroup } from "@erxes/ui-forms/src/settings/properties/types";
 import { IProductCategory } from "../types";
+import { PRODUCT_CATEGORY_STATUSES } from "../constants";
+import React from "react";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import Tip from "@erxes/ui/src/components/Tip";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   categories: IProductCategory[];

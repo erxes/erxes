@@ -1,11 +1,11 @@
-import { ActivityTitle, Timeline } from '../styles';
+import { ActivityTitle, Timeline } from "../styles";
 
-import ActivityItem from './ActivityItem';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { IActivityLog } from '../types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import React from 'react';
-import dayjs from 'dayjs';
+import ActivityItem from "./ActivityItem";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { IActivityLog } from "../types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import dayjs from "dayjs";
 
 export type IActivityListProps = {
   activities: IActivityLog[];
@@ -44,10 +44,10 @@ class ActivityList extends React.Component<IActivityListProps> {
   renderTimeLine(activities) {
     const result = activities.reduce((item, activity) => {
       const { contentType } = activity;
-      const createdDate = dayjs(activity.createdAt).format('MMMM YYYY');
+      const createdDate = dayjs(activity.createdAt).format("MMMM YYYY");
 
       if (
-        contentType === 'cards:taskDetail' &&
+        contentType === "tasks:taskDetail" &&
         dayjs(activity.createdAt) >= dayjs()
       ) {
         item.Upcoming = item.Upcoming || [];

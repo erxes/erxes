@@ -1,9 +1,9 @@
-import { getCloseInfo } from '../../../models/utils/closeUtils';
-import { getFullDate } from '../../../models/utils/utils';
-import { checkPermission, paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
-import { sendMessageBroker } from '../../../messageBroker';
-import { customFieldToObject } from '../utils';
+import { getCloseInfo } from "../../../models/utils/closeUtils";
+import { getFullDate } from "../../../models/utils/utils";
+import { checkPermission, paginate } from "@erxes/api-utils/src";
+import { IContext } from "../../../connectionResolver";
+import { sendMessageBroker } from "../../../messageBroker";
+import { customFieldToObject } from "../utils";
 
 const generateFilter = async (params, commonQuerySelector) => {
   let filter: any = commonQuerySelector;
@@ -30,11 +30,11 @@ const generateFilter = async (params, commonQuerySelector) => {
   } = params;
 
   if (ids?.length) {
-    filter._id = { [excludeIds ? '$nin' : '$in']: ids };
+    filter._id = { [excludeIds ? "$nin" : "$in"]: ids };
   }
 
   if (dealIds?.length) {
-    filter.dealId = { $in: dealIds }
+    filter.dealId = { $in: dealIds };
   }
 
   if (searchValue) {
@@ -80,9 +80,7 @@ const generateFilter = async (params, commonQuerySelector) => {
           currentDate.setDate(currentDate.getDate() - currentDate.getDay())
         );
         let lastDayOfWeek = new Date(
-          currentDate.setDate(
-            currentDate.getDate() - currentDate.getDay() + 6
-          )
+          currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 6)
         );
         filter.closeDate = {
           $gte: firstDayOfWeek,
@@ -94,9 +92,7 @@ const generateFilter = async (params, commonQuerySelector) => {
           currentDate.setDate(currentDate.getDate() - currentDate.getDay())
         );
         let lastDayOfMonth = new Date(
-          currentDate.setDate(
-            currentDate.getDate() - currentDate.getDay() + 6
-          )
+          currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 6)
         );
         filter.closeDate = {
           $gte: firstDayOfMonth,
@@ -137,7 +133,7 @@ const generateFilter = async (params, commonQuerySelector) => {
   return filter;
 };
 
-export const sortBuilder = (params) => {
+export const sortBuilder = params => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -238,29 +234,55 @@ const contractQueries = {
       alerts.push({
         name: "Expired contracts",
         count: expiredContracts.length,
-        filter: expiredContracts.map((a) => a._id)
+        filter: expiredContracts.map(a => a._id)
       });
     }
 
     return alerts;
   },
 
-  convertToContract: async (_root, params: { contentType: string; id: string }, { subdomain }: IContext) => {
+  convertToContract: async (
+    _root,
+    params: { contentType: string; id: string },
+    { subdomain }: IContext
+  ) => {
     const { contentType, id } = params;
     const mappings = {
-      deal: { action: 'deals.findOne', data: { _id: id }, name: 'cards', customFieldType: 'cards:deal' },
-      customer: { action: 'customers.findOne', data: { _id: id }, name: 'contacts', customFieldType: 'contacts:customer' },
-      company: { action: 'companies.findOne', data: { _id: id }, name: 'contacts', customFieldType: 'contacts:company' },
-    }
+      deal: {
+        action: "deals.findOne",
+        data: { _id: id },
+        name: "sales",
+        customFieldType: "sales:deal"
+      },
+      customer: {
+        action: "customers.findOne",
+        data: { _id: id },
+        name: "core",
+        customFieldType: "contacts:customer"
+      },
+      company: {
+        action: "companies.findOne",
+        data: { _id: id },
+        name: "core",
+        customFieldType: "contacts:company"
+      }
+    };
     const mapping = mappings[contentType] || mappings.deal;
-    const object = await sendMessageBroker({
-      subdomain,
-      action: mapping.action,
-      data: mapping.data,
-      isRPC: true,
-    }, mapping.name);
+    const object = await sendMessageBroker(
+      {
+        subdomain,
+        action: mapping.action,
+        data: mapping.data,
+        isRPC: true
+      },
+      mapping.name
+    );
 
-    return await customFieldToObject(subdomain, mapping.customFieldType, object)
+    return await customFieldToObject(
+      subdomain,
+      mapping.customFieldType,
+      object
+    );
   }
 };
 

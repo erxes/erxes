@@ -56,6 +56,7 @@ const products = gql`
       type
       description
       remainder
+      remainders
       hasSimilarity
       attachment {
         url

@@ -1,15 +1,14 @@
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
-import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import * as compose from "lodash.flowright";
 
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
-import CategoryMask from '../components/CategoryMask';
-import { IProductCategory } from '../types';
+import CategoryMask from "../components/CategoryMask";
+import { FIELDS_GROUPS_CONTENT_TYPES } from "@erxes/ui-forms/src/settings/properties/constants";
+import { FieldsGroupsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
+import { IProductCategory } from "../types";
+import React from "react";
+import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   parentCategory?: IProductCategory;
@@ -37,7 +36,7 @@ class CategoryMaskContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      fieldGroups
+      fieldGroups,
     };
 
     return <CategoryMask {...updatedProps} />;
@@ -49,18 +48,17 @@ export default withProps<Props>(
     graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
       gql(fieldQueries.fieldsGroups),
       {
-        name: 'fieldsGroupsQuery',
+        name: "fieldsGroupsQuery",
         options: ({ parentCategory, categoryId }) => ({
           variables: {
             contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
             isDefinedByErxes: false,
             config: {
               categoryId: parentCategory?._id || categoryId,
-              isChosen: true
-            }
-          }
+              isChosen: true,
+            },
+          },
         }),
-        skip: !isEnabled('forms')
       }
     )
   )(CategoryMaskContainer)

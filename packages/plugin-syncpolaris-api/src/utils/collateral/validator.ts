@@ -1,4 +1,4 @@
-import { ICollateral } from './types';
+import { ICollateral } from "./types";
 
 const requiredKeys = [
   "name",
@@ -9,7 +9,7 @@ const requiredKeys = [
   "collType",
   "brchCode",
   "price",
-  "curCode",
+  "curCode"
 ];
 
 export const validateCollateralObject = async (value: ICollateral) => {

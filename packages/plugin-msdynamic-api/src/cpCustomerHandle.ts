@@ -1,5 +1,5 @@
-import { generateModels } from './connectionResolver';
-import { customerToDynamic } from './utilsCustomer';
+import { generateModels } from "./connectionResolver";
+import { customerToDynamic } from "./utilsCustomer";
 
 export default {
   cpCustomerHandle: async ({ subdomain, data }) => {
@@ -20,7 +20,7 @@ export default {
         return;
       }
     } catch (e) {
-      console.log(e.message)
+      console.log(e.message);
     }
   }
 };

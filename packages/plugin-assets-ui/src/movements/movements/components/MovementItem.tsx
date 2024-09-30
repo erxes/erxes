@@ -1,13 +1,13 @@
 import {
   ItemRow as CommonItemRow,
   ContentColumn,
-  ItemText,
-} from "@erxes/ui-cards/src/deals/styles";
+  ItemText
+} from "@erxes/ui-sales/src/deals/styles";
 import {
   ContainerBox,
   MovementItemConfigContainer,
   MovementItemInfoContainer,
-  RemoveRow,
+  RemoveRow
 } from "../../../style";
 import { FormControl, Icon, TextInfo, __ } from "@erxes/ui/src";
 
@@ -43,7 +43,7 @@ const MovementItem = (props: Props) => {
     removeRow,
     changeCurrent,
     onChangeBulkItems,
-    handleChangeRowItem,
+    handleChangeRowItem
   } = props;
 
   const {
@@ -54,19 +54,19 @@ const MovementItem = (props: Props) => {
     customer,
     company,
     teamMember,
-    sourceLocations,
+    sourceLocations
   } = item;
 
-  const onChange = (e) => {
+  const onChange = e => {
     onChangeBulkItems(item.assetId);
   };
-  const onClick = (e) => {
+  const onClick = e => {
     e.stopPropagation();
   };
 
   const ItemRow = ({
     label,
-    children,
+    children
   }: {
     label: string;
     children: React.ReactNode;
@@ -79,14 +79,14 @@ const MovementItem = (props: Props) => {
     );
   };
 
-  const changeRowItem = (assetId) => {
+  const changeRowItem = assetId => {
     client
       .query({
         query: gql(itemQueries.item),
         fetchPolicy: "network-only",
-        variables: { assetId },
+        variables: { assetId }
       })
-      .then((res) => {
+      .then(res => {
         let { assetMovementItem } = res.data;
         handleChangeRowItem(item.assetId, assetMovementItem);
       });
@@ -119,7 +119,7 @@ const MovementItem = (props: Props) => {
       currentText = current ? renderFullName(current || "") : "";
     }
 
-    const generateLink = (variable) => {
+    const generateLink = variable => {
       if (type === "contacts") {
         return `/${type}/details/${variable?._id}`;
       }
@@ -181,7 +181,7 @@ const MovementItem = (props: Props) => {
                       name="assetId"
                       onSelect={changeRowItem}
                       initialValue={assetId}
-                      skip={selectedItems?.filter((item) => item !== assetId)}
+                      skip={selectedItems?.filter(item => item !== assetId)}
                       customOption={{ value: "", label: "Choose Asset" }}
                     />
                   </ItemRow>
@@ -189,35 +189,35 @@ const MovementItem = (props: Props) => {
                     {generateInfoText({
                       type: "branch",
                       prev: sourceLocations?.branch,
-                      current: branch,
+                      current: branch
                     })}
                   </ItemRow>
                   <ItemRow label="Department:">
                     {generateInfoText({
                       type: "department",
                       prev: sourceLocations?.department,
-                      current: department,
+                      current: department
                     })}
                   </ItemRow>
                   <ItemRow label="Customer:">
                     {generateInfoText({
                       type: "contacts",
                       prev: sourceLocations?.customer,
-                      current: customer,
+                      current: customer
                     })}
                   </ItemRow>
                   <ItemRow label="Company:">
                     {generateInfoText({
                       type: "companies",
                       prev: sourceLocations?.company,
-                      current: company,
+                      current: company
                     })}
                   </ItemRow>
                   <ItemRow label="Team Member:">
                     {generateInfoText({
                       type: "team",
                       prev: sourceLocations?.teamMember,
-                      current: teamMember,
+                      current: teamMember
                     })}
                   </ItemRow>
                 </MovementItemInfoContainer>

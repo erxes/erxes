@@ -1,19 +1,15 @@
 import { IButtonMutateProps, IQueryParams } from "@erxes/ui/src/types";
-import {
-  PropertyConsumer,
-  PropertyProvider,
-} from "@erxes/ui-contacts/src/customers/propertyContext";
+import { ICustomer, IFieldsVisibility } from "../types";
+import { PropertyConsumer, PropertyProvider } from "../propertyContext";
+import React, { useState } from "react";
 import { mutations, queries } from "../graphql";
 
 import { AppConsumer } from "@erxes/ui/src/appContext";
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
 import CustomerForm from "../components/CustomerForm";
-import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
-import { IFieldsVisibility } from "@erxes/ui-contacts/src/customers/types";
 import { IUser } from "@erxes/ui/src/auth/types";
-import React, { useState } from "react";
 import client from "@erxes/ui/src/apolloClient";
-import { mutations as conformityMutations } from "@erxes/ui-cards/src/conformity/graphql";
+import { mutations as conformityMutations } from "@erxes/ui-sales/src/conformity/graphql";
 import { gql } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 

@@ -3,6 +3,7 @@ import { modeAtom } from "@/store"
 import {
   cashAmountAtom,
   directDiscountAtom,
+  directIsAmountAtom,
   mobileAmountAtom,
   orderTotalAmountAtom,
   paidAmountsAtom,
@@ -10,14 +11,11 @@ import {
 import { useAtomValue } from "jotai"
 
 import { mergePaidAmounts } from "@/lib/utils"
+import { Label } from "@/components/ui/label"
 
-const Market: any = dynamic(
-  () => import("./paidType.market"),
-
-  {
-    loading: () => <div className="h-10 w-full" />,
-  }
-)
+const Market: any = dynamic(() => import("./paidType.market"), {
+  loading: () => <div className="h-10 w-full" />,
+})
 const Main: any = dynamic(
   () => import("./paidType.main"),
 
@@ -31,6 +29,7 @@ const PaidTypes = () => {
   const mobileAmount = useAtomValue(mobileAmountAtom)
   const paidAmounts = useAtomValue(paidAmountsAtom)
   const directDiscount = useAtomValue(directDiscountAtom)
+  const directIsAmount = useAtomValue(directIsAmountAtom)
   const totalAmount = useAtomValue(orderTotalAmountAtom)
   const mode = useAtomValue(modeAtom)
 
@@ -38,6 +37,9 @@ const PaidTypes = () => {
 
   return (
     <>
+      {mode === "main" && (
+        <Label className="block pb-2">Төлбөрийн төрөл:</Label>
+      )}
       {!!cashAmount && <PaidType type="cash" amount={cashAmount} />}
       {!!mobileAmount && <PaidType type="mobile" amount={mobileAmount} />}
       {!!paidAmounts.length &&
@@ -49,9 +51,17 @@ const PaidTypes = () => {
         <>
           <PaidType
             type="total"
-            amount={(totalAmount / (100 - directDiscount)) * 100}
+            amount={
+              directIsAmount
+                ? totalAmount + directDiscount
+                : (totalAmount / (100 - directDiscount)) * 100
+            }
           />
-          <PaidType type="discount" amount={directDiscount} percent />
+          <PaidType
+            type="discount"
+            amount={directDiscount}
+            percent={!directIsAmount}
+          />
         </>
       )}
     </>

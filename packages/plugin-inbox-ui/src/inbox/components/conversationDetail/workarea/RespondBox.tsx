@@ -1,6 +1,6 @@
 import {
   AddMessageMutationVariables,
-  IConversation,
+  IConversation
 } from "@erxes/ui-inbox/src/inbox/types";
 import { Alert, __, readFile, uploadHandler } from "coreui/utils";
 import {
@@ -14,17 +14,17 @@ import {
   MaskWrapper,
   PreviewImg,
   RespondBoxStyled,
-  SmallEditor,
+  SmallEditor
 } from "@erxes/ui-inbox/src/inbox/styles";
 import React, { useEffect, useRef, useState } from "react";
 import {
   getPluginConfig,
   isEnabled,
-  loadDynamicComponent,
+  loadDynamicComponent
 } from "@erxes/ui/src/utils/core";
 import {
   useDebounce,
-  useDebouncedCallback,
+  useDebouncedCallback
 } from "@erxes/ui/src/components/richTextEditor/hooks";
 
 import Button from "@erxes/ui/src/components/Button";
@@ -80,7 +80,7 @@ const RespondBox = (props: Props) => {
     currentUser,
     sendMessage,
     setAttachmentPreview,
-    responseTemplates,
+    responseTemplates
   } = props;
 
   const forwardedRef = useRef<EditorMethods>(null);
@@ -92,19 +92,19 @@ const RespondBox = (props: Props) => {
     attachments: [],
     responseTemplate: "",
     mentionedUserIds: [],
-    loading: {},
+    loading: {}
   });
   const [debouncedContent] = useDebounce(content, 200);
 
   useEffect(() => {
-    setState((prevState) => ({
+    setState(prevState => ({
       ...prevState,
-      isInactive: !checkIsActive(props.conversation),
+      isInactive: !checkIsActive(props.conversation)
     }));
 
-    setState((prevState) => ({
+    setState(prevState => ({
       ...prevState,
-      isInternal: props.showInternal,
+      isInternal: props.showInternal
     }));
   }, [props.conversation, props.showInternal]);
 
@@ -138,7 +138,7 @@ const RespondBox = (props: Props) => {
   }
 
   const hideMask = () => {
-    setState((prevState) => ({ ...prevState, isInactive: false }));
+    setState(prevState => ({ ...prevState, isInactive: false }));
 
     const element = document.querySelector(".DraftEditor-root") as HTMLElement;
 
@@ -161,11 +161,11 @@ const RespondBox = (props: Props) => {
 
     onEditorContentChange(responseTemplate.content);
 
-    setState((prevState) => ({
+    setState(prevState => ({
       ...prevState,
       responseTemplate: responseTemplate.content,
       // set attachment from response template files
-      attachments: responseTemplate.files || [],
+      attachments: responseTemplate.files || []
     }));
   };
 
@@ -179,19 +179,19 @@ const RespondBox = (props: Props) => {
     let loading = state.loading;
     loading[url] = true;
 
-    setState((prevState) => ({ ...prevState, loading }));
+    setState(prevState => ({ ...prevState, loading }));
 
     deleteHandler({
       fileName,
       afterUpload: ({ status }) => {
         if (status === "ok") {
           const remainedAttachments = state.attachments.filter(
-            (a) => a.url !== url
+            a => a.url !== url
           );
 
-          setState((prevState) => ({
+          setState(prevState => ({
             ...prevState,
-            attachments: remainedAttachments,
+            attachments: remainedAttachments
           }));
 
           Alert.success("You successfully deleted a file");
@@ -202,8 +202,8 @@ const RespondBox = (props: Props) => {
         loading = state.loading;
         delete loading[url];
 
-        setState((prevState) => ({ ...prevState, loading }));
-      },
+        setState(prevState => ({ ...prevState, loading }));
+      }
     });
   };
 
@@ -218,12 +218,12 @@ const RespondBox = (props: Props) => {
 
       afterUpload: ({ response, fileInfo }) => {
         // set attachments
-        setState((prevState) => ({
+        setState(prevState => ({
           ...prevState,
           attachments: [
             ...state.attachments,
-            Object.assign({ url: response }, fileInfo),
-          ],
+            Object.assign({ url: response }, fileInfo)
+          ]
         }));
 
         // remove preview
@@ -236,7 +236,7 @@ const RespondBox = (props: Props) => {
         if (setAttachmentPreview) {
           setAttachmentPreview(Object.assign({ data: result }, fileInfo));
         }
-      },
+      }
     });
   };
 
@@ -265,22 +265,22 @@ const RespondBox = (props: Props) => {
       contentType: "text",
       internal: isInternal,
       attachments,
-      mentionedUserIds: getParsedMentions(useGenerateJSON(content)),
+      mentionedUserIds: getParsedMentions(useGenerateJSON(content))
     };
     if (content) {
-      setState((prevState) => ({ ...prevState, sending: true }));
+      setState(prevState => ({ ...prevState, sending: true }));
 
-      sendMessage(message, (error) => {
+      sendMessage(message, error => {
         if (error) {
           return Alert.error(error.message);
         }
         localStorage.removeItem(props.conversation._id);
         // clear attachments, content, mentioned user ids
-        setState((prevState) => ({
+        setState(prevState => ({
           ...prevState,
           attachments: [],
           sending: false,
-          mentionedUserIds: [],
+          mentionedUserIds: []
         }));
         setContent("");
       });
@@ -288,7 +288,7 @@ const RespondBox = (props: Props) => {
   };
 
   const toggleForm = () => {
-    setState((prevState) => ({ ...prevState, isInternal: !state.isInternal }));
+    setState(prevState => ({ ...prevState, isInternal: !state.isInternal }));
 
     localStorage.setItem(
       `showInternalState-${props.conversation._id}`,
@@ -302,13 +302,13 @@ const RespondBox = (props: Props) => {
     if (attachments.length > 0) {
       return (
         <AttachmentIndicator>
-          {attachments.map((attachment) => (
+          {attachments.map(attachment => (
             <Attachment key={attachment.name}>
               <AttachmentThumb>
                 {attachment.type.startsWith("image") && (
                   <PreviewImg
                     style={{
-                      backgroundImage: `url(${readFile(attachment.url)})`,
+                      backgroundImage: `url(${readFile(attachment.url)})`
                     }}
                   />
                 )}
@@ -390,7 +390,7 @@ const RespondBox = (props: Props) => {
 
     return (
       <>
-        {isEnabled("internalnotes") && (
+        {
           <FormControl
             id="conversationInternalNote"
             className="toggle-message"
@@ -401,7 +401,7 @@ const RespondBox = (props: Props) => {
           >
             {__("Internal note")}
           </FormControl>
-        )}
+        }
       </>
     );
   }
@@ -470,25 +470,25 @@ const RespondBox = (props: Props) => {
   function renderContent() {
     const { isInternal, isInactive, extraInfo } = state;
 
-    const setExtraInfo = (value) => {
-      setState((prevState) => ({ ...prevState, extraInfo: value }));
+    const setExtraInfo = value => {
+      setState(prevState => ({ ...prevState, extraInfo: value }));
     };
 
     const { integration } = conversation;
 
     const integrations = getPluginConfig({
       pluginName: integration.kind.split("-")[0],
-      configName: "inboxIntegrations",
+      configName: "inboxIntegrations"
     });
 
     let dynamicComponent = null;
 
     if (integrations && integrations.length > 0) {
-      const entry = integrations.find((s) => s.kind === integration.kind);
+      const entry = integrations.find(s => s.kind === integration.kind);
 
       if (entry && entry.components && entry.components.length > 0) {
         const name = entry.components.find(
-          (el) => el === "inboxConversationDetailRespondBoxMask"
+          el => el === "inboxConversationDetailRespondBoxMask"
         );
 
         if (name) {
@@ -496,7 +496,7 @@ const RespondBox = (props: Props) => {
             hideMask: hideMask,
             extraInfo,
             setExtraInfo,
-            conversationId: conversation._id,
+            conversationId: conversation._id
           });
         }
       }

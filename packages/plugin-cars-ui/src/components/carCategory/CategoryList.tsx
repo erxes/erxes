@@ -7,7 +7,7 @@ import {
   router,
   Tip,
   Wrapper,
-  SidebarList,
+  SidebarList
 } from "@erxes/ui/src";
 import { Header } from "@erxes/ui-settings/src/styles";
 
@@ -45,7 +45,7 @@ const CategoryList = (props: Props) => {
     trigger: React.ReactNode,
     category?: ICarCategory
   ) => {
-    const content = (props) => (
+    const content = props => (
       <CategoryForm {...props} category={category} categories={carCategories} />
     );
 
@@ -76,7 +76,7 @@ const CategoryList = (props: Props) => {
     );
   };
 
-  const handleClick = (categoryId) => {
+  const handleClick = categoryId => {
     router.setParams(navigate, location, { categoryId: categoryId });
     router.removeParams(navigate, location, "page");
   };
@@ -147,8 +147,8 @@ const CategoryList = (props: Props) => {
     <>
       {renderCategoryHeader()}
       {renderCategoryList()}
-      {isEnabled("segments") && <SegmentFilter loadingMainQuery={loading} />}
-      {isEnabled("tags") && <TagFilter />}
+      <SegmentFilter loadingMainQuery={loading} />
+      <TagFilter />
     </>
   );
 };

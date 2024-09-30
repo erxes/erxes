@@ -12,13 +12,13 @@ const mutations = {
   ) => {
     const { configId, transfer } = args;
     const config = await models.GolomtBankConfigs.getConfig({
-      _id: configId,
+      _id: configId
     });
     if (!config) {
       throw new Error("Not found config");
     }
     const golomtBank = new GolomtBank(config);
     return golomtBank.transfer.transfer(transfer, config.registerId);
-  },
+  }
 };
 export default mutations;

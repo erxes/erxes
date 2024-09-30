@@ -1,16 +1,12 @@
 import {
   checkPermission,
   moduleRequireLogin
-} from '@erxes/api-utils/src/permissions';
+} from "@erxes/api-utils/src/permissions";
 
-import {
-  sendCoreMessage,
-  sendIntegrationsMessage,
-  sendTagsMessage
-} from '../../messageBroker';
-import { paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../connectionResolver';
-import { getIntegrationsKinds } from '../../utils';
+import { sendCoreMessage, sendIntegrationsMessage } from "../../messageBroker";
+import { paginate } from "@erxes/api-utils/src";
+import { IContext } from "../../connectionResolver";
+import { getIntegrationsKinds } from "../../utils";
 /**
  * Common helper for integrations & integrationsTotalCount
  */
@@ -37,14 +33,14 @@ const generateFilterQuery = async (
   }
 
   if (searchValue) {
-    query.name = new RegExp(`.*${searchValue}.*`, 'i');
+    query.name = new RegExp(`.*${searchValue}.*`, "i");
   }
 
   // filtering integrations by tag
   if (tag) {
-    const object = await sendTagsMessage({
+    const object = await sendCoreMessage({
       subdomain,
-      action: 'findOne',
+      action: "tagFindOne",
       data: {
         _id: tag
       },
@@ -55,11 +51,7 @@ const generateFilterQuery = async (
   }
 
   if (status) {
-    query.isActive = status === 'active' ? true : false;
-  }
-
-  if (formLoadType) {
-    query['leadData.loadType'] = formLoadType;
+    query.isActive = status === "active" ? true : false;
   }
 
   return query;
@@ -97,10 +89,10 @@ const integrationQueries = {
         ...query,
         $or: [
           { visibility: { $exists: null } },
-          { visibility: 'public' },
+          { visibility: "public" },
           {
             $and: [
-              { visibility: 'private' },
+              { visibility: "private" },
               {
                 $or: [
                   { createdUserId: user._id },
@@ -113,7 +105,7 @@ const integrationQueries = {
       };
     }
 
-    if (args.kind === 'lead') {
+    if (args.kind === "lead") {
       return models.Integrations.findLeadIntegrations(query, args);
     }
 
@@ -135,7 +127,7 @@ const integrationQueries = {
   ) {
     const query = {
       ...singleBrandIdSelector,
-      kind: 'lead'
+      kind: "lead"
     };
 
     return models.Integrations.findAllIntegrations(query).sort({ name: 1 });
@@ -164,7 +156,11 @@ const integrationQueries = {
   /**
    * Get one integration
    */
-  async integrationDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async integrationDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
     return models.Integrations.findOne({ _id });
   },
 
@@ -202,11 +198,11 @@ const integrationQueries = {
     };
 
     // Counting integrations by tag
-    const tags = await sendTagsMessage({
+    const tags = await sendCoreMessage({
       subdomain,
-      action: 'find',
+      action: "tagFind",
       data: {
-        type: 'inbox:integration'
+        type: "inbox:integration"
       },
       isRPC: true,
       defaultValue: []
@@ -218,8 +214,8 @@ const integrationQueries = {
       counts.byTag[tag._id] = !args.tag
         ? countQueryResult
         : args.tag === tag._id
-        ? countQueryResult
-        : 0;
+          ? countQueryResult
+          : 0;
     }
 
     // Counting integrations by kind
@@ -230,8 +226,8 @@ const integrationQueries = {
       counts.byKind[kind] = !args.kind
         ? countQueryResult
         : args.kind === kind
-        ? countQueryResult
-        : 0;
+          ? countQueryResult
+          : 0;
     }
 
     // Counting integrations by channel
@@ -246,14 +242,14 @@ const integrationQueries = {
       counts.byChannel[channel._id] = !args.channelId
         ? countQueryResult
         : args.channelId === channel._id
-        ? countQueryResult
-        : 0;
+          ? countQueryResult
+          : 0;
     }
 
     // Counting integrations by brand
     const brands = await sendCoreMessage({
       subdomain,
-      action: 'brands.find',
+      action: "brands.find",
       data: {
         query: {}
       },
@@ -266,15 +262,15 @@ const integrationQueries = {
       counts.byBrand[brand._id] = !args.brandId
         ? countQueryResult
         : args.brandId === brand._id
-        ? countQueryResult
-        : 0;
+          ? countQueryResult
+          : 0;
     }
 
     counts.byStatus.active = await count({ isActive: true, ...qry });
     counts.byStatus.archived = await count({ isActive: false, ...qry });
 
     if (args.status) {
-      if (args.status === 'active') {
+      if (args.status === "active") {
         counts.byStatus.archived = 0;
       } else {
         counts.byStatus.active = 0;
@@ -294,9 +290,9 @@ const integrationQueries = {
   ) {
     return sendIntegrationsMessage({
       subdomain,
-      action: 'api_to_integrations',
+      action: "api_to_integrations",
       data: {
-        action: 'line-webhook',
+        action: "line-webhook",
         _id
       },
       isRPC: true
@@ -306,6 +302,6 @@ const integrationQueries = {
 
 moduleRequireLogin(integrationQueries);
 
-checkPermission(integrationQueries, 'integrations', 'showIntegrations', []);
+checkPermission(integrationQueries, "integrations", "showIntegrations", []);
 
 export default integrationQueries;

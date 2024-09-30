@@ -23,7 +23,6 @@ const TokenWrapper = styled.div`
 type Props = {
   app: IApp;
   removeApp: (_id: string) => void;
-  userGroups: any[];
   closeModal?: () => void;
   addApp?: (doc: IAppParams) => void;
   editApp: (_id: string, doc: IAppParams) => void;

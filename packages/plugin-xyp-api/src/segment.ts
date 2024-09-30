@@ -1,16 +1,16 @@
 export default {
-  contentTypes: [{ type: 'xyp', description: 'Xyp', esIndex: 'xyp_datas' }],
+  contentTypes: [{ type: "xyp", description: "Xyp", esIndex: "xyp_datas" }],
 
-  dependentServices: [{ name: 'contacts', twoWay: true, associated: true }],
+  dependentServices: [{ name: "contacts", twoWay: true, associated: true }],
 
   esTypesMap: async () => {
-    return { data: { typesMap: {} }, status: 'success' };
+    return { data: { typesMap: {} }, status: "success" };
   },
 
   initialSelector: async ({ data: { segment } }) => {
     const negative = {
       term: {
-        status: 'deleted'
+        status: "deleted"
       }
     };
 
@@ -18,14 +18,14 @@ export default {
 
     let positive;
 
-    if (contentType.includes('customer') || contentType.includes('lead')) {
+    if (contentType.includes("customer") || contentType.includes("lead")) {
       positive = {
         term: {
-          state: segment.contentType.replace('contacts:', '')
+          state: segment.contentType.replace("core:", "")
         }
       };
     }
 
-    return { data: { negative, positive }, status: 'success' };
+    return { data: { negative, positive }, status: "success" };
   }
 };

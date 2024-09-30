@@ -1,13 +1,17 @@
-export const types = (
-  cardAvailable,
-  kbAvailable,
-  formsAvailable,
-  productsAvailable
-) => `
+export const types = (cardAvailable, kbAvailable, productsAvailable) => `
 ${
   cardAvailable
     ? `
-   extend type Stage @key(fields: "_id") {
+  extend type TasksStage @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type SalesStage @key(fields: "_id") {
+    _id: String! @external
+  }
+    extend type TicketsStage @key(fields: "_id") {
+    _id: String! @external
+  }
+    extend type PurchasesStage @key(fields: "_id") {
     _id: String! @external
   }
   extend type Task @key(fields: "_id") {
@@ -22,6 +26,22 @@ ${
   extend type Deal @key(fields: "_id") {
     _id: String! @external
   }
+  input TicketsItemDate {
+    month: Int
+    year: Int
+  }
+  input SalesItemDate {
+    month: Int
+    year: Int
+  }
+  input PurchasesItemDate {
+    month: Int
+    year: Int
+  }
+  input TasksItemDate {
+    month: Int
+    year: Int
+  }
    `
     : ''
 }
@@ -35,7 +55,8 @@ ${
 
    extend type KnowledgeBaseArticle @key(fields: "_id") {
     _id: String! @external
-  }
+    }
+
    `
     : ''
 }
@@ -50,15 +71,10 @@ ${
     : ''
 }
 
-${
-  formsAvailable
-    ? `
     extend type Field @key(fields: "_id") {
       _id: String! @external
     }
-    `
-    : ''
-}
+
 
   type OTPConfig {
     content: String
@@ -352,34 +368,28 @@ ${
 
 `;
 
-export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
+export const queries = (cardAvailable, kbAvailable) => `
   clientPortalGetConfigs(kind:BusinessPortalKind, page: Int, perPage: Int): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
   clientPortalGetConfigByDomain(clientPortalName: String): ClientPortal
   clientPortalGetLast(kind: BusinessPortalKind): ClientPortal
   clientPortalConfigsTotalCount: Int
-  ${
-    formsAvailable
-      ? `
   clientPortalGetAllowedFields(_id: String!): [Field]
-  `
-      : ''
-  }
   ${
     cardAvailable
       ? `
-    clientPortalGetTaskStages: [Stage]
-    clientPortalGetTasks(stageId: String!): [Task]
-    clientPortalTickets(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: ItemDate): [Ticket]
-    clientPortalDeals(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: ItemDate): [Deal]
-    clientPortalPurchases(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: ItemDate): [Purchase]
-    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: ItemDate): [Task]
+    clientPortalGetTaskStages: [TasksStage]
+    clientPortalGetTasks(stageId: String!): [TasksStage]
+    clientPortalTickets(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TicketsItemDate): [Ticket]
+    clientPortalDeals(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: SalesItemDate): [Deal]
+    clientPortalPurchases(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: PurchasesItemDate): [Purchase]
+    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TasksItemDate): [TasksStage]
     clientPortalTicket(_id: String!): Ticket
     clientPortalCardUsers(contentType: String!, contentTypeId: String!, userKind: BusinessPortalKind): [ClientPortalUser]
     clientPortalUserTickets(userId: String): [Ticket]
     clientPortalUserDeals(userId: String): [Deal]
     clientPortalUserPurchases(userId: String): [Purchase]
-    clientPortalUserTasks(userId: String): [Task]
+    clientPortalUserTasks(userId: String): [TasksStage]
     clientPortalParticipantDetail(_id: String, contentType:String, contentTypeId:String, cpUserId:String): ClientPortalParticipant
     clientPortalParticipants(contentType: String!, contentTypeId: String!, userKind: BusinessPortalKind): [ClientPortalParticipant]
    `

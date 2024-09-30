@@ -31,7 +31,7 @@ import { Title } from "@erxes/ui-settings/src/styles";
 import Wrapper from "modules/layout/components/Wrapper";
 
 type Props = {
-  queryParams: any;
+  queryParams: Record<string, string>;
   isLoading: boolean;
   totalCount: number;
   currentGroupName?: string;

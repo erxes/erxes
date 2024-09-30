@@ -9,11 +9,36 @@ import { IForm } from '@erxes/ui-forms/src/forms/types';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
+interface IFacebookCustomer {
+  _id: string;
+  userId: string;
+  erxesApiId: string;
+  firstName?: string;
+  lastName?: string;
+  profilePic?: string;
+  integrationId: string;
+}
+
 export interface IPages {
   id: string;
   name?: string;
   checked?: boolean;
   isUsed?: boolean;
+}
+
+export interface IFacebookComment {
+  _id: string;
+  postId: string;
+  conversationId: string;
+  parentId: string;
+  commentId: string;
+  content: string;
+  attachments: string[];
+  commentCount: number;
+  timestamp: Date;
+  customer: IFacebookCustomer;
+  isResolved: boolean;
+  permalink_url: string;
 }
 
 export interface IImapForm {

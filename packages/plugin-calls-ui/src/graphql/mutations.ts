@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const callsIntegrationUpdate: string = `
 mutation CallsIntegrationUpdate($configs: CallIntegrationConfigs) {
@@ -18,9 +18,6 @@ const customersAdd = `
         avatar
         code
         createdAt
- ${
-   isEnabled('tags')
-     ? `
         getTags {
           _id
           name
@@ -32,9 +29,7 @@ const customersAdd = `
           parentId
           order
           relatedIds
-        }`
-     : ``
- }
+        }
         email
         primaryPhone
         tagIds
@@ -58,30 +53,19 @@ const messageFields = `
   createdAt
   isCustomerRead
  
-  ${
-    isEnabled('contacts')
-      ? `
-      customer {
-        _id
-        avatar
-        firstName
-        primaryPhone
+  customer {
+    _id
+    avatar
+    firstName
+    primaryPhone
 
-        tagIds
-        ${
-          isEnabled('tags')
-            ? `
-            getTags {
-              _id
-              name
-              colorCode
-            }
-          `
-            : ``
-        }
+    tagIds
+    getTags {
+        _id
+        name
+        colorCode
       }
-    `
-      : ``
+    }
   }
 `;
 
@@ -180,5 +164,5 @@ export default {
   callsUpdateConfigs,
   callHistoryEditStatus,
   callPauseAgent,
-  callTransfer,
+  callTransfer
 };

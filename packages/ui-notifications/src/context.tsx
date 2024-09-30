@@ -1,13 +1,8 @@
-import {
-  Alert,
-  getSubdomain,
-  sendDesktopNotification,
-} from "@erxes/ui/src/utils";
+import { Alert, sendDesktopNotification } from "@erxes/ui/src/utils";
 import {
   INotification,
   MarkAsReadMutationResponse,
   NotificationsCountQueryResponse,
-  NotificationsQueryResponse,
 } from "./types";
 import React, { useEffect } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";

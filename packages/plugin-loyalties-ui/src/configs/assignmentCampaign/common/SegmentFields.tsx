@@ -8,7 +8,7 @@ import Select from "react-select";
 function SegmentFields({
   assignmentCampaign,
   segmentIds,
-  onChange,
+  onChange
 }: {
   assignmentCampaign: any;
   segmentIds: string[];
@@ -22,9 +22,9 @@ function SegmentFields({
     gql(formQueries.fieldsCombinedByContentType),
     {
       variables: {
-        contentType: "contacts:customer",
-        segmentId: segmentIds[0],
-      },
+        contentType: "core:customer",
+        segmentId: segmentIds[0]
+      }
     }
   );
 
@@ -35,10 +35,8 @@ function SegmentFields({
   const { fieldsCombinedByContentType } = data;
 
   const options = fieldsCombinedByContentType
-    .filter(
-      (field) => field?.type === "input" && field?.validation === "number"
-    )
-    .map((field) => {
+    .filter(field => field?.type === "input" && field?.validation === "number")
+    .map(field => {
       let value = field._id;
 
       if (field.name.includes("customFieldsData")) {
@@ -53,7 +51,7 @@ function SegmentFields({
       <ControlLabel>{__("Counter Field of Segment (Optional)")}</ControlLabel>
       <Select
         options={options}
-        value={options.find((o) => o.value === assignmentCampaign.fieldId)}
+        value={options.find(o => o.value === assignmentCampaign.fieldId)}
         name="fieldId"
         // loadingPlaceholder={__('Loading...')}
         isClearable={true}

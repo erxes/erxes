@@ -1,16 +1,15 @@
-import { SaveMutation } from '@erxes/ui-cards/src/boards/types';
-import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import React from 'react';
+import GenerateCustomFields from "@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields";
+import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
+import { FieldsGroupsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { gql } from "@apollo/client";
+import React from "react";
 
-import { mutations, queries } from '../graphql';
-import { ClientPoratlUserDetailQueryResponse } from '../types';
-import { useQuery, useMutation } from '@apollo/client';
+import { mutations, queries } from "../graphql";
+import { ClientPoratlUserDetailQueryResponse } from "../types";
+import { useQuery, useMutation } from "@apollo/client";
 
 type Props = {
   isDetail: boolean;
@@ -24,11 +23,10 @@ const CustomFieldsSection = (props: Props) => {
     gql(fieldQueries.fieldsGroups),
     {
       variables: {
-        contentType: 'clientportal:user',
-        isDefinedByErxes: false,
-      },
-      skip: !isEnabled('forms') ? true : false,
-    },
+        contentType: "clientportal:user",
+        isDefinedByErxes: false
+      }
+    }
   );
 
   const clientPortalUserDetailQuery =
@@ -36,14 +34,12 @@ const CustomFieldsSection = (props: Props) => {
       gql(queries.clientPortalUserDetail),
       {
         variables: {
-          _id: id,
-        },
-      },
+          _id: id
+        }
+      }
     );
 
-  const [editMutation] = useMutation<SaveMutation>(
-    gql(mutations.clientPortalUsersEdit),
-  );
+  const [editMutation] = useMutation(gql(mutations.clientPortalUsersEdit));
 
   if (
     fieldsGroupsQuery &&
@@ -59,12 +55,12 @@ const CustomFieldsSection = (props: Props) => {
   }
   const save = (data, callback) => {
     editMutation({
-      variables: { _id: id, ...data },
+      variables: { _id: id, ...data }
     })
       .then(() => {
         callback();
       })
-      .catch((e) => {
+      .catch(e => {
         callback(e);
       });
   };
@@ -78,7 +74,7 @@ const CustomFieldsSection = (props: Props) => {
       ? fieldsGroupsQuery.data.fieldsGroups
       : [],
     isDetail,
-    object: clientPortalUserDetailQuery,
+    object: clientPortalUserDetailQuery
   };
 
   return <GenerateCustomFields {...updatedProps} />;

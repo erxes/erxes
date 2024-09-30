@@ -1,10 +1,6 @@
-import * as _ from 'lodash';
-import {
-  sendProductsMessage,
-  sendSegmentsMessage,
-  sendTagsMessage
-} from '../messageBroker';
-import { IPricingPlanDocument } from '../models/definitions/pricingPlan';
+import * as _ from "lodash";
+import { sendProductsMessage, sendCoreMessage } from "../messageBroker";
+import { IPricingPlanDocument } from "../models/definitions/pricingPlan";
 
 /**
  * Get parent orders of products
@@ -13,8 +9,8 @@ import { IPricingPlanDocument } from '../models/definitions/pricingPlan';
  */
 export const getParentsOrders = (order: string): string[] => {
   const orders: string[] = [];
-  const splitOrders = order.split('/');
-  let currentOrder = '';
+  const splitOrders = order.split("/");
+  let currentOrder = "";
 
   for (const oStr of splitOrders) {
     if (oStr) {
@@ -29,7 +25,7 @@ export const getParentsOrders = (order: string): string[] => {
 export const getChildCategories = async (subdomain: string, categoryIds) => {
   const childs = await sendProductsMessage({
     subdomain,
-    action: 'categories.withChilds',
+    action: "categories.withChilds",
     data: { ids: categoryIds },
     isRPC: true,
     defaultValue: []
@@ -40,9 +36,9 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
 };
 
 export const getChildTags = async (subdomain: string, tagIds) => {
-  const childs = await sendTagsMessage({
+  const childs = await sendCoreMessage({
     subdomain,
-    action: 'withChilds',
+    action: "tagWithChilds",
     data: { query: { _id: { $in: tagIds } }, fields: { _id: 1 } },
     isRPC: true,
     defaultValue: []
@@ -65,7 +61,7 @@ export const getAllowedProducts = async (
   productIds: string[]
 ): Promise<string[]> => {
   switch (plan.applyType) {
-    case 'bundle': {
+    case "bundle": {
       let pIds: string[] = [];
       for (const bundles of plan.productsBundle || []) {
         let difference = _.difference(bundles, productIds);
@@ -75,17 +71,17 @@ export const getAllowedProducts = async (
       return pIds;
     }
 
-    case 'product': {
+    case "product": {
       return _.intersection(productIds, plan.products);
     }
 
-    case 'segment': {
+    case "segment": {
       let productIdsInSegments: string[] = [];
       for (const segment of plan.segments || []) {
         productIdsInSegments = productIdsInSegments.concat(
-          await sendSegmentsMessage({
+          await sendCoreMessage({
             subdomain,
-            action: 'fetchSegment',
+            action: "fetchSegment",
             data: { segmentId: segment },
             isRPC: true,
             defaultValue: []
@@ -95,10 +91,10 @@ export const getAllowedProducts = async (
       return _.intersection(productIds, productIdsInSegments);
     }
 
-    case 'vendor': {
+    case "vendor": {
       const limit = await sendProductsMessage({
         subdomain,
-        action: 'count',
+        action: "count",
         data: {
           query: {
             vendorId: { $in: plan.vendors || [] }
@@ -110,7 +106,7 @@ export const getAllowedProducts = async (
 
       const products = await sendProductsMessage({
         subdomain,
-        action: 'find',
+        action: "productFind",
         data: {
           query: {
             vendorId: { $in: plan.vendors || [] }
@@ -125,7 +121,7 @@ export const getAllowedProducts = async (
       return _.intersection(productIds, productIdsInVendors);
     }
 
-    case 'category': {
+    case "category": {
       const filterProductIds = productIds.filter(
         pId => !(plan.productsExcluded || []).includes(pId)
       );
@@ -140,7 +136,7 @@ export const getAllowedProducts = async (
 
       const products = await sendProductsMessage({
         subdomain,
-        action: 'find',
+        action: "productFind",
         data: {
           query: { _id: { $in: filterProductIds } },
           sort: { _id: 1, categoryId: 1 },
@@ -167,7 +163,7 @@ export const getAllowedProducts = async (
         .filter(p => plansCategoryIds.includes(p.categoryId))
         .map(p => p._id);
     }
-    case 'tag': {
+    case "tag": {
       const filterProductIds = productIds.filter(
         pId => !(plan.productsExcluded || []).includes(pId)
       );
@@ -182,7 +178,7 @@ export const getAllowedProducts = async (
 
       const products = await sendProductsMessage({
         subdomain,
-        action: 'find',
+        action: "productFind",
         data: {
           query: { _id: { $in: filterProductIds } },
           sort: { _id: 1, categoryId: 1 },

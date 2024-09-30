@@ -16,14 +16,12 @@ function Sidebar({ counts, location, navigate, queryParams }: Props) {
   return (
     <Wrapper.Sidebar hasBorder>
       <StatusFilter counts={counts.byStatus} />
-      {isEnabled("tags") && (
-        <TagsSection
-          queryParams={queryParams}
-          location={location}
-          navigate={navigate}
-          type="automations:automations"
-        />
-      )}
+      <TagsSection
+        queryParams={queryParams}
+        location={location}
+        navigate={navigate}
+        type="automations:automations"
+      />
     </Wrapper.Sidebar>
   );
 }

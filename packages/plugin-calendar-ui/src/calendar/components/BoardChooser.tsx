@@ -1,8 +1,8 @@
 import { Controls, FlexRow } from "../styles";
 import {
   HeaderButton,
-  HeaderLink,
-} from "@erxes/ui-cards/src/boards/styles/header";
+  HeaderLink
+} from "@erxes/ui-sales/src/boards/styles/header";
 import Button from "@erxes/ui/src/components/Button";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
@@ -26,13 +26,13 @@ class BoardChooser extends React.Component<Props> {
   static defaultProps = {
     viewType: "board",
     boardText: "Board",
-    groupText: "Group",
+    groupText: "Group"
   };
 
   renderBoards() {
     const { currentBoard, boards } = this.props;
 
-    return boards.map((board) => {
+    return boards.map(board => {
       let link = `${calendarLink}?id=${board._id}`;
 
       const { groups = [] } = board;
@@ -80,7 +80,7 @@ class BoardChooser extends React.Component<Props> {
       );
     }
 
-    return groups.map((group) => {
+    return groups.map(group => {
       return (
         <li
           key={group._id}

@@ -83,15 +83,32 @@ const init = async (app) => {
     for (const entry of data.entry) {
       // receive chat
       if (entry.messaging) {
-        try {
-          const messageData = entry.messaging[0];
-          await receiveMessage(models, subdomain, messageData);
-          return res.send('success');
-        } catch (e) {
-          return res.send('error' + e);
+        const messageData = entry.messaging[0];
+        if (messageData) {
+          try {
+            await receiveMessage(models, subdomain, messageData);
+            return res.send('success');
+          } catch (e) {
+            return res.send('error ' + e);
+          }
+        }
+      } else {
+        // Handle standby data if entry.messaging does not exist
+        const standbyData = entry.standby;
+        if (standbyData && standbyData.length > 0) {
+          try {
+            // Process each item in standbyData
+            for (const data of standbyData) {
+              await receiveMessage(models, subdomain, data); // Pass the current item
+            }
+            return res.send('success');
+          } catch (e) {
+            return res.send('error ' + e);
+          }
+        } else {
+          return res.send('no standby data'); // Handle case when standbyData is empty
         }
       }
-
       if (entry.changes) {
         for (const event of entry.changes) {
           if (event.field === 'comments') {

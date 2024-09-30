@@ -8,6 +8,10 @@ import { __ } from '@erxes/ui/src/utils/core';
 import { Post } from './PostSelector';
 
 const renderDirectMessageContent = ({ conditions }) => {
+  if (!conditions?.length) {
+    return null;
+  }
+
   return (
     <Column>
       {conditions.map((cond, i) => {
@@ -57,13 +61,13 @@ const MessagesContent = ({ constant, config }) => {
     }
   };
 
-  return (conditions || []).map(cond => {
+  return (conditions || []).map((cond) => {
     if (!cond.isSelected) {
       return null;
     }
 
     const { label, description } =
-      (conditionsConstant || []).find(c => c.type === cond.type) || {};
+      (conditionsConstant || []).find((c) => c.type === cond.type) || {};
     return (
       <TriggerItem key={cond.type} small withoutHover>
         <div>

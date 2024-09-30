@@ -23,7 +23,7 @@ import Wrapper from "modules/layout/components/Wrapper";
 type Props = {
   listQuery: UnitsMainQueryResponse;
   deleteUnits: (ids: string[], callback: () => void) => void;
-  queryParams: any;
+  queryParams: Record<string, string>;
 };
 
 const MainList = (props: Props) => {

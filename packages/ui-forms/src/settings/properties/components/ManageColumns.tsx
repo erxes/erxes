@@ -1,15 +1,14 @@
-import { Footer } from "@erxes/ui-cards/src/boards/styles/item";
 import Button from "@erxes/ui/src/components/Button";
+import { Footer } from "../styles";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import SortableList from "@erxes/ui/src/components/SortableList";
-import { colors } from "@erxes/ui/src/styles";
-import { ScrollWrapper } from "@erxes/ui/src/styles/main";
-import { __ } from "@erxes/ui/src/utils";
-import React from "react";
-import styled from "styled-components";
-
 import { IConfigColumn } from "../types";
+import React from "react";
+import { ScrollWrapper } from "@erxes/ui/src/styles/main";
+import SortableList from "@erxes/ui/src/components/SortableList";
+import { __ } from "@erxes/ui/src/utils";
+import { colors } from "@erxes/ui/src/styles";
+import styled from "styled-components";
 
 const Header = styled.div`
   display: flex;

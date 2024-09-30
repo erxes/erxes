@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const commonParams = `
 $ids:[String]
@@ -23,7 +23,7 @@ const list = `
             name,
             description,
             tagIds
-            ${isEnabled('tags') ? `tags{_id,name,colorCode}` : ''}
+            tags{_id,name,colorCode}
             ignoreZeros
             calculateMethod,
             calculateLogics {

@@ -115,7 +115,6 @@ export interface IField {
   };
   logics?: IFieldLogic[];
   logicAction?: string;
-  groupName?: string;
   pageNumber?: number;
   searchable?: boolean;
   showInCard?: boolean;
@@ -211,3 +210,8 @@ export type ActivityLogQueryResponse = {
 export type Counts = {
   [key: string]: number;
 };
+
+export interface IAbortController {
+  readonly signal: AbortSignal;
+  abort?: () => void;
+}

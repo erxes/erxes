@@ -14,7 +14,6 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const ActivityInputs = asyncComponent(
   () =>
-    isEnabled("logs") &&
     import(
       /* webpackChunkName: "ActivityInputs" */ "@erxes/ui-log/src/activityLogs/components/ActivityInputs"
     )
@@ -29,8 +28,8 @@ type Props = {
 const ClientPortalUserDetails: React.FC<Props> = (props: Props) => {
   const { clientPortalUser, currentUser, queryParams } = props;
 
-  const renderContent = (content) => {
-    if (isEnabled("logs")) {
+  const renderContent = content => {
+    if (content) {
       return content;
     }
 
@@ -47,7 +46,7 @@ const ClientPortalUserDetails: React.FC<Props> = (props: Props) => {
 
   const breadcrumb = [
     { title: __("ClientPortal Users"), link: "/settings/client-portal/user" },
-    { title },
+    { title }
   ];
 
   const content = (

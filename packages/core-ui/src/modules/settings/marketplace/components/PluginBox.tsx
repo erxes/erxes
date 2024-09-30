@@ -14,10 +14,11 @@ import Icon from 'modules/common/components/Icon';
 import { Link } from 'react-router-dom';
 import React from 'react';
 import { __ } from 'modules/common/utils';
+import { Plugin } from '../types';
 
 type Props = {
-  plugin: any;
-  plugins: any[];
+  plugin: Plugin;
+  plugins: Plugin[];
   isOpenSource?: boolean;
 };
 
@@ -39,7 +40,7 @@ class PluginBox extends React.Component<Props, {}> {
     const { dependencies } = this.props.plugin || {};
 
     const dependentPlugins = this.props.plugins.filter(item =>
-      dependencies.includes(item._id)
+      (dependencies || []).includes(item._id)
     );
 
     return (dependentPlugins || []).map(dependency => (
@@ -48,7 +49,7 @@ class PluginBox extends React.Component<Props, {}> {
           src={dependency.avatar || dependency.icon || '/images/no-plugin.png'}
           alt="dependency-plugin"
         />
-        {__(dependency.title)}
+        {__(dependency.title || '')}
       </Addon>
     ));
   }
@@ -80,7 +81,7 @@ class PluginBox extends React.Component<Props, {}> {
   }
 
   render() {
-    const { plugin = {} } = this.props;
+    const { plugin = {} as Plugin } = this.props;
 
     const { _id, avatar, image, icon, title, shortDescription, price } = plugin;
 
@@ -97,11 +98,11 @@ class PluginBox extends React.Component<Props, {}> {
               </div>
               {this.renderPrice(price)}
             </PluginBoxHeader>
-            <h5>{__(title)}</h5>
+            <h5>{__(title || "")}</h5>
             <div
               className="short-desc"
               dangerouslySetInnerHTML={{
-                __html: shortDescription
+                __html: shortDescription || ''
               }}
             />
           </PluginContent>

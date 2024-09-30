@@ -1,38 +1,38 @@
 import {
   Content,
   MessengerPreview
-} from '@erxes/ui-inbox/src/settings/integrations/styles';
-import Steps from '@erxes/ui/src/components//step/Steps';
-import Button from '@erxes/ui/src/components/Button';
-import HelpPopover from '@erxes/ui/src/components/HelpPopover';
-import BreadCrumb from '@erxes/ui/src/components/breadcrumb/BreadCrumb';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Step from '@erxes/ui/src/components/step/Step';
-import { Preview, StepWrapper } from '@erxes/ui/src/components/step/styles';
-import { PageHeader } from '@erxes/ui/src/layout/styles';
-import { Flex, ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import React, { useEffect, useState } from 'react';
-import Accounts from '../../../containers/Accounts';
-import ButtonsGenerator from '../../components/action/ButtonGenerator';
-import { Container, FieldInfo, Padding } from '../../styles';
-import { EmulatorWrapper, Features, MobileEmulator } from '../styles';
-import { SelectAccountPages, fetchPageDetail } from '../utils';
-import { Avatar } from '@erxes/ui-cards/src/boards/styles/item';
-import Icon from '@erxes/ui/src/components/Icon';
-import { FacebookTagText } from '../../../components/conversationDetail/workarea/styles';
-import { FlexRow } from '@erxes/ui-settings/src/styles';
-import { Toggle } from '@erxes/ui/src/components';
-import { DrawerDetail } from '@erxes/ui-automations/src/styles';
+} from "@erxes/ui-inbox/src/settings/integrations/styles";
+import Steps from "@erxes/ui/src/components//step/Steps";
+import Button from "@erxes/ui/src/components/Button";
+import HelpPopover from "@erxes/ui/src/components/HelpPopover";
+import BreadCrumb from "@erxes/ui/src/components/breadcrumb/BreadCrumb";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import CommonForm from "@erxes/ui/src/components/form/Form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Step from "@erxes/ui/src/components/step/Step";
+import { Preview, StepWrapper } from "@erxes/ui/src/components/step/styles";
+import { PageHeader } from "@erxes/ui/src/layout/styles";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { __ } from "@erxes/ui/src/utils/core";
+import React, { useEffect, useState } from "react";
+import Accounts from "../../../containers/Accounts";
+import ButtonsGenerator from "../../components/action/ButtonGenerator";
+import { Container, FieldInfo, Padding } from "../../styles";
+import { EmulatorWrapper, Features, MobileEmulator } from "../styles";
+import { SelectAccountPages, fetchPageDetail } from "../utils";
+import { Avatar } from "@erxes/ui-sales/src/boards/styles/item";
+import Icon from "@erxes/ui/src/components/Icon";
+import { FacebookTagText } from "../../../components/conversationDetail/workarea/styles";
+import { FlexRow } from "@erxes/ui-settings/src/styles";
+import { Toggle } from "@erxes/ui/src/components";
+import { DrawerDetail } from "@erxes/ui-automations/src/styles";
 
 const tags = [
-  { label: 'Confirmed Event Update', value: 'CONFIRMED_EVENT_UPDATE' },
-  { label: 'Post-Purchase Update', value: 'POST_PURCHASE_UPDATE' },
-  { label: 'Account Update', value: 'ACCOUNT_UPDATE' }
+  { label: "Confirmed Event Update", value: "CONFIRMED_EVENT_UPDATE" },
+  { label: "Post-Purchase Update", value: "POST_PURCHASE_UPDATE" },
+  { label: "Account Update", value: "ACCOUNT_UPDATE" }
 ];
 
 type Props = {
@@ -42,7 +42,7 @@ type Props = {
 };
 
 function removeNullAndTypename(obj) {
-  if (obj === null || typeof obj !== 'object') {
+  if (obj === null || typeof obj !== "object") {
     return obj;
   }
 
@@ -52,11 +52,11 @@ function removeNullAndTypename(obj) {
 
   const cleanedObj = {};
   for (const key in obj) {
-    if (obj.hasOwnProperty(key) && obj[key] !== null && key !== '__typename') {
+    if (obj.hasOwnProperty(key) && obj[key] !== null && key !== "__typename") {
       cleanedObj[key] = removeNullAndTypename(obj[key]);
     }
-    if (key === 'persistentMenus' && Array.isArray(obj[key])) {
-      cleanedObj[key] = obj[key].map((item) => {
+    if (key === "persistentMenus" && Array.isArray(obj[key])) {
+      cleanedObj[key] = obj[key].map(item => {
         const { isEditing, ...rest } = item;
         return removeNullAndTypename(rest);
       });
@@ -73,7 +73,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
 
   useEffect(() => {
     if (!bot && selectedAccount) {
-      fetchPageDetail(selectedAccount, doc.pageId).then((response) => {
+      fetchPageDetail(selectedAccount, doc.pageId).then(response => {
         setDoc({
           ...doc,
           profileUrl: response?.profileUrl,
@@ -83,7 +83,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
     }
   }, [doc.pageId]);
 
-  const generateDoc = (values) => {
+  const generateDoc = values => {
     return { ...removeNullAndTypename(doc || {}), ...values };
   };
 
@@ -98,22 +98,22 @@ function Form({ renderButton, bot, returnToList }: Props) {
       setDoc({ ...doc, [name]: value });
     };
 
-    const onChangeGreetText = (e) => {
+    const onChangeGreetText = e => {
       const { value } = e.currentTarget as HTMLInputElement;
 
       if (value.length > 160) {
         return null;
       }
 
-      onChange('greetText', value);
+      onChange("greetText", value);
     };
 
-    const onChangeBackButtonInput = (e) => {
+    const onChangeBackButtonInput = e => {
       const { value } = e.currentTarget as HTMLInputElement;
       if (value.length > 20) {
         return null;
       }
-      onChange('backButtonText', value);
+      onChange("backButtonText", value);
     };
 
     return (
@@ -130,7 +130,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
                 selectedAccountId={doc?.accountId}
                 onRemove={() => null}
                 onSelect={(accountId, account) => {
-                  onSelect(accountId, 'accountId'), setAccount(account);
+                  onSelect(accountId, "accountId"), setAccount(account);
                 }}
               />
             </Padding>
@@ -144,7 +144,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
             <Padding>
               <Features isToggled={doc?.accountId}>
                 <FormGroup>
-                  <ControlLabel>{__('Pages')}</ControlLabel>
+                  <ControlLabel>{__("Pages")}</ControlLabel>
                   <SelectAccountPages
                     accountId={doc?.accountId}
                     initialValue={doc?.pageId}
@@ -163,8 +163,8 @@ function Form({ renderButton, bot, returnToList }: Props) {
           >
             <Padding>
               <FormGroup>
-                <ControlLabel>{__('Name')}</ControlLabel>
-                <p>{__('Name this bot to differentiate from the rest')}</p>
+                <ControlLabel>{__("Name")}</ControlLabel>
+                <p>{__("Name this bot to differentiate from the rest")}</p>
                 <FormControl
                   {...formProps}
                   name="name"
@@ -174,7 +174,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
               </FormGroup>
               <ControlLabel>
                 <FlexRow $alignItems="center">
-                  {__('Persistent Menu')}
+                  {__("Persistent Menu")}
 
                   <HelpPopover title="">
                     "A Persistent Menu is a quick-access toolbar in your chat.
@@ -187,7 +187,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
                 buttons={doc.persistentMenus || []}
                 addButtonLabel="Add Persistent Menu"
                 onChange={(_id, _name, values) =>
-                  onChange('persistentMenus', values)
+                  onChange("persistentMenus", values)
                 }
                 limit={5}
               />
@@ -202,7 +202,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
           >
             <Padding>
               <FormGroup>
-                <ControlLabel>{__('Greet Message (Optional)')}</ControlLabel>
+                <ControlLabel>{__("Greet Message (Optional)")}</ControlLabel>
                 <FieldInfo
                   error={doc?.greetText?.length > 160}
                 >{`${doc?.greetText?.length || 0}/160`}</FieldInfo>
@@ -224,19 +224,19 @@ function Form({ renderButton, bot, returnToList }: Props) {
                 <FormControl
                   id="facebook-message-tag"
                   componentclass="select"
-                  placeholder={__('Select Facebook Tag') as string}
-                  defaultValue={doc.tag || ''}
-                  onChange={(e) =>
+                  placeholder={__("Select Facebook Tag") as string}
+                  defaultValue={doc.tag || ""}
+                  onChange={e =>
                     setDoc({
                       ...doc,
                       tag: (e.currentTarget as HTMLInputElement)?.value
                     })
                   }
                 >
-                  <option key={''} value={''}>
-                    {''}
+                  <option key={""} value={""}>
+                    {""}
                   </option>
-                  {tags.map((tag) => (
+                  {tags.map(tag => (
                     <option key={tag.value} value={tag.value}>
                       {tag.label}
                     </option>
@@ -254,7 +254,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {__('Learn more')}
+                    {__("Learn more")}
                   </a>
                 </FacebookTagText>
               </FormGroup>
@@ -266,21 +266,21 @@ function Form({ renderButton, bot, returnToList }: Props) {
                   defaultChecked={false}
                   checked={doc?.isEnabledBackBtn}
                   onChange={() =>
-                    onChange('isEnabledBackBtn', !doc?.isEnabledBackBtn)
+                    onChange("isEnabledBackBtn", !doc?.isEnabledBackBtn)
                   }
                 />
                 {doc?.isEnabledBackBtn && (
                   <Container>
                     <FormGroup>
                       <ControlLabel>
-                        {'Back Button Text (optional)'}
+                        {"Back Button Text (optional)"}
                       </ControlLabel>
                       <FieldInfo
                         error={doc?.backButtonText?.length > 20}
                       >{`${doc?.backButtonText?.length || 0}/20`}</FieldInfo>
                       <FormControl
                         placeholder="Set custom back button text for the persistent menu"
-                        value={doc.backButtonText || ''}
+                        value={doc.backButtonText || ""}
                         onChange={onChangeBackButtonInput}
                       />
                     </FormGroup>
@@ -293,10 +293,10 @@ function Form({ renderButton, bot, returnToList }: Props) {
         <ModalFooter>
           <Padding>
             <Button btnStyle="simple" onClick={returnToList}>
-              {__('Cancel')}
+              {__("Cancel")}
             </Button>
             {renderButton({
-              name: 'Bot',
+              name: "Bot",
               values: generateDoc(values),
               isSubmitted,
               object: bot
@@ -308,12 +308,12 @@ function Form({ renderButton, bot, returnToList }: Props) {
   };
 
   const breadcrumb = [
-    { title: __('Settings'), link: '/settings' },
+    { title: __("Settings"), link: "/settings" },
     {
-      title: __('Bots config'),
-      link: '/settings/automations/bots'
+      title: __("Bots config"),
+      link: "/settings/automations/bots"
     },
-    { title: __(bot ? `Edit ${bot.name}` : 'Create Bot') }
+    { title: __(bot ? `Edit ${bot.name}` : "Create Bot") }
   ];
 
   return (
@@ -336,21 +336,21 @@ function Form({ renderButton, bot, returnToList }: Props) {
                       src={
                         doc?.profileUrl
                           ? doc.profileUrl
-                          : '/images/erxes-bot.svg'
+                          : "/images/erxes-bot.svg"
                       }
                     />
-                    <p>{doc?.page ? doc?.page?.name : 'Profile Name'}</p>
+                    <p>{doc?.page ? doc?.page?.name : "Profile Name"}</p>
                   </div>
                   {!isLastStep ? (
                     <>
                       <div className="getStarted">
-                        <p>{doc?.greetText || ''}</p>
+                        <p>{doc?.greetText || ""}</p>
                         <span>tap to send</span>
                         <button>Get Started</button>
                       </div>
                       <span>
                         {`You started a chat with ${
-                          doc?.page ? doc?.page?.name : '{ Profile Name }'
+                          doc?.page ? doc?.page?.name : "{ Profile Name }"
                         }. We use information from
                     this chat to improve your experience.`}
                         <br />
@@ -376,10 +376,10 @@ function Form({ renderButton, bot, returnToList }: Props) {
                             src={
                               doc?.profileUrl
                                 ? doc.profileUrl
-                                : '/images/erxes-bot.svg'
+                                : "/images/erxes-bot.svg"
                             }
                           />
-                          <span>{doc?.greetText || 'Get Started'}</span>
+                          <span>{doc?.greetText || "Get Started"}</span>
                         </div>
                       </div>
                       <div className="persistentMenu">
@@ -391,13 +391,13 @@ function Form({ renderButton, bot, returnToList }: Props) {
                                 ? [
                                     {
                                       _id: Math.random(),
-                                      text: doc?.backButtonText || 'Back'
+                                      text: doc?.backButtonText || "Back"
                                     }
                                   ]
                                 : []
                             )
-                            .map((menu) => (
-                              <li key={menu._id}>{menu.text || ''}</li>
+                            .map(menu => (
+                              <li key={menu._id}>{menu.text || ""}</li>
                             ))}
                         </ul>
                       </div>

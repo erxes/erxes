@@ -42,7 +42,6 @@ export interface IMessage {
   messengerAppData?: any;
   engageData?: IEngageData;
   contentType?: string;
-  bookingWidgetData?: any;
 }
 
 export interface IResolveAllConversationParam {
@@ -117,5 +116,4 @@ export const messageSchema = new Schema({
     enum: MESSAGE_TYPES.ALL,
     default: MESSAGE_TYPES.TEXT
   }),
-  bookingWidgetData: field({ type: Object })
 });

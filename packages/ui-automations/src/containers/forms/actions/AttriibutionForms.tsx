@@ -1,12 +1,12 @@
-import React from 'react';
-import * as compose from 'lodash.flowright';
-import { queries as segmentQueries } from '@erxes/ui-segments/src/graphql';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
-import { QueryResponse } from '@erxes/ui/src/types';
-import { ISegment } from '@erxes/ui-segments/src/types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import * as compose from "lodash.flowright";
+
+import { ISegment } from "@erxes/ui-segments/src/types";
+import { QueryResponse } from "@erxes/ui/src/types";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries as segmentQueries } from "@erxes/ui-segments/src/graphql";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   segmentId: string;
@@ -28,15 +28,15 @@ class AttributesForm extends React.Component<FinalProps> {
     const { segmentDetail, loading, error } = segmentDetailQuery || {};
 
     if (loading || error) {
-      return '';
+      return "";
     }
 
     let config = segmentDetail?.config || {};
 
     if (
-      !(segmentDetail?.subSegmentConditions || [])?.some(subCondition =>
-        (subCondition?.conditions || []).some(cond =>
-          ['forms:form_submission'].includes(cond.propertyType || '')
+      !(segmentDetail?.subSegmentConditions || [])?.some((subCondition) =>
+        (subCondition?.conditions || []).some((cond) =>
+          ["forms:form_submission"].includes(cond.propertyType || "")
         )
       )
     ) {
@@ -50,13 +50,12 @@ class AttributesForm extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(segmentQueries.segmentDetail), {
-      name: 'segmentDetailQuery',
-      skip: () => !isEnabled('segments'),
+      name: "segmentDetailQuery",
       options: ({ segmentId }) => ({
         variables: {
-          _id: segmentId
-        }
-      })
+          _id: segmentId,
+        },
+      }),
     })
   )(AttributesForm)
 );

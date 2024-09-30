@@ -31,7 +31,7 @@ const CustomerList = () => {
   return (
     <List
       queryParams={queryString.parse(location.search)}
-      contentType="contacts:customer"
+      contentType="core:customer"
     />
   );
 };

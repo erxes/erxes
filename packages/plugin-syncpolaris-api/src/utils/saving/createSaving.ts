@@ -4,22 +4,27 @@ import {
   getDepositAccount,
   updateContract,
   sendMessageBrokerData
-} from '../utils';
+} from "../utils";
 
-export const createSaving = async (subdomain: string, models, syncLog, params) => {
+export const createSaving = async (
+  subdomain: string,
+  models,
+  syncLog,
+  params
+) => {
   const savingContract = params.object;
 
   const savingProduct = await sendMessageBrokerData(
     subdomain,
-    'savings',
-    'contractType.findOne',
+    "savings",
+    "contractType.findOne",
     { _id: savingContract.contractTypeId }
   );
 
   const customer = await sendMessageBrokerData(
     subdomain,
-    'contacts',
-    'customers.findOne',
+    "core",
+    "customers.findOne",
     { _id: savingContract.customerId }
   );
 
@@ -30,15 +35,15 @@ export const createSaving = async (subdomain: string, models, syncLog, params) =
   let sendData = {
     prodCode: savingProduct.code,
     slevel: 1,
-    capMethod: '1',
-    capAcntCode: deposit?.number || '',
-    capAcntSysNo: '1306', // savingContract.storeInterestInterval,
+    capMethod: "1",
+    capAcntCode: deposit?.number || "",
+    capAcntSysNo: "1306", // savingContract.storeInterestInterval,
     startDate: savingContract.startDate,
     maturityOption: savingContract.closeOrExtendConfig,
     rcvAcntCode:
-      savingContract.depositAccount === 'depositAccount'
+      savingContract.depositAccount === "depositAccount"
         ? savingContract.depositAccount
-        : '',
+        : "",
     brchCode: branch?.code,
     curCode: savingContract.currency,
     name: savingProduct.name,
@@ -46,19 +51,19 @@ export const createSaving = async (subdomain: string, models, syncLog, params) =
     termLen: savingContract.duration,
     maturityDate: savingContract.endDate,
     custCode: customer?.code,
-    segCode: '81',
-    jointOrSingle: 'S',
-    statusCustom: '',
-    statusDate: '',
-    casaAcntCode: '',
-    closedBy: '',
-    closedDate: '',
-    lastCtDate: '',
-    lastDtDate: ''
+    segCode: "81",
+    jointOrSingle: "S",
+    statusCustom: "",
+    statusDate: "",
+    casaAcntCode: "",
+    closedBy: "",
+    closedDate: "",
+    lastCtDate: "",
+    lastDtDate: ""
   };
 
   const savingCode = await fetchPolaris({
-    op: '13610120',
+    op: "13610120",
     data: [sendData],
     subdomain,
     models,
@@ -70,7 +75,7 @@ export const createSaving = async (subdomain: string, models, syncLog, params) =
       subdomain,
       { _id: savingContract._id },
       { $set: { number: JSON.parse(savingCode) } },
-      'savings'
+      "savings"
     );
   }
 

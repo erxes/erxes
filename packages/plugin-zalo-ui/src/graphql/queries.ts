@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const zaloGetConfigs = `
   query zaloGetConfigs {
@@ -70,9 +70,7 @@ const zaloConversationMessages = `
           position
         }
       }
-      ${
-        isEnabled('contacts')
-          ? `
+
           customer {
             _id
             avatar
@@ -90,9 +88,6 @@ const zaloConversationMessages = `
             customFieldsData
             tagIds
           }
-        `
-          : ``
-      }
     }
   }
 `;

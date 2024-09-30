@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 export default `
   _id
@@ -31,9 +31,6 @@ export default `
     }
   }
   customerId
-  ${
-    isEnabled('contacts')
-      ? `
   customer {
     _id
     visitorContactInfo
@@ -44,9 +41,6 @@ export default `
     middleName
     lastName
     emails
-  }
-  `
-      : ``
   }
   messageCount
   participatorCount
@@ -61,30 +55,25 @@ export default `
     }
   }
   tagIds
-  ${
-    isEnabled('tags')
-      ? `
+
   tags {
     _id
     name
     colorCode
   }
-  `
-      : ``
-  }
 
   ${
-    isEnabled('dailyco')
+    isEnabled("dailyco")
       ? `
   videoCallData {
     url
     name
   }`
-      : ''
+      : ""
   }
 
     ${
-      isEnabled('calls')
+      isEnabled("calls")
         ? `
   callHistory {
     customerPhone
@@ -101,13 +90,11 @@ export default `
     modifiedBy
     recordUrl
   }`
-        : ''
+        : ""
     }
 
 
   readUserIds
   callProAudio
   customFieldsData
-  
-  bookingProductId
 `;

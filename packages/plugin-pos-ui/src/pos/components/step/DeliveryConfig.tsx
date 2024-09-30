@@ -1,4 +1,4 @@
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
 import client from "@erxes/ui/src/apolloClient";
 import { gql } from "@apollo/client";
 import React, { useEffect, useState } from "react";
@@ -29,7 +29,7 @@ const DeliveryConfig = (props: Props) => {
           stageId: "",
           watchedUserIds: [],
           assignedUserIds: [],
-          productId: "",
+          productId: ""
         }
   );
 
@@ -38,18 +38,16 @@ const DeliveryConfig = (props: Props) => {
   );
 
   useEffect(() => {
-    if (isEnabled("forms")) {
-      client
-        .query({
-          query: gql(formQueries.fieldsCombinedByContentType),
-          variables: {
-            contentType: "cards:deal",
-          },
-        })
-        .then(({ data }) => {
-          setFieldsCombined(data ? data.fieldsCombinedByContentType : [] || []);
-        });
-    }
+    client
+      .query({
+        query: gql(formQueries.fieldsCombinedByContentType),
+        variables: {
+          contentType: "sales:deal"
+        }
+      })
+      .then(({ data }) => {
+        setFieldsCombined(data ? data.fieldsCombinedByContentType : [] || []);
+      });
   }, []);
 
   const onChangeConfig = (code: string, value) => {
@@ -60,9 +58,9 @@ const DeliveryConfig = (props: Props) => {
   };
 
   const selectConfigOptions = (array: string[] = [], CONSTANT: any) => {
-    return array.map((item) => ({
+    return array.map(item => ({
       value: item,
-      label: CONSTANT.find((el) => el.value === item).label,
+      label: CONSTANT.find(el => el.value === item).label
     }));
   };
 
@@ -78,33 +76,33 @@ const DeliveryConfig = (props: Props) => {
     onChangeConfig("stageId", stageId);
   };
 
-  const onWatchedUsersSelect = (users) => {
+  const onWatchedUsersSelect = users => {
     onChangeConfig("watchedUserIds", users);
   };
 
-  const onAssignedUsersSelect = (users) => {
+  const onAssignedUsersSelect = users => {
     onChangeConfig("assignedUserIds", users);
   };
 
-  const onMapCustomFieldChange = (option) => {
+  const onMapCustomFieldChange = option => {
     const value = !option ? "" : option.value.toString();
     onChangeConfig("mapCustomField", value);
   };
 
-  const onChangeProduct = (option) => {
+  const onChangeProduct = option => {
     onChangeConfig("productId", option);
   };
 
-  const mapFieldOptions = (fieldsCombined || []).map((f) => ({
+  const mapFieldOptions = (fieldsCombined || []).map(f => ({
     value: f.name,
-    label: f.label,
+    label: f.label
   }));
 
   return (
     <FlexItem>
       <FlexColumn>
         <LeftItem>
-          {(isEnabled("cards") && (
+          {(isEnabled("sales") && (
             <Block>
               <h4>{__("Stage")}</h4>
               <BlockRow>
@@ -125,7 +123,7 @@ const DeliveryConfig = (props: Props) => {
                   <Select
                     name="mapCustomField"
                     value={mapFieldOptions.find(
-                      (o) => o.value === config.mapCustomField
+                      o => o.value === config.mapCustomField
                     )}
                     onChange={onMapCustomFieldChange}
                     isClearable={true}

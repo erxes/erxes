@@ -235,6 +235,7 @@ const Links = styled.div`
 
 const FormWrapper = styled.div`
   display: flex;
+  flex-wrap: wrap;
 
   img {
     display: block;

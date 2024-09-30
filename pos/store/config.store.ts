@@ -5,7 +5,7 @@ import { atomWithStorage } from "jotai/utils"
 
 import { IConfig, ICurrentUser, IPermissionConfig } from "@/types/config.types"
 
-export const configAtom = atom<IConfig | null>(null)
+export const configAtom = atomWithStorage<IConfig | null>("posConfig", null)
 
 export const orderPasswordAtom = atom<string | undefined>(
   (get) => get(configAtom)?.orderPassword
@@ -35,6 +35,16 @@ export const permissionConfigAtom = atom<IPermissionConfig | undefined>(
       : undefined
   }
 )
+
+export const directDiscountConfigAtom = atom((get) => {
+  const { directDiscount, directDiscountLimit } =
+    get(permissionConfigAtom) || {}
+
+  return {
+    allowDirectDiscount: !!directDiscount && !!directDiscountLimit,
+    directDiscountLimit: directDiscountLimit || 0,
+  }
+})
 
 export const configsAtom = atom<IConfig[] | null>(null)
 

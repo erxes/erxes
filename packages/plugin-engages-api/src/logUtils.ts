@@ -4,8 +4,8 @@ import {
   putUpdateLog as commonPutUpdateLog,
   putDeleteLog as commonPutDeleteLog,
   getSchemaLabels,
-  gatherNames,
-} from '@erxes/api-utils/src/logUtils';
+  gatherNames
+} from "@erxes/api-utils/src/logUtils";
 
 import {
   engageMessageSchema,
@@ -13,26 +13,21 @@ import {
   scheduleDateSchema,
   messengerSchema,
   IEngageMessageDocument,
-  IEngageMessage,
-} from './models/definitions/engages';
-import {
-  sendSegmentsMessage,
-  sendCoreMessage,
-  sendTagsMessage,
-  sendEmailTemplatesMessage,
-} from './messageBroker';
-import configs from './configs';
+  IEngageMessage
+} from "./models/definitions/engages";
+import { sendCoreMessage } from "./messageBroker";
+import configs from "./configs";
 
 export const LOG_ACTIONS = {
-  CREATE: 'create',
-  UPDATE: 'update',
-  DELETE: 'delete',
+  CREATE: "create",
+  UPDATE: "update",
+  DELETE: "delete"
 };
 
 const gatherEngageFieldNames = async (
   subdomain: string,
   doc: IEngageMessageDocument | IEngageMessage,
-  prevList?: LogDesc[],
+  prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -46,64 +41,64 @@ const gatherEngageFieldNames = async (
 
   if (doc.segmentIds && doc.segmentIds.length > 0) {
     const segments = await sendRPCMessage(
-      { action: 'find', data: { _id: { $in: doc.segmentIds } } },
-      sendSegmentsMessage,
+      { action: "segmentFind", data: { _id: { $in: doc.segmentIds } } },
+      sendCoreMessage
     );
 
     options = await gatherNames({
-      foreignKey: 'segmentIds',
+      foreignKey: "segmentIds",
       prevList: options,
-      nameFields: ['name'],
-      items: segments,
+      nameFields: ["name"],
+      items: segments
     });
   }
 
   if (doc.brandIds && doc.brandIds.length > 0) {
     const brands = await sendRPCMessage(
       {
-        action: 'brands.find',
-        data: { query: { _id: { $in: doc.brandIds } } },
+        action: "brands.find",
+        data: { query: { _id: { $in: doc.brandIds } } }
       },
-      sendCoreMessage,
+      sendCoreMessage
     );
 
     options = await gatherNames({
-      foreignKey: 'brandIds',
+      foreignKey: "brandIds",
       prevList: options,
-      nameFields: ['name'],
-      items: brands,
+      nameFields: ["name"],
+      items: brands
     });
   }
 
   if (doc.customerTagIds && doc.customerTagIds.length > 0) {
     const tags = await sendRPCMessage(
-      { action: 'find', data: { _id: { $in: doc.customerTagIds } } },
-      sendTagsMessage,
+      { action: "tagFind", data: { _id: { $in: doc.customerTagIds } } },
+      sendCoreMessage
     );
 
     options = await gatherNames({
-      foreignKey: 'customerTagIds',
+      foreignKey: "customerTagIds",
       prevList: options,
-      nameFields: ['name'],
-      items: tags,
+      nameFields: ["name"],
+      items: tags
     });
   }
 
   if (doc.fromUserId) {
     const user = await sendRPCMessage(
       {
-        action: 'users.findOne',
-        data: { _id: doc.fromUserId },
+        action: "users.findOne",
+        data: { _id: doc.fromUserId }
       },
-      sendCoreMessage,
+      sendCoreMessage
     );
 
     if (user && user._id) {
       options = await gatherNames({
-        foreignKey: 'fromUserId',
+        foreignKey: "fromUserId",
         prevList: options,
-        nameFields: ['email', 'username'],
-        items: [user],
+        nameFields: ["email", "username"],
+        items: [user]
       });
     }
   }
@@ -111,18 +106,18 @@ const gatherEngageFieldNames = async (
   if (doc.messenger && doc.messenger.brandId) {
     const brand = await sendRPCMessage(
       {
-        action: 'brands.findOne',
-        data: { _id: doc.messenger.brandId },
+        action: "brands.findOne",
+        data: { _id: doc.messenger.brandId }
       },
-      sendCoreMessage,
+      sendCoreMessage
     );
 
     if (brand) {
       options = await gatherNames({
-        foreignKey: 'brandId',
+        foreignKey: "brandId",
         prevList: options,
-        nameFields: ['name'],
-        items: [brand],
+        nameFields: ["name"],
+        items: [brand]
       });
     }
   }
@@ -130,18 +125,18 @@ const gatherEngageFieldNames = async (
   if (doc.createdBy) {
     const user = await sendRPCMessage(
       {
-        action: 'users.findOne',
-        data: { _id: doc.createdBy },
+        action: "users.findOne",
+        data: { _id: doc.createdBy }
       },
-      sendCoreMessage,
+      sendCoreMessage
     );
 
     if (user) {
       options = await gatherNames({
-        foreignKey: 'createdBy',
+        foreignKey: "createdBy",
         prevList: options,
-        nameFields: ['email', 'username'],
-        items: [user],
+        nameFields: ["email", "username"],
+        items: [user]
       });
     }
   }
@@ -149,18 +144,18 @@ const gatherEngageFieldNames = async (
   if (doc.email && doc.email.templateId) {
     const template = await sendRPCMessage(
       {
-        action: 'findOne',
-        data: { _id: doc.email.templateId },
+        action: "emailTemplatesFindOne",
+        data: { _id: doc.email.templateId }
       },
-      sendEmailTemplatesMessage,
+      sendCoreMessage
     );
 
     if (template) {
       options = await gatherNames({
-        foreignKey: 'email.templateId',
+        foreignKey: "email.templateId",
         prevList: options,
-        nameFields: ['name'],
-        items: [template],
+        nameFields: ["name"],
+        items: [template]
       });
     }
   }
@@ -178,7 +173,7 @@ export const gatherDescriptions = async (subdomain: string, params: any) => {
     extraDesc = await gatherEngageFieldNames(
       subdomain,
       updatedDocument,
-      extraDesc,
+      extraDesc
     );
   }
 
@@ -188,7 +183,7 @@ export const gatherDescriptions = async (subdomain: string, params: any) => {
 export const putDeleteLog = async (subdomain: string, logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(subdomain, {
     ...logDoc,
-    action: LOG_ACTIONS.DELETE,
+    action: LOG_ACTIONS.DELETE
   });
 
   await commonPutDeleteLog(
@@ -197,16 +192,16 @@ export const putDeleteLog = async (subdomain: string, logDoc, user) => {
       ...logDoc,
       description,
       extraDesc,
-      type: `${configs.name}:${logDoc.type}`,
+      type: `${configs.name}:${logDoc.type}`
     },
-    user,
+    user
   );
 };
 
 export const putUpdateLog = async (subdomain: string, logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(subdomain, {
     ...logDoc,
-    action: LOG_ACTIONS.UPDATE,
+    action: LOG_ACTIONS.UPDATE
   });
 
   await commonPutUpdateLog(
@@ -215,16 +210,16 @@ export const putUpdateLog = async (subdomain: string, logDoc, user) => {
       ...logDoc,
       description,
       extraDesc,
-      type: `${configs.name}:${logDoc.type}`,
+      type: `${configs.name}:${logDoc.type}`
     },
-    user,
+    user
   );
 };
 
 export const putCreateLog = async (subdomain: string, logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(subdomain, {
     ...logDoc,
-    action: LOG_ACTIONS.CREATE,
+    action: LOG_ACTIONS.CREATE
   });
 
   await commonPutCreateLog(
@@ -233,25 +228,25 @@ export const putCreateLog = async (subdomain: string, logDoc, user) => {
       ...logDoc,
       description,
       extraDesc,
-      type: `${configs.name}:${logDoc.type}`,
+      type: `${configs.name}:${logDoc.type}`
     },
-    user,
+    user
   );
 };
 
 export default {
   getSchemaLabels: ({ data: { type } }) => ({
-    status: 'success',
+    status: "success",
     data: getSchemaLabels(type, [
       {
-        name: 'engage',
+        name: "engage",
         schemas: [
           engageMessageSchema,
           emailSchema,
           scheduleDateSchema,
-          messengerSchema,
-        ],
-      },
-    ]),
-  }),
+          messengerSchema
+        ]
+      }
+    ])
+  })
 };

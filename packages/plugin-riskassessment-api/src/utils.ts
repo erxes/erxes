@@ -1,20 +1,15 @@
-import {
-  sendCardsMessage,
-  sendCoreMessage,
-  sendFormsMessage,
-  sendTagsMessage,
-} from './messageBroker';
+import { sendCardsMessage, sendCoreMessage } from "./messageBroker";
 
-import { IModels } from './connectionResolver';
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { IModels } from "./connectionResolver";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 export const validRiskIndicators = async (models: IModels, params) => {
-  if (isEnabled('tags') && !params?.tagIds?.length) {
-    throw new Error('Please select some tags');
+  if (!params?.tagIds?.length) {
+    throw new Error("Please select some tags");
   }
   if (await models?.RiskIndicators.findOne({ name: params.name })) {
     throw new Error(
-      'This risk assessment is already in use. Please type another name',
+      "This risk assessment is already in use. Please type another name"
     );
   }
 
@@ -23,7 +18,7 @@ export const validRiskIndicators = async (models: IModels, params) => {
   let percentWeight = 0;
 
   if (!forms.length) {
-    throw new Error('Please add a form to the risk assessment');
+    throw new Error("Please add a form to the risk assessment");
   }
 
   if (forms?.length === 1) {
@@ -32,12 +27,12 @@ export const validRiskIndicators = async (models: IModels, params) => {
 
   for (const form of forms) {
     if (!form.formId) {
-      throw new Error('Please build a form');
+      throw new Error("Please build a form");
     }
 
     if (forms.length > 1) {
       if (!form.percentWeight) {
-        throw new Error('Provide a percent weight on form');
+        throw new Error("Provide a percent weight on form");
       }
     }
 
@@ -51,25 +46,25 @@ export const validRiskIndicators = async (models: IModels, params) => {
   }
 };
 
-export const validateCalculateMethods = async (params) => {
+export const validateCalculateMethods = async params => {
   if (!params.calculateMethod) {
-    throw new Error('You must specify calculate method');
+    throw new Error("You must specify calculate method");
   }
   if (!params.calculateLogics?.length) {
-    throw new Error('You must specify at least one metric');
+    throw new Error("You must specify at least one metric");
   }
   for (const calculateLogic of params.calculateLogics || []) {
     if (!calculateLogic.name) {
-      throw new Error('You must specify metric name');
+      throw new Error("You must specify metric name");
     }
     if (!calculateLogic.logic) {
-      throw new Error('You must specify metric logic');
+      throw new Error("You must specify metric logic");
     }
     if (!calculateLogic.value) {
-      throw new Error('You must specify metric value ');
+      throw new Error("You must specify metric value ");
     }
     if (!calculateLogic.color) {
-      throw new Error('You must specify metric status color ');
+      throw new Error("You must specify metric status color ");
     }
   }
 };
@@ -78,16 +73,16 @@ export const calculateRiskAssessment = async (models, cardId, cardType) => {
   const { riskAssessmentId, resultScore, status } =
     await models.RiskConformity.findOne({
       cardId,
-      cardType,
+      cardType
     }).lean();
 
   const { calculateLogics } = await models.RiskAssessment.findOne({
-    _id: riskAssessmentId,
+    _id: riskAssessmentId
   }).lean();
 
   for (const { name, value, value2, logic, color } of calculateLogics) {
     let operator = logic.substring(1, 2);
-    if (operator === '≈') {
+    if (operator === "≈") {
       if (value < resultScore && resultScore < value2) {
         return await models.RiskConformity.findOneAndUpdate(
           { riskAssessmentId, cardId, cardType },
@@ -95,15 +90,15 @@ export const calculateRiskAssessment = async (models, cardId, cardType) => {
             $set: {
               status: name,
               statusColor: color,
-              closedAt: Date.now(),
-            },
+              closedAt: Date.now()
+            }
           },
-          { new: true },
+          { new: true }
         );
       }
     }
-    if (['>', '<'].includes(operator)) {
-      operator += '=';
+    if ([">", "<"].includes(operator)) {
+      operator += "=";
       if (eval(resultScore + operator + value)) {
         return await models.RiskConformity.findOneAndUpdate(
           { riskAssessmentId, cardId, cardType },
@@ -111,25 +106,25 @@ export const calculateRiskAssessment = async (models, cardId, cardType) => {
             $set: {
               status: name,
               statusColor: color,
-              closedAt: Date.now(),
-            },
+              closedAt: Date.now()
+            }
           },
-          { new: true },
+          { new: true }
         );
       }
     }
 
-    if (status === 'In Progress') {
+    if (status === "In Progress") {
       return await models.RiskConformity.findOneAndUpdate(
         { riskAssessmentId, cardId, cardType },
         {
           $set: {
-            status: 'No Result',
-            statusColor: '#888',
-            closedAt: Date.now(),
-          },
+            status: "No Result",
+            statusColor: "#888",
+            closedAt: Date.now()
+          }
         },
-        { new: true },
+        { new: true }
       );
     }
   }
@@ -140,17 +135,17 @@ export const checkAllUsersSubmitted = async (
   model,
   cardId: string,
   cardType: string,
-  formIds: string[],
+  formIds: string[]
 ) => {
   let result = false;
 
   const assignedUsers = await getAsssignedUsers(subdomain, cardId, cardType);
 
-  const assignedUserIds = assignedUsers.map((usr) => usr._id);
+  const assignedUserIds = assignedUsers.map(usr => usr._id);
   const submissions = await model.RiskFormSubmissions.find({
     cardId,
     formId: { $in: formIds },
-    userId: { $in: assignedUserIds },
+    userId: { $in: assignedUserIds }
   }).lean();
 
   const groupedSubmissions = {};
@@ -168,13 +163,13 @@ export const checkAllUsersSubmitted = async (
 export const getAsssignedUsers = async (
   subdomain,
   cardId: string,
-  cardType: string,
+  cardType: string
 ) => {
   let assignedUsers: any[] = [];
 
   if (!cardId && !cardType) {
     throw new Error(
-      'Something went wrong trying to get assigned users of card',
+      "Something went wrong trying to get assigned users of card"
     );
   }
 
@@ -182,10 +177,10 @@ export const getAsssignedUsers = async (
     subdomain,
     action: `${cardType}s.findOne`,
     data: {
-      _id: cardId,
+      _id: cardId
     },
     isRPC: true,
-    defaultValue: {},
+    defaultValue: {}
   });
 
   if (card) {
@@ -193,33 +188,33 @@ export const getAsssignedUsers = async (
 
     assignedUsers = await sendCoreMessage({
       subdomain,
-      action: 'users.find',
+      action: "users.find",
       data: {
-        query: { _id: { $in: assignedUserIds } },
+        query: { _id: { $in: assignedUserIds } }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
   }
 
   return assignedUsers;
 };
 
-const getOptionsValues = (optionsValues) => {
+const getOptionsValues = optionsValues => {
   return optionsValues
-    .split('\n')
-    .map((item) => {
+    .split("\n")
+    .map(item => {
       if (item.match(/=/g)) {
-        const label = item?.substring(0, item.indexOf('=')).trim();
+        const label = item?.substring(0, item.indexOf("=")).trim();
         const value = Number(
-          item.substring(item?.indexOf('=') + 1, item.length),
+          item.substring(item?.indexOf("=") + 1, item.length)
         );
         if (!Number.isNaN(value)) {
           return { label, value };
         }
       }
     }, [])
-    .filter((item) => item);
+    .filter(item => item);
 };
 
 export const calculateFormResponses = async ({
@@ -227,7 +222,7 @@ export const calculateFormResponses = async ({
   fields,
   calculateMethod,
   generalcalculateMethod,
-  filter,
+  filter
 }: {
   responses: { [key: string]: { value: number; description: string } };
   fields: any[];
@@ -239,31 +234,31 @@ export const calculateFormResponses = async ({
   let scoreAviable = 0;
   const submissions: any = [];
 
-  if (calculateMethod === 'Multiply') {
+  if (calculateMethod === "Multiply") {
     sumNumber = 1;
   }
 
   for (const [key, response] of Object.entries(responses)) {
-    const field = fields.find((field) => field._id === key);
+    const field = fields.find(field => field._id === key);
 
     if (field?.optionsValues) {
       const optValues = getOptionsValues(field?.optionsValues);
 
-      if (generalcalculateMethod === 'ByPercent') {
-        const scores = optValues.map((option) => option.value);
+      if (generalcalculateMethod === "ByPercent") {
+        const scores = optValues.map(option => option.value);
         scoreAviable += Math.max(...scores);
       }
 
       const fieldValue = optValues.find(
-        (option) => option.label.trim() === String(response.value).trim(),
+        option => option.label.trim() === String(response.value).trim()
       );
       switch (calculateMethod) {
-        case 'Multiply':
+        case "Multiply":
           sumNumber *= Number(fieldValue?.value || 0);
           break;
-        case 'Addition':
-        case 'Average':
-        case 'ByPercent':
+        case "Addition":
+        case "Average":
+        case "ByPercent":
           sumNumber += Number(fieldValue?.value || 0);
           break;
       }
@@ -271,22 +266,22 @@ export const calculateFormResponses = async ({
         ...filter,
         ...response,
         formId: field?.contentTypeId,
-        fieldId: key,
+        fieldId: key
       });
     } else {
-      if (typeof response.value === 'number') {
+      if (typeof response.value === "number") {
         sumNumber += response.value;
       }
       submissions.push({
         ...filter,
         ...response,
         formId: field?.contentTypeId,
-        fieldId: key,
+        fieldId: key
       });
     }
   }
 
-  if (calculateMethod === 'Average') {
+  if (calculateMethod === "Average") {
     const fieldCount = fields?.length || 1;
     sumNumber = sumNumber / fieldCount;
   }
@@ -296,46 +291,46 @@ export const calculateFormResponses = async ({
 export const getFieldsGroupByForm = async ({
   subdomain,
   formId,
-  formIds,
+  formIds
 }: {
   subdomain: string;
   formId?: string;
   formIds?: string[];
 }) => {
   let submissionForms: any[] = [];
-  const fields = await sendFormsMessage({
+  const fields = await sendCoreMessage({
     subdomain,
-    action: 'fields.find',
+    action: "fields.find",
     data: {
       query: {
-        contentType: 'form',
-        contentTypeId: formIds ? { $in: formIds } : formId,
-      },
+        contentType: "form",
+        contentTypeId: formIds ? { $in: formIds } : formId
+      }
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   for (const field of fields) {
-    if (submissionForms.find((form) => form.formId === field.contentTypeId)) {
-      submissionForms = submissionForms.map((form) =>
+    if (submissionForms.find(form => form.formId === field.contentTypeId)) {
+      submissionForms = submissionForms.map(form =>
         form.formId === field.contentTypeId
           ? { ...form, fields: [...form.fields, field] }
-          : form,
+          : form
       );
     } else {
-      const { title } = await sendFormsMessage({
+      const { title } = await sendCoreMessage({
         subdomain,
-        action: 'findOne',
+        action: "formsFindOne",
         data: { _id: field.contentTypeId },
         isRPC: true,
-        defaultValue: {},
+        defaultValue: {}
       });
 
       submissionForms.push({
         formId: field.contentTypeId,
-        formTitle: title || '',
-        fields: [field],
+        formTitle: title || "",
+        fields: [field]
       });
     }
   }
@@ -349,17 +344,17 @@ export const riskAssessmentIndicator = async ({
   cardId,
   cardType,
   riskAssessmentId,
-  riskIndicatorId,
+  riskIndicatorId
 }) => {
   const assignedUserIds = (
     await getAsssignedUsers(subdomain, cardId, cardType)
-  ).map((user) => user._id);
+  ).map(user => user._id);
 
   const submissions = await models.RiskFormSubmissions.find({
     cardId,
     riskAssessmentId,
     riskIndicatorId,
-    userId: { $in: assignedUserIds },
+    userId: { $in: assignedUserIds }
   });
 
   let submittedUsers: any = {};
@@ -372,33 +367,33 @@ export const riskAssessmentIndicator = async ({
 };
 
 export const checkEveryUserSubmitted = {
-  riskAssessmentIndicator: riskAssessmentIndicator,
+  riskAssessmentIndicator: riskAssessmentIndicator
 };
 
 export const calculateResult = async ({
   collection,
   calculateLogics,
   resultScore,
-  filter,
+  filter
 }) => {
   if (!calculateLogics?.length) {
     return await collection.findOneAndUpdate(
       { ...filter },
       {
         $set: {
-          status: 'No Result',
-          statusColor: '#888',
+          status: "No Result",
+          statusColor: "#888",
           resultScore: roundResult(resultScore),
-          closedAt: Date.now(),
-        },
+          closedAt: Date.now()
+        }
       },
-      { new: true },
+      { new: true }
     );
   }
 
   for (const { name, value, value2, logic, color } of calculateLogics || []) {
     let operator = logic.substring(1, 2);
-    if (operator === '≈') {
+    if (operator === "≈") {
       if (value < resultScore && resultScore < value2) {
         return await collection.findOneAndUpdate(
           { ...filter },
@@ -407,15 +402,15 @@ export const calculateResult = async ({
               status: name,
               statusColor: color,
               resultScore: roundResult(resultScore),
-              closedAt: Date.now(),
-            },
+              closedAt: Date.now()
+            }
           },
-          { new: true },
+          { new: true }
         );
       }
     }
-    if (['>', '<'].includes(operator)) {
-      operator += '=';
+    if ([">", "<"].includes(operator)) {
+      operator += "=";
       if (eval(resultScore + operator + value)) {
         return await collection.findOneAndUpdate(
           { ...filter },
@@ -424,28 +419,28 @@ export const calculateResult = async ({
               status: name,
               statusColor: color,
               resultScore: roundResult(resultScore),
-              closedAt: Date.now(),
-            },
+              closedAt: Date.now()
+            }
           },
-          { new: true },
+          { new: true }
         );
       }
     }
 
     const doc = await collection.findOne({ ...filter });
 
-    if ((await doc.status) === 'In Progress') {
+    if ((await doc.status) === "In Progress") {
       return await collection.findOneAndUpdate(
         { ...filter },
         {
           $set: {
-            status: 'No Result',
-            statusColor: '#888',
+            status: "No Result",
+            statusColor: "#888",
             resultScore: roundResult(resultScore),
-            closedAt: Date.now(),
-          },
+            closedAt: Date.now()
+          }
         },
-        { new: true },
+        { new: true }
       );
     }
   }
@@ -458,7 +453,7 @@ export const getIndicatorSubmissions = async ({
   cardType,
   assessmentId,
   indicatorId,
-  params,
+  params
 }: {
   models: IModels;
   subdomain;
@@ -480,31 +475,31 @@ export const getIndicatorSubmissions = async ({
 
   const submissions = await models.RiskFormSubmissions.aggregate([
     {
-      $match: match,
+      $match: match
     },
     {
       $group: {
-        _id: '$userId',
-        fields: { $push: '$$ROOT' },
-        count: { $sum: 1 },
-      },
-    },
+        _id: "$userId",
+        fields: { $push: "$$ROOT" },
+        count: { $sum: 1 }
+      }
+    }
   ]);
 
   for (const submission of submissions) {
     for (const field of submission.fields) {
-      const fieldDetail = await sendFormsMessage({
+      const fieldDetail = await sendCoreMessage({
         subdomain,
-        action: 'fields.findOne',
+        action: "fields.findOne",
         data: {
-          query: { _id: field.fieldId },
+          query: { _id: field.fieldId }
         },
         isRPC: true,
-        defaultValue: {},
+        defaultValue: {}
       });
 
-      field.optionsValues = fieldDetail?.optionsValues || '';
-      field.text = fieldDetail?.text || '';
+      field.optionsValues = fieldDetail?.optionsValues || "";
+      field.text = fieldDetail?.text || "";
     }
   }
   return submissions;
@@ -532,21 +527,21 @@ export const getFilterTagIds = async (subdomain, ids) => {
   let tagIds: string[] = [];
   for (const _id of ids) {
     const childrenIds = (
-      await sendTagsMessage({
+      await sendCoreMessage({
         subdomain,
-        action: 'withChilds',
+        action: "tagWithChilds",
         data: { query: { _id }, fields: { _id: 1 } },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       })
-    ).map((child) => child._id);
+    ).map(child => child._id);
     tagIds = [...tagIds, ...childrenIds];
   }
 
   return tagIds;
 };
 
-export const generateFormFields = (fields) => {
+export const generateFormFields = fields => {
   const groupedFields = fields.reduce((acc, doc) => {
     if (!acc[doc.contentTypeId]) {
       acc[doc.contentTypeId] = [];

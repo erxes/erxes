@@ -1,14 +1,14 @@
-import { AssetEditMutationResponse, IAsset } from '../../../common/types';
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { AssetEditMutationResponse, IAsset } from "../../../common/types";
+import { gql, useMutation, useQuery } from "@apollo/client";
 
-import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
-import React from 'react';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { mutations } from '../../graphql';
+import { FieldsGroupsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
+import GenerateCustomFields from "@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields";
+import React from "react";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { mutations } from "../../graphql";
 
 type Props = {
   asset: IAsset;
@@ -22,18 +22,17 @@ const CustomFieldSectionContainer = (props: Props) => {
     gql(fieldQueries.fieldsGroups),
     {
       variables: {
-        contentType: 'assets:asset',
-        isDefinedByErxes: false,
-      },
-      skip: !isEnabled('forms'),
-    },
+        contentType: "assets:asset",
+        isDefinedByErxes: false
+      }
+    }
   );
 
   const [editMutation] = useMutation<AssetEditMutationResponse>(
     gql(mutations.assetEdit),
     {
-      refetchQueries: ['assetDetailQuery'],
-    },
+      refetchQueries: ["assetDetailQuery"]
+    }
   );
 
   if (fieldsGroupsQuery && fieldsGroupsQuery.loading) {
@@ -46,12 +45,12 @@ const CustomFieldSectionContainer = (props: Props) => {
 
   const save = (data, callback) => {
     editMutation({
-      variables: { ...asset, ...data },
+      variables: { ...asset, ...data }
     })
       .then(() => {
         callback();
       })
-      .catch((e) => {
+      .catch(e => {
         callback(e);
       });
   };
@@ -63,7 +62,7 @@ const CustomFieldSectionContainer = (props: Props) => {
     fieldsGroups:
       (fieldsGroupsQuery && fieldsGroupsQuery?.data?.fieldsGroups) || [],
     isDetail: true,
-    object: asset,
+    object: asset
   };
 
   return <GenerateCustomFields {...updatedProps} />;

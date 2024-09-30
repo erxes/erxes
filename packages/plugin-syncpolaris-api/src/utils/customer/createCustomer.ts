@@ -4,14 +4,15 @@ import { getCustomerDetailByRegister } from "./getCustomerDetailByRegister";
 import { IPolarisCustomer } from "./types";
 import { validateObject } from "./validator";
 
-export const createCustomer = async (subdomain: string, models, syncLog: ISyncLogDocument, params) => {
+export const createCustomer = async (
+  subdomain: string,
+  models,
+  syncLog: ISyncLogDocument,
+  params
+) => {
   const customer = params.updatedDocument || params.object;
 
-  const data = await customFieldToObject(
-    subdomain,
-    "contacts:customer",
-    customer
-  );
+  const data = await customFieldToObject(subdomain, "core:customer", customer);
 
   let sendData: IPolarisCustomer = {
     lastName: data.lastName,
@@ -43,11 +44,10 @@ export const createCustomer = async (subdomain: string, models, syncLog: ISyncLo
     phone: data.phones.join(","),
     fax: data.fax ?? "",
     isBl: data.isBl ?? "0",
-    isPolitical: data.isPolitical ?? "0",
+    isPolitical: data.isPolitical ?? "0"
   };
 
   await validateObject(sendData);
-
 
   const customerCode = await fetchPolaris({
     subdomain,
@@ -55,11 +55,11 @@ export const createCustomer = async (subdomain: string, models, syncLog: ISyncLo
     data: [sendData],
     models,
     syncLog
-  }).catch(async (e) => {
+  }).catch(async e => {
     //check register number duplicated
     if (e.message.includes("41020330")) {
       let customerData = await getCustomerDetailByRegister(subdomain, {
-        register: sendData.registerCode,
+        register: sendData.registerCode
       });
 
       if (customerData) {

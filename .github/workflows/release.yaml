@@ -2,7 +2,7 @@ name: Publish Release
 on:
   push:
     tags:
-      - '*'
+      - "*"
 jobs:
   release:
     runs-on: ubuntu-22.04
@@ -124,6 +124,38 @@ jobs:
 
 
           docker buildx imagetools create erxes/plugin-cards-api:rc --tag  erxes/plugin-cards-api:${GITHUB_REF#refs/tags/}
+
+      - name: plugin-purchases-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+
+          docker buildx imagetools create erxes/plugin-purchases-api:rc --tag  erxes/plugin-purchases-api:${GITHUB_REF#refs/tags/}
+
+      - name: plugin-sales-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+
+          docker buildx imagetools create erxes/plugin-sales-api:rc --tag  erxes/plugin-sales-api:${GITHUB_REF#refs/tags/}
+
+      - name: plugin-tasks-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+
+          docker buildx imagetools create erxes/plugin-tasks-api:rc --tag  erxes/plugin-tasks-api:${GITHUB_REF#refs/tags/}
+
+      - name: plugin-tickets-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+
+          docker buildx imagetools create erxes/plugin-tickets-api:rc --tag  erxes/plugin-tickets-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-clientportal-api
         run: >
@@ -579,6 +611,23 @@ jobs:
       - name: cards ui
         run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-cards-ui
           s3://erxes-release-plugins/uis/plugin-cards-ui/${GITHUB_REF#refs/tags/}/
+
+      - name: sales ui
+        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-sales-ui
+          s3://erxes-release-plugins/uis/plugin-sales-ui/${GITHUB_REF#refs/tags/}/
+
+      - name: tickets ui
+        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-tickets-ui
+          s3://erxes-release-plugins/uis/plugin-tickets-ui/${GITHUB_REF#refs/tags/}/
+
+      - name: tasks ui
+        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-tasks-ui
+          s3://erxes-release-plugins/uis/plugin-tasks-ui/${GITHUB_REF#refs/tags/}/
+
+      - name: purchases ui
+        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-purchases-ui
+          s3://erxes-release-plugins/uis/plugin-purchases-ui/${GITHUB_REF#refs/tags/}/
+
       - name: clientportal ui
         run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-clientportal-ui
           s3://erxes-release-plugins/uis/plugin-clientportal-ui/${GITHUB_REF#refs/tags/}/

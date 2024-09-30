@@ -8,13 +8,13 @@ import {
   FormGroup,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
+  MainStyleScrollWrapper as ScrollWrapper
 } from "@erxes/ui/src";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { IContract, IContractDoc } from "../../types";
 import { Tabs as MainTabs, TabTitle } from "@erxes/ui/src/components/tabs";
 import SelectContractType, {
-  ContractTypeById,
+  ContractTypeById
 } from "../../../contractTypes/containers/SelectContractType";
 
 import ContractsCustomFields from "./ContractsCustomFields";
@@ -27,7 +27,6 @@ import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectC
 import SelectContracts from "../common/SelectContract";
 import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
 import { __ } from "coreui/utils";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   currentUser: IUser;
@@ -133,7 +132,7 @@ class ContractForm extends React.Component<Props, State> {
       interestGiveType: contract.interestGiveType,
       closeOrExtendConfig: contract.closeOrExtendConfig,
       depositAccount: contract.depositAccount,
-      interestCalcType: contract.interestCalcType,
+      interestCalcType: contract.interestCalcType
     };
   }
 
@@ -163,7 +162,7 @@ class ContractForm extends React.Component<Props, State> {
       storeInterestInterval: this.state.storeInterestInterval,
       interestCalcType: this.state.interestCalcType,
       customerId: this.state.customerId,
-      customerType: this.state.customerType,
+      customerType: this.state.customerType
     };
 
     return result;
@@ -180,13 +179,13 @@ class ContractForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeField = (e) => {
+  onChangeField = e => {
     const name = (e.target as HTMLInputElement).name;
     const value = (e.target as HTMLInputElement).value;
     this.setState({ [name]: value } as any);
   };
 
-  onSelectContractType = (value) => {
+  onSelectContractType = value => {
     const contractTypeObj: IContractType = ContractTypeById[value];
 
     var changingStateValue: any = { contractTypeId: value };
@@ -210,21 +209,21 @@ class ContractForm extends React.Component<Props, State> {
     this.setState({ ...changingStateValue });
   };
 
-  onSelectCustomer = (value) => {
+  onSelectCustomer = value => {
     this.setState({
-      customerId: value,
+      customerId: value
     });
   };
 
   onSelect = (value, key: string) => {
     this.setState({
-      [key]: value,
+      [key]: value
     } as any);
   };
 
-  onCheckCustomerType = (e) => {
+  onCheckCustomerType = e => {
     this.setState({
-      customerType: e.target.checked ? "company" : "customer",
+      customerType: e.target.checked ? "company" : "customer"
     });
   };
 
@@ -250,11 +249,11 @@ class ContractForm extends React.Component<Props, State> {
     const { closeModal, renderButton, change } = this.props;
     const { values, isSubmitted } = formProps;
 
-    const onChangeStartDate = (value) => {
+    const onChangeStartDate = value => {
       this.setState({ startDate: value });
     };
 
-    const onChangeBranchId = (value) => {
+    const onChangeBranchId = value => {
       this.setState({ branchId: value });
     };
 
@@ -272,7 +271,7 @@ class ContractForm extends React.Component<Props, State> {
                     componentclass: "checkbox",
                     name: "customerType",
                     checked: this.state.customerType === "company",
-                    onChange: this.onCheckCustomerType,
+                    onChange: this.onCheckCustomerType
                   })}
                 </div>
                 {this.state.customerType === "customer" && (
@@ -340,7 +339,7 @@ class ContractForm extends React.Component<Props, State> {
                   useNumberFormat: true,
                   name: "duration",
                   value: this.state.duration,
-                  onChange: this.onChangeField,
+                  onChange: this.onChangeField
                 })}
                 {this.renderFormGroup("Saving Amount", {
                   ...formProps,
@@ -349,7 +348,7 @@ class ContractForm extends React.Component<Props, State> {
                   useNumberFormat: true,
                   name: "savingAmount",
                   value: this.state.savingAmount,
-                  onChange: this.onChangeField,
+                  onChange: this.onChangeField
                 })}
               </FormColumn>
             )}
@@ -371,7 +370,7 @@ class ContractForm extends React.Component<Props, State> {
                 useNumberFormat: true,
                 name: "interestRate",
                 value: this.state.interestRate,
-                onChange: this.onChangeField,
+                onChange: this.onChangeField
               })}
 
               <FormGroup>
@@ -424,10 +423,10 @@ class ContractForm extends React.Component<Props, State> {
                     name="depositAccount"
                     initialValue={this.state.depositAccount}
                     filterParams={{ isDeposit: true }}
-                    onSelect={(v) => {
+                    onSelect={v => {
                       if (typeof v === "string") {
                         this.setState({
-                          depositAccount: v,
+                          depositAccount: v
                         });
                       }
                     }}
@@ -466,7 +465,7 @@ class ContractForm extends React.Component<Props, State> {
             values: this.generateDoc(values),
             disabled: !!Object.keys(this.checkValidation()).length,
             isSubmitted,
-            object: this.props.contract,
+            object: this.props.contract
           })}
         </ModalFooter>
       </>
@@ -489,16 +488,12 @@ class ContractForm extends React.Component<Props, State> {
         tabs={[
           {
             label: "Гэрээ",
-            component: <Form renderContent={this.renderContent} />,
+            component: <Form renderContent={this.renderContent} />
           },
-          ...(isEnabled("forms")
-            ? [
-                {
-                  label: "Бусад",
-                  component: <Form renderContent={this.renderCustom} />,
-                },
-              ]
-            : []),
+          {
+            label: "Бусад",
+            component: <Form renderContent={this.renderCustom} />
+          }
         ]}
       />
     );

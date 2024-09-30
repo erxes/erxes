@@ -1,6 +1,6 @@
-import { generateModels, IModels } from './connectionResolver';
-import { sendFormsMessage } from './messageBroker';
-import * as moment from 'moment';
+import { generateModels, IModels } from "./connectionResolver";
+import { sendCoreMessage } from "./messageBroker";
+import * as moment from "moment";
 
 const prepareData = async (
   models: IModels,
@@ -46,7 +46,7 @@ const getCustomFieldsData = async (item, fieldId) => {
         value = customFeild.value;
 
         if (Array.isArray(value)) {
-          value = value.join(', ');
+          value = value.join(", ");
         }
 
         return { value };
@@ -66,24 +66,24 @@ export const fillValue = async (
   let value = item[column];
 
   switch (column) {
-    case 'createdAt':
-      value = moment(value).format('YYYY-MM-DD HH:mm');
+    case "createdAt":
+      value = moment(value).format("YYYY-MM-DD HH:mm");
       break;
 
-    case 'categoryName':
+    case "categoryName":
       const category = await models.AssetCategories.findOne({
         _id: item.categoryId
       }).lean();
 
-      value = category?.name || '-';
+      value = category?.name || "-";
 
       break;
-    case 'parentName':
+    case "parentName":
       const parent = await models.Assets.findOne({
         _id: item.parentId
       }).lean();
 
-      value = parent?.name || '-';
+      value = parent?.name || "-";
 
       break;
 
@@ -91,20 +91,20 @@ export const fillValue = async (
       break;
   }
 
-  return value || '-';
+  return value || "-";
 };
 
 export const IMPORT_EXPORT_TYPES = [
   {
-    text: 'Assets',
-    contentType: 'asset',
-    icon: 'piggy-bank',
+    text: "Assets",
+    contentType: "asset",
+    icon: "piggy-bank",
     skipFilter: true
   },
   {
-    text: 'Assets Movement',
-    contentType: 'assets-movement',
-    icon: 'piggy-bank'
+    text: "Assets Movement",
+    contentType: "assets-movement",
+    icon: "piggy-bank"
   }
 ];
 
@@ -126,11 +126,11 @@ export default {
       totalCount = results;
 
       for (const column of columnsConfig) {
-        if (column.startsWith('customFieldsData')) {
-          const fieldId = column.split('.')[1];
-          const field = await sendFormsMessage({
+        if (column.startsWith("customFieldsData")) {
+          const fieldId = column.split(".")[1];
+          const field = await sendCoreMessage({
             subdomain,
-            action: 'fields.findOne',
+            action: "fields.findOne",
             data: {
               query: {
                 _id: fieldId
@@ -146,8 +146,8 @@ export default {
       }
 
       for (const header of headers) {
-        if (header.startsWith('customFieldsData')) {
-          excelHeader.push(header.split('.')[1]);
+        if (header.startsWith("customFieldsData")) {
+          excelHeader.push(header.split(".")[1]);
         } else {
           excelHeader.push(header);
         }
@@ -172,11 +172,11 @@ export default {
       const results = await prepareData(models, subdomain, data);
 
       for (const column of columnsConfig) {
-        if (column.startsWith('customFieldsData')) {
-          const fieldId = column.split('.')[1];
-          const field = await sendFormsMessage({
+        if (column.startsWith("customFieldsData")) {
+          const fieldId = column.split(".")[1];
+          const field = await sendCoreMessage({
             subdomain,
-            action: 'fields.findOne',
+            action: "fields.findOne",
             data: {
               query: { _id: fieldId }
             },
@@ -193,17 +193,17 @@ export default {
         const result = {};
 
         for (const column of headers) {
-          if (column.startsWith('customFieldsData')) {
-            const fieldId = column.split('.')[2];
-            const fieldName = column.split('.')[1];
+          if (column.startsWith("customFieldsData")) {
+            const fieldId = column.split(".")[2];
+            const fieldName = column.split(".")[1];
 
             const { value } = await getCustomFieldsData(item, fieldId);
 
-            result[column] = value || '-';
+            result[column] = value || "-";
           } else {
             const value = await fillValue(models, subdomain, column, item);
 
-            result[column] = value || '-';
+            result[column] = value || "-";
           }
         }
 

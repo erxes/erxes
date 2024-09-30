@@ -1,26 +1,24 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   AddMutationResponse,
   CompaniesQueryResponse,
   ICompany,
-  ICompanyDoc
-} from '../types';
-import { mutations, queries } from '../graphql';
+  ICompanyDoc,
+} from "../types";
+import { mutations, queries } from "../graphql";
 
-import CompanyForm from './CompanyForm';
-import React from 'react';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { withProps } from '@erxes/ui/src/utils';
+import CompanyForm from "./CompanyForm";
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils";
 
 const ConformityChooser = asyncComponent(
   () =>
-    isEnabled('cards') &&
     import(
-      /* webpackChunkName: "ConformityChooser" */ '@erxes/ui-cards/src/conformity/containers/ConformityChooser'
+      /* webpackChunkName: "ConformityChooser" */ "@erxes/ui-sales/src/conformity/containers/ConformityChooser"
     )
 );
 
@@ -43,7 +41,7 @@ class CompanyChooser extends React.Component<
     super(props);
 
     this.state = {
-      newCompany: undefined
+      newCompany: undefined,
     };
   }
 
@@ -52,14 +50,10 @@ class CompanyChooser extends React.Component<
   };
 
   render() {
-    if (!isEnabled('cards')) {
-      return null;
-    }
-
     const { data, companiesQuery, search } = this.props;
 
-    const renderName = company => {
-      return company.primaryName || company.website || 'Unknown';
+    const renderName = (company) => {
+      return company.primaryName || company.website || "Unknown";
     };
 
     const getAssociatedCompany = (newCompany: ICompany) => {
@@ -74,12 +68,12 @@ class CompanyChooser extends React.Component<
         datas: data.companies,
         mainTypeId: data.mainTypeId,
         mainType: data.mainType,
-        relType: 'company'
+        relType: "company",
       },
       search,
-      clearState: () => search(''),
-      title: 'Company',
-      renderForm: formProps => (
+      clearState: () => search(""),
+      title: "Company",
+      renderForm: (formProps) => (
         <CompanyForm
           {...formProps}
           getAssociatedCompany={getAssociatedCompany}
@@ -89,7 +83,7 @@ class CompanyChooser extends React.Component<
       newItem: this.state.newCompany,
       resetAssociatedItem: this.resetAssociatedItem,
       datas: companiesQuery.companies || [],
-      refetchQuery: queries.companies
+      refetchQuery: queries.companies,
     };
 
     return <ConformityChooser {...updatedProps} />;
@@ -103,7 +97,7 @@ const WithQuery = withProps<Props>(
       CompaniesQueryResponse,
       { searchValue: string; perPage: number }
     >(gql(queries.companies), {
-      name: 'companiesQuery',
+      name: "companiesQuery",
       options: ({ searchValue, perPage, data }) => {
         return {
           variables: {
@@ -112,16 +106,16 @@ const WithQuery = withProps<Props>(
             mainType: data.mainType,
             mainTypeId: data.mainTypeId,
             isRelated: data.isRelated,
-            sortField: 'createdAt',
-            sortDirection: -1
+            sortField: "createdAt",
+            sortDirection: -1,
           },
-          fetchPolicy: data.isRelated ? 'network-only' : 'cache-first'
+          fetchPolicy: data.isRelated ? "network-only" : "cache-first",
         };
-      }
+      },
     }),
     // mutations
     graphql<{}, AddMutationResponse, ICompanyDoc>(gql(mutations.companiesAdd), {
-      name: 'companiesAdd'
+      name: "companiesAdd",
     })
   )(CompanyChooser)
 );
@@ -149,7 +143,7 @@ export default class Wrapper extends React.Component<
   constructor(props) {
     super(props);
 
-    this.state = { perPage: 20, searchValue: '' };
+    this.state = { perPage: 20, searchValue: "" };
   }
 
   search = (value, loadmore) => {

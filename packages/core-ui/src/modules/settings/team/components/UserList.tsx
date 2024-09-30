@@ -28,7 +28,7 @@ type IProps = {
   changeStatus: (id: string) => void;
   resendInvitation: (email: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  queryParams?: any;
+  queryParams?: Record<string, string>;
 };
 
 type FinalProps = ICommonListProps &

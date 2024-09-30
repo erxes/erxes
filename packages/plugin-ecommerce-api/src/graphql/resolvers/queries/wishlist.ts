@@ -1,5 +1,5 @@
-import { IContext } from '../../../connectionResolver';
-import { sendProductsMessage } from '../../../messageBroker';
+import { IContext } from "../../../connectionResolver";
+import { sendProductsMessage } from "../../../messageBroker";
 
 const wishlistQueries = {
   wish: async (
@@ -14,7 +14,7 @@ const wishlistQueries = {
 
     const product = await sendProductsMessage({
       subdomain,
-      action: 'findOne',
+      action: "productFindOne",
       data: { _id: productId },
       isRPC: true
     });
@@ -36,7 +36,7 @@ const wishlistQueries = {
 
     const products = await sendProductsMessage({
       subdomain,
-      action: 'find',
+      action: "productFind",
       data: {
         query: { _id: { $in: productIds } }
       },

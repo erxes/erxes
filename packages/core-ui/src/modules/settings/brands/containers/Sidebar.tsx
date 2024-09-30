@@ -14,7 +14,7 @@ import { gql } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
-  queryParams: any;
+  queryParams: Record<string, string>;
   currentBrandId?: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
@@ -88,7 +88,7 @@ export default withProps<Props>(
       gql(queries.brands),
       {
         name: "brandsQuery",
-        options: ({ queryParams }: { queryParams: any }) => ({
+        options: ({ queryParams }: { queryParams: Record<string, string> }) => ({
           variables: {
             perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20,
           },
