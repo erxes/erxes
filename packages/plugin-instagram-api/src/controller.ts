@@ -79,7 +79,6 @@ const init = async (app) => {
     if (data.object !== 'instagram') {
       return;
     }
-    console.log(`instagram message ${JSON.stringify(data)} `);
     for (const entry of data.entry) {
       // receive chat
       if (entry.messaging) {
@@ -92,7 +91,7 @@ const init = async (app) => {
             return res.send('error ' + e);
           }
         }
-      } else {
+      } else if (entry.standby) {
         // Handle standby data if entry.messaging does not exist
         const standbyData = entry.standby;
         if (standbyData && standbyData.length > 0) {
