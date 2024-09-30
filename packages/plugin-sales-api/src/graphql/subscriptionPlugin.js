@@ -13,7 +13,7 @@ module.exports = {
     return {
       salesPipelinesChanged: {
         subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`pipelinesChanged:${_id}`)
+          graphqlPubsub.asyncIterator(`salesPipelinesChanged:${_id}`)
       },
       salesChecklistsChanged: {
         resolve(payload, _args, { dataSources: { gatewayDataSource } }, info) {
