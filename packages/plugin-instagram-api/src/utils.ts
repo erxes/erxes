@@ -207,22 +207,42 @@ export const getPageAccessTokenFromMap = (
 export const getInstagramUser = async (
   userId: string,
   facebookPageId: string,
-  facebookPageTokensMap?: { [key: string]: string }
-) => {
-  if (facebookPageTokensMap !== undefined) {
-    const token = await getPageAccessTokenFromMap(
-      facebookPageId,
-      facebookPageTokensMap
-    );
-    const accounInfo: any = await graphRequest.get(
-      `${userId}?fields=name,username,profile_pic`,
-      token
-    );
-    return accounInfo;
-  } else {
+  facebookPageTokensMap?: Record<string, string>
+): Promise<{
+  name: string;
+  username: string;
+  profile_pic: string;
+  id: string;
+}> => {
+  if (!facebookPageTokensMap) {
     throw new Error(
       'facebookPageTokensMap is undefined. Unable to get Instagram user.'
     );
+  }
+
+  const token = await getPageAccessTokenFromMap(
+    facebookPageId,
+    facebookPageTokensMap
+  );
+
+  try {
+    const accountInfo: {
+      name: string;
+      username: string;
+      profile_pic: string;
+      id: string;
+    } = await graphRequest.get(
+      `${userId}?fields=name,username,profile_pic,id`,
+      token
+    );
+    return accountInfo;
+  } catch (err) {
+    return {
+      name: 'Unknown',
+      username: 'Unknown User',
+      profile_pic: '',
+      id: userId
+    };
   }
 };
 
