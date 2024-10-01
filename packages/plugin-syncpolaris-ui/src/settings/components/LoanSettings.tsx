@@ -74,7 +74,7 @@ const LoanSettings = (props: Props) => {
           variables: {},
         })
         .then(({ data }) => {
-          setContractType(data ? data.loansContractTypes : [] || []);
+          setContractType(data ? data.contractTypes : [] || []);
         });
     }
   }, []);

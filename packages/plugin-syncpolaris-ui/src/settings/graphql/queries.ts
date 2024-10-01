@@ -61,14 +61,6 @@ export const contractTypeFields = `
   code
   name
   status
-  number
-  vacancy
-  createdAt
-  config
-  branchId
-  isAllowIncome
-  isAllowOutcome
-  isDeposit
 `;
 
 export const savingsContractTypes = `
@@ -80,8 +72,8 @@ export const savingsContractTypes = `
 `;
 
 export const loansContractTypes = `
-  query LoansContractTypes(${listParamsDef}) {
-    loansContractTypes(${listParamsValue}) {
+  query ContractTypes(${listParamsDef}) {
+    contractTypes(${listParamsValue}) {
       ${contractTypeFields}
     }
   }
