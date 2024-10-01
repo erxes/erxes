@@ -18,7 +18,7 @@ const generateFilter = async (params, commonQuerySelector) => {
   }
 
   if (![undefined, null, ''].includes(params.isDeposit)) {
-    filter.isDeposit = params.isDeposit;
+    filter.isDeposit = params.isDeposit && { $eq: true } || { $ne: true };
   }
   return filter;
 };
