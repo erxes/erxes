@@ -17,7 +17,7 @@ const generateFilter = async (params, commonQuerySelector) => {
     filter._id = { [params.excludeIds ? '$nin' : '$in']: params.ids };
   }
 
-  if ([undefined, null, ''].includes(params.isDeposit)) {
+  if (![undefined, null, ''].includes(params.isDeposit)) {
     filter.isDeposit = params.isDeposit;
   }
   return filter;
