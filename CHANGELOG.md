@@ -1,5 +1,54 @@
 # Changelog
 
+## [1.17.1](https://github.com/erxes/erxes/compare/1.18.0-rc.0...1.17.1) (2024-09-23)
+
+
+### Features
+
+* show remainder when hover on remainder ([#5646](https://github.com/erxes/erxes/issues/5646)) ([8984713](https://github.com/erxes/erxes/commit/8984713799992364a79427c0c209ad933542b295))
+
+
+### Bug Fixes
+
+* posOrder ebarimt totalAmount with round ([134b446](https://github.com/erxes/erxes/commit/134b446915c75640ee8a39d773961ce694026089))
+
+## [1.18.0-rc.0](https://github.com/erxes/erxes/compare/1.17.0...1.18.0-rc.0) (2024-09-17)
+
+
+### Features
+
+* **email-verifier:** add mails.so as a new email verification service.([#5607](https://github.com/erxes/erxes/issues/5607)) ([d675589](https://github.com/erxes/erxes/commit/d6755895d5c4a14d739c79dc465a5adadf3ecec9))
+* **email-verifier:** introduced cron jobs for periodic email verification ([#5609](https://github.com/erxes/erxes/issues/5609)) ([62913b5](https://github.com/erxes/erxes/commit/62913b5c57b979b8c69a1b1fbf7f96b24443f091))
+* **goal:** Added Product & Service,Label,Company, tag and calculated by year , month, weekend  ([6e2224b](https://github.com/erxes/erxes/commit/6e2224bbef67a8a37714387248f61604f6e3d812))
+* laons and savings contract with subscriptions by ids ([6544912](https://github.com/erxes/erxes/commit/654491290bb3671b728a12c860a6bf7e26f4e6f5))
+* loans contract and schedules with subscriptions ([2aa6f22](https://github.com/erxes/erxes/commit/2aa6f2283683c0420d9b70bf514961230e069404))
+* pos ebarimt customize with header and footer text ([#5632](https://github.com/erxes/erxes/issues/5632)) ([8c8905b](https://github.com/erxes/erxes/commit/8c8905bfb5c0a674bae98ebf8fdb89a3daa73876))
+* pos ebarimt with header and footer ([341c607](https://github.com/erxes/erxes/commit/341c607abc850d4d25639c06a0d7f4ab44b51009))
+* pos kitchen screen choose print categories ([#5622](https://github.com/erxes/erxes/issues/5622)) ([ec154c8](https://github.com/erxes/erxes/commit/ec154c86de29b33093b1c1876ba42662230726e2))
+* pos order print only new items ([#5617](https://github.com/erxes/erxes/issues/5617)) ([77d20e0](https://github.com/erxes/erxes/commit/77d20e09f7dddc8a09781dbddb91335adcff821e))
+* savings contract with subscriptions ([9d7e362](https://github.com/erxes/erxes/commit/9d7e362785f5c9395ffcd1deaa78ec1e0dcbd463))
+* xyp sync rule config ([b79bca5](https://github.com/erxes/erxes/commit/b79bca570add7511844d378bdad6b6b4fe7fc21c))
+
+
+### Bug Fixes
+
+* **goal:** remove unnecessary import ([a5f6582](https://github.com/erxes/erxes/commit/a5f658277701380b211046d45bca71d7d04f6fc7))
+* pos products sync to posclient using pricing timeout ([03b1823](https://github.com/erxes/erxes/commit/03b182369634477328964b96b632cc4ffed6d61f))
+* saving contract type bug and saving loan ([#5604](https://github.com/erxes/erxes/issues/5604)) ([c985de1](https://github.com/erxes/erxes/commit/c985de1816c32ee2812b9bd717d8c124fe4fca21))
+* savings blockType mongo schema ([84aa84f](https://github.com/erxes/erxes/commit/84aa84f6fd6ada3884d6177ec38a930bc5fd3fd9))
+
+## [1.17.0](https://github.com/erxes/erxes/compare/1.16.0-rc.9...1.17.0) (2024-09-17)
+
+
+### Features
+
+* **facebook:** add ability get ads direct message in chatbot ([cf81aac](https://github.com/erxes/erxes/commit/cf81aaca662f8d28f1abbbea7327f672fea757c8))
+
+
+### Bug Fixes
+
+* **instagram:** instagram reply fixs ([18ea4cc](https://github.com/erxes/erxes/commit/18ea4ccdbbb2e324c1d276870ad857add17b5081))
+
 ## [1.16.0-rc.9](https://github.com/erxes/erxes/compare/1.16.0-rc.8...1.16.0-rc.9) (2024-09-17)
 
 

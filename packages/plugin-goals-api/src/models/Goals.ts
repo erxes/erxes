@@ -93,7 +93,36 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       amountData: any;
       target: number;
     }
+    interface Product {
+      amount: number;
+    }
 
+    interface PaymentData {
+      prepay?: number;
+      cash?: number;
+      bankTransaction?: number;
+      posTerminal?: number;
+      wallet?: number;
+      barter?: number;
+      receivable?: number;
+      other?: number;
+    }
+
+    interface FilteredAmount {
+      productsData?: Product[];
+      mobileAmounts?: { amount: number }[];
+      paymentsData?: PaymentData;
+      status?: string;
+    }
+
+    interface Goal {
+      _id: string;
+      addMonthly: string;
+      addTarget: number;
+      current?: number;
+      progress?: number;
+      filteredAmount: FilteredAmount[];
+    }
     const data: DataItem[] = [];
     for (const item of doc) {
       let amount;
@@ -162,133 +191,171 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       let amountData;
 
       if (item.metric === 'Value') {
-        let mobileAmountsData;
-        let data;
-        let totalAmount = 0;
-        for (const items of amount) {
-          if (items.productsData && items.status === 'active') {
-            const productsData = items.productsData;
+        // Your existing goals fetching logic
+        const filteredGoals: Goal[] = await getFilteredGoals(item, amount);
 
-            productsData.forEach((item) => {
-              totalAmount += item.amount;
-            });
-          }
-          if (items.mobileAmounts && items.mobileAmounts.length > 0) {
-            mobileAmountsData = items.mobileAmounts[0].amount;
-          }
-          if (items.paymentsData) {
-            const paymentsData = items.paymentsData;
-            if (paymentsData.prepay) {
-              data = paymentsData.prepay;
-            } else if (paymentsData.cash) {
-              data = paymentsData.cash;
-            } else if (paymentsData.bankTransaction) {
-              data = paymentsData.bankTransaction;
-            } else if (paymentsData.posTerminal) {
-              data = paymentsData.posTerminal;
-            } else if (paymentsData.wallet) {
-              data = paymentsData.wallet;
-            } else if (paymentsData.barter) {
-              data = paymentsData.barter;
-            } else if (paymentsData.receivable) {
-              data = paymentsData.receivable;
-            } else if (paymentsData.other) {
-              data = paymentsData.other;
+        let mobileAmountsData: number | undefined;
+        let data: number | undefined;
+        let totalAmount = 0;
+
+        // Type for updated goals without filteredAmount
+        type GoalWithoutFilteredAmount = Omit<Goal, 'filteredAmount'>;
+
+        const updatedGoals: GoalWithoutFilteredAmount[] = [];
+
+        // Process filtered goals
+        for (const goal of filteredGoals) {
+          let goalTotalAmount = 0; // Total amount for each goal
+
+          // Calculate totalAmount for each goal
+          for (const items of goal.filteredAmount) {
+            if (items.productsData && items.status === 'active') {
+              items.productsData.forEach((product) => {
+                if (product.amount) {
+                  goalTotalAmount += product.amount;
+                }
+              });
+            }
+            if (items.mobileAmounts && items.mobileAmounts.length > 0) {
+              mobileAmountsData = items.mobileAmounts[0].amount;
+            }
+            if (items.paymentsData) {
+              const paymentsData = items.paymentsData;
+              if (paymentsData.prepay) {
+                data = paymentsData.prepay;
+              } else if (paymentsData.cash) {
+                data = paymentsData.cash;
+              } else if (paymentsData.bankTransaction) {
+                data = paymentsData.bankTransaction;
+              } else if (paymentsData.posTerminal) {
+                data = paymentsData.posTerminal;
+              } else if (paymentsData.wallet) {
+                data = paymentsData.wallet;
+              } else if (paymentsData.barter) {
+                data = paymentsData.barter;
+              } else if (paymentsData.receivable) {
+                data = paymentsData.receivable;
+              } else if (paymentsData.other) {
+                data = paymentsData.other;
+              }
             }
           }
+
+          // Calculate progress as a percentage
+
+          const progress = ((goalTotalAmount / goal.addTarget) * 100).toFixed(
+            2
+          );
+
+          // Prepare updated goal object
+          updatedGoals.push({
+            _id: goal._id,
+            addMonthly: goal.addMonthly,
+            addTarget: goal.addTarget,
+            current: goalTotalAmount,
+            progress: parseFloat(progress)
+          });
+
+          // Accumulate total amount
+          totalAmount += goalTotalAmount;
         }
-        current = totalAmount;
-        amountData = {
+
+        // Merging function that now accepts GoalWithoutFilteredAmount[]
+        function mergeGoalsWithDefaults(
+          existingGoals: GoalWithoutFilteredAmount[],
+          allGoals: Goal[]
+        ): Goal[] {
+          const updatedGoalsMap = new Map(
+            existingGoals.map((goal) => [goal._id, goal])
+          );
+
+          return allGoals.map((goal) => {
+            const existingGoal = updatedGoalsMap.get(goal._id);
+
+            return {
+              ...goal,
+              current: existingGoal ? existingGoal.current : 0,
+              progress: existingGoal ? existingGoal.progress : 0
+              // Add filteredAmount back if required
+            };
+          });
+        }
+
+        // Get the result with merged goals and defaults
+        const result = mergeGoalsWithDefaults(
+          updatedGoals,
+          item.specificPeriodGoals
+        );
+        const amountData = {
           mobileAmountsData,
           paymentsData: data
         };
-        progress = await differenceFunction(current, item.target);
-        if (
-          item.specificPeriodGoals &&
-          Array.isArray(item.specificPeriodGoals)
-        ) {
-          const updatedSpecificPeriodGoals = item.specificPeriodGoals
-            .filter((result) => {
-              // Filter out invalid goals where addTarget is 0 or null
-              return result.addTarget !== 0 && result.addTarget !== null;
-            })
-            .map((result) => {
-              let convertedNumber;
-              if (current === 0 || result.addTarget === 0) {
-                convertedNumber = 100;
-              } else {
-                const diff = (current / result.addTarget) * 100;
-                convertedNumber = diff.toFixed(3);
+        try {
+          await models.Goals.updateOne(
+            { _id: item._id },
+            {
+              $set: {
+                specificPeriodGoals: result
               }
-
-              return {
-                ...result,
-                addMonthly: result.addMonthly, // update other properties as needed
-                current, // Assigning the current value for progress tracking
-                progress: convertedNumber // Updating the progress property
-              };
-            });
-
-          try {
-            await models.Goals.updateOne(
-              { _id: item._id },
-              {
-                $set: {
-                  specificPeriodGoals: updatedSpecificPeriodGoals
-                }
-              }
-            );
-            console.log('Goals updated successfully');
-          } catch (error) {
-            console.error('Error updating goals:', error);
-          }
+            }
+          );
+        } catch (error) {
+          console.error('Error updating goals:', error);
         }
       } else if (item.metric === 'Count') {
-        const activeElements = amount.filter(
-          (item) => item.status === 'active'
-        );
-        current = activeElements.length;
-        progress = await differenceFunction(current, item.target);
+        function calculateProgressAndCurrent(filteredGoals: Goal[]): Goal[] {
+          return filteredGoals.map((goal) => {
+            let current = 0;
 
-        if (
-          item.specificPeriodGoals &&
-          Array.isArray(item.specificPeriodGoals)
-        ) {
-          const updatedSpecificPeriodGoals = item.specificPeriodGoals
-            .filter((result) => {
-              // Filter out invalid goals where addTarget is 0 or null
-              return result.addTarget !== 0 && result.addTarget !== null;
-            })
-            .map((result) => {
-              let convertedNumber;
-              if (current === 0 || result.addTarget === 0) {
-                convertedNumber = 100;
-              } else {
-                const diff = (current / result.addTarget) * 100;
-                convertedNumber = diff.toFixed(3);
+            // Calculate total amount or count for each goal
+            if (goal.filteredAmount) {
+              current = goal.filteredAmount.length; // Or your specific calculation logic
+            }
+
+            // Calculate progress as a percentage of the target
+            const progress = (current / goal.addTarget) * 100;
+
+            return {
+              ...goal,
+              current,
+              progress: parseFloat(progress.toFixed(2)) // Round to 2 decimal places
+            };
+          });
+        }
+        // Step 2: Filter goals and calculate their current and progress
+        const countGoal: Goal[] = await getFilteredGoals(item, amount);
+
+        const countUpdateGoal = calculateProgressAndCurrent(countGoal);
+        function mergeGoals(
+          countUpdateGoal: Goal[],
+          specificPeriodGoals: Goal[]
+        ): Goal[] {
+          const updatedGoalsMap = new Map(
+            countUpdateGoal.map((goal) => [goal._id, goal])
+          );
+
+          return specificPeriodGoals.map((goal) => {
+            const updatedGoal = updatedGoalsMap.get(goal._id);
+
+            return {
+              ...goal,
+              current: updatedGoal ? updatedGoal.current : 0,
+              progress: updatedGoal ? updatedGoal.progress : 0
+            };
+          });
+        }
+        const result = mergeGoals(countUpdateGoal, item.specificPeriodGoals);
+        try {
+          await models.Goals.updateOne(
+            { _id: item._id },
+            {
+              $set: {
+                specificPeriodGoals: result
               }
-
-              return {
-                ...result,
-                addMonthly: result.addMonthly, // update other properties as needed
-                current, // Assigning the current value for progress tracking
-                progress: convertedNumber // Updating the progress property
-              };
-            });
-
-          try {
-            await models.Goals.updateOne(
-              { _id: item._id },
-              {
-                $set: {
-                  specificPeriodGoals: updatedSpecificPeriodGoals
-                }
-              }
-            );
-            console.log('Goals updated successfully');
-          } catch (error) {
-            console.error('Error updating goals:', error);
-          }
+            }
+          );
+        } catch (error) {
+          console.error('Error updating goals:', error);
         }
       }
 
@@ -331,27 +398,61 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
     }
   }
 
-  async function differenceFunction(
-    amount: number,
-    target: number
-  ): Promise<number> {
-    // Handle edge cases where input is zero or invalid
-    if (amount === 0 || target === 0 || isNaN(amount) || isNaN(target)) {
-      return 0;
-    }
-
-    // Calculate the progress percentage
-    let progress = (amount / target) * 100;
-
-    // Cap the progress at 100% if it exceeds the target
-    if (progress > 100) {
-      progress = 100;
-    }
-
-    // Return the progress, rounded to the nearest whole number
-    return Math.round(progress);
-  }
   goalSchema.loadClass(Goal);
 
   return goalSchema;
 };
+
+function parseMonth(monthStr) {
+  const match = monthStr.match(/Month of (\w+) (\d{4})/);
+  if (match) {
+    const [_, month, year] = match;
+    const monthMap = {
+      January: 0,
+      February: 1,
+      March: 2,
+      April: 3,
+      May: 4,
+      June: 5,
+      July: 6,
+      August: 7,
+      September: 8,
+      October: 9,
+      November: 10,
+      December: 11
+    };
+    const monthIndex = monthMap[month];
+    return {
+      start: new Date(Date.UTC(year, monthIndex, 1)),
+      end: new Date(Date.UTC(year, monthIndex + 1, 0))
+    };
+  }
+  return { start: null, end: null };
+}
+
+// Function to filter amounts based on the goal's start and end dates
+function filterAmountsForGoal(goal, amounts) {
+  const { start: goalStartDate, end: goalEndDate } = parseMonth(
+    goal.addMonthly
+  );
+
+  if (!goalStartDate || !goalEndDate) {
+    console.error(`Failed to parse month for goal: ${goal.addMonthly}`);
+    return [];
+  }
+
+  return amounts.filter((entry) => {
+    const createdAt = new Date(entry.createdAt);
+    return createdAt >= goalStartDate && createdAt <= goalEndDate;
+  });
+}
+
+// Function to process specific period goals and filter associated amounts
+function getFilteredGoals(item, amounts) {
+  return item.specificPeriodGoals
+    .map((goal) => ({
+      ...goal,
+      filteredAmount: filterAmountsForGoal(goal, amounts)
+    }))
+    .filter((goal) => goal.filteredAmount.length > 0); // Keep goals with at least one filtered amount
+}

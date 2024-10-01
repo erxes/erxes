@@ -14,12 +14,15 @@ const commonFields = `
     $specificPeriodGoals:JSON
     $startDate:Date
     $endDate:Date
-    $target:Float
     $segmentIds: [String] 
     $segmentRadio:Boolean
     $stageRadio:Boolean
     $periodGoal:String
     $teamGoalType:String
+    $pipelineLabels:JSON
+    $productIds:[String]
+    $companyIds:[String]
+    $tagsIds:[String]
 `;
 
 const commonVariables = `
@@ -38,11 +41,14 @@ const commonVariables = `
   specificPeriodGoals:$specificPeriodGoals
   startDate:$startDate
   endDate:$endDate
-  target:$target
   segmentIds: $segmentIds
   segmentRadio:$segmentRadio
   stageRadio:$stageRadio
   periodGoal:$periodGoal
+  pipelineLabels: $pipelineLabels
+  productIds: $productIds
+  companyIds: $companyIds
+  tagsIds: $tagsIds
   teamGoalType:$teamGoalType
 `;
 
@@ -65,11 +71,14 @@ const goalTypesAdd = `
       specificPeriodGoals
       startDate
       endDate
-      target
       segmentIds
       segmentRadio
       stageRadio
       periodGoal
+      pipelineLabels
+      productIds
+      companyIds
+      tagsIds
       teamGoalType
     }
   }
@@ -94,11 +103,14 @@ const goalTypesEdit = `
       specificPeriodGoals
       startDate
       endDate
-      target
       segmentIds
       segmentRadio
       segmentRadio
       periodGoal
+      pipelineLabels
+      productIds
+      companyIds
+      tagsIds
       teamGoalType
     }
   }
