@@ -1,8 +1,8 @@
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import * as React from 'react';
-import AddForm from '../components/AddForm';
-import { mutations } from '../graphql';
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import * as React from "react";
+import AddForm from "../components/AddForm";
+import { mutations } from "../graphql";
 
 type Props = {
   itemId: string;
@@ -22,7 +22,7 @@ class AddFormContainer extends React.Component<Props> {
           mutation={mutations.checklistsAdd}
           variables={values}
           callback={callback}
-          refetchQueries={['checklists']}
+          refetchQueries={["tasksChecklist"]}
           isSubmitted={isSubmitted}
           btnSize="small"
           type="submit"
