@@ -340,3 +340,27 @@ export const compareValues = (a: any, b: any, operator: string) => {
       return a === b;
   }
 }
+
+export const hexToRgba = (hex: string, alpha: number) => {
+
+  const bigint = parseInt(hex.slice(1), 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+
+  return `rgba(${r},${g},${b},${alpha})`;
+};
+
+export const rgbaToHex = (rgba: string) => {
+
+  if (typeof rgba !== 'string') return null
+
+  const rgbaValues = rgba.match(/\d+/g);
+  if (!rgbaValues || rgbaValues.length < 3) return null;
+
+  const r = parseInt(rgbaValues[0]).toString(16).padStart(2, '0');
+  const g = parseInt(rgbaValues[1]).toString(16).padStart(2, '0');
+  const b = parseInt(rgbaValues[2]).toString(16).padStart(2, '0');
+
+  return `#${r}${g}${b}`;
+};

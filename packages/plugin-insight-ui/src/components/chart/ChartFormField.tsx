@@ -18,6 +18,7 @@ import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import SelectDate from "../utils/SelectDate";
 import { SelectWithAssets } from "../utils/SelectAssets";
 import { FormControl } from "@erxes/ui/src/components/form";
+import CustomSelect from "../utils/CustomSelect";
 
 type Props = {
   fieldType: string;
@@ -35,6 +36,7 @@ type Props = {
   fieldLogics?: IFieldLogic[];
   fieldDefaultValue?: any;
   filterType: IFilterType;
+  fieldValueOptions?: any[]
 };
 const ChartFormField = (props: Props) => {
   const {
@@ -51,6 +53,7 @@ const ChartFormField = (props: Props) => {
     endDate,
     fieldDefaultValue,
     filterType,
+    fieldValueOptions
   } = props;
 
   const { fieldQueryVariables } = filterType;
@@ -67,6 +70,9 @@ const ChartFormField = (props: Props) => {
   }, [fieldDefaultValue]);
 
   const onSelect = (selectedOption) => {
+
+    console.log("selectedOption", selectedOption)
+
     if (selectedOption === undefined || selectedOption === null) {
       setFieldValue("");
       onChange("");
@@ -297,14 +303,13 @@ const ChartFormField = (props: Props) => {
       return (
         <div>
           <ControlLabel>{fieldLabel}</ControlLabel>
-          <Select
+          <CustomSelect
             value={valueOptions}
-            isClearable={true}
-            isMulti={multi}
-            onChange={onSelect}
+            multi={multi}
+            onSelect={onSelect}
             options={fieldOptions}
-            placeholder={fieldLabel}
-            menuPlacement="auto"
+            fieldLabel={fieldLabel}
+            fieldValueOptions={fieldValueOptions}
           />
         </div>
       );

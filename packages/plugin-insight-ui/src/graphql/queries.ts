@@ -318,6 +318,7 @@ const reportList = `
             filterType
           }
         }
+        isFavorite
         ${
           isEnabled('tags')
             ? `tags  {
@@ -408,6 +409,20 @@ const insightChartTemplatesList = `
     insightChartTemplatesList(serviceName: $serviceName, charts: $charts)
   }
 `;
+
+const insightFavoriteList = `
+  query insightFavoriteList {
+    insightFavoriteList {
+      _id
+      name
+      type
+      sectionId
+      chartsCount
+      isFavorite
+    }
+  }
+`;
+
 
 const chartGetResult = `
   query chartGetResult($serviceName: String!, $templateType: String!, $chartType: String!, $filter: JSON, $dimension: JSON){
@@ -660,6 +675,7 @@ const dashboardList = `
         name
         sectionId
         chartsCount
+        isFavorite
       }
       totalCount
     }
@@ -747,6 +763,7 @@ export default {
   insightTemplatesList,
   insightChartTemplatesList,
   insightServicesList,
+  insightFavoriteList,
   chartGetResult,
 
   //dashboard

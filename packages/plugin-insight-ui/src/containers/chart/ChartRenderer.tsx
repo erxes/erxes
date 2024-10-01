@@ -1,8 +1,7 @@
 import * as compose from "lodash.flowright";
 
 import {
-  DEFAULT_BACKGROUND_COLORS,
-  DEFAULT_BORDER_COLORS,
+  DEFAULT_CHART_COLORS,
 } from "../../components/chart/utils";
 
 import ChartRenderer from "../../components/chart/ChartRenderer";
@@ -15,22 +14,6 @@ import { graphql } from "@apollo/client/react/hoc";
 import { queries } from "../../graphql";
 import { withProps } from "@erxes/ui/src/utils/core";
 import PivotTable from "../../components/chart/PivotTable";
-
-const getRandomNumbers = (num?: number) => {
-  const getRandomNumber: number = Math.floor(Math.random() * (DEFAULT_BACKGROUND_COLORS.length - (num || 0) - 1));
-
-  if (!num) {
-    return getRandomNumber;
-  }
-
-  const numbers: number[] = [];
-
-  for (let i = 0; i < num; i++) {
-    numbers.push(getRandomNumber + i);
-  }
-
-  return numbers;
-};
 
 type Props = {
   queryParams: any;
@@ -61,14 +44,22 @@ const ChartRendererList = (props: FinalProps) => {
   };
 
   if (getResult && Array.isArray(getResult)) {
-    const randomNums = getRandomNumbers(getResult.length);
+    const availableColors = [...DEFAULT_CHART_COLORS];
 
-    const datasets = (getResult || []).map((d, index) => ({
-      ...d,
-      backgroundColor: DEFAULT_BACKGROUND_COLORS[randomNums[index]],
-      borderColor: DEFAULT_BORDER_COLORS[randomNums[index]],
-      borderWidth: 1,
-    }));
+    const datasets = (getResult || []).map((d, index) => {
+
+      const randomIndex = Math.floor(Math.random() * availableColors.length);
+      const randomColor = availableColors[randomIndex];
+
+      availableColors.splice(randomIndex, 1);
+
+      return {
+        ...d,
+        backgroundColor: randomColor,
+        borderColor: randomColor.replace('0.6', '1'),
+        borderWidth: 1,
+      }
+    });
 
     finalProps = { ...finalProps, datasets };
 
@@ -110,12 +101,18 @@ const ChartRendererList = (props: FinalProps) => {
   const chartGetResult =
     !data && !labels && !title && chartGetResultQuery.chartGetResult;
 
-  const randomNums = getRandomNumbers(datasets?.[0]?.data?.length);
+  const availableColors = [...DEFAULT_CHART_COLORS];
+
   const extendedDatasets = (datasets || []).map((set, index) => {
     const newSet = { ...set };
 
-    newSet.backgroundColor = DEFAULT_BACKGROUND_COLORS[randomNums[index]];
-    newSet.borderColor = DEFAULT_BORDER_COLORS[randomNums[index]];
+      const randomIndex = Math.floor(Math.random() * availableColors.length);
+      const randomColor = availableColors[randomIndex];
+
+      availableColors.splice(randomIndex, 1);
+
+      newSet.backgroundColor = randomColor
+      newSet.borderColor = randomColor.replace('0.6', '1')
 
     return newSet;
   });

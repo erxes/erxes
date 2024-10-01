@@ -51,7 +51,7 @@ const FormContainer = (props: Props) => {
     ],
   });
 
-  const [reportEditMutation] = useMutation(gql(mutations.chartsEditMany), {
+  const [reportEditMutation] = useMutation(gql(mutations.reportEdit), {
     refetchQueries: [
       {
         query: gql(queries.sectionList),
@@ -72,7 +72,7 @@ const FormContainer = (props: Props) => {
   const handleMutation = (values: ReportFormMutationVariables) => {
     if (reportId) {
       return reportEditMutation({
-        variables: { contentId: reportId, contentType: "report", ...values },
+        variables: { _id: reportId, ...values },
       })
         .then(() => {
           closeDrawer();

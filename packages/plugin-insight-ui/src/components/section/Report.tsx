@@ -15,6 +15,7 @@ import { SidebarList } from "@erxes/ui/src/layout/styles";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils/index";
+import { colors } from "@erxes/ui/src/styles";
 
 type Props = {
   queryParams: any;
@@ -23,11 +24,12 @@ type Props = {
   sections: ISection[];
   loading: boolean;
 
-  removeReports: (reportIds: string[]) => void;
+  updateReport: (id: string) => void;
+  removeReports: (id: string) => void;
 };
 
 const ReportSection = (props: Props) => {
-  const { queryParams, reports, sections, loading, removeReports } = props;
+  const { queryParams, reports, sections, loading, updateReport, removeReports } = props;
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -72,11 +74,46 @@ const ReportSection = (props: Props) => {
 
   const renderRemoveAction = (report: any) => {
     return (
-      <Button btnStyle="link" onClick={() => removeReports([report._id])}>
+      <Button btnStyle="link" onClick={() => removeReports(report._id)}>
         <Tip text={__("Remove")} placement="bottom">
           <Icon icon="times-circle" />
         </Tip>
       </Button>
+    );
+  };
+
+  const renderAdditionalActions = (report: any) => {
+
+    const favoriteIcon = (
+      <i style={{ display: "flex" }}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill={report.isFavorite ? colors.colorPrimary : 'none'}
+          stroke={report.isFavorite ? colors.colorPrimary : colors.colorCoreGray}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+      </i>
+    )
+
+    const favoriteAction = (
+      <Button btnStyle="link" onClick={() => updateReport(report._id)} >
+        <Tip text={__("Favorite")} placement="bottom">
+          {favoriteIcon}
+        </Tip>
+      </Button>
+    )
+
+    return (
+      <>
+        {favoriteAction}
+      </>
     );
   };
 
@@ -105,6 +142,7 @@ const ReportSection = (props: Props) => {
         onClick={handleClick}
         editAction={renderEditAction}
         removeAction={renderRemoveAction}
+        additionalActions={renderAdditionalActions}
       />
     );
   };
@@ -130,6 +168,7 @@ const ReportSection = (props: Props) => {
             handleClick={handleClick}
             renderEditAction={renderEditAction}
             renderRemoveAction={renderRemoveAction}
+            renderAdditionalActions={renderAdditionalActions}
           />
         ))}
         {<div>{renderListWithoutSection()}</div>}

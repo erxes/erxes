@@ -50,7 +50,7 @@ const Dashboard = (props: Props) => {
   const { charts = [] } = dashboard;
   const wrapperRef = useRef<any>(null);
 
-  const [showDrawer, setShowDrawer] = useState(false);
+  const [showDrawer, setShowDrawer] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const [currentChart, setCurrentChart] = useState<any | undefined>(undefined);
 

@@ -25,16 +25,14 @@ const Insight = (props: Props) => {
   };
 
   return (
-    <>
-      <Wrapper
-        hasBorder
-        header={
-          <Wrapper.Header title="Insight" breadcrumb={[{ title: 'Insight' }]} />
-        }
-        leftSidebar={<Sidebar queryParams={queryParams} />}
-        content={renderContent()}
-      />
-    </>
+    <Wrapper
+      hasBorder
+      header={
+        <Wrapper.Header title="Insight" breadcrumb={[{ title: 'Insight' }]} />
+      }
+      leftSidebar={<Sidebar queryParams={queryParams} />}
+      content={renderContent()}
+    />
   );
 };
 

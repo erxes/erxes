@@ -15,6 +15,7 @@ import { SidebarList } from "@erxes/ui/src/layout/styles";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils/index";
+import colors from "@erxes/ui/src/styles/colors"
 
 type Props = {
   queryParams: any;
@@ -23,11 +24,12 @@ type Props = {
   dashboards: IDashboard[];
   loading: boolean;
 
+  updateDashboard: (id: string) => void;
   removeDashboard: (id: string) => void;
 };
 
 const DashboardSection = (props: Props) => {
-  const { queryParams, sections, dashboards, loading, removeDashboard } = props;
+  const { queryParams, sections, dashboards, loading, updateDashboard, removeDashboard } = props;
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -81,6 +83,41 @@ const DashboardSection = (props: Props) => {
     );
   };
 
+  const renderAdditionalActions = (dashboard: any) => {
+
+    const favoriteIcon = (
+      <i style={{ display: "flex" }}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill={dashboard.isFavorite ? colors.colorPrimary : 'none'}
+          stroke={dashboard.isFavorite ? colors.colorPrimary : colors.colorCoreGray}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+      </i>
+    )
+
+    const favoriteAction = (
+      <Button btnStyle="link" onClick={() => updateDashboard(dashboard._id)} >
+        <Tip text={__("Favorite")} placement="bottom">
+          {favoriteIcon}
+        </Tip>
+      </Button>
+    )
+
+    return (
+      <>
+        {favoriteAction}
+      </>
+    );
+  };
+
   const handleClick = (_id) => {
     navigate(`/insight?dashboardId=${_id}`, { replace: true });
   };
@@ -106,6 +143,7 @@ const DashboardSection = (props: Props) => {
         onClick={handleClick}
         editAction={renderEditAction}
         removeAction={renderRemoveAction}
+        additionalActions={renderAdditionalActions}
       />
     );
   };
@@ -131,6 +169,7 @@ const DashboardSection = (props: Props) => {
             handleClick={handleClick}
             renderEditAction={renderEditAction}
             renderRemoveAction={renderRemoveAction}
+            renderAdditionalActions={renderAdditionalActions}
           />
         ))}
         {<div>{renderListWithoutSection()}</div>}

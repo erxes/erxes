@@ -1179,16 +1179,16 @@ export const returnDateRange = (
 
     switch (dateRange) {
         case 'today':
-            $gte = startOfToday;
-            $lte = endOfToday;
+            $gte = dayjs(NOW).startOf('day').toDate();;
+            $lte = dayjs(NOW).endOf('day').toDate();;
             break;
         case 'yesterday':
-            $gte = startOfYesterday;
-            $lte = startOfToday;
+            $gte = dayjs(NOW).subtract(1, 'day').startOf('day').toDate();;
+            $lte = dayjs(NOW).subtract(1, 'day').endOf('day').toDate();
             break;
         case 'last72h':
-            $gte = startOfTheDayBeforeYesterday;
-            $lte = startOfToday;
+            $gte = dayjs(NOW).subtract(3, 'day').startOf('day').toDate();
+            $lte = dayjs(NOW).endOf('day').toDate();
             break;
         case 'thisWeek':
             $gte = dayjs(NOW).startOf('week').toDate();
