@@ -1,4 +1,4 @@
-import { IItem, IOptions } from "../../types";
+import { IItem, IOptions } from '../../types';
 import {
   MoveContainer,
   MoveContainerWidth,
@@ -7,14 +7,14 @@ import {
   PipelinePopoverContent,
   StageItem,
   Stages,
-} from "../../styles/item";
+} from '../../styles/item';
 
-import BoardSelect from "../../containers/BoardSelect";
-import { IStage } from "../../types";
-import Icon from "@erxes/ui/src/components/Icon";
-import Popover from "@erxes/ui/src/components/Popover";
-import React from "react";
-import Tip from "@erxes/ui/src/components/Tip";
+import BoardSelect from '../../containers/BoardSelect';
+import { IStage } from '../../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Popover from '@erxes/ui/src/components/Popover';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   item?: IItem;
@@ -77,14 +77,14 @@ class Move extends React.Component<Props, State> {
 
     return (
       <Stages>
-        {stages.map((s) => {
+        {stages?.map(s => {
           const onClick = () => onChangeStage && onChangeStage(s._id);
 
           const item = (
             <StageItem key={s._id} $isPass={isPass}>
-              <Tip text={s.name} placement="top">
+              <Tip text={s.name} placement='top'>
                 <span onClick={onClick}>
-                  <Icon icon={isPass ? "check-circle" : "circle"} />
+                  <Icon icon={isPass ? 'check-circle' : 'circle'} />
                 </span>
               </Tip>
             </StageItem>
@@ -132,10 +132,10 @@ class Move extends React.Component<Props, State> {
     return (
       <MoveFormContainer ref={this.ref}>
         <Popover
-          placement="bottom-start"
+          placement='bottom-start'
           trigger={
             <PipelineName onClick={this.toggleForm}>
-              {pipeline && pipeline.name} <Icon icon="angle-down" />
+              {pipeline && pipeline.name} <Icon icon='angle-down' />
             </PipelineName>
           }
         >
