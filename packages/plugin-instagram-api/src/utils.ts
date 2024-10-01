@@ -69,7 +69,15 @@ export const getPostLink = async (accessToken: string, post_id: string) => {
     );
     return response;
   } catch (e) {
-    debugError(`Error occurred while getting facebook post: ${e.message}`);
+    if (e.message.includes('Error validating access token')) {
+      // Handle the invalid token case
+      debugError(
+        'Access token is invalid or expired. Reauthentication required.'
+      );
+      // Prompt reauthentication or refresh token logic here
+    } else {
+      debugError(`Error occurred while getting Instagram post: ${e.message}`);
+    }
     return null;
   }
 };
@@ -207,42 +215,22 @@ export const getPageAccessTokenFromMap = (
 export const getInstagramUser = async (
   userId: string,
   facebookPageId: string,
-  facebookPageTokensMap?: Record<string, string>
-): Promise<{
-  name: string;
-  username: string;
-  profile_pic: string;
-  id: string;
-}> => {
-  if (!facebookPageTokensMap) {
+  facebookPageTokensMap?: { [key: string]: string }
+) => {
+  if (facebookPageTokensMap !== undefined) {
+    const token = await getPageAccessTokenFromMap(
+      facebookPageId,
+      facebookPageTokensMap
+    );
+    const accounInfo: any = await graphRequest.get(
+      `${userId}?fields=name,username,profile_pic`,
+      token
+    );
+    return accounInfo;
+  } else {
     throw new Error(
       'facebookPageTokensMap is undefined. Unable to get Instagram user.'
     );
-  }
-
-  const token = await getPageAccessTokenFromMap(
-    facebookPageId,
-    facebookPageTokensMap
-  );
-
-  try {
-    const accountInfo: {
-      name: string;
-      username: string;
-      profile_pic: string;
-      id: string;
-    } = await graphRequest.get(
-      `${userId}?fields=name,username,profile_pic,id`,
-      token
-    );
-    return accountInfo;
-  } catch (err) {
-    return {
-      name: 'Unknown',
-      username: 'Unknown User',
-      profile_pic: '',
-      id: userId
-    };
   }
 };
 

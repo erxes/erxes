@@ -20,7 +20,6 @@ export const getOrCreatePostConversation = async (
   let postConversation = await models.PostConversations.findOne({
     postId
   });
-
   if (!postConversation) {
     const integration = await models.Integrations.findOne({
       instagramPageId: { $in: pageId }
@@ -60,7 +59,25 @@ export const getOrCreateComment = async (
 ) => {
   const { parent_id, id, text } = commentParams;
   const post_id = commentParams.media.id;
+  const post = await models.PostConversations.findOne({
+    postId: post_id
+  });
+
+  if (!post) {
+    throw new Error('Post not found');
+  }
+  let attachments: any[] = [];
+  if (commentParams.photo) {
+    attachments = [
+      {
+        name: 'Photo',
+        url: commentParams.photo,
+        type: 'image'
+      }
+    ];
+  }
   const doc = {
+    attachments,
     recipientId: pageId,
     senderId: userId,
     postId: post_id,
@@ -69,25 +86,39 @@ export const getOrCreateComment = async (
     customerId: customer.erxesApiId,
     parentId: parent_id
   };
-  if (parent_id) {
-    await models.CommentConversationReply.create({
-      ...doc
-    });
-  } else {
-    await models.CommentConversation.create({
-      ...doc
-    });
-  }
-  let conversation;
-  conversation = await models.CommentConversation.findOne({
+  const mainConversation = await models.CommentConversation.findOne({
     comment_id: id
   });
-  if (conversation === null) {
+
+  const parentConversation = await models.CommentConversation.findOne({
+    comment_id: commentParams.parent_id
+  });
+
+  const replyConversation = await models.CommentConversationReply.findOne({
+    comment_id: id
+  });
+
+  if (mainConversation || replyConversation) {
+    return;
+  }
+
+  if (parentConversation) {
+    await models.CommentConversationReply.create({ ...doc });
+  } else {
+    await models.CommentConversation.create({ ...doc });
+  }
+  let conversation = await models.CommentConversation.findOne({
+    comment_id: id
+  });
+
+  if (!conversation) {
     conversation = await models.CommentConversation.findOne({
       comment_id: commentParams.parent_id
     });
   }
-
+  if (!conversation) {
+    throw new Error('Conversation not found');
+  }
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
@@ -171,49 +202,51 @@ export const getOrCreateCustomer = async (
       facebookPageTokensMap
     );
     if (instagramUser) {
-      firstName =
-        instagramUser.username || instagramUser.name || 'Unknown User';
+      firstName = instagramUser.username || instagramUser.name;
     }
   } catch (e) {
     debugError(`Error during get customer info: ${e}`);
   }
-  try {
-    customer = await models.Customers.create({
-      userId,
-      firstName,
-      integrationId: integration.erxesApiId,
-      profilePic: instagramUser.profile_pic
-    });
-  } catch (e) {
-    throw new Error(
-      e.message.includes('duplicate')
-        ? 'Concurrent request: customer duplication'
-        : e.message
-    );
+  if (firstName) {
+    try {
+      customer = await models.Customers.create({
+        userId,
+        firstName,
+        integrationId: integration.erxesApiId,
+        profilePic: instagramUser.profile_pic
+      });
+    } catch (e) {
+      throw new Error(
+        e.message.includes('duplicate')
+          ? 'Concurrent request: customer duplication'
+          : e.message
+      );
+    }
+
+    // save on api
+    try {
+      const apiCustomerResponse = await sendInboxMessage({
+        subdomain,
+        action: 'integrations.receive',
+        data: {
+          action: 'get-create-update-customer',
+          payload: JSON.stringify({
+            integrationId: integration.erxesApiId,
+            firstName: firstName,
+            avatar: instagramUser.profile_pic,
+            isUser: true
+          })
+        },
+        isRPC: true
+      });
+      customer.erxesApiId = apiCustomerResponse._id;
+      await customer.save();
+    } catch (e) {
+      await models.Customers.deleteOne({ _id: customer._id });
+      throw new Error(e);
+    }
   }
 
-  // save on api
-  try {
-    const apiCustomerResponse = await sendInboxMessage({
-      subdomain,
-      action: 'integrations.receive',
-      data: {
-        action: 'get-create-update-customer',
-        payload: JSON.stringify({
-          integrationId: integration.erxesApiId,
-          firstName: firstName,
-          avatar: instagramUser.profile_pic,
-          isUser: true
-        })
-      },
-      isRPC: true
-    });
-    customer.erxesApiId = apiCustomerResponse._id;
-    await customer.save();
-  } catch (e) {
-    await models.Customers.deleteOne({ _id: customer._id });
-    throw new Error(e);
-  }
   return customer;
 };
 
