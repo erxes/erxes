@@ -69,7 +69,7 @@ const command = async () => {
     let totalEmails = await Emails.countDocuments();
     console.log(`Total emails to process: ${totalEmails}`);
 
-    let skip = 0;
+    let skip = 100000;
 
     while (skip < totalEmails) {
       const emailsBatch = await Emails.find({})
