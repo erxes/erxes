@@ -62,7 +62,12 @@ schedule.scheduleJob('2 * * * * *', async () => {
 
   // https://api.mails.so/v1/batch/${id}
   const MAILS_SO_KEY = getEnv({ name: 'MAILS_SO_KEY' });
-  for (const { listId, hostname = '' } of listIds) {
+  for (const { listId = undefined, hostname = '' } of listIds) {
+    debugCrons(`Getting validation progress status with list_id: ${listId}`);
+
+    if (!listId || listId === 'undefined') {
+      continue;
+    }
     const response = await fetch(`https://api.mails.so/v1/batch/${listId}`, {
       method: 'GET',
       headers: {
