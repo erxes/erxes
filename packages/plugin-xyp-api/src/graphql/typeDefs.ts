@@ -7,7 +7,7 @@ const types = `
   }
 
   type XypData @key(fields: "_id") {
-    _id: String!
+    _id: String
     contentType: String
     contentTypeId: String
     customerId: String

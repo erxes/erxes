@@ -175,7 +175,7 @@ const DepositPerSettings = (props: Props) => {
       open={props.isOpen}
     >
       <FormGroup>
-        <ControlLabel>{'Contract Type'}</ControlLabel>
+        <ControlLabel>{'Deposit Contract Type'}</ControlLabel>
 
         <FormControl
           name="title"

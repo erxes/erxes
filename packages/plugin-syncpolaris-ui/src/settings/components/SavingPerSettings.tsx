@@ -175,7 +175,7 @@ const SavingPerSettings = (props: Props) => {
       open={props.isOpen}
     >
       <FormGroup>
-        <ControlLabel>{'Contract Type'}</ControlLabel>
+        <ControlLabel>{'Savings Contract Type'}</ControlLabel>
 
         <FormControl
           name="title"

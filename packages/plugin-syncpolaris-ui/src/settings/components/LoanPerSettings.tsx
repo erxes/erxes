@@ -175,7 +175,7 @@ const LoanPerSettings = (props: Props) => {
       open={props.isOpen}
     >
       <FormGroup>
-        <ControlLabel>{'Contract Type'}</ControlLabel>
+        <ControlLabel>{'Loans Contract Type'}</ControlLabel>
 
         <FormControl
           name="title"

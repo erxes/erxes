@@ -170,6 +170,10 @@ const xypQueries = {
       'data.serviceName': serviceName
     };
 
+    if (!contentTypeId && !customerId) {
+      throw new Error('less params')
+    }
+
     if (customerId) {
       filter.customerId = customerId;
     }
@@ -179,12 +183,8 @@ const xypQueries = {
     if (contentTypeId) {
       filter.contentTypeId = contentTypeId;
     }
-
-    if (!Object.keys(filter).length) {
-      throw new Error('less params')
-    }
-
-    return models.XypData.find(filter)
+    
+    return await models.XypData.findOne(filter).sort({ createdAt: -1 })
   },
 
   async xypSyncRules(_root, params, { models }: IContext) {
