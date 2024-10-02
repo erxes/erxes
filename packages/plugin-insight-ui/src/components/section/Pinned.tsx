@@ -167,11 +167,7 @@ const Pinned = (props: Props) => {
             <Box
                 title="Pinned"
                 name="pinned"
-                isOpen={
-                    Object.keys(queryParams).length === 0
-                        ? true
-                        : !!queryParams.dashboardId
-                }
+                isOpen={true}
                 collapsible={false}
             >
                 {renderContent()}

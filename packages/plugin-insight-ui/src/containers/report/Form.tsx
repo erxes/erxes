@@ -66,6 +66,9 @@ const FormContainer = (props: Props) => {
           reportId,
         },
       },
+      {
+        query: gql(queries.insightPinnedList),
+      },
     ],
   });
 
