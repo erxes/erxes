@@ -43,6 +43,8 @@ const accountsFilterParamDefs = `
   $departmentId: String,
   $journals: [String],
   $kind: String
+  $code: String
+  $name: String
 `;
 const accountsFilterParams = `
   status: $accountsStatus,
@@ -57,6 +59,8 @@ const accountsFilterParams = `
   departmentId: $departmentId,
   journals: $journals,
   kind: $kind
+  code: $code
+  name: $name
 `;
 
 const commonParamDefs = `

@@ -97,6 +97,9 @@ export interface ITransaction {
   sumDt: number;
   sumCt: number;
   permission?: string;
+
+  branch?: any
+  department?: any
 }
 
 export type TransactionDetailQueryResponse = {

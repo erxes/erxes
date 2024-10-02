@@ -8,7 +8,6 @@ import {
   __,
 } from "@erxes/ui/src";
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import AccountFormContainer from "../containers/AccountForm";
 import { IAccount } from "../types";
 
@@ -20,7 +19,6 @@ type Props = {
 
 const Row: React.FC<Props> = (props) => {
   const { account, toggleBulk, isChecked } = props;
-  const navigate = useNavigate();
 
   const trigger = (
     <Button btnStyle="link">

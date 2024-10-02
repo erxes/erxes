@@ -194,7 +194,7 @@ const transactionCommon = {
     }
 
     return await paginate(
-      models.Transactions.find(filter).sort({ ...sort, ptrId: 1 }).lean(),
+      models.Transactions.find(filter).sort({ ...sort, parentId: 1, ptrId: 1 }).lean(),
       pagintationArgs,
     )
   },

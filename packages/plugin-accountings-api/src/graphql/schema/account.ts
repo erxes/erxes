@@ -76,6 +76,8 @@ const accountsQueryParams = `
   currency: String
   journals: [String]
   kind: String
+  code: String
+  name: String
 `;
 
 export const queries = `

@@ -58,17 +58,6 @@ const PtrList: React.FC<IProps> = (props) => {
     }
   }, [checked, bulk]);
 
-  const renderRow = () => {
-    return transactions.map((transaction) => (
-      <Row
-        key={transaction._id}
-        transaction={transaction}
-        toggleBulk={toggleBulk}
-        isChecked={(bulk || []).map((b) => b._id).includes(transaction._id)}
-      />
-    ));
-  };
-
   const onChange = () => {
     toggleAll(transactions, "transactions");
 
@@ -76,6 +65,38 @@ const PtrList: React.FC<IProps> = (props) => {
       router.removeParams(navigate, location, "ids");
       router.setParams(navigate, location, { page: 1 });
     }
+  };
+
+  const toggleHalf = (id, type, checked) => {
+    let trs: ITransaction[] = [];
+    if (type === 'parent') {
+      trs = transactions.filter(tr => tr.parentId === id)
+    } else {
+      trs = transactions.filter(tr => tr.ptrId === id)
+    }
+    toggleAll(trs, "transactions");
+  }
+  const renderRows = () => {
+    let preParentId = '';
+    let prePtrId = '';
+    return transactions.map((transaction) => {
+      const { ptrId, parentId } = transaction;
+      const hasNewParent = preParentId !== parentId;
+      const hasNewPtr = prePtrId !== ptrId;
+
+      preParentId = parentId || '';
+      prePtrId = ptrId || '';
+
+      return <Row
+        key={transaction._id}
+        transaction={transaction}
+        toggleBulk={toggleBulk}
+        toggleHalf={toggleHalf}
+        isChecked={(bulk || []).map((b) => b._id).includes(transaction._id)}
+        hasNewParent={hasNewParent}
+        hasNewPtr={hasNewPtr}
+      />
+    });
   };
 
   const removeAccounts = (transactions) => {
@@ -137,16 +158,20 @@ const PtrList: React.FC<IProps> = (props) => {
                   onChange={onChange}
                 />
               </th>
+              <th>{__("Account")}</th>
               <th>{__("Number")}</th>
               <th>{__("Date")}</th>
-              <th>{__("Category")}</th>
-              <th>{__("Currency")}</th>
-              <th>{__("Kind")}</th>
+              <th>{__("Description")}</th>
+              <th>{__("Debit")}</th>
+              <th>{__("Credit")}</th>
+              <th>{__("Branch")}</th>
+              <th>{__("Department")}</th>
               <th>{__("Journal")}</th>
+              <th>{__("PtrStatus")}</th>
               <th>{__("Actions")}</th>
             </tr>
           </thead>
-          <tbody>{renderRow()}</tbody>
+          <tbody>{renderRows()}</tbody>
         </Table>
       </>
     );

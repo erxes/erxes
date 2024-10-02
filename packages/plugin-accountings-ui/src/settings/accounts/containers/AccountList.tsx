@@ -1,3 +1,4 @@
+import { AppConsumer } from "coreui/appContext";
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { Alert, confirm } from "@erxes/ui/src/utils";
 import {
@@ -106,7 +107,11 @@ const AccountListContainer = (props: Props) => {
   };
 
   const AccountList = (props) => {
-    return <List {...updatedProps} {...props} />;
+    return (<AppConsumer>
+      {({ currentUser }) => {
+        return <List {...updatedProps} {...props} currencies={currentUser?.configs?.dealCurrency || []} />;
+      }}
+    </AppConsumer>)
   };
 
   return <Bulk content={AccountList} />;

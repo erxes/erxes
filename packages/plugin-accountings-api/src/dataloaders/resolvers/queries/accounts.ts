@@ -28,6 +28,8 @@ interface IQueryParams {
   journal?: string;
   journals?: string[];
   kind?: string;
+  code?: string;
+  name?: string;
 }
 
 export const generateFilter = async (
@@ -49,7 +51,9 @@ export const generateFilter = async (
     ids,
     excludeIds,
     journals,
-    kind
+    kind,
+    code,
+    name,
   } = params;
   const filter: any = commonQuerySelector;
 
@@ -110,10 +114,17 @@ export const generateFilter = async (
     ];
   }
 
+  if (code) {
+    filter.code = code
+  }
+
+  if (name) {
+    filter.name = name
+  }
+
   if (currency) {
     filter.currency = currency;
   }
-
 
   if (journals?.length) {
     filter.journal = { $in: journals }
