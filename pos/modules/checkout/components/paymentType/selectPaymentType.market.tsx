@@ -44,7 +44,6 @@ const SelectPaymentType = ({ onSelect }: { onSelect?: () => void }) => {
 
   return (
     <Select
-      disabled={loadingKhan}
       value={type}
       onValueChange={handleValueChange}
       open={open}
@@ -64,10 +63,10 @@ const SelectPaymentType = ({ onSelect }: { onSelect?: () => void }) => {
             </SelectItem>
           )}
 
-          {khan && (
+          {(loadingKhan || khan) && (
             <SelectItem
               value={BANK_CARD_TYPES.KHANBANK}
-              disabled={disabledTerms}
+              disabled={disabledTerms || loadingKhan}
             >
               {getLabel(BANK_CARD_TYPES.KHANBANK)}
             </SelectItem>
