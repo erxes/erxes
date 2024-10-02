@@ -155,12 +155,34 @@ const generateFilter = async (
       isRPC: true,
       defaultValue: null,
     });
+
     if (onePipeline) {
+      const categories = await models.ProductCategories.find({
+        _id: { $in: onePipeline.initialCategoryIds || [] },
+      });
+      const filterCategoryIds: string[] = [];
+
+      for (const item of categories) {
+        const relatedCategoryIds = (
+          await models.ProductCategories.find(
+            { order: { $regex: new RegExp(`^${escapeRegExp(item.order)}`) } },
+            { _id: 1 }
+          ).lean()
+        ).map(c => c._id);
+
+        filterCategoryIds.push(...relatedCategoryIds);
+      }
+
       return {
         $and: [
           filter,
           { categoryId: { $nin: onePipeline.excludeCategoryIds } },
           { _id: { $nin: onePipeline.excludeProductIds } },
+          {
+            categoryId: {
+              $in: filterCategoryIds || [],
+            },
+          },
         ],
       };
     }
