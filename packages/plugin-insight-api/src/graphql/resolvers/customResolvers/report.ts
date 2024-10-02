@@ -59,7 +59,7 @@ export default {
             isRPC: true
         });
     },
-    async isFavorite(report: IReportDocument, { }, { models, user }: IContext) {
+    async isPinned(report: IReportDocument, { }, { models, user }: IContext) {
 
         const { _id, userIds } = report
 

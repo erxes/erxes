@@ -56,7 +56,7 @@ export const types = (tagsAvailable) => `
     name: String
     sectionId: String
     chartsCount: Int
-    isFavorite: Boolean
+    isPinned: Boolean
     type: String
   }
 
@@ -93,7 +93,7 @@ export const types = (tagsAvailable) => `
     createdAt:Date
     createdBy: User
 
-    isFavorite: Boolean
+    isPinned: Boolean
     }
 
     type DashboardListResponse {
@@ -126,7 +126,7 @@ export const types = (tagsAvailable) => `
       serviceName: String
       serviceType: String
 
-      isFavorite: Boolean
+      isPinned: Boolean
     }
 
     type ReportsListResponse {
@@ -186,7 +186,7 @@ export const queries = `
   insightServicesList: [String]
   insightChartGetTemplates(serviceName: String!): JSON
   insightChartGetFilterTypes(serviceName: String!, templateType: String!): JSON
-  insightFavoriteList: [Insight]
+  insightPinnedList: [Insight]
 
   chartGetResult(serviceName: String!, templateType: String!, chartType: String!, filter: JSON, dimension: JSON): JSON
 

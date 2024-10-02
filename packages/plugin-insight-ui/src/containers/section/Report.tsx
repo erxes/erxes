@@ -54,7 +54,7 @@ const ReportSectionContainer = (props: FinalProps) => {
         query: gql(queries.reportList),
       },
       {
-        query: gql(queries.insightFavoriteList),
+        query: gql(queries.insightPinnedList),
       },
     ],
   });
@@ -71,7 +71,7 @@ const ReportSectionContainer = (props: FinalProps) => {
           query: gql(queries.reportList),
         },
         {
-          query: gql(queries.insightFavoriteList),
+          query: gql(queries.insightPinnedList),
         },
       ],
     }

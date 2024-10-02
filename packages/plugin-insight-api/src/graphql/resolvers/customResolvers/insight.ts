@@ -11,7 +11,7 @@ export default {
             return new Error(`Invalid ${error.path}: ${error.value}`);
         }
     },
-    async isFavorite(item: IDashboardDocument | IReportDocument, { }, { models, user }: IContext) {
+    async isPinned(item: IDashboardDocument | IReportDocument, { }, { models, user }: IContext) {
 
         const { userIds } = item
 

@@ -45,7 +45,7 @@ export default {
       _id,
     }));
   },
-  async isFavorite(dashboard: IDashboardDocument, { }, { models, user }: IContext) {
+  async isPinned(dashboard: IDashboardDocument, { }, { models, user }: IContext) {
 
     const { userIds } = dashboard
 

@@ -19,6 +19,7 @@ import SelectDate from "../utils/SelectDate";
 import { SelectWithAssets } from "../utils/SelectAssets";
 import { FormControl } from "@erxes/ui/src/components/form";
 import CustomSelect from "../utils/CustomSelect";
+import { generateInitialOptions } from "../../utils";
 
 type Props = {
   fieldType: string;
@@ -69,28 +70,32 @@ const ChartFormField = (props: Props) => {
     }
   }, [fieldDefaultValue]);
 
-  const onSelect = (selectedOption) => {
-
-    console.log("selectedOption", selectedOption)
+  const onSelect = (selectedOption: any, value?: string) => {
 
     if (selectedOption === undefined || selectedOption === null) {
       setFieldValue("");
       onChange("");
+
+      return
     }
 
     if (multi && Array.isArray(selectedOption)) {
-      const selectedValues = (selectedOption || []).map(
-        (option) => option.value
-      );
-      setFieldValue(selectedValues);
+      const selectedValues = (selectedOption || []).map(option => option.value);
 
-      onChange(selectedValues);
-    } else {
-      const selectedValue = selectedOption.value;
+      const modifiedOptions = value
+        ? selectedOption.map(({ [value]: ommited, ...rest }) => rest)
+        : selectedValues;
 
-      setFieldValue(selectedValue);
-      onChange(selectedValue);
+      setFieldValue(modifiedOptions);
+      onChange(modifiedOptions);
+
+      return;
     }
+
+    const selectedValue = selectedOption.value;
+
+    setFieldValue(selectedValue);
+    onChange(selectedValue);
   };
 
   const handleDateRange = (dateRange: any) => {
@@ -124,19 +129,6 @@ const ChartFormField = (props: Props) => {
       onChange(newFieldValues);
     }, 500)
   }
-
-  let onlyOptions = [] as any;
-  Object.keys(fieldOptions[0] || []).indexOf("options") > 0 &&
-    fieldOptions.map((pp) => pp.options.map((o) => onlyOptions.push(o)));
-  const valueOptions =
-    fieldValue &&
-    (Object.keys(fieldOptions[0] || []).indexOf("options") > 0
-      ? multi
-        ? onlyOptions.filter((o) => fieldValue.includes(o.value))
-        : onlyOptions.find((o) => o.value === fieldValue)
-      : multi
-        ? fieldOptions.filter((o) => fieldValue.includes(o.value))
-        : fieldOptions.find((o) => o.value === fieldValue));
 
   switch (fieldQuery) {
     case "users":
@@ -304,7 +296,8 @@ const ChartFormField = (props: Props) => {
         <div>
           <ControlLabel>{fieldLabel}</ControlLabel>
           <CustomSelect
-            value={valueOptions}
+            initialValue={generateInitialOptions(fieldOptions, fieldValue)}
+            value={fieldValue}
             multi={multi}
             onSelect={onSelect}
             options={fieldOptions}

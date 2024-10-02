@@ -1,20 +1,25 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Select, { MenuPlacement } from "react-select";
+import { OptionLabel, MultiValue, MultiValueContent, ValueOption, Checkbox } from '../../styles';
+import { Icon } from '@erxes/ui/src';
+
+
 
 type Props = {
-    value: any[]
+    value: any
+    initialValue?: any
     multi?: boolean
     options: any[]
     fieldLabel: string
     fieldValueOptions?: any[]
-
-    onSelect: (option: any) => void
+    onSelect: (option: any, value?: string) => void
 }
 
 const CustomSelect = (props: Props) => {
 
     const {
         value,
+        initialValue,
         multi,
         options,
         fieldLabel,
@@ -22,48 +27,107 @@ const CustomSelect = (props: Props) => {
         onSelect,
     } = props
 
-    if (fieldValueOptions) {
-        console.log("props", props)
+    const [valueOptions, setValueOptions] = useState({})
+
+    useEffect(() => {
+        if (fieldValueOptions?.length && initialValue) {
+            setValueOptions((prevState) => {
+                const optionValues = { ...prevState };
+
+                initialValue.forEach((option) => {
+                    const valueKey = option?.value;
+
+                    if (valueKey) {
+                        optionValues[valueKey] = { ...option };
+
+                        fieldValueOptions.forEach((fieldValueOption) => {
+                            optionValues[valueKey][fieldValueOption.fieldName] = option[fieldValueOption.fieldName] || fieldValueOption.fieldDefaultValue;
+                        });
+                    }
+                });
+
+                Object.keys(optionValues).forEach((key) => {
+                    if (!initialValue.find((opt) => opt.value === key)) {
+                        delete optionValues[key];
+                    }
+                });
+
+                return optionValues;
+            });
+        }
+    }, [fieldValueOptions, initialValue]);
+
+    const handleValueOptionChange = (fieldName, fieldValue, fieldType) => {
+
+        setValueOptions(prevOptions => {
+            let newOptions = { ...prevOptions };
+
+            switch (fieldType) {
+                case "checkbox":
+                    if (!newOptions[fieldValue]) {
+                        newOptions[fieldValue] = {};
+                    }
+                    newOptions[fieldValue][fieldName] = !newOptions[fieldValue][fieldName];
+                    break;
+
+                default:
+                    return prevOptions;
+            }
+
+            setTimeout(() => {
+                onSelect(Object.values(newOptions), 'label');
+            }, 0);
+
+            return newOptions;
+        });
+    };
+
+    const handleSelect = (selectedOption) => {
+
+        if (fieldValueOptions?.length) {
+            const selectedValues = (selectedOption || []).map((option) => {
+
+                const options = valueOptions[option.value] || {}
+
+                !Object.keys(options).length && fieldValueOptions.map((fieldValueOption) => {
+                    const { fieldName, fieldDefaultValue } = fieldValueOption
+
+                    options[fieldName] = fieldDefaultValue
+                })
+
+                return { ...option, ...options }
+            });
+
+            return onSelect(selectedValues, 'label')
+        }
+
+        onSelect(selectedOption)
     }
 
-    const handleValueOptionChange = (fieldName, fieldType) => {
-
-        // const updatedValue = value.map((option) => {
-        //     if (option.value === fieldName) {
-        //         return {
-        //             ...option,
-        //             fieldDefaultValue: !option.fieldDefaultValue,
-        //         };
-        //     }
-        //     return option;
-        // });
-
-        // onSelect(updatedValue);
-    }
-
-    const renderValueOption = (valueOption) => {
+    const renderValueOption = (valueOption, fieldValue) => {
 
         const { fieldName, fieldType, fieldLabel, fieldDefaultValue } = valueOption
 
         switch (fieldType) {
             case "checkbox":
                 return (
-                    <div
-                        style={{ display: "flex", justifyContent: "center" }}
+                    <ValueOption
                         onMouseDown={(e) => {
                             e.stopPropagation();
                         }}
                     >
-                        <input
-                            checked={fieldDefaultValue}
-                            type="checkbox"
-                            name=""
-                            id={fieldName}
-                            style={{ margin: "0 5px 0 0" }}
-                            onChange={() => handleValueOptionChange(fieldName, fieldType)}
-                        />
-                        <label htmlFor={fieldName}>{fieldLabel}</label>
-                    </div>
+                        <OptionLabel>
+                            <Checkbox
+                                className='squared-checkbox'
+                                checked={valueOptions[fieldValue]?.[fieldName] || fieldDefaultValue}
+                                type="checkbox"
+                                name={fieldName}
+                                id={`${fieldValue}-${fieldName}`}
+                                onChange={() => handleValueOptionChange(fieldName, fieldValue, fieldType)}
+                            />
+                            <span>{fieldLabel}</span>
+                        </OptionLabel>
+                    </ValueOption>
                 )
             default:
                 break;
@@ -71,45 +135,26 @@ const CustomSelect = (props: Props) => {
 
     }
 
-    const CustomMultiValue = ({ children, removeProps, fieldValueOptions }) => {
-        return (
-            <div
-                style={{
-                    backgroundColor: "#6569DF",
-                    color: "#fff",
-                    margin: "0 5px 0 0",
-                    padding: "5px 10px",
-                    borderRadius: "11px",
-                    position: "relative",
-                    display: "flex",
-                }}
-            >
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                    {children}
-                    {fieldValueOptions?.map(renderValueOption)}
-                </div>
+    const CustomMultiValue = ({ data, removeProps, fieldValueOptions }) => {
 
-                <button
-                    style={{
-                        all: "unset",
-                        position: "absolute",
-                        top: 0,
-                        right: "5px",
-                        cursor: "pointer",
-                    }}
-                    {...removeProps}
-                >
-                    x
-                </button>
-            </div>
+        const { label, value } = data
+
+        return (
+            <MultiValue >
+                <MultiValueContent>
+                    <label>{label}</label>
+                    {fieldValueOptions?.map((fieldValueOption, index) => renderValueOption(fieldValueOption, value))}
+                </MultiValueContent>
+                <Icon icon='times' {...removeProps} />
+            </MultiValue>
         );
     };
 
     const finalProps = {
-        value: value,
+        value: initialValue,
         isClearable: true,
         isMulti: multi,
-        onChange: onSelect,
+        onChange: handleSelect,
         options: options,
         placeholder: fieldLabel,
         menuPlacement: "auto" as MenuPlacement

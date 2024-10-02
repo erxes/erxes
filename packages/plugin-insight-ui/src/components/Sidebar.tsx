@@ -6,7 +6,7 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 import Goals from '../containers/section/Goal';
 import Dashboards from '../containers/section/Dashboard';
 import Reports from '../containers/section/Report';
-import Favorites from '../containers/section/Favorite';
+import Pinned from '../containers/section/Pinned';
 
 type Props = {
   queryParams: string;
@@ -15,8 +15,8 @@ type Props = {
 const Sidebar = (props: Props) => {
   const { queryParams } = props;
 
-  const renderFavorites = () => {
-    return <Favorites queryParams={queryParams} />;
+  const renderPinned = () => {
+    return <Pinned queryParams={queryParams} />;
   }
 
   const renderDashboards = () => {
@@ -33,7 +33,7 @@ const Sidebar = (props: Props) => {
 
   return (
     <Wrapper.Sidebar hasBorder={true}>
-      {renderFavorites()}
+      {renderPinned()}
       {renderDashboards()}
       {/* {isEnabled('goals') && renderGoals()} */}
       {renderReports()}

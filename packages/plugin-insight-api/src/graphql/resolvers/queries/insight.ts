@@ -159,7 +159,7 @@ const insightQueries = {
         return chartResult;
     },
 
-    async insightFavoriteList(_root, { }, { models, user }: IContext) {
+    async insightPinnedList(_root, { }, { models, user }: IContext) {
         const dashboards = await models.Dashboards.find({ userIds: { $in: [user._id] } }) || [];
         const reports = await models.Reports.find({ userIds: { $in: [user._id] } }) || [];
 

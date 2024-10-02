@@ -364,3 +364,40 @@ export const rgbaToHex = (rgba: string) => {
 
   return `#${r}${g}${b}`;
 };
+
+export const generateInitialOptions = (options, selectedValues) => {
+  if (!selectedValues) {
+    selectedValues = [];
+  }
+
+  if (!Array.isArray(selectedValues)) {
+    selectedValues = [selectedValues];
+  }
+
+  const selectedValueArray = selectedValues.map(item => {
+    if (typeof item === 'string') {
+      return { value: item };
+    }
+
+    if (typeof item === 'object') {
+      return {
+        value: item.value,
+        extraValues: { ...item }
+      };
+    }
+  }).filter(item => item);
+
+  return options.map(option => {
+    const matchedOption = selectedValueArray.find(selectedValue => (selectedValue?.value || selectedValue) === option.value);
+
+    const updatedOption = { ...option };
+
+    if (matchedOption?.extraValues) {
+      Object.assign(updatedOption, matchedOption.extraValues);
+    }
+
+    if (matchedOption) {
+      return updatedOption
+    }
+  }).filter(item => item);;
+};

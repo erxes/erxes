@@ -52,7 +52,7 @@ const DashboardSectionContainer = (props: FinalProps) => {
         query: gql(queries.dashboardList),
       },
       {
-        query: gql(queries.insightFavoriteList),
+        query: gql(queries.insightPinnedList),
       },
     ],
   });
@@ -67,7 +67,7 @@ const DashboardSectionContainer = (props: FinalProps) => {
         query: gql(queries.dashboardList),
       },
       {
-        query: gql(queries.insightFavoriteList),
+        query: gql(queries.insightPinnedList),
       },
     ],
   });

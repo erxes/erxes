@@ -318,7 +318,7 @@ const reportList = `
             filterType
           }
         }
-        isFavorite
+        isPinned
         ${
           isEnabled('tags')
             ? `tags  {
@@ -410,15 +410,15 @@ const insightChartTemplatesList = `
   }
 `;
 
-const insightFavoriteList = `
-  query insightFavoriteList {
-    insightFavoriteList {
+const insightPinnedList = `
+  query insightPinnedList {
+    insightPinnedList {
       _id
       name
       type
       sectionId
       chartsCount
-      isFavorite
+      isPinned
     }
   }
 `;
@@ -675,7 +675,7 @@ const dashboardList = `
         name
         sectionId
         chartsCount
-        isFavorite
+        isPinned
       }
       totalCount
     }
@@ -763,7 +763,7 @@ export default {
   insightTemplatesList,
   insightChartTemplatesList,
   insightServicesList,
-  insightFavoriteList,
+  insightPinnedList,
   chartGetResult,
 
   //dashboard

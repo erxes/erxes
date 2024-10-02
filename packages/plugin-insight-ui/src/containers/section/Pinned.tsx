@@ -1,5 +1,5 @@
 import React from 'react'
-import Favorite from '../../components/section/Favorite';
+import Pinned from '../../components/section/Pinned';
 import { mutations, queries } from '../../graphql';
 import { gql, useQuery, useMutation } from "@apollo/client";
 import * as compose from 'lodash.flowright';
@@ -19,15 +19,15 @@ type FinalProps = {
     currentUser: IUser
 } & Props
 
-const FavoriteContainer = (props: FinalProps) => {
+const PinnedContainer = (props: FinalProps) => {
 
     const { queryParams, currentUser } = props
 
     const location = useLocation();
     const navigate = useNavigate();
 
-    const insightFavoriteListQuery = useQuery(
-        gql(queries.insightFavoriteList)
+    const insightPinnedListQuery = useQuery(
+        gql(queries.insightPinnedList)
     );
 
     const [reportUpdate] = useMutation(gql(mutations.reportEdit), {
@@ -40,7 +40,7 @@ const FavoriteContainer = (props: FinalProps) => {
                 query: gql(queries.reportList),
             },
             {
-                query: gql(queries.insightFavoriteList),
+                query: gql(queries.insightPinnedList),
             },
         ],
     });
@@ -55,7 +55,7 @@ const FavoriteContainer = (props: FinalProps) => {
                 query: gql(queries.dashboardList),
             },
             {
-                query: gql(queries.insightFavoriteList),
+                query: gql(queries.insightPinnedList),
             },
         ],
     });
@@ -72,7 +72,7 @@ const FavoriteContainer = (props: FinalProps) => {
                     query: gql(queries.reportList),
                 },
                 {
-                    query: gql(queries.insightFavoriteList),
+                    query: gql(queries.insightPinnedList),
                 },
             ],
         }
@@ -88,7 +88,7 @@ const FavoriteContainer = (props: FinalProps) => {
                 query: gql(queries.dashboardList),
             },
             {
-                query: gql(queries.insightFavoriteList),
+                query: gql(queries.insightPinnedList),
             },
         ],
     });
@@ -136,19 +136,19 @@ const FavoriteContainer = (props: FinalProps) => {
         }
     };
 
-    const favoriteList = insightFavoriteListQuery?.data?.insightFavoriteList || []
+    const pinnedList = insightPinnedListQuery?.data?.insightPinnedList || []
 
     const updatedProps = {
         ...props,
-        loading: insightFavoriteListQuery.loading,
-        list: favoriteList,
+        loading: insightPinnedListQuery.loading,
+        list: pinnedList,
         update,
         remove
     };
 
     return (
-        <Favorite {...updatedProps} />
+        <Pinned {...updatedProps} />
     )
 }
 
-export default compose(withCurrentUser(FavoriteContainer))
+export default compose(withCurrentUser(PinnedContainer))

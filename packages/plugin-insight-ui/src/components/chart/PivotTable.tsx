@@ -26,7 +26,7 @@ const PivotTableRenderer = (props: Props) => {
                     {(tableHeaders || []).map((headerRow, headerRowIndex) => (
                         <tr key={headerRowIndex}>
                             {(headerRow || []).map((header, headerIndex) => {
-                                if (header.rowspan === 0 || header.colspan === 0) {
+                                if (!header || header.rowspan === 0 || header.colspan === 0) {
                                     return null
                                 }
 
@@ -34,6 +34,7 @@ const PivotTableRenderer = (props: Props) => {
                                     <th
                                         rowSpan={header.rowspan || undefined}
                                         colSpan={header.colspan || undefined}
+                                        className={header.className || ''}
                                     >
                                         {header.content}
                                     </th>
@@ -46,7 +47,7 @@ const PivotTableRenderer = (props: Props) => {
                     {(tableBody || []).map((bodyRow, bodyRowIndex) => (
                         <tr key={bodyRowIndex}>
                             {(bodyRow || []).map((cell, cellIndex) => {
-                                if (cell.rowspan === 0 || cell.colspan === 0) {
+                                if (!cell || cell.rowspan === 0 || cell.colspan === 0) {
                                     return <td style={{ display: 'none' }} />
                                 }
 

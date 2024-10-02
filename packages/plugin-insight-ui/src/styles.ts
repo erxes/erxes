@@ -8,6 +8,7 @@ import { lighten, rgba } from '@erxes/ui/src/styles/ecolor';
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import Table from '@erxes/ui/src/components/table';
+import { FormLabel } from '@erxes/ui/src/components/form/styles';
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -758,6 +759,10 @@ const PivotTable = styled(Table)`
     font-weight: bold;
   }
 
+  .subTotal {
+    font-weight: bold;
+  }
+
   thead {
     background-color: #fff;
     position: sticky;
@@ -779,6 +784,81 @@ const ScrollWrapper = styled.div`
   padding: 0px 10px 0 20px;
   margin-left: -20px;
   margin-right: -10px;
+`;
+
+const MultiValue = styled.div`
+    display: flex !important;
+    gap: 10px !important;
+    background-color: ${colors.colorSecondary} !important;
+    border-radius: 11px !important;
+    border: 1px solid ${colors.colorSecondary};
+    color: ${colors.colorWhite};
+    margin-bottom: 5px !important;
+    margin-left: 0 !important;
+    margin-right: 5px !important;
+    position: relative;
+    padding: 5px 10px 5px 10px !important;
+
+    label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      border-radius: 2px;
+      font-size: 11px;
+      box-sizing: border-box;
+      color: #FFF !important;
+      padding: 2px !important;
+    }
+`;
+
+const MultiValueContent = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
+
+const ValueOption = styled.div`
+    align-items: center;
+`;
+
+const OptionLabel = styled(FormLabel)`
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+`;
+
+const Checkbox = styled.input`
+  -webkit-appearance: none;
+  appearance: none !important;
+  border: none !important;
+  padding: 0 !important;
+
+  background-color: #fff;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  position: relative;
+  vertical-align: middle;
+  cursor: pointer;
+  border-radius: 5px;
+
+  &:before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 11px;
+    height: 11px;
+    border-radius: 3px;
+    background-color: transparent;
+    transform: translate(-50%, -50%) scale(0); 
+    transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  }
+
+  &:checked:before {
+    transform: translate(-50%, -50%) scale(1);
+    background-color: #6569DF;
+  }
 `;
 
 export {
@@ -808,5 +888,10 @@ export {
   Divider,
   ChartTable,
   PivotTable,
-  ScrollWrapper
+  ScrollWrapper,
+  MultiValue,
+  MultiValueContent,
+  ValueOption,
+  OptionLabel,
+  Checkbox
 };
