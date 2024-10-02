@@ -123,6 +123,21 @@ const TableList = (props: Props) => {
               )
             }
 
+            if (item.hasOwnProperty('total')) {
+              return (
+                <tr key={index}>
+                  <td colSpan={item['total']}>Total</td>
+                  {(headers || []).map(header => {
+                    if (header in item) {
+                      return (
+                        <td key={header}>{commarizeNumbers(item[header]) || '-'}</td>
+                      );
+                    }
+                  })}
+                </tr>
+              );
+            }
+
             return (
               <tr key={index}>
                 {(headers || []).map(header => {

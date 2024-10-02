@@ -1839,9 +1839,12 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
 
     if (measures?.length) {
         total = data.reduce((acc, item) => {
+
+            acc['total'] = dimensions.length
+
             measures.forEach(measure => {
-                if (item[measure] !== undefined) {
-                    acc[measure] = (acc[measure] || 0) + item[measure];
+                if (item[DEAL_LABELS[measure]] !== undefined) {
+                    acc[measure] = (acc[measure] || 0) + item[DEAL_LABELS[measure]];
                 }
             });
 
