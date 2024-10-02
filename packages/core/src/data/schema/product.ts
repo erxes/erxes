@@ -1,6 +1,6 @@
 import {
   attachmentInput,
-  attachmentType
+  attachmentType,
 } from "@erxes/api-utils/src/commonTypeDefs";
 
 const productFields = `
@@ -136,7 +136,7 @@ const productsQueryParams = `
 `;
 
 export const queries = `
-  productCategories(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String, brand: String): [ProductCategory]
+  productCategories(ids:[String],parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String, brand: String): [ProductCategory]
   productCategoriesTotalCount(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String): Int
   productCategoryDetail(_id: String): ProductCategory
   products(
