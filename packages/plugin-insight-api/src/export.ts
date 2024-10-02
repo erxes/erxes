@@ -89,7 +89,7 @@ const extractAndAddIntoSheet = async (
     });
   }
 
-  const dataRange = sheet.range(`A${startRowIdx - 1}:${String.fromCharCode(65 + headers.length - 1)}${endRowIdx}`);
+  const dataRange = sheet.range(`A${startRowIdx - 1}:${String.fromCharCode(65 + headers.length - 1)}${endRowIdx - 1}`);
   dataRange.style({ border: 'thin' });
 
   addIntoSheet(extractValuesIntoArr, `A${startRowIdx}`, `${String.fromCharCode(65 + headers.length - 1)}${endRowIdx}`, sheet);
