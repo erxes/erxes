@@ -15,7 +15,7 @@ const SendData = () => {
   const handleClick = async () => {
     setLoading(true)
 
-    fetch(`${ebarimtUrl}/rest/send`)
+    fetch(`${ebarimtUrl}/rest/sendData`)
       .then((res: any) => res.json())
       .then((res) => {
         if (res.success) {
