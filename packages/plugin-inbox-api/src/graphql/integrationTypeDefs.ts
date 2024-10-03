@@ -24,6 +24,7 @@ export const types = `
 
     tags: [Tag]
   
+    leadData: JSON
     messengerData: JSON
     uiOptions: JSON
     isActive: Boolean

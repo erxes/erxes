@@ -38,8 +38,6 @@ initBroker()
 
     // every 3sec
     schedule.scheduleJob('*/3 * * * * *', async () => {
-      console.log('every 3 second ....', services);
-
       await sendMessage(subdomain, 'handle3SecondlyJob', services);
     });
     // every minute at 1sec
