@@ -9,6 +9,7 @@ export type Operator = {
   userId: string;
   gsUsername: string;
   gsPassword: string;
+  gsForwardAgent: boolean;
 };
 
 export interface ICustomerDoc {
