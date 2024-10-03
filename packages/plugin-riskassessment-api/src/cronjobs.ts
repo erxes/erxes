@@ -1,5 +1,5 @@
 import { generateModels } from './connectionResolver';
-import { sendCardsMessage, sendFormsMessage } from './messageBroker';
+import { sendCommonMessage, sendCoreMessage } from './messageBroker';
 import { PLAN_STATUSES } from './common/constants';
 import * as moment from 'moment';
 
@@ -13,9 +13,9 @@ const handleDailyJob = async ({ subdomain }) => {
   const plans = await models.Plans.find({
     createDate: {
       $gte: new Date(tommorrow.startOf('day').toISOString()),
-      $lte: new Date(tommorrow.endOf('day').toISOString())
+      $lte: new Date(tommorrow.endOf('day').toISOString()),
     },
-    status: 'active'
+    status: 'active',
   });
 
   if (!plans?.length) {
@@ -26,7 +26,7 @@ const handleDailyJob = async ({ subdomain }) => {
 
   for (const plan of plans) {
     const schedules = await models.Schedules.find({
-      planId: plan._id
+      planId: plan._id,
     });
 
     if (!schedules?.length) {
@@ -38,7 +38,7 @@ const handleDailyJob = async ({ subdomain }) => {
     const commonDoc = {
       startDate: plan.startDate,
       closeDate: plan.closeDate,
-      tagIds: plan.tagId ? [plan.tagId] : undefined
+      tagIds: plan.tagId ? [plan.tagId] : undefined,
     };
 
     const { configs, plannerId, structureType } = plan;
@@ -51,16 +51,16 @@ const handleDailyJob = async ({ subdomain }) => {
         name: schedule.name,
         userId: plannerId,
         stageId: configs.stageId,
-        assignedUserIds: schedule.assignedUserIds
+        assignedUserIds: schedule.assignedUserIds,
       };
 
       if (schedule?.customFieldsData) {
-        payload.customFieldsData = await sendFormsMessage({
+        payload.customFieldsData = await sendCoreMessage({
           subdomain,
           action: 'fields.prepareCustomFieldsData',
           data: schedule.customFieldsData,
           isRPC: true,
-          defaultValue: schedule.customFieldsData
+          defaultValue: schedule.customFieldsData,
         });
       }
 
@@ -71,12 +71,13 @@ const handleDailyJob = async ({ subdomain }) => {
           : [];
       }
 
-      const newItem = await sendCardsMessage({
+      const newItem = await sendCommonMessage({
+        serviceName: `${configs.cardType}s`,
         subdomain,
         action: `${configs.cardType}s.create`,
         data: payload,
         isRPC: true,
-        defaultValue: null
+        defaultValue: null,
       }).catch(err => {
         console.log(err.message);
       });
@@ -85,7 +86,7 @@ const handleDailyJob = async ({ subdomain }) => {
         cardType: configs.cardType,
         cardId: newItem._id,
         indicatorId: schedule.indicatorId,
-        [`${fieldName}Id`]: schedule.structureTypeId || ''
+        [`${fieldName}Id`]: schedule.structureTypeId || '',
       }).catch(err => console.log(err.message));
 
       newItemIds = [...newItemIds, newItem._id];
@@ -110,5 +111,5 @@ const handleDailyJob = async ({ subdomain }) => {
 };
 
 export default {
-  handleDailyJob
+  handleDailyJob,
 };

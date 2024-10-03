@@ -20,7 +20,7 @@ const Detail = (props: Props) => {
   const breadcrumb = [
     { title: __("Settings"), link: "/settings" },
     { title: __("Assets"), link: "/settings/assets" },
-    { title },
+    { title }
   ];
 
   const content = (
@@ -30,14 +30,14 @@ const Detail = (props: Props) => {
         contentType="assets:asset"
         showEmail={false}
       />
-      {isEnabled("logs") && (
+      {
         <ActivityLogs
           target={asset.name || ""}
           contentId={asset._id}
           contentType="assets:asset"
           extraTabs={[]}
         />
-      )}
+      }
     </ContainerBox>
   );
 

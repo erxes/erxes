@@ -8,6 +8,7 @@ import { graphql } from '@apollo/client/react/hoc';
 import { mutations } from '@erxes/ui-settings/src/general/graphql';
 import { queries } from '../graphql';
 import { withProps } from 'modules/common/utils';
+import { Plugin } from '../types';
 
 type Props = {
   id: string;
@@ -19,8 +20,8 @@ type FinalProps = {
 } & Props;
 
 type State = {
-  plugin: any;
-  plugins: any[];
+  plugin: Plugin;
+  plugins: Plugin[];
 };
 
 class PluginDetailsContainer extends React.Component<FinalProps, State> {
@@ -28,7 +29,7 @@ class PluginDetailsContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      plugin: {},
+      plugin: {} as Plugin,
       plugins: []
     };
   }

@@ -1,9 +1,9 @@
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
-} from "@erxes/ui-cards/src/conformity";
+} from "@erxes/ui-sales/src/conformity";
 
-const contractFields = `
+export const contractFields = `
   _id
   contractTypeId
   number

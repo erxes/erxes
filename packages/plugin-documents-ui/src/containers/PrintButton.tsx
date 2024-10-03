@@ -1,13 +1,13 @@
-import { gql } from "@apollo/client";
-import client from "@erxes/ui/src/apolloClient";
-import WithPermission from "coreui/withPermission";
-import React from "react";
-
-import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
-import { colors } from "@erxes/ui/src/styles";
-import { rgba } from "@erxes/ui/src/styles/ecolor";
 import { __, getEnv } from "@erxes/ui/src/utils";
+
 import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import React from "react";
+import WithPermission from "@erxes/ui/src/components/WithPermission";
+import client from "@erxes/ui/src/apolloClient";
+import { colors } from "@erxes/ui/src/styles";
+import { gql } from "@apollo/client";
+import { rgba } from "@erxes/ui/src/styles/ecolor";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
 

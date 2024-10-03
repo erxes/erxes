@@ -1,5 +1,5 @@
-import { IChannel } from '@erxes/ui-inbox/src/settings/channels/types';
-import { QueryResponse } from '@erxes/ui/src/types';
+import { IChannel } from "@erxes/ui-inbox/src/settings/channels/types";
+import { MutationVariables, QueryResponse } from "@erxes/ui/src/types";
 
 // query types
 
@@ -14,6 +14,10 @@ export type ChannelsGetLastQueryResponse = {
 export type ChannelsCountQueryResponse = {
   channelsTotalCount: number;
 } & QueryResponse;
+
+export type ChannelsRemoveMutationResponse = {
+  removeMutation: (params: { variables: MutationVariables }) => Promise<void>;
+};
 
 // mutation types
 export type EditChannelMutationVariables = {

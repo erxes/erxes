@@ -1,10 +1,10 @@
 import {
   attachmentInput,
   attachmentType
-} from '@erxes/api-utils/src/commonTypeDefs';
-import { assetCategoryParams, assetParams } from '../../common/graphql/asset';
+} from "@erxes/api-utils/src/commonTypeDefs";
+import { assetCategoryParams, assetParams } from "../../common/graphql/asset";
 
-export const types = (contactsAvailable) => `
+export const types = `
 
     ${attachmentType}
     ${attachmentInput}
@@ -13,14 +13,8 @@ export const types = (contactsAvailable) => `
       _id: String! @external
     }
 
-    ${
-      contactsAvailable
-        ? `
-          extend type Company @key(fields: "_id") {
-            _id: String! @external
-          }
-        `
-        : ''
+    extend type Company @key(fields: "_id") {
+        _id: String! @external
     }
 
     type AssetCategory @key(fields: "_id") @cacheControl(maxAge: 3) {
@@ -58,7 +52,7 @@ export const types = (contactsAvailable) => `
       parent:Asset
       isRoot: Boolean
       childAssetCount:Int
-      ${contactsAvailable ? 'vendor: Company' : ''}
+      vendor: Company
     }
 
     type AssetKBArticleHistory {

@@ -17,6 +17,6 @@ export const getCustomerDetailByRegister = async (
   return await fetchPolaris({
     subdomain,
     op: "13610335",
-    data: sendData,
+    data: sendData
   });
 };

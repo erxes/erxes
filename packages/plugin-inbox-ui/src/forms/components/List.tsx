@@ -59,14 +59,14 @@ const List = ({
   copy,
   counts,
   location,
-  navigate,
+  navigate
 }: Props) => {
   const onChange = () => {
     toggleAll(integrations, "integrations");
   };
 
   const renderRow = () => {
-    return integrations.map((integration) => (
+    return integrations.map(integration => (
       <Row
         key={integration._id}
         isChecked={bulk.includes(integration)}
@@ -80,9 +80,9 @@ const List = ({
     ));
   };
 
-  const searchHandler = (event) => {
+  const searchHandler = event => {
     routerUtils.setParams(navigate, location, {
-      searchValue: event.target.value,
+      searchValue: event.target.value
     });
   };
 
@@ -98,14 +98,12 @@ const List = ({
 
     actionBarLeft = (
       <BarItems>
-        {isEnabled("tags") && (
-          <TaggerPopover
-            type={TAG_TYPES.INTEGRATION}
-            successCallback={emptyBulk}
-            targets={bulk}
-            trigger={tagButton}
-          />
-        )}
+        <TaggerPopover
+          type={TAG_TYPES.INTEGRATION}
+          successCallback={emptyBulk}
+          targets={bulk}
+          trigger={tagButton}
+        />
       </BarItems>
     );
   }
@@ -167,7 +165,7 @@ const List = ({
           <th>
             <SortHandler sortField={"createdDate"} label={__("Created at")} />
           </th>
-          {isEnabled("tags") && <th>{__("Tags")}</th>}
+          <th>{__("Tags")}</th>
           <th>{__("Flow type")}</th>
           <th>{__("Actions")}</th>
         </tr>

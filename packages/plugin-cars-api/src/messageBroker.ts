@@ -1,60 +1,42 @@
-import { generateModels } from './connectionResolver';
-import { sendMessage } from '@erxes/api-utils/src/core';
+import { generateModels } from "./connectionResolver";
+import { sendMessage } from "@erxes/api-utils/src/core";
 import type {
   MessageArgsOmitService,
-  MessageArgs,
-} from '@erxes/api-utils/src/core';
+  MessageArgs
+} from "@erxes/api-utils/src/core";
 
 export const setupMessageConsumers = async () => {};
 
 export const sendInboxMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'inbox',
-    ...args,
-  });
-};
-
-export const sendTagsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'tags',
-    ...args,
+    serviceName: "inbox",
+    ...args
   });
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'core',
-    ...args,
+    serviceName: "core",
+    ...args
   });
 };
 
 export const sendInternalNotesMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'internalnotes',
-    ...args,
+    serviceName: "internalnotes",
+    ...args
   });
 };
 
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    ...args,
-  });
-};
-
-export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'segments',
-    ...args,
+    ...args
   });
 };
 
@@ -62,11 +44,11 @@ export const fetchSegment = (
   subdomain: string,
   segmentId: string,
   options?,
-  segmentData?: any,
+  segmentData?: any
 ) =>
-  sendSegmentsMessage({
+  sendCoreMessage({
     subdomain,
-    action: 'fetchSegment',
+    action: "fetchSegment",
     data: { segmentId, options, segmentData },
-    isRPC: true,
+    isRPC: true
   });

@@ -1,12 +1,14 @@
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
-import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
+import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { FieldWrapper, Options } from '../styles';
+import ProductFieldChoise from '@erxes/ui-products/src/containers/form/FormFieldChoice';
 
 type Props = {
   type: string;
   onChoiceClick: (choice: string) => void;
+  fieldTypes?: string[];
 };
 
 type FieldProps = {
@@ -14,6 +16,32 @@ type FieldProps = {
   type: string;
   text: string;
 };
+
+let fieldChoices = [
+  { type: 'input', text: 'Text input', icon: 'edit-alt' },
+  { type: 'textarea', text: 'Text area', icon: 'paragraph' },
+  { type: 'check', text: 'Checkbox', icon: 'check-square' },
+  { type: 'radio', text: 'Radio button', icon: 'check-circle' },
+  { type: 'select', text: 'Select', icon: 'sort-amount-down' },
+  { type: 'file', text: 'File', icon: 'paperclip' },
+  { type: 'email', text: 'Email', icon: 'envelope-alt' },
+  { type: 'phone', text: 'Phone', icon: 'phone' },
+  {
+    type: 'internationalPhone',
+    text: 'International Phone number',
+    icon: 'phone',
+  },
+  { type: 'firstName', text: 'First name', icon: 'user-6' },
+  { type: 'middleName', text: 'Middle name', icon: 'user-6' },
+  { type: 'lastName', text: 'Last name', icon: 'user-6' },
+  { type: 'company_primaryName', text: 'Company name', icon: 'building' },
+  { type: 'company_primaryEmail', text: 'Company Email', icon: 'envelope-alt' },
+  { type: 'company_primaryPhone', text: 'Company Phone', icon: 'phone' },
+  { type: 'map', text: 'Location/Map', icon: 'map-marker' },
+  { type: 'html', text: 'HTML', icon: 'code' },
+  { type: 'objectList', text: 'Object List', icon: 'sort-amount-down' },
+  { type: 'parentField', text: 'Group', icon: 'sort-amount-down' },
+];
 
 function FieldChoice(props: Props & FieldProps) {
   const { icon, type, text, onChoiceClick } = props;
@@ -31,9 +59,18 @@ function FieldChoice(props: Props & FieldProps) {
 }
 
 function FieldChoices(props: Props) {
+  if (!!props?.fieldTypes?.length) {
+    fieldChoices = fieldChoices.filter(({ type }) =>
+      (props?.fieldTypes || []).includes(type)
+    );
+  }
+
   return (
     <Options>
-      <FieldChoice
+      {fieldChoices.map(({ type, text, icon }) => (
+        <FieldChoice {...props} type={type} text={__(text)} icon={icon} />
+      ))}
+      {/* <FieldChoice
         {...props}
         type="input"
         text={__('Text input')}
@@ -71,7 +108,12 @@ function FieldChoices(props: Props) {
         icon="envelope-alt"
       />
       <FieldChoice {...props} type="phone" text={__('Phone')} icon="phone" />
-      <FieldChoice {...props} type="internationalPhone" text={__('International Phone number')} icon="phone" />
+      <FieldChoice
+        {...props}
+        type="internationalPhone"
+        text={__('International Phone number')}
+        icon="phone"
+      />
       <FieldChoice
         {...props}
         type="firstName"
@@ -126,8 +168,8 @@ function FieldChoices(props: Props) {
         type="parentField"
         text={__('Group')}
         icon="sort-amount-down"
-      />
-      {loadDynamicComponent('extendFormFieldChoice', props, true)}
+      /> */}
+      <ProductFieldChoise {...props} />
     </Options>
   );
 }

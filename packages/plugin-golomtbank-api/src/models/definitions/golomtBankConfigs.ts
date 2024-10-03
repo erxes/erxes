@@ -30,5 +30,5 @@ export const golomtBankConfigSchema = new Schema({
   accountId: field({ type: String, required: true }),
   golomtCode: field({ type: String, required: true }),
   apiUrl: field({ type: String, required: true }),
-  createdAt: field({ type: Date, default: Date.now }),
+  createdAt: field({ type: Date, default: Date.now })
 });

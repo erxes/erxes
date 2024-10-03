@@ -3,7 +3,7 @@ import {
   IUser,
   IUserDetails,
   IUserDoc,
-  IUserLinks,
+  IUserLinks
 } from '@erxes/ui/src/auth/types';
 
 export type IInvitationEntry = {

@@ -24,7 +24,7 @@ import ObjectListConfigs from "./ObjectListConfigs";
 import PropertyGroupForm from "../containers/PropertyGroupForm";
 import PropertyLogics from "../containers/PropertyLogics";
 import React from "react";
-import { Row } from "@erxes/ui-inbox/src/settings/integrations/styles";
+import { Row } from "../styles";
 import Toggle from "@erxes/ui/src/components/Toggle";
 import { stringToRegex } from "../utils";
 
@@ -320,9 +320,12 @@ class PropertyForm extends React.Component<Props, State> {
     const { showInCard } = this.state;
 
     if (
-      !["cards:deal", "cards:ticket", "cards:task", "cards:purchase"].includes(
-        type
-      )
+      ![
+        "sales:deal",
+        "tickets:ticket",
+        "tasks:task",
+        "purchases:purchase",
+      ].includes(type)
     ) {
       return null;
     }

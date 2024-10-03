@@ -24,7 +24,7 @@ type Props = {
   treeView?: boolean;
   linkToText?: string;
   isProductCategory?: boolean;
-  queryParams?: any;
+  queryParams?: Record<string, string>;
   isTeam?: boolean;
   queryParamName?: string;
   level?: number;
@@ -66,7 +66,7 @@ class CollapsibleList extends React.Component<Props, State> {
   };
 
   isActive = (id: string) => {
-    const { queryParams, queryParamName } = this.props;
+    const { queryParams = {}, queryParamName } = this.props;
 
     const paramName = queryParamName || '';
     const currentGroup = queryParamName

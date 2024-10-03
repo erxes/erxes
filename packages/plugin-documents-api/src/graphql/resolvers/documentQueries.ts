@@ -1,8 +1,8 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../connectionResolver';
-import { sendCommonMessage } from '../../messageBroker';
-import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { paginate } from "@erxes/api-utils/src";
+import { IContext } from "../../connectionResolver";
+import { sendCommonMessage } from "../../messageBroker";
+import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
 
 interface IListParams {
   limit: number;
@@ -26,12 +26,12 @@ const generateFilter = (args: IListParams) => {
     filter.$or = [
       { subType },
       { subType: { $exists: false } },
-      { subType: { $in: ['', null, undefined] } },
+      { subType: { $in: ["", null, undefined] } }
     ];
   }
 
   if (searchValue) {
-    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+    filter.name = new RegExp(`.*${searchValue}.*`, "i");
   }
 
   return filter;
@@ -62,9 +62,9 @@ const documentQueries = {
       subTypes?: string[];
     }> = [
       {
-        label: 'Team members',
-        contentType: 'core:user',
-      },
+        label: "Team members",
+        contentType: "core:user"
+      }
     ];
 
     for (const serviceName of services) {
@@ -77,7 +77,7 @@ const documentQueries = {
           fieldTypes.push({
             label: type.label,
             contentType: `${type.type}`,
-            subTypes: type.subTypes,
+            subTypes: type.subTypes
           });
         }
       }
@@ -89,35 +89,35 @@ const documentQueries = {
   async documentsGetEditorAttributes(
     _root,
     { contentType },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
-    if (contentType === 'core:user') {
+    if (contentType === "core:user") {
       const fields = await sendCommonMessage({
         subdomain,
-        serviceName: 'forms',
-        action: 'fields.fieldsCombinedByContentType',
+        serviceName: "forms",
+        action: "fields.fieldsCombinedByContentType",
         isRPC: true,
         data: {
-          contentType,
-        },
+          contentType
+        }
       });
 
-      return fields.map((f) => ({ value: f.name, name: f.label }));
+      return fields.map(f => ({ value: f.name, name: f.label }));
     }
 
     let data: any = {};
 
-    if (contentType.match(new RegExp('contacts:'))) {
+    if (contentType.match(new RegExp("core:"))) {
       data.contentType = contentType;
-      contentType = 'contacts';
+      contentType = "contacts";
     }
 
     return sendCommonMessage({
       subdomain,
       serviceName: contentType,
-      action: 'documents.editorAttributes',
+      action: "documents.editorAttributes",
       isRPC: true,
-      data,
+      data
     });
   },
 
@@ -125,9 +125,9 @@ const documentQueries = {
     const selector = generateFilter(args);
 
     return models.Documents.find(selector).countDocuments();
-  },
+  }
 };
 
-checkPermission(documentQueries, 'documents', 'showDocuments', []);
+checkPermission(documentQueries, "documents", "showDocuments", []);
 
 export default documentQueries;

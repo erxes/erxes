@@ -10,23 +10,23 @@ import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
 import { queries as commonQueries } from '../../common/graphql';
 import { withProps } from 'modules/common/utils';
+import { IColumnWithChosenField, ImportHistoryGetColumnsQueryResponse } from '../../types';
+import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
 
 type Props = {
   contentType: string;
   attachments: IAttachment[];
-  columnWithChosenField: any;
+  columnWithChosenField: IColumnWithChosenField;
   serviceType?: string;
   onChangeColumn: (column, value, contentType, columns) => void;
 };
 
-type State = {};
-
 type FinalProps = {
-  fieldsQuery: any; // check - FieldsCombinedByTypeQueryResponse
-  importHistoryGetColumns: any;
+  fieldsQuery: FieldsCombinedByTypeQueryResponse; 
+  importHistoryGetColumns: ImportHistoryGetColumnsQueryResponse;
 } & Props;
 
-class MapColumnContainer extends React.Component<FinalProps, State> {
+class MapColumnContainer extends React.Component<FinalProps> {
   render() {
     const {
       fieldsQuery,
@@ -50,9 +50,11 @@ class MapColumnContainer extends React.Component<FinalProps, State> {
     const fields = [
       ...(fieldsQuery.fieldsCombinedByContentType || []).map(item => {
         return {
-          value: item.name || item._id || item.value,
-          label: item.label || item.title,
-          type: (item.type || '').toLowerCase()
+          value: item.name || item._id || item.value ||'',
+          label: item.label || item.title || '',
+          type: (item.type || '').toLowerCase(),
+          name: item.name,
+          _id: item._id,
         };
       })
     ];

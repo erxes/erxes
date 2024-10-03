@@ -2,7 +2,7 @@ import {
   CONTRACT_STATUS,
   LEASE_TYPES,
   REPAYMENT,
-  SCHEDULE_STATUS
+  SCHEDULE_STATUS,
 } from "./definitions/constants";
 import {
   contractSchema,
@@ -10,7 +10,7 @@ import {
   IContract,
   IContractDocument,
   IInsurancesData,
-  ICollateralData
+  ICollateralData,
 } from "./definitions/contracts";
 import { getCloseInfo } from "./utils/closeUtils";
 import {
@@ -18,7 +18,7 @@ import {
   calcInterest,
   getDiffDay,
   getFullDate,
-  getNumber
+  getNumber,
 } from "./utils/utils";
 import { Model, FilterQuery } from "mongoose";
 import { IModels } from "../connectionResolver";
@@ -121,7 +121,7 @@ export const loadContractClass = (models: IModels) => {
             balance: a.balance,
             interestNonce: a.interestNonce,
             payment: a.payment,
-            total: a.total
+            total: a.total,
           };
         });
 
@@ -133,12 +133,16 @@ export const loadContractClass = (models: IModels) => {
         doc.leaseType === LEASE_TYPES.LINEAR ||
         doc.leaseType === LEASE_TYPES.SAVING
       ) {
+        if (!contract.savingContractId) {
+          throw new Error("Saving contract not selected");
+        }
+
         const diffDays = getDiffDay(doc.startDate, doc.endDate);
 
         const interest = calcInterest({
           balance: doc.leaseAmount,
           interestRate: doc.interestRate,
-          dayOfMonth: diffDays
+          dayOfMonth: diffDays,
         });
 
         const schedules = [
@@ -149,8 +153,8 @@ export const loadContractClass = (models: IModels) => {
             balance: doc.leaseAmount,
             interestNonce: interest,
             payment: doc.leaseAmount,
-            total: doc.leaseAmount
-          }
+            total: doc.leaseAmount,
+          },
         ];
 
         await sendMessageBroker(
@@ -163,14 +167,16 @@ export const loadContractClass = (models: IModels) => {
               blockType: "scheduleTransaction",
               amount: contract.leaseAmount,
               scheduleDate: contract.endDate,
-              payDate: contract.startDate
+              payDate: contract.startDate,
             },
-            subdomain
+            isRPC: true,
+            subdomain,
           },
           "savings"
         );
 
         await models.FirstSchedules.insertMany(schedules);
+        await models.Schedules.insertMany(schedules);
       }
 
       return contract;
@@ -184,7 +190,7 @@ export const loadContractClass = (models: IModels) => {
       { schedule, ...doc }: IContract & { schedule: any }
     ): Promise<IContractDocument | null> {
       const oldContract = await models.Contracts.getContract({
-        _id
+        _id,
       });
 
       if (oldContract.contractTypeId !== doc.contractTypeId) {
@@ -206,7 +212,7 @@ export const loadContractClass = (models: IModels) => {
       );
       await models.Contracts.updateOne({ _id }, { $set: doc });
       const transactions = await models.Transactions.find({
-        contractId: _id
+        contractId: _id,
       }).lean();
       if (
         doc.repayment === REPAYMENT.CUSTOM &&
@@ -224,7 +230,7 @@ export const loadContractClass = (models: IModels) => {
             balance: a.balance,
             interestNonce: a.interestNonce,
             payment: a.payment,
-            total: a.interestNonce + a.payment
+            total: a.interestNonce + a.payment,
           };
         });
 
@@ -241,7 +247,7 @@ export const loadContractClass = (models: IModels) => {
      */
     public static async closeContract(subdomain, doc: ICloseVariable) {
       const contract = await models.Contracts.getContract({
-        _id: doc.contractId
+        _id: doc.contractId,
       });
       const closeInfo = await getCloseInfo(
         models,
@@ -255,7 +261,7 @@ export const loadContractClass = (models: IModels) => {
         payDate: doc.closeDate,
         description: doc.description,
         currency: contract.currency,
-        total: closeInfo.total
+        total: closeInfo.total,
       };
       await models.Transactions.createTransaction(subdomain, trDoc);
 
@@ -266,13 +272,13 @@ export const loadContractClass = (models: IModels) => {
             closeDate: doc.closeDate,
             closeType: doc.closeType,
             closeDescription: doc.description,
-            status: CONTRACT_STATUS.CLOSED
-          }
+            status: CONTRACT_STATUS.CLOSED,
+          },
         }
       );
 
       return models.Contracts.getContract({
-        _id: doc.contractId
+        _id: doc.contractId,
       });
     }
 
@@ -281,13 +287,13 @@ export const loadContractClass = (models: IModels) => {
      */
     public static async removeContracts(_ids) {
       const transactions = await models.Transactions.countDocuments({
-        contractId: _ids
+        contractId: _ids,
       });
       if (transactions > 0) {
         throw new Error("You can not delete contract with transaction");
       }
       await models.Schedules.deleteMany({
-        contractId: { $in: _ids }
+        contractId: { $in: _ids },
       });
 
       return models.Contracts.deleteMany({ _id: { $in: _ids } });
@@ -316,15 +322,14 @@ export const loadContractClass = (models: IModels) => {
           .dp(config.calculationFixed)
           .toNumber()
       ) {
-
         const loanTr = await models.Transactions.createTransaction(subdomain, {
           total: requestParams.amount,
           give: requestParams.amount,
           contractId: requestParams.contractId,
           customerId: requestParams.customerId,
-          transactionType:'give',
+          transactionType: "give",
           payDate: new Date(),
-          currency: contract.currency
+          currency: contract.currency,
         });
 
         const savingTr = {
@@ -339,14 +344,14 @@ export const loadContractClass = (models: IModels) => {
           dealtType: "external",
           dealtResponse: loanTr,
           accountNumber: contract.number,
-          externalBankName: "loans"
+          externalBankName: "loans",
         };
 
         await sendMessageBroker(
           {
             action: "transactions.createTransaction",
             subdomain,
-            data: savingTr
+            data: savingTr,
           },
           "savings"
         );
@@ -364,14 +369,14 @@ export const loadContractClass = (models: IModels) => {
             dealtResponse: loanTr,
             accountNumber: requestParams.accountNumber,
             accountHolderName: requestParams.accountHolderName,
-            externalBankName: requestParams.externalBankName
+            externalBankName: requestParams.externalBankName,
           };
 
           await sendMessageBroker(
             {
               action: "transactions.createTransaction",
               subdomain,
-              data: savingTr
+              data: savingTr,
             },
             "savings"
           );

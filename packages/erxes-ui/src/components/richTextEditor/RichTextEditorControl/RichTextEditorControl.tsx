@@ -35,6 +35,7 @@ export const RichTextEditorControl = forwardRef<
   return (
     <EditorControl
       {...others}
+      type="button"
       disabled={isSourceControl ? false : disabled || isSourceEnabled}
       data-rich-text-editor-control={true}
       tabIndex={interactive ? 0 : -1}
@@ -43,7 +44,6 @@ export const RichTextEditorControl = forwardRef<
         isSourceEnabled && isSourceControl ? true : active || undefined
       }
       aria-pressed={(active && interactive) || undefined}
-      aria-hidden={!interactive || undefined}
       ref={ref}
       onMouseDown={(event) => {
         event.preventDefault();

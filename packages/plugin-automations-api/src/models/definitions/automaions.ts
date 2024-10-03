@@ -1,5 +1,5 @@
-import { Document, Schema } from 'mongoose';
-import { STATUSES } from '../../constants';
+import { Document, Schema } from "mongoose";
+import { STATUSES } from "../../constants";
 
 export type IActionsMap = { [key: string]: IAction };
 
@@ -16,13 +16,13 @@ export interface IAction {
 }
 
 export type TriggerType =
-  | 'customer'
-  | 'company'
-  | 'deal'
-  | 'task'
-  | 'purchase'
-  | 'ticket'
-  | 'conversation';
+  | "customer"
+  | "company"
+  | "deal"
+  | "task"
+  | "purchase"
+  | "ticket"
+  | "conversation";
 
 export interface ITrigger {
   id: string;
@@ -103,10 +103,10 @@ export const automationSchema = new Schema({
   createdAt: {
     type: Date,
     default: new Date(),
-    label: 'Created date'
+    label: "Created date"
   },
   createdBy: { type: String },
-  updatedAt: { type: Date, default: new Date(), label: 'Updated date' },
+  updatedAt: { type: Date, default: new Date(), label: "Updated date" },
   updatedBy: { type: String },
-  tagIds: { type: [String], label: 'Tag Ids', optional: true }
+  tagIds: { type: [String], label: "Tag Ids", optional: true }
 });

@@ -10,7 +10,7 @@ import {
   MenusContainer,
   Row,
   RowTitle,
-  Divider,
+  Divider
 } from "@erxes/ui-settings/src/main/styles";
 import { getVersion } from "@erxes/ui/src/utils/core";
 
@@ -20,14 +20,14 @@ const permissionActions = [
   "showPermissions",
   "showPermissionModules",
   "showPermissionActions",
-  "exportPermissions",
+  "exportPermissions"
 ];
 const teamPermissions = [
   "showUsers",
   "usersEdit",
   "usersInvite",
   "usersSetActiveStatus",
-  "exportUsers",
+  "exportUsers"
 ];
 
 class Settings extends React.PureComponent {
@@ -175,6 +175,61 @@ class Settings extends React.PureComponent {
               "/settings/structure",
               "usersAll",
               teamPermissions
+            )}
+
+            {this.renderBox(
+              "Tags",
+              "/images/icons/erxes-18.svg",
+              "/settings/tags",
+              "tagsAll",
+              ["showTags", "manageTags"]
+            )}
+
+            {this.renderBox(
+              "System Logs",
+              "/images/icons/erxes-33.png",
+              "/settings/logs",
+              "",
+              []
+            )}
+
+            {this.renderBox(
+              "Properties",
+              "/images/icons/erxes-01.svg",
+              "/settings/properties",
+              "formsAll",
+              ["showForms", "manageForms"]
+            )}
+
+            {this.renderBox(
+              "Email Delivery Logs",
+              "/images/icons/erxes-27.png",
+              "/settings/emailDelivery",
+              "",
+              []
+            )}
+            {this.renderBox(
+              "Configs of Products",
+              "/images/icons/erxes-07.svg",
+              "/settings/uoms-manage",
+              "",
+              ["showProducts", "manageProducts"]
+            )}
+
+            {this.renderBox(
+              "Product and services",
+              "/images/icons/erxes-31.png",
+              "/settings/product-service/",
+              "",
+              ["showProducts", "manageProducts"]
+            )}
+
+            {this.renderBox(
+              "Email Templates",
+              "/images/icons/erxes-09.svg",
+              "/settings/email-templates",
+              "emailTemplateAll",
+              ["showEmailTemplates"]
             )}
           </div>
         </Row>

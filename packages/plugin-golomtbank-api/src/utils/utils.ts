@@ -22,7 +22,7 @@ export const getAuthHeaders = async (args: {
   if (accessToken) {
     return {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${accessToken}`
     };
   }
 
@@ -30,15 +30,16 @@ export const getAuthHeaders = async (args: {
     if (!apiUrl) {
       throw new Error("Not found url");
     }
+
     const encrypted = encryptedPassword(configPassword, sessionKey, ivKey);
 
     const response = await fetch(`${apiUrl}/v1/auth/login`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify({ name: name, password: encrypted }),
-    }).then((res) => res.json());
+      body: JSON.stringify({ name: name, password: encrypted })
+    }).then(res => res.json());
 
     await redis.set(
       `golomtbank_token_${clientId}:${sessionKey}`,
@@ -49,7 +50,7 @@ export const getAuthHeaders = async (args: {
 
     return {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${response.token}`,
+      Authorization: `Bearer ${response.token}`
     };
   } catch (e) {
     console.error(e.message);

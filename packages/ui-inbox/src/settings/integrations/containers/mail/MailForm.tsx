@@ -69,7 +69,7 @@ class MailFormContainer extends React.Component<
     this.state = {
       loadedEmails: false,
       verifiedImapEmails: [],
-      verifiedEngageEmails: [],
+      verifiedEngageEmails: []
     };
   }
 
@@ -86,7 +86,7 @@ class MailFormContainer extends React.Component<
       currentUser,
       mails,
       messageId,
-      currentConversation,
+      currentConversation
     } = this.props;
 
     const { loadedEmails, verifiedImapEmails, verifiedEngageEmails } =
@@ -96,12 +96,12 @@ class MailFormContainer extends React.Component<
       if (isEnabled("engages")) {
         client
           .query({
-            query: gql(engageQueries.verifiedEmails),
+            query: gql(engageQueries.verifiedEmails)
           })
           .then(({ data }) => {
             this.setState({
               loadedEmails: true,
-              verifiedEngageEmails: data.engageVerifiedEmails || [],
+              verifiedEngageEmails: data.engageVerifiedEmails || []
             });
           })
           .catch(() => {
@@ -113,8 +113,8 @@ class MailFormContainer extends React.Component<
           .query({
             query: gql(queries.imapIntegrations),
             variables: {
-              kind: "imap",
-            },
+              kind: "imap"
+            }
           })
           .then(({ data }) => {
             const emails: string[] = [];
@@ -134,7 +134,7 @@ class MailFormContainer extends React.Component<
 
             this.setState({
               loadedEmails: true,
-              verifiedImapEmails: emails,
+              verifiedImapEmails: emails
             });
           })
           .catch(() => {
@@ -175,16 +175,16 @@ class MailFormContainer extends React.Component<
 
           return {
             ...prev,
-            emailTemplates: [...prevEmailTemplates, ...fetchedEmailTemplates],
+            emailTemplates: [...prevEmailTemplates, ...fetchedEmailTemplates]
           };
-        },
+        }
       });
     };
 
     const save = ({
       mutation,
       variables,
-      callback,
+      callback
     }: {
       mutation: string;
       variables: any;
@@ -198,8 +198,8 @@ class MailFormContainer extends React.Component<
             ...variables,
             integrationId,
             conversationId,
-            customerId,
-          },
+            customerId
+          }
         })
         .then(() => {
           if (detailQuery) {
@@ -226,7 +226,7 @@ class MailFormContainer extends React.Component<
             callback();
           }
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
 
           if (callback) {
@@ -241,7 +241,7 @@ class MailFormContainer extends React.Component<
 
     const sendMail = ({
       variables,
-      callback,
+      callback
     }: {
       variables: any;
       callback: () => void;
@@ -260,7 +260,7 @@ class MailFormContainer extends React.Component<
       return save({
         mutation: sendEmailMutation,
         variables,
-        callback,
+        callback
       });
     };
     const updatedProps = {
@@ -277,7 +277,7 @@ class MailFormContainer extends React.Component<
       messageId,
       verifiedImapEmails: verifiedImapEmails || [],
       verifiedEngageEmails: verifiedEngageEmails || [],
-      detailQuery: detailQuery || [],
+      detailQuery: detailQuery || []
     };
 
     return <MailForm {...updatedProps} />;
@@ -290,21 +290,19 @@ const WithMailForm = withProps<Props>(
       name: "emailTemplatesQuery",
       options: ({ queryParams }) => ({
         variables: {
-          searchValue: queryParams.emailTemplatesSearch || "",
+          searchValue: queryParams.emailTemplatesSearch || ""
         },
-        fetchPolicy: "cache-first",
-      }),
-      skip: !isEnabled("emailtemplates"),
+        fetchPolicy: "cache-first"
+      })
     }),
     graphql<Props, any>(gql(queries.templateTotalCount), {
       name: "emailTemplatesTotalCountQuery",
       options: ({ queryParams }) => ({
         variables: {
-          searchValue: queryParams.emailTemplatesSearch || "",
+          searchValue: queryParams.emailTemplatesSearch || ""
         },
-        fetchPolicy: "cache-first",
-      }),
-      skip: !isEnabled("emailtemplates"),
+        fetchPolicy: "cache-first"
+      })
     })
   )(withCurrentUser(MailFormContainer))
 );

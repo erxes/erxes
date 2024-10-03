@@ -1,14 +1,14 @@
-import BlockList from '../containers/common/BlockList';
-import React from 'react';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
+import BlockList from "../containers/common/BlockList";
+import React from "react";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import SegmentsFilter from "@erxes/ui-segments/src/components/filter/SegmentsFilter";
 
 export default function LeftSidebar({
   loadingMainQuery,
   queryParams
 }: {
   loadingMainQuery: boolean;
-  queryParams: string;
+  queryParams: Record<string, string>;
 }) {
   return (
     <Sidebar hasBorder={true}>
@@ -23,9 +23,7 @@ export default function LeftSidebar({
         queryParams={queryParams}
       />
       <BlockList queryType="units" title="Unit" queryParams={queryParams} />
-      {loadDynamicComponent('teamMemberSidebarComp', {
-        loadingMainQuery
-      })}
+      <SegmentsFilter loadingMainQuery={loadingMainQuery} />
     </Sidebar>
   );
 }

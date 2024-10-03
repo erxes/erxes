@@ -19,7 +19,6 @@ export default [
   'EngageData',
   'MailData',
   'VideoCallData',
-  'BookingData',
   // < Types from community repo. Everything uses OS build of the core-ui, until better solution is found we have to include them here
   'ItemSourceLocation',
   'CalcedInfo'

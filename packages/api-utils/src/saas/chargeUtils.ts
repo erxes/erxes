@@ -1,17 +1,17 @@
-import { debugError } from '@erxes/api-utils/src/debuggers';
-import { sendRPCMessage } from '../messageBroker';
-import { ORGANIZATION_PLAN } from './constants';
+import { debugError } from "@erxes/api-utils/src/debuggers";
+import { sendRPCMessage } from "../messageBroker";
+import { ORGANIZATION_PLAN } from "./constants";
 import {
   coreModelOrganizations,
   // getOrgPromoCodes,
   getOrganizationDetail,
   getPlugins,
   removeOrgsCache
-} from './saas';
-import { IOrganization } from './types';
+} from "./saas";
+import { IOrganization } from "./types";
 
 const sendCommonMessage = async ({ serviceName, action, subdomain, data }) => {
-  return sendRPCMessage(serviceName + ':' + action, {
+  return sendRPCMessage(serviceName + ":" + action, {
     subdomain,
     data
   });
@@ -30,312 +30,297 @@ export const getUsageByPluginType = async (args: {
 
   let totalUsage = 0;
 
-  if (methodName === 'integrationsCreateLeadIntegration') {
-    pluginType = 'inbox:popups';
+  if (methodName === "integrationsCreateLeadIntegration") {
+    pluginType = "inbox:popups";
   }
 
-  if (methodName === 'integrationsCreateLeadIntegration') {
-    pluginType = 'inbox:popups';
+  if (methodName === "integrationsCreateLeadIntegration") {
+    pluginType = "inbox:popups";
   }
 
-  if (methodName === 'integrationsCreateExternalIntegration') {
-    const integrationKind = params ? params.kind : '';
+  if (methodName === "integrationsCreateExternalIntegration") {
+    const integrationKind = params ? params.kind : "";
 
     switch (integrationKind) {
-      case 'facebook-post':
-        pluginType = 'facebookPost';
+      case "facebook-post":
+        pluginType = "facebookPost";
 
-      case 'facebook-messenger':
-        pluginType = 'facebookMessenger';
+      case "facebook-messenger":
+        pluginType = "facebookMessenger";
 
-      case 'instagram-post':
-        pluginType = 'instagramPost';
+      case "instagram-post":
+        pluginType = "instagramPost";
 
-      case 'instagram-messenger':
-        pluginType = 'instagramMessenger';
+      case "instagram-messenger":
+        pluginType = "instagramMessenger";
     }
   }
 
-  if (methodName === 'customersAdd') {
-    pluginType = 'contacts';
+  if (methodName === "customersAdd") {
+    pluginType = "contacts";
   }
 
-  if (methodName === 'integrationsCreateLeadIntegration') {
-    pluginType = 'inbox:popups';
+  if (methodName === "integrationsCreateLeadIntegration") {
+    pluginType = "inbox:popups";
   }
 
-  if (methodName === 'integrationsCreateMessengerIntegration') {
-    pluginType = 'inbox:messenger';
+  if (methodName === "integrationsCreateMessengerIntegration") {
+    pluginType = "inbox:messenger";
   }
 
-  if (methodName === 'integrationsCreateBookingIntegration') {
-    pluginType = 'inbox:booking';
+  if (methodName === "knowledgeBaseTopicsAdd") {
+    pluginType = "knowledgebase";
   }
 
-  if (methodName === 'knowledgeBaseTopicsAdd') {
-    pluginType = 'knowledgebase';
+  if (methodName === "automationsAdd") {
+    pluginType = "automations";
   }
 
-  if (methodName === 'automationsAdd') {
-    pluginType = 'automations';
+  if (methodName === "segmentsAdd") {
+    pluginType = "segments";
   }
 
-  if (methodName === 'segmentsAdd') {
-    pluginType = 'segments';
+  if (methodName === "usersInvite") {
+    pluginType = "teamMembers";
   }
 
-  if (methodName === 'usersInvite') {
-    pluginType = 'teamMembers';
-  }
-
-  if (methodName === 'boardsAdd') {
-    if (actionName === 'dealBoardsAdd') {
-      pluginType = 'cards:deals';
+  if (methodName === "boardsAdd") {
+    if (actionName === "dealBoardsAdd") {
+      pluginType = "sales:deals";
     }
 
-    if (actionName === 'taskBoardsAdd') {
-      pluginType = 'cards:tasks';
+    if (actionName === "taskBoardsAdd") {
+      pluginType = "tasks:tasks";
     }
 
-    if (actionName === 'ticketBoardsAdd') {
-      pluginType = 'card:tickets';
+    if (actionName === "ticketBoardsAdd") {
+      pluginType = "tickets:ticket";
     }
 
-    if (actionName === 'growthHackBoardsAdd') {
-      pluginType = 'cards:growthHacks';
+    if (actionName === "growthHackBoardsAdd") {
+      pluginType = "growthhacks:growthHacks";
     }
   }
 
-  if (methodName === 'clientPortalConfigUpdate') {
-    pluginType = 'clientportal';
+  if (methodName === "clientPortalConfigUpdate") {
+    pluginType = "clientportal";
   }
 
-  if (pluginType === 'contacts') {
+  if (pluginType === "contacts") {
     if (models) {
       totalUsage = await models.Customers.find({}).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: 'contacts',
-        action: 'customers.count',
+        serviceName: "core",
+        action: "customers.count",
         data: {}
       });
     }
   }
 
-  if (pluginType === 'facebookPost') {
-    const selector = { kind: 'facebook-post' };
+  if (pluginType === "facebookPost") {
+    const selector = { kind: "facebook-post" };
 
     if (models) {
       totalUsage = await models.Integrations.find(selector).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: 'inbox',
-        action: 'integrations.count',
+        serviceName: "inbox",
+        action: "integrations.count",
         data: { selector }
       });
     }
   }
-  if (pluginType === 'instagramPost') {
-    const selector = { kind: 'instagram-post' };
+  if (pluginType === "instagramPost") {
+    const selector = { kind: "instagram-post" };
 
     if (models) {
       totalUsage = await models.Integrations.find(selector).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: 'inbox',
-        action: 'integrations.count',
+        serviceName: "inbox",
+        action: "integrations.count",
         data: { selector }
       });
     }
   }
-  if (pluginType === 'facebookMessenger') {
-    const selector = { kind: 'facebook-messenger' };
+  if (pluginType === "facebookMessenger") {
+    const selector = { kind: "facebook-messenger" };
 
     if (models) {
       totalUsage = await models.Integrations.find(selector).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: 'inbox',
-        action: 'integrations.count',
+        serviceName: "inbox",
+        action: "integrations.count",
         data: { selector }
       });
     }
   }
-  if (pluginType === 'instagramMessenger') {
-    const selector = { kind: 'instagram-messenger' };
+  if (pluginType === "instagramMessenger") {
+    const selector = { kind: "instagram-messenger" };
 
     if (models) {
       totalUsage = await models.Integrations.find(selector).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: 'inbox',
-        action: 'integrations.count',
+        serviceName: "inbox",
+        action: "integrations.count",
         data: { selector }
       });
     }
   }
-  if (pluginType === 'cards:tickets') {
+  if (pluginType === "tickets:tickets") {
     if (models) {
-      totalUsage = await models.Boards.find({ type: 'ticket' }).countDocuments();
+      totalUsage = await models.Boards.find({
+        type: "ticket"
+      }).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: 'cards',
-        action: 'boards.count',
-        data: { selector: { type: 'ticket' } }
+        serviceName: "cards",
+        action: "boards.count",
+        data: { selector: { type: "ticket" } }
       });
     }
   }
 
-  if (pluginType === 'cards:tasks') {
+  if (pluginType === "tasks:tasks") {
     if (models) {
-      totalUsage = await models.Boards.find({ type: 'task' }).countDocuments();
+      totalUsage = await models.Boards.find({ type: "task" }).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: 'cards',
-        action: 'boards.count',
-        data: { selector: { type: 'task' } }
+        serviceName: "cards",
+        action: "boards.count",
+        data: { selector: { type: "task" } }
       });
     }
   }
 
-  if (pluginType === 'cards:deals') {
+  if (pluginType === "sales:deals") {
     if (models) {
-      totalUsage = await models.Boards.find({ type: 'deal' }).countDocuments();
+      totalUsage = await models.Boards.find({ type: "deal" }).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: 'cards',
-        action: 'boards.count',
-        data: { selector: { type: 'deal' } }
+        serviceName: "cards",
+        action: "boards.count",
+        data: { selector: { type: "deal" } }
       });
     }
   }
 
-  if (pluginType === 'cards:growthHacks') {
+  if (pluginType === "growthhacks:growthHacks") {
     if (models) {
       totalUsage = await models.GrowthHacks.find({}).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: 'cards',
-        action: 'boards.count',
-        data: { selector: { type: 'growthHack' } }
+        serviceName: "cards",
+        action: "boards.count",
+        data: { selector: { type: "growthHack" } }
       });
     }
   }
 
-  if (pluginType === 'inbox:messenger') {
-    const selector = { kind: 'messenger' };
+  if (pluginType === "inbox:messenger") {
+    const selector = { kind: "messenger" };
 
     if (models) {
       totalUsage = await models.Integrations.find(selector).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: 'inbox',
-        action: 'integrations.count',
+        serviceName: "inbox",
+        action: "integrations.count",
         data: { selector }
       });
     }
   }
 
-  if (pluginType === 'inbox:popups') {
-    const selector = { kind: 'lead' };
+  if (pluginType === "inbox:popups") {
+    const selector = { kind: "lead" };
 
     if (models) {
       totalUsage = await models.Integrations.find(selector).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: 'inbox',
-        action: 'integrations.count',
+        serviceName: "inbox",
+        action: "integrations.count",
         data: { selector }
       });
     }
   }
 
-  if (pluginType === 'inbox:booking') {
-    const selector = { kind: 'booking' };
-
+  if (pluginType === "knowledgebase") {
     if (models) {
-      totalUsage = await models.Integrations.find(selector).countDocuments();
+      totalUsage = await models.KnowledgeBaseCategories.find(
+        {}
+      ).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: 'inbox',
-        action: 'integrations.count',
-        data: { selector }
-      });
-    }
-  }
-
-  if (pluginType === 'knowledgebase') {
-    if (models) {
-      totalUsage = await models.KnowledgeBaseCategories.find({}).countDocuments();
-    } else {
-      totalUsage = await sendCommonMessage({
-        subdomain,
-        serviceName: 'knowledgebase',
-        action: 'topics.count',
+        serviceName: "knowledgebase",
+        action: "topics.count",
         data: {}
       });
     }
   }
 
-  if (pluginType === 'clientPortal') {
+  if (pluginType === "clientPortal") {
     if (models) {
       totalUsage = await models.ClientPortals.find({}).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: 'clientportal',
-        action: 'clientPortals.count',
+        serviceName: "clientportal",
+        action: "clientPortals.count",
         data: {}
       });
     }
   }
 
-  if (pluginType === 'automations') {
+  if (pluginType === "automations") {
     if (models) {
       totalUsage = await models.Automations.find({}).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: 'automations',
-        action: 'find.count',
+        serviceName: "automations",
+        action: "find.count",
         data: {}
       });
     }
   }
 
-  if (pluginType === 'segments') {
+  if (pluginType === "segments") {
     if (models) {
       totalUsage = await models.Segments.find({}).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: 'segments',
-        action: 'count',
-        data: {},
+        serviceName: "segments",
+        action: "count",
+        data: {}
       });
     }
   }
 
-  if (pluginType === 'teamMembers') {
+  if (pluginType === "teamMembers") {
     if (models) {
       totalUsage = await models.Users.find({}).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: 'core',
-        action: 'users.getCount',
+        serviceName: "core",
+        action: "users.getCount",
         data: {}
       });
     }
@@ -393,7 +378,7 @@ export const checkOrganizationCharge = async (args: {
   });
 
   if (usedAmount + (aboutToAddAmout || 0) >= totalAmount) {
-    throw new Error('Your limit is reached. Please, purchase more Add Ons.');
+    throw new Error("Your limit is reached. Please, purchase more Add Ons.");
   }
 };
 
@@ -416,9 +401,9 @@ export const calcUsage = async (args: {
 
   const plugins = await getPlugins({});
   const charge = organization.charge || {};
-  const plan = organization.plan || '';
+  const plan = organization.plan || "";
 
-  const plugin = plugins.find((p) => p.type === pluginType);
+  const plugin = plugins.find(p => p.type === pluginType);
 
   if (!plugin) {
     return {
@@ -449,7 +434,6 @@ export const calcUsage = async (args: {
         params
       });
       totalUsage = usageResponse.totalUsage || 0;
-      
     } catch (error) {
       debugError(`Error occurred while getting plugin usage ${error.message}`);
     }
@@ -477,11 +461,11 @@ export const calcUsage = async (args: {
 
   //   totalAmount += promoCodeAmount;
   // } else
-   if (plan === ORGANIZATION_PLAN.GROWTH) {
+  if (plan === ORGANIZATION_PLAN.GROWTH) {
     totalAmount += growthInitialCount;
   }
 
-  const remainingAmount = (totalAmount - totalUsage) || 0;
+  const remainingAmount = totalAmount - totalUsage || 0;
 
   return {
     freeAmount,
@@ -513,7 +497,7 @@ export const updateUsageCharge = async (args: {
     { upsert: true }
   );
 
-  await removeOrgsCache('updateOrganization');
+  await removeOrgsCache("updateOrganization");
 
   return getOrganizationDetail({ subdomain, models });
 };

@@ -71,7 +71,7 @@ const CreateLeadContainer: React.FC<Props> = (props) => {
 
     if (canClose) {
       navigate({
-        pathname: "/forms",
+        pathname: "/forms/leads",
         search: `?popUpRefetchList=true&showInstallCode=${state.integrationId}`,
       });
     }

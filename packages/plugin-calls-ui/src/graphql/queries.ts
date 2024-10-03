@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const callsIntegrationDetail: string = `
   query callsIntegrationDetail($integrationId: String!) {
@@ -37,20 +37,12 @@ const callCustomerDetail: string = `
       phones
       phone
       tagIds
-        ${
-          isEnabled('tags')
-            ? `
-          getTags {
-            _id
-            name
-            colorCode
-                    type
-
-          }
-        `
-            : ``
-        }
-     
+      getTags {
+          _id
+          name
+          colorCode
+          type
+      }
     }
 }
 `;
@@ -137,18 +129,12 @@ const callHistories = `
       avatar
       email
       firstName
-      ${
-        isEnabled('tags')
-          ? `
-          getTags {
-            _id
-            name
-            colorCode
-                    type
+      getTags {
+        _id
+        name
+        colorCode
+        type
 
-          }
-        `
-          : ``
       }
       phone
       primaryEmail
@@ -220,5 +206,5 @@ export default {
   callQueueList,
   callWaitingList,
   callProceedingList,
-  callQueueMemberList,
+  callQueueMemberList
 };

@@ -1,7 +1,7 @@
 import {
   connectToMessageBroker,
-  sendRPCMessage,
-} from '@erxes/api-utils/src/messageBroker';
+  sendRPCMessage
+} from "@erxes/api-utils/src/messageBroker";
 
 export const initBroker = async () => {
   await connectToMessageBroker(setupMessageConsumers);
@@ -10,51 +10,51 @@ export const initBroker = async () => {
 export const setupMessageConsumers = async () => {};
 
 export const fetchSegment = (subdomain, segmentId, options?) =>
-  sendRPCMessage('segments:fetchSegment', {
+  sendRPCMessage("core:fetchSegment", {
     subdomain,
-    data: { segmentId, options },
+    data: { segmentId, options }
   });
 
 export const removeCompanies = (subdomain, _ids) =>
-  sendRPCMessage('contacts:companies.removeCompanies', {
+  sendRPCMessage("core:companies.removeCompanies", {
     subdomain,
-    data: { _ids },
+    data: { _ids }
   });
 
 export const removeCustomers = (subdomain, _ids) =>
-  sendRPCMessage('contacts:customers.removeCustomers', {
+  sendRPCMessage("core:customers.removeCustomers", {
     subdomain,
-    data: { customerIds: _ids },
+    data: { customerIds: _ids }
   });
 
 export const removeProducts = (subdomain, _ids) =>
-  sendRPCMessage('products:removeProducts', {
+  sendRPCMessage("core:removeProducts", {
     subdomain,
-    data: { _ids },
+    data: { _ids }
   });
 
 export const removeTickets = (subdomain, _ids) =>
-  sendRPCMessage('cards:tickets.remove', {
+  sendRPCMessage("tickets:tickets.remove", {
     subdomain,
-    data: { _ids },
+    data: { _ids }
   });
 
 export const removeDeals = (subdomain, _ids) =>
-  sendRPCMessage('cards:deals.remove', {
+  sendRPCMessage("sales:deals.remove", {
     subdomain,
-    data: { _ids },
+    data: { _ids }
   });
 
 export const removeTasks = (subdomain, _ids) =>
-  sendRPCMessage('cards:tasks.remove', {
+  sendRPCMessage("tasks:tasks.remove", {
     subdomain,
-    data: { _ids },
+    data: { _ids }
   });
 
 export const removePurchases = (subdomain, _ids) =>
-  sendRPCMessage('cards:purchases.remove', {
+  sendRPCMessage("purchases:purchases.remove", {
     subdomain,
-    data: { _ids },
+    data: { _ids }
   });
-export const getFileUploadConfigs = async (subdomain) =>
-  sendRPCMessage('core:getFileUploadConfigs', { subdomain });
+export const getFileUploadConfigs = async subdomain =>
+  sendRPCMessage("core:getFileUploadConfigs", { subdomain });

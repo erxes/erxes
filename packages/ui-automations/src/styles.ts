@@ -1,6 +1,6 @@
-import styled from 'styled-components';
-import { dimensions, colors } from '@erxes/ui/src/styles';
-import { HeaderContent } from '@erxes/ui-cards/src/boards/styles/item';
+import styled from "styled-components";
+import { dimensions, colors } from "@erxes/ui/src/styles";
+import { HeaderContent } from "@erxes/ui-sales/src/boards/styles/item";
 
 export const ScrolledContent = styled.div`
   flex: 1;

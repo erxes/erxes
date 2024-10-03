@@ -14,17 +14,9 @@ import fetch from "node-fetch";
 import { IModels } from "../connectionResolver";
 import { IUserDocument } from "../db/models/definitions/users";
 import { debugBase, debugError } from "../debuggers";
-import {
-  sendCommonMessage,
-  sendContactsMessage,
-  sendLogsMessage
-} from "../messageBroker";
+import { sendCommonMessage } from "../messageBroker";
 import { graphqlPubsub } from "../pubsub";
-import {
-  getService,
-  getServices,
-  isEnabled
-} from "@erxes/api-utils/src/serviceDiscovery";
+import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
 import redis from "@erxes/api-utils/src/redis";
 import sanitizeFilename from "@erxes/api-utils/src/sanitize-filename";
 import { randomAlphanumeric } from "@erxes/api-utils/src/random";
@@ -201,21 +193,14 @@ export const sendEmail = async (
     let headers: { [key: string]: string } = {};
 
     if (models && subdomain) {
-      const emailDelivery = isEnabled("logs")
-        ? await sendLogsMessage({
-            subdomain,
-            action: "emailDeliveries.create",
-            data: {
-              kind: "transaction",
-              to: toEmail,
-              from: mailOptions.from,
-              subject: title,
-              body: html,
-              status: "pending"
-            },
-            isRPC: true
-          })
-        : null;
+      const emailDelivery = (await models.EmailDeliveries.createEmailDelivery({
+        kind: "transaction",
+        to: [toEmail],
+        from: mailOptions.from,
+        subject: title || "",
+        body: html,
+        status: "pending"
+      })) as any;
 
       headers = {
         "X-SES-CONFIGURATION-SET": AWS_SES_CONFIG_SET || "erxes",
@@ -1548,20 +1533,7 @@ export const handleUnsubscription = async (
   const { cid, uid } = query;
 
   if (cid) {
-    await sendContactsMessage({
-      subdomain,
-      action: "customers.updateOne",
-      data: {
-        selector: {
-          _id: cid
-        },
-        modifier: {
-          $set: { isSubscribed: "No" }
-        }
-      },
-      isRPC: true,
-      defaultValue: {}
-    });
+    await models.Customers.updateOne({ _id: cid }, { isSubscribed: "No" });
   }
 
   if (uid) {
@@ -1615,6 +1587,129 @@ export const isImage = (mimetypeOrName: string) => {
 
 export const isVideo = (mimeType: string) => {
   return mimeType.includes("video");
+};
+
+export const countDocuments = async (
+  subdomain: string,
+  type: string,
+  _ids: string[]
+) => {
+  const [serviceName, contentType] = type.split(":");
+
+  return sendCommonMessage({
+    subdomain,
+    action: "tag",
+    serviceName,
+    data: {
+      type: contentType,
+      _ids,
+      action: "count"
+    },
+    isRPC: true
+  });
+};
+
+export const getContentTypes = async serviceName => {
+  const service = await getService(serviceName);
+  const meta = service.config.meta || {};
+  const types = (meta.tags && meta.tags.types) || [];
+  return types.map(type => `${serviceName}:${type.type}`);
+};
+
+export const tagObject = async (
+  models: IModels,
+  subdomain: string,
+  type: string,
+  tagIds: string[],
+  targetIds: string[]
+) => {
+  const [serviceName, contentType] = type.split(":");
+
+  if (serviceName === "core") {
+    const modelMap = {
+      customer: models.Customers,
+      user: models.Users,
+      company: models.Companies,
+      form: models.Forms,
+      product: models.Products
+    };
+    await modelMap[contentType].updateMany(
+      { _id: { $in: targetIds } },
+      { $set: { tagIds } }
+    );
+    return modelMap[contentType].find({ _id: { $in: targetIds } }).lean();
+  }
+
+  return sendCommonMessage({
+    subdomain,
+    serviceName,
+    action: "tag",
+    data: {
+      tagIds,
+      targetIds,
+      type: contentType,
+      action: "tagObject"
+    },
+    isRPC: true
+  });
+};
+
+export const fixRelatedItems = async ({
+  subdomain,
+  type,
+  sourceId,
+  destId,
+  action
+}: {
+  subdomain: string;
+  type: string;
+  sourceId: string;
+  destId?: string;
+  action: string;
+}) => {
+  const [serviceName, contentType] = type.split(":");
+
+  sendCommonMessage({
+    subdomain,
+    serviceName,
+    action: "fixRelatedItems",
+    data: {
+      sourceId,
+      destId,
+      type: contentType,
+      action
+    }
+  });
+};
+
+export async function handleTagsPublishChange(
+  services,
+  serviceNameFromType,
+  subdomain,
+  targetIds
+) {
+  for (const serviceName of services) {
+    if (serviceName !== serviceNameFromType) continue;
+
+    const service = await getService(serviceName);
+    const meta = service.config?.meta || {};
+
+    if (meta?.tags?.publishChangeAvailable) {
+      await sendCommonMessage({
+        subdomain,
+        serviceName,
+        action: "publishChange",
+        data: {
+          targetIds,
+          type: "tag"
+        }
+      });
+    }
+  }
+}
+
+export const extractServiceName = (type: string) => {
+  return (type || "").split(":")[0];
 };
 
 export const getEnv = utils.getEnv;

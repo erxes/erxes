@@ -1,14 +1,13 @@
-import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
-import { debugInfo, debugError } from '@erxes/api-utils/src/debuggers';
+import { IBrowserInfo } from "@erxes/api-utils/src/definitions/common";
+import { debugInfo, debugError } from "@erxes/api-utils/src/debuggers";
 
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendEngagesMessage,
-  sendLogsMessage,
-} from './messageBroker';
-import { IModels } from './connectionResolver';
-import { client, getIndexPrefix } from '@erxes/api-utils/src/elasticsearch';
+  sendEngagesMessage
+} from "./messageBroker";
+import { IModels } from "./connectionResolver";
+import { client, getIndexPrefix } from "@erxes/api-utils/src/elasticsearch";
 
 export const getOrCreateEngageMessage = async (
   models: IModels,
@@ -16,18 +15,18 @@ export const getOrCreateEngageMessage = async (
   integrationId: string,
   browserInfo: IBrowserInfo,
   visitorId?: string,
-  customerId?: string,
+  customerId?: string
 ) => {
   let customer;
 
   if (customerId) {
     customer = await sendContactsMessage({
       subdomain,
-      action: 'customers.findOne',
+      action: "customers.findOne",
       data: {
-        _id: customerId,
+        _id: customerId
       },
-      isRPC: true,
+      isRPC: true
     });
   }
 
@@ -37,33 +36,33 @@ export const getOrCreateEngageMessage = async (
 
   const integration = await models.Integrations.getIntegration({
     _id: integrationId,
-    kind: 'messenger',
+    kind: "messenger"
   });
 
   const brand = await sendCoreMessage({
     subdomain,
-    action: 'brands.findOne',
+    action: "brands.findOne",
     data: {
       query: {
-        _id: integration.brandId,
-      },
+        _id: integration.brandId
+      }
     },
     isRPC: true,
-    defaultValue: {},
+    defaultValue: {}
   });
 
   // try to create engage chat auto messages
   await sendEngagesMessage({
     subdomain,
-    action: 'createVisitorOrCustomerMessages',
+    action: "createVisitorOrCustomerMessages",
     data: {
       brandId: brand._id,
       integrationId: integration._id,
       customer,
       visitorId,
-      browserInfo,
+      browserInfo
     },
-    isRPC: true,
+    isRPC: true
   });
 
   // find conversations
@@ -74,7 +73,7 @@ export const getOrCreateEngageMessage = async (
   const convs = await models.Conversations.find(query);
 
   return models.ConversationMessages.findOne(
-    models.Conversations.widgetsUnreadMessagesQuery(convs),
+    models.Conversations.widgetsUnreadMessagesQuery(convs)
   );
 };
 
@@ -86,12 +85,12 @@ export const receiveVisitorDetail = async (subdomain: string, visitor) => {
 
   const customer = await sendContactsMessage({
     subdomain,
-    action: 'customers.updateOne',
+    action: "customers.updateOne",
     data: {
       selector: { visitorId },
-      modifier: { $set: visitor },
+      modifier: { $set: visitor }
     },
-    isRPC: true,
+    isRPC: true
   });
 
   const index = `${getIndexPrefix()}events`;
@@ -101,19 +100,19 @@ export const receiveVisitorDetail = async (subdomain: string, visitor) => {
       index,
       body: {
         script: {
-          lang: 'painless',
+          lang: "painless",
           source:
-            'ctx._source.visitorId = null; ctx._source.customerId = params.customerId',
+            "ctx._source.visitorId = null; ctx._source.customerId = params.customerId",
           params: {
-            customerId: customer._id,
-          },
+            customerId: customer._id
+          }
         },
         query: {
           term: {
-            visitorId,
-          },
-        },
-      },
+            visitorId
+          }
+        }
+      }
     });
 
     debugInfo(`Response ${JSON.stringify(response)}`);
@@ -121,68 +120,13 @@ export const receiveVisitorDetail = async (subdomain: string, visitor) => {
     debugError(`Update event error ${e.message}`);
   }
 
-  await sendLogsMessage({
+  await sendCoreMessage({
     subdomain,
-    action: 'visitor.removeEntry',
+    action: "visitor.removeEntry",
     data: {
-      visitorId,
-    },
+      visitorId
+    }
   });
 
   return customer;
-};
-
-const groupSubmissions = (submissions: any[]) => {
-  const submissionsGrouped: { [key: string]: any[] } = {};
-
-  submissions.forEach((submission) => {
-    if (submission.groupId) {
-      if (submissionsGrouped[submission.groupId]) {
-        submissionsGrouped[submission.groupId].push(submission);
-      } else {
-        submissionsGrouped[submission.groupId] = [submission];
-      }
-    } else {
-      if (submissionsGrouped.default) {
-        submissionsGrouped.default.push(submission);
-      } else {
-        submissionsGrouped.default = [submission];
-      }
-    }
-  });
-  return submissionsGrouped;
-};
-
-export const solveSubmissions = async (
-  models: IModels,
-  subdomain: string,
-  args: {
-    integrationId: string;
-    formId: string;
-    submissions;
-    browserInfo: any;
-    cachedCustomerId?: string;
-  },
-) => {
-  const { cachedCustomerId } = args;
-  const { integrationId, browserInfo } = args;
-  const integration: any = await models.Integrations.findOne({
-    _id: integrationId,
-  });
-
-  const submissionsGrouped = groupSubmissions(args.submissions);
-
-  return sendContactsMessage({
-    subdomain,
-    action: 'updateContactsField',
-    data: {
-      cachedCustomerId,
-      browserInfo,
-      integration,
-      submissionsGrouped,
-      prepareCustomFieldsData: true,
-    },
-    isRPC: true,
-    defaultValue: {},
-  });
 };

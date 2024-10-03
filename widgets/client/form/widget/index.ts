@@ -195,7 +195,7 @@ window.addEventListener('message', async (event: MessageEvent) => {
 
   if (message === 'connected') {
     const loadType =
-      data.connectionInfo.widgetsLeadConnect.integration.leadData.loadType;
+      data.connectionInfo.widgetsLeadConnect.form.leadData.loadType;
 
     // track popup handlers
     if (loadType === 'popup') {

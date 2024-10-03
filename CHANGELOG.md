@@ -1,36 +1,75 @@
 # Changelog
 
-## [1.16.0-rc.7](https://github.com/erxes/erxes/compare/1.16.0-rc.6...1.16.0-rc.7) (2024-09-11)
-
-
-### Features
-
-* **RTE:** Upgrade tiptap version (2.6.6) & remove warnings related to the RTE ([9c91dd8](https://github.com/erxes/erxes/commit/9c91dd8d3d3acea1123d8335cf2a2e04584313a5))
-
+## [2.0.0](https://github.com/erxes/erxes/compare/1.18.0-rc.0...2.0.0) (2024-09-20)
 
 ### Bug Fixes
 
-* **Insight:** Correct the table header and row cells in the Insight table ([febc731](https://github.com/erxes/erxes/commit/febc731d62cf1783435b8483734deaa758979339))
-* **widgets:** add onload to messenger iframe ([3443d01](https://github.com/erxes/erxes/commit/3443d01537f32214033d14c88aa0be4b91597d31))
+- **core:** fix tagsTag mutation ([bae5118](https://github.com/erxes/erxes/commit/bae5118bd56562112baffdf1c44c2987bc6fcd9c))
 
+## [2.0.0-rc.0](https://github.com/erxes/erxes/compare/1.18.0-rc.0...2.0.0) (2024-08-18)
+
+### Bug Fixes
+
+- fix typescript any types ([6f254b6](https://github.com/erxes/erxes/commit/6f254b654973f79036a6b30c810f0e386ff9f61a))
+
+## [1.16.0-rc.1](https://github.com/erxes/erxes/compare/1.16.0-rc.0...1.16.0-rc.1) (2024-09-02)
+
+=======
+
+## [1.18.0-rc.0](https://github.com/erxes/erxes/compare/1.17.0...1.18.0-rc.0) (2024-09-17)
+
+### Features
+
+- **email-verifier:** add mails.so as a new email verification service.([#5607](https://github.com/erxes/erxes/issues/5607)) ([d675589](https://github.com/erxes/erxes/commit/d6755895d5c4a14d739c79dc465a5adadf3ecec9))
+- **email-verifier:** introduced cron jobs for periodic email verification ([#5609](https://github.com/erxes/erxes/issues/5609)) ([62913b5](https://github.com/erxes/erxes/commit/62913b5c57b979b8c69a1b1fbf7f96b24443f091))
+- **goal:** Added Product & Service,Label,Company, tag and calculated by year , month, weekend ([6e2224b](https://github.com/erxes/erxes/commit/6e2224bbef67a8a37714387248f61604f6e3d812))
+- laons and savings contract with subscriptions by ids ([6544912](https://github.com/erxes/erxes/commit/654491290bb3671b728a12c860a6bf7e26f4e6f5))
+- loans contract and schedules with subscriptions ([2aa6f22](https://github.com/erxes/erxes/commit/2aa6f2283683c0420d9b70bf514961230e069404))
+- pos ebarimt customize with header and footer text ([#5632](https://github.com/erxes/erxes/issues/5632)) ([8c8905b](https://github.com/erxes/erxes/commit/8c8905bfb5c0a674bae98ebf8fdb89a3daa73876))
+- pos ebarimt with header and footer ([341c607](https://github.com/erxes/erxes/commit/341c607abc850d4d25639c06a0d7f4ab44b51009))
+- pos kitchen screen choose print categories ([#5622](https://github.com/erxes/erxes/issues/5622)) ([ec154c8](https://github.com/erxes/erxes/commit/ec154c86de29b33093b1c1876ba42662230726e2))
+- pos order print only new items ([#5617](https://github.com/erxes/erxes/issues/5617)) ([77d20e0](https://github.com/erxes/erxes/commit/77d20e09f7dddc8a09781dbddb91335adcff821e))
+- savings contract with subscriptions ([9d7e362](https://github.com/erxes/erxes/commit/9d7e362785f5c9395ffcd1deaa78ec1e0dcbd463))
+- xyp sync rule config ([b79bca5](https://github.com/erxes/erxes/commit/b79bca570add7511844d378bdad6b6b4fe7fc21c))
+
+### Bug Fixes
+
+- **goal:** remove unnecessary import ([a5f6582](https://github.com/erxes/erxes/commit/a5f658277701380b211046d45bca71d7d04f6fc7))
+- pos products sync to posclient using pricing timeout ([03b1823](https://github.com/erxes/erxes/commit/03b182369634477328964b96b632cc4ffed6d61f))
+- saving contract type bug and saving loan ([#5604](https://github.com/erxes/erxes/issues/5604)) ([c985de1](https://github.com/erxes/erxes/commit/c985de1816c32ee2812b9bd717d8c124fe4fca21))
+- savings blockType mongo schema ([84aa84f](https://github.com/erxes/erxes/commit/84aa84f6fd6ada3884d6177ec38a930bc5fd3fd9))
+
+## [1.17.0](https://github.com/erxes/erxes/compare/1.16.0-rc.9...1.17.0) (2024-09-17)
+
+### Features
+
+- **facebook:** add ability get ads direct message in chatbot ([cf81aac](https://github.com/erxes/erxes/commit/cf81aaca662f8d28f1abbbea7327f672fea757c8))
+
+### Bug Fixes
+
+- **instagram:** instagram reply fixs ([18ea4cc](https://github.com/erxes/erxes/commit/18ea4ccdbbb2e324c1d276870ad857add17b5081))
+
+## [1.16.0-rc.9](https://github.com/erxes/erxes/compare/1.16.0-rc.8...1.16.0-rc.9) (2024-09-17)
+
+### Bug Fixes
+
+- **RTE:** Fix prosemirror model duplications & upgrade tiptap version ([325c926](https://github.com/erxes/erxes/commit/325c92644bdade4b538c44a6b1c777757e51add8))
+- **widgets messenger:** fix iframe load call ([624b71d](https://github.com/erxes/erxes/commit/624b71da8a7e6294b5e116b6c685709054f1cddd))
+
+## [1.16.0-rc.8](https://github.com/erxes/erxes/compare/1.16.0-rc.6...1.16.0-rc.8) (2024-09-13)
+
+### Features
+
+- **RTE:** Upgrade tiptap version (2.6.6) & remove warnings related to the RTE ([9c91dd8](https://github.com/erxes/erxes/commit/9c91dd8d3d3acea1123d8335cf2a2e04584313a5))
+
+### Bug Fixes
+
+- **Insight:** Correct the table header and row cells in the Insight table ([febc731](https://github.com/erxes/erxes/commit/febc731d62cf1783435b8483734deaa758979339))
+- **widgets:** add onload to messenger iframe ([3443d01](https://github.com/erxes/erxes/commit/3443d01537f32214033d14c88aa0be4b91597d31))
 
 ### Reverts
 
-* reverting RTE changes ([e714748](https://github.com/erxes/erxes/commit/e714748fb6a71aa938859aae01ae6d530240b3fc))
-
-## [1.16.0-rc.4](https://github.com/erxes/erxes/compare/1.16.0-rc.6...1.16.0-rc.7) (2024-09-09)
-
-## [1.16.0-rc.3](https://github.com/erxes/erxes/compare/1.16.0-rc.6...1.16.0-rc.7) (2024-09-08)
-
-## [1.16.0-rc.2](https://github.com/erxes/erxes/compare/1.16.0-rc.6...1.16.0-rc.7) (2024-09-05)
-
-## [1.15.0-rc.15](https://github.com/erxes/erxes/compare/1.16.0-rc.6...1.16.0-rc.7) (2024-08-17)
-
-## [1.15.0-rc.14](https://github.com/erxes/erxes/compare/1.16.0-rc.6...1.16.0-rc.7) (2024-08-15)
-
-## [1.15.0-rc.13](https://github.com/erxes/erxes/compare/1.16.0-rc.6...1.16.0-rc.7) (2024-08-14)
-
-## [1.15.0-rc.12](https://github.com/erxes/erxes/compare/1.16.0-rc.6...1.16.0-rc.7) (2024-08-14)
+- reverting RTE changes ([e714748](https://github.com/erxes/erxes/commit/e714748fb6a71aa938859aae01ae6d530240b3fc))
 
 ## [1.16.0-rc.6](https://github.com/erxes/erxes/compare/1.16.0-rc.5...1.16.0-rc.6) (2024-09-09)
 
@@ -139,6 +178,8 @@
 - **knowledgebase:** add scheduling feature for future article publishing ([99b0373](https://github.com/erxes/erxes/commit/99b03737fc5d18577c4a3532944389da29c4e53c))
 
 ### Bug Fixes
+
+> > > > > > > ebfb981399baa64d1e0155b866551cd611485dbe
 
 - msdynamic with reserve remainder ([e01c6cd](https://github.com/erxes/erxes/commit/e01c6cd6e0308f91e5b927a9a4b0d9eba1204321))
 
@@ -306,6 +347,49 @@
 
 ## [1.14.1](https://github.com/erxes/erxes/compare/1.14.0...1.14.1) (2024-07-25)
 
+<<<<<<< HEAD
+
+> > > > > > > c4c485142c2f441fca16d7226c26663d3788af59
+
+### Features
+
+- **cards:** name auto field ([174f482](https://github.com/erxes/erxes/commit/174f482e1ef59de83dc3e3b589454d008d303eb2))
+- **timeclock:** timeclock config update ([0eadd60](https://github.com/erxes/erxes/commit/0eadd606b83898d51881c1b09d68d3cbcca956f0))
+
+<<<<<<< HEAD
+
+- fix instagram post & messenger config ([3eaf7d9](https://github.com/erxes/erxes/commit/3eaf7d92628406f0f5a692f79ce7691678fe4af6))
+- **riskassessment:** can't calculate correct when using calculate method by percent ([cd32ca4](https://github.com/erxes/erxes/commit/cd32ca465923ecd9e05b9404e95ba5a93fc05741))
+
+## [1.15.0-rc.0](https://github.com/erxes/erxes/compare/1.14.0...1.15.0-rc.0) (2024-07-17)
+
+### Features
+
+- Add golomt transaction ([#5459](https://github.com/erxes/erxes/issues/5459)) ([6803fbf](https://github.com/erxes/erxes/commit/6803fbf06dfe4e752c1d317d8be0d9d845a11292))
+- Pos split order and confirm edited order ([#5411](https://github.com/erxes/erxes/issues/5411)) ([2220380](https://github.com/erxes/erxes/commit/2220380df029eeb9351086045926df2a1804ec00))
+
+### Bug Fixes
+
+- clientportal dropdown items and saving little bug ([#5477](https://github.com/erxes/erxes/issues/5477)) ([fa32e14](https://github.com/erxes/erxes/commit/fa32e149d2bfbace470f827daaba00f772c8168a))
+- instagram create integration bug ([857b92c](https://github.com/erxes/erxes/commit/857b92c465dca80b7ad89a1370b820050448bcc9))
+- instagram integration bugs ([a59df5e](https://github.com/erxes/erxes/commit/a59df5e23f560d1e552d9e90587093bff5339f89))
+- khanbank account name ([c2d7fc6](https://github.com/erxes/erxes/commit/c2d7fc6cb70965d99184f65c65f462d61d43d170))
+- khanbank method ([#5466](https://github.com/erxes/erxes/issues/5466)) ([dcc9f68](https://github.com/erxes/erxes/commit/dcc9f68f2fb0a533fa171a60a6976eb03a9035b1))
+- khanbank, account holder query ([#5504](https://github.com/erxes/erxes/issues/5504)) ([0e55898](https://github.com/erxes/erxes/commit/0e558981f925f3aeeedb7d9593eb2117d81e4d3d))
+- loans and savings transaction and query ([#5448](https://github.com/erxes/erxes/issues/5448)) ([be27c11](https://github.com/erxes/erxes/commit/be27c11444b7db503acf51c1c1623e3a70b2ed3b))
+- pos payment ([#5479](https://github.com/erxes/erxes/issues/5479)) ([089a014](https://github.com/erxes/erxes/commit/089a01474d35f2811fef5bad753bb71941b5f2dd))
+- pos slots query ([#5473](https://github.com/erxes/erxes/issues/5473)) ([a909dde](https://github.com/erxes/erxes/commit/a909dde6fa09f0e30b10541d37efd645480e95dd))
+- scoring bug ([#5460](https://github.com/erxes/erxes/issues/5460)) ([dc9b7b3](https://github.com/erxes/erxes/commit/dc9b7b3b76c624eea26f567c7a6a45e0c765e005))
+- **verifier:** add missing enum in mongoose schema ([4133372](https://github.com/erxes/erxes/commit/4133372507bd9adb51d3f2002d9bd9689be566a0))
+- inbox hooks ([1716603](https://github.com/erxes/erxes/commit/17166034412e24a0c5fb214642d3781e134f652e))
+- pos orders filter ([5a96f58](https://github.com/erxes/erxes/commit/5a96f58263b382e440e8fd196ba757202dce99b5))
+
+- **clientportal:** enable password reset for users from erxes ([6f3f3c6](https://github.com/erxes/erxes/commit/6f3f3c6cbb9acb0b88f98e533916a3e18111785e))
+
+### Bug Fixes
+
+=======
+
 ### Features
 
 - Add golomt transaction ([#5459](https://github.com/erxes/erxes/issues/5459)) ([6803fbf](https://github.com/erxes/erxes/commit/6803fbf06dfe4e752c1d317d8be0d9d845a11292))
@@ -337,6 +421,8 @@
 - **clientportal:** enable password reset for users from erxes ([6f3f3c6](https://github.com/erxes/erxes/commit/6f3f3c6cbb9acb0b88f98e533916a3e18111785e))
 
 ### Bug Fixes
+
+> > > > > > > 5500bd0b1cb5a46cda93260747f51eb270c15636
 
 - **cards:** cards move use on top bar and pipeline settings ([#5520](https://github.com/erxes/erxes/issues/5520)) ([188bc0b](https://github.com/erxes/erxes/commit/188bc0b661aaa0c3ded604caf0b2548284815243))
 - posclient check customer ([f8221c7](https://github.com/erxes/erxes/commit/f8221c73f13489b483b16d630e72e426e1faa9bd))

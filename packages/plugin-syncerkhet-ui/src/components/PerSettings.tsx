@@ -4,11 +4,11 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon,
+  Icon
 } from "@erxes/ui/src/components";
 import client from "@erxes/ui/src/apolloClient";
 import { gql } from "@apollo/client";
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
 import { __ } from "@erxes/ui/src/utils";
 import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
 import Select from "react-select";
@@ -40,23 +40,21 @@ class PerSettings extends React.Component<Props, State> {
     this.state = {
       config: props.config,
       hasOpen: false,
-      fieldsCombined: [],
+      fieldsCombined: []
     };
 
-    if (isEnabled("forms")) {
-      client
-        .query({
-          query: gql(formQueries.fieldsCombinedByContentType),
-          variables: {
-            contentType: "cards:deal",
-          },
-        })
-        .then(({ data }) => {
-          this.setState({
-            fieldsCombined: data ? data.fieldsCombinedByContentType : [] || [],
-          });
+    client
+      .query({
+        query: gql(formQueries.fieldsCombinedByContentType),
+        variables: {
+          contentType: "sales:deal"
+        }
+      })
+      .then(({ data }) => {
+        this.setState({
+          fieldsCombined: data ? data.fieldsCombinedByContentType : [] || []
         });
-    }
+      });
   }
 
   onChangeBoard = (boardId: string) => {
@@ -71,7 +69,7 @@ class PerSettings extends React.Component<Props, State> {
     this.setState({ config: { ...this.state.config, stageId } });
   };
 
-  onSave = (e) => {
+  onSave = e => {
     e.preventDefault();
     const { configsMap, currentConfigKey } = this.props;
     const { config } = this.state;
@@ -83,13 +81,13 @@ class PerSettings extends React.Component<Props, State> {
     this.props.save({ ...configsMap, ebarimtConfig: map });
   };
 
-  onDelete = (e) => {
+  onDelete = e => {
     e.preventDefault();
 
     this.props.delete(this.props.currentConfigKey);
   };
 
-  onChangeCombo = (option) => {
+  onChangeCombo = option => {
     this.onChangeConfig("defaultPay", option.value);
   };
 
@@ -106,7 +104,7 @@ class PerSettings extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  onresponseCustomFieldChange = (option) => {
+  onresponseCustomFieldChange = option => {
     const value = !option ? "" : option.value.toString();
     this.onChangeConfig("responseField", value);
   };
@@ -148,11 +146,11 @@ class PerSettings extends React.Component<Props, State> {
     const payOptions = [
       { value: "debtAmount", label: "debtAmount" },
       { value: "cashAmount", label: "cashAmount" },
-      { value: "cardAmount", label: "cardAmount" },
+      { value: "cardAmount", label: "cardAmount" }
     ];
-    const responseFieldOptions = (this.state.fieldsCombined || []).map((f) => ({
+    const responseFieldOptions = (this.state.fieldsCombined || []).map(f => ({
       value: f.name,
-      label: f.label,
+      label: f.label
     }));
     return (
       <CollapseContent
@@ -189,7 +187,7 @@ class PerSettings extends React.Component<Props, State> {
               <Select
                 name="responseField"
                 value={responseFieldOptions.find(
-                  (o) => o.value === config.responseField
+                  o => o.value === config.responseField
                 )}
                 onChange={this.onresponseCustomFieldChange}
                 isClearable={true}
@@ -205,7 +203,7 @@ class PerSettings extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>{"defaultPay"}</ControlLabel>
               <Select
-                value={payOptions.find((o) => o.value === config.defaultPay)}
+                value={payOptions.find(o => o.value === config.defaultPay)}
                 onChange={this.onChangeCombo}
                 isClearable={false}
                 required={true}

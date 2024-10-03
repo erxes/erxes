@@ -17,11 +17,9 @@ import TransactionSection from "../transaction/TransactionSection";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "coreui/utils";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const ActivityInputs = asyncComponent(
   () =>
-    isEnabled("logs") &&
     import(
       /* webpackChunkName: "ActivityInputs" */ "@erxes/ui-log/src/activityLogs/components/ActivityInputs"
     )
@@ -29,7 +27,6 @@ const ActivityInputs = asyncComponent(
 
 const ActivityLogs = asyncComponent(
   () =>
-    isEnabled("logs") &&
     import(
       /* webpackChunkName: "ActivityLogs" */ "@erxes/ui-log/src/activityLogs/containers/ActivityLogs"
     )
@@ -60,10 +57,10 @@ const ContractDetails = (props: Props) => {
   const { saveItem, contract } = props;
 
   const [collateralsData, setCollateralsData] = useState(
-    contract.collaterals ? contract.collaterals.map((p) => ({ ...p })) : []
+    contract.collaterals ? contract.collaterals.map(p => ({ ...p })) : []
   );
   const [collaterals, setCollaterals] = useState(
-    contract.collaterals ? contract.collaterals.map((p) => p.collateral) : []
+    contract.collaterals ? contract.collaterals.map(p => p.collateral) : []
   );
 
   const saveCollateralsData = () => {
@@ -71,7 +68,7 @@ const ContractDetails = (props: Props) => {
     const amount: any = {};
     const filteredCollateralsData: any = [];
 
-    collateralsData.forEach((data) => {
+    collateralsData.forEach(data => {
       // collaterals
       if (data.collateral) {
         if (data.currency) {
@@ -107,11 +104,11 @@ const ContractDetails = (props: Props) => {
 
   const breadcrumb = [
     { title: __("Contracts"), link: "/erxes-plugin-loan/contract-list" },
-    { title },
+    { title }
   ];
 
-  const pDataChange = (pData) => onChangeField("collateralsData", pData);
-  const prsChange = (prs) => onChangeField("collaterals", prs);
+  const pDataChange = pData => onChangeField("collateralsData", pData);
+  const prsChange = prs => onChangeField("collaterals", prs);
   const content = () => {
     let tabs = [
       {
@@ -123,13 +120,11 @@ const ContractDetails = (props: Props) => {
             isFirst={true}
             regenSchedules={props.regenSchedules}
           />
-        ),
+        )
       },
       {
         label: __(`Schedules`),
-        component: (
-          <ScheduleSection contractId={contract._id} isFirst={false} />
-        ),
+        component: <ScheduleSection contractId={contract._id} isFirst={false} />
       },
       {
         label: __(`Transaction`),
@@ -138,7 +133,7 @@ const ContractDetails = (props: Props) => {
             contractId={contract._id}
             transactions={contract.loanTransactionHistory}
           />
-        ),
+        )
       },
       {
         label: __("Collaterals"),
@@ -152,42 +147,40 @@ const ContractDetails = (props: Props) => {
             collaterals={collaterals}
             contractId={contract._id}
           ></CollateralsSection>
-        ),
-      },
+        )
+      }
     ];
 
     if (contract?.storeInterest.length > 0)
       tabs.push({
         label: __("Interest store"),
-        component: <StoreInterestSection invoices={contract.storeInterest} />,
+        component: <StoreInterestSection invoices={contract.storeInterest} />
       });
 
     if (contract?.invoices.length > 0)
       tabs.push({
         label: __(`Invoice`),
-        component: <InvoiceList invoices={contract.invoices} />,
+        component: <InvoiceList invoices={contract.invoices} />
       });
 
     return (
       <>
         <Tabs tabs={tabs} />
 
-        {isEnabled("logs") && (
-          <>
-            <ActivityInputs
-              contentTypeId={contract._id}
-              contentType="loans:contract"
-              showEmail={false}
-            />
-            <ActivityLogs
-              target={contract.number || ""}
-              contentId={contract._id}
-              contentType="loans:contract"
-              extraTabs={[]}
-              activityRenderItem={ActivityItem}
-            />
-          </>
-        )}
+        <>
+          <ActivityInputs
+            contentTypeId={contract._id}
+            contentType="loans:contract"
+            showEmail={false}
+          />
+          <ActivityLogs
+            target={contract.number || ""}
+            contentId={contract._id}
+            contentType="loans:contract"
+            extraTabs={[]}
+            activityRenderItem={ActivityItem}
+          />
+        </>
       </>
     );
   };

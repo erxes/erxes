@@ -46,5 +46,5 @@ export default {
   transactionsQuery,
   accountsQuery,
   accountHolderQuery,
-  listQuery,
+  listQuery
 };

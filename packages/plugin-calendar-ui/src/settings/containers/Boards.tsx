@@ -9,7 +9,7 @@ import { mutations, queries } from "../graphql";
 import Boards from "../components/Boards";
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
 import React from "react";
-import { getWarningMessage } from "@erxes/ui-cards/src/boards/utils";
+import { getWarningMessage } from "@erxes/ui-sales/src/boards/utils";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 
@@ -37,17 +37,17 @@ class BoardsContainer extends React.Component<FinalProps> {
     };
 
     // remove action
-    const remove = (boardId) => {
+    const remove = boardId => {
       confirm(getWarningMessage("Board"), { hasDeleteConfirm: true }).then(
         () => {
           removeMutation({
             variables: { _id: boardId },
-            refetchQueries: getRefetchQueries(),
+            refetchQueries: getRefetchQueries()
           })
             .then(() => {
               Alert.success("You successfully deleted a board");
             })
-            .catch((error) => {
+            .catch(error => {
               Alert.error(error.message);
             });
         }
@@ -59,7 +59,7 @@ class BoardsContainer extends React.Component<FinalProps> {
       values,
       isSubmitted,
       callback,
-      object,
+      object
     }: IButtonMutateProps) => {
       return (
         <ButtonMutate
@@ -83,7 +83,7 @@ class BoardsContainer extends React.Component<FinalProps> {
       renderButton,
       remove,
       removeHash,
-      loading: boardsQuery.loading,
+      loading: boardsQuery.loading
     };
 
     return <Boards {...extendedProps} />;
@@ -95,7 +95,7 @@ const getRefetchQueries = () => {
 };
 
 const generateOptions = () => ({
-  refetchQueries: getRefetchQueries(),
+  refetchQueries: getRefetchQueries()
 });
 
 export default withProps<Props>(
@@ -103,14 +103,14 @@ export default withProps<Props>(
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
       name: "boardsQuery",
       options: () => ({
-        variables: {},
-      }),
+        variables: {}
+      })
     }),
     graphql<Props, RemoveBoardMutationResponse, {}>(
       gql(mutations.boardRemove),
       {
         name: "removeMutation",
-        options: generateOptions(),
+        options: generateOptions()
       }
     )
   )(BoardsContainer)

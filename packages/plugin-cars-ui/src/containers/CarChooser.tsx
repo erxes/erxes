@@ -1,15 +1,15 @@
-import ConformityChooser from '@erxes/ui-cards/src/conformity/containers/ConformityChooser';
-import { gql, useQuery, useMutation } from '@apollo/client';
-import React, { useState } from 'react';
+import ConformityChooser from "@erxes/ui-sales/src/conformity/containers/ConformityChooser";
+import { gql, useQuery, useMutation } from "@apollo/client";
+import React, { useState } from "react";
 
-import { mutations, queries } from '../graphql';
+import { mutations, queries } from "../graphql";
 import {
   AddMutationResponse,
   CarsQueryResponse,
   ICar,
-  ICarDoc,
-} from '../types';
-import CarForm from './CarForm';
+  ICarDoc
+} from "../types";
+import CarForm from "./CarForm";
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;
@@ -29,18 +29,18 @@ const CarChooser = (props: Props) => {
       mainType: data.mainType,
       mainTypeId: data.mainTypeId,
       isRelated: data.isRelated,
-      sortField: 'createdAt',
-      sortDirection: -1,
+      sortField: "createdAt",
+      sortDirection: -1
     },
-    fetchPolicy: data.isRelated ? 'network-only' : 'cache-first',
+    fetchPolicy: data.isRelated ? "network-only" : "cache-first"
   });
 
   const [carsAdd] = useMutation<AddMutationResponse, ICarDoc>(
-    gql(mutations.carsAdd),
+    gql(mutations.carsAdd)
   );
 
-  const renderName = (car) => {
-    return car.plateNumber || car.vinNumber || 'Unknown';
+  const renderName = car => {
+    return car.plateNumber || car.vinNumber || "Unknown";
   };
 
   const getAssociatedCar = (newCar: ICar) => {
@@ -59,19 +59,19 @@ const CarChooser = (props: Props) => {
       datas: data.cars,
       mainTypeId: data.mainTypeId,
       mainType: data.mainType,
-      relType: 'car',
+      relType: "car"
     },
     search,
-    clearState: () => search(''),
-    title: 'Car',
-    renderForm: (formProps) => (
+    clearState: () => search(""),
+    title: "Car",
+    renderForm: formProps => (
       <CarForm {...formProps} getAssociatedCar={getAssociatedCar} />
     ),
     renderName,
     newItem: car,
     resetAssociatedItem,
     datas: carsQuery?.data?.cars || [],
-    refetchQuery: queries.cars,
+    refetchQuery: queries.cars
   };
 
   return <ConformityChooser {...updatedProps} />;
@@ -92,7 +92,7 @@ type WrapperProps = {
 
 const Wrapper = (props: WrapperProps) => {
   const [perPage, setPerPage] = useState<number>(20);
-  const [searchValue, setSearchValue] = useState<string>('');
+  const [searchValue, setSearchValue] = useState<string>("");
 
   const search = (value, loadmore) => {
     let page = 20;

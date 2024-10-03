@@ -15,6 +15,7 @@ import React from "react";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import queryString from "query-string";
+import { NavigateFunction, Location } from 'react-router-dom';
 
 type Props = {
   currentBrandId: string;
@@ -108,9 +109,9 @@ const BrandsContainer = withProps<Props>(
 );
 
 type WithCurrentIdProps = {
-  location: any;
-  queryParams: any;
-  navigate: any;
+  location: Location;
+  queryParams: Record<string, string>;
+  navigate: NavigateFunction;
 };
 
 type WithCurrentIdFinalProps = {
@@ -163,8 +164,8 @@ const WithLastBrand = withProps<WithCurrentIdProps>(
       gql(queries.brandsGetLast),
       {
         name: "lastBrandQuery",
-        skip: ({ queryParams }: { queryParams: any }) => queryParams._id,
-        options: ({ queryParams }: { queryParams: any }) => ({
+        skip: ({ queryParams }: { queryParams: Record<string, string> }) => !!queryParams._id,
+        options: ({ queryParams }: { queryParams: Record<string, string> }) => ({
           variables: { _id: queryParams._id },
           fetchPolicy: "network-only",
         }),
@@ -174,9 +175,9 @@ const WithLastBrand = withProps<WithCurrentIdProps>(
 );
 
 const WithQueryParams = (props: {
-  queryParams: any;
-  location: any;
-  navigate: any;
+  queryParams: Record<string, string>;
+  location: Location;
+  navigate: NavigateFunction;
 }) => {
   const extendedProps = { ...props };
 

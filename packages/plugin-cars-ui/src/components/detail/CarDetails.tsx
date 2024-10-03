@@ -1,28 +1,26 @@
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { ICar } from '../../types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import LeftSidebar from './LeftSidebar';
-import React from 'react';
-import RightSidebar from './RightSidebar';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { ICar } from "../../types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import LeftSidebar from "./LeftSidebar";
+import React from "react";
+import RightSidebar from "./RightSidebar";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const ActivityInputs = asyncComponent(
   () =>
-    isEnabled('logs') &&
     import(
-      /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/src/activityLogs/components/ActivityInputs'
-    ),
+      /* webpackChunkName: "ActivityInputs" */ "@erxes/ui-log/src/activityLogs/components/ActivityInputs"
+    )
 );
 
 const ActivityLogs = asyncComponent(
   () =>
-    isEnabled('logs') &&
     import(
-      /* webpackChunkName: "ActivityLogs" */ '@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
-    ),
+      /* webpackChunkName: "ActivityLogs" */ "@erxes/ui-log/src/activityLogs/containers/ActivityLogs"
+    )
 );
 
 type Props = {
@@ -33,35 +31,25 @@ type Props = {
 const CarDetails = (props: Props) => {
   const { car } = props;
 
-  const title = car.plateNumber || 'Unknown';
+  const title = car.plateNumber || "Unknown";
 
-  const breadcrumb = [{ title: __('Cars'), link: '/cars' }, { title }];
+  const breadcrumb = [{ title: __("Cars"), link: "/cars" }, { title }];
 
   const renderContent = () => {
-    if (isEnabled('logs')) {
-      return (
-        <>
-          <ActivityInputs
-            contentTypeId={car._id}
-            contentType="car"
-            showEmail={false}
-          />
-          <ActivityLogs
-            target={car.plateNumber || ''}
-            contentId={car._id}
-            contentType="car"
-            extraTabs={[]}
-          />
-        </>
-      );
-    }
-
     return (
-      <EmptyState
-        image="/images/actions/5.svg"
-        text={__('No results found')}
-        size="full"
-      />
+      <>
+        <ActivityInputs
+          contentTypeId={car._id}
+          contentType="car"
+          showEmail={false}
+        />
+        <ActivityLogs
+          target={car.plateNumber || ""}
+          contentId={car._id}
+          contentType="car"
+          extraTabs={[]}
+        />
+      </>
     );
   };
 

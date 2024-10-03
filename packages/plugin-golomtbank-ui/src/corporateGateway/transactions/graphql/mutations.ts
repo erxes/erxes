@@ -5,5 +5,5 @@ mutation GolomtBankTransfer($configId: String!, $transfer: TransferInputGolomt) 
 `;
 
 export default {
-  transferMutation,
+  transferMutation
 };

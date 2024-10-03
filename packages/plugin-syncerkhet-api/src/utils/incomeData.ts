@@ -2,23 +2,23 @@ import {
   sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage
-} from '../messageBroker';
+} from "../messageBroker";
 
 export const getIncomeData = async (
   subdomain,
   config,
   purchase,
-  dateType = ''
+  dateType = ""
 ) => {
-  let customerCode = '';
+  let customerCode = "";
 
   const companyIds = await sendCoreMessage({
     subdomain,
-    action: 'conformities.savedConformity',
+    action: "conformities.savedConformity",
     data: {
-      mainType: 'purchase',
+      mainType: "purchase",
       mainTypeId: purchase._id,
-      relTypes: ['company']
+      relTypes: ["company"]
     },
     isRPC: true,
     defaultValue: []
@@ -27,7 +27,7 @@ export const getIncomeData = async (
   if (companyIds.length > 0) {
     const companies = await sendContactsMessage({
       subdomain,
-      action: 'companies.findActiveCompanies',
+      action: "companies.findActiveCompanies",
       data: {
         selector: { _id: { $in: companyIds } },
         fields: { _id: 1, code: 1 }
@@ -47,11 +47,11 @@ export const getIncomeData = async (
   if (!customerCode) {
     const customerIds = await sendCoreMessage({
       subdomain,
-      action: 'conformities.savedConformity',
+      action: "conformities.savedConformity",
       data: {
-        mainType: 'purchase',
+        mainType: "purchase",
         mainTypeId: purchase._id,
-        relTypes: ['customer']
+        relTypes: ["customer"]
       },
       isRPC: true,
       defaultValue: []
@@ -60,7 +60,7 @@ export const getIncomeData = async (
     if (customerIds.length > 0) {
       const customers = await sendContactsMessage({
         subdomain,
-        action: 'customers.findActiveCustomers',
+        action: "customers.findActiveCustomers",
         data: {
           selector: { _id: { $in: customerIds } },
           fields: { _id: 1, code: 1 }
@@ -68,7 +68,7 @@ export const getIncomeData = async (
         isRPC: true,
         defaultValue: []
       });
-      customerCode = (customers.find(c => c.code) || {}).code || '';
+      customerCode = (customers.find(c => c.code) || {}).code || "";
     }
   }
 
@@ -80,7 +80,7 @@ export const getIncomeData = async (
 
   const products = await sendProductsMessage({
     subdomain,
-    action: 'find',
+    action: "productFind",
     data: {
       query: { _id: { $in: productsIds } },
       limit: purchase.productsData.length
@@ -105,7 +105,7 @@ export const getIncomeData = async (
   if (branchIds.length) {
     const branches = await sendCoreMessage({
       subdomain,
-      action: 'branches.find',
+      action: "branches.find",
       data: { query: { _id: { $in: branchIds } } },
       isRPC: true,
       defaultValue: []
@@ -119,7 +119,7 @@ export const getIncomeData = async (
   if (departmentIds.length) {
     const departments = await sendCoreMessage({
       subdomain,
-      action: 'departments.find',
+      action: "departments.find",
       data: { _id: { $in: departmentIds } },
       isRPC: true,
       defaultValue: []
@@ -141,11 +141,11 @@ export const getIncomeData = async (
       continue;
     }
 
-    let otherCode: string = '';
+    let otherCode: string = "";
     if (productData.branchId || productData.departmentId) {
-      const branch = branchesById[productData.branchId || ''] || {};
-      const department = departmentsById[productData.departmentId || ''] || {};
-      otherCode = `${branch.code || ''}_${department.code || ''}`;
+      const branch = branchesById[productData.branchId || ""] || {};
+      const department = departmentsById[productData.departmentId || ""] || {};
+      otherCode = `${branch.code || ""}_${department.code || ""}`;
     }
 
     details.push({
@@ -205,27 +205,27 @@ export const getIncomeData = async (
   let checkDate = false;
 
   switch (dateType) {
-    case 'lastMove':
+    case "lastMove":
       date = new Date(purchase.stageChangedDate).toISOString().slice(0, 10);
       break;
-    case 'created':
+    case "created":
       date = new Date(purchase.createdAt).toISOString().slice(0, 10);
       break;
-    case 'closeOrCreated':
+    case "closeOrCreated":
       date = new Date(purchase.closeDate || purchase.createdAt)
         .toISOString()
         .slice(0, 10);
       break;
-    case 'closeOrMove':
+    case "closeOrMove":
       date = new Date(purchase.closeDate || purchase.stageChangedDate)
         .toISOString()
         .slice(0, 10);
       break;
-    case 'firstOrMove':
+    case "firstOrMove":
       date = new Date(purchase.stageChangedDate).toISOString().slice(0, 10);
       checkDate = true;
       break;
-    case 'firstOrCreated':
+    case "firstOrCreated":
       date = new Date(purchase.createdAt).toISOString().slice(0, 10);
       checkDate = true;
       break;
@@ -236,12 +236,12 @@ export const getIncomeData = async (
       date,
       checkDate,
       orderId: purchase._id,
-      number: purchase.number || '',
+      number: purchase.number || "",
       customerCode,
       description: purchase.name,
       hasVat: config.hasVat || false,
       hasCitytax: config.hasCitytax || false,
-      vatRow: config.vatRow || '',
+      vatRow: config.vatRow || "",
       details,
       payments,
       expenses: purchase.expensesData
@@ -252,7 +252,7 @@ export const getIncomeData = async (
     defaultCustomer: config.defaultCustomer,
     catAccLocMap: (config.catAccLocMap || []).map(item => ({
       ...item,
-      otherCode: `${item.branch || ''}_${item.department || ''}`
+      otherCode: `${item.branch || ""}_${item.department || ""}`
     }))
   };
 

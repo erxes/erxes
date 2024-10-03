@@ -10,9 +10,10 @@ import FormGroup from "modules/common/components/form/Group";
 import { ModalFooter } from "modules/common/styles/main";
 import React from "react";
 import dayjs from "dayjs";
+import { IUserGroup } from "@erxes/ui-settings/src/permissions/types";
 
 type Props = {
-  userGroups: any[];
+  userGroups: IUserGroup[];
   app?: IApp;
   closeModal: () => void;
   addApp: (doc: IAppParams) => void;

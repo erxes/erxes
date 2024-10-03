@@ -61,7 +61,7 @@ class Provider extends React.Component<FinalProps> {
           conversationFields: inboxFields.conversation,
           customerFields: inboxFields.customer,
           customerVisibility,
-          deviceVisibility,
+          deviceVisibility
         }}
       >
         {this.props.children}
@@ -73,6 +73,6 @@ class Provider extends React.Component<FinalProps> {
 export const PropertyProvider = compose(
   graphql(gql(fieldQueries.inboxFields), {
     name: "fieldsInboxQuery",
-    skip: !isEnabled("inbox"),
+    skip: !isEnabled("inbox")
   })
 )(Provider);

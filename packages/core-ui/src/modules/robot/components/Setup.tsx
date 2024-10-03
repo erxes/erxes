@@ -36,7 +36,7 @@ type Props = {
 type State = {
   selectedOption: IFeature;
   showComplete: boolean;
-  collapseKey: any;
+  collapseKey: string;
 };
 
 class Setup extends React.Component<Props, State> {

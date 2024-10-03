@@ -17,7 +17,7 @@ export const generateParams = ({ queryParams }) => {
     sortFromDate: queryParams.from || undefined,
     sortToDate: queryParams.to || undefined,
     tagIds: generateParamsIds(queryParams?.tagIds || []),
-    withChilds: true
+    withChilds: true,
   };
 };
 
@@ -25,15 +25,15 @@ export const refetchQueries = queryParams => [
   {
     query: gql(queries.list),
     variables: {
-      ...generateParams({ queryParams })
-    }
+      ...generateParams({ queryParams }),
+    },
   },
   {
     query: gql(queries.totalCount),
     variables: {
-      ...generateParams({ queryParams })
-    }
-  }
+      ...generateParams({ queryParams }),
+    },
+  },
 ];
 
 export const SelectTags = ({
@@ -44,7 +44,7 @@ export const SelectTags = ({
   multi,
   customOption,
   ignoreIds,
-  onSelect
+  onSelect,
 }: {
   queryParams?: IQueryParams;
   label: string;
@@ -71,12 +71,8 @@ export const SelectTags = ({
 
     return generateTree(generateList(), null, (node, level) => ({
       value: node._id,
-      label: `${'\u00A0 \u00A0 '.repeat(level)} ${node.name}`
+      label: `${'\u00A0 \u00A0 '.repeat(level)} ${node.name}`,
     }));
-
-    // list = array.map(item => ({ value: item._id, label: `---${item.name}` }));
-
-    // return list;
   }
   return (
     <SelectWithSearch

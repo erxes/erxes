@@ -1,5 +1,61 @@
-import { pipeline } from 'stream';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+const conformityQueryFields = `
+  $mainType: String,
+  $mainTypeId: String,
+  $relType: String,
+  $isRelated: Boolean,
+  $isSaved: Boolean,
+`;
+export const companyFields = `
+  _id
+  createdAt
+  modifiedAt
+  avatar
+  primaryName
+  names
+  size
+  industry
+  plan
+  location
 
+  parentCompanyId
+  emails
+  primaryEmail
+  ownerId
+  phones
+  primaryPhone
+  businessType
+  description
+  isSubscribed
+  code
+  links
+  owner {
+    _id
+    details {
+      fullName
+    }
+  }
+  parentCompany {
+    _id
+    primaryName
+  }
+
+  customFieldsData
+  trackedData
+  tagIds
+  ${
+    isEnabled('tags')
+      ? `
+    getTags {
+      _id
+      name
+      colorCode
+    }
+  `
+      : ``
+  }
+  score
+`;
 const insuranceTypeFields = `
       _id
       name
@@ -15,14 +71,17 @@ const insuranceTypeFields = `
       segmentRadio
       stageRadio
       periodGoal
+      pipelineLabels
+      productIds
+      companyIds
+      tagsIds
+      teamGoalType
       unit
       department
       branch
       teamGoalType
-      progress
       startDate
       endDate
-      target
       segmentIds,
       segmentCount
 `;
@@ -174,6 +233,25 @@ const detailFields = `
   operatorPhone
   ${nameFields}
 `;
+
+const companies = `
+  $page: Int
+  $perPage: Int
+  $segment: String
+  $tag: String
+  $ids: [String]
+  $excludeIds: Boolean
+  $searchValue: String
+  $autoCompletion: Boolean
+  $autoCompletionType: String
+  $brand: String
+  $sortField: String
+  $sortDirection: Int
+  $dateFilters: String
+  $segmentData: String
+  ${conformityQueryFields}
+`;
+
 const segmentFields = `
   _id
   name
@@ -309,6 +387,21 @@ const userDetail = `
   }
 `;
 
+const pipelineLabelFields = `
+  _id
+  name
+  colorCode
+  pipelineId
+  createdBy
+  createdAt
+`;
+const pipelineLabels = `
+  query pipelineLabels($pipelineId: String!) {
+    pipelineLabels(pipelineId: $pipelineId) {
+      ${pipelineLabelFields}
+    }
+  }
+`;
 export default {
   goalTypes,
   goalTypesMain,
@@ -320,5 +413,7 @@ export default {
   branchesMain,
   unitsMain,
   departmentsMain,
-  userDetail
+  userDetail,
+  companies,
+  pipelineLabels
 };

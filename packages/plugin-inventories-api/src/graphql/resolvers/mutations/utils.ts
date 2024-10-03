@@ -1,9 +1,9 @@
-import * as _ from 'lodash';
-import { generateModels } from '../../../connectionResolver';
-import { sendProductsMessage } from '../../../messageBroker';
-import { IRemainderDocument } from '../../../models/definitions/remainders';
-import { ISafeRemainderItemDocument } from '../../../models/definitions/safeRemainderItems';
-import { IUpdateRemaindersParams } from './remainders';
+import * as _ from "lodash";
+import { generateModels } from "../../../connectionResolver";
+import { sendProductsMessage } from "../../../messageBroker";
+import { IRemainderDocument } from "../../../models/definitions/remainders";
+import { ISafeRemainderItemDocument } from "../../../models/definitions/safeRemainderItems";
+import { IUpdateRemaindersParams } from "./remainders";
 
 export const updateLiveRemainders = async ({
   subdomain,
@@ -24,7 +24,7 @@ export const updateLiveRemainders = async ({
     // Find all products in category by categoryId
     const products = await sendProductsMessage({
       subdomain,
-      action: 'find',
+      action: "productFind",
       data: {
         query: {},
         categoryId: productCategoryId
@@ -43,9 +43,8 @@ export const updateLiveRemainders = async ({
     allProductIds = _.union(allProductIds, productIds);
   }
 
-  const safeRemainders: any = await models.SafeRemainderItems.find(
-    selector
-  ).lean();
+  const safeRemainders: any =
+    await models.SafeRemainderItems.find(selector).lean();
   const remainders: any = await models.Remainders.find(selector).lean();
   const resultRemainder: IRemainderDocument[] = [];
 
@@ -66,9 +65,8 @@ export const updateLiveRemainders = async ({
       productId
     };
 
-    const transactionItems = await models.TransactionItems.find(
-      transactionSelector
-    ).lean();
+    const transactionItems =
+      await models.TransactionItems.find(transactionSelector).lean();
     let remainderCount = safe ? safe.count : 0;
 
     for (const item of transactionItems) {
@@ -114,7 +112,7 @@ export const getProducts = async (subdomain, productId, productCategoryId) => {
   if (productId) {
     const product = await sendProductsMessage({
       subdomain,
-      action: 'find',
+      action: "productFind",
       data: { _id: productId },
       isRPC: true
     });
@@ -124,9 +122,9 @@ export const getProducts = async (subdomain, productId, productCategoryId) => {
   if (productCategoryId) {
     const limit = await sendProductsMessage({
       subdomain,
-      action: 'count',
+      action: "productCount",
       data: {
-        query: { status: { $nin: ['archived', 'deleted'] } },
+        query: { status: { $nin: ["archived", "deleted"] } },
         categoryId: productCategoryId
       },
       isRPC: true,
@@ -135,9 +133,9 @@ export const getProducts = async (subdomain, productId, productCategoryId) => {
 
     products = await sendProductsMessage({
       subdomain,
-      action: 'find',
+      action: "productFind",
       data: {
-        query: { status: { $nin: ['archived', 'deleted'] } },
+        query: { status: { $nin: ["archived", "deleted"] } },
         categoryId: productCategoryId,
         limit,
         sort: { code: 1 }

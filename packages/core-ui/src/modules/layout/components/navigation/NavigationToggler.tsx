@@ -4,7 +4,7 @@ import Icon from 'modules/common/components/Icon';
 
 type Props = {
   navCollapse: number;
-  onClickHandleIcon: (event: any) => void;
+  onClickHandleIcon: (type: string) => void;
 };
 
 export default function NavigationToggler(props: Props) {

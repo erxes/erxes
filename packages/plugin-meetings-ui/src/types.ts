@@ -1,5 +1,5 @@
-import { IDeal } from '@erxes/ui-cards/src/deals/types';
-import { IUser } from '@erxes/ui/src/auth/types';
+import { IDeal } from "@erxes/ui-sales/src/deals/types";
+import { IUser } from "@erxes/ui/src/auth/types";
 
 export interface IMeeting {
   _id: string;
