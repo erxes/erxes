@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { commarizeNumbers } from "../../utils";
+import { formatNumbers } from "../../utils";
 import { colors } from "@erxes/ui/src/styles";
 import { ChartTable, ScrollWrapper } from "../../styles";
 
@@ -137,8 +137,17 @@ const TableList = (props: Props) => {
                   <td colSpan={item['total']}>Total</td>
                   {(headers || []).map(header => {
                     if (header in item) {
+
+                      if (["count", "totalAmount", "averageAmount", "unusedAmount", "forecastAmount"].includes(header)) {
+                        return <td>{formatNumbers(item[header], "commarize") || '-'}</td>;
+                      }
+
+                      if (["totalDuration", "averageDuration"].includes(header)) {
+                        return <td>{formatNumbers(item[header], "time", "x") || '-'}</td>;
+                      }
+
                       return (
-                        <td key={header}>{commarizeNumbers(item[header]) || '-'}</td>
+                        <td key={header}>{item[header] || '-'}</td>
                       );
                     }
                   })}
@@ -154,7 +163,11 @@ const TableList = (props: Props) => {
                   }
 
                   if (["count", "totalAmount", "averageAmount", "unusedAmount", "forecastAmount"].includes(header)) {
-                    return <td>{commarizeNumbers(item[header]) || '-'}</td>;
+                    return <td>{formatNumbers(item[header], "commarize") || '-'}</td>;
+                  }
+
+                  if (["totalDuration", "averageDuration"].includes(header)) {
+                    return <td>{formatNumbers(item[header], "time", "x") || '-'}</td>;
                   }
 
                   return <td>{item[header] || '-'}</td>;

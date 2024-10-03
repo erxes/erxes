@@ -29,6 +29,7 @@ interface IChartProps {
   loading?: boolean;
   chartVariables?: any
   chartHeight?: number;
+  filter?: any;
 }
 
 const ChartRenderer = (props: IChartProps) => {
@@ -42,7 +43,8 @@ const ChartRenderer = (props: IChartProps) => {
     loading,
     chartHeight,
     options,
-    chartVariables
+    chartVariables,
+    filter
   } = props;
 
   const [chartInstance, setChartInstance] = useState<Chart | null>(null);
@@ -68,7 +70,7 @@ const ChartRenderer = (props: IChartProps) => {
   }
 
   const chartRef = useRef<HTMLCanvasElement>(null);
-  const formatType = templateType.toLowerCase().includes('time') ? 'time' : undefined
+  const formatType = templateType.toLowerCase().includes('time') || (filter?.measure || []).some((measure) => measure?.toLowerCase().includes('time') || measure?.toLowerCase().includes('duration')) ? 'time' : undefined
 
   const datalabelsConfig = DATALABELS_CONFIGS[chartType]
 
@@ -76,7 +78,7 @@ const ChartRenderer = (props: IChartProps) => {
     datalabels: {
       display: 'auto',
       formatter: (value, ctx) => {
-        return formatNumbers(value, 'y', formatType)
+        return formatNumbers(value, formatType, 'y')
       },
       ...datalabelsConfig
     },
@@ -93,7 +95,7 @@ const ChartRenderer = (props: IChartProps) => {
           }
 
           if (formatType === 'time') {
-            return formatNumbers(value, 'x', formatType)
+            return formatNumbers(value, formatType, 'x')
           }
 
           label += commarizeNumbers(value);
@@ -123,7 +125,7 @@ const ChartRenderer = (props: IChartProps) => {
         y: {
           ticks: {
             callback: ((context, index) => {
-              return formatNumbers(context, 'y', formatType)
+              return formatNumbers(context, formatType, 'y')
             })
           }
         }

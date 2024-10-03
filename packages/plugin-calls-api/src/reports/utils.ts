@@ -152,6 +152,10 @@ export const formatFrequency = (frequencyType, frequency) => {
     case '%m':
       format = formatMonth(frequency);
       break;
+    // Year - Month - Day - Hour - Minute - Second
+    case '%Y-%m-%d %H:%M:%S':
+      format = dayjs(new Date(frequency)).format('YYYY-MM-DD h:mm:ss A');
+      break;
     // Year (0000-9999)
     case '%Y':
     // Year - Month - Day
@@ -239,6 +243,10 @@ export const buildPipeline = (filter: any, matchFilter: any) => {
     matchStage['createdAt'] = { $ne: null };
   }
 
+  if ((dimensions || []).includes('number')) {
+    matchStage['extentionNumber'] = { $exists: true, $ne: null };
+  }
+
   pipeline.push({ $match: { ...matchStage, ...matchFilter } });
 
   if ((dimensions || []).includes('brand')) {
@@ -257,7 +265,7 @@ export const buildPipeline = (filter: any, matchFilter: any) => {
     );
   }
 
-  const groupStage = {
+  const groupStage: any = {
     $group: {
       _id: {},
       ...buildAction(measures),
@@ -308,6 +316,10 @@ export const buildPipeline = (filter: any, matchFilter: any) => {
     groupStage.$group._id['integration'] = '$inboxIntegrationId';
   }
 
+  if ((dimensions || []).includes('number')) {
+    groupStage.$group._id['number'] = '$extentionNumber';
+  }
+
   if ((dimensions || []).includes('frequency')) {
     groupStage.$group._id['frequency'] = {
       $dateToString: {
@@ -315,6 +327,10 @@ export const buildPipeline = (filter: any, matchFilter: any) => {
         date: '$createdAt',
       },
     };
+  }
+
+  if ((dimensions || []).includes('frequency') && frequencyType === '%Y-%m-%d %H:%M:%S') {
+    groupStage.$group.doc = { $first: "$$ROOT" };
   }
 
   pipeline.push(groupStage);
@@ -452,6 +468,14 @@ export const buildPipeline = (filter: any, matchFilter: any) => {
     projectStage.$project['frequency'] = '$_id.frequency';
   }
 
+  if ((dimensions || []).includes('number')) {
+    projectStage.$project['number'] = '$_id.number';
+  }
+
+  if ((dimensions || []).includes('frequency') && frequencyType === '%Y-%m-%d %H:%M:%S') {
+    projectStage.$project['conversationId'] = '$doc.conversationId';
+  }
+
   pipeline.push(projectStage);
 
   return pipeline;
@@ -460,7 +484,7 @@ export const buildPipeline = (filter: any, matchFilter: any) => {
 export const formatData = (data, frequencyType) => {
   const formattedData = [...data];
 
-  formattedData.map((item) => {
+  formattedData.forEach((item) => {
     if (item.hasOwnProperty('teamMember')) {
       const user: IUser = item['teamMember'];
 
@@ -482,12 +506,23 @@ export const formatData = (data, frequencyType) => {
       item['createdAt'] = dayjs(createdAt).format('YYYY/MM/DD h:mm A');
     }
 
-    ['type', 'status', 'endedBy'].map((key) => {
+    ['totalDuration', 'averageDuration'].forEach(key => {
+      if (item.hasOwnProperty(key) && [key]) {
+        item[key] = item[key] * 1000;
+      }
+    });
+
+    ['type', 'status', 'endedBy'].forEach((key) => {
       if (item.hasOwnProperty(key)) {
         const label = item[key];
         item[key] = CALL_STATUS_LABELS[label];
       }
     });
+
+    if (item.hasOwnProperty('frequency') && item.hasOwnProperty('conversationId')) {
+      item.url = `/inbox/index?_id=${item.conversationId}`;
+      delete item['conversationId']
+    }
   });
 
   return formattedData;
@@ -526,7 +561,7 @@ export const buildChartData = (data: any, measures: any, dimensions: any) => {
 
 export const buildTableData = (data: any, measures: any, dimensions: any) => {
   const reorderedData = data.map((item) => {
-    const order = {};
+    const order: any = {};
 
     if (dimensions?.length) {
       dimensions.forEach((dimension) => {
@@ -540,6 +575,10 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
       });
     }
 
+    if (item.hasOwnProperty("url")) {
+      order.url = item.url || ''
+    }
+
     return order;
   });
 
@@ -547,6 +586,9 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
 
   if (measures?.length) {
     total = data.reduce((acc, item) => {
+
+      acc['total'] = dimensions.length
+
       measures.forEach((measure) => {
         if (item[measure] !== undefined) {
           acc[measure] = (acc[measure] || 0) + item[measure];

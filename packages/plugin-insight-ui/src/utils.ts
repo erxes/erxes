@@ -206,7 +206,7 @@ export const abbrevateNumbers = (number) => {
   }
 };
 
-export const formatNumbers = (value: number, axis?: string, type?: string) => {
+export const formatNumbers = (value: number, type?: string, axis?: string) => {
 
   if (!value) {
     return "-"
