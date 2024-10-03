@@ -14,9 +14,19 @@ const relations = type => {
       relationType: "core:customer"
     },
     {
-      name: "dealIds",
-      label: "Deals",
-      relationType: "sales:deal"
+      name: "ticketIds",
+      label: "Tickets",
+      relationType: "tickets:ticket"
+    },
+    {
+      name: "taskIds",
+      label: "Tasks",
+      relationType: "tasks:task"
+    },
+    {
+      name: "purchaseIds",
+      label: "Purchases",
+      relationType: "purchases:purchase"
     }
   ].filter(r => r.relationType !== type);
 };

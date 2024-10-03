@@ -22,7 +22,7 @@ class AddFormContainer extends React.Component<Props> {
           mutation={mutations.checklistsAdd}
           variables={values}
           callback={callback}
-          refetchQueries={["tasksChecklist"]}
+          refetchQueries={["tasksChecklists"]}
           isSubmitted={isSubmitted}
           btnSize="small"
           type="submit"
