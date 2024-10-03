@@ -12,7 +12,7 @@ on:
       - 'packages/workers/**'
       - '.github/workflows/workers.yaml'
 
-jobs:
+jobs: 
   workers:
     runs-on: ubuntu-22.04
 

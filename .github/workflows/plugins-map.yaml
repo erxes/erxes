@@ -24,7 +24,7 @@ on:
       - 'scripts/pluginsMap.js'
       - '.github/workflows/plugins-map.yaml'
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

@@ -54,7 +54,7 @@ on:
       - 'packages/plugin-knowledgebase-ui/**'
       - '.github/workflows/plugin-knowledgebase-ui.yaml'
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

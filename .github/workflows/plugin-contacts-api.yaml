@@ -26,7 +26,7 @@ on:
       - 'packages/plugin-contacts-api/**'
       - '.github/workflows/plugin-contacts-api.yaml'
 
-jobs:
+jobs: 
   api:
     runs-on: ubuntu-22.04
 

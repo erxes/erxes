@@ -23,7 +23,7 @@ on:
       - 'pos/**'
       - '.github/workflows/pos-ui.yaml'
 
-jobs:
+jobs: 
   pos-ui:
     runs-on: ubuntu-22.04
 

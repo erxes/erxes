@@ -18,7 +18,7 @@ on:
     paths:
       - 'widgets/**'
 
-jobs:
+jobs: 
   widgets:
     runs-on: ubuntu-22.04
 

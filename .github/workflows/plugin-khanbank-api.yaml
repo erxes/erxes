@@ -26,7 +26,7 @@ on:
       - 'packages/plugin-khanbank-api/**'
       - '.github/workflows/plugin-khanbank-api.yaml'
 
-jobs:
+jobs: 
   api:
     runs-on: ubuntu-22.04
 

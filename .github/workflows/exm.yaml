@@ -23,7 +23,7 @@ on:
       - 'exm-web/**'
       - '.github/workflows/exm.yaml'
 
-jobs:
+jobs: 
   exm-ui:
     runs-on: ubuntu-22.04
 

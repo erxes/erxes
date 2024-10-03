@@ -3,7 +3,7 @@ on:
   push:
     tags:
       - '*'
-jobs:
+jobs: 
   release:
     runs-on: ubuntu-22.04
     steps:

@@ -54,7 +54,7 @@ on:
       - 'packages/plugin-forms-ui/**'
       - '.github/workflows/plugin-forms-ui.yaml'
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

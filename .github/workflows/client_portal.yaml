@@ -22,7 +22,7 @@ on:
     paths:
       - 'client-portal/**'
 
-jobs:
+jobs: 
   client-portal:
     runs-on: ubuntu-20.04
 

@@ -20,7 +20,7 @@ on:
       - 'essyncer/**'
       - '.github/workflows/essyncer.yaml'
 
-jobs:
+jobs: 
   essyncer:
     runs-on: ubuntu-20.04
 

@@ -12,7 +12,7 @@ on:
       - 'mongobi-connector/**'
       - '.github/workflows/mongobi-connector.yaml'
 
-jobs:
+jobs: 
   essyncer:
     runs-on: ubuntu-20.04
 
