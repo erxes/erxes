@@ -7,6 +7,7 @@ on:
       - master
       - rc
       - staging
+      - v1
     paths:
       - 'email-verifier/**'
       - '.github/workflows/email_verifier.yaml'
@@ -17,6 +18,7 @@ on:
       - master
       - rc
       - staging
+      - v1
     paths:
       - 'email-verifier/**'
       - '.github/workflows/email_verifier.yaml'

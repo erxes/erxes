@@ -8,6 +8,7 @@ on:
       - dev
       - master
       - rc
+      - v1
     paths:
       - 'mongobi-connector/**'
       - '.github/workflows/mongobi-connector.yaml'
