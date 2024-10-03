@@ -527,6 +527,14 @@ export default class SipProvider extends React.Component<
       } as any;
 
       this.ua = new JsSIP.UA(options);
+
+      socket.ondisconnect = function (error) {
+        console.error('WebSocket disconnected or failed:', error);
+        setTimeout(() => {
+          console.log('Attempting to reconnect...');
+          this.ua.start();
+        }, 5000);
+      };
     } catch (error) {
       this.logger.debug('Error', error.message, error);
       this.setState({
