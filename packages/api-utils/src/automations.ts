@@ -1,5 +1,5 @@
-import * as moment from 'moment';
-import { pluralFormation } from './commonUtils';
+import * as moment from "moment";
+import { pluralFormation } from "./commonUtils";
 
 export const replacePlaceHolders = async ({
   models,
@@ -34,13 +34,13 @@ export const replacePlaceHolders = async ({
                 subdomain,
                 target,
                 targetKey,
-                relatedValueProps,
+                relatedValueProps
               ))) ||
             target[targetKey];
 
           actionData[actionDataKey] = actionData[actionDataKey].replace(
             `{{ ${targetKey} }}`,
-            replaceValue,
+            replaceValue
           );
         }
 
@@ -51,7 +51,7 @@ export const replacePlaceHolders = async ({
         if (regexResult && regexResult.length === 2) {
           const dayValue = regexResult[1];
           actionData[actionDataKey] = moment()
-            .add(dayValue, 'day')
+            .add(dayValue, "day")
             .toDate()
             .toString();
         }
@@ -59,7 +59,7 @@ export const replacePlaceHolders = async ({
         if (actionData[actionDataKey].includes(`{{ now }}`)) {
           actionData[actionDataKey] = actionData[actionDataKey].replace(
             `{{ now }}`,
-            new Date(),
+            new Date()
           );
         }
 
@@ -68,7 +68,7 @@ export const replacePlaceHolders = async ({
           const tomorrow = today.setDate(today.getDate() + 1);
           actionData[actionDataKey] = actionData[actionDataKey].replace(
             `{{ tomorrow }}`,
-            tomorrow,
+            tomorrow
           );
         }
         if (actionData[actionDataKey].includes(`{{ nextWeek }}`)) {
@@ -76,7 +76,7 @@ export const replacePlaceHolders = async ({
           const nextWeek = today.setDate(today.getDate() + 7);
           actionData[actionDataKey] = actionData[actionDataKey].replace(
             `{{ nextWeek }}`,
-            nextWeek,
+            nextWeek
           );
         }
         if (actionData[actionDataKey].includes(`{{ nextMonth }}`)) {
@@ -84,18 +84,18 @@ export const replacePlaceHolders = async ({
           const nextMonth = today.setDate(today.getDate() + 30);
           actionData[actionDataKey] = actionData[actionDataKey].replace(
             `{{ nextMonth }}`,
-            nextMonth,
+            nextMonth
           );
         }
 
         for (const complexFieldKey of [
-          'customFieldsData',
-          'trackedData',
+          "customFieldsData",
+          "trackedData",
         ].concat(complexFields || [])) {
           if (actionData[actionDataKey].includes(complexFieldKey)) {
             const regex = new RegExp(`{{ ${complexFieldKey}.([\\w\\d]+) }}`);
             const match = regex.exec(actionData[actionDataKey]);
-            const fieldId = match && match.length === 2 ? match[1] : '';
+            const fieldId = match && match.length === 2 ? match[1] : "";
 
             if ((complexFields || [])?.includes(complexFieldKey)) {
               const replaceValue =
@@ -104,21 +104,21 @@ export const replacePlaceHolders = async ({
                   subdomain,
                   target,
                   `${complexFieldKey}.${fieldId}`,
-                  relatedValueProps,
+                  relatedValueProps
                 )) || target[targetKey];
 
               actionData[actionDataKey] = actionData[actionDataKey].replace(
                 `{{ ${complexFieldKey}.${fieldId} }}`,
-                replaceValue,
+                replaceValue
               );
             } else {
               const complexFieldData = target[complexFieldKey].find(
-                (cfd) => cfd.field === fieldId,
+                (cfd) => cfd.field === fieldId
               );
 
               actionData[actionDataKey] = actionData[actionDataKey].replace(
                 `{{ ${complexFieldKey}.${fieldId} }}`,
-                complexFieldData ? complexFieldData.value : '',
+                complexFieldData ? complexFieldData.value : ""
               );
             }
           }
@@ -126,8 +126,8 @@ export const replacePlaceHolders = async ({
       }
 
       actionData[actionDataKey] = actionData[actionDataKey]
-        .replace(/\[\[ /g, '')
-        .replace(/ \]\]/g, '');
+        .replace(/\[\[ /g, "")
+        .replace(/ \]\]/g, "");
     }
   }
 
@@ -135,25 +135,25 @@ export const replacePlaceHolders = async ({
 };
 
 export const OPERATORS = {
-  SET: 'set',
-  CONCAT: 'concat',
-  ADD: 'add',
-  SUBTRACT: 'subtract',
-  MULTIPLY: 'multiply',
-  DIVIDE: 'divide',
-  PERCENT: 'percent',
-  ALL: ['set', 'concat', 'add', 'subtract', 'multiply', 'divide', 'percent'],
+  SET: "set",
+  CONCAT: "concat",
+  ADD: "add",
+  SUBTRACT: "subtract",
+  MULTIPLY: "multiply",
+  DIVIDE: "divide",
+  PERCENT: "percent",
+  ALL: ["set", "concat", "add", "subtract", "multiply", "divide", "percent"],
 };
 
 const convertOp1 = (relatedItem, field) => {
   if (
-    ['customFieldsData', 'trackedData'].some((complexField) =>
-      field.includes(complexField),
+    ["customFieldsData", "trackedData"].some((complexField) =>
+      field.includes(complexField)
     )
   ) {
-    const [complexFieldKey, nestedComplexFieldKey] = field.split('.');
+    const [complexFieldKey, nestedComplexFieldKey] = field.split(".");
     return (relatedItem[complexFieldKey] || []).find(
-      (nestedObj) => nestedObj.field === nestedComplexFieldKey,
+      (nestedObj) => nestedObj.field === nestedComplexFieldKey
     )?.value;
   }
 
@@ -191,16 +191,16 @@ const getPerValue = async (args: {
   // replace placeholder if value has attributes from related service
   if (
     value.match(/\{\{\s*([^}]+)\s*\}\}/g) &&
-    !(triggerType || '').includes(serviceName)
+    !(triggerType || "").includes(serviceName)
   ) {
-    const [relatedServiceName] = triggerType.split(':');
+    const [relatedServiceName] = triggerType.split(":");
 
     value =
       (
         await sendCommonMessage({
           serviceName: relatedServiceName,
           subdomain,
-          action: 'automations.replacePlaceHolders',
+          action: "automations.replacePlaceHolders",
           data: {
             execution,
             target,
@@ -221,17 +221,17 @@ const getPerValue = async (args: {
       getRelatedValue,
       actionData: { config: value },
       target,
-      isRelated: op1Type === 'string' ? true : false,
+      isRelated: op1Type === "string" ? true : false,
     })
   ).config;
 
   if (updatedValue.match(/[+\-*/]/)) {
-    updatedValue = eval(updatedValue.replace(/{{.*}}/, '0'));
+    updatedValue = eval(updatedValue.replace(/{{.*}}/, "0"));
   }
 
-  if (field.includes('Ids')) {
+  if (field.includes("Ids")) {
     const ids: string[] =
-      (updatedValue || '').trim().replace(/, /g, ',').split(',') || [];
+      (updatedValue || "").trim().replace(/, /g, ",").split(",") || [];
     updatedValue = Array.from(new Set(ids));
   }
 
@@ -266,11 +266,11 @@ const getPerValue = async (args: {
     }
   }
 
-  if (operator === 'concat') {
-    updatedValue = (op1 || '').concat(updatedValue);
+  if (operator === "concat") {
+    updatedValue = (op1 || "").concat(updatedValue);
   }
 
-  if (['addDay', 'subtractDay'].includes(operator)) {
+  if (["addDay", "subtractDay"].includes(operator)) {
     op1 = op1 || new Date();
 
     try {
@@ -280,7 +280,7 @@ const getPerValue = async (args: {
     }
 
     updatedValue =
-      operator === 'addDay'
+      operator === "addDay"
         ? parseFloat(updatedValue)
         : -1 * parseFloat(updatedValue);
     updatedValue = new Date(op1.setDate(op1.getDate() + updatedValue));
@@ -311,7 +311,7 @@ export const setProperty = async ({
   triggerType?;
 }) => {
   const { target } = execution;
-  const [serviceName, collectionType] = module.split(':');
+  const [serviceName, collectionType] = module.split(":");
 
   const result: any[] = [];
 
@@ -340,21 +340,21 @@ export const setProperty = async ({
       }
 
       if (
-        !rule.field.includes('customFieldsData') &&
-        !rule.field.includes('trackedData')
+        !rule.field.includes("customFieldsData") &&
+        !rule.field.includes("trackedData")
       ) {
         setDoc[rule.field] = value;
         continue;
       }
 
-      for (const complexFieldKey of ['customFieldsData', 'trackedData']) {
+      for (const complexFieldKey of ["customFieldsData", "trackedData"]) {
         if (rule.field.includes(complexFieldKey)) {
-          const fieldId = rule.field.replace(`${complexFieldKey}.`, '');
+          const fieldId = rule.field.replace(`${complexFieldKey}.`, "");
 
           const field = await sendCommonMessage({
             subdomain,
-            serviceName: 'forms',
-            action: 'fields.findOne',
+            serviceName: "forms",
+            action: "fields.findOne",
             data: {
               query: { _id: fieldId },
             },
@@ -364,8 +364,8 @@ export const setProperty = async ({
 
           const complexFieldData = await sendCommonMessage({
             subdomain,
-            serviceName: 'forms',
-            action: 'fields.generateTypedItem',
+            serviceName: "forms",
+            action: "fields.generateTypedItem",
             data: {
               field: fieldId,
               value,
@@ -376,13 +376,13 @@ export const setProperty = async ({
 
           if (
             (relatedItem[complexFieldKey] || []).find(
-              (obj) => obj.field === fieldId,
+              (obj) => obj.field === fieldId
             )
           ) {
             selectorDoc[`${complexFieldKey}.field`] = fieldId;
 
             const complexFieldDataKeys = Object.keys(complexFieldData).filter(
-              (key) => key !== 'field',
+              (key) => key !== "field"
             );
 
             for (const complexFieldDataKey of complexFieldDataKeys) {
@@ -418,7 +418,7 @@ export const setProperty = async ({
       await sendCommonMessage({
         subdomain,
         serviceName: service,
-        action: 'automations.receiveSetPropertyForwardTo',
+        action: "automations.receiveSetPropertyForwardTo",
         data: {
           target,
           collectionType,
@@ -438,9 +438,9 @@ export const setProperty = async ({
       rules: (Object as any)
         .values(setDoc)
         .map((v) => String(v))
-        .join(', '),
+        .join(", "),
     });
   }
 
-  return { module, fields: rules.map((r) => r.field).join(', '), result };
+  return { module, fields: rules.map((r) => r.field).join(", "), result };
 };
