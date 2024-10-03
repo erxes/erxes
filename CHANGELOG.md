@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.4](https://github.com/erxes/erxes/compare/1.17.3...1.17.4) (2024-10-03)
+
+
+### Bug Fixes
+
+*  pos kitchen reciept filter item  ([#5663](https://github.com/erxes/erxes/issues/5663)) ([cde56b0](https://github.com/erxes/erxes/commit/cde56b0000d629fe16a5dbde149e7b30a294a2be))
+
 ## [1.17.3](https://github.com/erxes/erxes/compare/1.17.2...1.17.3) (2024-10-03)
 
 ## [1.17.2](https://github.com/erxes/erxes/compare/1.17.1...1.17.2) (2024-10-03)
