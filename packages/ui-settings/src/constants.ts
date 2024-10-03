@@ -620,7 +620,6 @@ export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
     'categoryId',
     'vendorId',
     'location.countryCode',
-    'tagIds',
     'isOnline',
     'leadStatus',
     'relatedIntegrationIds',
