@@ -358,7 +358,7 @@ export const taskCharts = [
 
             const title = 'Total Tasks Count';
 
-            return { title, ...buildData({ chartType, data: tasks, filter }) };
+            return { title, ...buildData({ chartType, data: tasks, filter, type: "task" }) };
         },
         filterTypes: [
             // DIMENSION FILTER

@@ -2850,7 +2850,7 @@ export const dealCharts = [
 
             const title = 'Total Deals Count';
 
-            return { title, ...buildData({ chartType, data: deals, filter }), ...buildOptions(filter) };
+            return { title, ...buildData({ chartType, data: deals, filter, type: "deal" }), ...buildOptions(filter) };
         },
         filterTypes: [
             // DIMENSION FILTER

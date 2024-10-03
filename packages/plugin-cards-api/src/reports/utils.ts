@@ -1,5 +1,5 @@
 import { sendCoreMessage, sendFormsMessage, sendInboxMessage, sendLogsMessage, sendTagsMessage } from "../messageBroker";
-import { NOW, PROBABILITY_CLOSED, PROBABILITY_OPEN, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP, GOAL_MAP, MONTH_NAMES } from './constants';
+import { NOW, PROBABILITY_CLOSED, PROBABILITY_OPEN, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP } from './constants';
 import { IModels } from "../connectionResolver";
 import * as dayjs from 'dayjs';
 import * as isoWeek from 'dayjs/plugin/isoWeek';
@@ -644,12 +644,56 @@ export const buildPipeline = (filter, type, matchFilter) => {
         };
     }
 
-    pipeline.push({
+    const groupKey: any = {
         $group: {
             _id: groupKeys,
             ...actions,
         }
-    });
+    }
+
+    if (dimensions.includes("card") || dimensions.includes("number")) {
+        groupKey.$group.doc = { $first: "$$ROOT" };
+    }
+
+    pipeline.push(groupKey);
+
+    if (dimensions.includes("card") || dimensions.includes("number")) {
+        pipeline.push(
+            {
+                $lookup: {
+                    from: "stages",
+                    localField: "doc.stageId",
+                    foreignField: "_id",
+                    as: "stage"
+                }
+            },
+            {
+                $unwind: "$stage"
+            },
+            {
+                $lookup: {
+                    from: "pipelines",
+                    localField: "stage.pipelineId",
+                    foreignField: "_id",
+                    as: "pipeline"
+                }
+            },
+            {
+                $unwind: "$pipeline"
+            },
+            {
+                $lookup: {
+                    from: "boards",
+                    localField: "pipeline.boardId",
+                    foreignField: "_id",
+                    as: "board"
+                }
+            },
+            {
+                $unwind: "$board"
+            }
+        )
+    }
 
     if (dimensions.includes("frequency")) {
         pipeline.push({ $sort: { _id: 1 } })
@@ -1127,6 +1171,12 @@ export const buildPipeline = (filter, type, matchFilter) => {
         projectionFields.assignedTo = "$assignedTo";
     }
 
+    if (dimensions.includes("card") || dimensions.includes("number")) {
+        projectionFields.itemId = '$doc._id';
+        projectionFields.pipelineId = '$pipeline._id';
+        projectionFields.boardId = '$board._id';
+    }
+
     pipeline.push({ $project: projectionFields });
 
     if (filter.amountRange) {
@@ -1176,11 +1226,6 @@ export const returnDateRange = (
     startDate: Date,
     endDate: Date,
 ) => {
-    const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
-    const endOfToday = new Date(NOW.setHours(23, 59, 59, 999));
-    const startOfYesterday = new Date(dayjs(NOW).add(-1, 'day').toDate().setHours(0, 0, 0, 0),);
-    const startOfTheDayBeforeYesterday = new Date(dayjs(NOW).add(-2, 'day').toDate().setHours(0, 0, 0, 0),);
-
     let $gte;
     let $lte;
 
@@ -1190,7 +1235,7 @@ export const returnDateRange = (
             $lte = dayjs(NOW).endOf('day').toDate();;
             break;
         case 'yesterday':
-            $gte = dayjs(NOW).subtract(1, 'day').startOf('day').toDate();;
+            $gte = dayjs(NOW).subtract(1, 'day').startOf('day').toDate();
             $lte = dayjs(NOW).subtract(1, 'day').endOf('day').toDate();
             break;
         case 'last72h':
@@ -1661,13 +1706,13 @@ export const formatFrequency = (frequencyType, frequency) => {
     return format
 }
 
-export const formatData = (data, filter) => {
+export const formatData = (data, filter, type) => {
 
     const { dateRange, startDate, endDate, frequencyType } = filter
 
     const formattedData = [...data]
 
-    formattedData.map(item => {
+    formattedData.forEach(item => {
 
         if (item.hasOwnProperty('frequency')) {
             const frequency = item['frequency']
@@ -1677,14 +1722,14 @@ export const formatData = (data, filter) => {
             item['frequency'] = formatFrequency(formatData, frequency)
         }
 
-        ['createdBy', 'modifiedBy', 'assignedTo'].map(key => {
+        ['createdBy', 'modifiedBy', 'assignedTo'].forEach(key => {
             if (item.hasOwnProperty(key)) {
                 const user = item[key]
                 item[key] = user.details?.fullName || `${user.details?.firstName} ${user.details?.lastName}` || user.email
             }
         });
 
-        ['createdAt', 'modifiedAt', 'startDate', 'closeDate', 'stageChangedDate'].map(key => {
+        ['createdAt', 'modifiedAt', 'startDate', 'closeDate', 'stageChangedDate'].forEach(key => {
             if (item.hasOwnProperty(key)) {
                 const date = item[key]
                 item[key] = dayjs(date).format('YYYY/MM/DD h:mm A')
@@ -1697,16 +1742,22 @@ export const formatData = (data, filter) => {
                 delete item[key];
             }
         });
+
+        if (item.hasOwnProperty('itemId') && item.hasOwnProperty('pipelineId') && item.hasOwnProperty('boardId')) {
+            item.url = `/${type}/board?id=${item.boardId}&pipelineId=${item.pipelineId}&itemId=${item.itemId}`;
+
+            ['boardId', 'pipelineId', 'itemId'].forEach((key) => delete item[key]);
+        }
     })
 
     return formattedData
 }
 
-export const buildData = ({ chartType, data, filter }) => {
+export const buildData = ({ chartType, data, filter, type }) => {
 
     const { measure, dimension, rowDimension, colDimension } = filter
 
-    const formattedData = formatData(data, filter);
+    const formattedData = formatData(data, filter, type);
 
     switch (chartType) {
         case 'bar':
@@ -1816,9 +1867,8 @@ export const buildChartData = (data: any, measures: any, dimensions: any, filter
 }
 
 export const buildTableData = (data: any, measures: any, dimensions: any) => {
-
     const reorderedData = data.map(item => {
-        const order = {};
+        const order: any = {};
 
         if (dimensions?.length) {
             dimensions.forEach(dimension => {
@@ -1830,6 +1880,10 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
             measures.forEach(measure => {
                 order[measure] = item[DEAL_LABELS[measure]];
             });
+        }
+
+        if (item.hasOwnProperty("url")) {
+            order.url = item.url || ''
         }
 
         return order;
