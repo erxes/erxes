@@ -197,6 +197,7 @@ export const buildPipeline = (filter: any, matchFilter: any) => {
     dimension: dimensions,
     measure: measures,
     frequencyType = '%m',
+    sortBy
   } = filter;
 
   const pipeline: any = [];
@@ -477,6 +478,15 @@ export const buildPipeline = (filter: any, matchFilter: any) => {
   }
 
   pipeline.push(projectStage);
+
+  if (sortBy?.length) {
+    const sortFields = (sortBy || []).reduce((acc, { field, direction }) => {
+      acc[field] = direction;
+      return acc;
+    }, {});
+
+    pipeline.push({ $sort: sortFields });
+  }
 
   return pipeline;
 };
