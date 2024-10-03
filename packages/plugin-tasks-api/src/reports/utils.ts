@@ -1181,11 +1181,11 @@ export const returnDateRange = (
       break;
     case 'yesterday':
       $gte = dayjs(NOW).subtract(1, 'day').startOf('day').toDate();
-      $lte = dayjs(NOW).subtract(1, 'day').startOf('day').toDate();
+      $lte = dayjs(NOW).subtract(1, 'day').endOf('day').toDate();
       break;
     case 'last72h':
       $gte = dayjs(NOW).subtract(3, 'day').startOf('day').toDate();
-      $lte = dayjs(NOW).toDate();
+      $lte = dayjs(NOW).endOf('day').toDate();
       break;
     case 'thisWeek':
       $gte = dayjs(NOW).startOf('week').toDate();
