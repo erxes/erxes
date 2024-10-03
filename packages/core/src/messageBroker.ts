@@ -658,7 +658,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
   });
 
   tagConsumers({ name: "core", tags });
-  reportsCunsomers({ name: "core", reports })
+  reportsCunsomers({ name: "core", reports });
   importExportCunsomers({ name: "core", imports, exporter });
   segmentsCunsomers({ name: "core", segments });
   searchCunsomers({ name: "core", search });

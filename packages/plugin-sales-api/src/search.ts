@@ -48,7 +48,7 @@ const search = async ({ subdomain, data: { value } }) => {
       module: "stages",
       items: await doSearch({
         subdomain,
-        index: "stages",
+        index: "sales_stages",
         value,
         fields: ["name"]
       })
@@ -57,7 +57,7 @@ const search = async ({ subdomain, data: { value } }) => {
       module: "pipelines",
       items: await doSearch({
         subdomain,
-        index: "pipelines",
+        index: "sales_pipelines",
         value,
         fields: ["name"]
       })
