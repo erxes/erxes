@@ -54,7 +54,7 @@ on:
       - 'packages/plugin-segments-ui/**'
       - '.github/workflows/plugin-segments-ui.yaml'
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

@@ -7,12 +7,13 @@ on:
       - master
       - rc
       - 'staging'
+      - 'v1'
     paths:
       - 'packages/api-utils/**'
       - 'packages/workers/**'
       - '.github/workflows/workers.yaml'
 
-jobs:
+jobs: 
   workers:
     runs-on: ubuntu-22.04
 

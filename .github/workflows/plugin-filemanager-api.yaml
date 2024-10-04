@@ -26,7 +26,7 @@ on:
       - 'packages/plugin-filemanager-api/**'
       - '.github/workflows/plugin-filemanager-api.yaml'
 
-jobs:
+jobs: 
   api:
     runs-on: ubuntu-22.04
 

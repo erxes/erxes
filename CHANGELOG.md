@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.17.4](https://github.com/erxes/erxes/compare/1.17.3...1.17.4) (2024-10-03)
+
+
+### Bug Fixes
+
+*  pos kitchen reciept filter item  ([#5663](https://github.com/erxes/erxes/issues/5663)) ([cde56b0](https://github.com/erxes/erxes/commit/cde56b0000d629fe16a5dbde149e7b30a294a2be))
+
+## [1.17.3](https://github.com/erxes/erxes/compare/1.17.2...1.17.3) (2024-10-03)
+
+## [1.17.2](https://github.com/erxes/erxes/compare/1.17.1...1.17.2) (2024-10-03)
+
+
+### Bug Fixes
+
+* **pos:** can't extend close date on subscription ([b47504d](https://github.com/erxes/erxes/commit/b47504dac2acf1b7966b6ac6596fd20703209fe7))
+* **pos:** loading khan improve ([#5660](https://github.com/erxes/erxes/issues/5660)) ([8d3cb81](https://github.com/erxes/erxes/commit/8d3cb81b35bd5b799aab7efb600425ad9c8c5f9d))
+* **pos:** market theme checkout ([fe4badb](https://github.com/erxes/erxes/commit/fe4badbcf8610d1d4203c896013532312bc66bb8))
+* **pos:** offline pos payments ([f0d4e20](https://github.com/erxes/erxes/commit/f0d4e20c625b837d5ff3511f1792b67de78d7198))
+* **pos:** sendData ([0f702b1](https://github.com/erxes/erxes/commit/0f702b1abc3b0494c00f75600147de57bb9233e2))
+* product attachment preview ([a070455](https://github.com/erxes/erxes/commit/a07045550170c86072c0d8ba9616365d7132d5de))
+
 ## [1.17.1](https://github.com/erxes/erxes/compare/1.18.0-rc.0...1.17.1) (2024-09-23)
 
 

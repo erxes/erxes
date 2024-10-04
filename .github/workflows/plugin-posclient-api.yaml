@@ -26,7 +26,7 @@ on:
       - 'packages/plugin-posclient-api/**'
       - '.github/workflows/plugin-posclient-api.yaml'
 
-jobs:
+jobs: 
   api:
     runs-on: ubuntu-22.04
 

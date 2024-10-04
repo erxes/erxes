@@ -26,7 +26,7 @@ on:
       - 'packages/plugin-notifications-api/**'
       - '.github/workflows/plugin-notifications-api.yaml'
 
-jobs:
+jobs: 
   api:
     runs-on: ubuntu-22.04
 

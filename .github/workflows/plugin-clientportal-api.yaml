@@ -26,7 +26,7 @@ on:
       - 'packages/plugin-clientportal-api/**'
       - '.github/workflows/plugin-clientportal-api.yaml'
 
-jobs:
+jobs: 
   api:
     runs-on: ubuntu-22.04
 

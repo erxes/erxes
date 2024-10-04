@@ -54,7 +54,7 @@ on:
       - 'packages/plugin-logs-ui/**'
       - '.github/workflows/plugin-logs-ui.yaml'
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

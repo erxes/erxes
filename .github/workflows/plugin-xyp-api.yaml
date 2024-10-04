@@ -26,7 +26,7 @@ on:
       - 'packages/plugin-xyp-api/**'
       - '.github/workflows/plugin-xyp-api.yaml'
 
-jobs:
+jobs: 
   api:
     runs-on: ubuntu-22.04
 

@@ -26,7 +26,7 @@ on:
       - 'packages/plugin-{sample}-api/**'
       - '.github/workflows/plugin-{sample}-api.yaml'
 
-jobs:
+jobs: 
   api:
     runs-on: ubuntu-22.04
 

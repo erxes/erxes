@@ -3,7 +3,7 @@ on:
   push:
     tags:
       - '*'
-jobs:
+jobs: 
   release:
     runs-on: ubuntu-22.04
     steps:
@@ -76,14 +76,6 @@ jobs:
 
 
           docker buildx imagetools create erxes/widgets:v1 --tag  erxes/widgets:${GITHUB_REF#refs/tags/}
-
-      - name: client-portal
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-
-          docker buildx imagetools create erxes/client-portal:v1 --tag  erxes/client-portal:${GITHUB_REF#refs/tags/}
 
       - name: exm-web
         run: >
