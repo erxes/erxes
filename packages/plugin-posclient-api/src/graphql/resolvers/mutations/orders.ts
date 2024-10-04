@@ -431,7 +431,7 @@ const orderMutations = {
     if (
       order.type === 'delivery' &&
       order.status === 'done' &&
-      order.deliveryInfo &&
+      (order.deliveryInfo || order.description) &&
       order.customerId
     ) {
       try {
@@ -440,7 +440,7 @@ const orderMutations = {
           action: 'createOrUpdateOrders',
           data: { action: 'statusToDone', order, posToken: config.token },
         });
-      } catch (e) {}
+      } catch (e) { }
     }
     return await models.Orders.getOrder(_id);
   },
@@ -910,10 +910,10 @@ const orderMutations = {
           Pos order:
             paid link: <a href="/pos-orders?posId=${config.posId}&search=${
               order.number
-            }">${order.number}</a> <br />
+          }">${order.number}</a> <br />
             posclient link: <a href="${config.pdomain ?? '/'}?orderId=${
               order._id
-            }">${order.number}</a> <br />
+          }">${order.number}</a> <br />
         `,
       },
       isRPC: true,
