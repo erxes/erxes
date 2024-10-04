@@ -89,7 +89,7 @@ export const sendCardInfo = async (subdomain, deal, config, value) => {
 };
 
 export const getCompanyInfo = async ({ checkTaxpayerUrl, no }: { checkTaxpayerUrl: string, no: string }) => {
-  const tinre = /(^\d{11}$)|(^\d{12}$)/;
+  const tinre = /(^\d{11}$)|(^\d{12}$)|(^\d{14}$)/;
   if (tinre.test(no)) {
     const result = await fetch(
       // `https://api.ebarimt.mn/api/info/check/getInfo?tin=${tinNo}`
