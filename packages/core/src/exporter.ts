@@ -20,7 +20,7 @@ const prepareData = async (
   const { segmentData, page, perPage } = query;
 
   const itemsFilter: any = {};
-  let itemIds = [];
+  let itemIds: string[] = [];
   const skip = (page - 1) * perPage;
 
   let data: any[] = [];
