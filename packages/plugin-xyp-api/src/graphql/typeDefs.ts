@@ -78,6 +78,7 @@ const queries = `
   xypRequest(params:JSON, wsOperationName:String!): JSON
   xypDataList(contentType:String, contentTypeIds:[String], customer: String): [XypData]
   xypDataDetail(_id: String, contentType: String, contentTypeId: String): XypData
+  xypDataByObject(contentType: String, contentTypeId: String): [XypData]
   checkXypData(contentType: String, contentTypeId: String, customerId: String, serviceName: String): XypData
 
   xypSyncRules(${syncRulesFilterParams}): [XypSyncRule]

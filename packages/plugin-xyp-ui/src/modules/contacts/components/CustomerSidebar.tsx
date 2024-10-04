@@ -258,7 +258,7 @@ function Sidebar({
               title={d?.serviceDescription}
               trigger={
                 <li key={index}>
-                  {d?.serviceDescription.replace('дамжуулах сервис', '')}
+                  {(d?.serviceDescription || '').replace('дамжуулах сервис', '')}
                 </li>
               }
               size="xl"

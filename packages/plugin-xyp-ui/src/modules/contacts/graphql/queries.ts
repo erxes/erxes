@@ -16,17 +16,36 @@ const serviceChoosen = `
     xypServiceListChoosen
   }
 `;
+
 const detail = `
-query xypDataDetail($id: String, $contentType: String, $contentTypeId: String) {
-  xypDataDetail(_id: $id, contentType: $contentType, contentTypeId: $contentTypeId) {
-    _id
-    contentType
-    contentTypeId
-    createdAt
-    data
-    updatedAt
+  query xypDataDetail($id: String, $contentType: String, $contentTypeId: String) {
+    xypDataDetail(_id: $id, contentType: $contentType, contentTypeId: $contentTypeId) {
+      _id
+      contentType
+      contentTypeId
+      createdAt
+      data {
+        serviceName
+        data
+      }
+      updatedAt
+    }
   }
-}`;
+`;
+
+const xypDataByObject = `
+  query xypDataByObject($contentType: String, $contentTypeId: String) {
+    xypDataByObject($contentType, contentTypeId: $contentTypeId) {
+      _id
+      contentType
+      contentTypeId
+      createdAt
+      data
+      updatedAt
+    }
+  }
+`;
+
 const customerDetail = `
 query customerDetail($_id: String!) {
   customerDetail(_id: $_id) {
@@ -179,6 +198,7 @@ query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $config: J
 }`;
 export default {
   detail,
+  xypDataByObject,
   customerDetail,
   xypRequest,
   list,

@@ -52,11 +52,20 @@ const xypQueries = {
     return models.XypData.find(query);
   },
 
+  async xypDataByObject(
+    _root,
+    { contentType, contentTypeId },
+    { models }: IContext,
+  ) {
+    return await models.XypData.find({ contentType, contentTypeId }).lean();
+  },
+
   async xypDataDetail(
     _root,
     { _id, contentType, contentTypeId },
     { models }: IContext,
   ) {
+    console.log({ contentType, contentTypeId }, 'zzzzzzzzzzz')
     return models.XypData.findOne({ contentType, contentTypeId });
   },
 
@@ -183,7 +192,7 @@ const xypQueries = {
     if (contentTypeId) {
       filter.contentTypeId = contentTypeId;
     }
-    
+
     return await models.XypData.findOne(filter).sort({ createdAt: -1 })
   },
 
