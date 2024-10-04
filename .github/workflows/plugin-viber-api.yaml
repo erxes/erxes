@@ -26,7 +26,7 @@ on:
       - 'packages/plugin-viber-api/**'
       - '.github/workflows/plugin-viber-api.yaml'
 
-jobs:
+jobs: 
   api:
     runs-on: ubuntu-22.04
 

@@ -54,7 +54,7 @@ on:
       - 'packages/plugin-productplaces-ui/**'
       - '.github/workflows/plugin-productplaces-ui.yaml'
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

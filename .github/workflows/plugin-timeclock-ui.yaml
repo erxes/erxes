@@ -54,7 +54,7 @@ on:
       - 'packages/plugin-timeclock-ui/**'
       - '.github/workflows/plugin-timeclock-ui.yaml'
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

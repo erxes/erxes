@@ -54,7 +54,7 @@ on:
       - 'packages/plugin-syncerkhet-ui/**'
       - '.github/workflows/plugin-syncerkhet-ui.yaml'
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

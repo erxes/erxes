@@ -54,7 +54,7 @@ on:
       - 'packages/plugin-riskassessment-ui/**'
       - '.github/workflows/plugin-riskassessment-ui.yaml'
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

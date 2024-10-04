@@ -54,7 +54,7 @@ on:
       - 'packages/plugin-forum-ui/**'
       - '.github/workflows/plugin-forum-ui.yaml'
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

@@ -26,7 +26,7 @@ on:
       - 'packages/plugin-golomtbank-api/**'
       - '.github/workflows/plugin-golomtbank-api.yaml'
 
-jobs:
+jobs: 
   api:
     runs-on: ubuntu-22.04
 

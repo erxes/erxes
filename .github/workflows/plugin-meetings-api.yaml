@@ -26,7 +26,7 @@ on:
       - 'packages/plugin-meetings-api/**'
       - '.github/workflows/plugin-meetings-api.yaml'
 
-jobs:
+jobs: 
   api:
     runs-on: ubuntu-22.04
 

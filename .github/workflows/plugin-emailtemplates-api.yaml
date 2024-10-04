@@ -26,7 +26,7 @@ on:
       - 'packages/plugin-emailtemplates-api/**'
       - '.github/workflows/plugin-emailtemplates-api.yaml'
 
-jobs:
+jobs: 
   api:
     runs-on: ubuntu-22.04
 

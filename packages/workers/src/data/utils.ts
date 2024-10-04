@@ -24,7 +24,7 @@ export const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
             FileHeaderInfo: 'NONE',
             RecordDelimiter: '\n',
             FieldDelimiter: ',',
-            AllowQuotedRecordDelimiter: true,
+            AllowQuotedRecordDelimiter: true, 
           },
         },
         OutputSerialization: {

@@ -8,11 +8,12 @@ on:
       - dev
       - master
       - rc
+      - v1
     paths:
       - 'mongobi-connector/**'
       - '.github/workflows/mongobi-connector.yaml'
 
-jobs:
+jobs: 
   essyncer:
     runs-on: ubuntu-20.04
 

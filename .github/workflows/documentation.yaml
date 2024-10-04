@@ -16,7 +16,7 @@ on:
     paths:
       - 'docs/**'
 
-jobs:
+jobs: 
   checks:
     if: github.event_name != 'push'
     runs-on: ubuntu-20.04
