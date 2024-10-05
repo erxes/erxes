@@ -494,7 +494,7 @@ export const connectToMessageBroker = async (
     console.log(`RabbitMQ connected to ${RABBITMQ_HOST}`);
   } catch (e) {
     await new Promise<void>((resolve) =>
-      setTimeout(resolve, 30000),
+      setTimeout(resolve, 60000),
     );
     reconnectToMessageBroker(setupMessageConsumers)
   }
