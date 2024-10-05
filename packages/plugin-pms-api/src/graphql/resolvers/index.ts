@@ -1,24 +1,16 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
-
-import mutations from './mutations';
-import queries from './queries';
-import { Types } from '../../models';
-
-const Pms = {
-  currentType(pms, _args) {
-    return Types.findOne({ _id: pms.typeId });
-  }
-};
+import configMutations from './mutations/configs';
+import configQueries from './queries/configs';
 
 const resolvers: any = async () => ({
   ...customScalars,
-  Pms,
-  Mutation: {
-    ...mutations
-  },
   Query: {
-    ...queries
-  }
+    ...configQueries,
+  },
+
+  Mutation: {
+    ...configMutations,
+  },
 });
 
 export default resolvers;

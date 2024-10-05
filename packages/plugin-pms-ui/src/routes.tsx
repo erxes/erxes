@@ -1,21 +1,36 @@
+import Settings from './containers/Settings';
+import React from 'react';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
 
-const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Pmss" */ './containers/List')
+const PipelineSettings = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PipelineSettings" */ './components/RemPipelineSettings'
+    )
 );
 
-const pmss = ({ location, history }) => {
-  const queryParams = queryString.parse(location.search);
-  const { type } = queryParams;
-
-  return <List typeId={type} history={history} />;
+const PipelineSetting = () => {
+  return <Settings component={PipelineSettings} configCode='remainderConfig' />;
 };
 
 const routes = () => {
-  return <Route path="/pmss/" component={pmss} />;
+  return (
+    <Routes>
+      <Route
+        key='/settings/pms/general'
+        path='/settings/pms/general'
+        element={<PipelineSetting />}
+      />
+
+      {/* <Route
+        key='/settings/pms/pipeline'
+        path='/settings/pms/pipeline'
+        element={<PipelineSetting />}
+      /> */}
+    </Routes>
+  );
 };
 
 export default routes;

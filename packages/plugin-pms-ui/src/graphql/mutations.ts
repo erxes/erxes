@@ -1,56 +1,60 @@
-const add = `
-  mutation pmssAdd($name: String!, $expiryDate: Date, $typeId:String) {
-    pmssAdd(name:$name, expiryDate: $expiryDate, typeId:$typeId) {
-      name
-      _id
-      expiryDate
-      typeId
-    }
+// Settings
+
+const updateConfigs = `
+  mutation multierkhetConfigsUpdate($configsMap: JSON!) {
+    multierkhetConfigsUpdate(configsMap: $configsMap)
   }
 `;
 
-const remove = `
-  mutation pmssRemove($_id: String!){
-    pmssRemove(_id: $_id)
-  }
-  `;
-
-const edit = `
-  mutation pmssEdit($_id: String!, $name:String, $expiryDate:Date, $checked:Boolean, $typeId:String){
-    pmssEdit(_id: $_id, name: $name, expiryDate:$expiryDate, checked:$checked, typeId:$typeId){
-      _id
-    }
-  }
-  `;
-
-const addType = `
-  mutation typesAdd($name: String!){
-    pmsTypesAdd(name:$name){
-      name
-      _id
-    }
-  }
-  `;
-
-const removeType = `
-  mutation typesRemove($_id:String!){
-    pmsTypesRemove(_id:$_id)
+const toCheckSynced = `
+  mutation toMultiCheckSynced($ids: [String], $type: String) {
+    toMultiCheckSynced(ids: $ids, type: $type) 
   }
 `;
 
-const editType = `
-  mutation typesEdit($_id: String!, $name:String){
-    pmsTypesEdit(_id: $_id, name: $name){
-      _id
-    }
+const toSyncDeals = `
+  mutation toMultiSyncDeals($dealIds: [String], $configStageId: String, $dateType: String) {
+    toMultiSyncDeals(dealIds: $dealIds, configStageId: $configStageId, dateType: $dateType)
+  }
+`;
+
+const toSyncOrders = `
+  mutation toMultiSyncOrders($orderIds: [String]) {
+    toMultiSyncOrders(orderIds: $orderIds)
+  }
+`;
+
+const toCheckProducts = `
+  mutation toMultiCheckProducts($brandId: String) {
+    toMultiCheckProducts(brandId: $brandId)
+  }
+`;
+
+const toSyncProducts = `
+  mutation toMultiSyncProducts($brandId: String, $action: String, $products: [JSON]) {
+    toMultiSyncProducts(brandId: $brandId, action: $action, products: $products)
+  }
+`;
+
+const toCheckCategories = `
+  mutation toMultiCheckCategories($brandId: String) {
+    toMultiCheckCategories(brandId: $brandId)
+  }
+`;
+
+const toSyncCategories = `
+  mutation toMultiSyncCategories($brandId: String, $action: String, $categories: [JSON]) {
+    toMultiSyncCategories(brandId: $brandId, action: $action, categories: $categories)
   }
 `;
 
 export default {
-  add,
-  remove,
-  edit,
-  addType,
-  removeType,
-  editType
+  updateConfigs,
+  toCheckSynced,
+  toSyncDeals,
+  toSyncOrders,
+  toCheckCategories,
+  toCheckProducts,
+  toSyncCategories,
+  toSyncProducts
 };

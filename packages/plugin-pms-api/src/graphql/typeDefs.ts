@@ -1,59 +1,34 @@
 import gql from 'graphql-tag';
-
-const types = `
-  type Pms {
-    _id: String!
-    name: String
-    createdAt:Date
-    expiryDate:Date
-    checked:Boolean
-    typeId: String
-  
-    currentType: PmsType
-  }
-
-  type PmsType {
-    _id: String!
-    name: String
-  }
-`;
-
-const queries = `
-  pmss(typeId: String): [Pms]
-  pmsTypes: [PmsType]
-  pmssTotalCount: Int
-`;
-
-const params = `
-  name: String,
-  expiryDate: Date,
-  checked: Boolean,
-  typeId:String
-`;
-
-const mutations = `
-  pmssAdd(${params}): Pms
-  pmssRemove(_id: String!): JSON
-  pmssEdit(_id:String!, ${params}): Pms
-  pmsTypesAdd(name:String):PmsType
-  pmsTypesRemove(_id: String!):JSON
-  pmsTypesEdit(_id: String!, name:String): PmsType
-`;
-
+import {
+  mutations as configMutations,
+  queries as configQueries,
+  types as configTypes,
+} from './schema/configs';
 
 const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date
 
-    ${types}
-    
-    extend type Query {
-      ${queries}
+    enum CacheControlScope {
+      PUBLIC
+      PRIVATE
     }
-    
+
+    directive @cacheControl(
+      maxAge: Int
+      scope: CacheControlScope
+      inheritMaxAge: Boolean
+    ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
+    ${configTypes}
+
     extend type Mutation {
-      ${mutations}
+      ${configMutations}
+    }
+
+    extend type Query {
+      ${configQueries}
     }
   `;
 };

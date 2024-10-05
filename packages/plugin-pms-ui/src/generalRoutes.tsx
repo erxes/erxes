@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import TRoutes from './routes';
+import PmsRoutes from './routes';
 
 const Routes = () => (
   <Router>
-    <TRoutes />
+    <PmsRoutes />
   </Router>
 );
 
