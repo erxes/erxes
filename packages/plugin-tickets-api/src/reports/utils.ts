@@ -1199,8 +1199,8 @@ export const returnDateRange = (
       $lte = dayjs(NOW).add(-1, 'week').endOf('week').toDate();
       break;
     case 'last2Week':
-      $gte = dayjs(NOW).add(-2, 'week').startOf('week').toDate();
-      $lte = dayjs(NOW).add(-1, 'week').endOf('week').toDate();
+      $gte = dayjs(NOW).subtract(14, 'day').startOf('day').toDate();
+      $lte = dayjs(NOW).endOf('day').toDate();
       break;
     case 'last3Week':
       $gte = dayjs(NOW).add(-3, 'week').startOf('week').toDate();

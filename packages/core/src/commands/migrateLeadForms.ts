@@ -33,13 +33,14 @@ const command = async () => {
       const formDoc = {
         brandId: integration.brandId,
         leadData: integration.leadData,
-        name: form.name,
+        name: integration.name,
         visibility: integration.visibility,
         departmentIds: integration.departmentIds,
         tagIds: integration.tagIds,
         kind: integration.kind,
         languageCode: integration.languageCode,
-        integrationId: integration._id
+        integrationId: integration._id,
+        status: integration.isActive ? "active" : "archived",
       };
 
       await Forms.updateOne({ _id: form._id }, { $set: formDoc });
