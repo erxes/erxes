@@ -16,7 +16,7 @@ const queries = {
     context: IContext
   ): Promise<any> {
     const { models } = context;
-    const { searchValue, status, page = 1, perPage = 20 } = args;
+    const { searchValue, status, page = 1, perPage = 20, sortField = 'name', sortDirection = 'asc' } = args;
 
     const query = {
       ...(status && { status }),
@@ -29,7 +29,9 @@ const queries = {
       ];
     }
 
-    return paginate(models.Categories.find(query), { page, perPage });
+    console.log("query", query)
+
+    return paginate(models.Categories.find(query).sort({ [sortField]: sortDirection }), { page, perPage });
   },
 
   /**
@@ -37,13 +39,15 @@ const queries = {
    */
   async cmsCategory(_parent: any, args: any, context: IContext): Promise<any> {
     const { models } = context;
-    const { id } = args;
+    const { _id } = args;
 
-    return models.Categories.findById(id);
+    return models.Categories.findById(_id);
   },
 };
 
 requireLogin(queries, 'cmsCategories');
+requireLogin(queries, 'cmsCategory');
 checkPermission(queries, 'cmsCategories', 'showCmsCategories', []);
+checkPermission(queries, 'cmsCategory', 'manageCmsCategories', []);
 
 export default queries;

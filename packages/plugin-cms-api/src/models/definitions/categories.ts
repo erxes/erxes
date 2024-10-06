@@ -7,7 +7,7 @@ export interface IPostCategory {
   slug: string;
   description?: string;
   parentId?: string;
-  status?: string;
+  status?: 'active' | 'inactive';
 }
 
 export interface IPostCategoryDocument extends IPostCategory, Document {
@@ -22,7 +22,7 @@ export const postCategorySchema = new Schema<IPostCategoryDocument>(
     slug: { type: String, required: true, unique: true },
     description: { type: String },
     parentId: { type: String },
-    status: { type: String, default: 'active' },
+    status: { type: String, default: 'active', enum: ['active', 'inactive'] },
   },
   { timestamps: true }
 );

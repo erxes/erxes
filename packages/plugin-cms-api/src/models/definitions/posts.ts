@@ -1,21 +1,32 @@
 import { Document, Schema } from 'mongoose';
 import slugify from 'slugify';
 import {nanoid} from 'nanoid';
+import { attachmentSchema, IAttachment } from '@erxes/api-utils/src/types';
 
 export interface IPost {
   title: string;
   slug: string;
   content?: string;
-  categoryId?: string;
+  excerpt?: string;
+  categoryIds?: string[];
   status?: 'draft' | 'published' | 'scheduled' | 'archived';
   tagIds?: string[];
   authorId?: string;
-  createdDate: Date;
-  modifiedDate: Date;
-  publishedDate?: Date;
-  publishedUserId?: string;
   scheduledDate?: Date;
   autoArchiveDate?: Date;
+  publishedDate?: Date;
+
+  viewCount?: number;
+
+  reactions?: string[];
+  reactionCounts?: { [key: string]: number };
+
+  thumbnail?: IAttachment;
+  images?: IAttachment[];
+  video?: IAttachment;
+  audio?: IAttachment;
+  documents?: IAttachment[];
+  attachments?: IAttachment[];
 }
 
 export interface IPostDocument extends IPost, Document {
@@ -28,16 +39,27 @@ export const postSchema = new Schema<IPostDocument>(
     title: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
     content: { type: String },
-    categoryId: { type: Schema.Types.ObjectId, ref: 'PostCategory' },
+    excerpt: { type: String, default: '', optional: true },
+    categoryIds: { type: [Schema.Types.ObjectId], ref: 'PostCategory' },
     status: { type: String, default: 'draft' },
     tagIds: [{ type: [Schema.Types.ObjectId], ref: 'Tag' }],
     authorId: { type: Schema.Types.ObjectId, ref: 'User' },
-    createdDate: { type: Date, default: Date.now },
-    modifiedDate: { type: Date, default: Date.now },
+    viewCount: { type: Number, default: 0 },
+    // createdDate: { type: Date, default: Date.now },
+    // modifiedDate: { type: Date, default: Date.now },
     publishedDate: { type: Date },
-    publishedUserId: { type: Schema.Types.ObjectId, ref: 'User' },
+  
     scheduledDate: { type: Date },
     autoArchiveDate: { type: Date },
+
+    reactions: [{ type: String }],
+    reactionCounts: { type: Schema.Types.Mixed },
+    thumbnail: { type: attachmentSchema, label: 'Thumbnail' },
+    images: [{ type: attachmentSchema, label: 'Image Gallery' }],
+    video: { type: attachmentSchema, label: 'Video' },
+    audio: { type: attachmentSchema, label: 'Audio' },
+    documents: [{ type: attachmentSchema, label: 'Documents' }],
+    attachments: [{ type: attachmentSchema, label: 'Attachments' }],
   },
   { timestamps: true }
 );

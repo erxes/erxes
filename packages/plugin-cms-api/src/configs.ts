@@ -3,6 +3,8 @@ import resolvers from './graphql/resolvers';
 import { setupMessageConsumers } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import * as session from 'express-session';
+import app from '@erxes/api-utils/src/app';
 
 export default {
   name: 'cms',
@@ -28,11 +30,25 @@ export default {
 
     context.requestInfo = requestInfo;
     context.res = res;
+    context.session = req.session;
 
     return context;
   },
 
   onServerInit: async () => {
+    app.use(
+      session({
+        name: 'erxes-session',
+        secret: process.env.SESSION_SECRET || 'erxes',
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+          httpOnly: true,
+          maxAge: 1000 * 60 * 60 * 24,
+          secure: process.env.NODE_ENV === 'production',
+        }
+      })
+    )
   },
   setupMessageConsumers,
 };
