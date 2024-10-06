@@ -39,7 +39,7 @@ export const taskCharts = [
   // TaskCustomProperties
   {
     templateType: "TaskCustomProperties",
-    serviceType: 'cards',
+    serviceType: 'tasks',
     name: 'Total Task Count By Custom Properties',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
     getChartResult: async (
@@ -185,7 +185,7 @@ export const taskCharts = [
               fieldQuery: 'tags',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "cards:task", "perPage": 1000}`,
+            fieldQueryVariables: `{"type": "tasks:task", "perPage": 1000}`,
               multi: true,
             fieldLabel: 'Select tags',
           },
@@ -292,7 +292,7 @@ export const taskCharts = [
               fieldQuery: 'fieldsGroups',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"contentType": "cards:task"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               multi: true,
             fieldLabel: 'Select field group',
           },
@@ -305,12 +305,12 @@ export const taskCharts = [
               fieldLabelVariable: 'text',
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
-              fieldQueryVariables: `{"contentType": "cards:task", "isVisible": true}`,
+            fieldQueryVariables: `{"contentType": "tasks:task", "isVisible": true}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
                   logicFieldVariable: 'groupIds',
-                  logicFieldExtraVariable: `{"contentType": "cards:task"}`,
+                  logicFieldExtraVariable: `{"contentType": "tasks:task"}`,
                 },
               ],
               multi: true,
@@ -341,7 +341,7 @@ export const taskCharts = [
   // TasksTotalCount
   {
     templateType: "TasksTotalCount",
-      serviceType: 'cards',
+    serviceType: 'tasks',
       name: 'Total Tasks Count',
       chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number', "pivotTable"],
       getChartResult: async (
@@ -480,7 +480,7 @@ export const taskCharts = [
               fieldQuery: 'tags',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "cards:task", "perPage": 1000}`,
+            fieldQueryVariables: `{"type": "tasks:task", "perPage": 1000}`,
               multi: true,
             fieldLabel: 'Select tags',
           },
@@ -588,7 +588,7 @@ export const taskCharts = [
               fieldQuery: 'fieldsGroups',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"contentType": "cards:task"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               multi: true,
             fieldLabel: 'Select field group',
           },
@@ -601,12 +601,12 @@ export const taskCharts = [
               fieldLabelVariable: 'text',
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
-              fieldQueryVariables: `{"contentType": "cards:task", "isVisible": true}`,
+            fieldQueryVariables: `{"contentType": "tasks:task", "isVisible": true}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
                   logicFieldVariable: 'groupIds',
-                  logicFieldExtraVariable: `{"contentType": "cards:task"}`,
+                  logicFieldExtraVariable: `{"contentType": "tasks:task"}`,
                 },
               ],
               multi: true,
@@ -638,7 +638,7 @@ export const taskCharts = [
   // TaskClosedTotalsByTags
   {
     templateType: "TaskClosedTotalsByTags",
-      serviceType: 'cards',
+    serviceType: 'tasks',
       name: 'Total Task Count By Tag',
       chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
       getChartResult: async (
@@ -759,7 +759,7 @@ export const taskCharts = [
               fieldQuery: 'tags',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "cards:task", "perPage": 1000}`,
+            fieldQueryVariables: `{"type": "tasks:task", "perPage": 1000}`,
               multi: true,
             fieldLabel: 'Select tags',
           },
@@ -867,7 +867,7 @@ export const taskCharts = [
               fieldQuery: 'fieldsGroups',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"contentType": "cards:task"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               multi: true,
             fieldLabel: 'Select field group',
           },
@@ -880,12 +880,12 @@ export const taskCharts = [
               fieldLabelVariable: 'text',
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
-              fieldQueryVariables: `{"contentType": "cards:task", "isVisible": true}`,
+            fieldQueryVariables: `{"contentType": "tasks:task", "isVisible": true}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
                   logicFieldVariable: 'groupIds',
-                  logicFieldExtraVariable: `{"contentType": "cards:task"}`,
+                  logicFieldExtraVariable: `{"contentType": "tasks:task"}`,
                 },
               ],
               multi: true,
@@ -916,7 +916,7 @@ export const taskCharts = [
   // TaskClosedTotalsByLabel
   {
     templateType: "TaskClosedTotalsByLabel",
-      serviceType: 'cards',
+    serviceType: 'tasks',
       name: 'Total Task Count By Label',
       chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
       getChartResult: async (
@@ -1037,7 +1037,7 @@ export const taskCharts = [
               fieldQuery: 'tags',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "cards:task", "perPage": 1000}`,
+            fieldQueryVariables: `{"type": "tasks:task", "perPage": 1000}`,
               multi: true,
             fieldLabel: 'Select tags',
           },
@@ -1146,7 +1146,7 @@ export const taskCharts = [
               fieldQuery: 'fieldsGroups',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"contentType": "cards:task"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               multi: true,
             fieldLabel: 'Select field group',
           },
@@ -1159,12 +1159,12 @@ export const taskCharts = [
               fieldLabelVariable: 'text',
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
-              fieldQueryVariables: `{"contentType": "cards:task", "isVisible": true}`,
+            fieldQueryVariables: `{"contentType": "tasks:task", "isVisible": true}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
                   logicFieldVariable: 'groupIds',
-                  logicFieldExtraVariable: `{"contentType": "cards:task"}`,
+                  logicFieldExtraVariable: `{"contentType": "tasks:task"}`,
                 },
               ],
               multi: true,
@@ -1195,7 +1195,7 @@ export const taskCharts = [
   // TaskClosedTotalsByReps
   {
     templateType: "TaskClosedTotalsByReps",
-      serviceType: 'cards',
+    serviceType: 'tasks',
       name: 'Total Task Count By Rep',
       chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
       getChartResult: async (
@@ -1331,7 +1331,7 @@ export const taskCharts = [
               fieldQuery: 'tags',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "cards:task", "perPage": 1000}`,
+            fieldQueryVariables: `{"type": "tasks:task", "perPage": 1000}`,
               multi: true,
             fieldLabel: 'Select tags',
           },
@@ -1438,7 +1438,7 @@ export const taskCharts = [
               fieldQuery: 'fieldsGroups',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"contentType": "cards:task"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               multi: true,
             fieldLabel: 'Select field group',
           },
@@ -1451,12 +1451,12 @@ export const taskCharts = [
               fieldLabelVariable: 'text',
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
-              fieldQueryVariables: `{"contentType": "cards:task", "isVisible": true}`,
+            fieldQueryVariables: `{"contentType": "tasks:task", "isVisible": true}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
                   logicFieldVariable: 'groupIds',
-                  logicFieldExtraVariable: `{"contentType": "cards:task"}`,
+                  logicFieldExtraVariable: `{"contentType": "tasks:task"}`,
                 },
               ],
               multi: true,
@@ -1488,7 +1488,7 @@ export const taskCharts = [
   // TaskAverageTimeToCloseByTags
   {
     templateType: "TaskAverageTimeToCloseByTags",
-      serviceType: 'cards',
+    serviceType: 'tasks',
       name: 'Task Average Time To Close By Tag',
       chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
       getChartResult: async (
@@ -1618,7 +1618,7 @@ export const taskCharts = [
               fieldQuery: 'tags',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "cards:task", "perPage": 1000}`,
+            fieldQueryVariables: `{"type": "tasks:task", "perPage": 1000}`,
               multi: true,
             fieldLabel: 'Select tags',
           },
@@ -1725,7 +1725,7 @@ export const taskCharts = [
               fieldQuery: 'fieldsGroups',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"contentType": "cards:task"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               multi: true,
             fieldLabel: 'Select field group',
           },
@@ -1738,12 +1738,12 @@ export const taskCharts = [
               fieldLabelVariable: 'text',
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
-              fieldQueryVariables: `{"contentType": "cards:task", "isVisible": true}`,
+            fieldQueryVariables: `{"contentType": "tasks:task", "isVisible": true}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
                   logicFieldVariable: 'groupIds',
-                  logicFieldExtraVariable: `{"contentType": "cards:task"}`,
+                  logicFieldExtraVariable: `{"contentType": "tasks:task"}`,
                 },
               ],
               multi: true,
@@ -1774,7 +1774,7 @@ export const taskCharts = [
   // TaskAverageTimeToCloseByLabel
   {
     templateType: "TaskAverageTimeToCloseByLabel",
-      serviceType: 'cards',
+    serviceType: 'tasks',
       name: 'Task Average Time To Close By Label',
       chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
       getChartResult: async (
@@ -1904,7 +1904,7 @@ export const taskCharts = [
               fieldQuery: 'tags',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "cards:task", "perPage": 1000}`,
+            fieldQueryVariables: `{"type": "tasks:task", "perPage": 1000}`,
               multi: true,
             fieldLabel: 'Select tags',
           },
@@ -2011,7 +2011,7 @@ export const taskCharts = [
               fieldQuery: 'fieldsGroups',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"contentType": "cards:task"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               multi: true,
             fieldLabel: 'Select field group',
           },
@@ -2024,12 +2024,12 @@ export const taskCharts = [
               fieldLabelVariable: 'text',
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
-              fieldQueryVariables: `{"contentType": "cards:task", "isVisible": true}`,
+            fieldQueryVariables: `{"contentType": "tasks:task", "isVisible": true}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
                   logicFieldVariable: 'groupIds',
-                  logicFieldExtraVariable: `{"contentType": "cards:task"}`,
+                  logicFieldExtraVariable: `{"contentType": "tasks:task"}`,
                 },
               ],
               multi: true,
@@ -2060,7 +2060,7 @@ export const taskCharts = [
   // TaskAverageTimeToCloseByReps
   {
     templateType: "TaskAverageTimeToCloseByReps",
-      serviceType: 'cards',
+    serviceType: 'tasks',
       name: 'Task Average Time To Close By Rep',
       chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
       getChartResult: async (
@@ -2204,7 +2204,7 @@ export const taskCharts = [
               fieldQuery: 'tags',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "cards:task", "perPage": 1000}`,
+            fieldQueryVariables: `{"type": "tasks:task", "perPage": 1000}`,
               multi: true,
             fieldLabel: 'Select tags',
           },
@@ -2311,7 +2311,7 @@ export const taskCharts = [
               fieldQuery: 'fieldsGroups',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"contentType": "cards:task"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               multi: true,
             fieldLabel: 'Select field group',
           },
@@ -2324,12 +2324,12 @@ export const taskCharts = [
               fieldLabelVariable: 'text',
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
-              fieldQueryVariables: `{"contentType": "cards:task", "isVisible": true}`,
+            fieldQueryVariables: `{"contentType": "tasks:task", "isVisible": true}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
                   logicFieldVariable: 'groupIds',
-                  logicFieldExtraVariable: `{"contentType": "cards:task"}`,
+                  logicFieldExtraVariable: `{"contentType": "tasks:task"}`,
                 },
               ],
               multi: true,
@@ -2361,7 +2361,7 @@ export const taskCharts = [
   // AllTasksIncompleteByDueDate
   {
     templateType: "AllTasksIncompleteByDueDate",
-      serviceType: 'cards',
+    serviceType: 'tasks',
       name: 'Total Task Count By Due Date',
       chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
       getChartResult: async (
@@ -2561,7 +2561,7 @@ export const taskCharts = [
               fieldQuery: 'tags',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "cards:task", "perPage": 1000}`,
+            fieldQueryVariables: `{"type": "tasks:task", "perPage": 1000}`,
               multi: true,
             fieldLabel: 'Select tags',
           },
@@ -2669,7 +2669,7 @@ export const taskCharts = [
               fieldQuery: 'fieldsGroups',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"contentType": "cards:task"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               multi: true,
             fieldLabel: 'Select field group',
           },
@@ -2682,12 +2682,12 @@ export const taskCharts = [
               fieldLabelVariable: 'text',
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
-              fieldQueryVariables: `{"contentType": "cards:task", "isVisible": true}`,
+            fieldQueryVariables: `{"contentType": "tasks:task", "isVisible": true}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
                   logicFieldVariable: 'groupIds',
-                  logicFieldExtraVariable: `{"contentType": "cards:task"}`,
+                  logicFieldExtraVariable: `{"contentType": "tasks:task"}`,
                 },
               ],
               multi: true,

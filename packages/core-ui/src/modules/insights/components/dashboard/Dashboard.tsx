@@ -171,7 +171,7 @@ const Dashboard = (props: Props) => {
 
     const { REACT_APP_API_URL } = getEnv();
     window.open(
-      `${REACT_APP_API_URL}/pl:insight/chart-table-export?${stringified}`
+      `${REACT_APP_API_URL}/chart-table-export?${stringified}`
     );
   };
 

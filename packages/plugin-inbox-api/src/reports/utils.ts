@@ -1,6 +1,5 @@
 import * as dayjs from 'dayjs';
-import { MONTH_NAMES, NOW, STATUS_KIND, WEEKDAY_NAMES } from './constants';
-import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { MONTH_NAMES, WEEKDAY_NAMES } from './constants';
 import { getIntegrationMeta } from '../utils';
 import { sendCoreMessage } from '../messageBroker';
 
@@ -105,30 +104,23 @@ export const returnDateRange = (
     startDate: Date,
     endDate: Date,
 ) => {
-    const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
-    const endOfToday = new Date(NOW.setHours(23, 59, 59, 999));
-    const startOfYesterday = new Date(
-        dayjs(NOW).add(-1, 'day').toDate().setHours(0, 0, 0, 0),
-    );
-    const startOfTheDayBeforeYesterday = new Date(
-        dayjs(NOW).add(-2, 'day').toDate().setHours(0, 0, 0, 0),
-    );
+    const NOW = new Date();
 
     let $gte;
     let $lte;
 
     switch (dateRange) {
         case 'today':
-            $gte = startOfToday;
-            $lte = endOfToday;
+            $gte = dayjs(NOW).startOf('day').toDate();
+            $lte = dayjs(NOW).endOf('day').toDate();
             break;
         case 'yesterday':
-            $gte = startOfYesterday;
-            $lte = startOfToday;
+            $gte = dayjs(NOW).subtract(1, 'day').startOf('day').toDate();
+            $lte = dayjs(NOW).subtract(1, 'day').endOf('day').toDate();
             break;
         case 'last72h':
-            $gte = startOfTheDayBeforeYesterday;
-            $lte = startOfToday;
+            $gte = dayjs(NOW).subtract(3, 'day').startOf('day').toDate();
+            $lte = dayjs(NOW).endOf('day').toDate();
             break;
         case 'thisWeek':
             $gte = dayjs(NOW).startOf('week').toDate();
