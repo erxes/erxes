@@ -8,7 +8,8 @@
   "dependencies": {
     "@erxes/api-utils": "*",
     "express-session": "^1.18.0",
-    "slugify": "^1.6.6"
+    "slugify": "^1.6.6",
+    "html-to-text": "^9.0.5"
   },
   "devDependencies": {
     "@types/express-session": "^1.18.0"

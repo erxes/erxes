@@ -4,6 +4,7 @@ import {nanoid} from 'nanoid';
 import { attachmentSchema, IAttachment } from '@erxes/api-utils/src/types';
 
 export interface IPost {
+  clientPortalId: string;
   title: string;
   slug: string;
   content?: string;
@@ -12,6 +13,8 @@ export interface IPost {
   status?: 'draft' | 'published' | 'scheduled' | 'archived';
   tagIds?: string[];
   authorId?: string;
+  featured?: boolean;
+  featuredDate?: Date | null;
   scheduledDate?: Date;
   autoArchiveDate?: Date;
   publishedDate?: Date;
@@ -36,18 +39,20 @@ export interface IPostDocument extends IPost, Document {
 export const postSchema = new Schema<IPostDocument>(
   {
     _id: { type: String, default: () => nanoid() },
+    clientPortalId: { type: String, required: true },
     title: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
     content: { type: String },
     excerpt: { type: String, default: '', optional: true },
-    categoryIds: { type: [Schema.Types.ObjectId], ref: 'PostCategory' },
-    status: { type: String, default: 'draft' },
-    tagIds: [{ type: [Schema.Types.ObjectId], ref: 'Tag' }],
-    authorId: { type: Schema.Types.ObjectId, ref: 'User' },
+    categoryIds: { type: [String], ref: 'PostCategory' },
+    status: { type: String, default: 'draft', enum: ['draft', 'published', 'scheduled', 'archived'] },
+    tagIds: [{ type: [String], ref: 'Tag' }],
+    authorId: { type: String, ref: 'User' },
     viewCount: { type: Number, default: 0 },
-    // createdDate: { type: Date, default: Date.now },
-    // modifiedDate: { type: Date, default: Date.now },
     publishedDate: { type: Date },
+
+    featured: { type: Boolean, default: false },
+    featuredDate: { type: Date },
   
     scheduledDate: { type: Date },
     autoArchiveDate: { type: Date },
@@ -64,9 +69,4 @@ export const postSchema = new Schema<IPostDocument>(
   { timestamps: true }
 );
 
-postSchema.pre<IPostDocument>('save', async function (next) {
-  if (!this.slug) {
-    this.slug = slugify(this.title, { lower: true });
-  }
-  next();
-});
+postSchema.index({ slug: 1, clientPortalId: 1 }, { unique: true, sparse: true });

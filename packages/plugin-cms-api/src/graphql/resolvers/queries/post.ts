@@ -7,7 +7,9 @@ import {
 import { IContext } from '../../../connectionResolver';
 
 const queryBuilder = (args: any) => {
-  let query: any = {};
+  let query: any = {
+    clientPortalId: args.clientPortalId,
+  };
 
   if (args.status) {
     query.status = args.status;

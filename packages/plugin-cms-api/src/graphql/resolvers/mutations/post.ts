@@ -14,8 +14,9 @@ const mutations = {
     args: any,
     context: IContext
   ): Promise<any> => {
-    const { models } = context;
+    const { models, user } = context;
     const { input } = args;
+    input.authorId = user._id;
 
     return models.Posts.createPost(input);
   },
@@ -84,6 +85,20 @@ const mutations = {
     }
 
     return models.Posts.findOne({ _id });
+  },
+
+  /**
+   * Cms post toggle featured
+   */
+  postsToggleFeatured: async (
+    _parent: any,
+    args: any,
+    context: IContext
+  ): Promise<any> => {
+    const { models } = context;
+    const { _id } = args;
+
+    return models.Posts.toggleFeatured(_id);
   },
 };
 

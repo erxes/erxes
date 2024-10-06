@@ -16,9 +16,10 @@ const queries = {
     context: IContext
   ): Promise<any> {
     const { models } = context;
-    const { searchValue, status, page = 1, perPage = 20, sortField = 'name', sortDirection = 'asc' } = args;
+    const {clientPortalId, searchValue, status, page = 1, perPage = 20, sortField = 'name', sortDirection = 'asc' } = args;
 
     const query = {
+      clientPortalId,
       ...(status && { status }),
     };
 

@@ -18,23 +18,21 @@ const typeDefs = async () => {
     scalar JSON
     scalar Date
 
-    
-
     ${categoryTypes}
     ${postTypes}
    
 
     ${categoryInputs}
-  
+    ${postInputs}
     
     extend type Query {
       ${categoryQueries}
-    
+      ${postQueries}
     }
     
     extend type Mutation {
       ${categoryMutations}
-
+      ${postMutations}
     }
   `;
 };

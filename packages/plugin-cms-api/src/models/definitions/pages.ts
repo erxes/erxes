@@ -1,17 +1,13 @@
 import { Document, Schema } from 'mongoose';
-import slugify from 'slugify';
-import { componentSchema } from './components';
-import {nanoid} from 'nanoid';
+import { nanoid } from 'nanoid';
 
 export interface IPage {
+  clientPortalId: string;
   name: string;
   slug: string;
   layout: string;
-  components: any[];
-  createdAt: Date;
-  updatedAt: Date;
-  contentType: string;
-  contentTypeId: string;
+  pageItems: any[];
+  createdUserId: string;
 }
 
 export interface IPageDocument extends IPage, Document {
@@ -21,28 +17,24 @@ export interface IPageDocument extends IPage, Document {
 export const pageSchema = new Schema<IPageDocument>(
   {
     _id: { type: String, default: () => nanoid() },
+    clientPortalId: { type: String, required: true },
     name: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
     layout: { type: String, required: true },
-    components: [
+    createdUserId: { type: String, ref: 'User' },
+    pageItems: [
       {
         type: { type: String, required: true },
-        content: { type: Schema.Types.Mixed, required: true },
-        tailwindClasses: { type: String, required: true },
+        content: { type: Schema.Types.Mixed },
         order: { type: Number, required: true },
+        contentType: { type: String },
+        contentTypeId: { type: String },
       },
     ],
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
-    contentType: { type: String, required: true },
-    contentTypeId: { type: String, required: true },
   },
   { timestamps: true }
 );
 
-pageSchema.pre<IPageDocument>('save', async function (next) {
-  if (!this.slug) {
-    this.slug = slugify(this.name, { lower: true });
-  }
-  next();
-});
+
+
+pageSchema.index({ slug: 1, clientPortalId: 1 }, { sparse: true });

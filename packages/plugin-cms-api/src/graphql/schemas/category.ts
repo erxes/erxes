@@ -11,6 +11,7 @@ export const types = `
 
     type PostCategory {
         _id: String!
+        clientPortalId: String
         name: String
         slug: String
         description: String
@@ -30,13 +31,13 @@ export const inputs = `
         description: String
         parentId: String
         status: String
-
+        clientPortalId: String
     }
 
 `;
 
 export const queries = `
-    cmsCategories(searchValue: String, status: CategoryStatus, page: Int, perPage: Int, sortField: String, sortDirection: SortDirection): [PostCategory]
+    cmsCategories(clientPortalId: String!, searchValue: String, status: CategoryStatus, page: Int, perPage: Int, sortField: String, sortDirection: SortDirection): [PostCategory]
     cmsCategory(_id: String!): PostCategory
 `;
 

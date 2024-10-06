@@ -25,6 +25,7 @@ export const types = `
 
     type Post {
         _id: String!
+        clientPortalId: String
         title: String
         slug: String
         content: String
@@ -33,6 +34,8 @@ export const types = `
         status: PostStatus
         tagIds: [String]
         authorId: String
+        featured: Boolean
+        featuredDate: Date
         scheduledDate: Date
         autoArchiveDate: Date
         reactions: [String]
@@ -61,38 +64,41 @@ export const types = `
 
 export const inputs = `
     input PostInput {
+        clientPortalId: String
         title: String
         slug: String
         content: String
         excerpt: String
         categoryIds: [String]
+        featured: Boolean
         status: PostStatus
         tagIds: [String]
         authorId: String
         scheduledDate: Date
         autoArchiveDate: Date
         reactions: [String]
-        reactionCounts: { [key: string]: number }
-        thumbnail: Attachment
-        images: [Attachment]
-        video: Attachment
-        audio: Attachment
-        documents: [Attachment]
-        attachments: [Attachment]
+        reactionCounts: JSON
+        thumbnail: AttachmentInput
+        images: [AttachmentInput]
+        video: AttachmentInput
+        audio: AttachmentInput
+        documents: [AttachmentInput]
+        attachments: [AttachmentInput]
     }
 `;
 
 export const queries = `
     post(_id: String): Post
-    posts(categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: SortDirection): [Post]
-    postList(categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: SortDirection): PostList
+    posts(clientPortalId: String!, featured: Boolean, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: SortDirection): [Post]
+    postList(clientPortalId: String!, featured: Boolean, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: SortDirection): PostList
 `;
 
 export const mutations = `
     postsAdd(input: PostInput!): Post
     postsEdit(_id: String!, input: PostInput!): Post
-    postsDelete(_id: String!): Post
+    postsDelete(_id: String!): JSON
     postsChangeStatus(_id: String!, status: PostStatus!): Post
+    postsToggleFeatured(_id: String!): Post
 
     postsIncrementViewCount(_id: String!): Post
 `;

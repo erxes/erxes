@@ -8,6 +8,7 @@ export interface IPostCategory {
   description?: string;
   parentId?: string;
   status?: 'active' | 'inactive';
+  clientPortalId: string;
 }
 
 export interface IPostCategoryDocument extends IPostCategory, Document {
@@ -18,6 +19,7 @@ export interface IPostCategoryDocument extends IPostCategory, Document {
 export const postCategorySchema = new Schema<IPostCategoryDocument>(
   {
     _id: { type: String, default: () => nanoid() },
+    clientPortalId: { type: String, required: true },
     name: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
     description: { type: String },
@@ -27,10 +29,4 @@ export const postCategorySchema = new Schema<IPostCategoryDocument>(
   { timestamps: true }
 );
 
-postCategorySchema.pre<IPostCategoryDocument>('save', async function (next) {
-  console.log("*******", this, '*******')
-  if (!this.slug) {
-    this.slug = slugify(this.name, { lower: true });
-  }
-  next();
-});
+postCategorySchema.index({ slug: 1, clientPortalId: 1 }, { sparse: true });
