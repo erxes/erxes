@@ -14,7 +14,7 @@ const client = new MongoClient(MONGO_URL);
 
 let db: Db;
 
-let Logs: Collection<any>;
+let ActivityLogs: Collection<any>;
 
 const switchContentType = contentType => {
   let changedContentType = contentType;
@@ -63,15 +63,20 @@ const command = async () => {
   await client.connect();
   db = client.db() as Db;
 
-  Logs = db.collection("logs");
+  ActivityLogs = db.collection("activity_logs");
 
   try {
-    console.log("migrating logs");
+    console.log("migratings activity logs");
 
-    await Logs.find({}).forEach(doc => {
+    await ActivityLogs.find({}).forEach(doc => {
       const contentType = switchContentType(doc.contentType);
 
-      Logs.updateOne({ _id: doc._id }, { $set: { contentType } });
+      console.log(`Updating ${doc._id} with ${contentType}`);
+      try {
+        ActivityLogs.updateOne({ _id: doc._id }, { $set: { contentType } });
+      } catch (e) {
+        console.log(e, "123");
+      }
     });
 
     console.log("migrating tags");

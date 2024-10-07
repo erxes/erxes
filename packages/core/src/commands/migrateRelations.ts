@@ -23,6 +23,7 @@ let Webhooks: Collection<any>;
 let ActivityLogs: Collection<any>;
 let Charts: Collection<any>;
 let Reports: Collection<any>;
+let Logs: Collection<any>;
 
 const switchContentType = contentType => {
   let changedContentType = contentType;
@@ -80,6 +81,7 @@ const command = async () => {
   Webhooks = db.collection("webhooks");
   Charts = db.collection("insight_charts");
   Reports = db.collection("reports");
+  Logs = db.collection("logs");
 
   try {
     await Segments.find({}).forEach(doc => {
@@ -103,7 +105,9 @@ const command = async () => {
       );
     });
 
-    await FieldGroups.find({}).forEach(doc => {
+    await FieldGroups.find({
+      name: { $ne: ["Basic information", "Relations"] }
+    }).forEach(doc => {
       const contentType = switchContentType(doc.contentType);
 
       FieldGroups.updateOne({ _id: doc._id }, { $set: { contentType } });
@@ -115,14 +119,6 @@ const command = async () => {
       const contentType = switchContentType(doc.contentType);
 
       Fields.updateOne({ _id: doc._id }, { $set: { contentType } });
-    });
-
-    console.log("migratings activity logs");
-
-    await ActivityLogs.find({}).forEach(doc => {
-      const contentType = switchContentType(doc.contentType);
-
-      ActivityLogs.updateOne({ _id: doc._id }, { $set: { contentType } });
     });
 
     console.log("migrating tags");
@@ -164,6 +160,14 @@ const command = async () => {
           }
         }
       );
+    });
+
+    console.log("migrating logs");
+
+    await Logs.find({}).forEach(doc => {
+      const contentType = switchContentType(doc.contentType);
+
+      Logs.updateOne({ _id: doc._id }, { $set: { contentType } });
     });
 
     console.log("migrating charts");
