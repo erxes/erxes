@@ -1,11 +1,11 @@
-import { Alert, confirm } from "@erxes/ui/src/utils";
-import React, { useCallback, useEffect, useState } from "react";
-import { gql, useMutation, useQuery } from "@apollo/client";
-import { mutations, queries } from "../graphql";
+import { Alert, confirm } from '@erxes/ui/src/utils';
+import React, { useCallback, useEffect, useState } from 'react';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import { mutations, queries } from '../graphql';
 
-import History from "../components/History";
-import { IHistory } from "../types";
-import { useNavigate } from "react-router-dom";
+import History from '../components/History';
+import { IHistory } from '../types';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   changeMainTab: (phoneNumber: string, shiftTab: string) => void;
@@ -13,7 +13,7 @@ type Props = {
 };
 
 const HistoryContainer = (props: Props) => {
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState('');
   const [items, setItems] = useState<IHistory[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [skip, setSkip] = useState(0);
@@ -22,11 +22,11 @@ const HistoryContainer = (props: Props) => {
 
   const { changeMainTab, callUserIntegrations } = props;
   const defaultCallIntegration = localStorage.getItem(
-    "config:call_integrations"
+    'config:call_integrations',
   );
 
   const inboxId =
-    JSON.parse(defaultCallIntegration || "{}")?.inboxId ||
+    JSON.parse(defaultCallIntegration || '{}')?.inboxId ||
     callUserIntegrations?.[0]?.inboxId;
 
   const { data, loading, error, refetch, fetchMore } = useQuery(
@@ -38,13 +38,13 @@ const HistoryContainer = (props: Props) => {
         limit: 20,
         skip: 0,
       },
-      fetchPolicy: "network-only",
+      fetchPolicy: 'network-only',
       onCompleted: (data) => {
         setItems(data.callHistories);
         setHasMore(data.callHistories.length === 20);
         setSkip(20);
       },
-    }
+    },
   );
 
   const callHistoriesTotalCountQuery = useQuery(
@@ -53,15 +53,19 @@ const HistoryContainer = (props: Props) => {
       variables: {
         integrationId: inboxId,
       },
-    }
+    },
   );
 
   const totalCount =
     callHistoriesTotalCountQuery?.data?.callHistoriesTotalCount || 0;
 
   const [removeHistory] = useMutation(gql(mutations.callHistoryRemove), {
-    refetchQueries: ["CallHistories"],
+    refetchQueries: ['CallHistories'],
   });
+
+  useEffect(() => {
+    if (data && data.callHistories) setItems(data.callHistories);
+  }, [data]);
 
   const onLoadMore = useCallback(async () => {
     if (loading || !hasMore) return;
@@ -106,11 +110,11 @@ const HistoryContainer = (props: Props) => {
         },
       })
         .then(() => {
-          Alert.success("Successfully removed");
+          Alert.success('Successfully removed');
         })
         .catch((e) => {
           Alert.error(e.message);
-        })
+        }),
     );
   };
 
