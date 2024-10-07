@@ -1,36 +1,41 @@
-import { ButtonMutate } from '@erxes/ui/src';
+import { gql, useQuery } from '@apollo/client';
+import { ButtonMutate, Spinner } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
 import React from 'react';
-import { IIndicatorsGroups } from '../common/types';
 import { refetchQueries } from '../common/utilss';
 import FormComponent from '../components/Form';
-import { mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
 
 type Props = {
-  detail: IIndicatorsGroups;
-  closeModal: () => void;
+  _id?: string;
   queryParams: any;
 };
-
-type FinalProps = {} & Props;
-
-class Form extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-    this.renderButton = this.renderButton.bind(this);
+const fetchDetail = (_id?: string) => {
+  if (!_id) {
+    return null;
   }
 
-  renderButton({
+  const { data, loading, error } = useQuery(gql(queries.getFullDetail), {
+    variables: { _id },
+  });
+
+  return { detail: data?.riskIndicatorsGroup, loading, error };
+};
+
+function Form({ _id, queryParams }: Props) {
+  const response = fetchDetail(_id);
+
+  if (response?.loading) {
+    return <Spinner />;
+  }
+
+  const renderButton = ({
     values,
     text,
     isSubmitted,
     callback,
-    object
-  }: IButtonMutateProps) {
-    const { queryParams } = this.props;
-
+    object,
+  }: IButtonMutateProps) => {
     return (
       <ButtonMutate
         mutation={object ? mutations.updateGroups : mutations.addGroups}
@@ -45,16 +50,15 @@ class Form extends React.Component<FinalProps> {
         } a ${text}`}
       />
     );
-  }
+  };
 
-  render() {
-    const updatedProps = {
-      ...this.props,
-      renderButton: this.renderButton
-    };
+  const updatedProps = {
+    queryParams,
+    detail: response?.detail,
+    renderButton,
+  };
 
-    return <FormComponent {...updatedProps} />;
-  }
+  return <FormComponent {...updatedProps} />;
 }
 
-export default withProps(compose()(Form));
+export default Form;

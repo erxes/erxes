@@ -104,7 +104,11 @@ export const handleFacebookMessage = async (
         isRPC: true,
         subdomain,
         action: 'conversations.findOne',
-        data: { query: { _id: conversationId } }
+        data: {
+          query: {
+            _id: conversationId
+          }
+        }
       });
       await sendReply(
         models,
@@ -162,17 +166,20 @@ export const handleFacebookMessage = async (
       attachments.push({ type: 'image', url: img });
     });
 
-    let strippedContent = strip(content);
+    function stripAndFormat(html) {
+      return html
+        .replace(/<\/p>/g, '\n')
+        .replace(/<[^>]+>/g, '')
+        .trim();
+    }
 
-    strippedContent = strippedContent.replace(/&amp;/g, '&');
+    let strippedContent = stripAndFormat(content);
 
     const conversation = await models.Conversations.getConversation({
       erxesApiId: conversationId
     });
-
     const { recipientId, senderId } = conversation;
     let localMessage;
-
     try {
       if (strippedContent) {
         try {

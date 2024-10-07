@@ -38,5 +38,6 @@ export default {
     tags,
     cronjobs,
     forms,
+    permissions,
   },
 };

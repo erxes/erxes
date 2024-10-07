@@ -1,4 +1,4 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 export default `
   _id
@@ -63,17 +63,17 @@ export default `
   }
 
   ${
-    isEnabled("dailyco")
+    isEnabled('dailyco')
       ? `
   videoCallData {
     url
     name
   }`
-      : ""
+      : ''
   }
 
     ${
-      isEnabled("calls")
+      isEnabled('calls')
         ? `
   callHistory {
     customerPhone
@@ -90,11 +90,20 @@ export default `
     modifiedBy
     recordUrl
   }`
-        : ""
+        : ''
     }
 
 
   readUserIds
+  readUsers {
+    _id
+    username
+    details {
+      avatar
+      fullName
+      position
+    }
+  }
   callProAudio
   customFieldsData
 `;

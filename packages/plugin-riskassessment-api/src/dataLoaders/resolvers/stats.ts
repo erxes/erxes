@@ -1,10 +1,10 @@
 import { IContext } from '../../connectionResolver';
-import { sendCardsMessage } from '../../messageBroker';
+import { sendCardsMessage, sendCommonMessage } from '../../messageBroker';
 
 export default {
   async resolvedCardCount({ ids }, {}, { models, subdomain }: IContext) {
     const riskAssessments = await models.RiskAssessments.find({
-      _id: { $in: ids }
+      _id: { $in: ids },
     })
       .select({ cardId: 1, cardType: 1 })
       .lean();
@@ -30,10 +30,10 @@ export default {
       action: 'stages.find',
       data: {
         probability: 'Resolved',
-        status: 'active'
+        status: 'active',
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const stageIds = stages.map(stage => stage._id);
@@ -41,15 +41,16 @@ export default {
     let resolvedCardCount = 0;
 
     for (const { type, ids } of listCardObj) {
-      const cards = await sendCardsMessage({
+      const cards = await sendCommonMessage({
+        serviceName: `${type}s`,
         subdomain,
         action: `${type}s.find`,
         data: {
           _id: { $in: ids },
-          stageId: { $in: stageIds }
+          stageId: { $in: stageIds },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       const cardsCount = cards.length;
@@ -58,5 +59,5 @@ export default {
     }
 
     return resolvedCardCount;
-  }
+  },
 };
