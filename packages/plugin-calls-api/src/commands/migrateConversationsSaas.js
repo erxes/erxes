@@ -14,9 +14,8 @@ const { CORE_MONGO_URL, MONGO_URL, NODE_ENV } = process.env;
 if (!MONGO_URL || !CORE_MONGO_URL) {
     throw new Error(`Environment variable MONGO_URL not set.`);
 }
-let coreMongo =
-    'mongodb://127.0.0.1:27017/erxes_core?directConnection=true' ||
-    CORE_MONGO_URL;
+let coreMongo = CORE_MONGO_URL ||
+    'mongodb://127.0.0.1:27017/erxes_core?directConnection=true';
 const coreClient = new MongoClient(coreMongo);
 let coredb;
 let db;
@@ -39,6 +38,7 @@ const command = async () => {
 
     for (const org of orgs) {
         try {
+            console.log('org id', org._id);
             let tempMongoUrl = MONGO_URL;
             let client;
             if (NODE_ENV === 'dev') {
@@ -67,7 +67,7 @@ const command = async () => {
                 for (const result of results) {
                     for (const operator of result.operators) {
                         if (operator.gsForwardAgent) {
-
+                            console.log('has forward agent:', operator.gsForwardUser);
                             //last 3month
                             const startTime = getPureDate(new Date(), -7776000);
                             const endTime = getPureDate(new Date(), 10);
@@ -98,7 +98,7 @@ const command = async () => {
                             let cdrRoot =
                                 incomingCdrData.response?.cdr_root || incomingCdrData.cdr_root;
                             await saveCdrData(cdrRoot, result, operator.userId);
-
+                            console.log('saved incoming cdr');
                             const outgoingCdrData = await sendToGrandStream(
                                 CallIntegrations,
                                 {
@@ -125,6 +125,7 @@ const command = async () => {
                             let outgoingCdrRoot =
                                 outgoingCdrData.response?.cdr_root || outgoingCdrData.cdr_root;
                             await saveCdrData(outgoingCdrRoot, result, operator.userId);
+                            console.log('saved outgoing call');
                         }
                     }
                 }
