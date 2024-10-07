@@ -1,7 +1,7 @@
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { queries } from "../graphql";
-import CustomerSidebar from "../components/CustomerSidebar";
-import { IOperation } from "../types";
+import SidebarView from "../components/SidebarView";
+
 import React from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
 
@@ -24,17 +24,18 @@ const SidebarViewContainer = (props: Props) => {
     fetchPolicy: "network-only",
   });
 
-  const xypServiceList = useQuery(gql(queries.xypServiceList), {});
 
   if (xypData.loading) {
     return <Spinner objective={true} />;
   }
 
   const updatedProps = {
-    
+    ...props,
+    xypData,
+    loading: xypData.loading
   };
 
-  return <CustomerSidebar {...updatedProps} />;
+  return <SidebarView {...updatedProps} />;
 };
 
 export default SidebarViewContainer;

@@ -8,6 +8,8 @@ module.exports = {
     "./xypConfigs": "./src/modules//settings/components/XypConfigs.tsx",
     "./customerSidebar":
       "./src/modules/contacts/containers/CustomerSidebar.tsx",
+    "./sidebarView":
+      "./src/modules/contacts/containers/SidebarView.tsx",
   },
 
   extendSystemConfig: "./xypConfigs",
@@ -29,6 +31,7 @@ module.exports = {
   ],
 
   customerRightSidebarSection: "./customerSidebar",
+  // customerRightSidebarSection: "./sidebarView",
   carRightSidebarSection: "./customerSidebar",
   dealRightSidebarSection: "./customerSidebar",
 };
