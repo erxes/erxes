@@ -5,13 +5,13 @@ import {
   Icon,
   ModalTrigger,
   SectionBodyItem,
-} from "@erxes/ui/src";
-import { ColorBox, FormContainer, ProductName } from "../../../styles";
+} from '@erxes/ui/src';
+import { ColorBox, FormContainer, ProductName } from '../../../styles';
 
-import AssignedUsers from "../containers/AssignedUsers";
-import React from "react";
-import { RiskAssessmentTypes } from "../../common/types";
-import SinglAddForm from "../containers/SingkeAddForm";
+import AssignedUsers from '../containers/AssignedUsers';
+import React from 'react';
+import { RiskAssessmentTypes } from '../../common/types';
+import SinglAddForm from '../containers/SingkeAddForm';
 
 type Props = {
   riskAssessments: RiskAssessmentTypes[];
@@ -62,7 +62,7 @@ class Section extends React.Component<Props> {
     return <AssignedUsers {...updatedProps} />;
   };
 
-  renderItem = (riskAssessment) => {
+  renderItem = riskAssessment => {
     const {
       status,
       statusColor,
@@ -74,23 +74,23 @@ class Section extends React.Component<Props> {
     } = riskAssessment as RiskAssessmentTypes;
 
     const renderName = () => {
-      if ([department, branch, operation].some((x) => x)) {
-        return `${branch?.title || ""} ${
-          department?.title || ""
-        } ${operation?.name || ""}`;
+      if ([department, branch, operation].some(x => x)) {
+        return `${branch?.title || ''} ${
+          department?.title || ''
+        } ${operation?.name || ''}`;
       }
 
       if (group) {
-        return group?.name || "";
+        return group?.name || '';
       }
       if (indicator) {
-        return indicator?.name || "";
+        return indicator?.name || '';
       }
 
       if (status) {
         return status;
       }
-      return "";
+      return '';
     };
 
     return (
@@ -117,7 +117,7 @@ class Section extends React.Component<Props> {
   };
 
   renderBulkAssessment(riskAssessments: RiskAssessmentTypes[]) {
-    return riskAssessments.map((assessment) => (
+    return riskAssessments.map(assessment => (
       <SectionBodyItem key={assessment._id}>
         {this.renderSingleAssessment(assessment)}
       </SectionBodyItem>

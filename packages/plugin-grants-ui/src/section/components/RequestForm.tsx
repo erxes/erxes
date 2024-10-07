@@ -32,7 +32,7 @@ type Props = {
   loading: boolean;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   cancelRequest: () => void;
-  checkConfig: (props: CheckConfigTypes) => boolean;
+  checkConfig: (props: CheckConfigTypes) => Promise<boolean>;
 };
 
 const RequestForm: React.FC<Props> = (props) => {
@@ -122,14 +122,16 @@ const RequestForm: React.FC<Props> = (props) => {
     const onChangeAction = async (value, name, scope?) => {
       handleSelect(value, name, scope);
 
-      setState((prevState) => ({
-        ...prevState,
-        hasConfig: checkConfig({
+      const hasConfig = await checkConfig({
           contentType,
           contentTypeId,
           action: value,
           scope,
-        }),
+        })
+
+      setState((prevState) => ({
+        ...prevState,
+        hasConfig 
       }));
     };
 

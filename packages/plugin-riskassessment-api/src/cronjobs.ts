@@ -1,32 +1,32 @@
-import { generateModels } from "./connectionResolver";
-import { sendCardsMessage, sendCoreMessage } from "./messageBroker";
-import { PLAN_STATUSES } from "./common/constants";
-import * as moment from "moment";
+import { generateModels } from './connectionResolver';
+import { sendCommonMessage, sendCoreMessage } from './messageBroker';
+import { PLAN_STATUSES } from './common/constants';
+import * as moment from 'moment';
 
 const handleDailyJob = async ({ subdomain }) => {
   const models = await generateModels(subdomain);
 
   const NOW = new Date();
-  const tommorrow = moment().add(1, "days");
+  const tommorrow = moment().add(1, 'days');
   console.log(`starting daily job of risk assessment schedule at ${NOW}`);
 
   const plans = await models.Plans.find({
     createDate: {
-      $gte: new Date(tommorrow.startOf("day").toISOString()),
-      $lte: new Date(tommorrow.endOf("day").toISOString())
+      $gte: new Date(tommorrow.startOf('day').toISOString()),
+      $lte: new Date(tommorrow.endOf('day').toISOString()),
     },
-    status: "active"
+    status: 'active',
   });
 
   if (!plans?.length) {
     console.log(
-      `As of ${NOW}, no plans at ${new Date(tommorrow.format("YYYY-MM-DD"))}`
+      `As of ${NOW}, no plans at ${new Date(tommorrow.format('YYYY-MM-DD'))}`
     );
   }
 
   for (const plan of plans) {
     const schedules = await models.Schedules.find({
-      planId: plan._id
+      planId: plan._id,
     });
 
     if (!schedules?.length) {
@@ -38,7 +38,7 @@ const handleDailyJob = async ({ subdomain }) => {
     const commonDoc = {
       startDate: plan.startDate,
       closeDate: plan.closeDate,
-      tagIds: plan.tagId ? [plan.tagId] : undefined
+      tagIds: plan.tagId ? [plan.tagId] : undefined,
     };
 
     const { configs, plannerId, structureType } = plan;
@@ -51,32 +51,33 @@ const handleDailyJob = async ({ subdomain }) => {
         name: schedule.name,
         userId: plannerId,
         stageId: configs.stageId,
-        assignedUserIds: schedule.assignedUserIds
+        assignedUserIds: schedule.assignedUserIds,
       };
 
       if (schedule?.customFieldsData) {
         payload.customFieldsData = await sendCoreMessage({
           subdomain,
-          action: "fields.prepareCustomFieldsData",
+          action: 'fields.prepareCustomFieldsData',
           data: schedule.customFieldsData,
           isRPC: true,
-          defaultValue: schedule.customFieldsData
+          defaultValue: schedule.customFieldsData,
         });
       }
 
       const fieldName = structureType;
-      if (["branch", "department"].includes(structureType)) {
+      if (['branch', 'department'].includes(structureType)) {
         payload[`${fieldName}Ids`] = schedule.structureTypeId
           ? [schedule.structureTypeId]
           : [];
       }
 
-      const newItem = await sendCardsMessage({
+      const newItem = await sendCommonMessage({
+        serviceName: `${configs.cardType}s`,
         subdomain,
         action: `${configs.cardType}s.create`,
         data: payload,
         isRPC: true,
-        defaultValue: null
+        defaultValue: null,
       }).catch(err => {
         console.log(err.message);
       });
@@ -85,7 +86,7 @@ const handleDailyJob = async ({ subdomain }) => {
         cardType: configs.cardType,
         cardId: newItem._id,
         indicatorId: schedule.indicatorId,
-        [`${fieldName}Id`]: schedule.structureTypeId || ""
+        [`${fieldName}Id`]: schedule.structureTypeId || '',
       }).catch(err => console.log(err.message));
 
       newItemIds = [...newItemIds, newItem._id];
@@ -106,9 +107,9 @@ const handleDailyJob = async ({ subdomain }) => {
     }
   }
   console.log(`${plans.length} plans worked successfully`);
-  return "done";
+  return 'done';
 };
 
 export default {
-  handleDailyJob
+  handleDailyJob,
 };

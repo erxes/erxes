@@ -11,7 +11,7 @@ import {
   __,
 } from "@erxes/ui/src";
 
-import Assignees from "@erxes/ui-cards/src/boards/components/Assignees";
+import Assignees from "@erxes/ui-tickets/src/boards/components/Assignees";
 import { DetailPopOver } from "../../assessments/common/utils";
 import { DetailPopoverWrapper } from "../../styles";
 import { IPLan } from "../common/types";

@@ -1,7 +1,7 @@
 import { WhiteBoxRoot, colors, dimensions } from '@erxes/ui/src';
 import styled, { css } from 'styled-components';
 
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import BoardSelectContainer from '@erxes/ui-tickets/src/boards/containers/BoardSelect';
 import { BoxRoot } from '@erxes/ui/src/styles/main';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { highlight } from '@erxes/ui/src/utils/animations';

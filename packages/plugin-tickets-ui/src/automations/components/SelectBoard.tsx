@@ -1,7 +1,6 @@
 import { Alert, __ } from "coreui/utils";
 
 import { Attributes } from "@erxes/ui-automations/src/components/forms/actions/styles";
-import BoardSelect from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
 import { IStage } from "@erxes/ui-tickets/src/boards/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import Popover from "@erxes/ui/src/components/Popover";
@@ -51,7 +50,7 @@ export default class SelectBoard extends React.Component<Props, State> {
           variables: { pipelineId }
         })
         .then(data => {
-          this.setState({ stages: data.data.stages });
+          this.setState({ stages: data.data.ticketsStages });
         })
         .catch(e => {
           Alert.error(e.message);

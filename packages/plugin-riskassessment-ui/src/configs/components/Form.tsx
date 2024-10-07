@@ -20,7 +20,7 @@ import {
   SelectIndicators,
 } from "../../common/utils";
 
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import BoardSelectContainer from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
 import React from "react";
 import Select from "react-select";
 import { cardTypes } from "../../common/constants";
