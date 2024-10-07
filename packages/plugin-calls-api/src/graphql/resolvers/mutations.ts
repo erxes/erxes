@@ -234,6 +234,13 @@ const callsMutations = {
         throw new Error('Integration not found');
       }
 
+      const operator = integration.operators.find(
+        (operator) => operator.userId === user?._id,
+      );
+      if (!operator) {
+        throw new Error('Operator not found');
+      }
+
       return new Promise(async (resolve, reject) => {
         let lock;
 
@@ -260,8 +267,10 @@ const callsMutations = {
           });
 
           if (!oldHistory) {
+            console.log(doc, 'doc', operator.gsUsername);
             const history = new models.CallHistory({
               ...doc,
+              extentionNumber: operator.gsUsername,
               operatorPhone: integration.phone,
               createdAt: new Date(),
               createdBy: doc.endedBy ? user._id : null,
