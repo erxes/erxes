@@ -41,7 +41,7 @@ export default function AppearanceContainer(props: Props) {
         variables: { boardId, type: "ticket" }
       })
       .then(({ data = {} }) => {
-        setPipelines(data.pipelines || []);
+        setPipelines(data.ticketsPipelines || []);
       });
   };
 

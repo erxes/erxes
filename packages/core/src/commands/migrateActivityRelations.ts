@@ -64,24 +64,33 @@ const command = async () => {
   db = client.db() as Db;
 
   ActivityLogs = db.collection("activity_logs");
+  const limit = 1000;
 
-  try {
-    console.log("migratings activity logs");
+  console.log(`Logs migrated ....`);
 
-    await ActivityLogs.find({}).forEach(doc => {
-      const contentType = switchContentType(doc.contentType);
+  const bulkOps = [] as any[];
 
-      console.log(`Updating ${doc._id} with ${contentType}`);
-      try {
-        ActivityLogs.updateOne({ _id: doc._id }, { $set: { contentType } });
-      } catch (e) {
-        console.log(e, "123");
+  const activitySummary = await ActivityLogs.find({}).count();
+
+  for (let skip = 0; skip <= activitySummary; skip = skip + limit) {
+    const logs = await ActivityLogs.find({}).skip(skip).limit(limit).toArray();
+    for (const log of logs) {
+      const contentType = switchContentType(log.contentType);
+      if (contentType === log.contentType) {
+        continue;
       }
-    });
 
-    console.log("migrating tags");
-  } catch (e) {
-    console.log(`Error occurred: ${e.message}`);
+      bulkOps.push({
+        updateOne: {
+          filter: { _id: log._id },
+          update: { $set: { contentType } }
+        }
+      });
+    }
+
+    if (bulkOps.length) {
+      await ActivityLogs.bulkWrite(bulkOps);
+    }
   }
 
   console.log(`Process finished at: ${new Date()}`);
