@@ -271,12 +271,54 @@ const callsMutations = {
             try {
               await history.save();
 
-              return resolve('Successfully edited');
+              resolve('Successfully edited');
             } catch (saveError) {
               return reject(
                 new Error(`Failed to save call history ${saveError}`),
               );
             }
+
+            let customer = await models.Customers.findOne({
+              primaryPhone: doc.customerPhone,
+            });
+            if (!customer || !customer.erxesApiId) {
+              customer = await getOrCreateCustomer(models, subdomain, doc);
+            }
+            //save on api
+            try {
+              const apiConversationResponse = await sendInboxMessage({
+                subdomain,
+                action: 'integrations.receive',
+                data: {
+                  action: 'create-or-update-conversation',
+                  payload: JSON.stringify({
+                    customerId: customer?.erxesApiId,
+                    integrationId: integration.inboxId,
+                    content: doc.callType || '',
+                    conversationId: history.conversationId,
+                    updatedAt: new Date(),
+                    owner: '',
+                  }),
+                },
+                isRPC: true,
+              });
+
+              history.conversationId = apiConversationResponse._id;
+
+              await history.save();
+            } catch (e) {
+              await models.CallHistory.deleteOne({ _id: history._id });
+              throw new Error(e);
+            }
+
+            await sendInboxMessage({
+              subdomain,
+              action: 'conversationClientMessageInserted',
+              data: {
+                ...history?.toObject(),
+                conversationId: history.conversationId,
+              },
+            });
           } else {
             return resolve('Call history already exists');
           }
