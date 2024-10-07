@@ -60,7 +60,7 @@ export default {
           const service = await getService(serviceName);
           const meta = service.config?.meta || {};
 
-          if (meta && meta.documentPrintHook) {
+          if (meta || meta.documentPrintHook) {
             try {
               await sendCommonMessage({
                 subdomain,
