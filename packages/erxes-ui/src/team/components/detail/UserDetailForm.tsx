@@ -6,7 +6,7 @@ import LeftSidebar from "./LeftSidebar";
 import React, { useState } from "react";
 import { UserHeader, BoxWrapper } from "./styles";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { loadDynamicComponent } from "@erxes/ui/src/utils/core";
+import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
 import {
   Box,
   ControlLabel,
@@ -207,30 +207,37 @@ function UserDetails({
           setPositionIds
         )}
       </Box>
-      {loadDynamicComponent(
-        "contactDetailRightSidebar",
-        { user },
-        false,
-        "sales"
-      )}
-      {loadDynamicComponent(
-        "contactDetailRightSidebar",
-        { user },
-        false,
-        "purchases"
-      )}
-      {loadDynamicComponent(
-        "contactDetailRightSidebar",
-        { user },
-        false,
-        "tasks"
-      )}
-      {loadDynamicComponent(
-        "contactDetailRightSidebar",
-        { user },
-        false,
-        "tickets"
-      )}
+      {isEnabled("sales") &&
+        loadDynamicComponent(
+          "contactDetailRightSidebar",
+          { user },
+          false,
+          "sales"
+        )}
+
+      {isEnabled("purchases") &&
+        loadDynamicComponent(
+          "contactDetailRightSidebar",
+          { user },
+          false,
+          "purchases"
+        )}
+
+      {isEnabled("tickets") &&
+        loadDynamicComponent(
+          "contactDetailRightSidebar",
+          { user },
+          false,
+          "tickets"
+        )}
+
+      {isEnabled("tasks") &&
+        loadDynamicComponent(
+          "contactDetailRightSidebar",
+          { user },
+          false,
+          "tasks"
+        )}
     </Sidebar>
   );
 

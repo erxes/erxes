@@ -1,10 +1,10 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 import {
   types as IntegrationTypes,
   queries as IntegrationQueries,
-  mutations as IntegrationMutations,
-} from './integrationTypeDefs';
+  mutations as IntegrationMutations
+} from "./integrationTypeDefs";
 
 const typeDefs = async () => {
   return gql`
