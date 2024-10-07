@@ -267,7 +267,6 @@ const callsMutations = {
           });
 
           if (!oldHistory) {
-            console.log(doc, 'doc', operator.gsUsername);
             const history = new models.CallHistory({
               ...doc,
               extentionNumber: operator.gsUsername,
