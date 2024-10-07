@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.17.5](https://github.com/erxes/erxes/compare/1.17.4...1.17.5) (2024-10-07)
+
+
+### Bug Fixes
+
+* checkCompany rd or tin format ([115d9b3](https://github.com/erxes/erxes/commit/115d9b346f1191ec5e15761e968bd0fb65c57db0))
+* pos orders description to deals description ([1d2da1d](https://github.com/erxes/erxes/commit/1d2da1dc46f34b8e76f6742bff77d09b46900026))
+* **pos:** delivery deal ([5ce51a8](https://github.com/erxes/erxes/commit/5ce51a816c8555f9534c56fd4e9febea9ed51b7b))
+* **pos:** offline pos not connected rmq then not crash ([4a3a3a5](https://github.com/erxes/erxes/commit/4a3a3a57d0b7d8922b20868d8225b1ddea63dd31))
+
 ## [1.17.4](https://github.com/erxes/erxes/compare/1.17.3...1.17.4) (2024-10-03)
 
 
