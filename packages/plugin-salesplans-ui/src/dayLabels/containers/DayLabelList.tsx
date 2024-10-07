@@ -1,19 +1,14 @@
-import * as compose from 'lodash.flowright';
-import { gql, useQuery, useMutation } from '@apollo/client';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import DayLabels from '../components/DayLabelList';
-import { Alert, router, withProps } from '@erxes/ui/src/utils';
-import { Bulk } from '@erxes/ui/src/components';
-import { graphql } from '@apollo/client/react/hoc';
-import { mutations, queries } from '../graphql';
-import { IDayLabel } from '../types';
+import { gql, useQuery, useMutation } from "@apollo/client";
+import React from "react";
+import DayLabels from "../components/DayLabelList";
+import { Alert, router } from "@erxes/ui/src/utils";
+import { Bulk } from "@erxes/ui/src/components";
+import { mutations, queries } from "../graphql";
 import {
   DayLabelsQueryResponse,
   DayLabelsRemoveMutationResponse,
   DayLabelsCountQueryResponse,
-  DayLabelsEditMutationResponse,
-} from '../types';
+} from "../types";
 
 type Props = {
   queryParams: any;
@@ -27,23 +22,23 @@ const DayLabelList = (props: Props) => {
     gql(queries.dayLabels),
     {
       variables: generateParams({ queryParams }),
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const dayLabelsCountQuery = useQuery<DayLabelsCountQueryResponse>(
     gql(queries.dayLabelsCount),
     {
       variables: generateParams({ queryParams }),
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const [dayLabelsRemove] = useMutation<DayLabelsRemoveMutationResponse>(
     gql(mutations.dayLabelsRemove),
     {
-      refetchQueries: ['dayLabels', 'dayLabelsCount'],
-    },
+      refetchQueries: ["dayLabels", "dayLabelsCount"],
+    }
   );
 
   // // edit row action
@@ -67,7 +62,7 @@ const DayLabelList = (props: Props) => {
     })
       .then(() => {
         emptyBulk();
-        Alert.success('You successfully deleted a day label');
+        Alert.success("You successfully deleted a day label");
       })
       .catch((e) => {
         Alert.error(e.message);
