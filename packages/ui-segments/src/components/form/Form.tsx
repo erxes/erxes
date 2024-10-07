@@ -393,17 +393,19 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       chosenCondition: undefined,
     });
   };
-
   removeSegment = (segmentKey: string) => {
-    const segments = [...this.state.segments];
+    this.setState((prevState) => {
+        const segments = [...prevState.segments];
+        const segmentIndex = segments.findIndex(
+          (segment) => segment.key === segmentKey
+        );
+        if (segmentIndex !== -1) {
+            segments.splice(segmentIndex, 1);
+        }
+        return { segments };
+    });
+};
 
-    const segmentIndex = segments.findIndex(
-      (segment) => segment.key === segmentKey
-    );
-
-    segments.splice(segmentIndex, 1);
-    this.setState({ segments });
-  };
 
   addNewProperty = (segmentKey: string) => {
     const segments = [...this.state.segments];
@@ -434,13 +436,13 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       conditionsConjunction: "and",
       contentType: contentType || "customer",
     };
-
-    this.setState({
+    this.setState((prevState) => ({
       state: "propertyForm",
-      segments: [...this.state.segments, newSegment],
+      segments: [...prevState.segments, newSegment],
       chosenSegment: newSegment,
-    });
-  };
+    }));
+};
+
 
   changeConditionsConjunction = (value: string) => {
     return this.setState({ conditionsConjunction: value });
