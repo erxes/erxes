@@ -52,6 +52,14 @@ const xypQueries = {
     return models.XypData.find(query);
   },
 
+  async xypDataByObject(
+    _root,
+    { contentType, contentTypeId },
+    { models }: IContext,
+  ) {
+    return await models.XypData.find({ contentType, contentTypeId }).lean();
+  },
+
   async xypDataDetail(
     _root,
     { _id, contentType, contentTypeId },

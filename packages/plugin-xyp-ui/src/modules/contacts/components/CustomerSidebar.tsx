@@ -7,8 +7,8 @@ import {
   Button,
   ControlLabel,
   DataWithLoader,
-  EmptyState,
   ErrorMsg,
+  Form,
   ModalTrigger,
   Spinner
 } from '@erxes/ui/src/components';
@@ -21,24 +21,23 @@ import Select from 'react-select';
 import { IOperation } from '../types';
 import { Footer } from '@erxes/ui/src/styles/chooser';
 import Table from '@erxes/ui/src/components/table';
+import { ItemContent } from '@erxes/ui/src/components/empty/styles';
 
 type Props = {
-  xypdata: any;
+  xypDatas: any[];
   list: any;
   fetchData: any;
   xypServiceList: any;
-  refetch: any;
   loading: any;
   error: string;
   showConvertButton: boolean;
 };
 
 function Sidebar({
-  xypdata,
+  xypDatas,
   list,
   fetchData,
   xypServiceList,
-  refetch,
   showConvertButton,
   error,
   loading,
@@ -83,7 +82,7 @@ function Sidebar({
       <>
         <Select
           placeholder={__('Type to search...')}
-          value={operationList.find(o => o.value === operation.wsOperationName)}
+          value={operationList?.find(o => o.value === operation.wsOperationName)}
           onChange={onChangeTag}
           isLoading={props.loading}
           options={operationList}
@@ -155,7 +154,7 @@ function Sidebar({
     const items = Object.keys(i).filter(key => typeof i[key] !== 'object');
 
     const renderOutput = (value: any) => {
-      return output?.find(x => x.wsResponseName === value) || null;
+      return output?.find(x => x.wsResponseName === value) || { wsResponseDetail: value };
     };
     const renderData = (type: string, key: string) => {
       if (type?.toLowerCase()?.includes('byte')) {
@@ -170,8 +169,8 @@ function Sidebar({
 
     const renderRows = () => {
       const rows = [] as any;
-      for (let i = 0; i < items.length; i += 3) {
-        const rowItems = items.slice(i, i + 3);
+      for (let i = 0; i < items.length; i += 4) {
+        const rowItems = items.slice(i, i + 4);
         const row = (
           <tr key={i}>
             {rowItems.map((key, j) => (
@@ -205,20 +204,24 @@ function Sidebar({
     );
   };
 
-  const modalContent = (d: any) => {
+  const modalContent = (props, xd, d: any) => {
     if (!d.data) return <div>мэдээлэл байхгүй</div>;
     const output =
       (xypServiceList.find(x => x.wsOperationName === d?.serviceName)
         ?.output as any) || [];
 
-    if (d?.data?.list && d.data.list.length > 0) {
+    if (d.data?.list?.length || d.data?.listData?.length) {
       const renderListItems = (listItem: any, index: number) => {
         const title =
-          listItem['name'] ||
+          `${listItem['name'] ||
+          listItem['code'] ||
           listItem['title'] ||
-          listItem['markName'] + ' - ' + listItem['modelName'] ||
+          listItem['month'] ||
+          listItem['markName'] || ''
+          } ${listItem['modelName'] ||
           d?.serviceDescription ||
-          renderServiceName(d?.serviceName);
+          d?.serviceName || ''
+          }`;
         return (
           <CollapseContent
             title={__(title)}
@@ -234,7 +237,7 @@ function Sidebar({
       return (
         <Table $striped $bordered $responsive key={d?.serviceDescription}>
           <tbody id="hurData">
-            {d.data.list.map((listItem, index: number) =>
+            {(d.data.list || d.data.listData || []).map((listItem, index: number) =>
               renderListItems(listItem, index)
             )}
           </tbody>
@@ -244,30 +247,28 @@ function Sidebar({
     return renderServiceItem(d.data, output);
   };
 
-  const renderServiceName = (value: string) => {
-    return value;
-  };
-
   const content = () => {
     return (
       <>
         <SidebarList className="no-link">
-          {loading && <DataWithLoader data="This is data" loading objective />}
-          {xypdata?.data?.map((d, index) => (
-            <ModalTrigger
-              title={d?.serviceDescription}
-              trigger={
-                <li key={index}>
-                  {d?.serviceDescription.replace('дамжуулах сервис', '')}
-                </li>
-              }
-              size="xl"
-              content={() => modalContent(d)}
-              key={d?.serviceName}
-            />
+          {/* {loading && <DataWithLoader data="This is data" loading objective />} */}
+          {(xypDatas || []).map((xd) => (
+            (xd.data || []).map((d) => (
+              <ModalTrigger
+                title={`${moment(xd.createdAt).format('YYYY-MM-DD')} - ${d?.serviceName}`}
+                trigger={
+                  <ul key={`${xd._id} ${d?.serviceName}`}>
+                    <span>{moment(xd.createdAt).format('YYYY-MM-DD')}:</span>
+                    <li>{d?.serviceName}</li>
+                  </ul>
+                }
+                size="xl"
+                content={(props) => modalContent(props, xd, d)}
+                key={d?.serviceName}
+              />
+            ))
           ))}
         </SidebarList>
-        {xypdata === null && <EmptyState icon="building" text="No data" />}
         {relQuickButtons}
       </>
     );
