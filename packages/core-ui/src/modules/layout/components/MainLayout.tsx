@@ -173,6 +173,8 @@ class MainLayout extends React.Component<IProps, State> {
         }
       }
 
+      pluginsInnerWidgets();
+
       (window as any).wootricSettings = {
         email: currentUser.email, // Required to uniquely identify a user. Email is recommended but this can be any unique identifier.
         created_at: Math.floor(
