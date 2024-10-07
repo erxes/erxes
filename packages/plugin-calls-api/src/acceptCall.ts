@@ -79,7 +79,10 @@ const acceptCall = async (
     );
   }
   if (!customer || !customer.erxesApiId) {
-    customer = await getOrCreateCustomer(models, subdomain, customerPhone);
+    customer = await getOrCreateCustomer(models, subdomain, {
+      inboxIntegrationId: params.inboxIntegrationId,
+      primaryPhone: params.customerPhone,
+    });
   }
   //save on api
   try {
