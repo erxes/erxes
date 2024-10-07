@@ -13,7 +13,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
 
 const wenv = (window as any).env || {};
-const getItem = (name) => wenv[name] || process.env[name] || "https://erxes.io";
+const getItem = name => wenv[name] || process.env[name] || "https://erxes.io";
 
 const REACT_APP_CORE_URL = getItem("REACT_APP_CORE_URL");
 
@@ -23,14 +23,14 @@ dayjs.extend(utc, { parseLocal: true });
 
 const target = document.getElementById("root") as any;
 
-const normalize = (domain) =>
+const normalize = domain =>
   domain
     .replace("https://", "")
     .replace("http://", "")
     .replace("www.", "")
     .replace("/", "");
 
-const onResponse = (response) => {
+const onResponse = response => {
   const { hostname, pathname, search, port, hash } = window.location;
   const currentHostname = `${hostname}${port ? `:${port}` : ""}`;
 
@@ -78,7 +78,7 @@ const onResponse = (response) => {
         textColor: response.textColor,
         dnsStatus: response.dnsStatus,
         backgroundColor: response.backgroundColor,
-        description: response.description,
+        description: response.description
       })
     );
   } else {
@@ -88,7 +88,7 @@ const onResponse = (response) => {
   const notShowPlugins: any[] = response.notShowPlugins || [];
 
   (window as any).plugins = ((window as any).plugins || []).filter(
-    (p) => !notShowPlugins.includes(p.name)
+    p => !notShowPlugins.includes(p.name)
   );
 
   // const REACT_APP_APM_SERVER_URL = getItem('REACT_APP_APM_SERVER_URL');
@@ -113,19 +113,19 @@ const onResponse = (response) => {
   );
 };
 
-if (process.env.NODE_ENV === "production") {
+if (process.env && process.env.NODE_ENV === "production") {
   fetch(`${REACT_APP_CORE_URL}/check-subdomain`)
-    .then((response) => {
+    .then(response => {
       if (response.ok) {
         return response.json();
       }
 
       throw new Error(response.status.toString());
     })
-    .then((response) => {
+    .then(response => {
       onResponse(response);
     })
-    .catch((e) => {
+    .catch(e => {
       // tslint:disable-next-line
       console.log(`Error during check domain ${e.message}`);
 
