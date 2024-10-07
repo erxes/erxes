@@ -54,7 +54,7 @@ const IntegrationEditForm = (props: IProps) => {
   const handleAddOperation = () => {
     setOperators([
       ...operators,
-      { userId: '', gsUsername: '', gsPassword: '' },
+      { userId: '', gsUsername: '', gsPassword: '', gsForwardAgent: false },
     ]);
   };
 

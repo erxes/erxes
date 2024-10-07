@@ -5,7 +5,7 @@ import { ICustomer } from './models/definitions/customers';
 export const getOrCreateCustomer = async (
   models: IModels,
   subdomain: string,
-  callAccount: ICustomer 
+  callAccount: any,
 ) => {
   const { inboxIntegrationId, primaryPhone } = callAccount;
   let customer = await models.Customers.findOne({
