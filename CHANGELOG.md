@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.19.0-rc.0](https://github.com/erxes/erxes/compare/2.0.0...1.19.0-rc.0) (2024-10-08)
+
+
+### Bug Fixes
+
+* **calls:** possible to call audio playback and show email of widget call contacts ([4df963f](https://github.com/erxes/erxes/commit/4df963fad0458746024f9275699727062cb0ce0c))
+* **calls:** save extension number on missed call ([f5b38bc](https://github.com/erxes/erxes/commit/f5b38bc53fa98122ae7640f3af6db54b31a117ac))
+* cards select board ([1b74f9a](https://github.com/erxes/erxes/commit/1b74f9a66c256c7296c19cdf55dba6d66684812b))
+* contacts segment ([db7288c](https://github.com/erxes/erxes/commit/db7288c5c82f9452029992f3bd61a336853ef4e4))
+* engage query lint ([647d9fb](https://github.com/erxes/erxes/commit/647d9fb002dc14afdcb59c231ae5664dad098dc6))
+* **facebook:** content format ,subscription read users ([7bd6a45](https://github.com/erxes/erxes/commit/7bd6a45ba1e4ac7c8d0cedc3e6b0cdf272e05b72))
+* fix tasks checklist refetch query ([3b0a124](https://github.com/erxes/erxes/commit/3b0a124e47d99196eadddb3fa04983183f457b69))
+* **forms:** can't save builded form when  isReadyToSave ([865e99f](https://github.com/erxes/erxes/commit/865e99f8428ab5d353733814c7eddd2921b82572))
+* integrations query schema ([9d96197](https://github.com/erxes/erxes/commit/9d961973a3db3eb0787a1f78d64a11df8fde87d6))
+* **widgets-messenger:** set launcher iframe's color-scheme ([20c3446](https://github.com/erxes/erxes/commit/20c3446cdb3cd58116001b3cd7bbffb81f230472))
+
+
+### Performance Improvements
+
+* **calls:** write the missed call ([00ab101](https://github.com/erxes/erxes/commit/00ab101ddc3779ab7ee597138236a27bb45e4b7c))
+* **inbox:** add FileDrop for file uploads and  resolve facebook issues with function attachments  ([eaac03c](https://github.com/erxes/erxes/commit/eaac03ce7abcc8dfe93167997f34afc5d2ccd302))
+
 ## [2.0.0](https://github.com/erxes/erxes/compare/1.18.0-rc.0...2.0.0) (2024-09-20)
 
 
