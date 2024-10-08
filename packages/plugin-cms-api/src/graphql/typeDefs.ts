@@ -13,26 +13,41 @@ import {
   mutations as postMutations,
 } from './schemas/post';
 
+import {
+  types as pageTypes,
+  inputs as pageInputs,
+  queries as pageQueries,
+  mutations as pageMutations,
+} from './schemas/page';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+
 const typeDefs = async () => {
+  const isClientportalEnabled = await isEnabled(
+    'clientportal'
+  );
+
   return gql`
     scalar JSON
     scalar Date
 
-    ${categoryTypes}
+    ${categoryTypes({isClientportalEnabled})}
     ${postTypes}
-   
+    ${pageTypes}
 
     ${categoryInputs}
     ${postInputs}
-    
+    ${pageInputs}
+
     extend type Query {
       ${categoryQueries}
       ${postQueries}
+      ${pageQueries}
     }
     
     extend type Mutation {
       ${categoryMutations}
       ${postMutations}
+      ${pageMutations}
     }
   `;
 };

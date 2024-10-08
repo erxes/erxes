@@ -59,7 +59,7 @@ const queries = {
     const { models } = context;
     const { _id } = args;
 
-    return models.Posts.findById(_id);
+    return models.Posts.findOne({ $or: [{ _id }, { slug: _id }] });
   },
 
   /**

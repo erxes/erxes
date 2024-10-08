@@ -42,7 +42,7 @@ const queries = {
     const { models } = context;
     const { _id } = args;
 
-    return models.Categories.findById(_id);
+    return models.Categories.findOne({ $or: [{ _id }, { slug: _id }] });
   },
 };
 

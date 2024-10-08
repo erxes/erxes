@@ -8,6 +8,7 @@ export interface IPage {
   layout: string;
   pageItems: any[];
   createdUserId: string;
+  kind: 'main' | 'footer';
 }
 
 export interface IPageDocument extends IPage, Document {
@@ -22,6 +23,7 @@ export const pageSchema = new Schema<IPageDocument>(
     slug: { type: String, required: true, unique: true },
     layout: { type: String, required: true },
     createdUserId: { type: String, ref: 'User' },
+    kind: { type: String, default: 'main', enum: ['main', 'footer'] },
     pageItems: [
       {
         type: { type: String, required: true },

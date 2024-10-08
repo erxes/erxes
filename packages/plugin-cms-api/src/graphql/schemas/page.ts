@@ -1,4 +1,9 @@
 export const types = `
+    enum PageKind {
+        main
+        footer
+    }
+
     type PageItem {
         type: String
         content: String
@@ -9,6 +14,8 @@ export const types = `
 
     type Page {
         _id: String!
+        clientPortalId: String
+        kind: PageKind
         name: String
         type: String
         slug: String
@@ -17,25 +24,34 @@ export const types = `
         createdUser: User
         createdAt: Date
         updatedAt: Date
-
         pageItems: [PageItem]
     }
-}
+
 `
 
 
 export const inputs = `
+    input PageItemInput {
+        type: String
+        content: String
+        order: Int
+        contentType: String
+        contentTypeId: String
+    }
+
     input PageInput {
         name: String
         type: String
         slug: String
         content: String
+        pageItems: [PageItemInput]
+        kind: PageKind
     }
 `
 
 export const queries = `
     page(_id: String): Page
-    pages(clientPortalId: String!, page: Int, perPage: Int): [Page]
+    pages(clientPortalId: String!, kind: PageKind, page: Int, perPage: Int): [Page]
 `   
 
 
