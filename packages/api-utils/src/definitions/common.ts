@@ -1,6 +1,6 @@
-import { Document, Schema } from 'mongoose';
+import { Document, Schema } from "mongoose";
 
-import { field } from './utils';
+import { field } from "./utils";
 export interface IBrowserInfo {
   language?: string;
   url?: string;
@@ -33,11 +33,11 @@ export interface ICustomField {
 
 export const customFieldSchema = new Schema(
   {
-    field: field({ type: 'String' }),
+    field: field({ type: "String" }),
     value: field({ type: Schema.Types.Mixed }),
-    stringValue: field({ type: 'String', optional: true }),
-    numberValue: field({ type: 'Number', optional: true }),
-    dateValue: field({ type: 'Date', optional: true })
+    stringValue: field({ type: "String", optional: true }),
+    numberValue: field({ type: "Number", optional: true }),
+    dateValue: field({ type: "Date", optional: true }),
   },
   { _id: false }
 );
@@ -69,15 +69,15 @@ export const ruleSchema = new Schema(
     _id: field({ type: String }),
 
     // browserLanguage, currentUrl, etc ...
-    kind: field({ type: String, label: 'Kind' }),
+    kind: field({ type: String, label: "Kind" }),
 
     // Browser language, Current url etc ...
-    text: field({ type: String, label: 'Text' }),
+    text: field({ type: String, label: "Text" }),
 
     // is, isNot, startsWith
-    condition: field({ type: String, label: 'Condition' }),
+    condition: field({ type: String, label: "Condition" }),
 
-    value: field({ type: String, label: 'Value', optional: true })
+    value: field({ type: String, label: "Value", optional: true }),
   },
   { _id: false }
 );
@@ -88,7 +88,7 @@ export const attachmentSchema = new Schema(
     url: field({ type: String }),
     type: field({ type: String }),
     size: field({ type: Number, optional: true }),
-    duration: field({ type: Number, optional: true })
+    duration: field({ type: Number, optional: true }),
   },
   { _id: false }
 );

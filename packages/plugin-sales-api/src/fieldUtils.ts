@@ -2,151 +2,101 @@ import { generateFieldsFromSchema } from "@erxes/api-utils/src/fieldUtils";
 import { generateModels, IModels } from "./connectionResolver";
 import {
   BOARD_ITEM_EXPORT_EXTENDED_FIELDS,
-  BOARD_ITEM_EXTENDED_FIELDS
+  BOARD_ITEM_EXTENDED_FIELDS,
 } from "./constants";
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendProductsMessage
+  sendProductsMessage,
 } from "./messageBroker";
 
 const generateProductsOptions = async (
-  subdomain: string,
   name: string,
   label: string,
   type: string
 ) => {
-  const products = await sendProductsMessage({
-    subdomain,
-    action: "productFind",
-    data: {
-      query: {}
-    },
-    isRPC: true,
-    defaultValue: []
-  });
-
-  const options: Array<{ label: string; value: any }> = products.map(
-    product => ({
-      value: product._id,
-      label: `${product.code} - ${product.name}`
-    })
-  );
-
   return {
     _id: Math.random(),
     name,
     label,
     type,
-    selectOptions: options
+    selectionConfig: {
+      queryName: "products",
+      labelField: "name",
+    },
   };
 };
 
 const generateProductsCategoriesOptions = async (
-  subdomain: string,
   name: string,
   label: string,
   type: string
 ) => {
-  const productCategories = await sendProductsMessage({
-    subdomain,
-    action: "categories.find",
-    data: {
-      query: {}
-    },
-    isRPC: true,
-    defaultValue: []
-  });
-
-  const options: Array<{ label: string; value: any }> = productCategories.map(
-    productCategory => ({
-      value: productCategory._id,
-      label: `${productCategory.code} - ${productCategory.name}`
-    })
-  );
-
   return {
     _id: Math.random(),
     name,
     label,
     type,
-    selectOptions: options
+    selectionConfig: {
+      queryName: "productCategories",
+      labelField: "name",
+    },
   };
 };
 
 const generateContactsOptions = async (
-  subdomain: string,
   name: string,
   label: string,
   type: string,
-  params?: any
+  selectionConfig?: any
 ) => {
-  const contacts = await sendContactsMessage({
-    subdomain,
-    action: `${name}.find`,
-    data: { ...params, status: { $ne: "deleted" } },
-    isRPC: true,
-    defaultValue: []
-  });
-
-  const options: Array<{ label: string; value: any }> = contacts.map(
-    contact => ({
-      value: contact._id,
-      label: `${contact?.primaryEmail || contact?.primaryName || ""}`
-    })
-  );
-
   return {
     _id: Math.random(),
     name,
     label,
     type,
-    selectOptions: options
+    selectionConfig: {
+      ...selectionConfig,
+      labelField: "primaryEmail",
+      multi: true,
+    },
   };
 };
 
 const generateUsersOptions = async (
-  subdomain: string,
   name: string,
   label: string,
-  type: string
+  type: string,
+  selectionConfig: any
 ) => {
-  const users = await sendCoreMessage({
-    subdomain,
-    action: "users.find",
-    data: {
-      query: {}
-    },
-    isRPC: true,
-    defaultValue: []
-  });
-
-  const options: Array<{ label: string; value: any }> = users.map(user => ({
-    value: user._id,
-    label: user.username || user.email || ""
-  }));
-
   return {
     _id: Math.random(),
     name,
     label,
     type,
-    selectOptions: options
+    selectionConfig: {
+      ...selectionConfig,
+      queryName: "users",
+      labelField: "email",
+    },
   };
 };
 
 const generateStructuresOptions = async (
-  subdomain: string,
   name: string,
   label: string,
   type: string,
-  filter?: any
+  selectionConfig?: any
 ) => {
   return {
     _id: Math.random(),
     name,
     label,
-    type
+    type,
+    selectionConfig: {
+      ...selectionConfig,
+      labelField: "title",
+    },
   };
 };
 
@@ -157,7 +107,7 @@ const getStageOptions = async (models: IModels, pipelineId) => {
   for (const stage of stages) {
     options.push({
       value: stage._id,
-      label: stage.name || ""
+      label: stage.name || "",
     });
   }
 
@@ -166,7 +116,7 @@ const getStageOptions = async (models: IModels, pipelineId) => {
     name: "stageId",
     label: "Stage",
     type: "stage",
-    selectOptions: options
+    selectOptions: options,
   };
 };
 
@@ -177,7 +127,7 @@ const getPipelineLabelOptions = async (models: IModels, pipelineId) => {
   for (const label of labels) {
     options.push({
       value: label._id,
-      label: label.name
+      label: label.name,
     });
   }
 
@@ -186,7 +136,7 @@ const getPipelineLabelOptions = async (models: IModels, pipelineId) => {
     name: "labelIds",
     label: "Labels",
     type: "label",
-    selectOptions: options
+    selectOptions: options,
   };
 };
 
@@ -233,67 +183,70 @@ export const generateFields = async ({ subdomain, data }) => {
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
         ];
       }
     }
   }
 
   const createdByOptions = await generateUsersOptions(
-    subdomain,
     "userId",
     "Created by",
-    "user"
+    "user",
+    { multi: false }
   );
 
   const modifiedByOptions = await generateUsersOptions(
-    subdomain,
     "modifiedBy",
     "Modified by",
-    "user"
+    "user",
+    { multi: false }
   );
 
   const assignedUserOptions = await generateUsersOptions(
-    subdomain,
     "assignedUserIds",
     "Assigned to",
-    "user"
+    "user",
+    { multi: true }
   );
 
   const watchedUserOptions = await generateUsersOptions(
-    subdomain,
     "watchedUserIds",
     "Watched users",
-    "user"
+    "user",
+    { multi: true }
   );
 
   const customersOptions = await generateContactsOptions(
-    subdomain,
     "customers",
     "Customers",
     "contact",
-    { state: "customer" }
+    {
+      queryName: "customers",
+    }
   );
 
   const companiesOptions = await generateContactsOptions(
-    subdomain,
     "companies",
     "Companies",
-    "contact"
+    "contact",
+    {
+      queryName: "companies",
+    }
   );
 
   const branchesOptions = await generateStructuresOptions(
-    subdomain,
     "branchIds",
     "Branches",
-    "structure"
+    "structure",
+    { queryName: "branches" }
   );
 
   const departmentsOptions = await generateStructuresOptions(
-    subdomain,
     "departmentIds",
     "Departments",
-    "structure"
+    "structure",
+    { queryName: "branches" }
   );
 
   fields = [
@@ -306,20 +259,18 @@ export const generateFields = async ({ subdomain, data }) => {
       customersOptions,
       companiesOptions,
       branchesOptions,
-      departmentsOptions
-    ]
+      departmentsOptions,
+    ],
   ];
 
   if (type === "deal" && usageType !== "export") {
     const productOptions = await generateProductsOptions(
-      subdomain,
       "productsData.productId",
       "Product",
       "product"
     );
 
     const productsCategoriesOptions = await generateProductsCategoriesOptions(
-      subdomain,
       "productsData.categoryId",
       "Product Categories",
       "select"
@@ -327,7 +278,7 @@ export const generateFields = async ({ subdomain, data }) => {
 
     fields = [
       ...fields,
-      ...[productOptions, productsCategoriesOptions, assignedUserOptions]
+      ...[productOptions, productsCategoriesOptions, assignedUserOptions],
     ];
   }
 
@@ -339,8 +290,8 @@ export const generateFields = async ({ subdomain, data }) => {
       {
         _id: Math.random(),
         name: "productsData.department",
-        label: "Department"
-      }
+        label: "Department",
+      },
     ];
 
     fields = [...fields, ...extendFieldsExport];
@@ -352,7 +303,7 @@ export const generateFields = async ({ subdomain, data }) => {
       { _id: Math.random(), name: "pipelineId", label: "Pipeline" },
       { _id: Math.random(), name: "labelIds", label: "Label" },
       { _id: Math.random(), name: "branchIds", label: "Branch" },
-      { _id: Math.random(), name: "departmentIds", label: "Department" }
+      { _id: Math.random(), name: "departmentIds", label: "Department" },
     ];
 
     fields = [...fields, ...extendExport];
@@ -364,7 +315,7 @@ export const generateFields = async ({ subdomain, data }) => {
           subdomain,
           action: "segmentFindOne",
           data: { _id: segmentId },
-          isRPC: true
+          isRPC: true,
         })
       : null;
 
@@ -384,7 +335,7 @@ export const generateFields = async ({ subdomain, data }) => {
       _id: Math.random(),
       name: "stageId",
       label: "Stage",
-      type: "stage"
+      type: "stage",
     };
 
     fields = [...fields, stageOptions];
