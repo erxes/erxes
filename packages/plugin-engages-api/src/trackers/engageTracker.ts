@@ -10,7 +10,7 @@ import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 
 export const getApi = async (models: IModels, type: string): Promise<any> => {
   const config: ISESConfig = await models.Configs.getSESConfigs();
-
+  console.log("getApi",config);
   if (!config) {
     return;
   }
@@ -18,9 +18,11 @@ export const getApi = async (models: IModels, type: string): Promise<any> => {
   AWS.config.update(config);
 
   if (type === 'ses') {
+    console.log('ses');
     return new AWS.SES();
   }
 
+  console.log('sns');
   return new AWS.SNS();
 };
 

@@ -66,10 +66,12 @@ interface ICustomerAnalyzeParams {
 // };
 
 export const subscribeEngage = (models: IModels) => {
+  console.log("subscribe engage");
   return new Promise(async (resolve, reject) => {
     const snsApi = await getApi(models, 'sns');
     const sesApi = await getApi(models, 'ses');
     const configSet = await getConfig(models, 'configSet', 'erxes');
+    console.log('configSet', configSet);
 
     const DOMAIN = getEnv({ name: 'DOMAIN' });
     console.log("tracker endpoint", `${DOMAIN}/gateway/pl:engages/service/engage/tracker`);
@@ -189,6 +191,7 @@ export const updateConfigs = async (
   const updatedSESConfigs = await models.Configs.getSESConfigs();
 
   if (JSON.stringify(prevSESConfigs) !== JSON.stringify(updatedSESConfigs)) {
+    console.log("update ses configs",updatedSESConfigs);
     await subscribeEngage(models);
   }
 };
