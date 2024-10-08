@@ -70,7 +70,7 @@ export const subscribeEngage = (models: IModels) => {
   return new Promise(async (resolve, reject) => {
     const snsApi = await getApi(models, 'sns');
     const sesApi = await getApi(models, 'ses');
-    const configSet = await getConfig(models, 'configSet', 'erxes');
+    const configSet = await getValueAsString(models, 'configSet', 'AWS_SES_CONFIG_SET', 'erxes');
     console.log('configSet', configSet);
 
     const DOMAIN = getEnv({ name: 'DOMAIN' });
