@@ -235,7 +235,6 @@ export const handleFacebookMessage = async (
         }
       }
     } catch (e) {
-      console.error('Error occurred while processing the reply:', e);
       if (localMessage) {
         await models.ConversationMessages.deleteOne({ _id: localMessage._id });
       }
