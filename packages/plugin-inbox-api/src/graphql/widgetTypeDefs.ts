@@ -10,7 +10,7 @@ export const types = ({ products, knowledgeBase }) => `
       _id: String! @external
     }
     `
-      : ""
+      : ''
   }
 
     extend type Field @key(fields: "_id") {
@@ -30,7 +30,7 @@ export const types = ({ products, knowledgeBase }) => `
       _id: String! @external
     }
     `
-      : ""
+      : ''
   }
 
   type MessengerConnectResponse {
@@ -48,6 +48,7 @@ export const types = ({ products, knowledgeBase }) => `
     messages: [ConversationMessage]
     operatorStatus: String
     participatedUsers: [User]
+    readUsers: [User]
     isOnline: Boolean
     supporters: [User]
   }
@@ -80,7 +81,7 @@ export const queries = ({ products, knowledgeBase }) => `
       widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
       widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
     `
-      : ""
+      : ''
   }
 
 

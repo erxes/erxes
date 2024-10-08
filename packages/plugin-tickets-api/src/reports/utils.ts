@@ -1,5 +1,5 @@
 import { sendCoreMessage, sendInboxMessage } from "../messageBroker";
-import { NOW, PROBABILITY_CLOSED, PROBABILITY_OPEN, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP } from './constants';
+import { PROBABILITY_CLOSED, PROBABILITY_OPEN, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP } from './constants';
 import { IModels } from "../connectionResolver";
 import * as dayjs from 'dayjs';
 import * as isoWeek from 'dayjs/plugin/isoWeek';
@@ -1169,26 +1169,24 @@ export const returnDateRange = (
   startDate: Date,
   endDate: Date,
 ) => {
-  const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
-  const endOfToday = new Date(NOW.setHours(23, 59, 59, 999));
-  const startOfYesterday = new Date(dayjs(NOW).add(-1, 'day').toDate().setHours(0, 0, 0, 0),);
-  const startOfTheDayBeforeYesterday = new Date(dayjs(NOW).add(-2, 'day').toDate().setHours(0, 0, 0, 0),);
+
+  const NOW = new Date()
 
   let $gte;
   let $lte;
 
   switch (dateRange) {
     case 'today':
-      $gte = startOfToday;
-      $lte = endOfToday;
+      $gte = dayjs(NOW).startOf('day').toDate();
+      $lte = dayjs(NOW).endOf('day').toDate();
       break;
     case 'yesterday':
-      $gte = startOfYesterday;
-      $lte = startOfToday;
+      $gte = dayjs(NOW).subtract(1, 'day').startOf('day').toDate();
+      $lte = dayjs(NOW).subtract(1, 'day').endOf('day').toDate();
       break;
     case 'last72h':
-      $gte = startOfTheDayBeforeYesterday;
-      $lte = startOfToday;
+      $gte = dayjs(NOW).subtract(3, 'day').startOf('day').toDate();
+      $lte = dayjs(NOW).endOf('day').toDate();
       break;
     case 'thisWeek':
       $gte = dayjs(NOW).startOf('week').toDate();
@@ -1199,8 +1197,8 @@ export const returnDateRange = (
       $lte = dayjs(NOW).add(-1, 'week').endOf('week').toDate();
       break;
     case 'last2Week':
-      $gte = dayjs(NOW).add(-2, 'week').startOf('week').toDate();
-      $lte = dayjs(NOW).add(-1, 'week').endOf('week').toDate();
+      $gte = dayjs(NOW).subtract(14, 'day').startOf('day').toDate();
+      $lte = dayjs(NOW).endOf('day').toDate();
       break;
     case 'last3Week':
       $gte = dayjs(NOW).add(-3, 'week').startOf('week').toDate();
@@ -1339,7 +1337,7 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
         action: 'activityLogs.findMany',
         data: {
           query: {
-            contentType: `cards:${type}`,
+            contentType: `tickets:${type}`,
             createdBy: { $in: userIds },
             'content.destinationStageId': { $in: stageIds },
             action: 'moved',

@@ -21,6 +21,7 @@ import { __ } from '@erxes/ui/src/utils';
 import { can } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import { readFile } from '@erxes/ui/src/utils/core';
+import ReactAudioPlayer from 'react-audio-player';
 
 type Props = {
   conversation: IConversation;
@@ -81,14 +82,11 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
     return (
       can('showCallRecord', currentUser) && (
         <Audio>
-          <audio
-            controls={true}
-            preload="auto"
-            ref={audioRef}
+          <ReactAudioPlayer
+            src={readFile(recordUrl)}
+            controls
             controlsList="nodownload"
-          >
-            <source src={readFile(recordUrl)} type="audio/wav" />
-          </audio>
+          />
         </Audio>
       )
     );

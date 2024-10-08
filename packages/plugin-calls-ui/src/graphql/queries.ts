@@ -1,4 +1,4 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const callsIntegrationDetail: string = `
   query callsIntegrationDetail($integrationId: String!) {
@@ -89,6 +89,7 @@ const customers = `
       _id
       firstName
       primaryPhone
+      primaryEmail
       phones
       phone
       tagIds
@@ -206,5 +207,5 @@ export default {
   callQueueList,
   callWaitingList,
   callProceedingList,
-  callQueueMemberList
+  callQueueMemberList,
 };

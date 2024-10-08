@@ -1,8 +1,8 @@
-import { IConversationDocument } from "../../models/definitions/conversations";
-import { MESSAGE_TYPES } from "../../models/definitions/constants";
-import { sendCallsMessage, sendIntegrationsMessage } from "../../messageBroker";
-import { IContext } from "../../connectionResolver";
-import { debugError } from "@erxes/api-utils/src/debuggers";
+import { IConversationDocument } from '../../models/definitions/conversations';
+import { MESSAGE_TYPES } from '../../models/definitions/constants';
+import { sendCallsMessage, sendIntegrationsMessage } from '../../messageBroker';
+import { IContext } from '../../connectionResolver';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 
 export default {
   /**
@@ -19,7 +19,7 @@ export default {
   customer(conversation: IConversationDocument) {
     return (
       conversation.customerId && {
-        __typename: "Customer",
+        __typename: 'Customer',
         _id: conversation.customerId
       }
     );
@@ -37,26 +37,32 @@ export default {
 
   user(conversation: IConversationDocument) {
     return (
-      conversation.userId && { __typename: "User", _id: conversation.userId }
+      conversation.userId && { __typename: 'User', _id: conversation.userId }
     );
   },
 
   assignedUser(conversation: IConversationDocument) {
     return (
       conversation.assignedUserId && {
-        __typename: "User",
+        __typename: 'User',
         _id: conversation.assignedUserId
       }
     );
   },
 
   participatedUsers(conv: IConversationDocument) {
-    return (conv.participatedUserIds || []).map(_id => ({
-      __typename: "User",
+    return (conv.participatedUserIds || []).map((_id) => ({
+      __typename: 'User',
       _id
     }));
   },
 
+  readUsers(conv: IConversationDocument) {
+    return (conv.readUserIds || []).map((_id) => ({
+      __typename: 'User',
+      _id
+    }));
+  },
   participatorCount(conv: IConversationDocument) {
     return (conv.participatedUserIds && conv.participatedUserIds.length) || 0;
   },
@@ -64,7 +70,7 @@ export default {
   async messages(conv: IConversationDocument, _, { dataLoaders }: IContext) {
     const messages =
       await dataLoaders.conversationMessagesByConversationId.load(conv._id);
-    return messages.filter(message => message);
+    return messages.filter((message) => message);
   },
 
   async callProAudio(
@@ -77,7 +83,7 @@ export default {
         _id: conv.integrationId
       })) || ({} as any);
 
-    if (integration && integration.kind !== "callpro") {
+    if (integration && integration.kind !== 'callpro') {
       return null;
     }
 
@@ -85,7 +91,7 @@ export default {
       try {
         const response = await sendIntegrationsMessage({
           subdomain,
-          action: "getCallproAudio",
+          action: 'getCallproAudio',
           data: {
             erxesApiId: conv._id,
             integrationId: integration._id
@@ -93,7 +99,7 @@ export default {
           isRPC: true
         });
 
-        return response ? response.audioSrc : "";
+        return response ? response.audioSrc : '';
       } catch (e) {
         debugError(e);
         return null;
@@ -104,7 +110,7 @@ export default {
   },
 
   async tags(conv: IConversationDocument) {
-    return (conv.tagIds || []).map(_id => ({ __typename: "Tag", _id }));
+    return (conv.tagIds || []).map((_id) => ({ __typename: 'Tag', _id }));
   },
 
   async videoCallData(
@@ -124,7 +130,7 @@ export default {
     try {
       const response = await sendIntegrationsMessage({
         subdomain,
-        action: "getDailyActiveRoom",
+        action: 'getDailyActiveRoom',
         data: {
           erxesApiConversationId: conversation._id
         },
@@ -147,7 +153,7 @@ export default {
         _id: conversation.integrationId
       })) || ({} as any);
 
-    if (integration && integration.kind !== "calls") {
+    if (integration && integration.kind !== 'calls') {
       return null;
     }
 
@@ -155,14 +161,14 @@ export default {
     try {
       const response = await sendCallsMessage({
         subdomain,
-        action: "getCallHistory",
+        action: 'getCallHistory',
         data: {
           erxesApiConversationId: conversation._id
         },
         isRPC: true
       });
 
-      return response ? response : "";
+      return response ? response : '';
     } catch (e) {
       debugError(e);
       return null;
