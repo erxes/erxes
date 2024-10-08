@@ -72,7 +72,7 @@ function List({ packages, remove, loading, renderButton }: Props) {
 
   return (
     <Wrapper
-      header={<Wrapper.Header title={"Packages"} />}
+      header={<Wrapper.Header title={__("Packages")} />}
       actionBar={actionBar}
       content={
         <DataWithLoader
