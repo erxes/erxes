@@ -68,7 +68,7 @@ function Component(
 
   const quickButtons = (
     <ModalTrigger
-      title="Associate"
+      title={__("Associate")}
       trigger={carTrigger}
       size="lg"
       content={renderCarChooser}
@@ -77,7 +77,7 @@ function Component(
 
   const relQuickButtons = (
     <ModalTrigger
-      title="Related Associate"
+      title={__("Related Associate")}
       trigger={relCarTrigger}
       size="lg"
       content={renderRelatedCarChooser}

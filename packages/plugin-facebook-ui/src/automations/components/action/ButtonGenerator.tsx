@@ -166,7 +166,7 @@ function ButtonsGenerator({
           <FormContainer>
             <FormControl
               className="editInput"
-              placeholder="Enter a name"
+              placeholder={__("Enter a name")}
               onChange={onEdit}
               value={button?.text || null}
               onBlur={onSave}

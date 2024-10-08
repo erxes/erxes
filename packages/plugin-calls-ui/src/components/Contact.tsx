@@ -32,7 +32,7 @@ const Contact: React.FC<Props> = ({
     };
 
     if (!customers || customers.length === 0) {
-      return <EmptyState icon="ban" text="There is no contact" size="small" />;
+      return <EmptyState icon="ban" text={__("There is no contact" )}size="small" />;
     }
 
     return customers.map((customer, i) => {

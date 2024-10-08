@@ -171,7 +171,7 @@ const CarsList = (props: Props) => {
         />
 
         <ModalTrigger
-          title="New car"
+          title={__("New car")}
           trigger={addTrigger}
           autoOpenKey="showCarModal"
           size="lg"
@@ -272,7 +272,7 @@ const CarsList = (props: Props) => {
           data={renderContent()}
           loading={loading}
           count={cars.length}
-          emptyText="Add in your first car!"
+          emptyText={__("Add in your first car!")}
           emptyImage="/images/actions/1.svg"
         />
       }

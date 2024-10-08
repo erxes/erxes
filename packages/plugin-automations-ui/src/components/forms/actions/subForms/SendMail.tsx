@@ -101,7 +101,7 @@ const EmailTemplatesList = ({ triggerType, onChangeConfig }) => {
         <BarItems>
           <FormControl
             name="searchValue"
-            placeholder="Type to search"
+            placeholder={__("Type to search")}
             value={searchValue}
             onChange={onSearch}
           />
@@ -152,7 +152,7 @@ const RecipientsForm = ({
         config={config}
         triggerType={triggerType}
         inputName="attributionMails"
-        placeholder="Please select  some attributes from attributes section"
+        placeholder={__("Please select  some attributes from attributes section")}
         label="Dynamic mails"
         attrTypes={["user", "contact", "segment"]}
         attrWithSegmentConfig={triggerType === "forms:form_submission"}
@@ -359,8 +359,8 @@ const ConfigForm = ({
     >
       <DrawerDetail>
         <ItemRow
-          title={"Sender"}
-          description="Who is sending email"
+          title={__("Sender")}
+          description={__("Who is sending email")}
           buttonText="sender"
           isDone={config?.fromUserId}
           config={config}
@@ -370,7 +370,7 @@ const ConfigForm = ({
               <SelectTeamMembers
                 name="fromUserId"
                 initialValue={doc?.fromUserId || config?.fromUserId}
-                label="Select sender user"
+                label={__("Select sender user")}
                 onSelect={(value, name) => onChange({ ...doc, [name]: value })}
                 filterParams={{
                   status: "Verified"
@@ -383,7 +383,7 @@ const ConfigForm = ({
           subContent={config?.fromUserId ? "" : "Select Sender"}
         />
         <ItemRow
-          title={"Reciepent"}
+          title={__("Reciepent")}
           description=""
           buttonText="select recipients"
           config={config}
@@ -401,15 +401,15 @@ const ConfigForm = ({
           subContent={config?.to ? "" : "Select recipients"}
         />
         <ItemRow
-          title={"Subject"}
-          description="Configure the subject of the email"
+          title={__("Subject")}
+          description={__("Configure the subject of the email")}
           buttonText="subject"
           config={config}
           isDone={config?.subject}
           content={(doc, onChange) => (
             <PlaceHolderInput
               inputName="subject"
-              label="Email Subject"
+              label={__("Email Subject")}
               config={doc}
               onChange={() => null}
               onKeyPress={(e: any) => {
@@ -419,7 +419,7 @@ const ConfigForm = ({
               triggerType={triggerType}
             />
           )}
-          subContent={config?.subject ? "" : "Enter subject"}
+          subContent={__(config?.subject ? "" : "Enter subject")}
           onSave={doc => setConfig({ ...config, ...doc })}
         />
 
@@ -433,10 +433,10 @@ const ConfigForm = ({
             />
           </FlexRow>
           <ModalTrigger
-            title="Email Templates"
+            title={__("Email Templates")}
             size="xl"
             trigger={
-              <Button btnStyle="white">{`Change email template`}</Button>
+              <Button btnStyle="white">{__(`Change email template`)}</Button>
             }
             content={() => (
               <EmailTemplatesList
