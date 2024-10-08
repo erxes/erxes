@@ -42,3 +42,5 @@ export const syncLogSchema = schemaWrapper(
     error: field({ type: String, optional: true }),
   }),
 );
+
+syncLogSchema.index({ contentType: 1, contentId: 1 });

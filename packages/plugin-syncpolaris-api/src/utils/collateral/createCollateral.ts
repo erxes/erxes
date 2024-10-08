@@ -8,7 +8,7 @@ import { integrateCollateralToLoan } from './integrateCollateralToLoan';
 import { openCollateral } from './openCollateral';
 
 
-export const createCollateral = async (subdomain: string, loan: any) => {
+export const createCollateral = async (subdomain: string, polarisConfig, loan: any) => {
   const collateral = loan.collateralsData?.[0];
   if (!collateral)
     return
@@ -77,13 +77,14 @@ export const createCollateral = async (subdomain: string, loan: any) => {
     subdomain,
     op: '13610900',
     data: [sendData],
+    polarisConfig
   });
 
   if (typeof collateralRes === 'string') {
 
     const res = JSON.parse(collateralRes)
-    await openCollateral(subdomain, res.acntCode)
+    await openCollateral(subdomain, polarisConfig, res.acntCode)
 
-    return await integrateCollateralToLoan(subdomain, { code: res.acntCode, amount: collateral.marginAmount, loanNumber: loan.number })
+    return await integrateCollateralToLoan(subdomain, polarisConfig, { code: res.acntCode, amount: collateral.marginAmount, loanNumber: loan.number })
   }
 };

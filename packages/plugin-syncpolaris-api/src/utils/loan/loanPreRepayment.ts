@@ -6,7 +6,7 @@ import {
   getContract,
 } from '../utils';
 
-export const createLoanRepayment = async (subdomain, transaction) => {
+export const createLoanRepayment = async (subdomain, polarisConfig, transaction) => {
   const loanContract = await getContract(
     subdomain,
     transaction.contractId,
@@ -59,6 +59,7 @@ export const createLoanRepayment = async (subdomain, transaction) => {
     subdomain,
     op: '13610250',
     data: [loanRepayment],
+    polarisConfig
   });
 
   return loanRepaymentReponse.txnJrno;

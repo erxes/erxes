@@ -1,6 +1,6 @@
 import { fetchPolaris, getContract } from '../utils';
 
-export const changeLoanSchedule = async (subdomain, params) => {
+export const changeLoanSchedule = async (subdomain, polarisConfig, params) => {
   const loanContract = await getContract(subdomain, params.contractId, 'loans');
 
   const sendData = [
@@ -15,6 +15,7 @@ export const changeLoanSchedule = async (subdomain, params) => {
     subdomain,
     op: '13611117',
     data: sendData,
+    polarisConfig,
   });
 
   return loanChangeLoanAmountResponse.txnJrno;

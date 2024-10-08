@@ -1,6 +1,6 @@
 import { fetchPolaris } from '../utils';
 
-export const getLoanContractTypes = async (subdomain, params) => {
+export const getLoanContractTypes = async (subdomain, polarisConfig, params) => {
   const loanContractTypes = await fetchPolaris({
     subdomain,
     op: '13611304',
@@ -16,6 +16,7 @@ export const getLoanContractTypes = async (subdomain, params) => {
       0,
       25,
     ],
+    polarisConfig
   });
 
   return loanContractTypes;

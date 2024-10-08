@@ -3,10 +3,11 @@ import {
   getBranch,
   getDepositAccount,
   updateContract,
-  sendMessageBrokerData
+  sendMessageBrokerData,
+  genObjectOfRule
 } from '../utils';
 
-export const createSaving = async (subdomain: string, models, syncLog, params) => {
+export const createSaving = async (subdomain: string, models, polarisConfig, syncLog, params) => {
   const savingContract = params.object;
 
   const savingProduct = await sendMessageBrokerData(
@@ -26,6 +27,13 @@ export const createSaving = async (subdomain: string, models, syncLog, params) =
   const branch = await getBranch(subdomain, savingContract.branchId);
 
   const deposit = await getDepositAccount(subdomain, savingContract.customerId);
+
+  const dataOfRules = await genObjectOfRule(
+    subdomain,
+    "savings:contract",
+    savingContract,
+    polarisConfig.saving && polarisConfig.saving[savingContract.contractTypeId || ''] || {}
+  )
 
   let sendData = {
     prodCode: savingProduct.code,
@@ -54,7 +62,8 @@ export const createSaving = async (subdomain: string, models, syncLog, params) =
     closedBy: '',
     closedDate: '',
     lastCtDate: '',
-    lastDtDate: ''
+    lastDtDate: '',
+    ...dataOfRules
   };
 
   const savingCode = await fetchPolaris({
@@ -62,6 +71,7 @@ export const createSaving = async (subdomain: string, models, syncLog, params) =
     data: [sendData],
     subdomain,
     models,
+    polarisConfig,
     syncLog
   });
 
