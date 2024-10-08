@@ -172,22 +172,21 @@ export const handleFacebookMessage = async (
 
     const { recipientId, senderId } = conversation;
     let localMessage;
-
+    let contentMessage = strippedContent || 'none';
     try {
-      if (strippedContent) {
+      if (contentMessage) {
         try {
           const resp = await sendReply(
             models,
             'me/messages',
             {
               recipient: { id: senderId },
-              message: { text: strippedContent },
+              message: { text: contentMessage },
               tag
             },
             recipientId,
             integrationId
           );
-
           if (resp) {
             localMessage = await models.ConversationMessages.addMessage(
               {
