@@ -112,16 +112,19 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
 
 // aws service middleware
 export const engageTracker = async (req, res) => {
+  console.log('engage tracker');
   const chunks: any = [];
 
   req.setEncoding('utf8');
 
   req.on('data', (chunk) => {
+
     chunks.push(chunk);
   });
 
   req.on('end', async () => {
     const message = JSON.parse(chunks.join(''));
+    console.log('======= message =======', message);
 
     debugInfo(`receiving on tracker: ${JSON.stringify(message)}`);
 

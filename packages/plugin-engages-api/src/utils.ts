@@ -72,6 +72,7 @@ export const subscribeEngage = (models: IModels) => {
     const configSet = await getConfig(models, 'configSet', 'erxes');
 
     const DOMAIN = getEnv({ name: 'DOMAIN' });
+    console.log("tracker endpoint", `${DOMAIN}/gateway/pl:engages/service/engage/tracker`);
 
     const topicArn = await snsApi
       .createTopic({ Name: configSet })
@@ -94,11 +95,12 @@ export const subscribeEngage = (models: IModels) => {
       })
       .promise()
       .then((response) => {
+        console.log('subscribed ********* ',response);
         debugInfo(response);
       })
       .catch((e) => {
         debugError(e.message);
-
+        console.error('subscribe failed ########### ',e);
         return reject(e.message);
       });
 
