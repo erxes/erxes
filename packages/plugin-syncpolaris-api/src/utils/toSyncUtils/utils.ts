@@ -4,6 +4,7 @@ import { getLoanDetail } from "../loan/getLoanDetail";
 import { getLoanSchedule } from "../loan/getLoanSchedule";
 import { getSavingDetail } from "../saving/getSavingDetail";
 import {
+  getConfig,
   getContract,
   getCustomer,
   updateContract,
@@ -66,7 +67,7 @@ export const compareDate = async (data, key, value) => {
   if (dateNames.includes(key)) {
     const polarisDate = new Date(
       new Date(data[key]).getTime() -
-        new Date(data[key]).getTimezoneOffset() * 60000
+      new Date(data[key]).getTimezoneOffset() * 60000,
     );
     const mainDate = new Date(String(value));
     if (polarisDate.getTime() === mainDate.getTime()) return false;
@@ -117,15 +118,15 @@ export const setCustomFieldValue = async (
   return customFieldsData;
 };
 
-export const getPolarisData = async (type, subdomain, item) => {
+export const getPolarisData = async (type, subdomain, config, item) => {
   try {
     switch (type) {
-      case "core:customer":
-        return await getCustomerDetail(subdomain, { code: item.code });
-      case "loans:contract":
-        return await getLoanDetail(subdomain, { number: item.number });
-      case "savings:contract":
-        return await getSavingDetail(subdomain, { number: item.number });
+      case 'contacts:customer':
+        return await getCustomerDetail(subdomain, config, { code: item.code });
+      case 'loans:contract':
+        return await getLoanDetail(subdomain, config, { number: item.number });
+      case 'savings:contract':
+        return await getSavingDetail(subdomain, config, { number: item.number });
       default:
         break;
     }
@@ -174,25 +175,22 @@ export const setLoanWithSchedule = async (subdomain, item, updateData) => {
     subdomain,
     { number: item.number },
     { $set: updateData },
-    "loans"
-  );
-  await preLoanSchedule(subdomain, item);
+    'loans',
+  )
+  await preLoanSchedule(subdomain, item)
 };
 
 export const preLoanSchedule = async (subdomain, item) => {
   try {
-    const mainLoanSchedule = await getMainLoanSchedule(subdomain, {
-      contractId: item._id
-    });
-    const loanSchedules = await getLoanSchedule(subdomain, {
-      number: item.number
-    });
+    const polarisConfig = await getConfig(subdomain, 'POLARIS', {})
+    const mainLoanSchedule = await getMainLoanSchedule(subdomain, { contractId: item._id })
+    const loanSchedules = await getLoanSchedule(subdomain, polarisConfig, { number: item.number })
 
     if (!mainLoanSchedule && loanSchedules) {
-      await createLoanSchedule(subdomain, loanSchedules, item._id);
+      await createLoanSchedule(subdomain, loanSchedules, item._id)
     }
   } catch (error) {
-    console.log("update schedule:", error);
+    console.log('update schedule:', error)
   }
 };
 
@@ -214,37 +212,34 @@ export const insertLoanSchedule = async (subdomain, data) => {
     data: data,
     isRPC: true
   });
-};
-export const createLoanSchedule = async (
-  subdomain,
-  loanSchedules,
-  contractId
-) => {
+}
+export const createLoanSchedule = async (subdomain, loanSchedules, contractId) => {
   try {
-    const result: any[] = [];
+    const result: any[] = []
 
     for (const schedule of loanSchedules) {
       const loanSchedule = {
-        status: "pending",
-        payDate: new Date(schedule.schdDate),
-        scheduleDidStatus: "pending",
-        transactionIds: [],
-        isDefault: true,
-        scopeBrandIds: [],
-        createdAt: new Date(new Date().getTime()),
-        contractId: contractId,
-        version: "0",
-        balance: schedule.theorBal,
-        payment: schedule.totalAmount,
-        interestEve: schedule.intAmount,
-        interestNonce: schedule.amount,
-        total: schedule.totalAmount,
-        insurance: 0
-      };
-      result.push(loanSchedule);
+        "status": "pending",
+        "payDate": new Date(schedule.schdDate),
+        "scheduleDidStatus": "pending",
+        "transactionIds": [],
+        "isDefault": true,
+        "scopeBrandIds": [],
+        "createdAt": new Date(new Date().getTime()),
+        "contractId": contractId,
+        "version": "0",
+        "balance": schedule.theorBal,
+        "payment": schedule.totalAmount,
+        "interestEve": schedule.intAmount,
+        "interestNonce": schedule.amount,
+        "total": schedule.totalAmount,
+        "insurance": 0,
+      }
+      result.push(loanSchedule)
     }
 
-    await insertLoanSchedule(subdomain, result);
+    await insertLoanSchedule(subdomain, result)
+
   } catch (error) {
     console.log("insert loan schedule", error);
   }

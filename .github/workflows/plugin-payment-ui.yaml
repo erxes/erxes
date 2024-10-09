@@ -50,7 +50,7 @@ on:
       - "packages/plugin-payment-ui/**"
       - ".github/workflows/plugin-payment-ui.yaml"
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

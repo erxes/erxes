@@ -10,7 +10,7 @@ import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 
 export const getApi = async (models: IModels, type: string): Promise<any> => {
   const config: ISESConfig = await models.Configs.getSESConfigs();
-
+  console.log("getApi",config);
   if (!config) {
     return;
   }
@@ -18,9 +18,11 @@ export const getApi = async (models: IModels, type: string): Promise<any> => {
   AWS.config.update(config);
 
   if (type === 'ses') {
+    console.log('ses');
     return new AWS.SES();
   }
 
+  console.log('sns');
   return new AWS.SNS();
 };
 
@@ -112,16 +114,19 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
 
 // aws service middleware
 export const engageTracker = async (req, res) => {
+  console.log('engage tracker');
   const chunks: any = [];
 
   req.setEncoding('utf8');
 
   req.on('data', (chunk) => {
+
     chunks.push(chunk);
   });
 
   req.on('end', async () => {
     const message = JSON.parse(chunks.join(''));
+    console.log('======= message =======', message);
 
     debugInfo(`receiving on tracker: ${JSON.stringify(message)}`);
 

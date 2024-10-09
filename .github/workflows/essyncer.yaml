@@ -16,11 +16,12 @@ on:
       - master
       - rc
       - dev
+      - v1
     paths:
       - "essyncer/**"
       - ".github/workflows/essyncer.yaml"
 
-jobs:
+jobs: 
   essyncer:
     runs-on: ubuntu-20.04
 

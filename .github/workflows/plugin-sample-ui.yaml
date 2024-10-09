@@ -50,7 +50,7 @@ on:
       - "packages/plugin-{sample}-ui/**"
       - ".github/workflows/plugin-{sample}-ui.yaml"
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

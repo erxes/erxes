@@ -469,28 +469,35 @@ export type SetupMessageConsumers = () => any;
 export const connectToMessageBroker = async (
   setupMessageConsumers?: SetupMessageConsumers,
 ) => {
-  const con = await amqplib.connect(`${RABBITMQ_HOST}?heartbeat=60`, {
-    noDelay: true,
-  });
-  con.once('close', (error) => {
-    con.removeAllListeners();
-    if (error) {
-      console.error('RabbitMQ: connections is closing due to an error:', error);
-      reconnectToMessageBroker(setupMessageConsumers);
-    } else {
-      console.log('RabbitMQ: connection is closing.');
-    }
-  });
-  con.on('error', async (e) => {
-    console.error('RabbitMQ: connection error:', e);
-  });
+  try {
+    const con = await amqplib.connect(`${RABBITMQ_HOST}?heartbeat=60`, {
+      noDelay: true,
+    });
+    con.once('close', (error) => {
+      con.removeAllListeners();
+      if (error) {
+        console.error('RabbitMQ: connections is closing due to an error:', error);
+        reconnectToMessageBroker(setupMessageConsumers);
+      } else {
+        console.log('RabbitMQ: connection is closing.');
+      }
+    });
+    con.on('error', async (e) => {
+      console.error('RabbitMQ: connection error:', e);
+    });
 
-  channel = await con.createChannel();
-  if (setupMessageConsumers) {
-    await setupMessageConsumers();
-    console.log('RabbitMQ: Finished setting up message consumers');
+    channel = await con.createChannel();
+    if (setupMessageConsumers) {
+      await setupMessageConsumers();
+      console.log('RabbitMQ: Finished setting up message consumers');
+    }
+    console.log(`RabbitMQ connected to ${RABBITMQ_HOST}`);
+  } catch (e) {
+    await new Promise<void>((resolve) =>
+      setTimeout(resolve, 60000),
+    );
+    reconnectToMessageBroker(setupMessageConsumers)
   }
-  console.log(`RabbitMQ connected to ${RABBITMQ_HOST}`);
 };
 
 export const reconnectToMessageBroker = async (

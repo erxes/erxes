@@ -2,7 +2,7 @@ import { IContext as IMainContext } from '@erxes/api-utils/src';
 import * as mongoose from 'mongoose';
 import { IXypData, IXypDataDocument } from './models/definitions/xypdata';
 import { ISyncRule, ISyncRuleDocument } from './models/definitions/syncRule';
-import { IXypDataModel, loadxypConfigClass } from './models/xypdata';
+import { IXypDataModel, loadxypConfigClass } from './models/Xypdata';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import { ISyncRuleModel, loadSyncRuleClass } from './models/SyncRules';
 
