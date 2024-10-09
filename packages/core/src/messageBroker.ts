@@ -18,6 +18,7 @@ import { segmentsCunsomers } from "@erxes/api-utils/src/consumers/segments";
 import { searchCunsomers } from "@erxes/api-utils/src/consumers/search";
 import { tagConsumers } from "@erxes/api-utils/src/consumers/tags";
 import { reportsCunsomers } from "@erxes/api-utils/src/consumers/reports";
+import { templatesCunsomers } from "@erxes/api-utils/src/consumers/templates";
 
 import { registerOnboardHistory } from "./data/modules/robot";
 
@@ -60,6 +61,7 @@ import tags from "./tags";
 import { setupInternalNotesMessageBroker } from "./messageBrokers/internalNotes";
 import { setupMessageEmailTemplatesConsumers } from "./messageBrokers/emailTemplates";
 import reports from "./reports/reports";
+import templates from "./templates";
 
 export const initBroker = async (): Promise<void> => {
   await connectToMessageBroker(setupMessageConsumers);
@@ -662,6 +664,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
   importExportCunsomers({ name: "core", imports, exporter });
   segmentsCunsomers({ name: "core", segments });
   searchCunsomers({ name: "core", search });
+  templatesCunsomers({ name: "core", templates });
 
   consumeRPCQueueMq("core:isServiceEnabled", async ({ data }) => ({
     status: "success",
