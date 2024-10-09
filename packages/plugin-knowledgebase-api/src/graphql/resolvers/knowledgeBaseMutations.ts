@@ -309,6 +309,14 @@ const knowledgeBaseMutations = {
     );
 
     return removed;
+  },
+
+  async knowledgeBaseArticlesIncrementViewCount(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    return await models.KnowledgeBaseArticles.incrementViewCount(_id);
   }
 };
 

@@ -39,7 +39,8 @@
     "migrateCardsBoards": "node_modules/.bin/ts-node src/commands/migrateCardsBoards.ts",
     "migrateCardName": "node_modules/.bin/ts-node src/commands/migrateCardName.ts",
     "migrateForms": "node_modules/.bin/ts-node src/commands/migrateLeadForms.ts",
-    "migrateAutomations": "node_modules/.bin/ts-node src/commands/migrateAutomations.ts"
+    "migrateAutomations": "node_modules/.bin/ts-node src/commands/migrateAutomations.ts",
+    "migrateCompaniesSearchText": "node_modules/.bin/ts-node src/commands/migrateCompaniesSearchText.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.9.3",
