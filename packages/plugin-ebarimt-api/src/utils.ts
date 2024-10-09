@@ -158,7 +158,7 @@ const billTypeConfomityCompany = async (subdomain, config, deal) => {
       defaultValue: [],
     });
 
-    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)|(^\d{12}$)/gui;
+    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)|(^\d{14}$)/gui;
     for (const company of companies) {
       if (re.test(company.code)) {
         const checkCompanyRes = await getCompanyInfo({ checkTaxpayerUrl: config.checkTaxpayerUrl, no: company.code });
