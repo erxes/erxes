@@ -91,41 +91,38 @@ export default function Form(props: Props) {
 
     if (!document.name) return Alert.error(__('Enter plan name'));
 
-    if (document.priceRules.length === 0) document.isPriceEnabled = false;
+    if (!document.priceRules?.length) document.isPriceEnabled = false;
 
-    if (document.quantityRules.length === 0) document.isQuantityEnabled = false;
+    if (!document.quantityRules?.length) document.isQuantityEnabled = false;
 
-    if (document.expiryRules.length === 0) document.isExpiryEnabled = false;
+    if (!document.expiryRules?.length) document.isExpiryEnabled = false;
 
-    if (document.repeatRules.length === 0) document.isRepeatEnabled = false;
+    if (!document.repeatRules?.length) document.isRepeatEnabled = false;
 
-    if (document.__typename) delete document.__typename;
+    document.__typename = undefined;
 
-    if (document.priceRules)
-      document.priceRules.map(
-        (item: any) => item.__typename && delete item.__typename
-      );
+    if (document.priceRules?.length)
+      document.priceRules = document.priceRules.map(item => ({ ...item, __typename: undefined }));
 
-    if (document.quantityRules)
-      document.quantityRules.map(
-        (item: any) => item.__typename && delete item.__typename
-      );
+    if (document.quantityRules?.length)
+      document.quantityRules = document.quantityRules.map(item => ({ ...item, __typename: undefined }));
 
-    if (document.expiryRules)
-      document.expiryRules.map(
-        (item: any) => item.__typename && delete item.__typename
-      );
+    if (document.expiryRules?.length)
+      document.expiryRules = document.expiryRules.map(item => ({ ...item, __typename: undefined }));
 
-    if (document.repeatRules)
-      document.repeatRules.map((item: any) => {
-        item.__typename && delete item.__typename;
-
-        if (item.weekValue)
-          item.weekValue.map((v: any) => v.__typename && delete v.__typename);
-
-        if (item.monthValue)
-          item.monthValue.map((v: any) => v.__typename && delete v.__typename);
-      });
+    if (document.repeatRules?.length)
+      document.repeatRules = document.repeatRules.map(item => ({
+        ...item,
+        __typename: undefined,
+        weekValue: item.weekValue && item.weekValue.map(sub => ({
+          ...sub,
+          __typename: undefined
+        })),
+        monthValue: item.monthValue && item.monthValue.map(sub => ({
+          ...sub,
+          __typename: undefined
+        })),
+      }));
 
     if (document.applyType === 'bundle')
       document.productsBundle = document.productsBundle.filter(b => b.length);
