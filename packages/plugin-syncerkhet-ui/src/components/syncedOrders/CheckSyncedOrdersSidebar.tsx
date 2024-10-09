@@ -36,7 +36,7 @@ const CheckerSidebar = (props: IProps) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [state, setState] = useState({
+  const [state, setState] = useState<State>({
     posToken: queryParams.posToken,
     search: queryParams.search,
     paidStartDate: queryParams.paidStartDate,
@@ -74,7 +74,7 @@ const CheckerSidebar = (props: IProps) => {
 
   const onChangeRangeFilter = (kind, date) => {
     const cDate = dayjs(date).format("YYYY-MM-DD HH:mm");
-    setState({ [kind]: cDate } as any);
+    setState((prev) => ({ ...prev, [kind]: cDate }));
   };
 
   const renderRange = (dateType: string) => {
@@ -90,7 +90,7 @@ const CheckerSidebar = (props: IProps) => {
               inputProps={{ placeholder: __("Choose Date") }}
               dateFormat="YYYY-MM-DD"
               timeFormat="HH:mm"
-              value={state[lblStart] || null}
+              value={state[lblStart]}
               closeOnSelect={true}
               utc={true}
               input={true}
@@ -130,7 +130,7 @@ const CheckerSidebar = (props: IProps) => {
   const onChangeInput = (e: React.FormEvent<HTMLElement>) => {
     const value = (e.currentTarget as HTMLInputElement).value;
     const name = (e.currentTarget as HTMLInputElement).name;
-    setState({ [name]: value } as any);
+    setState((prev) => ({ ...prev, [name]: value }));
   };
 
   const onUserChange = (userId) => {
