@@ -114,7 +114,7 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
 
 // aws service middleware
 export const engageTracker = async (req, res) => {
-  console.log('engage tracker');
+  console.log('engage tracker', JSON.stringify(req.body, null, 2));
   const chunks: any = [];
 
   req.setEncoding('utf8');
