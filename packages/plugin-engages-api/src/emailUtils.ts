@@ -67,6 +67,7 @@ const prepareEmailHeader = (
 };
 
 export const prepareEmailParams = (
+  subdomain: string,
   customer: ICustomer,
   data: any,
   configSet: string
@@ -86,6 +87,6 @@ export const prepareEmailParams = (
     subject: replacedSubject,
     attachments: prepareAttachments(attachments),
     html: replacedContent,
-    headers: prepareEmailHeader(configSet, customer._id, engageMessageId)
+    headers: prepareEmailHeader(subdomain, configSet, customer._id, engageMessageId)
   };
 };
