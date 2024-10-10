@@ -77,7 +77,6 @@ const command = async () => {
   FieldGroups = db.collection("fields_groups");
   Tags = db.collection("tags");
   InternalNotes = db.collection("internal_notes");
-  ActivityLogs = db.collection("activity_logs");
   Webhooks = db.collection("webhooks");
   Charts = db.collection("insight_charts");
   Reports = db.collection("reports");
