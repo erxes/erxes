@@ -118,7 +118,7 @@ export const setupMessageConsumers = async () => {
   consumeQueue('engages:sendEmail', async ({ data, subdomain }) => {
     const models = await generateModels(subdomain);
 
-    await sendEmail(models, data);
+    await sendEmail(subdomain, models, data);
   });
 };
 

@@ -41,14 +41,22 @@ const prepareContentAndSubject = (
 };
 
 const prepareEmailHeader = (
+  subdomain: string,
   configSet: string,
   customerId: string,
   engageMessageId?: string
 ) => {
+  const DOMAIN = getEnv({ name: 'DOMAIN' })
+    ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+    : 'http://localhost:4000';
+  const domain = DOMAIN.replace('<subdomain>', subdomain);
+  const callbackUrl = `${domain}/pl:engages`;
+
   const header: any = {
     'X-SES-CONFIGURATION-SET': configSet || 'erxes',
     CustomerId: customerId,
-    MailMessageId: randomAlphanumeric()
+    MailMessageId: randomAlphanumeric(),
+    Host: callbackUrl
   };
 
   if (engageMessageId) {
