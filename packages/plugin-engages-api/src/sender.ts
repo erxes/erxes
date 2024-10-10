@@ -286,14 +286,14 @@ export const sendBulkSms = async (
   } // end customers loop
 }; // end sendBuklSms()
 
-export const sendEmail = async (models: IModels, data: any) => {
+export const sendEmail = async (subdomain:string ,models: IModels, data: any) => {
   const transporter = await createTransporter(models);
   const { customer } = data;
   const configs = await getConfigs(models);
 
   try {
     await transporter.sendMail(
-      prepareEmailParams(customer, data, configs.configSet)
+      prepareEmailParams(subdomain, customer, data, configs.configSet)
     );
 
     debugInfo(`Sent email to: ${customer?.primaryEmail}`);
