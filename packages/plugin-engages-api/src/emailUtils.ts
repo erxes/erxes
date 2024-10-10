@@ -63,8 +63,6 @@ const prepareEmailHeader = (
     header.EngageMessageId = engageMessageId;
   }
 
-  console.log('SES HEADER', JSON.stringify(header, null, 2));
-
   return header;
 };
 
