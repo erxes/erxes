@@ -29,11 +29,7 @@ const elementMutations = {
     { ids }: { ids: string[] },
     { models, user }: IContext
   ) => {
-    const cars = await models.Elements.find({ _id: { $in: ids } }).lean();
-
-    await models.Elements.removeElements(ids);
-
-    return ids;
+    return await models.Elements.removeElements(ids);
   },
 
   bmElementCategoryAdd: async (
