@@ -14,6 +14,7 @@ import {
   createTransporter,
   getConfig,
   getConfigs,
+  getValueAsString,
   setCampaignCount,
 } from './utils';
 
@@ -32,6 +33,12 @@ export const start = async (
   } = data;
 
   const configs = await getConfigs(models);
+  const configSet = await getValueAsString(
+    models,
+    "configSet",
+    "AWS_SES_CONFIG_SET",
+    "erxes"
+  );
 
   await models.Stats.findOneAndUpdate(
     { engageMessageId },
@@ -52,7 +59,7 @@ export const start = async (
   const sendCampaignEmail = async (customer: ICustomer) => {
     try {
       await transporter.sendMail(
-        prepareEmailParams(subdomain, customer, data, configs.configSet)
+        prepareEmailParams(subdomain, customer, data, configSet)
       );
 
       const msg = `Sent email to: ${customer.primaryEmail}`;
@@ -289,11 +296,17 @@ export const sendEmail = async (
 ) => {
   const transporter = await createTransporter(models);
   const { customer } = data;
-  const configs = await getConfigs(models);
+
+  const configSet = await getValueAsString(
+    models,
+    "configSet",
+    "AWS_SES_CONFIG_SET",
+    "erxes"
+  );
 
   try {
     await transporter.sendMail(
-      prepareEmailParams(subdomain, customer, data, configs.configSet)
+      prepareEmailParams(subdomain, customer, data, configSet)
     );
 
     debugInfo(`Sent email to: ${customer?.primaryEmail}`);
