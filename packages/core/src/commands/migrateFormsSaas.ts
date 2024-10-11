@@ -38,6 +38,7 @@ const command = async () => {
         const form = await Forms.findOne({ _id: integration.formId });
 
         if (form) {
+     
           const formDoc = {
             brandId: integration.brandId,
             leadData: integration.leadData,
@@ -48,7 +49,10 @@ const command = async () => {
             kind: integration.kind,
             languageCode: integration.languageCode,
             integrationId: integration._id,
+            status: integration.isActive ? "active" : "archived",
           };
+
+          console.log(JSON.stringify(formDoc, null, 2));
 
           await Forms.updateOne({ _id: form._id }, { $set: formDoc });
 
@@ -62,12 +66,25 @@ const command = async () => {
             createdUserId: integration.createdUserId,
             createdAt: integration.createdAt,
           };
+
           await Integrations.updateOne(
             { _id: integration._id },
-            integrationDoc
+            { $set: integrationDoc }
           );
         }
       }
+
+      // remove orphan forms
+   
+        const forms = await Forms.find({ type: 'lead'}).toArray();
+        for (const form of forms) {
+          const integration = await Integrations.findOne({ formId: form._id });
+          if (!integration) {
+            console.log('removing', form);
+            await Forms.deleteOne({ _id: form._id });
+          }
+        }
+
 
       console.log('migrated', org.subdomain);
     } catch (e) {
