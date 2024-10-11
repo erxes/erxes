@@ -85,7 +85,7 @@ const IntegrationForm: React.FC<Props> = ({
     const handleAddOperation = () => {
       setOperators([
         ...operators,
-        { userId: '', gsUsername: '', gsPassword: '' },
+        { userId: '', gsUsername: '', gsPassword: '', gsForwardAgent: false },
       ]);
     };
 

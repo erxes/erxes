@@ -48,103 +48,75 @@ const command = async () => {
     return;
   }
 
-  await Configs.updateOne({ code: 'EBARIMT' }, {
-    $set: {
-      value: {
-        ...ebarimtConfig.value || {},
-        ebarimtUrl: 'https://ebarimt3.erkhet.biz',
-        checkTaxpayerUrl: 'https://ebarimt-bridge.erkhet.biz'
-      }
-    }
-  })
+  let step = 0;
+  let per = 1000;
 
-  const stageInEbarimtConfigs = await Configs.findOne({ code: 'stageInEbarimt' });
-  if (stageInEbarimtConfigs) {
-    const stageInConfigs = stageInEbarimtConfigs.value;
-    for (const key of Object.keys(stageInConfigs)) {
-      const companyRD = stageInConfigs[key]?.companyRD || '';
-      const mapInfo = rdMap[companyRD] || {};
-      stageInConfigs[key].merchantTin = mapInfo.merchantTin || '';
-      stageInConfigs[key].posNo = '10003424'
-      stageInConfigs[key].districtCode = mapInfo.districtCode || '';
-      stageInConfigs[key].branchNo = '01'
-    }
-    await Configs.updateOne({ code: 'stageInEbarimt' }, {
-      $set: {
-        value: {
-          ...stageInConfigs || {}
-        }
-      }
-    })
-  }
+  const summaryCount = await OldPutResponses.countDocuments({ $or: [{ id: { $exists: false, } }, { inactiveId: { $exists: false } }] });
 
-  const poss = await POS.find({ status: { $ne: 'deleted' } }).toArray();
-  for (const pos of poss) {
-    const comRD = pos.ebarimtConfig?.companyRD;
-    const info = rdMap[comRD] || {};
+  while (step * per < summaryCount) {
+    const skip = step * per;
+    console.log(skip, per)
+    const putResponses = await OldPutResponses.find({ $or: [{ id: { $exists: false, } }, { inactiveId: { $exists: false } }] }).sort({ createdAt: 1 }).skip(skip).limit(per).toArray();
 
-    await POS.updateOne({ _id: pos._id }, {
-      $set: {
-        ebarimtConfig: {
-          ...pos.ebarimtConfig,
-          posNo: '10003424',
-          ebarimtUrl: 'https://ebarimt3.erkhet.biz',
-          merchantTin: info.merchantTin || '',
-          districtCode: info.districtCode || '',
-          branchNo: '01',
-          checkTaxpayerUrl: 'https://ebarimt-bridge.erkhet.biz'
-        }
-      }
-    })
-  }
+    let bulkOps = [];
 
-  const putResponses = await OldPutResponses.find({ $or: [{ id: { $exists: false, } }, { inactiveId: { $exists: false } }] }).toArray();
-  for (const putRes of putResponses) {
-    const doc = { ...putRes };
+    for (const putRes of putResponses) {
+      const doc = { ...putRes };
 
-    await PutResponses.updateOne({ _id: putRes._id }, {
-      $set: {
-        ...doc,
-        state: doc.status,
-        status: [true, 'true'].includes(doc.success) ? 'SUCCESS' : 'ERROR',
-        receipts: [{
-          _id: nanoid(),
-          id: doc.billId,
-          totalAmount: Number(doc.amount),
-          totalVAT: doc.vat,
-          totalCityTax: doc.cityTax,
-          taxType: taxTypes[doc.taxType],
-          merchantTin: rdMap[doc.registerNo]?.merchantTin,
-          items: (doc.stocks || []).map((stock) => (
-            {
-              ...stock,
-              _id: stock._id || nanoid(),
-              barCodeType: stock.barCode ? 'GS1' : '',
-              taxProductCode: ['2', '3'].includes(doc.taxType) ? stock.barCode : '',
-              totalBonus: stock.discount,
-              totalVAT: stock.vat,
-              totalCityTax: stock.cityTax,
-              totalAmount: stock.totalAmount,
+      bulkOps.push({
+        updateOne: {
+          filter: {
+            _id: putRes._id
+          },
+          update: {
+            $set: {
+              ...doc,
+              state: doc.status,
+              status: [true, 'true'].includes(doc.success) ? 'SUCCESS' : 'ERROR',
+              receipts: [{
+                _id: nanoid(),
+                id: doc.billId,
+                totalAmount: Number(doc.amount),
+                totalVAT: doc.vat,
+                totalCityTax: doc.cityTax,
+                taxType: taxTypes[doc.taxType],
+                merchantTin: rdMap[doc.registerNo]?.merchantTin,
+                items: (doc.stocks || []).map((stock) => (
+                  {
+                    ...stock,
+                    _id: stock._id || nanoid(),
+                    barCodeType: stock.barCode ? 'GS1' : '',
+                    taxProductCode: ['2', '3'].includes(doc.taxType) ? stock.barCode : '',
+                    totalBonus: stock.discount,
+                    totalVAT: stock.vat,
+                    totalCityTax: stock.cityTax,
+                    totalAmount: stock.totalAmount,
+                  }
+                )),
+              }],
+              id: doc.billId,
+              inactiveId: doc.returnBillId,
+              totalAmount: Number(doc.amount),
+              totalVAT: Number(doc.vat),
+              totalCityTax: Number(doc.cityTax),
+              type: doc.billType === '3' ? 'B2B_RECEIPT' : 'B2C_RECEIPT',
+              easy: false,
+              districtCode: rdMap[doc.registerNo]?.districtCode,
+              branchNo: '01',
+              merchantTin: rdMap[doc.registerNo]?.merchantTin,
+              posId: 'eb2',
+              posNo: '10003424',
+              customerTin: doc.billType === '3' ? await getTinNo(doc.customerNo) : '',
+              customerName: doc.customerName,
+              consumerNo: ''
             }
-          )),
-        }],
-        id: doc.billId,
-        inactiveId: doc.returnBillId,
-        totalAmount: Number(doc.amount),
-        totalVAT: Number(doc.vat),
-        totalCityTax: Number(doc.cityTax),
-        type: doc.billType === '3' ? 'B2B_RECEIPT' : 'B2C_RECEIPT',
-        easy: false,
-        districtCode: rdMap[doc.registerNo]?.districtCode,
-        branchNo: '01',
-        merchantTin: rdMap[doc.registerNo]?.merchantTin,
-        posId: 'eb2',
-        posNo: '10003424',
-        customerTin: doc.billType === '3' ? await getTinNo(doc.customerNo) : '',
-        customerName: doc.customerName,
-        consumerNo: ''
-      }
-    }, { upsert: true });
+          },
+          upsert: true
+        },
+      });
+    }
+    await PutResponses.bulkWrite(bulkOps)
+    step++
   }
 
   console.log(`Process finished at: ${new Date()}`);

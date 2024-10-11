@@ -6,7 +6,7 @@ on:
       - 'dev'
       - master
       - rc
-jobs:
+jobs: 
   runtest:
     runs-on: ubuntu-latest
     strategy:

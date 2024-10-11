@@ -269,6 +269,15 @@ export const getTotalAmount = (items: IOrderItemInput[] = []): number => {
   return Number(total.toFixed(2));
 };
 
+const mathRound = (value, p = 2) => {
+  if (!value || isNaN(Number(value))) {
+    return 0;
+  }
+
+  let converter = 10 ** p;
+  return Math.round(value * converter) / converter;
+};
+
 export const prepareEbarimtData = async (
   models: IModels,
   order: IOrderDocument,
@@ -331,7 +340,7 @@ export const prepareEbarimtData = async (
           quantity: item.count,
           unitPrice: item.unitPrice ?? 0,
           totalDiscount: item.discountAmount,
-          totalAmount: item.count * (item.unitPrice ?? 0)
+          totalAmount: mathRound(item.count * (item.unitPrice ?? 0), 4)
         };
       }),
     nonCashAmounts: [
@@ -459,12 +468,11 @@ export const prepareOrderDoc = async (
           customerId: doc?.customerId,
           "subscriptionInfo.status": SUBSCRIPTION_INFO_STATUS.ACTIVE
         })
-          .sort({ createdAt: -1 })
+          .sort({ createdAt: -1, 'items.closeDate': -1 })
           .lean();
 
         const prevSubscriptionItem = await models.OrderItems.findOne({
           orderId: { $in: prevSubscriptions.map(({ _id }) => _id) },
-          productId: item.productId,
           closeDate: { $gte: new Date() }
         })
           .sort({ createdAt: -1 })

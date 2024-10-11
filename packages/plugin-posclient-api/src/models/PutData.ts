@@ -83,7 +83,7 @@ const isValidBarcode = (barcode: string): boolean => {
 
 const getCustomerInfo = async (type: string, config: IEbarimtConfig, doc: IDoc) => {
   if (type === 'B2B_RECEIPT') {
-    const tinre = /(^\d{11}$)|(^\d{12}$)/;
+    const tinre = /(^\d{11}$)|(^\d{12}$)|(^\d{14}$)/;
     if (tinre.test(doc.customerTin || '')) {
       return { customerTin: doc.customerTin, customerName: doc.customerName }
     }
@@ -348,7 +348,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
 }
 
 export const getCompanyInfo = async ({ checkTaxpayerUrl, no }: { checkTaxpayerUrl: string, no: string }) => {
-  const tinre = /(^\d{11}$)|(^\d{12}$)/;
+  const tinre = /(^\d{11}$)|(^\d{12}$)|(^\d{14}$)/;
   if (tinre.test(no)) {
     const result = await fetch(
       // `https://api.ebarimt.mn/api/info/check/getInfo?tin=${tinNo}`

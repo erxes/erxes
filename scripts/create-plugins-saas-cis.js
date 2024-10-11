@@ -12,7 +12,6 @@ const filePath = pathName => {
 var plugins = [
   { name: "inbox", ui: true, api: true },
   { name: "automations", ui: true, api: true },
-  { name: "calendar", ui: true },
   { name: "calls", ui: true, api: true },
   { name: "cars", ui: true, api: true },
   { name: "sales", ui: true, api: true },

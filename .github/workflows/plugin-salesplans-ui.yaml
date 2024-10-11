@@ -50,7 +50,7 @@ on:
       - "packages/plugin-salesplans-ui/**"
       - ".github/workflows/plugin-salesplans-ui.yaml"
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

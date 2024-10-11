@@ -27,7 +27,7 @@ type State = {
 
 class GeneralSettings extends React.Component<Props, State> {
   constructor(props: Props) {
-   
+
     super(props);
     this.state = {
       currentMap: props.configsMap.POLARIS || {},
@@ -50,8 +50,8 @@ class GeneralSettings extends React.Component<Props, State> {
   };
 
   onChangeConfig = (code: string, value) => {
-    let {currentMap} = this.state;
-    this.setState({ currentMap:{...currentMap,[code]:value} });
+    let { currentMap } = this.state;
+    this.setState({ currentMap: { ...currentMap, [code]: value } });
   };
 
   onChangeInput = (code: string, e) => {
@@ -80,6 +80,7 @@ class GeneralSettings extends React.Component<Props, State> {
           title="General settings"
           beforeTitle={<Icon icon="settings" />}
           transparent={true}
+          open={true}
         >
           {this.renderItem('apiUrl')}
           {this.renderItem('companyCode')}

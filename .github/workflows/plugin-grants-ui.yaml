@@ -50,7 +50,7 @@ on:
       - "packages/plugin-grants-ui/**"
       - ".github/workflows/plugin-grants-ui.yaml"
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 
