@@ -4,7 +4,7 @@ import {
   IEmailTemplate,
   IEngageEmail,
   IEngageMessageDoc,
-  IEngageMessenger,
+  IEngageMessenger
 } from "@erxes/ui-engage/src/types";
 
 import Button from "@erxes/ui/src/components/Button";
@@ -57,21 +57,21 @@ class WidgetForm extends React.Component<Props, State> {
       attachments: [],
       sentAs: "snippet",
       templateId: "",
-      isSaved: false,
+      isSaved: false
     };
 
     this.close = this.close.bind(this);
   }
 
-  save = (e) => {
+  save = e => {
     e.preventDefault();
 
     const { save, customers } = this.props;
 
     const doc = {
       title: (document.getElementById("title") as HTMLInputElement).value,
-      customerIds: customers.map((customer) => customer._id),
-      method: "",
+      customerIds: customers.map(customer => customer._id),
+      method: ""
     } as IEngageMessageDoc;
 
     if (this.state.channel === "email") {
@@ -80,7 +80,7 @@ class WidgetForm extends React.Component<Props, State> {
         subject: (document.getElementById("emailSubject") as HTMLInputElement)
           .value,
         attachments: this.state.attachments,
-        content: this.state.content,
+        content: this.state.content
       } as IEngageEmail;
     }
 
@@ -91,7 +91,7 @@ class WidgetForm extends React.Component<Props, State> {
         kind: (document.getElementById("messengerKind") as HTMLInputElement)
           .value,
         sentAs: (document.getElementById("sentAs") as HTMLInputElement).value,
-        content: this.state.content,
+        content: this.state.content
       } as IEngageMessenger;
     }
 
@@ -102,11 +102,11 @@ class WidgetForm extends React.Component<Props, State> {
     this.setState({ [name]: value } as unknown as Pick<State, keyof State>);
   };
 
-  onChannelChange = (e) => {
+  onChannelChange = e => {
     this.setState({ channel: e.target.value });
   };
 
-  templateChange = (e) => {
+  templateChange = e => {
     this.setState({ content: this.findTemplate(e.value), templateId: e.value });
   };
 
@@ -114,12 +114,12 @@ class WidgetForm extends React.Component<Props, State> {
     this.onChangeCommon("content", content);
   };
 
-  onSentAsChange = (e) => {
+  onSentAsChange = e => {
     this.onChangeCommon("sentAs", e.target.value);
   };
 
-  findTemplate = (id) => {
-    const template = this.props.emailTemplates.find((t) => t._id === id);
+  findTemplate = id => {
+    const template = this.props.emailTemplates.find(t => t._id === id);
 
     if (template) {
       return template.content;
@@ -133,7 +133,7 @@ class WidgetForm extends React.Component<Props, State> {
       <FormGroup>
         <ControlLabel>Sending to:</ControlLabel>
         <Recipients>
-          {this.props.customers.map((customer) => (
+          {this.props.customers.map(customer => (
             <Recipient key={customer._id}>
               <strong>{customer.firstName}</strong>
               <span>({customer.primaryEmail || "Unknown"})</span>
@@ -258,7 +258,7 @@ class WidgetForm extends React.Component<Props, State> {
     }
 
     const { attachments } = this.state;
-    const onChange = (attachmentsAtt) =>
+    const onChange = attachmentsAtt =>
       this.onChangeCommon("attachments", attachmentsAtt);
 
     return (
@@ -276,7 +276,7 @@ class WidgetForm extends React.Component<Props, State> {
             <Select
               value={generateEmailTemplateParams(
                 this.props.emailTemplates
-              ).find((option) => option.value === this.state.templateId)}
+              ).find(option => option.value === this.state.templateId)}
               onChange={this.templateChange}
               options={generateEmailTemplateParams(this.props.emailTemplates)}
               isClearable={false}
