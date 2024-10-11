@@ -127,10 +127,10 @@ const EditorContainer = (props: FinalProps) => {
     props.insertItems ||
     generateAttributes(
       {
-        deal: salesFields,
-        task: tasksFields,
-        tickets: ticketsFields,
-        purchase: purchasesFields
+        ...salesFields,
+        ...tasksFields,
+        ...ticketsFields,
+        ...purchasesFields
       },
       combinedFields
     );
