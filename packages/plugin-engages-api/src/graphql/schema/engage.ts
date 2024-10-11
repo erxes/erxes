@@ -1,10 +1,7 @@
 const externalId = "_id: String! @external";
 const keyFields = '@key(fields: "_id")';
 
-export const types = async () => {
-  const enabledContacts = true;
-
-  return `
+export const types = `
     extend type User ${keyFields} {
       ${externalId}
     }
@@ -23,15 +20,10 @@ export const types = async () => {
       ${externalId}
     }
 
-    ${
-      enabledContacts
-        ? `
-        extend type Customer ${keyFields} {
-          ${externalId}
-        }
-      `
-        : ""
+    extend type Customer ${keyFields} {
+      ${externalId}
     }
+    
 
     type EngageMessage ${keyFields} {
       _id: String!
@@ -200,7 +192,6 @@ export const types = async () => {
       isMobile: Boolean,
     }
   `;
-};
 
 const listParams = `
   kind: String

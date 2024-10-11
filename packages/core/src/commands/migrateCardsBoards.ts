@@ -40,13 +40,23 @@ const command = async () => {
 
       TARGET_COLLECTION = db.collection(targetCollection);
 
-      await DB_COLLECTION.find({ type: contentType }).forEach(item => {
-        try {
-          TARGET_COLLECTION.insertOne(item);
-        } catch (e) {
-          console.log(e);
-        }
-      });
+      if (contentType) {
+        await DB_COLLECTION.find({ type: contentType }).forEach(item => {
+          try {
+            TARGET_COLLECTION.insertOne(item);
+          } catch (e) {
+            console.log(e);
+          }
+        });
+      } else {
+        await DB_COLLECTION.find().forEach(item => {
+          try {
+            TARGET_COLLECTION.insertOne(item);
+          } catch (e) {
+            console.log(e);
+          }
+        });
+      }
     } catch (e) {
       console.log(e.message, contentType);
     }
@@ -74,19 +84,11 @@ const command = async () => {
 
   console.log("migrating pipeline_labels");
 
-  await migrateItems("deal", "pipeline_labels", "sales_pipeline_labels");
-  await migrateItems("task", "pipeline_labels", "tasks_pipeline_labels");
-  await migrateItems(
-    "purchase",
-    "pipeline_labels",
-    "purchases_pipeline_labels"
-  );
-  await migrateItems("ticket", "pipeline_labels", "tickets_pipeline_labels");
-  await migrateItems(
-    "growthhacks",
-    "pipeline_labels",
-    "growthhacks_pipeline_labels"
-  );
+  await migrateItems(null, "pipeline_labels", "sales_pipeline_labels");
+  await migrateItems(null, "pipeline_labels", "tasks_pipeline_labels");
+  await migrateItems(null, "pipeline_labels", "purchases_pipeline_labels");
+  await migrateItems(null, "pipeline_labels", "tickets_pipeline_labels");
+  await migrateItems(null, "pipeline_labels", "growthhacks_pipeline_labels");
 
   console.log(`migrating pipeline_labels finished at: ${new Date()}`);
 
