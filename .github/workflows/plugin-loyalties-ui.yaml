@@ -50,7 +50,7 @@ on:
       - "packages/plugin-loyalties-ui/**"
       - ".github/workflows/plugin-loyalties-ui.yaml"
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

@@ -57,7 +57,7 @@ type Props = {
   isModal?: boolean;
   hideDetailForm?: boolean;
   count: number;
-  serviceConfig?:any;
+  serviceConfig?: any;
 };
 
 type State = {
@@ -88,19 +88,19 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     let showAddGroup = true;
 
     const segment: ISegment = props.segment || {
-      name: '',
-      description: '',
-      subOf: '',
+      name: "",
+      description: "",
+      subOf: "",
       color: generateRandomColorCode(),
-      conditionsConjunction: 'and',
+      conditionsConjunction: "and",
       shouldWriteActivityLog: false,
       subSegmentConditions: [
         {
-          contentType: props.contentType || 'customer',
-          conditionsConjunction: 'and'
-        }
+          contentType: props.contentType || "customer",
+          conditionsConjunction: "and",
+        },
       ],
-      config: { ...props?.serviceConfig || {} }
+      config: { ...(props?.serviceConfig || {}) },
     };
 
     if (
@@ -118,19 +118,21 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       state = "list";
     }
 
-    const segments = (segment?.subSegmentConditions || []).map((item: ISegment) => ({
-      _id: item._id,
-      key: Math.random().toString(),
-      contentType: item.contentType || "customer",
-      config: item.config,
-      conditionsConjunction: item.conditionsConjunction,
-      conditions: item.conditions
-        ? item.conditions.map((cond: ISegmentCondition) => ({
-            key: Math.random().toString(),
-            ...cond,
-          }))
-        : [],
-    }));
+    const segments = (segment?.subSegmentConditions || []).map(
+      (item: ISegment) => ({
+        _id: item._id,
+        key: Math.random().toString(),
+        contentType: item.contentType || "customer",
+        config: item.config,
+        conditionsConjunction: item.conditionsConjunction,
+        conditions: item.conditions
+          ? item.conditions.map((cond: ISegmentCondition) => ({
+              key: Math.random().toString(),
+              ...cond,
+            }))
+          : [],
+      })
+    );
 
     this.state = {
       ...segment,

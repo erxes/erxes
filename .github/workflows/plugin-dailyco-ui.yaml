@@ -50,7 +50,7 @@ on:
       - "packages/plugin-dailyco-ui/**"
       - ".github/workflows/plugin-dailyco-ui.yaml"
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

@@ -167,7 +167,7 @@ const billTypeConfomityCompany = async (subdomain, config, deal) => {
       defaultValue: []
     });
 
-    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)/giu;
+    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)|(^\d{14}$)/gui;
     for (const company of companies) {
       if (re.test(company.code)) {
         const checkCompanyRes = await getCompanyInfo({
@@ -312,14 +312,8 @@ export const getPostData = async (subdomain, config, deal) => {
   };
 };
 
-export const getCompanyInfo = async ({
-  checkTaxpayerUrl,
-  no
-}: {
-  checkTaxpayerUrl: string;
-  no: string;
-}) => {
-  const tinre = /(^\d{11}$)|(^\d{12}$)/;
+export const getCompanyInfo = async ({ checkTaxpayerUrl, no }: { checkTaxpayerUrl: string, no: string }) => {
+  const tinre = /(^\d{11}$)|(^\d{12}$)|(^\d{14}$)/;
   if (tinre.test(no)) {
     const result = await fetch(
       // `https://api.ebarimt.mn/api/info/check/getInfo?tin=${tinNo}`

@@ -1,9 +1,9 @@
 import { fetchPolaris, sendMessageBrokerData } from '../utils';
 
-export const incomeDeposit = async (subdomain, params) => {
+export const incomeDeposit = async (subdomain, polarisConfig, params) => {
   const transaction = params.object;
 
-  const savingContract = await sendMessageBrokerData(subdomain,'savings','contracts.findOne',{_id:transaction.contractId})
+  const savingContract = await sendMessageBrokerData(subdomain, 'savings', 'contracts.findOne', { _id: transaction.contractId })
 
   let sendData = {
     operCode: '13610009',
@@ -36,5 +36,6 @@ export const incomeDeposit = async (subdomain, params) => {
     op: '13610009',
     data: [sendData],
     subdomain,
+    polarisConfig
   });
 };

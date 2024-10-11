@@ -50,7 +50,7 @@ on:
       - "packages/plugin-goals-ui/**"
       - ".github/workflows/plugin-goals-ui.yaml"
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

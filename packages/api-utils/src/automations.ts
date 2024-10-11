@@ -90,7 +90,7 @@ export const replacePlaceHolders = async ({
 
         for (const complexFieldKey of [
           "customFieldsData",
-          "trackedData"
+          "trackedData",
         ].concat(complexFields || [])) {
           if (actionData[actionDataKey].includes(complexFieldKey)) {
             const regex = new RegExp(`{{ ${complexFieldKey}.([\\w\\d]+) }}`);
@@ -113,7 +113,7 @@ export const replacePlaceHolders = async ({
               );
             } else {
               const complexFieldData = target[complexFieldKey].find(
-                cfd => cfd.field === fieldId
+                (cfd) => cfd.field === fieldId
               );
 
               actionData[actionDataKey] = actionData[actionDataKey].replace(
@@ -142,18 +142,18 @@ export const OPERATORS = {
   MULTIPLY: "multiply",
   DIVIDE: "divide",
   PERCENT: "percent",
-  ALL: ["set", "concat", "add", "subtract", "multiply", "divide", "percent"]
+  ALL: ["set", "concat", "add", "subtract", "multiply", "divide", "percent"],
 };
 
 const convertOp1 = (relatedItem, field) => {
   if (
-    ["customFieldsData", "trackedData"].some(complexField =>
+    ["customFieldsData", "trackedData"].some((complexField) =>
       field.includes(complexField)
     )
   ) {
     const [complexFieldKey, nestedComplexFieldKey] = field.split(".");
     return (relatedItem[complexFieldKey] || []).find(
-      nestedObj => nestedObj.field === nestedComplexFieldKey
+      (nestedObj) => nestedObj.field === nestedComplexFieldKey
     )?.value;
   }
 
@@ -221,7 +221,7 @@ const getPerValue = async (args: {
       getRelatedValue,
       actionData: { config: value },
       target,
-      isRelated: op1Type === "string" ? true : false
+      isRelated: op1Type === "string" ? true : false,
     })
   ).config;
 
@@ -353,7 +353,7 @@ export const setProperty = async ({
 
           const field = await sendCommonMessage({
             subdomain,
-            serviceName: "core",
+            serviceName: "forms",
             action: "fields.findOne",
             data: {
               query: { _id: fieldId }
@@ -364,7 +364,7 @@ export const setProperty = async ({
 
           const complexFieldData = await sendCommonMessage({
             subdomain,
-            serviceName: "core",
+            serviceName: "forms",
             action: "fields.generateTypedItem",
             data: {
               field: fieldId,
@@ -376,13 +376,13 @@ export const setProperty = async ({
 
           if (
             (relatedItem[complexFieldKey] || []).find(
-              obj => obj.field === fieldId
+              (obj) => obj.field === fieldId
             )
           ) {
             selectorDoc[`${complexFieldKey}.field`] = fieldId;
 
             const complexFieldDataKeys = Object.keys(complexFieldData).filter(
-              key => key !== "field"
+              (key) => key !== "field"
             );
 
             for (const complexFieldDataKey of complexFieldDataKeys) {
@@ -437,10 +437,10 @@ export const setProperty = async ({
       _id: relatedItem._id,
       rules: (Object as any)
         .values(setDoc)
-        .map(v => String(v))
-        .join(", ")
+        .map((v) => String(v))
+        .join(", "),
     });
   }
 
-  return { module, fields: rules.map(r => r.field).join(", "), result };
+  return { module, fields: rules.map((r) => r.field).join(", "), result };
 };

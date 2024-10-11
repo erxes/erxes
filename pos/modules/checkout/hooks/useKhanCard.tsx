@@ -8,8 +8,7 @@ import usePaymentType from "./usePaymentType"
 
 const PATH = "http://localhost:27028"
 
-const useKhanCard = (args?: { skipCheck?: boolean }) => {
-  const { skipCheck } = args || {}
+const useKhanCard = () => {
   const [loading, setLoading] = useState(true)
   const [isAlive, setIsAlive] = useState(false)
 
@@ -38,15 +37,15 @@ const useKhanCard = (args?: { skipCheck?: boolean }) => {
   )
 
   useEffect(() => {
-    if (skipCheck) {
+    if (!type) {
       setLoading(false)
-      setIsAlive(true)
+      setIsAlive(false)
       return
     }
     checkIsAlive()
-  }, [checkIsAlive, skipCheck])
+  }, [checkIsAlive, type])
 
-  return { checkIsAlive, loading, isAlive }
+  return { checkIsAlive, loading: loading && !!type, isAlive }
 }
 
 export const useSendTransaction = ({

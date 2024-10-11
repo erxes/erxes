@@ -5,7 +5,6 @@ import { useAtom, useSetAtom } from "jotai"
 import { BANK_CARD_TYPES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import { DialogContent } from "@/components/ui/dialog"
-import Loader from "@/components/ui/loader"
 import { RadioGroup } from "@/components/ui/radio-group"
 
 import useHandlePayment from "../../hooks/useHandlePayment"

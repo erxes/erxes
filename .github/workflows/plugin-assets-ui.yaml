@@ -50,7 +50,7 @@ on:
       - "packages/plugin-assets-ui/**"
       - ".github/workflows/plugin-assets-ui.yaml"
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

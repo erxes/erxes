@@ -1,6 +1,7 @@
 import {
   customFieldToObject,
   fetchPolaris,
+  genObjectOfRule,
   getBranch,
   sendMessageBrokerData,
   updateContract
@@ -8,12 +9,7 @@ import {
 import { IPolarisDeposit } from "./types";
 import { validateDepositObject } from "./validator";
 
-export const createDeposit = async (
-  subdomain: string,
-  models,
-  syncLog,
-  params
-) => {
+export const createDeposit = async (subdomain: string, models, polarisConfig, syncLog, params) => {
   const deposit = params.updatedDocument || params.object;
 
   const objectDeposit = await customFieldToObject(
@@ -38,6 +34,13 @@ export const createDeposit = async (
     { _id: deposit.customerId }
   );
 
+  const dataOfRules = await genObjectOfRule(
+    subdomain,
+    "savings:contract",
+    objectDeposit,
+    polarisConfig.deposit && polarisConfig.deposit[deposit.contractTypeId || ''] || {}
+  )
+
   let sendData: IPolarisDeposit = {
     acntType: "CA",
     prodCode: savingProduct.code,
@@ -46,19 +49,20 @@ export const createDeposit = async (
     custCode: customer.code,
     name: deposit.number,
     name2: deposit.number,
-    slevel: objectDeposit.slevel || "1",
-    jointOrSingle: "S",
-    dormancyDate: "",
-    statusDate: "",
-    flagNoCredit: "0",
-    flagNoDebit: "0",
-    salaryAcnt: "N",
-    corporateAcnt: "N",
-    capAcntCode: "",
-    capMethod: "0",
-    segCode: "81",
-    paymtDefault: "",
-    odType: "NON"
+    slevel: objectDeposit.slevel || '1',
+    jointOrSingle: 'S',
+    dormancyDate: '',
+    statusDate: '',
+    flagNoCredit: '0',
+    flagNoDebit: '0',
+    salaryAcnt: 'N',
+    corporateAcnt: 'N',
+    capAcntCode: '',
+    capMethod: '0',
+    segCode: '81',
+    paymtDefault: '',
+    odType: 'NON',
+    ...dataOfRules
   };
 
   await validateDepositObject(sendData);
@@ -68,6 +72,7 @@ export const createDeposit = async (
     op: "13610020",
     data: [sendData],
     models,
+    polarisConfig,
     syncLog
   });
 
