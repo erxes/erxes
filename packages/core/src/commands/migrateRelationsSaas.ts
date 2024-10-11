@@ -49,6 +49,10 @@ const command = async () => {
         changedContentType = `core:lead`;
         break;
 
+      case "products:product":
+        changedContentType = `core:product`;
+        break;
+
       case "emailTemplates:emailTemplate":
         changedContentType = `core:emailTemplate`;
         break;
