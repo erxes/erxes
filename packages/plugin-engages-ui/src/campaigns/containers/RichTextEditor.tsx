@@ -109,24 +109,29 @@ const EditorContainer = (props: FinalProps) => {
     (combinedFieldsQuery && combinedFieldsQuery.fieldsCombinedByContentType) ||
     [];
   const salesFields =
-    (salesCardsFieldsQuery && salesCardsFieldsQuery.salesCardsFields) || {};
+    (salesCardsFieldsQuery && salesCardsFieldsQuery.salesCardsFields) || [];
 
   const tasksFields =
-    (tasksCardsFieldsQuery && tasksCardsFieldsQuery.tasksCardsFields) || {};
+    (tasksCardsFieldsQuery && tasksCardsFieldsQuery.tasksCardsFields) || [];
 
   const ticketsFields =
     (ticketsCardsFieldsQuery && ticketsCardsFieldsQuery.ticketsCardsFields) ||
-    {};
+    [];
 
   const purchasesFields =
     (purchasesCardsFieldsQuery &&
       purchasesCardsFieldsQuery.purchasesCardsFields) ||
-    {};
+    [];
 
   const placeholderItems =
     props.insertItems ||
     generateAttributes(
-      [...salesFields, ...tasksFields, ...ticketsFields, ...purchasesFields],
+      {
+        deal: salesFields,
+        task: tasksFields,
+        tickets: ticketsFields,
+        purchase: purchasesFields
+      },
       combinedFields
     );
 
