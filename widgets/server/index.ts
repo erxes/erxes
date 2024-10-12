@@ -28,6 +28,8 @@ app.use('/static', express.static('public'));
 
 // Helper function to extract subdomain
 const getSubdomain = (hostname: string): string => hostname.split('.')[0];
+
+// Helper function to handle the header value
 const getHeaderValue = (value: string | string[] | undefined): string => {
   if (Array.isArray(value)) {
     return value[0]; // Use the first value if it's an array
@@ -44,10 +46,12 @@ const getEnv = (req: Request) => {
     GOOGLE_MAP_API_KEY = '',
   } = process.env;
 
-  const replaceSubdomain = (url: string, subdomain: string) =>
-    url.replace('<subdomain>', subdomain);
+  const replaceSubdomain = (url: string, subdomain: string) => {
+    // Only replace <subdomain> if it exists in the URL
+    return url.includes('<subdomain>') ? url.replace('<subdomain>', subdomain) : url;
+  };
 
-  // Check if SaaS mode (based on ROOT_URL format)
+  // Check if ROOT_URL contains <subdomain> (SaaS mode)
   if (ROOT_URL.includes('<subdomain>')) {
     const subdomain = getSubdomain(
       getHeaderValue(req.headers['nginx-hostname']) || req.hostname
@@ -60,6 +64,7 @@ const getEnv = (req: Request) => {
     });
   }
 
+  // If <subdomain> is not in ROOT_URL (open-source mode or no subdomain)
   return JSON.stringify({
     ROOT_URL,
     API_URL,
