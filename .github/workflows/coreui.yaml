@@ -18,7 +18,7 @@ on:
       - "!ui/Dockerfile"
       - "!ui/.dockerignore"
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

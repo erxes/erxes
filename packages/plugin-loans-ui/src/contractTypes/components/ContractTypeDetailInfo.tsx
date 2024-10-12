@@ -118,10 +118,10 @@ const DetailInfo = (props: Props) => {
               <FieldStyle>{__(`Allow categories`)}</FieldStyle>
             </li>
             <ul>
-              {contractType.productCategories.map(cat => {
+              {(contractType.productCategories || []).map((cat) => {
                 return (
-                  <li key={cat._id}>
-                    {cat.code} - {cat.name}
+                  <li key={cat?._id}>
+                    {cat?.code} - {cat?.name}
                   </li>
                 );
               })}

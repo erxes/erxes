@@ -55,28 +55,18 @@ const generateUsersOptions = async (
   name: string,
   label: string,
   type: string,
-  subdomain: string
+  selectionConfig: any
 ) => {
-  const users = await sendCoreMessage({
-    subdomain,
-    action: "users.find",
-    data: {
-      query: {}
-    },
-    isRPC: true
-  });
-
-  const options: Array<{ label: string; value: any }> = users.map(user => ({
-    value: user._id,
-    label: user.username || user.email || ""
-  }));
-
   return {
     _id: Math.random(),
     name,
     label,
     type,
-    selectOptions: options
+    selectionConfig: {
+      ...selectionConfig,
+      queryName: "users",
+      labelField: "email"
+    }
   };
 };
 
@@ -119,21 +109,21 @@ const generateFields = async ({ subdomain }) => {
     "assignedUserId",
     "Assigned to",
     "user",
-    subdomain
+    { multi: false }
   );
 
   const participatedUserOptions = await generateUsersOptions(
     "participatedUserIds",
     "Participating team member",
     "user",
-    subdomain
+    { multi: true }
   );
 
   const closedUserOptions = await generateUsersOptions(
     "closedUserId",
     "Resolved by",
     "user",
-    subdomain
+    { multi: false }
   );
 
   fields = [

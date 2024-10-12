@@ -30,9 +30,11 @@ const queryParams = `
   page: Int
   perPage: Int
   ids: [String]
+  excludeIds: Boolean
   searchValue: String
   sortField: String
   sortDirection: Int
+  isDeposit: Boolean
 `;
 
 export const queries = `

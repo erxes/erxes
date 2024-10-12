@@ -926,9 +926,9 @@ const queries = {
   ) {
     const filter: any = {
       customerId,
-      "items.productId": productId,
-      "subscriptionInfo.status": SUBSCRIPTION_INFO_STATUS.ACTIVE,
-      "items.closeDate": { $gte: new Date() }
+      'items.productId': productId,
+      'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.ACTIVE,
+      'items.closeDate': { $gte: new Date() }
     };
 
     if (productIds) {
@@ -953,8 +953,8 @@ const queries = {
       models.PosOrders.aggregate([
         {
           $match: {
-            "subscriptionInfo.subscriptionId": { $nin: [null, "", undefined] },
-            customerId: { $nin: [null, "", undefined] },
+            'subscriptionInfo.subscriptionId': { $nin: [null, '', undefined] },
+            customerId: { $nin: [null, '', undefined] },
             ...filter
           }
         },
@@ -971,14 +971,15 @@ const queries = {
             orders: {
               $push: {
                 $cond: {
-                  if: { $ne: ["$items.closeDate", null] },
-                  then: "$$ROOT",
-                  else: "$$REMOVE"
+                  if: { $ne: ['$items.closeDate', null] },
+                  then: '$$ROOT',
+                  else: '$$REMOVE'
                 }
               }
             }
           }
-        }
+        },
+        { $sort: { closeDate: -1 } }
       ]),
       params
     );

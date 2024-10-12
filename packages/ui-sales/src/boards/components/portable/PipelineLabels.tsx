@@ -19,8 +19,8 @@ const GenerateAddFormFields = (props: Props) => {
 
   const { data, loading } = useQuery(gql(queries.pipelineLabels), {
     variables: {
-      pipelineId: props.pipelineId,
-    },
+      pipelineId: props.pipelineId
+    }
   });
 
   if (loading) {
@@ -30,15 +30,15 @@ const GenerateAddFormFields = (props: Props) => {
   const onChange = (ops: OnChangeValue<IOption, true>) => {
     props.onChangeField(
       field.field,
-      ops.map((option) => option.value)
+      ops.map(option => option.value)
     );
 
-    setLabelIds(ops.map((option) => option.value));
+    setLabelIds(ops.map(option => option.value));
   };
 
-  const options: IOption[] = (data.pipelineLabels || []).map((d) => ({
+  const options: IOption[] = (data.salesPipelineLabels || []).map(d => ({
     value: d._id,
-    label: d.name,
+    label: d.name
   }));
 
   return (
@@ -47,7 +47,7 @@ const GenerateAddFormFields = (props: Props) => {
         {field.text}
       </ControlLabel>
       <Select
-        value={options.filter((o) => labelIds.includes(o.value))}
+        value={options.filter(o => labelIds.includes(o.value))}
         name="labelIds"
         isMulti={true}
         options={options}

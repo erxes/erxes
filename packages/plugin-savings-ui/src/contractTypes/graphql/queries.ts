@@ -26,6 +26,7 @@ const listParamsDef = `
   $searchValue: String
   $sortField: String
   $sortDirection: Int
+  $isDeposit: Boolean
 `;
 
 const listParamsValue = `
@@ -35,6 +36,7 @@ const listParamsValue = `
   searchValue: $searchValue
   sortField: $sortField
   sortDirection: $sortDirection
+  isDeposit: $isDeposit
 `;
 
 export const contractTypes = `

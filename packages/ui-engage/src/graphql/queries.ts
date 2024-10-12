@@ -94,15 +94,15 @@ const engageMessages = `
       customerTags {
         ${tagFields}
       }
-    }
-
-    ${
-      isEnabled("clientportal")
-        ? `
+        ${
+          isEnabled("clientportal")
+            ? `
             cpId
           `
-        : ""
+            : ""
+        }
     }
+  
   }
 `;
 

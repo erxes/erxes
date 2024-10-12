@@ -241,7 +241,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     name: `Delivery: ${doneOrder.number}`,
     startDate: doneOrder.createdAt,
     closeDate: doneOrder.dueDate,
-    description,
+    description: `<p>${doneOrder.description || ''}</p> <p>${description || ''}</p>`,
     stageId: deliveryConfig.stageId,
     assignedUserIds: deliveryConfig.assignedUserIds,
     watchedUserIds: deliveryConfig.watchedUserIds,
@@ -480,13 +480,11 @@ const createDealPerOrder = async ({
       data: {
         name: `Cards: ${newOrder.number}`,
         startDate: newOrder.createdAt,
-        description: JSON.stringify(
-          newOrder.deliveryInfo || "{}",
-          undefined,
-          2
-        ).replace(/\n( *)/g, (_, p1) => {
-          return "<br>" + "&nbsp;".repeat(p1.length);
-        }),
+        description: `<p>${newOrder.description}</p> ${JSON.stringify(newOrder.deliveryInfo || '{}', undefined, 2).replace(
+          /\n( *)/g, (_, p1) => {
+            return '<br>' + '&nbsp;'.repeat(p1.length);
+          }
+        )}`,
         stageId: currentCardsConfig.stageId,
         assignedUserIds: currentCardsConfig.assignedUserIds,
         productsData: (newOrder.items || []).map(i => ({

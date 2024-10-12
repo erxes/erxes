@@ -388,7 +388,8 @@ const engageMutations = {
     doc.body = body || "";
 
     try {
-      await sendEmail(models, {
+      await sendEmail(subdomain, 
+        models, {
         fromEmail: doc.from || "",
         email: {
           content: doc.body,

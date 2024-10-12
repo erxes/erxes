@@ -3,7 +3,7 @@ on:
   # random HH:MM to avoid a load spike on GitHub Actions at 00:00
   - cron: 22 6 * * *
 name: Semgrep
-jobs:
+jobs: 
   semgrep:
     name: semgrep/ci
     runs-on: ubuntu-20.04
