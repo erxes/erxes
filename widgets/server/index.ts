@@ -1,16 +1,16 @@
-import bodyParser from 'body-parser';
-import compression from 'compression';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import express, { Request, Response } from 'express';
-import path from 'path';
+import * as bodyParser from 'body-parser';
+import * as cors from 'cors';
+import * as dotenv from 'dotenv';
+import * as express from 'express';
+import * as path from 'path';
+const compression = require('compression');
 
 dotenv.config();
 
 const app = express();
 
 // Health check endpoint
-app.get('/health', (_req: Request, res: Response) => {
+app.get('/health', (_req, res) => {
   res.send('ok');
 });
 
@@ -38,7 +38,7 @@ const getHeaderValue = (value: string | string[] | undefined): string => {
 };
 
 // Helper function to generate environment variables based on subdomain
-const getEnv = (req: Request) => {
+const getEnv = (req) => {
   const {
     ROOT_URL = '',
     API_URL = '',
@@ -48,13 +48,17 @@ const getEnv = (req: Request) => {
 
   const replaceSubdomain = (url: string, subdomain: string) => {
     // Only replace <subdomain> if it exists in the URL
-    return url.includes('<subdomain>') ? url.replace('<subdomain>', subdomain) : url;
+    return url.includes('<subdomain>')
+      ? url.replace('<subdomain>', subdomain)
+      : url;
   };
 
   // Check if ROOT_URL contains <subdomain> (SaaS mode)
   if (ROOT_URL.includes('<subdomain>')) {
     const subdomain = getSubdomain(
-      getHeaderValue(req.headers['nginx-hostname']) || req.hostname
+      getHeaderValue(req.headers['nginx-hostname']) ||
+        req.hostname ||
+        req.headers['host']
     );
     return JSON.stringify({
       ROOT_URL: replaceSubdomain(ROOT_URL, subdomain),
@@ -74,19 +78,19 @@ const getEnv = (req: Request) => {
 };
 
 // Widget routes
-app.get('/events', (req: Request, res: Response) => {
+app.get('/events', (req, res) => {
   res.render('widget', { type: 'events', env: getEnv(req) });
 });
 
-app.get('/messenger', (req: Request, res: Response) => {
+app.get('/messenger', (req, res) => {
   res.render('widget', { type: 'messenger', env: getEnv(req) });
 });
 
-app.get('/form', (req: Request, res: Response) => {
+app.get('/form', (req, res) => {
   res.render('widget', { type: 'form', env: getEnv(req) });
 });
 
-app.get('/knowledgebase', (req: Request, res: Response) => {
+app.get('/knowledgebase', (req, res) => {
   res.render('widget', {
     type: 'knowledgebase',
     env: getEnv(req),
@@ -94,7 +98,7 @@ app.get('/knowledgebase', (req: Request, res: Response) => {
   });
 });
 
-app.get('/test', (req: Request, res: Response) => {
+app.get('/test', (req, res) => {
   const { form_id, brand_id, topic_id, integration_id, type } = req.query;
 
   res.render(`widget-${type}-test`, {
