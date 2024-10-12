@@ -38,7 +38,7 @@ const getHeaderValue = (value: string | string[] | undefined): string => {
 };
 
 // Helper function to generate environment variables based on subdomain
-const getEnv = (req:any) => {
+const getEnv = (req:express.Request) => {
   const {
     ROOT_URL = '',
     API_URL = '',
@@ -58,7 +58,7 @@ const getEnv = (req:any) => {
     const subdomain = getSubdomain(
       getHeaderValue(req.headers['nginx-hostname']) ||
         req.hostname ||
-        req.headers['host']
+        req.headers['host'] || ''
     );
     return JSON.stringify({
       ROOT_URL: replaceSubdomain(ROOT_URL, subdomain),
