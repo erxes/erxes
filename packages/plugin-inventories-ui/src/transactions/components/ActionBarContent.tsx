@@ -187,7 +187,7 @@ export default function ActionBarContent(props: Props) {
   return (
     <BarItems>
       <ModalTrigger
-        title="Add Transaction"
+        title={__("Add Transaction")}
         trigger={trigger}
         autoOpenKey="showTransactionModal"
         content={content}
