@@ -38,7 +38,7 @@ const getHeaderValue = (value: string | string[] | undefined): string => {
 };
 
 // Helper function to generate environment variables based on subdomain
-const getEnv = (req) => {
+const getEnv = (req:any) => {
   const {
     ROOT_URL = '',
     API_URL = '',
