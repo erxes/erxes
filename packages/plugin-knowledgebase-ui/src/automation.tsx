@@ -33,7 +33,7 @@ function ActionForm({ closeModal, addConfig, activeTrigger }) {
         >{`Select Knowledgebase Categories`}</ControlLabel>
         <SelectKbCategories
           name="categoryIds"
-          label="Category"
+          label={__("Category")}
           onSelect={onSelect}
           multi
           filterParams={{ topicIds: config?.topicId ? [config.topicId] : [] }}
