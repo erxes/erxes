@@ -529,7 +529,7 @@ function ContractForm(props: Props) {
                 <FormGroup>
                   <ControlLabel required={true}>{__("Customer")}</ControlLabel>
                   <SelectCustomers
-                    label="Choose customer"
+                    label={__("Choose customer")}
                     name="customerId"
                     initialValue={state.customerId}
                     onSelect={onSelectCustomer}
@@ -541,7 +541,7 @@ function ContractForm(props: Props) {
                 <FormGroup>
                   <ControlLabel required={true}>{__("Company")}</ControlLabel>
                   <SelectCompanies
-                    label="Choose company"
+                    label={__("Choose company")}
                     name="customerId"
                     initialValue={state.customerId}
                     onSelect={onSelectCustomer}
