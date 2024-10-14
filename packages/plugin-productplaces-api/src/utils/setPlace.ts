@@ -1,4 +1,4 @@
-import { sendCardsMessage } from '../messageBroker';
+import { sendSalesMessage } from '../messageBroker';
 import { checkCondition, getChildCategories, getChildTags } from './utils';
 
 export const setPlace = async (
@@ -66,7 +66,7 @@ export const setPlace = async (
     }
   }
 
-  await sendCardsMessage({
+  await sendSalesMessage({
     subdomain,
     action: 'deals.updateOne',
     data: {

@@ -3,12 +3,35 @@ import { generateModels, IModels } from "./connectionResolver";
 import { IUserDocument } from "./db/models/definitions/users";
 import { InterMessage } from "@erxes/api-utils/src/messageBroker";
 import { fetchSegment } from "./data/modules/segments/queryBuilder";
+import { ICustomerDocument } from "./db/models/definitions/customers";
+import { ICompanyDocument } from "./db/models/definitions/companies";
+import { sendInboxMessage } from "./messageBroker";
 
 const IMPORT_EXPORT_TYPES = [
   {
     text: "Team member",
     contentType: "user",
     icon: "user-square"
+  },
+  {
+    text: "Customers",
+    contentType: "customer",
+    icon: "users-alt"
+  },
+  {
+    text: "Leads",
+    contentType: "lead",
+    icon: "file-alt"
+  },
+  {
+    text: "Companies",
+    contentType: "company",
+    icon: "building"
+  },
+  {
+    text: "Product & Services",
+    contentType: "product",
+    icon: "server-alt"
   }
 ];
 
@@ -17,7 +40,9 @@ const prepareData = async (
   subdomain: string,
   query: any
 ): Promise<any[]> => {
-  const { segmentData, page, perPage } = query;
+  const { contentType, segmentData, page, perPage } = query;
+
+  const type = contentType.split(":")[1];
 
   const itemsFilter: any = {};
   let itemIds = [];
@@ -41,9 +66,95 @@ const prepareData = async (
       .lean();
   }
 
-  data = await models.Users.find(itemsFilter).lean();
+  switch (type) {
+    case "company":
+      if (!segmentData) {
+        data = await models.Companies.find(itemsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Companies.find(itemsFilter).lean();
+
+      break;
+    case "lead":
+      if (!segmentData) {
+        data = await models.Customers.find(itemsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Customers.find(itemsFilter).lean();
+
+      break;
+
+    case "visitor":
+      if (!segmentData) {
+        data = await models.Customers.find(itemsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Customers.find(itemsFilter).lean();
+
+      break;
+    case "customer":
+      if (!segmentData) {
+        data = await models.Customers.find(itemsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Customers.find(itemsFilter).lean();
+
+      break;
+
+    case "product":
+      data = await models.Products.find(itemsFilter)
+        .skip(skip)
+        .limit(perPage)
+        .lean();
+
+      break;
+
+    default:
+      if (!segmentData) {
+        data = await models.Users.find(itemsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Users.find(itemsFilter).lean();
+
+      break;
+  }
 
   return data;
+};
+
+const getTrackedData = async (item, fieldname) => {
+  let value;
+
+  if (item.trackedData && item.trackedData.length > 0) {
+    for (const data of item.trackedData) {
+      if (data.field === fieldname) {
+        value = data.value;
+
+        if (Array.isArray(value)) {
+          value = value.join(", ");
+        }
+
+        return { value };
+      }
+    }
+  }
+
+  return { value };
 };
 
 const prepareDataCount = async (
@@ -51,7 +162,9 @@ const prepareDataCount = async (
   subdomain: string,
   query: any
 ): Promise<any> => {
-  const { segmentData } = query;
+  const { segmentData, contentType } = query;
+
+  const type = contentType.split(":")[1];
 
   let data = 0;
 
@@ -67,7 +180,32 @@ const prepareDataCount = async (
     contactsFilter._id = { $in: itemIds };
   }
 
-  data = await models.Users.find(contactsFilter).countDocuments();
+  switch (type) {
+    case "company":
+      data = await models.Companies.find(contactsFilter).countDocuments();
+
+      break;
+    case "lead":
+      data = await models.Customers.find(contactsFilter).countDocuments();
+
+      break;
+    case "visitor":
+      data = await models.Customers.find(contactsFilter).countDocuments();
+
+      break;
+
+    case "customer":
+      data = await models.Customers.find(contactsFilter).countDocuments();
+      break;
+
+    case "product":
+      data = await models.Products.find(contactsFilter).countDocuments();
+      break;
+
+    default:
+      data = await models.Users.find(contactsFilter).countDocuments();
+      break;
+  }
 
   return data;
 };
@@ -94,9 +232,9 @@ const getCustomFieldsData = async (item, fieldId) => {
 
 export const fillValue = async (
   models: IModels,
-  _subdomain: string,
+  subdomain: string,
   column: string,
-  item: IUserDocument
+  item: any
 ): Promise<string> => {
   const [splitedColumn, detail] = column.split(".");
 
@@ -131,6 +269,84 @@ export const fillValue = async (
 
     case "password":
       value = "";
+
+      break;
+
+    case "createdAt":
+      value = moment(value).format("YYYY-MM-DD");
+      break;
+
+    case "modifiedAt":
+      value = moment(value).format("YYYY-MM-DD");
+
+      break;
+
+    // customer fields
+
+    case "emails":
+      value = (item.emails || []).join(", ");
+      break;
+    case "phones":
+      value = (item.phones || []).join(", ");
+      break;
+    case "mergedIds":
+      const customers: ICustomerDocument[] | null = await models.Customers.find(
+        {
+          _id: { $in: item.mergedIds || [] }
+        }
+      );
+
+      value = customers
+        .map(cus => cus.firstName || cus.primaryEmail)
+        .join(", ");
+
+      break;
+    // company fields
+    case "names":
+      value = (item.names || []).join(", ");
+
+      break;
+    case "parentCompanyId":
+      const parent: ICompanyDocument | null = await models.Companies.findOne({
+        _id: item.parentCompanyId
+      });
+
+      value = parent ? parent.primaryName : "";
+
+      break;
+
+    case "tag":
+      const tags = await models.Tags.find({ $in: item.tagIds || [] });
+
+      let tagNames = "";
+
+      for (const tag of tags) {
+        tagNames = tagNames.concat(tag.name, ", ");
+      }
+
+      value = tags ? tagNames : "-";
+
+      break;
+
+    case "relatedIntegrationIds":
+      const integration = await sendInboxMessage({
+        subdomain,
+        action: "integrations.findOne",
+        data: { _id: item.integrationId || [] },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      value = integration ? integration.name : "-";
+
+      break;
+
+    case "ownerEmail":
+      const owner: IUserDocument | null = await models.Users.findOne({
+        _id: item.ownerId
+      });
+
+      value = owner ? owner.email : "-";
 
       break;
 
@@ -221,7 +437,21 @@ export default {
 
             const { value } = await getCustomFieldsData(item, fieldId);
 
-            result[fieldName] = value || "-";
+            result[column] = value || "-";
+          } else if (column.startsWith("location")) {
+            const location = item.location || {};
+
+            result[column] = location[column.split(".")[1]];
+          } else if (column.startsWith("visitorContactInfo")) {
+            const visitorContactInfo = item.visitorContactInfo || {};
+
+            result[column] = visitorContactInfo[column.split(".")[1]];
+          } else if (column.startsWith("trackedData")) {
+            const fieldName = column.split(".")[1];
+
+            const { value } = await getTrackedData(item, fieldName);
+
+            result[column] = value || "-";
           } else {
             const value = await fillValue(models, subdomain, column, item);
 

@@ -22,7 +22,6 @@ export const getEnv = () => {
 
   const getItem = (name: string) => {
     const value = wenv[name] || process.env[name] || '';
-
     // Only replace '<subdomain>' if it exists in the value
     if (value.includes('<subdomain>')) {
       return value.replace('<subdomain>', subdomain);
@@ -31,10 +30,10 @@ export const getEnv = () => {
     return value;
   };
 
+
   return {
     API_URL: getItem('API_URL'),
     API_SUBSCRIPTIONS_URL: getItem('API_SUBSCRIPTIONS_URL'),
-    GOOGLE_MAP_API_KEY: getItem('GOOGLE_MAP_API_KEY'),
   };
 };
 
@@ -104,7 +103,7 @@ export const setLocale = (code?: string, callBack?: () => void) => {
         callBack();
       }
     })
-    .catch((e) => console.log(e)); // tslint:disable-line
+    .catch((e) => console.error(e)); // tslint:disable-line
 };
 
 export const __ = (msg: string) => {
@@ -165,7 +164,7 @@ export const isValidURL = (url: string) => {
  * @param {String} - value
  * @return {String} - URL
  */
-export const readFile = (value: string, width?: number ): string => {
+export const readFile = (value: string, width?: number): string => {
   const { API_URL } = getEnv();
 
   if (!value || isValidURL(value) || value.includes('http')) {
@@ -302,7 +301,8 @@ export const newLineToBr = (content: string) => {
 
 export const urlify = (text: string) => {
   // validate url except html a tag
-  const urlRegex = /(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w-]+)+[\w\-_~:/?#[\]@!&',;=.]+(?![^<>]*>|[^"]*?<\/a)/g;
+  const urlRegex =
+    /(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w-]+)+[\w\-_~:/?#[\]@!&',;=.]+(?![^<>]*>|[^"]*?<\/a)/g;
 
   if (!text) {
     return text;
@@ -321,14 +321,8 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
   const values: { [key: string]: boolean } = {};
 
   for (const logic of logics) {
-    const {
-      fieldId,
-      operator,
-      logicValue,
-      fieldValue,
-      validation,
-      type,
-    } = logic;
+    const { fieldId, operator, logicValue, fieldValue, validation, type } =
+      logic;
     const key = `${fieldId}_${logicValue}`;
     values[key] = false;
 
@@ -492,8 +486,9 @@ export const loadMapApi = (apiKey: string, locale?: string) => {
     return '';
   }
 
-  const mapsURL = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry,places&language=${locale ||
-    'en'}&v=quarterly`;
+  const mapsURL = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry,places&language=${
+    locale || 'en'
+  }&v=quarterly`;
   const scripts: any = document.getElementsByTagName('script');
   // Go through existing script tags, and return google maps api tag when found.
   for (const script of scripts) {
