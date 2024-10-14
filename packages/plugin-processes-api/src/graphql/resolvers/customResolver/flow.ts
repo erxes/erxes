@@ -12,7 +12,7 @@ export default {
     return (
       (await sendProductsMessage({
         subdomain,
-        action: 'findOne',
+        action: 'products.findOne',
         data: { _id: flow.productId || '' },
         isRPC: true
       })) || undefined

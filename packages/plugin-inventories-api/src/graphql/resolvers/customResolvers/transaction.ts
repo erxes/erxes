@@ -9,7 +9,7 @@ export default {
       result.push(
         sendProductsMessage({
           subdomain,
-          action: "productFindOne",
+          action: "products.findOne",
           data: {
             _id: item.productId
           },

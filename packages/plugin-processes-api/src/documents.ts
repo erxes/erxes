@@ -23,7 +23,7 @@ const productsInfo = async (
 
   const products = await sendProductsMessage({
     subdomain,
-    action: "productFind",
+    action: "products.find",
     data: { query: { _id: { $in: productIds } }, limit: productIds.length },
     isRPC: true,
     defaultValue: []

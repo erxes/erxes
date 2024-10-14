@@ -38,7 +38,7 @@ export default {
 
     return await sendProductsMessage({
       subdomain,
-      action: "productFindOne",
+      action: "products.findOne",
       data: { _id: typeId },
       isRPC: true
     });

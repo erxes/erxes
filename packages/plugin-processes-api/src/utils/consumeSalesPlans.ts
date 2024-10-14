@@ -156,18 +156,10 @@ export class consumeSalesPlans {
       );
     }
 
-    const limit = await sendProductsMessage({
-      subdomain: this.subdomain,
-      action: 'count',
-      data: { query: { _id: { $in: cProductIds } } },
-      isRPC: true,
-      defaultValue: 0
-    });
-
     const products = await sendProductsMessage({
       subdomain: this.subdomain,
-      action: 'find',
-      data: { query: { _id: { $in: cProductIds } }, limit },
+      action: 'products.find',
+      data: { query: { _id: { $in: cProductIds } } },
       isRPC: true,
       defaultValue: []
     });

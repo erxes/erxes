@@ -4,7 +4,7 @@ import { getConfig } from "./utils";
 export const consumeInventory = async (subdomain, doc, old_code, action) => {
   const product = await sendProductsMessage({
     subdomain,
-    action: "productFindOne",
+    action: "products.findOne",
     data: { code: old_code },
     isRPC: true,
     defaultValue: {}
@@ -87,14 +87,14 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
     if (product) {
       await sendProductsMessage({
         subdomain,
-        action: "updateProduct",
+        action: "products.updateProduct",
         data: { _id: product._id, doc: { ...document } },
         isRPC: true
       });
     } else {
       await sendProductsMessage({
         subdomain,
-        action: "createProduct",
+        action: "products.createProduct",
         data: { doc: { ...document } },
         isRPC: true
       });
@@ -102,7 +102,7 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
   } else if (action === "delete" && product) {
     await sendProductsMessage({
       subdomain,
-      action: "removeProducts",
+      action: "products.removeProducts",
       data: { _ids: [product._id] },
       isRPC: true
     });

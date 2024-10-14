@@ -64,7 +64,7 @@ const Contracts = {
         data: { _id: contract.customerId },
         isRPC: true
       },
-      "contacts"
+      "core"
     );;
   },
 
@@ -80,7 +80,7 @@ const Contracts = {
         data: { _id: contract.customerId },
         isRPC: true
       },
-      "contacts"
+      "core"
     );
   },
 
@@ -107,7 +107,7 @@ const Contracts = {
           data: { _id: insurance.companyId },
           isRPC: true
         },
-        "contacts"
+        "core"
       );
 
       insurances.push({
@@ -131,11 +131,11 @@ const Contracts = {
       const collateral = await sendMessageBroker(
         {
           subdomain,
-          action: "findOne",
+          action: "products.findOne",
           data: { _id: data.collateralId },
           isRPC: true
         },
-        "products"
+        "core"
       );
 
       const insuranceType = await models.InsuranceTypes.findOne({

@@ -17,7 +17,7 @@ const InsuranceTypes = {
         action: 'companies.findOne',
         isRPC: true
       },
-      'contacts'
+      'core'
     );
   },
   yearPercents(insuranceType: IInsuranceTypeDocument) {
