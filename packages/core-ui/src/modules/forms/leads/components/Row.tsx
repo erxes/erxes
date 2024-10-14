@@ -81,7 +81,7 @@ const Row = ({
 
     const onClick = () => {
       window.open(
-        `${REACT_APP_API_URL}/pl:contacts/file-export?type=customer&popupData=true&form=${form._id}`,
+        `${REACT_APP_API_URL}/file-export?type=customer&popupData=true&form=${form._id}`,
         '_blank'
       );
     };
