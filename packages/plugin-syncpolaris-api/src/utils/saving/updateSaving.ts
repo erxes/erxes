@@ -1,8 +1,15 @@
-import { getCustomer, fetchPolaris } from '../utils';
+import { getCustomer, fetchPolaris, genObjectOfRule } from '../utils';
 
-export const updateSaving = async (subdomain: string, models, syncLog, params) => {
+export const updateSaving = async (subdomain: string, models, polarisConfig, syncLog, params) => {
   const savingContract = params.object;
   const customer = await getCustomer(subdomain, savingContract.customerId);
+
+  const dataOfRules = await genObjectOfRule(
+    subdomain,
+    "savings:contract",
+    savingContract,
+    polarisConfig.saving && polarisConfig.saving[savingContract.contractTypeId || ''] || {}
+  )
 
   let sendData = {
     prodCode: savingContract.contractTypeId,
@@ -35,6 +42,7 @@ export const updateSaving = async (subdomain: string, models, syncLog, params) =
     closedDate: savingContract.closedDate,
     lastCtDate: savingContract.lastCtDate,
     lastDtDate: savingContract.lastDtDate,
+    ...dataOfRules
   };
 
   return await fetchPolaris({
@@ -42,11 +50,12 @@ export const updateSaving = async (subdomain: string, models, syncLog, params) =
     data: [sendData],
     subdomain,
     models,
+    polarisConfig,
     syncLog
   });
 };
 
-export const getSavingAcntTransaction = async (subdomain, models, syncLog, params) => {
+export const getSavingAcntTransaction = async (subdomain, models, polarisConfig, syncLog, params) => {
   const savingTransactionParams = params.updatedDocument || params.object;
   let sendData = {};
 
@@ -69,6 +78,7 @@ export const getSavingAcntTransaction = async (subdomain, models, syncLog, param
     data: sendData,
     subdomain,
     models,
+    polarisConfig,
     syncLog
   });
 };

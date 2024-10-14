@@ -1,4 +1,4 @@
-import { fetchPolaris } from "../utils";
+import { fetchPolaris, getConfig } from "../utils";
 
 interface IParams {
   register: string;
@@ -13,10 +13,12 @@ export const getCustomerDetailByRegister = async (
   }
 
   let sendData = [params.register];
+  const polarisConfig = await getConfig(subdomain, 'POLARIS', {});
 
   return await fetchPolaris({
     subdomain,
     op: "13610335",
-    data: sendData
+    data: sendData,
+    polarisConfig
   });
 };

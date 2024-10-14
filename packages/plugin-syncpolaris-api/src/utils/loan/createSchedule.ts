@@ -26,7 +26,7 @@ const getHolidayMethod = (method) => {
   }
 };
 
-export const createLoanSchedule = async (subdomain: string, contract: any) => {
+export const createLoanSchedule = async (subdomain: string, polarisConfig, contract: any) => {
   const sendData = [
     contract.number,
     getFullDate(contract.startDate),
@@ -51,6 +51,7 @@ export const createLoanSchedule = async (subdomain: string, contract: any) => {
   return await fetchPolaris({
     op: '13610258',
     data: sendData,
-    subdomain
+    subdomain,
+    polarisConfig,
   });
 };

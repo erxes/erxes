@@ -75,8 +75,8 @@ function ContractTypeRow({ contractType, isChecked, toggleBulk }: Props) {
         />
       </td>
 
-      <td key={'code'}>{displayValue(contractType, 'code')}</td>
-      <td key={'name'}>{displayValue(contractType, 'name')}</td>
+      <td key={'code'}>{contractType.code}</td>
+      <td key={'name'}>{contractType.name}</td>
       <td key={'number'}>{displayValue(contractType, 'number')}</td>
       <td key={'vacancy'}>{displayValue(contractType, 'vacancy')}</td>
 

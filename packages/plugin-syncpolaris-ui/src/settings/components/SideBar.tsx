@@ -29,6 +29,22 @@ class Sidebar extends React.Component {
             '/erxes-plugin-sync-polaris/settings/general',
             'General config',
           )}
+          {this.renderListItem(
+            '/erxes-plugin-sync-polaris/settings/customer',
+            'Customer config',
+          )}
+          {this.renderListItem(
+            '/erxes-plugin-sync-polaris/settings/deposit',
+            'Deposit config',
+          )}
+          {this.renderListItem(
+            '/erxes-plugin-sync-polaris/settings/saving',
+            'Saving config',
+          )}
+          {this.renderListItem(
+            '/erxes-plugin-sync-polaris/settings/loan',
+            'Loan config',
+          )}
         </List>
       </LeftSidebar>
     );

@@ -6,19 +6,20 @@ import {
   fetchPolaris,
   updateContract,
   getProduct,
+  genObjectOfRule,
 } from '../utils';
 import { createChangeLoanAmount } from './changeLoanAmount';
 import { changeLoanInterest } from './changeLoanInterest';
 
-export const updateLoan = async (subdomain, models,syncLog, params) => {
+export const updateLoan = async (subdomain, models, polarisConfig, syncLog, params) => {
   const loan = params.updatedDocument || params.object;
 
   if (JSON.stringify(loan.collateralsData) !== JSON.stringify(params.object.collateralsData)) {
-    return createCollateral(subdomain, loan)
+    return createCollateral(subdomain, polarisConfig, loan)
   }
 
   if (params.updatedDocument.leaseAmount !== params.object.leaseAmount) {
-    return createChangeLoanAmount(subdomain, {
+    return createChangeLoanAmount(subdomain, polarisConfig, {
       number: loan.number,
       leaseAmount:
         params.updatedDocument.leaseAmount - params.object.leaseAmount,
@@ -27,7 +28,7 @@ export const updateLoan = async (subdomain, models,syncLog, params) => {
   }
 
   if (params.updatedDocument.interestRate !== params.object.interestRate) {
-    return changeLoanInterest(subdomain, params.updatedDocument);
+    return changeLoanInterest(subdomain, polarisConfig, params.updatedDocument);
   }
 
   const customer = await getCustomer(subdomain, loan.customerId);
@@ -37,6 +38,13 @@ export const updateLoan = async (subdomain, models,syncLog, params) => {
   const leasingExpert = await getUser(subdomain, loan.leasingExpertId);
 
   const branch = await getBranch(subdomain, loan.branchId);
+
+  const dataOfRules = await genObjectOfRule(
+    subdomain,
+    "loans:contract",
+    loan,
+    polarisConfig.loan && polarisConfig.loan[loan.contractTypeId || ''] || {}
+  );
 
   let sendData = [
     {
@@ -74,6 +82,7 @@ export const updateLoan = async (subdomain, models,syncLog, params) => {
       losMultiAcnt: 0,
       validLosAcnt: 1,
       secType: 0,
+      ...dataOfRules
     },
   ];
 
@@ -82,6 +91,7 @@ export const updateLoan = async (subdomain, models,syncLog, params) => {
     data: sendData,
     subdomain,
     models,
+    polarisConfig,
     syncLog
   });
 

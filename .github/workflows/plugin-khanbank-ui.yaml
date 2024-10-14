@@ -50,7 +50,7 @@ on:
       - "packages/plugin-khanbank-ui/**"
       - ".github/workflows/plugin-khanbank-ui.yaml"
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

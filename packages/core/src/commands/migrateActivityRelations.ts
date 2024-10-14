@@ -14,7 +14,7 @@ const client = new MongoClient(MONGO_URL);
 
 let db: Db;
 
-let Logs: Collection<any>;
+let ActivityLogs: Collection<any>;
 
 const switchContentType = contentType => {
   let changedContentType = contentType;
@@ -52,6 +52,10 @@ const switchContentType = contentType => {
       changedContentType = `core:emailTemplate`;
       break;
 
+    case "products:product":
+      changedContentType = `core:product`;
+      break;
+
     default:
       changedContentType = contentType;
   }
@@ -63,20 +67,34 @@ const command = async () => {
   await client.connect();
   db = client.db() as Db;
 
-  Logs = db.collection("logs");
+  ActivityLogs = db.collection("activity_logs");
+  const limit = 1000;
 
-  try {
-    console.log("migrating logs");
+  console.log(`Logs migrated ....`);
 
-    await Logs.find({}).forEach(doc => {
-      const contentType = switchContentType(doc.contentType);
+  const bulkOps = [] as any[];
 
-      Logs.updateOne({ _id: doc._id }, { $set: { contentType } });
-    });
+  const activitySummary = await ActivityLogs.find({}).count();
 
-    console.log("migrating tags");
-  } catch (e) {
-    console.log(`Error occurred: ${e.message}`);
+  for (let skip = 0; skip <= activitySummary; skip = skip + limit) {
+    const logs = await ActivityLogs.find({}).skip(skip).limit(limit).toArray();
+    for (const log of logs) {
+      const contentType = switchContentType(log.contentType);
+      if (contentType === log.contentType) {
+        continue;
+      }
+
+      bulkOps.push({
+        updateOne: {
+          filter: { _id: log._id },
+          update: { $set: { contentType } }
+        }
+      });
+    }
+
+    if (bulkOps.length) {
+      await ActivityLogs.bulkWrite(bulkOps);
+    }
   }
 
   console.log(`Process finished at: ${new Date()}`);

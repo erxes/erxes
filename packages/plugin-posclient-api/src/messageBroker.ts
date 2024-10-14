@@ -287,37 +287,43 @@ export const sendMessageWrapper = async (
 
   if (SKIP_REDIS) {
     const { action, isRPC, defaultValue, subdomain } = args;
+    try {
+      // check connected gateway on server and check some plugins isAvailable
+      if (isRPC) {
+        const longTask: Promise<boolean> = sendRPCMessageMq(
+          'core:isServiceEnabled',
+          {
+            subdomain,
+            data: serviceName,
+            thirdService: true
+          }
+        );
 
-    // check connected gateway on server and check some plugins isAvailable
-    if (isRPC) {
-      const longTask: Promise<boolean> = sendRPCMessageMq(
-        "core:isServiceEnabled",
-        {
-          subdomain,
-          data: serviceName,
-          thirdService: true
+        const timeout = new Promise<boolean>(resolve =>
+          setTimeout(() => resolve(false), 1000)
+        );
+
+        const response = await Promise.race([longTask, timeout]);
+
+        args.isMQ = true;
+
+        if (!response) {
+          return defaultValue;
         }
-      );
-
-      const timeout = new Promise<boolean>(resolve =>
-        setTimeout(() => resolve(false), 1000)
-      );
-
-      const response = await Promise.race([longTask, timeout]);
-
-      args.isMQ = true;
-
-      if (!response) {
-        return defaultValue;
       }
+      try {
+        return await sendMessage({
+          serviceName: '',
+          ...args,
+          data: { ...(args.data || {}), thirdService: true },
+          action: `${serviceName}:${action}`
+        });
+      } catch (e) {
+        return defaultValue
+      }
+    } catch (e) {
+      return defaultValue;
     }
-
-    return sendMessage({
-      serviceName: "",
-      ...args,
-      data: { ...(args.data || {}), thirdService: true },
-      action: `${serviceName}:${action}`
-    });
   }
 
   return sendMessage({

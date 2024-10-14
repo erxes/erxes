@@ -50,7 +50,7 @@ on:
       - "packages/plugin-syncpolaris-ui/**"
       - ".github/workflows/plugin-syncpolaris-ui.yaml"
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

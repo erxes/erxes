@@ -30,4 +30,5 @@ module.exports = {
 
   customerRightSidebarSection: "./customerSidebar",
   carRightSidebarSection: "./customerSidebar",
+  dealRightSidebarSection: "./customerSidebar",
 };

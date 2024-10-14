@@ -16,7 +16,7 @@ import {
   HeadSegmentsQueryResponse,
   ISegmentCondition,
   SegmentDetailQueryResponse,
-  SegmentsQueryResponse
+  SegmentsQueryResponse,
 } from "../../types";
 
 type Props = {
@@ -52,7 +52,7 @@ class SegmentsFormContainer extends React.Component<
     this.state = {
       loading: false,
       count: 0,
-      fields: []
+      fields: [],
     };
   }
 
@@ -62,12 +62,12 @@ class SegmentsFormContainer extends React.Component<
     isSubmitted,
     callback,
     object,
-    text
+    text,
   }: IButtonMutateProps) => {
     const { contentType, history, addConfig, activeTrigger, closeModal } =
       this.props;
 
-    const callBackResponse = data => {
+    const callBackResponse = (data) => {
       if (history) {
         history(`/segments?contentType=${contentType}`);
       }
@@ -107,7 +107,7 @@ class SegmentsFormContainer extends React.Component<
     conditions,
     subOf,
     config,
-    conditionsConjunction
+    conditionsConjunction,
   }: {
     conditions: ISegmentCondition[];
     subOf?: string;
@@ -126,14 +126,14 @@ class SegmentsFormContainer extends React.Component<
           conditions,
           subOf,
           config,
-          conditionsConjunction
+          conditionsConjunction,
         },
-        fetchPolicy: "network-only"
+        fetchPolicy: "network-only",
       })
       .then(({ data }) => {
         this.setState({
           count: data.segmentsPreviewCount,
-          loading: false
+          loading: false,
         });
       });
   };
@@ -147,7 +147,7 @@ class SegmentsFormContainer extends React.Component<
       segmentsQuery,
       history,
       filterContent,
-      segmentData
+      segmentData,
     } = this.props;
 
     if (segmentDetailQuery.loading) {
@@ -171,10 +171,12 @@ class SegmentsFormContainer extends React.Component<
     const updatedProps = {
       ...this.props,
       segment: getSegment(),
-      headSegments: headSegments.filter(s =>
+      headSegments: headSegments.filter((s) =>
         s.contentType === contentType && segment ? s._id !== segment._id : true
       ),
-      segments: segments.filter(s => (segment ? s._id !== segment._id : true)),
+      segments: segments.filter((s) =>
+        segment ? s._id !== segment._id : true
+      ),
       events,
       renderButton: this.renderButton,
       previewCount: this.previewCount,
@@ -182,7 +184,7 @@ class SegmentsFormContainer extends React.Component<
       count: this.state.count,
       counterLoading: this.state.loading,
       isModal,
-      filterContent
+      filterContent,
     };
 
     return <SegmentsForm {...updatedProps} />;
@@ -197,8 +199,8 @@ export default withProps<Props>(
         name: "segmentDetailQuery",
         options: ({ id }) => ({
           fetchPolicy: "network-only",
-          variables: { _id: id }
-        })
+          variables: { _id: id },
+        }),
       }
     ),
     graphql<Props, HeadSegmentsQueryResponse, { contentType: string }>(
@@ -206,8 +208,8 @@ export default withProps<Props>(
       {
         name: "headSegmentsQuery",
         options: ({ contentType }) => ({
-          variables: { contentType }
-        })
+          variables: { contentType },
+        }),
       }
     ),
     graphql<Props, SegmentsQueryResponse, { contentTypes: string[] }>(
@@ -216,16 +218,16 @@ export default withProps<Props>(
         name: "segmentsQuery",
         options: ({ contentType }) => ({
           fetchPolicy: "network-only",
-          variables: { contentTypes: [contentType] }
-        })
+          variables: { contentTypes: [contentType] },
+        }),
       }
     ),
 
     graphql<Props>(gql(queries.events), {
       name: "eventsQuery",
       options: ({ contentType }) => ({
-        variables: { contentType }
-      })
+        variables: { contentType },
+      }),
     })
   )(SegmentsFormContainer)
 );
