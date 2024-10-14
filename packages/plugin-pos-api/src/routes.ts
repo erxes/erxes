@@ -123,30 +123,15 @@ export const getProductsData = async (
     const categoryIds = categories.map(cat => cat._id);
     const productsByCatId = {};
 
-    const limit = await sendProductsMessage({
-      subdomain,
-      action: 'count',
-      data: {
-        query: {
-          status: { $ne: 'deleted' },
-          categoryId: { $in: categoryIds },
-          _id: { $nin: group.excludedProductIds }
-        }
-      },
-      isRPC: true,
-      defaultValue: 0
-    });
-
     const products: any[] = await sendProductsMessage({
       subdomain,
-      action: 'find',
+      action: 'products.find',
       data: {
         query: {
           status: { $ne: 'deleted' },
           categoryId: { $in: categoryIds },
           _id: { $nin: group.excludedProductIds }
         },
-        limit
       },
       isRPC: true,
       defaultValue: []
@@ -225,10 +210,9 @@ export const getProductsData = async (
   if (followProductIds.length) {
     const followProducts = await sendProductsMessage({
       subdomain,
-      action: 'find',
+      action: 'products.find',
       data: {
         query: { _id: { $in: followProductIds } },
-        limit: followProductIds.length
       },
       isRPC: true,
       defaultValue: []

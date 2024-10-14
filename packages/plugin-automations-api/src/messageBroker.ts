@@ -121,7 +121,7 @@ export const sendSegmentsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "segments",
+    serviceName: "core",
     ...args
   });
 };

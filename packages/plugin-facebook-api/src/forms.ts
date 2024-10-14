@@ -75,7 +75,7 @@ const generateFields = async ({ subdomain, data }) => {
   const customerFields = await sendRPCMessage(
     'forms:fieldsCombinedByContentType',
     {
-      data: { contentType: 'contacts:customer' },
+      data: { contentType: 'core:customer' },
       subdomain,
       defaultValue: []
     }

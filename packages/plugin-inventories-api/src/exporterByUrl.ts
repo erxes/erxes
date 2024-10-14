@@ -193,16 +193,10 @@ export const buildFile = async (
     addCell(column, column.label, sheet, columnNames, rowIndex);
   }
 
-  const limit = await sendProductsMessage({
-    subdomain,
-    action: "productCount",
-    data: { query: { _id: { $in: data.map(d => d.productId) } } },
-    isRPC: true
-  });
   const products = await sendProductsMessage({
     subdomain,
-    action: "productFind",
-    data: { query: { _id: { $in: data.map(d => d.productId) } }, limit },
+    action: "products.find",
+    data: { query: { _id: { $in: data.map(d => d.productId) } } },
     isRPC: true
   });
   const customField =

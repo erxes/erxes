@@ -60,7 +60,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       let pDatas = deal.productsData;
       const products = await sendProductsMessage({
         subdomain,
-        action: "productFind",
+        action: "products.find",
         data: {
           query: { _id: { $in: pDatas.map(pd => pd.productId) } },
           limit: pDatas.length

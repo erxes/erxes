@@ -45,7 +45,7 @@ export const getProductAndUoms = async (
   if (productIds.length) {
     const products = await sendProductsMessage({
       subdomain,
-      action: 'find',
+      action: 'products.find',
       data: { query: { _id: { $in: productIds } } },
       isRPC: true,
       defaultValue: []

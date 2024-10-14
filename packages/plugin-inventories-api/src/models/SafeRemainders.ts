@@ -149,22 +149,12 @@ export const loadSafeRemainderClass = (models: IModels) => {
       }
 
       // Get products related to product category
-      const limit = await sendProductsMessage({
-        subdomain,
-        action: "productCount",
-        data: {
-          ...productFilter
-        },
-        isRPC: true
-      });
-
       const products: any = await sendProductsMessage({
         subdomain,
-        action: "productFind",
+        action: "products.find",
         data: {
           ...productFilter,
           sort: { code: 1 },
-          limit
         },
         isRPC: true
       });

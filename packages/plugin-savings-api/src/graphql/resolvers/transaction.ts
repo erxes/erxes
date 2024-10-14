@@ -11,7 +11,7 @@ const Transactions = {
         data: { _id: transaction.companyId },
         isRPC: true
       },
-      'contacts'
+      'core'
     );
   },
   async customer(transaction: ITransaction, _, { subdomain }: IContext) {
@@ -22,7 +22,7 @@ const Transactions = {
         data: { _id: transaction.companyId },
         isRPC: true
       },
-      'contacts'
+      'core'
     );
   },
   async contract(transaction: ITransaction, _, { models }: IContext) {

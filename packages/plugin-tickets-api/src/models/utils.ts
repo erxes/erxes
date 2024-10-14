@@ -451,7 +451,7 @@ export const createBoardItem = async (
 const checkBookingConvert = async (subdomain: string, productId: string) => {
   const product = await sendProductsMessage({
     subdomain,
-    action: 'productFindOne',
+    action: 'products.findOne',
     data: { _id: productId },
     isRPC: true,
   });

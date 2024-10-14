@@ -9,7 +9,7 @@ export const consumeInventory = async (
 ) => {
   const product = await sendProductsMessage({
     subdomain,
-    action: "productFindOne",
+    action: "products.findOne",
     data: { code: old_code },
     isRPC: true,
     defaultValue: {}
@@ -68,14 +68,14 @@ export const consumeInventory = async (
     if (product) {
       await sendProductsMessage({
         subdomain,
-        action: "updateProduct",
+        action: "products.updateProduct",
         data: { _id: product._id, doc: { ...document } },
         isRPC: true
       });
     } else {
       await sendProductsMessage({
         subdomain,
-        action: "createProduct",
+        action: "products.createProduct",
         data: { doc: { ...document } },
         isRPC: true
       });
@@ -85,7 +85,7 @@ export const consumeInventory = async (
     if (anotherBrandIds.length) {
       await sendProductsMessage({
         subdomain,
-        action: "updateProduct",
+        action: "products.updateProduct",
         data: {
           _id: product._id,
           doc: { ...product, scopeBrandIds: anotherBrandIds }
@@ -95,7 +95,7 @@ export const consumeInventory = async (
     } else {
       await sendProductsMessage({
         subdomain,
-        action: "removeProducts",
+        action: "products.removeProducts",
         data: { _ids: [product._id] },
         isRPC: true
       });
@@ -171,7 +171,7 @@ export const consumeInventoryCategory = async (
     if (anotherBrandIds.length) {
       await sendProductsMessage({
         subdomain,
-        action: "updateProduct",
+        action: "products.updateProduct",
         data: {
           _id: productCategory._id,
           doc: { ...productCategory, scopeBrandIds: anotherBrandIds }

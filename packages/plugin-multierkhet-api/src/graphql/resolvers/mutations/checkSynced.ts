@@ -58,7 +58,7 @@ const checkSyncedMutations = {
 
     const products = await sendProductsMessage({
       subdomain,
-      action: "productFind",
+      action: "products.find",
       data: { query: { _id: { $in: productIds } } },
       isRPC: true
     });

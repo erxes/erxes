@@ -5,9 +5,7 @@ import {
   BOARD_ITEM_EXTENDED_FIELDS,
 } from "./constants";
 import {
-  sendContactsMessage,
   sendCoreMessage,
-  sendProductsMessage,
 } from "./messageBroker";
 
 const generateProductsOptions = async (
