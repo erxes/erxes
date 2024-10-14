@@ -937,7 +937,7 @@ const widgetMutations = {
           })
         ).toString("base64");
 
-        const emailValidationUrl = `${domain}/pl:contacts/verify?p=${params}`;
+        const emailValidationUrl = `${domain}/verify?p=${params}`;
 
         const languageCode = integration.languageCode || "en";
         const text =
