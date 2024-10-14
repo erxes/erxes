@@ -341,15 +341,15 @@ const Form = (props: Props) => {
       return;
     }
 
-    const { barcodes } = state;
+    const tempBarcodes = [...state.barcodes || []]
 
     if (barcodes.includes(value)) {
       return;
     }
 
-    barcodes.unshift(value);
+    tempBarcodes.unshift(value);
 
-    setState((prevState) => ({ ...prevState, barcodes, barcodeInput: "" }));
+    setState((prevState) => ({ ...prevState, barcodes: tempBarcodes, barcodeInput: "" }));
   };
 
   const onClickAddSub = () => {
