@@ -9,7 +9,7 @@ export const updateCustomer = async (subdomain, models, polarisConfig, syncLog, 
 
   const dataOfRules = await genObjectOfRule(
     subdomain,
-    "contacts:customer",
+    "core:customer",
     data,
     polarisConfig.customer
   );

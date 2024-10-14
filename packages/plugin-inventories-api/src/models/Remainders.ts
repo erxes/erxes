@@ -79,7 +79,7 @@ export const loadRemainderClass = (models: IModels) => {
 
       const product: any = await sendProductsMessage({
         subdomain,
-        action: "productFindOne",
+        action: "products.findOne",
         data: {
           query: { _id: productId }
         },
@@ -143,7 +143,7 @@ export const loadRemainderClass = (models: IModels) => {
 
       const products = await sendProductsMessage({
         subdomain,
-        action: "productFind",
+        action: "products.find",
         data: {
           query,
           sort: { code: 1 },
@@ -155,7 +155,7 @@ export const loadRemainderClass = (models: IModels) => {
 
       const totalCount = await sendProductsMessage({
         subdomain,
-        action: "productCount",
+        action: "products.count",
         data: {
           query
         },
@@ -227,23 +227,12 @@ export const loadRemainderClass = (models: IModels) => {
       }
 
       if (productCategoryId) {
-        const limit: number = await sendProductsMessage({
-          subdomain,
-          action: "productCount",
-          data: {
-            query: {},
-            categoryId: productCategoryId
-          },
-          isRPC: true
-        });
-
         const products: any = await sendProductsMessage({
           subdomain,
-          action: "productFind",
+          action: "products.find",
           data: {
             query: {},
             categoryId: productCategoryId,
-            limit
           },
           isRPC: true
         });
@@ -303,7 +292,7 @@ export const loadRemainderClass = (models: IModels) => {
       const productIds = productsData.map(pd => pd.productId);
       const products = await sendProductsMessage({
         subdomain,
-        action: "productFind",
+        action: "products.find",
         data: { query: { _id: { $in: productIds } }, limit: productIds.length },
         isRPC: true,
         defaultValue: []

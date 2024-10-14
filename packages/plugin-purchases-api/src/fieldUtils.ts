@@ -19,7 +19,7 @@ const generateProductsOptions = async (
 ) => {
   const products = await sendProductsMessage({
     subdomain,
-    action: "productFind",
+    action: "products.find",
     data: {
       query: {}
     },

@@ -58,7 +58,7 @@ const GeneralSettings = (props: Props) => {
         .query({
           query: gql(fieldQueries.fieldsGroups),
           variables: {
-            contentType: 'contacts:customer',
+            contentType: 'core:customer',
           },
         })
         .then(({ data }) => {

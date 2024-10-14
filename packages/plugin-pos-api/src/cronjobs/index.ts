@@ -69,7 +69,7 @@ export default {
         ) {
           const product = await sendProductsMessage({
             subdomain,
-            action: 'findOne',
+            action: 'products.findOne',
             data: {
               _id: item.productId
             },

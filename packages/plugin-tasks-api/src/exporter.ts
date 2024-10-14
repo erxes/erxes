@@ -127,7 +127,7 @@ const fillTaskProductValue = async (subdomain, column, item) => {
         product =
           (await sendProductsMessage({
             subdomain,
-            action: "productFindOne",
+            action: "products.findOne",
             data: {
               _id: productData.productId
             },
@@ -141,7 +141,7 @@ const fillTaskProductValue = async (subdomain, column, item) => {
         product =
           (await sendProductsMessage({
             subdomain,
-            action: "productFindOne",
+            action: "products.findOne",
             data: {
               _id: productData.productId
             },

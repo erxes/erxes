@@ -196,7 +196,7 @@ const gatherDealFieldNames = async (
       nameFields: ["name"],
       items: await sendProductsMessage({
         subdomain,
-        action: "productFind",
+        action: "products.find",
         data: {
           query: {
             _id: { $in: doc.productsData.map(p => p.productId) }

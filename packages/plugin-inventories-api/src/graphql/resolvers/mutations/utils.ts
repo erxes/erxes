@@ -24,7 +24,7 @@ export const updateLiveRemainders = async ({
     // Find all products in category by categoryId
     const products = await sendProductsMessage({
       subdomain,
-      action: "productFind",
+      action: "products.find",
       data: {
         query: {},
         categoryId: productCategoryId
@@ -112,7 +112,7 @@ export const getProducts = async (subdomain, productId, productCategoryId) => {
   if (productId) {
     const product = await sendProductsMessage({
       subdomain,
-      action: "productFind",
+      action: "products.find",
       data: { _id: productId },
       isRPC: true
     });
@@ -120,24 +120,12 @@ export const getProducts = async (subdomain, productId, productCategoryId) => {
   }
 
   if (productCategoryId) {
-    const limit = await sendProductsMessage({
-      subdomain,
-      action: "productCount",
-      data: {
-        query: { status: { $nin: ["archived", "deleted"] } },
-        categoryId: productCategoryId
-      },
-      isRPC: true,
-      defaultValue: 0
-    });
-
     products = await sendProductsMessage({
       subdomain,
-      action: "productFind",
+      action: "products.find",
       data: {
         query: { status: { $nin: ["archived", "deleted"] } },
         categoryId: productCategoryId,
-        limit,
         sort: { code: 1 }
       },
       isRPC: true,

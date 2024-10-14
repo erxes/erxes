@@ -9,7 +9,7 @@ export const outcomeDeposit = async (subdomain, polarisConfig, params) => {
 
   const savingContract = await sendMessageBrokerData(subdomain, 'savings', 'contracts.findOne', { _id: transaction.contractId })
 
-  const customer = await sendMessageBrokerData(subdomain, 'contacts', 'customers.findOne', { _id: savingContract.customerId })
+  const customer = await sendMessageBrokerData(subdomain, 'core', 'customers.findOne', { _id: savingContract.customerId })
 
   const customerData = await customFieldToObject(
     subdomain,

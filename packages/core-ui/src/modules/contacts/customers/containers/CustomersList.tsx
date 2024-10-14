@@ -215,7 +215,7 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
     const stringified = queryString.stringify(exportQuery);
 
     window.open(
-      `${REACT_APP_API_URL}/pl:contacts/file-export?${stringified}`,
+      `${REACT_APP_API_URL}/file-export?${stringified}`,
       "_blank"
     );
   };
