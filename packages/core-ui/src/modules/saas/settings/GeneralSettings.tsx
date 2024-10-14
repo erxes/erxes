@@ -3,12 +3,12 @@ import {
   ContentBox,
   FlexRow,
   ImageWrapper,
-  Title,
+  Title
 } from "@erxes/ui-settings/src/styles";
 import {
   FILE_MIME_TYPES,
   KEY_LABELS,
-  LANGUAGES,
+  LANGUAGES
 } from "@erxes/ui-settings/src/general/constants";
 import { __, readFile, uploadHandler } from "modules/common/utils";
 
@@ -51,11 +51,11 @@ class GeneralSettings extends React.Component<Props, State> {
     this.state = {
       configsMap: props.configsMap,
       language: props.currentLanguage,
-      isSaved: false,
+      isSaved: false
     };
   }
 
-  save = (e) => {
+  save = e => {
     e.preventDefault();
 
     const { configsMap, language } = this.state;
@@ -79,7 +79,7 @@ class GeneralSettings extends React.Component<Props, State> {
     let value = values;
 
     if (Array.isArray(values)) {
-      value = values.map((el) => el.value);
+      value = values.map(el => el.value);
     }
 
     this.onChangeConfig(code, value);
@@ -93,7 +93,7 @@ class GeneralSettings extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  onLanguageChange = (language) => {
+  onLanguageChange = language => {
     this.setState({ language: language.value });
   };
 
@@ -115,9 +115,9 @@ class GeneralSettings extends React.Component<Props, State> {
   renderItem = (key: string) => {
     const { configsMap } = this.state;
 
-    const mimeTypeOptions = FILE_MIME_TYPES.map((item) => ({
+    const mimeTypeOptions = FILE_MIME_TYPES.map(item => ({
       value: item.value,
-      label: `${item.label} (${item.extension})`,
+      label: `${item.label} (${item.extension})`
     }));
     const mimeTypeDesc =
       "Comma-separated list of media types. Leave it blank for accepting all media types";
@@ -142,7 +142,7 @@ class GeneralSettings extends React.Component<Props, State> {
     this.onChangeConfig(field, e.hex);
   };
 
-  renderColorPicker = (field) => {
+  renderColorPicker = field => {
     const { configsMap } = this.state;
     const value = configsMap[field];
 
@@ -180,7 +180,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
       afterRead: ({ result }) => {
         return;
-      },
+      }
     });
   };
 
@@ -272,7 +272,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __("Settings"), link: "/settings" },
-      { title: __("General system config") },
+      { title: __("General system config") }
     ];
 
     const actionButtons = (
@@ -320,7 +320,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <FormControl
               componentclass="checkbox"
               checked={configsMap.CHECK_TEAM_MEMBER_SHOWN}
-              onChange={(e) =>
+              onChange={e =>
                 this.onChangeConfig(
                   "CHECK_TEAM_MEMBER_SHOWN",
                   (e.target as any).checked
@@ -384,6 +384,17 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderConstant("sex_choices")}
           {this.renderConstant("company_industry_types")}
           {this.renderConstant("social_links")}
+        </CollapseContent>
+
+        <CollapseContent
+          transparent={true}
+          title="MessagePro"
+          beforeTitle={<Icon icon="comment-alt-verify" />}
+        >
+          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+            {this.renderItem("MESSAGE_PRO_API_KEY")}
+            {this.renderItem("MESSAGE_PRO_PHONE_NUMBER")}
+          </FlexRow>
         </CollapseContent>
       </ContentBox>
     );

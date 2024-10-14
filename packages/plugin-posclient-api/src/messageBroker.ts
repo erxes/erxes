@@ -353,7 +353,7 @@ export const sendInventoriesMessage = async (
 export const sendContactsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
-  return sendMessageWrapper("contacts", args);
+  return sendMessageWrapper("core", args);
 };
 
 export const sendSalesMessage = async (
@@ -383,7 +383,7 @@ export const sendPricingMessage = async (
 export const sendProductsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
-  return sendMessageWrapper("products", args);
+  return sendMessageWrapper("core", args);
 };
 
 export const fetchSegment = (

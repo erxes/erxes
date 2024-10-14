@@ -10,7 +10,7 @@ export default {
   ) {
     return sendProductsMessage({
       subdomain,
-      action: "productFindOne",
+      action: "products.findOne",
       data: {
         _id: safeRemainderItem.productId
       },

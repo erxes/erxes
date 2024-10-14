@@ -104,7 +104,7 @@ export const getPostData = async (subdomain, config, deal, dateType = "") => {
 
   const products = await sendProductsMessage({
     subdomain,
-    action: "productFind",
+    action: "products.find",
     data: {
       query: { _id: { $in: productsIds } },
       limit: deal.productsData.length
@@ -347,7 +347,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = "") => {
 
   const products = await sendProductsMessage({
     subdomain,
-    action: "productFind",
+    action: "products.find",
     data: {
       query: { _id: { $in: productsIds } },
       limit: deal.productsData.length

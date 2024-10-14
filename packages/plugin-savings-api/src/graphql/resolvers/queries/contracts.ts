@@ -351,7 +351,7 @@ const contractQueries = {
         data: { _id: account?.customerId },
         isRPC: true
       },
-      'contacts'
+      'core'
     );
 
     return `${customer?.firstName} ${customer?.lastName}`;

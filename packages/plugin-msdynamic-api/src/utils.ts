@@ -22,7 +22,7 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
 
   const product = await sendProductsMessage({
     subdomain,
-    action: "productFindOne",
+    action: "products.findOne",
     data: { code: updateCode },
     isRPC: true,
     defaultValue: {}
@@ -57,14 +57,14 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
     if (product) {
       await sendProductsMessage({
         subdomain,
-        action: "updateProduct",
+        action: "products.updateProduct",
         data: { _id: product._id, doc: { ...document } },
         isRPC: true
       });
     } else {
       await sendProductsMessage({
         subdomain,
-        action: "createProduct",
+        action: "products.createProduct",
         data: { doc: { ...document } },
         isRPC: true
       });
@@ -74,7 +74,7 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
     if (anotherBrandIds.length) {
       await sendProductsMessage({
         subdomain,
-        action: "updateProduct",
+        action: "products.updateProduct",
         data: {
           _id: product._id,
           doc: { ...product, scopeBrandIds: anotherBrandIds }
@@ -84,7 +84,7 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
     } else {
       await sendProductsMessage({
         subdomain,
-        action: "removeProducts",
+        action: "products.removeProducts",
         data: { _ids: [product._id] },
         isRPC: true
       });
@@ -277,7 +277,7 @@ export const dealToDynamic = async (
     if (responseSale) {
       const products = await sendProductsMessage({
         subdomain,
-        action: "productFind",
+        action: "products.find",
         data: { _id: { $in: order.items.map(item => item.productId) } },
         isRPC: true
       });

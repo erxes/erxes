@@ -140,11 +140,8 @@ export const sendMessageBroker = async (
   args: MessageArgsOmitService,
   name:
     | "core"
-    | "cards"
+    | "sales"
     | "reactions"
-    | "contacts"
-    | "products"
-    | "forms"
     | "clientportal"
     | "syncerkhet"
     | "ebarimt"
@@ -171,7 +168,7 @@ export const sendSalesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "cards",
+    serviceName: "sales",
     ...args
   });
 };
@@ -200,7 +197,7 @@ export const getFieldObject = async (
 ) => {
   const fields = await sendCommonMessage({
     subdomain,
-    serviceName: "forms",
+    serviceName: "core",
     action: "fields.find",
     data: {
       query: {

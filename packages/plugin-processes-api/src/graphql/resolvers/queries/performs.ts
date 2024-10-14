@@ -80,17 +80,10 @@ const generateFilter = async (
   let filterProductIds: string[] = [];
   let hasFilterProductIds: boolean = false;
   if (productCategoryId) {
-    const limit = await sendProductsMessage({
-      subdomain,
-      action: 'count',
-      data: { categoryId: productCategoryId },
-      isRPC: true
-    });
-
     const products = await sendProductsMessage({
       subdomain,
-      action: 'find',
-      data: { limit, categoryId: productCategoryId, fields: { _id: 1 } },
+      action: 'products.find',
+      data: { categoryId: productCategoryId, fields: { _id: 1 } },
       isRPC: true
     });
 
@@ -99,18 +92,10 @@ const generateFilter = async (
   }
 
   if (vendorIds && vendorIds.length) {
-    const limit = await sendProductsMessage({
-      subdomain,
-      action: 'count',
-      data: { query: { vendorId: { $in: vendorIds } } },
-      isRPC: true
-    });
-
     const products = await sendProductsMessage({
       subdomain,
-      action: 'find',
+      action: 'products.find',
       data: {
-        limit,
         query: { vendorId: { $in: vendorIds } },
         fields: { _id: 1 }
       },

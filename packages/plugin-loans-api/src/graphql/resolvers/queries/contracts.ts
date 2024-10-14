@@ -258,13 +258,13 @@ const contractQueries = {
         action: "customers.findOne",
         data: { _id: id },
         name: "core",
-        customFieldType: "contacts:customer"
+        customFieldType: "core:customer"
       },
       company: {
         action: "companies.findOne",
         data: { _id: id },
         name: "core",
-        customFieldType: "contacts:company"
+        customFieldType: "core:company"
       }
     };
     const mapping = mappings[contentType] || mappings.deal;

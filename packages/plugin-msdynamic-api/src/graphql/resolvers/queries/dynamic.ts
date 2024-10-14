@@ -126,7 +126,7 @@ const msdynamicQueries = {
       if (posConfig?._id && posConfig.departmentId && (posConfig?.branchId || branchId)) {
         const products = await sendProductsMessage({
           subdomain,
-          action: 'find',
+          action: 'products.find',
           data: {
             query: { code: { $in: productCodes } },
             fields: { _id: 1, code: 1 }

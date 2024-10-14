@@ -25,7 +25,7 @@ export async function generateFinance(
         subdomain,
         isRPC: true
       },
-      'contacts'
+      'core'
     );
 
     customerCode = customer?.code;
@@ -37,7 +37,7 @@ export async function generateFinance(
         subdomain,
         isRPC: true
       },
-      'contacts'
+      'core'
     );
     customerCode = company?.code;
   }

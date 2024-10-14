@@ -35,7 +35,7 @@ export const beforeResolverHandlers = async (
   if (usedProductsIds.length > 0) {
     await sendProductsMessage({
       subdomain,
-      action: 'update',
+      action: 'products.updateProducts',
       data: {
         selector: { _id: { $in: usedProductsIds } },
         modifier: { $set: { status: 'deleted' } }
