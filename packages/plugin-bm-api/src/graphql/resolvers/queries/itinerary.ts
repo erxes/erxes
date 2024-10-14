@@ -14,7 +14,14 @@ const itineraryQueries = {
       selector.categories = { $in: categories };
     }
 
-    return await models.Itineraries.find(selector).limit(perPage).skip(skip);
+    const list = await models.Itineraries.find(selector)
+      .limit(perPage)
+      .skip(skip);
+    const total = await models.Itineraries.countDocuments();
+    return {
+      list,
+      total,
+    };
   },
 };
 

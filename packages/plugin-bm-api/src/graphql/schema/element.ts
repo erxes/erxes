@@ -35,10 +35,14 @@ export const types = () => `
     name: String
     parentId: String
   }
+  type ListElement {
+    list: [Element]
+    total: Int
+  }
 `;
 
 export const queries = `
-  bmElements(categories: [String], page:Int, perPage:Int): [Element]
+  bmElements(categories: [String], page:Int, perPage:Int): ListElement
   bmElementCategoryies(parentId:String): [ElementCategory]
   bmElementsInit: JSON
 

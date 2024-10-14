@@ -14,7 +14,12 @@ const tourQueries = {
       selector.categories = { $in: categories };
     }
 
-    return await models.Tours.find(selector).limit(perPage).skip(skip);
+    const list = await models.Tours.find(selector).limit(perPage).skip(skip);
+    const total = await models.Tours.countDocuments();
+    return {
+      list,
+      total,
+    };
   },
 };
 

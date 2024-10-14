@@ -30,10 +30,14 @@ export const types = () => `
     published
     draft
   }
+  type ListItinerary {
+    list: [Itinerary]
+    total: Int
+  }
 `;
 
 export const queries = `
-  bmItineraries( page:Int, perPage:Int): [Itinerary]
+  bmItineraries( page:Int, perPage:Int): ListItinerary
 `;
 
 const params = `

@@ -47,12 +47,15 @@ export const types = () => `
     createdAt: Date
     modifiedAt: Date
   }
-
+  type ListTour {
+    list: [Tour]
+    total: Int
+  }
 
 `;
 
 export const queries = `
-  bmTours( page:Int, perPage:Int): [Tour]
+  bmTours( page:Int, perPage:Int): ListTour
 `;
 
 const params = `
