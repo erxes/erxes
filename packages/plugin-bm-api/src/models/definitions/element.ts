@@ -7,12 +7,12 @@ import { ILocation, locationSchema } from './itinerary';
 export interface IElement {
   name: string;
   content: string;
-  startTime: string;
-  duration: string;
-  cost: string;
-  images: string;
-  itineraryId: string;
-  location: ILocation;
+  startTime?: string;
+  duration?: string;
+  cost?: string;
+  images?: string;
+  itineraryId?: string;
+  location?: ILocation;
 }
 
 export interface IElementDocument extends IElement, Document {

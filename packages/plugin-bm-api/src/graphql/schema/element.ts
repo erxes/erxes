@@ -23,7 +23,7 @@ export const types = () => `
     cost: Float
     images: [String]
     categories: [String]
-    itineraryId: String!
+    itineraryId: String
     location: BMSLocation
 
     createdAt: Date
@@ -40,6 +40,8 @@ export const types = () => `
 export const queries = `
   bmElements(categories: [String], page:Int, perPage:Int): [Element]
   bmElementCategoryies(parentId:String): [ElementCategory]
+  bmElementsInit: JSON
+
 `;
 
 const params = `

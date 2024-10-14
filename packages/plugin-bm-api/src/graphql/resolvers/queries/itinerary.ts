@@ -4,12 +4,12 @@ import { IContext } from '../../../connectionResolver';
 const itineraryQueries = {
   async bmItineraries(
     _root,
-    { categories, page, perPage = 10 },
+    { categories, page = 1, perPage = 10 },
     { models }: IContext
   ) {
     const selector: any = {};
 
-    const skip = Math.max(0, page) * perPage;
+    const skip = Math.max(0, page - 1) * perPage;
     if (categories) {
       selector.categories = { $in: categories };
     }
