@@ -9,7 +9,7 @@ import {
 } from '../../../messageBrokers/utils';
 import { graphqlPubsub } from '../../../pubsub';
 import { registerOnboardHistory } from '../../utils';
-
+import { nanoid } from "nanoid";
 // helpers
 
 // Helper function to merge customer custom field data
@@ -103,6 +103,7 @@ async function saveFormSubmissions(
   models: IModels,
   { submissions, formId, customerId, conversationId }
 ) {
+  const groupId = nanoid();
   const submissionDocs = submissions.map((submission) => {
     let value = submission.value || '';
     if (submission.validation === 'number') value = Number(submission.value);
@@ -117,6 +118,7 @@ async function saveFormSubmissions(
       customerId,
       contentType: 'lead',
       conversationId: conversationId || undefined,
+      groupId,
     };
   });
 

@@ -44,15 +44,6 @@ export const sendContactsMessage = (
   });
 };
 
-export const sendCardsMessage = (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "cards",
-    ...args
-  });
-};
-
 export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: "core",
