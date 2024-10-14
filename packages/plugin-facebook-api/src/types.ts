@@ -15,6 +15,7 @@ export interface IPostParams {
   message?: string;
   from?: any;
   permalink_url?: string;
+  verb: string;
 }
 
 export interface ICommentParams {

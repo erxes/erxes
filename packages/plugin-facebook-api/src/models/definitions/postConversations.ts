@@ -13,7 +13,12 @@ export interface IPostConversation {
   integrationId: string;
   customerId?: string;
   permalink_url: String;
-  attachments: string[];
+  attachments: [
+    {
+      type: { type: String; required: true };
+      url: { type: String; required: true };
+    }
+  ];
 }
 
 export interface IPostConversationDocument
@@ -31,5 +36,5 @@ export const postConversationSchema = new Schema({
   content: String,
   customerId: { type: String, optional: true },
   permalink_url: String,
-  attachments: [String],
+  attachments: [String]
 });

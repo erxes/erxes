@@ -54,10 +54,15 @@ export const getPostDetails = async (
     debugError(`Error occurred while getting page access token: ${e.message}`);
     throw new Error();
   }
-
   try {
+    // const response: any = await graphRequest.get(
+    //   `/${postId}?fields=permalink_url,created_time,from,message,attachments
+    //     {description,media,media_type,description_tags,title,type}`,
+    //   pageAccessToken
+    // );
+
     const response: any = await graphRequest.get(
-      `/${postId}?fields=permalink_url,message,created_time`,
+      `/${postId}?fields=permalink_url,created_time,from,message,attachments{description,media,media_type,description_tags,title,type,subattachments}`,
       pageAccessToken
     );
 
@@ -144,32 +149,6 @@ export const subscribePage = async (
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
     subscribed_fields: ['conversations', 'feed', 'messages']
   });
-};
-
-export const getPostLink = async (
-  pageId: string,
-  pageTokens: { [key: string]: string },
-  postId: string
-) => {
-  let pageAccessToken;
-
-  try {
-    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
-  } catch (e) {
-    debugError(`Error occurred while getting page access token: ${e.message}`);
-    throw new Error();
-  }
-
-  try {
-    const response: any = await graphRequest.get(
-      `/${postId}?fields=permalink_url`,
-      pageAccessToken
-    );
-    return response.permalink_url ? response.permalink_url : '';
-  } catch (e) {
-    debugError(`Error occurred while getting facebook post: ${e.message}`);
-    return null;
-  }
 };
 
 export const unsubscribePage = async (
