@@ -173,7 +173,7 @@ export const sendCoreMessage = async (
   });
 };
 
-export const sendCardsMessage = async (
+export const sendSalesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({

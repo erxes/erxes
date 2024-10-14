@@ -3,7 +3,7 @@ import {
   sendCoreMessage,
   sendContactsMessage,
   sendEbarimtMessage,
-  sendCardsMessage,
+  sendSalesMessage,
 } from '../../messageBroker';
 import { IPosOrderDocument } from '../../models/definitions/orders';
 import { getConfig } from '../../utils';
@@ -133,7 +133,7 @@ const resolvers = {
       return null;
     }
 
-    return await sendCardsMessage({
+    return await sendSalesMessage({
       subdomain,
       action: 'deals.findOne',
       data: { _id: order.convertDealId },
@@ -145,7 +145,7 @@ const resolvers = {
     if (!order.convertDealId) {
       return null;
     }
-    return await sendCardsMessage({
+    return await sendSalesMessage({
       subdomain,
       action: 'getLink',
       data: { _id: order.convertDealId, type: 'deal' },
