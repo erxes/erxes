@@ -43,7 +43,6 @@ const getEnv = (req:express.Request) => {
     ROOT_URL = '',
     API_URL = '',
     API_SUBSCRIPTIONS_URL = '',
-    GOOGLE_MAP_API_KEY = '',
   } = process.env;
 
   const replaceSubdomain = (url: string, subdomain: string) => {
@@ -64,7 +63,6 @@ const getEnv = (req:express.Request) => {
       ROOT_URL: replaceSubdomain(ROOT_URL, subdomain),
       API_URL: replaceSubdomain(API_URL, subdomain),
       API_SUBSCRIPTIONS_URL: replaceSubdomain(API_SUBSCRIPTIONS_URL, subdomain),
-      GOOGLE_MAP_API_KEY,
     });
   }
 
@@ -73,7 +71,6 @@ const getEnv = (req:express.Request) => {
     ROOT_URL,
     API_URL,
     API_SUBSCRIPTIONS_URL,
-    GOOGLE_MAP_API_KEY,
   });
 };
 
@@ -100,13 +97,14 @@ app.get('/knowledgebase', (req, res) => {
 
 app.get('/test', (req, res) => {
   const { form_id, brand_id, topic_id, integration_id, type } = req.query;
+  const env = getEnv(req);
 
   res.render(`widget-${type}-test`, {
     topic_id,
     brand_id,
     form_id,
     integration_id,
-    env: getEnv(req),
+    env
   });
 });
 
