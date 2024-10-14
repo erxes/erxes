@@ -27,11 +27,11 @@ export const sendContactsMessage = async (
   });
 };
 
-export const sendCardsMessage = async (
+export const sendSalesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "cards",
+    serviceName: "sales",
     ...args
   });
 };

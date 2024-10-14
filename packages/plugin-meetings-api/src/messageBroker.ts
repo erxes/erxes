@@ -27,12 +27,3 @@ export const sendCoreMessage = async (
     ...args,
   });
 };
-
-export const sendCardsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'cards',
-    ...args,
-  });
-};

@@ -172,6 +172,7 @@ query FormDetail($id: String!) {
       productCategoryId
       regexValidation
       text
+      options
       type
       validation
       logicAction
