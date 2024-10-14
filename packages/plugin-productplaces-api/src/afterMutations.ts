@@ -1,7 +1,7 @@
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import {
-  sendCardsMessage,
+  sendSalesMessage,
   sendCoreMessage,
   sendPricingMessage,
   sendProductsMessage
@@ -172,7 +172,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           }
 
           if (isSetPricing) {
-            await sendCardsMessage({
+            await sendSalesMessage({
               subdomain,
               action: "deals.updateOne",
               data: {
