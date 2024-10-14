@@ -43,8 +43,8 @@ const generateFilter = async (
     } else {
       const products = await sendProductsMessage({
         subdomain,
-        action: 'find',
-        data: { query: {}, categoryId, fields: { _id: 1 }, limit: 10000 },
+        action: 'products.find',
+        data: { query: {}, categoryId, fields: { _id: 1 } },
         isRPC: true,
         defaultValue: []
       });

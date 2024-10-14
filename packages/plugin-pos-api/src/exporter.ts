@@ -246,10 +246,9 @@ const fillPosOrderItemValue = async (subdomain, column, order) => {
 
     const products = await sendProductsMessage({
       subdomain,
-      action: 'find',
+      action: 'products.find',
       data: {
         query: { _id: { $in: productIds } },
-        limit: productIds.length
       },
       isRPC: true,
       defaultValue: []

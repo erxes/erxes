@@ -160,23 +160,12 @@ export const checkVouchersSale = async (
     allCatIds = allCatIds.concat(catIds);
   }
 
-  const limit = await sendProductsMessage({
-    subdomain,
-    action: "productCount",
-    data: {
-      query: { categoryId: { $in: allCatIds } }
-    },
-    isRPC: true,
-    defaultValue: 0
-  });
-
   const catProducts = await sendProductsMessage({
     subdomain,
-    action: "productFind",
+    action: "products.find",
     data: {
       query: { categoryId: { $in: allCatIds } },
       sort: { _id: 1, categoryId: 1 },
-      limit
     },
     isRPC: true,
     defaultValue: []

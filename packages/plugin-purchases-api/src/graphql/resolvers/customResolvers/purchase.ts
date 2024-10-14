@@ -24,7 +24,7 @@ export const generateProducts = async (
 
   const allProducts = await sendProductsMessage({
     subdomain,
-    action: "productFind",
+    action: "products.find",
     data: { query: { _id: { $in: productIds } }, limit: productsData.length },
     isRPC: true,
     defaultValue: []

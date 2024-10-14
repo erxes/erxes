@@ -38,19 +38,11 @@ const msdynamicCheckMutations = {
     }
 
     try {
-      const productsCount = await sendProductsMessage({
-        subdomain,
-        action: "productCount",
-        data: { query: productQry },
-        isRPC: true
-      });
-
       const products = await sendProductsMessage({
         subdomain,
-        action: "productFind",
+        action: "products.find",
         data: {
           query: productQry,
-          limit: productsCount
         },
         isRPC: true
       });
@@ -192,7 +184,7 @@ const msdynamicCheckMutations = {
             resProd.Code === category.code &&
             (categoryId === category.parentId ||
               categoryById[category.parentId]?.code ===
-                resProd.Parent_Category) &&
+              resProd.Parent_Category) &&
             category.name === resProd.Description
           ) {
             matchedCount = matchedCount + 1;

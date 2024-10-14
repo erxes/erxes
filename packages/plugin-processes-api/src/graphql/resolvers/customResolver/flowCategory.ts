@@ -6,7 +6,7 @@ export default {
   async __resolveReference({ _id }, { subdomain }: IContext) {
     return sendProductsMessage({
       subdomain,
-      action: "productFindOne",
+      action: "products.findOne",
       data: { _id },
       isRPC: true
     });
@@ -19,12 +19,11 @@ export default {
   async flowCount(category: any, {}, { models, subdomain }: IContext) {
     const products = await sendProductsMessage({
       subdomain,
-      action: "find",
+      action: "products.find",
       data: {
         query: {},
         categoryId: category._id,
         fields: { _id: 1 },
-        limit: 10000
       },
       isRPC: true,
       defaultValue: []

@@ -92,27 +92,14 @@ export const getAllowedProducts = async (
     }
 
     case "vendor": {
-      const limit = await sendProductsMessage({
-        subdomain,
-        action: "count",
-        data: {
-          query: {
-            vendorId: { $in: plan.vendors || [] }
-          }
-        },
-        isRPC: true,
-        defaultValue: 0
-      });
-
       const products = await sendProductsMessage({
         subdomain,
-        action: "productFind",
+        action: "products.find",
         data: {
           query: {
             vendorId: { $in: plan.vendors || [] }
           },
           field: { _id: 1 },
-          limit
         },
         isRPC: true,
         defaultValue: []
@@ -136,7 +123,7 @@ export const getAllowedProducts = async (
 
       const products = await sendProductsMessage({
         subdomain,
-        action: "productFind",
+        action: "products.find",
         data: {
           query: { _id: { $in: filterProductIds } },
           sort: { _id: 1, categoryId: 1 },
@@ -178,7 +165,7 @@ export const getAllowedProducts = async (
 
       const products = await sendProductsMessage({
         subdomain,
-        action: "productFind",
+        action: "products.find",
         data: {
           query: { _id: { $in: filterProductIds } },
           sort: { _id: 1, categoryId: 1 },

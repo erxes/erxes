@@ -29,7 +29,7 @@ export const getPostData = async (subdomain, userEmail, order) => {
   const productsIds = order.details.map(item => item.productId);
   const products = await sendProductsMessage({
     subdomain,
-    action: "productFind",
+    action: "products.find",
     data: { query: { _id: { $in: productsIds } } },
     isRPC: true,
     defaultValue: []

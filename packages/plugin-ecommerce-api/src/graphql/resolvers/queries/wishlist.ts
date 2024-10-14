@@ -14,7 +14,7 @@ const wishlistQueries = {
 
     const product = await sendProductsMessage({
       subdomain,
-      action: "productFindOne",
+      action: "products.findOne",
       data: { _id: productId },
       isRPC: true
     });
@@ -36,7 +36,7 @@ const wishlistQueries = {
 
     const products = await sendProductsMessage({
       subdomain,
-      action: "productFind",
+      action: "products.find",
       data: {
         query: { _id: { $in: productIds } }
       },

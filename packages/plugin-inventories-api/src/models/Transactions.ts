@@ -50,7 +50,7 @@ export const loadTransactionClass = (models: IModels) => {
         transactionItems.map(async (item: any) => {
           const product: any = await sendProductsMessage({
             subdomain,
-            action: 'findOne',
+            action: 'products.findOne',
             data: { _id: item.productId },
             isRPC: true
           });

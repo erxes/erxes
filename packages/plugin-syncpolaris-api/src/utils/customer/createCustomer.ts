@@ -11,7 +11,7 @@ export const createCustomer = async (subdomain: string, models, polarisConfig, s
 
   const dataOfRules = await genObjectOfRule(
     subdomain,
-    "contacts:customer",
+    "core:customer",
     data,
     polarisConfig.customer
   );

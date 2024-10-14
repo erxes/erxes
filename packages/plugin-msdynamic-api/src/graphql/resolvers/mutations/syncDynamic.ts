@@ -99,19 +99,11 @@ const msdynamicSyncMutations = {
     }
 
     try {
-      const productsCount = await sendProductsMessage({
-        subdomain,
-        action: "productCount",
-        data: { query: productQry },
-        isRPC: true
-      });
-
       const products = await sendProductsMessage({
         subdomain,
-        action: "productFind",
+        action: "products.find",
         data: {
           query: productQry,
-          limit: productsCount
         },
         isRPC: true
       });
@@ -181,7 +173,7 @@ const msdynamicSyncMutations = {
             } else {
               await sendProductsMessage({
                 subdomain,
-                action: "updateProduct",
+                action: "products.updateProduct",
                 data: {
                   _id: foundProduct._id,
                   doc: { unitPrice: resPrice || 0 }

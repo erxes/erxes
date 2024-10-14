@@ -754,7 +754,6 @@ const boardQueries = {
       for (const group of groups) {
         const { config = {} } = group;
 
-        console.log("-a-dsadadsd");
         const fields = await sendCoreMessage({
           subdomain,
           action: "fields.find",

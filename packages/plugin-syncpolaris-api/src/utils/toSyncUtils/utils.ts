@@ -121,7 +121,7 @@ export const setCustomFieldValue = async (
 export const getPolarisData = async (type, subdomain, config, item) => {
   try {
     switch (type) {
-      case 'contacts:customer':
+      case 'core:customer':
         return await getCustomerDetail(subdomain, config, { code: item.code });
       case 'loans:contract':
         return await getLoanDetail(subdomain, config, { number: item.number });
