@@ -1,6 +1,32 @@
 const fse = require('fs-extra');
 const { filePath, log, sleep } = require('./utils');
 const { execSync } = require('child_process');
+const net = require('net');
+
+// Function to check if a service is listening on a given port
+const waitForService = (port, host = '127.0.0.1', timeout = 60000) => {
+  return new Promise((resolve, reject) => {
+    const startTime = Date.now();
+    const interval = setInterval(() => {
+      const socket = net.createConnection({ port, host });
+
+      socket.on('connect', () => {
+        clearInterval(interval);
+        socket.end();
+        resolve();
+      });
+
+      socket.on('error', () => {
+        const elapsedTime = Date.now() - startTime;
+        if (elapsedTime > timeout) {
+          clearInterval(interval);
+          reject(new Error(`Service not available on port ${port}`));
+        }
+      });
+    }, 2000); // Check every 2 seconds
+  });
+};
+
 
 module.exports.devOnly = async () => {
   const name = process.argv[3];
@@ -363,6 +389,14 @@ module.exports.devCmd = async program => {
     if (!program.ignoreCore) {
       log('starting core ....');
       execSync('pm2 start ecosystem.config.js --only core');
+      try {
+        log(`Waiting for core service to start on port 3300...`);
+        await waitForService(3300);
+        log('Core service started successfully.');
+      } catch (error) {
+        log(`Failed to start core service: ${error.message}`, 'red');
+        return;
+      }
       await sleep(intervalMs);
     }
 
