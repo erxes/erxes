@@ -3,7 +3,7 @@ import redis from "@erxes/api-utils/src/redis";
 import { IModels } from "./connectionResolver";
 import {
   sendAutomationsMessage,
-  sendCardsMessage,
+  sendSalesMessage,
   sendContactsMessage,
   sendCoreMessage,
   sendEbarimtMessage,
@@ -295,7 +295,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
   }
 
   if ((doneOrder.deliveryInfo || {}).dealId) {
-    const deal = await sendCardsMessage({
+    const deal = await sendSalesMessage({
       subdomain,
       action: "deals.updateOne",
       data: {
@@ -306,7 +306,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       defaultValue: {}
     });
 
-    await sendCardsMessage({
+    await sendSalesMessage({
       subdomain,
       action: "salesPipelinesChanged",
       data: {
@@ -319,7 +319,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       }
     });
   } else {
-    const deal = await sendCardsMessage({
+    const deal = await sendSalesMessage({
       subdomain,
       action: "deals.create",
       data: dealsData,
@@ -345,7 +345,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       });
     }
 
-    await sendCardsMessage({
+    await sendSalesMessage({
       subdomain,
       action: "salesPipelinesChanged",
       data: {
@@ -474,7 +474,7 @@ const createDealPerOrder = async ({
       };
     }
 
-    const cardDeal = await sendCardsMessage({
+    const cardDeal = await sendSalesMessage({
       subdomain,
       action: "deals.create",
       data: {
@@ -516,7 +516,7 @@ const createDealPerOrder = async ({
       });
     }
 
-    await sendCardsMessage({
+    await sendSalesMessage({
       subdomain,
       action: "salesPipelinesChanged",
       data: {
