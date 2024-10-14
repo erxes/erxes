@@ -168,35 +168,82 @@ const formQueries = {
     },
     { subdomain, models }: IContext
   ) {
-    const convsSelector = await formSubmissionsQuery(subdomain, models, {
-      formId,
-      tagId,
-      contentTypeIds,
-      customerId,
-      filters,
-    });
+    // const convsSelector = await formSubmissionsQuery(subdomain, models, {
+    //   formId,
+    //   tagId,
+    //   contentTypeIds,
+    //   customerId,
+    //   filters,
+    // });
 
-    const conversations = await sendInboxMessage({
-      subdomain,
-      action: 'getConversationsList',
-      data: { query: convsSelector, listParams: { page, perPage } },
-      isRPC: true,
-      defaultValue: [],
-    });
+    // const conversations = await sendInboxMessage({
+    //   subdomain,
+    //   action: 'getConversationsList',
+    //   data: { query: convsSelector, listParams: { page, perPage } },
+    //   isRPC: true,
+    //   defaultValue: [],
+    // });
 
-    const result: any[] = [];
+    // const result: any[] = [];
 
-    for (const conversation of conversations) {
-      const submissions = await models.FormSubmissions.find({
-        contentTypeId: conversation._id,
-      }).lean();
+    // for (const conversation of conversations) {
+    //   const submissions = await models.FormSubmissions.find({
+    //     contentTypeId: conversation._id,
+    //   }).lean();
 
-      conversation.contentTypeId = conversation._id;
-      conversation.submissions = submissions;
-      result.push(conversation);
+    //   conversation.contentTypeId = conversation._id;
+    //   conversation.submissions = submissions;
+    //   result.push(conversation);
+    // }
+
+    // return result;
+
+    try {
+      // Calculate the pagination parameters
+      const skip = (page - 1) * perPage;
+
+      // Group the submissions by contentTypeId and customerId to form the Submission type
+      const groupedSubmissions = await models.FormSubmissions.aggregate([
+        { $match: { formId } }, // Match by formId
+        {
+          $group: {
+            _id: {
+              contentTypeId: '$contentTypeId',
+              customerId: '$customerId',
+            },
+            submissions: {
+              $push: {
+                _id: '$_id',
+                formId: '$formId',
+                formFieldId: '$formFieldId',
+                text: '$text',
+                formFieldText: '$formFieldText',
+                value: '$value',
+                submittedAt: '$submittedAt',
+              },
+            },
+            customerId: { $first: '$customerId' },
+            contentTypeId: { $first: '$contentTypeId' },
+            createdAt: { $first: '$submittedAt' },
+            customFieldsData: { $first: '$customFieldsData' },
+          },
+        },
+        { $skip: skip },
+        { $limit: perPage },
+      ]);
+
+      // Map the submissions to the correct GraphQL format
+      return groupedSubmissions.map((submission) => ({
+        _id: submission._id.contentTypeId, // Assign _id to contentTypeId
+        contentTypeId: submission.contentTypeId,
+        customerId: submission.customerId,
+        createdAt: submission.createdAt,
+        customFieldsData: submission.customFieldsData,
+        submissions: submission.submissions,
+      }));
+    } catch (error) {
+      throw new Error('Error fetching form submissions');
     }
-
-    return result;
   },
 
   async formSubmissionsTotalCount(
@@ -214,23 +261,30 @@ const formQueries = {
       customerId: string;
       filters: IFormSubmissionFilter[];
     },
-    { subdomain, models }: IContext
+    { models }: IContext
   ) {
-    const convsSelector = await formSubmissionsQuery(subdomain, models, {
-      formId,
-      tagId,
-      contentTypeIds,
-      customerId,
-      filters,
-    });
+    const result = await models.FormSubmissions.aggregate([
+      // Step 1: Filter submissions with contentType "lead"
+      {
+        $match: {
+          formId,
+        },
+      },
+      // Step 2: Group by both groupId and customerId to get unique submissions per user
+      {
+        $group: {
+          _id: {
+            groupId: '$groupId', // Group by groupId // Ensure unique by customerId (user)
+          },
+        },
+      },
+      // Step 3: Group by groupId to count unique submissions
+      {
+        $count: 'totalUniqueCount', // Return the total number of unique submissions
+      },
+    ]);
 
-    return await sendInboxMessage({
-      subdomain,
-      action: 'conversations.count',
-      data: { query: convsSelector },
-      isRPC: true,
-      defaultValue: [],
-    });
+    return result[0].totalUniqueCount;
   },
 
   formSubmissionDetail: async (

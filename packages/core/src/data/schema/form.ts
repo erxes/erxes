@@ -8,7 +8,7 @@ export const types = (inboxEnabled) => `
   }
 
 
-   input SubmissionFilter {
+  input SubmissionFilter {
     operator: String
     value: JSON
     formFieldId: String
