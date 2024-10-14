@@ -148,7 +148,7 @@ const CompanyListContainer = (props: FinalProps) => {
     });
 
     window.open(
-      `${REACT_APP_API_URL}/pl:contacts/file-export?${stringified}`,
+      `${REACT_APP_API_URL}/file-export?${stringified}`,
       "_blank"
     );
   };
