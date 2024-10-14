@@ -199,51 +199,52 @@ const formQueries = {
     // return result;
 
     try {
-      // Calculate the pagination parameters
+      // Calculate pagination params
       const skip = (page - 1) * perPage;
 
-      // Group the submissions by contentTypeId and customerId to form the Submission type
-      const groupedSubmissions = await models.FormSubmissions.aggregate([
-        { $match: { formId } }, // Match by formId
+      // Fetch grouped submissions by groupId, with pagination
+      const submissions = await models.FormSubmissions.aggregate([
+        { $match: { formId } }, // Match submissions by formId
         {
           $group: {
-            _id: {
-              contentTypeId: '$contentTypeId',
-              customerId: '$customerId',
-            },
+            _id: "$groupId", // Group by groupId (unique per user submission group)
             submissions: {
               $push: {
-                _id: '$_id',
-                formId: '$formId',
-                formFieldId: '$formFieldId',
-                text: '$text',
-                formFieldText: '$formFieldText',
-                value: '$value',
-                submittedAt: '$submittedAt',
+                _id: "$_id",
+                formId: "$formId",
+                formFieldId: "$formFieldId",
+                text: "$text",
+                formFieldText: "$formFieldText",
+                value: "$value",
+                submittedAt: "$submittedAt",
               },
             },
-            customerId: { $first: '$customerId' },
-            contentTypeId: { $first: '$contentTypeId' },
-            createdAt: { $first: '$submittedAt' },
-            customFieldsData: { $first: '$customFieldsData' },
+            customerId: { $first: "$customerId" }, // Take the first customerId in the group
+            contentTypeId: { $first: "$contentTypeId" }, // Take the first contentTypeId
+            createdAt: { $first: "$submittedAt" }, // Take the earliest submission date
+            customFieldsData: { $first: "$customFieldsData" }, // First customFieldsData
           },
         },
-        { $skip: skip },
-        { $limit: perPage },
+        { $skip: skip }, // Skip for pagination
+        { $limit: perPage }, // Limit for pagination
       ]);
 
-      // Map the submissions to the correct GraphQL format
-      return groupedSubmissions.map((submission) => ({
-        _id: submission._id.contentTypeId, // Assign _id to contentTypeId
-        contentTypeId: submission.contentTypeId,
+      console.log(submissions);
+
+      // Return single submission per groupId
+      return submissions.map(submission => ({
+        _id: submission._id, // The groupId is used as the _id
+        contentTypeId: submission._id,
         customerId: submission.customerId,
+    // Assuming Customer schema
         createdAt: submission.createdAt,
         customFieldsData: submission.customFieldsData,
-        submissions: submission.submissions,
+        submissions: submission.submissions, // All grouped form submissions
       }));
     } catch (error) {
-      throw new Error('Error fetching form submissions');
+      throw new Error("Error fetching form submissions");
     }
+  
   },
 
   async formSubmissionsTotalCount(
