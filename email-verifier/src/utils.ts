@@ -275,6 +275,7 @@ export const verifyOnMailsso = async (email: string, hostname: string) => {
     );
 
     const data = await response.json();
+    console.log("*********** ",data)
     const res = data.data;
     console.log("Ressss ",res)
 
