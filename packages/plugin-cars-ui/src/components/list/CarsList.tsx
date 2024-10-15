@@ -240,7 +240,6 @@ const CarsList = (props: Props) => {
                 car={car}
                 isChecked={bulk.includes(car)}
                 key={car._id}
-                history={history}
                 toggleBulk={toggleBulk}
               />
             ))}
@@ -265,7 +264,6 @@ const CarsList = (props: Props) => {
         <Sidebar
           loadingMainQuery={loading}
           queryParams={queryParams}
-          history={history}
         />
       }
       hasBorder={true}

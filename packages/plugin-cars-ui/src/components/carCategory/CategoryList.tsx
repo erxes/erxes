@@ -19,7 +19,7 @@ import SegmentFilter from "../../containers/SegmentFilter";
 import TagFilter from "../../containers/TagFilter";
 import { ICarCategory } from "../../types";
 import CollapsibleList from "@erxes/ui/src/components/collapsibleList/CollapsibleList";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
@@ -76,9 +76,9 @@ const CategoryList = (props: Props) => {
     );
   };
 
-  const handleClick = (categoryId) => {
-    router.setParams(navigate, location, { categoryId: categoryId });
+  const handleClick = (id: string) => {
     router.removeParams(navigate, location, "page");
+    router.setParams(navigate, location, { categoryId: id });
   };
 
   const renderContent = () => {
