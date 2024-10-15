@@ -5,6 +5,47 @@ import {
     IReportDocument,
 } from '../../../models/definitions/insight';
 import { sendCoreMessage } from '../../../messageBroker';
+import { compareArrays } from '../../../utils';
+
+const getChartTemplatesForService = async (serviceName, charts) => {
+  const service = await getService(serviceName);
+  const chartTemplates = service.config?.meta?.reports?.chartTemplates;
+
+  return chartTemplates?.filter((t) => charts.includes(t.templateType));
+};
+
+const addChartsForReport = async (
+  contentId,
+  serviceName,
+  charts,
+  models,
+) => {
+  const chartTemplates = await getChartTemplatesForService(serviceName, charts);
+
+  if (chartTemplates) {
+    await models.Charts.insertMany(
+      chartTemplates.map((c) => ({
+        serviceName,
+        chartType: c.chartTypes[0],
+        contentId,
+        contentType: 'insight:report',
+        ...c,
+      })),
+    );
+  }
+};
+
+const removeChartsForReport = async (
+  reportCharts,
+  removedTemplates,
+  models,
+) => {
+  const ids = reportCharts
+    .filter((chart) => removedTemplates.includes(chart.templateType))
+    .map((chart) => chart._id);
+
+  await models.Charts.deleteMany({ _id: { $in: ids } });
+};
 
 const reportsMutations = {
   async reportAdd(_root, doc: IReport, { models, user, subdomain }: IContext) {
@@ -75,12 +116,37 @@ const reportsMutations = {
     { _id, ...doc }: IReportDocument,
     { models, user }: IContext,
   ) {
-    if (doc.charts) {
-      const { charts } = doc;
 
-      for (const chart of charts) {
+    const report = await models.Reports.findOne({ _id });
+
+    const reportDashboards = await models.Charts.find({ contentId: _id });
+    const baseCharts = reportDashboards.map((item) => item.templateType);
+    const changes = compareArrays(baseCharts, doc.charts || []);
+
+    if (changes && doc.serviceType && doc.serviceName) {
+      if (changes.added.length) {
+
+        await addChartsForReport(_id, doc.serviceName, changes.added, models);
+      }
+
+      if (changes.removed.length) {
+        await removeChartsForReport(
+          reportDashboards,
+          changes.removed,
+          models,
+        );
+      }
+    } else if (doc.charts) {
+      for (const chart of doc.charts) {
         await models.Charts.updateChart(chart._id, { ...chart });
       }
+    }
+    const userIds = new Set<string>(report?.userIds || []);
+
+    if (doc.userId) {
+      userIds.has(doc.userId) ? userIds.delete(doc.userId) : userIds.add(doc.userId);
+
+      doc.userIds = [...userIds];
     }
 
     return models.Reports.updateReport(_id, {

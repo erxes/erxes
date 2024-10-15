@@ -37,15 +37,20 @@ export const loadReportClass = (models: IModels) => {
                 throw new Error('Report not found');
             }
 
-            return models.Reports.updateOne({ _id }, { $set: { ...doc } });
+            await models.Reports.updateOne({ _id }, { $set: { ...doc } });
+
+            return models.Reports.findOne({ _id });
         }
         // remove
         public static async removeReport(_id: string) {
-            const report = await models.Reports.getReport(_id);
+            const report = await models.Reports.findOneAndDelete({
+                _id,
+            });
+
             if (!report) {
                 throw new Error('Report not found');
             }
-            return models.Reports.deleteOne({ _id });
+            return report
         }
     }
 

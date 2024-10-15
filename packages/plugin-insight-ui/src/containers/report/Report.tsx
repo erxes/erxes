@@ -95,7 +95,7 @@ const ReportContainer = (props: Props) => {
   const [reportChartsRemoveMutation] = useMutation(
     gql(mutations.chartsRemove),
     {
-      refetchQueries: ["reportsList", "reportDetail"],
+      refetchQueries: ["reportsList", "reportDetail", "insightPinnedList"],
     }
   );
 

@@ -51,6 +51,15 @@ export const types = (tagsAvailable) => `
     NUMBER
   }
 
+  type Insight {
+    _id: String!
+    name: String
+    sectionId: String
+    chartsCount: Int
+    isPinned: Boolean
+    type: String
+  }
+
   type InsightTemplate {
     title: String
     description: String
@@ -83,6 +92,8 @@ export const types = (tagsAvailable) => `
 
     createdAt:Date
     createdBy: User
+
+    isPinned: Boolean
     }
 
     type DashboardListResponse {
@@ -114,6 +125,8 @@ export const types = (tagsAvailable) => `
       
       serviceName: String
       serviceType: String
+
+      isPinned: Boolean
     }
 
     type ReportsListResponse {
@@ -173,6 +186,7 @@ export const queries = `
   insightServicesList: [String]
   insightChartGetTemplates(serviceName: String!): JSON
   insightChartGetFilterTypes(serviceName: String!, templateType: String!): JSON
+  insightPinnedList: [Insight]
 
   chartGetResult(serviceName: String!, templateType: String!, chartType: String!, filter: JSON, dimension: JSON): JSON
 
@@ -191,6 +205,7 @@ const dashboardParams = `
   name: String,
   sectionId: String,
   visibility: VisibilityType,
+  userId: String,
   assignedUserIds: [String],
   assignedDepartmentIds: [String],
   serviceTypes: [String]
@@ -201,6 +216,7 @@ const dashboardParams = `
 const reportParams = `
   name: String,
   visibility: VisibilityType,
+  userId: String,
   assignedUserIds: [String],
   assignedDepartmentIds: [String],
   tagIds: [String],
@@ -243,6 +259,7 @@ export const mutations = `
   chartDuplicate(_id: String!): Chart
 
   reportAdd(${reportParams}): Report
+  reportEdit(_id: String!, ${reportParams}): Report
   reportRemove(_id: String!): JSON
   reportRemoveMany(ids: [String]!): JSON 
    

@@ -41,6 +41,8 @@ export interface IDashboard {
   name: string;
   sectionId: string;
 
+  userId?: string;
+  userIds: string[];
   assignedUserIds: string[];
   assignedDepartmentIds: string[];
 
@@ -77,6 +79,8 @@ export interface IReport {
   serviceName?: string;
   serviceType?: string;
 
+  userId?: string;
+  userIds: string[];
   assignedUserIds: string[];
   assignedDepartmentIds: string[];
 
@@ -136,6 +140,7 @@ export const dashboardSchema = schemaHooksWrapper(
       enum: Object.values(IVisibilityType),
       label: 'Dashboard visibility',
     }),
+    userIds: field({ type: [String], label: 'Member ids' }),
     assignedUserIds: field({ type: [String], label: 'Assigned member ids' }),
     assignedDepartmentIds: field({
       type: [String],
@@ -174,6 +179,7 @@ export const reportSchema = new Schema({
     enum: Object.values(IVisibilityType),
     label: 'Report visibility',
   }),
+  userIds: field({ type: [String], label: 'Member ids' }),
   assignedUserIds: field({ type: [String], label: 'Assigned member ids' }),
   assignedDepartmentIds: field({
     type: [String],

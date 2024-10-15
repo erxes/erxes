@@ -68,7 +68,6 @@ const ChartGridLayout = (props: Props) => {
         dashboardChartsEdit(chart._id, { layout: updatedLayout });
     }
 
-
     return (
         <>
             <ChartTitle>
@@ -85,7 +84,7 @@ const ChartGridLayout = (props: Props) => {
                 >
                     duplicate
                 </span>
-                {chartType && chartType === "table" && (
+                {chartType && (chartType === "table" || chartType === "pivotTable") && (
                     <span
                         className="db-chart-action"
                         onClick={() => exportTable(chart)}

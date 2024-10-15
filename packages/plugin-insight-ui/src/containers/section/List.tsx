@@ -24,6 +24,7 @@ type Props = {
   handleClick?: (id: string) => void;
   renderEditAction?: (item: any) => void;
   renderRemoveAction?: (item: any) => void;
+  renderAdditionalActions?: (item: any) => void;
 };
 
 const SectionListContainer = (props: Props) => {

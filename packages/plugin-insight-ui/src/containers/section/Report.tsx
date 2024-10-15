@@ -1,5 +1,5 @@
 import React from "react";
-
+import * as compose from 'lodash.flowright';
 import { gql, useQuery, useMutation } from "@apollo/client";
 
 import Alert from "@erxes/ui/src/utils/Alert/index";
@@ -15,13 +15,19 @@ import {
   SectionsListQueryResponse,
 } from "../../types";
 import { useLocation, useNavigate } from "react-router-dom";
+import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
+import { IUser } from "@erxes/ui/src/auth/types";
 
 type Props = {
   queryParams: any;
 };
 
-const ReportSectionContainer = (props: Props) => {
-  const { queryParams } = props;
+type FinalProps = {
+  currentUser: IUser
+} & Props
+
+const ReportSectionContainer = (props: FinalProps) => {
+  const { queryParams, currentUser } = props;
   const { goalId, dashboardId, reportId } = queryParams;
   const location = useLocation();
   const navigate = useNavigate();
@@ -38,6 +44,21 @@ const ReportSectionContainer = (props: Props) => {
     }
   );
 
+  const [reportUpdate] = useMutation(gql(mutations.reportEdit), {
+    refetchQueries: [
+      {
+        query: gql(queries.sectionList),
+        variables: { type: "report" },
+      },
+      {
+        query: gql(queries.reportList),
+      },
+      {
+        query: gql(queries.insightPinnedList),
+      },
+    ],
+  });
+
   const [reportsRemoveManyMutation] = useMutation<ReportRemoveMutationResponse>(
     gql(mutations.reportRemove),
     {
@@ -49,15 +70,24 @@ const ReportSectionContainer = (props: Props) => {
         {
           query: gql(queries.reportList),
         },
+        {
+          query: gql(queries.insightPinnedList),
+        },
       ],
     }
   );
 
-  const removeReports = (ids: string[]) => {
+  const updateReport = (_id: string) => {
+    reportUpdate({
+      variables: { _id, userId: currentUser._id },
+    })
+  };
+
+  const removeReports = (id: string) => {
     confirm(__("Are you sure to delete selected reports?")).then(() => {
-      reportsRemoveManyMutation({ variables: { ids } })
+      reportsRemoveManyMutation({ variables: { id } })
         .then(() => {
-          if (ids.includes(queryParams.reportId)) {
+          if (queryParams.reportId === id) {
             router.removeParams(
               navigate,
               location,
@@ -79,10 +109,11 @@ const ReportSectionContainer = (props: Props) => {
     reports: list,
     sections,
     loading,
+    updateReport,
     removeReports,
   };
 
   return <ReportSection {...updatedProps} />;
 };
 
-export default ReportSectionContainer;
+export default compose(withCurrentUser(ReportSectionContainer));

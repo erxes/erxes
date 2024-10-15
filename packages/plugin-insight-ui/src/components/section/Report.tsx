@@ -15,6 +15,7 @@ import { SidebarList } from "@erxes/ui/src/layout/styles";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils/index";
+import { colors } from "@erxes/ui/src/styles";
 
 type Props = {
   queryParams: any;
@@ -23,11 +24,12 @@ type Props = {
   sections: ISection[];
   loading: boolean;
 
-  removeReports: (reportIds: string[]) => void;
+  updateReport: (id: string) => void;
+  removeReports: (id: string) => void;
 };
 
 const ReportSection = (props: Props) => {
-  const { queryParams, reports, sections, loading, removeReports } = props;
+  const { queryParams, reports, sections, loading, updateReport, removeReports } = props;
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -72,11 +74,47 @@ const ReportSection = (props: Props) => {
 
   const renderRemoveAction = (report: any) => {
     return (
-      <Button btnStyle="link" onClick={() => removeReports([report._id])}>
+      <Button btnStyle="link" onClick={() => removeReports(report._id)}>
         <Tip text={__("Remove")} placement="bottom">
           <Icon icon="times-circle" />
         </Tip>
       </Button>
+    );
+  };
+
+  const renderAdditionalActions = (report: any) => {
+
+    const pinIcon = (
+      <i style={{ display: "flex" }}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill={report.isPinned ? colors.colorPrimary : 'none'}
+          stroke={report.isPinned ? colors.colorPrimary : colors.colorCoreGray}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12 17v5" />
+          <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" />
+        </svg>
+      </i>
+    )
+
+    const pinAction = (
+      <Button btnStyle="link" onClick={() => updateReport(report._id)} >
+        <Tip text={__("Pin")} placement="bottom">
+          {pinIcon}
+        </Tip>
+      </Button>
+    )
+
+    return (
+      <>
+        {pinAction}
+      </>
     );
   };
 
@@ -105,6 +143,7 @@ const ReportSection = (props: Props) => {
         onClick={handleClick}
         editAction={renderEditAction}
         removeAction={renderRemoveAction}
+        additionalActions={renderAdditionalActions}
       />
     );
   };
@@ -130,6 +169,7 @@ const ReportSection = (props: Props) => {
             handleClick={handleClick}
             renderEditAction={renderEditAction}
             renderRemoveAction={renderRemoveAction}
+            renderAdditionalActions={renderAdditionalActions}
           />
         ))}
         {<div>{renderListWithoutSection()}</div>}

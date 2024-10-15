@@ -15,6 +15,7 @@ import { SidebarList } from "@erxes/ui/src/layout/styles";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils/index";
+import colors from "@erxes/ui/src/styles/colors"
 
 type Props = {
   queryParams: any;
@@ -23,11 +24,12 @@ type Props = {
   dashboards: IDashboard[];
   loading: boolean;
 
+  updateDashboard: (id: string) => void;
   removeDashboard: (id: string) => void;
 };
 
 const DashboardSection = (props: Props) => {
-  const { queryParams, sections, dashboards, loading, removeDashboard } = props;
+  const { queryParams, sections, dashboards, loading, updateDashboard, removeDashboard } = props;
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -81,6 +83,42 @@ const DashboardSection = (props: Props) => {
     );
   };
 
+  const renderAdditionalActions = (dashboard: any) => {
+
+    const pinIcon = (
+      <i style={{ display: "flex" }}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill={dashboard.isPinned ? colors.colorPrimary : 'none'}
+          stroke={dashboard.isPinned ? colors.colorPrimary : colors.colorCoreGray}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12 17v5" />
+          <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" />
+        </svg>
+      </i>
+    )
+
+    const pinAction = (
+      <Button btnStyle="link" onClick={() => updateDashboard(dashboard._id)} >
+        <Tip text={__("Pin")} placement="bottom">
+          {pinIcon}
+        </Tip>
+      </Button>
+    )
+
+    return (
+      <>
+        {pinAction}
+      </>
+    );
+  };
+
   const handleClick = (_id) => {
     navigate(`/insight?dashboardId=${_id}`, { replace: true });
   };
@@ -106,6 +144,7 @@ const DashboardSection = (props: Props) => {
         onClick={handleClick}
         editAction={renderEditAction}
         removeAction={renderRemoveAction}
+        additionalActions={renderAdditionalActions}
       />
     );
   };
@@ -131,6 +170,7 @@ const DashboardSection = (props: Props) => {
             handleClick={handleClick}
             renderEditAction={renderEditAction}
             renderRemoveAction={renderRemoveAction}
+            renderAdditionalActions={renderAdditionalActions}
           />
         ))}
         {<div>{renderListWithoutSection()}</div>}
