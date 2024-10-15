@@ -1768,7 +1768,7 @@ export const buildData = ({ chartType, data, filter, type }) => {
         case 'polarArea':
             return buildChartData(formattedData, measure, dimension, filter)
         case 'table':
-            return buildTableData(formattedData, measure, dimension)
+            return buildTableData(formattedData, measure, dimension, colDimension, rowDimension)
         case 'pivotTable':
             return buildPivotTableData(data, rowDimension, colDimension, measure)
         case 'number':
@@ -1866,7 +1866,14 @@ export const buildChartData = (data: any, measures: any, dimensions: any, filter
     return datasets
 }
 
-export const buildTableData = (data: any, measures: any, dimensions: any) => {
+export const buildTableData = (data: any, measures: any, dimensions: any, colDimension: any[], rowDimension: any[]) => {
+
+    if (colDimension?.length || rowDimension?.length) {
+        dimensions = [...colDimension.map(col => col.value), ...rowDimension.map(row => row.value)]
+    } else {
+        dimensions = Array.isArray(dimensions) ? dimensions : dimensions?.split(",") || []
+    }
+
     const reorderedData = data.map(item => {
         const order: any = {};
 
@@ -1894,7 +1901,7 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
     if (measures?.length) {
         total = data.reduce((acc, item) => {
 
-            acc['total'] = dimensions.length
+            acc['total'] = dimensions?.length
 
             measures.forEach(measure => {
                 if (item[DEAL_LABELS[measure]] !== undefined) {
@@ -2008,7 +2015,6 @@ const rd = /\d/;
 const rz = /^0/;
 
 export const naturalSort = (as: any, bs: any) => {
-    // nulls first
     if (bs !== null && as === null) {
         return -1;
     }
@@ -2016,7 +2022,20 @@ export const naturalSort = (as: any, bs: any) => {
         return 1;
     }
 
-    // then raw NaNs
+    if (typeof as === 'boolean') {
+        return -1;
+    }
+    if (typeof bs === 'boolean') {
+        return 1;
+    }
+
+    if (!as || as.trim() === "") {
+        return 1;
+    }
+    if (!bs || bs.trim() === "") {
+        return -1;
+    }
+
     if (typeof as === 'number' && isNaN(as)) {
         return -1;
     }
@@ -2024,7 +2043,6 @@ export const naturalSort = (as: any, bs: any) => {
         return 1;
     }
 
-    // numbers and numbery strings group together
     const nas = Number(as);
     const nbs = Number(bs);
     if (nas < nbs) {
@@ -2034,7 +2052,6 @@ export const naturalSort = (as: any, bs: any) => {
         return 1;
     }
 
-    // within that, true numbers before numbery strings
     if (typeof as === 'number' && typeof bs !== 'number') {
         return -1;
     }
@@ -2045,7 +2062,6 @@ export const naturalSort = (as: any, bs: any) => {
         return 0;
     }
 
-    // 'Infinity' is a textual number, so less than 'A'
     if (isNaN(nbs) && !isNaN(nas)) {
         return -1;
     }
@@ -2053,7 +2069,6 @@ export const naturalSort = (as: any, bs: any) => {
         return 1;
     }
 
-    // finally, "smart" string sorting per http://stackoverflow.com/a/4373421/112871
     let a: any = String(as);
     let b: any = String(bs);
     if (a === b) {
@@ -2063,7 +2078,6 @@ export const naturalSort = (as: any, bs: any) => {
         return a > b ? 1 : -1;
     }
 
-    // special treatment for strings containing digits
     a = a.match(rx);
     b = b.match(rx);
     while (a.length && b.length) {
@@ -2294,7 +2308,8 @@ export const buildPivotTableData = (data: any, rows: any[], cols: any[], value: 
     const headerRows = (rows || []).map((row: any, rowIndex: any) => {
         const headerCell = {
             content: row.value,
-            rowspan: cols.length + 1
+            rowspan: cols.length + 1,
+            className: 'sticky-col pl-0'
         };
 
         return headerCell
@@ -2363,7 +2378,7 @@ export const buildPivotTableData = (data: any, rows: any[], cols: any[], value: 
             const bodyCell = {
                 content: row,
                 rowspan: colspan === -1 ? 0 : colspan === 1 ? colspan : rowGap ? colspan + 1 : colspan - 1,
-                className: `pl-0 ${rowGap ? 'subTotal' : ''}`
+                className: `pl-0 sticky-col ${rowGap ? 'subTotal' : ''}`
             };
 
             return bodyCell
@@ -2377,7 +2392,7 @@ export const buildPivotTableData = (data: any, rows: any[], cols: any[], value: 
             subTotalCell = {
                 content: `${rowKey[rowKey.length - 1]} Total`,
                 colspan: rowGap + 1,
-                className: "pl-0 subTotal"
+                className: "pl-0 subTotal sticky-col"
             };
         }
 
@@ -2425,7 +2440,7 @@ export const buildPivotTableData = (data: any, rows: any[], cols: any[], value: 
     let totalRowCell: any = {
         content: "Totals",
         colspan: rows.length,
-        className: "total"
+        className: "total sticky-col"
     }
 
     if (!rows[0].showTotal) {
@@ -2464,5 +2479,5 @@ export const buildPivotTableData = (data: any, rows: any[], cols: any[], value: 
 
     body.push([totalRowCell, ...totalColCell, grandTotalCell])
 
-    return { headers, body }
+    return { headers, body, rowAttributes: rows }
 }

@@ -387,17 +387,23 @@ export const generateInitialOptions = (options, selectedValues) => {
     }
   }).filter(item => item);
 
-  return options.map(option => {
-    const matchedOption = selectedValueArray.find(selectedValue => (selectedValue?.value || selectedValue) === option.value);
-
-    const updatedOption = { ...option };
-
-    if (matchedOption?.extraValues) {
-      Object.assign(updatedOption, matchedOption.extraValues);
-    }
+  return selectedValueArray.map(selectedValue => {
+    const matchedOption = options.find(option => option.value === selectedValue.value);
 
     if (matchedOption) {
-      return updatedOption
+      const updatedOption = { ...matchedOption, ...selectedValue.extraValues };
+      return updatedOption;
     }
-  }).filter(item => item);;
+
+  }).filter(item => item);
 };
+
+export const arrayMove = (array: any[], from: number, to: number) => {
+  const slicedArray = array.slice();
+  slicedArray.splice(
+    to < 0 ? array.length + to : to,
+    0,
+    slicedArray.splice(from, 1)[0]
+  );
+  return slicedArray;
+}

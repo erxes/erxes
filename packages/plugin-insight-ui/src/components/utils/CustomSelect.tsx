@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react'
-import Select, { MenuPlacement } from "react-select";
+import React, { MouseEventHandler, useEffect, useState } from 'react'
+import Select, { components, MenuPlacement, MultiValueGenericProps, MultiValueProps, Props as SelectProps } from "react-select";
 import { OptionLabel, MultiValue, MultiValueContent, ValueOption, Checkbox } from '../../styles';
 import { Icon } from '@erxes/ui/src';
-
-
 
 type Props = {
     value: any
@@ -132,37 +130,45 @@ const CustomSelect = (props: Props) => {
             default:
                 break;
         }
-
     }
 
-    const CustomMultiValue = ({ data, removeProps, fieldValueOptions }) => {
+    const SortableMultiValueLabel = (
+        (props: MultiValueGenericProps<any>) => <components.MultiValueLabel {...props} />
+    );
 
-        const { label, value } = data
+    const CustomMultiValue = ((props) => {
+        const { data, removeProps, fieldValueOptions } = props
+
+        const onMouseDown: MouseEventHandler<HTMLDivElement> = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        };
 
         return (
-            <MultiValue >
+            <MultiValue onMouseDown={onMouseDown}>
                 <MultiValueContent>
-                    <label>{label}</label>
-                    {fieldValueOptions?.map((fieldValueOption, index) => renderValueOption(fieldValueOption, value))}
+                    <SortableMultiValueLabel {...props} />
+                    {fieldValueOptions?.map((fieldValueOption, index) => renderValueOption(fieldValueOption, data.value))}
                 </MultiValueContent>
                 <Icon icon='times' {...removeProps} />
             </MultiValue>
-        );
-    };
+        )
+    });
 
-    const finalProps = {
+    const finalProps: SelectProps = {
         value: initialValue,
-        isClearable: true,
         isMulti: multi,
         onChange: handleSelect,
         options: options,
         placeholder: fieldLabel,
-        menuPlacement: "auto" as MenuPlacement
+        menuPlacement: "auto" as MenuPlacement,
     };
 
     if (fieldValueOptions?.length) {
+
         finalProps["components"] = {
-            MultiValue: (props) => <CustomMultiValue {...props} fieldValueOptions={fieldValueOptions} />
+            MultiValue: (props: MultiValueProps) => <CustomMultiValue {...props} fieldValueOptions={fieldValueOptions} />,
+            MultiValueLabel: SortableMultiValueLabel,
         }
     }
 

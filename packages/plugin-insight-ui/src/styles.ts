@@ -9,6 +9,7 @@ import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import Table from '@erxes/ui/src/components/table';
 import { FormLabel } from '@erxes/ui/src/components/form/styles';
+import { StyledTable, TableWrapper } from '@erxes/ui/src/components/table/styles';
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -749,7 +750,12 @@ const ChartTable = styled(Table)`
   }
 `;
 
-const PivotTable = styled(Table)`
+const PivotTable = styled(StyledTable)`
+
+  th, td {
+    padding-top: 9px;
+    padding-bottom: 9px;
+  }
 
   .pl-0 {
     padding-left: 0;
@@ -763,10 +769,18 @@ const PivotTable = styled(Table)`
     font-weight: bold;
   }
 
+  .sticky-col {
+    position: sticky;
+    background-color: white;
+    left: 0;
+    z-index: 10;
+  }
+
   thead {
     background-color: #fff;
     position: sticky;
     top: 0;
+    z-index: 11;
   }
 
   tr:first-child {
@@ -781,9 +795,10 @@ const PivotTable = styled(Table)`
 const ScrollWrapper = styled.div`
   height: 100%;
   overflow: auto;
-  padding: 0px 10px 0 20px;
-  margin-left: -20px;
-  margin-right: -10px;
+
+  ${TableWrapper} {
+    padding: 0 !important;
+  }
 `;
 
 const MultiValue = styled.div`

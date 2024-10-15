@@ -61,9 +61,7 @@ export default {
     },
     async isPinned(report: IReportDocument, { }, { models, user }: IContext) {
 
-        const { _id, userIds } = report
-
-        console.log("userIds report", _id, " : ", userIds)
+        const { userIds } = report
 
         if ((userIds || []).includes(user._id)) {
             return true
