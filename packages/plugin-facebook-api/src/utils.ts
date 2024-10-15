@@ -57,7 +57,7 @@ export const getPostDetails = async (
 
   try {
     const response: any = await graphRequest.get(
-      `/${postId}?fields=permalink_url,message,created_time`,
+      `/${postId}?fields=permalink_url,created_time,from,message,attachments{description,media,media_type,description_tags,title,type,subattachments}`,
       pageAccessToken
     );
 
@@ -218,58 +218,37 @@ export const getFacebookUser = async (
   }
 };
 
-export const uploadMedia = async (subdomain: string, url: any, video) => {
+export const uploadMedia = async (
+  subdomain: string,
+  url: string,
+  video: boolean
+) => {
   const mediaFile = `${randomAlphanumeric()}.${video ? 'mp4' : 'jpg'}`;
 
-  const { AWS_BUCKET, FILE_SYSTEM_PUBLIC } =
-    await getFileUploadConfigs(subdomain);
-
-  // initialize s3
+  const { AWS_BUCKET } = await getFileUploadConfigs(subdomain);
   const s3 = await createAWS(subdomain);
 
   try {
     const response = await fetch(url);
-
-    if (!response.ok)
+    if (!response.ok) {
       throw new Error(
         `uploadMedia: unexpected response ${response.statusText}`
       );
+    }
 
-    /**
-     * If directly piping response body to s3.upload body doesn't work we can
-     * save it to disk first
-     *
-     * import { pipeline } from 'node:stream/promises';
-     * await pipeline(response.body, fs.createWriteStream(mediaFile));
-     *
-     * then pipe it into body using
-     *
-     * Body: fs.createReadStream(mediaFile)
-     */
+    const uploadParams = {
+      Bucket: AWS_BUCKET,
+      Key: mediaFile,
+      Body: response.body,
+      ACL: 'public-read',
+      ContentDisposition: 'inline', // Set this header to make it viewable in the browser
+      ContentType: video ? 'video/mp4' : 'image/jpeg' // Set the appropriate Content-Type
+    };
 
-    return new Promise((resolve, reject) => {
-      s3.upload(
-        {
-          Bucket: AWS_BUCKET,
-          Key: mediaFile,
-          Body: response.body,
-          ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
-        },
-        (err, res) => {
-          if (err) {
-            reject(err);
-          }
-          const file = FILE_SYSTEM_PUBLIC === 'true' ? res.Location : res.key;
-
-          return resolve(file);
-        }
-      );
-    });
+    const data = await s3.upload(uploadParams).promise(); // Use .promise() for cleaner code
+    return data.Location; // Return the public URL of the uploaded file
   } catch (e) {
-    debugError(
-      `Error occurred while getting facebook user profile pic: ${e.message}`
-    );
-
+    console.error(`Error occurred while uploading media: ${e.message}`);
     return null;
   }
 };
