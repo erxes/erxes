@@ -276,6 +276,7 @@ export const verifyOnMailsso = async (email: string, hostname: string) => {
 
     const data = await response.json();
     const res = data.data;
+    console.log("Ressss ",res)
 
     if (res.result !== 'deliverable') {
       debugBase(`successfully clearout:`, email, ' status: ', res.result);
