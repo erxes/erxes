@@ -6,14 +6,44 @@ const categoryFields = `
   code
 `;
 
-const knowledgeBaseTopics = `
-  query knowledgeBaseTopics($page: Int, $perPage: Int) {
+const knowledgeBaseTopicsShort = `
+  query kbTopics($page: Int, $perPage: Int) {
     knowledgeBaseTopics(page: $page, perPage: $perPage) {
       _id
       title
       brand {
         _id
         name
+      }
+    }
+  }
+`;
+
+const knowledgeBaseTopics = `
+  query knowledgeBaseTopics($page: Int, $perPage: Int) {
+    knowledgeBaseTopics(page: $page, perPage: $perPage) {
+      _id
+      title
+      code
+      description
+      brand {
+        _id
+        name
+      }
+      categories {
+        ${categoryFields}
+      }
+      color
+      backgroundImage
+      languageCode
+      createdBy
+      createdDate
+      modifiedBy
+      modifiedDate
+      notificationSegmentId
+
+      parentCategories {
+        ${categoryFields}
       }
     }
   }
@@ -169,6 +199,7 @@ export default {
   getSegmentList,
   categoriesGetLast,
   knowledgeBaseTopics,
+  knowledgeBaseTopicsShort,
   knowledgeBaseTopicsTotalCount,
   knowledgeBaseCategories,
   knowledgeBaseCategoryDetail,

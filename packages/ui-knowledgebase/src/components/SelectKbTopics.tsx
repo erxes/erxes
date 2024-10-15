@@ -1,7 +1,19 @@
 import React from 'react';
 import { IOption, IQueryParams } from '@erxes/ui/src/types';
 import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
-import { queries } from '@erxes/ui-knowledgebase/src/graphql';
+
+const QUERY = `
+  query kbTopics($page: Int, $perPage: Int) {
+    knowledgeBaseTopics(page: $page, perPage: $perPage) {
+      _id
+      title
+      brand {
+        _id
+        name
+      }
+    }
+  }
+`;
 
 const SelectKbTopics = ({
   label,
@@ -31,12 +43,12 @@ const SelectKbTopics = ({
   return (
     <SelectWithSearch
       label={label || 'select knowledgebase topic'}
-      queryName="knowledgeBaseTopics"
+      queryName="kbTopics"
       name={name}
       initialValue={defaultValue}
       generateOptions={generateOptions}
       onSelect={onSelect}
-      customQuery={queries.knowledgeBaseTopics}
+      customQuery={QUERY}
       customOption={customOption}
       multi={multi}
     />
