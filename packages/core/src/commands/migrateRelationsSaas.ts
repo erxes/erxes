@@ -15,7 +15,11 @@ if (!MONGO_URL) {
 let db;
 
 const command = async () => {
-  const organizations = await getOrganizations();
+  const organizations = [
+    { subdomain: "tavanbogd", _id: "66e9186445ccf13b4ec85f5d" },
+    { subdomain: "godiva", _id: "65fbf9c6142e33ab48ea41de" },
+    { subdomain: "tbs", _id: "65fbac9e142e33f52eea41d1" }
+  ];
 
   const switchContentType = contentType => {
     let changedContentType = contentType;
