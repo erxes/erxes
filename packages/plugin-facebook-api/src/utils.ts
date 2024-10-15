@@ -248,7 +248,7 @@ export const uploadMedia = async (
     const data = await s3.upload(uploadParams).promise(); // Use .promise() for cleaner code
     return data.Location; // Return the public URL of the uploaded file
   } catch (e) {
-    console.error(`Error occurred while uploading media: ${e.message}`);
+    debugError(`Error occurred while uploading media: ${e.message}`);
     return null;
   }
 };
