@@ -13,6 +13,7 @@ import { IAttachment, IAttachmentMessage } from './types';
 import { getFileUploadConfigs } from './messageBroker';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import moment from 'moment';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
@@ -197,61 +198,84 @@ export const getFacebookUser = async (
   }
 };
 
-export const uploadMedia = async (subdomain: string, url: any, video) => {
+export const uploadMedia = async (
+  subdomain: string,
+  url: string,
+  video: boolean
+) => {
   const mediaFile = `${randomAlphanumeric()}.${video ? 'mp4' : 'jpg'}`;
 
-  const { AWS_BUCKET, FILE_SYSTEM_PUBLIC } =
-    await getFileUploadConfigs(subdomain);
-
-  // initialize s3
+  const { AWS_BUCKET } = await getFileUploadConfigs(subdomain);
   const s3 = await createAWS(subdomain);
 
   try {
     const response = await fetch(url);
-
-    if (!response.ok)
+    if (!response.ok) {
       throw new Error(
         `uploadMedia: unexpected response ${response.statusText}`
       );
+    }
 
-    /**
-     * If directly piping response body to s3.upload body doesn't work we can
-     * save it to disk first
-     *
-     * import { pipeline } from 'node:stream/promises';
-     * await pipeline(response.body, fs.createWriteStream(mediaFile));
-     *
-     * then pipe it into body using
-     *
-     * Body: fs.createReadStream(mediaFile)
-     */
+    const uploadParams = {
+      Bucket: AWS_BUCKET,
+      Key: mediaFile,
+      Body: response.body,
+      ACL: 'public-read',
+      ContentDisposition: 'inline', // Set this header to make it viewable in the browser
+      ContentType: video ? 'video/mp4' : 'image/jpeg' // Set the appropriate Content-Type
+    };
 
-    return new Promise((resolve, reject) => {
-      s3.upload(
-        {
-          Bucket: AWS_BUCKET,
-          Key: mediaFile,
-          Body: response.body,
-          ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
-        },
-        (err, res) => {
-          if (err) {
-            reject(err);
-          }
-          const file = FILE_SYSTEM_PUBLIC === 'true' ? res.Location : res.key;
-
-          return resolve(file);
-        }
-      );
-    });
+    const data = await s3.upload(uploadParams).promise(); // Use .promise() for cleaner code
+    return data.Location; // Return the public URL of the uploaded file
   } catch (e) {
-    debugError(
-      `Error occurred while getting facebook user profile pic: ${e.message}`
-    );
-
+    console.error(`Error occurred while uploading media: ${e.message}`);
     return null;
   }
 };
+
+// export const uploadMedia = async (
+//   subdomain: string,
+//   url: string,
+//   video: boolean
+// ) => {
+//   const mediaFile = `${randomAlphanumeric()}.${video ? 'mp4' : 'jpg'}`;
+
+//   const { AWS_BUCKET, FILE_SYSTEM_PUBLIC } =
+//     await getFileUploadConfigs(subdomain);
+//   const s3 = await createAWS(subdomain);
+
+//   try {
+//     const response = await fetch(url);
+//     if (!response.ok) {
+//       throw new Error(
+//         `uploadMedia: unexpected response ${response.statusText}`
+//       );
+//     }
+
+//     const uploadParams = {
+//       Bucket: AWS_BUCKET,
+//       Key: mediaFile,
+//       Body: response.body,
+//       ACL: 'public-read'
+//     };
+
+//     const res = await new Promise((resolve, reject) => {
+//       s3.upload(uploadParams, (err, data) => {
+//         if (err) {
+//           return reject(err);
+//         }
+//         const fileUrl = data.Location;
+//         console.log(fileUrl, 'askdopaskdpoa');
+//         // resolve(fileUrl);
+//       });
+//     });
+
+//     return res;
+//   } catch (e) {
+//     console.error(`Error occurred while uploading media: ${e.message}`);
+//     return null;
+//   }
+// };
 
 export const getFacebookUserProfilePic = async (
   pageId: string,
@@ -460,7 +484,7 @@ export const getAdapter = async (models: IModels): Promise<any> => {
   });
 };
 
-export const createAWS = async (subdomain: string) => {
+export const createAWS = async (subdomain) => {
   const {
     AWS_FORCE_PATH_STYLE,
     AWS_COMPATIBLE_SERVICE_ENDPOINT,
@@ -473,25 +497,13 @@ export const createAWS = async (subdomain: string) => {
     throw new Error('AWS credentials are not configured');
   }
 
-  const options: {
-    accessKeyId: string;
-    secretAccessKey: string;
-    endpoint?: string;
-    s3ForcePathStyle?: boolean;
-  } = {
+  const options = {
     accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+    s3ForcePathStyle: AWS_FORCE_PATH_STYLE === 'true',
+    endpoint: AWS_COMPATIBLE_SERVICE_ENDPOINT || undefined
   };
 
-  if (AWS_FORCE_PATH_STYLE === 'true') {
-    options.s3ForcePathStyle = true;
-  }
-
-  if (AWS_COMPATIBLE_SERVICE_ENDPOINT) {
-    options.endpoint = AWS_COMPATIBLE_SERVICE_ENDPOINT;
-  }
-
-  // initialize s3
   return new AWS.S3(options);
 };
 

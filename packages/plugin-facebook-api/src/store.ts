@@ -17,6 +17,7 @@ import { ICustomerDocument } from './models/definitions/customers';
 import { IIntegrationDocument } from './models/Integrations';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { getPostDetails } from './utils';
+import * as AWS from 'aws-sdk';
 interface IDoc {
   postId?: string;
   commentId?: string;
@@ -31,7 +32,7 @@ interface IDoc {
 }
 
 export const generatePostDoc = async (
-  postParams: IPostParams,
+  postParams: any,
   pageId: string,
   userId: string,
   subdomain: string
@@ -46,65 +47,44 @@ export const generatePostDoc = async (
     photo_id,
     video_id
   } = postParams;
-  let generatedMediaUrls: any[] = [];
+
+  let generatedMediaUrls: string[] = [];
 
   const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
 
-  const mediaUrls = postParams.photos || [];
-  const mediaLink = postParams.link || '';
-
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    if (mediaLink) {
+    if (link) {
       if (video_id) {
-        generatedMediaUrls = (await uploadMedia(
-          subdomain,
-          mediaLink,
-          true
-        )) as any;
-      }
-
-      if (photo_id) {
-        generatedMediaUrls = (await uploadMedia(
-          subdomain,
-          mediaLink,
-          false
-        )) as any;
+        const mediaUrl = await uploadMedia(subdomain, link, true);
+        if (typeof mediaUrl === 'string') generatedMediaUrls.push(mediaUrl);
+      } else if (photo_id) {
+        const mediaUrl = await uploadMedia(subdomain, link, false);
+        if (typeof mediaUrl === 'string') generatedMediaUrls.push(mediaUrl);
       }
     }
 
-    if (mediaUrls.length > 0) {
-      generatedMediaUrls = await Promise.all(
-        mediaUrls.map((url) => uploadMedia(subdomain, url, false))
+    if (photos && photos.length > 0) {
+      const mediaUrls = await Promise.all(
+        photos.map((url) => uploadMedia(subdomain, url, false))
+      );
+
+      generatedMediaUrls = mediaUrls.filter(
+        (url): url is string => url !== null && typeof url === 'string'
       );
     }
   }
 
-  const doc: IDoc = {
+  const doc = {
     postId: post_id || id,
     content: message || '...',
     recipientId: pageId,
     senderId: userId,
-    permalink_url: ''
+    permalink_url: '',
+    attachments: generatedMediaUrls.length > 0 ? generatedMediaUrls : [],
+    timestamp: created_time || undefined
   };
 
-  if (link) {
-    doc.attachments = generatedMediaUrls;
-  }
-
-  // Posted multiple image
-  if (photos) {
-    if (UPLOAD_SERVICE_TYPE === 'AWS') {
-      doc.attachments = generatedMediaUrls;
-    }
-    if (UPLOAD_SERVICE_TYPE === 'local') {
-      doc.attachments = photos;
-    }
-  }
-
-  if (created_time) {
-    doc.timestamp = created_time;
-  }
-
+  console.log('Generated Post Document:', doc);
   return doc;
 };
 
@@ -232,7 +212,13 @@ export const getOrCreatePost = async (
     throw new Error('post_id is required');
   }
   const { facebookPageTokensMap = {} } = integration;
+  const doc = await generatePostDoc(postParams, pageId, userId, subdomain);
+  if (!doc.attachments && doc.content === '...') {
+    console.log('asdkl;askds');
+    throw new Error();
+  }
 
+  console.log(doc, 'doc');
   const postUrl = await getPostDetails(
     pageId,
     facebookPageTokensMap,
@@ -245,7 +231,7 @@ export const getOrCreatePost = async (
     content: message || '...',
     recipientId: pageId,
     senderId: userId,
-    permalink_url: postUrl || '',
+    permalink_url: postUrl.permalink_url || '',
     attachments: media
   };
 
