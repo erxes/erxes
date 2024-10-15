@@ -91,7 +91,7 @@ const List = ({ list, totalCount, queryParams, remove }) => {
 
   const leftActionBar = (
     <HeaderDescription
-      title="Assessments"
+      title={__("Assessments")}
       icon="/images/actions/13.svg"
       description=""
     />
@@ -125,7 +125,7 @@ const List = ({ list, totalCount, queryParams, remove }) => {
 
   return (
     <Wrapper
-      header={<Wrapper.Header title={"Assessment"} />}
+      header={<Wrapper.Header title={__("Assessment")} />}
       actionBar={
         <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
       }
