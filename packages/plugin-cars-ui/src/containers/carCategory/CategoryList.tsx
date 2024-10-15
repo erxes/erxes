@@ -10,7 +10,7 @@ import {
   CarCategoryRemoveMutationResponse,
 } from '../../types';
 
-type Props = { history: any; queryParams: any };
+type Props = { queryParams: any };
 
 const CategoryListContainer = (props: Props) => {
   const carCategoriesQuery = useQuery<CarCategoriesQueryResponse>(
