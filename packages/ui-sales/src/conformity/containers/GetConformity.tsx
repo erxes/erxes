@@ -72,19 +72,17 @@ export default (props: IProps) =>
               mainType,
               mainTypeId,
               relType,
+              noSkipArchive: true,
               limit: 40,
-              isSaved: true
+              isSaved: true,
+              sortField: 'status',
+              sortDirection: 1
             };
 
             // conformity with mainType "user" is not saved
             if (mainType === 'user') {
               variables.assignedUserIds = [mainTypeId];
               variables.isSaved = false;
-            }
-
-            // add archived items in contacts side bar
-            if (mainType === 'customer' || mainType === 'company') {
-              variables.noSkipArchive = true;
             }
 
             return { variables };
