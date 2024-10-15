@@ -128,7 +128,7 @@ class JobForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Sub Flows</ControlLabel>
           <ModalTrigger
-            title="Choose a FLOW"
+            title={__("Choose a FLOW")}
             trigger={this.renderSubFlowTrigger(subFlow)}
             size="lg"
             content={content}
