@@ -209,8 +209,9 @@ export const getOrCreatePostConversation = async (
 
     return postConversation;
   } catch (error) {
-    console.error(error);
-    throw new Error('Could not get or create post conversation.');
+    throw new Error(
+      `Could not get or create post conversation. Details: ${error.message}`
+    );
   }
 };
 
