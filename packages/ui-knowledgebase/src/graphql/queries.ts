@@ -11,26 +11,9 @@ const knowledgeBaseTopics = `
     knowledgeBaseTopics(page: $page, perPage: $perPage) {
       _id
       title
-      code
-      description
       brand {
         _id
         name
-      }
-      categories {
-        ${categoryFields}
-      }
-      color
-      backgroundImage
-      languageCode
-      createdBy
-      createdDate
-      modifiedBy
-      modifiedDate
-      notificationSegmentId
-
-      parentCategories {
-        ${categoryFields}
       }
     }
   }
