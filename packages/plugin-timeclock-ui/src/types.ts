@@ -172,6 +172,7 @@ export interface IScheduleConfig {
   lunchBreakInMins: number;
   shiftStart: string;
   shiftEnd: string;
+  locations: any[];
   configDays: IScheduleConfigDays[];
 }
 

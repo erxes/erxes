@@ -315,6 +315,7 @@ const scheduleConfigs = `
       lunchBreakInMins
       shiftStart
       shiftEnd
+      locations
       configDays{
         _id
         configName

@@ -10,18 +10,18 @@ import {
   ITimeClock,
   IAbsenceType,
   IDeviceConfigDocument,
-  IDeviceConfig
+  IDeviceConfig,
 } from '../../models/definitions/timeclock';
 import {
   createScheduleShiftsByUserIds,
   findBranches,
   findUser,
-  returnUnionOfUserIds
+  returnUnionOfUserIds,
 } from './utils';
 import dayjs = require('dayjs');
 import {
   connectAndQueryFromMsSql,
-  connectAndQueryTimeLogsFromMsSql
+  connectAndQueryTimeLogsFromMsSql,
 } from '../../utils';
 import { sendMobileNotification } from '../utils';
 
@@ -111,7 +111,7 @@ const timeclockMutations = {
         branchName: getBranchName,
         deviceType,
         inDevice: getBranchName,
-        inDeviceType: deviceType
+        inDeviceType: deviceType,
       });
     } else {
       throw new Error('User not in the coordinate');
@@ -126,7 +126,7 @@ const timeclockMutations = {
     { models, subdomain, user }: IContext
   ) {
     const timeclock = await models.Timeclocks.findOne({
-      _id
+      _id,
     });
     if (!timeclock) {
       throw new Error('time clock not found');
@@ -188,7 +188,7 @@ const timeclockMutations = {
         outDeviceType: deviceType,
         outDevice,
         userId: getUserId,
-        ...doc
+        ...doc,
       });
     } else {
       throw new Error('User not in the coordinate');
@@ -243,7 +243,7 @@ const timeclockMutations = {
       reason: `${checkType} request`,
       userId: getUserId,
       startTime: checkTime,
-      checkInOutRequest: true
+      checkInOutRequest: true,
     });
   },
 
@@ -265,17 +265,17 @@ const timeclockMutations = {
     let updated = models.Absences.updateAbsence(_id, {
       status,
       solved: true,
-      ...doc
+      ...doc,
     });
 
     const findUserSchedules = await models.Schedules.find({
-      userId: shiftRequest.userId
+      userId: shiftRequest.userId,
     });
 
     const findUserScheduleShifts = await models.Shifts.find({
       scheduleId: {
-        $in: findUserSchedules.map(schedule => schedule._id)
-      }
+        $in: findUserSchedules.map((schedule) => schedule._id),
+      },
     });
 
     if (shiftRequest.checkInOutRequest) {
@@ -283,7 +283,7 @@ const timeclockMutations = {
       return models.Absences.updateAbsence(_id, {
         status: `${shiftRequest.reason} / ${status}`,
         solved: true,
-        ...doc
+        ...doc,
       });
     }
 
@@ -295,7 +295,7 @@ const timeclockMutations = {
     if (findAbsenceType && findAbsenceType.shiftRequest) {
       updated = models.Absences.updateAbsence(_id, {
         status: `Shift request / ${status}`,
-        ...doc
+        ...doc,
       });
 
       // if shift request is approved
@@ -304,7 +304,7 @@ const timeclockMutations = {
           userId: shiftRequest.userId,
           solved: true,
           status: 'Approved',
-          createdByRequest: true
+          createdByRequest: true,
         });
 
         if (
@@ -328,11 +328,11 @@ const timeclockMutations = {
               shiftStart: requestStartTime,
               shiftEnd: requestEndTime,
               shiftActive: false,
-              deviceType: 'Shift request'
+              deviceType: 'Shift request',
             });
 
             const findOverrideShift = findUserScheduleShifts.find(
-              shift =>
+              (shift) =>
                 dayjs(new Date(shift.shiftStart || '')).format(dateFormat) ===
                 requestDate
             );
@@ -340,7 +340,7 @@ const timeclockMutations = {
               scheduleShiftUpdateOps.push({
                 updateOne: {
                   filter: {
-                    _id: findOverrideShift._id
+                    _id: findOverrideShift._id,
                   },
                   update: {
                     $set: {
@@ -348,10 +348,10 @@ const timeclockMutations = {
                       shiftStart: requestStartTime,
                       shiftEnd: requestEndTime,
                       solved: true,
-                      status: 'Approved'
-                    }
-                  }
-                }
+                      status: 'Approved',
+                    },
+                  },
+                },
               });
 
               continue;
@@ -364,9 +364,9 @@ const timeclockMutations = {
                   shiftStart: requestStartTime,
                   shiftEnd: requestEndTime,
                   solved: true,
-                  status: 'Approved'
-                }
-              }
+                  status: 'Approved',
+                },
+              },
             });
           }
 
@@ -411,7 +411,7 @@ const timeclockMutations = {
               scheduleShiftUpdateOps.push({
                 updateOne: {
                   filter: {
-                    _id: userScheduleShift._id
+                    _id: userScheduleShift._id,
                   },
                   update: {
                     $set: {
@@ -419,10 +419,10 @@ const timeclockMutations = {
                       shiftStart: requestStartTime,
                       shiftEnd: requestEndTime,
                       solved: true,
-                      status: 'Approved'
-                    }
-                  }
-                }
+                      status: 'Approved',
+                    },
+                  },
+                },
               });
 
               overrideScheduleShiftFound = true;
@@ -435,7 +435,7 @@ const timeclockMutations = {
             shiftStart: shiftRequest.startTime,
             shiftEnd: shiftRequest.endTime,
             shiftActive: false,
-            deviceType: 'Shift request'
+            deviceType: 'Shift request',
           });
 
           if (scheduleShiftUpdateOps.length) {
@@ -447,7 +447,7 @@ const timeclockMutations = {
               userId: shiftRequest.userId,
               solved: true,
               status: 'Approved',
-              createdByRequest: true
+              createdByRequest: true,
             });
 
             await models.Shifts.createShift({
@@ -455,7 +455,7 @@ const timeclockMutations = {
               shiftStart: shiftRequest.startTime,
               shiftEnd: shiftRequest.endTime,
               solved: true,
-              status: 'Approved'
+              status: 'Approved',
             });
           }
         }
@@ -472,7 +472,7 @@ const timeclockMutations = {
       'request',
       {
         reason: shiftRequest.reason,
-        approved: status === 'Approved'
+        approved: status === 'Approved',
       }
     );
   },
@@ -485,7 +485,7 @@ const timeclockMutations = {
     const updated = models.Schedules.updateSchedule(_id, {
       status,
       solved: true,
-      ...doc
+      ...doc,
     });
 
     await models.Shifts.updateMany(
@@ -505,7 +505,7 @@ const timeclockMutations = {
     const updated = await models.Shifts.updateShift(_id, {
       status,
       solved: true,
-      ...doc
+      ...doc,
     });
 
     // check if all shifts of a schedule solved
@@ -538,7 +538,7 @@ const timeclockMutations = {
         shiftStart: shift.shiftStart,
         shiftEnd: shift.shiftEnd,
         scheduleConfigId: shift.scheduleConfigId,
-        lunchBreakInMins: shift.lunchBreakInMins
+        lunchBreakInMins: shift.lunchBreakInMins,
       });
     }
 
@@ -562,14 +562,14 @@ const timeclockMutations = {
 
     const totalSchedules = await models.Schedules.find({
       userId: { $in: scheduledUserIds },
-      ...filterApprovedSchedules
+      ...filterApprovedSchedules,
     });
 
     if (!totalSchedules.length) {
       return [];
     }
 
-    const totalScheduleIds = totalSchedules.map(schedule => schedule._id);
+    const totalScheduleIds = totalSchedules.map((schedule) => schedule._id);
 
     const findManyOps: any[] = [];
 
@@ -577,20 +577,20 @@ const timeclockMutations = {
       const shiftDuplicateCases = [
         {
           shiftStart: { $gte: shift.shiftStart },
-          shiftEnd: { $lte: shift.shiftEnd }
+          shiftEnd: { $lte: shift.shiftEnd },
         },
         {
-          shiftEnd: { $gte: shift.shiftStart, $lte: shift.shiftEnd }
+          shiftEnd: { $gte: shift.shiftStart, $lte: shift.shiftEnd },
         },
         { shiftStart: { $gte: shift.shiftStart, $lte: shift.shiftEnd } },
         {
           shiftStart: {
-            $lte: shift.shiftEnd
+            $lte: shift.shiftEnd,
           },
           shiftEnd: {
-            $gte: shift.shiftStart
-          }
-        }
+            $gte: shift.shiftStart,
+          },
+        },
       ];
 
       findManyOps.push(...shiftDuplicateCases);
@@ -600,18 +600,20 @@ const timeclockMutations = {
       $and: [
         { scheduleId: { $in: totalScheduleIds } },
         {
-          $or: findManyOps
-        }
-      ]
+          $or: findManyOps,
+        },
+      ],
     });
 
-    const duplicateScheduleIds = duplicateShifts.map(shift => shift.scheduleId);
-    const duplicateSchedules = totalSchedules.filter(schedule =>
+    const duplicateScheduleIds = duplicateShifts.map(
+      (shift) => shift.scheduleId
+    );
+    const duplicateSchedules = totalSchedules.filter((schedule) =>
       duplicateScheduleIds.includes(schedule._id)
     );
 
     for (const schedule of duplicateSchedules) {
-      schedule.shiftIds = duplicateShifts.map(shift => shift._id);
+      schedule.shiftIds = duplicateShifts.map((shift) => shift._id);
     }
 
     return duplicateSchedules;
@@ -637,7 +639,7 @@ const timeclockMutations = {
   async scheduleShiftRemove(_root, { _id }, { models }: IContext) {
     const getShift = await models.Shifts.getShift(_id);
     const getShiftsCount = await models.Shifts.countDocuments({
-      scheduleId: getShift.scheduleId
+      scheduleId: getShift.scheduleId,
     });
     // if it's the only one shift in schedule, remove schedule
     if (getShiftsCount === 1 && getShift.scheduleId) {
@@ -652,9 +654,9 @@ const timeclockMutations = {
     const scheduleShiftIds: string[] = [];
     const prevScheduleShiftIds: string[] = (
       await models.Shifts.find({
-        scheduleId: _id
+        scheduleId: _id,
       })
-    ).map(s => s._id);
+    ).map((s) => s._id);
 
     for (const shift of shifts) {
       if (!shift._id) {
@@ -662,9 +664,9 @@ const timeclockMutations = {
           insertOne: {
             document: {
               scheduleId: _id,
-              ...shift
-            }
-          }
+              ...shift,
+            },
+          },
         });
         continue;
       }
@@ -674,17 +676,17 @@ const timeclockMutations = {
       scheduleShiftUpdateOps.push({
         updateOne: {
           filter: {
-            _id: shift._id
+            _id: shift._id,
           },
           update: {
             $set: {
               scheduleId: _id,
               scheduleConfigId: shift.scheduleConfigId,
               shiftStart: shift.shiftStart,
-              shiftEnd: shift.shiftEnd
-            }
-          }
-        }
+              shiftEnd: shift.shiftEnd,
+            },
+          },
+        },
       });
     }
 
@@ -692,7 +694,9 @@ const timeclockMutations = {
     const set = new Set(scheduleShiftIds);
 
     // Use the spread operator to convert the Sets back to arrays
-    const removeShiftIds = prevScheduleShiftIds.filter(item => !set.has(item));
+    const removeShiftIds = prevScheduleShiftIds.filter(
+      (item) => !set.has(item)
+    );
 
     if (removeShiftIds.length) {
       await models.Shifts.deleteMany({ _id: { $in: removeShiftIds } });
@@ -722,7 +726,7 @@ const timeclockMutations = {
       endTime: endDate,
       status: 'Holiday',
       reason: 'Holiday',
-      solved: true
+      solved: true,
     });
   },
 
@@ -736,7 +740,7 @@ const timeclockMutations = {
       startTime: startDate,
       endTime: endDate,
       status: 'Holiday',
-      ...doc
+      ...doc,
     });
   },
 
@@ -752,7 +756,7 @@ const timeclockMutations = {
       scheduleConfig,
       configShiftStart,
       configShiftEnd,
-      locations
+      locations,
     },
     { models }: IContext
   ) {
@@ -762,19 +766,19 @@ const timeclockMutations = {
         lunchBreakInMins,
         shiftStart: configShiftStart,
         shiftEnd: configShiftEnd,
-        locations
+        locations,
       }
     );
 
     const timeFormat = 'HH:mm';
 
-    scheduleConfig.forEach(async scheduleShift => {
+    scheduleConfig.forEach(async (scheduleShift) => {
       await models.Shifts.createShift({
         scheduleConfigId: newScheduleConfig._id,
         configShiftStart: dayjs(scheduleShift.shiftStart).format(timeFormat),
         configShiftEnd: dayjs(scheduleShift.shiftEnd).format(timeFormat),
         configName: scheduleShift.configName,
-        overnightShift: scheduleShift.overnightShift
+        overnightShift: scheduleShift.overnightShift,
       });
     });
 
@@ -785,7 +789,7 @@ const timeclockMutations = {
     const scheduleConfig = await models.ScheduleConfigs.getScheduleConfig(_id);
 
     await models.ScheduleConfigs.deleteMany({
-      scheduleConfigId: scheduleConfig._id
+      scheduleConfigId: scheduleConfig._id,
     });
 
     return models.ScheduleConfigs.removeScheduleConfig(_id);
@@ -800,7 +804,8 @@ const timeclockMutations = {
       scheduleConfig,
       configShiftStart,
       configShiftEnd,
-      doc
+      locations,
+      doc,
     },
     { models }: IContext
   ) {
@@ -811,25 +816,26 @@ const timeclockMutations = {
         lunchBreakInMins,
         shiftEnd: configShiftEnd,
         shiftStart: configShiftStart,
-        ...doc
+        locations,
+        ...doc,
       }
     );
 
     const timeFormat = 'HH:mm';
 
-    scheduleConfig.forEach(async scheduleShift => {
+    scheduleConfig.forEach(async (scheduleShift) => {
       const selector = {
         $and: [
           { scheduleConfigId: _id },
-          { configName: scheduleShift.configName }
-        ]
+          { configName: scheduleShift.configName },
+        ],
       };
 
       const updated = await models.Shifts.updateOne(selector, {
         configShiftStart: dayjs(scheduleShift.shiftStart).format(timeFormat),
         configShiftEnd: dayjs(scheduleShift.shiftEnd).format(timeFormat),
         overnightShift: scheduleShift.overnightShift,
-        ...scheduleShift
+        ...scheduleShift,
       });
     });
 
@@ -866,8 +872,8 @@ const timeclockMutations = {
     const update = {
       $set: {
         userId: getUserId,
-        ...params
-      }
+        ...params,
+      },
     };
     const options = { upsert: true };
 
@@ -878,13 +884,13 @@ const timeclockMutations = {
     const getUserId = doc.userId || user._id;
     return models.ReportChecks.createReportCheck({
       userId: getUserId,
-      ...doc
+      ...doc,
     });
   },
 
   async checkSchedule(_root, { scheduleId }, { models }: IContext) {
     return models.Schedules.updateSchedule(scheduleId, {
-      scheduleChecked: true
+      scheduleChecked: true,
     });
   },
 
@@ -898,7 +904,7 @@ const timeclockMutations = {
       userId,
       inDeviceType: 'log',
       inDevice,
-      shiftActive: true
+      shiftActive: true,
     });
   },
 
@@ -913,7 +919,7 @@ const timeclockMutations = {
       if (checkIfExtractingAlready) {
         return {
           message:
-            'Someone else is extracting\nPlease wait for few mins and try again'
+            'Someone else is extracting\nPlease wait for few mins and try again',
         };
       }
 
@@ -934,7 +940,7 @@ const timeclockMutations = {
 
   async extractTimeLogsFromMsSQL(_root, params, { subdomain }: IContext) {
     return connectAndQueryTimeLogsFromMsSql(subdomain, params);
-  }
+  },
 };
 
 moduleRequireLogin(timeclockMutations);
