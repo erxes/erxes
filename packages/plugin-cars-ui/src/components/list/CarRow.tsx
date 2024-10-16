@@ -3,10 +3,10 @@ import { FormControl, formatValue } from "@erxes/ui/src";
 import React from "react";
 import { FlexItem } from "../../styles";
 import { ICar } from "../../types";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   car: ICar;
-  history: any;
   isChecked: boolean;
   toggleBulk: (car: ICar, isChecked?: boolean) => void;
 };
@@ -21,7 +21,8 @@ function displayValue(car, name) {
   return formatValue(value);
 }
 
-function CarRow({ car, history, isChecked, toggleBulk }: Props) {
+function CarRow({ car, isChecked, toggleBulk }: Props) {
+  const navigate = useNavigate();
   const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(car, e.target.checked);
@@ -33,7 +34,7 @@ function CarRow({ car, history, isChecked, toggleBulk }: Props) {
   };
 
   const onTrClick = () => {
-    history.push(`/erxes-plugin-car/details/${car._id}`);
+    navigate(`/erxes-plugin-car/details/${car._id}`);
   };
 
   return (
