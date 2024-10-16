@@ -1,5 +1,6 @@
 import { IContext } from '../../../connectionResolver';
 import { IGoal } from '../../../models/definitions/goals';
+import { ITest } from '../../../models/definitions/test';
 
 interface IGoalsEdit extends IGoal {
   _id: string;
@@ -16,6 +17,11 @@ const goalMutations = {
     return goal;
   },
 
+  async testAdd(_root, doc: ITest, { docModifier, models }: IContext) {
+    const goal = await models.Tests.createTest(docModifier(doc));
+
+    return goal;
+  },
   /**
    * Edits a goal
    */
