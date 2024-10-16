@@ -134,6 +134,13 @@ export const getOrganizationsByFilter = async (filter: any) => {
   return coreModelOrganizations.find({});
 };
 
+
+export const updateOrganization = async (subdomain: string, update: object) => {
+  await getCoreConnection();
+
+  return coreModelOrganizations.updateOne({subdomain}, {$set: update});
+};
+
 export const getOrganizationDetail = async ({
   subdomain,
 }: {
