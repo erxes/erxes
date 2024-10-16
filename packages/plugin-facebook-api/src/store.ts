@@ -31,7 +31,7 @@ interface IDoc {
 }
 
 export const generatePostDoc = async (
-  postParams: IPostParams,
+  postParams: any,
   pageId: string,
   userId: string,
   subdomain: string
@@ -46,68 +46,44 @@ export const generatePostDoc = async (
     photo_id,
     video_id
   } = postParams;
-  let generatedMediaUrls: any[] = [];
+  let generatedMediaUrls: string[] = [];
 
   const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
 
-  const mediaUrls = postParams.photos || [];
-  const mediaLink = postParams.link || '';
-
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    if (mediaLink) {
+    if (link) {
       if (video_id) {
-        generatedMediaUrls = (await uploadMedia(
-          subdomain,
-          mediaLink,
-          true
-        )) as any;
-      }
-
-      if (photo_id) {
-        generatedMediaUrls = (await uploadMedia(
-          subdomain,
-          mediaLink,
-          false
-        )) as any;
+        const mediaUrl = await uploadMedia(subdomain, link, true);
+        if (typeof mediaUrl === 'string') generatedMediaUrls.push(mediaUrl);
+      } else if (photo_id) {
+        const mediaUrl = await uploadMedia(subdomain, link, false);
+        if (typeof mediaUrl === 'string') generatedMediaUrls.push(mediaUrl);
       }
     }
 
-    if (mediaUrls.length > 0) {
-      generatedMediaUrls = await Promise.all(
-        mediaUrls.map((url) => uploadMedia(subdomain, url, false))
+    if (photos && photos.length > 0) {
+      const mediaUrls = await Promise.all(
+        photos.map((url) => uploadMedia(subdomain, url, false))
+      );
+
+      generatedMediaUrls = mediaUrls.filter(
+        (url): url is string => url !== null && typeof url === 'string'
       );
     }
   }
 
-  const doc: IDoc = {
+  const doc = {
     postId: post_id || id,
     content: message || '...',
     recipientId: pageId,
     senderId: userId,
-    permalink_url: ''
+    permalink_url: '',
+    attachments: generatedMediaUrls.length > 0 ? generatedMediaUrls : [],
+    timestamp: created_time ? new Date(created_time) : undefined
   };
-
-  if (link) {
-    doc.attachments = generatedMediaUrls;
-  }
-
-  // Posted multiple image
-  if (photos) {
-    if (UPLOAD_SERVICE_TYPE === 'AWS') {
-      doc.attachments = generatedMediaUrls;
-    }
-    if (UPLOAD_SERVICE_TYPE === 'local') {
-      doc.attachments = photos;
-    }
-  }
-
-  if (created_time) {
-    doc.timestamp = created_time;
-  }
 
   return doc;
 };
-
 const generateCommentDoc = (
   commentParams: ICommentParams,
   pageId: string,
@@ -170,40 +146,73 @@ export const getOrCreatePostConversation = async (
   postId: string,
   integration: IIntegrationDocument,
   customer: ICustomerDocument,
-  params: ICommentParams
+  params: ICommentParams,
+  postDetails: any
 ) => {
-  let postConversation = await models.PostConversations.findOne({
-    postId
-  });
-  if (!postConversation) {
-    const integration = await models.Integrations.findOne({
-      $and: [
-        { facebookPageIds: { $in: pageId } },
-        { kind: INTEGRATION_KINDS.POST }
-      ]
-    });
-    if (!integration) {
-      throw new Error('Integration not found');
-    }
-    const { facebookPageTokensMap = {} } = integration;
-    const getPostDetail = await getPostDetails(
-      pageId,
-      facebookPageTokensMap,
-      params.post_id || ''
-    );
+  try {
+    let postConversation = await models.PostConversations.findOne({ postId });
 
-    const facebookPost = {
-      postId: params.post_id,
-      content: params.message,
+    const mediaSources: string[] = getMediaSources(postDetails);
+    const uploadedMediaUrls: string[] = [];
+    const videoExtensions: string[] = ['.mp4', '.mov', '.avi'];
+
+    if (mediaSources.length > 0) {
+      for (const source of mediaSources) {
+        try {
+          const mediaType: boolean = videoExtensions.some((ext) =>
+            source.includes(ext)
+          );
+          const mediaUrl: string | null = await uploadMedia(
+            subdomain,
+            source,
+            mediaType
+          );
+
+          if (mediaUrl) {
+            uploadedMediaUrls.push(mediaUrl);
+          }
+        } catch (error) {
+          throw new Error(
+            `Error uploading media from ${source}: ${error.message}`
+          );
+        }
+      }
+    }
+
+    const {
+      message = '...',
+      permalink_url = '',
+      created_time = ''
+    } = postDetails || {};
+    const facebookPostData = {
+      postId,
+      content: message,
       recipientId: pageId,
       senderId: pageId,
-      permalink_url: getPostDetail.permalink_url,
-      timestamp: getPostDetail.created_time
+      permalink_url,
+      timestamp: created_time,
+      attachments: uploadedMediaUrls
     };
-    postConversation = await models.PostConversations.create(facebookPost);
-  }
 
-  return postConversation;
+    if (!postConversation) {
+      postConversation =
+        await models.PostConversations.create(facebookPostData);
+    } else if (uploadedMediaUrls.length > 0) {
+      await models.PostConversations.updateMany(
+        { postId },
+        {
+          $set: { ...facebookPostData }
+        }
+      );
+      postConversation = await models.PostConversations.findOne({ postId });
+    }
+
+    return postConversation;
+  } catch (error) {
+    throw new Error(
+      `Could not get or create post conversation. Details: ${error.message}`
+    );
+  }
 };
 
 export const getOrCreatePost = async (
@@ -211,28 +220,14 @@ export const getOrCreatePost = async (
   subdomain: string,
   postParams: IPostParams,
   pageId: string,
-  userId: string
+  userId: string,
+  integration: IIntegrationDocument
 ) => {
-  const { post_id } = postParams;
+  const { post_id, verb } = postParams;
 
   if (!post_id) {
     throw new Error('post_id is required');
   }
-
-  let post = await models.PostConversations.findOne({
-    postId: postParams.post_id
-  });
-
-  if (post) {
-    return post;
-  }
-
-  const integration = await models.Integrations.getIntegration({
-    $and: [
-      { facebookPageIds: { $in: pageId } },
-      { kind: INTEGRATION_KINDS.POST }
-    ]
-  });
 
   const { facebookPageTokensMap = {} } = integration;
 
@@ -247,15 +242,31 @@ export const getOrCreatePost = async (
   }
 
   doc.permalink_url = postUrl;
+  if (verb == 'edited') {
+    await models.PostConversations.updateMany(
+      { postI: post_id },
+      {
+        $set: {
+          ...doc
+        }
+      }
+    );
+  }
+  let post = await models.PostConversations.findOne({
+    postId: postParams.post_id
+  });
+
+  if (post) {
+    return post;
+  }
   post = await models.PostConversations.create(doc);
 
   return post;
 };
 
-export const getOrCreateComment = async (
+export const getOrPostCreateComment = async (
   models: IModels,
   subdomain: string,
-  postConversation: any,
   commentParams: ICommentParams,
   pageId: string,
   userId: string,
@@ -266,33 +277,59 @@ export const getOrCreateComment = async (
   if (verb === 'remove') {
     return;
   }
+  const { facebookPageTokensMap = {} } = integration;
+  const { comment_id, post_id, parent_id, message, photo } = commentParams;
+  const postDetails = await getPostDetails(
+    pageId,
+    facebookPageTokensMap,
+    post_id || ''
+  );
+  const content = postDetails?.message || '...';
+  const attachment = postDetails?.attachments?.data || [];
+  const existingPost = await models.PostConversations.findOne({
+    postId: post_id
+  });
 
+  if (!existingPost || attachment.length > 0) {
+    await getOrCreatePostConversation(
+      models,
+      pageId,
+      subdomain,
+      post_id,
+      integration,
+      customer,
+      commentParams,
+      postDetails
+    );
+  }
+  if (existingPost?.content !== content) {
+    await models.PostConversations.updateMany(
+      { postId: post_id },
+      {
+        $set: {
+          content: content
+        }
+      }
+    );
+  }
   const mainConversation = await models.CommentConversation.findOne({
-    comment_id: commentParams.comment_id
+    comment_id: comment_id
   });
 
   const parentConversation = await models.CommentConversation.findOne({
-    comment_id: commentParams.parent_id
+    comment_id: parent_id
   });
 
   const replyConversation = await models.CommentConversationReply.findOne({
-    comment_id: commentParams.comment_id
+    comment_id: comment_id
   });
-
-  const post = await models.PostConversations.findOne({
-    postId: commentParams.post_id
-  });
-
-  if (!post) {
-    throw new Error('Post not found');
-  }
 
   let attachments: any[] = [];
-  if (commentParams.photo) {
+  if (photo) {
     attachments = [
       {
         name: 'Photo',
-        url: commentParams.photo,
+        url: photo,
         type: 'image'
       }
     ];
@@ -303,23 +340,23 @@ export const getOrCreateComment = async (
     recipientId: pageId,
     senderId: userId,
     createdAt: commentParams.post.updated_time,
-    postId: commentParams.post_id,
-    comment_id: commentParams.comment_id,
-    content: commentParams.message,
+    postId: post_id,
+    comment_id: comment_id,
+    content: message,
     customerId: customer.erxesApiId,
-    parentId: commentParams.parent_id
+    parentId: parent_id
   };
 
   if (verb === 'edited') {
     if (mainConversation) {
       await models.CommentConversation.updateMany(
-        { comment_id: commentParams.comment_id },
+        { comment_id: comment_id },
         { $set: { content: doc.content } }
       );
     }
     if (replyConversation) {
       await models.CommentConversationReply.updateMany(
-        { comment_id: commentParams.comment_id },
+        { comment_id: comment_id },
         { $set: { content: doc.content } }
       );
     }
@@ -335,12 +372,12 @@ export const getOrCreateComment = async (
   }
 
   let conversation = await models.CommentConversation.findOne({
-    comment_id: commentParams.comment_id
+    comment_id: comment_id
   });
 
   if (!conversation) {
     conversation = await models.CommentConversation.findOne({
-      comment_id: commentParams.parent_id
+      comment_id: parent_id
     });
   }
 
@@ -357,7 +394,7 @@ export const getOrCreateComment = async (
         payload: JSON.stringify({
           customerId: customer.erxesApiId,
           integrationId: integration.erxesApiId,
-          content: commentParams.message,
+          content: message,
           attachments,
           conversationId: conversation.erxesApiId
         })
@@ -399,8 +436,8 @@ export const getOrCreateComment = async (
 
   const targetConversation = parentConversation
     ? await models.CommentConversationReply.findOne({
-        comment_id: commentParams.comment_id,
-        parentId: commentParams.parent_id
+        comment_id: comment_id,
+        parentId: parent_id
       })
     : conversation;
 
@@ -519,3 +556,42 @@ export const getOrCreateCustomer = async (
 
   return customer;
 };
+
+function getMediaSources(postDetails: any): string[] {
+  const mediaSources: Set<string> = new Set();
+
+  if (Array.isArray(postDetails?.attachments?.data)) {
+    postDetails.attachments.data.forEach((attachment: any) => {
+      const mediaType = attachment.media_type;
+
+      if (mediaType === 'photo' && attachment.media?.image?.src) {
+        mediaSources.add(attachment.media.image.src); // No need to append 'jpg'
+      } else if (mediaType === 'video' && attachment.media?.source) {
+        mediaSources.add(attachment.media.source); // No need to append 'mp'
+      } else if (
+        mediaType === 'album' &&
+        Array.isArray(attachment.subattachments?.data)
+      ) {
+        attachment.subattachments.data.forEach((subattachment: any) => {
+          if (subattachment.media) {
+            if (
+              subattachment.type === 'photo' &&
+              subattachment.media?.image?.src
+            ) {
+              mediaSources.add(subattachment.media.image.src); // No need to append 'jpg'
+            } else if (
+              subattachment.type === 'video' &&
+              subattachment.media?.source
+            ) {
+              mediaSources.add(subattachment.media.source); // No need to append 'mp'
+            }
+          }
+        });
+      }
+    });
+  } else {
+    return [];
+  }
+
+  return Array.from(mediaSources);
+}
