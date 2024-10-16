@@ -1,4 +1,4 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const paramDefs = `$kind: String`;
 const params = `kind: $kind`;
@@ -20,6 +20,7 @@ const commonPostAndCommentFields = `
   timestamp
   permalink_url
   content
+  attachments
 `;
 
 const facebookGetConfigs = `

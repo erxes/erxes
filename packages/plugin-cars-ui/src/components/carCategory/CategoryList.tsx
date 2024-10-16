@@ -41,7 +41,7 @@ const CategoryList = (props: Props) => {
     trigger: React.ReactNode,
     category?: ICarCategory
   ) => {
-    const content = props => (
+    const content = (props) => (
       <CategoryForm {...props} category={category} categories={carCategories} />
     );
 
@@ -53,7 +53,7 @@ const CategoryList = (props: Props) => {
   const renderEditAction = (category: ICarCategory) => {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__("Edit")} placement="bottom">
+        <Tip text={__('Edit')} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -65,16 +65,16 @@ const CategoryList = (props: Props) => {
   const renderRemoveAction = (category: ICarCategory) => {
     return (
       <Button btnStyle="link" onClick={remove.bind(null, category._id)}>
-        <Tip text={__("Remove")} placement="bottom">
+        <Tip text={__('Remove')} placement="bottom">
           <Icon icon="cancel-1" />
         </Tip>
       </Button>
     );
   };
 
-  const handleClick = (id: string) => {
-    router.removeParams(navigate, location, "page");
-    router.setParams(navigate, location, { categoryId: id });
+  const handleClick = (categoryId) => {
+    router.removeParams(navigate, location, 'page');
+    router.setParams(navigate, location, { categoryId: categoryId });
   };
 
   const renderContent = () => {
@@ -124,11 +124,11 @@ const CategoryList = (props: Props) => {
       <>
         <Header>{renderFormTrigger(trigger)}</Header>
         <Section.Title>
-          {__("Categories")}
+          {__('Categories')}
           <Section.QuickButtons>
-            {router.getParam(location, "categoryId") && (
+            {router.getParam(location, 'categoryId') && (
               <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
-                <Tip text={__("Clear filter")} placement="bottom">
+                <Tip text={__('Clear filter')} placement="bottom">
                   <Icon icon="times-circle" />
                 </Tip>
               </a>

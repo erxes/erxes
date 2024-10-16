@@ -106,7 +106,7 @@ const receiveMessage = async (
   if (!conversationMessage) {
     // save on integrations db
     try {
-      const created = await models.ConversationMessages.create({
+      const createdMessage = await models.ConversationMessages.create({
         mid: message.mid,
         timestamp,
         senderId: userId,
@@ -118,25 +118,10 @@ const receiveMessage = async (
         customerId: customer.erxesApiId,
         attachments: formattedAttachments
       });
-
-      // // save message on api
-      await sendInboxMessage({
-        subdomain,
-        action: 'conversationClientMessageInserted',
-        data: {
-          ...created.toObject(),
-          conversationId: conversation.erxesApiId
-        }
-      });
-
-      graphqlPubsub.publish(
-        `conversationMessageInserted:${conversation.erxesApiId}`,
-        {
-          conversationMessageInserted: {
-            ...created.toObject(),
-            conversationId: conversation.erxesApiId
-          }
-        }
+      await handleMessageUpdate(
+        createdMessage.toObject(),
+        conversation.erxesApiId,
+        subdomain
       );
     } catch (e) {
       throw new Error(
@@ -145,7 +130,36 @@ const receiveMessage = async (
           : e
       );
     }
+  } else if (message.is_deleted) {
+    // Update message content if deleted
+    const updatedMessage = await models.ConversationMessages.findOneAndUpdate(
+      { mid: message.mid },
+      { $set: { content: 'This user has deleted this message' } },
+      { new: true }
+    );
+    if (updatedMessage) {
+      // Use the new function
+      await handleMessageUpdate(
+        updatedMessage.toObject(),
+        conversation.erxesApiId,
+        subdomain
+      );
+    }
   }
 };
+
+async function handleMessageUpdate(messageObject, conversationId, subdomain) {
+  // Send message to inbox
+  await sendInboxMessage({
+    subdomain,
+    action: 'conversationClientMessageInserted',
+    data: { ...messageObject, conversationId }
+  });
+
+  // Publish message to GraphQL
+  graphqlPubsub.publish(`conversationMessageInserted:${conversationId}`, {
+    conversationMessageInserted: { ...messageObject, conversationId }
+  });
+}
 
 export default receiveMessage;
