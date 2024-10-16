@@ -18,7 +18,6 @@ import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 import { SidebarList } from "@erxes/ui/src/layout/styles";
 import TagFilter from "../../containers/TagFilter";
 import Tip from "@erxes/ui/src/components/Tip";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import { pluginsOfProductCategoryActions } from "coreui/pluginUtils";
 
 interface IProps {
