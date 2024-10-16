@@ -1,7 +1,6 @@
 import { paginate } from "@erxes/api-utils/src/core";
 import {
-  checkPermission,
-  requireLogin
+  checkPermission
 } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
 import { sendProductsMessage } from "../../../messageBroker";
@@ -83,7 +82,7 @@ const safeRemainderItemsQueries = {
   }
 };
 
-requireLogin(safeRemainderItemsQueries, "tagDetail");
-checkPermission(safeRemainderItemsQueries, "remainders", "showTags", []);
+checkPermission(safeRemainderItemsQueries, "safeRemainderItems", "manageRemainders", []);
+checkPermission(safeRemainderItemsQueries, "safeRemainderItemsCount", "manageRemainders", []);
 
 export default safeRemainderItemsQueries;
