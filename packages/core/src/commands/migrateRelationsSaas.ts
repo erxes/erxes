@@ -4,7 +4,10 @@ dotenv.config();
 
 import { MongoClient } from "mongodb";
 
-import { getOrganizationsByFilter } from "@erxes/api-utils/src/saas/saas";
+import {
+  getOrganizations,
+  getOrganizationsByFilter
+} from "@erxes/api-utils/src/saas/saas";
 
 const { MONGO_URL = "" } = process.env;
 
@@ -15,19 +18,7 @@ if (!MONGO_URL) {
 let db;
 
 const command = async () => {
-  const organizations = await getOrganizationsByFilter({
-    subdomain: {
-      $in: [
-        "tavanbogd",
-        "tbc",
-        "gomongolia",
-        "juulchin",
-        "ubprint",
-        "tbs",
-        "godiva"
-      ]
-    }
-  });
+  const organizations = await getOrganizations();
 
   const switchContentType = contentType => {
     let changedContentType = contentType;
@@ -119,7 +110,11 @@ const command = async () => {
             { $set: { conditions: updatedConditions } }
           );
         });
+      } catch (e) {
+        console.log(org.subdomain, "error on segment");
+      }
 
+      try {
         await FieldGroups.find({
           name: { $ne: ["Basic information", "Relations"] }
         }).forEach(doc => {
@@ -127,33 +122,45 @@ const command = async () => {
 
           FieldGroups.updateOne({ _id: doc._id }, { $set: { contentType } });
         });
+      } catch (e) {
+        console.log(org.subdomain, "error on segment");
+      }
 
-        console.log("migrating fields");
-
+      try {
         await Fields.find({}).forEach(doc => {
           const contentType = switchContentType(doc.contentType);
 
           Fields.updateOne({ _id: doc._id }, { $set: { contentType } });
         });
+      } catch (e) {
+        console.log(org.subdomain, "error on segment");
+      }
 
-        console.log("migrating tags");
-
+      try {
         await Tags.find({}).forEach(doc => {
           const contentType = switchContentType(doc.type);
 
           Tags.updateOne({ _id: doc._id }, { $set: { type: contentType } });
         });
+      } catch (e) {
+        console.log(org.subdomain, "error on segment");
+      }
 
-        console.log("migrating internal notes");
+      console.log("migrating tags");
 
+      try {
         await InternalNotes.find({}).forEach(doc => {
           const contentType = switchContentType(doc.contentType);
 
           InternalNotes.updateOne({ _id: doc._id }, { $set: { contentType } });
         });
+      } catch (e) {
+        console.log(org.subdomain, "error on segment");
+      }
 
-        console.log("migrating webhooks");
+      console.log("migrating internal notes");
 
+      try {
         await Webhooks.find({}).forEach(webhook => {
           const actions = webhook.actions || [];
           const fixedActions = [] as any;
@@ -176,37 +183,49 @@ const command = async () => {
             }
           );
         });
+      } catch (e) {
+        console.log(org.subdomain, "error on segment");
+      }
 
-        // console.log("migrating logs");
+      console.log("migrating charts");
 
-        // await Logs.find({}).forEach(doc => {
-        //   const contentType = switchContentType(doc.contentType);
-
-        //   Logs.updateOne({ _id: doc._id }, { $set: { contentType } });
-        // });
-
-        console.log("migrating charts");
-
+      try {
         await Charts.updateMany(
           { templateType: { $regex: new RegExp("Deal") } },
           { $set: { serviceName: "sales" } }
         );
+      } catch (e) {
+        console.log(org.subdomain, "error on segment");
+      }
 
+      try {
         await Charts.updateMany(
           { templateType: { $regex: new RegExp("Ticket") } },
           { $set: { serviceName: "tickets" } }
         );
+      } catch (e) {
+        console.log(org.subdomain, "error on segment");
+      }
 
+      try {
         await Charts.updateMany(
           { templateType: { $regex: new RegExp("Task") } },
           { $set: { serviceName: "tasks" } }
         );
+      } catch (e) {
+        console.log(org.subdomain, "error on segment");
+      }
 
+      try {
         await Charts.updateMany(
           { templateType: { $regex: new RegExp("Purchase") } },
           { $set: { serviceName: "purchases" } }
         );
+      } catch (e) {
+        console.log(org.subdomain, "error on charts");
+      }
 
+      try {
         await Charts.updateMany(
           { contentType: { $regex: new RegExp("^insight:") } },
           [
@@ -223,36 +242,61 @@ const command = async () => {
             }
           ]
         );
+      } catch (e) {
+        console.log(org.subdomain, "error on charts");
+      }
 
-        console.log("migrating reports");
+      console.log("migrating reports");
 
+      try {
         await Reports.updateMany(
           { serviceType: "task" },
           { $set: { serviceName: "tasks" } }
         );
+      } catch (e) {
+        console.log(org.subdomain, "error on reports");
+      }
 
+      try {
         await Reports.updateMany(
           { serviceType: "ticket" },
           { $set: { serviceName: "tickets" } }
         );
+      } catch (e) {
+        console.log(org.subdomain, "error on reports");
+      }
 
+      try {
         await Reports.updateMany(
           { serviceType: "deal" },
           { $set: { serviceName: "sales" } }
         );
+      } catch (e) {
+        console.log(org.subdomain, "error on reports");
+      }
 
+      try {
+        await Reports.updateMany(
+          { serviceType: "deal" },
+          { $set: { serviceName: "sales" } }
+        );
+      } catch (e) {
+        console.log(org.subdomain, "error on reports");
+      }
+
+      try {
         await Reports.updateMany(
           { serviceType: "purchase" },
           { $set: { serviceName: "purchases" } }
         );
       } catch (e) {
-        console.log(`Error occurred: ${e.message}`);
+        console.log(org.subdomain, "error on reports");
       }
-
-      console.log("migrated", org.subdomain);
     } catch (e) {
-      console.error(e.message);
+      console.log(`Error occurred: ${e.message}`);
     }
+
+    console.log("migrated", org.subdomain);
   }
 
   console.log(`Process finished at: ${new Date()}`);
