@@ -6,6 +6,19 @@ const categoryFields = `
   code
 `;
 
+const knowledgeBaseTopicsShort = `
+  query kbTopics($page: Int, $perPage: Int) {
+    knowledgeBaseTopics(page: $page, perPage: $perPage) {
+      _id
+      title
+      brand {
+        _id
+        name
+      }
+    }
+  }
+`;
+
 const knowledgeBaseTopics = `
   query knowledgeBaseTopics($page: Int, $perPage: Int) {
     knowledgeBaseTopics(page: $page, perPage: $perPage) {
@@ -186,6 +199,7 @@ export default {
   getSegmentList,
   categoriesGetLast,
   knowledgeBaseTopics,
+  knowledgeBaseTopicsShort,
   knowledgeBaseTopicsTotalCount,
   knowledgeBaseCategories,
   knowledgeBaseCategoryDetail,

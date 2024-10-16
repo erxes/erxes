@@ -39,7 +39,7 @@ const EditMessenger = (props: Props) => {
       fetchPolicy: "network-only"
     });
   const { data: topicsData } = useQuery<TopicsQueryResponse>(
-    gql(kbQueries.knowledgeBaseTopics),
+    gql(kbQueries.knowledgeBaseTopicsShort),
     {
       skip: !isEnabled("knowledgebase") ? true : false
     }
