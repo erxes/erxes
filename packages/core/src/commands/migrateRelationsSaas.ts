@@ -4,7 +4,7 @@ dotenv.config();
 
 import { MongoClient } from "mongodb";
 
-import { getOrganizations } from "@erxes/api-utils/src/saas/saas";
+import { getOrganizationsByFilter } from "@erxes/api-utils/src/saas/saas";
 
 const { MONGO_URL = "" } = process.env;
 
@@ -15,7 +15,20 @@ if (!MONGO_URL) {
 let db;
 
 const command = async () => {
-  const organizations = await getOrganizations();
+  const organizations = await getOrganizationsByFilter({
+    subdomain: {
+      $in: [
+        "tavanbogd",
+        "tbc",
+        "gomongolia",
+        "juulchin",
+        "ubprint",
+        "tbs",
+        "godiva"
+      ]
+    }
+  });
+
   const switchContentType = contentType => {
     let changedContentType = contentType;
 
@@ -81,7 +94,7 @@ const command = async () => {
       const Webhooks = db.collection("webhooks");
       const Charts = db.collection("insight_charts");
       const Reports = db.collection("reports");
-      const Logs = db.collection("logs");
+      // const Logs = db.collection("logs");
 
       try {
         await Segments.find({}).forEach(doc => {
@@ -164,13 +177,13 @@ const command = async () => {
           );
         });
 
-        console.log("migrating logs");
+        // console.log("migrating logs");
 
-        await Logs.find({}).forEach(doc => {
-          const contentType = switchContentType(doc.contentType);
+        // await Logs.find({}).forEach(doc => {
+        //   const contentType = switchContentType(doc.contentType);
 
-          Logs.updateOne({ _id: doc._id }, { $set: { contentType } });
-        });
+        //   Logs.updateOne({ _id: doc._id }, { $set: { contentType } });
+        // });
 
         console.log("migrating charts");
 
