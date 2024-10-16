@@ -47,16 +47,16 @@ export const fieldsCombinedByContentType = async (
     onlyDates
   }: ICombinedParams
 ) => {
-  // let fields: Array<{
-  //   _id: number;
-  //   name: string;
-  //   group?: string;
-  //   label?: string;
-  //   type?: string;
-  //   validation?: string;
-  //   options?: string[];
-  //   selectOptions?: Array<{ label: string; value: string }>;
-  // }> = [];
+  let fields: Array<{
+    _id: number;
+    name: string;
+    group?: string;
+    label?: string;
+    type?: string;
+    validation?: string;
+    options?: string[];
+    selectOptions?: Array<{ label: string; value: string }>;
+  }> = [];
 
   // fields = await fetchServiceForms(
   //   subdomain,
@@ -77,11 +77,11 @@ export const fieldsCombinedByContentType = async (
   //   validation = "date";
   // }
 
-  // const type = ["core:visitor", "core:lead", "core:customer"].includes(
-  //   contentType
-  // )
-  //   ? "core:customer"
-  //   : contentType;
+  const type = ["core:visitor", "core:lead", "core:customer"].includes(
+    contentType
+  )
+    ? "core:customer"
+    : contentType;
 
   // const customFields = await getCustomFields(models, type, validation);
 
@@ -100,7 +100,7 @@ export const fieldsCombinedByContentType = async (
   //   return selectOptions;
   // };
 
-  // // extend fields list using custom fields data
+  // extend fields list using custom fields data
   // for (const customField of customFields) {
   //   const group = await getFieldGroup(models, customField.groupId || "");
 
@@ -122,10 +122,9 @@ export const fieldsCombinedByContentType = async (
   //   }
   // }
 
-  // fields = [...fields];
+  fields = [...fields];
 
-  // return fields.filter(field => !(excludedNames || []).includes(field.name));
-  return [];
+  return fields.filter(field => !(excludedNames || []).includes(field.name));
 };
 
 export const formSubmissionsQuery = async (
