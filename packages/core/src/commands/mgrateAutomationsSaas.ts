@@ -196,10 +196,12 @@ const command = async () => {
           }
 
           for (const action of actions) {
-            const { actionType } = action;
-            const [serviceName, collectionType] = actionType.split(":");
+            const { type } = action;
+            const [serviceName, collectionType] = type.split(":");
 
-            action.type = `${switchService(serviceName)}:${collectionType}`;
+            if (serviceName) {
+              action.type = `${switchService(serviceName)}:${collectionType}`;
+            }
 
             const { module } = action.config;
 
