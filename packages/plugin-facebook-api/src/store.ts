@@ -8,8 +8,8 @@ import {
 import {
   getFacebookUser,
   getFacebookUserProfilePic,
-  getPostLink,
-  uploadMedia
+  uploadMedia,
+  restorePost
 } from './utils';
 import { IModels } from './connectionResolver';
 import { INTEGRATION_KINDS } from './constants';
@@ -17,6 +17,7 @@ import { ICustomerDocument } from './models/definitions/customers';
 import { IIntegrationDocument } from './models/Integrations';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { getPostDetails } from './utils';
+import * as AWS from 'aws-sdk';
 interface IDoc {
   postId?: string;
   commentId?: string;
@@ -31,7 +32,7 @@ interface IDoc {
 }
 
 export const generatePostDoc = async (
-  postParams: IPostParams,
+  postParams: any,
   pageId: string,
   userId: string,
   subdomain: string
@@ -46,65 +47,44 @@ export const generatePostDoc = async (
     photo_id,
     video_id
   } = postParams;
-  let generatedMediaUrls: any[] = [];
+
+  let generatedMediaUrls: string[] = [];
 
   const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
 
-  const mediaUrls = postParams.photos || [];
-  const mediaLink = postParams.link || '';
-
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    if (mediaLink) {
+    if (link) {
       if (video_id) {
-        generatedMediaUrls = (await uploadMedia(
-          subdomain,
-          mediaLink,
-          true
-        )) as any;
-      }
-
-      if (photo_id) {
-        generatedMediaUrls = (await uploadMedia(
-          subdomain,
-          mediaLink,
-          false
-        )) as any;
+        const mediaUrl = await uploadMedia(subdomain, link, true);
+        if (typeof mediaUrl === 'string') generatedMediaUrls.push(mediaUrl);
+      } else if (photo_id) {
+        const mediaUrl = await uploadMedia(subdomain, link, false);
+        if (typeof mediaUrl === 'string') generatedMediaUrls.push(mediaUrl);
       }
     }
 
-    if (mediaUrls.length > 0) {
-      generatedMediaUrls = await Promise.all(
-        mediaUrls.map((url) => uploadMedia(subdomain, url, false))
+    if (photos && photos.length > 0) {
+      const mediaUrls = await Promise.all(
+        photos.map((url) => uploadMedia(subdomain, url, false))
+      );
+
+      generatedMediaUrls = mediaUrls.filter(
+        (url): url is string => url !== null && typeof url === 'string'
       );
     }
   }
 
-  const doc: IDoc = {
+  const doc = {
     postId: post_id || id,
     content: message || '...',
     recipientId: pageId,
     senderId: userId,
-    permalink_url: ''
+    permalink_url: '',
+    attachments: generatedMediaUrls.length > 0 ? generatedMediaUrls : [],
+    timestamp: created_time || undefined
   };
 
-  if (link) {
-    doc.attachments = generatedMediaUrls;
-  }
-
-  // Posted multiple image
-  if (photos) {
-    if (UPLOAD_SERVICE_TYPE === 'AWS') {
-      doc.attachments = generatedMediaUrls;
-    }
-    if (UPLOAD_SERVICE_TYPE === 'local') {
-      doc.attachments = photos;
-    }
-  }
-
-  if (created_time) {
-    doc.timestamp = created_time;
-  }
-
+  console.log('Generated Post Document:', doc);
   return doc;
 };
 
@@ -172,38 +152,50 @@ export const getOrCreatePostConversation = async (
   customer: ICustomerDocument,
   params: ICommentParams
 ) => {
-  let postConversation = await models.PostConversations.findOne({
-    postId
-  });
-  if (!postConversation) {
-    const integration = await models.Integrations.findOne({
-      $and: [
-        { facebookPageIds: { $in: pageId } },
-        { kind: INTEGRATION_KINDS.POST }
-      ]
-    });
-    if (!integration) {
-      throw new Error('Integration not found');
-    }
+  try {
+    let postConversation = await models.PostConversations.findOne({ postId });
+
     const { facebookPageTokensMap = {} } = integration;
-    const getPostDetail = await getPostDetails(
+
+    // Fetch post details using the helper function
+    const postDetails = await getPostDetails(
       pageId,
       facebookPageTokensMap,
       params.post_id || ''
     );
 
-    const facebookPost = {
-      postId: params.post_id,
-      content: params.message,
+    const mediaSources = getMediaSources(postDetails);
+    const content = postDetails?.message || '...';
+
+    const facebookPostData = {
+      postId,
+      content,
       recipientId: pageId,
       senderId: pageId,
-      permalink_url: getPostDetail.permalink_url,
-      timestamp: getPostDetail.created_time
+      permalink_url: postDetails?.permalink_url || '',
+      timestamp: postDetails?.created_time || '',
+      attachments: mediaSources
     };
-    postConversation = await models.PostConversations.create(facebookPost);
-  }
 
-  return postConversation;
+    if (!postConversation) {
+      postConversation =
+        await models.PostConversations.create(facebookPostData);
+    } else if (mediaSources && mediaSources.length > 0) {
+      await models.PostConversations.updateMany(
+        { postId },
+        {
+          $set: {
+            ...facebookPostData
+          }
+        }
+      );
+      postConversation = await models.PostConversations.findOne({ postId });
+    }
+
+    return postConversation;
+  } catch (error) {
+    throw new Error('Could not get or create post conversation.');
+  }
 };
 
 export const getOrCreatePost = async (
@@ -211,14 +203,48 @@ export const getOrCreatePost = async (
   subdomain: string,
   postParams: IPostParams,
   pageId: string,
-  userId: string
+  userId: string,
+  integration: IIntegrationDocument
 ) => {
-  const { post_id } = postParams;
+  const { post_id, message, photos, link, verb } = postParams;
 
   if (!post_id) {
     throw new Error('post_id is required');
   }
+  const { facebookPageTokensMap = {} } = integration;
+  const doc = await generatePostDoc(postParams, pageId, userId, subdomain);
+  if (!doc.attachments && doc.content === '...') {
+    console.log('asdkl;askds');
+    throw new Error();
+  }
 
+  console.log(doc, 'doc');
+  const postUrl = await getPostDetails(
+    pageId,
+    facebookPageTokensMap,
+    postParams.post_id || ''
+  );
+
+  const media = photos?.length ? photos : link || '';
+  const data = {
+    postId: post_id,
+    content: message || '...',
+    recipientId: pageId,
+    senderId: userId,
+    permalink_url: postUrl.permalink_url || '',
+    attachments: media
+  };
+
+  if (verb == 'edited') {
+    await models.PostConversations.updateMany(
+      { postI: post_id },
+      {
+        $set: {
+          ...data // Update the existing post conversation with new data
+        }
+      }
+    );
+  }
   let post = await models.PostConversations.findOne({
     postId: postParams.post_id
   });
@@ -227,27 +253,7 @@ export const getOrCreatePost = async (
     return post;
   }
 
-  const integration = await models.Integrations.getIntegration({
-    $and: [
-      { facebookPageIds: { $in: pageId } },
-      { kind: INTEGRATION_KINDS.POST }
-    ]
-  });
-
-  const { facebookPageTokensMap = {} } = integration;
-
-  const postUrl = await getPostLink(
-    pageId,
-    facebookPageTokensMap,
-    postParams.post_id || ''
-  );
-  const doc = await generatePostDoc(postParams, pageId, userId, subdomain);
-  if (!doc.attachments && doc.content === '...') {
-    throw new Error();
-  }
-
-  doc.permalink_url = postUrl;
-  post = await models.PostConversations.create(doc);
+  post = await models.PostConversations.create(data);
 
   return post;
 };
@@ -255,7 +261,6 @@ export const getOrCreatePost = async (
 export const getOrCreateComment = async (
   models: IModels,
   subdomain: string,
-  postConversation: any,
   commentParams: ICommentParams,
   pageId: string,
   userId: string,
@@ -284,7 +289,15 @@ export const getOrCreateComment = async (
   });
 
   if (!post) {
-    throw new Error('Post not found');
+    await getOrCreatePostConversation(
+      models,
+      pageId,
+      subdomain,
+      commentParams.post_id,
+      integration,
+      customer,
+      commentParams
+    );
   }
 
   let attachments: any[] = [];
@@ -519,3 +532,41 @@ export const getOrCreateCustomer = async (
 
   return customer;
 };
+function getMediaSources(postDetails: any): string[] {
+  const mediaSources: Set<string> = new Set();
+
+  if (Array.isArray(postDetails?.attachments?.data)) {
+    postDetails.attachments.data.forEach((attachment: any) => {
+      const mediaType = attachment.media_type;
+
+      if (mediaType === 'photo' && attachment.media?.image?.src) {
+        mediaSources.add(attachment.media.image.src);
+      } else if (mediaType === 'video' && attachment.media?.source) {
+        mediaSources.add(attachment.media.source);
+      } else if (
+        mediaType === 'album' &&
+        Array.isArray(attachment.subattachments?.data)
+      ) {
+        attachment.subattachments.data.forEach((subattachment: any) => {
+          if (subattachment.media) {
+            if (
+              subattachment.type === 'photo' &&
+              subattachment.media?.image?.src
+            ) {
+              mediaSources.add(subattachment.media.image.src);
+            } else if (
+              subattachment.type === 'video' &&
+              subattachment.media?.source
+            ) {
+              mediaSources.add(subattachment.media.source);
+            }
+          }
+        });
+      }
+    });
+  } else {
+    throw new Error('No valid attachments data found.');
+  }
+
+  return Array.from(mediaSources);
+}

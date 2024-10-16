@@ -255,6 +255,7 @@ const postInfo = `
       _id
       content
       permalink_url
+      attachments
     }
   }
  `;
