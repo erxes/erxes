@@ -154,6 +154,6 @@ const reserveRemsMutations = {
 };
 
 moduleRequireLogin(reserveRemsMutations);
-moduleCheckPermission(reserveRemsMutations, 'manageRemainder');
+moduleCheckPermission(reserveRemsMutations, 'manageRemainders');
 
 export default reserveRemsMutations;
