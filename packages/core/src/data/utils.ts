@@ -374,7 +374,6 @@ export const checkFile = async (models: IModels, file, source?: string) => {
   }
 
   let { mime } = ft;
-  console.log(mime);
 
   if (mime === 'application/zip' && file.name.endsWith('.hwpx')) {
       mime = 'application/haansoft-hwpml'
@@ -405,8 +404,6 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     "",
     models
   );
-
-  console.log(UPLOAD_FILE_TYPES);
 
   if (!(UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.includes(mime))) {
     if (!defaultMimeTypes.includes(mime)) {
@@ -1019,7 +1016,7 @@ const readFromCR2 = async (key: string, models?: IModels) => {
             error.code === "NoSuchKey" &&
             error.message.includes("key does not exist")
           ) {
-            console.log("file does not exist with key: ", key);
+            console.error("file does not exist with key: ", key);
 
             return resolve(null);
           }
