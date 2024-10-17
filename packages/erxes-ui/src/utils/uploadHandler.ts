@@ -108,6 +108,14 @@ const uploadHandler = async (params: Params) => {
   // tslint:disable-next-line
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
+    let type = file.type;
+    if (file.name.endsWith('.hwp')) {
+      type = 'application/haansoft-hwp';
+    }
+
+    if (file.name.endsWith('.hwpx')) {
+      type = 'application/haansoft-hwpml';
+    }
 
     // initiate upload file reader
     const uploadReader = new FileReader();
@@ -115,11 +123,11 @@ const uploadHandler = async (params: Params) => {
     let fileInfo = {
       name: file.name,
       size: file.size,
-      type: file.type,
+      type,
       duration: 0
     } as any;
 
-    if (file.type.includes('audio') || file.type.includes('video')) {
+    if (type.includes('audio') || type.includes('video')) {
       const duration = await getVideoDuration(file);
 
       fileInfo = { ...fileInfo, duration };
