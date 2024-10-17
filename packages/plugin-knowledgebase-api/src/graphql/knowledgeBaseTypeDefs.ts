@@ -164,7 +164,7 @@ export const queries = `
   knowledgeBaseCategoriesTotalCount(topicIds: [String], codes: [String]): Int
   knowledgeBaseCategoriesGetLast: KnowledgeBaseCategory
 
-  knowledgeBaseArticles(searchValue: String, page: Int, perPage: Int, categoryIds: [String],articleIds:[String], codes: [String], topicIds: [String], sortField:String, sortDirection: Int ): [KnowledgeBaseArticle]
+  knowledgeBaseArticles(searchValue: String, page: Int, perPage: Int, categoryIds: [String],articleIds:[String], codes: [String], topicIds: [String], sortField:String, sortDirection: Int, status: String ): [KnowledgeBaseArticle]
   knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
   knowledgeBaseArticleDetailAndIncViewCount(_id: String!): KnowledgeBaseArticle
   knowledgeBaseArticlesTotalCount(categoryIds: [String], codes: [String]): Int
