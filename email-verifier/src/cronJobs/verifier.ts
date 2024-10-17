@@ -113,7 +113,7 @@ schedule.scheduleJob('2 * * * * *', async () => {
         });
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
       throw e
     }
   }
