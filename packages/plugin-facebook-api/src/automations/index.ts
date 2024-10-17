@@ -171,6 +171,7 @@ export default {
     switch (collectionType) {
       case "messages":
         const result = await checkMessageTrigger(subdomain, data);
+        console.log({ result });
         return result;
       case "comments":
         return await checkCommentTrigger(subdomain, data);
