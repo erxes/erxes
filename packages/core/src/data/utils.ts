@@ -373,7 +373,16 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     return "Invalid file type";
   }
 
-  const { mime } = ft;
+  let { mime } = ft;
+  console.log(mime);
+
+  if (mime === 'application/zip' && file.name.endsWith('.hwpx')) {
+      mime = 'application/haansoft-hwpml'
+  }
+
+  if (mime === 'application/x-msi' && file.name.endsWith('.hwp')) {
+      mime = 'application/haansoft-hwp'
+  }
 
   // allow old ms office docs to be uploaded
   if (mime === "application/x-msi" && oldMsOfficeDocs.includes(file.type)) {
@@ -396,6 +405,8 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     "",
     models
   );
+
+  console.log(UPLOAD_FILE_TYPES);
 
   if (!(UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.includes(mime))) {
     if (!defaultMimeTypes.includes(mime)) {
