@@ -1,6 +1,6 @@
 import { IContext } from '../../../connectionResolver';
 import { sendCommonMessage } from '../../../messageBroker';
-import { TemplateDocument } from '../../../models/definitions/templates';
+import { ITemplate, TemplateDocument } from '../../../models/definitions/templates';
 
 const templateMutations = {
   templateAdd: async (
@@ -29,9 +29,16 @@ const templateMutations = {
 
   templateUse: async (
     _root,
-    { serviceName, contentType, template },
-    { user, subdomain }: IContext
+    { _id }: { _id: string },
+    { user, subdomain, models }: IContext
   ) => {
+
+    const template: any = await models.Templates.findOne({ _id }).lean()
+
+    const { contentType: type } = template
+
+    const [serviceName, contentType] = type?.split(':');
+
     return await sendCommonMessage({
       subdomain,
       serviceName,

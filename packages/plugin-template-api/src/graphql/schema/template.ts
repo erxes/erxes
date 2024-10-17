@@ -78,7 +78,7 @@ export const mutations = `
     templateEdit(_id: String!, ${templateParams}): Template
     templateRemove(_id: String!): JSON
 
-    templateUse(serviceName: String!, contentType: String!, template: JSON): JSON
+    templateUse(_id: String!): JSON
 
     categoryAdd(${categoryParams}): Category
     categoryEdit(_id: String!, ${categoryParams}): Category

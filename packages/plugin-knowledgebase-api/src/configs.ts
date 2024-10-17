@@ -9,6 +9,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 import automations from './automations';
 import cronjobs from './crons/article';
+import templates from './templates';
 
 export default {
   name: 'knowledgebase',
@@ -26,7 +27,8 @@ export default {
     webhooks,
     permissions,
     cronjobs,
-    automations
+    automations,
+    templates
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -37,6 +39,6 @@ export default {
     return context;
   },
 
-  onServerInit: async () => {},
+  onServerInit: async () => { },
   setupMessageConsumers
 };
