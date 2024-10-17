@@ -42,7 +42,6 @@ type Props = {
 };
 
 function AttachmentsGallery(props: Props) {
-  console.log("attachments gallery", props.attachments);
   const [hideOthers, toggleHide] = useState(true);
 
   const removeAttachment = (index: number) => {
@@ -54,7 +53,6 @@ function AttachmentsGallery(props: Props) {
   };
 
   const renderItem = (item: IAttachment, index: number) => {
-    console.log("render item", item);
     if (!item) {
       return null;
     }
