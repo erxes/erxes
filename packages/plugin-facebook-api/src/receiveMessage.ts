@@ -11,6 +11,7 @@ import { IChannelData } from "./types";
 import { IConversationMessageDocument } from "./models/definitions/conversationMessages";
 
 const checkIsBot = async (models: IModels, message, recipientId) => {
+  console.log(`checking bot ${JSON.stringify(message?.payload)}`);
   if (message?.payload) {
     const payload = JSON.parse(message?.payload || "{}");
     if (payload.botId) {
