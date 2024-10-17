@@ -61,11 +61,11 @@ const documentQueries = {
       contentType: string;
       subTypes?: string[];
     }> = [
-      {
-        label: "Team members",
-        contentType: "core:user"
-      }
-    ];
+        {
+          label: "Team members",
+          contentType: "core:user"
+        }
+      ];
 
     for (const serviceName of services) {
       const service = await getService(serviceName);
@@ -94,7 +94,7 @@ const documentQueries = {
     if (contentType === "core:user") {
       const fields = await sendCommonMessage({
         subdomain,
-        serviceName: "forms",
+        serviceName: "core",
         action: "fields.fieldsCombinedByContentType",
         isRPC: true,
         data: {
@@ -109,7 +109,7 @@ const documentQueries = {
 
     if (contentType.match(new RegExp("core:"))) {
       data.contentType = contentType;
-      contentType = "contacts";
+      contentType = "core";
     }
 
     return sendCommonMessage({
