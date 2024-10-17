@@ -78,6 +78,7 @@ schedule.scheduleJob('2 * * * * *', async () => {
     }
 
     const emails = [];
+    const emailPromises: any[] = [];
 
     for (const e of res.emails) {
       let status = 'unknown';
@@ -90,8 +91,11 @@ schedule.scheduleJob('2 * * * * *', async () => {
       }
 
       emails.push({ email: e.email, status });
-      await Emails.createEmail({ email: e.email, status });
+
+      emailPromises.push(Emails.createEmail({ email: e.email, status }));
     }
+
+    await Promise.all(emailPromises);
 
     const unfinished = listIds.filter((item) => item.listId !== listId);
 

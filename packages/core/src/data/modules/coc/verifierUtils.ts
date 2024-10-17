@@ -76,7 +76,7 @@ export const validateBulk = async (
 ) => {
   const EMAIL_VERIFIER_ENDPOINT = getEnv({
     name: "EMAIL_VERIFIER_ENDPOINT",
-    defaultValue: ""
+    defaultValue: "http://localhost:4100"
   });
 
   const DOMAIN = getEnv({ name: "DOMAIN" })
