@@ -67,6 +67,8 @@ export interface IRichTextEditorProps extends IRichTextEditorContentProps {
   toolbar?: ToolbarItem[];
   name?: string;
   isSubmitted?: boolean;
+  required?: boolean;
+  errors?: any;
   /** Mention suggestion string list */
   mentionSuggestion?: MentionSuggestionParams;
   /** Mention suggestion string list */
@@ -77,6 +79,7 @@ export interface IRichTextEditorProps extends IRichTextEditorContentProps {
   contentType?: string;
   integrationKind?: string;
   onCtrlEnter?: () => void;
+  registerChild?: (child: any) => void;
 }
 
 const RichTextEditor = forwardRef(function RichTextEditor(
@@ -95,6 +98,7 @@ const RichTextEditor = forwardRef(function RichTextEditor(
     autoGrowMinHeight,
     name,
     isSubmitted,
+    errors,
     showMentions = false,
     mentionSuggestion,
     placeholderProp,
@@ -103,6 +107,7 @@ const RichTextEditor = forwardRef(function RichTextEditor(
     toolbar,
     autoFocus,
     onCtrlEnter,
+    registerChild
   } = props;
   const editorContentProps = {
     height,
@@ -128,6 +133,16 @@ const RichTextEditor = forwardRef(function RichTextEditor(
     immediatelyRender: true,
     shouldRerenderOnTransaction: false,
   });
+
+  const errorMessage = errors && errors[props.name || ""];
+
+  useEffect(() => {
+
+    if (registerChild) {
+      registerChild({ props, editor });
+    }
+
+  }, [registerChild])
 
   useEffect(() => {
     const handleEditorChange = ({ editor }) => {
@@ -387,6 +402,7 @@ const RichTextEditor = forwardRef(function RichTextEditor(
       <RichTextEditorWrapper ref={wrapperRef} $position={toolbarLocation}>
         {renderEditor()}
       </RichTextEditorWrapper>
+      {errorMessage}
     </RichTextEditorProvider>
   );
 });

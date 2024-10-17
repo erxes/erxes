@@ -24,6 +24,7 @@ export interface IArticle {
   isPrivate?: boolean;
   reactionChoices?: string[];
   reactionCounts?: { [key: string]: number };
+  viewCount?: number;
   categoryId?: string;
   topicId?: string;
   publishedUserId?: string;
