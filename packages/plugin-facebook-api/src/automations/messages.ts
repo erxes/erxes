@@ -15,7 +15,6 @@ import {
 } from "./utils";
 import { getEnv } from "../commonUtils";
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
-import { debugInfo } from "@erxes/api-utils/src/debuggers";
 
 const generateMessages = async (
   subdomain: string,
@@ -160,10 +159,6 @@ const generateMessages = async (
 };
 
 export const checkMessageTrigger = async (subdomain, { target, config }) => {
-  debugInfo(
-    `Received message trigger data on ${subdomain} ${JSON.stringify({ target, config })}`
-  );
-
   const { conditions = [], botId } = config;
 
   if (target.botId !== botId) {

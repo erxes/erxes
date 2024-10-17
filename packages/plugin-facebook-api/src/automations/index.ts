@@ -166,13 +166,9 @@ export default {
   checkCustomTrigger: async ({ subdomain, data }) => {
     const { collectionType } = data;
 
-    debugInfo(`Recieved:${JSON.stringify(data)}`);
-
     switch (collectionType) {
       case "messages":
-        const result = await checkMessageTrigger(subdomain, data);
-        console.log({ result });
-        return result;
+        return await checkMessageTrigger(subdomain, data);
       case "comments":
         return await checkCommentTrigger(subdomain, data);
       case "ads":
