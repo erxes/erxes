@@ -610,7 +610,7 @@ function ScheduleForm(props: Props) {
         filterParams={filterParams}
         initialValue={userIds}
         customOption={prepareCurrentUserOption(currentUser)}
-        label={'Team member'}
+        label={__('Team member')}
         onSelect={onUserSelect}
         multi={false}
         name='userId'
@@ -817,7 +817,7 @@ function ScheduleForm(props: Props) {
                   )
                 }
                 onChange={onBranchSelect}
-                placeholder='Select branch'
+                placeholder={__('Select branch')}
                 isMulti={true}
                 options={branches && renderBranchOptions(branches)}
               />
@@ -833,7 +833,7 @@ function ScheduleForm(props: Props) {
                 filterParams={filterParams}
                 customOption={prepareCurrentUserOption(currentUser)}
                 initialValue={userIds}
-                label={'Select team member'}
+                label={__('Select team member')}
                 onSelect={onUserSelect}
                 name='userId'
               />
@@ -872,7 +872,7 @@ function ScheduleForm(props: Props) {
         <Select
           value={contentTypeOptions.find(o => o.value === contentType)}
           onChange={onContentTypeSelect}
-          placeholder='Select Content Type'
+          placeholder={__('Select Content Type')}
           isClearable={true}
           options={contentTypeOptions}
         />
