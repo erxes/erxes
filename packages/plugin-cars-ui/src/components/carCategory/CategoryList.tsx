@@ -1,25 +1,21 @@
+import { Header } from "@erxes/ui-settings/src/styles";
 import {
-  __,
   Button,
   DataWithLoader,
   Icon,
   ModalTrigger,
-  router,
-  Tip,
-  Wrapper,
   SidebarList,
-} from '@erxes/ui/src';
-import { Header } from '@erxes/ui-settings/src/styles';
-
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import React from 'react';
-
-import CategoryForm from '../../containers/carCategory/CategoryForm';
-import SegmentFilter from '../../containers/SegmentFilter';
-import TagFilter from '../../containers/TagFilter';
-import { ICarCategory } from '../../types';
-import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
-import { useNavigate, useLocation } from 'react-router-dom';
+  Tip,
+  Wrapper
+} from "@erxes/ui/src";
+import { __, router } from "@erxes/ui/src/utils";
+import CollapsibleList from "@erxes/ui/src/components/collapsibleList/CollapsibleList";
+import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import SegmentFilter from "../../containers/SegmentFilter";
+import TagFilter from "../../containers/TagFilter";
+import CategoryForm from "../../containers/carCategory/CategoryForm";
+import { ICarCategory } from "../../types";
 
 type Props = {
   queryParams: any;

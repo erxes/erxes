@@ -73,8 +73,8 @@ const moduleOptions = [
   // others
   { value: "engages:engage", label: "Campaigns" },
   { value: "core:internalNote", label: "Internal notes" },
-  { value: "tags:tag", label: "Tags" },
-  { value: "segments:segment", label: "Segments" },
+  { value: "core:tag", label: "Tags" },
+  { value: "core:segment", label: "Segments" },
   { value: "responseTemplate", label: "Response templates" },
   { value: "emailTemplate", label: "Email templates" },
   { value: "importHistory", label: "Import histories" },

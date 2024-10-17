@@ -16,7 +16,6 @@ let db;
 
 const command = async () => {
   const organizations = await getOrganizations();
-
   const switchContentType = contentType => {
     let changedContentType = contentType;
 

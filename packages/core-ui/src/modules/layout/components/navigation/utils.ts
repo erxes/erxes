@@ -61,10 +61,9 @@ export const pluginNavigations = (): any[] => {
       location: "mainNavigation"
     }
   ];
+
   const childMenus: any[] = [];
-  // console.log('plugins', plugins)
-  // console.log('navigationMenus', navigationMenus)
-  // console.log('childMenus', childMenus)
+
   for (const plugin of plugins) {
     for (const menu of plugin.menus || []) {
       if (menu.location === "settings") {
@@ -74,13 +73,13 @@ export const pluginNavigations = (): any[] => {
       if (menu.location === "mainNavigation") {
         navigationMenus.push({
           ...menu,
-          name: plugin.name,
-          children: childMenus
+          name: plugin.name
         });
       }
+
+      navigationMenus[0].children = childMenus;
     }
   }
-
   return navigationMenus;
 };
 
