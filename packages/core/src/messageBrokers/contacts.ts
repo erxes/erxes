@@ -406,7 +406,7 @@ export const setupContactsMessageBroker = async (): Promise<void> => {
 
   consumeRPCQueue("core:getNumberOfVisits", async ({ data }) => ({
     status: "success",
-    data: await getNumberOfVisits(data)
+    data: null
   }));
 
   consumeQueue(

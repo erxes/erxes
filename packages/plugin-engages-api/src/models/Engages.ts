@@ -1,22 +1,22 @@
-import { Model } from 'mongoose';
+import { Model } from "mongoose";
 
 import {
   removeEngageConversations,
   sendContactsMessage,
-  sendInboxMessage,
-} from '../messageBroker';
-import { checkCustomerExists, findElk, findUser } from '../engageUtils';
-import { getEditorAttributeUtil, isUsingElk } from '../utils';
+  sendInboxMessage
+} from "../messageBroker";
+import { checkCustomerExists, findElk, findUser } from "../engageUtils";
+import { getEditorAttributeUtil, isUsingElk } from "../utils";
 
-import { CAMPAIGN_METHODS, CAMPAIGN_KINDS, CONTENT_TYPES } from '../constants';
-import { IEngageData, IMessageDocument } from '../types';
+import { CAMPAIGN_METHODS, CAMPAIGN_KINDS, CONTENT_TYPES } from "../constants";
+import { IEngageData, IMessageDocument } from "../types";
 import {
   engageMessageSchema,
   IEngageMessage,
-  IEngageMessageDocument,
-} from './definitions/engages';
-import { IModels } from '../connectionResolver';
-import { checkRules } from '../widgetUtils';
+  IEngageMessageDocument
+} from "./definitions/engages";
+import { IModels } from "../connectionResolver";
+import { checkRules } from "../widgetUtils";
 
 export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   getEngageMessage(_id: string): IEngageMessageDocument;
@@ -68,7 +68,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
     public static async getEngageMessage(_id: string) {
       const engageMessage = await models.EngageMessages.findOne({ _id });
       if (!engageMessage) {
-        throw new Error('Campaign not found');
+        throw new Error("Campaign not found");
       }
       return engageMessage;
     }
@@ -87,7 +87,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
       const message = await models.EngageMessages.getEngageMessage(_id);
 
       if (message.kind === CAMPAIGN_KINDS.MANUAL && message.isLive) {
-        throw new Error('Can not update manual live campaign');
+        throw new Error("Can not update manual live campaign");
       }
 
       await models.EngageMessages.updateOne({ _id }, { $set: doc });
@@ -216,13 +216,13 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
 
       const customerObj = customer
         ? customer
-        : { _id: '', state: CONTENT_TYPES.VISITOR };
+        : { _id: "", state: CONTENT_TYPES.VISITOR };
 
       const messages: IEngageMessageDocument[] =
         await models.EngageMessages.find({
-          'messenger.brandId': brandId,
+          "messenger.brandId": brandId,
           method: CAMPAIGN_METHODS.MESSENGER,
-          isLive: true,
+          isLive: true
         });
 
       const conversationMessages: IMessageDocument[] = [];
@@ -237,7 +237,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           segmentIds,
           customerTagIds,
           brandIds,
-          fromUserId,
+          fromUserId
         } = message;
 
         if (
@@ -253,35 +253,37 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           customerIds,
           segmentIds,
           tagIds: customerTagIds,
-          brandIds,
+          brandIds
         });
 
         if (message.kind !== CAMPAIGN_KINDS.VISITOR_AUTO && !customerExists) {
           continue;
         }
 
-        const user = await findUser(subdomain, fromUserId || '');
+        const user = await findUser(subdomain, fromUserId || "");
 
         if (!user) {
           continue;
         }
 
         // check for rules ===
-        const numberOfVisits = await sendContactsMessage({
-          isRPC: true,
-          subdomain,
-          action: 'getNumberOfVisits',
-          data: {
-            url: browserInfo.url,
-            visitorId,
-            customerId: customer ? customer._id : undefined,
-          },
-        });
+        // const numberOfVisits = await sendContactsMessage({
+        //   isRPC: true,
+        //   subdomain,
+        //   action: 'getNumberOfVisits',
+        //   data: {
+        //     url: browserInfo.url,
+        //     visitorId,
+        //     customerId: customer ? customer._id : undefined,
+        //   },
+        // });
+
+        const numberOfVisits = 0;
 
         const hasPassedAllRules = await checkRules({
           rules: messenger.rules,
           browserInfo,
-          numberOfVisits,
+          numberOfVisits
         });
 
         // if given visitor is matched with given condition then create
@@ -293,7 +295,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           const replacedContent = await editorAttributeUtil.replaceAttributes({
             content: messenger.content,
             customer,
-            user,
+            user
           });
 
           if (messenger.rules) {
@@ -301,7 +303,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
               kind: r.kind,
               text: r.text,
               condition: r.condition,
-              value: r.value,
+              value: r.value
             }));
           }
 
@@ -311,14 +313,14 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
               visitorId,
               integrationId,
               user,
-              replacedContent: replacedContent || '',
+              replacedContent: replacedContent || "",
               engageData: {
                 ...messenger,
                 content: replacedContent,
                 engageKind: message.kind,
                 messageId: message._id,
-                fromUserId: message.fromUserId,
-              },
+                fromUserId: message.fromUserId
+              }
             });
 
           if (conversationMessage) {
@@ -326,7 +328,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
             await models.EngageMessages.updateOne(
               { _id: message?._id },
               {
-                $inc: { totalCustomersCount: 1 },
+                $inc: { totalCustomersCount: 1 }
               }
             );
           }
@@ -353,7 +355,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         integrationId,
         user,
         engageData,
-        replacedContent,
+        replacedContent
       } = args;
 
       let prevMessage: IMessageDocument | null;
@@ -361,14 +363,14 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
       if (isUsingElk()) {
         const conversationMessages = await findElk(
           subdomain,
-          'conversation_messages',
+          "conversation_messages",
           {
             bool: {
               must: [
-                { match: { 'engageData.messageId': engageData.messageId } },
-                { match: customerId ? { customerId } : { visitorId } },
-              ],
-            },
+                { match: { "engageData.messageId": engageData.messageId } },
+                { match: customerId ? { customerId } : { visitorId } }
+              ]
+            }
           }
         );
 
@@ -379,14 +381,14 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         }
       } else {
         const query = customerId
-          ? { customerId, 'engageData.messageId': engageData.messageId }
-          : { visitorId, 'engageData.messageId': engageData.messageId };
+          ? { customerId, "engageData.messageId": engageData.messageId }
+          : { visitorId, "engageData.messageId": engageData.messageId };
 
         prevMessage = await sendInboxMessage({
           subdomain,
-          action: 'conversationMessages.findOne',
+          action: "conversationMessages.findOne",
           data: query,
-          isRPC: true,
+          isRPC: true
         });
       }
 
@@ -404,16 +406,16 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         const conversationId = prevMessage.conversationId;
 
         if (isUsingElk()) {
-          messages = await findElk(subdomain, 'conversation_messages', {
+          messages = await findElk(subdomain, "conversation_messages", {
             match: {
-              conversationId,
-            },
+              conversationId
+            }
           });
         } else {
           messages = await sendInboxMessage({
             ...commonParams,
             data: { conversationId },
-            action: 'conversationMessages.find',
+            action: "conversationMessages.find"
           });
         }
 
@@ -425,11 +427,11 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         // mark as unread again && reset engageData
         await sendInboxMessage({
           ...commonParams,
-          action: 'updateConversationMessage',
+          action: "updateConversationMessage",
           data: {
             filter: { _id: prevMessage._id },
-            updateDoc: { engageData, isCustomerRead: false },
-          },
+            updateDoc: { engageData, isCustomerRead: false }
+          }
         });
 
         return null;
@@ -438,16 +440,16 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
       // create conversation and message replaced by messagebroker
       return await sendInboxMessage({
         ...commonParams,
-        action: 'createConversationAndMessage',
+        action: "createConversationAndMessage",
         data: {
           userId: user._id,
-          status: 'engageVisitorAuto',
+          status: "engageVisitorAuto",
           customerId,
           visitorId,
           integrationId,
           content: replacedContent,
-          engageData,
-        },
+          engageData
+        }
       });
     }
   }
