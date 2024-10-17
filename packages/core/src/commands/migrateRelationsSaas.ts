@@ -6,7 +6,8 @@ import { MongoClient } from "mongodb";
 
 import {
   getOrganizations,
-  getOrganizationsByFilter
+  getOrganizationsByFilter,
+  updateOrganization
 } from "@erxes/api-utils/src/saas/saas";
 
 const { MONGO_URL = "" } = process.env;
@@ -18,7 +19,9 @@ if (!MONGO_URL) {
 let db;
 
 const command = async () => {
-  const organizations = await getOrganizations();
+  const organizations = await getOrganizationsByFilter({
+    lastMigration: { $ne: "v2" }
+  });
 
   const switchContentType = contentType => {
     let changedContentType = contentType;
@@ -295,6 +298,8 @@ const command = async () => {
     } catch (e) {
       console.log(`Error occurred: ${e.message}`);
     }
+
+    await updateOrganization(org.subdomain, { lastMigration: "v2" });
 
     console.log("migrated", org.subdomain);
   }
