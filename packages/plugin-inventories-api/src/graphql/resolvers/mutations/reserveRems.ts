@@ -4,8 +4,7 @@ import {
   IReserveRemsAddParams
 } from '../../../models/definitions/reserveRems';
 import {
-  moduleCheckPermission,
-  moduleRequireLogin
+  moduleCheckPermission
 } from '@erxes/api-utils/src/permissions';
 import { getProducts } from './utils';
 
@@ -153,7 +152,6 @@ const reserveRemsMutations = {
   }
 };
 
-moduleRequireLogin(reserveRemsMutations);
-moduleCheckPermission(reserveRemsMutations, 'manageRemainder');
+moduleCheckPermission(reserveRemsMutations, 'manageRemainders');
 
 export default reserveRemsMutations;

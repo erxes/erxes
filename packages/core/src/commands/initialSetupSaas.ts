@@ -15,11 +15,15 @@ const command = async () => {
 
   for (const org of organizations) {
     if (org.subdomain) {
-      const response = await fetch(
-        `https://${org.subdomain}.api.erxes.io/api/initial-setup`
-      );
+      try {
+        const response = await fetch(
+          `https://${org.subdomain}.api.erxes.io/api/initial-setup`
+        );
 
-      console.log(response.ok);
+        console.log(response.ok);
+      } catch (e) {
+        console.log(e.message);
+      }
     }
   }
 

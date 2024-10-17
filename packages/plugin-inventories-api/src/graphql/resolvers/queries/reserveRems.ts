@@ -1,5 +1,4 @@
 import {
-  moduleRequireLogin,
   moduleCheckPermission
 } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
@@ -102,7 +101,6 @@ const reserveRemsQueries = {
   }
 };
 
-moduleRequireLogin(reserveRemsQueries);
-moduleCheckPermission(reserveRemsQueries, "showSalesPlans");
+moduleCheckPermission(reserveRemsQueries, "manageRemainders");
 
 export default reserveRemsQueries;
