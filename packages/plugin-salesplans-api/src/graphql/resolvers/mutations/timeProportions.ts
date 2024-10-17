@@ -64,7 +64,7 @@ const timeProportionsMutations = {
           continue;
         }
 
-        const timeProportionDoc: ITimeProportion & any = {
+        const timeProportionDoc: ITimeProportion  = {
           departmentId,
           branchId,
           productCategoryId,
@@ -73,7 +73,7 @@ const timeProportionsMutations = {
           modifiedAt: now,
           createdBy: user._id,
           modifiedBy: user._id
-        };
+        } as any;
 
         docs.push(timeProportionDoc);
       }

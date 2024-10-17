@@ -1,10 +1,9 @@
-import React, { useEffect } from 'react';
-import { gql } from '@apollo/client';
-import { useQuery, useMutation } from '@apollo/client';
-import { queries, mutations } from '../graphql';
-import { Alert } from '@erxes/ui/src/utils';
-import ManageConfigsComponent from '../components/ManageConfigs';
-import { ITimeframe } from '../types';
+import React, { useEffect } from "react";
+import { gql, useQuery, useMutation } from "@apollo/client";
+import { queries, mutations } from "../graphql";
+import { Alert } from "@erxes/ui/src/utils";
+import ManageConfigsComponent from "../components/ManageConfigs";
+import { ITimeframe } from "../types";
 
 type Props = {
   closeModal: () => void;
@@ -15,14 +14,14 @@ const ManageConfigsContainer = (props: Props) => {
   const [edit] = useMutation(gql(mutations.timeframesEdit));
 
   const dayConfigQuery = useQuery(gql(queries.timeframes), {
-    fetchPolicy: 'network-only',
-    notifyOnNetworkStatusChange: true
+    fetchPolicy: "network-only",
+    notifyOnNetworkStatusChange: true,
   });
 
   const editData = (docs: ITimeframe[]) => {
     let before: ITimeframe | undefined = undefined;
     const checker = [
-      ...docs.sort((a, b) => (a.startTime || 0) - (b.startTime || 0))
+      ...docs.sort((a, b) => (a.startTime || 0) - (b.startTime || 0)),
     ];
     for (const data of checker) {
       if ((data.startTime || 0) > (data.endTime || 0)) {
@@ -38,9 +37,9 @@ const ManageConfigsContainer = (props: Props) => {
 
     edit({ variables: { docs } })
       .then(() => {
-        Alert.success('Day Configs successfully saved!');
+        Alert.success("Day Configs successfully saved!");
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
 

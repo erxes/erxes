@@ -1,4 +1,4 @@
-import { IPlanValues, IYearPlan } from "../types";
+import { IYearPlan } from "../types";
 import React, { useRef, useState } from "react";
 
 import ActionButtons from "@erxes/ui/src/components/ActionButtons";
@@ -11,7 +11,6 @@ import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   yearPlan: IYearPlan;
-  history: any;
   isChecked: boolean;
   toggleBulk: (yearPlan: IYearPlan, isChecked?: boolean) => void;
   edit: (doc: IYearPlan) => void;
