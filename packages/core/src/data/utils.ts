@@ -1375,84 +1375,84 @@ export const configReplacer = config => {
  * @param {string} - customerId
  * @param {array} - receivers
  */
-export const sendMobileNotification = async (
-  models: IModels,
-  {
-    customConfig,
-    receivers,
-    title,
-    body,
-    deviceTokens,
-    data
-  }: {
-    customConfig: string;
-    receivers: string[];
-    title: string;
-    body: string;
-    deviceTokens?: string[];
-    data?: any;
-  }
-): Promise<void> => {
-  if (!admin.apps.length) {
-    await initFirebase(models, customConfig);
-  }
-  const additionalConfigs = await models.Configs.findOne({
-    code: "GOOGLE_APP_ADDITIONAL_CREDS_JSON"
-  });
+// export const sendMobileNotification = async (
+//   models: IModels,
+//   {
+//     customConfig,
+//     receivers,
+//     title,
+//     body,
+//     deviceTokens,
+//     data
+//   }: {
+//     customConfig: string;
+//     receivers: string[];
+//     title: string;
+//     body: string;
+//     deviceTokens?: string[];
+//     data?: any;
+//   }
+// ): Promise<void> => {
+//   if (!admin.apps.length) {
+//     await initFirebase(models, customConfig);
+//   }
+//   const additionalConfigs = await models.Configs.findOne({
+//     code: "GOOGLE_APP_ADDITIONAL_CREDS_JSON"
+//   });
 
-  if (admin.apps.length === 1 && additionalConfigs) {
-    (additionalConfigs?.value || []).forEach(async (item, index) => {
-      await initFirebase(models, item, `app${index + 1}`);
-    });
-  }
+//   if (admin.apps.length === 1 && additionalConfigs) {
+//     (additionalConfigs?.value || []).forEach(async (item, index) => {
+//       await initFirebase(models, item, `app${index + 1}`);
+//     });
+//   }
 
-  const tokens: string[] = [];
+//   const tokens: string[] = [];
 
-  if (receivers) {
-    const xs = await models.Users.find({
-      _id: { $in: receivers },
-      role: { $ne: USER_ROLES.SYSTEM }
-    }).distinct("deviceTokens");
+//   if (receivers) {
+//     const xs = await models.Users.find({
+//       _id: { $in: receivers },
+//       role: { $ne: USER_ROLES.SYSTEM }
+//     }).distinct("deviceTokens");
 
-    for (let x of xs) {
-      if (x) {
-        tokens.push(x);
-      }
-    }
-  }
+//     for (let x of xs) {
+//       if (x) {
+//         tokens.push(x);
+//       }
+//     }
+//   }
 
-  if (deviceTokens && deviceTokens.length) {
-    tokens.push(...deviceTokens);
-  }
+//   if (deviceTokens && deviceTokens.length) {
+//     tokens.push(...deviceTokens);
+//   }
 
-  if (tokens.length > 0) {
-    // send notification
-    for (const app of admin.apps) {
-      if (app) {
-        const transporter = app.messaging();
+//   if (tokens.length > 0) {
+//     // send notification
+//     for (const app of admin.apps) {
+//       if (app) {
+//         const transporter = app.messaging();
 
-        for (const token of tokens) {
-          await transporter
-            .send({
-              token,
-              notification: { title, body },
-              data: data || {}
-            })
-            .catch(async e => {
-              debugError(`Error occurred during firebase send: ${e.message}`);
+//         for (const token of tokens) {
+//           await transporter
+//             .send({
+//               token,
+//               notification: { title, body },
+//               data: data || {}
+//             })
+//             .catch(async e => {
+//               debugError(`Error occurred during firebase send: ${e.message}`);
 
-              if (!e.message.includes("SenderId mismatch")) {
-                await models.Users.updateOne(
-                  { deviceTokens: token },
-                  { $pull: { deviceTokens: token } }
-                );
-              }
-            });
-        }
-      }
-    }
-  }
-};
+//               if (!e.message.includes("SenderId mismatch")) {
+//                 await models.Users.updateOne(
+//                   { deviceTokens: token },
+//                   { $pull: { deviceTokens: token } }
+//                 );
+//               }
+//             });
+//         }
+//       }
+//     }
+//   }
+// };
 
 export const getFileUploadConfigs = async (models: IModels) => {
   const AWS_ACCESS_KEY_ID = await getConfig("AWS_ACCESS_KEY_ID", "", models);

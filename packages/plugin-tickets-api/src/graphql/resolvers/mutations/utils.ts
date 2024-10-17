@@ -345,23 +345,23 @@ export const itemsEdit = async (
 
   await sendNotifications(models, subdomain, notificationDoc);
 
-  if (!notificationDoc.invitedUsers && !notificationDoc.removedUsers) {
-    sendCoreMessage({
-      subdomain: "os",
-      action: "sendMobileNotification",
-      data: {
-        title: notificationDoc?.item?.name,
-        body: `${
-          user?.details?.fullName || user?.details?.shortName
-        } has updated`,
-        receivers: notificationDoc?.item?.assignedUserIds,
-        data: {
-          type,
-          id: _id
-        }
-      }
-    });
-  }
+  // if (!notificationDoc.invitedUsers && !notificationDoc.removedUsers) {
+  // sendCoreMessage({
+  //   subdomain: "os",
+  //   action: "sendMobileNotification",
+  //   data: {
+  //     title: notificationDoc?.item?.name,
+  //     body: `${
+  //       user?.details?.fullName || user?.details?.shortName
+  //     } has updated`,
+  //     receivers: notificationDoc?.item?.assignedUserIds,
+  //     data: {
+  //       type,
+  //       id: _id
+  //     }
+  //   }
+  // });
+  // }
 
   // exclude [null]
   if (doc.tagIds && doc.tagIds.length) {
@@ -592,21 +592,21 @@ export const itemsChange = async (
     contentType: type
   });
 
-  if (item?.assignedUserIds && item?.assignedUserIds?.length > 0) {
-    sendCoreMessage({
-      subdomain: "os",
-      action: "sendMobileNotification",
-      data: {
-        title: `${item.name}`,
-        body: `${user?.details?.fullName || user?.details?.shortName} ${action + content}`,
-        receivers: item?.assignedUserIds,
-        data: {
-          type,
-          id: item._id
-        }
-      }
-    });
-  }
+  // if (item?.assignedUserIds && item?.assignedUserIds?.length > 0) {
+  //   sendCoreMessage({
+  //     subdomain: "os",
+  //     action: "sendMobileNotification",
+  //     data: {
+  //       title: `${item.name}`,
+  //       body: `${user?.details?.fullName || user?.details?.shortName} ${action + content}`,
+  //       receivers: item?.assignedUserIds,
+  //       data: {
+  //         type,
+  //         id: item._id
+  //       }
+  //     }
+  //   });
+  // }
 
   await putUpdateLog(
     models,
@@ -666,21 +666,21 @@ export const itemsRemove = async (
     contentType: type
   });
 
-  if (item?.assignedUserIds && item?.assignedUserIds?.length > 0) {
-    sendCoreMessage({
-      subdomain: "os",
-      action: "sendMobileNotification",
-      data: {
-        title: `${item.name}`,
-        body: `${user?.details?.fullName || user?.details?.shortName} deleted the ${type}`,
-        receivers: item?.assignedUserIds,
-        data: {
-          type,
-          id: item._id
-        }
-      }
-    });
-  }
+  // if (item?.assignedUserIds && item?.assignedUserIds?.length > 0) {
+  //   sendCoreMessage({
+  //     subdomain: "os",
+  //     action: "sendMobileNotification",
+  //     data: {
+  //       title: `${item.name}`,
+  //       body: `${user?.details?.fullName || user?.details?.shortName} deleted the ${type}`,
+  //       receivers: item?.assignedUserIds,
+  //       data: {
+  //         type,
+  //         id: item._id
+  //       }
+  //     }
+  //   });
+  // }
 
   await destroyBoardItemRelations(models, subdomain, item._id, type);
 

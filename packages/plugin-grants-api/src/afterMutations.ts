@@ -86,7 +86,7 @@ export const afterMutationHandlers = async (
                 if (config.sourceStageId === newData.stageId) {
                   await sendCommonMessage({
                     subdomain,
-                    serviceName:contentType,
+                    serviceName: contentType,
                     action: "editItem",
                     data: {
                       itemId,
@@ -104,12 +104,12 @@ export const afterMutationHandlers = async (
 
           if (!!receiverIds.length) {
             const link = await sendCommonMessage({
-              serviceName:contentType,
+              serviceName: contentType,
               subdomain,
-              action: 'getLink',
+              action: "getLink",
               data: { _id, type: contentType },
               isRPC: true,
-              defaultValue: null,
+              defaultValue: null
             });
 
             await sendNotificationsMessage({
@@ -125,18 +125,18 @@ export const afterMutationHandlers = async (
                 link: link
               }
             });
-            sendCoreMessage({
-              subdomain: "os",
-              action: "sendMobileNotification",
-              data: {
-                title: `Grant`,
-                body: `${
-                  user?.details?.fullName || user?.details?.shortName
-                } wants ${action}`,
-                receivers: receiverIds,
-                data: { _id, type: contentType }
-              }
-            });
+            // sendCoreMessage({
+            //   subdomain: "os",
+            //   action: "sendMobileNotification",
+            //   data: {
+            //     title: `Grant`,
+            //     body: `${
+            //       user?.details?.fullName || user?.details?.shortName
+            //     } wants ${action}`,
+            //     receivers: receiverIds,
+            //     data: { _id, type: contentType }
+            //   }
+            // });
           }
         }
       }

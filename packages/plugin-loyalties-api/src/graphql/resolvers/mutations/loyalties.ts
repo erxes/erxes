@@ -1,11 +1,11 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
-import { confirmVoucherSale } from '../../../utils';
+import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
+import { confirmVoucherSale } from "../../../utils";
 import {
   sendContactsMessage,
   sendCoreMessage,
   sendNotification
-} from '../../../messageBroker';
+} from "../../../messageBroker";
 
 interface IParam {
   ownerType: string;
@@ -31,10 +31,10 @@ const loyaltiesMutations = {
 
     let destOwnerId = destinationOwnerId;
 
-    if (ownerType === 'customer') {
+    if (ownerType === "customer") {
       const customer = await sendContactsMessage({
         subdomain,
-        action: 'customers.findOne',
+        action: "customers.findOne",
         data: {
           _id: destinationOwnerId,
           customerPrimaryEmail: destinationEmail,
@@ -45,7 +45,7 @@ const loyaltiesMutations = {
       });
 
       if (!customer) {
-        throw new Error('Destination customer not found');
+        throw new Error("Destination customer not found");
       }
 
       destOwnerId = customer._id;
@@ -54,17 +54,17 @@ const loyaltiesMutations = {
     const getUser = async data => {
       return await sendCoreMessage({
         subdomain,
-        action: 'users.findOne',
+        action: "users.findOne",
         data,
         isRPC: true
       });
     };
 
     const fee = (
-      (await models.LoyaltyConfigs.getConfig('ShareScoreFee')) || { value: 0 }
+      (await models.LoyaltyConfigs.getConfig("ShareScoreFee")) || { value: 0 }
     ).value;
 
-    if (ownerType === 'user') {
+    if (ownerType === "user") {
       let user;
       if (destinationOwnerId) {
         user = await getUser({ _id: destinationOwnerId });
@@ -79,18 +79,18 @@ const loyaltiesMutations = {
       }
 
       if (!user && destinationPhone) {
-        user = await getUser({ 'details.operatorPhone': destinationPhone });
+        user = await getUser({ "details.operatorPhone": destinationPhone });
       }
 
       if (!user) {
-        throw new Error('Destination team member not found');
+        throw new Error("Destination team member not found");
       }
 
       destOwnerId = user._id;
 
       const owner = await sendCoreMessage({
         subdomain,
-        action: 'users.findOne',
+        action: "users.findOne",
         data: { _id: ownerId },
         isRPC: true,
         defaultValue: {}
@@ -98,41 +98,41 @@ const loyaltiesMutations = {
 
       sendNotification(subdomain, {
         createdUser: owner,
-        title: 'Loyalty',
-        notifType: 'plugin',
+        title: "Loyalty",
+        notifType: "plugin",
         action: `send score to you`,
-        content: 'Loyalty',
+        content: "Loyalty",
         link: `/erxes-plugin-loyalty`,
         receivers: [destOwnerId]
       });
 
-      sendCoreMessage({
-        subdomain,
-        action: 'sendMobileNotification',
-        data: {
-          title: `${owner.details.fullName} sent score to you`,
-          body: `${owner.details.fullName} sent ${(score / 100) *
-            (100 - fee)} score to you`,
-          receivers: [destOwnerId]
-        }
-      });
+      // sendCoreMessage({
+      //   subdomain,
+      //   action: 'sendMobileNotification',
+      //   data: {
+      //     title: `${owner.details.fullName} sent score to you`,
+      //     body: `${owner.details.fullName} sent ${(score / 100) *
+      //       (100 - fee)} score to you`,
+      //     receivers: [destOwnerId]
+      //   }
+      // });
     }
 
     await models.ScoreLogs.changeScore({
       ownerType,
       ownerId,
       changeScore: -1 * score,
-      description: 'share score'
+      description: "share score"
     });
 
     await models.ScoreLogs.changeScore({
       ownerType,
       ownerId: destOwnerId,
       changeScore: (score / 100) * (100 - fee),
-      description: 'receipt score'
+      description: "receipt score"
     });
 
-    return 'success';
+    return "success";
   },
 
   async confirmLoyalties(_root, param, { models }: IContext) {
@@ -141,7 +141,7 @@ const loyaltiesMutations = {
   }
 };
 
-checkPermission(loyaltiesMutations, 'shareScore', 'manageLoyalties');
-checkPermission(loyaltiesMutations, 'confirmLoyalties', 'manageLoyalties');
+checkPermission(loyaltiesMutations, "shareScore", "manageLoyalties");
+checkPermission(loyaltiesMutations, "confirmLoyalties", "manageLoyalties");
 
 export default loyaltiesMutations;

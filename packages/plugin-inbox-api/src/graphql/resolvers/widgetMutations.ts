@@ -107,19 +107,19 @@ export const pConversationClientMessageInserted = async (
   }
 
   if (message.content) {
-    sendCoreMessage({
-      subdomain,
-      action: "sendMobileNotification",
-      data: {
-        title: integration ? integration.name : "New message",
-        body: message.content,
-        receivers: channelMemberIds,
-        data: {
-          type: "conversation",
-          id: conversation._id
-        }
-      }
-    });
+    // sendCoreMessage({
+    //   subdomain,
+    //   action: "sendMobileNotification",
+    //   data: {
+    //     title: integration ? integration.name : "New message",
+    //     body: message.content,
+    //     receivers: channelMemberIds,
+    //     data: {
+    //       type: "conversation",
+    //       id: conversation._id
+    //     }
+    //   }
+    // });
   }
 };
 
@@ -211,11 +211,7 @@ const createVisitor = async (subdomain: string, visitorId: string) => {
   return customer;
 };
 
-
 const widgetMutations = {
-
-
-
   async widgetsLeadIncreaseViewCount(
     _root,
     { formId }: { formId: string },
@@ -1126,7 +1122,7 @@ const widgetMutations = {
     );
 
     return { botData: botRequest.responses };
-  },
+  }
 };
 
 export default widgetMutations;

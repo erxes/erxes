@@ -1,19 +1,19 @@
-import { debugError } from '@erxes/api-utils/src/debuggers';
+import { debugError } from "@erxes/api-utils/src/debuggers";
 import {
   sendClientPortalMessagge,
   sendCommonMessage,
   sendCoreMessage,
   sendSegmentsMessage
-} from './messageBroker';
+} from "./messageBroker";
 
 export default {
   constants: {
     actions: [
       {
-        type: 'notifications:appNotification.create',
-        icon: 'telegram-alt',
-        label: 'Push in-App Notification',
-        description: 'push in-app notification',
+        type: "notifications:appNotification.create",
+        icon: "telegram-alt",
+        label: "Push in-App Notification",
+        description: "push in-app notification",
         isAvailable: true
       }
     ]
@@ -23,7 +23,7 @@ export default {
 
     const { triggerType } = execution;
 
-    const [serviceName, contentType] = triggerType.split(':');
+    const [serviceName, contentType] = triggerType.split(":");
 
     let { target } = execution;
     const { config } = action;
@@ -31,12 +31,12 @@ export default {
     const { subject, body } = await sendCommonMessage({
       subdomain,
       serviceName,
-      action: 'automations.replacePlaceHolders',
+      action: "automations.replacePlaceHolders",
       data: {
         target: { ...target, type: contentType },
         config: {
-          subject: config?.subject || '',
-          body: config?.body || ''
+          subject: config?.subject || "",
+          body: config?.body || ""
         }
       },
       isRPC: true,
@@ -56,12 +56,12 @@ export default {
     let teamMemberIds = [...(config?.teamMemberIds || [])];
     let customerIds = [...(config?.customerIds || [])];
 
-    if (!!config?.teamMemberIds?.length) {
-      await handleTeamMembersAppNotifications({
-        ...commonDoc,
-        teamMemberIds: config.teamMemberIds
-      });
-    }
+    // if (!!config?.teamMemberIds?.length) {
+    //   await handleTeamMembersAppNotifications({
+    //     ...commonDoc,
+    //     teamMemberIds: config.teamMemberIds
+    //   });
+    // }
     if (!!config?.customerIds?.length) {
       await handleCustomerAppNotifications({
         ...commonDoc,
@@ -72,7 +72,7 @@ export default {
       const result = await generateSendToIds({
         subdomain,
         execution,
-        value: config?.sendTo || '',
+        value: config?.sendTo || "",
         triggerType,
         target
       });
@@ -82,7 +82,7 @@ export default {
     }
 
     if (!customerIds?.length && !teamMemberIds?.length) {
-      return 'Not Found';
+      return "Not Found";
     }
 
     if (!!customerIds?.length) {
@@ -92,14 +92,14 @@ export default {
       });
     }
 
-    if (!!teamMemberIds?.length) {
-      await handleTeamMembersAppNotifications({
-        ...commonDoc,
-        teamMemberIds
-      });
-    }
+    // if (!!teamMemberIds?.length) {
+    //   await handleTeamMembersAppNotifications({
+    //     ...commonDoc,
+    //     teamMemberIds
+    //   });
+    // }
 
-    return 'Sent';
+    return "Sent";
   }
 };
 
@@ -107,7 +107,7 @@ const generateTriggerExcutorIds = async ({ subdomain, execution }) => {
   const { triggerConfig, targetId } = execution;
   const contentTypeIds = await sendSegmentsMessage({
     subdomain,
-    action: 'fetchSegment',
+    action: "fetchSegment",
     data: {
       segmentId: triggerConfig.contentId,
       options: {
@@ -127,11 +127,11 @@ const generateTriggerExcutorIds = async ({ subdomain, execution }) => {
 };
 const generateIds = entry => {
   if (Array.isArray(entry)) {
-    return entry.filter(value => typeof value === 'string');
+    return entry.filter(value => typeof value === "string");
   }
 
-  if (typeof entry === 'string') {
-    return entry.split(', ');
+  if (typeof entry === "string") {
+    return entry.split(", ");
   }
 
   return [];
@@ -144,29 +144,29 @@ const generateSendToIds = async ({
   triggerType,
   target
 }) => {
-  const [serviceName, type] = triggerType.split(':');
+  const [serviceName, type] = triggerType.split(":");
 
   let customerIds: string[] = [];
   let teamMemberIds: string[] = [];
 
-  const matches = (value || '').match(/\{\{\s*([^}]+)\s*\}\}/g);
-  let attributes = matches.map(match => match.replace(/\{\{\s*|\s*\}\}/g, ''));
+  const matches = (value || "").match(/\{\{\s*([^}]+)\s*\}\}/g);
+  let attributes = matches.map(match => match.replace(/\{\{\s*|\s*\}\}/g, ""));
 
-  if (attributes.find(attribute => attribute === 'triggerExecutor')) {
+  if (attributes.find(attribute => attribute === "triggerExecutor")) {
     const triggerExecutorIds = await generateTriggerExcutorIds({
       subdomain,
       execution
     });
 
-    if (triggerType.includes('user')) {
+    if (triggerType.includes("user")) {
       teamMemberIds = [...teamMemberIds, ...triggerExecutorIds];
     }
-    if (triggerType.includes('customer')) {
+    if (triggerType.includes("customer")) {
       customerIds = [...customerIds, ...triggerExecutorIds];
     }
 
     attributes = attributes.filter(
-      attribute => attribute !== 'triggerExecutor'
+      attribute => attribute !== "triggerExecutor"
     );
   }
 
@@ -180,16 +180,16 @@ const generateSendToIds = async ({
     const replacedContent = await sendCommonMessage({
       subdomain,
       serviceName,
-      action: 'automations.replacePlaceHolders',
+      action: "automations.replacePlaceHolders",
       data: {
         target: {
           ...target,
           customers: null,
           companies: null,
-          type: type.includes('.') ? type.split('.')[0] : type
+          type: type.includes(".") ? type.split(".")[0] : type
         },
         config: obj,
-        relatedValueProps: { key: '_id' }
+        relatedValueProps: { key: "_id" }
       },
       isRPC: true,
       defaultValue: {}
@@ -197,8 +197,8 @@ const generateSendToIds = async ({
 
     for (const [key, value] of Object.entries(replacedContent)) {
       if (
-        (key || '').toLowerCase().includes('customer') ||
-        triggerType.includes('customer')
+        (key || "").toLowerCase().includes("customer") ||
+        triggerType.includes("customer")
       ) {
         customerIds = [...customerIds, ...generateIds(value)];
       } else {
@@ -210,29 +210,29 @@ const generateSendToIds = async ({
   return { teamMemberIds, customerIds };
 };
 
-const handleTeamMembersAppNotifications = async ({
-  subject,
-  body,
-  teamMemberIds,
-  target,
-  customConfig
-}) => {
-  try {
-    return await sendCoreMessage({
-      subdomain: 'os',
-      action: 'sendMobileNotification',
-      data: {
-        title: subject,
-        body: body,
-        receivers: teamMemberIds,
-        customConfig,
-        data: { targetId: target._id }
-      }
-    });
-  } catch (error) {
-    debugError(error.message);
-  }
-};
+// const handleTeamMembersAppNotifications = async ({
+//   subject,
+//   body,
+//   teamMemberIds,
+//   target,
+//   customConfig
+// }) => {
+//   try {
+//     return await sendCoreMessage({
+//       subdomain: 'os',
+//       action: 'sendMobileNotification',
+//       data: {
+//         title: subject,
+//         body: body,
+//         receivers: teamMemberIds,
+//         customConfig,
+//         data: { targetId: target._id }
+//       }
+//     });
+//   } catch (error) {
+//     debugError(error.message);
+//   }
+// };
 
 const handleCustomerAppNotifications = async ({
   subdomain,
@@ -245,7 +245,7 @@ const handleCustomerAppNotifications = async ({
   try {
     const cpUsers = await sendClientPortalMessagge({
       subdomain,
-      action: 'clientPortalUsers.find',
+      action: "clientPortalUsers.find",
       data: { erxesCustomerId: { $in: customerIds } },
       isRPC: true,
       defaultValue: []
@@ -253,15 +253,15 @@ const handleCustomerAppNotifications = async ({
 
     sendClientPortalMessagge({
       subdomain,
-      action: 'sendNotification',
+      action: "sendNotification",
       data: {
         title: subject,
         content: body,
         receivers: cpUsers.map(cpUser => cpUser._id),
         eventData: { targetId: target._id },
-        notifType: 'system',
+        notifType: "system",
         isMobile: true,
-        link: '',
+        link: "",
         customConfig
       }
     });

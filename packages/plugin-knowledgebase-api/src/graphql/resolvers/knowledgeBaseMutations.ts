@@ -217,9 +217,9 @@ const knowledgeBaseMutations = {
 
     await sendCoreMessage({
       subdomain,
-      action: 'registerOnboardHistory',
+      action: "registerOnboardHistory",
       data: {
-        type: 'knowledgeBaseArticleCreate',
+        type: "knowledgeBaseArticleCreate",
         user
       }
     });
@@ -238,19 +238,19 @@ const knowledgeBaseMutations = {
         isRPC: true
       });
 
-      sendCoreMessage({
-        subdomain,
-        action: "sendMobileNotification",
-        data: {
-          title: doc.title,
-          body: stripHtml(doc.content),
-          receivers: userIds.filter((userId) => userId !== user._id),
-          data: {
-            type: "knowledge",
-            id: kbArticle._id
-          }
-        }
-      });
+      // sendCoreMessage({
+      //   subdomain,
+      //   action: "sendMobileNotification",
+      //   data: {
+      //     title: doc.title,
+      //     body: stripHtml(doc.content),
+      //     receivers: userIds.filter((userId) => userId !== user._id),
+      //     data: {
+      //       type: "knowledge",
+      //       id: kbArticle._id
+      //     }
+      //   }
+      // });
     }
 
     return kbArticle;

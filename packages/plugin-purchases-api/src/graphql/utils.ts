@@ -118,22 +118,22 @@ export const sendNotifications = async (
       receivers: removedUsers.filter(id => id !== user._id)
     });
 
-    sendCoreMessage({
-      subdomain: "os",
-      action: "sendMobileNotification",
-      data: {
-        title: `${item.name}`,
-        body: `${
-          notificationDoc.createdUser?.details?.fullName ||
-          notificationDoc.createdUser?.details?.shortName
-        } removed you from ${contentType}`,
-        receivers: removedUsers.filter(id => id !== user._id),
-        data: {
-          type: contentType,
-          id: item._id
-        }
-      }
-    });
+    // sendCoreMessage({
+    //   subdomain: "os",
+    //   action: "sendMobileNotification",
+    //   data: {
+    //     title: `${item.name}`,
+    //     body: `${
+    //       notificationDoc.createdUser?.details?.fullName ||
+    //       notificationDoc.createdUser?.details?.shortName
+    //     } removed you from ${contentType}`,
+    //     receivers: removedUsers.filter(id => id !== user._id),
+    //     data: {
+    //       type: contentType,
+    //       id: item._id
+    //     }
+    //   }
+    // });
   }
 
   if (invitedUsers && invitedUsers.length > 0) {
@@ -145,22 +145,22 @@ export const sendNotifications = async (
       receivers: invitedUsers.filter(id => id !== user._id)
     });
 
-    sendCoreMessage({
-      subdomain: "os",
-      action: "sendMobileNotification",
-      data: {
-        title: `${item.name}`,
-        body: `${
-          notificationDoc.createdUser?.details?.fullName ||
-          notificationDoc.createdUser?.details?.shortName
-        } invited you to the ${contentType}`,
-        receivers: invitedUsers.filter(id => id !== user._id),
-        data: {
-          type: contentType,
-          id: item._id
-        }
-      }
-    });
+    // sendCoreMessage({
+    //   subdomain: "os",
+    //   action: "sendMobileNotification",
+    //   data: {
+    //     title: `${item.name}`,
+    //     body: `${
+    //       notificationDoc.createdUser?.details?.fullName ||
+    //       notificationDoc.createdUser?.details?.shortName
+    //     } invited you to the ${contentType}`,
+    //     receivers: invitedUsers.filter(id => id !== user._id),
+    //     data: {
+    //       type: contentType,
+    //       id: item._id
+    //     }
+    //   }
+    // });
   }
 
   sendNotification(subdomain, {

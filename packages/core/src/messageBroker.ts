@@ -26,8 +26,8 @@ import {
   getConfig,
   getConfigs,
   getFileUploadConfigs,
-  sendEmail,
-  sendMobileNotification
+  sendEmail
+  // sendMobileNotification
 } from "./data/utils";
 
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
@@ -116,7 +116,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
   consumeQueue("core:sendMobileNotification", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    await sendMobileNotification(models, data);
+    // await sendMobileNotification(models, data);
   });
 
   consumeQueue("core:sendEmail", async ({ subdomain, data }) => {

@@ -1,10 +1,10 @@
 // import { sendMobileNotification } from "../../../utils";
-import { checkPermission } from '@erxes/api-utils/src';
-import { sendCoreMessage, sendNotification } from '../../../messageBroker';
+import { checkPermission } from "@erxes/api-utils/src";
+import { sendCoreMessage, sendNotification } from "../../../messageBroker";
 
 export const gatherDescriptions = async () => {
   const extraDesc = [];
-  const description = 'description';
+  const description = "description";
 
   return { extraDesc, description };
 };
@@ -27,7 +27,7 @@ const exmFeedMutations = {
 
     const unit = await sendCoreMessage({
       subdomain,
-      action: 'units.findOne',
+      action: "units.findOne",
       data: {
         _id: doc.unitId
       },
@@ -37,7 +37,7 @@ const exmFeedMutations = {
 
     let receivers = await sendCoreMessage({
       subdomain,
-      action: 'users.find',
+      action: "users.find",
       data: {
         query: {
           $or: [
@@ -52,10 +52,10 @@ const exmFeedMutations = {
       defaultValue: []
     });
 
-    if (doc && doc.contentType === 'publicHoliday') {
+    if (doc && doc.contentType === "publicHoliday") {
       receivers = await sendCoreMessage({
         subdomain,
-        action: 'users.find',
+        action: "users.find",
         data: {
           query: {
             _id: { $ne: user._id }
@@ -70,35 +70,35 @@ const exmFeedMutations = {
 
     receivers = receivers.map(r => r._id);
 
-    if (doc.contentType === 'bravo') {
+    if (doc.contentType === "bravo") {
       receivers = doc.recipientIds;
     }
 
     sendNotification(subdomain, {
       createdUser: user,
       title: doc.title,
-      contentType: 'exmFeed',
+      contentType: "exmFeed",
       contentTypeId: exmFeed._id,
-      notifType: 'plugin',
+      notifType: "plugin",
       action: `${doc.contentType} created`,
       content: doc.description,
       link: `/erxes-plugin-exm-feed/list=${exmFeed._id}`,
       receivers
     });
 
-    sendCoreMessage({
-      subdomain,
-      action: 'sendMobileNotification',
-      data: {
-        title: doc.title,
-        body: doc.description,
-        receivers
-      }
-    });
+    // sendCoreMessage({
+    //   subdomain,
+    //   action: 'sendMobileNotification',
+    //   data: {
+    //     title: doc.title,
+    //     body: doc.description,
+    //     receivers
+    //   }
+    // });
 
     sendCoreMessage({
       subdomain,
-      action: 'sendEmail',
+      action: "sendEmail",
       data: {
         toEmails: [receiversEmail],
         title: `New post - ${doc.title}`,
@@ -110,9 +110,9 @@ const exmFeedMutations = {
       }
     });
 
-    if (doc.type === 'bravo' && models.Exms) {
+    if (doc.type === "bravo" && models.Exms) {
       for (const userId of doc.recipientIds || []) {
-        await models.Exms.useScoring(userId, 'exmBravoAdd');
+        await models.Exms.useScoring(userId, "exmBravoAdd");
       }
     }
 
@@ -184,25 +184,25 @@ const exmFeedMutations = {
     const updateModifier: { $push?: any; $pull?: any } = {};
     const eventData = exmFeed.eventData || {};
 
-    if (goingOrInterested === 'neither') {
+    if (goingOrInterested === "neither") {
       updateModifier.$pull = {
-        'eventData.goingUserIds': user._id,
-        'eventData.interestedUserIds': user._id
+        "eventData.goingUserIds": user._id,
+        "eventData.interestedUserIds": user._id
       };
-    } else if (goingOrInterested === 'interested') {
+    } else if (goingOrInterested === "interested") {
       if ((eventData.interestedUserIds || []).includes(user._id)) {
         return exmFeed;
       }
 
-      updateModifier.$pull = { 'eventData.goingUserIds': user._id };
-      updateModifier.$push = { 'eventData.interestedUserIds': user._id };
-    } else if (goingOrInterested === 'going') {
+      updateModifier.$pull = { "eventData.goingUserIds": user._id };
+      updateModifier.$push = { "eventData.interestedUserIds": user._id };
+    } else if (goingOrInterested === "going") {
       if ((eventData.goingUserIds || []).includes(user._id)) {
         return exmFeed;
       }
 
-      updateModifier.$push = { 'eventData.goingUserIds': user._id };
-      updateModifier.$pull = { 'eventData.interestedUserIds': user._id };
+      updateModifier.$push = { "eventData.goingUserIds": user._id };
+      updateModifier.$pull = { "eventData.interestedUserIds": user._id };
     }
 
     await models.ExmFeed.updateOne({ _id }, updateModifier);
@@ -211,18 +211,18 @@ const exmFeedMutations = {
   }
 };
 
-checkPermission(exmFeedMutations, 'exmFeedAdd', 'manageExmActivityFeed');
-checkPermission(exmFeedMutations, 'exmFeedEdit', 'manageExmActivityFeed');
-checkPermission(exmFeedMutations, 'exmFeedRemove', 'manageExmActivityFeed');
+checkPermission(exmFeedMutations, "exmFeedAdd", "manageExmActivityFeed");
+checkPermission(exmFeedMutations, "exmFeedEdit", "manageExmActivityFeed");
+checkPermission(exmFeedMutations, "exmFeedRemove", "manageExmActivityFeed");
 checkPermission(
   exmFeedMutations,
-  'exmFeedToggleIsPinned',
-  'manageExmActivityFeed'
+  "exmFeedToggleIsPinned",
+  "manageExmActivityFeed"
 );
 checkPermission(
   exmFeedMutations,
-  'exmFeedEventGoingOrInterested',
-  'manageExmActivityFeed'
+  "exmFeedEventGoingOrInterested",
+  "manageExmActivityFeed"
 );
 
 export default exmFeedMutations;

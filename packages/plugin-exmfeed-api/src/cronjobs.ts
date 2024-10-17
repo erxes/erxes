@@ -1,20 +1,20 @@
-import { generateModels } from './connectionResolver';
+import { generateModels } from "./connectionResolver";
 import {
   sendCoreMessage,
   sendEXMFeedMessage,
   sendNotification
-} from './messageBroker';
-import { FEED_CONTENT_TYPES } from './models/definitions/exm';
-import * as moment from 'moment';
+} from "./messageBroker";
+import { FEED_CONTENT_TYPES } from "./models/definitions/exm";
+import * as moment from "moment";
 
 const getUserInfo = user => {
   const details = user.details;
 
   if (!details) {
-    return '';
+    return "";
   }
 
-  return details.fullName || user.email || '';
+  return details.fullName || user.email || "";
 };
 
 const generateData = (
@@ -29,7 +29,7 @@ const generateData = (
     let title = `Welcome to our company, ${getUserInfo(user)}`;
 
     if (fieldName && user && year) {
-      title = 'Ceremony';
+      title = "Ceremony";
 
       const date = new Date(user.details[fieldName]);
       const userYear = date.getFullYear();
@@ -38,7 +38,7 @@ const generateData = (
         startedDate: user.details[fieldName],
         willDate: new Date(
           moment(user.details[fieldName])
-            .add(year - userYear, 'years')
+            .add(year - userYear, "years")
             .toISOString()
         ),
         howManyYear: year - userYear,
@@ -71,40 +71,40 @@ const generateSendData = async (
     sendNotification(subdomain, {
       createdUser: receivers[0],
       title: `${title} notification`,
-      notifType: 'plugin',
+      notifType: "plugin",
       action: `${title} notification`,
       content: `${getUserInfo(user)}'s ${title}`,
       link: `/settings/team/details/${user._id}`,
       receivers,
-      contentType: 'exmFeed'
+      contentType: "exmFeed"
     });
 
-    sendCoreMessage({
-      subdomain,
-      action: 'sendMobileNotification',
-      data: {
-        title: `${title} notification`,
-        body: `${getUserInfo(user)}'s ${title}`,
-        receivers
-      }
-    });
+    // sendCoreMessage({
+    //   subdomain,
+    //   action: 'sendMobileNotification',
+    //   data: {
+    //     title: `${title} notification`,
+    //     body: `${getUserInfo(user)}'s ${title}`,
+    //     receivers
+    //   }
+    // });
   };
 
   for (const user of userList) {
     if (
-      type === 'birthday' &&
-      moment(user.details.birthDate).format('MM-DD-YYYY') ===
-        moment(date).format('MM-DD-YYYY')
+      type === "birthday" &&
+      moment(user.details.birthDate).format("MM-DD-YYYY") ===
+        moment(date).format("MM-DD-YYYY")
     ) {
-      sendFunction(user, 'birthday');
+      sendFunction(user, "birthday");
     }
 
     if (
-      type === 'workAnniversary' &&
-      moment(user.details.workStartedDate).format('MM-DD-YYYY') ===
-        moment(date).format('MM-DD-YYYY')
+      type === "workAnniversary" &&
+      moment(user.details.workStartedDate).format("MM-DD-YYYY") ===
+        moment(date).format("MM-DD-YYYY")
     ) {
-      sendFunction(user, 'Work Anniversary');
+      sendFunction(user, "Work Anniversary");
     }
   }
 };
@@ -115,35 +115,35 @@ const generateSendEventData = async (exmList, type, subdomain) => {
   const sendFunction = (exm: any, receivers: any) => {
     sendNotification(subdomain, {
       createdUser: receivers[0],
-      title: 'Event notification',
-      notifType: 'plugin',
-      action: 'event notification',
+      title: "Event notification",
+      notifType: "plugin",
+      action: "event notification",
       content: `${exm.title} is today`,
       link: `/erxes-plugin-exm-feed/list`,
       receivers,
-      contentType: 'exmFeed'
+      contentType: "exmFeed"
     });
 
-    sendCoreMessage({
-      subdomain,
-      action: 'sendMobileNotification',
-      data: {
-        title: 'Event notification',
-        body: `${exm.title} is today`,
-        receivers
-      }
-    });
+    // sendCoreMessage({
+    //   subdomain,
+    //   action: "sendMobileNotification",
+    //   data: {
+    //     title: "Event notification",
+    //     body: `${exm.title} is today`,
+    //     receivers
+    //   }
+    // });
   };
 
   for (const exm of exmList) {
     if (
-      type === 'event' &&
-      moment(exm.eventData.startDate).format('MM-DD-YYYY') ===
-        moment(date).format('MM-DD-YYYY')
+      type === "event" &&
+      moment(exm.eventData.startDate).format("MM-DD-YYYY") ===
+        moment(date).format("MM-DD-YYYY")
     ) {
       const unit = await sendCoreMessage({
         subdomain,
-        action: 'units.findOne',
+        action: "units.findOne",
         data: {
           _id: exm.unitId
         },
@@ -153,7 +153,7 @@ const generateSendEventData = async (exmList, type, subdomain) => {
 
       const receivers = await sendCoreMessage({
         subdomain,
-        action: 'users.find',
+        action: "users.find",
         data: {
           query: {
             $or: [
@@ -179,13 +179,13 @@ const generateSendEventData = async (exmList, type, subdomain) => {
     }
 
     if (
-      type === 'publicHoliday' &&
-      moment(exm.createdAt).format('MM-DD-YYYY') ===
-        moment(date).format('MM-DD-YYYY')
+      type === "publicHoliday" &&
+      moment(exm.createdAt).format("MM-DD-YYYY") ===
+        moment(date).format("MM-DD-YYYY")
     ) {
       const receivers = await sendCoreMessage({
         subdomain,
-        action: 'users.find',
+        action: "users.find",
         data: {},
         isRPC: true,
         defaultValue: []
@@ -197,7 +197,7 @@ const generateSendEventData = async (exmList, type, subdomain) => {
 };
 
 export const createCeremonies = async (subdomain: string) => {
-  console.log('starting to create ceremonies');
+  console.log("starting to create ceremonies");
 
   const models = await generateModels(subdomain);
 
@@ -206,39 +206,37 @@ export const createCeremonies = async (subdomain: string) => {
 
   const usersHasBirthday = await sendCoreMessage({
     subdomain,
-    action: 'users.find',
+    action: "users.find",
     data: {
       query: {
-        'details.birthDate': { $exists: true }
+        "details.birthDate": { $exists: true }
       }
     },
     isRPC: true,
     defaultValue: []
   });
 
-  console.log('usersHasBirthday', usersHasBirthday.length);
+  console.log("usersHasBirthday", usersHasBirthday.length);
 
   const usersHasWorkAnniversary = await sendCoreMessage({
     subdomain,
-    action: 'users.find',
+    action: "users.find",
     data: {
       query: {
-        'details.workStartedDate': { $exists: true }
+        "details.workStartedDate": { $exists: true }
       }
     },
     isRPC: true,
     defaultValue: []
   });
 
-  console.log('usersHasWorkAnniversary', usersHasWorkAnniversary.length);
+  console.log("usersHasWorkAnniversary", usersHasWorkAnniversary.length);
 
-  const yesterday = moment()
-    .add(-1, 'days')
-    .format('YYYY-MM-DD');
+  const yesterday = moment().add(-1, "days").format("YYYY-MM-DD");
 
   const newUsers = await sendCoreMessage({
     subdomain,
-    action: 'users.find',
+    action: "users.find",
     data: {
       query: {
         createdAt: { $gte: new Date(yesterday) }
@@ -248,20 +246,20 @@ export const createCeremonies = async (subdomain: string) => {
     defaultValue: []
   });
 
-  console.log('newUsers', newUsers.length);
+  console.log("newUsers", newUsers.length);
 
   await models.ExmFeed.deleteMany({
     contentType: {
       $in: [FEED_CONTENT_TYPES.BIRTHDAY, FEED_CONTENT_TYPES.WORK_ANNIVARSARY]
     },
-    'ceremonyData.year': year
+    "ceremonyData.year": year
   });
 
   let feeds = generateData(
     [],
     usersHasBirthday,
     FEED_CONTENT_TYPES.BIRTHDAY,
-    'birthDate',
+    "birthDate",
     year
   );
 
@@ -269,7 +267,7 @@ export const createCeremonies = async (subdomain: string) => {
     feeds,
     usersHasWorkAnniversary,
     FEED_CONTENT_TYPES.WORK_ANNIVARSARY,
-    'workStartedDate',
+    "workStartedDate",
     year
   );
 
@@ -279,17 +277,15 @@ export const createCeremonies = async (subdomain: string) => {
     await models.ExmFeed.insertMany(feeds);
   }
 
-  console.log('ending to create ceremonies');
+  console.log("ending to create ceremonies");
 
-  const tomorrow = moment()
-    .add(+1, 'days')
-    .format('YYYY-MM-DD');
+  const tomorrow = moment().add(+1, "days").format("YYYY-MM-DD");
 
   const todayEvent = await sendEXMFeedMessage({
     subdomain,
-    action: 'ExmFeed.find',
+    action: "ExmFeed.find",
     data: {
-      'eventData.startDate': {
+      "eventData.startDate": {
         $lte: new Date(tomorrow),
         $gt: new Date(yesterday)
       }
@@ -301,7 +297,7 @@ export const createCeremonies = async (subdomain: string) => {
   if (todayEvent?.length > 0) {
     const userWithDeviceTokens = await sendCoreMessage({
       subdomain,
-      action: 'users.find',
+      action: "users.find",
       data: {
         query: {
           deviceTokens: { $exists: true }
@@ -312,28 +308,28 @@ export const createCeremonies = async (subdomain: string) => {
     });
     const receivers = userWithDeviceTokens.map((user: any) => user._id);
 
-    for (const event of todayEvent || []) {
-      sendCoreMessage({
-        subdomain: subdomain,
-        action: 'sendMobileNotification',
-        data: {
-          title: `${event.title} is today.`,
-          body: `Location is ${event?.eventDate?.where}.`,
-          receivers
-        }
-      });
-    }
+    // for (const event of todayEvent || []) {
+    //   sendCoreMessage({
+    //     subdomain: subdomain,
+    //     action: "sendMobileNotification",
+    //     data: {
+    //       title: `${event.title} is today.`,
+    //       body: `Location is ${event?.eventDate?.where}.`,
+    //       receivers
+    //     }
+    //   });
+    // }
   }
 };
 
 export const sendCeremonyNotification = async (subdomain: string) => {
-  console.log('starting to send notification');
+  console.log("starting to send notification");
 
   const models = await generateModels(subdomain);
 
   const allUsers = await sendCoreMessage({
     subdomain,
-    action: 'users.find',
+    action: "users.find",
     data: {},
     isRPC: true,
     defaultValue: []
@@ -343,10 +339,10 @@ export const sendCeremonyNotification = async (subdomain: string) => {
 
   const usersHasBirthday = await sendCoreMessage({
     subdomain,
-    action: 'users.find',
+    action: "users.find",
     data: {
       query: {
-        'details.birthDate': {
+        "details.birthDate": {
           $exists: true
         }
       }
@@ -355,16 +351,16 @@ export const sendCeremonyNotification = async (subdomain: string) => {
     defaultValue: []
   });
 
-  console.log('usersHasBirthday', usersHasBirthday.length);
+  console.log("usersHasBirthday", usersHasBirthday.length);
 
-  await generateSendData(usersHasBirthday, receivers, 'birthday', subdomain);
+  await generateSendData(usersHasBirthday, receivers, "birthday", subdomain);
 
   const usersHasWorkAnniversary = await sendCoreMessage({
     subdomain,
-    action: 'users.find',
+    action: "users.find",
     data: {
       query: {
-        'details.workStartedDate': {
+        "details.workStartedDate": {
           $exists: true
         }
       }
@@ -376,25 +372,25 @@ export const sendCeremonyNotification = async (subdomain: string) => {
   await generateSendData(
     usersHasBirthday,
     receivers,
-    'workAnniversary',
+    "workAnniversary",
     subdomain
   );
 
-  console.log('usersHasWorkAnniversary', usersHasWorkAnniversary.length);
+  console.log("usersHasWorkAnniversary", usersHasWorkAnniversary.length);
 
   const eventData = await models.ExmFeed.find({
-    contentType: 'event'
+    contentType: "event"
   });
 
-  await generateSendEventData(eventData, 'event', subdomain);
+  await generateSendEventData(eventData, "event", subdomain);
 
   const holidayData = await models.ExmFeed.find({
-    contentType: 'publicHoliday'
+    contentType: "publicHoliday"
   });
 
-  await generateSendEventData(holidayData, 'publicHoliday', subdomain);
+  await generateSendEventData(holidayData, "publicHoliday", subdomain);
 
-  console.log('send notification done');
+  console.log("send notification done");
 };
 
 export default {
