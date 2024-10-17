@@ -229,7 +229,7 @@ class Attachment extends React.Component<Props> {
 
   renderOtherFile = (attachment: IAttachment, icon?: string, forceShowIcon?: boolean) => {
     const { index, attachments, large, small } = this.props;
-    console.log("icon", icon)
+
     return (
       <AttachmentWrapper>
         <PreviewWrapper large={large} small={small}>
@@ -344,7 +344,6 @@ class Attachment extends React.Component<Props> {
 
     const url = attachment.url || attachment.name || '';
     const fileExtension = url.split('.').pop();
-    console.log('fileExtension', fileExtension);
 
     if (withoutPreview) {
       return this.renderWithoutPreview();
@@ -371,8 +370,6 @@ class Attachment extends React.Component<Props> {
     }
 
     let filePreview;
-
-    console.log('file extension', fileExtension);
 
     switch (fileExtension) {
       case 'docx':
