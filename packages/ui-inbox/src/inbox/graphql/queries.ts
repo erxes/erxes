@@ -1,6 +1,6 @@
-import conversationFields from "./conversationFields";
-import { queries as customerQueries } from "@erxes/ui-contacts/src/customers/graphql";
-import messageFields from "./messageFields";
+import conversationFields from './conversationFields';
+import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
+import messageFields from './messageFields';
 
 export const paramsDef = `
   $channelId: String
@@ -255,6 +255,7 @@ const postInfo = `
       _id
       content
       permalink_url
+      attachments
     }
   }
  `;
@@ -265,6 +266,7 @@ const instagramPostInfo = `
       _id
       content
       permalink_url
+      attachments
     }
   }
  `;
@@ -317,7 +319,7 @@ const facebookGetComments = `
   }
 `;
 
-const generateCustomerDetailQuery = params => {
+const generateCustomerDetailQuery = (params) => {
   const {
     showDeviceProperties = false,
     showTrackedData = false,
