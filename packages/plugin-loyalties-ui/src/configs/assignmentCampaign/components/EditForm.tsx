@@ -185,7 +185,7 @@ const EditForm = (props: Props) => {
               <ControlLabel>Segments</ControlLabel>
               <SelectSegments
                 name="segmentIds"
-                label="Choose segments"
+                label={__("Choose segments")}
                 initialValue={assignmentCampaign.segmentIds}
                 contentTypes={["core:customer", "core:lead"]}
                 multi={true}

@@ -74,7 +74,7 @@ const sendNotifcation = (props: Props) => {
             </ControlLabel>
             <p>{__('Firebase config for notifications')}</p>
             <FormControl
-              placeholder="Paste a config"
+              placeholder={__("Paste a config")}
               onChange={handleSettingOnChange}
               value={config?.customConfig}
             />
@@ -92,7 +92,7 @@ const sendNotifcation = (props: Props) => {
           <SelectTeamMembers
             name="teamMemberIds"
             initialValue={config?.teamMemberIds}
-            label="select team members"
+            label={__("select team members")}
             multi
             onSelect={(value, name) => onChange({ ...doc, [name]: value })}
           />
@@ -101,7 +101,7 @@ const sendNotifcation = (props: Props) => {
           <ControlLabel>{__('Customers')}</ControlLabel>
           <SelectCustomers
             name="customerIds"
-            label="select customers"
+            label={__("select customers")}
             initialValue={config?.customerIds}
             multi
             onSelect={(value, name) => onChange({ ...doc, [name]: value })}
@@ -120,7 +120,7 @@ const sendNotifcation = (props: Props) => {
       ? [
           {
             _id: String(Math.random()),
-            label: 'Trigger Executor',
+            label: __('Trigger Executor'),
             name: 'triggerExecutor',
             type: 'segment'
           }
@@ -133,7 +133,7 @@ const sendNotifcation = (props: Props) => {
         config={config}
         inputName="sendTo"
         attrTypes={['user', 'contact', 'segment']}
-        label="Send To"
+        label={__("Send To")}
         onChange={onChange}
         customAttributions={customAttributions}
         required
@@ -186,7 +186,7 @@ const sendNotifcation = (props: Props) => {
       <Padding>
         <PlaceHolderInput
           inputName="subject"
-          label="Subject"
+          label={__("Subject)")}
           config={doc}
           onChange={onChange}
           triggerType={triggerType}
@@ -194,7 +194,7 @@ const sendNotifcation = (props: Props) => {
         />
         <PlaceHolderInput
           inputName="body"
-          label="Body"
+          label={__("Body")}
           config={doc}
           onChange={onChange}
           triggerType={triggerType}
@@ -229,8 +229,8 @@ const sendNotifcation = (props: Props) => {
         config={config}
       >
         <ItemRow
-          title="Recipients"
-          description="Who is recieve notification"
+          title={__("Recipients")}
+          description={__("Who is recieve notification")}
           buttonText="recipient"
           config={config}
           isDone={checkIsDone('recipient')}
@@ -240,8 +240,8 @@ const sendNotifcation = (props: Props) => {
         />
 
         <ItemRow
-          title="Content"
-          description="Notification content"
+          title={__("Content")}
+          description={__("Notification content")}
           buttonText="content"
           config={config}
           isDone={checkIsDone('content')}
@@ -250,8 +250,8 @@ const sendNotifcation = (props: Props) => {
           subContent={''}
         />
         <ItemRow
-          title="Custom notification config (Optional)"
-          description="Custom google application credentials json"
+          title={__("Custom notification config (Optional)")}
+          description={__("Custom google application credentials json")}
           buttonText="custom config"
           config={config}
           isDone={config?.customConfig}

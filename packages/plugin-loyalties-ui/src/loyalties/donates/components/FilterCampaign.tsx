@@ -116,7 +116,7 @@ const FilterCampaign = (props: IProps) => {
             <SelectCustomers
               customOption={{
                 value: "",
-                label: "All customers",
+                label: __("All customers"),
               }}
               label="Customer"
               name="ownerId"

@@ -56,7 +56,7 @@ function CategoryApprovalStateFilter({ emptyText }: IProps) {
         data={data}
         loading={false}
         count={categoryApprovalStates.length}
-        emptyText={emptyText ? emptyText : "Loading"}
+        emptyText={emptyText ? emptyText : __("Loading")}
         emptyIcon="leaf"
         size="small"
         objective={true}

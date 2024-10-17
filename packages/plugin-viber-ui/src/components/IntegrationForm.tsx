@@ -70,7 +70,7 @@ class IntegrationForm extends React.Component<Props> {
         <SelectBrand
           isRequired={true}
           formProps={formProps}
-          description={'Which specific Brand does this integration belong to?'}
+          description={__('Which specific Brand does this integration belong to?')}
         />
 
         <SelectChannels

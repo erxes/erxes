@@ -440,7 +440,7 @@ const goalForm = (props: Props) => {
                       <ControlLabel>Segments</ControlLabel>
                       <SelectSegments
                         name="segmentIds"
-                        label="Choose segments"
+                        label={__("Choose segments")}
                         contentTypes={[`cards:${state.entity}`]}
                         initialValue={state.segmentIds}
                         multi={true}
@@ -530,7 +530,7 @@ const goalForm = (props: Props) => {
                 <SelectTeamMembers
                   label="Choose users"
                   name="userId"
-                  customOption={{ label: "Choose user", value: "" }}
+                  customOption={{ label: __("Choose user"), value: "" }}
                   initialValue={state.contribution || ""}
                   onSelect={onUserChange}
                   multi={false}
@@ -560,7 +560,7 @@ const goalForm = (props: Props) => {
                 <FormGroup>
                   <ControlLabel>{__("Companies")}</ControlLabel>
                   <SelectCompanies
-                    label="Choose an Companies"
+                    label={__("Choose an Companies")}
                     name="parentCompanyId"
                     initialValue={goalType?.companyIds || state.companyIds}
                     onSelect={onChangeCompanies}
@@ -629,7 +629,7 @@ const goalForm = (props: Props) => {
                   <ControlLabel>{__("Tags")}</ControlLabel>
                   <SelectTags
                     tagsType={"cards:" + state.entity}
-                    label="Choose an Tags"
+                    label={__("Choose an Tags")}
                     name="tagsIds"
                     initialValue={goalType?.tagsIds || state.tagsIds}
                     onSelect={onChangeTags}
@@ -644,7 +644,7 @@ const goalForm = (props: Props) => {
                   <FormGroup>
                     <ControlLabel>{__("Product")}</ControlLabel>
                     <SelectProducts
-                      label="Choose products"
+                      label={__("Choose products")}
                       name="productIds"
                       multi={true}
                       initialValue={goalType?.productIds || state.productIds}

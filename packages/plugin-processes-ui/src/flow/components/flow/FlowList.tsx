@@ -193,7 +193,7 @@ const List = (props: IProps) => {
     );
   }
 
-  const actionBarLeft = <Title>{"Flows list"}</Title>;
+  const actionBarLeft = <Title>{__("Flows list")}</Title>;
 
   return (
     <Wrapper

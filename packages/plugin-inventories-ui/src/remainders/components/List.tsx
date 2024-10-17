@@ -123,7 +123,7 @@ export default function ListComponent(props: Props) {
           emptyContent={
             <EmptyState
               image="/images/actions/5.svg"
-              text="No live remainders"
+              text={__("No live remainders")}
               size=""
             />
           }

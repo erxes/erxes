@@ -198,7 +198,7 @@ const ClassificationHistoryList = (props: IProps) => {
           data={mainContent}
           loading={loading}
           count={classificationHistory.length}
-          emptyText="Add in your first periodLock!"
+          emptyText={__("Add in your first periodLock!")}
           emptyImage="/images/actions/1.svg"
         />
       }

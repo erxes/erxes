@@ -158,7 +158,7 @@ class QuizForm extends React.Component<Props, State> {
                     </Button>
                   }
                   content={this.renderQuestionForm}
-                  title="Add Qustions"
+                  title={__("Add Qustions")}
                 />
               </FlexItem>
             </MarginAuto>

@@ -210,7 +210,7 @@ const PipelineForm = (props: Props) => {
             <ControlLabel>Members</ControlLabel>
 
             <SelectTeamMembers
-              label='Choose members'
+              label={__('Choose members')}
               name='selectedMemberIds'
               initialValue={selectedMemberIds}
               onSelect={onChangeMembers}
@@ -261,7 +261,7 @@ const PipelineForm = (props: Props) => {
           <ControlLabel>Users eligible to see all {props.type}</ControlLabel>
 
           <SelectTeamMembers
-            label='Choose members'
+            label={__('Choose members')}
             name='excludeCheckUserIds'
             initialValue={excludeCheckUserIds}
             onSelect={onChangeDominantUsers}

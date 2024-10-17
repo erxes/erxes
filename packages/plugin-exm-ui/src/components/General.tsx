@@ -103,7 +103,7 @@ export default function General(props: Props) {
             <ControlLabel>{__("Describe your team portal")}</ControlLabel>
             <FormControl
               value={description}
-              placeholder="Description"
+              placeholder={__("Description")}
               onChange={(e: any) => setDescription(e.target.value)}
             />
           </FeatureRowItem>
@@ -116,7 +116,7 @@ export default function General(props: Props) {
             <FeatureRowItem>
               <FormControl
                 name="name"
-                placeholder="Name"
+                placeholder={__("Name")}
                 value={feature.name}
                 onChange={(e: any) =>
                   onChangeFeatureItem(feature._id, "name", e.target.value)
@@ -126,7 +126,7 @@ export default function General(props: Props) {
             <FeatureRowItem>
               <FormControl
                 name="description"
-                placeholder="Description"
+                placeholder={__("Description")}
                 value={feature.description}
                 onChange={(e: any) =>
                   onChangeFeatureItem(

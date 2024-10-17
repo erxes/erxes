@@ -46,7 +46,7 @@ const CategoryList = (props: Props) => {
     );
 
     return (
-      <ModalTrigger title="Add category" trigger={trigger} content={content} />
+      <ModalTrigger title={__("Add category")} trigger={trigger} content={content} />
     );
   };
 
@@ -101,7 +101,7 @@ const CategoryList = (props: Props) => {
         data={renderContent()}
         loading={loading}
         count={totalCount}
-        emptyText="There is no car category"
+        emptyText={__("There is no car category")}
         emptyIcon="folder-2"
         size="small"
       />

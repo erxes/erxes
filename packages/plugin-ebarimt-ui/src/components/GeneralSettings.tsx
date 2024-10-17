@@ -118,7 +118,7 @@ const GeneralSettings: React.FC<Props> = ({ save, configsMap, fieldGroups }: Pro
   const content = (
     <ContentBox id={'GeneralSettingsMenu'}>
       <CollapseContent
-        title="Ebarimt settings"
+        title={__("Ebarimt settings")}
         beforeTitle={<Icon icon="settings" />}
         transparent={true}
       >
@@ -126,7 +126,7 @@ const GeneralSettings: React.FC<Props> = ({ save, configsMap, fieldGroups }: Pro
         {renderItem('ebarimtUrl')}
         {renderItem('checkTaxpayerUrl')}
 
-        <CollapseContent title="Deals ebarimt billType config" full={false} >
+        <CollapseContent title={__("Deals ebarimt billType config")} full={false} >
           <FormWrapper>
             <FormColumn>
               <FormGroup>

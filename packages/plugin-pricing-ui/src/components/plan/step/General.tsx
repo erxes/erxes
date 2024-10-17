@@ -138,7 +138,7 @@ export default function General(props: Props) {
               <FormLabel>{__("Exclude products")}</FormLabel>
               <SelectProducts
                 name="productsExcluded"
-                label="Choose products to exclude"
+                label={__("Choose products to exclude")}
                 initialValue={formValues.productsExcluded}
                 onSelect={products => handleState("productsExcluded", products)}
                 multi={true}

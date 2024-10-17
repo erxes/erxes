@@ -72,7 +72,7 @@ const Sidebar = (props: Props) => {
           <DateControl
             value={startDate || ""}
             name="startDate"
-            placeholder={"Start Date"}
+            placeholder={__("Start Date")}
             dateFormat={"YYYY-MM-DD"}
             onChange={(startDate: any) =>
               setFilter("startDate", dayjs(startDate).format("YYYY-MM-DD"))
@@ -84,7 +84,7 @@ const Sidebar = (props: Props) => {
           <DateControl
             value={endDate || ""}
             name="endDate"
-            placeholder={"End Date"}
+            placeholder={__("End Date")}
             dateFormat={"YYYY-MM-DD"}
             onChange={(endDate: any) =>
               setFilter("endDate", dayjs(endDate).format("YYYY-MM-DD"))
@@ -94,12 +94,12 @@ const Sidebar = (props: Props) => {
         <FormGroup>
           <ControlLabel>Branch</ControlLabel>
           <SelectBranches
-            label="Choose branch"
+            label={__("Choose branch")}
             name="branch"
             initialValue={branch || ""}
             customOption={{
               value: "",
-              label: "...Clear branch filter",
+              label: __("...Clear branch filter"),
             }}
             onSelect={(branch) => setFilter("branch", branch)}
             multi={false}
@@ -108,12 +108,12 @@ const Sidebar = (props: Props) => {
         <FormGroup>
           <ControlLabel>Department</ControlLabel>
           <SelectDepartments
-            label="Choose department"
+            label={__("Choose department")}
             name="department"
             initialValue={department || ""}
             customOption={{
               value: "",
-              label: "...Clear department filter",
+              label: __("...Clear department filter"),
             }}
             onSelect={(department) => setFilter("department", department)}
             multi={false}
@@ -122,12 +122,12 @@ const Sidebar = (props: Props) => {
         <FormGroup>
           <ControlLabel>Units</ControlLabel>
           <SelectUnits
-            label="Choose Units"
+            label={__("Choose Units")}
             name="unit"
             initialValue={unit || ""}
             customOption={{
               value: "",
-              label: "...Clear unit filter",
+              label: __("...Clear unit filter"),
             }}
             onSelect={(unit) => setFilter("unit", unit)}
             multi={false}
@@ -136,12 +136,12 @@ const Sidebar = (props: Props) => {
         <FormGroup>
           <ControlLabel>TeamMember</ControlLabel>
           <SelectTeamMembers
-            label="Choose User"
+            label={__("Choose User")}
             name="contribution"
             initialValue={contribution || ""}
             customOption={{
               value: "",
-              label: "...Clear user filter",
+              label: __("...Clear user filter"),
             }}
             onSelect={(contribution) => setFilter("contribution", contribution)}
             multi={false}

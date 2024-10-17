@@ -1,0 +1,15 @@
+{
+    "Block" : "Block",
+    "Balance" : "Balance",
+    "Verify" : "Verify",
+    "Total Balance" : "Total Balance",
+    "Add package" : "Add package",
+    "Name": "Name",
+    "Description": "Description",
+    "Actions": "Actions",
+    "There is no block" : "There is no block",
+    "Edit" : "Edit",
+    "Delete" : "Delete",
+    "Packages" : "Packages",
+    "Edit item" : "Edit item"
+}

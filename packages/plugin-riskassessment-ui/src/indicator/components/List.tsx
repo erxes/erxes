@@ -181,7 +181,7 @@ class ListComp extends React.Component<Props, IState> {
 
     const leftActionBar = (
       <HeaderDescription
-        title="Risk Indicators"
+        title={__("Risk Indicators")}
         icon="/images/actions/26.svg"
         description=""
         renderExtra={

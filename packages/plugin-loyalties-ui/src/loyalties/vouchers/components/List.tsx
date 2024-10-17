@@ -198,7 +198,7 @@ const VouchersList=(props: IProps) => {
           />
 
           <ModalTrigger
-            title="New voucher"
+            title={__("New voucher")}
             trigger={addTrigger}
             autoOpenKey="showVoucherModal"
             content={voucherForm}

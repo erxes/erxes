@@ -49,7 +49,7 @@ const List = (props: Props) => {
         trigger={trigger}
         content={content}
         enforceFocus={false}
-        title="Add Grouping Indicators"
+        title={__("Add Grouping Indicators")}
         size="xl"
       />
     );
@@ -71,7 +71,7 @@ const List = (props: Props) => {
     return (
       <FormControl
         type="text"
-        placeholder="Type to search"
+        placeholder={__("Type to search")}
         onChange={handleSearch}
         value={searchValue}
       />
@@ -153,7 +153,7 @@ const List = (props: Props) => {
 
   const leftActionBar = (
     <HeaderDescription
-      title="Indicators Groups"
+      title={__("Indicators Groups")}
       icon="/images/actions/24.svg"
       description=""
       renderExtra={

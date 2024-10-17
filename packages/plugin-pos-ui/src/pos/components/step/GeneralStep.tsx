@@ -303,7 +303,7 @@ const GeneralStep = (props: Props) => {
               <FormGroup>
                 <ControlLabel>Choose department</ControlLabel>
                 <SelectDepartments
-                  label="Choose department"
+                  label={__("Choose department")}
                   name="departmentId"
                   initialValue={pos.departmentId}
                   onSelect={onChangeDepartments}

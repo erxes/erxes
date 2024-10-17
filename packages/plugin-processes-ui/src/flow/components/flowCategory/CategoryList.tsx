@@ -129,7 +129,7 @@ const List = (props: IProps) => {
           data={renderContent()}
           loading={loading}
           count={flowCategoriesCount}
-          emptyText="There is no flow category"
+          emptyText={__("There is no flow category")}
           emptyIcon="folder-2"
           size="small"
         />
@@ -164,7 +164,7 @@ const List = (props: IProps) => {
           <FormGroup>
             <ControlLabel>Branch</ControlLabel>
             <SelectBranches
-              label="Choose branch"
+              label={__("Choose branch")}
               name="selectedBranchId"
               initialValue={queryParams.branchId}
               customOption={{ value: "", label: "Skip branch" }}
@@ -175,7 +175,7 @@ const List = (props: IProps) => {
           <FormGroup>
             <ControlLabel>Department</ControlLabel>
             <SelectDepartments
-              label="Choose department"
+              label={__("Choose department")}
               name="selectedDepartmentId"
               initialValue={queryParams.departmentId}
               customOption={{ value: "", label: "Skip department" }}

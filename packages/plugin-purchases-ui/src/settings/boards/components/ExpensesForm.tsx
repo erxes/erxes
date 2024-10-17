@@ -143,7 +143,7 @@ function ExpensesForm() {
                           <td>
                             <FormControl
                               type="text"
-                              placeholder="Enter name"
+                              placeholder={__("Enter name")}
                               defaultValue={element.name}
                               onChange={(e: any) =>
                                 changeElement(index, "name", e.target.value)
@@ -154,7 +154,7 @@ function ExpensesForm() {
                             <FormControl
                               type="text"
                               defaultValue={element.description}
-                              placeholder="Enter description"
+                              placeholder={__("Enter description")}
                               onChange={(e: any) =>
                                 changeElement(
                                   index,

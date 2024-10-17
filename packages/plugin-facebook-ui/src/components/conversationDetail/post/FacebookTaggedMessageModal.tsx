@@ -86,7 +86,7 @@ class Modal extends React.Component<Props, {}> {
 
     return (
       <ModalTrigger
-        title="Choose tag"
+        title={__("Choose tag")}
         trigger={trigger}
         content={this.renderForm}
       />

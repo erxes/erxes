@@ -187,7 +187,7 @@ const AssignmentsList =(props:IProps) => {
           />
 
           <ModalTrigger
-            title="New assignment"
+            title={__("New assignment")}
             trigger={addTrigger}
             autoOpenKey="showAssignmentModal"
             content={assignmentForm}

@@ -204,7 +204,7 @@ export const SideBar = (props: Props) => {
   const extraButtons = (
     <ModalTrigger
       content={({ closeModal }) => renderForm({ closeModal })}
-      title={`Add members`}
+      title={__(`Add members`)}
       trigger={trigger}
     />
   );
@@ -214,13 +214,13 @@ export const SideBar = (props: Props) => {
       <MeetingListSearch>
         <FormControl
           type="text"
-          placeholder="Search Meeting"
+          placeholder={__("Search Meeting")}
           round={true}
           onChange={handleSearch}
         />
       </MeetingListSearch>
       {todayMeetings(filteredMeeting)?.length > 0 && (
-        <Box title="Today" name={`today`} isOpen={true}>
+        <Box title={__("Today")} name={`today`} isOpen={true}>
           <SidebarList noTextColor noBackground id="SideBar">
             {todayMeetings(filteredMeeting)?.map((meeting) => {
               return ListItem(meeting);
@@ -229,7 +229,7 @@ export const SideBar = (props: Props) => {
         </Box>
       )}
       {tommorowMeetings(filteredMeeting)?.length > 0 && (
-        <Box title="Tomorrow" name={`tomorrow`} isOpen={true}>
+        <Box title={__("Tomorrow")} name={`tomorrow`} isOpen={true}>
           <SidebarList noTextColor noBackground id="SideBar">
             {tommorowMeetings(filteredMeeting)?.map((meeting) => {
               return ListItem(meeting);
@@ -239,7 +239,7 @@ export const SideBar = (props: Props) => {
       )}
 
       <Box
-        title="Other calendar"
+        title={__("Other calendar")}
         name={`showCaledar`}
         isOpen={true}
         extraButtons={extraButtons}
@@ -249,7 +249,7 @@ export const SideBar = (props: Props) => {
           data={data}
           loading={loading}
           count={pinnedUsersInfo?.length}
-          emptyText={"Empty"}
+          emptyText={__("Empty")}
           emptyIcon="leaf"
           size="small"
           objective={true}

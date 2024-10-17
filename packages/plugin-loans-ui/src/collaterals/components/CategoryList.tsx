@@ -103,7 +103,7 @@ const List = (props: IProps) => {
         data={renderContent()}
         loading={loading}
         count={collateralCategoriesCount}
-        emptyText="There is no collateral category"
+        emptyText={__("There is no collateral category")}
         emptyIcon="folder-2"
       />
     );

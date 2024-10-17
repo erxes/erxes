@@ -36,7 +36,7 @@ function PackageRow({ item, renderButton, removeItem }: Props) {
     return (
       <ActionButtons>
         <ModalTrigger
-          title="Edit item"
+          title={__("Edit item")}
           trigger={trigger}
           content={renderForm}
         />
