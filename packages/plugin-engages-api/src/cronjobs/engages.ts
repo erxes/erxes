@@ -153,6 +153,9 @@ const loopOrganizations = async ({ callback1, callback2, action }: IParams) => {
     const organizations = await getOrganizations();
 
     for (const org of organizations) {
+      if (org.subdomain.length === 0) {
+        continue;
+      }
       console.log(
         `Running cron for organization [${org.subdomain}]: ${action}`,
       );

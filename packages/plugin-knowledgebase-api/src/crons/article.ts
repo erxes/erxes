@@ -11,9 +11,7 @@ export const publish = async (subdomain: string) => {
     status: 'scheduled',
     scheduledDate: { $lte: now },
   });
-
-  console.debug('articlesToPublish', articlesToPublish);
-
+  
   articlesToPublish.forEach(async (article) => {
     await models.KnowledgeBaseArticles.updateOne(
       { _id: article._id },
@@ -25,12 +23,14 @@ export const publish = async (subdomain: string) => {
 export default {
   handleMinutelyJob: async () => {
     const VERSION = getEnv({ name: 'VERSION' });
-    console.debug('VERSION', VERSION);
 
     if (VERSION && VERSION === 'saas') {
       const organizations = await getOrganizations();
 
       for (const org of organizations) {
+        if (org.subdomain.length === 0) {
+          continue;
+        }
         console.debug(
           `Running cron for organization [${org.subdomain}]: publish`
         );

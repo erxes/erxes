@@ -252,7 +252,7 @@ export const isEnabled = (service: string) => {
  * @param {String} - value
  * @return {String} - URL
  */
-export const readFile = (value: string, width?: number): string => {
+export const readFile = (value: string, width?: number, inline?: boolean): string => {
   if (
     !value ||
     urlParser.isValidURL(value) ||
@@ -266,6 +266,11 @@ export const readFile = (value: string, width?: number): string => {
   if (width) {
     url += `&width=${width}`;
   }
+
+  if (inline) {
+    url += `&inline=${inline}`;
+  }
+
   return url;
 };
 export const getUserAvatar = (user: IUserDoc, width?: number) => {
