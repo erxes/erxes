@@ -177,11 +177,7 @@ const ActivityItem = (props: Props) => {
   return (
     history && (
       <ActivityRow>
-<<<<<<< HEAD
-        <Tip text={__("Phone call")} placement="top">
-=======
         <Tip text={'Phone call'} placement="top">
->>>>>>> bfffcbb1ecd1aba73c36d690e7adde894c63830a
           <ActivityIcon color={iconAndColor.color}>
             <Icon icon={iconAndColor.icon} />
           </ActivityIcon>
