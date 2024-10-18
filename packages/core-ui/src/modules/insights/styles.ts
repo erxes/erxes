@@ -467,6 +467,10 @@ const FormContent = styled.div`
         }
       }
     }
+
+    .date-range-popover {
+      max-width: fit-content !important;
+    }
   }
 `;
 
