@@ -351,7 +351,7 @@ const sendEmailOrSms = async (
       `Run at ${new Date()}`
     );
   }
-  
+
   // customer info will be prepared at contacts api
   // sendContactsMessage({
   //   isRPC: false,

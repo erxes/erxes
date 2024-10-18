@@ -1582,7 +1582,7 @@ export const resizeImage = async (
 };
 
 export const isImage = (mimetypeOrName: string) => {
-  const extensions = ["jpg", "jpeg", "png", "gif", "svg"];
+  const extensions = ["jpg", "jpeg", "png", "gif", "svg", "webp"];
 
   // extract extension from file name
   const extension = mimetypeOrName.split(".").pop();
