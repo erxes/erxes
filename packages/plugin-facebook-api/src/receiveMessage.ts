@@ -81,8 +81,6 @@ const receiveMessage = async (
     postback
   } = activity.channelData as IChannelData;
 
-  debugInfo(`Received activity ${JSON.stringify(activity)}`);
-
   let adData;
 
   if (!text && !message && !!postback) {
