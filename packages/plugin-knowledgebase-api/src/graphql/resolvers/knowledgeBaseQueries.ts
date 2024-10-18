@@ -120,7 +120,7 @@ const knowledgeBaseQueries = {
    */
   async knowledgeBaseArticlesTotalCount(
     _root,
-    args: { categoryIds: string[]; codes: string[] },
+    args,
     { models }: IContext
   ) {
     const qry: any = buildQuery(args);
