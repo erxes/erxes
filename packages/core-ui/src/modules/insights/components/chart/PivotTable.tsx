@@ -69,6 +69,7 @@ const PivotTableRenderer = (props: Props) => {
                   <th
                     rowSpan={header.rowspan || undefined}
                     colSpan={header.colspan || undefined}
+                    className={header.className || ""}
                   >
                     {header.content}
                   </th>

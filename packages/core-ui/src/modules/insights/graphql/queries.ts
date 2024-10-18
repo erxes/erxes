@@ -316,6 +316,7 @@ const reportList = `
             filterType
           }
         }
+        isPinned
         tags {
           _id
           name
@@ -365,7 +366,7 @@ const reportDetail = `
             filterType
           }
         }
-
+        isPinned
         tags  {
             _id
             name
@@ -395,6 +396,19 @@ const insightTemplatesList = `
 const insightChartTemplatesList = `
   query insightChartTemplatesList($serviceName: String!, $charts: [String]) {
     insightChartTemplatesList(serviceName: $serviceName, charts: $charts)
+  }
+`;
+
+const insightPinnedList = `
+  query insightPinnedList {
+    insightPinnedList {
+      _id
+      name
+      type
+      sectionId
+      chartsCount
+      isPinned
+    }
   }
 `;
 
@@ -822,6 +836,7 @@ const dashboardList = `
         name
         sectionId
         chartsCount
+        isPinned
       }
       totalCount
     }
@@ -860,6 +875,7 @@ const dashboardDetail = `
           filterType
         }
       }
+      isPinned
       chartsCount
     }
   }
@@ -909,6 +925,7 @@ export default {
   insightTemplatesList,
   insightChartTemplatesList,
   insightServicesList,
+  insightPinnedList,
   chartGetResult,
 
   //dashboard
