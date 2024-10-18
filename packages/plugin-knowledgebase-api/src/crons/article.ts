@@ -25,6 +25,7 @@ export const publish = async (subdomain: string) => {
 export default {
   handleMinutelyJob: async () => {
     const VERSION = getEnv({ name: 'VERSION' });
+    console.debug('VERSION', VERSION);
 
     if (VERSION && VERSION === 'saas') {
       const organizations = await getOrganizations();
