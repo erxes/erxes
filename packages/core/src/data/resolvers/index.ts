@@ -30,6 +30,7 @@ import EmailTemplate from "./emailTemplates";
 import Dashboard from "./dashboard";
 import Report from "./report";
 import Section from "./section";
+import Insight from "./insight";
 
 const resolvers: any = {
   ...customScalars,
@@ -67,7 +68,8 @@ const resolvers: any = {
   EmailTemplate,
   Dashboard,
   Report,
-  Section
+  Section,
+  Insight
 };
 
 export default resolvers;

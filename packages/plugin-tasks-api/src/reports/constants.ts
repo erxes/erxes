@@ -127,7 +127,8 @@ export const CUSTOM_DATE_FREQUENCY_TYPES = [
   { label: 'By week', value: '%Y-%V' },
   { label: 'By month', value: '%m' },
   { label: 'By year', value: '%Y' },
-  { label: 'By Date', value: '%Y-%m-%d' },
+  { label: 'By date', value: '%Y-%m-%d' },
+  { label: 'By date-time', value: '%Y-%m-%d %H:%M:%S' }
 ];
 
 export const MEASURE_OPTIONS = [

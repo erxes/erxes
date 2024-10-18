@@ -614,7 +614,7 @@ const boardQueries = {
       const pipeline = await Pipelines.getPipeline(stage.pipelineId);
       const board = await Boards.getBoard(pipeline.boardId);
 
-      purchaseUrl = `/purchase/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${purchase._id}`;
+      purchaseUrl = `/purchase/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${purchase._id}`;
     }
 
     return {

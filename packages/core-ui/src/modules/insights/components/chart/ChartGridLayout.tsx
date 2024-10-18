@@ -87,7 +87,7 @@ const ChartGridLayout = (props: Props) => {
         >
           duplicate
         </span>
-        {chartType && chartType === "table" && (
+        {chartType && (chartType === "table" || chartType === "pivotTable") && (
           <span className="db-chart-action" onClick={() => exportTable(chart)}>
             export
           </span>

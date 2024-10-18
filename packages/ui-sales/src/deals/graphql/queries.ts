@@ -221,9 +221,9 @@ const checkDiscount = `
 `;
 
 const convertToInfo = `
-  query tasksConvertToInfo($conversationId: String!) {
-    tasksConvertToInfo(conversationId: $conversationId) {
-      taskUrl
+  query salesConvertToInfo($conversationId: String!) {
+    salesConvertToInfo(conversationId: $conversationId) {
+      dealUrl
     }
   }
 `;

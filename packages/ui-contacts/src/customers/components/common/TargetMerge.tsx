@@ -50,11 +50,16 @@ const TargetMergeModal: React.FC<Props> = ({
     );
   };
 
+  const handleChildClick = (event) => {
+    event.stopPropagation();
+  };
+
   const renderSelect = () => {
     return (
       <Select
         placeholder="Search"
         onInputChange={(value) => handleSearch(value)}
+        onKeyDown={(event) => handleChildClick(event)}
         onFocus={() => handleSearch('')}
         onChange={onSelect}
         isClearable={true}

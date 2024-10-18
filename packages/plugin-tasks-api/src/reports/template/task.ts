@@ -358,7 +358,7 @@ export const taskCharts = [
 
           const title = 'Total Tasks Count';
 
-        return { title, ...buildData({ chartType, data: tasks, filter }) };
+        return { title, ...buildData({ chartType, data: tasks, filter, type: "task" }) };
       },
       filterTypes: [
         // DIMENSION FILTER
@@ -372,6 +372,14 @@ export const taskCharts = [
                 logicFieldValue: 'pivotTable',
               },
             ],
+          fieldValueOptions: [
+            {
+              fieldName: 'showTotal',
+              fieldType: 'checkbox',
+              fieldLabel: 'Show total',
+              fieldDefaultValue: false
+            },
+          ],
             fieldOptions: DIMENSION_OPTIONS,
             fieldLabel: 'Select row',
           },
@@ -384,6 +392,14 @@ export const taskCharts = [
                   logicFieldName: 'chartType',
                   logicFieldValue: 'pivotTable',
                 },
+            ],
+            fieldValueOptions: [
+              {
+                fieldName: 'showTotal',
+                fieldType: 'checkbox',
+                fieldLabel: 'Show total',
+                fieldDefaultValue: false
+              }
             ],
             fieldOptions: DIMENSION_OPTIONS,
             fieldLabel: 'Select column',

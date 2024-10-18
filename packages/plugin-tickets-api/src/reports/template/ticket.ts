@@ -2481,7 +2481,7 @@ export const ticketCharts = [
 
         const title = 'Total Tickets Count';
 
-      return { title, ...buildData({ chartType, data: tickets, filter }) };
+      return { title, ...buildData({ chartType, data: tickets, filter, type: "ticket" }) };
     },
     filterTypes: [
       // DIMENSION FILTER
@@ -2495,6 +2495,14 @@ export const ticketCharts = [
               logicFieldValue: 'pivotTable',
             },
           ],
+        fieldValueOptions: [
+          {
+            fieldName: 'showTotal',
+            fieldType: 'checkbox',
+            fieldLabel: 'Show total',
+            fieldDefaultValue: false
+          },
+        ],
           fieldOptions: DIMENSION_OPTIONS,
           fieldLabel: 'Select row',
         },
@@ -2506,6 +2514,14 @@ export const ticketCharts = [
             {
               logicFieldName: 'chartType',
               logicFieldValue: 'pivotTable',
+            },
+          ],
+          fieldValueOptions: [
+            {
+              fieldName: 'showTotal',
+              fieldType: 'checkbox',
+              fieldLabel: 'Show total',
+              fieldDefaultValue: false
             },
           ],
           fieldOptions: DIMENSION_OPTIONS,

@@ -68,6 +68,9 @@ const FormContainer = (props: Props) => {
             id: dashboardId,
           },
         },
+        {
+          query: gql(queries.insightPinnedList),
+        },
       ],
     }
   );

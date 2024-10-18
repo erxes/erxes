@@ -123,9 +123,7 @@ const extractAndAddIntoSheet = async (
     });
   }
 
-  const dataRange = sheet.range(
-    `A${startRowIdx - 1}:${String.fromCharCode(65 + headers.length - 1)}${endRowIdx}`
-  );
+  const dataRange = sheet.range(`A${startRowIdx - 1}:${String.fromCharCode(65 + headers.length - 1)}${endRowIdx - 1}`);
   dataRange.style({ border: "thin" });
 
   addIntoSheet(
@@ -145,11 +143,19 @@ export const buildChartFile = async (subdomain: string, params: any) => {
   const { workbook, sheet } = await createXlsFile();
   const dataset = await chartGetResult(params, subdomain);
 
-  const { dimension, measure } = JSON.parse(params.filter);
+  const { dimension, measure, colDimension, rowDimension } = JSON.parse(params.filter);
   const { title, data, labels } = dataset;
 
-  await prepareHeader(sheet, title, dimension, measure);
-  await extractAndAddIntoSheet(sheet, data, labels, dimension, measure);
+  let dimensions
+
+  if (colDimension?.length || rowDimension?.length) {
+    dimensions = [...colDimension.map(col => col.value), ...rowDimension.map(row => row.value)]
+  } else {
+    dimensions = Array.isArray(dimension) ? dimension : dimension?.split(",") || []
+  }
+
+  await prepareHeader(sheet, title, dimensions, measure);
+  await extractAndAddIntoSheet(sheet, data, labels, dimensions, measure);
 
   return {
     name: `${toCamelCase(title)}`,

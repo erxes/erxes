@@ -552,7 +552,7 @@ const RespondBox = (props: Props) => {
     return (
       <MaskWrapper>
         {renderMask()}
-        {dynamicComponent}
+        {!isInternal && dynamicComponent}
         <RespondBoxStyled
           $isInternal={isInternal}
           $isInactive={isInactive}>

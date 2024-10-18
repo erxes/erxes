@@ -26,6 +26,7 @@ type Props = {
   handleClick?: (id: string) => void;
   renderEditAction?: (item: any) => void;
   renderRemoveAction?: (item: any) => void;
+  renderAdditionalActions?: (item: any) => void;
 
   removeSection: (id: string) => void;
 };
@@ -39,6 +40,7 @@ const SectionList = (props: Props) => {
     handleClick,
     renderEditAction,
     renderRemoveAction,
+    renderAdditionalActions,
 
     removeSection,
   } = props;
@@ -79,6 +81,7 @@ const SectionList = (props: Props) => {
         onClick={handleClick}
         editAction={renderEditAction}
         removeAction={renderRemoveAction}
+        additionalActions={renderAdditionalActions}
       />
     );
   };

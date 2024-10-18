@@ -25,7 +25,6 @@ const Insight = (props: Props) => {
   };
 
   return (
-    <>
       <Wrapper
         hasBorder
         header={
@@ -33,8 +32,7 @@ const Insight = (props: Props) => {
         }
         leftSidebar={<Sidebar queryParams={queryParams} />}
         content={renderContent()}
-      />
-    </>
+    />
   );
 };
 
