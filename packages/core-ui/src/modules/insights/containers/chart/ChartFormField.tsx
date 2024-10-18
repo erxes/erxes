@@ -21,6 +21,7 @@ export type IFilterType = {
   fieldDefaultValue: any;
   multi?: boolean;
   logics?: IFieldLogic[];
+  fieldValueOptions?: any[];
 };
 
 type FinalProps = {
@@ -42,6 +43,7 @@ const ChartFormFieldContainer = (props: FinalProps) => {
     fieldAttributes,
     fieldDefaultValue,
     logics,
+    fieldValueOptions
   } = filterType;
 
   const [data, setData] = useState([])
@@ -132,6 +134,7 @@ const ChartFormFieldContainer = (props: FinalProps) => {
       fieldLabel={fieldLabel}
       fieldAttributes={fieldAttributes}
       fieldDefaultValue={fieldDefaultValue}
+      fieldValueOptions={fieldValueOptions}
       onChange={onChange}
       {...props}
     />
