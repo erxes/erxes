@@ -43,7 +43,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
         <SelectStage
         cardType={updateProps.type}
           name="declinedStageId"
-          label="Declined Stage"
+          label={__("Declined Stage")}
           pipelineId={pipelineId || null}
           initialValue={(params?.logics || [])[0]?.targetStageId}
           onSelect={({ value }) =>
@@ -115,7 +115,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
             <SelectStage
               cardType={cardType}
               name="destinationStageId"
-              label="Destination stage"
+              label={__("Destination stage")}
               pipelineId={pipelineId}
               excludeIds={selectedDestinationStageIds}
               initialValue={config.destinationStageId}
@@ -186,7 +186,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
             <SelectStage
               cardType={cardType}
               name="targetStageId"
-              label="Stage"
+              label={__("Stage")}
               pipelineId={pipelineId || null}
               initialValue={logic.targetStageId}
               onSelect={({ value }) =>
@@ -247,7 +247,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
         </FormGroup>
         {params['type'] !== type && (
           <>
-            <CollapseContent title="Settings" compact>
+            <CollapseContent title={__("Settings")} compact>
               <BoardSelect {...updateProps} />
               <FormGroup>
                 <Row>
@@ -292,7 +292,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
             </Row>
 
             {!!params?.configs && (
-              <CollapseContent title="Track Changes Configurations" compact>
+              <CollapseContent title={__("Track Changes Configurations")} compact>
                 {renderConfigs(type)}
                 <LinkButton onClick={addConfig}>
                   <Icon icon="plus-1" /> {__('Add config')}
@@ -300,7 +300,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
               </CollapseContent>
             )}
             {!!params?.logics && (
-              <CollapseContent title="After logics" compact>
+              <CollapseContent title={__("After logics")} compact>
                 {renderLogics(type)}
                 <LinkButton onClick={addLogics}>
                   <Icon icon="plus-1" /> {__('Add logic')}

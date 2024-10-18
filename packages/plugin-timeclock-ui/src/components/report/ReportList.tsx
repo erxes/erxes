@@ -249,7 +249,7 @@ function ReportList(props: Props) {
             <Select
               value={selectOptions.find(o => o.value === reportType)}
               onChange={onTypeSelect}
-              placeholder='Select type'
+              placeholder={__('Select type')}
               isMulti={false}
               isClearable={true}
               options={selectOptions}

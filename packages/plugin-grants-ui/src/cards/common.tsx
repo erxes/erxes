@@ -55,7 +55,7 @@ export function SelectStage({
       <Select
         required={true}
         name={name}
-        placeholder={'Choose a stage'}
+        placeholder={__('Choose a stage')}
         value={options.find((o) => o.value === initialValue)}
         onChange={onSelect}
         options={options}

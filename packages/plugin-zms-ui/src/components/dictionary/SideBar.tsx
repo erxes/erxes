@@ -67,7 +67,7 @@ class SideBar extends React.Component<Props, State> {
           <ActionButtons>
             <ModalTrigger
               size="sm"
-              title="Edit type"
+              title={__("Edit type")}
               trigger={this.editTrigger}
               content={content}
               enforceFocus={false}

@@ -102,9 +102,9 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
   };
 
   const copied = (pipelineId: string) => {
-    confirm(
+    confirm(__(
       `This will duplicate the current pipeline. Are you absolutely sure?`
-    ).then(() => {
+    )).then(() => {
       copiedPipelineMutation({
         variables: { _id: pipelineId },
         refetchQueries: getRefetchQueries(boardId, pipelineId)

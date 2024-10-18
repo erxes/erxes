@@ -246,7 +246,7 @@ const Pos = (props: Props) => {
             </Step>
             <Step
               img="/images/icons/erxes-12.svg"
-              title={`Payments`}
+              title={__(`Payments`)}
               onClick={onStepClick}
             >
               <PaymentsStep
@@ -258,14 +258,14 @@ const Pos = (props: Props) => {
             </Step>
             <Step
               img="/images/icons/erxes-02.svg"
-              title={`Permission`}
+              title={__(`Permission`)}
               onClick={onStepClick}
             >
               <PermissionStep onChange={onChange} pos={state.pos} envs={envs} />
             </Step>
             <Step
               img="/images/icons/erxes-10.svg"
-              title={`Product & Service`}
+              title={__(`Product & Service`)}
               onClick={onStepClick}
             >
               <ConfigStep
@@ -277,7 +277,7 @@ const Pos = (props: Props) => {
             </Step>
             <Step
               img="/images/icons/erxes-04.svg"
-              title={"Appearance"}
+              title={__("Appearance")}
               onClick={onStepClick}
             >
               <Appearance
@@ -288,7 +288,7 @@ const Pos = (props: Props) => {
             </Step>
             <Step
               img="/images/icons/erxes-14.svg"
-              title={"Screens Config"}
+              title={__("Screens Config")}
               onClick={onStepClick}
             >
               <ScreensConfig
@@ -299,14 +299,14 @@ const Pos = (props: Props) => {
             </Step>
             <Step
               img="/images/icons/erxes-05.svg"
-              title={"ebarimt Config"}
+              title={__("ebarimt Config")}
               onClick={onStepClick}
             >
               <EbarimtConfig onChange={onChange} pos={pos} />
             </Step>
             <Step
               img="/images/icons/erxes-07.svg"
-              title={"finance Config"}
+              title={__("finance Config")}
               onClick={onStepClick}
             >
               <ErkhetConfig
@@ -317,14 +317,14 @@ const Pos = (props: Props) => {
             </Step>
             <Step
               img="/images/icons/erxes-09.svg"
-              title={"Delivery Config"}
+              title={__("Delivery Config")}
               onClick={onStepClick}
             >
               <DeliveryConfig onChange={onChange} pos={state.pos} />
             </Step>
             <Step
               img="/images/icons/erxes-07.svg"
-              title={"Sync Cards"}
+              title={__("Sync Cards")}
               onClick={onStepClick}
               noButton={true}
             >

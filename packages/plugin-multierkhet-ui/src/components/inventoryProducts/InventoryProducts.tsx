@@ -178,7 +178,7 @@ const InventoryProducts = (props: Props) => {
             }
             loading={false}
             count={3}
-            emptyText={'Please check first.'}
+            emptyText={__('Please check first.')}
             emptyIcon="leaf"
             size="large"
             objective={true}
@@ -199,7 +199,7 @@ const InventoryProducts = (props: Props) => {
           <DataWithLoader
             data={items.update ? renderTable(items.update.items, 'UPDATE') : []}
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={__('Please check first.')}
             emptyIcon="leaf"
             size="large"
             objective={true}
@@ -220,7 +220,7 @@ const InventoryProducts = (props: Props) => {
           <DataWithLoader
             data={items.delete ? renderTable(items.delete.items, 'DELETE') : []}
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={__('Please check first.')}
             emptyIcon="leaf"
             size="large"
             objective={true}

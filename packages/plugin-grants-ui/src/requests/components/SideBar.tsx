@@ -90,12 +90,12 @@ export default function SideBar({ queryParams }) {
     >
       <Padding>
         <CustomField
-          label="Requester"
+          label={__("Requester")}
           field="requesterId"
           clearable={queryParams?.requesterId}
         >
           <SelectTeamMembers
-            label="Choose Requester"
+            label={__("Choose Requester")}
             name="requesterId"
             onSelect={handleSelect}
             multi={false}
@@ -103,12 +103,12 @@ export default function SideBar({ queryParams }) {
           />
         </CustomField>
         <CustomField
-          label="recipient"
+          label={__("recipient")}
           field="recipientId"
           clearable={queryParams?.recipientId}
         >
           <SelectTeamMembers
-            label="Choose recipient"
+            label={__("Choose recipient")}
             name="recipientId"
             onSelect={handleSelect}
             multi={false}
@@ -116,7 +116,7 @@ export default function SideBar({ queryParams }) {
           />
         </CustomField>
         <CustomField
-          label="Created Date Range"
+          label={__("Created Date Range")}
           field={["createdAtFrom", "createdAtTo"]}
           clearable={queryParams?.createdAtFrom || queryParams?.createdAtTo}
         >
@@ -125,7 +125,7 @@ export default function SideBar({ queryParams }) {
               <DateControl
                 name="createdAtFrom"
                 value={generateQueryParamsDate(queryParams?.createdAtFrom)}
-                placeholder="select from date "
+                placeholder={__("select from date ")}
                 onChange={(e) => dateOrder(e, "createdAtFrom")}
               />
             </DateContainer>
@@ -134,7 +134,7 @@ export default function SideBar({ queryParams }) {
                 <DateControl
                   name="createdAtTo"
                   value={generateQueryParamsDate(queryParams?.createdAtTo)}
-                  placeholder="select to date "
+                  placeholder={__("select to date ")}
                   onChange={(e) => dateOrder(e, "createdAtTo")}
                 />
               </DateContainer>
@@ -142,7 +142,7 @@ export default function SideBar({ queryParams }) {
           </CustomRangeContainer>
         </CustomField>
         <CustomField
-          label="Closed Date Range"
+          label={__("Closed Date Range")}
           field={["closedAtFrom", "closedAtTo"]}
           clearable={queryParams?.closedAtFrom || queryParams?.closedAtTo}
         >
@@ -151,7 +151,7 @@ export default function SideBar({ queryParams }) {
               <DateControl
                 name="closedAtFrom"
                 value={generateQueryParamsDate(queryParams?.closedAtFrom)}
-                placeholder="select from date "
+                placeholder={__("select from date ")}
                 onChange={(e) => dateOrder(e, "closedAtFrom")}
               />
             </DateContainer>
@@ -160,7 +160,7 @@ export default function SideBar({ queryParams }) {
                 <DateControl
                   name="closedAtTo"
                   value={generateQueryParamsDate(queryParams?.closedAtTo)}
-                  placeholder="select to date "
+                  placeholder={__("select to date ")}
                   onChange={(e) => dateOrder(e, "closedAtTo")}
                 />
               </DateContainer>
@@ -186,7 +186,7 @@ export default function SideBar({ queryParams }) {
           </Row>
         </CustomField>
         <CustomField
-          label="Response Type"
+          label={__("Response Type")}
           field="type"
           clearable={queryParams?.type}
         >
@@ -204,7 +204,7 @@ export default function SideBar({ queryParams }) {
           </SelectBoxContainer>
         </CustomField>
         <CustomField
-          label={"Status"}
+          label={__("Status")}
           field="archived"
           clearable={queryParams?.archived}
         >

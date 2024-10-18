@@ -76,7 +76,7 @@ const CollateralForm = (props: Props) => {
   const renderContent = () => {
     if (collateralsData.length === 0) {
       return (
-        <EmptyState size="full" text="No collateral or services" icon="box" />
+        <EmptyState size="full" text={__("No collateral or services")} icon="box" />
       );
     }
 

@@ -142,7 +142,7 @@ const VoucherCampaigns = (props: Props) => {
         />
         <ModalTrigger
           size={"lg"}
-          title="Add voucher campaign"
+          title={__("Add voucher campaign")}
           trigger={trigger}
           autoOpenKey="showProductModal"
           content={modalContent}

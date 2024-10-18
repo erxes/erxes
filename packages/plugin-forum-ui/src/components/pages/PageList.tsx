@@ -97,7 +97,7 @@ const List = (props: Props) => {
       />
       &nbsp;&nbsp;
       <ModalTrigger
-        title="Create New Page"
+        title={__("Create New Page")}
         size="lg"
         trigger={
           <Button btnStyle="success" size="small" icon="plus-circle">
@@ -143,9 +143,9 @@ const List = (props: Props) => {
   );
 
   const submenu = [
-    { title: "Posts", link: "/forums/posts" },
-    { title: "Pages", link: "/forums/pages" },
-    { title: "Quiz", link: "/forums/quizzes" },
+    { title: __("Posts"), link: "/forums/posts" },
+    { title: __("Pages"), link: "/forums/pages" },
+    { title:__("Quiz"), link: "/forums/quizzes" },
   ];
 
   return (

@@ -107,7 +107,7 @@ export default function FormComponent(props: Props) {
             <FormGroup>
               <ControlLabel>{__("Date")}</ControlLabel>
               <Datetime
-                inputProps={{ placeholder: "Click to select a date" }}
+                inputProps={{ placeholder: __("Click to select a date") }}
                 dateFormat="YYYY-MM-DD"
                 timeFormat=""
                 viewMode={"days"}
@@ -138,31 +138,31 @@ export default function FormComponent(props: Props) {
             <FormGroup>
               <ControlLabel>{__("Branch")}</ControlLabel>
               <SelectBranches
-                label="Choose branch"
+                label={__("Choose branch")}
                 name="selectedBranchIds"
                 initialValue={branchId}
                 onSelect={(branchId: any) => setBranchId(String(branchId))}
                 multi={false}
-                customOption={{ value: "", label: "All branches" }}
+                customOption={{ value: "", label: __("All branches") }}
               />
             </FormGroup>
             <FormGroup>
               <ControlLabel>{__("Department")}</ControlLabel>
               <SelectDepartments
-                label="Choose department"
+                label={__("Choose department")}
                 name="selectedDepartmentIds"
                 initialValue={departmentId}
                 onSelect={(departmentId: any) =>
                   setDepartmentId(String(departmentId))
                 }
                 multi={false}
-                customOption={{ value: "", label: "All departments" }}
+                customOption={{ value: "", label: __("All departments") }}
               />
             </FormGroup>
             <FormGroup>
               <ControlLabel>{__("Product Categories")}</ControlLabel>
               <SelectProductCategory
-                label="Choose product category"
+                label={__("Choose product category")}
                 name="selectedProductCategoryId"
                 initialValue={categoryId}
                 onSelect={(categoryId: any) =>

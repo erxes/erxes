@@ -186,7 +186,7 @@ const goalTypesList = (props: Props) => {
           data={renderContent()}
           loading={loading}
           count={goalTypes.length}
-          emptyText='Add in your first goalType!'
+          emptyText={__('Add in your first goalType!')}
           emptyImage='/images/actions/1.svg'
         />
       }

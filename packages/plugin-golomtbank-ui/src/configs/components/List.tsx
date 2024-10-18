@@ -43,7 +43,7 @@ const List = (props: Props) => {
   const righActionBar = (
     <ModalTrigger
       size="sm"
-      title="Corporate Gateway"
+      title={__("Corporate Gateway")}
       autoOpenKey="showAppAddModal"
       trigger={trigger}
       content={formContent}
@@ -81,7 +81,7 @@ const List = (props: Props) => {
       mainHead={
         <HeaderDescription
           icon="/images/actions/27.svg"
-          title={"GolomtBank Corporate Gateway"}
+          title={__("GolomtBank Corporate Gateway")}
           description={__(
             `Corporate Gateway enables you access banking services through erxes.`
           )}

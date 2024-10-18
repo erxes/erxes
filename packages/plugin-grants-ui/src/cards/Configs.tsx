@@ -38,7 +38,7 @@ const Config: React.FC<Props> = (props: Props) => {
     };
 
     return (
-      <CollapseContent title="Action Configuration">
+      <CollapseContent title={__("Action Configuration")}>
         <CardActionComponent {...updatedProps} />
       </CollapseContent>
     );
@@ -94,7 +94,7 @@ const Config: React.FC<Props> = (props: Props) => {
 
   return (
     <>
-      <CollapseContent title="Main Configuration">
+      <CollapseContent title={__("Main Configuration")}>
         {selectCardType}
         {boardSelect}
       </CollapseContent>

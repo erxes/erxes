@@ -70,7 +70,7 @@ const OrdersByCustomers = ({ list, loading, totalCount }: Props) => {
         <DataWithLoader
           data={renderContent()}
           loading={loading}
-          emptyText="There is no data"
+          emptyText={__("There is no data")}
           emptyImage="/images/actions/5.svg"
         />
       }

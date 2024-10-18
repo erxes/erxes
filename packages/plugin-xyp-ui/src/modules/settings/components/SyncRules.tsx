@@ -83,7 +83,7 @@ const SyncRules: React.FC<Props> = (props) => {
   const righActionBar = (
     <ModalTrigger
       size="lg"
-      title="New Sync Rule"
+      title={__("New Sync Rule")}
       autoOpenKey="showSyncRuleAddModal"
       trigger={addRule}
       content={content}
@@ -98,7 +98,7 @@ const SyncRules: React.FC<Props> = (props) => {
       mainHead={
         <HeaderDescription
           icon="/images/actions/32.svg"
-          title={'Sync Rule'}
+          title={__('Sync Rule')}
           description={__('Add sync rule ...')}
         />
       }

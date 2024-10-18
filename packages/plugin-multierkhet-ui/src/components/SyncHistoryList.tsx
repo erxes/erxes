@@ -65,7 +65,7 @@ const SyncHistoryList = (props: IProps) => {
       <tbody id="orders">
         {(syncHistories || []).map((item) => (
           <ModalTrigger
-            title="Sync erkhet information"
+            title={__("Sync erkhet information")}
             trigger={
               <tr key={item._id}>
                 <td>{dayjs(item.createdAt).format("lll")}</td>
