@@ -1,4 +1,3 @@
-import * as routerUtils from '@erxes/ui/src/utils/router';
 
 import { EMPTY_CONTENT_POPUPS } from '@erxes/ui-settings/src/constants';
 import { ITag } from '@erxes/ui-tags/src/types';
@@ -20,7 +19,7 @@ import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 import { IForm } from '@erxes/ui-forms/src/forms/types';
-import { __ } from '../../../common/utils';
+import { __, router } from '../../../common/utils';
 import Sidebar from './Sidebar';
 
 type Props = {
@@ -62,6 +61,7 @@ const List = ({
   navigate,
 }: Props) => {
   const [searchParams] = useSearchParams();
+
   const showInstallCode = searchParams.get('showInstallCode');
 
   const onChange = () => {
@@ -84,9 +84,7 @@ const List = ({
   };
 
   const searchHandler = (event) => {
-    routerUtils.setParams(navigate, location, {
-      searchValue: event.target.value,
-    });
+    router.setParams(navigate, location, { searchValue: event.target.value });
   };
 
   let actionBarLeft: React.ReactNode;
@@ -116,7 +114,7 @@ const List = ({
         type='text'
         placeholder={__('Type to search')}
         onChange={searchHandler}
-        // value={routerUtils.getParam(location, 'searchValue')}
+        value={queryParams?.searchValue}
         autoFocus={true}
       />
       &nbsp;&nbsp;

@@ -276,6 +276,16 @@ export const FILE_MIME_TYPES = [
     label: 'Plain text',
     extension: '.txt'
   },
+  {
+    value: 'application/haansoft-hwp',
+    label: 'Hanword Document (HWP)',
+    extension: '.hwp'
+  },
+  {
+    value: 'application/haansoft-hwpml',
+    label: 'Hanword Document (HWPX)',
+    extension: '.hwpx'
+  },
   // media
   {
     value: 'audio/aac',

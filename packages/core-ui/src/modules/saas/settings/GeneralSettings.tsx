@@ -138,6 +138,31 @@ class GeneralSettings extends React.Component<Props, State> {
     );
   };
 
+  renderItemInput = (
+    key: string,
+    description?: string,
+    componentClass?: string,
+    actionComponent?: React.ReactNode
+  ) => {
+    const { configsMap } = this.state;
+
+    return (
+      <FormGroup>
+        <FlexRow $justifyContent={actionComponent ? "space-between" : ""}>
+          <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
+
+          {actionComponent ? actionComponent : null}
+        </FlexRow>
+        {description && <p>{__(description)}</p>}
+        <FormControl
+          componentclass={componentClass}
+          defaultValue={configsMap[key]}
+          onChange={this.onChangeInput.bind(this, key)}
+        />
+      </FormGroup>
+    );
+  };
+
   onChangeColor = (field, e) => {
     this.onChangeConfig(field, e.hex);
   };
@@ -392,8 +417,8 @@ class GeneralSettings extends React.Component<Props, State> {
           beforeTitle={<Icon icon="comment-alt-verify" />}
         >
           <FlexRow $alignItems="flex-start" $justifyContent="space-between">
-            {this.renderItem("MESSAGE_PRO_API_KEY")}
-            {this.renderItem("MESSAGE_PRO_PHONE_NUMBER")}
+            {this.renderItemInput("MESSAGE_PRO_API_KEY")}
+            {this.renderItemInput("MESSAGE_PRO_PHONE_NUMBER")}
           </FlexRow>
         </CollapseContent>
       </ContentBox>

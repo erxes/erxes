@@ -143,7 +143,10 @@ const remainderQueries = {
   }
 };
 
-requireLogin(remainderQueries, "tagDetail");
-checkPermission(remainderQueries, "remainders", "showTags", []);
+requireLogin(remainderQueries, "remainders");
+requireLogin(remainderQueries, "remainderCount");
+requireLogin(remainderQueries, "remainderProducts");
+checkPermission(remainderQueries, "remainderDetail", "manageRemainders", []);
+checkPermission(remainderQueries, "remaindersLog", "manageRemainders", []);
 
 export default remainderQueries;

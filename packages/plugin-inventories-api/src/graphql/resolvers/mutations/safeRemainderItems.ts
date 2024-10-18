@@ -1,8 +1,7 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import {
-  SAFE_REMAINDER_ITEM_STATUSES,
-  SAFE_REMAINDER_STATUSES
+  SAFE_REMAINDER_ITEM_STATUSES
 } from '../../../models/definitions/constants';
 
 const safeRemainderItemMutations = {
@@ -34,15 +33,6 @@ const safeRemainderItemMutations = {
   }
 };
 
-checkPermission(
-  safeRemainderItemMutations,
-  'safeRemainderItemEdit',
-  'manageRemainders'
-);
-checkPermission(
-  safeRemainderItemMutations,
-  'safeRemainderItemRemove',
-  'manageRemainders'
-);
+moduleCheckPermission(safeRemainderItemMutations, 'manageRemainders');
 
 export default safeRemainderItemMutations;

@@ -76,7 +76,7 @@ const Pos = (props: Props) => {
     slots:
       slots.map(slot => ({
         ...slot,
-        option: JSON.parse(slot.option as any)
+        option: typeof slot.option === 'string' && JSON.parse(slot.option) || slot.option
       })) || [],
     checkRemainder: pos.checkRemainder || false,
     allowTypes:
@@ -117,7 +117,7 @@ const Pos = (props: Props) => {
       code: m.code,
       name: m.name,
       posId: m.posId,
-      option: JSON.stringify(m.option)
+      option: m.option
     }));
 
     let doc: any = {

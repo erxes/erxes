@@ -129,7 +129,7 @@ const categoriesGetLast = `
 `;
 
 const knowledgeBaseArticles = `
-  query objects($page: Int, $perPage: Int, $categoryIds: [String]) {
+  query KnowledgeBaseArticles($page: Int, $perPage: Int, $categoryIds: [String]) {
     knowledgeBaseArticles(page: $page, perPage: $perPage, categoryIds: $categoryIds) {
       _id
       code
@@ -168,6 +168,7 @@ const knowledgeBaseArticles = `
       createdDate
       modifiedBy
       modifiedDate
+      scheduledDate
 
       forms {
         brandId

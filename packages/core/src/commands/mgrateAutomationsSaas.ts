@@ -65,6 +65,65 @@ const switchContentType = contentType => {
   return changedContentType;
 };
 
+const switchTriggerTypeByLabel = label => {
+  let changedContentType = "";
+
+  switch (label) {
+    case "Team member":
+      changedContentType = "core:user";
+      break;
+    case "Customer":
+      changedContentType = "core:customer";
+      break;
+    case "Lead":
+      changedContentType = "core:lead";
+      break;
+    case "Company":
+      changedContentType = "core:company";
+      break;
+    case "Sales pipeline":
+      changedContentType = "sales:deal";
+      break;
+
+    case "Facebook Comments":
+      changedContentType = "facebook:comments";
+      break;
+    case "Facebook Ads Message":
+      changedContentType = "facebook:ads";
+      break;
+
+    case "Facebook Message":
+      changedContentType = "facebook:messages";
+      break;
+
+    case "Conversation":
+      changedContentType = "inbox:conversation";
+      break;
+
+    case "When Knowledgebase article published":
+      changedContentType = "knowledgebase:knowledgeBaseArticle";
+      break;
+
+    case "Pos order":
+      changedContentType = "pos:posOrder";
+      break;
+
+    case "Purchase":
+      changedContentType = "purchases:purchase";
+      break;
+
+    case "Ticket":
+      changedContentType = "tickets:ticket";
+      break;
+
+    case "Task":
+      changedContentType = "tasks:task";
+      break;
+  }
+
+  return changedContentType;
+};
+
 const switchService = service => {
   let changedService = service;
 
@@ -129,7 +188,7 @@ const command = async () => {
           const fixedTriggers = [] as any;
 
           for (const trigger of triggers) {
-            trigger.type = switchContentType(triggers.type);
+            trigger.type = switchTriggerTypeByLabel(trigger.label);
 
             fixedTriggers.push({
               ...trigger
@@ -137,7 +196,12 @@ const command = async () => {
           }
 
           for (const action of actions) {
-            action.type = switchContentType(action.type);
+            const { type } = action;
+            const [serviceName, collectionType] = type.split(":");
+
+            if (serviceName) {
+              action.type = `${switchService(serviceName)}:${collectionType}`;
+            }
 
             const { module } = action.config;
 
