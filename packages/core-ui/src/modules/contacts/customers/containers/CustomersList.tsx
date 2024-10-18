@@ -99,9 +99,7 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
   ];
 
   // load config from local storage
-  const localConfig = localStorage.getItem(
-    `erxes_contacts:${type}_columns_config`
-  );
+  const localConfig = localStorage.getItem(`erxes_core:${type}_columns_config`);
 
   if (localConfig) {
     columnsConfig = JSON.parse(localConfig).filter(conf => {
@@ -214,10 +212,7 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
 
     const stringified = queryString.stringify(exportQuery);
 
-    window.open(
-      `${REACT_APP_API_URL}/file-export?${stringified}`,
-      "_blank"
-    );
+    window.open(`${REACT_APP_API_URL}/file-export?${stringified}`, "_blank");
   };
 
   const changeStateBulk = (_ids: string[], value: string) => {
