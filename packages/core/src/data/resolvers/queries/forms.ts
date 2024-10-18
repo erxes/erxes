@@ -229,8 +229,6 @@ const formQueries = {
         { $limit: perPage }, // Limit for pagination
       ]);
 
-      console.log(submissions);
-
       // Return single submission per groupId
       return submissions.map(submission => ({
         _id: submission._id, // The groupId is used as the _id

@@ -58,24 +58,24 @@ export const fieldsCombinedByContentType = async (
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 
-  fields = await fetchServiceForms(
-    subdomain,
-    contentType,
-    "getList",
-    {
-      segmentId,
-      usageType,
-      config: config || {}
-    },
-    []
-  );
+  // fields = await fetchServiceForms(
+  //   subdomain,
+  //   contentType,
+  //   "getList",
+  //   {
+  //     segmentId,
+  //     usageType,
+  //     config: config || {}
+  //   },
+  //   []
+  // );
 
-  let validation;
+  // let validation;
 
-  if (onlyDates) {
-    fields = fields.filter(f => f.type === "Date");
-    validation = "date";
-  }
+  // if (onlyDates) {
+  //   fields = fields.filter(f => f.type === "Date");
+  //   validation = "date";
+  // }
 
   const type = ["core:visitor", "core:lead", "core:customer"].includes(
     contentType
@@ -83,44 +83,44 @@ export const fieldsCombinedByContentType = async (
     ? "core:customer"
     : contentType;
 
-  const customFields = await getCustomFields(models, type, validation);
+  // const customFields = await getCustomFields(models, type, validation);
 
-  const generateSelectOptions = options => {
-    const selectOptions: Array<{ label: string; value: any }> = [];
+  // const generateSelectOptions = options => {
+  //   const selectOptions: Array<{ label: string; value: any }> = [];
 
-    if (options && options.length > 0) {
-      for (const option of options) {
-        selectOptions.push({
-          value: option,
-          label: option
-        });
-      }
-    }
+  //   if (options && options.length > 0) {
+  //     for (const option of options) {
+  //       selectOptions.push({
+  //         value: option,
+  //         label: option
+  //       });
+  //     }
+  //   }
 
-    return selectOptions;
-  };
+  //   return selectOptions;
+  // };
 
   // extend fields list using custom fields data
-  for (const customField of customFields) {
-    const group = await getFieldGroup(models, customField.groupId || "");
+  // for (const customField of customFields) {
+  //   const group = await getFieldGroup(models, customField.groupId || "");
 
-    if (
-      group &&
-      group.isVisible
-      // (customField.isVisibleDetail || customField.isVisibleDetail === undefined)
-    ) {
-      fields.push({
-        _id: Math.random(),
-        name: `customFieldsData.${getRealIdFromElk(customField._id)}`,
-        label: customField.text,
-        options: customField.options,
-        selectOptions: generateSelectOptions(customField.options),
-        validation: customField.validation,
-        type: customField.type,
-        group: group._id
-      });
-    }
-  }
+  //   if (
+  //     group &&
+  //     group.isVisible
+  //     // (customField.isVisibleDetail || customField.isVisibleDetail === undefined)
+  //   ) {
+  //     fields.push({
+  //       _id: Math.random(),
+  //       name: `customFieldsData.${getRealIdFromElk(customField._id)}`,
+  //       label: customField.text,
+  //       options: customField.options,
+  //       selectOptions: generateSelectOptions(customField.options),
+  //       validation: customField.validation,
+  //       type: customField.type,
+  //       group: group._id
+  //     });
+  //   }
+  // }
 
   fields = [...fields];
 
