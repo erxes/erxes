@@ -84,9 +84,13 @@ class Form extends React.Component<Props, State> {
   };
 
   validate = child => {
-    const { props } = child;
+    const { props, editor } = child;
     const element = this.getSelector(props.name);
-    const value = element ? element.value : '';
+    let value = element ? element.value : '';
+
+    if (editor) {
+      value = editor.isEmpty ? "" : editor.getHTML();
+    }
 
     if (props.required && !value) {
       return <Error>{__('Required field')}</Error>;
