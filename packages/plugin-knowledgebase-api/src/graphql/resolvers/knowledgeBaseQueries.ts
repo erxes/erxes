@@ -38,6 +38,10 @@ const buildQuery = (args: any) => {
     qry._id = { $in: args.ids };
   }
 
+  if (args?.status) {
+    qry.status = args.status;
+  }
+
   return qry;
 };
 
@@ -57,6 +61,7 @@ const knowledgeBaseQueries = {
       topicIds: string[];
       sortField?: string;
       sortDirection?: number;
+      status?: string;
     },
     { models }: IContext
   ) {
@@ -115,7 +120,7 @@ const knowledgeBaseQueries = {
    */
   async knowledgeBaseArticlesTotalCount(
     _root,
-    args: { categoryIds: string[]; codes: string[] },
+    args,
     { models }: IContext
   ) {
     const qry: any = buildQuery(args);

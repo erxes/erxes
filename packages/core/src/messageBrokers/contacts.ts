@@ -392,7 +392,7 @@ export const setupContactsMessageBroker = async (): Promise<void> => {
     };
   });
 
-  consumeRPCQueue(
+  consumeQueue(
     "core:customers.prepareEngageCustomers",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);

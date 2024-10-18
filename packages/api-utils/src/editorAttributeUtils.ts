@@ -111,7 +111,7 @@ export default class EditorAttributeUtil {
   async getPossibleCustomerFields(): Promise<ICustomerField[]> {
     if (!this._possibleCustomerFields) {
       this._possibleCustomerFields = await sendRPCMessage(
-        "forms:fieldsCombinedByContentType",
+        "core:fieldsCombinedByContentType",
         {
           data: { contentType: "core:customer" },
           subdomain: this.subdomain

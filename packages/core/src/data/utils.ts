@@ -373,7 +373,15 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     return "Invalid file type";
   }
 
-  const { mime } = ft;
+  let { mime } = ft;
+
+  if (mime === 'application/zip' && file.name.endsWith('.hwpx')) {
+      mime = 'application/haansoft-hwpml'
+  }
+
+  if (mime === 'application/x-msi' && file.name.endsWith('.hwp')) {
+      mime = 'application/haansoft-hwp'
+  }
 
   // allow old ms office docs to be uploaded
   if (mime === "application/x-msi" && oldMsOfficeDocs.includes(file.type)) {
@@ -1008,7 +1016,7 @@ const readFromCR2 = async (key: string, models?: IModels) => {
             error.code === "NoSuchKey" &&
             error.message.includes("key does not exist")
           ) {
-            console.log("file does not exist with key: ", key);
+            console.error("file does not exist with key: ", key);
 
             return resolve(null);
           }
