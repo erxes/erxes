@@ -134,21 +134,13 @@ class EmailForm extends React.Component<Props, State> {
     const optionRenderer = option => (
       <FlexContent>
         {!option.disabled ? (
-<<<<<<< HEAD
-          <Tip placement='auto' text={__('Email verified')}>
-=======
           <Tip placement="auto" text="Email verified">
->>>>>>> bfffcbb1ecd1aba73c36d690e7adde894c63830a
             <VerifyCheck>
               <Icon icon="check-circle" />
             </VerifyCheck>
           </Tip>
         ) : (
-<<<<<<< HEAD
-          <Tip placement='auto' text={__('Email not verified')}>
-=======
           <Tip placement="auto" text="Email not verified">
->>>>>>> bfffcbb1ecd1aba73c36d690e7adde894c63830a
             <VerifyCancel>
               <Icon icon="times-circle" />
             </VerifyCancel>
