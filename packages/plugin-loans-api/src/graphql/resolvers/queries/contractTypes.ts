@@ -1,6 +1,8 @@
 import { paginate } from "@erxes/api-utils/src";
+import _ from 'lodash';
 import { IContext } from "../../../connectionResolver";
 import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
+import { sendCoreMessage } from "../../../messageBroker";
 
 const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -88,6 +90,45 @@ const contractTypeQueries = {
 
   contractTypeDetail: async (_root, { _id }, { models }: IContext) => {
     return models.ContractTypes.getContractType({ _id });
+  },
+
+  loanContractCategories: async (_root, params: { productCategoryIds?: string[], productIds?: string[], step?: number }, { models, subdomain, }: IContext) => {
+    const { productCategoryIds, productIds } = params;
+    const contractTypeFilter: any = { productType: 'public' };
+    if (productIds?.length) {
+      contractTypeFilter.productId = { $in: productIds };
+    }
+
+    const contractTypes = await models.ContractTypes.find(contractTypeFilter);
+    let savedProductIds = contractTypes.map(ct => ct.productId).filter(pId => pId);
+
+    if (productIds?.length) {
+      savedProductIds = _.intersection(savedProductIds, productIds)
+    }
+
+
+    const products = await sendCoreMessage({
+      subdomain,
+      action: 'products.find',
+      data: { query: { categoryId: { $in: productCategoryIds }, _id: { $in: savedProductIds } } },
+      isRPC: true,
+      defaultValue: []
+    })
+
+    const latestCategoryIds = products.map(p => p.categoryId);
+
+    const categories = await sendCoreMessage({
+      subdomain,
+      action: 'categories.find',
+      data: { query: { _id: { $in: latestCategoryIds } } },
+      isRPC: true,
+      defaultValue: []
+    })
+
+    return {
+      categories,
+      products
+    }
   }
 };
 

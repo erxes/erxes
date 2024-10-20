@@ -17,19 +17,18 @@ export const types = () => `
     leaseType: String
     commitmentInterest: Float
     createdAt: Date
-    productCategoryIds: [String]
     productId: String
-    config: JSON
-    
-
-    productCategories: [ProductCategory]
-    currency:String
     productType:String
+    config: JSON
+
+    currency:String
     savingPlusLoanInterest:Float
     savingUpperPercent:Float
     usePrePayment:Boolean
     invoiceDay:String
     customFieldsData: JSON
+
+    product: Product
   }
 
   type ContractTypesListResponse {
@@ -54,6 +53,10 @@ export const queries = `
   contractTypesMain(${queryParams}): ContractTypesListResponse
   contractTypes(${queryParams}): [ContractType]
   contractTypeDetail(_id: String!): ContractType
+  loanContractCategories(productCategoryIds: [String], productIds: [String], step: number): {
+    categories: JSON
+    products: JSON
+  }
 `;
 
 const commonFields = `
@@ -73,11 +76,10 @@ const commonFields = `
   leaseType: String
   commitmentInterest: Float
   createdAt: Date
-  productCategoryIds: [String]
   productId: String
+  productType:String
   config: JSON
   currency:String
-  productType:String
   savingPlusLoanInterest:Float
   savingUpperPercent:Float
   usePrePayment:Boolean

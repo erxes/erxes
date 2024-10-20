@@ -1,3 +1,5 @@
+import { IProduct } from "@erxes/ui-products/src/types";
+
 export interface IContractConfig {
   receivable: string;
   temp: string;
@@ -72,10 +74,10 @@ export interface IContractTypeDoc {
 
 export interface IContractType extends IContractTypeDoc {
   _id: string;
+  product: IProduct
 }
 
 export interface IContractTypeDetail extends IContractType {
-  productCategories: any;
 }
 
 // mutation types

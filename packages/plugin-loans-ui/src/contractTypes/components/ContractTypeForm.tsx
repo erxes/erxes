@@ -7,7 +7,7 @@ import {
 } from "@erxes/ui/src/styles/eindex";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { IContractType, IContractTypeDoc } from "../types";
-import { IProduct, IProductCategory } from "@erxes/ui-products/src/types";
+import { IProduct } from "@erxes/ui-products/src/types";
 import React, { useState } from "react";
 
 import Button from "@erxes/ui/src/components/Button";
@@ -18,10 +18,10 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IUser } from "@erxes/ui/src/auth/types";
 import { ORGANIZATION_TYPE } from "../../constants";
 import { __ } from "coreui/utils";
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  productCategories: IProductCategory[];
   products: IProduct[];
   contractType: IContractType;
   closeModal: () => void;
@@ -33,9 +33,6 @@ const ContractTypeForm = (props: Props) => {
 
   const [lossCalcType, setLossCalcType] = useState(
     contractType.lossCalcType || "fromInterest"
-  );
-  const [productCategoryIds, setProductCategoryIds] = useState(
-    contractType.productCategoryIds
   );
   const [leaseType, setLeaseType] = useState(
     contractType.leaseType || "finance"
@@ -49,7 +46,6 @@ const ContractTypeForm = (props: Props) => {
     contractType.useManualNumbering
   );
   const [useFee, setUseFee] = useState(contractType.useFee);
-  const [productType, setProductType] = useState(contractType.productType);
   const [collateralType, setCollateralType] = useState(
     contractType.collateralType
   );
@@ -64,6 +60,7 @@ const ContractTypeForm = (props: Props) => {
   );
   const [invoiceDay, setInvoiceDay] = useState(contractType.invoiceDay);
   const [productId, setProductId] = useState(contractType?.productId);
+  const [productType, setProductType] = useState(contractType.productType);
 
   const generateDoc = (values: { _id: string } & IContractTypeDoc) => {
     const finalValues = values;
@@ -84,9 +81,7 @@ const ContractTypeForm = (props: Props) => {
       useDebt,
       useSkipInterest,
       leaseType,
-      productCategoryIds,
       description: finalValues.description,
-      productType,
       currency: finalValues.currency,
       commitmentInterest: Number(finalValues.commitmentInterest),
       savingPlusLoanInterest: Number(savingPlusLoanInterest),
@@ -95,7 +90,8 @@ const ContractTypeForm = (props: Props) => {
       useManualNumbering,
       useFee,
       collateralType,
-      productId
+      productId,
+      productType,
     };
   };
 
@@ -121,9 +117,6 @@ const ContractTypeForm = (props: Props) => {
       e.target.type === "checkbox" ? e.target.checked : e.target.value;
 
     switch (name) {
-      case "productType":
-        setProductType(value);
-        break;
       case "currency":
         setCurrency(value);
         break;
@@ -154,6 +147,9 @@ const ContractTypeForm = (props: Props) => {
       case "useFee":
         setUseFee(value);
         break;
+      case "productType":
+        setProductType(value);
+        break;
       default:
         break;
     }
@@ -162,22 +158,6 @@ const ContractTypeForm = (props: Props) => {
   const renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton, currentUser } = props;
     const { values, isSubmitted } = formProps;
-
-    const onSelectProductCategory = (values) => {
-      setProductCategoryIds(values.map((item) => item.value));
-    };
-
-    const productCategoriesOption = props.productCategories.map((category) => ({
-      value: category._id,
-      label: `${"\u00A0  ".repeat(
-        (category.order.match(/[/]/gi) || []).length
-      )}${category.code} - ${category.name}`
-    }));
-
-    const productsOption = props.products.map((category) => ({
-      value: category._id,
-      label: `${category.code} - ${category.name}`
-    }));
 
     const onSelectProduct = (data) => {
       setProductId(data.value);
@@ -215,21 +195,17 @@ const ContractTypeForm = (props: Props) => {
                 max: 20
               })}
 
-              {leaseType !== LEASE_TYPES.SAVING && (
-                <FormGroup>
-                  <ControlLabel>{__("Allow Product Categories")}</ControlLabel>
-                  <FormControl
-                    name="productType"
-                    componentclass="select"
-                    placeholder={__("Select product categories")}
-                    value={productCategoriesOption.filter((o) =>
-                      productCategoryIds?.includes(o.value)
-                    )}
-                    onChange={onSelectProductCategory}
-                    options={productCategoriesOption}
-                  />
-                </FormGroup>
-              )}
+              <FormGroup>
+                <ControlLabel>{__("Product")}</ControlLabel>
+                <SelectProducts
+                  label="Choose product"
+                  name="selectedProductId"
+                  initialValue={productId}
+                  onSelect={(productId) => setProductId(productId as string)}
+                  multi={false}
+                  customOption={{ value: "", label: "Empty" }}
+                />
+              </FormGroup>
               <FormGroup>
                 <ControlLabel required={true}>
                   {__("Product Type")}
@@ -247,17 +223,6 @@ const ContractTypeForm = (props: Props) => {
                     </option>
                   ))}
                 </FormControl>
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>{__("Allow Product")}</ControlLabel>
-                <FormControl
-                  name="product"
-                  componentclass="select"
-                  placeholder={__("Select product")}
-                  value={productId}
-                  onChange={onSelectProduct}
-                  options={productsOption}
-                />
               </FormGroup>
             </FormColumn>
             <FormColumn>
@@ -351,31 +316,31 @@ const ContractTypeForm = (props: Props) => {
                 })}
               {currentUser?.configs?.loansConfig?.organizationType ===
                 ORGANIZATION_TYPE.ENTITY && (
-                <FormGroup>
-                  <ControlLabel required={true}>
-                    {__("Loss calc type")}
-                  </ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    name="lossCalcType"
-                    componentclass="select"
-                    value={lossCalcType}
-                    required={true}
-                    onChange={onChangeField}
-                  >
-                    {[
-                      "fromInterest",
-                      "fromAmount",
-                      "fromTotalPayment",
-                      "fromEndAmount"
-                    ].map((typeName) => (
-                      <option key={`undeType${typeName}`} value={typeName}>
-                        {typeName}
-                      </option>
-                    ))}
-                  </FormControl>
-                </FormGroup>
-              )}
+                  <FormGroup>
+                    <ControlLabel required={true}>
+                      {__("Loss calc type")}
+                    </ControlLabel>
+                    <FormControl
+                      {...formProps}
+                      name="lossCalcType"
+                      componentclass="select"
+                      value={lossCalcType}
+                      required={true}
+                      onChange={onChangeField}
+                    >
+                      {[
+                        "fromInterest",
+                        "fromAmount",
+                        "fromTotalPayment",
+                        "fromEndAmount"
+                      ].map((typeName) => (
+                        <option key={`undeType${typeName}`} value={typeName}>
+                          {typeName}
+                        </option>
+                      ))}
+                    </FormControl>
+                  </FormGroup>
+                )}
               {leaseType === LEASE_TYPES.SAVING &&
                 renderFormGroup("Saving upper interest", {
                   ...formProps,
