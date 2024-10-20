@@ -353,17 +353,17 @@ const sendEmailOrSms = async (
   }
 
   // customer info will be prepared at contacts api
-  // sendContactsMessage({
-  //   isRPC: false,
-  //   action: "customers.prepareEngageCustomers",
-  //   subdomain,
-  //   data: {
-  //     engageMessage,
-  //     customersSelector,
-  //     action,
-  //     user
-  //   }
-  // });
+  sendContactsMessage({
+    isRPC: false,
+    action: "customers.prepareEngageCustomers",
+    subdomain,
+    data: {
+      engageMessage,
+      customersSelector,
+      action,
+      user
+    }
+  });
 };
 
 const sendCampaignNotification = async (models, subdomain, doc) => {
