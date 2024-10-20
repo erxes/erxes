@@ -36,8 +36,20 @@ interface ICombinedParams {
 const getGroupWithCache = async (models, groupId, cache) => {
   if (cache.has(groupId)) return cache.get(groupId);
   const group = await getFieldGroup(models, groupId);
+  if (!group) {
+    return null
+  };
   cache.set(groupId, group);
   return group;
+};
+
+// prepare select options
+const generateSelectOptions = (options) => {
+  if (!options || options.length === 0) return [];
+  return options.map(option => ({
+    value: option,
+    label: option
+  }));
 };
 
 /**
@@ -109,13 +121,7 @@ export const fieldsCombinedByContentType = async (
 
 
 
-const generateSelectOptions = (options) => {
-  if (!options || options.length === 0) return [];
-  return options.map(option => ({
-    value: option,
-    label: option
-  }));
-};
+
 
 
 export const formSubmissionsQuery = async (
