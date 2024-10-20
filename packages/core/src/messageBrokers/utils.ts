@@ -357,75 +357,6 @@ export const prepareEngageCustomers = async (
     customersSelector.phoneValidationStatus = EMAIL_VALIDATION_STATUSES.VALID;
   }
 
-  // process each batch of customers
-  const processCustomerBatch = async (batch: Array<ICustomerDocument>) => {
-    const chunks = chunkArray(batch, 1000);
-
-    for (const chunk of chunks) {
-      const chunkCustomerInfos: Array<any> = [];
-
-      for (const customer of chunk) {
-        const itemsMapping = customersItemsMapping[customer._id] || [null];
-
-        for (const item of itemsMapping) {
-          const replacers = await editorAttributeUtil.generateReplacers({
-            content: emailContent,
-            customer,
-            item,
-            customerFields,
-          });
-
-          chunkCustomerInfos.push({
-            _id: customer._id,
-            primaryEmail: customer.primaryEmail,
-            emailValidationStatus: customer.emailValidationStatus,
-            phoneValidationStatus: customer.phoneValidationStatus,
-            primaryPhone: customer.primaryPhone,
-            replacers,
-          });
-        }
-      }
-
-      customerInfos.push(...chunkCustomerInfos);
-
-      // Send the engage message for each chunk
-      const data: any = {
-        ...engageMessage,
-        customers: chunkCustomerInfos,
-        fromEmail: user.email,
-        engageMessageId: engageMessage._id,
-      };
-
-      if (engageMessage.method === "email" && engageMessage.email) {
-        const replacedContent = await editorAttributeUtil.replaceAttributes({
-          customerFields,
-          content: emailContent,
-          user,
-        });
-
-        engageMessage.email.content = replacedContent;
-        data.email = engageMessage.email;
-      }
-
-      await sendEngagesMessage({
-        subdomain,
-        action: "notification",
-        data: { action, data },
-      });
-    }
-  };
-
-  // Final steps to perform after all customers are processed
-  const onFinishPiping = async () => {
-    await sendEngagesMessage({
-      subdomain,
-      action: "pre-notification",
-      data: { engageMessage, customerInfos },
-    });
-
-    // You can perform any final actions here after processing all batches
-  };
-
   const customersItemsMapping = JSON.parse("{}");
 
   // Define fields to include in customer queries
@@ -441,40 +372,93 @@ export const prepareEngageCustomers = async (
   }
 
   const customersStream = (Customers.find(customersSelector, fieldsOption) as any).cursor();
+  const batchSize = 1000;
+  let batch: Array<ICustomerDocument> = [];
 
-  return new Promise((resolve, reject) => {
-    const batchSize = 1000; // Process customers in batches of 1000
-    let batch: Array<ICustomerDocument> = [];
+  // Function to process each batch of customers
+  const processCustomerBatch = async (batch: Array<ICustomerDocument>) => {
+    const chunkCustomerInfos: Array<any> = [];
 
-    customersStream
-      .on("data", async (customer: ICustomerDocument) => {
-        batch.push(customer);
+    for (const customer of batch) {
+      const itemsMapping = customersItemsMapping[customer._id] || [null];
 
-        if (batch.length >= batchSize) {
-          customersStream.pause();
+      for (const item of itemsMapping) {
+        const replacers = await editorAttributeUtil.generateReplacers({
+          content: emailContent,
+          customer,
+          item,
+          customerFields,
+        });
 
-          await processCustomerBatch(batch);
+        chunkCustomerInfos.push({
+          _id: customer._id,
+          primaryEmail: customer.primaryEmail,
+          emailValidationStatus: customer.emailValidationStatus,
+          phoneValidationStatus: customer.phoneValidationStatus,
+          primaryPhone: customer.primaryPhone,
+          replacers,
+        });
+      }
+    }
 
-          batch = []; // Reset the batch after processing
-          customersStream.resume();
-        }
-      })
-      .on("end", async () => {
-        // Process any remaining customers in the last batch
-        if (batch.length > 0) {
-          await processCustomerBatch(batch);
-        }
+    customerInfos.push(...chunkCustomerInfos);
 
-        // Final actions after all data is processed
-        try {
-          await onFinishPiping();
-        } catch (e) {
-          return reject(e);
-        }
+    // Send the engage message for each batch
+    const data: any = {
+      ...engageMessage,
+      customers: chunkCustomerInfos,
+      fromEmail: user.email,
+      engageMessageId: engageMessage._id,
+    };
 
-        resolve({ status: "done", customerInfos });
-      })
-      .on("error", (err) => reject(err));
-  });
+    if (engageMessage.method === "email" && engageMessage.email) {
+      const replacedContent = await editorAttributeUtil.replaceAttributes({
+        customerFields,
+        content: emailContent,
+        user,
+      });
+
+      engageMessage.email.content = replacedContent;
+      data.email = engageMessage.email;
+    }
+
+    await sendEngagesMessage({
+      subdomain,
+      action: "notification",
+      data: { action, data },
+    });
+  };
+
+  // Final steps to perform after all customers are processed
+  const onFinishPiping = async () => {
+    await sendEngagesMessage({
+      subdomain,
+      action: "pre-notification",
+      data: { engageMessage, customerInfos },
+    });
+
+    // You can perform any final actions here after processing all batches
+  };
+
+  // Stream processing using async iterator
+  for await (const customer of customersStream) {
+    batch.push(customer);
+
+    if (batch.length >= batchSize) {
+      await processCustomerBatch(batch);
+      batch = []; // Reset the batch after processing
+    }
+  }
+
+  // Process any remaining customers in the last batch
+  if (batch.length > 0) {
+    await processCustomerBatch(batch);
+  }
+
+  // Final actions after all data is processed
+  await onFinishPiping();
+
+  return { status: "done", customerInfos };
 };
+
 
