@@ -620,14 +620,22 @@ const timeclockMutations = {
   },
   async submitSchedule(
     _root,
-    { branchIds, departmentIds, userIds, shifts, totalBreakInMins },
+    {
+      branchIds,
+      departmentIds,
+      userIds,
+      shifts,
+      totalBreakInMins,
+      scheduleConfigId,
+    },
     { subdomain, models }: IContext
   ) {
     return createScheduleShiftsByUserIds(
       await returnUnionOfUserIds(branchIds, departmentIds, userIds, subdomain),
       shifts,
       models,
-      totalBreakInMins
+      totalBreakInMins,
+      scheduleConfigId
     );
   },
 
