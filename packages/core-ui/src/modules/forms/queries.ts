@@ -48,8 +48,8 @@ export const commonFields = `
 `;
 
 const forms = `
-query Forms($page: Int, $perPage: Int, $type: String, $brandId: String, $tagId: String, $status: String) {
-  forms(page: $page, perPage: $perPage, type: $type, brandId: $brandId, tagId: $tagId, status: $status) {
+query Forms($page: Int, $perPage: Int, $type: String, $brandId: String, $tagId: String, $status: String, $searchValue: String) {
+  forms(page: $page, perPage: $perPage, type: $type, brandId: $brandId, tagId: $tagId, status: $status, searchValue: $searchValue) {
     _id
     createdDate
     createdUserId
@@ -83,8 +83,8 @@ query Forms($page: Int, $perPage: Int, $type: String, $brandId: String, $tagId: 
 `;
 
 const formsTotalCount = `
-  query FormsTotalCount($type: String, $brandId: String, $tagId: String, $status: String) {
-  formsTotalCount(type: $type, brandId: $brandId, tagId: $tagId, status: $status) {
+  query FormsTotalCount($type: String, $brandId: String, $tagId: String, $status: String, $searchValue: String) {
+  formsTotalCount(type: $type, brandId: $brandId, tagId: $tagId, status: $status, searchValue: $searchValue) {
     byBrand
     byStatus
     byTag

@@ -8,7 +8,7 @@ function retry(fn, retriesLeft = 30, interval = 2000) {
     fn()
       .then(resolve)
       .catch((error) => {
-        console.log(error);
+        console.error(error);
 
         setTimeout(() => {
           if (retriesLeft === 1) {

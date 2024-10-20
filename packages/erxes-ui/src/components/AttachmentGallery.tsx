@@ -92,6 +92,8 @@ function AttachmentsGallery(props: Props) {
   const { limit = 4 } = props;
   const length = props.attachments.length;
 
+  
+
   return (
     <>
       <List>
