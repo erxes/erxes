@@ -32,6 +32,14 @@ interface ICombinedParams {
   onlyDates?: boolean;
 }
 
+// cache group for reuse in fieldsCombinedByContentType
+const getGroupWithCache = async (models, groupId, cache) => {
+  if (cache.has(groupId)) return cache.get(groupId);
+  const group = await getFieldGroup(models, groupId);
+  cache.set(groupId, group);
+  return group;
+};
+
 /**
  * Generates all field choices base on given kind.
  */
@@ -47,18 +55,7 @@ export const fieldsCombinedByContentType = async (
     onlyDates
   }: ICombinedParams
 ) => {
-  let fields: Array<{
-    _id: number;
-    name: string;
-    group?: string;
-    label?: string;
-    type?: string;
-    validation?: string;
-    options?: string[];
-    selectOptions?: Array<{ label: string; value: string }>;
-  }> = [];
-
-  fields = await fetchServiceForms(
+  let fields = await fetchServiceForms(
     subdomain,
     contentType,
     "getList",
@@ -77,55 +74,49 @@ export const fieldsCombinedByContentType = async (
     validation = "date";
   }
 
-  const type = ["core:visitor", "core:lead", "core:customer"].includes(
-    contentType
-  )
+  const type = ["core:visitor", "core:lead", "core:customer"].includes(contentType)
     ? "core:customer"
     : contentType;
 
   const customFields = await getCustomFields(models, type, validation);
 
-  const generateSelectOptions = options => {
-    const selectOptions: Array<{ label: string; value: any }> = [];
+  const groupCache = new Map();
 
-    if (options && options.length > 0) {
-      for (const option of options) {
-        selectOptions.push({
-          value: option,
-          label: option
-        });
-      }
-    }
+  const customFieldsWithGroups = await Promise.all(
+    customFields.map(async (customField) => {
+      const group = await getGroupWithCache(models, customField.groupId || "", groupCache);
+      return { customField, group };
+    })
+  );
 
-    return selectOptions;
-  };
+  const extendedFields = customFieldsWithGroups
+    .filter(({ group }) => group?.isVisible)
+    .map(({ customField, group }) => ({
+      _id: Math.random(),
+      name: `customFieldsData.${getRealIdFromElk(customField._id)}`,
+      label: customField.text,
+      options: customField.options,
+      selectOptions: generateSelectOptions(customField.options),
+      validation: customField.validation,
+      type: customField.type,
+      group: group._id
+    }));
 
-  // extend fields list using custom fields data
-  for (const customField of customFields) {
-    const group = await getFieldGroup(models, customField.groupId || "");
-
-    if (
-      group &&
-      group.isVisible
-      // (customField.isVisibleDetail || customField.isVisibleDetail === undefined)
-    ) {
-      fields.push({
-        _id: Math.random(),
-        name: `customFieldsData.${getRealIdFromElk(customField._id)}`,
-        label: customField.text,
-        options: customField.options,
-        selectOptions: generateSelectOptions(customField.options),
-        validation: customField.validation,
-        type: customField.type,
-        group: group._id
-      });
-    }
-  }
-
-  fields = [...fields];
+  fields = [...fields, ...extendedFields];
 
   return fields.filter(field => !(excludedNames || []).includes(field.name));
 };
+
+
+
+const generateSelectOptions = (options) => {
+  if (!options || options.length === 0) return [];
+  return options.map(option => ({
+    value: option,
+    label: option
+  }));
+};
+
 
 export const formSubmissionsQuery = async (
   subdomain,
