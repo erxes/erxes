@@ -41,7 +41,7 @@ const CreateLeadContainer: React.FC = () => {
     gql(queries.templateTotalCount),
     {
       skip: !isEnabled('engages'),
-    }
+    },
   );
 
   const { data: emailTemplatesData } = useQuery(gql(queries.emailTemplates), {
@@ -52,16 +52,16 @@ const CreateLeadContainer: React.FC = () => {
   });
 
   const { data: configsData } = useQuery<ConfigsQueryResponse>(
-    gql(settingsQueries.configs)
+    gql(settingsQueries.configs),
   );
 
   const [addIntegrationMutation] = useMutation(
-    gql(mutations.integrationsCreateLeadIntegration)
+    gql(mutations.integrationsCreateLeadIntegration),
   );
 
   const [addFormMutation] = useMutation(gql(formMutations.addForm));
   const [manageFieldsMutation] = useMutation(
-    gql(formMutations.fieldsBulkAction)
+    gql(formMutations.fieldsBulkAction),
   );
 
   const redirect = () => {
@@ -104,7 +104,7 @@ const CreateLeadContainer: React.FC = () => {
         title: formData.title,
         description: formData.description,
         buttonText: formData.buttonText,
-        numberOfPages: formData.numberOfPages,
+        numberOfPages: parseInt(formData.numberOfPages || 0),
         visibility: doc.visibility,
         leadData: doc.leadData,
         languageCode: doc.languageCode,
@@ -159,7 +159,7 @@ const CreateLeadContainer: React.FC = () => {
     configs: configsData?.configs || [],
   };
 
-  return <Lead {...updatedProps} currentMode='create' />;
+  return <Lead {...updatedProps} currentMode="create" />;
 };
 
 export default CreateLeadContainer;
