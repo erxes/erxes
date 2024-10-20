@@ -245,8 +245,8 @@ export const loadBotClass = (models: IModels) => {
       await graphRequest.post("/me/subscribed_apps", pageAccessToken, {
         subscribed_fields: [
           "messages",
-          "messaging_postbacks",
-          "messaging_referrals"
+          "messaging_postbacks"
+          // "messaging_referrals"
         ]
       });
 
