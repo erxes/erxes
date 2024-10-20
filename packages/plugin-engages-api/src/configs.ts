@@ -28,7 +28,6 @@ export default {
     tags,
     logs: { consumers: logs },
     webhooks,
-    cronjobs,
     permissions,
     automations
   },

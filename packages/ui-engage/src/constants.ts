@@ -256,7 +256,7 @@ export const NOTIFICATION_DELIVERY_STATUSES = {
 
 export const CAMPAIGN_TARGET_TYPES = {
   SEGMENT: "core:segment",
-  TAG: "tags:tag",
+  TAG: "core:tag",
   BRAND: "core:brand",
   ALL: ["core:segment", "core:tag", "core:brand"]
 };

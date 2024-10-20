@@ -1194,7 +1194,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
 
       return {
         status: "success",
-        data: await fieldsCombinedByContentType(models, subdomain, data)
+        data: await fieldsCombinedByContentType(models, subdomain, data);
       };
     }
   );
