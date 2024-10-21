@@ -1,4 +1,4 @@
-import { IIntegration, ILeadData } from "../types";
+import { IIntegration } from "../types";
 
 export interface IConnectResponse {
   form: IForm;
@@ -64,24 +64,14 @@ export interface ICallout {
 
 export interface IForm {
   _id: string;
+  title: string;
   code: string;
-  createdUserId?: string;
-
-  fields: IField[];
-  title?: string;
   description?: string;
   buttonText?: string;
-  type?: string;
+  createdUserId: string;
+  fields: IField[];
   numberOfPages?: number;
-
-  tagIds?: string;
-  departmentIds?: string[];
-  languageCode?: string;
-  visibility?: string;
-  status?: string;
-
-  leadData: ILeadData;
-
+  googleMapApiKey?: string;
 }
 
 interface IAttachment {
