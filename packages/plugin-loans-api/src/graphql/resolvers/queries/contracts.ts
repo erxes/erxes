@@ -245,7 +245,7 @@ const contractQueries = {
     return alerts;
   },
 
-  convertToContract: async (_root, params: { contentType: string; id: string }, { subdomain }: IContext) => {
+  convertToContract: async (_root, params: { contentType: string; id: string }, { models, subdomain }: IContext) => {
     const { contentType, id } = params;
     const mappings = {
       deal: { action: 'deals.findOne', data: { _id: id }, name: 'cards', customFieldType: 'cards:deal' },
@@ -253,14 +253,17 @@ const contractQueries = {
       company: { action: 'companies.findOne', data: { _id: id }, name: 'contacts', customFieldType: 'contacts:company' },
     }
     const mapping = mappings[contentType] || mappings.deal;
-    const object = await sendMessageBroker({
-      subdomain,
-      action: mapping.action,
-      data: mapping.data,
-      isRPC: true,
-    }, mapping.name);
+    const object = await sendMessageBroker(
+      {
+        subdomain,
+        action: mapping.action,
+        data: mapping.data,
+        isRPC: true,
+      },
+      mapping.name
+    );
 
-    return await customFieldToObject(subdomain, mapping.customFieldType, object)
+    return await customFieldToObject(models, subdomain, mapping.customFieldType, object)
   }
 };
 
