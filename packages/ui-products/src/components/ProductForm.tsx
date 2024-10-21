@@ -540,11 +540,8 @@ const Form = (props: Props) => {
         "unlink",
         "|",
         "image",
-      ]
-    }
-
-    if (_id) {
-      finalProps['name'] = `product_description_${_id}`
+      ],
+      name: `product_description_${_id || 'create'}`
     }
 
     return (
