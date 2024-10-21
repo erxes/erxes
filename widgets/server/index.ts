@@ -42,8 +42,7 @@ const getEnv = (req: express.Request) => {
   const {
     ROOT_URL = "",
     API_URL = "",
-    API_SUBSCRIPTIONS_URL = "",
-    GOOGLE_MAP_API_KEY = ""
+    API_SUBSCRIPTIONS_URL = ""
   } = process.env;
 
   const replaceSubdomain = (url: string, subdomain: string) => {
@@ -64,8 +63,7 @@ const getEnv = (req: express.Request) => {
     return JSON.stringify({
       ROOT_URL: replaceSubdomain(ROOT_URL, subdomain),
       API_URL: replaceSubdomain(API_URL, subdomain),
-      API_SUBSCRIPTIONS_URL: replaceSubdomain(API_SUBSCRIPTIONS_URL, subdomain),
-      GOOGLE_MAP_API_KEY
+      API_SUBSCRIPTIONS_URL: replaceSubdomain(API_SUBSCRIPTIONS_URL, subdomain)
     });
   }
 
@@ -73,8 +71,7 @@ const getEnv = (req: express.Request) => {
   return JSON.stringify({
     ROOT_URL,
     API_URL,
-    API_SUBSCRIPTIONS_URL,
-    GOOGLE_MAP_API_KEY
+    API_SUBSCRIPTIONS_URL
   });
 };
 

@@ -33,8 +33,7 @@ export const getEnv = () => {
 
   return {
     API_URL: getItem("API_URL"),
-    API_SUBSCRIPTIONS_URL: getItem("API_SUBSCRIPTIONS_URL"),
-    GOOGLE_MAP_API_KEY: getItem("GOOGLE_MAP_API_KEY")
+    API_SUBSCRIPTIONS_URL: getItem("API_SUBSCRIPTIONS_URL")
   };
 };
 

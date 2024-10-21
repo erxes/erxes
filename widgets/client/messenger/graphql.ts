@@ -1,4 +1,4 @@
-import { connection } from './connection';
+import { connection } from "./connection";
 
 const userDetailFields = `
   avatar
@@ -97,14 +97,15 @@ const conversationDetailQuery = (isDailycoEnabled: boolean) => `
       _id
       messages {
         ${messageFields}
-        ${isDailycoEnabled
-    ? `
+        ${
+          isDailycoEnabled
+            ? `
         videoCallData {
           url
           status
         }`
-    : ''
-  }
+            : ""
+        }
       }
 
       operatorStatus
@@ -144,14 +145,15 @@ const conversationMessageInserted = (isDailycoEnabled: boolean) => `
   subscription conversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       ${messageFields}
-      ${isDailycoEnabled
-    ? `
+      ${
+        isDailycoEnabled
+          ? `
       videoCallData {
         url
         status
       }`
-    : ''
-  }
+          : ""
+      }
     }
   }
 `;
@@ -284,7 +286,7 @@ const categoryFields = `
   _id
   title
   description
-  numOfArticles
+  numOfArticles(status: "publish")
   parentCategoryId
   icon
 `;
@@ -294,7 +296,7 @@ const getFaqCategoryQuery = `
     knowledgeBaseCategoryDetail(_id: $_id) {
       ${categoryFields}
       parentCategoryId
-      articles {
+      articles(status: "publish") {
         ${faqFields}
       }
     }
@@ -353,4 +355,4 @@ export default {
   getEngageMessage,
   MESSAGE_FIELDS
 };
-export { MESSAGE_FIELDS }
+export { MESSAGE_FIELDS };

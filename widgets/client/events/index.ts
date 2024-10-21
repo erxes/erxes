@@ -1,4 +1,8 @@
-import { getLocalStorageItem, initStorage, setLocalStorageItem } from "../common";
+import {
+  getLocalStorageItem,
+  initStorage,
+  setLocalStorageItem
+} from "../common";
 import { getEnv } from "../utils";
 
 const Events: any = {
@@ -40,14 +44,14 @@ const Events: any = {
         }
       })
       .catch(errorResponse => {
-        console.log(errorResponse);
+        console.error(errorResponse);
       });
   },
 
   async sendEvent(data: any) {
     let customerId = getLocalStorageItem("customerId");
 
-    if (!customerId && data && data.name !== 'pageView') {
+    if (!customerId && data && data.name !== "pageView") {
       await this.identifyCustomer();
       customerId = getLocalStorageItem("customerId");
     }
