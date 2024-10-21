@@ -281,7 +281,6 @@ export const contractDetailFields = `
   contractType {
     code
     name
-    productCategoryIds
     leaseType
   }
 
