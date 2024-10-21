@@ -1,6 +1,6 @@
-import { IAction } from '@erxes/ui-automations/src/types';
-import { Alert } from '@erxes/ui/src';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { IAction } from "@erxes/ui-automations/src/types";
+import { Alert } from "@erxes/ui/src";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   addEdge,
   Background,
@@ -10,20 +10,22 @@ import ReactFlow, {
   MiniMap,
   updateEdge,
   useEdgesState,
-  useNodesState
-} from 'reactflow';
-import 'reactflow/dist/style.css';
+  useNodesState,
+  useReactFlow
+} from "reactflow";
+import "reactflow/dist/style.css";
 import {
   AutomationConstants,
   IAutomation,
   IAutomationNote,
   ITrigger
-} from '../../types';
-import edgeTypes from './edges';
-import ConnectionLine from './edges/ConnectionLine';
-import Info from './Info';
-import nodeTypes from './nodes';
-import { generateEdges, generateNodes, generatePostion } from './utils';
+} from "../../types";
+import edgeTypes from "./edges";
+import ConnectionLine from "./edges/ConnectionLine";
+import Info from "./Info";
+import nodeTypes from "./nodes";
+import { generateEdges, generateNodes, generatePostion } from "./utils";
+import { DnDProvider, useDnD } from "../forms/actions/hooks";
 
 type Props = {
   automation: IAutomation;
@@ -73,9 +75,9 @@ const onDisConnection = ({ nodes, edge, setEdges, onConnect }) => {
   const sourceNode = nodes.find(n => n.id === edge.source);
 
   if (edge.sourceHandle.includes(sourceNode?.id)) {
-    const [_action, _sourceId, optionalConnectId] = (edge.id || '').split('-');
+    const [_action, _sourceId, optionalConnectId] = (edge.id || "").split("-");
     info.optionalConnectId = optionalConnectId;
-    info.connectType = 'optional';
+    info.connectType = "optional";
   }
 
   onConnect(info);
@@ -105,6 +107,8 @@ function AutomationEditor({
 
   const [selectedNodes, setSelectedNodes] = useState([] as string[]);
   const [copiedNodes, setCopiedNodes] = useState([]) as any[];
+  const [type] = useDnD();
+  const { screenToFlowPosition } = useReactFlow();
 
   const resetNodes = () => {
     const updatedNodes: any[] = generateNodes(
@@ -152,9 +156,9 @@ function AutomationEditor({
 
     if (sourceHandle) {
       if (params?.sourceHandle.includes(params?.source)) {
-        const [_sourceId, optionalConnectId] = params.sourceHandle.split('-');
+        const [_sourceId, optionalConnectId] = params.sourceHandle.split("-");
         info.optionalConnectId = optionalConnectId;
-        info.connectType = 'optional';
+        info.connectType = "optional";
       }
     }
 
@@ -211,7 +215,7 @@ function AutomationEditor({
     connection => {
       const target = nodes.find(node => node.id === connection.target);
       const hasCycle = (node, visited = new Set()) => {
-        if (node?.dta?.nodeType === 'trigger') return true;
+        if (node?.dta?.nodeType === "trigger") return true;
         if (visited.has(node.id)) return false;
 
         visited.add(node.id);
@@ -244,7 +248,7 @@ function AutomationEditor({
 
   const onPaneClick = () => {
     if (props.showDrawer) {
-      props.toggleDrawer({ type: '' });
+      props.toggleDrawer({ type: "" });
     }
   };
 
@@ -273,7 +277,7 @@ function AutomationEditor({
 
   const pasteNodes = () => {
     if (props.showDrawer) {
-      Alert.warning('Please hide drawer before paste');
+      Alert.warning("Please hide drawer before paste");
       return;
     }
     const copyPastedActions = actions.filter(action =>
@@ -289,18 +293,56 @@ function AutomationEditor({
       props.addAction(action);
     }
   };
+  const onDragOver = useCallback(event => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
+  const onDrop = useCallback(
+    event => {
+      event.preventDefault();
+
+      // check if the dropped element is valid
+      if (!type) {
+        return;
+      }
+
+      // project was renamed to screenToFlowPosition
+      // and you don't need to subtract the reactFlowBounds.left/top anymore
+      // details: https://reactflow.dev/whats-new/2023-11-10
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY
+      });
+
+      const actionConst = props.constants.actionsConst.find(
+        action => action.type === type
+      );
+
+      props.addAction({ ...actionConst, position });
+
+      //  const newNode = {
+      //    id: getId(),
+      //    type,
+      //    position,
+      //    data: { label: `${type} node` }
+      //  };
+
+      //  setNodes(nds => nds.concat(newNode));
+    },
+    [screenToFlowPosition, type]
+  );
 
   useEffect(() => {
     const handleKeyDown = event => {
       if (event.ctrlKey || event.metaKey) {
         switch (event.key) {
-          case 'c':
+          case "c":
             copyNodes();
             break;
-          case 'v':
+          case "v":
             pasteNodes();
             break;
-          case 'S':
+          case "S":
             props.handelSave();
             break;
           default:
@@ -308,42 +350,46 @@ function AutomationEditor({
         }
       }
     };
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [selectedNodes, copiedNodes]);
 
   return (
     <>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        fitView
-        fitViewOptions={fitViewOptions}
-        onEdgeUpdate={onEdgeUpdate}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onEdgeUpdateEnd={onEdgeUpdateEnd}
-        onEdgeUpdateStart={onEdgeUpdateStart}
-        nodeTypes={nodeTypes}
-        connectionMode={ConnectionMode.Loose}
-        onPaneClick={onPaneClick}
-        isValidConnection={isValidConnection}
-        onNodeDragStop={onNodeDragStop}
-        onEdgeDoubleClick={onDoubleClickEdge}
-        onSelectionChange={onNodesSelectionChange}
-        connectionLineComponent={ConnectionLine}
-        minZoom={0.1}
-        edgeTypes={edgeTypes}
-      >
-        <MiniMap pannable position="top-right" />
-        <Controls>
-          <Info />
-        </Controls>
-        <Background />
-      </ReactFlow>
+      <DnDProvider>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          fitView
+          fitViewOptions={fitViewOptions}
+          onEdgeUpdate={onEdgeUpdate}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onEdgeUpdateEnd={onEdgeUpdateEnd}
+          onEdgeUpdateStart={onEdgeUpdateStart}
+          nodeTypes={nodeTypes}
+          connectionMode={ConnectionMode.Loose}
+          onPaneClick={onPaneClick}
+          isValidConnection={isValidConnection}
+          onNodeDragStop={onNodeDragStop}
+          onEdgeDoubleClick={onDoubleClickEdge}
+          onSelectionChange={onNodesSelectionChange}
+          connectionLineComponent={ConnectionLine}
+          minZoom={0.1}
+          edgeTypes={edgeTypes}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+        >
+          <MiniMap pannable position="top-right" />
+          <Controls>
+            <Info />
+          </Controls>
+          <Background />
+        </ReactFlow>
+      </DnDProvider>
     </>
   );
 }
