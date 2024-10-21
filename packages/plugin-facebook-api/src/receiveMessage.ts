@@ -82,7 +82,6 @@ const receiveMessage = async (
     message,
     postback
   } = activity.channelData as IChannelData;
-
   let adData;
 
   if (!text && !message && !!postback) {

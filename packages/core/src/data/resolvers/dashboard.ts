@@ -46,5 +46,16 @@ export default {
     );
 
     return members.filter(member => member);
-  }
+  },
+  async isPinned(dashboard: IDashboardDocument, { }, { models, user }: IContext) {
+
+    const { userIds } = dashboard
+
+    if ((userIds || []).includes(user._id)) {
+      return true
+    }
+
+    return false
+
+  },
 };
