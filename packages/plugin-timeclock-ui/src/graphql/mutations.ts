@@ -226,8 +226,8 @@ const scheduleConfigAdd = `mutation scheduleConfigAdd(${scheduleConfigParams}){
     _id
   }
 }`;
-const scheduleConfigEdit = `mutation scheduleConfigEdit($_id: String, $scheduleName: String,$lunchBreakInMins: Int, $configShiftStart: String, $configShiftEnd: String, $scheduleConfig: [ShiftInput], $overtimeExists: Boolean){
-  scheduleConfigEdit(_id: $_id, scheduleName: $scheduleName, lunchBreakInMins : $lunchBreakInMins, configShiftStart:$configShiftStart, configShiftEnd: $configShiftEnd, scheduleConfig : $scheduleConfig, overtimeExists: $overtimeExists){
+const scheduleConfigEdit = `mutation scheduleConfigEdit($_id: String, $scheduleName: String,$lunchBreakInMins: Int, $configShiftStart: String, $configShiftEnd: String, $scheduleConfig: [ShiftInput], $overtimeExists: Boolean, $locations: [JSON]){
+  scheduleConfigEdit(_id: $_id, scheduleName: $scheduleName, lunchBreakInMins : $lunchBreakInMins, configShiftStart:$configShiftStart, configShiftEnd: $configShiftEnd, scheduleConfig : $scheduleConfig, overtimeExists: $overtimeExists, locations: $locations){
     _id
   }
 }`;
@@ -331,5 +331,5 @@ export default {
 
   scheduleConfigOrderEdit,
 
-  editSchedule
+  editSchedule,
 };

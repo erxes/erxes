@@ -1,6 +1,6 @@
 import {
   attachmentType,
-  attachmentInput
+  attachmentInput,
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = `  
@@ -234,6 +234,7 @@ export const types = `
     shiftEnd: String
     configDays: [ConfigDay]
     overtimeExists: Boolean
+    locations: [JSON]
   }
   
   type ScheduleConfigOrderItem {
