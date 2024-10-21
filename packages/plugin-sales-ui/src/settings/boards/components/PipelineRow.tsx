@@ -12,6 +12,7 @@ import Icon from "@erxes/ui/src/components/Icon";
 import { DateWrapper } from "@erxes/ui-forms/src/forms/styles";
 import dayjs from "dayjs";
 import { Capitalize } from "@erxes/ui-settings/src/permissions/styles";
+import SaveTemplate from "@erxes/ui-template/src/components/SaveTemplate";
 
 type Props = {
   pipeline: IPipeline;
@@ -71,6 +72,22 @@ const PipelineRow = (props: Props) => {
     );
   };
 
+  const renderTemplateModal = () => {
+    const { pipeline } = props;
+
+    const {
+      ...pipelineContent
+    } = pipeline
+
+    const content = {
+      content: JSON.stringify(pipelineContent),
+      contentType: 'pipelines',
+      serviceName: 'sales'
+    };
+
+    return <SaveTemplate as="icon" {...content} />;
+  }
+
   const renderExtraLinks = () => {
     const { copied, pipeline } = props;
 
@@ -90,6 +107,7 @@ const PipelineRow = (props: Props) => {
         <Tip text={__("Duplicate")} placement="top">
           <Button btnStyle="link" onClick={duplicate} icon="copy-1" />
         </Tip>
+        {renderTemplateModal()}
       </>
     );
   };

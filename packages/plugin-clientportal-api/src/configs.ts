@@ -9,6 +9,7 @@ import typeDefs from './graphql/typeDefs';
 import { setupMessageConsumers } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import * as permissions from './permissions';
+import templates from './templates';
 
 export default {
   name: 'clientportal',
@@ -30,6 +31,7 @@ export default {
     forms,
     permissions,
     afterMutations,
+    templates
   },
 
   apolloServerContext: async (context, req, res) => {
