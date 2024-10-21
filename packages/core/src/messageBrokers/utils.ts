@@ -1,16 +1,15 @@
+import { chunkArray } from "@erxes/api-utils/src";
+import EditorAttributeUtil from "@erxes/api-utils/src/editorAttributeUtils";
 import { customFieldsDataByFieldCode } from "@erxes/api-utils/src/fieldUtils";
+import { getServices } from "@erxes/api-utils/src/serviceDiscovery";
+import { ICustomField } from "@erxes/api-utils/src/types";
 import { IModels } from "../connectionResolver";
-import { ICustomerDocument } from "../db/models/definitions/customers";
-import { Transform } from "stream";
 import {
   EMAIL_VALIDATION_STATUSES,
   LOG_MAPPINGS
 } from "../data/modules/coc/constants";
-import { ICustomField, ILink } from "@erxes/api-utils/src/types";
-import { getServices } from "@erxes/api-utils/src/serviceDiscovery";
-import EditorAttributeUtil from "@erxes/api-utils/src/editorAttributeUtils";
+import { ICustomerDocument } from "../db/models/definitions/customers";
 import { sendEngagesMessage } from "../messageBroker";
-import { chunkArray } from "@erxes/api-utils/src";
 
 export const buildLabelList = (obj = {}): any[] => {
   const list: any[] = [];
@@ -325,6 +324,7 @@ export const getContactsContentItem = async (
   return null;
 };
 
+
 export const prepareEngageCustomers = async (
   { Customers }: IModels,
   subdomain: string,
@@ -343,11 +343,11 @@ export const prepareEngageCustomers = async (
   const emailContent = emailConf.content || "";
 
   const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
-  const customerFields =
-    await editorAttributeUtil.getCustomerFields(emailContent);
+  const customerFields = await editorAttributeUtil.getCustomerFields(emailContent);
 
   const exists = { $exists: true, $nin: [null, "", undefined] };
-  // make sure email & phone are valid
+
+  // Ensure email & phone are valid based on the engage message method
   if (engageMessage.method === "email") {
     customersSelector.primaryEmail = exists;
     customersSelector.emailValidationStatus = EMAIL_VALIDATION_STATUSES.VALID;
@@ -357,53 +357,29 @@ export const prepareEngageCustomers = async (
     customersSelector.phoneValidationStatus = EMAIL_VALIDATION_STATUSES.VALID;
   }
 
-  const onFinishPiping = async () => {
-    await sendEngagesMessage({
-      subdomain,
-      action: "pre-notification",
-      data: { engageMessage, customerInfos }
-    });
-
-    if (customerInfos.length > 0) {
-      const data: any = {
-        ...engageMessage,
-        customers: [],
-        fromEmail: user.email,
-        engageMessageId: engageMessage._id
-      };
-
-      if (engageMessage.method === "email" && engageMessage.email) {
-        const replacedContent = await editorAttributeUtil.replaceAttributes({
-          customerFields,
-          content: emailContent,
-          user
-        });
-
-        engageMessage.email.content = replacedContent;
-
-        data.email = engageMessage.email;
-      }
-
-      const chunks = chunkArray(customerInfos, 3000);
-
-      for (const chunk of chunks) {
-        data.customers = chunk;
-
-        await sendEngagesMessage({
-          subdomain,
-          action: "notification",
-          data: { action, data }
-        });
-      }
-    }
-  };
-
   const customersItemsMapping = JSON.parse("{}");
 
-  const customerTransformerStream = new Transform({
-    objectMode: true,
+  // Define fields to include in customer queries
+  const fieldsOption = {
+    primaryEmail: 1,
+    emailValidationStatus: 1,
+    phoneValidationStatus: 1,
+    primaryPhone: 1,
+  };
 
-    async transform(customer: ICustomerDocument, _encoding, callback) {
+  for (const field of customerFields || []) {
+    fieldsOption[field] = 1;
+  }
+
+  const customersStream = (Customers.find(customersSelector, fieldsOption) as any).cursor();
+  const batchSize = 1000;
+  let batch: Array<ICustomerDocument> = [];
+
+  // Function to process each batch of customers
+  const processCustomerBatch = async (batch: Array<ICustomerDocument>) => {
+    const chunkCustomerInfos: Array<any> = [];
+
+    for (const customer of batch) {
       const itemsMapping = customersItemsMapping[customer._id] || [null];
 
       for (const item of itemsMapping) {
@@ -411,51 +387,78 @@ export const prepareEngageCustomers = async (
           content: emailContent,
           customer,
           item,
-          customerFields
+          customerFields,
         });
 
-        customerInfos.push({
+        chunkCustomerInfos.push({
           _id: customer._id,
           primaryEmail: customer.primaryEmail,
           emailValidationStatus: customer.emailValidationStatus,
           phoneValidationStatus: customer.phoneValidationStatus,
           primaryPhone: customer.primaryPhone,
-          replacers
+          replacers,
         });
       }
-
-      // signal upstream that we are ready to take more data
-      callback();
     }
-  });
 
-  // generate fields option =======
-  const fieldsOption = {
-    primaryEmail: 1,
-    emailValidationStatus: 1,
-    phoneValidationStatus: 1,
-    primaryPhone: 1
+    customerInfos.push(...chunkCustomerInfos);
+
+    // Send the engage message for each batch
+    const data: any = {
+      ...engageMessage,
+      customers: chunkCustomerInfos,
+      fromEmail: user.email,
+      engageMessageId: engageMessage._id,
+    };
+
+    if (engageMessage.method === "email" && engageMessage.email) {
+      const replacedContent = await editorAttributeUtil.replaceAttributes({
+        customerFields,
+        content: emailContent,
+        user,
+      });
+
+      engageMessage.email.content = replacedContent;
+      data.email = engageMessage.email;
+    }
+
+    await sendEngagesMessage({
+      subdomain,
+      action: "notification",
+      data: { action, data },
+    });
   };
 
-  for (const field of customerFields || []) {
-    fieldsOption[field] = 1;
+  // Final steps to perform after all customers are processed
+  const onFinishPiping = async () => {
+    await sendEngagesMessage({
+      subdomain,
+      action: "pre-notification",
+      data: { engageMessage, customerInfos },
+    });
+
+    // You can perform any final actions here after processing all batches
+  };
+
+  // Stream processing using async iterator
+  for await (const customer of customersStream) {
+    batch.push(customer);
+
+    if (batch.length >= batchSize) {
+      await processCustomerBatch(batch);
+      batch = []; // Reset the batch after processing
+    }
   }
 
-  const customersStream = (
-    Customers.find(customersSelector, fieldsOption) as any
-  ).cursor();
+  // Process any remaining customers in the last batch
+  if (batch.length > 0) {
+    await processCustomerBatch(batch);
+  }
 
-  return new Promise((resolve, reject) => {
-    const pipe = customersStream.pipe(customerTransformerStream);
+  // Final actions after all data is processed
+  await onFinishPiping();
 
-    pipe.on("finish", async () => {
-      try {
-        await onFinishPiping();
-      } catch (e) {
-        return reject(e);
-      }
-
-      resolve({ status: "done", customerInfos });
-    });
-  });
+  return { status: "done", customerInfos };
 };
+
+
