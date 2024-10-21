@@ -81,28 +81,16 @@ export const buildAction = (measures: string[]): object => {
         actions[measure] = { $sum: 1 };
         break;
       case 'totalAmount':
-        actions[measure] = { $sum: '$productsData.amount' };
+        actions[measure] = { $sum: { $cond: [{ $eq: ["$productsData.tickUsed", true] }, "$productsData.amount", 0] } };
         break
       case 'unusedAmount':
         actions[measure] = { $sum: { $cond: [{ $eq: ['$productsData.tickUsed', false] }, '$productsData.amount', 0] } };
         break;
       case 'averageAmount':
-        actions[measure] = { $avg: '$productsData.amount' };
+        actions[measure] = { $avg: { $cond: { if: { $eq: ["$productsData.tickUsed", true] }, then: "$productsData.amount", else: null } } };
         break;
       case 'forecastAmount':
-        actions[measure] = {
-          $sum: {
-            $divide: [
-              {
-                $multiply: [
-                  "$productsData.amount",
-                  "$probability"
-                ]
-              },
-              100
-            ]
-          }
-        }
+        actions[measure] = { $sum: { $cond: { if: { $eq: ["$productsData.tickUsed", true] }, then: { $divide: [{ $multiply: ["$productsData.amount", "$probability"] }, 100] }, else: 0 } } }
         break;
       default:
         actions[measure] = { $sum: 1 };
@@ -342,7 +330,8 @@ export const buildPipeline = (filter, type, matchFilter) => {
       },
       {
         $unwind: "$integration"
-      })
+      }
+    )
   }
 
   if (dimensions.includes("product") || measures.some(m => ["totalAmount", "averageAmount", "unusedAmount", "forecastAmount"].includes(m))) {
@@ -353,7 +342,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push(
       {
         $lookup: {
-          from: "stages",
+          from: `${COLLECTION_MAP[type]}_stages`,
           localField: "stageId",
           foreignField: "_id",
           as: "stage",
@@ -369,7 +358,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push(
       {
         $lookup: {
-          from: "stages",
+          from: `${COLLECTION_MAP[type]}_stages`,
           localField: "stageId",
           foreignField: "_id",
           as: "stage",
@@ -380,7 +369,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
       },
       {
         $lookup: {
-          from: "pipelines",
+          from: `${COLLECTION_MAP[type]}_pipelines`,
           localField: "stage.pipelineId",
           foreignField: "_id",
           as: "pipeline",
@@ -658,7 +647,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push(
       {
         $lookup: {
-          from: "stages",
+          from: `${COLLECTION_MAP[type]}_stages`,
           localField: "doc.stageId",
           foreignField: "_id",
           as: "stage"
@@ -669,7 +658,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
       },
       {
         $lookup: {
-          from: "pipelines",
+          from: `${COLLECTION_MAP[type]}_pipelines`,
           localField: "stage.pipelineId",
           foreignField: "_id",
           as: "pipeline"
@@ -680,7 +669,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
       },
       {
         $lookup: {
-          from: "boards",
+          from: `${COLLECTION_MAP[type]}_boards`,
           localField: "pipeline.boardId",
           foreignField: "_id",
           as: "board"
@@ -901,7 +890,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push(
       {
         $lookup: {
-          from: "stages",
+          from: `${COLLECTION_MAP[type]}_stages`,
           let: { fieldId: "$_id.stageId" },
           pipeline: [
             {
@@ -925,7 +914,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push(
       {
         $lookup: {
-          from: "pipelines",
+          from: `${COLLECTION_MAP[type]}_pipelines`,
           let: { fieldId: "$_id.pipelineId" },
           pipeline: [
             {
@@ -949,7 +938,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push(
       {
         $lookup: {
-          from: "boards",
+          from: `${COLLECTION_MAP[type]}_boards`,
           let: { fieldId: "$_id.boardId" },
           pipeline: [
             {
@@ -989,7 +978,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
         0
       ]
     }
-    }
+  }
 
   if (dimensions.includes("modifiedBy")) {
     addFields['modifiedBy'] = {
@@ -1804,7 +1793,7 @@ export const buildChartData = (data: any, measures: any, dimensions: any, filter
 
   const hasGoal = (data || []).every(obj => Array.isArray(obj?.goal) && obj?.goal?.length === 0);
 
-  return (data || []).reduce(
+  const datasets = (data || []).reduce(
     (acc, item) => {
       const label = (dimensions || []).map((dimension) => item[dimension]);
 
@@ -1865,6 +1854,8 @@ export const buildChartData = (data: any, measures: any, dimensions: any, filter
           datasets: [],
         }
     );
+
+  return datasets
 }
 
 export const buildTableData = (data: any, measures: any, dimensions: any, colDimension: any[], rowDimension: any[]) => {
