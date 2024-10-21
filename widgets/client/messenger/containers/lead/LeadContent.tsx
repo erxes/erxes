@@ -60,7 +60,7 @@ const LeadContent: React.FC<IProps> = (props) => {
           const integration = getIntegration(props.formCode);
           const form = getForm(props.formCode);
 
-          const callout = form.leadData && form.leadData.callout;
+          const callout = integration.leadData && integration.leadData.callout;
 
           if (isCallOutVisible && callout && !callout.skip) {
             return (

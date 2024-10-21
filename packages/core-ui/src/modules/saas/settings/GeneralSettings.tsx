@@ -127,7 +127,9 @@ class GeneralSettings extends React.Component<Props, State> {
         <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
         {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
         <Select
-          value={configsMap[key]}
+          value={mimeTypeOptions.filter(o =>
+            (configsMap.WIDGETS_UPLOAD_FILE_TYPES || []).includes(o.value)
+          )}
           options={mimeTypeOptions}
           onChange={this.onChangeMultiCombo.bind(this, key)}
           isMulti={true}
@@ -334,7 +336,9 @@ class GeneralSettings extends React.Component<Props, State> {
             <ControlLabel>Currency</ControlLabel>
             <Select
               options={CURRENCIES}
-              value={configsMap.dealCurrency}
+              value={CURRENCIES.filter(o =>
+                configsMap.dealCurrency?.includes(o.value)
+              )}
               onChange={this.onChangeMultiCombo.bind(this, "dealCurrency")}
               isMulti={true}
             />
