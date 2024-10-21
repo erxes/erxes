@@ -82,7 +82,7 @@ const msdynamicQueries = {
         isRPC: true,
         defaultValue: {}
       });
-      brandId = posConfig.brandId;
+      brandId = posConfig.scopeBrandIds?.length ? posConfig.scopeBrandIds[0] : '';
     }
 
     const config = configs[brandId || 'noBrand'];
