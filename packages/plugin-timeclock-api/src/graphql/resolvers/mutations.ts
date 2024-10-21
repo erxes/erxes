@@ -65,6 +65,7 @@ const timeclockMutations = {
 
     let insideCoordinate = false;
     let getBranchName;
+    let getScheduleConfig;
 
     const getUserId = userId || user._id;
 
@@ -102,6 +103,43 @@ const timeclockMutations = {
     }
 
     let timeclock;
+
+    if (!insideCoordinate) {
+      const getSchedule = await models.Schedules.findOne({ userId: getUserId });
+
+      if (getSchedule) {
+        getScheduleConfig = await models.ScheduleConfigs.findOne({
+          _id: getSchedule.scheduleConfigId,
+        });
+      }
+
+      const branchLong =
+        (getScheduleConfig.locations[0].longitude * Math.PI) / 180;
+      const branchLat =
+        (getScheduleConfig.locations[0].latitude * Math.PI) / 180;
+
+      const longDiff = longRad - branchLong;
+      const latDiff = latRad - branchLat;
+
+      // distance in km
+      const dist =
+        EARTH_RADIUS *
+        2 *
+        Math.asin(
+          Math.sqrt(
+            Math.pow(Math.sin(latDiff / 2), 2) +
+              Math.cos(latRad) *
+                Math.cos(branchLat) *
+                Math.pow(Math.sin(longDiff / 2), 2)
+          )
+        );
+
+      // if user's coordinate is within the radius
+      if (dist * 1000 <= 500) {
+        insideCoordinate = true;
+        getBranchName = getScheduleConfig.locations[0].name;
+      }
+    }
 
     if (insideCoordinate) {
       timeclock = await models.Timeclocks.createTimeClock({

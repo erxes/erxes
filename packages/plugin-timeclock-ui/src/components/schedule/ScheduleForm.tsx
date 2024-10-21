@@ -77,8 +77,6 @@ function ScheduleForm(props: Props) {
     scheduleOfMember,
   } = props;
 
-  console.log(scheduleConfigs, 'scheduleConfigs');
-
   const convertScheduleIntoScheduleForm = (schedule: ISchedule) => {
     const returnObject: IScheduleForm = {};
 
