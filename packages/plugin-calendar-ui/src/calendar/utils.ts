@@ -26,7 +26,7 @@ export const getDaysInMonth = (month: number, year: number) => {
   }
 
   if (days.length !== 0) {
-    for (let i = 1; days.length < 7; i++) {
+    for (let i = 1; days.length < 7; days.length++) {
       days.push(new Date(year, month + 1, i));
     }
 
