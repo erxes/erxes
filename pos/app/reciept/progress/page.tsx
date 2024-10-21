@@ -42,11 +42,13 @@ const Progress = () => {
           categoryOrders
         )
 
-        const itemsShouldPrint = itemsToPrint.filter((item: OrderItem) =>
-          productsNeedProcess.includes(item.productId)
-        )
+        const checkedItems = onlyNewItems
+          ? items?.filter((item: OrderItem) =>
+              productsNeedProcess.includes(item.productId)
+            )
+          : items || []
 
-        setItemsToPrint(itemsShouldPrint)
+        setItemsToPrint(checkedItems)
       },
     }
   )
@@ -55,7 +57,7 @@ const Progress = () => {
     variables: { id },
     onCompleted({ orderDetail }) {
       if (!onlyNewItems && !categoryOrders.length) {
-        return setTimeout(() => window.print(), 0)
+        return window.print()
       }
 
       const newItems =
@@ -81,6 +83,8 @@ const Progress = () => {
     },
   })
 
+  const { number, modifiedAt, items, description } = data?.orderDetail || {}
+
   const handleAfterPrint = useCallback(() => {
     const data = { message: "close" }
     window.parent.postMessage(data, "*")
@@ -95,19 +99,17 @@ const Progress = () => {
 
   useEffect(() => {
     if (itemsToPrint.length > 0) {
-      setTimeout(() => window.print(), 0)
+      window.print()
     }
   }, [itemsToPrint])
 
   if (loading || ordersQuery.loading) return <div />
 
-  const { number, modifiedAt, items, description } = data?.orderDetail || {}
-
   const printItems =
     onlyNewItems || categoryOrders.length ? itemsToPrint : items || []
 
   return (
-    <div className="space-y-1 text-[13px]">
+    <div className="space-y-1 text-[12px]">
       <div className="flex items-center justify-between font-semibold text-xs">
         <span className="">Erxes pos</span>
         <span>#{(number || "").split("_")[1]}</span>
