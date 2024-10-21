@@ -1,11 +1,9 @@
-import * as compose from 'lodash.flowright';
-import From from '../components/DayPlanForm';
-import React from 'react';
-import { ButtonMutate } from '@erxes/ui/src/components';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IDayPlan } from '../types';
-import { mutations } from '../graphql';
-import { withProps } from '@erxes/ui/src/utils';
+import From from "../components/DayPlanForm";
+import React from "react";
+import { ButtonMutate } from "@erxes/ui/src/components";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { IDayPlan } from "../types";
+import { mutations } from "../graphql";
 
 type Props = {
   history: any;
@@ -25,12 +23,12 @@ const DayPlanFormContainer = (props: Props) => {
         mutation={mutations.dayPlansAdd}
         variables={values}
         callback={callback}
-        refetchQueries={['dayPlans', 'dayPlansCount', 'dayPlansSum']}
+        refetchQueries={["dayPlans", "dayPlansCount", "dayPlansSum"]}
         isSubmitted={isSubmitted}
         type="submit"
         uppercase={false}
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          object ? "updated" : "added"
         } year plan`}
       />
     );

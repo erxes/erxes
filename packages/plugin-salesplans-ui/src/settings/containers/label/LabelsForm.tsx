@@ -1,11 +1,9 @@
-import * as compose from 'lodash.flowright';
-import From from '../../components/label/LabelsForm';
-import React from 'react';
-import { ButtonMutate } from '@erxes/ui/src/components';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { ISPLabel } from '../../types';
-import { mutations } from '../../graphql';
-import { withProps } from '@erxes/ui/src/utils';
+import From from "../../components/label/LabelsForm";
+import React from "react";
+import { ButtonMutate } from "@erxes/ui/src/components";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { ISPLabel } from "../../types";
+import { mutations } from "../../graphql";
 
 type Props = {
   spLabel?: ISPLabel;
@@ -24,12 +22,12 @@ const FormContainer = (props: Props) => {
         mutation={object ? mutations.spLabelsEdit : mutations.spLabelsAdd}
         variables={values}
         callback={callback}
-        refetchQueries={['spLabels', 'spLabelsCount']}
+        refetchQueries={["spLabels", "spLabelsCount"]}
         isSubmitted={isSubmitted}
         type="submit"
         uppercase={false}
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          object ? "updated" : "added"
         } a ${name}`}
       />
     );

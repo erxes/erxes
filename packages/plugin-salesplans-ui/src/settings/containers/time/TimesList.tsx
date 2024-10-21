@@ -1,17 +1,14 @@
-import * as compose from 'lodash.flowright';
-import { gql, useQuery, useMutation } from '@apollo/client';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert, router, withProps } from '@erxes/ui/src/utils';
-import { Bulk } from '@erxes/ui/src/components';
-import { graphql } from '@apollo/client/react/hoc';
-import { mutations, queries } from '../../graphql';
+import { gql, useQuery, useMutation } from "@apollo/client";
+import React from "react";
+import { Alert, router } from "@erxes/ui/src/utils";
+import { Bulk } from "@erxes/ui/src/components";
+import { mutations, queries } from "../../graphql";
 import {
   TimeProportionsQueryResponse,
   TimeProportionsRemoveMutationResponse,
   TimeProportionsCountQueryResponse,
-} from '../../types';
-import List from '../../components/time/TimesList';
+} from "../../types";
+import List from "../../components/time/TimesList";
 
 type Props = {
   queryParams: any;
@@ -24,24 +21,24 @@ const TimesListContainer = (props: Props) => {
     gql(queries.timeProportions),
     {
       variables: generateParams({ queryParams }),
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const timeProportionCountQuery = useQuery<TimeProportionsCountQueryResponse>(
     gql(queries.timeProportionsCount),
     {
       variables: generateParams({ queryParams }),
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const [timeProportionsRemove] =
     useMutation<TimeProportionsRemoveMutationResponse>(
       gql(mutations.timeProportionsRemove),
       {
-        refetchQueries: ['timeProportions', 'timeProportionsCount'],
-      },
+        refetchQueries: ["timeProportions", "timeProportionsCount"],
+      }
     );
 
   // remove action
@@ -52,7 +49,7 @@ const TimesListContainer = (props: Props) => {
       .then(() => {
         emptyBulk();
 
-        Alert.success('You successfully deleted a time proportions');
+        Alert.success("You successfully deleted a time proportions");
       })
       .catch((e) => {
         Alert.error(e.message);

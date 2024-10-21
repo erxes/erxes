@@ -1,5 +1,5 @@
 import Popover from "@erxes/ui/src/components/Popover";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
 import TwitterPicker from "react-color/lib/Twitter";
 import { __ } from "@erxes/ui/src/utils";
@@ -14,17 +14,13 @@ import {
 import {
   ColorPick,
   ColorPicker,
-  Column,
   FormColumn,
   FormWrapper,
   LinkButton,
 } from "@erxes/ui/src/styles/main";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { ILabelRule, ISPLabel } from "../../types";
-import {
-  MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
-} from "@erxes/ui/src/styles/eindex";
+import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
 import { LevelOption, LevelWrapper, RemoveRow } from "../../../styles";
 import { FlexContent } from "@erxes/ui/src/layout";
 import { ExpandWrapper } from "@erxes/ui-settings/src/styles";

@@ -70,7 +70,7 @@ const dayPlansMutations = {
 
     const yearPlanByProductId = {};
     for (const yearPlan of yearPlans) {
-      yearPlanByProductId[yearPlan.productId || ''] = yearPlan;
+      yearPlanByProductId[yearPlan.productId ?? ''] = yearPlan;
     }
 
     const timeFrames = await models.Timeframes.find({
