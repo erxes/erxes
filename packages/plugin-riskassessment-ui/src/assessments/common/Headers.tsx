@@ -89,7 +89,7 @@ export const headers = queryParams => {
               <ControlLabel>{`Indicators group`}</ControlLabel>
               <SelectIndicatorGroups
                 name="groupIds"
-                label="Select indicator groups"
+                label={__("Select indicator groups")}
                 initialValue={queryParams?.groupIds}
                 onSelect={handleSelectStructure}
                 multi={true}
@@ -99,7 +99,7 @@ export const headers = queryParams => {
               <ControlLabel>{`Indicators`}</ControlLabel>
               <SelectIndicators
                 name="riskIndicatorIds"
-                label="Select risk indicators"
+                label={__("Select risk indicators")}
                 initialValue={queryParams?.riskIndicatorIds}
                 onSelect={handleSelectStructure}
                 multi={true}
@@ -163,7 +163,7 @@ export const headers = queryParams => {
             <ControlLabel>{__('Operations')}</ControlLabel>
             <SelectOperations
               name="operationIds"
-              label="Select Operations"
+              label={__("Select Operations")}
               initialValue={queryParams?.operationIds}
               onSelect={handleSelectStructure}
               multi={true}
@@ -226,7 +226,7 @@ export const headers = queryParams => {
                 <DateControl
                   name="createdAtFrom"
                   value={generateQueryParamsDate(queryParams?.createdAtFrom)}
-                  placeholder="select from date "
+                  placeholder={__("select from date ")}
                   onChange={e => dateOrder(e, 'createdAtFrom')}
                 />
               </DateContainer>
@@ -235,7 +235,7 @@ export const headers = queryParams => {
                   <DateControl
                     name="createdAtTo"
                     value={generateQueryParamsDate(queryParams?.createdAtTo)}
-                    placeholder="select to date "
+                    placeholder={__("select to date ")}
                     onChange={e => dateOrder(e, 'createdAtTo')}
                   />
                 </DateContainer>
@@ -263,7 +263,7 @@ export const headers = queryParams => {
                 <DateControl
                   name="closedAtFrom"
                   value={generateQueryParamsDate(queryParams?.closedAtFrom)}
-                  placeholder="select from date "
+                  placeholder={__("select from date ")}
                   onChange={e => dateOrder(e, 'closedAtFrom')}
                 />
               </DateContainer>

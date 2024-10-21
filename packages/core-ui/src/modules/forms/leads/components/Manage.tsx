@@ -132,7 +132,7 @@ const Manage: React.FC<Props> = ({ form, closeModal }) => {
     <>
       <Info>
         {__(
-          ' Paste this main code before the body tag on every page you want this form to appear.'
+          'Paste this main code before the body tag on every page you want this form to appear.'
         )}
       </Info>
 

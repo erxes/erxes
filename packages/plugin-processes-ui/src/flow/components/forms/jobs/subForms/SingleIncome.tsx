@@ -127,7 +127,7 @@ class JobForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Income Product</ControlLabel>
           <ModalTrigger
-            title="Choose product"
+            title={__("Choose product")}
             trigger={this.renderProductServiceTrigger(product)}
             size="lg"
             content={content}

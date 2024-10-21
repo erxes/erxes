@@ -156,7 +156,7 @@ const ErkhetConfig = (props: Props) => {
               <FormGroup>
                 <ControlLabel>Branch</ControlLabel>
                 <SelectBranches
-                  label="Choose branch"
+                  label={__("Choose branch")}
                   name="branchId"
                   initialValue={branchId}
                   onSelect={() => {}}

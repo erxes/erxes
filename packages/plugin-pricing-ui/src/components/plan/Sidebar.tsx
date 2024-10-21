@@ -114,7 +114,7 @@ export default function Sidebar(props: Props) {
         <FormGroup>
           <ControlLabel>Department</ControlLabel>
           <SelectDepartments
-            label="Choose department"
+            label={__("Choose department")}
             name="departmentId"
             initialValue={departmentId || ""}
             customOption={{
@@ -128,7 +128,7 @@ export default function Sidebar(props: Props) {
         <FormGroup>
           <ControlLabel>Product</ControlLabel>
           <SelectProducts
-            label="Choose product"
+            label={__("Choose product")}
             name="productId"
             initialValue={productId || ""}
             customOption={{
@@ -162,7 +162,7 @@ export default function Sidebar(props: Props) {
             value={date}
             timeFormat={"HH:mm"}
             name="date"
-            placeholder={"date"}
+            placeholder={__("date")}
             dateFormat={"YYYY-MM-DD"}
             onChange={(date: any) =>
               setFilter("date", dayjs(date).format("YYYY-MM-DD HH:mm"))

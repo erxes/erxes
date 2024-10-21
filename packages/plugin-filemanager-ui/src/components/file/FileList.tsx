@@ -96,7 +96,7 @@ class FileList extends React.Component<Props> {
         emptyContent={
           <EmptyState
             image="/images/actions/24.svg"
-            text="No files at the moment!"
+            text={__("No files at the moment!")}
           />
         }
         data={this.renderFiles()}

@@ -122,7 +122,7 @@ const List = (props: Props) => {
                 startDate: dayjs(date).format("YYYY-MM-DD"),
               });
             }}
-            placeholder={"Start date"}
+            placeholder={__("Start date")}
             dateFormat={"YYYY-MM-DD"}
           />
 
@@ -130,7 +130,7 @@ const List = (props: Props) => {
             value={queryParams.endDate}
             required={false}
             name="endDate"
-            placeholder={"End date"}
+            placeholder={__("End date")}
             onChange={(date: any) => {
               routerUtils.setParams(navigate, location, {
                 endDate: dayjs(date).format("YYYY-MM-DD"),

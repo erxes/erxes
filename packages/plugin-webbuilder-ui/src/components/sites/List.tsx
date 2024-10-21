@@ -62,7 +62,7 @@ class SiteList extends React.Component<Props, State> {
 
     return (
       <ModalTrigger
-        title="Edit your site"
+        title={__("Edit your site")}
         trigger={trigger}
         content={content}
       />

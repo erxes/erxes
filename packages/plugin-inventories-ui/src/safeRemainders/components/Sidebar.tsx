@@ -61,7 +61,7 @@ export default function Sidebar() {
         <FormGroup>
           <ControlLabel>{__("Begin Date")}</ControlLabel>
           <Datetime
-            inputProps={{ placeholder: "Click to select a date" }}
+            inputProps={{ placeholder: __("Click to select a date") }}
             dateFormat="YYYY MM DD"
             timeFormat=""
             viewMode={"days"}
@@ -75,7 +75,7 @@ export default function Sidebar() {
         <FormGroup>
           <ControlLabel>{__("End Date")}</ControlLabel>
           <Datetime
-            inputProps={{ placeholder: "Click to select a date" }}
+            inputProps={{ placeholder: __("Click to select a date") }}
             dateFormat="YYYY MM DD"
             timeFormat=""
             viewMode={"days"}
@@ -89,34 +89,34 @@ export default function Sidebar() {
         <FormGroup>
           <ControlLabel>{__("Branch")}</ControlLabel>
           <SelectBranches
-            label="Choose branch"
+            label={__("Choose branch")}
             name="selectedBranchIds"
             initialValue={queryParams.branchId}
             onSelect={(branchId) => setFilter("branchId", branchId)}
             multi={false}
-            customOption={{ value: "", label: "All branches" }}
+            customOption={{ value: "", label: __("All branches") }}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__("Department")}</ControlLabel>
           <SelectDepartments
-            label="Choose department"
+            label={__("Choose department")}
             name="selectedDepartmentIds"
             initialValue={queryParams.departmentId}
             onSelect={(departmentId) => setFilter("departmentId", departmentId)}
             multi={false}
-            customOption={{ value: "", label: "All departments" }}
+            customOption={{ value: "", label: __("All departments") }}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__("Product")}</ControlLabel>
           <SelectProducts
-            label="Choose product"
+            label={__("Choose product")}
             name="selectedProductId"
             initialValue={queryParams.productId}
             onSelect={(productId) => setFilter("productId", productId)}
             multi={false}
-            customOption={{ value: "", label: "All products" }}
+            customOption={{ value: "", label: __("All products") }}
           />
         </FormGroup>
       </FlexItem>
@@ -132,7 +132,7 @@ export default function Sidebar() {
   return (
     <Wrapper.Sidebar>
       <Box
-        title={"Filters"}
+        title={__("Filters")}
         isOpen={true}
         name="showFilters"
         extraButtons={isFiltered() && renderExtraButtons()}

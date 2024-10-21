@@ -133,7 +133,7 @@ function List({
             <ModalTrigger
               content={modalContent}
               size="lg"
-              title="Add Document"
+              title={__("Add Document")}
               autoOpenKey="showDocumentModal"
               trigger={trigger}
             />

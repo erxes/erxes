@@ -206,7 +206,7 @@ class Form extends React.Component<Props, State> {
 
     return (
       <ModalTrigger
-        title="Choose product & service"
+        title={__("Choose product & service")}
         trigger={this.renderProductServiceTrigger()}
         size="lg"
         content={content}

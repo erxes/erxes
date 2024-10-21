@@ -162,7 +162,7 @@ const CheckerSidebar = (props: IProps) => {
           <FormGroup>
             <ControlLabel>Assigned</ControlLabel>
             <SelectTeamMembers
-              label="Choose users"
+              label={__("Choose users")}
               name="userId"
               customOption={{ label: "Choose user", value: "" }}
               initialValue={userId || ""}

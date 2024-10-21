@@ -225,7 +225,7 @@ const CompaniesList: React.FC<IProps> = props => {
 
         {bulk.length === 2 && (
           <ModalTrigger
-            title="Merge Companies"
+            title={__("Merge Companies")}
             size="xl"
             dialogClassName="modal-1000w"
             trigger={mergeButton}

@@ -119,7 +119,7 @@ const PerSettings = (props: Props) => {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{"Product Tags"}</ControlLabel>
+            <ControlLabel>{__("Product Tags")}</ControlLabel>
             <SelectTags
               tagsType="core:product"
               name="productTagIds"

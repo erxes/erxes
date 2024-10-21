@@ -76,7 +76,7 @@ export default class UpdateConfigs extends React.Component<Props, State> {
       <CollapseContent
         beforeTitle={<Icon icon="instagram" />}
         transparent={true}
-        title="Instagram"
+        title={__("Instagram")}
       >
         <Info>
           <a

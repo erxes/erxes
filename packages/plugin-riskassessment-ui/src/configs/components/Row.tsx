@@ -44,7 +44,7 @@ class Row extends React.Component<Props, State> {
       );
       return (
         <ModalTrigger
-          title="Edit Risk Assessment Configs"
+          title={__("Edit Risk Assessment Configs")}
           trigger={trigger}
           content={content}
           size="lg"

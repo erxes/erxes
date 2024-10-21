@@ -142,7 +142,7 @@ const LotteryCampaigns = (props: Props) => {
           />
           <ModalTrigger
             size={"lg"}
-            title="Add lottery campaign"
+            title={__("Add lottery campaign")}
             trigger={trigger}
             autoOpenKey="showProductModal"
             content={modalContent}
@@ -166,7 +166,7 @@ const LotteryCampaigns = (props: Props) => {
   const header = (
     <HeaderDescription
       icon="/images/actions/25.svg"
-      title="Loyalty configs"
+      title={__("Loyalty configs")}
       description=""
     />
   );

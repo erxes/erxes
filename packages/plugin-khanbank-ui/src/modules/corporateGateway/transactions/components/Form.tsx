@@ -302,7 +302,7 @@ const TransactionForm = (props: Props) => {
     const authModal = () => {
       return (
         <ModalTrigger
-          title={"Confirmation"}
+          title={__("Confirmation")}
           size={"sm"}
           enforceFocus={false}
           trigger={

@@ -120,7 +120,7 @@ class ScheduleForm extends React.Component<Props, State> {
           ) : (
             <SelectIndicators
               initialValue={doc?.indicatorId}
-              label="Select Indicator"
+              label={__("Select Indicator")}
               name="indicatorId"
               onSelect={handleChange}
               filterParams={{

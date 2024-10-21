@@ -64,7 +64,7 @@ const ArticleRow = (props: Props) => {
     return (
       <ModalTrigger
         size="lg"
-        title="Edit"
+        title={__("Edit")}
         trigger={trigger}
         content={renderForm}
         enforceFocus={false}

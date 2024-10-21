@@ -197,7 +197,7 @@ const SendWebhook = (props: Props) => {
             <FormGroup>
               <FormControl
                 name="key"
-                placeholder="key"
+                placeholder={__("key")}
                 value={header?.key}
                 onChange={onChange}
               />
@@ -208,7 +208,7 @@ const SendWebhook = (props: Props) => {
               <FormControl
                 name="value"
                 value={header?.value}
-                placeholder="value"
+                placeholder={__("value")}
                 onChange={onChange}
               />
             </FormGroup>
@@ -242,7 +242,7 @@ const SendWebhook = (props: Props) => {
         {(config?.headers || []).map((header) => renderHeader(header))}
         <LinkButton onClick={addHeader}>
           <Icon icon="plus-1" />
-          {"Add header"}
+          {__("Add header")}
         </LinkButton>
       </>
     );
@@ -316,7 +316,7 @@ const SendWebhook = (props: Props) => {
             triggerType={triggerType}
             onSelect={handleOnChangeFields}
             actionType={triggerType}
-            label="Add Fields"
+            label={__("Add Fields")}
             withDefaultValue={true}
           />
         )}

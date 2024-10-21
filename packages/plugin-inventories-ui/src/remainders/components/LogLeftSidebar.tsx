@@ -107,7 +107,7 @@ const LogLeftSidebar = (props: Props) => {
           <FormGroup>
             <ControlLabel>{__("End Date")}</ControlLabel>
             <Datetime
-              inputProps={{ placeholder: "Click to select a date" }}
+              inputProps={{ placeholder: __("Click to select a date") }}
               dateFormat="YYYY-MM-DD"
               timeFormat="HH:mm"
               viewMode={"days"}
@@ -121,12 +121,12 @@ const LogLeftSidebar = (props: Props) => {
           <FormGroup>
             <ControlLabel>Branch</ControlLabel>
             <SelectBranches
-              label="Choose branch"
+              label={__("Choose branch")}
               name="branchId"
               initialValue={branchId || ""}
               customOption={{
                 value: "",
-                label: "...Clear branch filter",
+                label: __("...Clear branch filter"),
               }}
               onSelect={(branchId) => setFilter("branchId", branchId)}
               multi={false}
@@ -135,12 +135,12 @@ const LogLeftSidebar = (props: Props) => {
           <FormGroup>
             <ControlLabel>Department</ControlLabel>
             <SelectDepartments
-              label="Choose department"
+              label={__("Choose department")}
               name="departmentId"
               initialValue={departmentId || ""}
               customOption={{
                 value: "",
-                label: "...Clear department filter",
+                label: __("...Clear department filter"),
               }}
               onSelect={(departmentId) =>
                 setFilter("departmentId", departmentId)
@@ -151,12 +151,12 @@ const LogLeftSidebar = (props: Props) => {
           <FormGroup>
             <ControlLabel>Product Category</ControlLabel>
             <SelectProductCategory
-              label="Choose product category"
+              label={__("Choose product category")}
               name="categoryId"
               initialValue={categoryId || ""}
               customOption={{
                 value: "",
-                label: "...Clear product category filter",
+                label: __("...Clear product category filter"),
               }}
               onSelect={(categoryId) => setFilter("categoryId", categoryId)}
               multi={false}
@@ -165,12 +165,12 @@ const LogLeftSidebar = (props: Props) => {
           <FormGroup>
             <ControlLabel>Products</ControlLabel>
             <SelectProducts
-              label="Choose product"
+              label={__("Choose product")}
               name="productIds"
               initialValue={productIds}
               customOption={{
                 value: "",
-                label: "...Clear product filter",
+                label: __("...Clear product filter"),
               }}
               onSelect={(productIds) => setFilter("productIds", productIds)}
               multi={true}

@@ -120,7 +120,7 @@ function ReplyFbMessage({
           inputName="text"
           componentClass="textarea"
           label=""
-          placeholder="Enter your text..."
+          placeholder={__("Enter your text...")}
           onChange={onChange}
           textLimit={limit}
         />
@@ -183,7 +183,7 @@ function ReplyFbMessage({
         <FieldInfo>{`${text?.length || 0}/640`}</FieldInfo>
 
         <FormControl
-          placeholder="Enter your text"
+          placeholder={__("Enter your text")}
           value={text}
           onChange={handleChangeInput}
         />
@@ -209,7 +209,7 @@ function ReplyFbMessage({
         <ImageUploader
           src={audio}
           onUpload={handleUpload}
-          label="Upload Audio"
+          label={__("Upload Audio")}
           fileType="audio/*"
           previewIcon="music-1"
           limit="25MB"
@@ -226,7 +226,7 @@ function ReplyFbMessage({
         <ImageUploader
           src={video}
           onUpload={handleUpload}
-          label="Upload Video"
+          label={__("Upload Video")}
           fileType="video/*"
           previewIcon="film"
           limit="25MB"
@@ -264,7 +264,7 @@ function ReplyFbMessage({
         </FormGroup>
         <Flex>
           <FlexCenter>
-            <ControlLabel>{"User Input expires in:   "}</ControlLabel>
+            <ControlLabel>{__("User Input expires in:   ")}</ControlLabel>
             <TimeSetter input={input} onChange={onChange} />
           </FlexCenter>
         </Flex>
