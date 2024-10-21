@@ -315,9 +315,10 @@ class KnowledgeForm extends React.Component<Props, State> {
         </FlexContent>
 
         <FormGroup>
-          <ControlLabel>Code</ControlLabel>
+          <ControlLabel required={true}>Code</ControlLabel>
           <FormControl
             {...formProps}
+            required={true}
             name="code"
             defaultValue={topic.code || ""}
           />
