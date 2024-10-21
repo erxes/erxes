@@ -13,9 +13,9 @@ export const contractTypeFields = `
   useMargin
   useSkipInterest
   useDebt
-  productCategoryIds
   config
   currency
+  productId
   productType
   useManualNumbering
   useFee
@@ -25,6 +25,11 @@ export const contractTypeFields = `
   usePrePayment
   invoiceDay
   customFieldsData
+  product {
+    _id
+    code
+    name
+  }
 `;
 
 const listParamsDef = `
@@ -75,11 +80,6 @@ export const contractTypeDetail = `
   query contractTypeDetail($_id: String!) {
     contractTypeDetail(_id: $_id) {
       ${contractTypeFields}
-      productCategories {
-        _id
-        code
-        name
-      }
     }
   }
 `;
