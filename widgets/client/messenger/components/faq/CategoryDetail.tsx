@@ -1,10 +1,10 @@
-import * as React from 'react';
-import Articles from '../../containers/faq/Articles';
-import { IFaqCategory } from '../../types';
-import SearchBar from './SearchBar';
-import { __ } from '../../../utils';
-import Container from '../common/Container';
-import CategoriesContainer from '../../containers/faq/Categories';
+import * as React from "react";
+import Articles from "../../containers/faq/Articles";
+import { IFaqCategory } from "../../types";
+import SearchBar from "./SearchBar";
+import { __ } from "../../../utils";
+import Container from "../common/Container";
+import CategoriesContainer from "../../containers/faq/Categories";
 
 type Props = {
   category: IFaqCategory;
@@ -13,7 +13,7 @@ type Props = {
 };
 
 const CategoryDetail = ({ category, loading, topicId }: Props) => {
-  const [searchString, setSearchString] = React.useState('');
+  const [searchString, setSearchString] = React.useState("");
 
   const search = (searchString: string) => {
     setSearchString(searchString);
@@ -39,7 +39,7 @@ const CategoryDetail = ({ category, loading, topicId }: Props) => {
       return <div className="loader bigger" />;
     }
 
-    if (category.parentCategoryId) {
+    if (category.articles) {
       return (
         <div className="scroll-wrapper">
           <Articles
