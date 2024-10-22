@@ -669,8 +669,6 @@ export const uploadFileCloudflare = async (
     models
   );
 
-  console.log("CLOUDFLARE_USE_CDN", CLOUDFLARE_USE_CDN);
-
   const detectedType = fileType(fs.readFileSync(fileObj.path));
 
   if (path.extname(fileObj.name).toLowerCase() === `.jfif`) {
