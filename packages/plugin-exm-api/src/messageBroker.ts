@@ -24,14 +24,6 @@ export const getCampaignCustomerInfo = async data => {
   return sendRPCMessageCore("core:rpc_queue.prepareEngageCustomers", data);
 };
 
-export const sendContactsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "core",
-    ...args
-  });
-};
 
 export const sendInternalNotesMessage = async (
   args: MessageArgsOmitService

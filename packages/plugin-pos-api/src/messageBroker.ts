@@ -310,14 +310,6 @@ export const sendPricingMessage = async (
   });
 };
 
-export const sendContactsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "core",
-    ...args
-  });
-};
 
 export const sendEbarimtMessage = async (
   args: MessageArgsOmitService
