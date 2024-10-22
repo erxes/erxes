@@ -1,7 +1,8 @@
 import { InterMessage } from "@erxes/api-utils/src/messageBroker";
 import { generateModels } from "./connectionResolver";
-import { registerOnboardHistory } from "./data/utils";
 import { generatePronoun } from "./importUtils";
+import cocImport from "./data/modules/coc/import";
+import productImport from "./data/modules/product/imports";
 
 const IMPORT_EXPORT_TYPES = [
   {
@@ -37,151 +38,16 @@ export default {
     const models = await generateModels(subdomain);
     const { docs, user, contentType } = data;
 
-    const objects: any = [];
-
-    let updated: number = 0;
-
-    const updateDocs: any = [];
+    if (["customer", "lead", "company"].includes(contentType)) {
+      return await cocImport.insertImportItems({ subdomain, data });
+    }
+    if (contentType === "product") {
+      return await productImport.insertImportItems({ subdomain, data });
+    }
 
     try {
-      if (contentType === "product") {
-        for (const doc of docs) {
-          if (doc.code) {
-            const product = await models.Products.findOne({ code: doc.code });
-
-            if (product) {
-              delete doc.code;
-              await models.Products.updateOne(
-                { _id: product._id },
-                { $set: { ...doc } }
-              );
-              updated++;
-            } else {
-              const insertedProduct = await models.Products.create(doc);
-
-              objects.push(insertedProduct);
-            }
-          } else {
-            const insertedProduct = await models.Products.create(doc);
-
-            objects.push(insertedProduct);
-          }
-        }
-
-        return { objects, updated };
-      }
-      if (contentType === "customer" || contentType === "lead") {
-        for (const doc of docs) {
-          if (!doc.ownerId && user) {
-            doc.ownerId = user._id;
-          }
-
-          if (doc.primaryEmail && !doc.emails) {
-            doc.emails = [doc.primaryEmail];
-          }
-
-          if (doc.primaryPhone && !doc.phones) {
-            doc.phones = [doc.primaryPhone];
-          }
-
-          if (doc.integrationId) {
-            doc.relatedIntegrationIds = [doc.integrationId];
-          }
-
-          doc.state = contentType;
-
-          const { profileScore, searchText } =
-            await models.Customers.calcPSS(doc);
-
-          doc.profileScore = profileScore;
-          doc.searchText = searchText;
-          doc.createdAt = new Date();
-          doc.modifiedAt = new Date();
-
-          if (doc.primaryEmail || doc.primaryPhone || doc.code) {
-            const query = { $or: [] } as any;
-
-            if (doc.primaryEmail) {
-              query.$or.push({ primaryEmail: doc.primaryEmail });
-            }
-            if (doc.primaryPhone) {
-              query.$or.push({ primaryPhone: doc.primaryPhone });
-            }
-            if (doc.code) {
-              query.$or.push({ code: doc.code });
-            }
-
-            const previousCustomer = await models.Customers.findOne(query);
-
-            if (previousCustomer) {
-              doc.createdAt = null;
-
-              updated++;
-
-              const updatedCustomer = await models.Customers.updateOne(
-                { _id: previousCustomer._id },
-                { $set: { ...doc } }
-              );
-
-              updateDocs.push(updatedCustomer);
-            } else {
-              const insertedCustomer = await models.Customers.create(doc);
-
-              objects.push(insertedCustomer);
-            }
-          } else {
-            const insertedCustomer = await models.Customers.create(doc);
-
-            objects.push(insertedCustomer);
-          }
-        }
-      }
-
-      if (contentType === "company") {
-        for (const doc of docs) {
-          if (!doc.ownerId && user) {
-            doc.ownerId = user._id;
-          }
-
-          doc.searchText = models.Companies.fillSearchText(doc);
-          doc.createdAt = new Date();
-          doc.modifiedAt = new Date();
-
-          if (doc.primaryEmail) {
-            const previousCompany = await models.Companies.findOne({
-              $or: [{ primaryEmail: doc.primaryEmail }]
-            });
-
-            if (previousCompany) {
-              await models.Companies.updateOne(
-                { _id: previousCompany._id },
-                { $set: { ...doc } }
-              );
-
-              updated++;
-            } else {
-              const insertedCompany = await models.Companies.create(doc);
-
-              objects.push(insertedCompany);
-            }
-          } else {
-            const insertedCompany = await models.Companies.create(doc);
-
-            objects.push(insertedCompany);
-          }
-        }
-      } else {
-        try {
-          const objects = await models.Users.insertMany(docs);
-          return { objects, updated: 0 };
-        } catch (e) {
-          return { error: e.message };
-        }
-      }
-
-      registerOnboardHistory({ models, type: "ImportCustomerData", user });
-
-      return { objects, updated };
+      const objects = await models.Users.insertMany(docs);
+      return { objects, updated: 0 };
     } catch (e) {
       return { error: e.message };
     }
@@ -190,6 +56,14 @@ export default {
   prepareImportDocs: async ({ subdomain, data }: InterMessage) => {
     const { scopeBrandIds, result, contentType, properties } = data;
     const models = await generateModels(subdomain);
+
+    if (["customer", "lead", "company"].includes(contentType)) {
+      return await cocImport.prepareImportDocs({ subdomain, data });
+    }
+
+    if (contentType === "product") {
+      return await productImport.prepareImportDocs({ subdomain, data });
+    }
 
     const bulkDoc: any = [];
 
