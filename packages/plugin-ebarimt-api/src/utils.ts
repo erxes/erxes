@@ -2,7 +2,6 @@ import fetch from "node-fetch";
 import {
   sendCoreMessage,
   sendNotificationsMessage,
-  sendContactsMessage,
   sendProductsMessage
 } from "./messageBroker";
 
@@ -156,7 +155,7 @@ const billTypeConfomityCompany = async (subdomain, config, deal) => {
   });
 
   if (companyIds.length > 0) {
-    const companies = await sendContactsMessage({
+    const companies = await sendCoreMessage({
       subdomain,
       action: "companies.findActiveCompanies",
       data: {
@@ -223,7 +222,7 @@ const checkBillType = async (subdomain, config, deal) => {
     });
 
     if (customerIds.length > 0) {
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
         action: "customers.findActiveCustomers",
         data: {

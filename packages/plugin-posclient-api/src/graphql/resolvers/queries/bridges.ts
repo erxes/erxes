@@ -1,4 +1,4 @@
-import { sendContactsMessage, sendCoreMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 import { IContext } from '../../types';
 
 interface IListArgs {
@@ -18,7 +18,7 @@ const bridgesQueries = {
     const skip = ((page || 1) - 1) * limit;
 
     if (type === 'company') {
-      const companies = await sendContactsMessage({
+      const companies = await sendCoreMessage({
         subdomain,
         action: 'companies.findActiveCompanies',
         data: {
@@ -102,7 +102,7 @@ const bridgesQueries = {
       return [];
     }
 
-    const customers = await sendContactsMessage({
+    const customers = await sendCoreMessage({
       subdomain,
       action: 'customers.findActiveCustomers',
       data: {
@@ -150,7 +150,7 @@ const bridgesQueries = {
     { subdomain }: IContext
   ) {
     if (type === 'company') {
-      const company = await sendContactsMessage({
+      const company = await sendCoreMessage({
         subdomain,
         action: 'companies.findOne',
         data: {
@@ -209,7 +209,7 @@ const bridgesQueries = {
       return;
     }
 
-    const customer = await sendContactsMessage({
+    const customer = await sendCoreMessage({
       subdomain,
       action: 'customers.findOne',
       data: {

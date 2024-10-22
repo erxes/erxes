@@ -1,4 +1,4 @@
-import { sendContactsMessage, sendCoreMessage } from "./messageBroker";
+import { sendCoreMessage } from "./messageBroker";
 
 import fetch from "node-fetch";
 import { debugError } from "@erxes/api-utils/src/debuggers";
@@ -8,7 +8,7 @@ export const getBalance = async (
   erxesCustomerId: string
 ) => {
   let balance = 0;
-  const customer = await sendContactsMessage({
+  const customer = await sendCoreMessage({
     subdomain,
     action: "customers.findOne",
     data: { _id: erxesCustomerId },
@@ -58,7 +58,7 @@ export const updateBalance = async (
     isRPC: true
   });
 
-  const customer = await sendContactsMessage({
+  const customer = await sendCoreMessage({
     subdomain,
     action: "customers.findOne",
     data: { _id: erxesCustomerId },
@@ -80,7 +80,7 @@ export const updateBalance = async (
     }
   }
 
-  return sendContactsMessage({
+  return sendCoreMessage({
     subdomain,
     action: "customers.updateOne",
     data: {

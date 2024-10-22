@@ -2,8 +2,7 @@ import { generateModels, IModels } from './connectionResolver';
 import {
   sendCoreMessage,
   sendProductsMessage,
-  fetchSegment,
-  sendContactsMessage
+  fetchSegment
 } from './messageBroker';
 import * as moment from 'moment';
 import { IUserDocument } from '@erxes/api-utils/src/types';
@@ -107,7 +106,7 @@ export const fillValue = async (
       if (order.customerId) {
         let info: any = {};
         if (order.customerType === 'company') {
-          const company = await sendContactsMessage({
+          const company = await sendCoreMessage({
             subdomain,
             action: 'companies.findOne',
             data: { _id: order.customerId },
@@ -145,7 +144,7 @@ export const fillValue = async (
               }
             : {};
         } else {
-          const customer = await sendContactsMessage({
+          const customer = await sendCoreMessage({
             subdomain,
             action: 'customers.findOne',
             data: { _id: order.customerId },

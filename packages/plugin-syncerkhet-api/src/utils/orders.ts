@@ -1,6 +1,5 @@
 import { generateModels } from "../connectionResolver";
 import {
-  sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage
 } from "../messageBroker";
@@ -99,7 +98,7 @@ export const getPostData = async (subdomain, pos, order) => {
     const customerType = order.customerType || "customer";
     if (customerType === "company") {
       customerCode = (
-        await sendContactsMessage({
+        await sendCoreMessage({
           subdomain,
           action: "companies.findOne",
           data: {
@@ -111,7 +110,7 @@ export const getPostData = async (subdomain, pos, order) => {
       )?.code;
     } else {
       customerCode = (
-        await sendContactsMessage({
+        await sendCoreMessage({
           subdomain,
           action: "customers.findOne",
           data: {
