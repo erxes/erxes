@@ -4,12 +4,12 @@ import { getLocalStorageItem, initStorage } from "../common";
 import { setLocale } from "../utils";
 import widgetConnect from "../widgetConnect";
 import { connection } from "./connection";
-import { formConnectMutation, enabledServicesQuery } from "./graphql";
+import { formConnectMutation,enabledServicesQuery } from "./graphql";
 import { EnabledServices, IConnectResponse } from "./types";
 import asyncComponent from "../AsyncComponent";
 
-const App = asyncComponent(
-  () => import(/* webpackChunkName: "FormApp" */ "./containers/App")
+const App = asyncComponent(() =>
+  import(/* webpackChunkName: "FormApp" */ './containers/App')
 );
 
 widgetConnect({
@@ -25,17 +25,15 @@ widgetConnect({
 
     initStorage(storage);
 
-    client
-      .query({
-        query: gql(enabledServicesQuery),
-        fetchPolicy: "network-only"
-      })
-      .then((res: any) => {
-        if (res.data.enabledServices) {
-          const { enabledServices } = res.data as EnabledServices;
-          connection.enabledServices = enabledServices;
-        }
-      });
+    client.query({
+      query: gql(enabledServicesQuery),
+      fetchPolicy: "network-only"
+    }).then((res: any) => {
+      if (res.data.enabledServices) {
+        const { enabledServices } = res.data as EnabledServices;
+        connection.enabledServices = enabledServices;
+      }
+    });
 
     // call connect mutation
     return client
@@ -63,7 +61,7 @@ widgetConnect({
     connection.data = response;
 
     // set language
-    setLocale(response.integration.languageCode || "en");
+    setLocale(response.form.languageCode || "en");
   },
 
   AppContainer: App

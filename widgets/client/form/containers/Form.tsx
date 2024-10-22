@@ -37,6 +37,7 @@ const Form: React.FC<IProps> = ({
   onSubmit,
 }) => {
   const integration = getIntegration();
+  const {leadData} = connection.data.form;
   const form = getForm();
 
   const { data, loading, error } = useQuery(
@@ -71,6 +72,7 @@ const Form: React.FC<IProps> = ({
       setHeight={setHeight}
       form={data.formDetail}
       integration={integration}
+      leadData={leadData}
       extraContent={extraContent}
       callSubmit={callSubmit}
       invoiceLink={invoiceLink}
