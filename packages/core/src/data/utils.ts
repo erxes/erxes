@@ -665,9 +665,11 @@ export const uploadFileCloudflare = async (
 
   const CLOUDFLARE_USE_CDN = await getConfig(
     "CLOUDFLARE_USE_CDN",
-    "true",
+    "false",
     models
   );
+
+  console.log("CLOUDFLARE_USE_CDN", CLOUDFLARE_USE_CDN);
 
   const detectedType = fileType(fs.readFileSync(fileObj.path));
 
