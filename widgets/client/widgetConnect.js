@@ -1,13 +1,13 @@
-import * as React from "react";
-import { createRoot } from "react-dom/client";
-import client from "./apollo-client";
-import { getEnv } from "./utils";
+import * as React from 'react';
+import { createRoot } from 'react-dom/client';
+import client from './apollo-client';
+import { getEnv } from './utils';
 
 // base connect function for all widgets
-const widgetConnect = params => {
+const widgetConnect = (params) => {
   const { postParams, connectMutation, connectCallback, AppContainer } = params;
 
-  window.addEventListener("message", event => {
+  window.addEventListener('message', (event) => {
     // connect to api using passed setting
     if (!(event.data.fromPublisher && event.data.setting)) {
       return;
@@ -15,8 +15,8 @@ const widgetConnect = params => {
 
     // call connect mutation
     connectMutation(event)
-      .then(async response => {
-        const { ApolloProvider } = await import("@apollo/client");
+      .then(async (response) => {
+        const { ApolloProvider } = await import('@apollo/client');
 
         if (!response) {
           return;
@@ -32,21 +32,21 @@ const widgetConnect = params => {
           {
             fromErxes: true,
             ...postParams,
-            message: "connected",
+            message: 'connected',
             connectionInfo: data,
-            apiUrl: getEnv()?.API_URL || "",
-            setting: event.data.setting
+            apiUrl: getEnv()?.API_URL || '',
+            setting: event.data.setting,
           },
-          "*"
+          '*'
         );
 
-        const style = document.createElement("style");
+        const style = document.createElement('style');
 
         style.appendChild(
-          document.createTextNode(event.data.setting.css || "")
+          document.createTextNode(event.data.setting.css || '')
         );
 
-        const head = document.querySelector("head");
+        const head = document.querySelector('head');
 
         if (head) {
           head.appendChild(style);
@@ -54,7 +54,7 @@ const widgetConnect = params => {
 
         // render root react component
 
-        const container = document.getElementById("root");
+        const container = document.getElementById('root');
         const root = createRoot(container); // createRoot(container!) if you use TypeScript
         root.render(
           <ApolloProvider client={client}>
@@ -63,7 +63,7 @@ const widgetConnect = params => {
         );
       })
 
-      .catch(error => {
+      .catch((error) => {
         console.error(error); // eslint-disable-line
       });
   });
