@@ -1,4 +1,4 @@
-import { connection } from "./connection";
+import { connection } from './connection';
 
 const userDetailFields = `
   avatar
@@ -97,15 +97,14 @@ const conversationDetailQuery = (isDailycoEnabled: boolean) => `
       _id
       messages {
         ${messageFields}
-        ${
-          isDailycoEnabled
-            ? `
+        ${isDailycoEnabled
+    ? `
         videoCallData {
           url
           status
         }`
-            : ""
-        }
+    : ''
+  }
       }
 
       operatorStatus
@@ -145,15 +144,14 @@ const conversationMessageInserted = (isDailycoEnabled: boolean) => `
   subscription conversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       ${messageFields}
-      ${
-        isDailycoEnabled
-          ? `
+      ${isDailycoEnabled
+    ? `
       videoCallData {
         url
         status
       }`
-          : ""
-      }
+    : ''
+  }
     }
   }
 `;
@@ -355,4 +353,4 @@ export default {
   getEngageMessage,
   MESSAGE_FIELDS
 };
-export { MESSAGE_FIELDS };
+export { MESSAGE_FIELDS }

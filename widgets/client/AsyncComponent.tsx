@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 
 function retry(fn: any, retriesLeft = 30, interval = 2000) {
   return new Promise((resolve, reject) => {
@@ -21,7 +21,9 @@ function retry(fn: any, retriesLeft = 30, interval = 2000) {
   });
 }
 
-export default function asyncComponent(importComponent: any): any {
+export default function asyncComponent(
+  importComponent: any,
+): any {
   class AsyncComponent extends React.Component<any, { component: any }> {
     constructor(props: any) {
       super(props);
@@ -44,7 +46,7 @@ export default function asyncComponent(importComponent: any): any {
         return <Comp {...this.props} />;
       }
 
-      return <div />;
+      return <div/>;
     }
   }
 
