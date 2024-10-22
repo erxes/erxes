@@ -80,5 +80,6 @@
     "Filters" : "Filters",
     "Choose module" : "Choose module",
     "Filter" : "Filter",
-    "There are no SMS deliveries recorded" : "There are no SMS deliveries recorded"    
+    "There are no SMS deliveries recorded" : "There are no SMS deliveries recorded",
+    "The email address is not verified (x) by Amazon Ses services." : "The email address is not verified (x) by Amazon Ses services."
 }
