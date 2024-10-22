@@ -82,7 +82,7 @@ const Payments = (props: Props) => {
         invoiceId,
         paymentId,
         details,
-        amount: invoiceDetail.amount
+        amount: (invoiceDetail.amount)
       }
     }).then(() => {
       invoiceDetailQuery.refetch();
