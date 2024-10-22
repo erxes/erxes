@@ -558,7 +558,7 @@ export default (props: Props) => {
         <FormControl
           type="text"
           name="reason"
-          placeholder="Please write short explanation"
+          placeholder={__("Please write short explanation")}
           onChange={setInputValue}
           required={true}
         />

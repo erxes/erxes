@@ -173,19 +173,19 @@ const RightMenu = (props: Props) => {
         />
 
         <SelectCustomers
-          label="Filter by customer"
+          label={__("Filter by customer")}
           name="customerId"
           initialValue={filterParams.customerId}
           onSelect={handleSelect}
-          customOption={{ value: "", label: "...Clear customer filter" }}
+          customOption={{ value: "", label: __("...Clear customer filter") }}
           multi={false}
         />
         <SelectCompanies
-          label="Filter by company"
+          label={__("Filter by company")}
           name="customerId"
           initialValue={filterParams.customerId}
           onSelect={handleSelect}
-          customOption={{ value: "", label: "...Clear company filter" }}
+          customOption={{ value: "", label: __("...Clear company filter") }}
           multi={false}
         />
 
@@ -199,7 +199,7 @@ const RightMenu = (props: Props) => {
         />
 
         <SelectPos
-          label="Choose pos"
+          label={__("Choose pos")}
           name="posId"
           initialValue={filterParams.posId}
           onSelect={handleSelect}

@@ -32,7 +32,7 @@ class Row extends React.Component<Props> {
 
     return (
       <ModalTrigger
-        title={`Edit Quiz`}
+        title={__(`Edit Quiz`)}
         size="lg"
         trigger={trigger}
         content={content}

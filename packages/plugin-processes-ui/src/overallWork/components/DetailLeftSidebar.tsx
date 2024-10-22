@@ -160,7 +160,7 @@ const DetailLeftSidebar = (props: Props) => {
         <FormGroup>
           <ControlLabel>{__("Product Category")}</ControlLabel>
           <SelectProductCategory
-            label="Choose product category"
+            label={__("Choose product category")}
             name="productCategoryId"
             initialValue={filterParams.productCategoryId || ""}
             customOption={{
@@ -298,7 +298,7 @@ const DetailLeftSidebar = (props: Props) => {
                   name="startDate"
                   dateFormat="YYYY/MM/DD"
                   timeFormat={true}
-                  placeholder="Choose date"
+                  placeholder={__("Choose date")}
                   value={filterParams.startDate || ""}
                   onChange={(value) => onSelectDate(value, "startDate")}
                 />
@@ -311,7 +311,7 @@ const DetailLeftSidebar = (props: Props) => {
                   name="endDate"
                   dateFormat="YYYY/MM/DD"
                   timeFormat={true}
-                  placeholder="Choose date"
+                  placeholder={__("Choose date")}
                   value={filterParams.endDate || ""}
                   onChange={(value) => onSelectDate(value, "endDate")}
                 />

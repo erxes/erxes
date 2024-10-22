@@ -25,14 +25,14 @@ function Component(props: Props) {
   const scoringButton = (
     <ModalTrigger
       size="lg"
-      title="Customer Scoring"
+      title={__("Customer Scoring")}
       trigger={trigger}
       content={modalContent}
     />
   );
   const content = (
     <>
-      <EmptyState icon="building" text="No scoring" />
+      <EmptyState icon="building" text={__("No scoring")} />
       {scoringButton}
     </>
   );

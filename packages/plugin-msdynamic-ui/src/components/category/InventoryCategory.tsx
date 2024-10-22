@@ -55,7 +55,7 @@ const InventoryCategory = ({
         multi={false}
         name="selectedBrands"
         customOption={{
-          label: 'No Brand (noBrand)',
+          label: __('No Brand (noBrand)'),
           value: '',
         }}
       />
@@ -172,7 +172,7 @@ const InventoryCategory = ({
               items.create ? renderTable(items.create?.items, 'CREATE') : []
             }
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={__('Please check first.')}
             emptyIcon="leaf"
             size="large"
             objective={true}
@@ -192,7 +192,7 @@ const InventoryCategory = ({
               items.update ? renderTable(items.update?.items, 'UPDATE') : []
             }
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={__('Please check first.')}
             emptyIcon="leaf"
             size="large"
             objective={true}

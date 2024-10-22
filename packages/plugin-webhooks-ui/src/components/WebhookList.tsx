@@ -88,7 +88,7 @@ const WebhookList = (props: FinalProps) => {
     return (
       <InputBar type="active">
         <SelectBrands
-          label="Filter by brand"
+          label={__("Filter by brand")}
           onSelect={handleBrandSelect}
           initialValue={queryParams.brandIds}
           name="selectedBrands"

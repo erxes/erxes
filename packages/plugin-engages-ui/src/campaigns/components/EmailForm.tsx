@@ -134,13 +134,13 @@ class EmailForm extends React.Component<Props, State> {
     const optionRenderer = option => (
       <FlexContent>
         {!option.disabled ? (
-          <Tip placement="auto" text="Email verified">
+          <Tip placement="auto" text={__("Email verified")}>
             <VerifyCheck>
               <Icon icon="check-circle" />
             </VerifyCheck>
           </Tip>
         ) : (
-          <Tip placement="auto" text="Email not verified">
+          <Tip placement="auto" text={__("Email not verified")}>
             <VerifyCancel>
               <Icon icon="times-circle" />
             </VerifyCancel>
@@ -212,7 +212,7 @@ class EmailForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>
               From:
-              <HelpPopover title="The email address is not verified (x) by Amazon Ses services.">
+              <HelpPopover title={__("The email address is not verified (x) by Amazon Ses services.")}>
                 <div>
                   If you want to verify your email:
                   <ol>

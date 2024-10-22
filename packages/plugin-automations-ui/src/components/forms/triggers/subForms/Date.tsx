@@ -45,7 +45,7 @@ class DateSettings extends React.Component<Props, State> {
           <DateContainer>
             <DateControl
               value={dateConfig?.startDate}
-              placeholder="select start date "
+              placeholder={__("select start date ")}
               onChange={(e) => onChangeDate(e, "startDate")}
             />
           </DateContainer>
@@ -53,7 +53,7 @@ class DateSettings extends React.Component<Props, State> {
             <DateContainer>
               <DateControl
                 value={dateConfig?.endDate}
-                placeholder="select  end date "
+                placeholder={__("select  end date ")}
                 onChange={(e) => onChangeDate(e, "endDate")}
               />
             </DateContainer>

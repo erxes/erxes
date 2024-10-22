@@ -105,7 +105,7 @@ const Detail = (props: Props) => {
             <FormGroup>
               <ModalTrigger
                 size="lg"
-                title="Transfer"
+                title={__("Transfer")}
                 autoOpenKey="showAppAddModal"
                 trigger={transactionTrigger}
                 content={transactionFormContent}

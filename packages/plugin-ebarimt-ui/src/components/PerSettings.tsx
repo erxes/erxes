@@ -138,7 +138,7 @@ const PerSettings: React.FC<Props> = (props: Props) => {
       <FormWrapper>
         <FormColumn>
           <FormGroup>
-            <ControlLabel>{"Title"}</ControlLabel>
+            <ControlLabel>{__("Title")}</ControlLabel>
             <FormControl
               defaultValue={state.config["title"]}
               onChange={onChangeInput.bind(this, "title")}

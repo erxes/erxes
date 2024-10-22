@@ -48,7 +48,7 @@ export default function List(props: Props) {
       emptyContent={
         <EmptyState
           image="/images/actions/5.svg"
-          text="No pricing plans"
+          text={__("No pricing plans")}
           size=""
         />
       }

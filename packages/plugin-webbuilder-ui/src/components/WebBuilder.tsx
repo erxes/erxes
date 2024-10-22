@@ -78,7 +78,7 @@ function WebBuilder(props: Props) {
             data={<List sitesCount={sitesCount} queryParams={queryParams} />}
             count={sitesCount}
             loading={loading}
-            emptyText="You haven't created any website. Start building your site"
+            emptyText={__("You haven't created any website. Start building your site")}
             emptyImage="/images/actions/31.svg"
           />
         }

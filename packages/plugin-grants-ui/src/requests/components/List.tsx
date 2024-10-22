@@ -103,7 +103,7 @@ const List: React.FC<Props> = (props) => {
   );
 
   const updatedProps = {
-    title: "List Request",
+    title: __("List Request"),
     content: renderList(),
     rightActionBar,
     totalCount: totalCount,

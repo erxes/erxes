@@ -117,7 +117,7 @@ const List = (props: IProps) => {
         onFocus={moveCursorAtTheEnd}
       />
       <ModalTrigger
-        title="Add Job"
+        title={__("Add Job")}
         size="lg"
         trigger={trigger}
         autoOpenKey="showProductModal"

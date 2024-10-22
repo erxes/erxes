@@ -59,14 +59,14 @@ const TicketMainActionBar = (props: Props) => {
       />
 
       <SelectCompanies
-        label="Choose companies"
+        label={__("Choose companies")}
         name="companyIds"
         queryParams={queryParams}
         onSelect={onSelect}
       />
 
       <SelectCustomers
-        label="Choose customers"
+        label={__("Choose customers")}
         name="customerIds"
         queryParams={queryParams}
         onSelect={onSelect}

@@ -193,7 +193,7 @@ const RightMenu: React.FC<Props> = props => {
       return (
         <>
           <FormGroup>
-            <ControlLabel>{`Deal name`}</ControlLabel>
+            <ControlLabel>{__(`Deal name`)}</ControlLabel>
             <FormControl
               name={"dealName"}
               defaultValue={filterParams.dealName}
@@ -235,7 +235,7 @@ const RightMenu: React.FC<Props> = props => {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{`Transaction number`}</ControlLabel>
+            <ControlLabel>{__(`Transaction number`)}</ControlLabel>
             <FormControl
               name={"transactionNumber"}
               defaultValue={filterParams.transactionNumber}
@@ -269,7 +269,7 @@ const RightMenu: React.FC<Props> = props => {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{`Content Type`}</ControlLabel>
+          <ControlLabel>{__(`Content Type`)}</ControlLabel>
           <FormControl
             name={"contentType"}
             componentclass="select"

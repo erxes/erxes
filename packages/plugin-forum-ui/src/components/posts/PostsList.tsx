@@ -101,7 +101,7 @@ const List = (props: Props) => {
       />
       &nbsp;&nbsp;
       <ModalTrigger
-        title="Create New Post"
+        title={__("Create New Post")}
         size="lg"
         trigger={
           <Button btnStyle="success" size="small" icon="plus-circle">

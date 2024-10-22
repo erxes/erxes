@@ -51,7 +51,7 @@ class SchedulesConfig extends React.Component<Props> {
     return (
       <ModalTrigger
         size="lg"
-        title="Duplicate Schedule"
+        title={__("Duplicate Schedule")}
         content={content}
         trigger={trigger}
       />
@@ -75,7 +75,7 @@ class SchedulesConfig extends React.Component<Props> {
     return (
       <ModalTrigger
         size="lg"
-        title={`Edit Plan`}
+        title={__(`Edit Plan`)}
         content={content}
         trigger={trigger}
       />
@@ -144,7 +144,7 @@ class SchedulesConfig extends React.Component<Props> {
 
       return (
         <ModalTrigger
-          title="Detail Schedule"
+          title={__("Detail Schedule")}
           size="lg"
           content={content}
           trigger={trigger}

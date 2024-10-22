@@ -21,8 +21,8 @@ function EngageConfigs() {
       }
       mainHead={
         <Header
-          title="Broadcast config"
-          description="Set up your Broadcast config."
+          title={__("Broadcast config")}
+          description={__("Set up your Broadcast config.")}
         />
       }
       actionBar={

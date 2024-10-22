@@ -151,7 +151,7 @@ class SiteForm extends React.Component<Props, State> {
 
     return (
       <>
-        <Wrapper.Header title={"Site Edit Form"} breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__("Site Edit Form")} breadcrumb={breadcrumb} />
 
         <SiteFormContainer $showDarkMode={showDarkMode}>
           <FlexItem>

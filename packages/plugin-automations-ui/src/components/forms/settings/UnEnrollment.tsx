@@ -48,7 +48,7 @@ class UnEnrollment extends React.Component<Props> {
         <div>
           <p>
             {
-              "When two contacts are merged, shoud the newly created contact enroll in this workflow if they meet the trigger criteria"
+              __("When two contacts are merged, shoud the newly created contact enroll in this workflow if they meet the trigger criteria")
             }
             ?
           </p>
@@ -67,7 +67,7 @@ class UnEnrollment extends React.Component<Props> {
           <b>Suppression lists for this workflow</b>
           <p>
             {
-              "Contacts on these lists will be removed from the workflow. You can add up to 20 suppression lists"
+              __("Contacts on these lists will be removed from the workflow. You can add up to 20 suppression lists")
             }
           </p>
           <Select

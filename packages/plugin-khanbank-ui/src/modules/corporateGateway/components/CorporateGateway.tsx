@@ -30,14 +30,14 @@ const CorporateGateway = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title="Khanbank Corporate Gateway"
+          title={__("Khanbank Corporate Gateway")}
           breadcrumb={breadcrumb}
         />
       }
       mainHead={
         <HeaderDescription
           icon="/images/actions/27.svg"
-          title="Khanbank Corporate Gateway"
+          title={__("Khanbank Corporate Gateway")}
           description={__(
             `Corporate Gateway enables you access banking services through erxes.`,
           )}

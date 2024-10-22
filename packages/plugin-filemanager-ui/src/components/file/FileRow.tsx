@@ -60,7 +60,7 @@ const FileRow = ({
     );
 
     return (
-      <ModalTrigger title="Edit File" trigger={editTrigger} content={content} />
+      <ModalTrigger title={__("Edit File")} trigger={editTrigger} content={content} />
     );
   };
 

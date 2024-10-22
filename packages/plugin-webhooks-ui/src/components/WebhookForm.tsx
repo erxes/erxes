@@ -120,7 +120,7 @@ const WebhookForm = (props: Props) => {
 
         <Formgroup>
           <p>
-            {"For more information, please review the "}
+            {__("For more information, please review the ")}
             <a target="_blank" rel="noopener noreferrer" href={WEBHOOK_DOC_URL}>
               documentaion.
             </a>

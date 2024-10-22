@@ -40,7 +40,7 @@ const Row: React.FC<Props> = (props) => {
     return (
       <ModalTrigger
         size="lg"
-        title="Edit"
+        title={__("Edit")}
         trigger={editTrigger}
         content={content}
       />

@@ -50,7 +50,7 @@ const List = (props: Props) => {
           emptyContent={
             <EmptyState
               image="/images/actions/5.svg"
-              text="No transactions"
+              text={__("No transactions")}
               size=""
             />
           }

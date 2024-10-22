@@ -115,7 +115,7 @@ const OwnerSetup = (props: Props) => {
       <form onSubmit={handleSubmit}>
         <FormGroup>
           <FormControl
-            placeholder="First name"
+            placeholder={__("First name")}
             type="text"
             name="firstName"
             onChange={handleFirstName}
@@ -123,7 +123,7 @@ const OwnerSetup = (props: Props) => {
         </FormGroup>
         <FormGroup>
           <FormControl
-            placeholder="Last name"
+            placeholder={__("Last name")}
             type="text"
             name="lastName"
             onChange={handleLastName}
@@ -139,7 +139,7 @@ const OwnerSetup = (props: Props) => {
 
         <FormGroup>
           <FormControl
-            placeholder="Email"
+            placeholder={__("Email")}
             type="text"
             name="email"
             onChange={handleEmail}

@@ -194,7 +194,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
             </Padding>
           </Step>
           <Step
-            title="Additional Bot Setup"
+            title={__("Additional Bot Setup")}
             noButton
             img="/images/icons/erxes-12.svg"
             back={() => setLastStep(true)}
@@ -209,7 +209,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
                 <FormControl
                   name="greetMessage"
                   componentclass="textarea"
-                  placeholder="Type a greet message for your messenger"
+                  placeholder={__("Type a greet message for your messenger")}
                   defaultValue={doc.greetText}
                   onChange={onChangeGreetText}
                 />
@@ -273,13 +273,13 @@ function Form({ renderButton, bot, returnToList }: Props) {
                   <Container>
                     <FormGroup>
                       <ControlLabel>
-                        {"Back Button Text (optional)"}
+                        {__("Back Button Text (optional)")}
                       </ControlLabel>
                       <FieldInfo
                         error={doc?.backButtonText?.length > 20}
                       >{`${doc?.backButtonText?.length || 0}/20`}</FieldInfo>
                       <FormControl
-                        placeholder="Set custom back button text for the persistent menu"
+                        placeholder={__("Set custom back button text for the persistent menu")}
                         value={doc.backButtonText || ""}
                         onChange={onChangeBackButtonInput}
                       />
