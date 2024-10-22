@@ -1,8 +1,7 @@
 import { generateModels } from "../connectionResolver";
 import {
   sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "../messageBroker";
 import { sendRPCMessage } from "../messageBrokerErkhet";
 import { getConfig, getPureDate } from "./utils";
@@ -36,7 +35,7 @@ export const getPostData = async (subdomain, pos, order) => {
     "";
 
   const productsIds = order.items.map(item => item.productId);
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
     action: "products.find",
     data: { query: { _id: { $in: productsIds } } },

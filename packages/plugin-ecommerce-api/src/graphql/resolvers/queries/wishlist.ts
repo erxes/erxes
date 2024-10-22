@@ -1,5 +1,5 @@
 import { IContext } from "../../../connectionResolver";
-import { sendProductsMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 
 const wishlistQueries = {
   wish: async (
@@ -12,7 +12,7 @@ const wishlistQueries = {
 
     if (!wsh) return null;
 
-    const product = await sendProductsMessage({
+    const product = await sendCoreMessage({
       subdomain,
       action: "products.findOne",
       data: { _id: productId },
@@ -34,7 +34,7 @@ const wishlistQueries = {
 
     const productIds = wishes.map(w => w.productId);
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
       action: "products.find",
       data: {

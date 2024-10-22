@@ -1,7 +1,7 @@
 import { generateFieldsFromSchema } from "@erxes/api-utils/src";
 import { generateModels } from "./connectionResolver";
 import { EXTEND_FIELDS, POS_ORDER_INFO } from "./contants";
-import { sendProductsMessage } from "./messageBroker";
+import { sendCoreMessage } from "./messageBroker";
 
 const generateProductsOptions = async (
   subdomain: string,
@@ -9,7 +9,7 @@ const generateProductsOptions = async (
   label: string,
   type: string
 ) => {
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
     action: "products.find",
     data: {

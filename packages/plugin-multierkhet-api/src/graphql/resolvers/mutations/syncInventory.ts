@@ -1,6 +1,6 @@
 import { IContext } from "../../../connectionResolver";
 import fetch from "node-fetch";
-import { sendProductsMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 import {
   consumeInventory,
   consumeInventoryCategory
@@ -29,7 +29,7 @@ const inventoryMutations = {
       ];
     }
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
       action: "products.find",
       data: {
@@ -38,7 +38,7 @@ const inventoryMutations = {
       isRPC: true
     });
 
-    const productCategories = await sendProductsMessage({
+    const productCategories = await sendCoreMessage({
       subdomain,
       action: "categories.find",
       data: { query: {} },
@@ -141,7 +141,7 @@ const inventoryMutations = {
       throw new Error("Erkhet config not found.");
     }
 
-    const categories = await sendProductsMessage({
+    const categories = await sendCoreMessage({
       subdomain,
       action: "categories.find",
       data: {
@@ -187,7 +187,7 @@ const inventoryMutations = {
     let otherCategories: any[] = [];
     for (const code of categoryCodes) {
       if (result.every(r => r.code !== code)) {
-        const response = await sendProductsMessage({
+        const response = await sendCoreMessage({
           subdomain,
           action: "categories.findOne",
           data: { code: code },

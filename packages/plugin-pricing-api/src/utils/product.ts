@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import { sendProductsMessage, sendCoreMessage } from "../messageBroker";
+import { sendCoreMessage } from "../messageBroker";
 import { IPricingPlanDocument } from "../models/definitions/pricingPlan";
 
 /**
@@ -23,7 +23,7 @@ export const getParentsOrders = (order: string): string[] => {
 };
 
 export const getChildCategories = async (subdomain: string, categoryIds) => {
-  const childs = await sendProductsMessage({
+  const childs = await sendCoreMessage({
     subdomain,
     action: "categories.withChilds",
     data: { ids: categoryIds },
@@ -92,7 +92,7 @@ export const getAllowedProducts = async (
     }
 
     case "vendor": {
-      const products = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
         action: "products.find",
         data: {
@@ -121,7 +121,7 @@ export const getAllowedProducts = async (
         return [];
       }
 
-      const products = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
         action: "products.find",
         data: {
@@ -163,7 +163,7 @@ export const getAllowedProducts = async (
         return [];
       }
 
-      const products = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
         action: "products.find",
         data: {

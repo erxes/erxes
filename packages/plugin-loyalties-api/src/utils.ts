@@ -1,5 +1,5 @@
 import { IModels } from "./connectionResolver";
-import { sendCoreMessage, sendProductsMessage } from "./messageBroker";
+import { sendCoreMessage } from "./messageBroker";
 import { VOUCHER_STATUS } from "./models/definitions/constants";
 
 interface IProductD {
@@ -8,7 +8,7 @@ interface IProductD {
 }
 
 export const getChildCategories = async (subdomain: string, categoryIds) => {
-  const childs = await sendProductsMessage({
+  const childs = await sendCoreMessage({
     subdomain,
     action: "categories.withChilds",
     data: { ids: categoryIds },
@@ -160,7 +160,7 @@ export const checkVouchersSale = async (
     allCatIds = allCatIds.concat(catIds);
   }
 
-  const catProducts = await sendProductsMessage({
+  const catProducts = await sendCoreMessage({
     subdomain,
     action: "products.find",
     data: {

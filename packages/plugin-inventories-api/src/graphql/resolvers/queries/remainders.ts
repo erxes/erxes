@@ -3,7 +3,7 @@ import {
   requireLogin
 } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
-import { sendCoreMessage, sendProductsMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 import {
   IRemainderParams,
   IRemainderProductsParams,
@@ -63,7 +63,7 @@ const remainderQueries = {
 
     const productFilter: any = {};
     if (categoryId) {
-      const productCategories = await sendProductsMessage({
+      const productCategories = await sendCoreMessage({
         subdomain,
         action: "categories.withChilds",
         data: {
@@ -79,7 +79,7 @@ const remainderQueries = {
       productFilter._id = { $in: productIds };
     }
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
       action: "products.find",
       data: { query: productFilter },

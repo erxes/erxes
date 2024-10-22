@@ -10,7 +10,7 @@ import {
 //   requireLogin
 // } from '@erxes/api-utils/src/permissions';
 import { IContext, IModels } from '../../../connectionResolver';
-import { sendProductsMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 
 interface IParam {
   search: string;
@@ -83,7 +83,7 @@ const generateFilter = async (
   }
 
   if (productCategoryId) {
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
       action: 'products.find',
       data: { categoryId: productCategoryId, fields: { _id: 1 } },

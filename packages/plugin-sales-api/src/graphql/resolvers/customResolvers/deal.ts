@@ -4,8 +4,7 @@ import { IContext } from "../../../connectionResolver";
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendNotificationsMessage,
-  sendProductsMessage
+  sendNotificationsMessage
 } from "../../../messageBroker";
 
 export const generateProducts = async (
@@ -22,7 +21,7 @@ export const generateProducts = async (
     .filter(pd => pd.productId)
     .map(pd => pd.productId);
 
-  const allProducts = await sendProductsMessage({
+  const allProducts = await sendCoreMessage({
     subdomain,
     action: "products.find",
     data: { query: { _id: { $in: productIds } }, limit: productsData.length },

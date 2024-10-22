@@ -1,5 +1,5 @@
 import { IContext } from "../../../connectionResolver";
-import { sendProductsMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 import { ISafeRemainderItemDocument } from "../../../models/definitions/safeRemainderItems";
 
 export default {
@@ -8,7 +8,7 @@ export default {
     _,
     { subdomain }: IContext
   ) {
-    return sendProductsMessage({
+    return sendCoreMessage({
       subdomain,
       action: "products.findOne",
       data: {
