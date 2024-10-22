@@ -17,6 +17,7 @@ import {
   findBranches,
   findUser,
   returnUnionOfUserIds,
+  timeclockLocation,
 } from './utils';
 import dayjs = require('dayjs');
 import {
@@ -59,41 +60,22 @@ const timeclockMutations = {
     { userId, longitude, latitude, deviceType },
     { models, user, subdomain }: IContext
   ) {
-    // convert long, lat into radians
-    const longRad = (Math.PI * longitude) / 180;
-    const latRad = (latitude * Math.PI) / 180;
-
     let insideCoordinate = false;
     let getBranchName;
     let getScheduleConfig;
 
     const getUserId = userId || user._id;
 
-    const EARTH_RADIUS = 6378.14;
-
     const userInfo = await findUser(subdomain, getUserId);
     const branches = await findBranches(subdomain, userInfo.branchIds);
 
     for (const branch of branches) {
-      // convert into radians
-      const branchLong = (branch.coordinate.longitude * Math.PI) / 180;
-      const branchLat = (branch.coordinate.latitude * Math.PI) / 180;
-
-      const longDiff = longRad - branchLong;
-      const latDiff = latRad - branchLat;
-
-      // distance in km
-      const dist =
-        EARTH_RADIUS *
-        2 *
-        Math.asin(
-          Math.sqrt(
-            Math.pow(Math.sin(latDiff / 2), 2) +
-              Math.cos(latRad) *
-                Math.cos(branchLat) *
-                Math.pow(Math.sin(longDiff / 2), 2)
-          )
-        );
+      const dist = await timeclockLocation(
+        longitude,
+        latitude,
+        branch.coordinate.longitude,
+        branch.coordinate.latitude
+      );
 
       // if user's coordinate is within the radius
       if (dist * 1000 <= branch.radius) {
@@ -113,31 +95,21 @@ const timeclockMutations = {
         });
       }
 
-      const branchLong =
-        (getScheduleConfig.locations[0].longitude * Math.PI) / 180;
-      const branchLat =
-        (getScheduleConfig.locations[0].latitude * Math.PI) / 180;
+      if (getScheduleConfig) {
+        for (const location of getScheduleConfig.locations) {
+          const dist = await timeclockLocation(
+            longitude,
+            latitude,
+            location.longitude,
+            location.latitude
+          );
 
-      const longDiff = longRad - branchLong;
-      const latDiff = latRad - branchLat;
-
-      // distance in km
-      const dist =
-        EARTH_RADIUS *
-        2 *
-        Math.asin(
-          Math.sqrt(
-            Math.pow(Math.sin(latDiff / 2), 2) +
-              Math.cos(latRad) *
-                Math.cos(branchLat) *
-                Math.pow(Math.sin(longDiff / 2), 2)
-          )
-        );
-
-      // if user's coordinate is within the radius
-      if (dist * 1000 <= 500) {
-        insideCoordinate = true;
-        getBranchName = getScheduleConfig.locations[0].name;
+          // if user's coordinate is within the radius
+          if (dist * 1000 <= 500) {
+            insideCoordinate = true;
+            getBranchName = location.name;
+          }
+        }
       }
     }
 
@@ -172,13 +144,8 @@ const timeclockMutations = {
 
     const getUserId = userId || user._id;
 
-    // convert long, lat into radians
-    const longRad = (Math.PI * longitude) / 180;
-    const latRad = (latitude * Math.PI) / 180;
-
     let insideCoordinate = false;
-
-    const EARTH_RADIUS = 6378.14;
+    let getScheduleConfig;
 
     const userInfo = await findUser(subdomain, getUserId);
     const branches = await findBranches(subdomain, userInfo.branchIds);
@@ -186,29 +153,44 @@ const timeclockMutations = {
     let outDevice;
 
     for (const branch of branches) {
-      // convert into radians
-      const branchLong = (branch.coordinate.longitude * Math.PI) / 180;
-      const branchLat = (branch.coordinate.latitude * Math.PI) / 180;
+      const dist = await timeclockLocation(
+        longitude,
+        latitude,
+        branch.coordinate.longitude,
+        branch.coordinate.latitude
+      );
 
-      const longDiff = longRad - branchLong;
-      const latDiff = latRad - branchLat;
-
-      // distance in km
-      const dist =
-        EARTH_RADIUS *
-        2 *
-        Math.asin(
-          Math.sqrt(
-            Math.pow(Math.sin(latDiff / 2), 2) +
-              Math.cos(latRad) *
-                Math.cos(branchLat) *
-                Math.pow(Math.sin(longDiff / 2), 2)
-          )
-        );
       // if user's coordinate is within the radius
       if (dist * 1000 <= branch.radius) {
         insideCoordinate = true;
         outDevice = branch.title;
+      }
+    }
+
+    if (!insideCoordinate) {
+      const getSchedule = await models.Schedules.findOne({ userId: getUserId });
+
+      if (getSchedule) {
+        getScheduleConfig = await models.ScheduleConfigs.findOne({
+          _id: getSchedule.scheduleConfigId,
+        });
+      }
+
+      if (getScheduleConfig) {
+        for (const location of getScheduleConfig.locations) {
+          const dist = await timeclockLocation(
+            longitude,
+            latitude,
+            location.longitude,
+            location.latitude
+          );
+
+          // if user's coordinate is within the radius
+          if (dist * 1000 <= 500) {
+            insideCoordinate = true;
+            outDevice = location.name;
+          }
+        }
       }
     }
 

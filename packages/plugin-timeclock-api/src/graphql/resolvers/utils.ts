@@ -1591,3 +1591,37 @@ export const timeclockReportByUsers = async (
 
   return returnReport;
 };
+
+export const timeclockLocation = async (
+  longitude: number,
+  latitude: number,
+  actionLongitude: number,
+  actionLatitude: number
+) => {
+  // convert long, lat into radians
+  const longRad = (Math.PI * longitude) / 180;
+  const latRad = (latitude * Math.PI) / 180;
+  const EARTH_RADIUS = 6378.14;
+
+  // convert into radians
+  const branchLong = (actionLongitude * Math.PI) / 180;
+  const branchLat = (actionLatitude * Math.PI) / 180;
+
+  const longDiff = longRad - branchLong;
+  const latDiff = latRad - branchLat;
+
+  // distance in km
+  const dist =
+    EARTH_RADIUS *
+    2 *
+    Math.asin(
+      Math.sqrt(
+        Math.pow(Math.sin(latDiff / 2), 2) +
+          Math.cos(latRad) *
+            Math.cos(branchLat) *
+            Math.pow(Math.sin(longDiff / 2), 2)
+      )
+    );
+
+  return dist;
+};
