@@ -44,7 +44,7 @@ export const loadTourClass = (models: IModels, subdomain: string) => {
         { $set: { ...doc, modifiedAt: new Date() } }
       );
 
-      return models.Itineraries.findOne({ _id });
+      return await models.Tours.findOne({ _id });
     }
 
     /**

@@ -45,7 +45,7 @@ export const queries = `
   bmElements(categories: [String], page:Int, perPage:Int): ListElement
   bmElementCategoryies(parentId:String): [ElementCategory]
   bmElementsInit: JSON
-
+  bmCategoryInit: JSON
 `;
 
 const params = `

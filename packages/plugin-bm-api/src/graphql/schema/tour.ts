@@ -44,18 +44,38 @@ export const types = () => `
     groupSize: Int
     status: String
     cost: Float
+    orders: [Order]
     createdAt: Date
     modifiedAt: Date
   }
+
+  type Order {
+    _id: String!
+    customerId: String
+    tourId: String
+    amount: Float
+    status: String
+  }
+  input OrderInput {
+    customerId: String
+    tourId: String
+    amount: Float
+    status: String
+  }
+
   type ListTour {
     list: [Tour]
     total: Int
   }
-
+  type ListOrder {
+    list: [Order]
+    total: Int
+  }
 `;
 
 export const queries = `
   bmTours( page:Int, perPage:Int): ListTour
+  bmOrders( tourId:String, customerId:String):ListOrder
 `;
 
 const params = `
@@ -75,5 +95,7 @@ export const mutations = `
   bmTourAdd(${params}): Itinerary
   bmTourRemove(ids: [String]): JSON
   bmTourEdit(_id:String!, ${params}): Itinerary
-
+  bmOrderAdd(order:OrderInput): Order
+  bmOrderEdit(_id:String!,order:OrderInput): Order
+  bmOrderRemove(ids:[String]): JSON
 `;

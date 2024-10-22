@@ -14,12 +14,15 @@ import { IItineraryModel, loadItineraryClass } from './models/Itinerary';
 import { IItineraryDocument } from './models/definitions/itinerary';
 import { ITourModel, loadTourClass } from './models/Tour';
 import { ITourDocument } from './models/definitions/tour';
+import { IOrderModel, loadOrderClass } from './models/Order';
+import { IOrderDocument } from './models/definitions/order';
 
 export interface IModels {
   Elements: IElementModel;
   ElementCategories: IElementCategoryModel;
   Itineraries: IItineraryModel;
   Tours: ITourModel;
+  Orders: IOrderModel;
 }
 
 export interface IContext extends IMainContext {
@@ -53,6 +56,10 @@ export const loadClasses = (
     loadTourClass(models, subdomain)
   );
 
+  models.Orders = db.model<IOrderDocument, IOrderModel>(
+    'bm_orders',
+    loadOrderClass(models, subdomain)
+  );
   return models;
 };
 
