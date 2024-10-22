@@ -69,6 +69,7 @@ export const INTEGRATION_KINDS = {
   MESSENGER: 'messenger',
   FACEBOOK_MESSENGER: 'facebook-messenger',
   INSTAGRAM_MESSENGER: 'instagram-messenger',
+  WHATSAPP_MESSENGER: 'whatsapp-messenger',
   FACEBOOK_POST: 'facebook-post',
   INSTAGRAM_POST: 'instagram-post',
   FORMS: 'lead',
@@ -87,8 +88,7 @@ export const INTEGRATION_KINDS = {
       value: 'instagram-messenger'
     },
     { text: 'Webhook', value: 'webhook' },
-    { text: 'Callpro', value: 'callpro' },
-
+    { text: 'Callpro', value: 'callpro' }
   ]
 };
 
