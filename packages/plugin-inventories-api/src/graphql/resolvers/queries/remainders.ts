@@ -79,17 +79,10 @@ const remainderQueries = {
       productFilter._id = { $in: productIds };
     }
 
-    const limit = await sendProductsMessage({
-      subdomain,
-      action: "productCount",
-      data: { query: productFilter },
-      isRPC: true
-    });
-
     const products = await sendProductsMessage({
       subdomain,
-      action: "productFind",
-      data: { query: productFilter, limit },
+      action: "products.find",
+      data: { query: productFilter },
       isRPC: true
     });
 
@@ -150,7 +143,10 @@ const remainderQueries = {
   }
 };
 
-requireLogin(remainderQueries, "tagDetail");
-checkPermission(remainderQueries, "remainders", "showTags", []);
+requireLogin(remainderQueries, "remainders");
+requireLogin(remainderQueries, "remainderCount");
+requireLogin(remainderQueries, "remainderProducts");
+checkPermission(remainderQueries, "remainderDetail", "manageRemainders", []);
+checkPermission(remainderQueries, "remaindersLog", "manageRemainders", []);
 
 export default remainderQueries;

@@ -1,13 +1,13 @@
+import { Header } from '@erxes/ui-settings/src/styles';
 import {
-  __,
   Button,
   DataWithLoader,
   Icon,
   ModalTrigger,
-  router,
+  SidebarList,
   Tip,
   Wrapper,
-  SidebarList,
+  SidebarList
 } from '@erxes/ui/src';
 import { Header } from '@erxes/ui-settings/src/styles';
 
@@ -46,19 +46,29 @@ const CategoryList = (props: Props) => {
     category?: ICarCategory
   ) => {
     const content = (props) => (
-      <CategoryForm {...props} category={category} categories={carCategories} />
+      <CategoryForm
+        {...props}
+        category={category}
+        categories={carCategories}
+      />
     );
 
     return (
-      <ModalTrigger title="Add category" trigger={trigger} content={content} />
+      <ModalTrigger
+        title='Add category'
+        trigger={trigger}
+        content={content}
+      />
     );
   };
 
   const renderEditAction = (category: ICarCategory) => {
     const trigger = (
-      <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="bottom">
-          <Icon icon="edit" />
+      <Button btnStyle='link'>
+        <Tip
+          text={__('Edit')}
+          placement='bottom'>
+          <Icon icon='edit' />
         </Tip>
       </Button>
     );
@@ -68,9 +78,13 @@ const CategoryList = (props: Props) => {
 
   const renderRemoveAction = (category: ICarCategory) => {
     return (
-      <Button btnStyle="link" onClick={remove.bind(null, category._id)}>
-        <Tip text={__('Remove')} placement="bottom">
-          <Icon icon="cancel-1" />
+      <Button
+        btnStyle='link'
+        onClick={remove.bind(null, category._id)}>
+        <Tip
+          text={__('Remove')}
+          placement='bottom'>
+          <Icon icon='cancel-1' />
         </Tip>
       </Button>
     );
@@ -90,9 +104,9 @@ const CategoryList = (props: Props) => {
           removeAction={renderRemoveAction}
           loading={loading}
           queryParams={queryParams}
-          queryParamName="categoryId"
+          queryParamName='categoryId'
           treeView={true}
-          keyCount="carCount"
+          keyCount='carCount'
           onClick={handleClick}
         />
       </SidebarList>
@@ -105,9 +119,9 @@ const CategoryList = (props: Props) => {
         data={renderContent()}
         loading={loading}
         count={totalCount}
-        emptyText="There is no car category"
-        emptyIcon="folder-2"
-        size="small"
+        emptyText='There is no car category'
+        emptyIcon='folder-2'
+        size='small'
       />
     );
   };
@@ -115,11 +129,10 @@ const CategoryList = (props: Props) => {
   const renderCategoryHeader = () => {
     const trigger = (
       <Button
-        btnStyle="success"
+        btnStyle='success'
         uppercase={false}
-        icon="plus-circle"
-        block={true}
-      >
+        icon='plus-circle'
+        block={true}>
         Add category
       </Button>
     );
@@ -131,9 +144,14 @@ const CategoryList = (props: Props) => {
           {__('Categories')}
           <Section.QuickButtons>
             {router.getParam(location, 'categoryId') && (
-              <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
-                <Tip text={__('Clear filter')} placement="bottom">
-                  <Icon icon="times-circle" />
+              <a
+                href='#cancel'
+                tabIndex={0}
+                onClick={clearCategoryFilter}>
+                <Tip
+                  text={__('Clear filter')}
+                  placement='bottom'>
+                  <Icon icon='times-circle' />
                 </Tip>
               </a>
             )}

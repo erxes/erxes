@@ -83,17 +83,10 @@ const generateFilter = async (
   }
 
   if (productCategoryId) {
-    const limit = await sendProductsMessage({
-      subdomain,
-      action: 'count',
-      data: { categoryId: productCategoryId },
-      isRPC: true,
-    });
-
     const products = await sendProductsMessage({
       subdomain,
-      action: 'find',
-      data: { limit, categoryId: productCategoryId, fields: { _id: 1 } },
+      action: 'products.find',
+      data: { categoryId: productCategoryId, fields: { _id: 1 } },
       isRPC: true,
     });
 

@@ -25,7 +25,7 @@ export async function sendNotification(
       data: { _id: contract.customerId },
       isRPC: true
     },
-    "contacts"
+    "core"
   );
 
   if (isEnabledClientPortal) {

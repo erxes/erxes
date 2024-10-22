@@ -69,6 +69,7 @@ class ArticleForm extends React.Component<Props, State> {
       attachments,
       isPrivate: article.isPrivate || false,
       isScheduled: article.status === 'scheduled' || false,
+      scheduledDate: article.status === 'scheduled' ? article.scheduledDate : undefined,
     };
   }
 
@@ -114,15 +115,6 @@ class ArticleForm extends React.Component<Props, State> {
 
     if (article) {
       finalValues._id = article._id;
-    }
-
-    if (this.state.isScheduled && !this.state.scheduledDate) {
-      return alert(__('Please select a publish date'));
-    } else if (
-      this.state.scheduledDate &&
-      this.state.scheduledDate < new Date()
-    ) {
-      return alert(__('Publish date cannot be in the past'));
     }
 
     return {
@@ -383,8 +375,8 @@ class ArticleForm extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Code')}</ControlLabel>
-          <FormControl {...formProps} name='code' defaultValue={object.code} />
+          <ControlLabel required={true}>{__('Code')}</ControlLabel>
+          <FormControl {...formProps} name='code' defaultValue={object.code} required={true} />
         </FormGroup>
 
         <FormGroup>

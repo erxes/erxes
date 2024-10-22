@@ -50,7 +50,7 @@ const trackIframe = () => {
 };
 
 if (!embedContainer) {
-  console.log(
+  console.error(
     'Please create a "div" element with an attribute named "data-erxes-kbase"'
   ); // eslint-disable-line
 } else {

@@ -1,5 +1,4 @@
 import {
-  moduleRequireLogin,
   moduleCheckPermission
 } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
@@ -68,21 +67,10 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
     }
 
     if (Object.keys(productFilter).length) {
-      const limit = await sendProductsMessage({
-        subdomain,
-        action: "productCount",
-        data: {
-          ...productFilter,
-          categoryId: productCategoryId
-        },
-        isRPC: true,
-        defaultValue: 0
-      });
-
       const products = await sendProductsMessage({
         subdomain,
-        action: "productFind",
-        data: { ...productFilter, limit, fields: { _id: 1 } },
+        action: "products.find",
+        data: { ...productFilter, fields: { _id: 1 } },
         isRPC: true,
         defaultValue: []
       });
@@ -113,7 +101,6 @@ const reserveRemsQueries = {
   }
 };
 
-moduleRequireLogin(reserveRemsQueries);
-moduleCheckPermission(reserveRemsQueries, "showSalesPlans");
+moduleCheckPermission(reserveRemsQueries, "manageRemainders");
 
 export default reserveRemsQueries;

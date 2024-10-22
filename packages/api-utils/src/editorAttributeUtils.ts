@@ -111,7 +111,7 @@ export default class EditorAttributeUtil {
   async getPossibleCustomerFields(): Promise<ICustomerField[]> {
     if (!this._possibleCustomerFields) {
       this._possibleCustomerFields = await sendRPCMessage(
-        "forms:fieldsCombinedByContentType",
+        "core:fieldsCombinedByContentType",
         {
           data: { contentType: "core:customer" },
           subdomain: this.subdomain
@@ -219,7 +219,7 @@ export default class EditorAttributeUtil {
         value: getCustomerName(customer)
       });
 
-      const fields = await sendRPCMessage("forms:fields.find", {
+      const fields = await sendRPCMessage("core:fields.find", {
         data: {
           query: {
             type: "file",
@@ -327,7 +327,7 @@ export default class EditorAttributeUtil {
           .join(",")
       });
 
-      const fieldMetaDatas = await sendRPCMessage("forms:fields.find", {
+      const fieldMetaDatas = await sendRPCMessage("core:fields.find", {
         data: {
           query: {
             contentType: item.contentType,

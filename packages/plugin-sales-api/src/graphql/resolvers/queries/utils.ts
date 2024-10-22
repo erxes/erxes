@@ -649,7 +649,7 @@ export const generateSort = (args: IListParams) => {
   const { sortField, sortDirection } = args;
 
   if (sortField && sortDirection) {
-    sort = { [sortField]: sortDirection };
+    sort = { [sortField]: sortDirection, order: 1, createdAt: -1 };
   }
 
   return sort;
@@ -1097,8 +1097,6 @@ export const getItemList = async (
     },
     isRPC: true
   });
-
-  console.log(companies);
 
   if (serverTiming) {
     serverTiming.endTime("getItemsCompanies");

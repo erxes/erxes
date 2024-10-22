@@ -80,7 +80,7 @@ export const getIncomeData = async (
 
   const products = await sendProductsMessage({
     subdomain,
-    action: "productFind",
+    action: "products.find",
     data: {
       query: { _id: { $in: productsIds } },
       limit: purchase.productsData.length

@@ -15,19 +15,11 @@ const inventoryMutations = {
       throw new Error('Erkhet config not found.');
     }
 
-    const productsCount = await sendProductsMessage({
-      subdomain,
-      action: 'count',
-      data: { query: { status: { $ne: 'deleted' } } },
-      isRPC: true,
-    });
-
     const products = await sendProductsMessage({
       subdomain,
-      action: 'find',
+      action: 'products.find',
       data: {
         query: { status: { $ne: 'deleted' } },
-        limit: productsCount,
       },
       isRPC: true,
     });

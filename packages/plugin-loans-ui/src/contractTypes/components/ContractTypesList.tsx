@@ -114,6 +114,7 @@ const ContractTypesList = (props: IProps) => {
               <SortHandler sortField={"number"} label={__("Start Number")} />
             </th>
             <th>{__("After vacancy count")}</th>
+            <th>{__("Product")}</th>
             <th></th>
           </tr>
         </thead>

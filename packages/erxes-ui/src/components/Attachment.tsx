@@ -54,8 +54,8 @@ const Download = styled.a`
 const PreviewWrapper = styledTS<{ large?: boolean; small?: boolean }>(
   styled.div
 )`
-  width: ${props => (props.large ? '300px' : props.small ? '55px' : '110px')};
-  height: ${props => (props.large ? '220px' : props.small ? '40px' : '80px')};
+  width: ${(props) => (props.large ? '300px' : props.small ? '55px' : '110px')};
+  height: ${(props) => (props.large ? '220px' : props.small ? '40px' : '80px')};
   background: ${rgba(colors.colorCoreDarkBlue, 0.08)};
   display: flex;
   justify-content: center;
@@ -162,9 +162,11 @@ class Attachment extends React.Component<Props> {
     if (size > 1000) {
       return <>({Math.round(size / 1000)}kB)</>;
     }
+
+    return <>({size}B)</>;
   }
 
-  renderOtherInfo = attachment => {
+  renderOtherInfo = (attachment) => {
     const { small } = this.props;
     const name = attachment.name || attachment.url || '';
 
@@ -173,11 +175,11 @@ class Attachment extends React.Component<Props> {
         <h5>
           <AttachmentName>{name}</AttachmentName>
           <Download
-            rel="noopener noreferrer"
+            rel='noopener noreferrer'
             href={readFile(attachment.url)}
-            target="_blank"
+            target='_blank'
           >
-            <Icon icon="external-link-alt" />
+            <Icon icon='external-link-alt' />
           </Download>
         </h5>
         <Meta>
@@ -214,7 +216,7 @@ class Attachment extends React.Component<Props> {
                 </AttachmentInfo>
                 <Icon
                   size={10}
-                  icon="cancel"
+                  icon='cancel'
                   onClick={() => removeAttachment && removeAttachment(i)}
                 />
               </div>
@@ -225,7 +227,7 @@ class Attachment extends React.Component<Props> {
     );
   };
 
-  renderOtherFile = (attachment: IAttachment, icon?: string) => {
+  renderOtherFile = (attachment: IAttachment, icon?: string, forceShowIcon?: boolean) => {
     const { index, attachments, large, small } = this.props;
 
     return (
@@ -237,6 +239,7 @@ class Attachment extends React.Component<Props> {
             onLoad={this.onLoadImage}
             attachment={attachment}
             attachments={attachments}
+            forceShowIcon={forceShowIcon}
           />
         </PreviewWrapper>
         <ItemInfo>{this.renderOtherInfo(attachment)}</ItemInfo>
@@ -253,9 +256,9 @@ class Attachment extends React.Component<Props> {
       sources: [
         {
           src: readFile(attachment.url),
-          type: 'video/mp4'
-        }
-      ]
+          type: 'video/mp4',
+        },
+      ],
     };
 
     if (simple) {
@@ -280,9 +283,9 @@ class Attachment extends React.Component<Props> {
       sources: [
         {
           src: attachment.url,
-          type: 'application/x-mpegURL'
-        }
-      ]
+          type: 'application/x-mpegURL',
+        },
+      ],
     };
 
     if (simple) {
@@ -313,21 +316,21 @@ class Attachment extends React.Component<Props> {
   renderAudioFile(attachment) {
     return (
       <audio controls={true}>
-        <source src={readFile(attachment.url)} type="audio/ogg" />
+        <source src={readFile(attachment.url)} type='audio/ogg' />
       </audio>
     );
   }
   renderAudioWavFile(attachment) {
     return (
       <audio controls={true}>
-        <source src={readFile(attachment.url)} type="audio/wav" />
+        <source src={readFile(attachment.url)} type='audio/wav' />
       </audio>
     );
   }
   renderMp3File(attachment) {
     return (
       <audio controls={true}>
-        <source src={readFile(attachment.url)} type="audio/mpeg" />
+        <source src={readFile(attachment.url)} type='audio/mpeg' />
       </audio>
     );
   }
@@ -370,13 +373,13 @@ class Attachment extends React.Component<Props> {
 
     switch (fileExtension) {
       case 'docx':
-        filePreview = this.renderOtherFile(attachment, 'doc');
+        filePreview = this.renderOtherFile(attachment, 'doc', true);
         break;
       case 'pptx':
-        filePreview = this.renderOtherFile(attachment, 'ppt');
+        filePreview = this.renderOtherFile(attachment, 'ppt', true);
         break;
       case 'xlsx':
-        filePreview = this.renderOtherFile(attachment, 'xls');
+        filePreview = this.renderOtherFile(attachment, 'xls', true);
         break;
       case 'mp4':
         filePreview = this.renderVideoFile(attachment);
@@ -415,8 +418,14 @@ class Attachment extends React.Component<Props> {
       case 'jpeg':
         filePreview = this.renderOtherFile(attachment, fileExtension);
         break;
+      case 'hwp':
+        filePreview = this.renderOtherFile(attachment, 'doc', true);
+        break;
+      case 'hwpx':
+        filePreview = this.renderOtherFile(attachment, 'doc', true);
+        break;
       default:
-        filePreview = this.renderOtherFile(attachment, 'file-2');
+        filePreview = this.renderOtherFile(attachment, 'file-2', true);
     }
     return filePreview;
   };

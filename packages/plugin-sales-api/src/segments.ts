@@ -175,7 +175,7 @@ const generateProductsCategoryProductIds = async (subdomain, condition) => {
 
     const products = await sendProductsMessage({
       subdomain,
-      action: "productFind",
+      action: "products.find",
       data: {
         categoryIds: [...new Set(productCategoryIds)],
         fields: { _id: 1 }

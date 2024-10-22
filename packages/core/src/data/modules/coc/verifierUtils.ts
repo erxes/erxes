@@ -27,7 +27,7 @@ export const validateSingle = async (
     : "http://localhost:4000";
   const domain = DOMAIN.replace("<subdomain>", subdomain);
 
-  const callback_url = `${domain}/pl:contacts`;
+  const callback_url = `${domain}/pl:core`;
 
   let body = {};
 
@@ -76,7 +76,7 @@ export const validateBulk = async (
 ) => {
   const EMAIL_VERIFIER_ENDPOINT = getEnv({
     name: "EMAIL_VERIFIER_ENDPOINT",
-    defaultValue: ""
+    defaultValue: "http://localhost:4100"
   });
 
   const DOMAIN = getEnv({ name: "DOMAIN" })
@@ -84,7 +84,7 @@ export const validateBulk = async (
     : "http://localhost:4000";
   const domain = DOMAIN.replace("<subdomain>", subdomain);
 
-  const callback_url = `${domain}/pl:contacts`;
+  const callback_url = `${domain}/pl:core`;
 
   const BATCH_SIZE = 1000;
 

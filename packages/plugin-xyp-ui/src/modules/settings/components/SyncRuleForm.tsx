@@ -18,8 +18,8 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
 
 const FIELDS_GROUPS_CONTENT_TYPES = {
-  CUSTOMER: 'contacts:customer',
-  COMPANY: 'contacts:company',
+  CUSTOMER: 'core:customer',
+  COMPANY: 'core:company',
   DEAL: 'cards:deal'
 };
 

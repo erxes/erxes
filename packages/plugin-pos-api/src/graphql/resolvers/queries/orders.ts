@@ -244,7 +244,7 @@ export const posOrderRecordsQuery = async (
   const productsIds = orders.map(order => order.items.productId);
   const products = await sendProductsMessage({
     subdomain,
-    action: "productFind",
+    action: "products.find",
     data: { query: { _id: { $in: productsIds } }, limit: productsIds.length },
     isRPC: true
   });
@@ -467,7 +467,7 @@ const queries = {
 
     const products = await sendProductsMessage({
       subdomain,
-      action: "find",
+      action: "products.find",
       data: {
         query: {
           _id: { $in: productIds }
@@ -773,7 +773,7 @@ const queries = {
 
     const products = await sendProductsMessage({
       subdomain,
-      action: "find",
+      action: "products.find",
       data: {
         query,
         sort: {},
@@ -785,7 +785,7 @@ const queries = {
 
     const totalCount = await sendProductsMessage({
       subdomain,
-      action: "count",
+      action: "products.count",
       data: {
         query
       },

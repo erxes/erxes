@@ -12,8 +12,6 @@ const SelectContacts = (props: Props) => {
   const { field, onChange } = props;
   const { relationType = "" } = field;
 
-  console.log("123213", relationType, field);
-
   const type = relationType.split(":")[1] as
     | "deal"
     | "ticket"

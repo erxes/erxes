@@ -29,19 +29,11 @@ const inventoryMutations = {
       ];
     }
 
-    const productsCount = await sendProductsMessage({
-      subdomain,
-      action: "productCount",
-      data: { query: productQry },
-      isRPC: true
-    });
-
     const products = await sendProductsMessage({
       subdomain,
-      action: "productFind",
+      action: "products.find",
       data: {
         query: productQry,
-        limit: productsCount
       },
       isRPC: true
     });
@@ -63,14 +55,14 @@ const inventoryMutations = {
 
     const response = await fetch(
       process.env.ERKHET_URL +
-        "/get-api/?" +
-        new URLSearchParams({
-          kind: "inventory",
-          api_key: config.apiKey,
-          api_secret: config.apiSecret,
-          token: config.apiToken,
-          is_gen_fk: "true"
-        })
+      "/get-api/?" +
+      new URLSearchParams({
+        kind: "inventory",
+        api_key: config.apiKey,
+        api_secret: config.apiSecret,
+        token: config.apiToken,
+        is_gen_fk: "true"
+      })
     ).then(res => res.json());
 
     if (!response && Object.keys(response).length === 0) {
@@ -107,7 +99,7 @@ const inventoryMutations = {
           product.uom &&
           resProd.measure_unit_code === product.uom &&
           resProd.category_code ===
-            (categoryOfId[product.categoryId] || {}).code
+          (categoryOfId[product.categoryId] || {}).code
         ) {
           matchedCount = matchedCount + 1;
         } else {
@@ -167,14 +159,14 @@ const inventoryMutations = {
 
     const response = await fetch(
       process.env.ERKHET_URL +
-        "/get-api/?" +
-        new URLSearchParams({
-          kind: "inv_category",
-          api_key: config.apiKey,
-          api_secret: config.apiSecret,
-          token: config.apiToken,
-          is_gen_fk: "true"
-        }),
+      "/get-api/?" +
+      new URLSearchParams({
+        kind: "inv_category",
+        api_key: config.apiKey,
+        api_secret: config.apiSecret,
+        token: config.apiToken,
+        is_gen_fk: "true"
+      }),
       {}
     ).then(res => res.json());
 

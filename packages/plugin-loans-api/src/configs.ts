@@ -67,7 +67,6 @@ export default {
     cronjobs: {
       handleMinutelyJob: checkContractPeriod,
     },
-    reports,
     documents,
     permissions,
     forms,

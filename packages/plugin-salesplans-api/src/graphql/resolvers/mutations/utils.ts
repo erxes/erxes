@@ -30,7 +30,7 @@ export const getParentCategories = async (
   if (productId) {
     const product = await sendProductsMessage({
       subdomain,
-      action: "productFindOne",
+      action: "products.findOne",
       data: { _id: productId },
       isRPC: true
     });
@@ -74,24 +74,12 @@ export const getProducts = async (
   let products: any[] = [];
 
   if (productCategoryId) {
-    const limit = await sendProductsMessage({
-      subdomain,
-      action: "count",
-      data: {
-        query: { status: { $nin: ["archived", "deleted"] } },
-        categoryId: productCategoryId
-      },
-      isRPC: true,
-      defaultValue: 0
-    });
-
     products = await sendProductsMessage({
       subdomain,
-      action: "find",
+      action: "products.find",
       data: {
         query: { status: { $nin: ["archived", "deleted"] } },
         categoryId: productCategoryId,
-        limit,
         sort: { code: 1 }
       },
       isRPC: true,
@@ -102,7 +90,7 @@ export const getProducts = async (
   if (productId) {
     products = await sendProductsMessage({
       subdomain,
-      action: "find",
+      action: "products.find",
       data: { query: { _id: productId } },
       isRPC: true,
       defaultValue: []

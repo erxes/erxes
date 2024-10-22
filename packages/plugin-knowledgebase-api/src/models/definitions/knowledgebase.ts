@@ -24,6 +24,7 @@ export interface IArticle {
   isPrivate?: boolean;
   reactionChoices?: string[];
   reactionCounts?: { [key: string]: number };
+  viewCount?: number;
   categoryId?: string;
   topicId?: string;
   publishedUserId?: string;
@@ -51,6 +52,7 @@ export interface ICategoryDocument extends ICommonFields, ICategory, Document {
 
 export interface ITopic {
   title?: string;
+  code?: string;
   description?: string;
   brandId?: string;
   categoryIds?: string[];
@@ -73,7 +75,7 @@ const commonFields = {
   modifiedBy: field({ type: String, label: 'Modified by' }),
   modifiedDate: field({ type: Date, label: 'Modified at' }),
   title: field({ type: String, label: 'Title' }),
-  code: field({ type: String, unique: true, label: 'Code', sparse: true}),
+  code: field({ type: String, optional: true, sparse: true, unique: true, label: 'Code' }),
 };
 
 const formcodesSchema = new Schema(

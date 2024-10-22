@@ -1,7 +1,7 @@
-import fetch from 'node-fetch';
 import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp, getPureDate } from '@erxes/api-utils/src/core';
-import { IContext, sendCoreMessage, sendPosMessage, sendInventoriesMessage, sendProductsMessage } from '../../../messageBroker';
+import fetch from 'node-fetch';
+import { IContext, sendCoreMessage, sendInventoriesMessage, sendPosMessage, sendProductsMessage } from '../../../messageBroker';
 import { getConfig } from '../../../utils';
 
 const generateFilter = (params) => {
@@ -72,6 +72,19 @@ const msdynamicQueries = {
     { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    let posConfig;
+
+    if (!brandId && posToken) {
+      posConfig = await sendPosMessage({
+        subdomain,
+        action: 'configs.findOne',
+        data: { token: posToken },
+        isRPC: true,
+        defaultValue: {}
+      });
+      brandId = posConfig?.scopeBrandIds?.length ? posConfig.scopeBrandIds[0] : '';
+    }
+
     const config = configs[brandId || 'noBrand'];
 
     if (
@@ -115,7 +128,7 @@ const msdynamicQueries = {
     const result = response.value || [];
 
     if (posToken) {
-      const posConfig = await sendPosMessage({
+      posConfig = posConfig || await sendPosMessage({
         subdomain,
         action: 'configs.findOne',
         data: { token: posToken },
@@ -126,7 +139,7 @@ const msdynamicQueries = {
       if (posConfig?._id && posConfig.departmentId && (posConfig?.branchId || branchId)) {
         const products = await sendProductsMessage({
           subdomain,
-          action: 'find',
+          action: 'products.find',
           data: {
             query: { code: { $in: productCodes } },
             fields: { _id: 1, code: 1 }
