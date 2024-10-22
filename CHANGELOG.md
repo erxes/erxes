@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.17.6](https://github.com/erxes/erxes/compare/1.17.5...1.17.6) (2024-10-22)
+
+
+### Bug Fixes
+
+* cars list ([9a8dc5f](https://github.com/erxes/erxes/commit/9a8dc5fcddf106dcd9cd7261457018497e87fc7b))
+* **engages:** add missing 'Host' value to the Amazon SES email header to ensure proper email tracking ([4dc1bee](https://github.com/erxes/erxes/commit/4dc1beefa9533fe5c275f9c5295770a2e868e517))
+* **engages:** engageTracker handle both SaaS  and opensource SES events and SNS notifications, with better error handling. ([eb05a17](https://github.com/erxes/erxes/commit/eb05a17d5d4a410df0197fd694abbd6aafa76783))
+* **engages:** get ses configset using getValueAsString([#5678](https://github.com/erxes/erxes/issues/5678)) ([52907d9](https://github.com/erxes/erxes/commit/52907d97c4a8dc245cda3b74c0410e92ff42e45e))
+* **insight:** remove progress field ([22d8eab](https://github.com/erxes/erxes/commit/22d8eab8f76eb727e28745c508cdfb6e784ef836))
+* loans create from deal with contractype ([7f3f9db](https://github.com/erxes/erxes/commit/7f3f9dba4781f1646bdd6192be8a48c44b204080))
+* omz some bugs ([c7693d3](https://github.com/erxes/erxes/commit/c7693d3091a7d76a1e397780d7f792a9bd044855))
+* **pricing:** save bug ([2b71e3f](https://github.com/erxes/erxes/commit/2b71e3f0d963f360f68e5f344ab5a82b71894b91))
+* products add barcode ([225a466](https://github.com/erxes/erxes/commit/225a4660316dce01f0ce339add2608bfac80560e))
+* syncerkhet check orders sidebar ([8e1adbf](https://github.com/erxes/erxes/commit/8e1adbf762814273f8a0edb891ca5a6685bd7b9f))
+* syncpolaris dynamic data sender ([6a756eb](https://github.com/erxes/erxes/commit/6a756ebfab2fee7e7b124c7e15f76869ee7ea7f2))
+* syncpolaris settings ([b58cc12](https://github.com/erxes/erxes/commit/b58cc12b31fdbc57315aa45fa8a06f2d7713376b))
+* syncpolaris settings bug ([d9e565b](https://github.com/erxes/erxes/commit/d9e565b3e97adf96f07ff76f2c0374154a375e86))
+* xyp configs update ([b16bc96](https://github.com/erxes/erxes/commit/b16bc96d1272a7f1eb759e9b4c9afcafe7a9d382))
+* xyp data sync refactor ([535c854](https://github.com/erxes/erxes/commit/535c8542e910f26d77567b9f6075f9188329a32b))
+* xyp fetched view ([289f5c9](https://github.com/erxes/erxes/commit/289f5c9e4dfb90ec89bc62421889b4c12f5a3e8f))
+* xyp util ([92b9b38](https://github.com/erxes/erxes/commit/92b9b386294d43788ae6ebc9e1f7bd20f8cd50c6))
+
 ## [1.17.5](https://github.com/erxes/erxes/compare/1.17.4...1.17.5) (2024-10-07)
 
 
