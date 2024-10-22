@@ -1,7 +1,7 @@
-import fetch from 'node-fetch';
 import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp, getPureDate } from '@erxes/api-utils/src/core';
-import { IContext, sendCoreMessage, sendPosMessage, sendInventoriesMessage, sendProductsMessage } from '../../../messageBroker';
+import fetch from 'node-fetch';
+import { IContext, sendCoreMessage, sendInventoriesMessage, sendPosMessage, sendProductsMessage } from '../../../messageBroker';
 import { getConfig } from '../../../utils';
 
 const generateFilter = (params) => {

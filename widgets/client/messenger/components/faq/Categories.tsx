@@ -1,8 +1,8 @@
-import * as React from 'react';
-import Category from '../../containers/faq/Category';
-import { IFaqTopic, IFaqCategory } from '../../types';
-import { iconLeft, iconSearch } from '../../../icons/Icons';
-import { __ } from '../../../utils';
+import * as React from "react";
+import Category from "../../containers/faq/Category";
+import { IFaqTopic, IFaqCategory } from "../../types";
+import { iconLeft, iconSearch } from "../../../icons/Icons";
+import { __ } from "../../../utils";
 
 type Props = {
   faqTopics?: IFaqTopic;
@@ -18,12 +18,12 @@ type State = {
 const Categories: React.FC<Props> = ({
   faqTopics,
   loading,
-  initialCategory,
+  initialCategory
 }) => {
   const [currentCategory, setCurrentCategory] = React.useState<
     IFaqCategory | undefined
   >(undefined);
-  const [textColor, setTextColor] = React.useState('#888');
+  const [textColor, setTextColor] = React.useState("#888");
 
   React.useEffect(() => {
     if (initialCategory) {
@@ -32,7 +32,7 @@ const Categories: React.FC<Props> = ({
   }, [initialCategory]);
 
   const groupByParent = (array: any[]) => {
-    const key = 'parentCategoryId';
+    const key = "parentCategoryId";
 
     return array.reduce((rv, x) => {
       (rv[x[key]] = rv[x[key]] || []).push(x);
@@ -51,8 +51,8 @@ const Categories: React.FC<Props> = ({
 
   const categories = faqTopics.categories || ({} as IFaqCategory[]);
 
-  const subFields = categories.filter((f) => f.parentCategoryId);
-  const parents = categories.filter((f) => !f.parentCategoryId);
+  const subFields = categories.filter(f => f.parentCategoryId);
+  const parents = categories.filter(f => !f.parentCategoryId);
 
   const group = groupByParent(subFields);
 
@@ -64,7 +64,7 @@ const Categories: React.FC<Props> = ({
         return (
           <div className="empty-articles">
             {iconSearch}
-            {__('No category found')}
+            {__("No category found")}
           </div>
         );
       }
@@ -75,7 +75,7 @@ const Categories: React.FC<Props> = ({
             className="back-category-button left"
             onClick={() => setCurrentCategory(undefined)}
           >
-            {iconLeft(textColor)} {__('Back to FAQ')}
+            {iconLeft(textColor)} {__("Back to FAQ")}
           </button>
           {childrens.map((child: IFaqCategory) => (
             <Category key={child._id} category={child} />
@@ -92,9 +92,9 @@ const Categories: React.FC<Props> = ({
   return (
     <div className="faq-collection-container">
       <div className="collection-count">
-        {`${parents.length || 0} ${__('collections')}`}
+        {`${parents.length || 0} ${__("collections")}`}
       </div>
-      {parents.map((category) => {
+      {parents.map(category => {
         const childrens = group[category._id] || [];
 
         return (
@@ -103,7 +103,7 @@ const Categories: React.FC<Props> = ({
             childrens={childrens}
             getCurrentItem={getCurrentItem}
             category={category}
-            isParent
+            isParent={childrens.length > 0}
           />
         );
       })}
