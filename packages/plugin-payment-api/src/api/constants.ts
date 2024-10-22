@@ -115,6 +115,12 @@ export const PAYMENTS = {
     handlerMethod: 'POST',
   },
 
+  stripe: {
+    title: 'Stripe',
+    kind: 'stripe',
+  },
+
+
   ALL: [
     'qpay',
     'socialpay',
@@ -126,6 +132,7 @@ export const PAYMENTS = {
     'minupay',
     'qpayQuickqr',
     'golomt',
+    'stripe'
   ],
 };
 
