@@ -56,12 +56,6 @@ export const getPostDetails = async (
     throw new Error();
   }
   try {
-    // const response: any = await graphRequest.get(
-    //   `/${postId}?fields=permalink_url,created_time,from,message,attachments
-    //     {description,media,media_type,description_tags,title,type}`,
-    //   pageAccessToken
-    // );
-
     const response: any = await graphRequest.get(
       `/${postId}?fields=permalink_url,created_time,from,message,attachments{description,media,media_type,description_tags,title,type,subattachments}`,
       pageAccessToken
@@ -221,61 +215,17 @@ export const uploadMedia = async (
       Key: mediaFile,
       Body: response.body,
       ACL: 'public-read',
-      ContentDisposition: 'inline', // Set this header to make it viewable in the browser
-      ContentType: video ? 'video/mp4' : 'image/jpeg' // Set the appropriate Content-Type
+      ContentDisposition: 'inline',
+      ContentType: video ? 'video/mp4' : 'image/jpeg'
     };
 
-    const data = await s3.upload(uploadParams).promise(); // Use .promise() for cleaner code
-    return data.Location; // Return the public URL of the uploaded file
+    const data = await s3.upload(uploadParams).promise();
+    return data.Location;
   } catch (e) {
     console.error(`Error occurred while uploading media: ${e.message}`);
     return null;
   }
 };
-
-// export const uploadMedia = async (
-//   subdomain: string,
-//   url: string,
-//   video: boolean
-// ) => {
-//   const mediaFile = `${randomAlphanumeric()}.${video ? 'mp4' : 'jpg'}`;
-
-//   const { AWS_BUCKET, FILE_SYSTEM_PUBLIC } =
-//     await getFileUploadConfigs(subdomain);
-//   const s3 = await createAWS(subdomain);
-
-//   try {
-//     const response = await fetch(url);
-//     if (!response.ok) {
-//       throw new Error(
-//         `uploadMedia: unexpected response ${response.statusText}`
-//       );
-//     }
-
-//     const uploadParams = {
-//       Bucket: AWS_BUCKET,
-//       Key: mediaFile,
-//       Body: response.body,
-//       ACL: 'public-read'
-//     };
-
-//     const res = await new Promise((resolve, reject) => {
-//       s3.upload(uploadParams, (err, data) => {
-//         if (err) {
-//           return reject(err);
-//         }
-//         const fileUrl = data.Location;
-//         console.log(fileUrl, 'askdopaskdpoa');
-//         // resolve(fileUrl);
-//       });
-//     });
-
-//     return res;
-//   } catch (e) {
-//     console.error(`Error occurred while uploading media: ${e.message}`);
-//     return null;
-//   }
-// };
 
 export const getFacebookUserProfilePic = async (
   pageId: string,
@@ -307,11 +257,10 @@ export const getFacebookUserProfilePic = async (
         false
       );
 
-      return awsResponse as string; // Ensure the return type is string
+      return awsResponse as string;
     }
 
-    // Return the profile picture URL directly if not uploading to AWS
-    return response.location as string; // Type assertion to ensure it's a string
+    return response.location as string;
   } catch (e) {
     debugError(
       `Error occurred while getting facebook user profile pic: ${e.message}`
