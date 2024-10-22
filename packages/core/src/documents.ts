@@ -34,6 +34,10 @@ export default {
     {
       label: "Company",
       type: "core:company"
+    },
+    {
+      label: "Products",
+      type: "core:product"
     }
   ],
 

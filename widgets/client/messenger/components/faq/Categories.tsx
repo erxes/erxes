@@ -103,7 +103,7 @@ const Categories: React.FC<Props> = ({
             childrens={childrens}
             getCurrentItem={getCurrentItem}
             category={category}
-            isParent
+            isParent={childrens.length > 0}
           />
         );
       })}
