@@ -284,7 +284,7 @@ const categoryFields = `
   _id
   title
   description
-  numOfArticles(status: "publish")
+  numOfArticles
   parentCategoryId
   icon
 `;
@@ -294,7 +294,7 @@ const getFaqCategoryQuery = `
     knowledgeBaseCategoryDetail(_id: $_id) {
       ${categoryFields}
       parentCategoryId
-      articles(status: "publish") {
+      articles {
         ${faqFields}
       }
     }

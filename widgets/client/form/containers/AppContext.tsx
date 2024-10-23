@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { IEmailParams, IIntegration, ILeadData } from '../../types';
+import { IEmailParams, IIntegration, IIntegrationLeadData } from '../../types';
 import { checkRules, getEnv } from '../../utils';
 import { connection } from '../connection';
 import { ICurrentStatus, IForm, IFormDoc, ISaveFormResponse } from '../types';
@@ -42,7 +42,7 @@ interface IStore extends IState {
   setExtraContent: (content: string) => void;
   getIntegration: () => IIntegration;
   getForm: () => IForm;
-  getFormConfigs: () => ILeadData;
+  getIntegrationConfigs: () => IIntegrationLeadData;
   onChangeCurrentStatus: (status: string) => void;
 }
 
@@ -72,13 +72,13 @@ export class AppProvider extends React.Component<
    */
   init = async () => {
     const { data, browserInfo, hasPopupHandlers } = connection;
-    const { form } = data;
+    const { integration } = data;
 
     if (!browserInfo) {
       return;
     }
 
-    const { loadType, callout, rules } = form.leadData;
+    const { loadType, callout, rules } = integration.leadData;
 
     // check rules ======
     const isPassedAllRules = await checkRules(rules, browserInfo);
@@ -158,8 +158,8 @@ export class AppProvider extends React.Component<
    */
   showPopup = () => {
     const { data } = connection;
-    const { form } = data;
-    const { callout } = form.leadData;
+    const { integration } = data;
+    const { callout } = integration.leadData;
 
     this.setState({ isPopupVisible: true });
 
@@ -300,8 +300,8 @@ export class AppProvider extends React.Component<
     return connection.data.form;
   };
 
-  getFormConfigs = () => {
-    return this.getForm().leadData;
+  getIntegrationConfigs = () => {
+    return this.getIntegration().leadData;
   };
 
   onChangeCurrentStatus = (status: string) => {
@@ -326,7 +326,7 @@ export class AppProvider extends React.Component<
           setExtraContent: this.setExtraContent,
           getIntegration: this.getIntegration,
           getForm: this.getForm,
-          getFormConfigs: this.getFormConfigs,
+          getIntegrationConfigs: this.getIntegrationConfigs,
           onChangeCurrentStatus: this.onChangeCurrentStatus,
         }}
       >

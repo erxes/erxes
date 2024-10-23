@@ -75,21 +75,20 @@ export const formConnectMutation = `
         _id
         title
         description
-        leadData
-        languageCode
       }
       integration {
         _id
         name
-        
+        leadData
+        languageCode
       }
     }
   }
 `;
 
 export const saveFormMutation = `
-  mutation widgetsSaveLead( $formId: String!, $submissions: [FieldValueInput], $browserInfo: JSON!, $cachedCustomerId: String) {
-    widgetsSaveLead(formId: $formId, submissions: $submissions, browserInfo: $browserInfo, cachedCustomerId: $cachedCustomerId) {
+  mutation widgetsSaveLead($integrationId: String!, $formId: String!, $submissions: [FieldValueInput], $browserInfo: JSON!, $cachedCustomerId: String, $userId: String) {
+    widgetsSaveLead(integrationId: $integrationId, formId: $formId, submissions: $submissions, browserInfo: $browserInfo, cachedCustomerId: $cachedCustomerId, userId: $userId) {
       status
       conversationId
       customerId

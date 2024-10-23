@@ -3529,7 +3529,6 @@ select.form-control:focus,
     backface-visibility: hidden;
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
-    color-scheme: normal;
   }
 }
 
