@@ -1,10 +1,10 @@
-import { IAttachment, QueryResponse } from '@erxes/ui/src/types';
+import { IAttachment, QueryResponse } from "@erxes/ui/src/types";
 import {
   IUser,
   IUserDetails,
   IUserDoc,
   IUserLinks
-} from '@erxes/ui/src/auth/types';
+} from "@erxes/ui/src/auth/types";
 
 export type IInvitationEntry = {
   email: string;
@@ -83,6 +83,7 @@ interface IStructureCommon {
   code: string;
   supervisorId: string;
   supervisor: IUser;
+  hasChildren?: boolean;
 }
 
 export interface IDepartment extends IStructureCommon {
