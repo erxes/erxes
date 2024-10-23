@@ -1,11 +1,9 @@
-import * as compose from 'lodash.flowright';
-import Form from '../components/EditForm';
-import React from 'react';
-import { ButtonMutate } from '@erxes/ui/src/components';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IDayLabel } from '../types';
-import { mutations } from '../graphql';
-import { withProps } from '@erxes/ui/src/utils';
+import Form from "../components/EditForm";
+import React from "react";
+import { ButtonMutate } from "@erxes/ui/src/components";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { IDayLabel } from "../types";
+import { mutations } from "../graphql";
 
 type Props = {
   dayLabel: IDayLabel;
@@ -24,7 +22,7 @@ const EditFormContainer = (props: Props) => {
         mutation={mutations.dayLabelEdit}
         variables={values}
         callback={callback}
-        refetchQueries={['dayLabels', 'dayLabelsCount']}
+        refetchQueries={["dayLabels", "dayLabelsCount"]}
         isSubmitted={isSubmitted}
         type="submit"
         uppercase={false}

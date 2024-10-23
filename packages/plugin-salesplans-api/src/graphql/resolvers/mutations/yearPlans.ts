@@ -62,7 +62,7 @@ const yearPlansMutations = {
         MONTHS.map(m => (values[m] = 0));
       }
 
-      const yearPlanDoc: IYearPlan & any = {
+      const yearPlanDoc: IYearPlan = {
         year,
         departmentId,
         branchId,
@@ -73,7 +73,7 @@ const yearPlansMutations = {
         modifiedAt: now,
         createdBy: user._id,
         modifiedBy: user._id
-      };
+      } as any;
 
       docs.push(yearPlanDoc);
       counter += 1;
