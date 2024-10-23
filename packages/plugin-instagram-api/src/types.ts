@@ -10,6 +10,7 @@ export interface IMessageData {
     }>;
     mid: string;
     text: string;
+    is_deleted: boolean;
   };
 }
 

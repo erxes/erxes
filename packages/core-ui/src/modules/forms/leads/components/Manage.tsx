@@ -140,7 +140,7 @@ const Manage: React.FC<Props> = ({ form, closeModal }) => {
 
       <ModalFooter>
         <Button btnStyle='primary' icon='plus-circle' onClick={onSimulate}>
-          Simulate
+          Preview
         </Button>
 
         <Button btnStyle='simple' icon='times-circle' onClick={closeModal}>

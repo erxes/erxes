@@ -1,5 +1,3 @@
-import { RadioGroupContextValue } from "@radix-ui/react-radio-group"
-
 import { Group } from "@/types/product.types"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -19,9 +17,7 @@ const ChooseProperty = ({
     }>
   >
 }) => {
-  const handleChange: RadioGroupContextValue["onValueChange"] = (
-    value: string
-  ) => {
+  const handleChange = (value: string) => {
     setFilterFields((prev) => ({ ...prev, [group.fieldId]: value }))
   }
 

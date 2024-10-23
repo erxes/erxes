@@ -404,7 +404,7 @@ class KnowledgeForm extends React.Component<Props, State> {
                 icon="plus-circle"
                 onClick={this.onSimulate}
               >
-                Simulate
+                Preview
               </Button>
             </>
           )}

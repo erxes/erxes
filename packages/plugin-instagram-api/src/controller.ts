@@ -79,7 +79,6 @@ const init = async (app) => {
     if (data.object !== 'instagram') {
       return;
     }
-    console.log(`instagram message ${JSON.stringify(data)} `);
     for (const entry of data.entry) {
       // receive chat
       if (entry.messaging) {
@@ -92,20 +91,21 @@ const init = async (app) => {
             return res.send('error ' + e);
           }
         }
-      } else {
+      } else if (entry.standby) {
         // Handle standby data if entry.messaging does not exist
         const standbyData = entry.standby;
-        if (standbyData) {
-          const messageData = standbyData[0];
+        if (standbyData && standbyData.length > 0) {
           try {
-            // Assuming standbyData is an array and you want to process each item
+            // Process each item in standbyData
             for (const data of standbyData) {
-              await receiveMessage(models, subdomain, messageData);
+              await receiveMessage(models, subdomain, data); // Pass the current item
             }
             return res.send('success');
           } catch (e) {
             return res.send('error ' + e);
           }
+        } else {
+          return res.send('no standby data'); // Handle case when standbyData is empty
         }
       }
       if (entry.changes) {
