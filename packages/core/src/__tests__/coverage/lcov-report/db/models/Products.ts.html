@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">5.71% </span>
+                <span class="strong">8.57% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>8/140</span>
+                <span class='fraction'>12/140</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">10.52% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/19</span>
+                <span class='fraction'>2/19</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">4.34% </span>
+                <span class="strong">7.24% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>6/138</span>
+                <span class='fraction'>10/138</span>
             </div>
         
             
@@ -554,8 +554,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -564,12 +564,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -582,7 +582,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -883,9 +883,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -900,7 +900,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1033,9 +1033,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { ICustomField } from "@erxes/api-utils/src/types";
 import { Model } from "mongoose";
@@ -1069,7 +1069,7 @@ export interface IProductModel extends Model&lt;IProductDocument&gt; {
   ): Promise&lt;IProductDocument&gt;;
 }
 &nbsp;
-export const loadProductClass = <span class="fstat-no" title="function not covered" >(m</span>odels: IModels, subdomain: string) =&gt; {
+export const loadProductClass = (models: IModels, subdomain: string) =&gt; {
   class Product {
     /**
      *
@@ -1370,9 +1370,9 @@ export const loadProductClass = <span class="fstat-no" title="function not cover
     }
   }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  productSchema.loadClass(Product);</span>
+  productSchema.loadClass(Product);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return productSchema;</span>
+  return productSchema;
 };
 &nbsp;
 export interface IProductCategoryModel extends Model&lt;IProductCategoryDocument&gt; {
@@ -1387,7 +1387,7 @@ export interface IProductCategoryModel extends Model&lt;IProductCategoryDocument
   removeProductCategory(_id: string): void;
 }
 &nbsp;
-export const loadProductCategoryClass = <span class="fstat-no" title="function not covered" >(m</span>odels: IModels) =&gt; {
+export const loadProductCategoryClass = (models: IModels) =&gt; {
   class ProductCategory {
     /**
      *
@@ -1520,9 +1520,9 @@ export const loadProductCategoryClass = <span class="fstat-no" title="function n
     }
   }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  productCategorySchema.loadClass(ProductCategory);</span>
+  productCategorySchema.loadClass(ProductCategory);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return productCategorySchema;</span>
+  return productCategorySchema;
 };
 &nbsp;</pre></td></tr></table></pre>
 
@@ -1531,7 +1531,7 @@ export const loadProductCategoryClass = <span class="fstat-no" title="function n
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-10-21T08:58:47.608Z
+                at 2024-10-23T02:33:36.363Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

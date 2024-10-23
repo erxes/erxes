@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1729501127654" clover="3.2.0">
-  <project timestamp="1729501127654" name="All files">
-    <metrics statements="2094" coveredstatements="140" conditionals="953" coveredconditionals="0" methods="347" coveredmethods="0" elements="3394" coveredelements="140" complexity="0" loc="2094" ncloc="2094" packages="2" files="31" classes="31"/>
+<coverage generated="1729650816412" clover="3.2.0">
+  <project timestamp="1729650816412" name="All files">
+    <metrics statements="2094" coveredstatements="243" conditionals="953" coveredconditionals="6" methods="347" coveredmethods="45" elements="3394" coveredelements="294" complexity="0" loc="2094" ncloc="2094" packages="2" files="31" classes="31"/>
     <package name="data.modules.segments">
       <metrics statements="266" coveredstatements="13" conditionals="157" coveredconditionals="0" methods="15" coveredmethods="0"/>
-      <file name="queryBuilder.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/data/modules/segments/queryBuilder.ts">
+      <file name="queryBuilder.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/data/modules/segments/queryBuilder.ts">
         <metrics statements="266" coveredstatements="13" conditionals="157" coveredconditionals="0" methods="15" coveredmethods="0"/>
-        <line num="2" count="1" type="stmt"/>
-        <line num="12" count="1" type="stmt"/>
-        <line num="14" count="1" type="stmt"/>
-        <line num="20" count="1" type="stmt"/>
-        <line num="22" count="1" type="stmt"/>
-        <line num="38" count="1" type="stmt"/>
+        <line num="2" count="4" type="stmt"/>
+        <line num="12" count="4" type="stmt"/>
+        <line num="14" count="4" type="stmt"/>
+        <line num="20" count="4" type="stmt"/>
+        <line num="22" count="4" type="stmt"/>
+        <line num="38" count="4" type="stmt"/>
         <line num="45" count="0" type="stmt"/>
         <line num="46" count="0" type="stmt"/>
         <line num="54" count="0" type="stmt"/>
         <line num="55" count="0" type="stmt"/>
         <line num="57" count="0" type="stmt"/>
-        <line num="60" count="1" type="stmt"/>
+        <line num="60" count="4" type="stmt"/>
         <line num="66" count="0" type="stmt"/>
         <line num="68" count="0" type="stmt"/>
         <line num="69" count="0" type="stmt"/>
@@ -71,11 +71,11 @@
         <line num="247" count="0" type="cond" truecount="0" falsecount="3"/>
         <line num="248" count="0" type="stmt"/>
         <line num="254" count="0" type="stmt"/>
-        <line num="257" count="1" type="stmt"/>
+        <line num="257" count="4" type="stmt"/>
         <line num="258" count="0" type="cond" truecount="0" falsecount="3"/>
         <line num="259" count="0" type="stmt"/>
         <line num="262" count="0" type="stmt"/>
-        <line num="265" count="1" type="cond" truecount="0" falsecount="1"/>
+        <line num="265" count="4" type="cond" truecount="0" falsecount="1"/>
         <line num="266" count="0" type="stmt"/>
         <line num="267" count="0" type="stmt"/>
         <line num="269" count="0" type="cond" truecount="0" falsecount="2"/>
@@ -85,7 +85,7 @@
         <line num="275" count="0" type="stmt"/>
         <line num="276" count="0" type="stmt"/>
         <line num="279" count="0" type="stmt"/>
-        <line num="282" count="1" type="stmt"/>
+        <line num="282" count="4" type="stmt"/>
         <line num="293" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="295" count="0" type="stmt"/>
         <line num="297" count="0" type="stmt"/>
@@ -187,7 +187,7 @@
         <line num="598" count="0" type="stmt"/>
         <line num="606" count="0" type="stmt"/>
         <line num="607" count="0" type="stmt"/>
-        <line num="610" count="1" type="stmt"/>
+        <line num="610" count="4" type="stmt"/>
         <line num="617" count="0" type="stmt"/>
         <line num="619" count="0" type="stmt"/>
         <line num="621" count="0" type="cond" truecount="0" falsecount="1"/>
@@ -201,7 +201,7 @@
         <line num="639" count="0" type="stmt"/>
         <line num="641" count="0" type="stmt"/>
         <line num="659" count="0" type="stmt"/>
-        <line num="662" count="1" type="stmt"/>
+        <line num="662" count="4" type="stmt"/>
         <line num="668" count="0" type="stmt"/>
         <line num="670" count="0" type="cond" truecount="0" falsecount="4"/>
         <line num="674" count="0" type="cond" truecount="0" falsecount="3"/>
@@ -266,7 +266,7 @@
         <line num="856" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="857" count="0" type="stmt"/>
         <line num="868" count="0" type="stmt"/>
-        <line num="871" count="1" type="stmt"/>
+        <line num="871" count="4" type="stmt"/>
         <line num="887" count="0" type="stmt"/>
         <line num="888" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="890" count="0" type="cond" truecount="0" falsecount="3"/>
@@ -275,67 +275,67 @@
       </file>
     </package>
     <package name="db.models">
-      <metrics statements="1828" coveredstatements="127" conditionals="796" coveredconditionals="0" methods="332" coveredmethods="0"/>
-      <file name="ActivityLogs.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/ActivityLogs.ts">
-        <metrics statements="8" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="5" coveredmethods="0"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="19" count="1" type="stmt"/>
-        <line num="22" count="0" type="stmt"/>
-        <line num="26" count="0" type="stmt"/>
-        <line num="30" count="0" type="stmt"/>
-        <line num="38" count="0" type="stmt"/>
-        <line num="45" count="0" type="stmt"/>
-        <line num="47" count="0" type="stmt"/>
+      <metrics statements="1828" coveredstatements="230" conditionals="796" coveredconditionals="6" methods="332" coveredmethods="45"/>
+      <file name="ActivityLogs.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/ActivityLogs.ts">
+        <metrics statements="8" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="5" coveredmethods="5"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="19" count="4" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="30" count="2" type="stmt"/>
+        <line num="38" count="1" type="stmt"/>
+        <line num="45" count="4" type="stmt"/>
+        <line num="47" count="4" type="stmt"/>
       </file>
-      <file name="Apps.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Apps.ts">
-        <metrics statements="31" coveredstatements="6" conditionals="6" coveredconditionals="0" methods="5" coveredmethods="0"/>
-        <line num="2" count="1" type="stmt"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="6" count="1" type="stmt"/>
-        <line num="8" count="1" type="stmt"/>
-        <line num="10" count="1" type="cond" truecount="0" falsecount="1"/>
-        <line num="19" count="1" type="stmt"/>
-        <line num="22" count="0" type="stmt"/>
-        <line num="24" count="0" type="cond" truecount="0" falsecount="1"/>
-        <line num="25" count="0" type="stmt"/>
-        <line num="28" count="0" type="stmt"/>
-        <line num="32" count="0" type="stmt"/>
-        <line num="33" count="0" type="stmt"/>
-        <line num="34" count="0" type="stmt"/>
-        <line num="36" count="0" type="cond" truecount="0" falsecount="3"/>
-        <line num="37" count="0" type="stmt"/>
-        <line num="38" count="0" type="stmt"/>
-        <line num="41" count="0" type="stmt"/>
-        <line num="43" count="0" type="stmt"/>
-        <line num="48" count="0" type="stmt"/>
-        <line num="53" count="0" type="stmt"/>
-        <line num="59" count="0" type="stmt"/>
-        <line num="64" count="0" type="stmt"/>
-        <line num="68" count="0" type="stmt"/>
-        <line num="70" count="0" type="stmt"/>
-        <line num="72" count="0" type="stmt"/>
-        <line num="76" count="0" type="stmt"/>
-        <line num="78" count="0" type="cond" truecount="0" falsecount="1"/>
-        <line num="79" count="0" type="stmt"/>
-        <line num="82" count="0" type="stmt"/>
-        <line num="86" count="0" type="stmt"/>
-        <line num="88" count="0" type="stmt"/>
+      <file name="Apps.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Apps.ts">
+        <metrics statements="31" coveredstatements="31" conditionals="6" coveredconditionals="5" methods="5" coveredmethods="5"/>
+        <line num="2" count="4" type="stmt"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="6" count="4" type="stmt"/>
+        <line num="8" count="4" type="stmt"/>
+        <line num="10" count="4" type="cond" truecount="0" falsecount="1"/>
+        <line num="19" count="4" type="stmt"/>
+        <line num="22" count="6" type="stmt"/>
+        <line num="24" count="6" type="cond" truecount="1" falsecount="0"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="28" count="5" type="stmt"/>
+        <line num="32" count="5" type="stmt"/>
+        <line num="33" count="5" type="stmt"/>
+        <line num="34" count="5" type="stmt"/>
+        <line num="36" count="5" type="cond" truecount="3" falsecount="0"/>
+        <line num="37" count="5" type="stmt"/>
+        <line num="38" count="5" type="stmt"/>
+        <line num="41" count="5" type="stmt"/>
+        <line num="43" count="5" type="stmt"/>
+        <line num="48" count="5" type="stmt"/>
+        <line num="53" count="5" type="stmt"/>
+        <line num="59" count="5" type="stmt"/>
+        <line num="64" count="5" type="stmt"/>
+        <line num="68" count="1" type="stmt"/>
+        <line num="70" count="1" type="stmt"/>
+        <line num="72" count="1" type="stmt"/>
+        <line num="76" count="2" type="stmt"/>
+        <line num="78" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="79" count="1" type="stmt"/>
+        <line num="82" count="1" type="stmt"/>
+        <line num="86" count="4" type="stmt"/>
+        <line num="88" count="4" type="stmt"/>
       </file>
-      <file name="Brands.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Brands.ts">
-        <metrics statements="22" coveredstatements="3" conditionals="8" coveredconditionals="0" methods="6" coveredmethods="0"/>
-        <line num="1" count="1" type="stmt"/>
-        <line num="4" count="1" type="stmt"/>
-        <line num="15" count="1" type="stmt"/>
+      <file name="Brands.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Brands.ts">
+        <metrics statements="22" coveredstatements="9" conditionals="8" coveredconditionals="1" methods="6" coveredmethods="2"/>
+        <line num="1" count="4" type="stmt"/>
+        <line num="4" count="4" type="stmt"/>
+        <line num="15" count="4" type="stmt"/>
         <line num="21" count="0" type="stmt"/>
         <line num="23" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="24" count="0" type="stmt"/>
         <line num="27" count="0" type="stmt"/>
-        <line num="31" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="33" count="0" type="stmt"/>
-        <line num="36" count="0" type="stmt"/>
+        <line num="31" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="36" count="1" type="stmt"/>
         <line num="37" count="0" type="stmt"/>
         <line num="39" count="0" type="stmt"/>
-        <line num="42" count="0" type="stmt"/>
+        <line num="42" count="1" type="stmt"/>
         <line num="48" count="0" type="stmt"/>
         <line num="60" count="0" type="stmt"/>
         <line num="61" count="0" type="stmt"/>
@@ -343,13 +343,13 @@
         <line num="67" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="68" count="0" type="stmt"/>
         <line num="71" count="0" type="stmt"/>
-        <line num="75" count="0" type="stmt"/>
-        <line num="77" count="0" type="stmt"/>
+        <line num="75" count="4" type="stmt"/>
+        <line num="77" count="4" type="stmt"/>
       </file>
-      <file name="Chart.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Chart.ts">
-        <metrics statements="15" coveredstatements="2" conditionals="2" coveredconditionals="0" methods="5" coveredmethods="0"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="16" count="1" type="stmt"/>
+      <file name="Chart.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Chart.ts">
+        <metrics statements="15" coveredstatements="4" conditionals="2" coveredconditionals="0" methods="5" coveredmethods="1"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="16" count="4" type="stmt"/>
         <line num="20" count="0" type="stmt"/>
         <line num="21" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="22" count="0" type="stmt"/>
@@ -361,16 +361,16 @@
         <line num="39" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="40" count="0" type="stmt"/>
         <line num="42" count="0" type="stmt"/>
-        <line num="46" count="0" type="stmt"/>
-        <line num="48" count="0" type="stmt"/>
+        <line num="46" count="4" type="stmt"/>
+        <line num="48" count="4" type="stmt"/>
       </file>
-      <file name="Companies.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Companies.ts">
-        <metrics statements="115" coveredstatements="5" conditionals="72" coveredconditionals="0" methods="16" coveredmethods="0"/>
-        <line num="2" count="1" type="stmt"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="5" count="1" type="stmt"/>
-        <line num="13" count="1" type="stmt"/>
-        <line num="59" count="1" type="stmt"/>
+      <file name="Companies.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Companies.ts">
+        <metrics statements="115" coveredstatements="7" conditionals="72" coveredconditionals="0" methods="16" coveredmethods="1"/>
+        <line num="2" count="4" type="stmt"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="5" count="4" type="stmt"/>
+        <line num="13" count="4" type="stmt"/>
+        <line num="59" count="4" type="stmt"/>
         <line num="71" count="0" type="stmt"/>
         <line num="77" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="78" count="0" type="stmt"/>
@@ -479,14 +479,14 @@
         <line num="405" count="0" type="stmt"/>
         <line num="413" count="0" type="stmt"/>
         <line num="421" count="0" type="stmt"/>
-        <line num="425" count="0" type="stmt"/>
-        <line num="427" count="0" type="stmt"/>
+        <line num="425" count="4" type="stmt"/>
+        <line num="427" count="4" type="stmt"/>
       </file>
-      <file name="Configs.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Configs.ts">
-        <metrics statements="16" coveredstatements="3" conditionals="2" coveredconditionals="0" methods="5" coveredmethods="0"/>
-        <line num="2" count="1" type="stmt"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="12" count="1" type="stmt"/>
+      <file name="Configs.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Configs.ts">
+        <metrics statements="16" coveredstatements="5" conditionals="2" coveredconditionals="0" methods="5" coveredmethods="1"/>
+        <line num="2" count="4" type="stmt"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="12" count="4" type="stmt"/>
         <line num="18" count="0" type="stmt"/>
         <line num="20" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="21" count="0" type="stmt"/>
@@ -498,14 +498,14 @@
         <line num="45" count="0" type="stmt"/>
         <line num="49" count="0" type="stmt"/>
         <line num="51" count="0" type="stmt"/>
-        <line num="60" count="0" type="stmt"/>
-        <line num="62" count="0" type="stmt"/>
+        <line num="60" count="4" type="stmt"/>
+        <line num="62" count="4" type="stmt"/>
       </file>
-      <file name="Conformities.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Conformities.ts">
-        <metrics statements="35" coveredstatements="3" conditionals="3" coveredconditionals="0" methods="19" coveredmethods="0"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="9" count="1" type="stmt"/>
-        <line num="38" count="1" type="stmt"/>
+      <file name="Conformities.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Conformities.ts">
+        <metrics statements="35" coveredstatements="5" conditionals="3" coveredconditionals="0" methods="19" coveredmethods="1"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="9" count="4" type="stmt"/>
+        <line num="38" count="4" type="stmt"/>
         <line num="44" count="0" type="stmt"/>
         <line num="46" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="47" count="0" type="stmt"/>
@@ -536,18 +536,18 @@
         <line num="222" count="0" type="stmt"/>
         <line num="227" count="0" type="stmt"/>
         <line num="234" count="0" type="stmt"/>
-        <line num="253" count="0" type="stmt"/>
-        <line num="255" count="0" type="stmt"/>
+        <line num="253" count="4" type="stmt"/>
+        <line num="255" count="4" type="stmt"/>
       </file>
-      <file name="Customers.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Customers.ts">
-        <metrics statements="258" coveredstatements="7" conditionals="154" coveredconditionals="0" methods="25" coveredmethods="0"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="7" count="1" type="stmt"/>
-        <line num="13" count="1" type="stmt"/>
-        <line num="15" count="1" type="stmt"/>
-        <line num="16" count="1" type="stmt"/>
-        <line num="17" count="1" type="stmt"/>
-        <line num="139" count="1" type="stmt"/>
+      <file name="Customers.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Customers.ts">
+        <metrics statements="258" coveredstatements="9" conditionals="154" coveredconditionals="0" methods="25" coveredmethods="1"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="7" count="4" type="stmt"/>
+        <line num="13" count="4" type="stmt"/>
+        <line num="15" count="4" type="stmt"/>
+        <line num="16" count="4" type="stmt"/>
+        <line num="17" count="4" type="stmt"/>
+        <line num="139" count="4" type="stmt"/>
         <line num="148" count="0" type="stmt"/>
         <line num="154" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="155" count="0" type="stmt"/>
@@ -797,13 +797,13 @@
         <line num="967" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="971" count="0" type="stmt"/>
         <line num="976" count="0" type="stmt"/>
-        <line num="980" count="0" type="stmt"/>
-        <line num="982" count="0" type="stmt"/>
+        <line num="980" count="4" type="stmt"/>
+        <line num="982" count="4" type="stmt"/>
       </file>
-      <file name="Dashboard.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Dashboard.ts">
-        <metrics statements="18" coveredstatements="2" conditionals="3" coveredconditionals="0" methods="5" coveredmethods="0"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="17" count="1" type="stmt"/>
+      <file name="Dashboard.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Dashboard.ts">
+        <metrics statements="18" coveredstatements="4" conditionals="3" coveredconditionals="0" methods="5" coveredmethods="1"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="17" count="4" type="stmt"/>
         <line num="20" count="0" type="stmt"/>
         <line num="24" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="25" count="0" type="stmt"/>
@@ -818,22 +818,22 @@
         <line num="50" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="51" count="0" type="stmt"/>
         <line num="54" count="0" type="stmt"/>
-        <line num="58" count="0" type="stmt"/>
-        <line num="60" count="0" type="stmt"/>
+        <line num="58" count="4" type="stmt"/>
+        <line num="60" count="4" type="stmt"/>
       </file>
-      <file name="EmailDeliveries.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/EmailDeliveries.ts">
-        <metrics statements="6" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="0"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="14" count="1" type="stmt"/>
+      <file name="EmailDeliveries.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/EmailDeliveries.ts">
+        <metrics statements="6" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="1"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="14" count="4" type="stmt"/>
         <line num="20" count="0" type="stmt"/>
         <line num="26" count="0" type="stmt"/>
-        <line num="30" count="0" type="stmt"/>
-        <line num="32" count="0" type="stmt"/>
+        <line num="30" count="4" type="stmt"/>
+        <line num="32" count="4" type="stmt"/>
       </file>
-      <file name="EmailTemplates.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/EmailTemplates.ts">
-        <metrics statements="18" coveredstatements="2" conditionals="2" coveredconditionals="0" methods="6" coveredmethods="0"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="21" count="1" type="stmt"/>
+      <file name="EmailTemplates.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/EmailTemplates.ts">
+        <metrics statements="18" coveredstatements="4" conditionals="2" coveredconditionals="0" methods="6" coveredmethods="1"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="21" count="4" type="stmt"/>
         <line num="27" count="0" type="stmt"/>
         <line num="29" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="30" count="0" type="stmt"/>
@@ -848,21 +848,21 @@
         <line num="78" count="0" type="stmt"/>
         <line num="85" count="0" type="stmt"/>
         <line num="87" count="0" type="stmt"/>
-        <line num="98" count="0" type="stmt"/>
-        <line num="100" count="0" type="stmt"/>
+        <line num="98" count="4" type="stmt"/>
+        <line num="100" count="4" type="stmt"/>
       </file>
-      <file name="Fields.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Fields.ts">
-        <metrics statements="221" coveredstatements="8" conditionals="118" coveredconditionals="0" methods="35" coveredmethods="0"/>
-        <line num="1" count="1" type="stmt"/>
-        <line num="4" count="1" type="stmt"/>
-        <line num="6" count="1" type="stmt"/>
-        <line num="14" count="1" type="stmt"/>
-        <line num="15" count="1" type="stmt"/>
-        <line num="28" count="1" type="stmt"/>
+      <file name="Fields.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Fields.ts">
+        <metrics statements="221" coveredstatements="12" conditionals="118" coveredconditionals="0" methods="35" coveredmethods="2"/>
+        <line num="1" count="4" type="stmt"/>
+        <line num="4" count="4" type="stmt"/>
+        <line num="6" count="4" type="stmt"/>
+        <line num="14" count="4" type="stmt"/>
+        <line num="15" count="4" type="stmt"/>
+        <line num="28" count="4" type="stmt"/>
         <line num="29" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="36" count="0" type="stmt"/>
         <line num="39" count="0" type="stmt"/>
-        <line num="87" count="1" type="stmt"/>
+        <line num="87" count="4" type="stmt"/>
         <line num="90" count="0" type="stmt"/>
         <line num="94" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="95" count="0" type="stmt"/>
@@ -1008,9 +1008,9 @@
         <line num="569" count="0" type="stmt"/>
         <line num="571" count="0" type="stmt"/>
         <line num="573" count="0" type="stmt"/>
-        <line num="577" count="0" type="stmt"/>
-        <line num="579" count="0" type="stmt"/>
-        <line num="598" count="1" type="stmt"/>
+        <line num="577" count="4" type="stmt"/>
+        <line num="579" count="4" type="stmt"/>
+        <line num="598" count="4" type="stmt"/>
         <line num="601" count="0" type="stmt"/>
         <line num="605" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="606" count="0" type="stmt"/>
@@ -1072,15 +1072,15 @@
         <line num="804" count="0" type="stmt"/>
         <line num="806" count="0" type="stmt"/>
         <line num="820" count="0" type="stmt"/>
-        <line num="824" count="0" type="stmt"/>
-        <line num="826" count="0" type="stmt"/>
+        <line num="824" count="4" type="stmt"/>
+        <line num="826" count="4" type="stmt"/>
       </file>
-      <file name="Forms.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Forms.ts">
-        <metrics statements="64" coveredstatements="5" conditionals="37" coveredconditionals="0" methods="14" coveredmethods="0"/>
-        <line num="1" count="1" type="stmt"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="5" count="1" type="stmt"/>
-        <line num="52" count="1" type="stmt"/>
+      <file name="Forms.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Forms.ts">
+        <metrics statements="64" coveredstatements="9" conditionals="37" coveredconditionals="0" methods="14" coveredmethods="2"/>
+        <line num="1" count="4" type="stmt"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="5" count="4" type="stmt"/>
+        <line num="52" count="4" type="stmt"/>
         <line num="55" count="0" type="stmt"/>
         <line num="57" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="58" count="0" type="stmt"/>
@@ -1135,25 +1135,25 @@
         <line num="270" count="0" type="stmt"/>
         <line num="279" count="0" type="stmt"/>
         <line num="281" count="0" type="stmt"/>
-        <line num="330" count="0" type="stmt"/>
-        <line num="332" count="0" type="stmt"/>
-        <line num="339" count="1" type="stmt"/>
+        <line num="330" count="4" type="stmt"/>
+        <line num="332" count="4" type="stmt"/>
+        <line num="339" count="4" type="stmt"/>
         <line num="345" count="0" type="stmt"/>
-        <line num="349" count="0" type="stmt"/>
-        <line num="351" count="0" type="stmt"/>
+        <line num="349" count="4" type="stmt"/>
+        <line num="351" count="4" type="stmt"/>
       </file>
-      <file name="InstallationLog.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/InstallationLog.ts">
-        <metrics statements="5" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
-        <line num="2" count="1" type="stmt"/>
-        <line num="12" count="1" type="stmt"/>
+      <file name="InstallationLog.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/InstallationLog.ts">
+        <metrics statements="5" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="1"/>
+        <line num="2" count="4" type="stmt"/>
+        <line num="12" count="4" type="stmt"/>
         <line num="15" count="0" type="stmt"/>
-        <line num="22" count="0" type="stmt"/>
-        <line num="24" count="0" type="stmt"/>
+        <line num="22" count="4" type="stmt"/>
+        <line num="24" count="4" type="stmt"/>
       </file>
-      <file name="InternalNotes.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/InternalNotes.ts">
-        <metrics statements="17" coveredstatements="2" conditionals="2" coveredconditionals="0" methods="6" coveredmethods="0"/>
-        <line num="2" count="1" type="stmt"/>
-        <line num="30" count="1" type="stmt"/>
+      <file name="InternalNotes.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/InternalNotes.ts">
+        <metrics statements="17" coveredstatements="4" conditionals="2" coveredconditionals="0" methods="6" coveredmethods="1"/>
+        <line num="2" count="4" type="stmt"/>
+        <line num="30" count="4" type="stmt"/>
         <line num="33" count="0" type="stmt"/>
         <line num="35" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="36" count="0" type="stmt"/>
@@ -1167,15 +1167,15 @@
         <line num="78" count="0" type="stmt"/>
         <line num="81" count="0" type="stmt"/>
         <line num="92" count="0" type="stmt"/>
-        <line num="99" count="0" type="stmt"/>
-        <line num="101" count="0" type="stmt"/>
+        <line num="99" count="4" type="stmt"/>
+        <line num="101" count="4" type="stmt"/>
       </file>
-      <file name="Logs.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Logs.ts">
-        <metrics statements="40" coveredstatements="4" conditionals="15" coveredconditionals="0" methods="2" coveredmethods="0"/>
-        <line num="2" count="1" type="stmt"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="5" count="1" type="stmt"/>
-        <line num="11" count="1" type="stmt"/>
+      <file name="Logs.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Logs.ts">
+        <metrics statements="40" coveredstatements="6" conditionals="15" coveredconditionals="0" methods="2" coveredmethods="1"/>
+        <line num="2" count="4" type="stmt"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="5" count="4" type="stmt"/>
+        <line num="11" count="4" type="stmt"/>
         <line num="14" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="15" count="0" type="stmt"/>
         <line num="20" count="0" type="stmt"/>
@@ -1210,14 +1210,14 @@
         <line num="77" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="78" count="0" type="stmt"/>
         <line num="81" count="0" type="stmt"/>
-        <line num="85" count="0" type="stmt"/>
-        <line num="87" count="0" type="stmt"/>
+        <line num="85" count="4" type="stmt"/>
+        <line num="87" count="4" type="stmt"/>
       </file>
-      <file name="Permissions.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Permissions.ts">
-        <metrics statements="64" coveredstatements="4" conditionals="15" coveredconditionals="0" methods="10" coveredmethods="0"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="7" count="1" type="stmt"/>
-        <line num="41" count="1" type="stmt"/>
+      <file name="Permissions.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Permissions.ts">
+        <metrics statements="64" coveredstatements="8" conditionals="15" coveredconditionals="0" methods="10" coveredmethods="2"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="7" count="4" type="stmt"/>
+        <line num="41" count="4" type="stmt"/>
         <line num="49" count="0" type="stmt"/>
         <line num="51" count="0" type="stmt"/>
         <line num="53" count="0" type="stmt"/>
@@ -1250,9 +1250,9 @@
         <line num="127" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="128" count="0" type="stmt"/>
         <line num="131" count="0" type="stmt"/>
-        <line num="135" count="0" type="stmt"/>
-        <line num="137" count="0" type="stmt"/>
-        <line num="140" count="1" type="stmt"/>
+        <line num="135" count="4" type="stmt"/>
+        <line num="137" count="4" type="stmt"/>
+        <line num="140" count="4" type="stmt"/>
         <line num="143" count="0" type="stmt"/>
         <line num="145" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="146" count="0" type="stmt"/>
@@ -1277,13 +1277,13 @@
         <line num="232" count="0" type="stmt"/>
         <line num="233" count="0" type="stmt"/>
         <line num="242" count="0" type="stmt"/>
-        <line num="246" count="0" type="stmt"/>
-        <line num="248" count="0" type="stmt"/>
+        <line num="246" count="4" type="stmt"/>
+        <line num="248" count="4" type="stmt"/>
       </file>
-      <file name="ProductConfig.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/ProductConfig.ts">
-        <metrics statements="14" coveredstatements="2" conditionals="4" coveredconditionals="0" methods="4" coveredmethods="0"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="19" count="1" type="stmt"/>
+      <file name="ProductConfig.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/ProductConfig.ts">
+        <metrics statements="14" coveredstatements="4" conditionals="4" coveredconditionals="0" methods="4" coveredmethods="1"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="19" count="4" type="stmt"/>
         <line num="25" count="0" type="stmt"/>
         <line num="27" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="28" count="0" type="cond" truecount="0" falsecount="2"/>
@@ -1294,16 +1294,16 @@
         <line num="52" count="0" type="stmt"/>
         <line num="55" count="0" type="stmt"/>
         <line num="59" count="0" type="stmt"/>
-        <line num="63" count="0" type="stmt"/>
-        <line num="65" count="0" type="stmt"/>
+        <line num="63" count="4" type="stmt"/>
+        <line num="65" count="4" type="stmt"/>
       </file>
-      <file name="Products.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Products.ts">
-        <metrics statements="138" coveredstatements="6" conditionals="54" coveredconditionals="0" methods="19" coveredmethods="0"/>
-        <line num="5" count="1" type="stmt"/>
-        <line num="6" count="1" type="stmt"/>
-        <line num="15" count="1" type="stmt"/>
-        <line num="20" count="1" type="stmt"/>
-        <line num="33" count="1" type="stmt"/>
+      <file name="Products.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Products.ts">
+        <metrics statements="138" coveredstatements="10" conditionals="54" coveredconditionals="0" methods="19" coveredmethods="2"/>
+        <line num="5" count="4" type="stmt"/>
+        <line num="6" count="4" type="stmt"/>
+        <line num="15" count="4" type="stmt"/>
+        <line num="20" count="4" type="stmt"/>
+        <line num="33" count="4" type="stmt"/>
         <line num="41" count="0" type="stmt"/>
         <line num="43" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="44" count="0" type="stmt"/>
@@ -1397,9 +1397,9 @@
         <line num="312" count="0" type="stmt"/>
         <line num="316" count="0" type="stmt"/>
         <line num="330" count="0" type="stmt"/>
-        <line num="334" count="0" type="stmt"/>
-        <line num="336" count="0" type="stmt"/>
-        <line num="351" count="1" type="stmt"/>
+        <line num="334" count="4" type="stmt"/>
+        <line num="336" count="4" type="stmt"/>
+        <line num="351" count="4" type="stmt"/>
         <line num="359" count="0" type="stmt"/>
         <line num="361" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="362" count="0" type="stmt"/>
@@ -1435,13 +1435,13 @@
         <line num="466" count="0" type="stmt"/>
         <line num="476" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="480" count="0" type="stmt"/>
-        <line num="484" count="0" type="stmt"/>
-        <line num="486" count="0" type="stmt"/>
+        <line num="484" count="4" type="stmt"/>
+        <line num="486" count="4" type="stmt"/>
       </file>
-      <file name="Report.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Report.ts">
-        <metrics statements="18" coveredstatements="2" conditionals="3" coveredconditionals="0" methods="5" coveredmethods="0"/>
-        <line num="4" count="1" type="stmt"/>
-        <line num="13" count="1" type="stmt"/>
+      <file name="Report.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Report.ts">
+        <metrics statements="18" coveredstatements="4" conditionals="3" coveredconditionals="0" methods="5" coveredmethods="1"/>
+        <line num="4" count="4" type="stmt"/>
+        <line num="13" count="4" type="stmt"/>
         <line num="17" count="0" type="stmt"/>
         <line num="18" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="19" count="0" type="stmt"/>
@@ -1456,13 +1456,13 @@
         <line num="46" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="47" count="0" type="stmt"/>
         <line num="50" count="0" type="stmt"/>
-        <line num="54" count="0" type="stmt"/>
-        <line num="56" count="0" type="stmt"/>
+        <line num="54" count="4" type="stmt"/>
+        <line num="56" count="4" type="stmt"/>
       </file>
-      <file name="Section.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Section.ts">
-        <metrics statements="13" coveredstatements="2" conditionals="2" coveredconditionals="0" methods="4" coveredmethods="0"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="15" count="1" type="stmt"/>
+      <file name="Section.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Section.ts">
+        <metrics statements="13" coveredstatements="4" conditionals="2" coveredconditionals="0" methods="4" coveredmethods="1"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="15" count="4" type="stmt"/>
         <line num="18" count="0" type="stmt"/>
         <line num="22" count="0" type="stmt"/>
         <line num="26" count="0" type="cond" truecount="0" falsecount="1"/>
@@ -1472,13 +1472,13 @@
         <line num="37" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="38" count="0" type="stmt"/>
         <line num="41" count="0" type="stmt"/>
-        <line num="45" count="0" type="stmt"/>
-        <line num="47" count="0" type="stmt"/>
+        <line num="45" count="4" type="stmt"/>
+        <line num="47" count="4" type="stmt"/>
       </file>
-      <file name="Segments.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Segments.ts">
-        <metrics statements="37" coveredstatements="3" conditionals="10" coveredconditionals="0" methods="6" coveredmethods="0"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="10" count="1" type="stmt"/>
+      <file name="Segments.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Segments.ts">
+        <metrics statements="37" coveredstatements="5" conditionals="10" coveredconditionals="0" methods="6" coveredmethods="1"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="10" count="4" type="stmt"/>
         <line num="17" count="0" type="stmt"/>
         <line num="19" count="0" type="stmt"/>
         <line num="20" count="0" type="stmt"/>
@@ -1489,7 +1489,7 @@
         <line num="33" count="0" type="stmt"/>
         <line num="35" count="0" type="stmt"/>
         <line num="42" count="0" type="stmt"/>
-        <line num="58" count="1" type="stmt"/>
+        <line num="58" count="4" type="stmt"/>
         <line num="64" count="0" type="stmt"/>
         <line num="66" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="67" count="0" type="stmt"/>
@@ -1512,16 +1512,16 @@
         <line num="132" count="0" type="stmt"/>
         <line num="133" count="0" type="stmt"/>
         <line num="134" count="0" type="stmt"/>
-        <line num="138" count="0" type="stmt"/>
-        <line num="140" count="0" type="stmt"/>
+        <line num="138" count="4" type="stmt"/>
+        <line num="140" count="4" type="stmt"/>
       </file>
-      <file name="Structure.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Structure.ts">
-        <metrics statements="134" coveredstatements="9" conditionals="47" coveredconditionals="0" methods="29" coveredmethods="0"/>
-        <line num="1" count="1" type="stmt"/>
-        <line num="4" count="1" type="stmt"/>
-        <line num="17" count="1" type="stmt"/>
-        <line num="18" count="1" type="stmt"/>
-        <line num="31" count="1" type="stmt"/>
+      <file name="Structure.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Structure.ts">
+        <metrics statements="134" coveredstatements="19" conditionals="47" coveredconditionals="0" methods="29" coveredmethods="5"/>
+        <line num="1" count="4" type="stmt"/>
+        <line num="4" count="4" type="stmt"/>
+        <line num="17" count="4" type="stmt"/>
+        <line num="18" count="4" type="stmt"/>
+        <line num="31" count="4" type="stmt"/>
         <line num="37" count="0" type="stmt"/>
         <line num="39" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="40" count="0" type="stmt"/>
@@ -1533,9 +1533,9 @@
         <line num="83" count="0" type="stmt"/>
         <line num="84" count="0" type="stmt"/>
         <line num="85" count="0" type="stmt"/>
-        <line num="89" count="0" type="stmt"/>
-        <line num="91" count="0" type="stmt"/>
-        <line num="113" count="1" type="stmt"/>
+        <line num="89" count="4" type="stmt"/>
+        <line num="91" count="4" type="stmt"/>
+        <line num="113" count="4" type="stmt"/>
         <line num="119" count="0" type="stmt"/>
         <line num="121" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="122" count="0" type="stmt"/>
@@ -1567,9 +1567,9 @@
         <line num="228" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="229" count="0" type="stmt"/>
         <line num="240" count="0" type="stmt"/>
-        <line num="249" count="0" type="stmt"/>
-        <line num="251" count="0" type="stmt"/>
-        <line num="261" count="1" type="stmt"/>
+        <line num="249" count="4" type="stmt"/>
+        <line num="251" count="4" type="stmt"/>
+        <line num="261" count="4" type="stmt"/>
         <line num="267" count="0" type="stmt"/>
         <line num="269" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="270" count="0" type="stmt"/>
@@ -1581,9 +1581,9 @@
         <line num="309" count="0" type="stmt"/>
         <line num="311" count="0" type="stmt"/>
         <line num="313" count="0" type="stmt"/>
-        <line num="317" count="0" type="stmt"/>
-        <line num="319" count="0" type="stmt"/>
-        <line num="329" count="1" type="stmt"/>
+        <line num="317" count="4" type="stmt"/>
+        <line num="319" count="4" type="stmt"/>
+        <line num="329" count="4" type="stmt"/>
         <line num="335" count="0" type="stmt"/>
         <line num="337" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="338" count="0" type="stmt"/>
@@ -1615,9 +1615,9 @@
         <line num="444" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="445" count="0" type="stmt"/>
         <line num="456" count="0" type="stmt"/>
-        <line num="462" count="0" type="stmt"/>
-        <line num="464" count="0" type="stmt"/>
-        <line num="473" count="1" type="stmt"/>
+        <line num="462" count="4" type="stmt"/>
+        <line num="464" count="4" type="stmt"/>
+        <line num="473" count="4" type="stmt"/>
         <line num="479" count="0" type="stmt"/>
         <line num="481" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="482" count="0" type="stmt"/>
@@ -1649,15 +1649,15 @@
         <line num="588" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="589" count="0" type="stmt"/>
         <line num="600" count="0" type="stmt"/>
-        <line num="609" count="0" type="stmt"/>
-        <line num="611" count="0" type="stmt"/>
+        <line num="609" count="4" type="stmt"/>
+        <line num="611" count="4" type="stmt"/>
       </file>
-      <file name="Tags.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Tags.ts">
-        <metrics statements="84" coveredstatements="6" conditionals="33" coveredconditionals="0" methods="13" coveredmethods="0"/>
-        <line num="1" count="1" type="stmt"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="5" count="1" type="stmt"/>
-        <line num="8" count="1" type="stmt"/>
+      <file name="Tags.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Tags.ts">
+        <metrics statements="84" coveredstatements="8" conditionals="33" coveredconditionals="0" methods="13" coveredmethods="1"/>
+        <line num="1" count="4" type="stmt"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="5" count="4" type="stmt"/>
+        <line num="8" count="4" type="stmt"/>
         <line num="9" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="10" count="0" type="stmt"/>
         <line num="12" count="0" type="cond" truecount="0" falsecount="1"/>
@@ -1668,7 +1668,7 @@
         <line num="25" count="0" type="stmt"/>
         <line num="27" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="28" count="0" type="stmt"/>
-        <line num="35" count="1" type="stmt"/>
+        <line num="35" count="4" type="stmt"/>
         <line num="36" count="0" type="stmt"/>
         <line num="38" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="39" count="0" type="stmt"/>
@@ -1679,7 +1679,7 @@
         <line num="54" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="56" count="0" type="stmt"/>
         <line num="64" count="0" type="stmt"/>
-        <line num="79" count="1" type="stmt"/>
+        <line num="79" count="4" type="stmt"/>
         <line num="85" count="0" type="stmt"/>
         <line num="87" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="88" count="0" type="stmt"/>
@@ -1736,13 +1736,13 @@
         <line num="255" count="0" type="stmt"/>
         <line num="265" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="267" count="0" type="stmt"/>
-        <line num="271" count="0" type="stmt"/>
-        <line num="273" count="0" type="stmt"/>
+        <line num="271" count="4" type="stmt"/>
+        <line num="273" count="4" type="stmt"/>
       </file>
-      <file name="Uoms.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Uoms.ts">
-        <metrics statements="44" coveredstatements="2" conditionals="12" coveredconditionals="0" methods="10" coveredmethods="0"/>
-        <line num="2" count="1" type="stmt"/>
-        <line num="18" count="1" type="stmt"/>
+      <file name="Uoms.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Uoms.ts">
+        <metrics statements="44" coveredstatements="4" conditionals="12" coveredconditionals="0" methods="10" coveredmethods="1"/>
+        <line num="2" count="4" type="stmt"/>
+        <line num="18" count="4" type="stmt"/>
         <line num="26" count="0" type="stmt"/>
         <line num="28" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="29" count="0" type="stmt"/>
@@ -1783,24 +1783,24 @@
         <line num="119" count="0" type="stmt"/>
         <line num="122" count="0" type="stmt"/>
         <line num="124" count="0" type="stmt"/>
-        <line num="128" count="0" type="stmt"/>
-        <line num="130" count="0" type="stmt"/>
+        <line num="128" count="4" type="stmt"/>
+        <line num="130" count="4" type="stmt"/>
       </file>
-      <file name="Users.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Users.ts">
-        <metrics statements="248" coveredstatements="14" conditionals="94" coveredconditionals="0" methods="39" coveredmethods="0"/>
-        <line num="1" count="1" type="stmt"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="5" count="1" type="stmt"/>
-        <line num="6" count="1" type="stmt"/>
-        <line num="7" count="1" type="stmt"/>
-        <line num="9" count="1" type="stmt"/>
-        <line num="11" count="1" type="stmt"/>
-        <line num="12" count="1" type="stmt"/>
-        <line num="20" count="1" type="stmt"/>
-        <line num="21" count="1" type="stmt"/>
-        <line num="25" count="1" type="stmt"/>
-        <line num="27" count="1" type="stmt"/>
-        <line num="130" count="1" type="stmt"/>
+      <file name="Users.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Users.ts">
+        <metrics statements="248" coveredstatements="18" conditionals="94" coveredconditionals="0" methods="39" coveredmethods="2"/>
+        <line num="1" count="4" type="stmt"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="5" count="4" type="stmt"/>
+        <line num="6" count="4" type="stmt"/>
+        <line num="7" count="4" type="stmt"/>
+        <line num="9" count="4" type="stmt"/>
+        <line num="11" count="4" type="stmt"/>
+        <line num="12" count="4" type="stmt"/>
+        <line num="20" count="4" type="stmt"/>
+        <line num="21" count="4" type="stmt"/>
+        <line num="25" count="4" type="stmt"/>
+        <line num="27" count="4" type="stmt"/>
+        <line num="130" count="4" type="stmt"/>
         <line num="133" count="0" type="stmt"/>
         <line num="135" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="136" count="0" type="stmt"/>
@@ -2003,9 +2003,9 @@
         <line num="931" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="933" count="0" type="stmt"/>
         <line num="936" count="0" type="stmt"/>
-        <line num="940" count="0" type="stmt"/>
-        <line num="942" count="0" type="stmt"/>
-        <line num="964" count="1" type="stmt"/>
+        <line num="940" count="4" type="stmt"/>
+        <line num="942" count="4" type="stmt"/>
+        <line num="964" count="4" type="stmt"/>
         <line num="967" count="0" type="stmt"/>
         <line num="969" count="0" type="stmt"/>
         <line num="970" count="0" type="cond" truecount="0" falsecount="2"/>
@@ -2034,14 +2034,14 @@
         <line num="1097" count="0" type="cond" truecount="0" falsecount="3"/>
         <line num="1098" count="0" type="stmt"/>
         <line num="1108" count="0" type="stmt"/>
-        <line num="1111" count="0" type="stmt"/>
-        <line num="1112" count="0" type="stmt"/>
+        <line num="1111" count="4" type="stmt"/>
+        <line num="1112" count="4" type="stmt"/>
       </file>
-      <file name="Visitors.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/Visitors.ts">
-        <metrics statements="23" coveredstatements="3" conditionals="5" coveredconditionals="0" methods="5" coveredmethods="0"/>
-        <line num="2" count="1" type="stmt"/>
-        <line num="4" count="1" type="stmt"/>
-        <line num="17" count="1" type="stmt"/>
+      <file name="Visitors.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Visitors.ts">
+        <metrics statements="23" coveredstatements="5" conditionals="5" coveredconditionals="0" methods="5" coveredmethods="1"/>
+        <line num="2" count="4" type="stmt"/>
+        <line num="4" count="4" type="stmt"/>
+        <line num="17" count="4" type="stmt"/>
         <line num="20" count="0" type="stmt"/>
         <line num="24" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="25" count="0" type="stmt"/>
@@ -2060,20 +2060,20 @@
         <line num="78" count="0" type="stmt"/>
         <line num="82" count="0" type="stmt"/>
         <line num="86" count="0" type="stmt"/>
-        <line num="90" count="0" type="stmt"/>
-        <line num="92" count="0" type="stmt"/>
+        <line num="90" count="4" type="stmt"/>
+        <line num="92" count="4" type="stmt"/>
       </file>
-      <file name="conformitiesUtils.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/conformitiesUtils.ts">
+      <file name="conformitiesUtils.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/conformitiesUtils.ts">
         <metrics statements="15" coveredstatements="4" conditionals="6" coveredconditionals="0" methods="7" coveredmethods="0"/>
-        <line num="14" count="1" type="stmt"/>
+        <line num="14" count="4" type="stmt"/>
         <line num="19" count="0" type="stmt"/>
-        <line num="41" count="1" type="stmt"/>
+        <line num="41" count="4" type="stmt"/>
         <line num="45" count="0" type="stmt"/>
-        <line num="53" count="1" type="stmt"/>
+        <line num="53" count="4" type="stmt"/>
         <line num="60" count="0" type="stmt"/>
         <line num="62" count="0" type="stmt"/>
         <line num="63" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="67" count="1" type="stmt"/>
+        <line num="67" count="4" type="stmt"/>
         <line num="79" count="0" type="stmt"/>
         <line num="81" count="0" type="stmt"/>
         <line num="82" count="0" type="cond" truecount="0" falsecount="2"/>
@@ -2081,9 +2081,9 @@
         <line num="87" count="0" type="stmt"/>
         <line num="88" count="0" type="cond" truecount="0" falsecount="2"/>
       </file>
-      <file name="maskUtils.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/maskUtils.ts">
+      <file name="maskUtils.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/maskUtils.ts">
         <metrics statements="90" coveredstatements="8" conditionals="80" coveredconditionals="0" methods="19" coveredmethods="0"/>
-        <line num="6" count="1" type="stmt"/>
+        <line num="6" count="4" type="stmt"/>
         <line num="10" count="0" type="cond" truecount="0" falsecount="3"/>
         <line num="11" count="0" type="stmt"/>
         <line num="14" count="0" type="cond" truecount="0" falsecount="1"/>
@@ -2103,7 +2103,7 @@
         <line num="44" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="45" count="0" type="stmt"/>
         <line num="48" count="0" type="stmt"/>
-        <line num="51" count="1" type="stmt"/>
+        <line num="51" count="4" type="stmt"/>
         <line num="59" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="65" count="0" type="cond" truecount="0" falsecount="3"/>
         <line num="66" count="0" type="stmt"/>
@@ -2130,7 +2130,7 @@
         <line num="108" count="0" type="stmt"/>
         <line num="110" count="0" type="stmt"/>
         <line num="114" count="0" type="stmt"/>
-        <line num="117" count="1" type="stmt"/>
+        <line num="117" count="4" type="stmt"/>
         <line num="118" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="119" count="0" type="stmt"/>
         <line num="123" count="0" type="stmt"/>
@@ -2152,33 +2152,33 @@
         <line num="167" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="168" count="0" type="stmt"/>
         <line num="171" count="0" type="stmt"/>
-        <line num="174" count="1" type="cond" truecount="0" falsecount="1"/>
+        <line num="174" count="4" type="cond" truecount="0" falsecount="1"/>
         <line num="175" count="0" type="stmt"/>
         <line num="203" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="204" count="0" type="stmt"/>
         <line num="220" count="0" type="stmt"/>
-        <line num="241" count="1" type="cond" truecount="0" falsecount="1"/>
+        <line num="241" count="4" type="cond" truecount="0" falsecount="1"/>
         <line num="242" count="0" type="stmt"/>
         <line num="275" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="276" count="0" type="stmt"/>
         <line num="286" count="0" type="stmt"/>
-        <line num="299" count="1" type="stmt"/>
+        <line num="299" count="4" type="stmt"/>
         <line num="300" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="301" count="0" type="stmt"/>
-        <line num="304" count="1" type="stmt"/>
+        <line num="304" count="4" type="stmt"/>
         <line num="306" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="309" count="0" type="stmt"/>
         <line num="315" count="0" type="stmt"/>
-        <line num="321" count="1" type="stmt"/>
+        <line num="321" count="4" type="stmt"/>
         <line num="323" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="326" count="0" type="stmt"/>
         <line num="332" count="0" type="cond" truecount="0" falsecount="6"/>
       </file>
-      <file name="utils.ts" path="/Users/enkhtuvshin/Documents/work/erxes/erxes/packages/core/src/db/models/utils.ts">
+      <file name="utils.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/utils.ts">
         <metrics statements="17" coveredstatements="4" conditionals="7" coveredconditionals="0" methods="3" coveredmethods="0"/>
-        <line num="1" count="1" type="stmt"/>
-        <line num="2" count="1" type="stmt"/>
-        <line num="4" count="1" type="stmt"/>
+        <line num="1" count="4" type="stmt"/>
+        <line num="2" count="4" type="stmt"/>
+        <line num="4" count="4" type="stmt"/>
         <line num="9" count="0" type="stmt"/>
         <line num="10" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="14" count="0" type="cond" truecount="0" falsecount="2"/>
@@ -2187,7 +2187,7 @@
         <line num="19" count="0" type="stmt"/>
         <line num="21" count="0" type="stmt"/>
         <line num="24" count="0" type="stmt"/>
-        <line num="27" count="1" type="stmt"/>
+        <line num="27" count="4" type="stmt"/>
         <line num="28" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="29" count="0" type="stmt"/>
         <line num="32" count="0" type="stmt"/>
