@@ -5,18 +5,18 @@ module.exports = {
   scope: 'burenscoring',
   exposes: {
     './routes': './src/routes.tsx',
-    './burenSection': './src/components/common/BurenSection.tsx'
+    './burenSection': './src/containers/BurenSection.tsx',
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
     scope: 'burenscoring',
     module: './routes'
   },
-  menus:[
+  menus: [
     {
-      text:"BurenScorings",
-      url:"/burenscorings","icon":"icon-star",
-      location:"mainNavigation"
+      text: "BurenScorings",
+      url: "/burenscorings", "icon": "icon-star",
+      location: "mainNavigation"
     },
     {
       text: 'scoring config',
@@ -25,6 +25,6 @@ module.exports = {
       location: "settings",
       scope: "burenscoring"
     }
-],
-customerRightSidebarSection: './burenSection'
+  ],
+  customerRightSidebarSection: './burenSection'
 };
