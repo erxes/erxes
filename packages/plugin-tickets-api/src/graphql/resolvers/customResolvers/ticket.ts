@@ -1,7 +1,6 @@
 import { IContext } from "../../../connectionResolver";
 import {
   sendCommonMessage,
-  sendContactsMessage,
   sendCoreMessage,
   sendNotificationsMessage
 } from "../../../messageBroker";
@@ -31,7 +30,7 @@ export default {
       defaultValue: []
     });
 
-    const companies = await sendContactsMessage({
+    const companies = await sendCoreMessage({
       subdomain,
       action: "companies.findActiveCompanies",
       data: { selector: { _id: { $in: companyIds } } },
@@ -64,7 +63,7 @@ export default {
       defaultValue: []
     });
 
-    const customers = await sendContactsMessage({
+    const customers = await sendCoreMessage({
       subdomain,
       action: "customers.findActiveCustomers",
       data: {

@@ -5,7 +5,6 @@ import { IAsset, IAssetDocument } from "../common/types/asset";
 import { IModels } from "../connectionResolver";
 import {
   sendSalesMessage,
-  sendContactsMessage,
   sendCoreMessage
 } from "../messageBroker";
 import { assetSchema } from "./definitions/assets";
@@ -55,7 +54,7 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
       }
 
       if (doc.vendorCode) {
-        const vendor = await sendContactsMessage({
+        const vendor = await sendCoreMessage({
           subdomain,
           action: "companies.findOne",
           data: {

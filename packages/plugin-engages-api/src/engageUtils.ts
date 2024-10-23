@@ -9,7 +9,6 @@ import { isUsingElk } from "./utils";
 import {
   sendInboxMessage,
   sendCoreMessage,
-  sendContactsMessage,
   sendClientPortalMessage
 } from "./messageBroker";
 import { getEnv } from "@erxes/api-utils/src";
@@ -286,7 +285,7 @@ export const send = async (
       throw new Error("Integration not found or brandId is not provided");
     }
 
-    const erxesCustomerIds = await sendContactsMessage({
+    const erxesCustomerIds = await sendCoreMessage({
       subdomain,
       action: "customers.getCustomerIds",
       data: customersSelector,
@@ -298,7 +297,7 @@ export const send = async (
       await models.EngageMessages.createVisitorOrCustomerMessages({
         brandId,
         integrationId: integration._id,
-        customer: await sendContactsMessage({
+        customer: await sendCoreMessage({
           subdomain,
           action: "customers.findOne",
           data: { _id: customerId },
@@ -353,7 +352,7 @@ const sendEmailOrSms = async (
   }
 
   // customer info will be prepared at contacts api
-  // sendContactsMessage({
+  // sendCoreMessage({
   //   isRPC: false,
   //   action: "customers.prepareEngageCustomers",
   //   subdomain,
@@ -394,7 +393,7 @@ const sendNotifications = async (
   const { notification, cpId } = engageMessage;
   const engageMessageId = engageMessage._id;
 
-  const erxesCustomerIds = await sendContactsMessage({
+  const erxesCustomerIds = await sendCoreMessage({
     subdomain,
     action: "customers.getCustomerIds",
     data: customersSelector,
@@ -581,7 +580,7 @@ export const checkCustomerExists = async (
       }))
     };
 
-    const customer = await sendContactsMessage({
+    const customer = await sendCoreMessage({
       subdomain,
       action: "customers.findOne",
       data: customersSelector,

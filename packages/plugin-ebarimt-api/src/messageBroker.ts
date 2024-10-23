@@ -186,14 +186,6 @@ export const sendLoansMessage = async (
   });
 };
 
-export const sendContactsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "core",
-    ...args
-  });
-};
 
 export const sendSalesMessage = async (
   args: MessageArgsOmitService

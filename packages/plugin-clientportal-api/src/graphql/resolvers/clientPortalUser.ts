@@ -1,5 +1,5 @@
 import { IContext } from '../../connectionResolver';
-import { sendContactsMessage } from '../../messageBroker';
+import { sendCoreMessage } from '../../messageBroker';
 import { IUser } from '../../models/definitions/clientPortalUser';
 import { customFieldsDataByFieldCode } from '../../utils';
 
@@ -40,7 +40,7 @@ const ClientPortalUser = {
 
   async companyName(user, _args, { subdomain }: IContext) {
     if (user.erxesCompanyId) {
-      const company = await sendContactsMessage({
+      const company = await sendCoreMessage({
         subdomain,
         action: 'companies.findOne',
         data: {

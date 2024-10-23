@@ -1,4 +1,4 @@
-import { sendContactsMessage } from '../messageBroker';
+import { sendCoreMessage } from '../messageBroker';
 import { validCompanyCode } from './customerToErkhet';
 
 export const consumeCustomer = async (
@@ -11,7 +11,7 @@ export const consumeCustomer = async (
   const isCompany = await validCompanyCode(config, doc.code);
 
   if (isCompany) {
-    const company = await sendContactsMessage({
+    const company = await sendCoreMessage({
       subdomain,
       action: 'companies.findOne',
       data: { companyCode: old_code },
@@ -26,14 +26,14 @@ export const consumeCustomer = async (
       };
 
       if (company) {
-        await sendContactsMessage({
+        await sendCoreMessage({
           subdomain,
           action: 'companies.updateCompany',
           data: { _id: company._id, doc: { ...document } },
           isRPC: true
         });
       } else {
-        await sendContactsMessage({
+        await sendCoreMessage({
           subdomain,
           action: 'companies.createCompany',
           data: { ...document },
@@ -41,7 +41,7 @@ export const consumeCustomer = async (
         });
       }
     } else if (action === 'delete' && company) {
-      await sendContactsMessage({
+      await sendCoreMessage({
         subdomain,
         action: 'companies.removeCompanies',
         data: { _ids: [company._id] },
@@ -49,7 +49,7 @@ export const consumeCustomer = async (
       });
     }
   } else {
-    const customer = await sendContactsMessage({
+    const customer = await sendCoreMessage({
       subdomain,
       action: 'customers.findOne',
       data: { customerCode: old_code },
@@ -67,14 +67,14 @@ export const consumeCustomer = async (
       };
 
       if (customer) {
-        await sendContactsMessage({
+        await sendCoreMessage({
           subdomain,
           action: 'customers.updateCustomer',
           data: { _id: customer._id, doc: { ...document, state: 'customer' } },
           isRPC: true
         });
       } else {
-        await sendContactsMessage({
+        await sendCoreMessage({
           subdomain,
           action: 'customers.createCustomer',
           data: { ...document, state: 'customer' },
@@ -82,7 +82,7 @@ export const consumeCustomer = async (
         });
       }
     } else if (action === 'delete' && customer) {
-      await sendContactsMessage({
+      await sendCoreMessage({
         subdomain,
         action: 'customers.removeCustomers',
         data: { _ids: [customer._id] },

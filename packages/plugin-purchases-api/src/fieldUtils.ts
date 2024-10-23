@@ -5,7 +5,6 @@ import {
   BOARD_ITEM_EXTENDED_FIELDS
 } from "./constants";
 import {
-  sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage
 } from "./messageBroker";
@@ -82,7 +81,7 @@ const generateContactsOptions = async (
   type: string,
   params?: any
 ) => {
-  const contacts = await sendContactsMessage({
+  const contacts = await sendCoreMessage({
     subdomain,
     action: `${name}.find`,
     data: { ...params, status: { $ne: "deleted" } },

@@ -2,7 +2,6 @@ import { IBrowserInfo } from "@erxes/api-utils/src/definitions/common";
 import { debugInfo, debugError } from "@erxes/api-utils/src/debuggers";
 
 import {
-  sendContactsMessage,
   sendCoreMessage,
   sendEngagesMessage
 } from "./messageBroker";
@@ -20,7 +19,7 @@ export const getOrCreateEngageMessage = async (
   let customer;
 
   if (customerId) {
-    customer = await sendContactsMessage({
+    customer = await sendCoreMessage({
       subdomain,
       action: "customers.findOne",
       data: {
@@ -83,7 +82,7 @@ export const receiveVisitorDetail = async (subdomain: string, visitor) => {
   delete visitor.visitorId;
   delete visitor._id;
 
-  const customer = await sendContactsMessage({
+  const customer = await sendCoreMessage({
     subdomain,
     action: "customers.updateOne",
     data: {

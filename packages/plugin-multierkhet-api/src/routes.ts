@@ -1,6 +1,5 @@
 import { getSubdomain } from "@erxes/api-utils/src/core";
 import {
-  sendContactsMessage,
   sendCoreMessage,
   sendPosMessage,
   sendProductsMessage,
@@ -52,7 +51,7 @@ export const getOrderInfo = async (req, res) => {
       )
       .filter(c => c);
     if (customerIds.length) {
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
         action: "customers.find",
         data: { _id: { $in: customerIds } },
@@ -63,7 +62,7 @@ export const getOrderInfo = async (req, res) => {
       }
     }
     if (companyIds.length) {
-      const companies = await sendContactsMessage({
+      const companies = await sendCoreMessage({
         subdomain,
         action: "companies.find",
         data: { _id: { $in: companyIds } },
@@ -98,7 +97,7 @@ export const getOrderInfo = async (req, res) => {
     result.object = order;
     if (order.customerId) {
       if (order.customerType === "company") {
-        const companies = await sendContactsMessage({
+        const companies = await sendCoreMessage({
           subdomain,
           action: "companies.find",
           data: { _id: { $in: [order.customerId] } },
@@ -118,7 +117,7 @@ export const getOrderInfo = async (req, res) => {
           result.users = users;
         }
       } else {
-        const customers = await sendContactsMessage({
+        const customers = await sendCoreMessage({
           subdomain,
           action: "customers.find",
           data: { _id: { $in: [order.customerId] } },

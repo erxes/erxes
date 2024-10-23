@@ -8,7 +8,6 @@ import { itemsAdd } from '../graphql/resolvers/mutations/utils';
 import { generateModels, IModels } from '../connectionResolver';
 import {
   sendCommonMessage,
-  sendContactsMessage,
   sendCoreMessage,
   sendInboxMessage,
   sendProductsMessage,
@@ -631,7 +630,7 @@ export const updateName = async (
       const idsCustomers = await getCustomerIds(subdomain, type, item._id);
       const idsCompanies = await getCompanyIds(subdomain, type, item._id);
 
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
         action: 'customers.find',
         data: {
@@ -641,7 +640,7 @@ export const updateName = async (
         defaultValue: [],
       });
 
-      const companies = await sendContactsMessage({
+      const companies = await sendCoreMessage({
         subdomain,
         action: 'companies.find',
         data: {

@@ -1,7 +1,6 @@
 import * as moment from "moment";
 import { generateModels } from "./connectionResolver";
 import {
-  sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage
 } from "./messageBroker";
@@ -284,7 +283,7 @@ export default {
 
     if (replacedContent.includes(`{{ company }}`)) {
       if (perform.companyId) {
-        const company = await sendContactsMessage({
+        const company = await sendCoreMessage({
           subdomain,
           action: "companies.findOne",
           data: {
@@ -305,7 +304,7 @@ export default {
 
     if (replacedContent.includes(`{{ customer }}`)) {
       if (perform.customerId) {
-        const customer = await sendContactsMessage({
+        const customer = await sendCoreMessage({
           subdomain,
           action: "customers.findOne",
           data: {

@@ -9,7 +9,6 @@ import { generateModels, IContext, IModels } from "./connectionResolver";
 import {
   sendCoreMessage,
   sendCommonMessage,
-  sendContactsMessage,
   sendPurchasesMessage,
   sendSalesMessage,
   sendTasksMessage,
@@ -506,7 +505,7 @@ export const getCards = async (
     return [];
   }
 
-  const customer = await sendContactsMessage({
+  const customer = await sendCoreMessage({
     subdomain,
     action: "customers.findOne",
     data: {

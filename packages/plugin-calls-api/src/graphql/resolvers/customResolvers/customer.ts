@@ -1,12 +1,12 @@
 import { IContext } from '../../../connectionResolver';
-import { sendContactsMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 
 export default {
   async customer({ customerPhone }, {}, { subdomain }: IContext) {
     if (!customerPhone) {
       return null;
     }
-    const customer = await sendContactsMessage({
+    const customer = await sendCoreMessage({
       subdomain,
       action: 'customers.findOne',
       data: { primaryPhone: customerPhone },

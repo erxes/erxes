@@ -2,7 +2,6 @@ import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { confirmVoucherSale } from '../../../utils';
 import {
-  sendContactsMessage,
   sendCoreMessage,
   sendNotification
 } from '../../../messageBroker';
@@ -32,7 +31,7 @@ const loyaltiesMutations = {
     let destOwnerId = destinationOwnerId;
 
     if (ownerType === 'customer') {
-      const customer = await sendContactsMessage({
+      const customer = await sendCoreMessage({
         subdomain,
         action: 'customers.findOne',
         data: {

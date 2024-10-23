@@ -1,6 +1,5 @@
 import {
   sendClientPortalMessage,
-  sendContactsMessage,
   sendCoreMessage
 } from '../messageBroker';
 
@@ -82,7 +81,7 @@ export const getRandomNumber = number => {
 export const getOwner = async (subdomain, ownerType, ownerId) => {
   switch (ownerType) {
     case 'customer':
-      return await sendContactsMessage({
+      return await sendCoreMessage({
         subdomain,
         action: 'customers.findOne',
         data: { _id: ownerId },
@@ -96,7 +95,7 @@ export const getOwner = async (subdomain, ownerType, ownerId) => {
         isRPC: true
       });
     case 'company':
-      return await sendContactsMessage({
+      return await sendCoreMessage({
         subdomain,
         action: 'companies.findOne',
         data: { _id: ownerId },

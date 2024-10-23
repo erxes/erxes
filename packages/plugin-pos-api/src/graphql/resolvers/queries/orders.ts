@@ -1,6 +1,5 @@
 import { checkPermission } from "@erxes/api-utils/src/permissions";
 import {
-  sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage
 } from "../../../messageBroker";
@@ -286,7 +285,7 @@ export const posOrderRecordsQuery = async (
   const userById = {};
 
   if (customerIds.length) {
-    const customers = await sendContactsMessage({
+    const customers = await sendCoreMessage({
       subdomain,
       action: "customers.find",
       data: { _id: { $in: customerIds } },
@@ -300,7 +299,7 @@ export const posOrderRecordsQuery = async (
   }
 
   if (companyIds.length) {
-    const companies = await sendContactsMessage({
+    const companies = await sendCoreMessage({
       subdomain,
       action: "companies.find",
       data: { _id: { $in: companyIds } },

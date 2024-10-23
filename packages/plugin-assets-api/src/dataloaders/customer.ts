@@ -1,11 +1,11 @@
 import { IModels } from '../connectionResolver';
 import * as DataLoader from 'dataloader';
-import { sendContactsMessage } from '../messageBroker';
+import { sendCoreMessage } from '../messageBroker';
 import * as _ from 'underscore';
 
 export default function generateDataLoaderCustomer(models: IModels, subdomain) {
   return new DataLoader<string, any>(async (ids: readonly string[]) => {
-    const result = await sendContactsMessage({
+    const result = await sendCoreMessage({
       subdomain,
       action: 'customers.find',
       data: { _id: { $in: ids } },

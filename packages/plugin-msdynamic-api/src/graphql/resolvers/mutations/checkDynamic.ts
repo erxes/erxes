@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import {
   IContext,
-  sendContactsMessage,
+  sendCoreMessage,
   sendPosMessage,
   sendProductsMessage
 } from "../../../messageBroker";
@@ -238,7 +238,7 @@ const msdynamicCheckMutations = {
     const { customerApi, username, password } = config;
 
     try {
-      const companies = await sendContactsMessage({
+      const companies = await sendCoreMessage({
         subdomain,
         action: "companies.findActiveCompanies",
         data: {},
@@ -246,7 +246,7 @@ const msdynamicCheckMutations = {
         defaultValue: {}
       });
 
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
         action: "customers.findActiveCustomers",
         data: {},

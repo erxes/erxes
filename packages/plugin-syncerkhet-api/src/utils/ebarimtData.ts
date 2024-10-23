@@ -1,6 +1,5 @@
 import fetch from "node-fetch";
 import {
-  sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage
 } from "../messageBroker";
@@ -25,7 +24,7 @@ export const getPostData = async (subdomain, config, deal, dateType = "") => {
   });
 
   if (companyIds.length > 0) {
-    const companies = await sendContactsMessage({
+    const companies = await sendCoreMessage({
       subdomain,
       action: "companies.findActiveCompanies",
       data: {
@@ -62,7 +61,7 @@ export const getPostData = async (subdomain, config, deal, dateType = "") => {
     });
 
     if (customerIds.length > 0) {
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
         action: "customers.findActiveCustomers",
         data: {
@@ -296,7 +295,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = "") => {
   });
 
   if (companyIds.length > 0) {
-    const companies = await sendContactsMessage({
+    const companies = await sendCoreMessage({
       subdomain,
       action: "companies.findActiveCompanies",
       data: {
@@ -325,7 +324,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = "") => {
     });
 
     if (customerIds.length > 0) {
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
         action: "customers.findActiveCustomers",
         data: {

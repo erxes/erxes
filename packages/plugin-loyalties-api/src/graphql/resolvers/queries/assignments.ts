@@ -3,7 +3,7 @@ import { ICommonParams } from "../../../models/definitions/common";
 import { IContext } from "../../../connectionResolver";
 import { paginate } from "@erxes/api-utils/src/core";
 import { AssignmentCheckResponse, isInSegment } from "../../../utils";
-import { sendContactsMessage, sendCoreMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 
 const generateFilter = (params: ICommonParams) => {
   const filter: any = {};
@@ -25,7 +25,7 @@ const generateFieldMaxValue = async (
   segments,
   customerId
 ) => {
-  const customer = await sendContactsMessage({
+  const customer = await sendCoreMessage({
     subdomain,
     action: "customers.findOne",
     data: { _id: customerId },
@@ -176,7 +176,7 @@ const assignmentQueries = {
                     customerId
                   );
 
-                  await sendContactsMessage({
+                  await sendCoreMessage({
                     subdomain,
                     action: "customers.updateOne",
                     data: {

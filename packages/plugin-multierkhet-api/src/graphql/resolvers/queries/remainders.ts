@@ -1,7 +1,6 @@
 import { IContext } from "../../../connectionResolver";
 import fetch from "node-fetch";
 import {
-  sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage,
   sendSalesMessage
@@ -188,7 +187,7 @@ const erkhetQueries = {
 
       switch (contentType) {
         case "company":
-          const company = await sendContactsMessage({
+          const company = await sendCoreMessage({
             subdomain,
             action: "companies.findOne",
             data: { _id: contentId },
@@ -210,7 +209,7 @@ const erkhetQueries = {
           sendParams.workerEmail = user && user.email;
           break;
         default:
-          const customer = await sendContactsMessage({
+          const customer = await sendCoreMessage({
             subdomain,
             action: "customers.findOne",
             data: { _id: contentId },

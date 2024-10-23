@@ -210,7 +210,7 @@ export const sendInboxMessage = (args: MessageArgsOmitService) => {
   });
 };
 
-export const sendContactsMessage = async (
+export const sendCoreMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({

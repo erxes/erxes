@@ -1,5 +1,5 @@
 import { IContext } from '../../connectionResolver';
-import { sendCommonMessage, sendContactsMessage } from '../../messageBroker';
+import { sendCommonMessage, sendCoreMessage } from '../../messageBroker';
 import { IInvoice, IInvoiceDocument } from '../../models/definitions/invoices';
 
 export default {
@@ -35,7 +35,7 @@ export default {
   async customer(invoice: IInvoice, _args, { subdomain }: IContext) {
     switch (invoice.customerType) {
       case 'company':
-        return await sendContactsMessage({
+        return await sendCoreMessage({
           subdomain,
           action: 'companies.findOne',
           data: { _id: invoice.customerId },
@@ -44,7 +44,7 @@ export default {
         });
 
       case 'customer':
-        return await sendContactsMessage({
+        return await sendCoreMessage({
           subdomain,
           action: 'customers.findOne',
           data: { _id: invoice.customerId },

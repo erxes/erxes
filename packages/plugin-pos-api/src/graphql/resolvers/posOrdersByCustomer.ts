@@ -1,4 +1,4 @@
-import { sendContactsMessage, sendCoreMessage } from "../../messageBroker";
+import { sendCoreMessage } from "../../messageBroker";
 
 const resolver = {
   customerDetail: async ({ _id, customerType }, {}, { subdomain }) => {
@@ -13,7 +13,7 @@ const resolver = {
     }
 
     if (customerType === "company") {
-      return await sendContactsMessage({
+      return await sendCoreMessage({
         subdomain,
         action: "companies.findOne",
         data: { _id },
@@ -23,7 +23,7 @@ const resolver = {
     }
 
     if (!!_id && !customerType) {
-      return await sendContactsMessage({
+      return await sendCoreMessage({
         subdomain,
         action: "customers.findOne",
         data: { _id },

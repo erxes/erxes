@@ -8,7 +8,7 @@ import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 import { IModels } from './connectionResolver';
 import { SES_DELIVERY_STATUSES } from './constants';
-import { sendContactsMessage } from './messageBroker';
+import { sendCoreMessage } from './messageBroker';
 import { ISESConfig } from './models/Configs';
 import { getApi } from './trackers/engageTracker';
 import { ICampaign, ICustomer } from './types';
@@ -257,7 +257,7 @@ export const cleanIgnoredCustomers = async (
   }
 
   if (ignoredCustomerIds.length > 0) {
-    sendContactsMessage({
+    sendCoreMessage({
       subdomain,
       isRPC: false,
       action: 'customers.setUnsubscribed',

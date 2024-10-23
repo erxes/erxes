@@ -1,6 +1,6 @@
 import { Document, Model, Schema } from 'mongoose';
 import { IModels } from '../src/connectionResolver';
-import { sendContactsMessage, sendInboxMessage } from '../src/messageBroker';
+import { sendCoreMessage, sendInboxMessage } from '../src/messageBroker';
 import * as nodemailer from 'nodemailer';
 
 interface IMail {
@@ -131,7 +131,7 @@ export const loadMessageClass = (models) => {
         ? { _id: customerId }
         : { status: { $ne: 'deleted' }, emails: { $in: to } };
 
-      customer = await sendContactsMessage({
+      customer = await sendCoreMessage({
         subdomain,
         action: 'customers.findOne',
         data: selector,
@@ -141,7 +141,7 @@ export const loadMessageClass = (models) => {
       if (!customer) {
         const [primaryEmail] = to;
 
-        customer = await sendContactsMessage({
+        customer = await sendCoreMessage({
           subdomain,
           action: 'customers.createCustomer',
           data: {

@@ -10,7 +10,6 @@ import {
 import {
   sendClientPortalMessage,
   sendCommonMessage,
-  sendContactsMessage,
   sendCoreMessage
 } from "../messageBroker";
 
@@ -202,7 +201,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         });
       }
       if (ownerType === "customer") {
-        return await sendContactsMessage({
+        return await sendCoreMessage({
           subdomain,
           action: "customers.updateOne",
           data: {
@@ -214,7 +213,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         });
       }
       if (ownerType === "company") {
-        return await sendContactsMessage({
+        return await sendCoreMessage({
           subdomain,
           action: "companies.updateCommon",
           data: {
@@ -239,7 +238,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         if (!cpUser) {
           throw new Error("Not Found Owner");
         }
-        return await sendContactsMessage({
+        return await sendCoreMessage({
           subdomain,
           action: "customers.updateOne",
           data: {

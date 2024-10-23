@@ -1,11 +1,11 @@
 import { generateModels } from './connectionResolver';
-import { sendContactsMessage } from './messageBroker';
+import { sendCoreMessage } from './messageBroker';
 
 export default {
   collectItems: async ({ subdomain, data }) => {
     const { contentId } = data;
 
-    const customer = await sendContactsMessage({
+    const customer = await sendCoreMessage({
       subdomain,
       action: 'customers.findOne',
       isRPC: true,

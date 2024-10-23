@@ -46,7 +46,7 @@ export const setupMessageConsumers = async () => {
   });
 };
 
-export const sendContactsMessage = (args: MessageArgsOmitService) => {
+export const sendCoreMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: "core",
     ...args

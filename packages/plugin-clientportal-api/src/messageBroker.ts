@@ -165,7 +165,7 @@ export const setupMessageConsumers = async () => {
             updateOne: { filter: selector, update: { $set: doc } }
           });
         } else {
-          const customer = await sendContactsMessage({
+          const customer = await sendCoreMessage({
             subdomain,
             action: "customers.findOne",
             data: { primaryEmail: doc.email },
@@ -267,14 +267,6 @@ export const sendCoreMessage = async (args: MessageArgsOmitService) => {
   });
 };
 
-export const sendContactsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "core",
-    ...args
-  });
-};
 
 export const sendSalesMessage = async (
   args: MessageArgsOmitService

@@ -1,6 +1,6 @@
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import { CONVERSATION_STATUSES } from "./models/definitions/constants";
-import { sendContactsMessage, sendCoreMessage } from "./messageBroker";
+import { sendCoreMessage } from "./messageBroker";
 import { generateModels } from "./connectionResolver";
 import { IConversationDocument } from "./models/definitions/conversations";
 import { pConversationClientMessageInserted } from "./graphql/resolvers/widgetMutations";
@@ -45,7 +45,7 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
     let customer;
 
     const getCustomer = async selector =>
-      sendContactsMessage({
+      sendCoreMessage({
         subdomain,
         action: "customers.findOne",
         data: selector,
@@ -56,7 +56,7 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
       customer = await getCustomer({ primaryPhone });
 
       if (customer) {
-        await sendContactsMessage({
+        await sendCoreMessage({
           subdomain,
           action: "customers.updateCustomer",
           data: {
@@ -77,7 +77,7 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
     if (customer) {
       return sendSuccess({ _id: customer._id });
     } else {
-      customer = await sendContactsMessage({
+      customer = await sendCoreMessage({
         subdomain,
         action: "customers.createCustomer",
         data: {

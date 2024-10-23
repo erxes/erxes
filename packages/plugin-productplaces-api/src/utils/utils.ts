@@ -1,6 +1,5 @@
 import * as _ from "lodash";
 import {
-  sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage
 } from "../messageBroker";
@@ -213,7 +212,7 @@ export const getCustomer = async (subdomain, deal) => {
   });
 
   if (companyIds.length > 0) {
-    const companies = await sendContactsMessage({
+    const companies = await sendCoreMessage({
       subdomain,
       action: "companies.findActiveCompanies",
       data: {
@@ -243,7 +242,7 @@ export const getCustomer = async (subdomain, deal) => {
   });
 
   if (customerIds.length > 0) {
-    const customers = await sendContactsMessage({
+    const customers = await sendCoreMessage({
       subdomain,
       action: "customers.findActiveCustomers",
       data: {

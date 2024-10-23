@@ -2,7 +2,7 @@ import { Model } from 'mongoose';
 
 import {
   removeEngageConversations,
-  sendContactsMessage,
+  sendCoreMessage,
   sendInboxMessage,
 } from '../messageBroker';
 import { checkCustomerExists, findElk, findUser } from '../engageUtils';
@@ -267,7 +267,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         }
 
         // check for rules ===
-        const numberOfVisits = await sendContactsMessage({
+        const numberOfVisits = await sendCoreMessage({
           isRPC: true,
           subdomain,
           action: 'getNumberOfVisits',

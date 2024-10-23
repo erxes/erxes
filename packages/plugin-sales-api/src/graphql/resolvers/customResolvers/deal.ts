@@ -2,7 +2,6 @@ import { IDealDocument } from "../../../models/definitions/deals";
 import { boardId } from "../../utils";
 import { IContext } from "../../../connectionResolver";
 import {
-  sendContactsMessage,
   sendCoreMessage,
   sendNotificationsMessage,
   sendProductsMessage
@@ -133,7 +132,7 @@ export default {
       defaultValue: []
     });
 
-    const activeCompanies = await sendContactsMessage({
+    const activeCompanies = await sendCoreMessage({
       subdomain,
       action: "companies.findActiveCompanies",
       data: { selector: { _id: { $in: companyIds } } },
@@ -169,7 +168,7 @@ export default {
       defaultValue: []
     });
 
-    const activeCustomers = await sendContactsMessage({
+    const activeCustomers = await sendCoreMessage({
       subdomain,
       action: "customers.findActiveCustomers",
       data: { selector: { _id: { $in: customerIds } } },

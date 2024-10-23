@@ -14,7 +14,6 @@ import { IExternalIntegrationParams } from "../../models/Integrations";
 
 import { debugError, debugInfo } from "@erxes/api-utils/src/debuggers";
 import {
-  sendContactsMessage,
   sendIntegrationsMessage,
   sendCoreMessage,
   sendCommonMessage
@@ -626,7 +625,7 @@ const integrationMutations = {
     args: ISmsParams,
     { user, subdomain }: IContext
   ) {
-    const customer = await sendContactsMessage({
+    const customer = await sendCoreMessage({
       subdomain,
       action: "customers.findOne",
       data: {

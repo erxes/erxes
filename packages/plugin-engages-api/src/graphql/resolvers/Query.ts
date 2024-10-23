@@ -7,7 +7,7 @@ import { getCustomerName } from "@erxes/api-utils/src/editorAttributeUtils";
 import { IContext, IModels } from "../../connectionResolver";
 import { awsRequests } from "../../trackers/engageTracker";
 import { prepareAvgStats } from "../../utils";
-import { sendContactsMessage, sendCoreMessage } from "../../messageBroker";
+import { sendCoreMessage } from "../../messageBroker";
 import { debugError } from "@erxes/api-utils/src/debuggers";
 
 interface IPaged {
@@ -295,7 +295,7 @@ const engageQueries = {
     const modifiedList: any[] = [];
 
     const customerIds = deliveryReports.map(d => d.customerId);
-    const customers = await sendContactsMessage({
+    const customers = await sendCoreMessage({
       isRPC: true,
       subdomain,
       data: { _id: { $in: customerIds } },
