@@ -83,7 +83,7 @@ const mutations = {
     }: { _id: string; name: string; status: string; kind: string; config: any },
     { models }: IContext
   ) {
-    const acceptedCurrencies = PAYMENTS[kind].acceptedCurrencies;
+    const {acceptedCurrencies} = PAYMENTS[kind];
    
     if (kind === 'qpayQuickqr') {
       const api = new QPayQuickQrAPI(config);
