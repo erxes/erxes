@@ -78,11 +78,7 @@ export const formConnectMutation = `
         leadData
         languageCode
       }
-      integration {
-        _id
-        name
-        
-      }
+
     }
   }
 `;
