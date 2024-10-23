@@ -1,22 +1,22 @@
-const path = require('path');
+const path = require("path");
 
 try {
-  require('ts-node').register({
+  require("ts-node").register({
     compilerOptions: {
       experimentalDecorators: false
     },
     transpileOnly: true
   });
 } catch (e) {
-  console.log('register error', e.message);
+  console.log("register error", e.message);
 }
 
 const getWorkerFile = () => {
-  if (process.env.NODE_ENV !== 'production') {
-    return './importHistoryRemove.worker.ts';
+  if (process.env.NODE_ENV !== "production") {
+    return "./importHistoryRemove.worker.ts";
   }
 
-  return './importHistoryRemove.worker.js';
+  return "./importHistoryRemove.worker.js";
 };
 
 try {

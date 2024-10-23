@@ -12,6 +12,7 @@ export interface IPaymentModel extends Model<IPaymentDocument> {
   removePayment(_id: string): void;
   updatePayment(_id: string, doc: IPayment): Promise<IPaymentDocument>;
   getPayment(_id: string): Promise<IPaymentDocument>;
+  getStripeKey(_id: string): Promise<string>;
 }
 
 export const loadPaymentClass = (models: IModels) => {
@@ -41,6 +42,21 @@ export const loadPaymentClass = (models: IModels) => {
       }
 
       return payment;
+    }
+
+    public static async getStripeKey(_id: string) {
+      const payment = await models.PaymentMethods.findOne({ _id }).lean();
+
+      if (!payment) {
+        console.error(`Payment not found with given id ${_id}`);
+        return null;
+      }
+
+      if (payment.kind !== 'stripe') {
+        return null;
+      }
+
+      return payment.config.publishableKey;
     }
   }
 

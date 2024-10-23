@@ -2,7 +2,7 @@ import { IContext } from "../../../connectionResolver";
 
 const queries = {
   async paymentsPublic(_root, args, { models }: IContext) {
-    const { kind, _ids } = args;
+    const { kind, _ids, currency } = args;
     let query: any = {};
     if (_ids) {
       query._id = { $in: _ids };
@@ -12,7 +12,17 @@ const queries = {
       query.kind = kind;
     }
 
+    if (currency) {
+      query.acceptedCurrencies = currency;
+    }
+
     return models.PaymentMethods.find(query);
+  },
+
+  async paymentsGetStripeKey(_root, args, { models }: IContext) {
+    const {_id} = args
+
+    return models.PaymentMethods.getStripeKey(_id)
   },
 };
 

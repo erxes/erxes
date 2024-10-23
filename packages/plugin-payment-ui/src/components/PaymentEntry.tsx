@@ -10,6 +10,8 @@ import { mutations } from '../graphql';
 import { ByKindTotalCount } from '../types';
 import { PAYMENTCONFIGS } from './constants';
 import { Box, PaymentItem, Ribbon, Type } from './styles';
+import ConfigForm from './form/ConfigForm';
+import QuickQrForm from './form/QuickQrForm';
 
 type Props = {
   payment: any;
@@ -73,10 +75,14 @@ function renderCreate(kind: string) {
     return null;
   }
 
-  const Component = meta.createModal;
+  let Component: any = ConfigForm;
+
+  if (meta.kind === 'qpayQuickqr') {
+    Component = QuickQrForm;
+  }
 
   const formContent = (props) => (
-    <Component {...props} renderButton={renderButton} metaData={meta} />
+    <Component {...props} renderButton={renderButton} metaData={meta}  />
   );
 
   const size = meta.modalSize || 'lg';
@@ -92,7 +98,7 @@ function renderCreate(kind: string) {
 }
 
 function Entry({ payment, getClassName, toggleBox, paymentsCount }: Props) {
-  const { kind, isAvailable, name, description, logo, inMessenger } = payment;
+  const { kind, isAvailable, name, description, logo, inMessenger, acceptedCurrencies = [] } = payment;
 
   return (
     <PaymentItem key={name} className={getClassName(kind)}>
@@ -104,6 +110,7 @@ function Entry({ payment, getClassName, toggleBox, paymentsCount }: Props) {
         <h5>
           {name} {getCount(kind, paymentsCount)}
         </h5>
+        <p>( {__('Accepts') + ` ${acceptedCurrencies.join(',')} `})</p>
         <p>
           {__(description)}
           {renderType(inMessenger)}
