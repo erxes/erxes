@@ -64,6 +64,16 @@ class MainList extends React.Component<FinalProps> {
     );
   }
 }
+const generateAdditionalQueryParams = ({ parentId, onlyFirstLevel }) => {
+  if (parentId && !onlyFirstLevel) {
+    return { parentId };
+  }
+  if (!parentId && onlyFirstLevel) {
+    return {onlyFirstLevel:onlyFirstLevel === "true"?true:undefined};
+  }
+
+  return {}
+};
 
 export default withProps<Props>(
   compose(
@@ -73,9 +83,11 @@ export default withProps<Props>(
         variables: {
           searchValue: queryParams.searchValue,
           withoutUserFilter: true,
-          ...generatePaginationParams(queryParams || {}),
-        },
-      }),
+          parentId: queryParams.parentId,
+          ...generateAdditionalQueryParams(queryParams),
+          ...generatePaginationParams(queryParams || {})
+        }
+      })
     })
   )(MainList)
 );

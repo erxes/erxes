@@ -4,7 +4,7 @@ import {
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
-  copyParams
+  copyParams,
 } from './common';
 
 export const types = ({ contacts, tags }) => `
@@ -72,6 +72,7 @@ const listQueryParams = `
     startDateEndDate: Date
     closeDateStartDate: Date
     closeDateEndDate: Date
+    resolvedDayBetween:[Int]
     ${conformityQueryFields}
 `;
 
