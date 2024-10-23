@@ -18,6 +18,12 @@ const queries = {
 
     return models.PaymentMethods.find(query);
   },
+
+  async paymentsGetStripeKey(_root, args, { models }: IContext) {
+    const {_id} = args
+
+    return models.PaymentMethods.getStripeKey(_id)
+  },
 };
 
 export default queries;

@@ -42,6 +42,8 @@ export const queries = `
 
   qpayGetMerchant(_id: String!): JSON
   qpayGetDistricts(cityCode: String!): JSON
+
+  paymentsGetStripeKey(_id: String!): String
 `;
 
 const params = `

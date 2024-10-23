@@ -10,6 +10,13 @@ import { usePayment } from './Payments';
 import ModalHeader from './ModalHeader';
 import CloseButton from './CloseButton';
 import { Button } from '../common/button';
+import { gql, useQuery } from '@apollo/client';
+
+const QUERY = gql`
+  query Query($id: String!) {
+    paymentsGetStripeKey(_id: $id)
+  }
+`;
 
 // Create a separate component for the payment form that will be rendered inside <Elements>
 const CheckoutForm = () => {
@@ -36,14 +43,11 @@ const CheckoutForm = () => {
     }
 
     // Confirm the card payment with Stripe
-    const { error } = await stripe.confirmCardPayment(
-      clientSecret,
-      {
-        payment_method: {
-          card: cardElement,
-        },
-      }
-    );
+    const { error } = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: cardElement,
+      },
+    });
 
     if (error) {
       console.error('Payment error:', error);
@@ -73,7 +77,11 @@ const CheckoutForm = () => {
           }}
         />
 
-        <Button className='w-full mb-2' type='submit' style={{ marginTop: '50px' }}>
+        <Button
+          className='w-full mb-2'
+          type='submit'
+          style={{ marginTop: '50px' }}
+        >
           Pay
         </Button>
       </form>
@@ -82,10 +90,23 @@ const CheckoutForm = () => {
 };
 
 const StripePayment = () => {
+  const { paymentId } = usePayment();
   // Initialize the stripePromise using the publishable key
-  const stripePromise = loadStripe(
-    'pk_test_51Jv003Am3pIKvv8ZLUIms5TxAGlkh2Ft9hyJ4uBb7KdZn4Y3Us3pavwBngpwR5WQOlWPM5PGLdW5VAcQbDRmyBXx001kLoYeF9'
-  );
+  const { data, loading } = useQuery(QUERY, {
+    variables: { id: paymentId },
+  });
+
+  if (loading) {
+    return null;
+  }
+
+  if (!data?.paymentsGetStripeKey) {
+    return null;
+  }
+
+  const publishableKey = data?.paymentsGetStripeKey;
+
+  const stripePromise = loadStripe(publishableKey);
 
   return (
     <div className='h-auto'>
