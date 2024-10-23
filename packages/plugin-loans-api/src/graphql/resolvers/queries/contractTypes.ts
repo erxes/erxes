@@ -132,7 +132,7 @@ const contractTypeQueries = {
     )
     return {
       categories,
-      products
+      products: products.map(p => ({ ...p, contractType: contractTypes.find(ct => ct.productId === p._id) }))
     }
   }
 };
