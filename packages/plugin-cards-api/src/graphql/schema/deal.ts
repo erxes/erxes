@@ -102,6 +102,7 @@ const commonQueryParams = `
   startDateEndDate: Date
   closeDateStartDate: Date
   closeDateEndDate: Date
+  resolvedDayBetween:[Int]
 `;
 
 const listQueryParams = `
