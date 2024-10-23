@@ -65,7 +65,7 @@ export class StripeAPI {
   constructor(config: StripeAPI, domain?: string) {
     this.secretKey = config.secretKey;
     this.publishableKey = config.publishableKey;
-    this.domain = 'https://772a-202-70-43-141.ngrok-free.app';
+    this.domain = domain;
 
     this.client = new Stripe(this.secretKey);
   }
