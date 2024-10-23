@@ -18,7 +18,6 @@ import dayjs from 'dayjs';
 import React from 'react';
 
 import { IInvoice } from '../../types';
-import { PAYMENTCONFIGS } from '../constants';
 
 type Props = {
   invoice: IInvoice;
@@ -48,22 +47,6 @@ const Detail = ({ invoice }: Props) => {
     );
   };
 
-  const renderKind = () => {
-    const payment = PAYMENTCONFIGS.find((item) => {
-      if (item.kind === invoice.paymentKind) {
-        return item;
-      }
-    });
-
-    return (
-      <li>
-        <FieldStyle overflow='unset'>Kind:</FieldStyle>
-        <SidebarCounter nowrap={true}>
-          <Label lblColor={payment?.color || 'blue'}>{payment?.name}</Label>
-        </SidebarCounter>
-      </li>
-    );
-  };
 
   const renderError = () => {
     if (!invoice.errorDescription) {
@@ -201,7 +184,7 @@ const Detail = ({ invoice }: Props) => {
             <li>
               <FieldStyle overflow='unset'>Amount:</FieldStyle>
               <SidebarCounter nowrap={true}>
-                {invoice.amount.toLocaleString()}
+                {invoice.amount.toLocaleString() + ' ' + invoice.currency}
               </SidebarCounter>
             </li>
             <li

@@ -1,13 +1,3 @@
-import MonpayForm from './form/MonpayForm';
-import PaypalForm from './form/PaypalForm';
-import PocketForm from './form/PocketForm';
-import QpayForm from './form/QpayForm';
-import QuickQrForm from './form/QuickQrForm';
-import SocialPayForm from './form/SocialPayForm';
-import StorepayForm from './form/StorePayForm';
-import MinuForm from './form/MinuForm';
-import GolomtForm from './form/GolomtForm';
-
 export const PAYMENTCONFIGS = [
   {
     name: 'QPay',
@@ -16,11 +6,15 @@ export const PAYMENTCONFIGS = [
     isAvailable: true,
     kind: 'qpay',
     logo: 'images/payments/qpay.png',
-    createModal: QpayForm,
-    createUrl: '/settings/payments/createQpay',
     category: 'Payment method',
-    color: 'blue',
+
     link: 'mailto:%20info@qpay.mn?subject=QPay%20Registration&body=Dear%20QPay%20Team,%0D%0A%0D%0AI%20would%20like%20to%20',
+    inputs: [
+      { key: 'qpayMerchantUser', label: 'Username' },
+      { key: 'qpayMerchantPassword', label: 'Password', type: 'password' },
+      { key: 'qpayInvoiceCode', label: 'Invoice code' },
+    ],
+    acceptedCurrencies: ['MNT'],
   },
   {
     name: 'QPay Quick QR',
@@ -29,11 +23,10 @@ export const PAYMENTCONFIGS = [
     isAvailable: true,
     kind: 'qpayQuickqr',
     logo: 'images/payments/qpay.png',
-    createModal: QuickQrForm,
     createUrl: '/settings/payments/createQpay',
     category: 'Payment method',
-    color: 'blue',
     modalSize: 'xl',
+    acceptedCurrencies: ['MNT'],
   },
   {
     name: 'SocialPay',
@@ -42,11 +35,15 @@ export const PAYMENTCONFIGS = [
     isAvailable: true,
     kind: 'socialpay',
     logo: 'images/payments/socialpay.png',
-    createModal: SocialPayForm,
-    createUrl: '/settings/payments/createSocialPay',
     category: 'Payment method',
-    color: 'blue',
+
     link: 'https://www.golomtbank.com/retail/digital-bank/socialpay',
+    inputs: [
+      { key: 'inStoreSPTerminal', label: 'Terminal' },
+      { key: 'inStoreSPKey', label: 'Key', type: 'password' },
+    ],
+    showCallback: true,
+    acceptedCurrencies: ['MNT'],
   },
   {
     name: 'MonPay',
@@ -54,11 +51,14 @@ export const PAYMENTCONFIGS = [
     isAvailable: true,
     kind: 'monpay',
     logo: 'images/payments/monpay.png',
-    createModal: MonpayForm,
-    createUrl: '/settings/payments/createMonPay',
     category: 'Payment method',
-    color: 'blue',
+
     link: 'mailto:%20Merchantservice@mobifinance.mn?subject=MonPay%20Merchant%20Registration&body=Dear%20MonPay%20Team,%0D%0A%0D%0AI%20would%20like%20to%20',
+    inputs: [
+      { key: 'username', label: 'Branch username' },
+      { key: 'accountId', label: 'Account ID', type: 'password' },
+    ],
+    acceptedCurrencies: ['MNT'],
   },
   {
     name: 'Storepay',
@@ -67,10 +67,16 @@ export const PAYMENTCONFIGS = [
     isAvailable: true,
     kind: 'storepay',
     logo: 'images/payments/storepay.png',
-    createModal: StorepayForm,
-    createUrl: '/settings/payments/createStorePay',
     category: 'Payment method',
-    color: 'blue',
+
+    inputs: [
+      { key: 'storeId', label: 'Store id' },
+      { key: 'merchantUsername', label: 'Merchant username' },
+      { key: 'merchantPassword', label: 'Merchant password', type: 'password' },
+      { key: 'appUsername', label: 'App username' },
+      { key: 'appPassword', label: 'App password', type: 'password' },
+    ],
+    acceptedCurrencies: ['MNT'],
   },
   {
     name: 'pocket',
@@ -79,10 +85,13 @@ export const PAYMENTCONFIGS = [
     isAvailable: true,
     kind: 'pocket',
     logo: 'images/payments/pocket.png',
-    createModal: PocketForm,
-    createUrl: '/settings/payments/createPocket',
     category: 'Payment method',
-    color: 'red',
+    inputs: [
+      { key: 'pocketMerchant', label: 'Merchant' },
+      { key: 'pocketClientId', label: 'Client ID' },
+      { key: 'pocketClientSecret', label: 'Client secret', type: 'password' },
+    ],
+    acceptedCurrencies: ['MNT'],
   },
   {
     name: 'MinuPay',
@@ -90,11 +99,14 @@ export const PAYMENTCONFIGS = [
     isAvailable: true,
     kind: 'minupay',
     logo: 'images/payments/minupay.png',
-    createModal: MinuForm,
-    createUrl: '/settings/payments/createMinuPay',
     category: 'Payment method',
-    color: 'green',
+    inputs: [
+      { key: 'username', label: 'Username' },
+      { key: 'password', label: 'Password', type: 'password' },
+    ],
+    acceptedCurrencies: ['MNT'],
   },
+
   {
     name: 'Golomt E-Commerce',
     description:
@@ -102,11 +114,31 @@ export const PAYMENTCONFIGS = [
     isAvailable: true,
     kind: 'golomt',
     logo: 'images/payments/golomt.png',
-    createModal: GolomtForm,
-    createUrl: '/settings/payments/createGolomt',
     category: 'Payment method',
-    color: 'blue',
+
     link: 'https://www.golomtbank.com/en/cards/8172',
+    inputs: [
+      { key: 'merchant', label: 'Merchant' },
+      { key: 'key', label: 'Key' },
+      { key: 'token', label: 'Token', type: 'password' },
+    ],
+    acceptedCurrencies: ['MNT'],
+  },
+  {
+    name: 'Stripe',
+    description:
+      'Accepts most type of domestic and foreign card and provide opportunity to make and receive payment from anywhere',
+    isAvailable: true,
+    kind: 'stripe',
+    logo: 'images/payments/stripe.png',
+    category: 'Payment method',
+
+    link: 'https://dashboard.stripe.com/register',
+    inputs: [
+      { key: 'publishableKey', label: 'Publishable key' },
+      { key: 'secretKey', label: 'Secret key', type: 'password' },
+    ],
+    acceptedCurrencies: ['USD'],
   },
   {
     name: 'Qpay Wechat Pay',
@@ -114,10 +146,8 @@ export const PAYMENTCONFIGS = [
     isAvailable: false,
     kind: 'wechatpay',
     logo: 'images/payments/wechatpay.png',
-    createModal: '',
-    createUrl: '/settings/payments/createWechatpay',
     category: 'Payment method',
-    color: 'green',
+    acceptedCurrencies: ['MNT'],
   },
   {
     name: 'Paypal',
@@ -125,10 +155,8 @@ export const PAYMENTCONFIGS = [
     isAvailable: false,
     kind: 'paypal',
     logo: 'images/payments/paypal.png',
-    createModal: PaypalForm,
-    createUrl: '/settings/payments/createPaypal',
     category: 'Payment method',
-    color: 'blue',
+    acceptedCurrencies: ['USD'],
   },
 ];
 
@@ -143,6 +171,7 @@ export const PAYMENT_KINDS = {
   WECHATPAY: 'wechatpay',
   PAYPAL: 'paypal',
   MINUPAY: 'minupay',
+  STRIPE: 'stripe',
 
   ALL: [
     'qpay',
@@ -155,6 +184,7 @@ export const PAYMENT_KINDS = {
     'paypal',
     'qpayQuickqr',
     'minupay',
+    'stripe',
   ],
 };
 
@@ -1274,5 +1304,5 @@ export const CITIES = [
   {
     code: '85000',
     name: 'Увс аймаг',
-  }
+  },
 ];

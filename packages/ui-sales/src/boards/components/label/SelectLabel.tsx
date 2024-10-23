@@ -7,12 +7,12 @@ import { queries } from "../../graphql/index";
 
 // get user options for react-select
 export function generateLabelOptions(array: IPipelineLabel[] = []): IOption[] {
-  return (array || []).map((item) => {
+  return (array || []).map(item => {
     const label = item || ({} as IPipelineLabel);
 
     return {
       value: label._id || "",
-      label: label.name,
+      label: label.name
     };
   });
 }
@@ -34,14 +34,14 @@ export default ({
   filterParams,
   onSelect,
   customOption,
-  multi,
+  multi
 }: ISelectParams) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
   return (
     <SelectWithSearch
       label="Filter by labels"
-      queryName="pipelineLabels"
+      queryName="salesPipelineLabels"
       name={name}
       filterParams={filterParams}
       initialValue={defaultValue}
