@@ -665,7 +665,7 @@ export const uploadFileCloudflare = async (
 
   const CLOUDFLARE_USE_CDN = await getConfig(
     "CLOUDFLARE_USE_CDN",
-    "true",
+    "false",
     models
   );
 

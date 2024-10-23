@@ -154,7 +154,7 @@ const ListContainer: React.FC<Props> = (props: Props) => {
   );
 
   const forms = data?.forms || [];
-  const counts = countData?.integrationsTotalCount || null;
+  const counts = countData?.formsTotalCount || null;
 
   const totalCount = (counts && counts.total) || 0;
 

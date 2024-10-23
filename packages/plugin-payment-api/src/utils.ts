@@ -14,6 +14,7 @@ import { storepayCallbackHandler } from './api/storepay/api';
 import { generateModels } from './connectionResolver';
 import { ITransactionDocument } from './models/definitions/transactions';
 import redisUtils from './redisUtils';
+import { stripeCallbackHandler } from './api/stripe/api';
 
 export const callbackHandler = async (req, res) => {
   const { route, body, query } = req;
@@ -54,8 +55,18 @@ export const callbackHandler = async (req, res) => {
       case PAYMENTS.golomt.kind:
         transaction = await golomtCallbackHandler(models, data);
         break;
+      case PAYMENTS.stripe.kind:
+        transaction = await stripeCallbackHandler(models, data);
+        break;
       default:
         return res.status(400).send('Invalid kind');
+    }
+
+    if (
+      transaction.status === PAYMENT_STATUS.CANCELLED ||
+      transaction.status === PAYMENT_STATUS.FAILED
+    ) {
+      return res.status(400).send('Payment failed or cancelled');
     }
 
     if (transaction.status === PAYMENT_STATUS.PAID) {
