@@ -889,24 +889,6 @@ const timeclockMutations = {
   ) {
     return models.DeviceConfigs.removeDeviceConfig(_id);
   },
-  async scheduleConfigOrderEdit(
-    _root,
-    { userId, ...params },
-    { models, user }: IContext
-  ) {
-    const getUserId = userId || user._id;
-
-    const query = { userId: getUserId };
-    const update = {
-      $set: {
-        userId: getUserId,
-        ...params,
-      },
-    };
-    const options = { upsert: true };
-
-    return models.ScheduleConfigOrder.updateOne(query, update, options);
-  },
 
   async checkReport(_root, doc, { models, user }: IContext) {
     const getUserId = doc.userId || user._id;
