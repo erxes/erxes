@@ -108,7 +108,7 @@ const Row: React.FC<Props> = (props) => {
         />
       </td>
       <td>{invoice.invoiceNumber || 'NA'}</td>
-      <td>{amount.toLocaleString()}</td>
+      <td>{amount.toLocaleString() + " " + invoice.currency}</td>
       <td>
         <Label lblStyle={labelStyle}>{status}</Label>
       </td>

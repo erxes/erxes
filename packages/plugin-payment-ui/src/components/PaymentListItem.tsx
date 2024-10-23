@@ -83,8 +83,6 @@ const IntegrationListItem: React.FC<Props> = (props) => {
       Component = QuickQrForm;
     }
 
-    console.log('edit', meta, Component);
-
     const formContent = (props) => (
       <Component {...props} payment={payment} renderButton={renderButton} />
     );

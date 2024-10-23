@@ -14,6 +14,7 @@ export const PAYMENTCONFIGS = [
       { key: 'qpayMerchantPassword', label: 'Password', type: 'password' },
       { key: 'qpayInvoiceCode', label: 'Invoice code' },
     ],
+    acceptedCurrencies: ['MNT'],
   },
   {
     name: 'QPay Quick QR',
@@ -25,6 +26,7 @@ export const PAYMENTCONFIGS = [
     createUrl: '/settings/payments/createQpay',
     category: 'Payment method',
     modalSize: 'xl',
+    acceptedCurrencies: ['MNT'],
   },
   {
     name: 'SocialPay',
@@ -41,6 +43,7 @@ export const PAYMENTCONFIGS = [
       { key: 'inStoreSPKey', label: 'Key', type: 'password' },
     ],
     showCallback: true,
+    acceptedCurrencies: ['MNT'],
   },
   {
     name: 'MonPay',
@@ -55,6 +58,7 @@ export const PAYMENTCONFIGS = [
       { key: 'username', label: 'Branch username' },
       { key: 'accountId', label: 'Account ID', type: 'password' },
     ],
+    acceptedCurrencies: ['MNT'],
   },
   {
     name: 'Storepay',
@@ -72,6 +76,7 @@ export const PAYMENTCONFIGS = [
       { key: 'appUsername', label: 'App username' },
       { key: 'appPassword', label: 'App password', type: 'password' },
     ],
+    acceptedCurrencies: ['MNT'],
   },
   {
     name: 'pocket',
@@ -86,6 +91,7 @@ export const PAYMENTCONFIGS = [
       { key: 'pocketClientId', label: 'Client ID' },
       { key: 'pocketClientSecret', label: 'Client secret', type: 'password' },
     ],
+    acceptedCurrencies: ['MNT'],
   },
   {
     name: 'MinuPay',
@@ -98,6 +104,7 @@ export const PAYMENTCONFIGS = [
       { key: 'username', label: 'Username' },
       { key: 'password', label: 'Password', type: 'password' },
     ],
+    acceptedCurrencies: ['MNT'],
   },
 
   {
@@ -115,6 +122,7 @@ export const PAYMENTCONFIGS = [
       { key: 'key', label: 'Key' },
       { key: 'token', label: 'Token', type: 'password' },
     ],
+    acceptedCurrencies: ['MNT'],
   },
   {
     name: 'Stripe',
@@ -130,6 +138,7 @@ export const PAYMENTCONFIGS = [
       { key: 'publishableKey', label: 'Publishable key' },
       { key: 'secretKey', label: 'Secret key', type: 'password' },
     ],
+    acceptedCurrencies: ['USD'],
   },
   {
     name: 'Qpay Wechat Pay',
@@ -138,6 +147,7 @@ export const PAYMENTCONFIGS = [
     kind: 'wechatpay',
     logo: 'images/payments/wechatpay.png',
     category: 'Payment method',
+    acceptedCurrencies: ['MNT'],
   },
   {
     name: 'Paypal',
@@ -146,6 +156,7 @@ export const PAYMENTCONFIGS = [
     kind: 'paypal',
     logo: 'images/payments/paypal.png',
     category: 'Payment method',
+    acceptedCurrencies: ['USD'],
   },
 ];
 

@@ -8,6 +8,7 @@ export const PAYMENTS = {
       invoice: 'invoice',
     },
     handlerMethod: 'GET',
+    acceptedCurrencies: ['MNT'],
   },
 
   qpayQuickqr: {
@@ -26,6 +27,7 @@ export const PAYMENTS = {
       cities: 'aimaghot',
       districts: 'sumduureg',
     },
+    acceptedCurrencies: ['MNT'],
   },
   socialpay: {
     title: 'Social Pay',
@@ -38,6 +40,7 @@ export const PAYMENTS = {
       invoiceCancel: 'pos/invoice/cancel',
     },
     handlerMethod: 'POST',
+    acceptedCurrencies: ['MNT'],
   },
   monpay: {
     title: 'MonPay',
@@ -50,6 +53,7 @@ export const PAYMENTS = {
       branchLogin: 'rest/branch/login',
     },
     handlerMethod: 'GET',
+    acceptedCurrencies: ['MNT'],
   },
   storepay: {
     title: 'storepay',
@@ -59,6 +63,7 @@ export const PAYMENTS = {
       invoice: 'invoice',
     },
     handlerMethod: 'GET',
+    acceptedCurrencies: ['MNT'],
   },
   pocket: {
     title: 'pocket',
@@ -71,6 +76,7 @@ export const PAYMENTS = {
       cancel: 'payment-gateway/transaction/cancel',
     },
     handlerMethod: 'GET',
+    acceptedCurrencies: ['MNT'],
   },
   minupay: {
     title: 'MinuPay',
@@ -82,6 +88,7 @@ export const PAYMENTS = {
       checkInvoice: 'oncom/checkTxn',
     },
     handlerMethod: 'POST',
+    acceptedCurrencies: ['MNT'],
   },
   wechatpay: {
     title: 'WeChat Pay',
@@ -93,6 +100,7 @@ export const PAYMENTS = {
       getPayment: 'payment',
     },
     handlerMethod: 'POST',
+    acceptedCurrencies: ['MNT'],
   },
   paypal: {
     kind: 'paypal',
@@ -113,11 +121,13 @@ export const PAYMENTS = {
       invoiceCheck: 'api/inquiry',
     },
     handlerMethod: 'POST',
+    acceptedCurrencies: ['MNT'],
   },
 
   stripe: {
     title: 'Stripe',
     kind: 'stripe',
+    acceptedCurrencies: ['USD'],
   },
 
 

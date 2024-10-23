@@ -17,7 +17,9 @@ const mutations = {
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
       : 'http://localhost:4000';
     const domain = DOMAIN.replace('<subdomain>', subdomain);
-
+    const acceptedCurrencies = PAYMENTS[doc.kind].acceptedCurrencies;
+    doc.acceptedCurrencies = acceptedCurrencies;
+    
     if (doc.kind === 'qpayQuickqr') {
       const api = new QPayQuickQrAPI(doc.config);
 
@@ -81,6 +83,8 @@ const mutations = {
     }: { _id: string; name: string; status: string; kind: string; config: any },
     { models }: IContext
   ) {
+    const acceptedCurrencies = PAYMENTS[kind].acceptedCurrencies;
+   
     if (kind === 'qpayQuickqr') {
       const api = new QPayQuickQrAPI(config);
 
@@ -107,6 +111,7 @@ const mutations = {
       status,
       kind,
       config,
+      acceptedCurrencies
     });
   },
 };

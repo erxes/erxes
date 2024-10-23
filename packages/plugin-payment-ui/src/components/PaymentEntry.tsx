@@ -98,7 +98,7 @@ function renderCreate(kind: string) {
 }
 
 function Entry({ payment, getClassName, toggleBox, paymentsCount }: Props) {
-  const { kind, isAvailable, name, description, logo, inMessenger } = payment;
+  const { kind, isAvailable, name, description, logo, inMessenger, acceptedCurrencies = [] } = payment;
 
   return (
     <PaymentItem key={name} className={getClassName(kind)}>
@@ -110,6 +110,7 @@ function Entry({ payment, getClassName, toggleBox, paymentsCount }: Props) {
         <h5>
           {name} {getCount(kind, paymentsCount)}
         </h5>
+        <p>( {__('Accepts') + ` ${acceptedCurrencies.join(',')} `})</p>
         <p>
           {__(description)}
           {renderType(inMessenger)}

@@ -65,7 +65,7 @@ export class StripeAPI {
   constructor(config: StripeAPI, domain?: string) {
     this.secretKey = config.secretKey;
     this.publishableKey = config.publishableKey;
-    this.domain = 'https://3f6e-103-212-118-48.ngrok-free.app';
+    this.domain = 'https://772a-202-70-43-141.ngrok-free.app';
 
     this.client = new Stripe(this.secretKey);
   }
@@ -132,12 +132,11 @@ export class StripeAPI {
 
   async getWebhooks() {
     const response = await this.client.webhookEndpoints.list();
-    console.log(response.data);
+   
     return response.data;
   }
 
   async registerWebhook(paymentId: string) {
-    console.log('registering webhook');
     const webhookUrl = `${this.domain}/pl:payment/callback/${PAYMENTS.stripe.kind}?paymentId=${paymentId}`;
     try {
       const list = (await this.getWebhooks()) || [];
@@ -152,10 +151,10 @@ export class StripeAPI {
           'payment_intent.payment_failed',
         ],
       });
-      console.log('webhook created');
+ 
       return { status: 'success' };
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return { error: e.message };
     }
   }
