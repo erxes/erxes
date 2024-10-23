@@ -370,20 +370,6 @@ query timeclockDepartments($searchValue: String){
   }
 }`;
 
-const scheduleConfigOrder = `
-query scheduleConfigOrder($userId: String){
-  scheduleConfigOrder(userId: $userId){
-    _id
-    userId
-    orderedList {
-      order
-      pinned
-      scheduleConfigId
-      label
-    }
-  }
-}`;
-
 const timeclockReportByUsers = `
 query timeclockReportByUsers(${listParamsDef}){
   timeclockReportByUsers(${listParamsValue}){
@@ -443,7 +429,6 @@ export default {
 
   scheduleConfigs,
   deviceConfigs,
-  scheduleConfigOrder,
 
   timeclockBranches,
   timeclockDepartments,

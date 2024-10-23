@@ -3,7 +3,6 @@ import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import {
-  ScheduleConfigOrderQueryResponse,
   ScheduleConfigQueryResponse,
   ScheduleMutationResponse,
 } from '../../types';
@@ -33,31 +32,17 @@ type Props = {
 
 type FinalProps = {
   listScheduleConfigsQuery: ScheduleConfigQueryResponse;
-  scheduleConfigOrderQuery: ScheduleConfigOrderQueryResponse;
 } & Props &
   ScheduleMutationResponse;
 
 const ScheduleFormContainer = (props: FinalProps) => {
-  const {
-    listScheduleConfigsQuery,
-    scheduleConfigOrderQuery,
-    scheduleConfigOrderEditMutation,
-    editScheduleMutation,
-  } = props;
+  const { listScheduleConfigsQuery, editScheduleMutation } = props;
 
   if (listScheduleConfigsQuery.loading) {
     return <Spinner />;
   }
 
   const { scheduleConfigs = [] } = listScheduleConfigsQuery;
-
-  const scheduleConfigOrderEdit = (variables: any) => {
-    scheduleConfigOrderEditMutation({ variables })
-      .then(() => {
-        Alert.success('Successfully saved schedule configs order');
-      })
-      .catch((err) => Alert.error(err.message));
-  };
 
   const editSchedule = (scheduleId: string, shifts: any, closeModal: any) => {
     editScheduleMutation({ variables: { _id: scheduleId, shifts } })
@@ -72,8 +57,6 @@ const ScheduleFormContainer = (props: FinalProps) => {
     <ScheduleForm
       scheduleConfigs={scheduleConfigs}
       {...props}
-      scheduleConfigOrder={scheduleConfigOrderQuery.scheduleConfigOrder}
-      scheduleConfigOrderEdit={scheduleConfigOrderEdit}
       editSchedule={editSchedule}
     />
   );
@@ -87,25 +70,6 @@ export default withProps<Props>(
         fetchPolicy: 'network-only',
       }),
     }),
-    graphql<Props, ScheduleConfigOrderQueryResponse>(
-      gql(queries.scheduleConfigOrder),
-      {
-        name: 'scheduleConfigOrderQuery',
-        options: () => ({
-          fetchPolicy: 'network-only',
-        }),
-      }
-    ),
-
-    graphql<Props, ScheduleMutationResponse>(
-      gql(mutations.scheduleConfigOrderEdit),
-      {
-        name: 'scheduleConfigOrderEditMutation',
-        options: () => ({
-          refetchQueries: ['scheduleConfigOrder'],
-        }),
-      }
-    ),
 
     graphql<Props, ScheduleMutationResponse>(gql(mutations.editSchedule), {
       name: 'editScheduleMutation',

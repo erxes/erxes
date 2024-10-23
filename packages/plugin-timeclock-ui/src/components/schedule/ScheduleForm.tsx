@@ -1,23 +1,14 @@
-import * as icons from 'react-bootstrap-icons';
-
 import { Alert, __ } from '@erxes/ui/src/utils';
 import {
-  CustomContainer,
   FlexCenter,
   FlexColumn,
   FlexRow,
   MarginX,
   MarginY,
-  SortItem,
 } from '../../styles';
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
-import {
-  ISchedule,
-  IScheduleConfig,
-  IScheduleConfigOrder,
-  IScheduleForm,
-} from '../../types';
-import React, { useEffect, useState } from 'react';
+import { ISchedule, IScheduleConfig, IScheduleForm } from '../../types';
+import React, { useState } from 'react';
 import { compareStartAndEndTime, prepareCurrentUserOption } from '../../utils';
 import { dateFormat, timeFormat } from '../../constants';
 
@@ -49,10 +40,8 @@ type Props = {
   queryParams: any;
   modalContentType: string;
   scheduleConfigs: IScheduleConfig[];
-  scheduleConfigOrder?: IScheduleConfigOrder;
 
   checkDuplicateScheduleShifts: (values: any) => any;
-  scheduleConfigOrderEdit: (values: any) => any;
   editSchedule: (scheduleId: string, shifts: any, closeModal: any) => any;
 
   closeModal: any;
@@ -69,9 +58,7 @@ function ScheduleForm(props: Props) {
 
     modalContentType,
     scheduleConfigs,
-    scheduleConfigOrder,
     checkDuplicateScheduleShifts,
-    scheduleConfigOrderEdit,
     editSchedule,
 
     scheduleOfMember,
@@ -131,26 +118,10 @@ function ScheduleForm(props: Props) {
     scheduleConfigsObject[scheduleConfig._id] = scheduleConfig;
   });
 
-  const [scheduleConfigsOrderData, setScheduleConfigsOrderData] = useState({
-    userId: currentUser._id,
-    orderedList:
-      scheduleConfigOrder &&
-      scheduleConfigOrder.orderedList.length === scheduleConfigs.length
-        ? scheduleConfigOrder.orderedList
-        : scheduleConfigs.map((s, index) => {
-            return {
-              scheduleConfigId: s._id,
-              order: index,
-              pinned: false,
-              label: `${s.shiftStart} ~ ${s.shiftEnd}\xa0\xa0\xa0(${s.scheduleName})`,
-            };
-          }),
-  });
-
   const [inputDefaultChecked, setInputDefaultChecked] = useState(false);
 
   const [selectedScheduleConfigId, setScheduleConfigId] = useState(
-    scheduleConfigsOrderData.orderedList[0]?.scheduleConfigId
+    scheduleConfigs[0]?._id
   );
 
   const [lastSelectedDate, setlastSelectedDate] = useState(new Date());
@@ -186,23 +157,7 @@ function ScheduleForm(props: Props) {
   const [departmentIds, setDepartmentIds] = useState([]);
   const [branchIds, setBranchIds] = useState<any[]>([]);
 
-  const [showScheduleConfigOrder, setShowScheduleConfigOrder] = useState(false);
-
   const [overlayTrigger, setOverlayTrigger] = useState<any>(null);
-
-  const [orderedList, setOrderedList] = useState(
-    scheduleConfigsOrderData?.orderedList
-      ? [...scheduleConfigsOrderData.orderedList]
-      : []
-  );
-
-  useEffect(() => {
-    setScheduleConfigId(
-      scheduleConfigsOrderData.orderedList[0].scheduleConfigId
-    );
-
-    setOrderedList([...scheduleConfigsOrderData.orderedList]);
-  }, [scheduleConfigsOrderData]);
 
   const renderBranchOptions = (branchesList: any[]) => {
     return branchesList.map((branch) => ({
@@ -213,9 +168,9 @@ function ScheduleForm(props: Props) {
   };
 
   const renderScheduleConfigOptions = () => {
-    return scheduleConfigsOrderData.orderedList.map((s) => ({
-      value: s.scheduleConfigId,
-      label: s.label,
+    return scheduleConfigs.map((s) => ({
+      value: s._id,
+      label: s.scheduleName,
     }));
   };
 
@@ -608,8 +563,7 @@ function ScheduleForm(props: Props) {
         name="userId"
       />
       {displayTotalDaysHoursBreakMins()}
-      {scheduleConfitOrderBox}
-      {showScheduleConfigOrder && scheduleConfigOrderContent}
+
       <FormGroup>
         <ControlLabel>Select schedule for all</ControlLabel>
         <Select
@@ -656,128 +610,6 @@ function ScheduleForm(props: Props) {
       </FlexCenter>
     );
   };
-
-  const omitTypeName = (scheduleConfigOrderData: IScheduleConfigOrder) => {
-    const orderData = scheduleConfigOrderData;
-
-    return {
-      userId: orderData.userId,
-      orderedList: orderData.orderedList.map((s) => ({
-        order: s.order,
-        scheduleConfigId: s.scheduleConfigId,
-        pinned: s.pinned,
-        label: s.label,
-      })),
-    };
-  };
-
-  const scheduleConfigOrderDataEdit = (scheduleConfigOrderData: any) => {
-    setScheduleConfigsOrderData(scheduleConfigOrderData);
-    scheduleConfigOrderEdit(omitTypeName(scheduleConfigOrderData));
-  };
-
-  const unpinScheduleConfig = (currentConfigOrder: number) => {
-    let firstUnpinnedOrderNum = scheduleConfigsOrderData.orderedList.length;
-
-    const newScheduleConfigsOrderData = scheduleConfigsOrderData;
-
-    for (const scheduleConfigsOrderItem of newScheduleConfigsOrderData.orderedList) {
-      if (!scheduleConfigsOrderItem.pinned) {
-        firstUnpinnedOrderNum = scheduleConfigsOrderItem.order;
-        break;
-      }
-    }
-
-    const lastPinnedOrderNum = firstUnpinnedOrderNum - 1;
-
-    for (const scheduleConfigsOrderItem of newScheduleConfigsOrderData.orderedList) {
-      if (scheduleConfigsOrderItem.order < currentConfigOrder) {
-        continue;
-      }
-
-      if (scheduleConfigsOrderItem.order > lastPinnedOrderNum) {
-        break;
-      }
-
-      if (scheduleConfigsOrderItem.order === currentConfigOrder) {
-        scheduleConfigsOrderItem.order = lastPinnedOrderNum;
-        scheduleConfigsOrderItem.pinned = false;
-        continue;
-      }
-      scheduleConfigsOrderItem.order = scheduleConfigsOrderItem.order - 1;
-    }
-
-    scheduleConfigOrderDataEdit({ ...newScheduleConfigsOrderData });
-  };
-
-  const pinScheduleConfig = (currentConfigOrder: number) => {
-    let firstUnpinnedOrderNum = 0;
-
-    const newScheduleConfigsOrderData = scheduleConfigsOrderData;
-
-    for (const scheduleConfigsOrderItem of newScheduleConfigsOrderData.orderedList) {
-      if (!scheduleConfigsOrderItem.pinned) {
-        firstUnpinnedOrderNum = scheduleConfigsOrderItem.order;
-        break;
-      }
-    }
-
-    const lastPinnedOrderNum = firstUnpinnedOrderNum - 1;
-
-    for (const scheduleConfigsOrderItem of newScheduleConfigsOrderData.orderedList) {
-      if (scheduleConfigsOrderItem.order > currentConfigOrder) {
-        break;
-      }
-
-      if (scheduleConfigsOrderItem.order <= lastPinnedOrderNum) {
-        continue;
-      }
-
-      if (scheduleConfigsOrderItem.order === currentConfigOrder) {
-        scheduleConfigsOrderItem.order = firstUnpinnedOrderNum;
-        scheduleConfigsOrderItem.pinned = true;
-        continue;
-      }
-      scheduleConfigsOrderItem.order = scheduleConfigsOrderItem.order + 1;
-    }
-
-    scheduleConfigOrderDataEdit({ ...newScheduleConfigsOrderData });
-  };
-
-  const scheduleConfitOrderBox = (
-    <CustomContainer
-      onClick={() => setShowScheduleConfigOrder(!showScheduleConfigOrder)}
-    >
-      <ControlLabel>Select schedule configs order</ControlLabel>
-      <MarginX margin={5}>
-        {showScheduleConfigOrder ? (
-          <Icon icon="angle-down" />
-        ) : (
-          <Icon icon="angle-right" />
-        )}
-      </MarginX>
-    </CustomContainer>
-  );
-
-  const scheduleConfigOrderContent = (
-    <>
-      {orderedList
-        .sort((a, b) => a.order - b.order)
-        .map((s: any) => (
-          <SortItem key={s.scheduleConfigId}>
-            <div>{s.label}</div>
-            {s.pinned ? (
-              <icons.PinFill
-                color="#673FBD"
-                onClick={() => unpinScheduleConfig(s.order)}
-              />
-            ) : (
-              <icons.Pin onClick={() => pinScheduleConfig(s.order)} />
-            )}
-          </SortItem>
-        ))}
-    </>
-  );
 
   const adminConfigDefaultContent = () => {
     const contentTypeOptions = ['By Date Range', 'By Date Selection'].map(
@@ -833,8 +665,6 @@ function ScheduleForm(props: Props) {
             </div>
           </div>
         </FormGroup>
-        {scheduleConfitOrderBox}
-        {showScheduleConfigOrder && scheduleConfigOrderContent}
 
         <FormGroup>
           <ControlLabel>Select schedule for all</ControlLabel>
