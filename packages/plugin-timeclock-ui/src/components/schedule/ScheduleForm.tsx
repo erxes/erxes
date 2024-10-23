@@ -121,7 +121,7 @@ function ScheduleForm(props: Props) {
   const [inputDefaultChecked, setInputDefaultChecked] = useState(false);
 
   const [selectedScheduleConfigId, setScheduleConfigId] = useState(
-    scheduleConfigs[0]?._id
+    scheduleOfMember.scheduleConfigId || scheduleConfigs[0]?._id
   );
 
   const [lastSelectedDate, setlastSelectedDate] = useState(new Date());
