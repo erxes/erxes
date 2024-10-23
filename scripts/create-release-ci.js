@@ -29,7 +29,7 @@ var releaseYaml = {
 				{
 					"name": "Get release version",
 					"id": "get_release_version",
-					"run": "echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}"
+					"run": "echo VERSION=${GITHUB_REF#refs/tags/} >> $GITHUB_OUTPUT"
 				},
 				{
 					"name": "Configure AWS credentials",
