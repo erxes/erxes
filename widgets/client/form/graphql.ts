@@ -78,7 +78,6 @@ export const formConnectMutation = `
         leadData
         languageCode
       }
-
     }
   }
 `;
