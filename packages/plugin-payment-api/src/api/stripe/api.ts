@@ -62,7 +62,7 @@ export class StripeAPI {
 
   private client: Stripe;
 
-  constructor(config: StripeAPI, domain?: string) {
+  constructor(config: IStripeConfig, domain?: string) {
     this.secretKey = config.secretKey;
     this.publishableKey = config.publishableKey;
     this.domain = domain;
