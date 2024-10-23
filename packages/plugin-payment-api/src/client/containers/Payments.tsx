@@ -8,7 +8,7 @@ import {
   INVOICE,
   INVOICE_SUBSCRIPTION,
   PAYMENTS_QRY,
-  TRANSACTION_SUBSCRIPTION
+  TRANSACTION_SUBSCRIPTION,
 } from '../graphql';
 
 type Props = {
@@ -19,23 +19,33 @@ type Props = {
 const Payments = (props: Props) => {
   const { invoiceId } = props;
 
-  const { data, loading } = useQuery(PAYMENTS_QRY);
-
   const [checkInvoice, { loading: checkInvoiceLoading }] =
     useMutation(CHECK_INVOICE);
 
   const [addTransaction, addTransactionResponse] = useMutation(ADD_TRANSACTION);
 
   const invoiceSubscription = useSubscription(INVOICE_SUBSCRIPTION, {
-    variables: { invoiceId }
+    variables: { invoiceId },
   });
 
   const transactionSubscription = useSubscription(TRANSACTION_SUBSCRIPTION, {
-    variables: { invoiceId }
+    variables: { invoiceId },
   });
 
   const invoiceDetailQuery = useQuery(INVOICE, {
-    variables: { id: invoiceId }
+    variables: { id: invoiceId },
+  });
+
+  const invoiceDetail = invoiceDetailQuery.data?.invoiceDetail || null;
+
+  const { data, loading: paymentsLoading } = useQuery(PAYMENTS_QRY, {
+    skip: !invoiceDetail, 
+    variables: {
+      ...(invoiceDetail?.paymentIds?.length > 0 && {
+        ids: invoiceDetail?.paymentIds,
+      }),
+      currency: invoiceDetail?.currency || '',
+    },
   });
 
   React.useEffect(() => {
@@ -46,13 +56,12 @@ const Payments = (props: Props) => {
         invoiceId,
         invoice: invoiceSubscription.data.invoiceUpdated,
         contentType: invoiceDetail.contentType,
-        contentTypeId: invoiceDetail.contentTypeId
+        contentTypeId: invoiceDetail.contentTypeId,
       };
 
-      // check invoice status
       const res = invoiceSubscription.data.invoiceUpdated;
       if (res.status === 'paid') {
-        window.alert('Payment has been successfully processed. Thank you! ');
+        window.alert('Payment has been successfully processed. Thank you!');
         postMessage(message);
       }
     }
@@ -62,9 +71,9 @@ const Payments = (props: Props) => {
     }
   }, [invoiceSubscription.data, transactionSubscription.data]);
 
-  if (loading || invoiceDetailQuery.loading) {
+  if (invoiceDetailQuery.loading || paymentsLoading) {
     return (
-      <div className="py-12 flex items-center justify-center">
+      <div className='py-12 flex items-center justify-center'>
         <Loader />
       </div>
     );
@@ -74,16 +83,14 @@ const Payments = (props: Props) => {
     return <div>{invoiceDetailQuery.error.message}</div>;
   }
 
-  const invoiceDetail = invoiceDetailQuery.data?.invoiceDetail || null;
-
   const requestNewTransaction = (paymentId: string, details?: any) => {
     addTransaction({
       variables: {
         invoiceId,
         paymentId,
         details,
-        amount: invoiceDetail.amount
-      }
+        amount: invoiceDetail.amount,
+      },
     }).then(() => {
       invoiceDetailQuery.refetch();
     });
@@ -91,7 +98,7 @@ const Payments = (props: Props) => {
 
   const checkInvoiceHandler = (id: string) => {
     checkInvoice({ variables: { id } })
-      .catch(e => {
+      .catch((e) => {
         console.error(e);
       })
       .then(({ data }: any) => {
@@ -100,14 +107,14 @@ const Payments = (props: Props) => {
         if (status !== 'paid') {
           window.alert('Not paid yet!, Please try again later.');
         } else {
-          window.alert('Payment has been successfully processed. Thank you! ');
+          window.alert('Payment has been successfully processed. Thank you!');
           const message = {
             fromPayment: true,
             message: 'paymentSuccessfull',
             invoiceId,
             invoice: invoiceDetail,
             contentType: invoiceDetail.contentType,
-            contentTypeId: invoiceDetail.contentTypeId
+            contentTypeId: invoiceDetail.contentTypeId,
           };
           postMessage(message);
         }
@@ -126,7 +133,7 @@ const Payments = (props: Props) => {
 
   const { paymentTransactionsAdd: newTransaction } =
     addTransactionResponse.data || {};
-  let payments = data.paymentsPublic || [];
+  let payments = data?.paymentsPublic || [];
 
   // if invoice amount is less than 100000, hide storepay
   if (invoiceDetail && invoiceDetail.amount < 100000) {
@@ -134,19 +141,18 @@ const Payments = (props: Props) => {
   }
 
   if (invoiceDetail.status === 'paid') {
-    // already paid
-    window.alert('Payment has been successfully processed. Thank you! ');
+    window.alert('Payment has been successfully processed. Thank you!');
     postMessage({
       fromPayment: true,
       message: 'paymentSuccessfull',
       invoiceId,
       invoice: invoiceDetail,
       contentType: invoiceDetail.contentType,
-      contentTypeId: invoiceDetail.contentTypeId
+      contentTypeId: invoiceDetail.contentTypeId,
     });
 
     return (
-      <div className="py-12 flex items-center justify-center">
+      <div className='py-12 flex items-center justify-center'>
         Payment has been successfully processed. Thank you!
       </div>
     );
@@ -160,7 +166,7 @@ const Payments = (props: Props) => {
     requestNewTransaction,
     checkInvoiceHandler,
     transactionLoading: addTransactionResponse.loading,
-    checkInvoiceLoading
+    checkInvoiceLoading,
   };
 
   return <Component {...updatedProps} />;

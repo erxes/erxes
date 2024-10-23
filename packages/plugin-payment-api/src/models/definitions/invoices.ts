@@ -1,11 +1,14 @@
 import { Document, Schema, Model } from 'mongoose';
 
-import { PAYMENT_STATUS } from '../../api/constants';
+import { CURRENCIES, PAYMENT_STATUS } from '../../api/constants';
 import { field } from './utils';
+
+
 
 export interface IInvoice {
   invoiceNumber: string;
   amount: number;
+  currency: string;
   phone: string;
   email: string;
   description?: string;
@@ -29,6 +32,7 @@ export const invoiceSchema = new Schema({
   _id: field({ pkey: true }),
   invoiceNumber: field({ type: String }),
   amount: field({ type: Number }),
+  currency: field({ type: String, enum: CURRENCIES, default: 'MNT' }),
   phone: field({ type: String }),
   email: field({ type: String }),
   paymentIds: field({ type: [String] }),
