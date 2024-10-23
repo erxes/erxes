@@ -100,7 +100,7 @@ const RightDrawerContainer = styledTS<{ width?: number } & any>(
     width: ${props =>
       props.width ? `calc(100% - ${props.width}px)` : "500px"};
     padding: ${dimensions.unitSpacing}px;
-    z-index: 10;
+    z-index: 101;
     top: 0;
 `;
 

@@ -13,7 +13,7 @@ export const buildFile = async (
 ) => {
   const template = await models.Templates.findOne(
     { _id },
-    { _id: -1, name: 1, contentType: 1, content: 1 }
+    { _id: -1, name: 1, contentType: 1, content: 1, relatedContents: 1 }
   ).lean();
 
   if (!template) {
