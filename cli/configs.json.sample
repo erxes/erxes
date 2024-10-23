@@ -23,9 +23,12 @@
       "ui": "local",
       "name": "inbox"
     },
-    { "ui": "local", 
-			"name": "knowledgebase" 
-		},
-    { "name": "integrations" }
+    {
+      "ui": "local",
+      "name": "knowledgebase"
+    },
+    {
+      "name": "integrations"
+    }
   ]
 }
