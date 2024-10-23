@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1729650816412" clover="3.2.0">
-  <project timestamp="1729650816412" name="All files">
-    <metrics statements="2094" coveredstatements="243" conditionals="953" coveredconditionals="6" methods="347" coveredmethods="45" elements="3394" coveredelements="294" complexity="0" loc="2094" ncloc="2094" packages="2" files="31" classes="31"/>
+<coverage generated="1729656108396" clover="3.2.0">
+  <project timestamp="1729656108396" name="All files">
+    <metrics statements="2094" coveredstatements="248" conditionals="953" coveredconditionals="11" methods="347" coveredmethods="47" elements="3394" coveredelements="306" complexity="0" loc="2094" ncloc="2094" packages="2" files="31" classes="31"/>
     <package name="data.modules.segments">
       <metrics statements="266" coveredstatements="13" conditionals="157" coveredconditionals="0" methods="15" coveredmethods="0"/>
       <file name="queryBuilder.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/data/modules/segments/queryBuilder.ts">
@@ -275,7 +275,7 @@
       </file>
     </package>
     <package name="db.models">
-      <metrics statements="1828" coveredstatements="230" conditionals="796" coveredconditionals="6" methods="332" coveredmethods="45"/>
+      <metrics statements="1828" coveredstatements="235" conditionals="796" coveredconditionals="11" methods="332" coveredmethods="47"/>
       <file name="ActivityLogs.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/ActivityLogs.ts">
         <metrics statements="8" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="5" coveredmethods="5"/>
         <line num="3" count="4" type="stmt"/>
@@ -322,21 +322,21 @@
         <line num="88" count="4" type="stmt"/>
       </file>
       <file name="Brands.ts" path="/home/ganbayar/Downloads/erxes/packages/core/src/db/models/Brands.ts">
-        <metrics statements="22" coveredstatements="9" conditionals="8" coveredconditionals="1" methods="6" coveredmethods="2"/>
+        <metrics statements="22" coveredstatements="14" conditionals="8" coveredconditionals="6" methods="6" coveredmethods="4"/>
         <line num="1" count="4" type="stmt"/>
         <line num="4" count="4" type="stmt"/>
         <line num="15" count="4" type="stmt"/>
-        <line num="21" count="0" type="stmt"/>
-        <line num="23" count="0" type="cond" truecount="0" falsecount="1"/>
-        <line num="24" count="0" type="stmt"/>
-        <line num="27" count="0" type="stmt"/>
-        <line num="31" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="33" count="1" type="stmt"/>
-        <line num="36" count="1" type="stmt"/>
+        <line num="21" count="2" type="stmt"/>
+        <line num="23" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="31" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="33" count="3" type="stmt"/>
+        <line num="36" count="3" type="stmt"/>
         <line num="37" count="0" type="stmt"/>
         <line num="39" count="0" type="stmt"/>
-        <line num="42" count="1" type="stmt"/>
-        <line num="48" count="0" type="stmt"/>
+        <line num="42" count="3" type="stmt"/>
+        <line num="48" count="2" type="stmt"/>
         <line num="60" count="0" type="stmt"/>
         <line num="61" count="0" type="stmt"/>
         <line num="65" count="0" type="stmt"/>

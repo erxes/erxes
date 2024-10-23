@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">43.47% </span>
+                <span class="strong">65.21% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>10/23</span>
+                <span class='fraction'>15/23</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">12.5% </span>
+                <span class="strong">75% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/8</span>
+                <span class='fraction'>6/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">33.33% </span>
+                <span class="strong">66.66% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/6</span>
+                <span class='fraction'>4/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">40.9% </span>
+                <span class="strong">63.63% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>9/22</span>
+                <span class='fraction'>14/22</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -161,34 +161,34 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -238,18 +238,18 @@ export const loadBrandClass = (models: IModels) =&gt; {
     /*
      * Get a Brand
      */
-    public <span class="fstat-no" title="function not covered" >static </span>async getBrand(doc: any) {
-      const brand = <span class="cstat-no" title="statement not covered" >await models.Brands.findOne(doc).lean();</span>
+    public static async getBrand(doc: any) {
+      const brand = await models.Brands.findOne(doc).lean();
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!brand) {</span>
-<span class="cstat-no" title="statement not covered" >        throw new Error('Brand not found');</span>
+      if (!brand) {
+        throw new Error('Brand not found');
       }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      return brand;</span>
+      return brand;
     }
 &nbsp;
     public static async generateCode(code?: string) {
-      let generatedCode = code || <span class="branch-1 cbranch-no" title="branch not covered" >nanoid(6);</span>
+      let generatedCode = code || nanoid(6);
 &nbsp;
       let prevBrand = await models.Brands.findOne({ code: generatedCode });
 &nbsp;
@@ -263,16 +263,16 @@ export const loadBrandClass = (models: IModels) =&gt; {
       return generatedCode;
     }
 &nbsp;
-    public <span class="fstat-no" title="function not covered" >static </span>async createBrand(doc: IBrand) {
+    public static async createBrand(doc: IBrand) {
       // generate code automatically
       // if there is no brand code defined
-<span class="cstat-no" title="statement not covered" >      return models.Brands.create({</span>
+      return models.Brands.create({
         ...doc,
         code: await this.generateCode(),
         createdAt: new Date(),
         emailConfig:
           Object.keys(doc.emailConfig || {}).length &gt; 0
-            ? doc.emailConfig
+            ? <span class="branch-0 cbranch-no" title="branch not covered" >doc.emailConfig</span>
             : { type: 'simple' }
       });
     }
@@ -304,7 +304,7 @@ export const loadBrandClass = (models: IModels) =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-10-23T02:33:36.363Z
+                at 2024-10-23T04:01:48.346Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
