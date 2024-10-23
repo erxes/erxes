@@ -10,6 +10,7 @@ import { PocketAPI } from './pocket/api';
 import { ITransactionDocument } from '../models/definitions/transactions';
 import { MinuPayAPI } from './minupay/api';
 import { GolomtAPI } from './golomt/api';
+import { StripeAPI } from './stripe/api';
 
 class ErxesPayment {
   public socialpay: SocialPayAPI;
@@ -22,6 +23,7 @@ class ErxesPayment {
   public pocket: PocketAPI;
   public minupay: MinuPayAPI;
   public golomt: GolomtAPI;
+  public stripe: StripeAPI;
   public domain: string;
 
   private payment: any;
@@ -39,6 +41,7 @@ class ErxesPayment {
     this.pocket = new PocketAPI(payment.config, domain);
     this.minupay = new MinuPayAPI(payment.config, domain);
     this.golomt = new GolomtAPI(payment.config, domain);
+    this.stripe = new StripeAPI(payment.config, domain);
   }
 
   async createInvoice(transaction: ITransactionDocument) {

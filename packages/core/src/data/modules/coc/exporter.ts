@@ -1,41 +1,13 @@
-import * as moment from 'moment';
-import { generateModels, IModels } from './connectionResolver';
-import { IUserDocument } from './db/models/definitions/users';
-import { InterMessage } from '@erxes/api-utils/src/messageBroker';
-import { fetchSegment } from './data/modules/segments/queryBuilder';
-import { ICustomerDocument } from './db/models/definitions/customers';
-import { ICompanyDocument } from './db/models/definitions/companies';
-import { sendInboxMessage } from './messageBroker';
-import cocExport from './data/modules/coc/exporter';
-import productExport from './data/modules/product/exporter';
+import { IUserDocument } from '@erxes/api-utils/src/types';
+import { generateModels, IModels } from '../../../connectionResolver';
+import { IMPORT_EXPORT_TYPES, MODULE_NAMES } from './constants';
 
-const IMPORT_EXPORT_TYPES = [
-  {
-    text: 'Team member',
-    contentType: 'user',
-    icon: 'user-square',
-  },
-  {
-    text: 'Customers',
-    contentType: 'customer',
-    icon: 'users-alt',
-  },
-  {
-    text: 'Leads',
-    contentType: 'lead',
-    icon: 'file-alt',
-  },
-  {
-    text: 'Companies',
-    contentType: 'company',
-    icon: 'building',
-  },
-  {
-    text: 'Product & Services',
-    contentType: 'product',
-    icon: 'server-alt',
-  },
-];
+import * as moment from 'moment';
+import { ICustomerDocument } from '../../../db/models/definitions/customers';
+import { ICompanyDocument } from '../../../db/models/definitions/companies';
+import { IFieldDocument } from '../../../db/models/definitions/fields';
+import { sendInboxMessage } from '../../../messageBroker';
+import { fetchSegment } from '../segments/queryBuilder';
 
 const prepareData = async (
   models: IModels,
@@ -45,39 +17,65 @@ const prepareData = async (
   const { contentType, segmentData, page, perPage } = query;
 
   const type = contentType.split(':')[1];
-
-  const itemsFilter: any = {};
-  let itemIds = [];
   const skip = (page - 1) * perPage;
 
   let data: any[] = [];
 
+  const contactsFilter: any = {};
+
   if (segmentData.conditions) {
-    itemIds = await fetchSegment(models, subdomain, segmentData, {
-      page,
-      perPage,
+    const itemIds = await fetchSegment(models, subdomain, segmentData, {
+      scroll: true,
+      page: 1,
+      perPage: 10000,
     });
 
-    itemsFilter._id = { $in: itemIds };
-  }
-
-  if (!segmentData) {
-    data = await models.Users.find(itemsFilter)
-      .skip(skip)
-      .limit(perPage)
-      .lean();
+    contactsFilter._id = { $in: itemIds };
   }
 
   switch (type) {
-    default:
+    case MODULE_NAMES.COMPANY:
       if (!segmentData) {
-        data = await models.Users.find(itemsFilter)
+        data = await models.Companies.find(contactsFilter)
           .skip(skip)
           .limit(perPage)
           .lean();
       }
 
-      data = await models.Users.find(itemsFilter).lean();
+      data = await models.Companies.find(contactsFilter).lean();
+
+      break;
+    case 'lead':
+      if (!segmentData) {
+        data = await models.Customers.find(contactsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Customers.find(contactsFilter).lean();
+
+      break;
+    case 'visitor':
+      if (!segmentData) {
+        data = await models.Customers.find(contactsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Customers.find(contactsFilter).lean();
+
+      break;
+    case MODULE_NAMES.CUSTOMER:
+      if (!segmentData) {
+        data = await models.Customers.find(contactsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Customers.find(contactsFilter).lean();
 
       break;
   }
@@ -85,32 +83,12 @@ const prepareData = async (
   return data;
 };
 
-const getTrackedData = async (item, fieldname) => {
-  let value;
-
-  if (item.trackedData && item.trackedData.length > 0) {
-    for (const data of item.trackedData) {
-      if (data.field === fieldname) {
-        value = data.value;
-
-        if (Array.isArray(value)) {
-          value = value.join(', ');
-        }
-
-        return { value };
-      }
-    }
-  }
-
-  return { value };
-};
-
 const prepareDataCount = async (
   models: IModels,
   subdomain: string,
   query: any
 ): Promise<any> => {
-  const { segmentData, contentType } = query;
+  const { contentType, segmentData } = query;
 
   const type = contentType.split(':')[1];
 
@@ -129,8 +107,20 @@ const prepareDataCount = async (
   }
 
   switch (type) {
-    default:
-      data = await models.Users.find(contactsFilter).countDocuments();
+    case MODULE_NAMES.COMPANY:
+      data = await models.Companies.find(contactsFilter).countDocuments();
+
+      break;
+    case 'lead':
+      data = await models.Customers.find(contactsFilter).countDocuments();
+
+      break;
+    case 'visitor':
+      data = await models.Customers.find(contactsFilter).countDocuments();
+
+      break;
+    case MODULE_NAMES.CUSTOMER:
+      data = await models.Customers.find(contactsFilter).countDocuments();
       break;
   }
 
@@ -157,48 +147,35 @@ const getCustomFieldsData = async (item, fieldId) => {
   return { value };
 };
 
+const getTrackedData = async (item, fieldname) => {
+  let value;
+
+  if (item.trackedData && item.trackedData.length > 0) {
+    for (const data of item.trackedData) {
+      if (data.field === fieldname) {
+        value = data.value;
+
+        if (Array.isArray(value)) {
+          value = value.join(', ');
+        }
+
+        return { value };
+      }
+    }
+  }
+
+  return { value };
+};
+
 export const fillValue = async (
   models: IModels,
   subdomain: string,
   column: string,
   item: any
 ): Promise<string> => {
-  const [splitedColumn, detail] = column.split('.');
-
   let value = item[column];
 
-  if (detail) {
-    value = item[splitedColumn][detail];
-  }
-
   switch (column) {
-    case 'createdAt':
-      value = moment(value).format('YYYY-MM-DD');
-      break;
-
-    case 'branches':
-      const branches = await models.Branches.find({
-        _id: item.branchIds,
-      }).lean();
-
-      value = branches.map((branch) => branch.title).join(', ');
-
-      break;
-
-    case 'departments':
-      const departments = await models.Departments.find({
-        _id: item.departmentIds,
-      }).lean();
-
-      value = departments.map((department) => department.title).join(', ');
-
-      break;
-
-    case 'password':
-      value = '';
-
-      break;
-
     case 'createdAt':
       value = moment(value).format('YYYY-MM-DD');
       break;
@@ -243,7 +220,7 @@ export const fillValue = async (
       break;
 
     case 'tag':
-      const tags = await models.Tags.find({ $in: item.tagIds || [] });
+      const tags = await models.Tags.find({ _id: { $in: item.tagIds || [] } });
 
       let tagNames = '';
 
@@ -270,7 +247,7 @@ export const fillValue = async (
 
     case 'ownerEmail':
       const owner: IUserDocument | null = await models.Users.findOne({
-        _id: item.ownerId,
+        _id: { $in: item.ownerId || '' },
       });
 
       value = owner ? owner.email : '-';
@@ -287,25 +264,16 @@ export const fillValue = async (
 export default {
   importExportTypes: IMPORT_EXPORT_TYPES,
 
-  prepareExportData: async ({ subdomain, data }: InterMessage) => {
+  prepareExportData: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-    const { contentType } = data;
 
     const { columnsConfig } = data;
 
     let totalCount = 0;
     const headers = [] as any;
     const excelHeader = [] as any;
-    const keys = ['customer', 'lead', 'company'];
 
     try {
-      if (keys.some((keyword) => contentType.includes(keyword))) {
-        return await cocExport.prepareExportData({ subdomain, data });
-      }
-      if (contentType.includes('product')) {
-        return await productExport.prepareExportData({ subdomain, data });
-      }
-
       const results = await prepareDataCount(models, subdomain, data);
 
       totalCount = results;
@@ -313,12 +281,11 @@ export default {
       for (const column of columnsConfig) {
         if (column.startsWith('customFieldsData')) {
           const fieldId = column.split('.')[1];
+          const field =
+            (await models.Fields.findOne({ _id: fieldId })) ||
+            ({} as IFieldDocument);
 
-          const field = await models.Fields.findOne({ _id: fieldId });
-
-          if (field) {
-            headers.push(`customFieldsData.${field.text}.${fieldId}`);
-          }
+          headers.push(`customFieldsData.${field.text}.${fieldId}`);
         } else {
           headers.push(column);
         }
@@ -339,33 +306,25 @@ export default {
     return { totalCount, excelHeader };
   },
 
-  getExportDocs: async ({ subdomain, data }: InterMessage) => {
+  getExportDocs: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { columnsConfig, contentType } = data;
+    const { columnsConfig } = data;
 
     const docs = [] as any;
     const headers = [] as any;
-    const keys = ['customer', 'lead', 'company'];
 
     try {
-      if (keys.some((keyword) => contentType.includes(keyword))) {
-        return await cocExport.getExportDocs({ subdomain, data });
-      }
-      if (contentType.includes('product')) {
-        return await productExport.getExportDocs({ subdomain, data });
-      }
-
       const results = await prepareData(models, subdomain, data);
 
       for (const column of columnsConfig) {
         if (column.startsWith('customFieldsData')) {
           const fieldId = column.split('.')[1];
-          const field = await models.Fields.findOne({ _id: fieldId });
+          const field =
+            (await models.Fields.findOne({ _id: fieldId })) ||
+            ({} as IFieldDocument);
 
-          if (field) {
-            headers.push(`customFieldsData.${field.text}.${fieldId}`);
-          }
+          headers.push(`customFieldsData.${field.text}.${fieldId}`);
         } else {
           headers.push(column);
         }
