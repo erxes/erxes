@@ -32,7 +32,7 @@ module.exports.devCmd = async program => {
     DEBUG: '*error*',
     NODE_ENV: 'development',
     JWT_TOKEN_SECRET: configs.jwt_token_secret,
-    MONGO_URL: 'mongodb://127.0.0.1:27017/erxes?directConnection=true',
+    MONGO_URL: 'mongodb://127.0.0.1:27017/erxes_tpm?directConnection=true',
 
     REDIS_HOST: '127.0.0.1',
     REDIS_PORT: 6379,
