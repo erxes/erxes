@@ -29,14 +29,14 @@ const command = async () => {
   try {
     await Payments.rename('payment_methods');
   } catch (e) {
-    console.log('Error: ', e);
+    console.error('Error: ', e);
   }
 
   try {
     await Invoices.rename('payment_invoices');
     Invoices = db.collection('payment_invoices');
   } catch (e) {
-    console.log('Error: ', e);
+    console.error('Error: ', e);
   }
 
   const invoices = await Invoices.find().toArray();
