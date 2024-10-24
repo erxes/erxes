@@ -25,7 +25,7 @@ export interface IConfigModel extends Model<IConfigDocument> {
   getConfig(code: string): Promise<IConfigDocument>;
   updateConfigs(configsMap): Promise<void>;
   createOrUpdateConfig({ code, value }: IConfig): IConfigDocument;
-  getSESConfigs(): Promise<ISESConfig>;
+  getCloudflareConfigs(): Promise<ISESConfig>;
 }
 
 export const loadConfigClass = (models: IModels) => {
@@ -85,18 +85,7 @@ export const loadConfigClass = (models: IModels) => {
     /**
      * Get a Config
      */
-    public static async getSESConfigs() {
-
-      const UPLOAD_SERVICE_TYPE = await getValueAsString(
-        models,
-        "UPLOAD_SERVICE_TYPE",
-        "UPLOAD_SERVICE_TYPE",
-      );
-
-      if (UPLOAD_SERVICE_TYPE !== "CLOUDFLARE") {
-        return {};
-      }
-
+    public static async getCloudflareConfigs() {
       const accessKeyId = await getValueAsString(
         models,
         "accessKeyId",
