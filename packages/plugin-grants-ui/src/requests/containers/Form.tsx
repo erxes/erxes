@@ -32,7 +32,6 @@ const DetailForm: React.FC<Props> = ({ _id }: Props) => {
   };
 
 
-  //test
   return <FormComponent {...updatedProps} />;
 };
 
