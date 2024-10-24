@@ -1,0 +1,16 @@
+{
+  "name": "@erxes/plugin-whatsapp-api",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@erxes/api-utils": "*",
+    "botbuilder": "^4.4.0",
+    "botbuilder-adapter-facebook-erxes": "^1.0.5",
+    "fbgraph": "^1.4.4",
+    "aws-sdk": "^2.151.0",
+    "sanitize-html": "^1.20.1"
+  }
+}
