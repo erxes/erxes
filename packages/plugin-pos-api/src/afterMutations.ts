@@ -2,7 +2,7 @@ import { generateModels, IModels } from "./connectionResolver";
 import {
   sendPosclientMessage,
   sendPricingMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "./messageBroker";
 import { IPosDocument } from "./models/definitions/pos";
 import { getChildCategories } from "./utils";
@@ -75,7 +75,7 @@ const isInProduct = async (
     return false;
   }
 
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
     action: "products.find",
     data: {
@@ -120,7 +120,7 @@ const isInProductCategory = async (
       c => !excludeCatIds.includes(c)
     );
 
-    const productCategories = await sendProductsMessage({
+    const productCategories = await sendCoreMessage({
       subdomain,
       action: "categories.find",
       data: { query: { _id: { $in: productCategoryIds } }, sort: { order: 1 } },

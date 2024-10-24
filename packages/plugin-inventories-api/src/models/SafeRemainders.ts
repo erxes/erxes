@@ -4,7 +4,7 @@ import { Model } from "mongoose";
 import * as _ from "underscore";
 import * as xlsxPopulate from "xlsx-populate";
 import { IModels } from "../connectionResolver";
-import { sendProductsMessage } from "../messageBroker";
+import { sendCoreMessage } from "../messageBroker";
 import {
   SAFE_REMAINDER_ITEM_STATUSES,
   SAFE_REMAINDER_STATUSES
@@ -149,7 +149,7 @@ export const loadSafeRemainderClass = (models: IModels) => {
       }
 
       // Get products related to product category
-      const products: any = await sendProductsMessage({
+      const products: any = await sendCoreMessage({
         subdomain,
         action: "products.find",
         data: {

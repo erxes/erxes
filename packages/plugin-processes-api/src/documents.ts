@@ -2,8 +2,7 @@ import * as moment from "moment";
 import { generateModels } from "./connectionResolver";
 import {
   sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "./messageBroker";
 
 const toMoney = value => {
@@ -21,7 +20,7 @@ const productsInfo = async (
 ) => {
   const productIds = productData.map(p => p.productId);
 
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
     action: "products.find",
     data: { query: { _id: { $in: productIds } }, limit: productIds.length },

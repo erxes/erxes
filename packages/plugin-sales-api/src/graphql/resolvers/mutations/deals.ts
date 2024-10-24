@@ -13,7 +13,6 @@ import {
   itemsRemove
 } from "./utils";
 import { IContext } from "../../../connectionResolver";
-import { sendProductsMessage } from "../../../messageBroker";
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 
 interface IDealsEdit extends IDeal {

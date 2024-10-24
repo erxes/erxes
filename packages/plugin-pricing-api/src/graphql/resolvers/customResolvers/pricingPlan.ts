@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import { IContext } from "../../../connectionResolver";
-import { sendProductsMessage, sendCoreMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 import { IPricingPlanDocument } from "../../../models/definitions/pricingPlan";
 import { getChildCategories, getChildTags } from "../../../utils/product";
 
@@ -50,7 +50,7 @@ const PricingPlan = {
       }
 
       case "vendor": {
-        const products = await sendProductsMessage({
+        const products = await sendCoreMessage({
           subdomain,
           action: "products.find",
           data: {
@@ -80,7 +80,7 @@ const PricingPlan = {
           c => !excludeCatIds.includes(c)
         );
 
-        const products = await sendProductsMessage({
+        const products = await sendCoreMessage({
           subdomain,
           action: "products.find",
           data: {
@@ -108,7 +108,7 @@ const PricingPlan = {
           c => !excludeTagIds.includes(c)
         );
 
-        const products = await sendProductsMessage({
+        const products = await sendCoreMessage({
           subdomain,
           action: "products.find",
           data: {

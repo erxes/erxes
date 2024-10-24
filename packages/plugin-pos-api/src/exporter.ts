@@ -1,7 +1,6 @@
 import { generateModels, IModels } from './connectionResolver';
 import {
   sendCoreMessage,
-  sendProductsMessage,
   fetchSegment,
   sendContactsMessage
 } from './messageBroker';
@@ -244,7 +243,7 @@ const fillPosOrderItemValue = async (subdomain, column, order) => {
   if (column.includes('items.product')) {
     const productIds = items.map(i => i.productId);
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
       action: 'products.find',
       data: {
@@ -260,7 +259,7 @@ const fillPosOrderItemValue = async (subdomain, column, order) => {
 
     if (column.includes('items.productCategory')) {
       const categoryIds = products.map(p => p.categoryId);
-      const categories = await sendProductsMessage({
+      const categories = await sendCoreMessage({
         subdomain,
         action: 'categories.find',
         data: {

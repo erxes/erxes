@@ -15,8 +15,7 @@ import {
 import { IContext } from "../../../connectionResolver";
 import {
   sendCoreMessage,
-  sendLoyaltiesMessage,
-  sendProductsMessage
+  sendLoyaltiesMessage
 } from "../../../messageBroker";
 
 interface IPurchaseListParams extends IListParams {
@@ -79,7 +78,7 @@ const purchaseQueries = {
       return [];
     });
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
       action: "products.find",
       data: {

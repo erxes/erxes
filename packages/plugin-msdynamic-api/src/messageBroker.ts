@@ -28,15 +28,6 @@ export const sendContactsMessage = async (args: MessageArgsOmitService) => {
   });
 };
 
-export const sendProductsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "core",
-    ...args
-  });
-};
-
 export const sendPosMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {

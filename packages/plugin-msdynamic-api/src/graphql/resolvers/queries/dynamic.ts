@@ -1,7 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp, getPureDate } from '@erxes/api-utils/src/core';
 import fetch from 'node-fetch';
-import { IContext, sendCoreMessage, sendInventoriesMessage, sendPosMessage, sendProductsMessage } from '../../../messageBroker';
+import { IContext, sendCoreMessage, sendInventoriesMessage, sendPosMessage } from '../../../messageBroker';
 import { getConfig } from '../../../utils';
 
 const generateFilter = (params) => {
@@ -137,7 +137,7 @@ const msdynamicQueries = {
       })
 
       if (posConfig?._id && posConfig.departmentId && (posConfig?.branchId || branchId)) {
-        const products = await sendProductsMessage({
+        const products = await sendCoreMessage({
           subdomain,
           action: 'products.find',
           data: {

@@ -380,12 +380,6 @@ export const sendPricingMessage = async (
   return sendMessageWrapper("pricing", args);
 };
 
-export const sendProductsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessageWrapper("core", args);
-};
-
 export const fetchSegment = (
   subdomain: string,
   segmentId: string,

@@ -5,7 +5,7 @@ import {
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
 import { MONTHS } from '../../../constants';
-import { sendProductsMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 
 interface IListArgs {
   page: number;
@@ -81,7 +81,7 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
     }
 
     if (Object.keys(productFilter).length) {
-      const products = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
         action: 'products.find',
         data: { ...productFilter, fields: { _id: 1 } },

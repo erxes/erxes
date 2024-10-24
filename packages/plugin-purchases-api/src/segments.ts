@@ -5,8 +5,7 @@ import {
 import { generateModels } from "./connectionResolver";
 import {
   sendCommonMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "./messageBroker";
 import { generateConditionStageIds } from "./utils";
 import {
@@ -153,7 +152,7 @@ const generateProductsCategoryProductIds = async (subdomain, condition) => {
   if (propertyName === "productsData.categoryId") {
     productCategoryIds.push(propertyValue);
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
       action: "products.find",
       data: {

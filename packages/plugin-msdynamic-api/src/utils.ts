@@ -2,8 +2,7 @@ import fetch from "node-fetch";
 import { IModels } from "./connectionResolver";
 import {
   sendCoreMessage,
-  sendPosMessage,
-  sendProductsMessage
+  sendPosMessage
 } from "./messageBroker";
 import { ISyncLogDocument } from "./models/definitions/dynamic";
 import { getMsdCustomerInfo } from "./utilsCustomer";
@@ -20,7 +19,7 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
 export const consumeInventory = async (subdomain, config, doc, action) => {
   const updateCode = action === "delete" ? doc.code : doc.No;
 
-  const product = await sendProductsMessage({
+  const product = await sendCoreMessage({
     subdomain,
     action: "products.findOne",
     data: { code: updateCode },
@@ -31,7 +30,7 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
   const brandIds = (product || {}).scopeBrandIds || [];
 
   if ((action === "update" && doc.No) || action === "create") {
-    const productCategory = await sendProductsMessage({
+    const productCategory = await sendCoreMessage({
       subdomain,
       action: "categories.findOne",
       data: { code: doc.Item_Category_Code },
@@ -55,14 +54,14 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
     };
 
     if (product) {
-      await sendProductsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "products.updateProduct",
         data: { _id: product._id, doc: { ...document } },
         isRPC: true
       });
     } else {
-      await sendProductsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "products.createProduct",
         data: { doc: { ...document } },
@@ -72,7 +71,7 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
   } else if (action === "delete" && product) {
     const anotherBrandIds = brandIds.filter(b => b && b !== config.brandId);
     if (anotherBrandIds.length) {
-      await sendProductsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "products.updateProduct",
         data: {
@@ -82,7 +81,7 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
         isRPC: true
       });
     } else {
-      await sendProductsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "products.removeProducts",
         data: { _ids: [product._id] },
@@ -101,7 +100,7 @@ export const consumeCategory = async (
 ) => {
   const updateCode = action === "delete" ? doc.code : doc.Code;
 
-  const productCategory = await sendProductsMessage({
+  const productCategory = await sendCoreMessage({
     subdomain,
     action: "categories.findOne",
     data: { code: updateCode },
@@ -125,7 +124,7 @@ export const consumeCategory = async (
     };
 
     if (doc.Parent_Category) {
-      const parentCategory = await sendProductsMessage({
+      const parentCategory = await sendCoreMessage({
         subdomain,
         action: "categories.findOne",
         data: { code: doc.Parent_Category },
@@ -138,14 +137,14 @@ export const consumeCategory = async (
     }
 
     if (productCategory) {
-      await sendProductsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "categories.updateProductCategory",
         data: { _id: productCategory._id, doc: { ...document } },
         isRPC: true
       });
     } else {
-      await sendProductsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "categories.createProductCategory",
         data: { doc: { ...document } },
@@ -153,7 +152,7 @@ export const consumeCategory = async (
       });
     }
   } else if (action === "delete" && productCategory) {
-    await sendProductsMessage({
+    await sendCoreMessage({
       subdomain,
       action: "categories.removeProductCategory",
       data: { _id: productCategory._id },
@@ -275,7 +274,7 @@ export const dealToDynamic = async (
     const lineNoById = {};
 
     if (responseSale) {
-      const products = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
         action: "products.find",
         data: { _id: { $in: order.items.map(item => item.productId) } },

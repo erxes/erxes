@@ -7,8 +7,7 @@ import { IModels } from "./connectionResolver";
 import { MODULE_NAMES } from "./constants";
 import {
   fetchSegment,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "./messageBroker";
 import { IStageDocument } from "./models/definitions/boards";
 import { IPipelineLabelDocument } from "./models/definitions/pipelineLabels";
@@ -320,7 +319,7 @@ const fillPurchaseProductValue = async (
 
       case "productsData.name":
         product =
-          (await sendProductsMessage({
+          (await sendCoreMessage({
             subdomain,
             action: "products.findOne",
             data: { _id: productData.productId },
@@ -332,7 +331,7 @@ const fillPurchaseProductValue = async (
 
       case "productsData.code":
         product =
-          (await sendProductsMessage({
+          (await sendCoreMessage({
             subdomain,
             action: "products.findOne",
             data: { _id: productData.productId },

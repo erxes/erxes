@@ -3,8 +3,7 @@ import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import {
   sendSalesMessage,
   sendCoreMessage,
-  sendPricingMessage,
-  sendProductsMessage
+  sendPricingMessage
 } from "./messageBroker";
 import { setPlace } from "./utils/setPlace";
 import { splitData } from "./utils/splitData";
@@ -58,7 +57,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       }
 
       let pDatas = deal.productsData;
-      const products = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
         action: "products.find",
         data: {

@@ -2,8 +2,7 @@ import fetch from "node-fetch";
 import {
   sendCoreMessage,
   sendNotificationsMessage,
-  sendContactsMessage,
-  sendProductsMessage
+  sendContactsMessage
 } from "./messageBroker";
 
 export const sendNotification = (subdomain: string, data) => {
@@ -266,7 +265,7 @@ export const getPostData = async (subdomain, config, deal) => {
   );
 
   const productsIds = deal.productsData.map(item => item.productId);
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
     action: "products.find",
     data: { query: { _id: { $in: productsIds } }, limit: productsIds.length },

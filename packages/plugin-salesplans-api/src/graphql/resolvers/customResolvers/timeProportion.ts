@@ -1,5 +1,5 @@
 import { IContext } from '../../../connectionResolver';
-import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 import { ITimeProportion } from '../../../models/definitions/timeProportions';
 
 export default {
@@ -38,7 +38,7 @@ export default {
       return;
     }
 
-    return await sendProductsMessage({
+    return await sendCoreMessage({
       subdomain,
       action: 'categories.findOne',
       data: { _id: timeProp.productCategoryId },
