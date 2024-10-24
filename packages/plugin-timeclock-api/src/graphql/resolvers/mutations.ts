@@ -784,6 +784,9 @@ const timeclockMutations = {
       scheduleConfig,
       configShiftStart,
       configShiftEnd,
+      overtimeExists,
+      startFlexible,
+      endFlexible,
       locations,
     },
     { models }: IContext
@@ -794,6 +797,9 @@ const timeclockMutations = {
         lunchBreakInMins,
         shiftStart: configShiftStart,
         shiftEnd: configShiftEnd,
+        overtimeExists,
+        startFlexible,
+        endFlexible,
         locations,
       }
     );
@@ -833,10 +839,15 @@ const timeclockMutations = {
       configShiftStart,
       configShiftEnd,
       locations,
+      overtimeExists,
+      startFlexible,
+      endFlexible,
       doc,
     },
     { models }: IContext
   ) {
+    console.log(overtimeExists, startFlexible, endFlexible);
+
     const newScheduleConfig = await models.ScheduleConfigs.updateScheduleConfig(
       _id,
       {
@@ -844,6 +855,9 @@ const timeclockMutations = {
         lunchBreakInMins,
         shiftEnd: configShiftEnd,
         shiftStart: configShiftStart,
+        overtimeExists,
+        startFlexible,
+        endFlexible,
         locations,
         ...doc,
       }

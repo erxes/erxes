@@ -84,6 +84,8 @@ export const types = `
     _id: String
     scheduleConfigId: String
     overnightShift: Boolean
+    startFlexible: Boolean
+    endFlexible: Boolean
     configName: String
     shiftStart: Date
     shiftEnd: Date
@@ -227,6 +229,8 @@ export const types = `
     shiftEnd: String
     configDays: [ConfigDay]
     overtimeExists: Boolean
+    startFlexible: Boolean
+    endFlexible: Boolean
     locations: [JSON]
   }
   
@@ -361,6 +365,8 @@ const scheduleConfigParams = `
     configShiftStart: String
     configShiftEnd: String
     overtimeExists:Boolean 
+    startFlexible: Boolean
+    endFlexible: Boolean
     locations: [JSON]
 `;
 

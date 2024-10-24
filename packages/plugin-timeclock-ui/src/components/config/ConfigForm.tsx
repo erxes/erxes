@@ -46,7 +46,6 @@ type Props = {
   afterSave?: () => void;
   closeModal: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  onSubmit?: (props: IButtonMutateProps) => void;
 };
 
 const requestToTypes = {
@@ -62,7 +61,7 @@ const requestToWhomTypes = {
 
 function ConfigForm(props: Props) {
   const { renderButton, scheduleConfig, deviceConfig } = props;
-  const { absenceType, holiday, payDate, onSubmit } = props;
+  const { absenceType, holiday, payDate } = props;
 
   const [requestTime, setRequestTime] = useState(
     absenceType?.requestTimeType || 'by day'
@@ -88,16 +87,16 @@ function ConfigForm(props: Props) {
     (absenceType && absenceType.explRequired) || false
   );
 
-  const [scheduleStartFlexible, setScheduleStartFlexible] = useState(
-    (absenceType && absenceType.explRequired) || false
+  const [startFlexible, setStartFlexible] = useState(
+    (scheduleConfig && scheduleConfig.startFlexible) || false
   );
 
-  const [scheduleEndFlexible, setScheduleEndFlexible] = useState(
-    (absenceType && absenceType.explRequired) || false
+  const [endFlexible, setEndFlexible] = useState(
+    (scheduleConfig && scheduleConfig.endFlexible) || false
   );
 
   const [scheduleOvertimeExists, setScheduleOverTimeExists] = useState(
-    (absenceType && absenceType.explRequired) || false
+    (scheduleConfig && scheduleConfig.overtimeExists) || false
   );
 
   const [attachmentRequired, setAttachRequired] = useState(
@@ -415,6 +414,8 @@ function ConfigForm(props: Props) {
           scheduleConfig: any[];
           locations?: any[];
           overtimeExists?: boolean;
+          startFlexible?: boolean;
+          endFlexible?: boolean;
         } = {
           scheduleName: values.scheduleName,
           scheduleConfig: [],
@@ -429,7 +430,7 @@ function ConfigForm(props: Props) {
         // validcheckin
         const validCheckIn = {
           ...configDays.validCheckIn,
-          shiftEnd: scheduleStartFlexible
+          shiftEnd: startFlexible
             ? configDays.validCheckIn.shiftEnd
             : configDays.validCheckIn.shiftStart,
           overnightShift: configDays.validCheckIn.overnightShift,
@@ -439,7 +440,7 @@ function ConfigForm(props: Props) {
         // validcheckout
         const validCheckout = {
           ...configDays.validCheckout,
-          shiftEnd: scheduleEndFlexible
+          shiftEnd: endFlexible
             ? configDays.validCheckout.shiftEnd
             : configDays.validCheckout.shiftStart,
           overnightShift: configDays.validCheckout.overnightShift,
@@ -469,6 +470,8 @@ function ConfigForm(props: Props) {
         );
 
         returnVariables.overtimeExists = scheduleOvertimeExists;
+        returnVariables.startFlexible = startFlexible;
+        returnVariables.endFlexible = endFlexible;
 
         if (
           Object.keys(locationsFormValues).length &&
@@ -482,24 +485,6 @@ function ConfigForm(props: Props) {
         for (const location of Object.values(locationsFormValues)) {
           returnVariables.locations.push(location);
         }
-
-        // Object.keys(configDays).forEach(day_key => {
-        //   if (day_key.toLocaleLowerCase() !== 'configtime') {
-        //     returnVariables.scheduleConfig.push({
-        //       configName: day_key,
-        //       shiftStart: configDays[day_key].shiftStart,
-        //       shiftEnd: configDays[day_key].shiftEnd,
-        //       overnightShift: configDays[day_key].overnightShift
-        //     });
-        //   } else {
-        //     returnVariables.configShiftStart = dayjs(
-        //       configDays[day_key].shiftStart
-        //     ).format(timeFormat);
-        //     returnVariables.configShiftEnd = dayjs(
-        //       configDays[day_key].shiftEnd
-        //     ).format(timeFormat);
-        //   }
-        // });
 
         return returnVariables;
 
@@ -940,10 +925,10 @@ function ConfigForm(props: Props) {
           <FlexRowJustifyStart $widthPercent={50}>
             <ControlLabel>Flexible</ControlLabel>
             <FormControl
-              name="scheduleStartFlexible"
+              name="startFlexible"
               componentclass="checkbox"
-              defaultChecked={scheduleStartFlexible}
-              onChange={() => setScheduleStartFlexible(!scheduleStartFlexible)}
+              defaultChecked={startFlexible}
+              onChange={() => setStartFlexible(!startFlexible)}
             />
 
             <DateTimePicker
@@ -955,7 +940,7 @@ function ConfigForm(props: Props) {
               changeEndTime={onEndTimeChange}
               changeStartTime={onStartTimeChange}
               timeOnly={true}
-              flexitbleTime={scheduleStartFlexible}
+              flexitbleTime={startFlexible}
             />
           </FlexRowJustifyStart>
         </FlexRow>
@@ -965,10 +950,10 @@ function ConfigForm(props: Props) {
           <FlexRowJustifyStart $widthPercent={50}>
             <ControlLabel>Flexible</ControlLabel>
             <FormControl
-              name="scheduleEndFlexible"
+              name="endFlexible"
               componentclass="checkbox"
-              defaultChecked={scheduleEndFlexible}
-              onChange={() => setScheduleEndFlexible(!scheduleEndFlexible)}
+              defaultChecked={endFlexible}
+              onChange={() => setEndFlexible(!endFlexible)}
             />
 
             <DateTimePicker
@@ -980,7 +965,7 @@ function ConfigForm(props: Props) {
               changeEndTime={onEndTimeChange}
               changeStartTime={onStartTimeChange}
               timeOnly={true}
-              flexitbleTime={scheduleEndFlexible}
+              flexitbleTime={endFlexible}
             />
           </FlexRowJustifyStart>
         </FlexRow>

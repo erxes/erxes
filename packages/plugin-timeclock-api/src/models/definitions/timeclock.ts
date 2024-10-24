@@ -123,6 +123,9 @@ export interface IScheduleConfig {
   shiftEnd?: string;
   locations?: any;
   hasOvertime?: boolean;
+  overtimeExists?: boolean;
+  startFlexible?: boolean;
+  endFlexible?: boolean;
 }
 
 export interface IScheduleConfigDocument extends IScheduleConfig, Document {
@@ -431,6 +434,19 @@ export const scheduleConfigSchema = new Schema({
   shiftEnd: field({
     type: String,
     label: 'ending time of shift',
+  }),
+
+  startFlexible: field({
+    type: Boolean,
+    label: 'startFlexible',
+  }),
+  endFlexible: field({
+    type: Boolean,
+    label: 'endFlexible',
+  }),
+  overtimeExists: field({
+    type: Boolean,
+    label: 'overtimeExists',
   }),
 
   locations: field({

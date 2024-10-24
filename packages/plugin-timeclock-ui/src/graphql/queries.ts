@@ -316,6 +316,9 @@ const scheduleConfigs = `
       shiftStart
       shiftEnd
       locations
+      overtimeExists
+      startFlexible
+      endFlexible
       configDays{
         _id
         configName

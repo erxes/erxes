@@ -27,6 +27,8 @@ $configShiftStart: String
 $configShiftEnd: String
 $scheduleConfig: [ShiftInput]
 $overtimeExists: Boolean
+$startFlexible: Boolean
+$endFlexible: Boolean
 $locations: [JSON]
 `;
 
@@ -222,12 +224,12 @@ const scheduleShiftRemove = `
   }`;
 
 const scheduleConfigAdd = `mutation scheduleConfigAdd(${scheduleConfigParams}){
-  scheduleConfigAdd(scheduleName: $scheduleName, lunchBreakInMins : $lunchBreakInMins, configShiftStart:$configShiftStart, configShiftEnd: $configShiftEnd, scheduleConfig : $scheduleConfig, overtimeExists: $overtimeExists, locations: $locations){
+  scheduleConfigAdd(scheduleName: $scheduleName, lunchBreakInMins : $lunchBreakInMins, configShiftStart:$configShiftStart, configShiftEnd: $configShiftEnd, scheduleConfig : $scheduleConfig, overtimeExists: $overtimeExists, startFlexible: $startFlexible, endFlexible: $endFlexible, locations: $locations){
     _id
   }
 }`;
-const scheduleConfigEdit = `mutation scheduleConfigEdit($_id: String, $scheduleName: String,$lunchBreakInMins: Int, $configShiftStart: String, $configShiftEnd: String, $scheduleConfig: [ShiftInput], $overtimeExists: Boolean, $locations: [JSON]){
-  scheduleConfigEdit(_id: $_id, scheduleName: $scheduleName, lunchBreakInMins : $lunchBreakInMins, configShiftStart:$configShiftStart, configShiftEnd: $configShiftEnd, scheduleConfig : $scheduleConfig, overtimeExists: $overtimeExists, locations: $locations){
+const scheduleConfigEdit = `mutation scheduleConfigEdit($_id: String, $scheduleName: String,$lunchBreakInMins: Int, $configShiftStart: String, $configShiftEnd: String, $scheduleConfig: [ShiftInput], $overtimeExists: Boolean, $startFlexible: Boolean, $endFlexible: Boolean, $locations: [JSON]){
+  scheduleConfigEdit(_id: $_id, scheduleName: $scheduleName, lunchBreakInMins : $lunchBreakInMins, configShiftStart:$configShiftStart, configShiftEnd: $configShiftEnd, scheduleConfig : $scheduleConfig, overtimeExists: $overtimeExists, startFlexible: $startFlexible, endFlexible: $endFlexible, locations: $locations){
     _id
   }
 }`;

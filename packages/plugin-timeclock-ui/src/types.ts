@@ -173,6 +173,9 @@ export interface IScheduleConfig {
   shiftStart: string;
   shiftEnd: string;
   locations: any[];
+  startFlexible?: boolean;
+  endFlexible?: boolean;
+  overtimeExists?: boolean;
   configDays: IScheduleConfigDays[];
 }
 
