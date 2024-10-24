@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.17.7](https://github.com/erxes/erxes/compare/1.17.6...1.17.7) (2024-10-24)
+
+
+### Bug Fixes
+
+* **core:** can't select parent ([ba51397](https://github.com/erxes/erxes/commit/ba513979140d0624f9448ffea273e52172c9fdc4))
+* loans contractType with initial stageId at internetBank ([6812df4](https://github.com/erxes/erxes/commit/6812df4124493531382bac6499215a07cf3b5d7d))
+
+
+### Performance Improvements
+
+* burenScoring customerSidebar ([c610f29](https://github.com/erxes/erxes/commit/c610f299a018ef3a8d834ddb18d57672b616f5e1))
+
 ## [1.17.6](https://github.com/erxes/erxes/compare/1.17.5...1.17.6) (2024-10-22)
 
 
