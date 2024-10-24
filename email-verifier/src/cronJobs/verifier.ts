@@ -63,6 +63,13 @@ schedule.scheduleJob('2 * * * * *', async () => {
   // https://api.mails.so/v1/batch/${id}
   const MAILS_SO_KEY = getEnv({ name: 'MAILS_SO_KEY' });
   for (const { listId, hostname = '' } of listIds) {
+    if (!listId) {
+      const unfinished = listIds.filter((item) => item.listId !== listId);
+
+      await setArray('erxes_email_verifier_list_ids', unfinished);
+      continue;
+    }
+
     const response = await fetch(`https://api.mails.so/v1/batch/${listId}`, {
       method: 'GET',
       headers: {
