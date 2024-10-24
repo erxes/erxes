@@ -27,7 +27,7 @@ export const afterMutationHandlers = async (
   if (action === 'update') {
     if (type.includes('cards')) {
       if (newData.stageId) {
-        const contentType = type.replace('cards:', '');
+        const contentType = type.replace('cards:', ''); 
 
         const requests = await models.Requests.find({
           $and: [
