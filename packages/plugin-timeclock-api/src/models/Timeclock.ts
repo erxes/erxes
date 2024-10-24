@@ -32,9 +32,6 @@ import {
   IReportCheck,
   IReportCheckDocument,
   reportCheckSchema,
-  IScheduleConfigOrderDocument,
-  IScheduleConfigOrder,
-  scheduleConfigOrderSchema
 } from './definitions/timeclock';
 
 export interface ITimeModel extends Model<ITimeClockDocument> {
@@ -59,15 +56,14 @@ export const loadTimeClass = (models: IModels) => {
     // create
     public static async createTimeClock(doc: ITimeClock) {
       return models.Timeclocks.create({
-        ...doc
+        ...doc,
       });
     }
     // update
     public static async updateTimeClock(_id: string, doc: ITimeClock) {
-      await models.Timeclocks.updateOne(
-        { _id },
-        { $set: { ...doc } }
-      ).then(err => console.error(err));
+      await models.Timeclocks.updateOne({ _id }, { $set: { ...doc } }).then(
+        (err) => console.error(err)
+      );
     }
     // remove
     public static async removeTimeClock(_id: string) {
@@ -101,14 +97,14 @@ export const loadTimeLogClass = (models: IModels) => {
     // create
     public static async createTimeLog(doc: ITimeLog) {
       return models.TimeLogs.create({
-        ...doc
+        ...doc,
       });
     }
 
     // update
     public static async updateTimeLog(_id: string, doc: ITimeLog) {
-      await models.TimeLogs.updateOne({ _id }, { $set: { ...doc } }).then(err =>
-        console.error(err)
+      await models.TimeLogs.updateOne({ _id }, { $set: { ...doc } }).then(
+        (err) => console.error(err)
       );
     }
 
@@ -146,13 +142,13 @@ export const loadAbsenceClass = (models: IModels) => {
     // create
     public static async createAbsence(doc: IAbsence) {
       return models.Absences.create({
-        ...doc
+        ...doc,
       });
     }
     // update
     public static async updateAbsence(_id: string, doc: IAbsence) {
-      await models.Absences.updateOne({ _id }, { $set: { ...doc } }).then(err =>
-        console.error(err)
+      await models.Absences.updateOne({ _id }, { $set: { ...doc } }).then(
+        (err) => console.error(err)
       );
     }
     // remove
@@ -191,15 +187,14 @@ export const loadAbsenceTypeClass = (models: IModels) => {
     // create
     public static async createAbsenceType(doc: IAbsenceType) {
       return models.AbsenceTypes.create({
-        ...doc
+        ...doc,
       });
     }
     // update
     public static async updateAbsenceType(_id: string, doc: IAbsenceType) {
-      await models.AbsenceTypes.updateOne(
-        { _id },
-        { $set: { ...doc } }
-      ).then(err => console.error(err));
+      await models.AbsenceTypes.updateOne({ _id }, { $set: { ...doc } }).then(
+        (err) => console.error(err)
+      );
     }
     // remove
     public static async removeAbsenceType(_id: string) {
@@ -233,15 +228,14 @@ export const loadScheduleClass = (models: IModels) => {
     // create
     public static async createSchedule(doc: ISchedule) {
       return models.Schedules.create({
-        ...doc
+        ...doc,
       });
     }
     // update
     public static async updateSchedule(_id: string, doc: ISchedule) {
-      await models.Schedules.updateOne(
-        { _id },
-        { $set: { ...doc } }
-      ).then(err => console.error(err));
+      await models.Schedules.updateOne({ _id }, { $set: { ...doc } }).then(
+        (err) => console.error(err)
+      );
     }
     // remove
     public static async removeSchedule(_id: string) {
@@ -275,12 +269,12 @@ export const loadShiftClass = (models: IModels) => {
     // create
     public static async createShift(doc: IShift) {
       return models.Shifts.create({
-        ...doc
+        ...doc,
       });
     }
     // update
     public static async updateShift(_id: string, doc: IShift) {
-      await models.Shifts.updateOne({ _id }, { $set: { ...doc } }).then(err =>
+      await models.Shifts.updateOne({ _id }, { $set: { ...doc } }).then((err) =>
         console.error(err)
       );
     }
@@ -316,13 +310,13 @@ export const loadPayDateClass = (models: IModels) => {
     // create
     public static async createPayDate(doc: IPayDate) {
       return models.PayDates.create({
-        ...doc
+        ...doc,
       });
     }
     // update
     public static async updatePayDate(_id: string, doc: IPayDate) {
-      await models.PayDates.updateOne({ _id }, { $set: { ...doc } }).then(err =>
-        console.error(err)
+      await models.PayDates.updateOne({ _id }, { $set: { ...doc } }).then(
+        (err) => console.error(err)
       );
     }
     // remove
@@ -344,18 +338,6 @@ export interface IScheduleConfigModel extends Model<IScheduleConfigDocument> {
   ): Promise<IScheduleConfigDocument>;
   removeScheduleConfig(_id: string): void;
 }
-export interface IScheduleConfigOrderModel
-  extends Model<IScheduleConfigOrderDocument> {
-  getScheduleConfigOrder(_id: string): Promise<IScheduleConfigOrderDocument>;
-  createScheduleConfigOrder(
-    doc: IScheduleConfig
-  ): Promise<IScheduleConfigOrderDocument>;
-  updateScheduleConfigOrder(
-    _id: string,
-    doc: IScheduleConfig
-  ): Promise<IScheduleConfigOrderDocument>;
-  removeScheduleConfigOrder(_id: string): void;
-}
 
 export const loadScheduleConfigClass = (models: IModels) => {
   // tslint:disable-next-line:max-classes-per-file
@@ -371,7 +353,7 @@ export const loadScheduleConfigClass = (models: IModels) => {
     // create
     public static async createScheduleConfig(doc: IScheduleConfig) {
       return models.ScheduleConfigs.create({
-        ...doc
+        ...doc,
       });
     }
     // update
@@ -382,7 +364,7 @@ export const loadScheduleConfigClass = (models: IModels) => {
       await models.ScheduleConfigs.updateOne(
         { _id },
         { $set: { ...doc } }
-      ).then(err => console.error(err));
+      ).then((err) => console.error(err));
     }
     // remove
     public static async removeScheduleConfig(_id: string) {
@@ -393,45 +375,6 @@ export const loadScheduleConfigClass = (models: IModels) => {
   scheduleConfigSchema.loadClass(ScheduleConfig);
 
   return scheduleConfigSchema;
-};
-export const loadScheduleConfigOrderClass = (models: IModels) => {
-  // tslint:disable-next-line:max-classes-per-file
-  class ScheduleConfigOrder {
-    // get
-    public static async getScheduleConfigOrder(_id: string) {
-      const scheduleConfigOrder = await models.ScheduleConfigOrder.findOne({
-        _id
-      });
-      if (!scheduleConfigOrder) {
-        throw new Error('ScheduleConfigOrder not found');
-      }
-      return scheduleConfigOrder;
-    }
-    // create
-    public static async createScheduleConfigOrder(doc: IScheduleConfigOrder) {
-      return models.ScheduleConfigOrder.create({
-        ...doc
-      });
-    }
-    // update
-    public static async updateScheduleConfigOrder(
-      _id: string,
-      doc: IScheduleConfigOrder
-    ) {
-      await models.ScheduleConfigOrder.updateOne(
-        { _id },
-        { $set: { ...doc } }
-      ).then(err => console.error(err));
-    }
-    // remove
-    public static async removeScheduleConfigOrder(_id: string) {
-      return models.ScheduleConfigOrder.deleteOne({ _id });
-    }
-  }
-
-  scheduleConfigOrderSchema.loadClass(ScheduleConfigOrder);
-
-  return scheduleConfigOrderSchema;
 };
 
 export interface IDeviceConfigModel extends Model<IDeviceConfigDocument> {
@@ -458,15 +401,14 @@ export const loadDeviceConfigClass = (models: IModels) => {
     // create
     public static async createDeviceConfig(doc: IDeviceConfig) {
       return models.DeviceConfigs.create({
-        ...doc
+        ...doc,
       });
     }
     // update
     public static async updateDeviceConfig(_id: string, doc: IDeviceConfig) {
-      await models.DeviceConfigs.updateOne(
-        { _id },
-        { $set: { ...doc } }
-      ).then(err => console.error(err));
+      await models.DeviceConfigs.updateOne({ _id }, { $set: { ...doc } }).then(
+        (err) => console.error(err)
+      );
     }
     // remove
     public static async removeDeviceConfig(_id: string) {
@@ -503,15 +445,14 @@ export const loadReportCheckClass = (models: IModels) => {
     // create
     public static async createReportCheck(doc: IReportCheck) {
       return models.ReportChecks.create({
-        ...doc
+        ...doc,
       });
     }
     // update
     public static async updateReportCheck(_id: string, doc: IReportCheck) {
-      await models.ReportChecks.updateOne(
-        { _id },
-        { $set: { ...doc } }
-      ).then(err => console.error(err));
+      await models.ReportChecks.updateOne({ _id }, { $set: { ...doc } }).then(
+        (err) => console.error(err)
+      );
     }
     // remove
     public static async removeReportCheck(_id: string) {
