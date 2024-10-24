@@ -203,7 +203,6 @@ export class AppProvider extends React.Component<
     saveLead({
       doc,
       browserInfo: connection.browserInfo,
-      integrationId: this.getIntegration()._id,
       formId: this.getForm()._id,
       userId: connection.setting.user_id,
       saveCallback: async (response: ISaveFormResponse) => {
