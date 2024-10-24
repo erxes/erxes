@@ -74,5 +74,11 @@
     "tus-js-client": "^3.1.1",
     "validator": "^13.5.2",
     "xlsx-populate": "^1.20.1"
+  },
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.25.7",
+    "@jest/globals": "^29.7.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5"
   }
 }
