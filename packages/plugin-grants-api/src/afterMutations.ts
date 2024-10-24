@@ -24,6 +24,8 @@ export const afterMutationHandlers = async (
     object: { _id, name }
   } = params;
 
+  //test
+
   if (action === 'update') {
     if (type.includes('cards')) {
       if (newData.stageId) {
