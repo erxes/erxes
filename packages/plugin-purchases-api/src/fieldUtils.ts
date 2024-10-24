@@ -6,8 +6,7 @@ import {
 } from "./constants";
 import {
   sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "./messageBroker";
 import { PROBABILITY } from "./models/definitions/constants";
 
@@ -17,7 +16,7 @@ const generateProductsOptions = async (
   label: string,
   type: string
 ) => {
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
     action: "products.find",
     data: {
@@ -49,7 +48,7 @@ const generateProductsCategoriesOptions = async (
   label: string,
   type: string
 ) => {
-  const productCategories = await sendProductsMessage({
+  const productCategories = await sendCoreMessage({
     subdomain,
     action: "categories.find",
     data: {

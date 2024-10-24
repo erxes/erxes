@@ -3,7 +3,6 @@ import fetch from "node-fetch";
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendProductsMessage,
   sendSalesMessage
 } from "../../../messageBroker";
 import { getPureDate } from "@erxes/api-utils/src";
@@ -44,7 +43,7 @@ const erkhetQueries = {
       const configBrandIds = Object.keys(configs);
       const codesByBrandId = {};
 
-      const products = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
         action: "products.find",
         data: { query: { _id: { $in: productIds } }, limit: productIds.length },

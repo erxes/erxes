@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import { generateModels } from "../../../connectionResolver";
-import { sendProductsMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 import { IRemainderDocument } from "../../../models/definitions/remainders";
 import { ISafeRemainderItemDocument } from "../../../models/definitions/safeRemainderItems";
 import { IUpdateRemaindersParams } from "./remainders";
@@ -22,7 +22,7 @@ export const updateLiveRemainders = async ({
 
   if (productCategoryId) {
     // Find all products in category by categoryId
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
       action: "products.find",
       data: {
@@ -110,7 +110,7 @@ export const updateLiveRemainders = async ({
 export const getProducts = async (subdomain, productId, productCategoryId) => {
   let products: any[] = [];
   if (productId) {
-    const product = await sendProductsMessage({
+    const product = await sendCoreMessage({
       subdomain,
       action: "products.find",
       data: { _id: productId },
@@ -120,7 +120,7 @@ export const getProducts = async (subdomain, productId, productCategoryId) => {
   }
 
   if (productCategoryId) {
-    products = await sendProductsMessage({
+    products = await sendCoreMessage({
       subdomain,
       action: "products.find",
       data: {

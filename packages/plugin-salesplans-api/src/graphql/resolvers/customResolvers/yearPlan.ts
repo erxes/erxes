@@ -1,5 +1,5 @@
 import { IContext } from "../../../connectionResolver";
-import { sendCoreMessage, sendProductsMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 import { IYearPlanDocument } from "../../../models/definitions/yearPlans";
 
 export default {
@@ -38,7 +38,7 @@ export default {
       return;
     }
 
-    return await sendProductsMessage({
+    return await sendCoreMessage({
       subdomain,
       action: "products.findOne",
       data: { _id: plan.productId },

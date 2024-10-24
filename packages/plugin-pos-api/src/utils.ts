@@ -11,7 +11,6 @@ import {
   sendLoyaltiesMessage,
   sendPosclientHealthCheck,
   sendPosclientMessage,
-  sendProductsMessage,
   sendSyncerkhetMessage
 } from "./messageBroker";
 import { IPosOrder, IPosOrderDocument } from "./models/definitions/orders";
@@ -28,7 +27,7 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
 };
 
 export const getChildCategories = async (subdomain: string, categoryIds) => {
-  const childs = await sendProductsMessage({
+  const childs = await sendCoreMessage({
     subdomain,
     action: "categories.withChilds",
     data: { ids: categoryIds },

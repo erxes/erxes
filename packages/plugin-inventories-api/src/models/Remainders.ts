@@ -1,7 +1,7 @@
 import { Model } from "mongoose";
 import * as _ from "underscore";
 import { IModels } from "../connectionResolver";
-import { sendProductsMessage } from "../messageBroker";
+import { sendCoreMessage } from "../messageBroker";
 import { getRatio } from "../utils";
 import {
   IRemainderCount,
@@ -77,7 +77,7 @@ export const loadRemainderClass = (models: IModels) => {
       let count = 0;
       for (const item of remainders) count += item.count;
 
-      const product: any = await sendProductsMessage({
+      const product: any = await sendCoreMessage({
         subdomain,
         action: "products.findOne",
         data: {
@@ -105,7 +105,7 @@ export const loadRemainderClass = (models: IModels) => {
       const query: any = { status: { $ne: "deleted" } };
 
       if (params.categoryId) {
-        const productCategories = await sendProductsMessage({
+        const productCategories = await sendCoreMessage({
           subdomain,
           action: "categories.withChilds",
           data: {
@@ -141,7 +141,7 @@ export const loadRemainderClass = (models: IModels) => {
       const limit = params.perPage || 20;
       const skip = params.page ? (params.page - 1) * limit : 0;
 
-      const products = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
         action: "products.find",
         data: {
@@ -153,7 +153,7 @@ export const loadRemainderClass = (models: IModels) => {
         isRPC: true
       });
 
-      const totalCount = await sendProductsMessage({
+      const totalCount = await sendCoreMessage({
         subdomain,
         action: "products.count",
         data: {
@@ -227,7 +227,7 @@ export const loadRemainderClass = (models: IModels) => {
       }
 
       if (productCategoryId) {
-        const products: any = await sendProductsMessage({
+        const products: any = await sendCoreMessage({
           subdomain,
           action: "products.find",
           data: {
@@ -290,7 +290,7 @@ export const loadRemainderClass = (models: IModels) => {
       }[] = [];
 
       const productIds = productsData.map(pd => pd.productId);
-      const products = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
         action: "products.find",
         data: { query: { _id: { $in: productIds } }, limit: productIds.length },

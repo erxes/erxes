@@ -1,7 +1,7 @@
 import { IOverallProductsData } from "./../../../models/definitions/overallWorks";
 import { getRatio } from "../../../utils/utils";
 import {
-  sendProductsMessage,
+  sendCoreMessage,
   sendInventoriesMessage
 } from "../../../messageBroker";
 
@@ -17,7 +17,7 @@ export const getProductsDataOnOwork = async (
 
   const productIds = productsData.map(np => np.productId);
 
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
     action: "products.find",
     data: { query: { _id: { $in: productIds } }, limit: productIds.length },

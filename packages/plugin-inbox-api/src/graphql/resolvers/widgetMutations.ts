@@ -34,8 +34,7 @@ import {
   sendAutomationsMessage,
   sendContactsMessage,
   sendCoreMessage,
-  sendIntegrationsMessage,
-  sendProductsMessage
+  sendIntegrationsMessage
 } from "../../messageBroker";
 import fetch from "node-fetch";
 

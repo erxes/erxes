@@ -1,8 +1,7 @@
 import fetch from "node-fetch";
 import {
   sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "../messageBroker";
 
 export const validConfigMsg = async config => {
@@ -102,7 +101,7 @@ export const getPostData = async (subdomain, config, deal, dateType = "") => {
 
   const productsIds = deal.productsData.map(item => item.productId);
 
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
     action: "products.find",
     data: {
@@ -345,7 +344,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = "") => {
 
   const productsIds = deal.productsData.map(item => item.productId);
 
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
     action: "products.find",
     data: {

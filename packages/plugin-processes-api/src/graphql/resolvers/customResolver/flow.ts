@@ -1,5 +1,5 @@
 import { IContext } from '../../../connectionResolver';
-import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 import { IFlow, IFlowDocument } from '../../../models/definitions/flows';
 import { getProductAndUoms } from './utils';
 
@@ -10,7 +10,7 @@ export default {
 
   async product(flow: IFlow, {}, { subdomain }: IContext) {
     return (
-      (await sendProductsMessage({
+      (await sendCoreMessage({
         subdomain,
         action: 'products.findOne',
         data: { _id: flow.productId || '' },

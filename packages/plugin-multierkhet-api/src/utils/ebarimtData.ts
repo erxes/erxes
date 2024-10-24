@@ -1,7 +1,6 @@
 import {
   sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "../messageBroker";
 import { getCompanyInfo, getCoreConfig, getSyncLogDoc } from "./utils";
 
@@ -153,7 +152,7 @@ export const getPostData = async (
 
   const productsIds = deal.productsData.map(item => item.productId);
 
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
     action: "products.find",
     data: {

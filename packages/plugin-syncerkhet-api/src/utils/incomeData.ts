@@ -1,7 +1,6 @@
 import {
   sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "../messageBroker";
 
 export const getIncomeData = async (
@@ -78,7 +77,7 @@ export const getIncomeData = async (
 
   const productsIds = purchase.productsData.map(item => item.productId);
 
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
     action: "products.find",
     data: {

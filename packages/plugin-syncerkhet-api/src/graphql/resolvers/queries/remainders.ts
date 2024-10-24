@@ -4,8 +4,7 @@ import fetch from "node-fetch";
 import {
   sendSalesMessage,
   sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "../../../messageBroker";
 import { getPureDate } from "@erxes/api-utils/src";
 
@@ -46,7 +45,7 @@ const erkhetQueries = {
         return [];
       }
 
-      const products = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
         action: "products.find",
         data: { query: { _id: { $in: productIds } }, limit: productIds.length },

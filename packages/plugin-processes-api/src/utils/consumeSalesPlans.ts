@@ -12,7 +12,7 @@ import {
 import { IModels } from '../connectionResolver';
 import { IWork } from '../models/definitions/works';
 import { JOB_TYPES } from '../models/definitions/constants';
-import { sendProductsMessage, sendSalesplansMessage } from '../messageBroker';
+import { sendCoreMessage, sendSalesplansMessage } from '../messageBroker';
 import { getRatio } from './utils';
 
 interface IListArgs {
@@ -156,7 +156,7 @@ export class consumeSalesPlans {
       );
     }
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain: this.subdomain,
       action: 'products.find',
       data: { query: { _id: { $in: cProductIds } } },
