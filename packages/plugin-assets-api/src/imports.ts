@@ -1,5 +1,5 @@
 import { generateModels } from './connectionResolver';
-import { sendContactsMessage, sendCoreMessage } from './messageBroker';
+import { sendCoreMessage } from './messageBroker';
 
 export const EXPORT_TYPES = [
   {
@@ -172,7 +172,7 @@ const generateAssetsMovementsDocs = async (subdomain, result, properties) => {
           break;
         case 'customerEmail':
           {
-            const customer = await sendContactsMessage({
+            const customer = await sendCoreMessage({
               subdomain,
               action: 'customers.find',
               data: {
@@ -187,7 +187,7 @@ const generateAssetsMovementsDocs = async (subdomain, result, properties) => {
           break;
         case 'companyEmail':
           {
-            const company = await sendContactsMessage({
+            const company = await sendCoreMessage({
               subdomain,
               action: 'companies.find',
               data: {
