@@ -16,6 +16,11 @@ interface IFormCodes {
   formId: string;
 }
 
+export interface IPdfAttachment {
+  pdf: string;
+  pages: string[];
+}
+
 export interface IArticle {
   title?: string;
   summary?: string;
@@ -31,6 +36,8 @@ export interface IArticle {
   scheduledDate?: Date;
 
   forms?: IFormCodes[];
+
+  pdfAttachment?: IPdfAttachment;
 }
 
 export interface IArticleDocument extends ICommonFields, IArticle, Document {
@@ -125,6 +132,8 @@ export const articleSchema = new Schema({
   publishedUserId:field({ type: String, optional: true, label: 'Published user'}),
 
   forms: field({ type: [formcodesSchema], label: 'Forms' }),
+
+  pdfAttachment: field({ type: Object, optional: true, label: 'PDF attachment' }),
   ...commonFields,
 });
 

@@ -14,13 +14,13 @@ import {
 } from './models/KnowledgeBase';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
-import { loadConfigClass } from './models/Configs';
+import { IConfigDocument, IConfigModel, loadConfigClass } from './models/Configs';
 
 export interface IModels {
   KnowledgeBaseArticles: IArticleModel;
   KnowledgeBaseCategories: ICategoryModel;
   KnowledgeBaseTopics: ITopicModel;
-  Configs: any;
+  Configs: IConfigModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -45,7 +45,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadTopicClass(models),
   );
 
-  models.Configs = db.model<any, any>(
+  models.Configs = db.model<IConfigDocument, IConfigModel>(
     'configs',
     loadConfigClass(models),
   );

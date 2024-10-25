@@ -1,16 +1,90 @@
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
 import { can, checkLogin } from '@erxes/api-utils/src/permissions';
 import redis from '@erxes/api-utils/src/redis';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 
+import * as AWS from 'aws-sdk';
 import * as telemetry from 'erxes-telemetry';
 import { NextFunction, Request, Response } from 'express';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
-import * as xlsx from 'xlsx-populate';
+import * as path from 'path';
+import * as tmp from 'tmp';
+import * as FormData from 'form-data';
 
-import { generateModels } from './connectionResolver';
+import { randomAlphanumeric } from '@erxes/api-utils/src/random';
+import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
+import { execSync } from 'child_process';
+import { generateModels, IModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
+import { ICFConfig } from './models/Configs';
+
+export const getValueAsString = async (
+  models: IModels,
+  name: string,
+  envKey: string,
+  defaultValue?: string
+) => {
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  if (VERSION && VERSION === 'saas') {
+    return getEnv({ name: envKey, defaultValue });
+  }
+
+  const entry = await models.Configs.getConfig(name);
+
+  if (entry.value) {
+    return entry.value.toString();
+  }
+
+  return entry.value;
+};
+
+export const getConfigs = async (models: IModels): Promise<any> => {
+  const configsMap = {};
+  const configs = await models.Configs.find({});
+
+  for (const config of configs) {
+    configsMap[config.code] = config.value;
+  }
+
+  return configsMap;
+};
+
+export const getConfig = async (models: IModels, code, defaultValue?) => {
+  const configs = await getConfigs(models);
+
+  if (!configs[code]) {
+    return defaultValue;
+  }
+
+  return configs[code];
+};
+
+const createCFR2 = async (configs: ICFConfig) => {
+  const { accessKeyId, secretAccessKey } = configs;
+  const CLOUDFLARE_ENDPOINT = `https://${configs.accountId}.r2.cloudflarestorage.com`;
+
+  if (!accessKeyId.length || !secretAccessKey.length) {
+    throw new Error('Cloudflare Credentials are not configured');
+  }
+
+  const options: {
+    endpoint?: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+    signatureVersion: 'v4';
+    region: string;
+  } = {
+    endpoint: CLOUDFLARE_ENDPOINT,
+    accessKeyId,
+    secretAccessKey,
+    signatureVersion: 'v4',
+    region: 'auto',
+  };
+
+  return new AWS.S3(options);
+};
 
 export default async function userMiddleware(
   req: Request & { user?: any },
@@ -37,9 +111,9 @@ export default async function userMiddleware(
       subdomain,
       action: 'users.findOne',
       data: {
-        _id: user._id
+        _id: user._id,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (!userDoc) {
@@ -91,7 +165,7 @@ export const checkPermission = async (
   const permissions = ['manageKnowledgeBase'];
 
   const actionName = permissions.find(
-    permission => permission === mutationName
+    (permission) => permission === mutationName
   );
 
   if (!actionName) {
@@ -111,19 +185,187 @@ export const checkPermission = async (
   return;
 };
 
-export const handleUpload = async (
-  subdomain: string,
-  user: any,
-  file: any,
-) => {
-  try {
-    const models = await generateModels(subdomain);
+export const handleUpload = async (subdomain: string, file: any) => {
+  console.log('handleUpload');
+  const filename = file.filename || file.name;
 
-  
+  const models: IModels = await generateModels(subdomain);
+  console.log('models');
+  const UPLOAD_SERVICE_TYPE = await getValueAsString(
+    models,
+    'UPLOAD_SERVICE_TYPE',
+    'UPLOAD_SERVICE_TYPE'
+  );
+
+  if (UPLOAD_SERVICE_TYPE !== 'CLOUDFLARE') {
+    throw new Error('Cloudflare not configured');
+  }
+
+  const configs = await models.Configs.getCloudflareConfigs();
+
+  try {
+    const pdfUrl = await uploadFileCloudflare(
+      { filename, path: file.path, type: file.type },
+      configs
+    );
+
+    const imagePaths = await convertPdfToPng(file.path);
+    console.log('image files ====', imagePaths);
+    const imageUrls: string[] = [];
+
+    if (!imagePaths.length) {
+      throw new Error('No images found');
+    }
+    if (configs.useCdn === 'true') {
+      for (const imagePath of imagePaths) {
+        const imageUrl = await uploadToCFImages(imagePath, configs);
+        imageUrls.push(imageUrl);
+      }
+    } else {
+      for (const imagePath of imagePaths) {
+        const imageUrl = await uploadFileCloudflare(imagePath, configs);
+        imageUrls.push(imageUrl);
+      }
+    }
+
     fs.unlinkSync(file.path);
 
-    return 'success';
+    return {
+      pdf: pdfUrl,
+      pages: imageUrls,
+    };
   } catch (error) {
-    return error.message;
+    throw error;
+  }
+};
+
+export const uploadFileCloudflare = async (
+  file: any,
+  configs: ICFConfig
+): Promise<string> => {
+  const fileObj = file;
+  console.log('*****', file);
+  const sanitizedFilename = sanitizeFilename(fileObj.filename);
+
+  if (path.extname(fileObj.filename).toLowerCase() === `.jfif`) {
+    fileObj.filename = fileObj.filename.replace('.jfif', '.jpeg');
+  }
+
+  // generate unique name
+  const fileName = `${randomAlphanumeric()}${sanitizedFilename}`;
+
+  // read fileObj
+  const buffer = await fs.readFileSync(fileObj.path);
+
+  // initialize r2
+  const r2 = await createCFR2(configs);
+
+  // upload to r2
+
+  try {
+    const response = await r2
+      .upload({
+        ContentType: fileObj.type,
+        Bucket: configs.bucket,
+        Key: fileName,
+        Body: buffer,
+        ACL: configs.isPublic === 'true' ? 'public-read' : undefined,
+      })
+      .promise();
+    return configs.isPublic === 'true' ? response.Location : fileName;
+  } catch (err) {
+    throw new Error('Failed to upload to R2: ' + err.message);
+  }
+};
+
+const uploadToCFImages = async (file: any, configs: ICFConfig) => {
+  const sanitizedFilename = sanitizeFilename(file.filename);
+  const { isPublic, accountId, apiToken, bucket } = configs;
+  const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/images/v1`;
+
+  let fileName = `${randomAlphanumeric()}${sanitizedFilename}`;
+  const extension = fileName.split('.').pop();
+
+  if (extension && ['JPEG', 'JPG', 'PNG'].includes(extension)) {
+    const baseName = fileName.slice(0, -(extension.length + 1));
+    fileName = `${baseName}.${extension.toLowerCase()}`;
+  }
+
+  if (!fs.existsSync(file.path)) {
+    console.error(`File not found: ${file.path}`);
+    throw new Error('File not found');
+  }
+
+  const formData = new FormData();
+
+  const buffer = await fs.readFileSync(file.path);
+
+  formData.append('file', new Blob([buffer]),fileName);
+  // formData.append('file', fs.createReadStream(file.path));
+  formData.append('id', `${bucket}/${fileName}`);
+
+  const headers = {
+    Authorization: `Bearer ${apiToken}`,
+  };
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+
+  const data: any = await response.json();
+  console.log('Response from Cloudflare:', data);
+
+  if (!data.success) {
+    throw new Error('Error uploading file to Cloudflare Images');
+  }
+
+  if (data.result.variants.length === 0) {
+    throw new Error('Error uploading file to Cloudflare Images');
+  }
+
+  return isPublic && isPublic !== 'false'
+    ? data.result.variants[0]
+    : `${bucket}/${fileName}`;
+};
+
+const convertPdfToPng = async (pdfFilePath: string) => {
+  const tmpDir = tmp.dirSync({ unsafeCleanup: true });
+
+  const options = {
+    format: 'jpeg', // You can also set this to 'png'
+    out_dir: tmpDir.name, // Directory to save the images
+    out_prefix: 'page', // Prefix for the generated image filenames
+    page: null, // Convert all pages
+  };
+
+  try {
+    // Convert PDF to images (Poppler automatically handles this)
+    execSync(
+      `pdftoppm -jpeg -r 150 ${pdfFilePath} ${path.join(
+        options.out_dir,
+        options.out_prefix
+      )}`
+    );
+    // Collect all images from the directory
+    const images = fs.readdirSync(tmpDir.name).map((fileName) => ({
+      type: 'image/jpeg',
+      filename: fileName,
+      originalname: fileName,
+      encoding: '7bit',
+      path: `${tmpDir.name}/${fileName}`,
+      size: fs.statSync(`${tmpDir.name}/${fileName}`).size,
+      mimetype: 'image/jpeg',
+      destination: tmpDir.name,
+    }));
+
+    // Cleanup temporary directory after use
+    tmp.setGracefulCleanup();
+
+    return images;
+  } catch (error) {
+    console.error('Error during PDF to image conversion:', error);
+    throw error;
   }
 };

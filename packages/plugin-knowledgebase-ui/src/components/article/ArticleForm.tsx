@@ -1,5 +1,5 @@
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
-import { FlexRow, Forms, ReactionItem } from './styles';
+import { FlexRow, Forms, ReactionItem, UploadBtn } from './styles';
 import {
   IArticle,
   IErxesForm,
@@ -14,7 +14,7 @@ import {
 import Select, { OnChangeValue } from 'react-select';
 import Datetime from '@nateradebaugh/react-datetime';
 import { __, extractAttachment } from 'coreui/utils';
-
+import Alert from '@erxes/ui/src/utils/Alert';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FILE_MIME_TYPES } from '@erxes/ui-settings/src/general/constants';
@@ -27,6 +27,8 @@ import React from 'react';
 import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { articleReactions } from '../../icons.constant';
+import { Formgroup } from '@erxes/ui/src/components/form/styles';
+import { getEnv } from '@erxes/ui/src/utils/core';
 
 type Props = {
   article: IArticle;
@@ -69,7 +71,8 @@ class ArticleForm extends React.Component<Props, State> {
       attachments,
       isPrivate: article.isPrivate || false,
       isScheduled: article.status === 'scheduled' || false,
-      scheduledDate: article.status === 'scheduled' ? article.scheduledDate : undefined,
+      scheduledDate:
+        article.status === 'scheduled' ? article.scheduledDate : undefined,
     };
   }
 
@@ -186,6 +189,38 @@ class ArticleForm extends React.Component<Props, State> {
     erxesForm[key] = value;
 
     this.setState({ erxesForms });
+  };
+
+  handlePdfUpload = ({ target }) => {
+    const files = target.files;
+    const file = files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const { REACT_APP_API_URL } = getEnv();
+
+    fetch(`${REACT_APP_API_URL}/pl:knowledgebase/upload-pdf`, {
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (!res.error) {
+          Alert.success('Successfully uploaded');
+          // props.successCallback();
+        } else {
+          Alert.error(res.error);
+        }
+      })
+
+      .catch((error) => {
+        Alert.error(error.message);
+      });
   };
 
   addErxesForm = () => {
@@ -376,7 +411,12 @@ class ArticleForm extends React.Component<Props, State> {
         </FormGroup>
         <FormGroup>
           <ControlLabel required={true}>{__('Code')}</ControlLabel>
-          <FormControl {...formProps} name='code' defaultValue={object.code} required={true} />
+          <FormControl
+            {...formProps}
+            name='code'
+            defaultValue={object.code}
+            required={true}
+          />
         </FormGroup>
 
         <FormGroup>
@@ -437,7 +477,7 @@ class ArticleForm extends React.Component<Props, State> {
                   if (e.target.value === 'scheduled') {
                     this.setState({
                       isScheduled: true,
-                      scheduledDate: new Date(Date.now() + 1000 * 60 * 60)
+                      scheduledDate: new Date(Date.now() + 1000 * 60 * 60),
                     });
                   } else {
                     this.setState({
@@ -501,6 +541,21 @@ class ArticleForm extends React.Component<Props, State> {
             single={true}
           />
         </FormGroup>
+
+        <Formgroup>
+          <ControlLabel>{__('PDF')}</ControlLabel>
+          <UploadBtn>
+            <label>
+              {__('Upload a PDF')}
+              <input
+                type='file'
+                multiple={false}
+                onChange={this.handlePdfUpload}
+                accept={'application/pdf'}
+              />
+            </label>
+          </UploadBtn>
+        </Formgroup>
 
         <FlexContent>
           <FlexItem count={2} hasSpace={true}>

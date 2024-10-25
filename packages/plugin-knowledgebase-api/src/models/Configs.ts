@@ -1,31 +1,57 @@
-import { Document, Model, Schema } from "mongoose";
-import { IModels } from "../connectionResolver";
-import { getValueAsString } from "../utils";
+import { Document, Model, Schema } from 'mongoose';
+import { IModels } from '../connectionResolver';
+import { getValueAsString } from '../utils';
 
 export interface IConfig {
   code: string;
   value: string;
 }
 
-export interface ISESConfig {
+// const CLOUDFLARE_ACCOUNT_ID = await getConfig(
+//     "CLOUDFLARE_ACCOUNT_ID",
+//     "",
+//     models
+//   );
+//   const CLOUDFLARE_ACCESS_KEY_ID = await getConfig(
+//     "CLOUDFLARE_ACCESS_KEY_ID",
+//     "",
+//     models
+//   );
+//   const CLOUDFLARE_SECRET_ACCESS_KEY = await getConfig(
+//     "CLOUDFLARE_SECRET_ACCESS_KEY",
+//     "",
+//     models
+//   );
+//   const CLOUDFLARE_ENDPOINT = `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`;
+
+//   if (!CLOUDFLARE_ACCESS_KEY_ID || !CLOUDFLARE_SECRET_ACCESS_KEY) {
+//     throw new Error("Cloudflare Credentials are not configured");
+//   }
+
+export interface ICFConfig {
+  accountId;
   accessKeyId: string;
   region: string;
   secretAccessKey: string;
+  bucket: string;
+  useCdn: string;
+  isPublic: string;
+  apiToken: string;
 }
 export interface IConfigDocument extends IConfig, Document {
   _id: string;
 }
 
 export const configsSchema = new Schema({
-  code: { type: String, label: "Code", unique: true },
-  value: { type: String, label: "Value" }
+  code: { type: String, label: 'Code', unique: true },
+  value: { type: String, label: 'Value' },
 });
 
 export interface IConfigModel extends Model<IConfigDocument> {
   getConfig(code: string): Promise<IConfigDocument>;
   updateConfigs(configsMap): Promise<void>;
   createOrUpdateConfig({ code, value }: IConfig): IConfigDocument;
-  getCloudflareConfigs(): Promise<ISESConfig>;
+  getCloudflareConfigs(): Promise<ICFConfig>;
 }
 
 export const loadConfigClass = (models: IModels) => {
@@ -37,7 +63,7 @@ export const loadConfigClass = (models: IModels) => {
       const config = await models.Configs.findOne({ code });
 
       if (!config) {
-        return { value: "" };
+        return { value: '' };
       }
 
       return config;
@@ -48,7 +74,7 @@ export const loadConfigClass = (models: IModels) => {
      */
     public static async createOrUpdateConfig({
       code,
-      value
+      value,
     }: {
       code: string;
       value: string[];
@@ -86,29 +112,57 @@ export const loadConfigClass = (models: IModels) => {
      * Get a Config
      */
     public static async getCloudflareConfigs() {
+      const accountId = await getValueAsString(
+        models,
+        'CLOUDFLARE_ACCOUNT_ID',
+        'CLOUDFLARE_ACCOUNT_ID'
+      );
+
       const accessKeyId = await getValueAsString(
         models,
-        "accessKeyId",
-        "AWS_SES_ACCESS_KEY_ID"
+        'CLOUDFLARE_ACCESS_KEY_ID',
+        'CLOUDFLARE_ACCESS_KEY_ID'
       );
+
       const secretAccessKey = await getValueAsString(
         models,
-        "secretAccessKey",
-        "AWS_SES_SECRET_ACCESS_KEY"
+        'CLOUDFLARE_SECRET_ACCESS_KEY',
+        'CLOUDFLARE_SECRET_ACCESS_KEY'
       );
-      const region = await getValueAsString(models, "region", "AWS_REGION");
-      const unverifiedEmailsLimit = await getValueAsString(
+
+      const bucket = await getValueAsString(
         models,
-        "unverifiedEmailsLimit",
-        "EMAILS_LIMIT",
-        "100"
+        'CLOUDFLARE_BUCKET_NAME',
+        'CLOUDFLARE_BUCKET_NAME'
+      );
+
+      const useCdn = await getValueAsString(
+        models,
+        'CLOUDFLARE_USE_CDN',
+        'CLOUDFLARE_USE_CDN'
+      );
+
+      const isPublic = await getValueAsString(
+        models,
+        'FILE_SYSTEM_PUBLIC',
+        'FILE_SYSTEM_PUBLIC'
+      );
+
+      const apiToken = await getValueAsString(
+        models,
+        'CLOUDFLARE_API_TOKEN',
+        'CLOUDFLARE_API_TOKEN'
       );
 
       return {
+        accountId,
         accessKeyId,
+        region: 'auto',
         secretAccessKey,
-        region,
-        unverifiedEmailsLimit
+        bucket,
+        useCdn,
+        isPublic,
+        apiToken
       };
     }
   }
