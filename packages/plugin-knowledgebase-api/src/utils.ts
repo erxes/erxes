@@ -340,7 +340,7 @@ const convertPdfToPng = async (pdfFilePath: string, directory: string) => {
       )}`
     );
     // Collect all images from the directory
-    const images = fs.readdirSync(directory).map((fileName) => ({
+    return fs.readdirSync(directory).map((fileName) => ({
       type: 'image/jpeg',
       filename: fileName,
       originalname: fileName,
@@ -350,8 +350,6 @@ const convertPdfToPng = async (pdfFilePath: string, directory: string) => {
       mimetype: 'image/jpeg',
       destination: directory,
     }));
-
-    return images;
   } catch (error) {
     console.error('Error during PDF to image conversion:', error);
     throw error;
