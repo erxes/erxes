@@ -25,6 +25,16 @@ export const types = `
     formId: String
   }
 
+  type PdfAttachment {
+    pdf: Attachment
+    pages: [Attachment]
+  }
+
+  input PdfAttachmentInput {
+    pdf: AttachmentInput
+    pages: [AttachmentInput]
+  }
+
   type KnowledgeBaseArticle @key(fields: "_id") {
     _id: String!
     code: String
@@ -45,6 +55,7 @@ export const types = `
     viewCount: Int
     attachments: [Attachment]
     image: Attachment
+    pdfAttachment: PdfAttachment
     publishedUserId:String
     publishedUser:User
     scheduledDate: Date
@@ -65,6 +76,7 @@ export const types = `
     categoryId: String
     image: AttachmentInput
     attachments: [AttachmentInput]
+    pdfAttachment: PdfAttachmentInput
     scheduledDate: Date
     forms: [FormCodeInput]
   }
