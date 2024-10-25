@@ -86,17 +86,6 @@ export const loadConfigClass = (models: IModels) => {
      * Get a Config
      */
     public static async getSESConfigs() {
-
-      const UPLOAD_SERVICE_TYPE = await getValueAsString(
-        models,
-        "UPLOAD_SERVICE_TYPE",
-        "UPLOAD_SERVICE_TYPE",
-      );
-
-      if (UPLOAD_SERVICE_TYPE !== "CLOUDFLARE") {
-        return {};
-      }
-
       const accessKeyId = await getValueAsString(
         models,
         "accessKeyId",
