@@ -4,10 +4,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { __, getEnv } from '@erxes/ui/src/utils';
 import Alert from '@erxes/ui/src/utils/Alert';
 import React from 'react';
-import {
-  AttachmentContainer,
-  UploadBtn
-} from './styles';
+import { AttachmentContainer, UploadBtn } from './styles';
 
 type Props = {
   attachment?: IPdfAttachment;
@@ -15,12 +12,11 @@ type Props = {
 };
 
 const PdfUploader = (props: Props) => {
-
   const [isUploading, setIsUploading] = React.useState(false);
   const { attachment, onChange } = props;
 
   const handlePdfUpload = async ({ target }) => {
-    const {files} = target;
+    const { files } = target;
     const file = files[0];
 
     const formData = new FormData();
@@ -75,66 +71,57 @@ const PdfUploader = (props: Props) => {
     }
   };
 
-  const deleteHandler = (params: {
-    fileName: string;
-    url?: string;
-    afterUpload: ({ status }: { status: string }) => any;
-  }) => {
+  const deleteFile = async (params: { fileName: string; url?: string }) => {
     const { REACT_APP_API_URL } = getEnv();
 
     const url = `${REACT_APP_API_URL}/pl:core/delete-file`;
 
-    const { fileName, afterUpload } = params;
+    const { fileName } = params;
 
-    fetch(url, {
+    const response = await fetch(url, {
       method: 'post',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
       },
       body: `fileName=${fileName}`,
       credentials: 'include',
-    }).then((response) => {
-      response
-        .text()
-        .then((text) => {
-          if (!response.ok) {
-            return afterUpload({
-              status: text,
-            });
-          }
-
-          return afterUpload({ status: 'ok' });
-        })
-        .catch((error) => {
-          Alert.error(error.message);
-        });
     });
+
+    const text = await response.text();
+    if (!response.ok) {
+      throw new Error(text);
+    }
+    return text;
   };
-  const handleDeleteAttachment = () => {
+  const handleDeleteAttachment = async () => {
     if (!attachment) {
       return;
     }
-    // delete every page
-    attachment.pages.forEach((page) => {
-      deleteHandler({
-        fileName: page.name,
-        url: page.url,
-        afterUpload: () => {
-          deleteHandler({
-            fileName: attachment.pdf.name,
-            url: attachment.pdf.url,
-            afterUpload: ({ status }) => {
-              if (status === 'ok') {
-                onChange(undefined); // Clear the attachment
-                Alert.success('PDF attachment removed');
-              } else {
-                Alert.error(status);
-              }
-            },
-          });
-        },
+    setIsUploading(true);
+    try {
+      // Delete all pages concurrently
+      await Promise.all(
+        attachment.pages.map((page) =>
+          deleteFile({
+            fileName: page.name,
+            url: page.url,
+          })
+        )
+      );
+
+      // Delete the PDF file
+      await deleteFile({
+        fileName: attachment.pdf.name,
+        url: attachment.pdf.url,
       });
-    });
+
+      onChange(undefined);
+      Alert.success('PDF attachment removed');
+    } catch (error) {
+      Alert.error(`Deletion failed: ${error.message}`);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   if (attachment) {
