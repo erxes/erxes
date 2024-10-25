@@ -1,34 +1,34 @@
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
-import { FlexRow, Forms, ReactionItem, UploadBtn } from './styles';
 import {
   IArticle,
   IErxesForm,
+  IPdfAttachment,
   ITopic,
 } from '@erxes/ui-knowledgeBase/src/types';
+import { FILE_MIME_TYPES } from '@erxes/ui-settings/src/general/constants';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Formgroup } from '@erxes/ui/src/components/form/styles';
+import Icon from '@erxes/ui/src/components/Icon';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
   IOption,
 } from '@erxes/ui/src/types';
-import Select, { OnChangeValue } from 'react-select';
 import Datetime from '@nateradebaugh/react-datetime';
 import { __, extractAttachment } from 'coreui/utils';
-import Alert from '@erxes/ui/src/utils/Alert';
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FILE_MIME_TYPES } from '@erxes/ui-settings/src/general/constants';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
-import Uploader from '@erxes/ui/src/components/Uploader';
+import Select, { OnChangeValue } from 'react-select';
 import { articleReactions } from '../../icons.constant';
-import { Formgroup } from '@erxes/ui/src/components/form/styles';
-import { getEnv } from '@erxes/ui/src/utils/core';
+import PdfUploader from './PdfUploader';
+import { FlexRow, Forms, ReactionItem } from './styles';
 
 type Props = {
   article: IArticle;
@@ -46,6 +46,7 @@ type State = {
   categoryId: string;
   scheduledDate?: Date;
   attachments: IAttachment[];
+  pdfAttachment?: IPdfAttachment;
   image: IAttachment | null;
   erxesForms: IErxesForm[];
   isPrivate: boolean;
@@ -73,6 +74,7 @@ class ArticleForm extends React.Component<Props, State> {
       isScheduled: article.status === 'scheduled' || false,
       scheduledDate:
         article.status === 'scheduled' ? article.scheduledDate : undefined,
+      pdfAttachment: article.pdfAttachment || undefined,
     };
   }
 
@@ -189,38 +191,6 @@ class ArticleForm extends React.Component<Props, State> {
     erxesForm[key] = value;
 
     this.setState({ erxesForms });
-  };
-
-  handlePdfUpload = ({ target }) => {
-    const files = target.files;
-    const file = files[0];
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const { REACT_APP_API_URL } = getEnv();
-
-    fetch(`${REACT_APP_API_URL}/pl:knowledgebase/upload-pdf`, {
-      method: 'POST',
-      body: formData,
-      credentials: 'include',
-      headers: {
-        Accept: 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        if (!res.error) {
-          Alert.success('Successfully uploaded');
-          // props.successCallback();
-        } else {
-          Alert.error(res.error);
-        }
-      })
-
-      .catch((error) => {
-        Alert.error(error.message);
-      });
   };
 
   addErxesForm = () => {
@@ -544,17 +514,12 @@ class ArticleForm extends React.Component<Props, State> {
 
         <Formgroup>
           <ControlLabel>{__('PDF')}</ControlLabel>
-          <UploadBtn>
-            <label>
-              {__('Upload a PDF')}
-              <input
-                type='file'
-                multiple={false}
-                onChange={this.handlePdfUpload}
-                accept={'application/pdf'}
-              />
-            </label>
-          </UploadBtn>
+          <PdfUploader
+            attachment={this.state.pdfAttachment}
+            onChange={(pdf: any) => {
+              console.log(pdf);
+            }}
+          />
         </Formgroup>
 
         <FlexContent>

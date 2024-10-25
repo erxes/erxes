@@ -1,4 +1,4 @@
-import { attachmentSchema } from '@erxes/api-utils/src/types';
+import { attachmentSchema, IAttachment } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 import { PUBLISH_STATUSES } from './constants';
 import { field, schemaWrapper } from './utils';
@@ -17,8 +17,8 @@ interface IFormCodes {
 }
 
 export interface IPdfAttachment {
-  pdf: string;
-  pages: string[];
+  pdf: IAttachment;
+  pages: IAttachment[];
 }
 
 export interface IArticle {

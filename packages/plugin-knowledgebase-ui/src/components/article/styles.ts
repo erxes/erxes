@@ -138,6 +138,24 @@ const UploadBtn = styled.div`
   }
 `;
 
+const AttachmentContainer = styled.div`
+  margin-top: 20px;
+`;
+
+const PageImage = styled.img`
+  width: 100px; // Set appropriate width
+  height: auto; // Maintain aspect ratio
+  margin-right: 10px; // Space between images
+`;
+
+const DeleteButton = styled.button`
+  background-color: red; // Change to your desired color
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+`;
+
 export {
   RowArticle,
   ArticleTitle,
@@ -149,5 +167,8 @@ export {
   FillContent,
   FlexRow,
   Forms,
-  UploadBtn
+  UploadBtn,
+  AttachmentContainer,
+  PageImage,
+  DeleteButton,
 };

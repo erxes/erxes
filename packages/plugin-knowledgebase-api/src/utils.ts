@@ -11,6 +11,7 @@ import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 import * as tmp from 'tmp';
 import * as FormData from 'form-data';
+import fetch from "node-fetch";
 
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
@@ -209,7 +210,8 @@ export const handleUpload = async (subdomain: string, file: any) => {
       configs
     );
 
-    const imagePaths = await convertPdfToPng(file.path);
+    const tmpDir = tmp.dirSync({ unsafeCleanup: true });
+    const imagePaths = await convertPdfToPng(file.path, tmpDir.name);
     console.log('image files ====', imagePaths);
     const imageUrls: string[] = [];
 
@@ -229,6 +231,7 @@ export const handleUpload = async (subdomain: string, file: any) => {
     }
 
     fs.unlinkSync(file.path);
+    tmp.setGracefulCleanup();
 
     return {
       pdf: pdfUrl,
@@ -298,10 +301,11 @@ const uploadToCFImages = async (file: any, configs: ICFConfig) => {
 
   const formData = new FormData();
 
-  const buffer = await fs.readFileSync(file.path);
+  // const buffer = await fs.readFileSync(file.path);
 
-  formData.append('file', new Blob([buffer]),fileName);
-  // formData.append('file', fs.createReadStream(file.path));
+  // formData.append('file', new Blob([buffer]),fileName);
+  formData.append("file", fs.createReadStream(file.path));
+
   formData.append('id', `${bucket}/${fileName}`);
 
   const headers = {
@@ -330,12 +334,11 @@ const uploadToCFImages = async (file: any, configs: ICFConfig) => {
     : `${bucket}/${fileName}`;
 };
 
-const convertPdfToPng = async (pdfFilePath: string) => {
-  const tmpDir = tmp.dirSync({ unsafeCleanup: true });
+const convertPdfToPng = async (pdfFilePath: string, directory: string) => {
 
   const options = {
     format: 'jpeg', // You can also set this to 'png'
-    out_dir: tmpDir.name, // Directory to save the images
+    out_dir: directory, // Directory to save the images
     out_prefix: 'page', // Prefix for the generated image filenames
     page: null, // Convert all pages
   };
@@ -349,19 +352,16 @@ const convertPdfToPng = async (pdfFilePath: string) => {
       )}`
     );
     // Collect all images from the directory
-    const images = fs.readdirSync(tmpDir.name).map((fileName) => ({
+    const images = fs.readdirSync(directory).map((fileName) => ({
       type: 'image/jpeg',
       filename: fileName,
       originalname: fileName,
       encoding: '7bit',
-      path: `${tmpDir.name}/${fileName}`,
-      size: fs.statSync(`${tmpDir.name}/${fileName}`).size,
+      path: `${directory}/${fileName}`,
+      size: fs.statSync(`${directory}/${fileName}`).size,
       mimetype: 'image/jpeg',
-      destination: tmpDir.name,
+      destination: directory,
     }));
-
-    // Cleanup temporary directory after use
-    tmp.setGracefulCleanup();
 
     return images;
   } catch (error) {
