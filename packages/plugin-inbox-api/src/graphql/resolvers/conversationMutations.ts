@@ -12,7 +12,6 @@ import { IConversationDocument } from "../../models/definitions/conversations";
 import { AUTO_BOT_MESSAGES } from "../../models/definitions/constants";
 import { debugError } from "@erxes/api-utils/src/debuggers";
 import {
-  sendContactsMessage,
   sendCoreMessage,
   sendNotificationsMessage,
   sendCommonMessage,
@@ -317,7 +316,7 @@ const conversationMutations = {
 
     const kind = integration.kind;
 
-    const customer = await sendContactsMessage({
+    const customer = await sendCoreMessage({
       subdomain,
       action: "customers.findOne",
       data: {
