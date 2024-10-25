@@ -356,7 +356,7 @@ const GeneralSettings = (props: Props) => {
             <FormControl
               name="productType"
               componentclass="select"
-              value={contractType.productType}
+              value={state.productType}
               onChange={e => setState({ ...state, productType: (e.target as any).value })}
             >
               {["private", "public"].map((typeName) => (
