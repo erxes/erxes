@@ -88,7 +88,7 @@ export default {
         try {
           await checkPermission(subdomain, req.user, 'manageKnowledgeBase');
 
-          const file = req.file;
+          const {file} = req;
 
           if (!file) {
             return res.status(200).json({ error: 'File is required' });
