@@ -94,8 +94,6 @@ export default {
             return res.status(200).json({ error: 'File is required' });
           }
 
-          console.log(file);
-
           try {
             const response = await handleUpload(subdomain, file);
 
