@@ -11,7 +11,7 @@ import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 import * as tmp from 'tmp';
 import * as FormData from 'form-data';
-import fetch from "node-fetch";
+import fetch from 'node-fetch';
 
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
@@ -187,60 +187,53 @@ export const checkPermission = async (
 };
 
 export const handleUpload = async (subdomain: string, file: any) => {
+  const models = await generateModels(subdomain);
+  await validateCloudflareConfig(models);
+  const configs = await models.Configs.getCloudflareConfigs();
 
-  const filename = file.filename || file.name;
+  const tmpDir = tmp.dirSync({ unsafeCleanup: true });
+  try {
+    const pdfUrl = await uploadFileCloudflare(file, configs);
+    const imageUrls = await convertAndUploadImages(
+      file.path,
+      tmpDir.name,
+      configs
+    );
 
-  const models: IModels = await generateModels(subdomain);
+    return { pdf: pdfUrl, pages: imageUrls };
+  } finally {
+    fs.unlinkSync(file.path);
+    tmp.setGracefulCleanup();
+  }
+};
 
-  const UPLOAD_SERVICE_TYPE = await getValueAsString(
+async function validateCloudflareConfig(models: IModels) {
+  const serviceType = await getValueAsString(
     models,
     'UPLOAD_SERVICE_TYPE',
     'UPLOAD_SERVICE_TYPE'
   );
-
-  if (UPLOAD_SERVICE_TYPE !== 'CLOUDFLARE') {
+  if (serviceType !== 'CLOUDFLARE') {
     throw new Error('Cloudflare not configured');
   }
+}
 
-  const configs = await models.Configs.getCloudflareConfigs();
-
-  try {
-    const pdfUrl = await uploadFileCloudflare(
-      { filename, path: file.path, type: file.type },
-      configs
-    );
-
-    const tmpDir = tmp.dirSync({ unsafeCleanup: true });
-    const imagePaths = await convertPdfToPng(file.path, tmpDir.name);
-
-    const imageUrls: string[] = [];
-
-    if (!imagePaths.length) {
-      throw new Error('No images found');
-    }
-    if (configs.useCdn === 'true') {
-      for (const imagePath of imagePaths) {
-        const imageUrl = await uploadToCFImages(imagePath, configs);
-        imageUrls.push(imageUrl);
-      }
-    } else {
-      for (const imagePath of imagePaths) {
-        const imageUrl = await uploadFileCloudflare(imagePath, configs);
-        imageUrls.push(imageUrl);
-      }
-    }
-
-    fs.unlinkSync(file.path);
-    tmp.setGracefulCleanup();
-
-    return {
-      pdf: pdfUrl,
-      pages: imageUrls,
-    };
-  } catch (error) {
-    throw error;
+async function convertAndUploadImages(
+  pdfPath: string,
+  tmpDir: string,
+  configs: ICFConfig
+) {
+  const imagePaths = await convertPdfToPng(pdfPath, tmpDir);
+  if (!imagePaths.length) {
+    throw new Error('No images found');
   }
-};
+
+  const uploadImage =
+    configs.useCdn === 'true' ? uploadToCFImages : uploadFileCloudflare;
+  return Promise.all(
+    imagePaths.map((imagePath) => uploadImage(imagePath, configs))
+  );
+}
 
 export const uploadFileCloudflare = async (
   file: any,
@@ -301,10 +294,7 @@ const uploadToCFImages = async (file: any, configs: ICFConfig) => {
 
   const formData = new FormData();
 
-  // const buffer = await fs.readFileSync(file.path);
-
-  // formData.append('file', new Blob([buffer]),fileName);
-  formData.append("file", fs.createReadStream(file.path));
+  formData.append('file', fs.createReadStream(file.path));
 
   formData.append('id', `${bucket}/${fileName}`);
 
@@ -334,12 +324,11 @@ const uploadToCFImages = async (file: any, configs: ICFConfig) => {
 };
 
 const convertPdfToPng = async (pdfFilePath: string, directory: string) => {
-
   const options = {
-    format: 'jpeg', // You can also set this to 'png'
-    out_dir: directory, // Directory to save the images
-    out_prefix: 'page', // Prefix for the generated image filenames
-    page: null, // Convert all pages
+    format: 'jpeg',
+    out_dir: directory, 
+    out_prefix: 'page', 
+    page: null,
   };
 
   try {
