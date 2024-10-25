@@ -20,7 +20,7 @@ const PdfUploader = (props: Props) => {
   const { attachment, onChange } = props;
 
   const handlePdfUpload = async ({ target }) => {
-    const files = target.files;
+    const {files} = target;
     const file = files[0];
 
     const formData = new FormData();
