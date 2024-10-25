@@ -15,7 +15,7 @@ type Props = {
 };
 
 const PdfUploader = (props: Props) => {
-  console.log('PdfUploader', props);
+
   const [isUploading, setIsUploading] = React.useState(false);
   const { attachment, onChange } = props;
 
@@ -48,8 +48,6 @@ const PdfUploader = (props: Props) => {
       );
 
       const result = await res.json();
-
-      console.log(result);
 
       if (!result.error) {
         Alert.success('Successfully uploaded');
