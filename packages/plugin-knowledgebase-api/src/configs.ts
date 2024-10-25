@@ -105,8 +105,8 @@ export default {
           }
         } catch (e) {
           console.error(e.message);
-          // next(e);
-          return res.status(200).json({ error: e.message });
+      
+          return res.status(200).json({ error: 'Something went wrong' });
         }
       }
     );
