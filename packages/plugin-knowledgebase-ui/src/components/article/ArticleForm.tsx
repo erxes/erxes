@@ -46,7 +46,7 @@ type State = {
   categoryId: string;
   scheduledDate?: Date;
   attachments: IAttachment[];
-  pdfAttachment?: IPdfAttachment;
+  pdfAttachment?: IPdfAttachment | undefined;
   image: IAttachment | null;
   erxesForms: IErxesForm[];
   isPrivate: boolean;
@@ -114,6 +114,7 @@ class ArticleForm extends React.Component<Props, State> {
       erxesForms,
       isPrivate,
       scheduledDate,
+      pdfAttachment,
     } = this.state;
 
     const finalValues = values;
@@ -142,6 +143,7 @@ class ArticleForm extends React.Component<Props, State> {
         categoryId,
         image,
         scheduledDate,
+        pdfAttachment,
       },
     };
   };
@@ -516,8 +518,8 @@ class ArticleForm extends React.Component<Props, State> {
           <ControlLabel>{__('PDF')}</ControlLabel>
           <PdfUploader
             attachment={this.state.pdfAttachment}
-            onChange={(pdf: any) => {
-              console.log(pdf);
+            onChange={(attachment?: IPdfAttachment) => {
+              return this.setState({ pdfAttachment: attachment });
             }}
           />
         </Formgroup>
