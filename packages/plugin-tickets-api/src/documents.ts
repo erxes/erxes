@@ -1,8 +1,7 @@
 import { generateModels } from "./connectionResolver";
 import {
   sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "./messageBroker";
 import * as _ from "lodash";
 
@@ -286,7 +285,7 @@ export default {
           continue;
         }
 
-        const product = await sendProductsMessage({
+        const product = await sendCoreMessage({
           subdomain,
           action: "products.findOne",
           data: { _id: pd.productId },

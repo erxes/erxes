@@ -6,7 +6,7 @@ import type {
 
 export const setupMessageConsumers = async () => {};
 
-export const sendProductsMessage = async (
+export const sendCoreMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({

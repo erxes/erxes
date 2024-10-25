@@ -1,9 +1,9 @@
 import { IContext } from '../../../connectionResolver';
-import { sendProductsMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 
 export default {
   async category(remainder: any, _, { subdomain }: IContext) {
-    return sendProductsMessage({
+    return sendCoreMessage({
       subdomain,
       action: 'categories.findOne',
       data: {

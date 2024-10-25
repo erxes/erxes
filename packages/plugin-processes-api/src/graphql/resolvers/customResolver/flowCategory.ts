@@ -1,10 +1,10 @@
 import { FLOW_STATUSES } from "../../../models/definitions/constants";
 import { IContext } from "../../../connectionResolver";
-import { sendProductsMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 
 export default {
   async __resolveReference({ _id }, { subdomain }: IContext) {
-    return sendProductsMessage({
+    return sendCoreMessage({
       subdomain,
       action: "products.findOne",
       data: { _id },
@@ -17,7 +17,7 @@ export default {
   },
 
   async flowCount(category: any, {}, { models, subdomain }: IContext) {
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
       action: "products.find",
       data: {

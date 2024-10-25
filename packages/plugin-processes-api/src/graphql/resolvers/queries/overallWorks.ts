@@ -4,7 +4,7 @@ import {
   getToday,
   getTomorrow,
 } from '@erxes/api-utils/src/core';
-import { sendProductsMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 // import {
 //   checkPermission,
 //   requireLogin
@@ -90,7 +90,7 @@ const generateFilter = async (
   let hasFilterProductIds: boolean = false;
   if (productCategoryId) {
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
       action: 'products.find',
       data: { categoryId: productCategoryId, fields: { _id: 1 } },
@@ -102,7 +102,7 @@ const generateFilter = async (
   }
 
   if (vendorIds) {
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
       action: 'products.find',
       data: {

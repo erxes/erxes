@@ -10,6 +10,7 @@ import React, { useState } from 'react';
 
 import { IPaymentDocument } from '../../types';
 import { SettingsContent } from './styles';
+import { PAYMENTCONFIGS } from '../constants';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -30,6 +31,10 @@ const ConfigForm: React.FC<Props> = ({
   metaData,
 }) => {
   const { name = '', config } = payment || ({} as IPaymentDocument);
+  if (payment) {
+    metaData = PAYMENTCONFIGS.find((p) => p.kind === payment.kind);
+  }
+
   const callbackUrl = `${getEnv().REACT_APP_API_URL}/pl:payment/callback/${metaData.kind}`;
   const [state, setState] = useState<State>({
     paymentName: name,
@@ -73,8 +78,10 @@ const ConfigForm: React.FC<Props> = ({
     type?: string,
     description?: string
   ) => {
-    const value = state[key as keyof State];
-
+    let value = state.configMap[key];
+    if (key === 'paymentName') {
+      value = state[key as keyof State];
+    }
     return (
       <FormGroup key={key}>
         <ControlLabel>{title}</ControlLabel>

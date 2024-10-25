@@ -10,8 +10,7 @@ import {
   sendCommonMessage,
   sendContactsMessage,
   sendCoreMessage,
-  sendInboxMessage,
-  sendProductsMessage,
+  sendInboxMessage
 } from '../messageBroker';
 import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
@@ -448,7 +447,7 @@ export const createBoardItem = async (
 
 // check booking convert
 const checkBookingConvert = async (subdomain: string, productId: string) => {
-  const product = await sendProductsMessage({
+  const product = await sendCoreMessage({
     subdomain,
     action: 'products.findOne',
     data: { _id: productId },

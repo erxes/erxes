@@ -3,21 +3,21 @@ import {
   checkPermission
 } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
-import { sendProductsMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 
 export const generateFilterItems = async (subdomain: string, params: any) => {
   const { remainderId, productCategoryIds, status, diffType } = params;
   const query: any = { remainderId };
 
   if (productCategoryIds && productCategoryIds.length) {
-    const categories = await sendProductsMessage({
+    const categories = await sendCoreMessage({
       subdomain,
       action: "categories.withChilds",
       data: { ids: productCategoryIds },
       isRPC: true
     });
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
       action: "products.find",
       data: {

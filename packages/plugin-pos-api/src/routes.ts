@@ -4,8 +4,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { IPosDocument } from './models/definitions/pos';
 import {
   sendCoreMessage,
-  sendPricingMessage,
-  sendProductsMessage
+  sendPricingMessage
 } from './messageBroker';
 import { USER_FIELDS } from './contants';
 
@@ -95,7 +94,7 @@ export const getProductsData = async (
       c => !excludeCatIds.includes(c)
     );
 
-    const productCategories = await sendProductsMessage({
+    const productCategories = await sendCoreMessage({
       subdomain,
       action: 'categories.find',
       data: { query: { _id: { $in: productCategoryIds } }, sort: { order: 1 } },
@@ -123,7 +122,7 @@ export const getProductsData = async (
     const categoryIds = categories.map(cat => cat._id);
     const productsByCatId = {};
 
-    const products: any[] = await sendProductsMessage({
+    const products: any[] = await sendCoreMessage({
       subdomain,
       action: 'products.find',
       data: {
@@ -208,7 +207,7 @@ export const getProductsData = async (
   }
 
   if (followProductIds.length) {
-    const followProducts = await sendProductsMessage({
+    const followProducts = await sendCoreMessage({
       subdomain,
       action: 'products.find',
       data: {
@@ -276,7 +275,7 @@ export const posSyncConfig = async (req, res) => {
       });
     case 'productsConfigs':
       return res.send(
-        await sendProductsMessage({
+        await sendCoreMessage({
           subdomain,
           action: 'productsConfigs.getConfig',
           data: { code: 'similarityGroup', defaultValue: {} },

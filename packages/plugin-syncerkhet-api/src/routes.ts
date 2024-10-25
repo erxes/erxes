@@ -3,8 +3,7 @@ import {
   sendSalesMessage,
   sendContactsMessage,
   sendCoreMessage,
-  sendPosMessage,
-  sendProductsMessage
+  sendPosMessage
 } from "./messageBroker";
 
 export const getOrderInfo = async (req, res) => {
@@ -73,7 +72,7 @@ export const getOrderInfo = async (req, res) => {
         result.companies = companies;
       }
     }
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
       action: "products.find",
       data: {
@@ -130,7 +129,7 @@ export const getOrderInfo = async (req, res) => {
       }
     }
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
       action: "products.find",
       data: {

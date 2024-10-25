@@ -1,4 +1,4 @@
-FROM node:18.17.1-alpine AS base
+FROM node:18.18.0-alpine AS base
 WORKDIR /erxespos/
 RUN chown -R node:node /erxespos
 COPY --chown=node:node . /erxespos

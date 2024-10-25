@@ -1,4 +1,4 @@
-import { sendCoreMessage, sendProductsMessage } from "../messageBroker";
+import { sendCoreMessage } from "../messageBroker";
 import { toErkhet } from "./utils";
 
 export const productCategoryToErkhet = async (
@@ -12,7 +12,7 @@ export const productCategoryToErkhet = async (
   const productCategory = params.updatedDocument || params.object;
   const oldProductCategory = params.object;
 
-  const parentProductCategory = await sendProductsMessage({
+  const parentProductCategory = await sendCoreMessage({
     subdomain,
     action: "categories.findOne",
     data: { _id: productCategory.parentId },
@@ -43,7 +43,7 @@ export const productToErkhet = async (
   const product = params.updatedDocument || params.object;
   const oldProduct = params.object;
 
-  const productCategory = await sendProductsMessage({
+  const productCategory = await sendCoreMessage({
     subdomain,
     action: "categories.findOne",
     data: { _id: product.categoryId },

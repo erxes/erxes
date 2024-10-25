@@ -1,21 +1,34 @@
 {
-	"jwt_token_secret": "token",
-	"client_portal_domains": "",
-	"elasticsearch": {},
-	"redis": {
-		"password": ""
-	},
-	"mongo": {
-		"username": "",
-		"password": ""
-	},
-	"rabbitmq": {
-		"cookie": "",
-		"user": "",
-		"pass": "",
-		"vhost": ""
-	},
-	"plugins": [
-		
-	]
+  "jwt_token_secret": "token",
+  "client_portal_domains": "",
+  "elasticsearch": {},
+  "workers": {},
+  "redis": {
+    "password": ""
+  },
+  "mongo": {
+    "username": "",
+    "password": ""
+  },
+  "rabbitmq": {
+    "cookie": "",
+    "user": "",
+    "pass": "",
+    "vhost": ""
+  },
+  "widgets": {},
+  "allowed_origins": ".*",
+  "plugins": [
+    {
+      "ui": "local",
+      "name": "inbox"
+    },
+    {
+      "ui": "local",
+      "name": "knowledgebase"
+    },
+    {
+      "name": "integrations"
+    }
+  ]
 }
