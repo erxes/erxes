@@ -5,6 +5,12 @@ import {
   types as configTypes,
 } from './schema/configs';
 
+import {
+  mutations as cleanMutations,
+  queries as cleanQueries,
+  types as cleanTypes,
+} from './schema/cleaning';
+
 const typeDefs = async () => {
   return gql`
     scalar JSON
@@ -22,13 +28,15 @@ const typeDefs = async () => {
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
     ${configTypes}
-
+    ${cleanTypes}
     extend type Mutation {
       ${configMutations}
+      ${cleanMutations}
     }
 
     extend type Query {
       ${configQueries}
+      ${cleanQueries}
     }
   `;
 };

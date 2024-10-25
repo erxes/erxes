@@ -159,6 +159,21 @@ const configQueries = {
       ids.filter(x => !productIds.includes(x)).map(x => ({ _id: x })) || []
     );
   },
+  async pmsRoomCleaningList(
+    _root,
+    {
+      ids,
+      endDate,
+      startDate,
+      pipelineId,
+    }: {
+      startDate: Date;
+      endDate: Date;
+      pipelineId: string;
+      ids: string[];
+    },
+    { models, subdomain }: IContext
+  ) {},
 };
 
 // requireLogin(configQueries, 'pmsConfigs');

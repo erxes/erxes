@@ -17,7 +17,7 @@ export default {
   //   'graphql',
   //   'subscriptionPlugin.js'
   // ),
-  getHandlers: [{ path: `/getOrderInfo`, method: getOrderInfo }],
+  // getHandlers: [{ path: `/getOrderInfo`, method: getOrderInfo }],
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
