@@ -7,26 +7,6 @@ export interface IConfig {
   value: string;
 }
 
-// const CLOUDFLARE_ACCOUNT_ID = await getConfig(
-//     "CLOUDFLARE_ACCOUNT_ID",
-//     "",
-//     models
-//   );
-//   const CLOUDFLARE_ACCESS_KEY_ID = await getConfig(
-//     "CLOUDFLARE_ACCESS_KEY_ID",
-//     "",
-//     models
-//   );
-//   const CLOUDFLARE_SECRET_ACCESS_KEY = await getConfig(
-//     "CLOUDFLARE_SECRET_ACCESS_KEY",
-//     "",
-//     models
-//   );
-//   const CLOUDFLARE_ENDPOINT = `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`;
-
-//   if (!CLOUDFLARE_ACCESS_KEY_ID || !CLOUDFLARE_SECRET_ACCESS_KEY) {
-//     throw new Error("Cloudflare Credentials are not configured");
-//   }
 
 export interface ICFConfig {
   accountId;
@@ -77,7 +57,7 @@ export const loadConfigClass = (models: IModels) => {
       value,
     }: {
       code: string;
-      value: string[];
+      value: string;
     }) {
       const obj = await models.Configs.findOne({ code });
 
