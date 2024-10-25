@@ -16,6 +16,7 @@ import ClientPortalDetailContainer from "../containers/ClientPortalDetail";
 import { StyledUrl } from "../styles";
 import { ClientPortalConfig } from "../types";
 import { useLocation } from "react-router-dom";
+import SaveTemplate from "@erxes/ui-template/src/components/SaveTemplate";
 
 type Props = {
   configs: ClientPortalConfig[];
@@ -40,6 +41,24 @@ function ClientPortalList({
 
   const kind = location.pathname.includes("vendor") ? "vendor" : "client";
 
+  const renderTemplateModal = (config: ClientPortalConfig) => {
+
+    const {
+
+      ...configContent
+    } = config
+
+    console.log("config", config)
+
+    const content = {
+      content: JSON.stringify(configContent),
+      contentType: 'client',
+      serviceName: 'clientportal'
+    };
+
+    return <SaveTemplate as="icon" {...content} />;
+  }
+
   const renderRow = () => {
     return configs.map((config) => {
       const onRemove = () => {
@@ -58,6 +77,7 @@ function ClientPortalList({
             </FieldStyle>
           </Link>
           <ActionButtons>
+            {renderTemplateModal(config)}
             <Tip text={__("Delete")} placement="bottom">
               <Button btnStyle="link" onClick={onRemove} icon="cancel-1" />
             </Tip>

@@ -19,6 +19,7 @@ import { SidebarList } from "@erxes/ui/src/layout/styles";
 import TagFilter from "../../containers/TagFilter";
 import Tip from "@erxes/ui/src/components/Tip";
 import { pluginsOfProductCategoryActions } from "coreui/pluginUtils";
+import SaveTemplate from "@erxes/ui-template/src/components/SaveTemplate";
 
 interface IProps {
   queryParams: any;
@@ -84,13 +85,30 @@ const List: React.FC<IProps> = props => {
     router.setParams(navigate, location, { categoryId: id });
   };
 
+  const renderTemplateModal = (category: IProductCategory) => {
+
+    const {
+      isRoot,
+      productCount,
+      ...productCategoryContent
+    } = category
+
+    const content = {
+      content: JSON.stringify(productCategoryContent),
+      contentType: 'productCategories',
+      serviceName: 'core'
+    };
+
+    return <SaveTemplate as="icon" {...content} />;
+  }
+
   const renderContent = () => {
     return (
       <CollapsibleList
         items={productCategories}
         editAction={renderEditAction}
         removeAction={renderRemoveAction}
-        additionalActions={pluginsOfProductCategoryActions}
+        additionalActions={renderTemplateModal}
         loading={loading}
         onClick={onClick}
         queryParams={queryParams}
