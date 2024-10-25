@@ -57,8 +57,8 @@ export default {
 
     app.use(cors(corsOptions));
 
-    app.use(bodyParser.json({ limit: '15mb' }));
-    app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
+    app.use(bodyParser.json({ limit: '100mb' }));
+    app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
 
     const tmpDir = tmp.dirSync({ unsafeCleanup: true });
 
