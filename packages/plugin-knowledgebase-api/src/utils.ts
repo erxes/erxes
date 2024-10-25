@@ -187,11 +187,11 @@ export const checkPermission = async (
 };
 
 export const handleUpload = async (subdomain: string, file: any) => {
-  console.log('handleUpload');
+
   const filename = file.filename || file.name;
 
   const models: IModels = await generateModels(subdomain);
-  console.log('models');
+
   const UPLOAD_SERVICE_TYPE = await getValueAsString(
     models,
     'UPLOAD_SERVICE_TYPE',
@@ -212,7 +212,7 @@ export const handleUpload = async (subdomain: string, file: any) => {
 
     const tmpDir = tmp.dirSync({ unsafeCleanup: true });
     const imagePaths = await convertPdfToPng(file.path, tmpDir.name);
-    console.log('image files ====', imagePaths);
+
     const imageUrls: string[] = [];
 
     if (!imagePaths.length) {
@@ -247,7 +247,7 @@ export const uploadFileCloudflare = async (
   configs: ICFConfig
 ): Promise<string> => {
   const fileObj = file;
-  console.log('*****', file);
+
   const sanitizedFilename = sanitizeFilename(fileObj.filename);
 
   if (path.extname(fileObj.filename).toLowerCase() === `.jfif`) {
@@ -319,7 +319,6 @@ const uploadToCFImages = async (file: any, configs: ICFConfig) => {
   });
 
   const data: any = await response.json();
-  console.log('Response from Cloudflare:', data);
 
   if (!data.success) {
     throw new Error('Error uploading file to Cloudflare Images');
