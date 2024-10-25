@@ -9,7 +9,7 @@ export interface IConfig {
 
 
 export interface ICFConfig {
-  accountId;
+  accountId: string;
   accessKeyId: string;
   region: string;
   secretAccessKey: string;
