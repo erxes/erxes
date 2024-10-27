@@ -20,10 +20,6 @@ export const updateConversationMessage = async (data: any) => {
   return sendRPCMessageCore("inbox:rpc_queue.updateConversationMessage", data);
 };
 
-export const getCampaignCustomerInfo = async data => {
-  return sendRPCMessageCore("core:rpc_queue.prepareEngageCustomers", data);
-};
-
 export const sendContactsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
