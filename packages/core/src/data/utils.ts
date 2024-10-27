@@ -1056,12 +1056,8 @@ const createAzureBlobStorage = async (models?: IModels) => {
     AZURE_STORAGE_CONNECTION_STRING
   );
 
-  // Optionally, you could also return a specific container client
-  const containerClient = blobServiceClient.getContainerClient(
-    AZURE_STORAGE_CONTAINER
-  );
-
-  return containerClient; // Return the container client for further operations
+  // return a specific container client
+  return blobServiceClient.getContainerClient(AZURE_STORAGE_CONTAINER);
 };
 
 /*
@@ -1088,7 +1084,6 @@ export const deleteFileAzure = async (fileName: string, models?: IModels) => {
       `File with key ${fileName} successfully deleted from Azure Blob Storage.`
     );
   } catch (error) {
-    console.error('Error deleting file from Azure Blob Storage:', error);
     throw error;
   }
 };
@@ -1130,6 +1125,21 @@ export const uploadFileAzure = async (
 
   // Return either the blob's URL or its name, depending on public status
   return IS_PUBLIC === 'true' ? blockBlobClient.url : fileName;
+};
+
+/**
+ * Converts a readable stream from Azure Blob Storage into a Buffer.
+ * 
+ * @param {NodeJS.ReadableStream} stream - The readable stream from Azure Blob Storage.
+ * @returns {Promise<Buffer>} A promise that resolves to a Buffer containing the stream data.
+ */
+const azureStreamToBuffer = (stream: NodeJS.ReadableStream): Promise<Buffer> => {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    stream.on('data', chunk => chunks.push(chunk));
+    stream.on('end', () => resolve(Buffer.concat(chunks)));
+    stream.on('error', reject);
+  });
 };
 
 export const readFileRequest = async ({
@@ -1236,40 +1246,14 @@ export const readFileRequest = async ({
 
   if (UPLOAD_SERVICE_TYPE === 'AZURE') {
     const containerClient = await createAzureBlobStorage(models);
+    const blobClient = containerClient.getBlobClient(key);
+    const response = await blobClient.download();
 
-    return new Promise((resolve, reject) => {
-      const blobClient = containerClient.getBlobClient(key);
+    if (!response.readableStreamBody) {
+      throw new Error('No readable stream found in response');
+    }
 
-      blobClient
-        .download()
-        .then(response => {
-          const chunks: Buffer[] = [];
-          const readableStream = response.readableStreamBody;
-
-          // Ensure readableStream exists before proceeding
-          if (!readableStream) {
-            return reject(new Error('No readable stream found in response'));
-          }
-
-          // Accumulate data chunks
-          readableStream.on('data', chunk => {
-            chunks.push(chunk);
-          });
-
-          // Resolve on end of stream
-          readableStream.on('end', () => {
-            resolve(Buffer.concat(chunks));
-          });
-
-          // Reject on error
-          readableStream.on('error', error => {
-            reject(error);
-          });
-        })
-        .catch(error => {
-          reject(error);
-        });
-    });
+    return azureStreamToBuffer(response.readableStreamBody);
   }
 
   if (UPLOAD_SERVICE_TYPE === "local") {
