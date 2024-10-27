@@ -524,10 +524,10 @@ const Form = (props: Props) => {
   };
 
   const renderEditorField = (formProps: IFormProps, addinitionalProps) => {
-    const { _id, content } = addinitionalProps
+    const { _id, description } = addinitionalProps
 
     const finalProps = {
-      content: content,
+      content: description,
       onChange: onChangeDescription,
       height: 150,
       isSubmitted: formProps.isSaved,

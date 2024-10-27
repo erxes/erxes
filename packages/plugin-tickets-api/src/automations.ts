@@ -6,7 +6,6 @@ import { generateModels, IModels } from "./connectionResolver";
 import { itemsAdd } from "./graphql/resolvers/mutations/utils";
 import {
   sendCommonMessage,
-  sendContactsMessage,
   sendCoreMessage
 } from "./messageBroker";
 import { getCollection } from "./models/utils";
@@ -135,7 +134,7 @@ const getRelatedValue = async (
     const upperCasedTargetKey =
       targetKey.charAt(0).toUpperCase() + targetKey.slice(1);
 
-    const activeContacts = await sendContactsMessage({
+    const activeContacts = await sendCoreMessage({
       subdomain,
       action: `${targetKey}.findActive${upperCasedTargetKey}`,
       data: { selector: { _id: { $in: contactIds } } },

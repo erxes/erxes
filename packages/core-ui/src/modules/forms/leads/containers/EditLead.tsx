@@ -205,7 +205,7 @@ const EditLeadContainer = ({ queryParams, formId }: Props) => {
         title: formData.title,
         description: formData.description,
         buttonText: formData.buttonText,
-        numberOfPages: formData.numberOfPages,
+        numberOfPages: parseInt(formData.numberOfPages || 0),
         visibility: doc.visibility,
         leadData: doc.leadData,
         languageCode: doc.languageCode,

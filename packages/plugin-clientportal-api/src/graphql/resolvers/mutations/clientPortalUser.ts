@@ -5,7 +5,7 @@ import * as randomize from 'randomatic';
 
 import { tokenHandler } from '../../../auth/authUtils';
 import { IContext } from '../../../connectionResolver';
-import { sendContactsMessage, sendCoreMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
 import {
   IInvitiation,
@@ -209,7 +209,7 @@ const clientPortalUserMutations = {
 
       qry.clientPortalId = clientPortalId;
 
-      let customer = await sendContactsMessage({
+      let customer = await sendCoreMessage({
         subdomain,
         action: 'customers.findOne',
         data: {
@@ -237,7 +237,7 @@ const clientPortalUserMutations = {
       }
 
       if (!customer) {
-        customer = await sendContactsMessage({
+        customer = await sendCoreMessage({
           subdomain,
           action: 'customers.createCustomer',
           data: {
@@ -364,7 +364,7 @@ const clientPortalUserMutations = {
 
     qry.clientPortalId = clientPortalId;
 
-    let customer = await sendContactsMessage({
+    let customer = await sendCoreMessage({
       subdomain,
       action: 'customers.findOne',
       data: {
@@ -410,7 +410,7 @@ const clientPortalUserMutations = {
     }
 
     if (!customer) {
-      customer = await sendContactsMessage({
+      customer = await sendCoreMessage({
         subdomain,
         action: 'customers.createCustomer',
         data: {
@@ -1303,7 +1303,7 @@ const clientPortalUserMutations = {
 
     const { userId, erxesCompanyId, erxesCustomerId } = args;
 
-    const getCompany = await sendContactsMessage({
+    const getCompany = await sendCoreMessage({
       subdomain,
       action: 'companies.findOne',
       data: { _id: erxesCompanyId },

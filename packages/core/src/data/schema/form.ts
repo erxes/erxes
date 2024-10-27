@@ -92,7 +92,6 @@ export const types = (inboxEnabled) => `
 
 
   type FormConnectResponse {
-      integration: ${inboxEnabled ? "Integration" : "JSON"}
       form: Form
   }
 
