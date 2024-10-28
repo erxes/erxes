@@ -19,11 +19,7 @@ export default {
     inboxIntegrations: [
       {
         kind: INTEGRATION_KINDS.MESSENGER,
-        label: 'Instagram messenger'
-      },
-      {
-        kind: INTEGRATION_KINDS.POST,
-        label: 'Instagram post'
+        label: 'WhatsApp'
       }
     ]
   },

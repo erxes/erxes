@@ -94,28 +94,14 @@ module.exports = {
   },
   inboxIntegrations: [
     {
-      name: 'Instagram Post',
-      description: 'Connect to Instagram posts right from your Team Inbox',
-      inMessenger: false,
-      isAvailable: true,
-      kind: 'whatsapp-post',
-      logo: '/images/integrations/whatsapp.png',
-      createModal: 'whatsapp-post',
-      createUrl: '/settings/integrations/createInstagram',
-      category:
-        'All integrations, For support teams, Marketing automation, Social media',
-      components: ['inboxConversationDetailRespondBoxMask']
-    },
-    {
-      name: 'Instagram Messenger',
-      description:
-        'Connect and manage Instagram Messages right from your Team Inbox',
+      name: 'Whats App',
+      description: 'Connect and manage Whats App right from your Team Inbox',
       inMessenger: false,
       isAvailable: true,
       kind: 'whatsapp-messenger',
       logo: '/images/integrations/whatsapp.png',
       createModal: 'whatsapp-messenger',
-      createUrl: '/settings/integrations/createInstagram',
+      createUrl: '/settings/integrations/createWhatsapp',
       category:
         'All integrations, For support teams, Messaging, Social media, Conversation',
       components: ['inboxConversationDetailRespondBoxMask']

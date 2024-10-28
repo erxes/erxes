@@ -127,6 +127,7 @@ export const getPageAccessToken = async (
     `${pageId}/?fields=access_token`,
     userAccessToken
   );
+  console.log(response, 'response');
 
   return response.access_token;
 };
@@ -166,44 +167,105 @@ export const unsubscribePage = async (
       throw e;
     });
 };
-export const getPageList = async (
+
+export const wabaUserDetail = async (
   models: IModels,
   accessToken?: string,
   kind?: string
-) => {
-  let response = {} as any;
+): Promise<any[]> => {
   try {
-    response = await graphRequest.get(
-      '/me/accounts?fields=whatsapp_business_account, access_token,id,name',
+    const response = await graphRequest.get(
+      '/me?fields=id,name,businesses{verification_status,name}',
       accessToken
     );
-  } catch (e) {
-    throw e;
+    return response;
+  } catch (error) {
+    throw new Error(
+      `Failed to retrieve WhatsApp account details: ${error.message}`
+    );
   }
+};
 
-  const pages: any[] = [];
-  for (const page of response.data) {
-    if (page.whatsapp_business_account) {
-      const pageId = page.whatsapp_business_account.id;
-      const accounInfo: any = await graphRequest.get(
-        `${pageId}?fields=username`,
+export const getBusinessWhatsAppDetails = async (
+  models: IModels,
+  accessToken?: string,
+  kind?: string
+): Promise<any[]> => {
+  try {
+    // Step 1: Fetch user information, including businesses they manage
+    const response = await graphRequest.get(
+      '/me?fields=id,name,businesses{verification_status,name}',
+      accessToken
+    );
+
+    // Extract the list of businesses managed by the user
+    const businessList = response.businesses.data || [];
+    const results: any[] = []; // Initialize results array
+
+    // Step 2: Loop through each business to fetch WhatsApp Business Accounts
+    for (const business of businessList) {
+      const { id: businessId, name: businessName } = business;
+      console.log(business, 'business'); // Log the phone numbers for debugging
+
+      // Fetch owned WhatsApp Business Accounts for each business
+      const wabaResponse = await graphRequest.get(
+        `/${businessId}?fields=owned_whatsapp_business_accounts{id}`,
         accessToken
       );
 
-      const integration = await models.Integrations.findOne({
-        whatsappPageId: accounInfo.id,
-        kind
-      });
+      const ownedWhatsAppAccounts =
+        wabaResponse.owned_whatsapp_business_accounts?.data || [];
 
-      pages.push({
-        id: accounInfo.id,
-        name: accounInfo.username,
-        isUsed: !!integration
-      });
+      // Loop through each WhatsApp Business Account to retrieve phone numbers
+      for (const account of ownedWhatsAppAccounts) {
+        const wabaId = account.id;
+
+        // Fetch phone numbers associated with the WhatsApp Business Account
+        const phoneNumberResponse = await graphRequest.get(
+          `/${wabaId}?fields=phone_numbers{id,account_mode,display_phone_number}`,
+          accessToken
+        );
+
+        // Log the phone number response for debugging
+
+        // Access the phone numbers array correctly
+        const phoneNumbers = phoneNumberResponse.phone_numbers?.data || []; // Default to empty array if not found
+
+        // Ensure phoneNumbers is an array before iterating
+        if (Array.isArray(phoneNumbers) && phoneNumbers.length > 0) {
+          for (const phone of phoneNumbers) {
+            const integration = await models.Integrations.findOne({
+              whatsappNumberIds: phone.id,
+              kind
+            });
+
+            results.push({
+              id: phone.id,
+              name: `${businessName} : ${phone.display_phone_number}`,
+              isUsed: integration ? true : false
+            });
+
+            // results.push({
+            //   businessId,
+            //   businessName,
+            //   wabaId,
+            //   phoneId: phone.id,
+            //   displayPhoneNumber: phone.display_phone_number,
+            //   accountMode: phone.account_mode
+            // });
+          }
+        } else {
+          throw `No phone numbers found for WhatsApp Business Account ID: ${wabaId}`;
+        }
+      }
     }
-  }
 
-  return pages;
+    return results; // Return array of businesses with WhatsApp account details
+  } catch (error) {
+    throw new Error(
+      `Failed to retrieve WhatsApp account details: ${error.message}`
+    );
+  }
 };
 
 export const getPageAccessTokenFromMap = (
@@ -240,54 +302,45 @@ export const sendReply = async (
   data: any,
   integrationId: string
 ) => {
+  // Fetch the integration details
   const integration = await models.Integrations.findOne({
     erxesApiId: integrationId
   });
   if (!integration) {
     throw new Error('Integration not found');
   }
-  const { facebookPageTokensMap = {}, facebookPageId } = integration;
 
-  let pageAccessToken: string | undefined;
+  // Fetch the associated account
+  const { accountId } = integration;
+  const account = await models.Accounts.findOne({ _id: accountId });
 
-  try {
-    if (!facebookPageId) {
-      throw new Error('Facebook page ID is not defined.');
-    }
-
-    pageAccessToken = getPageAccessTokenFromMap(
-      facebookPageId,
-      facebookPageTokensMap
-    );
-
-    if (!pageAccessToken) {
-      throw new Error('Page access token not found.');
-    }
-
-    // Continue processing with `pageAccessToken`
-  } catch (e) {
-    debugError(
-      `Error occurred while trying to get page access token: ${e.message}`
-    );
-    return e;
+  if (!account) {
+    throw new Error('Account not found');
   }
+  const access_token = account.token;
+  console.log(url, 'url');
+  console.log(data, 'data');
+  console.log(access_token, 'access_token');
+  // Make the API request to send a message
 
   try {
-    const response = await graphRequest.post(`${url}`, pageAccessToken, {
-      ...data
-    });
-    debugWhatsapp(`Successfully sent data to whatsapp ${JSON.stringify(data)}`);
+    // const response = await graphRequest.post(`${url}`, access_token, {
+    //   ...data // Send the data directly
+    // });
+
+    const response = await graphRequest.post(url, access_token, data);
+    debugWhatsapp(
+      `Successfully sent data to WhatsApp: ${JSON.stringify(data)}`
+    );
     return response;
   } catch (e) {
     debugError(
-      `Error ocurred while trying to send post request to facebook ${
-        e.message
-      } data: ${JSON.stringify(data)}`
+      `Error occurred while trying to send POST request to Facebook: ${e.message}, data: ${JSON.stringify(data)}`
     );
-
     throw new Error(e.message);
   }
 };
+
 export const generateAttachmentMessages = (
   subdomain: string,
   attachments: IAttachment[]

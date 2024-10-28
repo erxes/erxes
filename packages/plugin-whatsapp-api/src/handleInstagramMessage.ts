@@ -28,110 +28,6 @@ export const handleInstagramMessage = async (
       doc.userId
     );
   }
-  if (action === 'reply-post') {
-    const {
-      integrationId,
-      conversationId,
-      content = '',
-      attachments = [],
-      extraInfo,
-      userId
-    } = doc;
-    const commentConversationResult = await models.CommentConversation.findOne({
-      erxesApiId: conversationId
-    });
-
-    const post = await models.PostConversations.findOne({
-      $or: [
-        { erxesApiId: conversationId },
-        {
-          postId: commentConversationResult
-            ? commentConversationResult.postId
-            : ''
-        }
-      ]
-    });
-    if (!commentConversationResult) {
-      throw new Error('comment not found');
-    }
-    if (!post) {
-      throw new Error('Post not found');
-    }
-    let strippedContent = strip(content);
-
-    strippedContent = strippedContent.replace(/&amp;/g, '&');
-
-    const { recipientId, comment_id, senderId } = commentConversationResult;
-    await models.CommentConversationReply.create({
-      recipientId: recipientId,
-      senderId: senderId,
-      attachments: attachments,
-      userId: userId,
-      createdAt: new Date(Date.now()),
-      content: strippedContent,
-      parentId: comment_id
-    });
-
-    let attachment_url = undefined;
-    if (doc.attachments && doc.attachments.length > 0) {
-      attachment_url = doc.attachments[0].url;
-    }
-
-    let data = {
-      message: strippedContent,
-      attachment_url: attachment_url || undefined
-    };
-    const id = commentConversationResult
-      ? commentConversationResult.comment_id
-      : post.postId;
-    if (commentConversationResult && commentConversationResult.comment_id) {
-      data = {
-        message: ` ${strippedContent}`,
-        attachment_url: attachment_url
-      };
-    }
-    try {
-      const inboxConversation = await sendInboxMessage({
-        isRPC: true,
-        subdomain,
-        action: 'conversations.findOne',
-        data: { query: { _id: conversationId } }
-      });
-      await sendReply(
-        models,
-        `${id}/replies`,
-        data,
-        inboxConversation && inboxConversation.integrationId
-      );
-
-      const user = await sendCoreMessage({
-        subdomain,
-        action: 'users.findOne',
-        data: { _id: userId },
-        isRPC: true
-      });
-
-      if (user) {
-        sendInboxMessage({
-          action: 'sendNotifications',
-          isRPC: false,
-          subdomain,
-          data: {
-            user,
-            conversations: [inboxConversation],
-            type: 'conversationStateChange',
-            mobile: true,
-            messageContent: content
-          }
-        });
-        return { status: 'success' };
-      } else {
-        throw new Error('User not found');
-      }
-    } catch (e) {
-      throw new Error(e.message);
-    }
-  }
 
   if (action === 'reply-messenger') {
     const { integrationId, conversationId, content, attachments, extraInfo } =
@@ -156,14 +52,16 @@ export const handleInstagramMessage = async (
         try {
           const resp = await sendReply(
             models,
-            'me/messages',
+            `${senderId}/messages`, // Update the endpoint here
             {
-              recipient: { id: senderId },
-              message: { text: strippedContent },
-              tag
+              messaging_product: 'whatsapp',
+              to: recipientId, // Pass `recipientId` directly
+              type: 'text',
+              text: { body: strippedContent } // Set the text message content
             },
             integrationId
           );
+
           if (resp) {
             localMessage = await models.ConversationMessages.addMessage(
               {

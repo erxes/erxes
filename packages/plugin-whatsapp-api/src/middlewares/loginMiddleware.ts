@@ -9,26 +9,26 @@ import { repairIntegrations } from '../helpers';
 const loginMiddleware = async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
-  const INSTAGRAM_APP_ID = await getConfig(models, 'INSTAGRAM_APP_ID');
-  const INSTAGRAM_APP_SECRET = await getConfig(models, 'INSTAGRAM_APP_SECRET');
+  const WHATSAPP_APP_ID = await getConfig(models, 'WHATSAPP_APP_ID');
+  const WHATSAPP_APP_SECRET = await getConfig(models, 'WHATSAPP_APP_SECRET');
 
-  const INSTAGRAM_PERMISSIONS = await getConfig(
+  const WHATSAPP_PERMISSIONS = await getConfig(
     models,
-    'INSTAGRAM_PERMISSIONS',
-    'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
+    'WHATSAPP_PERMISSIONS',
+    'whatsapp_business_messaging,whatsapp_business_management'
   );
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
   const API_DOMAIN = DOMAIN.includes('zrok') ? DOMAIN : `${DOMAIN}/gateway`;
   const INSTAGRAM_LOGIN_REDIRECT_URL = await getConfig(
     models,
-    'INSTAGRAM_LOGIN_REDIRECT_URL',
-    `${API_DOMAIN}/pl:whatsapp/iglogin`
+    'WHATSAPP_LOGIN_REDIRECT_URL',
+    `${API_DOMAIN}/pl:whatsapp/login`
   );
   const conf = {
-    client_id: INSTAGRAM_APP_ID,
-    client_secret: INSTAGRAM_APP_SECRET,
-    scope: `${INSTAGRAM_PERMISSIONS},whatsapp_manage_comments,whatsapp_basic,whatsapp_manage_messages`,
+    client_id: WHATSAPP_APP_ID,
+    client_secret: WHATSAPP_APP_SECRET,
+    scope: `${WHATSAPP_PERMISSIONS},`,
     redirect_uri: INSTAGRAM_LOGIN_REDIRECT_URL
   };
 

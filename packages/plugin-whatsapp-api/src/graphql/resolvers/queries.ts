@@ -2,7 +2,7 @@ import { IContext, IModels } from '../../connectionResolver';
 import { INTEGRATION_KINDS } from '../../constants';
 import { sendInboxMessage } from '../../messageBroker';
 import { IConversationMessageDocument } from '../../models/definitions/conversationMessages';
-import { getPageList, getPostLink } from '../../utils';
+import { getBusinessWhatsAppDetails, getPostLink } from '../../utils';
 
 interface IKind {
   kind: string;
@@ -198,7 +198,9 @@ const whatsappQueries = {
     let pages: any[] = [];
 
     try {
-      pages = await getPageList(models, accessToken, kind);
+      pages = await getBusinessWhatsAppDetails(models, accessToken, kind);
+
+      // pages = await getPageList(models, accessToken, kind);
     } catch (e) {
       if (!e.message.includes('Application request limit reached')) {
         await models.Integrations.updateOne(

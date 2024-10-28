@@ -111,7 +111,7 @@ class Whatsapp extends React.Component<Props, State> {
       <FlexItem>
         <LeftItem>
           <AccountBox>
-            <AccountTitle>{__('Whatsapp Pages')}</AccountTitle>
+            <AccountTitle>{__('Whatsapp Numbers')}</AccountTitle>
             {pages.map((page) => (
               <AccountItem key={page.id}>
                 {page.name}

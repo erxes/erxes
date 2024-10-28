@@ -10,6 +10,7 @@ export interface ICustomer {
   lastName: string;
   profilePic: string;
   integrationId: string;
+  phoneNumber: string;
 }
 
 export interface ICustomerDocument extends ICustomer, Document {
@@ -23,5 +24,6 @@ export const customerSchema = new Schema({
   firstName: String,
   lastName: String,
   profilePic: String,
-  integrationId: { type: String, label: 'Inbox integration id' }
+  integrationId: { type: String, label: 'Inbox integration id' },
+  phoneNumber: String
 });

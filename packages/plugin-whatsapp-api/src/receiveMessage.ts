@@ -8,53 +8,66 @@ import { INTEGRATION_KINDS } from './constants';
 const receiveMessage = async (
   models: IModels,
   subdomain: string,
-  messageData: IMessageData
+  messageData: any
 ) => {
-  const { recipient, sender, timestamp, message } = messageData;
-  // const attachments = messageData.message.attachments;
+  // Destructuring values from messageData
+
+  const { messaging_product, metadata, contacts, messages } = messageData;
+  const { display_phone_number, phone_number_id } = metadata;
+
+  // Extract WhatsApp ID from contacts
+  const waId = contacts[0]?.wa_id; // Ensure contacts has data
+  if (!waId) {
+    throw new Error('WhatsApp ID not found in contacts');
+  }
+
+  // Find the WhatsApp integration
   const integration = await models.Integrations.findOne({
     $and: [
-      { whatsappPageId: { $in: [recipient.id] } },
+      { whatsappNumberIds: { $in: [phone_number_id] } },
       { kind: INTEGRATION_KINDS.MESSENGER }
     ]
   });
 
+  // Check if integration exists
   if (!integration) {
-    throw new Error('Instagram Integration not found ');
+    throw new Error('WhatsApp Integration not found');
   }
-  const userId = sender.id;
-  const pageId = recipient.id;
-  const { text, attachments } = message;
-  // get or create customer
 
-  const { facebookPageTokensMap, facebookPageId } = integration;
+  // Get or create the customer based on the provided information
   const customer = await getOrCreateCustomer(
     models,
     subdomain,
-    pageId,
-    userId,
-    facebookPageId,
+    phone_number_id,
     INTEGRATION_KINDS.MESSENGER,
-    facebookPageTokensMap
+    contacts,
+    integration
   );
+  console.log(customer, 'akosdpaksopkadsop');
   if (!customer) {
     throw new Error('Failed to get or create customer');
   }
-  // get conversation
+
+  // Check for existing conversation
   let conversation = await models.Conversations.findOne({
-    senderId: userId,
-    recipientId: recipient.id
+    senderId: phone_number_id,
+    recipientId: waId
   });
 
-  // create conversation
+  // Extract the text body from the incoming message
+  const textBody = messages[0]?.text?.body; // Ensure messages has data
+  const messageId = messages[0].id;
+  if (!textBody) {
+    throw new Error('Message text body not found');
+  }
+
+  // If no conversation exists, create a new one
   if (!conversation) {
-    // save on integrations db
     try {
       conversation = await models.Conversations.create({
-        timestamp,
-        senderId: userId,
-        recipientId: recipient.id,
-        content: text,
+        senderId: phone_number_id,
+        recipientId: waId,
+        content: textBody,
         integrationId: integration._id
       });
     } catch (e) {
@@ -66,14 +79,6 @@ const receiveMessage = async (
     }
   }
 
-  const formattedAttachments = (attachments || [])
-    .filter((att) => att.type !== 'fallback')
-    .map((att) => ({
-      type: att.type,
-      url: att.payload ? att.payload.url : ''
-    }));
-
-  // save on api
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
@@ -83,10 +88,9 @@ const receiveMessage = async (
         payload: JSON.stringify({
           customerId: customer.erxesApiId,
           integrationId: integration.erxesApiId,
-          content: text || '',
-          attachments: formattedAttachments,
-          conversationId: conversation.erxesApiId,
-          updatedAt: timestamp
+          content: textBody || '',
+          attachments: [],
+          conversationId: conversation.erxesApiId
         })
       },
       isRPC: true
@@ -98,25 +102,22 @@ const receiveMessage = async (
     await models.Conversations.deleteOne({ _id: conversation._id });
     throw new Error(e);
   }
-  // get conversation message
   const conversationMessage = await models.ConversationMessages.findOne({
-    mid: message.mid
+    mid: messageId
   });
-
+  console.log(messageId, 'messageId');
   if (!conversationMessage) {
     // save on integrations db
     try {
       const createdMessage = await models.ConversationMessages.create({
-        mid: message.mid,
-        timestamp,
-        senderId: userId,
-        recipientId: recipient.id,
-        content: text,
+        mid: messageId,
+        senderId: phone_number_id,
+        recipientId: waId,
+        content: textBody || '',
         integrationId: integration._id,
         conversationId: conversation._id,
-        createdAt: timestamp,
         customerId: customer.erxesApiId,
-        attachments: formattedAttachments
+        attachments: []
       });
       await handleMessageUpdate(
         createdMessage.toObject(),
@@ -128,21 +129,6 @@ const receiveMessage = async (
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation message duplication'
           : e
-      );
-    }
-  } else if (message.is_deleted) {
-    // Update message content if deleted
-    const updatedMessage = await models.ConversationMessages.findOneAndUpdate(
-      { mid: message.mid },
-      { $set: { content: 'This user has deleted this message' } },
-      { new: true }
-    );
-    if (updatedMessage) {
-      // Use the new function
-      await handleMessageUpdate(
-        updatedMessage.toObject(),
-        conversation.erxesApiId,
-        subdomain
       );
     }
   }

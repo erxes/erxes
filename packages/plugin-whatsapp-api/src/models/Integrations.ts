@@ -8,8 +8,7 @@ export interface IIntegration {
   accountId: string;
   emailScope?: string;
   erxesApiId: string;
-  facebookPageId?: string;
-  whatsappPageId?: string;
+  whatsappNumberIds?: string[];
   facebookPageTokensMap?: { [key: string]: string };
   email: string;
   expiration?: string;
@@ -26,9 +25,11 @@ export const integrationSchema = new Schema({
   accountId: String,
   erxesApiId: String,
   emailScope: String,
-  whatsappPageId: String,
-  facebookPageId: String,
-
+  whatsappNumberIds: field({
+    type: [String],
+    label: 'WhatsApp Number ids',
+    optional: true
+  }),
   email: String,
   expiration: String,
 

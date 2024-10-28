@@ -40,20 +40,20 @@ export const removeIntegration = async (
   if (kind.includes('whatsapp')) {
     debugWhatsapp('Removing entries');
 
-    const pageId = integration.facebookPageId;
+    const pageId = integration.whatsappNumberIds;
 
     if (!pageId) {
       throw new Error('Facebook page ID not found');
     }
 
     try {
-      const pageTokenResponse = await getPageAccessToken(pageId, account.token);
+      // const pageTokenResponse = await getPageAccessToken(pageId, account.token);
 
       await models.PostConversations.deleteMany({ recipientId: pageId });
       await models.CommentConversation.deleteMany({ recipientId: pageId });
 
       try {
-        await unsubscribePage(pageId, pageTokenResponse);
+        // await unsubscribePage(pageId, pageTokenResponse);
       } catch (e) {
         debugError(
           `Error occurred while trying to unsubscribe page pageId: ${pageId}`
@@ -65,7 +65,7 @@ export const removeIntegration = async (
       );
     }
 
-    integrationRemoveBy = { fbPageIds: integration.facebookPageId };
+    integrationRemoveBy = { fbPageIds: integration.whatsappNumberIds };
 
     const conversationIds =
       await models.Conversations.find(selector).distinct('_id');
@@ -152,16 +152,16 @@ export const repairIntegrations = async (
     throw new Error('Integration not found');
   }
 
-  let pageId = integration.facebookPageId;
+  let pageId = integration.whatsappNumberIds;
 
   if (!pageId) {
     throw new Error('Page ID not found');
   }
 
   try {
-    const pageTokens = await refreshPageAccesToken(models, pageId, integration);
+    // const pageTokens = await refreshPageAccesToken(models, pageId, integration);
 
-    await subscribePage(pageId, pageTokens[pageId]);
+    // await subscribePage(pageId, pageTokens[pageId]);
 
     await models.Integrations.deleteMany({
       erxesApiId: { $ne: integrationId },
@@ -187,8 +187,8 @@ export const repairIntegrations = async (
         method: 'POST',
         body: JSON.stringify({
           domain: `${DOMAIN}/gateway/pl:whatsapp`,
-          facebookPageId: integration.facebookPageId,
-          fbPageIds: integration.facebookPageId
+          facebookPageId: integration.whatsappNumberIds,
+          fbPageIds: integration.whatsappNumberIds
         }),
         headers: { 'Content-Type': 'application/json' }
       });
@@ -278,91 +278,77 @@ export const whatsappCreateIntegration = async (
   models: IModels,
   { accountId, integrationId, data, kind }
 ): Promise<{ status: 'success' }> => {
+  console.log(data, 'data');
+  const whatsappNumberIds = JSON.parse(data).pageIds;
+
   const account = await models.Accounts.getAccount({ _id: accountId });
-  if (!account) {
-    throw new Error('Account not found');
+
+  const integration = await models.Integrations.create({
+    kind,
+    accountId,
+    erxesApiId: integrationId,
+    whatsappNumberIds
+  });
+
+  const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
+  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+
+  let domain = `${DOMAIN}/gateway/pl:facebook`;
+
+  if (process.env.NODE_ENV !== 'production') {
+    domain = `${DOMAIN}/pl:facebook`;
   }
-  const whatsappPageIds = JSON.parse(data).pageIds;
-  const whatsappPageId = Array.isArray(whatsappPageIds)
-    ? whatsappPageIds[0]
-    : whatsappPageIds;
-  const facebookPageIds = await getFacebookPageIdsForInsta(
-    account.token,
-    whatsappPageId
-  );
 
-  if (facebookPageIds) {
-    const integration = await models.Integrations.create({
-      kind,
-      accountId,
-      erxesApiId: integrationId,
-      whatsappPageId: whatsappPageId.toString(),
-      facebookPageId: facebookPageIds.toString() // Ensure it's a string
-    });
-
-    const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
-    const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
-
-    let domain = `${DOMAIN}/gateway/pl:whatsapp`;
-
-    if (process.env.NODE_ENV !== 'production') {
-      domain = `${DOMAIN}/pl:whatsapp`;
-    }
-
-    if (ENDPOINT_URL) {
-      // Send domain to core endpoints
-      try {
-        await fetch(`${ENDPOINT_URL}/register-endpoint`, {
-          method: 'POST',
-          body: JSON.stringify({
-            domain,
-            whatsappPageId,
-            igPageId: whatsappPageId
-          }),
-          headers: { 'Content-Type': 'application/json' }
-        });
-      } catch (e) {
-        await models.Integrations.deleteOne({ _id: integration._id });
-        throw e;
-      }
-    }
-
-    const facebookPageTokensMap: { [key: string]: string } = {};
-
+  if (ENDPOINT_URL) {
+    // send domain to core endpoints
     try {
-      const pageAccessToken = await getPageAccessToken(
-        facebookPageIds,
-        account.token
-      );
-
-      facebookPageTokensMap[facebookPageIds] = pageAccessToken;
-
-      try {
-        await subscribePage(facebookPageIds, pageAccessToken);
-        debugWhatsapp(`Successfully subscribed page ${facebookPageIds}`);
-      } catch (e) {
-        debugError(
-          `Error occurred while trying to subscribe page ${e.message || e}`
-        );
-        throw e;
-      }
+      await fetch(`${ENDPOINT_URL}/register-endpoint`, {
+        method: 'POST',
+        body: JSON.stringify({
+          domain,
+          whatsappNumberIds,
+          wabaIds: whatsappNumberIds
+        }),
+        headers: { 'Content-Type': 'application/json' }
+      });
     } catch (e) {
-      debugError(
-        `Error occurred while trying to get page access token with ${
-          e.message || e
-        }`
-      );
-
+      await models.Integrations.deleteOne({ _id: integration._id });
       throw e;
     }
-
-    integration.facebookPageTokensMap = facebookPageTokensMap;
-
-    await integration.save();
-
-    return { status: 'success' };
-  } else {
-    // Handle the case where facebookPageId is null
-    throw new Error('Select whatsapp Pages');
   }
+
+  // const facebookPageTokensMap: { [key: string]: string } = {};
+
+  // for (const pageId of whatsAppNumberIds) {
+  //   console.log(pageId, 'asdkopasdkaps');
+  //   try {
+  //     const pageAccessToken = await getPageAccessToken(pageId, account.token);
+
+  //     facebookPageTokensMap[pageId] = pageAccessToken;
+
+  //     try {
+  //       await subscribePage(pageId, pageAccessToken);
+  //       debugWhatsapp(`Successfully subscribed page ${pageId}`);
+  //     } catch (e) {
+  //       debugError(
+  //         `Error ocurred while trying to subscribe page ${e.message || e}`
+  //       );
+  //       throw e;
+  //     }
+  //   } catch (e) {
+  //     debugError(
+  //       `Error ocurred while trying to get page access token with ${
+  //         e.message || e
+  //       }`
+  //     );
+
+  //     throw e;
+  //   }
+  // }
+
+  // integration.facebookPageTokensMap = facebookPageTokensMap;
+
+  await integration.save();
+
+  return { status: 'success' };
 };

@@ -45,7 +45,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
     const { kind } = this.props;
     const { REACT_APP_API_URL } = getEnv();
     this.popupWindow(
-      `${REACT_APP_API_URL}/pl:whatsapp/iglogin?kind=${kind}`,
+      `${REACT_APP_API_URL}/pl:whatsapp/login?kind=${kind}`,
       'Integration',
       window,
       660,

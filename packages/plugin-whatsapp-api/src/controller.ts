@@ -3,9 +3,8 @@ import { getConfig } from './commonUtils';
 import loginMiddleware from './middlewares/loginMiddleware';
 import receiveMessage from './receiveMessage';
 import { generateModels } from './connectionResolver';
-import { getPageList } from './utils';
+import { getBusinessWhatsAppDetails } from './utils';
 import { INTEGRATION_KINDS } from './constants';
-import receiveComment from './receiveComment';
 
 import {
   debugError,
@@ -15,57 +14,57 @@ import {
 } from './debuggers';
 
 const init = async (app) => {
-  app.get('/iglogin', loginMiddleware);
+  app.get('/login', loginMiddleware);
 
-  app.get('/whatsapp/get-accounts', async (req, res, next) => {
-    debugRequest(debugWhatsapp, req);
-    const accountId = req.query.accountId;
-    const subdomain = getSubdomain(req);
-    const models = await generateModels(subdomain);
-    const account = await models.Accounts.getAccount({
-      _id: req.query.accountId
-    });
+  // app.get('/whatsapp/get-accounts', async (req, res, next) => {
+  //   debugRequest(debugWhatsapp, req);
+  //   const accountId = req.query.accountId;
+  //   const subdomain = getSubdomain(req);
+  //   const models = await generateModels(subdomain);
+  //   const account = await models.Accounts.getAccount({
+  //     _id: req.query.accountId
+  //   });
 
-    const accessToken = account.token;
+  //   const accessToken = account.token;
 
-    let pages: any[] = [];
+  //   let pages: any[] = [];
 
-    try {
-      pages = await getPageList(models, accessToken);
-    } catch (e) {
-      if (!e.message.includes('Application request limit reached')) {
-        await models.Integrations.updateOne(
-          { accountId },
-          {
-            $set: {
-              healthStatus: 'account-token',
-              error: `${e.message}`
-            }
-          }
-        );
-      }
+  //   try {
+  //     pages = await getBusinessWhatsAppDetails(models, accessToken, kind);
+  //   } catch (e) {
+  //     if (!e.message.includes('Application request limit reached')) {
+  //       await models.Integrations.updateOne(
+  //         { accountId },
+  //         {
+  //           $set: {
+  //             healthStatus: 'account-token',
+  //             error: `${e.message}`
+  //           }
+  //         }
+  //       );
+  //     }
 
-      debugError(`Error occured while connecting to facebook ${e.message}`);
-      return next(e);
-    }
+  //     debugError(`Error occured while connecting to facebook ${e.message}`);
+  //     return next(e);
+  //   }
 
-    debugResponse(debugWhatsapp, req, JSON.stringify(pages));
+  //   debugResponse(debugWhatsapp, req, JSON.stringify(pages));
 
-    return res.json(pages);
-  });
+  //   return res.json(pages);
+  // });
 
   app.get('/whatsapp/receive', async (req, res) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
-    const INSTAGRAM_VERIFY_TOKEN = await getConfig(
+    const WHATSAPP_VERIFY_TOKEN = await getConfig(
       models,
-      'INSTAGRAM_VERIFY_TOKEN'
+      'WHATSAPP_VERIFY_TOKEN'
     );
     // when the endpoint is registered as a webhook, it must echo back
     // the 'hub.challenge' value it receives in the query arguments
     if (req.query['hub.mode'] === 'subscribe') {
-      if (req.query['hub.verify_token'] === INSTAGRAM_VERIFY_TOKEN) {
+      if (req.query['hub.verify_token'] === WHATSAPP_VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
       } else {
         res.send('OK');
@@ -76,46 +75,21 @@ const init = async (app) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
     const data = req.body;
-    if (data.object !== 'whatsapp') {
+    console.log(data, 'datashdee');
+    if (data.object !== 'whatsapp_business_account') {
       return;
     }
     for (const entry of data.entry) {
+      console.log(entry, 'asdkoasd');
       // receive chat
-      if (entry.messaging) {
-        const messageData = entry.messaging[0];
-        if (messageData) {
-          try {
-            await receiveMessage(models, subdomain, messageData);
-            return res.send('success');
-          } catch (e) {
-            return res.send('error ' + e);
-          }
-        }
-      } else if (entry.standby) {
-        // Handle standby data if entry.messaging does not exist
-        const standbyData = entry.standby;
-        if (standbyData && standbyData.length > 0) {
-          try {
-            // Process each item in standbyData
-            for (const data of standbyData) {
-              await receiveMessage(models, subdomain, data); // Pass the current item
-            }
-            return res.send('success');
-          } catch (e) {
-            return res.send('error ' + e);
-          }
-        } else {
-          return res.send('no standby data'); // Handle case when standbyData is empty
-        }
-      }
       if (entry.changes) {
         for (const event of entry.changes) {
-          if (event.field === 'comments') {
+          if (event.field === 'messages') {
             debugWhatsapp(
               `Received comment data ${JSON.stringify(event.value)}`
             );
             try {
-              await receiveComment(models, subdomain, event.value, entry.id);
+              await receiveMessage(models, subdomain, event.value);
               debugWhatsapp(
                 `Successfully saved  ${JSON.stringify(event.value)}`
               );

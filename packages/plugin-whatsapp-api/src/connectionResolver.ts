@@ -71,22 +71,6 @@ export interface IContext extends IMainContext {
 export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
 
-  models.PostConversations = db.model<
-    IPostConversationDocument,
-    IPostConversationModel
-  >('whatsapp_posts_conversations', loadPostConversationClass(models));
-
-  models.CommentConversation = db.model<
-    ICommentConversationDocument,
-    ICommentConversationModel
-  >('whatsapp_comment_conversations', loadCommentConversationClass(models));
-  models.CommentConversationReply = db.model<
-    ICommentConversationReplyDocument,
-    ICommentConversationReplyModel
-  >(
-    'whatsapp_conversations_reply_facebook',
-    loadCommentConversationReplyClass(models)
-  );
   models.Accounts = db.model<IAccountDocument, IAccountModel>(
     'whatsapp_accounts',
     loadAccountClass(models)
