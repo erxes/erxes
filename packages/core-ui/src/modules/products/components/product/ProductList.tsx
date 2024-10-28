@@ -276,12 +276,6 @@ const List: React.FC<IProps> = props => {
       );
     }
 
-    const actionBarLeft = (
-      <Title>{`${
-        currentCategory.name || "All products"
-      } (${productsCount})`}</Title>
-    );
-
     return (
       <BarItems>
         <FormControl
@@ -312,9 +306,7 @@ const List: React.FC<IProps> = props => {
   };
 
   const actionBarLeft = (
-    <Title>{`${
-      currentCategory.name || "All products"
-    } (${productsCount})`}</Title>
+    <Title>{`${currentCategory.name || "All products"} (${productsCount})`}</Title>
   );
 
   return (
@@ -324,6 +316,7 @@ const List: React.FC<IProps> = props => {
           title={__("Product & Service")}
           queryParams={queryParams}
           breadcrumb={breadcrumb}
+          extraFilterParams={[{ param: 'image', bool: false }]}
         />
       }
       mainHead={
