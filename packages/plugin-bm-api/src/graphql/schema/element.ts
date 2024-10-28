@@ -43,6 +43,7 @@ export const types = () => `
 
 export const queries = `
   bmElements(categories: [String], page:Int, perPage:Int): ListElement
+  bmElementDetail(_id:String!): Element
   bmElementCategoryies(parentId:String): [ElementCategory]
   bmElementsInit: JSON
   bmCategoryInit: JSON

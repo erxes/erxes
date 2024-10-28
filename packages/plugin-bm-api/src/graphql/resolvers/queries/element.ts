@@ -195,6 +195,9 @@ const elementQueries = {
 
     return await models.ElementCategories.find(selector);
   },
+  async bmElementDetail(_root, { _id }, { models }: IContext) {
+    return await models.Elements.findById(_id);
+  },
 
   async bmElementsInit(_root, {}, { models }: IContext) {
     await checkDefaults(models, 'Breakfast');

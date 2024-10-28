@@ -21,6 +21,9 @@ const tourQueries = {
       total,
     };
   },
+  async bmTourDetail(_root, { _id }, { models }: IContext) {
+    return await models.Tours.findById(_id);
+  },
 };
 
 export default tourQueries;

@@ -38,6 +38,7 @@ export const types = () => `
 
 export const queries = `
   bmItineraries( page:Int, perPage:Int): ListItinerary
+  bmItineraryDetail(_id:String!): Itinerary
 `;
 
 const params = `

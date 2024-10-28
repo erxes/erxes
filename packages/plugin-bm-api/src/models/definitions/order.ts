@@ -8,6 +8,7 @@ export interface IOrder {
   tourId: string;
   amount: string;
   status: string;
+  note: string;
 }
 
 export interface IOrderDocument extends IOrder, Document {
@@ -33,6 +34,7 @@ export const orderSchema = schemaHooksWrapper(
 
     customerId: field({ type: String, optional: true, label: 'customerId' }),
     tourId: field({ type: String, optional: true, label: 'tourId' }),
+    note: field({ type: String, optional: true, label: 'note' }),
     amount: field({ type: Number, optional: true, label: 'amount' }),
     status: field({
       type: String,

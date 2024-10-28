@@ -23,6 +23,9 @@ const itineraryQueries = {
       total,
     };
   },
+  async bmItineraryDetail(_root, { _id }, { models }: IContext) {
+    return await models.Itineraries.findById(_id);
+  },
 };
 
 export default itineraryQueries;
