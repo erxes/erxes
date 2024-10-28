@@ -50,7 +50,7 @@ export const productToErkhet = async (
     isRPC: true,
   });
 
-  let weight = 1;
+  let weight;
 
   const weightField = await sendFormsMessage({
     subdomain,
@@ -66,7 +66,7 @@ export const productToErkhet = async (
     );
 
     if (weightData && weightData.value) {
-      weight = Number(weightData.value) || 1;
+      weight = Number(weightData.value) || undefined;
     }
   }
 
