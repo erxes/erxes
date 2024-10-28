@@ -239,10 +239,10 @@ const Form = (props: Props) => {
     return subUoms.map((subUom) => {
       const updateUoms = (key, value) => {
         const { subUoms = [] } = state;
-        subUom[key] = value;
+
         setState((prevState) => ({
           ...prevState,
-          subUoms: subUoms.map((su) => (su._id === subUom._id ? subUom : su)),
+          subUoms: subUoms.map((su) => (su._id === subUom._id ? { ...subUom, [key]: value } : su)),
         }));
       };
 
