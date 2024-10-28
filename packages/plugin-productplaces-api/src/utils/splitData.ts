@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import { sendCardsMessage, sendCoreMessage } from "../messageBroker";
+import { sendSalesMessage, sendCoreMessage } from "../messageBroker";
 import { getChildCategories, getChildTags } from "./utils";
 
 const checkSplit = async (
@@ -154,7 +154,7 @@ export const splitData = async (
     }
   }
 
-  await sendCardsMessage({
+  await sendSalesMessage({
     subdomain,
     action: "deals.updateOne",
     data: {

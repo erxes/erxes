@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import { IContext } from "../../../connectionResolver";
-import { sendProductsMessage, sendCoreMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 import { IPricingPlanDocument } from "../../../models/definitions/pricingPlan";
 import { getChildCategories, getChildTags } from "../../../utils/product";
 
@@ -50,27 +50,14 @@ const PricingPlan = {
       }
 
       case "vendor": {
-        const limit = await sendProductsMessage({
+        const products = await sendCoreMessage({
           subdomain,
-          action: "count",
-          data: {
-            query: {
-              vendorId: { $in: plan.vendors || [] }
-            }
-          },
-          isRPC: true,
-          defaultValue: 0
-        });
-
-        const products = await sendProductsMessage({
-          subdomain,
-          action: "find",
+          action: "products.find",
           data: {
             query: {
               vendorId: { $in: plan.vendors || [] }
             },
             field: { _id: 1 },
-            limit
           },
           isRPC: true,
           defaultValue: []
@@ -92,29 +79,16 @@ const PricingPlan = {
         const plansCategoryIds = includeCatIds.filter(
           c => !excludeCatIds.includes(c)
         );
-        const limit = await sendProductsMessage({
-          subdomain,
-          action: "count",
-          data: {
-            query: {
-              categoryId: { $in: plansCategoryIds },
-              _id: { $nin: plan.productsExcluded }
-            }
-          },
-          isRPC: true,
-          defaultValue: 0
-        });
 
-        const products = await sendProductsMessage({
+        const products = await sendCoreMessage({
           subdomain,
-          action: "find",
+          action: "products.find",
           data: {
             query: {
               categoryId: { $in: plansCategoryIds },
               _id: { $nin: plan.productsExcluded }
             },
             field: { _id: 1 },
-            limit
           },
           isRPC: true,
           defaultValue: []
@@ -133,29 +107,16 @@ const PricingPlan = {
         const plansTagIds = includeTagIds.filter(
           c => !excludeTagIds.includes(c)
         );
-        const limit = await sendProductsMessage({
-          subdomain,
-          action: "count",
-          data: {
-            query: {
-              tagIds: { $in: plansTagIds },
-              _id: { $nin: plan.productsExcluded }
-            }
-          },
-          isRPC: true,
-          defaultValue: 0
-        });
 
-        const products = await sendProductsMessage({
+        const products = await sendCoreMessage({
           subdomain,
-          action: "find",
+          action: "products.find",
           data: {
             query: {
               tagIds: { $in: plansTagIds },
               _id: { $nin: plan.productsExcluded }
             },
-            field: { _id: 1 },
-            limit
+            field: { _id: 1 }
           },
           isRPC: true,
           defaultValue: []

@@ -9,7 +9,7 @@ module.exports = {
         use: ['manageRemainders']
       },
       {
-        name: 'manageRemainder',
+        name: 'manageRemainders',
         description: 'Manage remainders'
       }
     ]

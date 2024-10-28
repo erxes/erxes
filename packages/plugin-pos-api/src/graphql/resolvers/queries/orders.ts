@@ -1,8 +1,6 @@
 import { checkPermission } from "@erxes/api-utils/src/permissions";
 import {
-  sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "../../../messageBroker";
 import { IContext, IModels } from "../../../connectionResolver";
 import {
@@ -242,9 +240,9 @@ export const posOrderRecordsQuery = async (
   }
 
   const productsIds = orders.map(order => order.items.productId);
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
-    action: "productFind",
+    action: "products.find",
     data: { query: { _id: { $in: productsIds } }, limit: productsIds.length },
     isRPC: true
   });
@@ -255,7 +253,7 @@ export const posOrderRecordsQuery = async (
   }
 
   const productCategoryIds = products.map(p => p.categoryId);
-  const productCategories = await sendProductsMessage({
+  const productCategories = await sendCoreMessage({
     subdomain,
     action: "categories.find",
     data: { query: { _id: { $in: productCategoryIds } } },
@@ -286,7 +284,7 @@ export const posOrderRecordsQuery = async (
   const userById = {};
 
   if (customerIds.length) {
-    const customers = await sendContactsMessage({
+    const customers = await sendCoreMessage({
       subdomain,
       action: "customers.find",
       data: { _id: { $in: customerIds } },
@@ -300,7 +298,7 @@ export const posOrderRecordsQuery = async (
   }
 
   if (companyIds.length) {
-    const companies = await sendContactsMessage({
+    const companies = await sendCoreMessage({
       subdomain,
       action: "companies.find",
       data: { _id: { $in: companyIds } },
@@ -465,9 +463,9 @@ const queries = {
     }
     const productIds = (order.items || []).map(i => i.productId);
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: "find",
+      action: "products.find",
       data: {
         query: {
           _id: { $in: productIds }
@@ -726,7 +724,7 @@ const queries = {
     const query: any = {};
 
     if (params.categoryId) {
-      const category = await sendProductsMessage({
+      const category = await sendCoreMessage({
         subdomain,
         action: "categories.findOne",
         data: {
@@ -737,7 +735,7 @@ const queries = {
         defaultValue: {}
       });
 
-      const productCategories = await sendProductsMessage({
+      const productCategories = await sendCoreMessage({
         subdomain,
         action: "categories.find",
         data: {
@@ -771,9 +769,9 @@ const queries = {
     const limit = params.perPage || 20;
     const skip = params.page ? (params.page - 1) * limit : 0;
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: "find",
+      action: "products.find",
       data: {
         query,
         sort: {},
@@ -783,9 +781,9 @@ const queries = {
       isRPC: true
     });
 
-    const totalCount = await sendProductsMessage({
+    const totalCount = await sendCoreMessage({
       subdomain,
-      action: "count",
+      action: "products.count",
       data: {
         query
       },

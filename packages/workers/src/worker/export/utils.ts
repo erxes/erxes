@@ -1,19 +1,19 @@
-import { IModels } from '../../connectionResolvers';
-import * as dotenv from 'dotenv';
-import * as path from 'path';
-import * as fs from 'fs';
+import { IModels } from "../../connectionResolvers";
+import * as dotenv from "dotenv";
+import * as path from "path";
+import * as fs from "fs";
 
-import CustomWorker from '../workerUtil';
-import { debugWorkers } from '../debugger';
+import CustomWorker from "../workerUtil";
+import { debugWorkers } from "../debugger";
 
 dotenv.config();
 
 const myWorker = new CustomWorker();
 
-export const uploadsFolderPath = path.join(__dirname, '../../private/uploads');
+export const uploadsFolderPath = path.join(__dirname, "../../private/uploads");
 
 const getWorkerFile = () => {
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== "production") {
     return `./src/worker/export/export.worker.js`;
   }
 
@@ -25,13 +25,8 @@ export const receiveExportCreate = async (
   models: IModels,
   subdomain: string
 ) => {
-  const {
-    contentType,
-    user,
-    columnsConfig,
-    exportHistoryId,
-    segmentData
-  } = content;
+  const { contentType, user, columnsConfig, exportHistoryId, segmentData } =
+    content;
 
   debugWorkers(`Export called`);
 

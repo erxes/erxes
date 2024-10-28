@@ -196,7 +196,7 @@ const getObject = async (
 };
 
 const saveObject = async (subdomain, type, object, modifier) => {
-  if (type === 'contacts:customer') {
+  if (type === 'core:customer') {
     return await sendCoreMessage({
       subdomain,
       action: 'customers.updateOne',

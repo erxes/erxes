@@ -81,7 +81,7 @@ const contractMutations = {
         },
         isRPC: true
       },
-      "contacts"
+      "core"
     );
 
     if (savingAmount > 0 && contract) {
@@ -144,7 +144,7 @@ const contractMutations = {
         },
         isRPC: true
       },
-      "contacts"
+      "core"
     );
 
     if (!customer) {

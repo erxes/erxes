@@ -3,7 +3,7 @@
 //   requireLogin
 // } from '@erxes/api-utils/src/permissions';
 
-import { sendProductsMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 import { IContext } from '../../../connectionResolver';
 
 const getFilter = ({
@@ -44,7 +44,7 @@ const flowCategoryQueries = {
   ) {
     const query = getFilter({ parentId, searchValue, status });
 
-    return await sendProductsMessage({
+    return await sendCoreMessage({
       subdomain,
       action: 'categories.find',
       data: { query, sort: { order: 1 } },
@@ -64,7 +64,7 @@ const flowCategoryQueries = {
   ) {
     const query = getFilter({ parentId, searchValue, status });
 
-    return await sendProductsMessage({
+    return await sendCoreMessage({
       subdomain,
       action: 'categories.count',
       data: { query },

@@ -1,5 +1,5 @@
 import { IModels } from "./connectionResolver";
-import { sendCoreMessage, sendProductsMessage } from "./messageBroker";
+import { sendCoreMessage } from "./messageBroker";
 import { VOUCHER_STATUS } from "./models/definitions/constants";
 
 interface IProductD {
@@ -8,7 +8,7 @@ interface IProductD {
 }
 
 export const getChildCategories = async (subdomain: string, categoryIds) => {
-  const childs = await sendProductsMessage({
+  const childs = await sendCoreMessage({
     subdomain,
     action: "categories.withChilds",
     data: { ids: categoryIds },
@@ -160,23 +160,12 @@ export const checkVouchersSale = async (
     allCatIds = allCatIds.concat(catIds);
   }
 
-  const limit = await sendProductsMessage({
+  const catProducts = await sendCoreMessage({
     subdomain,
-    action: "productCount",
-    data: {
-      query: { categoryId: { $in: allCatIds } }
-    },
-    isRPC: true,
-    defaultValue: 0
-  });
-
-  const catProducts = await sendProductsMessage({
-    subdomain,
-    action: "productFind",
+    action: "products.find",
     data: {
       query: { categoryId: { $in: allCatIds } },
       sort: { _id: 1, categoryId: 1 },
-      limit
     },
     isRPC: true,
     defaultValue: []

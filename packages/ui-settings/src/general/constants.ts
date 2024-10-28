@@ -41,7 +41,8 @@ export const SERVICE_TYPES = [
   { label: __('Local'), value: 'local' },
   { label: __('Amazon Web Service'), value: 'AWS' },
   { label: __('Google Cloud Service'), value: 'GCS' },
-  { label: __('Cloudflare'), value: 'CLOUDFLARE' }
+  { label: __('Cloudflare'), value: 'CLOUDFLARE' },
+  { label: __('Azure Storage'), value: 'AZURE' }
 ];
 
 export const FILE_SYSTEM_TYPES = [
@@ -275,6 +276,16 @@ export const FILE_MIME_TYPES = [
     value: 'text/plain',
     label: 'Plain text',
     extension: '.txt'
+  },
+  {
+    value: 'application/haansoft-hwp',
+    label: 'Hanword Document (HWP)',
+    extension: '.hwp'
+  },
+  {
+    value: 'application/haansoft-hwpml',
+    label: 'Hanword Document (HWPX)',
+    extension: '.hwpx'
   },
   // media
   {

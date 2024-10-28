@@ -8,7 +8,7 @@ export const types = (inboxEnabled) => `
   }
 
 
-   input SubmissionFilter {
+  input SubmissionFilter {
     operator: String
     value: JSON
     formFieldId: String
@@ -92,7 +92,6 @@ export const types = (inboxEnabled) => `
 
 
   type FormConnectResponse {
-      integration: ${inboxEnabled ? "Integration" : "JSON"}
       form: Form
   }
 
@@ -160,8 +159,8 @@ const formSubmissionQueryParams = `
 
 export const queries = `
   formDetail(_id: String!): Form
-  forms(page: Int,perPage: Int,type: String, brandId: String, tagId: String, status: String): [Form]
-  formsTotalCount(type: String, brandId: String, tagId: String, status: String): FormsTotalCount
+  forms(page: Int,perPage: Int,type: String, brandId: String, tagId: String, status: String, searchValue: String ): [Form]
+  formsTotalCount(type: String, brandId: String, tagId: String, status: String, searchValue: String): FormsTotalCount
   formSubmissions(${formSubmissionQueryParams}, page: Int, perPage: Int): [Submission]
   formSubmissionsTotalCount(${formSubmissionQueryParams}): Int
   formSubmissionDetail(contentTypeId: String!): Submission

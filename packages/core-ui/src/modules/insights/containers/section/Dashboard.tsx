@@ -1,5 +1,5 @@
 import React from "react";
-
+import * as compose from 'lodash.flowright';
 import { gql, useQuery, useMutation } from "@apollo/client";
 
 import Alert from "@erxes/ui/src/utils/Alert/index";
@@ -14,13 +14,19 @@ import {
   SectionsListQueryResponse,
 } from "../../types";
 import { useLocation, useNavigate } from "react-router-dom";
+import { IUser } from "@erxes/ui/src/auth/types";
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 type Props = {
   queryParams: any;
 };
 
-const  DashboardSectionContainer = (props: Props) => {
-  const { queryParams } = props;
+type FinalProps = {
+  currentUser: IUser
+} & Props
+
+const DashboardSectionContainer = (props: FinalProps) => {
+  const { queryParams, currentUser } = props;
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -36,6 +42,21 @@ const  DashboardSectionContainer = (props: Props) => {
     }
   );
 
+  const [dashboardUpdate] = useMutation(gql(mutations.dashboardEdit), {
+    refetchQueries: [
+      {
+        query: gql(queries.sectionList),
+        variables: { type: "dashboard" },
+      },
+      {
+        query: gql(queries.dashboardList),
+      },
+      {
+        query: gql(queries.insightPinnedList),
+      },
+    ],
+  });
+
   const [dashboardRemove] = useMutation(gql(mutations.dashboardRemove), {
     refetchQueries: [
       {
@@ -45,8 +66,17 @@ const  DashboardSectionContainer = (props: Props) => {
       {
         query: gql(queries.dashboardList),
       },
+      {
+        query: gql(queries.insightPinnedList),
+      },
     ],
   });
+
+  const updateDashboard = (_id: string) => {
+    dashboardUpdate({
+      variables: { _id, userId: currentUser._id },
+    })
+  };
 
   const removeDashboard = (id: string) => {
     confirm(__("Are you sure to delete selected dashboard?")).then(() => {
@@ -79,10 +109,11 @@ const  DashboardSectionContainer = (props: Props) => {
     sections,
     dashboards: list,
     loading,
+    updateDashboard,
     removeDashboard,
   };
 
   return <DashboardSection {...updatedProps} />;
 };
 
-export default DashboardSectionContainer;
+export default compose(withCurrentUser(DashboardSectionContainer))

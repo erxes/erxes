@@ -46,17 +46,17 @@ class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { form = {} as IForm } = props;
+    const { formData = {} as IForm } = props;
 
     this.state = {
       fields: (props.formData ? props.formData.fields : []) || [],
-      title: form.title || 'Form Title',
-      description: form.description || '',
-      buttonText: form.buttonText || 'Send',
+      title: formData.title || 'Form Title',
+      description: formData.description || '',
+      buttonText: formData.buttonText || 'Send',
       currentMode: undefined,
       currentField: undefined,
       type: props.type || '',
-      numberOfPages: form.numberOfPages || 1,
+      numberOfPages: formData.numberOfPages || 1,
       currentPage: 1,
     };
   }

@@ -119,7 +119,7 @@ const command = async () => {
       const fixedTriggers = [] as any;
 
       for (const trigger of triggers) {
-        trigger.type = switchContentType(triggers.type);
+        trigger.type = switchContentType(trigger.type);
 
         fixedTriggers.push({
           ...trigger
@@ -127,7 +127,12 @@ const command = async () => {
       }
 
       for (const action of actions) {
-        action.type = switchContentType(action.type);
+        const { type } = action;
+        const [serviceName, collectionType] = type.split(":");
+
+        if (serviceName) {
+          action.type = `${switchService(serviceName)}:${collectionType}`;
+        }
 
         const { module } = action.config;
 

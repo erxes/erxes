@@ -39,7 +39,7 @@ const CategoryDetail = ({ category, loading, topicId }: Props) => {
       return <div className="loader bigger" />;
     }
 
-    if (category.parentCategoryId) {
+    if (category.articles) {
       return (
         <div className="scroll-wrapper">
           <Articles

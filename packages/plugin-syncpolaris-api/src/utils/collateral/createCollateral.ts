@@ -88,9 +88,6 @@ export const createCollateral = async (subdomain: string, polarisConfig, loan: a
   });
 
   if (typeof collateralRes === "string") {
-    const res = JSON.parse(collateralRes);
-    await openCollateral(subdomain, res.acntCode);
-
     const res = JSON.parse(collateralRes)
     await openCollateral(subdomain, polarisConfig, res.acntCode)
 

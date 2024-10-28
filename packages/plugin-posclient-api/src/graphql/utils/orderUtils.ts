@@ -24,7 +24,7 @@ import { checkRemainders } from "./products";
 import { getPureDate } from "@erxes/api-utils/src";
 import { checkDirectDiscount } from "./directDiscount";
 import { IPosUserDocument } from "../../models/definitions/posUsers";
-import { sendPosMessage, sendProductsMessage } from "../../messageBroker";
+import { sendPosMessage, sendCoreMessage } from "../../messageBroker";
 import { nanoid } from "nanoid";
 import { getCompanyInfo } from "../../models/PutData";
 
@@ -427,7 +427,7 @@ export const prepareOrderDoc = async (
   let subscriptionInfo;
 
   if (products.find(product => product?.type === PRODUCT_TYPES.SUBSCRIPTION)) {
-    subscriptionUoms = await sendProductsMessage({
+    subscriptionUoms = await sendCoreMessage({
       subdomain,
       action: "uoms.find",
       data: { isForSubscription: true },

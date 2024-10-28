@@ -436,15 +436,6 @@ export const sendCommonMessage = async (
   });
 };
 
-export const sendContactsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'core',
-    ...args,
-  });
-};
-
 export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
@@ -493,15 +484,6 @@ export const sendPurchasesMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'purchases',
-    ...args,
-  });
-};
-
-export const sendProductsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'core',
     ...args,
   });
 };

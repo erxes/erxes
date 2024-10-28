@@ -1,7 +1,5 @@
 import {
-  sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "../messageBroker";
 
 export const getIncomeData = async (
@@ -25,7 +23,7 @@ export const getIncomeData = async (
   });
 
   if (companyIds.length > 0) {
-    const companies = await sendContactsMessage({
+    const companies = await sendCoreMessage({
       subdomain,
       action: "companies.findActiveCompanies",
       data: {
@@ -58,7 +56,7 @@ export const getIncomeData = async (
     });
 
     if (customerIds.length > 0) {
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
         action: "customers.findActiveCustomers",
         data: {
@@ -78,9 +76,9 @@ export const getIncomeData = async (
 
   const productsIds = purchase.productsData.map(item => item.productId);
 
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
-    action: "productFind",
+    action: "products.find",
     data: {
       query: { _id: { $in: productsIds } },
       limit: purchase.productsData.length

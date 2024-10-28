@@ -1,8 +1,6 @@
 import { generateModels } from "./connectionResolver";
 import {
-  sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "./messageBroker";
 import * as _ from "lodash";
 
@@ -199,7 +197,7 @@ export default {
         defaultValue: []
       });
 
-      const activeCustomers = await sendContactsMessage({
+      const activeCustomers = await sendCoreMessage({
         subdomain,
         action: "customers.findActiveCustomers",
         data: { selector: { _id: { $in: customerIds } } },
@@ -210,7 +208,7 @@ export default {
       const customerRows: string[] = [];
 
       for (const item of activeCustomers) {
-        const name = await sendContactsMessage({
+        const name = await sendCoreMessage({
           subdomain,
           action: "customers.getCustomerName",
           data: { customer: item },
@@ -240,7 +238,7 @@ export default {
         defaultValue: []
       });
 
-      const activeCompanies = await sendContactsMessage({
+      const activeCompanies = await sendCoreMessage({
         subdomain,
         action: "companies.findActiveCompanies",
         data: { selector: { _id: { $in: companyIds } } },
@@ -251,7 +249,7 @@ export default {
       const companyRows: string[] = [];
 
       for (const item of activeCompanies) {
-        const name = await sendContactsMessage({
+        const name = await sendCoreMessage({
           subdomain,
           action: "companies.getCompanyName",
           data: { company: item },
@@ -286,9 +284,9 @@ export default {
           continue;
         }
 
-        const product = await sendProductsMessage({
+        const product = await sendCoreMessage({
           subdomain,
-          action: "productFindOne",
+          action: "products.findOne",
           data: { _id: pd.productId },
           isRPC: true
         });

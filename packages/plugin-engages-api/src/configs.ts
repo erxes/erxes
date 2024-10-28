@@ -1,17 +1,16 @@
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers/index';
-import telnyx from './api/telnyx';
-import { engageTracker } from './trackers/engageTracker';
-import { setupMessageConsumers } from './messageBroker';
-import { generateModels } from './connectionResolver';
-import tags from './tags';
-import logs from './logUtils';
-import cronjobs from './cronjobs/engages';
-import * as permissions from './permissions';
-import { getSubdomain } from '@erxes/api-utils/src/core';
-import webhooks from './webhooks';
 import app from '@erxes/api-utils/src/app';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import telnyx from './api/telnyx';
 import automations from './automations';
+import { generateModels } from './connectionResolver';
+import resolvers from './graphql/resolvers/index';
+import typeDefs from './graphql/typeDefs';
+import logs from './logUtils';
+import { setupMessageConsumers } from './messageBroker';
+import * as permissions from './permissions';
+import tags from './tags';
+import { engageTracker } from './trackers/engageTracker';
+import webhooks from './webhooks';
 
 export default {
   name: 'engages',
@@ -28,7 +27,6 @@ export default {
     tags,
     logs: { consumers: logs },
     webhooks,
-    cronjobs,
     permissions,
     automations
   },

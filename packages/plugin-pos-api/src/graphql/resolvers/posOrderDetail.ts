@@ -1,9 +1,8 @@
 import { IContext } from '../../connectionResolver';
 import {
   sendCoreMessage,
-  sendContactsMessage,
   sendEbarimtMessage,
-  sendCardsMessage,
+  sendSalesMessage,
 } from '../../messageBroker';
 import { IPosOrderDocument } from '../../models/definitions/orders';
 import { getConfig } from '../../utils';
@@ -32,7 +31,7 @@ const resolvers = {
     }
 
     if (order.customerType === 'company') {
-      const company = await sendContactsMessage({
+      const company = await sendCoreMessage({
         subdomain,
         action: 'companies.findOne',
         data: { _id: order.customerId },
@@ -77,7 +76,7 @@ const resolvers = {
     }
 
     if (!order.customerType || order.customerType === 'customer') {
-      const customer = await sendContactsMessage({
+      const customer = await sendCoreMessage({
         subdomain,
         action: 'customers.findOne',
         data: { _id: order.customerId },
@@ -133,7 +132,7 @@ const resolvers = {
       return null;
     }
 
-    return await sendCardsMessage({
+    return await sendSalesMessage({
       subdomain,
       action: 'deals.findOne',
       data: { _id: order.convertDealId },
@@ -145,7 +144,7 @@ const resolvers = {
     if (!order.convertDealId) {
       return null;
     }
-    return await sendCardsMessage({
+    return await sendSalesMessage({
       subdomain,
       action: 'getLink',
       data: { _id: order.convertDealId, type: 'deal' },

@@ -1,6 +1,7 @@
 import { IModels } from '../../connectionResolver';
 import { AMOUNT_RANGE_ATTRIBUTES, ATTACHMENT_TYPES, CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_BY_TYPES, DATERANGE_TYPES, DUE_DATERANGE_TYPES, DUE_TYPES, MONTH_NAMES, PRIORITY, PROBABILITY_DEAL, STATUS_TYPES, USER_TYPES } from '../constants';
 import { buildMatchFilter, buildPipeline, buildData, buildOptions } from '../utils';
+const util = require("util");
 
 const MEASURE_OPTIONS = [
     { label: 'Total Count', value: 'count' },
@@ -919,6 +920,7 @@ export const dealCharts = [
                     $match: {
                         [userType]: { $exists: true },
                         "productsData.currency": { $eq: "MNT" },
+                        'productsData.tickUsed': { $eq: true },
                         ...matchFilter
                     },
                 },
@@ -1240,7 +1242,7 @@ export const dealCharts = [
                 },
                 {
                     $lookup: {
-                        from: "stages",
+                        from: "sales_stages",
                         let: { stageId: "$_id" },
                         pipeline: [
                             {
@@ -2549,6 +2551,7 @@ export const dealCharts = [
                     $match: {
                         stageId: { $exists: true },
                         "productsData.currency": { $eq: "MNT" },
+                        'productsData.tickUsed': { $eq: true },
                         // status: {$eq: "archived"} CLOSED GEDGIIN AVAH ESEH ???
                         ...matchFilter
                     },
@@ -2845,11 +2848,12 @@ export const dealCharts = [
             const matchFilter = await buildMatchFilter(filter, 'deal', subdomain, models)
 
             const pipeline = buildPipeline(filter, "deal", matchFilter)
+
             const deals = await models.Deals.aggregate(pipeline)
 
             const title = 'Total Deals Count';
 
-            return { title, ...buildData({ chartType, data: deals, filter }), ...buildOptions(filter) };
+            return { title, ...buildData({ chartType, data: deals, filter, type: "deal" }), ...buildOptions(filter) };
         },
         filterTypes: [
             // DIMENSION FILTER
@@ -2863,6 +2867,14 @@ export const dealCharts = [
                         logicFieldValue: 'pivotTable',
                     },
                 ],
+                fieldValueOptions: [
+                    {
+                        fieldName: 'showTotal',
+                        fieldType: 'checkbox',
+                        fieldLabel: 'Show total',
+                        fieldDefaultValue: false
+                    }
+                ],
                 fieldOptions: DIMENSION_OPTIONS,
                 fieldLabel: 'Select row',
             },
@@ -2875,6 +2887,14 @@ export const dealCharts = [
                         logicFieldName: 'chartType',
                         logicFieldValue: 'pivotTable',
                     },
+                ],
+                fieldValueOptions: [
+                    {
+                        fieldName: 'showTotal',
+                        fieldType: 'checkbox',
+                        fieldLabel: 'Show total',
+                        fieldDefaultValue: false
+                    }
                 ],
                 fieldOptions: DIMENSION_OPTIONS,
                 fieldLabel: 'Select column',

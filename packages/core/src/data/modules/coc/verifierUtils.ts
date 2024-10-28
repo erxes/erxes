@@ -27,7 +27,7 @@ export const validateSingle = async (
     : "http://localhost:4000";
   const domain = DOMAIN.replace("<subdomain>", subdomain);
 
-  const callback_url = `${domain}/pl:contacts`;
+  const callback_url = `${domain}/pl:core`;
 
   let body = {};
 
@@ -76,7 +76,7 @@ export const validateBulk = async (
 ) => {
   const EMAIL_VERIFIER_ENDPOINT = getEnv({
     name: "EMAIL_VERIFIER_ENDPOINT",
-    defaultValue: ""
+    defaultValue: "http://localhost:4100"
   });
 
   const DOMAIN = getEnv({ name: "DOMAIN" })
@@ -84,7 +84,7 @@ export const validateBulk = async (
     : "http://localhost:4000";
   const domain = DOMAIN.replace("<subdomain>", subdomain);
 
-  const callback_url = `${domain}/pl:contacts`;
+  const callback_url = `${domain}/pl:core`;
 
   const BATCH_SIZE = 1000;
 
@@ -167,41 +167,58 @@ export const validateBulk = async (
 export const updateContactsValidationStatus = async (
   models: IModels,
   type: string,
-  data: []
+  data: Array<{ email?: string; phone?: string; status: string }>
 ) => {
+  console.log(data);
+  
   if (type === "email") {
-    const bulkOps: Array<{
-      updateMany: {
-        filter: { primaryEmail: string };
-        update: { emailValidationStatus: string };
-      };
-    }> = [];
-
-    for (const { email, status } of data) {
-      bulkOps.push({
+    try {
+      const bulkOps: Array<{
         updateMany: {
-          filter: { primaryEmail: email },
-          update: { emailValidationStatus: status }
+          filter: { primaryEmail: string };
+          update: { $set: { emailValidationStatus: string } };
+        };
+      }> = [];
+
+      for (const { email, status } of data) {
+        if (email) {
+          bulkOps.push({
+            updateMany: {
+              filter: { primaryEmail: email },
+              update: { $set: { emailValidationStatus: status } }
+            }
+          });
         }
-      });
+      }
+
+      if (bulkOps.length > 0) {
+        await models.Customers.bulkWrite(bulkOps);
+      }
+    } catch (e) {
+      console.log(e);
     }
-    await models.Customers.bulkWrite(bulkOps);
   }
 
   const phoneBulkOps: Array<{
     updateMany: {
       filter: { primaryPhone: string };
-      update: { phoneValidationStatus: string };
+      update: { $set: { phoneValidationStatus: string } };
     };
   }> = [];
 
   for (const { phone, status } of data) {
-    phoneBulkOps.push({
-      updateMany: {
-        filter: { primaryPhone: phone },
-        update: { phoneValidationStatus: status }
-      }
-    });
+    if (phone) {
+      phoneBulkOps.push({
+        updateMany: {
+          filter: { primaryPhone: phone },
+          update: { $set: { phoneValidationStatus: status } }
+        }
+      });
+    }
   }
-  await models.Customers.bulkWrite(phoneBulkOps);
+
+  if (phoneBulkOps.length > 0) {
+    await models.Customers.bulkWrite(phoneBulkOps);
+  }
 };
+

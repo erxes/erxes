@@ -10,7 +10,6 @@ import { getNextMonth, getToday, regexSearchText } from "@erxes/api-utils/src";
 import { IListParams } from "./boards";
 import {
   fetchSegment,
-  sendContactsMessage,
   sendCoreMessage,
   sendNotificationsMessage
 } from "../../../messageBroker";
@@ -649,7 +648,7 @@ export const generateSort = (args: IListParams) => {
   const { sortField, sortDirection } = args;
 
   if (sortField && sortDirection) {
-    sort = { [sortField]: sortDirection };
+    sort = { [sortField]: sortDirection, order: 1, createdAt: -1 };
   }
 
   return sort;
@@ -1079,7 +1078,7 @@ export const getItemList = async (
     serverTiming.startTime("getItemsCompanies");
   }
 
-  const companies = await sendContactsMessage({
+  const companies = await sendCoreMessage({
     subdomain,
     action: "companies.findActiveCompanies",
     data: {
@@ -1098,8 +1097,6 @@ export const getItemList = async (
     isRPC: true
   });
 
-  console.log(companies);
-
   if (serverTiming) {
     serverTiming.endTime("getItemsCompanies");
   }
@@ -1108,7 +1105,7 @@ export const getItemList = async (
     serverTiming.startTime("getItemsCustomers");
   }
 
-  const customers = await sendContactsMessage({
+  const customers = await sendCoreMessage({
     subdomain,
     action: "customers.findActiveCustomers",
     data: {

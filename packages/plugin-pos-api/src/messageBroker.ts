@@ -169,7 +169,7 @@ export const setupMessageConsumers = async () => {
     }
 
     const dealId = order.deliveryInfo.dealId;
-    const deal = await sendCardsMessage({
+    const deal = await sendSalesMessage({
       subdomain,
       action: "deals.findOne",
       data: { _id: dealId },
@@ -185,7 +185,7 @@ export const setupMessageConsumers = async () => {
       };
     }
 
-    const stage = await sendCardsMessage({
+    const stage = await sendSalesMessage({
       subdomain,
       action: "stages.findOne",
       data: { _id: deal.stageId },
@@ -274,20 +274,11 @@ export const setupMessageConsumers = async () => {
   });
 };
 
-export const sendProductsMessage = async (
+export const sendSalesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "core",
-    ...args
-  });
-};
-
-export const sendCardsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "cards",
+    serviceName: "sales",
     ...args
   });
 };
@@ -306,15 +297,6 @@ export const sendPricingMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "pricing",
-    ...args
-  });
-};
-
-export const sendContactsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "core",
     ...args
   });
 };

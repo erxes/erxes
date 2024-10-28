@@ -111,6 +111,7 @@ const EditorActions = styled.div`
     &:first-of-type {
       position: absolute;
       left: 20px;
+      z-index: 11;
     }
   }
 
@@ -283,7 +284,7 @@ const MaskWrapper = styled.div`
 
 const Mask = styled.div`
   position: absolute;
-  padding: 20px;
+  padding: 10px;
   left: 0;
   bottom: 0;
   right: 0;
