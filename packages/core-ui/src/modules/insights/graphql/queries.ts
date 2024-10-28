@@ -233,7 +233,6 @@ const insuranceTypeFields = `
   department
   branch
   teamGoalType
-  progress
   startDate
   endDate
   target

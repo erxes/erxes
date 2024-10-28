@@ -10,8 +10,10 @@ import Sidebar from '../components/plan/Sidebar';
 import { SUBMENU } from '../constants';
 import List from '../containers/plan/List';
 import { queries } from '../graphql';
+import { useLocation } from 'react-router-dom';
 
 const Plans = () => {
+  const location = useLocation()
   const query = queryString.parse(location.search);
   const params = {
     ...query,

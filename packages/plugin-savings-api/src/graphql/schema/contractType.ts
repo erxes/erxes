@@ -18,6 +18,7 @@ export const types = () => `
     isAllowIncome: Boolean
     isAllowOutcome: Boolean
     isDeposit: Boolean
+    productType: String
   }
 
   type SavingContractTypesListResponse {
@@ -35,6 +36,7 @@ const queryParams = `
   sortField: String
   sortDirection: Int
   isDeposit: Boolean
+  productType: String
 `;
 
 export const queries = `
@@ -61,6 +63,7 @@ const commonFields = `
   isAllowIncome: Boolean
   isAllowOutcome: Boolean
   isDeposit: Boolean
+  productType: String
 `;
 
 export const mutations = `

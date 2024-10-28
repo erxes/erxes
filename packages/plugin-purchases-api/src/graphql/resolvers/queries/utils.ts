@@ -210,7 +210,8 @@ export const generateCommonFilters = async (
     departmentIds,
     dateRangeFilters,
     customFieldsDataFilters,
-    vendorCustomerIds
+    vendorCustomerIds,
+    resolvedDayBetween,
   } = args;
 
   const isListEmpty = value => {
@@ -560,6 +561,36 @@ export const generateCommonFilters = async (
     filter.number = { $regex: `${number}`, $options: "mui" };
   }
 
+  if ((stageId || stageCodes) && resolvedDayBetween) {
+    const [dayFrom, dayTo] = resolvedDayBetween;
+    filter.$expr = {
+      $and: [
+        // Convert difference between stageChangedDate and createdAt to days
+        {
+          $gte: [
+            {
+              $divide: [
+                { $subtract: ['$stageChangedDate', '$createdAt'] },
+                1000 * 60 * 60 * 24, // Convert milliseconds to days
+              ],
+            },
+            dayFrom, // Minimum day (0 days)
+          ],
+        },
+        {
+          $lt: [
+            {
+              $divide: [
+                { $subtract: ['$stageChangedDate', '$createdAt'] },
+                1000 * 60 * 60 * 24,
+              ],
+            },
+            dayTo, // Maximum day (3 days)
+          ],
+        },
+      ],
+    };
+  }
   return filter;
 };
 

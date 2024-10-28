@@ -78,5 +78,8 @@ export default {
       branchIds: { $in: [branch._id, ...allChildrenIds] },
       isActive: true
     }).countDocuments();
+  },
+  async hasChildren({ _id }: IBranchDocument, _args, { models }: IContext) {
+    return !!(await models.Branches.exists({ parentId: _id }));
   }
 };

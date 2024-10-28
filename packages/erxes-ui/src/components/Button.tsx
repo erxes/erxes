@@ -176,6 +176,9 @@ const Img = styled.img`
   margin-right: 5px;
 `;
 
+type ButtonType = keyof typeof types;
+
+
 export type ButtonProps = {
   children?: React.ReactNode;
   className?: string;
@@ -183,7 +186,7 @@ export type ButtonProps = {
   onMouseDown?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   href?: string;
   type?: string;
-  btnStyle?: string;
+  btnStyle?: ButtonType;
   size?: string;
   disabled?: boolean;
   ignoreTrans?: boolean;

@@ -72,6 +72,7 @@ const listQueryParams = `
     startDateEndDate: Date
     closeDateStartDate: Date
     closeDateEndDate: Date
+    resolvedDayBetween:[Int]
     ${conformityQueryFields}
 `;
 
