@@ -5,12 +5,12 @@ import { ICustomer } from './models/definitions/customers';
 export const getOrCreateCustomer = async (
   models: IModels,
   subdomain: string,
-  callAccount: any
+  callAccount: any,
 ) => {
   const { inboxIntegrationId, primaryPhone } = callAccount;
   let customer = await models.Customers.findOne({
     primaryPhone,
-    status: 'completed'
+    status: 'completed',
   });
   if (!customer) {
     try {
@@ -18,7 +18,7 @@ export const getOrCreateCustomer = async (
         inboxIntegrationId,
         erxesApiId: null,
         primaryPhone: primaryPhone,
-        status: 'pending'
+        status: 'pending',
       });
     } catch (e) {
       if (e.message.includes('duplicate')) {
@@ -38,10 +38,10 @@ export const getOrCreateCustomer = async (
             integrationId: inboxIntegrationId,
             primaryPhone: primaryPhone,
             isUser: true,
-            phone: [primaryPhone]
-          })
+            phone: [primaryPhone],
+          }),
         },
-        isRPC: true
+        isRPC: true,
       });
       customer.erxesApiId = apiCustomerResponse._id;
       customer.status = 'completed';
