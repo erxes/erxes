@@ -1,5 +1,6 @@
 import { generateModels } from "./connectionResolver";
 import { fieldsCombinedByContentType } from "./formUtils";
+import productDocuments from "./data/modules/product/documents";
 
 const getContactDetail = async (subdomain, contentType, contentTypeId) => {
   const models = await generateModels(subdomain);
@@ -17,6 +18,10 @@ const getContactDetail = async (subdomain, contentType, contentTypeId) => {
 };
 
 const getFields = async ({ subdomain, contentType }) => {
+  if (contentType === "core:product") {
+    return productDocuments.editorAttributes({ subdomain });
+  }
+
   const models = await generateModels(subdomain);
 
   const fields = await fieldsCombinedByContentType(models, subdomain, {
@@ -41,13 +46,22 @@ export default {
     }
   ],
 
-  editorAttributes: async ({ subdomain, data: { contentType } }) => {
+  editorAttributes: async ({ subdomain, data }) => {
+    const { contentType } = data;
+
+    if (contentType === "core:product") {
+      return productDocuments.editorAttributes({ subdomain });
+    }
+
     return await getFields({ subdomain, contentType });
   },
-  replaceContent: async ({
-    subdomain,
-    data: { contentTypeId, content, contentType }
-  }) => {
+  replaceContent: async ({ subdomain, data }) => {
+    const { contentType, contentTypeId, content } = data;
+
+    if (contentType === "core:product") {
+      return productDocuments.replaceContent({ subdomain, data });
+    }
+
     const contact = await getContactDetail(
       subdomain,
       contentType,

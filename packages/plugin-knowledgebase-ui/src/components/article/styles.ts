@@ -2,6 +2,7 @@ import { colors, dimensions } from '@erxes/ui/src/styles';
 
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import styled from 'styled-components';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 
 const RowArticle = styled.div`
   background-color: ${colors.colorWhite};
@@ -117,6 +118,44 @@ const FlexRow = styled.div`
   }
 `;
 
+const UploadBtn = styled.div`
+  position: relative;
+  margin-top: 10px;
+  label {
+    padding: 7px 15px;
+    background: ${rgba(colors.colorCoreDarkBlue, 0.05)};
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background 0.3s ease;
+    display: inline-block;
+    &:hover {
+      background: ${rgba(colors.colorCoreDarkBlue, 0.1)};
+      cursor: pointer;
+    }
+  }
+  input[type='file'] {
+    display: none;
+  }
+`;
+
+const AttachmentContainer = styled.div`
+  margin-top: 20px;
+`;
+
+const PageImage = styled.img`
+  width: 100px; // Set appropriate width
+  height: auto; // Maintain aspect ratio
+  margin-right: 10px; // Space between images
+`;
+
+const DeleteButton = styled.button`
+  background-color: red; // Change to your desired color
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+`;
+
 export {
   RowArticle,
   ArticleTitle,
@@ -128,4 +167,8 @@ export {
   FillContent,
   FlexRow,
   Forms,
+  UploadBtn,
+  AttachmentContainer,
+  PageImage,
+  DeleteButton,
 };

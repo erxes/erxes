@@ -159,6 +159,21 @@ const knowledgeBaseArticles = `
         size
         duration
       }
+
+      pdfAttachment {
+        pdf {
+          name
+          url
+          type
+          size
+        }
+        pages {
+          name
+          url
+          type
+          size
+        }
+      }
       image {
         name
         url
