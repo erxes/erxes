@@ -1,4 +1,4 @@
-import { generateModels } from "./connectionResolver";
+import { generateModels } from './connectionResolver';
 
 export default {
   generateInternalNoteNotif: async ({ subdomain, data }) => {
@@ -29,5 +29,5 @@ export default {
     notifDoc.notifOfItems = true;
 
     return notifDoc;
-  }
+  },
 };
