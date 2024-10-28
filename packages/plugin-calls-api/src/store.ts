@@ -33,7 +33,7 @@ export const getOrCreateCustomer = async (
         subdomain,
         action: 'integrations.receive',
         data: {
-          action: '',
+          action: 'get-create-update-customer',
           payload: JSON.stringify({
             integrationId: inboxIntegrationId,
             primaryPhone: primaryPhone,
