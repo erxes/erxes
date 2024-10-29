@@ -182,6 +182,7 @@ export const dealCharts = [
                 fieldQuery: 'salesBoards',
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldRequiredQueryParams: ['type'],
                 fieldQueryVariables: `{"type": "deal"}`,
                 fieldLabel: 'Select board',
             },
@@ -207,12 +208,6 @@ export const dealCharts = [
                 fieldName: 'stageProbability',
                 fieldType: 'select',
                 fieldOptions: PROBABILITY_DEAL,
-                logics: [
-                    {
-                        logicFieldName: 'pipelineIds',
-                        logicFieldVariable: 'pipelineIds',
-                    },
-                ],
                 fieldLabel: 'Select Probability',
             },
             // STAGE FILTER
@@ -224,7 +219,6 @@ export const dealCharts = [
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
                 fieldParentVariable: 'pipelineId',
-                fieldQueryVariables: `{"type": "deal"}`,
                 fieldParentQuery: "salesPipelines",
                 logics: [
                     {
@@ -242,6 +236,8 @@ export const dealCharts = [
                 multi: true,
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldParentVariable: 'pipelineId',
+                fieldParentQuery: "salesPipelines",
                 logics: [
                     {
                         logicFieldName: 'pipelineIds',
@@ -291,7 +287,8 @@ export const dealCharts = [
                 fieldLabelVariable: 'text',
                 fieldParentVariable: 'groupId',
                 fieldParentQuery: "fieldsGroups",
-                fieldQueryVariables: `{"contentType": "sales:deal", "isVisible": true}`,
+                fieldRequiredQueryParams: ["contentType"],
+                fieldQueryVariables: `{"contentType": "sales:deal"}`,
                 logics: [
                     {
                         logicFieldName: 'groupIds',
@@ -468,6 +465,7 @@ export const dealCharts = [
                 fieldQuery: 'salesBoards',
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldRequiredQueryParams: ['type'],
                 fieldQueryVariables: `{"type": "deal"}`,
                 fieldLabel: 'Select board',
             },
@@ -493,12 +491,6 @@ export const dealCharts = [
                 fieldName: 'stageProbability',
                 fieldType: 'select',
                 fieldOptions: PROBABILITY_DEAL,
-                logics: [
-                    {
-                        logicFieldName: 'pipelineIds',
-                        logicFieldVariable: 'pipelineIds',
-                    },
-                ],
                 fieldLabel: 'Select Probability',
             },
             // STAGE FILTER
@@ -578,7 +570,8 @@ export const dealCharts = [
                 fieldLabelVariable: 'text',
                 fieldParentVariable: 'groupId',
                 fieldParentQuery: "fieldsGroups",
-                fieldQueryVariables: `{"contentType": "sales:deal", "isVisible": true}`,
+                fieldRequiredQueryParams: ["contentType"],
+                fieldQueryVariables: `{"contentType": "sales:deal"}`,
                 logics: [
                     {
                         logicFieldName: 'groupIds',
@@ -757,6 +750,7 @@ export const dealCharts = [
                 fieldQuery: 'salesBoards',
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldRequiredQueryParams: ['type'],
                 fieldQueryVariables: `{"type": "deal"}`,
                 fieldLabel: 'Select board',
             },
@@ -782,12 +776,6 @@ export const dealCharts = [
                 fieldName: 'stageProbability',
                 fieldType: 'select',
                 fieldOptions: PROBABILITY_DEAL,
-                logics: [
-                    {
-                        logicFieldName: 'pipelineIds',
-                        logicFieldVariable: 'pipelineIds',
-                    },
-                ],
                 fieldLabel: 'Select Probability',
             },
             // STAGE FILTER
@@ -816,6 +804,8 @@ export const dealCharts = [
                 multi: true,
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldParentVariable: 'pipelineId',
+                fieldParentQuery: "salesPipelines",
                 logics: [
                     {
                         logicFieldName: 'pipelineIds',
@@ -865,7 +855,8 @@ export const dealCharts = [
                 fieldLabelVariable: 'text',
                 fieldParentVariable: 'groupId',
                 fieldParentQuery: "fieldsGroups",
-                fieldQueryVariables: `{"contentType": "sales:deal", "isVisible": true}`,
+                fieldRequiredQueryParams: ["contentType"],
+                fieldQueryVariables: `{"contentType": "sales:deal"}`,
                 logics: [
                     {
                         logicFieldName: 'groupIds',
@@ -1064,6 +1055,7 @@ export const dealCharts = [
                 fieldQuery: 'salesBoards',
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldRequiredQueryParams: ['type'],
                 fieldQueryVariables: `{"type": "deal"}`,
                 fieldLabel: 'Select board',
             },
@@ -1089,12 +1081,6 @@ export const dealCharts = [
                 fieldName: 'stageProbability',
                 fieldType: 'select',
                 fieldOptions: PROBABILITY_DEAL,
-                logics: [
-                    {
-                        logicFieldName: 'pipelineIds',
-                        logicFieldVariable: 'pipelineIds',
-                    },
-                ],
                 fieldLabel: 'Select Probability',
             },
             // STAGE FILTER
@@ -1123,6 +1109,8 @@ export const dealCharts = [
                 multi: true,
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldParentVariable: 'pipelineId',
+                fieldParentQuery: "salesPipelines",
                 logics: [
                     {
                         logicFieldName: 'pipelineIds',
@@ -1172,7 +1160,8 @@ export const dealCharts = [
                 fieldLabelVariable: 'text',
                 fieldParentVariable: 'groupId',
                 fieldParentQuery: "fieldsGroups",
-                fieldQueryVariables: `{"contentType": "sales:deal", "isVisible": true}`,
+                fieldRequiredQueryParams: ["contentType"],
+                fieldQueryVariables: `{"contentType": "sales:deal"}`,
                 logics: [
                     {
                         logicFieldName: 'groupIds',
@@ -1364,6 +1353,7 @@ export const dealCharts = [
                 fieldQuery: 'salesBoards',
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldRequiredQueryParams: ['type'],
                 fieldQueryVariables: `{"type": "deal"}`,
                 multi: false,
                 fieldLabel: 'Select boards',
@@ -1390,12 +1380,6 @@ export const dealCharts = [
                 fieldName: 'stageProbability',
                 fieldType: 'select',
                 fieldOptions: PROBABILITY_DEAL,
-                logics: [
-                    {
-                        logicFieldName: 'pipelineIds',
-                        logicFieldVariable: 'pipelineIds',
-                    },
-                ],
                 fieldLabel: 'Select Probability',
             },
             // STAGE FILTER
@@ -1405,7 +1389,6 @@ export const dealCharts = [
                 fieldQuery: 'salesStages',
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
-                fieldQueryVariables: `{"type": "deal"}`,
                 fieldParentVariable: "pipelineId",
                 fieldParentQuery: "salesPipelines",
                 multi: true,
@@ -1425,6 +1408,8 @@ export const dealCharts = [
                 multi: true,
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldParentVariable: 'pipelineId',
+                fieldParentQuery: "salesPipelines",
                 logics: [
                     {
                         logicFieldName: 'pipelineIds',
@@ -1474,7 +1459,8 @@ export const dealCharts = [
                 fieldLabelVariable: 'text',
                 fieldParentVariable: 'groupId',
                 fieldParentQuery: "fieldsGroups",
-                fieldQueryVariables: `{"contentType": "sales:deal", "isVisible": true}`,
+                fieldRequiredQueryParams: ["contentType"],
+                fieldQueryVariables: `{"contentType": "sales:deal"}`,
                 logics: [
                     {
                         logicFieldName: 'groupIds',
@@ -1747,6 +1733,7 @@ export const dealCharts = [
                 fieldQuery: 'salesBoards',
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldRequiredQueryParams: ['type'],
                 fieldQueryVariables: `{"type": "deal"}`,
                 fieldLabel: 'Select board',
             },
@@ -1772,12 +1759,6 @@ export const dealCharts = [
                 fieldName: 'stageProbability',
                 fieldType: 'select',
                 fieldOptions: PROBABILITY_DEAL,
-                logics: [
-                    {
-                        logicFieldName: 'pipelineIds',
-                        logicFieldVariable: 'pipelineIds',
-                    },
-                ],
                 fieldLabel: 'Select Probability',
             },
             // STAGE FILTER
@@ -1789,7 +1770,6 @@ export const dealCharts = [
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
                 fieldParentVariable: 'pipelineId',
-                fieldQueryVariables: `{"type": "deal"}`,
                 fieldParentQuery: "salesPipelines",
                 logics: [
                     {
@@ -1807,6 +1787,8 @@ export const dealCharts = [
                 multi: true,
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldParentVariable: 'pipelineId',
+                fieldParentQuery: "salesPipelines",
                 logics: [
                     {
                         logicFieldName: 'pipelineIds',
@@ -1856,7 +1838,8 @@ export const dealCharts = [
                 fieldLabelVariable: 'text',
                 fieldParentVariable: 'groupId',
                 fieldParentQuery: "fieldsGroups",
-                fieldQueryVariables: `{"contentType": "sales:deal", "isVisible": true}`,
+                fieldRequiredQueryParams: ["contentType"],
+                fieldQueryVariables: `{"contentType": "sales:deal"}`,
                 logics: [
                     {
                         logicFieldName: 'groupIds',
@@ -2071,6 +2054,7 @@ export const dealCharts = [
                 fieldQuery: 'salesBoards',
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldRequiredQueryParams: ['type'],
                 fieldQueryVariables: `{"type": "deal"}`,
                 fieldLabel: 'Select board',
             },
@@ -2096,12 +2080,6 @@ export const dealCharts = [
                 fieldName: 'stageProbability',
                 fieldType: 'select',
                 fieldOptions: PROBABILITY_DEAL,
-                logics: [
-                    {
-                        logicFieldName: 'pipelineIds',
-                        logicFieldVariable: 'pipelineIds',
-                    },
-                ],
                 fieldLabel: 'Select Probability',
             },
             // STAGE FILTER
@@ -2113,7 +2091,6 @@ export const dealCharts = [
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
                 fieldParentVariable: 'pipelineId',
-                fieldQueryVariables: `{"type": "deal"}`,
                 fieldParentQuery: "salesPipelines",
                 logics: [
                     {
@@ -2131,6 +2108,8 @@ export const dealCharts = [
                 multi: true,
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldParentVariable: 'pipelineId',
+                fieldParentQuery: "salesPipelines",
                 logics: [
                     {
                         logicFieldName: 'pipelineIds',
@@ -2180,7 +2159,8 @@ export const dealCharts = [
                 fieldLabelVariable: 'text',
                 fieldParentVariable: 'groupId',
                 fieldParentQuery: "fieldsGroups",
-                fieldQueryVariables: `{"contentType": "sales:deal", "isVisible": true}`,
+                fieldRequiredQueryParams: ["contentType"],
+                fieldQueryVariables: `{"contentType": "sales:deal"}`,
                 logics: [
                     {
                         logicFieldName: 'groupIds',
@@ -2386,6 +2366,7 @@ export const dealCharts = [
                 fieldQuery: 'salesBoards',
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldRequiredQueryParams: ['type'],
                 fieldQueryVariables: `{"type": "deal"}`,
                 fieldLabel: 'Select board',
             },
@@ -2411,12 +2392,6 @@ export const dealCharts = [
                 fieldName: 'stageProbability',
                 fieldType: 'select',
                 fieldOptions: PROBABILITY_DEAL,
-                logics: [
-                    {
-                        logicFieldName: 'pipelineIds',
-                        logicFieldVariable: 'pipelineIds',
-                    },
-                ],
                 fieldLabel: 'Select Probability',
             },
             // STAGE FILTER
@@ -2428,7 +2403,6 @@ export const dealCharts = [
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
                 fieldParentVariable: 'pipelineId',
-                fieldQueryVariables: `{"type": "deal"}`,
                 fieldParentQuery: "salesPipelines",
                 logics: [
                     {
@@ -2446,6 +2420,8 @@ export const dealCharts = [
                 multi: true,
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldParentVariable: 'pipelineId',
+                fieldParentQuery: "salesPipelines",
                 logics: [
                     {
                         logicFieldName: 'pipelineIds',
@@ -2495,7 +2471,8 @@ export const dealCharts = [
                 fieldLabelVariable: 'text',
                 fieldParentVariable: 'groupId',
                 fieldParentQuery: "fieldsGroups",
-                fieldQueryVariables: `{"contentType": "sales:deal", "isVisible": true}`,
+                fieldRequiredQueryParams: ["contentType"],
+                fieldQueryVariables: `{"contentType": "sales:deal"}`,
                 logics: [
                     {
                         logicFieldName: 'groupIds',
@@ -2692,6 +2669,7 @@ export const dealCharts = [
                 fieldQuery: 'salesBoards',
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldRequiredQueryParams: ['type'],
                 fieldQueryVariables: `{"type": "deal"}`,
                 fieldLabel: 'Select board',
             },
@@ -2717,12 +2695,6 @@ export const dealCharts = [
                 fieldName: 'stageProbability',
                 fieldType: 'select',
                 fieldOptions: PROBABILITY_DEAL,
-                logics: [
-                    {
-                        logicFieldName: 'pipelineIds',
-                        logicFieldVariable: 'pipelineIds',
-                    },
-                ],
                 fieldLabel: 'Select Probability',
             },
             // STAGE FILTER
@@ -2734,7 +2706,6 @@ export const dealCharts = [
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
                 fieldParentVariable: 'pipelineId',
-                fieldQueryVariables: `{"type": "deal"}`,
                 fieldParentQuery: "salesPipelines",
                 logics: [
                     {
@@ -2752,6 +2723,8 @@ export const dealCharts = [
                 multi: true,
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldParentVariable: 'pipelineId',
+                fieldParentQuery: "salesPipelines",
                 logics: [
                     {
                         logicFieldName: 'pipelineIds',
@@ -2801,7 +2774,8 @@ export const dealCharts = [
                 fieldLabelVariable: 'text',
                 fieldParentVariable: 'groupId',
                 fieldParentQuery: "fieldsGroups",
-                fieldQueryVariables: `{"contentType": "sales:deal", "isVisible": true}`,
+                fieldRequiredQueryParams: ["contentType"],
+                fieldQueryVariables: `{"contentType": "sales:deal"}`,
                 logics: [
                     {
                         logicFieldName: 'groupIds',
@@ -2947,7 +2921,7 @@ export const dealCharts = [
                 fieldQuery: 'goalTypesMain',
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
-                fieldQueryVariables: `{"entity": "deal"}`,
+                fieldInitialVariable: 'list',
                 fieldLabel: 'Select goal',
             },
             // USER FILTER
@@ -3021,6 +2995,7 @@ export const dealCharts = [
                 fieldQuery: 'salesBoards',
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldRequiredQueryParams: ['type'],
                 fieldQueryVariables: `{"type": "deal"}`,
                 fieldLabel: 'Select board',
             },
@@ -3046,12 +3021,6 @@ export const dealCharts = [
                 fieldName: 'stageProbability',
                 fieldType: 'select',
                 fieldOptions: PROBABILITY_DEAL,
-                logics: [
-                    {
-                        logicFieldName: 'pipelineIds',
-                        logicFieldVariable: 'pipelineIds',
-                    },
-                ],
                 fieldLabel: 'Select Probability',
             },
             // STAGE FILTER
@@ -3063,7 +3032,6 @@ export const dealCharts = [
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
                 fieldParentVariable: 'pipelineId',
-                fieldQueryVariables: `{"type": "deal"}`,
                 fieldParentQuery: "salesPipelines",
                 logics: [
                     {
@@ -3081,6 +3049,8 @@ export const dealCharts = [
                 multi: true,
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldParentVariable: 'pipelineId',
+                fieldParentQuery: "salesPipelines",
                 logics: [
                     {
                         logicFieldName: 'pipelineIds',
@@ -3130,7 +3100,8 @@ export const dealCharts = [
                 fieldLabelVariable: 'text',
                 fieldParentVariable: 'groupId',
                 fieldParentQuery: "fieldsGroups",
-                fieldQueryVariables: `{"contentType": "sales:deal", "isVisible": true}`,
+                fieldRequiredQueryParams: ["contentType"],
+                fieldQueryVariables: `{"contentType": "sales:deal"}`,
                 logics: [
                     {
                         logicFieldName: 'groupIds',
@@ -3395,6 +3366,7 @@ export const dealCharts = [
                 fieldQuery: 'salesBoards',
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldRequiredQueryParams: ['type'],
                 fieldQueryVariables: `{"type": "deal"}`,
                 fieldLabel: 'Select board',
             },
@@ -3420,12 +3392,6 @@ export const dealCharts = [
                 fieldName: 'stageProbability',
                 fieldType: 'select',
                 fieldOptions: PROBABILITY_DEAL,
-                logics: [
-                    {
-                        logicFieldName: 'pipelineIds',
-                        logicFieldVariable: 'pipelineIds',
-                    },
-                ],
                 fieldLabel: 'Select Probability',
             },
             // STAGE FILTER
@@ -3437,7 +3403,6 @@ export const dealCharts = [
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
                 fieldParentVariable: 'pipelineId',
-                fieldQueryVariables: `{"type": "deal"}`,
                 fieldParentQuery: "salesPipelines",
                 logics: [
                     {
@@ -3455,6 +3420,8 @@ export const dealCharts = [
                 multi: true,
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldParentVariable: 'pipelineId',
+                fieldParentQuery: "salesPipelines",
                 logics: [
                     {
                         logicFieldName: 'pipelineIds',
@@ -3504,7 +3471,8 @@ export const dealCharts = [
                 fieldLabelVariable: 'text',
                 fieldParentVariable: 'groupId',
                 fieldParentQuery: "fieldsGroups",
-                fieldQueryVariables: `{"contentType": "sales:deal", "isVisible": true}`,
+                fieldRequiredQueryParams: ["contentType"],
+                fieldQueryVariables: `{"contentType": "sales:deal"}`,
                 logics: [
                     {
                         logicFieldName: 'groupIds',
@@ -3714,6 +3682,7 @@ export const dealCharts = [
                 fieldQuery: 'salesBoards',
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldRequiredQueryParams: ['type'],
                 fieldQueryVariables: `{"type": "deal"}`,
                 fieldLabel: 'Select board',
             },
@@ -3739,12 +3708,6 @@ export const dealCharts = [
                 fieldName: 'stageProbability',
                 fieldType: 'select',
                 fieldOptions: PROBABILITY_DEAL,
-                logics: [
-                    {
-                        logicFieldName: 'pipelineIds',
-                        logicFieldVariable: 'pipelineIds',
-                    },
-                ],
                 fieldLabel: 'Select Probability',
             },
             // STAGE FILTER
@@ -3756,7 +3719,6 @@ export const dealCharts = [
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
                 fieldParentVariable: 'pipelineId',
-                fieldQueryVariables: `{"type": "deal"}`,
                 fieldParentQuery: "salesPipelines",
                 logics: [
                     {
@@ -3774,6 +3736,8 @@ export const dealCharts = [
                 multi: true,
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',
+                fieldParentVariable: 'pipelineId',
+                fieldParentQuery: "salesPipelines",
                 logics: [
                     {
                         logicFieldName: 'pipelineIds',
@@ -3823,7 +3787,8 @@ export const dealCharts = [
                 fieldLabelVariable: 'text',
                 fieldParentVariable: 'groupId',
                 fieldParentQuery: "fieldsGroups",
-                fieldQueryVariables: `{"contentType": "sales:deal", "isVisible": true}`,
+                fieldRequiredQueryParams: ["contentType"],
+                fieldQueryVariables: `{"contentType": "sales:deal"}`,
                 logics: [
                     {
                         logicFieldName: 'groupIds',
