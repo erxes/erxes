@@ -122,6 +122,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:all"}`,
         logics: [
           {
@@ -289,6 +290,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:all"}`,
         logics: [
           {
@@ -487,6 +489,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:all"}`,
         logics: [
           {
@@ -678,6 +681,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:all"}`,
         logics: [
           {
@@ -820,6 +824,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -981,6 +986,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -1166,6 +1172,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -1343,6 +1350,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -1537,6 +1545,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -1678,6 +1687,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -1839,6 +1849,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -2023,6 +2034,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -2200,6 +2212,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -2394,6 +2407,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -2496,6 +2510,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:company"}`,
         logics: [
           {
@@ -2616,6 +2631,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:company"}`,
         logics: [
           {
@@ -2752,6 +2768,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:company"}`,
         logics: [
           {
@@ -2908,6 +2925,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:company"}`,
         logics: [
           {
