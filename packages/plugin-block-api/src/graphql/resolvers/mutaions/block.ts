@@ -1,6 +1,6 @@
 import { putActivityLog } from '@erxes/api-utils/src/logUtils';
 import { IContext } from '../../../connectionResolver';
-import { sendContactsMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 import { numberWithCommas, sendSms } from '../../../utils';
 
 const blockMutations = {
@@ -42,7 +42,7 @@ const blockMutations = {
       },
     });
 
-    const customer = await sendContactsMessage({
+    const customer = await sendCoreMessage({
       subdomain,
       action: 'customers.findOne',
       data: {
@@ -69,7 +69,7 @@ const blockMutations = {
   ) {
     const { erxesCustomerId, amount } = doc;
     const block = await models.Blocks.findOne({ erxesCustomerId });
-    const customer = await sendContactsMessage({
+    const customer = await sendCoreMessage({
       subdomain,
       action: 'customers.findOne',
       data: {
@@ -115,7 +115,7 @@ const blockMutations = {
     }
 
     if (isVerified === 'true') {
-      const customer = await sendContactsMessage({
+      const customer = await sendCoreMessage({
         subdomain,
         action: 'customers.findOne',
         data: {

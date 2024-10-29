@@ -3,7 +3,7 @@ import { NodeVM } from "vm2";
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import { IModels, generateModels } from "../connectionResolver";
 import { pConversationClientMessageInserted } from "../graphql/resolvers/widgetMutations";
-import { sendContactsMessage, sendCoreMessage } from "../messageBroker";
+import { sendCoreMessage } from "../messageBroker";
 
 const checkCompanyFieldsExists = async doc => {
   for (const key in doc) {
@@ -16,7 +16,7 @@ const checkCompanyFieldsExists = async doc => {
 };
 
 const createCustomer = (subdomain, data) => {
-  return sendContactsMessage({
+  return sendCoreMessage({
     subdomain,
     action: "customers.createCustomer",
     isRPC: true,
@@ -33,7 +33,7 @@ const updateCustomer = ({
   _id: string;
   doc;
 }) => {
-  return sendContactsMessage({
+  return sendCoreMessage({
     subdomain,
     action: "customers.updateCustomer",
     isRPC: true,
@@ -45,7 +45,7 @@ const updateCustomer = ({
 };
 
 const findCustomer = (subdomain, data) => {
-  return sendContactsMessage({
+  return sendCoreMessage({
     subdomain,
     action: "customers.findOne",
     isRPC: true,
@@ -54,7 +54,7 @@ const findCustomer = (subdomain, data) => {
 };
 
 const createCompany = (subdomain, data) => {
-  return sendContactsMessage({
+  return sendCoreMessage({
     subdomain,
     action: "companies.createCompany",
     isRPC: true,
@@ -71,7 +71,7 @@ const updateCompany = ({
   _id: string;
   doc;
 }) => {
-  return sendContactsMessage({
+  return sendCoreMessage({
     subdomain,
     action: "companies.updateCompany",
     isRPC: true,
@@ -83,7 +83,7 @@ const updateCompany = ({
 };
 
 const findCompany = (subdomain, data) => {
-  return sendContactsMessage({
+  return sendCoreMessage({
     subdomain,
     action: "companies.findOne",
     isRPC: true,

@@ -1,7 +1,6 @@
 import { IContext } from '../../connectionResolver';
 import {
   sendCoreMessage,
-  sendContactsMessage,
   sendEbarimtMessage,
   sendSalesMessage,
 } from '../../messageBroker';
@@ -32,7 +31,7 @@ const resolvers = {
     }
 
     if (order.customerType === 'company') {
-      const company = await sendContactsMessage({
+      const company = await sendCoreMessage({
         subdomain,
         action: 'companies.findOne',
         data: { _id: order.customerId },
@@ -77,7 +76,7 @@ const resolvers = {
     }
 
     if (!order.customerType || order.customerType === 'customer') {
-      const customer = await sendContactsMessage({
+      const customer = await sendCoreMessage({
         subdomain,
         action: 'customers.findOne',
         data: { _id: order.customerId },
