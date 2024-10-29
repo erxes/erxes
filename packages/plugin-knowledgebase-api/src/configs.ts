@@ -1,5 +1,5 @@
 import app from '@erxes/api-utils/src/app';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
 
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
@@ -48,14 +48,17 @@ export default {
   middlewares: [cookieParser(), userMiddleware],
 
   onServerInit: async () => {
-    const { DOMAIN } = process.env;
+    app.use((req, _res, next) => {
+      const DOMAIN = getEnv({ name: 'DOMAIN' });
+      const subdomain = getSubdomain(req);
+      const domain = DOMAIN.replace('<subdomain>', subdomain);
+      const corsOptions = {
+        credentials: true,
+        origin: domain,
+      };
 
-    const corsOptions = {
-      credentials: true,
-      origin: DOMAIN || 'http://localhost:3000',
-    };
-
-    app.use(cors(corsOptions));
+      cors(corsOptions)(req, _res, next);
+    });
 
     app.use(bodyParser.json({ limit: '100mb' }));
     app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
@@ -88,7 +91,7 @@ export default {
         try {
           await checkPermission(subdomain, req.user, 'manageKnowledgeBase');
 
-          const {file} = req;
+          const { file } = req;
 
           if (!file) {
             return res.status(200).json({ error: 'File is required' });
@@ -105,7 +108,7 @@ export default {
           }
         } catch (e) {
           console.error(e.message);
-      
+
           return res.status(200).json({ error: 'Something went wrong' });
         }
       }

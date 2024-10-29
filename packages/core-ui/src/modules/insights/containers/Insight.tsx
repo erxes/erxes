@@ -12,10 +12,6 @@ const Dashboard = asyncComponent(
     import(/* webpackChunkName: "DashboardComponent" */ "./dashboard/Dashboard")
 );
 
-const Goal = asyncComponent(
-  () => import(/* webpackChunkName: "Goal" */ "./goal/Goal")
-);
-
 const Report = asyncComponent(
   () => import(/* webpackChunkName: "Report" */ "./report/Report")
 );
@@ -32,16 +28,13 @@ type FinalProps = {
 
 const InsightContainer = (props: FinalProps) => {
   const { queryParams } = props;
-  const { goalId, dashboardId, reportId } = queryParams;
+  const { dashboardId, reportId } = queryParams;
 
   let component: any;
 
   switch (true) {
     case !!dashboardId:
       component = Dashboard;
-      break;
-    case !!goalId:
-      component = Goal;
       break;
     case !!reportId:
       component = Report;
