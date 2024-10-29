@@ -568,7 +568,7 @@ class ArticleForm extends React.Component<Props, State> {
                   this.onChangeAttachment('type', e.target.value)
                 }
                 options={[
-                  { value: '', label: 'Select type' },
+                  { value: '', label: __('Select type') },
                   ...mimeTypeOptions,
                 ]}
               />

@@ -53,7 +53,7 @@ export default function ReplyComments({
             inputName="text"
             componentClass="textarea"
             label=""
-            placeholder="Enter your text..."
+            placeholder={__("Enter your text...")}
             onChange={setConfig}
             textLimit={limit}
           />

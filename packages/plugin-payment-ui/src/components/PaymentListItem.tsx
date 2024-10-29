@@ -90,7 +90,7 @@ const IntegrationListItem: React.FC<Props> = (props) => {
     return (
       <ActionButtons>
         <ModalTrigger
-          title='Edit config'
+          title={__("Edit config")}
           trigger={editTrigger}
           content={formContent}
         />

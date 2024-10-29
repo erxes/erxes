@@ -130,7 +130,7 @@ class GeneralConfig extends React.Component<Props, State> {
                 <DateControl
                   name="createDate"
                   value={plan.createDate}
-                  placeholder="select from create date "
+                  placeholder={__("select from create date ")}
                   onChange={(date) => onChange(date, 'createDate')}
                 />
               </DateContainer>
@@ -143,7 +143,7 @@ class GeneralConfig extends React.Component<Props, State> {
                 <DateControl
                   name="startDate"
                   value={plan.startDate}
-                  placeholder="select from start date "
+                  placeholder={__("select from start date ")}
                   onChange={(date) => onChange(date, 'startDate')}
                 />
               </DateContainer>
@@ -156,7 +156,7 @@ class GeneralConfig extends React.Component<Props, State> {
                 <DateControl
                   name="closeDate"
                   value={plan.closeDate}
-                  placeholder="select from end date "
+                  placeholder={__("select from end date ")}
                   onChange={(date) => onChange(date, 'closeDate')}
                 />
               </DateContainer>
