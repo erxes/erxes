@@ -109,6 +109,14 @@ jobs:
 
           docker buildx imagetools create erxes/plugin-automations-api:master --tag  erxes/plugin-automations-api:${GITHUB_REF#refs/tags/}
 
+      - name: plugin-cards-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+
+          docker buildx imagetools create erxes/plugin-cards-api:master --tag  erxes/plugin-cards-api:${GITHUB_REF#refs/tags/}
+
       - name: plugin-purchases-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
@@ -244,6 +252,22 @@ jobs:
 
 
           docker buildx imagetools create erxes/plugin-products-api:master --tag  erxes/plugin-products-api:${GITHUB_REF#refs/tags/}
+
+      - name: plugin-segments-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+
+          docker buildx imagetools create erxes/plugin-segments-api:master --tag  erxes/plugin-segments-api:${GITHUB_REF#refs/tags/}
+
+      - name: plugin-tags-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+
+          docker buildx imagetools create erxes/plugin-tags-api:master --tag  erxes/plugin-tags-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-webbuilder-api
         run: >
