@@ -10,7 +10,6 @@ import { getNextMonth, getToday, regexSearchText } from "@erxes/api-utils/src";
 import { IListParams } from "./boards";
 import {
   fetchSegment,
-  sendCommonMessage,
   sendCoreMessage,
   sendNotificationsMessage
 } from "../../../messageBroker";
@@ -211,7 +210,6 @@ export const generateCommonFilters = async (
     departmentIds,
     dateRangeFilters,
     customFieldsDataFilters,
-    vendorCustomerIds,
     resolvedDayBetween,
   } = args;
 

@@ -210,7 +210,6 @@ export const generateCommonFilters = async (
     departmentIds,
     dateRangeFilters,
     customFieldsDataFilters,
-    vendorCustomerIds,
     resolvedDayBetween,
   } = args;
 
