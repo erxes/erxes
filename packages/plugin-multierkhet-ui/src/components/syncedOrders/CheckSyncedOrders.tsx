@@ -161,7 +161,7 @@ const CheckSyncedOrders = (props: Props) => {
       data={Content}
       loading={contentLoading && loading}
       count={totalCount}
-      emptyText="Empty list"
+      emptyText={__("Empty list")}
       emptyImage="/images/actions/1.svg"
     />
   );

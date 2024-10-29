@@ -162,7 +162,7 @@ const AssignmentCampaigns = (props: Props) => {
   const header = (
     <HeaderDescription
       icon="/images/actions/25.svg"
-      title="Loyalty configs"
+      title={__("Loyalty configs")}
       description=""
     />
   );

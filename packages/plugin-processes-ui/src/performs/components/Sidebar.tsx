@@ -159,7 +159,7 @@ const PerformSidebar = (props: Props) => {
         <FormGroup>
           <ControlLabel>{__("Product Category")}</ControlLabel>
           <SelectProductCategory
-            label="Choose product category"
+            label={__("Choose product category")}
             name="productCategoryId"
             initialValue={filterParams.productCategoryId || ""}
             customOption={{

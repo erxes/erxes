@@ -54,7 +54,7 @@ const Row = (props: Props) => {
       <td>
         <ActionButtons>
           <ModalTrigger
-            title={'Edit config'}
+            title={__('Edit config')}
             trigger={<Button btnStyle="link" icon="edit-3" />}
             content={formContent}
             size={'lg'}
