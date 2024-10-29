@@ -23,8 +23,6 @@ import {
   loadTimeLogClass,
   IReportCheckModel,
   loadReportCheckClass,
-  IScheduleConfigOrderModel,
-  loadScheduleConfigOrderClass,
 } from './models/Timeclock';
 import {
   IAbsenceDocument,
@@ -33,7 +31,6 @@ import {
   IPayDateDocument,
   IReportCheckDocument,
   IScheduleConfigDocument,
-  IScheduleConfigOrderDocument,
   IScheduleDocument,
   IShiftDocument,
   ITimeClockDocument,
@@ -49,7 +46,6 @@ export interface IModels {
   Shifts: IShiftModel;
   PayDates: IPayDateModel;
   ScheduleConfigs: IScheduleConfigModel;
-  ScheduleConfigOrder: IScheduleConfigOrderModel;
   DeviceConfigs: IDeviceConfigModel;
   ReportChecks: IReportCheckModel;
 }
@@ -64,32 +60,32 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.Timeclocks = db.model<ITimeClockDocument, ITimeModel>(
     'timeclock',
-    loadTimeClass(models),
+    loadTimeClass(models)
   );
 
   models.Absences = db.model<IAbsenceDocument, IAbsenceModel>(
     'timeclock_absence',
-    loadAbsenceClass(models),
+    loadAbsenceClass(models)
   );
 
   models.AbsenceTypes = db.model<IAbsenceTypeDocument, IAbsenceTypeModel>(
     'timeclock_absence_type',
-    loadAbsenceTypeClass(models),
+    loadAbsenceTypeClass(models)
   );
 
   models.Schedules = db.model<IScheduleDocument, IScheduleModel>(
     'timeclock_schedule',
-    loadScheduleClass(models),
+    loadScheduleClass(models)
   );
 
   models.Shifts = db.model<IShiftDocument, IShiftModel>(
     'timeclock_schedule_shifts',
-    loadShiftClass(models),
+    loadShiftClass(models)
   );
 
   models.PayDates = db.model<IPayDateDocument, IPayDateModel>(
     'timeclock_pay_date',
-    loadPayDateClass(models),
+    loadPayDateClass(models)
   );
 
   models.ScheduleConfigs = db.model<
@@ -97,24 +93,19 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IScheduleConfigModel
   >('timeclock_schedule_config', loadScheduleConfigClass(models));
 
-  models.ScheduleConfigOrder = db.model<
-    IScheduleConfigOrderDocument,
-    IScheduleConfigOrderModel
-  >('timeclock_schedule_config_order', loadScheduleConfigOrderClass(models));
-
   models.DeviceConfigs = db.model<IDeviceConfigDocument, IDeviceConfigModel>(
     'timeclock_device_config',
-    loadDeviceConfigClass(models),
+    loadDeviceConfigClass(models)
   );
 
   models.TimeLogs = db.model<ITimeLogDocument, ITimeLogModel>(
     'timeclock_time_log',
-    loadTimeLogClass(models),
+    loadTimeLogClass(models)
   );
 
   models.ReportChecks = db.model<IReportCheckDocument, IReportCheckModel>(
     'timeclock_report_check',
-    loadReportCheckClass(models),
+    loadReportCheckClass(models)
   );
 
   return models;
