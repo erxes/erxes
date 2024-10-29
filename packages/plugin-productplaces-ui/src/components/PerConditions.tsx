@@ -58,7 +58,7 @@ const PerConditions = (props: Props) => {
             <ControlLabel>{__("Exclude categories")}</ControlLabel>
             <SelectProductCategory
               name="excludeCategoryIds"
-              label="Choose categories to exclude"
+              label={__("Choose categories to exclude")}
               initialValue={condition.excludeCategoryIds}
               onSelect={categoryIds =>
                 onChangeHandler("excludeCategoryIds", categoryIds)
@@ -67,10 +67,10 @@ const PerConditions = (props: Props) => {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{"Product Tags"}</ControlLabel>
+            <ControlLabel>{__("Product Tags")}</ControlLabel>
             <SelectTags
               tagsType="core:product"
-              label="Choose product tag"
+              label={__("Choose product tag")}
               name="productTagIds"
               initialValue={condition.productTagIds || ""}
               onSelect={tagIds => onChangeHandler("productTagIds", tagIds)}
@@ -133,7 +133,7 @@ const PerConditions = (props: Props) => {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{"Low UnitPrice"}</ControlLabel>
+            <ControlLabel>{__("Low UnitPrice")}</ControlLabel>
             <FormControl
               defaultValue={condition.ltUnitPrice}
               onChange={onChangeInput.bind(this, "ltUnitPrice")}
@@ -181,7 +181,7 @@ const PerConditions = (props: Props) => {
             />
           </FormColumn>
           <FormColumn>
-            <ControlLabel>{"Set department"}</ControlLabel>
+            <ControlLabel>{__("Set department")}</ControlLabel>
             <SelectDepartments
               label="Choose department"
               name="selectedDepartmentIds"

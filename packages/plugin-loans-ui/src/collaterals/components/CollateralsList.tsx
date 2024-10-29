@@ -133,7 +133,7 @@ const CollateralsList = (props: IProps) => {
         onFocus={moveCursorAtTheEnd}
       />
       <SelectProducts
-        label="Filter by products"
+        label={__("Filter by products")}
         name="productIds"
         queryParams={queryParams}
         onSelect={onSelectProducts}
@@ -167,7 +167,7 @@ const CollateralsList = (props: IProps) => {
           data={mainContent}
           loading={loading}
           count={collaterals.length}
-          emptyText="Add in your first collateral!"
+          emptyText={__("Add in your first collateral!")}
           emptyImage="/images/actions/1.svg"
         />
       }

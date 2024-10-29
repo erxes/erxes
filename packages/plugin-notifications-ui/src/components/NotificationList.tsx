@@ -114,7 +114,7 @@ const NotificationList = (props: Props) => {
           data={renderContent()}
           loading={loading}
           count={count}
-          emptyText="Looks like you are all caught up!"
+          emptyText={__("Looks like you are all caught up!")}
           emptyImage="/images/actions/17.svg"
         />
       }

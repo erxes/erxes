@@ -79,7 +79,7 @@ const SideBar = ({ queryParams }: Props) => {
           <FormGroup>
             <ControlLabel>User</ControlLabel>
             <SelectTeamMembers
-              label="Choose users"
+              label={__("Choose users")}
               name="userId"
               initialValue={filterParams.userId}
               onSelect={(userId) => setFilter("userId", userId)}
@@ -95,7 +95,7 @@ const SideBar = ({ queryParams }: Props) => {
                   name="startDate"
                   dateFormat="YYYY/MM/DD"
                   timeFormat={true}
-                  placeholder="Choose date"
+                  placeholder={__("Choose date")}
                   value={filterParams.startDate || ""}
                   onChange={(value) => onSelectDate(value, "startDate")}
                 />

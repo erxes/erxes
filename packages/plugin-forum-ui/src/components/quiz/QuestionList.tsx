@@ -72,7 +72,7 @@ const QuestionList: React.FC<{
                     </Button>
                   }
                   content={renderChoiceForm}
-                  title="Add Choice"
+                  title={__("Add Choice")}
                 />
 
                 <Tip text={__('Delete')} placement="top">
