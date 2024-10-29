@@ -133,11 +133,15 @@ const uploadHandler = async (params: Params) => {
       fileInfo = { ...fileInfo, duration };
     }
 
-    const fileUploadMaxSize =
-      REACT_APP_FILE_UPLOAD_MAX_SIZE || 20 * 1024 * 1024;
-
+    // const fileUploadMaxSize = REACT_APP_FILE_UPLOAD_MAX_SIZE || 20 * 1024 * 1024;
+    const fileUploadMaxSize: number = parseInt(
+      localStorage.getItem('erxes_env_REACT_APP_FILE_UPLOAD_MAX_SIZE') || "",
+      10
+    ) || 20 * 1024 * 1024;
+    
+  
     // skip file that size is more than REACT_APP_FILE_UPLOAD_MAX_SIZE
-    if (fileInfo.size > parseInt(fileUploadMaxSize, 10)) {
+    if (fileInfo.size > fileUploadMaxSize) {
       Alert.warning(
         `Your file ${
           fileInfo.name
