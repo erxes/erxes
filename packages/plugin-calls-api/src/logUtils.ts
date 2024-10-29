@@ -5,7 +5,7 @@ import {
 } from '@erxes/api-utils/src/logUtils';
 
 import { generateModels } from './connectionResolver';
-import { sendContactsMessage, sendInboxMessage } from './messageBroker';
+import { sendCoreMessage, sendInboxMessage } from './messageBroker';
 
 export const putDeleteLog = async (subdomain: string, logDoc, user) => {
   await commonPutDeleteLog(
@@ -34,7 +34,7 @@ export const putCreateLog = async (subdomain: string, logDoc, user) => {
 export default {
   collectItems: async ({ subdomain, data }) => {
     const { contentId } = data;
-    const customer = await sendContactsMessage({
+    const customer = await sendCoreMessage({
       subdomain,
       action: 'customers.findOne',
       isRPC: true,

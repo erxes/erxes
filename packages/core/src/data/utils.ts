@@ -1030,6 +1030,118 @@ const readFromCR2 = async (key: string, models?: IModels) => {
   });
 };
 
+/**
+ * Create Azure Blob Storage instance
+ */
+const createAzureBlobStorage = async (models?: IModels) => {
+  const AZURE_STORAGE_CONNECTION_STRING = await getConfig(
+    'AZURE_STORAGE_CONNECTION_STRING',
+    '',
+    models
+  );
+  const AZURE_STORAGE_CONTAINER = await getConfig(
+    'AZURE_STORAGE_CONTAINER',
+    '',
+    models
+  );
+
+  if (!AZURE_STORAGE_CONNECTION_STRING || !AZURE_STORAGE_CONTAINER) {
+    throw new Error('Azure Blob Storage credentials are not configured');
+  }
+
+  const BlobServiceClient = require('@azure/storage-blob').BlobServiceClient;
+
+  // Initialize Azure Blob Storage
+  const blobServiceClient = BlobServiceClient.fromConnectionString(
+    AZURE_STORAGE_CONNECTION_STRING
+  );
+
+  // return a specific container client
+  return blobServiceClient.getContainerClient(AZURE_STORAGE_CONTAINER);
+};
+
+/*
+ * Delete file from Azure storage
+ */
+export const deleteFileAzure = async (fileName: string, models?: IModels) => {
+  try {
+    // Initialize the Azure Blob container client
+    const containerClient = await createAzureBlobStorage(models); // Assuming this function provides a container client
+
+    // Get the blob client for the specified file key
+    const blobClient = containerClient.getBlobClient(fileName);
+
+    // Check if the blob exists
+    const exists = await blobClient.exists();
+    if (!exists) {
+      console.log(`File with key ${fileName} does not exist.`);
+      return;
+    }
+
+    // Delete the blob
+    await blobClient.delete();
+    console.log(
+      `File with key ${fileName} successfully deleted from Azure Blob Storage.`
+    );
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+/*
+ * Save file to azure blob storage
+ */
+
+export const uploadFileAzure = async (
+  file: {
+    name: string;
+    path: string;
+    type: string;
+  },
+  models: IModels
+): Promise<string> => {
+  const sanitizedFilename = sanitizeFilename(file.name);
+
+  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
+
+  // initialize Azure Blob Storage
+  const containerClient = await createAzureBlobStorage(models);
+
+  // generate unique name
+  const fileName = `${randomAlphanumeric()}${sanitizedFilename}`;
+
+  // Create a block blob for the file
+  const blockBlobClient = containerClient.getBlockBlobClient(fileName);
+
+  // Upload data to the blob
+  const response = await blockBlobClient.uploadFile(file.path, {
+    blobHTTPHeaders: { blobContentType: file.type }
+  });
+
+  if (!response) {
+    throw new Error('Error uploading file to Azure Blob Storage');
+  }
+
+  // Return either the blob's URL or its name, depending on public status
+  return IS_PUBLIC === 'true' ? blockBlobClient.url : fileName;
+};
+
+/**
+ * Converts a readable stream from Azure Blob Storage into a Buffer.
+ * 
+ * @param {NodeJS.ReadableStream} stream - The readable stream from Azure Blob Storage.
+ * @returns {Promise<Buffer>} A promise that resolves to a Buffer containing the stream data.
+ */
+const azureStreamToBuffer = (stream: NodeJS.ReadableStream): Promise<Buffer> => {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    stream.on('data', chunk => chunks.push(chunk));
+    stream.on('end', () => resolve(Buffer.concat(chunks)));
+    stream.on('error', reject);
+  });
+};
+
 export const readFileRequest = async ({
   key,
   subdomain,
@@ -1132,6 +1244,18 @@ export const readFileRequest = async ({
     return readFromCR2(key, models);
   }
 
+  if (UPLOAD_SERVICE_TYPE === 'AZURE') {
+    const containerClient = await createAzureBlobStorage(models);
+    const blobClient = containerClient.getBlobClient(key);
+    const response = await blobClient.download();
+
+    if (!response.readableStreamBody) {
+      throw new Error('No readable stream found in response');
+    }
+
+    return azureStreamToBuffer(response.readableStreamBody);
+  }
+
   if (UPLOAD_SERVICE_TYPE === "local") {
     return new Promise((resolve, reject) => {
       fs.readFile(
@@ -1166,6 +1290,10 @@ export const uploadFile = async (
   );
 
   let nameOrLink = "";
+
+  if (UPLOAD_SERVICE_TYPE === "AZURE") {
+    nameOrLink = await uploadFileAzure(file, models);
+  }
 
   if (UPLOAD_SERVICE_TYPE === "AWS") {
     nameOrLink = await uploadFileAWS(file, false, models);
@@ -1222,6 +1350,10 @@ export const deleteFile = async (
 
   if (UPLOAD_SERVICE_TYPE === "CLOUDFLARE") {
     return deleteFileCloudflare(fileName, models);
+  }
+
+  if (UPLOAD_SERVICE_TYPE === "AZURE") {
+    return deleteFileAzure(fileName, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === "local") {

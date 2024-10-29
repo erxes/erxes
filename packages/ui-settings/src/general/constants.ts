@@ -41,7 +41,8 @@ export const SERVICE_TYPES = [
   { label: __('Local'), value: 'local' },
   { label: __('Amazon Web Service'), value: 'AWS' },
   { label: __('Google Cloud Service'), value: 'GCS' },
-  { label: __('Cloudflare'), value: 'CLOUDFLARE' }
+  { label: __('Cloudflare'), value: 'CLOUDFLARE' },
+  { label: __('Azure Storage'), value: 'AZURE' }
 ];
 
 export const FILE_SYSTEM_TYPES = [

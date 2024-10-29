@@ -1,5 +1,5 @@
 import app from '@erxes/api-utils/src/app';
-import { sendContactsMessage, sendInboxMessage } from './messageBroker';
+import { sendCoreMessage, sendInboxMessage } from './messageBroker';
 import { Customers, Messages } from './models';
 
 const searchMessages = (linkedin, criteria) => {
@@ -32,7 +32,7 @@ const saveMessages = async (
     let customerId;
 
     if (!prev) {
-      const customer = await sendContactsMessage({
+      const customer = await sendCoreMessage({
         subdomain: 'os',
         action: 'customers.findOne',
         data: {
@@ -44,7 +44,7 @@ const saveMessages = async (
       if (customer) {
         customerId = customer._id;
       } else {
-        const apiCustomerResponse = await sendContactsMessage({
+        const apiCustomerResponse = await sendCoreMessage({
           subdomain: 'os',
           action: 'customers.createCustomer',
           data: {

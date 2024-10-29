@@ -5,7 +5,7 @@ import {
 } from "@erxes/api-utils/src/serviceDiscovery";
 import { IModels } from "../connectionResolver";
 import {
-  sendContactsMessage,
+  sendCoreMessage,
   sendPurchasesMessage,
   sendSalesMessage,
   sendTasksMessage,
@@ -41,7 +41,7 @@ export const handleContacts = async (args: IContactsParams) => {
   qry.clientPortalId = clientPortalId;
 
   if (type === "customer") {
-    let customer = await sendContactsMessage({
+    let customer = await sendCoreMessage({
       subdomain,
       action: "customers.findOne",
       data: {
@@ -70,7 +70,7 @@ export const handleContacts = async (args: IContactsParams) => {
     });
 
     if (!customer) {
-      customer = await sendContactsMessage({
+      customer = await sendCoreMessage({
         subdomain,
         action: "customers.createCustomer",
         data: {
@@ -107,7 +107,7 @@ export const handleContacts = async (args: IContactsParams) => {
   }
 
   if (type === "company") {
-    let company = await sendContactsMessage({
+    let company = await sendCoreMessage({
       subdomain,
       action: "companies.findOne",
       data: {
@@ -141,7 +141,7 @@ export const handleContacts = async (args: IContactsParams) => {
     });
 
     if (!company) {
-      company = await sendContactsMessage({
+      company = await sendCoreMessage({
         subdomain,
         action: "companies.createCompany",
         data: {
@@ -215,7 +215,7 @@ export const handleDeviceToken = async (user, deviceToken) => {
 };
 
 export const createCard = async (subdomain, models, cpUser, doc) => {
-  const customer = await sendContactsMessage({
+  const customer = await sendCoreMessage({
     subdomain,
     action: "customers.findOne",
     data: {

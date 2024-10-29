@@ -5,7 +5,7 @@ import {
   sendMessage as sendCommonMessage
 } from "@erxes/api-utils/src/core";
 
-export const sendContactsMessage = (args: MessageArgsOmitService) => {
+export const sendCoreMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: "core",
     ...args
