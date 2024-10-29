@@ -1,0 +1,17 @@
+{
+    "Settings" : "Тохиргоо",
+    "Sync polaris config" : "Polaris тохиргоог синк хийх",
+    "Sync polaris configs" : "Polaris тохиргоог синк хийх",
+    "Customer config" : "Хэрэглэгчийн тохиргоо",
+    "General config" : "Ерөнхий тохиргоо",
+    "Deposit config" : "Хадгаламжийн тохиргоо",
+    "Saving config" : "Тохиргоог хадгалж байна",
+    "Loan config" : "Зээлийн тохиргоо",
+    "Customer" : "Хэрэглэгч",
+    "Sync Polariss " : "Polariss-ыг синхрончлох ",
+    "DATAS " : "ӨГӨГДӨЛ ",
+    "Filters" : "Шүүлтүүр",
+    "Clear filter" : "Шүүлтүүрийг цэвэрлэх",
+    "Start Date" : "Эхлэх огноо",
+    "End Date" : "Дуусах огноо"   
+}
