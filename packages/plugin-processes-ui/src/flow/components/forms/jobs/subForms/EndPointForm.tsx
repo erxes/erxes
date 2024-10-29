@@ -144,7 +144,7 @@ class JobForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Jobs</ControlLabel>
           <ModalTrigger
-            title="Choose a JOB"
+            title={__("Choose a JOB")}
             trigger={this.renderJobTrigger(jobRefer)}
             size="lg"
             content={content}

@@ -175,7 +175,7 @@ const ContractTypesList = (props: IProps) => {
       />
 
       <ModalTrigger
-        title="New contractType"
+        title={__("New contractType")}
         size="lg"
         trigger={addTrigger}
         autoOpenKey="showContractTypeModal"
@@ -209,7 +209,7 @@ const ContractTypesList = (props: IProps) => {
           data={mainContent}
           loading={loading}
           count={contractTypes.length}
-          emptyText="Add in your first contractType!"
+          emptyText={__("Add in your first contractType!")}
           emptyImage="/images/actions/1.svg"
         />
       }

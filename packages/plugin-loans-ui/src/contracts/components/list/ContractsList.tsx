@@ -320,7 +320,7 @@ const ContractsList = (props: IProps) => {
           data={mainContent}
           loading={loading}
           count={contracts.length}
-          emptyText="Add in your first contract!"
+          emptyText={__("Add in your first contract!")}
           emptyImage="/images/actions/1.svg"
         />
       }

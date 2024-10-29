@@ -137,7 +137,7 @@ export default class GroupingIndicators extends React.Component<Props, State> {
                   <ControlLabel>{__('Indicators')}</ControlLabel>
                   <SelectIndicators
                     name="indicatorIds"
-                    label="Choose Indicators"
+                    label={__("Choose Indicators")}
                     initialValue={indicatorIds}
                     onSelect={values => handleSelect(values, _id)}
                     multi={true}
@@ -150,7 +150,7 @@ export default class GroupingIndicators extends React.Component<Props, State> {
                   <FormControl
                     type="number"
                     name="percentWeight"
-                    placeholder="Type Percent Weight"
+                    placeholder={__("Type Percent Weight")}
                     value={percentWeight}
                     onChange={handleChangePercentWeight}
                   />

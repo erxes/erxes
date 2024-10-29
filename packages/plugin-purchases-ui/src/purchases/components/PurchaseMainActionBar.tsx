@@ -43,7 +43,7 @@ const PurchaseMainActionBar = (props: Props) => {
         onSelect={onSelect}
       />
       <SelectCustomers
-        label="Filter by customers"
+        label={__("Filter by customers")}
         name="customerIds"
         queryParams={queryParams}
         onSelect={onSelect}

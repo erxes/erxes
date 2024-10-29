@@ -379,7 +379,7 @@ function ConfigList(props: Props) {
                     <TextAlignCenter>
                       <ModalTrigger
                         size='lg'
-                        title='Edit Schedule Configs'
+                        title={__('Edit Schedule Configs')}
                         trigger={editTrigger}
                         content={(contentProps) =>
                           scheduleConfigContent(contentProps, scheduleConfig)
@@ -415,7 +415,7 @@ function ConfigList(props: Props) {
               <td>
                 <TextAlignCenter>
                   <ModalTrigger
-                    title='Edit Pay Dates'
+                    title={__('Edit Pay Dates')}
                     trigger={editTrigger}
                     content={(contentProps) =>
                       payPeriodConfigContent(contentProps, payDates[0])
@@ -464,7 +464,7 @@ function ConfigList(props: Props) {
                   <td>
                     <TextAlignCenter>
                       <ModalTrigger
-                        title='Edit absence type'
+                        title={__('Edit absence type')}
                         trigger={editTrigger}
                         content={(contentProps) =>
                           absenceConfigContent(contentProps, absenceType)
@@ -521,7 +521,7 @@ function ConfigList(props: Props) {
                   <td>
                     <TextAlignCenter>
                       <ModalTrigger
-                        title='Edit holiday'
+                        title={__('Edit holiday')}
                         trigger={editTrigger}
                         content={(contentProps) =>
                           holidayConfigContent(contentProps, holiday)

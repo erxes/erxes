@@ -191,7 +191,7 @@ export default function Appearance(props: Props) {
               <ControlLabel>{__("Name your exm")}</ControlLabel>
               <FormControl
                 value={webName}
-                placeholder="Name"
+                placeholder={__("Name")}
                 onChange={(e: any) => setWebName(e.target.value)}
               />
             </FeatureRowItem>
@@ -199,7 +199,7 @@ export default function Appearance(props: Props) {
               <ControlLabel>{__("Describe your team portal")}</ControlLabel>
               <FormControl
                 value={webDescription}
-                placeholder="Description"
+                placeholder={__("Description")}
                 onChange={(e: any) => setWebDescription(e.target.value)}
               />
             </FeatureRowItem>
@@ -209,7 +209,7 @@ export default function Appearance(props: Props) {
               <ControlLabel>{__("Website")}</ControlLabel>
               <FormControl
                 value={url}
-                placeholder="Website"
+                placeholder={__("Website")}
                 onChange={(e: any) => setUrl(e.target.value)}
               />
             </FeatureRowItem>
@@ -224,7 +224,7 @@ export default function Appearance(props: Props) {
               <ControlLabel>{__("Knowledge Base Name")}</ControlLabel>
               <FormControl
                 value={knowledgeBaseLabel}
-                placeholder="Knowledge Base Name"
+                placeholder={__("Knowledge Base Name")}
                 onChange={(e: any) => setKnowledgeBaseLabel(e.target.value)}
               />
             </FeatureRowItem>
@@ -253,7 +253,7 @@ export default function Appearance(props: Props) {
               <ControlLabel>{__("Ticket Name")}</ControlLabel>
               <FormControl
                 value={ticketLabel}
-                placeholder="Ticket Name"
+                placeholder={__("Ticket Name")}
                 onChange={(e: any) => setTicketLabel(e.target.value)}
               />
             </FeatureRowItem>

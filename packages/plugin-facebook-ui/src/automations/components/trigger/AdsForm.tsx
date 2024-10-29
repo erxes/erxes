@@ -48,7 +48,7 @@ const adsSelector = (botId, onChange, adIds?) => {
       <ControlLabel>{__("Ads")}</ControlLabel>
       <SelectWithSearch
         name="adIds"
-        label="Select a ads of this bot"
+        label={__("Select a ads of this bot")}
         initialValue={adIds}
         customQuery={`query Query($botId: String) { facebookGetBotAds(botId: $botId) }`}
         multi
@@ -116,7 +116,7 @@ function AdsForm({ activeTrigger, addConfig, closeModal }: Props) {
             <DirectMessageForm
               conditions={config.conditions}
               onChange={handleChange}
-              label="Message from ads"
+              label={__("Message from ads")}
             />
           )}
         </Features>

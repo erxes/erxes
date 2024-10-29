@@ -132,7 +132,7 @@ export default class ScoreForm extends React.Component<Props, State> {
           config={config}
           triggerType={triggerType}
           inputName="attribution"
-          label="Attribution"
+          label={__("Attribution")}
           attrTypes={["user", "contact", "custom"]}
           onChange={(config) => this.setState({ config })}
           customAttributions={additionalAttributes}
