@@ -82,7 +82,7 @@ class GeneralSettings extends React.Component<Props, State> {
     const header = (
       <HeaderDescription
         icon="/images/actions/25.svg"
-        title="Loyalty configs"
+        title={__("Loyalty configs")}
         description=""
       />
     );

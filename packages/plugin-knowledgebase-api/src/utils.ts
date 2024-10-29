@@ -107,8 +107,7 @@ export default async function userMiddleware(
   try {
     // verify user token and retrieve stored user information
     const { user }: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
-    console.debug("token secret", process.env.JWT_TOKEN_SECRET);
-    console.debug("user", user);
+
     const userDoc = await sendCoreMessage({
       subdomain,
       action: 'users.findOne',

@@ -57,12 +57,12 @@ export default function Sidebar() {
           <FormGroup>
             <ControlLabel>Branch</ControlLabel>
             <SelectBranches
-              label="Choose branch"
+              label={__("Choose branch")}
               name="branchId"
               initialValue={branchId || ""}
               customOption={{
                 value: "",
-                label: "...Clear branch filter",
+                label: __("...Clear branch filter"),
               }}
               onSelect={(branchId) => setFilter("branchId", branchId)}
               multi={false}
@@ -71,7 +71,7 @@ export default function Sidebar() {
           <FormGroup>
             <ControlLabel>Department</ControlLabel>
             <SelectDepartments
-              label="Choose department"
+              label={__("Choose department")}
               name="departmentId"
               initialValue={departmentId || ""}
               customOption={{

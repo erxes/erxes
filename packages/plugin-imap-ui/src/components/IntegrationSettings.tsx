@@ -120,7 +120,7 @@ const Logs = (props: Props) => {
 
   return (
     <CollapseContent
-      title="IMAP"
+      title={__("IMAP")}
       beforeTitle={<Icon icon="envelope-edit" />}
       transparent={true}
     >

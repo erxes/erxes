@@ -87,7 +87,7 @@ const CategoryList = (props: Props) => {
         <DataWithLoader
           data={renderContent()}
           loading={loading}
-          emptyText="There is no product & service category"
+          emptyText={__("There is no product & service category")}
           emptyIcon="folder-2"
           size="small"
         />

@@ -42,7 +42,7 @@ const ChoiceDetail = ({ choice, index, onDelete, quizId }: Props) => {
                 </Button>
               }
               content={renderQuestionForm}
-              title="Edit Choice"
+              title={__("Edit Choice")}
             />
 
             <Tip text={__('Delete')} placement="top">

@@ -125,7 +125,7 @@ function Component(
 
   const quickButtons = can('contractsDealEdit', currentUser) && (
     <ModalTrigger
-      title="Associate"
+      title={__("Associate")}
       trigger={contractTrigger}
       size="lg"
       content={renderContractChooser}
@@ -134,7 +134,7 @@ function Component(
 
   const relQuickButtons = (
     <ModalTrigger
-      title="Related Associate"
+      title={__("Related Associate")}
       trigger={relContractTrigger}
       size="lg"
       content={renderRelatedContractChooser}
