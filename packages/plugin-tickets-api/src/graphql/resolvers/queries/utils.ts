@@ -1025,7 +1025,7 @@ export const getItemList = async (
     serverTiming.startTime("conformities");
   }
 
-  const conformities = await sendCoreMessage({
+  const conformities = ids.length ? await sendCoreMessage({
     subdomain,
     action: "conformities.getConformities",
     data: {
@@ -1035,7 +1035,7 @@ export const getItemList = async (
     },
     isRPC: true,
     defaultValue: []
-  });
+  }) : [];
 
   if (serverTiming) {
     serverTiming.endTime("conformities");
@@ -1109,7 +1109,7 @@ export const getItemList = async (
     serverTiming.startTime("getItemsCompanies");
   }
 
-  const companies = await sendCoreMessage({
+  const companies = companyIds.length ? await sendCoreMessage({
     subdomain,
     action: "companies.findActiveCompanies",
     data: {
@@ -1126,7 +1126,7 @@ export const getItemList = async (
       }
     },
     isRPC: true
-  });
+  }) : [];
 
   if (serverTiming) {
     serverTiming.endTime("getItemsCompanies");
@@ -1136,7 +1136,7 @@ export const getItemList = async (
     serverTiming.startTime("getItemsCustomers");
   }
 
-  const customers = await sendCoreMessage({
+  const customers = customerIds.length ? await sendCoreMessage({
     subdomain,
     action: "customers.findActiveCustomers",
     data: {
@@ -1156,7 +1156,7 @@ export const getItemList = async (
     },
     isRPC: true,
     defaultValue: []
-  });
+  }) : [];
 
   if (serverTiming) {
     serverTiming.endTime("getItemsCustomers");
@@ -1182,7 +1182,7 @@ export const getItemList = async (
     serverTiming.startTime("getItemsNotifications");
   }
 
-  const notifications = await sendNotificationsMessage({
+  const notifications = ids.length ? await sendNotificationsMessage({
     subdomain,
     action: "find",
     data: {
@@ -1195,7 +1195,7 @@ export const getItemList = async (
     },
     isRPC: true,
     defaultValue: []
-  });
+  }) : [];
 
   if (serverTiming) {
     serverTiming.endTime("getItemsNotifications");
