@@ -328,7 +328,7 @@ export default {
     if (VERSION === 'os') {
       await handleOsVersion();
     } else if (VERSION === 'saas') {
-      await handleSaasVersion();
+      // await handleSaasVersion();
     }
   },
 };
