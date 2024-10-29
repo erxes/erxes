@@ -19,7 +19,7 @@ import { __ } from "coreui/utils";
 import dimensions from "@erxes/ui/src/styles/dimensions";
 import styled from "styled-components";
 import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import BoardSelectContainer from '@erxes/ui-sales/src/boards/containers/BoardSelect';
 
 export const DISTRICTS = [
   { value: "Архангай", label: "Архангай" },
