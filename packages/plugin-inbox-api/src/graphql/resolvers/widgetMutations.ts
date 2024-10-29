@@ -32,7 +32,6 @@ import { VERIFY_EMAIL_TRANSLATIONS } from "../../constants";
 import { trackViewPageEvent } from "../../events";
 import {
   sendAutomationsMessage,
-  sendContactsMessage,
   sendCoreMessage,
   sendIntegrationsMessage
 } from "../../messageBroker";
@@ -189,7 +188,7 @@ export const getMessengerData = async (
 };
 
 const createVisitor = async (subdomain: string, visitorId: string) => {
-  const customer = await sendContactsMessage({
+  const customer = await sendCoreMessage({
     subdomain,
     action: "customers.createCustomer",
     data: {
@@ -289,7 +288,7 @@ const widgetMutations = {
     let customer;
 
     if (cachedCustomerId || email || phone || code) {
-      customer = await sendContactsMessage({
+      customer = await sendCoreMessage({
         subdomain,
         action: "customers.getWidgetCustomer",
         data: {
@@ -313,7 +312,7 @@ const widgetMutations = {
       };
 
       customer = customer
-        ? await sendContactsMessage({
+        ? await sendCoreMessage({
             subdomain,
             action: "customers.updateMessengerCustomer",
             data: {
@@ -323,7 +322,7 @@ const widgetMutations = {
             },
             isRPC: true
           })
-        : await sendContactsMessage({
+        : await sendCoreMessage({
             subdomain,
             action: "customers.createMessengerCustomer",
             data: {
@@ -348,7 +347,7 @@ const widgetMutations = {
 
     // get or create company
     if (companyData && companyData.name) {
-      let company = await sendContactsMessage({
+      let company = await sendCoreMessage({
         subdomain,
         action: "companies.findOne",
         data: companyData,
@@ -372,7 +371,7 @@ const widgetMutations = {
         companyData.primaryName = companyData.name;
         companyData.names = [companyData.name];
 
-        company = await sendContactsMessage({
+        company = await sendCoreMessage({
           subdomain,
           action: "companies.createCompany",
           data: {
@@ -382,7 +381,7 @@ const widgetMutations = {
           isRPC: true
         });
       } else {
-        company = await sendContactsMessage({
+        company = await sendCoreMessage({
           subdomain,
           action: "companies.updateCompany",
           data: {
@@ -594,7 +593,7 @@ const widgetMutations = {
     );
 
     // mark customer as active
-    await sendContactsMessage({
+    await sendCoreMessage({
       subdomain,
       action: "customers.markCustomerAsActive",
       data: {
@@ -766,7 +765,7 @@ const widgetMutations = {
       );
     }
 
-    return sendContactsMessage({
+    return sendCoreMessage({
       subdomain,
       action: "customers.saveVisitorContactInfo",
       data: args,
@@ -789,7 +788,7 @@ const widgetMutations = {
     // update location
 
     if (customerId) {
-      sendContactsMessage({
+      sendCoreMessage({
         subdomain,
         action: "customers.updateLocation",
         data: {
@@ -798,7 +797,7 @@ const widgetMutations = {
         }
       });
 
-      sendContactsMessage({
+      sendCoreMessage({
         subdomain,
         action: "customers.updateSession",
         data: {
@@ -860,7 +859,7 @@ const widgetMutations = {
     const attachments = args.attachments || [];
 
     // do not use Customers.getCustomer() because it throws error if not found
-    const customer = await sendContactsMessage({
+    const customer = await sendCoreMessage({
       subdomain,
       action: "customers.findOne",
       data: {

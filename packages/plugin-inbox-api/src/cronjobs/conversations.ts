@@ -3,7 +3,6 @@ import * as _ from 'underscore';
 import { generateModels } from '../connectionResolver';
 import {
   sendAutomationsMessage,
-  sendContactsMessage,
   sendCoreMessage
 } from '../messageBroker';
 
@@ -21,7 +20,7 @@ export const sendMessageEmail = async (subdomain: string) => {
   console.log(`Found ${conversations.length} conversations`);
 
   for (const conversation of conversations) {
-    const customer = await sendContactsMessage({
+    const customer = await sendCoreMessage({
       subdomain,
       action: 'customers.findOne',
       data: {
@@ -108,7 +107,7 @@ export const sendMessageEmail = async (subdomain: string) => {
       answers.push(answer);
     }
 
-    customer.name = await sendContactsMessage({
+    customer.name = await sendCoreMessage({
       subdomain,
       action: 'customers.getCustomerName',
       data: customer,

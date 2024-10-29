@@ -80,7 +80,7 @@ export default function Sidebar(props: Props) {
           <FormGroup>
             <ControlLabel>{__("Product category")}</ControlLabel>
             <SelectProductCategory
-              label="Choose product category"
+              label={__("Choose product category")}
               name="selectedProductCategoryIds"
               initialValue={queryParams.productCategoryIds}
               onSelect={(catIds: any) =>

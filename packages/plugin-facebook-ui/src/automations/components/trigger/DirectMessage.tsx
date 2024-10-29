@@ -210,7 +210,7 @@ export default function DirectMessageForm({
               ))}
               <CustomChip>
                 <FormControl
-                  placeholder="+ add keyword"
+                  placeholder={__("+ add keyword")}
                   onKeyPress={(e: any) => handleKeyPress(e, keywords)}
                 />
               </CustomChip>

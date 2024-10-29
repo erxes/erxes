@@ -83,7 +83,7 @@ const List = (props: Props) => {
     return (
       <FormControl
         type="text"
-        placeholder="Type to search"
+        placeholder={__("Type to search")}
         onChange={search}
         autoFocus={true}
         value={searchValue}
@@ -166,7 +166,7 @@ const List = (props: Props) => {
 
   const leftActionBar = (
     <HeaderDescription
-      title="Operations"
+      title={__("Operations")}
       description=""
       icon="/images/actions/16.svg"
     />

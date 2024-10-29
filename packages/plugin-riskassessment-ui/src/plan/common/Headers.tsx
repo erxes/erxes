@@ -78,7 +78,7 @@ export const headers = (queryParams) => {
             <ControlLabel>{__("Planners")}</ControlLabel>
             <SelectTeamMembers
               name="plannerIds"
-              label="Select Planners"
+              label={__("Select Planners")}
               initialValue={queryParams?.plannerIds}
               onSelect={handleSelect}
               multi={true}
@@ -168,7 +168,7 @@ export const headers = (queryParams) => {
                 <DateControl
                   name="modifiedAtFrom"
                   value={generateQueryParamsDate(queryParams?.modifiedAtFrom)}
-                  placeholder="select from date "
+                  placeholder={__("select from date ")}
                   onChange={(e) => dateOrder(e, "modifiedAtFrom")}
                 />
               </DateContainer>
@@ -177,7 +177,7 @@ export const headers = (queryParams) => {
                   <DateControl
                     name="modifiedAtTo"
                     value={generateQueryParamsDate(queryParams?.modifiedAtTo)}
-                    placeholder="select to date "
+                    placeholder={__("select to date ")}
                     onChange={(e) => dateOrder(e, "modifiedAtTo")}
                   />
                 </DateContainer>

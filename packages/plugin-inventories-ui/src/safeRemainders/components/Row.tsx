@@ -72,7 +72,7 @@ export default function Row(props: Props) {
       <td>{renderUserFullName(modifiedUser || {})}</td>
       <td onClick={(event: any) => event.stopPropagation()}>
         <ActionButtons>
-          <Tip text="Delete" placement="top">
+          <Tip text={__("Delete")} placement="top">
             <Button
               btnStyle="link"
               onClick={() => removeItem(remainder)}

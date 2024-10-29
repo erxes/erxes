@@ -36,6 +36,7 @@ interface IQueryParams {
   segment?: string;
   segmentData?: string;
   groupedSimilarity?: string;
+  image?: string;
 }
 
 const generateFilter = async (
@@ -55,6 +56,7 @@ const generateFilter = async (
     excludeIds,
     segment,
     segmentData,
+    image,
   } = params;
   const filter: any = commonQuerySelector;
 
@@ -74,9 +76,9 @@ const generateFilter = async (
 
     const productCategoryIds = category
       ? await models.ProductCategories.find(
-          { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
-          { _id: 1 }
-        )
+        { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
+        { _id: 1 }
+      )
       : [];
 
     filter.categoryId = { $in: productCategoryIds };
@@ -141,6 +143,10 @@ const generateFilter = async (
 
   if (brand) {
     filter.scopeBrandIds = { $in: [brand] };
+  }
+
+  if (image) {
+    filter['attachment.url'] = image === 'hasImage' ? { $exists: true } : { $exists: false }
   }
 
   return filter;
@@ -345,7 +351,7 @@ const productQueries = {
           (similarityGroups[cm].rules || [])
             .map((sg) => sg.fieldId)
             .filter((sgf) => customFieldIds.includes(sgf)).length ===
-            (similarityGroups[cm].rules || []).length
+          (similarityGroups[cm].rules || []).length
       );
 
       if (!matchedMasks.length) {

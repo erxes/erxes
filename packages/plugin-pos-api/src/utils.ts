@@ -4,7 +4,6 @@ import { IModels } from "./connectionResolver";
 import {
   sendAutomationsMessage,
   sendSalesMessage,
-  sendContactsMessage,
   sendCoreMessage,
   sendEbarimtMessage,
   sendInventoriesMessage,
@@ -216,7 +215,7 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
     }
 
     if (Object.keys(pushInfo).length) {
-      await sendContactsMessage({
+      await sendCoreMessage({
         subdomain,
         action: `${moduleTxt}.updateOne`,
         data: {

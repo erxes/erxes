@@ -1,0 +1,23 @@
+{
+    "There is no linked accounts" : "There is no linked accounts",
+    "Selected" : "Selected",
+    "Select This Account" : "Select This Account",
+    "Remove" : "Remove",
+    "Linked OA" : "Linked OA",
+    "OR" : "OR",
+    "How can i get a Zalo OA" : "How can i get a Zalo OA",
+    "For register an account, go to this link:" : "For register an account, go to this link:",
+    "Integration Setup" : "Integration Setup",
+    "Name this integration to differentiate from the rest" : "Name this integration to differentiate from the rest",
+    "Which specific Brand does this integration belong to?" : "Which specific Brand does this integration belong to?",
+    "You are creating" : "You are creating",
+    "Zalo" : "Zalo",
+    "integration" : "integration",
+    "Settings" : "Settings",
+    "Integrations" : "Integrations",
+    "Connect your" : "Connect your",
+    "Connect your Zalo to start receiving emails in your team inbox" : "Connect your Zalo to start receiving emails in your team inbox",
+    "ZALO_APP_ID" : "ZALO_APP_ID",
+    "ZALO_APP_SECRET_KEY" : "ZALO_APP_SECRET_KEY",
+    "Save" : "Save"
+}
