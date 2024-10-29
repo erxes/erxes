@@ -72,7 +72,7 @@ const getCustomerInfo = async (subdomain, type, id) => {
 };
 
 const getProductInfo = async (models: IModels, type, object) => {
-  if (type === 'cards:deal') {
+  if (type === 'sales:deal') {
     const { productsData } = object;
     if (!productsData?.length) {
       return {};
