@@ -197,7 +197,7 @@ const CreateForm = (props: Props) => {
           <ControlLabel>Segments</ControlLabel>
           <SelectSegments
             name="segmentIds"
-            label="Choose segments"
+            label={__("Choose segments")}
             contentTypes={["core:customer", "core:lead"]}
             initialValue={assignmentCampaign.segmentIds}
             multi={true}
@@ -300,7 +300,7 @@ const CreateForm = (props: Props) => {
         <DataWithLoader
           data={content}
           loading={false}
-          emptyText="There is no data"
+          emptyText={__("There is no data")}
           emptyImage="/images/actions/5.svg"
         />
       }

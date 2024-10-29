@@ -138,7 +138,7 @@ const DonateCampaigns = (props: Props) => {
           />
           <ModalTrigger
             size={"lg"}
-            title="Add donate campaign"
+            title={__("Add donate campaign")}
             trigger={trigger}
             autoOpenKey="showProductModal"
             content={modalContent}
@@ -162,7 +162,7 @@ const DonateCampaigns = (props: Props) => {
   const header = (
     <HeaderDescription
       icon="/images/actions/25.svg"
-      title="Loyalty configs"
+      title={__("Loyalty configs")}
       description=""
     />
   );

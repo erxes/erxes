@@ -226,7 +226,7 @@ const ConfigStep = (props: Props) => {
             <FormGroup>
               <ControlLabel>Product Category</ControlLabel>
               <SelectProductCategory
-                label="Choose product category"
+                label={__("Choose product category")}
                 name="productCategoryId"
                 initialValue={state.initialCategoryIds}
                 customOption={{
@@ -246,7 +246,7 @@ const ConfigStep = (props: Props) => {
             <FormGroup>
               <ControlLabel>Categories</ControlLabel>
               <SelectProductCategory
-                label={"kiosk"}
+                label={__("kiosk")}
                 name="kioskExcludeCategoryIds"
                 initialValue={state.kioskExcludeCategoryIds}
                 onSelect={(categoryIds) =>
@@ -299,7 +299,7 @@ const ConfigStep = (props: Props) => {
             <FormGroup>
               <ControlLabel>Exclude Categories</ControlLabel>
               <SelectProductCategory
-                label={"kiosk"}
+                label={__("kiosk")}
                 name="checkExcludeCategoryIds"
                 initialValue={state.checkExcludeCategoryIds}
                 onSelect={(categoryIds) =>

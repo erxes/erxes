@@ -139,7 +139,7 @@ class Form extends React.Component<Props, State> {
 
           {this.props.plan && (
             <Step
-              title="Schedules"
+              title={__("Schedules")}
               img="/images/icons/erxes-21.svg"
               noButton
               onClick={saveSteps}

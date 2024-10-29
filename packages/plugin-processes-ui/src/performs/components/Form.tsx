@@ -827,7 +827,7 @@ class Form extends React.Component<Props, State> {
       <FormGroup>
         <ControlLabel>Job Refer</ControlLabel>
         <SelectJobRefer
-          label="Choose jobRefer"
+          label={__("Choose jobRefer")}
           name="jobReferId"
           initialValue={overallWorkDet.jobReferId || ""}
           customOption={{
@@ -1084,7 +1084,7 @@ class Form extends React.Component<Props, State> {
                     name="endAt"
                     dateFormat="YYYY/MM/DD"
                     timeFormat={true}
-                    placeholder="Choose date"
+                    placeholder={__("Choose date")}
                     value={endAt}
                     onChange={(value) => this.onSelectDate(value, "endAt")}
                   />

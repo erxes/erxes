@@ -349,7 +349,7 @@ const FileDetail = (props: Props) => {
         />
 
         <ModalTrigger
-          title="Acknowledge file"
+          title={__("Acknowledge file")}
           trigger={
             <Button btnStyle="primary" icon="hold" type="button">
               {__("Request acknowledge")}

@@ -95,7 +95,7 @@ class GeneralSettings extends React.Component<Props, State> {
           )}
         </CollapseContent>
         <CollapseContent
-          title="Product to erkhet"
+          title={__("Product to erkhet")}
           beforeTitle={<Icon icon="settings" />}
           transparent={true}
         >
@@ -132,7 +132,7 @@ class GeneralSettings extends React.Component<Props, State> {
         </CollapseContent>
         {isEnabled('loans') && (
           <CollapseContent
-            title="Loan transaction to erkhet"
+            title={__("Loan transaction to erkhet")}
             beforeTitle={<Icon icon="settings" />}
             transparent={true}
           >

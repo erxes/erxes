@@ -539,7 +539,7 @@ function ScheduleList(props: Props) {
                 />
               )}
               {isCurrentUserSupervisor && (
-                <Tip text={'Remove Schedule'} placement="top">
+                <Tip text={__('Remove Schedule')} placement="top">
                   <Button
                     size="small"
                     icon="times-circle"
@@ -552,7 +552,7 @@ function ScheduleList(props: Props) {
               )}
               {selectedScheduleStatus === 'Rejected' &&
                 isCurrentUserSupervisor && (
-                  <Tip text={'Approve Schedule'} placement="top">
+                  <Tip text={__('Approve Schedule')} placement="top">
                     <Button
                       size="small"
                       icon="checked"
