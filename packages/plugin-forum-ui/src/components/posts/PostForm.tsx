@@ -223,7 +223,7 @@ class PostForm extends React.Component<Props, State> {
                   onChange={(date) =>
                     this.onChangeRangeFilter(date, "createdAt")
                   }
-                  placeholder={"End date"}
+                  placeholder={__("End date")}
                   dateFormat={"YYYY-MM-DD"}
                 />
               </CustomRangeContainer>
@@ -249,7 +249,7 @@ class PostForm extends React.Component<Props, State> {
                 <ControlLabel>Choose publisher</ControlLabel>
 
                 <SelectTeamMembers
-                  label="Choose publisher"
+                  label={__("Choose publisher")}
                   name="selectedUser"
                   multi={false}
                   initialValue={this.state.selectedUser}
@@ -326,7 +326,7 @@ class PostForm extends React.Component<Props, State> {
                     onChange={(date) =>
                       this.onChangeRangeFilter(date, "endDate")
                     }
-                    placeholder={"End date"}
+                    placeholder={__("End date")}
                     dateFormat={"YYYY-MM-DD"}
                   />
                 </CustomRangeContainer>
@@ -334,7 +334,7 @@ class PostForm extends React.Component<Props, State> {
             )}
           </FlexContent>
           <PollOptions
-            emptyMessage="There is no options"
+            emptyMessage={__("There is no options")}
             onChangeOption={(options) => changeOption(options || [])}
             options={pollOptions}
           />

@@ -35,8 +35,8 @@ export default function ScoringFormContainer(props: Props) {
         isSubmitted={isSubmitted}
         type="submit"
         uppercase={false}
-        successMessage={`You successfully score
-           a ${name}`}
+        successMessage={__(`You successfully score
+           a ${name}`)}
       >
         {" "}
         {__("Scoring")}

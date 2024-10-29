@@ -83,7 +83,7 @@ const PerSettings = (props: Props) => {
       open={props.currentConfigKey === 'newBrand' ? true : false}
     >
       <ContentBox id={'GeneralSettingsMenu'}>
-        <CollapseContent title="General settings">
+        <CollapseContent title={__("General settings")}>
           {renderItem('title')}
           <FormWrapper>
             <FormColumn>

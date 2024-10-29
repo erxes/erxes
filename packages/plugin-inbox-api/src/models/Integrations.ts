@@ -2,7 +2,7 @@ import * as momentTz from 'moment-timezone';
 import { Model, Query } from 'mongoose';
 
 import { IModels } from '../connectionResolver';
-import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
+import { sendCoreMessage } from '../messageBroker';
 
 import {
   IIntegration,
@@ -388,7 +388,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       await models.Conversations.deleteMany({ integrationId: _id });
 
       // Remove customers ==================
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
         action: 'customers.find',
         data: {
@@ -399,7 +399,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
       const customerIds = customers.map((cus) => cus._id);
 
-      await sendContactsMessage({
+      await sendCoreMessage({
         subdomain,
         action: 'customers.removeCustomers',
         data: { customerIds },

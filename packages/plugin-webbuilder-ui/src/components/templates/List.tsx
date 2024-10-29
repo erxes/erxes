@@ -233,7 +233,7 @@ function List(props: Props) {
           }
           count={templates.length || templatesCount}
           loading={false}
-          emptyText="No templates"
+          emptyText={__("No templates")}
           emptyImage="/images/actions/8.svg"
         />
       }

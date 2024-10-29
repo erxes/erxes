@@ -58,7 +58,7 @@ function KindFilter({ counts, emptyText }: IProps) {
         data={data}
         loading={false}
         count={PAYMENT_KINDS.ALL.length}
-        emptyText={emptyText ? emptyText : "Loading"}
+        emptyText={emptyText ? emptyText : __("Loading")}
         emptyIcon="leaf"
         size="small"
         objective={true}

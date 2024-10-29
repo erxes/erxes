@@ -117,7 +117,7 @@ export const callActions = (
           </div>
           <div>
             <DialogComponent
-              title="Transfer call"
+              title={__("Transfer call")}
               inboxId={inboxId}
               disabled={disableTransferCall}
               direction={direction}
