@@ -68,7 +68,7 @@ export function SideBar({ queryParams }) {
     >
       <Padding>
         <FilterByTags queryParams={queryParams} />
-        <Box title="Card Filters" name="cardFilters" isOpen>
+        <Box title={__("Card Filters")} name="cardFilters" isOpen>
           <Padding>
             <CustomForm
               label="Card type"

@@ -109,7 +109,7 @@ class FileManager extends React.Component<Props, State> {
         />
         <ControlLabel>By created team member</ControlLabel>
         <SelectTeamMembers
-          label="Filter by team members"
+          label={__("Filter by team members")}
           name="contentTypeId"
           queryParams={queryParams}
           onSelect={onSelect}
@@ -138,7 +138,7 @@ class FileManager extends React.Component<Props, State> {
             required={false}
             name="createdAtFrom"
             onChange={(date) => this.onChangeRangeFilter("createdAtFrom", date)}
-            placeholder={"Start date"}
+            placeholder={__("Start date")}
             dateFormat={"YYYY-MM-DD"}
           />
 
@@ -146,7 +146,7 @@ class FileManager extends React.Component<Props, State> {
             value={queryParams.createdAtTo}
             required={false}
             name="createdAtTo"
-            placeholder={"End date"}
+            placeholder={__("End date")}
             onChange={(date) => this.onChangeRangeFilter("createdAtTo", date)}
             dateFormat={"YYYY-MM-DD"}
           />
@@ -218,7 +218,7 @@ class FileManager extends React.Component<Props, State> {
       <div ref={this.setWrapperRef}>
         <BarItems>
           <ModalTrigger
-            title="Share Folder"
+            title={__("Share Folder")}
             trigger={shareTrigger}
             content={shareContent}
             centered={true}
@@ -226,7 +226,7 @@ class FileManager extends React.Component<Props, State> {
           />
 
           <ModalTrigger
-            title="Add Sub Folder"
+            title={__("Add Sub Folder")}
             trigger={folderTrigger}
             content={folderContent}
             centered={true}
@@ -234,7 +234,7 @@ class FileManager extends React.Component<Props, State> {
           />
 
           <ModalTrigger
-            title="Add File"
+            title={__("Add File")}
             trigger={trigger}
             hideHeader={true}
             content={content}
@@ -279,7 +279,7 @@ class FileManager extends React.Component<Props, State> {
             emptyContent={
               <EmptyState
                 image="/images/actions/5.svg"
-                text="No folders at the moment!"
+                text={__("No folders at the moment!")}
               />
             }
           />

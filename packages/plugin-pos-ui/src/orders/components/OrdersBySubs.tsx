@@ -111,7 +111,7 @@ const OrdersBySubs = ({
               {isEnabled('contacts') && (
                 <>
                   <SelectCustomers
-                    label="Filter by customer"
+                    label={__("Filter by customer")}
                     name="customerId"
                     initialValue={queryParams.customerId}
                     onSelect={handleSelect}
@@ -122,7 +122,7 @@ const OrdersBySubs = ({
                     multi={false}
                   />
                   <SelectCompanies
-                    label="Filter by company"
+                    label={__("Filter by company")}
                     name="companyId"
                     initialValue={queryParams.companyId}
                     onSelect={handleSelect}
@@ -136,7 +136,7 @@ const OrdersBySubs = ({
               )}
 
               <SelectTeamMembers
-                label="Choose users"
+                label={__("Choose users")}
                 name="userId"
                 initialValue={queryParams.userId}
                 onSelect={handleSelect}

@@ -60,7 +60,7 @@ export default function ListComponent(props: Props) {
         autoFocus={true}
       />
       <ModalTrigger
-        title="Add Safe Remainder"
+        title={__("Add Safe Remainder")}
         trigger={trigger}
         autoOpenKey="showAddSafeRemainderModal"
         content={modalContent}
@@ -104,7 +104,7 @@ export default function ListComponent(props: Props) {
           emptyContent={
             <EmptyState
               image="/images/actions/5.svg"
-              text="No safe remainders"
+              text={__("No safe remainders")}
               size=""
             />
           }

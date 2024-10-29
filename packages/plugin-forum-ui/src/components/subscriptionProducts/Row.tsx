@@ -74,7 +74,7 @@ class Row extends React.Component<Props> {
           <td>
             <ActionButtons>
               <ModalTrigger
-                title="Edit Product"
+                title={__("Edit Product")}
                 trigger={editTrigger}
                 size="lg"
                 content={content}

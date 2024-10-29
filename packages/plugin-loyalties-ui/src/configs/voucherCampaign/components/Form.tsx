@@ -288,7 +288,7 @@ class Form extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel required={true}>Product Category</ControlLabel>
             <SelectProductCategory
-              label="Choose product category"
+              label={__("Choose product category")}
               name="productCategoryIds"
               initialValue={voucherCampaign.productCategoryIds}
               onSelect={(categoryIds) =>

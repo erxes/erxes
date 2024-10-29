@@ -303,7 +303,7 @@ export const taskCharts = [
             fieldParentVariable: 'groupId',
             fieldParentQuery: "fieldsGroups",
             fieldRequiredQueryParams: ["contentType"],
-            fieldQueryVariables: `{"contentType": "sales:deal"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
             logics: [
               {
                 logicFieldName: 'groupIds',
@@ -612,7 +612,7 @@ export const taskCharts = [
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
             fieldRequiredQueryParams: ["contentType"],
-            fieldQueryVariables: `{"contentType": "sales:deal"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
@@ -888,7 +888,7 @@ export const taskCharts = [
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
             fieldRequiredQueryParams: ["contentType"],
-            fieldQueryVariables: `{"contentType": "sales:deal"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
@@ -1163,7 +1163,7 @@ export const taskCharts = [
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
             fieldRequiredQueryParams: ["contentType"],
-            fieldQueryVariables: `{"contentType": "sales:deal"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
@@ -1453,7 +1453,7 @@ export const taskCharts = [
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
             fieldRequiredQueryParams: ["contentType"],
-            fieldQueryVariables: `{"contentType": "sales:deal"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
@@ -1738,7 +1738,7 @@ export const taskCharts = [
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
             fieldRequiredQueryParams: ["contentType"],
-            fieldQueryVariables: `{"contentType": "sales:deal"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
@@ -2022,7 +2022,7 @@ export const taskCharts = [
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
             fieldRequiredQueryParams: ["contentType"],
-            fieldQueryVariables: `{"contentType": "sales:deal"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
@@ -2320,7 +2320,7 @@ export const taskCharts = [
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
             fieldRequiredQueryParams: ["contentType"],
-            fieldQueryVariables: `{"contentType": "sales:deal"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
@@ -2675,7 +2675,7 @@ export const taskCharts = [
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
             fieldRequiredQueryParams: ["contentType"],
-            fieldQueryVariables: `{"contentType": "sales:deal"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',

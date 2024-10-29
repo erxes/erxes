@@ -267,16 +267,19 @@ export const buildPipeline = (filter, type, matchFilter) => {
       { $unwind: "$customFieldsData" },
       { $unwind: "$customFieldsData.value" },
       {
-        $lookup: {
-          from: "form_fields",
-          localField: "customFieldsData.field",
-          foreignField: "_id",
-          as: "field"
+        $addFields: {
+          customFieldValues: {
+            $cond: {
+              if: { $eq: [{ $type: "$customFieldsData.value" }, "object"] },
+              then: { $map: { input: { $objectToArray: "$customFieldsData.value" }, as: "pair", in: "$$pair.v" } },
+              else: ["$customFieldsData.value"]
+            }
+          }
         }
       },
       {
-        $unwind: "$field"
-      }
+        $unwind: "$customFieldValues"
+      },
     );
   }
 
@@ -522,7 +525,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
   }
 
   if (dimensions.includes("field")) {
-    groupKeys.field = "$customFieldsData.value";
+    groupKeys.field = "$customFieldValues";
   }
 
   if (dimensions.includes("label")) {
@@ -2019,10 +2022,10 @@ export const naturalSort = (as: any, bs: any) => {
     return 1;
   }
 
-  if (!as || as.trim() === "") {
+  if (typeof as === 'string' && (!as || as.trim() === "")) {
     return 1;
   }
-  if (!bs || bs.trim() === "") {
+  if (typeof bs === 'string' && (!bs || bs.trim() === "")) {
     return -1;
   }
 

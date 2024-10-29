@@ -309,7 +309,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
     if (method === METHODS.SMS) {
       return (
-        <Step noButton={true} title='Compose your SMS' img={imagePath}>
+        <Step noButton={true} title={__('Compose your SMS')} img={imagePath}>
           <SmsForm
             onChange={this.changeState}
             messageKind={kind}
@@ -324,7 +324,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
     if (method === METHODS.NOTIFICATION) {
       return (
-        <Step noButton={true} title='Compose your notification' img={imagePath}>
+        <Step noButton={true} title={__('Compose your notification')} img={imagePath}>
           <NotificationForm
             onChange={this.changeState}
             messageKind={kind}
@@ -337,7 +337,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     return (
       <Step
         img={imagePath}
-        title='Compose your broadcast'
+        title={__('Compose your broadcast')}
         message={message}
         noButton={method !== METHODS.EMAIL && true}
       >
@@ -428,7 +428,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
           <Step
             img='/images/icons/erxes-06.svg'
-            title='Who is this broadcast for?'
+            title={__('Who is this broadcast for?')}
           >
             <MessageTypeStep
               method={this.state.method}
