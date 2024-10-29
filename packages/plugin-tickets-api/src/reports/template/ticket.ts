@@ -226,27 +226,27 @@ export const ticketCharts = [
       },
       // STAGE FILTER
       {
-            fieldName: 'stageIds',
-            fieldType: 'select',
+        fieldName: 'stageIds',
+        fieldType: 'select',
         fieldQuery: 'ticketsStages',
-            multi: true,
-            fieldValueVariable: '_id',
-            fieldLabelVariable: 'name',
-            fieldParentVariable: 'pipelineId',
+        multi: true,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldParentVariable: 'pipelineId',
         fieldParentQuery: "ticketsPipelines",
-            logics: [
-              {
-                logicFieldName: 'pipelineIds',
-                logicFieldVariable: 'pipelineIds',
-              },
-            ],
+        logics: [
+          {
+            logicFieldName: 'pipelineIds',
+            logicFieldVariable: 'pipelineIds',
+          },
+        ],
         fieldLabel: 'Select stages',
       },
       // LABEL FILTER
       {
         fieldName: 'labelIds',
         fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
+        fieldQuery: 'salesPipelineLabels',
         multi: true,
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
@@ -610,7 +610,7 @@ export const ticketCharts = [
         {
             fieldName: 'labelIds',
             fieldType: 'select',
-            fieldQuery: 'pipelineLabels',
+          fieldQuery: 'salesPipelineLabels',
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
@@ -894,7 +894,7 @@ export const ticketCharts = [
         {
             fieldName: 'labelIds',
             fieldType: 'select',
-            fieldQuery: 'pipelineLabels',
+          fieldQuery: 'salesPipelineLabels',
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
@@ -1169,7 +1169,7 @@ export const ticketCharts = [
         {
             fieldName: 'labelIds',
             fieldType: 'select',
-            fieldQuery: 'pipelineLabels',
+          fieldQuery: 'salesPipelineLabels',
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
@@ -1459,7 +1459,7 @@ export const ticketCharts = [
         {
             fieldName: 'labelIds',
             fieldType: 'select',
-            fieldQuery: 'pipelineLabels',
+          fieldQuery: 'salesPipelineLabels',
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
@@ -1772,7 +1772,7 @@ export const ticketCharts = [
         {
             fieldName: 'labelIds',
             fieldType: 'select',
-            fieldQuery: 'pipelineLabels',
+          fieldQuery: 'salesPipelineLabels',
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
@@ -2070,7 +2070,7 @@ export const ticketCharts = [
         {
             fieldName: 'labelIds',
             fieldType: 'select',
-            fieldQuery: 'pipelineLabels',
+          fieldQuery: 'salesPipelineLabels',
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
@@ -2364,7 +2364,7 @@ export const ticketCharts = [
         {
             fieldName: 'labelIds',
             fieldType: 'select',
-            fieldQuery: 'pipelineLabels',
+          fieldQuery: 'salesPipelineLabels',
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
@@ -2672,7 +2672,7 @@ export const ticketCharts = [
         {
             fieldName: 'labelIds',
             fieldType: 'select',
-            fieldQuery: 'pipelineLabels',
+          fieldQuery: 'salesPipelineLabels',
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
