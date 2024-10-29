@@ -388,13 +388,26 @@ export const generateInitialOptions = (options, selectedValues) => {
   }).filter(item => item);
 
   return selectedValueArray.map(selectedValue => {
-    const matchedOption = options.find(option => option.value === selectedValue.value);
+    let matchedOption;
 
-    if (matchedOption) {
-      const updatedOption = { ...matchedOption, ...selectedValue.extraValues };
-      return updatedOption;
-    }
+    options.some(option => {
+      if (option.options && Array.isArray(option.options)) {
 
+        const nestedMatch = option.options.find(o => o.value === selectedValue.value);
+
+        if (nestedMatch) {
+
+          matchedOption = { ...nestedMatch, ...selectedValue.extraValues };
+          return true;
+        }
+
+      } else if (option.value === selectedValue.value) {
+        matchedOption = { ...option, ...selectedValue.extraValues };
+        return true;
+      }
+    });
+
+    return matchedOption;
   }).filter(item => item);
 };
 
@@ -407,3 +420,65 @@ export const arrayMove = (array: any[], from: number, to: number) => {
   );
   return slicedArray;
 }
+
+export const generateQuery = (fieldName, config, fieldValues?) => {
+  const { fieldQueryVariables, fieldValueVariable, fieldParentVariable, fieldLabelVariable, fieldInitialVariable, fieldRequiredQueryParams, logics } = config;
+
+  if (!fieldName || !fieldValueVariable || !fieldLabelVariable) {
+    return ''
+  }
+
+  const variableDefinitions = JSON.parse(fieldQueryVariables || '{}');
+
+  if (logics && fieldValues) {
+    for (const logic of logics) {
+      const { logicFieldName, logicFieldVariable } = logic;
+
+      if (logicFieldVariable) {
+        const logicFieldValue = fieldValues[logicFieldName];
+
+        if (logicFieldValue) {
+          variableDefinitions[logicFieldVariable] = logicFieldValue;
+        }
+      }
+    }
+  }
+
+  const params = Object.entries(variableDefinitions).map(([key, value]) => {
+    let graphqlType: string = typeof value;
+
+    if (graphqlType === 'number') {
+      graphqlType = 'int'
+    }
+
+    if (Array.isArray(value)) {
+      graphqlType = '[String]'
+    }
+
+    const isRequired = (fieldRequiredQueryParams || []).includes(key)
+
+    return `$${key}: ${String(graphqlType).charAt(0).toUpperCase() + String(graphqlType).slice(1)} ${isRequired && fieldValues ? '!' : ''}`;
+  }).join(', ');
+
+  const paramDeps = Object.entries(variableDefinitions).map(([key]) => {
+    return `${key}: $${key}`
+  }).join(',')
+
+  const fields = fieldValues ? [
+    fieldValueVariable,
+    fieldLabelVariable,
+    fieldParentVariable
+  ].filter(Boolean).join(' ') : '_id name';
+
+  const variableSection = fieldInitialVariable
+    ? `${fieldInitialVariable} { ${fields} }`
+    : fields;
+
+  return `
+    query ${fieldName} ${params ? '(' + params + ')' : ''} {
+      ${fieldName} ${paramDeps ? '(' + paramDeps + ')' : ''} {
+        ${variableSection}
+      }
+    }
+  `;
+};

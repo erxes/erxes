@@ -2,7 +2,6 @@ import React from 'react';
 
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
-import Goals from '../containers/section/Goal';
 import Dashboards from '../containers/section/Dashboard';
 import Reports from '../containers/section/Report';
 import Pinned from '../containers/section/Pinned';
@@ -22,10 +21,6 @@ const Sidebar = (props: Props) => {
     return <Dashboards queryParams={queryParams} />;
   };
 
-  const renderGoals = () => {
-    return <Goals queryParams={queryParams} />;
-  };
-
   const renderReports = () => {
     return <Reports queryParams={queryParams} />;
   };
@@ -34,7 +29,6 @@ const Sidebar = (props: Props) => {
     <Wrapper.Sidebar hasBorder={true}>
       {renderPinned()}
       {renderDashboards()}
-      {/* {isEnabled('goals') && renderGoals()} */}
       {renderReports()}
     </Wrapper.Sidebar>
   );
