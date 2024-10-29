@@ -54,11 +54,6 @@ const requestToTypes = {
   individuals: 'Set individuals',
 };
 
-const requestToWhomTypes = {
-  supervisors: 'Branch supervisors',
-  individuals: 'Set individuals',
-};
-
 function ConfigForm(props: Props) {
   const { renderButton, scheduleConfig, deviceConfig } = props;
   const { absenceType, holiday, payDate } = props;
@@ -73,10 +68,6 @@ function ConfigForm(props: Props) {
 
   const [requestToType, setRequestToType] = useState(
     absenceType?.requestToType || 'default'
-  );
-
-  const [requestToWhomType, setRequestToWhomType] = useState(
-    absenceType?.requestToWhomType || 'shift request'
   );
 
   const [hoursPerDay, setHoursPerDay] = useState(8);
@@ -112,6 +103,14 @@ function ConfigForm(props: Props) {
   );
   const [locationsFormValues, setLocationsFormValues] = useState<any>(
     scheduleConfig?.locations || {}
+  );
+
+  const [absenceUserIds, setAbsenceUserIds] = useState(
+    (absenceType && absenceType.absenceUserIds) || []
+  );
+
+  const [branchIds, setBranchIds] = useState(
+    (absenceType && absenceType.branchIds) || []
   );
 
   const defaultStartTime = new Date(
@@ -184,10 +183,6 @@ function ConfigForm(props: Props) {
     setRequestToType(e.value);
   };
 
-  const onRequestToWhomTypeChange = (e) => {
-    setRequestToWhomType(e.value);
-  };
-
   const toggleRequestType = (e) => {
     setRequestType(e.value);
   };
@@ -236,6 +231,14 @@ function ConfigForm(props: Props) {
     };
 
     setLocationsFormValues(newLocationsFormValues);
+  };
+
+  const onUserSelect = (users) => {
+    setAbsenceUserIds(users);
+  };
+
+  const onBranchSelect = (branches) => {
+    setBranchIds(branches);
   };
 
   const onMouseEnter = () => {
@@ -365,9 +368,12 @@ function ConfigForm(props: Props) {
 
           requestType: `${requestType}`,
           requestTimeType: requestTime,
+          requestToType: requestToType,
 
           explRequired: explanationRequired,
           attachRequired: attachmentRequired,
+          absenceUserIds: absenceUserIds,
+          branchIds: branchIds,
           shiftRequest: requestType === 'shift request',
           _id: values._id,
         };
@@ -594,13 +600,6 @@ function ConfigForm(props: Props) {
       }));
     };
 
-    const renderRequestToWhomTypes = (array) => {
-      return array.map((ipt) => ({
-        value: ipt,
-        label: __(requestToWhomTypes[ipt]),
-      }));
-    };
-
     return (
       <ConfigFormWrapper>
         <FlexColumn $marginNum={30}>
@@ -688,53 +687,32 @@ function ConfigForm(props: Props) {
 
           {requestToType === 'individuals' && (
             <>
-              <ControlLabel required={true}>
-                Select whom can approve this request
-              </ControlLabel>
-
-              <Select
-                value={renderRequestToTypes(Object.keys(requestToTypes)).find(
-                  (option) => option.value === requestToWhomType
-                )}
-                onChange={onRequestToWhomTypeChange}
-                placeholder="Select whom"
-                options={renderRequestToWhomTypes(
-                  Object.keys(requestToWhomTypes)
-                )}
-              />
-            </>
-          )}
-
-          {requestToWhomType === 'individuals' && (
-            <>
               <ControlLabel required={true}>Select team members</ControlLabel>
 
               <SelectTeamMembers
-                // queryParams={queryParams}
-                // filterParams={filterParams}
-                // customOption={prepareCurrentUserOption(currentUser)}
                 customField="employeeId"
                 label={'Team member'}
-                onSelect={(e) => console.log(e)}
+                onSelect={onUserSelect}
+                initialValue={absenceUserIds}
                 multi={true}
                 name="userId"
               />
             </>
           )}
 
-          {requestToWhomType === 'supervisors' && (
+          {requestToType === 'supervisor' && (
             <>
               <ControlLabel required={true}>Select branches</ControlLabel>
 
               <SelectBranches
                 label="Choose branch"
                 name="branchId"
-                // initialValue={branchId || ''}
+                initialValue={branchIds || []}
                 customOption={{
                   value: '',
                   label: '...Clear branch filter',
                 }}
-                onSelect={(e) => console.log(e)}
+                onSelect={onBranchSelect}
                 multi={true}
               />
             </>
