@@ -492,6 +492,45 @@ export const buildPipeline = async (filter, matchFilter, type?) => {
       },)
   }
 
+  if (dimensions.includes("car")) {
+    pipeline.push({
+      $lookup: {
+        from: "conformities",
+        let: { fieldId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $and: [
+                {
+                  $expr: {
+                    $eq: ["$mainType", "customer"]
+                  }
+                },
+                {
+                  $expr: {
+                    $eq: [
+                      "$mainTypeId",
+                      "$$fieldId"
+                    ]
+                  }
+                },
+                {
+                  $expr: {
+                    $eq: ["$relType", "car"]
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        as: "car_conformity"
+      }
+    },
+      {
+        $unwind: "$car_conformity"
+      },)
+  }
+
   if (dimensions.includes("source")) {
     pipeline.push(
       {
@@ -813,6 +852,10 @@ export const buildPipeline = async (filter, matchFilter, type?) => {
     expressions['customer'] = '$conformity.relTypeId'
   }
 
+  if (dimensions.includes("car")) {
+    expressions['car'] = '$car_conformity.relTypeId'
+  }
+
   const groupStage = {
     _id: expressions,
     count: { $sum: 1 }
@@ -820,14 +863,6 @@ export const buildPipeline = async (filter, matchFilter, type?) => {
 
   if (dimensions.includes("source")) {
     groupStage["source"] = { $first: "$integration" }
-  }
-
-  if (dimensions.includes("company")) {
-    groupStage["company"] = { $first: "$conformity.relTypeId" }
-  }
-
-  if (dimensions.includes("customer")) {
-    groupStage["customer"] = { $first: "$conformity.relTypeId" }
   }
 
   pipeline.push({ $group: groupStage });
@@ -901,6 +936,21 @@ export const buildPipeline = async (filter, matchFilter, type?) => {
         $unwind: "$customer"
       })
   }
+
+  if (dimensions.includes("car")) {
+    pipeline.push({
+      $lookup: {
+        from: "cars",
+        localField: "_id.car",
+        foreignField: "_id",
+        as: "car"
+      }
+    },
+      {
+        $unwind: "$car"
+      })
+  }
+
 
   if (dimensions.includes("frequency")) {
     pipeline.push({ $sort: { _id: 1 } })
@@ -1017,6 +1067,10 @@ export const buildPipeline = async (filter, matchFilter, type?) => {
 
   if (dimensions.includes("customer")) {
     projectStage['customer'] = "$customer";
+  }
+
+  if (dimensions.includes("car")) {
+    projectStage['car'] = "$car";
   }
 
   if (dimensions.includes("field")) {
@@ -1198,6 +1252,14 @@ export const formatData = (data, filter) => {
           || customer.PrimaryEmail
           || customer.PrimaryPhone
           || "Unknown"
+      }
+    }
+
+    if (item.hasOwnProperty('car')) {
+      const car = item['car']
+
+      if (car) {
+        item['car'] = car.plateNumber || car.vinNumber
       }
     }
 

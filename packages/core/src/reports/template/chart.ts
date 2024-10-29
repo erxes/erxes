@@ -63,7 +63,25 @@ const chartTemplates = [
           models.Companies.aggregate(pipeline)
         ]);
 
-        contacts = [...customers, ...companies];
+        [...customers, ...companies].forEach((contact) => {
+          const { count, ...rest } = contact;
+
+          const existing = contacts.find(entry => {
+            return Object.keys(rest).every(key => {
+              if (typeof rest[key] === 'object' && rest[key] !== null) {
+                return entry[key]._id === rest[key]._id;
+              }
+
+              return entry[key] === rest[key];
+            });
+          });
+
+          if (existing) {
+            existing.count += count;
+          } else {
+            contacts.push({ count, ...rest });
+          }
+        });
       }
 
       const title = "Total Company Count";

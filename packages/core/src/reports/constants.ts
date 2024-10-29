@@ -64,6 +64,7 @@ export const DIMENSION_OPTIONS = [
   { label: 'Status', value: 'status' },
   { label: 'Frequency (day, week, month)', value: 'frequency' },
   { label: 'Custom Properties', value: 'field' },
+  { label: 'Cars', value: 'car' },
 ];
 
 export const MEASURE_OPTIONS = [
