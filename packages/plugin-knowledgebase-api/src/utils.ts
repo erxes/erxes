@@ -116,6 +116,7 @@ export default async function userMiddleware(
       },
       isRPC: true,
     });
+    
 
     if (!userDoc) {
       return next();
