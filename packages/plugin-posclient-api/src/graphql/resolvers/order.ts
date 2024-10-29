@@ -4,7 +4,6 @@ import { IOrderItemDocument } from "../../models/definitions/orderItems";
 import { IEbarimtDocument } from "../../models/definitions/putResponses";
 import {
   sendSalesMessage,
-  sendContactsMessage,
   sendCoreMessage
 } from "../../messageBroker";
 import { fakePutData } from "../utils/orderUtils";
@@ -24,7 +23,7 @@ export default {
     }
 
     if (order.customerType === "company") {
-      const company = await sendContactsMessage({
+      const company = await sendCoreMessage({
         subdomain,
         action: "companies.findOne",
         data: { _id: order.customerId },
@@ -69,7 +68,7 @@ export default {
       };
     }
 
-    const customer = await sendContactsMessage({
+    const customer = await sendCoreMessage({
       subdomain,
       action: "customers.findOne",
       data: { _id: order.customerId },

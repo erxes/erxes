@@ -4,7 +4,6 @@ import { IModels } from "./connectionResolver";
 import {
   fetchSegment,
   sendPosMessage,
-  sendProductsMessage,
   sendCoreMessage
 } from "./messageBroker";
 import { productSchema } from "./models/definitions/products";
@@ -446,7 +445,7 @@ export const prepareSettlePayment = async (
       let uoms: any[] = [];
 
       if (products.find(product => product?.type === "subscription")) {
-        uoms = await sendProductsMessage({
+        uoms = await sendCoreMessage({
           subdomain,
           action: "uoms.find",
           data: {

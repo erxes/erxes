@@ -12,7 +12,7 @@ export const setupMessageConsumers = async () => {
   conversationMessagesBroker();
 };
 
-export const sendContactsMessage = (args: MessageArgsOmitService) => {
+export const sendCoreMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: "core",
     ...args

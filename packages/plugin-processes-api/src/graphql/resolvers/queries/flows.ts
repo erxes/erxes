@@ -1,5 +1,5 @@
 import { paginate } from '@erxes/api-utils/src/core';
-import { sendProductsMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 // import {
 //   checkPermission,
 //   requireLogin
@@ -41,7 +41,7 @@ const generateFilter = async (
     if (categoryId === 'unknownCategory') {
       selector.productId = { $in: ['', null, undefined] };
     } else {
-      const products = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
         action: 'products.find',
         data: { query: {}, categoryId, fields: { _id: 1 } },

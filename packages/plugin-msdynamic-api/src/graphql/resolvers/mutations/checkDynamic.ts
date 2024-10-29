@@ -1,9 +1,8 @@
 import fetch from "node-fetch";
 import {
   IContext,
-  sendContactsMessage,
   sendPosMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "../../../messageBroker";
 import { getConfig } from "../../../utils";
 
@@ -38,7 +37,7 @@ const msdynamicCheckMutations = {
     }
 
     try {
-      const products = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
         action: "products.find",
         data: {
@@ -137,14 +136,14 @@ const msdynamicCheckMutations = {
     const { itemCategoryApi, username, password } = config;
 
     try {
-      const categoriesCount = await sendProductsMessage({
+      const categoriesCount = await sendCoreMessage({
         subdomain,
         action: "categories.count",
         data: { query: { status: { $ne: "deleted" } } },
         isRPC: true
       });
 
-      const categories = await sendProductsMessage({
+      const categories = await sendCoreMessage({
         subdomain,
         action: "categories.find",
         data: {
@@ -238,7 +237,7 @@ const msdynamicCheckMutations = {
     const { customerApi, username, password } = config;
 
     try {
-      const companies = await sendContactsMessage({
+      const companies = await sendCoreMessage({
         subdomain,
         action: "companies.findActiveCompanies",
         data: {},
@@ -246,7 +245,7 @@ const msdynamicCheckMutations = {
         defaultValue: {}
       });
 
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
         action: "customers.findActiveCustomers",
         data: {},

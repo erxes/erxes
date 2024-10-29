@@ -133,6 +133,7 @@ const productsQueryParams = `
   segment: String,
   segmentData: String,
   groupedSimilarity: String,
+  image: String,
 `;
 
 export const queries = `

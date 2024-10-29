@@ -1,8 +1,6 @@
 import { generateModels } from "../connectionResolver";
 import {
-  sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "../messageBroker";
 import { sendRPCMessage } from "../messageBrokerErkhet";
 import { getConfig, getPureDate } from "./utils";
@@ -36,7 +34,7 @@ export const getPostData = async (subdomain, pos, order) => {
     "";
 
   const productsIds = order.items.map(item => item.productId);
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
     action: "products.find",
     data: { query: { _id: { $in: productsIds } } },
@@ -99,7 +97,7 @@ export const getPostData = async (subdomain, pos, order) => {
     const customerType = order.customerType || "customer";
     if (customerType === "company") {
       customerCode = (
-        await sendContactsMessage({
+        await sendCoreMessage({
           subdomain,
           action: "companies.findOne",
           data: {
@@ -111,7 +109,7 @@ export const getPostData = async (subdomain, pos, order) => {
       )?.code;
     } else {
       customerCode = (
-        await sendContactsMessage({
+        await sendCoreMessage({
           subdomain,
           action: "customers.findOne",
           data: {

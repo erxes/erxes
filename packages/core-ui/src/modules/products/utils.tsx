@@ -1,8 +1,9 @@
 import { generateCategoryOptions } from "@erxes/ui/src/utils";
 import {
+  PRODUCTS_STATUS_FILTER,
+  PRODUCT_CATEGORIES_STATUS_FILTER,
   PRODUCT_TYPE_CHOISES,
-  PRODUCT_CATEGORIES_STATUS_FILTER
-} from "./constants";
+} from './constants';
 
 export { generateCategoryOptions };
 
@@ -19,13 +20,27 @@ export const productTypeChoises = __ => {
   return options;
 };
 
-export const categoryStatusChoises = __ => {
+export const categoryStatusChoises = (__) => {
   const options: Array<{ value: string; label: string }> = [];
 
   for (const key of Object.keys(PRODUCT_CATEGORIES_STATUS_FILTER)) {
     options.push({
       value: key,
       label: __(PRODUCT_CATEGORIES_STATUS_FILTER[key])
+    });
+  }
+
+  return options;
+};
+
+export const productsStatusChoises = (__) => {
+  const options: Array<{ value: string; label: string, filter: string }> = [];
+
+  for (const key of Object.keys(PRODUCTS_STATUS_FILTER)) {
+    options.push({
+      value: key,
+      label: __(PRODUCTS_STATUS_FILTER[key].text),
+      filter: PRODUCTS_STATUS_FILTER[key].filter
     });
   }
 

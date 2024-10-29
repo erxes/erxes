@@ -1,7 +1,5 @@
 import {
-  sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "../messageBroker";
 import { getCompanyInfo, getCoreConfig, getSyncLogDoc } from "./utils";
 
@@ -74,7 +72,7 @@ export const getPostData = async (
   });
 
   if (companyIds.length > 0) {
-    const companies = await sendContactsMessage({
+    const companies = await sendCoreMessage({
       subdomain,
       action: "companies.findActiveCompanies",
       data: {
@@ -113,7 +111,7 @@ export const getPostData = async (
     });
 
     if (customerIds.length > 0) {
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
         action: "customers.findActiveCustomers",
         data: {
@@ -153,7 +151,7 @@ export const getPostData = async (
 
   const productsIds = deal.productsData.map(item => item.productId);
 
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
     action: "products.find",
     data: {

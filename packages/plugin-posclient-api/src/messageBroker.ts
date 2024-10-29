@@ -350,12 +350,6 @@ export const sendInventoriesMessage = async (
   return sendMessageWrapper("inventories", args);
 };
 
-export const sendContactsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessageWrapper("core", args);
-};
-
 export const sendSalesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
@@ -378,12 +372,6 @@ export const sendPricingMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessageWrapper("pricing", args);
-};
-
-export const sendProductsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessageWrapper("core", args);
 };
 
 export const fetchSegment = (

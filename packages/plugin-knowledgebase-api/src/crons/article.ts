@@ -11,6 +11,14 @@ export const publish = async (subdomain: string) => {
     status: 'scheduled',
     scheduledDate: { $lte: now },
   });
+
+  if (articlesToPublish.length === 0) {
+    return;
+  }
+
+  console.debug(
+    `publishing ${articlesToPublish.length} articles at ${now} for ${subdomain}`
+  );
   
   articlesToPublish.forEach(async (article) => {
     await models.KnowledgeBaseArticles.updateOne(
@@ -31,10 +39,7 @@ export default {
         if (org.subdomain.length === 0) {
           continue;
         }
-        console.debug(
-          `Running cron for organization [${org.subdomain}]: publish`
-        );
-
+      
         await publish(org.subdomain);
       }
     } else {

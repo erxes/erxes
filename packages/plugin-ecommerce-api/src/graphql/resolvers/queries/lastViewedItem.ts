@@ -1,5 +1,5 @@
 import { IContext } from "../../../connectionResolver";
-import { sendProductsMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 
 const lastViewedItemQueries = {
   lastViewedItems: async (_root, params, { subdomain, models }: IContext) => {
@@ -12,7 +12,7 @@ const lastViewedItemQueries = {
 
     const productIds = items.map(i => i.productId);
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
       action: "products.find",
       data: {

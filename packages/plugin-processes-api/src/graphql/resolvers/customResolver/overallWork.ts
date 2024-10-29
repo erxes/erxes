@@ -4,8 +4,7 @@ import { IOverallWork } from "./../../../models/definitions/overallWorks";
 import { JOB_TYPES } from "../../../models/definitions/constants";
 import {
   sendCoreMessage,
-  sendInventoriesMessage,
-  sendProductsMessage
+  sendInventoriesMessage
 } from "../../../messageBroker";
 
 export default {
@@ -36,7 +35,7 @@ export default {
       return;
     }
 
-    return await sendProductsMessage({
+    return await sendCoreMessage({
       subdomain,
       action: "products.findOne",
       data: { _id: typeId },

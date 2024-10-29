@@ -274,15 +274,6 @@ export const setupMessageConsumers = async () => {
   });
 };
 
-export const sendProductsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "core",
-    ...args
-  });
-};
-
 export const sendSalesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
@@ -306,15 +297,6 @@ export const sendPricingMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "pricing",
-    ...args
-  });
-};
-
-export const sendContactsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "core",
     ...args
   });
 };

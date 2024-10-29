@@ -4,11 +4,11 @@ import {
   moduleCheckPermission,
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
-import { sendProductsMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 
 const sortRules = async (subdomain: string, rules: ILabelRule[]) => {
   const categoryIds = rules.map(r => r.productCategoryId || '');
-  const categories = await sendProductsMessage({
+  const categories = await sendCoreMessage({
     subdomain,
     action: 'categories.find',
     data: { query: { _id: { $in: categoryIds } } },

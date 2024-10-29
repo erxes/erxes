@@ -110,7 +110,7 @@ export const bulk = async (emails: string[], hostname: string) => {
   
   if (invalidEntries.length > 0) {
     debugBase(`Sending invalid emails to erxes-api`, invalidEntries);
-    return sendRequest({
+    await sendRequest({
       url: `${hostname}/verifier/webhook`,
       method: 'POST',
       body: {

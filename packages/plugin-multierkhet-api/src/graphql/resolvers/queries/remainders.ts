@@ -1,9 +1,7 @@
 import { IContext } from "../../../connectionResolver";
 import fetch from "node-fetch";
 import {
-  sendContactsMessage,
   sendCoreMessage,
-  sendProductsMessage,
   sendSalesMessage
 } from "../../../messageBroker";
 import { getPureDate } from "@erxes/api-utils/src";
@@ -44,7 +42,7 @@ const erkhetQueries = {
       const configBrandIds = Object.keys(configs);
       const codesByBrandId = {};
 
-      const products = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
         action: "products.find",
         data: { query: { _id: { $in: productIds } }, limit: productIds.length },
@@ -188,7 +186,7 @@ const erkhetQueries = {
 
       switch (contentType) {
         case "company":
-          const company = await sendContactsMessage({
+          const company = await sendCoreMessage({
             subdomain,
             action: "companies.findOne",
             data: { _id: contentId },
@@ -210,7 +208,7 @@ const erkhetQueries = {
           sendParams.workerEmail = user && user.email;
           break;
         default:
-          const customer = await sendContactsMessage({
+          const customer = await sendCoreMessage({
             subdomain,
             action: "customers.findOne",
             data: { _id: contentId },

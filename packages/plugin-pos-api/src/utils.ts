@@ -4,14 +4,12 @@ import { IModels } from "./connectionResolver";
 import {
   sendAutomationsMessage,
   sendSalesMessage,
-  sendContactsMessage,
   sendCoreMessage,
   sendEbarimtMessage,
   sendInventoriesMessage,
   sendLoyaltiesMessage,
   sendPosclientHealthCheck,
   sendPosclientMessage,
-  sendProductsMessage,
   sendSyncerkhetMessage
 } from "./messageBroker";
 import { IPosOrder, IPosOrderDocument } from "./models/definitions/orders";
@@ -28,7 +26,7 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
 };
 
 export const getChildCategories = async (subdomain: string, categoryIds) => {
-  const childs = await sendProductsMessage({
+  const childs = await sendCoreMessage({
     subdomain,
     action: "categories.withChilds",
     data: { ids: categoryIds },
@@ -217,7 +215,7 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
     }
 
     if (Object.keys(pushInfo).length) {
-      await sendContactsMessage({
+      await sendCoreMessage({
         subdomain,
         action: `${moduleTxt}.updateOne`,
         data: {

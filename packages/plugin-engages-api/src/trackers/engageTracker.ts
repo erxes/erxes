@@ -5,7 +5,7 @@ import { debugInfo } from '@erxes/api-utils/src/debuggers';
 import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 import { generateModels, IModels } from '../connectionResolver';
 import { SES_DELIVERY_STATUSES } from '../constants';
-import { sendContactsMessage } from '../messageBroker';
+import { sendCoreMessage } from '../messageBroker';
 import { ISESConfig } from '../models/Configs';
 
 export const getApi = async (models: IModels, type: string): Promise<any> => {
@@ -100,7 +100,7 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
     type === SES_DELIVERY_STATUSES.REJECT;
 
   if (rejected) {
-    sendContactsMessage({
+    sendCoreMessage({
       subdomain,
       action: 'customers.setUnsubscribed',
       isRPC: false,

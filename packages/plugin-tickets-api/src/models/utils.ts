@@ -8,11 +8,9 @@ import { itemsAdd } from '../graphql/resolvers/mutations/utils';
 import { generateModels, IModels } from '../connectionResolver';
 import {
   sendCommonMessage,
-  sendContactsMessage,
   sendCoreMessage,
   sendInboxMessage,
-  sendInternalNotesMessage,
-  sendProductsMessage,
+  sendInternalNotesMessage
 } from '../messageBroker';
 import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
@@ -449,7 +447,7 @@ export const createBoardItem = async (
 
 // check booking convert
 const checkBookingConvert = async (subdomain: string, productId: string) => {
-  const product = await sendProductsMessage({
+  const product = await sendCoreMessage({
     subdomain,
     action: 'products.findOne',
     data: { _id: productId },
@@ -632,7 +630,7 @@ export const updateName = async (
       const idsCustomers = await getCustomerIds(subdomain, type, item._id);
       const idsCompanies = await getCompanyIds(subdomain, type, item._id);
 
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
         action: 'customers.find',
         data: {
@@ -642,7 +640,7 @@ export const updateName = async (
         defaultValue: [],
       });
 
-      const companies = await sendContactsMessage({
+      const companies = await sendCoreMessage({
         subdomain,
         action: 'companies.find',
         data: {

@@ -1,32 +1,34 @@
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
-import { FlexRow, Forms, ReactionItem } from './styles';
 import {
   IArticle,
   IErxesForm,
+  IPdfAttachment,
   ITopic,
 } from '@erxes/ui-knowledgeBase/src/types';
+import { FILE_MIME_TYPES } from '@erxes/ui-settings/src/general/constants';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Formgroup } from '@erxes/ui/src/components/form/styles';
+import Icon from '@erxes/ui/src/components/Icon';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
   IOption,
 } from '@erxes/ui/src/types';
-import Select, { OnChangeValue } from 'react-select';
 import Datetime from '@nateradebaugh/react-datetime';
 import { __, extractAttachment } from 'coreui/utils';
-
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FILE_MIME_TYPES } from '@erxes/ui-settings/src/general/constants';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
-import Uploader from '@erxes/ui/src/components/Uploader';
+import Select, { OnChangeValue } from 'react-select';
 import { articleReactions } from '../../icons.constant';
+import PdfUploader from './PdfUploader';
+import { FlexRow, Forms, ReactionItem } from './styles';
 
 type Props = {
   article: IArticle;
@@ -44,6 +46,7 @@ type State = {
   categoryId: string;
   scheduledDate?: Date;
   attachments: IAttachment[];
+  pdfAttachment?: IPdfAttachment | undefined;
   image: IAttachment | null;
   erxesForms: IErxesForm[];
   isPrivate: boolean;
@@ -69,7 +72,9 @@ class ArticleForm extends React.Component<Props, State> {
       attachments,
       isPrivate: article.isPrivate || false,
       isScheduled: article.status === 'scheduled' || false,
-      scheduledDate: article.status === 'scheduled' ? article.scheduledDate : undefined,
+      scheduledDate:
+        article.status === 'scheduled' ? article.scheduledDate : undefined,
+      pdfAttachment: article.pdfAttachment || undefined,
     };
   }
 
@@ -109,6 +114,7 @@ class ArticleForm extends React.Component<Props, State> {
       erxesForms,
       isPrivate,
       scheduledDate,
+      pdfAttachment,
     } = this.state;
 
     const finalValues = values;
@@ -137,6 +143,7 @@ class ArticleForm extends React.Component<Props, State> {
         categoryId,
         image,
         scheduledDate,
+        pdfAttachment,
       },
     };
   };
@@ -376,7 +383,12 @@ class ArticleForm extends React.Component<Props, State> {
         </FormGroup>
         <FormGroup>
           <ControlLabel required={true}>{__('Code')}</ControlLabel>
-          <FormControl {...formProps} name='code' defaultValue={object.code} required={true} />
+          <FormControl
+            {...formProps}
+            name='code'
+            defaultValue={object.code}
+            required={true}
+          />
         </FormGroup>
 
         <FormGroup>
@@ -437,7 +449,7 @@ class ArticleForm extends React.Component<Props, State> {
                   if (e.target.value === 'scheduled') {
                     this.setState({
                       isScheduled: true,
-                      scheduledDate: new Date(Date.now() + 1000 * 60 * 60)
+                      scheduledDate: new Date(Date.now() + 1000 * 60 * 60),
                     });
                   } else {
                     this.setState({
@@ -501,6 +513,16 @@ class ArticleForm extends React.Component<Props, State> {
             single={true}
           />
         </FormGroup>
+
+        <Formgroup>
+          <ControlLabel>{__('PDF')}</ControlLabel>
+          <PdfUploader
+            attachment={this.state.pdfAttachment}
+            onChange={(attachment?: IPdfAttachment) => {
+              return this.setState({ pdfAttachment: attachment });
+            }}
+          />
+        </Formgroup>
 
         <FlexContent>
           <FlexItem count={2} hasSpace={true}>
