@@ -1,6 +1,9 @@
 import gql from 'graphql-tag';
 
 export const types = () => `
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
 
   enum STATUS_TOUR {
     running
@@ -15,6 +18,8 @@ export const types = () => `
     content: String
     duration: Int
     location: [BMSLocation]
+    guidesIds: [String]
+    guides:[User]
     itineraryId: String
     itinerary: Itinerary
     startDate: Date
@@ -62,20 +67,21 @@ export const queries = `
 const params = `
   name: String,
   content: String,
-  itineraryId:String!,
+  itineraryId:String,
   startDate: Date,
   endDate: Date,
   groupSize: Int,
   duration: Int,
   status: STATUS_TOUR,
   cost: Float,
-  location: [BMSLocationInput]
+  location: [BMSLocationInput],
+  guidesIds:[String]
 `;
 
 export const mutations = `
-  bmTourAdd(${params}): Itinerary
+  bmTourAdd(${params}): Tour
   bmTourRemove(ids: [String]): JSON
-  bmTourEdit(_id:String!, ${params}): Itinerary
+  bmTourEdit(_id:String!, ${params}): Tour
   bmOrderAdd(order:OrderInput): Order
   bmOrderEdit(_id:String!,order:OrderInput): Order
   bmOrderRemove(ids:[String]): JSON

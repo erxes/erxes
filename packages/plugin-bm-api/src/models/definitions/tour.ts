@@ -8,7 +8,13 @@ export interface ITour {
   name: string;
   content: string;
   duration: string;
-  location: [ILocation];
+  location: ILocation[];
+  startDate: Date;
+  endDate: Date;
+  groupSize: number;
+  guidesIds: string[];
+  status: string;
+  cost: number;
 }
 
 export interface ITourDocument extends ITour, Document {
@@ -47,6 +53,7 @@ export const tourSchema = schemaHooksWrapper(
     startDate: field({ type: Date, optional: true, label: 'date' }),
     endDate: field({ type: Date, optional: true, label: 'date' }),
     groupSize: field({ type: Number, optional: true, label: 'group size' }),
+    guidesIds: field({ type: [String], optional: true, label: 'guides' }),
     status: field({
       type: String,
       enum: getEnum(),
