@@ -101,9 +101,9 @@ export const COLLECTION_MAP = {
   stage: "stages",
   tag: "tags",
   label: "pipeline_labels",
-  // frequency: "frequency",
-  // status: "status",
-  // priority: "priority",
+  deal: "sales",
+  task: "tasks",
+  ticket: "tickets",
 }
 
 export const FIELD_MAP = {
