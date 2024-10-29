@@ -1,6 +1,6 @@
 import {
   attachmentType,
-  attachmentInput
+  attachmentInput,
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = `  
@@ -84,17 +84,12 @@ export const types = `
     _id: String
     scheduleConfigId: String
     overnightShift: Boolean
+    startFlexible: Boolean
+    endFlexible: Boolean
     configName: String
     shiftStart: Date
     shiftEnd: Date
     lunchBreakInMins: Int
-  }
-
-  input ConfigOrderInput {
-   scheduleConfigId: String
-   order: Int
-   pinned: Boolean
-   label: String 
   }
 
   type Shift{
@@ -234,21 +229,11 @@ export const types = `
     shiftEnd: String
     configDays: [ConfigDay]
     overtimeExists: Boolean
+    startFlexible: Boolean
+    endFlexible: Boolean
+    locations: [JSON]
   }
   
-  type ScheduleConfigOrderItem {
-    order: Int
-    pinned: Boolean
-    scheduleConfigId: String
-    label: String
-  }
-  
-  type ScheduleConfigOrder {
-    _id: String!
-    userId: String
-    orderedList: [ScheduleConfigOrderItem]
-  }
-
   type ConfigDay {
     _id: String!
     configName: String
@@ -380,6 +365,8 @@ const scheduleConfigParams = `
     configShiftStart: String
     configShiftEnd: String
     overtimeExists:Boolean 
+    startFlexible: Boolean
+    endFlexible: Boolean
     locations: [JSON]
 `;
 
@@ -414,7 +401,6 @@ export const queries = `
   scheduleConfigs: [ScheduleConfig]
   
   deviceConfigs(${queryParams}): DeviceConfigsListResponse
-  scheduleConfigOrder(userId: String): ScheduleConfigOrder
 
   payDates: [PayDate]
   holidays: [Absence]
@@ -450,8 +436,6 @@ export const mutations = `
   scheduleConfigAdd(${scheduleConfigParams}): ScheduleConfig
   scheduleConfigEdit(_id : String,${scheduleConfigParams}): ScheduleConfig
   scheduleConfigRemove(_id : String ): JSON
-  
-  scheduleConfigOrderEdit(userId: String, orderedList:[ConfigOrderInput]): JSON
 
   payDateAdd(dateNums: [Int]): PayDate
   payDateEdit(_id: String, dateNums: [Int]): PayDate
