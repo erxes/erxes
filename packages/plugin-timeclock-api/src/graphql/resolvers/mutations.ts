@@ -105,7 +105,7 @@ const timeclockMutations = {
           );
 
           // if user's coordinate is within the radius
-          if (dist * 1000 <= 500) {
+          if (dist * 1000 <= 1000) {
             insideCoordinate = true;
             getBranchName = location.name;
           }
@@ -186,7 +186,7 @@ const timeclockMutations = {
           );
 
           // if user's coordinate is within the radius
-          if (dist * 1000 <= 500) {
+          if (dist * 1000 <= 1000) {
             insideCoordinate = true;
             outDevice = location.name;
           }

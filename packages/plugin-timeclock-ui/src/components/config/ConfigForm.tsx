@@ -107,7 +107,9 @@ function ConfigForm(props: Props) {
     (deviceConfig && deviceConfig.extractRequired) || false
   );
 
-  const [numberOfLocations, setNumberOfLocations] = useState(0);
+  const [numberOfLocations, setNumberOfLocations] = useState(
+    scheduleConfig?.locations.length || 0
+  );
   const [locationsFormValues, setLocationsFormValues] = useState<any>(
     scheduleConfig?.locations || {}
   );
