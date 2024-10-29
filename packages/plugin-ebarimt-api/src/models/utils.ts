@@ -112,9 +112,9 @@ const getCustomerInfo = async (type: string, config: IEbarimtConfig, doc: IDoc) 
 
   const re = /^\d{8}$/;
   if (doc.consumerNo && re.test(doc.consumerNo)) {
-    return { consumerNo: doc.consumerNo };
+    return { consumerNo: doc.consumerNo, customerName: doc.customerName };
   }
-  return {}
+  return { customerName: doc.customerName }
 }
 
 const genStock = (detail, product, config) => {
