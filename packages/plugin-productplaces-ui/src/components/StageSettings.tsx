@@ -16,14 +16,10 @@ type Props = {
 };
 
 const GeneralSettings = (props: Props) => {
-  const [configsMap, setConfigsMap] = useState<IConfigsMap>(props.configsMap);
+  const [configs, setConfigs] = useState<IConfigsMap>(props.configsMap.dealsProductsDataPlaces || {});
 
   const add = (e) => {
     e.preventDefault();
-
-    if (!configsMap.dealsProductsDataPlaces) {
-      configsMap.dealsProductsDataPlaces = {};
-    }
 
     // must save prev item saved then new item
     const newPlacesConfig = {
@@ -33,34 +29,37 @@ const GeneralSettings = (props: Props) => {
       stageId: '',
       conditions: [],
     };
-
-    setConfigsMap((prevConfigsMap) => ({
+    setConfigs((prevConfigsMap) => ({
       ...prevConfigsMap,
-      dealsProductsDataPlaces: {
-        ...prevConfigsMap.dealsProductsDataPlaces,
-        newPlacesConfig,
-      },
+      newPlacesConfig,
     }));
   };
 
   const deleteHandler = (currentConfigKey: string) => {
-    delete configsMap.dealsProductsDataPlaces[currentConfigKey];
-    delete configsMap.dealsProductsDataPlaces['newPlacesConfig'];
+    const dealsProductsDataPlaces = { ...configs };
+    delete dealsProductsDataPlaces[currentConfigKey];
+    delete dealsProductsDataPlaces['newPlacesConfig'];
 
-    setConfigsMap({ configsMap });
-
-    props.save(configsMap);
+    setConfigs({ ...dealsProductsDataPlaces });
+    props.save({ ...props.configsMap, dealsProductsDataPlaces });
   };
+
+  const saveHandler = (key, config) => {
+    const dealsProductsDataPlaces = { ...configs };
+    delete dealsProductsDataPlaces['newPlacesConfig'];
+    dealsProductsDataPlaces[key] = config;
+    setConfigs({ ...dealsProductsDataPlaces });
+    props.save({ ...props.configsMap, dealsProductsDataPlaces })
+  }
 
   const renderConfigs = (configs) => {
     return Object.keys(configs).map((key) => {
       return (
         <PerSettings
           key={Math.random()}
-          configsMap={configsMap}
           config={configs[key]}
           currentConfigKey={key}
-          save={props.save}
+          save={saveHandler}
           delete={deleteHandler}
         />
       );
@@ -68,8 +67,6 @@ const GeneralSettings = (props: Props) => {
   };
 
   const renderContent = () => {
-    const configs = configsMap.dealsProductsDataPlaces || {};
-
     return (
       <ContentBox id={'GeneralSettingsMenu'}>
         {renderConfigs(configs)}
