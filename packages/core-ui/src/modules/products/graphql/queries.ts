@@ -37,25 +37,31 @@ const productsCount = `
     $status: String,
     $tag: String,
     $searchValue: String,
+    $vendorId: String,
+    $brand: String,
     $ids: [String],
     $excludeIds: Boolean,
     $pipelineId: String,
     $boardId: String,
     $segment: String,
-    $segmentData: String
+    $segmentData: String,
+    $image: String,
   ) {
     productsTotalCount(
       type: $type,
-      status: $status,
       categoryId: $categoryId,
       tag: $tag,
       searchValue: $searchValue,
+      status: $status,
+      vendorId: $vendorId,
+      brand: $brand,
       ids: $ids,
       excludeIds: $excludeIds,
       pipelineId: $pipelineId,
       boardId: $boardId,
       segment: $segment,
-      segmentData: $segmentData
+      segmentData: $segmentData,
+      image: $image,
     )
   }
 `;
