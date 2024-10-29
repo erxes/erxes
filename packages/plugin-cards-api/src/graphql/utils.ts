@@ -10,6 +10,7 @@ import * as _ from 'underscore';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { sendCoreMessage, sendNotificationsMessage } from '../messageBroker';
 import { IModels } from '../connectionResolver';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 interface IMainType {
   mainType: string;
@@ -81,6 +82,9 @@ export const sendNotifications = async (
     removedUsers
   }: IBoardNotificationParams
 ) => {
+  if (!await isEnabled('notifications')) {
+    return;
+  }
   const stage = await models.Stages.getStage(item.stageId);
   const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
@@ -367,7 +371,7 @@ export const copyPipelineLabels = async (
   for (const label of oldLabels) {
     const exists =
       existingLabelsByUnique[
-        JSON.stringify({ name: label.name, colorCode: label.colorCode })
+      JSON.stringify({ name: label.name, colorCode: label.colorCode })
       ];
     if (!exists) {
       notExistingLabels.push({
