@@ -1,5 +1,3 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
-
 const callsIntegrationUpdate: string = `
 mutation CallsIntegrationUpdate($configs: CallIntegrationConfigs) {
   callsIntegrationUpdate(configs: $configs)
