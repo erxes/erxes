@@ -2,11 +2,14 @@ import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import {
   configSchema,
+  IConfig,
   IConfigDocument,
   INotification,
   INotificationDocument,
-  notificationSchema,
+  notificationSchema
 } from './definitions/notifications';
+import { IModels } from '../connectionResolver';
+import { can } from '@erxes/api-utils/src';
 
 export interface INotificationModel extends Model<INotificationDocument> {
   markAsRead(ids: string[], userId?: string): void;
@@ -22,7 +25,7 @@ export interface INotificationModel extends Model<INotificationDocument> {
   removeNotification(_id: string): void;
 }
 
-export const loadNotificationClass = (models) => {
+export const loadNotificationClass = (models: IModels) => {
   class Notification {
     /**
      * Marks notifications as read
@@ -48,7 +51,7 @@ export const loadNotificationClass = (models) => {
       const notification = await models.Notifications.findOne({
         isRead: false,
         receiver: userId,
-        contentTypeId,
+        contentTypeId
       });
 
       return notification ? false : true;
@@ -61,20 +64,21 @@ export const loadNotificationClass = (models) => {
       doc: INotification,
       createdUserId: string
     ) {
-      // if receiver is configured to get this notification
-      const config = await models.NotificationConfigurations.findOne({
-        user: doc.receiver,
-        notifType: doc.notifType,
-      });
-
-      // receiver disabled this notification
-      if (config && !config.isAllowed) {
+      // receiver disabled this notification if receiver is configured to get this notification
+      if (
+        await models.NotificationConfigurations.exists({
+          user: doc.receiver,
+          'pluginsConfigs.isDisabled': { $ne: true },
+          'pluginsConfigs.notifTypes.isDisabled': { $ne: true },
+          'pluginsConfigs.notifTypes.notifType': doc.notifType
+        })
+      ) {
         throw new Error('Configuration does not exist');
       }
 
       return models.Notifications.create({
         ...doc,
-        createdUser: createdUserId,
+        createdUser: createdUserId
       });
     }
 
@@ -102,38 +106,85 @@ export const loadNotificationClass = (models) => {
 
 export interface IConfigModel extends Model<IConfigDocument> {
   createOrUpdateConfiguration(
-    { notifType, isAllowed }: { notifType?: string; isAllowed?: boolean },
-    user?: IUserDocument | string
+    doc: IConfig,
+    user?: IUserDocument
   ): Promise<IConfigDocument>;
+  setAsDefault(user?: IUserDocument): Promise<{ status: string }>;
 }
 
-export const loadNotificationConfigClass = (models) => {
+export const loadNotificationConfigClass = (
+  models: IModels,
+  subdomain: string
+) => {
   class Configuration {
     /**
      * Creates an new notification or updates already existing notification configuration
      */
     public static async createOrUpdateConfiguration(
-      { notifType, isAllowed }: { notifType?: string; isAllowed?: boolean },
-      user?: IUserDocument | string
+      doc: IConfig,
+      user?: IUserDocument
     ) {
-      const selector: any = { user, notifType };
+      if (doc.isDefault) {
+        if (!(await can(subdomain, 'setNotification', user))) {
+          throw new Error('Permission denied');
+        }
+      }
+      const selector = doc.isDefault
+        ? { isDefault: true }
+        : { userId: user?._id };
 
-      const oldOne = await models.NotificationConfigurations.findOne(selector);
+      const config = await models.NotificationConfigurations.findOne(selector);
 
-      // If already inserted then raise error
-      if (oldOne) {
-        await models.NotificationConfigurations.updateOne(
-          { _id: oldOne._id },
-          { $set: { isAllowed } }
-        );
+      if (!config) {
+        return await models.NotificationConfigurations.create({
+          ...doc,
+          userId: user?._id,
+          isDefault: doc.isDefault
+        });
+      }
+      return await models.NotificationConfigurations.updateOne(selector, {
+        $set: { ...doc }
+      });
+    }
 
-        return models.NotificationConfigurations.findOne({ _id: oldOne._id });
+    public static async setAsDefault(user?: IUserDocument) {
+      const defaultConfig = await models.NotificationConfigurations.findOne({
+        isDefault: true
+      }).lean();
+
+      const selector = { userId: user?._id };
+
+      const userConfig =
+        await models.NotificationConfigurations.findOne(selector);
+
+      if (!userConfig) {
+        return { status: 'success' };
       }
 
-      // If it is first time then insert
-      selector.isAllowed = isAllowed;
+      if (!defaultConfig) {
+        await models.NotificationConfigurations.deleteOne(selector);
+        return { status: 'success' };
+      }
 
-      return models.NotificationConfigurations.create(selector);
+      const {
+        isDefault,
+        isDisabled,
+        isAllowEmail,
+        isAllowedDesktop,
+        pluginsConfigs
+      } = defaultConfig;
+
+      await models.NotificationConfigurations.updateOne(selector, {
+        $set: {
+          isDefault,
+          isDisabled,
+          isAllowEmail,
+          isAllowedDesktop,
+          pluginsConfigs
+        }
+      });
+
+      return { status: 'success' };
     }
   }
 

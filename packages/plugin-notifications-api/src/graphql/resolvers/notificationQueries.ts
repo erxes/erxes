@@ -29,7 +29,7 @@ const notificationQueries = {
       startDate: string;
       endDate: string;
     },
-    { models, user }: IContext,
+    { models, user }: IContext
   ) {
     const sort: any = { date: -1 };
 
@@ -54,7 +54,7 @@ const notificationQueries = {
     if (startDate && endDate) {
       selector.date = {
         $gte: startDate,
-        $lt: endDate,
+        $lt: endDate
       };
     }
 
@@ -73,9 +73,9 @@ const notificationQueries = {
     {
       requireRead,
       notifType,
-      contentTypes,
+      contentTypes
     }: { requireRead: boolean; notifType: string; contentTypes: string },
-    { user, models }: IContext,
+    { user, models }: IContext
   ) {
     const selector: any = { receiver: user._id };
 
@@ -124,9 +124,15 @@ const notificationQueries = {
   /**
    * Get per user configuration
    */
-  async notificationsGetConfigurations(_root, _args, { user, models }: IContext) {
-    return models.NotificationConfigurations.find({ user: user._id });
-  },
+  async notificationsGetConfigurations(
+    _root,
+    { isDefault }: { isDefault?: boolean },
+    { user, models }: IContext
+  ) {
+    return models.NotificationConfigurations.findOne(
+      isDefault ? { isDefault: true } : { userId: user._id }
+    );
+  }
 };
 
 moduleRequireLogin(notificationQueries);

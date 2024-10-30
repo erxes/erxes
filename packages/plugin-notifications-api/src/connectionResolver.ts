@@ -1,13 +1,13 @@
 import * as mongoose from 'mongoose';
 import {
   IConfigDocument,
-  INotificationDocument,
+  INotificationDocument
 } from './models/definitions/notifications';
 import {
   IConfigModel,
   INotificationModel,
   loadNotificationClass,
-  loadNotificationConfigClass,
+  loadNotificationConfigClass
 } from './models/Notifications';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
@@ -23,18 +23,18 @@ export interface IContext extends IMainContext {
 
 export const loadClasses = (
   db: mongoose.Connection,
-  _subdomain: string,
+  subdomain: string
 ): IModels => {
   const models = {} as IModels;
 
   models.Notifications = db.model<INotificationDocument, INotificationModel>(
     'notifications',
-    loadNotificationClass(models),
+    loadNotificationClass(models)
   );
 
   models.NotificationConfigurations = db.model<IConfigDocument, IConfigModel>(
     'notification_configurations',
-    loadNotificationConfigClass(models),
+    loadNotificationConfigClass(models, subdomain)
   );
   return models;
 };

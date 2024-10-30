@@ -1,17 +1,18 @@
-import { getUserDetail } from "@erxes/api-utils/src";
-import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
-import { IModels } from "./connectionResolver";
-import { generateModels } from "./connectionResolver";
+import { getUserDetail } from '@erxes/api-utils/src';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { IModels } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import {
   MessageArgs,
   MessageArgsOmitService,
   sendMessage,
   getEnv
-} from "@erxes/api-utils/src/core";
+} from '@erxes/api-utils/src/core';
 import {
   consumeQueue,
   consumeRPCQueue
-} from "@erxes/api-utils/src/messageBroker";
+} from '@erxes/api-utils/src/messageBroker';
+import { IConfig } from './models/definitions/notifications';
 
 interface ISendNotification {
   createdUser;
@@ -24,6 +25,58 @@ interface ISendNotification {
   contentType: string;
   contentTypeId: string;
 }
+
+type ICheckAllowed = {
+  ok: boolean;
+  customHtml?: string;
+};
+
+const checkAllowed = ({
+  type,
+  contentType,
+  notifType,
+  config,
+  defaultConfig
+}: {
+  type: 'email' | 'desktop';
+  contentType: string;
+  notifType: string;
+  config: IConfig;
+  defaultConfig?: IConfig | null;
+}): ICheckAllowed => {
+  const field =
+    type === 'desktop'
+      ? ['isAllowedDesktop', 'isDisabledDesktop']
+      : ['isAllowEmail', 'isDisabledEmail'];
+
+  if (config[field[0]]) {
+    const { pluginsConfigs = [] } = config;
+    const pluginConfig = pluginsConfigs.find(
+      ({ type }) => type === contentType
+    );
+    if (!pluginConfig?.isDisabled) {
+      const { notifTypes = [] } = pluginConfig || {};
+
+      const notifTypeConfig = notifTypes?.find(
+        notif => notif.notifType === notifType
+      );
+
+      if (!notifTypeConfig?.isDisabled && !(notifTypeConfig || {})[field[1]]) {
+        return { ok: true, customHtml: notifTypeConfig?.customHtml };
+      }
+    }
+  }
+
+  if (defaultConfig) {
+    return checkAllowed({
+      type,
+      contentType,
+      notifType,
+      config: defaultConfig
+    });
+  }
+  return { ok: false };
+};
 
 const sendNotification = async (
   models: IModels,
@@ -48,7 +101,7 @@ const sendNotification = async (
 
   await sendCoreMessage({
     subdomain,
-    action: "users.updateMany",
+    action: 'users.updateMany',
     data: {
       selector: {
         _id: { $in: receiverIds }
@@ -59,13 +112,58 @@ const sendNotification = async (
     }
   });
 
+  let emailReceivers: { receiverId: string; customHtml?: string }[] = [];
+  let desktopReceiverIds: string[] = [];
+
+  const defaultConfig = await models.NotificationConfigurations.findOne({
+    isDefault: true
+  }).lean();
+
+  const receiversConfigs = await models.NotificationConfigurations.find({
+    userId: { $in: receiverIds }
+  });
+
+  for (const receiverId of receiverIds) {
+    const receiverConfig = receiversConfigs.find(
+      ({ userId }) => userId === receiverId
+    );
+
+    if (receiverConfig) {
+      const commonCheckObj = {
+        contentType,
+        notifType,
+        config: receiverConfig,
+        defaultConfig
+      };
+      const { ok: isAllowedEmail, customHtml } = checkAllowed({
+        ...commonCheckObj,
+        type: 'email'
+      });
+
+      const isAllowedDesktop = checkAllowed({
+        ...commonCheckObj,
+        type: 'desktop'
+      });
+      if (isAllowedEmail) {
+        emailReceivers.push({
+          receiverId,
+          customHtml: customHtml
+        });
+      }
+
+      if (isAllowedDesktop) {
+        desktopReceiverIds.push(receiverId);
+      }
+    }
+  }
+
   // collecting emails
   const recipients = await sendCoreMessage({
     subdomain,
-    action: "users.find",
+    action: 'users.find',
     data: {
       query: {
-        _id: { $in: receiverIds },
+        _id: { $in: emailReceivers.map(({ receiverId }) => receiverId) },
         isActive: true
       }
     },
@@ -77,7 +175,7 @@ const sendNotification = async (
   const toEmails: string[] = [];
 
   for (const recipient of recipients) {
-    if (recipient.getNotificationByEmail && recipient.email) {
+    if (recipient.email) {
       toEmails.push(recipient.email);
     }
   }
@@ -110,13 +208,13 @@ const sendNotification = async (
       });
     } catch (e) {
       // Any other error is serious
-      if (e.message !== "Configuration does not exist") {
+      if (e.message !== 'Configuration does not exist') {
         throw e;
       }
     }
   } // end receiverIds loop
 
-  const DOMAIN = getEnv({ name: "DOMAIN" });
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
 
   link = `${DOMAIN}${link}`;
 
@@ -131,12 +229,12 @@ const sendNotification = async (
 
   sendCoreMessage({
     subdomain,
-    action: "sendEmail",
+    action: 'sendEmail',
     data: {
       toEmails,
-      title: "Notification",
+      title: 'Notification',
       template: {
-        name: "notification",
+        name: 'notification',
         data: {
           notification: { ...doc, link },
           action,
@@ -149,7 +247,7 @@ const sendNotification = async (
 };
 
 export const setupMessageConsumers = async () => {
-  consumeQueue("notifications:send", async ({ subdomain, data }) => {
+  consumeQueue('notifications:send', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     await sendNotification(models, subdomain, data);
   });
@@ -159,12 +257,12 @@ export const setupMessageConsumers = async () => {
     await sendNotification(models, subdomain, data);
 
     return {
-      status: 'success',
+      status: 'success'
     };
   });
 
   consumeQueue(
-    "notifications:batchUpdate",
+    'notifications:batchUpdate',
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
       await models.Notifications.updateMany(selector, modifier);
@@ -172,22 +270,22 @@ export const setupMessageConsumers = async () => {
   );
 
   consumeRPCQueue(
-    "notifications:checkIfRead",
+    'notifications:checkIfRead',
     async ({ subdomain, data: { userId, itemId } }) => {
       const models = await generateModels(subdomain);
       return {
-        status: "success",
+        status: 'success',
         data: await models.Notifications.checkIfRead(userId, itemId)
       };
     }
   );
 
   consumeRPCQueue(
-    "notifications:find",
+    'notifications:find',
     async ({ subdomain, data: { selector, fields } }) => {
       const models = await generateModels(subdomain);
       return {
-        status: "success",
+        status: 'success',
         data: await models.Notifications.find(selector, fields)
       };
     }
@@ -196,7 +294,7 @@ export const setupMessageConsumers = async () => {
 
 export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
-    serviceName: "core",
+    serviceName: 'core',
     ...args
   });
 };
@@ -209,11 +307,20 @@ export const sendCommonMessage = async (
   });
 };
 
+export const sendContactsMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'contacts',
+    ...args
+  });
+};
+
 export const sendSegmentsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "segments",
+    serviceName: 'segments',
     ...args
   });
 };
@@ -222,7 +329,7 @@ export const sendClientPortalMessagge = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "clientportal",
+    serviceName: 'clientportal',
     ...args
   });
 };

@@ -5,6 +5,7 @@ import {
   GetNotificationByEmailMutationVariables,
   NotificationConfigsQueryResponse,
   NotificationModulesQueryResponse,
+  // NotificationsSetAsDefaultConfigMutationResponse,
   SaveNotificationConfigMutationResponse,
   SaveNotificationConfigMutationVariables,
 } from '@erxes/ui-notifications/src/types';
@@ -38,11 +39,12 @@ const NotificationSettingsContainer = (props: FinalProps) => {
 
   // Queries
   const notificationModulesQuery = useQuery<NotificationModulesQueryResponse>(
-    gql(queries.notificationsModules),
+    gql(queries.notificationsModules)
   );
   const notificationConfigurationsQuery =
     useQuery<NotificationConfigsQueryResponse>(
       gql(queries.notificationsGetConfigurations),
+      { variables: { isDefault: !!props?.queryParams?.isDefault } }
     );
 
   // Mutations
@@ -52,9 +54,9 @@ const NotificationSettingsContainer = (props: FinalProps) => {
   >(gql(mutations.configGetNotificationByEmail), {
     refetchQueries: [
       {
-        query: gql(currentUserQuery)
-      }
-    ]
+        query: gql(currentUserQuery),
+      },
+    ],
   });
 
   const [saveNotificationConfigurationsMutation] = useMutation<
@@ -62,16 +64,20 @@ const NotificationSettingsContainer = (props: FinalProps) => {
     SaveNotificationConfigMutationVariables
   >(gql(mutations.saveNotificationConfigurations));
 
+  const [saveAsDefaultNotificationsConfigsMutation] = useMutation(
+    gql(mutations.saveNotificationConfigurations)
+  );
+
   // Methods
   // save get notification by email
-  const configGetNotificationByEmail = (variables) => {
+  const configGetNotificationByEmail = variables => {
     configGetNotificationByEmailMutation({ variables })
       .then(() => {
         if (isMounted.current) {
           Alert.success('You successfully changed a notification setting');
         }
       })
-      .catch((error) => {
+      .catch(error => {
         if (isMounted.current) {
           Alert.success(error.message);
         }
@@ -79,15 +85,32 @@ const NotificationSettingsContainer = (props: FinalProps) => {
   };
 
   // save notification configurations
-  const saveNotificationConfigurations = (variables) => {
-    saveNotificationConfigurationsMutation({ variables })
+  const saveNotificationConfigurations = variables => {
+    saveNotificationConfigurationsMutation({
+      variables: { ...variables, isDefault: !!props?.queryParams?.isDefault },
+    })
       .then(() => {
         if (isMounted.current) {
           Alert.success('You successfully changed a notification setting');
           notificationConfigurationsQuery.refetch();
         }
       })
-      .catch((error) => {
+      .catch(error => {
+        if (isMounted.current) {
+          Alert.success(error.message);
+        }
+      });
+  };
+
+  const saveAsDefaultNotificationsConfigs = () => {
+    saveAsDefaultNotificationsConfigsMutation()
+      .then(() => {
+        if (isMounted.current) {
+          Alert.success('You successfully changed a notification setting');
+          notificationConfigurationsQuery.refetch();
+        }
+      })
+      .catch(error => {
         if (isMounted.current) {
           Alert.success(error.message);
         }
@@ -95,8 +118,8 @@ const NotificationSettingsContainer = (props: FinalProps) => {
   };
 
   // Definitions
-  const configs =
-    notificationConfigurationsQuery?.data?.notificationsGetConfigurations || [];
+  const config =
+    notificationConfigurationsQuery?.data?.notificationsGetConfigurations;
 
   // default value is checked
   let getNotificationByEmail = currentUser.getNotificationByEmail;
@@ -107,11 +130,12 @@ const NotificationSettingsContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     modules: notificationModulesQuery?.data?.notificationsModules || [],
-    configs,
+    config,
     saveNotificationConfigurations,
 
     getNotificationByEmail,
     configGetNotificationByEmail,
+    saveAsDefaultNotificationsConfigs,
   };
 
   return <NotificationSettings {...updatedProps} />;

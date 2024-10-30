@@ -57,22 +57,69 @@ notificationSchema.index({
   date: 1
 });
 
+interface IPluginConfig {
+  type: string;
+  isDisabled?: boolean;
+  notifTypes?: {
+    notifType: string;
+    isDisabled?: boolean;
+    isDisabledEmail?: boolean;
+    isDisabledDesktop?: boolean;
+    customHtml?: string;
+  }[];
+}
 export interface IConfig {
-  user?: string;
-  notifType?: string;
-  isAllowed?: boolean;
+  userId: string;
+  isDefault?: boolean;
+  isDisabled?: boolean;
+  isAllowEmail?: boolean;
+  isAllowedDesktop?: boolean;
+  pluginsConfigs: IPluginConfig[];
 }
 
 export interface IConfigDocument extends IConfig, Document {
   _id: string;
 }
 
+const actionConfigsSchema = new Schema(
+  {
+    notifType: field({ type: String, label: 'Action Type' }),
+    isDisabled: field({ type: Boolean, label: 'is disabled' }),
+    isDisabledEmail: field({ type: Boolean }),
+    isDisabledDesktop: field({ type: Boolean }),
+    customHtml: field({ type: String, label: 'Custom HTML', optional: true })
+  },
+  { _id: false }
+);
+
+const pluginConfigsSchema = new Schema(
+  {
+    type: field({ type: String, label: 'Plugin Type' }),
+    isDisabled: field({
+      type: Boolean,
+      label: 'Is disabled plugin notifications'
+    }),
+    notifTypes: field({ type: [actionConfigsSchema] })
+  },
+  { _id: false }
+);
+
 export const configSchema = new Schema({
   _id: field({ pkey: true }),
-  // to whom this config is related
-  user: field({ type: String }),
-  notifType: field({
-    type: String
+  userId: field({ type: String, label: 'User', required: true }),
+  isDisabled: field({ type: Boolean }),
+  isAllowEmail: field({
+    type: Boolean,
+    default: false,
+    label: 'Is Allowed Email'
   }),
-  isAllowed: field({ type: Boolean })
+  isAllowedDesktop: field({
+    type: Boolean,
+    default: false,
+    label: 'Is Allowed Desktop'
+  }),
+  pluginsConfigs: field({ type: [pluginConfigsSchema] }),
+
+  // for default configurations
+  isDefault: field({ type: Boolean, label: 'Default', optional: true })
 });
