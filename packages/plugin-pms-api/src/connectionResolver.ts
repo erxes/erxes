@@ -5,11 +5,19 @@ import { createGenerateModels } from '@erxes/api-utils/src/core';
 import { IConfigModel, loadConfigClass } from './models/Configs';
 import { IConfigDocument } from './models/definitions/configs';
 import { ICleaningModel, loadCleaningClass } from './models/Cleaning';
-import { ICleaningDocument } from './models/definitions/cleaning';
+import {
+  ICleaningDocument,
+  ICleaningHistoryDocument,
+} from './models/definitions/cleaning';
+import {
+  ICleaningHistoryModel,
+  loadCleaningHistoryClass,
+} from './models/CleaningHistory';
 
 export interface IModels {
   Configs: IConfigModel;
   Cleaning: ICleaningModel;
+  History: ICleaningHistoryModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -29,6 +37,10 @@ export const loadClasses = (
   models.Cleaning = db.model<ICleaningDocument, ICleaningModel>(
     'pms_cleanings',
     loadCleaningClass(models, subdomain)
+  );
+  models.History = db.model<ICleaningHistoryDocument, ICleaningHistoryModel>(
+    'pms_history',
+    loadCleaningHistoryClass(models, subdomain)
   );
   return models;
 };

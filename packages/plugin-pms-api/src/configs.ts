@@ -11,13 +11,7 @@ import { getOrderInfo } from './routes';
 export default {
   name: 'pms',
   permissions,
-  hasSubscriptions: true,
-  // subscriptionPluginPath: require('path').resolve(
-  //   __dirname,
-  //   'graphql',
-  //   'subscriptionPlugin.js'
-  // ),
-  // getHandlers: [{ path: `/getOrderInfo`, method: getOrderInfo }],
+
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),

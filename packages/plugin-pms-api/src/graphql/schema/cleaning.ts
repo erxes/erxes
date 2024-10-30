@@ -3,6 +3,13 @@ export const types = `
     _id: String!
     roomId: String
     status: String
+  }
+type CleaningHistory {
+    _id: String!
+    roomId: String
+    status: String
+    statusPrev:String
+    who: String
     date: Date
   }
 `;
@@ -18,10 +25,9 @@ const params = `
 `;
 export const queries = `
   pmsCleanings: [Cleaning]
+  pmsCleaningsHistory(roomIds:[String]):[CleaningHistory]
 `;
 
 export const mutations = `
-  pmsCleaningUpdate(_id:String, ${params}): Cleaning
-  pmsCleaningCreate( ${params}):Cleaning
-  pmsCleaningRemove(ids:[String]):JSON
+  pmsCleaningUpdateBulk(roomIds:[String],status:String, who: String ): JSON
 `;

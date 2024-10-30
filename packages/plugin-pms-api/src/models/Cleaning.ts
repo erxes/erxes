@@ -23,11 +23,11 @@ export const loadCleaningClass = (models: IModels, _subdomain) => {
       return obj;
     }
     public static async updateCleaning(_id, doc) {
-      await models.Configs.updateOne({ _id: _id }, { ...doc });
-      return models.Configs.findOne({ _id });
+      await models.Cleaning.updateOne({ _id: _id }, { ...doc });
+      return models.Cleaning.findOne({ _id });
     }
     public static async remove(ids: string[]) {
-      await models.Configs.deleteMany({ _id: { $in: ids } });
+      await models.Cleaning.deleteMany({ _id: { $in: ids } });
       return 'ok';
     }
   }

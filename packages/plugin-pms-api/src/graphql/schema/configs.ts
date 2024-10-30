@@ -26,10 +26,8 @@ export const queries = `
   pmsConfigsGetValue(code:String): PmsConfig
   pmsRooms( pipelineId:String! ,endDate1:Date,endDate2:Date, startDate1:Date ,startDate2:Date ): [Deal]
   pmsCheckRooms(pipelineId:String! ,endDate:Date, startDate:Date,ids:[String]): [Product]
-  pmsRoomCleaningList: JSON
 `;
 
 export const mutations = `
   pmsConfigsUpdate(${params}): [PmsConfig]
-  pmsRoomCleaning(roomId:String, status:String):JSON
 `;
