@@ -1,0 +1,10 @@
+{
+  "name": "erxes-cli",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "enquirer": "^2.4.1",
+    "generate-password": "^1.7.1"
+  }
+}
