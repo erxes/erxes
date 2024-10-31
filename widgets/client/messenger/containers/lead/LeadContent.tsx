@@ -32,7 +32,9 @@ const LeadContent = (props: ChildProps<IProps, QueryResponse>) => {
 
   const extendedProps = {
     ...props,
-    form: data.formDetail
+    form: data.formDetail,
+    leadData: props.form.leadData || {},
+    languageCode: props.form.languageCode || 'en',
   };
 
   return <DumbForm {...extendedProps} hasTopBar={false} />;
@@ -78,7 +80,7 @@ const WithContext = ({ formCode }: { formCode: string }) => (
         const integration = getIntegration(formCode);
         const form = getForm(formCode);
 
-        const callout = integration.leadData && integration.leadData.callout;
+        const callout = form?.leadData.callout;
 
         if (isCallOutVisible && callout && !callout.skip) {
           return (

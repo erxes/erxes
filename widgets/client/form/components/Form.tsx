@@ -24,6 +24,8 @@ import TopBar from './TopBar';
 
 type Props = {
   form: IForm;
+  languageCode: string;
+  leadData: any;
   integration: IIntegration;
   currentStatus: ICurrentStatus;
   callSubmit?: boolean;
@@ -57,7 +59,7 @@ class Form extends React.Component<Props, State> {
     super(props);
 
     let currentLocation: ILocationOption | undefined;
-    console.log(props);
+
     if (props.form.fields.findIndex((e) => e.type === 'map') !== -1) {
       currentLocation = {
         lat: connection.browserInfo.latitude,
@@ -69,13 +71,12 @@ class Form extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const { setHeight, integration, form } = this.props;
+    const { setHeight, integration, form, languageCode, leadData} = this.props;
 
     if (setHeight) {
       setHeight();
     }
 
-    const { leadData, languageCode } = connection.data.form;
 
     if (leadData.css) {
       const head = document.getElementsByTagName('head')[0];
@@ -594,9 +595,9 @@ class Form extends React.Component<Props, State> {
   }
 
   render() {
-    const { form, currentStatus, sendEmail, integration } = this.props;
+    const { form, currentStatus, sendEmail, leadData } = this.props;
     const doc = this.state.doc;
-    const { leadData } = connection.data.form;
+
     if (currentStatus.status === 'SUCCESS') {
       const {
         successAction,
@@ -665,7 +666,7 @@ class Form extends React.Component<Props, State> {
 }
 
 export default (props: Props) => {
-  const { form } = connection.data;
+  const { leadData } = props;
 
   return (
     <AppConsumer>
@@ -675,7 +676,7 @@ export default (props: Props) => {
             {...props}
             // if lead is in a messenger, return messenger theme color (getColor())
             // else return lead theme color
-            color={getColor ? getColor() : form.leadData.themeColor || ''}
+            color={getColor ? getColor() : leadData.themeColor || ''}
           />
         );
       }}

@@ -87,12 +87,10 @@ class LeadConnect extends React.PureComponent<Props, IState> {
     }
 
     const leadData = connection.leadData[this.props.formCode];
-
-    const { integration } = leadData;
-
+  
     // check rules ======
     const isPassedAllRules = checkRules(
-      integration.leadData.rules || [],
+      leadData.rules || [],
       this.state.browserInfo
     );
 

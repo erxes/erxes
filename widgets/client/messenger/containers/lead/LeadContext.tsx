@@ -59,7 +59,6 @@ export class LeadProvider extends React.Component<{}, IState> {
     saveLead({
       doc,
       browserInfo: connection.browserInfo,
-      integrationId: this.getIntegration(formCode)._id,
       formId: this.getForm(formCode)._id,
       saveCallback: (response: ISaveFormResponse) => {
         const { status, errors } = response;

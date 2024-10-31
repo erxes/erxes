@@ -23,6 +23,8 @@ const Form = (props: ChildProps<IProps, QueryResponse>) => {
   const extendedProps = {
     ...props,
     form: data.formDetail,
+    leadData: props.form.leadData || {},
+    languageCode: props.form.languageCode || 'en',
   };
 
   return <DumbForm {...extendedProps} hasTopBar={true} />;

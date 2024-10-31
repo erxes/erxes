@@ -57,14 +57,6 @@ app.get('/knowledgebase', (req, res) => {
   });
 });
 
-app.get('/booking', (req, res) => {
-  res.render('widget', {
-    type: 'booking',
-    env: getEnv(),
-    integrationId: req.query.integrationId
-  });
-});
-
 app.get('/test', (req, res) => {
   const { form_id, brand_id, topic_id, integration_id } = req.query;
 
@@ -80,5 +72,5 @@ app.get('/test', (req, res) => {
 const port = process.env.PORT || 3200;
 
 app.listen(port, () => {
-  console.log(`Widget scripts are now running on port ${port}`);
+  console.debug(`Widget scripts are now running on port ${port}`);
 });
