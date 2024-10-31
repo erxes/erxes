@@ -73,6 +73,45 @@ const generateBreadcrumb = async ({ parentId }, arr: any[] = []) => {
   return arr; // Return the accumulated array when no more parents
 };
 
+const generateBreadcrumb = async ({ parentId }, arr: any[] = []) => {
+  if (parentId) {
+    const query = `
+      query branchDetail ($_id:String!) {
+        branchDetail(_id: $_id) {
+          _id,
+          title,
+          parentId
+        }
+      }
+    `;
+
+    const { data } = await client.query({
+      query: gql(query),
+      fetchPolicy: "network-only",
+      variables: { _id: parentId },
+    });
+
+    const branch = data?.branchDetail;
+
+    if (branch) {
+      // Add the current branch to the breadcrumb array
+      arr = [
+        {
+          title: __(branch.title),
+          link: `/settings/branches?parentId=${branch._id}`,
+        },
+        ...arr, // Add the new breadcrumb at the beginning
+      ];
+
+      // Recursively fetch parent breadcrumb if parentId exists
+      if (branch.parentId) {
+        return await generateBreadcrumb({ parentId: branch.parentId }, arr);
+      }
+    }
+  }
+  return arr; // Return the accumulated array when no more parents
+};
+
 const MainList = (props: Props) => {
   let timer;
   const navigate = useNavigate();

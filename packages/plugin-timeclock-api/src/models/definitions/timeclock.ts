@@ -57,13 +57,14 @@ export interface IAbsenceType {
 
   requestType?: string;
   requestToType?: string;
-  requestToWhomType?: string;
   requestTimeType?: string;
   requestHoursPerDay: number;
 
   explRequired: boolean;
   attachRequired: boolean;
   shiftRequest: boolean;
+  absenceUserIds?: [string];
+  branchIds?: [string];
 }
 
 export interface IAbsenceDocument extends IAbsence, Document {
@@ -251,6 +252,18 @@ export const absenceTypeSchema = new Schema({
   shiftRequest: field({
     type: Boolean,
     label: 'whether absence type is shift request',
+  }),
+  requestToType: field({
+    type: String,
+    label: 'Absence type request type',
+  }),
+  absenceUserIds: field({
+    type: [String],
+    label: 'Absence user id',
+  }),
+  branchIds: field({
+    type: [String],
+    label: 'Branch Ids',
   }),
 });
 

@@ -167,7 +167,7 @@ const fields = `
         logicOperator
         logicValue
       }
-      groupName
+      
       associatedFieldId
       associatedField {
         _id

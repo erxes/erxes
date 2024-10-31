@@ -1,22 +1,45 @@
-import * as React from 'react';
-import { IUser } from '../../types';
-import asyncComponent from '../../AsyncComponent';
-import FaqCategories from './faq/FaqCategories';
-import { getMessengerData } from '../utils/util';
-import TicketContainer from '../containers/TicketContainer';
-import CallContainer from '../containers/CallContainer';
-import AccquireInformationContainer from '../containers/AccquireInformation';
-import ConversationListContainer from '../containers/ConversationList';
-import ConversationDetailContainer from '../containers/ConversationDetail';
-import CategoryDetail from '../containers/faq/CategoryDetail';
-import ArticleDetailContainer from '../containers/faq/ArticleDetail';
-import WebsiteAppDetailContainer from '../containers/websiteApp/WebsiteAppDetail';
-import Home from '../containers/Home';
+import * as React from "react";
+import { IUser } from "../../types";
+import asyncComponent from "../../AsyncComponent";
+
+const ConversationDetail = asyncComponent(() => 
+  import(/* webpackChunkName: "MessengerConversationDetail" */ "../containers/ConversationDetail")
+);
+
+const AccquireInformation = asyncComponent(() => 
+  import(/* webpackChunkName: "MessengerAcquireInformation" */ "../containers/AccquireInformation")
+);
+
+const Home = asyncComponent(() => 
+  import(/* webpackChunkName: "MessengerHome" */ "../containers/Home")
+);
+
+const ConversationList = asyncComponent(() => 
+  import(/* webpackChunkName: "MessengerConversationList" */ "../containers/ConversationList")
+);
+
+const ArticleDetail = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "MessengerArticleDetail" */ '../containers/faq/ArticleDetail'
+  )
+);
+
+const CategoryDetail = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "MessengerCategoryDetail" */ '../containers/faq/CategoryDetail'
+  )
+);
+
+const WebsiteAppDetail = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "MessengerWebsiteDetail" */ '../containers/websiteApp/WebsiteAppDetail'
+  )
+);
 
 type Props = {
-  activeRoute: string | '';
+  activeRoute: string | "";
   supporters: IUser[];
-  loading: boolean;
+  loading?: boolean;
   isOnline?: boolean;
 };
 
@@ -26,9 +49,6 @@ function Messenger({
   supporters,
   loading,
 }: Props) {
-  const messengerData = getMessengerData();
-  const topicId = messengerData.knowledgeBaseTopicId;
-
   const WithSupporters = (Component: any) => {
     return (
       <Component
@@ -39,48 +59,38 @@ function Messenger({
     );
   };
 
-  const renderSwitch = () => {
-    switch (activeRoute) {
-      case 'allConversations':
-        return <ConversationListContainer loading={loading} />;
-      case 'conversationDetail':
-      case 'conversationCreate':
-        return WithSupporters(ConversationDetailContainer);
+  switch (activeRoute) {
+    case "allConversations":
+      return <ConversationList />;
+    case "conversationDetail":
+    case "conversationCreate":
+      return WithSupporters(ConversationDetail);
 
-      // get user's contact information
-      case 'accquireInformation':
-        return <AccquireInformationContainer loading={loading} />;
+    // get user's contact information
+    case "accquireInformation":
+      return <AccquireInformation />;
 
-      case 'faqCategory':
-        return <CategoryDetail loading={loading} />;
+    case "faqCategory":
+      return <CategoryDetail />;
 
-      case 'faqArticle':
-        return <ArticleDetailContainer loading={loading} />;
+    case "faqArticle":
+      return <ArticleDetail />;
 
-      case 'websiteApp':
-        return <WebsiteAppDetailContainer loading={loading} />;
+    case "websiteApp":
+      return <WebsiteAppDetail />;
 
-      case 'faqCategories':
-        return <FaqCategories topicId={topicId} loading={loading} />;
+    case "faqCategories":
+      return (
+        <Home
+          supporters={supporters}
+          isOnline={isOnline}
+          activeSupport={true}
+        />
+      );
 
-      case 'ticket':
-        return <TicketContainer />;
-      case 'call':
-        return <CallContainer />;
-      // case 'faqCategories':
-      //   return (
-      //     <Home
-      //       supporters={supporters}
-      //       isOnline={isOnline}
-      //       activeSupport={true}
-      //     />
-      //   );
-
-      default:
-        return WithSupporters(Home);
-    }
-  };
-  return renderSwitch();
+    default:
+      return WithSupporters(Home);
+  }
 }
 
 export default Messenger;
