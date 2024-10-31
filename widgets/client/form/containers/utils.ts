@@ -89,6 +89,7 @@ export const increaseViewCount = (formId: string) => {
 export const saveLead = (params: {
   doc: IFormDoc;
   browserInfo: IBrowserInfo;
+  integrationId: string;
   formId: string;
   userId?: string;
   saveCallback: (response: ISaveFormResponse) => void;

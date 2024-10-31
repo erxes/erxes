@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <body>
+    <div data-erxes-booking style="width:100% ;height:100vh"></div>
+
+    <script>
+      window.erxesSettings = {
+        booking: {
+          integration_id: '<%= integration_id %>'
+        }
+      };
+
+      (function() {
+        var script = document.createElement('script');
+        script.src =
+          '<%= JSON.parse(env).ROOT_URL %>/build/bookingWidget.bundle.js';
+        script.async = true;
+        var entry = document.getElementsByTagName('script')[0];
+        entry.parentNode.insertBefore(script, entry);
+      })();
+    </script>
+  </body>
+</html>
