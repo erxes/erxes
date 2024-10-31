@@ -4,7 +4,8 @@ import * as crypto from 'crypto';
 import redis from '@erxes/api-utils/src/redis';
 import { getEnv } from '@erxes/api-utils/src/core';
 import * as FormData from 'form-data';
-import * as moment from 'moment';
+import * as momentTz from 'moment-timezone';
+
 import type { RequestInit, HeadersInit } from 'node-fetch';
 import { generateModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
@@ -71,6 +72,11 @@ export const sendToGrandStream = async (models, args, user) => {
     : operator?.gsUsername || '1001';
 
   let cookie = await getOrSetCallCookie(wsServer);
+
+  if (!cookie) {
+    throw new Error('Cookie not found');
+  }
+
   cookie = cookie?.toString();
 
   const requestOptions: RequestInit & { headers: HeadersInit } = {
@@ -241,9 +247,14 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       const extension = queue.find((queueItem) =>
         queueItem.members.split(',').includes(extentionNumber),
       )?.extension;
+      const tz = 'Asia/Shanghai' || momentTz.tz.guess();
+      const startDate = (
+        momentTz(callStartTime).tz(tz) || momentTz(callStartTime)
+      ).format('YYYY-MM-DD');
+      const endDate = (
+        momentTz(callEndTime).tz(tz) || momentTz(callStartTime)
+      ).format('YYYY-MM-DD');
 
-      const startDate = moment(callStartTime).format('YYYY-MM-DD');
-      const endDate = moment(callEndTime).format('YYYY-MM-DD');
       let caller = customerPhone;
       let callee = extentionNumber || extension || operator;
 
@@ -299,6 +310,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
           'startedDate: ',
           startTime,
           endTime,
+          callStartTime,
         );
         throw new Error('CDR root not found');
       }
@@ -317,6 +329,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
           'startedDate: ',
           startTime,
           endTime,
+          callStartTime,
         );
         throw new Error('Not found cdr');
       }
@@ -339,6 +352,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
           callee,
           'startedDate: ',
           startDate,
+          callStartTime,
         );
         throw new Error('Last created object disposition is not ANSWERED');
       }
@@ -359,6 +373,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
           callee,
           'startedDate: ',
           startDate,
+          callStartTime,
         );
         throw new Error('Record files not found');
       }
