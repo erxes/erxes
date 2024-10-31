@@ -614,7 +614,6 @@ export const generateCommonFilters = async (
       ],
     };
   }
-
   return filter;
 };
 
