@@ -100,7 +100,7 @@ class LeadConnect extends React.PureComponent<Props, IState> {
 
     return (
       <IntegrationItem>
-        <LeadContent formCode={this.props.formCode} />;
+        <LeadContent formCode={this.props.formCode} />
       </IntegrationItem>
     );
   }
