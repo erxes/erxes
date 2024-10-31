@@ -582,10 +582,10 @@ class Form extends React.Component<Props, State> {
 
     return (
       <div className='erxes-form'>
-        {this.renderHead(thankTitle || form.title)}
+        {this.renderHead(thankTitle || form.title || 'Thank you!')}
         <div className='erxes-form-content'>
           <div className='erxes-callout-body'>
-            {this.renderSuccessImage(successImage || '', form.title)}
+            {this.renderSuccessImage(successImage || '', form.title || '')}
             {thankContent ||
               __('Thanks for your message. We will respond as soon as we can.')}
           </div>
