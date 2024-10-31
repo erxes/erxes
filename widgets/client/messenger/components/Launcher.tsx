@@ -3,15 +3,14 @@ import * as React from 'react';
 import { IBrowserInfo, IIntegrationUiOptions } from '../../types';
 import { readFile } from '../../utils';
 import Notifier from '../containers/Notifier';
-import { IconChat, IconPhone, IconTicket } from './BottomNavBar/Icons';
-import Button from './common/Button';
-import { useRouter } from '../context/Router';
+import { IMessage } from '../types';
 
 type Props = {
   onClick: (isMessengerVisible?: boolean) => void;
   isMessengerVisible: boolean;
   isBrowserInfoSaved: boolean;
   uiOptions: IIntegrationUiOptions;
+  lastUnreadMessage?: IMessage;
   totalUnreadCount: number;
   browserInfo: IBrowserInfo;
 };
@@ -22,11 +21,11 @@ function Launcher(props: Props) {
     isBrowserInfoSaved,
     onClick,
     uiOptions,
+    lastUnreadMessage,
     totalUnreadCount,
     browserInfo,
   } = props;
-  const { setActiveRoute } = useRouter();
-  const [shouldShowControls, setShouldShowControls] = React.useState(true);
+
   const clickHandler = () => {
     onClick(isMessengerVisible);
   };
@@ -42,7 +41,7 @@ function Launcher(props: Props) {
       return null;
     }
 
-    return <Notifier browserInfo={browserInfo} />;
+    return <Notifier message={lastUnreadMessage} browserInfo={browserInfo} />;
   };
 
   const renderUnreadCount = () => {
@@ -52,53 +51,9 @@ function Launcher(props: Props) {
 
     return <span>{totalUnreadCount}</span>;
   };
-  const toggleControlList = () => {
-    setShouldShowControls(!shouldShowControls);
-  };
-  const handleAction = (route: string) => (e: React.MouseEvent) => {
-    e.preventDefault();
-    onClick(false);
-    setActiveRoute(route);
-  };
-  const renderHoverControls = () => {
-    // if (!shouldShowControls) return null;
-    return (
-      <ul
-        className="control-list"
-        role="menu"
-        tabIndex={-1}
-        aria-expanded={shouldShowControls}
-      >
-        <li className="hover-control-item">
-          <Button
-            icon={<IconPhone filled />}
-            withDefaultStyle
-            onClick={handleAction('call')}
-          />
-        </li>
-        <li className="hover-control-item">
-          <Button
-            icon={<IconChat filled />}
-            withDefaultStyle
-            onClick={handleAction('allConversations')}
-          />
-        </li>
-        <li className="hover-control-item">
-          <Button
-            icon={<IconTicket filled />}
-            withDefaultStyle
-            onClick={handleAction('ticket')}
-          />
-        </li>
-      </ul>
-    );
-  };
 
   return (
-    <div
-      className={`erxes-launcher-container ${shouldShowControls ? '' : 'launcher-hovered'}`}
-      onMouseLeave={() => setShouldShowControls(false)}
-    >
+    <>
       <a
         className={launcherClasses}
         onClick={clickHandler}
@@ -108,10 +63,13 @@ function Launcher(props: Props) {
           backgroundImage: logo ? `url(${readFile(logo, 30)})` : '',
           backgroundSize: logo ? '' : '20px',
         }}
-        onMouseEnter={toggleControlList}
-      ></a>
+      >
+        <div />
+        {renderUnreadCount()}
+      </a>
+
       {renderNotifier()}
-    </div>
+    </>
   );
 }
 
