@@ -882,8 +882,6 @@ const timeclockMutations = {
     },
     { models }: IContext
   ) {
-    console.log(overtimeExists, startFlexible, endFlexible);
-
     const newScheduleConfig = await models.ScheduleConfigs.updateScheduleConfig(
       _id,
       {
