@@ -34,7 +34,7 @@ const getKbCategoryQuery = `
           avatar
         }
       }
-      articles(status: "publish") {
+      articles {
         _id
         title
         summary

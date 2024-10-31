@@ -187,6 +187,7 @@ class AddOns extends React.Component<Props, State> {
   render() {
     const { knowledgeBase, popups, websites } = this.state;
     const { leads, topics } = this.props;
+    console.debug("SSSSS",leads)
 
     const Option = (props) => {
       return (
