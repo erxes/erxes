@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 import * as http from 'http';
-import { IModels } from '../connectionResolver';
+import { IModels, generateModels } from '../connectionResolver';
 import { sendCommonMessage } from '../messageBroker';
 import { ISyncLogDocument } from '../models/definitions/syncLog';
 
@@ -19,7 +19,10 @@ type CustomFieldType =
   | 'savings:contract';
 
 export const fetchPolaris = async (args: IParams) => {
-  const { op, data, subdomain, models, syncLog, polarisConfig } = args;
+  const { op, data, subdomain, polarisConfig } = args;
+  let models = args.models;
+  let syncLog = args.syncLog;
+
   const config = polarisConfig;
 
   const headers = {
@@ -41,6 +44,21 @@ export const fetchPolaris = async (args: IParams) => {
         }
       }
     );
+  } else {
+    models = await generateModels(subdomain);
+    const syncLogDoc = {
+      type: '',
+      contentType: op,
+      contentId: '',
+      createdAt: new Date(),
+      createdBy: '',
+      consumeData: {},
+      consumeStr: '',
+      sendData: data,
+      sendStr: JSON.stringify(data || {}),
+      header: JSON.stringify(headers)
+    };
+    syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
   }
 
   try {
@@ -52,7 +70,7 @@ export const fetchPolaris = async (args: IParams) => {
       agent: config.apiUrl.includes('http://') && new http.Agent({ keepAlive: true })
     };
 
-    return await fetch(config.apiUrl, requestOptions)
+    const realResponse = await fetch(config.apiUrl, requestOptions)
       .then(async (response) => {
         if (!response.ok) {
           const respErr = await response.text();
@@ -70,6 +88,15 @@ export const fetchPolaris = async (args: IParams) => {
       }).catch((e) => {
         throw new Error(e.message);
       });
+
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: { responseData: realResponse, responseStr: JSON.stringify(realResponse) },
+      },
+    );
+    return realResponse;
+
   } catch (e) {
     throw new Error(e.message);
   }
@@ -100,12 +127,12 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
   });
 };
 
-export const getCustomer = async (subdomain, data) => {
+export const getCustomer = async (subdomain: string, _id: string) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'customers.find',
+    action: 'customers.findOne',
     serviceName: 'contacts',
-    data: data,
+    data: { _id },
     isRPC: true
   });
 };
@@ -217,7 +244,7 @@ export const genObjectOfRule = async (
 
   for (const key of Object.keys(convertConfig)) {
     const conf = convertConfig[key];
-    if (!conf.value || !conf.propType || !conf.fieldId) {
+    if (!conf.value && !conf.propType && !conf.fieldId) {
       continue;
     }
 
@@ -294,12 +321,12 @@ export const getCustomFields = async (
   return fields;
 };
 
-export const getProduct = async (subdomain, data, serverName) => {
+export const getProduct = async (subdomain: string, _id: string, serverName: string) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'contractType.find',
+    action: 'contractType.findOne',
     serviceName: serverName,
-    data: { data },
+    data: { _id },
     isRPC: true
   });
 };
@@ -307,7 +334,7 @@ export const getProduct = async (subdomain, data, serverName) => {
 export const getContract = async (subdomain, data, serviceName) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'contracts.find',
+    action: 'contracts.findOne',
     serviceName: serviceName,
     data: data,
     isRPC: true

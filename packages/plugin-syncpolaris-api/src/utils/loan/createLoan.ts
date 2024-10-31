@@ -7,6 +7,7 @@ import {
   updateContract,
   sendMessageBrokerData,
   genObjectOfRule,
+  getProduct,
 } from '../utils';
 import { activeLoan } from './activeLoan';
 import { createSavingLoan } from './createSavingLoan';
@@ -21,7 +22,7 @@ export const createLoan = async (subdomain, models, polarisConfig, syncLog, para
 
   const customer = await sendMessageBrokerData(subdomain, 'contacts', 'customers.findOne', { _id: loan.customerId });
 
-  const loanProduct = await sendMessageBrokerData(subdomain, 'loans', 'contractType.findOne', { _id: loan.contractTypeId });
+  const loanProduct = await getProduct(subdomain, loan.contractTypeId, 'loans');
 
   const leasingExpert = await getUser(subdomain, loan.leasingExpertId);
 
@@ -31,7 +32,7 @@ export const createLoan = async (subdomain, models, polarisConfig, syncLog, para
     subdomain,
     "loans:contract",
     loan,
-    polarisConfig.loan && polarisConfig.loan[loan.contractTypeId || ''] || {}
+    (polarisConfig.loan && polarisConfig.loan[loan.contractTypeId || ''] || {}).values || {}
   );
 
   let sendData: any = {

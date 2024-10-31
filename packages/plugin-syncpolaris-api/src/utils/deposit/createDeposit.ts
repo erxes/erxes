@@ -38,7 +38,7 @@ export const createDeposit = async (subdomain: string, models, polarisConfig, sy
     subdomain,
     "savings:contract",
     objectDeposit,
-    polarisConfig.deposit && polarisConfig.deposit[deposit.contractTypeId || ''] || {}
+    (polarisConfig.deposit && polarisConfig.deposit[deposit.contractTypeId || ''] || {}).values || {}
   )
 
   let sendData: IPolarisDeposit = {

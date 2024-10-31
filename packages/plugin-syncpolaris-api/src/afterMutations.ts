@@ -110,13 +110,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
         response = await loansTransactionMethod(subdomain, models, polarisConfig, syncLog, params);
         break;
     }
-
-    await models.SyncLogs.updateOne(
-      { _id: syncLog._id },
-      {
-        $set: { responseData: response, responseStr: JSON.stringify(response) },
-      },
-    );
   } catch (e) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },

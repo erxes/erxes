@@ -155,9 +155,10 @@ export const syncDataToErxes = async (type, subdomain, item, updateData) => {
 };
 
 export const getMainDatas = async (subdomain, type) => {
+  // TODO check
   switch (type) {
     case 'contacts:customer': {
-      return await getCustomer(subdomain, {});
+      return await getCustomer(subdomain, '');
     }
     case 'loans:contract': {
       return await getContract(subdomain, {}, 'loans');
