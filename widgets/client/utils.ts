@@ -73,7 +73,7 @@ export const setLocale = (code?: string, callBack?: () => void) => {
         callBack();
       }
     })
-    .catch((e) => console.log(e)); // tslint:disable-line
+    .catch((e) => console.error(e)); // tslint:disable-line
 };
 
 export const __ = (msg: string) => {
