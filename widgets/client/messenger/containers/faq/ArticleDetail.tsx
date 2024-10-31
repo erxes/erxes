@@ -1,16 +1,17 @@
-import * as React from 'react';
-import ArticleDetail from '../../components/faq/ArticleDetail';
-import { useRouter } from '../../context/Router';
+import * as React from "react";
+import ArticleDetail from "../../components/faq/ArticleDetail";
+import { AppConsumer } from "../AppContext";
 
-const ArticleDetailContainer = ({ loading }: { loading: boolean }) => {
-  const { goToFaqCategory, activeFaqArticle } = useRouter();
-
+const ArticleDetailContainer = () => {
   return (
-    <ArticleDetail
-      goToCategory={goToFaqCategory}
-      article={activeFaqArticle}
-      loading={loading}
-    />
+    <AppConsumer>
+      {({ goToFaqCategory, activeFaqArticle }) => (
+        <ArticleDetail
+          goToCategory={goToFaqCategory}
+          article={activeFaqArticle}
+        />
+      )}
+    </AppConsumer>
   );
 };
 

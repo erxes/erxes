@@ -12,16 +12,20 @@ import Icon from "@erxes/ui/src/components/Icon";
 import LeftSidebar from "@erxes/ui/src/layout/components/Sidebar";
 import ModalTrigger from "modules/common/components/ModalTrigger";
 import Pagination from "modules/common/components/pagination/Pagination";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SettingsSideBar from "../../containers/common/SettingSideBar";
 import SidebarHeader from "@erxes/ui-settings/src/common/components/SidebarHeader";
 import Table from "modules/common/components/table";
 import Tip from "@erxes/ui/src/components/Tip";
 import Wrapper from "modules/layout/components/Wrapper";
-import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import {
+  generatePaginationParams,
+  setParams,
+} from "@erxes/ui/src/utils/router";
 import { generateTree } from "../../utils";
 import { gql } from "@apollo/client";
 import { queries } from "@erxes/ui/src/team/graphql";
+import client from "@erxes/ui/src/apolloClient";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
@@ -30,14 +34,104 @@ type Props = {
   queryParams: Record<string, string>;
 };
 
+const generateBreadcrumb = async ({ parentId }, arr: any[] = []) => {
+  if (parentId) {
+    const query = `
+      query branchDetail ($_id:String!) {
+        branchDetail(_id: $_id) {
+          _id,
+          title,
+          parentId
+        }
+      }
+    `;
+
+    const { data } = await client.query({
+      query: gql(query),
+      fetchPolicy: "network-only",
+      variables: { _id: parentId },
+    });
+
+    const branch = data?.branchDetail;
+
+    if (branch) {
+      // Add the current branch to the breadcrumb array
+      arr = [
+        {
+          title: __(branch.title),
+          link: `/settings/branches?parentId=${branch._id}`,
+        },
+        ...arr, // Add the new breadcrumb at the beginning
+      ];
+
+      // Recursively fetch parent breadcrumb if parentId exists
+      if (branch.parentId) {
+        return await generateBreadcrumb({ parentId: branch.parentId }, arr);
+      }
+    }
+  }
+  return arr; // Return the accumulated array when no more parents
+};
+
+const generateBreadcrumb = async ({ parentId }, arr: any[] = []) => {
+  if (parentId) {
+    const query = `
+      query branchDetail ($_id:String!) {
+        branchDetail(_id: $_id) {
+          _id,
+          title,
+          parentId
+        }
+      }
+    `;
+
+    const { data } = await client.query({
+      query: gql(query),
+      fetchPolicy: "network-only",
+      variables: { _id: parentId },
+    });
+
+    const branch = data?.branchDetail;
+
+    if (branch) {
+      // Add the current branch to the breadcrumb array
+      arr = [
+        {
+          title: __(branch.title),
+          link: `/settings/branches?parentId=${branch._id}`,
+        },
+        ...arr, // Add the new breadcrumb at the beginning
+      ];
+
+      // Recursively fetch parent breadcrumb if parentId exists
+      if (branch.parentId) {
+        return await generateBreadcrumb({ parentId: branch.parentId }, arr);
+      }
+    }
+  }
+  return arr; // Return the accumulated array when no more parents
+};
+
 const MainList = (props: Props) => {
   let timer;
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [additionalBreadCrumb, setAdditionalBreadCrumb] = useState([] as any[]);
   const [searchValue, setSearchValue] = useState(
-    props.queryParams.searchValue || ""
+    props.queryParams.searchValue || "",
   );
+
+  useEffect(() => {
+    const fetchBreadcrumb = async () => {
+      const breadcrumbs = await generateBreadcrumb({
+        parentId: props.queryParams?.parentId,
+      });
+      setAdditionalBreadCrumb(breadcrumbs);
+    };
+
+    fetchBreadcrumb();
+  }, [props.queryParams?.parentId]);
 
   const refetchQueries = () => [
     {
@@ -56,6 +150,10 @@ const MainList = (props: Props) => {
     } else {
       props.deleteBranches(selectedItems, () => setSelectedItems([]));
     }
+  };
+
+  const setParentId = (_id: string) => {
+    setParams(navigate, location, { parentId: _id });
   };
 
   const renderForm = () => {
@@ -117,7 +215,7 @@ const MainList = (props: Props) => {
     const handleSelect = () => {
       if (selectedItems.includes(branch._id)) {
         const removedSelectedItems = selectedItems.filter(
-          (selectItem) => selectItem !== branch._id
+          (selectItem) => selectItem !== branch._id,
         );
         return setSelectedItems(removedSelectedItems);
       }
@@ -152,12 +250,21 @@ const MainList = (props: Props) => {
         <td>{branch.userCount}</td>
         <td>
           <ActionButtons>
+            {branch.hasChildren && (
+              <Tip text={__("Display children")} placement="top">
+                <Button
+                  btnStyle="link"
+                  onClick={() => setParentId(branch._id)}
+                  icon="sitemap-1"
+                />
+              </Tip>
+            )}
             <ModalTrigger
               key={branch._id}
               title="Edit Branch"
               content={({ closeModal }) => (
                 <Form
-                  item={branch}
+                  itemId={branch._id}
                   queryType="branches"
                   closeModal={closeModal}
                   additionalRefetchQueries={refetchQueries()}
@@ -205,27 +312,43 @@ const MainList = (props: Props) => {
             <th>{__("Code")}</th>
             <th>{__("Title")}</th>
             <th>{__("Parent")}</th>
+            <th>{__("Address")}</th>
             <th>{__("Team member count")}</th>
             <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>
-          {generateTree(branches, null, (branch, level) =>
-            renderRow(branch, level)
+          {generateTree(
+            branches,
+            queryParams?.parentId || null,
+            (branch, level) => renderRow(branch, level),
           )}
           {generateTree(branches, "", (branch, level) =>
-            renderRow(branch, level)
+            renderRow(branch, level),
           )}
         </tbody>
       </Table>
     );
   };
 
-  const { listQuery } = props;
+  const { listQuery, queryParams } = props;
   const { totalCount } = listQuery.branchesMain;
+  const onlyFirstLevel =
+    queryParams.onlyFirstLevel === "true" ? undefined : true;
 
   const rightActionBar = (
     <BarItems>
+      {!queryParams.parentId ? (
+        <Button
+          btnStyle="white"
+          onClick={() => setParams(navigate, location, { onlyFirstLevel })}
+        >
+          {__(`${onlyFirstLevel ? "Show Only" : "Disable"} First Level`)}
+        </Button>
+      ) : (
+        <></>
+      )}
+
       {renderSearch()}
       {renderForm()}
     </BarItems>
@@ -249,7 +372,8 @@ const MainList = (props: Props) => {
           title="Branches"
           breadcrumb={[
             { title: __("Settings"), link: "/settings" },
-            { title: __("Branches") },
+            { title: __("Branches"), link: "/settings/branches" },
+            ...additionalBreadCrumb,
           ]}
         />
       }

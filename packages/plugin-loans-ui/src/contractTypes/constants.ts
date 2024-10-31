@@ -35,6 +35,9 @@ export const JOURNALS_KEY_LABELS = {
   isAutoSendEBarimt: "Is send e-barimt auto",
   defaultGSCode: "DEFAULTGSCODE",
   isHasVat: "isHasVat",
+  boardId: "Initial board",
+  pipelineId: "Initial pipeline",
+  stageId: "Initial stage",
 };
 
 export const LEASE_TYPES = {

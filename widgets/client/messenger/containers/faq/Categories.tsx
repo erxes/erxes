@@ -1,24 +1,13 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import Categories from '../../components/faq/Categories';
-import queries from '../../graphql';
-import { IFaqCategory, IFaqTopic } from '../../types';
-import Articles from './Articles';
-import { useQuery } from '@apollo/client';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, graphql } from "react-apollo";
+import DumbCategories from "../../components/faq/Categories";
+import queries from "../../graphql";
+import { IFaqTopic } from "../../types";
+import Articles from "./Articles";
 
-type Props = {
-  topicId?: string;
-  searchString: string;
-  initialCategory?: IFaqCategory;
-};
-
-const CategoriesContainer = (props: Props) => {
-  const { data, loading } = useQuery(gql(queries.getFaqTopicQuery), {
-    fetchPolicy: 'cache-and-network',
-    variables: {
-      _id: props.topicId,
-    },
-  });
+const Categories = (props: ChildProps<{}, QueryResponse>) => {
+  const { data } = props;
 
   if (!data) {
     return null;
@@ -26,19 +15,40 @@ const CategoriesContainer = (props: Props) => {
 
   const extendedProps = {
     ...props,
-    loading: loading,
-    faqTopics: data.knowledgeBaseTopicDetail,
+    loading: data.loading,
+    faqTopics: data.knowledgeBaseTopicDetail
   };
 
+  return <DumbCategories {...extendedProps} />;
+};
+
+type QueryResponse = {
+  knowledgeBaseTopicDetail: IFaqTopic;
+};
+
+type Props = {
+  topicId?: string;
+  searchString: string;
+};
+
+const CategoriesWithData = graphql<Props, QueryResponse>(
+  gql(queries.getFaqTopicQuery),
+  {
+    options: ({ topicId }) => ({
+      fetchPolicy: "network-only",
+      variables: {
+        _id: topicId
+      }
+    })
+  }
+)(Categories);
+
+const WithSearch = (props: Props) => {
   if (props.searchString) {
     return <Articles {...props} />;
   }
 
-  return <Categories {...extendedProps} />;
+  return <CategoriesWithData {...props} />;
 };
 
-// type QueryResponse = {
-//   knowledgeBaseTopicDetail: IFaqTopic;
-// };
-
-export default CategoriesContainer;
+export default WithSearch;

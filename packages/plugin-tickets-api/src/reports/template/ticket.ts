@@ -302,7 +302,7 @@ export const ticketCharts = [
             fieldParentVariable: 'groupId',
             fieldParentQuery: "fieldsGroups",
         fieldRequiredQueryParams: ["contentType"],
-        fieldQueryVariables: `{"contentType": "sales:deal"}`,
+        fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             logics: [
               {
                 logicFieldName: 'groupIds',
@@ -666,7 +666,7 @@ export const ticketCharts = [
           fieldParentVariable: 'groupId',
           fieldParentQuery: "fieldsGroups",
           fieldRequiredQueryParams: ["contentType"],
-          fieldQueryVariables: `{"contentType": "sales:deal"}`,
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
           logics: [
             {
               logicFieldName: 'groupIds',
@@ -950,7 +950,7 @@ export const ticketCharts = [
             fieldParentVariable: 'groupId',
             fieldParentQuery: "fieldsGroups",
           fieldRequiredQueryParams: ["contentType"],
-          fieldQueryVariables: `{"contentType": "sales:deal"}`,
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             logics: [
               {
                 logicFieldName: 'groupIds',
@@ -1225,7 +1225,7 @@ export const ticketCharts = [
             fieldParentVariable: 'groupId',
             fieldParentQuery: "fieldsGroups",
           fieldRequiredQueryParams: ["contentType"],
-          fieldQueryVariables: `{"contentType": "sales:deal"}`,
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             logics: [
               {
                 logicFieldName: 'groupIds',
@@ -1515,7 +1515,7 @@ export const ticketCharts = [
             fieldParentVariable: 'groupId',
             fieldParentQuery: "fieldsGroups",
           fieldRequiredQueryParams: ["contentType"],
-          fieldQueryVariables: `{"contentType": "sales:deal"}`,
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             logics: [
               {
                 logicFieldName: 'groupIds',
@@ -1828,7 +1828,7 @@ export const ticketCharts = [
             fieldParentVariable: 'groupId',
             fieldParentQuery: "fieldsGroups",
           fieldRequiredQueryParams: ["contentType"],
-          fieldQueryVariables: `{"contentType": "sales:deal"}`,
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             logics: [
               {
                 logicFieldName: 'groupIds',
@@ -2126,7 +2126,7 @@ export const ticketCharts = [
             fieldParentVariable: 'groupId',
             fieldParentQuery: "fieldsGroups",
           fieldRequiredQueryParams: ["contentType"],
-          fieldQueryVariables: `{"contentType": "sales:deal"}`,
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             logics: [
               {
                 logicFieldName: 'groupIds',
@@ -2420,7 +2420,7 @@ export const ticketCharts = [
             fieldParentVariable: 'groupId',
             fieldParentQuery: "fieldsGroups",
           fieldRequiredQueryParams: ["contentType"],
-          fieldQueryVariables: `{"contentType": "sales:deal"}`,
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             logics: [
               {
                 logicFieldName: 'groupIds',
@@ -2728,7 +2728,7 @@ export const ticketCharts = [
             fieldParentVariable: 'groupId',
             fieldParentQuery: "fieldsGroups",
           fieldRequiredQueryParams: ["contentType"],
-          fieldQueryVariables: `{"contentType": "sales:deal"}`,
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             logics: [
               {
                 logicFieldName: 'groupIds',

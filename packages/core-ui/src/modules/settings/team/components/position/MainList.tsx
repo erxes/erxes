@@ -69,7 +69,7 @@ const MainList = (props: Props) => {
     const handleSelect = () => {
       if (selectedItems.includes(position._id)) {
         const removedSelectedItems = selectedItems.filter(
-          (selectItem) => selectItem !== position._id
+          (selectItem) => selectItem !== position._id,
         );
         setSelectedItems(removedSelectedItems);
         return;
@@ -110,7 +110,7 @@ const MainList = (props: Props) => {
               title="Edit position"
               content={({ closeModal }) => (
                 <Form
-                  item={position}
+                  itemId={position._id}
                   queryType="positions"
                   closeModal={closeModal}
                   additionalRefetchQueries={refetchQueries()}
@@ -159,11 +159,11 @@ const MainList = (props: Props) => {
         </thead>
         <tbody>
           {generateTree(positions, null, (position, level) =>
-            renderRow(position, level)
+            renderRow(position, level),
           )}
 
           {generateTree(positions, "", (position, level) =>
-            renderRow(position, level)
+            renderRow(position, level),
           )}
 
           {/* {positions.map(p => renderRow(p, 1))} */}
