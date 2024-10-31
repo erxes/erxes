@@ -89,19 +89,21 @@
 }
 
 .erxes-faq-searchbar {
-  padding: 10px 0;
+  background: darken($bg-color, 1%);
+  border-bottom: 1px solid $border-color;
+  padding: 10px 25px;
   position: relative;
 
   > input {
     background: $white;
     margin: 0;
-    padding: 0.75rem 1rem;
+    padding-right: 40px;
   }
 
   > svg {
     fill: $text-color-light;
     position: absolute;
-    right: 1rem;
+    right: 40px;
     top: 20px;
     width: 16px;
   }

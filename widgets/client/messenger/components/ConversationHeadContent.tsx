@@ -1,9 +1,9 @@
-import * as React from 'react';
-import * as RTG from 'react-transition-group';
-import { IParticipator, IUser } from '../../types';
-import BrandInfo from '../containers/common/BrandInfo';
-import Profile from './common/Profile';
-import Supporters from './common/Supporters';
+import * as React from "react";
+import * as RTG from "react-transition-group";
+import { IParticipator, IUser } from "../../types";
+import BrandInfo from "../containers/common/BrandInfo";
+import Profile from "./common/Profile";
+import Supporters from "./common/Supporters";
 
 type Props = {
   supporters: IUser[];
@@ -11,6 +11,8 @@ type Props = {
   isOnline: boolean;
   color?: string;
   loading?: boolean;
+  expanded: boolean;
+  toggleExpand: () => void;
   showTimezone?: boolean;
 };
 
@@ -22,6 +24,9 @@ class ConversationHeadContent extends React.Component<Props> {
         timeout={300}
         classNames="fade-slide"
         unmountOnExit={true}
+        onExit={() => {
+          this.props.toggleExpand();
+        }}
       >
         {children}
       </RTG.CSSTransition>
@@ -29,14 +34,7 @@ class ConversationHeadContent extends React.Component<Props> {
   }
 
   withComponent(isExpanded: boolean) {
-    const {
-      supporters,
-      isOnline,
-      color,
-      loading,
-      participators,
-      showTimezone,
-    } = this.props;
+    const { supporters, isOnline, color, loading, participators, showTimezone } = this.props;
 
     let content = (
       <>
@@ -63,14 +61,21 @@ class ConversationHeadContent extends React.Component<Props> {
     }
 
     return (
-      <div className={`erxes-head-${isExpanded ? 'expanded' : 'collapsed'}`}>
+      <div className={`erxes-head-${isExpanded ? "expanded" : "collapsed"}`}>
         {content}
       </div>
     );
   }
 
   render() {
-    return this.withComponent(false);
+    const { expanded } = this.props;
+
+    return (
+      <>
+        {this.withTransition(this.withComponent(true), expanded)}
+        {this.withTransition(this.withComponent(false), !expanded)}
+      </>
+    );
   }
 }
 

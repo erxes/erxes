@@ -1,19 +1,23 @@
 import * as React from 'react';
 import AccquireInformation from '../components/AccquireInformation';
-import { getColor, getUiOptions } from '../utils/util';
-import { useConversation } from '../context/Conversation';
+import { AppConsumer } from './AppContext';
 
-const AccquireInformationContainer = ({ loading }: { loading: boolean }) => {
-  const { saveGetNotified, isSavingNotified } = useConversation();
-
-  return (
-    <AccquireInformation
-      color={getColor()}
-      textColor={getUiOptions().textColor || '#fff'}
-      save={saveGetNotified}
-      loading={isSavingNotified || loading}
-      showTitle={true}
-    />
-  );
-};
-export default AccquireInformationContainer;
+export default class extends React.Component {
+  render() {
+    return (
+      <AppConsumer>
+        {({ saveGetNotified, getColor, isSavingNotified, getUiOptions }) => {
+          return (
+            <AccquireInformation
+              color={getColor()}
+              textColor={getUiOptions().textColor || '#fff'}
+              save={saveGetNotified}
+              loading={isSavingNotified}
+              showTitle={true}
+            />
+          );
+        }}
+      </AppConsumer>
+    );
+  }
+}
