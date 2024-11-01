@@ -5,6 +5,7 @@ import Profile from "../components/Profile";
 import React from "react";
 import SettingsLayoutContainer from "../../main/containers/SettingsLayout";
 import { mutations } from "../graphql";
+import { __ } from "../../../utils";
 
 function ProfileContainer() {
   const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
@@ -19,7 +20,7 @@ function ProfileContainer() {
         successMessage="Successfully updated!"
         type="submit"
       >
-        Update user
+        {__("Save")}
       </ButtonMutate>
     );
   };

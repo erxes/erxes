@@ -31,6 +31,6 @@ app.prepare().then(() => {
     }
 
     // Where we starting, yo!
-    console.log(`> Ready on port ${port}...`);
+    console.debug(`> Ready on port ${port}...`);
   });
 });
