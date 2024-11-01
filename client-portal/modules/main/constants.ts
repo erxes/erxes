@@ -24,5 +24,5 @@ export const typeFilters = [
 export const viewModes = [
   { label: 'List View', type: 'list', icon: 'list-ui-alt' },
   { label: 'Board View', type: 'board', icon: 'postcard' },
-  { label: 'Calendar view', type: 'calendar', icon: 'postcard' }
+  { label: 'Calendar View', type: 'calendar', icon: 'postcard' }
 ];

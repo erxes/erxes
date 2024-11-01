@@ -4,38 +4,39 @@ import {
   BlockRowTitle,
   Features,
   IconWrap,
-  ToggleWrap
-} from "../../styles";
-import { IBoard, IPipeline } from "@erxes/ui-sales/src/boards/types";
-import React, { useState } from "react";
-import { __, isEnabled } from "@erxes/ui/src/utils/core";
+  ToggleWrap,
+} from '../../styles';
+import { IBoard, IPipeline } from '@erxes/ui-sales/src/boards/types';
+import React, { useState } from 'react';
+import { __, isEnabled } from '@erxes/ui/src/utils/core';
 
-import SalesBoardSelect from "@erxes/ui-sales/src/boards/containers/BoardSelect";
-import TicketsBoardSelect from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
-import TasksBoardSelect from "@erxes/ui-tasks/src/boards/containers/BoardSelect";
-import PurchasesBoardSelect from "@erxes/ui-purchases/src/boards/containers/BoardSelect";
+import SalesBoardSelect from '@erxes/ui-sales/src/boards/containers/BoardSelect';
+import TicketsBoardSelect from '@erxes/ui-tickets/src/boards/containers/BoardSelect';
+import TasksBoardSelect from '@erxes/ui-tasks/src/boards/containers/BoardSelect';
+import PurchasesBoardSelect from '@erxes/ui-purchases/src/boards/containers/BoardSelect';
 
-import { ClientPortalConfig } from "../../types";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { FlexContent } from "@erxes/ui/src/layout/styles";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import { ISelectedOption } from "@erxes/ui/src/types";
-import { ITopic } from "@erxes/ui-knowledgeBase/src/types";
-import Icon from "@erxes/ui/src/components/Icon";
-import Popover from "@erxes/ui/src/components/Popover";
-import Select from "react-select";
-import Toggle from "@erxes/ui/src/components/Toggle";
-import CategoryForm from "@erxes/ui-products/src/containers/CategoryForm";
-import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
-import Button from "@erxes/ui/src/components/Button";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { ClientPortalConfig } from '../../types';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FlexContent } from '@erxes/ui/src/layout/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ISelectedOption } from '@erxes/ui/src/types';
+import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Popover from '@erxes/ui/src/components/Popover';
+import Select from 'react-select';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import CategoryForm from '@erxes/ui-products/src/containers/CategoryForm';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
+import Button from '@erxes/ui/src/components/Button';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
 
 type Props = {
   topics: ITopic[];
   boards: IBoard[];
   pipelines: IPipeline[];
-  kind?: "client" | "vendor";
+  kind?: 'client' | 'vendor';
   fetchPipelines: (boardId: string) => void;
   handleFormChange: (name: string, value: string | boolean) => void;
 } & ClientPortalConfig;
@@ -94,14 +95,15 @@ function General({
   purchaseToggle,
   ticketToggle,
   vendorParentProductCategoryId,
-  kind
+  kind,
+  language = 'en',
 }: Props) {
   const [show, setShow] = useState<boolean>(false);
 
   const handleToggleBoardSelect = () => setShow(!show);
 
   const handleSelectChange = (option?: { value: string; label: string }) => {
-    handleFormChange("knowledgeBaseTopicId", !option ? "" : option.value);
+    handleFormChange('knowledgeBaseTopicId', !option ? '' : option.value);
   };
 
   const onChangeToggle = (key: string, value: boolean) => {
@@ -113,9 +115,9 @@ function General({
       return [];
     }
 
-    return options.map(option => ({
+    return options.map((option) => ({
       value: option[valueKey],
-      label: option[labelKey]
+      label: option[labelKey],
     }));
   }
 
@@ -124,7 +126,7 @@ function General({
     stageId,
     boardId,
     pipelineId,
-    toggle
+    toggle,
   }: {
     type: string;
     stageId?: string;
@@ -132,20 +134,20 @@ function General({
     pipelineId?: string;
     toggle?: boolean;
   }) {
-    const onChangeStage = stgId => handleFormChange(`${type}StageId`, stgId);
-    const onChangePipeline = plId =>
+    const onChangeStage = (stgId) => handleFormChange(`${type}StageId`, stgId);
+    const onChangePipeline = (plId) =>
       handleFormChange(`${type}PipelineId`, plId);
-    const onChangeBoard = brId => handleFormChange(`${type}BoardId`, brId);
+    const onChangeBoard = (brId) => handleFormChange(`${type}BoardId`, brId);
 
     switch (type) {
-      case "deal":
+      case 'deal':
         return (
           <SalesBoardSelect
             isRequired={toggle}
             type={type}
             stageId={stageId}
-            boardId={boardId || ""}
-            pipelineId={pipelineId || ""}
+            boardId={boardId || ''}
+            pipelineId={pipelineId || ''}
             onChangeStage={onChangeStage}
             onChangePipeline={onChangePipeline}
             onChangeBoard={onChangeBoard}
@@ -154,14 +156,14 @@ function General({
           />
         );
 
-      case "ticket":
+      case 'ticket':
         return (
           <TicketsBoardSelect
             isRequired={toggle}
             type={type}
             stageId={stageId}
-            boardId={boardId || ""}
-            pipelineId={pipelineId || ""}
+            boardId={boardId || ''}
+            pipelineId={pipelineId || ''}
             onChangeStage={onChangeStage}
             onChangePipeline={onChangePipeline}
             onChangeBoard={onChangeBoard}
@@ -170,14 +172,14 @@ function General({
           />
         );
 
-      case "purchase":
+      case 'purchase':
         return (
           <PurchasesBoardSelect
             isRequired={toggle}
             type={type}
             stageId={stageId}
-            boardId={boardId || ""}
-            pipelineId={pipelineId || ""}
+            boardId={boardId || ''}
+            pipelineId={pipelineId || ''}
             onChangeStage={onChangeStage}
             onChangePipeline={onChangePipeline}
             onChangeBoard={onChangeBoard}
@@ -186,14 +188,14 @@ function General({
           />
         );
 
-      case "task":
+      case 'task':
         return (
           <TasksBoardSelect
             isRequired={toggle}
             type={type}
             stageId={stageId}
-            boardId={boardId || ""}
-            pipelineId={pipelineId || ""}
+            boardId={boardId || ''}
+            pipelineId={pipelineId || ''}
             onChangeStage={onChangeStage}
             onChangePipeline={onChangePipeline}
             onChangeBoard={onChangeBoard}
@@ -216,7 +218,7 @@ function General({
     stageId,
     pipelineId,
     boardId,
-    className
+    className,
   }: ControlItem) {
     const handleChange = (e: React.FormEvent) => {
       const value = (e.target as HTMLInputElement).value;
@@ -239,10 +241,10 @@ function General({
             />
             {boardType && (
               <Popover
-                placement="bottom-end"
+                placement='bottom-end'
                 trigger={
                   <IconWrap>
-                    <Icon icon="cog" size={24} />
+                    <Icon icon='cog' size={24} />
                   </IconWrap>
                 }
               >
@@ -250,7 +252,7 @@ function General({
                   type: boardType,
                   stageId,
                   boardId,
-                  pipelineId
+                  pipelineId,
                 })}
               </Popover>
             )}
@@ -268,50 +270,50 @@ function General({
     ) => {
       return (
         <Select
-          value={generateOptions(options, "_id", "name").find(
-            o => o.value === value
+          value={generateOptions(options, '_id', 'name').find(
+            (o) => o.value === value
           )}
           isClearable={true}
           onChange={handleSelect}
-          options={generateOptions(options, "_id", "name")}
+          options={generateOptions(options, '_id', 'name')}
         />
       );
     };
 
     const handleSelectBoard = (option: ISelectedOption) => {
-      const value = option ? option.value : "";
+      const value = option ? option.value : '';
 
       if (value) {
         fetchPipelines(value);
       }
 
-      handleFormChange("taskPublicBoardId", value);
+      handleFormChange('taskPublicBoardId', value);
     };
 
     const handleSelecPipeline = (option: ISelectedOption) => {
-      const value = option ? option.value : "";
+      const value = option ? option.value : '';
 
-      handleFormChange("taskPublicPipelineId", value);
+      handleFormChange('taskPublicPipelineId', value);
     };
 
     return (
       <>
         {renderControl({
-          label: "Public tasks",
-          subtitle: "Shown name on menu",
-          formValueName: "taskPublicLabel",
+          label: 'Public tasks',
+          subtitle: 'Shown name on menu',
+          formValueName: 'taskPublicLabel',
           formValue: taskPublicLabel,
-          placeholder: "Please enter a label for Public Task"
+          placeholder: 'Please enter a label for Public Task',
         })}
         <div>
           <FormGroup>
             <ControlLabel>Task public board</ControlLabel>
-            <p>{__("Public task board")}</p>
+            <p>{__('Public task board')}</p>
             {renderSelect(boards, handleSelectBoard, taskPublicBoardId)}
           </FormGroup>
           <FormGroup>
             <ControlLabel>Task public pipeline</ControlLabel>
-            <p>{__("Public task pipeline")}</p>
+            <p>{__('Public task pipeline')}</p>
             {renderSelect(pipelines, handleSelecPipeline, taskPublicPipelineId)}
           </FormGroup>
         </div>
@@ -322,33 +324,46 @@ function General({
   const renderMain = () => {
     return (
       <Block>
-        <h4>{__("Business portal")}</h4>
+        <h4>{__('Business portal')}</h4>
         <BlockRow>
           {renderControl({
             required: true,
             label: `${kind} portal name`,
-            subtitle: "Displayed in the header area",
-            formValueName: "name",
+            subtitle: 'Displayed in the header area',
+            formValueName: 'name',
             formValue: name,
             formProps: {
-              autoFocus: true
-            }
+              autoFocus: true,
+            },
           })}
 
           {renderControl({
-            label: "Description",
-            subtitle: "Displayed in the header area",
-            className: "description",
-            formValueName: "description",
-            formValue: description
+            label: 'Description',
+            subtitle: 'Displayed in the header area',
+            className: 'description',
+            formValueName: 'description',
+            formValue: description,
           })}
 
           {renderControl({
-            label: "Website",
-            subtitle: "Redirect URL to the main website",
-            formValueName: "url",
-            formValue: url
+            label: 'Website',
+            subtitle: 'Redirect URL to the main website',
+            formValueName: 'url',
+            formValue: url,
           })}
+
+          <FormGroup>
+            <ControlLabel>Language</ControlLabel>
+            <Select
+              id='languageCode'
+              value={LANGUAGES.find((o) => o.value === language )}
+              options={LANGUAGES}
+              onChange={(e:any) => {
+                handleFormChange('language', e.value)
+              }}
+              isClearable={false}
+            />
+          </FormGroup>
         </BlockRow>
       </Block>
     );
@@ -366,13 +381,13 @@ function General({
         <ToggleWrap>
           <FormGroup>
             <ControlLabel>Show {title}</ControlLabel>
-            <p>{__("Show in Business Portal")}</p>
+            <p>{__('Show in Business Portal')}</p>
             <Toggle
               checked={toggle}
               onChange={() => onChangeToggle(toggleName, !toggle)}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
             />
           </FormGroup>
@@ -386,18 +401,18 @@ function General({
 
   const renderSelectCategory = () => {
     const trigger = (
-      <Button btnStyle="primary" icon="plus-circle">
+      <Button btnStyle='primary' icon='plus-circle'>
         Create Category
       </Button>
     );
 
     const renderTrigger = () => {
-      const content = props => <CategoryForm {...props} categories={[]} />;
+      const content = (props) => <CategoryForm {...props} categories={[]} />;
       return (
         <ModalTrigger
-          title="Manage category"
+          title='Manage category'
           trigger={trigger}
-          size="lg"
+          size='lg'
           content={content}
         />
       );
@@ -406,14 +421,14 @@ function General({
     return (
       <>
         <ControlLabel>Parent Product Category for Vendors</ControlLabel>
-        <div style={{ display: "flex" }}>
+        <div style={{ display: 'flex' }}>
           <SelectProductCategory
-            label="Choose product category"
-            name="productCategoryId"
-            initialValue={vendorParentProductCategoryId || ""}
-            onSelect={categoryId =>
+            label='Choose product category'
+            name='productCategoryId'
+            initialValue={vendorParentProductCategoryId || ''}
+            onSelect={(categoryId) =>
               handleFormChange(
-                "vendorParentProductCategoryId",
+                'vendorParentProductCategoryId',
                 categoryId as string
               )
             }
@@ -427,153 +442,153 @@ function General({
 
   const renderFeatures = () => {
     if (
-      !isEnabled("knowledgebase") &&
-      !isEnabled("sales") &&
-      !isEnabled("purchases") &&
-      !isEnabled("tickets") &&
-      !isEnabled("tasks") &&
-      !isEnabled("inbox")
+      !isEnabled('knowledgebase') &&
+      !isEnabled('sales') &&
+      !isEnabled('purchases') &&
+      !isEnabled('tickets') &&
+      !isEnabled('tasks') &&
+      !isEnabled('inbox')
     ) {
       return null;
     }
     return (
       <Block>
-        <h4>{__("Features")}</h4>
-        {isEnabled("knowledgebase") &&
+        <h4>{__('Features')}</h4>
+        {isEnabled('knowledgebase') &&
           renderFeatureBlock(
-            "knowledgeBase",
+            'knowledgeBase',
             <>
               {renderControl({
-                label: "Knowledge Base Name",
-                subtitle: "Shown name on menu",
-                formValueName: "knowledgeBaseLabel",
+                label: 'Knowledge Base Name',
+                subtitle: 'Shown name on menu',
+                formValueName: 'knowledgeBaseLabel',
                 formValue: knowledgeBaseLabel,
-                placeholder: "Please enter a label for Knowledge base"
+                placeholder: 'Please enter a label for Knowledge base',
               })}
               <FormGroup>
                 <ControlLabel required={true}>
                   Knowledge base topic
                 </ControlLabel>
-                <p>{__("Knowledge base topic in Business Portal")}</p>
+                <p>{__('Knowledge base topic in Business Portal')}</p>
                 <Select
-                  placeholder="Select a knowledge base topic"
-                  value={generateOptions(topics, "_id", "title").find(
-                    o => o.value === knowledgeBaseTopicId
+                  placeholder='Select a knowledge base topic'
+                  value={generateOptions(topics, '_id', 'title').find(
+                    (o) => o.value === knowledgeBaseTopicId
                   )}
                   isClearable={true}
-                  options={generateOptions(topics, "_id", "title")}
+                  options={generateOptions(topics, '_id', 'title')}
                   onChange={handleSelectChange}
                 />
               </FormGroup>
             </>,
-            "kbToggle",
+            'kbToggle',
             kbToggle || false
           )}
-        {isEnabled("tasks") &&
+        {isEnabled('tasks') &&
           renderFeatureBlock(
-            "publicTask",
+            'publicTask',
             renderTaskPipelines(),
-            "publicTaskToggle",
+            'publicTaskToggle',
             publicTaskToggle || false
           )}
 
-        {isEnabled("tickets") &&
+        {isEnabled('tickets') &&
           renderFeatureBlock(
-            "tickets",
+            'tickets',
             <>
               {renderControl({
-                label: "Tickets",
-                subtitle: "Shown name on menu",
-                formValueName: "ticketLabel",
+                label: 'Tickets',
+                subtitle: 'Shown name on menu',
+                formValueName: 'ticketLabel',
                 formValue: ticketLabel,
-                placeholder: "Please enter a label for Ticket"
+                placeholder: 'Please enter a label for Ticket',
               })}
               {renderBoardSelect({
-                type: "ticket",
+                type: 'ticket',
                 stageId: ticketStageId,
                 pipelineId: ticketPipelineId,
                 boardId: ticketBoardId,
-                toggle: ticketToggle || false
+                toggle: ticketToggle || false,
               })}
             </>,
-            "ticketToggle",
+            'ticketToggle',
             ticketToggle || false
           )}
 
-        {isEnabled("sales") &&
+        {isEnabled('sales') &&
           renderFeatureBlock(
-            "deals",
+            'deals',
             <>
               {renderControl({
-                label: "Deals",
-                subtitle: "Shown name on menu",
-                formValueName: "dealLabel",
+                label: 'Deals',
+                subtitle: 'Shown name on menu',
+                formValueName: 'dealLabel',
                 formValue: dealLabel,
-                placeholder: "Please enter a label for Deal"
+                placeholder: 'Please enter a label for Deal',
               })}
               {renderBoardSelect({
-                type: "deal",
+                type: 'deal',
                 stageId: dealStageId,
                 pipelineId: dealPipelineId,
-                boardId: dealBoardId
+                boardId: dealBoardId,
               })}
             </>,
-            "dealToggle",
+            'dealToggle',
             dealToggle || false
           )}
 
-        {isEnabled("purchases") &&
+        {isEnabled('purchases') &&
           renderFeatureBlock(
-            "purchases",
+            'purchases',
             <>
               {renderControl({
-                label: "Purchases",
-                subtitle: "Shown name on menu",
-                formValueName: "purchaseLabel",
+                label: 'Purchases',
+                subtitle: 'Shown name on menu',
+                formValueName: 'purchaseLabel',
                 formValue: purchaseLabel,
-                placeholder: "Please enter a label for Purchase"
+                placeholder: 'Please enter a label for Purchase',
               })}
               {renderBoardSelect({
-                type: "purchase",
+                type: 'purchase',
                 stageId: purchaseStageId,
                 pipelineId: purchasePipelineId,
-                boardId: purchaseBoardId
+                boardId: purchaseBoardId,
               })}
             </>,
-            "purchaseToggle",
+            'purchaseToggle',
             purchaseToggle || false
           )}
 
-        {isEnabled("tasks") &&
+        {isEnabled('tasks') &&
           renderFeatureBlock(
-            "tasks",
+            'tasks',
             <>
               {renderControl({
-                label: "Tasks incoming pipeline",
-                subtitle: "Shown name on menu",
-                formValueName: "taskLabel",
+                label: 'Tasks incoming pipeline',
+                subtitle: 'Shown name on menu',
+                formValueName: 'taskLabel',
                 formValue: taskLabel,
-                placeholder: "Please enter a label for Task"
+                placeholder: 'Please enter a label for Task',
               })}
               {renderBoardSelect({
-                type: "task",
+                type: 'task',
                 stageId: taskStageId,
                 pipelineId: taskPipelineId,
-                boardId: taskBoardId
+                boardId: taskBoardId,
               })}
             </>,
-            "taskToggle",
+            'taskToggle',
             taskToggle || false
           )}
-        {isEnabled("inbox") &&
+        {isEnabled('inbox') &&
           renderControl({
-            label: "Messenger brand code",
-            subtitle: "Brand code in messenger install script",
-            formValueName: "messengerBrandCode",
-            formValue: messengerBrandCode
+            label: 'Messenger brand code',
+            subtitle: 'Brand code in messenger install script',
+            formValueName: 'messengerBrandCode',
+            formValue: messengerBrandCode,
           })}
 
-        {kind === "vendor" && renderSelectCategory()}
+        {kind === 'vendor' && renderSelectCategory()}
       </Block>
     );
   };
