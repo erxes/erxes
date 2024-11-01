@@ -221,6 +221,7 @@ ${
     testUserOTP: String
 
     socialpayConfig: SocialpayConfig
+    language: String
   }
 
   type Styles {
@@ -330,6 +331,7 @@ ${
     refreshTokenExpiration: Int
     vendorParentProductCategoryId: String
     socialpayConfig: JSON
+    language: String
   }
 
   enum UserCardEnum {
