@@ -1,17 +1,17 @@
 import {
   getService,
   getServices,
-  isEnabled
-} from "@erxes/api-utils/src/serviceDiscovery";
-import { IModels } from "../connectionResolver";
+  isEnabled,
+} from '@erxes/api-utils/src/serviceDiscovery';
+import { IModels } from '../connectionResolver';
 import {
   sendCoreMessage,
   sendPurchasesMessage,
   sendSalesMessage,
   sendTasksMessage,
-  sendTicketsMessage
-} from "../messageBroker";
-import { sendMessage } from "@erxes/api-utils/src/messageBroker";
+  sendTicketsMessage,
+} from '../messageBroker';
+import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 
 export interface IContactsParams {
   subdomain: string;
@@ -23,12 +23,12 @@ export interface IContactsParams {
 
 export const handleContacts = async (args: IContactsParams) => {
   const { subdomain, models, clientPortalId, document, password } = args;
-  const { type = "customer" } = document;
+  const { type = 'customer' } = document;
 
   let qry: any = {};
   let user: any;
 
-  const trimmedMail = (document.email || "").toLowerCase().trim();
+  const trimmedMail = (document.email || '').toLowerCase().trim();
 
   if (document.email) {
     qry = { email: trimmedMail };
@@ -40,15 +40,15 @@ export const handleContacts = async (args: IContactsParams) => {
 
   qry.clientPortalId = clientPortalId;
 
-  if (type === "customer") {
+  if (type === 'customer') {
     let customer = await sendCoreMessage({
       subdomain,
-      action: "customers.findOne",
+      action: 'customers.findOne',
       data: {
         customerPrimaryEmail: trimmedMail,
-        customerPrimaryPhone: document.phone
+        customerPrimaryPhone: document.phone,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (customer) {
@@ -58,7 +58,7 @@ export const handleContacts = async (args: IContactsParams) => {
     user = await models.ClientPortalUsers.findOne(qry);
 
     if (user) {
-      throw new Error("user is already exists");
+      throw new Error('user is already exists');
     }
 
     user = await models.ClientPortalUsers.create({
@@ -66,21 +66,21 @@ export const handleContacts = async (args: IContactsParams) => {
       clientPortalId,
       // hash password
       password:
-        password && (await models.ClientPortalUsers.generatePassword(password))
+        password && (await models.ClientPortalUsers.generatePassword(password)),
     });
 
     if (!customer) {
       customer = await sendCoreMessage({
         subdomain,
-        action: "customers.createCustomer",
+        action: 'customers.createCustomer',
         data: {
           firstName: document.firstName,
           lastName: document.lastName,
           primaryEmail: trimmedMail,
           primaryPhone: document.phone,
-          state: "lead"
+          state: 'lead',
         },
-        isRPC: true
+        isRPC: true,
       });
     }
 
@@ -94,11 +94,11 @@ export const handleContacts = async (args: IContactsParams) => {
       for (const serviceName of await getServices()) {
         const serviceConfig = await getService(serviceName);
 
-        if (serviceConfig.config?.meta?.hasOwnProperty("cpCustomerHandle")) {
+        if (serviceConfig.config?.meta?.hasOwnProperty('cpCustomerHandle')) {
           if (await isEnabled(serviceName)) {
             sendMessage(`${serviceName}:cpCustomerHandle`, {
               subdomain,
-              data: { customer }
+              data: { customer },
             });
           }
         }
@@ -106,16 +106,16 @@ export const handleContacts = async (args: IContactsParams) => {
     }
   }
 
-  if (type === "company") {
+  if (type === 'company') {
     let company = await sendCoreMessage({
       subdomain,
-      action: "companies.findOne",
+      action: 'companies.findOne',
       data: {
         companyPrimaryEmail: trimmedMail,
         companyPrimaryPhone: document.phone,
-        companyCode: document.companyRegistrationNumber
+        companyCode: document.companyRegistrationNumber,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (company) {
@@ -125,7 +125,7 @@ export const handleContacts = async (args: IContactsParams) => {
     user = await models.ClientPortalUsers.findOne(qry);
 
     if (user && (user.isEmailVerified || user.isPhoneVerified)) {
-      throw new Error("user is already exists");
+      throw new Error('user is already exists');
     }
 
     if (user) {
@@ -137,20 +137,20 @@ export const handleContacts = async (args: IContactsParams) => {
       clientPortalId,
       // hash password
       password:
-        password && (await models.ClientPortalUsers.generatePassword(password))
+        password && (await models.ClientPortalUsers.generatePassword(password)),
     });
 
     if (!company) {
       company = await sendCoreMessage({
         subdomain,
-        action: "companies.createCompany",
+        action: 'companies.createCompany',
         data: {
           primaryName: document.companyName,
           primaryEmail: trimmedMail,
           primaryPhone: document.phone,
-          code: document.companyRegistrationNumber
+          code: document.companyRegistrationNumber,
         },
-        isRPC: true
+        isRPC: true,
       });
     }
 
@@ -164,11 +164,11 @@ export const handleContacts = async (args: IContactsParams) => {
       for (const serviceName of await getServices()) {
         const serviceConfig = await getService(serviceName);
 
-        if (serviceConfig.config?.meta?.hasOwnProperty("cpCustomerHandle")) {
+        if (serviceConfig.config?.meta?.hasOwnProperty('cpCustomerHandle')) {
           if (await isEnabled(serviceName)) {
             sendMessage(`${serviceName}:cpCustomerHandle`, {
               subdomain,
-              data: { company }
+              data: { company },
             });
           }
         }
@@ -180,25 +180,25 @@ export const handleContacts = async (args: IContactsParams) => {
 };
 
 export const putActivityLog = async (subdomain, user) => {
-  let contentType = "core:customer";
+  let contentType = 'core:customer';
   let contentId = user.erxesCustomerId;
 
-  if (user.type === "company") {
-    contentType = "core:company";
+  if (user.type === 'company') {
+    contentType = 'core:company';
     contentId = user.erxesCompanyId;
   }
 
-  await sendMessage("putActivityLog", {
+  await sendMessage('putActivityLog', {
     subdomain,
     data: {
-      action: "putActivityLog",
+      action: 'putActivityLog',
       data: {
         contentType,
         contentId,
         createdBy: user.clientPortalId,
-        action: "create"
-      }
-    }
+        action: 'create',
+      },
+    },
   });
 };
 
@@ -217,15 +217,15 @@ export const handleDeviceToken = async (user, deviceToken) => {
 export const createCard = async (subdomain, models, cpUser, doc) => {
   const customer = await sendCoreMessage({
     subdomain,
-    action: "customers.findOne",
+    action: 'customers.findOne',
     data: {
-      _id: cpUser.erxesCustomerId
+      _id: cpUser.erxesCustomerId,
     },
-    isRPC: true
+    isRPC: true,
   });
 
   if (!customer) {
-    throw new Error("Customer not registered");
+    throw new Error('Customer not registered');
   }
 
   const {
@@ -239,12 +239,12 @@ export const createCard = async (subdomain, models, cpUser, doc) => {
     customFieldsData,
     attachments,
     labelIds,
-    productsData
+    productsData,
   } = doc;
   let priority = doc.priority;
 
-  if (["High", "Critical"].includes(priority)) {
-    priority = "Normal";
+  if (['High', 'Critical'].includes(priority)) {
+    priority = 'Normal';
   }
 
   let card = {} as any;
@@ -255,7 +255,7 @@ export const createCard = async (subdomain, models, cpUser, doc) => {
     description,
     priority,
     stageId,
-    status: "active",
+    status: 'active',
     customerId: customer._id,
     createdAt: new Date(),
     stageChangedDate: null,
@@ -265,47 +265,51 @@ export const createCard = async (subdomain, models, cpUser, doc) => {
     customFieldsData,
     attachments,
     labelIds,
-    productsData
+    productsData,
   };
 
   switch (type) {
-    case "deal":
+    case 'deal':
       card = await sendSalesMessage({
         subdomain,
         action: `${type}s.create`,
         data,
-        isRPC: true
+        isRPC: true,
       });
+      break;
 
-    case "ticket":
+    case 'ticket':
       card = await sendTicketsMessage({
         subdomain,
         action: `${type}s.create`,
         data,
-        isRPC: true
+        isRPC: true,
       });
+      break;
 
-    case "task":
+    case 'task':
       card = await sendTasksMessage({
         subdomain,
         action: `${type}s.create`,
         data,
-        isRPC: true
+        isRPC: true,
       });
+      break;
 
-    case "purchase":
+    case 'purchase':
       card = await sendPurchasesMessage({
         subdomain,
         action: `${type}s.create`,
         data,
-        isRPC: true
+        isRPC: true,
       });
+      break;
   }
 
   await models.ClientPortalUserCards.createOrUpdateCard({
     contentType: type,
     contentTypeId: card._id,
-    cpUserId: cpUser.userId
+    cpUserId: cpUser.userId,
   });
 
   return card;
@@ -321,19 +325,19 @@ export const participantEditRelation = async (
 ) => {
   const userCards = await models.ClientPortalUserCards.find({
     contentType: type,
-    contentTypeId: cardId
+    contentTypeId: cardId,
   });
   const newCpUsers = cpUserIds.filter(
-    x => userCards.findIndex(m => m.cpUserId === x) === -1
+    (x) => userCards.findIndex((m) => m.cpUserId === x) === -1
   );
 
-  const excludedCpUsers = oldCpUserIds.filter(m => !cpUserIds.includes(m));
+  const excludedCpUsers = oldCpUserIds.filter((m) => !cpUserIds.includes(m));
 
   if (newCpUsers) {
-    const docs = newCpUsers.map(d => ({
+    const docs = newCpUsers.map((d) => ({
       contentType: type,
       contentTypeId: cardId,
-      cpUserId: d
+      cpUserId: d,
     }));
     await models.ClientPortalUserCards.insertMany(docs);
   }
@@ -341,9 +345,9 @@ export const participantEditRelation = async (
     await models.ClientPortalUserCards.deleteMany({
       contentType: type,
       contentTypeId: cardId,
-      cpUserId: { $in: excludedCpUsers }
+      cpUserId: { $in: excludedCpUsers },
     });
   }
 
-  return "ok";
+  return 'ok';
 };

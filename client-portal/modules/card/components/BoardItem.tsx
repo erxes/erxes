@@ -14,6 +14,7 @@ import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import { ColumnContentBody } from '../../styles/cards';
 import DueDateLabel from '../../common/DueDateLabel';
+import { __ } from '../../../utils';
 
 type Props = {
   items: any;
@@ -38,7 +39,7 @@ function BoardItem({ items, viewType, type, stageId }: Props) {
     return (
       <EmptyState
         icon="ban"
-        text="There is no cards in this stage"
+        text={__("There is no cards in this stage")}
         size="small"
       />
     );
@@ -71,7 +72,7 @@ function BoardItem({ items, viewType, type, stageId }: Props) {
               )}
             </Content>
             <ItemFooter>
-              Last updated:
+              {__('Last updated')}:
               <Right>{renderDate(item.modifiedAt)}</Right>
             </ItemFooter>
           </ItemWrapper>
@@ -96,7 +97,7 @@ function BoardItem({ items, viewType, type, stageId }: Props) {
             <p>{task.description}</p>
           </Content>
           <ItemFooter>
-            Last updated:
+            {__('Last updated')}:
             <Right>{renderDate(task.modifiedAt)}</Right>
           </ItemFooter>
         </ItemWrapper>

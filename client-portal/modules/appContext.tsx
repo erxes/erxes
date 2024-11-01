@@ -4,16 +4,18 @@ import {
   NotificationsCountQueryResponse,
   NotificationsQueryResponse,
   UserQueryResponse,
-} from "./types";
-import React, { createContext, useEffect } from "react";
-import { gql, useQuery } from "@apollo/client";
+} from './types';
+import React, { createContext, useEffect } from 'react';
+import { gql, useQuery } from '@apollo/client';
 
-import Spinner from "./common/Spinner";
-import { clientPortalGetConfig } from "./main/graphql/queries";
-import { getKbTopicQuery } from "./knowledgeBase/graphql/queries";
-import queries from "./user/graphql/queries";
-import { sendDesktopNotification } from "./utils";
-import subscriptions from "./user/graphql/subscriptions";
+import Spinner from './common/Spinner';
+import { clientPortalGetConfig } from './main/graphql/queries';
+import { getKbTopicQuery } from './knowledgeBase/graphql/queries';
+import queries from './user/graphql/queries';
+import { sendDesktopNotification } from './utils';
+import subscriptions from './user/graphql/subscriptions';
+import { setLocale } from '../utils';
+import { set } from 'lodash';
 
 const AppContext = createContext({});
 
@@ -41,6 +43,10 @@ function AppProvider({ children }: Props) {
   );
 
   useEffect(() => {
+    if (localStorage) {
+      const currentLocale = localStorage.getItem('locale') || 'en';
+      setLocale(currentLocale, () => null);
+    }
     if (userData && userData.clientPortalCurrentUser) {
       setCurrentUser(userData.clientPortalCurrentUser);
     }
@@ -119,6 +125,15 @@ function AppProvider({ children }: Props) {
 
   if (response.loading) {
     return null;
+  }
+
+  if (config.language && localStorage) {
+    const currentLocale = localStorage.getItem('locale') || 'en';
+
+    if (config.language !== currentLocale) {
+      localStorage.setItem('locale', config.language);
+      setLocale(config.language, () => null);
+    }
   }
 
   return (
