@@ -13,6 +13,7 @@ import dayjs from 'dayjs';
 import { renderUserFullName } from '../../utils';
 import { useRouter } from 'next/router';
 import Box from '../../common/Box';
+import { __ } from '../../../utils';
 
 type Props = {
   loading: boolean;
@@ -34,7 +35,7 @@ export default function Group({ items, item, type, groupType }: Props) {
   const boxTitle =
     (groupType === 'user' ? renderUserFullName(item) : item?.name) +
     ' ' +
-    item?.itemsTotalCount;
+    items.length;
 
   return (
     <GroupBoxWrapper>
@@ -42,13 +43,13 @@ export default function Group({ items, item, type, groupType }: Props) {
         <GroupList>
           <GroupWrapper>
             <ListHead className="head">
-              <div>Subject</div>
-              <div>Created date</div>
-              <div>Stage changed date</div>
-              <div>Start date</div>
-              <div>Close date</div>
-              <div>Staging</div>
-              <div>Labels</div>
+              <div>{__("Subject")}</div>
+              <div>{__("Created date")}</div>
+              <div>{__("Stage changed date")}</div>
+              <div>{__("Start date")}</div>
+              <div>{__("Close date")}</div>
+              <div>{__("Stage")}</div>
+              <div>{__("Labels")}</div>
             </ListHead>
             <div>
               {(items || []).map(card => {

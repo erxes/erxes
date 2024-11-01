@@ -3,8 +3,39 @@ import T from 'i18n-react';
 import { FieldValue } from './form/types';
 import { ENV, IBrowserInfo, IRule } from './types';
 
-export const getEnv = (): ENV => {
-  return (window as any).erxesEnv;
+export const getSubdomain = (): string => {
+  const hostnameParts = window.location.hostname.split('.');
+
+  if (hostnameParts.length > 2) {
+    return hostnameParts[0];
+  }
+
+  // return an empty string (for open-source environments with no subdomain)
+  return '';
+};
+
+// get env config from process.env or window.env
+export const getEnv = () => {
+  const wenv = (window as any).erxesEnv || {};
+
+  const subdomain = getSubdomain();
+
+  const getItem = (name: string) => {
+    const value = wenv[name] || process.env[name] || '';
+
+    // Only replace '<subdomain>' if it exists in the value
+    if (value.includes('<subdomain>')) {
+      return value.replace('<subdomain>', subdomain);
+    }
+
+    return value;
+  };
+
+  return {
+    API_URL: getItem('API_URL'),
+    API_SUBSCRIPTIONS_URL: getItem('API_SUBSCRIPTIONS_URL'),
+    GOOGLE_MAP_API_KEY: getItem('GOOGLE_MAP_API_KEY'),
+  };
 };
 
 declare const window: any;
@@ -73,7 +104,7 @@ export const setLocale = (code?: string, callBack?: () => void) => {
         callBack();
       }
     })
-    .catch((e) => console.error(e)); // tslint:disable-line
+    .catch((e) => console.log(e)); // tslint:disable-line
 };
 
 export const __ = (msg: string) => {
