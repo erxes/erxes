@@ -3101,6 +3101,7 @@ export const dealCharts = [
                 fieldParentVariable: 'groupId',
                 fieldParentQuery: "fieldsGroups",
                 fieldRequiredQueryParams: ["contentType"],
+                fieldExtraVariables: ['options', 'type'],
                 fieldQueryVariables: `{"contentType": "sales:deal"}`,
                 logics: [
                     {

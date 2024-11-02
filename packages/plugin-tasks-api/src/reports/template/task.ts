@@ -612,6 +612,7 @@ export const taskCharts = [
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
             fieldRequiredQueryParams: ["contentType"],
+            fieldExtraVariables: ['options', 'type'],
             fieldQueryVariables: `{"contentType": "tasks:task"}`,
               logics: [
                 {

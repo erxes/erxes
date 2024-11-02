@@ -262,7 +262,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push({ $unwind: "$assignedUserIds" });
   }
 
-  if (dimensions.includes("field")) {
+  if (dimensions.includes("field") || filter?.subFields?.length) {
     pipeline.push(
       { $unwind: "$customFieldsData" },
       { $unwind: "$customFieldsData.value" },
@@ -1365,6 +1365,7 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     dateRange,
     dueDateRange,
     integrationTypes,
+    subFields,
   } = filter;
 
   const matchfilter = {};
@@ -1575,6 +1576,10 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
   // CUSTOM PROPERTIES FIELD FILTER 
   if (fieldIds?.length) {
     matchfilter['customFieldsData.field'] = { $in: fieldIds };
+
+    if (subFields?.length) {
+      matchfilter['customFieldValues'] = { $in: subFields };
+    }
   }
 
   // CUSTOM PROPERTIES FIELD FILTER 

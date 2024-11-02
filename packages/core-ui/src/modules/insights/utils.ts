@@ -141,6 +141,24 @@ export const generateOptions = (data, parentData, filterType) => {
   return options
 }
 
+export const generateSubOptions = (data, fieldValues, filterType) => {
+  const { fieldName, fieldLabelVariable, fieldExtraVariables } = filterType;
+
+  if (!fieldExtraVariables?.length) return [];
+
+  const filteredData = (data || []).filter(item =>
+    (fieldValues[fieldName] || []).includes(item._id)
+  );
+
+  return filteredData.map(item => ({
+    label: item[fieldLabelVariable],
+    options: item.options.map(optionValue => ({
+      label: optionValue,
+      value: optionValue
+    }))
+  }));
+};
+
 export const getVariables = (fieldValues, filterType) => {
 
   const { logics, fieldQueryVariables } = filterType
@@ -293,42 +311,6 @@ export const formatMillisecond = (milliseconds, axis) => {
   }
 };
 
-export const generateParentOptionsFromQuery = (
-  queryFieldOptions: any[],
-  parentData: any[] = [],
-) => {
-  return parentData.reduce((acc, data) => {
-    const options = queryFieldOptions
-      .filter((option) => option?.parent === data._id)
-      .map(({ value, label }) => ({ value, label }));
-
-    if (options.length > 0) {
-      acc.push({ label: data.name, options });
-    }
-    return acc;
-  }, []);
-};
-
-export const generateParentOptionsFromField = (queryFieldOptions: any[]) => {
-  return queryFieldOptions.reduce((acc, option) => {
-    const contentType = option.parent.split(':').pop() || option.parent;
-    const existingContentType = acc.find((item) => item.label === contentType);
-
-    if (existingContentType) {
-      existingContentType.options.push({
-        label: option.label.trim(),
-        value: option.value,
-      });
-    } else {
-      acc.push({
-        label: contentType,
-        options: [{ label: option.label.trim(), value: option.value }],
-      });
-    }
-    return acc;
-  }, []);
-};
-
 export const compareValues = (a: any, b: any, operator: string) => {
 
   switch (operator) {
@@ -422,7 +404,7 @@ export const arrayMove = (array: any[], from: number, to: number) => {
 }
 
 export const generateQuery = (fieldName, config, fieldValues?) => {
-  const { fieldQueryVariables, fieldValueVariable, fieldParentVariable, fieldLabelVariable, fieldInitialVariable, fieldRequiredQueryParams, logics } = config;
+  const { fieldQueryVariables, fieldValueVariable, fieldParentVariable, fieldLabelVariable, fieldInitialVariable, fieldRequiredQueryParams, fieldExtraVariables = [], logics } = config;
 
   if (!fieldName || !fieldValueVariable || !fieldLabelVariable) {
     return ''
@@ -467,7 +449,8 @@ export const generateQuery = (fieldName, config, fieldValues?) => {
   const fields = fieldValues ? [
     fieldValueVariable,
     fieldLabelVariable,
-    fieldParentVariable
+    fieldParentVariable,
+    ...fieldExtraVariables
   ].filter(Boolean).join(' ') : '_id name';
 
   const variableSection = fieldInitialVariable

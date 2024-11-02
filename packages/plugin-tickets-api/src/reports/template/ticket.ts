@@ -2728,6 +2728,7 @@ export const ticketCharts = [
             fieldParentVariable: 'groupId',
             fieldParentQuery: "fieldsGroups",
           fieldRequiredQueryParams: ["contentType"],
+          fieldExtraVariables: ['options', 'type'],
           fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             logics: [
               {
