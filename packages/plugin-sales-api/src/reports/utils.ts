@@ -341,7 +341,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push({ $unwind: "$productsData" });
   }
 
-  if (dimensions.includes("pipeline") || measures.includes("forecastAmount")) {
+  if (dimensions.includes("pipeline") || dimensions.includes("probability") || measures.includes("forecastAmount")) {
     pipeline.push(
       {
         $lookup: {
@@ -445,7 +445,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
   const match: object = {}
 
-  if (measures.includes("forecastAmount")) {
+  if (measures.includes("forecastAmount") || dimensions.includes('probability')) {
     match["stage.probability"] = { $ne: null };
   }
 
@@ -622,6 +622,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
   if (dimensions.includes("assignedTo")) {
     groupKeys.assignedTo = "$assignedUserIds";
+  }
+
+  if (dimensions.includes("probability")) {
+    groupKeys.probability = "$stage.probability";
   }
 
   if (dimensions.includes("frequency")) {
@@ -1160,6 +1164,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
     projectionFields.assignedTo = "$assignedTo";
   }
 
+  if (dimensions.includes("probability")) {
+    projectionFields.probability = "$_id.probability";
+  }
+
   if (dimensions.includes("card") || dimensions.includes("number")) {
     projectionFields.itemId = '$doc._id';
     projectionFields.pipelineId = '$pipeline._id';
@@ -1366,6 +1374,7 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     dueDateRange,
     integrationTypes,
     subFields,
+    stageProbability
   } = filter;
 
   const matchfilter = {};
@@ -1537,6 +1546,11 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     } else {
       matchfilter['status'] = { $eq: status };
     }
+  }
+
+  if (stageProbability) {
+    const stageIds = await getStageIds(filter, type, model)
+    matchfilter['stageId'] = { $in: stageIds };
   }
 
   // PRIORITY FILTER
