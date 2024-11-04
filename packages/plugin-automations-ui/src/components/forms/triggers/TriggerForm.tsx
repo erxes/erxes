@@ -5,7 +5,7 @@ import {
   TypeBox,
   Description,
   TriggerTabs,
-  TypeBoxContainer
+  TypeBoxContainer,
 } from '../../../styles';
 import { ScrolledContent } from '@erxes/ui-automations/src/styles';
 import { ITrigger } from '../../../types';
@@ -15,6 +15,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import client from '@erxes/ui/src/apolloClient';
+import { useDnD } from '../../editor/DndContext';
 
 type Props = {
   onClickTrigger: (trigger: ITrigger) => void;
@@ -25,10 +26,15 @@ type Props = {
 export default function TriggerForm({
   onClickTrigger,
   templates,
-  triggersConst
+  triggersConst,
 }: Props) {
   const [currentTab, setCurrentTab] = useState('new');
   const [currentType, setCurrentType] = useState('customer');
+  const [_, setType] = useDnD() as any;
+  const onDragStart = (event, nodeType) => {
+    setType(nodeType);
+    event.dataTransfer.effectAllowed = 'move';
+  };
 
   const renderTemplateItem = (template: any, index: number) => {
     const onClickTemplate = () => {
@@ -36,8 +42,8 @@ export default function TriggerForm({
         .mutate({
           mutation: gql(mutations.automationsCreateFromTemplate),
           variables: {
-            _id: template._id
-          }
+            _id: template._id,
+          },
         })
         .then(({ data }) => {
           window.location.href = `/automations/details/${data.automationsCreateFromTemplate._id}`;
@@ -49,16 +55,16 @@ export default function TriggerForm({
         client.mutate({
           mutation: gql(mutations.automationsRemove),
           variables: {
-            automationIds: [template._id]
+            automationIds: [template._id],
           },
           refetchQueries: [
             {
               query: gql(queries.automations),
               variables: {
-                status: 'template'
-              }
-            }
-          ]
+                status: 'template',
+              },
+            },
+          ],
         });
       });
     };
@@ -87,7 +93,15 @@ export default function TriggerForm({
       onClickTrigger(trigger);
     };
     return (
-      <TypeBox key={index} onClick={onClickType}>
+      <TypeBox
+        key={index}
+        onClick={onClickType}
+        onDragStart={event => {
+          console.log({ event });
+          onDragStart(event, 'trigger');
+        }}
+        draggable
+      >
         <img src={`/images/actions/${trigger.img}`} alt={trigger.label} />
         <FormGroup>
           <ControlLabel>

@@ -10,20 +10,22 @@ import ReactFlow, {
   MiniMap,
   updateEdge,
   useEdgesState,
-  useNodesState
+  useNodesState,
+  useReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import {
   AutomationConstants,
   IAutomation,
   IAutomationNote,
-  ITrigger
+  ITrigger,
 } from '../../types';
 import edgeTypes from './edges';
 import ConnectionLine from './edges/ConnectionLine';
 import Info from './Info';
 import nodeTypes from './nodes';
 import { generateEdges, generateNodes, generatePostion } from './utils';
+import { useDnD } from './DndContext';
 
 type Props = {
   automation: IAutomation;
@@ -34,7 +36,7 @@ type Props = {
   onConnection: ({
     sourceId,
     targetId,
-    type
+    type,
   }: {
     sourceId: string;
     targetId: string;
@@ -43,7 +45,7 @@ type Props = {
   showDrawer: boolean;
   toggleDrawer: ({
     type,
-    awaitingNodeId
+    awaitingNodeId,
   }: {
     type: string;
     awaitingNodeId?: string;
@@ -99,10 +101,12 @@ function AutomationEditor({
       actions,
       workFlowActions,
       onDisconnect: edge =>
-        onDisConnection({ nodes, edge, setEdges, onConnect })
+        onDisConnection({ nodes, edge, setEdges, onConnect }),
     })
   );
 
+  const { screenToFlowPosition } = useReactFlow();
+  const [type] = useDnD();
   const [selectedNodes, setSelectedNodes] = useState([] as string[]);
   const [copiedNodes, setCopiedNodes] = useState([]) as any[];
 
@@ -127,7 +131,7 @@ function AutomationEditor({
         actions,
         workFlowActions,
         onDisconnect: edge =>
-          onDisConnection({ nodes, edge, setEdges, onConnect })
+          onDisConnection({ nodes, edge, setEdges, onConnect }),
       })
     );
   };
@@ -137,7 +141,7 @@ function AutomationEditor({
   }, [
     JSON.stringify(triggers),
     JSON.stringify(actions),
-    JSON.stringify(workFlowActions)
+    JSON.stringify(workFlowActions),
   ]);
 
   const generateConnect = (params, source) => {
@@ -147,7 +151,7 @@ function AutomationEditor({
       ...params,
       sourceId: params.source,
       targetId: params.target,
-      type: source?.data?.nodeType
+      type: source?.data?.nodeType,
     };
 
     if (sourceHandle) {
@@ -242,6 +246,38 @@ function AutomationEditor({
     [nodes, edges]
   );
 
+  const onDragOver = useCallback(event => {
+    console.log('dasdasd');
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  const onDrop = useCallback(event => {
+    event.preventDefault();
+
+    console.log({ event, onDrop: true, type });
+
+    // check if the dropped element is valid
+    if (!type) {
+      return;
+    }
+
+    // project was renamed to screenToFlowPosition
+    // and you don't need to subtract the reactFlowBounds.left/top anymore
+    // details: https://reactflow.dev/whats-new/2023-11-10
+    const position = screenToFlowPosition({
+      x: event.clientX,
+      y: event.clientY,
+    });
+    const newNode = {
+      type,
+      position,
+      data: { label: `${type} node` },
+    };
+
+    console.log({ newNode, event });
+  }, []);
+
   const onPaneClick = () => {
     if (props.showDrawer) {
       props.toggleDrawer({ type: '' });
@@ -335,6 +371,8 @@ function AutomationEditor({
         onEdgeDoubleClick={onDoubleClickEdge}
         onSelectionChange={onNodesSelectionChange}
         connectionLineComponent={ConnectionLine}
+        onDrop={onDrop}
+        onDragOver={onDragOver}
         minZoom={0.1}
         edgeTypes={edgeTypes}
       >
