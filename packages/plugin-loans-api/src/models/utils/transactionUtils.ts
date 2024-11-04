@@ -14,7 +14,7 @@ import {
   ICalcTrParams,
   ITransactionDocument
 } from '../definitions/transactions';
-import { getDiffDay, getFullDate, getDatesDiffMonth,calcInterest } from './utils';
+import { getDiffDay, getFullDate, getDatesDiffMonth, calcInterest } from './utils';
 import { IConfig } from '../../interfaces/config';
 import { getConfig } from '../../messageBroker';
 import { scheduleFixAfterCurrent } from './scheduleFixUtils';
@@ -158,6 +158,7 @@ export const getCalcedAmounts = async (
   const contract = await models.Contracts.getContract({
     _id: doc.contractId
   });
+
   /**
    * @property preSchedule /schedule of done or less payed/
    * @property nextSchedule /schedule of pending/
@@ -167,7 +168,7 @@ export const getCalcedAmounts = async (
 
   let schedules = await models.Schedules.find({
     contractId: contract._id,
-    status:{$ne:'give'},
+    status: { $ne: 'give' },
     payDate: {
       $lte: trDate
     }
@@ -183,7 +184,7 @@ export const getCalcedAmounts = async (
 
   result.payment = Math.max(0, result.payment)
 
-  const diffDay = contract.lastStoredDate ? getDiffDay(contract.lastStoredDate, trDate) : 0;  
+  const diffDay = contract.lastStoredDate ? getDiffDay(contract.lastStoredDate, trDate) : 0;
 
   result.calcInterest = calcInterest({
     balance: contract.loanBalanceAmount,
@@ -191,8 +192,6 @@ export const getCalcedAmounts = async (
     dayOfMonth: diffDay,
     fixed: config.calculationFixed
   });
-
-  result.storedInterest = contract.storedInterest;
 
   return result;
 };
@@ -410,7 +409,7 @@ export const trAfterSchedule = async (
 export const removeTrAfterSchedule = async (
   models: IModels,
   tr: ITransactionDocument,
-  config:IConfig,
+  config: IConfig,
   noDeleteSchIds: any[] = []
 ) => {
   if (!Object.keys(tr.reactions || {}).length) {
@@ -452,12 +451,12 @@ export const removeTrAfterSchedule = async (
     }
   }
 
- 
+
 
   if (bulkOps && bulkOps.length) {
     await models.Schedules.bulkWrite(bulkOps);
   }
-  
+
   if (delIds.length) {
     await models.Schedules.deleteMany({
       _id: { $in: delIds },
@@ -468,6 +467,6 @@ export const removeTrAfterSchedule = async (
   if (tr.contractReaction) {
     const { _id, ...otherData } = tr.contractReaction;
     await models.Contracts.updateOne({ _id: _id }, { $set: otherData });
-    await scheduleFixAfterCurrent(tr.contractReaction,tr.payDate,models,config)
+    await scheduleFixAfterCurrent(tr.contractReaction, tr.payDate, models, config)
   }
 };

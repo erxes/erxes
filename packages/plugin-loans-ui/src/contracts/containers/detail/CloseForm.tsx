@@ -16,25 +16,18 @@ type Props = {
 
 const CloseFromContainer = (props: Props) => {
   const { contract, closeModal } = props;
-  const [closeDate, setCloseDate] = useState(new Date());
-  const [date, setDate] = useState(new Date());
+  const [closeDate, setCloseDate] = useState<Date>(new Date());
 
   const closeInfoQuery = useQuery<CloseInfoQueryResponse>(
     gql(queries.closeInfo),
     {
       variables: {
         contractId: contract._id,
-        date,
+        date: closeDate,
       },
-      fetchPolicy: 'network-only',
+      fetchPolicy: 'cache-and-network',
     },
   );
-
-  useEffect(() => {
-    closeInfoQuery.refetch({
-      closeDate,
-    });
-  }, [closeDate]);
 
   const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
     const afterSave = () => {

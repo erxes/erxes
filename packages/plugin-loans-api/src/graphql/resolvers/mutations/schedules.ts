@@ -56,6 +56,9 @@ const scheduleMutations = {
       _id: contractId,
     });
 
+    await reGenerateSchedules(models, contract, perHolidays, loansConfig);
+    await loansSchedulesChanged(contractId);
+
     if (isEnabled('syncpolaris')) {
       const schedules = await models.FirstSchedules.find({
         contractId,
@@ -73,8 +76,6 @@ const scheduleMutations = {
       }
     }
 
-    await reGenerateSchedules(models, contract, perHolidays, loansConfig);
-    await loansSchedulesChanged(contractId);
     return 'ok';
   },
   fixSchedules: async (
