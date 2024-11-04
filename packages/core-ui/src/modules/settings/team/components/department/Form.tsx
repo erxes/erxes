@@ -37,7 +37,7 @@ export default function DepartmentForm(props: Props) {
     return {
       userIds,
       supervisorId,
-      parentId: finalValues.parentId ? finalValues.parentId : null,
+      parentId: parentId,
       code: finalValues.code,
       description: finalValues.description,
       title: finalValues.title,
