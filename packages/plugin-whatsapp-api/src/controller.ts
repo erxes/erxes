@@ -75,18 +75,18 @@ const init = async (app) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
     const data = req.body;
-    console.log(data, 'datashdee');
     if (data.object !== 'whatsapp_business_account') {
       return;
     }
     for (const entry of data.entry) {
-      console.log(entry, 'asdkoasd');
+      console.log(entry, 'entry');
       // receive chat
       if (entry.changes) {
         for (const event of entry.changes) {
+          console.log(event.field, 'event.field');
           if (event.field === 'messages') {
             debugWhatsapp(
-              `Received comment data ${JSON.stringify(event.value)}`
+              `Received message data ${JSON.stringify(event.value)}`
             );
             try {
               await receiveMessage(models, subdomain, event.value);
@@ -95,7 +95,7 @@ const init = async (app) => {
               );
               return res.end('success');
             } catch (e) {
-              debugError(`Error processing comment: ${e.message}`);
+              debugError(`Error processing message: ${e.message}`);
               return res.end('success');
             }
           }

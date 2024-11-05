@@ -34,26 +34,8 @@ import {
 } from './models/Integrations';
 import { ILogModel, loadLogClass } from './models/Logs';
 import { ILogDocument } from './models/definitions/logs';
-import {
-  IPostConversationModel,
-  loadPostConversationClass
-} from './models/PostConversations';
-import { IPostConversationDocument } from './models/definitions/postConversations';
-import {
-  ICommentConversationModel,
-  loadCommentConversationClass
-} from './models/Comment_conversations';
-import {
-  ICommentConversationReplyModel,
-  loadCommentConversationReplyClass
-} from './models/Comment_conversations_reply';
 
-import { ICommentConversationDocument } from './models/definitions/comment_conversations';
-import { ICommentConversationReplyDocument } from './models/definitions/comment_conversations_reply';
 export interface IModels {
-  PostConversations: IPostConversationModel;
-  CommentConversation: ICommentConversationModel;
-  CommentConversationReply: ICommentConversationReplyModel;
   Conversations: IConversationModel;
   Customers: ICustomerModel;
   ConversationMessages: IConversationMessageModel;

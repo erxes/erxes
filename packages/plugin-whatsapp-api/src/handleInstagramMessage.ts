@@ -2,8 +2,6 @@ import * as strip from 'strip';
 
 import { IModels } from './connectionResolver';
 import { generateAttachmentMessages, sendReply } from './utils';
-import { sendInboxMessage } from './messageBroker';
-import { sendCoreMessage } from './messageBroker';
 /**
  * Handle requests from erxes api
  */
@@ -49,36 +47,29 @@ export const handleInstagramMessage = async (
     let localMessage;
     try {
       if (strippedContent) {
-        try {
-          const resp = await sendReply(
-            models,
-            `${senderId}/messages`, // Update the endpoint here
-            {
-              messaging_product: 'whatsapp',
-              to: recipientId, // Pass `recipientId` directly
-              type: 'text',
-              text: { body: strippedContent } // Set the text message content
-            },
-            integrationId
-          );
+        const resp = await sendReply(
+          models,
+          `${senderId}/messages`, // Update the endpoint here
+          {
+            messaging_product: 'whatsapp',
+            to: recipientId, // Pass `recipientId` directly
+            type: 'text',
+            text: { body: strippedContent }, // Set the text message content,
+            tag
+          },
+          integrationId
+        );
 
-          if (resp) {
-            localMessage = await models.ConversationMessages.addMessage(
-              {
-                ...doc,
-                // inbox conv id comes, so override
-                conversationId: conversation._id,
-                mid: resp.message_id
-              },
-              doc.userId
-            );
-          }
-          return { status: 'success' };
-        } catch (e) {
-          await models.ConversationMessages.deleteOne({
-            _id: localMessage && localMessage._id
-          });
-          throw new Error(e.message);
+        if (resp) {
+          localMessage = await models.ConversationMessages.addMessage(
+            {
+              ...doc,
+              // inbox conv id comes, so override
+              conversationId: conversation._id,
+              mid: resp.message_id
+            },
+            doc.userId
+          );
         }
       }
 
@@ -87,16 +78,49 @@ export const handleInstagramMessage = async (
         attachments
       )) {
         try {
-          await sendReply(
+          let mediaPayload;
+          if (message.attachment.type === 'image') {
+            mediaPayload = {
+              messaging_product: 'whatsapp',
+              recipient_type: 'individual',
+              to: recipientId,
+              type: 'image',
+              image: {
+                link: message.attachment.payload.url // Use the URL for images
+              },
+              tag
+            };
+          } else if (message.attachment.type === 'video') {
+            mediaPayload = {
+              messaging_product: 'whatsapp',
+              recipient_type: 'individual',
+              to: recipientId,
+              type: 'video',
+              video: {
+                link: message.attachment.payload.url // Use the URL for videos
+              },
+              tag
+            };
+          }
+
+          const resp = await sendReply(
             models,
-            'me/messages',
-            { recipient: { id: senderId }, message },
+            `${senderId}/messages`,
+            mediaPayload,
             integrationId
           );
+          if (resp) {
+            await models.ConversationMessages.addMessage({
+              ...doc,
+              conversationId: conversation._id,
+              mid: resp.message_id
+            });
+          }
         } catch (e) {
           throw new Error(e.message);
         }
       }
+
       return { status: 'success' };
     } catch (e) {
       throw new Error(e.message);

@@ -1,6 +1,5 @@
 import { debugError } from './debuggers';
 import { sendInboxMessage } from './messageBroker';
-import { getInstagramUser } from './utils';
 import { IModels } from './connectionResolver';
 import { wabaUserDetail } from './utils';
 import { IIntegrationDocument } from './models/Integrations';

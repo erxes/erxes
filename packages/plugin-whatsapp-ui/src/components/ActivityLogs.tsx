@@ -146,19 +146,9 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
     let item = 'message';
 
     switch (condition) {
-      case 'comment':
-        action = '';
-        kind = 'commented';
-        item = `on ${renderFullName(customer)}'s whatsapp post`;
-        break;
-      case 'whatsapp-post':
-        action = 'wrote a Whatsapp';
-        kind = 'Post';
-        item = '';
-        break;
       case 'whatsapp-messenger':
         kind = 'message';
-        item = 'by Whatsapp Messenger';
+        item = 'Whatsapp Messenger';
         break;
       default:
         break;

@@ -1,11 +1,15 @@
 import * as graph from 'fbgraph';
-
+import * as FormData from 'form-data';
 import { IModels } from './connectionResolver';
 import { debugBase, debugError, debugWhatsapp } from './debuggers';
 import { generateAttachmentUrl, getConfig } from './commonUtils';
 import { IAttachment, IAttachmentMessage } from './types';
 import { IIntegrationDocument } from './models/Integrations';
 import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
+import { Token } from 'aws-sdk';
+import fetch from 'node-fetch'; // Ensure this is imported
+import { getEnv } from '@erxes/api-utils/src/core';
+import { readFileUrl } from '@erxes/api-utils/src/commonUtils';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
@@ -127,7 +131,7 @@ export const getPageAccessToken = async (
     `${pageId}/?fields=access_token`,
     userAccessToken
   );
-  console.log(response, 'response');
+  // console.log(response, 'response');
 
   return response.access_token;
 };
@@ -186,6 +190,169 @@ export const wabaUserDetail = async (
   }
 };
 
+export const sendRequest = async (url, options) => {
+  try {
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response;
+  } catch (error) {
+    console.error('Error in sendRequest:', error);
+    throw error;
+  }
+};
+export const uploadFileFromUrl = async (
+  mediaId: string,
+  mimeType: string,
+  subdomain: string,
+  accessToken: string
+): Promise<any> => {
+  try {
+    // Retrieve media URL
+    const response = await graphRequest.get(mediaId, accessToken);
+
+    const mediaUrl = response.url;
+    console.log(response, 'response');
+
+    // Retrieve the media
+    const getMedia = await fetch(mediaUrl, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+    if (!getMedia.ok) {
+      throw new Error(
+        `Failed to fetch media: ${getMedia.status} ${getMedia.statusText}`
+      );
+    }
+
+    const buffer = Buffer.from(await getMedia.arrayBuffer());
+
+    if (!buffer) {
+      throw new Error('Failed to convert media response to buffer');
+    }
+
+    const domain = getEnv({
+      name: 'DOMAIN',
+      subdomain,
+      defaultValue: 'http://localhost:4000'
+    });
+    const uploadUrl = domain.includes('zrok')
+      ? `${domain}/pl:core/upload-file`
+      : `${domain}/gateway/pl:core/upload-file`;
+
+    // Prepare FormData
+    const formData = new FormData();
+    const fileExtension = mimeType.split('/')[1];
+
+    // Append the buffer directly
+    formData.append('file', buffer, `media.${fileExtension}`);
+
+    // Upload the media
+    const uploadResponse = await fetch(uploadUrl, {
+      method: 'POST',
+      body: formData
+    });
+
+    // Read the response body as text
+    const responseBody = await uploadResponse.text();
+
+    // Check response content type
+    const contentType = uploadResponse.headers.get('content-type');
+
+    if (contentType && contentType.includes('application/json')) {
+      const jsonData = JSON.parse(responseBody);
+      return jsonData;
+    } else {
+      return responseBody; // Return the filename as part of an object
+    }
+  } catch (error) {
+    throw new Error(
+      `Failed to retrieve WhatsApp account details: ${error.message}`
+    );
+  }
+};
+
+// export const uploadFileFromUrl = async (
+//   mediaId: string,
+//   mimeType: string,
+//   subdomain: string,
+//   accessToken: string
+// ): Promise<any> => {
+//   try {
+//     // Retrieve media URL
+//     const response = await graphRequest.get(mediaId, accessToken);
+
+//     const mediaUrl = response.url;
+//     console.log(response, 'response');
+//     // Retrieve the image
+//     const getImage = await fetch(mediaUrl, {
+//       method: 'GET',
+//       headers: {
+//         Authorization: `Bearer ${accessToken}`
+//       }
+//     });
+
+//     if (!getImage.ok) {
+//       throw new Error(
+//         `Failed to fetch image: ${getImage.status} ${getImage.statusText}`
+//       );
+//     }
+
+//     // Convert the response to a buffer
+//     const buffer = await getImage.buffer();
+//     if (!buffer) {
+//       throw new Error('Failed to convert image response to buffer');
+//     }
+//     const domain = getEnv({
+//       name: 'DOMAIN',
+//       subdomain,
+//       defaultValue: 'http://localhost:4000'
+//     });
+//     const uploadUrl = domain.includes('zrok')
+//       ? `${domain}/pl:core/upload-file`
+//       : `${domain}/gateway/pl:core/upload-file`;
+
+//     // Prepare FormData
+//     const formData = new FormData();
+//     formData.append('file', buffer, { filename: 'image.jpg' });
+//     const fileExtension =
+//       mimeType.split('/')[1] === 'jpeg' ? 'jpg' : mimeType.split('/')[1];
+
+//     formData.append('file', buffer, { filename: `media.${fileExtension}` }); // Use
+//     console.log(fileExtension, 'fileExtension');
+
+//     // Upload the image
+//     const uploadResponse = await fetch(uploadUrl, {
+//       method: 'POST',
+//       body: formData
+//     });
+
+//     // Read the response body as text
+//     const responseBody = await uploadResponse.text();
+
+//     // Check response content type
+//     const contentType = uploadResponse.headers.get('content-type');
+
+//     if (contentType && contentType.includes('application/json')) {
+//       const jsonData = JSON.parse(responseBody);
+//       return jsonData;
+//     } else {
+//       return responseBody; // Return the filename as part of an object
+//     }
+//   } catch (error) {
+//     console.error('Error during upload process:', error);
+//     throw new Error(
+//       `Failed to retrieve WhatsApp account details: ${error.message}`
+//     );
+//   }
+// };
+
 export const getBusinessWhatsAppDetails = async (
   models: IModels,
   accessToken?: string,
@@ -205,7 +372,7 @@ export const getBusinessWhatsAppDetails = async (
     // Step 2: Loop through each business to fetch WhatsApp Business Accounts
     for (const business of businessList) {
       const { id: businessId, name: businessName } = business;
-      console.log(business, 'business'); // Log the phone numbers for debugging
+      // console.log(business, 'business'); // Log the phone numbers for debugging
 
       // Fetch owned WhatsApp Business Accounts for each business
       const wabaResponse = await graphRequest.get(
@@ -241,7 +408,7 @@ export const getBusinessWhatsAppDetails = async (
 
             results.push({
               id: phone.id,
-              name: `${businessName} : ${phone.display_phone_number}`,
+              name: `${phone.display_phone_number}`,
               isUsed: integration ? true : false
             });
 
@@ -274,27 +441,6 @@ export const getPageAccessTokenFromMap = (
 ): string => {
   return (pageTokens || {})[pageId];
 };
-export const getInstagramUser = async (
-  userId: string,
-  facebookPageId: string,
-  facebookPageTokensMap?: { [key: string]: string }
-) => {
-  if (facebookPageTokensMap !== undefined) {
-    const token = await getPageAccessTokenFromMap(
-      facebookPageId,
-      facebookPageTokensMap
-    );
-    const accounInfo: any = await graphRequest.get(
-      `${userId}?fields=name,username,profile_pic`,
-      token
-    );
-    return accounInfo;
-  } else {
-    throw new Error(
-      'facebookPageTokensMap is undefined. Unable to get Instagram user.'
-    );
-  }
-};
 
 export const sendReply = async (
   models: IModels,
@@ -318,16 +464,8 @@ export const sendReply = async (
     throw new Error('Account not found');
   }
   const access_token = account.token;
-  console.log(url, 'url');
-  console.log(data, 'data');
-  console.log(access_token, 'access_token');
-  // Make the API request to send a message
 
   try {
-    // const response = await graphRequest.post(`${url}`, access_token, {
-    //   ...data // Send the data directly
-    // });
-
     const response = await graphRequest.post(url, access_token, data);
     debugWhatsapp(
       `Successfully sent data to WhatsApp: ${JSON.stringify(data)}`
@@ -335,7 +473,7 @@ export const sendReply = async (
     return response;
   } catch (e) {
     debugError(
-      `Error occurred while trying to send POST request to Facebook: ${e.message}, data: ${JSON.stringify(data)}`
+      `Error occurred while trying to send POST request to WhatsApp: ${e.message}, data: ${JSON.stringify(data)}`
     );
     throw new Error(e.message);
   }
@@ -352,6 +490,8 @@ export const generateAttachmentMessages = (
 
     if (attachment.type.startsWith('image')) {
       type = 'image';
+    } else if (attachment.type.startsWith('video')) {
+      type = 'video'; // Set type to video for video attachments
     }
 
     const url = generateAttachmentUrl(subdomain, attachment.url);

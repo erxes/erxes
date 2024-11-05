@@ -49,9 +49,6 @@ export const removeIntegration = async (
     try {
       // const pageTokenResponse = await getPageAccessToken(pageId, account.token);
 
-      await models.PostConversations.deleteMany({ recipientId: pageId });
-      await models.CommentConversation.deleteMany({ recipientId: pageId });
-
       try {
         // await unsubscribePage(pageId, pageTokenResponse);
       } catch (e) {
@@ -232,53 +229,11 @@ export const routeErrorHandling = (fn, callback?: any) => {
   };
 };
 
-export const whatsappGetCustomerPosts = async (
-  models: IModels,
-  { customerId }
-) => {
-  const customer = await models.Customers.findOne({ erxesApiId: customerId });
-
-  if (!customer) {
-    return [];
-  }
-
-  const result = await models.CommentConversation.aggregate([
-    { $match: { senderId: customer.userId } },
-    {
-      $lookup: {
-        from: 'posts_conversations_whatsapps',
-        localField: 'postId',
-        foreignField: 'postId',
-        as: 'post'
-      }
-    },
-    {
-      $unwind: {
-        path: '$post',
-        preserveNullAndEmptyArrays: true
-      }
-    },
-    {
-      $addFields: {
-        conversationId: '$post.erxesApiId'
-      }
-    },
-    {
-      $project: { _id: 0, conversationId: 1 }
-    }
-  ]);
-
-  const conversationIds = result.map((conv) => conv.conversationId);
-
-  return conversationIds;
-};
-
 export const whatsappCreateIntegration = async (
   subdomain: string,
   models: IModels,
   { accountId, integrationId, data, kind }
 ): Promise<{ status: 'success' }> => {
-  console.log(data, 'data');
   const whatsappNumberIds = JSON.parse(data).pageIds;
 
   const account = await models.Accounts.getAccount({ _id: accountId });

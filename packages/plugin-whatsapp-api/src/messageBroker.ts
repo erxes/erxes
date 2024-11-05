@@ -170,14 +170,6 @@ export const setupMessageConsumers = async () => {
   );
 };
 
-export const sendCoreMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'core',
-    ...args
-  });
-};
 export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',

@@ -95,21 +95,15 @@ export const queries = `
   whatsappGetIntegrations(kind: String): JSON
   whatsappGetIntegrationDetail(erxesApiId: String): JSON 
   whatsappGetConfigs: JSON
-  whatsappGetComments(conversationId: String!, getFirst: Boolean, ${pageParams}): [InstagramPostMessage]
-  whatsappGetCommentCount(${commentQueryParamDefs}): JSON
   whatsappGetPages(accountId: String! kind: String!): JSON
   whatsappConversationDetail(_id: String!): JSON
   whatsappConversationMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [InstagramConversationMessage]
   whatsappConversationMessagesCount(conversationId: String!): Int
-  whatsappGetPost(erxesApiId: String): InstagramPost
   whatsappHasTaggedMessages(conversationId: String!): Boolean
-  whatsappPostMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [InstagramPostMessage]
-  whatsappPostMessagesCount(conversationId: String!): Int
 `;
 
 export const mutations = `
   whatsappUpdateConfigs(configsMap: JSON!): JSON
   whatsappRepair(_id: String!): JSON
-  whatsappChangeCommentStatus(commentId: String): InstagramComment
-  whatsappReplyToComment(conversationId: String, commentId: String, content: String): InstagramComment
+
 `;

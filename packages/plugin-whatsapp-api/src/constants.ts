@@ -10,11 +10,3 @@ export const INTEGRATION_KINDS = {
   POST: 'whatsapp-post',
   ALL: ['whatsapp-post', 'whatsapp-messenger']
 };
-
-export const INSTAGRAM_POST_TYPES = [
-  'status',
-  'video',
-  'photo',
-  'post',
-  'share'
-];
