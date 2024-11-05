@@ -45,7 +45,7 @@ type Props = {
   totalCount: number;
   loading: boolean;
   removeTemplate: (id: string) => void;
-  useTemplate: (template: ITemplate) => void;
+  useTemplate: (id: string) => void;
   refetch: () => void;
 };
 
@@ -157,12 +157,12 @@ const List = (props: Props) => {
     router.setParams(navigate, location, { categoryIds: categoryId });
   };
 
-  const handleUse = (currentTemplate: ITemplate) => {
-    if (!currentTemplate) {
+  const handleUse = (id: string) => {
+    if (!id) {
       return;
     }
 
-    useTemplate(currentTemplate);
+    useTemplate(id);
   };
 
   const handleInput = ({ target }) => {
@@ -250,7 +250,7 @@ const List = (props: Props) => {
           toggleComponent={<Icon icon="ellipsis-v" />}
         >
           <li>
-            <a onClick={() => handleUse(template)}>
+            <a onClick={() => handleUse(template?._id)}>
               <Icon icon="repeat" /> Use
             </a>
           </li>

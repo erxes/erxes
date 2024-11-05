@@ -1,6 +1,11 @@
 import { Schema, HydratedDocument } from "mongoose"
 import { stringRandomId } from '@erxes/api-utils/src/mongoose-types'
 
+export interface IRelatedContent {
+    contentType: string;
+    content: string[];
+}
+
 export interface ITemplate {
     _id: string;
     name: string;
@@ -8,6 +13,7 @@ export interface ITemplate {
     contentId: string;
     contentType: string;
     content: string
+    relatedContents: IRelatedContent[];
 
     createdAt: Date;
     createdBy: string;
@@ -37,6 +43,14 @@ export type TemplateDocument = HydratedDocument<ITemplate>;
 
 export type TemplateCategoryDocument = HydratedDocument<ITemplateCategory>;
 
+export const relatedContent = new Schema(
+    {
+        contentType: { type: String, required: true },
+        content: { type: [String], required: true },
+    },
+    { _id: false }
+);
+
 export const templateSchema = new Schema<TemplateDocument>(
     {
         _id: stringRandomId,
@@ -44,6 +58,7 @@ export const templateSchema = new Schema<TemplateDocument>(
         description: { type: String },
         content: { type: String, required: true },
         contentType: { type: String, required: true },
+        relatedContents: { type: [relatedContent], default: [], optional: true },
 
         categoryIds: { type: [String], optional: true },
 
