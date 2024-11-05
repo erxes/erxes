@@ -12,6 +12,7 @@ const DIMENSION_OPTIONS = [
   { label: 'Boards', value: 'board' },
   { label: 'Pipelines', value: 'pipeline' },
   { label: 'Stages', value: 'stage' },
+  { label: 'Probability', value: 'probability' },
   { label: 'Card', value: 'card' },
   { label: 'Tags', value: 'tag' },
   { label: 'Labels', value: 'label' },
@@ -2728,6 +2729,7 @@ export const ticketCharts = [
             fieldParentVariable: 'groupId',
             fieldParentQuery: "fieldsGroups",
           fieldRequiredQueryParams: ["contentType"],
+          fieldExtraVariables: ['options', 'type'],
           fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             logics: [
               {
