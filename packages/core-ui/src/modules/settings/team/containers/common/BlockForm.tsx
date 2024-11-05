@@ -13,30 +13,48 @@ import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client';
 
 type Props = {
-  item?: any;
+  itemId?: string;
   closeModal: () => void;
   additionalRefetchQueries?: any[];
   queryType?: any;
   showMainList?: boolean;
 };
 
+const configs = {
+  branches: { query: queries.branchDetail, field: 'branchDetail' },
+  departments: { query: queries.departmentDetail, field: 'departmentDetail' },
+  units: { query: queries.unitDetail, field: 'unitDetail' },
+  positions: { query: queries.postionDetail, field: 'positionDetail' },
+};
+
 const FormContainer = ({
   queryType,
-  item,
+  itemId,
   showMainList,
   additionalRefetchQueries,
   closeModal,
 }: Props) => {
-  const { data, error, loading } = useQuery(gql(queries[queryType]), {
-    fetchPolicy: 'network-only',
-  });
+  let item;
 
-  if (loading) {
-    return <Spinner />;
-  }
+  if (itemId) {
+    const { query, field } = configs[queryType];
+    const {
+      data = {},
+      error,
+      loading,
+    } = useQuery(gql(query), {
+      variables: { _id: itemId },
+      fetchPolicy: 'network-only',
+    });
 
-  if (error) {
-    return <ErrorMsg>{error.message}</ErrorMsg>;
+    if (loading) {
+      return <Spinner />;
+    }
+
+    if (error) {
+      return <ErrorMsg>{error.message}</ErrorMsg>;
+    }
+    item = data[field] || {};
   }
 
   const renderButton = ({
@@ -77,10 +95,6 @@ const FormContainer = ({
     );
   };
 
-  const items = item
-    ? data[queryType].filter((d) => d._id !== item._id)
-    : data[queryType];
-
   if (queryType === 'units') {
     return (
       <UnitForm
@@ -95,7 +109,7 @@ const FormContainer = ({
     return (
       <DepartmentForm
         item={item}
-        items={items}
+        // items={items}
         closeModal={closeModal}
         renderButton={renderButton}
       />
@@ -106,7 +120,7 @@ const FormContainer = ({
     return (
       <BranchForm
         item={item}
-        items={items}
+        // items={items}
         closeModal={closeModal}
         renderButton={renderButton}
       />
@@ -117,7 +131,7 @@ const FormContainer = ({
     return (
       <PositionForm
         item={item}
-        items={items}
+        // items={items}
         closeModal={closeModal}
         renderButton={renderButton}
       />

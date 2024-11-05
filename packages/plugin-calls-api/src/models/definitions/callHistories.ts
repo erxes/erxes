@@ -9,7 +9,7 @@ export interface ICallHistory {
   callEndTime: Date;
   callType: string;
   callStatus: string;
-  timeStamp: number;
+  timeStamp: number | string;
   modifiedAt: Date;
   createdAt: Date;
   createdBy: string;

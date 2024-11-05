@@ -3,8 +3,7 @@ import { gql, useQuery } from "@apollo/client";
 
 import ChartFormField from "../../components/chart/ChartFormField";
 import { IFieldLogic } from "../../types";
-import { compareValues, generateOptions, getVariables } from "../../utils";
-import { queries } from "../../graphql";
+import { compareValues, generateOptions, generateQuery, getVariables } from "../../utils";
 
 export type IFilterType = {
   fieldName: string;
@@ -49,10 +48,12 @@ const ChartFormFieldContainer = (props: FinalProps) => {
   const [data, setData] = useState([])
   const [options, setOptions] = useState(fieldOptions || [])
 
-  if (!fieldOptions?.length && fieldQuery && queries[`${fieldQuery}`]) {
+  const query = generateQuery(fieldQuery, filterType, fieldValues)
+
+  if (!fieldOptions?.length && query) {
     const variables = getVariables(fieldValues, filterType)
 
-    const { data: queryData, loading } = useQuery(gql(queries[`${fieldQuery}`]), {
+    const { data: queryData, loading } = useQuery(gql(query), {
       skip: !!fieldOptions,
       variables: variables
     });
@@ -163,9 +164,12 @@ const ChartFormFieldWrapper = (props: Props) => {
 
   const [parentData, setParentData] = useState([])
 
-  if (fieldParentQuery && queries[`${fieldParentQuery}`]) {
-    const { data: queryData, loading } = useQuery(gql(queries[`${fieldParentQuery}`]), {
-      variables: fieldQueryVariables ? JSON.parse(fieldQueryVariables) : {},
+  const query = generateQuery(fieldParentQuery, filterType)
+
+  if (fieldParentQuery && query) {
+
+    const { data: queryData, loading } = useQuery(gql(query), {
+      variables: fieldQueryVariables ? JSON.parse(fieldQueryVariables) : {}
     });
 
     useEffect(() => {

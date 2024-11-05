@@ -1,6 +1,5 @@
 import { Config, IUser, Store } from "../../types";
-import { gql, useQuery } from "@apollo/client";
-
+import { gql, useQuery, WatchQueryFetchPolicy } from "@apollo/client";
 import { AppConsumer } from "../../appContext";
 import List from "../components/List";
 import React from "react";
@@ -10,83 +9,75 @@ import { queries } from "../graphql";
 type Props = {
   currentUser: IUser;
   config: Config;
-  type: string;
+  type: "task" | "ticket" | "deal" | "purchase";
 };
 
 function ListContainer({ currentUser, type, config, ...props }: Props) {
-  const { loading: loadingStages, data: stages = {} as any } = useQuery(
-    gql(queries.stages),
+  const pipelineId = config[`${type}PipelineId`];
+  const customerId = currentUser?.erxesCustomerId ? [currentUser.erxesCustomerId] : [];
+
+  const fetchPolicy: WatchQueryFetchPolicy = "network-only";
+
+  const queryConfig = {
+    skip: !pipelineId,
+    fetchPolicy,
+    context: { headers: { "erxes-app-token": config?.erxesAppToken } },
+  };
+
+  const getQuery = (key: keyof typeof queries) => gql(queries[key]);
+
+  const { loading: loadingStages, data: stagesData = {} } = useQuery(
+    getQuery(`${type}Stages` as keyof typeof queries),
     {
-      skip: !config[`${type}PipelineId` || ""],
-      fetchPolicy: "network-only",
-      variables: {
-        pipelineId: config[`${type}PipelineId` || ""],
-        customerIds: currentUser &&
-          currentUser.erxesCustomerId && [`${currentUser.erxesCustomerId}`],
-      },
-      context: {
-        headers: {
-          "erxes-app-token": config?.erxesAppToken,
-        },
-      },
+      ...queryConfig,
+      variables: { pipelineId, customerIds: customerId },
     }
   );
 
-  const { loading: loadingLable, data: pipeLinelabels = {} as any } = useQuery(
-    gql(queries.pipelineLabels),
+  const { loading: loadingLabels, data: labels = {} } = useQuery(
+    getQuery(`${type}PipelineLabels` as keyof typeof queries),
     {
-      skip: !config[`${type}PipelineId` || ""],
-      fetchPolicy: "network-only",
-      variables: { pipelineId: config[`${type}PipelineId` || ""] },
-      context: {
-        headers: {
-          "erxes-app-token": config?.erxesAppToken,
-        },
-      },
+      ...queryConfig,
+      variables: { pipelineId },
     }
   );
 
-  const {
-    loading: loadingAssignedUsers,
-    data: pipelineAssignedUsers = {} as any,
-  } = useQuery(gql(queries.pipelineAssignedUsers), {
-    skip: !config[`${type}PipelineId` || ""],
-    fetchPolicy: "network-only",
-    variables: { _id: config[`${type}PipelineId` || ""] },
-    context: {
-      headers: {
-        "erxes-app-token": config?.erxesAppToken,
-      },
-    },
-  });
+  const { loading: loadingAssignedUsers, data: assignedUsers = {} } = useQuery(
+    getQuery(`${type}PipelineAssignedUsers` as keyof typeof queries),
+    {
+      ...queryConfig,
+      variables: {_id: pipelineId },
+    }
+  );
 
-  if (loadingStages || loadingLable || loadingAssignedUsers) {
+  if (loadingStages || loadingLabels || loadingAssignedUsers) {
     return <Spinner objective={true} />;
   }
+
+ 
+  const stages = stagesData && stagesData[`${type}sStages`] || [];
+  const pipeLinelabels = labels[`${type}sPipelineLabels`] || [];
+  const pipelineAssignedUsers = assignedUsers[`${type}sPipelineAssignedUsers`] || [];
 
   const updatedProps = {
     ...props,
     type,
     config,
     currentUser,
-    stages: stages?.stages || [],
+    stages,
     pipeLinelabels,
-    pipelineAssignedUsers,
+    pipelineAssignedUsers
   };
 
   return <List {...updatedProps} />;
 }
 
-const WithConsumer = (props) => {
-  return (
-    <AppConsumer>
-      {({ currentUser, config }: Store) => {
-        return (
-          <ListContainer {...props} config={config} currentUser={currentUser} />
-        );
-      }}
-    </AppConsumer>
-  );
-};
+const WithConsumer = (props) => (
+  <AppConsumer>
+    {({ currentUser, config }: Store) => (
+      <ListContainer {...props} config={config} currentUser={currentUser} />
+    )}
+  </AppConsumer>
+);
 
 export default WithConsumer;

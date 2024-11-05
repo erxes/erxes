@@ -36,6 +36,7 @@ export const clientPortalGetConfig = `
       googleClientId
       facebookAppId
       erxesAppToken
+      language
 
       styles {
         bodyColor

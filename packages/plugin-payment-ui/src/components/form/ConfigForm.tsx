@@ -30,7 +30,7 @@ const ConfigForm: React.FC<Props> = ({
   payment,
   metaData,
 }) => {
-  const { name = '', config } = payment || ({} as IPaymentDocument);
+  const { name = '', config = {} } = payment || ({} as IPaymentDocument);
   if (payment) {
     metaData = PAYMENTCONFIGS.find((p) => p.kind === payment.kind);
   }
@@ -57,7 +57,7 @@ const ConfigForm: React.FC<Props> = ({
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     if (code === 'paymentName') {
-      setState((prevState) => ({
+      return setState((prevState) => ({
         ...prevState,
         paymentName: e.target.value,
       }));
@@ -78,9 +78,12 @@ const ConfigForm: React.FC<Props> = ({
     type?: string,
     description?: string
   ) => {
-    let value = state.configMap[key];
+    let value;
+
     if (key === 'paymentName') {
       value = state[key as keyof State];
+    }else{
+      value = state.configMap[key];
     }
     return (
       <FormGroup key={key}>

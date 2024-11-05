@@ -8,7 +8,7 @@ export const updateSaving = async (subdomain: string, models, polarisConfig, syn
     subdomain,
     "savings:contract",
     savingContract,
-    polarisConfig.saving && polarisConfig.saving[savingContract.contractTypeId || ''] || {}
+    (polarisConfig.saving && polarisConfig.saving[savingContract.contractTypeId || ''] || {}).values || {}
   )
 
   let sendData = {

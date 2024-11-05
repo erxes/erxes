@@ -61,8 +61,6 @@ class ClientPortalParticipantForm extends React.Component<Props, State> {
       offeredAmount: this.props.participant?.offeredAmount || 0,
       hasVat: this.props.participant?.hasVat || false,
     };
-    console.log("logs all");
-    console.log(this.props.participant);
   }
 
   generateDoc = (values: { _id: string } & IClientPortalParticipant) => {
@@ -179,7 +177,6 @@ class ClientPortalParticipantForm extends React.Component<Props, State> {
               componentclass="checkbox"
               defaultChecked={this.props.participant?.hasVat || false}
               onChange={(e: any) => {
-                console.log(e.target.checked);
                 this.setState({ hasVat: e.target.checked });
               }}
             />

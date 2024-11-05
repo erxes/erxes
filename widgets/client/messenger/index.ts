@@ -7,9 +7,10 @@ import { connection } from './connection';
 import graphqTypes from './graphql';
 import { IConnectResponse } from './types';
 import asyncComponent from '../AsyncComponent';
-import { enabledServicesQuery } from '../form/graphql';
+import {enabledServicesQuery} from '../form/graphql';
+import { EnabledServices } from '../form/types';
 
-const App = asyncComponent(() =>
+const App = asyncComponent(() => 
   import( /* webpackChunkName: "MessengerApp" */'./containers/App')
 )
 

@@ -18,6 +18,7 @@ const commonFields = `
   $description:String,
   $currency:String,
   $branchId:String,
+  $productType: String
 `;
 
 const commonVariables = `
@@ -37,7 +38,8 @@ const commonVariables = `
   description:$description,
   currency:$currency,
   branchId:$branchId,
-  isDeposit:$isDeposit
+  isDeposit:$isDeposit,
+  productType: $productType
 `;
 
 const contractTypesAdd = `
