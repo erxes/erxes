@@ -72,7 +72,7 @@ const Contracts = {
     if (contract.customerType !== "company") {
       return null;
     }
-    
+
     return await sendMessageBroker(
       {
         subdomain,
@@ -218,6 +218,10 @@ const Contracts = {
       isDefault: true
     }).sort({ payDate: 1 });
 
+    if (!expiredSchedule?.payDate) {
+      return 0;
+    }
+
     const paymentDate = getFullDate(expiredSchedule?.payDate as Date);
     const days = Math.ceil(
       (today.getTime() - paymentDate.getTime()) / (1000 * 3600 * 24)
@@ -273,7 +277,7 @@ const Contracts = {
     );
   },
 
-  async nextPaymentDate(contract: IContractDocument, {}, { models }: IContext) {
+  async nextPaymentDate(contract: IContractDocument, { }, { models }: IContext) {
     const today = getFullDate(new Date());
 
     const nextSchedule = await models.Schedules.findOne({
@@ -289,7 +293,7 @@ const Contracts = {
 
   async loanTransactionHistory(
     contract: IContractDocument,
-    {},
+    { },
     { models }: IContext
   ) {
     const transactions = await models.Transactions.find({
@@ -302,7 +306,7 @@ const Contracts = {
     return transactions;
   },
 
-  async storeInterest(contract: IContractDocument, {}, { models }: IContext) {
+  async storeInterest(contract: IContractDocument, { }, { models }: IContext) {
     const storedInterests = await models.StoredInterest.find({
       contractId: contract._id
     })
@@ -313,7 +317,7 @@ const Contracts = {
     return storedInterests;
   },
 
-  async invoices(contract: IContractDocument, {}, { models }: IContext) {
+  async invoices(contract: IContractDocument, { }, { models }: IContext) {
     const invoices = await models.Invoices.find({
       contractId: contract._id
     })

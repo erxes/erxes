@@ -193,6 +193,8 @@ export const getCalcedAmounts = async (
     fixed: config.calculationFixed
   });
 
+  result.total = result.calcInterest + result.balance;
+
   return result;
 };
 
