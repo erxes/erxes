@@ -12,6 +12,12 @@ import React from "react";
 import { __ } from "modules/common/utils";
 import apolloClient from "@erxes/ui/src/apolloClient";
 import { createRoot } from "react-dom/client";
+import {
+  Base,
+  Plugin,
+  PluginConfig,
+} from "modules/layout/components/navigation/types";
+import { IProductCategory } from "@erxes/ui-products/src/types";
 
 const PLUGIN_LABEL_COLORS: string[] = [
   "",
@@ -32,7 +38,7 @@ const PLUGIN_LABEL_COLORS: string[] = [
 ];
 
 class CustomComponent extends React.Component<
-  { scope: string; component: any; isTopNav?: boolean },
+  { scope: string; component: string; isTopNav?: boolean },
   { showComponent: boolean }
 > {
   constructor(props) {
@@ -82,18 +88,23 @@ const PluginsWrapper = ({
   plugins,
 }: {
   itemName: string;
-  callBack: (plugin: any, item: any) => React.ReactNode;
-  plugins: any;
+  callBack: (plugin: PluginConfig, item: any) => React.ReactNode;
+  plugins: PluginConfig[];
 }) => {
-  return (plugins || []).map((plugin) => {
-    const item = plugin[itemName];
 
-    if (!item) {
-      return undefined;
-    }
+  return (
+    <React.Fragment>
+      {(plugins || []).map((plugin) => {
+        const item = plugin[itemName];
 
-    return callBack(plugin, item);
-  });
+        if (!item) {
+          return undefined;
+        }
+
+        return callBack(plugin, item);
+      })}
+    </React.Fragment>
+  );
 };
 
 const useDynamicScript = (args) => {
@@ -233,7 +244,23 @@ const SystemWithApolloProvider = (props) => {
   );
 };
 
-class SettingsCustomBox extends React.Component<any, any> {
+class SettingsCustomBox extends React.Component<
+  {
+    settingsNav: Plugin;
+    color?: string;
+    hasComponent: boolean;
+    renderBox: (
+      name: string,
+      image: string,
+      to: string,
+      action: string,
+      permissions?: string[],
+      type?: string,
+      color?: string
+    ) => React.ReactNode;
+  },
+  { showComponent: boolean }
+> {
   constructor(props) {
     super(props);
 
@@ -265,9 +292,9 @@ class SettingsCustomBox extends React.Component<any, any> {
 
     const box = renderBox(
       settingsNav.text,
-      settingsNav.image,
-      settingsNav.to,
-      settingsNav.action,
+      settingsNav.image || '',
+      settingsNav.to || '',
+      settingsNav.action || '',
       settingsNav.permissions,
       settingsNav.scope,
       color
@@ -293,11 +320,12 @@ export const pluginsSettingsNavigations = (
     to: string,
     action: string,
     permissions?: string[],
-    type?: string
+    type?: string,
+    color?: string
   ) => React.ReactNode
 ) => {
-  const plugins: any[] = (window as any).plugins || [];
-  const navigationMenus: any[] = [];
+  const plugins: PluginConfig[] = (window as any).plugins || [];
+  const navigationMenus: React.ReactNode[] = [];
 
   for (let i = 0; i < plugins.length; i++) {
     if (i >= PLUGIN_LABEL_COLORS.length) {
@@ -328,8 +356,8 @@ export const pluginsSettingsNavigations = (
 };
 
 export const pluginsOfTopNavigations = () => {
-  const plugins: any[] = (window as any).plugins || [];
-  const topNavigationMenus: any[] = [];
+  const plugins: PluginConfig[] = (window as any).plugins || [];
+  const topNavigationMenus: React.ReactNode[] = [];
 
   for (const plugin of plugins) {
     for (const menu of plugin.menus || []) {
@@ -337,8 +365,8 @@ export const pluginsOfTopNavigations = () => {
         topNavigationMenus.push(
           <React.Fragment key={menu.text}>
             <CustomComponent
-              scope={menu.scope}
-              component={menu.component}
+              scope={menu.scope || ""}
+              component={menu.component || ""}
               isTopNav={true}
             />
           </React.Fragment>
@@ -351,8 +379,8 @@ export const pluginsOfTopNavigations = () => {
 };
 
 export const pluginLayouts = (currentUser: IUser) => {
-  const plugins: any[] = (window as any).plugins || [];
-  const layouts: any[] = [];
+  const plugins: PluginConfig[] = (window as any).plugins || [];
+  const layouts: React.ReactNode[] = [];
 
   for (const plugin of plugins) {
     if (plugin.layout) {
@@ -372,7 +400,7 @@ export const pluginLayouts = (currentUser: IUser) => {
 };
 
 export const pluginsInnerWidgets = () => {
-  const plugins: any[] = (window as any).plugins || [];
+  const plugins: PluginConfig[] = (window as any).plugins || [];
   const rootDiv = document.getElementById("root");
   const newDiv = document.createElement("div");
   newDiv.style.cssText =
@@ -406,8 +434,8 @@ export const pluginsInnerWidgets = () => {
 };
 
 export const pluginRouters = () => {
-  const plugins: any[] = (window as any).plugins || [];
-  const pluginRoutes: any[] = [];
+  const plugins: PluginConfig[] = (window as any).plugins || [];
+  const pluginRoutes: React.ReactNode[] = [];
 
   for (const plugin of plugins) {
     if (plugin.routes) {
@@ -428,11 +456,11 @@ export const pluginRouters = () => {
 export const pluginsOfPaymentForm = (
   renderPaymentsByType: (type) => JSX.Element
 ) => {
-  const plugins: any[] = (window as any).plugins || [];
+  const plugins: PluginConfig[] = (window as any).plugins || [];
 
   return (
     <PluginsWrapper
-      itemName={"payments"}
+      itemName={"payment"}
       plugins={plugins}
       callBack={(_plugin, payments) => {
         const paymentsTypes: JSX.Element[] = [];
@@ -449,8 +477,8 @@ export const pluginsOfPaymentForm = (
   );
 };
 
-export const pluginsOfProductCategoryActions = (category: any) => {
-  const plugins: any[] = (window as any).plugins || [];
+export const pluginsOfProductCategoryActions = (category: IProductCategory) => {
+  const plugins: PluginConfig[] = (window as any).plugins || [];
 
   return (
     <PluginsWrapper
@@ -470,14 +498,17 @@ export const pluginsOfProductCategoryActions = (category: any) => {
 };
 
 export const customNavigationLabel = () => {
-  const plugins: any[] = (window as any).plugins || [];
-  const customLabels: any[] = [];
+  const plugins: PluginConfig[] = (window as any).plugins || [];
+  const customLabels: React.ReactNode[] = [];
 
   for (const plugin of plugins) {
-    for (const lbl of plugin.customNavigationLabel || []) {
+    const customNavigationLabel =
+      plugin.customNavigationLabel || ([] as Base[]);
+
+    for (const lbl of customNavigationLabel) {
       customLabels.push(
         <React.Fragment key={lbl.text}>
-          <CustomComponent scope={lbl.scope} component={lbl.component} />
+          <CustomComponent scope={lbl.scope} component={lbl.component || ""} />
         </React.Fragment>
       );
     }
@@ -487,13 +518,14 @@ export const customNavigationLabel = () => {
 };
 
 export const pluginsOfJobCategoryActions = (productCategoryId: string) => {
-  const plugins: any[] = (window as any).plugins || [];
+  const plugins: PluginConfig[] = (window as any).plugins || [];
 
   return (
     <PluginsWrapper
       plugins={plugins}
       itemName={"jobCategoryActions"}
       callBack={(_plugin, actions) => {
+        console.log("actions", actions);
         return actions.map((action) => {
           const Component = React.lazy(
             loadComponent(action.scope, action.component)

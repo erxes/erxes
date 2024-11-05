@@ -5,7 +5,10 @@ import { IField } from "@erxes/ui/src/types";
 import { PRODUCT_INFO } from "@erxes/ui-products/src/constants";
 import { __ } from "@erxes/ui/src/utils";
 
-const generateFields = (infos: any[], type: string) => {
+const generateFields = (
+  infos: { field: string; label: string }[],
+  type: string
+) => {
   const fields: IField[] = [];
 
   infos.forEach((info, index) => {
@@ -20,14 +23,17 @@ const generateFields = (infos: any[], type: string) => {
       options: [],
       groupId: `basicInfosGroup${type}`,
       description: info.label,
-      isDefinedByErxes: true
+      isDefinedByErxes: true,
     });
   });
 
   return fields;
 };
 
-const generateGroup = (infos: any[], type: string) => {
+const generateGroup = (
+  infos: { field: string; label: string }[],
+  type: string
+) => {
   return {
     _id: `basicInfosGroup${type}`,
     name: __("Basic information"),
@@ -41,12 +47,12 @@ const generateGroup = (infos: any[], type: string) => {
       username: "system",
       email: "system@erxes.io",
       details: {
-        fullName: "SYSTEM"
-      }
+        fullName: "SYSTEM",
+      },
     },
     lastUpdatedUserId: "123",
     isDefinedByErxes: true,
-    fields: generateFields(infos, type)
+    fields: generateFields(infos, type),
   };
 };
 

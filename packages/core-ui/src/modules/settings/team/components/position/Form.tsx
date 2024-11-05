@@ -3,10 +3,9 @@ import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import React, { useState } from "react";
 
 import Button from "@erxes/ui/src/components/Button";
-import ContactInfoForm from "../common/ContactInfoForm";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import Form from "@erxes/ui/src/components/form/Form";
-import { IBranch } from "@erxes/ui/src/team/types";
+import { IBranch, ICoordinate } from "@erxes/ui/src/team/types";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import { __ } from "modules/common/utils";
@@ -26,16 +25,8 @@ export default function BranchForm(props: Props) {
     (object.users || []).map((user) => user._id),
   );
   const [parentId, setParentId] = useState(object.parentId || null);
-  const [links, setLinks] = useState(object.links || {});
-  const [image, setImage] = useState(object.image || null);
-  const [supervisorId, setSupervisorId] = useState(object.supervisorId);
 
-  const coordinateObj = object.coordinate || {};
-
-  const [coordinate, setCoordinate] = useState({
-    longitude: coordinateObj.longitude || "",
-    latitude: coordinateObj.latitude || "",
-  });
+  const coordinateObj = object.coordinate || ({} as ICoordinate);
 
   const generateDoc = (values) => {
     const finalValues = values;
@@ -47,16 +38,19 @@ export default function BranchForm(props: Props) {
     return {
       userIds,
       parentId,
-      links,
-      coordinate,
-      supervisorId,
-      image,
+      links: object.links,
+      coordinate: {
+        longitude: coordinateObj.longitude || "",
+        latitude: coordinateObj.latitude || "",
+      },
+      supervisorId: object.supervisorId,
+      image: object.image,
       ...finalValues,
       radius: Number(finalValues.radius),
     };
   };
 
-  const onChangeParent = (value: any) => {
+  const onChangeParent = (value: string) => {
     if (value) {
       setParentId(value);
     } else {
@@ -64,12 +58,12 @@ export default function BranchForm(props: Props) {
     }
   };
 
-  const onSelectTeamMembers = (ids: any) => {
-    setUserIds(ids);
-  };
-
-  const onSelectSupervisor = (value) => {
-    setSupervisorId(value);
+  const onSelectTeamMembers = (ids: string[] | string) => {
+    if (Array.isArray(ids)) {
+      setUserIds(ids);
+    } else {
+      setUserIds([ids]);
+    }
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -112,7 +106,7 @@ export default function BranchForm(props: Props) {
             name="parentId"
             componentclass="select"
             defaultValue={parentId || null}
-            onChange={onChangeParent}
+            onChange={(e) => onChangeParent}
           >
             <option value="" />
             {generateOptions()}

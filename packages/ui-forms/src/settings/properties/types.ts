@@ -113,6 +113,10 @@ export type DefaultColumnsConfigQueryResponse = {
   fieldsDefaultColumnsConfig: IConfigColumn[];
 } & QueryResponse;
 
+export type FieldsGetTypesQueryResponse = {
+  fieldsGetTypes: {description: string, contentType: string}[];
+} & QueryResponse;
+
 export interface IConfigColumn {
   _id: string;
   name: string;

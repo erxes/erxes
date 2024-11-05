@@ -2,15 +2,16 @@ import * as compose from "lodash.flowright";
 
 import { ITag, TagsQueryResponse } from "@erxes/ui-tags/src/types";
 
-import { CountQueryResponse } from "@erxes/ui-contacts/src/customers/types";
-import CountsByTag from "@erxes/ui/src/components/CountsByTag";
-import React from "react";
-import { TAG_TYPES } from "@erxes/ui-tags/src/constants";
-import { queries as customerQueries } from "@erxes/ui-contacts/src/customers/graphql";
-import { gql } from "@apollo/client";
-import { graphql } from "@apollo/client/react/hoc";
-import { queries as tagQueries } from "@erxes/ui-tags/src/graphql";
-import { withProps } from "@erxes/ui/src/utils";
+import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
+import CountsByTag from '@erxes/ui/src/components/CountsByTag';
+import React from 'react';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
+import { withProps } from '@erxes/ui/src/utils';
+import { IAbortController } from '@erxes/ui/src/types';
 
 const TagFilterContainer = (props: {
   customersCountQuery?: CountQueryResponse;
@@ -41,7 +42,7 @@ const TagFilterContainer = (props: {
 };
 
 type WrapperProps = {
-  abortController?: any;
+  abortController?: IAbortController;
   type: string;
   loadingMainQuery: boolean;
 };

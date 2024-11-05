@@ -3,7 +3,12 @@ import {
   FilterWrapper,
   NotWrappable,
 } from "@erxes/ui-settings/src/permissions/styles";
-import { IActions, IModule, IPermissionDocument } from "../types";
+import {
+  IActions,
+  IModule,
+  IPermissionDocument,
+  PermissionsFixMutationResponse,
+} from "../types";
 import { __, router } from "modules/common/utils";
 import {
   correctValue,
@@ -35,7 +40,7 @@ type Props = {
   isLoading: boolean;
   totalCount: number;
   currentGroupName?: string;
-  fixPermissions: any;
+  fixPermissions: PermissionsFixMutationResponse;
 } & commonProps;
 
 type commonProps = {

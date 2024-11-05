@@ -8,7 +8,7 @@ import { IFormProps } from 'modules/common/types';
 import React from 'react';
 
 type Props = {
-  onSuccess: (password: string, values: any[]) => void;
+  onSuccess: (password: string, values: {[key: string]: string}[]) => void;
   closeModal: () => void;
   formProps: IFormProps;
 };

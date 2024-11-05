@@ -1,22 +1,21 @@
-import { mutations, queries } from '@erxes/ui/src/team/graphql';
+import { mutations, queries } from "@erxes/ui/src/team/graphql";
 
-import BranchForm from '../../components/branch/Form';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import DepartmentForm from '../../components/department/Form';
-import PositionForm from '../../components/position/Form';
-import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import UnitForm from '../../containers/unit/Form';
-import { gql } from '@apollo/client';
-import { useQuery } from '@apollo/client';
+import BranchForm from "../../components/branch/Form";
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import DepartmentForm from "../../components/department/Form";
+import PositionForm from "../../components/position/Form";
+import ErrorMsg from "@erxes/ui/src/components/ErrorMsg";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import UnitForm from "../../containers/unit/Form";
+import { gql } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 
 type Props = {
   itemId?: string;
   closeModal: () => void;
-  additionalRefetchQueries?: any[];
-  queryType?: any;
+  queryType?: string;
   showMainList?: boolean;
 };
 
@@ -31,7 +30,6 @@ const FormContainer = ({
   queryType,
   itemId,
   showMainList,
-  additionalRefetchQueries,
   closeModal,
 }: Props) => {
   let item;
@@ -65,7 +63,7 @@ const FormContainer = ({
     callback,
   }: IButtonMutateProps) => {
     const qType =
-      queryType === 'units' && showMainList ? 'unitsMain' : queryType;
+      queryType === "units" && showMainList ? "unitsMain" : queryType;
 
     return (
       <ButtonMutate
@@ -76,20 +74,19 @@ const FormContainer = ({
         }
         refetchQueries={[
           {
-            query: gql(queries[qType]),
+            query: gql(queries[qType || ""]),
             variables: {
               withoutUserFilter: true,
               searchValue: undefined,
             },
           },
-          ...(additionalRefetchQueries || []),
         ]}
         variables={values}
         isSubmitted={isSubmitted}
         type="submit"
         callback={callback}
         successMessage={`You successfully ${
-          object._id ? 'updated' : 'added'
+          object._id ? "updated" : "added"
         } a ${name}`}
       />
     );
@@ -105,7 +102,7 @@ const FormContainer = ({
     );
   }
 
-  if (queryType === 'departments') {
+  if (queryType === "departments") {
     return (
       <DepartmentForm
         item={item}
@@ -116,7 +113,7 @@ const FormContainer = ({
     );
   }
 
-  if (queryType === 'branches') {
+  if (queryType === "branches") {
     return (
       <BranchForm
         item={item}
@@ -127,7 +124,7 @@ const FormContainer = ({
     );
   }
 
-  if (queryType === 'positions') {
+  if (queryType === "positions") {
     return (
       <PositionForm
         item={item}

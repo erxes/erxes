@@ -1,7 +1,7 @@
 import { IBrand as IBrandC } from '@erxes/ui/src/brands/types';
 import { MutationVariables } from '@erxes/ui/src/types';
 
-export type IBrand = IBrandC & { emailConfig: any };
+export type IBrand = IBrandC & { emailConfig: JSON };
 
 export interface IChooseBrand {
   _id?: string;

@@ -6,6 +6,7 @@ import {
   IUserLinks as IUserLinksC
 } from '@erxes/ui/src/auth/types';
 import { IDepartment } from '@erxes/ui/src/team/types';
+import { ICustomField } from '@erxes/api-utils/src/types';
 
 export type IUser = IUserC & {
   isSubscribed?: boolean;
@@ -13,9 +14,7 @@ export type IUser = IUserC & {
 } & {
   isShowNotification?: boolean;
 } & {
-  customFieldsData?: {
-    [key: string]: any;
-  };
+  customFieldsData?: ICustomField;
 };
 export type IUserDetails = IUserDetailsC;
 export type IUserLinks = IUserLinksC;
@@ -39,7 +38,7 @@ export type ForgotPasswordMutationVariables = {
 export type ForgotPasswordMutationResponse = {
   forgotPasswordMutation: (params: {
     variables: ForgotPasswordMutationVariables;
-  }) => Promise<any>;
+  }) => Promise<string>;
 };
 
 export type ResetPasswordMutationVariables = {
@@ -50,7 +49,7 @@ export type ResetPasswordMutationVariables = {
 export type ResetPasswordMutationResponse = {
   resetPasswordMutation: (params: {
     variables: ResetPasswordMutationVariables;
-  }) => Promise<any>;
+  }) => Promise<JSON>;
 };
 
 export type LoginMutationVariables = {
@@ -61,7 +60,7 @@ export type LoginMutationVariables = {
 export type LoginMutationResponse = {
   loginMutation: (params: {
     variables: LoginMutationVariables;
-  }) => Promise<any>;
+  }) => Promise<String>;
 };
 
 export type CurrentUserQueryResponse = {
@@ -70,5 +69,5 @@ export type CurrentUserQueryResponse = {
 };
 
 export type CreateOwnerMutationResponse = {
-  createOwnerMutation: (params: { variables: IOwner }) => Promise<any>;
+  createOwnerMutation: (params: { variables: IOwner }) => Promise<String>;
 };

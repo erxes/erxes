@@ -7,7 +7,7 @@ import React from "react";
 
 type Props = {
   closeModal: () => void;
-  fixPermissions: () => Promise<any>;
+  fixPermissions: () => Promise<string[]>;
 };
 
 type State = {

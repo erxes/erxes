@@ -13,6 +13,7 @@ import { graphql } from '@apollo/client/react/hoc';
 import { queries as integrationQuery } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 import { queries } from '@erxes/ui-contacts/src/customers/graphql';
 import { withProps } from '@erxes/ui/src/utils';
+import { IAbortController } from '@erxes/ui/src/types';
 
 type Props = {
   integrationsQuery?: IntegrationsQueryResponse;
@@ -85,7 +86,7 @@ function LeadFilterContainer(props: Props) {
 }
 
 type WrapperProps = {
-  abortController?: any;
+  abortController?: IAbortController;
   type: string;
   loadingMainQuery: boolean;
   queryParams?: any;

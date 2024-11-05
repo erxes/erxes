@@ -904,6 +904,7 @@ export {
   FormWrapper,
   ControlRange,
   DateRangeWrapper,
+<<<<<<< HEAD:packages/core-ui/src/modules/insights/styles.ts
   Divider,
   ChartTable,
   PivotTable,
@@ -914,3 +915,7 @@ export {
   OptionLabel,
   Checkbox
 };
+=======
+  Divider
+};
+>>>>>>> b393823fa91928d02b264c62b8348a90294ef732:packages/plugin-insight-ui/src/styles.ts

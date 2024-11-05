@@ -1,3 +1,4 @@
+import { IUser } from '@erxes/ui/src/auth/types';
 import { IUserDoc } from '../../auth/types';
 
 export type ChangePasswordMutationVariables = {
@@ -8,9 +9,9 @@ export type ChangePasswordMutationVariables = {
 export type ChangePasswordMutationResponse = {
   changePasswordMutation: (params: {
     variables: ChangePasswordMutationVariables;
-  }) => Promise<any>;
+  }) => Promise<IUser>;
 };
 
 export type EditProfileMutationResponse = {
-  usersEditProfile: (params: { variables: IUserDoc }) => Promise<any>;
+  usersEditProfile: (params: { variables: IUserDoc }) => Promise<IUser>;
 };

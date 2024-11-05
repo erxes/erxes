@@ -44,14 +44,6 @@ export const Avatar = styled.img`
   margin-right: 5px;
 `;
 
-const SelectWrapper = styled.div`
-  position: relative;
-
-  .Select-clear-zone {
-    visibility: hidden;
-  }
-`;
-
 const ClearButton = styled.div`
   position: absolute;
   right: 18px;

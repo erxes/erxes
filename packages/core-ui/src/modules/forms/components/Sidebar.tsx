@@ -9,7 +9,7 @@ import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeade
 
 type Props = {
   currentType: string;
-  services: string[];
+  services: {description: string, contentType: string}[];
 };
 
 class Sidebar extends React.Component<Props> {

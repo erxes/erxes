@@ -11,14 +11,14 @@ import {
 import Icon from "@erxes/ui/src/components/Icon";
 import Tip from "@erxes/ui/src/components/Tip";
 import TaggedLog from "./containers/TaggedLog";
+import { IActivityLog } from "@erxes/ui-log/src/activityLogs/types";
 
 type Props = {
   contentType: string;
-  activity: any;
-  currentUser: any;
+  activity: IActivityLog;
 };
 
-const ActivityItem: React.FC<Props> = ({ contentType, activity }) => {
+const ActivityItem: React.FC<Props> = ({ contentType, activity }) => {console.log("activity", activity)
   const renderDetail = (children: React.ReactNode) => {
     const type = contentType.split(":")[1];
     const iconAndColor = getIconAndColor(type || contentType) || {};

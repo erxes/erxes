@@ -1,7 +1,7 @@
 import { StructureEditButton, StructureList } from "../../styles";
 import { __, readFile } from "modules/common/utils";
 
-import { IStructure } from "@erxes/ui/src/team/types";
+import { ICoordinate, IStructure } from "@erxes/ui/src/team/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import React from "react";
@@ -22,7 +22,11 @@ export default function View({ structure, showEdit }: Props) {
     </StructureEditButton>
   );
 
-  const renderRow = (name: string, value: any, nowrap?: boolean) => {
+  const renderRow = (
+    name: string,
+    value: string | undefined,
+    nowrap?: boolean
+  ) => {
     return (
       <li>
         <div>{__(name)}</div>
@@ -34,7 +38,7 @@ export default function View({ structure, showEdit }: Props) {
   const { title, description, code, phoneNumber, email, image } = structure;
   const supervisor = structure.supervisor || ({} as IUser);
   const links = structure.links || {};
-  const coordinate = structure.coordinate || {};
+  const coordinate = structure.coordinate || ({} as ICoordinate);
 
   const supervisorName = supervisor.details
     ? supervisor.details.fullName || supervisor.email

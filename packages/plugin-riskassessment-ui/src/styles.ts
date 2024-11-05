@@ -387,13 +387,6 @@ export const Header = styled.h4`
   color: ${colors.colorPrimary};
 `;
 
-export const BoardSelection = styled(BoardSelectContainer)`
-  display: flex;
-  gap: 15px;
-  max-width: 300px;
-  padding-right: 100px;
-`;
-
 export const SidebarHeader = styled.h5`
   margin-bottom: ${dimensions.coreSpacing}px;
   color: ${colors.colorPrimary};

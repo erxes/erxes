@@ -24,7 +24,7 @@ export interface IModule {
 }
 
 export interface IActions {
-  name?: string;
+  name: string;
   module?: string;
   description?: string;
   use?: string[];
@@ -66,7 +66,7 @@ export type PermissionRemoveMutationResponse = {
 };
 
 export type PermissionsFixMutationResponse = {
-  fixPermissionsMutation: () => Promise<any>;
+  fixPermissionsMutation: () => Promise<string[]>;
 };
 
 export interface IUserGroupDocument extends IUserGroup {
@@ -80,18 +80,18 @@ export type UsersGroupsTotalCountQueryResponse = {
 };
 
 export type UsersGroupsAddMutation = {
-  usersGroupsAdd: (params: { variables: IUserGroup }) => Promise<any>;
+  usersGroupsAdd: (params: { variables: IUserGroup }) => Promise<IUserGroup>;
   loading: boolean;
 };
 
 export type UsersGroupsEditMutation = {
   usersGroupsEdit: (params: {
     variables: { _id: string } & IUserGroup;
-  }) => Promise<any>;
+  }) => Promise<IUserGroup>;
 };
 
 export type UsersGroupsRemoveMutation = {
-  usersGroupsRemove: (params: { variables: { _id: string } }) => Promise<any>;
+  usersGroupsRemove: (params: { variables: { _id: string } }) => Promise<JSON>;
 };
 
 export type UsersGroupsCopyMutation = {

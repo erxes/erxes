@@ -45,8 +45,8 @@ export default function DepartmentForm(props: Props) {
     };
   };
 
-  const onChangeDepartment = (parent: any) => {
-    setDepartmentId(parent.value);
+  const onChangeDepartment = (department) => {
+    setDepartmentId(department.value);
   };
 
   const onSelectUsers = (options) => {

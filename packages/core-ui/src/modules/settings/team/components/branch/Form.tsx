@@ -6,7 +6,7 @@ import Button from "@erxes/ui/src/components/Button";
 import ContactInfoForm from "../common/ContactInfoForm";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import Form from "@erxes/ui/src/components/form/Form";
-import { IBranch } from "@erxes/ui/src/team/types";
+import { IBranch, ICoordinate } from "@erxes/ui/src/team/types";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import { __ } from "modules/common/utils";
@@ -30,7 +30,7 @@ export default function BranchForm(props: Props) {
   const [image, setImage] = useState(object.image || null);
   const [supervisorId, setSupervisorId] = useState(object.supervisorId);
 
-  const coordinateObj = object.coordinate || {};
+  const coordinateObj = object.coordinate || {} as ICoordinate;
 
   const [coordinate, setCoordinate] = useState({
     longitude: coordinateObj.longitude || "",
@@ -56,12 +56,20 @@ export default function BranchForm(props: Props) {
     };
   };
 
-  const onChangeParent = (value: any) => {
-    setParentId(value);
+  const onChangeParent = (value: string) => {
+    if (value) {
+      setParentId(value);
+    } else {
+      setParentId(null);
+    }
   };
 
-  const onSelectTeamMembers = (ids: any) => {
-    setUserIds(ids);
+  const onSelectTeamMembers = (ids: string[] | string) => {
+    if (Array.isArray(ids)) {
+      setUserIds(ids);
+    } else {
+      setUserIds([ids]);
+    }
   };
 
   const onSelectSupervisor = (value) => {
@@ -119,11 +127,13 @@ export default function BranchForm(props: Props) {
           <SelectBranches
             label="Branch"
             name="parentId"
-            multi={false}
-            initialValue={parentId || undefined}
-            onSelect={onChangeParent}
-            filterParams={{ withoutUserFilter: true }}
-          />
+            componentclass="select"
+            defaultValue={parentId || null}
+            onChange={(e) => onChangeParent}
+          >
+            <option value="" />
+            {generateOptions()}
+          </FormControl>
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__("Team Members")}</ControlLabel>
