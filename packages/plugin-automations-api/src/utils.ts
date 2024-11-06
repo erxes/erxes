@@ -277,8 +277,6 @@ export const calculateExecution = async ({
     if (!!isCustom) {
       const [serviceName, collectionType] = (trigger?.type || '').split(':');
 
-      console.log({ serviceName, collectionType });
-
       const isValid = await sendCommonMessage({
         subdomain,
         serviceName,
@@ -287,7 +285,6 @@ export const calculateExecution = async ({
         isRPC: true,
         defaultValue: false
       });
-      console.log({ isValid });
       if (!isValid) {
         return;
       }
