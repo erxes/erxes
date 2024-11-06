@@ -1,5 +1,32 @@
 # Changelog
 
+## [2.0.4](https://github.com/erxes/erxes/compare/2.0.3...2.0.4) (2024-11-06)
+
+
+### Features
+
+* add car option to contact dimension ([1caa705](https://github.com/erxes/erxes/commit/1caa705ba57ea6d49acb6a170255142ef33f1654))
+* add dimension ([3aa270e](https://github.com/erxes/erxes/commit/3aa270eef07ef443ee757a3a280fc46c4639e100))
+* add dimension ([6b99364](https://github.com/erxes/erxes/commit/6b99364739a04d8e6d55e02ab7f2a72e4b38b912))
+* add subfield for insight ([d1e5229](https://github.com/erxes/erxes/commit/d1e5229997d7ece18358f1f17e9b7f68eb8bc07c))
+* **clientportal:** default language and seperate cards into ticket, deal, task, purchase plugins ([#5780](https://github.com/erxes/erxes/issues/5780)) ([91d6930](https://github.com/erxes/erxes/commit/91d6930bdb66324503c77b4e09ca7e2526f94ba3))
+* **loans:** add functionality to export loan transactions ([151fb03](https://github.com/erxes/erxes/commit/151fb031bd0b521fb697fa78f033015ac4789b02))
+* **loans:** add functionality to export saving transactions ([39af6db](https://github.com/erxes/erxes/commit/39af6db91bc026886a87db6faa6b27b6ea7ee43b))
+* **savings:** add functionality to export saving transactions ([353c953](https://github.com/erxes/erxes/commit/353c9537ecd23b81c10f8cd5f9e6872e69c00a2b))
+
+
+### Bug Fixes
+
+* **calls:** added timezone ([236aa5c](https://github.com/erxes/erxes/commit/236aa5ca92a2fe6cd8c40ee681f5cbd6ff6fd051))
+* **calls:** sometimes not saved call history  ([b424c6d](https://github.com/erxes/erxes/commit/b424c6d64a2f311cd7bd836838deb741a2261223))
+* **core:** check inbox enabled before send message to inbox ([ecfcc7e](https://github.com/erxes/erxes/commit/ecfcc7e3d087785057d9e5eb3aa21e331ebafeaa))
+* ebarimt with description on sales ([b8bff50](https://github.com/erxes/erxes/commit/b8bff50a7cd96a65dca38bddb1b6a254b94fb0b8))
+
+
+### Reverts
+
+* **widgets:** fallback to older version ([#5766](https://github.com/erxes/erxes/issues/5766)) ([3f6c69a](https://github.com/erxes/erxes/commit/3f6c69a249a1ac6795ed41e859f51a5472d0bf3d))
+
 ## [2.0.3](https://github.com/erxes/erxes/compare/2.0.2...2.0.3) (2024-10-29)
 
 ## [2.0.2](https://github.com/erxes/erxes/compare/2.0.1...2.0.2) (2024-10-29)
