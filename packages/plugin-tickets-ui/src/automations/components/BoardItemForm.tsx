@@ -117,7 +117,7 @@ class BoardItemForm extends React.Component<Props, State> {
     return (
       <Common config={this.state.config} {...this.props}>
         <BoardItemWrapper>
-          {/* {this.renderSelect()} */}
+          {this.renderSelect()}
           <PlaceHolderInput
             inputName="cardName"
             label="Name"
