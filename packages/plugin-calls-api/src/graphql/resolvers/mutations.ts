@@ -159,6 +159,9 @@ const callsMutations = {
         timeStamp: doc.timeStamp,
         callStatus: 'cancelled',
       });
+      if (doc.timeStamp === 0) {
+        doc.timeStamp = Date.now().toString();
+      }
       await models.CallHistory.updateOne(
         { _id },
         {
@@ -219,7 +222,11 @@ const callsMutations = {
         return callRecordUrl;
       }
       return 'success';
-    } else if (doc.callStatus === 'cancelled') {
+    } else if (
+      doc.callStatus === 'cancelled' &&
+      doc.timeStamp &&
+      doc.timeStamp !== 0
+    ) {
       const cancelledCall = await models.CallHistory.findOne({
         timeStamp: doc.timeStamp,
       });
@@ -232,6 +239,13 @@ const callsMutations = {
 
       if (!integration) {
         throw new Error('Integration not found');
+      }
+
+      const operator = integration.operators.find(
+        (operator) => operator.userId === user?._id,
+      );
+      if (!operator) {
+        throw new Error('Operator not found');
       }
 
       return new Promise(async (resolve, reject) => {
@@ -262,6 +276,7 @@ const callsMutations = {
           if (!oldHistory) {
             const history = new models.CallHistory({
               ...doc,
+              extentionNumber: operator.gsUsername,
               operatorPhone: integration.phone,
               createdAt: new Date(),
               createdBy: doc.endedBy ? user._id : null,
@@ -271,12 +286,54 @@ const callsMutations = {
             try {
               await history.save();
 
-              return resolve('Successfully edited');
+              resolve('Successfully edited');
             } catch (saveError) {
               return reject(
                 new Error(`Failed to save call history ${saveError}`),
               );
             }
+
+            let customer = await models.Customers.findOne({
+              primaryPhone: doc.customerPhone,
+            });
+            if (!customer || !customer.erxesApiId) {
+              customer = await getOrCreateCustomer(models, subdomain, doc);
+            }
+            //save on api
+            try {
+              const apiConversationResponse = await sendInboxMessage({
+                subdomain,
+                action: 'integrations.receive',
+                data: {
+                  action: 'create-or-update-conversation',
+                  payload: JSON.stringify({
+                    customerId: customer?.erxesApiId,
+                    integrationId: integration.inboxId,
+                    content: doc.callType || '',
+                    conversationId: history.conversationId,
+                    updatedAt: new Date(),
+                    owner: '',
+                  }),
+                },
+                isRPC: true,
+              });
+
+              history.conversationId = apiConversationResponse._id;
+
+              await history.save();
+            } catch (e) {
+              await models.CallHistory.deleteOne({ _id: history._id });
+              throw new Error(e);
+            }
+
+            await sendInboxMessage({
+              subdomain,
+              action: 'conversationClientMessageInserted',
+              data: {
+                ...history?.toObject(),
+                conversationId: history.conversationId,
+              },
+            });
           } else {
             return resolve('Call history already exists');
           }

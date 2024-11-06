@@ -1,8 +1,8 @@
-import * as dotenv from 'dotenv';
+import * as dotenv from "dotenv";
 
 dotenv.config();
 
-import { Collection, Db, MongoClient } from 'mongodb';
+import { Collection, Db, MongoClient } from "mongodb";
 
 const { MONGO_URL } = process.env;
 
@@ -25,77 +25,77 @@ const switchContentType = contentType => {
   let changedContentType = contentType;
 
   switch (contentType) {
-    case 'deal':
-      changedContentType = `cards:${contentType}`;
+    case "deal":
+      changedContentType = `sales:${contentType}`;
       break;
-    case 'purchase':
-      changedContentType = `cards:${contentType}`;
+    case "purchase":
+      changedContentType = `purchases:${contentType}`;
       break;
-    case 'ticket':
-      changedContentType = `cards:${contentType}`;
+    case "ticket":
+      changedContentType = `tickets:${contentType}`;
       break;
-    case 'task':
-      changedContentType = `cards:${contentType}`;
+    case "task":
+      changedContentType = `tasks:${contentType}`;
       break;
-    case 'growthHack':
-      changedContentType = `cards:${contentType}`;
+    case "growthHack":
+      changedContentType = `growthhacks:${contentType}`;
       break;
-    case 'customer':
-      changedContentType = `contacts:${contentType}`;
+    case "customer":
+      changedContentType = `core:${contentType}`;
       break;
-    case 'company':
-      changedContentType = `contacts:${contentType}`;
+    case "company":
+      changedContentType = `core:${contentType}`;
       break;
-    case 'lead':
-      changedContentType = `contacts:${contentType}`;
+    case "lead":
+      changedContentType = `core:${contentType}`;
       break;
-    case 'device':
-      changedContentType = `contacts:${contentType}`;
+    case "device":
+      changedContentType = `core:${contentType}`;
       break;
-    case 'form_submission':
+    case "form_submission":
       changedContentType = `forms:${contentType}`;
       break;
-    case 'integration':
+    case "integration":
       changedContentType = `inbox:${contentType}`;
       break;
-    case 'conversation':
+    case "conversation":
       changedContentType = `inbox:${contentType}`;
       break;
 
-    case 'engageMessage':
+    case "engageMessage":
       changedContentType = `engages:${contentType}`;
       break;
 
-    case 'user':
+    case "user":
       changedContentType = `core:${contentType}`;
       break;
 
-    case 'product':
+    case "product":
       changedContentType = `products:${contentType}`;
       break;
 
-    case 'form_submission:form_submission':
-      changedContentType = `forms:form_submission`;
+    case "form_submission:form_submission":
+      changedContentType = `core:form_submission`;
       break;
 
     // below cases depend on webhooks
-    case 'userMessages':
+    case "userMessages":
       changedContentType = `inbox:${contentType}`;
       break;
 
-    case 'customerMessages':
+    case "customerMessages":
       changedContentType = `inbox:${contentType}`;
       break;
 
-    case 'popupSubmitted':
+    case "popupSubmitted":
       changedContentType = `inbox:${contentType}`;
       break;
 
-    case 'engageMessages':
+    case "engageMessages":
       changedContentType = `engages:${contentType}`;
       break;
 
-    case 'knowledgeBaseArticle':
+    case "knowledgeBaseArticle":
       changedContentType = `knowledgebase:${contentType}`;
       break;
 
@@ -110,12 +110,12 @@ const command = async () => {
   await client.connect();
   db = client.db() as Db;
 
-  Segments = db.collection('segments');
-  Fields = db.collection('fields');
-  FieldGroups = db.collection('fields_groups');
-  Tags = db.collection('tags');
-  InternalNotes = db.collection('internal_notes');
-  Webhooks = db.collection('webhooks');
+  Segments = db.collection("segments");
+  Fields = db.collection("fields");
+  FieldGroups = db.collection("fields_groups");
+  Tags = db.collection("tags");
+  InternalNotes = db.collection("internal_notes");
+  Webhooks = db.collection("webhooks");
 
   try {
     await Segments.find({}).forEach(doc => {

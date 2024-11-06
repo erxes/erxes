@@ -1,10 +1,10 @@
-import { IOption, IQueryParams } from '@erxes/ui/src/types';
+import { IOption, IQueryParams } from "@erxes/ui/src/types";
 
-import { ICustomer } from '../types';
-import React from 'react';
-import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
-import { queries } from '../graphql';
-import { renderFullName } from '@erxes/ui/src/utils';
+import { ICustomer } from "../types";
+import React from "react";
+import SelectWithSearch from "@erxes/ui/src/components/SelectWithSearch";
+import { queries } from "../graphql";
+import { renderFullName } from "@erxes/ui/src/utils";
 
 function generateCustomerOptions(array: ICustomer[] = []): IOption[] {
   return array.map(item => {

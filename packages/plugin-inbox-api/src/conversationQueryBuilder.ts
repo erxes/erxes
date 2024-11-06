@@ -1,10 +1,10 @@
-import * as _ from 'underscore';
+import * as _ from "underscore";
 
-import { sendSegmentsMessage, sendTagsMessage } from './messageBroker';
+import { sendCoreMessage } from "./messageBroker";
 
-import { CONVERSATION_STATUSES } from './models/definitions/constants';
-import { IModels } from './connectionResolver';
-import { fixDate } from '@erxes/api-utils/src/core';
+import { CONVERSATION_STATUSES } from "./models/definitions/constants";
+import { IModels } from "./connectionResolver";
+import { fixDate } from "@erxes/api-utils/src/core";
 
 interface IIn {
   $in: string[];
@@ -89,23 +89,23 @@ export default class Builder {
 
   // filter by segment
   public async segmentFilter(segmentId: string): Promise<{ _id: IIn }> {
-    const selector = await sendSegmentsMessage({
+    const selector = await sendCoreMessage({
       subdomain: this.subdomain,
-      action: 'fetchSegment',
+      action: "fetchSegment",
       data: {
         segmentId,
         options: {
-          returnFields: ['_id'],
+          returnFields: ["_id"],
           page: 1,
           perPage: this.params.limit ? this.params.limit + 1 : 11,
-          sortField: 'updatedAt',
+          sortField: "updatedAt",
           sortDirection: -1
         }
       },
       isRPC: true
     });
 
-    const Ids = _.pluck(selector, '_id');
+    const Ids = _.pluck(selector, "_id");
 
     return {
       _id: { $in: Ids }
@@ -115,7 +115,7 @@ export default class Builder {
   public userRelevanceQuery() {
     return [
       { userRelevance: { $exists: false } },
-      { userRelevance: new RegExp(this.user.code || '') }
+      { userRelevance: new RegExp(this.user.code || "") }
     ];
   }
 
@@ -131,7 +131,7 @@ export default class Builder {
       CONVERSATION_STATUSES.OPEN
     ]);
 
-    if (this.params.status === 'closed') {
+    if (this.params.status === "closed") {
       statusFilter = this.statusFilter([CONVERSATION_STATUSES.CLOSED]);
     }
 
@@ -148,10 +148,10 @@ export default class Builder {
     );
 
     // [{$in: ['id1', 'id2']}, {$in: ['id3', 'id1', 'id4']}]
-    const $ins = _.pluck(withIn, 'integrationId');
+    const $ins = _.pluck(withIn, "integrationId");
 
     // [['id1', 'id2'], ['id3', 'id1', 'id4']]
-    const nestedIntegrationIds = _.pluck($ins, '$in');
+    const nestedIntegrationIds = _.pluck($ins, "$in");
 
     // ['id1']
     const integrationids: string[] = _.intersection(...nestedIntegrationIds);
@@ -169,7 +169,7 @@ export default class Builder {
     let availIntegrationIds: string[] = [];
 
     const channelQuery =
-      this.user.role && this.user.role === 'system'
+      this.user.role && this.user.role === "system"
         ? {}
         : {
             memberIds: this.user._id
@@ -250,7 +250,7 @@ export default class Builder {
       return;
     }
 
-    const integrationIds = _.pluck(integrations, '_id');
+    const integrationIds = _.pluck(integrations, "_id");
 
     return {
       integrationId: { $in: integrationIds }
@@ -311,7 +311,7 @@ export default class Builder {
       this.queries.integrations,
 
       // filter by integration type
-      { integrationId: { $in: _.pluck(integrations, '_id') } }
+      { integrationId: { $in: _.pluck(integrations, "_id") } }
     ];
   }
 
@@ -319,9 +319,9 @@ export default class Builder {
   public async tagFilter(tagIds: string[]): Promise<{ tagIds: IIn }> {
     let ids: string[] = [];
 
-    const tags = await sendTagsMessage({
+    const tags = await sendCoreMessage({
       subdomain: this.subdomain,
-      action: 'find',
+      action: "tagFind",
       data: {
         _id: { $in: tagIds }
       },
@@ -424,7 +424,7 @@ export default class Builder {
 
     // filter by tag
     if (this.params.tag) {
-      this.queries.tag = await this.tagFilter(this.params.tag.split(','));
+      this.queries.tag = await this.tagFilter(this.params.tag.split(","));
     }
 
     if (this.params.startDate && this.params.endDate) {

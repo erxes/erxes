@@ -1,6 +1,7 @@
 import {
   customFieldToObject,
   fetchPolaris,
+  genObjectOfRule,
   getProduct,
   updateContract,
 } from '../utils';
@@ -32,7 +33,7 @@ function setValue(value) {
   }
 }
 
-export const updateDeposit = async (subdomain: string, models, syncLog, params) => {
+export const updateDeposit = async (subdomain: string, models, polarisConfig, syncLog, params) => {
   const deposit = params.updatedDocument || params.object;
 
   const objectCus = await customFieldToObject(
@@ -45,6 +46,14 @@ export const updateDeposit = async (subdomain: string, models, syncLog, params) 
     deposit.contractTypeId,
     'savings',
   );
+
+  const dataOfRules = await genObjectOfRule(
+    subdomain,
+    "savings:contract",
+    deposit,
+    (polarisConfig.deposit && polarisConfig.deposit[deposit.contractTypeId || ''] || {}).values || {}
+  )
+
   let sendData: IPolarisDeposit = {
     acntType: objectCus.acntType,
     prodCode: savingProduct.code,
@@ -66,6 +75,7 @@ export const updateDeposit = async (subdomain: string, models, syncLog, params) 
     segCode: objectCus.segCode,
     paymtDefault: setValue(objectCus.paymtDefault),
     odType: objectCus.odType,
+    ...dataOfRules
   };
 
   await validateDepositObject(sendData);
@@ -75,6 +85,7 @@ export const updateDeposit = async (subdomain: string, models, syncLog, params) 
     op: '13610021',
     data: [sendData],
     models,
+    polarisConfig,
     syncLog
   });
 

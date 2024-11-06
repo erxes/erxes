@@ -53,30 +53,23 @@ export default function FormComponent(props: Props) {
       description,
       productCategoryId: categoryId,
       attachment,
-      filterField,
+      filterField
     };
   };
 
-  const changeAttachment = (files) => {
+  const changeAttachment = files => {
     setAttachment(files.length ? files[0] : undefined);
 
-    if (isEnabled("forms")) {
-      client
-        .query({
-          query: gql(formQueries.fieldsCombinedByContentType),
-          variables: {
-            contentType: "products:product",
-          },
-        })
-        .then(({ data }) => {
-          setFieldsCombined(data?.fieldsCombinedByContentType || []);
-        });
-    } else {
-      setFieldsCombined([
-        { name: "code", label: "code" },
-        { name: "barcode", label: "barcode" },
-      ]);
-    }
+    client
+      .query({
+        query: gql(formQueries.fieldsCombinedByContentType),
+        variables: {
+          contentType: "core:product"
+        }
+      })
+      .then(({ data }) => {
+        setFieldsCombined(data?.fieldsCombinedByContentType || []);
+      });
   };
 
   const renderFilterField = () => {
@@ -84,17 +77,17 @@ export default function FormComponent(props: Props) {
       return <></>;
     }
 
-    const option = (fieldsCombined || []).map((f) => ({
+    const option = (fieldsCombined || []).map(f => ({
       value: f.name,
-      label: f.label,
+      label: f.label
     }));
 
     return (
       <FormGroup>
         <ControlLabel>{__("Choose B filter field")}</ControlLabel>
         <Select
-          value={option.find((o) => o.value === (filterField || ""))}
-          onChange={(option) =>
+          value={option.find(o => o.value === (filterField || ""))}
+          onChange={option =>
             setFilterField(!option ? "" : option.value.toString())
           }
           isClearable={true}
@@ -114,7 +107,7 @@ export default function FormComponent(props: Props) {
             <FormGroup>
               <ControlLabel>{__("Date")}</ControlLabel>
               <Datetime
-                inputProps={{ placeholder: "Click to select a date" }}
+                inputProps={{ placeholder: __("Click to select a date") }}
                 dateFormat="YYYY-MM-DD"
                 timeFormat=""
                 viewMode={"days"}
@@ -145,31 +138,31 @@ export default function FormComponent(props: Props) {
             <FormGroup>
               <ControlLabel>{__("Branch")}</ControlLabel>
               <SelectBranches
-                label="Choose branch"
+                label={__("Choose branch")}
                 name="selectedBranchIds"
                 initialValue={branchId}
                 onSelect={(branchId: any) => setBranchId(String(branchId))}
                 multi={false}
-                customOption={{ value: "", label: "All branches" }}
+                customOption={{ value: "", label: __("All branches") }}
               />
             </FormGroup>
             <FormGroup>
               <ControlLabel>{__("Department")}</ControlLabel>
               <SelectDepartments
-                label="Choose department"
+                label={__("Choose department")}
                 name="selectedDepartmentIds"
                 initialValue={departmentId}
                 onSelect={(departmentId: any) =>
                   setDepartmentId(String(departmentId))
                 }
                 multi={false}
-                customOption={{ value: "", label: "All departments" }}
+                customOption={{ value: "", label: __("All departments") }}
               />
             </FormGroup>
             <FormGroup>
               <ControlLabel>{__("Product Categories")}</ControlLabel>
               <SelectProductCategory
-                label="Choose product category"
+                label={__("Choose product category")}
                 name="selectedProductCategoryId"
                 initialValue={categoryId}
                 onSelect={(categoryId: any) =>
@@ -187,7 +180,7 @@ export default function FormComponent(props: Props) {
               </p>
               <Uploader
                 defaultFileList={attachment ? [attachment] : []}
-                onChange={(files) => changeAttachment(files)}
+                onChange={files => changeAttachment(files)}
                 multiple={false}
                 single={true}
               />
@@ -210,7 +203,7 @@ export default function FormComponent(props: Props) {
             name: "product and service",
             values: generateDoc(values),
             isSubmitted,
-            callback: closeModal,
+            callback: closeModal
           })}
         </ModalFooter>
       </>

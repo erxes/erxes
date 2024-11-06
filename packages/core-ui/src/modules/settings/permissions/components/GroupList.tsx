@@ -22,7 +22,7 @@ import { __ } from "modules/common/utils";
 const { Section } = Wrapper.Sidebar;
 
 interface IProps {
-  queryParams: any;
+  queryParams: Record<string, string>;
   refetch: any;
   totalCount: number;
   loading: boolean;

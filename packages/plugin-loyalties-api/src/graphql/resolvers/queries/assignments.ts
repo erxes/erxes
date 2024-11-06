@@ -1,12 +1,9 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { ICommonParams } from '../../../models/definitions/common';
-import { IContext } from '../../../connectionResolver';
-import { paginate } from '@erxes/api-utils/src/core';
-import { AssignmentCheckResponse, isInSegment } from '../../../utils';
-import {
-  sendContactsMessage,
-  sendSegmentsMessage
-} from '../../../messageBroker';
+import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { ICommonParams } from "../../../models/definitions/common";
+import { IContext } from "../../../connectionResolver";
+import { paginate } from "@erxes/api-utils/src/core";
+import { AssignmentCheckResponse, isInSegment } from "../../../utils";
+import { sendCoreMessage } from "../../../messageBroker";
 
 const generateFilter = (params: ICommonParams) => {
   const filter: any = {};
@@ -28,9 +25,9 @@ const generateFieldMaxValue = async (
   segments,
   customerId
 ) => {
-  const customer = await sendContactsMessage({
+  const customer = await sendCoreMessage({
     subdomain,
-    action: 'customers.findOne',
+    action: "customers.findOne",
     data: { _id: customerId },
     isRPC: true,
     defaultValue: null
@@ -43,18 +40,18 @@ const generateFieldMaxValue = async (
       propertyValue,
       propertyOperator
     } of conditions || []) {
-      if (propertyName.includes(fieldId) && propertyOperator === 'numbere') {
+      if (propertyName.includes(fieldId) && propertyOperator === "numbere") {
         const { customFieldsData = [] } = customer || {};
 
         const customFieldData = customFieldsData.find(
           customFieldData => customFieldData?.field === fieldId
         );
 
-        const segment = await sendSegmentsMessage({
+        const segment = await sendCoreMessage({
           subdomain,
-          action: 'findOne',
+          action: "segmentFindOne",
           data: {
-            'conditions.subSegmentId': _id
+            "conditions.subSegmentId": _id
           },
           isRPC: true,
           defaultValue: null
@@ -98,7 +95,7 @@ const assignmentQueries = {
     const now = new Date();
 
     const filter: any = {
-      status: 'active',
+      status: "active",
       startDate: { $lte: now },
       endDate: { $gte: now }
     };
@@ -107,9 +104,8 @@ const assignmentQueries = {
       filter._id = { $in: _ids };
     }
 
-    const assignmentCampaigns = await models.AssignmentCampaigns.find(
-      filter
-    ).lean();
+    const assignmentCampaigns =
+      await models.AssignmentCampaigns.find(filter).lean();
 
     const assignments = await models.Assignments.find({
       ownerId: customerId,
@@ -120,7 +116,7 @@ const assignmentQueries = {
     let negativeSegments: AssignmentCheckResponse[] = [];
 
     if (!assignmentCampaigns.length) {
-      return { status: 'checked' };
+      return { status: "checked" };
     }
 
     for (const assignmentCampaign of assignmentCampaigns) {
@@ -147,9 +143,9 @@ const assignmentQueries = {
         }
 
         if (assignmentCampaign?.fieldId) {
-          const subSegments = await sendSegmentsMessage({
+          const subSegments = await sendCoreMessage({
             subdomain,
-            action: 'findSubSegments',
+            action: "findSubSegments",
             data: { segmentIds },
             isRPC: true,
             defaultValue: []
@@ -180,17 +176,17 @@ const assignmentQueries = {
                     customerId
                   );
 
-                  await sendContactsMessage({
+                  await sendCoreMessage({
                     subdomain,
-                    action: 'customers.updateOne',
+                    action: "customers.updateOne",
                     data: {
                       selector: {
                         _id: customerId,
-                        'customFieldsData.field': assignmentCampaign.fieldId
+                        "customFieldsData.field": assignmentCampaign.fieldId
                       },
                       modifier: {
                         $set: {
-                          'customFieldsData.$.value':
+                          "customFieldsData.$.value":
                             currentValue - checkValue * count
                         }
                       }
@@ -218,14 +214,14 @@ const assignmentQueries = {
       }
     }
     return {
-      status: 'checked',
+      status: "checked",
       positive: positiveSegments,
       negative: negativeSegments
     };
   }
 };
 
-checkPermission(assignmentQueries, 'assignmentsMain', 'showLoyalties', {
+checkPermission(assignmentQueries, "assignmentsMain", "showLoyalties", {
   list: [],
   totalCount: 0
 });

@@ -6,7 +6,7 @@ import { consumeRPCQueue } from "@erxes/api-utils/src/messageBroker";
 import { getCloseInfo } from "./models/utils/closeUtils";
 import { IConfig } from "./interfaces/config";
 
-type CustomFieldType = "contacts:customer";
+type CustomFieldType = "core:customer";
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue("loans:contracts.find", async ({ subdomain, data }) => {
@@ -105,7 +105,7 @@ export const setupMessageConsumers = async () => {
       return {
         status: "success",
         data: await models.Transactions.find({
-          contractId: { $in: contracts.map((c) => c._id) }
+          contractId: { $in: contracts.map(c => c._id) }
         }).lean()
       };
     }
@@ -140,11 +140,8 @@ export const sendMessageBroker = async (
   args: MessageArgsOmitService,
   name:
     | "core"
-    | "cards"
+    | "sales"
     | "reactions"
-    | "contacts"
-    | "products"
-    | "forms"
     | "clientportal"
     | "syncerkhet"
     | "ebarimt"
@@ -167,11 +164,11 @@ export const sendCoreMessage = async (
   });
 };
 
-export const sendCardsMessage = async (
+export const sendSalesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "cards",
+    serviceName: "sales",
     ...args
   });
 };
@@ -200,7 +197,7 @@ export const getFieldObject = async (
 ) => {
   const fields = await sendCommonMessage({
     subdomain,
-    serviceName: "forms",
+    serviceName: "core",
     action: "fields.find",
     data: {
       query: {
@@ -217,7 +214,7 @@ export const getFieldObject = async (
     defaultValue: []
   });
 
-  return fields.find((row) => row.code === code);
+  return fields.find(row => row.code === code);
 };
 
 export const getConfig = async (

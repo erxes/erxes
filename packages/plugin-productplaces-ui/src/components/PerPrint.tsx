@@ -1,4 +1,4 @@
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
 import {
   Button,
   CollapseContent,
@@ -10,21 +10,18 @@ import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
-import { IConfigsMap } from '../types';
 import PerPrintConditions from './PerPrintConditions';
 
 type Props = {
-  configsMap: IConfigsMap;
   config: any;
   currentConfigKey: string;
-  save: (configsMap: IConfigsMap) => void;
+  save: (key: string, config: any) => void;
   delete: (currentConfigKey: string) => void;
 };
 
 const PerPrintSettings = (props: Props) => {
-  const { configsMap, currentConfigKey, save } = props;
+  const { currentConfigKey, save } = props;
   const [config, setConfig] = useState(props.config);
-  const [conditions, setconditions] = useState(props.config.conditions || []);
 
   const onChangeBoard = (boardId: string) => {
     setConfig({ ...config, boardId });
@@ -38,24 +35,20 @@ const PerPrintSettings = (props: Props) => {
     setConfig({ ...config, stageId });
   };
 
-  const onSave = (e) => {
+  const onSave = e => {
     e.preventDefault();
     const key = config.stageId;
-
-    delete configsMap.dealsProductsDataPrint[currentConfigKey];
-    configsMap.dealsProductsDataPrint[key] = config;
-    save(configsMap);
+    save(key, config);
   };
 
-  const onDelete = (e) => {
+  const onDelete = e => {
     e.preventDefault();
 
     props.delete(currentConfigKey);
   };
 
   const onChangeConfig = (code: string, value) => {
-    config[code] = value;
-    setConfig({ ...config });
+    setConfig({ ...config, [code]: value });
   };
 
   const onChangeInput = (code: string, e) => {
@@ -63,31 +56,24 @@ const PerPrintSettings = (props: Props) => {
   };
 
   const addCondition = () => {
-    conditions.push({
-      id: Math.random().toString(),
-    });
-    setconditions(conditions);
-    onChangeConfig('conditions', conditions);
+    onChangeConfig('conditions', [...config.conditions, { id: Math.random().toString(), }]);
   };
 
   const renderConditions = () => {
     const remove = (id) => {
-      setconditions(conditions.filter((c) => c.id !== id));
       onChangeConfig(
         'conditions',
-        conditions.filter((c) => c.id !== id),
+        config.conditions.filter((c) => c.id !== id),
       );
     };
 
     const editCondition = (id, condition) => {
-      const updated = (conditions || []).map((c) =>
+      onChangeConfig('conditions', (config.conditions || []).map((c) =>
         c.id === id ? condition : c,
-      );
-      setconditions(updated);
-      onChangeConfig('conditions', updated);
+      ));
     };
 
-    return (conditions || []).map((c) => (
+    return (config.conditions || []).map((c) => (
       <PerPrintConditions
         key={c.id}
         condition={c}
@@ -100,13 +86,13 @@ const PerPrintSettings = (props: Props) => {
   return (
     <CollapseContent
       title={__(config.title)}
-      open={currentConfigKey === 'newPrintConfig' ? true : false}
+      open={currentConfigKey === "newPrintConfig" ? true : false}
     >
       <FormGroup>
-        <ControlLabel>{'Title'}</ControlLabel>
+        <ControlLabel>{"Title"}</ControlLabel>
         <FormControl
-          defaultValue={config['title']}
-          onChange={onChangeInput.bind(this, 'title')}
+          defaultValue={config["title"]}
+          onChange={onChangeInput.bind(this, "title")}
           required={true}
           autoFocus={true}
         />

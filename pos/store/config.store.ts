@@ -45,6 +45,16 @@ export const permissionConfigAtom = atom<IPermissionConfig | undefined>(
   }
 )
 
+export const directDiscountConfigAtom = atom((get) => {
+  const { directDiscount, directDiscountLimit } =
+    get(permissionConfigAtom) || {}
+
+  return {
+    allowDirectDiscount: !!directDiscount && !!directDiscountLimit,
+    directDiscountLimit: directDiscountLimit || 0,
+  }
+})
+
 export const configsAtom = atom<IConfig[] | null>(null)
 
 export const currentUserAtom = atom<ICurrentUser | null>(null)

@@ -1,5 +1,5 @@
-import { Transform } from 'stream';
-import { chunkArray } from './core';
+import { chunkArray } from "./core";
+import { Transform } from "stream";
 
 export const stream = async (
   executeChunk,
@@ -26,7 +26,7 @@ export const stream = async (
     transform(root, _encoding, callback) {
       transformCallback(variables, root);
       callback();
-    },
+    }
   });
 
   const childCursor = generateChildStream().cursor();
@@ -37,18 +37,18 @@ export const stream = async (
       childCursor.pipe(parentTransformerStream);
 
       // Resolve the promise when the stream finishes processing
-      parentTransformerStream.on('finish', async () => {
+      parentTransformerStream.on("finish", async () => {
         await onFinishPiping();
         resolve();
       });
 
       // Reject the promise if there is an error
-      parentTransformerStream.on('error', (error) => {
+      parentTransformerStream.on("error", error => {
         reject(error);
       });
     });
 
-    return 'done';
+    return "done";
   } catch (error) {
     parentTransformerStream.destroy();
     throw error;

@@ -12,18 +12,20 @@ import styled from 'styled-components';
 interface IProps {
   queryParams?: any;
   filterTitle?: string;
+  extraFilterParams?: { param: string, bool: boolean, title?: string }[];
+  extraFilterWithData?: { paramKey: string, type: string, fields?: string }[];
 }
 
 const Filters = styled.div`
   font-size: 0.9em;
 `;
 
-function Filter({ queryParams = {}, filterTitle }: IProps) {
+function Filter({ queryParams = {}, filterTitle, extraFilterParams, extraFilterWithData }: IProps) {
   const navigate = useNavigate();
   const location = useLocation() as any;
 
   const onClickClose = (paramKey) => {
-      removeParams(navigate, location, ...paramKey);
+    removeParams(navigate, location, ...paramKey);
   };
 
   const onClickRemove = (paramKey: string, ids: string[], id: string) => {
@@ -185,6 +187,8 @@ function Filter({ queryParams = {}, filterTitle }: IProps) {
         '_id, title',
       )}
       {renderFilterWithData('assetId', 'asset', '_id, code, name')}
+      {(extraFilterParams || []).map(af => (renderFilterParam(af.param, af.bool, af.title || af.param)))}
+      {(extraFilterWithData || []).map(af => (renderFilterWithData(af.paramKey, af.type, af.fields)))}
     </Filters>
   );
 }

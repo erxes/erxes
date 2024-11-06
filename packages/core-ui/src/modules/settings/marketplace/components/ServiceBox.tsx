@@ -4,9 +4,10 @@ import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
+import { Plugin } from '../types';
 
 type Props = {
-  plugin: any;
+  plugin: Plugin;
 };
 
 class ServiceBox extends React.Component<Props, { showMore: boolean }> {
@@ -31,7 +32,7 @@ class ServiceBox extends React.Component<Props, { showMore: boolean }> {
 
     const { price, shortDescription, title } = plugin || {};
     // const domain = window.location.host;
-    const showmore = shortDescription.includes('<ul');
+    const showmore = (shortDescription || '').includes('<ul');
 
     return (
       <Service

@@ -3,6 +3,7 @@ const reportTemplates = [
         serviceType: 'inbox',
         title: 'Inbox chart',
         serviceName: 'inbox',
+        serviceLabel: "Inbox",
         description: 'Chat conversation charts',
         charts: [
             'averageFirstResponseTime',

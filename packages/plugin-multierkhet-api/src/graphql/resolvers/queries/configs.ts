@@ -1,8 +1,8 @@
-import { requireLogin } from '@erxes/api-utils/src/permissions';
+import { requireLogin } from "@erxes/api-utils/src/permissions";
 
-import * as dotenv from 'dotenv';
-import { IContext } from '../../../connectionResolver';
-import { sendCardsMessage, sendProductsMessage } from '../../../messageBroker';
+import * as dotenv from "dotenv";
+import { IContext } from "../../../connectionResolver";
+import { sendCoreMessage, sendSalesMessage } from "../../../messageBroker";
 
 dotenv.config();
 
@@ -17,7 +17,7 @@ const configQueries = {
   async multierkhetConfigsGetValue(
     _root,
     { code }: { code: string },
-    { models }: IContext,
+    { models }: IContext
   ) {
     return models.Configs.findOne({ code }).lean();
   },
@@ -25,47 +25,47 @@ const configQueries = {
   async dealPayAmountByBrand(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models, subdomain }: IContext
   ) {
-    const deal = await sendCardsMessage({
+    const deal = await sendSalesMessage({
       subdomain,
-      action: 'deals.findOne',
+      action: "deals.findOne",
       data: { _id },
-      isRPC: true,
+      isRPC: true
     });
 
     if (!deal || !deal.productsData || !deal.productsData.length) {
       return [];
     }
 
-    const mainConfigs = await models.Configs.getConfig('erkhetConfig', {});
+    const mainConfigs = await models.Configs.getConfig("erkhetConfig", {});
 
     const brandIds = Object.keys(mainConfigs);
 
     if (!brandIds.length) {
       return [
         {
-          _id: '',
-          name: '',
+          _id: "",
+          name: "",
           amount: deal.productsData.reduce(
             (sum, pd) => Number(sum) + Number(pd.amount),
-            0,
-          ),
-        },
+            0
+          )
+        }
       ];
     }
 
-    const productsIds = deal.productsData.map((item) => item.productId);
+    const productsIds = deal.productsData.map(item => item.productId);
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: 'find',
+      action: "products.find",
       data: {
         query: { _id: { $in: productsIds } },
-        limit: deal.productsData.length,
+        limit: deal.productsData.length
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     const productById = {};
@@ -90,12 +90,12 @@ const configQueries = {
 
       if (
         !(product.scopeBrandIds || []).length &&
-        brandIds.includes('noBrand')
+        brandIds.includes("noBrand")
       ) {
-        if (!amountByBrandId['noBrand']) {
-          amountByBrandId['noBrand'] = 0;
+        if (!amountByBrandId["noBrand"]) {
+          amountByBrandId["noBrand"] = 0;
         }
-        amountByBrandId['noBrand'] += productData.amount;
+        amountByBrandId["noBrand"] += productData.amount;
         continue;
       }
 
@@ -111,15 +111,15 @@ const configQueries = {
       }
     }
 
-    return (Object.keys(amountByBrandId) || []).map((brandId) => ({
+    return (Object.keys(amountByBrandId) || []).map(brandId => ({
       _id: brandId,
       name: mainConfigs[brandId].title,
       amount: amountByBrandId[brandId],
-      paymentIds: mainConfigs[brandId].paymentIds || [],
+      paymentIds: mainConfigs[brandId].paymentIds || []
     }));
-  },
+  }
 };
 
-requireLogin(configQueries, 'multierkhetConfigs');
+requireLogin(configQueries, "multierkhetConfigs");
 
 export default configQueries;

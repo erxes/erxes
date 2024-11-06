@@ -113,6 +113,7 @@ export interface IClientPortal {
   testUserOTP?: number;
 
   vendorParentProductCategoryId?: string;
+  language?: string;
 }
 
 interface IStyles {
@@ -338,4 +339,5 @@ export const clientPortalSchema = new Schema({
     },
     optional: true,
   }),
+  language: field({ type: String, optional: true }),
 });

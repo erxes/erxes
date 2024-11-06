@@ -1,15 +1,15 @@
-import Common from '../Common';
-import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import JobReferChooser from '../../../../../job/containers/refer/Chooser';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import React from 'react';
-import { __ } from 'coreui/utils';
-import { ControlLabel } from '@erxes/ui/src/components/form';
-import { IJob } from '../../../../types';
-import { IJobRefer } from '../../../../../job/types';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Icon from '@erxes/ui/src/components/Icon';
+import Common from "../Common";
+import { ProductButton } from "@erxes/ui-sales/src/deals/styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import JobReferChooser from "../../../../../job/containers/refer/Chooser";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import React from "react";
+import { __ } from "coreui/utils";
+import { ControlLabel } from "@erxes/ui/src/components/form";
+import { IJob } from "../../../../types";
+import { IJobRefer } from "../../../../../job/types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Icon from "@erxes/ui/src/components/Icon";
 
 type Props = {
   closeModal: () => void;
@@ -38,12 +38,12 @@ class JobForm extends React.Component<Props, State> {
     const { jobReferId } = config;
 
     this.state = {
-      jobReferId: jobReferId || '',
+      jobReferId: jobReferId || "",
       jobRefer,
-      description: description || '',
-      currentTab: 'inputs',
+      description: description || "",
+      currentTab: "inputs",
 
-      categoryId: ''
+      categoryId: ""
     };
   }
 
@@ -68,7 +68,7 @@ class JobForm extends React.Component<Props, State> {
 
     let content = (
       <div onClick={onClick}>
-        {__('Choose Job')} <Icon icon="plus-circle" />
+        {__("Choose Job")} <Icon icon="plus-circle" />
       </div>
     );
 
@@ -93,7 +93,7 @@ class JobForm extends React.Component<Props, State> {
     const onChangeJob = prs => {
       let pr: any;
       if (!prs.length) {
-        this.setState({ jobReferId: '', jobRefer: undefined });
+        this.setState({ jobReferId: "", jobRefer: undefined });
         return;
       }
 
@@ -114,9 +114,9 @@ class JobForm extends React.Component<Props, State> {
           onSelect={onChangeJob}
           onChangeCategory={categoryId => this.setState({ categoryId })}
           categoryId={this.state.categoryId}
-          types={['job', 'income', 'outlet', 'move']}
+          types={["job", "income", "outlet", "move"]}
           data={{
-            name: 'Jobs',
+            name: "Jobs",
             jobRefers: jobRefer ? [jobRefer] : []
           }}
           limit={1}
@@ -129,7 +129,7 @@ class JobForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Jobs</ControlLabel>
           <ModalTrigger
-            title="Choose a JOB"
+            title={__("Choose a JOB")}
             trigger={this.renderJobTrigger(jobRefer)}
             size="lg"
             content={content}
@@ -140,7 +140,7 @@ class JobForm extends React.Component<Props, State> {
           <FormControl
             name="description"
             value={description}
-            onChange={onChangeValue.bind(this, 'description')}
+            onChange={onChangeValue.bind(this, "description")}
           />
         </FormGroup>
       </>
@@ -154,7 +154,7 @@ class JobForm extends React.Component<Props, State> {
       <Common
         {...this.props}
         jobRefer={jobRefer}
-        name={(jobRefer && `${jobRefer.code} - ${jobRefer.name}`) || 'Unknown'}
+        name={(jobRefer && `${jobRefer.code} - ${jobRefer.name}`) || "Unknown"}
         description={description}
         config={{ jobReferId }}
       >

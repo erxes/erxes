@@ -1,10 +1,38 @@
+import gql from 'graphql-tag';
 import * as React from 'react';
-import { useQuery, gql } from '@apollo/client';
+import { ChildProps, graphql } from 'react-apollo';
+
+import { IEmailParams, IIntegration } from '../../types';
 import DumbForm from '../components/Form';
 import { connection } from '../connection';
 import { formDetailQuery } from '../graphql';
-import { IEmailParams, IIntegration } from '../../types';
 import { ICurrentStatus, IForm, IFormDoc } from '../types';
+import { AppConsumer } from './AppContext';
+
+const Form = (props: ChildProps<IProps, QueryResponse>) => {
+  const data = props.data;
+
+  if (!data || data.loading) {
+    return null;
+  }
+
+  if (!data.formDetail) {
+    return null;
+  }
+
+  const extendedProps = {
+    ...props,
+    form: data.formDetail,
+    leadData: props.form.leadData || {},
+    languageCode: props.form.languageCode || 'en',
+  };
+
+  return <DumbForm {...extendedProps} hasTopBar={true} />;
+};
+
+type QueryResponse = {
+  formDetail: IForm;
+};
 
 interface IProps {
   integration: IIntegration;
@@ -18,65 +46,58 @@ interface IProps {
   extraContent?: string;
   isSubmitting?: boolean;
   invoiceLink?: string;
-  createNew: () => void;
-  getIntegration: () => IIntegration;
-  getForm: () => IForm;
+  onChangeCurrentStatus: (status: string) => void;
 }
 
-const Form: React.FC<IProps> = ({
-  getForm,
-  isSubmitting,
-  currentStatus,
-  createNew,
-  sendEmail,
-  setHeight,
-  extraContent,
-  callSubmit,
-  invoiceLink,
-  getIntegration,
-  onSubmit,
-}) => {
-  const integration = getIntegration();
-  const form = getForm();
-
-  const { data, loading, error } = useQuery(
-    gql(formDetailQuery(connection.enabledServices.products)),
-    {
-      fetchPolicy: 'network-only',
+const FormWithData = graphql<IProps, QueryResponse>(
+  gql(formDetailQuery(connection.enabledServices.products)),
+  {
+    options: ({ form }) => ({
+      fetchPolicy: "network-only",
       variables: {
         _id: form._id,
       },
-    }
-  );
-
-  if (loading) {
-    return null;
+    }),
   }
+)(Form);
 
-  if (!data || !data.formDetail) {
-    return null;
-  }
+const WithContext = () => (
+  <AppConsumer>
+    {({
+      currentStatus,
+      save,
+      createNew,
+      sendEmail,
+      setHeight,
+      getIntegration,
+      callSubmit,
+      extraContent,
+      isSubmitting,
+      getForm,
+      onChangeCurrentStatus,
+      invoiceLink,
+    }) => {
+      const integration = getIntegration();
+      const form = getForm();
 
-  if (error) {
-    return <div>Error fetching form details.</div>;
-  }
+      return (
+        <FormWithData
+          isSubmitting={isSubmitting}
+          currentStatus={currentStatus}
+          onSubmit={save}
+          onCreateNew={createNew}
+          sendEmail={sendEmail}
+          setHeight={setHeight}
+          form={form}
+          integration={integration}
+          extraContent={extraContent}
+          callSubmit={callSubmit}
+          onChangeCurrentStatus={onChangeCurrentStatus}
+          invoiceLink={invoiceLink}
+        />
+      );
+    }}
+  </AppConsumer>
+);
 
-  return (
-    <DumbForm
-      isSubmitting={isSubmitting}
-      currentStatus={currentStatus}
-      onSubmit={onSubmit}
-      onCreateNew={createNew}
-      sendEmail={sendEmail}
-      setHeight={setHeight}
-      form={data.formDetail}
-      integration={integration}
-      extraContent={extraContent}
-      callSubmit={callSubmit}
-      invoiceLink={invoiceLink}
-      hasTopBar={true}
-    />
-  );
-};
-
-export default Form;
+export default WithContext;

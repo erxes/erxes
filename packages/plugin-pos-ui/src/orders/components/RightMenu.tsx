@@ -4,7 +4,7 @@ import {
   ControlLabel,
   FormControl,
   Icon,
-  SelectTeamMembers,
+  SelectTeamMembers
 } from "@erxes/ui/src";
 import {
   CustomRangeContainer,
@@ -12,7 +12,7 @@ import {
   FilterButton,
   MenuFooter,
   RightMenuContainer,
-  TabContent,
+  TabContent
 } from "../../styles";
 import React, { useRef, useState } from "react";
 import { __, isEnabled } from "@erxes/ui/src/utils/core";
@@ -27,7 +27,6 @@ import dayjs from "dayjs";
 
 const SelectCustomers = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "SelectCustomers" */ "@erxes/ui-contacts/src/customers/containers/SelectCustomers"
     )
@@ -35,7 +34,6 @@ const SelectCustomers = asyncComponent(
 
 const SelectCompanies = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "SelectCustomers" */ "@erxes/ui-contacts/src/companies/containers/SelectCompanies"
     )
@@ -78,21 +76,21 @@ const RightMenu = (props: Props) => {
   };
 
   const handleSelect = (values: string[] | string, key: string) => {
-    setFilterParams((prevState) => ({ ...prevState, [key]: String(values) }));
+    setFilterParams(prevState => ({ ...prevState, [key]: String(values) }));
   };
 
-  const onChangeInput = (e) => {
+  const onChangeInput = e => {
     const target = e.target;
     const name = target.name;
     const value = target.value;
 
-    setFilterParams((prevState) => ({ ...prevState, [name]: value }));
+    setFilterParams(prevState => ({ ...prevState, [name]: value }));
   };
 
   const renderLink = (label: string, key: string, value: string) => {
     const selected = queryParams[key] === value;
 
-    const onClick = (_e) => {
+    const onClick = _e => {
       onSelect(value, key);
     };
 
@@ -106,7 +104,7 @@ const RightMenu = (props: Props) => {
 
   const onChangeRangeFilter = (kind, date) => {
     const cDate = dayjs(date).format("YYYY-MM-DD HH:mm");
-    setFilterParams((prevState) => ({ ...prevState, [kind]: cDate }));
+    setFilterParams(prevState => ({ ...prevState, [kind]: cDate }));
   };
 
   const renderSpecials = () => {
@@ -174,26 +172,22 @@ const RightMenu = (props: Props) => {
           onChange={onChangeInput}
         />
 
-        {isEnabled("contacts") && (
-          <>
-            <SelectCustomers
-              label="Filter by customer"
-              name="customerId"
-              initialValue={filterParams.customerId}
-              onSelect={handleSelect}
-              customOption={{ value: "", label: "...Clear customer filter" }}
-              multi={false}
-            />
-            <SelectCompanies
-              label="Filter by company"
-              name="customerId"
-              initialValue={filterParams.customerId}
-              onSelect={handleSelect}
-              customOption={{ value: "", label: "...Clear company filter" }}
-              multi={false}
-            />
-          </>
-        )}
+        <SelectCustomers
+          label={__("Filter by customer")}
+          name="customerId"
+          initialValue={filterParams.customerId}
+          onSelect={handleSelect}
+          customOption={{ value: "", label: __("...Clear customer filter") }}
+          multi={false}
+        />
+        <SelectCompanies
+          label={__("Filter by company")}
+          name="customerId"
+          initialValue={filterParams.customerId}
+          onSelect={handleSelect}
+          customOption={{ value: "", label: __("...Clear company filter") }}
+          multi={false}
+        />
 
         <SelectTeamMembers
           label="Choose users"
@@ -205,7 +199,7 @@ const RightMenu = (props: Props) => {
         />
 
         <SelectPos
-          label="Choose pos"
+          label={__("Choose pos")}
           name="posId"
           initialValue={filterParams.posId}
           onSelect={handleSelect}
@@ -219,12 +213,12 @@ const RightMenu = (props: Props) => {
           placeholder={__("Choose types")}
           value={
             filterParams.types
-              ? ALLOW_TYPES.filter((o) => filterParams.types.includes(o.value))
+              ? ALLOW_TYPES.filter(o => filterParams.types.includes(o.value))
               : null
           }
-          onChange={(types) => {
+          onChange={types => {
             handleSelect(
-              (types || []).map((t) => t.value),
+              (types || []).map(t => t.value),
               "types"
             );
           }}
@@ -237,14 +231,14 @@ const RightMenu = (props: Props) => {
           placeholder={__("Choose status")}
           value={
             filterParams.statuses
-              ? ALLOW_STATUSES.filter((o) =>
+              ? ALLOW_STATUSES.filter(o =>
                   filterParams.statuses.includes(o.value)
                 )
               : null
           }
-          onChange={(statuses) => {
+          onChange={statuses => {
             handleSelect(
-              (statuses || []).map((t) => t.value),
+              (statuses || []).map(t => t.value),
               "statuses"
             );
           }}
@@ -257,14 +251,14 @@ const RightMenu = (props: Props) => {
           placeholder={__("Exclude status")}
           value={
             filterParams.excludeStatuses
-              ? ALLOW_STATUSES.filter((o) =>
+              ? ALLOW_STATUSES.filter(o =>
                   filterParams.excludeStatuses.includes(o.value)
                 )
               : null
           }
-          onChange={(statuses) => {
+          onChange={statuses => {
             handleSelect(
-              (statuses || []).map((t) => t.value),
+              (statuses || []).map(t => t.value),
               "excludeStatuses"
             );
           }}

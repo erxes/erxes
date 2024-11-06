@@ -89,7 +89,7 @@ const clientPortalGetPurchase = `
 `;
 
 const clientPortalTasks = `
-  query clientPortalTasks($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String], $date: ItemDate) {
+  query clientPortalTasks($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String], $date: TasksItemDate) {
     clientPortalTasks(priority: $priority, labelIds: $labelIds, stageId: $stageId, closeDateType: $closeDateType, userIds: $userIds, date: $date) {
       ${itemFields}
     }
@@ -97,7 +97,7 @@ const clientPortalTasks = `
 `;
 
 const clientPortalTickets = `
-  query clientPortalTickets ($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String], $date: ItemDate){
+  query clientPortalTickets ($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String], $date: TicketsItemDate){
     clientPortalTickets(priority: $priority, labelIds: $labelIds, stageId: $stageId, closeDateType: $closeDateType, userIds: $userIds, date: $date) {
       ${itemFields}
     }
@@ -105,7 +105,7 @@ const clientPortalTickets = `
 `;
 
 const clientPortalDeals = `
-  query clientPortalDeals($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String], $date: ItemDate) {
+  query clientPortalDeals($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String], $date: SalesItemDate) {
     clientPortalDeals(priority: $priority, labelIds: $labelIds, stageId: $stageId, closeDateType: $closeDateType, userIds: $userIds, date: $date) {
       ${itemFields}
       productsData  
@@ -114,7 +114,7 @@ const clientPortalDeals = `
 `;
 
 const clientPortalPurchases = `
-  query clientPortalPurchases($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String], $date: ItemDate) {
+  query clientPortalPurchases($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String], $date: PurhcasesItemDate) {
     clientPortalPurchases(priority: $priority, labelIds: $labelIds, stageId: $stageId, closeDateType: $closeDateType, userIds: $userIds, date: $date) {
       ${itemFields}
     }
@@ -167,7 +167,7 @@ const fields = `
         logicOperator
         logicValue
       }
-      groupName
+      
       associatedFieldId
       associatedField {
         _id
@@ -292,33 +292,78 @@ const products = `
   }
 `;
 
-const pipelineLabels = `
-query pipelineLabels($pipelineId: String!) {
-  pipelineLabels(pipelineId: $pipelineId) {
-    _id
-    name
-    colorCode
+const labelFields = `
+  _id
+  name
+  colorCode
+`;
+
+const ticketPipelineLabels = `
+query TicketPipelineLabels($pipelineId: String!) {
+  ticketsPipelineLabels(pipelineId: $pipelineId) {
+    ${labelFields}
   }
 }
 `;
-const stages = `
-query stages($isNotLost: Boolean, $pipelineId: String!, $search: String, $customerIds: [String], $companyIds: [String], $assignedUserIds: [String], $labelIds: [String], $extraParams: JSON, $closeDateType: String, $assignedToMe: String, $branchIds: [String], $departmentIds: [String], $segmentData: String) {
-  stages(
-    isNotLost: $isNotLost
-    pipelineId: $pipelineId
-    search: $search
-    customerIds: $customerIds
-    companyIds: $companyIds
-    assignedUserIds: $assignedUserIds
-    labelIds: $labelIds
-    extraParams: $extraParams
-    closeDateType: $closeDateType
-    assignedToMe: $assignedToMe
-    branchIds: $branchIds
-    departmentIds: $departmentIds
-    segmentData: $segmentData
-  ) {
-    _id
+
+const dealPipelineLabels = `
+query DealPipelineLabels($pipelineId: String!) {
+  salesPipelineLabels(pipelineId: $pipelineId) {
+    ${labelFields}
+  }
+}
+  `;
+
+const taskPipelineLabels = `
+query TaskPipelineLabels($pipelineId: String!) {
+  tasksPipelineLabels(pipelineId: $pipelineId) {
+    ${labelFields}
+  }
+}
+  `;
+
+const purchasePipelineLabels = `
+query PurchasePipelineLabels($pipelineId: String!) {
+  purchasePipelineLabels(pipelineId: $pipelineId) {
+    ${labelFields}
+  } 
+}
+  `;
+
+const stagesQueryAttributes = `
+  $isNotLost: Boolean,
+  $pipelineId: String,
+  $search: String,
+  $customerIds: [String],
+  $companyIds: [String],
+  $assignedUserIds: [String],
+  $labelIds: [String],
+  $extraParams: JSON,
+  $closeDateType: String,
+  $assignedToMe: String,
+  $branchIds: [String], 
+  $departmentIds: [String],
+  $segmentData: String
+`;
+
+const stagesQueryVariables = `
+  isNotLost: $isNotLost
+  pipelineId: $pipelineId
+  search: $search
+  customerIds: $customerIds
+  companyIds: $companyIds
+  assignedUserIds: $assignedUserIds
+  labelIds: $labelIds
+  extraParams: $extraParams
+  closeDateType: $closeDateType
+  assignedToMe: $assignedToMe
+  branchIds: $branchIds
+  departmentIds: $departmentIds
+  segmentData: $segmentData
+`;
+
+const stagesQueryFields = `
+      _id
     name
     order
     amount
@@ -326,26 +371,90 @@ query stages($isNotLost: Boolean, $pipelineId: String!, $search: String, $custom
     pipelineId
     code
     age
-    __typename
+`;
+
+const ticketStages = `
+query TicketStages(${stagesQueryAttributes}) {
+  ticketsStages(
+    ${stagesQueryVariables}
+  ) {
+    ${stagesQueryFields}
   }
 }
 `;
 
-const pipelineAssignedUsers = `
-query pipelineAssignedUsers($_id: String!) {
-  pipelineAssignedUsers(_id: $_id) {
-    _id
+const taskStages = `
+query TaskStages(${stagesQueryAttributes}) {
+  tasksStages(
+    ${stagesQueryVariables}
+  ) {
+    ${stagesQueryFields}
+  }
+}
+`;
+
+const dealStages = `
+query DealStages(${stagesQueryAttributes}) {
+  salesStages(
+    ${stagesQueryVariables}
+  ) {
+    ${stagesQueryFields}
+  }
+}
+`;
+
+const purchaseStages = `
+query PurchaseStages(${stagesQueryAttributes}) {
+  purchasesStages(
+    ${stagesQueryVariables}
+  ) {
+    ${stagesQueryFields}
+  }
+}
+`;
+
+const userFields = `
+     _id
     email
     details {
       avatar
       firstName
       lastName
       fullName
-      __typename
     }
-    __typename
+`
+
+const ticketPipelineAssignedUsers = `
+query TicketsPipelineAssignedUsers($_id: String!) {
+  ticketsPipelineAssignedUsers(_id: $_id) {
+    ${userFields}
   }
 }`;
+
+const dealPipelineAssignedUsers = `
+query SalesPipelineAssignedUsers($_id: String!) {
+  salesPipelineAssignedUsers(_id: $_id) {
+    ${userFields}
+  }
+}`;
+
+const taskPipelineAssignedUsers = `
+query TasksPipelineAssignedUsers($_id: String!) {
+  tasksPipelineAssignedUsers(_id: $_id) {
+    ${userFields}
+  }
+}
+
+`;
+
+const purchasePipelineAssignedUsers = `
+query PurchasesPipelineAssignedUsers($_id: String!) {
+  purchasePipelineAssignedUsers(_id: $_id) {
+    ${userFields}
+  }
+}
+`;
+
 
 const productCategories = `
   query productCategories($status: String) {
@@ -413,10 +522,19 @@ export default {
   departments,
   branches,
   products,
-  pipelineLabels,
-  pipelineAssignedUsers,
-  stages,
+  taskPipelineLabels,
+  dealPipelineLabels,
+  ticketPipelineLabels,
+  purchasePipelineLabels,
+  ticketPipelineAssignedUsers,
+  dealPipelineAssignedUsers,
+  taskPipelineAssignedUsers,
+  purchasePipelineAssignedUsers,
+  ticketStages,
+  taskStages,
+  dealStages,
+  purchaseStages,
   productCategories,
   checklists,
-  checklistDetail
+  checklistDetail,
 };

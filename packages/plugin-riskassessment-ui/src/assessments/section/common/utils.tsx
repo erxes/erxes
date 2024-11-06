@@ -1,6 +1,6 @@
-import { queries as dealQueries } from '@erxes/ui-cards/src/deals/graphql';
-import { queries as taskQueries } from '@erxes/ui-cards/src/tasks/graphql';
-import { queries as ticketQueries } from '@erxes/ui-cards/src/tickets/graphql';
+import { queries as dealQueries } from "@erxes/ui-sales/src/deals/graphql";
+import { queries as taskQueries } from "@erxes/ui-tasks/src/tasks/graphql";
+import { queries as ticketQueries } from "@erxes/ui-tickets/src/tickets/graphql";
 import {
   CollapseContent,
   ControlLabel,
@@ -8,16 +8,16 @@ import {
   FormGroup,
   SelectTeamMembers,
   Spinner
-} from '@erxes/ui/src';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { useQuery } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { ListItem } from '../../../styles';
-import { queries } from '../graphql';
-import { GroupsQueryResponse } from './types';
+} from "@erxes/ui/src";
+import { withProps } from "@erxes/ui/src/utils/core";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { useQuery } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { ListItem } from "../../../styles";
+import { queries } from "../graphql";
+import { GroupsQueryResponse } from "./types";
 
 type SelectGroupsAssignedUsersProps = {
   groups: any[];
@@ -59,7 +59,7 @@ function SelectGroupAssignedUsers({
           name="groupTeamMembers"
           label="Assign Team Members"
           initialValue={groupAssignedUserIds || []}
-          filterParams={{ status: '', ids: assignedUserIds, excludeIds: false }}
+          filterParams={{ status: "", ids: assignedUserIds, excludeIds: false }}
           onSelect={values =>
             handleSelect({
               groupId: group._id,
@@ -163,7 +163,7 @@ class SelectGroupsAssignedUsersComponent extends React.Component<
         title=""
         beforeTitle={
           <ControlLabel>
-            {'Split assigned team members to groups of indicators'}
+            {"Split assigned team members to groups of indicators"}
           </ControlLabel>
         }
       >
@@ -192,50 +192,52 @@ class SelectGroupsAssignedUsersComponent extends React.Component<
   }
 }
 
-export const SelectGroupsAssignedUsers = withProps<
-  SelectGroupsAssignedUsersProps
->(
-  compose(
-    graphql<SelectGroupsAssignedUsersProps>(gql(dealQueries.dealDetail), {
-      skip: ({ cardType }) => cardType !== 'deal',
-      name: 'cardDetailQuery',
-      options: ({ cardId }) => ({
-        variables: {
-          _id: cardId
+export const SelectGroupsAssignedUsers =
+  withProps<SelectGroupsAssignedUsersProps>(
+    compose(
+      graphql<SelectGroupsAssignedUsersProps>(gql(dealQueries.dealDetail), {
+        skip: ({ cardType }) => cardType !== "deal",
+        name: "cardDetailQuery",
+        options: ({ cardId }) => ({
+          variables: {
+            _id: cardId
+          }
+        })
+      }),
+      graphql<SelectGroupsAssignedUsersProps>(gql(ticketQueries.ticketDetail), {
+        skip: ({ cardType }) => cardType !== "ticket",
+        name: "cardDetailQuery",
+        options: ({ cardId }) => ({
+          variables: {
+            _id: cardId
+          }
+        })
+      }),
+      graphql<SelectGroupsAssignedUsersProps>(gql(taskQueries.taskDetail), {
+        skip: ({ cardType }) => cardType !== "task",
+        name: "cardDetailQuery",
+        options: ({ cardId }) => ({
+          variables: {
+            _id: cardId
+          }
+        })
+      }),
+      graphql<SelectGroupsAssignedUsersProps>(
+        gql(queries.riskAssessmentGroups),
+        {
+          skip: ({ groups }) => !groups.length,
+          name: "groupsQueryResponse",
+          options: ({ riskAssessmentId, groups }) => ({
+            variables: {
+              riskAssessmentId,
+              groupIds: groups.map(group => group._id)
+            },
+            fetchPolicy: "network-only"
+          })
         }
-      })
-    }),
-    graphql<SelectGroupsAssignedUsersProps>(gql(ticketQueries.ticketDetail), {
-      skip: ({ cardType }) => cardType !== 'ticket',
-      name: 'cardDetailQuery',
-      options: ({ cardId }) => ({
-        variables: {
-          _id: cardId
-        }
-      })
-    }),
-    graphql<SelectGroupsAssignedUsersProps>(gql(taskQueries.taskDetail), {
-      skip: ({ cardType }) => cardType !== 'task',
-      name: 'cardDetailQuery',
-      options: ({ cardId }) => ({
-        variables: {
-          _id: cardId
-        }
-      })
-    }),
-    graphql<SelectGroupsAssignedUsersProps>(gql(queries.riskAssessmentGroups), {
-      skip: ({ groups }) => !groups.length,
-      name: 'groupsQueryResponse',
-      options: ({ riskAssessmentId, groups }) => ({
-        variables: {
-          riskAssessmentId,
-          groupIds: groups.map(group => group._id)
-        },
-        fetchPolicy: 'network-only'
-      })
-    })
-  )(SelectGroupsAssignedUsersComponent)
-);
+      )
+    )(SelectGroupsAssignedUsersComponent)
+  );
 
 export function SelectGroupsAssignedUsersWrapper({
   _id,

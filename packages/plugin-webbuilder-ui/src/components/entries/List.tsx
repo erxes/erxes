@@ -84,7 +84,7 @@ class List extends React.Component<Props> {
       content = (
         <EmptyState
           image="/images/actions/8.svg"
-          text="No Entries"
+          text={__("No Entries")}
           size="small"
         />
       );

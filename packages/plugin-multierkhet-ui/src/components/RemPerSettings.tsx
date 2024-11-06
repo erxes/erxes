@@ -3,14 +3,14 @@ import {
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup,
-} from '@erxes/ui/src/components';
-import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
-import { __ } from '@erxes/ui/src/utils';
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import React, { useState } from 'react';
-import { IConfigsMap } from '../types';
-import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+  FormGroup
+} from "@erxes/ui/src/components";
+import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
+import { __ } from "@erxes/ui/src/utils";
+import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
+import React, { useState } from "react";
+import { IConfigsMap } from "../types";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -32,7 +32,7 @@ const PerSettings = (props: Props) => {
     setConfig({ ...config, pipelineId });
   };
 
-  const onSave = (e) => {
+  const onSave = e => {
     e.preventDefault();
     const key = config.pipelineId;
 
@@ -41,7 +41,7 @@ const PerSettings = (props: Props) => {
     props.save(configsMap);
   };
 
-  const onDelete = (e) => {
+  const onDelete = e => {
     e.preventDefault();
 
     props.delete(props.currentConfigKey);
@@ -73,13 +73,13 @@ const PerSettings = (props: Props) => {
   return (
     <CollapseContent
       title={__(config.title)}
-      open={props.currentConfigKey === 'newremainderConfig' ? true : false}
+      open={props.currentConfigKey === "newremainderConfig" ? true : false}
     >
       <FormGroup>
-        <ControlLabel>{'Title'}</ControlLabel>
+        <ControlLabel>{"Title"}</ControlLabel>
         <FormControl
-          defaultValue={config['title']}
-          onChange={onChangeInput.bind(this, 'title')}
+          defaultValue={config["title"]}
+          onChange={onChangeInput.bind(this, "title")}
           required={true}
           autoFocus={true}
         />
@@ -99,8 +99,8 @@ const PerSettings = (props: Props) => {
           </FormGroup>
         </FormColumn>
         <FormColumn>
-          {renderInput('account', 'account', '')}
-          {renderInput('location', 'location', '')}
+          {renderInput("account", "account", "")}
+          {renderInput("location", "location", "")}
         </FormColumn>
       </FormWrapper>
       <ModalFooter>

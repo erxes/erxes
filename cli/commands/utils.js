@@ -1,17 +1,17 @@
-'use strict';
+"use strict";
 
-const chalk = require('chalk');
-const fs = require('fs');
-const cliProgress = require('cli-progress');
-const fse = require('fs-extra');
-const { resolve } = require('path');
-const exec = require('child_process').exec;
-const colors = require('colors');
-const { execSync } = require('child_process');
-const fetch = require('node-fetch');
-const { pipeline } = require('node:stream/promises');
+const chalk = require("chalk");
+const fs = require("fs");
+const cliProgress = require("cli-progress");
+const fse = require("fs-extra");
+const { resolve } = require("path");
+const exec = require("child_process").exec;
+const colors = require("colors");
+const { execSync } = require("child_process");
+const fetch = require("node-fetch");
+const { pipeline } = require("node:stream/promises");
 
-const filePath = (pathName) => {
+const filePath = pathName => {
   if (pathName) {
     return resolve(process.cwd(), pathName);
   }
@@ -25,10 +25,10 @@ async function downloadFile(file_url, targetPath) {
     {},
     {
       format:
-        colors.green(' {bar}') +
-        ' {percentage}% | ETA: {eta}s | {value}/{total} | Speed: {speed} kbit',
-      barCompleteChar: '\u2588',
-      barIncompleteChar: '\u2591',
+        colors.green(" {bar}") +
+        " {percentage}% | ETA: {eta}s | {value}/{total} | Speed: {speed} kbit",
+      barCompleteChar: "\u2588",
+      barIncompleteChar: "\u2591"
     }
   );
 
@@ -37,13 +37,13 @@ async function downloadFile(file_url, targetPath) {
   // Save variable to know progress
   var received_bytes = 0;
   var total_bytes = 0;
-  var req = await fetch(file_url, { method: 'GET' });
+  var req = await fetch(file_url, { method: "GET" });
 
   await pipeline(req.body, fs.createWriteStream(targetPath));
 
   bar.update(100);
   bar.stop();
-  return 'File succesfully downloaded';
+  return "File succesfully downloaded";
 }
 
 const execCommand = (command, ignoreError) => {
@@ -51,7 +51,7 @@ const execCommand = (command, ignoreError) => {
     exec(command, { maxBuffer: 1024 * 1000 }, (error, stdout, stderr) => {
       if (error !== null) {
         if (ignoreError) {
-          return resolve('done');
+          return resolve("done");
         }
 
         return reject(error);
@@ -60,7 +60,7 @@ const execCommand = (command, ignoreError) => {
       console.log(stdout);
       console.log(stderr);
 
-      return resolve('done');
+      return resolve("done");
     });
   });
 };
@@ -69,12 +69,12 @@ const execCurl = (url, output) => {
   return execCommand(`curl -L ${url} --output ${output}`);
 };
 
-const log = (msg, color = 'green') => {
+const log = (msg, color = "green") => {
   console.log(chalk[color](msg));
 };
 
-const sleep = (ms) => {
-  return new Promise((resolve) => {
+const sleep = ms => {
+  return new Promise(resolve => {
     setTimeout(resolve, ms);
   });
 };
@@ -87,52 +87,52 @@ module.exports.sleep = sleep;
 
 module.exports.filePath = filePath;
 
-module.exports.downloadLatesVersion = async (configs) => {
-  log('Downloading erxes ...');
+module.exports.downloadLatesVersion = async configs => {
+  log("Downloading erxes ...");
 
   const { DOMAIN } = configs || {};
 
   // download the latest build
   await execCurl(
-    'https://api.github.com/repos/erxes/erxes/releases/latest',
-    'gitInfo.json'
+    "https://api.github.com/repos/erxes/erxes/releases/latest",
+    "gitInfo.json"
   );
 
-  const gitInfo = await fse.readJSON(filePath('gitInfo.json'));
+  const gitInfo = await fse.readJSON(filePath("gitInfo.json"));
 
   let fileName = `${gitInfo.tag_name}`;
 
-  if (DOMAIN.includes('localhost')) {
+  if (DOMAIN.includes("localhost")) {
     fileName = `${gitInfo.tag_name}-local`;
   }
 
   await downloadFile(
     `https://github.com/erxes/erxes/releases/download/${gitInfo.tag_name}/erxes-${fileName}.tar.gz`,
-    'build.tar.gz'
+    "build.tar.gz"
   );
 
   process.chdir(filePath());
 
-  log('Extracting tar ...');
+  log("Extracting tar ...");
 
   await execCommand(`tar xf build.tar.gz`);
 
-  if (DOMAIN.includes('localhost')) {
+  if (DOMAIN.includes("localhost")) {
     await execCommand(`mv build-local build`);
   }
 
-  log('Backing up build tar ...');
+  log("Backing up build tar ...");
 
-  await fse.copy(filePath('build.tar.gz'), filePath('build-backup.tar.gz'));
+  await fse.copy(filePath("build.tar.gz"), filePath("build-backup.tar.gz"));
 };
 
-module.exports.startServices = async (configs) => {
-  log('Starting services using pm2 ...');
+module.exports.startServices = async configs => {
+  log("Starting services using pm2 ...");
 
   const {
     JWT_TOKEN_SECRET,
     DOMAIN,
-    MONGO_URL = '',
+    MONGO_URL = "",
     ELASTICSEARCH_URL,
     ELK_SYNCER,
     USE_DASHBOARD,
@@ -140,7 +140,7 @@ module.exports.startServices = async (configs) => {
     RABBITMQ_HOST,
     REDIS_HOST,
     REDIS_PORT,
-    REDIS_PASSWORD,
+    REDIS_PASSWORD
   } = configs || {};
 
   const optionalDbConfigs = {};
@@ -155,9 +155,9 @@ module.exports.startServices = async (configs) => {
     optionalDbConfigs.REDIS_PASSWORD = REDIS_PASSWORD;
   }
 
-  const generateMongoUrl = (dbName) => {
-    if (MONGO_URL.includes('replicaSet')) {
-      return MONGO_URL.replace('erxes?', `${dbName}?`);
+  const generateMongoUrl = dbName => {
+    if (MONGO_URL.includes("replicaSet")) {
+      return MONGO_URL.replace("erxes?", `${dbName}?`);
     }
 
     return `${MONGO_URL}/${dbName}`;
@@ -175,11 +175,11 @@ module.exports.startServices = async (configs) => {
   let WIDGETS_DOMAIN = `http://localhost:${PORT_WIDGETS}`;
   let DASHBOARD_UI_DOMAIN = `http://localhost:${PORT_DASHBOARD_UI}`;
   let DASHBOARD_API_DOMAIN = `http://localhost:${PORT_DASHBOARD_API}`;
-  const dasbhoardSchemaPath = 'build/dashboard-api/schema';
+  const dasbhoardSchemaPath = "build/dashboard-api/schema";
 
   const HELPERS_DOMAIN = `https://helper.erxes.io/`;
 
-  if (!DOMAIN.includes('localhost')) {
+  if (!DOMAIN.includes("localhost")) {
     API_DOMAIN = `${DOMAIN}/api`;
     INTEGRATIONS_API_DOMAIN = `${DOMAIN}/integrations`;
     WIDGETS_DOMAIN = `${DOMAIN}/widgets`;
@@ -187,11 +187,11 @@ module.exports.startServices = async (configs) => {
     DASHBOARD_API_DOMAIN = `${DOMAIN}/dashboard/api`;
   }
 
-  const API_MONGO_URL = generateMongoUrl('erxes');
+  const API_MONGO_URL = generateMongoUrl("erxes");
 
   const commonEnv = {
-    NODE_ENV: 'production',
-    JWT_TOKEN_SECRET: JWT_TOKEN_SECRET || '',
+    NODE_ENV: "production",
+    JWT_TOKEN_SECRET: JWT_TOKEN_SECRET || "",
     MONGO_URL: API_MONGO_URL,
     ELASTICSEARCH_URL,
     ELK_SYNCER,
@@ -199,143 +199,144 @@ module.exports.startServices = async (configs) => {
     WIDGETS_DOMAIN: WIDGETS_DOMAIN,
     INTEGRATIONS_API_DOMAIN: INTEGRATIONS_API_DOMAIN,
 
-    LOGS_API_DOMAIN: configs.LOGS_API_DOMAIN || 'http://localhost:3800',
-    ENGAGES_API_DOMAIN: configs.ENGAGES_API_DOMAIN || 'http://localhost:3900',
-    VERIFIER_API_DOMAIN: configs.VERIFIER_API_DOMAIN || 'http://localhost:4100',
-    ...(configs.API || {}),
+    LOGS_API_DOMAIN: configs.LOGS_API_DOMAIN || "http://localhost:3800",
+    ENGAGES_API_DOMAIN: configs.ENGAGES_API_DOMAIN || "http://localhost:3900",
+    VERIFIER_API_DOMAIN: configs.VERIFIER_API_DOMAIN || "http://localhost:4100",
+    ...(configs.API || {})
   };
 
   const apps = [
     {
-      name: 'api',
-      script: filePath('build/api'),
+      name: "api",
+      script: filePath("build/api"),
       env: {
         PORT: PORT_API,
         DASHBOARD_DOMAIN: USE_DASHBOARD ? DASHBOARD_UI_DOMAIN : null,
         HELPERS_DOMAIN: USE_DASHBOARD ? HELPERS_DOMAIN : null,
         ...commonEnv,
         ...optionalDbConfigs,
-        DEBUG: 'erxes-api:*',
-      },
+        DEBUG: "erxes-api:*"
+      }
     },
     {
-      name: 'cronjobs',
-      script: filePath('build/api/cronJobs'),
+      name: "cronjobs",
+      script: filePath("build/api/cronJobs"),
       env: {
         PORT_CRONS: 3600,
         ...commonEnv,
-        PROCESS_NAME: 'crons',
+        PROCESS_NAME: "crons",
         ...optionalDbConfigs,
-        DEBUG: 'erxes-crons:*',
-      },
+        DEBUG: "erxes-crons:*"
+      }
     },
     {
-      name: 'workers',
-      script: filePath('build/api/workers'),
+      name: "workers",
+      script: filePath("build/api/workers"),
       env: {
         PORT_WORKERS: 3700,
         ...commonEnv,
         ...optionalDbConfigs,
-        DEBUG: 'erxes-workers:*',
-      },
+        DEBUG: "erxes-workers:*"
+      }
     },
     {
-      name: 'integrations',
-      script: filePath('build/integrations'),
+      name: "integrations",
+      script: filePath("build/integrations"),
       env: {
         PORT: PORT_INTEGRATIONS,
-        NODE_ENV: 'production',
-        DEBUG: 'erxes-integrations:*',
+        NODE_ENV: "production",
+        DEBUG: "erxes-integrations:*",
         DOMAIN: INTEGRATIONS_API_DOMAIN,
         MAIN_APP_DOMAIN: DOMAIN,
         MAIN_API_DOMAIN: API_DOMAIN,
-        MONGO_URL: generateMongoUrl('erxes_integrations'),
+        MONGO_URL: generateMongoUrl("erxes_integrations"),
         ...optionalDbConfigs,
-        ...(configs.INTEGRATIONS || {}),
-      },
+        ...(configs.INTEGRATIONS || {})
+      }
     },
     {
-      name: 'engages',
-      script: filePath('build/engages'),
+      name: "engages",
+      script: filePath("build/engages"),
       env: {
         PORT: 3900,
-        NODE_ENV: 'production',
-        DEBUG: 'erxes-engages:*',
+        NODE_ENV: "production",
+        DEBUG: "erxes-engages:*",
         MAIN_API_DOMAIN: API_DOMAIN,
-        MONGO_URL: generateMongoUrl('erxes_engages'),
+        MONGO_URL: generateMongoUrl("erxes_engages"),
         ...optionalDbConfigs,
-        ...(configs.ENGAGES || {}),
-      },
+        ...(configs.ENGAGES || {})
+      }
     },
     {
-      name: 'logger',
-      script: filePath('build/logger'),
+      name: "logger",
+      script: filePath("build/logger"),
       env: {
         PORT: 3800,
-        NODE_ENV: 'production',
-        DEBUG: 'erxes-logs:*',
-        MONGO_URL: generateMongoUrl('erxes_logger'),
+        NODE_ENV: "production",
+        DEBUG: "erxes-logs:*",
+        MONGO_URL: generateMongoUrl("erxes_logger"),
         ...optionalDbConfigs,
-        ...(configs.LOGGER || {}),
-      },
+        ...(configs.LOGGER || {})
+      }
     },
     {
-      name: 'email-verifier',
-      script: filePath('build/email-verifier'),
+      name: "email-verifier",
+      script: filePath("build/email-verifier"),
       env: {
         PORT: 4100,
-        NODE_ENV: 'production',
-        DEBUG: 'erxes-email-verifier:*',
-        MONGO_URL: generateMongoUrl('erxes_email_verifier'),
-        ...(configs.EMAIL_VERIFIER || {}),
-      },
-    },
+        NODE_ENV: "production",
+        DEBUG: "erxes-email-verifier:*",
+        MONGO_URL: generateMongoUrl("erxes_email_verifier"),
+        ...(configs.EMAIL_VERIFIER || {})
+      }
+    }
   ];
 
   if (USE_DASHBOARD) {
-    log('Starting dashboard ...');
+    log("Starting dashboard ...");
 
     if (!ELK_SYNCER) {
       return log(
         'Dashboard is not started "If you want to use dashboard you need to start elksyncer"',
-        'red'
+        "red"
       );
     }
 
     if (!REDIS_HOST || !REDIS_PORT) {
       return log(
         'Dashboard is not started "If you want to use dashboard you need to start redis"',
-        'red'
+        "red"
       );
     }
 
     const CUBE_API_SECRET = Math.random().toString();
 
     apps.push({
-      name: 'dashboard-api',
-      script: filePath('build/dashboard-api'),
+      name: "dashboard-api",
+      script: filePath("build/dashboard-api"),
       env: {
-        NODE_ENV: 'production',
+        NODE_ENV: "production",
         PORT: PORT_DASHBOARD_API,
-        DEBUG: 'erxes-dashboards:*',
-        DB_NAME: 'erxes',
+        DEBUG: "erxes-dashboards:*",
+        DB_NAME: "erxes",
         CUBEJS_URL: DASHBOARD_API_DOMAIN,
         CUBEJS_API_SECRET: CUBE_API_SECRET,
-        CUBEJS_DB_TYPE: 'elasticsearch',
+        CUBEJS_DB_TYPE: "elasticsearch",
         CUBEJS_DB_URL: ELASTICSEARCH_URL,
         SCHEMA_PATH: dasbhoardSchemaPath,
-        REDIS_URL: `redis://${REDIS_HOST}:${REDIS_PORT ||
-          6379}?password=${REDIS_PASSWORD || ''}`,
-        REDIS_PASSWORD: REDIS_PASSWORD,
-      },
+        REDIS_URL: `redis://${REDIS_HOST}:${
+          REDIS_PORT || 6379
+        }?password=${REDIS_PASSWORD || ""}`,
+        REDIS_PASSWORD: REDIS_PASSWORD
+      }
     });
 
     const subscriptionsUrl = `${
-      API_DOMAIN.includes('https') ? 'wss' : 'ws'
+      API_DOMAIN.includes("https") ? "wss" : "ws"
     }//${API_DOMAIN}/subscriptions`;
 
     await fs.promises.writeFile(
-      filePath('build/dashboard-ui/js/env.js'),
+      filePath("build/dashboard-ui/js/env.js"),
       `
       window.env = {
         NODE_ENV: "production",
@@ -347,45 +348,45 @@ module.exports.startServices = async (configs) => {
     );
 
     apps.push({
-      name: 'dashboard-ui',
-      script: 'serve',
+      name: "dashboard-ui",
+      script: "serve",
       env: {
-        PM2_SERVE_PATH: filePath('build/dashboard-ui'),
+        PM2_SERVE_PATH: filePath("build/dashboard-ui"),
         PM2_SERVE_PORT: PORT_DASHBOARD_UI,
-        PM2_SERVE_SPA: 'true',
-      },
+        PM2_SERVE_SPA: "true"
+      }
     });
   }
 
   if (ELK_SYNCER) {
-    log('Starting elkSyncer ...');
+    log("Starting elkSyncer ...");
 
     apps.push({
-      name: 'elkSyncer',
-      cwd: filePath('build/elkSyncer'),
-      script: 'main.py',
-      interpreter: '/usr/bin/python3',
+      name: "elkSyncer",
+      cwd: filePath("build/elkSyncer"),
+      script: "main.py",
+      interpreter: "/usr/bin/python3",
       env: {
         MONGO_URL: API_MONGO_URL,
-        ELASTICSEARCH_URL,
-      },
+        ELASTICSEARCH_URL
+      }
     });
   }
 
   const uiConfigs = configs.UI || {};
-  const subscriptionsUrl = `${API_DOMAIN.replace('https', 'wss').replace(
-    'http',
-    'ws'
+  const subscriptionsUrl = `${API_DOMAIN.replace("https", "wss").replace(
+    "http",
+    "ws"
   )}/subscriptions`;
 
   if (uiConfigs.disableServe) {
     log(
-      'Default serve is disabled. Please serve using services like nginx, aws s3 ...',
-      'yellow'
+      "Default serve is disabled. Please serve using services like nginx, aws s3 ...",
+      "yellow"
     );
   } else {
     await fs.promises.writeFile(
-      filePath('build/ui/js/env.js'),
+      filePath("build/ui/js/env.js"),
       `
       window.env = {
         NODE_ENV: "production",
@@ -395,39 +396,39 @@ module.exports.startServices = async (configs) => {
         ${
           USE_DASHBOARD
             ? `REACT_APP_DASHBOARD_URL: "${DASHBOARD_UI_DOMAIN}"`
-            : ''
+            : ""
         }
       }
     `
     );
 
     apps.push({
-      name: 'ui',
-      script: 'serve',
+      name: "ui",
+      script: "serve",
       env: {
-        PM2_SERVE_PATH: filePath('build/ui'),
+        PM2_SERVE_PATH: filePath("build/ui"),
         PM2_SERVE_PORT: PORT_UI,
-        PM2_SERVE_SPA: 'true',
-      },
+        PM2_SERVE_SPA: "true"
+      }
     });
   }
 
   apps.push({
-    name: 'widgets',
-    script: filePath('build/widgets/dist'),
+    name: "widgets",
+    script: filePath("build/widgets/dist"),
     env: {
       PORT: PORT_WIDGETS,
-      NODE_ENV: 'production',
+      NODE_ENV: "production",
       ROOT_URL: WIDGETS_DOMAIN,
       API_URL: API_DOMAIN,
       API_SUBSCRIPTIONS_URL: subscriptionsUrl,
-      ...(configs.WIDGETS || {}),
-    },
+      ...(configs.WIDGETS || {})
+    }
   });
 
   // create ecosystem
   await fse.writeFile(
-    filePath('ecosystem.config.js'),
+    filePath("ecosystem.config.js"),
     `
       module.exports = {
         apps: ${JSON.stringify(apps)}
@@ -444,18 +445,18 @@ module.exports.startServices = async (configs) => {
     PORT_INTEGRATIONS,
     USE_DASHBOARD,
     PORT_DASHBOARD_API,
-    PORT_DASHBOARD_UI,
+    PORT_DASHBOARD_UI
   });
 
-  log('Running migrations ...');
+  log("Running migrations ...");
 
   await execCommand(
     `MONGO_URL="${API_MONGO_URL}" node ${filePath(
-      'build/api/commands/migrate.js'
+      "build/api/commands/migrate.js"
     )}`
   );
 
-  const ecosystemPath = filePath('ecosystem.config.js');
+  const ecosystemPath = filePath("ecosystem.config.js");
   return execSync(`pm2 start ${ecosystemPath}`);
 };
 
@@ -467,7 +468,7 @@ const generateNginxConf = async ({
   PORT_INTEGRATIONS,
   USE_DASHBOARD,
   PORT_DASHBOARD_API,
-  PORT_DASHBOARD_UI,
+  PORT_DASHBOARD_UI
 }) => {
   const commonConfig = `
     proxy_set_header Upgrade $http_upgrade;
@@ -495,13 +496,13 @@ const generateNginxConf = async ({
   }
 
   await fs.promises.writeFile(
-    filePath('nginx.conf'),
+    filePath("nginx.conf"),
     `
     server {
             listen 80;
-            server_name ${DOMAIN.replace('https://', '').replace(
-              'http://',
-              ''
+            server_name ${DOMAIN.replace("https://", "").replace(
+              "http://",
+              ""
             )};
             # erxes build path
             index index.html;

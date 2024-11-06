@@ -8,11 +8,11 @@ import {
   Pagination,
   SortHandler,
   Table,
-  Wrapper,
+  Wrapper
 } from "@erxes/ui/src";
 import { FlexRow, Title } from "@erxes/ui-settings/src/styles";
 import React, { useRef, useState } from "react";
-import { __, isEnabled, router } from "@erxes/ui/src/utils/core";
+import { __, router } from "@erxes/ui/src/utils/core";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import CarForm from "../../containers/CarForm";
@@ -56,7 +56,7 @@ const CarsList = (props: Props) => {
     emptyBulk,
     remove,
     merge,
-    queryParams,
+    queryParams
   } = props;
 
   const [search, setSearch] = useState<string>(searchValue || "");
@@ -66,7 +66,7 @@ const CarsList = (props: Props) => {
     toggleAll(cars, "cars");
   };
 
-  const handleSearch = (e) => {
+  const handleSearch = e => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
@@ -80,27 +80,27 @@ const CarsList = (props: Props) => {
     }, 500);
   };
 
-  const removeCars = (cars) => {
+  const removeCars = cars => {
     const carIds: string[] = [];
 
-    cars.forEach((car) => {
+    cars.forEach(car => {
       carIds.push(car._id);
     });
 
     remove({ carIds }, emptyBulk);
   };
 
-  const moveCursorAtTheEnd = (e) => {
+  const moveCursorAtTheEnd = e => {
     const tmpValue = e.target.value;
     e.target.value = "";
     e.target.value = tmpValue;
   };
 
-  const carForm = (formProps) => {
+  const carForm = formProps => {
     return <CarForm {...formProps} queryParams={queryParams} />;
   };
 
-  const carsMerge = (formProps) => {
+  const carsMerge = formProps => {
     return <CarsMerge {...formProps} objects={bulk} save={merge} />;
   };
 
@@ -129,7 +129,7 @@ const CarsList = (props: Props) => {
           .then(() => {
             removeCars(bulk);
           })
-          .catch((error) => {
+          .catch(error => {
             Alert.error(error.message);
           });
 
@@ -144,15 +144,13 @@ const CarsList = (props: Props) => {
             />
           )}
 
-          {isEnabled("tags") && (
-            <TaggerPopover
-              type={"cars:car"}
-              successCallback={emptyBulk}
-              targets={bulk}
-              trigger={tagButton}
-              refetchQueries={["productCountByTags"]}
-            />
-          )}
+          <TaggerPopover
+            type={"cars:car"}
+            successCallback={emptyBulk}
+            targets={bulk}
+            trigger={tagButton}
+            refetchQueries={["productCountByTags"]}
+          />
 
           <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
             Delete
@@ -173,7 +171,7 @@ const CarsList = (props: Props) => {
         />
 
         <ModalTrigger
-          title="New car"
+          title={__("New car")}
           trigger={addTrigger}
           autoOpenKey="showCarModal"
           size="lg"
@@ -235,12 +233,11 @@ const CarsList = (props: Props) => {
             </tr>
           </thead>
           <tbody id="cars">
-            {cars.map((car) => (
+            {cars.map(car => (
               <CarRow
                 car={car}
                 isChecked={bulk.includes(car)}
                 key={car._id}
-                history={history}
                 toggleBulk={toggleBulk}
               />
             ))}
@@ -265,7 +262,6 @@ const CarsList = (props: Props) => {
         <Sidebar
           loadingMainQuery={loading}
           queryParams={queryParams}
-          history={history}
         />
       }
       hasBorder={true}
@@ -274,7 +270,7 @@ const CarsList = (props: Props) => {
           data={renderContent()}
           loading={loading}
           count={cars.length}
-          emptyText="Add in your first car!"
+          emptyText={__("Add in your first car!")}
           emptyImage="/images/actions/1.svg"
         />
       }

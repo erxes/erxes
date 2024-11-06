@@ -1,11 +1,11 @@
-import { paginate } from '@erxes/api-utils/src/core';
+import { paginate } from "@erxes/api-utils/src/core";
 import {
   checkPermission,
   requireLogin
-} from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
-import { sendCoreMessage, sendTagsMessage } from '../../../messageBroker';
-import { Builder, countBySegment } from '../../../utils';
+} from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
+import { sendCoreMessage } from "../../../messageBroker";
+import { Builder, countBySegment } from "../../../utils";
 
 const generateFilter = async (
   subdomain: string,
@@ -24,7 +24,7 @@ const generateFilter = async (
   }
 
   if (params.searchValue) {
-    filter.searchText = { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] };
+    filter.searchText = { $in: [new RegExp(`.*${params.searchValue}.*`, "i")] };
   }
 
   if (params.ids) {
@@ -39,11 +39,11 @@ const generateFilter = async (
     filter._id = {
       $in: await sendCoreMessage({
         subdomain,
-        action: 'conformities.savedConformity',
+        action: "conformities.savedConformity",
         data: {
           mainType: params.conformityMainType,
           mainTypeId: params.conformityMainTypeId,
-          relTypes: ['car']
+          relTypes: ["car"]
         },
         isRPC: true,
         defaultValue: []
@@ -59,11 +59,11 @@ const generateFilter = async (
     filter._id = {
       $in: await sendCoreMessage({
         subdomain,
-        action: 'conformities.relatedConformity',
+        action: "conformities.relatedConformity",
         data: {
           mainType: params.conformityMainType,
           mainTypeId: params.conformityMainTypeId,
-          relType: 'car'
+          relType: "car"
         },
         isRPC: true,
         defaultValue: []
@@ -153,7 +153,7 @@ const carQueries = {
     }
 
     if (searchValue) {
-      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+      filter.name = new RegExp(`.*${searchValue}.*`, "i");
     }
 
     return models.CarCategories.find(filter).sort({ order: 1 });
@@ -185,8 +185,8 @@ const carQueries = {
     });
 
     switch (only) {
-      case 'bySegment':
-        counts.bySegment = await countBySegment(subdomain, 'cars:car', qb);
+      case "bySegment":
+        counts.bySegment = await countBySegment(subdomain, "cars:car", qb);
         break;
     }
 
@@ -197,11 +197,11 @@ const carQueries = {
     const counts = {};
 
     // Count products by tag =========
-    const tags = await sendTagsMessage({
+    const tags = await sendCoreMessage({
       subdomain,
-      action: 'find',
+      action: "tagFind",
       data: {
-        type: 'cars:car'
+        type: "cars:car"
       },
       isRPC: true,
       defaultValue: []
@@ -210,7 +210,7 @@ const carQueries = {
     for (const tag of tags) {
       counts[tag._id] = await models.Cars.find({
         tagIds: tag._id,
-        status: { $ne: 'Deleted' }
+        status: { $ne: "Deleted" }
       }).countDocuments();
     }
 
@@ -233,7 +233,7 @@ const carQueries = {
     }
 
     if (searchValue) {
-      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+      filter.name = new RegExp(`.*${searchValue}.*`, "i");
     }
 
     return models.CarCategories.find(filter).sort({ order: 1 });
@@ -248,12 +248,12 @@ const carQueries = {
   }
 };
 
-requireLogin(carQueries, 'carDetail');
+requireLogin(carQueries, "carDetail");
 
-checkPermission(carQueries, 'carsMain', 'showCars');
-checkPermission(carQueries, 'carDetail', 'showCars');
-checkPermission(carQueries, 'carCategories', 'showCars');
-checkPermission(carQueries, 'carCategoriesTotalCount', 'showCars');
-checkPermission(carQueries, 'carCategoryDetail', 'showCars');
+checkPermission(carQueries, "carsMain", "showCars");
+checkPermission(carQueries, "carDetail", "showCars");
+checkPermission(carQueries, "carCategories", "showCars");
+checkPermission(carQueries, "carCategoriesTotalCount", "showCars");
+checkPermission(carQueries, "carCategoryDetail", "showCars");
 
 export default carQueries;

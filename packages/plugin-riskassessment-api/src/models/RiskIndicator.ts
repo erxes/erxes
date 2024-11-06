@@ -1,54 +1,54 @@
-import { paginate } from '@erxes/api-utils/src';
-import { escapeRegExp } from '@erxes/api-utils/src/core';
-import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
-import { sendCommonMessage, sendFormsMessage } from '../messageBroker';
+import { paginate } from "@erxes/api-utils/src";
+import { escapeRegExp } from "@erxes/api-utils/src/core";
+import { Model } from "mongoose";
+import { IModels } from "../connectionResolver";
+import { sendCommonMessage, sendCoreMessage } from "../messageBroker";
 import {
   getFilterTagIds,
   validRiskIndicators,
-  validateCalculateMethods,
-} from '../utils';
-import { IRiskIndicatorsField, PaginateField } from './definitions/common';
+  validateCalculateMethods
+} from "../utils";
+import { IRiskIndicatorsField, PaginateField } from "./definitions/common";
 import {
   IIndicatorsGroupsDocument,
   IRiskIndicatorsDocument,
   riskIndicatorGroupSchema,
-  riskIndicatorSchema,
-} from './definitions/indicator';
+  riskIndicatorSchema
+} from "./definitions/indicator";
 
 export interface IRiskIndicatorsModel extends Model<IRiskIndicatorsDocument> {
   riskIndicators(
-    params: { tagIds: string[] } & IRiskIndicatorsField & PaginateField,
+    params: { tagIds: string[] } & IRiskIndicatorsField & PaginateField
   ): Promise<IRiskIndicatorsDocument>;
   riskIndicatorsTotalCount(
-    params: { tagIds: string[] } & IRiskIndicatorsField & PaginateField,
+    params: { tagIds: string[] } & IRiskIndicatorsField & PaginateField
   ): Promise<IRiskIndicatorsDocument>;
   riskIndicatorDetail(params: {
     _id: string;
     fieldsSkip: any;
   }): Promise<IRiskIndicatorsDocument>;
   riskIndicatorAdd(
-    params: IRiskIndicatorsField,
+    params: IRiskIndicatorsField
   ): Promise<IRiskIndicatorsDocument>;
   riskIndicatorRemove(_ids: string[]): void;
   riskIndicatorUpdate(
     _id?: string,
-    doc?: IRiskIndicatorsField,
+    doc?: IRiskIndicatorsField
   ): Promise<IRiskIndicatorsDocument>;
   removeRiskIndicatorUnusedForms(
-    ids: string[],
+    ids: string[]
   ): Promise<IRiskIndicatorsDocument>;
   duplicateRiskIndicator(indicatorId: string): Promise<IRiskIndicatorsDocument>;
 }
 
 const statusColors = {
-  Unacceptable: '#393c40',
-  Error: '#ea475d',
-  Warning: '#f7ce53',
-  Danger: '#ff6600',
-  Success: '#3ccc38',
-  In_Progress: '#3B85F4',
-  No_Result: '#888',
+  Unacceptable: "#393c40",
+  Error: "#ea475d",
+  Warning: "#f7ce53",
+  Danger: "#ff6600",
+  Success: "#3ccc38",
+  In_Progress: "#3B85F4",
+  No_Result: "#888"
 };
 
 const generateIds = async ({
@@ -56,7 +56,7 @@ const generateIds = async ({
   useSendMessage,
   params,
   serviceName,
-  action,
+  action
 }) => {
   if (useSendMessage) {
     const items = await sendCommonMessage({
@@ -65,10 +65,10 @@ const generateIds = async ({
       action,
       data: params,
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
-    return { $in: items.map((item) => item._id) };
+    return { $in: items.map(item => item._id) };
   }
 
   return params;
@@ -85,7 +85,7 @@ const generateFilter = async (
     operationId?: string;
     withChilds?: boolean;
   } & IRiskIndicatorsField &
-    PaginateField,
+    PaginateField
 ) => {
   let filter: any = {};
 
@@ -120,7 +120,7 @@ const generateFilter = async (
     }
     filter.createdAt = {
       ...filter.createdAt,
-      $lte: new Date(params.sortToDate),
+      $lte: new Date(params.sortToDate)
     };
   }
 
@@ -128,7 +128,7 @@ const generateFilter = async (
     filter.statusColor = statusColors[params.status];
   }
   if (params.searchValue) {
-    filter.name = { $regex: new RegExp(escapeRegExp(params.searchValue), 'i') };
+    filter.name = { $regex: new RegExp(escapeRegExp(params.searchValue), "i") };
   }
 
   if (params.ignoreIds) {
@@ -167,7 +167,7 @@ export const loadRiskIndicators = (models: IModels, subdomain: string) => {
         tagId: string;
         ignoreIds: string[];
       } & IRiskIndicatorsField &
-        PaginateField,
+        PaginateField
     ) {
       const filter = await generateFilter(subdomain, params);
       const sort = generateOrderFilters(params);
@@ -178,7 +178,7 @@ export const loadRiskIndicators = (models: IModels, subdomain: string) => {
         tagId: string;
         ignoreIds: string[];
       } & IRiskIndicatorsField &
-        PaginateField,
+        PaginateField
     ) {
       const filter = await generateFilter(subdomain, params);
       return await models.RiskIndicators.find(filter).countDocuments();
@@ -196,7 +196,7 @@ export const loadRiskIndicators = (models: IModels, subdomain: string) => {
 
     public static async riskIndicatorRemove(_ids: string[]) {
       if (!_ids) {
-        throw new Error('Please select a list of risk assessment IDs');
+        throw new Error("Please select a list of risk assessment IDs");
       }
       try {
         return await models.RiskIndicators.deleteMany({ _id: { $in: _ids } });
@@ -207,44 +207,44 @@ export const loadRiskIndicators = (models: IModels, subdomain: string) => {
 
     public static async riskIndicatorUpdate(
       _id: string,
-      doc: IRiskIndicatorsField,
+      doc: IRiskIndicatorsField
     ) {
       if (!_id && !doc) {
-        throw new Error('Not found risk assessment');
+        throw new Error("Not found risk assessment");
       }
 
       try {
         return await models.RiskIndicators.findByIdAndUpdate(_id, {
           ...doc,
-          modifiedAt: new Date(),
+          modifiedAt: new Date()
         });
       } catch (e) {
-        throw new Error('Something went wrong');
+        throw new Error("Something went wrong");
       }
     }
 
     public static async duplicateRiskIndicator(indicatorId: string) {
       const indicator = await models.RiskIndicators.findOne({
-        _id: indicatorId,
+        _id: indicatorId
       }).lean();
       if (!indicator) {
-        throw new Error('Could not find indicator');
+        throw new Error("Could not find indicator");
       }
 
       const { _id, name, forms, ...indicatorDoc } = indicator;
 
       const newForms = await Promise.all(
-        (forms || []).map(async (form) => {
-          const newForm = await sendFormsMessage({
+        (forms || []).map(async form => {
+          const newForm = await sendCoreMessage({
             subdomain,
-            action: 'duplicate',
+            action: "duplicate",
             data: { formId: form.formId },
             isRPC: true,
-            defaultValue: null,
+            defaultValue: null
           });
 
           return { ...form, formId: newForm._id };
-        }),
+        })
       );
 
       return await models.RiskIndicators.create({
@@ -252,7 +252,7 @@ export const loadRiskIndicators = (models: IModels, subdomain: string) => {
         name: `${name}-copied`,
         createdAt: new Date(),
         modifiedAt: new Date(),
-        forms: newForms,
+        forms: newForms
       });
     }
     public static async riskIndicatorDetail(params: {
@@ -262,7 +262,7 @@ export const loadRiskIndicators = (models: IModels, subdomain: string) => {
       const filter = await generateFilter(subdomain, params);
       const { fieldsSkip } = params;
       if (!filter._id) {
-        throw new Error('You must provide a _id parameter');
+        throw new Error("You must provide a _id parameter");
       }
 
       return await models.RiskIndicators.findOne(filter).select(fieldsSkip);
@@ -270,14 +270,14 @@ export const loadRiskIndicators = (models: IModels, subdomain: string) => {
 
     public static async removeRiskIndicatorUnusedForms(ids: string[]) {
       try {
-        await sendFormsMessage({
+        await sendCoreMessage({
           subdomain,
-          action: 'removeForm',
+          action: "removeForm",
           data: { $in: ids },
           isRPC: true,
-          defaultValue: {},
+          defaultValue: {}
         });
-        return { status: 'removed' };
+        return { status: "removed" };
       } catch (error) {
         throw new Error(error.message);
       }
@@ -304,12 +304,12 @@ export const loadIndicatorsGroups = (models: IModels, subdomain: string) => {
     public static async updateGroup(_id: string, doc: any) {
       const group = await models.IndicatorsGroups.findOne({ _id });
       if (!group) {
-        throw new Error('Indicators groups not found');
+        throw new Error("Indicators groups not found");
       }
       await this.validateIndicatorsGroups(doc);
       return await models.IndicatorsGroups.updateOne(
         { _id },
-        { $set: { ...doc, modifiedAt: new Date() } },
+        { $set: { ...doc, modifiedAt: new Date() } }
       );
     }
     public static async removeGroups(ids: string[]) {
@@ -321,7 +321,7 @@ export const loadIndicatorsGroups = (models: IModels, subdomain: string) => {
       if ((params.groups || []).length > 1) {
         for (const group of params.groups) {
           if (!group.percentWeight) {
-            throw new Error('Group must provide a percent weight');
+            throw new Error("Group must provide a percent weight");
           }
           totalPercentWeight += group.percentWeight;
         }
@@ -329,12 +329,12 @@ export const loadIndicatorsGroups = (models: IModels, subdomain: string) => {
       }
 
       if (totalPercentWeight > 100) {
-        throw new Error('Total percent weight must be lower than 100');
+        throw new Error("Total percent weight must be lower than 100");
       }
 
       for (const group of params.groups || []) {
         if (!(group.indicatorIds || []).length) {
-          throw new Error('You should select some indicator each group');
+          throw new Error("You should select some indicator each group");
         }
         await validateCalculateMethods(group);
       }

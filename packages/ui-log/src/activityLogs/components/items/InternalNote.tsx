@@ -5,17 +5,17 @@ import {
   FlexBody,
   FlexCenterContent,
   LogWrapper
-} from '../../styles';
+} from "../../styles";
 
-import Form from '@erxes/ui-internalnotes/src/components/Form';
-import { IInternalNote } from '@erxes/ui-internalnotes/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import dayjs from 'dayjs';
-import { renderUserFullName } from '@erxes/ui/src/utils';
-import { urlify } from '@erxes/ui/src/utils/urlParser';
-import xss from 'xss';
+import Form from "@erxes/ui-internalnotes/src/components/Form";
+import { IInternalNote } from "@erxes/ui-internalnotes/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import dayjs from "dayjs";
+import { renderUserFullName } from "@erxes/ui/src/utils";
+import { urlify } from "@erxes/ui/src/utils/urlParser";
+import xss from "xss";
 
 type Props = {
   activity: any;
@@ -43,7 +43,7 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
     const { internalNote } = this.props;
     const createdUser = internalNote.createdUser || ({} as IUser);
 
-    let userName = 'Unknown';
+    let userName = "Unknown";
 
     if (createdUser.details) {
       userName = renderUserFullName(createdUser);
@@ -59,7 +59,7 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
   renderContent() {
     const { internalNote, isLoading, edit, currentUser } = this.props;
     const { content } = internalNote;
-    const createdUser = internalNote.createdUser || { _id: '' };
+    const createdUser = internalNote.createdUser || { _id: "" };
 
     const isCurrentUserNote = currentUser._id === createdUser._id;
 
@@ -87,7 +87,7 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
 
   render() {
     const { internalNote, remove, currentUser } = this.props;
-    const createdUser = internalNote.createdUser || { _id: '' };
+    const createdUser = internalNote.createdUser || { _id: "" };
     const isCurrentUserNote = currentUser._id === createdUser._id;
 
     return (
@@ -97,9 +97,9 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
           {isCurrentUserNote && (
             <DeleteAction onClick={remove}>Delete</DeleteAction>
           )}
-          <Tip text={dayjs(internalNote.createdAt).format('llll')}>
+          <Tip text={dayjs(internalNote.createdAt).format("llll")}>
             <ActivityDate>
-              {dayjs(internalNote.createdAt).format('MMM D, h:mm A')}
+              {dayjs(internalNote.createdAt).format("MMM D, h:mm A")}
             </ActivityDate>
           </Tip>
         </FlexCenterContent>

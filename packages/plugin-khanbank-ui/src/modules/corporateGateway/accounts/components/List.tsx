@@ -1,13 +1,13 @@
 import * as routerUtils from "@erxes/ui/src/utils/router";
 
 import { Description, SidebarListItem } from "@erxes/ui-settings/src/styles";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { FieldStyle } from "@erxes/ui/src/layout/styles";
 import { IKhanbankAccount } from "../types";
 import { Link } from "react-router-dom";
 import React from "react";
-import WithPermission from "coreui/withPermission";
-import { useLocation, useNavigate } from "react-router-dom";
+import WithPermission from "@erxes/ui/src/components/WithPermission";
 
 type Props = {
   queryParams: any;

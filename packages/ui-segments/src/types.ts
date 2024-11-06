@@ -109,6 +109,13 @@ export type IField = {
   options?: string[];
   validation?: string;
   choiceOptions?: string[];
+  selectionConfig?: {
+    queryName: string;
+    selectionName: string;
+    valueField: string;
+    labelField: string;
+    multi?: boolean;
+  };
 };
 
 export type AddMutationResponse = {

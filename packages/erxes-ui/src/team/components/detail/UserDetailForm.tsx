@@ -6,7 +6,7 @@ import LeftSidebar from "./LeftSidebar";
 import React, { useState } from "react";
 import { UserHeader, BoxWrapper } from "./styles";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { loadDynamicComponent } from "@erxes/ui/src/utils/core";
+import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
 import {
   Box,
   ControlLabel,
@@ -14,7 +14,7 @@ import {
   __,
   Button,
   Form as CommonForm,
-  ModalTrigger,
+  ModalTrigger
 } from "@erxes/ui/src";
 import { ButtonRelated, ModalFooter } from "@erxes/ui/src/styles/main";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
@@ -23,6 +23,8 @@ import SelectPositions from "@erxes/ui/src/team/containers/SelectPositions";
 import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 import { IButtonMutateProps } from "../../../types";
 import UserMovementForm from "../../containers/UserMovementForm";
+import Activities from "@erxes/ui-log/src/activityLogs/components/teammember/Activities";
+import LeadState from "@erxes/ui-contacts/src/customers/containers/LeadState";
 
 type Props = {
   user: IUser;
@@ -33,14 +35,14 @@ type Props = {
   excludeUserSkill: (skillId: string, userId: string) => void;
   renderSkillForm: ({
     closeModal,
-    user,
+    user
   }: {
     closeModal: () => void;
     user: IUser;
   }) => React.ReactNode;
   renderEditForm: ({
     closeModal,
-    user,
+    user
   }: {
     closeModal: () => void;
     user: IUser;
@@ -55,21 +57,21 @@ function UserDetails({
   excludeUserSkill,
   renderSkillForm,
   renderEditForm,
-  renderButton,
+  renderButton
 }: Props) {
   const { details = {} } = user;
   const [department, setDepartmentIds] = useState({
     ids: user.departmentIds || [],
-    isChanged: false,
+    isChanged: false
   });
   const [branch, setBranchIds] = useState({
     ids: user.branchIds || [],
-    isChanged: false,
+    isChanged: false
   });
 
   const [position, setPositionIds] = useState({
     ids: user.positionIds || [],
-    isChanged: false,
+    isChanged: false
   });
 
   const title = details ? details.fullName || "Unknown" : "Unknown";
@@ -94,7 +96,7 @@ function UserDetails({
   ) => {
     let Selection;
 
-    const handleChange = (value) => {
+    const handleChange = value => {
       handleState({ ids: value, isChanged: true });
     };
 
@@ -108,9 +110,9 @@ function UserDetails({
     if (key === "position") {
       Selection = SelectPositions;
     }
-    const content = (formProps) => {
+    const content = formProps => {
       const callback = () => {
-        handleState((prev) => ({ ids: prev.ids, isChanged: false }));
+        handleState(prev => ({ ids: prev.ids, isChanged: false }));
       };
       const handleCancel = () => {
         handleState({ ids: user[`${key}Ids`], isChanged: false });
@@ -120,7 +122,7 @@ function UserDetails({
         return {
           ...user,
           details: { ...(user.details || {}), __typename: undefined },
-          [`${key}Ids`]: ids,
+          [`${key}Ids`]: ids
         };
       };
 
@@ -131,11 +133,11 @@ function UserDetails({
           </ButtonRelated>
         );
 
-        const content = (props) => {
+        const content = props => {
           const updatedProps = {
             ...props,
             userId: user._id,
-            contentType: key,
+            contentType: key
           };
           return <UserMovementForm {...updatedProps} />;
         };
@@ -158,7 +160,7 @@ function UserDetails({
               label={`Choose ${label}`}
               name={`${key}Ids`}
               initialValue={ids}
-              onSelect={(value) => handleChange(value)}
+              onSelect={value => handleChange(value)}
               filterParams={{ withoutUserFilter: true }}
             />
           </FormGroup>
@@ -171,7 +173,7 @@ function UserDetails({
                 text: "user movement",
                 values: generateDoc(),
                 isSubmitted: formProps.isSubmitted,
-                callback,
+                callback
               })}
             </ModalFooter>
           )}
@@ -205,7 +207,37 @@ function UserDetails({
           setPositionIds
         )}
       </Box>
-      {loadDynamicComponent("contactDetailRightSidebar", { user })}
+      {isEnabled("sales") &&
+        loadDynamicComponent(
+          "contactDetailRightSidebar",
+          { user },
+          false,
+          "sales"
+        )}
+
+      {isEnabled("purchases") &&
+        loadDynamicComponent(
+          "contactDetailRightSidebar",
+          { user },
+          false,
+          "purchases"
+        )}
+
+      {isEnabled("tickets") &&
+        loadDynamicComponent(
+          "contactDetailRightSidebar",
+          { user },
+          false,
+          "tickets"
+        )}
+
+      {isEnabled("tasks") &&
+        loadDynamicComponent(
+          "contactDetailRightSidebar",
+          { user },
+          false,
+          "tasks"
+        )}
     </Sidebar>
   );
 
@@ -222,7 +254,8 @@ function UserDetails({
           >
             <ActionSection user={user} renderEditForm={renderEditForm} />
           </InfoSection>
-          {loadDynamicComponent("contactDetailHeader", { customer: user })}
+
+          <LeadState customer={user} />
         </UserHeader>
       }
       leftSidebar={
@@ -235,7 +268,7 @@ function UserDetails({
         />
       }
       rightSidebar={leftSidebar}
-      content={loadDynamicComponent("contactDetailContent", { contact: user })}
+      content={<Activities contact={user} />}
       transparent={true}
     />
   );

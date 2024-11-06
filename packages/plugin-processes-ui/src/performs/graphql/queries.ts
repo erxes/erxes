@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const paginateDefs = `
   $page: Int
@@ -118,9 +118,7 @@ export const performFields = `
   modifiedUser {
     ${userFields}
   }
-  ${
-    isEnabled('contacts')
-      ? `
+
         customer {
           _id
           firstName
@@ -135,11 +133,7 @@ export const performFields = `
           primaryName
           primaryPhone
         }
-      `
-      : ``
-  }
   series
-
 `;
 
 const performDetailFields = `

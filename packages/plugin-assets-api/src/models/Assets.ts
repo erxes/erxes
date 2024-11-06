@@ -1,14 +1,13 @@
-import { ICustomField } from '@erxes/api-utils/src/types';
-import { Model } from 'mongoose';
-import { ASSET_STATUSES } from '../common/constant/asset';
-import { IAsset, IAssetDocument } from '../common/types/asset';
-import { IModels } from '../connectionResolver';
+import { ICustomField } from "@erxes/api-utils/src/types";
+import { Model } from "mongoose";
+import { ASSET_STATUSES } from "../common/constant/asset";
+import { IAsset, IAssetDocument } from "../common/types/asset";
+import { IModels } from "../connectionResolver";
 import {
-  sendCardsMessage,
-  sendContactsMessage,
-  sendFormsMessage
-} from '../messageBroker';
-import { assetSchema } from './definitions/assets';
+  sendSalesMessage,
+  sendCoreMessage
+} from "../messageBroker";
+import { assetSchema } from "./definitions/assets";
 export interface IAssetModel extends Model<IAssetDocument> {
   getAssets(selector: any): Promise<IAssetDocument>;
   createAsset(doc: IAsset): Promise<IAssetDocument>;
@@ -23,22 +22,22 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
       const asset = await models.Assets.findOne(selector);
 
       if (!asset) {
-        throw new Error('Asset not found');
+        throw new Error("Asset not found");
       }
 
       return asset;
     }
     public static async createAsset(doc: IAsset) {
-      if (doc.code.includes('/')) {
+      if (doc.code.includes("/")) {
         throw new Error('The "/" character is not allowed in the code');
       }
 
       if (await models.Assets.findOne({ code: doc.code })) {
-        throw new Error('Code must be unique');
+        throw new Error("Code must be unique");
       }
 
       if (!doc.parentId && !doc.categoryId) {
-        throw new Error('You must choose  category or  parent');
+        throw new Error("You must choose  category or  parent");
       }
 
       const parentAsset = await models.Assets.findOne({
@@ -55,9 +54,9 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
       }
 
       if (doc.vendorCode) {
-        const vendor = await sendContactsMessage({
+        const vendor = await sendCoreMessage({
           subdomain,
-          action: 'companies.findOne',
+          action: "companies.findOne",
           data: {
             $or: [
               { code: doc.vendorCode },
@@ -72,9 +71,9 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
         doc.vendorId = vendor?._id;
       }
 
-      doc.customFieldsData = await sendFormsMessage({
+      doc.customFieldsData = await sendCoreMessage({
         subdomain,
-        action: 'fields.prepareCustomFieldsData',
+        action: "fields.prepareCustomFieldsData",
         data: doc.customFieldsData,
         isRPC: true
       });
@@ -86,20 +85,20 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
       const asset = await models.Assets.getAssets({ _id });
 
       if (asset.code !== doc.code) {
-        if (doc.code.includes('/')) {
+        if (doc.code.includes("/")) {
           throw new Error('The "/" character is not allowed in the code');
         }
 
         if (await models.Assets.findOne({ code: doc.code })) {
-          throw new Error('Code must be unique');
+          throw new Error("Code must be unique");
         }
       }
 
       if (doc.customFieldsData) {
         // clean custom field values
-        doc.customFieldsData = await sendFormsMessage({
+        doc.customFieldsData = await sendCoreMessage({
           subdomain,
-          action: 'fields.prepareCustomFieldsData',
+          action: "fields.prepareCustomFieldsData",
           data: doc.customFieldsData,
           isRPC: true
         });
@@ -121,7 +120,7 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
 
       const usedIds: string[] = [];
       const unUsedIds: string[] = [];
-      let response = 'deleted';
+      let response = "deleted";
 
       for (const id of _ids) {
         if (!dealAssetIds.includes(id)) {
@@ -138,7 +137,7 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
             $set: { status: ASSET_STATUSES.DELETED }
           }
         );
-        response = 'updated';
+        response = "updated";
       }
 
       const assets = await models.Assets.find({ _id: { $in: unUsedIds } });
@@ -173,7 +172,7 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
     }
 
     public static async mergeAssets(assetIds: string[], assetFields: IAsset) {
-      const fields = ['name', 'code', 'unitPrice'];
+      const fields = ["name", "code", "unitPrice"];
       const checkParent = [assetFields.parentId, assetFields.categoryId];
 
       for (const field of fields) {
@@ -189,11 +188,11 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
       }
 
       let customFieldsData: ICustomField[] = [];
-      const name: string = assetFields.name || '';
-      const description: string = assetFields.description ?? '';
+      const name: string = assetFields.name || "";
+      const description: string = assetFields.description ?? "";
       const categoryId = assetFields.categoryId ?? undefined;
       const parentId = assetFields.parentId ?? undefined;
-      const vendorId: string = assetFields.vendorId ?? '';
+      const vendorId: string = assetFields.vendorId ?? "";
       const usedIds: string[] = [];
 
       for (const assetId of assetIds) {
@@ -208,9 +207,7 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
         await models.Assets.findByIdAndUpdate(assetId, {
           $set: {
             status: ASSET_STATUSES.DELETED,
-            code: Math.random()
-              .toString()
-              .concat('^', assetObj.code)
+            code: Math.random().toString().concat("^", assetObj.code)
           }
         });
       }
@@ -227,9 +224,9 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
         vendorId
       });
 
-      const dealProductIds = await sendCardsMessage({
+      const dealProductIds = await sendSalesMessage({
         subdomain,
-        action: 'findDealProductIds',
+        action: "findDealProductIds",
         data: {
           _ids: assetIds
         },
@@ -242,15 +239,15 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      await sendCardsMessage({
+      await sendSalesMessage({
         subdomain,
-        action: 'deals.updateMany',
+        action: "deals.updateMany",
         data: {
           selector: {
-            'assetsData.assetId': { $in: usedIds }
+            "assetsData.assetId": { $in: usedIds }
           },
           modifier: {
-            $set: { 'assetsData.$.assetId': asset._id }
+            $set: { "assetsData.$.assetId": asset._id }
           }
         },
         isRPC: true

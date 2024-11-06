@@ -1,15 +1,13 @@
 import {
-  sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
-} from '../messageBroker';
-import { getCompanyInfo, getCoreConfig, getSyncLogDoc } from './utils';
+  sendCoreMessage
+} from "../messageBroker";
+import { getCompanyInfo, getCoreConfig, getSyncLogDoc } from "./utils";
 
 export const validConfigMsg = async config => {
   if (!config.url) {
-    return 'required url';
+    return "required url";
   }
-  return '';
+  return "";
 };
 
 export const getPostData = async (
@@ -18,85 +16,104 @@ export const getPostData = async (
   user,
   configs,
   deal,
-  dateType = ''
+  dateType = ""
 ) => {
-  let billType = '1';
-  let customerCode = '';
-  let ebarimtTIN = '';
+  let billType = "1";
+  let customerCode = "";
+  let ebarimtTIN = "";
 
-  const syncLogDoc = getSyncLogDoc({ type: 'cards:deal', user, object: deal });
+  const syncLogDoc = getSyncLogDoc({ type: "sales:deal", user, object: deal });
 
-  const ebarimtConfig = await getCoreConfig(subdomain, 'EBARIMT', {})
+  const ebarimtConfig = await getCoreConfig(subdomain, "EBARIMT", {});
 
   if (
     ebarimtConfig.dealBillType?.billType &&
     ebarimtConfig.dealBillType?.regNo &&
     deal.customFieldsData?.length
   ) {
-    const checkCompanyStrs = ['Байгууллага', 'Company', 'B2B', 'B2B_RECEIPT', '3'];
-    const customDataBillType = deal.customFieldsData.find(cfd => cfd.field === ebarimtConfig.dealBillType.billType && checkCompanyStrs.includes(cfd.value));
-    const customDataRegNo = deal.customFieldsData.find(cfd => cfd.field === ebarimtConfig.dealBillType.regNo && cfd.value);
-    const customDataComName = deal.customFieldsData.find(cfd => cfd.field === ebarimtConfig.dealBillType.companyName && cfd.value);
+    const checkCompanyStrs = [
+      "Байгууллага",
+      "Company",
+      "B2B",
+      "B2B_RECEIPT",
+      "3"
+    ];
+    const customDataBillType = deal.customFieldsData.find(
+      cfd =>
+        cfd.field === ebarimtConfig.dealBillType.billType &&
+        checkCompanyStrs.includes(cfd.value)
+    );
+    const customDataRegNo = deal.customFieldsData.find(
+      cfd => cfd.field === ebarimtConfig.dealBillType.regNo && cfd.value
+    );
+    const customDataComName = deal.customFieldsData.find(
+      cfd => cfd.field === ebarimtConfig.dealBillType.companyName && cfd.value
+    );
 
     if (customDataBillType && customDataRegNo && customDataComName) {
-      const resp = await getCompanyInfo({ checkTaxpayerUrl: ebarimtConfig.checkTaxpayerUrl, no: customDataRegNo.value })
+      const resp = await getCompanyInfo({
+        checkTaxpayerUrl: ebarimtConfig.checkTaxpayerUrl,
+        no: customDataRegNo.value
+      });
 
-      if (resp.status === 'checked' && resp.tin) {
-        billType = '3';
-        ebarimtTIN = resp.tin
+      if (resp.status === "checked" && resp.tin) {
+        billType = "3";
+        ebarimtTIN = resp.tin;
       }
     }
-
   }
 
   const companyIds = await sendCoreMessage({
     subdomain,
-    action: 'conformities.savedConformity',
-    data: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['company'] },
+    action: "conformities.savedConformity",
+    data: { mainType: "deal", mainTypeId: deal._id, relTypes: ["company"] },
     isRPC: true,
     defaultValue: []
   });
 
   if (companyIds.length > 0) {
-    const companies = await sendContactsMessage({
+    const companies = await sendCoreMessage({
       subdomain,
-      action: 'companies.findActiveCompanies',
+      action: "companies.findActiveCompanies",
       data: {
         selector: { _id: { $in: companyIds } },
-        fields: { _id: 1, code: 1, primaryName: 1 },
+        fields: { _id: 1, code: 1, primaryName: 1 }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
-    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)/gui;
+    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)|(^\d{14}$)/gui;
     for (const company of companies) {
       customerCode = company.code;
 
-      if (billType === '1' && re.test(company.code)) {
-        const checkCompanyRes = await getCompanyInfo({ checkTaxpayerUrl: ebarimtConfig.checkTaxpayerUrl, no: company.code });
+      if (billType === "1" && re.test(company.code)) {
+        const checkCompanyRes = await getCompanyInfo({
+          checkTaxpayerUrl: ebarimtConfig.checkTaxpayerUrl,
+          no: company.code
+        });
 
-        if (checkCompanyRes.status === 'checked' && checkCompanyRes.tin) {
-          billType = '3';
+        if (checkCompanyRes.status === "checked" && checkCompanyRes.tin) {
+          billType = "3";
           break;
         }
       }
     }
   }
 
-  if (billType === '1' || !customerCode) {
+  if (billType === "1" || !customerCode) {
     const customerIds = await sendCoreMessage({
       subdomain,
-      action: 'conformities.savedConformity',
-      data: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['customer'] },
+      action: "conformities.savedConformity",
+      data: { mainType: "deal", mainTypeId: deal._id, relTypes: ["customer"] },
       isRPC: true,
       defaultValue: []
     });
 
     if (customerIds.length > 0) {
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
-        action: 'customers.findActiveCustomers',
+        action: "customers.findActiveCustomers",
         data: {
           selector: { _id: { $in: customerIds } },
           fields: { _id: 1, code: 1 }
@@ -105,7 +122,7 @@ export const getPostData = async (
         defaultValue: []
       });
 
-      customerCode = (customers.find(c => c.code) || {}).code || '';
+      customerCode = (customers.find(c => c.code) || {}).code || "";
     }
   }
 
@@ -121,7 +138,7 @@ export const getPostData = async (
 
   const assignUsers = await sendCoreMessage({
     subdomain,
-    action: 'users.find',
+    action: "users.find",
     data: { query: { _id: { $in: assignUserIds } } },
     isRPC: true,
     defaultValue: []
@@ -134,9 +151,9 @@ export const getPostData = async (
 
   const productsIds = deal.productsData.map(item => item.productId);
 
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
-    action: 'find',
+    action: "products.find",
     data: {
       query: { _id: { $in: productsIds } },
       limit: deal.productsData.length
@@ -159,7 +176,7 @@ export const getPostData = async (
   if (branchIds.length) {
     const branches = await sendCoreMessage({
       subdomain,
-      action: 'branches.find',
+      action: "branches.find",
       data: { query: { _id: { $in: branchIds } } },
       isRPC: true,
       defaultValue: []
@@ -173,7 +190,7 @@ export const getPostData = async (
   if (departmentIds.length) {
     const departments = await sendCoreMessage({
       subdomain,
-      action: 'departments.find',
+      action: "departments.find",
       data: { _id: { $in: departmentIds } },
       isRPC: true,
       defaultValue: []
@@ -200,22 +217,22 @@ export const getPostData = async (
 
     const product = productById[productData.productId];
 
-    let otherCode: string = '';
+    let otherCode: string = "";
 
     if (productData.branchId || productData.departmentId) {
-      const branch = branchesById[productData.branchId || ''] || {};
-      const department = departmentsById[productData.departmentId || ''] || {};
-      otherCode = `${branch.code || ''}_${department.code || ''}`;
+      const branch = branchesById[productData.branchId || ""] || {};
+      const department = departmentsById[productData.departmentId || ""] || {};
+      otherCode = `${branch.code || ""}_${department.code || ""}`;
     }
 
     if (
       !(product.scopeBrandIds || []).length &&
-      configBrandIds.includes('noBrand')
+      configBrandIds.includes("noBrand")
     ) {
-      if (!detailByBrandId['noBrand']) {
-        detailByBrandId['noBrand'] = [];
+      if (!detailByBrandId["noBrand"]) {
+        detailByBrandId["noBrand"] = [];
       }
-      detailByBrandId['noBrand'].push({
+      detailByBrandId["noBrand"].push({
         count: productData.quantity,
         amount: productData.amount,
         discount: productData.discount,
@@ -251,27 +268,27 @@ export const getPostData = async (
   let checkDate = false;
 
   switch (dateType) {
-    case 'lastMove':
+    case "lastMove":
       date = new Date(deal.stageChangedDate).toISOString().slice(0, 10);
       break;
-    case 'created':
+    case "created":
       date = new Date(deal.createdAt).toISOString().slice(0, 10);
       break;
-    case 'closeOrCreated':
+    case "closeOrCreated":
       date = new Date(deal.closeDate || deal.createdAt)
         .toISOString()
         .slice(0, 10);
       break;
-    case 'closeOrMove':
+    case "closeOrMove":
       date = new Date(deal.closeDate || deal.stageChangedDate)
         .toISOString()
         .slice(0, 10);
       break;
-    case 'firstOrMove':
+    case "firstOrMove":
       date = new Date(deal.stageChangedDate).toISOString().slice(0, 10);
       checkDate = true;
       break;
-    case 'firstOrCreated':
+    case "firstOrCreated":
       date = new Date(deal.createdAt).toISOString().slice(0, 10);
       checkDate = true;
       break;
@@ -279,14 +296,14 @@ export const getPostData = async (
 
   // debit payments coll
   const configure = {
-    prepay: 'preAmount',
-    cash: 'cashAmount',
-    bank: 'mobileAmount',
-    pos: 'cardAmount',
-    wallet: 'debtAmount',
-    barter: 'debtBarterAmount',
-    after: 'debtAmount',
-    other: 'debtAmount'
+    prepay: "preAmount",
+    cash: "cashAmount",
+    bank: "mobileAmount",
+    pos: "cardAmount",
+    wallet: "debtAmount",
+    barter: "debtBarterAmount",
+    after: "debtAmount",
+    other: "debtAmount"
   };
 
   const postDatas: any[] = [];
@@ -335,7 +352,7 @@ export const getPostData = async (
         date,
         checkDate,
         orderId: deal._id,
-        number: deal.number || '',
+        number: deal.number || "",
         hasVat: config.hasVat || false,
         hasCitytax: config.hasCitytax || false,
         billType,

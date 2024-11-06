@@ -16,7 +16,7 @@ import { __ } from '../../../common/utils';
 
 type Props = {
   brandsTotalCount: number;
-  queryParams: any;
+  queryParams: Record<string, string>;
   currentBrand: IBrand;
   loading: boolean;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -35,7 +35,7 @@ class Brands extends React.Component<Props, {}> {
         <Table>
           <thead>
             <tr>
-              <th>{__('Brand name')}</th>
+              <th>{__("Brand name")}</th>
               <th>{__('Description')}</th>
               <th>{__('Actions')}</th>
             </tr>

@@ -1,4 +1,4 @@
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
 import Datetime from "@nateradebaugh/react-datetime";
 import dayjs from "dayjs";
 import Button from "@erxes/ui/src/components/Button";
@@ -50,7 +50,7 @@ const CheckerSidebar = (props: IProps) => {
       stageChangedEndDate,
       dateType,
       search,
-      number,
+      number
     });
   };
 
@@ -121,7 +121,7 @@ const CheckerSidebar = (props: IProps) => {
     setConfigStageId(stageId);
   };
 
-  const onUserChange = (userId) => {
+  const onUserChange = userId => {
     setUserId(userId);
   };
 
@@ -162,7 +162,7 @@ const CheckerSidebar = (props: IProps) => {
           <FormGroup>
             <ControlLabel>Assigned</ControlLabel>
             <SelectTeamMembers
-              label="Choose users"
+              label={__("Choose users")}
               name="userId"
               customOption={{ label: "Choose user", value: "" }}
               initialValue={userId || ""}

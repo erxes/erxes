@@ -1,16 +1,16 @@
-import WithPermission from 'coreui/withPermission';
-import Button from '@erxes/ui/src/components/Button';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
+import { Block, BlockRow } from "../../../../styles";
 
-import { Block, BlockRow } from '../../../../styles';
-import { getCurrencySymbol } from '../../../../utils';
-import TransactionForm from '../../transactions/containers/Form';
-import Transactions from '../../transactions/containers/List';
-import { IKhanbankAccount } from '../types';
+import Button from "@erxes/ui/src/components/Button";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IKhanbankAccount } from "../types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import TransactionForm from "../../transactions/containers/Form";
+import Transactions from "../../transactions/containers/List";
+import WithPermission from "@erxes/ui/src/components/WithPermission";
+import { __ } from "@erxes/ui/src/utils/core";
+import { getCurrencySymbol } from "../../../../utils";
 
 type Props = {
   queryParams: any;
@@ -22,7 +22,7 @@ const Detail = (props: Props) => {
   const accountNumber = queryParams.account;
 
   const defaultAccount = JSON.parse(
-    localStorage.getItem('khanbankDefaultAccount') || '{}'
+    localStorage.getItem("khanbankDefaultAccount") || "{}"
   );
 
   const [isChecked, setIsChecked] = React.useState(
@@ -33,26 +33,26 @@ const Detail = (props: Props) => {
     setIsChecked(defaultAccount.accountNumber === accountNumber);
   }, [queryParams.account]);
 
-  const toggleChange = e => {
+  const toggleChange = (e) => {
     setIsChecked(e.target.checked);
 
     if (!e.target.checked) {
-      return localStorage.removeItem('khanbankDefaultAccount');
+      return localStorage.removeItem("khanbankDefaultAccount");
     }
 
     localStorage.setItem(
-      'khanbankDefaultAccount',
+      "khanbankDefaultAccount",
       JSON.stringify({ accountNumber, configId: queryParams._id })
     );
   };
 
   const transactionTrigger = (
     <Button btnStyle="simple" size="small" icon="money-insert">
-      {__('Transfer')}
+      {__("Transfer")}
     </Button>
   );
 
-  const transactionFormContent = modalProps => (
+  const transactionFormContent = (modalProps) => (
     <TransactionForm
       {...modalProps}
       configId={queryParams._id}
@@ -61,41 +61,42 @@ const Detail = (props: Props) => {
   );
 
   const renderAccount = () => {
-    const holderInfo = `${account.holderInfo.custFirstName || ''} ${account
-      .holderInfo.custLastName || ''}`;
+    const holderInfo = `${account.holderInfo.custFirstName || ""} ${
+      account.holderInfo.custLastName || ""
+    }`;
 
     return (
       <Block>
-        <h4>{__('Account detail')}</h4>
+        <h4>{__("Account detail")}</h4>
         <BlockRow>
           <FormGroup>
-            <p>{__('Account')}</p>
+            <p>{__("Account")}</p>
             <strong>{accountNumber}</strong>
           </FormGroup>
 
           <FormGroup>
-            <p>{__('Account holder')} </p>
+            <p>{__("Account holder")} </p>
             <strong>{holderInfo}</strong>
           </FormGroup>
 
           <FormGroup>
-            <p>{__('Balance')} </p>
+            <p>{__("Balance")} </p>
             <strong>
-              {account.balance.toLocaleString()}{' '}
-              {getCurrencySymbol(account.currency || 'MNT')}
+              {account.balance.toLocaleString()}{" "}
+              {getCurrencySymbol(account.currency || "MNT")}
             </strong>
           </FormGroup>
         </BlockRow>
 
         <BlockRow>
           <FormGroup>
-            <p>{__('Default account')}</p>
+            <p>{__("Default account")}</p>
             <Toggle
               checked={isChecked}
               onChange={toggleChange}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
             />
           </FormGroup>
@@ -104,7 +105,7 @@ const Detail = (props: Props) => {
             <FormGroup>
               <ModalTrigger
                 size="lg"
-                title="Transfer"
+                title={__("Transfer")}
                 autoOpenKey="showAppAddModal"
                 trigger={transactionTrigger}
                 content={transactionFormContent}
@@ -119,7 +120,7 @@ const Detail = (props: Props) => {
   const renderStatements = () => {
     return (
       <Block>
-        <h4>{__('Latest transactions')}</h4>
+        <h4>{__("Latest transactions")}</h4>
         <Transactions {...props} showLatest={true} />
       </Block>
     );

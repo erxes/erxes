@@ -1,10 +1,10 @@
 import {
   MessageArgs,
   MessageArgsOmitService,
-  sendMessage,
-} from '@erxes/api-utils/src/core';
-import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
-import { generateModels } from './connectionResolver';
+  sendMessage
+} from "@erxes/api-utils/src/core";
+import { consumeRPCQueue } from "@erxes/api-utils/src/messageBroker";
+import { generateModels } from "./connectionResolver";
 
 export const setupMessageConsumers = async () => {
   // consumeQueue('reports:send', async ({ data }) => {
@@ -14,34 +14,34 @@ export const setupMessageConsumers = async () => {
   //   };
   // });
 
-  consumeRPCQueue('reports:find', async ({ subdomain, data }) => {
+  consumeRPCQueue("reports:find", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       data: await models.Reports.find(data).lean(),
-      status: 'success',
+      status: "success"
     };
   });
 
-  consumeRPCQueue('reports:findLast', async ({ subdomain, data }) => {
+  consumeRPCQueue("reports:findLast", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       data: await models.Reports.findOne(data).sort({ createdAt: -1 }),
-      status: 'success',
+      status: "success"
     };
   });
 
   consumeRPCQueue(
-    'reports:updateMany',
+    "reports:updateMany",
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
 
       return {
         data: await models.Reports.updateMany(selector, modifier),
-        status: 'success',
+        status: "success"
       };
-    },
+    }
   );
 };
 //   consumeRPCQueue('reports:find', async ({ data }) => {
@@ -64,22 +64,13 @@ export const setupMessageConsumers = async () => {
 
 export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
-    serviceName: 'core',
-    ...args,
+    serviceName: "core",
+    ...args
   });
 };
 
 export const sendCommonMessage = async (args: MessageArgs) => {
   return sendMessage({
-    ...args,
-  });
-};
-
-export const sendTagsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'tags',
-    ...args,
+    ...args
   });
 };

@@ -5,7 +5,7 @@ import {
   FeatureRowItem,
   GeneralWrapper,
   Logos,
-  TeamPortal,
+  TeamPortal
 } from "../styles";
 import { ColorPick, ColorPicker } from "../styles";
 import React, { useState } from "react";
@@ -22,7 +22,7 @@ import TwitterPicker from "react-color/lib/Twitter";
 import Uploader from "@erxes/ui/src/components/Uploader";
 import VisionStructureForm from "./VisionStructureForm";
 import { __ } from "@erxes/ui/src/utils";
-import { IBoard, IPipeline } from "@erxes/ui-cards/src/boards/types";
+import { IBoard, IPipeline } from "@erxes/ui-tickets/src/boards/types";
 import { ITopic } from "@erxes/ui-knowledgebase/src/types";
 
 type Props = {
@@ -43,7 +43,7 @@ export default function Appearance(props: Props) {
     pipelines,
     edit,
     fetchPipelines,
-    renderButton,
+    renderButton
   } = props;
 
   const exmLogo = exm.logo;
@@ -83,14 +83,14 @@ export default function Appearance(props: Props) {
             : "",
           footerColor: exmAppearance.footerColor
             ? exmAppearance.footerColor
-            : "",
+            : ""
         }
       : {
           primaryColor: "red",
           secondaryColor: "green",
           bodyColor: "",
           headerColor: "",
-          footerColor: "",
+          footerColor: ""
         }
   );
 
@@ -102,7 +102,7 @@ export default function Appearance(props: Props) {
             name: logo.name,
             url: logo.url,
             size: logo.size,
-            type: logo.type,
+            type: logo.type
           }
         : undefined,
       appearance,
@@ -119,9 +119,9 @@ export default function Appearance(props: Props) {
             name: favicon.name,
             url: favicon.url,
             size: favicon.size,
-            type: favicon.type,
+            type: favicon.type
           }
-        : undefined,
+        : undefined
     });
   };
 
@@ -145,15 +145,15 @@ export default function Appearance(props: Props) {
 
   const getContentValues = (contentType: string) => {
     if (contentType === "knowledgebase") {
-      return kbTopics.map((c) => ({ value: c._id, label: c.title }));
+      return kbTopics.map(c => ({ value: c._id, label: c.title }));
     }
 
     if (contentType === "boards") {
-      return boards.map((c) => ({ value: c._id, label: c.name }));
+      return boards.map(c => ({ value: c._id, label: c.name }));
     }
 
     if (contentType === "pipeline") {
-      return pipelines.map((c) => ({ value: c._id, label: c.name }));
+      return pipelines.map(c => ({ value: c._id, label: c.name }));
     }
   };
 
@@ -165,7 +165,7 @@ export default function Appearance(props: Props) {
           <ColorPick>
             <ColorPicker
               style={{
-                backgroundColor: color,
+                backgroundColor: color
               }}
             />
           </ColorPick>
@@ -175,7 +175,7 @@ export default function Appearance(props: Props) {
           width="266px"
           triangle="hide"
           color={color}
-          onChange={(e) => onChangeColor(item, e.hex)}
+          onChange={e => onChangeColor(item, e.hex)}
         />
       </Popover>
     );
@@ -191,7 +191,7 @@ export default function Appearance(props: Props) {
               <ControlLabel>{__("Name your exm")}</ControlLabel>
               <FormControl
                 value={webName}
-                placeholder="Name"
+                placeholder={__("Name")}
                 onChange={(e: any) => setWebName(e.target.value)}
               />
             </FeatureRowItem>
@@ -199,7 +199,7 @@ export default function Appearance(props: Props) {
               <ControlLabel>{__("Describe your team portal")}</ControlLabel>
               <FormControl
                 value={webDescription}
-                placeholder="Description"
+                placeholder={__("Description")}
                 onChange={(e: any) => setWebDescription(e.target.value)}
               />
             </FeatureRowItem>
@@ -209,7 +209,7 @@ export default function Appearance(props: Props) {
               <ControlLabel>{__("Website")}</ControlLabel>
               <FormControl
                 value={url}
-                placeholder="Website"
+                placeholder={__("Website")}
                 onChange={(e: any) => setUrl(e.target.value)}
               />
             </FeatureRowItem>
@@ -224,7 +224,7 @@ export default function Appearance(props: Props) {
               <ControlLabel>{__("Knowledge Base Name")}</ControlLabel>
               <FormControl
                 value={knowledgeBaseLabel}
-                placeholder="Knowledge Base Name"
+                placeholder={__("Knowledge Base Name")}
                 onChange={(e: any) => setKnowledgeBaseLabel(e.target.value)}
               />
             </FeatureRowItem>
@@ -233,7 +233,7 @@ export default function Appearance(props: Props) {
               <Select
                 placeholder={__("Select a knowledge base topic")}
                 value={(getContentValues("knowledgebase") || []).find(
-                  (o) => o.value === knowledgeBaseTopicId
+                  o => o.value === knowledgeBaseTopicId
                 )}
                 options={getContentValues("knowledgebase")}
                 onChange={(e: any) => {
@@ -253,7 +253,7 @@ export default function Appearance(props: Props) {
               <ControlLabel>{__("Ticket Name")}</ControlLabel>
               <FormControl
                 value={ticketLabel}
-                placeholder="Ticket Name"
+                placeholder={__("Ticket Name")}
                 onChange={(e: any) => setTicketLabel(e.target.value)}
               />
             </FeatureRowItem>
@@ -262,7 +262,7 @@ export default function Appearance(props: Props) {
               <Select
                 placeholder={__("Select a ticket board")}
                 value={(getContentValues("boards") || []).find(
-                  (o) => o.value === ticketBoardId
+                  o => o.value === ticketBoardId
                 )}
                 options={getContentValues("boards")}
                 onChange={handleSelectBoard}
@@ -274,7 +274,7 @@ export default function Appearance(props: Props) {
               <Select
                 placeholder={__("Select a ticket pipeline")}
                 value={(getContentValues("pipeline") || []).find(
-                  (o) => o.value === ticketPipelineId
+                  o => o.value === ticketPipelineId
                 )}
                 options={getContentValues("pipeline")}
                 onChange={(e: any) => {
@@ -299,7 +299,7 @@ export default function Appearance(props: Props) {
                     {__(exm.vision ? "Edit Vision" : "Add Vision")}
                   </Button>
                 }
-                content={(modalProps) => (
+                content={modalProps => (
                   <VisionStructureForm
                     {...modalProps}
                     object={exm}
@@ -319,7 +319,7 @@ export default function Appearance(props: Props) {
                     {__(exm.structure ? "Edit Structure" : "Add Structure")}
                   </Button>
                 }
-                content={(modalProps) => (
+                content={modalProps => (
                   <VisionStructureForm
                     {...modalProps}
                     object={exm}

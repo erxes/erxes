@@ -13,7 +13,6 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const CompanySection = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "CompanySection" */ "@erxes/ui-contacts/src/companies/components/CompanySection"
     )
@@ -21,7 +20,6 @@ const CompanySection = asyncComponent(
 
 const CustomerSection = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "CustomerSection" */ "@erxes/ui-contacts/src/customers/components/CustomerSection"
     )
@@ -32,7 +30,7 @@ type Props = {
 };
 
 export default function RightSidebar(props: Props) {
-  const renderPlan = (contract) => {
+  const renderPlan = contract => {
     if (!contract.plan) {
       return null;
     }
@@ -49,7 +47,7 @@ export default function RightSidebar(props: Props) {
 
   return (
     <Sidebar>
-      {isEnabled("contacts") && (
+      {
         <>
           {contract.customerType === "customer" && contract.customers && (
             <CustomerSection
@@ -73,13 +71,13 @@ export default function RightSidebar(props: Props) {
             name={"Contract"}
           />
 
-          {isEnabled("cards") && <DealSection contract={contract} />}
+          {isEnabled("sales") && <DealSection contract={contract} />}
         </>
-      )}
+      }
       {isEnabled("loans") && !!contract.loansOfForeclosed?.length && (
         <LoanContractSection loanContracts={contract.loansOfForeclosed} />
       )}
-      {isEnabled("forms") && !!contract.loansOfForeclosed?.length && (
+      {!!contract.loansOfForeclosed?.length && (
         <ContractsCustomFields
           contract={contract}
           collapseCallback={console.log}

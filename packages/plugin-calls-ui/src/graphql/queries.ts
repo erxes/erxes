@@ -37,20 +37,12 @@ const callCustomerDetail: string = `
       phones
       phone
       tagIds
-        ${
-          isEnabled('tags')
-            ? `
-          getTags {
-            _id
-            name
-            colorCode
-                    type
-
-          }
-        `
-            : ``
-        }
-     
+      getTags {
+          _id
+          name
+          colorCode
+          type
+      }
     }
 }
 `;
@@ -97,6 +89,7 @@ const customers = `
       _id
       firstName
       primaryPhone
+      primaryEmail
       phones
       phone
       tagIds
@@ -137,18 +130,12 @@ const callHistories = `
       avatar
       email
       firstName
-      ${
-        isEnabled('tags')
-          ? `
-          getTags {
-            _id
-            name
-            colorCode
-                    type
+      getTags {
+        _id
+        name
+        colorCode
+        type
 
-          }
-        `
-          : ``
       }
       phone
       primaryEmail

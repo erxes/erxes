@@ -1,31 +1,31 @@
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import {
   sendCoreMessage,
   sendMessageBroker,
-  sendSms,
-} from '../../messageBroker';
-import { IContractDocument } from '../definitions/contracts';
-import { IInvoiceDocument } from '../definitions/invoices';
+  sendSms
+} from "../../messageBroker";
+import { IContractDocument } from "../definitions/contracts";
+import { IInvoiceDocument } from "../definitions/invoices";
 
 export async function sendNotification(
   subdomain: string,
   contract: IContractDocument,
-  invoice: IInvoiceDocument,
+  invoice: IInvoiceDocument
 ) {
-  const isEnabledClientPortal = await isEnabled('clientportal');
+  const isEnabledClientPortal = await isEnabled("clientportal");
 
-  const isSms = await isEnabled('sms');
+  const isSms = await isEnabled("sms");
 
-  const isEmail = await isEnabled('email');
+  const isEmail = true;
 
   const customer = await sendMessageBroker(
     {
       subdomain,
-      action: 'customers.findOne',
+      action: "customers.findOne",
       data: { _id: contract.customerId },
-      isRPC: true,
+      isRPC: true
     },
-    'contacts',
+    "core"
   );
 
   if (isEnabledClientPortal) {
@@ -36,41 +36,41 @@ export async function sendNotification(
           receivers: contract.customerId,
           title: `Мэдэгдэл`,
           content: `${contract.number} гэрээний эргэн төлөлт ${invoice.total} тул та хугцаандаа эргэн төлөлт өө хийнэ үү `,
-          notifType: 'system',
-          link: '',
+          notifType: "system",
+          link: ""
         },
-        action: 'sendNotification',
+        action: "sendNotification"
       },
-      'clientportal',
+      "clientportal"
     );
   }
 
   if (isSms && customer.phoneNumber) {
     sendSms(
       subdomain,
-      'messagePro',
+      "messagePro",
       customer.phoneNumber,
-      `${contract.number} гэрээний эргэн төлөлт ${invoice.total} тул та хугцаандаа эргэн төлөлт өө хийнэ үү`,
+      `${contract.number} гэрээний эргэн төлөлт ${invoice.total} тул та хугцаандаа эргэн төлөлт өө хийнэ үү`
     );
   }
 
   if (isEmail && customer.email) {
     await sendCoreMessage({
       subdomain,
-      action: 'sendEmail',
+      action: "sendEmail",
       data: {
         toEmails: [customer.email],
-        fromEmail: 'info@erxes.io',
+        fromEmail: "info@erxes.io",
         title: `Мэдэгдэл`,
-        customHtmlData: generateTemplate(invoice, contract),
-      },
+        customHtmlData: generateTemplate(invoice, contract)
+      }
     });
   }
 }
 
 const generateTemplate = (
   { total, payment, loss, storedInterest }: IInvoiceDocument,
-  { interestRate, leaseAmount }: IContractDocument,
+  { interestRate, leaseAmount }: IContractDocument
 ) => {
   return `
     <!doctype html>

@@ -9,14 +9,14 @@ import { IContext } from "../../../connectionResolver";
 import {
   getConfig,
   getFieldObject,
-  sendCardsMessage,
+  sendSalesMessage,
   sendCoreMessage,
   sendMessageBroker
 } from "../../../messageBroker";
 import { createLog, deleteLog, updateLog } from "../../../logUtils";
 import { putActivityLog } from "@erxes/api-utils/src/logUtils";
 
-const loansContractChanged = async (contract: IContractDocument) => {
+export const loansContractChanged = async (contract: IContractDocument) => {
   graphqlPubsub.publish(
     'loansContractChanged',
     {
@@ -232,7 +232,7 @@ const contractMutations = {
       return contract;
     }
 
-    const deals = await sendCardsMessage({
+    const deals = await sendSalesMessage({
       subdomain,
       action: "deals.find",
       data: { _id: { $in: dealIds } },
@@ -240,7 +240,7 @@ const contractMutations = {
     });
 
     const oldCollateralIds = contract.collateralsData.map(
-      (item) => item.collateralId
+      item => item.collateralId
     );
 
     const collateralsData: ICollateralData[] = contract.collateralsData;
@@ -268,11 +268,11 @@ const contractMutations = {
       const collateral = await sendMessageBroker(
         {
           subdomain,
-          action: "findOne",
+          action: "products.findOne",
           data: { _id: data.collateralId },
           isRPC: true
         },
-        "products"
+        "core"
       );
 
       const insuranceType = await models.InsuranceTypes.findOne({
@@ -453,7 +453,7 @@ const contractMutations = {
         data: { _id: customerId },
         isRPC: true
       },
-      "contacts"
+      "core"
     );
 
     const customerScore = await sendMessageBroker(
@@ -481,14 +481,14 @@ const contractMutations = {
 
     const maxLeaseAmountField = await getFieldObject(
       subdomain,
-      "contacts:customer",
+      "core:customer",
       "maxLeaseAmount"
     );
 
     if (customerCreditAmount > 0 && maxLeaseAmountField) {
       const index =
         customer.customFieldsData?.findIndex(
-          (a) => a.field == maxLeaseAmountField._id
+          a => a.field == maxLeaseAmountField._id
         ) || -1;
       if (index == -1) {
         customer.customFieldsData = [
@@ -521,7 +521,7 @@ const contractMutations = {
           },
           isRPC: true
         },
-        "contacts"
+        "core"
       );
     }
 

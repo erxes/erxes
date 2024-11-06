@@ -1,21 +1,19 @@
-import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
-import { CAMPAIGN_KINDS, CAMPAIGN_METHODS, CONTENT_TYPES } from './constants';
+import { fetchEs } from "@erxes/api-utils/src/elasticsearch";
+import { CAMPAIGN_KINDS, CAMPAIGN_METHODS, CONTENT_TYPES } from "./constants";
 import {
   IEngageMessage,
   IEngageMessageDocument,
-  IScheduleDateDocument,
-} from './models/definitions/engages';
-import { isUsingElk } from './utils';
+  IScheduleDateDocument
+} from "./models/definitions/engages";
+import { isUsingElk } from "./utils";
 import {
   sendInboxMessage,
   sendCoreMessage,
-  sendSegmentsMessage,
-  sendContactsMessage,
-  sendClientPortalMessage,
-} from './messageBroker';
-import { getEnv } from '@erxes/api-utils/src';
-import { IModels } from './connectionResolver';
-import { awsRequests } from './trackers/engageTracker';
+  sendClientPortalMessage
+} from "./messageBroker";
+import { getEnv } from "@erxes/api-utils/src";
+import { IModels } from "./connectionResolver";
+import { awsRequests } from "./trackers/engageTracker";
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
   customersSelector: any;
@@ -45,7 +43,7 @@ export const generateCustomerSelector = async (
     customerIds,
     segmentIds = [],
     tagIds = [],
-    brandIds = [],
+    brandIds = []
   }: ICustomerSelector
 ): Promise<any> => {
   // find matched customers
@@ -64,18 +62,18 @@ export const generateCustomerSelector = async (
   if (brandIds.length > 0) {
     const integrations = await sendInboxMessage({
       ...commonParams,
-      action: 'integrations.find',
-      data: { query: { brandId: { $in: brandIds } } },
+      action: "integrations.find",
+      data: { query: { brandId: { $in: brandIds } } }
     });
 
     customerQuery = { integrationId: { $in: integrations.map(i => i._id) } };
   }
 
   if (segmentIds.length > 0) {
-    const segments = await sendSegmentsMessage({
+    const segments = await sendCoreMessage({
       ...commonParams,
-      action: 'find',
-      data: { _id: { $in: segmentIds } },
+      action: "segmentFind",
+      data: { _id: { $in: segmentIds } }
     });
 
     let customerIdsBySegments: string[] = [];
@@ -83,46 +81,46 @@ export const generateCustomerSelector = async (
     for (const segment of segments) {
       const options: any = { perPage: 5000, scroll: true };
 
-      if (!segment.contentType.includes('contacts')) {
+      if (!segment.contentType.includes("contacts")) {
         options.returnAssociated = {
           mainType: segment.contentType,
-          relType: 'contacts:customer',
+          relType: "core:customer"
         };
       }
 
-      const cIds = await sendSegmentsMessage({
+      const cIds = await sendCoreMessage({
         ...commonParams,
-        action: 'fetchSegment',
+        action: "fetchSegment",
         data: {
           segmentId: segment._id,
-          options,
-        },
+          options
+        }
       });
 
       if (
         engageId &&
         [
-          'contacts:company',
-          'cards:deal',
-          'cards:task',
-          'cards:ticket',
-          'cards:purchase',
+          "core:company",
+          "sales:deal",
+          "tasks:task",
+          "tickets:ticket",
+          "purchases:purchase"
         ].includes(segment.contentType)
       ) {
         const returnFields = [
-          'name',
-          'description',
-          'closeDate',
-          'createdAt',
-          'modifiedAt',
-          'customFieldsData',
+          "name",
+          "description",
+          "closeDate",
+          "createdAt",
+          "modifiedAt",
+          "customFieldsData"
         ];
 
         if (
-          segment.contentType === 'cards:deal' ||
-          segment.contentType === 'cards:purchase'
+          segment.contentType === "sales:deal" ||
+          segment.contentType === "purchases:purchase"
         ) {
-          returnFields.push('productsData');
+          returnFields.push("productsData");
         }
       }
 
@@ -134,7 +132,7 @@ export const generateCustomerSelector = async (
 
   return {
     ...customerQuery,
-    $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }],
+    $or: [{ isSubscribed: "Yes" }, { isSubscribed: { $exists: false } }]
   };
 };
 
@@ -144,17 +142,17 @@ const timeCheckScheduledBroadcast = async (
   scheduleDate?: IScheduleDateDocument
 ) => {
   const isValidScheduledBroadcast =
-    scheduleDate && scheduleDate.type === 'pre' && scheduleDate.dateTime;
+    scheduleDate && scheduleDate.type === "pre" && scheduleDate.dateTime;
   // Check for pre scheduled engages
 
   if (isValidScheduledBroadcast) {
-    const dateTime = new Date(scheduleDate.dateTime || '');
+    const dateTime = new Date(scheduleDate.dateTime || "");
     const now = new Date();
     const notRunNow = dateTime.getTime() > now.getTime();
     if (notRunNow) {
       await models.Logs.createLog(
         _id,
-        'regular',
+        "regular",
         `Broadcast will run at "${dateTime.toLocaleString()}"`
       );
 
@@ -173,7 +171,7 @@ const checkAlreadyRun = async (_id, kind, title, runCount, models: IModels) => {
   if (isAlreadyRun) {
     await models.Logs.createLog(
       _id,
-      'regular',
+      "regular",
       `Broadcast "${title}" has already run before`
     );
 
@@ -198,7 +196,7 @@ export const send = async (
     _id,
     kind,
     runCount,
-    title,
+    title
   } = engageMessage;
 
   const notRunNow = await timeCheckScheduledBroadcast(
@@ -214,7 +212,7 @@ export const send = async (
   const user = await findUser(subdomain, fromUserId);
 
   if (!user) {
-    throw new Error('User not found');
+    throw new Error("User not found");
   }
 
   if (!engageMessage.isLive) {
@@ -238,7 +236,7 @@ export const send = async (
     customerIds,
     segmentIds,
     tagIds: customerTagIds,
-    brandIds,
+    brandIds
   });
 
   if (engageMessage.method === CAMPAIGN_METHODS.EMAIL) {
@@ -246,7 +244,7 @@ export const send = async (
       models,
       subdomain,
       { engageMessage, customersSelector, user },
-      'sendEngage'
+      "sendEngage"
     );
   }
 
@@ -255,7 +253,7 @@ export const send = async (
       models,
       subdomain,
       { engageMessage, customersSelector, user },
-      'sendEngageSms'
+      "sendEngageSms"
     );
   }
 
@@ -264,13 +262,13 @@ export const send = async (
     forceCreateConversation
   ) {
     const brandId =
-      (engageMessage.messenger && engageMessage.messenger.brandId) || '';
+      (engageMessage.messenger && engageMessage.messenger.brandId) || "";
     const integrations = await sendInboxMessage({
       subdomain,
-      action: 'integrations.find',
-      data: { query: { brandId, kind: 'messenger' } },
+      action: "integrations.find",
+      data: { query: { brandId, kind: "messenger" } },
       isRPC: true,
-      defaultValue: null,
+      defaultValue: null
     });
 
     if (integrations?.length === 0) {
@@ -278,36 +276,36 @@ export const send = async (
     }
 
     if (integrations?.length > 1) {
-      throw new Error('The Brand has multiple integrations');
+      throw new Error("The Brand has multiple integrations");
     }
 
     const integration = integrations[0];
 
     if (!integration || !brandId) {
-      throw new Error('Integration not found or brandId is not provided');
+      throw new Error("Integration not found or brandId is not provided");
     }
 
-    const erxesCustomerIds = await sendContactsMessage({
+    const erxesCustomerIds = await sendCoreMessage({
       subdomain,
-      action: 'customers.getCustomerIds',
+      action: "customers.getCustomerIds",
       data: customersSelector,
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     for (const customerId of erxesCustomerIds || []) {
       await models.EngageMessages.createVisitorOrCustomerMessages({
         brandId,
         integrationId: integration._id,
-        customer: await sendContactsMessage({
+        customer: await sendCoreMessage({
           subdomain,
-          action: 'customers.findOne',
+          action: "customers.findOne",
           data: { _id: customerId },
           isRPC: true,
-          defaultValue: null,
+          defaultValue: null
         }),
         visitorId: undefined,
-        browserInfo: {},
+        browserInfo: {}
       });
     }
 
@@ -318,8 +316,8 @@ export const send = async (
         { _id: engageMessage._id },
         {
           $set: {
-            totalCustomersCount: receiversLength,
-          },
+            totalCustomersCount: receiversLength
+          }
         }
       );
     }
@@ -329,7 +327,7 @@ export const send = async (
     return sendNotifications(models, subdomain, {
       engageMessage,
       customersSelector,
-      user,
+      user
     });
   }
 };
@@ -338,33 +336,32 @@ const sendEmailOrSms = async (
   models: IModels,
   subdomain,
   { engageMessage, customersSelector, user }: IEngageParams,
-  action: 'sendEngage' | 'sendEngageSms'
+  action: "sendEngage" | "sendEngageSms"
 ) => {
   const engageMessageId = engageMessage._id;
 
   const MINUTELY =
-    engageMessage.scheduleDate && engageMessage.scheduleDate.type === 'minute';
+    engageMessage.scheduleDate && engageMessage.scheduleDate.type === "minute";
 
   if (!(engageMessage.kind === CAMPAIGN_KINDS.AUTO && MINUTELY)) {
     await models.Logs.createLog(
       engageMessageId,
-      'regular',
+      "regular",
       `Run at ${new Date()}`
     );
   }
 
-  console.log("SENDING prepareEngageCustomers to CONTACTS =============")
   // customer info will be prepared at contacts api
-  sendContactsMessage({
+  sendCoreMessage({
     isRPC: false,
-    action: 'customers.prepareEngageCustomers',
+    action: "customers.prepareEngageCustomers",
     subdomain,
     data: {
       engageMessage,
       customersSelector,
       action,
-      user,
-    },
+      user
+    }
   });
 };
 
@@ -373,18 +370,18 @@ const sendCampaignNotification = async (models, subdomain, doc) => {
   try {
     await sendClientPortalMessage({
       subdomain,
-      action: 'sendNotification',
+      action: "sendNotification",
       data: doc,
-      isRPC: false,
+      isRPC: false
     }).then(async () => {
-      await models.Logs.createLog(groupId, 'success', 'Notification sent');
+      await models.Logs.createLog(groupId, "success", "Notification sent");
       await models.EngageMessages.updateOne(
         { _id: groupId },
         { $inc: { runCount: 1 } }
       );
     });
   } catch (e) {
-    await models.Logs.createLog(groupId, 'failure', e.message);
+    await models.Logs.createLog(groupId, "failure", e.message);
   }
 };
 
@@ -396,29 +393,29 @@ const sendNotifications = async (
   const { notification, cpId } = engageMessage;
   const engageMessageId = engageMessage._id;
 
-  const erxesCustomerIds = await sendContactsMessage({
+  const erxesCustomerIds = await sendCoreMessage({
     subdomain,
-    action: 'customers.getCustomerIds',
+    action: "customers.getCustomerIds",
     data: customersSelector,
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   const cpUserIds =
     ((await sendClientPortalMessage({
       subdomain,
       isRPC: true,
-      action: 'clientPortalUsers.getIds',
+      action: "clientPortalUsers.getIds",
       data: {
         clientPortalId: cpId,
-        erxesCustomerId: { $in: [...erxesCustomerIds] },
-      },
+        erxesCustomerId: { $in: [...erxesCustomerIds] }
+      }
     })) as string[]) || [];
 
   if (cpUserIds.length === 0) {
     await models.Logs.createLog(
       engageMessageId,
-      'regular',
+      "regular",
       `No client portal user found`
     );
 
@@ -428,7 +425,7 @@ const sendNotifications = async (
   if (cpUserIds.length > 0) {
     await models.Logs.createLog(
       engageMessageId,
-      'regular',
+      "regular",
       `Preparing to send Notification to "${cpUserIds.length}" customers`
     );
   }
@@ -436,12 +433,12 @@ const sendNotifications = async (
   const doc = {
     createdUser: user,
     receivers: cpUserIds,
-    title: notification?.title || '',
-    content: notification?.content || '',
-    notifType: 'engage',
+    title: notification?.title || "",
+    content: notification?.content || "",
+    notifType: "engage",
     isMobile: notification?.isMobile || false,
-    link: '',
-    groupId: engageMessageId,
+    link: "",
+    groupId: engageMessageId
   };
 
   const receiversLength = doc.receivers.length || 0;
@@ -451,8 +448,8 @@ const sendNotifications = async (
       { _id: doc.groupId },
       {
         $set: {
-          totalCustomersCount: receiversLength,
-        },
+          totalCustomersCount: receiversLength
+        }
       }
     );
   }
@@ -474,19 +471,19 @@ export const checkCampaignDoc = async (
     segmentIds = [],
     customerTagIds = [],
     customerIds = [],
-    fromUserId,
+    fromUserId
   } = doc;
 
   const noDate =
     !scheduleDate ||
-    (scheduleDate && scheduleDate.type === 'pre' && !scheduleDate.dateTime);
+    (scheduleDate && scheduleDate.type === "pre" && !scheduleDate.dateTime);
 
   if (
     kind === CAMPAIGN_KINDS.AUTO &&
     method === CAMPAIGN_METHODS.EMAIL &&
     noDate
   ) {
-    throw new Error('Schedule date & type must be chosen in auto campaign');
+    throw new Error("Schedule date & type must be chosen in auto campaign");
   }
 
   if (
@@ -498,14 +495,14 @@ export const checkCampaignDoc = async (
       customerIds.length > 0
     )
   ) {
-    throw new Error('One of brand or segment or tag must be chosen');
+    throw new Error("One of brand or segment or tag must be chosen");
   }
 
   if (method === CAMPAIGN_METHODS.EMAIL) {
     const user = await findUser(subdomain, fromUserId);
 
     if (!user) {
-      throw new Error('From user must be specified');
+      throw new Error("From user must be specified");
     }
 
     if (!user.email) {
@@ -522,7 +519,9 @@ export const checkCampaignDoc = async (
 
   if (method === CAMPAIGN_METHODS.NOTIFICATION) {
     if (!doc.notification || !doc.title || !doc?.notification.content) {
-      throw new Error('Required fields are missing. Please fill in all mandatory fields.');
+      throw new Error(
+        "Required fields are missing. Please fill in all mandatory fields."
+      );
     }
     if (!doc.cpId) {
       throw new Error(
@@ -535,18 +534,18 @@ export const checkCampaignDoc = async (
 export const findElk = async (subdomain: string, index: string, query) => {
   const response = await fetchEs({
     subdomain,
-    action: 'search',
+    action: "search",
     index,
     body: {
-      query,
+      query
     },
-    defaultValue: { hits: { hits: [] } },
+    defaultValue: { hits: { hits: [] } }
   });
 
   return response.hits.hits.map(hit => {
     return {
       _id: hit._id,
-      ...hit._source,
+      ...hit._source
     };
   });
 };
@@ -557,7 +556,7 @@ export const findUser = async (subdomain, userId?: string) => {
     isRPC: true,
     subdomain,
     data: { _id: userId },
-    action: 'users.findOne',
+    action: "users.findOne"
   });
 
   return user;
@@ -577,15 +576,15 @@ export const checkCustomerExists = async (
         customerIds,
         segmentIds,
         tagIds,
-        brandIds,
-      })),
+        brandIds
+      }))
     };
 
-    const customer = await sendContactsMessage({
+    const customer = await sendCoreMessage({
       subdomain,
-      action: 'customers.findOne',
+      action: "customers.findOne",
       data: customersSelector,
-      isRPC: true,
+      isRPC: true
     });
 
     return customer;
@@ -596,13 +595,13 @@ export const checkCustomerExists = async (
   }
 
   const must: any[] = [
-    { terms: { state: [CONTENT_TYPES.CUSTOMER, CONTENT_TYPES.LEAD] } },
+    { terms: { state: [CONTENT_TYPES.CUSTOMER, CONTENT_TYPES.LEAD] } }
   ];
 
   must.push({
     term: {
-      _id: id,
-    },
+      _id: id
+    }
   });
 
   if (customerIds && customerIds.length > 0) {
@@ -614,34 +613,34 @@ export const checkCustomerExists = async (
   }
 
   if (brandIds && brandIds.length > 0) {
-    const integraiontIds = await findElk(subdomain, 'integrations', {
+    const integraiontIds = await findElk(subdomain, "integrations", {
       bool: {
-        must: [{ terms: { 'brandId.keyword': brandIds } }],
-      },
+        must: [{ terms: { "brandId.keyword": brandIds } }]
+      }
     });
 
     must.push({
       terms: {
-        integrationId: integraiontIds.map(e => e._id),
-      },
+        integrationId: integraiontIds.map(e => e._id)
+      }
     });
   }
 
   if (segmentIds && segmentIds.length > 0) {
-    const segments = await findElk(subdomain, 'segments', {
+    const segments = await findElk(subdomain, "segments", {
       bool: {
-        must: [{ terms: { _id: segmentIds } }],
-      },
+        must: [{ terms: { _id: segmentIds } }]
+      }
     });
 
     let customerIdsBySegments: string[] = [];
 
     for (const segment of segments) {
-      const cIds = await sendSegmentsMessage({
+      const cIds = await sendCoreMessage({
         isRPC: true,
         subdomain,
-        action: 'fetchSegment',
-        data: { segmentId: segment._id },
+        action: "fetchSegment",
+        data: { segmentId: segment._id }
       });
 
       customerIdsBySegments = [...customerIdsBySegments, ...cIds];
@@ -649,36 +648,36 @@ export const checkCustomerExists = async (
 
     must.push({
       terms: {
-        _id: customerIdsBySegments,
-      },
+        _id: customerIdsBySegments
+      }
     });
   }
 
   must.push({
     bool: {
       should: [
-        { term: { isSubscribed: 'yes' } },
+        { term: { isSubscribed: "yes" } },
         {
           bool: {
             must_not: {
               exists: {
-                field: 'isSubscribed',
-              },
-            },
-          },
-        },
-      ],
-    },
+                field: "isSubscribed"
+              }
+            }
+          }
+        }
+      ]
+    }
   });
 
-  const customers = await findElk(subdomain, 'customers', {
+  const customers = await findElk(subdomain, "customers", {
     bool: {
       filter: {
         bool: {
-          must,
-        },
-      },
-    },
+          must
+        }
+      }
+    }
   });
 
   return customers.length > 0;

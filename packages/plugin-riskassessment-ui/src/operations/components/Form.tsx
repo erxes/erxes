@@ -96,7 +96,7 @@ class Form extends React.Component<Props, State> {
           <ControlLabel>{__("Team Members")}</ControlLabel>
           <SelectTeamMembers
             name="teamMemberIds"
-            label="Choose team members"
+            label={__("Choose team members")}
             initialValue={operation?.teamMemberIds}
             onSelect={handleTeamMember}
             multi={true}

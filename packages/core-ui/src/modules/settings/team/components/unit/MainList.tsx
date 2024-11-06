@@ -23,7 +23,7 @@ import Wrapper from "modules/layout/components/Wrapper";
 type Props = {
   listQuery: UnitsMainQueryResponse;
   deleteUnits: (ids: string[], callback: () => void) => void;
-  queryParams: any;
+  queryParams: Record<string, string>;
 };
 
 const MainList = (props: Props) => {
@@ -32,7 +32,7 @@ const MainList = (props: Props) => {
   const location = useLocation();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [searchValue, setSearchValue] = useState(
-    props.queryParams.searchValue || ""
+    props.queryParams.searchValue || "",
   );
 
   const remove = (_id?: string) => {
@@ -98,7 +98,7 @@ const MainList = (props: Props) => {
     const handleSelect = () => {
       if (selectedItems.includes(unit._id)) {
         const removedSelectedItems = selectedItems.filter(
-          (selectItem) => selectItem !== unit._id
+          (selectItem) => selectItem !== unit._id,
         );
         return setSelectedItems(removedSelectedItems);
       }
@@ -138,7 +138,11 @@ const MainList = (props: Props) => {
               key={unit._id}
               title="Edit Unit"
               content={({ closeModal }) => (
-                <Form closeModal={closeModal} item={unit} queryType="units" />
+                <Form
+                  closeModal={closeModal}
+                  itemId={unit._id}
+                  queryType="units"
+                />
               )}
               trigger={trigger}
             />

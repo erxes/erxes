@@ -1,22 +1,22 @@
-import { IPolarisCustomer } from './types';
+import { IPolarisCustomer } from "./types";
 
 const keys = [
-  'custSegCode',
-  'isVatPayer',
-  'sexCode',
-  'status',
-  'isCompanyCustomer',
-  'industryId',
-  'familyName',
-  'lastName',
-  'firstName',
-  'registerMaskCode',
-  'registerCode',
-  'birthDate',
-  'mobile',
-  'countryCode',
-  'email',
-  'phone',
+  "custSegCode",
+  "isVatPayer",
+  "sexCode",
+  "status",
+  "isCompanyCustomer",
+  "industryId",
+  "familyName",
+  "lastName",
+  "firstName",
+  "registerMaskCode",
+  "registerCode",
+  "birthDate",
+  "mobile",
+  "countryCode",
+  "email",
+  "phone"
 ];
 
 export const validateObject = async (value: IPolarisCustomer) => {

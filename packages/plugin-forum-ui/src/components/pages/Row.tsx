@@ -36,7 +36,7 @@ class Row extends React.Component<Props> {
 
     return (
       <ModalTrigger
-        title={`Edit Page`}
+        title={__(`Edit Page`)}
         size="lg"
         trigger={trigger}
         content={content}

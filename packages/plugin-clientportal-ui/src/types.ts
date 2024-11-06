@@ -202,6 +202,7 @@ export type ClientPortalConfig = {
   tokenPassMethod: 'cookie' | 'header';
   vendorParentProductCategoryId?: string;
   socialpayConfig?: SocialpayConfig;
+  language?: string;
 };
 
 export type Styles = {

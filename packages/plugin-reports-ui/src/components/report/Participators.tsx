@@ -55,7 +55,7 @@ const Participators: React.FC<Props> = (props) => {
     return (
       <Tip key={user._id} placement="bottom" text={name}>
         <ParticipatorImg
-          title={`Participator: ${name}`}
+          title={__(`Participator: ${name}`)}
           key={user._id}
           src={getUserAvatar(user)}
         />

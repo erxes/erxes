@@ -7,17 +7,17 @@ import {
   Table,
   __,
   router,
-} from "@erxes/ui/src";
-import { FlexRow, HeaderContent } from "../../../styles";
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+} from '@erxes/ui/src';
+import { FlexRow, HeaderContent } from '../../../styles';
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-import { DefaultWrapper } from "../../../common/utils";
-import Form from "../containers/Form";
-import { IIndicatorsGroups } from "../common/types";
-import Row from "./Row";
-import Sidebar from "../../components/SideBar";
-import { subMenu } from "../../../common/constants";
+import { DefaultWrapper } from '../../../common/utils';
+import Form from '../containers/Form';
+import { IIndicatorsGroups } from '../common/types';
+import Row from './Row';
+import Sidebar from '../../components/SideBar';
+import { subMenu } from '../../../common/constants';
 
 type Props = {
   queryParams: any;
@@ -31,16 +31,16 @@ const List = (props: Props) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState(
-    props.queryParams.searchValue || ""
+    props.queryParams.searchValue || ''
   );
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   const addIndicatorGroups = () => {
     const trigger = (
-      <Button btnStyle="success">{__("Add Grouping Indicators")}</Button>
+      <Button btnStyle="success">{__('Add Grouping Indicators')}</Button>
     );
 
-    const content = (props) => (
+    const content = props => (
       <Form queryParams={props.queryParams} {...props} />
     );
 
@@ -49,21 +49,21 @@ const List = (props: Props) => {
         trigger={trigger}
         content={content}
         enforceFocus={false}
-        title="Add Grouping Indicators"
+        title={__("Add Grouping Indicators")}
         size="xl"
       />
     );
   };
 
   const renderSearchField = () => {
-    const handleSearch = (e) => {
+    const handleSearch = e => {
       if (timer) {
         clearTimeout(timer);
       }
       const searchValue = e.target.value;
       setSearchValue(searchValue);
       timer = setTimeout(() => {
-        router.removeParams(navigate, location, "page");
+        router.removeParams(navigate, location, 'page');
         router.setParams(navigate, location, { searchValue });
       }, 500);
     };
@@ -71,7 +71,7 @@ const List = (props: Props) => {
     return (
       <FormControl
         type="text"
-        placeholder="Type to search"
+        placeholder={__("Type to search")}
         onChange={handleSearch}
         value={searchValue}
       />
@@ -86,7 +86,7 @@ const List = (props: Props) => {
 
     return (
       <Button btnStyle="danger" onClick={handleRemove}>
-        {__("Remove")}
+        {__('Remove')}
       </Button>
     );
   };
@@ -96,16 +96,16 @@ const List = (props: Props) => {
 
     const selectAll = () => {
       if (!selectedItems.length) {
-        const ids = (list || []).map((item) => item._id);
+        const ids = (list || []).map(item => item._id);
         return setSelectedItems(ids);
       }
 
       setSelectedItems([]);
     };
 
-    const selectItem = (id) => {
+    const selectItem = id => {
       if (selectedItems.includes(id)) {
-        const newselectedItems = selectedItems.filter((p) => p !== id);
+        const newselectedItems = selectedItems.filter(p => p !== id);
         return setSelectedItems(newselectedItems);
       }
       setSelectedItems([...selectedItems, id]);
@@ -118,15 +118,15 @@ const List = (props: Props) => {
             <th>
               <FormControl componentclass="checkbox" onClick={selectAll} />
             </th>
-            <th>{__("Name")}</th>
-            <th>{__("Tags")}</th>
-            <th>{__("Created At")}</th>
-            <th>{__("Modified At")}</th>
-            <th>{__("")}</th>
+            <th>{__('Name')}</th>
+            <th>{__('Tags')}</th>
+            <th>{__('Created At')}</th>
+            <th>{__('Modified At')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>
-          {(list || []).map((item) => (
+          {(list || []).map(item => (
             <Row
               key={item._id}
               indicatorsGroups={item}
@@ -145,13 +145,15 @@ const List = (props: Props) => {
     <BarItems>
       {renderSearchField()}
       {!!selectedItems.length && renderRemove()}
-      {addIndicatorGroups()}
+      <Button btnStyle="success" href="/settings/risk-indicators-groups/add">
+        {__('Add Grouping Indicators')}
+      </Button>
     </BarItems>
   );
 
   const leftActionBar = (
     <HeaderDescription
-      title="Indicators Groups"
+      title={__("Indicators Groups")}
       icon="/images/actions/24.svg"
       description=""
       renderExtra={
@@ -166,7 +168,7 @@ const List = (props: Props) => {
   );
 
   const updatedProps = {
-    title: "Indicators Groups",
+    title: 'Indicators Groups',
     rightActionBar,
     leftActionBar,
     sidebar: <Sidebar queryParams={queryParams} />,

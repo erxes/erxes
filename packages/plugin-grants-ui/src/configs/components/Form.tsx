@@ -116,7 +116,7 @@ const ConfigForm: React.FC<Props> = (props) => {
         <FormGroup>
           <ControlLabel required>{__('Actions')}</ControlLabel>
           <SelectActions
-            label="Choose a action"
+            label={__("Choose a action")}
             name="action"
             initialValue={action}
             onSelect={handleSelect}

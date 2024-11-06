@@ -1,8 +1,8 @@
 import * as React from 'react';
+import { AppConsumer } from '../../messenger/containers/AppContext';
 import { readFile } from '../../utils';
 import { ICallout } from '../types';
 import TopBar from './TopBar';
-import { getColor } from '../../messenger/utils/util';
 
 type Props = {
   onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void;
@@ -120,10 +120,16 @@ class Callout extends React.Component<Props, State> {
 }
 
 export default (props: Props) => (
-  <Callout
-    {...props}
-    // if lead is in a messenger, return messenger theme color (getColor())
-    // else return lead theme color
-    color={getColor ? getColor() : props.color}
-  />
+  <AppConsumer>
+    {({ getColor }) => {
+      return (
+        <Callout
+          {...props}
+          // if lead is in a messenger, return messenger theme color (getColor())
+          // else return lead theme color
+          color={getColor ? getColor() : props.color}
+        />
+      );
+    }}
+  </AppConsumer>
 );

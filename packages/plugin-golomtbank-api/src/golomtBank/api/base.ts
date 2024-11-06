@@ -27,7 +27,7 @@ export class BaseApi {
     try {
       const requestOptions: RequestInit & Required<{ headers: HeadersInit }> = {
         method,
-        headers,
+        headers
       };
       if (data) {
         requestOptions.body = JSON.stringify(data);
@@ -53,7 +53,7 @@ export class BaseApi {
       const response = await fetch(
         `${this.config.apiUrl}/${path}?` + new URLSearchParams(params),
         requestOptions
-      ).then((res) => res.text());
+      ).then(res => res.text());
 
       return await decryptData(
         response,

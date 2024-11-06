@@ -43,10 +43,10 @@ export class TransferApi extends BaseApi {
             acctNo: transfer.fromAccount,
             amount: {
               value: transfer.amount,
-              currency: transfer.fromCurrency,
+              currency: transfer.fromCurrency
             },
             particulars: transfer.description,
-            bank: "15",
+            bank: "15"
           },
           receives: [
             {
@@ -55,14 +55,14 @@ export class TransferApi extends BaseApi {
               acctNo: transfer.toAccount,
               amount: {
                 value: transfer.amount,
-                currency: transfer.toCurrency,
+                currency: transfer.toCurrency
               },
               particulars: transfer.description,
-              bank: transfer.toBank,
-            },
+              bank: transfer.toBank
+            }
           ],
-          remarks: transfer.description,
-        },
+          remarks: transfer.description
+        }
       });
     } catch (e) {
       console.error(e);
@@ -98,8 +98,8 @@ export class TransferApi extends BaseApi {
         path: "transfer/interbank",
         data: {
           ...args,
-          tranPassword: args,
-        },
+          tranPassword: args
+        }
       });
     } catch (e) {
       console.error(e);

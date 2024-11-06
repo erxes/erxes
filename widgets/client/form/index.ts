@@ -46,7 +46,7 @@ widgetConnect({
         }
       })
       .catch(e => {
-        console.log(e.message);
+        console.error(e.message);
       });
   },
 
@@ -59,9 +59,10 @@ widgetConnect({
 
     // save connection info
     connection.data = response;
+    connection.leadData = response.form.leadData || {};
 
     // set language
-    setLocale(response.integration.languageCode || "en");
+    setLocale(response.form.languageCode || "en");
   },
 
   AppContainer: App

@@ -4,7 +4,13 @@ import {
   isEnabled,
 } from '@erxes/api-utils/src/serviceDiscovery';
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendContactsMessage } from '../messageBroker';
+import {
+  sendCoreMessage,
+  sendPurchasesMessage,
+  sendSalesMessage,
+  sendTasksMessage,
+  sendTicketsMessage,
+} from '../messageBroker';
 import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 
 export interface IContactsParams {
@@ -35,7 +41,7 @@ export const handleContacts = async (args: IContactsParams) => {
   qry.clientPortalId = clientPortalId;
 
   if (type === 'customer') {
-    let customer = await sendContactsMessage({
+    let customer = await sendCoreMessage({
       subdomain,
       action: 'customers.findOne',
       data: {
@@ -64,7 +70,7 @@ export const handleContacts = async (args: IContactsParams) => {
     });
 
     if (!customer) {
-      customer = await sendContactsMessage({
+      customer = await sendCoreMessage({
         subdomain,
         action: 'customers.createCustomer',
         data: {
@@ -101,7 +107,7 @@ export const handleContacts = async (args: IContactsParams) => {
   }
 
   if (type === 'company') {
-    let company = await sendContactsMessage({
+    let company = await sendCoreMessage({
       subdomain,
       action: 'companies.findOne',
       data: {
@@ -135,7 +141,7 @@ export const handleContacts = async (args: IContactsParams) => {
     });
 
     if (!company) {
-      company = await sendContactsMessage({
+      company = await sendCoreMessage({
         subdomain,
         action: 'companies.createCompany',
         data: {
@@ -174,11 +180,11 @@ export const handleContacts = async (args: IContactsParams) => {
 };
 
 export const putActivityLog = async (subdomain, user) => {
-  let contentType = 'contacts:customer';
+  let contentType = 'core:customer';
   let contentId = user.erxesCustomerId;
 
   if (user.type === 'company') {
-    contentType = 'contacts:company';
+    contentType = 'core:company';
     contentId = user.erxesCompanyId;
   }
 
@@ -209,7 +215,7 @@ export const handleDeviceToken = async (user, deviceToken) => {
 };
 
 export const createCard = async (subdomain, models, cpUser, doc) => {
-  const customer = await sendContactsMessage({
+  const customer = await sendCoreMessage({
     subdomain,
     action: 'customers.findOne',
     data: {
@@ -241,29 +247,64 @@ export const createCard = async (subdomain, models, cpUser, doc) => {
     priority = 'Normal';
   }
 
-  const card = await sendCardsMessage({
-    subdomain,
-    action: `${type}s.create`,
-    data: {
-      userId: cpUser.userId,
-      name: subject,
-      description,
-      priority,
-      stageId,
-      status: 'active',
-      customerId: customer._id,
-      createdAt: new Date(),
-      stageChangedDate: null,
-      parentId,
-      closeDate,
-      startDate,
-      customFieldsData,
-      attachments,
-      labelIds,
-      productsData,
-    },
-    isRPC: true,
-  });
+  let card = {} as any;
+
+  const data = {
+    userId: cpUser.userId,
+    name: subject,
+    description,
+    priority,
+    stageId,
+    status: 'active',
+    customerId: customer._id,
+    createdAt: new Date(),
+    stageChangedDate: null,
+    parentId,
+    closeDate,
+    startDate,
+    customFieldsData,
+    attachments,
+    labelIds,
+    productsData,
+  };
+
+  switch (type) {
+    case 'deal':
+      card = await sendSalesMessage({
+        subdomain,
+        action: `${type}s.create`,
+        data,
+        isRPC: true,
+      });
+      break;
+
+    case 'ticket':
+      card = await sendTicketsMessage({
+        subdomain,
+        action: `${type}s.create`,
+        data,
+        isRPC: true,
+      });
+      break;
+
+    case 'task':
+      card = await sendTasksMessage({
+        subdomain,
+        action: `${type}s.create`,
+        data,
+        isRPC: true,
+      });
+      break;
+
+    case 'purchase':
+      card = await sendPurchasesMessage({
+        subdomain,
+        action: `${type}s.create`,
+        data,
+        isRPC: true,
+      });
+      break;
+  }
 
   await models.ClientPortalUserCards.createOrUpdateCard({
     contentType: type,
@@ -287,13 +328,13 @@ export const participantEditRelation = async (
     contentTypeId: cardId,
   });
   const newCpUsers = cpUserIds.filter(
-    x => userCards.findIndex(m => m.cpUserId === x) === -1
+    (x) => userCards.findIndex((m) => m.cpUserId === x) === -1
   );
 
-  const excludedCpUsers = oldCpUserIds.filter(m => !cpUserIds.includes(m));
+  const excludedCpUsers = oldCpUserIds.filter((m) => !cpUserIds.includes(m));
 
   if (newCpUsers) {
-    const docs = newCpUsers.map(d => ({
+    const docs = newCpUsers.map((d) => ({
       contentType: type,
       contentTypeId: cardId,
       cpUserId: d,

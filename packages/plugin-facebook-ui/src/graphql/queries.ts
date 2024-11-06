@@ -20,6 +20,7 @@ const commonPostAndCommentFields = `
   timestamp
   permalink_url
   content
+  attachments
 `;
 
 const facebookGetConfigs = `
@@ -114,9 +115,6 @@ const facebookConversationMessages = `
           position
         }
       }
-      ${
-        isEnabled('contacts')
-          ? `
           customer {
             _id
             avatar
@@ -135,9 +133,6 @@ const facebookConversationMessages = `
             customFieldsData
             tagIds
           }
-        `
-          : ``
-      }
     }
   }
 `;

@@ -9,9 +9,9 @@ import { queries as productQueries } from "../../../graphql";
 
 import { isEnabled, __ } from "@erxes/ui/src/utils/core";
 import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
-import { IDeal } from "@erxes/ui-cards/src/deals/types";
+import { IDeal } from "@erxes/ui-sales/src/deals/types";
 import DealForm from "./DealForm";
-import BoardSelect from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import BoardSelect from "@erxes/ui-sales/src/boards/containers/BoardSelect";
 import Popover from "@erxes/ui/src/components/Popover";
 
 import { Button } from "@erxes/ui/src";
@@ -53,7 +53,7 @@ class DealChooser extends React.Component<FinalProps, State> {
       boardId: props.boardId || boardId || "",
       pipelineId: props.pipelineId || pipelineId || "",
       stageId: props.stageId || stageId || "",
-      companyId: props.companyId || companyId || "",
+      companyId: props.companyId || companyId || ""
     };
   }
 
@@ -79,13 +79,13 @@ class DealChooser extends React.Component<FinalProps, State> {
       variables.companyIds = [companyId];
 
       this.props.dealsQuery.refetch({
-        ...variables,
+        ...variables
       });
     }
 
     if (companyId || boardId || pipelineId || stageId) {
       this.props.dealsQuery.refetch({
-        ...variables,
+        ...variables
       });
     }
   }
@@ -98,7 +98,7 @@ class DealChooser extends React.Component<FinalProps, State> {
     this.setState({ perPage: this.state.perPage + 20 }, () =>
       this.props.dealsQuery.refetch({
         searchValue: value,
-        perPage: this.state.perPage,
+        perPage: this.state.perPage
       })
     );
   };
@@ -116,7 +116,7 @@ class DealChooser extends React.Component<FinalProps, State> {
     const variables = {
       companyIds: undefined,
       pipelineId: "",
-      stageId: "",
+      stageId: ""
     } as any;
     if (companyId) {
       variables.companyIds = [companyId];
@@ -137,20 +137,20 @@ class DealChooser extends React.Component<FinalProps, State> {
         this.props.dealsQuery.refetch({
           ...this.generateVariables(),
           companyIds: [companyId],
-          perPage: this.state.perPage,
+          perPage: this.state.perPage
         });
         this.props.companiesQuery.refetch({
-          _ids: [companyId],
+          _ids: [companyId]
         });
         this.onFilterSave();
       } else {
         this.props.dealsQuery.refetch({
           ...this.generateVariables(),
           companyIds: undefined,
-          perPage: this.state.perPage,
+          perPage: this.state.perPage
         });
         this.props.companiesQuery.refetch({
-          _ids: [companyId],
+          _ids: [companyId]
         });
         this.onFilterSave();
       }
@@ -161,7 +161,7 @@ class DealChooser extends React.Component<FinalProps, State> {
     this.setState({ boardId }, () => {
       this.props.dealsQuery.refetch({
         ...this.generateVariables(),
-        perPage: this.state.perPage,
+        perPage: this.state.perPage
       });
       this.onFilterSave();
     });
@@ -171,7 +171,7 @@ class DealChooser extends React.Component<FinalProps, State> {
       this.props.dealsQuery.refetch({
         ...this.generateVariables(),
         pipelineId,
-        perPage: this.state.perPage,
+        perPage: this.state.perPage
       });
       this.onFilterSave();
     });
@@ -182,7 +182,7 @@ class DealChooser extends React.Component<FinalProps, State> {
       this.props.dealsQuery.refetch({
         ...this.generateVariables(),
         stageId,
-        perPage: this.state.perPage,
+        perPage: this.state.perPage
       });
       this.onFilterSave();
     });
@@ -193,23 +193,22 @@ class DealChooser extends React.Component<FinalProps, State> {
 
     return (
       <>
-        {(isEnabled("contacts") && (
-          <SelectCompanies
-            label="Company"
-            name="ownerId"
-            multi={false}
-            initialValue={companyId}
-            onSelect={(company) => this.onChangeCompany(company as string)}
-            customOption={{ label: "Choose company", value: "" }}
-          />
-        )) || <></>}
+        <SelectCompanies
+          label="Company"
+          name="ownerId"
+          multi={false}
+          initialValue={companyId}
+          onSelect={company => this.onChangeCompany(company as string)}
+          customOption={{ label: "Choose company", value: "" }}
+        />
+
         <Popover trigger={<Button>Choose board</Button>} placement="top">
           <Attributes>
             <React.Fragment>
               <li>
                 <b>Choose board</b>
               </li>
-              {isEnabled("cards") && (
+              {isEnabled("sales") && (
                 <BoardSelect
                   type={"deal"}
                   stageId={this.state.stageId}
@@ -227,22 +226,22 @@ class DealChooser extends React.Component<FinalProps, State> {
     );
   };
 
-  onSelectDeal = (datas) => {
+  onSelectDeal = datas => {
     if (this.state.companyId === "") {
       return Alert.warning("You must choose company");
     }
     this.props.onSelect(datas, this.state.companyId);
   };
 
-  extraChecker = (datas) => {
+  extraChecker = datas => {
     if (this.state.companyId === "") {
       return Alert.warning("You must choose company");
     }
-    datas?.forEach((deal) => {
+    datas?.forEach(deal => {
       if (
         !(
           deal.companies &&
-          deal.companies.some((company) => company._id === this.state.companyId)
+          deal.companies.some(company => company._id === this.state.companyId)
         )
       ) {
         return Alert.warning("Choose correct deals");
@@ -265,13 +264,13 @@ class DealChooser extends React.Component<FinalProps, State> {
         return deal.name;
       },
       renderForm: ({ closeModal }: { closeModal: () => void }) =>
-        isEnabled("cards") && (
+        isEnabled("sales") && (
           <DealForm closeModal={closeModal} stageId={this.state.stageId} />
         ),
       perPage: this.state.perPage,
       clearState: () => this.search("", true),
       datas: dealsQuery.deals || [],
-      onSelect: this.onSelectDeal,
+      onSelect: this.onSelectDeal
     };
 
     return (
@@ -294,9 +293,9 @@ export default withProps<Props>(
       pipelineId: string;
     }>(gql(productQueries.deals), {
       name: "dealsQuery",
-      options: (props) => {
+      options: props => {
         const variables = {
-          perPage: props.perPage || 20,
+          perPage: props.perPage || 20
         } as any;
 
         if (props.companyId) {
@@ -308,9 +307,9 @@ export default withProps<Props>(
 
         return {
           variables,
-          fetchPolicy: "network-only",
+          fetchPolicy: "network-only"
         };
-      },
+      }
     })
   )(DealChooser)
 );

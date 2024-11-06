@@ -16,7 +16,7 @@ type Props = {
   allDatas: any[];
   title: string;
   removeItem: (_id: string) => void;
-  queryParams: string;
+  queryParams: Record<string, string>;
   queryType: string;
   listQuery: any;
 };
@@ -26,11 +26,11 @@ export default function BlockList(props: Props) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const renderRemoveAction = item => {
+  const renderRemoveAction = (item) => {
     return (
-      <Button btnStyle="link" onClick={() => removeItem(item._id)}>
-        <Tip text={'Remove'} placement="bottom">
-          <Icon icon="cancel-1" />
+      <Button btnStyle='link' onClick={() => removeItem(item._id)}>
+        <Tip text={'Remove'} placement='bottom'>
+          <Icon icon='cancel-1' />
         </Tip>
       </Button>
     );
@@ -38,17 +38,21 @@ export default function BlockList(props: Props) {
 
   const renderForm = ({
     closeModal,
-    item
+    item,
   }: {
     closeModal: () => void;
     item?: any;
   }): React.ReactNode => {
     return (
-      <BlockForm item={item} closeModal={closeModal} queryType={queryType} />
+      <BlockForm
+        itemId={item?._id}
+        closeModal={closeModal}
+        queryType={queryType}
+      />
     );
   };
 
-  const renderEditAction = item => (
+  const renderEditAction = (item) => (
     <ModalTrigger
       content={({ closeModal }) => renderForm({ closeModal, item })}
       title={`Edit ${title}`}
@@ -77,15 +81,15 @@ export default function BlockList(props: Props) {
   };
 
   const extreBtnTrigger = (
-    <a href="#settings" tabIndex={0}>
-      <Icon icon="plus-circle" />
+    <a href='#settings' tabIndex={0}>
+      <Icon icon='plus-circle' />
     </a>
   );
 
   const editTrigger = (
-    <Button btnStyle="link">
-      <Tip text={'Edit'} placement="bottom">
-        <Icon icon="edit" />
+    <Button btnStyle='link'>
+      <Tip text={'Edit'} placement='bottom'>
+        <Icon icon='edit' />
       </Tip>
     </Button>
   );
@@ -123,7 +127,7 @@ export default function BlockList(props: Props) {
           icon={renderIcon()}
           editAction={renderEditAction}
           removeAction={renderRemoveAction}
-          keyCount="userCount"
+          keyCount='userCount'
         />
       </SidebarList>
     </Box>

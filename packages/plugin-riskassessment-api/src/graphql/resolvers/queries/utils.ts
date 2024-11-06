@@ -1,4 +1,4 @@
-import { sendCardsMessage } from '../../../messageBroker';
+import { sendCommonMessage } from '../../../messageBroker';
 import { CardFilter, CardType } from '../types';
 
 export const generateCardIds = async (
@@ -17,7 +17,7 @@ export const generateCardIds = async (
 
     if (!!values?.length) {
       cardFilter[name] = {
-        $in: regex ? values.map(value => new RegExp(`${value}`, 'i')) : values
+        $in: regex ? values.map(value => new RegExp(`${value}`, 'i')) : values,
       };
       continue;
     }
@@ -27,12 +27,13 @@ export const generateCardIds = async (
       : value;
   }
 
-  const cards = await sendCardsMessage({
+  const cards = await sendCommonMessage({
+    serviceName: `${type}s`,
     subdomain,
     action: `${type}s.find`,
     data: cardFilter,
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   return cards.map(({ _id }) => _id);

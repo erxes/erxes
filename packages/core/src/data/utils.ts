@@ -14,17 +14,9 @@ import fetch from "node-fetch";
 import { IModels } from "../connectionResolver";
 import { IUserDocument } from "../db/models/definitions/users";
 import { debugBase, debugError } from "../debuggers";
-import {
-  sendCommonMessage,
-  sendContactsMessage,
-  sendLogsMessage
-} from "../messageBroker";
+import { sendCommonMessage } from "../messageBroker";
 import { graphqlPubsub } from "../pubsub";
-import {
-  getService,
-  getServices,
-  isEnabled
-} from "@erxes/api-utils/src/serviceDiscovery";
+import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
 import redis from "@erxes/api-utils/src/redis";
 import sanitizeFilename from "@erxes/api-utils/src/sanitize-filename";
 import { randomAlphanumeric } from "@erxes/api-utils/src/random";
@@ -201,21 +193,14 @@ export const sendEmail = async (
     let headers: { [key: string]: string } = {};
 
     if (models && subdomain) {
-      const emailDelivery = isEnabled("logs")
-        ? await sendLogsMessage({
-            subdomain,
-            action: "emailDeliveries.create",
-            data: {
-              kind: "transaction",
-              to: toEmail,
-              from: mailOptions.from,
-              subject: title,
-              body: html,
-              status: "pending"
-            },
-            isRPC: true
-          })
-        : null;
+      const emailDelivery = (await models.EmailDeliveries.createEmailDelivery({
+        kind: "transaction",
+        to: [toEmail],
+        from: mailOptions.from,
+        subject: title || "",
+        body: html,
+        status: "pending"
+      })) as any;
 
       headers = {
         "X-SES-CONFIGURATION-SET": AWS_SES_CONFIG_SET || "erxes",
@@ -388,7 +373,15 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     return "Invalid file type";
   }
 
-  const { mime } = ft;
+  let { mime } = ft;
+
+  if (mime === 'application/zip' && file.name.endsWith('.hwpx')) {
+      mime = 'application/haansoft-hwpml'
+  }
+
+  if (mime === 'application/x-msi' && file.name.endsWith('.hwp')) {
+      mime = 'application/haansoft-hwp'
+  }
 
   // allow old ms office docs to be uploaded
   if (mime === "application/x-msi" && oldMsOfficeDocs.includes(file.type)) {
@@ -672,7 +665,7 @@ export const uploadFileCloudflare = async (
 
   const CLOUDFLARE_USE_CDN = await getConfig(
     "CLOUDFLARE_USE_CDN",
-    "true",
+    "false",
     models
   );
 
@@ -1023,7 +1016,7 @@ const readFromCR2 = async (key: string, models?: IModels) => {
             error.code === "NoSuchKey" &&
             error.message.includes("key does not exist")
           ) {
-            console.log("file does not exist with key: ", key);
+            console.error("file does not exist with key: ", key);
 
             return resolve(null);
           }
@@ -1034,6 +1027,118 @@ const readFromCR2 = async (key: string, models?: IModels) => {
         return resolve(response.Body);
       }
     );
+  });
+};
+
+/**
+ * Create Azure Blob Storage instance
+ */
+const createAzureBlobStorage = async (models?: IModels) => {
+  const AZURE_STORAGE_CONNECTION_STRING = await getConfig(
+    'AZURE_STORAGE_CONNECTION_STRING',
+    '',
+    models
+  );
+  const AZURE_STORAGE_CONTAINER = await getConfig(
+    'AZURE_STORAGE_CONTAINER',
+    '',
+    models
+  );
+
+  if (!AZURE_STORAGE_CONNECTION_STRING || !AZURE_STORAGE_CONTAINER) {
+    throw new Error('Azure Blob Storage credentials are not configured');
+  }
+
+  const BlobServiceClient = require('@azure/storage-blob').BlobServiceClient;
+
+  // Initialize Azure Blob Storage
+  const blobServiceClient = BlobServiceClient.fromConnectionString(
+    AZURE_STORAGE_CONNECTION_STRING
+  );
+
+  // return a specific container client
+  return blobServiceClient.getContainerClient(AZURE_STORAGE_CONTAINER);
+};
+
+/*
+ * Delete file from Azure storage
+ */
+export const deleteFileAzure = async (fileName: string, models?: IModels) => {
+  try {
+    // Initialize the Azure Blob container client
+    const containerClient = await createAzureBlobStorage(models); // Assuming this function provides a container client
+
+    // Get the blob client for the specified file key
+    const blobClient = containerClient.getBlobClient(fileName);
+
+    // Check if the blob exists
+    const exists = await blobClient.exists();
+    if (!exists) {
+      console.log(`File with key ${fileName} does not exist.`);
+      return;
+    }
+
+    // Delete the blob
+    await blobClient.delete();
+    console.log(
+      `File with key ${fileName} successfully deleted from Azure Blob Storage.`
+    );
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+/*
+ * Save file to azure blob storage
+ */
+
+export const uploadFileAzure = async (
+  file: {
+    name: string;
+    path: string;
+    type: string;
+  },
+  models: IModels
+): Promise<string> => {
+  const sanitizedFilename = sanitizeFilename(file.name);
+
+  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
+
+  // initialize Azure Blob Storage
+  const containerClient = await createAzureBlobStorage(models);
+
+  // generate unique name
+  const fileName = `${randomAlphanumeric()}${sanitizedFilename}`;
+
+  // Create a block blob for the file
+  const blockBlobClient = containerClient.getBlockBlobClient(fileName);
+
+  // Upload data to the blob
+  const response = await blockBlobClient.uploadFile(file.path, {
+    blobHTTPHeaders: { blobContentType: file.type }
+  });
+
+  if (!response) {
+    throw new Error('Error uploading file to Azure Blob Storage');
+  }
+
+  // Return either the blob's URL or its name, depending on public status
+  return IS_PUBLIC === 'true' ? blockBlobClient.url : fileName;
+};
+
+/**
+ * Converts a readable stream from Azure Blob Storage into a Buffer.
+ * 
+ * @param {NodeJS.ReadableStream} stream - The readable stream from Azure Blob Storage.
+ * @returns {Promise<Buffer>} A promise that resolves to a Buffer containing the stream data.
+ */
+const azureStreamToBuffer = (stream: NodeJS.ReadableStream): Promise<Buffer> => {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    stream.on('data', chunk => chunks.push(chunk));
+    stream.on('end', () => resolve(Buffer.concat(chunks)));
+    stream.on('error', reject);
   });
 };
 
@@ -1139,6 +1244,18 @@ export const readFileRequest = async ({
     return readFromCR2(key, models);
   }
 
+  if (UPLOAD_SERVICE_TYPE === 'AZURE') {
+    const containerClient = await createAzureBlobStorage(models);
+    const blobClient = containerClient.getBlobClient(key);
+    const response = await blobClient.download();
+
+    if (!response.readableStreamBody) {
+      throw new Error('No readable stream found in response');
+    }
+
+    return azureStreamToBuffer(response.readableStreamBody);
+  }
+
   if (UPLOAD_SERVICE_TYPE === "local") {
     return new Promise((resolve, reject) => {
       fs.readFile(
@@ -1173,6 +1290,10 @@ export const uploadFile = async (
   );
 
   let nameOrLink = "";
+
+  if (UPLOAD_SERVICE_TYPE === "AZURE") {
+    nameOrLink = await uploadFileAzure(file, models);
+  }
 
   if (UPLOAD_SERVICE_TYPE === "AWS") {
     nameOrLink = await uploadFileAWS(file, false, models);
@@ -1229,6 +1350,10 @@ export const deleteFile = async (
 
   if (UPLOAD_SERVICE_TYPE === "CLOUDFLARE") {
     return deleteFileCloudflare(fileName, models);
+  }
+
+  if (UPLOAD_SERVICE_TYPE === "AZURE") {
+    return deleteFileAzure(fileName, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === "local") {
@@ -1548,20 +1673,7 @@ export const handleUnsubscription = async (
   const { cid, uid } = query;
 
   if (cid) {
-    await sendContactsMessage({
-      subdomain,
-      action: "customers.updateOne",
-      data: {
-        selector: {
-          _id: cid
-        },
-        modifier: {
-          $set: { isSubscribed: "No" }
-        }
-      },
-      isRPC: true,
-      defaultValue: {}
-    });
+    await models.Customers.updateOne({ _id: cid }, { isSubscribed: "No" });
   }
 
   if (uid) {
@@ -1602,7 +1714,7 @@ export const resizeImage = async (
 };
 
 export const isImage = (mimetypeOrName: string) => {
-  const extensions = ["jpg", "jpeg", "png", "gif", "svg"];
+  const extensions = ["jpg", "jpeg", "png", "gif", "svg", "webp"];
 
   // extract extension from file name
   const extension = mimetypeOrName.split(".").pop();
@@ -1615,6 +1727,129 @@ export const isImage = (mimetypeOrName: string) => {
 
 export const isVideo = (mimeType: string) => {
   return mimeType.includes("video");
+};
+
+export const countDocuments = async (
+  subdomain: string,
+  type: string,
+  _ids: string[]
+) => {
+  const [serviceName, contentType] = type.split(":");
+
+  return sendCommonMessage({
+    subdomain,
+    action: "tag",
+    serviceName,
+    data: {
+      type: contentType,
+      _ids,
+      action: "count"
+    },
+    isRPC: true
+  });
+};
+
+export const getContentTypes = async serviceName => {
+  const service = await getService(serviceName);
+  const meta = service.config.meta || {};
+  const types = (meta.tags && meta.tags.types) || [];
+  return types.map(type => `${serviceName}:${type.type}`);
+};
+
+export const tagObject = async (
+  models: IModels,
+  subdomain: string,
+  type: string,
+  tagIds: string[],
+  targetIds: string[]
+) => {
+  const [serviceName, contentType] = type.split(":");
+
+  if (serviceName === "core") {
+    const modelMap = {
+      customer: models.Customers,
+      user: models.Users,
+      company: models.Companies,
+      form: models.Forms,
+      product: models.Products
+    };
+    await modelMap[contentType].updateMany(
+      { _id: { $in: targetIds } },
+      { $set: { tagIds } }
+    );
+    return modelMap[contentType].find({ _id: { $in: targetIds } }).lean();
+  }
+
+  return sendCommonMessage({
+    subdomain,
+    serviceName,
+    action: "tag",
+    data: {
+      tagIds,
+      targetIds,
+      type: contentType,
+      action: "tagObject"
+    },
+    isRPC: true
+  });
+};
+
+export const fixRelatedItems = async ({
+  subdomain,
+  type,
+  sourceId,
+  destId,
+  action
+}: {
+  subdomain: string;
+  type: string;
+  sourceId: string;
+  destId?: string;
+  action: string;
+}) => {
+  const [serviceName, contentType] = type.split(":");
+
+  sendCommonMessage({
+    subdomain,
+    serviceName,
+    action: "fixRelatedItems",
+    data: {
+      sourceId,
+      destId,
+      type: contentType,
+      action
+    }
+  });
+};
+
+export async function handleTagsPublishChange(
+  services,
+  serviceNameFromType,
+  subdomain,
+  targetIds
+) {
+  for (const serviceName of services) {
+    if (serviceName !== serviceNameFromType) continue;
+
+    const service = await getService(serviceName);
+    const meta = service.config?.meta || {};
+
+    if (meta?.tags?.publishChangeAvailable) {
+      await sendCommonMessage({
+        subdomain,
+        serviceName,
+        action: "publishChange",
+        data: {
+          targetIds,
+          type: "tag"
+        }
+      });
+    }
+  }
+}
+
+export const extractServiceName = (type: string) => {
+  return (type || "").split(":")[0];
 };
 
 export const getEnv = utils.getEnv;

@@ -1,7 +1,7 @@
 import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
-import { sendProductsMessage } from '../messageBroker';
+import { sendCoreMessage } from '../messageBroker';
 import {
   ITransactionDocument,
   ITransactionInput,
@@ -48,9 +48,9 @@ export const loadTransactionClass = (models: IModels) => {
 
       await Promise.all(
         transactionItems.map(async (item: any) => {
-          const product: any = await sendProductsMessage({
+          const product: any = await sendCoreMessage({
             subdomain,
-            action: 'findOne',
+            action: 'products.findOne',
             data: { _id: item.productId },
             isRPC: true
           });

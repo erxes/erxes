@@ -1,11 +1,11 @@
-import * as xlsxPopulate from 'xlsx-populate';
-import { paginate } from '@erxes/api-utils/src/core';
-import * as moment from 'moment';
-import { IColumnLabel } from '@erxes/api-utils/src/types';
-import { generateModels, IModels } from './connectionResolver';
-import { getSubdomain } from '@erxes/api-utils/src/core';
-import { generateFilterItems } from './graphql/resolvers/queries/safeRemainderItems';
-import { sendFormsMessage, sendProductsMessage } from './messageBroker';
+import * as xlsxPopulate from "xlsx-populate";
+import { paginate } from "@erxes/api-utils/src/core";
+import * as moment from "moment";
+import { IColumnLabel } from "@erxes/api-utils/src/types";
+import { generateModels, IModels } from "./connectionResolver";
+import { getSubdomain } from "@erxes/api-utils/src/core";
+import { generateFilterItems } from "./graphql/resolvers/queries/safeRemainderItems";
+import { sendCoreMessage } from "./messageBroker";
 
 export const createXlsFile = async () => {
   // Generating blank workbook
@@ -30,7 +30,7 @@ const generateLabel = customer => {
   const { firstName, primaryEmail, primaryPhone, lastName } =
     customer || ({} as any);
 
-  let value = firstName ? firstName.toUpperCase() : '';
+  let value = firstName ? firstName.toUpperCase() : "";
 
   if (lastName) {
     value = `${value} ${lastName}`;
@@ -45,23 +45,23 @@ const generateLabel = customer => {
   return value;
 };
 
-const getCellValue = (item, colName, product, customField = '') => {
+const getCellValue = (item, colName, product, customField = "") => {
   switch (colName) {
-    case 'barcode':
-      return (product.barcodes || []).join(', ');
-    case 'oldCode':
+    case "barcode":
+      return (product.barcodes || []).join(", ");
+    case "oldCode":
       return (
         (
           (product.customFieldsData || []).find(
             cfd => cfd.field === customField
           ) || {}
-        ).value || ''
+        ).value || ""
       );
-    case 'code':
+    case "code":
       return product.code;
-    case 'count':
+    case "count":
       return item.count;
-    case 'location':
+    case "location":
       return;
     default:
       return;
@@ -81,9 +81,9 @@ export const fillCellValue = async (
   product: any,
   customField: string
 ): Promise<string> => {
-  const emptyMsg = '-';
-  if (colName.includes('empty')) {
-    return '';
+  const emptyMsg = "-";
+  if (colName.includes("empty")) {
+    return "";
   }
 
   if (!item) {
@@ -105,7 +105,7 @@ const generateParams = ({ queryParams }) => ({
 
   remainderId: queryParams.remainderId,
   productCategoryIds:
-    queryParams.productCategoryIds && queryParams.productCategoryIds.split(','),
+    queryParams.productCategoryIds && queryParams.productCategoryIds.split(","),
   status: queryParams.status,
   diffType: queryParams.diffType
 });
@@ -127,9 +127,7 @@ const prepareData = async (
 
   for (let page = 1; page <= pageCount; page++) {
     const orders = await paginate(
-      models.SafeRemainderItems.find(query)
-        .sort({ order: 1 })
-        .lean(),
+      models.SafeRemainderItems.find(query).sort({ order: 1 }).lean(),
       { ...params, page }
     );
     datas = datas.concat(orders);
@@ -147,7 +145,7 @@ const addCell = (
   let fixedValue = value;
 
   if (Array.isArray(fixedValue)) {
-    fixedValue = '';
+    fixedValue = "";
   }
 
   // Checking if existing column
@@ -165,17 +163,17 @@ const addCell = (
 };
 
 const headers = [
-  { name: 'barcode', label: 'barcode' },
-  { name: 'oldCode', label: 'old Code' },
-  { name: 'code', label: 'code' },
-  { name: 'empty2', label: 'col2' },
-  { name: 'empty3', label: 'col3' },
-  { name: 'count', label: 'Count' },
-  { name: 'empty4', label: 'col4' },
-  { name: 'empty5', label: 'col5' },
-  { name: 'location', label: 'Location' },
-  { name: 'empty6', label: 'col6' },
-  { name: 'empty7', label: 'col7' }
+  { name: "barcode", label: "barcode" },
+  { name: "oldCode", label: "old Code" },
+  { name: "code", label: "code" },
+  { name: "empty2", label: "col2" },
+  { name: "empty3", label: "col3" },
+  { name: "count", label: "Count" },
+  { name: "empty4", label: "col4" },
+  { name: "empty5", label: "col5" },
+  { name: "location", label: "Location" },
+  { name: "empty6", label: "col6" },
+  { name: "empty7", label: "col7" }
 ];
 
 export const buildFile = async (
@@ -195,23 +193,17 @@ export const buildFile = async (
     addCell(column, column.label, sheet, columnNames, rowIndex);
   }
 
-  const limit = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
-    action: 'count',
+    action: "products.find",
     data: { query: { _id: { $in: data.map(d => d.productId) } } },
     isRPC: true
   });
-  const products = await sendProductsMessage({
-    subdomain,
-    action: 'find',
-    data: { query: { _id: { $in: data.map(d => d.productId) } }, limit },
-    isRPC: true
-  });
   const customField =
-    (await sendFormsMessage({
+    (await sendCoreMessage({
       subdomain,
-      action: 'fields.findOne',
-      data: { query: { code: 'oldCode' } },
+      action: "fields.findOne",
+      data: { query: { code: "oldCode" } },
       isRPC: true,
       defaultValue: {}
     })) || {};
@@ -238,7 +230,7 @@ export const buildFile = async (
   } // end items for loop
 
   return {
-    name: `censusJ - ${moment().format('YYYY-MM-DD HH:mm')}`,
+    name: `censusJ - ${moment().format("YYYY-MM-DD HH:mm")}`,
     response: await generateXlsx(workbook)
   };
 };

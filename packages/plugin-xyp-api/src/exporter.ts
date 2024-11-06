@@ -1,12 +1,7 @@
 import { generateModels, IModels } from './connectionResolver';
 import {
-  sendCoreMessage,
   fetchSegment,
-  sendContactsMessage,
-  sendCommonMessage,
 } from './messageBroker';
-import * as moment from 'moment';
-import { IUserDocument } from '@erxes/api-utils/src/types';
 import { getServiceToFields } from './forms';
 
 const prepareData = async (

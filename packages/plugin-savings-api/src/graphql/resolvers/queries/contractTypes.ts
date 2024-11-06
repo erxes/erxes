@@ -13,10 +13,17 @@ const generateFilter = async (params, commonQuerySelector) => {
     ];
   }
 
-  // if (params.ids) {
-  //   filter._id = { $in: params.ids };
-  // }
+  if (params.ids?.length) {
+    filter._id = { [params.excludeIds ? '$nin' : '$in']: params.ids };
+  }
+  
+  if (params.productType) {
+    filter.productType = params.productType;
+  }
 
+  if (![undefined, null, ''].includes(params.isDeposit)) {
+    filter.isDeposit = params.isDeposit && { $eq: true } || { $ne: true };
+  }
   return filter;
 };
 

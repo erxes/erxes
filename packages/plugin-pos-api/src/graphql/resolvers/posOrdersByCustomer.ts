@@ -1,39 +1,38 @@
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-import { sendContactsMessage, sendCoreMessage } from '../../messageBroker';
+import { sendCoreMessage } from "../../messageBroker";
 
 const resolver = {
   customerDetail: async ({ _id, customerType }, {}, { subdomain }) => {
-    if (customerType === 'user') {
+    if (customerType === "user") {
       return await sendCoreMessage({
         subdomain,
-        action: 'users.findOne',
+        action: "users.findOne",
         data: { _id },
         isRPC: true,
-        defaultValue: null,
+        defaultValue: null
       });
     }
 
-    if (customerType === 'company' && isEnabled('contacts')) {
-      return await sendContactsMessage({
+    if (customerType === "company") {
+      return await sendCoreMessage({
         subdomain,
-        action: 'companies.findOne',
+        action: "companies.findOne",
         data: { _id },
         isRPC: true,
-        defaultValue: null,
+        defaultValue: null
       });
     }
 
     if (!!_id && !customerType) {
-      return await sendContactsMessage({
+      return await sendCoreMessage({
         subdomain,
-        action: 'customers.findOne',
+        action: "customers.findOne",
         data: { _id },
         isRPC: true,
-        defaultValue: null,
+        defaultValue: null
       });
     }
     return null;
-  },
+  }
 };
 
 export default resolver;

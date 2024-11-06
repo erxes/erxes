@@ -1,19 +1,13 @@
-export const types = (tagsAvailable) => `
+export const types = () => `
   
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
 
-  ${
-    tagsAvailable
-      ? `
-      extend type Tag @key(fields: "_id"){
-        _id: String! @external
-      }
-    `
-      : ``
-  }
 
+  extend type Tag @key(fields: "_id"){
+    _id: String! @external
+  }
 
   type Report {
     _id: String!
@@ -25,7 +19,7 @@ export const types = (tagsAvailable) => `
     tagIds: [String]
     
     members: [User]
-    ${tagsAvailable ? 'tags: [Tag]' : ''}
+    tags: [Tag]
     charts: [ReportChart]
     chartsCount: Int
 

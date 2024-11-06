@@ -1,14 +1,14 @@
-import { IModels } from './connectionResolver';
-import { debugError, debugInstagram } from './debuggers';
+import { IModels } from "./connectionResolver";
+import { debugError, debugInstagram } from "./debuggers";
 import {
   getPageAccessToken,
   refreshPageAccesToken,
   subscribePage,
   unsubscribePage,
   getFacebookPageIdsForInsta
-} from './utils';
-import { getEnv, resetConfigsCache } from './commonUtils';
-import fetch from 'node-fetch';
+} from "./utils";
+import { getEnv, resetConfigsCache } from "./commonUtils";
+import fetch from "node-fetch";
 
 export const removeIntegration = async (
   subdomain: string,
@@ -21,7 +21,7 @@ export const removeIntegration = async (
   });
 
   if (!integration) {
-    throw new Error('Integration not found');
+    throw new Error("Integration not found");
   }
 
   // Remove endpoint
@@ -32,18 +32,18 @@ export const removeIntegration = async (
   const account = await models.Accounts.findOne({ _id: accountId });
 
   if (!account) {
-    throw new Error('Account not found');
+    throw new Error("Account not found");
   }
 
   const selector = { integrationId: _id };
 
-  if (kind.includes('instagram')) {
-    debugInstagram('Removing entries');
+  if (kind.includes("instagram")) {
+    debugInstagram("Removing entries");
 
     const pageId = integration.facebookPageId;
 
     if (!pageId) {
-      throw new Error('Facebook page ID not found');
+      throw new Error("Facebook page ID not found");
     }
 
     try {
@@ -68,7 +68,7 @@ export const removeIntegration = async (
     integrationRemoveBy = { fbPageIds: integration.facebookPageId };
 
     const conversationIds =
-      await models.Conversations.find(selector).distinct('_id');
+      await models.Conversations.find(selector).distinct("_id");
 
     await models.Customers.deleteMany({ integrationId: integrationErxesApiId });
     await models.Conversations.deleteMany(selector);
@@ -78,19 +78,19 @@ export const removeIntegration = async (
 
     await models.Integrations.deleteOne({ _id });
   }
-  const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
-  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+  const ENDPOINT_URL = getEnv({ name: "ENDPOINT_URL" });
+  const DOMAIN = getEnv({ name: "DOMAIN", subdomain });
   if (ENDPOINT_URL) {
     // send domain to core endpoints
     try {
       await fetch(`${ENDPOINT_URL}/remove-endpoint`, {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify({
           domain: DOMAIN,
           ...integrationRemoveBy
         }),
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json"
         }
       });
     } catch (e) {
@@ -149,50 +149,48 @@ export const repairIntegrations = async (
   });
 
   if (!integration) {
-    throw new Error('Integration not found');
+    throw new Error("Integration not found");
   }
 
   let pageId = integration.facebookPageId;
 
   if (!pageId) {
-    throw new Error('Page ID not found');
+    throw new Error("Page ID not found");
   }
 
   try {
     const pageTokens = await refreshPageAccesToken(models, pageId, integration);
+
     await subscribePage(pageId, pageTokens[pageId]);
+
     await models.Integrations.deleteMany({
       erxesApiId: { $ne: integrationId },
       facebookPageIds: pageId,
       kind: integration.kind
     });
   } catch (e) {
-    debugError(
-      `Error ocurred while trying to get page access token with ${e.message}`
-    );
+    console.log(e);
   }
 
   await models.Integrations.updateOne(
     { erxesApiId: integrationId },
-    { $set: { healthStatus: 'healthy', error: '' } }
+    { $set: { healthStatus: "healthy", error: "" } }
   );
 
-  const ENDPOINT_URL = getEnv({
-    name: 'ENDPOINT_URL'
-  });
-  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+  const ENDPOINT_URL = getEnv({ name: "ENDPOINT_URL" });
+  const DOMAIN = getEnv({ name: "DOMAIN", subdomain });
 
   if (ENDPOINT_URL) {
     // send domain to core endpoints
     try {
       await fetch(`${ENDPOINT_URL}/update-endpoint`, {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify({
           domain: `${DOMAIN}/gateway/pl:instagram`,
-          instagramPageId: integration.instagramPageId,
-          igPageId: integration.instagramPageId
+          facebookPageId: integration.facebookPageId,
+          fbPageIds: integration.facebookPageId
         }),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { "Content-Type": "application/json" }
       });
     } catch (e) {
       throw e;
@@ -248,21 +246,21 @@ export const instagramGetCustomerPosts = async (
     { $match: { senderId: customer.userId } },
     {
       $lookup: {
-        from: 'posts_conversations_instagrams',
-        localField: 'postId',
-        foreignField: 'postId',
-        as: 'post'
+        from: "posts_conversations_instagrams",
+        localField: "postId",
+        foreignField: "postId",
+        as: "post"
       }
     },
     {
       $unwind: {
-        path: '$post',
+        path: "$post",
         preserveNullAndEmptyArrays: true
       }
     },
     {
       $addFields: {
-        conversationId: '$post.erxesApiId'
+        conversationId: "$post.erxesApiId"
       }
     },
     {
@@ -270,7 +268,7 @@ export const instagramGetCustomerPosts = async (
     }
   ]);
 
-  const conversationIds = result.map((conv) => conv.conversationId);
+  const conversationIds = result.map(conv => conv.conversationId);
 
   return conversationIds;
 };
@@ -279,10 +277,10 @@ export const instagramCreateIntegration = async (
   subdomain: string,
   models: IModels,
   { accountId, integrationId, data, kind }
-): Promise<{ status: 'success' }> => {
+): Promise<{ status: "success" }> => {
   const account = await models.Accounts.getAccount({ _id: accountId });
   if (!account) {
-    throw new Error('Account not found');
+    throw new Error("Account not found");
   }
   const instagramPageIds = JSON.parse(data).pageIds;
   const instagramPageId = Array.isArray(instagramPageIds)
@@ -302,12 +300,12 @@ export const instagramCreateIntegration = async (
       facebookPageId: facebookPageIds.toString() // Ensure it's a string
     });
 
-    const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
-    const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+    const ENDPOINT_URL = getEnv({ name: "ENDPOINT_URL" });
+    const DOMAIN = getEnv({ name: "DOMAIN", subdomain });
 
     let domain = `${DOMAIN}/gateway/pl:instagram`;
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== "production") {
       domain = `${DOMAIN}/pl:instagram`;
     }
 
@@ -315,13 +313,13 @@ export const instagramCreateIntegration = async (
       // Send domain to core endpoints
       try {
         await fetch(`${ENDPOINT_URL}/register-endpoint`, {
-          method: 'POST',
+          method: "POST",
           body: JSON.stringify({
             domain,
             instagramPageId,
             igPageId: instagramPageId
           }),
-          headers: { 'Content-Type': 'application/json' }
+          headers: { "Content-Type": "application/json" }
         });
       } catch (e) {
         await models.Integrations.deleteOne({ _id: integration._id });
@@ -362,9 +360,9 @@ export const instagramCreateIntegration = async (
 
     await integration.save();
 
-    return { status: 'success' };
+    return { status: "success" };
   } else {
     // Handle the case where facebookPageId is null
-    throw new Error('Select Instagram Pages');
+    throw new Error("Select Instagram Pages");
   }
 };

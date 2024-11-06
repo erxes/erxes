@@ -1,6 +1,5 @@
 import conversationFields from './conversationFields';
 import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 import messageFields from './messageFields';
 
 export const paramsDef = `
@@ -81,9 +80,6 @@ const sidebarConversations = `
           name
         }
       }
-      ${
-        isEnabled('contacts')
-          ? `
       customer {
         _id
         firstName
@@ -95,20 +91,11 @@ const sidebarConversations = `
         avatar
         visitorContactInfo
       }
-      `
-          : ``
-      }
       tagIds
-      ${
-        isEnabled('tags')
-          ? `
       tags {
         _id
         name
         colorCode
-      }
-      `
-          : ``
       }
       readUserIds
     }
@@ -214,9 +201,6 @@ const tagsQueryCount = `
 
 const tagList = `
   query tags($type: String, $page: Int, $perPage: Int) {
-    ${
-      isEnabled('tags')
-        ? `
     tags(type: $type, page: $page, perPage: $perPage) {
       _id
       name
@@ -225,26 +209,17 @@ const tagList = `
       parentId
       relatedIds
     }
-    `
-        : ``
-    }
   }
 `;
 
 // subOf alais as parentId
 const segmentList = `
   query segments($contentTypes: [String]!) {
-    ${
-      isEnabled('segments')
-        ? `
-        segments(contentTypes: $contentTypes) {
-          _id
-          contentType
-          name
-          parentId: subOf
-        }
-    `
-        : ``
+    segments(contentTypes: $contentTypes) {
+        _id
+        contentType
+        name
+        parentId: subOf
     }
   }
 `;
@@ -280,6 +255,7 @@ const postInfo = `
       _id
       content
       permalink_url
+      attachments
     }
   }
  `;
@@ -290,6 +266,7 @@ const instagramPostInfo = `
       _id
       content
       permalink_url
+      attachments
     }
   }
  `;
@@ -311,6 +288,33 @@ const convertToInfo = `
       dealUrl
       taskUrl
       purchaseUrl
+    }
+  }
+`;
+
+const facebookGetComments = `
+  query facebookGetComments($conversationId: String!, $isResolved: Boolean, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
+    facebookGetComments(conversationId: $conversationId, isResolved: $isResolved, commentId: $commentId, senderId: $senderId, skip: $skip, limit: $limit) {
+      content
+      conversationId
+      postId
+      recipientId
+      senderId
+      erxesApiId
+      attachments
+      timestamp
+      permalink_url
+      content
+      commentId
+      parentId
+      customer {
+        _id
+        firstName
+        lastName
+        profilePic
+      }
+      commentCount
+      isResolved
     }
   }
 `;
@@ -358,9 +362,7 @@ const generateCustomerDetailQuery = (params) => {
   if (showCompanies) {
     fields = `
       ${fields}
-      ${
-        isEnabled('contacts')
-          ? `companies {
+      companies {
           _id
           primaryName
           website
@@ -372,9 +374,7 @@ const generateCustomerDetailQuery = (params) => {
             lastName
             primaryEmail
           }
-        }`
-          : ``
-      }
+        }
     `;
   }
 
@@ -382,16 +382,10 @@ const generateCustomerDetailQuery = (params) => {
     fields = `
       ${fields}
       tagIds
-      ${
-        isEnabled('tags')
-          ? `
-          getTags {
-            _id
-            name
-            colorCode
-          }
-        `
-          : ``
+      getTags {
+        _id
+        name
+        colorCode
       }
     `;
   }
@@ -430,6 +424,7 @@ export default {
   allBrands,
   tagList,
   segmentList,
+  facebookGetComments,
   responseTemplateList,
   conversationCounts,
   totalConversationsCount,

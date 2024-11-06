@@ -96,7 +96,7 @@ export async function createEbarimt(
         data: { _id: contract.customerId },
         isRPC: true
       },
-      'contacts'
+      'core'
     );
     orderInfo.billType = '3';
     orderInfo.customerCode = company.code;

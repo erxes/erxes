@@ -8,7 +8,7 @@
     "@erxes/ui": "*",
     "@grafana/faro-react": "^1.7.3",
     "@headlessui/react": "1.7.16",
-    "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
+    "@nateradebaugh/react-datetime": "4.0.0-rc.10",
     "@popperjs/core": "^2.11.8",
     "@sentry/react": "^8.9.2",
     "abortcontroller-polyfill": "^1.4.0",
@@ -36,7 +36,9 @@
     "styled-components-ts": "^0.0.15",
     "typescript": "5.3.3",
     "underscore.string": "^3.3.5",
-    "xss": "1.0.14"
+    "xss": "1.0.14",
+    "react-barcode": "^1.4.5",
+    "react-qr-code": "^2.0.8"
   },
   "scripts": {
     "start": "webpack serve --open --mode development",

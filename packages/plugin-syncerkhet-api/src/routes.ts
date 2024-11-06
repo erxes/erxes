@@ -1,11 +1,9 @@
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomain } from "@erxes/api-utils/src/core";
 import {
-  sendCardsMessage,
-  sendContactsMessage,
+  sendSalesMessage,
   sendCoreMessage,
-  sendPosMessage,
-  sendProductsMessage
-} from './messageBroker';
+  sendPosMessage
+} from "./messageBroker";
 
 export const getOrderInfo = async (req, res) => {
   const subdomain = getSubdomain(req);
@@ -13,9 +11,9 @@ export const getOrderInfo = async (req, res) => {
 
   const { id } = req.query;
 
-  const deal = await sendCardsMessage({
+  const deal = await sendSalesMessage({
     subdomain,
-    action: 'deals.findOne',
+    action: "deals.findOne",
     data: { _id: id },
     isRPC: true
   });
@@ -23,38 +21,38 @@ export const getOrderInfo = async (req, res) => {
   if (deal && deal._id === id) {
     const conformities = await sendCoreMessage({
       subdomain,
-      action: 'conformities.savedConformity',
+      action: "conformities.savedConformity",
       data: {
-        mainType: 'deal',
+        mainType: "deal",
         mainTypeId: id,
-        relTypes: ['customer', 'company']
+        relTypes: ["customer", "company"]
       },
       isRPC: true
     });
 
-    result.type = 'deal';
+    result.type = "deal";
     result.object = deal;
 
     const customerIds = conformities
       .map(
         c =>
-          (c.mainType === 'customer' && c.mainTypeId) ||
-          (c.relType === 'customer' && c.relTypeId) ||
-          ''
+          (c.mainType === "customer" && c.mainTypeId) ||
+          (c.relType === "customer" && c.relTypeId) ||
+          ""
       )
       .filter(c => c);
     const companyIds = conformities
       .map(
         c =>
-          (c.mainType === 'company' && c.mainTypeId) ||
-          (c.relType === 'company' && c.relTypeId) ||
-          ''
+          (c.mainType === "company" && c.mainTypeId) ||
+          (c.relType === "company" && c.relTypeId) ||
+          ""
       )
       .filter(c => c);
     if (customerIds.length) {
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
-        action: 'customers.find',
+        action: "customers.find",
         data: { _id: { $in: customerIds } },
         isRPC: true
       });
@@ -63,9 +61,9 @@ export const getOrderInfo = async (req, res) => {
       }
     }
     if (companyIds.length) {
-      const companies = await sendContactsMessage({
+      const companies = await sendCoreMessage({
         subdomain,
-        action: 'companies.find',
+        action: "companies.find",
         data: { _id: { $in: companyIds } },
         isRPC: true
       });
@@ -73,9 +71,9 @@ export const getOrderInfo = async (req, res) => {
         result.companies = companies;
       }
     }
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: 'find',
+      action: "products.find",
       data: {
         query: { _id: { $in: deal.productsData.map(p => p.productId) } },
         limit: deal.productsData.length
@@ -88,29 +86,29 @@ export const getOrderInfo = async (req, res) => {
 
   const order = await sendPosMessage({
     subdomain,
-    action: 'orders.findOne',
+    action: "orders.findOne",
     data: { _id: id },
     isRPC: true
   });
 
   if (order && order._id === id) {
-    result.type = 'order';
+    result.type = "order";
     result.object = order;
     if (order.customerId) {
-      if (order.customerType === 'company') {
-        const companies = await sendContactsMessage({
+      if (order.customerType === "company") {
+        const companies = await sendCoreMessage({
           subdomain,
-          action: 'companies.find',
+          action: "companies.find",
           data: { _id: { $in: [order.customerId] } },
           isRPC: true
         });
         if (companies && companies.length) {
           result.companies = companies;
         }
-      } else if (order.customerType === 'user') {
+      } else if (order.customerType === "user") {
         const users = await sendCoreMessage({
           subdomain,
-          action: 'users.find',
+          action: "users.find",
           data: { query: { _id: order.customerId } },
           isRPC: true
         });
@@ -118,9 +116,9 @@ export const getOrderInfo = async (req, res) => {
           result.users = users;
         }
       } else {
-        const customers = await sendContactsMessage({
+        const customers = await sendCoreMessage({
           subdomain,
-          action: 'customers.find',
+          action: "customers.find",
           data: { _id: { $in: [order.customerId] } },
           isRPC: true
         });
@@ -130,9 +128,9 @@ export const getOrderInfo = async (req, res) => {
       }
     }
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: 'find',
+      action: "products.find",
       data: {
         query: { _id: { $in: order.items.map(p => p.productId) } },
         limit: order.items.length

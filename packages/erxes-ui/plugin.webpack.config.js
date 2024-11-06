@@ -24,7 +24,7 @@ const depNames = [
   "react-router-dom",
   "react-transition-group",
   "styled-components",
-  "styled-components-ts",
+  "styled-components-ts"
 ];
 
 const shared = {};
@@ -32,11 +32,11 @@ const shared = {};
 for (const name of depNames) {
   shared[name] = {
     singleton: true,
-    requiredVersion: deps[name],
+    requiredVersion: deps[name]
   };
 }
 
-module.exports = (configs) => (env, args) => {
+module.exports = configs => (env, args) => {
   const { port = 3000 } = configs;
 
   return {
@@ -44,7 +44,7 @@ module.exports = (configs) => (env, args) => {
       uniqueName: configs.name,
       publicPath:
         args.mode === "development" ? `http://localhost:${port}/` : undefined,
-      chunkFilename: "[chunkhash].js",
+      chunkFilename: "[chunkhash].js"
     },
 
     optimization: {
@@ -54,23 +54,23 @@ module.exports = (configs) => (env, args) => {
           extractComments: false,
           terserOptions: {
             parse: {
-              ecma: 8,
+              ecma: 8
             },
             compress: {
               ecma: 5,
               warnings: false,
               comparisons: false,
-              inline: 2,
+              inline: 2
             },
             mangle: true,
             output: {
               ecma: 5,
               comments: false,
-              ascii_only: true,
-            },
-          },
-        }),
-      ],
+              ascii_only: true
+            }
+          }
+        })
+      ]
     },
 
     resolve: {
@@ -78,8 +78,8 @@ module.exports = (configs) => (env, args) => {
       fallback: {
         path: require.resolve("path-browserify"),
         timers: require.resolve("timers-browserify"),
-        process: "process/browser",
-      },
+        process: "process/browser"
+      }
     },
 
     devServer: {
@@ -87,8 +87,8 @@ module.exports = (configs) => (env, args) => {
       allowedHosts: "all",
       historyApiFallback: true,
       client: {
-        overlay: false,
-      },
+        overlay: false
+      }
     },
 
     module: {
@@ -97,24 +97,24 @@ module.exports = (configs) => (env, args) => {
           test: /\.m?js/,
           type: "javascript/auto",
           resolve: {
-            fullySpecified: false,
-          },
+            fullySpecified: false
+          }
         },
         {
           test: /\.(css|s[ac]ss)$/i,
-          use: ["style-loader", "css-loader", "postcss-loader"],
+          use: ["style-loader", "css-loader", "postcss-loader"]
         },
         {
           test: /\.(png|svg|jpg|jpeg|gif)$/i,
-          type: "asset/resource",
+          type: "asset/resource"
         },
         {
           test: /\.(woff|woff2|eot|ttf|otf)$/i,
-          type: "asset/resource",
+          type: "asset/resource"
         },
         {
           test: /\.json$/,
-          loader: "json-loader",
+          loader: "json-loader"
         },
         {
           test: /\.(ts|tsx|js|jsx)$/,
@@ -128,7 +128,11 @@ module.exports = (configs) => (env, args) => {
             path.resolve(__dirname, "../ui-forms/src"),
             path.resolve(__dirname, "../ui-inbox/src"),
             path.resolve(__dirname, "../ui-products/src"),
-            path.resolve(__dirname, "../ui-cards/src"),
+            path.resolve(__dirname, "../ui-sales/src"),
+            path.resolve(__dirname, "../ui-purchases/src"),
+            path.resolve(__dirname, "../ui-tickets/src"),
+            path.resolve(__dirname, "../ui-tasks/src"),
+            path.resolve(__dirname, "../ui-growthhacks/src"),
             path.resolve(__dirname, "../ui-knowledgebase/src"),
             path.resolve(__dirname, "../ui-notifications/src"),
             path.resolve(__dirname, "../ui-automations/src"),
@@ -140,7 +144,7 @@ module.exports = (configs) => (env, args) => {
             path.resolve(__dirname, "../ui-forum/src"),
             path.resolve(__dirname, "../ui-emailtemplates/src"),
             path.resolve(__dirname, "../ui-template/src"),
-            configs.srcDir,
+            configs.srcDir
           ],
           use: {
             loader: "babel-loader",
@@ -148,13 +152,13 @@ module.exports = (configs) => (env, args) => {
               presets: [
                 "@babel/preset-typescript",
                 "@babel/preset-react",
-                "@babel/preset-env",
+                "@babel/preset-env"
               ],
-              plugins: [["@babel/transform-runtime"]],
-            },
-          },
-        },
-      ],
+              plugins: [["@babel/transform-runtime"]]
+            }
+          }
+        }
+      ]
     },
 
     plugins: [
@@ -162,10 +166,10 @@ module.exports = (configs) => (env, args) => {
         // Make a global `process` variable that points to the `process` package,
         // because the `util` package expects there to be a global variable named `process`.
         // Thanks to https://stackoverflow.com/a/65018686/14239942
-        process: "process/browser",
+        process: "process/browser"
       }),
       new InterpolateHtmlPlugin({
-        PUBLIC_URL: "public", // can modify `static` to another name or get it from `process`
+        PUBLIC_URL: "public" // can modify `static` to another name or get it from `process`
       }),
       new ModuleFederationPlugin({
         name: configs.name,
@@ -185,7 +189,7 @@ module.exports = (configs) => (env, args) => {
               try {
                 return window.coreui.init(arg)
               } catch(e) {
-                console.log('remote container already initialized')
+                console.error('remote container already initialized')
               }
             }
           }
@@ -204,28 +208,28 @@ module.exports = (configs) => (env, args) => {
             document.head.appendChild(script);
           }
         })
-        `,
+        `
         },
         exposes: configs.exposes,
         shared: {
           ...shared,
           "@erxes/ui": {
             requiredVersion: "1.0.0",
-            singleton: true,
-          },
-        },
+            singleton: true
+          }
+        }
       }),
       new HtmlWebPackPlugin({
-        template: path.resolve(__dirname, "./plugin.index.html"),
+        template: path.resolve(__dirname, "./plugin.index.html")
       }),
       args.mode === "development"
         ? new MFLiveReloadPlugin({
             port, // the port your app runs on
             container: configs.name, // the name of your app, must be unique
-            standalone: false, // false uses chrome extention
+            standalone: false // false uses chrome extention
           })
-        : false,
+        : false
       // new BundleAnalyzerPlugin()
-    ].filter(Boolean),
+    ].filter(Boolean)
   };
 };

@@ -1,12 +1,12 @@
-import { FLOW_STATUSES } from '../../../models/definitions/constants';
-import { IContext } from '../../../connectionResolver';
-import { sendProductsMessage } from '../../../messageBroker';
+import { FLOW_STATUSES } from "../../../models/definitions/constants";
+import { IContext } from "../../../connectionResolver";
+import { sendCoreMessage } from "../../../messageBroker";
 
 export default {
   async __resolveReference({ _id }, { subdomain }: IContext) {
-    return sendProductsMessage({
+    return sendCoreMessage({
       subdomain,
-      action: 'findOne',
+      action: "products.findOne",
       data: { _id },
       isRPC: true
     });
@@ -17,14 +17,13 @@ export default {
   },
 
   async flowCount(category: any, {}, { models, subdomain }: IContext) {
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: 'find',
+      action: "products.find",
       data: {
         query: {},
         categoryId: category._id,
         fields: { _id: 1 },
-        limit: 10000
       },
       isRPC: true,
       defaultValue: []

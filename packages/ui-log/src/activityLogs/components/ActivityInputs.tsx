@@ -1,20 +1,20 @@
-import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 
-import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
-import Icon from '@erxes/ui/src/components/Icon';
-import NoteForm from '@erxes/ui-internalnotes/src/containers/Form';
-import CommentForm from '@erxes/ui-cards/src/comment/containers/Form';
-import React from 'react';
-import { WhiteBoxRoot } from '@erxes/ui/src/layout/styles';
-import { __ } from '@erxes/ui/src/utils';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
+import Icon from "@erxes/ui/src/components/Icon";
+import NoteForm from "@erxes/ui-internalnotes/src/containers/Form";
+import CommentForm from "@erxes/ui-tickets/src/comment/containers/Form";
+import React from "react";
+import { WhiteBoxRoot } from "@erxes/ui/src/layout/styles";
+import { __ } from "@erxes/ui/src/utils";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const TicketCommentForm = asyncComponent(
   () =>
-    isEnabled('cards') &&
+    isEnabled("tickets") &&
     import(
-      /* webpackChunkName: "TicketCommentForm" */ '@erxes/ui-cards/src/boards/containers/TicketCommentForm'
+      /* webpackChunkName: "TicketCommentForm" */ "@erxes/ui-tickets/src/boards/containers/TicketCommentForm"
     )
 );
 
@@ -36,11 +36,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      currentTab: isEnabled('internalnotes')
-        ? 'newNote'
-        : isEnabled('clientportal')
-        ? 'newComment'
-        : ''
+      currentTab: "newNote"
     };
   }
 
@@ -52,19 +48,19 @@ class ActivityInputs extends React.PureComponent<Props, State> {
     const { contentTypeId, contentType } = this.props;
     const { currentTab } = this.state;
 
-    if (currentTab === 'newNote' && isEnabled('internalnotes')) {
+    if (currentTab === "newNote") {
       return (
         <NoteForm contentType={contentType} contentTypeId={contentTypeId} />
       );
     }
 
-    if (currentTab === 'newComment' && isEnabled('clientportal')) {
+    if (currentTab === "newComment" && isEnabled("clientportal")) {
       return (
         <CommentForm contentType={contentType} contentTypeId={contentTypeId} />
       );
     }
 
-    if (currentTab === 'ticket' && isEnabled('cards')) {
+    if (currentTab === "ticket" && isEnabled("sales")) {
       return (
         <TicketCommentForm
           contentType={`${contentType}_comment`}
@@ -82,7 +78,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
     return (
       <TabTitle
         key={Math.random()}
-        className={currentTab === type ? 'active' : ''}
+        className={currentTab === type ? "active" : ""}
         onClick={this.onChangeTab.bind(this, type)}
       >
         <Icon icon={icon} /> {__(title)}
@@ -95,11 +91,11 @@ class ActivityInputs extends React.PureComponent<Props, State> {
     const tabs: any = [];
 
     if (showEmail) {
-      tabs.push(this.renderTabTitle('email', 'envelope-add', 'Email'));
+      tabs.push(this.renderTabTitle("email", "envelope-add", "Email"));
     }
 
-    if (contentType === 'ticket') {
-      tabs.push(this.renderTabTitle('ticket', 'ticket', 'Ticket reply'));
+    if (contentType === "ticket") {
+      tabs.push(this.renderTabTitle("ticket", "ticket", "Ticket reply"));
     }
 
     return (
@@ -115,11 +111,10 @@ class ActivityInputs extends React.PureComponent<Props, State> {
       <ErrorBoundary>
         <WhiteBoxRoot>
           <Tabs>
-            {isEnabled('internalnotes') &&
-              this.renderTabTitle('newNote', 'file-plus', 'New note')}
+            {this.renderTabTitle("newNote", "file-plus", "New note")}
 
-            {isEnabled('clientportal') &&
-              this.renderTabTitle('newComment', 'comment-plus', 'New comment')}
+            {isEnabled("clientportal") &&
+              this.renderTabTitle("newComment", "comment-plus", "New comment")}
 
             {this.renderExtraTab()}
           </Tabs>

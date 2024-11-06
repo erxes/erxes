@@ -8,6 +8,7 @@ on:
       - rc
       - staging
       - exm-improve
+      - v1
     paths:
       - 'exm-web/**'
       - '.github/workflows/exm.yaml'
@@ -19,11 +20,12 @@ on:
       - rc
       - staging
       - exm-improve
+      - v1
     paths:
       - 'exm-web/**'
       - '.github/workflows/exm.yaml'
 
-jobs:
+jobs: 
   exm-ui:
     runs-on: ubuntu-22.04
 

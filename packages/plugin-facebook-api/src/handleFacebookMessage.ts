@@ -104,7 +104,11 @@ export const handleFacebookMessage = async (
         isRPC: true,
         subdomain,
         action: 'conversations.findOne',
-        data: { query: { _id: conversationId } }
+        data: {
+          query: {
+            _id: conversationId
+          }
+        }
       });
       await sendReply(
         models,
@@ -142,6 +146,7 @@ export const handleFacebookMessage = async (
       throw new Error(e.message);
     }
   }
+
   if (action === 'reply-messenger') {
     const {
       integrationId,
@@ -150,90 +155,94 @@ export const handleFacebookMessage = async (
       attachments = [],
       extraInfo
     } = doc;
-    const tag = extraInfo && extraInfo.tag ? extraInfo.tag : '';
 
-    const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
+    const tag = extraInfo?.tag || '';
 
-    const images: string[] = (content.match(regex) || []).map((m) =>
-      m.replace(regex, '$1')
+    // Extract image URLs from the content
+    const images = (content.match(/<img[^>]* src="([^"]*)"/g) || []).map(
+      (img) => img.match(/src="([^"]*)"/)[1]
     );
+    images.forEach((img) => attachments.push({ type: 'image', url: img }));
 
-    images.forEach((img) => {
-      attachments.push({ type: 'image', url: img });
-    });
-
-    let strippedContent = strip(content);
-
-    strippedContent = strippedContent.replace(/&amp;/g, '&');
+    // Strip HTML tags and format the content
+    function stripAndFormat(html) {
+      return html
+        .replace(/<\/p>/g, '\n')
+        .replace(/<[^>]+>/g, '')
+        .trim();
+    }
+    let strippedContent = stripAndFormat(content);
 
     const conversation = await models.Conversations.getConversation({
       erxesApiId: conversationId
     });
-
-    const { recipientId, senderId } = conversation;
+    const { senderId } = conversation;
     let localMessage;
 
     try {
+      // Send text message if strippedContent is not empty
       if (strippedContent) {
-        try {
-          const resp = await sendReply(
-            models,
-            'me/messages',
+        const resp = await sendReply(
+          models,
+          'me/messages',
+          {
+            recipient: { id: senderId },
+            message: { text: strippedContent },
+            tag
+          },
+          conversation.recipientId,
+          integrationId
+        );
+
+        if (resp) {
+          localMessage = await models.ConversationMessages.addMessage(
             {
-              recipient: { id: senderId },
-              message: { text: strippedContent },
-              tag
+              ...doc,
+              conversationId: conversation._id,
+              mid: resp.message_id
             },
-            recipientId,
-            integrationId
+            doc.userId
           );
-
-          if (resp) {
-            localMessage = await models.ConversationMessages.addMessage(
-              {
-                ...doc,
-                // inbox conv id comes, so override
-                conversationId: conversation._id,
-                mid: resp.message_id
-              },
-              doc.userId
-            );
-          }
-        } catch (e) {
-          await models.ConversationMessages.deleteOne({
-            _id: localMessage && localMessage._id
-          });
-
-          throw new Error(e.message);
         }
       }
 
-      const generatedAttachments = generateAttachmentMessages(
+      // Send attachments
+      for (const message of generateAttachmentMessages(
         subdomain,
         attachments
-      );
+      )) {
+        const resp = await sendReply(
+          models,
+          'me/messages',
+          {
+            recipient: { id: senderId },
+            message,
+            tag
+          },
+          conversation.recipientId,
+          integrationId
+        );
 
-      for (const message of generatedAttachments) {
-        try {
-          await sendReply(
-            models,
-            'me/messages',
-            { recipient: { id: senderId }, message, tag },
-            recipientId,
-            integrationId
+        if (resp) {
+          localMessage = await models.ConversationMessages.addMessage(
+            {
+              ...doc,
+              conversationId: conversation._id,
+              mid: resp.message_id
+            },
+            doc.userId
           );
-        } catch (e) {
-          throw new Error(e.message);
         }
       }
     } catch (e) {
+      if (localMessage) {
+        await models.ConversationMessages.deleteOne({ _id: localMessage._id });
+      }
       throw new Error(e.message);
     }
 
     return {
       status: 'success',
-      // inbox conversation id is used for mutation response,
-      // therefore override local id
       data: { ...localMessage.toObject(), conversationId }
     };
   }

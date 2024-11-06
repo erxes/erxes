@@ -38,18 +38,9 @@ interface IRequestParams {
  */
 export const sendRequest = async (
   { url, method, headers, body }: IRequestParams,
-  errorMessage?: string
+  errorMessage?: string,
+  retries: number = 3 // Retry mechanism
 ) => {
-  // debugBase(`
-  //   Sending request to
-  //   url: ${url}
-  //   method: ${method}
-  //   body: ${JSON.stringify(body)}
-  //   params: ${JSON.stringify(params)}
-  //   headers: ${JSON.stringify(headers)}
-  //   form: ${JSON.stringify(form)}
-  // `);
-
   try {
     const options = {
       method,
@@ -59,6 +50,7 @@ export const sendRequest = async (
     if (method !== 'GET') {
       options.body = JSON.stringify(body);
     }
+
     const response = await fetch(url, options);
 
     if (!response.ok) {
@@ -77,8 +69,15 @@ export const sendRequest = async (
       return response.text();
     }
   } catch (e) {
-    if (e.code === 'ECONNREFUSED' || e.code === 'ENOTFOUND') {
-      throw new Error(errorMessage);
+    if ((e.code === 'ECONNREFUSED' || e.code === 'ENOTFOUND') && retries > 0) {
+      console.log('Retrying request...');
+      return sendRequest(
+        { url, method, headers, body },
+        errorMessage,
+        retries - 1
+      );
+    } else if (e.message.includes('524')) {
+      throw new Error('The request timed out. Please try again later.');
     } else {
       const message = e.body || e.message;
       throw new Error(message);
@@ -245,14 +244,18 @@ export const verifyOnClearout = async (email: string, hostname: string) => {
       source: EMAIL_VALIDATION_SOURCES.CLEAROUT,
     };
   }
+  try {
+    Emails.createEmail(body.email);
 
-  Emails.createEmail(body.email);
-
-  return sendRequest({
-    url: `${hostname}/verifier/webhook`,
-    method: 'POST',
-    body,
-  });
+    return sendRequest({
+      url: `${hostname}/verifier/webhook`,
+      method: 'POST',
+      body,
+    });
+  } catch (e) {
+    debugError(`Error occurred during request sending: ${e.message}`);
+    
+  }
 };
 
 export const verifyOnMailsso = async (email: string, hostname: string) => {
@@ -261,15 +264,20 @@ export const verifyOnMailsso = async (email: string, hostname: string) => {
   let status = EMAIL_VALIDATION_STATUSES.UNKNOWN;
 
   try {
-    const response = await fetch(`https://api.mails.so/v1/validate?email=${email}`, {
-      method: 'GET',
-      headers: {
-        'x-mails-api-key': MAILS_SO_KEY,
-      },
-    });
+    const response = await fetch(
+      `https://api.mails.so/v1/validate?email=${email}`,
+      {
+        method: 'GET',
+        headers: {
+          'x-mails-api-key': MAILS_SO_KEY,
+        },
+      }
+    );
 
     const data = await response.json();
+    console.log("*********** ",data)
     const res = data.data;
+    console.log("Ressss ",res)
 
     if (res.result !== 'deliverable') {
       debugBase(`successfully clearout:`, email, ' status: ', res.result);
@@ -291,7 +299,12 @@ export const verifyOnMailsso = async (email: string, hostname: string) => {
       status = EMAIL_VALIDATION_STATUSES.VALID;
     }
   } catch (error) {
-    debugBase(`Error occurred during single mail validation`, email, ' error:', error);
+    debugBase(
+      `Error occurred during single mail validation`,
+      email,
+      ' error:',
+      error
+    );
 
     body = {
       email: { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN },

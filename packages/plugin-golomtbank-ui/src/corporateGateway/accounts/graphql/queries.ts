@@ -28,5 +28,5 @@ const getBalance = `query GolomtBankAccountBalance($configId: String!, $accountI
 }`;
 export default {
   detailQuery,
-  getBalance,
+  getBalance
 };

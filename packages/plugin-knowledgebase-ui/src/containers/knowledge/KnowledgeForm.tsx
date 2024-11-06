@@ -20,15 +20,14 @@ const KnowledgeFormContainer = ({ topic, ...props }: Props) => {
   const getBrandListQuery = useQuery<BrandsQueryResponse>(
     gql(brandQueries.brands),
     {
-      fetchPolicy: "network-only",
+      fetchPolicy: "network-only"
     }
   );
 
   const getSegmentListQuery = useQuery<any>(gql(queries.getSegmentList), {
     variables: {
-      contentTypes: ["core:user"],
-    },
-    skip: !isEnabled("segments"),
+      contentTypes: ["core:user"]
+    }
   });
 
   if (getBrandListQuery.loading || getSegmentListQuery.loading) {
@@ -39,7 +38,7 @@ const KnowledgeFormContainer = ({ topic, ...props }: Props) => {
     ...props,
     topic,
     segments: getSegmentListQuery?.data?.segments || [],
-    brands: getBrandListQuery?.data?.brands || [],
+    brands: getBrandListQuery?.data?.brands || []
   };
 
   return <KnowledgeForm {...updatedProps} />;

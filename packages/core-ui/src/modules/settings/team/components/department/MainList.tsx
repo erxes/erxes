@@ -29,7 +29,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   listQuery: DepartmentsMainQueryResponse;
-  queryParams: any;
+  queryParams: Record<string, string>;
   deleteDepartments: (ids: string[], callback: () => void) => void;
 };
 
@@ -39,7 +39,7 @@ const MainList = (props: Props) => {
   const location = useLocation();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [searchValue, setSearchValue] = useState(
-    props.queryParams.searchValue || ""
+    props.queryParams.searchValue || "",
   );
 
   const refetchQueries = () => [
@@ -124,7 +124,7 @@ const MainList = (props: Props) => {
     const handleSelect = () => {
       if (selectedItems.includes(department._id)) {
         const removedSelectedItems = selectedItems.filter(
-          (selectItem) => selectItem !== department._id
+          (selectItem) => selectItem !== department._id,
         );
         return setSelectedItems(removedSelectedItems);
       }
@@ -163,7 +163,7 @@ const MainList = (props: Props) => {
               title="Edit Department"
               content={({ closeModal }) => (
                 <Form
-                  item={department}
+                  itemId={department._id}
                   queryType="departments"
                   additionalRefetchQueries={refetchQueries()}
                   closeModal={closeModal}

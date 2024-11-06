@@ -18,8 +18,7 @@ import React, { useState } from "react";
 import Button from "@erxes/ui/src/components/Button";
 import { DescImg } from "@erxes/ui/src/components/HeaderDescription";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
-import DropdownToggle from "modules/common/components/DropdownToggle";
-import { IUser } from "modules/auth/types";
+import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import ProgressBar from "@erxes/ui/src/components/ProgressBar";
 import { WidgetBackgrounds } from "@erxes/ui-settings/src/styles";
@@ -253,7 +252,7 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
             width="100%"
             height="478"
             src={url}
-            title="YouTube video player"
+            title={__("YouTube video player")}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           />
         </VideoFrame>

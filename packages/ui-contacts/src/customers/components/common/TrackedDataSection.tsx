@@ -1,17 +1,17 @@
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarList
-} from '@erxes/ui/src/layout/styles';
-import { __, isValidDate } from '@erxes/ui/src/utils';
+  SidebarList,
+} from "@erxes/ui/src/layout/styles";
+import { __, isValidDate } from "@erxes/ui/src/utils";
 
-import Box from '@erxes/ui/src/components/Box';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { ICompany } from '@erxes/ui-contacts/src/companies/types';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import Label from '@erxes/ui/src/components/Label';
-import React from 'react';
-import dayjs from 'dayjs';
+import Box from "@erxes/ui/src/components/Box";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { ICompany } from "@erxes/ui-contacts/src/companies/types";
+import { ICustomer } from "../../types";
+import Label from "@erxes/ui/src/components/Label";
+import React from "react";
+import dayjs from "dayjs";
 
 type Props = {
   customer?: ICustomer;
@@ -23,7 +23,7 @@ type Props = {
 class TrackedDataSection extends React.Component<Props> {
   renderCustomValue = (value: string) => {
     if (isValidDate(value)) {
-      return dayjs(value).format('lll');
+      return dayjs(value).format("lll");
     }
 
     return value;
@@ -70,7 +70,7 @@ class TrackedDataSection extends React.Component<Props> {
     return (
       <SidebarList className="no-link">
         <li>
-          <FieldStyle>{__('Status')}</FieldStyle>
+          <FieldStyle>{__("Status")}</FieldStyle>
           <SidebarCounter>
             {isOnline ? (
               <Label lblStyle="success">Online</Label>
@@ -80,11 +80,11 @@ class TrackedDataSection extends React.Component<Props> {
           </SidebarCounter>
         </li>
         <li>
-          <FieldStyle>{__('Last online')}</FieldStyle>
-          <SidebarCounter>{dayjs(lastSeenAt).format('lll')}</SidebarCounter>
+          <FieldStyle>{__("Last online")}</FieldStyle>
+          <SidebarCounter>{dayjs(lastSeenAt).format("lll")}</SidebarCounter>
         </li>
         <li>
-          <FieldStyle>{__('Session count')}</FieldStyle>
+          <FieldStyle>{__("Session count")}</FieldStyle>
           <SidebarCounter>{sessionCount}</SidebarCounter>
         </li>
         {this.renderTrackedData(trackedData)}
@@ -97,7 +97,7 @@ class TrackedDataSection extends React.Component<Props> {
 
     return (
       <Box
-        title={__('Tracked data')}
+        title={__("Tracked data")}
         name="showTrackedData"
         callback={collapseCallback}
       >

@@ -35,10 +35,16 @@
     "migrateUserMovements": "node_modules/.bin/ts-node src/commands/migrateUserMovements.ts",
     "updateUserNames": "node_modules/.bin/ts-node src/commands/updateUserNames.ts",
     "migrateUserPositions": "node_modules/.bin/ts-node src/commands/migrateUserPositions.ts",
-    "migrateCardName": "node_modules/.bin/ts-node src/commands/migrateCardName.ts"
+    "migrateCardsRelations": "node_modules/.bin/ts-node src/commands/migrateRelations.ts",
+    "migrateCardsBoards": "node_modules/.bin/ts-node src/commands/migrateCardsBoards.ts",
+    "migrateCardName": "node_modules/.bin/ts-node src/commands/migrateCardName.ts",
+    "migrateForms": "node_modules/.bin/ts-node src/commands/migrateLeadForms.ts",
+    "migrateAutomations": "node_modules/.bin/ts-node src/commands/migrateAutomations.ts",
+    "migrateCompaniesSearchText": "node_modules/.bin/ts-node src/commands/migrateCompaniesSearchText.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.9.3",
+    "@azure/storage-blob": "^12.25.0",
     "@erxes/api-utils": "*",
     "@kubernetes/client-node": "^0.20.0",
     "@sendgrid/mail": "^7.7.0",
@@ -49,6 +55,7 @@
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.3",
     "csv-parser": "^3.0.0",
+    "dayjs": "^1.11.12",
     "faker": "^4.1.0",
     "file-type": "^10.4.0",
     "firebase-admin": "^12.1.1",

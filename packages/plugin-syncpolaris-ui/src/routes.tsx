@@ -2,17 +2,13 @@ import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import queryString from "query-string";
 import React from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
-import GeneralSettings from "./settings/components/GeneralSettings";
+import SettingsRoutes from "./settings/routes";
 
 const SyncHistoryList = asyncComponent(
   () =>
     import(
       /* webpackChunkName: "CheckSyncedDeals" */ "./syncPolarisHistories/containers/SyncHistoryList"
     )
-);
-const Settings = asyncComponent(
-  () =>
-    import(/* webpackChunkName: "Settings" */ "./settings/containers/Settings")
 );
 
 const List = asyncComponent(
@@ -31,7 +27,7 @@ const CustomerList = () => {
   return (
     <List
       queryParams={queryString.parse(location.search)}
-      contentType="contacts:customer"
+      contentType="core:customer"
     />
   );
 };
@@ -77,18 +73,10 @@ const LoanAcntList = () => {
   );
 };
 
-const GeneralSetting = () => {
-  return <Settings component={GeneralSettings} configCode="POLARIS" />;
-};
-
 const routes = () => {
   return (
     <Routes>
-      <Route
-        key="/erxes-plugin-polaris-polaris/settings/general"
-        path="/erxes-plugin-sync-polaris/settings/general"
-        element={<GeneralSetting />}
-      />
+      {SettingsRoutes()}
       <Route
         key="/sync-polaris-history"
         path="/sync-polaris-history"

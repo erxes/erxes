@@ -1,15 +1,15 @@
-import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
-import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
-import { IProduct } from '@erxes/ui-products/src/types';
-import { ControlLabel } from '@erxes/ui/src/components/form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { __ } from 'coreui/utils';
-import React from 'react';
-import { IJob } from '../../../../types';
-import Common from '../Common';
+import { ProductButton } from "@erxes/ui-sales/src/deals/styles";
+import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
+import { IProduct } from "@erxes/ui-products/src/types";
+import { ControlLabel } from "@erxes/ui/src/components/form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { __ } from "coreui/utils";
+import React from "react";
+import { IJob } from "../../../../types";
+import Common from "../Common";
 
 type Props = {
   closeModal: () => void;
@@ -40,12 +40,12 @@ class JobForm extends React.Component<Props, State> {
     const { productId } = config;
 
     this.state = {
-      productId: productId || '',
+      productId: productId || "",
       product,
-      description: description || '',
+      description: description || "",
       name:
-        (product && `${product.code} - ${product.name}`) || 'Unknown product',
-      currentTab: 'inputs'
+        (product && `${product.code} - ${product.name}`) || "Unknown product",
+      currentTab: "inputs"
     };
   }
 
@@ -66,7 +66,7 @@ class JobForm extends React.Component<Props, State> {
 
     let content = (
       <div onClick={onClick}>
-        {__('Choose Product')} <Icon icon="plus-circle" />
+        {__("Choose Product")} <Icon icon="plus-circle" />
       </div>
     );
 
@@ -92,7 +92,7 @@ class JobForm extends React.Component<Props, State> {
     const productOnChange = prs => {
       let pr: any = {};
       if (!prs.length) {
-        this.setState({ productId: '', product: undefined });
+        this.setState({ productId: "", product: undefined });
         return;
       }
 
@@ -114,7 +114,7 @@ class JobForm extends React.Component<Props, State> {
           closeModal={onCloseModal}
           onSelect={productOnChange}
           data={{
-            name: 'Product',
+            name: "Product",
             products: product ? [product] : []
           }}
           limit={1}
@@ -127,7 +127,7 @@ class JobForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Income Product</ControlLabel>
           <ModalTrigger
-            title="Choose product"
+            title={__("Choose product")}
             trigger={this.renderProductServiceTrigger(product)}
             size="lg"
             content={content}
@@ -138,7 +138,7 @@ class JobForm extends React.Component<Props, State> {
           <FormControl
             name="description"
             value={description}
-            onChange={onChangeValue.bind(this, 'description')}
+            onChange={onChangeValue.bind(this, "description")}
           />
         </FormGroup>
       </>
@@ -151,7 +151,7 @@ class JobForm extends React.Component<Props, State> {
     return (
       <Common
         {...this.props}
-        name={(product && `${product.code} - ${product.name}`) || 'Unknown'}
+        name={(product && `${product.code} - ${product.name}`) || "Unknown"}
         description={description}
         config={{ productId }}
         {...this.props}

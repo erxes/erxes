@@ -1,8 +1,8 @@
-import fetch from 'node-fetch';
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendCoreMessage } from '../messageBroker';
-import { sendRPCMessage } from '../messageBrokerErkhet';
+import fetch from "node-fetch";
+import { IUserDocument } from "@erxes/api-utils/src/types";
+import { IModels } from "../connectionResolver";
+import { sendSalesMessage, sendCoreMessage } from "../messageBroker";
+import { sendRPCMessage } from "../messageBrokerErkhet";
 
 export const getSyncLogDoc = (params: {
   type: string;
@@ -13,7 +13,7 @@ export const getSyncLogDoc = (params: {
   const { type, user, brandId } = params;
 
   return {
-    type: '',
+    type: "",
     brandId,
     contentType: type,
     contentId: params.object._id,
@@ -32,7 +32,7 @@ export const toErkhet = (models, syncLog, config, sendData, action) => {
     orderInfos: JSON.stringify(sendData)
   };
 
-  sendRPCMessage(models, syncLog, 'rpc_queue:erxes-automation-erkhet', {
+  sendRPCMessage(models, syncLog, "rpc_queue:erxes-automation-erkhet", {
     action,
     payload: JSON.stringify(postData),
     thirdService: true
@@ -42,9 +42,9 @@ export const toErkhet = (models, syncLog, config, sendData, action) => {
 export const getCoreConfig = async (subdomain, code, defaultValue?) => {
   return await sendCoreMessage({
     subdomain,
-    action: 'getConfig',
+    action: "getConfig",
     data: { code, defaultValue },
-    isRPC: true,
+    isRPC: true
   });
 };
 
@@ -53,11 +53,11 @@ export const getConfig = async (models: IModels, code, defaultValue?) => {
 };
 
 export const sendCardInfo = async (subdomain, deal, config, value) => {
-  const field = config.responseField.replace('customFieldsData.', '');
+  const field = config.responseField.replace("customFieldsData.", "");
 
-  await sendCardsMessage({
+  await sendSalesMessage({
     subdomain,
-    action: 'deals.updateOne',
+    action: "deals.updateOne",
     data: {
       selector: { _id: deal._id },
       modifier: {
@@ -69,9 +69,9 @@ export const sendCardInfo = async (subdomain, deal, config, value) => {
     isRPC: true
   });
 
-  await sendCardsMessage({
+  await sendSalesMessage({
     subdomain,
-    action: 'deals.updateOne',
+    action: "deals.updateOne",
     data: {
       selector: { _id: deal._id },
       modifier: {
@@ -89,29 +89,29 @@ export const sendCardInfo = async (subdomain, deal, config, value) => {
 };
 
 export const getCompanyInfo = async ({ checkTaxpayerUrl, no }: { checkTaxpayerUrl: string, no: string }) => {
-  const tinre = /(^\d{11}$)|(^\d{12}$)/;
+  const tinre = /(^\d{11}$)|(^\d{12}$)|(^\d{14}$)/;
   if (tinre.test(no)) {
     const result = await fetch(
       // `https://api.ebarimt.mn/api/info/check/getInfo?tin=${tinNo}`
       `${checkTaxpayerUrl}/getInfo?tin=${no}`
-    ).then((r) => r.json());
+    ).then(r => r.json());
 
-    return { status: 'checked', result, tin: no };
+    return { status: "checked", result, tin: no };
   }
 
-  const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/gui;
+  const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/giu;
 
   if (!re.test(no)) {
-    return { status: 'notValid' };
+    return { status: "notValid" };
   }
 
   const info = await fetch(
     // `https://api.ebarimt.mn/api/info/check/getTinInfo?regNo=${rd}`
     `${checkTaxpayerUrl}/getTinInfo?regNo=${no}`
-  ).then((r) => r.json());
+  ).then(r => r.json());
 
   if (info?.status !== 200) {
-    return { status: 'notValid' };
+    return { status: "notValid" };
   }
 
   const tinNo = info.data;
@@ -119,7 +119,7 @@ export const getCompanyInfo = async ({ checkTaxpayerUrl, no }: { checkTaxpayerUr
   const result = await fetch(
     // `https://api.ebarimt.mn/api/info/check/getInfo?tin=${tinNo}`
     `${checkTaxpayerUrl}/getInfo?tin=${tinNo}`
-  ).then((r) => r.json());
+  ).then(r => r.json());
 
-  return { status: 'checked', result, tin: tinNo };
+  return { status: "checked", result, tin: tinNo };
 };

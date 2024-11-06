@@ -1,14 +1,14 @@
-import { IModels } from '../../../connectionResolver';
-import { MONTH_NUMBERS } from '../../../constants';
-import { sendProductsMessage } from '../../../messageBroker';
-import { ILabelDocument } from '../../../models/definitions/labels';
-import { IDayLabelDocument } from '../../../models/definitions/dayLabels';
-import { getPureDate } from '@erxes/api-utils/src/core';
+import { IModels } from "../../../connectionResolver";
+import { MONTH_NUMBERS } from "../../../constants";
+import { sendCoreMessage } from "../../../messageBroker";
+import { ILabelDocument } from "../../../models/definitions/labels";
+import { IDayLabelDocument } from "../../../models/definitions/dayLabels";
+import { getPureDate } from "@erxes/api-utils/src/core";
 
 const getParentsOrders = order => {
   const orders: string[] = [];
-  const splitOrders = order.split('/');
-  let currentOrder = '';
+  const splitOrders = order.split("/");
+  let currentOrder = "";
 
   for (const oStr of splitOrders) {
     if (oStr) {
@@ -28,9 +28,9 @@ export const getParentCategories = async (
   let categoryId = productCategoryId;
 
   if (productId) {
-    const product = await sendProductsMessage({
+    const product = await sendCoreMessage({
       subdomain,
-      action: 'findOne',
+      action: "products.findOne",
       data: { _id: productId },
       isRPC: true
     });
@@ -38,22 +38,22 @@ export const getParentCategories = async (
     categoryId = product.categoryId;
   }
 
-  const category = await sendProductsMessage({
+  const category = await sendCoreMessage({
     subdomain,
-    action: 'categories.findOne',
+    action: "categories.findOne",
     data: { _id: categoryId },
     isRPC: true
   });
 
   if (!category) {
-    throw new Error('not found category');
+    throw new Error("not found category");
   }
 
   const orders = getParentsOrders(category.order);
 
-  const categories = await sendProductsMessage({
+  const categories = await sendCoreMessage({
     subdomain,
-    action: 'categories.find',
+    action: "categories.find",
     data: {
       query: {
         $or: [{ order: { $in: orders } }, { order: { $regex: category.order } }]
@@ -74,24 +74,12 @@ export const getProducts = async (
   let products: any[] = [];
 
   if (productCategoryId) {
-    const limit = await sendProductsMessage({
+    products = await sendCoreMessage({
       subdomain,
-      action: 'count',
+      action: "products.find",
       data: {
-        query: { status: { $nin: ['archived', 'deleted'] } },
-        categoryId: productCategoryId
-      },
-      isRPC: true,
-      defaultValue: 0
-    });
-
-    products = await sendProductsMessage({
-      subdomain,
-      action: 'find',
-      data: {
-        query: { status: { $nin: ['archived', 'deleted'] } },
+        query: { status: { $nin: ["archived", "deleted"] } },
         categoryId: productCategoryId,
-        limit,
         sort: { code: 1 }
       },
       isRPC: true,
@@ -100,9 +88,9 @@ export const getProducts = async (
   }
 
   if (productId) {
-    products = await sendProductsMessage({
+    products = await sendCoreMessage({
       subdomain,
-      action: 'find',
+      action: "products.find",
       data: { query: { _id: productId } },
       isRPC: true,
       defaultValue: []
@@ -209,7 +197,7 @@ export const getPublicLabels = async ({
   const dayInMonth = new Date(year, month, 0).getDate();
 
   const publicLabels: ILabelDocument[] = await models.Labels.find({
-    effect: 'public'
+    effect: "public"
   }).lean();
 
   const rulesByLabelId = {};

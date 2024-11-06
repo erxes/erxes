@@ -3,28 +3,28 @@ import {
   fetchPolaris,
   getContract,
   getCustomer,
-  getDepositAccount,
-} from '../utils';
-import { IPolarisLoanGive } from './types';
+  getDepositAccount
+} from "../utils";
+import { IPolarisLoanGive } from "./types";
 
-export const createLoanGive = async (subdomain, models, syncLog, transaction) => {
+export const createLoanGive = async (subdomain, models, polarisConfig, syncLog, transaction) => {
   const customer = await getCustomer(subdomain, transaction.customerId);
 
   const customerData = await customFieldToObject(
     subdomain,
-    'contacts:customer',
-    customer,
+    "core:customer",
+    customer
   );
 
   const depositAccount = await getDepositAccount(
     subdomain,
-    transaction.customerId,
+    transaction.customerId
   );
 
   const loanContract = await getContract(
     subdomain,
     transaction.contractId,
-    'loans',
+    "loans"
   );
 
   const loanGive: IPolarisLoanGive = {
@@ -36,29 +36,30 @@ export const createLoanGive = async (subdomain, models, syncLog, transaction) =>
     contAmount: transaction.total,
     contCurCode: transaction.currency,
     contRate: 1,
-    rateTypeId: '16',
+    rateTypeId: "16",
     txnDesc: transaction.description,
     tcustName: customerData.firstName,
     tcustAddr: customerData.address,
     tcustRegister: customerData.registerCode,
-    tcustRegisterMask: '3',
+    tcustRegisterMask: "3",
     tcustContact: customerData.mobile,
-    sourceType: 'TLLR',
+    sourceType: "TLLR",
     isTmw: 1,
     isPreview: 0,
     isPreviewFee: 0,
     addParams: [
       {
-        contAcntType: 'CASA',
-      },
-    ],
+        contAcntType: "CASA"
+      }
+    ]
   };
 
   const loanGiveReponse = await fetchPolaris({
     subdomain,
-    op: '13610262',
+    op: "13610262",
     data: [loanGive],
     models,
+    polarisConfig,
     syncLog
   });
 

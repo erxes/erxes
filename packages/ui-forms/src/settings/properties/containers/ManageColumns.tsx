@@ -9,7 +9,6 @@ import ManageColumns from "../components/ManageColumns";
 import React from "react";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import { queries } from "@erxes/ui-forms/src/forms/graphql";
 import queryString from "query-string";
 
@@ -38,7 +37,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
     location,
     navigate,
     type,
-    isImport,
+    isImport
   } = props;
 
   if (fieldsQuery.loading || fieldsDefaultColumnsConfigQuery.loading) {
@@ -72,8 +71,8 @@ const ManageColumnsContainer = (props: FinalProps) => {
       }
 
       configs
-        .filter((conf) => conf.checked)
-        .forEach((checked) => {
+        .filter(conf => conf.checked)
+        .forEach(checked => {
           if (checked.name.startsWith("customFieldsData")) {
             checkedConfigsForExport.push(checked);
             checkedConfigsForImport.push(checked.label);
@@ -90,7 +89,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
             : checkedConfigsForImport,
         type: contentType.split(":")[0],
         importType,
-        unlimited: true,
+        unlimited: true
       });
 
       window.open(`${REACT_APP_API_URL}${reqUrl}?${stringified}`, "_blank");
@@ -107,18 +106,18 @@ const ManageColumnsContainer = (props: FinalProps) => {
   } else {
     const defaultColumnsMap = {};
 
-    defaultColumns.forEach((col) => {
+    defaultColumns.forEach(col => {
       defaultColumnsMap[col.name] = col;
     });
 
     columns = (fieldsQuery.fieldsCombinedByContentType || [])
-      .map((field) => {
+      .map(field => {
         const conf = defaultColumnsMap[field.name];
         return {
           ...field,
           _id: Math.random().toString(),
           order: conf ? conf.order : 0,
-          checked: conf,
+          checked: conf
         };
       })
       .sort((a, b) => a.order - b.order);
@@ -128,7 +127,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
     ...props,
     save,
     contentType,
-    columns,
+    columns
   };
 
   return <ManageColumns {...updatedProps} />;
@@ -154,16 +153,15 @@ export default withProps<Props>(
         return {
           variables: {
             contentType: ["lead", "visitor"].includes(contentType)
-              ? "contacts:customer"
+              ? "core:customer"
               : contentType,
             usageType: type,
             excludedNames: excludedNames
               ? excludedNames
-              : renderExcludedNames(isImport),
-          },
+              : renderExcludedNames(isImport)
+          }
         };
-      },
-      skip: !isEnabled("forms"),
+      }
     }),
     graphql<Props, DefaultColumnsConfigQueryResponse, { contentType: string }>(
       gql(queries.fieldsDefaultColumnsConfig),
@@ -173,12 +171,11 @@ export default withProps<Props>(
           return {
             variables: {
               contentType: ["lead", "visitor"].includes(contentType)
-                ? "contacts:customer"
-                : contentType,
-            },
+                ? "core:customer"
+                : contentType
+            }
           };
-        },
-        skip: !isEnabled("forms"),
+        }
       }
     )
   )(ManageColumnsContainer)

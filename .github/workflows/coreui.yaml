@@ -10,15 +10,15 @@ on:
       - build-test
       - v1
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/core-ui/**'
-      - '.github/workflows/coreui.yaml'
-      - '!ui/nginx/**'
-      - '!ui/docker-entrypoint.sh'
-      - '!ui/Dockerfile'
-      - '!ui/.dockerignore'
+      - "packages/erxes-ui/**"
+      - "packages/core-ui/**"
+      - ".github/workflows/coreui.yaml"
+      - "!ui/nginx/**"
+      - "!ui/docker-entrypoint.sh"
+      - "!ui/Dockerfile"
+      - "!ui/.dockerignore"
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 export const commonPaginateDef = `
     $page:Int
@@ -30,7 +30,7 @@ export const riskIndicatorParams = `
     createdAt,
     modifiedAt,
     isWithDescription
-    ${isEnabled('tags') ? `tags{_id,name,colorCode}` : ''}
+    tags {_id,name,colorCode}
     
     tagIds
       forms {

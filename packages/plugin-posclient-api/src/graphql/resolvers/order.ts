@@ -1,16 +1,15 @@
-import { IContext } from '../../connectionResolver';
-import { IOrderDocument } from '../../models/definitions/orders';
-import { IOrderItemDocument } from '../../models/definitions/orderItems';
-import { IEbarimtDocument } from '../../models/definitions/putResponses';
+import { IContext } from "../../connectionResolver";
+import { IOrderDocument } from "../../models/definitions/orders";
+import { IOrderItemDocument } from "../../models/definitions/orderItems";
+import { IEbarimtDocument } from "../../models/definitions/putResponses";
 import {
-  sendCardsMessage,
-  sendContactsMessage,
+  sendSalesMessage,
   sendCoreMessage
-} from '../../messageBroker';
-import { fakePutData } from '../utils/orderUtils';
+} from "../../messageBroker";
+import { fakePutData } from "../utils/orderUtils";
 
 export default {
-  async items(order: IOrderDocument, { }, { models }: IContext) {
+  async items(order: IOrderDocument, {}, { models }: IContext) {
     return await models.OrderItems.find({ orderId: order._id }).lean();
   },
 
@@ -19,14 +18,14 @@ export default {
       return null;
     }
 
-    if (order.customerType === 'visitor') {
+    if (order.customerType === "visitor") {
       return null;
     }
 
-    if (order.customerType === 'company') {
-      const company = await sendContactsMessage({
+    if (order.customerType === "company") {
+      const company = await sendCoreMessage({
         subdomain,
-        action: 'companies.findOne',
+        action: "companies.findOne",
         data: { _id: order.customerId },
         isRPC: true,
         defaultValue: {}
@@ -42,14 +41,14 @@ export default {
         primaryPhone: company.primaryPhone,
         primaryEmail: company.primaryEmail,
         firstName: company.primaryName,
-        lastName: ''
+        lastName: ""
       };
     }
 
-    if (order.customerType === 'user') {
+    if (order.customerType === "user") {
       const user = await sendCoreMessage({
         subdomain,
-        action: 'users.findOne',
+        action: "users.findOne",
         data: { _id: order.customerId },
         isRPC: true,
         defaultValue: {}
@@ -62,17 +61,16 @@ export default {
       return {
         _id: user._id,
         code: user.code,
-        primaryPhone: (user.details && user.details.operatorPhone) || '',
+        primaryPhone: (user.details && user.details.operatorPhone) || "",
         primaryEmail: user.email,
-        firstName: `${user.firstName || ''} ${user.lastName || ''}`,
+        firstName: `${user.firstName || ""} ${user.lastName || ""}`,
         lastName: user.username
-
       };
     }
 
-    const customer = await sendContactsMessage({
+    const customer = await sendCoreMessage({
       subdomain,
-      action: 'customers.findOne',
+      action: "customers.findOne",
       data: { _id: order.customerId },
       isRPC: true,
       defaultValue: {}
@@ -92,31 +90,30 @@ export default {
     };
   },
 
-  async user(order: IOrderDocument, { }, { models }: IContext) {
+  async user(order: IOrderDocument, {}, { models }: IContext) {
     return models.PosUsers.findOne({ _id: order.userId });
   },
 
-  async putResponses(order: IOrderDocument, { }, { models, config }: IContext) {
-    if (order.billType === '9') {
-      const items: IOrderItemDocument[] = await models.OrderItems.find({ orderId: order._id }).lean();
+  async putResponses(order: IOrderDocument, {}, { models, config }: IContext) {
+    if (order.billType === "9") {
+      const items: IOrderItemDocument[] = await models.OrderItems.find({
+        orderId: order._id
+      }).lean();
 
-      return [await fakePutData(models, items, order, config)]
+      return [await fakePutData(models, items, order, config)];
     }
 
-    const putResponses: IEbarimtDocument[] = await models.PutResponses.find(
-      {
-        contentType: 'pos',
-        contentId: order._id,
-        status: { $ne: 'inactive' }
-      }
-    )
+    const putResponses: IEbarimtDocument[] = await models.PutResponses.find({
+      contentType: "pos",
+      contentId: order._id,
+      status: { $ne: "inactive" }
+    })
       .sort({ createdAt: -1 })
       .lean();
 
     const excludeIds: string[] = [];
-    for (const falsePR of putResponses.filter(pr => pr.status !== 'SUCCESS')) {
-      for (const truePR of putResponses.filter(pr => pr.status === 'SUCCESS')) {
-
+    for (const falsePR of putResponses.filter(pr => pr.status !== "SUCCESS")) {
+      for (const truePR of putResponses.filter(pr => pr.status === "SUCCESS")) {
         if (
           falsePR.sendInfo &&
           truePR.sendInfo &&
@@ -136,33 +133,33 @@ export default {
     }).lean();
 
     if (innerItems && innerItems.length) {
-      const response = await fakePutData(models, innerItems, order, config)
+      const response = await fakePutData(models, innerItems, order, config);
       putResponses.push(response as any);
     }
 
     return putResponses.filter(pr => !excludeIds.includes(pr._id));
   },
 
-  async deal(order: IOrderDocument, { }, { subdomain }: IContext) {
+  async deal(order: IOrderDocument, {}, { subdomain }: IContext) {
     if (!order.convertDealId) {
       return null;
     }
 
-    return await sendCardsMessage({
+    return await sendSalesMessage({
       subdomain,
-      action: 'deals.findOne',
+      action: "deals.findOne",
       data: { _id: order.convertDealId }
     });
   },
 
-  async dealLink(order: IOrderDocument, { }, { subdomain }: IContext) {
+  async dealLink(order: IOrderDocument, {}, { subdomain }: IContext) {
     if (!order.convertDealId) {
       return null;
     }
-    return await sendCardsMessage({
+    return await sendSalesMessage({
       subdomain,
-      action: 'getLink',
-      data: { _id: order.convertDealId, type: 'deal' },
+      action: "getLink",
+      data: { _id: order.convertDealId, type: "deal" },
       isRPC: true
     });
   }

@@ -16,9 +16,8 @@ import { RowTitle } from "@erxes/ui-engage/src/styles";
 import Tags from "@erxes/ui/src/components/Tags";
 import TextInfo from "@erxes/ui/src/components/TextInfo";
 import Tip from "@erxes/ui/src/components/Tip";
-import WithPermission from "coreui/withPermission";
+import WithPermission from "@erxes/ui/src/components/WithPermission";
 import dayjs from "dayjs";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   integration: ILeadIntegration;
@@ -92,7 +91,7 @@ class Row extends React.Component<Props> {
 
     const onClick = () => {
       window.open(
-        `${REACT_APP_API_URL}/pl:contacts/file-export?type=customer&popupData=true&form=${integration.formId}`,
+        `${REACT_APP_API_URL}/file-export?type=customer&popupData=true&form=${integration.formId}`,
         "_blank"
       );
     };
@@ -237,11 +236,9 @@ class Row extends React.Component<Props> {
           <Icon icon="calender" />{" "}
           <DateWrapper>{dayjs(form.createdDate).format("ll")}</DateWrapper>
         </td>
-        {isEnabled("tags") && (
-          <td>
-            <Tags tags={tags} limit={2} />
-          </td>
-        )}
+        <td>
+          <Tags tags={tags} limit={2} />
+        </td>
         <td>
           <Label lblStyle="simple">{integration.leadData.loadType}</Label>
         </td>

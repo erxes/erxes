@@ -43,12 +43,26 @@ const customerInfo = (response) => {
       ${response.customerTin
       ? `<p>ТТД: ${response.customerTin}</p>`
       : ''}
+      ${response.consumerNo
+      ? `<p>РД: ${response.consumerNo}</p>`
+      : ''}
       ${response.customerName
       ? `<p>Нэр: ${response.customerName} </p>`
       : ''}
-      <br />
     </div>
   `;
+}
+
+const customize = (response, field, defaultVal) => {
+  if (response[field]) {
+    return `
+      <div>
+        ${response[field]}
+      </div>      
+    `;
+  }
+
+  return defaultVal;
 }
 
 export default (response, counter?) => {
@@ -76,6 +90,7 @@ export default (response, counter?) => {
         </div>
 
         ${customerInfo(response)}
+        ${customize(response, "headerText", "<br />")}
 
         <table class="tb" cellpadding="0" cellspacing="0">
           <thead>
@@ -105,7 +120,12 @@ export default (response, counter?) => {
           <div>
             ${response.qrData && `<canvas id="qrcode${response._id}"></canvas>` || ''}
           </div>
-          <p>Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>
+
+          ${customize(response, "footerText", "<p>Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>")}
+
+          ${response.description && (`<div>
+            ${response.description}
+          </div>`)}
         </div>
       ` : `
         Буцаалт амжилттай.

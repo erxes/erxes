@@ -6,7 +6,7 @@ import {
   timeclockReportByUsers,
   timeclockReportFinal,
   timeclockReportPivot,
-  timeclockReportPreliminary
+  timeclockReportPreliminary,
 } from './utils';
 import {
   customFixDate,
@@ -15,7 +15,7 @@ import {
   generateCommonUserIds,
   generateFilter,
   returnDepartmentsBranchesDict,
-  returnSupervisedUsers
+  returnSupervisedUsers,
 } from '../../utils';
 import { IReport } from '../../models/definitions/timeclock';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
@@ -48,7 +48,7 @@ const timeclockQueries = {
         // }
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
   },
 
@@ -60,7 +60,7 @@ const timeclockQueries = {
         // supervisorId: user._id
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
   },
 
@@ -76,16 +76,16 @@ const timeclockQueries = {
         {
           shiftStart: {
             $gte: fixDate(startDate),
-            $lte: fixDate(endDate)
-          }
+            $lte: fixDate(endDate),
+          },
         },
         {
           shiftEnd: {
             $gte: fixDate(startDate),
-            $lte: fixDate(endDate)
-          }
-        }
-      ]
+            $lte: fixDate(endDate),
+          },
+        },
+      ],
     };
 
     const selector: any = [{ userId: getUserId }, timeField];
@@ -119,10 +119,10 @@ const timeclockQueries = {
 
     const list = await paginate(models.Timeclocks.find(selector), {
       perPage: queryParams.perPage,
-      page: queryParams.page
+      page: queryParams.page,
     })
       .sort({
-        shiftStart: -1
+        shiftStart: -1,
       })
       .limit(queryParams.perPage || 20);
 
@@ -135,7 +135,7 @@ const timeclockQueries = {
     // return the latest started active shift
     const getActiveTimeclock = await models.Timeclocks.find({
       userId: getUserId,
-      shiftActive: true
+      shiftActive: true,
     })
       .sort({ shiftStart: 1 })
       .limit(1);
@@ -164,7 +164,7 @@ const timeclockQueries = {
 
     const list = await paginate(models.TimeLogs.find(selector), {
       perPage: queryParams.perPage,
-      page: queryParams.page
+      page: queryParams.page,
     })
       .sort({ userId: 1, timelog: -1 })
       .limit(queryParams.perPage || 20);
@@ -180,16 +180,16 @@ const timeclockQueries = {
     const timeField = {
       timelog: {
         $gte: fixDate(startDate),
-        $lte: customFixDate(endDate)
-      }
+        $lte: customFixDate(endDate),
+      },
     };
 
     return models.TimeLogs.find({
-      $and: [{ userId }, timeField]
+      $and: [{ userId }, timeField],
     }).sort({ timelog: 1 });
   },
 
-  async  schedulesMain(
+  async schedulesMain(
     _root,
     queryParams,
     { models, subdomain, user }: IContext
@@ -240,21 +240,16 @@ const timeclockQueries = {
     if (searchValue) {
       query.$or = [
         { deviceName: new RegExp(`.*${searchValue}.*`, 'gi') },
-        { serialNo: new RegExp(`.*${searchValue}.*`, 'gi') }
+        { serialNo: new RegExp(`.*${searchValue}.*`, 'gi') },
       ];
     }
 
     const list = await paginate(models.DeviceConfigs.find(query), {
       perPage: queryParams.perPage,
-      page: queryParams.page
+      page: queryParams.page,
     });
 
     return { list, totalCount };
-  },
-
-  async scheduleConfigOrder(_root, { userId }, { models, user }: IContext) {
-    const getUserId = userId ? userId : user._id;
-    return models.ScheduleConfigOrder.findOne({ userId: getUserId });
   },
 
   async requestsMain(
@@ -278,7 +273,7 @@ const timeclockQueries = {
 
     const list = await paginate(models.Absences.find(selector), {
       perPage: queryParams.perPage,
-      page: queryParams.page
+      page: queryParams.page,
     }).sort({ startTime: -1 });
 
     return { list, totalCount };
@@ -332,7 +327,7 @@ const timeclockQueries = {
       page,
       perPage,
       reportType,
-      isCurrentUserAdmin
+      isCurrentUserAdmin,
     },
     { subdomain, user }: IContext
   ) {
@@ -367,11 +362,11 @@ const timeclockQueries = {
       if (isCurrentUserAdmin) {
         // return all team member ids
         totalMembers = await findAllTeamMembersWithEmpId(subdomain);
-        totalTeamMemberIds = totalMembers.map(usr => usr._id);
+        totalTeamMemberIds = totalMembers.map((usr) => usr._id);
       } else {
         // return supervisod users including current user
         totalMembers = await returnSupervisedUsers(user, subdomain);
-        totalTeamMemberIds = totalMembers.map(usr => usr._id);
+        totalTeamMemberIds = totalMembers.map((usr) => usr._id);
       }
     }
 
@@ -389,14 +384,14 @@ const timeclockQueries = {
 
         for (const userId of Object.keys(reportPreliminary)) {
           returnReport.push({
-            groupReport: [{ userId, ...reportPreliminary[userId] }]
+            groupReport: [{ userId, ...reportPreliminary[userId] }],
           });
         }
 
         break;
       case 'Сүүлд' || 'Final':
         const paginatedTeamMembers = paginateArray(totalMembers, perPage, page);
-        const paginatedTeamMemberIds = paginatedTeamMembers.map(e => e._id);
+        const paginatedTeamMemberIds = paginatedTeamMembers.map((e) => e._id);
 
         for (const teamMember of paginatedTeamMembers) {
           if (teamMember.branchIds) {
@@ -411,7 +406,7 @@ const timeclockQueries = {
             branchIds: teamMember.branchIds ? teamMember.branchIds : [],
             departmentIds: teamMember.departmentIds
               ? teamMember.departmentIds
-              : []
+              : [],
           };
         }
 
@@ -453,9 +448,9 @@ const timeclockQueries = {
                 userId,
                 branchTitles,
                 departmentTitles,
-                ...reportFinal[userId]
-              }
-            ]
+                ...reportFinal[userId],
+              },
+            ],
           });
         }
         break;
@@ -470,7 +465,7 @@ const timeclockQueries = {
 
         for (const userId of Object.keys(reportPivot)) {
           returnReport.push({
-            groupReport: [{ userId, ...reportPivot[userId] }]
+            groupReport: [{ userId, ...reportPivot[userId] }],
           });
         }
         break;
@@ -478,7 +473,7 @@ const timeclockQueries = {
 
     return {
       list: returnReport,
-      totalCount: totalTeamMemberIds.length
+      totalCount: totalTeamMemberIds.length,
     };
   },
   async timeclockReportByUsers(
@@ -491,7 +486,7 @@ const timeclockQueries = {
       endDate,
       page,
       perPage,
-      isCurrentUserAdmin
+      isCurrentUserAdmin,
     },
     { subdomain, models, user }: IContext
   ) {
@@ -524,7 +519,7 @@ const timeclockQueries = {
       } else {
         // return supervisod users including current user
         totalTeamMembers = await returnSupervisedUsers(user, subdomain);
-        totalTeamMemberIds = totalTeamMembers.map(usr => usr._id);
+        totalTeamMemberIds = totalTeamMembers.map((usr) => usr._id);
       }
     }
 
@@ -534,9 +529,9 @@ const timeclockQueries = {
         models,
         { startDate, endDate }
       ),
-      totalCount: totalTeamMemberIds.length
+      totalCount: totalTeamMemberIds.length,
     };
-  }
+  },
 };
 
 moduleRequireLogin(timeclockQueries);

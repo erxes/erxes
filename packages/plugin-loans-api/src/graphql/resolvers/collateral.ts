@@ -7,11 +7,11 @@ const Collaterals = {
     const product: any = await sendMessageBroker(
       {
         subdomain,
-        action: 'findOne',
+        action: 'products.findOne',
         data: { _id: collateral.collateralId },
         isRPC: true
       },
-      'products'
+      'core'
     );
 
     const categories = await sendMessageBroker(
@@ -21,7 +21,7 @@ const Collaterals = {
         data: { _id: product.categoryId },
         isRPC: true
       },
-      'products'
+      'core'
     );
     return categories;
   },
@@ -29,11 +29,11 @@ const Collaterals = {
     const product: any = await sendMessageBroker(
       {
         subdomain,
-        action: 'findOne',
+        action: 'products.findOne',
         data: { _id: collateral.collateralId },
         isRPC: true
       },
-      'products'
+      'core'
     );
 
     const company = await sendMessageBroker(
@@ -43,7 +43,7 @@ const Collaterals = {
         data: { _id: product.vendorId },
         isRPC: true
       },
-      'contacts'
+      'core'
     );
 
     return company;
@@ -52,11 +52,11 @@ const Collaterals = {
     const product: any = await sendMessageBroker(
       {
         subdomain,
-        action: 'findOne',
+        action: 'products.findOne',
         data: { _id: collateral.collateralId },
         isRPC: true
       },
-      'products'
+      'core'
     );
     return product;
   },

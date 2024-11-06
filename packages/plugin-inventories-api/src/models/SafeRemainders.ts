@@ -1,19 +1,19 @@
-const https = require('http');
-import * as fs from 'fs';
-import { Model } from 'mongoose';
-import * as _ from 'underscore';
-import * as xlsxPopulate from 'xlsx-populate';
-import { IModels } from '../connectionResolver';
-import { sendProductsMessage } from '../messageBroker';
+const https = require("http");
+import * as fs from "fs";
+import { Model } from "mongoose";
+import * as _ from "underscore";
+import * as xlsxPopulate from "xlsx-populate";
+import { IModels } from "../connectionResolver";
+import { sendCoreMessage } from "../messageBroker";
 import {
   SAFE_REMAINDER_ITEM_STATUSES,
   SAFE_REMAINDER_STATUSES
-} from './definitions/constants';
+} from "./definitions/constants";
 import {
   ISafeRemainder,
   ISafeRemainderDocument,
   safeRemainderSchema
-} from './definitions/safeRemainders';
+} from "./definitions/safeRemainders";
 
 export interface ISafeRemainderModel extends Model<ISafeRemainderDocument> {
   getRemainder(_id: string): Promise<ISafeRemainderDocument>;
@@ -35,7 +35,7 @@ export const loadSafeRemainderClass = (models: IModels) => {
     public static async getRemainder(_id: string) {
       const result: any = await models.SafeRemainders.findById(_id);
 
-      if (!result) throw new Error('Safe remainder not found!');
+      if (!result) throw new Error("Safe remainder not found!");
 
       return result;
     }
@@ -79,7 +79,7 @@ export const loadSafeRemainderClass = (models: IModels) => {
 
       let productFilter = {};
       const attachDatas: any = {};
-      let attachFieldId = '';
+      let attachFieldId = "";
 
       if (attachment && attachment.url) {
         const filePath = `src/private/uploads/${attachment.url}`;
@@ -95,7 +95,7 @@ export const loadSafeRemainderClass = (models: IModels) => {
 
         await xlsxPopulate.fromFileAsync(`${filePath}`).then(workbook => {
           let row = 1;
-          let checkVal = 'begin';
+          let checkVal = "begin";
           while (checkVal) {
             row++;
             const cella = workbook.sheet(0).cell(`A${row}`);
@@ -107,22 +107,9 @@ export const loadSafeRemainderClass = (models: IModels) => {
             }
 
             const valb =
-              String(
-                workbook
-                  .sheet(0)
-                  .cell(`B${row}`)
-                  .value()
-              ) || '';
-            const valc =
-              workbook
-                .sheet(0)
-                .cell(`C${row}`)
-                .value() || 0;
-            const vald =
-              workbook
-                .sheet(0)
-                .cell(`D${row}`)
-                .value() || 0;
+              String(workbook.sheet(0).cell(`B${row}`).value()) || "";
+            const valc = workbook.sheet(0).cell(`C${row}`).value() || 0;
+            const vald = workbook.sheet(0).cell(`D${row}`).value() || 0;
 
             if (valb) {
               if (!Object.keys(attachDatas).includes(valb)) {
@@ -138,13 +125,13 @@ export const loadSafeRemainderClass = (models: IModels) => {
           }
         });
 
-        if (filterField.includes('customFieldsData')) {
-          attachFieldId = filterField.split('.')[1];
+        if (filterField.includes("customFieldsData")) {
+          attachFieldId = filterField.split(".")[1];
           productFilter = {
             query: {
               $and: [
-                { 'customFieldsData.field': attachFieldId },
-                { 'customFieldsData.value': { $in: Object.keys(attachDatas) } }
+                { "customFieldsData.field": attachFieldId },
+                { "customFieldsData.value": { $in: Object.keys(attachDatas) } }
               ]
             }
           };
@@ -157,27 +144,17 @@ export const loadSafeRemainderClass = (models: IModels) => {
       } else {
         productFilter = {
           categoryId: productCategoryId,
-          query: { status: { $ne: 'deleted' } }
+          query: { status: { $ne: "deleted" } }
         };
       }
 
       // Get products related to product category
-      const limit = await sendProductsMessage({
+      const products: any = await sendCoreMessage({
         subdomain,
-        action: 'count',
-        data: {
-          ...productFilter
-        },
-        isRPC: true
-      });
-
-      const products: any = await sendProductsMessage({
-        subdomain,
-        action: 'find',
+        action: "products.find",
         data: {
           ...productFilter,
           sort: { code: 1 },
-          limit
         },
         isRPC: true
       });
@@ -249,7 +226,7 @@ export const loadSafeRemainderClass = (models: IModels) => {
       const safeRemainder = await models.SafeRemainders.getRemainder(_id);
 
       if (safeRemainder.status === SAFE_REMAINDER_STATUSES.PUBLISHED) {
-        throw new Error('cant remove: cause submited');
+        throw new Error("cant remove: cause submited");
       }
 
       // Delete safe remainder items by safe remainder id

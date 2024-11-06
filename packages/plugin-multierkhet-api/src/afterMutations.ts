@@ -1,20 +1,20 @@
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { sendRPCMessage } from './messageBrokerErkhet';
-import { getPostData } from './utils/ebarimtData';
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
+import { sendRPCMessage } from "./messageBrokerErkhet";
+import { getPostData } from "./utils/ebarimtData";
 import {
   productToErkhet,
-  productCategoryToErkhet,
-} from './utils/productToErkhet';
-import { customerToErkhet, companyToErkhet } from './utils/customerToErkhet';
-import { generateModels } from './connectionResolver';
-import { getSyncLogDoc } from './utils/utils';
+  productCategoryToErkhet
+} from "./utils/productToErkhet";
+import { customerToErkhet, companyToErkhet } from "./utils/customerToErkhet";
+import { generateModels } from "./connectionResolver";
+import { getSyncLogDoc } from "./utils/utils";
 
 const allowTypes = {
-  'cards:deal': ['update'],
-  'products:productCategory': ['create', 'update', 'delete'],
-  'products:product': ['create', 'update', 'delete'],
-  'contacts:customer': ['create', 'update', 'delete'],
-  'contacts:company': ['create', 'update', 'delete'],
+  "sales:deal": ["update"],
+  "core:productCategory": ["create", "update", "delete"],
+  "core:product": ["create", "update", "delete"],
+  "core:customer": ["create", "update", "delete"],
+  "core:company": ["create", "update", "delete"]
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
@@ -30,29 +30,29 @@ export const afterMutationHandlers = async (subdomain, params) => {
     return;
   }
 
-  if (type === 'cards:deal') {
-    if (action === 'update') {
+  if (type === "sales:deal") {
+    if (action === "update") {
       const deal = params.updatedDocument;
       const oldDeal = params.object;
-      const destinationStageId = deal.stageId || '';
+      const destinationStageId = deal.stageId || "";
 
       if (!(destinationStageId && destinationStageId !== oldDeal.stageId)) {
         return;
       }
 
-      const mainConfigs = await models.Configs.getConfig('erkhetConfig', {});
+      const mainConfigs = await models.Configs.getConfig("erkhetConfig", {});
       if (!mainConfigs || !Object.keys(mainConfigs || {}).length) {
         return;
       }
 
       const saleConfigs = await models.Configs.getConfig(
-        'stageInSaleConfig',
-        {},
+        "stageInSaleConfig",
+        {}
       );
 
       const returnConfigs = await models.Configs.getConfig(
-        'stageInReturnConfig',
-        {},
+        "stageInReturnConfig",
+        {}
       );
 
       // return
@@ -60,8 +60,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         const returnConfig = returnConfigs[destinationStageId];
 
         const sameSaleStageId = (Object.keys(saleConfigs).filter(
-          (stageId) =>
-            saleConfigs[stageId].pipelineId === returnConfig.pipelineId,
+          stageId => saleConfigs[stageId].pipelineId === returnConfig.pipelineId
         ) || [])[0];
 
         if (!sameSaleStageId) {
@@ -72,8 +71,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
         const orderInfos = [
           {
             orderId: deal._id,
-            returnKind: 'note',
-          },
+            returnKind: "note"
+          }
         ];
 
         const ebarimtResponses: any[] = [];
@@ -97,22 +96,22 @@ export const afterMutationHandlers = async (subdomain, params) => {
             token: mainConfig.apiToken,
             apiKey: mainConfig.apiKey,
             apiSecret: mainConfig.apiSecret,
-            orderInfos: JSON.stringify(orderInfos),
+            orderInfos: JSON.stringify(orderInfos)
           };
           const syncLog = await models.SyncLogs.syncLogsAdd(
-            getSyncLogDoc(params),
+            getSyncLogDoc(params)
           );
           const resp = await sendRPCMessage(
             models,
             syncLog,
-            'rpc_queue:erxes-automation-erkhet',
+            "rpc_queue:erxes-automation-erkhet",
             {
-              action: 'get-response-return-order',
+              action: "get-response-return-order",
               isJson: true,
               isEbarimt: true,
               payload: JSON.stringify(postData),
-              thirdService: true,
-            },
+              thirdService: true
+            }
           );
 
           ebarimtResponses.push(resp);
@@ -122,19 +121,19 @@ export const afterMutationHandlers = async (subdomain, params) => {
           await graphqlPubsub.publish(`multierkhetResponded:${user._id}`, {
             multierkhetResponded: {
               userId: user._id,
-              responseId: ebarimtResponses.map((er) => er._id).join('-'),
-              sessionCode: user.sessionCode || '',
-              content: ebarimtResponses.map((er) => ({
+              responseId: ebarimtResponses.map(er => er._id).join("-"),
+              sessionCode: user.sessionCode || "",
+              content: ebarimtResponses.map(er => ({
                 ...er.ebarimt,
                 _id: er._id,
                 error: er.error,
-                success: Boolean(er.message) ? 'false' : 'true',
+                success: Boolean(er.message) ? "false" : "true",
                 message:
-                  typeof er.message === 'string'
+                  typeof er.message === "string"
                     ? er.message
-                    : er.message?.message || er.message?.error || '',
-              })),
-            },
+                    : er.message?.message || er.message?.error || ""
+              }))
+            }
           });
         }
         return;
@@ -144,8 +143,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
       if (Object.keys(saleConfigs).includes(destinationStageId)) {
         const brandRules = saleConfigs[destinationStageId].brandRules || {};
 
-        const brandIds = Object.keys(brandRules).filter((b) =>
-          Object.keys(mainConfigs).includes(b),
+        const brandIds = Object.keys(brandRules).filter(b =>
+          Object.keys(mainConfigs).includes(b)
         );
 
         const configs = {};
@@ -164,7 +163,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           configs[brandId] = {
             ...mainConfig,
             ...saleConfig,
-            hasPayment: saleConfigs[destinationStageId].hasPayment,
+            hasPayment: saleConfigs[destinationStageId].hasPayment
           };
         }
 
@@ -177,7 +176,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           models,
           user,
           configs,
-          deal,
+          deal
         )) as any;
 
         const ebarimtResponses: any[] = [];
@@ -187,14 +186,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
           const response = await sendRPCMessage(
             models,
             syncLog,
-            'rpc_queue:erxes-automation-erkhet',
+            "rpc_queue:erxes-automation-erkhet",
             {
-              action: 'get-response-send-order-info',
+              action: "get-response-send-order-info",
               isEbarimt: true,
               payload: JSON.stringify(postData),
               isJson: false,
-              thirdService: true,
-            },
+              thirdService: true
+            }
           );
 
           ebarimtResponses.push(response);
@@ -204,19 +203,19 @@ export const afterMutationHandlers = async (subdomain, params) => {
           await graphqlPubsub.publish(`multierkhetResponded:${user._id}`, {
             multierkhetResponded: {
               userId: user._id,
-              responseId: ebarimtResponses.map((er) => er._id).join('-'),
-              sessionCode: user.sessionCode || '',
-              content: ebarimtResponses.map((er) => ({
+              responseId: ebarimtResponses.map(er => er._id).join("-"),
+              sessionCode: user.sessionCode || "",
+              content: ebarimtResponses.map(er => ({
                 response: er,
                 _id: er._id,
                 error: er.error,
                 success: er.success,
                 message:
-                  typeof er.message === 'string'
+                  typeof er.message === "string"
                     ? er.message
-                    : er.message?.message || er.message?.error || '',
-              })),
-            },
+                    : er.message?.message || er.message?.error || ""
+              }))
+            }
           });
         }
 
@@ -227,68 +226,68 @@ export const afterMutationHandlers = async (subdomain, params) => {
     return;
   }
 
-  if (type === 'products:product') {
-    if (action === 'create') {
-      productToErkhet(subdomain, models, params, 'create');
+  if (type === "core:product") {
+    if (action === "create") {
+      productToErkhet(subdomain, models, params, "create");
       return;
     }
-    if (action === 'update') {
-      productToErkhet(subdomain, models, params, 'update');
+    if (action === "update") {
+      productToErkhet(subdomain, models, params, "update");
       return;
     }
-    if (action === 'delete') {
-      productToErkhet(subdomain, models, params, 'delete');
+    if (action === "delete") {
+      productToErkhet(subdomain, models, params, "delete");
       return;
     }
     return;
   }
-  if (type === 'products:productCategory') {
-    if (action === 'create') {
-      productCategoryToErkhet(subdomain, models, params, 'createCategory');
+  if (type === "products:productCategory") {
+    if (action === "create") {
+      productCategoryToErkhet(subdomain, models, params, "createCategory");
       return;
     }
 
-    if (action === 'update') {
-      productCategoryToErkhet(subdomain, models, params, 'updateCategory');
+    if (action === "update") {
+      productCategoryToErkhet(subdomain, models, params, "updateCategory");
       return;
     }
 
-    if (action === 'delete') {
-      productCategoryToErkhet(subdomain, models, params, 'deleteCategory');
-      return;
-    }
-  }
-
-  if (type === 'contacts:customer') {
-    if (action === 'create') {
-      customerToErkhet(models, params, 'create');
-      return;
-    }
-
-    if (action === 'update') {
-      customerToErkhet(models, params, 'update');
-      return;
-    }
-
-    if (action === 'delete') {
-      customerToErkhet(models, params, 'delete');
+    if (action === "delete") {
+      productCategoryToErkhet(subdomain, models, params, "deleteCategory");
       return;
     }
   }
 
-  if (type === 'contacts:company') {
-    if (action === 'create') {
-      companyToErkhet(models, params, 'create');
+  if (type === "core:customer") {
+    if (action === "create") {
+      customerToErkhet(models, params, "create");
       return;
     }
 
-    if (action === 'update') {
-      companyToErkhet(models, params, 'update');
+    if (action === "update") {
+      customerToErkhet(models, params, "update");
       return;
     }
 
-    if (action === 'delete') {
-      companyToErkhet(models, params, 'delete');
+    if (action === "delete") {
+      customerToErkhet(models, params, "delete");
+      return;
+    }
+  }
+
+  if (type === "core:company") {
+    if (action === "create") {
+      companyToErkhet(models, params, "create");
+      return;
+    }
+
+    if (action === "update") {
+      companyToErkhet(models, params, "update");
+      return;
+    }
+
+    if (action === "delete") {
+      companyToErkhet(models, params, "delete");
       return;
     }
   }

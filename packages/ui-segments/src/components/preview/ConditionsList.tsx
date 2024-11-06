@@ -75,11 +75,8 @@ class ConditionsList extends React.Component<Props, State> {
   };
 
   renderConjunction = () => {
-    const {
-      conditionsConjunction,
-      index,
-      changeConditionsConjunction
-    } = this.props;
+    const { conditionsConjunction, index, changeConditionsConjunction } =
+      this.props;
 
     if (index === 0) {
       return <></>;

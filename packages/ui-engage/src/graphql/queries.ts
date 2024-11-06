@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const listParamsDef = `
   $kind: String
@@ -82,38 +82,27 @@ const engageMessages = `
         name
       }
 
-      ${
-        isEnabled('segments')
-          ? `
-              segments {
-                _id
-                name
-              }
-            `
-          : ''
+      segments {
+        _id
+        name
       }
 
-      ${
-        isEnabled('tags')
-          ? `
-              getTags {
-                ${tagFields}
-              }
-              customerTags {
-                ${tagFields}
-              }
-            `
-          : ''
+      getTags {
+        ${tagFields}
       }
-
-      ${
-        isEnabled('clientportal')
-          ? `
-              cpId
-            `
-          : ''
+      
+      customerTags {
+        ${tagFields}
       }
+        ${
+          isEnabled("clientportal")
+            ? `
+            cpId
+          `
+            : ""
+        }
     }
+  
   }
 `;
 
@@ -138,26 +127,14 @@ export const engageDetailFields = `
     name
   }
 
-  ${isEnabled('clientportal') ? 'cpId' : ''}
+  ${isEnabled("clientportal") ? "cpId" : ""}
 
-  ${
-    isEnabled('tags')
-      ? `
-          customerTags {
-            ${tagFields}
-          }
-        `
-      : ''
+  customerTags {
+    ${tagFields}
   }
 
-  ${
-    isEnabled('segments')
-      ? `
-          segments {
-            contentType
-          }
-        `
-      : ''
+  segments {
+      contentType
   }
 `;
 
@@ -167,7 +144,7 @@ const engageMessageStats = `
       ${engageDetailFields}
       stats
 
-      ${isEnabled('inbox') ? 'fromIntegration' : ''}
+      ${isEnabled("inbox") ? "fromIntegration" : ""}
     }
   }
 `;
@@ -372,7 +349,7 @@ const verifiedUsers = `
       _id
       email
     }
-}`
+}`;
 
 export default {
   engageMessages,

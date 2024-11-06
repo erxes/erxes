@@ -74,7 +74,7 @@ export const INTEGRATION_KINDS = {
   FORMS: 'lead',
   CALLPRO: 'callpro',
   WEBHOOK: 'webhook',
-  BOOKING: 'booking',
+
   ALL: [
     { text: 'Messenger', value: 'messenger' },
     { text: 'Forms', value: 'lead' },
@@ -88,7 +88,7 @@ export const INTEGRATION_KINDS = {
     },
     { text: 'Webhook', value: 'webhook' },
     { text: 'Callpro', value: 'callpro' },
-    { text: 'Booking', value: 'booking' }
+
   ]
 };
 

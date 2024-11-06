@@ -1,14 +1,14 @@
-import Common from '../Common';
-import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FlowChooser from '../../../../containers/flow/Chooser';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import React from 'react';
-import { __ } from 'coreui/utils';
-import { ControlLabel } from '@erxes/ui/src/components/form';
-import { IJob, IFlow } from '../../../../types';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Icon from '@erxes/ui/src/components/Icon';
+import Common from "../Common";
+import { ProductButton } from "@erxes/ui-sales/src/deals/styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FlowChooser from "../../../../containers/flow/Chooser";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import React from "react";
+import { __ } from "coreui/utils";
+import { ControlLabel } from "@erxes/ui/src/components/form";
+import { IJob, IFlow } from "../../../../types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Icon from "@erxes/ui/src/components/Icon";
 
 type Props = {
   closeModal: () => void;
@@ -37,12 +37,12 @@ class JobForm extends React.Component<Props, State> {
     const { subFlowId } = config;
 
     this.state = {
-      subFlowId: subFlowId || '',
+      subFlowId: subFlowId || "",
       subFlow,
-      description: description || '',
-      currentTab: 'inputs',
+      description: description || "",
+      currentTab: "inputs",
 
-      categoryId: ''
+      categoryId: ""
     };
   }
 
@@ -67,7 +67,7 @@ class JobForm extends React.Component<Props, State> {
 
     let content = (
       <div onClick={onClick}>
-        {__('Choose Sub Flow')} <Icon icon="plus-circle" />
+        {__("Choose Sub Flow")} <Icon icon="plus-circle" />
       </div>
     );
 
@@ -92,7 +92,7 @@ class JobForm extends React.Component<Props, State> {
     const onChangeJob = prs => {
       let pr: any;
       if (!prs.length) {
-        this.setState({ subFlowId: '', subFlow: undefined });
+        this.setState({ subFlowId: "", subFlow: undefined });
         return;
       }
 
@@ -114,7 +114,7 @@ class JobForm extends React.Component<Props, State> {
           onChangeCategory={categoryId => this.setState({ categoryId })}
           categoryId={this.state.categoryId}
           data={{
-            name: 'Flows',
+            name: "Flows",
             flows: subFlow ? [subFlow] : []
           }}
           isSub={true}
@@ -128,7 +128,7 @@ class JobForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Sub Flows</ControlLabel>
           <ModalTrigger
-            title="Choose a FLOW"
+            title={__("Choose a FLOW")}
             trigger={this.renderSubFlowTrigger(subFlow)}
             size="lg"
             content={content}
@@ -139,7 +139,7 @@ class JobForm extends React.Component<Props, State> {
           <FormControl
             name="description"
             value={description}
-            onChange={onChangeValue.bind(this, 'description')}
+            onChange={onChangeValue.bind(this, "description")}
           />
         </FormGroup>
       </>
@@ -152,7 +152,7 @@ class JobForm extends React.Component<Props, State> {
     return (
       <Common
         {...this.props}
-        name={(subFlow && `${subFlow.name}`) || 'Unknown'}
+        name={(subFlow && `${subFlow.name}`) || "Unknown"}
         description={description}
         config={{ subFlowId }}
       >

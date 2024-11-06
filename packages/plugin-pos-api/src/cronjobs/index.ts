@@ -1,7 +1,7 @@
 import { generateModels } from '../connectionResolver';
 import { SUBSCRIPTION_INFO_STATUS } from '../contants';
 import { debugError } from '../debugger';
-import { sendPosclientMessage, sendProductsMessage } from '../messageBroker';
+import { sendPosclientMessage, sendCoreMessage } from '../messageBroker';
 import * as moment from 'moment';
 import { nanoid } from 'nanoid';
 
@@ -67,9 +67,9 @@ export default {
           item.closeDate > START_TODAY &&
           item.closeDate < END_TODAY
         ) {
-          const product = await sendProductsMessage({
+          const product = await sendCoreMessage({
             subdomain,
-            action: 'findOne',
+            action: 'products.findOne',
             data: {
               _id: item.productId
             },
@@ -77,7 +77,7 @@ export default {
             defaultValue: null
           });
 
-          const uom = await sendProductsMessage({
+          const uom = await sendCoreMessage({
             subdomain,
             action: 'uoms.findOne',
             data: { code: product?.uom },

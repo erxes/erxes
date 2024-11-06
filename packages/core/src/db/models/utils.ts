@@ -1,13 +1,13 @@
-import { randomAlphanumeric } from '@erxes/api-utils/src/random';
-import * as faker from 'faker';
+import { randomAlphanumeric } from "@erxes/api-utils/src/random";
+import * as faker from "faker";
 
 export const getUniqueValue = async (
   collection: any,
-  fieldName: string = 'code',
+  fieldName: string = "code",
   defaultValue?: string
 ) => {
   const getRandomValue = (type: string) =>
-    type === 'email'
+    type === "email"
       ? faker.internet.email().toLowerCase()
       : randomAlphanumeric();
 
@@ -25,7 +25,7 @@ export const getUniqueValue = async (
 };
 
 export const checkCodeDuplication = async (collection, code: string) => {
-  if (code.includes('/')) {
+  if (code.includes("/")) {
     throw new Error('The "/" character is not allowed in the code');
   }
 
@@ -34,6 +34,6 @@ export const checkCodeDuplication = async (collection, code: string) => {
   });
 
   if (category) {
-    throw new Error('Code must be unique');
+    throw new Error("Code must be unique");
   }
 };

@@ -1,33 +1,33 @@
 import fetch from 'node-fetch';
 import * as http from 'http';
-import { IModels } from '../connectionResolver';
+import { IModels, generateModels } from '../connectionResolver';
 import { sendCommonMessage } from '../messageBroker';
 import { ISyncLogDocument } from '../models/definitions/syncLog';
 
 interface IParams {
   op: string;
   subdomain: string;
+  polarisConfig: any;
   models?: IModels;
   syncLog?: ISyncLogDocument;
   data?: any;
 }
 
-type CustomFieldType =
-  | 'contacts:customer'
-  | 'loans:contract'
-  | 'savings:contract';
+type CustomFieldType = "core:customer" | "loans:contract" | "savings:contract";
 
 export const fetchPolaris = async (args: IParams) => {
-  const { op, data, subdomain, models, syncLog } = args;
+  const { op, data, subdomain, polarisConfig } = args;
+  let models = args.models;
+  let syncLog = args.syncLog;
 
-  const config = await getConfig(subdomain, 'POLARIS', {});
+  const config = polarisConfig;
 
   const headers = {
     Op: op,
     Cookie: `NESSESSION=${config.token}`,
     Company: config.companyCode,
     Role: config.role,
-    'Content-Type': 'application/json'
+    "Content-Type": "application/json"
   };
 
   if (models && syncLog) {
@@ -41,18 +41,34 @@ export const fetchPolaris = async (args: IParams) => {
         }
       }
     );
+  } else {
+    models = await generateModels(subdomain);
+    const syncLogDoc = {
+      type: '',
+      contentType: op,
+      contentId: '',
+      createdAt: new Date(),
+      createdBy: '',
+      consumeData: {},
+      consumeStr: '',
+      sendData: data,
+      sendStr: JSON.stringify(data || {}),
+      header: JSON.stringify(headers)
+    };
+    syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
   }
 
   try {
     const requestOptions = {
       url: `${config.apiUrl}`,
-      method: 'POST',
+      method: "POST",
       headers,
       body: JSON.stringify(data),
-      agent: config.apiUrl.includes('http://') && new http.Agent({ keepAlive: true })
+      agent:
+        config.apiUrl.includes("http://") && new http.Agent({ keepAlive: true })
     };
 
-    return await fetch(config.apiUrl, requestOptions)
+    const realResponse = await fetch(config.apiUrl, requestOptions)
       .then(async (response) => {
         if (!response.ok) {
           const respErr = await response.text();
@@ -61,15 +77,25 @@ export const fetchPolaris = async (args: IParams) => {
 
         return response.text();
       })
-      .then((response) => {
+      .then(response => {
         try {
           return JSON.parse(response);
         } catch (e) {
-          return response
+          return response;
         }
-      }).catch((e) => {
+      })
+      .catch(e => {
         throw new Error(e.message);
       });
+
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: { responseData: realResponse, responseStr: JSON.stringify(realResponse) },
+      },
+    );
+    return realResponse;
+
   } catch (e) {
     throw new Error(e.message);
   }
@@ -77,8 +103,12 @@ export const fetchPolaris = async (args: IParams) => {
 
 export const sendMessageBrokerData = async (
   subdomain,
-  serviceName: 'contacts' | 'savings' | 'core' | 'forms' | 'loans',
-  action: 'getConfig' | 'customers.findOne' | 'contractType.findOne' | 'contracts.findOne',
+  serviceName: "core" | "savings" | "loans",
+  action:
+    | "getConfig"
+    | "customers.findOne"
+    | "contractType.findOne"
+    | "contracts.findOne",
   data
 ) => {
   return await sendCommonMessage({
@@ -93,19 +123,19 @@ export const sendMessageBrokerData = async (
 export const getConfig = async (subdomain, code, defaultValue?) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'getConfig',
-    serviceName: 'core',
+    action: "getConfig",
+    serviceName: "core",
     data: { code, defaultValue },
     isRPC: true
   });
 };
 
-export const getCustomer = async (subdomain, data) => {
+export const getCustomer = async (subdomain: string, _id: string) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'customers.find',
-    serviceName: 'contacts',
-    data: data,
+    action: 'customers.findOne',
+    serviceName: 'core',
+    data: { _id },
     isRPC: true
   });
 };
@@ -113,8 +143,8 @@ export const getCustomer = async (subdomain, data) => {
 export const updateCustomer = async (subdomain, query, data) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'customers.updateOne',
-    serviceName: 'contacts',
+    action: "customers.updateOne",
+    serviceName: "core",
     data: {
       selector: query,
       modifier: { $set: data }
@@ -126,8 +156,8 @@ export const updateCustomer = async (subdomain, query, data) => {
 export const getBranch = async (subdomain, _id) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'branches.findOne',
-    serviceName: 'core',
+    action: "branches.findOne",
+    serviceName: "core",
     data: { _id },
     isRPC: true
   });
@@ -141,7 +171,7 @@ export const updateContract = async (
 ) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'contracts.update',
+    action: "contracts.update",
     serviceName: serviceName,
     data: {
       selector: selector,
@@ -154,8 +184,8 @@ export const updateContract = async (
 export const getUser = async (subdomain, id) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'users.findOne',
-    serviceName: 'core',
+    action: "users.findOne",
+    serviceName: "core",
     data: { _id: id },
     isRPC: true
   });
@@ -168,8 +198,8 @@ export const getCloseInfo = async (
 ) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'contractType.findOne',
-    serviceName: 'loans',
+    action: "contractType.findOne",
+    serviceName: "loans",
     data: { contractId, closeDate },
     isRPC: true
   });
@@ -181,11 +211,60 @@ export const getDepositAccount = async (
 ) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'contracts.getDepositAccount',
-    serviceName: 'savings',
+    action: "contracts.getDepositAccount",
+    serviceName: "savings",
     data: { customerId },
     isRPC: true
   });
+};
+
+export const genObjectOfRule = async (
+  subdomain,
+  customFieldType: CustomFieldType,
+  object,
+  convertConfig
+) => {
+  const result = {};
+  const fields = await sendCommonMessage({
+    subdomain,
+    serviceName: 'forms',
+    action: 'fields.find',
+    data: {
+      query: {
+        contentType: customFieldType
+      },
+      projection: {
+        groupId: 1,
+        code: 1,
+        isDefinedByErxes: 1,
+        type: 1,
+        _id: 1
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  for (const key of Object.keys(convertConfig)) {
+    const conf = convertConfig[key];
+    if (!conf.value && !conf.propType && !conf.fieldId) {
+      continue;
+    }
+
+    if (conf.type === 'form') {
+      if (conf.propType) {
+        result[key] = object[conf.propType]
+      } else {
+        const field = fields.find(f => f._id === conf.fieldId)
+        const customData = (object.customFieldsData || []).find(cfd => cfd.field === field._id);
+        result[key] = customData?.value;
+      }
+    } else {
+      result[key] = conf.value;
+    }
+  }
+
+  return result;
 };
 
 export const customFieldToObject = async (
@@ -195,12 +274,12 @@ export const customFieldToObject = async (
 ) => {
   const fields = await sendCommonMessage({
     subdomain,
-    serviceName: 'forms',
-    action: 'fields.find',
+    serviceName: "core",
+    action: "fields.find",
     data: {
       query: {
         contentType: customFieldType,
-        code: { $exists: true, $ne: '' }
+        code: { $exists: true, $ne: "" }
       },
       projection: {
         groupId: 1,
@@ -213,7 +292,7 @@ export const customFieldToObject = async (
   });
   const customFieldsData: any[] = object.customFieldsData || [];
   for (const f of fields) {
-    const existingData = customFieldsData.find((c) => c.field === f._id);
+    const existingData = customFieldsData.find(c => c.field === f._id);
     object[f.code] = existingData?.value;
   }
 
@@ -226,12 +305,12 @@ export const getCustomFields = async (
 ) => {
   const fields = await sendCommonMessage({
     subdomain,
-    serviceName: 'forms',
-    action: 'fields.find',
+    serviceName: "core",
+    action: "fields.find",
     data: {
       query: {
         contentType: customFieldType,
-        code: { $exists: true, $ne: '' }
+        code: { $exists: true, $ne: "" }
       },
       projection: {
         groupId: 1,
@@ -245,12 +324,12 @@ export const getCustomFields = async (
   return fields;
 };
 
-export const getProduct = async (subdomain, data, serverName) => {
+export const getProduct = async (subdomain: string, _id: string, serverName: string) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'contractType.find',
+    action: 'contractType.findOne',
     serviceName: serverName,
-    data: { data },
+    data: { _id },
     isRPC: true
   });
 };
@@ -258,52 +337,52 @@ export const getProduct = async (subdomain, data, serverName) => {
 export const getContract = async (subdomain, data, serviceName) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'contracts.find',
+    action: 'contracts.findOne',
     serviceName: serviceName,
     data: data,
     isRPC: true
   });
 };
 
-export const getBoolean = (value) => {
+export const getBoolean = value => {
   if (value === 1) return true;
   return false;
 };
 
-export const getBooleanToNumber = (value) => {
+export const getBooleanToNumber = value => {
   if (value === true) return 1;
   return 0;
 };
 
-export const getClassificationCode = (classificationCode) => {
+export const getClassificationCode = classificationCode => {
   switch (classificationCode) {
-    case 'NORMAL':
-      return '1';
-    case 'EXPIRED':
-      return '2';
-    case 'DOUBTFUL':
-      return '3';
-    case 'NEGATIVE':
-      return '4';
-    case 'BAD':
-      return '5';
+    case "NORMAL":
+      return "1";
+    case "EXPIRED":
+      return "2";
+    case "DOUBTFUL":
+      return "3";
+    case "NEGATIVE":
+      return "4";
+    case "BAD":
+      return "5";
 
     default:
-      return '1';
+      return "1";
   }
 };
 
 export const getLoanContractAccount = (contractType, loanContract) => {
   switch (loanContract.classification) {
-    case 'NORMAL':
+    case "NORMAL":
       return contractType.config.normalAccount;
-    case 'EXPIRED':
+    case "EXPIRED":
       return contractType.config.expiredAccount;
-    case 'DOUBTFUL':
+    case "DOUBTFUL":
       return contractType.config.doubtfulAccount;
-    case 'NEGATIVE':
+    case "NEGATIVE":
       return contractType.config.negativeAccount;
-    case 'BAD':
+    case "BAD":
       return contractType.config.badAccount;
 
     default:

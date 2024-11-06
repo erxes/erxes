@@ -2,10 +2,10 @@ import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
-import DealConvertTrigger from "@erxes/ui-cards/src/deals/components/DealConvertTrigger";
-import TaskConvertTrigger from "@erxes/ui-cards/src/tasks/components/TaskConvertTrigger";
-import PurchaseConvertTrigger from "@erxes/ui-cards/src/purchases/components/PurchaseConvertTrigger";
-import TicketConvertTrigger from "@erxes/ui-cards/src/tickets/components/TicketConvertTrigger";
+import DealConvertTrigger from "@erxes/ui-sales/src/deals/components/DealConvertTrigger";
+import TaskConvertTrigger from "@erxes/ui-tasks/src/tasks/components/TaskConvertTrigger";
+import PurchaseConvertTrigger from "@erxes/ui-purchases/src/purchases/components/PurchaseConvertTrigger";
+import TicketConvertTrigger from "@erxes/ui-tickets/src/tickets/components/TicketConvertTrigger";
 import * as React from "react";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
 import styled from "styled-components";
@@ -16,6 +16,7 @@ import ReplyingMessage from "./ReplyingMessage";
 import { ChildPost, FlexItem, Reply, ShowMore, User } from "./styles";
 import UserName from "@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName";
 import { Comment } from "@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const Container = styled.div`
   display: inline-block;
@@ -51,7 +52,7 @@ type Props = {
   fetchFacebook: ({
     commentId,
     postId,
-    limit,
+    limit
   }: {
     commentId?: string;
     postId?: string;
@@ -76,11 +77,11 @@ export default class FacebookComment extends React.Component<
 
     this.state = {
       hasReplies,
-      isResolved: data.isResolved ? true : false,
+      isResolved: data.isResolved ? true : false
     };
   }
 
-  fetchReplies = (commentId) => {
+  fetchReplies = commentId => {
     const { fetchFacebook } = this.props;
 
     fetchFacebook({ commentId });
@@ -113,7 +114,7 @@ export default class FacebookComment extends React.Component<
           result.push({
             url: link,
             name: "attachment",
-            type: "image / jpeg,",
+            type: "image / jpeg,"
           });
         }
       });
@@ -136,7 +137,7 @@ export default class FacebookComment extends React.Component<
     const size = comment && comment.parentId ? 20 : 32;
     const statusText = isResolved ? "Open" : "Resolve";
 
-    const content = (props) => (
+    const content = props => (
       <ReplyingMessage
         changeHasReply={this.changeHasReply}
         conversationId={comment.conversationId}
@@ -153,7 +154,7 @@ export default class FacebookComment extends React.Component<
       sourceConversationId: comment.commentId,
       refetch,
       description: comment.content,
-      attachments: this.collectAttachments(),
+      attachments: this.collectAttachments()
     };
 
     return (
@@ -192,30 +193,29 @@ export default class FacebookComment extends React.Component<
                   </Reply>
                 }
               >
-                <li key="ticket">
-                  <TicketConvertTrigger
-                    {...triggerProps}
-                    url={convertToInfo.ticketUrl}
-                  />
-                </li>
-                <li key="deal">
-                  <DealConvertTrigger
-                    {...triggerProps}
-                    url={convertToInfo.dealUrl}
-                  />
-                </li>
-                <li key="task">
-                  <TaskConvertTrigger
-                    {...triggerProps}
-                    url={convertToInfo.taskUrl}
-                  />
-                </li>
-                <li key="purchase">
-                  <PurchaseConvertTrigger
-                    {...triggerProps}
-                    url={convertToInfo.purchaseUrl}
-                  />
-                </li>
+                {isEnabled("tickets") && (
+                  <li key="ticket">
+                    <TicketConvertTrigger {...triggerProps} />
+                  </li>
+                )}
+
+                {isEnabled("sales") && (
+                  <li key="deal">
+                    <DealConvertTrigger {...triggerProps} />
+                  </li>
+                )}
+
+                {isEnabled("tasks") && (
+                  <li key="task">
+                    <TaskConvertTrigger {...triggerProps} />
+                  </li>
+                )}
+
+                {isEnabled("purchases") && (
+                  <li key="purchase">
+                    <PurchaseConvertTrigger {...triggerProps} />
+                  </li>
+                )}
               </Dropdown>
             </Container>
 

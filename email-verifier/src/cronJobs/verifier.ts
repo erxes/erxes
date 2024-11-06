@@ -1,6 +1,6 @@
-import * as schedule from 'node-schedule';
-import { getBulkResult, getStatus } from '../apiPhoneVerifier';
-import { Emails } from '../models';
+import * as schedule from "node-schedule";
+import { getBulkResult, getStatus } from "../apiPhoneVerifier";
+import { Emails } from "../models";
 import {
   bulkMailsso,
   debugBase,
@@ -8,12 +8,12 @@ import {
   getArray,
   getEnv,
   sendRequest,
-  setArray,
-} from '../utils';
-import fetch = require('node-fetch');
+  setArray
+} from "../utils";
+import fetch = require("node-fetch");
 
-schedule.scheduleJob('1 * * * * *', async () => {
-  const listIds = await getArray('erxes_phone_verifier_list_ids');
+schedule.scheduleJob("1 * * * * *", async () => {
+  const listIds = await getArray("erxes_phone_verifier_list_ids");
 
   if (listIds.length === 0) {
     return;
@@ -24,20 +24,20 @@ schedule.scheduleJob('1 * * * * *', async () => {
 
     const { status, data }: any = await getStatus(listId);
 
-    if (status === 'success' && data.progress_status === 'completed') {
-      await getBulkResult(listId, hostname).catch((e) => {
+    if (status === "success" && data.progress_status === "completed") {
+      await getBulkResult(listId, hostname).catch(e => {
         debugCrons(`Failed to get phone list. Error: ${e.message}`);
       });
       debugCrons(`Process is finished with list_id: ${listId}`);
-      const unfinished = listIds.filter((item) => item.listId !== listId);
+      const unfinished = listIds.filter(item => item.listId !== listId);
 
-      await setArray('erxes_phone_verifier_list_ids', unfinished);
+      await setArray("erxes_phone_verifier_list_ids", unfinished);
     }
   }
 });
 
-schedule.scheduleJob('2 * * * * *', async () => {
-  const listIds = await getArray('erxes_email_verifier_list_ids');
+schedule.scheduleJob("2 * * * * *", async () => {
+  const listIds = await getArray("erxes_email_verifier_list_ids");
 
   if (listIds.length === 0) {
     return;
@@ -61,14 +61,21 @@ schedule.scheduleJob('2 * * * * *', async () => {
   // MAILS.SO
 
   // https://api.mails.so/v1/batch/${id}
-  const MAILS_SO_KEY = getEnv({ name: 'MAILS_SO_KEY' });
-  for (const { listId, hostname = '' } of listIds) {
+  const MAILS_SO_KEY = getEnv({ name: "MAILS_SO_KEY" });
+  for (const { listId, hostname = "" } of listIds) {
+    if (!listId) {
+      const unfinished = listIds.filter(item => item.listId !== listId);
+
+      await setArray("erxes_email_verifier_list_ids", unfinished);
+      continue;
+    }
+
     const response = await fetch(`https://api.mails.so/v1/batch/${listId}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
-        'x-mails-api-key': MAILS_SO_KEY,
-      },
+        "Content-Type": "application/json",
+        "x-mails-api-key": MAILS_SO_KEY
+      }
     });
 
     const res = await response.json();
@@ -78,48 +85,56 @@ schedule.scheduleJob('2 * * * * *', async () => {
     }
 
     const emails = [];
+    const emailPromises: any[] = [];
 
     for (const e of res.emails) {
-      let status = 'unknown';
-      if (e.result === 'deliverable') {
-        status = 'valid';
-      } else if (e.result === 'unknown') {
-        status = 'unknown';
+      let status = "unknown";
+      if (e.result === "deliverable") {
+        status = "valid";
+      } else if (e.result === "unknown") {
+        status = "unknown";
       } else {
-        status = 'invalid';
+        status = "invalid";
       }
 
       emails.push({ email: e.email, status });
-      await Emails.createEmail({ email: e.email, status });
+
+      emailPromises.push(Emails.createEmail({ email: e.email, status }));
     }
 
-    const unfinished = listIds.filter((item) => item.listId !== listId);
+    await Promise.all(emailPromises);
 
-    await setArray('erxes_email_verifier_list_ids', unfinished);
+    const unfinished = listIds.filter(item => item.listId !== listId);
 
-    if (hostname.length) {
-      debugBase(`Sending bulk email validation result to erxes-api`);
+    await setArray("erxes_email_verifier_list_ids", unfinished);
+    try {
+      if (hostname.length) {
+        debugBase(`Sending bulk email validation result to erxes-api`);
 
-      await sendRequest({
-        url: `${hostname}/verifier/webhook`,
-        method: 'POST',
-        body: {
-          emails,
-        },
-      });
+        await sendRequest({
+          url: `${hostname}/verifier/webhook`,
+          method: "POST",
+          body: {
+            emails
+          }
+        });
+      }
+    } catch (e) {
+      console.error(e);
+      throw e;
     }
   }
 });
 
-schedule.scheduleJob('20 20 20 * * *', async () => {
+schedule.scheduleJob("20 20 20 * * *", async () => {
   const oneMonthAgo = new Date();
   oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
   const emailsCursor = await Emails.find({
-    verifiedAt: { $lt: oneMonthAgo },
+    verifiedAt: { $lt: oneMonthAgo }
   }).cursor();
 
-  const BATCH_SIZE = 1000;
+  const BATCH_SIZE = 45000;
 
   const batch = [];
 

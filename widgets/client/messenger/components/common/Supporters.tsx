@@ -1,8 +1,8 @@
-import * as classNames from 'classnames';
-import * as React from 'react';
-import { defaultAvatar } from '../../../icons/Icons';
-import { IUser, IUserDetails } from '../../../types';
-import { __, readFile } from '../../../utils';
+import * as classNames from "classnames";
+import * as React from "react";
+import { defaultAvatar } from "../../../icons/Icons";
+import { IUser, IUserDetails } from "../../../types";
+import { __, readFile } from "../../../utils";
 
 type Props = {
   users: IUser[];
@@ -23,29 +23,29 @@ class Supporters extends React.Component<Props> {
 
   renderSupporter(user: IUser, color: string) {
     const details = user.details || ({} as IUserDetails);
-    const { fullName = '', avatar = '', shortName = '' } = details || {};
+
     return (
       <div
         key={user._id}
         className="erxes-supporter erxes-tooltip"
-        data-tooltip={fullName}
+        data-tooltip={details.fullName}
       >
         <div className="avatar">
           <img
             key={user._id}
-            src={readFile(this.getAvatar(avatar))}
+            src={readFile(this.getAvatar(details.avatar))}
             style={{ borderColor: color }}
-            alt=""
+            alt={details.fullName}
           />
           {this.renderOnlineState(user.isOnline)}
         </div>
-        <span className="erxes-staff-name">{shortName}</span>
+        <span className="erxes-staff-name">{details.shortName}</span>
       </div>
     );
   }
 
   renderOnlineState(isOnline: boolean) {
-    const stateClasses = classNames('erxes-state', {
+    const stateClasses = classNames("erxes-state", {
       online: isOnline,
     });
 
@@ -53,7 +53,11 @@ class Supporters extends React.Component<Props> {
   }
 
   renderUsers() {
-    const { users, isExpanded = false, color = '' } = this.props;
+    const {
+      users,
+      isExpanded = false,
+      color = "",
+    } = this.props;
 
     const activeUsers = users.filter((user) => user.isActive);
 
@@ -61,7 +65,7 @@ class Supporters extends React.Component<Props> {
       this.renderSupporter(user, color)
     );
 
-    const wrapperClass = classNames('erxes-supporters', {
+    const wrapperClass = classNames("erxes-supporters", {
       full: isExpanded,
     });
 
@@ -73,11 +77,8 @@ class Supporters extends React.Component<Props> {
 
     if (loading) {
       return (
-        <div className="erxes-supporters">
-          <div className="erxes-supporter erxes-tooltip">
-            <div className="avatar"></div>
-            <span className="erxes-staff-name" />
-          </div>
+        <div className="loader-wrapper">
+          <div className="loader" />
         </div>
       );
     }
@@ -92,8 +93,8 @@ class Supporters extends React.Component<Props> {
 
     return (
       <div className="erxes-topbar-title">
-        <div>{__('Conversation')}</div>
-        <span>{__('with Support staff')}</span>
+        <div>{__("Conversation")}</div>
+        <span>{__("with Support staff")}</span>
       </div>
     );
   }

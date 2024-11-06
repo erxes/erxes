@@ -35,7 +35,8 @@ const usePrintBill = (onCompleted?: () => void) => {
       variables: {
         _id,
         billType: skipEbarimt ? BILL_TYPES.INNER : billType,
-        registerNumber,
+        registerNumber:
+          billType === BILL_TYPES.ENTITY ? registerNumber : undefined,
       },
       onCompleted() {
         if (mode === "mobile") {

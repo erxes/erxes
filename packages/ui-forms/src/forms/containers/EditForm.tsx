@@ -1,6 +1,6 @@
 import * as compose from "lodash.flowright";
 
-import { Alert, removeTypename, withProps } from "@erxes/ui/src/utils";
+import { Alert, withProps } from "@erxes/ui/src/utils";
 import {
   BulkEditAndAddMutationVariables,
   EditFormMutationResponse,
@@ -12,12 +12,12 @@ import {
   RemoveFieldMutationResponse,
   RemoveFieldMutationVariables,
 } from "../types";
-import { IField } from "@erxes/ui/src/types";
 import { mutations, queries } from "../graphql";
 
 import { ConfigsQueryResponse } from "@erxes/ui-settings/src/general/types";
 import { FieldsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
 import Form from "../components/Form";
+import { IField } from "@erxes/ui/src/types";
 import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
 import React from "react";
 import { gql } from "@apollo/client";
@@ -31,9 +31,12 @@ type Props = {
   formData?: IFormData;
   type: string;
   isReadyToSave: boolean;
+  isAviableToSaveWhenReady?: boolean;
   formId: string;
   integration?: IIntegration;
   showMessage?: boolean;
+  fieldTypes?: string[];
+  name?: string;
 };
 
 type FinalProps = {
@@ -94,6 +97,7 @@ class EditFormContainer extends React.Component<FinalProps> {
           buttonText,
           numberOfPages: Number(numberOfPages),
           type,
+          name: this.props.name,
         },
       })
         .then(() => {
@@ -111,7 +115,7 @@ class EditFormContainer extends React.Component<FinalProps> {
             return { ...rest, logics, objectListConfigs };
           });
 
-          const addingFields = fields
+          const newFields = fields
             .filter((field) => field._id.startsWith("tempId"))
             .map(({ _id, ...rest }) => {
               return {
@@ -120,7 +124,7 @@ class EditFormContainer extends React.Component<FinalProps> {
               };
             });
 
-          const editingFields = fields.filter(
+          const updatedFields = fields.filter(
             (field) => !field._id.startsWith("tempId")
           );
 
@@ -128,8 +132,8 @@ class EditFormContainer extends React.Component<FinalProps> {
             variables: {
               contentType: "form",
               contentTypeId: formId,
-              addingFields,
-              editingFields,
+              newFields,
+              updatedFields,
             },
           });
 
@@ -229,8 +233,8 @@ export default withProps<Props>(
       Props,
       FieldsBulkAddAndEditMutationResponse,
       BulkEditAndAddMutationVariables
-    >(gql(mutations.fieldsBulkAddAndEdit), {
-      name: "fieldsBulkAddAndEditMutation",
+    >(gql(mutations.fieldsBulkAction), {
+      name: "fieldsBulkAction",
     }),
     graphql<Props, EditFormMutationResponse, EditFormMutationVariables>(
       gql(mutations.editForm),

@@ -3,11 +3,18 @@ import { Model } from 'mongoose';
 import { PLAN_STATUSES } from '../common/constants';
 import { validatePlan } from '../common/validateDoc';
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendFormsMessage } from '../messageBroker';
+import {
+  sendCommonMessage,
+  sendCoreMessage,
+  sendPurchasesMessage,
+  sendSalesMessage,
+  sendTasksMessage,
+  sendTicketsMessage,
+} from '../messageBroker';
 import {
   IPlansDocument,
   ISchedulesDocument,
-  plansSchema
+  plansSchema,
 } from './definitions/plan';
 export interface IPlansModel extends Model<IPlansDocument> {
   addPlan(doc, user): Promise<IPlansDocument>;
@@ -41,7 +48,7 @@ export const loadPlans = (models: IModels, subdomain: string) => {
       return await models.Plans.updateOne(
         { _id },
         {
-          $set: { ...doc, modifiedAt: Date.now() }
+          $set: { ...doc, modifiedAt: Date.now() },
         }
       );
     }
@@ -53,14 +60,51 @@ export const loadPlans = (models: IModels, subdomain: string) => {
 
       for (const plan of plans) {
         if (plan.status === PLAN_STATUSES.ARCHIVED && !!plan?.cardIds?.length) {
-          await sendCardsMessage({
-            subdomain,
-            action: `${plan?.configs?.cardType}s.remove`,
-            data: {
-              _ids: plan.cardIds
-            },
-            isRPC: true
-          });
+          switch (plan.configs.cardType) {
+            case 'deal':
+              await sendSalesMessage({
+                subdomain,
+                action: 'deal.remove',
+                data: {
+                  _ids: plan.cardIds,
+                },
+                isRPC: true,
+              });
+              break;
+            case 'ticket':
+              await sendTicketsMessage({
+                subdomain,
+                action: 'tickets.remove',
+                data: {
+                  _ids: plan.cardIds,
+                },
+                isRPC: true,
+              });
+              break;
+            case 'task':
+              await sendTasksMessage({
+                subdomain,
+                action: 'tasks.remove',
+                data: {
+                  _ids: plan.cardIds,
+                },
+                isRPC: true,
+              });
+              break;
+
+            case 'purchase':
+              await sendPurchasesMessage({
+                subdomain,
+                action: 'purchases.remove',
+                data: {
+                  _ids: plan.cardIds,
+                },
+                isRPC: true,
+              });
+              break;
+            default:
+              break;
+          }
         }
       }
 
@@ -74,7 +118,7 @@ export const loadPlans = (models: IModels, subdomain: string) => {
       }
 
       const schedules = await models.Schedules.find({
-        planId: plan._id
+        planId: plan._id,
       }).lean();
 
       const {
@@ -91,7 +135,7 @@ export const loadPlans = (models: IModels, subdomain: string) => {
       const newPlan = await models.Plans.create({
         ...planDoc,
         name: `${name} - copied`,
-        plannerId: user._id
+        plannerId: user._id,
       });
 
       const newSchedulesDoc = schedules.map(
@@ -101,7 +145,7 @@ export const loadPlans = (models: IModels, subdomain: string) => {
           groupId,
           structureTypeId,
           assignedUserIds,
-          customFieldsData
+          customFieldsData,
         }) => ({
           planId: newPlan._id,
           name,
@@ -109,7 +153,7 @@ export const loadPlans = (models: IModels, subdomain: string) => {
           groupId,
           structureTypeId,
           assignedUserIds,
-          customFieldsData
+          customFieldsData,
         })
       );
 
@@ -121,11 +165,11 @@ export const loadPlans = (models: IModels, subdomain: string) => {
     public static async forceStartPlan(_id: string) {
       const plan = await models.Plans.findOne({
         _id,
-        status: { $ne: PLAN_STATUSES.ARCHIVED }
+        status: { $ne: PLAN_STATUSES.ARCHIVED },
       });
 
       if (!plan) {
-        throw new Error('not found');
+        throw new Error('Not found');
       }
 
       const { startDate, closeDate, configs, plannerId, structureType } = plan;
@@ -135,7 +179,7 @@ export const loadPlans = (models: IModels, subdomain: string) => {
       }
 
       const schedules = await models.Schedules.find({
-        planId: plan._id
+        planId: plan._id,
       });
 
       if (!schedules?.length) {
@@ -147,7 +191,7 @@ export const loadPlans = (models: IModels, subdomain: string) => {
         closeDate,
         stageId: configs.stageId,
         userId: plannerId,
-        tagIds: plan.tagId ? [plan.tagId] : undefined
+        tagIds: plan.tagId ? [plan.tagId] : undefined,
       };
 
       let newItemIds: string[] = [];
@@ -156,16 +200,16 @@ export const loadPlans = (models: IModels, subdomain: string) => {
         const itemDoc: any = {
           ...commonDoc,
           name: schedule.name,
-          assignedUserIds: schedule.assignedUserIds
+          assignedUserIds: schedule.assignedUserIds,
         };
 
         if (schedule.customFieldsData) {
-          itemDoc.customFieldsData = await sendFormsMessage({
+          itemDoc.customFieldsData = await sendCoreMessage({
             subdomain,
             action: 'fields.prepareCustomFieldsData',
             data: schedule.customFieldsData,
             isRPC: true,
-            defaultValue: schedule.customFieldsData
+            defaultValue: schedule.customFieldsData,
           });
         }
 
@@ -175,19 +219,20 @@ export const loadPlans = (models: IModels, subdomain: string) => {
             : [];
         }
 
-        const newItem = await sendCardsMessage({
+        const newItem = await sendCommonMessage({
+          serviceName: `${configs.cardType}s`,
           subdomain,
           action: `${configs.cardType}s.create`,
           data: itemDoc,
           isRPC: true,
-          defaultValue: null
+          defaultValue: null,
         });
 
         await models.RiskAssessments.addRiskAssessment({
           cardType: configs.cardType,
           cardId: newItem._id,
           indicatorId: schedule.indicatorId,
-          [`${structureType}Id`]: schedule.structureTypeId || ''
+          [`${structureType}Id`]: schedule.structureTypeId || '',
         });
 
         newItemIds = [...newItemIds, newItem?._id];
@@ -238,8 +283,8 @@ export const loadPlans = (models: IModels, subdomain: string) => {
         if (_id)
           [
             updateOperations.push({
-              updateOne: { filter: { _id }, update: { $set: { ...data } } }
-            })
+              updateOne: { filter: { _id }, update: { $set: { ...data } } },
+            }),
           ];
       }
 

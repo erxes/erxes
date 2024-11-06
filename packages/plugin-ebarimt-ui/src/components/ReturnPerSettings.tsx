@@ -4,14 +4,14 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon,
-} from '@erxes/ui/src/components';
+  Icon
+} from "@erxes/ui/src/components";
 
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { IConfigsMap } from '../types';
-import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
-import React, { useState } from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
+import { IConfigsMap } from "../types";
+import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
+import React, { useState } from "react";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -25,36 +25,36 @@ const PerSettings: React.FC<Props> = (props: Props) => {
   const [state, setState] = useState({ config: props.config });
 
   const onChangeBoard = (boardId: string) => {
-    setState((prevState) => {
+    setState(prevState => {
       const updatedConfig = { ...prevState.config, boardId };
 
       return {
-        config: updatedConfig,
+        config: updatedConfig
       };
     });
   };
 
   const onChangePipeline = (pipelineId: string) => {
-    setState((prevState) => {
+    setState(prevState => {
       const updatedConfig = { ...prevState.config, pipelineId };
 
       return {
-        config: updatedConfig,
+        config: updatedConfig
       };
     });
   };
 
   const onChangeStage = (stageId: string) => {
-    setState((prevState) => {
+    setState(prevState => {
       const updatedConfig = { ...prevState.config, stageId };
 
       return {
-        config: updatedConfig,
+        config: updatedConfig
       };
     });
   };
 
-  const onSave = (e) => {
+  const onSave = e => {
     e.preventDefault();
     const { configsMap, currentConfigKey } = props;
     const key = state.config.stageId;
@@ -68,18 +68,18 @@ const PerSettings: React.FC<Props> = (props: Props) => {
     props.save({ ...configsMap, returnStageInEbarimt });
   };
 
-  const onDelete = (e) => {
+  const onDelete = e => {
     e.preventDefault();
 
     props.delete(props.currentConfigKey);
   };
 
   const onChangeConfig = (code: string, value) => {
-    setState((prevState) => {
+    setState(prevState => {
       const updatedConfig = { ...prevState.config, [code]: value };
 
       return {
-        config: updatedConfig,
+        config: updatedConfig
       };
     });
   };
@@ -93,13 +93,13 @@ const PerSettings: React.FC<Props> = (props: Props) => {
       title={__(state.config.title)}
       transparent={true}
       beforeTitle={<Icon icon="settings" />}
-      open={props.currentConfigKey === 'newEbarimtConfig' ? true : false}
+      open={props.currentConfigKey === "newEbarimtConfig" ? true : false}
     >
       <FormGroup>
-        <ControlLabel>{'Title'}</ControlLabel>
+        <ControlLabel>{__("Title")}</ControlLabel>
         <FormControl
-          defaultValue={state.config['title']}
-          onChange={onChangeInput.bind(this, 'title')}
+          defaultValue={state.config["title"]}
+          onChange={onChangeInput.bind(this, "title")}
           required={true}
           autoFocus={true}
         />

@@ -1,6 +1,6 @@
-import * as _ from 'lodash';
-import { isValidURL } from './commonUtils';
-import { sendRPCMessage } from './messageBroker';
+import * as _ from "lodash";
+import { isValidURL } from "./commonUtils";
+import { sendRPCMessage } from "./messageBroker";
 
 export interface IReplacer {
   key: string;
@@ -27,9 +27,9 @@ export interface ICustomerField {
   selectOptions?: Array<{ label: string; value: string }>;
 }
 
-export const getCustomerName = (customer) => {
+export const getCustomerName = customer => {
   if (customer.firstName || customer.lastName) {
-    return (customer.firstName || '') + ' ' + (customer.lastName || '');
+    return (customer.firstName || "") + " " + (customer.lastName || "");
   }
 
   if (customer.primaryEmail || customer.primaryPhone) {
@@ -42,17 +42,17 @@ export const getCustomerName = (customer) => {
     return visitorContactInfo.phone || visitorContactInfo.email;
   }
 
-  return 'Unknown';
+  return "Unknown";
 };
 
 export function runReplacersOn(
   content: string,
-  replacers: IReplacer[] = [],
+  replacers: IReplacer[] = []
 ): string {
   let replacedContent = content;
 
   for (const replacer of replacers) {
-    const regex = new RegExp(replacer.key, 'gi');
+    const regex = new RegExp(replacer.key, "gi");
 
     replacedContent = replacedContent.replace(regex, replacer.value);
   }
@@ -69,20 +69,20 @@ export default class EditorAttributeUtil {
   constructor(
     API_DOMAIN: string,
     availableServices: string[],
-    subdomain: string,
+    subdomain: string
   ) {
     this.API_DOMAIN = API_DOMAIN;
     this.availableServices = new Set(availableServices);
-    this.subdomain = subdomain || 'os';
+    this.subdomain = subdomain || "os";
   }
 
   async fileToFileLink(url?: string, name?: string): Promise<string> {
     if (!url) {
-      return '';
+      return "";
     }
 
     let href: string;
-    if (isValidURL(url) || url.includes('/')) {
+    if (isValidURL(url) || url.includes("/")) {
       href = url;
     } else {
       const key = url;
@@ -94,15 +94,15 @@ export default class EditorAttributeUtil {
   }
 
   async customFieldsDataItemToFileLink(
-    customFieldDataItem: any,
+    customFieldDataItem: any
   ): Promise<string> {
     const value = customFieldDataItem.value;
 
     if (Array.isArray(value)) {
       const links = await Promise.all(
-        value.map((v) => this.fileToFileLink(v.url, v.name)),
+        value.map(v => this.fileToFileLink(v.url, v.name))
       );
-      return links.join(' | ');
+      return links.join(" | ");
     }
 
     return this.fileToFileLink(value.url, value.name);
@@ -111,23 +111,23 @@ export default class EditorAttributeUtil {
   async getPossibleCustomerFields(): Promise<ICustomerField[]> {
     if (!this._possibleCustomerFields) {
       this._possibleCustomerFields = await sendRPCMessage(
-        'forms:fieldsCombinedByContentType',
+        "core:fieldsCombinedByContentType",
         {
-          data: { contentType: 'contacts:customer' },
-          subdomain: this.subdomain,
-        },
+          data: { contentType: "core:customer" },
+          subdomain: this.subdomain
+        }
       );
     }
 
     if (!this._possibleCustomerFields) {
-      throw new Error('Cannot acquire possibleCustomerFields');
+      throw new Error("Cannot acquire possibleCustomerFields");
     }
 
     return this._possibleCustomerFields || [];
   }
 
   async getCustomerFields(content: string): Promise<string[]> {
-    const customerFields = ['firstName', 'lastName', 'middleName'];
+    const customerFields = ["firstName", "lastName", "middleName"];
     const possibleCustomerFields = await this.getPossibleCustomerFields();
 
     for (const field of possibleCustomerFields) {
@@ -135,13 +135,13 @@ export default class EditorAttributeUtil {
         continue;
       }
 
-      if (field.name.includes('trackedData')) {
-        customerFields.push('trackedData');
+      if (field.name.includes("trackedData")) {
+        customerFields.push("trackedData");
         continue;
       }
 
-      if (field.name.includes('customFieldsData')) {
-        customerFields.push('customFieldsData');
+      if (field.name.includes("customFieldsData")) {
+        customerFields.push("customFieldsData");
         continue;
       }
 
@@ -153,13 +153,13 @@ export default class EditorAttributeUtil {
 
   async fillMissingCustomFieldsDataItemOfCustomer(
     content: string,
-    customer: any,
+    customer: any
   ): Promise<void> {
     if (!customer.customFieldsData) {
       customer.customFieldsData = [];
     }
 
-    const existingItemsByFieldId = _.keyBy(customer.customFieldsData, 'field');
+    const existingItemsByFieldId = _.keyBy(customer.customFieldsData, "field");
 
     const possibleCustomerFields = await this.getPossibleCustomerFields();
 
@@ -168,16 +168,16 @@ export default class EditorAttributeUtil {
         continue;
       }
 
-      if (field.name.includes('customFieldsData')) {
-        const fieldId = field.name.split('.').pop();
+      if (field.name.includes("customFieldsData")) {
+        const fieldId = field.name.split(".").pop();
 
         // if content has attribute that doesn't have fieldId, fill with dummy item
         // if content has field attribute that doesn't exist on the customer.customFieldsData, fill with dummy item
         if (!fieldId || !existingItemsByFieldId[fieldId]) {
           customer.customFieldsData.push({
-            field: fieldId || '',
-            stringValue: '',
-            value: '',
+            field: fieldId || "",
+            stringValue: "",
+            value: ""
           });
         }
       }
@@ -185,18 +185,18 @@ export default class EditorAttributeUtil {
   }
 
   async generateAmounts(productsData) {
-    if (!this.availableServices.has('cards')) {
-      throw new Error('Cards service is not running.');
+    if (!this.availableServices.has("cards")) {
+      throw new Error("Cards service is not running.");
     }
-    return sendRPCMessage('cards:deals.generateAmounts', productsData);
+    return sendRPCMessage("sales:deals.generateAmounts", productsData);
   }
 
   async generateProducts(productsData): Promise<any> {
-    if (!this.availableServices.has('cards')) {
-      throw new Error('Cards service is not running.');
+    if (!this.availableServices.has("cards")) {
+      throw new Error("Cards service is not running.");
     }
 
-    return sendRPCMessage('cards:deals.generateProducts', productsData);
+    return sendRPCMessage("sales:deals.generateProducts", productsData);
   }
 
   async generateReplacers(args: IArgs): Promise<IReplacer[]> {
@@ -215,30 +215,30 @@ export default class EditorAttributeUtil {
       await this.fillMissingCustomFieldsDataItemOfCustomer(content, customer);
 
       replacers.push({
-        key: '{{ customer.name }}',
-        value: getCustomerName(customer),
+        key: "{{ customer.name }}",
+        value: getCustomerName(customer)
       });
 
-      const fields = await sendRPCMessage('forms:fields.find', {
+      const fields = await sendRPCMessage("core:fields.find", {
         data: {
           query: {
-            type: 'file',
-            contentType: 'contacts:customer',
-          },
+            type: "file",
+            contentType: "core:customer"
+          }
         },
-        subdomain: this.subdomain,
+        subdomain: this.subdomain
       });
 
-      const customerFileFieldsById = _.keyBy(fields, '_id');
+      const customerFileFieldsById = _.keyBy(fields, "_id");
 
       for (const field of customerFields) {
         if (
-          field.includes('trackedData') ||
-          field.includes('customFieldsData')
+          field.includes("trackedData") ||
+          field.includes("customFieldsData")
         ) {
-          const dbFieldName = field.includes('trackedData')
-            ? 'trackedData'
-            : 'customFieldsData';
+          const dbFieldName = field.includes("trackedData")
+            ? "trackedData"
+            : "customFieldsData";
 
           for (const customFieldsDataItem of customer[dbFieldName] || []) {
             const replaceValue = customerFileFieldsById[
@@ -247,11 +247,11 @@ export default class EditorAttributeUtil {
               ? await this.customFieldsDataItemToFileLink(customFieldsDataItem)
               : customFieldsDataItem.stringValue ||
                 customFieldsDataItem.value ||
-                '';
+                "";
 
             replacers.push({
               key: `{{ customer.${dbFieldName}.${customFieldsDataItem.field} }}`,
-              value: replaceValue,
+              value: replaceValue
             });
           }
 
@@ -260,87 +260,87 @@ export default class EditorAttributeUtil {
 
         replacers.push({
           key: `{{ customer.${field} }}`,
-          value: customer[field] || '',
+          value: customer[field] || ""
         });
       }
     }
 
     // replace user fields
     if (user) {
-      replacers.push({ key: '{{ user.email }}', value: user.email || '' });
+      replacers.push({ key: "{{ user.email }}", value: user.email || "" });
 
       if (user.details) {
         replacers.push({
-          key: '{{ user.fullName }}',
-          value: user.details.fullName || '',
+          key: "{{ user.fullName }}",
+          value: user.details.fullName || ""
         });
         replacers.push({
-          key: '{{ user.position }}',
-          value: user.details.position || '',
+          key: "{{ user.position }}",
+          value: user.details.position || ""
         });
       }
     }
 
     // replace brand fields
     if (brand) {
-      replacers.push({ key: '{{ brandName }}', value: brand.name || '' });
+      replacers.push({ key: "{{ brandName }}", value: brand.name || "" });
     }
 
     // deal, ticket, task mapping
     if (item) {
-      replacers.push({ key: '{{ itemName }}', value: item.name || '' });
+      replacers.push({ key: "{{ itemName }}", value: item.name || "" });
       replacers.push({
-        key: '{{ itemDescription }}',
-        value: item.description || '',
+        key: "{{ itemDescription }}",
+        value: item.description || ""
       });
 
       replacers.push({
-        key: '{{ itemCloseDate }}',
+        key: "{{ itemCloseDate }}",
         value: item.closeDate
           ? new Date(item.closeDate).toLocaleDateString()
-          : '',
+          : ""
       });
       replacers.push({
-        key: '{{ itemCreatedAt }}',
+        key: "{{ itemCreatedAt }}",
         value: item.createdAt
           ? new Date(item.createdAt).toLocaleDateString()
-          : '',
+          : ""
       });
       replacers.push({
-        key: '{{ itemModifiedAt }}',
+        key: "{{ itemModifiedAt }}",
         value: item.modifiedAt
           ? new Date(item.modifiedAt).toLocaleDateString()
-          : '',
+          : ""
       });
 
       const products = await this.generateProducts(item.productsData);
       const amounts = await this.generateAmounts(item.productsData);
 
       replacers.push({
-        key: '{{ dealProducts }}',
-        value: products.map((p) => p.product.name).join(','),
+        key: "{{ dealProducts }}",
+        value: products.map(p => p.product.name).join(",")
       });
       replacers.push({
-        key: '{{ dealAmounts }}',
+        key: "{{ dealAmounts }}",
         value: Object.keys(amounts)
-          .map((key) => `${amounts[key]}${key}`)
-          .join(','),
+          .map(key => `${amounts[key]}${key}`)
+          .join(",")
       });
 
-      const fieldMetaDatas = await sendRPCMessage('forms:fields.find', {
+      const fieldMetaDatas = await sendRPCMessage("core:fields.find", {
         data: {
           query: {
             contentType: item.contentType,
-            isDefinedByErxes: false,
-          },
+            isDefinedByErxes: false
+          }
         },
-        subdomain: this.subdomain,
+        subdomain: this.subdomain
       });
 
       for (const fieldMetaData of fieldMetaDatas) {
         const customFieldsData = item.customFieldsData || [];
         const customFieldsDataItem = customFieldsData.find(
-          (c) => c.field === fieldMetaData._id,
+          c => c.field === fieldMetaData._id
         );
 
         const key = `{{ itemCustomField.${fieldMetaData._id} }}`;
@@ -349,22 +349,22 @@ export default class EditorAttributeUtil {
           if (content.includes(key)) {
             replacers.push({
               key,
-              value: '',
+              value: ""
             });
           }
           continue;
         }
 
         const replaceValue =
-          fieldMetaData.type === 'file'
+          fieldMetaData.type === "file"
             ? await this.customFieldsDataItemToFileLink(customFieldsDataItem)
             : customFieldsDataItem.stringValue ||
               customFieldsDataItem.value ||
-              '';
+              "";
 
         replacers.push({
           key,
-          value: replaceValue,
+          value: replaceValue
         });
       }
     }

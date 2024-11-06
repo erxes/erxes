@@ -1,7 +1,7 @@
 export const TRANSACTION_TYPES = [
   { value: "TSF", label: "Transfer" },
   { value: "PMT", label: "Payment" },
-  { value: "PRC", label: "Trade" },
+  { value: "PRC", label: "Trade" }
 ];
 
 export const BANK_CODES = [
@@ -33,5 +33,5 @@ export const BANK_CODES = [
   { value: "51", label: "Hi Payment" },
   { value: "54", label: "NetCaptial BBSB" },
   { value: "53", label: "Inverscore BBSB" },
-  { value: "55", label: "Data Bank" },
+  { value: "55", label: "Data Bank" }
 ];

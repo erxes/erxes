@@ -1,10 +1,10 @@
-import { __, Button, colors, Icon } from '@erxes/ui/src';
-import { FlexRow } from '@erxes/ui-settings/src/styles';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { useEffect, useState } from 'react';
-import React from 'react';
-import { ItemRowHeader } from '../../../styles';
-import { Divider } from '@erxes/ui-cards/src/boards/styles/stage';
+import { Button, Icon, __, colors } from "@erxes/ui/src";
+import React, { useEffect, useState } from "react";
+
+import { Divider } from "@erxes/ui-sales/src/boards/styles/stage";
+import { FlexRow } from "@erxes/ui-settings/src/styles";
+import { ItemRowHeader } from "../../../styles";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
 
 type Props = {
   title: string;
@@ -25,7 +25,7 @@ export const ItemRow = ({
   buttonText,
   isDone,
   onSave,
-  config
+  config,
 }: Props) => {
   const [isOpen, setOpen] = useState(false);
   const [doc, setDoc] = useState({});
@@ -54,7 +54,7 @@ export const ItemRow = ({
               <Icon
                 color={colors.colorCoreGreen}
                 icon="check-circle"
-                style={{ paddingLeft: '6px' }}
+                style={{ paddingLeft: "6px" }}
               />
             )}
           </FlexRow>
@@ -78,10 +78,10 @@ export const ItemRow = ({
       {isOpen && (
         <ModalFooter>
           <Button size="small" btnStyle="simple" onClick={toggleOpen}>
-            {__('Cancel')}
+            {__("Cancel")}
           </Button>
           <Button size="small" btnStyle="success" onClick={handleSave}>
-            {__('Save')}
+            {__("Save")}
           </Button>
         </ModalFooter>
       )}

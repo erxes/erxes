@@ -1,14 +1,13 @@
 import React from 'react';
 import Spinner from 'modules/common/components/Spinner';
 import Store from '../components/Store';
-
-type Props = {};
+import { Plugin } from '../types';
 
 type State = {
-  plugins: any;
+  plugins: Plugin[];
 };
 
-class StoreContainer extends React.Component<Props, State> {
+class StoreContainer extends React.Component<{}, State> {
   constructor(props) {
     super(props);
 

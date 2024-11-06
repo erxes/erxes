@@ -1,16 +1,16 @@
-import { gql, useQuery } from '@apollo/client';
-import { AddContent, AddRow } from '@erxes/ui-cards/src/boards//styles/item';
-import AssignedUsers from '@erxes/ui-cards/src/boards/components/portable/AssignedUsers';
-import PipelineLabels from '@erxes/ui-cards/src/boards/components/portable/PipelineLabels';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
-import { LogicParams } from '@erxes/ui-forms/src/settings/properties/types';
-import { checkLogic } from '@erxes/ui-forms/src/settings/properties/utils';
-import { ControlLabel, FormGroup, Spinner } from '@erxes/ui/src';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import React from 'react';
-import { SelectOperations } from '../../common/utils';
+import { gql, useQuery } from "@apollo/client";
+import { AddContent, AddRow } from "@erxes/ui-tickets/src/boards//styles/item";
+import AssignedUsers from "@erxes/ui-tickets/src/boards/components/portable/AssignedUsers";
+import PipelineLabels from "@erxes/ui-tickets/src/boards/components/portable/PipelineLabels";
+import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
+import GenerateField from "@erxes/ui-forms/src/settings/properties/components/GenerateField";
+import { LogicParams } from "@erxes/ui-forms/src/settings/properties/types";
+import { checkLogic } from "@erxes/ui-forms/src/settings/properties/utils";
+import { ControlLabel, FormGroup, Spinner } from "@erxes/ui/src";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import React from "react";
+import { SelectOperations } from "../../common/utils";
 
 const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -60,7 +60,7 @@ export function CardCustomFields({
 
       customFieldsData.forEach(c => {
         if (c.field === f._id) {
-          c.value = '';
+          c.value = "";
         }
       });
     }
@@ -71,9 +71,9 @@ export function CardCustomFields({
         field.extraValue = extraValue;
       }
 
-      onChangeField('customFieldsData', customFieldsData);
+      onChangeField("customFieldsData", customFieldsData);
     } else {
-      onChangeField('customFieldsData', [
+      onChangeField("customFieldsData", [
         ...customFieldsData,
         { field: _id, value, extraValue }
       ]);
@@ -92,7 +92,7 @@ export function CardCustomFields({
     <>
       {fields.map((field, index) => {
         const renderField = () => {
-          if (field.field === 'labelIds') {
+          if (field.field === "labelIds") {
             return (
               <PipelineLabels
                 field={field}
@@ -102,7 +102,7 @@ export function CardCustomFields({
             );
           }
 
-          if (field.field === 'assignedUserIds') {
+          if (field.field === "assignedUserIds") {
             return (
               <AssignedUsers field={field} onChangeField={onChangeField} />
             );
@@ -134,10 +134,10 @@ export function CardCustomFields({
           });
 
           const logics: LogicParams[] = field.logics.map(logic => {
-            let { fieldId = '' } = logic;
+            let { fieldId = "" } = logic;
 
-            if (fieldId.includes('customFieldsData')) {
-              fieldId = fieldId.split('.')[1];
+            if (fieldId.includes("customFieldsData")) {
+              fieldId = fieldId.split(".")[1];
               return {
                 fieldId,
                 operator: logic.logicOperator,
@@ -152,7 +152,7 @@ export function CardCustomFields({
               fieldId,
               operator: logic.logicOperator,
               logicValue: logic.logicValue,
-              fieldValue: object[logic.fieldId || ''] || '',
+              fieldValue: object[logic.fieldId || ""] || "",
               validation: fields.find(e => e._id === fieldId)?.validation,
               type: field.type
             };
@@ -206,10 +206,10 @@ export function SelectStructure({
 }) {
   const content = () => {
     switch (structureType) {
-      case 'branch':
+      case "branch":
         return (
           <SelectBranches
-            label={`Select ${label || ''} Branch`}
+            label={`Select ${label || ""} Branch`}
             name={name}
             filterParams={filter}
             initialValue={structureTypeIds || structureTypeId}
@@ -217,10 +217,10 @@ export function SelectStructure({
             multi={!!multi}
           />
         );
-      case 'department':
+      case "department":
         return (
           <SelectDepartments
-            label={`Select ${label || ''} Department`}
+            label={`Select ${label || ""} Department`}
             name={name}
             filterParams={filter}
             initialValue={structureTypeIds || structureTypeId}
@@ -228,10 +228,10 @@ export function SelectStructure({
             multi={!!multi}
           />
         );
-      case 'operation':
+      case "operation":
         return (
           <SelectOperations
-            label={`Select ${label || ''} Operation`}
+            label={`Select ${label || ""} Operation`}
             name={name}
             filterParams={filter}
             initialValue={structureTypeIds || structureTypeId}

@@ -89,7 +89,7 @@ function TriggerDetailForm(props: Props) {
 
     return (
       <ModalTrigger
-        title="Trigger Settings"
+        title={__("Trigger Settings")}
         trigger={trigger}
         content={content}
         hideHeader={true}

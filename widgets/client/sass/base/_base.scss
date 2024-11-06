@@ -1,4 +1,4 @@
-@import '../animations';
+@import "../animations";
 
 html,
 body,
@@ -14,22 +14,10 @@ body {
     ),
     webkit moz ms o
   );
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   margin: 0;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 .erxes-widget {
@@ -48,19 +36,9 @@ body {
   button,
   input,
   textarea {
-    font-family:
-      system-ui,
-      -apple-system,
-      BlinkMacSystemFont,
-      'Segoe UI',
-      Roboto,
-      Oxygen,
-      Ubuntu,
-      Cantarell,
-      'Fira Sans',
-      'Droid Sans',
-      'Helvetica Neue',
-      sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans",
+      "Helvetica Neue", sans-serif;
   }
 }
 
@@ -142,8 +120,7 @@ a {
     text-overflow: ellipsis;
     top: 100%;
     transform: translateY(0%);
-    transition:
-      transform 0.3s cubic-bezier(0.2, 1, 0.2, 1),
+    transition: transform 0.3s cubic-bezier(0.2, 1, 0.2, 1),
       opacity 0.2s cubic-bezier(0.2, 1, 0.2, 1);
     white-space: nowrap;
     will-change: transform, opacity;
@@ -220,12 +197,9 @@ a {
 }
 
 .erxes-objectlist-button {
-  @include prefix(
-    (
-      transition: all 0.3s ease-in-out,
+  @include prefix((transition: all 0.3s ease-in-out,
     ),
-    webkit moz ms o
-  );
+    webkit moz ms o);
   background: $red;
   border: 0;
   border-radius: calc($border-radius / 2);
@@ -278,12 +252,9 @@ a {
 }
 
 .erxes-objectlist-cancel-button {
-  @include prefix(
-    (
-      transition: all 0.3s ease-in-out,
+  @include prefix((transition: all 0.3s ease-in-out,
     ),
-    webkit moz ms o
-  );
+    webkit moz ms o);
   background: $grey;
   border: 0;
   border-radius: calc($border-radius / 2);
@@ -373,8 +344,8 @@ a {
   padding: 6px 15px;
   width: 100%;
 
-  &[type='checkbox'],
-  &[type='radio'] {
+  &[type="checkbox"],
+  &[type="radio"] {
     display: inline-block;
     height: inherit;
     margin: 0 8px 5px 0;
@@ -384,7 +355,7 @@ a {
     -webkit-appearance: checkbox;
   }
 
-  &[type='radio'] {
+  &[type="radio"] {
     -webkit-appearance: radio;
   }
 
@@ -546,9 +517,7 @@ select.form-control:focus,
 ::-webkit-scrollbar-thumb {
   background: $scroll-color;
   border-radius: 4px;
-  box-shadow:
-    inset 0 -3px 0 0 transparent,
-    inset 0 3px 0 0 transparent;
+  box-shadow: inset 0 -3px 0 0 transparent, inset 0 3px 0 0 transparent;
 }
 
 ::-webkit-scrollbar-track {

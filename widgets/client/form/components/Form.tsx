@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import { AppConsumer } from '../../messenger/containers/AppContext';
 import { IEmailParams, IIntegration } from '../../types';
 import {
   __,
@@ -20,10 +21,11 @@ import {
 } from '../types';
 import Field from './Field';
 import TopBar from './TopBar';
-import { getColor } from '../../messenger/utils/util';
 
 type Props = {
   form: IForm;
+  languageCode: string;
+  leadData: any;
   integration: IIntegration;
   currentStatus: ICurrentStatus;
   callSubmit?: boolean;
@@ -69,18 +71,19 @@ class Form extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const { setHeight, form, integration } = this.props;
+    const { setHeight, integration, form, languageCode, leadData} = this.props;
 
     if (setHeight) {
       setHeight();
     }
 
-    if (integration.leadData.css) {
+
+    if (leadData.css) {
       const head = document.getElementsByTagName('head')[0];
       const style = document.createElement('style');
       style.setAttribute('type', 'text/css');
 
-      style.appendChild(document.createTextNode(integration.leadData.css));
+      style.appendChild(document.createTextNode(leadData.css));
 
       head.appendChild(style);
     }
@@ -88,7 +91,7 @@ class Form extends React.Component<Props, State> {
     if (form.fields.findIndex((e) => e.type === 'map') !== -1) {
       const googleMapScript = loadMapApi(
         form.googleMapApiKey || 'test',
-        integration.languageCode || 'en'
+        languageCode || 'en'
       );
 
       googleMapScript.addEventListener('load', () => {
@@ -468,7 +471,7 @@ class Form extends React.Component<Props, State> {
       return (
         <button
           style={{ background: color }}
-          type="button"
+          type='button'
           onClick={action}
           className={`erxes-button btn-block ${
             isSubmitting ? 'disabled' : ''
@@ -529,30 +532,30 @@ class Form extends React.Component<Props, State> {
       src: string;
       width: string;
       height: string;
-    }) => <iframe src={src} width={width} height={height} scrolling="yes" />;
+    }) => <iframe src={src} width={width} height={height} scrolling='yes' />;
 
     if (!invoiceLink || currentStatus.status !== 'PAYMENT_PENDING') {
       return null;
     }
 
-    return <PaymentIframe src={invoiceLink} width="100%" height="600px" />;
+    return <PaymentIframe src={invoiceLink} width='100%' height='600px' />;
   }
 
   renderForm() {
     const { form, integration, extraContent } = this.props;
 
     return (
-      <div className="erxes-form">
+      <div className='erxes-form'>
         {this.renderHead(form.title || integration.name)}
         {this.renderProgress()}
-        <div className="erxes-form-content">
-          <div className="erxes-description">{form.description}</div>
+        <div className='erxes-form-content'>
+          <div className='erxes-description'>{form.description}</div>
 
           {extraContent ? (
             <div dangerouslySetInnerHTML={{ __html: extraContent }} />
           ) : null}
 
-          <div className="erxes-form-fields">{this.renderFields()}</div>
+          <div className='erxes-form-fields'>{this.renderFields()}</div>
 
           {this.renderButtons()}
         </div>
@@ -578,11 +581,11 @@ class Form extends React.Component<Props, State> {
     const { form } = this.props;
 
     return (
-      <div className="erxes-form">
-        {this.renderHead(thankTitle || form.title)}
-        <div className="erxes-form-content">
-          <div className="erxes-callout-body">
-            {this.renderSuccessImage(successImage || '', form.title)}
+      <div className='erxes-form'>
+        {this.renderHead(thankTitle || form.title || 'Thank you!')}
+        <div className='erxes-form-content'>
+          <div className='erxes-callout-body'>
+            {this.renderSuccessImage(successImage || '', form.title || '')}
             {thankContent ||
               __('Thanks for your message. We will respond as soon as we can.')}
           </div>
@@ -592,7 +595,7 @@ class Form extends React.Component<Props, State> {
   }
 
   render() {
-    const { form, currentStatus, sendEmail, integration } = this.props;
+    const { form, currentStatus, sendEmail, leadData } = this.props;
     const doc = this.state.doc;
 
     if (currentStatus.status === 'SUCCESS') {
@@ -609,7 +612,7 @@ class Form extends React.Component<Props, State> {
         thankContent,
         attachments,
         successImage,
-      } = integration.leadData;
+      } = leadData;
 
       // redirect to some url
       if (successAction === 'redirect') {
@@ -662,11 +665,21 @@ class Form extends React.Component<Props, State> {
   }
 }
 
-export default (props: Props) => (
-  <Form
-    {...props}
-    // if lead is in a messenger, return messenger theme color (getColor())
-    // else return lead theme color
-    color={getColor ? getColor() : props.integration.leadData.themeColor || ''}
-  />
-);
+export default (props: Props) => {
+  const { leadData } = props;
+
+  return (
+    <AppConsumer>
+      {({ getColor }) => {
+        return (
+          <Form
+            {...props}
+            // if lead is in a messenger, return messenger theme color (getColor())
+            // else return lead theme color
+            color={getColor ? getColor() : leadData.themeColor || ''}
+          />
+        );
+      }}
+    </AppConsumer>
+  );
+};

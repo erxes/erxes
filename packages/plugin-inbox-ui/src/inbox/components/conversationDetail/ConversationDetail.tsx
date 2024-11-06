@@ -87,7 +87,7 @@ export default class ConversationDetail extends React.Component<Props> {
       let content;
 
       if (
-        !['messenger', 'lead', 'booking', 'webhook', 'callpro'].includes(
+        !['messenger', 'lead', 'webhook', 'callpro'].includes(
           currentConversation.integration.kind,
         )
       ) {

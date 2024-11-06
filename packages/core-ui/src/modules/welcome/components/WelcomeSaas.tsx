@@ -7,7 +7,7 @@ import {
   SetupBoxes,
   SetupSteps,
   SmallBox,
-  WelcomeWrapper,
+  WelcomeWrapper
 } from "../stylesSaas";
 import {
   Community,
@@ -17,7 +17,7 @@ import {
   MarketingTasks,
   OperationTasks,
   SalesTasks,
-  Setups,
+  Setups
 } from "../constants";
 import { IOnboardingHistory, IOrganization } from "@erxes/ui/src/auth/types";
 
@@ -40,7 +40,7 @@ type Props = {
 function Welcome({ currentUser }: Props) {
   const {
     currentOrganization = {} as IOrganization,
-    onboardingHistory = {} as IOnboardingHistory,
+    onboardingHistory = {} as IOnboardingHistory
   } = currentUser || ({} as IUser);
   const { experience = {} as any } = currentOrganization;
   const { completedSteps = [] as string[] } =
@@ -86,7 +86,7 @@ function Welcome({ currentUser }: Props) {
 
   const renderTotal = (totalStep: number, tasks) => {
     const completedCount =
-      (tasks || []).filter((task) => completedSteps.includes(task.action))
+      (tasks || []).filter(task => completedSteps.includes(task.action))
         .length || 0;
     return (
       <span>
@@ -95,7 +95,7 @@ function Welcome({ currentUser }: Props) {
     );
   };
 
-  const renderSetupItem = (item) => {
+  const renderSetupItem = item => {
     const { id, title, type, image, desc, comingSoon } = item;
     const eCode = experience?.customCode || "";
 
@@ -131,7 +131,7 @@ function Welcome({ currentUser }: Props) {
             width={35}
             btnStyle="link"
           >
-            {(setShow) => (
+            {setShow => (
               <DrawerContent
                 content={item}
                 setShow={setShow}
@@ -152,7 +152,7 @@ function Welcome({ currentUser }: Props) {
     );
   };
 
-  const renderSmallBox = (item) => {
+  const renderSmallBox = item => {
     const { id, title, image, desc, url } = item;
 
     return (
@@ -176,7 +176,7 @@ function Welcome({ currentUser }: Props) {
             Explore our library of educational content to learn how to set up
             and manage your erxes project.
           </p>
-          <SetupBoxes>{Setups.map((item) => renderSetupItem(item))}</SetupBoxes>
+          <SetupBoxes>{Setups.map(item => renderSetupItem(item))}</SetupBoxes>
         </section>
         <section>
           <h4>Learn with erxes</h4>
@@ -184,12 +184,12 @@ function Welcome({ currentUser }: Props) {
             Explore our library of educational content to learn how to set up
             and manage your erxes project.
           </p>
-          <SetupBoxes>{Learn.map((l) => renderSmallBox(l))}</SetupBoxes>
+          <SetupBoxes>{Learn.map(l => renderSmallBox(l))}</SetupBoxes>
         </section>
         <section>
           <h4>Connect with the erxes community</h4>
           <p>Join the conversation with users from all over the world.</p>
-          <SetupBoxes> {Community.map((l) => renderSmallBox(l))}</SetupBoxes>
+          <SetupBoxes> {Community.map(l => renderSmallBox(l))}</SetupBoxes>
         </section>
       </RightSideContent>
     </WelcomeWrapper>

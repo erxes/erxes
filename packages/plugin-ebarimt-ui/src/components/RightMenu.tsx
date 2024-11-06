@@ -3,7 +3,7 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon,
+  Icon
 } from "@erxes/ui/src/components";
 import {
   CustomRangeContainer,
@@ -11,10 +11,10 @@ import {
   FilterButton,
   MenuFooter,
   RightMenuContainer,
-  TabContent,
+  TabContent
 } from "../styles";
 import React, { useRef, useState } from "react";
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
 import { CSSTransition } from "react-transition-group";
 import Datetime from "@nateradebaugh/react-datetime";
 import { IQueryParams } from "@erxes/ui/src/types";
@@ -38,12 +38,12 @@ type State = {
   filterParams: IQueryParams;
 };
 
-const RightMenu: React.FC<Props> = (props) => {
+const RightMenu: React.FC<Props> = props => {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const [state, setState] = useState<State>({
     currentTab: "Filter",
     showMenu: props.showMenu || false,
-    filterParams: props.queryParams,
+    filterParams: props.queryParams
   });
 
   const setFilter = () => {
@@ -58,17 +58,17 @@ const RightMenu: React.FC<Props> = (props) => {
   };
 
   const toggleMenu = () => {
-    setState((prevState) => ({ ...prevState, showMenu: !prevState.showMenu }));
+    setState(prevState => ({ ...prevState, showMenu: !prevState.showMenu }));
   };
 
-  const onSearch = (e) => {
+  const onSearch = e => {
     if (e.key === "Enter") {
       const target = e.currentTarget as HTMLInputElement;
       props.onSearch(target.value || "", target.name || "search");
     }
   };
 
-  const onChangeInput = (e) => {
+  const onChangeInput = e => {
     const { target } = e;
     const { name, value } = target;
 
@@ -81,7 +81,7 @@ const RightMenu: React.FC<Props> = (props) => {
 
     const selected = queryParams[key] === value;
 
-    const onClick = (_e) => {
+    const onClick = _e => {
       onSelect(value, key);
     };
 
@@ -172,28 +172,28 @@ const RightMenu: React.FC<Props> = (props) => {
       const onChangeBoard = (boardId: string) => {
         setState({
           ...state,
-          filterParams: { ...state.filterParams, boardId },
+          filterParams: { ...state.filterParams, boardId }
         });
       };
 
       const onChangePipeline = (pipelineId: string) => {
         setState({
           ...state,
-          filterParams: { ...state.filterParams, pipelineId },
+          filterParams: { ...state.filterParams, pipelineId }
         });
       };
 
       const onChangeStage = (stageId: string) => {
         setState({
           ...state,
-          filterParams: { ...state.filterParams, stageId },
+          filterParams: { ...state.filterParams, stageId }
         });
       };
 
       return (
         <>
           <FormGroup>
-            <ControlLabel>{`Deal name`}</ControlLabel>
+            <ControlLabel>{__(`Deal name`)}</ControlLabel>
             <FormControl
               name={"dealName"}
               defaultValue={filterParams.dealName}
@@ -235,7 +235,7 @@ const RightMenu: React.FC<Props> = (props) => {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{`Transaction number`}</ControlLabel>
+            <ControlLabel>{__(`Transaction number`)}</ControlLabel>
             <FormControl
               name={"transactionNumber"}
               defaultValue={filterParams.transactionNumber}
@@ -269,7 +269,7 @@ const RightMenu: React.FC<Props> = (props) => {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{`Content Type`}</ControlLabel>
+          <ControlLabel>{__(`Content Type`)}</ControlLabel>
           <FormControl
             name={"contentType"}
             componentclass="select"
@@ -277,7 +277,7 @@ const RightMenu: React.FC<Props> = (props) => {
             onChange={onChangeInput}
           >
             <option value="">{__("All")}</option>
-            {isEnabled("cards") && <option value="deal">{__("Deal")}</option>}
+            {isEnabled("sales") && <option value="deal">{__("Deal")}</option>}
             {isEnabled("pos") && <option value="pos">{__("Pos")}</option>}
             {isEnabled("loans") && (
               <option value="loans:transaction">
@@ -297,9 +297,9 @@ const RightMenu: React.FC<Props> = (props) => {
             defaultValue={filterParams.success}
             onChange={onChangeInput}
           >
-            <option value="">{__('All')}</option>
-            <option value="SUCCESS">{__('SUCCESS')}</option>
-            <option value="ERROR">{__('ERROR')}</option>
+            <option value="">{__("All")}</option>
+            <option value="SUCCESS">{__("SUCCESS")}</option>
+            <option value="ERROR">{__("ERROR")}</option>
           </FormControl>
         </FormGroup>
 
@@ -311,9 +311,9 @@ const RightMenu: React.FC<Props> = (props) => {
             defaultValue={filterParams.billType}
             onChange={onChangeInput}
           >
-            <option value="">{__('All')}</option>
-            <option value="B2C_RECEIPT">{__('B2C_RECEIPT')}</option>
-            <option value="B2B_RECEIPT">{__('B2B_RECEIPT')}</option>
+            <option value="">{__("All")}</option>
+            <option value="B2C_RECEIPT">{__("B2C_RECEIPT")}</option>
+            <option value="B2B_RECEIPT">{__("B2B_RECEIPT")}</option>
           </FormControl>
         </FormGroup>
 

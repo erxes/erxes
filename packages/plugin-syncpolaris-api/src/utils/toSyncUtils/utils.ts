@@ -1,51 +1,51 @@
-
-import { sendCommonMessage } from '../../messageBroker';
-import { getCustomerDetail } from '../customer/getCustomerDetail';
-import { getLoanDetail } from '../loan/getLoanDetail';
-import { getLoanSchedule } from '../loan/getLoanSchedule';
-import { getSavingDetail } from '../saving/getSavingDetail';
+import { sendCommonMessage } from "../../messageBroker";
+import { getCustomerDetail } from "../customer/getCustomerDetail";
+import { getLoanDetail } from "../loan/getLoanDetail";
+import { getLoanSchedule } from "../loan/getLoanSchedule";
+import { getSavingDetail } from "../saving/getSavingDetail";
 import {
+  getConfig,
   getContract,
   getCustomer,
   updateContract,
   updateCustomer
-} from '../utils';
+} from "../utils";
 
 export const getCustomFields = async (subdomain, customFieldType, item?) => {
   const fields = await sendCommonMessage({
     subdomain,
-    serviceName: 'forms',
-    action: 'fields.find',
+    serviceName: "core",
+    action: "fields.find",
     data: {
       query: {
         contentType: customFieldType,
-        code: { $exists: true, $ne: '' },
+        code: { $exists: true, $ne: "" }
       },
       projection: {
         groupId: 1,
         code: 1,
-        _id: 1,
-      },
+        _id: 1
+      }
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   const customFieldsData = item?.customFieldsData || [];
   if (item) {
     for await (const f of fields) {
-      const existingData = customFieldsData.find((c) => c.field === f._id);
+      const existingData = customFieldsData.find(c => c.field === f._id);
       item[f.code] = existingData?.value;
     }
   }
 
   return {
     fields: fields,
-    item: item || [],
+    item: item || []
   };
 };
 
-export const dateNames = ['startDate', 'endDate'];
+export const dateNames = ["startDate", "endDate"];
 export const findDiffrentData = async (mainData, polarisData) => {
   if (polarisData) {
     const { _id, __v, ...data } = mainData;
@@ -67,7 +67,7 @@ export const compareDate = async (data, key, value) => {
   if (dateNames.includes(key)) {
     const polarisDate = new Date(
       new Date(data[key]).getTime() -
-        new Date(data[key]).getTimezoneOffset() * 60000,
+      new Date(data[key]).getTimezoneOffset() * 60000,
     );
     const mainDate = new Date(String(value));
     if (polarisDate.getTime() === mainDate.getTime()) return false;
@@ -87,14 +87,14 @@ export const preSyncDatas = async (mainData, polarisData, customFields) => {
     for await (const customField of customFields) {
       await setCustomField(customField, polarisData, customFieldsData);
     }
-    updateData['customFieldsData'] = customFieldsData;
+    updateData["customFieldsData"] = customFieldsData;
   }
   return updateData;
 };
 export const setCustomField = async (
   customField,
   customer,
-  customFieldsData,
+  customFieldsData
 ) => {
   if (customer.hasOwnProperty(customField.code)) {
     await setCustomFieldValue(customField, customFieldsData, customer);
@@ -104,49 +104,49 @@ export const setCustomField = async (
 export const setCustomFieldValue = async (
   customField,
   customFieldsData,
-  customer,
+  customer
 ) => {
-  const index = customFieldsData.findIndex((c) => c.field === customField._id);
+  const index = customFieldsData.findIndex(c => c.field === customField._id);
   if (index >= 0) {
     customFieldsData[index].value = customer[customField.code];
   } else {
     customFieldsData.push({
       field: customField._id,
-      value: customer[customField.code],
+      value: customer[customField.code]
     });
   }
   return customFieldsData;
 };
 
-export const getPolarisData = async (type, subdomain, item) => {
+export const getPolarisData = async (type, subdomain, config, item) => {
   try {
     switch (type) {
-      case 'contacts:customer':
-        return await getCustomerDetail(subdomain, { code: item.code });
+      case 'core:customer':
+        return await getCustomerDetail(subdomain, config, { code: item.code });
       case 'loans:contract':
-        return await getLoanDetail(subdomain, { number: item.number });
+        return await getLoanDetail(subdomain, config, { number: item.number });
       case 'savings:contract':
-        return await getSavingDetail(subdomain, { number: item.number });
+        return await getSavingDetail(subdomain, config, { number: item.number });
       default:
         break;
     }
   } catch (error) {
-    console.log('error:', error);
+    console.log("error:", error);
   }
 };
 
 export const syncDataToErxes = async (type, subdomain, item, updateData) => {
   switch (type) {
-    case 'contacts:customer':
+    case "core:customer":
       return await updateCustomer(subdomain, { code: item.code }, updateData);
-    case 'loans:contract':
+    case "loans:contract":
       return setLoanWithSchedule(subdomain, item, updateData);
-    case 'savings:contract':
+    case "savings:contract":
       return await updateContract(
         subdomain,
         { number: item.number },
         { $set: updateData },
-        'savings',
+        "savings"
       );
     default:
       break;
@@ -154,15 +154,16 @@ export const syncDataToErxes = async (type, subdomain, item, updateData) => {
 };
 
 export const getMainDatas = async (subdomain, type) => {
+  // TODO check
   switch (type) {
-    case 'contacts:customer': {
-      return await getCustomer(subdomain, {});
+    case 'core:customer': {
+      return await getCustomer(subdomain, '');
     }
-    case 'loans:contract': {
-      return await getContract(subdomain, {}, 'loans');
+    case "loans:contract": {
+      return await getContract(subdomain, {}, "loans");
     }
-    case 'savings:contract': {
-      return await getContract(subdomain, {}, 'savings');
+    case "savings:contract": {
+      return await getContract(subdomain, {}, "savings");
     }
     default: {
       break;
@@ -171,56 +172,54 @@ export const getMainDatas = async (subdomain, type) => {
 };
 
 export const setLoanWithSchedule = async (subdomain, item, updateData) => {
-  
   await updateContract(
     subdomain,
     { number: item.number },
     { $set: updateData },
     'loans',
   )
-  await preLoanSchedule(subdomain,item)
+  await preLoanSchedule(subdomain, item)
 };
-
 
 export const preLoanSchedule = async (subdomain, item) => {
   try {
+    const polarisConfig = await getConfig(subdomain, 'POLARIS', {})
+    const mainLoanSchedule = await getMainLoanSchedule(subdomain, { contractId: item._id })
+    const loanSchedules = await getLoanSchedule(subdomain, polarisConfig, { number: item.number })
 
-    const mainLoanSchedule = await getMainLoanSchedule(subdomain, {contractId: item._id})
-    const loanSchedules = await getLoanSchedule(subdomain, { number: item.number })
-
-    if(!mainLoanSchedule && loanSchedules) {
-      await createLoanSchedule(subdomain,loanSchedules,item._id)
+    if (!mainLoanSchedule && loanSchedules) {
+      await createLoanSchedule(subdomain, loanSchedules, item._id)
     }
   } catch (error) {
-    console.log('update schedule:',error)
+    console.log('update schedule:', error)
   }
 };
 
 export const getMainLoanSchedule = async (subdomain, data) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'firstLoanSchedules.findOne',
-    serviceName: 'loans',
+    action: "firstLoanSchedules.findOne",
+    serviceName: "loans",
     data: data,
-    isRPC: true,
+    isRPC: true
   });
-}
+};
 
 export const insertLoanSchedule = async (subdomain, data) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'firstLoanSchedules.insertMany',
-    serviceName: 'loans',
+    action: "firstLoanSchedules.insertMany",
+    serviceName: "loans",
     data: data,
-    isRPC: true,
+    isRPC: true
   });
 }
-export const createLoanSchedule = async (subdomain,loanSchedules, contractId) => {
+export const createLoanSchedule = async (subdomain, loanSchedules, contractId) => {
   try {
-    const result: any[] = [] 
+    const result: any[] = []
 
-    for(const schedule of loanSchedules) {
-      const loanSchedule  = {
+    for (const schedule of loanSchedules) {
+      const loanSchedule = {
         "status": "pending",
         "payDate": new Date(schedule.schdDate),
         "scheduleDidStatus": "pending",
@@ -240,9 +239,9 @@ export const createLoanSchedule = async (subdomain,loanSchedules, contractId) =>
       result.push(loanSchedule)
     }
 
-    await insertLoanSchedule(subdomain,result)
+    await insertLoanSchedule(subdomain, result)
 
   } catch (error) {
-    console.log('insert loan schedule', error)
+    console.log("insert loan schedule", error);
   }
-}
+};

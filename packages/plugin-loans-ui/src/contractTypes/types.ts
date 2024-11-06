@@ -1,3 +1,5 @@
+import { IProduct } from "@erxes/ui-products/src/types";
+
 export interface IContractConfig {
   receivable: string;
   temp: string;
@@ -50,6 +52,10 @@ export interface IContractConfig {
   isAmountUseEBarimt?: any;
   isInterestUseEBarimt?: any;
   isLossUseEBarimt?: any;
+
+  boardId: string;
+  pipelineId: string;
+  stageId: string;
 }
 
 export interface IContractTypeDoc {
@@ -62,7 +68,6 @@ export interface IContractTypeDoc {
   leaseType: string;
   commitmentInterest: number;
   createdAt: Date;
-  productCategoryIds: string[];
   config: IContractConfig;
   lossPercent: number;
   lossCalcType: string;
@@ -83,10 +88,10 @@ export interface IContractType extends IContractTypeDoc {
   _id: string;
   productType?: any;
   productId?: string;
+  product?: IProduct
 }
 
 export interface IContractTypeDetail extends IContractType {
-  productCategories: any;
 }
 
 // mutation types

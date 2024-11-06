@@ -3,9 +3,9 @@ import React, { useEffect } from "react";
 import { __, router } from "../../utils";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { IBrand } from "../../brands/types";
 import Box from "../../components/Box";
 import DataWithLoader from "../../components/DataWithLoader";
-import { IBrand } from "../../brands/types";
 
 interface IProps {
   counts: { [key: string]: number };
@@ -24,7 +24,7 @@ function Brands({ counts, brands, loading, emptyText }: IProps) {
 
   const data = (
     <SidebarList>
-      {brands.map((brand) => {
+      {brands.map(brand => {
         const onClick = () => {
           router.setParams(navigate, location, { brand: brand._id });
         };

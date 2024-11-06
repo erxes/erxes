@@ -5,7 +5,7 @@ import {
   FilterButton,
   MenuFooter,
   RightMenuContainer,
-  TabContent,
+  TabContent
 } from "../../styles";
 import React, { useRef, useState } from "react";
 
@@ -16,7 +16,6 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const SelectCompanies = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "SelectCompanies" */ "@erxes/ui-contacts/src/companies/containers/SelectCompanies"
     )
@@ -24,7 +23,6 @@ const SelectCompanies = asyncComponent(
 
 const SelectCustomers = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "SelectCustomers" */ "@erxes/ui-contacts/src/customers/containers/SelectCustomers"
     )
@@ -43,7 +41,7 @@ export default function RightMenu(props: Props) {
 
   const [showMenu, setShowMenu] = useState(false);
 
-  const setWrapperRef = (node) => {
+  const setWrapperRef = node => {
     wrapperRef.current = node;
   };
 
@@ -63,7 +61,7 @@ export default function RightMenu(props: Props) {
 
     const selected = queryParams[key] === value;
 
-    const onClick = (_e) => {
+    const onClick = _e => {
       onSelect(value, key);
     };
 
@@ -100,25 +98,21 @@ export default function RightMenu(props: Props) {
           autoFocus={true}
         />
 
-        {isEnabled("contacts") && (
-          <>
-            <SelectCustomers
-              label={__("Filter by customers")}
-              name="customerId"
-              queryParams={queryParams}
-              onSelect={onSelect}
-              multi={false}
-            />
+        <SelectCustomers
+          label={__("Filter by customers")}
+          name="customerId"
+          queryParams={queryParams}
+          onSelect={onSelect}
+          multi={false}
+        />
 
-            <SelectCompanies
-              label="Filter by company"
-              name="companyId"
-              queryParams={queryParams}
-              onSelect={onSelect}
-              multi={false}
-            />
-          </>
-        )}
+        <SelectCompanies
+          label={__("Filter by company")}
+          name="companyId"
+          queryParams={queryParams}
+          onSelect={onSelect}
+          multi={false}
+        />
 
         <ControlLabel>Date range:</ControlLabel>
 

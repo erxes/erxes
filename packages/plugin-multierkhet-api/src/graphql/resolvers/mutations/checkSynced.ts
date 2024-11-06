@@ -1,14 +1,13 @@
-import { sendCardInfo } from '../../../utils/utils';
-import { getPostData as getPostDataOrders } from '../../../utils/orders';
-import { getPostData } from '../../../utils/ebarimtData';
-import { generateModels, IContext } from '../../../connectionResolver';
+import { sendCardInfo } from "../../../utils/utils";
+import { getPostData as getPostDataOrders } from "../../../utils/orders";
+import { getPostData } from "../../../utils/ebarimtData";
+import { generateModels, IContext } from "../../../connectionResolver";
 import {
-  sendCardsMessage,
   sendCoreMessage,
   sendPosMessage,
-  sendProductsMessage
-} from '../../../messageBroker';
-import { sendRPCMessage, sendTRPCMessage } from '../../../messageBrokerErkhet';
+  sendSalesMessage
+} from "../../../messageBroker";
+import { sendRPCMessage, sendTRPCMessage } from "../../../messageBrokerErkhet";
 
 const checkSyncedMutations = {
   async toMultiCheckSynced(
@@ -16,20 +15,20 @@ const checkSyncedMutations = {
     { ids, type }: { ids: string[]; type: string },
     { models, subdomain, res }: IContext
   ) {
-    const configs = await models.Configs.getConfig('erkhetConfig', {});
+    const configs = await models.Configs.getConfig("erkhetConfig", {});
 
     if (!configs || !Object.keys(configs)) {
-      throw new Error('Erkhet config not found');
+      throw new Error("Erkhet config not found");
     }
 
     let trs: any[] = [];
     let productIds: string[] = [];
 
     switch (type) {
-      case 'deal':
-        trs = await sendCardsMessage({
+      case "deal":
+        trs = await sendSalesMessage({
           subdomain,
-          action: 'deals.find',
+          action: "deals.find",
           data: { _id: { $in: ids } },
           isRPC: true
         });
@@ -40,10 +39,10 @@ const checkSyncedMutations = {
           });
         });
         break;
-      case 'pos':
+      case "pos":
         trs = await sendPosMessage({
           subdomain,
-          action: 'orders.find',
+          action: "orders.find",
           data: { _id: { $in: ids } },
           isRPC: true
         });
@@ -56,9 +55,9 @@ const checkSyncedMutations = {
         break;
     }
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: 'find',
+      action: "products.find",
       data: { query: { _id: { $in: productIds } } },
       isRPC: true
     });
@@ -72,7 +71,7 @@ const checkSyncedMutations = {
 
     const brands = await sendCoreMessage({
       subdomain,
-      action: 'brands.find',
+      action: "brands.find",
       data: { _id: { $in: configBrandIds } },
       isRPC: true
     });
@@ -87,17 +86,17 @@ const checkSyncedMutations = {
       let trItems: any[] = [];
 
       switch (type) {
-        case 'deal':
+        case "deal":
           trItems = tr.productsData;
           break;
-        case 'pos':
+        case "pos":
           trItems = tr.items;
           break;
       }
 
       for (const productData of trItems) {
         // not tickUsed product not sent
-        if (type === 'deal' && !productData.tickUsed) {
+        if (type === "deal" && !productData.tickUsed) {
           continue;
         }
 
@@ -110,14 +109,14 @@ const checkSyncedMutations = {
 
         if (
           !(product.scopeBrandIds || []).length &&
-          configBrandIds.includes('noBrand')
+          configBrandIds.includes("noBrand")
         ) {
-          if (!idsByBrandId['noBrand']) {
-            idsByBrandId['noBrand'] = [];
+          if (!idsByBrandId["noBrand"]) {
+            idsByBrandId["noBrand"] = [];
           }
 
-          if (!idsByBrandId['noBrand'].includes(tr._id)) {
-            idsByBrandId['noBrand'].push(tr._id);
+          if (!idsByBrandId["noBrand"].includes(tr._id)) {
+            idsByBrandId["noBrand"].push(tr._id);
           }
           continue;
         }
@@ -163,16 +162,16 @@ const checkSyncedMutations = {
       };
 
       const response = await sendTRPCMessage(
-        'rpc_queue:erxes-automation-erkhet',
+        "rpc_queue:erxes-automation-erkhet",
         {
-          action: 'check-order-synced',
+          action: "check-order-synced",
           payload: JSON.stringify(postData),
           thirdService: true
         }
       );
       const result = JSON.parse(response);
 
-      if (result.status === 'error') {
+      if (result.status === "error") {
         throw new Error(result.message);
       }
 
@@ -187,7 +186,7 @@ const checkSyncedMutations = {
             syncedDate: res.date,
             syncedBillNumber: res.bill_number,
             syncedCustomer: res.customer,
-            brandName: brand === 'noBrand' ? 'noBrand' : brandById[brand] || ''
+            brandName: brand === "noBrand" ? "noBrand" : brandById[brand] || ""
           };
         }
       });
@@ -211,19 +210,19 @@ const checkSyncedMutations = {
       success: []
     };
 
-    const configs = await models.Configs.getConfig('ebarimtConfig', {});
-    const moveConfigs = await models.Configs.getConfig('stageInMoveConfig', {});
-    const mainConfig = await models.Configs.getConfig('ERKHET', {});
+    const configs = await models.Configs.getConfig("ebarimtConfig", {});
+    const moveConfigs = await models.Configs.getConfig("stageInMoveConfig", {});
+    const mainConfig = await models.Configs.getConfig("ERKHET", {});
 
-    const deals = await sendCardsMessage({
+    const deals = await sendSalesMessage({
       subdomain,
-      action: 'deals.find',
+      action: "deals.find",
       data: { _id: { $in: dealIds } },
       isRPC: true
     });
 
     const syncLogDoc = {
-      contentType: 'cards:deal',
+      contentType: "sales:deal",
       createdAt: new Date(),
       createdBy: user._id
     };
@@ -254,9 +253,9 @@ const checkSyncedMutations = {
           const response = await sendRPCMessage(
             models,
             syncLog,
-            'rpc_queue:erxes-automation-erkhet',
+            "rpc_queue:erxes-automation-erkhet",
             {
-              action: 'get-response-send-order-info',
+              action: "get-response-send-order-info",
               isEbarimt: false,
               payload: JSON.stringify(postData),
               thirdService: true,
@@ -310,7 +309,7 @@ const checkSyncedMutations = {
 
     const orders = await sendPosMessage({
       subdomain,
-      action: 'orders.find',
+      action: "orders.find",
       data: { _id: { $in: orderIds } },
       isRPC: true,
       defaultValue: []
@@ -320,7 +319,7 @@ const checkSyncedMutations = {
     const models = await generateModels(subdomain);
     const poss = await sendPosMessage({
       subdomain,
-      action: 'configs.find',
+      action: "configs.find",
       data: { token: { $in: posTokens } },
       isRPC: true,
       defaultValue: []
@@ -332,7 +331,7 @@ const checkSyncedMutations = {
     }
 
     const syncLogDoc = {
-      contentType: 'pos:order',
+      contentType: "pos:order",
       createdAt: new Date(),
       createdBy: user._id
     };
@@ -352,9 +351,9 @@ const checkSyncedMutations = {
         const response = await sendRPCMessage(
           models,
           syncLog,
-          'rpc_queue:erxes-automation-erkhet',
+          "rpc_queue:erxes-automation-erkhet",
           {
-            action: 'get-response-send-order-info',
+            action: "get-response-send-order-info",
             isEbarimt: false,
             payload: JSON.stringify(postData),
             thirdService: true,
@@ -370,7 +369,7 @@ const checkSyncedMutations = {
 
           await sendPosMessage({
             subdomain,
-            action: 'orders.updateOne',
+            action: "orders.updateOne",
             data: {
               selector: { _id: order._id },
               modifier: {

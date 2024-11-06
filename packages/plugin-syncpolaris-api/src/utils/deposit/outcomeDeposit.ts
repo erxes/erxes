@@ -1,26 +1,24 @@
 import {
   customFieldToObject,
   fetchPolaris,
-  getCustomer,
-  getContract,
   sendMessageBrokerData,
 } from '../utils';
 
-export const outcomeDeposit = async (subdomain, params) => {
+export const outcomeDeposit = async (subdomain, polarisConfig, params) => {
   const transaction = params.object;
 
-  const savingContract = await sendMessageBrokerData(subdomain,'savings','contracts.findOne',{_id:transaction.contractId})
+  const savingContract = await sendMessageBrokerData(subdomain, 'savings', 'contracts.findOne', { _id: transaction.contractId })
 
-  const customer = await sendMessageBrokerData(subdomain,'contacts','customers.findOne',{_id:savingContract.customerId})
+  const customer = await sendMessageBrokerData(subdomain, 'core', 'customers.findOne', { _id: savingContract.customerId })
 
   const customerData = await customFieldToObject(
     subdomain,
-    'contacts:customer',
-    customer,
+    "core:customer",
+    customer
   );
 
   const sendData = {
-    operCode: '13610010',
+    operCode: "13610010",
     txnAcntCode: savingContract.number,
     txnAmount: transaction.total,
     rate: 1,
@@ -31,26 +29,27 @@ export const outcomeDeposit = async (subdomain, params) => {
     tcustName: customerData.firstName,
     tcustAddr: customerData.firstName,
     tcustRegister: customerData.registerCode,
-    tcustRegisterMask: '3',
+    tcustRegisterMask: "3",
     tcustContact: customerData.phones[0],
     tranAmt: transaction.total,
     tranCurCode: transaction.currency,
-    sourceType: 'OI',
+    sourceType: "OI",
     isPreview: 0,
     isTmw: 1,
     aspParam: [
       [
         {
           acntCode: savingContract.number,
-          acntType: 'EXPENSE',
-        },
-      ],
-    ],
+          acntType: "EXPENSE"
+        }
+      ]
+    ]
   };
 
   return await fetchPolaris({
-    op: '13610010',
+    op: "13610010",
     data: [sendData],
     subdomain,
+    polarisConfig,
   });
 };

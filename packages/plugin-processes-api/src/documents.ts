@@ -1,14 +1,12 @@
-import * as moment from 'moment';
-import { generateModels } from './connectionResolver';
+import * as moment from "moment";
+import { generateModels } from "./connectionResolver";
 import {
-  sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
-} from './messageBroker';
+  sendCoreMessage
+} from "./messageBroker";
 
 const toMoney = value => {
   if (!value) {
-    return '-';
+    return "-";
   }
   return new Intl.NumberFormat().format(value);
 };
@@ -21,9 +19,9 @@ const productsInfo = async (
 ) => {
   const productIds = productData.map(p => p.productId);
 
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
-    action: 'find',
+    action: "products.find",
     data: { query: { _id: { $in: productIds } }, limit: productIds.length },
     isRPC: true,
     defaultValue: []
@@ -75,37 +73,37 @@ const productsInfo = async (
 export default {
   types: [
     {
-      type: 'processes',
-      label: 'Processes',
-      subTypes: ['income', 'move', 'outcome', 'job']
+      type: "processes",
+      label: "Processes",
+      subTypes: ["income", "move", "outcome", "job"]
     }
   ],
 
   editorAttributes: async ({}) => {
     return [
-      { value: 'startAt', name: 'Start At' },
-      { value: 'endAt', name: 'End At' },
-      { value: 'modifiedAt', name: 'Modified At' },
-      { value: 'createdBy', name: 'Created By' },
-      { value: 'description', name: 'Description' },
-      { value: 'appendix', name: 'Appendix' },
-      { value: 'seriesText', name: 'Series Text' },
-      { value: 'company', name: 'Company' },
-      { value: 'customer', name: 'Customer' },
-      { value: 'seriesBarcode', name: 'Series Barcode' },
-      { value: 'seriesQrcode', name: 'Series QR code' },
-      { value: 'spendBranch', name: 'Spend Branch' },
-      { value: 'spendDepartment', name: 'Spend Department' },
-      { value: 'receiptBranch', name: 'Receipt Branch' },
-      { value: 'receiptDepartment', name: 'Receipt Department' },
-      { value: 'assignedUser', name: 'Assigned User' },
+      { value: "startAt", name: "Start At" },
+      { value: "endAt", name: "End At" },
+      { value: "modifiedAt", name: "Modified At" },
+      { value: "createdBy", name: "Created By" },
+      { value: "description", name: "Description" },
+      { value: "appendix", name: "Appendix" },
+      { value: "seriesText", name: "Series Text" },
+      { value: "company", name: "Company" },
+      { value: "customer", name: "Customer" },
+      { value: "seriesBarcode", name: "Series Barcode" },
+      { value: "seriesQrcode", name: "Series QR code" },
+      { value: "spendBranch", name: "Spend Branch" },
+      { value: "spendDepartment", name: "Spend Department" },
+      { value: "receiptBranch", name: "Receipt Branch" },
+      { value: "receiptDepartment", name: "Receipt Department" },
+      { value: "assignedUser", name: "Assigned User" },
 
-      { value: 'needProducts', name: 'Need products' },
-      { value: 'resultProducts', name: 'Result products' },
-      { value: 'spendProducts', name: 'Spend products' },
-      { value: 'receiptProducts', name: 'Receipt products' },
-      { value: 'spendProductsSeries', name: 'Spend products with series' },
-      { value: 'receiptProductsPrice', name: 'Receipt products with price' }
+      { value: "needProducts", name: "Need products" },
+      { value: "resultProducts", name: "Result products" },
+      { value: "spendProducts", name: "Spend products" },
+      { value: "receiptProducts", name: "Receipt products" },
+      { value: "spendProductsSeries", name: "Spend products with series" },
+      { value: "receiptProductsPrice", name: "Receipt products with price" }
     ];
   },
 
@@ -117,21 +115,21 @@ export default {
     const perform = await models.Performs.getPerform(performId);
 
     if (
-      content.includes('{{ seriesBarcode }}') ||
-      content.includes('{{ seriesQrcode }}')
+      content.includes("{{ seriesBarcode }}") ||
+      content.includes("{{ seriesQrcode }}")
     ) {
       results.push(
         '::heads::<script src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/jquery.js"></script>'
       );
     }
 
-    if (content.includes('{{ seriesBarcode }}')) {
+    if (content.includes("{{ seriesBarcode }}")) {
       results.push(
         '::heads::<script src="https://nmgplugins.s3.us-west-2.amazonaws.com/JsBarcode.all.min.js"></script>'
       );
     }
 
-    if (content.includes('{{ seriesQrcode }}')) {
+    if (content.includes("{{ seriesQrcode }}")) {
       results.push(
         '::heads::<script src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/qrcodegen.js"></script>'
       );
@@ -140,46 +138,46 @@ export default {
     let replacedContent = content;
 
     replacedContent = replacedContent.replace(
-      '{{ startAt }}',
-      moment(perform.startAt).format('YYYY-MM-DD HH:mm')
+      "{{ startAt }}",
+      moment(perform.startAt).format("YYYY-MM-DD HH:mm")
     );
 
     replacedContent = replacedContent.replace(
-      '{{ endAt }}',
-      moment(perform.endAt).format('YYYY-MM-DD HH:mm')
+      "{{ endAt }}",
+      moment(perform.endAt).format("YYYY-MM-DD HH:mm")
     );
 
     replacedContent = replacedContent.replace(
-      '{{ modifiedAt }}',
-      moment(perform.modifiedAt).format('YYYY-MM-DD HH:mm')
+      "{{ modifiedAt }}",
+      moment(perform.modifiedAt).format("YYYY-MM-DD HH:mm")
     );
 
     replacedContent = replacedContent.replace(
-      '{{ createdAt }}',
-      moment(perform.createdAt).format('YYYY-MM-DD HH:mm')
+      "{{ createdAt }}",
+      moment(perform.createdAt).format("YYYY-MM-DD HH:mm")
     );
 
     replacedContent = replacedContent.replace(
-      '{{ description }}',
-      perform.description || ''
+      "{{ description }}",
+      perform.description || ""
     );
 
     replacedContent = replacedContent.replace(
-      '{{ appendix }}',
-      perform.appendix || ''
+      "{{ appendix }}",
+      perform.appendix || ""
     );
 
     replacedContent = replacedContent.replace(
-      '{{ seriesText }}',
-      perform.series || ''
+      "{{ seriesText }}",
+      perform.series || ""
     );
 
-    if (replacedContent.includes('{{ spendBranch }}')) {
+    if (replacedContent.includes("{{ spendBranch }}")) {
       let spendBranch: any;
       if (perform.inBranchId) {
         spendBranch = await sendCoreMessage({
           subdomain,
-          action: 'branches.findOne',
+          action: "branches.findOne",
           data: { _id: perform.inBranchId },
           isRPC: true
         });
@@ -191,16 +189,16 @@ export default {
           `${spendBranch.code} - ${spendBranch.title}`
         );
       } else {
-        replacedContent = replacedContent.replace(/{{ spendBranch }}/g, '');
+        replacedContent = replacedContent.replace(/{{ spendBranch }}/g, "");
       }
     }
 
-    if (replacedContent.includes('{{ spendDepartment }}')) {
+    if (replacedContent.includes("{{ spendDepartment }}")) {
       let spendDepartment: any;
       if (perform.inDepartmentId) {
         spendDepartment = await sendCoreMessage({
           subdomain,
-          action: 'departments.findOne',
+          action: "departments.findOne",
           data: { _id: perform.inDepartmentId },
           isRPC: true
         });
@@ -212,16 +210,16 @@ export default {
           `${spendDepartment.code} - ${spendDepartment.title}`
         );
       } else {
-        replacedContent = replacedContent.replace(/{{ spendDepartment }}/g, '');
+        replacedContent = replacedContent.replace(/{{ spendDepartment }}/g, "");
       }
     }
 
-    if (replacedContent.includes('{{ receiptBranch }}')) {
+    if (replacedContent.includes("{{ receiptBranch }}")) {
       let receiptBranch: any;
       if (perform.outBranchId) {
         receiptBranch = await sendCoreMessage({
           subdomain,
-          action: 'branches.findOne',
+          action: "branches.findOne",
           data: { _id: perform.outBranchId },
           isRPC: true
         });
@@ -233,16 +231,16 @@ export default {
           `${receiptBranch.code} - ${receiptBranch.title}`
         );
       } else {
-        replacedContent = replacedContent.replace(/{{ receiptBranch }}/g, '');
+        replacedContent = replacedContent.replace(/{{ receiptBranch }}/g, "");
       }
     }
 
-    if (replacedContent.includes('{{ receiptDepartment }}')) {
+    if (replacedContent.includes("{{ receiptDepartment }}")) {
       let receiptDepartment: any;
       if (perform.outDepartmentId) {
         receiptDepartment = await sendCoreMessage({
           subdomain,
-          action: 'departments.findOne',
+          action: "departments.findOne",
           data: { _id: perform.outDepartmentId },
           isRPC: true
         });
@@ -256,17 +254,17 @@ export default {
       } else {
         replacedContent = replacedContent.replace(
           /{{ receiptDepartment }}/g,
-          ''
+          ""
         );
       }
     }
 
-    if (replacedContent.includes('{{ assignedUser }}')) {
+    if (replacedContent.includes("{{ assignedUser }}")) {
       let assignedUser: any;
       if (perform.assignedUserIds.length) {
         assignedUser = await sendCoreMessage({
           subdomain,
-          action: 'users.findOne',
+          action: "users.findOne",
           data: { _id: perform.assignedUserIds[0] },
           isRPC: true
         });
@@ -278,15 +276,15 @@ export default {
           `${assignedUser.code} - ${assignedUser.title}`
         );
       } else {
-        replacedContent = replacedContent.replace(/{{ assignedUser }}/g, '');
+        replacedContent = replacedContent.replace(/{{ assignedUser }}/g, "");
       }
     }
 
     if (replacedContent.includes(`{{ company }}`)) {
       if (perform.companyId) {
-        const company = await sendContactsMessage({
+        const company = await sendCoreMessage({
           subdomain,
-          action: 'companies.findOne',
+          action: "companies.findOne",
           data: {
             _id: perform.companyId
           },
@@ -296,18 +294,18 @@ export default {
 
         replacedContent = replacedContent.replace(
           /{{ company }}/g,
-          company?.primaryName || ''
+          company?.primaryName || ""
         );
       } else {
-        replacedContent = replacedContent.replace(/{{ company }}/g, '');
+        replacedContent = replacedContent.replace(/{{ company }}/g, "");
       }
     }
 
     if (replacedContent.includes(`{{ customer }}`)) {
       if (perform.customerId) {
-        const customer = await sendContactsMessage({
+        const customer = await sendCoreMessage({
           subdomain,
-          action: 'customers.findOne',
+          action: "customers.findOne",
           data: {
             _id: perform.customerId
           },
@@ -317,19 +315,19 @@ export default {
 
         replacedContent = replacedContent.replace(
           /{{ customer }}/g,
-          customer?.firstName || ''
+          customer?.firstName || ""
         );
       } else {
-        replacedContent = replacedContent.replace(/{{ customer }}/g, '');
+        replacedContent = replacedContent.replace(/{{ customer }}/g, "");
       }
     }
 
-    if (content.includes('{{ seriesBarcode }}')) {
-      let barcode = (perform as any).series || '';
-      const divid = barcode.replace(/\s+/g, '');
+    if (content.includes("{{ seriesBarcode }}")) {
+      let barcode = (perform as any).series || "";
+      const divid = barcode.replace(/\s+/g, "");
 
       replacedContent = replacedContent.replace(
-        '{{ seriesBarcode }}',
+        "{{ seriesBarcode }}",
         `
           <p style="text-align: center;">
           <svg id="barcode${divid}"></svg>
@@ -345,11 +343,11 @@ export default {
       );
     }
 
-    if (content.includes('{{ seriesQrcode }}')) {
-      let qrcode = (perform as any).series || '';
+    if (content.includes("{{ seriesQrcode }}")) {
+      let qrcode = (perform as any).series || "";
 
       replacedContent = replacedContent.replace(
-        '{{ seriesQrcode }}',
+        "{{ seriesQrcode }}",
         `
           <p style="text-align: center;">
             <canvas id="qrcode${qrcode}"></canvas>
@@ -370,27 +368,27 @@ export default {
     }
 
     replacedContent = replacedContent.replace(
-      '{{ needProducts }}',
+      "{{ needProducts }}",
       await productsInfo(subdomain, perform.needProducts)
     );
     replacedContent = replacedContent.replace(
-      '{{ resultProducts }}',
+      "{{ resultProducts }}",
       await productsInfo(subdomain, perform.resultProducts)
     );
     replacedContent = replacedContent.replace(
-      '{{ spendProducts }}',
+      "{{ spendProducts }}",
       await productsInfo(subdomain, perform.inProducts)
     );
     replacedContent = replacedContent.replace(
-      '{{ receiptProducts }}',
+      "{{ receiptProducts }}",
       await productsInfo(subdomain, perform.outProducts)
     );
     replacedContent = replacedContent.replace(
-      '{{ spendProductsSeries }}',
+      "{{ spendProductsSeries }}",
       await productsInfo(subdomain, perform.inProducts, false, true)
     );
     replacedContent = replacedContent.replace(
-      '{{ receiptProductsPrice }}',
+      "{{ receiptProductsPrice }}",
       await productsInfo(subdomain, perform.outProducts, true, false)
     );
 

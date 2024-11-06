@@ -1,8 +1,9 @@
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
 import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
+
 import { BoxRoot } from '@erxes/ui/src/styles/main';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+import styledTS from 'styled-components-ts';
 
 const InfoDetail = styled.p`
   margin: 0;
@@ -305,6 +306,36 @@ const BoxPadding = styled.div`
   padding: 6px 20px;
 `;
 
+const AvatarWrapper = styledTS<{
+  $isOnline?: boolean;
+  hideIndicator?: boolean;
+  size?: number;
+}>(styled.div)`
+  margin-right: ${dimensions.unitSpacing * 1.5}px;
+  position: relative;
+  max-height: ${(props) => (props.size ? `${props.size}px` : '50px')};
+
+  a {
+    float: none;
+  }
+
+  &:before {
+    content: '';
+    position: absolute;
+    right: -3px;
+    top: 32px;
+    background: ${(props) =>
+      props.$isOnline ? colors.colorCoreGreen : colors.colorShadowGray};
+    width: 14px;
+    height: 14px;
+    border-radius: ${dimensions.unitSpacing}px;
+    font-size: ${dimensions.unitSpacing}px;
+    border: 1px solid ${colors.colorWhite};
+    z-index: 1;
+    display: ${(props) => props.hideIndicator && 'none'};
+  }
+`;
+
 export {
   InfoDetail,
   InfoAvatar,
@@ -321,5 +352,6 @@ export {
   UserHeader,
   MailBox,
   CustomPadding,
-  BoxPadding
+  BoxPadding,
+  AvatarWrapper
 };
