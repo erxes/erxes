@@ -17,6 +17,7 @@ export const contractTypeFields = `
   isAllowIncome
   isAllowOutcome
   isDeposit
+  productType
 `;
 
 const listParamsDef = `
@@ -27,6 +28,7 @@ const listParamsDef = `
   $sortField: String
   $sortDirection: Int
   $isDeposit: Boolean
+  $productType: String
 `;
 
 const listParamsValue = `
@@ -37,6 +39,7 @@ const listParamsValue = `
   sortField: $sortField
   sortDirection: $sortDirection
   isDeposit: $isDeposit
+  productType: $productType
 `;
 
 export const contractTypes = `

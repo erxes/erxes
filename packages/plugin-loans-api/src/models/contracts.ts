@@ -193,6 +193,14 @@ export const loadContractClass = (models: IModels) => {
         _id,
       });
 
+      const transactions = await models.Transactions.find({
+        contractId: _id,
+      }).lean();
+
+      if (transactions.length) {
+        throw new Error('Not update, cause: has a transactions')
+      }
+
       if (oldContract.contractTypeId !== doc.contractTypeId) {
         doc.number = await getNumber(models, doc.contractTypeId);
       }
@@ -211,13 +219,10 @@ export const loadContractClass = (models: IModels) => {
         doc.collateralsData || []
       );
       await models.Contracts.updateOne({ _id }, { $set: doc });
-      const transactions = await models.Transactions.find({
-        contractId: _id,
-      }).lean();
+
       if (
         doc.repayment === REPAYMENT.CUSTOM &&
-        schedule.length > 0 &&
-        transactions.length === 0
+        schedule.length > 0
       ) {
         await models.FirstSchedules.deleteMany({ contractId: _id });
         await models.Schedules.deleteMany({ contractId: _id });

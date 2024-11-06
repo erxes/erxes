@@ -160,7 +160,7 @@ export const loadTransactionClass = (models: IModels) => {
 
       const tr = await models.Transactions.create({ ...doc });
 
-      if ((tr.calcInterest || 0) > 0 && isEnabled("savings")) {
+      if ((tr.calcInterest || 0) > 0 && isEnabled("savings") && contract.depositAccountId) {
         await sendMessageBroker(
           {
             action: "block.create",
@@ -203,7 +203,8 @@ export const loadTransactionClass = (models: IModels) => {
         {
           _id: tr.contractId
         },
-        { $inc: updateContractInc }
+        { $inc: updateContractInc },
+        { $set: { lastStoredDate: doc.payDate } }
       );
 
       if (

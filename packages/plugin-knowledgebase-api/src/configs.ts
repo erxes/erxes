@@ -18,6 +18,7 @@ import { setupMessageConsumers } from './messageBroker';
 import * as permissions from './permissions';
 import { checkPermission, handleUpload } from './utils';
 import webhooks from './webhooks';
+import templates from './templates';
 
 export default {
   name: 'knowledgebase',
@@ -36,6 +37,7 @@ export default {
     permissions,
     cronjobs,
     automations,
+    templates
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);

@@ -25,6 +25,7 @@ import {
   connectAndQueryTimeLogsFromMsSql,
 } from '../../utils';
 import { sendMobileNotification } from '../utils';
+import { sendCoreMessage } from '../../messageBroker';
 
 interface ITimeClockEdit extends ITimeClock {
   _id: string;
@@ -278,15 +279,13 @@ const timeclockMutations = {
   async solveAbsenceRequest(
     _root,
     { _id, status, ...doc }: IAbsenceEdit,
-    { models }: IContext
+    { models, user, subdomain }: IContext
   ) {
     const dateFormat = 'MM/DD/YYYY';
+    let hasSpervisor = false;
+    let hasUserId = false;
     const shiftRequest = await models.Absences.getAbsence(_id);
-    let updated = models.Absences.updateAbsence(_id, {
-      status,
-      solved: true,
-      ...doc,
-    });
+    let updated = {};
 
     const findUserSchedules = await models.Schedules.find({
       userId: shiftRequest.userId,
@@ -311,10 +310,47 @@ const timeclockMutations = {
       shiftRequest.absenceTypeId || ''
     );
 
+    if (findAbsenceType && findAbsenceType.requestToType === 'supervisor') {
+      if (findAbsenceType && findAbsenceType.branchIds) {
+        for (const branchId of findAbsenceType.branchIds) {
+          const branch = await sendCoreMessage({
+            subdomain,
+            action: 'branches.findOne',
+            data: { _id: branchId },
+            isRPC: true,
+            defaultValue: [],
+          });
+
+          if (branch && branch?.supervisorId === user._id) {
+            hasSpervisor = true;
+          }
+        }
+      }
+
+      if (!hasSpervisor) {
+        throw new Error('Only branch superviser can edit');
+      }
+    }
+
+    if (findAbsenceType && findAbsenceType.requestToType === 'individuals') {
+      if (findAbsenceType && findAbsenceType.absenceUserIds) {
+        for (const userId of findAbsenceType.absenceUserIds) {
+          if (userId === user._id) {
+            hasUserId = true;
+          }
+        }
+      }
+
+      if (!hasUserId) {
+        throw new Error('Only selected user can edit');
+      }
+    }
+
     // if request is shift request
     if (findAbsenceType && findAbsenceType.shiftRequest) {
       updated = models.Absences.updateAbsence(_id, {
         status: `Shift request / ${status}`,
+        solved: true,
         ...doc,
       });
 
@@ -846,8 +882,6 @@ const timeclockMutations = {
     },
     { models }: IContext
   ) {
-    console.log(overtimeExists, startFlexible, endFlexible);
-
     const newScheduleConfig = await models.ScheduleConfigs.updateScheduleConfig(
       _id,
       {

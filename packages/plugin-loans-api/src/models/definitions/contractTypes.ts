@@ -53,6 +53,10 @@ export interface IContractConfig {
   doubtExpirationDay: number;
   negativeExpirationDay: number;
   badExpirationDay: number;
+
+  boardId: string;
+  pipelineId: string;
+  stageId: string;
 }
 
 export interface IContractType {

@@ -16,14 +16,10 @@ type Props = {
 };
 
 const GeneralSettings = (props: Props) => {
-  const [configsMap, setConfigsMap] = useState<IConfigsMap>(props.configsMap);
+  const [configs, setConfigs] = useState<IConfigsMap>(props.configsMap.dealsProductsDataPrint || {});
 
   const add = (e) => {
     e.preventDefault();
-
-    if (!configsMap.dealsProductsDataPrint) {
-      configsMap.dealsProductsDataPrint = {};
-    }
 
     // must save prev item saved then new item
     const newPrintConfig = {
@@ -34,33 +30,37 @@ const GeneralSettings = (props: Props) => {
       conditions: [],
     };
 
-    setConfigsMap((prevConfigsMap) => ({
+    setConfigs((prevConfigsMap) => ({
       ...prevConfigsMap,
-      dealsProductsDataPrint: {
-        ...prevConfigsMap.dealsProductsDataPrint,
-        newPrintConfig,
-      },
+      newPrintConfig,
     }));
   };
 
   const deleteHandler = (currentConfigKey: string) => {
-    delete configsMap.dealsProductsDataPrint[currentConfigKey];
-    delete configsMap.dealsProductsDataPrint['newPrintConfig'];
+    const dealsProductsDataPrint = { ...configs };
+    delete dealsProductsDataPrint[currentConfigKey];
+    delete dealsProductsDataPrint['newPrintConfig'];
 
-    setConfigsMap(configsMap);
-
-    props.save(configsMap);
+    setConfigs({ ...dealsProductsDataPrint });
+    props.save({ ...props.configsMap, dealsProductsDataPrint });
   };
+
+  const saveHandler = (key, config) => {
+    const dealsProductsDataPrint = { ...configs };
+    delete dealsProductsDataPrint['newPrintConfig'];
+    dealsProductsDataPrint[key] = config;
+    setConfigs({ ...dealsProductsDataPrint });
+    props.save({ ...props.configsMap, dealsProductsDataPrint })
+  }
 
   const renderConfigs = (configs) => {
     return Object.keys(configs).map((key) => {
       return (
         <PerPrint
           key={Math.random()}
-          configsMap={configsMap}
           config={configs[key]}
           currentConfigKey={key}
-          save={props.save}
+          save={saveHandler}
           delete={deleteHandler}
         />
       );
@@ -68,8 +68,6 @@ const GeneralSettings = (props: Props) => {
   };
 
   const renderContent = () => {
-    const configs = configsMap.dealsProductsDataPrint || {};
-
     return (
       <ContentBox id={'GeneralSettingsMenu'}>
         {renderConfigs(configs)}

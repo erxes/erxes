@@ -56,9 +56,10 @@ export interface IAbsenceType {
 
   requestType: string;
   requestToType: string;
-  requestToWhomType: string;
   requestTimeType: string;
   requestHoursPerDay?: number;
+  absenceUserIds?: [string];
+  branchIds?: [string];
 }
 
 export interface IReport {

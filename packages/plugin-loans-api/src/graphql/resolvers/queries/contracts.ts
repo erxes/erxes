@@ -241,11 +241,7 @@ const contractQueries = {
     return alerts;
   },
 
-  convertToContract: async (
-    _root,
-    params: { contentType: string; id: string },
-    { subdomain }: IContext
-  ) => {
+  convertToContract: async (_root, params: { contentType: string; id: string }, { models, subdomain }: IContext) => {
     const { contentType, id } = params;
     const mappings = {
       deal: {
@@ -273,16 +269,12 @@ const contractQueries = {
         subdomain,
         action: mapping.action,
         data: mapping.data,
-        isRPC: true
+        isRPC: true,
       },
       mapping.name
     );
 
-    return await customFieldToObject(
-      subdomain,
-      mapping.customFieldType,
-      object
-    );
+    return await customFieldToObject(models, subdomain, mapping.customFieldType, object)
   }
 };
 

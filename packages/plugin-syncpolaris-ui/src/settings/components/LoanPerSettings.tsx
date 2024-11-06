@@ -108,6 +108,12 @@ const LoanPerSettings = (props: Props) => {
     );
   };
 
+  const itemDelete = (key) => {
+    const tempMap = { ...currentMap };
+    delete tempMap[key];
+    setCurrentMap(currentKey, { ...tempMap })
+  }
+
   const renderItem = (key: string, label: string, description?: string) => {
     const setType = (value) => {
       setCurrentMap(currentKey, { ...currentMap, [key]: { ...currentMap[key] || {}, type: value } })
@@ -152,7 +158,7 @@ const LoanPerSettings = (props: Props) => {
                 (renderInput(key))
             }
           </FormColumn>
-          {!isDefault && <Button btnStyle="link" icon="times-circle" />}
+          {!isDefault && <Button btnStyle="link" icon="times-circle" onClick={itemDelete.bind(this, key)} />}
         </Row>
       </FormGroup>
     );
@@ -182,7 +188,7 @@ const LoanPerSettings = (props: Props) => {
           componentclass="select"
           options={[
             { value: '', label: 'empty' },
-            ...props.contractTypes.map(ct => ({ value: ct._id, label: ct.name }))
+            ...props.contractTypes.map(ct => ({ value: ct._id, label: `${ct.code} - ${ct.name}` }))
           ]
           }
           value={currentKey}
