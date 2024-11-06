@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.5](https://github.com/erxes/erxes/compare/2.0.4...2.0.5) (2024-11-06)
+
+
+### Bug Fixes
+
+* segments filter for export ([7a47e90](https://github.com/erxes/erxes/commit/7a47e900c996ed8cb3ac4dbe8731136fce6a0f52))
+
 ## [2.0.4](https://github.com/erxes/erxes/compare/2.0.3...2.0.4) (2024-11-06)
 
 
