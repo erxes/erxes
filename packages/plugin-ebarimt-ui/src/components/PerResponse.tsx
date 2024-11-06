@@ -106,6 +106,11 @@ export default (response, counter?) => {
             ${response.qrData && `<canvas id="qrcode${response._id}"></canvas>` || ''}
           </div>
           <p>Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>
+
+          ${response.description && (`<div>
+            ${response.description}
+          </div>`)
+      }
         </div>
       ` : `
         Буцаалт амжилттай.
