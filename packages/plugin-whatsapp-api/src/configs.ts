@@ -19,7 +19,7 @@ export default {
     inboxIntegrations: [
       {
         kind: INTEGRATION_KINDS.MESSENGER,
-        label: 'WhatsApp'
+        label: 'whatsapp'
       }
     ]
   },

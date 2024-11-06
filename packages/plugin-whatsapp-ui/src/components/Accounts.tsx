@@ -59,7 +59,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
   renderButton() {
     const { onAdd, kind } = this.props;
-    console.log(this.props, 'askdopaskdopaspdkpoaskd');
+    console.log(kind, '%%%%%%%%');
     if (kind === 'whatsapp') {
       return (
         <FacebookButton onClick={onAdd}>

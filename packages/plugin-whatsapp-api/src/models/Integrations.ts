@@ -25,7 +25,7 @@ export const integrationSchema = new Schema({
   emailScope: String,
   whatsappNumberIds: field({
     type: [String],
-    label: 'WhatsApp Number ids',
+    label: 'whatsapp Number ids',
     optional: true
   }),
   email: String,

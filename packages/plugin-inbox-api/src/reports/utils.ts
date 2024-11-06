@@ -218,7 +218,7 @@ export const getIntegrationsKinds = async () => {
     'facebook-messenger': 'Facebook messenger',
     'facebook-post': 'Facebook post',
     'instagram-messenger': 'Instagram messenger',
-    whatsApp: 'WhatsApp',
+    whatsapp: 'whatsapp',
     calls: 'Phone call',
     client: 'Client Portal',
     vendor: 'Vendor Portal'

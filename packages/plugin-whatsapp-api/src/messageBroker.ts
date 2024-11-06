@@ -50,7 +50,6 @@ export const setupMessageConsumers = async () => {
       const models = await generateModels(subdomain);
 
       const { action, type } = data;
-
       let response: RPResult = {
         status: 'success'
       };

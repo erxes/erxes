@@ -78,7 +78,7 @@ class Whatsapp extends React.Component<Props, State> {
     accountId: string;
   }) => {
     const { accountId, kind } = this.props;
-
+    console.log(this.props, 'asdoaskopask');
     return {
       name: values.messengerName,
       brandId: values.brandId,
@@ -146,7 +146,7 @@ class Whatsapp extends React.Component<Props, State> {
     const { renderButton } = this.props;
     const { values, isSubmitted } = formProps;
     const { onRemoveAccount, onAccountSelect } = this.props;
-
+    console.log(this.props, '********');
     return (
       <>
         <Steps active={1}>
@@ -235,22 +235,16 @@ class Whatsapp extends React.Component<Props, State> {
   };
 
   render() {
-    let title = __('Whatsapp Posts');
-    let description = __(
-      'Connect your Whatsapp Posts to start receiving Whatsapp post and comments in your team inbox'
+    const title = __('whatsapp');
+    const description = __(
+      'Connect your whatsapp to start receiving Whatsapp messages in your team inbox'
     );
 
-    if (this.props.kind === INTEGRATION_KINDS.WHATSAPP_MESSENGER) {
-      title = __('Whatsapp Messenger');
-      description = __(
-        'Connect your Whatsapp Messenger to start receiving Whatsapp messages in your team inbox'
-      );
-    }
-
+    // Define the breadcrumb array
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Integrations'), link: '/settings/integrations' },
-      { title }
+      { title } // Dynamically set the last title in the breadcrumb
     ];
 
     return (

@@ -16,7 +16,7 @@ const receiveMessage = async (
 
   const waId = contacts.length > 0 ? contacts[0]?.wa_id : undefined;
   if (!waId) {
-    console.error('No WhatsApp ID found in contacts');
+    console.error('No whatsapp ID found in contacts');
     return;
   }
 
@@ -29,7 +29,7 @@ const receiveMessage = async (
     });
 
     if (!integration) {
-      throw new Error('WhatsApp Integration not found');
+      throw new Error('whatsapp Integration not found');
     }
 
     const customer = await getOrCreateCustomer(

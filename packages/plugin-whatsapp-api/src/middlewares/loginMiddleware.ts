@@ -98,7 +98,7 @@ const loginMiddleware = async (req, res) => {
     const reactAppUrl = !DOMAIN.includes('zrok')
       ? DOMAIN
       : 'http://localhost:3000';
-    const url = `${reactAppUrl}/settings/whatsApp-authorization?igAuthorized=true`;
+    const url = `${reactAppUrl}/settings/whatsapp-authorization?igAuthorized=true`;
 
     debugResponse(debugWhatsapp, req, url);
 

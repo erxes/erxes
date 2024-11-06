@@ -84,18 +84,6 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
     if (!conversation) {
       return null;
     }
-
-    const { kind } = conversation.integration;
-
-    if (kind === 'whatsapp-post') {
-      return (
-        <>
-          <PostContainer>{conversation.content}</PostContainer>
-          {this.renderComments()}
-        </>
-      );
-    }
-
     const rows: React.ReactNode[] = [];
     let tempId;
 
@@ -146,9 +134,9 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
     let item = 'message';
 
     switch (condition) {
-      case 'whatsapp-messenger':
+      case 'whatsapp':
         kind = 'message';
-        item = 'Whatsapp Messenger';
+        item = 'whatsapp';
         break;
       default:
         break;

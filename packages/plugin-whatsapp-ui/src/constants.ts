@@ -1,20 +1,20 @@
 export const INTEGRATIONS = [
   {
-    name: 'Whatsapp Messenger',
+    name: 'whatsapp',
     description:
       'Connect and manage Whatsapp Messages right from your Team Inbox',
     inMessenger: false,
     isAvailable: true,
-    kind: 'whatsapp-messenger',
+    kind: 'whatsapp',
     logo: '/images/integrations/whatsapp.png',
-    createModal: 'whatsapp-messenger',
+    createModal: 'whatsapp',
     createUrl: '/settings/integrations/createWhatsapp',
     category:
       'All integrations, For support teams, Messaging, Social media, Conversation'
   }
 ];
 export const KINDS = {
-  MESSENGER: 'whatsapp-messenger',
+  MESSENGER: 'whatsapp',
   POST: 'whatsapp-post',
-  ALL: ['whatsapp-messenger', 'whatsapp-post']
+  ALL: ['whatsapp', 'whatsapp-post']
 };

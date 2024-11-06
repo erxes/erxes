@@ -6,7 +6,7 @@ export const LOG_TYPES = {
 };
 
 export const INTEGRATION_KINDS = {
-  MESSENGER: 'whatsapp-messenger',
+  MESSENGER: 'whatsapp',
   POST: 'whatsapp-post',
-  ALL: ['whatsapp-post', 'whatsapp-messenger']
+  ALL: ['whatsapp-post', 'whatsapp']
 };

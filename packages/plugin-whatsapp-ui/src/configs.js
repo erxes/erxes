@@ -80,7 +80,7 @@ module.exports = {
           }
         `,
       name: 'whatsappConversationMessages',
-      integrationKind: 'whatsapp-messenger'
+      integrationKind: 'whatsapp'
     },
     countQuery: {
       query: `
@@ -89,7 +89,7 @@ module.exports = {
           }
         `,
       name: 'whatsappConversationMessagesCount',
-      integrationKind: 'whatsapp-messenger'
+      integrationKind: 'whatsapp'
     }
   },
   inboxIntegrations: [
@@ -98,9 +98,9 @@ module.exports = {
       description: 'Connect and manage Whats App right from your Team Inbox',
       inMessenger: false,
       isAvailable: true,
-      kind: 'whatsapp-messenger',
+      kind: 'whatsapp',
       logo: '/images/integrations/whatsapp.png',
-      createModal: 'whatsapp-messenger',
+      createModal: 'whatsapp',
       createUrl: '/settings/integrations/createWhatsapp',
       category:
         'All integrations, For support teams, Messaging, Social media, Conversation',

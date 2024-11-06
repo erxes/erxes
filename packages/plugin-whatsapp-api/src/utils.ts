@@ -58,7 +58,7 @@ export const wabaUserDetail = async (
     return response;
   } catch (error) {
     throw new Error(
-      `Failed to retrieve WhatsApp account details: ${error.message}`
+      `Failed to retrieve whatsapp account details: ${error.message}`
     );
   }
 };
@@ -138,7 +138,7 @@ export const uploadFileFromUrl = async (
     }
   } catch (error) {
     throw new Error(
-      `Failed to retrieve WhatsApp account details: ${error.message}`
+      `Failed to retrieve whatsapp account details: ${error.message}`
     );
   }
 };
@@ -192,7 +192,7 @@ export const getBusinessWhatsAppDetails = async (
             });
           }
         } else {
-          throw `No phone numbers found for WhatsApp Business Account ID: ${wabaId}`;
+          throw `No phone numbers found for whatsapp Business Account ID: ${wabaId}`;
         }
       }
     }
@@ -200,7 +200,7 @@ export const getBusinessWhatsAppDetails = async (
     return results;
   } catch (error) {
     throw new Error(
-      `Failed to retrieve WhatsApp account details: ${error.message}`
+      `Failed to retrieve whatsapp account details: ${error.message}`
     );
   }
 };
@@ -236,12 +236,12 @@ export const sendReply = async (
   try {
     const response = await graphRequest.post(url, access_token, data);
     debugWhatsapp(
-      `Successfully sent data to WhatsApp: ${JSON.stringify(data)}`
+      `Successfully sent data to whatsapp: ${JSON.stringify(data)}`
     );
     return response;
   } catch (e) {
     debugError(
-      `Error occurred while trying to send POST request to WhatsApp: ${e.message}, data: ${JSON.stringify(data)}`
+      `Error occurred while trying to send POST request to whatsapp: ${e.message}, data: ${JSON.stringify(data)}`
     );
     throw new Error(e.message);
   }
