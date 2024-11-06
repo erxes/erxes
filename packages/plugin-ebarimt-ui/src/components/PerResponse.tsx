@@ -120,7 +120,12 @@ export default (response, counter?) => {
           <div>
             ${response.qrData && `<canvas id="qrcode${response._id}"></canvas>` || ''}
           </div>
+
           ${customize(response, "footerText", "<p>Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>")}
+
+          ${response.description && (`<div>
+            ${response.description}
+          </div>`)}
         </div>
       ` : `
         Буцаалт амжилттай.
