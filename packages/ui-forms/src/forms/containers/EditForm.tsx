@@ -1,6 +1,6 @@
 import * as compose from "lodash.flowright";
 
-import { Alert, removeTypename, withProps } from "@erxes/ui/src/utils";
+import { Alert, withProps } from "@erxes/ui/src/utils";
 import {
   BulkEditAndAddMutationVariables,
   EditFormMutationResponse,
@@ -31,9 +31,12 @@ type Props = {
   formData?: IFormData;
   type: string;
   isReadyToSave: boolean;
+  isAviableToSaveWhenReady?: boolean;
   formId: string;
   integration?: IIntegration;
   showMessage?: boolean;
+  fieldTypes?: string[];
+  name?: string;
 };
 
 type FinalProps = {
@@ -94,6 +97,7 @@ class EditFormContainer extends React.Component<FinalProps> {
           buttonText,
           numberOfPages: Number(numberOfPages),
           type,
+          name: this.props.name,
         },
       })
         .then(() => {

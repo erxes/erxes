@@ -1,12 +1,21 @@
 import React from "react";
 import { gql } from "@apollo/client";
-import { queries } from "@erxes/ui-cards/src/boards/graphql";
+import { queries as ticketsQueries } from "@erxes/ui-tickets/src/boards/graphql";
+import { queries as tasksQueries } from '@erxes/ui-tasks/src/boards/graphql';
+import { queries as dealsQueries } from '@erxes/ui-sales/src/boards/graphql';
 import { useQuery } from "@apollo/client";
 import Select from "react-select";
 import { FormGroup, ControlLabel, __, BarItems, Icon } from "@erxes/ui/src";
 import { Card } from "./styles";
 
+const stageQueries = {
+  ticket: ticketsQueries.stages,
+  task: tasksQueries.stages,
+  deal: dealsQueries.stages,
+};
+
 export function SelectStage({
+  cardType,
   pipelineId,
   initialValue,
   label,
@@ -14,6 +23,7 @@ export function SelectStage({
   excludeIds,
   onSelect,
 }: {
+  cardType: keyof typeof stageQueries;
   pipelineId: string;
   initialValue?: string;
   label: string;
@@ -21,19 +31,20 @@ export function SelectStage({
   excludeIds?: string[];
   onSelect: (props: { value: string }) => void;
 }) {
+  const query = stageQueries[cardType];
   const queryVariables: any = { pipelineId };
 
   if (!!excludeIds?.length) {
     queryVariables.excludeIds = excludeIds;
   }
 
-  const { data, loading } = useQuery(gql(queries.stages), {
+  const { data, loading } = useQuery(gql(query), {
     variables: queryVariables,
-    fetchPolicy: "network-only",
+    fetchPolicy: 'network-only',
     skip: !pipelineId,
   });
 
-  const options = (data?.stages || []).map((stage) => ({
+  const options = ((data || {})[`${cardType}sStages`] || []).map((stage) => ({
     value: stage._id,
     label: stage.name,
   }));
@@ -44,7 +55,7 @@ export function SelectStage({
       <Select
         required={true}
         name={name}
-        placeholder={"Choose a stage"}
+        placeholder={__('Choose a stage')}
         value={options.find((o) => o.value === initialValue)}
         onChange={onSelect}
         options={options}

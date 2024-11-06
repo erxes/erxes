@@ -11,6 +11,7 @@ import Script from "../modules/common/Script";
 import { Store } from "../modules/types";
 import withApolloClient from "./api/lib/withApolloClient";
 
+
 type Props = {
   pageProps: any;
   Component: any;

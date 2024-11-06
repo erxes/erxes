@@ -103,7 +103,7 @@ class PageForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Name:</ControlLabel>
             <FormControl
-              placeholder="Enter a name"
+              placeholder={__("Enter a name")}
               onChange={(e: any) => this.onChange('name', e.target.value)}
               value={name}
             />
@@ -112,7 +112,7 @@ class PageForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Description:</ControlLabel>
             <FormControl
-              placeholder="Enter a description"
+              placeholder={__("Enter a description")}
               onChange={(e: any) =>
                 this.onChange('description', e.target.value)
               }
@@ -123,7 +123,7 @@ class PageForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Slug:</ControlLabel>
             <FormControl
-              placeholder="Enter a page slug"
+              placeholder={__("Enter a page slug")}
               onChange={(e: any) => this.onChange('slug', e.target.value)}
               value={slug}
             />

@@ -94,7 +94,7 @@ const isValidBarcode = (barcode: string): boolean => {
 
 const getCustomerInfo = async (type: string, config: IEbarimtConfig, doc: IDoc) => {
   if (type === 'B2B_RECEIPT') {
-    const tinre = /(^\d{11}$)|(^\d{12}$)/;
+    const tinre = /(^\d{11}$)|(^\d{12}$)|(^\d{14}$)/;
     if (tinre.test(doc.customerTin || '')) {
       return { customerTin: doc.customerTin, customerName: doc.customerName }
     }

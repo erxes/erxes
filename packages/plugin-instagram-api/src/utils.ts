@@ -69,7 +69,15 @@ export const getPostLink = async (accessToken: string, post_id: string) => {
     );
     return response;
   } catch (e) {
-    debugError(`Error occurred while getting facebook post: ${e.message}`);
+    if (e.message.includes('Error validating access token')) {
+      // Handle the invalid token case
+      debugError(
+        'Access token is invalid or expired. Reauthentication required.'
+      );
+      // Prompt reauthentication or refresh token logic here
+    } else {
+      debugError(`Error occurred while getting Instagram post: ${e.message}`);
+    }
     return null;
   }
 };

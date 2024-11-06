@@ -11,7 +11,7 @@ import {
   FlexRow,
   Label,
   TicketComment,
-  TicketDetailContent
+  TicketDetailContent,
 } from '../../styles/cards';
 import { getUserAvatar, renderUserFullName } from '../../utils';
 
@@ -48,11 +48,11 @@ export default class CardDetail extends React.Component<
     super(props);
 
     this.state = {
-      content: ''
+      content: '',
     };
   }
 
-  handleChange = e => {
+  handleChange = (e) => {
     this.setState({ content: e.target.value });
   };
 
@@ -69,7 +69,7 @@ export default class CardDetail extends React.Component<
   renderComments(comments) {
     return (
       <CommentWrapper>
-        {comments.map(comment => {
+        {comments.map((comment) => {
           const { createdUser = {} } = comment;
 
           return (
@@ -81,25 +81,25 @@ export default class CardDetail extends React.Component<
                       ? createdUser?.avatar
                       : '/static/avatar-colored.svg'
                   )}
-                  alt="profile"
+                  alt='profile'
                 />
                 <div>
                   <CommentContent>
                     <h5>{renderUserFullName(createdUser)}</h5>
                     <div
-                      className="comment"
+                      className='comment'
                       dangerouslySetInnerHTML={{ __html: comment.content }}
                     />
                   </CommentContent>
                   <span>
-                    Created at{' '}
+                    {__('Created at')}{' '}
                     {dayjs(comment.createdAt).format('YYYY-MM-DD HH:mm')}
                   </span>
                 </div>
                 {createdUser?._id === this.props.currentUser._id && (
-                  <div className="actions">
+                  <div className='actions'>
                     <span onClick={() => this.deleteComment(comment._id)}>
-                      Delete
+                      {__('Delete')}
                     </span>
                   </div>
                 )}
@@ -118,7 +118,7 @@ export default class CardDetail extends React.Component<
       return <span>{__('No one`s assigned yet')}</span>;
     }
 
-    return assignedUsers.map(user => (
+    return assignedUsers.map((user) => (
       <Assignees key={user._id}>
         <img
           alt={renderUserFullName(user)}
@@ -134,7 +134,7 @@ export default class CardDetail extends React.Component<
   renderProductsInfo() {
     const { productsData } = this.props.item;
     if (productsData) {
-      return productsData.map(product => (
+      return productsData.map((product) => (
         <span key={product._id}>
           {product.name}&nbsp;<b>({product.quantity} PC)</b>
         </span>
@@ -151,40 +151,40 @@ export default class CardDetail extends React.Component<
       createdAt,
       modifiedAt,
       startDate,
-      closeDate
+      closeDate,
     } = this.props.item || ({} as any);
 
     const { type } = this.props;
 
     return (
       <TicketDetailContent>
-        <DetailRow type="row">
-          <ControlLabel>Number</ControlLabel>
+        <DetailRow type='row'>
+          <ControlLabel>{__('Number')}</ControlLabel>
           <span>{number || '-'}</span>
         </DetailRow>
-        <DetailRow type="row">
-          <ControlLabel>Requestor</ControlLabel>
+        <DetailRow type='row'>
+          <ControlLabel>{__('Requestor')}</ControlLabel>
           <span>{renderUserFullName(createdUser || ({} as any))}</span>
         </DetailRow>
-        <DetailRow type="row">
-          <ControlLabel>Status</ControlLabel>
+        <DetailRow type='row'>
+          <ControlLabel>{__('Status')}</ControlLabel>
           <span>{status}</span>
         </DetailRow>
-        <DetailRow type="row">
-          <ControlLabel>Created at</ControlLabel>
+        <DetailRow type='row'>
+          <ControlLabel>{__('Created at')}</ControlLabel>
           <span>{dayjs(createdAt).format('DD MMM YYYY, HH:mm')}</span>
         </DetailRow>
-        <DetailRow type="row">
-          <ControlLabel>Modified at</ControlLabel>
+        <DetailRow type='row'>
+          <ControlLabel>{__('Modified at')}</ControlLabel>
           <span>{dayjs(modifiedAt).format('DD MMM YYYY, HH:mm')}</span>
         </DetailRow>
-        <DetailRow type="row">
-          <ControlLabel>Assigned users</ControlLabel>
+        <DetailRow type='row'>
+          <ControlLabel>{__('Assigned users')}</ControlLabel>
           <div>{this.renderAssignedUsers()}</div>
         </DetailRow>
         {type === 'deal' && (
-          <DetailRow type="row">
-            <ControlLabel>Products & Service</ControlLabel>
+          <DetailRow type='row'>
+            <ControlLabel>{__('Products & Service')}</ControlLabel>
             <div>{this.renderProductsInfo()}</div>
           </DetailRow>
         )}
@@ -197,11 +197,11 @@ export default class CardDetail extends React.Component<
 
     const updatedProps = {
       config,
-      type
+      type,
     };
 
     if (checklists) {
-      return checklists.map(c => (
+      return checklists.map((c) => (
         <CheckListDetail key={c._id} checklist={c} {...updatedProps} />
       ));
     }
@@ -233,22 +233,22 @@ export default class CardDetail extends React.Component<
 
     return (
       <>
-        <DetailHeader className="d-flex align-items-center">
+        <DetailHeader className='d-flex align-items-center'>
           <span onClick={this.props.onClose}>
-            <Icon icon="angle-double-left" size={20} /> Back
+            <Icon icon='angle-double-left' size={20} /> {__("Back")}
           </span>
         </DetailHeader>
-        <div className="row">
-          <div className="col-md-12">
+        <div className='row'>
+          <div className='col-md-12'>
             <Card>
               <h4>{item.name}</h4>
-              <FlexRow className="justify-content-between">
+              <FlexRow className='justify-content-between'>
                 <DetailRow>
-                  <ControlLabel>Stage</ControlLabel>
+                  <ControlLabel>{__('Stage')}</ControlLabel>
                   <span>{stage ? stage.name : '-'}</span>
                 </DetailRow>
                 <DetailRow>
-                  <ControlLabel>Start date</ControlLabel>
+                  <ControlLabel>{__('Start date')}</ControlLabel>
                   <span>
                     {startDate
                       ? dayjs(startDate).format('DD MMM YYYY, HH:mm')
@@ -256,7 +256,7 @@ export default class CardDetail extends React.Component<
                   </span>
                 </DetailRow>
                 <DetailRow>
-                  <ControlLabel>Due date</ControlLabel>
+                  <ControlLabel>{__('Due date')}</ControlLabel>
                   <span>
                     {closeDate
                       ? dayjs(closeDate).format('DD MMM YYYY, HH:mm')
@@ -264,28 +264,28 @@ export default class CardDetail extends React.Component<
                   </span>
                 </DetailRow>
                 <DetailRow>
-                  <ControlLabel>Duration</ControlLabel>
+                  <ControlLabel>{__('Duration')}</ControlLabel>
                   <span>{closeDate ? `${durationDays} days` : '-'}</span>
                 </DetailRow>
               </FlexRow>
             </Card>
           </div>
-          <div className="col-md-5">
-            <ControlLabel>Details</ControlLabel>
+          <div className='col-md-5'>
+            <ControlLabel>{__('Details')}</ControlLabel>
             <Card>
-              <DetailRow type="row">
-                <ControlLabel>Priority</ControlLabel>
+              <DetailRow type='row'>
+                <ControlLabel>{__('Priority')}</ControlLabel>
                 <span>
                   <PriorityIndicator value={priority} /> {priority || 'Normal'}
                 </span>
               </DetailRow>
-              <DetailRow type="row">
-                <ControlLabel>Labels</ControlLabel>
-                <div className="d-flex" style={{ gap: '5px' }}>
+              <DetailRow type='row'>
+                <ControlLabel>{__('Labels')}</ControlLabel>
+                <div className='d-flex' style={{ gap: '5px' }}>
                   {!labels || labels.length === 0 ? (
-                    <span>No labels at the moment!</span>
+                    <span>{__('No labels at the moment')}</span>
                   ) : (
-                    (labels || []).map(label => (
+                    (labels || []).map((label) => (
                       <Label
                         key={label._id}
                         lblStyle={'custom'}
@@ -302,38 +302,38 @@ export default class CardDetail extends React.Component<
             </Card>
           </div>
 
-          <div className="col-md-7">
-            <ControlLabel>Description</ControlLabel>
+          <div className='col-md-7'>
+            <ControlLabel>{__('Description')}</ControlLabel>
             <Card>
               {description ? (
                 <Description
                   dangerouslySetInnerHTML={{ __html: description }}
                 />
               ) : (
-                <span>No description at the moment!</span>
+                <span>{__('No description at the moment')}!</span>
               )}
             </Card>
 
-            <ControlLabel>Attachments</ControlLabel>
+            <ControlLabel>{__('Attachments')}</ControlLabel>
             <Card> {this.renderAttachments()}</Card>
 
-            <ControlLabel>Comments</ControlLabel>
+            <ControlLabel>{__('Comments')}</ControlLabel>
             <Card>
               <CommentContainer>
                 <TextArea
                   onChange={this.handleChange}
-                  placeholder="Write a comment..."
+                  placeholder={__('Write a comment') + '...'}
                   value={this.state.content}
                 />
                 {this.state.content.length !== 0 && (
-                  <div className="buttons">
+                  <div className='buttons'>
                     <Button
-                      btnStyle="success"
-                      size="small"
-                      icon="message"
+                      btnStyle='success'
+                      size='small'
+                      icon='message'
                       onClick={this.createComment.bind(this, email)}
                     >
-                      Save
+                      {__('Save')}
                     </Button>
                   </div>
                 )}

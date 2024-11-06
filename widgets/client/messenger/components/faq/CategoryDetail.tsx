@@ -1,25 +1,39 @@
-import * as React from 'react';
-import Articles from '../../containers/faq/Articles';
-import { IFaqCategory } from '../../types';
-import SearchBar from './SearchBar';
-import { __ } from '../../../utils';
-import Container from '../common/Container';
-import CategoriesContainer from '../../containers/faq/Categories';
+import * as React from "react";
+import { iconLeft } from "../../../icons/Icons";
+import TopBar from "../../containers/TopBar";
+import Articles from "../../containers/faq/Articles";
+import { IFaqCategory } from "../../types";
+import SearchBar from "./SearchBar";
+import { AppConsumer } from "../../containers/AppContext";
+import { __ } from "../../../utils";
 
 type Props = {
   category: IFaqCategory;
+  goToCategories: () => void;
   loading: boolean;
   topicId: string;
 };
 
-const CategoryDetail = ({ category, loading, topicId }: Props) => {
-  const [searchString, setSearchString] = React.useState('');
+interface IState {
+  searchString: string;
+}
 
-  const search = (searchString: string) => {
-    setSearchString(searchString);
-  };
+class CategoryDetail extends React.Component<Props, IState> {
+  constructor(props: Props) {
+    super(props);
 
-  const renderHead = () => {
+    this.state = { searchString: "" };
+
+    this.search = this.search.bind(this);
+  }
+
+  search(searchString: string) {
+    this.setState({ searchString });
+  }
+
+  renderHead = () => {
+    const { category, loading } = this.props;
+
     if (loading) {
       return <div className="loader" />;
     }
@@ -34,13 +48,27 @@ const CategoryDetail = ({ category, loading, topicId }: Props) => {
     );
   };
 
-  const renderContent = () => {
+  renderContent = () => {
+    const { topicId, category, loading } = this.props;
+    const { searchString } = this.state;
+
     if (loading) {
       return <div className="loader bigger" />;
     }
 
-    if (category.parentCategoryId) {
-      return (
+    return (
+      <div className="erxes-content slide-in">
+        <AppConsumer>
+          {({ changeRoute }) => (
+            <button
+              className="back-category-button left"
+              onClick={() => changeRoute("faqCategories")}
+            >
+              {iconLeft("#888")} {__("Back to categories")}
+            </button>
+          )}
+        </AppConsumer>
+        <SearchBar onSearch={this.search} searchString={searchString} />
         <div className="scroll-wrapper">
           <Articles
             topicId={topicId}
@@ -48,28 +76,24 @@ const CategoryDetail = ({ category, loading, topicId }: Props) => {
             searchString={searchString}
           />
         </div>
-      );
-    }
-    return (
-      <div className="scroll-wrapper">
-        <CategoriesContainer
-          topicId={topicId}
-          searchString=""
-          initialCategory={category}
-        />
       </div>
     );
   };
 
-  return (
-    <Container
-      title={renderHead()}
-      backRoute="faqCategories"
-      extra={<SearchBar onSearch={search} searchString={searchString} />}
-    >
-      {renderContent()}
-    </Container>
-  );
-};
+  render() {
+    const { goToCategories } = this.props;
+
+    return (
+      <>
+        <TopBar
+          middle={this.renderHead()}
+          buttonIcon={iconLeft()}
+          onLeftButtonClick={goToCategories}
+        />
+        <div className="erxes-content">{this.renderContent()}</div>
+      </>
+    );
+  }
+}
 
 export default CategoryDetail;

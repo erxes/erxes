@@ -12,6 +12,7 @@ const DIMENSION_OPTIONS = [
   { label: 'Boards', value: 'board' },
   { label: 'Pipelines', value: 'pipeline' },
   { label: 'Stages', value: 'stage' },
+  { label: 'Probability', value: 'probability' },
   { label: 'Card', value: 'card' },
   { label: 'Tags', value: 'tag' },
   { label: 'Labels', value: 'label' },
@@ -39,7 +40,7 @@ export const ticketCharts = [
   // TicketCustomProperties
   {
     templateType: "TicketCustomProperties",
-    serviceType: 'cards',
+    serviceType: 'tickets',
     name: 'Total Ticket Count By Custom Properties',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
     getChartResult: async (
@@ -184,7 +185,7 @@ export const ticketCharts = [
             fieldQuery: 'tags',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"type": "cards:ticket", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "tickets:ticket", "perPage": 1000}`,
             multi: true,
         fieldLabel: 'Select tags',
       },
@@ -196,6 +197,7 @@ export const ticketCharts = [
         fieldQuery: 'ticketsBoards',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
+        fieldRequiredQueryParams: ['type'],
             fieldQueryVariables: `{"type": "ticket"}`,
         fieldLabel: 'Select board',
       },
@@ -220,47 +222,43 @@ export const ticketCharts = [
       {
             fieldName: 'stageProbability',
             fieldType: 'select',
-            fieldOptions: PROBABILITY_TICKET,
-            logics: [
-              {
-                logicFieldName: 'pipelineIds',
-                logicFieldVariable: 'pipelineIds',
-              },
-            ],
+        fieldOptions: PROBABILITY_TICKET,
         fieldLabel: 'Select Probability',
       },
       // STAGE FILTER
       {
-            fieldName: 'stageIds',
-            fieldType: 'select',
+        fieldName: 'stageIds',
+        fieldType: 'select',
         fieldQuery: 'ticketsStages',
-            multi: true,
-            fieldValueVariable: '_id',
-            fieldLabelVariable: 'name',
-            fieldParentVariable: 'pipelineId',
+        multi: true,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldParentVariable: 'pipelineId',
         fieldParentQuery: "ticketsPipelines",
-            logics: [
-              {
-                logicFieldName: 'pipelineIds',
-                logicFieldVariable: 'pipelineIds',
-              },
-            ],
+        logics: [
+          {
+            logicFieldName: 'pipelineIds',
+            logicFieldVariable: 'pipelineIds',
+          },
+        ],
         fieldLabel: 'Select stages',
       },
       // LABEL FILTER
       {
-            fieldName: 'labelIds',
-            fieldType: 'select',
-            fieldQuery: 'pipelineLabels',
-            multi: true,
-            fieldValueVariable: '_id',
-            fieldLabelVariable: 'name',
-            logics: [
-              {
-                logicFieldName: 'pipelineIds',
-                logicFieldVariable: 'pipelineIds',
-              },
-            ],
+        fieldName: 'labelIds',
+        fieldType: 'select',
+        fieldQuery: 'salesPipelineLabels',
+        multi: true,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldParentVariable: 'pipelineId',
+        fieldParentQuery: "salesPipelines",
+        logics: [
+          {
+            logicFieldName: 'pipelineIds',
+            logicFieldVariable: 'pipelineIds',
+          },
+        ],
         fieldLabel: 'Select labels',
       },
       // PRIORITY FILTER 
@@ -291,7 +289,7 @@ export const ticketCharts = [
             fieldQuery: 'fieldsGroups',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"contentType": "cards:ticket"}`,
+        fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             multi: true,
         fieldLabel: 'Select field group',
       },
@@ -304,12 +302,13 @@ export const ticketCharts = [
             fieldLabelVariable: 'text',
             fieldParentVariable: 'groupId',
             fieldParentQuery: "fieldsGroups",
-            fieldQueryVariables: `{"contentType": "cards:ticket", "isVisible": true}`,
+        fieldRequiredQueryParams: ["contentType"],
+        fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             logics: [
               {
                 logicFieldName: 'groupIds',
                 logicFieldVariable: 'groupIds',
-                logicFieldExtraVariable: `{"contentType": "cards:ticket"}`,
+                logicFieldExtraVariable: `{"contentType": "tickets:ticket"}`,
               },
             ],
             multi: true,
@@ -340,7 +339,7 @@ export const ticketCharts = [
   // TicketTotalsByFrequency
   {
     templateType: "TicketTotalsByFrequency",
-    serviceType: 'cards',
+    serviceType: 'tickets',
     name: 'Total Ticket Count By Frequency',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
     getChartResult: async (
@@ -549,7 +548,7 @@ export const ticketCharts = [
             fieldQuery: 'tags',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"type": "cards:ticket", "perPage": 1000}`,
+          fieldQueryVariables: `{"type": "tickets:ticket", "perPage": 1000}`,
             multi: true,
           fieldLabel: 'Select tags',
         },
@@ -562,6 +561,7 @@ export const ticketCharts = [
           fieldQuery: 'ticketsBoards',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
+          fieldRequiredQueryParams: ['type'],
             fieldQueryVariables: `{"type": "ticket"}`,
           fieldLabel: 'Select board',
         },
@@ -586,13 +586,7 @@ export const ticketCharts = [
         {
             fieldName: 'stageProbability',
             fieldType: 'select',
-            fieldOptions: PROBABILITY_TICKET,
-            logics: [
-              {
-                logicFieldName: 'pipelineIds',
-                logicFieldVariable: 'pipelineIds',
-              },
-            ],
+          fieldOptions: PROBABILITY_TICKET,
           fieldLabel: 'Select Probability',
         },
         // STAGE FILTER
@@ -603,8 +597,7 @@ export const ticketCharts = [
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldParentVariable: 'pipelineId',
-            fieldQueryVariables: `{"type": "ticket"}`,
+          fieldParentVariable: 'pipelineId',
           fieldParentQuery: "ticketsPipelines",
             logics: [
               {
@@ -618,10 +611,12 @@ export const ticketCharts = [
         {
             fieldName: 'labelIds',
             fieldType: 'select',
-            fieldQuery: 'pipelineLabels',
+          fieldQuery: 'salesPipelineLabels',
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
+          fieldParentVariable: 'pipelineId',
+          fieldParentQuery: "salesPipelines",
             logics: [
               {
                 logicFieldName: 'pipelineIds',
@@ -658,28 +653,29 @@ export const ticketCharts = [
             fieldQuery: 'fieldsGroups',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"contentType": "cards:ticket"}`,
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             multi: true,
           fieldLabel: 'Select field group',
         },
         // CUSTOM PROPERTIES FIELD FILTER 
         {
-            fieldName: 'fieldIds',
-            fieldType: 'select',
-            fieldQuery: 'fields',
-            fieldValueVariable: '_id',
-            fieldLabelVariable: 'text',
-            fieldParentVariable: 'groupId',
-            fieldParentQuery: "fieldsGroups",
-            fieldQueryVariables: `{"contentType": "cards:ticket", "isVisible": true}`,
-            logics: [
-              {
-                logicFieldName: 'groupIds',
-                logicFieldVariable: 'groupIds',
-                logicFieldExtraVariable: `{"contentType": "cards:ticket"}`,
-              },
-            ],
-            multi: true,
+          fieldName: 'fieldIds',
+          fieldType: 'select',
+          fieldQuery: 'fields',
+          fieldValueVariable: '_id',
+          fieldLabelVariable: 'text',
+          fieldParentVariable: 'groupId',
+          fieldParentQuery: "fieldsGroups",
+          fieldRequiredQueryParams: ["contentType"],
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
+          logics: [
+            {
+              logicFieldName: 'groupIds',
+              logicFieldVariable: 'groupIds',
+              logicFieldExtraVariable: `{"contentType": "tickets:ticket"}`,
+            },
+          ],
+          multi: true,
           fieldLabel: 'Select field',
         },
         // DATE RANGE FILTER
@@ -716,7 +712,7 @@ export const ticketCharts = [
   // TicketClosedTotalsByTags
   {
     templateType: "TicketClosedTotalsByTags",
-    serviceType: 'cards',
+    serviceType: 'tickets',
     name: 'Total Ticket Count By Tag',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
     getChartResult: async (
@@ -837,7 +833,7 @@ export const ticketCharts = [
             fieldQuery: 'tags',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"type": "cards:ticket", "perPage": 1000}`,
+          fieldQueryVariables: `{"type": "tickets:ticket", "perPage": 1000}`,
             multi: true,
           fieldLabel: 'Select tags',
         },
@@ -849,6 +845,7 @@ export const ticketCharts = [
           fieldQuery: 'ticketsBoards',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
+          fieldRequiredQueryParams: ['type'],
             fieldQueryVariables: `{"type": "ticket"}`,
           fieldLabel: 'Select board',
         },
@@ -873,13 +870,7 @@ export const ticketCharts = [
         {
             fieldName: 'stageProbability',
             fieldType: 'select',
-            fieldOptions: PROBABILITY_TICKET,
-            logics: [
-              {
-                logicFieldName: 'pipelineIds',
-                logicFieldVariable: 'pipelineIds',
-              },
-            ],
+          fieldOptions: PROBABILITY_TICKET,
           fieldLabel: 'Select Probability',
         },
         // STAGE FILTER
@@ -904,10 +895,12 @@ export const ticketCharts = [
         {
             fieldName: 'labelIds',
             fieldType: 'select',
-            fieldQuery: 'pipelineLabels',
+          fieldQuery: 'salesPipelineLabels',
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
+          fieldParentVariable: 'pipelineId',
+          fieldParentQuery: "salesPipelines",
             logics: [
               {
                 logicFieldName: 'pipelineIds',
@@ -944,7 +937,7 @@ export const ticketCharts = [
             fieldQuery: 'fieldsGroups',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"contentType": "cards:ticket"}`,
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             multi: true,
           fieldLabel: 'Select field group',
         },
@@ -957,12 +950,13 @@ export const ticketCharts = [
             fieldLabelVariable: 'text',
             fieldParentVariable: 'groupId',
             fieldParentQuery: "fieldsGroups",
-            fieldQueryVariables: `{"contentType": "cards:ticket", "isVisible": true}`,
+          fieldRequiredQueryParams: ["contentType"],
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             logics: [
               {
                 logicFieldName: 'groupIds',
                 logicFieldVariable: 'groupIds',
-                logicFieldExtraVariable: `{"contentType": "cards:ticket"}`,
+                logicFieldExtraVariable: `{"contentType": "tickets:ticket"}`,
               },
             ],
             multi: true,
@@ -993,7 +987,7 @@ export const ticketCharts = [
   // TicketClosedTotalsByLabel
   {
     templateType: "TicketClosedTotalsByLabel",
-    serviceType: 'cards',
+    serviceType: 'tickets',
     name: 'Total Ticket Count By Label',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
     getChartResult: async (
@@ -1114,7 +1108,7 @@ export const ticketCharts = [
             fieldQuery: 'tags',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"type": "cards:ticket", "perPage": 1000}`,
+          fieldQueryVariables: `{"type": "tickets:ticket", "perPage": 1000}`,
             multi: true,
           fieldLabel: 'Select tags',
         },
@@ -1126,6 +1120,7 @@ export const ticketCharts = [
           fieldQuery: 'ticketsBoards',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
+          fieldRequiredQueryParams: ['type'],
             fieldQueryVariables: `{"type": "ticket"}`,
           fieldLabel: 'Select board',
         },
@@ -1150,13 +1145,7 @@ export const ticketCharts = [
         {
             fieldName: 'stageProbability',
             fieldType: 'select',
-            fieldOptions: PROBABILITY_TICKET,
-            logics: [
-              {
-                logicFieldName: 'pipelineIds',
-                logicFieldVariable: 'pipelineIds',
-              },
-            ],
+          fieldOptions: PROBABILITY_TICKET,
           fieldLabel: 'Select Probability',
         },
         // STAGE FILTER
@@ -1181,10 +1170,12 @@ export const ticketCharts = [
         {
             fieldName: 'labelIds',
             fieldType: 'select',
-            fieldQuery: 'pipelineLabels',
+          fieldQuery: 'salesPipelineLabels',
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
+          fieldParentVariable: 'pipelineId',
+          fieldParentQuery: "salesPipelines",
             logics: [
               {
                 logicFieldName: 'pipelineIds',
@@ -1221,7 +1212,7 @@ export const ticketCharts = [
             fieldQuery: 'fieldsGroups',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"contentType": "cards:ticket"}`,
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             multi: true,
           fieldLabel: 'Select field group',
         },
@@ -1234,12 +1225,13 @@ export const ticketCharts = [
             fieldLabelVariable: 'text',
             fieldParentVariable: 'groupId',
             fieldParentQuery: "fieldsGroups",
-            fieldQueryVariables: `{"contentType": "cards:ticket", "isVisible": true}`,
+          fieldRequiredQueryParams: ["contentType"],
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             logics: [
               {
                 logicFieldName: 'groupIds',
                 logicFieldVariable: 'groupIds',
-                logicFieldExtraVariable: `{"contentType": "cards:ticket"}`,
+                logicFieldExtraVariable: `{"contentType": "tickets:ticket"}`,
               },
             ],
             multi: true,
@@ -1270,7 +1262,7 @@ export const ticketCharts = [
   // TicketClosedTotalsByRep
   {
     templateType: "TicketClosedTotalsByRep",
-    serviceType: 'cards',
+    serviceType: 'tickets',
     name: 'Total Ticket Count By Rep',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
     getChartResult: async (
@@ -1406,7 +1398,7 @@ export const ticketCharts = [
             fieldQuery: 'tags',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"type": "cards:ticket", "perPage": 1000}`,
+          fieldQueryVariables: `{"type": "tickets:ticket", "perPage": 1000}`,
             multi: true,
           fieldLabel: 'Select tags',
         },
@@ -1418,6 +1410,7 @@ export const ticketCharts = [
           fieldQuery: 'ticketsBoards',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
+          fieldRequiredQueryParams: ['type'],
             fieldQueryVariables: `{"type": "ticket"}`,
           fieldLabel: 'Select board',
         },
@@ -1442,13 +1435,7 @@ export const ticketCharts = [
         {
             fieldName: 'stageProbability',
             fieldType: 'select',
-            fieldOptions: PROBABILITY_TICKET,
-            logics: [
-              {
-                logicFieldName: 'pipelineIds',
-                logicFieldVariable: 'pipelineIds',
-              },
-            ],
+          fieldOptions: PROBABILITY_TICKET,
           fieldLabel: 'Select Probability',
         },
         // STAGE FILTER
@@ -1473,10 +1460,12 @@ export const ticketCharts = [
         {
             fieldName: 'labelIds',
             fieldType: 'select',
-            fieldQuery: 'pipelineLabels',
+          fieldQuery: 'salesPipelineLabels',
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
+          fieldParentVariable: 'pipelineId',
+          fieldParentQuery: "salesPipelines",
             logics: [
               {
                 logicFieldName: 'pipelineIds',
@@ -1513,7 +1502,7 @@ export const ticketCharts = [
             fieldQuery: 'fieldsGroups',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"contentType": "cards:ticket"}`,
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             multi: true,
           fieldLabel: 'Select field group',
         },
@@ -1526,12 +1515,13 @@ export const ticketCharts = [
             fieldLabelVariable: 'text',
             fieldParentVariable: 'groupId',
             fieldParentQuery: "fieldsGroups",
-            fieldQueryVariables: `{"contentType": "cards:ticket", "isVisible": true}`,
+          fieldRequiredQueryParams: ["contentType"],
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             logics: [
               {
                 logicFieldName: 'groupIds',
                 logicFieldVariable: 'groupIds',
-                logicFieldExtraVariable: `{"contentType": "cards:ticket"}`,
+                logicFieldExtraVariable: `{"contentType": "tickets:ticket"}`,
               },
             ],
             multi: true,
@@ -1562,7 +1552,7 @@ export const ticketCharts = [
   // TicketClosedTotalsBySource
   {
     templateType: "TicketTotalsBySource",
-    serviceType: 'cards',
+    serviceType: 'tickets',
     name: 'Total Ticket Count By Source',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
     getChartResult: async (
@@ -1721,7 +1711,7 @@ export const ticketCharts = [
             fieldQuery: 'tags',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"type": "cards:ticket", "perPage": 1000}`,
+          fieldQueryVariables: `{"type": "tickets:ticket", "perPage": 1000}`,
             multi: true,
           fieldLabel: 'Select tags',
         },
@@ -1733,6 +1723,7 @@ export const ticketCharts = [
           fieldQuery: 'ticketsBoards',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
+          fieldRequiredQueryParams: ['type'],
             fieldQueryVariables: `{"type": "ticket"}`,
           fieldLabel: 'Select board',
         },
@@ -1757,13 +1748,7 @@ export const ticketCharts = [
         {
             fieldName: 'stageProbability',
             fieldType: 'select',
-            fieldOptions: PROBABILITY_TICKET,
-            logics: [
-              {
-                logicFieldName: 'pipelineIds',
-                logicFieldVariable: 'pipelineIds',
-              },
-            ],
+          fieldOptions: PROBABILITY_TICKET,
           fieldLabel: 'Select Probability',
         },
         // STAGE FILTER
@@ -1788,10 +1773,12 @@ export const ticketCharts = [
         {
             fieldName: 'labelIds',
             fieldType: 'select',
-            fieldQuery: 'pipelineLabels',
+          fieldQuery: 'salesPipelineLabels',
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
+          fieldParentVariable: 'pipelineId',
+          fieldParentQuery: "salesPipelines",
             logics: [
               {
                 logicFieldName: 'pipelineIds',
@@ -1828,7 +1815,7 @@ export const ticketCharts = [
             fieldQuery: 'fieldsGroups',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"contentType": "cards:ticket"}`,
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             multi: true,
           fieldLabel: 'Select field group',
         },
@@ -1841,12 +1828,13 @@ export const ticketCharts = [
             fieldLabelVariable: 'text',
             fieldParentVariable: 'groupId',
             fieldParentQuery: "fieldsGroups",
-            fieldQueryVariables: `{"contentType": "cards:ticket", "isVisible": true}`,
+          fieldRequiredQueryParams: ["contentType"],
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             logics: [
               {
                 logicFieldName: 'groupIds',
                 logicFieldVariable: 'groupIds',
-                logicFieldExtraVariable: `{"contentType": "cards:ticket"}`,
+                logicFieldExtraVariable: `{"contentType": "tickets:ticket"}`,
               },
             ],
             multi: true,
@@ -1877,7 +1865,7 @@ export const ticketCharts = [
   // TicketAverageTimeToCloseByRep
   {
     templateType: "TicketAverageTimeToCloseByRep",
-    serviceType: 'cards',
+    serviceType: 'tickets',
     name: 'Ticket Average Time To Close By Rep',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
     getChartResult: async (
@@ -2021,7 +2009,7 @@ export const ticketCharts = [
             fieldQuery: 'tags',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"type": "cards:ticket", "perPage": 1000}`,
+          fieldQueryVariables: `{"type": "tickets:ticket", "perPage": 1000}`,
             multi: true,
           fieldLabel: 'Select tags',
         },
@@ -2033,6 +2021,7 @@ export const ticketCharts = [
           fieldQuery: 'ticketsBoards',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
+          fieldRequiredQueryParams: ['type'],
             fieldQueryVariables: `{"type": "ticket"}`,
           fieldLabel: 'Select board',
         },
@@ -2057,13 +2046,7 @@ export const ticketCharts = [
         {
             fieldName: 'stageProbability',
             fieldType: 'select',
-            fieldOptions: PROBABILITY_TICKET,
-            logics: [
-              {
-                logicFieldName: 'pipelineIds',
-                logicFieldVariable: 'pipelineIds',
-              },
-            ],
+          fieldOptions: PROBABILITY_TICKET,
           fieldLabel: 'Select Probability',
         },
         // STAGE FILTER
@@ -2088,10 +2071,12 @@ export const ticketCharts = [
         {
             fieldName: 'labelIds',
             fieldType: 'select',
-            fieldQuery: 'pipelineLabels',
+          fieldQuery: 'salesPipelineLabels',
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
+          fieldParentVariable: 'pipelineId',
+          fieldParentQuery: "salesPipelines",
             logics: [
               {
                 logicFieldName: 'pipelineIds',
@@ -2128,7 +2113,7 @@ export const ticketCharts = [
             fieldQuery: 'fieldsGroups',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"contentType": "cards:ticket"}`,
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             multi: true,
           fieldLabel: 'Select field group',
         },
@@ -2141,12 +2126,13 @@ export const ticketCharts = [
             fieldLabelVariable: 'text',
             fieldParentVariable: 'groupId',
             fieldParentQuery: "fieldsGroups",
-            fieldQueryVariables: `{"contentType": "cards:ticket", "isVisible": true}`,
+          fieldRequiredQueryParams: ["contentType"],
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             logics: [
               {
                 logicFieldName: 'groupIds',
                 logicFieldVariable: 'groupIds',
-                logicFieldExtraVariable: `{"contentType": "cards:ticket"}`,
+                logicFieldExtraVariable: `{"contentType": "tickets:ticket"}`,
               },
             ],
             multi: true,
@@ -2177,7 +2163,7 @@ export const ticketCharts = [
   // TicketsStageDateRange
   {
     templateType: "TicketsStageDateRange",
-    serviceType: 'cards',
+    serviceType: 'tickets',
     name: 'Ticket Average Time Spent In Each Stage',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
     getChartResult: async (
@@ -2316,7 +2302,7 @@ export const ticketCharts = [
             fieldQuery: 'tags',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"type": "cards:ticket", "perPage": 1000}`,
+          fieldQueryVariables: `{"type": "tickets:ticket", "perPage": 1000}`,
             multi: true,
           fieldLabel: 'Select tags',
         },
@@ -2329,6 +2315,7 @@ export const ticketCharts = [
           fieldQuery: 'ticketsBoards',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
+          fieldRequiredQueryParams: ['type'],
             fieldQueryVariables: `{"type": "ticket"}`,
           fieldLabel: 'Select board',
         },
@@ -2353,13 +2340,7 @@ export const ticketCharts = [
         {
             fieldName: 'stageProbability',
             fieldType: 'select',
-            fieldOptions: PROBABILITY_TICKET,
-            logics: [
-              {
-                logicFieldName: 'pipelineIds',
-                logicFieldVariable: 'pipelineIds',
-              },
-            ],
+          fieldOptions: PROBABILITY_TICKET,
           fieldLabel: 'Select Probability',
         },
         // STAGE FILTER
@@ -2370,8 +2351,7 @@ export const ticketCharts = [
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldParentVariable: 'pipelineId',
-            fieldQueryVariables: `{"type": "ticket"}`,
+          fieldParentVariable: 'pipelineId',
           fieldParentQuery: "ticketsPipelines",
             logics: [
               {
@@ -2385,10 +2365,12 @@ export const ticketCharts = [
         {
             fieldName: 'labelIds',
             fieldType: 'select',
-            fieldQuery: 'pipelineLabels',
+          fieldQuery: 'salesPipelineLabels',
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
+          fieldParentVariable: 'pipelineId',
+          fieldParentQuery: "salesPipelines",
             logics: [
               {
                 logicFieldName: 'pipelineIds',
@@ -2425,7 +2407,7 @@ export const ticketCharts = [
             fieldQuery: 'fieldsGroups',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"contentType": "cards:ticket"}`,
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             multi: true,
           fieldLabel: 'Select field group',
         },
@@ -2438,12 +2420,13 @@ export const ticketCharts = [
             fieldLabelVariable: 'text',
             fieldParentVariable: 'groupId',
             fieldParentQuery: "fieldsGroups",
-            fieldQueryVariables: `{"contentType": "cards:ticket", "isVisible": true}`,
+          fieldRequiredQueryParams: ["contentType"],
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             logics: [
               {
                 logicFieldName: 'groupIds',
                 logicFieldVariable: 'groupIds',
-                logicFieldExtraVariable: `{"contentType": "cards:ticket"}`,
+                logicFieldExtraVariable: `{"contentType": "tickets:ticket"}`,
               },
             ],
             multi: true,
@@ -2464,7 +2447,7 @@ export const ticketCharts = [
   // TicketsTotalCount
   {
     templateType: "TicketsTotalCount",
-    serviceType: 'cards',
+    serviceType: 'tickets',
     name: 'Total Tickets Count',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number', "pivotTable"],
     getChartResult: async (
@@ -2481,7 +2464,7 @@ export const ticketCharts = [
 
         const title = 'Total Tickets Count';
 
-      return { title, ...buildData({ chartType, data: tickets, filter }) };
+      return { title, ...buildData({ chartType, data: tickets, filter, type: "ticket" }) };
     },
     filterTypes: [
       // DIMENSION FILTER
@@ -2495,6 +2478,14 @@ export const ticketCharts = [
               logicFieldValue: 'pivotTable',
             },
           ],
+        fieldValueOptions: [
+          {
+            fieldName: 'showTotal',
+            fieldType: 'checkbox',
+            fieldLabel: 'Show total',
+            fieldDefaultValue: false
+          },
+        ],
           fieldOptions: DIMENSION_OPTIONS,
           fieldLabel: 'Select row',
         },
@@ -2506,6 +2497,14 @@ export const ticketCharts = [
             {
               logicFieldName: 'chartType',
               logicFieldValue: 'pivotTable',
+            },
+          ],
+          fieldValueOptions: [
+            {
+              fieldName: 'showTotal',
+              fieldType: 'checkbox',
+              fieldLabel: 'Show total',
+              fieldDefaultValue: false
             },
           ],
           fieldOptions: DIMENSION_OPTIONS,
@@ -2612,19 +2611,20 @@ export const ticketCharts = [
             fieldQuery: 'tags',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"type": "cards:ticket", "perPage": 1000}`,
+          fieldQueryVariables: `{"type": "tickets:ticket", "perPage": 1000}`,
             multi: true,
           fieldLabel: 'Select tags',
         },
         // BOARD FILTER
         {
-            fieldName: 'boardId',
-            fieldType: 'select',
-            multi: false,
+          fieldName: 'boardId',
+          fieldType: 'select',
+          multi: false,
           fieldQuery: 'ticketsBoards',
-            fieldValueVariable: '_id',
-            fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"type": "ticket"}`,
+          fieldValueVariable: '_id',
+          fieldLabelVariable: 'name',
+          fieldRequiredQueryParams: ['type'],
+          fieldQueryVariables: `{"type": "ticket"}`,
           fieldLabel: 'Select board',
         },
         // PIPELINE FILTER
@@ -2646,15 +2646,10 @@ export const ticketCharts = [
         },
         // STAGE PROBABILITY FILTER
         {
-            fieldName: 'stageProbability',
-            fieldType: 'select',
-            fieldOptions: PROBABILITY_TICKET,
-            logics: [
-              {
-                logicFieldName: 'pipelineIds',
-                logicFieldVariable: 'pipelineIds',
-              },
-            ],
+          fieldName: 'stageProbability',
+          fieldType: 'select',
+          multi: true,
+          fieldOptions: PROBABILITY_TICKET,
           fieldLabel: 'Select Probability',
         },
         // STAGE FILTER
@@ -2665,8 +2660,7 @@ export const ticketCharts = [
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldParentVariable: 'pipelineId',
-            fieldQueryVariables: `{"type": "ticket"}`,
+          fieldParentVariable: 'pipelineId',
           fieldParentQuery: "ticketsPipelines",
             logics: [
               {
@@ -2680,10 +2674,12 @@ export const ticketCharts = [
         {
             fieldName: 'labelIds',
             fieldType: 'select',
-            fieldQuery: 'pipelineLabels',
+          fieldQuery: 'salesPipelineLabels',
             multi: true,
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
+          fieldParentVariable: 'pipelineId',
+          fieldParentQuery: "salesPipelines",
             logics: [
               {
                 logicFieldName: 'pipelineIds',
@@ -2720,28 +2716,30 @@ export const ticketCharts = [
             fieldQuery: 'fieldsGroups',
             fieldValueVariable: '_id',
             fieldLabelVariable: 'name',
-            fieldQueryVariables: `{"contentType": "cards:ticket"}`,
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
             multi: true,
           fieldLabel: 'Select field group',
         },
         // CUSTOM PROPERTIES FIELD FILTER 
         {
-            fieldName: 'fieldIds',
-            fieldType: 'select',
-            fieldQuery: 'fields',
-            fieldValueVariable: '_id',
-            fieldLabelVariable: 'text',
-            fieldParentVariable: 'groupId',
-            fieldParentQuery: "fieldsGroups",
-            fieldQueryVariables: `{"contentType": "cards:ticket", "isVisible": true}`,
-            logics: [
-              {
-                logicFieldName: 'groupIds',
-                logicFieldVariable: 'groupIds',
-                logicFieldExtraVariable: `{"contentType": "cards:ticket"}`,
-              },
-            ],
-            multi: true,
+          fieldName: 'fieldIds',
+          fieldType: 'select',
+          fieldQuery: 'fields',
+          fieldValueVariable: '_id',
+          fieldLabelVariable: 'text',
+          fieldParentVariable: 'groupId',
+          fieldParentQuery: "fieldsGroups",
+          fieldRequiredQueryParams: ["contentType"],
+          fieldExtraVariables: ['options', 'type'],
+          fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
+          logics: [
+            {
+              logicFieldName: 'groupIds',
+              logicFieldVariable: 'groupIds',
+              logicFieldExtraVariable: `{"contentType": "tickets:ticket"}`,
+            },
+          ],
+          multi: true,
           fieldLabel: 'Select field',
         },
         // DATE RANGE FILTER

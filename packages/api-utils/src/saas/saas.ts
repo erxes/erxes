@@ -124,6 +124,23 @@ export const getOrganizations = async (email?: string) => {
   return coreModelOrganizations.find({});
 };
 
+export const getOrganizationsByFilter = async (filter: any) => {
+  await getCoreConnection();
+
+  if (filter) {
+    return coreModelOrganizations.find(filter);
+  }
+
+  return coreModelOrganizations.find({});
+};
+
+
+export const updateOrganization = async (subdomain: string, update: object) => {
+  await getCoreConnection();
+
+  return coreModelOrganizations.updateOne({subdomain}, {$set: update});
+};
+
 export const getOrganizationDetail = async ({
   subdomain,
 }: {

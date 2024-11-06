@@ -70,6 +70,7 @@ export type FieldsBulkAddAndEditMutationResponse = {
 export type EditFormMutationVariables = {
   _id: string;
   title?: string;
+  name?: string;
   description?: string;
   buttonText?: string;
   type: string;

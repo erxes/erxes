@@ -3,15 +3,13 @@ import redis from "@erxes/api-utils/src/redis";
 import { IModels } from "./connectionResolver";
 import {
   sendAutomationsMessage,
-  sendCardsMessage,
-  sendContactsMessage,
+  sendSalesMessage,
   sendCoreMessage,
   sendEbarimtMessage,
   sendInventoriesMessage,
   sendLoyaltiesMessage,
   sendPosclientHealthCheck,
   sendPosclientMessage,
-  sendProductsMessage,
   sendSyncerkhetMessage
 } from "./messageBroker";
 import { IPosOrder, IPosOrderDocument } from "./models/definitions/orders";
@@ -28,7 +26,7 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
 };
 
 export const getChildCategories = async (subdomain: string, categoryIds) => {
-  const childs = await sendProductsMessage({
+  const childs = await sendCoreMessage({
     subdomain,
     action: "categories.withChilds",
     data: { ids: categoryIds },
@@ -217,7 +215,7 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
     }
 
     if (Object.keys(pushInfo).length) {
-      await sendContactsMessage({
+      await sendCoreMessage({
         subdomain,
         action: `${moduleTxt}.updateOne`,
         data: {
@@ -241,7 +239,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     name: `Delivery: ${doneOrder.number}`,
     startDate: doneOrder.createdAt,
     closeDate: doneOrder.dueDate,
-    description,
+    description: `<p>${doneOrder.description || ''}</p> <p>${description || ''}</p>`,
     stageId: deliveryConfig.stageId,
     assignedUserIds: deliveryConfig.assignedUserIds,
     watchedUserIds: deliveryConfig.watchedUserIds,
@@ -295,7 +293,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
   }
 
   if ((doneOrder.deliveryInfo || {}).dealId) {
-    const deal = await sendCardsMessage({
+    const deal = await sendSalesMessage({
       subdomain,
       action: "deals.updateOne",
       data: {
@@ -306,7 +304,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       defaultValue: {}
     });
 
-    await sendCardsMessage({
+    await sendSalesMessage({
       subdomain,
       action: "salesPipelinesChanged",
       data: {
@@ -319,7 +317,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       }
     });
   } else {
-    const deal = await sendCardsMessage({
+    const deal = await sendSalesMessage({
       subdomain,
       action: "deals.create",
       data: dealsData,
@@ -345,7 +343,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       });
     }
 
-    await sendCardsMessage({
+    await sendSalesMessage({
       subdomain,
       action: "salesPipelinesChanged",
       data: {
@@ -474,19 +472,17 @@ const createDealPerOrder = async ({
       };
     }
 
-    const cardDeal = await sendCardsMessage({
+    const cardDeal = await sendSalesMessage({
       subdomain,
       action: "deals.create",
       data: {
         name: `Cards: ${newOrder.number}`,
         startDate: newOrder.createdAt,
-        description: JSON.stringify(
-          newOrder.deliveryInfo || "{}",
-          undefined,
-          2
-        ).replace(/\n( *)/g, (_, p1) => {
-          return "<br>" + "&nbsp;".repeat(p1.length);
-        }),
+        description: `<p>${newOrder.description}</p> ${JSON.stringify(newOrder.deliveryInfo || '{}', undefined, 2).replace(
+          /\n( *)/g, (_, p1) => {
+            return '<br>' + '&nbsp;'.repeat(p1.length);
+          }
+        )}`,
         stageId: currentCardsConfig.stageId,
         assignedUserIds: currentCardsConfig.assignedUserIds,
         productsData: (newOrder.items || []).map(i => ({
@@ -518,7 +514,7 @@ const createDealPerOrder = async ({
       });
     }
 
-    await sendCardsMessage({
+    await sendSalesMessage({
       subdomain,
       action: "salesPipelinesChanged",
       data: {

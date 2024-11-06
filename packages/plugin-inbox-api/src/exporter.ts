@@ -154,6 +154,7 @@ export const fillValue = async (
       break;
 
     case "tag":
+    case 'tagIds':
       const tags = await sendCoreMessage({
         subdomain,
         action: "tagFind",

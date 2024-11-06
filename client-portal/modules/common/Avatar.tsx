@@ -5,6 +5,7 @@ import Icon from "./Icon";
 import React from "react";
 import dayjs from "dayjs";
 import { readFile } from "./utils";
+import { __ } from "../../utils";
 
 type Props = {
   user: IUser;
@@ -29,11 +30,11 @@ export default function Avatar({ user = {} as IUser, date, viewCount }: Props) {
       />
       <div className="detail avatar-info d-flex flex-wrap">
         <div>
-          Written by
+          {__("Written by")}
           <span>{fullName}</span>
         </div>
         <div>
-          Modified at
+          {__("Modified at")}
           <span>{dayjs(date).format("MMM D YYYY")}</span>
         </div>
         <div className="d-flex align-items-center">

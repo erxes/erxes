@@ -116,7 +116,7 @@ function CommnetForm({ activeTrigger, addConfig, closeModal }: Props) {
             <DirectMessageForm
               conditions={config.conditions}
               onChange={handleChange}
-              label="Comment"
+              label={__("Comment")}
             />
           )}
 

@@ -124,7 +124,7 @@ export default class GenerateField extends React.Component<Props, State> {
     return (
       <FormControl componentClass="select" {...attrs}>
         <option key={""} value="">
-          Choose option
+          {__("Choose option")}
         </option>
         {options.map((option, index) => (
           <option key={index} value={option}>
@@ -267,7 +267,7 @@ export default class GenerateField extends React.Component<Props, State> {
     return (
       <FormControl componentClass="select" {...attrs} onChange={onSelect}>
         <option key={""} value="">
-          Choose option
+          {__("Choose option")}
         </option>
         {labels.map(label => (
           <option key={label._id} value={label._id}>
@@ -404,7 +404,7 @@ export default class GenerateField extends React.Component<Props, State> {
     return (
       <FormGroup>
         <ControlLabel ignoreTrans={true} required={field.isRequired}>
-          {field.text}
+          {__(field.text)}
         </ControlLabel>
 
         {field.description ? (

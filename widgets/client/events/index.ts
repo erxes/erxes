@@ -40,7 +40,7 @@ const Events: any = {
         }
       })
       .catch(errorResponse => {
-        console.log(errorResponse);
+        console.error(errorResponse);
       });
   },
 

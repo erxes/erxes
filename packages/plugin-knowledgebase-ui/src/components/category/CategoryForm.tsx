@@ -96,7 +96,7 @@ class CategoryForm extends React.Component<Props, State> {
       ? [
           {
             value: null,
-            label: "Select category",
+            label: __("Select category"),
           },
         ]
       : [];

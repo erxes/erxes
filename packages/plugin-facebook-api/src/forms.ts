@@ -73,9 +73,9 @@ const generateFields = async ({ subdomain, data }) => {
   fields = await generateBotOptions(models, fields);
 
   const customerFields = await sendRPCMessage(
-    'forms:fieldsCombinedByContentType',
+    'core:fieldsCombinedByContentType',
     {
-      data: { contentType: 'contacts:customer' },
+      data: { contentType: 'core:customer' },
       subdomain,
       defaultValue: []
     }

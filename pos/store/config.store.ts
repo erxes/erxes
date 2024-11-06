@@ -1,9 +1,9 @@
 // config
 
+import { strToObj } from "@/lib/utils"
+import { IConfig, ICurrentUser, IPermissionConfig } from "@/types/config.types"
 import { Atom, atom } from "jotai"
 import { atomWithStorage } from "jotai/utils"
-
-import { IConfig, ICurrentUser, IPermissionConfig } from "@/types/config.types"
 
 export const configAtom = atomWithStorage<IConfig | null>("posConfig", null)
 
@@ -14,13 +14,22 @@ const getConfigField = <K extends keyof IConfig>(field: K): Atom<IConfig[K]> =>
   atom((get) => (get(configAtom) || ({} as IConfig))[field])
 
 export const initialCategoryIdsAtom = getConfigField("initialCategoryIds")
-export const paymentTypesAtom = getConfigField("paymentTypes")
 export const paymentIdsAtom = getConfigField("paymentIds")
 export const allowTypesAtom = getConfigField("allowTypes")
 export const banFractionsAtom = getConfigField("banFractions")
 export const ebarimtConfigAtom = getConfigField("ebarimtConfig")
 export const waitingScreenAtom = getConfigField("waitingScreen")
 export const uiOptionsAtom = getConfigField("uiOptions")
+export const paymentTypesAtom = atom(
+  (get) => (
+    (get(configAtom) || ({} as IConfig))['paymentTypes'] || []
+  ).map(pt => (
+    {
+      ...pt,
+      config: strToObj(pt.config)
+    }
+  ))
+)
 
 export const permissionConfigAtom = atom<IPermissionConfig | undefined>(
   (get) => {

@@ -108,11 +108,9 @@ class Form extends React.Component<Props, State> {
       <Button
         id="segment-filter"
         onClick={() => {
-          const data = {
+          const data: any = {
             ...values,
-            conditions:
-              values.conditionSegments &&
-              values.conditionSegments[0].conditions,
+            conditions: (values.conditionSegments || []).flatMap(segment => segment.conditions)
           };
 
           delete data.conditionSegments;

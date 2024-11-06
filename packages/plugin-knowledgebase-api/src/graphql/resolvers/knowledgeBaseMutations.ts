@@ -195,6 +195,14 @@ const knowledgeBaseMutations = {
     { doc }: { doc: IArticleCreate },
     { user, models, subdomain }: IContext
   ) {
+    if (doc.status === 'scheduled' && !doc.scheduledDate) {
+      throw new Error('Scheduled Date must be supplied');
+    }
+
+    if(doc.status === 'scheduled' && doc.scheduledDate && doc.scheduledDate < new Date()){
+      throw new Error('Scheduled Date can not be in the past !');
+    }
+
     const kbArticle = await models.KnowledgeBaseArticles.createDoc(
       doc,
       user._id
@@ -265,6 +273,15 @@ const knowledgeBaseMutations = {
     { user, models, subdomain }: IContext
   ) {
     const kbArticle = await models.KnowledgeBaseArticles.getArticle(_id);
+
+    if (doc.status === 'scheduled' && !doc.scheduledDate) {
+      throw new Error('Scheduled Date must be supplied');
+    }
+
+    if(doc.status === 'scheduled' && doc.scheduledDate && doc.scheduledDate < new Date()){
+      throw new Error('Scheduled Date can not be in the past !');
+    }
+
     const updated = await models.KnowledgeBaseArticles.updateDoc(
       _id,
       doc,
@@ -309,6 +326,14 @@ const knowledgeBaseMutations = {
     );
 
     return removed;
+  },
+
+  async knowledgeBaseArticlesIncrementViewCount(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    return await models.KnowledgeBaseArticles.incrementViewCount(_id);
   }
 };
 

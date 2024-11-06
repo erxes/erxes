@@ -1,19 +1,27 @@
 import { IModels } from "../../connectionResolver";
 import {
   BUSINESSPORTAL_STATE_TYPES,
+  COMPANIES_OPTIONS,
   CONTACT_STATES,
   CONTACT_STATE_TYPES,
+  CUSTOMERS_OPTIONS,
+  CUSTOM_DATE_FREQUENCY_TYPES,
   DATERANGE_BY_TYPES,
   DATERANGE_BY_TYPES_COMPANIES,
   DATERANGE_TYPES,
-  INTEGRATION_TYPES
+  DIMENSION_OPTIONS,
+  INTEGRATION_TYPES,
+  KIND_MAP,
+  MEASURE_OPTIONS
 } from "../constants";
 import {
+  buildData,
   buildMatchFilter,
+  buildPipeline,
   getBusinessPortalCount,
   getBusinnesPortalPipeline,
-  getIntegrationsKinds
 } from "../utils";
+const util = require('util')
 
 const chartTemplates = [
   // CONTACT START
@@ -29,71 +37,133 @@ const chartTemplates = [
       "doughnut",
       "radar",
       "polarArea",
-      "table"
+      "table",
+      "number",
+      "pivotTable"
     ],
     getChartResult: async (
       models: IModels,
       filter: any,
-      dimension: any,
+      chartType: any,
       subdomain: string
     ) => {
       const { stateType } = filter;
       const matchFilter = await buildMatchFilter(filter, subdomain);
 
-      let totalCounts = {};
+      const pipeline = await buildPipeline(filter, matchFilter, stateType === 'company' ? '' : stateType)
 
-      if (
-        stateType === "customer" ||
-        stateType === "lead" ||
-        stateType === "visitor"
-      ) {
-        totalCounts = {
-          "Total Customer Count": await models.Customers.find({
-            ...matchFilter,
-            state: { $eq: stateType },
-            status: "Active"
-          }).countDocuments()
-        };
-      } else if (stateType === "company") {
-        totalCounts = {
-          "Total Company Count":
-            await models.Companies.find(matchFilter).countDocuments()
-        };
-      } else if (
-        stateType === "client-portal" ||
-        stateType === "vendor-portal"
-      ) {
-        const kind = stateType === "client-portal" ? "client" : "vendor";
+      let contacts: any[] = []
 
-        const pipeline = getBusinnesPortalPipeline(matchFilter, "all", kind);
+      if (stateType === 'company') {
+        contacts = await models.Companies.aggregate(pipeline)
 
-        totalCounts = {
-          [`Total ${stateType.charAt(0).toUpperCase() + stateType.slice(1)} Count`]:
-            await getBusinessPortalCount(pipeline, 0, subdomain)
-        };
       } else {
-        const pipeline = getBusinnesPortalPipeline(matchFilter, "all");
+        const [customers, companies] = await Promise.all([
+          models.Customers.aggregate(pipeline),
+          models.Companies.aggregate(pipeline)
+        ]);
 
-        const [companiesCount, customersCount, businessPortalsCount] =
-          await Promise.all([
-            models.Companies.find(matchFilter).countDocuments(),
-            models.Customers.find(matchFilter).countDocuments(),
-            getBusinessPortalCount(pipeline, 0, subdomain)
-          ]);
+        [...customers, ...companies].forEach((contact) => {
+          const { count, ...rest } = contact;
 
-        totalCounts = {
-          "Total Contact Count":
-            customersCount + companiesCount + businessPortalsCount
-        };
+          const existing = contacts.find(entry => {
+            return Object.keys(rest).every(key => {
+              if (typeof rest[key] === 'object' && rest[key] !== null) {
+                return entry[key]._id === rest[key]._id;
+              }
+
+              return entry[key] === rest[key];
+            });
+          });
+
+          if (existing) {
+            existing.count += count;
+          } else {
+            contacts.push({ count, ...rest });
+          }
+        });
       }
 
-      const data = Object.values(totalCounts);
-      const labels = Object.keys(totalCounts);
-      const title = "Total Contact Count";
+      const title = "Total Company Count";
 
-      return { title, data, labels };
+      return { title, ...buildData({ chartType, data: contacts, filter }) };
     },
     filterTypes: [
+      // DIMENSION FILTER
+      {
+        fieldName: 'rowDimension',
+        fieldType: 'select',
+        multi: true,
+        logics: [
+          {
+            logicFieldName: 'chartType',
+            logicFieldValue: 'pivotTable',
+          },
+        ],
+        fieldValueOptions: [
+          {
+            fieldName: 'showTotal',
+            fieldType: 'checkbox',
+            fieldLabel: 'Show total',
+            fieldDefaultValue: false
+          }
+        ],
+        fieldOptions: DIMENSION_OPTIONS,
+        fieldLabel: 'Select row',
+      },
+      {
+        fieldName: 'colDimension',
+        fieldType: 'select',
+        multi: true,
+        logics: [
+          {
+            logicFieldName: 'chartType',
+            logicFieldValue: 'pivotTable',
+          },
+        ],
+        fieldValueOptions: [
+          {
+            fieldName: 'showTotal',
+            fieldType: 'checkbox',
+            fieldLabel: 'Show total',
+            fieldDefaultValue: false
+          }
+        ],
+        fieldOptions: DIMENSION_OPTIONS,
+        fieldLabel: 'Select column',
+      },
+      {
+        fieldName: 'dimension',
+        fieldType: 'select',
+        multi: true,
+        logics: [
+          {
+            logicFieldName: 'chartType',
+            logicFieldValue: 'pivotTable',
+            logicFieldOperator: "ne",
+          },
+        ],
+        fieldOptions: DIMENSION_OPTIONS,
+        fieldLabel: 'Select dimension',
+      },
+      // MEASURE FILTER
+      {
+        fieldName: 'measure',
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: MEASURE_OPTIONS,
+        fieldDefaultValue: ['count'],
+        fieldLabel: 'Select measure',
+      },
+      // FREQUENCY TYPE FILTER BASED DIMENSION FILTER
+      {
+        fieldName: 'frequencyType',
+        fieldType: 'select',
+        multi: false,
+        fieldDefaultValue: '%Y',
+        fieldOptions: CUSTOM_DATE_FREQUENCY_TYPES,
+        fieldLabel: 'Select frequency type',
+      },
       // STATE FILTER
       {
         fieldName: "stateType",
@@ -122,6 +192,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:all"}`,
         logics: [
           {
@@ -289,6 +360,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:all"}`,
         logics: [
           {
@@ -487,6 +559,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:all"}`,
         logics: [
           {
@@ -633,11 +706,9 @@ const chartTemplates = [
         ];
       }
 
-      const kindMap = await getIntegrationsKinds();
-
       const totalCountBySource = (totalCounts || []).reduce(
         (acc, { count, all }) => {
-          acc[kindMap[all] || all] = count;
+          acc[KIND_MAP[all] || all] = count;
           return acc;
         },
         {}
@@ -678,6 +749,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:all"}`,
         logics: [
           {
@@ -726,33 +798,101 @@ const chartTemplates = [
       "doughnut",
       "radar",
       "polarArea",
-      "table"
+      "table",
+      "number",
+      "pivotTable"
     ],
     getChartResult: async (
       models: IModels,
       filter: any,
-      dimension: any,
+      chartType: any,
       subdomain: string
     ) => {
       const matchFilter = await buildMatchFilter(filter, subdomain);
 
-      const customersCount = await models.Customers.find({
-        ...matchFilter,
-        state: "customer",
-        status: "Active"
-      }).countDocuments();
-
-      const totalCount = {
-        "Total Count": customersCount
-      };
-
-      const data = Object.values(totalCount);
-      const labels = Object.keys(totalCount);
+      const pipeline = await buildPipeline(filter, matchFilter, 'customer')
+      console.log('pipeline', util.inspect(pipeline, false, null, true))
+      const customers = await models.Customers.aggregate(pipeline)
       const title = "Total Customer Count";
 
-      return { title, data, labels };
+      return { title, ...buildData({ chartType, data: customers, filter }) };
     },
     filterTypes: [
+      // DIMENSION FILTER
+      {
+        fieldName: 'rowDimension',
+        fieldType: 'select',
+        multi: true,
+        logics: [
+          {
+            logicFieldName: 'chartType',
+            logicFieldValue: 'pivotTable',
+          },
+        ],
+        fieldValueOptions: [
+          {
+            fieldName: 'showTotal',
+            fieldType: 'checkbox',
+            fieldLabel: 'Show total',
+            fieldDefaultValue: false
+          }
+        ],
+        fieldOptions: [...DIMENSION_OPTIONS, ...CUSTOMERS_OPTIONS],
+        fieldLabel: 'Select row',
+      },
+      {
+        fieldName: 'colDimension',
+        fieldType: 'select',
+        multi: true,
+        logics: [
+          {
+            logicFieldName: 'chartType',
+            logicFieldValue: 'pivotTable',
+          },
+        ],
+        fieldValueOptions: [
+          {
+            fieldName: 'showTotal',
+            fieldType: 'checkbox',
+            fieldLabel: 'Show total',
+            fieldDefaultValue: false
+          }
+        ],
+        fieldOptions: [...DIMENSION_OPTIONS, ...CUSTOMERS_OPTIONS],
+        fieldLabel: 'Select column',
+      },
+      {
+        fieldName: 'dimension',
+        fieldType: 'select',
+        multi: true,
+        logics: [
+          {
+            logicFieldName: 'chartType',
+            logicFieldValue: 'pivotTable',
+            logicFieldOperator: "ne",
+          },
+        ],
+        fieldOptions: [...DIMENSION_OPTIONS, ...CUSTOMERS_OPTIONS],
+        fieldLabel: 'Select dimension',
+      },
+      // MEASURE FILTER
+      {
+        fieldName: 'measure',
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: MEASURE_OPTIONS,
+        fieldDefaultValue: ['count'],
+        fieldLabel: 'Select measure',
+      },
+      // FREQUENCY TYPE FILTER BASED DIMENSION FILTER
+      {
+        fieldName: 'frequencyType',
+        fieldType: 'select',
+        multi: false,
+        fieldDefaultValue: '%Y',
+        fieldOptions: CUSTOM_DATE_FREQUENCY_TYPES,
+        fieldLabel: 'Select frequency type',
+      },
       // SOURCE FILTER
       {
         fieldName: "integrationTypes",
@@ -820,6 +960,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -981,6 +1122,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -1082,11 +1224,9 @@ const chartTemplates = [
 
       const customersCount = await models.Customers.aggregate(pipeline);
 
-      const kindMap = await getIntegrationsKinds();
-
       const totalCountBySource = (customersCount || []).reduce(
         (acc, { count, integration }) => {
-          acc[kindMap[integration] || integration] = count;
+          acc[KIND_MAP[integration] || integration] = count;
           return acc;
         },
         {}
@@ -1166,6 +1306,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -1343,6 +1484,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -1537,6 +1679,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -1585,32 +1728,102 @@ const chartTemplates = [
       "doughnut",
       "radar",
       "polarArea",
-      "table"
+      "table",
+      "number",
+      "pivotTable"
     ],
     getChartResult: async (
       models: IModels,
       filter: any,
-      dimension: any,
+      chartType: any,
       subdomain: string
     ) => {
       const matchFilter = await buildMatchFilter(filter, subdomain);
 
-      const customersCount = await models.Customers.find({
-        ...matchFilter,
-        state: "lead"
-      }).countDocuments();
+      const pipeline = await buildPipeline(filter, matchFilter, 'lead')
 
-      const totalCount = {
-        "Total Count": customersCount
-      };
+      const leads = await models.Customers.aggregate(pipeline)
 
-      const data = Object.values(totalCount);
-      const labels = Object.keys(totalCount);
       const title = "Total Lead Count";
 
-      return { title, data, labels };
+      return { title, ...buildData({ chartType, data: leads, filter }) };
     },
     filterTypes: [
+      // DIMENSION FILTER
+      {
+        fieldName: 'rowDimension',
+        fieldType: 'select',
+        multi: true,
+        logics: [
+          {
+            logicFieldName: 'chartType',
+            logicFieldValue: 'pivotTable',
+          },
+        ],
+        fieldValueOptions: [
+          {
+            fieldName: 'showTotal',
+            fieldType: 'checkbox',
+            fieldLabel: 'Show total',
+            fieldDefaultValue: false
+          }
+        ],
+        fieldOptions: [...DIMENSION_OPTIONS, ...CUSTOMERS_OPTIONS],
+        fieldLabel: 'Select row',
+      },
+      {
+        fieldName: 'colDimension',
+        fieldType: 'select',
+        multi: true,
+        logics: [
+          {
+            logicFieldName: 'chartType',
+            logicFieldValue: 'pivotTable',
+          },
+        ],
+        fieldValueOptions: [
+          {
+            fieldName: 'showTotal',
+            fieldType: 'checkbox',
+            fieldLabel: 'Show total',
+            fieldDefaultValue: false
+          }
+        ],
+        fieldOptions: [...DIMENSION_OPTIONS, ...CUSTOMERS_OPTIONS],
+        fieldLabel: 'Select column',
+      },
+      {
+        fieldName: 'dimension',
+        fieldType: 'select',
+        multi: true,
+        logics: [
+          {
+            logicFieldName: 'chartType',
+            logicFieldValue: 'pivotTable',
+            logicFieldOperator: "ne",
+          },
+        ],
+        fieldOptions: [...DIMENSION_OPTIONS, ...CUSTOMERS_OPTIONS],
+        fieldLabel: 'Select dimension',
+      },
+      // MEASURE FILTER
+      {
+        fieldName: 'measure',
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: MEASURE_OPTIONS,
+        fieldDefaultValue: ['count'],
+        fieldLabel: 'Select measure',
+      },
+      // FREQUENCY TYPE FILTER BASED DIMENSION FILTER
+      {
+        fieldName: 'frequencyType',
+        fieldType: 'select',
+        multi: false,
+        fieldDefaultValue: '%Y',
+        fieldOptions: CUSTOM_DATE_FREQUENCY_TYPES,
+        fieldLabel: 'Select frequency type',
+      },
       // SOURCE FILTER
       {
         fieldName: "integrationTypes",
@@ -1678,6 +1891,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -1839,6 +2053,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -1939,11 +2154,10 @@ const chartTemplates = [
       ];
 
       const customersCount = await models.Customers.aggregate(pipeline);
-      const kindMap = await getIntegrationsKinds();
 
       const totalCountBySource = (customersCount || []).reduce(
         (acc, { count, integration }) => {
-          acc[kindMap[integration] || integration] = count;
+          acc[KIND_MAP[integration] || integration] = count;
           return acc;
         },
         {}
@@ -2023,6 +2237,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -2200,6 +2415,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -2394,6 +2610,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
@@ -2447,25 +2664,95 @@ const chartTemplates = [
     getChartResult: async (
       models: IModels,
       filter: any,
-      dimension: any,
+      chartType: any,
       subdomain: string
     ) => {
       const matchFilter = await buildMatchFilter(filter, subdomain);
 
-      const customersCount =
-        await models.Companies.find(matchFilter).countDocuments();
+      const pipeline = await buildPipeline(filter, matchFilter)
+      console.log('company pipeline', util.inspect(pipeline, false, null, true))
 
-      const totalCount = {
-        "Total Count": customersCount
-      };
-
-      const data = Object.values(totalCount);
-      const labels = Object.keys(totalCount);
+      const companies = await models.Companies.aggregate(pipeline)
       const title = "Total Company Count";
 
-      return { title, data, labels };
+      return { title, ...buildData({ chartType, data: companies, filter }) };
     },
     filterTypes: [
+      // DIMENSION FILTER
+      {
+        fieldName: 'rowDimension',
+        fieldType: 'select',
+        multi: true,
+        logics: [
+          {
+            logicFieldName: 'chartType',
+            logicFieldValue: 'pivotTable',
+          },
+        ],
+        fieldValueOptions: [
+          {
+            fieldName: 'showTotal',
+            fieldType: 'checkbox',
+            fieldLabel: 'Show total',
+            fieldDefaultValue: false
+          }
+        ],
+        fieldOptions: [...DIMENSION_OPTIONS, ...COMPANIES_OPTIONS],
+        fieldLabel: 'Select row',
+      },
+      {
+        fieldName: 'colDimension',
+        fieldType: 'select',
+        multi: true,
+        logics: [
+          {
+            logicFieldName: 'chartType',
+            logicFieldValue: 'pivotTable',
+          },
+        ],
+        fieldValueOptions: [
+          {
+            fieldName: 'showTotal',
+            fieldType: 'checkbox',
+            fieldLabel: 'Show total',
+            fieldDefaultValue: false
+          }
+        ],
+        fieldOptions: [...DIMENSION_OPTIONS, ...COMPANIES_OPTIONS],
+        fieldLabel: 'Select column',
+      },
+      {
+        fieldName: 'dimension',
+        fieldType: 'select',
+        multi: true,
+        logics: [
+          {
+            logicFieldName: 'chartType',
+            logicFieldValue: 'pivotTable',
+            logicFieldOperator: "ne",
+          },
+        ],
+        fieldOptions: [...DIMENSION_OPTIONS, ...COMPANIES_OPTIONS],
+        fieldLabel: 'Select dimension',
+      },
+      // MEASURE FILTER
+      {
+        fieldName: 'measure',
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: MEASURE_OPTIONS,
+        fieldDefaultValue: ['count'],
+        fieldLabel: 'Select measure',
+      },
+      // FREQUENCY TYPE FILTER BASED DIMENSION FILTER
+      {
+        fieldName: 'frequencyType',
+        fieldType: 'select',
+        multi: false,
+        fieldDefaultValue: '%Y',
+        fieldOptions: CUSTOM_DATE_FREQUENCY_TYPES,
+        fieldLabel: 'Select frequency type',
+      },
       // TAG FILTER
       {
         fieldName: "tagIds",
@@ -2496,6 +2783,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:company"}`,
         logics: [
           {
@@ -2616,6 +2904,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:company"}`,
         logics: [
           {
@@ -2752,6 +3041,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:company"}`,
         logics: [
           {
@@ -2908,6 +3198,7 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
+        fieldRequiredQueryParams: ["contentType"],
         fieldQueryVariables: `{"contentType": "core:company"}`,
         logics: [
           {
@@ -2961,31 +3252,95 @@ const chartTemplates = [
     getChartResult: async (
       models: IModels,
       filter: any,
-      dimension: any,
+      chartType: any,
       subdomain: string
     ) => {
-      const { stateType } = filter;
-
       const matchFilter = await buildMatchFilter(filter, subdomain);
 
-      if (stateType && stateType.length) {
-        matchFilter["type"] = { $eq: stateType };
-      }
+      const pipeline = await buildPipeline(filter, matchFilter, 'client')
+      console.log('pipeline', util.inspect(pipeline, false, null, true))
 
-      const pipeline = getBusinnesPortalPipeline(matchFilter, "all", "client");
-      const clientPortal = await getBusinessPortalCount(pipeline, 0, subdomain);
-
-      const totalCount = {
-        "Total Count": clientPortal
-      };
-
-      const data = Object.values(totalCount);
-      const labels = Object.keys(totalCount);
+      const clientPortalUsers = await models.Customers.aggregate(pipeline)
       const title = "Total Client Portal Count";
 
-      return { title, data, labels };
+      return { title, ...buildData({ chartType, data: clientPortalUsers, filter }) };
     },
     filterTypes: [
+      // DIMENSION FILTER
+      {
+        fieldName: 'rowDimension',
+        fieldType: 'select',
+        multi: true,
+        logics: [
+          {
+            logicFieldName: 'chartType',
+            logicFieldValue: 'pivotTable',
+          },
+        ],
+        fieldValueOptions: [
+          {
+            fieldName: 'showTotal',
+            fieldType: 'checkbox',
+            fieldLabel: 'Show total',
+            fieldDefaultValue: false
+          }
+        ],
+        fieldOptions: [...DIMENSION_OPTIONS, ...CUSTOMERS_OPTIONS],
+        fieldLabel: 'Select row',
+      },
+      {
+        fieldName: 'colDimension',
+        fieldType: 'select',
+        multi: true,
+        logics: [
+          {
+            logicFieldName: 'chartType',
+            logicFieldValue: 'pivotTable',
+          },
+        ],
+        fieldValueOptions: [
+          {
+            fieldName: 'showTotal',
+            fieldType: 'checkbox',
+            fieldLabel: 'Show total',
+            fieldDefaultValue: false
+          }
+        ],
+        fieldOptions: [...DIMENSION_OPTIONS, ...CUSTOMERS_OPTIONS],
+        fieldLabel: 'Select column',
+      },
+      {
+        fieldName: 'dimension',
+        fieldType: 'select',
+        multi: true,
+        logics: [
+          {
+            logicFieldName: 'chartType',
+            logicFieldValue: 'pivotTable',
+            logicFieldOperator: "ne",
+          },
+        ],
+        fieldOptions: [...DIMENSION_OPTIONS, ...CUSTOMERS_OPTIONS],
+        fieldLabel: 'Select dimension',
+      },
+      // MEASURE FILTER
+      {
+        fieldName: 'measure',
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: MEASURE_OPTIONS,
+        fieldDefaultValue: ['count'],
+        fieldLabel: 'Select measure',
+      },
+      // FREQUENCY TYPE FILTER BASED DIMENSION FILTER
+      {
+        fieldName: 'frequencyType',
+        fieldType: 'select',
+        multi: false,
+        fieldDefaultValue: '%Y',
+        fieldOptions: CUSTOM_DATE_FREQUENCY_TYPES,
+        fieldLabel: 'Select frequency type',
+      },
       // PORTAL FILTER
       {
         fieldName: "portalIds",
@@ -2994,14 +3349,6 @@ const chartTemplates = [
         fieldQueryVariables: `{"kind": "client"}`,
         multi: true,
         fieldLabel: "Select client portal"
-      },
-      // STATE FILTER
-      {
-        fieldName: "stateType",
-        fieldType: "select",
-        fieldOptions: BUSINESSPORTAL_STATE_TYPES,
-        multi: false,
-        fieldLabel: "Select state"
       },
       // DATE FILTER
       {
@@ -3018,7 +3365,7 @@ const chartTemplates = [
         fieldType: "select",
         multi: false,
         fieldQuery: "date",
-        fieldOptions: DATERANGE_BY_TYPES_COMPANIES,
+        fieldOptions: DATERANGE_BY_TYPES,
         fieldLabel: "Select date range type",
         fieldDefaultValue: "createdAt"
       }
@@ -3130,31 +3477,95 @@ const chartTemplates = [
     getChartResult: async (
       models: IModels,
       filter: any,
-      dimension: any,
+      chartType: any,
       subdomain: string
     ) => {
-      const { stateType } = filter;
-
       const matchFilter = await buildMatchFilter(filter, subdomain);
 
-      if (stateType && stateType.length) {
-        matchFilter["type"] = { $eq: stateType };
-      }
+      const pipeline = await buildPipeline(filter, matchFilter, 'vendor')
+      console.log('pipeline', util.inspect(pipeline, false, null, true))
 
-      const pipeline = getBusinnesPortalPipeline(matchFilter, "all", "vendor");
-      const vendorPortal = await getBusinessPortalCount(pipeline, 0, subdomain);
+      const clientPortalUsers = await models.Customers.aggregate(pipeline)
+      const title = "Total Client Portal Count";
 
-      const totalCount = {
-        "Total Count": vendorPortal
-      };
-
-      const data = Object.values(totalCount);
-      const labels = Object.keys(totalCount);
-      const title = "Total Vendor Portal Count";
-
-      return { title, data, labels };
+      return { title, ...buildData({ chartType, data: clientPortalUsers, filter }) };
     },
     filterTypes: [
+      // DIMENSION FILTER
+      {
+        fieldName: 'rowDimension',
+        fieldType: 'select',
+        multi: true,
+        logics: [
+          {
+            logicFieldName: 'chartType',
+            logicFieldValue: 'pivotTable',
+          },
+        ],
+        fieldValueOptions: [
+          {
+            fieldName: 'showTotal',
+            fieldType: 'checkbox',
+            fieldLabel: 'Show total',
+            fieldDefaultValue: false
+          }
+        ],
+        fieldOptions: [...DIMENSION_OPTIONS, ...CUSTOMERS_OPTIONS],
+        fieldLabel: 'Select row',
+      },
+      {
+        fieldName: 'colDimension',
+        fieldType: 'select',
+        multi: true,
+        logics: [
+          {
+            logicFieldName: 'chartType',
+            logicFieldValue: 'pivotTable',
+          },
+        ],
+        fieldValueOptions: [
+          {
+            fieldName: 'showTotal',
+            fieldType: 'checkbox',
+            fieldLabel: 'Show total',
+            fieldDefaultValue: false
+          }
+        ],
+        fieldOptions: [...DIMENSION_OPTIONS, ...CUSTOMERS_OPTIONS],
+        fieldLabel: 'Select column',
+      },
+      {
+        fieldName: 'dimension',
+        fieldType: 'select',
+        multi: true,
+        logics: [
+          {
+            logicFieldName: 'chartType',
+            logicFieldValue: 'pivotTable',
+            logicFieldOperator: "ne",
+          },
+        ],
+        fieldOptions: [...DIMENSION_OPTIONS, ...CUSTOMERS_OPTIONS],
+        fieldLabel: 'Select dimension',
+      },
+      // MEASURE FILTER
+      {
+        fieldName: 'measure',
+        fieldType: 'select',
+        multi: true,
+        fieldOptions: MEASURE_OPTIONS,
+        fieldDefaultValue: ['count'],
+        fieldLabel: 'Select measure',
+      },
+      // FREQUENCY TYPE FILTER BASED DIMENSION FILTER
+      {
+        fieldName: 'frequencyType',
+        fieldType: 'select',
+        multi: false,
+        fieldDefaultValue: '%Y',
+        fieldOptions: CUSTOM_DATE_FREQUENCY_TYPES,
+        fieldLabel: 'Select frequency type',
+      },
       // PORTAL FILTER
       {
         fieldName: "portalIds",
@@ -3163,14 +3574,6 @@ const chartTemplates = [
         fieldQueryVariables: `{"kind": "vendor"}`,
         multi: true,
         fieldLabel: "Select vendor portal"
-      },
-      // STATE FILTER
-      {
-        fieldName: "stateType",
-        fieldType: "select",
-        fieldOptions: BUSINESSPORTAL_STATE_TYPES,
-        multi: false,
-        fieldLabel: "Select state"
       },
       // DATE FILTER
       {

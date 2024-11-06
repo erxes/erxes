@@ -13,46 +13,6 @@ const messageFields = `
     _id
     details {
       ${userDetailFields}
-      description
-      location
-      position
-      shortName
-    }
-  }
-  content
-  createdAt
-  internal
-  fromBot
-  contentType
-
-  engageData {
-    content
-    kind
-    sentAs
-    messageId
-    brandId
-  }
-  botData
-  messengerAppData
-  attachments {
-    url
-    name
-    size
-    type
-  }
-`;
-const MESSAGE_FIELDS = `
-  _id
-  conversationId
-  customerId
-  user {
-    _id
-    details {
-      ${userDetailFields}
-      description
-      location
-      position
-      shortName
     }
   }
   content
@@ -83,10 +43,8 @@ const userFields = `
   isActive
   details {
     ${userDetailFields}
-    description
-    location
-    position
     shortName
+    location
   }
   isOnline
 `;
@@ -97,14 +55,15 @@ const conversationDetailQuery = (isDailycoEnabled: boolean) => `
       _id
       messages {
         ${messageFields}
-        ${isDailycoEnabled
-    ? `
+        ${
+          isDailycoEnabled
+            ? `
         videoCallData {
           url
           status
         }`
-    : ''
-  }
+            : ''
+        }
       }
 
       operatorStatus
@@ -113,20 +72,16 @@ const conversationDetailQuery = (isDailycoEnabled: boolean) => `
         _id
         details {
           ${userDetailFields}
-          description
-          location
-          position
-          shortName
         }
       }
       participatedUsers {
         _id
         details {
           ${userDetailFields}
-          description
-          location
-          position
           shortName
+          description
+          position
+          location
         }
         links
       }
@@ -144,14 +99,15 @@ const conversationMessageInserted = (isDailycoEnabled: boolean) => `
   subscription conversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       ${messageFields}
-      ${isDailycoEnabled
-    ? `
+      ${
+        isDailycoEnabled
+          ? `
       videoCallData {
         url
         status
       }`
-    : ''
-  }
+          : ''
+      }
     }
   }
 `;
@@ -210,10 +166,6 @@ const allConversations = `
       participatedUsers {
         details {
           ${userDetailFields}
-          description
-          location
-          position
-          shortName
         }
       }
     }
@@ -351,6 +303,4 @@ export default {
   integrationsFetchApi,
   conversationBotTypingStatus,
   getEngageMessage,
-  MESSAGE_FIELDS
 };
-export { MESSAGE_FIELDS }

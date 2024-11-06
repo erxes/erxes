@@ -1,13 +1,14 @@
 import { Spinner } from '@erxes/ui/src';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import { withProps } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+// import { graphql } from '@apollo/client/react/hoc';
 import { RiskAssessmentQueryResponse } from '../../common/types';
 import SectionComponent from '../components/Section';
 import { queries } from '../graphql';
+import { Error } from '@erxes/ui/src/components/form/styles';
 
 type Props = {
   queryParams: any;
@@ -15,45 +16,32 @@ type Props = {
   mainType: string;
 };
 
-type FinalProps = {
-  riskAssessmentQueryResponse: RiskAssessmentQueryResponse;
-} & Props;
+function Section({ mainType, mainTypeId }: Props) {
+  const { data, loading, error } = useQuery(gql(queries.riskAssessment), {
+    variables: { cardType: mainType, cardId: mainTypeId },
+    skip: !mainTypeId,
+  });
 
-class Section extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
+  if (loading) {
+    return <Spinner />;
   }
 
-  render() {
-    const { riskAssessmentQueryResponse, mainType, mainTypeId } = this.props;
-    if (riskAssessmentQueryResponse.loading) {
-      return <Spinner />;
-    }
+  // if (error) {
+  //   return <Error>{error.message}</Error>;
+  // }
 
-    const { riskAssessment } = riskAssessmentQueryResponse;
+  const { riskAssessment } = data || {};
 
-    const updatedProps = {
-      riskAssessments: riskAssessment,
-      cardType: mainType,
-      cardId: mainTypeId
-    };
+  const updatedProps = {
+    riskAssessments: riskAssessment,
+    cardType: mainType,
+    cardId: mainTypeId,
+  };
 
-    return (
-      <ErrorBoundary>
-        <SectionComponent {...updatedProps} />
-      </ErrorBoundary>
-    );
-  }
+  return (
+    <ErrorBoundary error={error} pluginName="RiskAssessment">
+      <SectionComponent {...updatedProps} />;
+    </ErrorBoundary>
+  );
 }
-
-export default withProps(
-  compose(
-    graphql<Props>(gql(queries.riskAssessment), {
-      name: 'riskAssessmentQueryResponse',
-      skip: ({ mainTypeId }) => !mainTypeId,
-      options: ({ mainType, mainTypeId }) => ({
-        variables: { cardType: mainType, cardId: mainTypeId }
-      })
-    })
-  )(Section)
-);
+export default Section;

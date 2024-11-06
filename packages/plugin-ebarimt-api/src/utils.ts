@@ -1,9 +1,7 @@
 import fetch from "node-fetch";
 import {
   sendCoreMessage,
-  sendNotificationsMessage,
-  sendContactsMessage,
-  sendProductsMessage
+  sendNotificationsMessage
 } from "./messageBroker";
 
 export const sendNotification = (subdomain: string, data) => {
@@ -156,7 +154,7 @@ const billTypeConfomityCompany = async (subdomain, config, deal) => {
   });
 
   if (companyIds.length > 0) {
-    const companies = await sendContactsMessage({
+    const companies = await sendCoreMessage({
       subdomain,
       action: "companies.findActiveCompanies",
       data: {
@@ -167,7 +165,7 @@ const billTypeConfomityCompany = async (subdomain, config, deal) => {
       defaultValue: []
     });
 
-    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)/giu;
+    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)|(^\d{14}$)/gui;
     for (const company of companies) {
       if (re.test(company.code)) {
         const checkCompanyRes = await getCompanyInfo({
@@ -223,7 +221,7 @@ const checkBillType = async (subdomain, config, deal) => {
     });
 
     if (customerIds.length > 0) {
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
         action: "customers.findActiveCustomers",
         data: {
@@ -266,9 +264,9 @@ export const getPostData = async (subdomain, config, deal) => {
   );
 
   const productsIds = deal.productsData.map(item => item.productId);
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
-    action: "productFind",
+    action: "products.find",
     data: { query: { _id: { $in: productsIds } }, limit: productsIds.length },
     isRPC: true,
     defaultValue: []
@@ -312,14 +310,8 @@ export const getPostData = async (subdomain, config, deal) => {
   };
 };
 
-export const getCompanyInfo = async ({
-  checkTaxpayerUrl,
-  no
-}: {
-  checkTaxpayerUrl: string;
-  no: string;
-}) => {
-  const tinre = /(^\d{11}$)|(^\d{12}$)/;
+export const getCompanyInfo = async ({ checkTaxpayerUrl, no }: { checkTaxpayerUrl: string, no: string }) => {
+  const tinre = /(^\d{11}$)|(^\d{12}$)|(^\d{14}$)/;
   if (tinre.test(no)) {
     const result = await fetch(
       // `https://api.ebarimt.mn/api/info/check/getInfo?tin=${tinNo}`

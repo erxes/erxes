@@ -9,6 +9,7 @@ import { createLoanSchedule } from './utils/loan/createSchedule';
 import { getDepositBalance } from './utils/deposit/getDepositBalance';
 import { createLoanStoreInterest } from './utils/loan/loanStoreInterest';
 import { changeLoanSchedule } from './utils/loan/changeLoanSchedule';
+import { getConfig } from './utils/utils';
 
 export const setupMessageConsumers = async () => {
   consumeQueue('syncpolaris:afterMutation', async ({ subdomain, data }) => {
@@ -33,31 +34,35 @@ export const setupMessageConsumers = async () => {
   consumeRPCQueue(
     'syncpolaris:getDepositBalance',
     async ({ data, subdomain }) => {
+      const polarisConfig = await getConfig(subdomain, 'POLARIS', {});
       return {
         status: 'success',
-        data: await getDepositBalance(subdomain, data),
+        data: await getDepositBalance(subdomain, polarisConfig, data),
       };
     },
   );
 
   consumeRPCQueue('syncpolaris:createSchedule', async ({ data, subdomain }) => {
+    const polarisConfig = await getConfig(subdomain, 'POLARIS', {});
     return {
       status: 'success',
-      data: await createLoanSchedule(subdomain, data),
+      data: await createLoanSchedule(subdomain, polarisConfig, data),
     };
   });
 
   consumeRPCQueue('syncpolaris:changeSchedule', async ({ data, subdomain }) => {
+    const polarisConfig = await getConfig(subdomain, 'POLARIS', {});
     return {
       status: 'success',
-      data: await changeLoanSchedule(subdomain, data),
+      data: await changeLoanSchedule(subdomain, polarisConfig, data),
     };
   });
 
   consumeRPCQueue('syncpolaris:storeInterest', async ({ data, subdomain }) => {
+    const polarisConfig = await getConfig(subdomain, 'POLARIS', {});
     return {
       status: 'success',
-      data: await createLoanStoreInterest(subdomain, data),
+      data: await createLoanStoreInterest(subdomain, polarisConfig, data),
     };
   });
 };

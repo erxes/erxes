@@ -74,9 +74,7 @@ const CompanyListContainer = (props: FinalProps) => {
   ];
 
   // load config from local storage
-  const localConfig = localStorage.getItem(
-    "erxes_contacts:company_columns_config"
-  );
+  const localConfig = localStorage.getItem("erxes_core:company_columns_config");
 
   if (localConfig) {
     columnsConfig = JSON.parse(localConfig).filter(conf => {
@@ -147,10 +145,7 @@ const CompanyListContainer = (props: FinalProps) => {
       configs: JSON.stringify(checkedConfigs)
     });
 
-    window.open(
-      `${REACT_APP_API_URL}/pl:contacts/file-export?${stringified}`,
-      "_blank"
-    );
+    window.open(`${REACT_APP_API_URL}/file-export?${stringified}`, "_blank");
   };
 
   const updatedProps = {

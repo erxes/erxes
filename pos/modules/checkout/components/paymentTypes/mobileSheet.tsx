@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react"
+import Loader from "@/components/ui/loader"
+import { onError } from "@/components/ui/use-toast"
+import clientMain from '@/modules/apolloClientMain'
 import { mutations } from "@/modules/checkout/graphql"
 import { currentAmountAtom } from "@/store"
 import { configAtom } from "@/store/config.store"
@@ -10,9 +12,7 @@ import {
 } from "@/store/order.store"
 import { useMutation } from "@apollo/client"
 import { useAtomValue } from "jotai"
-
-import Loader from "@/components/ui/loader"
-import { onError } from "@/components/ui/use-toast"
+import { useEffect, useState } from "react"
 
 const MobileSheet = () => {
   const [loading, setLoading] = useState(true)
@@ -26,6 +26,10 @@ const MobileSheet = () => {
   const [generateInvoiceUrl, { data }] = useMutation(
     mutations.generateInvoiceUrl,
     {
+      context: {
+        headers: { 'erxes-app-token': config?.erxesAppToken }
+      },
+      client: clientMain,
       onError(error) {
         onError(error.message)
       },

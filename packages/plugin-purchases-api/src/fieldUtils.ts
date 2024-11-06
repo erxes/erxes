@@ -5,9 +5,7 @@ import {
   BOARD_ITEM_EXTENDED_FIELDS
 } from "./constants";
 import {
-  sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "./messageBroker";
 import { PROBABILITY } from "./models/definitions/constants";
 
@@ -17,9 +15,9 @@ const generateProductsOptions = async (
   label: string,
   type: string
 ) => {
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
-    action: "productFind",
+    action: "products.find",
     data: {
       query: {}
     },
@@ -49,7 +47,7 @@ const generateProductsCategoriesOptions = async (
   label: string,
   type: string
 ) => {
-  const productCategories = await sendProductsMessage({
+  const productCategories = await sendCoreMessage({
     subdomain,
     action: "categories.find",
     data: {
@@ -82,7 +80,7 @@ const generateContactsOptions = async (
   type: string,
   params?: any
 ) => {
-  const contacts = await sendContactsMessage({
+  const contacts = await sendCoreMessage({
     subdomain,
     action: `${name}.find`,
     data: { ...params, status: { $ne: "deleted" } },

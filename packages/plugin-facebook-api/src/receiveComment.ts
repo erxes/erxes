@@ -1,9 +1,5 @@
 import { IModels } from './connectionResolver';
-import {
-  getOrCreateComment,
-  getOrCreateCustomer,
-  getOrCreatePostConversation,
-} from './store';
+import { getOrPostCreateComment, getOrCreateCustomer } from './store';
 import { ICommentParams } from './types';
 import { INTEGRATION_KINDS } from './constants';
 
@@ -11,15 +7,15 @@ const receiveComment = async (
   models: IModels,
   subdomain: string,
   params: ICommentParams,
-  pageId: string,
+  pageId: string
 ) => {
   const userId = params.from.id;
   const postId = params.post_id;
   const integration = await models.Integrations.findOne({
     $and: [
       { facebookPageIds: { $in: pageId } },
-      { kind: INTEGRATION_KINDS.POST },
-    ],
+      { kind: INTEGRATION_KINDS.POST }
+    ]
   });
 
   if (userId === pageId) {
@@ -34,29 +30,18 @@ const receiveComment = async (
     subdomain,
     pageId,
     userId,
-    INTEGRATION_KINDS.POST,
+    INTEGRATION_KINDS.POST
   );
 
-  const postConversation = await getOrCreatePostConversation(
-    models,
-    pageId,
-    subdomain,
-    postId,
-    integration,
-    customer,
-    params,
-  );
-
-  await getOrCreateComment(
+  await getOrPostCreateComment(
     models,
     subdomain,
-    postConversation,
     params,
     pageId,
     userId,
     params.verb || '',
     integration,
-    customer,
+    customer
   );
 };
 

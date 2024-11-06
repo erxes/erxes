@@ -48,7 +48,7 @@ export default {
           data: { _id: contract.customerId },
           isRPC: true
         },
-        'contacts'
+        'core'
       );
       contract.customerName = customer.firstName;
       contract.customerLastName = customer.lastName;
@@ -62,7 +62,7 @@ export default {
           data: { _id: contract.customerId },
           isRPC: true
         },
-        'contacts'
+        'core'
       );
 
       contract.customerName = company.primaryName;

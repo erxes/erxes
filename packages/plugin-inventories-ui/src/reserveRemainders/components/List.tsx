@@ -142,7 +142,7 @@ const ReserveRems: React.FC<Props> = (props) => {
         />
         <ModalTrigger
           size={"lg"}
-          title="Add label"
+          title={__("Add label")}
           trigger={trigger}
           autoOpenKey="showProductModal"
           content={modalContent}
@@ -191,7 +191,7 @@ const ReserveRems: React.FC<Props> = (props) => {
           data={content}
           loading={false}
           count={totalCount}
-          emptyText="There is no data"
+          emptyText={__("There is no data")}
           emptyImage="/images/actions/5.svg"
         />
       }

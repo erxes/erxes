@@ -2,6 +2,7 @@ import Icon from "../../common/Icon";
 import React from "react";
 import Router from "next/router";
 import { SearchContainer } from "../../styles/main";
+import { __ } from "../../../utils";
 
 type Props = {
   searchValue?: any;
@@ -84,7 +85,7 @@ export default class Search extends React.Component<Props, State> {
         <Icon icon="search-1" size={32} onClick={this.onSearch} />
         <input
           onChange={this.onChange}
-          placeholder="Search for articles..."
+          placeholder={__("Search for articles") + "..."}
           value={searchValue}
           onKeyDown={this.onKeyDown}
           onBlur={this.onBlur}

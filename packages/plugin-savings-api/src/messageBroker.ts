@@ -150,11 +150,8 @@ export const sendMessageBroker = async (
   args: MessageArgsOmitService,
   name:
     | "core"
-    | "cards"
+    | "sales"
     | "reactions"
-    | "contacts"
-    | "products"
-    | "forms"
     | "clientportal"
     | "syncerkhet"
     | "ebarimt"
@@ -176,11 +173,11 @@ export const sendCoreMessage = async (
   });
 };
 
-export const sendCardsMessage = async (
+export const sendSalesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "cards",
+    serviceName: "sales",
     ...args
   });
 };

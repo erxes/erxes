@@ -5,7 +5,6 @@ import { generateModels, IContext } from "../../../connectionResolver";
 import {
   sendCoreMessage,
   sendPosMessage,
-  sendProductsMessage,
   sendSalesMessage
 } from "../../../messageBroker";
 import { sendRPCMessage, sendTRPCMessage } from "../../../messageBrokerErkhet";
@@ -56,9 +55,9 @@ const checkSyncedMutations = {
         break;
     }
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: "productFind",
+      action: "products.find",
       data: { query: { _id: { $in: productIds } } },
       isRPC: true
     });

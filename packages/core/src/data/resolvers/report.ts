@@ -36,5 +36,17 @@ export default {
     const tags = await dataLoaders.tag.loadMany(report.tagIds || []);
 
     return tags.filter(tag => tag);
-  }
+  },
+
+  async isPinned(report: IReportDocument, { }, { models, user }: IContext) {
+
+    const { userIds } = report
+
+    if ((userIds || []).includes(user._id)) {
+      return true
+    }
+
+    return false
+
+  },
 };

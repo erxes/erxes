@@ -14,7 +14,7 @@ const allowTypes = {
   "core:user": ["create", "update"],
   "sales:deal": ["update"],
   "purchases:purchase": ["update"],
-  "products:productCategory": ["create", "update", "delete"],
+  "core:productCategory": ["create", "update", "delete"],
   "core:product": ["create", "update", "delete"],
   "core:customer": ["create", "update", "delete"],
   "core:company": ["create", "update", "delete"]
@@ -312,7 +312,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       }
       return;
     }
-    if (type === "products:productCategory") {
+    if (type === "core:productCategory") {
       const mainConfig = await getConfig(subdomain, "ERKHET", {});
       if (
         !mainConfig ||

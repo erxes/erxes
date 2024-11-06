@@ -138,7 +138,7 @@ const PerSettings: React.FC<Props> = (props: Props) => {
       <FormWrapper>
         <FormColumn>
           <FormGroup>
-            <ControlLabel>{"Title"}</ControlLabel>
+            <ControlLabel>{__("Title")}</ControlLabel>
             <FormControl
               defaultValue={state.config["title"]}
               onChange={onChangeInput.bind(this, "title")}
@@ -162,6 +162,11 @@ const PerSettings: React.FC<Props> = (props: Props) => {
           </FormGroup>
           {renderInput("posNo", "pos No", "")}
           {renderInput("branchNo", "branch No", "")}
+          {renderCheckbox(
+            "withDescription",
+            "with description",
+            "When checked ebarimt with deals description"
+          )}
           {renderCheckbox(
             "skipPutData",
             "skip Ebarimt",

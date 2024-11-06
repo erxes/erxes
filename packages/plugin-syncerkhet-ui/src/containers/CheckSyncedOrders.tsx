@@ -11,7 +11,7 @@ import { mutations, queries } from "../graphql";
 import { router, withProps } from "@erxes/ui/src/utils/core";
 
 import Alert from "@erxes/ui/src/utils/Alert";
-import { Bulk } from "@erxes/ui/src/components";
+import { Bulk, Spinner } from "@erxes/ui/src/components";
 import CheckSyncedOrders from "../components/syncedOrders/CheckSyncedOrders";
 import React from "react";
 import { gql } from "@apollo/client";
@@ -103,6 +103,10 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
         });
     };
 
+    if (checkSyncItemsQuery.loading) {
+      return <Spinner />
+    }
+
     const orders = checkSyncItemsQuery.posOrders || [];
     const totalCount =
       checkSyncedOrdersTotalCountQuery.posOrdersTotalCount || 0;
@@ -128,8 +132,6 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
 }
 
 const generateParams = ({ queryParams }) => {
-  const pageInfo = router.generatePaginationParams(queryParams || {});
-
   return {
     paidStartDate: queryParams.paidStartDate,
     paidEndDate: queryParams.paidEndDate,

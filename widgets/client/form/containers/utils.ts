@@ -89,7 +89,6 @@ export const increaseViewCount = (formId: string) => {
 export const saveLead = (params: {
   doc: IFormDoc;
   browserInfo: IBrowserInfo;
-  integrationId: string;
   formId: string;
   userId?: string;
   saveCallback: (response: ISaveFormResponse) => void;
@@ -97,7 +96,6 @@ export const saveLead = (params: {
   const {
     doc,
     browserInfo,
-    integrationId,
     formId,
     saveCallback,
     userId,
@@ -138,7 +136,6 @@ export const saveLead = (params: {
     : getLocalStorageItem('customerId');
 
   const variables = {
-    integrationId,
     formId,
     browserInfo,
     submissions: submissions.filter((e) => e),

@@ -4,14 +4,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import Box from "@erxes/ui/src/components/Box";
 import React from "react";
-import { categoryStatusChoises } from "../../../utils";
+import { categoryStatusChoises, productsStatusChoises } from "../../../utils";
 
 type Props = {
   searchable?: boolean;
 };
 
 const CategoryStatusFilter: React.FC<Props> = (props) => {
-  const productParam = "state";
   const categoryParam = "status";
 
   const navigate = useNavigate();
@@ -19,7 +18,6 @@ const CategoryStatusFilter: React.FC<Props> = (props) => {
 
   const onClick = (key, value) => {
     router.setParams(navigate, location, { [key]: value });
-    router.setParams(navigate, location, { categoryId: null });
   };
 
   return (
@@ -31,54 +29,48 @@ const CategoryStatusFilter: React.FC<Props> = (props) => {
       >
         <SidebarList>
           {categoryStatusChoises(__).map(
-            ({ value, label }: { value: string; label: string }) =>
-              (value === "disabled" || value === "archived") && (
-                <li key={Math.random()}>
-                  <a
-                    href="#filter"
-                    tabIndex={0}
-                    className={
-                      router.getParam(location, [categoryParam]) === value
-                        ? "active"
-                        : ""
-                    }
-                    onClick={onClick.bind(this, categoryParam, value)}
-                  >
-                    <FieldStyle>{label}</FieldStyle>
-                  </a>
-                </li>
-              )
-          )}
+            ({ value, label }: { value: string; label: string }) => (
+              <li key={Math.random()}>
+                <a
+                  tabIndex={0}
+                  className={
+                    router.getParam(location, [categoryParam]) === value
+                      ? "active"
+                      : ""
+                  }
+                  onClick={onClick.bind(this, categoryParam, value)}
+                >
+                  <FieldStyle>{label}</FieldStyle>
+                </a>
+              </li>
+            ))}
         </SidebarList>
       </Box>
       <Box
         title={__("FILTER PRODUCT BY STATUS")}
         name="showFilterByType"
-        isOpen={router.getParam(location, [productParam])}
+        isOpen={router.getParam(location, ['state']) || router.getParam(location, ['image'])}
       >
         <SidebarList>
-          {categoryStatusChoises(__).map(
+          {productsStatusChoises(__).map(
             (
-              { value, label }: { value: string; label: string },
+              { value, label, filter }: { value: string; label: string, filter: string },
               index: number
-            ) =>
-              value === "deleted" && (
-                <li key={index}>
-                  <a
-                    href="#filter"
-                    tabIndex={0}
-                    className={
-                      router.getParam(location, [productParam]) === value
-                        ? "active"
-                        : ""
-                    }
-                    onClick={onClick.bind(this, productParam, value)}
-                  >
-                    <FieldStyle>{label}</FieldStyle>
-                  </a>
-                </li>
-              )
-          )}
+            ) => (
+              <li key={index}>
+                <a
+                  tabIndex={0}
+                  className={
+                    router.getParam(location, [filter]) === value
+                      ? "active"
+                      : ""
+                  }
+                  onClick={onClick.bind(this, filter, value)}
+                >
+                  <FieldStyle>{label}</FieldStyle>
+                </a>
+              </li>
+            ))}
         </SidebarList>
       </Box>
     </>

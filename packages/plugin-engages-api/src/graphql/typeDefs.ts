@@ -8,7 +8,7 @@ const typeDefs = async () => {
     scalar JSON
     scalar Date
 
-    ${await types()}
+    ${types}
     ${logTypes}
 
     extend type Query {

@@ -47,7 +47,7 @@ export interface IContractConfig {
   repaymentTemp: string;
 
   isAutoSendEBarimt: boolean;
-  productType: string;
+
   normalExpirationDay: number;
   expiredExpirationDay: number;
   doubtExpirationDay: number;
@@ -72,7 +72,6 @@ export interface IContractType {
   leaseType: string;
   commitmentInterest: number;
   createdAt: Date;
-  productCategoryIds: string[];
   config: IContractConfig;
   currency: string;
   savingPlusLoanInterest: number;
@@ -81,6 +80,7 @@ export interface IContractType {
   invoiceDay: string;
   customFieldsData?: ICustomField[];
   productId: string
+  productType: string;
 }
 
 export interface IContractTypeDocument extends IContractType, Document {
@@ -155,20 +155,11 @@ export const contractTypeSchema = schemaHooksWrapper(
       default: () => new Date(),
       label: 'Created at'
     }),
-    productCategoryIds: field({
-      type: [String],
-      label: 'Allow Product Categories'
-    }),
     config: field({ type: Object }),
     currency: field({
       type: String,
       default: 'MNT',
       label: 'contract type currency of lease'
-    }),
-    productType: field({
-      type: String,
-      default: 'private',
-      label: 'product Type'
     }),
     savingPlusLoanInterest: field({
       type: Number,
@@ -194,9 +185,14 @@ export const contractTypeSchema = schemaHooksWrapper(
       optional: true,
       label: 'Custom fields data',
     }),
-    productId:field({
+    productId: field({
       type: String,
       label: 'product'
+    }),
+    productType: field({
+      type: String,
+      default: 'private',
+      label: 'product Type'
     }),
   }),
   'erxes_contractTypeSchema'

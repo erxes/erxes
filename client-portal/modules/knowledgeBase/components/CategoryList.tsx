@@ -6,6 +6,7 @@ import Icon from "../../common/Icon";
 import Link from "next/link";
 import React from "react";
 import { getConfigColor } from "../../common/utils";
+import { __ } from "../../../utils";
 
 type Props = {
   topic: Topic;
@@ -54,7 +55,7 @@ class CategoryList extends React.Component<Props> {
             category
           </div>
           <div>
-            <div className="darker">Written by: </div>
+            <div className="darker">{__('Written by')}: </div>
             {this.renderNames(cat.authors)}
           </div>
         </div>

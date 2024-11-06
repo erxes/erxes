@@ -141,6 +141,24 @@ export const generateOptions = (data, parentData, filterType) => {
   return options
 }
 
+export const generateSubOptions = (data, fieldValues, filterType) => {
+  const { fieldName, fieldLabelVariable, fieldExtraVariables } = filterType;
+
+  if (!fieldExtraVariables?.length) return [];
+
+  const filteredData = (data || []).filter(item =>
+    (fieldValues[fieldName] || []).includes(item._id)
+  );
+
+  return filteredData.map(item => ({
+    label: item[fieldLabelVariable],
+    options: item.options.map(optionValue => ({
+      label: optionValue,
+      value: optionValue
+    }))
+  }));
+};
+
 export const getVariables = (fieldValues, filterType) => {
 
   const { logics, fieldQueryVariables } = filterType
@@ -206,7 +224,7 @@ export const abbrevateNumbers = (number) => {
   }
 };
 
-export const formatNumbers = (value: number, axis?: string, type?: string) => {
+export const formatNumbers = (value: number, type?: string, axis?: string) => {
 
   if (!value) {
     return "-"
@@ -340,3 +358,146 @@ export const compareValues = (a: any, b: any, operator: string) => {
       return a === b;
   }
 }
+
+export const hexToRgba = (hex: string, alpha: number) => {
+
+  const bigint = parseInt(hex.slice(1), 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+
+  return `rgba(${r},${g},${b},${alpha})`;
+};
+
+export const rgbaToHex = (rgba: string) => {
+
+  if (typeof rgba !== 'string') return null
+
+  const rgbaValues = rgba.match(/\d+/g);
+  if (!rgbaValues || rgbaValues.length < 3) return null;
+
+  const r = parseInt(rgbaValues[0]).toString(16).padStart(2, '0');
+  const g = parseInt(rgbaValues[1]).toString(16).padStart(2, '0');
+  const b = parseInt(rgbaValues[2]).toString(16).padStart(2, '0');
+
+  return `#${r}${g}${b}`;
+};
+
+export const generateInitialOptions = (options, selectedValues) => {
+  if (!selectedValues) {
+    selectedValues = [];
+  }
+
+  if (!Array.isArray(selectedValues)) {
+    selectedValues = [selectedValues];
+  }
+
+  const selectedValueArray = selectedValues.map(item => {
+    if (typeof item === 'string') {
+      return { value: item };
+    }
+
+    if (typeof item === 'object') {
+      return {
+        value: item.value,
+        extraValues: { ...item }
+      };
+    }
+  }).filter(item => item);
+
+  return selectedValueArray.map(selectedValue => {
+    let matchedOption;
+
+    options.some(option => {
+      if (option.options && Array.isArray(option.options)) {
+
+        const nestedMatch = option.options.find(o => o.value === selectedValue.value);
+
+        if (nestedMatch) {
+
+          matchedOption = { ...nestedMatch, ...selectedValue.extraValues };
+          return true;
+        }
+
+      } else if (option.value === selectedValue.value) {
+        matchedOption = { ...option, ...selectedValue.extraValues };
+        return true;
+      }
+    });
+
+    return matchedOption;
+  }).filter(item => item);
+};
+
+export const arrayMove = (array: any[], from: number, to: number) => {
+  const slicedArray = array.slice();
+  slicedArray.splice(
+    to < 0 ? array.length + to : to,
+    0,
+    slicedArray.splice(from, 1)[0]
+  );
+  return slicedArray;
+}
+
+export const generateQuery = (fieldName, config, fieldValues?) => {
+  const { fieldQueryVariables, fieldValueVariable, fieldParentVariable, fieldLabelVariable, fieldInitialVariable, fieldRequiredQueryParams, fieldExtraVariables = [], logics } = config;
+
+  if (!fieldName || !fieldValueVariable || !fieldLabelVariable) {
+    return ''
+  }
+
+  const variableDefinitions = JSON.parse(fieldQueryVariables || '{}');
+
+  if (logics && fieldValues) {
+    for (const logic of logics) {
+      const { logicFieldName, logicFieldVariable } = logic;
+
+      if (logicFieldVariable) {
+        const logicFieldValue = fieldValues[logicFieldName];
+
+        if (logicFieldValue) {
+          variableDefinitions[logicFieldVariable] = logicFieldValue;
+        }
+      }
+    }
+  }
+
+  const params = Object.entries(variableDefinitions).map(([key, value]) => {
+    let graphqlType: string = typeof value;
+
+    if (graphqlType === 'number') {
+      graphqlType = 'int'
+    }
+
+    if (Array.isArray(value)) {
+      graphqlType = '[String]'
+    }
+
+    const isRequired = (fieldRequiredQueryParams || []).includes(key)
+
+    return `$${key}: ${String(graphqlType).charAt(0).toUpperCase() + String(graphqlType).slice(1)} ${isRequired && fieldValues ? '!' : ''}`;
+  }).join(', ');
+
+  const paramDeps = Object.entries(variableDefinitions).map(([key]) => {
+    return `${key}: $${key}`
+  }).join(',')
+
+  const fields = fieldValues ? [
+    fieldValueVariable,
+    fieldLabelVariable,
+    fieldParentVariable,
+    ...fieldExtraVariables
+  ].filter(Boolean).join(' ') : '_id name';
+
+  const variableSection = fieldInitialVariable
+    ? `${fieldInitialVariable} { ${fields} }`
+    : fields;
+
+  return `
+    query ${fieldName} ${params ? '(' + params + ')' : ''} {
+      ${fieldName} ${paramDeps ? '(' + paramDeps + ')' : ''} {
+        ${variableSection}
+      }
+    }
+  `;
+};

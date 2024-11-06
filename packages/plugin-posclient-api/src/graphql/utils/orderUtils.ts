@@ -24,7 +24,7 @@ import { checkRemainders } from "./products";
 import { getPureDate } from "@erxes/api-utils/src";
 import { checkDirectDiscount } from "./directDiscount";
 import { IPosUserDocument } from "../../models/definitions/posUsers";
-import { sendPosMessage, sendProductsMessage } from "../../messageBroker";
+import { sendPosMessage, sendCoreMessage } from "../../messageBroker";
 import { nanoid } from "nanoid";
 import { getCompanyInfo } from "../../models/PutData";
 
@@ -427,7 +427,7 @@ export const prepareOrderDoc = async (
   let subscriptionInfo;
 
   if (products.find(product => product?.type === PRODUCT_TYPES.SUBSCRIPTION)) {
-    subscriptionUoms = await sendProductsMessage({
+    subscriptionUoms = await sendCoreMessage({
       subdomain,
       action: "uoms.find",
       data: { isForSubscription: true },
@@ -468,12 +468,11 @@ export const prepareOrderDoc = async (
           customerId: doc?.customerId,
           "subscriptionInfo.status": SUBSCRIPTION_INFO_STATUS.ACTIVE
         })
-          .sort({ createdAt: -1 })
+          .sort({ createdAt: -1, 'items.closeDate': -1 })
           .lean();
 
         const prevSubscriptionItem = await models.OrderItems.findOne({
           orderId: { $in: prevSubscriptions.map(({ _id }) => _id) },
-          productId: item.productId,
           closeDate: { $gte: new Date() }
         })
           .sort({ createdAt: -1 })

@@ -1,17 +1,18 @@
-import { generateModels } from "./connectionResolver";
-import { createCustomer } from "./utils/customer/createCustomer";
-import { updateCustomer } from "./utils/customer/updateCustomer";
-import { createDeposit } from "./utils/deposit/createDeposit";
-import { updateDeposit } from "./utils/deposit/updateDeposit";
-import { createChangeClassification } from "./utils/loan/changeClassification";
-import { createLoan } from "./utils/loan/createLoan";
-import { createLoanGive } from "./utils/loan/loanGive";
-import { createLoanRepayment } from "./utils/loan/loanRepayment";
-import { updateLoan } from "./utils/loan/updateLoan";
-import { createSaving } from "./utils/saving/createSaving";
-import { incomeSaving } from "./utils/saving/incomeSaving";
-import { outcomeSaving } from "./utils/saving/outcomeSaving";
-import { updateSaving } from "./utils/saving/updateSaving";
+import { generateModels } from './connectionResolver';
+import { createCustomer } from './utils/customer/createCustomer';
+import { updateCustomer } from './utils/customer/updateCustomer';
+import { createDeposit } from './utils/deposit/createDeposit';
+import { updateDeposit } from './utils/deposit/updateDeposit';
+import { createChangeClassification } from './utils/loan/changeClassification';
+import { createLoan } from './utils/loan/createLoan';
+import { createLoanGive } from './utils/loan/loanGive';
+import { createLoanRepayment } from './utils/loan/loanRepayment';
+import { updateLoan } from './utils/loan/updateLoan';
+import { createSaving } from './utils/saving/createSaving';
+import { incomeSaving } from './utils/saving/incomeSaving';
+import { outcomeSaving } from './utils/saving/outcomeSaving';
+import { updateSaving } from './utils/saving/updateSaving';
+import { getConfig } from './utils/utils';
 
 const allowTypes = {
   "core:customer": ["create", "update"],
@@ -30,6 +31,11 @@ export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action, user } = params;
 
   const models = await generateModels(subdomain);
+  const polarisConfig = await getConfig(subdomain, 'POLARIS', {});
+
+  if (!polarisConfig || !polarisConfig.apiUrl || !polarisConfig.token || !polarisConfig.companyCode || !polarisConfig.role) {
+    return;
+  }
 
   const syncLogDoc = {
     type: "",
@@ -67,6 +73,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           preSuccessValue,
           subdomain,
           models,
+          polarisConfig,
           syncLog,
           params
         );
@@ -77,17 +84,13 @@ export const afterMutationHandlers = async (subdomain, params) => {
           preSuccessValue,
           subdomain,
           models,
+          polarisConfig,
           syncLog,
           params
         );
         break;
-      case "savings:transaction":
-        response = await savingsTransactionMethod(
-          subdomain,
-          models,
-          syncLog,
-          params
-        );
+      case 'savings:transaction':
+        response = await savingsTransactionMethod(subdomain, models, polarisConfig, syncLog, params);
         break;
       case "loans:contract":
         response = await loansContractMethod(
@@ -95,25 +98,16 @@ export const afterMutationHandlers = async (subdomain, params) => {
           preSuccessValue,
           subdomain,
           models,
+          polarisConfig,
           syncLog,
           params
         );
         break;
-      case "loans:classification":
-        response = await createChangeClassification(
-          subdomain,
-          models,
-          syncLog,
-          params
-        );
+      case 'loans:classification':
+        response = await createChangeClassification(subdomain, models, polarisConfig, syncLog, params);
         break;
-      case "loans:transaction":
-        response = await loansTransactionMethod(
-          subdomain,
-          models,
-          syncLog,
-          params
-        );
+      case 'loans:transaction':
+        response = await loansTransactionMethod(subdomain, models, polarisConfig, syncLog, params);
         break;
     }
 
@@ -131,19 +125,13 @@ export const afterMutationHandlers = async (subdomain, params) => {
   }
 };
 
-const customerMethod = async (
-  action,
-  preSuccessValue,
-  subdomain,
-  models,
-  syncLog,
-  params
-) => {
-  if (action === "create" || action === "update") {
+const customerMethod = async (action, preSuccessValue, subdomain, models, polarisConfig, syncLog, params) => {
+  if (action === 'create' || action === 'update') {
     if (!preSuccessValue) {
-      return await createCustomer(subdomain, models, syncLog, params);
+      return await createCustomer(subdomain, models, polarisConfig, syncLog, params);
     }
-    return await updateCustomer(subdomain, models, syncLog, params);
+
+    return await updateCustomer(subdomain, models, polarisConfig, syncLog, params)
   }
 };
 
@@ -152,57 +140,51 @@ const savingContractMethod = async (
   preSuccessValue,
   subdomain,
   models,
+  polarisConfig,
   syncLog,
   params
 ) => {
   if (action === "create" || action === "update") {
     if (!preSuccessValue) {
       if (params.object.isDeposit === true) {
-        return await createDeposit(subdomain, models, syncLog, params);
+        return await createDeposit(subdomain, models, polarisConfig, syncLog, params);
       }
-      return await createSaving(subdomain, models, syncLog, params);
+      return await createSaving(subdomain, models, polarisConfig, syncLog, params);
     }
 
     if (params.object.isDeposit === true) {
-      return await updateDeposit(subdomain, models, syncLog, params);
+      return await updateDeposit(subdomain, models, polarisConfig, syncLog, params);
     }
-    return await updateSaving(subdomain, models, syncLog, params);
+    return await updateSaving(subdomain, models, polarisConfig, syncLog, params);
   }
 };
 
-const savingsTransactionMethod = async (subdomain, models, syncLog, params) => {
-  if (params.object.transactionType === "income") {
-    return await incomeSaving(subdomain, models, syncLog, params);
+const savingsTransactionMethod = async (subdomain, models, polarisConfig, syncLog, params) => {
+  if (params.object.transactionType === 'income') {
+    return await incomeSaving(subdomain, models, polarisConfig, syncLog, params);
   }
 
-  if (params.object.transactionType === "outcome") {
-    return await outcomeSaving(subdomain, models, syncLog, params);
+  if (params.object.transactionType === 'outcome') {
+    return await outcomeSaving(subdomain, models, polarisConfig, syncLog, params);
   }
 };
 
-const loansContractMethod = async (
-  action,
-  preSuccessValue,
-  subdomain,
-  models,
-  syncLog,
-  params
-) => {
-  if (action === "create" || action === "update") {
+const loansContractMethod = async (action, preSuccessValue, subdomain, models, polarisConfig, syncLog, params) => {
+  if (action === 'create' || action === 'update') {
     if (!preSuccessValue) {
-      return await createLoan(subdomain, models, syncLog, params);
+      return await createLoan(subdomain, models, polarisConfig, syncLog, params);
     }
-    return await updateLoan(subdomain, models, syncLog, params);
+    return await updateLoan(subdomain, models, polarisConfig, syncLog, params);
   }
 };
 
-const loansTransactionMethod = async (subdomain, models, syncLog, params) => {
-  if (params.object.transactionType === "repayment") {
-    return await createLoanRepayment(subdomain, models, syncLog, params.object);
+const loansTransactionMethod = async (subdomain, models, polarisConfig, syncLog, params) => {
+  if (params.object.transactionType === 'repayment') {
+    return await createLoanRepayment(subdomain, models, polarisConfig, syncLog, params.object);
   }
 
-  if (params.object.transactionType === "give") {
-    return await createLoanGive(subdomain, models, syncLog, params.object);
+  if (params.object.transactionType === 'give') {
+    return await createLoanGive(subdomain, models, polarisConfig, syncLog, params.object);
   }
 };
 

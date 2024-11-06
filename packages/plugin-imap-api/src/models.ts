@@ -1,6 +1,6 @@
 import { Document, Model, Schema } from 'mongoose';
 import { IModels } from '../src/connectionResolver';
-import { sendContactsMessage, sendInboxMessage } from '../src/messageBroker';
+import { sendCoreMessage, sendInboxMessage } from '../src/messageBroker';
 import * as nodemailer from 'nodemailer';
 
 interface IMail {
@@ -31,7 +31,7 @@ export const customerSchema = new Schema({
   contactsId: String,
   email: { type: String, unique: true },
   firstName: String,
-  lastName: String,
+  lastName: String
 });
 
 export interface ICustomerModel extends Model<ICustomerDocument> {}
@@ -66,17 +66,17 @@ export const attachmentSchema = new Schema(
     mimeType: String,
     type: String,
     size: Number,
-    attachmentId: String,
+    attachmentId: String
   },
-  { _id: false },
+  { _id: false }
 );
 
 const emailSchema = new Schema(
   {
     name: String,
-    address: String,
+    address: String
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const messageSchema = new Schema({
@@ -93,14 +93,14 @@ export const messageSchema = new Schema({
   from: [emailSchema],
   attachments: [attachmentSchema],
   createdAt: { type: Date, index: true, default: new Date() },
-  type: { type: String, enum: ['SENT', 'INBOX'] },
+  type: { type: String, enum: ['SENT', 'INBOX'] }
 });
 
 export interface IMessageModel extends Model<IMessageDocument> {
   createSendMail(
     args: any,
     subdomain: string,
-    models: IModels,
+    models: IModels
   ): Promise<IMessageDocument>;
 }
 
@@ -109,7 +109,7 @@ export const loadMessageClass = (models) => {
     public static async createSendMail(
       args: any,
       subdomain: string,
-      models: IModels,
+      models: IModels
     ) {
       const {
         integrationId,
@@ -122,7 +122,7 @@ export const loadMessageClass = (models) => {
         attachments,
         replyToMessageId,
         shouldOpen,
-        shouldResolve,
+        shouldResolve
       } = args;
 
       let customer;
@@ -131,24 +131,24 @@ export const loadMessageClass = (models) => {
         ? { _id: customerId }
         : { status: { $ne: 'deleted' }, emails: { $in: to } };
 
-      customer = await sendContactsMessage({
+      customer = await sendCoreMessage({
         subdomain,
         action: 'customers.findOne',
         data: selector,
-        isRPC: true,
+        isRPC: true
       });
 
       if (!customer) {
         const [primaryEmail] = to;
 
-        customer = await sendContactsMessage({
+        customer = await sendCoreMessage({
           subdomain,
           action: 'customers.createCustomer',
           data: {
             state: 'lead',
-            primaryEmail,
+            primaryEmail
           },
-          isRPC: true,
+          isRPC: true
         });
       }
 
@@ -156,13 +156,13 @@ export const loadMessageClass = (models) => {
 
       if (from) {
         integration = await models.Integrations.findOne({
-          user: from,
+          user: from
         });
       }
 
       if (!integration) {
         integration = await models.Integrations.findOne({
-          inboxId: integrationId,
+          inboxId: integrationId
         });
       }
 
@@ -171,11 +171,11 @@ export const loadMessageClass = (models) => {
           subdomain,
           action: 'conversations.findOne',
           data: { _id: conversationId },
-          isRPC: true,
+          isRPC: true
         });
 
         integration = await models.Integrations.findOne({
-          inboxId: conversation.integrationId,
+          inboxId: conversation.integrationId
         });
       }
 
@@ -189,7 +189,7 @@ export const loadMessageClass = (models) => {
             subdomain,
             action: 'conversations.changeStatus',
             data: { id: conversationId, status: 'closed' },
-            isRPC: true,
+            isRPC: true
           });
         }
         if (shouldOpen) {
@@ -197,7 +197,7 @@ export const loadMessageClass = (models) => {
             subdomain,
             action: 'conversations.changeStatus',
             data: { id: conversationId, status: 'new' },
-            isRPC: true,
+            isRPC: true
           });
         }
       }
@@ -210,8 +210,8 @@ export const loadMessageClass = (models) => {
         debug: true,
         auth: {
           user: integration.mainUser || integration.user,
-          pass: integration.password,
-        },
+          pass: integration.password
+        }
       });
 
       const mailData = {
@@ -221,10 +221,12 @@ export const loadMessageClass = (models) => {
         html: body,
         inReplyTo: replyToMessageId,
         references: [replyToMessageId],
-        attachments: attachments.map((attach) => ({
-          filename: attach.name,
-          path: attach.url,
-        })),
+        attachments: attachments
+          ? attachments.map((attach) => ({
+              filename: attach.name,
+              path: attach.url
+            }))
+          : [] // Default to an empty array if attachments is undefined
       };
 
       const info = await transporter.sendMail(mailData);
@@ -240,15 +242,17 @@ export const loadMessageClass = (models) => {
         body: mailData.html,
         to: (mailData.to || []).map((to) => ({ name: to, address: to })),
         from: [{ name: mailData.from, address: mailData.from }],
-        attachments: attachments.map(({ name, type, size }) => ({
-          filename: name,
-          type,
-          size,
-        })),
-        type: 'SENT',
+        attachments: attachments
+          ? attachments.map(({ name, type, size }) => ({
+              filename: name,
+              type,
+              size
+            }))
+          : [],
+        type: 'SENT'
       });
       return {
-        info: info,
+        info: info
       };
     }
   }
@@ -283,7 +287,7 @@ export const integrationSchema = new Schema({
   password: String,
   healthStatus: String,
   error: String,
-  lastFetchDate: Date,
+  lastFetchDate: Date
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {}
@@ -309,13 +313,13 @@ export const logSchema = new Schema({
   date: Date,
   type: String,
   message: String,
-  errorStack: String,
+  errorStack: String
 });
 
 export interface ILogModel extends Model<ILogDocument> {
   createLog({
     type,
-    message,
+    message
   }: {
     type: 'info' | 'error';
     message: string;
@@ -331,7 +335,7 @@ export const loadLogClass = (models) => {
         date: new Date(),
         type,
         message,
-        errorStack,
+        errorStack
       });
     }
   }

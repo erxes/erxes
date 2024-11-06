@@ -3,9 +3,7 @@ import { getConfig } from "../../../utils/utils";
 import fetch from "node-fetch";
 import {
   sendSalesMessage,
-  sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "../../../messageBroker";
 import { getPureDate } from "@erxes/api-utils/src";
 
@@ -46,9 +44,9 @@ const erkhetQueries = {
         return [];
       }
 
-      const products = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
-        action: "productFind",
+        action: "products.find",
         data: { query: { _id: { $in: productIds } }, limit: productIds.length },
         isRPC: true,
         defaultValue: []
@@ -154,7 +152,7 @@ const erkhetQueries = {
 
       switch (contentType) {
         case "company":
-          const company = await sendContactsMessage({
+          const company = await sendCoreMessage({
             subdomain,
             action: "companies.findOne",
             data: { _id: contentId },
@@ -176,7 +174,7 @@ const erkhetQueries = {
           sendParams.workerEmail = user && user.email;
           break;
         default:
-          const customer = await sendContactsMessage({
+          const customer = await sendCoreMessage({
             subdomain,
             action: "customers.findOne",
             data: { _id: contentId },

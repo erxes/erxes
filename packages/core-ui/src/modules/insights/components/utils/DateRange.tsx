@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
 import DateTime from "@nateradebaugh/react-datetime";
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
 import { DateRangeWrapper, Divider } from "../../styles";
 
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';

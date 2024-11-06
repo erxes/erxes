@@ -7,6 +7,7 @@ on:
       - master
       - rc
       - staging
+      - v1
     paths:
       - "widgets/**"
       - ".github/workflows/widgets.yaml"
@@ -15,10 +16,11 @@ on:
       - master
       - rc
       - dev
+      - v1
     paths:
       - "widgets/**"
 
-jobs:
+jobs: 
   widgets:
     runs-on: ubuntu-22.04
 

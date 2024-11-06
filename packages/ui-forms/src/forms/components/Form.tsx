@@ -17,7 +17,7 @@ import { __ } from '@erxes/ui/src/utils';
 type Props = {
   renderPreviewWrapper?: (previewRenderer, fields: IField[]) => any;
   onDocChange?: (doc: IFormData) => void;
-  // saveForm: (params: IFormData) => void;
+  saveForm?: (params: IFormData) => void;
   formData?: IFormData;
   isReadyToSave: boolean;
   type: string;
@@ -26,6 +26,8 @@ type Props = {
   currentMode?: 'create' | 'update' | undefined;
   currentField?: IField;
   color?: string;
+  isAviableToSaveWhenReady?: boolean;
+  fieldTypes?: string[];
 };
 
 type State = {
@@ -44,23 +46,23 @@ class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { form = {} as IForm } = props;
+    const { formData = {} as IForm } = props;
 
     this.state = {
       fields: (props.formData ? props.formData.fields : []) || [],
-      title: form.title || 'Form Title',
-      description: form.description || '',
-      buttonText: form.buttonText || 'Send',
+      title: formData.title || 'Form Title',
+      description: formData.description || '',
+      buttonText: formData.buttonText || 'Send',
       currentMode: undefined,
       currentField: undefined,
       type: props.type || '',
-      numberOfPages: form.numberOfPages || 1,
+      numberOfPages: formData.numberOfPages || 1,
       currentPage: 1,
     };
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const { formData } = this.props;
+    const { formData, isReadyToSave, saveForm, type } = this.props;
 
     if (nextProps.formData && nextProps.formData !== formData) {
       this.setState({
@@ -68,19 +70,25 @@ class Form extends React.Component<Props, State> {
       });
     }
 
-    // if (nextProps.isReadyToSave && isReadyToSave !== nextProps.isReadyToSave) {
-    //   saveForm(
-    //     nextProps.formData
-    //       ? { ...nextProps.formData, type: nextProps.type }
-    //       : {
-    //           title,
-    //           description,
-    //           buttonText,
-    //           fields,
-    //           type,
-    //         }
-    //   );
-    // }
+    if (
+      nextProps.isAviableToSaveWhenReady &&
+      nextProps.isReadyToSave &&
+      isReadyToSave !== nextProps.isReadyToSave
+    ) {
+      const { title, buttonText, description, fields } = this.state;
+      saveForm &&
+        saveForm(
+          nextProps.formData
+            ? { ...nextProps.formData, type: nextProps.type }
+            : {
+                title,
+                description,
+                buttonText,
+                fields,
+                type,
+              }
+        );
+    }
   }
 
   renderOptionalFields = () => {
@@ -108,7 +116,7 @@ class Form extends React.Component<Props, State> {
           <ControlLabel required={true}>{__('Form title')}</ControlLabel>
           <FormControl
             required={true}
-            name='title'
+            name="title"
             value={title}
             onChange={onChangeField}
           />
@@ -117,8 +125,8 @@ class Form extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>{__('Form description')}</ControlLabel>
           <FormControl
-            componentclass='textarea'
-            name='description'
+            componentclass="textarea"
+            name="description"
             value={description}
             onChange={onChangeField}
           />
@@ -127,7 +135,7 @@ class Form extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>{__('Number of pages')}</ControlLabel>
           <FormControl
-            name='numberOfPages'
+            name="numberOfPages"
             value={numberOfPages}
             onChange={onChangeField}
             type={'number'}
@@ -138,7 +146,7 @@ class Form extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>{__('Form button text')}</ControlLabel>
           <FormControl
-            name='buttonText'
+            name="buttonText"
             value={buttonText}
             onChange={onChangeField}
           />
@@ -248,6 +256,7 @@ class Form extends React.Component<Props, State> {
           <FieldChoices
             type={this.props.type}
             onChoiceClick={this.onChoiceClick}
+            fieldTypes={this.props.fieldTypes}
           />
         </LeftItem>
         {currentField && (

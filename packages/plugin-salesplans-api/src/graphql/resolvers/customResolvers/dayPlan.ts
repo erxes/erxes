@@ -1,5 +1,5 @@
 import { IContext } from "../../../connectionResolver";
-import { sendCoreMessage, sendProductsMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 import { IDayPlanDocument } from "../../../models/definitions/dayPlans";
 
 export default {
@@ -38,9 +38,9 @@ export default {
       return;
     }
 
-    return await sendProductsMessage({
+    return await sendCoreMessage({
       subdomain,
-      action: "productFindOne",
+      action: "products.findOne",
       data: { _id: plan.productId },
       isRPC: true
     });

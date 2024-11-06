@@ -2,7 +2,6 @@ import { generateModels, IModels } from "./connectionResolver";
 import {
   sendClientPortalMessage,
   sendCommonMessage,
-  sendContactsMessage,
   sendCoreMessage
 } from "./messageBroker";
 
@@ -121,7 +120,7 @@ const getOwner = async ({
     });
 
     if (customerIds.length) {
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
         action: "customers.find",
         data: {
@@ -191,7 +190,7 @@ const createVoucher = async ({
     });
 
     if (customerIds.length) {
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
         action: "customers.find",
         data: {

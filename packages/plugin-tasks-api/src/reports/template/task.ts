@@ -11,6 +11,7 @@ const DIMENSION_OPTIONS = [
   { label: 'Boards', value: 'board' },
   { label: 'Pipelines', value: 'pipeline' },
   { label: 'Stages', value: 'stage' },
+  { label: 'Probability', value: 'probability' },
   { label: 'Card', value: 'card' },
   { label: 'Tags', value: 'tag' },
   { label: 'Labels', value: 'label' },
@@ -39,7 +40,7 @@ export const taskCharts = [
   // TaskCustomProperties
   {
     templateType: "TaskCustomProperties",
-    serviceType: 'cards',
+    serviceType: 'tasks',
     name: 'Total Task Count By Custom Properties',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
     getChartResult: async (
@@ -136,184 +137,182 @@ export const taskCharts = [
           },
           // USER FILTER
           {
-              fieldName: 'userIds',
-              fieldType: 'select',
-              multi: true,
+            fieldName: 'userIds',
+            fieldType: 'select',
+            multi: true,
             fieldQuery: 'users',
             fieldLabel: 'Select users',
           },
           // BRANCH FILTER
           {
-              fieldName: 'branchIds',
-              fieldType: 'select',
-              multi: true,
+            fieldName: 'branchIds',
+            fieldType: 'select',
+            multi: true,
             fieldQuery: 'branches',
             fieldLabel: 'Select branches',
           },
           // DEPARTMENT FILTER
           {
-              fieldName: 'departmentIds',
-              fieldType: 'select',
-              multi: true,
+            fieldName: 'departmentIds',
+            fieldType: 'select',
+            multi: true,
             fieldQuery: 'departments',
             fieldLabel: 'Select departments',
           },
           // COMPANY FILTER
           {
-              fieldName: 'companyIds',
-              fieldType: 'select',
-              fieldQuery: 'companies',
-              multi: true,
-              fieldValueVariable: '_id',
-              fieldLabelVariable: 'primaryName',
-              fieldQueryVariables: `{"conformityMainType": "task", "conformityRelType": "company"}`,
+            fieldName: 'companyIds',
+            fieldType: 'select',
+            fieldQuery: 'companies',
+            multi: true,
+            fieldValueVariable: '_id',
+            fieldLabelVariable: 'primaryName',
+            fieldQueryVariables: `{"conformityMainType": "task", "conformityRelType": "company"}`,
             fieldLabel: 'Select companies',
           },
           // CUSTOMER FILTER
           {
-              fieldName: 'customerIds',
-              fieldType: 'select',
-              fieldQuery: 'customers',
-              multi: true,
-              fieldQueryVariables: `{"conformityMainType": "task", "conformityRelType": "customer"}`,
+            fieldName: 'customerIds',
+            fieldType: 'select',
+            fieldQuery: 'customers',
+            multi: true,
+            fieldQueryVariables: `{"conformityMainType": "task", "conformityRelType": "customer"}`,
             fieldLabel: 'Select customers',
           },
           // TAG FILTER
           {
-              fieldName: 'tagIds',
-              fieldType: 'select',
-              fieldQuery: 'tags',
-              fieldValueVariable: '_id',
-              fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "cards:task", "perPage": 1000}`,
-              multi: true,
+            fieldName: 'tagIds',
+            fieldType: 'select',
+            fieldQuery: 'tags',
+            fieldValueVariable: '_id',
+            fieldLabelVariable: 'name',
+            fieldQueryVariables: `{"type": "tasks:task", "perPage": 1000}`,
+            multi: true,
             fieldLabel: 'Select tags',
           },
           // BOARD FILTER
           {
-              fieldName: 'boardId',
-              fieldType: 'select',
-              multi: false,
+            fieldName: 'boardId',
+            fieldType: 'select',
+            multi: false,
             fieldQuery: 'tasksBoards',
-              fieldValueVariable: '_id',
-              fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "task"}`,
+            fieldValueVariable: '_id',
+            fieldLabelVariable: 'name',
+            fieldRequiredQueryParams: ['type'],
+            fieldQueryVariables: `{"type": "task"}`,
             fieldLabel: 'Select board',
           },
           // PIPELINE FILTER
           {
-              fieldName: 'pipelineIds',
-              fieldType: 'select',
-              multi: true,
+            fieldName: 'pipelineIds',
+            fieldType: 'select',
+            multi: true,
             fieldQuery: 'tasksPipelines',
-              fieldValueVariable: '_id',
-              fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "task"}`,
-              logics: [
-                {
-                  logicFieldName: 'boardId',
-                  logicFieldVariable: 'boardId',
-                },
-              ],
+            fieldValueVariable: '_id',
+            fieldLabelVariable: 'name',
+            fieldQueryVariables: `{"type": "task"}`,
+            logics: [
+              {
+                logicFieldName: 'boardId',
+                logicFieldVariable: 'boardId',
+              },
+            ],
             fieldLabel: 'Select pipelines',
           },
           // STAGE PROBABILITY FILTER
           {
-              fieldName: 'stageProbability',
-              fieldType: 'select',
-              fieldOptions: PROBABILITY_TASK,
-              logics: [
-                {
-                  logicFieldName: 'pipelineIds',
-                  logicFieldVariable: 'pipelineIds',
-                },
-              ],
+            fieldName: 'stageProbability',
+            fieldType: 'select',
+            fieldOptions: PROBABILITY_TASK,
             fieldLabel: 'Select Probability',
           },
           // STAGE FILTER
           {
-              fieldName: 'stageIds',
-              fieldType: 'select',
+            fieldName: 'stageIds',
+            fieldType: 'select',
             fieldQuery: 'tasksStages',
-              multi: true,
-              fieldValueVariable: '_id',
-              fieldLabelVariable: 'name',
-              fieldParentVariable: 'pipelineId',
+            multi: true,
+            fieldValueVariable: '_id',
+            fieldLabelVariable: 'name',
+            fieldParentVariable: 'pipelineId',
             fieldParentQuery: "tasksPipelines",
-              logics: [
-                {
-                  logicFieldName: 'pipelineIds',
-                  logicFieldVariable: 'pipelineIds',
-                },
-              ],
+            logics: [
+              {
+                logicFieldName: 'pipelineIds',
+                logicFieldVariable: 'pipelineIds',
+              },
+            ],
             fieldLabel: 'Select stages',
           },
           // LABEL FILTER
           {
-              fieldName: 'labelIds',
-              fieldType: 'select',
+            fieldName: 'labelIds',
+            fieldType: 'select',
             fieldQuery: 'tasksPipelineLabels',
-              multi: true,
-              fieldValueVariable: '_id',
-              fieldLabelVariable: 'name',
-              logics: [
-                {
-                  logicFieldName: 'pipelineIds',
-                  logicFieldVariable: 'pipelineIds',
-                },
-              ],
+            multi: true,
+            fieldValueVariable: '_id',
+            fieldLabelVariable: 'name',
+            fieldParentVariable: 'pipelineId',
+            fieldParentQuery: "salesPipelines",
+            logics: [
+              {
+                logicFieldName: 'pipelineIds',
+                logicFieldVariable: 'pipelineIds',
+              },
+            ],
             fieldLabel: 'Select labels',
           },
           // PRIORITY FILTER 
           {
-              fieldName: 'status',
-              fieldType: 'select',
-              fieldOptions: STATUS_TYPES,
+            fieldName: 'status',
+            fieldType: 'select',
+            fieldOptions: STATUS_TYPES,
             fieldLabel: 'Select status',
           },
           // PRIORITY FILTER 
           {
-              fieldName: 'priority',
-              fieldType: 'select',
-              fieldOptions: PRIORITY,
+            fieldName: 'priority',
+            fieldType: 'select',
+            fieldOptions: PRIORITY,
             fieldLabel: 'Select priority',
           },
           // ATTACHMENT FILTER
           {
-              fieldName: 'attachment',
-              fieldType: 'select',
-              fieldOptions: ATTACHMENT_TYPES,
+            fieldName: 'attachment',
+            fieldType: 'select',
+            fieldOptions: ATTACHMENT_TYPES,
             fieldLabel: 'Select attachment',
           },
           // CUSTOM PROPERTIES FILTER 
           {
-              fieldName: 'groupIds',
-              fieldType: 'select',
-              fieldQuery: 'fieldsGroups',
-              fieldValueVariable: '_id',
-              fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"contentType": "cards:task"}`,
-              multi: true,
+            fieldName: 'groupIds',
+            fieldType: 'select',
+            fieldQuery: 'fieldsGroups',
+            fieldValueVariable: '_id',
+            fieldLabelVariable: 'name',
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
+            multi: true,
             fieldLabel: 'Select field group',
           },
           // CUSTOM PROPERTIES FIELD FILTER 
           {
-              fieldName: 'fieldIds',
-              fieldType: 'select',
-              fieldQuery: 'fields',
-              fieldValueVariable: '_id',
-              fieldLabelVariable: 'text',
-              fieldParentVariable: 'groupId',
-              fieldParentQuery: "fieldsGroups",
-              fieldQueryVariables: `{"contentType": "cards:task", "isVisible": true}`,
-              logics: [
-                {
-                  logicFieldName: 'groupIds',
-                  logicFieldVariable: 'groupIds',
-                  logicFieldExtraVariable: `{"contentType": "cards:task"}`,
-                },
-              ],
-              multi: true,
+            fieldName: 'fieldIds',
+            fieldType: 'select',
+            fieldQuery: 'fields',
+            fieldValueVariable: '_id',
+            fieldLabelVariable: 'text',
+            fieldParentVariable: 'groupId',
+            fieldParentQuery: "fieldsGroups",
+            fieldRequiredQueryParams: ["contentType"],
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
+            logics: [
+              {
+                logicFieldName: 'groupIds',
+                logicFieldVariable: 'groupIds',
+                logicFieldExtraVariable: `{"contentType": "tasks:task"}`,
+              },
+            ],
+            multi: true,
             fieldLabel: 'Select field',
           },
           // DATERANGE FILTER
@@ -341,7 +340,7 @@ export const taskCharts = [
   // TasksTotalCount
   {
     templateType: "TasksTotalCount",
-      serviceType: 'cards',
+    serviceType: 'tasks',
       name: 'Total Tasks Count',
       chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number', "pivotTable"],
       getChartResult: async (
@@ -358,7 +357,7 @@ export const taskCharts = [
 
           const title = 'Total Tasks Count';
 
-        return { title, ...buildData({ chartType, data: tasks, filter }) };
+        return { title, ...buildData({ chartType, data: tasks, filter, type: "task" }) };
       },
       filterTypes: [
         // DIMENSION FILTER
@@ -372,6 +371,14 @@ export const taskCharts = [
                 logicFieldValue: 'pivotTable',
               },
             ],
+          fieldValueOptions: [
+            {
+              fieldName: 'showTotal',
+              fieldType: 'checkbox',
+              fieldLabel: 'Show total',
+              fieldDefaultValue: false
+            },
+          ],
             fieldOptions: DIMENSION_OPTIONS,
             fieldLabel: 'Select row',
           },
@@ -384,6 +391,14 @@ export const taskCharts = [
                   logicFieldName: 'chartType',
                   logicFieldValue: 'pivotTable',
                 },
+            ],
+            fieldValueOptions: [
+              {
+                fieldName: 'showTotal',
+                fieldType: 'checkbox',
+                fieldLabel: 'Show total',
+                fieldDefaultValue: false
+              }
             ],
             fieldOptions: DIMENSION_OPTIONS,
             fieldLabel: 'Select column',
@@ -475,13 +490,13 @@ export const taskCharts = [
           },
           // TAG FILTER
           {
-              fieldName: 'tagIds',
-              fieldType: 'select',
-              fieldQuery: 'tags',
-              fieldValueVariable: '_id',
-              fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "cards:task", "perPage": 1000}`,
-              multi: true,
+            fieldName: 'tagIds',
+            fieldType: 'select',
+            fieldQuery: 'tags',
+            fieldValueVariable: '_id',
+            fieldLabelVariable: 'name',
+            fieldQueryVariables: `{"type": "tasks:task", "perPage": 1000}`,
+            multi: true,
             fieldLabel: 'Select tags',
           },
           // BOARD FILTER
@@ -492,6 +507,7 @@ export const taskCharts = [
             fieldQuery: 'tasksBoards',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
+            fieldRequiredQueryParams: ['type'],
               fieldQueryVariables: `{"type": "task"}`,
             fieldLabel: 'Select board',
           },
@@ -514,15 +530,10 @@ export const taskCharts = [
           },
           // STAGE PROBABILITY FILTER
           {
-              fieldName: 'stageProbability',
-              fieldType: 'select',
-              fieldOptions: PROBABILITY_TASK,
-              logics: [
-                {
-                  logicFieldName: 'pipelineIds',
-                  logicFieldVariable: 'pipelineIds',
-                },
-              ],
+            fieldName: 'stageProbability',
+            fieldType: 'select',
+            multi: true,
+            fieldOptions: PROBABILITY_TASK,
             fieldLabel: 'Select Probability',
           },
           // STAGE FILTER
@@ -533,8 +544,7 @@ export const taskCharts = [
               multi: true,
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldParentVariable: 'pipelineId',
-              fieldQueryVariables: `{"type": "task"}`,
+            fieldParentVariable: 'pipelineId',
             fieldParentQuery: "tasksPipelines",
               logics: [
                 {
@@ -552,6 +562,8 @@ export const taskCharts = [
               multi: true,
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
+            fieldParentVariable: 'pipelineId',
+            fieldParentQuery: "salesPipelines",
               logics: [
                 {
                   logicFieldName: 'pipelineIds',
@@ -588,28 +600,30 @@ export const taskCharts = [
               fieldQuery: 'fieldsGroups',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"contentType": "cards:task"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               multi: true,
             fieldLabel: 'Select field group',
           },
           // CUSTOM PROPERTIES FIELD FILTER 
           {
-              fieldName: 'fieldIds',
-              fieldType: 'select',
-              fieldQuery: 'fields',
-              fieldValueVariable: '_id',
-              fieldLabelVariable: 'text',
-              fieldParentVariable: 'groupId',
-              fieldParentQuery: "fieldsGroups",
-              fieldQueryVariables: `{"contentType": "cards:task", "isVisible": true}`,
-              logics: [
-                {
-                  logicFieldName: 'groupIds',
-                  logicFieldVariable: 'groupIds',
-                  logicFieldExtraVariable: `{"contentType": "cards:task"}`,
-                },
-              ],
-              multi: true,
+            fieldName: 'fieldIds',
+            fieldType: 'select',
+            fieldQuery: 'fields',
+            fieldValueVariable: '_id',
+            fieldLabelVariable: 'text',
+            fieldParentVariable: 'groupId',
+            fieldParentQuery: "fieldsGroups",
+            fieldRequiredQueryParams: ["contentType"],
+            fieldExtraVariables: ['options', 'type'],
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
+            logics: [
+              {
+                logicFieldName: 'groupIds',
+                logicFieldVariable: 'groupIds',
+                logicFieldExtraVariable: `{"contentType": "tasks:task"}`,
+              },
+            ],
+            multi: true,
             fieldLabel: 'Select field',
           },
           // DATE RANGE FILTER
@@ -638,7 +652,7 @@ export const taskCharts = [
   // TaskClosedTotalsByTags
   {
     templateType: "TaskClosedTotalsByTags",
-      serviceType: 'cards',
+    serviceType: 'tasks',
       name: 'Total Task Count By Tag',
       chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
       getChartResult: async (
@@ -759,7 +773,7 @@ export const taskCharts = [
               fieldQuery: 'tags',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "cards:task", "perPage": 1000}`,
+            fieldQueryVariables: `{"type": "tasks:task", "perPage": 1000}`,
               multi: true,
             fieldLabel: 'Select tags',
           },
@@ -771,6 +785,7 @@ export const taskCharts = [
             fieldQuery: 'tasksBoards',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
+            fieldRequiredQueryParams: ['type'],
               fieldQueryVariables: `{"type": "task"}`,
             fieldLabel: 'Select board',
           },
@@ -795,13 +810,7 @@ export const taskCharts = [
           {
               fieldName: 'stageProbability',
               fieldType: 'select',
-              fieldOptions: PROBABILITY_TASK,
-              logics: [
-                {
-                  logicFieldName: 'pipelineIds',
-                  logicFieldVariable: 'pipelineIds',
-                },
-              ],
+            fieldOptions: PROBABILITY_TASK,
             fieldLabel: 'Select Probability',
           },
           // STAGE FILTER
@@ -812,8 +821,7 @@ export const taskCharts = [
               multi: true,
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldParentVariable: 'pipelineId',
-              fieldQueryVariables: `{"type": "task"}`,
+            fieldParentVariable: 'pipelineId',
             fieldParentQuery: "tasksPipelines",
               logics: [
                 {
@@ -831,6 +839,8 @@ export const taskCharts = [
               multi: true,
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
+            fieldParentVariable: 'pipelineId',
+            fieldParentQuery: "salesPipelines",
               logics: [
                 {
                   logicFieldName: 'pipelineIds',
@@ -867,7 +877,7 @@ export const taskCharts = [
               fieldQuery: 'fieldsGroups',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"contentType": "cards:task"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               multi: true,
             fieldLabel: 'Select field group',
           },
@@ -880,12 +890,13 @@ export const taskCharts = [
               fieldLabelVariable: 'text',
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
-              fieldQueryVariables: `{"contentType": "cards:task", "isVisible": true}`,
+            fieldRequiredQueryParams: ["contentType"],
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
                   logicFieldVariable: 'groupIds',
-                  logicFieldExtraVariable: `{"contentType": "cards:task"}`,
+                  logicFieldExtraVariable: `{"contentType": "tasks:task"}`,
                 },
               ],
               multi: true,
@@ -916,7 +927,7 @@ export const taskCharts = [
   // TaskClosedTotalsByLabel
   {
     templateType: "TaskClosedTotalsByLabel",
-      serviceType: 'cards',
+    serviceType: 'tasks',
       name: 'Total Task Count By Label',
       chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
       getChartResult: async (
@@ -1037,7 +1048,7 @@ export const taskCharts = [
               fieldQuery: 'tags',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "cards:task", "perPage": 1000}`,
+            fieldQueryVariables: `{"type": "tasks:task", "perPage": 1000}`,
               multi: true,
             fieldLabel: 'Select tags',
           },
@@ -1049,6 +1060,7 @@ export const taskCharts = [
             fieldQuery: 'tasksBoards',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
+            fieldRequiredQueryParams: ['type'],
               fieldQueryVariables: `{"type": "task"}`,
             fieldLabel: 'Select board',
           },
@@ -1073,13 +1085,7 @@ export const taskCharts = [
           {
               fieldName: 'stageProbability',
               fieldType: 'select',
-              fieldOptions: PROBABILITY_TASK,
-              logics: [
-                {
-                  logicFieldName: 'pipelineIds',
-                  logicFieldVariable: 'pipelineIds',
-                },
-              ],
+            fieldOptions: PROBABILITY_TASK,
             fieldLabel: 'Select Probability',
           },
           // STAGE FILTER
@@ -1146,7 +1152,7 @@ export const taskCharts = [
               fieldQuery: 'fieldsGroups',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"contentType": "cards:task"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               multi: true,
             fieldLabel: 'Select field group',
           },
@@ -1159,12 +1165,13 @@ export const taskCharts = [
               fieldLabelVariable: 'text',
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
-              fieldQueryVariables: `{"contentType": "cards:task", "isVisible": true}`,
+            fieldRequiredQueryParams: ["contentType"],
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
                   logicFieldVariable: 'groupIds',
-                  logicFieldExtraVariable: `{"contentType": "cards:task"}`,
+                  logicFieldExtraVariable: `{"contentType": "tasks:task"}`,
                 },
               ],
               multi: true,
@@ -1195,7 +1202,7 @@ export const taskCharts = [
   // TaskClosedTotalsByReps
   {
     templateType: "TaskClosedTotalsByReps",
-      serviceType: 'cards',
+    serviceType: 'tasks',
       name: 'Total Task Count By Rep',
       chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
       getChartResult: async (
@@ -1331,7 +1338,7 @@ export const taskCharts = [
               fieldQuery: 'tags',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "cards:task", "perPage": 1000}`,
+            fieldQueryVariables: `{"type": "tasks:task", "perPage": 1000}`,
               multi: true,
             fieldLabel: 'Select tags',
           },
@@ -1343,6 +1350,7 @@ export const taskCharts = [
             fieldQuery: 'tasksBoards',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
+            fieldRequiredQueryParams: ['type'],
               fieldQueryVariables: `{"type": "task"}`,
             fieldLabel: 'Select board',
           },
@@ -1367,13 +1375,7 @@ export const taskCharts = [
           {
               fieldName: 'stageProbability',
               fieldType: 'select',
-              fieldOptions: PROBABILITY_TASK,
-              logics: [
-                {
-                  logicFieldName: 'pipelineIds',
-                  logicFieldVariable: 'pipelineIds',
-                },
-              ],
+            fieldOptions: PROBABILITY_TASK,
             fieldLabel: 'Select Probability',
           },
           // STAGE FILTER
@@ -1402,6 +1404,8 @@ export const taskCharts = [
               multi: true,
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
+            fieldParentVariable: 'pipelineId',
+            fieldParentQuery: "salesPipelines",
               logics: [
                 {
                   logicFieldName: 'pipelineIds',
@@ -1438,7 +1442,7 @@ export const taskCharts = [
               fieldQuery: 'fieldsGroups',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"contentType": "cards:task"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               multi: true,
             fieldLabel: 'Select field group',
           },
@@ -1451,12 +1455,13 @@ export const taskCharts = [
               fieldLabelVariable: 'text',
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
-              fieldQueryVariables: `{"contentType": "cards:task", "isVisible": true}`,
+            fieldRequiredQueryParams: ["contentType"],
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
                   logicFieldVariable: 'groupIds',
-                  logicFieldExtraVariable: `{"contentType": "cards:task"}`,
+                  logicFieldExtraVariable: `{"contentType": "tasks:task"}`,
                 },
               ],
               multi: true,
@@ -1488,7 +1493,7 @@ export const taskCharts = [
   // TaskAverageTimeToCloseByTags
   {
     templateType: "TaskAverageTimeToCloseByTags",
-      serviceType: 'cards',
+    serviceType: 'tasks',
       name: 'Task Average Time To Close By Tag',
       chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
       getChartResult: async (
@@ -1618,7 +1623,7 @@ export const taskCharts = [
               fieldQuery: 'tags',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "cards:task", "perPage": 1000}`,
+            fieldQueryVariables: `{"type": "tasks:task", "perPage": 1000}`,
               multi: true,
             fieldLabel: 'Select tags',
           },
@@ -1630,6 +1635,7 @@ export const taskCharts = [
             fieldQuery: 'tasksBoards',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
+            fieldRequiredQueryParams: ['type'],
               fieldQueryVariables: `{"type": "task"}`,
             fieldLabel: 'Select board',
           },
@@ -1654,13 +1660,7 @@ export const taskCharts = [
           {
               fieldName: 'stageProbability',
               fieldType: 'select',
-              fieldOptions: PROBABILITY_TASK,
-              logics: [
-                {
-                  logicFieldName: 'pipelineIds',
-                  logicFieldVariable: 'pipelineIds',
-                },
-              ],
+            fieldOptions: PROBABILITY_TASK,
             fieldLabel: 'Select Probability',
           },
           // STAGE FILTER
@@ -1689,6 +1689,8 @@ export const taskCharts = [
               multi: true,
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
+            fieldParentVariable: 'pipelineId',
+            fieldParentQuery: "salesPipelines",
               logics: [
                 {
                   logicFieldName: 'pipelineIds',
@@ -1725,7 +1727,7 @@ export const taskCharts = [
               fieldQuery: 'fieldsGroups',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"contentType": "cards:task"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               multi: true,
             fieldLabel: 'Select field group',
           },
@@ -1738,12 +1740,13 @@ export const taskCharts = [
               fieldLabelVariable: 'text',
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
-              fieldQueryVariables: `{"contentType": "cards:task", "isVisible": true}`,
+            fieldRequiredQueryParams: ["contentType"],
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
                   logicFieldVariable: 'groupIds',
-                  logicFieldExtraVariable: `{"contentType": "cards:task"}`,
+                  logicFieldExtraVariable: `{"contentType": "tasks:task"}`,
                 },
               ],
               multi: true,
@@ -1774,7 +1777,7 @@ export const taskCharts = [
   // TaskAverageTimeToCloseByLabel
   {
     templateType: "TaskAverageTimeToCloseByLabel",
-      serviceType: 'cards',
+    serviceType: 'tasks',
       name: 'Task Average Time To Close By Label',
       chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
       getChartResult: async (
@@ -1904,7 +1907,7 @@ export const taskCharts = [
               fieldQuery: 'tags',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "cards:task", "perPage": 1000}`,
+            fieldQueryVariables: `{"type": "tasks:task", "perPage": 1000}`,
               multi: true,
             fieldLabel: 'Select tags',
           },
@@ -1916,6 +1919,7 @@ export const taskCharts = [
             fieldQuery: 'tasksBoards',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
+            fieldRequiredQueryParams: ['type'],
               fieldQueryVariables: `{"type": "task"}`,
             fieldLabel: 'Select board',
           },
@@ -1940,13 +1944,7 @@ export const taskCharts = [
           {
               fieldName: 'stageProbability',
               fieldType: 'select',
-              fieldOptions: PROBABILITY_TASK,
-              logics: [
-                {
-                  logicFieldName: 'pipelineIds',
-                  logicFieldVariable: 'pipelineIds',
-                },
-              ],
+            fieldOptions: PROBABILITY_TASK,
             fieldLabel: 'Select Probability',
           },
           // STAGE FILTER
@@ -1975,6 +1973,8 @@ export const taskCharts = [
               multi: true,
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
+            fieldParentVariable: 'pipelineId',
+            fieldParentQuery: "salesPipelines",
               logics: [
                 {
                   logicFieldName: 'pipelineIds',
@@ -2011,7 +2011,7 @@ export const taskCharts = [
               fieldQuery: 'fieldsGroups',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"contentType": "cards:task"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               multi: true,
             fieldLabel: 'Select field group',
           },
@@ -2024,12 +2024,13 @@ export const taskCharts = [
               fieldLabelVariable: 'text',
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
-              fieldQueryVariables: `{"contentType": "cards:task", "isVisible": true}`,
+            fieldRequiredQueryParams: ["contentType"],
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
                   logicFieldVariable: 'groupIds',
-                  logicFieldExtraVariable: `{"contentType": "cards:task"}`,
+                  logicFieldExtraVariable: `{"contentType": "tasks:task"}`,
                 },
               ],
               multi: true,
@@ -2060,7 +2061,7 @@ export const taskCharts = [
   // TaskAverageTimeToCloseByReps
   {
     templateType: "TaskAverageTimeToCloseByReps",
-      serviceType: 'cards',
+    serviceType: 'tasks',
       name: 'Task Average Time To Close By Rep',
       chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
       getChartResult: async (
@@ -2204,7 +2205,7 @@ export const taskCharts = [
               fieldQuery: 'tags',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "cards:task", "perPage": 1000}`,
+            fieldQueryVariables: `{"type": "tasks:task", "perPage": 1000}`,
               multi: true,
             fieldLabel: 'Select tags',
           },
@@ -2216,6 +2217,7 @@ export const taskCharts = [
             fieldQuery: 'tasksBoards',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
+            fieldRequiredQueryParams: ['type'],
               fieldQueryVariables: `{"type": "task"}`,
             fieldLabel: 'Select board',
           },
@@ -2240,13 +2242,7 @@ export const taskCharts = [
           {
               fieldName: 'stageProbability',
               fieldType: 'select',
-              fieldOptions: PROBABILITY_TASK,
-              logics: [
-                {
-                  logicFieldName: 'pipelineIds',
-                  logicFieldVariable: 'pipelineIds',
-                },
-              ],
+            fieldOptions: PROBABILITY_TASK,
             fieldLabel: 'Select Probability',
           },
           // STAGE FILTER
@@ -2275,6 +2271,8 @@ export const taskCharts = [
               multi: true,
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
+            fieldParentVariable: 'pipelineId',
+            fieldParentQuery: "salesPipelines",
               logics: [
                 {
                   logicFieldName: 'pipelineIds',
@@ -2311,7 +2309,7 @@ export const taskCharts = [
               fieldQuery: 'fieldsGroups',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"contentType": "cards:task"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               multi: true,
             fieldLabel: 'Select field group',
           },
@@ -2324,12 +2322,13 @@ export const taskCharts = [
               fieldLabelVariable: 'text',
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
-              fieldQueryVariables: `{"contentType": "cards:task", "isVisible": true}`,
+            fieldRequiredQueryParams: ["contentType"],
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
                   logicFieldVariable: 'groupIds',
-                  logicFieldExtraVariable: `{"contentType": "cards:task"}`,
+                  logicFieldExtraVariable: `{"contentType": "tasks:task"}`,
                 },
               ],
               multi: true,
@@ -2361,7 +2360,7 @@ export const taskCharts = [
   // AllTasksIncompleteByDueDate
   {
     templateType: "AllTasksIncompleteByDueDate",
-      serviceType: 'cards',
+    serviceType: 'tasks',
       name: 'Total Task Count By Due Date',
       chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
       getChartResult: async (
@@ -2561,7 +2560,7 @@ export const taskCharts = [
               fieldQuery: 'tags',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"type": "cards:task", "perPage": 1000}`,
+            fieldQueryVariables: `{"type": "tasks:task", "perPage": 1000}`,
               multi: true,
             fieldLabel: 'Select tags',
           },
@@ -2573,6 +2572,7 @@ export const taskCharts = [
             fieldQuery: 'tasksBoards',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
+            fieldRequiredQueryParams: ['type'],
               fieldQueryVariables: `{"type": "task"}`,
             fieldLabel: 'Select board',
           },
@@ -2597,13 +2597,7 @@ export const taskCharts = [
           {
               fieldName: 'stageProbability',
               fieldType: 'select',
-              fieldOptions: PROBABILITY_TASK,
-              logics: [
-                {
-                  logicFieldName: 'pipelineIds',
-                  logicFieldVariable: 'pipelineIds',
-                },
-              ],
+            fieldOptions: PROBABILITY_TASK,
             fieldLabel: 'Select Probability',
           },
           // STAGE FILTER
@@ -2614,8 +2608,7 @@ export const taskCharts = [
               multi: true,
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldParentVariable: 'pipelineId',
-              fieldQueryVariables: `{"type": "task"}`,
+            fieldParentVariable: 'pipelineId',
             fieldParentQuery: "tasksPipelines",
               logics: [
                 {
@@ -2633,6 +2626,8 @@ export const taskCharts = [
               multi: true,
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
+            fieldParentVariable: 'pipelineId',
+            fieldParentQuery: "salesPipelines",
               logics: [
                 {
                   logicFieldName: 'pipelineIds',
@@ -2669,7 +2664,7 @@ export const taskCharts = [
               fieldQuery: 'fieldsGroups',
               fieldValueVariable: '_id',
               fieldLabelVariable: 'name',
-              fieldQueryVariables: `{"contentType": "cards:task"}`,
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               multi: true,
             fieldLabel: 'Select field group',
           },
@@ -2682,12 +2677,13 @@ export const taskCharts = [
               fieldLabelVariable: 'text',
               fieldParentVariable: 'groupId',
               fieldParentQuery: "fieldsGroups",
-              fieldQueryVariables: `{"contentType": "cards:task", "isVisible": true}`,
+            fieldRequiredQueryParams: ["contentType"],
+            fieldQueryVariables: `{"contentType": "tasks:task"}`,
               logics: [
                 {
                   logicFieldName: 'groupIds',
                   logicFieldVariable: 'groupIds',
-                  logicFieldExtraVariable: `{"contentType": "cards:task"}`,
+                  logicFieldExtraVariable: `{"contentType": "tasks:task"}`,
                 },
               ],
               multi: true,

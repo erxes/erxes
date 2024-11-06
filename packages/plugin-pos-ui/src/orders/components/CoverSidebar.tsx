@@ -92,7 +92,7 @@ const CoverSidebar = (props: Props) => {
         <FormGroup>
           <ControlLabel>{__("POS")}</ControlLabel>
           <SelectPos
-            label="Choose pos"
+            label={__("Choose pos")}
             name="posId"
             initialValue={filterParams.posId}
             onSelect={(posId) => setFilter("posId", posId)}
@@ -103,7 +103,7 @@ const CoverSidebar = (props: Props) => {
         <FormGroup>
           <ControlLabel>User</ControlLabel>
           <SelectTeamMembers
-            label="Choose users"
+            label={__("Choose users")}
             name="userId"
             initialValue={filterParams.userId}
             onSelect={(userId) => setFilter("userId", userId)}
@@ -118,7 +118,7 @@ const CoverSidebar = (props: Props) => {
               name="startDate"
               dateFormat="YYYY/MM/DD"
               timeFormat={true}
-              placeholder="Choose date"
+              placeholder={__("Choose date")}
               value={filterParams.startDate || ""}
               onChange={(value) => onSelectDate(value, "startDate")}
             />
@@ -131,7 +131,7 @@ const CoverSidebar = (props: Props) => {
               name="endDate"
               dateFormat="YYYY/MM/DD"
               timeFormat={true}
-              placeholder="Choose date"
+              placeholder={__("Choose date")}
               value={filterParams.endDate || ""}
               onChange={(value) => onSelectDate(value, "endDate")}
             />

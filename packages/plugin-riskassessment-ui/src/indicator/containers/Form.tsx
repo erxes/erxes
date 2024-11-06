@@ -1,32 +1,36 @@
-import * as compose from "lodash.flowright";
 
 import { Alert, ButtonMutate, Spinner } from "@erxes/ui/src";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { mutations, queries } from "../graphql";
 
-import FormCompnent from "../components/Form";
+import { gql, useMutation, useQuery } from '@apollo/client';
 import React from "react";
-import { gql } from "@apollo/client";
-import { graphql } from "@apollo/client/react/hoc";
-import { refetchQueries } from "../common/utils";
-import { withProps } from "@erxes/ui/src/utils/core";
 import { useNavigate } from "react-router-dom";
+import { RiskIndicatortDetailQueryResponse } from "../common/types";
+import { refetchQueries } from "../common/utils";
+import FormCompnent from "../components/Form";
 
 type Props = {
   _id?: string;
   queryParams: any;
 };
 
-type FinalProps = {
-  indicatorDetail: any;
-  duplicateMutation: any;
-} & Props;
-
-const FormContainer = (props: FinalProps) => {
+const FormContainer = ({ _id, queryParams }: Props) => {
   const navigate = useNavigate();
 
-  const { indicatorDetail, queryParams, duplicateMutation } = props;
-  if (indicatorDetail?.loading) {
+  const { data, loading } = useQuery<RiskIndicatortDetailQueryResponse>(
+    gql(queries.indicatorDetail),
+    {
+      variables: {
+        id: _id,
+      },
+      fetchPolicy: 'no-cache',
+    }
+  );
+
+  const [duplicate] = useMutation(gql(mutations.duplicate));
+
+  if (loading) {
     return <Spinner />;
   }
 
@@ -39,11 +43,11 @@ const FormContainer = (props: FinalProps) => {
     callback,
   }: IButtonMutateProps) => {
     let mutation = mutations.riskIndicatorAdd;
-    let successAction = "added";
+    let successAction = 'added';
 
     if (object) {
       mutation = mutations.riskIndicatorUpdate;
-      successAction = "updated";
+      successAction = 'updated';
     }
 
     const afterMutate = ({ addRiskIndicator }) => {
@@ -71,8 +75,8 @@ const FormContainer = (props: FinalProps) => {
     );
   };
 
-  const duplicatIndicator = (_id) => {
-    duplicateMutation({ variables: { _id } })
+  const duplicatIndicator = _id => {
+    duplicate({ variables: { _id } })
       .then(({ data }) => {
         const duplicatedIndicator = data?.duplicateRiskIndicator || {};
         duplicatedIndicator &&
@@ -80,33 +84,18 @@ const FormContainer = (props: FinalProps) => {
             `/settings/risk-indicators/detail/${duplicatedIndicator._id}`
           );
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
   const updatedProps = {
-    ...props,
-    detail: indicatorDetail?.riskIndicatorDetail,
+    detail: data?.riskIndicatorDetail,
     renderButton,
     duplicatIndicator,
-    navigate
+    navigate,
   };
 
   return <FormCompnent {...updatedProps} />;
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props>(gql(queries.indicatorDetail), {
-      name: "indicatorDetail",
-      skip: ({ _id }) => !_id,
-      options: ({ _id }) => ({
-        variables: { id: _id },
-        fetchPolicy: "no-cache",
-      }),
-    }),
-    graphql<Props>(gql(mutations.duplicate), {
-      name: "duplicateMutation",
-    })
-  )(FormContainer)
-);
+export default FormContainer

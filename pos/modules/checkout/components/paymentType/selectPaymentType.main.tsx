@@ -37,7 +37,7 @@ const SelectPaymentTypeMain = () => {
         Icon={Wallet}
         title="Бэлнээр"
         type="cash"
-        disabled={disabledTerms || loadingKhan}
+        disabled={disabledTerms}
       />
       {!!paymentIds?.length && (
         <Term

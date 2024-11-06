@@ -341,15 +341,15 @@ const Form = (props: Props) => {
       return;
     }
 
-    const { barcodes } = state;
+    const tempBarcodes = [...state.barcodes || []]
 
     if (barcodes.includes(value)) {
       return;
     }
 
-    barcodes.unshift(value);
+    tempBarcodes.unshift(value);
 
-    setState((prevState) => ({ ...prevState, barcodes, barcodeInput: "" }));
+    setState((prevState) => ({ ...prevState, barcodes: tempBarcodes, barcodeInput: "" }));
   };
 
   const onClickAddSub = () => {
@@ -523,6 +523,32 @@ const Form = (props: Props) => {
     );
   };
 
+  const renderEditorField = (formProps: IFormProps, addinitionalProps) => {
+    const { _id, description } = addinitionalProps
+
+    const finalProps = {
+      content: description,
+      onChange: onChangeDescription,
+      height: 150,
+      isSubmitted: formProps.isSaved,
+      toolbar: [
+        "bold",
+        "italic",
+        "orderedList",
+        "bulletList",
+        "link",
+        "unlink",
+        "|",
+        "image",
+      ],
+      name: `product_description_${_id || 'create'}`
+    }
+
+    return (
+      <RichTextEditor {...finalProps} />
+    )
+  }
+
   const renderContent = (formProps: IFormProps) => {
     let { renderButton, closeModal, product, productCategories, uoms } = props;
     const { values, isSubmitted } = formProps;
@@ -653,23 +679,7 @@ const Form = (props: Props) => {
 
             <FormGroup>
               <ControlLabel>Description</ControlLabel>
-              <RichTextEditor
-                content={description}
-                onChange={onChangeDescription}
-                height={150}
-                isSubmitted={formProps.isSaved}
-                name={`product_description_${description}`}
-                toolbar={[
-                  "bold",
-                  "italic",
-                  "orderedList",
-                  "bulletList",
-                  "link",
-                  "unlink",
-                  "|",
-                  "image",
-                ]}
-              />
+              {renderEditorField(formProps, { _id: object._id, description })}
             </FormGroup>
 
             <FormGroup>

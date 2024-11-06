@@ -252,7 +252,7 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
             width="100%"
             height="478"
             src={url}
-            title="YouTube video player"
+            title={__("YouTube video player")}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           />
         </VideoFrame>

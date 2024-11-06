@@ -36,21 +36,22 @@ const EditLead = asyncComponent(
   () => import(/* webpackChunkName: "EditLead" */ "./leads/containers/EditLead")
 );
 
-// const ResponseList = asyncComponent(
-//   () =>
-//     import(
-//       /* webpackChunkName: "List - FormResponse" */ './containers/ResponseList'
-//     )
-// );
+const ResponseList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - FormResponse" */ './containers/ResponseList'
+    )
+);
 
-// const Responses = () => {
-//   const location = useLocation();
+const Responses = () => {
+  const location = useLocation();
 
-//   const queryParams = queryString.parse(location.search);
-//   const { formId } = useParams();
+  const queryParams = queryString.parse(location.search);
+  const { formId } = useParams();
+  console.log({ queryParams, formId });
 
-//   return <ResponseList queryParams={queryParams} formId={formId} />;
-// };
+  return <ResponseList queryParams={queryParams} formId={formId} />;
+};
 
 const Forms = () => {
   return <FormsContainer />;
@@ -103,11 +104,11 @@ const routes = () => (
       path="/forms/leads/edit/:formId"
       element={<EditLeadComponent />}
     />
-    {/* <Route
+    <Route
       key="/forms/responses/:formId?"
       path="/forms/responses/:formId?"
       element={<Responses />}
-    /> */}
+    />
   </Routes>
 );
 
