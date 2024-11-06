@@ -141,6 +141,24 @@ export const generateOptions = (data, parentData, filterType) => {
   return options
 }
 
+export const generateSubOptions = (data, fieldValues, filterType) => {
+  const { fieldName, fieldLabelVariable, fieldExtraVariables } = filterType;
+
+  if (!fieldExtraVariables?.length) return [];
+
+  const filteredData = (data || []).filter(item =>
+    (fieldValues[fieldName] || []).includes(item._id)
+  );
+
+  return filteredData.map(item => ({
+    label: item[fieldLabelVariable],
+    options: item.options.map(optionValue => ({
+      label: optionValue,
+      value: optionValue
+    }))
+  }));
+};
+
 export const getVariables = (fieldValues, filterType) => {
 
   const { logics, fieldQueryVariables } = filterType
@@ -422,7 +440,7 @@ export const arrayMove = (array: any[], from: number, to: number) => {
 }
 
 export const generateQuery = (fieldName, config, fieldValues?) => {
-  const { fieldQueryVariables, fieldValueVariable, fieldParentVariable, fieldLabelVariable, fieldInitialVariable, fieldRequiredQueryParams, logics } = config;
+  const { fieldQueryVariables, fieldValueVariable, fieldParentVariable, fieldLabelVariable, fieldInitialVariable, fieldRequiredQueryParams, fieldExtraVariables = [], logics } = config;
 
   if (!fieldName || !fieldValueVariable || !fieldLabelVariable) {
     return ''
@@ -467,7 +485,8 @@ export const generateQuery = (fieldName, config, fieldValues?) => {
   const fields = fieldValues ? [
     fieldValueVariable,
     fieldLabelVariable,
-    fieldParentVariable
+    fieldParentVariable,
+    ...fieldExtraVariables
   ].filter(Boolean).join(' ') : '_id name';
 
   const variableSection = fieldInitialVariable
