@@ -142,7 +142,11 @@ export const afterMutationHandlers = async (
               userId: user._id,
               responseId: ebarimtResponses.map(er => er._id).join("-"),
               sessionCode: user.sessionCode || "",
-              content: ebarimtResponses.map(er => ({ ...config, ...er }))
+              content: ebarimtResponses.map(er => ({
+                ...config,
+                ...er,
+                description: config.withDescription && deal.description || ''
+              }))
             }
           });
         }

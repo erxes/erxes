@@ -12,6 +12,7 @@ const DIMENSION_OPTIONS = [
   { label: 'Boards', value: 'board' },
   { label: 'Pipelines', value: 'pipeline' },
   { label: 'Stages', value: 'stage' },
+  { label: 'Probability', value: 'probability' },
   { label: 'Card', value: 'card' },
   { label: 'Tags', value: 'tag' },
   { label: 'Labels', value: 'label' },
@@ -2645,8 +2646,9 @@ export const ticketCharts = [
         },
         // STAGE PROBABILITY FILTER
         {
-            fieldName: 'stageProbability',
-            fieldType: 'select',
+          fieldName: 'stageProbability',
+          fieldType: 'select',
+          multi: true,
           fieldOptions: PROBABILITY_TICKET,
           fieldLabel: 'Select Probability',
         },
@@ -2720,23 +2722,24 @@ export const ticketCharts = [
         },
         // CUSTOM PROPERTIES FIELD FILTER 
         {
-            fieldName: 'fieldIds',
-            fieldType: 'select',
-            fieldQuery: 'fields',
-            fieldValueVariable: '_id',
-            fieldLabelVariable: 'text',
-            fieldParentVariable: 'groupId',
-            fieldParentQuery: "fieldsGroups",
+          fieldName: 'fieldIds',
+          fieldType: 'select',
+          fieldQuery: 'fields',
+          fieldValueVariable: '_id',
+          fieldLabelVariable: 'text',
+          fieldParentVariable: 'groupId',
+          fieldParentQuery: "fieldsGroups",
           fieldRequiredQueryParams: ["contentType"],
+          fieldExtraVariables: ['options', 'type'],
           fieldQueryVariables: `{"contentType": "tickets:ticket"}`,
-            logics: [
-              {
-                logicFieldName: 'groupIds',
-                logicFieldVariable: 'groupIds',
-                logicFieldExtraVariable: `{"contentType": "tickets:ticket"}`,
-              },
-            ],
-            multi: true,
+          logics: [
+            {
+              logicFieldName: 'groupIds',
+              logicFieldVariable: 'groupIds',
+              logicFieldExtraVariable: `{"contentType": "tickets:ticket"}`,
+            },
+          ],
+          multi: true,
           fieldLabel: 'Select field',
         },
         // DATE RANGE FILTER

@@ -3,7 +3,7 @@ import { GraphQLError } from 'graphql';
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { extractClientportalToken } from '@erxes/api-utils/src/clientportal';
-import { IModels, generateModels } from '../connectionResolver';
+import { sendMessage } from '../core';
 
 export default async function cpUserMiddleware(
   req: Request & { cpUser?: any; isPassed2FA: boolean },
@@ -19,13 +19,6 @@ export default async function cpUserMiddleware(
     return next();
   }
 
-  const subdomain = getSubdomain(req);
-  let models: IModels;
-  try {
-    models = await generateModels(subdomain);
-  } catch (e) {
-    return res.status(500).json({ error: e.message });
-  }
   const { body } = req;
 
   const operationName = body.operationName && body.operationName.split('__')[0];
@@ -69,7 +62,20 @@ export default async function cpUserMiddleware(
 
     const { userId, isPassed2FA, isEnableTwoFactor } = verifyResult;
 
-    const userDoc = await models.ClientPortalUsers.findOne({ _id: userId });
+    if (!userId) {
+      return next();
+    }
+
+    const userDoc = await sendMessage({
+      serviceName: 'clientportal',
+      subdomain: getSubdomain(req),
+      action: 'clientPortalUsers.findOne',
+      data: {
+        _id: userId,
+      },
+      isRPC: true,
+      defaultValue: null,
+    });
 
     if (!userDoc) {
       return next();
