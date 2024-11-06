@@ -93,6 +93,11 @@ export const COMMUNITY = [
     icon: "facebook"
   },
   {
+    name: "whatsapp",
+    link: "https://www.whatsapp.com/erxesHQ/",
+    icon: "whatsapp"
+  },
+  {
     name: "Blog",
     link: "https://erxes.io/blog",
     image: "/images/glyph_dark.png"
