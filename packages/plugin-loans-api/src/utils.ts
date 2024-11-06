@@ -22,14 +22,13 @@ export const buildFile = async (
 
   const columnNames: string[] = [];
   let rowIndex: number = 1;
-  // number
 
   const headers = [
     { name: 'payDate', label: 'Date' },
     { name: 'transactionType', label: 'Type' },
-    { name: 'balance', label: 'Saving Balance' },
     { name: 'payment', label: 'Amount' },
-    { name: 'storedInterest', label: 'Stored Interest' },
+    { name: 'interestEve', label: 'Interest' },
+    { name: 'loss', label: 'Loss' },
     { name: 'total', label: 'Total' },
   ];
 
