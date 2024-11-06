@@ -53,6 +53,9 @@ export const getUsageByPluginType = async (args: {
 
       case "instagram-messenger":
         pluginType = "instagramMessenger";
+
+      case "whatsapp":
+        pluginType = "whatsapp";
     }
   }
 
@@ -149,6 +152,21 @@ export const getUsageByPluginType = async (args: {
   }
   if (pluginType === "facebookMessenger") {
     const selector = { kind: "facebook-messenger" };
+
+    if (models) {
+      totalUsage = await models.Integrations.find(selector).countDocuments();
+    } else {
+      totalUsage = await sendCommonMessage({
+        subdomain,
+        serviceName: "inbox",
+        action: "integrations.count",
+        data: { selector }
+      });
+    }
+  }
+
+  if (pluginType === "whatsapp") {
+    const selector = { kind: "whatsapp" };
 
     if (models) {
       totalUsage = await models.Integrations.find(selector).countDocuments();
