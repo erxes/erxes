@@ -33,7 +33,6 @@ import React from "react";
 import RelationForm from "@erxes/ui-forms/src/forms/containers/RelationForm";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import validator from "validator";
-import Car from './Car';
 
 type Props = {
   currentUser: IUser;
@@ -328,10 +327,6 @@ class CustomerForm extends React.Component<Props, State> {
                     required={true}
                     name="firstName"
                   />
-                </FormGroup>
-
-                <FormGroup>
-                  <Car/>
                 </FormGroup>
 
                 <FormGroup>
