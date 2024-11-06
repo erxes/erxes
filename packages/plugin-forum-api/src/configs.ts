@@ -7,7 +7,7 @@ import { setupMessageConsumers } from "./messageBroker";
 import * as permissions from "./permissions";
 
 import { getSubdomain } from "@erxes/api-utils/src/core";
-import cpUserMiddleware from "./middlewares/cpUserMiddleware";
+import cpUserMiddleware from "@erxes/api-utils/src/middlewares/clientportal";
 import { generateModels } from "./db/models";
 import { IContext } from "./graphql";
 import cronjobs from "./cronjobs";

@@ -163,6 +163,11 @@ const PerSettings: React.FC<Props> = (props: Props) => {
           {renderInput("posNo", "pos No", "")}
           {renderInput("branchNo", "branch No", "")}
           {renderCheckbox(
+            "withDescription",
+            "with description",
+            "When checked ebarimt with deals description"
+          )}
+          {renderCheckbox(
             "skipPutData",
             "skip Ebarimt",
             "When checked only  print inner bill"

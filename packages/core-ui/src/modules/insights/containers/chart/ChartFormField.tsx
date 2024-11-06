@@ -3,7 +3,7 @@ import { gql, useQuery } from "@apollo/client";
 
 import ChartFormField from "../../components/chart/ChartFormField";
 import { IFieldLogic } from "../../types";
-import { compareValues, generateOptions, generateQuery, getVariables } from "../../utils";
+import { compareValues, generateOptions, generateQuery, generateSubOptions, getVariables } from "../../utils";
 
 export type IFilterType = {
   fieldName: string;
@@ -21,6 +21,7 @@ export type IFilterType = {
   multi?: boolean;
   logics?: IFieldLogic[];
   fieldValueOptions?: any[];
+  fieldExtraVariables?: string[];
 };
 
 type FinalProps = {
@@ -113,11 +114,15 @@ const ChartFormFieldContainer = (props: FinalProps) => {
     return true
   };
 
-  const onChange = (input: any) => {
+  const onChange = (input: any, name?: string) => {
     const value = input?.value || input;
 
     if (value !== undefined || value !== null) {
-      setFilter(fieldName, value);
+      if (name) {
+        setFilter(name, value);
+      } else {
+        setFilter(fieldName, value);
+      }
     }
   };
 
@@ -131,6 +136,7 @@ const ChartFormFieldContainer = (props: FinalProps) => {
       fieldQuery={fieldQuery}
       multi={multi}
       fieldOptions={options}
+      subOptions={generateSubOptions(data, fieldValues, filterType) || []}
       fieldLogics={logics}
       fieldLabel={fieldLabel}
       fieldAttributes={fieldAttributes}

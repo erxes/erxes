@@ -1,23 +1,18 @@
-import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
+import { getEnv } from '@erxes/api-utils/src/core';
 import { can, checkLogin } from '@erxes/api-utils/src/permissions';
-import redis from '@erxes/api-utils/src/redis';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 
 import * as AWS from 'aws-sdk';
-import * as telemetry from 'erxes-telemetry';
-import { NextFunction, Request, Response } from 'express';
+import * as FormData from 'form-data';
 import * as fs from 'fs';
-import * as jwt from 'jsonwebtoken';
+import fetch from 'node-fetch';
 import * as path from 'path';
 import * as tmp from 'tmp';
-import * as FormData from 'form-data';
-import fetch from 'node-fetch';
 
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
 import { execSync } from 'child_process';
 import { generateModels, IModels } from './connectionResolver';
-import { sendCoreMessage } from './messageBroker';
 import { ICFConfig } from './models/Configs';
 
 export const getValueAsString = async (
@@ -87,75 +82,6 @@ const createCFR2 = async (configs: ICFConfig) => {
   return new AWS.S3(options);
 };
 
-export default async function userMiddleware(
-  req: Request & { user?: any },
-  _res: Response,
-  next: NextFunction
-) {
-  const subdomain = getSubdomain(req);
-
-  if (!req.cookies) {
-    return next();
-  }
-
-  const token = req.cookies['auth-token'];
-
-  if (!token) {
-    return next();
-  }
-
-  try {
-    // verify user token and retrieve stored user information
-    const { user }: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
-
-    const userDoc = await sendCoreMessage({
-      subdomain,
-      action: 'users.findOne',
-      data: {
-        _id: user._id,
-      },
-      isRPC: true,
-    });
-    
-
-    if (!userDoc) {
-      return next();
-    }
-
-    const validatedToken = await redis.get(`user_token_${user._id}_${token}`);
-
-    // invalid token access.
-    if (!validatedToken) {
-      return next();
-    }
-
-    // save user in request
-    req.user = user;
-    req.user.loginToken = token;
-    req.user.sessionCode = req.headers.sessioncode || '';
-
-    const currentDate = new Date();
-    const machineId: string = telemetry.getMachineId();
-
-    const lastLoginDate = new Date((await redis.get(machineId)) || '');
-
-    if (lastLoginDate.getDay() !== currentDate.getDay()) {
-      redis.set(machineId, currentDate.toJSON());
-
-      telemetry.trackCli('last_login', { updatedAt: currentDate });
-    }
-
-    const hostname = await redis.get('hostname');
-
-    if (!hostname) {
-      redis.set('hostname', process.env.DOMAIN || 'http://localhost:3000');
-    }
-  } catch (e) {
-    console.error(e);
-  }
-
-  return next();
-}
 
 export const checkPermission = async (
   subdomain: string,
