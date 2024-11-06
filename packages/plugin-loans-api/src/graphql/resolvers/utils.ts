@@ -84,19 +84,6 @@ const getProductInfo = async (models: IModels, type, object) => {
   return {};
 }
 
-const getProductInfo = async (models: IModels, type, object) => {
-  if (type === 'cards:deal') {
-    const { productsData } = object;
-    if (!productsData?.length) {
-      return {};
-    }
-
-    const contractType = await models.ContractTypes.findOne({ productId: { $in: productsData.map(p => p.productId) }, productType: 'public' }).lean();
-    return { contractTypeId: contractType?._id }
-  }
-  return {};
-}
-
 export const customFieldToObject = async (
   models: IModels,
   subdomain,
