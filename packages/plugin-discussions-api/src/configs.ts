@@ -5,7 +5,7 @@ import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { setupMessageConsumers } from './messageBroker';
-import cpUserMiddleware from './middlewares/cpUserMiddleware';
+import cpUserMiddleware from "@erxes/api-utils/src/middlewares/clientportal";
 
 export default {
   name: 'discussions',
