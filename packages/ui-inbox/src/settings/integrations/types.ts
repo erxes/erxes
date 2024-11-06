@@ -79,6 +79,7 @@ export interface IAccount {
 // query types
 export type IntegrationTypes = 'facebook';
 export type IntegrationTypesInstagram = 'instagram';
+export type IntegrationTypesWhatsapp = 'Whatsapp';
 export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
 } & QueryResponse;
@@ -197,6 +198,7 @@ export interface ILink {
   twitter?: string;
   facebook?: string;
   instagram?: string;
+  whatsapp?: string;
   youtube?: string;
 }
 export interface IExternalLink {
