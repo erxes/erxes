@@ -1,32 +1,39 @@
-import typeDefs from "./graphql/typeDefs";
-import resolvers from "./graphql/resolvers";
-import { generateModels } from "./connectionResolver";
-import { setupMessageConsumers } from "./messageBroker";
-import documents from "./documents";
-import forms from "./forms";
-import imports from "./imports";
-import exporter from "./exporter";
-import logs from "./logUtils";
-import * as permissions from "./permissions";
-import payment from "./payment";
-import reports from "./reports";
-import { storeInterestCron } from "./cronjobs/contractCronJobs";
-import { getSubdomain } from "@erxes/api-utils/src/core";
+import typeDefs from './graphql/typeDefs';
+import resolvers from './graphql/resolvers';
+import { generateModels } from './connectionResolver';
+import { setupMessageConsumers } from './messageBroker';
+import documents from './documents';
+import forms from './forms';
+import imports from './imports';
+import exporter from './exporter';
+import logs from './logUtils';
+import * as permissions from './permissions';
+import * as cookieParser from 'cookie-parser';
+import payment from './payment';
+import reports from './reports';
+import { storeInterestCron } from './cronjobs/contractCronJobs';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import app from '@erxes/api-utils/src/app';
+import { routeErrorHandling } from '@erxes/api-utils/src/requests';
+import userMiddleware from '@erxes/api-utils/src/middlewares/user';
+import cpUserMiddleware from '@erxes/api-utils/src/middlewares/clientportal';
+import { can } from '@erxes/api-utils/src/permissions';
+import { buildFile } from './utils';
 
 export default {
-  name: "savings",
+  name: 'savings',
   permissions,
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'graphql',
-    'subscriptionPlugin.js',
+    'subscriptionPlugin.js'
   ),
 
   apolloServerContext: async (context, req) => {
@@ -38,12 +45,103 @@ export default {
     return context;
   },
 
-  onServerInit: async () => {},
+  middlewares: [cookieParser(), userMiddleware, cpUserMiddleware],
+
+  onServerInit: async () => {
+    app.get(
+      '/transactions-export',
+      routeErrorHandling(async (req: any, res) => {
+        const { query } = req;
+        if (!req.user && !req.cpUser) {
+          return res.status(401).send({
+            success: false,
+            error: 'Unauthorized',
+          });
+        }
+
+        if (!query.contractId) {
+          return res.status(400).send({
+            success: false,
+            error: 'Missing parameters',
+          });
+        }
+
+        const subdomain = getSubdomain(req);
+
+        let filter: any = {
+          contractId: query.contractId,
+        };
+
+        if (req.user) {
+          // check permissions
+
+          let allowed = await can(
+            subdomain,
+            'savingsShowTransactions',
+            req.user
+          );
+
+          if (req.user.isOwner) {
+            allowed = true;
+          }
+
+          if (!allowed) {
+            return res.status(403).send({
+              success: false,
+              error: 'Permission required',
+            });
+          }
+        }
+
+        const models = await generateModels(subdomain);
+
+        if (req.cpUser) {
+          const contract = await models.Contracts.findOne({
+            _id: query.contractId,
+            customerId: req.cpUser.erxesCustomerId,
+          });
+
+          if (!contract) {
+            return res.status(404).send({
+              success: false,
+              error: 'Contract not found',
+            });
+          }
+        }
+
+        if (query.startDate && query.endDate) {
+          filter.payDate = {
+            $gte: new Date(query.startDate),
+            $lte: new Date(query.endDate),
+          };
+        } else {
+          // get last 30 days
+          filter.payDate = {
+            $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+          };
+        }
+
+        const data = await models.Transactions.find(filter).lean();
+        if (!data || !data.length) {
+          return res.status(404).send({
+            success: false,
+            error: 'Transactions not found',
+          });
+        }
+
+        const result = await buildFile(data);
+
+        res.attachment(`${result.name}.xlsx`);
+
+        return res.send(result.response);
+      })
+    );
+  },
   setupMessageConsumers,
   meta: {
     logs: { consumers: logs },
     cronjobs: {
-      handleMinutelyJob: storeInterestCron
+      handleMinutelyJob: storeInterestCron,
     },
     documents,
     reports,
@@ -51,6 +149,6 @@ export default {
     forms,
     imports,
     exporter,
-    payment
-  }
+    payment,
+  },
 };
