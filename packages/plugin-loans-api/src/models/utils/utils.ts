@@ -70,21 +70,8 @@ export const getDaysInMonth = (date: Date) => {
   // return new Date(year, month+1, 0).getDate();
 };
 
-export const getPureDate = (date: Date) => {
-  const ndate = new Date(date);
-  const diffTimeZone = ndate.getTimezoneOffset() * 1000 * 60;
-  return new Date(ndate.getTime() - diffTimeZone);
-};
-
 export const getFullDate = (date: Date) => {
-  const ndate = getPureDate(date);
-  const year = ndate.getFullYear();
-  const month = ndate.getMonth();
-  const day = ndate.getDate();
-
-  const today = new Date(year, month, day);
-  today.setHours(0, 0, 0, 0);
-  return today;
+  return new Date(moment(date).format('YYYY-MM-DD'));
 };
 
 export const addMonths = (date, months) => {
