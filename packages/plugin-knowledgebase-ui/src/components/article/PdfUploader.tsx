@@ -31,7 +31,7 @@ const PdfUploader = (props: Props) => {
 
     try {
       const res = await fetch(
-        `${REACT_APP_API_URL}/pl:knowledgebase/upload-pdf/`,
+        `${REACT_APP_API_URL}/pl-knowledgebase/upload-pdf/`,
         {
           method: 'POST',
           body: formData,
