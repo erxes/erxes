@@ -1,11 +1,6 @@
-import { debugError } from './debuggers';
 import { sendInboxMessage } from './messageBroker';
 import { IModels } from './connectionResolver';
-import { wabaUserDetail } from './utils';
 import { IIntegrationDocument } from './models/Integrations';
-import { ICustomerDocument } from './models/definitions/customers';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { INTEGRATION_KINDS } from './constants';
 
 export const getOrCreateCustomer = async (
   models: IModels,
@@ -17,7 +12,7 @@ export const getOrCreateCustomer = async (
 ) => {
   const waId = userInfo[0]?.wa_id;
   const name = userInfo[0]?.profile?.name;
-  const integrationId = integration.erxesApiId; // Ensure integration is defined
+  const integrationId = integration.erxesApiId;
   let customer = await models.Customers.findOne({ userId });
   if (customer) {
     return customer;
@@ -26,7 +21,7 @@ export const getOrCreateCustomer = async (
   try {
     customer = await models.Customers.create({
       userId,
-      phoneNumber: waId, // Using the extracted WhatsApp ID
+      phoneNumber: waId,
       firstName: name,
       integrationId
     });
@@ -37,7 +32,6 @@ export const getOrCreateCustomer = async (
         : e
     );
   }
-  // save on api
   try {
     const apiCustomerResponse = await sendInboxMessage({
       subdomain,
@@ -104,7 +98,6 @@ export const customerCreated = async (
     customer.erxesApiId = apiCustomerResponse._id;
     await customer.save();
   } catch (e) {
-    // Delete the customer if saving to the API fails
     await models.Customers.deleteOne({ _id: customer._id });
     throw new Error(e.message);
   }

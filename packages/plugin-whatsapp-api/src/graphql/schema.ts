@@ -95,7 +95,7 @@ export const queries = `
   whatsappGetIntegrations(kind: String): JSON
   whatsappGetIntegrationDetail(erxesApiId: String): JSON 
   whatsappGetConfigs: JSON
-  whatsappGetPages(accountId: String! kind: String!): JSON
+  whatsappGetNumbers(accountId: String! kind: String!): JSON
   whatsappConversationDetail(_id: String!): JSON
   whatsappConversationMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [InstagramConversationMessage]
   whatsappConversationMessagesCount(conversationId: String!): Int

@@ -26,9 +26,9 @@ const whatsappGetIntegrationDetail = `
   }
 `;
 
-const whatsappGetPages = `
-  query whatsappGetPages($accountId: String!, $kind: String!) {
-    whatsappGetPages(accountId: $accountId, kind: $kind)
+const whatsappGetNumbers = `
+  query whatsappGetNumbers($accountId: String!, $kind: String!) {
+    whatsappGetNumbers(accountId: $accountId, kind: $kind)
   }
 `;
 
@@ -113,7 +113,7 @@ export default {
   whatsappGetConfigs,
   whatsappGetIntegrations,
   whatsappGetIntegrationDetail,
-  whatsappGetPages,
+  whatsappGetNumbers,
   whatsappGetAccounts,
   whatsappConversationMessages,
   whatsappConversationMessagesCount,

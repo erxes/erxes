@@ -40,10 +40,8 @@ const initApp = async () => {
     return res.json(await systemStatus());
   });
 
-  // init bots
   initFacebook(app);
 
-  // Error handling middleware
   app.use((error, _req, res, _next) => {
     console.error(error.stack);
     res.status(500).send(error.message);

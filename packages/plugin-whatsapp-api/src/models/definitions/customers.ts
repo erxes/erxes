@@ -4,7 +4,6 @@ import { field } from './utils';
 
 export interface ICustomer {
   userId: string;
-  // id on erxes-api
   erxesApiId?: string;
   firstName: string;
   lastName: string;

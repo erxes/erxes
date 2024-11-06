@@ -3,7 +3,6 @@ import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
 export interface IConversation {
-  // id on erxes-api
   erxesApiId?: string;
   timestamp: Date;
   senderId: string;

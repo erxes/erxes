@@ -2,7 +2,7 @@ import { IContext, IModels } from '../../connectionResolver';
 import { INTEGRATION_KINDS } from '../../constants';
 import { sendInboxMessage } from '../../messageBroker';
 import { IConversationMessageDocument } from '../../models/definitions/conversationMessages';
-import { getBusinessWhatsAppDetails, getPostLink } from '../../utils';
+import { getBusinessWhatsAppDetails } from '../../utils';
 
 interface IKind {
   kind: string;
@@ -66,16 +66,14 @@ const whatsappQueries = {
     return models.Configs.find({}).lean();
   },
 
-  async whatsappGetPages(_root, args, { models }: IContext) {
+  async whatsappGetNumbers(_root, args, { models }: IContext) {
     const { kind, accountId } = args;
     const account = await models.Accounts.getAccount({ _id: accountId });
     const accessToken = account.token;
-    let pages: any[] = [];
+    let number: any[] = [];
 
     try {
-      pages = await getBusinessWhatsAppDetails(models, accessToken, kind);
-
-      // pages = await getPageList(models, accessToken, kind);
+      number = await getBusinessWhatsAppDetails(models, accessToken, kind);
     } catch (e) {
       if (!e.message.includes('Application request limit reached')) {
         await models.Integrations.updateOne(
@@ -85,20 +83,8 @@ const whatsappQueries = {
       }
     }
 
-    return pages;
+    return number;
   },
-
-  // async whatsappConversationDetail(
-  //   _root,
-  //   { _id }: { _id: string },
-  //   { models }: IContext
-  // ) {
-  //   const conversation = await models.Conversations.findOne({ _id });
-  //   if (conversation) {
-  //     return conversation;
-  //   }
-  //   return models.CommentConversation.findOne({ _id });
-  // },
 
   async whatsappConversationMessages(
     _root,
@@ -131,9 +117,7 @@ const whatsappQueries = {
       return messages.reverse();
     }
   },
-  /**
-   *  Get all conversation messages count. We will use it in pager
-   */
+
   async whatsappConversationMessagesCount(
     _root,
     { conversationId }: { conversationId: string },

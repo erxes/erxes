@@ -1,6 +1,4 @@
 import * as dotenv from 'dotenv';
-import { sendMessage } from '@erxes/api-utils/src/core';
-
 import {
   whatsappCreateIntegration,
   removeAccount,
@@ -84,7 +82,6 @@ export const setupMessageConsumers = async () => {
     }
   );
 
-  // /whatsapp/get-status'
   consumeRPCQueue(
     'whatsapp:getStatus',
     async ({ subdomain, data: { integrationId } }) => {
@@ -129,7 +126,6 @@ export const setupMessageConsumers = async () => {
     }
   );
 
-  // '/integrations/remove',
   consumeRPCQueue(
     'whatsapp:removeIntegrations',
     async ({ subdomain, data: { integrationId } }) => {

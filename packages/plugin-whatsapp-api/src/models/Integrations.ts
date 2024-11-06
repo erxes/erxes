@@ -9,7 +9,6 @@ export interface IIntegration {
   emailScope?: string;
   erxesApiId: string;
   whatsappNumberIds?: string[];
-  facebookPageTokensMap?: { [key: string]: string };
   email: string;
   expiration?: string;
   healthStatus?: string;
@@ -18,7 +17,6 @@ export interface IIntegration {
 
 export interface IIntegrationDocument extends IIntegration, Document {}
 
-// schema for integration document
 export const integrationSchema = new Schema({
   _id: field({ pkey: true }),
   kind: String,
@@ -32,11 +30,6 @@ export const integrationSchema = new Schema({
   }),
   email: String,
   expiration: String,
-
-  facebookPageTokensMap: field({
-    type: Object,
-    default: {}
-  }),
   healthStatus: String,
   error: String
 });
@@ -48,8 +41,6 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
 export const loadIntegrationClass = (models: IModels) => {
   class Integration {
     public static async getIntegration(selector) {
-      // const integration = await models.Integrations.findOne(selector);
-
       const integration = await models.Integrations.findOne();
       if (!integration) {
         throw new Error('Instagram Integration not found ');

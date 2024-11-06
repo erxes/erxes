@@ -33,8 +33,7 @@ const loginMiddleware = async (req, res) => {
   };
 
   debugRequest(debugWhatsapp, req);
-  // we don't have a code yet
-  // so we'll redirect to the oauth dialog
+
   if (!req.query.code) {
     const authUrl = graph.getOauthUrl({
       client_id: conf.client_id,
@@ -43,7 +42,6 @@ const loginMiddleware = async (req, res) => {
       state: `${API_DOMAIN}/pl:whatsapp`
     });
 
-    // checks whether a user denied the app whatsapp login/permissions
     if (!req.query.error) {
       debugResponse(debugWhatsapp, req, authUrl);
       return res.redirect(authUrl);
@@ -61,11 +59,6 @@ const loginMiddleware = async (req, res) => {
   };
 
   debugResponse(debugWhatsapp, req, JSON.stringify(config));
-
-  // If this branch executes user is already being redirected back with
-  // code (whatever that is)
-  // code is set
-  // we'll send that and get the access token
 
   return graph.authorize(config, async (_err, facebookRes) => {
     const { access_token } = facebookRes;
@@ -105,7 +98,7 @@ const loginMiddleware = async (req, res) => {
     const reactAppUrl = !DOMAIN.includes('zrok')
       ? DOMAIN
       : 'http://localhost:3000';
-    const url = `${reactAppUrl}/settings/ig-authorization?igAuthorized=true`;
+    const url = `${reactAppUrl}/settings/whatsApp-authorization?igAuthorized=true`;
 
     debugResponse(debugWhatsapp, req, url);
 

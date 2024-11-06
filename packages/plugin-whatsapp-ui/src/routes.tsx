@@ -44,8 +44,8 @@ const routes = () => (
     />
 
     <Route
-      key='/settings/ig-authorization'
-      path='/settings/ig-authorization'
+      key='/settings/whatsApp-authorization'
+      path='/settings/whatsApp-authorization'
       element={<Auth />}
     />
   </Routes>

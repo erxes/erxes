@@ -7,7 +7,6 @@ export interface IConversationMessage {
   mid: string;
   conversationId: string;
   content: string;
-  // from inbox
   createdAt?: Date;
   updatedAt?: Date;
   attachments?: any;
@@ -29,7 +28,6 @@ export const conversationMessageSchema = new Schema({
   _id: field({ pkey: true }),
   mid: { type: String, label: 'INSTAGRAM message id' },
   content: { type: String },
-  // the following derives from inbox
   attachments: [attachmentSchema],
   conversationId: field({ type: String, index: true }),
   customerId: field({ type: String, index: true }),

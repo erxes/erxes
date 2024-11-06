@@ -43,7 +43,7 @@ class WhatsappContainer extends React.Component<FinalProps, State> {
 
     client
       .query({
-        query: gql(queries.whatsappGetPages),
+        query: gql(queries.whatsappGetNumbers),
         variables: {
           accountId,
           kind
@@ -52,7 +52,7 @@ class WhatsappContainer extends React.Component<FinalProps, State> {
       .then(({ data, loading }: any) => {
         if (!loading) {
           this.setState({
-            pages: data.whatsappGetPages,
+            pages: data.whatsappGetNumbers,
             accountId,
             loadingPages: false
           });
