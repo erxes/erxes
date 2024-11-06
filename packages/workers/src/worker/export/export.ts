@@ -187,7 +187,6 @@ async function main() {
     const models = await generateModels(subdomain);
 
     const [serviceName, type] = contentType.split(":");
-    console.log(serviceName,type)
 
     const { totalCount, excelHeader } = await sendRPCMessage(
       `${serviceName}:exporter.prepareExportData`,
@@ -201,8 +200,6 @@ async function main() {
         timeout: 5 * 60 * 1000 // 5 minutes
       }
     );
-
-    console.log({totalCount,excelHeader})
 
     const perPage = 10;
     const totalIterations = Math.ceil(totalCount / perPage);
@@ -224,9 +221,7 @@ async function main() {
           },
           timeout: 5 * 60 * 1000 // 5 minutes
         }
-      ).catch(error=>console.log(error));
-
-      console.log(JSON.stringify(response))
+      );
 
       percentage = Number(
         ((((page - 1) * perPage) / totalCount) * 100).toFixed(2)
@@ -265,8 +260,6 @@ async function main() {
       rowIndex++;
     }
 
-    console.time('upload')
-
     if (UPLOAD_SERVICE_TYPE === "AWS") {
       result = await uploadFileAWS(subdomain, workbook, rowIndex, type);
     }
@@ -278,8 +271,6 @@ async function main() {
     if (UPLOAD_SERVICE_TYPE === "local") {
       result = await uploadFileLocal(workbook, rowIndex, type);
     }
-
-    console.timeEnd("upload");
 
     let finalResponse = {
       exportLink: result.file,
