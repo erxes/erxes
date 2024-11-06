@@ -39,6 +39,7 @@ export default {
     automations,
     templates
   },
+
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
 
@@ -52,9 +53,10 @@ export default {
 
   onServerInit: async () => {
     app.use((req, _res, next) => {
-      const DOMAIN = getEnv({ name: 'DOMAIN' });
+      const DOMAIN = getEnv({ name: 'DOMAIN', defaultValue: 'http://localhost:3000' });
       const subdomain = getSubdomain(req);
       const domain = DOMAIN.replace('<subdomain>', subdomain);
+
       const corsOptions = {
         credentials: true,
         origin: domain,
@@ -81,6 +83,7 @@ export default {
       },
     });
     // app.post('/upload-pdf', uploader);
+
     app.post(
       '/upload-pdf',
       upload.single('file'),
