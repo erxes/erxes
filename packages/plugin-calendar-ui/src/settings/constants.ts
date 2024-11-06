@@ -189,7 +189,7 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, Marketing automation, Messaging, Conversation'
   },
   {
-    name: 'whatsapp',
+    name: 'WhatsApp by Smooch',
     description: 'Get a hold of your Whatsapp messages through your Team Inbox',
     inMessenger: false,
     isAvailable: true,
