@@ -4,10 +4,7 @@ import {
 } from "@erxes/api-utils/src/automations";
 import { generateModels, IModels } from "./connectionResolver";
 import { itemsAdd } from "./graphql/resolvers/mutations/utils";
-import {
-  sendCommonMessage,
-  sendCoreMessage
-} from "./messageBroker";
+import { sendCommonMessage, sendCoreMessage } from "./messageBroker";
 import { getCollection } from "./models/utils";
 
 const getRelatedValue = async (
@@ -311,7 +308,7 @@ export default {
       subdomain,
       module,
       execution,
-      triggerType
+      triggerType.split(".")[0]
     );
 
     return setProperty({
