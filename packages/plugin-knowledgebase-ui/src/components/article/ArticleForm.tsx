@@ -22,7 +22,7 @@ import {
   IFormProps,
   IOption,
 } from '@erxes/ui/src/types';
-import Datetime from '@nateradebaugh/react-datetime';
+import dayjs from 'dayjs';
 import { __, extractAttachment } from 'coreui/utils';
 import React from 'react';
 import Select, { OnChangeValue } from 'react-select';
@@ -195,6 +195,12 @@ class ArticleForm extends React.Component<Props, State> {
     this.setState({ erxesForms });
   };
 
+  formatDate = (date: Date) => {
+    let day = dayjs(date || new Date());
+
+    return day.format('YYYY-MM-DD HH:mm');
+  };
+
   addErxesForm = () => {
     const erxesForms = this.state.erxesForms.slice();
 
@@ -337,23 +343,6 @@ class ArticleForm extends React.Component<Props, State> {
     );
   };
 
-  renderScheduleDate() {
-    if (this.props.article.status === 'active') {
-      return null;
-    }
-
-    return (
-      <Datetime
-        dateFormat='YYYY/MM/DD'
-        timeFormat='HH:mm'
-        closeOnSelect={false}
-        closeOnTab={true}
-        value={''}
-        // onChange={this.onChangeDate}
-      />
-    );
-  }
-
   renderContent = (formProps: IFormProps) => {
     const { article, renderButton, closeModal } = this.props;
     const { attachments, reactionChoices, content, image, isPrivate } =
@@ -479,16 +468,14 @@ class ArticleForm extends React.Component<Props, State> {
                 <ControlLabel required={true}>
                   {__('Publish date')}
                 </ControlLabel>
-                <Datetime
-                  dateFormat='YYYY/MM/DD'
-                  timeFormat='HH:mm'
-                  closeOnSelect={false}
-                  closeOnTab={true}
-                  value={this.state.scheduledDate}
-                  onChange={(d: any) => {
-                    const date = new Date(d);
-
-                    this.setState({ scheduledDate: date });
+                <FormControl
+                  name='scheduledDate'
+                  type='datetime-local'
+                  defaultValue={this.formatDate(
+                    this.state.scheduledDate || new Date()
+                  )}
+                  onChange={(e: any) => {
+                    this.setState({ scheduledDate: new Date(e.target.value) });
                   }}
                 />
               </FormGroup>
