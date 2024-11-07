@@ -31,7 +31,7 @@ export const removeIntegration = async (
   if (kind.includes('whatsapp')) {
     debugWhatsapp('Removing entries');
 
-    const whatsappNumberIds = integration.whatsappNumberIds;
+    const {whatsappNumberIds} = integration;
 
     if (!whatsappNumberIds) {
       throw new Error('whatsappNumber ID not found');
