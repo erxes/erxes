@@ -1,7 +1,5 @@
 import { checkPermission } from "@erxes/api-utils/src/permissions";
-import {
-  sendCoreMessage
-} from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 import { IContext, IModels } from "../../../connectionResolver";
 import {
   getPureDate,
@@ -924,9 +922,9 @@ const queries = {
   ) {
     const filter: any = {
       customerId,
-      'items.productId': productId,
-      'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.ACTIVE,
-      'items.closeDate': { $gte: new Date() }
+      "items.productId": productId,
+      "subscriptionInfo.status": SUBSCRIPTION_INFO_STATUS.ACTIVE,
+      "items.closeDate": { $gte: new Date() }
     };
 
     if (productIds) {
@@ -944,43 +942,74 @@ const queries = {
     return subscription;
   },
 
-  async posOrderBySubscriptions(_root, params, { models }: IContext) {
+  async posOrderBySubscriptions(
+    _root,
+    { page, perPage, ...params },
+    { models }: IContext
+  ) {
     const filter = await generateFilterSubsQuery(params);
 
-    return await paginate(
-      models.PosOrders.aggregate([
-        {
-          $match: {
-            'subscriptionInfo.subscriptionId': { $nin: [null, '', undefined] },
-            customerId: { $nin: [null, '', undefined] },
-            ...filter
-          }
-        },
-        { $unwind: "$items" },
-        { $sort: { createdAt: -1, "items.closeDate": -1 } },
-        {
-          $group: {
-            _id: "$subscriptionInfo.subscriptionId",
-            customerId: { $first: "$customerId" },
-            customerType: { $first: "$customerType" },
-            status: { $first: "$subscriptionInfo.status" },
-            closeDate: { $first: "$items.closeDate" },
-            createdAt: { $first: "$items.createdAt" },
-            orders: {
-              $push: {
-                $cond: {
-                  if: { $ne: ['$items.closeDate', null] },
-                  then: '$$ROOT',
-                  else: '$$REMOVE'
-                }
+    const _page = Number(page || "1");
+    const _limit = Number(perPage || "20");
+
+    console.log({
+      "subscriptionInfo.subscriptionId": { $nin: [null, "", undefined] },
+      customerId: { $nin: [null, "", undefined] },
+      ...filter
+    });
+
+    return await models.PosOrders.aggregate([
+      {
+        $match: {
+          "subscriptionInfo.subscriptionId": { $nin: [null, "", undefined] },
+          customerId: { $nin: [null, "", undefined] },
+          ...filter
+        }
+      },
+      { $unwind: "$items" },
+      { $sort: { createdAt: -1, "items.closeDate": -1 } },
+      {
+        $group: {
+          _id: "$subscriptionInfo.subscriptionId",
+          customerId: { $first: "$customerId" },
+          customerType: { $first: "$customerType" },
+          status: { $first: "$subscriptionInfo.status" },
+          closeDate: { $first: "$items.closeDate" },
+          createdAt: { $first: "$items.createdAt" },
+          orders: {
+            $push: {
+              $cond: {
+                if: { $ne: ["$items.closeDate", null] },
+                then: "$$ROOT",
+                else: "$$REMOVE"
               }
             }
           }
-        },
-        { $sort: { closeDate: -1 } }
-      ]),
-      params
-    );
+        }
+      }
+    ])
+      .skip((_page - 1) * _limit)
+      .limit(_limit);
+  },
+
+  async posOrderBySubscriptionsTotalCount(_root, params, { models }: IContext) {
+    const filter = await generateFilterSubsQuery(params);
+
+    const [result] = await models.PosOrders.aggregate([
+      {
+        $match: {
+          ...filter,
+          "subscriptionInfo.subscriptionId": { $nin: [null, "", undefined] },
+          customerId: { $nin: [null, "", undefined] }
+        }
+      },
+      { $group: { _id: "$subscriptionInfo.subscriptionId" } },
+      {
+        $count: "totalCount" // Count the unique groups
+      }
+    ]);
+
+    return result?.totalCount || 0;
   }
 };
 
