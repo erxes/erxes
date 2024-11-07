@@ -171,6 +171,7 @@ export const queries = `
   posOrderCustomersTotalCount(${commonQueryParams}):Int
   checkSubscription(customerId:String, productId:String,productIds:[String]): PosOrder
   posOrderBySubscriptions(${commonSubsQueryParams}):[PosOrdersBySubs]
+  posOrderBySubscriptionsTotalCount(${commonSubsQueryParams}):Int
 `;
 
 export const mutations = `
