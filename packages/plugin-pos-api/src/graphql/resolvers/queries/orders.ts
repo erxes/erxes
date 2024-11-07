@@ -952,12 +952,6 @@ const queries = {
     const _page = Number(page || "1");
     const _limit = Number(perPage || "20");
 
-    console.log({
-      "subscriptionInfo.subscriptionId": { $nin: [null, "", undefined] },
-      customerId: { $nin: [null, "", undefined] },
-      ...filter
-    });
-
     return await models.PosOrders.aggregate([
       {
         $match: {
