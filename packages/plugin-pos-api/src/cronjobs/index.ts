@@ -87,9 +87,13 @@ export default {
 
           const { subscriptionConfig = {} } = uom || {};
 
-          const { period, rule, specificDay } = subscriptionConfig;
+          const { period, rule, specificDay, subsRenewable } =
+            subscriptionConfig;
 
-          if (['fromExpiredDate', 'fromSpecificDate'].includes(rule)) {
+          if (
+            ['fromExpiredDate', 'fromSpecificDate'].includes(rule) &&
+            !subsRenewable
+          ) {
             let nextCloseDate = new Date(
               moment().add(1, period.replace('ly', '')).toISOString()
             );
@@ -116,7 +120,7 @@ export default {
               }
             },
             pos
-          }).catch((error) => {
+          }).catch(error => {
             debugError(error.message);
           });
         }
