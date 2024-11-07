@@ -11,5 +11,5 @@ module.exports = {
     scope: "cms",
     module: "./routes",
   },
-  menus:[{"text":"Cms","url":"/cms/categories","icon":"icon-star","location":"mainNavigation"}],
+  menus:[{"text":"Cms","url":"/cms","icon":"icon-star","location":"mainNavigation"}],
 };

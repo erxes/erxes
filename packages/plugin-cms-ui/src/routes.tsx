@@ -7,14 +7,20 @@ import {
   Routes,
   useLocation,
   useNavigate,
-} from "react-router-dom";
+} from 'react-router-dom';
 
-const CategoryList = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Category" */ './modules/categories/containers/List')
+const CategoryList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - Category" */ './modules/categories/containers/List'
+    )
 );
 
-const Car = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Car" */ './modules/categories/components/Car')
+const Cms = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - Cms" */ './modules/web/containers/MainContainer'
+    )
 );
 
 const Component = () => {
@@ -24,29 +30,23 @@ const Component = () => {
   return <CategoryList location={location} navigate={navigate} />;
 };
 
-const CarComponent = () => {
+const CmsComponent = () => {
   const location = useLocation();
-  const navigate = useNavigate(); 
-  return <Car location={location} navigate={navigate} />
-}
-
-const routes = () => {
-  // return <Route path="/cmss/" component={cmss} />;
-  <Routes>
-  <Route
-    key="/cms/categories"
-    path="/cms/categories"
-    element={<Component />}
-  />
-
-  <Route
-    key="/cms/car"
-    path="/cms/car"
-    element={<CarComponent />}
-  />
-</Routes>
+  const navigate = useNavigate();
+  return <Cms location={location} navigate={navigate} />;
 };
 
 
+const routes = () => (
+  <Routes>
+    <Route key='/cms' path='/cms' element={<CmsComponent />} />
+    <Route
+      key='/cms/categories'
+      path='/cms/categories'
+      element={<Component />}
+    />
+  </Routes>
+);
 
 export default routes;
+
