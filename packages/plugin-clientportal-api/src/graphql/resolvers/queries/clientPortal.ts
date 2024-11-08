@@ -38,12 +38,14 @@ const configClientPortalQueries = {
     const { kind, search } = args;
 
     if (search) {
-      return models.ClientPortals.find({
+      const res = await models.ClientPortals.find({
         $or: [
           { name: { $regex: new RegExp(`^${search}$`, 'i') } },
           { domain: { $regex: new RegExp(`^${search}$`, 'i') } },
+          { url: { $regex: new RegExp(search, 'i') } },
         ],
       }).lean();
+      return res
     }
 
     const query: any = {};

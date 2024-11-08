@@ -19,7 +19,7 @@ const CategoryList = asyncComponent(
 const Cms = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "List - Cms" */ './modules/web/containers/MainContainer'
+      /* webpackChunkName: "List - Cms" */ './modules/clientportal/containers/Header'
     )
 );
 
@@ -36,17 +36,18 @@ const CmsComponent = () => {
   return <Cms location={location} navigate={navigate} />;
 };
 
-
 const routes = () => (
+
   <Routes>
-    <Route key='/cms' path='/cms' element={<CmsComponent />} />
-    <Route
-      key='/cms/categories'
-      path='/cms/categories'
-      element={<Component />}
-    />
+    
+      <Route
+        key='/cms/categories'
+        path='/cms/categories'
+        element={<Component />}
+      />
+    
   </Routes>
+
 );
 
 export default routes;
-

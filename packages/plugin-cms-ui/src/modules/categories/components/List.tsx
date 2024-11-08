@@ -6,12 +6,14 @@ import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
+import { BarItems } from '@erxes/ui/src/layout/styles';
 
 import CategoryForm from '../containers/Form';
 // import { tumentechMenu } from '../list/CarsList';
 import { InsuranceCategory, InsuranceProduct } from '../../../gql/types';
 import { menu } from '../../../routes';
 import Row from './Row';
+import CPHeader from '../../clientportal/containers/Header';
 
 type Props = {
   categories: InsuranceCategory[];
@@ -26,7 +28,7 @@ const List = (props: Props) => {
   const { totalCount, queryParams, loading, categories, remove } = props;
 
   const renderRow = () => {
-    return categories.map(cat => (
+    return categories.map((cat) => (
       <Row key={cat._id} category={cat} remove={remove} />
     ));
   };
@@ -35,27 +37,37 @@ const List = (props: Props) => {
   //   const actionBarLeft: React.ReactNode;
 
   const trigger = (
-    <Button btnStyle="success" size="small" icon="plus-circle">
+    <Button btnStyle='success' size='small' icon='plus-circle'>
       Add category
     </Button>
   );
 
-  const formContent = formProps => <CategoryForm {...formProps} />;
+  const formContent = (formProps) => <CategoryForm {...formProps} />;
 
   const righActionBar = (
-    <ModalTrigger
-      size="lg"
-      title="Add category"
-      autoOpenKey="showAppAddModal"
-      trigger={trigger}
-      content={formContent}
-    />
+    <BarItems>
+      <ModalTrigger
+        size='lg'
+        title='Add category'
+        autoOpenKey='showAppAddModal'
+        trigger={trigger}
+        content={formContent}
+      />
+    </BarItems>
   );
 
-  const actionBar = <Wrapper.ActionBar right={righActionBar} />;
+  const leftActionBar = (
+    <BarItems>
+      <CPHeader />
+    </BarItems>
+  );
+
+  const actionBar = (
+    <Wrapper.ActionBar right={righActionBar} left={leftActionBar} />
+  );
 
   const content = (
-    <Table whiteSpace="nowrap" hover={true}>
+    <Table $whiteSpace='nowrap' $hover={true}>
       <thead>
         <tr>
           <th>{__('Code')}</th>
@@ -70,35 +82,38 @@ const List = (props: Props) => {
     </Table>
   );
   return (
-    <Wrapper
-      header={
-        <Wrapper.Header
-          title={__('Category')}
-          queryParams={queryParams}
-          submenu={menu}
-        />
-      }
-      actionBar={actionBar}
-      footer={<Pagination count={totalCount} />}
-      content={
-        <DataWithLoader
-          data={content}
-          loading={loading}
-          count={categories.length}
-          emptyContent={
-            <h3
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
-            >
-              no data
-            </h3>
-          }
-        />
-      }
-    />
+    <>
+      <Wrapper
+        transparent={false}
+        header={
+          <Wrapper.Header
+            title={__('Category')}
+            queryParams={queryParams}
+            submenu={menu}
+          />
+        }
+        actionBar={actionBar}
+        footer={<Pagination count={totalCount} />}
+        content={
+          <DataWithLoader
+            data={content}
+            loading={loading}
+            count={categories.length}
+            emptyContent={
+              <h3
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                no data
+              </h3>
+            }
+          />
+        }
+      />
+    </>
   );
 };
 

@@ -1,9 +1,11 @@
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Spinner } from '@erxes/ui/src/components';
-import Component from '../components/MainContainer';
+import Component from '../components/Header';
 
-type Props = {};
+type Props = {
+  children?: React.ReactNode;
+};
 
 const GET_LAST_QUERY = gql`
   query clientPortalGetLast($kind: BusinessPortalKind) {
@@ -16,22 +18,40 @@ const GET_LAST_QUERY = gql`
   }
 `;
 
+const DETAIL_QUERY = gql`
+  query ClientPortalGetConfig($id: String!) {
+    clientPortalGetConfig(_id: $id) {
+      _id
+      name
+      domain
+      url
+    }
+  }
+`;
+
 const MainContainer = (props: Props) => {
-    console.log("aaaa")
+  const storedId = localStorage.getItem('clientPortalId');
+
+  const { data: detailData, loading: detailLoading } = useQuery(DETAIL_QUERY, {
+    variables: {
+      id: storedId,
+    },
+    skip: !storedId,
+  });
+
   const { data, loading } = useQuery(GET_LAST_QUERY, {
     variables: {
       kind: 'client',
     },
   });
 
-
-
-  if (loading) {
+  if (loading || detailLoading) {
     return <Spinner />;
   }
 
-  const currentConfig = data?.clientPortalGetLast;
-
+  const currentConfig = detailData
+    ? detailData.clientPortalGetConfig
+    : data?.clientPortalGetLast;
 
   if (!currentConfig) {
     return null;
