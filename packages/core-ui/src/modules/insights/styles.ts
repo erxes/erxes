@@ -405,19 +405,6 @@ const FormContent = styled.div`
       padding: 0;
     }
 
-    .css-1p3m7a8-multiValue {
-      display: flex;
-      gap: 5px;
-      align-items: center;
-      justify-content: center;
-      margin-top: 0 !important;
-      margin-bottom: 0 !important;
-    }
-
-    .css-12a83d4-MultiValueRemove {
-      position: unset;
-    }
-
     .css-1nmdiq5-menu {
       box-shadow: 0 4px 11px hsla(0, 0%, 0%, 0.1);
       border: 1px solid #eee;

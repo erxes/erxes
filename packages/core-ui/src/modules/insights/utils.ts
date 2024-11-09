@@ -384,7 +384,8 @@ export const rgbaToHex = (rgba: string) => {
 };
 
 export const generateInitialOptions = (options, selectedValues) => {
-  if (!selectedValues) {
+
+  if (selectedValues === null || selectedValues === undefined) {
     selectedValues = [];
   }
 
@@ -393,7 +394,7 @@ export const generateInitialOptions = (options, selectedValues) => {
   }
 
   const selectedValueArray = selectedValues.map(item => {
-    if (typeof item === 'string') {
+    if (typeof item === 'string' || typeof item === 'boolean') {
       return { value: item };
     }
 
