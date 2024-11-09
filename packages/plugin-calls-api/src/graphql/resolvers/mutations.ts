@@ -159,6 +159,9 @@ const callsMutations = {
         timeStamp: doc.timeStamp,
         callStatus: 'cancelled',
       });
+      if (doc.timeStamp === 0) {
+        doc.timeStamp = Date.now().toString();
+      }
       await models.CallHistory.updateOne(
         { _id },
         {

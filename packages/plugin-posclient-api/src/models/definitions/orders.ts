@@ -73,6 +73,7 @@ export interface IOrder {
   subscriptionInfo?: {
     subscriptionId: string;
     status: string;
+    prevSubscriptionId?: string;
   };
   closeDate?: Date;
 }
@@ -119,6 +120,11 @@ const subscriptionInfo = new Schema(
       label: 'Subscription Status',
       enum: SUBSCRIPTION_INFO_STATUS.ALL,
       default: SUBSCRIPTION_INFO_STATUS.ACTIVE
+    }),
+    prevSubscriptionId: field({
+      type: String,
+      label: 'Previous Subscription for close when paid',
+      optional: true
     })
   },
   { _id: false }
@@ -165,7 +171,9 @@ export const orderSchema = schemaHooksWrapper(
       label: 'Direct Discount'
     }),
     directIsAmount: field({
-      type: Boolean, optional: true, label: 'Direct Discount is percent'
+      type: Boolean,
+      optional: true,
+      label: 'Direct Discount is percent'
     }),
     mobileAmount: getNumberFieldDefinition({
       ...commonAttributes,

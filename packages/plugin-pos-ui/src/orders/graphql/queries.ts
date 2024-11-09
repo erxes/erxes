@@ -319,6 +319,7 @@ const posOrdersBySubs = `
       status
       closeDate
     }
+    posOrderBySubscriptionsTotalCount(${commonSubsQueryParamsDef})
   }
 `;
 

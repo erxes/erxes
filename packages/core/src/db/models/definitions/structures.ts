@@ -77,6 +77,7 @@ export const departmentSchema = schemaWrapper(
       label: 'Status',
       default: STRUCTURE_STATUSES.ACTIVE,
     }),
+    workhours: field({ type: Object, label: 'WorkHours', optional: true }),
     ...commonSchemaFields,
   }),
 );
@@ -135,6 +136,7 @@ export const branchSchema = schemaWrapper(
     }),
     supervisorId: field({ type: String, optional: true }),
     radius: field({ type: Number, label: 'Coordinate radius /M/' }),
+    workhours: field({ type: Object, label: 'WorkHours', optional: true }),
   }),
 );
 
