@@ -22,6 +22,12 @@ export const types = () => `
     location: [BMSLocation]
     images: [String]
     status: String
+
+    info1: String
+    info2: String
+    info3: String
+    info4: String
+
     createdAt: Date
     modifiedAt: Date
   }
@@ -58,8 +64,12 @@ const params = `
   duration: Int,
   groupDays: [DayItemInput],
   location: [BMSLocationInput],
-  images: [String]
-  status: STATUS
+  images: [String],
+  status: STATUS,
+  info1: String,
+  info2: String,
+  info3: String,
+  info4: String
 `;
 
 export const mutations = `

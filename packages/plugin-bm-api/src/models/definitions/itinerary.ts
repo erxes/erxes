@@ -34,8 +34,12 @@ export interface IItinerary {
   duration: number;
   groupDays: GroupDay[];
   location: ILocation[];
-  images: String[];
-  status: String;
+  images: string[];
+  status: string;
+  info1?: string;
+  info2?: string;
+  info3?: string;
+  info4?: string;
 }
 
 export interface IItineraryDocument extends IItinerary, Document {
@@ -102,6 +106,10 @@ export const initnarySchema = schemaHooksWrapper(
       esType: 'keyword',
       selectOptions: STATUS_TYPES,
     }),
+    info1: field({ type: String, optional: true, label: 'info' }),
+    info2: field({ type: String, optional: true, label: 'info' }),
+    info3: field({ type: String, optional: true, label: 'info' }),
+    info4: field({ type: String, optional: true, label: 'info' }),
   }),
   'erxes_itineraries'
 );
