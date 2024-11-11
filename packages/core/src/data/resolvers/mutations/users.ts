@@ -30,6 +30,7 @@ import {
 import { debugError } from "@erxes/api-utils/src/debuggers";
 import redis from "@erxes/api-utils/src/redis";
 import Workos from "@workos-inc/node";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 export const EMAIL_TRANSPORTS = {
   SES: "ses",
@@ -457,7 +458,9 @@ const userMutations = {
           }
         );
       }
-      if (entry.channelIds) {
+
+      if (entry.channelIds && isEnabled('inbox')) {
+        
         sendInboxMessage({
           subdomain,
           action: "updateUserChannels",

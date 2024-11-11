@@ -1,11 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import ControlLabel from "@erxes/ui/src/components/form/Label";
-import DateRange from "../utils/DateRange";
 import { IFieldLogic } from "../../types";
 import { IFilterType } from "../../containers/chart/ChartFormField";
-import { ControlRange, FlexRow, MarginY } from "../../styles";
-import Select from "react-select";
+import { ControlRange } from "../../styles";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
 import SelectClientPortal from "../utils/SelectClientPortal";
@@ -18,6 +16,9 @@ import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import SelectDate from "../utils/SelectDate";
 import { SelectWithAssets } from "../utils/SelectAssets";
 import { FormControl } from "@erxes/ui/src/components/form";
+import CustomSelect from "../utils/CustomSelect";
+import { generateInitialOptions } from "../../utils";
+import Select from 'react-select'
 
 type Props = {
   fieldType: string;
@@ -25,9 +26,10 @@ type Props = {
   multi?: boolean;
   fieldLabel: string;
   fieldOptions: any[];
+  subOptions?: any[];
   initialValue?: any;
   fieldAttributes?: any[]
-  onChange: (input: any) => void;
+  onChange: (input: any, name?: string) => void;
   setFilter?: (fieldName: string, value: any) => void;
   startDate?: Date;
   endDate?: Date;
@@ -35,12 +37,14 @@ type Props = {
   fieldLogics?: IFieldLogic[];
   fieldDefaultValue?: any;
   filterType: IFilterType;
+  fieldValueOptions?: any[]
 };
 const ChartFormField = (props: Props) => {
   const {
     fieldQuery,
     fieldType,
     fieldOptions,
+    subOptions,
     fieldLabel,
     fieldAttributes,
     initialValue,
@@ -51,6 +55,7 @@ const ChartFormField = (props: Props) => {
     endDate,
     fieldDefaultValue,
     filterType,
+    fieldValueOptions
   } = props;
 
   const { fieldQueryVariables } = filterType;
@@ -66,25 +71,32 @@ const ChartFormField = (props: Props) => {
     }
   }, [fieldDefaultValue]);
 
-  const onSelect = (selectedOption) => {
+  const onSelect = (selectedOption: any, value?: string) => {
+
     if (selectedOption === undefined || selectedOption === null) {
       setFieldValue("");
       onChange("");
+
+      return
     }
 
     if (multi && Array.isArray(selectedOption)) {
-      const selectedValues = (selectedOption || []).map(
-        (option) => option.value
-      );
-      setFieldValue(selectedValues);
+      const selectedValues = (selectedOption || []).map(option => option.value);
 
-      onChange(selectedValues);
-    } else {
-      const selectedValue = selectedOption.value;
+      const modifiedOptions = value
+        ? selectedOption.map(({ [value]: ommited, ...rest }) => rest)
+        : selectedValues;
 
-      setFieldValue(selectedValue);
-      onChange(selectedValue);
+      setFieldValue(modifiedOptions);
+      onChange(modifiedOptions);
+
+      return;
     }
+
+    const selectedValue = selectedOption.value;
+
+    setFieldValue(selectedValue);
+    onChange(selectedValue);
   };
 
   const handleDateRange = (dateRange: any) => {
@@ -118,19 +130,6 @@ const ChartFormField = (props: Props) => {
       onChange(newFieldValues);
     }, 500)
   }
-
-  let onlyOptions = [] as any;
-  Object.keys(fieldOptions[0] || []).indexOf("options") > 0 &&
-    fieldOptions.map((pp) => pp.options.map((o) => onlyOptions.push(o)));
-  const valueOptions =
-    fieldValue &&
-    (Object.keys(fieldOptions[0] || []).indexOf("options") > 0
-      ? multi
-        ? onlyOptions.filter((o) => fieldValue.includes(o.value))
-        : onlyOptions.find((o) => o.value === fieldValue)
-      : multi
-        ? fieldOptions.filter((o) => fieldValue.includes(o.value))
-        : fieldOptions.find((o) => o.value === fieldValue));
 
   switch (fieldQuery) {
     case "users":
@@ -292,21 +291,49 @@ const ChartFormField = (props: Props) => {
       break;
   }
 
+  const renderSubSelect = () => {
+
+    if (!subOptions?.length) {
+      return <></>
+    }
+
+    return (
+      <div>
+        <ControlLabel>{`${fieldLabel} Options`}</ControlLabel>
+        <Select
+          isMulti={true}
+          options={subOptions}
+          onChange={(selectedOptions: any) => {
+
+            const values = Array.isArray(selectedOptions)
+              ? selectedOptions.map(option => option.value)
+              : selectedOptions.value;
+
+            onChange(values, 'subFields');
+          }}
+        />
+      </div>
+    )
+  }
+
   switch (fieldType) {
     case "select":
       return (
-        <div>
-          <ControlLabel>{fieldLabel}</ControlLabel>
-          <Select
-            value={valueOptions}
-            isClearable={true}
-            isMulti={multi}
-            onChange={onSelect}
-            options={fieldOptions}
-            placeholder={fieldLabel}
-            menuPlacement="auto"
-          />
-        </div>
+        <>
+          <div>
+            <ControlLabel>{fieldLabel}</ControlLabel>
+            <CustomSelect
+              initialValue={generateInitialOptions(fieldOptions, fieldValue)}
+              value={fieldValue}
+              multi={multi}
+              onSelect={onSelect}
+              options={fieldOptions}
+              fieldLabel={fieldLabel}
+              fieldValueOptions={fieldValueOptions}
+            />
+          </div>
+          {renderSubSelect()}
+        </>
       );
     case "input":
       return (

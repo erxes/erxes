@@ -44,7 +44,6 @@ const FormContainer = (props: Props) => {
         return (
             <ButtonMutate
                 mutation={object ? mutations.templateEdit : mutations.templateAdd}
-
                 variables={variables}
                 callback={afterSave}
                 refetchQueries={['templateList']}

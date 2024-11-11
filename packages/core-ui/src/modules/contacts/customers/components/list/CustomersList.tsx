@@ -397,7 +397,7 @@ const CustomersList: React.FC<IProps> = props => {
             />
           </Menu.Item>
           <Menu.Item>
-            <Link to="/settings/properties?type=contacts:customer">
+            <Link to="/settings/properties?type=core:customer">
               {__("Manage properties")}
             </Link>
           </Menu.Item>

@@ -3,8 +3,7 @@ import { gql, useQuery } from "@apollo/client";
 
 import ChartFormField from "../../components/chart/ChartFormField";
 import { IFieldLogic } from "../../types";
-import { compareValues, generateOptions, getVariables } from "../../utils";
-import { queries } from "../../graphql";
+import { compareValues, generateOptions, generateQuery, generateSubOptions, getVariables } from "../../utils";
 
 export type IFilterType = {
   fieldName: string;
@@ -21,6 +20,8 @@ export type IFilterType = {
   fieldDefaultValue: any;
   multi?: boolean;
   logics?: IFieldLogic[];
+  fieldValueOptions?: any[];
+  fieldExtraVariables?: string[];
 };
 
 type FinalProps = {
@@ -42,15 +43,18 @@ const ChartFormFieldContainer = (props: FinalProps) => {
     fieldAttributes,
     fieldDefaultValue,
     logics,
+    fieldValueOptions
   } = filterType;
 
   const [data, setData] = useState([])
   const [options, setOptions] = useState(fieldOptions || [])
 
-  if (!fieldOptions?.length && fieldQuery && queries[`${fieldQuery}`]) {
+  const query = generateQuery(fieldQuery, filterType, fieldValues)
+
+  if (!fieldOptions?.length && query) {
     const variables = getVariables(fieldValues, filterType)
 
-    const { data: queryData, loading } = useQuery(gql(queries[`${fieldQuery}`]), {
+    const { data: queryData, loading } = useQuery(gql(query), {
       skip: !!fieldOptions,
       variables: variables
     });
@@ -110,11 +114,15 @@ const ChartFormFieldContainer = (props: FinalProps) => {
     return true
   };
 
-  const onChange = (input: any) => {
+  const onChange = (input: any, name?: string) => {
     const value = input?.value || input;
 
     if (value !== undefined || value !== null) {
-      setFilter(fieldName, value);
+      if (name) {
+        setFilter(name, value);
+      } else {
+        setFilter(fieldName, value);
+      }
     }
   };
 
@@ -128,10 +136,12 @@ const ChartFormFieldContainer = (props: FinalProps) => {
       fieldQuery={fieldQuery}
       multi={multi}
       fieldOptions={options}
+      subOptions={generateSubOptions(data, fieldValues, filterType) || []}
       fieldLogics={logics}
       fieldLabel={fieldLabel}
       fieldAttributes={fieldAttributes}
       fieldDefaultValue={fieldDefaultValue}
+      fieldValueOptions={fieldValueOptions}
       onChange={onChange}
       {...props}
     />
@@ -160,9 +170,12 @@ const ChartFormFieldWrapper = (props: Props) => {
 
   const [parentData, setParentData] = useState([])
 
-  if (fieldParentQuery && queries[`${fieldParentQuery}`]) {
-    const { data: queryData, loading } = useQuery(gql(queries[`${fieldParentQuery}`]), {
-      variables: fieldQueryVariables ? JSON.parse(fieldQueryVariables) : {},
+  const query = generateQuery(fieldParentQuery, filterType)
+
+  if (fieldParentQuery && query) {
+
+    const { data: queryData, loading } = useQuery(gql(query), {
+      variables: fieldQueryVariables ? JSON.parse(fieldQueryVariables) : {}
     });
 
     useEffect(() => {

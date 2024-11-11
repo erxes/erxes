@@ -107,7 +107,7 @@ export default function RightMenu(props: Props) {
         />
 
         <SelectCompanies
-          label="Filter by company"
+          label={__("Filter by company")}
           name="companyId"
           queryParams={queryParams}
           onSelect={onSelect}

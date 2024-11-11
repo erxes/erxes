@@ -14,7 +14,17 @@ const command = async () => {
   const organizations = await getOrganizations();
 
   for (const org of organizations) {
-    fetch(`https://${org.subdomain}.api.erxes.io/api/initial-setup`);
+    if (org.subdomain) {
+      try {
+        const response = await fetch(
+          `https://${org.subdomain}.api.erxes.io/api/initial-setup`
+        );
+
+        console.log(response.ok);
+      } catch (e) {
+        console.log(e.message);
+      }
+    }
   }
 
   console.log(`Process finished at: ${new Date()}`);

@@ -33,6 +33,9 @@ export interface IArticleModel extends Model<IArticleDocument> {
     reactionChoice: string,
     modifyType: 'inc' | 'dec'
   ): void;
+  incrementViewCount(
+    articleId: string,
+  ): void;
 }
 
 export const loadArticleClass = (models: IModels) => {
@@ -129,6 +132,13 @@ export const loadArticleClass = (models: IModels) => {
       await models.KnowledgeBaseArticles.updateOne(
         { _id: articleId },
         { $set: { reactionCounts } }
+      );
+    }
+
+    public static async incrementViewCount(articleId: string) {
+      return await models.KnowledgeBaseArticles.updateOne(
+        { _id: articleId },
+        { $inc: { viewCount: 1 } }
       );
     }
   }

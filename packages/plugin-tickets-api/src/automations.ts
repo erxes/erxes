@@ -4,11 +4,7 @@ import {
 } from "@erxes/api-utils/src/automations";
 import { generateModels, IModels } from "./connectionResolver";
 import { itemsAdd } from "./graphql/resolvers/mutations/utils";
-import {
-  sendCommonMessage,
-  sendContactsMessage,
-  sendCoreMessage
-} from "./messageBroker";
+import { sendCommonMessage, sendCoreMessage } from "./messageBroker";
 import { getCollection } from "./models/utils";
 
 const getRelatedValue = async (
@@ -135,7 +131,7 @@ const getRelatedValue = async (
     const upperCasedTargetKey =
       targetKey.charAt(0).toUpperCase() + targetKey.slice(1);
 
-    const activeContacts = await sendContactsMessage({
+    const activeContacts = await sendCoreMessage({
       subdomain,
       action: `${targetKey}.findActive${upperCasedTargetKey}`,
       data: { selector: { _id: { $in: contactIds } } },
@@ -312,7 +308,7 @@ export default {
       subdomain,
       module,
       execution,
-      triggerType
+      triggerType.split(".")[0]
     );
 
     return setProperty({

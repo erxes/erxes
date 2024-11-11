@@ -3,7 +3,7 @@ import { generateModels } from "../../../connectionResolver";
 import {
   IContext,
   sendPosMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "../../../messageBroker";
 import {
   consumeCategory,
@@ -99,19 +99,11 @@ const msdynamicSyncMutations = {
     }
 
     try {
-      const productsCount = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
-        action: "productCount",
-        data: { query: productQry },
-        isRPC: true
-      });
-
-      const products = await sendProductsMessage({
-        subdomain,
-        action: "productFind",
+        action: "products.find",
         data: {
           query: productQry,
-          limit: productsCount
         },
         isRPC: true
       });
@@ -179,9 +171,9 @@ const msdynamicSyncMutations = {
             if (foundProduct.unitPrice === resPrice) {
               matchPrices.push(resProd);
             } else {
-              await sendProductsMessage({
+              await sendCoreMessage({
                 subdomain,
-                action: "updateProduct",
+                action: "products.updateProduct",
                 data: {
                   _id: foundProduct._id,
                   doc: { unitPrice: resPrice || 0 }

@@ -18,8 +18,8 @@ import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 import { SidebarList } from "@erxes/ui/src/layout/styles";
 import TagFilter from "../../containers/TagFilter";
 import Tip from "@erxes/ui/src/components/Tip";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import { pluginsOfProductCategoryActions } from "coreui/pluginUtils";
+import SaveTemplate from "@erxes/ui-template/src/components/SaveTemplate";
 
 interface IProps {
   queryParams: any;
@@ -80,10 +80,36 @@ const List: React.FC<IProps> = props => {
     );
   };
 
+  const renderTemplateModal = (category: IProductCategory) => {
+    const {
+      isRoot,
+      productCount,
+      ...productCategoryContent
+    } = category
+
+    const content = {
+      content: JSON.stringify(productCategoryContent),
+      contentType: 'productCategories',
+      serviceName: 'core'
+    };
+
+    return <SaveTemplate as="icon" {...content} />;
+  }
+
   const onClick = (id: string) => {
     router.removeParams(navigate, location, "page");
     router.setParams(navigate, location, { categoryId: id });
   };
+
+  const renderAdditionalActions = (category: IProductCategory) => {
+
+    return (
+      <>
+        {renderTemplateModal(category)}
+        {pluginsOfProductCategoryActions(category)}
+      </>
+    )
+  }
 
   const renderContent = () => {
     return (
@@ -91,7 +117,7 @@ const List: React.FC<IProps> = props => {
         items={productCategories}
         editAction={renderEditAction}
         removeAction={renderRemoveAction}
-        additionalActions={pluginsOfProductCategoryActions}
+        additionalActions={renderAdditionalActions}
         loading={loading}
         onClick={onClick}
         queryParams={queryParams}

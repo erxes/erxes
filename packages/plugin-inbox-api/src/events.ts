@@ -2,7 +2,6 @@ import { client, getIndexPrefix } from "@erxes/api-utils/src/elasticsearch";
 import * as getUuid from "uuid-by-string";
 import {
   sendAutomationsMessage,
-  sendContactsMessage,
   sendCoreMessage
 } from "./messageBroker";
 import { debugError, debugInfo } from "@erxes/api-utils/src/debuggers";
@@ -86,7 +85,7 @@ export const saveEvent = async (subdomain: string, args: ISaveEventArgs) => {
   }
 
   if (triggerAutomation && customerId) {
-    const customer = await sendContactsMessage({
+    const customer = await sendCoreMessage({
       subdomain,
       action: "customers.findOne",
       data: {
@@ -179,7 +178,7 @@ export const identifyCustomer = async (
   args: ICustomerIdentifyParams = {}
 ) => {
   // get or create customer
-  let customer = await sendContactsMessage({
+  let customer = await sendCoreMessage({
     subdomain,
     action: "customers.getWidgetCustomer",
     data: args,
@@ -187,7 +186,7 @@ export const identifyCustomer = async (
   });
 
   if (!customer) {
-    customer = await sendContactsMessage({
+    customer = await sendCoreMessage({
       subdomain,
       action: "customers.createCustomer",
       data: {
@@ -216,7 +215,7 @@ export const updateCustomerProperties = async (
     throw new Error("Customer id is required");
   }
 
-  const customer = await sendContactsMessage({
+  const customer = await sendCoreMessage({
     subdomain,
     action: "customers.findOne",
     data: {
@@ -282,7 +281,7 @@ export const updateCustomerProperties = async (
     isRPC: true
   });
 
-  await await sendContactsMessage({
+  await await sendCoreMessage({
     subdomain,
     action: "customers.updateCustomer",
     data: {
@@ -292,7 +291,7 @@ export const updateCustomerProperties = async (
     isRPC: true
   });
 
-  const updatedCustomer = await sendContactsMessage({
+  const updatedCustomer = await sendCoreMessage({
     subdomain,
     action: "customers.findOne",
     data: {

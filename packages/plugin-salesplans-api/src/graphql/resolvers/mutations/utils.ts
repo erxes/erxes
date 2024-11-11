@@ -1,6 +1,6 @@
 import { IModels } from "../../../connectionResolver";
 import { MONTH_NUMBERS } from "../../../constants";
-import { sendProductsMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 import { ILabelDocument } from "../../../models/definitions/labels";
 import { IDayLabelDocument } from "../../../models/definitions/dayLabels";
 import { getPureDate } from "@erxes/api-utils/src/core";
@@ -28,9 +28,9 @@ export const getParentCategories = async (
   let categoryId = productCategoryId;
 
   if (productId) {
-    const product = await sendProductsMessage({
+    const product = await sendCoreMessage({
       subdomain,
-      action: "productFindOne",
+      action: "products.findOne",
       data: { _id: productId },
       isRPC: true
     });
@@ -38,7 +38,7 @@ export const getParentCategories = async (
     categoryId = product.categoryId;
   }
 
-  const category = await sendProductsMessage({
+  const category = await sendCoreMessage({
     subdomain,
     action: "categories.findOne",
     data: { _id: categoryId },
@@ -51,7 +51,7 @@ export const getParentCategories = async (
 
   const orders = getParentsOrders(category.order);
 
-  const categories = await sendProductsMessage({
+  const categories = await sendCoreMessage({
     subdomain,
     action: "categories.find",
     data: {
@@ -74,24 +74,12 @@ export const getProducts = async (
   let products: any[] = [];
 
   if (productCategoryId) {
-    const limit = await sendProductsMessage({
+    products = await sendCoreMessage({
       subdomain,
-      action: "count",
-      data: {
-        query: { status: { $nin: ["archived", "deleted"] } },
-        categoryId: productCategoryId
-      },
-      isRPC: true,
-      defaultValue: 0
-    });
-
-    products = await sendProductsMessage({
-      subdomain,
-      action: "find",
+      action: "products.find",
       data: {
         query: { status: { $nin: ["archived", "deleted"] } },
         categoryId: productCategoryId,
-        limit,
         sort: { code: 1 }
       },
       isRPC: true,
@@ -100,9 +88,9 @@ export const getProducts = async (
   }
 
   if (productId) {
-    products = await sendProductsMessage({
+    products = await sendCoreMessage({
       subdomain,
-      action: "find",
+      action: "products.find",
       data: { query: { _id: productId } },
       isRPC: true,
       defaultValue: []

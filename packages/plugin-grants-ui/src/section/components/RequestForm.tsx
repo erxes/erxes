@@ -140,7 +140,7 @@ const RequestForm: React.FC<Props> = (props) => {
         <FormGroup>
           <ControlLabel>{__('Select person who seeking grant')}</ControlLabel>
           <SelectTeamMembers
-            label="Choose person who seeking grant"
+            label={__("Choose person who seeking grant")}
             name="userIds"
             multi={true}
             initialValue={request.userIds}
@@ -152,7 +152,7 @@ const RequestForm: React.FC<Props> = (props) => {
           <ControlLabel>{__('Choos Action')}</ControlLabel>
 
           <SelectActions
-            label="Choose Actions"
+            label={__("Choose Actions")}
             name="action"
             initialValue={request.action}
             onSelect={onChangeAction}
@@ -175,7 +175,7 @@ const RequestForm: React.FC<Props> = (props) => {
           )}
           {props?.renderButton({
             name: 'grant',
-            text: 'Grant Request',
+            text: __('Grant Request'),
             values: generateDocs(),
             isSubmitted: formProps.isSubmitted,
             object: !!Object.keys(props.request || {}).length ? request : null,

@@ -191,6 +191,7 @@ export type Config = {
   googleClientId?: string;
   facebookAppId?: string;
   erxesAppToken?: string;
+  language?: string;
 };
 
 interface ICommonFields {

@@ -7,7 +7,7 @@ import forms from './forms';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 import { setupMessageConsumers } from './messageBroker';
-import cpUserMiddleware from './middlewares/cpUserMiddleware';
+import cpUserMiddleware from "@erxes/api-utils/src/middlewares/clientportal";
 import * as permissions from './permissions';
 
 export default {

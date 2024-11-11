@@ -1,5 +1,5 @@
 import { IProductsData } from '../../../models/definitions/jobs';
-import { sendProductsMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 import { IOverallProductsData } from '../../../models/definitions/overallWorks';
 
 export const getProductsData = productsData => {
@@ -43,9 +43,9 @@ export const getProductAndUoms = async (
     .map(n => n.productId);
 
   if (productIds.length) {
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: 'find',
+      action: 'products.find',
       data: { query: { _id: { $in: productIds } } },
       isRPC: true,
       defaultValue: []

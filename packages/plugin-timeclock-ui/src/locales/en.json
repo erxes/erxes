@@ -100,5 +100,18 @@
     "Extract all data": "Extract all data",
     "Start shift": "Start shift",
     "Shift date": "Shift date",
-    "Location": "Location"
+    "Location": "Location",
+    "Please write short explanation" : "Please write short explanation",
+    "Approve Request" : "Approve Request",
+    "Reject request" : "Reject request",
+    "Edit Schedule Configs" : "Edit Schedule Configs",
+    "Edit Pay Dates" : "Edit Pay Dates",
+    "Edit absence type" : "Edit absence type",
+    "Edit holiday" : "Edit holiday",
+    "Select type" : "Select type",
+    "Select branch" : "Select branch",
+    "Select team member" : "Select team member",
+    "Select Content Type" : "Select Content Type",
+    "Remove Schedule" : "Remove Schedule",
+    "Approve Schedule" : "Approve Schedule"
 }

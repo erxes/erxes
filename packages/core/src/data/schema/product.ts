@@ -133,6 +133,7 @@ const productsQueryParams = `
   segment: String,
   segmentData: String,
   groupedSimilarity: String,
+  image: String,
 `;
 
 export const queries = `
@@ -160,6 +161,7 @@ export const queries = `
     sortField: String
     sortDirection: Int
   ): [ProductsUsedPipeline]
+  productsConfigs: [ProductsConfig]
 `;
 
 export const mutations = `
@@ -170,6 +172,5 @@ export const mutations = `
   productCategoriesAdd(${productCategoryParams}): ProductCategory
   productCategoriesEdit(_id: String!, ${productCategoryParams}): ProductCategory
   productCategoriesRemove(_id: String!): JSON
-  productsConfigs: [ProductsConfig]
   productsConfigsUpdate(configsMap: JSON!): JSON
 `;

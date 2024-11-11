@@ -78,6 +78,7 @@ const CloseForm = (props: Props) => {
     return (
       <>
         {renderRow("Total", "total")}
+        {renderRow("Balance", "balance")}
         {renderRow("Payment", "payment")}
         {renderRow("Interest", "interest")}
         {renderRow("Loss", "loss")}

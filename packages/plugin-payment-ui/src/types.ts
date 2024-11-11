@@ -80,6 +80,7 @@ export interface IInvoice {
   _id: string;
   invoiceNumber: string;
   amount: number;
+  currency: string;
   contentType: string;
   contentTypeId: string;
   createdAt: Date;

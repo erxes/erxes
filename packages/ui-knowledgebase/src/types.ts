@@ -22,6 +22,7 @@ export interface IArticle {
   categoryId: string;
   image: IAttachment;
   attachments: [IAttachment];
+  pdfAttachment: IPdfAttachment;
   forms: IErxesForm[];
   code?: string;
   publishedUserId?: string;
@@ -66,6 +67,11 @@ export interface IErxesForm {
   formId: string;
 }
 
+export interface IPdfAttachment {
+  pdf: IAttachment;
+  pages: IAttachment[];
+}
+
 // mutation types
 
 export type ArticleVariables = {
@@ -102,6 +108,8 @@ export type CategoryVariables = {
   icon: string;
   topicIds: string[];
 };
+
+
 
 export type AddCategoriesMutationResponse = {
   addCategoriesMutation: (params: {

@@ -96,7 +96,7 @@ const PerSettings: React.FC<Props> = (props: Props) => {
       open={props.currentConfigKey === "newEbarimtConfig" ? true : false}
     >
       <FormGroup>
-        <ControlLabel>{"Title"}</ControlLabel>
+        <ControlLabel>{__("Title")}</ControlLabel>
         <FormControl
           defaultValue={state.config["title"]}
           onChange={onChangeInput.bind(this, "title")}

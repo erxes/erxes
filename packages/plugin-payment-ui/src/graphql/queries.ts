@@ -27,6 +27,7 @@ const invoicesFields = `
     _id
     invoiceNumber
     amount
+    currency
     contentType
     contentTypeId
     createdAt
@@ -71,6 +72,7 @@ const getInvoice = gql`
     invoiceDetail(_id: $_id) {
       _id
       amount
+      currency
       contentType
       contentTypeId
       createdAt

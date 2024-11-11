@@ -127,7 +127,7 @@ const PermissionList = (props: Props) => {
 
     const actionBarRight = (
       <ModalTrigger
-        title="New permission"
+        title={__("New permission")}
         size="lg"
         trigger={trigger}
         content={renderForm}

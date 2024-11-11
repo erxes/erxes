@@ -1,5 +1,3 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
-
 const callsIntegrationUpdate: string = `
 mutation CallsIntegrationUpdate($configs: CallIntegrationConfigs) {
   callsIntegrationUpdate(configs: $configs)
@@ -112,7 +110,7 @@ const callDisconnect = `
 `;
 
 const callHistoryAdd = `
-  mutation CallHistoryAdd($inboxIntegrationId: String,$customerPhone: String, $callStartTime: Date ,$callStatus: String, $callType: String, $timeStamp: Int, $endedBy: String, $queueName: String) {
+  mutation CallHistoryAdd($inboxIntegrationId: String,$customerPhone: String, $callStartTime: Date ,$callStatus: String, $callType: String, $timeStamp: Float, $endedBy: String, $queueName: String) {
   callHistoryAdd(inboxIntegrationId: $inboxIntegrationId,  customerPhone: $customerPhone, callStartTime: $callStartTime, callStatus: $callStatus, callType: $callType, timeStamp: $timeStamp, endedBy: $endedBy, queueName: $queueName) {
     _id
     timeStamp
@@ -122,12 +120,12 @@ const callHistoryAdd = `
 `;
 
 const callHistoryEdit = `
-  mutation CallHistoryEdit($id: String, $inboxIntegrationId: String, $customerPhone: String, $callDuration: Int, $callStartTime: Date, $callEndTime: Date, $callType: String, $callStatus: String, $timeStamp: Int, $transferedCallStatus: String, $endedBy: String) {
+  mutation CallHistoryEdit($id: String, $inboxIntegrationId: String, $customerPhone: String, $callDuration: Int, $callStartTime: Date, $callEndTime: Date, $callType: String, $callStatus: String, $timeStamp: Float, $transferedCallStatus: String, $endedBy: String) {
     callHistoryEdit(_id: $id, inboxIntegrationId: $inboxIntegrationId, customerPhone: $customerPhone, callDuration: $callDuration, callStartTime: $callStartTime, callEndTime: $callEndTime, callType: $callType, callStatus: $callStatus, timeStamp: $timeStamp, transferedCallStatus: $transferedCallStatus, endedBy: $endedBy) 
 }`;
 
 const callHistoryEditStatus = ` 
-  mutation CallHistoryEditStatus($callStatus: String, $timeStamp: Int) {
+  mutation CallHistoryEditStatus($callStatus: String, $timeStamp: Float) {
     callHistoryEditStatus(callStatus: $callStatus, timeStamp: $timeStamp)
 }`;
 
@@ -164,5 +162,5 @@ export default {
   callsUpdateConfigs,
   callHistoryEditStatus,
   callPauseAgent,
-  callTransfer
+  callTransfer,
 };

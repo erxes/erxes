@@ -143,7 +143,7 @@ const reportTemplates = [
   {
     serviceType: "deal",
     title: "Deals chart",
-    serviceName: "cards",
+    serviceName: "sales",
     description: "Deal conversation charts",
     charts: [
       "DealCountTags",

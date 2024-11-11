@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 
 type Props = {
   car: ICar;
-  history: any;
   isChecked: boolean;
   toggleBulk: (car: ICar, isChecked?: boolean) => void;
 };
@@ -22,9 +21,8 @@ function displayValue(car, name) {
   return formatValue(value);
 }
 
-function CarRow({ car, history, isChecked, toggleBulk }: Props) {
+function CarRow({ car, isChecked, toggleBulk }: Props) {
   const navigate = useNavigate();
-
   const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(car, e.target.checked);

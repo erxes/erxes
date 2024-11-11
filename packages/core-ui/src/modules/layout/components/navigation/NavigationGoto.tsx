@@ -7,7 +7,7 @@ import {
   GotoMenuItem,
   GotoModal,
   NavIcon,
-  NavItem,
+  NavItem
 } from "../../styles";
 import { getConfig, setConfig } from "@erxes/ui/src/utils/core";
 
@@ -47,7 +47,7 @@ export default class NavigationGoto extends React.Component<Props, State> {
       plugins: [],
       filteredPlugins: [],
       searchValue: "",
-      cursor: 0,
+      cursor: 0
     };
 
     this.searchFormInput = React.createRef();
@@ -68,8 +68,8 @@ export default class NavigationGoto extends React.Component<Props, State> {
     document.addEventListener("keyup", this.handleKeyUp);
     document.addEventListener("keydown", this.handleArrowSelection);
 
-    const plugins: Plugin[] = pluginNavigations() || [];
-    const totalPlugins: Plugin[] = [];
+    const plugins: any[] = pluginNavigations() || [];
+    const totalPlugins: any[] = [];
 
     if (plugins.length !== 0) {
       (plugins[0].children || []).map((child: Plugin) => {
@@ -88,7 +88,6 @@ export default class NavigationGoto extends React.Component<Props, State> {
 
     this.setState({ plugins: [...totalPlugins, ...this.generalSettings] });
   }
-
   componentWillUnmount() {
     document.removeEventListener("keydown", this.handleKeyDown);
     document.removeEventListener("keyup", this.handleKeyUp);

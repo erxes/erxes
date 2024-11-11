@@ -47,7 +47,7 @@ function Row(props: Props) {
 
     return (
       <ModalTrigger
-        title="Edit entry"
+        title={__("Edit entry")}
         size="lg"
         trigger={trigger}
         content={content}

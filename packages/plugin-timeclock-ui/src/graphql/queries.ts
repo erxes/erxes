@@ -284,6 +284,9 @@ const absenceTypes = `
       requestType
       requestTimeType
       requestHoursPerDay
+      requestToType
+      absenceUserIds
+      branchIds
     }
   }
 `;
@@ -315,6 +318,10 @@ const scheduleConfigs = `
       lunchBreakInMins
       shiftStart
       shiftEnd
+      locations
+      overtimeExists
+      startFlexible
+      endFlexible
       configDays{
         _id
         configName
@@ -366,20 +373,6 @@ query timeclockDepartments($searchValue: String){
     _id
     title
     userIds
-  }
-}`;
-
-const scheduleConfigOrder = `
-query scheduleConfigOrder($userId: String){
-  scheduleConfigOrder(userId: $userId){
-    _id
-    userId
-    orderedList {
-      order
-      pinned
-      scheduleConfigId
-      label
-    }
   }
 }`;
 
@@ -442,7 +435,6 @@ export default {
 
   scheduleConfigs,
   deviceConfigs,
-  scheduleConfigOrder,
 
   timeclockBranches,
   timeclockDepartments,

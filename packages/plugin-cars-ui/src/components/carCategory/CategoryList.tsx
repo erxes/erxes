@@ -1,25 +1,21 @@
+import { Header } from '@erxes/ui-settings/src/styles';
 import {
-  __,
   Button,
   DataWithLoader,
   Icon,
   ModalTrigger,
-  router,
+  SidebarList,
   Tip,
   Wrapper,
-  SidebarList,
 } from '@erxes/ui/src';
-import { Header } from '@erxes/ui-settings/src/styles';
-
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { __, router } from '@erxes/ui/src/utils';
+import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
 import React from 'react';
-
-import CategoryForm from '../../containers/carCategory/CategoryForm';
+import { useLocation, useNavigate } from 'react-router-dom';
 import SegmentFilter from '../../containers/SegmentFilter';
 import TagFilter from '../../containers/TagFilter';
+import CategoryForm from '../../containers/carCategory/CategoryForm';
 import { ICarCategory } from '../../types';
-import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
-import { useNavigate, useLocation } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -50,7 +46,11 @@ const CategoryList = (props: Props) => {
     );
 
     return (
-      <ModalTrigger title="Add category" trigger={trigger} content={content} />
+      <ModalTrigger
+        title={__('Add category')}
+        trigger={trigger}
+        content={content}
+      />
     );
   };
 
@@ -105,7 +105,7 @@ const CategoryList = (props: Props) => {
         data={renderContent()}
         loading={loading}
         count={totalCount}
-        emptyText="There is no car category"
+        emptyText={__('There is no car category')}
         emptyIcon="folder-2"
         size="small"
       />

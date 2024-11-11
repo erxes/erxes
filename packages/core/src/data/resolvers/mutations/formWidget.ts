@@ -9,7 +9,7 @@ import {
 } from '../../../messageBrokers/utils';
 import { graphqlPubsub } from '../../../pubsub';
 import { registerOnboardHistory } from '../../utils';
-
+import { nanoid } from 'nanoid';
 // helpers
 
 // Helper function to merge customer custom field data
@@ -91,7 +91,7 @@ async function createConversationAndMessage({
       integrationId: integration?._id,
       content: form.title,
       formWidgetData: submissions,
-      status: 'new'
+      status: 'new',
     },
     isRPC: true,
   });
@@ -103,6 +103,7 @@ async function saveFormSubmissions(
   models: IModels,
   { submissions, formId, customerId, conversationId }
 ) {
+  const groupId = nanoid();
   const submissionDocs = submissions.map((submission) => {
     let value = submission.value || '';
     if (submission.validation === 'number') value = Number(submission.value);
@@ -117,6 +118,7 @@ async function saveFormSubmissions(
       customerId,
       contentType: 'lead',
       conversationId: conversationId || undefined,
+      groupId,
     };
   });
 
@@ -179,7 +181,7 @@ function updateCustomerDoc(
     customerDoc.phones = [...customer.phones, customerDoc.phone];
   }
 
-  return customerDoc
+  return customerDoc;
 }
 
 const mutations = {
@@ -190,25 +192,13 @@ const mutations = {
   ) {
     const brand = await models.Brands.findOne({ code: args.brandCode }).lean();
 
-    const form = await models.Forms.findOne({ code: args.formCode, status:"active" }).lean();
+    const form = await models.Forms.findOne({
+      code: args.formCode,
+      status: 'active',
+    }).lean();
 
     if (!brand || !form) {
       throw new Error('Invalid configuration');
-    }
-
-    let integration = null;
-
-    if (isEnabled('inbox') && form.integrationId) {
-      integration = await sendCommonMessage({
-        serviceName: 'inbox',
-        action: 'integrations.findOne',
-        data: {
-          _id: form.integrationId,
-        },
-        isRPC: true,
-        defaultValue: null,
-        subdomain,
-      });
     }
 
     if (form.leadData && form.leadData.loadType === 'embedded') {
@@ -236,9 +226,7 @@ const mutations = {
       }
     }
 
-    // return integration details
     return {
-      integration,
       form,
     };
   },
@@ -354,8 +342,7 @@ const mutations = {
         scopeBrandIds: [form.brandId],
       });
 
-      await models.Forms.increaseContactsGathered(form._id)
-
+      await models.Forms.increaseContactsGathered(form._id);
     } else {
       const doc = updateCustomerDoc(
         customer,

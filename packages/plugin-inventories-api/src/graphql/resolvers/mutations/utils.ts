@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import { generateModels } from "../../../connectionResolver";
-import { sendProductsMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 import { IRemainderDocument } from "../../../models/definitions/remainders";
 import { ISafeRemainderItemDocument } from "../../../models/definitions/safeRemainderItems";
 import { IUpdateRemaindersParams } from "./remainders";
@@ -22,9 +22,9 @@ export const updateLiveRemainders = async ({
 
   if (productCategoryId) {
     // Find all products in category by categoryId
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: "productFind",
+      action: "products.find",
       data: {
         query: {},
         categoryId: productCategoryId
@@ -110,9 +110,9 @@ export const updateLiveRemainders = async ({
 export const getProducts = async (subdomain, productId, productCategoryId) => {
   let products: any[] = [];
   if (productId) {
-    const product = await sendProductsMessage({
+    const product = await sendCoreMessage({
       subdomain,
-      action: "productFind",
+      action: "products.find",
       data: { _id: productId },
       isRPC: true
     });
@@ -120,24 +120,12 @@ export const getProducts = async (subdomain, productId, productCategoryId) => {
   }
 
   if (productCategoryId) {
-    const limit = await sendProductsMessage({
+    products = await sendCoreMessage({
       subdomain,
-      action: "productCount",
-      data: {
-        query: { status: { $nin: ["archived", "deleted"] } },
-        categoryId: productCategoryId
-      },
-      isRPC: true,
-      defaultValue: 0
-    });
-
-    products = await sendProductsMessage({
-      subdomain,
-      action: "productFind",
+      action: "products.find",
       data: {
         query: { status: { $nin: ["archived", "deleted"] } },
         categoryId: productCategoryId,
-        limit,
         sort: { code: 1 }
       },
       isRPC: true,

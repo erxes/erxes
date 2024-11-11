@@ -614,7 +614,7 @@ const boardQueries = {
       const pipeline = await Pipelines.getPipeline(stage.pipelineId);
       const board = await Boards.getBoard(pipeline.boardId);
 
-      dealUrl = `/deal/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${deal._id}`;
+      dealUrl = `/deal/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${deal._id}`;
     }
 
     return {
@@ -754,7 +754,6 @@ const boardQueries = {
       for (const group of groups) {
         const { config = {} } = group;
 
-        console.log("-a-dsadadsd");
         const fields = await sendCoreMessage({
           subdomain,
           action: "fields.find",

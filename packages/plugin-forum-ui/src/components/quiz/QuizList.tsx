@@ -90,7 +90,7 @@ class List extends React.Component<Props> {
 
     const actionBarRight = (
       <ModalTrigger
-        title="Create New Quiz"
+        title={__("Create New Quiz")}
         size="lg"
         trigger={
           <Button btnStyle="success" size="small" icon="plus-circle">

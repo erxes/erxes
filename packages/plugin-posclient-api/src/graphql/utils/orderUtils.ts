@@ -24,7 +24,7 @@ import { checkRemainders } from "./products";
 import { getPureDate } from "@erxes/api-utils/src";
 import { checkDirectDiscount } from "./directDiscount";
 import { IPosUserDocument } from "../../models/definitions/posUsers";
-import { sendPosMessage, sendProductsMessage } from "../../messageBroker";
+import { sendPosMessage, sendCoreMessage } from "../../messageBroker";
 import { nanoid } from "nanoid";
 import { getCompanyInfo } from "../../models/PutData";
 
@@ -427,7 +427,7 @@ export const prepareOrderDoc = async (
   let subscriptionInfo;
 
   if (products.find(product => product?.type === PRODUCT_TYPES.SUBSCRIPTION)) {
-    subscriptionUoms = await sendProductsMessage({
+    subscriptionUoms = await sendCoreMessage({
       subdomain,
       action: "uoms.find",
       data: { isForSubscription: true },
@@ -442,8 +442,8 @@ export const prepareOrderDoc = async (
     const fixedUnitPrice = Number(
       Number(
         ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
-        item.unitPrice ||
-        0
+          item.unitPrice ||
+          0
       ).toFixed(2)
     );
 
@@ -464,49 +464,30 @@ export const prepareOrderDoc = async (
         ) || {};
 
       if (subscriptionConfig?.subsRenewable) {
-        const prevSubscriptions = await models.Orders.find({
+        const prevSubscription = await models.Orders.findOne({
           customerId: doc?.customerId,
-          "subscriptionInfo.status": SUBSCRIPTION_INFO_STATUS.ACTIVE
-        })
-          .sort({ createdAt: -1, 'items.closeDate': -1 })
-          .lean();
-
-        const prevSubscriptionItem = await models.OrderItems.findOne({
-          orderId: { $in: prevSubscriptions.map(({ _id }) => _id) },
-          closeDate: { $gte: new Date() }
+          "subscriptionInfo.status": SUBSCRIPTION_INFO_STATUS.ACTIVE,
+          paidDate: { $exists: true }
         })
           .sort({ createdAt: -1 })
           .lean();
 
-        const prevSubscription = prevSubscriptions.find(
-          ({ _id }) => _id === prevSubscriptionItem?.orderId
-        );
-
         if (prevSubscription) {
-          subscriptionInfo = {
-            subscriptionId: prevSubscription.subscriptionInfo?.subscriptionId,
-            status: SUBSCRIPTION_INFO_STATUS.ACTIVE
-          };
-
-          await models.Orders.updateOne(
-            { _id: prevSubscription?._id },
-            { "subscriptionInfo.status": SUBSCRIPTION_INFO_STATUS.DONE }
-          );
-
-          await sendPosMessage({
-            subdomain,
-            action: "orders.updateOne",
-            data: {
-              selector: { _id: prevSubscription?._id },
-              modifier: {
-                "subscriptionInfo.status": SUBSCRIPTION_INFO_STATUS.DONE
-              }
-            },
-            isRPC: true,
-            defaultValue: null
+          const prevSubscriptionItem = await models.OrderItems.findOne({
+            orderId: prevSubscription._id,
+            closeDate: { $gte: new Date() },
+            productId: item.productId
           });
 
-          startDate = prevSubscriptionItem?.closeDate;
+          if (prevSubscriptionItem) {
+            subscriptionInfo = {
+              subscriptionId: prevSubscription.subscriptionInfo?.subscriptionId,
+              status: SUBSCRIPTION_INFO_STATUS.ACTIVE,
+              prevSubscriptionId: prevSubscription._id
+            };
+
+            startDate = prevSubscriptionItem?.closeDate;
+          }
         }
       }
       const period = (subscriptionConfig?.period || "").replace("ly", "");

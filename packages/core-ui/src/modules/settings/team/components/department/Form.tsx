@@ -9,22 +9,23 @@ import { IDepartment } from "@erxes/ui/src/team/types";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import { __ } from "modules/common/utils";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   item?: IDepartment;
   closeModal: () => void;
-  items: IDepartment[];
 };
 
 export default function DepartmentForm(props: Props) {
-  const { closeModal, renderButton, items, item } = props;
+  const { closeModal, renderButton, item } = props;
   const object = item || ({} as IDepartment);
 
   const [userIds, setUserIds] = useState(
-    (object.users || []).map((user) => user._id)
+    (object.users || []).map((user) => user._id),
   );
   const [supervisorId, setSupervisorId] = useState(object.supervisorId);
+  const [parentId, setParentId] = useState(object?.parentId || "");
 
   const generateDoc = (values) => {
     const finalValues = values;
@@ -36,7 +37,7 @@ export default function DepartmentForm(props: Props) {
     return {
       userIds,
       supervisorId,
-      parentId: finalValues.parentId ? finalValues.parentId : null,
+      parentId: parentId,
       code: finalValues.code,
       description: finalValues.description,
       title: finalValues.title,
@@ -55,21 +56,13 @@ export default function DepartmentForm(props: Props) {
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
-    const generateOptions = () => {
-      return items.map((branch) => (
-        <option key={branch._id} value={branch._id}>
-          {branch.title}
-        </option>
-      ));
-    };
-
     return (
       <>
         <FormGroup>
           <ControlLabel required={true}>{__("Title")}</ControlLabel>
           <FormControl
             {...formProps}
-            name="title"
+            name='title'
             defaultValue={object.title}
             autoFocus={true}
             required={true}
@@ -79,16 +72,16 @@ export default function DepartmentForm(props: Props) {
           <ControlLabel>{__("Description")}</ControlLabel>
           <FormControl
             {...formProps}
-            name="description"
+            name='description'
             defaultValue={object.description}
-            componentclass="textarea"
+            componentclass='textarea'
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel required={true}>{__("Code")}</ControlLabel>
           <FormControl
             {...formProps}
-            name="code"
+            name='code'
             defaultValue={object.code}
             required={true}
           />
@@ -97,8 +90,8 @@ export default function DepartmentForm(props: Props) {
           <ControlLabel>{__("Supervisor")}</ControlLabel>
 
           <SelectTeamMembers
-            label="Choose supervisor"
-            name="supervisorId"
+            label='Choose supervisor'
+            name='supervisorId'
             initialValue={supervisorId}
             onSelect={onSelectSupervisor}
             multi={false}
@@ -106,7 +99,15 @@ export default function DepartmentForm(props: Props) {
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__("Parent")}</ControlLabel>
-          <FormControl
+          <SelectDepartments
+            label='Department'
+            name='parentId'
+            multi={false}
+            initialValue={parentId || undefined}
+            onSelect={(value: any) => setParentId(value)}
+            filterParams={{ withoutUserFilter: true }}
+          />
+          {/* <FormControl
             {...formProps}
             name="parentId"
             componentclass="select"
@@ -114,23 +115,23 @@ export default function DepartmentForm(props: Props) {
           >
             <option value="" />
             {generateOptions()}
-          </FormControl>
+          </FormControl> */}
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__("Team Members")}</ControlLabel>
 
           <SelectTeamMembers
-            label="Choose team members"
-            name="userIds"
+            label='Choose team members'
+            name='userIds'
             initialValue={userIds}
             onSelect={onSelectUsers}
           />
         </FormGroup>
         <ModalFooter>
           <Button
-            btnStyle="simple"
-            type="button"
-            icon="times-circle"
+            btnStyle='simple'
+            type='button'
+            icon='times-circle'
             onClick={closeModal}
           >
             Cancel

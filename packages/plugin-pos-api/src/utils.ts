@@ -3,15 +3,13 @@ import redis from "@erxes/api-utils/src/redis";
 import { IModels } from "./connectionResolver";
 import {
   sendAutomationsMessage,
-  sendCardsMessage,
-  sendContactsMessage,
+  sendSalesMessage,
   sendCoreMessage,
   sendEbarimtMessage,
   sendInventoriesMessage,
   sendLoyaltiesMessage,
   sendPosclientHealthCheck,
   sendPosclientMessage,
-  sendProductsMessage,
   sendSyncerkhetMessage
 } from "./messageBroker";
 import { IPosOrder, IPosOrderDocument } from "./models/definitions/orders";
@@ -28,7 +26,7 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
 };
 
 export const getChildCategories = async (subdomain: string, categoryIds) => {
-  const childs = await sendProductsMessage({
+  const childs = await sendCoreMessage({
     subdomain,
     action: "categories.withChilds",
     data: { ids: categoryIds },
@@ -217,7 +215,7 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
     }
 
     if (Object.keys(pushInfo).length) {
-      await sendContactsMessage({
+      await sendCoreMessage({
         subdomain,
         action: `${moduleTxt}.updateOne`,
         data: {
@@ -295,7 +293,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
   }
 
   if ((doneOrder.deliveryInfo || {}).dealId) {
-    const deal = await sendCardsMessage({
+    const deal = await sendSalesMessage({
       subdomain,
       action: "deals.updateOne",
       data: {
@@ -306,7 +304,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       defaultValue: {}
     });
 
-    await sendCardsMessage({
+    await sendSalesMessage({
       subdomain,
       action: "salesPipelinesChanged",
       data: {
@@ -319,7 +317,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       }
     });
   } else {
-    const deal = await sendCardsMessage({
+    const deal = await sendSalesMessage({
       subdomain,
       action: "deals.create",
       data: dealsData,
@@ -345,7 +343,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       });
     }
 
-    await sendCardsMessage({
+    await sendSalesMessage({
       subdomain,
       action: "salesPipelinesChanged",
       data: {
@@ -474,7 +472,7 @@ const createDealPerOrder = async ({
       };
     }
 
-    const cardDeal = await sendCardsMessage({
+    const cardDeal = await sendSalesMessage({
       subdomain,
       action: "deals.create",
       data: {
@@ -516,7 +514,7 @@ const createDealPerOrder = async ({
       });
     }
 
-    await sendCardsMessage({
+    await sendSalesMessage({
       subdomain,
       action: "salesPipelinesChanged",
       data: {

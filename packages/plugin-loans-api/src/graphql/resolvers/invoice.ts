@@ -12,7 +12,7 @@ const Invoices = {
         data: { _id: invoice.companyId },
         isRPC: true
       },
-      'contacts'
+      'core'
     );
   },
 
@@ -25,7 +25,7 @@ const Invoices = {
         data: { _id: invoice.customerId },
         isRPC: true
       },
-      'contacts'
+      'core'
     );
   },
 

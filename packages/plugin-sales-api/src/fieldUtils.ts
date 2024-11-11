@@ -5,9 +5,7 @@ import {
   BOARD_ITEM_EXTENDED_FIELDS,
 } from "./constants";
 import {
-  sendContactsMessage,
   sendCoreMessage,
-  sendProductsMessage,
 } from "./messageBroker";
 
 const generateProductsOptions = async (
@@ -312,11 +310,11 @@ export const generateFields = async ({ subdomain, data }) => {
   if (segmentId || pipelineId) {
     const segment = segmentId
       ? await sendCoreMessage({
-          subdomain,
-          action: "segmentFindOne",
-          data: { _id: segmentId },
-          isRPC: true,
-        })
+        subdomain,
+        action: "segmentFindOne",
+        data: { _id: segmentId },
+        isRPC: true,
+      })
       : null;
 
     const labelOptions = await getPipelineLabelOptions(

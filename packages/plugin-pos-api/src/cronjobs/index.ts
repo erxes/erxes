@@ -1,7 +1,7 @@
 import { generateModels } from '../connectionResolver';
 import { SUBSCRIPTION_INFO_STATUS } from '../contants';
 import { debugError } from '../debugger';
-import { sendPosclientMessage, sendProductsMessage } from '../messageBroker';
+import { sendPosclientMessage, sendCoreMessage } from '../messageBroker';
 import * as moment from 'moment';
 import { nanoid } from 'nanoid';
 
@@ -67,9 +67,9 @@ export default {
           item.closeDate > START_TODAY &&
           item.closeDate < END_TODAY
         ) {
-          const product = await sendProductsMessage({
+          const product = await sendCoreMessage({
             subdomain,
-            action: 'findOne',
+            action: 'products.findOne',
             data: {
               _id: item.productId
             },
@@ -77,7 +77,7 @@ export default {
             defaultValue: null
           });
 
-          const uom = await sendProductsMessage({
+          const uom = await sendCoreMessage({
             subdomain,
             action: 'uoms.findOne',
             data: { code: product?.uom },
@@ -87,9 +87,13 @@ export default {
 
           const { subscriptionConfig = {} } = uom || {};
 
-          const { period, rule, specificDay } = subscriptionConfig;
+          const { period, rule, specificDay, subsRenewable } =
+            subscriptionConfig;
 
-          if (['fromExpiredDate', 'fromSpecificDate'].includes(rule)) {
+          if (
+            ['fromExpiredDate', 'fromSpecificDate'].includes(rule) &&
+            !subsRenewable
+          ) {
             let nextCloseDate = new Date(
               moment().add(1, period.replace('ly', '')).toISOString()
             );
@@ -116,7 +120,7 @@ export default {
               }
             },
             pos
-          }).catch((error) => {
+          }).catch(error => {
             debugError(error.message);
           });
         }

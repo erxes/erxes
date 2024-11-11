@@ -206,6 +206,7 @@ export type OrderByCustomersQueryResponse = {
 
 export type OrderBySubsQueryResponse = {
   posOrderBySubscriptions: PosOrdersBySub[];
+  posOrderBySubscriptionsTotalCount:number
 } & QueryResponse;
 
 export type CoverDetailQueryResponse = {

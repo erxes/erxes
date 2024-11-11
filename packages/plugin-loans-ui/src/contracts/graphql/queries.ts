@@ -42,7 +42,6 @@ export const contractFields = `
   relContractId
   skipInterestCalcMonth
   dealId
-  nextPayment
   currency
   classification
   expiredDays
@@ -253,7 +252,6 @@ export const contractsMain = `
     contractsMain(${listParamsMainValue}) {
       list {
         ${contractFields}
-        nextPayment
         customers {
           code
           firstName
@@ -281,7 +279,6 @@ export const contractDetailFields = `
   contractType {
     code
     name
-    productCategoryIds
     leaseType
   }
 
@@ -330,6 +327,8 @@ export const contractDetail = `
     contractDetail(_id: $_id) {
       ${contractFields}
       ${contractDetailFields}
+      nextPayment
+      payedAmountSum
     }
   }
 `;

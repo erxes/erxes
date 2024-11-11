@@ -1,13 +1,12 @@
-import * as React from 'react';
-import Category from '../../containers/faq/Category';
-import { IFaqTopic, IFaqCategory } from '../../types';
-import { iconLeft, iconSearch } from '../../../icons/Icons';
-import { __ } from '../../../utils';
+import * as React from "react";
+import Category from "../../containers/faq/Category";
+import { IFaqTopic, IFaqCategory } from "../../types";
+import { iconLeft } from "../../../icons/Icons";
+import { __ } from "../../../utils";
 
 type Props = {
   faqTopics?: IFaqTopic;
   loading: boolean;
-  initialCategory?: IFaqCategory;
 };
 
 type State = {
@@ -15,24 +14,15 @@ type State = {
   textColor: string;
 };
 
-const Categories: React.FC<Props> = ({
-  faqTopics,
-  loading,
-  initialCategory,
-}) => {
-  const [currentCategory, setCurrentCategory] = React.useState<
-    IFaqCategory | undefined
-  >(undefined);
-  const [textColor, setTextColor] = React.useState('#888');
+export default class Categories extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
 
-  React.useEffect(() => {
-    if (initialCategory) {
-      setCurrentCategory(initialCategory);
-    }
-  }, [initialCategory]);
+    this.state = { currentCategory: undefined, textColor: "#888" };
+  }
 
-  const groupByParent = (array: any[]) => {
-    const key = 'parentCategoryId';
+  groupByParent = (array: any[]) => {
+    const key = "parentCategoryId";
 
     return array.reduce((rv, x) => {
       (rv[x[key]] = rv[x[key]] || []).push(x);
@@ -41,41 +31,35 @@ const Categories: React.FC<Props> = ({
     }, {});
   };
 
-  const getCurrentItem = (currentCategory: IFaqCategory) => {
-    setCurrentCategory(currentCategory);
+  getCurrentItem = (currentCategory: IFaqCategory) => {
+    this.setState({ currentCategory });
   };
 
-  if (!faqTopics || loading) {
-    return <div className="loader bigger" />;
-  }
+  render() {
+    const { faqTopics, loading } = this.props;
+    const { currentCategory, textColor } = this.state;
 
-  const categories = faqTopics.categories || ({} as IFaqCategory[]);
+    if (!faqTopics || loading) {
+      return <div className="loader bigger" />;
+    }
 
-  const subFields = categories.filter((f) => f.parentCategoryId);
-  const parents = categories.filter((f) => !f.parentCategoryId);
+    const categories = faqTopics.categories || ({} as IFaqCategory[]);
 
-  const group = groupByParent(subFields);
+    const subFields = categories.filter((f) => f.parentCategoryId);
+    const parents = categories.filter((f) => !f.parentCategoryId);
 
-  const renderChildrenCategories = () => {
+    const group = this.groupByParent(subFields);
+
     if (currentCategory) {
       const childrens = group[currentCategory._id] || [];
 
-      if (childrens.length === 0) {
-        return (
-          <div className="empty-articles">
-            {iconSearch}
-            {__('No category found')}
-          </div>
-        );
-      }
-
       return (
-        <div className="fade-in faq-collection-container">
+        <div className="fade-in">
           <button
             className="back-category-button left"
-            onClick={() => setCurrentCategory(undefined)}
+            onClick={() => this.setState({ currentCategory: undefined })}
           >
-            {iconLeft(textColor)} {__('Back to FAQ')}
+            {iconLeft(textColor)} {__("Back to FAQ")}
           </button>
           {childrens.map((child: IFaqCategory) => (
             <Category key={child._id} category={child} />
@@ -83,31 +67,22 @@ const Categories: React.FC<Props> = ({
         </div>
       );
     }
-  };
 
-  if (currentCategory) {
-    return renderChildrenCategories();
+    return (
+      <>
+        {parents.map((category) => {
+          const childrens = group[category._id] || [];
+
+          return (
+            <Category
+              key={category._id}
+              childrens={childrens}
+              getCurrentItem={this.getCurrentItem}
+              category={category}
+            />
+          );
+        })}
+      </>
+    );
   }
-
-  return (
-    <div className="faq-collection-container">
-      <div className="collection-count">
-        {`${parents.length || 0} ${__('collections')}`}
-      </div>
-      {parents.map((category) => {
-        const childrens = group[category._id] || [];
-
-        return (
-          <Category
-            key={category._id}
-            childrens={childrens}
-            getCurrentItem={getCurrentItem}
-            category={category}
-            isParent
-          />
-        );
-      })}
-    </div>
-  );
-};
-export default Categories;
+}

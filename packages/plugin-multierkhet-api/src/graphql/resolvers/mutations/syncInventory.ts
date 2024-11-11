@@ -1,6 +1,6 @@
 import { IContext } from "../../../connectionResolver";
 import fetch from "node-fetch";
-import { sendProductsMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 import {
   consumeInventory,
   consumeInventoryCategory
@@ -29,24 +29,16 @@ const inventoryMutations = {
       ];
     }
 
-    const productsCount = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: "productCount",
-      data: { query: productQry },
-      isRPC: true
-    });
-
-    const products = await sendProductsMessage({
-      subdomain,
-      action: "productFind",
+      action: "products.find",
       data: {
         query: productQry,
-        limit: productsCount
       },
       isRPC: true
     });
 
-    const productCategories = await sendProductsMessage({
+    const productCategories = await sendCoreMessage({
       subdomain,
       action: "categories.find",
       data: { query: {} },
@@ -63,14 +55,14 @@ const inventoryMutations = {
 
     const response = await fetch(
       process.env.ERKHET_URL +
-        "/get-api/?" +
-        new URLSearchParams({
-          kind: "inventory",
-          api_key: config.apiKey,
-          api_secret: config.apiSecret,
-          token: config.apiToken,
-          is_gen_fk: "true"
-        })
+      "/get-api/?" +
+      new URLSearchParams({
+        kind: "inventory",
+        api_key: config.apiKey,
+        api_secret: config.apiSecret,
+        token: config.apiToken,
+        is_gen_fk: "true"
+      })
     ).then(res => res.json());
 
     if (!response && Object.keys(response).length === 0) {
@@ -107,7 +99,7 @@ const inventoryMutations = {
           product.uom &&
           resProd.measure_unit_code === product.uom &&
           resProd.category_code ===
-            (categoryOfId[product.categoryId] || {}).code
+          (categoryOfId[product.categoryId] || {}).code
         ) {
           matchedCount = matchedCount + 1;
         } else {
@@ -149,7 +141,7 @@ const inventoryMutations = {
       throw new Error("Erkhet config not found.");
     }
 
-    const categories = await sendProductsMessage({
+    const categories = await sendCoreMessage({
       subdomain,
       action: "categories.find",
       data: {
@@ -167,14 +159,14 @@ const inventoryMutations = {
 
     const response = await fetch(
       process.env.ERKHET_URL +
-        "/get-api/?" +
-        new URLSearchParams({
-          kind: "inv_category",
-          api_key: config.apiKey,
-          api_secret: config.apiSecret,
-          token: config.apiToken,
-          is_gen_fk: "true"
-        }),
+      "/get-api/?" +
+      new URLSearchParams({
+        kind: "inv_category",
+        api_key: config.apiKey,
+        api_secret: config.apiSecret,
+        token: config.apiToken,
+        is_gen_fk: "true"
+      }),
       {}
     ).then(res => res.json());
 
@@ -195,7 +187,7 @@ const inventoryMutations = {
     let otherCategories: any[] = [];
     for (const code of categoryCodes) {
       if (result.every(r => r.code !== code)) {
-        const response = await sendProductsMessage({
+        const response = await sendCoreMessage({
           subdomain,
           action: "categories.findOne",
           data: { code: code },

@@ -1,15 +1,6 @@
 import { generateModels } from "../../../connectionResolver";
 
-export const IMPORT_EXPORT_TYPES = [
-  {
-    text: "Product & Services",
-    contentType: "product",
-    icon: "server-alt"
-  }
-];
 export default {
-  importExportTypes: IMPORT_EXPORT_TYPES,
-
   insertImportItems: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

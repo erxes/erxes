@@ -11,14 +11,16 @@ import { IChannelData } from "./types";
 import { IConversationMessageDocument } from "./models/definitions/conversationMessages";
 
 const checkIsBot = async (models: IModels, message, recipientId) => {
+  let selector: any = { pageId: recipientId };
+
   if (message?.payload) {
     const payload = JSON.parse(message?.payload || "{}");
     if (payload.botId) {
-      return payload.botId;
+      selector = { _id: payload.botId };
     }
   }
 
-  const bot = await models.Bots.findOne({ pageId: recipientId });
+  const bot = await models.Bots.findOne(selector);
 
   return bot;
 };
@@ -80,7 +82,6 @@ const receiveMessage = async (
     message,
     postback
   } = activity.channelData as IChannelData;
-
   let adData;
 
   if (!text && !message && !!postback) {

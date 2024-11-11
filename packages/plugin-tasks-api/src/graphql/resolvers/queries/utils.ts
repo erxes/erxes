@@ -10,7 +10,6 @@ import { getNextMonth, getToday, regexSearchText } from "@erxes/api-utils/src";
 import { IListParams } from "./boards";
 import {
   fetchSegment,
-  sendContactsMessage,
   sendCoreMessage,
   sendNotificationsMessage
 } from "../../../messageBroker";
@@ -211,7 +210,7 @@ export const generateCommonFilters = async (
     departmentIds,
     dateRangeFilters,
     customFieldsDataFilters,
-    vendorCustomerIds
+    resolvedDayBetween,
   } = args;
 
   const isListEmpty = value => {
@@ -559,6 +558,37 @@ export const generateCommonFilters = async (
 
   if (number) {
     filter.number = { $regex: `${number}`, $options: "mui" };
+  }
+
+  if ((stageId || stageCodes) && resolvedDayBetween) {
+    const [dayFrom, dayTo] = resolvedDayBetween;
+    filter.$expr = {
+      $and: [
+        // Convert difference between stageChangedDate and createdAt to days
+        {
+          $gte: [
+            {
+              $divide: [
+                { $subtract: ['$stageChangedDate', '$createdAt'] },
+                1000 * 60 * 60 * 24, // Convert milliseconds to days
+              ],
+            },
+            dayFrom, // Minimum day (0 days)
+          ],
+        },
+        {
+          $lt: [
+            {
+              $divide: [
+                { $subtract: ['$stageChangedDate', '$createdAt'] },
+                1000 * 60 * 60 * 24,
+              ],
+            },
+            dayTo, // Maximum day (3 days)
+          ],
+        },
+      ],
+    };
   }
 
   return filter;
@@ -1110,7 +1140,7 @@ export const getItemList = async (
     serverTiming.startTime("getItemsCompanies");
   }
 
-  const companies = await sendContactsMessage({
+  const companies = await sendCoreMessage({
     subdomain,
     action: "companies.findActiveCompanies",
     data: {
@@ -1137,7 +1167,7 @@ export const getItemList = async (
     serverTiming.startTime("getItemsCustomers");
   }
 
-  const customers = await sendContactsMessage({
+  const customers = await sendCoreMessage({
     subdomain,
     action: "customers.findActiveCustomers",
     data: {
