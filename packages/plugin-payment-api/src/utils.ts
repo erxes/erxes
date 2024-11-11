@@ -15,6 +15,7 @@ import { generateModels } from './connectionResolver';
 import { ITransactionDocument } from './models/definitions/transactions';
 import redisUtils from './redisUtils';
 import { stripeCallbackHandler } from './api/stripe/api';
+import { minupayCallbackHandler } from './api/minupay/api';
 
 export const callbackHandler = async (req, res) => {
   const { route, body, query } = req;
@@ -57,6 +58,9 @@ export const callbackHandler = async (req, res) => {
         break;
       case PAYMENTS.stripe.kind:
         transaction = await stripeCallbackHandler(models, data);
+        break;
+      case PAYMENTS.minupay.kind:
+        transaction = await minupayCallbackHandler(models, data);
         break;
       default:
         return res.status(400).send('Invalid kind');
