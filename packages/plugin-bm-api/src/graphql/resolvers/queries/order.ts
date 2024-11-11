@@ -11,10 +11,10 @@ const orderQueries = {
       selector.customerId = customerId;
     }
     const list = await models.Orders.find(selector);
-    const total = await models.Tours.countDocuments();
+    // const total = await models.Tours.countDocuments();
     return {
       list,
-      total,
+      total: list.length,
     };
   },
 };

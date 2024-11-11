@@ -13,11 +13,14 @@ import mutationOrder from './mutations/order';
 import queriesOrder from './queries/order';
 
 import ElementItem from './elementItemResolver';
+import Element from './element';
+
 import Tour from './tourResolver';
 
 const resolvers: any = async () => ({
   ...customScalars,
   ElementItem,
+  Element,
   Tour,
   Mutation: {
     ...mutationsElement,

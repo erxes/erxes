@@ -7,12 +7,14 @@ import { ILocation, locationSchema } from './itinerary';
 export interface IElement {
   name: string;
   content: string;
+  note?: string;
   startTime?: string;
   duration?: string;
   cost?: string;
   images?: string;
   itineraryId?: string;
   location?: ILocation;
+  categories?: string[];
 }
 
 export interface IElementDocument extends IElement, Document {
@@ -53,6 +55,7 @@ export const elementSchema = schemaHooksWrapper(
     modifiedAt: field({ type: Date, label: 'Modified at' }),
     name: field({ type: String, optional: true, label: 'name' }),
     content: field({ type: String, optional: true, label: 'content' }),
+    note: field({ type: String, optional: true, label: 'note' }),
     startTime: field({ type: String, optional: true, label: 'startTime' }),
     duration: field({ type: Number, optional: true, label: 'duration' }),
     cost: field({ type: Number, optional: true, label: 'cost' }),

@@ -168,18 +168,34 @@ const LIST_CATEGORIES = [
 const elementQueries = {
   async bmElements(
     _root,
-    { categories, page = 1, perPage = 10 },
+    { categories, name, page = 1, perPage = 10 },
     { models }: IContext
   ) {
     const selector: any = {};
 
     const skip = Math.max(0, page - 1) * perPage;
     if (categories) {
-      selector.categories = { $in: categories };
+      let allSubcategories: string[] = categories;
+      let ids: string[] = categories || [];
+      while (ids.length > 0) {
+        const newIds = (
+          await models.ElementCategories.find({ parentId: { $in: ids } })
+        ).map(x => x._id);
+        allSubcategories = [...newIds, ...allSubcategories];
+        ids = newIds;
+      }
+
+      selector.categories = { $in: allSubcategories };
     }
 
+    if (name) {
+      selector.$or = [
+        { name: { $regex: name, $options: 'i' } },
+        { 'location.name': { $regex: name, $options: 'i' } },
+      ];
+    }
     const list = await models.Elements.find(selector).limit(perPage).skip(skip);
-    const total = await models.Elements.countDocuments();
+    const total = await models.Elements.find(selector).countDocuments();
     return {
       list,
       total,
