@@ -9,7 +9,8 @@ import Form from "@erxes/ui/src/components/form/Form";
 import { IBranch } from "@erxes/ui/src/team/types";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import { __ } from "modules/common/utils";
+import { __, extractAttachment } from "modules/common/utils";
+import { IAttachment } from "@erxes/ui/src/types";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -27,7 +28,7 @@ export default function BranchForm(props: Props) {
   );
   const [parentId, setParentId] = useState(object.parentId || null);
   const [links, setLinks] = useState(object.links || {});
-  const [image, setImage] = useState(object.image || null);
+  const [image, setImage] = useState<IAttachment | null>(object.image && extractAttachment([object.image])[0] || null);
   const [supervisorId, setSupervisorId] = useState(object.supervisorId);
 
   const coordinateObj = object.coordinate || {};

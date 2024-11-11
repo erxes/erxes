@@ -30,11 +30,11 @@ const fillSearchText = (doc) => {
         doc.code || ""
     ]
 
-    if (doc.primaryName && !doc.names?.includes(doc.primaryName)) {
-        searchText.unshift(doc.primaryName || " ")
-    }
+    const existingSearchText = doc.searchText?.split(" ").filter(Boolean) || [];
 
-    return validSearchText(searchText);
+    const searchTexts = [...new Set([...searchText, ...existingSearchText])];
+
+    return validSearchText(searchTexts);
 }
 
 const command = async () => {

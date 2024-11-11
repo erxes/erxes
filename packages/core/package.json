@@ -41,6 +41,7 @@
     "migrateForms": "node_modules/.bin/ts-node src/commands/migrateLeadForms.ts",
     "migrateAutomations": "node_modules/.bin/ts-node src/commands/migrateAutomations.ts",
     "migrateCompaniesSearchText": "node_modules/.bin/ts-node src/commands/migrateCompaniesSearchText.ts",
+    "migrateCustomersSearchText": "node_modules/.bin/ts-node src/commands/migrateCustomersSearchText.ts",
     "migrateCharts": "node_modules/.bin/ts-node src/commands/migrateCharts.ts"
   },
   "dependencies": {

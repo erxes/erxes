@@ -232,7 +232,7 @@ export const fillValue = async (
 
       break;
 
-    case 'relatedIntegrationIds':
+    case 'integrationId':
       const integration = await sendInboxMessage({
         subdomain,
         action: 'integrations.findOne',
@@ -242,6 +242,45 @@ export const fillValue = async (
       });
 
       value = integration ? integration.name : '-';
+
+      break;
+
+    case 'relatedIntegrationIds':
+      const integrations = await sendInboxMessage({
+        subdomain,
+        action: 'integrations.find',
+        data: { query: { _id: { $in: item.relatedIntegrationIds || [] } } },
+        isRPC: true,
+        defaultValue: [],
+      });
+
+      value = integrations?.length ? integrations.map(integration => integration.name).join(", ") : '-';
+
+      break;
+
+    case 'integrationKind':
+      const integrationKind = await sendInboxMessage({
+        subdomain,
+        action: 'integrations.findOne',
+        data: { _id: item.integrationId || [] },
+        isRPC: true,
+        defaultValue: [],
+      });
+
+      value = integrationKind ? integrationKind.kind : '-';
+
+      break;
+
+    case 'relatedIntegrationKinds':
+      const integrationKinds = await sendInboxMessage({
+        subdomain,
+        action: 'integrations.find',
+        data: { query: { _id: { $in: item.relatedIntegrationIds || [] } } },
+        isRPC: true,
+        defaultValue: [],
+      });
+
+      value = integrationKinds?.length ? [...new Set(integrationKinds.map(integration => integration.kind))].join(", ") : '-';
 
       break;
 
@@ -308,7 +347,6 @@ export default {
 
   getExportDocs: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-
     const { columnsConfig } = data;
 
     const docs = [] as any;
@@ -317,56 +355,55 @@ export default {
     try {
       const results = await prepareData(models, subdomain, data);
 
-      for (const column of columnsConfig) {
+      // Prepare headers
+      const fieldFetchPromises = columnsConfig.map(async (column) => {
         if (column.startsWith('customFieldsData')) {
           const fieldId = column.split('.')[1];
           const field =
-            (await models.Fields.findOne({ _id: fieldId })) ||
-            ({} as IFieldDocument);
-
+            (await models.Fields.findOne({ _id: fieldId })) || ({} as IFieldDocument);
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
         } else {
           headers.push(column);
         }
-      }
+      });
 
-      for (const item of results) {
+      // Run all field fetch operations in parallel
+      await Promise.all(fieldFetchPromises);
+
+      // Process all items in parallel
+      const itemProcessingPromises = results.map(async (item) => {
         const result = {};
 
         for (const column of headers) {
           if (column.startsWith('customFieldsData')) {
             const fieldId = column.split('.')[2];
-            const fieldName = column.split('.')[1];
-
             const { value } = await getCustomFieldsData(item, fieldId);
-
             result[column] = value || '-';
           } else if (column.startsWith('location')) {
             const location = item.location || {};
-
             result[column] = location[column.split('.')[1]];
           } else if (column.startsWith('visitorContactInfo')) {
             const visitorContactInfo = item.visitorContactInfo || {};
-
             result[column] = visitorContactInfo[column.split('.')[1]];
           } else if (column.startsWith('trackedData')) {
             const fieldName = column.split('.')[1];
-
             const { value } = await getTrackedData(item, fieldName);
-
             result[column] = value || '-';
           } else {
             const value = await fillValue(models, subdomain, column, item);
-
             result[column] = value || '-';
           }
         }
 
-        docs.push(result);
-      }
+        return result;
+      });
+
+      // Execute all item processing operations in parallel
+      docs.push(...(await Promise.all(itemProcessingPromises)));
     } catch (e) {
       return { error: e.message };
     }
+
     return { docs };
-  },
+  }
 };
