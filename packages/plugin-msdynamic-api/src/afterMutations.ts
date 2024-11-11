@@ -35,12 +35,12 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
   try {
     if (type === "core:customer" && action === "create") {
-      await customerToDynamic(subdomain, params.object, models);
+      await customerToDynamic(subdomain, params.updatedDocument || params.object, models);
       return;
     }
 
     if (type === "core:company" && action === "create") {
-      await customerToDynamic(subdomain, params.object, models);
+      await customerToDynamic(subdomain, params.updatedDocument || params.object, models);
       return;
     }
 
