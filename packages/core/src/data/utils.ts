@@ -20,6 +20,7 @@ import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
 import redis from "@erxes/api-utils/src/redis";
 import sanitizeFilename from "@erxes/api-utils/src/sanitize-filename";
 import { randomAlphanumeric } from "@erxes/api-utils/src/random";
+import { isImage } from "@erxes/api-utils/src/commonUtils";
 
 export interface IEmailParams {
   toEmails?: string[];
@@ -529,11 +530,12 @@ const createCFR2 = async (models?: IModels) => {
   return new AWS.S3(options);
 };
 
-const uploadToCFImages = async (
+export const uploadToCFImages = async (
   file: any,
   forcePrivate?: boolean,
   models?: IModels
 ) => {
+  console.log('uploadToCFImages', file.name);
   const sanitizedFilename = sanitizeFilename(file.name);
 
   const CLOUDFLARE_ACCOUNT_ID = await getConfig(
@@ -584,13 +586,14 @@ const uploadToCFImages = async (
   });
 
   const data = await response.json();
+  console.log("success ", data.success);
 
   if (!data.success) {
-    throw new Error("Error uploading file to Cloudflare Images");
+    throw new Error("Error uploading file to Cloudflare Images 1");
   }
 
   if (data.result.variants.length === 0) {
-    throw new Error("Error uploading file to Cloudflare Images");
+    throw new Error("Error uploading file to Cloudflare Images 2");
   }
 
   if (!IS_PUBLIC || IS_PUBLIC === "false" || VERSION === "saas") {
@@ -1641,6 +1644,18 @@ export const getFileUploadConfigs = async (models: IModels) => {
     models
   );
 
+  const CLOUDFLARE_API_TOKEN = await getConfig(
+    "CLOUDFLARE_API_TOKEN",
+    "",
+    models
+  );
+
+  const CLOUDFLARE_USE_CDN = await getConfig(
+    "CLOUDFLARE_USE_CDN",
+    "",
+    models
+  );
+
   return {
     AWS_FORCE_PATH_STYLE,
     AWS_COMPATIBLE_SERVICE_ENDPOINT,
@@ -1651,7 +1666,9 @@ export const getFileUploadConfigs = async (models: IModels) => {
     CLOUDFLARE_BUCKET_NAME,
     CLOUDFLARE_ACCOUNT_ID,
     CLOUDFLARE_ACCESS_KEY_ID,
-    CLOUDFLARE_SECRET_ACCESS_KEY
+    CLOUDFLARE_SECRET_ACCESS_KEY,
+    CLOUDFLARE_API_TOKEN,
+    CLOUDFLARE_USE_CDN
   };
 };
 
@@ -1711,18 +1728,6 @@ export const resizeImage = async (
     console.error(error);
     return file;
   }
-};
-
-export const isImage = (mimetypeOrName: string) => {
-  const extensions = ["jpg", "jpeg", "png", "gif", "svg", "webp"];
-
-  // extract extension from file name
-  const extension = mimetypeOrName.split(".").pop();
-  if (extensions.includes(extension || "")) {
-    return true;
-  }
-
-  return mimetypeOrName.includes("image");
 };
 
 export const isVideo = (mimeType: string) => {
