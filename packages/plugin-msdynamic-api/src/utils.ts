@@ -194,7 +194,7 @@ export const dealToDynamic = async (
       !config?.username ||
       !config?.password
     ) {
-      throw new Error(`MS Dynamic config not found..., ${brandId}, ${configs}`);
+      throw new Error(`MS Dynamic config not found..., ${brandId}, ${order.number}, ${syncLog._id}`);
     }
 
     const { salesApi, salesLineApi, username, password } = config;
