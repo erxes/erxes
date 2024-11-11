@@ -15,19 +15,18 @@ const client = new MongoClient(MONGO_URL);
 
 let db: Db;
 
-let Companies: Collection<any>;
+let Customers: Collection<any>;
 
 const fillSearchText = (doc) => {
 
     const searchText = [
-        (doc.names || []).join(" "),
         (doc.emails || []).join(" "),
         (doc.phones || []).join(" "),
-        doc.website || "",
-        doc.industry || "",
-        doc.plan || "",
-        doc.description || "",
-        doc.code || ""
+        doc.firstName || "",
+        doc.lastName || "",
+        doc.middleName || "",
+        doc.primaryEmail || "",
+        doc.primaryPhone || "",
     ]
 
     const existingSearchText = doc.searchText?.split(" ").filter(Boolean) || [];
@@ -41,19 +40,19 @@ const command = async () => {
     await client.connect();
     db = client.db() as Db;
 
-    Companies = db.collection('companies');
+    Customers = db.collection('customers');
 
-    const companies = await Companies.find({}).toArray();
+    const customers = await Customers.find({}).toArray();
 
-    const bulkOperations = companies.map(company => ({
+    const bulkOperations = customers.map(customer => ({
         updateOne: {
-            filter: { _id: company._id },
-            update: { $set: { searchText: fillSearchText(company) } }
+            filter: { _id: customer._id },
+            update: { $set: { searchText: fillSearchText(customer) } }
         }
     }));
 
     if (bulkOperations.length > 0) {
-        await Companies.bulkWrite(bulkOperations);
+        await Customers.bulkWrite(bulkOperations);
     }
 
     console.log(`Process finished at: ${new Date()}`);
