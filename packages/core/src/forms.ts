@@ -18,7 +18,6 @@ import { escapeRegExp } from "@erxes/api-utils/src/core";
 import { sendInboxMessage } from "./messageBroker";
 import { fetchEs } from "@erxes/api-utils/src/elasticsearch";
 import { fieldsCombinedByContentType } from "./formUtils";
-const util = require("util")
 
 const EXTEND_FIELDS = {
   CUSTOMER: [
@@ -96,58 +95,6 @@ const getFormSubmissionFields = async (subdomain, config) => {
   }));
 };
 
-// const getIntegrations = async (subdomain: string) => {
-//   const integrations = await sendInboxMessage({
-//     subdomain,
-//     action: "integrations.find",
-//     data: { query: {} },
-//     isRPC: true,
-//     defaultValue: []
-//   });
-
-//   const selectOptions: Array<{ label: string; value: any }> = [];
-
-//   for (const integration of integrations) {
-//     selectOptions.push({
-//       value: integration._id,
-//       label: integration.name
-//     });
-//   }
-
-//   return {
-//     _id: Math.random(),
-//     name: "integrationId",
-//     label: "Integration",
-//     selectOptions
-//   };
-// };
-
-// const getRelatedIntegrations = async (subdomain: string) => {
-//   const integrations = await sendInboxMessage({
-//     subdomain,
-//     action: "integrations.find",
-//     data: { query: {} },
-//     isRPC: true,
-//     defaultValue: []
-//   });
-
-//   const selectOptions: Array<{ label: string; value: any }> = [];
-
-//   for (const integration of integrations) {
-//     selectOptions.push({
-//       value: integration._id,
-//       label: integration.name
-//     });
-//   }
-
-//   return {
-//     _id: Math.random(),
-//     name: "relatedIntegrationIds",
-//     label: "Related integration",
-//     selectOptions
-//   };
-// };
-
 const getIntegrations = async (subdomain: string) => {
   const integrations = await sendInboxMessage({
     subdomain,
@@ -166,8 +113,6 @@ const getIntegrations = async (subdomain: string) => {
     });
   }
 
-  console.log('selectOptions', selectOptions)
-
   return {
     _id: Math.random(),
     name: "relatedIntegrationIds",
@@ -175,59 +120,6 @@ const getIntegrations = async (subdomain: string) => {
     selectOptions
   };
 };
-
-const getIntegrationsKind = async (subdomain: string) => {
-  const integrations = await sendInboxMessage({
-    subdomain,
-    action: "integrations.find",
-    data: { query: {} },
-    isRPC: true,
-    defaultValue: []
-  });
-
-  const selectOptions: Array<{ label: string; value: any }> = [];
-
-  for (const integration of integrations) {
-    selectOptions.push({
-      value: integration._id,
-      label: integration.kind
-    });
-  }
-
-  return {
-    _id: Math.random(),
-    name: "integrationKind",
-    label: "Integration Kind",
-    selectOptions
-  };
-};
-
-const getRelatedIntegrationKinds = async (subdomain: string) => {
-  const integrations = await sendInboxMessage({
-    subdomain,
-    action: "integrations.find",
-    data: { query: {} },
-    isRPC: true,
-    defaultValue: []
-  });
-
-  const selectOptions: Array<{ label: string; value: any }> = [];
-
-  for (const integration of integrations) {
-    selectOptions.push({
-      value: integration._id,
-      label: integration.kind
-    });
-  }
-
-  return {
-    _id: Math.random(),
-    name: "relatedIntegrationKinds",
-    label: "Related Integration Kinds",
-    selectOptions
-  };
-};
-
 
 const getCategories = async (models: IModels) => {
   const categories = await models.ProductCategories.find({})
@@ -444,9 +336,6 @@ export const generateContactsFields = async ({ subdomain, data }) => {
     const { config } = data;
 
     const integrations = await getIntegrations(subdomain);
-    const integrationsKind = await getIntegrationsKind(subdomain);
-    const relatedIntegrationsKind = await getRelatedIntegrationKinds(subdomain);
-    // const relatedIntegrations = await getRelatedIntegrations(subdomain);
 
     if (config) {
       const formSubmissionFields = await getFormSubmissionFields(
@@ -456,8 +345,7 @@ export const generateContactsFields = async ({ subdomain, data }) => {
       fields = [...fields, ...formSubmissionFields];
     }
 
-    fields = [...fields, integrations, integrationsKind, relatedIntegrationsKind];
-    // fields = [...fields, integrations, relatedIntegrations];
+    fields = [...fields, integrations];
 
     if (usageType === "import") {
       fields.push({
