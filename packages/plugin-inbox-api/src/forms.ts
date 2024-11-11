@@ -2,6 +2,7 @@ import { generateFieldsFromSchema } from "@erxes/api-utils/src";
 import { generateModels, IModels } from "./connectionResolver";
 import { CONVERSATION_INFO } from "./constants";
 import { sendCoreMessage } from "./messageBroker";
+import { getIntegrationsKinds } from "./utils";
 
 const getTags = async (subdomain: string) => {
   const tags = await sendCoreMessage({
@@ -51,6 +52,67 @@ const getIntegrations = async (models: IModels) => {
   };
 };
 
+const getBrands = async (subdomain: string) => {
+
+  const brands = await sendCoreMessage({
+    subdomain,
+    action: "brands.find",
+    data: { query: {} },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const selectOptions: Array<{ label: string; value: any }> = [];
+
+  for (const brand of brands) {
+    selectOptions.push({
+      value: brand._id,
+      label: brand.name
+    });
+  }
+
+  return {
+    _id: Math.random(),
+    name: "brandId",
+    label: "Brand",
+    selectOptions
+  };
+};
+
+const getIntegrationsKind = async (models: IModels) => {
+  const integrations = await models.Integrations.aggregate([
+    {
+      $group: {
+        _id: "$kind"
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        kind: "$_id"
+      }
+    }
+  ]);
+
+  const kindsMap = await getIntegrationsKinds()
+
+  const selectOptions = integrations.map(integration => {
+
+    if (kindsMap[integration.kind]) {
+      return { label: kindsMap[integration.kind], value: integration.kind }
+    }
+
+    return false
+  }).filter(Boolean)
+
+  return {
+    _id: Math.random(),
+    name: "integrationKind",
+    label: "Integration Kind",
+    selectOptions
+  };
+};
+
 const generateUsersOptions = async (
   name: string,
   label: string,
@@ -67,6 +129,25 @@ const generateUsersOptions = async (
       queryName: "users",
       labelField: "email"
     }
+  };
+};
+
+const generateContactsOptions = async (
+  name: string,
+  label: string,
+  type: string,
+  selectionConfig?: any
+) => {
+  return {
+    _id: Math.random(),
+    name,
+    label,
+    type,
+    selectionConfig: {
+      ...selectionConfig,
+      labelField: "primaryEmail",
+      multi: true,
+    },
   };
 };
 
@@ -101,9 +182,11 @@ const generateFields = async ({ subdomain }) => {
   }
 
   const tags = await getTags(subdomain);
+  const brands = await getBrands(subdomain);
   const integrations = await getIntegrations(models);
+  const integrationsKind = await getIntegrationsKind(models);
 
-  fields = [...fields, tags, integrations];
+  fields = [...fields, tags, brands, integrations, integrationsKind];
 
   const assignedUserOptions = await generateUsersOptions(
     "assignedUserId",
@@ -126,9 +209,18 @@ const generateFields = async ({ subdomain }) => {
     { multi: false }
   );
 
+  const customersOptions = await generateContactsOptions(
+    "customerId",
+    "Customers",
+    "contact",
+    {
+      queryName: "customers",
+    }
+  );
+
   fields = [
     ...fields,
-    ...[participatedUserOptions, assignedUserOptions, closedUserOptions]
+    ...[participatedUserOptions, assignedUserOptions, closedUserOptions, customersOptions]
   ];
 
   return fields;
