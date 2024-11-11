@@ -10,6 +10,7 @@ import { mutations } from "../graphql";
 
 type Props = {
   contractId?: string;
+  lockContract?: boolean;
   transaction: ITransaction;
   type: string;
   invoice?: IInvoice;
@@ -46,9 +47,9 @@ const TransactionFromContainer = (props: Props) => {
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         type="submit"
-        successMessage={`You successfully ${
-          object ? "updated" : "added"
-        } a ${name}`}
+        successMessage={
+          `You successfully ${object ? "updated" : "added"} a ${name}`
+        }
       >
         {__("Save")}
       </ButtonMutate>

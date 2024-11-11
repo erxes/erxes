@@ -95,18 +95,22 @@ export default {
 
         const models = await generateModels(subdomain);
 
-        if (req.cpUser) {
-          const contract = await models.Contracts.findOne({
-            _id: query.contractId,
-            customerId: req.cpUser.erxesCustomerId,
-          });
+        const contract = await models.Contracts.findOne({
+          _id: query.contractId,
+        });
 
-          if (!contract) {
-            return res.status(404).send({
-              success: false,
-              error: 'Contract not found',
-            });
-          }
+        if (!contract) {
+          return res.status(404).send({
+            success: false,
+            error: 'Contract not found',
+          });
+        }
+
+        if (req.cpUser && contract.customerId !== req.cpUser.erxesCustomerId) {
+          return res.status(404).send({
+            success: false,
+            error: 'Contract not required',
+          });
         }
 
         if (query.startDate && query.endDate) {
@@ -124,7 +128,7 @@ export default {
         const data = await models.Transactions.find(filter)
           .sort({ payDate: -1 })
           .lean();
-          
+
         if (!data || !data.length) {
           return res.status(404).send({
             success: false,
