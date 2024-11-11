@@ -5,15 +5,20 @@ export const types = () => `
   type ElementItem {
     elementId: String
     element: Element
-    day: Int
     orderOfDay: Int
+  }
+  type DayItem {
+    day: Int
+    images: [String]
+    content: String
+    elements: [ElementItem]
   }
   type Itinerary {
     _id: String!
     name: String
     content: String
     duration: Int
-    elements :[ElementItem]
+    groupDays :[DayItem]
     location: [BMSLocation]
     images: [String]
     status: String
@@ -22,9 +27,15 @@ export const types = () => `
   }
   input ElementItemInput {
     elementId: String
-    day: Int
     orderOfDay: Int
   }
+  input DayItemInput {
+    day: Int
+    images: [String]
+    content: String
+    elements: [ElementItemInput]
+  }
+
 
   enum STATUS {
     published
@@ -45,7 +56,7 @@ const params = `
   name: String,
   content: String,
   duration: Int,
-  elements: [ElementItemInput],
+  groupDays: [DayItemInput],
   location: [BMSLocationInput],
   images: [String]
   status: STATUS

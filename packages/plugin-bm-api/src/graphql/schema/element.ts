@@ -3,14 +3,16 @@ import gql from 'graphql-tag';
 export const types = () => `
 
   type BMSLocation {
-    lat: String
-    lng: String
+    lat: Float
+    lng: Float
     name: String
+    mapId: String
   }
   input BMSLocationInput {
-    lat: String
-    lng: String
+    lat: Float
+    lng: Float
     name: String
+    mapId: String
   }
 
 
