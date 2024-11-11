@@ -1,6 +1,6 @@
 import { generateModels } from "./connectionResolver";
 import { customerToDynamic } from "./utilsCustomer";
-import { dealToDynamic } from "./utils";
+import { dealToDynamic, getConfig } from "./utils";
 
 const allowTypes = {
   "core:customer": ["create"],
@@ -10,6 +10,25 @@ const allowTypes = {
 
 export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action, user } = params;
+
+  if (!Object.keys(allowTypes).includes(type)) {
+    return;
+  }
+
+  if (!allowTypes[type].includes(action)) {
+    return;
+  }
+
+  let configs;
+
+  try {
+    configs = await getConfig(subdomain, "DYNAMIC", {});
+    if (!configs || !Object.keys(configs).length) {
+      return;
+    }
+  } catch (e) {
+    return;
+  }
 
   const models = await generateModels(subdomain);
 
@@ -25,22 +44,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
   let syncLog;
 
-  if (!Object.keys(allowTypes).includes(type)) {
-    return;
-  }
-
-  if (!allowTypes[type].includes(action)) {
-    return;
-  }
-
   try {
     if (type === "core:customer" && action === "create") {
-      await customerToDynamic(subdomain, params.updatedDocument || params.object, models);
+      await customerToDynamic(subdomain, params.updatedDocument || params.object, models, configs);
       return;
     }
 
     if (type === "core:company" && action === "create") {
-      await customerToDynamic(subdomain, params.updatedDocument || params.object, models);
+      await customerToDynamic(subdomain, params.updatedDocument || params.object, models, configs);
       return;
     }
 
@@ -48,7 +59,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
       if (action === "synced") {
-        await dealToDynamic(subdomain, syncLog, params.updatedDocument || params.object, models);
+        await dealToDynamic(subdomain, syncLog, params.updatedDocument || params.object, models, configs);
         return;
       }
     }

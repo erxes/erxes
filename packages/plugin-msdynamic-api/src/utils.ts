@@ -165,11 +165,11 @@ export const dealToDynamic = async (
   subdomain: string,
   syncLog: ISyncLogDocument,
   params: any,
-  models: IModels
+  models: IModels,
+  configs: any
 ) => {
   const order = params;
   const brandId = order.scopeBrandIds[0];
-  const configs = await getConfig(subdomain, "DYNAMIC", {});
   const config = configs[brandId || "noBrand"];
 
   let msdCustomer: any = {};
@@ -194,7 +194,7 @@ export const dealToDynamic = async (
       !config?.username ||
       !config?.password
     ) {
-      throw new Error(`MS Dynamic config not found..., ${brandId}, ${order.number}, ${order._id}, ${syncLog._id}`);
+      throw new Error(`MS Dynamic config not found..., ${brandId}`);
     }
 
     const { salesApi, salesLineApi, username, password } = config;
