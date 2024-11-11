@@ -16,9 +16,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
   const syncLogDoc = {
     type: "",
     contentType: type,
-    contentId: params.object._id,
+    contentId: params.object?._id,
     createdAt: new Date(),
-    createdBy: user._id,
+    createdBy: user?._id,
     consumeData: params,
     consumeStr: JSON.stringify(params)
   };
