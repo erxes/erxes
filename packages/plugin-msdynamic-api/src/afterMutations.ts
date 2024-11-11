@@ -35,12 +35,12 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
   try {
     if (type === "core:customer" && action === "create") {
-      customerToDynamic(subdomain, params.object, models);
+      await customerToDynamic(subdomain, params.object, models);
       return;
     }
 
     if (type === "core:company" && action === "create") {
-      customerToDynamic(subdomain, params.object, models);
+      await customerToDynamic(subdomain, params.object, models);
       return;
     }
 
@@ -48,7 +48,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
       if (action === "synced") {
-        dealToDynamic(subdomain, syncLog, params.updatedDocument || params.object, models);
+        await dealToDynamic(subdomain, syncLog, params.updatedDocument || params.object, models);
         return;
       }
     }
