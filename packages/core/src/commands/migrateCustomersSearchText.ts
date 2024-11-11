@@ -11,7 +11,7 @@ if (!MONGO_URL) {
     throw new Error(`Environment variable MONGO_URL not set.`);
 }
 
-const client = new MongoClient("mongodb://localhost:27017/erxes?directConnection=true");
+const client = new MongoClient(MONGO_URL);
 
 let db: Db;
 

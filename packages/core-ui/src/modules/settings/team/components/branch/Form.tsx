@@ -1,5 +1,5 @@
 import { FormControl, FormGroup } from "@erxes/ui/src/components/form";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IButtonMutateProps, IFormProps, IAttachment } from "@erxes/ui/src/types";
 import React, { useState } from "react";
 
 import Button from "@erxes/ui/src/components/Button";
@@ -10,7 +10,6 @@ import { IBranch } from "@erxes/ui/src/team/types";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import { __, extractAttachment } from "modules/common/utils";
-import { IAttachment } from "@erxes/ui/src/types";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
