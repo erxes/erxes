@@ -12,4 +12,8 @@ type CreatedInfo = {
 export type MessageData = {
     datas: any;
     createdInfo: CreatedInfo;
-}
+};
+export type  SelectionConfig = {
+    queryName: string;
+    labelField: string;
+};

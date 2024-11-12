@@ -18,6 +18,7 @@ import { escapeRegExp } from "@erxes/api-utils/src/core";
 import { sendInboxMessage } from "./messageBroker";
 import { fetchEs } from "@erxes/api-utils/src/elasticsearch";
 import { fieldsCombinedByContentType } from "./formUtils";
+import { SelectionConfig } from "./type";
 
 const EXTEND_FIELDS = {
   CUSTOMER: [
@@ -39,7 +40,7 @@ const generateBrandsOptions = async (
   const models = await generateModels(subdomain);
   const brands = await models.Brands.find({}).lean();
 
-  const options: Array<{ label: string; value: any }> = brands.map(brand => ({
+  const options: Array<{ label: string; value: string }> = brands.map(brand => ({
     value: brand._id,
     label: brand.name || brand._id
   }));
@@ -57,7 +58,7 @@ const generateUsersOptions = async (
   name: string,
   label: string,
   type: string,
-  selectionConfig?: any
+  selectionConfig?: SelectionConfig
 ) => {
   // const models = await generateModels(subdomain);
   // const users = await models.Users.find({}).lean();
@@ -104,7 +105,7 @@ const getIntegrations = async (subdomain: string) => {
     defaultValue: []
   });
 
-  const selectOptions: Array<{ label: string; value: any }> = [];
+  const selectOptions: Array<{ label: string; value: string }> = [];
 
   for (const integration of integrations) {
     selectOptions.push({
@@ -126,7 +127,7 @@ const getCategories = async (models: IModels) => {
     .sort({ order: 1 })
     .lean();
 
-  const selectOptions: Array<{ label: string; value: any }> = [];
+  const selectOptions: Array<{ label: string; value: string }> = [];
 
   for (const category of categories) {
     let step = (category.order || "/").split("/").length - 2;
@@ -151,7 +152,7 @@ const getTags = async (subdomain: string, type: string) => {
   const models = await generateModels(subdomain);
   const tags = await models.Tags.find({ type });
 
-  const selectOptions: Array<{ label: string; value: any }> = [];
+  const selectOptions: Array<{ label: string; value: string }> = [];
 
   for (const tag of tags) {
     selectOptions.push({
@@ -173,7 +174,7 @@ const generateProductsFields = async ({ subdomain, data }) => {
   const { usageType } = data;
   const models = await generateModels(subdomain);
 
-  const schema = models.Products.schema as any;
+  const schema = models.Products.schema;
 
   let fields: Array<{
     _id: number;
