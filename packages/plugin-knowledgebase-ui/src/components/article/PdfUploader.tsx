@@ -13,7 +13,57 @@ type Props = {
 
 const PdfUploader = (props: Props) => {
   const [isUploading, setIsUploading] = React.useState(false);
+  const [taskId, setTaskId] = React.useState(null);
+
   const { attachment, onChange } = props;
+
+  // Polling to check the upload task status
+  const checkTaskStatus = async (taskId) => {
+    const { REACT_APP_API_URL } = getEnv();
+    try {
+      const res = await fetch(`${REACT_APP_API_URL}/pl-workers/upload-status/${taskId}`);
+      const result = await res.json();
+
+      if (result.status === 'completed') {
+        Alert.success('Upload completed successfully!');
+        setTaskId(null); // Stop polling
+        setIsUploading(false);
+        const { data } = result;
+
+        const pdfAttachment: IPdfAttachment = {
+          pdf: {
+            name: result.filename,
+            type: 'application/pdf',
+            url: data.pdf,
+          },
+          pages: data.pages.map((page, index) => ({
+            name: `page-${index + 1}.jpg`,
+            url: page,
+            type: 'image/jpeg',
+          })),
+        };
+
+        onChange(pdfAttachment);
+
+        fetch(`${REACT_APP_API_URL}/pl-workers/delete-task/${taskId}`, {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+      } else if (result.status === 'failed') {
+        Alert.error('Task failed to complete.');
+      
+        setTaskId(null); // Stop polling
+        setIsUploading(false);
+      } else {
+        setIsUploading(true);
+      }
+    } catch (error) {
+      setTaskId(null); // Stop polling on error
+      setIsUploading(false);
+
+      Alert.error(error);
+    }
+  };
 
   const handlePdfUpload = async ({ target }) => {
     const { files } = target;
@@ -25,51 +75,43 @@ const PdfUploader = (props: Props) => {
     const { REACT_APP_API_URL } = getEnv();
 
     setIsUploading(true);
-    Alert.info(
-      'Uploading PDF, do not close this page or refresh until finished'
-    );
 
     try {
-      const res = await fetch(
-        `${REACT_APP_API_URL}/pl-knowledgebase/upload-pdf`,
-        {
-          method: 'POST',
-          body: formData,
-          credentials: 'include',
-          headers: {
-            Accept: 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
-      );
+      const res = await fetch(`${REACT_APP_API_URL}/pl-workers/upload-pdf`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        headers: {
+          Accept: 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+      });
 
       const result = await res.json();
 
       if (!result.error) {
-        Alert.success('Successfully uploaded');
-        const pdfAttachment: IPdfAttachment = {
-          pdf: {
-            name: file.name,
-            type: 'application/pdf',
-            url: result.pdf,
-          },
-          pages: result.pages.map((page, index) => ({
-            name: `page-${index + 1}.jpg`,
-            url: page,
-            type: 'image/jpeg',
-          })),
-        };
+        Alert.warning(
+          'Task has been submitted. Do not close this page or refresh until finished'
+        );
 
-        onChange(pdfAttachment);
+        setTaskId(result.taskId);
       } else {
         Alert.error(result.error);
+        setIsUploading(false)
       }
     } catch (error) {
-      Alert.error(error.message);
-    } finally {
-      setIsUploading(false);
-    }
+      Alert.error(error);
+      setIsUploading(false)
+    } 
   };
+
+  React.useEffect(() => {
+    if (taskId) {
+      const intervalId = setInterval(() => checkTaskStatus(taskId), 10000); // Check every 10 seconds
+
+      return () => clearInterval(intervalId);
+    }
+  }, [taskId]);
 
   const deleteFile = async (params: { fileName: string; url?: string }) => {
     const { REACT_APP_API_URL } = getEnv();
@@ -93,6 +135,7 @@ const PdfUploader = (props: Props) => {
     }
     return text;
   };
+
   const handleDeleteAttachment = async () => {
     if (!attachment) {
       return;
