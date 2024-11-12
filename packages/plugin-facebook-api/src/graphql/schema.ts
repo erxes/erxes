@@ -1,4 +1,4 @@
-import { attachmentType } from "@erxes/api-utils/src/commonTypeDefs";
+import { attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
 
 const commonCommentAndMessageFields = `
   content: String
@@ -140,6 +140,7 @@ export const queries = `
   facebootMessengerBotsTotalCount:Int
   facebootMessengerBot(_id:String):FacebookMessengerBot
   facebookGetBotPosts(botId:String):JSON
+  facebookGetPosts(channelIds:[String],brandIds:[String],limit:Int):JSON
   facebookGetBotPost(botId:String,postId:String):JSON
   facebookGetBotAds(botId:String):JSON
 `;
