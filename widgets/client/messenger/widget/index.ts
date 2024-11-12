@@ -251,7 +251,8 @@ window.addEventListener('message', async (event: MessageEvent) => {
       background-color: ${color};
       color: ${color || '#673fbd'};
       background-image: ${backgroundImage};
-      background-size: ${logo ? '' : '56px'};
+      background-size: ${logo ? '' : 'contain'};
+      background-position: center;
     `;
   }
 });
