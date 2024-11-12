@@ -23,12 +23,6 @@ const routes = () => {
         path='/settings/pms/general'
         element={<PipelineSetting />}
       />
-
-      {/* <Route
-        key='/settings/pms/pipeline'
-        path='/settings/pms/pipeline'
-        element={<PipelineSetting />}
-      /> */}
     </Routes>
   );
 };

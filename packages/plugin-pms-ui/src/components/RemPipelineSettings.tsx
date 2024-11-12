@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-import { Button } from "@erxes/ui/src/components";
-import { ContentBox } from "../styles";
-import Header from "./Header";
-import { IConfigsMap } from "../types";
-import PerRemSettings from "./RemPerSettings";
-import Sidebar from "./Sidebar";
-import { MainStyleTitle as Title } from "@erxes/ui/src/styles/eindex";
-import { Wrapper } from "@erxes/ui/src/layout";
-import { __ } from "@erxes/ui/src/utils";
+import { Button } from '@erxes/ui/src/components';
+import { ContentBox } from '../styles';
+import Header from './Header';
+import { IConfigsMap } from '../types';
+import PerRemSettings from './RemPerSettings';
+import Sidebar from './Sidebar';
+import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
+import { Wrapper } from '@erxes/ui/src/layout';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -18,7 +18,7 @@ type Props = {
 const GeneralSettings = (props: Props) => {
   const [configsMap, setConfigsMap] = useState<IConfigsMap>(props.configsMap);
 
-  const add = (e) => {
+  const add = e => {
     e.preventDefault();
 
     if (!configsMap.remainderConfig) {
@@ -27,14 +27,14 @@ const GeneralSettings = (props: Props) => {
 
     // must save prev item saved then new item
     const newPipelineConfig = {
-      title: "New Pipeline Remainder Config",
-      boardId: "",
-      pipelineId: "",
-      account: "",
-      location: "",
+      title: 'New Pipeline Config',
+      boardId: '',
+      pipelineId: '',
+      account: '',
+      location: '',
     };
 
-    setConfigsMap((prevConfigsMap) => ({
+    setConfigsMap(prevConfigsMap => ({
       ...prevConfigsMap,
       remainderConfig: {
         ...prevConfigsMap.remainderConfig,
@@ -45,14 +45,14 @@ const GeneralSettings = (props: Props) => {
 
   const deleteHandler = (currentConfigKey: string) => {
     delete configsMap.remainderConfig[currentConfigKey];
-    delete configsMap.remainderConfig["newPipelineConfig"];
+    delete configsMap.remainderConfig['newPipelineConfig'];
 
     setConfigsMap(configsMap);
 
     props.save(configsMap);
   };
 
-  const renderConfigs = (configs) => {
+  const renderConfigs = configs => {
     return Object.keys(configs).map((key, i) => {
       return (
         <PerRemSettings
@@ -71,19 +71,19 @@ const GeneralSettings = (props: Props) => {
     const configs = configsMap.remainderConfig || {};
 
     return (
-      <ContentBox id={"GeneralSettingsMenu"}>
+      <ContentBox id={'GeneralSettingsMenu'}>
         {renderConfigs(configs)}
       </ContentBox>
     );
   };
 
   const breadcrumb = [
-    { title: __("Settings"), link: "/settings" },
-    { title: __("Remainder config") },
+    { title: __('Settings'), link: '/settings' },
+    { title: __('Remainder config') },
   ];
 
   const actionButtons = (
-    <Button btnStyle="primary" onClick={add} icon="plus" uppercase={false}>
+    <Button btnStyle='primary' onClick={add} icon='plus' uppercase={false}>
       New config
     </Button>
   );
@@ -92,14 +92,14 @@ const GeneralSettings = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__("Remainder config")}
+          title={__('Remainder config')}
           breadcrumb={breadcrumb}
         />
       }
       mainHead={<Header />}
       actionBar={
         <Wrapper.ActionBar
-          left={<Title>{__("Remainder configs")}</Title>}
+          left={<Title>{__('Remainder configs')}</Title>}
           right={actionButtons}
         />
       }

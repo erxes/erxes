@@ -3,14 +3,14 @@ import {
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup
-} from "@erxes/ui/src/components";
-import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
-import { __ } from "@erxes/ui/src/utils";
-import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
-import React, { useState } from "react";
-import { IConfigsMap } from "../types";
-import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+  FormGroup,
+} from '@erxes/ui/src/components';
+import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
+import { __ } from '@erxes/ui/src/utils';
+import BoardSelectContainer from '@erxes/ui-sales/src/boards/containers/BoardSelect';
+import React, { useState } from 'react';
+import { IConfigsMap } from '../types';
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -73,13 +73,13 @@ const PerSettings = (props: Props) => {
   return (
     <CollapseContent
       title={__(config.title)}
-      open={props.currentConfigKey === "newremainderConfig" ? true : false}
+      open={props.currentConfigKey === 'newremainderConfig' ? true : false}
     >
       <FormGroup>
-        <ControlLabel>{"Title"}</ControlLabel>
+        <ControlLabel>{'Title'}</ControlLabel>
         <FormControl
-          defaultValue={config["title"]}
-          onChange={onChangeInput.bind(this, "title")}
+          defaultValue={config['title']}
+          onChange={onChangeInput.bind(this, 'title')}
           required={true}
           autoFocus={true}
         />
@@ -88,7 +88,7 @@ const PerSettings = (props: Props) => {
         <FormColumn>
           <FormGroup>
             <BoardSelectContainer
-              type="deal"
+              type='deal'
               autoSelectStage={false}
               boardId={config.boardId}
               pipelineId={config.pipelineId}
@@ -98,15 +98,11 @@ const PerSettings = (props: Props) => {
             />
           </FormGroup>
         </FormColumn>
-        <FormColumn>
-          {renderInput("account", "account", "")}
-          {renderInput("location", "location", "")}
-        </FormColumn>
       </FormWrapper>
       <ModalFooter>
         <Button
-          btnStyle="simple"
-          icon="cancel-1"
+          btnStyle='simple'
+          icon='cancel-1'
           onClick={onDelete}
           uppercase={false}
         >
@@ -114,8 +110,8 @@ const PerSettings = (props: Props) => {
         </Button>
 
         <Button
-          btnStyle="primary"
-          icon="check-circle"
+          btnStyle='primary'
+          icon='check-circle'
           onClick={onSave}
           uppercase={false}
           disabled={config.pipelineId ? false : true}
