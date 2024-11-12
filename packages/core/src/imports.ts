@@ -66,7 +66,7 @@ export default {
 
     const models = await generateModels(subdomain);
 
-    const bulkDoc: any = [];
+    const bulkDoc: string[] = [];
 
     // Iterating field values
     for (const fieldValue of result) {
