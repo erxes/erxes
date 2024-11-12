@@ -162,7 +162,7 @@ const List = (props: Props) => {
           data={renderContent()}
           loading={loading}
           count={(orders || []).length}
-          emptyText="Add in your first order!"
+          emptyText={__("Add in your first order!")}
           emptyImage="/images/actions/1.svg"
         />
       }

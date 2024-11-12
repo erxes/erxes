@@ -2,8 +2,7 @@ import { fetchByQueryWithScroll } from "@erxes/api-utils/src/elasticsearch";
 import { generateModels } from "./connectionResolver";
 import {
   sendCommonMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "./messageBroker";
 import { generateConditionStageIds } from "./utils";
 import {
@@ -173,9 +172,9 @@ const generateProductsCategoryProductIds = async (subdomain, condition) => {
   if (propertyName === "productsData.categoryId") {
     productCategoryIds.push(propertyValue);
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: "productFind",
+      action: "products.find",
       data: {
         categoryIds: [...new Set(productCategoryIds)],
         fields: { _id: 1 }

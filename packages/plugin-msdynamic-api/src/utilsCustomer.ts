@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 import { IModels } from "./connectionResolver";
-import { sendContactsMessage, sendCoreMessage } from "./messageBroker";
+import { sendCoreMessage } from "./messageBroker";
 import { getConfig } from "./utils";
 
 const getCustomer = async (
@@ -11,7 +11,7 @@ const getCustomer = async (
   let customer;
 
   if (customerType === "company") {
-    customer = await sendContactsMessage({
+    customer = await sendCoreMessage({
       subdomain,
       action: "companies.findOne",
       data: { _id: customerId },
@@ -19,7 +19,7 @@ const getCustomer = async (
       defaultValue: {}
     });
   } else {
-    customer = await sendContactsMessage({
+    customer = await sendCoreMessage({
       subdomain,
       action: "customers.findOne",
       data: { _id: customerId },
@@ -218,14 +218,14 @@ export const getMsdCustomerInfo = async (
     brandIds.push(brandId);
 
     if (customerType === "company") {
-      await sendContactsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "companies.updateCompany",
         data: { _id: customer._id, doc: { scopeBrandIds: brandIds } },
         isRPC: true
       });
     } else {
-      await sendContactsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "customers.updateCustomer",
         data: {
@@ -263,8 +263,7 @@ export const getMsdCustomerInfo = async (
   };
 };
 
-export const customerToDynamic = async (subdomain, params, models) => {
-  const configs = await getConfig(subdomain, "DYNAMIC", {});
+export const customerToDynamic = async (subdomain, params, models, configs) => {
   const brandIds = Object.keys(configs);
 
   for (const brandId of brandIds) {
@@ -288,7 +287,7 @@ export const customerToDynamic = async (subdomain, params, models) => {
 };
 
 const companyRequest = async (subdomain, config, action, updateCode, doc) => {
-  const company = await sendContactsMessage({
+  const company = await sendCoreMessage({
     subdomain,
     action: "companies.findOne",
     data: { $or: [{ code: updateCode }, { primaryName: doc.Name }] },
@@ -313,7 +312,7 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
         data: {
           query: {
             text: "post code",
-            contentType: "contacts:company"
+            contentType: "core:company"
           }
         },
         isRPC: true
@@ -334,7 +333,7 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
         data: {
           query: {
             text: "city",
-            contentType: "contacts:company"
+            contentType: "core:company"
           }
         },
         isRPC: true
@@ -355,7 +354,7 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
         data: {
           query: {
             text: "VAT",
-            contentType: "contacts:company"
+            contentType: "core:company"
           }
         },
         isRPC: true
@@ -390,14 +389,14 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
     };
 
     if (company) {
-      await sendContactsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "companies.updateCompany",
         data: { _id: company._id, doc: { ...document } },
         isRPC: true
       });
     } else {
-      await sendContactsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "companies.createCompany",
         data: { ...document },
@@ -408,7 +407,7 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
 };
 
 const customerRequest = async (subdomain, config, action, updateCode, doc) => {
-  const customer = await sendContactsMessage({
+  const customer = await sendCoreMessage({
     subdomain,
     action: "customers.findOne",
     data: { code: updateCode },
@@ -433,7 +432,7 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         data: {
           query: {
             text: "post code",
-            contentType: "contacts:customer"
+            contentType: "core:customer"
           }
         },
         isRPC: true
@@ -454,7 +453,7 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         data: {
           query: {
             text: "city",
-            contentType: "contacts:customer"
+            contentType: "core:customer"
           }
         },
         isRPC: true
@@ -475,7 +474,7 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         data: {
           query: {
             text: "VAT",
-            contentType: "contacts:customer"
+            contentType: "core:customer"
           }
         },
         isRPC: true
@@ -509,14 +508,14 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
     };
 
     if (customer) {
-      await sendContactsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "customers.updateCustomer",
         data: { _id: customer._id, doc: { ...document } },
         isRPC: true
       });
     } else {
-      await sendContactsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "customers.createCustomer",
         data: { ...document },
@@ -550,7 +549,7 @@ export const consumeCustomers = async (subdomain, config, doc, action) => {
   }
 
   if (action === "delete") {
-    const company = await sendContactsMessage({
+    const company = await sendCoreMessage({
       subdomain,
       action: "companies.findOne",
       data: { _id: doc._id },
@@ -558,7 +557,7 @@ export const consumeCustomers = async (subdomain, config, doc, action) => {
       defaultValue: {}
     });
 
-    const customer = await sendContactsMessage({
+    const customer = await sendCoreMessage({
       subdomain,
       action: "customers.findOne",
       data: { _id: doc._id },
@@ -567,7 +566,7 @@ export const consumeCustomers = async (subdomain, config, doc, action) => {
     });
 
     if (action === "delete" && company) {
-      await sendContactsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "companies.removeCompanies",
         data: { _ids: [company._id] },
@@ -576,7 +575,7 @@ export const consumeCustomers = async (subdomain, config, doc, action) => {
     }
 
     if (action === "delete" && customer) {
-      await sendContactsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "customers.removeCustomers",
         data: { customerIds: [customer._id] }

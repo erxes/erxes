@@ -1,5 +1,5 @@
 import { sendCoreMessage, sendInboxMessage } from "../messageBroker";
-import { NOW, PROBABILITY_CLOSED, PROBABILITY_OPEN, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP } from './constants';
+import { PROBABILITY_CLOSED, PROBABILITY_OPEN, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP } from './constants';
 import { IModels } from "../connectionResolver";
 import * as dayjs from 'dayjs';
 import * as isoWeek from 'dayjs/plugin/isoWeek';
@@ -9,11 +9,10 @@ const util = require('util');
 dayjs.extend(isoWeek);
 
 export const buildUnwind = ({ fields }: { fields: string[] }) => {
-  const unwinds = (fields || []).map((field) => ({
+
+  return (fields || []).map((field) => ({
     $unwind: `$${FIELD_MAP[field]}`
   }));
-
-  return unwinds;
 }
 
 export const buildLookup = ({ fields, localField, foreignField, extraConditions = [], extraStages = [] }: {
@@ -32,8 +31,8 @@ export const buildLookup = ({ fields, localField, foreignField, extraConditions 
 
     const pipeline: any = [
       { $match: { $expr: { $and: conditions } } },
-        ...extraStages,
-      ];
+      ...extraStages,
+    ];
 
     return [
       {
@@ -76,34 +75,22 @@ export const buildGroupBy = ({ fields, action, extraFields }: {
 export const buildAction = (measures: string[]): object => {
   const actions = {};
 
-  measures.forEach((measure) => {
+  (measures || []).forEach((measure) => {
     switch (measure) {
       case 'count':
         actions[measure] = { $sum: 1 };
         break;
       case 'totalAmount':
-        actions[measure] = { $sum: '$productsData.amount' };
+        actions[measure] = { $sum: { $cond: [{ $eq: ["$productsData.tickUsed", true] }, "$productsData.amount", 0] } };
         break
       case 'unusedAmount':
         actions[measure] = { $sum: { $cond: [{ $eq: ['$productsData.tickUsed', false] }, '$productsData.amount', 0] } };
         break;
       case 'averageAmount':
-        actions[measure] = { $avg: '$productsData.amount' };
+        actions[measure] = { $avg: { $cond: { if: { $eq: ["$productsData.tickUsed", true] }, then: "$productsData.amount", else: null } } };
         break;
       case 'forecastAmount':
-        actions[measure] = {
-          $sum: {
-            $divide: [
-              {
-                    $multiply: [
-                      "$productsData.amount",
-                      "$probability"
-                    ]
-                  },
-                  100
-                ]
-              }
-        }
+        actions[measure] = { $sum: { $cond: { if: { $eq: ["$productsData.tickUsed", true] }, then: { $divide: [{ $multiply: ["$productsData.amount", "$probability"] }, 100] }, else: 0 } } }
         break;
       default:
         actions[measure] = { $sum: 1 };
@@ -143,7 +130,7 @@ const buildFormatType = (dateRange, startDate, endDate) => {
 
 export const getGoalStage = (goalType) => {
 
-  const goalStage = {
+  return {
     $lookup: {
       from: "goals",
       let: { fieldId: goalType },
@@ -161,15 +148,20 @@ export const getGoalStage = (goalType) => {
       as: "goal",
     },
   }
-
-  return goalStage
 }
 
 export const buildPipeline = (filter, type, matchFilter) => {
 
   const { dimension, measure, userType = 'userId', frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt", sortBy, goalType, colDimension, rowDimension } = filter
 
-  const dimensions = colDimension?.length || rowDimension?.length ? [...colDimension, ...rowDimension] : Array.isArray(dimension) ? dimension : dimension?.split(",") || []
+  let dimensions
+
+  if (colDimension?.length || rowDimension?.length) {
+    dimensions = [...colDimension.map(col => col.value), ...rowDimension.map(row => row.value)]
+  } else {
+    dimensions = Array.isArray(dimension) ? dimension : dimension?.split(",") || []
+  }
+
   const measures = Array.isArray(measure) ? measure : measure?.split(",") || []
 
   const pipeline: any[] = [];
@@ -216,15 +208,15 @@ export const buildPipeline = (filter, type, matchFilter) => {
                     },
                   },
                 ],
-              },
             },
-          ],
-          as: "conformity",
-        },
+          },
+        ],
+        as: "conformity",
       },
-        {
-          $unwind: "$conformity",
-        });
+      },
+      {
+        $unwind: "$conformity",
+      });
   }
 
   if (dimensions.includes("company")) {
@@ -251,40 +243,43 @@ export const buildPipeline = (filter, type, matchFilter) => {
                   },
                   {
                     $expr: {
-                      $eq: ["$relType", "company"],
-                    },
+                    $eq: ["$relType", "company"],
                   },
-                ],
-              },
+                },
+              ],
             },
-          ],
-          as: "conformity",
-        },
+          },
+        ],
+        as: "conformity",
       },
-        {
-          $unwind: "$conformity",
-        });
+    },
+      {
+        $unwind: "$conformity",
+      });
   }
 
   if (dimensions.includes("assignedTo")) {
     pipeline.push({ $unwind: "$assignedUserIds" });
   }
 
-  if (dimensions.includes("field")) {
+  if (dimensions.includes("field") || filter?.subFields?.length) {
     pipeline.push(
       { $unwind: "$customFieldsData" },
       { $unwind: "$customFieldsData.value" },
       {
-        $lookup: {
-          from: "form_fields",
-          localField: "customFieldsData.field",
-          foreignField: "_id",
-          as: "field"
+        $addFields: {
+          customFieldValues: {
+            $cond: {
+              if: { $eq: [{ $type: "$customFieldsData.value" }, "object"] },
+              then: { $map: { input: { $objectToArray: "$customFieldsData.value" }, as: "pair", in: "$$pair.v" } },
+              else: ["$customFieldsData.value"]
+            }
+          }
         }
       },
       {
-        $unwind: "$field"
-      }
+        $unwind: "$customFieldValues"
+      },
     );
   }
 
@@ -338,18 +333,19 @@ export const buildPipeline = (filter, type, matchFilter) => {
       },
       {
         $unwind: "$integration"
-      })
+      }
+    )
   }
 
   if (dimensions.includes("product") || measures.some(m => ["totalAmount", "averageAmount", "unusedAmount", "forecastAmount"].includes(m))) {
     pipeline.push({ $unwind: "$productsData" });
   }
 
-  if (dimensions.includes("pipeline") || measures.includes("forecastAmount")) {
+  if (dimensions.includes("pipeline") || dimensions.includes("probability") || measures.includes("forecastAmount")) {
     pipeline.push(
       {
         $lookup: {
-          from: "stages",
+          from: `${COLLECTION_MAP[type]}_stages`,
           localField: "stageId",
           foreignField: "_id",
           as: "stage",
@@ -365,7 +361,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push(
       {
         $lookup: {
-          from: "stages",
+          from: `${COLLECTION_MAP[type]}_stages`,
           localField: "stageId",
           foreignField: "_id",
           as: "stage",
@@ -376,9 +372,9 @@ export const buildPipeline = (filter, type, matchFilter) => {
       },
       {
         $lookup: {
-              from: "pipelines",
-              localField: "stage.pipelineId",
-              foreignField: "_id",
+          from: `${COLLECTION_MAP[type]}_pipelines`,
+          localField: "stage.pipelineId",
+          foreignField: "_id",
           as: "pipeline",
         },
       },
@@ -449,7 +445,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
   const match: object = {}
 
-  if (measures.includes("forecastAmount")) {
+  if (measures.includes("forecastAmount") || dimensions.includes('probability')) {
     match["stage.probability"] = { $ne: null };
   }
 
@@ -529,7 +525,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
   }
 
   if (dimensions.includes("field")) {
-    groupKeys.field = "$customFieldsData.value";
+    groupKeys.field = "$customFieldValues";
   }
 
   if (dimensions.includes("label")) {
@@ -628,6 +624,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
     groupKeys.assignedTo = "$assignedUserIds";
   }
 
+  if (dimensions.includes("probability")) {
+    groupKeys.probability = "$stage.probability";
+  }
+
   if (dimensions.includes("frequency")) {
     groupKeys.frequency = {
       $dateToString: {
@@ -637,12 +637,56 @@ export const buildPipeline = (filter, type, matchFilter) => {
     };
   }
 
-  pipeline.push({
+  const groupKey: any = {
     $group: {
       _id: groupKeys,
       ...actions,
     }
-  });
+  }
+
+  if (dimensions.includes("card") || dimensions.includes("number")) {
+    groupKey.$group.doc = { $first: "$$ROOT" };
+  }
+
+  pipeline.push(groupKey);
+
+  if (dimensions.includes("card") || dimensions.includes("number")) {
+    pipeline.push(
+      {
+        $lookup: {
+          from: `${COLLECTION_MAP[type]}_stages`,
+          localField: "doc.stageId",
+          foreignField: "_id",
+          as: "stage"
+        }
+      },
+      {
+        $unwind: "$stage"
+      },
+      {
+        $lookup: {
+          from: `${COLLECTION_MAP[type]}_pipelines`,
+          localField: "stage.pipelineId",
+          foreignField: "_id",
+          as: "pipeline"
+        }
+      },
+      {
+        $unwind: "$pipeline"
+      },
+      {
+        $lookup: {
+          from: `${COLLECTION_MAP[type]}_boards`,
+          localField: "pipeline.boardId",
+          foreignField: "_id",
+          as: "board"
+        }
+      },
+      {
+        $unwind: "$board"
+      }
+    )
+  }
 
   if (dimensions.includes("frequency")) {
     pipeline.push({ $sort: { _id: 1 } })
@@ -764,11 +808,11 @@ export const buildPipeline = (filter, type, matchFilter) => {
               $match: {
                 $expr: {
                   $and: [
-                          { $or: conditions },
-                          { $eq: ["$isActive", true] },
-                        ]
-                      }
-                    }
+                    { $or: conditions },
+                    { $eq: ["$isActive", true] },
+                  ]
+                }
+              }
             },
           ],
           as: "userDetails"
@@ -853,7 +897,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push(
       {
         $lookup: {
-          from: "stages",
+          from: `${COLLECTION_MAP[type]}_stages`,
           let: { fieldId: "$_id.stageId" },
           pipeline: [
             {
@@ -877,7 +921,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push(
       {
         $lookup: {
-          from: "pipelines",
+          from: `${COLLECTION_MAP[type]}_pipelines`,
           let: { fieldId: "$_id.pipelineId" },
           pipeline: [
             {
@@ -901,7 +945,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push(
       {
         $lookup: {
-          from: "boards",
+          from: `${COLLECTION_MAP[type]}_boards`,
           let: { fieldId: "$_id.boardId" },
           pipeline: [
             {
@@ -935,13 +979,13 @@ export const buildPipeline = (filter, type, matchFilter) => {
                 "$$user._id",
                 "$_id.createdBy"
               ]
-                }
+            }
           }
         },
         0
       ]
     }
-    }
+  }
 
   if (dimensions.includes("modifiedBy")) {
     addFields['modifiedBy'] = {
@@ -955,7 +999,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
                 "$$user._id",
                 "$_id.modifiedBy"
               ]
-                  }
+            }
           }
         },
         0
@@ -975,7 +1019,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
                 "$$user._id",
                 "$_id.assignedTo"
               ]
-                  }
+            }
           }
         },
         0
@@ -1004,7 +1048,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     }
     }
 
-  measures.forEach((measure) => {
+  (measures || []).forEach((measure) => {
     projectionFields[measure] = 1;
   });
 
@@ -1120,6 +1164,16 @@ export const buildPipeline = (filter, type, matchFilter) => {
     projectionFields.assignedTo = "$assignedTo";
   }
 
+  if (dimensions.includes("probability")) {
+    projectionFields.probability = "$_id.probability";
+  }
+
+  if (dimensions.includes("card") || dimensions.includes("number")) {
+    projectionFields.itemId = '$doc._id';
+    projectionFields.pipelineId = '$pipeline._id';
+    projectionFields.boardId = '$board._id';
+  }
+
   pipeline.push({ $project: projectionFields });
 
   if (filter.amountRange) {
@@ -1169,26 +1223,23 @@ export const returnDateRange = (
   startDate: Date,
   endDate: Date,
 ) => {
-  const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
-  const endOfToday = new Date(NOW.setHours(23, 59, 59, 999));
-  const startOfYesterday = new Date(dayjs(NOW).add(-1, 'day').toDate().setHours(0, 0, 0, 0),);
-  const startOfTheDayBeforeYesterday = new Date(dayjs(NOW).add(-2, 'day').toDate().setHours(0, 0, 0, 0),);
+  const NOW = new Date()
 
   let $gte;
   let $lte;
 
   switch (dateRange) {
     case 'today':
-      $gte = startOfToday;
-      $lte = endOfToday;
+      $gte = dayjs(NOW).startOf('day').toDate();
+      $lte = dayjs(NOW).endOf('day').toDate();
       break;
     case 'yesterday':
-      $gte = startOfYesterday;
-      $lte = startOfToday;
+      $gte = dayjs(NOW).subtract(1, 'day').startOf('day').toDate();
+      $lte = dayjs(NOW).subtract(1, 'day').endOf('day').toDate();
       break;
     case 'last72h':
-      $gte = startOfTheDayBeforeYesterday;
-      $lte = startOfToday;
+      $gte = dayjs(NOW).subtract(3, 'day').startOf('day').toDate();
+      $lte = dayjs(NOW).endOf('day').toDate();
       break;
     case 'thisWeek':
       $gte = dayjs(NOW).startOf('week').toDate();
@@ -1199,8 +1250,8 @@ export const returnDateRange = (
       $lte = dayjs(NOW).add(-1, 'week').endOf('week').toDate();
       break;
     case 'last2Week':
-      $gte = dayjs(NOW).add(-2, 'week').startOf('week').toDate();
-      $lte = dayjs(NOW).add(-1, 'week').endOf('week').toDate();
+      $gte = dayjs(NOW).subtract(14, 'day').startOf('day').toDate();
+      $lte = dayjs(NOW).endOf('day').toDate();
       break;
     case 'last3Week':
       $gte = dayjs(NOW).add(-3, 'week').startOf('week').toDate();
@@ -1322,6 +1373,8 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     dateRange,
     dueDateRange,
     integrationTypes,
+    subFields,
+    stageProbability
   } = filter;
 
   const matchfilter = {};
@@ -1339,7 +1392,7 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
         action: 'activityLogs.findMany',
         data: {
           query: {
-            contentType: `cards:${type}`,
+            contentType: `sales:${type}`,
             createdBy: { $in: userIds },
             'content.destinationStageId': { $in: stageIds },
             action: 'moved',
@@ -1495,6 +1548,11 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     }
   }
 
+  if (stageProbability) {
+    const stageIds = await getStageIds(filter, type, model)
+    matchfilter['stageId'] = { $in: stageIds };
+  }
+
   // PRIORITY FILTER
   if (priority) {
     matchfilter['priority'] = { $eq: priority };
@@ -1532,6 +1590,10 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
   // CUSTOM PROPERTIES FIELD FILTER 
   if (fieldIds?.length) {
     matchfilter['customFieldsData.field'] = { $in: fieldIds };
+
+    if (subFields?.length) {
+      matchfilter['customFieldValues'] = { $in: subFields };
+    }
   }
 
   // CUSTOM PROPERTIES FIELD FILTER 
@@ -1635,6 +1697,10 @@ export const formatFrequency = (frequencyType, frequency) => {
     case '%m':
       format = formatMonth(frequency)
       break;
+    // Year - Month - Day - Hour - Minute - Second
+    case '%Y-%m-%d %H:%M:%S':
+      format = dayjs(new Date(frequency)).format('YYYY-MM-DD h:mm:ss A');
+      break;
     // Day of week (1-7)
     case '%u':
       format = formatWeekdays(frequency)
@@ -1654,13 +1720,13 @@ export const formatFrequency = (frequencyType, frequency) => {
   return format
 }
 
-export const formatData = (data, filter) => {
+export const formatData = (data, filter, type) => {
 
   const { dateRange, startDate, endDate, frequencyType } = filter
 
   const formattedData = [...data]
 
-  formattedData.map(item => {
+  formattedData.forEach(item => {
 
     if (item.hasOwnProperty('frequency')) {
       const frequency = item['frequency']
@@ -1670,36 +1736,42 @@ export const formatData = (data, filter) => {
       item['frequency'] = formatFrequency(formatData, frequency)
     }
 
-    ['createdBy', 'modifiedBy', 'assignedTo'].map(key => {
+    ['createdBy', 'modifiedBy', 'assignedTo'].forEach(key => {
       if (item.hasOwnProperty(key)) {
         const user = item[key]
         item[key] = user.details?.fullName || `${user.details?.firstName} ${user.details?.lastName}` || user.email
       }
-      });
+    });
 
-    ['createdAt', 'modifiedAt', 'startDate', 'closeDate', 'stageChangedDate'].map(key => {
+    ['createdAt', 'modifiedAt', 'startDate', 'closeDate', 'stageChangedDate'].forEach(key => {
       if (item.hasOwnProperty(key)) {
         const date = item[key]
         item[key] = dayjs(date).format('YYYY/MM/DD h:mm A')
         }
-      });
+    });
 
     ['count', 'totalAmount', 'averageAmount', 'unusedAmount', 'forecastAmount'].forEach(key => {
       if (item.hasOwnProperty(key) && MEASURE_LABELS[key]) {
         item[MEASURE_LABELS[key]] = item[key];
         delete item[key];
       }
-      });
+    });
+
+    if (item.hasOwnProperty('itemId') && item.hasOwnProperty('pipelineId') && item.hasOwnProperty('boardId')) {
+      item.url = `/${type}/board?id=${item.boardId}&pipelineId=${item.pipelineId}&itemId=${item.itemId}`;
+
+      ['boardId', 'pipelineId', 'itemId'].forEach((key) => delete item[key]);
+    }
   })
 
   return formattedData
 }
 
-export const buildData = ({ chartType, data, filter }) => {
+export const buildData = ({ chartType, data, filter, type }) => {
 
   const { measure, dimension, rowDimension, colDimension } = filter
 
-  const formattedData = formatData(data, filter);
+  const formattedData = formatData(data, filter, type);
 
   switch (chartType) {
     case 'bar':
@@ -1710,7 +1782,7 @@ export const buildData = ({ chartType, data, filter }) => {
     case 'polarArea':
       return buildChartData(formattedData, measure, dimension, filter)
     case 'table':
-      return buildTableData(formattedData, measure, dimension)
+      return buildTableData(formattedData, measure, dimension, colDimension, rowDimension)
     case 'pivotTable':
       return buildPivotTableData(data, rowDimension, colDimension, measure)
     case 'number':
@@ -1753,9 +1825,9 @@ export const buildChartData = (data: any, measures: any, dimensions: any, filter
 
       if (!labelExists) {
         acc.labels.push(label);
-        }
+      }
 
-      measures.forEach((measure) => {
+      (measures || []).forEach((measure) => {
         let dataset = acc.datasets.find((d) => d.label === MEASURE_LABELS[measure]);
 
         if (!dataset) {
@@ -1768,8 +1840,8 @@ export const buildChartData = (data: any, measures: any, dimensions: any, filter
           acc.datasets.push(dataset);
         }
 
-          dataset.data.push(item[MEASURE_LABELS[measure]] || 0);
-        });
+        dataset.data.push(item[MEASURE_LABELS[measure]] || 0);
+      });
 
       if (item.goal && !hasGoal) {
         let goalDataset = acc.datasets.find((d) => d.label === "Target");
@@ -1784,18 +1856,18 @@ export const buildChartData = (data: any, measures: any, dimensions: any, filter
           acc.datasets.push(goalDataset);
         }
 
-          if (item?.hasOwnProperty('frequency')) {
+        if (item?.hasOwnProperty('frequency')) {
 
-            const specificPeriodGoals = item.goal?.[0]?.specificPeriodGoals || []
-            const periodGoal = specificPeriodGoals.find(goal => goal.addMonthly.includes(item.frequency));
+          const specificPeriodGoals = item.goal?.[0]?.specificPeriodGoals || []
+          const periodGoal = specificPeriodGoals.find(goal => goal.addMonthly.includes(item.frequency));
 
-                if (periodGoal) {
-                  item.goal[0].target = periodGoal.addTarget;
-                }
-              }
-
-          goalDataset.data.push(item.goal?.[0]?.target || null);
+          if (periodGoal) {
+            item.goal[0].target = periodGoal.addTarget;
+          }
         }
+
+        goalDataset.data.push(item.goal?.[0]?.target || null);
+      }
 
       return acc;
     },
@@ -1808,21 +1880,31 @@ export const buildChartData = (data: any, measures: any, dimensions: any, filter
   return datasets
 }
 
-export const buildTableData = (data: any, measures: any, dimensions: any) => {
+export const buildTableData = (data: any, measures: any, dimensions: any, colDimension: any[], rowDimension: any[]) => {
+
+  if (colDimension?.length || rowDimension?.length) {
+    dimensions = [...colDimension.map(col => col.value), ...rowDimension.map(row => row.value)]
+  } else {
+    dimensions = Array.isArray(dimensions) ? dimensions : dimensions?.split(",") || []
+  }
 
   const reorderedData = data.map(item => {
-    const order = {};
+    const order: any = {};
 
     if (dimensions?.length) {
-      dimensions.forEach(dimension => {
+      (dimensions || []).forEach(dimension => {
         order[dimension] = item[dimension];
       });
     }
 
     if (measures?.length) {
-      measures.forEach(measure => {
+      (measures || []).forEach(measure => {
         order[measure] = item[MEASURE_LABELS[measure]];
       });
+    }
+
+    if (item.hasOwnProperty("url")) {
+      order.url = item.url || ''
     }
 
     return order;
@@ -1832,9 +1914,12 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
 
   if (measures?.length) {
     total = data.reduce((acc, item) => {
-      measures.forEach(measure => {
-        if (item[measure] !== undefined) {
-          acc[measure] = (acc[measure] || 0) + item[measure];
+
+      acc['total'] = dimensions?.length;
+
+      (measures || []).forEach(measure => {
+        if (item[MEASURE_LABELS[measure]] !== undefined) {
+          acc[measure] = (acc[measure] || 0) + item[MEASURE_LABELS[measure]];
         }
       });
 
@@ -1881,9 +1966,7 @@ export const getStageIds = async (filter: any, type: string, models: IModels,) =
     type: type,
   })
 
-  const getStageIds = (stages || []).map(stage => stage._id)
-
-  return getStageIds
+  return (stages || []).map(stage => stage._id)
 }
 
 export const getIntegrationIds = async (query, subdomain) => {
@@ -1944,7 +2027,6 @@ const rd = /\d/;
 const rz = /^0/;
 
 export const naturalSort = (as: any, bs: any) => {
-  // nulls first
   if (bs !== null && as === null) {
     return -1;
   }
@@ -1952,7 +2034,20 @@ export const naturalSort = (as: any, bs: any) => {
     return 1;
   }
 
-  // then raw NaNs
+  if (typeof as === 'boolean') {
+    return -1;
+  }
+  if (typeof bs === 'boolean') {
+    return 1;
+  }
+
+  if (!as || as.trim() === "") {
+    return 1;
+  }
+  if (!bs || bs.trim() === "") {
+    return -1;
+  }
+
   if (typeof as === 'number' && isNaN(as)) {
     return -1;
   }
@@ -1960,7 +2055,6 @@ export const naturalSort = (as: any, bs: any) => {
     return 1;
   }
 
-  // numbers and numbery strings group together
   const nas = Number(as);
   const nbs = Number(bs);
   if (nas < nbs) {
@@ -1970,7 +2064,6 @@ export const naturalSort = (as: any, bs: any) => {
     return 1;
   }
 
-  // within that, true numbers before numbery strings
   if (typeof as === 'number' && typeof bs !== 'number') {
     return -1;
   }
@@ -1981,7 +2074,6 @@ export const naturalSort = (as: any, bs: any) => {
     return 0;
   }
 
-  // 'Infinity' is a textual number, so less than 'A'
   if (isNaN(nbs) && !isNaN(nas)) {
     return -1;
   }
@@ -1989,7 +2081,6 @@ export const naturalSort = (as: any, bs: any) => {
     return 1;
   }
 
-  // finally, "smart" string sorting per http://stackoverflow.com/a/4373421/112871
   let a: any = String(as);
   let b: any = String(bs);
   if (a === b) {
@@ -1999,7 +2090,6 @@ export const naturalSort = (as: any, bs: any) => {
     return a > b ? 1 : -1;
   }
 
-  // special treatment for strings containing digits
   a = a.match(rx);
   b = b.match(rx);
   while (a.length && b.length) {
@@ -2033,8 +2123,8 @@ export const arrSort = (attrs: any) => {
   let a;
   const sortersArr = (() => {
     const result: any[] = [];
-    for (a of Array.from(attrs)) {
-      result.push(getSort({}, a));
+    for (a of Array.from(attrs) as any) {
+      result.push(getSort({}, a.value));
     }
     return result;
   })();
@@ -2083,67 +2173,94 @@ const aggregator = (rowKey: any[], colKey: any[], vals?: string[]) => {
   };
 };
 
+const subarrays = (array: any[]) => array.map((d, i) => array.slice(0, i + 1));
+
+export const transformData = (data, cols) => {
+  return data.map(row => {
+    const newRow = [...row];
+
+    if (row.length < cols.length) {
+      const lastIndex = newRow.length - 1;
+      if (newRow[lastIndex] !== undefined && cols[lastIndex + 1]?.showTotal) {
+        newRow[lastIndex] = `${newRow[lastIndex]} Total`;
+      } else {
+        return null;
+      }
+    }
+
+    return newRow;
+  }).filter(row => row !== null);
+}
+
 export const createPivotTable = (data: any, rows: any, cols: any, vals: any) => {
   const tree: any = {}
-  const rowKeys: any[] = [];
-  const colKeys: any[] = [];
+  const mainRowKeys: any[] = []
+  const mainColKeys: any[] = []
   const rowTotals: any = {}
   const colTotals: any = {}
   const allTotal = aggregator([], [], vals);
 
   data.forEach((record: any) => {
 
-    const colKey: any = [];
-    const rowKey: any = [];
+    let colKeys: any[] = [];
+    let rowKeys: any[] = [];
 
     for (const x of Array.from(cols) as any) {
-      colKey.push(x in record ? record[x] : 'null');
+      colKeys.push(x.value in record ? record[x.value] : 'null');
         }
 
     for (const x of Array.from(rows) as any) {
-      rowKey.push(x in record ? record[x] : 'null');
+      rowKeys.push(x.value in record ? record[x.value] : 'null');
     }
 
-    const flatRowKey = rowKey.join(String.fromCharCode(0));
-    const flatColKey = colKey.join(String.fromCharCode(0));
+    colKeys = subarrays(colKeys);
+    rowKeys = subarrays(rowKeys);
 
     allTotal.push(record);
 
-    if (rowKey.length !== 0) {
-      if (!rowTotals[flatRowKey]) {
-        rowKeys.push(rowKey);
-        rowTotals[flatRowKey] = aggregator(rowKey, [], vals);
-      }
-        rowTotals[flatRowKey].push(record);
-      }
+    for (const rowKey of rowKeys) {
+      const flatRowKey = rowKey.join(String.fromCharCode(0));
 
-    if (colKey.length !== 0) {
-      if (!colTotals[flatColKey]) {
-        colKeys.push(colKey);
-        colTotals[flatColKey] = aggregator([], colKey, vals);
-      }
-        colTotals[flatColKey].push(record);
-      }
+      for (const colKey of colKeys) {
+        const flatColKey = colKey.join(String.fromCharCode(0));
 
-    if (colKey.length !== 0 && rowKey.length !== 0) {
-      if (!tree[flatRowKey]) {
-        tree[flatRowKey] = {};
+        if (rowKey.length !== 0) {
+          if (!rowTotals[flatRowKey]) {
+            mainRowKeys.push(rowKey);
+            rowTotals[flatRowKey] = aggregator(rowKey, [], vals);
+          }
+          rowTotals[flatRowKey].push(record);
         }
 
-        if (!tree[flatRowKey][flatColKey]) {
-          tree[flatRowKey][flatColKey] = aggregator(
-            rowKey,
-            colKey,
-            vals
-          );
+        if (colKey.length !== 0) {
+          if (!colTotals[flatColKey]) {
+            mainColKeys.push(colKey);
+            colTotals[flatColKey] = aggregator([], colKey, vals);
+          }
+          colTotals[flatColKey].push(record);
         }
 
-        tree[flatRowKey][flatColKey].push(record);
+        if (colKey.length !== 0 && rowKey.length !== 0) {
+          if (!tree[flatRowKey]) {
+            tree[flatRowKey] = {};
+          }
+
+          if (!tree[flatRowKey][flatColKey]) {
+            tree[flatRowKey][flatColKey] = aggregator(
+              rowKey,
+              colKey,
+              vals
+            );
+          }
+
+          tree[flatRowKey][flatColKey].push(record);
+        }
       }
+    }
   })
 
-  const sortedRowKeys = sortKeys(rowKeys, rows)
-  const sortedColKeys = sortKeys(colKeys, cols)
+  const sortedRowKeys = sortKeys(mainRowKeys, rows)
+  const sortedColKeys = sortKeys(mainColKeys, cols)
 
   return {
     tree,
@@ -2194,47 +2311,64 @@ export const spanSize = (arr: any[], i: number, j: number) => {
   return len;
 };
 
-export const buildPivotTableData = (data: any, rows: string[], cols: string[], value: any) => {
+export const buildPivotTableData = (data: any, rows: any[], cols: any[], value: any) => {
 
   const { tree, rowKeys, colKeys, rowTotals, colTotals, allTotal } = createPivotTable(data, rows, cols, value)
 
   const headers: any[] = [];
 
   const headerRows = (rows || []).map((row: any, rowIndex: any) => {
-    const headerCell = {
-      content: row,
-      rowspan: cols.length + 1
-    };
 
-    return headerCell
+    return {
+      content: row.value,
+      rowspan: cols.length + 1,
+      className: 'sticky-col pl-0'
+    }
   });
 
   headers.push(headerRows);
 
-  (cols || []).map((_, colIndex: number) => {
+  (cols || []).forEach((_, colIndex: number) => {
+    const transformedColKeys = transformData(colKeys, cols)
+    const headerCols: any[] = []
 
-    const headerCols: any[] = colKeys.map((colKey: any, colKeyIndex: number) => {
-      const colspan = spanSize(colKeys, colKeyIndex, colIndex);
+    transformedColKeys.forEach((colKey: any, colKeyIndex: number) => {
+      const colspan = spanSize(transformedColKeys, colKeyIndex, colIndex);
 
-        const headerCell = {
-          content: colKey[colIndex],
-          colspan: colspan === -1 ? 0 : colspan
-        };
+      const colGap = cols.length - colKey.length;
 
-        return headerCell
-      });
+      if (!colKey[colIndex]) {
+        return null
+      }
+
+      const headerCell: any = {
+        content: colKey[colIndex],
+        colspan: colspan === -1 ? 0 : colspan
+      };
+
+      if (colGap) {
+        const currentCol: any = cols[cols.length - colGap]
+        headerCell.rowspan = currentCol.showTotal ? colGap + 1 : 0
+      }
+
+      headerCols.push(headerCell)
+    });
 
     if (colIndex === 0) {
 
-        const headerTotalColCell = {
-          content: "Totals",
-          rowspan: cols.length
-        }
-
-        headers.push([...headerCols, headerTotalColCell])
-      } else {
-        headers.push(headerCols)
+      let headerTotalColCell: any = {
+        content: "Totals",
+        rowspan: cols.length
       }
+
+      if (!cols[0].showTotal) {
+        headerTotalColCell = null
+      }
+
+      headers.push([...headerCols, headerTotalColCell])
+    } else {
+      headers.push(headerCols)
+    }
 
   })
 
@@ -2246,18 +2380,30 @@ export const buildPivotTableData = (data: any, rows: string[], cols: string[], v
 
     const totalAggregator = rowTotals[flatRowKey]
 
+    const rowGap = rows.length - rowKey.length
+
     const bodyRow: any[] = rowKey.map((row: any, rowIndex: number) => {
 
-        const colspan = spanSize(rowKeys, rowKeyIndex, rowIndex);
+      const colspan = spanSize(rowKeys, rowKeyIndex, rowIndex);
 
-        const bodyCell = {
-          content: row,
-          rowspan: colspan === -1 ? 0 : colspan,
-          className: 'pl-0'
-        };
+      return {
+        content: row,
+        rowspan: colspan === -1 ? 0 : colspan === 1 ? colspan : rowGap ? colspan + 1 : colspan - 1,
+        className: `pl-0 sticky-col ${rowGap ? 'subTotal' : ''}`
+      }
+    })
 
-        return bodyCell
-      })
+    let subTotalCell: any = null;
+
+    const row = rows[rows.length - rowGap]
+
+    if (rowGap && row.showTotal) {
+      subTotalCell = {
+        content: `${rowKey[rowKey.length - 1]} Total`,
+        colspan: rowGap + 1,
+        className: "pl-0 subTotal sticky-col"
+      };
+    }
 
     const bodyCol = colKeys.map((colKey: any, colIndex: number) => {
 
@@ -2265,37 +2411,65 @@ export const buildPivotTableData = (data: any, rows: string[], cols: string[], v
 
       const aggregator = tree[flatRowKey][flatColKey]
 
-        const bodyCell = {
-          content: aggregator?.value() || '-',
-        };
+      const colGap = cols.length - colKey.length;
 
-        if (colIndex === 0) {
-          Object.assign(bodyCell, { className: 'pl-0' })
-        }
+      const row = rows[rows.length - rowGap]
+      const col = cols[cols.length - colGap]
 
-        return bodyCell
-      })
+      let bodyCell: any = {
+        content: aggregator?.value() || '-',
+        colspan: (colGap && !col.showTotal) ? 0 : 1,
+        className: colGap || rowGap ? 'subTotal' : ''
+      };
 
-    const totalColCell = {
-      content: totalAggregator.value(),
+      if (rowGap) {
+        bodyCell.rowspan = (rowGap && !row.showTotal) ? 0 : 1
+      }
+
+      if (colIndex === 0) {
+        Object.assign(bodyCell, { className: `pl-0 ${colGap || rowGap ? 'subTotal' : ''}` })
+      }
+
+      return bodyCell
+    })
+
+    let totalColCell: any = {
+      content: totalAggregator.value() / cols.length || '-',
+      colspan: rowGap && !row.showTotal ? 0 : 1,
       className: "total"
     }
 
-    body.push([...bodyRow, ...bodyCol, totalColCell])
+    if (!cols[0].showTotal) {
+      totalColCell = null
+    }
+
+    body.push([...bodyRow, subTotalCell, ...bodyCol, totalColCell])
   })
 
-  const totalRowCell = {
+  let totalRowCell: any = {
     content: "Totals",
     colspan: rows.length,
-    className: "total"
+    className: "total sticky-col"
+  }
+
+  if (!rows[0].showTotal) {
+    totalRowCell = null
   }
 
   const totalColCell = colKeys.map((colKey: any, colIndex: number) => {
 
     const totalAggregator = colTotals[colKey.join(String.fromCharCode(0))]
 
+    const colGap = cols.length - colKey.length;
+    const col = cols[cols.length - colGap]
+
+    if (!rows[0].showTotal) {
+      return null
+    }
+
     const totalCell = {
-      content: totalAggregator?.value() || '-',
+      content: totalAggregator?.value() / rows.length || '-',
+      colspan: (colGap && !col.showTotal) ? 0 : 1,
       className: "total"
     }
 
@@ -2306,9 +2480,13 @@ export const buildPivotTableData = (data: any, rows: string[], cols: string[], v
     return totalCell
   })
 
-  const grandTotalCell = { content: allTotal, className: "total" }
+  let grandTotalCell: any = null
+
+  if (rows[0].showTotal && cols[0].showTotal) {
+    grandTotalCell = { content: allTotal, className: "total" }
+  }
 
   body.push([totalRowCell, ...totalColCell, grandTotalCell])
 
-  return { headers, body }
+  return { headers, body, rowAttributes: rows }
 }

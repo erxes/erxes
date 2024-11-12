@@ -1,7 +1,6 @@
 import { paginate } from '@erxes/api-utils/src/core';
 import {
-  checkPermission,
-  requireLogin
+  checkPermission
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 
@@ -78,7 +77,7 @@ const safeRemainderQueries = {
   }
 };
 
-requireLogin(safeRemainderQueries, 'tagDetail');
-checkPermission(safeRemainderQueries, 'remainders', 'showTags', []);
+checkPermission(safeRemainderQueries, "safeRemainders", "manageRemainders", []);
+checkPermission(safeRemainderQueries, "safeRemainderDetail", "manageRemainders", []);
 
 export default safeRemainderQueries;

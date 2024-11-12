@@ -6,11 +6,8 @@ import Button from "@erxes/ui/src/components/Button";
 import Popover from "@erxes/ui/src/components/Popover";
 import { PopoverButton } from "@erxes/ui/src/styles/main";
 import { __ } from "@erxes/ui/src/utils/index";
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
 import DateRange, { type DateRangeType } from './DateRange';
-import utc from 'dayjs/plugin/utc';
-
-dayjs.extend(utc);
 
 const dateFormat = "MM/DD/YYYY";
 const NOW = new Date();
@@ -44,7 +41,7 @@ const SelectDate = (props: Props) => {
     const [options, setOptions] = useState(fieldOptions || [])
 
     const [dateRange, setDateRange] = useState<DateRangeType>({
-        startDate: startDate || dayjs.utc(NOW).add(-7, "day").startOf('day').toDate(),
+        startDate: startDate || dayjs(NOW).add(-7, "day").startOf('day').toDate(),
         endDate: endDate || dayjs(NOW).endOf('day').toDate(),
     });
 
@@ -80,11 +77,11 @@ const SelectDate = (props: Props) => {
             const { startDate, endDate } = prevRange;
 
             if (!startDate || endDate) {
-                return { startDate: dayjs.utc(selectedDate).startOf('day').toDate(), endDate: undefined };
+                return { startDate: dayjs(selectedDate).startOf('day').toDate(), endDate: undefined };
             }
 
-            if (dayjs.utc(selectedDate).isBefore(startDate)) {
-                return { startDate: dayjs.utc(selectedDate).startOf('day').toDate(), endDate: dayjs(startDate).endOf('day').toDate() };
+            if (dayjs(selectedDate).isBefore(startDate)) {
+                return { startDate: dayjs(selectedDate).startOf('day').toDate(), endDate: dayjs(startDate).endOf('day').toDate() };
             }
 
             return { ...prevRange, endDate: dayjs(selectedDate).endOf('day').toDate() };
@@ -113,6 +110,7 @@ const SelectDate = (props: Props) => {
                                     </PopoverButton>
                                 }
                                 placement="top-start"
+                                className='date-range-popover'
                             >
                                 <DateRange
                                     dateRange={dateRange}

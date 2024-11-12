@@ -57,22 +57,27 @@ const generateUsersOptions = async (
   name: string,
   label: string,
   type: string,
-  subdomain: string
+  selectionConfig?: any
 ) => {
-  const models = await generateModels(subdomain);
-  const users = await models.Users.find({}).lean();
+  // const models = await generateModels(subdomain);
+  // const users = await models.Users.find({}).lean();
 
-  const options: Array<{ label: string; value: any }> = users.map(user => ({
-    value: user._id,
-    label: user.username || user.email || ""
-  }));
+  // const options: Array<{ label: string; value: any }> = users.map((user) => ({
+  //   value: user._id,
+  //   label: user.username || user.email || '',
+  // }));
 
   return {
     _id: Math.random(),
     name,
     label,
     type,
-    selectOptions: options
+    selectionConfig: {
+      ...selectionConfig,
+      queryName: "users",
+      labelField: "email"
+    }
+    // selectOptions: options
   };
 };
 
@@ -318,12 +323,7 @@ export const generateContactsFields = async ({ subdomain, data }) => {
     }
   }
 
-  const ownerOptions = await generateUsersOptions(
-    "ownerId",
-    "Owner",
-    "user",
-    subdomain
-  );
+  const ownerOptions = await generateUsersOptions("ownerId", "Owner", "user");
 
   const tags = await getTags(
     subdomain,

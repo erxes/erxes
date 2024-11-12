@@ -10,6 +10,7 @@ import { OperatorList } from "../styles";
 import React from "react";
 import Select, { OnChangeValue } from "react-select";
 import { __ } from "@erxes/ui/src/utils";
+import SelectWithSearch from "@erxes/ui/src/components/SelectWithSearch";
 
 type Props = {
   field: IField;
@@ -137,7 +138,12 @@ class PropertyForm extends React.Component<Props, State> {
 
     const { value } = chosenOperator;
 
-    const { selectOptions = [], choiceOptions = [], type } = field;
+    const {
+      selectOptions = [],
+      choiceOptions = [],
+      type,
+      selectionConfig,
+    } = field;
 
     if (["is", "ins", "it", "if"].indexOf(value) >= 0) {
       return null;
@@ -149,6 +155,44 @@ class PropertyForm extends React.Component<Props, State> {
 
     if (selectOptions.length > 0) {
       return this.renderSelect(currentValue, selectOptions);
+    }
+
+    if (selectionConfig) {
+      const {
+        queryName,
+        selectionName,
+        labelField,
+        valueField = "_id",
+        multi,
+      } = selectionConfig;
+
+      const query = `
+        query ${queryName}($searchValue: String) {
+          ${queryName}(searchValue: $searchValue) {
+            ${labelField},${valueField}
+          }
+        }
+      `;
+
+      return (
+        <SelectWithSearch
+          label={field.label}
+          name={selectionName}
+          customQuery={query}
+          queryName={queryName}
+          initialValue={currentValue}
+          multi={multi}
+          onSelect={(value, name) =>
+            this.onChangeSelect({ label: name, value: value as string })
+          }
+          generateOptions={(options) =>
+            options.map((option) => ({
+              label: option[labelField],
+              value: option[valueField],
+            }))
+          }
+        />
+      );
     }
 
     // if custom field is of type radio, then show options as select

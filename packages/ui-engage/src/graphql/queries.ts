@@ -82,28 +82,27 @@ const engageMessages = `
         name
       }
 
-       segments {
-                _id
-                name
-        }
-
-        getTags {
-            ${tagFields}
-        }
-        customerTags {
-            ${tagFields}
-        }
-    
+      segments {
+        _id
+        name
       }
 
-      ${
-        isEnabled("clientportal")
-          ? `
-              cpId
-            `
-          : ""
+      getTags {
+        ${tagFields}
       }
+      
+      customerTags {
+        ${tagFields}
+      }
+        ${
+          isEnabled("clientportal")
+            ? `
+            cpId
+          `
+            : ""
+        }
     }
+  
   }
 `;
 

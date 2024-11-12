@@ -244,7 +244,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
         <CollapseContent
           beforeTitle={<Icon icon='settings' />}
           transparent={true}
-          title='General settings'
+          title={__('General settings')}
         >
           <Form renderContent={this.renderContent} />
         </CollapseContent>

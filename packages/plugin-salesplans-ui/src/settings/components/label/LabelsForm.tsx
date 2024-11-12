@@ -51,9 +51,6 @@ const Form = (props: Props) => {
     }
   );
 
-  console.log("spLabel", spLabel);
-  console.log("label", label);
-
   const generateDoc = (values: { _id?: string }) => {
     const finalValues = values;
 

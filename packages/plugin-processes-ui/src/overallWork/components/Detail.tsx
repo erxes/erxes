@@ -211,7 +211,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
       </BarItems>
     );
 
-    const actionBarLeft = <Title>{"Performances"}</Title>;
+    const actionBarLeft = <Title>{__("Performances")}</Title>;
 
     return (
       <Wrapper

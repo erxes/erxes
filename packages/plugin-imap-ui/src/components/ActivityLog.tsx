@@ -95,7 +95,7 @@ const ActivityItem = (props: Props) => {
 
   return (
     <ActivityRow className="activity-row">
-      <Tip text={"imap email"} placement="top">
+      <Tip text={__("imap email")} placement="top">
         <ActivityIcon color={iconAndColor.color}>
           <Icon icon={iconAndColor.icon} />
         </ActivityIcon>

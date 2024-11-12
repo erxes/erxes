@@ -1,13 +1,15 @@
 import { IContext } from '../../connectionResolver';
 import { ISyncRule } from '../../models/definitions/syncRule';
-import { convertToPropertyData } from '../../utils';
+import { convertToPropertyData, syncData } from '../../utils';
 
 const xypMutations = {
   /**
    * Creates a new xyp
    */
-  async xypDataAdd(_root, doc, { models, user }: IContext) {
-    return models.XypData.createXypData(doc, user);
+  async xypDataAdd(_root, doc, { subdomain, models, user }: IContext) {
+    const data = await models.XypData.createXypData(doc, user);
+    await syncData(subdomain, models, data);
+    return data
   },
 
   /**
@@ -22,18 +24,6 @@ const xypMutations = {
    */
   async xypDataRemove(_root, { _id }, { models, user }: IContext) {
     return models.XypData.removeXypData(_id);
-  },
-
-  async xypDataCreateOrUpdate(_root, { ...doc }, { models, user }: IContext) {
-    return models.XypData.createOrUpdateXypData(doc, user);
-  },
-
-  async xypConvertToCustomeFields(
-    _root,
-    { _id },
-    { models, user, subdomain }: IContext,
-  ) {
-    return await convertToPropertyData(models, subdomain, { customerId: _id });
   },
 
   async xypSyncRuleAdd(_root, doc: ISyncRule, { models, user }: IContext) {

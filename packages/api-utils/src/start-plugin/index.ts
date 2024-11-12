@@ -336,6 +336,8 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     }
 
     if (search) {
+      configs.meta.isSearchable = true;
+
       searchCunsomers({ name: configs.name, search });
     }
 

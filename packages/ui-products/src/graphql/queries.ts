@@ -96,7 +96,8 @@ const products = `
     $pipelineId: String,
     $boardId: String,
     $segment: String,
-    $segmentData: String
+    $segmentData: String,
+    $image: String,
   ) {
     products(
       type: $type,
@@ -113,7 +114,8 @@ const products = `
       pipelineId: $pipelineId,
       boardId: $boardId,
       segment: $segment,
-      segmentData: $segmentData
+      segmentData: $segmentData,
+      image: $image,
     ) {
       ${productFields}
     }

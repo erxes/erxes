@@ -14,7 +14,7 @@ import {
 } from "@erxes/api-utils/src/logUtils";
 import { LOG_MAPPINGS, MODULE_NAMES } from "./constants";
 import { ACTIVITY_CONTENT_TYPES } from "./models/definitions/constants";
-import { sendCoreMessage, sendProductsMessage } from "./messageBroker";
+import { sendCoreMessage } from "./messageBroker";
 import { IModels, generateModels } from "./connectionResolver";
 import {
   collectItems,
@@ -194,9 +194,9 @@ const gatherPurchaseFieldNames = async (
       foreignKey: "productId",
       prevList: options,
       nameFields: ["name"],
-      items: await sendProductsMessage({
+      items: await sendCoreMessage({
         subdomain,
-        action: "productFind",
+        action: "products.find",
         data: {
           query: {
             _id: { $in: doc.productsData.map(p => p.productId) }

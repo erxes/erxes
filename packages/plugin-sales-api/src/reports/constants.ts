@@ -101,9 +101,9 @@ export const COLLECTION_MAP = {
   stage: "stages",
   tag: "tags",
   label: "pipeline_labels",
-  // frequency: "frequency",
-  // status: "status",
-  // priority: "priority",
+  deal: "sales",
+  task: "tasks",
+  ticket: "tickets",
 }
 
 export const FIELD_MAP = {
@@ -127,7 +127,8 @@ export const CUSTOM_DATE_FREQUENCY_TYPES = [
   { label: 'By week', value: '%Y-%V' },
   { label: 'By month', value: '%m' },
   { label: 'By year', value: '%Y' },
-  { label: 'By Date', value: '%Y-%m-%d' },
+  { label: 'By date', value: '%Y-%m-%d' },
+  { label: 'By date-time', value: '%Y-%m-%d %H:%M:%S' }
 ];
 
 export const MEASURE_OPTIONS = [
@@ -177,6 +178,7 @@ export const DATERANGE_TYPES = [
   { label: 'Yesterday', value: 'yesterday' },
   { label: 'This Week', value: 'thisWeek' },
   { label: 'Last Week', value: 'lastWeek' },
+  { label: 'Last 2 Week', value: 'last2Week' },
   { label: 'This Month', value: 'thisMonth' },
   { label: 'Last Month', value: 'lastMonth' },
   { label: 'This Year', value: 'thisYear' },

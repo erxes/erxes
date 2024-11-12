@@ -1,7 +1,7 @@
 import { IContext } from "../../../connectionResolver";
 import { IOverallWork } from "./../../../models/definitions/overallWorks";
 import { JOB_TYPES } from "../../../models/definitions/constants";
-import { sendCoreMessage, sendProductsMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
@@ -31,9 +31,9 @@ export default {
       return;
     }
 
-    return await sendProductsMessage({
+    return await sendCoreMessage({
       subdomain,
-      action: "productFindOne",
+      action: "products.findOne",
       data: { _id: typeId },
       isRPC: true
     });

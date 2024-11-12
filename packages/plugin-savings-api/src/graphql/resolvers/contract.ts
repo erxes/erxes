@@ -18,7 +18,7 @@ const Contracts = {
         data: { _id: contract.customerId },
         isRPC: true
       },
-      'contacts'
+      'core'
     );
 
     return customer;
@@ -34,7 +34,7 @@ const Contracts = {
         data: { _id: contract.customerId },
         isRPC: true
       },
-      'contacts'
+      'core'
     );
 
     return company;

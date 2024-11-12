@@ -2,7 +2,7 @@ module.exports = {
   srcDir: __dirname,
   name: "purchases",
   port: 3021,
-  scope: "sales",
+  scope: "purchases",
   url: "http://localhost:3021/remoteEntry.js",
   exposes: {
     "./routes": "./src/routes.tsx",

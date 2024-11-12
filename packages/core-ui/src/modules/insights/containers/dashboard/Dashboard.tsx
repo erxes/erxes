@@ -102,14 +102,14 @@ const DashboardContainer = (props: Props) => {
   const [dashboardChartsRemoveMutation] = useMutation(
     gql(mutations.chartsRemove),
     {
-      refetchQueries: ["dashboards", "dashboardDetail"],
+      refetchQueries: ["dashboards", "dashboardDetail", "insightPinnedList"],
     }
   );
 
   const [chartDuplicateMutation] = useMutation(
     gql(mutations.chartDuplicate),
     {
-      refetchQueries: ["dashboards", "dashboardDetail"],
+      refetchQueries: ["dashboards", "dashboardDetail", "insightPinnedList"],
     }
   );
 

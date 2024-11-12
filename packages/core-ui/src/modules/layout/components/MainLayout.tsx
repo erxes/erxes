@@ -117,6 +117,7 @@ class MainLayout extends React.Component<IProps, State> {
               isSubscribed: currentUser.isSubscribed,
             },
             companyData: {
+              name,
               organizationName: name,
               organizationSubDomain: subdomain,
               organizationPlan: plan,

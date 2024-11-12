@@ -36,12 +36,14 @@ const paymentOptionsParams = `
 export const queries = `
   payments(status: String): [Payment]
 
-  paymentsPublic(kind: String, _ids:[String]): [PaymentPublic]
+  paymentsPublic(kind: String, _ids:[String], currency: String): [PaymentPublic]
   paymentsCountByType: paymentsTotalCount
   paymentsTotalCount(kind: String, status: String): paymentsTotalCount
 
   qpayGetMerchant(_id: String!): JSON
   qpayGetDistricts(cityCode: String!): JSON
+
+  paymentsGetStripeKey(_id: String!): String
 `;
 
 const params = `

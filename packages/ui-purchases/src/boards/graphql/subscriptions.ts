@@ -1,6 +1,6 @@
 const pipelinesChanged = `
-  subscription pipelinesChanged($_id: String!) {
-    pipelinesChanged(_id: $_id) {
+  subscription purchasesPipelinesChanged($_id: String!) {
+    purchasesPipelinesChanged(_id: $_id) {
       _id
       proccessId
       action

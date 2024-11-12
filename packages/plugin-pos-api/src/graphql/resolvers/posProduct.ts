@@ -1,8 +1,8 @@
-import { sendProductsMessage } from '../../messageBroker';
+import { sendCoreMessage } from '../../messageBroker';
 
 const resolvers = {
   category: async (posProduct, {}, { subdomain }) => {
-    return sendProductsMessage({
+    return sendCoreMessage({
       subdomain,
       action: 'categories.findOne',
       data: {

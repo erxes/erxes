@@ -14,6 +14,8 @@ import { getGqlString, getRefetchQueries } from '../containers/utils';
 import { mutations } from '../graphql';
 import { IPaymentDocument } from '../types';
 import { PAYMENTCONFIGS } from './constants';
+import QuickQrForm from './form/QuickQrForm';
+import ConfigForm from './form/ConfigForm';
 
 type Props = {
   _id?: string;
@@ -33,8 +35,8 @@ const IntegrationListItem: React.FC<Props> = (props) => {
     const onClick = () => removePayment(payment);
 
     return (
-      <Tip text={__('Delete')} placement="top">
-        <Button btnStyle="link" onClick={onClick} icon="times-circle" />
+      <Tip text={__('Delete')} placement='top'>
+        <Button btnStyle='link' onClick={onClick} icon='times-circle' />
       </Tip>
     );
   };
@@ -55,16 +57,16 @@ const IntegrationListItem: React.FC<Props> = (props) => {
           callback={callback}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
-          type="submit"
+          type='submit'
           successMessage={__(`You successfully edited a `) + `${name}`}
         />
       );
     };
 
     const editTrigger = (
-      <Button btnStyle="link">
-        <Tip text="Edit" placement="top">
-          <Icon icon="edit-3" />
+      <Button btnStyle='link'>
+        <Tip text='Edit' placement='top'>
+          <Icon icon='edit-3' />
         </Tip>
       </Button>
     );
@@ -75,7 +77,11 @@ const IntegrationListItem: React.FC<Props> = (props) => {
       return null;
     }
 
-    const Component = meta.createModal;
+    let Component: any = ConfigForm;
+
+    if (meta.kind === 'qpayQuickqr') {
+      Component = QuickQrForm;
+    }
 
     const formContent = (props) => (
       <Component {...props} payment={payment} renderButton={renderButton} />
@@ -84,7 +90,7 @@ const IntegrationListItem: React.FC<Props> = (props) => {
     return (
       <ActionButtons>
         <ModalTrigger
-          title="Edit config"
+          title={__("Edit config")}
           trigger={editTrigger}
           content={formContent}
         />

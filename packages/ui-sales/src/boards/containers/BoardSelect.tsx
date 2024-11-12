@@ -24,6 +24,7 @@ type Props = {
   autoSelectStage?: boolean;
   translator?: (key: string, options?: any) => string;
   isRequired?: boolean;
+  isOptional?: boolean;
 };
 
 type FinalProps = {
@@ -56,7 +57,7 @@ class BoardSelectContainer extends React.Component<FinalProps> {
     stagesQuery
       .refetch({ pipelineId })
       .then(({ data }) => {
-        const stages = data.stages;
+        const stages = data.salesStages;
 
         this.props.onChangePipeline(pipelineId, stages);
 

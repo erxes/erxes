@@ -15,8 +15,7 @@ import {
 import { IContext } from '../../../connectionResolver';
 import {
   sendCoreMessage,
-  sendLoyaltiesMessage,
-  sendProductsMessage,
+  sendLoyaltiesMessage
 } from '../../../messageBroker';
 
 interface IDealListParams extends IListParams {
@@ -62,11 +61,11 @@ const dealQueries = {
       return [];
     });
 
-    serverTiming.startTime('sendProductsMessage');
+    serverTiming.startTime('sendCoreMessage');
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: 'productFind',
+      action: 'products.find',
       data: {
         query: {
           _id: { $in: [...new Set(dealProductIds)] },
@@ -76,7 +75,7 @@ const dealQueries = {
       defaultValue: [],
     });
 
-    serverTiming.endTime('sendProductsMessage');
+    serverTiming.endTime('sendCoreMessage');
 
     for (const deal of deals) {
       let pd = deal.productsData;

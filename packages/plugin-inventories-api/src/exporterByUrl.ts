@@ -5,7 +5,7 @@ import { IColumnLabel } from "@erxes/api-utils/src/types";
 import { generateModels, IModels } from "./connectionResolver";
 import { getSubdomain } from "@erxes/api-utils/src/core";
 import { generateFilterItems } from "./graphql/resolvers/queries/safeRemainderItems";
-import { sendCoreMessage, sendProductsMessage } from "./messageBroker";
+import { sendCoreMessage } from "./messageBroker";
 
 export const createXlsFile = async () => {
   // Generating blank workbook
@@ -193,16 +193,10 @@ export const buildFile = async (
     addCell(column, column.label, sheet, columnNames, rowIndex);
   }
 
-  const limit = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
-    action: "productCount",
+    action: "products.find",
     data: { query: { _id: { $in: data.map(d => d.productId) } } },
-    isRPC: true
-  });
-  const products = await sendProductsMessage({
-    subdomain,
-    action: "productFind",
-    data: { query: { _id: { $in: data.map(d => d.productId) } }, limit },
     isRPC: true
   });
   const customField =

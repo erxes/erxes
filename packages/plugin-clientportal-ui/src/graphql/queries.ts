@@ -119,6 +119,7 @@ export const commonFields = `
   refreshTokenExpiration
   tokenPassMethod
   vendorParentProductCategoryId
+  language
 `;
 
 export const basicFields = `

@@ -1,10 +1,9 @@
-import { FormControl, Label, ModalTrigger, __ } from "@erxes/ui/src";
+import { Button, FormControl, Label, __ } from '@erxes/ui/src';
 
-import Form from "../containers/Form";
-import { FormContainer } from "../../../styles";
-import { IIndicatorsGroups } from "../common/types";
-import React from "react";
-import moment from "moment";
+import moment from 'moment';
+import React from 'react';
+import { FormContainer } from '../../../styles';
+import { IIndicatorsGroups } from '../common/types';
 
 type Props = {
   indicatorsGroups: IIndicatorsGroups;
@@ -22,11 +21,11 @@ class Row extends React.Component<Props> {
     const { indicatorsGroups, selectItem, selectedItems, queryParams } =
       this.props;
 
-    const onClick = (e) => {
+    const onClick = e => {
       e.stopPropagation();
     };
 
-    const trigger = (
+    return (
       <tr key={indicatorsGroups._id}>
         <td onClick={onClick}>
           <FormControl
@@ -38,31 +37,23 @@ class Row extends React.Component<Props> {
         <td>{__(indicatorsGroups.name)}</td>
         <td>
           <FormContainer $gapBetween={5} $row $maxItemsRow={3}>
-            {(indicatorsGroups?.tags || []).map((tag) => (
+            {(indicatorsGroups?.tags || []).map(tag => (
               <Label key={tag._id} lblColor={tag.colorCode}>
                 {tag.name}
               </Label>
             ))}
           </FormContainer>
         </td>
-        <td>{moment(indicatorsGroups.createdAt).format("lll")}</td>
-        <td>{moment(indicatorsGroups.modifiedAt).format("lll")} </td>
-        <td></td>
+        <td>{moment(indicatorsGroups.createdAt).format('lll')}</td>
+        <td>{moment(indicatorsGroups.modifiedAt).format('lll')} </td>
+        <td>
+          <Button
+            btnStyle="link"
+            icon="edit-1"
+            href={`/settings/risk-indicators-groups/edit/${indicatorsGroups._id}`}
+          />
+        </td>
       </tr>
-    );
-
-    const content = (props) => (
-      <Form {...props} detail={indicatorsGroups} queryParams={queryParams} />
-    );
-
-    return (
-      <ModalTrigger
-        trigger={trigger}
-        enforceFocus={false}
-        content={content}
-        title="Edit Indicators Groups"
-        size="xl"
-      />
     );
   }
 }

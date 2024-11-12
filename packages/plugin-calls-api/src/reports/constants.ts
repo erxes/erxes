@@ -33,7 +33,8 @@ export const CUSTOM_DATE_FREQUENCY_TYPES = [
     { label: 'By week', value: '%Y-%V' },
     { label: 'By month', value: '%m' },
     { label: 'By year', value: '%Y' },
-    { label: 'By Date', value: '%Y-%m-%d' },
+    { label: 'By date', value: '%Y-%m-%d' },
+    { label: 'By date-time', value: '%Y-%m-%d %H:%M:%S' },
 ];
 
 export const CALL_STATUS_LABELS = {
@@ -57,10 +58,12 @@ export const CALL_DIMENSION = [
     { label: 'Operator', value: 'operator' },
     { label: 'Customer', value: 'customer' },
     { label: 'Status', value: 'status' },
+    { label: 'Number', value: 'number' },
     { label: 'Queue', value: 'queue' },
     { label: 'Type', value: 'type' },
     { label: 'Date', value: 'createdAt' },
     { label: 'Frequency (day, week, month)', value: 'frequency' },
+    { label: 'Record', value: 'record' },
 ]
 
 export const CALL_MEASURE = [

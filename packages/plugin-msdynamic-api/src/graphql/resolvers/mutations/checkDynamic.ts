@@ -1,9 +1,8 @@
 import fetch from "node-fetch";
 import {
   IContext,
-  sendContactsMessage,
   sendPosMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "../../../messageBroker";
 import { getConfig } from "../../../utils";
 
@@ -38,19 +37,11 @@ const msdynamicCheckMutations = {
     }
 
     try {
-      const productsCount = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
-        action: "productCount",
-        data: { query: productQry },
-        isRPC: true
-      });
-
-      const products = await sendProductsMessage({
-        subdomain,
-        action: "productFind",
+        action: "products.find",
         data: {
           query: productQry,
-          limit: productsCount
         },
         isRPC: true
       });
@@ -70,10 +61,6 @@ const msdynamicCheckMutations = {
           timeout: 180000
         }
       ).then(res => res.json());
-      console.log(
-        "summary count of products response: ",
-        response.value.length
-      );
 
       const resultCodes = response.value.map(r => r.No) || [];
 
@@ -145,14 +132,14 @@ const msdynamicCheckMutations = {
     const { itemCategoryApi, username, password } = config;
 
     try {
-      const categoriesCount = await sendProductsMessage({
+      const categoriesCount = await sendCoreMessage({
         subdomain,
         action: "categories.count",
         data: { query: { status: { $ne: "deleted" } } },
         isRPC: true
       });
 
-      const categories = await sendProductsMessage({
+      const categories = await sendCoreMessage({
         subdomain,
         action: "categories.find",
         data: {
@@ -192,7 +179,7 @@ const msdynamicCheckMutations = {
             resProd.Code === category.code &&
             (categoryId === category.parentId ||
               categoryById[category.parentId]?.code ===
-                resProd.Parent_Category) &&
+              resProd.Parent_Category) &&
             category.name === resProd.Description
           ) {
             matchedCount = matchedCount + 1;
@@ -246,7 +233,7 @@ const msdynamicCheckMutations = {
     const { customerApi, username, password } = config;
 
     try {
-      const companies = await sendContactsMessage({
+      const companies = await sendCoreMessage({
         subdomain,
         action: "companies.findActiveCompanies",
         data: {},
@@ -254,7 +241,7 @@ const msdynamicCheckMutations = {
         defaultValue: {}
       });
 
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
         action: "customers.findActiveCustomers",
         data: {},

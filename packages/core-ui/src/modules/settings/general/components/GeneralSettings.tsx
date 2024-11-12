@@ -69,7 +69,7 @@ class GeneralSettings extends React.Component<Props, State> {
     };
   }
 
-  save = (e) => {
+  save = e => {
     e.preventDefault();
 
     const { configsMap, language } = this.state;
@@ -99,7 +99,7 @@ class GeneralSettings extends React.Component<Props, State> {
     let value = values;
 
     if (Array.isArray(values)) {
-      value = values.map((el) => el.value);
+      value = values.map(el => el.value);
     }
 
     this.onChangeConfig(code, value);
@@ -113,7 +113,7 @@ class GeneralSettings extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  onLanguageChange = (language) => {
+  onLanguageChange = language => {
     this.setState({ language: language.value });
   };
 
@@ -126,7 +126,7 @@ class GeneralSettings extends React.Component<Props, State> {
     this.onChangeConfig("GOOGLE_APP_ADDITIONAL_CREDS_JSON", credentials);
   };
 
-  onRemoveGoogleAdditionalJSON = (index) => {
+  onRemoveGoogleAdditionalJSON = index => {
     let credentials =
       this.state?.configsMap?.GOOGLE_APP_ADDITIONAL_CREDS_JSON || [];
 
@@ -164,7 +164,7 @@ class GeneralSettings extends React.Component<Props, State> {
     this.onChangeConfig(field, e.hex);
   };
 
-  renderColorPicker = (field) => {
+  renderColorPicker = field => {
     const { configsMap } = this.state;
     const value = configsMap[field];
 
@@ -175,12 +175,12 @@ class GeneralSettings extends React.Component<Props, State> {
             <ColorPicker style={{ backgroundColor: value }} />
           </ColorPick>
         }
-        placement="bottom-start"
+        placement='bottom-start'
       >
         <TwitterPicker
           color={value}
           onChange={this.onChangeColor.bind(this, field)}
-          triangle="hide"
+          triangle='hide'
         />
       </Popover>
     );
@@ -219,7 +219,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <img alt={field} src={readFile(value)} />
           </ImageWrapper>
         ) : null}
-        <input type="file" onChange={this.handleLogoChange.bind(this, field)} />
+        <input type='file' onChange={this.handleLogoChange.bind(this, field)} />
       </FormGroup>
     );
   }
@@ -237,6 +237,7 @@ class GeneralSettings extends React.Component<Props, State> {
     if (!value || value.length === 0) {
       value = defaultValues[kind] || "";
     }
+
 
     const optionValue = value?.every((i) => typeof i === "string")
       ? constant.filter((o) => value.includes(o.value))
@@ -306,16 +307,16 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const actionButtons = (
       <Button
-        id="generalSettingsSave"
-        btnStyle="success"
+        id='generalSettingsSave'
+        btnStyle='success'
         onClick={this.save}
-        icon="check-circle"
+        icon='check-circle'
       >
         Save
       </Button>
     );
 
-    const mimeTypeOptions = FILE_MIME_TYPES.map((item) => ({
+    const mimeTypeOptions = FILE_MIME_TYPES.map(item => ({
       value: item.value,
       label: `${item.label} (${item.extension})`,
     }));
@@ -344,7 +345,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <ControlLabel>Language</ControlLabel>
             <Select
               options={LANGUAGES}
-              value={LANGUAGES.find((o) => o.value === language)}
+              value={LANGUAGES.find(o => o.value === language)}
               onChange={this.onLanguageChange}
               isSearchable={false}
               isClearable={false}
@@ -367,7 +368,7 @@ class GeneralSettings extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>{__("with team member restrictions")}</ControlLabel>
             <FormControl
-              componentclass="checkbox"
+              componentclass='checkbox'
               checked={configsMap.CHECK_TEAM_MEMBER_SHOWN}
               onChange={handleChange}
             />
@@ -380,9 +381,9 @@ class GeneralSettings extends React.Component<Props, State> {
                   {__("Team members who can access every branches")}
                 </ControlLabel>
                 <SelectTeamMembers
-                  name="BRANCHES_MASTER_TEAM_MEMBERS_IDS"
+                  name='BRANCHES_MASTER_TEAM_MEMBERS_IDS'
                   initialValue={configsMap.BRANCHES_MASTER_TEAM_MEMBERS_IDS}
-                  label="Select team members"
+                  label='Select team members'
                   onSelect={(values, name) => this.onChangeConfig(name, values)}
                 />
               </FormGroup>
@@ -391,8 +392,8 @@ class GeneralSettings extends React.Component<Props, State> {
                   {__("Team members who can access every departments")}
                 </ControlLabel>
                 <SelectTeamMembers
-                  name="DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS"
-                  label="Select team members"
+                  name='DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS'
+                  label='Select team members'
                   initialValue={configsMap.DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS}
                   onSelect={(values, name) => this.onChangeConfig(name, values)}
                 />
@@ -406,7 +407,7 @@ class GeneralSettings extends React.Component<Props, State> {
           title={__("Theme")}
           beforeTitle={<Icon icon="puzzle" />}
         >
-          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+          <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
             {this.renderUploadImage(
               "THEME_LOGO",
               "Transparent PNG, around 3:1 aspect ratio. Max width: 600px."
@@ -439,14 +440,14 @@ class GeneralSettings extends React.Component<Props, State> {
         >
           <Info>
             <a
-              target="_blank"
-              href="https://docs.erxes.io/conversations"
-              rel="noopener noreferrer"
+              target='_blank'
+              href='https://docs.erxes.io/conversations'
+              rel='noopener noreferrer'
             >
               {__("Learn how to set file uploading") + "."}
             </a>
           </Info>
-          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+          <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
             <FormGroup>
               <ControlLabel>{KEY_LABELS.UPLOAD_FILE_TYPES}</ControlLabel>
               {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
@@ -460,7 +461,7 @@ class GeneralSettings extends React.Component<Props, State> {
                   "UPLOAD_FILE_TYPES"
                 )}
                 isMulti={true}
-                delimiter=","
+                delimiter=','
                 // simpleValue={true}
               />
             </FormGroup>
@@ -479,12 +480,12 @@ class GeneralSettings extends React.Component<Props, State> {
                   "WIDGETS_UPLOAD_FILE_TYPES"
                 )}
                 isMulti={true}
-                delimiter=","
+                delimiter=','
                 // simpleValue={true}
               />
             </FormGroup>
           </FlexRow>
-          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+          <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
             <FormGroup>
               <ControlLabel>{KEY_LABELS.UPLOAD_SERVICE_TYPE}</ControlLabel>
               <Select
@@ -525,9 +526,9 @@ class GeneralSettings extends React.Component<Props, State> {
         >
           <Info>
             <a
-              target="_blank"
-              href="https://docs.erxes.io/conversations"
-              rel="noopener noreferrer"
+              target='_blank'
+              href='https://docs.erxes.io/conversations'
+              rel='noopener noreferrer'
             >
               {__(
                 "Learn how to create or find your Google Cloud Storage bucket"
@@ -544,14 +545,14 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent
           transparent={true}
-          title="AWS S3"
-          beforeTitle={<Icon icon="server-network" />}
+          title='AWS S3'
+          beforeTitle={<Icon icon='server-network' />}
         >
           <Info>
             <a
-              target="_blank"
-              href="https://docs.erxes.io/conversations"
-              rel="noopener noreferrer"
+              target='_blank'
+              href='https://docs.erxes.io/conversations'
+              rel='noopener noreferrer'
             >
               {__("Learn how to set AWS S3 Variables")}
             </a>
@@ -573,8 +574,8 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent
           transparent={true}
-          title="AWS SES"
-          beforeTitle={<Icon icon="shield-check" />}
+          title='AWS SES'
+          beforeTitle={<Icon icon='shield-check' />}
         >
           <Info>
             <p>
@@ -583,9 +584,9 @@ class GeneralSettings extends React.Component<Props, State> {
               ) + "."}
             </p>
             <a
-              target="_blank"
-              href="https://docs.erxes.io/conversations"
-              rel="noopener noreferrer"
+              target='_blank'
+              href='https://docs.erxes.io/conversations'
+              rel='noopener noreferrer'
             >
               {__("Learn how to set Amazon SES variables")}
             </a>
@@ -602,14 +603,29 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent
           transparent={true}
-          title="Google"
-          beforeTitle={<Icon icon="google" />}
+          title={__("Azure Blob Storage")}
+          beforeTitle={<Icon icon="cloud-check" />}
+        >
+          <FormGroup>
+            <ControlLabel>Container Name</ControlLabel>
+            {this.renderItem("AZURE_STORAGE_CONTAINER")}
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Connection String</ControlLabel>
+            {this.renderItem("AZURE_STORAGE_CONNECTION_STRING")}
+          </FormGroup>
+        </CollapseContent>
+
+        <CollapseContent
+          transparent={true}
+          title='Google'
+          beforeTitle={<Icon icon='google' />}
         >
           <Info>
             <a
-              target="_blank"
-              href="https://docs.erxes.io/conversations"
-              rel="noopener noreferrer"
+              target='_blank'
+              href='https://docs.erxes.io/conversations'
+              rel='noopener noreferrer'
             >
               {__("Learn how to set Google variables")}
             </a>
@@ -618,7 +634,7 @@ class GeneralSettings extends React.Component<Props, State> {
             {this.renderItem("GOOGLE_PROJECT_ID")}
             {this.renderItem("GOOGLE_CLIENT_ID")}
           </FlexRow>
-          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+          <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
             {this.renderItem(
               "GOOGLE_CLIENT_SECRET",
               "Client Secret key are required for authentication and authorization purposes"
@@ -628,7 +644,7 @@ class GeneralSettings extends React.Component<Props, State> {
               "The topic value created in Gmail setup"
             )}
           </FlexRow>
-          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+          <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
             <FlexColumn>
               {this.renderItem(
                 "GOOGLE_APPLICATION_CREDENTIALS_JSON",
@@ -658,8 +674,8 @@ class GeneralSettings extends React.Component<Props, State> {
                       )}
                     />
                     <Button
-                      btnStyle="danger"
-                      icon="times"
+                      btnStyle='danger'
+                      icon='times'
                       onClick={this.onRemoveGoogleAdditionalJSON.bind(
                         this,
                         index
@@ -671,6 +687,12 @@ class GeneralSettings extends React.Component<Props, State> {
             </FlexColumn>
             {this.renderItem("GOOGLE_MAP_API_KEY", "Google Map Api Key")}
           </FlexRow>
+          <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
+            {this.renderItem(
+              'GOOGLE_APPLICATION_CREDENTIALS',
+              'Google service account`s key path'
+            )}
+          </FlexRow>
         </CollapseContent>
 
         <CollapseContent
@@ -680,9 +702,9 @@ class GeneralSettings extends React.Component<Props, State> {
         >
           <Info>
             <a
-              target="_blank"
-              href="https://docs.erxes.io/conversations"
-              rel="noopener noreferrer"
+              target='_blank'
+              href='https://docs.erxes.io/conversations'
+              rel='noopener noreferrer'
             >
               {__("Learn more about Email Settings")}
             </a>
@@ -694,7 +716,7 @@ class GeneralSettings extends React.Component<Props, State> {
               type: configsMap.COMPANY_EMAIL_TEMPLATE_TYPE,
               template: configsMap.COMPANY_EMAIL_TEMPLATE,
             }}
-            emailText="Set an email address you wish to send your internal transactional emails from. For example, task notifications, team member mentions, etc."
+            emailText='Set an email address you wish to send your internal transactional emails from. For example, task notifications, team member mentions, etc.'
             setEmailConfig={this.onChangeEmailConfig}
             isSaved={this.state.isSaved}
           />
@@ -727,9 +749,9 @@ class GeneralSettings extends React.Component<Props, State> {
         >
           <Info>
             <a
-              target="_blank"
-              href="https://docs.erxes.io/conversations"
-              rel="noopener noreferrer"
+              target='_blank'
+              href='https://docs.erxes.io/conversations'
+              rel='noopener noreferrer'
             >
               {__("Learn the case of custom email service")}
             </a>
@@ -750,7 +772,7 @@ class GeneralSettings extends React.Component<Props, State> {
           title={__("Data retention")}
           beforeTitle={<Icon icon="cloud-data-connection" />}
         >
-          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+          <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
             <FormGroup>
               <ControlLabel>
                 {KEY_LABELS.NOTIFICATION_DATA_RETENTION}
@@ -807,8 +829,8 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent
           transparent={true}
-          title="MessagePro"
-          beforeTitle={<Icon icon="comment-alt-verify" />}
+          title='MessagePro'
+          beforeTitle={<Icon icon='comment-alt-verify' />}
         >
           <FlexRow $alignItems="flex-start" $justifyContent="space-between">
             {this.renderItem("MESSAGE_PRO_API_KEY")}
@@ -834,7 +856,7 @@ class GeneralSettings extends React.Component<Props, State> {
         }
         mainHead={
           <Header
-            title="System configuration"
+            title='System configuration'
             description={
               __(
                 "Set up your initial account settings so that things run smoothly in unison"

@@ -7,6 +7,7 @@ import colors from "../styles/colors";
 import { rgba } from "../styles/ecolor";
 import styled from "styled-components";
 import uploadHandler from "./uploadHandler";
+import { __ } from "../../utils";
 
 const LoadingContainer = styled.div`
   margin: 10px 0;
@@ -131,7 +132,7 @@ class Uploader extends React.Component<Props, State> {
     return (
       <UploadBtn>
         <label>
-          Upload an attachment
+          {__("Upload an attachment")}
           <input
             type="file"
             multiple={multiple}

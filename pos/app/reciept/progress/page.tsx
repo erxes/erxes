@@ -14,41 +14,41 @@ import { IProduct } from "@/types/product.types"
 import { ORDER_ITEM_STATUSES } from "@/lib/constants"
 import { Separator } from "@/components/ui/separator"
 
+const filterProductsNeedProcess = (
+  products: IProduct[],
+  categoryOrders: string[]
+) =>
+  (products || [])
+    .filter((product: IProduct) =>
+      (categoryOrders || []).some((order) =>
+        product?.category?.order?.includes(order)
+      )
+    )
+    .map((product: IProduct) => product._id)
+
 const Progress = () => {
   const searchParams = useSearchParams()
   const id = searchParams.get("id")
   const onlyNewItems = useAtomValue(printOnlyNewItemsAtom)
   const categoryOrders = useAtomValue(categoriesToPrintAtom)
-  const [itemsToPrint, setItemsToPrint] = useState([])
-
-  const filterProductsNeedProcess = (products: IProduct[]) =>
-    (products || [])
-      .filter(function (product: IProduct) {
-        let included = false
-        ;(categoryOrders || []).forEach((order) => {
-          if (product?.category?.order?.includes(order)) {
-            included = true
-          }
-        })
-        return included
-      })
-      .map((product: IProduct) => product._id)
+  const [itemsToPrint, setItemsToPrint] = useState<OrderItem[]>([])
 
   const [getCategoryOrders, ordersQuery] = useLazyQuery(
     productQueries.getCategoryOrders,
     {
       onCompleted({ poscProducts }) {
-        const productsNeedProcess = filterProductsNeedProcess(poscProducts)
-
-        const itemsShouldPrint = items.filter((item: OrderItem) =>
-          productsNeedProcess.includes(item.productId)
+        const productsNeedProcess = filterProductsNeedProcess(
+          poscProducts,
+          categoryOrders
         )
 
-        setItemsToPrint(itemsShouldPrint)
+        const checkedItems = onlyNewItems
+          ? items?.filter((item: OrderItem) =>
+              productsNeedProcess.includes(item.productId)
+            )
+          : items || []
 
-        itemsShouldPrint.length > 0
-          ? setTimeout(() => window.print())
-          : handleAfterPrint()
+        setItemsToPrint(checkedItems)
       },
     }
   )
@@ -56,24 +56,34 @@ const Progress = () => {
   const { loading, data } = useQuery(queries.progressDetail, {
     variables: { id },
     onCompleted({ orderDetail }) {
-      const newItems = orderDetail.items?.filter(
-        (item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE
-      )
+      if (!onlyNewItems && !categoryOrders.length) {
+        return window.print()
+      }
+
+      const newItems =
+        orderDetail.items?.filter(
+          (item: OrderItem) => item.status !== ORDER_ITEM_STATUSES.DONE
+        ) || []
 
       if (onlyNewItems && !newItems.length) {
         return handleAfterPrint()
       }
 
+      const itemsToProcess = onlyNewItems ? newItems : orderDetail.items || []
+
       if (categoryOrders.length) {
-        getCategoryOrders({
-          variables: { ids: newItems.map((it: OrderItem) => it.productId) },
+        return getCategoryOrders({
+          variables: {
+            ids: itemsToProcess.map((item: OrderItem) => item.productId),
+          },
         })
-        return
       }
 
-      return setTimeout(() => window.print())
+      setItemsToPrint(itemsToProcess)
     },
   })
+
+  const { number, modifiedAt, items, description } = data?.orderDetail || {}
 
   const handleAfterPrint = useCallback(() => {
     const data = { message: "close" }
@@ -87,12 +97,19 @@ const Progress = () => {
     }
   }, [handleAfterPrint])
 
+  useEffect(() => {
+    if (itemsToPrint.length > 0) {
+      window.print()
+    }
+  }, [itemsToPrint])
+
   if (loading || ordersQuery.loading) return <div />
 
-  const { number, modifiedAt, items, description } = data?.orderDetail || {}
+  const printItems =
+    onlyNewItems || categoryOrders.length ? itemsToPrint : items || []
 
   return (
-    <div className="space-y-1 text-[13px]">
+    <div className="space-y-1 text-[12px]">
       <div className="flex items-center justify-between font-semibold text-xs">
         <span className="">Erxes pos</span>
         <span>#{(number || "").split("_")[1]}</span>
@@ -109,7 +126,7 @@ const Progress = () => {
           <span>Т/Ш</span>
         </div>
         <Separator />
-        {itemsToPrint.map((item: OrderItem) => (
+        {printItems.map((item: OrderItem) => (
           <div className="flex items-center justify-between" key={item._id}>
             <span>{item.productName}</span>
             <span>

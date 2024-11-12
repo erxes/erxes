@@ -12,7 +12,7 @@ import {
 } from "@erxes/ui/src";
 import { FlexRow, Title } from "@erxes/ui-settings/src/styles";
 import React, { useRef, useState } from "react";
-import { __, isEnabled, router } from "@erxes/ui/src/utils/core";
+import { __, router } from "@erxes/ui/src/utils/core";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import CarForm from "../../containers/CarForm";
@@ -171,7 +171,7 @@ const CarsList = (props: Props) => {
         />
 
         <ModalTrigger
-          title="New car"
+          title={__("New car")}
           trigger={addTrigger}
           autoOpenKey="showCarModal"
           size="lg"
@@ -238,7 +238,6 @@ const CarsList = (props: Props) => {
                 car={car}
                 isChecked={bulk.includes(car)}
                 key={car._id}
-                history={history}
                 toggleBulk={toggleBulk}
               />
             ))}
@@ -263,7 +262,6 @@ const CarsList = (props: Props) => {
         <Sidebar
           loadingMainQuery={loading}
           queryParams={queryParams}
-          history={history}
         />
       }
       hasBorder={true}
@@ -272,7 +270,7 @@ const CarsList = (props: Props) => {
           data={renderContent()}
           loading={loading}
           count={cars.length}
-          emptyText="Add in your first car!"
+          emptyText={__("Add in your first car!")}
           emptyImage="/images/actions/1.svg"
         />
       }

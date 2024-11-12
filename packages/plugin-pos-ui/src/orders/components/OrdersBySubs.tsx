@@ -10,7 +10,7 @@ import {
   __
 } from '@erxes/ui/src';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled, router } from '@erxes/ui/src/utils/core';
+import { router } from '@erxes/ui/src/utils/core';
 import React, { useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
@@ -21,7 +21,6 @@ import Row from './OrdersBySubRow';
 
 const SelectCustomers = asyncComponent(
   () =>
-    isEnabled('contacts') &&
     import(
       /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
     )
@@ -29,9 +28,8 @@ const SelectCustomers = asyncComponent(
 
 const SelectCompanies = asyncComponent(
   () =>
-    isEnabled('contacts') &&
     import(
-      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
+      /* webpackChunkName: "SelectCompanies" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
     )
 );
 
@@ -50,12 +48,7 @@ const checkIsFiltered = (queryParams: any) => {
   );
 };
 
-const OrdersBySubs = ({
-  list,
-  loading,
-  totalCount,
-  queryParams
-}: Props) => {
+const OrdersBySubs = ({ list, loading, totalCount, queryParams }: Props) => {
   const wrapperRef = useRef(null);
 
   const [showMenu, setShowMenu] = useState<boolean>(false);
@@ -108,35 +101,31 @@ const OrdersBySubs = ({
         >
           <RightMenuContainer>
             <RightMenuWrapper>
-              {isEnabled('contacts') && (
-                <>
-                  <SelectCustomers
-                    label="Filter by customer"
-                    name="customerId"
-                    initialValue={queryParams.customerId}
-                    onSelect={handleSelect}
-                    customOption={{
-                      value: '',
-                      label: '...Clear customer filter'
-                    }}
-                    multi={false}
-                  />
-                  <SelectCompanies
-                    label="Filter by company"
-                    name="companyId"
-                    initialValue={queryParams.companyId}
-                    onSelect={handleSelect}
-                    customOption={{
-                      value: '',
-                      label: '...Clear company filter'
-                    }}
-                    multi={false}
-                  />
-                </>
-              )}
+              <SelectCustomers
+                label={__('Filter by customer')}
+                name="customerId"
+                initialValue={queryParams.customerId}
+                onSelect={handleSelect}
+                customOption={{
+                  value: '',
+                  label: '...Clear customer filter'
+                }}
+                multi={false}
+              />
+              <SelectCompanies
+                label={__('Filter by company')}
+                name="companyId"
+                initialValue={queryParams.companyId}
+                onSelect={handleSelect}
+                customOption={{
+                  value: '',
+                  label: '...Clear company filter'
+                }}
+                multi={false}
+              />
 
               <SelectTeamMembers
-                label="Choose users"
+                label={__('Choose users')}
                 name="userId"
                 initialValue={queryParams.userId}
                 onSelect={handleSelect}
@@ -151,7 +140,7 @@ const OrdersBySubs = ({
   };
 
   const renderRows = () => {
-    return list.map(item => <Row item={item} />);
+    return list.map(item => <Row key={item._id} item={item} />);
   };
 
   const renderContent = () => {

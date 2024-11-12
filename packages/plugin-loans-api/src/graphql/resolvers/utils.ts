@@ -19,7 +19,7 @@ const getFieldsWithCode = async (subdomain, contentType) => {
       isRPC: true,
       defaultValue: []
     },
-    "forms"
+    "core"
   );
 };
 
@@ -59,11 +59,11 @@ const getCustomerInfo = async (subdomain, type, id) => {
     return {};
   }
 
-  if (type === "contacts:customer") {
+  if (type === "core:customer") {
     return { customerType: "customer", customerId: id };
   }
 
-  if (type === "contacts:company") {
+  if (type === "core:company") {
     return { customerType: "company", customerId: id };
   }
 

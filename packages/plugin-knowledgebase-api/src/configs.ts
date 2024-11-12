@@ -1,21 +1,22 @@
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
-import { setupMessageConsumers } from './messageBroker';
-
-import { generateModels } from './connectionResolver';
-import logs from './logUtils';
-import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import webhooks from './webhooks';
+
+
 import automations from './automations';
+import { generateModels } from './connectionResolver';
 import cronjobs from './crons/article';
+import resolvers from './graphql/resolvers';
+import typeDefs from './graphql/typeDefs';
+import logs from './logUtils';
+import { setupMessageConsumers } from './messageBroker';
+import * as permissions from './permissions';
+import webhooks from './webhooks';
 
 export default {
   name: 'knowledgebase',
   graphql: () => {
     return {
       typeDefs,
-      resolvers
+      resolvers,
     };
   },
   hasSubscriptions: false,
@@ -26,8 +27,9 @@ export default {
     webhooks,
     permissions,
     cronjobs,
-    automations
+    automations,
   },
+
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
 
@@ -37,6 +39,9 @@ export default {
     return context;
   },
 
-  onServerInit: async () => {},
-  setupMessageConsumers
+  middlewares: [],
+
+  onServerInit: async () => {
+  },
+  setupMessageConsumers,
 };

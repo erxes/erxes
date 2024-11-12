@@ -5,7 +5,7 @@ import redis from '../../redis';
 import { BaseAPI } from '../base';
 import { ITransactionDocument } from '../../models/definitions/transactions';
 
-export const qpayCallbackHandler = async (models: IModels, data: any) => {
+export const minupayCallbackHandler = async (models: IModels, data: any) => {
   const { identifier } = data;
 
   if (!identifier) {

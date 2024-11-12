@@ -129,3 +129,16 @@ export const readFileUrl = (value: string) => {
 
   return `${DOMAIN}/gateway/read-file?key=${value}`;
 };
+
+
+export const isImage = (mimetypeOrName: string) => {
+  const extensions = ["jpg", "jpeg", "png", "gif", "svg", "webp"];
+
+  // extract extension from file name
+  const extension = mimetypeOrName.split(".").pop();
+  if (extensions.includes(extension || "")) {
+    return true;
+  }
+
+  return mimetypeOrName.includes("image");
+};

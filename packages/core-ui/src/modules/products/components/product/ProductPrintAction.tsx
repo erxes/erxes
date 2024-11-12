@@ -112,7 +112,7 @@ const BulkDocuments: React.FC<Props> = ({ bulk }: { bulk: any[] }) => {
     client
       .mutate({
         mutation: gql(queries.documents),
-        variables: { contentType: "products" },
+        variables: { contentType: "core:product" },
       })
       .then(({ data }) => {
         setDocuments(data.documents);

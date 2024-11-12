@@ -15,16 +15,12 @@ const receiveComment = async (
 ) => {
   const userId = params.from.id;
   const postId = params.media.id;
-
   const integration = await models.Integrations.findOne({
     $and: [
       { instagramPageId: { $in: pageId } },
       { kind: INTEGRATION_KINDS.POST }
     ]
   });
-  if (userId === pageId) {
-    return;
-  }
   if (!integration) {
     throw new Error('Integration not found');
   }
@@ -38,7 +34,6 @@ const receiveComment = async (
     INTEGRATION_KINDS.POST,
     facebookPageTokensMap
   );
-
   if (customer) {
     const postConversation = await getOrCreatePostConversation(
       models,

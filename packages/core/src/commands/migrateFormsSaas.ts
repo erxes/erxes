@@ -1,12 +1,12 @@
-import * as dotenv from 'dotenv';
+import * as dotenv from "dotenv";
 
 dotenv.config();
 
-import { MongoClient } from 'mongodb';
+import { MongoClient } from "mongodb";
 
-import { getOrganizations } from '@erxes/api-utils/src/saas/saas';
+import { getOrganizations } from "@erxes/api-utils/src/saas/saas";
 
-const { MONGO_URL = '' } = process.env;
+const { MONGO_URL = "" } = process.env;
 
 if (!MONGO_URL) {
   throw new Error(`Environment variable MONGO_URL not set.`);
@@ -21,17 +21,17 @@ const command = async () => {
     try {
       console.log(MONGO_URL, org._id);
       const client = new MongoClient(
-        MONGO_URL.replace('<organizationId>', org._id)
+        MONGO_URL.replace("<organizationId>", org._id)
       );
 
       await client.connect();
       db = client.db();
 
-      const Integrations = db.collection('integrations');
-      const Forms = db.collection('forms');
+      const Integrations = db.collection("integrations");
+      const Forms = db.collection("forms");
 
       const leadIntegrations = await Integrations.find({
-        kind: 'lead',
+        kind: "lead"
       }).toArray();
 
       for (const integration of leadIntegrations) {
@@ -41,14 +41,17 @@ const command = async () => {
           const formDoc = {
             brandId: integration.brandId,
             leadData: integration.leadData,
-            name: form.name,
+            name: integration.name,
             visibility: integration.visibility,
             departmentIds: integration.departmentIds,
             tagIds: integration.tagIds,
             kind: integration.kind,
             languageCode: integration.languageCode,
             integrationId: integration._id,
+            status: integration.isActive ? "active" : "archived"
           };
+
+          console.log(JSON.stringify(formDoc, null, 2));
 
           await Forms.updateOne({ _id: form._id }, { $set: formDoc });
 
@@ -60,16 +63,28 @@ const command = async () => {
             scopeBrandIds: integration.scopeBrandIds,
             tagIds: integration.tagIds,
             createdUserId: integration.createdUserId,
-            createdAt: integration.createdAt,
+            createdAt: integration.createdAt
           };
+
           await Integrations.updateOne(
             { _id: integration._id },
-            integrationDoc
+            { $set: integrationDoc }
           );
         }
       }
 
-      console.log('migrated', org.subdomain);
+      // remove orphan forms
+
+      const forms = await Forms.find({ type: "lead" }).toArray();
+      for (const form of forms) {
+        const integration = await Integrations.findOne({ formId: form._id });
+        if (!integration) {
+          console.log("removing", form);
+          await Forms.deleteOne({ _id: form._id });
+        }
+      }
+
+      console.log("migrated", org.subdomain);
     } catch (e) {
       console.error(e.message);
     }

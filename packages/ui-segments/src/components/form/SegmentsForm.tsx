@@ -31,7 +31,7 @@ type Props = {
   closeModal: () => void;
   closeParentModal?: () => void;
   activeTrigger?: ITrigger;
-  serviceConfig?:any;
+  serviceConfig?: any;
 };
 
 const SegmentsForm = (props: Props) => {

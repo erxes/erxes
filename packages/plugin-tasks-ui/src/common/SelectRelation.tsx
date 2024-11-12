@@ -11,9 +11,14 @@ type Props = {
 const SelectContacts = (props: Props) => {
   const { field, onChange } = props;
   const { relationType = "" } = field;
-  const type = relationType.split(":")[1] as "deal" | "task" | "task" | "task";
 
-  if (!["deal", "task", "task", "task"].includes(type)) {
+  const type = relationType.split(":")[1] as
+    | "deal"
+    | "ticket"
+    | "puchase"
+    | "task";
+
+  if (!["deal", "ticket", "purchase", "task"].includes(type)) {
     return null;
   }
 

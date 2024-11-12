@@ -66,7 +66,7 @@ const KnowledgeBase = (props: Props) => {
 
     const actionBarLeft = currentCategory._id && (
       <ModalTrigger
-        title="Add Article"
+        title={__("Add Article")}
         trigger={trigger}
         size="lg"
         autoOpenKey="showKBAddArticleModal"

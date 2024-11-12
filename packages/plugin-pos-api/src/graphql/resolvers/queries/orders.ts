@@ -1,9 +1,5 @@
 import { checkPermission } from "@erxes/api-utils/src/permissions";
-import {
-  sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
-} from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 import { IContext, IModels } from "../../../connectionResolver";
 import {
   getPureDate,
@@ -99,7 +95,7 @@ const generateFilterPosQuery = async (
     const pos = await models.Pos.findOne({
       scopeBrandIds: { $in: [brandId] }
     }).lean();
-    query.posToken = pos.token;
+    query.posToken = pos?.token || '';
   }
 
   if (posToken) {
@@ -242,9 +238,9 @@ export const posOrderRecordsQuery = async (
   }
 
   const productsIds = orders.map(order => order.items.productId);
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
-    action: "productFind",
+    action: "products.find",
     data: { query: { _id: { $in: productsIds } }, limit: productsIds.length },
     isRPC: true
   });
@@ -255,7 +251,7 @@ export const posOrderRecordsQuery = async (
   }
 
   const productCategoryIds = products.map(p => p.categoryId);
-  const productCategories = await sendProductsMessage({
+  const productCategories = await sendCoreMessage({
     subdomain,
     action: "categories.find",
     data: { query: { _id: { $in: productCategoryIds } } },
@@ -286,7 +282,7 @@ export const posOrderRecordsQuery = async (
   const userById = {};
 
   if (customerIds.length) {
-    const customers = await sendContactsMessage({
+    const customers = await sendCoreMessage({
       subdomain,
       action: "customers.find",
       data: { _id: { $in: customerIds } },
@@ -300,7 +296,7 @@ export const posOrderRecordsQuery = async (
   }
 
   if (companyIds.length) {
-    const companies = await sendContactsMessage({
+    const companies = await sendCoreMessage({
       subdomain,
       action: "companies.find",
       data: { _id: { $in: companyIds } },
@@ -465,9 +461,9 @@ const queries = {
     }
     const productIds = (order.items || []).map(i => i.productId);
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: "find",
+      action: "products.find",
       data: {
         query: {
           _id: { $in: productIds }
@@ -726,7 +722,7 @@ const queries = {
     const query: any = {};
 
     if (params.categoryId) {
-      const category = await sendProductsMessage({
+      const category = await sendCoreMessage({
         subdomain,
         action: "categories.findOne",
         data: {
@@ -737,7 +733,7 @@ const queries = {
         defaultValue: {}
       });
 
-      const productCategories = await sendProductsMessage({
+      const productCategories = await sendCoreMessage({
         subdomain,
         action: "categories.find",
         data: {
@@ -771,9 +767,9 @@ const queries = {
     const limit = params.perPage || 20;
     const skip = params.page ? (params.page - 1) * limit : 0;
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: "find",
+      action: "products.find",
       data: {
         query,
         sort: {},
@@ -783,9 +779,9 @@ const queries = {
       isRPC: true
     });
 
-    const totalCount = await sendProductsMessage({
+    const totalCount = await sendCoreMessage({
       subdomain,
-      action: "count",
+      action: "products.count",
       data: {
         query
       },
@@ -946,42 +942,68 @@ const queries = {
     return subscription;
   },
 
-  async posOrderBySubscriptions(_root, params, { models }: IContext) {
+  async posOrderBySubscriptions(
+    _root,
+    { page, perPage, ...params },
+    { models }: IContext
+  ) {
     const filter = await generateFilterSubsQuery(params);
 
-    return await paginate(
-      models.PosOrders.aggregate([
-        {
-          $match: {
-            "subscriptionInfo.subscriptionId": { $nin: [null, "", undefined] },
-            customerId: { $nin: [null, "", undefined] },
-            ...filter
-          }
-        },
-        { $unwind: "$items" },
-        { $sort: { createdAt: -1, "items.closeDate": -1 } },
-        {
-          $group: {
-            _id: "$subscriptionInfo.subscriptionId",
-            customerId: { $first: "$customerId" },
-            customerType: { $first: "$customerType" },
-            status: { $first: "$subscriptionInfo.status" },
-            closeDate: { $first: "$items.closeDate" },
-            createdAt: { $first: "$items.createdAt" },
-            orders: {
-              $push: {
-                $cond: {
-                  if: { $ne: ["$items.closeDate", null] },
-                  then: "$$ROOT",
-                  else: "$$REMOVE"
-                }
+    const _page = Number(page || "1");
+    const _limit = Number(perPage || "20");
+
+    return await models.PosOrders.aggregate([
+      {
+        $match: {
+          "subscriptionInfo.subscriptionId": { $nin: [null, "", undefined] },
+          customerId: { $nin: [null, "", undefined] },
+          ...filter
+        }
+      },
+      { $unwind: "$items" },
+      { $sort: { createdAt: -1, "items.closeDate": -1 } },
+      {
+        $group: {
+          _id: "$subscriptionInfo.subscriptionId",
+          customerId: { $first: "$customerId" },
+          customerType: { $first: "$customerType" },
+          status: { $first: "$subscriptionInfo.status" },
+          closeDate: { $first: "$items.closeDate" },
+          createdAt: { $first: "$items.createdAt" },
+          orders: {
+            $push: {
+              $cond: {
+                if: { $ne: ["$items.closeDate", null] },
+                then: "$$ROOT",
+                else: "$$REMOVE"
               }
             }
           }
         }
-      ]),
-      params
-    );
+      }
+    ])
+      .skip((_page - 1) * _limit)
+      .limit(_limit);
+  },
+
+  async posOrderBySubscriptionsTotalCount(_root, params, { models }: IContext) {
+    const filter = await generateFilterSubsQuery(params);
+
+    const [result] = await models.PosOrders.aggregate([
+      {
+        $match: {
+          ...filter,
+          "subscriptionInfo.subscriptionId": { $nin: [null, "", undefined] },
+          customerId: { $nin: [null, "", undefined] }
+        }
+      },
+      { $group: { _id: "$subscriptionInfo.subscriptionId" } },
+      {
+        $count: "totalCount" // Count the unique groups
+      }
+    ]);
+
+    return result?.totalCount || 0;
   }
 };
 

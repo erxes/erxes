@@ -61,7 +61,6 @@ import {
   updateContactValidationStatus
 } from "./data/modules/coc/verifierUtils";
 import { buildFile } from "./exporterByUrl";
-import documents from "./documents";
 import reports from "./reports/reports";
 
 const {
@@ -439,7 +438,6 @@ httpServer.listen(PORT, async () => {
       permissions: moduleObjects,
       tags,
       imports,
-      documents,
       exporter,
       cronjobs: {
         handle10MinutelyJobAvailable: VERSION === "saas" ? true : false

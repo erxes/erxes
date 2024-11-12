@@ -2,7 +2,7 @@ import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import {
   IRiskIndicatorsField,
-  PaginateField
+  PaginateField,
 } from '../../../models/definitions/common';
 
 const generateConfigFilter = params => {
@@ -44,6 +44,15 @@ const generateGroupsFilter = params => {
   }
 
   return filter;
+};
+
+const generateConfigSort = params => {
+  const sort = {};
+
+  if (params?.sortField && params.sortDirection) {
+    sort[params.sortField] = params.sortDirection;
+  }
+  return sort;
 };
 
 const RiskIndicatorQueries = {
@@ -105,10 +114,10 @@ const RiskIndicatorQueries = {
   async riskAssessmentsConfigs(_root, params, { models }: IContext) {
     const filter = generateConfigFilter(params);
 
+    const sort = generateConfigSort(params);
+
     return await paginate(
-      models.RiskAssessmentsConfigs.find(filter).sort({
-        [params.sortField]: params.sortDirection
-      }),
+      models.RiskAssessmentsConfigs.find(filter).sort(sort),
       params
     );
   },
@@ -116,7 +125,7 @@ const RiskIndicatorQueries = {
     const filter = generateConfigFilter(params);
 
     return await models.RiskAssessmentsConfigs.find(filter).countDocuments();
-  }
+  },
 };
 
 checkPermission(RiskIndicatorQueries, 'riskIndicators', 'manageRiskAssessment');

@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import { sendProductsMessage, sendCoreMessage } from "../messageBroker";
+import { sendCoreMessage } from "../messageBroker";
 import { IPricingPlanDocument } from "../models/definitions/pricingPlan";
 
 /**
@@ -23,7 +23,7 @@ export const getParentsOrders = (order: string): string[] => {
 };
 
 export const getChildCategories = async (subdomain: string, categoryIds) => {
-  const childs = await sendProductsMessage({
+  const childs = await sendCoreMessage({
     subdomain,
     action: "categories.withChilds",
     data: { ids: categoryIds },
@@ -92,27 +92,14 @@ export const getAllowedProducts = async (
     }
 
     case "vendor": {
-      const limit = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
-        action: "count",
-        data: {
-          query: {
-            vendorId: { $in: plan.vendors || [] }
-          }
-        },
-        isRPC: true,
-        defaultValue: 0
-      });
-
-      const products = await sendProductsMessage({
-        subdomain,
-        action: "productFind",
+        action: "products.find",
         data: {
           query: {
             vendorId: { $in: plan.vendors || [] }
           },
           field: { _id: 1 },
-          limit
         },
         isRPC: true,
         defaultValue: []
@@ -134,9 +121,9 @@ export const getAllowedProducts = async (
         return [];
       }
 
-      const products = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
-        action: "productFind",
+        action: "products.find",
         data: {
           query: { _id: { $in: filterProductIds } },
           sort: { _id: 1, categoryId: 1 },
@@ -176,9 +163,9 @@ export const getAllowedProducts = async (
         return [];
       }
 
-      const products = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
-        action: "productFind",
+        action: "products.find",
         data: {
           query: { _id: { $in: filterProductIds } },
           sort: { _id: 1, categoryId: 1 },

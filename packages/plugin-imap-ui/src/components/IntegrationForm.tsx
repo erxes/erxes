@@ -99,17 +99,17 @@ const IntegrationForm = (props: Props) => {
         {renderField({ label: 'Smpt host', name: 'smtpHost', formProps })}
         {renderField({ label: 'Smpt port', name: 'smtpPort', formProps })}
         {renderField({
-          label: 'Main user (for a mail with aliases)',
+          label: __('Main user (for a mail with aliases)'),
           name: 'mainUser',
           required: false,
           formProps,
         })}
         {renderField({
-          label: 'User',
+          label: __('User'),
           name: 'user',
           formProps,
         })}
-        {renderField({ label: 'Password', name: 'password', formProps })}
+        {renderField({ label: __('Password'), name: 'password', formProps })}
 
         <SelectBrand
           isRequired={true}
