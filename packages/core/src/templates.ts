@@ -1,6 +1,7 @@
 import { generateModels, IModels } from "./connectionResolver";
 import { stringRandomId } from '@erxes/api-utils/src/mongoose-types'
 import { IProductCategoryDocument, IProductDocument } from "./db/models/definitions/products";
+import { Doc } from "./type";
 
 const modelChanger = (type: string, models: IModels) => {
   if (type === 'uoms') {
@@ -24,7 +25,7 @@ const generateUniqueCode = (baseCode: string) => {
 
 const generateOrder = (
   parentCategory: any,
-  doc: any,
+  doc: Doc,
 ) => {
   const order = parentCategory
     ? `${parentCategory.order}${doc.code}/`
@@ -70,7 +71,7 @@ export default {
 
         const model: any = modelChanger(contentType, models);
 
-        const parsedRelatedContents: any[] = [];
+        const parsedRelatedContents: string[] = [];
 
         for (const item of content) {
           const { _id, code, order, parentId, categoryId, scopeBrandIds, ...parsedContent } = JSON.parse(item);

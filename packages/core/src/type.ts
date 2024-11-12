@@ -44,3 +44,6 @@ export type OrderQuery = {
       $regex: RegExp;
     };
 }
+export type Doc = {
+    code : string;
+};
