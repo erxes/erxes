@@ -3,13 +3,14 @@ import { IModels } from "./connectionResolver";
 import { fetchServiceForms, sendInboxMessage } from "./messageBroker";
 import { IFormSubmissionFilter } from "./db/models/definitions/forms";
 import { getRealIdFromElk } from "@erxes/api-utils/src/elasticsearch";
+import { ConvsSelector, IntegrationSelector, Query, SubmissionFilter } from "./type";
 
 export const getCustomFields = async (
   models: IModels,
   contentType: string,
   validation?: string
 ) => {
-  const qry: any = {
+  const qry: Query = {
     contentType,
     isDefinedByErxes: false
   };
@@ -28,7 +29,7 @@ interface ICombinedParams {
   usageType?: string;
   excludedNames?: string[];
   segmentId?: string;
-  config?: any;
+  config?: string;
   onlyDates?: boolean;
 }
 
@@ -141,7 +142,7 @@ export const formSubmissionsQuery = async (
     filters: IFormSubmissionFilter[];
   }
 ) => {
-  const integrationsSelector: any = { kind: "lead", isActive: true };
+  const integrationsSelector: IntegrationSelector = { kind: "lead", isActive: true };
   let conversationIds: string[] = [];
 
   if (formId) {
@@ -149,17 +150,17 @@ export const formSubmissionsQuery = async (
   }
 
   if (tagId) {
-    integrationsSelector.tagIds = tagId;
+    integrationsSelector.tagIds = [tagId];
   }
 
   if (contentTypeIds && contentTypeIds.length > 0) {
     conversationIds = contentTypeIds;
   }
 
-  const submissionFilters: any[] = [];
+  const submissionFilters: SubmissionFilter[] = [];
 
   if (customerId) {
-    submissionFilters.push({ customerId });
+    submissionFilters.push({ formFieldId: "customerId", value: customerId});
   }
 
   if (filters && filters.length > 0) {
@@ -215,7 +216,7 @@ export const formSubmissionsQuery = async (
     return null;
   }
 
-  let convsSelector: any = { integrationId: integration._id };
+  let convsSelector: ConvsSelector = { integrationId: integration._id };
 
   if (conversationIds.length > 0) {
     convsSelector = { _id: { $in: conversationIds } };

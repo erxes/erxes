@@ -17,3 +17,25 @@ export type  SelectionConfig = {
     queryName: string;
     labelField: string;
 };
+export type ConvsSelector = | { integrationId: string } | { _id: { $in: string[] } };
+export type IntegrationSelector = {
+    kind: "lead";
+    isActive: boolean;
+    formId?: string;
+    tagIds?: string[];
+    contentTypeIds?: string[];
+};
+export type Filter = {
+    formFieldId: string;
+    operator: "eq" | "c" | "gte" | "lte";
+    value: any;
+};
+export type SubmissionFilter = {
+    formFieldId: string;
+    value: any;
+};
+export type Query = {
+    contentType: string;
+    isDefinedByErxes: boolean;
+    validation?: string | null;
+};
