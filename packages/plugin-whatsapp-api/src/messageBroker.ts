@@ -90,7 +90,7 @@ export const setupMessageConsumers = async () => {
         erxesApiId: integrationId
       });
       if (!integration) {
-        throw new Error('Instagram Integration not found ');
+        throw new Error('WhatsApp Integration not found ');
       }
       let result = {
         status: 'healthy'
