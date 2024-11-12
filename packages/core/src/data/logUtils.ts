@@ -25,16 +25,16 @@ export type LogDesc = {
 export interface ILogDataParams {
   type: string;
   description?: string;
-  object: any;
+  object: string;
   newData?: object;
   extraDesc?: object[];
-  updatedDocument?: any;
+  updatedDocument?: string;
 }
 
 export interface IActivityLogQueryParams {
-  contentId?: any;
+  contentId?: string;
   contentType?: string;
-  action?: any;
+  action?: string;
 }
 
 interface IDescriptions {
