@@ -185,7 +185,7 @@ const command = async () => {
           const actions = automation.actions || [];
 
           const fixedActions: string[] = [];
-          const fixedTriggers: string[] = [];
+          const fixedTriggers = [] as any;
 
           for (const trigger of triggers) {
             trigger.type = switchTriggerTypeByLabel(trigger.label);
@@ -238,7 +238,7 @@ const command = async () => {
 
         await Executions.find({}).forEach(execution => {
           const actions = execution.actions || [];
-          const fixedActions: string[] = [];
+          const fixedActions = [] as any;
 
           for (const action of actions) {
             const { actionType } = action;
