@@ -14,7 +14,6 @@ import * as path from 'path';
 import { initApolloServer } from './apolloClient';
 import { templateExport } from './data/modules/fileExporter/templateExport';
 import { buildChartFile } from './data/modules/insight/export';
-import userMiddleware from '@erxes/api-utils/src/middlewares/user';
 
 import * as fs from 'fs';
 
@@ -87,8 +86,6 @@ app.use(
 );
 
 app.use(cookieParser());
-
-app.use(userMiddleware);
 
 const corsOptions = {
   credentials: true,
