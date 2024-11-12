@@ -58,9 +58,10 @@ const PdfUploader = (props: Props) => {
         setIsUploading(true);
       }
     } catch (error) {
-      console.error('Error checking task status:', error);
       setTaskId(null); // Stop polling on error
       setIsUploading(false);
+
+      Alert.error(error);
     }
   };
 
@@ -99,7 +100,6 @@ const PdfUploader = (props: Props) => {
         setIsUploading(false)
       }
     } catch (error) {
-      console.log("eeeeee ",error)
       Alert.error(error);
       setIsUploading(false)
     } 
