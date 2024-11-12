@@ -10,6 +10,7 @@ type Props = {
     options: any[]
     fieldLabel: string
     fieldValueOptions?: any[]
+    fieldTypeOptions?: any[]
     onSelect: (option: any, value?: string) => void
 }
 
@@ -22,6 +23,7 @@ const CustomSelect = (props: Props) => {
         options,
         fieldLabel,
         fieldValueOptions,
+        fieldTypeOptions,
         onSelect,
     } = props
 

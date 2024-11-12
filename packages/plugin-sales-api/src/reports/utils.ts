@@ -152,7 +152,7 @@ export const getGoalStage = (goalType) => {
 
 export const buildPipeline = (filter, type, matchFilter) => {
 
-  const { dimension, measure, userType = 'userId', frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt", sortBy, goalType, colDimension, rowDimension } = filter
+  const { dimension, measure, userType = 'userId', frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt", sortBy, goalType, colDimension, rowDimension, preserveValue = {} } = filter
 
   let dimensions
 
@@ -173,7 +173,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
   const dateFormat = frequencyType || formatType
 
   if (dimensions.includes("tag")) {
-    pipeline.push({ $unwind: "$tagIds" });
+    pipeline.push({ $unwind: { path: "$tagIds", preserveNullAndEmptyArrays: preserveValue["tag"] || false } });
   }
 
   if (dimensions.includes("label")) {
@@ -710,7 +710,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
           as: "tag"
         }
       },
-      { $unwind: "$tag" }
+      { $unwind: { path: "$tag", preserveNullAndEmptyArrays: preserveValue["tag"] || false } }
     );
   }
 

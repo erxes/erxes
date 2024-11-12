@@ -37,6 +37,7 @@ type Props = {
   fieldDefaultValue?: any;
   filterType: IFilterType;
   fieldValueOptions?: any[]
+  fieldTypeOptions?: any[]
 };
 
 const ChartFormField = (props: Props) => {
@@ -56,7 +57,8 @@ const ChartFormField = (props: Props) => {
     fieldValues,
     fieldDefaultValue,
     filterType,
-    fieldValueOptions
+    fieldValueOptions,
+    fieldTypeOptions
   } = props;
 
   const { fieldQueryVariables } = filterType;
@@ -299,6 +301,28 @@ const ChartFormField = (props: Props) => {
     )
   }
 
+  const renderValueOption = (fieldTypeOption) => {
+
+    const { fieldName, fieldType, fieldLabel, fieldDefaultValue } = fieldTypeOption
+
+    return (
+      <>
+        <label htmlFor={fieldName}>{fieldLabel}</label>
+        <input type={fieldType} id={fieldName} checked={fieldValues[fieldName]?.["tag"] || fieldDefaultValue} onChange={(e) => {
+
+          const { checked } = e.target
+
+
+
+          const preserveValue = { ...fieldValues[fieldName] }
+          preserveValue["tag"] = checked
+
+          onChange(preserveValue, fieldName);
+        }} />
+      </>
+    )
+  }
+
   switch (fieldType) {
     case "select":
       return (
@@ -313,7 +337,9 @@ const ChartFormField = (props: Props) => {
               options={fieldOptions}
               fieldLabel={fieldLabel}
               fieldValueOptions={fieldValueOptions}
+              fieldTypeOptions={fieldTypeOptions}
             />
+            {fieldTypeOptions?.length && fieldTypeOptions.map(renderValueOption)}
           </div>
           {renderSubSelect()}
         </>

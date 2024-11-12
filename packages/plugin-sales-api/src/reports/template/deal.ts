@@ -2973,6 +2973,14 @@ export const dealCharts = [
             {
                 fieldName: 'tagIds',
                 fieldType: 'select',
+                fieldTypeOptions: [
+                    {
+                        fieldName: 'preserveValue',
+                        fieldType: 'checkbox',
+                        fieldLabel: 'Keep empty',
+                        fieldDefaultValue: false
+                    }
+                ],
                 fieldQuery: 'tags',
                 fieldValueVariable: '_id',
                 fieldLabelVariable: 'name',

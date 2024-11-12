@@ -56,7 +56,7 @@ type Props = {
 const TableList = (props: Props) => {
   const { dataset: { data = [], labels = [], title }, filters, setFilter } = props;
 
-  const headers: any = labels?.length ? [title?.split(" ").at(-1), 'Total Count'] : data.length > 0 ? Object.keys(data[0]).filter(key => key !== 'url') : []
+  const headers: any = labels?.length ? [title?.split(" ").at(-1), 'Total Count'] : data.length > 0 ? Array.from(new Set(data.flatMap(item => Object.keys(item)))).filter(key => key !== 'url') : []
   const array = labels?.length ? labels : data || []
 
   const checkSortActive = (field, direction) => {
