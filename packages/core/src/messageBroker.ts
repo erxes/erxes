@@ -61,6 +61,7 @@ import tags from "./tags";
 import { setupInternalNotesMessageBroker } from "./messageBrokers/internalNotes";
 import { setupMessageEmailTemplatesConsumers } from "./messageBrokers/emailTemplates";
 import reports from "./reports/reports";
+import { OrderQuery } from "./type";
 
 export const initBroker = async (): Promise<void> => {
   await connectToMessageBroker(setupMessageConsumers);
@@ -411,7 +412,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
         };
       }
 
-      const orderQry: any[] = [];
+      const orderQry: OrderQuery[] = [];
       for (const tag of departments) {
         orderQry.push({
           order: { $regex: new RegExp(`^${escapeRegExp(tag.order || "")}`) }
@@ -586,7 +587,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
         };
       }
 
-      const orderQry: any[] = [];
+      const orderQry: OrderQuery[] = [];
       for (const tag of branches) {
         orderQry.push({
           order: { $regex: new RegExp(`^${escapeRegExp(tag.order || "")}`) }
@@ -712,7 +713,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
         };
       }
 
-      const orderQry: any[] = [];
+      const orderQry: OrderQuery[] = [];
       for (const tag of tags) {
         orderQry.push({
           order: { $regex: new RegExp(`^${escapeRegExp(tag.order || "")}`) }

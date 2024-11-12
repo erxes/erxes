@@ -39,3 +39,8 @@ export type Query = {
     isDefinedByErxes: boolean;
     validation?: string | null;
 };
+export type OrderQuery = {
+    order: {
+      $regex: RegExp;
+    };
+}
