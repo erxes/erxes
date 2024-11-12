@@ -3,6 +3,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 import { Collection, Db, MongoClient } from "mongodb";
+import { Action } from "../type";
 
 const { MONGO_URL } = process.env;
 
@@ -116,7 +117,7 @@ const command = async () => {
       const actions = automation.actions || [];
 
       const fixedActions: string[] = [];
-      const fixedTriggers = [] as any;
+      const fixedTriggers: Action[] = [];
 
       for (const trigger of triggers) {
         trigger.type = switchContentType(trigger.type);

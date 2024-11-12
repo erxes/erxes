@@ -47,3 +47,11 @@ export type OrderQuery = {
 export type Doc = {
     code : string;
 };
+export type Action = {
+    type: string;
+    [key: string]: any;
+};  
+export type Webhook = {
+    _id: string;
+    actions: Action[];
+}
