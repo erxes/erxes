@@ -31,7 +31,7 @@ export const removeIntegration = async (
   if (kind.includes('whatsapp')) {
     debugWhatsapp('Removing entries');
 
-    const {whatsappNumberIds} = integration;
+    const { whatsappNumberIds } = integration;
 
     if (!whatsappNumberIds) {
       throw new Error('whatsappNumber ID not found');
@@ -153,7 +153,8 @@ export const repairIntegrations = async (
         method: 'POST',
         body: JSON.stringify({
           domain: `${DOMAIN}/gateway/pl:whatsapp`,
-          whatsappNumberIds: integration.whatsappNumberIds
+          whatsappNumberIds: integration.whatsappNumberIds,
+          wabaIds: integration.whatsappNumberIds
         }),
         headers: { 'Content-Type': 'application/json' }
       });
@@ -203,8 +204,6 @@ export const whatsappCreateIntegration = async (
   { accountId, integrationId, data, kind }
 ): Promise<{ status: 'success' }> => {
   const whatsappNumberIds = JSON.parse(data).pageIds;
-
-  const account = await models.Accounts.getAccount({ _id: accountId });
 
   const integration = await models.Integrations.create({
     kind,

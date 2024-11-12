@@ -1,7 +1,7 @@
 import { IModels } from './connectionResolver';
 import { generateAttachmentMessages, sendReply } from './utils';
 
-export const handleInstagramMessage = async (
+export const handleWhatsAppMessage = async (
   models: IModels,
   msg,
   subdomain

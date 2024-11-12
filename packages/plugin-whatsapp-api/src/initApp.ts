@@ -11,7 +11,8 @@ const rawBodySaver = (req, _res, buf, encoding) => {
     req.rawBody = buf.toString(encoding || 'utf8');
 
     if (req.headers.fromcore === 'true') {
-      req.rawBody = req.rawBody.replace(/\//g, '\\/');
+      // First escape backslashes, then forward slashes
+      req.rawBody = req.rawBody.replace(/\\/g, '\\\\').replace(/\//g, '\\/');
     }
   }
 };

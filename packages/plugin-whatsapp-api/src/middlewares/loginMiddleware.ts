@@ -20,7 +20,7 @@ const loginMiddleware = async (req, res) => {
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
   const API_DOMAIN = DOMAIN.includes('zrok') ? DOMAIN : `${DOMAIN}/gateway`;
-  const INSTAGRAM_LOGIN_REDIRECT_URL = await getConfig(
+  const WHATSAPP_LOGIN_REDIRECT_URL = await getConfig(
     models,
     'WHATSAPP_LOGIN_REDIRECT_URL',
     `${API_DOMAIN}/pl:whatsapp/login`
@@ -29,7 +29,7 @@ const loginMiddleware = async (req, res) => {
     client_id: WHATSAPP_APP_ID,
     client_secret: WHATSAPP_APP_SECRET,
     scope: `${WHATSAPP_PERMISSIONS},`,
-    redirect_uri: INSTAGRAM_LOGIN_REDIRECT_URL
+    redirect_uri: WHATSAPP_LOGIN_REDIRECT_URL
   };
 
   debugRequest(debugWhatsapp, req);

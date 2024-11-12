@@ -35,8 +35,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
   }
 
   componentDidMount = () => {
-    const accounts = this.props.accounts;
-
+    const { accounts } = this.props;
     if (accounts && accounts.length > 0) {
       this.onSelectAccount(accounts[0]._id);
     }
@@ -59,7 +58,6 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
   renderButton() {
     const { onAdd, kind } = this.props;
-    console.log(kind, '%%%%%%%%');
     if (kind === 'whatsapp') {
       return (
         <FacebookButton onClick={onAdd}>

@@ -18,7 +18,7 @@ export interface ICustomerDocument extends ICustomer, Document {
 
 export const customerSchema = new Schema({
   _id: field({ pkey: true }),
-  userId: { type: String, unique: true, label: 'Instagram user id' },
+  userId: { type: String, unique: true, label: 'WhatsApp user id' },
   erxesApiId: { type: String, label: 'Customer id at contacts-api' },
   firstName: String,
   lastName: String,

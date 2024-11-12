@@ -6,7 +6,7 @@ import {
   removeIntegration,
   repairIntegrations
 } from './helpers';
-import { handleInstagramMessage } from './handleInstagramMessage';
+import { handleWhatsAppMessage } from './handleWhatsAppMessage';
 import { userIds } from './middlewares/userMiddleware';
 
 import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
@@ -64,7 +64,7 @@ export const setupMessageConsumers = async () => {
         }
 
         if (type === 'whatsapp') {
-          response.data = await handleInstagramMessage(models, data, subdomain);
+          response.data = await handleWhatsAppMessage(models, data, subdomain);
         }
 
         if (action === 'getConfigs') {

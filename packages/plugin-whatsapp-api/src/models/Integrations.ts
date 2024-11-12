@@ -43,7 +43,7 @@ export const loadIntegrationClass = (models: IModels) => {
     public static async getIntegration(selector) {
       const integration = await models.Integrations.findOne();
       if (!integration) {
-        throw new Error('Instagram Integration not found ');
+        throw new Error('WHATSAPP Integration not found ');
       }
 
       return integration;

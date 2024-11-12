@@ -3,8 +3,6 @@ import { getConfig } from './commonUtils';
 import loginMiddleware from './middlewares/loginMiddleware';
 import receiveMessage from './receiveMessage';
 import { generateModels } from './connectionResolver';
-import { getBusinessWhatsAppDetails } from './utils';
-import { INTEGRATION_KINDS } from './constants';
 
 import {
   debugError,
