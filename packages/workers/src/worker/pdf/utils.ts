@@ -1,4 +1,4 @@
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
 
 import { execSync } from 'child_process';
 import * as fs from 'fs';
@@ -14,7 +14,7 @@ import { createCFR2 } from '../../data/utils';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
 import * as FormData from 'form-data';
-
+import fetch from 'node-fetch';
 
 const tmpDir = tmp.dirSync({ unsafeCleanup: true });
 
@@ -54,7 +54,7 @@ export const pdfUploader = [
     }
 
     const taskId = nanoid();
-    console.log('file ', file);
+
     const taskData = {
       taskId,
       subdomain,
@@ -63,7 +63,6 @@ export const pdfUploader = [
       type: 'application/pdf',
       status: 'pending',
     };
-    console.log(taskData);
 
     try {
       await redis.set(`pdf_upload_task_${taskId}`, JSON.stringify(taskData));
@@ -142,14 +141,10 @@ async function convertAndUploadImages(
 ) {
   const { CLOUDFLARE_USE_CDN } = await getFileUploadConfigs(subdomain);
   const imagePaths: any = await convertPdfToImage(pdfPath, tmpDir);
-  console.log('imagePaths', imagePaths);
+
   if (!imagePaths.length) {
     throw new Error('No images found');
   }
-
-  console.log('CLOUDFLARE_USE_CDN', CLOUDFLARE_USE_CDN);
-
-  console.log('imagePaths', imagePaths);
 
   const uploadImage =
     CLOUDFLARE_USE_CDN === 'true' || CLOUDFLARE_USE_CDN === true
@@ -182,13 +177,16 @@ const convertPdfToImage = async (pdfFilePath: string, directory: string) => {
         return;
       }
 
+      const filePath = path.join(directory, fileName);
+      const size = fs.statSync(`${directory}/${fileName}`).size;
+
       return {
         type: 'image/jpeg',
         filename: fileName,
         originalname: fileName,
         encoding: '7bit',
-        path: `${directory}/${fileName}`,
-        size: fs.statSync(`${directory}/${fileName}`).size,
+        path: filePath,
+        size,
         mimetype: 'image/jpeg',
         destination: directory,
         name: fileName,
@@ -241,7 +239,6 @@ export const uploadToCloudflare = async (
   const { CLOUDFLARE_BUCKET_NAME, FILE_SYSTEM_PUBLIC } =
     await getFileUploadConfigs(subdomain);
   const fileObj = file;
-  console.log('fileObj', fileObj);
 
   const sanitizedFilename = sanitizeFilename(fileObj.filename);
 
@@ -277,8 +274,7 @@ export const uploadToCloudflare = async (
   }
 };
 
-const uploadToCFImages = async (file: any, subdomain: string) => {
-  console.log('uploadToCFImages', file);
+export const uploadToCFImages = async (file: any, subdomain?: string) => {
   const sanitizedFilename = sanitizeFilename(file.filename);
   const {
     CLOUDFLARE_BUCKET_NAME,
@@ -286,6 +282,8 @@ const uploadToCFImages = async (file: any, subdomain: string) => {
     CLOUDFLARE_ACCOUNT_ID,
     CLOUDFLARE_API_TOKEN,
   } = await getFileUploadConfigs(subdomain);
+
+  const VERSION = getEnv({ name: 'VERSION' });
 
   const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1`;
 
@@ -310,7 +308,6 @@ const uploadToCFImages = async (file: any, subdomain: string) => {
 
   const headers = {
     Authorization: `Bearer ${CLOUDFLARE_API_TOKEN}`,
-    ...formData.getHeaders(),
   };
 
   const response = await fetch(url, {
@@ -320,7 +317,6 @@ const uploadToCFImages = async (file: any, subdomain: string) => {
   });
 
   const data: any = await response.json();
-  console.log('data', data);
 
   if (!data.success) {
     throw new Error('Error uploading file to Cloudflare Images');
@@ -330,15 +326,8 @@ const uploadToCFImages = async (file: any, subdomain: string) => {
     throw new Error('Error uploading file to Cloudflare Images');
   }
 
-  try {
-    fs.unlinkSync(file.path);
-    console.debug('file deleted', file.path);
-  } catch (err) {
-    console.error('error while deleting file', err);
-  }
-  tmp.setGracefulCleanup();
-
-  return FILE_SYSTEM_PUBLIC && FILE_SYSTEM_PUBLIC !== 'false'
+  return (FILE_SYSTEM_PUBLIC && FILE_SYSTEM_PUBLIC !== 'false') ||
+    VERSION === 'saas'
     ? data.result.variants[0]
     : `${CLOUDFLARE_BUCKET_NAME}/${fileName}`;
 };

@@ -6,11 +6,6 @@
     "build" : "tsc"
   },
   "dependencies": {
-    "@erxes/api-utils" : "*",
-    "multer": "^1.4.2",
-    "tmp": "^0.2.3",
-    "aws-sdk": "^2.151.0",
-    "pdf-poppler":"^0.2.1",
-    "form-data":"^4.0.1"
+    "@erxes/api-utils" : "*"
   }
 }
