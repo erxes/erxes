@@ -38,29 +38,19 @@ class ConditionsRule extends React.Component<Props, State> {
   }
 
   addRule = (e) => {
-    const { rules = [] } = this.state;
+    const rules = this.state.rules;
+    const selectedOption = e.target.options[e.target.selectedIndex];
 
-    const { value } = e.target;
-    const rule = VISITOR_AUDIENCE_RULES.find((r) => r.value === value);
-    
-    if (rule) {
-      console.log('ruleeee', rule);
-      
-      // Create a new array by spreading the existing rules array and adding the new rule
-      const updatedRules = [
-        ...rules,
-        {
-          _id: Math.random().toString(),
-          kind: value,
-          text: rule.text,
-          condition: '',
-          value: '',
-        },
-      ];
-      
-      console.log('updatedRules', updatedRules);
-      // Set the state with the new array
-      this.setState({ rules: updatedRules });
+    if (selectedOption.value) {
+      rules.push({
+        _id: Math.random().toString(),
+        kind: selectedOption.value,
+        text: selectedOption.text,
+        condition: "",
+        value: "",
+      });
+
+      this.setState({ rules });
     }
   };
 

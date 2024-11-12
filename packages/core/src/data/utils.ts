@@ -535,7 +535,6 @@ export const uploadToCFImages = async (
   forcePrivate?: boolean,
   models?: IModels
 ) => {
-  console.log('uploadToCFImages', file.name);
   const sanitizedFilename = sanitizeFilename(file.name);
 
   const CLOUDFLARE_ACCOUNT_ID = await getConfig(
@@ -586,7 +585,6 @@ export const uploadToCFImages = async (
   });
 
   const data = await response.json();
-  console.log("success ", data.success);
 
   if (!data.success) {
     throw new Error("Error uploading file to Cloudflare Images 1");
