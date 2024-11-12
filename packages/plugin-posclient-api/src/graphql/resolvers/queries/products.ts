@@ -375,8 +375,8 @@ const productQueries = {
 
   async poscProductSimilarities(
     _root,
-    { _id, groupedSimilarity },
-    { models }: IContext
+    { _id, groupedSimilarity, branchId }: { _id: string, groupedSimilarity: string, branchId?: string },
+    { models, subdomain, config }: IContext
   ) {
     const product = await models.Products.getProduct({ _id });
 
@@ -430,7 +430,12 @@ const productQueries = {
 
       if (!matchedMasks.length) {
         return {
-          products: await models.Products.find({ _id })
+          products: await checkRemainders(
+            subdomain,
+            config,
+            await models.Products.find({ _id }),
+            branchId || ''
+          )
         };
       }
 
@@ -486,7 +491,12 @@ const productQueries = {
       let products = await models.Products.find(filters)
         .sort({ code: 1 });
       if (!products.length) {
-        products = [product];
+        products = await checkRemainders(
+          subdomain,
+          config,
+          [product],
+          branchId || ''
+        );
       }
       return {
         products,
@@ -499,7 +509,12 @@ const productQueries = {
     });
     if (!category.isSimilarity || !category.similarities.length) {
       return {
-        products: await models.Products.find({ _id })
+        products: await checkRemainders(
+          subdomain,
+          config,
+          await models.Products.find({ _id }),
+          branchId || ''
+        )
       };
     }
 
@@ -519,7 +534,12 @@ const productQueries = {
     }[] = category.similarities.map(r => ({ ...r }));
 
     return {
-      products: await models.Products.find(filters).sort({ code: 1 }),
+      products: await checkRemainders(
+        subdomain,
+        config,
+        await models.Products.find(filters).sort({ code: 1 }),
+        branchId || ''
+      ),
       groups
     };
   },
