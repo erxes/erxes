@@ -14,7 +14,6 @@ import SelectLeads from "../utils/SelectLeads";
 import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import SelectDate from "../utils/SelectDate";
-import { SelectWithAssets } from "../utils/SelectAssets";
 import { FormControl } from "@erxes/ui/src/components/form";
 import CustomSelect from "../utils/CustomSelect";
 import { generateInitialOptions } from "../../utils";
@@ -39,6 +38,7 @@ type Props = {
   filterType: IFilterType;
   fieldValueOptions?: any[]
 };
+
 const ChartFormField = (props: Props) => {
   const {
     fieldQuery,
@@ -53,6 +53,7 @@ const ChartFormField = (props: Props) => {
     setFilter,
     startDate,
     endDate,
+    fieldValues,
     fieldDefaultValue,
     filterType,
     fieldValueOptions
@@ -108,12 +109,6 @@ const ChartFormField = (props: Props) => {
     }
   };
 
-  const OnSaveBrands = (brandIds: string[] | string) => {
-    if (setFilter) {
-      setFilter("brandIds", brandIds);
-    }
-  };
-
   const handleInput = (e) => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -139,7 +134,7 @@ const ChartFormField = (props: Props) => {
 
           <SelectTeamMembers
             multi={multi}
-            name="chartAssignedUserIds"
+            name="userIds"
             label={fieldLabel}
             onSelect={onChange}
             initialValue={fieldValue}
@@ -155,7 +150,7 @@ const ChartFormField = (props: Props) => {
           <SelectDepartments
             multi={multi}
             filterParams={{ withoutUserFilter: true }}
-            name="chartAssignedDepartmentIds"
+            name="departmentIds"
             label={fieldLabel}
             onSelect={onChange}
             initialValue={fieldValue}
@@ -171,7 +166,7 @@ const ChartFormField = (props: Props) => {
           <SelectBranches
             multi={multi}
             filterParams={{ withoutUserFilter: true }}
-            name="chartAssignedBranchIds"
+            name="branchIds"
             label={fieldLabel}
             onSelect={onChange}
             initialValue={fieldValue}
@@ -185,9 +180,9 @@ const ChartFormField = (props: Props) => {
           <ControlLabel> {fieldLabel}</ControlLabel>
           <SelectBrands
             multi={true}
-            name="selectedBrands"
+            name="brandIds"
             label={"Choose brands"}
-            onSelect={OnSaveBrands}
+            onSelect={onChange}
             initialValue={fieldValue}
           />
         </div>
@@ -199,7 +194,7 @@ const ChartFormField = (props: Props) => {
 
           <SelectLeads
             multi={true}
-            name="selecteForms"
+            name="formIds"
             label={"Choose forms"}
             onSelect={onChange}
             initialValue={fieldValue}
@@ -214,24 +209,11 @@ const ChartFormField = (props: Props) => {
 
           <SelectClientPortal
             multi={true}
-            name="selectePortal"
+            name="portalIds"
             label={"Choose portal"}
             onSelect={onChange}
             initialValue={fieldValue}
             filterParams={JSON.parse(fieldQueryVariables)}
-          />
-        </div>
-      );
-    case "assets":
-      return (
-        <div>
-          <ControlLabel> {fieldLabel}</ControlLabel>
-          <SelectWithAssets
-            label="Choose Asset"
-            name="assets"
-            multi={multi}
-            initialValue={fieldValue}
-            onSelect={onChange}
           />
         </div>
       );
@@ -241,7 +223,7 @@ const ChartFormField = (props: Props) => {
           <ControlLabel> {fieldLabel}</ControlLabel>
           <SelectCompanies
             label="Select companies"
-            name="companyId"
+            name="companyIds"
             multi={multi}
             initialValue={fieldValue}
             onSelect={onChange}
@@ -254,7 +236,7 @@ const ChartFormField = (props: Props) => {
           <ControlLabel> {fieldLabel}</ControlLabel>
           <SelectCustomers
             label="Select customers"
-            name="customerId"
+            name="customerIds"
             multi={multi}
             initialValue={fieldValue}
             onSelect={onChange}
@@ -267,7 +249,7 @@ const ChartFormField = (props: Props) => {
           <ControlLabel> {fieldLabel}</ControlLabel>
           <SelectProducts
             label="Select products"
-            name="productId"
+            name="productIds"
             multi={multi}
             initialValue={fieldValue}
             onSelect={onChange}
@@ -301,6 +283,7 @@ const ChartFormField = (props: Props) => {
       <div>
         <ControlLabel>{`${fieldLabel} Options`}</ControlLabel>
         <Select
+          value={generateInitialOptions(subOptions, fieldValues['subFields'])}
           isMulti={true}
           options={subOptions}
           onChange={(selectedOptions: any) => {

@@ -32,6 +32,7 @@
 * syncerkhet weight ([db1c563](https://github.com/erxes/erxes/commit/db1c5634a070d9292b678310d32fa701882f5e77))
 
 ## [1.17.7](https://github.com/erxes/erxes/compare/2.0.4...2.1.0-rc.0) (2024-10-24)
+## [2.0.6](https://github.com/erxes/erxes/compare/2.0.5...2.0.6) (2024-11-11)
 
 
 ### Bug Fixes
@@ -45,6 +46,19 @@
 * burenScoring customerSidebar ([c610f29](https://github.com/erxes/erxes/commit/c610f299a018ef3a8d834ddb18d57672b616f5e1))
 
 ## [1.17.6](https://github.com/erxes/erxes/compare/2.0.4...2.1.0-rc.0) (2024-10-22)
+* **documents:** can't display print button ([cd35668](https://github.com/erxes/erxes/commit/cd35668c1b2091a27452bf33d6245aa2dc57c612))
+* **documents:** move documents config of core plugins from core plugin ([1448d6c](https://github.com/erxes/erxes/commit/1448d6c78149c75c002dda9f9875194a693ea961))
+* insight chart  ([48bb51d](https://github.com/erxes/erxes/commit/48bb51d4c656a136e31a3db15b076960d98ac748))
+* msdynamic ([5c6d4dd](https://github.com/erxes/erxes/commit/5c6d4dd2b2d4575782cf56f504fead43a7d70e23))
+* msdynamic ([e70c0ab](https://github.com/erxes/erxes/commit/e70c0abc06991382c2b6ae36292779ad8fa1687d))
+* msdynamic await ([70c564a](https://github.com/erxes/erxes/commit/70c564a523a54ed4e564a70e8f30b6cf0f49fdbc))
+* **payment:** hot fixes ([d9ac969](https://github.com/erxes/erxes/commit/d9ac969cb9b04e4f3b866397702dca574d3fd5b5))
+* **pos:** stop close subscription when ordered new order for renewable subscription before end subscription ([b1c4db8](https://github.com/erxes/erxes/commit/b1c4db823577321d3a705fec6a463c98d551fe7e))
+* syncdynamic from pos order ([3c3fbc3](https://github.com/erxes/erxes/commit/3c3fbc38b94652b78053e7006b293d33a082b554))
+* **widgets:** check process type before access ([37396e9](https://github.com/erxes/erxes/commit/37396e9e46b966dcce116899b09fdcd6b9b552e8))
+* with permission on integrations ([e16d1b8](https://github.com/erxes/erxes/commit/e16d1b8cd26ca9b6d1709d2bac3b5a9b2abc4f15))
+
+## [2.0.5](https://github.com/erxes/erxes/compare/2.0.4...2.0.5) (2024-11-06)
 
 
 ### Bug Fixes
