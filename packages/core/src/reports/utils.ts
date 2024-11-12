@@ -115,12 +115,29 @@ export const buildMatchFilter = async (filter, subdomain) => {
     fieldIds,
     portalIds,
     channelIds,
-    dateRange
+    dateRange,
+    formId,
+    formFieldIds,
+    subFields
   } = filter;
 
   const models = await generateModels(subdomain);
 
   const matchfilter = {};
+
+  // FORM FILTER
+  if (formId) {
+    matchfilter["_id"] = { $eq: formId };
+  }
+
+  // FIELD FILTER
+  if (formFieldIds && formFieldIds.length) {
+    matchfilter["submission.formFieldId"] = { $in: formFieldIds };
+
+    if (subFields?.length) {
+      matchfilter['submission.value'] = { $in: subFields };
+    }
+  }
 
   // FORM FILTER
   if (formIds && formIds.length) {
@@ -190,11 +207,19 @@ export const buildMatchFilter = async (filter, subdomain) => {
   // FIELD FILTER
   if (fieldIds && fieldIds.length) {
     matchfilter["customFieldsData.field"] = { $in: fieldIds };
+
+    if (subFields?.length) {
+      matchfilter['customFieldValues'] = { $in: subFields };
+    }
   }
 
   //PORTAL FILTER
   if (portalIds && portalIds.length) {
     matchfilter["clientPortalId"] = { $in: portalIds };
+  }
+
+  if ((fieldIds?.length || formFieldIds?.length) && subFields?.length) {
+    matchfilter['customFieldValues'] = { $in: subFields };
   }
 
   // DATE FILTER
@@ -1094,6 +1119,324 @@ export const buildPipeline = async (filter, matchFilter, type?) => {
   return pipeline
 }
 
+export const buildFormPipeline = async (filter, matchFilter) => {
+
+  const { dimension, measure, colDimension, rowDimension, frequencyType, dateRange, startDate, endDate, dateRangeType = "createdDate" } = filter
+
+  let dimensions
+
+  if (colDimension?.length || rowDimension?.length) {
+    dimensions = [...colDimension.map(col => col.value), ...rowDimension.map(row => row.value)]
+  } else {
+    dimensions = Array.isArray(dimension) ? dimension : dimension?.split(",") || []
+  }
+
+  const formatType = buildFormatType(dateRange, startDate, endDate)
+
+  const dateFormat = frequencyType || formatType
+
+  const measures = Array.isArray(measure) ? measure : measure?.split(",") || []
+
+  const pipeline: any[] = []
+
+  const matchStage = {}
+
+  const expressions = {}
+
+  const projectStage = {
+    _id: 0
+  }
+
+  if (dimensions.includes('department')) {
+    pipeline.push({ $unwind: "$departmentIds" })
+  }
+
+  if (dimensions.includes('tag')) {
+    pipeline.push({ $unwind: "$tagIds" })
+  }
+
+  if (dimensions.includes('field') || filter?.subFields?.length) {
+    pipeline.push({
+      $lookup: {
+        from: "form_submissions",
+        localField: "_id",
+        foreignField: "formId",
+        as: "submission"
+      }
+    },
+      {
+        $unwind: "$submission"
+      },
+      {
+        $unwind: "$submission.value"
+      },)
+  }
+
+  if (dimensions.includes('brand')) {
+    matchStage['brandId'] = { $nin: [null, ''] }
+  }
+
+  if (dimensions.includes('department')) {
+    matchStage['departmentIds'] = { $nin: [null, ''] }
+  }
+
+  if (dimensions.includes('integration')) {
+    matchStage['integrationId'] = { $nin: [null, ''] }
+  }
+
+  if (dimensions.includes('tag')) {
+    matchStage['tagIds'] = { $nin: [null, ''] }
+  }
+
+  if (dimensions.includes('status')) {
+    matchStage['status'] = { $nin: [null, ''] }
+  }
+
+  if (dimensions.includes('visibility')) {
+    matchStage['visibility'] = { $nin: [null, ''] }
+  }
+
+  if (dimensions.includes('type')) {
+    matchStage['type'] = { $nin: [null, ''] }
+  }
+
+  if (dimensions.includes('flowType')) {
+    matchStage['leadData.loadType'] = { $nin: [null, ''] }
+  }
+
+  if (dimensions.includes('conformationType')) {
+    matchStage['leadData.successAction'] = { $nin: [null, ''] }
+  }
+
+  if (dimensions.includes('numberOfPages')) {
+    matchStage['numberOfPages'] = { $nin: [null, ''] }
+  }
+
+  if (dimensions.includes('createdAt')) {
+    matchStage['createdDate'] = { $nin: [null, ''] }
+  }
+
+  if (dimensions.includes('createdBy')) {
+    matchStage['createdUserId'] = { $nin: [null, ''] }
+  }
+
+  if (dimensions.includes("frequency")) {
+    matchStage[dateRangeType] = { $ne: null };
+  }
+
+  pipeline.push({ $match: { ...matchStage, ...matchFilter, type: "lead" } });
+
+  if (dimensions.includes("department")) {
+    expressions['department'] = '$departmentIds'
+  }
+
+  if (dimensions.includes("brand")) {
+    expressions['brand'] = '$brandId'
+  }
+
+  if (dimensions.includes("integration")) {
+    expressions['integration'] = '$integrationId'
+  }
+
+  if (dimensions.includes("tag")) {
+    expressions['tag'] = '$tagIds'
+  }
+
+  if (dimensions.includes("status")) {
+    expressions['status'] = '$status'
+  }
+
+  if (dimensions.includes("visibility")) {
+    expressions['visibility'] = '$visibility'
+  }
+
+  if (dimensions.includes("type")) {
+    expressions['type'] = '$type'
+  }
+
+  if (dimensions.includes('flowType')) {
+    expressions['flowType'] = '$leadData.loadType'
+  }
+
+  if (dimensions.includes('conformationType')) {
+    expressions['conformationType'] = '$leadData.successAction'
+  }
+
+  if (dimensions.includes('numberOfPages')) {
+    expressions['numberOfPages'] = '$numberOfPages'
+  }
+
+  if (dimensions.includes('createdAt')) {
+    expressions['createdAt'] = '$createdDate'
+  }
+
+  if (dimensions.includes('createdBy')) {
+    expressions['createdBy'] = '$createdUserId'
+  }
+
+  if (dimensions.includes('field')) {
+    expressions['field'] = '$submission.value'
+  }
+
+  if (dimensions.includes("frequency")) {
+    expressions['frequency'] = {
+      $dateToString: {
+        format: dateFormat,
+        date: `$${dateRangeType}`,
+      },
+    };
+  }
+
+  const groupStage = {
+    _id: expressions,
+    count: { $sum: 1 }
+  }
+
+  pipeline.push({ $group: groupStage });
+
+  if (dimensions.includes("brand")) {
+    pipeline.push({
+      $lookup: {
+        from: "brands",
+        localField: "_id.brand",
+        foreignField: "_id",
+        as: "brand"
+      }
+    },
+      {
+        $unwind: "$brand"
+      })
+  }
+
+  if (dimensions.includes("department")) {
+    pipeline.push({
+      $lookup: {
+        from: "departments",
+        localField: "_id.department",
+        foreignField: "_id",
+        as: "department"
+      }
+    },
+      {
+        $unwind: "$department"
+      })
+  }
+
+  if (dimensions.includes("tag")) {
+    pipeline.push({
+      $lookup: {
+        from: "tags",
+        localField: "_id.tag",
+        foreignField: "_id",
+        as: "tag"
+      }
+    },
+      {
+        $unwind: "$tag"
+      })
+  }
+
+  if (dimensions.includes("integration")) {
+    pipeline.push({
+      $lookup: {
+        from: "integrations",
+        localField: "_id.integration",
+        foreignField: "_id",
+        as: "integration"
+      }
+    },
+      {
+        $unwind: "$integration"
+      })
+  }
+
+  if (dimensions.includes("createdBy")) {
+    pipeline.push({
+      $lookup: {
+        from: "users",
+        localField: "_id.createdBy",
+        foreignField: "_id",
+        as: "user"
+      }
+    },
+      {
+        $unwind: "$user"
+      })
+  }
+
+  if (dimensions.includes("frequency")) {
+    pipeline.push({ $sort: { _id: 1 } })
+  }
+
+  (measures || []).forEach((measure) => {
+    projectStage[measure] = 1;
+  });
+
+  if (dimensions.includes('brand')) {
+    projectStage['brand'] = "$brand.name"
+  }
+
+  if (dimensions.includes('department')) {
+    projectStage['department'] = "$department.title"
+  }
+
+  if (dimensions.includes('integration')) {
+    projectStage['integration'] = "$integration.name"
+  }
+
+  if (dimensions.includes("tag")) {
+    projectStage['tag'] = "$tag.name";
+  }
+
+  if (dimensions.includes("status")) {
+    projectStage['status'] = "$_id.status";
+  }
+
+  if (dimensions.includes("visibility")) {
+    projectStage['visibility'] = "$_id.visibility";
+  }
+
+  if (dimensions.includes("frequency")) {
+    projectStage['frequency'] = "$_id.frequency";
+  }
+
+  if (dimensions.includes("type")) {
+    projectStage['type'] = "$_id.type";
+  }
+
+  if (dimensions.includes("flowType")) {
+    projectStage['flowType'] = "$_id.flowType";
+  }
+
+  if (dimensions.includes("conformationType")) {
+    projectStage['conformationType'] = "$_id.conformationType";
+  }
+
+  if (dimensions.includes("numberOfPages")) {
+    projectStage['numberOfPages'] = "$_id.numberOfPages";
+  }
+
+  if (dimensions.includes("createdAt")) {
+    projectStage['createdAt'] = "$_id.createdAt";
+  }
+
+  if (dimensions.includes("createdBy")) {
+    projectStage['createdBy'] = "$user";
+  }
+
+  if (dimensions.includes("frequency")) {
+    projectStage['frequency'] = "$_id.frequency";
+  }
+
+  if (dimensions.includes("field")) {
+    projectStage['field'] = "$_id.field";
+  }
+
+  pipeline.push({ $project: projectStage });
+
+  return pipeline
+}
+
 const MEASURE_LABELS = {
   'count': 'Total Count',
   'totalAmount': 'Total Amount',
@@ -1218,18 +1561,22 @@ export const formatData = (data, filter) => {
       item['pronoun'] = GENDER_CHOICES[pronoun] || "Unknown"
     }
 
-    if (item.hasOwnProperty('owner')) {
-      const user = item['owner']
+    ['owner', 'createdBy'].forEach(key => {
+      if (item.hasOwnProperty(key)) {
+        const user = item[key]
 
-      if (user) {
-        item['owner'] = user.details?.fullName
-          || (user.details?.firstName && user.details?.lastName ? `${user.details.firstName} ${user.details.lastName}` : null)
-          || user.email
-          || user.PrimaryEmail
-          || user.PrimaryPhone
-          || "Unknown"
+        if (user) {
+
+          item[key] = user.details?.fullName
+            || (user.details?.firstName && user.details?.lastName ? `${user.details.firstName} ${user.details.lastName}` : null)
+            || user.email
+            || user.PrimaryEmail
+            || user.PrimaryPhone
+            || "Unknown"
+
+        }
       }
-    }
+    });
 
     if (item.hasOwnProperty('company')) {
       const company = item['company']
