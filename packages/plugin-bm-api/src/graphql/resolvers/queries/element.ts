@@ -218,6 +218,8 @@ const elementQueries = {
 
     if (parentId) {
       selector.parentId = parentId;
+    } else if (parentId === null) {
+      selector.parentId = null;
     }
 
     return await models.ElementCategories.find(selector);
@@ -234,6 +236,13 @@ const elementQueries = {
     await checkDefaults(models, 'Check-in', 'door-open');
     await checkDefaults(models, 'Check-out', 'door-closed');
     await checkDefaults(models, 'Overnight', 'moon');
+
+    await checkDefaults(models, 'Hot shower', 'moon');
+    await checkDefaults(models, 'unable to shower', 'moon');
+    await checkDefaults(models, 'pick-up service', 'moon');
+    await checkDefaults(models, 'electricity', 'moon');
+    await checkDefaults(models, 'no electricity', 'moon');
+    await checkDefaults(models, 'horse & camel', 'moon');
 
     return 'ok';
   },
