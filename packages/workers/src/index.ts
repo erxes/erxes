@@ -15,7 +15,6 @@ import {
   processPdfTasks,
   taskChecker,
   taskRemover,
-  uploadLimiter,
 } from './worker/pdf/utils';
 import { join, leave } from './serviceDiscovery';
 import { readFileRequest } from './worker/export/utils';
@@ -84,7 +83,7 @@ app.use((error, _req, res, _next) => {
 });
 
 // upload only pdf
-app.post('/upload-pdf', uploadLimiter, pdfUploader);
+app.post('/upload-pdf', pdfUploader);
 
 app.get('/upload-status/:taskId', taskChecker);
 
