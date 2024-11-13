@@ -5,12 +5,20 @@ import {
   IElementCategory,
 } from '../../../models/definitions/element';
 
-const checkDefaults = async (models: IModels, name: string) => {
+const checkDefaults = async (models: IModels, name: string, icon: string) => {
   const one = await models.Elements.findOne({ name, itineraryId: null });
 
   if (!one) {
-    let element: IElement = { name: name, content: '' };
+    let element: IElement = { name: name, content: '', quick: true, icon };
     await models.Elements.createElement(element, null);
+  } else {
+    const abc = await models.Elements.updateElement(one._id, {
+      quick: true,
+      icon: icon,
+      name: one?.name,
+      content: one?.content,
+    });
+    console.log('abc', abc);
   }
 };
 
@@ -168,7 +176,7 @@ const LIST_CATEGORIES = [
 const elementQueries = {
   async bmElements(
     _root,
-    { categories, name, page = 1, perPage = 10 },
+    { categories, name, page = 1, perPage = 10, quick },
     { models }: IContext
   ) {
     const selector: any = {};
@@ -194,6 +202,9 @@ const elementQueries = {
         { 'location.name': { $regex: name, $options: 'i' } },
       ];
     }
+    if (quick) {
+      selector.quick = quick;
+    }
     const list = await models.Elements.find(selector).limit(perPage).skip(skip);
     const total = await models.Elements.find(selector).countDocuments();
     return {
@@ -216,13 +227,13 @@ const elementQueries = {
   },
 
   async bmElementsInit(_root, {}, { models }: IContext) {
-    await checkDefaults(models, 'Breakfast');
-    await checkDefaults(models, 'Lunch');
-    await checkDefaults(models, 'Dinner');
-    await checkDefaults(models, 'Snack');
-    await checkDefaults(models, 'Check-in');
-    await checkDefaults(models, 'Check-out');
-    await checkDefaults(models, 'Overnight');
+    await checkDefaults(models, 'Breakfast', 'soup');
+    await checkDefaults(models, 'Lunch', 'utensils');
+    await checkDefaults(models, 'Dinner', 'utensils');
+    await checkDefaults(models, 'Snack', 'donut');
+    await checkDefaults(models, 'Check-in', 'door-open');
+    await checkDefaults(models, 'Check-out', 'door-closed');
+    await checkDefaults(models, 'Overnight', 'moon');
 
     return 'ok';
   },

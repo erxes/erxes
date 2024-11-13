@@ -6,6 +6,8 @@ import { ILocation, locationSchema } from './itinerary';
 
 export interface IElement {
   name: string;
+  quick?: boolean;
+  icon?: string;
   content: string;
   note?: string;
   startTime?: string;
@@ -54,6 +56,8 @@ export const elementSchema = schemaHooksWrapper(
     createdAt: field({ type: Date, label: 'Created at' }),
     modifiedAt: field({ type: Date, label: 'Modified at' }),
     name: field({ type: String, optional: true, label: 'name' }),
+    quick: field({ type: Boolean, optional: true, label: 'quick' }),
+    icon: field({ type: String, optional: true, label: 'icon' }),
     content: field({ type: String, optional: true, label: 'content' }),
     note: field({ type: String, optional: true, label: 'note' }),
     startTime: field({ type: String, optional: true, label: 'startTime' }),

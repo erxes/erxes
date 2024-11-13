@@ -19,6 +19,8 @@ export const types = () => `
   type Element {
     _id: String!
     name: String
+    quick: Boolean
+    icon: String
     content: String
     note: String
     startTime: String
@@ -46,7 +48,7 @@ export const types = () => `
 `;
 
 export const queries = `
-  bmElements(categories: [String],name: String, page:Int, perPage:Int): ListElement
+  bmElements(categories: [String],name: String, page:Int, perPage:Int,quick: Boolean): ListElement
   bmElementDetail(_id:String!): Element
   bmElementCategoryies(parentId:String): [ElementCategory]
   bmElementsInit: JSON
@@ -63,7 +65,8 @@ const params = `
   images:[String],
   categories: [String],
   itineraryId: String,
-  location: BMSLocationInput
+  location: BMSLocationInput,
+  quick: Boolean
 `;
 
 export const mutations = `

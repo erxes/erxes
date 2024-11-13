@@ -64,14 +64,14 @@ export const loadElementClass = (models: IModels, subdomain: string) => {
         { $set: { ...doc, modifiedAt: new Date() } }
       );
 
-      return models.Elements.findOne({ _id });
+      return await models.Elements.findOne({ _id });
     }
 
     /**
      * Remove elements
      */
     public static async removeElements(ids) {
-      return models.Elements.deleteMany({ _id: { $in: ids } });
+      return await models.Elements.deleteMany({ _id: { $in: ids } });
     }
   }
 
