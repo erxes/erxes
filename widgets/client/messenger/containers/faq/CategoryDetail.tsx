@@ -1,35 +1,84 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import DumbCategoryDetail from '../../components/faq/CategoryDetail';
-import queries from '../../graphql';
-import { useQuery } from '@apollo/react-hooks';
-import { useRouter } from '../../context/Router';
-import { getMessengerData } from '../../utils/util';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, graphql } from "react-apollo";
+import DumbCategoryDetail from "../../components/faq/CategoryDetail";
+import queries from "../../graphql";
+import { IFaqCategory } from "../../types";
+import { AppConsumer } from "../AppContext";
 
-const CategoryDetail = ({ loading }: { loading: boolean }) => {
-  const { activeFaqCategory } = useRouter();
+type Props = {
+  goToCategories: () => void;
+  categoryId: string | null;
+  topicId: string;
+};
 
-  const categoryId = activeFaqCategory && activeFaqCategory._id;
+type QueryResponse = {
+  knowledgeBaseCategoryDetail: IFaqCategory;
+};
 
-  const topicId = getMessengerData().knowledgeBaseTopicId;
+const CategoryDetail = (props: ChildProps<Props, QueryResponse>) => {
+  const { data } = props;
 
-  const { data, loading: loadingFaqCategoy } = useQuery(
-    gql(queries.getFaqCategoryQuery),
-    {
-      fetchPolicy: 'network-only',
-      variables: {
-        _id: categoryId,
-      },
-    }
-  );
+  let category: IFaqCategory = {
+    _id: "",
+    title: "",
+    description: "",
+    articles: [],
+    icon: "",
+    parentCategoryId: "",
+    numOfArticles: 0,
+    createdDate: new Date(),
+  };
+  let loading: boolean = true;
+
+  if (data && data.knowledgeBaseCategoryDetail) {
+    category = data.knowledgeBaseCategoryDetail;
+    loading = data.loading;
+  }
 
   const extendedProps = {
-    topicId,
-    category: data?.knowledgeBaseCategoryDetail,
-    loading: loading || loadingFaqCategoy,
+    ...props,
+    category,
+    loading,
   };
 
   return <DumbCategoryDetail {...extendedProps} />;
 };
 
-export default CategoryDetail;
+const WithData = graphql<Props, QueryResponse>(
+  gql(queries.getFaqCategoryQuery),
+  {
+    options: ({ categoryId }) => ({
+      fetchPolicy: "network-only",
+      variables: {
+        _id: categoryId,
+      },
+    }),
+  }
+)(CategoryDetail);
+
+const WithContext = () => {
+  return (
+    <AppConsumer>
+      {({ changeRoute, activeFaqCategory, getMessengerData }) => {
+        const goToCategories = () => {
+          changeRoute("conversationList");
+        };
+
+        const categoryId = activeFaqCategory && activeFaqCategory._id;
+
+        const topicId = getMessengerData().knowledgeBaseTopicId;
+
+        return (
+          <WithData
+            goToCategories={goToCategories}
+            categoryId={categoryId}
+            topicId={topicId}
+          />
+        );
+      }}
+    </AppConsumer>
+  );
+};
+
+export default WithContext;

@@ -108,6 +108,10 @@ const generateFilters = async ({
     filter.parentId = { $in: [null, ''] };
   }
 
+  if (params?.parentId) {
+    filter.parentId = params.parentId;
+  }
+
   return filter;
 };
 
@@ -263,10 +267,15 @@ const structureQueries = {
       models,
       user,
       type: 'branch',
-      params: { ...params, withoutUserFilter: true },
+      params: {
+        ...params,
+        withoutUserFilter: true,
+      },
     });
     const list = await paginate(
-      models.Branches.find(filter).sort({ order: 1 }),
+      models.Branches.find(filter).sort({
+        order: 1,
+      }),
       params,
     );
     const totalCount = await models.Branches.find(filter).countDocuments();

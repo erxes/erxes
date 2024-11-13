@@ -16,6 +16,7 @@ import Icon from "@erxes/ui/src/components/Icon";
 import KnowledgeForm from "../../containers/knowledge/KnowledgeForm";
 import React from "react";
 import { __ } from "@erxes/ui/src/utils/core";
+import SaveTemplate from "@erxes/ui-template/src/components/SaveTemplate";
 
 type Props = {
   queryParams: any;
@@ -73,6 +74,28 @@ class KnowledgeRow extends React.Component<Props, State> {
     }
   }
 
+  renderTemplateModal() {
+    const { topic } = this.props;
+    const {
+      brand,
+      categories,
+      createdBy,
+      createdDate,
+      modifiedBy,
+      modifiedDate,
+      parentCategories,
+      ...topicContent
+    } = topic
+
+    const content = {
+      content: JSON.stringify(topicContent),
+      contentType: 'topic',
+      serviceName: 'knowledgebase'
+    };
+
+    return <SaveTemplate as="menuItem" {...content} />;
+  }
+
   renderManage() {
     const { topic, renderButton, remove, refetchTopics, queryParams } =
       this.props;
@@ -119,7 +142,9 @@ class KnowledgeRow extends React.Component<Props, State> {
           as={DropdownToggle}
           toggleComponent={<Icon icon="cog" size={15} />}
           modalMenuItems={menuItems}
-        />
+        >
+          {this.renderTemplateModal()}
+        </Dropdown>
         <DropIcon onClick={this.toggle} $isOpen={this.state.detailed} />
       </RowActions>
     );

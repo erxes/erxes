@@ -141,6 +141,24 @@ export const generateOptions = (data, parentData, filterType) => {
   return options
 }
 
+export const generateSubOptions = (data, fieldValues, filterType) => {
+  const { fieldName, fieldLabelVariable, fieldExtraVariables } = filterType;
+
+  if (!fieldExtraVariables?.length) return [];
+
+  const filteredData = (data || []).filter(item =>
+    (fieldValues[fieldName] || []).includes(item._id)
+  );
+
+  return filteredData.map(item => ({
+    label: item[fieldLabelVariable],
+    options: item.options.map(optionValue => ({
+      label: optionValue,
+      value: optionValue
+    }))
+  }));
+};
+
 export const getVariables = (fieldValues, filterType) => {
 
   const { logics, fieldQueryVariables } = filterType
@@ -366,7 +384,8 @@ export const rgbaToHex = (rgba: string) => {
 };
 
 export const generateInitialOptions = (options, selectedValues) => {
-  if (!selectedValues) {
+
+  if (selectedValues === null || selectedValues === undefined) {
     selectedValues = [];
   }
 
@@ -375,7 +394,7 @@ export const generateInitialOptions = (options, selectedValues) => {
   }
 
   const selectedValueArray = selectedValues.map(item => {
-    if (typeof item === 'string') {
+    if (typeof item === 'string' || typeof item === 'boolean') {
       return { value: item };
     }
 
@@ -422,7 +441,7 @@ export const arrayMove = (array: any[], from: number, to: number) => {
 }
 
 export const generateQuery = (fieldName, config, fieldValues?) => {
-  const { fieldQueryVariables, fieldValueVariable, fieldParentVariable, fieldLabelVariable, fieldInitialVariable, fieldRequiredQueryParams, logics } = config;
+  const { fieldQueryVariables, fieldValueVariable, fieldParentVariable, fieldLabelVariable, fieldInitialVariable, fieldRequiredQueryParams, fieldExtraVariables = [], logics } = config;
 
   if (!fieldName || !fieldValueVariable || !fieldLabelVariable) {
     return ''
@@ -467,7 +486,8 @@ export const generateQuery = (fieldName, config, fieldValues?) => {
   const fields = fieldValues ? [
     fieldValueVariable,
     fieldLabelVariable,
-    fieldParentVariable
+    fieldParentVariable,
+    ...fieldExtraVariables
   ].filter(Boolean).join(' ') : '_id name';
 
   const variableSection = fieldInitialVariable

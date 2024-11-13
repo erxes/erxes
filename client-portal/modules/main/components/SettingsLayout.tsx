@@ -8,6 +8,7 @@ import React from "react";
 import { getConfigColor } from "../../common/utils";
 import { renderUserFullName } from "../../utils";
 import { useRouter } from "next/router";
+import { __ } from "../../../utils";
 
 type Props = {
   config: Config;
@@ -32,7 +33,7 @@ function SettingsLayout({
           router.pathname === url ? "selected" : ""
         }`}
       >
-        <Icon icon={icon} size={16} /> &nbsp; {name}
+        <Icon icon={icon} size={16} /> &nbsp; {__(name)}
       </Dropdown.Item>
     );
   };
@@ -48,7 +49,7 @@ function SettingsLayout({
           </div>
           <Dropdown.Divider />
           <div className="list">
-            {renderMenu("dashboard", "/profile", "My profle")}
+            {renderMenu("dashboard", "/profile", "My profile")}
             {renderMenu("settings", "/settings", "Settings")}
             <Dropdown.Item onClick={() => {
                 if (typeof window !== 'undefined') {
@@ -56,7 +57,7 @@ function SettingsLayout({
                 }
               logout()
             }}>
-              <Icon icon="sign-out-alt" size={18} /> &nbsp; Logout
+              <Icon icon="sign-out-alt" size={18} /> &nbsp; {__("Logout")}
             </Dropdown.Item>
           </div>
         </LeftSidebar>

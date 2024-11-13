@@ -4,7 +4,8 @@ import { generateModels } from '../connectionResolver';
 import * as _ from 'underscore';
 import { filterXSS } from 'xss';
 
-import { checkFile, isImage, resizeImage, uploadFile } from '../data/utils';
+import { checkFile, resizeImage, uploadFile } from '../data/utils';
+import { isImage } from "@erxes/api-utils/src/commonUtils";
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 const DOMAIN = getEnv({ name: 'DOMAIN' });

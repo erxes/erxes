@@ -108,6 +108,12 @@ const DepositPerSettings = (props: Props) => {
     );
   };
 
+  const itemDelete = (key) => {
+    const tempMap = { ...currentMap };
+    delete tempMap[key];
+    setCurrentMap(currentKey, { ...tempMap })
+  }
+
   const renderItem = (key: string, label: string, description?: string) => {
     const setType = (value) => {
       setCurrentMap(currentKey, { ...currentMap, [key]: { ...currentMap[key] || {}, type: value } })
@@ -152,7 +158,7 @@ const DepositPerSettings = (props: Props) => {
                 (renderInput(key))
             }
           </FormColumn>
-          {!isDefault && <Button btnStyle="link" icon="times-circle" />}
+          {!isDefault && <Button btnStyle="link" icon="times-circle" onClick={itemDelete.bind(this, key)} />}
         </Row>
       </FormGroup>
     );

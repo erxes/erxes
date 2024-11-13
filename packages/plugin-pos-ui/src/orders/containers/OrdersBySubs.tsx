@@ -16,17 +16,18 @@ const OrdersBySubs = () => {
       variables: {
         ...queryParams,
         page: Number(queryParams?.page || ''),
-        perPage: Number(queryParams?.perPage || '')
+        perPage: Number(queryParams?.perPage || '20')
       },
       fetchPolicy: 'network-only'
     }
   );
 
-  const { posOrderBySubscriptions = [] } = data || {};
+  const { posOrderBySubscriptions = [], posOrderBySubscriptionsTotalCount=0 } =
+    data || {};
 
   const updatedProps = {
     list: posOrderBySubscriptions,
-    totalCount: 10,
+    totalCount: posOrderBySubscriptionsTotalCount,
     loading,
     queryParams
   };

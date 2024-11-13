@@ -27,6 +27,7 @@ import reports from "./reports/reports";
 import app from "@erxes/api-utils/src/app";
 
 import { NOTIFICATION_MODULES } from "./constants";
+import templates from "./templates";
 
 export default {
   name: "sales",
@@ -61,7 +62,8 @@ export default {
     documents,
     dashboards,
     notificationModules: NOTIFICATION_MODULES,
-    payment
+    payment,
+    templates
   },
 
   apolloServerContext: async (context, req, res) => {

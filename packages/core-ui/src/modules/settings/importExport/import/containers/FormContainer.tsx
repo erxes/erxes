@@ -23,7 +23,7 @@ class FormContainer extends React.Component<FinalProps> {
       const { contentTypes } = doc;
 
       if (!columnAllSelected) {
-        Alert.error('You must chose all column');
+        Alert.error('You must choose all column');
       }
 
       if (columnAllSelected) {

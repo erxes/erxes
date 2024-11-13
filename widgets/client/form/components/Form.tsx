@@ -1,6 +1,7 @@
 import * as React from 'react';
 
-import { IEmailParams, IIntegration, ILeadData } from '../../types';
+import { AppConsumer } from '../../messenger/containers/AppContext';
+import { IEmailParams, IIntegration } from '../../types';
 import {
   __,
   checkLogicFulfilled,
@@ -20,11 +21,11 @@ import {
 } from '../types';
 import Field from './Field';
 import TopBar from './TopBar';
-import { getColor } from '../../messenger/utils/util';
 
 type Props = {
-  leadData: ILeadData;
   form: IForm;
+  languageCode: string;
+  leadData: any;
   integration: IIntegration;
   currentStatus: ICurrentStatus;
   callSubmit?: boolean;
@@ -70,24 +71,28 @@ class Form extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const { setHeight, form, integration } = this.props;
+    const { setHeight, integration, form, languageCode, leadData} = this.props;
 
     if (setHeight) {
       setHeight();
     }
 
-    if (form.leadData?.css) {
+
+    if (leadData.css) {
       const head = document.getElementsByTagName('head')[0];
       const style = document.createElement('style');
       style.setAttribute('type', 'text/css');
 
-      style.appendChild(document.createTextNode(form.leadData.css));
+      style.appendChild(document.createTextNode(leadData.css));
 
       head.appendChild(style);
     }
 
     if (form.fields.findIndex((e) => e.type === 'map') !== -1) {
-      const googleMapScript = loadMapApi('test', form.languageCode || 'en');
+      const googleMapScript = loadMapApi(
+        form.googleMapApiKey || 'test',
+        languageCode || 'en'
+      );
 
       googleMapScript.addEventListener('load', () => {
         this.setState({ mapScriptLoaded: true });
@@ -577,7 +582,7 @@ class Form extends React.Component<Props, State> {
 
     return (
       <div className='erxes-form'>
-        {this.renderHead((thankTitle || form.title) || '') }
+        {this.renderHead(thankTitle || form.title || 'Thank you!')}
         <div className='erxes-form-content'>
           <div className='erxes-callout-body'>
             {this.renderSuccessImage(successImage || '', form.title || '')}
@@ -662,13 +667,19 @@ class Form extends React.Component<Props, State> {
 
 export default (props: Props) => {
   const { leadData } = props;
-  const color = leadData?.themeColor;
+
   return (
-    <Form
-      {...props}
-      // if lead is in a messenger, return messenger theme color (getColor())
-      // else return lead theme color
-      color={color ? color : getColor()}
-    />
+    <AppConsumer>
+      {({ getColor }) => {
+        return (
+          <Form
+            {...props}
+            // if lead is in a messenger, return messenger theme color (getColor())
+            // else return lead theme color
+            color={getColor ? getColor() : leadData.themeColor || ''}
+          />
+        );
+      }}
+    </AppConsumer>
   );
 };

@@ -25,23 +25,22 @@ class Supporters extends React.Component<Props> {
 
   renderSupporter(user: IUser, color: string) {
     const details = user.details || ({} as IUserDetails);
-    const { fullName = "", avatar = "", shortName = "" } = details || {};
     return (
       <div
         key={user._id}
         className="erxes-supporter erxes-tooltip"
-        data-tooltip={fullName}
+        data-tooltip={details.fullName}
       >
         <div className="avatar">
           <img
             key={user._id}
-            src={readFile(this.getAvatar(avatar))}
+            src={readFile(this.getAvatar(details.avatar))}
             style={{ borderColor: color }}
-            alt=""
+            alt={details.fullName}
           />
           {this.renderOnlineState(user.isOnline)}
         </div>
-        <span className="erxes-staff-name">{shortName}</span>
+        <span className="erxes-staff-name">{details.shortName}</span>
       </div>
     );
   }
@@ -75,11 +74,8 @@ class Supporters extends React.Component<Props> {
 
     if (loading) {
       return (
-        <div className="erxes-supporters">
-          <div className="erxes-supporter erxes-tooltip">
-            <div className="avatar"></div>
-            <span className="erxes-staff-name" />
-          </div>
+        <div className="loader-wrapper">
+          <div className="loader" />
         </div>
       );
     }

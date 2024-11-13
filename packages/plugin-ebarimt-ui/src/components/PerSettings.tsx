@@ -96,12 +96,13 @@ const PerSettings: React.FC<Props> = (props: Props) => {
     onChangeConfig(code, e.target.value);
   };
 
-  const renderInput = (key: string, title?: string, description?: string) => {
+  const renderInput = (key: string, title?: string, description?: string, type?: string) => {
     return (
       <FormGroup>
         <ControlLabel>{title || key}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
+          componentclass={type}
           defaultValue={state.config[key]}
           onChange={onChangeInput.bind(this, key)}
           required={true}
@@ -160,8 +161,14 @@ const PerSettings: React.FC<Props> = (props: Props) => {
               onChangeStage={onChangeStage}
             />
           </FormGroup>
-          {renderInput("posNo", "pos No", "")}
-          {renderInput("branchNo", "branch No", "")}
+          {renderInput("companyName", "company Name")}
+          {renderInput('headerText', 'Header text', '', 'textarea')}
+          {renderInput('footerText', 'Footer text', '', 'textarea')}
+          {renderCheckbox(
+            "withDescription",
+            "with description",
+            "When checked ebarimt with deals description"
+          )}
           {renderCheckbox(
             "skipPutData",
             "skip Ebarimt",
@@ -169,9 +176,9 @@ const PerSettings: React.FC<Props> = (props: Props) => {
           )}
         </FormColumn>
         <FormColumn>
-          {renderInput("companyName", "company Name")}
-          {renderInput("companyRD", "company RD", "")}
-          {renderInput("merchantTin", "merchantTin", "")}
+          {renderInput('posNo', 'pos No', '')}
+          {renderInput('companyRD', 'company RD', '')}
+          {renderInput('merchantTin', 'merchantTin', '')}
           <FlexBetween>
             <FormGroup>
               <ControlLabel>Branch of Provice / District</ControlLabel>
@@ -236,11 +243,12 @@ const PerSettings: React.FC<Props> = (props: Props) => {
               />
             </FormGroup>
           </FlexBetween>
-          {renderInput("defaultGSCode", "default united code", "")}
-          {renderCheckbox("hasVat", "has Vat", "")}
-          {renderInput("vatPercent", "vat Percent", "")}
-          {renderCheckbox("hasCitytax", "has Citytax", "")}
-          {renderInput("cityTaxPercent", "cityTax Percent", "")}
+          {renderInput('defaultGSCode', 'default united code', '')}
+          {renderInput('branchNo', 'branch No', '')}
+          {renderCheckbox('hasVat', 'has Vat', '')}
+          {renderInput('vatPercent', 'vat Percent', '')}
+          {renderCheckbox('hasCitytax', 'has Citytax', '')}
+          {renderInput('cityTaxPercent', 'cityTax Percent', '')}
         </FormColumn>
       </FormWrapper>
       <ModalFooter>

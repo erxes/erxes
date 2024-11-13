@@ -20,7 +20,7 @@ const polarisData = `
 `;
 
 export const queries = `
-  syncHistoriesPolaris(${commonHistoryParams}): [SyncHistory]
+  syncHistoriesPolaris(${commonHistoryParams}): [SyncHistoryPolaris]
   syncHistoriesCountPolaris(${commonHistoryParams}): Int
   getPolarisData(${polarisData}): JSON
 `;

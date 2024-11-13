@@ -616,13 +616,11 @@ export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
     "state",
     "avatar",
     "ownerId",
-    "integrationId",
     "categoryId",
     "vendorId",
     "location.countryCode",
     "isOnline",
     "leadStatus",
-    "relatedIntegrationIds",
     "subUoms.uom",
     "subUoms.ratio"
   ]

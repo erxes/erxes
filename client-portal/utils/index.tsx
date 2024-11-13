@@ -19,7 +19,7 @@ export const setLocale = (currentLanguage, callback) => {
       // tslint:disable-next-line:no-unused-expression
       callback && callback();
     })
-    .catch((e) => console.log(e)); // tslint:disable-line
+    .catch((e) => console.error(e)); // tslint:disable-line
 };
 
 export const prefixer = (url) => {
