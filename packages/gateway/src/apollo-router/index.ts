@@ -128,30 +128,6 @@ const createRouterConfig = async () => {
     },
   };
 
-  if (OTEL_EXPORTER_OTLP_ENDPOINT) {
-    config.telemetry = {
-      instrumentation: {
-        spans: {
-          default_attribute_requirement_level: 'required',
-          mode: 'spec_compliant',
-        },
-      },
-      exporters: {
-        tracing: {
-          common: {
-            service_name: 'router',
-            service_namespace: 'apollo',
-          },
-          otlp: {
-            enabled: true,
-            endpoint: OTEL_EXPORTER_OTLP_ENDPOINT,
-            protocol: OTEL_EXPORTER_OTLP_PROTOCOL,
-          },
-        },
-      },
-    };
-  }
-
   fs.writeFileSync(routerConfigPath, yaml.stringify(config));
 };
 

@@ -55,6 +55,7 @@ program
   .option("--ignoreRun", "Ignore pm2 start")
   .option("--ignoreCoreUI", "Do not stop uis")
   .option("--ignoreCore", "Do not stop coreapi")
+  .option("--grafana", "Has a grafana")
   .option(
     "-i, --interval <ms>",
     "Time interval between starting individual services. Unit is in milliseconds. Default value is 0"

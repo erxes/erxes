@@ -3,31 +3,6 @@ const { filePath, log, sleep } = require('./utils');
 const { execSync } = require('child_process');
 const net = require('net');
 
-// Function to check if a service is listening on a given port
-const waitForService = (port, host = '127.0.0.1', timeout = 60000) => {
-  return new Promise((resolve, reject) => {
-    const startTime = Date.now();
-    const interval = setInterval(() => {
-      const socket = net.createConnection({ port, host });
-
-      socket.on('connect', () => {
-        clearInterval(interval);
-        socket.end();
-        resolve();
-      });
-
-      socket.on('error', () => {
-        const elapsedTime = Date.now() - startTime;
-        if (elapsedTime > timeout) {
-          clearInterval(interval);
-          reject(new Error(`Service not available on port ${port}`));
-        }
-      });
-    }, 2000); // Check every 2 seconds
-  });
-};
-
-
 module.exports.devOnly = async () => {
   const name = process.argv[3];
   execSync(`pm2 start ecosystem.config.js --only ${name}`);
@@ -74,6 +49,19 @@ module.exports.devCmd = async program => {
     ...be_env,
   };
 
+  const grafanaEnv = (srvName, hasGrafana = false) => {
+    if (hasGrafana) {
+      return {
+        OTEL_SERVICE_NAME: srvName,
+        OTEL_RESOURCE_ATTRIBUTES: "deployment.name=localhost",
+        OTEL_EXPORTER_OTLP_PROTOCOL: "grpc",
+        OTEL_EXPORTER_OTLP_ENDPOINT: "http://127.0.0.1:4317",
+        // NODE_OPTIONS: "--require ./instrumentation.ts"
+      }
+    }
+    return {}
+  }
+
   let port = 3300;
 
   const apps = [
@@ -96,8 +84,8 @@ module.exports.devCmd = async program => {
         PORT: (configs.core || {}).port || port,
         CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
         ...commonEnv,
+        ...grafanaEnv('plugin-core-api', program.grafana),
         ...((configs.core || {}).extra_env || {}),
-        OTEL_SERVICE_NAME: 'plugin-core-api',
       },
     },
   ];
@@ -300,8 +288,8 @@ module.exports.devCmd = async program => {
       env: {
         PORT: plugin.port || port,
         ...commonEnv,
+        ...grafanaEnv(`plugin-${plugin.name}-api`, program.grafana),
         ...(plugin.extra_env || {}),
-        OTEL_SERVICE_NAME: `plugin-${plugin.name}-api`,
       },
     });
   }
@@ -317,8 +305,8 @@ module.exports.devCmd = async program => {
       env: {
         PORT: 3700,
         ...commonEnv,
+        ...grafanaEnv('workers', program.grafana),
         ...((configs.workers || {}).envs || {}),
-        OTEL_SERVICE_NAME: 'workers',
       },
     });
   }
@@ -336,8 +324,8 @@ module.exports.devCmd = async program => {
       env: {
         PORT: 4300,
         ...commonEnv,
+        ...grafanaEnv('dashboard', program.grafana),
         ...((configs.dashboard || {}).envs || {}),
-        OTEL_SERVICE_NAME: 'dashboard',
       },
     });
   }
@@ -353,8 +341,8 @@ module.exports.devCmd = async program => {
       PORT: 4000,
       CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
       ...commonEnv,
+      ...grafanaEnv('gateway', program.grafana),
       ...((configs.gateway || {}).extra_env || {}),
-      OTEL_SERVICE_NAME: 'gateway',
     },
   });
 
@@ -388,15 +376,8 @@ module.exports.devCmd = async program => {
 
     if (!program.ignoreCore) {
       log('starting core ....');
-      execSync('pm2 start ecosystem.config.js --only core');
-      try {
-        log(`Waiting for core service to start on port 3300...`);
-        await waitForService(3300);
-        log('Core service started successfully.');
-      } catch (error) {
-        log(`Failed to start core service: ${error.message}`, 'red');
-        return;
-      }
+      await execSync('pm2 start ecosystem.config.js --only core');
+
       await sleep(intervalMs);
     }
 

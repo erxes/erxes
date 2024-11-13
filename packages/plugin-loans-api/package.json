@@ -2,7 +2,7 @@
   "name": "@erxes/plugin-loans-api",
   "version": "1.0.0",
   "scripts": {
-    "dev": "nodemon src/index.ts",
+    "dev": "nodemon --require ../api-utils/src/instrumentation.ts src/index.ts",
     "build": "tsc"
   },
   "dependencies": {

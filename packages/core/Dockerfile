@@ -6,4 +6,4 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 COPY --chown=node:node . .
 USER node
-ENTRYPOINT ["node", "--max-http-header-size=16384", "packages/core/src/index"]
+ENTRYPOINT ["node", "--require ../api-utils/src/instrumentation.js", "--max-http-header-size=16384", "packages/core/src/index"]
