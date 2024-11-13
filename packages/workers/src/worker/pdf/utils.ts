@@ -1,22 +1,49 @@
 import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
 
+import { isImage } from '@erxes/api-utils/src/commonUtils';
+import redis from '@erxes/api-utils/src/redis';
 import { execSync } from 'child_process';
+import rateLimit from 'express-rate-limit';
 import * as fs from 'fs';
 import * as multer from 'multer';
+import { nanoid } from 'nanoid';
 import * as path from 'path';
 import * as tmp from 'tmp';
-import { nanoid } from 'nanoid';
-import redis from '@erxes/api-utils/src/redis';
-import rateLimit from 'express-rate-limit';
-import { isImage } from '@erxes/api-utils/src/commonUtils';
-import { getFileUploadConfigs } from '../../messageBroker';
-import { createCFR2 } from '../../data/utils';
+
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
 import * as FormData from 'form-data';
 import fetch from 'node-fetch';
+import { createCFR2 } from '../../data/utils';
 
 const tmpDir = tmp.dirSync({ unsafeCleanup: true });
+
+const cloudflareConfigs = () => {
+  const uploadServiceTYpe = getEnv({ name: 'UPLOAD_SERVICE_TYPE' });
+
+  const bucketName = getEnv({ name: 'CLOUDFLARE_BUCKET_NAME' });
+
+  const accountId = getEnv({ name: 'CLOUDFLARE_ACCOUNT_ID' });
+  const accessKeyId = getEnv({ name: 'CLOUDFLARE_ACCESS_KEY_ID' });
+  const secretAccessKey = getEnv({
+    name: 'CLOUDFLARE_SECRET_ACCESS_KEY',
+  });
+  const apiToken = getEnv({ name: 'CLOUDFLARE_API_TOKEN' });
+  const useCdn = getEnv({ name: 'CLOUDFLARE_USE_CDN' });
+
+  const isPublic = getEnv({ name: 'FILE_SYSTEM_PUBLIC' });
+
+  return {
+    uploadServiceTYpe,
+    bucketName,
+    accountId,
+    accessKeyId,
+    secretAccessKey,
+    apiToken,
+    useCdn,
+    isPublic,
+  };;
+};
 
 export const uploadLimiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutes
@@ -127,9 +154,9 @@ export const processPdfTasks = async () => {
 };
 
 async function validateCloudflareConfig(subdomain: string) {
-  const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
+  const { uploadServiceTYpe } = cloudflareConfigs();
 
-  if (UPLOAD_SERVICE_TYPE !== 'CLOUDFLARE') {
+  if (!['CLOUDFLARE','cloudflare'].includes(uploadServiceTYpe)) {
     throw new Error('Cloudflare not configured');
   }
 }
@@ -139,17 +166,14 @@ async function convertAndUploadImages(
   pdfPath: string,
   tmpDir: string
 ) {
-  const { CLOUDFLARE_USE_CDN } = await getFileUploadConfigs(subdomain);
+  const { useCdn } = cloudflareConfigs();
   const imagePaths: any = await convertPdfToImage(pdfPath, tmpDir);
 
   if (!imagePaths.length) {
     throw new Error('No images found');
   }
 
-  const uploadImage =
-    CLOUDFLARE_USE_CDN === 'true' || CLOUDFLARE_USE_CDN === true
-      ? uploadToCFImages
-      : uploadToCloudflare;
+  const uploadImage = useCdn === 'true' ? uploadToCFImages : uploadToCloudflare;
   return Promise.all(
     imagePaths.map((imagePath) => uploadImage(imagePath, subdomain))
   );
@@ -236,8 +260,7 @@ export const uploadToCloudflare = async (
   file: any,
   subdomain
 ): Promise<string> => {
-  const { CLOUDFLARE_BUCKET_NAME, FILE_SYSTEM_PUBLIC } =
-    await getFileUploadConfigs(subdomain);
+  const { bucketName, isPublic } = cloudflareConfigs();
   const fileObj = file;
 
   const sanitizedFilename = sanitizeFilename(fileObj.filename);
@@ -261,14 +284,14 @@ export const uploadToCloudflare = async (
     const response = await r2
       .upload({
         ContentType: fileObj.type,
-        Bucket: CLOUDFLARE_BUCKET_NAME,
+        Bucket: bucketName,
         Key: fileName,
         Body: buffer,
-        ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined,
+        ACL: isPublic === 'true' ? 'public-read' : undefined,
       })
       .promise();
 
-    return FILE_SYSTEM_PUBLIC === 'true' ? response.Location : fileName;
+    return isPublic === 'true' ? response.Location : fileName;
   } catch (err) {
     throw new Error('Failed to upload to R2: ' + err.message);
   }
@@ -276,16 +299,11 @@ export const uploadToCloudflare = async (
 
 export const uploadToCFImages = async (file: any, subdomain?: string) => {
   const sanitizedFilename = sanitizeFilename(file.filename);
-  const {
-    CLOUDFLARE_BUCKET_NAME,
-    FILE_SYSTEM_PUBLIC,
-    CLOUDFLARE_ACCOUNT_ID,
-    CLOUDFLARE_API_TOKEN,
-  } = await getFileUploadConfigs(subdomain);
+  const { bucketName, isPublic, accountId, apiToken } = cloudflareConfigs();
 
   const VERSION = getEnv({ name: 'VERSION' });
 
-  const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1`;
+  const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/images/v1`;
 
   let fileName = `${randomAlphanumeric()}${sanitizedFilename}`;
   const extension = fileName.split('.').pop();
@@ -304,10 +322,10 @@ export const uploadToCFImages = async (file: any, subdomain?: string) => {
 
   formData.append('file', fs.createReadStream(file.path));
 
-  formData.append('id', `${CLOUDFLARE_BUCKET_NAME}/${fileName}`);
+  formData.append('id', `${bucketName}/${fileName}`);
 
   const headers = {
-    Authorization: `Bearer ${CLOUDFLARE_API_TOKEN}`,
+    Authorization: `Bearer ${apiToken}`,
   };
 
   const response = await fetch(url, {
@@ -326,8 +344,7 @@ export const uploadToCFImages = async (file: any, subdomain?: string) => {
     throw new Error('Error uploading file to Cloudflare Images');
   }
 
-  return (FILE_SYSTEM_PUBLIC && FILE_SYSTEM_PUBLIC !== 'false') ||
-    VERSION === 'saas'
+  return (isPublic && isPublic !== 'false') || VERSION === 'saas'
     ? data.result.variants[0]
-    : `${CLOUDFLARE_BUCKET_NAME}/${fileName}`;
+    : `${bucketName}/${fileName}`;
 };
