@@ -14,12 +14,19 @@ const item = {
       action: 'users.find',
       data: {
         query: {
-          _id: { $in: touritem?.guidesIds },
+          _id: { $in: touritem?.guides?.map(x => x?.guideId) || [] },
         },
       },
       isRPC: true,
     });
-    return users;
+    return touritem?.guides.map(x => {
+      const userOne = users.find(d => d._id == x.guideId);
+      return {
+        guideId: x.guideId,
+        type: x.type,
+        guide: userOne,
+      };
+    });
   },
 };
 

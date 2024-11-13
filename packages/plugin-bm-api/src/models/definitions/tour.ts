@@ -4,15 +4,20 @@ import { CAR_SELECT_OPTIONS } from './constants';
 import { field, schemaHooksWrapper } from './utils';
 import { ILocation, locationSchema } from './itinerary';
 
+export interface IGuideItem {
+  guideId: string;
+  type: string;
+}
 export interface ITour {
   name: string;
+  refNumber?: string;
   content: string;
   duration: string;
   location: ILocation[];
   startDate: Date;
   endDate: Date;
   groupSize: number;
-  guidesIds: string[];
+  guides: IGuideItem[];
   status: string;
   cost: number;
 }
@@ -35,12 +40,19 @@ const getEnum = (): string[] => {
   return STATUS_TYPES.map(option => option.value);
 };
 
+export const guideItemSchema = new Schema(
+  {
+    guideId: field({ type: String, optional: true }),
+    type: field({ type: String, optional: true }),
+  },
+  { _id: false }
+);
 export const tourSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     createdAt: field({ type: Date, label: 'Created at' }),
     modifiedAt: field({ type: Date, label: 'Modified at' }),
-
+    refNumber: field({ type: String, optional: true, label: 'refnumber' }),
     name: field({ type: String, optional: true, label: 'name' }),
     content: field({ type: String, optional: true, label: 'content' }),
     duration: field({ type: Number, optional: true, label: 'number' }),
@@ -53,7 +65,7 @@ export const tourSchema = schemaHooksWrapper(
     startDate: field({ type: Date, optional: true, label: 'date' }),
     endDate: field({ type: Date, optional: true, label: 'date' }),
     groupSize: field({ type: Number, optional: true, label: 'group size' }),
-    guidesIds: field({ type: [String], optional: true, label: 'guides' }),
+    guides: field({ type: [guideItemSchema], optional: true, label: 'guides' }),
     status: field({
       type: String,
       enum: getEnum(),

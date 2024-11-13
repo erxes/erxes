@@ -11,15 +11,20 @@ export const types = () => `
     scheduled
     cancelled
   }
+  type GuideItem {
+    guideId: String
+    guide: User
+    type: String
+  }
 
   type Tour {
     _id: String!
     name: String
+    refNumber: String
     content: String
     duration: Int
     location: [BMSLocation]
-    guidesIds: [String]
-    guides:[User]
+    guides: [GuideItem]
     itineraryId: String
     itinerary: Itinerary
     startDate: Date
@@ -47,7 +52,10 @@ export const types = () => `
     status: String
     note: String
   }
-
+  input GuideItemInput {
+    guideId: String
+    type: String
+  }
   type ListTour {
     list: [Tour]
     total: Int
@@ -75,7 +83,8 @@ const params = `
   status: STATUS_TOUR,
   cost: Float,
   location: [BMSLocationInput],
-  guidesIds:[String]
+  guides:[GuideItemInput],
+  refNumber: String
 `;
 
 export const mutations = `
