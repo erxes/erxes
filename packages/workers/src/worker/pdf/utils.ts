@@ -12,37 +12,21 @@ import * as tmp from 'tmp';
 
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
+import * as AWS from 'aws-sdk';
 import * as FormData from 'form-data';
 import fetch from 'node-fetch';
-import { createCFR2 } from '../../data/utils';
 
 const tmpDir = tmp.dirSync({ unsafeCleanup: true });
 
-const cloudflareConfigs = () => {
-  const uploadServiceTYpe = getEnv({ name: 'UPLOAD_SERVICE_TYPE' });
-
-  const bucketName = getEnv({ name: 'CLOUDFLARE_BUCKET_NAME' });
-
-  const accountId = getEnv({ name: 'CLOUDFLARE_ACCOUNT_ID' });
-  const accessKeyId = getEnv({ name: 'CLOUDFLARE_ACCESS_KEY_ID' });
-  const secretAccessKey = getEnv({
-    name: 'CLOUDFLARE_SECRET_ACCESS_KEY',
-  });
-  const apiToken = getEnv({ name: 'CLOUDFLARE_API_TOKEN' });
-  const useCdn = getEnv({ name: 'CLOUDFLARE_USE_CDN' });
-
-  const isPublic = getEnv({ name: 'FILE_SYSTEM_PUBLIC' });
-
-  return {
-    uploadServiceTYpe,
-    bucketName,
-    accountId,
-    accessKeyId,
-    secretAccessKey,
-    apiToken,
-    useCdn,
-    isPublic,
-  };;
+const config = {
+  uploadServiceType: getEnv({ name: 'UPLOAD_SERVICE_TYPE' }),
+  bucketName: getEnv({ name: 'CLOUDFLARE_BUCKET_NAME' }),
+  accountId: getEnv({ name: 'CLOUDFLARE_ACCOUNT_ID' }),
+  accessKeyId: getEnv({ name: 'CLOUDFLARE_ACCESS_KEY_ID' }),
+  secretAccessKey: getEnv({ name: 'CLOUDFLARE_SECRET_ACCESS_KEY' }),
+  apiToken: getEnv({ name: 'CLOUDFLARE_API_TOKEN' }),
+  useCdn: getEnv({ name: 'CLOUDFLARE_USE_CDN' }),
+  isPublic: getEnv({ name: 'FILE_SYSTEM_PUBLIC' }),
 };
 
 export const uploadLimiter = rateLimit({
@@ -57,7 +41,7 @@ const upload = multer({
   limits: { fileSize: 100 * 1024 * 1024 }, // 100 MB
   fileFilter: (_req, file, cb) => {
     // Check the file type (MIME type)
-    if (file.mimetype === 'application/pdf') {
+    if ( ['application/pdf', 'application/octet-stream'].includes(file.mimetype)) {
       cb(null, true); // Accept the file
     } else {
       cb(new Error('Only PDF files are allowed!')); // Reject other file types
@@ -74,13 +58,13 @@ export const pdfUploader = [
 
     const subdomain = getSubdomain(req);
 
-    const { file } = req;
-
+    const { file, body } = req;
+    const filename = body.filename;
     if (!file) {
       return res.status(200).json({ error: 'File is required' });
     }
 
-    const taskId = nanoid();
+    const taskId = body.taskId || nanoid();
 
     const taskData = {
       taskId,
@@ -91,18 +75,69 @@ export const pdfUploader = [
       status: 'pending',
     };
 
-    try {
-      await redis.set(`pdf_upload_task_${taskId}`, JSON.stringify(taskData));
-      await redis.lpush('pdf_upload_queue', taskId);
+    if (body.totalChunks && body.chunkIndex) {
+      const chunkIndex = Number(body.chunkIndex);
+      const totalChunks = Number(body.totalChunks);
+      const chunkDir = path.join(tmpDir.name, taskId);
 
-      res.status(202).json({ success: true, taskId });
-    } catch (e) {
-      console.error(e.message);
+      const chunkPath = path.join(chunkDir, `pdf_chunk.part_${chunkIndex}`);
 
-      return res.status(500).json({ error: 'Something went wrong' });
+      if (!fs.existsSync(chunkDir)) {
+        fs.mkdirSync(chunkDir);
+      }
+
+      if (chunkIndex === 0) {
+        // store task data in redis
+        taskData.filePath = path.join(chunkDir, `${taskId}.pdf`);
+        await redis.set(`pdf_upload_task_${taskId}`, JSON.stringify(taskData));
+      }
+
+      try {
+        const fileBuffer = await fs.promises.readFile(req.file.path);
+
+        await fs.promises.writeFile(chunkPath, fileBuffer);
+        if (chunkIndex === totalChunks - 1) {
+          await handleChunks(taskId, chunkDir, totalChunks);
+        }
+        return res.status(202).send({ status: 'inprogress', taskId });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).send('Error uploading chunk');
+      }
+    } else {
+      try {
+        await redis.set(`pdf_upload_task_${taskId}`, JSON.stringify(taskData));
+        await redis.lpush('pdf_upload_queue', taskId);
+
+        res.status(202).json({ success: true, taskId });
+      } catch (e) {
+        console.error(e.message);
+
+        return res.status(500).json({ error: 'Something went wrong' });
+      }
     }
   },
 ];
+
+const handleChunks = async (taskId, chunkDir, totalChunks) => {
+  const writeStream = fs.createWriteStream(
+    path.join(chunkDir, `${taskId}.pdf`)
+  );
+
+  for (let i = 0; i < totalChunks; i++) {
+    const chunkPath = path.join(chunkDir, `pdf_chunk.part_${i}`);
+    const chunk = await fs.promises.readFile(chunkPath);
+    writeStream.write(chunk);
+    fs.unlinkSync(chunkPath);
+  }
+  writeStream.end();
+
+  // check pdf file is harmful or not
+
+  // push to redis
+  await redis.lpush('pdf_upload_queue', taskId);
+  console.debug('File chunks merged successfully');
+};
 
 export const processPdfTasks = async () => {
   while (true) {
@@ -154,9 +189,9 @@ export const processPdfTasks = async () => {
 };
 
 async function validateCloudflareConfig(subdomain: string) {
-  const { uploadServiceTYpe } = cloudflareConfigs();
+  const { uploadServiceType } = config;
 
-  if (!['CLOUDFLARE','cloudflare'].includes(uploadServiceTYpe)) {
+  if (!['CLOUDFLARE', 'cloudflare'].includes(uploadServiceType)) {
     throw new Error('Cloudflare not configured');
   }
 }
@@ -166,7 +201,7 @@ async function convertAndUploadImages(
   pdfPath: string,
   tmpDir: string
 ) {
-  const { useCdn } = cloudflareConfigs();
+  const { useCdn } = config;
   const imagePaths: any = await convertPdfToImage(pdfPath, tmpDir);
 
   if (!imagePaths.length) {
@@ -249,7 +284,7 @@ export const taskRemover = async (req, res) => {
     (await redis.get(`pdf_upload_task_${taskId}`)) || '{}'
   );
 
-  if (taskData.status !== 'completed' && taskData.status !== 'failed') {
+  if (taskData.status === 'completed' && taskData.status === 'failed') {
     await redis.del(`pdf_upload_task_${taskId}`);
   }
 
@@ -260,7 +295,7 @@ export const uploadToCloudflare = async (
   file: any,
   subdomain
 ): Promise<string> => {
-  const { bucketName, isPublic } = cloudflareConfigs();
+  const { bucketName, isPublic } = config;
   const fileObj = file;
 
   const sanitizedFilename = sanitizeFilename(fileObj.filename);
@@ -276,7 +311,16 @@ export const uploadToCloudflare = async (
   const buffer = await fs.readFileSync(fileObj.path);
 
   // initialize r2
-  const r2 = await createCFR2(subdomain);
+  const endpoint = `https://${config.accountId}.r2.cloudflarestorage.com`;
+  const r2Config = {
+    endpoint,
+    accessKeyId: config.accessKeyId,
+    secretAccessKey: config.secretAccessKey,
+    signatureVersion: 'v4',
+    region: 'auto',
+  };
+ 
+  const r2 = new AWS.S3(r2Config);
 
   // upload to r2
 
@@ -291,7 +335,7 @@ export const uploadToCloudflare = async (
       })
       .promise();
 
-    return isPublic === 'true' ? response.Location : fileName;
+      return isPublic === 'true' ? response.Location : fileName;
   } catch (err) {
     throw new Error('Failed to upload to R2: ' + err.message);
   }
@@ -299,7 +343,7 @@ export const uploadToCloudflare = async (
 
 export const uploadToCFImages = async (file: any, subdomain?: string) => {
   const sanitizedFilename = sanitizeFilename(file.filename);
-  const { bucketName, isPublic, accountId, apiToken } = cloudflareConfigs();
+  const { bucketName, isPublic, accountId, apiToken } = config;
 
   const VERSION = getEnv({ name: 'VERSION' });
 
