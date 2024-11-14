@@ -1,20 +1,20 @@
-import { PriceContainer, Right, Status } from "../../boards/styles/item";
-import { renderAmount, renderPriority } from "../../boards/utils";
+import { PriceContainer, Right, Status } from '../../boards/styles/item';
+import { renderAmount, renderPriority } from '../../boards/utils';
 
-import Assignees from "../../boards/components/Assignees";
-import { Content } from "../../boards/styles/stage";
-import Details from "../../boards/components/Details";
-import DueDateLabel from "../../boards/components/DueDateLabel";
-import EditForm from "../../boards/containers/editForm/EditForm";
-import { IPurchase } from "../types";
-import { IOptions } from "../../boards/types";
-import { ItemContainer } from "../../boards/styles/common";
-import ItemFooter from "../../boards/components/portable/ItemFooter";
-import Labels from "../../boards/components/label/Labels";
-import React from "react";
-import { __ } from "@erxes/ui/src/utils";
-import { colors } from "@erxes/ui/src/styles";
-import ItemArchivedStatus from "../../boards/components/portable/ItemArchivedStatus";
+import Assignees from '../../boards/components/Assignees';
+import { Content } from '../../boards/styles/stage';
+import Details from '../../boards/components/Details';
+import DueDateLabel from '../../boards/components/DueDateLabel';
+import EditForm from '../../boards/containers/editForm/EditForm';
+import { IPurchase } from '../types';
+import { IOptions } from '../../boards/types';
+import { ItemContainer } from '../../boards/styles/common';
+import ItemFooter from '../../boards/components/portable/ItemFooter';
+import Labels from '../../boards/components/label/Labels';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
+import { colors } from '@erxes/ui/src/styles';
+import ItemArchivedStatus from '../../boards/components/portable/ItemArchivedStatus';
 
 type Props = {
   stageId?: string;
@@ -55,7 +55,7 @@ class PurchaseItem extends React.PureComponent<Props> {
       <Status>
         <span style={{ backgroundColor: color }}>{__(text)}</span>
         <ItemArchivedStatus
-          status={item.status || "active"}
+          status={item.status || 'active'}
           skipContainer={true}
         />
       </Status>
@@ -67,15 +67,15 @@ class PurchaseItem extends React.PureComponent<Props> {
       return null;
     }
 
-    if (stage.probability === "Lost") {
-      return this.renderStatusLabel("Lost", colors.colorCoreRed);
+    if (stage.probability === 'Lost') {
+      return this.renderStatusLabel('Lost', colors.colorCoreRed);
     }
 
-    if (stage.probability === "Won") {
-      return this.renderStatusLabel("Won", colors.colorCoreGreen);
+    if (stage.probability === 'Won') {
+      return this.renderStatusLabel('Won', colors.colorCoreGreen);
     }
 
-    return this.renderStatusLabel("In Progress", colors.colorCoreBlue);
+    return this.renderStatusLabel('In Progress', colors.colorCoreBlue);
   }
 
   renderContent() {
@@ -102,6 +102,7 @@ class PurchaseItem extends React.PureComponent<Props> {
       closeDate,
       isComplete,
       customProperties,
+      tags,
     } = item;
 
     return (
@@ -115,6 +116,7 @@ class PurchaseItem extends React.PureComponent<Props> {
         <Details color="#b49cf1" items={exProducts} />
         <Details color="#F7CE53" items={customers || []} />
         <Details color="#EA475D" items={companies || []} />
+        <Details color="#FF6600" items={tags || []} />
         <Details
           color={colors.colorCoreOrange}
           items={customProperties || []}
