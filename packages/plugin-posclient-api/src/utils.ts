@@ -1,11 +1,7 @@
 import { debugError } from "@erxes/api-utils/src/debuggers";
 import * as _ from "underscore";
 import { IModels } from "./connectionResolver";
-import {
-  fetchSegment,
-  sendPosMessage,
-  sendCoreMessage
-} from "./messageBroker";
+import { fetchSegment, sendPosMessage, sendCoreMessage } from "./messageBroker";
 import { productSchema } from "./models/definitions/products";
 import { fetchEs } from "@erxes/api-utils/src/elasticsearch";
 import {
@@ -469,12 +465,14 @@ export const prepareSettlePayment = async (
         ) {
           const { isForSubscription, subscriptionConfig = {} } = uom || {};
 
-          if (
-            isForSubscription &&
-            subscriptionConfig?.rule === "startPaidDate" &&
-            !subscriptionConfig?.subsRenewable
-          ) {
-            const period = (subscriptionConfig?.period || "").replace("ly", "");
+          const {
+            rule,
+            subsRenewable,
+            period: periodConfig
+          } = subscriptionConfig;
+
+          if (isForSubscription && rule === "startPaidDate" && !subsRenewable) {
+            const period = (periodConfig || "").replace("ly", "");
 
             if (period) {
               item.closeDate = new Date(
@@ -483,6 +481,28 @@ export const prepareSettlePayment = async (
                   .toISOString()
               );
             }
+          }
+
+          if (subsRenewable && order?.subscriptionInfo?.prevSubscriptionId) {
+            const prevSubscriptionId =
+              order?.subscriptionInfo?.prevSubscriptionId;
+
+            await models.Orders.updateOne(
+              { _id: prevSubscriptionId },
+              { "subscriptionInfo.status": SUBSCRIPTION_INFO_STATUS.DONE }
+            );
+            await sendPosMessage({
+              subdomain,
+              action: "orders.updateOne",
+              data: {
+                selector: { _id: prevSubscriptionId },
+                modifier: {
+                  "subscriptionInfo.status": SUBSCRIPTION_INFO_STATUS.DONE
+                }
+              },
+              isRPC: true,
+              defaultValue: null
+            });
           }
         }
       }

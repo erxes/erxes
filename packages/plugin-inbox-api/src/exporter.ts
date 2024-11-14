@@ -175,6 +175,62 @@ export const fillValue = async (
 
       break;
 
+    case "integrationId":
+      const integration = await models.Integrations.findOne({ _id: item.integrationId }).lean()
+
+      value = integration ? integration.name : "-";
+
+      break;
+
+    case "integrationKind":
+      const integrationForKind = await models.Integrations.findOne({ _id: item.integrationId }).lean()
+
+      value = integrationForKind ? integrationForKind.kind : "-";
+
+      break;
+
+    case "brandId":
+      const integrationForBrand = await models.Integrations.findOne({ _id: item.integrationId }).lean()
+
+      if (integrationForBrand) {
+        const brand = await sendCoreMessage({
+          subdomain,
+          action: "brands.findOne",
+          data: {
+            query: {
+              _id: integrationForBrand.brandId
+            }
+          },
+          isRPC: true,
+          defaultValue: {}
+        });
+
+        value = brand ? brand.name : "-";
+      }
+
+      break;
+
+    case "customerId":
+      const customer = await sendCoreMessage({
+        subdomain,
+        action: "customers.findOne",
+        data: {
+          _id: item.customerId
+        },
+        isRPC: true
+      });
+
+      if (customer) {
+        value = (customer.firstName && customer.lastName ? `${customer.firstName} ${customer.lastName}` : null)
+          || customer.firstName
+          || customer.lastName
+          || customer.PrimaryEmail
+          || customer.PrimaryPhone
+          || "-"
+      }
+
+      break;
+
     default:
       break;
   }
