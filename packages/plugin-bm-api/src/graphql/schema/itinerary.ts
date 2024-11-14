@@ -22,7 +22,7 @@ export const types = () => `
     location: [BMSLocation]
     images: [String]
     status: String
-
+    color: String
     info1: String
     info2: String
     info3: String
@@ -66,6 +66,7 @@ const params = `
   location: [BMSLocationInput],
   images: [String],
   status: STATUS,
+  color: String,
   info1: String,
   info2: String,
   info3: String,

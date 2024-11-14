@@ -36,6 +36,7 @@ export interface IItinerary {
   location: ILocation[];
   images: string[];
   status: string;
+  color?: string;
   info1?: string;
   info2?: string;
   info3?: string;
@@ -106,6 +107,7 @@ export const initnarySchema = schemaHooksWrapper(
       esType: 'keyword',
       selectOptions: STATUS_TYPES,
     }),
+    color: field({ type: String, optional: true, label: 'color' }),
     info1: field({ type: String, optional: true, label: 'info' }),
     info2: field({ type: String, optional: true, label: 'info' }),
     info3: field({ type: String, optional: true, label: 'info' }),
