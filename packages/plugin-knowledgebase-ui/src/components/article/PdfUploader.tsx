@@ -24,6 +24,10 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
     let tempTaskId = taskId;
 
     try {
+      Alert.warning(
+        'Upload task has been submitted. Do not close or refresh until finished'
+      );
+      
       for (let i = 0; i < totalChunks; i++) {
         const start = i * CHUNK_SIZE;
         const end = Math.min(file.size, start + CHUNK_SIZE);
@@ -56,15 +60,11 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
           return;
         }
 
-        if (i === 0 && result.taskId) {
+        if (i === totalChunks - 1 && result.taskId) {
           tempTaskId = result.taskId;
           setTaskId(result.taskId); // Set global taskId for potential future use
         }
       }
-
-      Alert.warning(
-        'Task has been submitted. Do not close or refresh until finished'
-      );
     } catch (error) {
       Alert.error(error.message || 'Upload failed');
     }
