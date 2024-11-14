@@ -109,7 +109,7 @@ export default {
         if (req.cpUser && contract.customerId !== req.cpUser.erxesCustomerId) {
           return res.status(404).send({
             success: false,
-            error: 'Contract not required',
+            error: 'Contract not found',
           });
         }
 

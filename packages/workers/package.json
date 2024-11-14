@@ -26,7 +26,8 @@
     "tmp": "^0.2.3",
     "pdf-poppler":"^0.2.1",
     "form-data":"^4.0.1",
-    "express-rate-limit":"^7.4.1"
+    "express-rate-limit":"^7.4.1",
+    "pdf-parse": "^1.1.1"
   },
   "devDependencies": {
     "@types/express-rate-limit": "^5.1.3"
