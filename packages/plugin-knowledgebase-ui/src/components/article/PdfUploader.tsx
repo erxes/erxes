@@ -14,6 +14,7 @@ type Props = {
 const PdfUploader = ({ attachment, onChange }: Props) => {
   const [isUploading, setIsUploading] = useState(false);
   const [taskId, setTaskId] = useState<string | null>(null);
+  const [lastChunkUploaded, setLastChunkUploaded] = useState<boolean>(false);
 
   // Extracted function to handle the common upload logic
   const uploadFileChunked = async (file: File) => {
@@ -27,7 +28,7 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
       Alert.warning(
         'Upload task has been submitted. Do not close or refresh until finished'
       );
-      
+
       for (let i = 0; i < totalChunks; i++) {
         const start = i * CHUNK_SIZE;
         const end = Math.min(file.size, start + CHUNK_SIZE);
@@ -60,9 +61,13 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
           return;
         }
 
-        if (i === totalChunks - 1 && result.taskId) {
+        if (i === 0 && result.taskId) {
           tempTaskId = result.taskId;
           setTaskId(result.taskId); // Set global taskId for potential future use
+        }
+
+        if (i === totalChunks - 1) {
+          setLastChunkUploaded(true);
         }
       }
     } catch (error) {
@@ -106,7 +111,7 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
           setIsUploading(false);
           return;
         }
-
+        setLastChunkUploaded(true);
         setTaskId(result.taskId);
       } else {
         await uploadFileChunked(file);
@@ -123,6 +128,11 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
       const res = await fetch(
         `${REACT_APP_API_URL}/pl-workers/upload-status/${taskId}`
       );
+
+      if (res.status === 524) {
+        return;
+      }
+
       const result = await res.json();
 
       if (result.status === 'completed') {
@@ -199,11 +209,12 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
   };
 
   useEffect(() => {
-    if (taskId) {
+
+    if (taskId && lastChunkUploaded) {
       const intervalId = setInterval(() => checkTaskStatus(taskId), 10000);
       return () => clearInterval(intervalId);
     }
-  }, [taskId]);
+  }, [taskId, lastChunkUploaded]);
 
   if (attachment) {
     return (
