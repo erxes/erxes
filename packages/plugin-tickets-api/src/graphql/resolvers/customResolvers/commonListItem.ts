@@ -1,28 +1,29 @@
-import { IContext } from "../../../connectionResolver";
-import { sendCoreMessage } from "../../../messageBroker";
-import { IItemCommonFields } from "../../../models/definitions/boards";
+import { IContext } from '../../../connectionResolver';
+import { sendCoreMessage } from '../../../messageBroker';
+import { IItemCommonFields } from '../../../models/definitions/boards';
+import { ITicketDocument } from '../../../models/definitions/tickets';
 
 export default {
   async branches(item: IItemCommonFields, args, { subdomain }: IContext) {
     return sendCoreMessage({
       subdomain,
-      action: "branches.find",
+      action: 'branches.find',
       data: {
-        query: { _id: { $in: item.branchIds } }
+        query: { _id: { $in: item.branchIds } },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
   },
   async departments(item: IItemCommonFields, args, { subdomain }: IContext) {
     return sendCoreMessage({
       subdomain,
-      action: "departments.find",
+      action: 'departments.find',
       data: {
-        _id: { $in: item.departmentIds }
+        _id: { $in: item.departmentIds },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
   },
   async customPropertiesData(
@@ -32,7 +33,7 @@ export default {
   ) {
     const customFieldsData = (item?.customFieldsData as any[]) || [];
 
-    const fieldIds = customFieldsData.map(customField => customField.field);
+    const fieldIds = customFieldsData.map((customField) => customField.field);
 
     if (!fieldIds?.length) {
       return customFieldsData;
@@ -40,16 +41,16 @@ export default {
 
     const fields = await sendCoreMessage({
       subdomain,
-      action: "fields.find",
+      action: 'fields.find',
       data: {
-        query: { _id: { $in: fieldIds } }
+        query: { _id: { $in: fieldIds } },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const customFieldData of customFieldsData) {
-      const field = fields.find(field => field._id === customFieldData.field);
+      const field = fields.find((field) => field._id === customFieldData.field);
       if (field) {
         customFieldData.type = field.type;
       }
@@ -59,5 +60,8 @@ export default {
   },
   createdUserId(item: { _id: string } & IItemCommonFields) {
     return item?.userId ? item.userId : null;
-  }
+  },
+  async tags(ticket: ITicketDocument) {
+    return (ticket.tagIds || []).map((_id) => ({ __typename: 'Tag', _id }));
+  },
 };
