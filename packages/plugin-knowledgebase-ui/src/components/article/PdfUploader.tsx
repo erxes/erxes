@@ -14,6 +14,7 @@ type Props = {
 const PdfUploader = ({ attachment, onChange }: Props) => {
   const [isUploading, setIsUploading] = useState(false);
   const [taskId, setTaskId] = useState<string | null>(null);
+  const [lastChunkUploaded, setLastChunkUploaded] = useState<boolean>(false);
 
   // Extracted function to handle the common upload logic
   const uploadFileChunked = async (file: File) => {
@@ -24,6 +25,10 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
     let tempTaskId = taskId;
 
     try {
+      Alert.warning(
+        'Upload task has been submitted. Do not close or refresh until finished'
+      );
+
       for (let i = 0; i < totalChunks; i++) {
         const start = i * CHUNK_SIZE;
         const end = Math.min(file.size, start + CHUNK_SIZE);
@@ -60,11 +65,11 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
           tempTaskId = result.taskId;
           setTaskId(result.taskId); // Set global taskId for potential future use
         }
-      }
 
-      Alert.warning(
-        'Task has been submitted. Do not close or refresh until finished'
-      );
+        if (i === totalChunks - 1) {
+          setLastChunkUploaded(true);
+        }
+      }
     } catch (error) {
       Alert.error(error.message || 'Upload failed');
     }
@@ -106,7 +111,7 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
           setIsUploading(false);
           return;
         }
-
+        setLastChunkUploaded(true);
         setTaskId(result.taskId);
       } else {
         await uploadFileChunked(file);
@@ -119,42 +124,42 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
 
   const checkTaskStatus = async (taskId: string) => {
     const { REACT_APP_API_URL } = getEnv();
-    try {
-      const res = await fetch(
-        `${REACT_APP_API_URL}/pl-workers/upload-status/${taskId}`
-      );
-      const result = await res.json();
 
-      if (result.status === 'completed') {
-        Alert.success('Upload completed successfully!');
-        setTaskId(null);
-        setIsUploading(false);
+    const res = await fetch(
+      `${REACT_APP_API_URL}/pl-workers/upload-status/${taskId}`
+    );
 
-        const pdfAttachment: IPdfAttachment = {
-          pdf: {
-            name: result.filename,
-            type: 'application/pdf',
-            url: result.data.pdf,
-          },
-          pages: result.data.pages.map((page: string, index: number) => ({
-            name: `page-${index + 1}.jpg`,
-            url: page,
-            type: 'image/jpeg',
-          })),
-        };
+    if (res.status === 524) {
+      return;
+    }
 
-        onChange(pdfAttachment);
-        await fetch(`${REACT_APP_API_URL}/pl-workers/delete-task/${taskId}`, {
-          method: 'DELETE',
-          credentials: 'include',
-        });
-      } else if (result.status === 'failed') {
-        Alert.error('Task failed to complete.');
-        setTaskId(null);
-        setIsUploading(false);
-      }
-    } catch (error) {
-      Alert.error(`Error: ${error.message || 'Failed to fetch status'}`);
+    const result = await res.json();
+
+    if (result.status === 'completed') {
+      Alert.success('Upload completed successfully!');
+      setTaskId(null);
+      setIsUploading(false);
+
+      const pdfAttachment: IPdfAttachment = {
+        pdf: {
+          name: result.filename,
+          type: 'application/pdf',
+          url: result.data.pdf,
+        },
+        pages: result.data.pages.map((page: string, index: number) => ({
+          name: `page-${index + 1}.jpg`,
+          url: page,
+          type: 'image/jpeg',
+        })),
+      };
+
+      onChange(pdfAttachment);
+      await fetch(`${REACT_APP_API_URL}/pl-workers/delete-task/${taskId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+    } else if (result.status === 'failed') {
+      Alert.error('Task failed to complete.');
       setTaskId(null);
       setIsUploading(false);
     }
@@ -199,11 +204,11 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
   };
 
   useEffect(() => {
-    if (taskId) {
+    if (taskId && lastChunkUploaded) {
       const intervalId = setInterval(() => checkTaskStatus(taskId), 10000);
       return () => clearInterval(intervalId);
     }
-  }, [taskId]);
+  }, [taskId, lastChunkUploaded]);
 
   if (attachment) {
     return (
