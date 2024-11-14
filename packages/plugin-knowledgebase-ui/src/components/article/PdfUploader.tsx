@@ -124,47 +124,42 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
 
   const checkTaskStatus = async (taskId: string) => {
     const { REACT_APP_API_URL } = getEnv();
-    try {
-      const res = await fetch(
-        `${REACT_APP_API_URL}/pl-workers/upload-status/${taskId}`
-      );
 
-      if (res.status === 524) {
-        return;
-      }
+    const res = await fetch(
+      `${REACT_APP_API_URL}/pl-workers/upload-status/${taskId}`
+    );
 
-      const result = await res.json();
+    if (res.status === 524) {
+      return;
+    }
 
-      if (result.status === 'completed') {
-        Alert.success('Upload completed successfully!');
-        setTaskId(null);
-        setIsUploading(false);
+    const result = await res.json();
 
-        const pdfAttachment: IPdfAttachment = {
-          pdf: {
-            name: result.filename,
-            type: 'application/pdf',
-            url: result.data.pdf,
-          },
-          pages: result.data.pages.map((page: string, index: number) => ({
-            name: `page-${index + 1}.jpg`,
-            url: page,
-            type: 'image/jpeg',
-          })),
-        };
+    if (result.status === 'completed') {
+      Alert.success('Upload completed successfully!');
+      setTaskId(null);
+      setIsUploading(false);
 
-        onChange(pdfAttachment);
-        await fetch(`${REACT_APP_API_URL}/pl-workers/delete-task/${taskId}`, {
-          method: 'DELETE',
-          credentials: 'include',
-        });
-      } else if (result.status === 'failed') {
-        Alert.error('Task failed to complete.');
-        setTaskId(null);
-        setIsUploading(false);
-      }
-    } catch (error) {
-      Alert.error(`Error: ${error.message || 'Failed to fetch status'}`);
+      const pdfAttachment: IPdfAttachment = {
+        pdf: {
+          name: result.filename,
+          type: 'application/pdf',
+          url: result.data.pdf,
+        },
+        pages: result.data.pages.map((page: string, index: number) => ({
+          name: `page-${index + 1}.jpg`,
+          url: page,
+          type: 'image/jpeg',
+        })),
+      };
+
+      onChange(pdfAttachment);
+      await fetch(`${REACT_APP_API_URL}/pl-workers/delete-task/${taskId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+    } else if (result.status === 'failed') {
+      Alert.error('Task failed to complete.');
       setTaskId(null);
       setIsUploading(false);
     }
@@ -209,7 +204,6 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
   };
 
   useEffect(() => {
-
     if (taskId && lastChunkUploaded) {
       const intervalId = setInterval(() => checkTaskStatus(taskId), 10000);
       return () => clearInterval(intervalId);
