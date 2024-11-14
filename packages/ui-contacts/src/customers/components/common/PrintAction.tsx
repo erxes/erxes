@@ -34,8 +34,8 @@ const ActionButton = styledTS<{ color?: string }>(styled.div)`
   font-weight: 500;
   line-height: 25px;
   font-size: 12px;
-  background-color: ${(props) => rgba(props.color || colors.colorPrimary, 0.1)};
-  color: ${(props) => props.color || colors.colorPrimaryDark};
+  background-color: ${props => rgba(props.color || colors.colorPrimary, 0.1)};
+  color: ${props => props.color || colors.colorPrimaryDark};
   padding: 0 10px;
   transition: background 0.3s ease;
   > i {
@@ -46,7 +46,7 @@ const ActionButton = styledTS<{ color?: string }>(styled.div)`
   }
   &:hover {
     cursor: pointer;
-    background-color: ${(props) => rgba(props.color || colors.colorPrimary, 0.2)};
+    background-color: ${props => rgba(props.color || colors.colorPrimary, 0.2)};
   }
 `;
 const documentsQuery = `
@@ -65,10 +65,10 @@ type Props = {
 
 export default function PrintAction({ coc, contentType }: Props) {
   const { data, loading, error } = useQuery(gql(documentsQuery), {
-    variables: { contentType },
+    variables: { contentType }
   });
 
-  const print = (_id) => {
+  const print = _id => {
     window.open(
       `${
         getEnv().REACT_APP_API_URL
@@ -94,7 +94,7 @@ export default function PrintAction({ coc, contentType }: Props) {
   return (
     <WithPermission action="manageDocuments">
       <Dropdown as={DropdownToggle} toggleComponent={trigger}>
-        {documents.map((document) => {
+        {documents.map(document => {
           return (
             <li key={document._id}>
               <ActionItem onClick={print.bind(this, document._id)}>

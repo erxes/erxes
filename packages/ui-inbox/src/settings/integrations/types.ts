@@ -1,7 +1,7 @@
 import {
   ILeadData,
   ILeadIntegration,
-  IWebhookData,
+  IWebhookData
 } from '@erxes/ui-leads/src/types';
 
 import { IBrand } from '@erxes/ui/src/brands/types';
@@ -144,7 +144,9 @@ export type RemoveMutationResponse = {
 };
 
 export type RepairMutationResponse = {
-  repairIntegration: (params: { variables: { _id: string, kind: string } }) => Promise<any>;
+  repairIntegration: (params: {
+    variables: { _id: string; kind: string };
+  }) => Promise<any>;
 };
 
 export type RemoveAccountMutationResponse = {

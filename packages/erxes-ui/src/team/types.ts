@@ -86,6 +86,14 @@ interface IStructureCommon {
   hasChildren?: boolean;
 }
 
+interface IWorkhourSchedule {
+  inactive?: boolean;
+  startFrom: string;
+  endTo: string;
+  lunchStartFrom?: string;
+  lunchEndTo?: string;
+}
+
 export interface IDepartment extends IStructureCommon {
   description: string;
   parentId?: string | null;
@@ -93,6 +101,7 @@ export interface IDepartment extends IStructureCommon {
   userIds: string[];
   userCount: number;
   users: IUser[];
+  workhours: { [key: string]: IWorkhourSchedule };
 }
 
 export interface IUnit extends IStructureCommon {
@@ -121,6 +130,7 @@ export interface IBranch extends IStructureCommon, IContactInfo {
   userCount: number;
   users: IUser[];
   radius: number;
+  workhours: { [key: string]: IWorkhourSchedule };
 }
 export interface IPosition extends IStructureCommon, IContactInfo {
   parentId: string | null;

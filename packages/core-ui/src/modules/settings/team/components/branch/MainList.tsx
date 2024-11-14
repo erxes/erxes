@@ -27,6 +27,7 @@ import { gql } from "@apollo/client";
 import { queries } from "@erxes/ui/src/team/graphql";
 import client from "@erxes/ui/src/apolloClient";
 import { useLocation, useNavigate } from "react-router-dom";
+import WorkhourForm from "../WorkhourForm";
 
 type Props = {
   listQuery: BranchesMainQueryResponse;
@@ -220,6 +221,24 @@ const MainList = (props: Props) => {
                 />
               </Tip>
             )}
+            <ModalTrigger
+              title="Setup workhour of branch"
+              trigger={
+                <Button btnStyle="link">
+                  <Tip text={__("Setup workhour")} placement="top">
+                    <Icon icon="clock" />
+                  </Tip>
+                </Button>
+              }
+              content={({ closeModal }) => (
+                <WorkhourForm
+                  item={branch}
+                  type="branch"
+                  closeModal={closeModal}
+                />
+              )}
+              size="lg"
+            />
             <ModalTrigger
               key={branch._id}
               title="Edit Branch"

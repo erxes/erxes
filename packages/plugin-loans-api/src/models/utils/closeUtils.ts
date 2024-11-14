@@ -39,5 +39,5 @@ export const getCloseInfo = async (
     payDate: closeDate
   }, config);
 
-  return { ...paymentInfo, interest: paymentInfo.calcInterest };
+  return { ...paymentInfo, interest: paymentInfo.calcInterest + paymentInfo.storedInterest };
 };

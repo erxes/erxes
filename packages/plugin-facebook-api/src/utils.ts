@@ -57,7 +57,7 @@ export const getPostDetails = async (
 
   try {
     const response: any = await graphRequest.get(
-      `/${postId}?fields=permalink_url,created_time,from,message,attachments{description,media,media_type,description_tags,title,type,subattachments}`,
+      `/${postId}?fields=permalink_url,message,created_time`,
       pageAccessToken
     );
 
@@ -420,9 +420,31 @@ export const fetchPagePost = async (postId: string, accessToken: string) => {
 
 export const fetchPagePosts = async (pageId: string, accessToken: string) => {
   const fields = 'message,created_time,full_picture,picture,permalink_url';
-
   const response = await graphRequest.get(
     `/${pageId}/posts?fields=${fields}&access_token=${accessToken}`
+  );
+
+  return response.data || [];
+};
+
+export const fetchPagesPosts = async (pageId: string, accessToken: string) => {
+  const fields = 'message,created_time,full_picture,picture,permalink_url';
+  const response = await graphRequest.get(
+    `/${pageId}/posts?fields=${fields}&access_token=${accessToken}`
+  );
+
+  return response.data || [];
+};
+
+export const fetchPagesPostsList = async (
+  pageId: string,
+  accessToken: string,
+  limit: number
+) => {
+  const fields = 'message,created_time,full_picture,picture,permalink_url';
+
+  const response = await graphRequest.get(
+    `/${pageId}/posts?fields=${fields}&access_token=${accessToken}&limit=${limit}`
   );
 
   return response.data || [];

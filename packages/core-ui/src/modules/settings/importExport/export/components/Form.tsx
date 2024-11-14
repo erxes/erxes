@@ -38,7 +38,7 @@ class Form extends React.Component<Props, State> {
       disclaimer: false,
       name: "",
       columns: [],
-      skipFilter: false,
+      skipFilter: false
     };
   }
 
@@ -55,15 +55,15 @@ class Form extends React.Component<Props, State> {
     this.setState({ skipFilter });
   };
 
-  onClickField = (columns) => {
+  onClickField = columns => {
     this.setState({ columns });
   };
 
-  onChangeExportName = (value) => {
+  onChangeExportName = value => {
     this.setState({ name: value });
   };
 
-  onChangeDisclaimer = (value) => {
+  onChangeDisclaimer = value => {
     this.setState({ disclaimer: value });
   };
 
@@ -74,9 +74,9 @@ class Form extends React.Component<Props, State> {
   onSubmit = () => {
     const { contentType, columns, segmentData, name } = this.state;
 
-    let columnsConfig = columns.filter((conf) => conf.checked) as any;
+    let columnsConfig = columns.filter(conf => conf.checked) as any;
 
-    columnsConfig = columnsConfig.map((conf) => {
+    columnsConfig = columnsConfig.map(conf => {
       return conf.name;
     });
 
@@ -84,7 +84,7 @@ class Form extends React.Component<Props, State> {
       contentType,
       columnsConfig,
       segmentData,
-      name,
+      name
     };
 
     return this.props.saveExport(doc);
@@ -109,7 +109,9 @@ class Form extends React.Component<Props, State> {
         onClick={() => {
           const data: any = {
             ...values,
-            conditions: (values.conditionSegments || []).flatMap(segment => segment.conditions)
+            conditions: (values.conditionSegments || []).flatMap(
+              segment => segment.conditions
+            )
           };
 
           delete data.conditionSegments;
@@ -133,7 +135,7 @@ class Form extends React.Component<Props, State> {
     const breadcrumb = [
       { title: __("Settings"), link: "/settings" },
       { title: __("Import & Export"), link: "/settings/importHistories" },
-      { title },
+      { title }
     ];
 
     const content = (

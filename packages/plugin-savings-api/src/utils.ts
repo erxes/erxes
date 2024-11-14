@@ -9,21 +9,17 @@ export const generateXlsx = async (workbook: any): Promise<string> => {
 export const buildFile = async (
   data: any,
 ): Promise<{ name: string; response: string }> => {
-
   if (!data || !data.length) {
     return {
       name: 'No data',
       response: 'No data',
     };
   }
-
   const workbook = await xlsxPopulate.fromBlankAsync();
   const sheet = workbook.sheet(0);
-
   const columnNames: string[] = [];
   let rowIndex: number = 1;
   // number
-
   const headers = [
     { name: 'payDate', label: 'Date' },
     { name: 'transactionType', label: 'Type' },
@@ -38,10 +34,8 @@ export const buildFile = async (
     // Iterating through basic info columns
     for (const column of headers) {
       const cellValue = await fillCellValue(column.name, item);
-
       addCell(column, cellValue, sheet, columnNames, rowIndex);
     }
-
     // customer or company checking
   } // end items for loop
 
@@ -67,14 +61,11 @@ const addCell = (
     sheet.cell(1, columnNames.length + 1).value(col.label || col.name);
     // Creating cell
     sheet.cell(rowIndex, columnNames.length + 1).value(value);
-
     columnNames.push(col.name);
   }
 };
-
 const getCellValue = (item, colName) => {
   const names = colName.split('.');
-
   if (names.length === 1) {
     return item[colName];
   } else {

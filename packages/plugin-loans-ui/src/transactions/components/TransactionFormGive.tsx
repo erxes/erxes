@@ -26,22 +26,24 @@ import { IContract } from '../../contracts/types';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   transaction: ITransaction;
+  contractId?: string;
+  lockContract?: boolean;
   type: string;
   closeModal: () => void;
 };
 
 function TransactionFormGive(props: Props) {
   const [contract, setContract] = useState<IContract | undefined>();
-  const [contractId, setContractId] = useState<string>();
+  const [contractId, setContractId] = useState<string>(props.contractId || '');
   const [payDate, setPayDate] = useState(new Date());
   const [description, setDescription] = useState<string>('');
   const [bankAccount, setBankAccount] = useState<string>('');
   const [total, setTotal] = useState(0);
 
-  const maxAmount = useMemo(()=>{
-    if(!contract) return 0
+  const maxAmount = useMemo(() => {
+    if (!contract) return 0
     return contract.leaseAmount - contract.givenAmount
-  },[contract])
+  }, [contract])
 
   const doc = useMemo(() => {
     return {
@@ -61,7 +63,7 @@ function TransactionFormGive(props: Props) {
     bankAccount
   ]);
 
-  const renderRowTr = (label, key, value?:any) => {
+  const renderRowTr = (label, key, value?: any) => {
 
     if ((!contract || !key || !contract?.[key]) && !value) return '';
 
@@ -79,7 +81,7 @@ function TransactionFormGive(props: Props) {
 
   return (
     <Form
-      renderContent={({ isSubmitted }: IFormProps) => 
+      renderContent={({ isSubmitted }: IFormProps) =>
         <>
           <ScrollWrapper>
             <FormWrapper>
@@ -92,7 +94,7 @@ function TransactionFormGive(props: Props) {
                       name="payDate"
                       dateFormat="YYYY/MM/DD"
                       value={payDate}
-                      onChange={(v:any)=>setPayDate(v)}
+                      onChange={(v: any) => setPayDate(v)}
                     />
                   </DateContainer>
                 </FormGroup>
@@ -109,9 +111,10 @@ function TransactionFormGive(props: Props) {
                       }
                     }}
                     multi={false}
+                    filterParams={props.lockContract && { _ids: [contractId], excludeIds: false } || undefined}
                   />
                 </FormGroup>
-                
+
                 {contract && <>
                   <FormWrapper>
                     <FormColumn>
@@ -123,7 +126,7 @@ function TransactionFormGive(props: Props) {
                   </FormWrapper>
                   {renderRowTr('Loan amount', 'leaseAmount')}
                   {renderRowTr('Given amount', 'givenAmount')}
-                  {renderRowTr('must give amount', 'mustGive',maxAmount)}
+                  {renderRowTr('must give amount', 'mustGive', maxAmount)}
                 </>}
                 <FormColumn>
                   <ControlLabel>{__('Transaction amount')}</ControlLabel>
@@ -134,8 +137,8 @@ function TransactionFormGive(props: Props) {
                     name="total"
                     max={maxAmount}
                     value={total.toString()}
-                    onChange={(e:any)=>setTotal(Number(e.target.value))}
-                    onDoubleClick={()=>setTotal(maxAmount)}
+                    onChange={(e: any) => setTotal(Number(e.target.value))}
+                    onDoubleClick={() => setTotal(maxAmount)}
                   />
                 </FormColumn>
                 <FormGroup>
@@ -158,7 +161,7 @@ function TransactionFormGive(props: Props) {
                       required={false}
                       name="bankAccount"
                       value={bankAccount}
-                      onChange={(e:any) => setBankAccount(e.target.value)}
+                      onChange={(e: any) => setBankAccount(e.target.value)}
                     />
                   </DateContainer>
                 </FormGroup>
@@ -169,11 +172,11 @@ function TransactionFormGive(props: Props) {
                       required={false}
                       name="description"
                       value={description}
-                      onChange={(e:any) => setDescription(e.target.value)}
+                      onChange={(e: any) => setDescription(e.target.value)}
                     />
                   </DateContainer>
                 </FormGroup>
-                
+
               </FormColumn>
             </FormWrapper>
           </ScrollWrapper>
