@@ -16,7 +16,7 @@ export default function ListContainer(props: Props) {
   const [searchParams] = useSearchParams();
   const clientPortalId = searchParams.get('cpid');
 
-  const { data, loading, refetch } = useQuery(queries.GET_CATEGORIES, {
+  const { data, loading, refetch } = useQuery(queries.POST_LIST, {
     variables: {
       ...router.generatePaginationParams(props.queryParams || {}),
       clientPortalId
@@ -31,7 +31,7 @@ export default function ListContainer(props: Props) {
   }
 
   const remove = (id: string) => {
-    const message = 'Are you sure want to remove this category ?';
+    const message = 'Are you sure want to remove this post ?';
 
     confirm(message).then(() => {
       removeMutation({
@@ -39,7 +39,7 @@ export default function ListContainer(props: Props) {
       })
         .then(() => {
           refetch();
-          Alert.success('You successfully deleted a category.');
+          Alert.success('You successfully deleted a post.');
         })
         .catch((e) => {
           Alert.error(e.message);
@@ -47,14 +47,14 @@ export default function ListContainer(props: Props) {
     });
   };
 
-  const categories = data?.cmsCategories || [];
+  const posts = data?.postList?.posts || [];
 
-  const totalCount = data?.insuranceCategoryList?.totalCount || 0;
+  const totalCount = data?.postList?.totalCount || 0;
 
   const extendedProps = {
     ...props,
     loading,
-    categories,
+    posts,
     totalCount,
     refetch,
     remove,

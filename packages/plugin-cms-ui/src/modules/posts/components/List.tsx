@@ -8,7 +8,7 @@ import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 
-import CategoryForm from '../containers/Form';
+import PostForm from '../containers/Form';
 // import { tumentechMenu } from '../list/CarsList';
 
 import { menu } from '../../../routes';
@@ -16,7 +16,7 @@ import Row from './Row';
 import CPHeader from '../../clientportal/containers/Header';
 
 type Props = {
-  categories: any[];
+  posts : any[];
   totalCount: number;
   queryParams: any;
   loading: boolean;
@@ -25,11 +25,11 @@ type Props = {
 };
 
 const List = (props: Props) => {
-  const { totalCount, queryParams, loading, categories, remove } = props;
+  const { totalCount, queryParams, loading, posts, remove } = props;
 
   const renderRow = () => {
-    return categories.map((cat) => (
-      <Row key={cat._id} category={cat} remove={remove} />
+    return posts.map((post) => (
+      <Row key={post._id} post={post} remove={remove} />
     ));
   };
 
@@ -38,17 +38,17 @@ const List = (props: Props) => {
 
   const trigger = (
     <Button btnStyle='success' size='small' icon='plus-circle'>
-      Add category
+      Add post
     </Button>
   );
 
-  const formContent = (formProps) => <CategoryForm {...formProps} />;
+  const formContent = (formProps) => <PostForm {...formProps}/>
 
   const righActionBar = (
     <BarItems>
       <ModalTrigger
         size='lg'
-        title='Add category'
+        title='Add post'
         autoOpenKey='showAppAddModal'
         trigger={trigger}
         content={formContent}
@@ -70,9 +70,12 @@ const List = (props: Props) => {
     <Table $whiteSpace='nowrap' $hover={true}>
       <thead>
         <tr>
-          <th>{__('Name')}</th>
-          <th>{__('Slug')}</th>
-          <th>{__('Description')}</th>
+          <th>{__('Title')}</th>
+          <th>{__('Categories')}</th>
+          <th>{__('Tags')}</th>
+          <th>{__('Status')}</th>
+          <th>{__('Author')}</th>
+          <th>{__('Created date')}</th>
           <th>{__('Last modified date')}</th>
           <th>{__('Last modified by')}</th>
           <th>{__('Actions')}</th>
@@ -87,7 +90,7 @@ const List = (props: Props) => {
         transparent={false}
         header={
           <Wrapper.Header
-            title={__('Category')}
+            title={__('Posts')}
             queryParams={queryParams}
             submenu={menu}
           />
@@ -98,7 +101,7 @@ const List = (props: Props) => {
           <DataWithLoader
             data={content}
             loading={loading}
-            count={categories.length}
+            count={totalCount}
             emptyContent={
               <h3
                 style={{

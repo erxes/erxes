@@ -10,20 +10,20 @@ import { __ } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import React from 'react';
 import { InsuranceCategory, InsuranceProduct, User } from '../../../gql/types';
-import CategoryForm from '../containers/Form';
+import PostForm from '../containers/Form';
 
 type Props = {
-  category: InsuranceCategory;
+  post: any;
   remove: (_id: string) => void;
 };
 
 const Row = (props: Props) => {
-  const { category, remove } = props;
-  const user = category.lastModifiedBy;
+  const { post, remove } = props;
+  const user = post.author;
 
   const renderRemoveAction = () => {
     const onClick = () => {
-      remove(category._id);
+      remove(post._id);
     };
 
     return (
@@ -43,39 +43,59 @@ const Row = (props: Props) => {
   };
 
   const formContent = formProps => (
-    <CategoryForm {...formProps} category={category} />
+    <PostForm {...formProps} post={post} />
   );
+
+
 
   return (
     <tr>
       <td key={Math.random()}>
-        <RowTitle>{category.name || '-'}</RowTitle>
+        <RowTitle>{post.title || '-'}</RowTitle>
       </td>
 
       <td key={Math.random()}>
-        <RowTitle>{category.slug || '-'} </RowTitle>
+        <RowTitle>{post.categories.map(e => e.name).join(', ') || '-'} </RowTitle>
       </td>
 
       <td key={Math.random()}>
-        <RowTitle>{category.description || '-'}</RowTitle>
+        <RowTitle>{post.tags.map(e => e.name).join(', ') || '-'}</RowTitle>
       </td>
 
-      <td>
-        <Icon icon="calender" />{' '}
-        <DateWrapper>
-          {dayjs(category.lastModifiedAt).format('lll')}
-        </DateWrapper>
+      <td key={Math.random()}>
+        <RowTitle>{post.status || '-'}</RowTitle>
       </td>
 
-      <td>
+      <td key={Math.random()}>
         <NameCard.Avatar user={user} size={20} />
         <RowTitle>{(user && getFullName(user)) || 'Unknown'} </RowTitle>
       </td>
 
       <td>
+        <Icon icon="calender" />{' '}
+        <DateWrapper>
+          {dayjs(post.createdAt).format('lll')}
+        </DateWrapper>
+      </td>
+
+      <td>
+        <Icon icon="calender" />{' '}
+        <DateWrapper>
+          {dayjs(post.createdAt).format('lll')}
+        </DateWrapper>
+      </td>
+
+      <td>
+        <Icon icon="calender" />{' '}
+        <DateWrapper>
+          {dayjs(post.createdAt).format('lll')}
+        </DateWrapper>
+      </td>
+
+      <td>
         <ActionButtons>
           <ModalTrigger
-            title={'Edit category'}
+            title={'Edit post'}
             trigger={<Button btnStyle="link" icon="edit-3" />}
             content={formContent}
             size={'lg'}

@@ -9,7 +9,7 @@ import { mutations, queries } from '../graphql';
 import { useSearchParams } from 'react-router-dom';
 
 type Props = {
-  category?: any;
+  post?: any;
   closeModal: () => void;
 };
 
@@ -32,14 +32,14 @@ const FormContainer = (props: Props) => {
       input
     }
 
-    if (props.category) {
-      variables._id = props.category._id;
+    if (props.post) {
+      variables._id = props.post._id;
     }
 
     return (
       <ButtonMutate
         mutation={getGqlString(
-          props.category ? mutations.CATEGORY_EDIT : mutations.CATEGORY_ADD
+          props.post ? mutations.CATEGORY_EDIT : mutations.CATEGORY_ADD
         )}
         variables={variables}
         callback={callback}
@@ -48,8 +48,8 @@ const FormContainer = (props: Props) => {
         type="submit"
         icon="check-circle"
         successMessage={`You successfully ${
-          props.category ? 'updated' : 'added'
-        } a category`}
+          props.post ? 'updated' : 'added'
+        } a post`}
       />
     );
   };
@@ -65,7 +65,7 @@ const FormContainer = (props: Props) => {
 const getRefetchQueries = () => {
   return [
     {
-      query: queries.GET_CATEGORIES
+      query: queries.POST_LIST
     }
   ];
 };

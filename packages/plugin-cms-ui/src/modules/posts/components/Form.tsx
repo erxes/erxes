@@ -12,32 +12,28 @@ import { __ } from '@erxes/ui/src/utils/core';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 
 type Props = {
-  category?: any;
+  post?: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 const ProductForm = (props: Props) => {
-  const [category, setCategory] = React.useState<any>(
-    props.category || {
-      slug: '',
-      name: '',
-      description: '',
-      status: 'active',
-      parentId: '',
+  const [post, setPost] = React.useState<any>(
+    props.post || {
+      title: '',
     }
   );
 
   const generateDoc = () => {
     const finalValues: any = {};
 
-    if (props.category) {
-      finalValues._id = props.category._id;
+    if (props.post) {
+      finalValues._id = props.post._id;
     }
 
-    Object.keys(category).forEach((key) => {
-      if (category[key] !== undefined) {
-        finalValues[key] = category[key];
+    Object.keys(post).forEach((key) => {
+      if (post[key] !== undefined) {
+        finalValues[key] = post[key];
       }
     });
 
@@ -53,8 +49,8 @@ const ProductForm = (props: Props) => {
     const { isSubmitted } = formProps;
 
     const onSelectCompanies = (value: any) => {
-      setCategory({
-        ...category,
+      setPost({
+        ...post,
         companyIds: value,
       });
     };
@@ -68,8 +64,8 @@ const ProductForm = (props: Props) => {
       useNumberFormat?: boolean
     ) => {
       const onChangeInput = (e: any) => {
-        setCategory({
-          ...category,
+        setPost({
+          ...post,
           [name]: e.target.value,
         });
       };
@@ -94,18 +90,18 @@ const ProductForm = (props: Props) => {
 
     return (
       <>
-        {renderInput('name', 'text', category.name, 'Name', true)}
+        {renderInput('name', 'text', post.title, 'Name', true)}
         {renderInput(
           'description',
           'text',
-          category.description,
+          post.content,
           'Description'
         )}
 
         <FormGroup>
           <ControlLabel>Status</ControlLabel>
           <br />
-          <FormControl
+          {/* <FormControl
             className='toggle-message'
             componentclass='checkbox'
             checked={category.status === 'active'}
@@ -117,7 +113,7 @@ const ProductForm = (props: Props) => {
             }}
           >
             {__('Check to activate')}.
-          </FormControl>
+          </FormControl> */}
         </FormGroup>
 
         <ModalFooter>
@@ -126,11 +122,11 @@ const ProductForm = (props: Props) => {
           </Button>
 
           {renderButton({
-            name: 'category',
+            name: 'post',
             values: generateDoc(),
             isSubmitted,
             callback: closeModal,
-            object: category,
+            object: post,
           })}
         </ModalFooter>
       </>
