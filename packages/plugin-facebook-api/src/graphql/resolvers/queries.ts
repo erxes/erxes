@@ -6,7 +6,8 @@ import {
   fetchPagePost,
   fetchPagePosts,
   getPageList,
-  graphRequest
+  graphRequest,
+  fetchPagesPostsList
 } from '../../utils';
 
 interface IKind {
@@ -325,6 +326,167 @@ const facebookQueries = {
 
     return await fetchPagePosts(bot.pageId, bot.token);
   },
+
+  async facebookGetPosts(
+    _root,
+    {
+      brandIds,
+      channelIds,
+      limit = 20 // Default limit of 20 posts if not provided
+    }: {
+      brandIds: string | string[];
+      channelIds: string | string[];
+      limit?: number;
+    },
+    { models, subdomain }: IContext
+  ) {
+    const filteredBrandIds = Array.isArray(brandIds)
+      ? brandIds.filter((id) => id !== '')
+      : brandIds.split(',').filter((id) => id !== '');
+    const filteredChannelIds = Array.isArray(channelIds)
+      ? channelIds.filter((id) => id !== '')
+      : channelIds.split(',').filter((id) => id !== '');
+
+    let integrations: any[] = [];
+
+    let response;
+    if (filteredBrandIds.length > 0) {
+      for (const BrandId of filteredBrandIds) {
+        const splitBrandIds = BrandId.split(',');
+        for (const brandId of splitBrandIds) {
+          try {
+            response = await sendInboxMessage({
+              subdomain,
+              action: 'integrations.find',
+              data: {
+                query: { kind: 'facebook-post', brandId: brandId }
+              },
+              isRPC: true,
+              defaultValue: []
+            });
+
+            if (Array.isArray(response)) {
+              integrations.push(...response);
+            } else {
+              integrations.push(response);
+            }
+          } catch (error) {
+            throw new Error(
+              `Error fetching Brand with ID ${brandId}: ${error.message}`
+            );
+          }
+        }
+      }
+    } else if (
+      filteredChannelIds.length === 0 &&
+      filteredBrandIds.length === 0
+    ) {
+      response = await sendInboxMessage({
+        subdomain,
+        action: 'integrations.find',
+        data: {
+          query: { kind: 'facebook-post' }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+      if (Array.isArray(response)) {
+        integrations.push(...response);
+      } else {
+        integrations.push(response);
+      }
+    }
+    let channels: any[] = [];
+    if (filteredChannelIds.length > 0) {
+      for (const combinedChannelIds of filteredChannelIds) {
+        const splitChannelIds = combinedChannelIds.split(',');
+
+        for (const channelId of splitChannelIds) {
+          try {
+            const response = await sendInboxMessage({
+              subdomain,
+              action: 'channels.find',
+              data: { _id: channelId },
+              isRPC: true,
+              defaultValue: []
+            });
+            if (Array.isArray(response)) {
+              channels.push(...response);
+            } else {
+              channels.push(response);
+            }
+          } catch (error) {
+            throw new Error(
+              `Error fetching channel with ID ${channelId}: ${error.message}`
+            );
+          }
+        }
+      }
+    }
+
+    const channelIntegrationIds = channels.flatMap(
+      (channel: any) => channel.integrationIds
+    );
+
+    const allIntegrationIds = integrations.map(
+      (integration: { _id: string }) => integration._id
+    );
+    const uniqueIntegrationIds = [
+      ...new Set([...allIntegrationIds, ...channelIntegrationIds])
+    ];
+
+    const fetchedIntegrations = await models.Integrations.find({
+      erxesApiId: { $in: uniqueIntegrationIds }
+    });
+
+    if (fetchedIntegrations.length === 0) {
+      throw new Error('No integrations found in the database');
+    }
+
+    const allPosts = await Promise.all(
+      fetchedIntegrations.map(async (integration) => {
+        const { facebookPageIds, facebookPageTokensMap } = integration;
+
+        if (!facebookPageIds || facebookPageIds.length === 0) {
+          return [];
+        }
+
+        if (
+          !facebookPageTokensMap ||
+          Object.keys(facebookPageTokensMap).length === 0
+        ) {
+          return [];
+        }
+
+        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+        const fetchPagePostsWithRateLimiting = async (
+          pageId,
+          accessToken,
+          limit
+        ) => {
+          await delay(1000);
+          return fetchPagesPostsList(pageId, accessToken, limit);
+        };
+
+        const posts = await Promise.all(
+          facebookPageIds.map(async (pageId) => {
+            const accessToken = facebookPageTokensMap[pageId];
+            if (!accessToken) {
+              console.warn(`Access token missing for page ID: ${pageId}`);
+              return [];
+            }
+            return fetchPagePostsWithRateLimiting(pageId, accessToken, limit);
+          })
+        );
+
+        return posts.flat();
+      })
+    );
+
+    return allPosts.flat();
+  },
+
   async facebookGetBotPost(_root, { botId, postId }, { models }: IContext) {
     const bot = await models.Bots.findOne({ _id: botId });
 
