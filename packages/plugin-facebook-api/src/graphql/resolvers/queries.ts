@@ -396,6 +396,7 @@ const facebookQueries = {
         integrations.push(response);
       }
     }
+
     let channels: any[] = [];
     if (filteredChannelIds.length > 0) {
       for (const combinedChannelIds of filteredChannelIds) {
@@ -484,8 +485,13 @@ const facebookQueries = {
       })
     );
 
-    return allPosts.flat();
+    // Applying the limit to the final result
+    const allPostsFlattened = allPosts.flat();
+    const limitedPosts = allPostsFlattened.slice(0, limit);
+
+    return limitedPosts;
   },
+
 
   async facebookGetBotPost(_root, { botId, postId }, { models }: IContext) {
     const bot = await models.Bots.findOne({ _id: botId });
