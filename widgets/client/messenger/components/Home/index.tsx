@@ -1,23 +1,21 @@
-import * as RTG from "react-transition-group";
 import * as React from "react";
 
 import {
-  IIntegrationLink,
   IIntegrationMessengerData,
   IIntegrationMessengerDataMessagesItem,
   IUser,
 } from "../../../types";
-import { IconEnvelope, IconErxes } from "../../../icons/Icons";
-import { __, readFile } from "../../../utils";
 import { adjustBrightness, getColor, getUiOptions } from "../../utils/util";
 
 import Button from "./../common/Button";
 import Card from "./../Card.tsx";
 import Container from "../common/Container";
 import Featured from "../faq/Featured";
+import { IconEnvelope } from "../../../icons/Icons";
 import SocialLink from "./../common/SocialLink";
 import Supporters from "./../common/Supporters";
 import WebsiteApp from "../../containers/websiteApp/WebsiteApp";
+import { __ } from "../../../utils";
 import { useConversation } from "../../context/Conversation";
 
 type Props = {
