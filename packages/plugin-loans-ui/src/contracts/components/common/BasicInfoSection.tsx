@@ -23,6 +23,7 @@ import { getEnv } from '@erxes/ui/src/utils';
 import { gql } from '@apollo/client';
 import { queries } from '../../graphql';
 import withConsumer from '../../../withConsumer';
+import TransactionForm from '../../../transactions/containers/TransactionForm';
 
 type Props = {
   contract: IContract;
@@ -57,13 +58,18 @@ const BasicInfoSection = (props: Props) => {
 
     const onPrint = (mur) => {
       window.open(
-        `${getEnv().REACT_APP_API_URL}/pl:documents/print?_id=${
-          mur._id
+        `${getEnv().REACT_APP_API_URL}/pl:documents/print?_id=${mur._id
         }&contractId=${contract?._id}`
       );
     };
 
     const closeForm = (props) => <CloseForm {...props} contract={contract} />;
+    const giveTrForm = (props) => {
+      return <TransactionForm {...props} type="give" contractId={contract._id} lockContract={true} />;
+    };
+    const repaymentTrForm = (props) => {
+      return <TransactionForm {...props} type="repayment" contractId={contract._id} lockContract={true} />;
+    };
 
     const interestChangeForm = (props) => (
       <InterestChange {...props} contract={contract} />
@@ -95,6 +101,22 @@ const BasicInfoSection = (props: Props) => {
           content: closeForm,
           additionalModalProps: { size: 'lg' }
         });
+
+      if (!contract.loanBalanceAmount && !contract.givenAmount) {
+        result.unshift({
+          title: 'Give transaction',
+          trigger: <a href="#toClose">{__('Give transaction')}</a>,
+          content: giveTrForm,
+          additionalModalProps: { size: 'lg' }
+        })
+      } else {
+        result.unshift({
+          title: 'Repayment Transaction',
+          trigger: <a href="#toClose">{__('Repayment Transaction')}</a>,
+          content: repaymentTrForm,
+          additionalModalProps: { size: 'lg' }
+        })
+      }
       return result;
     };
 
