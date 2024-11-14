@@ -18,6 +18,7 @@ export const types = () => `
     name: String
     content: String
     duration: Int
+    totalcost: Float
     groupDays :[DayItem]
     location: [BMSLocation]
     images: [String]
@@ -62,6 +63,7 @@ const params = `
   name: String,
   content: String,
   duration: Int,
+  totalcost: Float,
   groupDays: [DayItemInput],
   location: [BMSLocationInput],
   images: [String],

@@ -32,6 +32,7 @@ export interface IItinerary {
   name: string;
   content: string;
   duration: number;
+  totalcost: number;
   groupDays: GroupDay[];
   location: ILocation[];
   images: string[];
@@ -86,6 +87,7 @@ export const initnarySchema = schemaHooksWrapper(
 
     name: field({ type: String, optional: true, label: 'name' }),
     content: field({ type: String, optional: true, label: 'content' }),
+    totalcost: field({ type: Number, optional: true, label: 'total cost' }),
     duration: field({ type: Number, optional: true, label: 'number' }),
     groupDays: field({
       type: [groupDay],
