@@ -67,7 +67,7 @@ export const types = () => `
 `;
 
 export const queries = `
-  bmTours( page:Int, perPage:Int): ListTour
+  bmTours( page:Int, perPage:Int, status: STATUS_TOUR): ListTour
   bmTourDetail(_id:String!): Tour
   bmOrders( tourId:String, customerId:String):ListOrder
 `;

@@ -4,7 +4,7 @@ import { IContext } from '../../../connectionResolver';
 const tourQueries = {
   async bmTours(
     _root,
-    { categories, page = 1, perPage = 10 },
+    { categories, page = 1, perPage = 10, status },
     { models }: IContext
   ) {
     const selector: any = {};
@@ -13,9 +13,12 @@ const tourQueries = {
     if (categories) {
       selector.categories = { $in: categories };
     }
+    if (status) {
+      selector.status = status;
+    }
 
     const list = await models.Tours.find(selector).limit(perPage).skip(skip);
-    const total = await models.Tours.countDocuments();
+    const total = await models.Tours.find(selector).countDocuments();
     return {
       list,
       total,
