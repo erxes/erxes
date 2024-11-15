@@ -263,8 +263,7 @@ export const getMsdCustomerInfo = async (
   };
 };
 
-export const customerToDynamic = async (subdomain, params, models) => {
-  const configs = await getConfig(subdomain, "DYNAMIC", {});
+export const customerToDynamic = async (subdomain, params, models, configs) => {
   const brandIds = Object.keys(configs);
 
   for (const brandId of brandIds) {
