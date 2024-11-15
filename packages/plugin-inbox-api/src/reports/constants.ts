@@ -47,8 +47,8 @@ export const DIMENSION_OPTIONS = [
 
 export const MEASURE_OPTIONS = [
     { label: 'Count', value: 'count' },
-    // { label: 'Average time to response', value: 'averageResponseTime' },
-    // { label: 'Average time to close', value: 'averageCloseTime' }
+    { label: 'Average time to response', value: 'averageResponseTime' },
+    { label: 'Average time to close', value: 'averageCloseTime' }
 ];
 
 export const MEASURE_LABELS = {
@@ -124,4 +124,10 @@ export const STATUS_TYPES = [
     { label: 'Open', value: 'open' },
     { label: 'Closed / Resolved', value: 'closed' },
     { label: 'Unassigned', value: 'unassigned' },
+];
+
+export const USER_TYPES = [
+    { label: 'Assigned To', value: 'assignedUserId' },
+    { label: 'Resolved By', value: 'closedUserId' },
+    { label: 'First Responded By', value: 'firstRespondedUserId' },
 ];

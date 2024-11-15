@@ -71,10 +71,10 @@ const ChartRendererList = (props: FinalProps) => {
     return <ChartRenderer {...finalProps} />;
   }
 
-  const { data, labels, datasets, title, options } =
+  const { data, labels, headers, datasets, title, options } =
     chartGetResultQuery?.chartGetResult || {};
 
-  const dataset = { data, labels, title };
+  const dataset = { data, labels, title, headers };
 
   if (chartType === "table") {
     return (
