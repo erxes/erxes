@@ -5,7 +5,9 @@ export const CONTRIBUTIONTYPE = {
 
 export const TEAMGOALTYPE = {
   DEPARTMENT: 'Departments',
-  BRANCH: 'Branches'
+  BRANCH: 'Branches',
+  COMPANIES: 'Companies',
+  UNITS: 'Units'
 };
 
 export const GOALTYPECHOOSE = {
