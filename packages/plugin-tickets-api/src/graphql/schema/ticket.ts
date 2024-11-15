@@ -4,12 +4,14 @@ import {
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
-  copyParams
-} from "./common";
+  copyParams,
+} from './common';
 
 export const types = ({ contacts, clientPortal }) => `
   type TicketListItem {
     customPropertiesData:JSON,
+    tags: [Tag]
+    
     ${commonListTypes}
   }
 
@@ -22,11 +24,11 @@ export const types = ({ contacts, clientPortal }) => `
       companies: [Company]
       customers: [Customer]
       `
-        : ""
+        : ''
     }
 
     tags: [Tag]
-    ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ""}
+    ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ''}
 
     ${commonTypes}
   }

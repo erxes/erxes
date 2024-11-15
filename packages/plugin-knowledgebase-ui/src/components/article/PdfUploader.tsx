@@ -3,7 +3,7 @@ import Attachment from '@erxes/ui/src/components/Attachment';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { __, getEnv } from '@erxes/ui/src/utils';
 import Alert from '@erxes/ui/src/utils/Alert';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AttachmentContainer, UploadBtn } from './styles';
 
 type Props = {
@@ -11,153 +11,169 @@ type Props = {
   onChange: (attachment: IPdfAttachment | undefined) => void;
 };
 
-const PdfUploader = (props: Props) => {
-  const [isUploading, setIsUploading] = React.useState(false);
-  const [taskId, setTaskId] = React.useState(null);
+const PdfUploader = ({ attachment, onChange }: Props) => {
+  const [isUploading, setIsUploading] = useState(false);
+  const [taskId, setTaskId] = useState<string | null>(null);
+  const [lastChunkUploaded, setLastChunkUploaded] = useState<boolean>(false);
 
-  const { attachment, onChange } = props;
+  // Extracted function to handle the common upload logic
+  const uploadFileChunked = async (file: File) => {
+    const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB per chunk
 
-  // Polling to check the upload task status
-  const checkTaskStatus = async (taskId) => {
     const { REACT_APP_API_URL } = getEnv();
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    let tempTaskId = taskId;
+
     try {
-      const res = await fetch(`${REACT_APP_API_URL}/pl-workers/upload-status/${taskId}`);
-      const result = await res.json();
+      Alert.warning(
+        'Upload task has been submitted. Do not close or refresh until finished'
+      );
 
-      if (result.status === 'completed') {
-        Alert.success('Upload completed successfully!');
-        setTaskId(null); // Stop polling
-        setIsUploading(false);
-        const { data } = result;
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * CHUNK_SIZE;
+        const end = Math.min(file.size, start + CHUNK_SIZE);
+        const chunk = file.slice(start, end);
 
-        const pdfAttachment: IPdfAttachment = {
-          pdf: {
-            name: result.filename,
-            type: 'application/pdf',
-            url: data.pdf,
-          },
-          pages: data.pages.map((page, index) => ({
-            name: `page-${index + 1}.jpg`,
-            url: page,
-            type: 'image/jpeg',
-          })),
-        };
+        const formData = new FormData();
+        formData.append('file', chunk);
+        formData.append('chunkIndex', i.toString());
+        formData.append('totalChunks', totalChunks.toString());
+        formData.append('filename', file.name);
+        if (tempTaskId) {
+          formData.append('taskId', tempTaskId);
+        }
 
-        onChange(pdfAttachment);
-
-        fetch(`${REACT_APP_API_URL}/pl-workers/delete-task/${taskId}`, {
-          method: 'DELETE',
+        const res = await fetch(`${REACT_APP_API_URL}/pl-workers/upload-pdf`, {
+          method: 'POST',
+          body: formData,
           credentials: 'include',
+          headers: {
+            Accept: 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
         });
-      } else if (result.status === 'failed') {
-        Alert.error('Task failed to complete.');
-      
-        setTaskId(null); // Stop polling
-        setIsUploading(false);
-      } else {
-        setIsUploading(true);
+
+        const result = await res.json();
+
+        if (result.error) {
+          Alert.error(result.error);
+          setIsUploading(false);
+          return;
+        }
+
+        if (i === 0 && result.taskId) {
+          tempTaskId = result.taskId;
+          setTaskId(result.taskId); // Set global taskId for potential future use
+        }
+
+        if (i === totalChunks - 1) {
+          setLastChunkUploaded(true);
+        }
       }
     } catch (error) {
-      setTaskId(null); // Stop polling on error
-      setIsUploading(false);
-
-      Alert.error(error);
+      Alert.error(error.message || 'Upload failed');
     }
   };
 
-  const handlePdfUpload = async ({ target }) => {
-    const { files } = target;
-    const file = files[0];
+  const handlePdfUpload = async ({
+    target,
+  }: React.ChangeEvent<HTMLInputElement>) => {
+    const MAX_FILE_SIZE = 30 * 1024 * 1024; // 30 MB max for chunking
 
-    const formData = new FormData();
-    formData.append('file', file);
+    const { files } = target;
+    const file = files ? files[0] : null;
+
+    if (!file) return;
 
     const { REACT_APP_API_URL } = getEnv();
 
     setIsUploading(true);
 
     try {
-      const res = await fetch(`${REACT_APP_API_URL}/pl-workers/upload-pdf`, {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-        headers: {
-          Accept: 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      });
+      if (file.size < MAX_FILE_SIZE) {
+        const formData = new FormData();
+        formData.append('file', file);
 
-      const result = await res.json();
+        const res = await fetch(`${REACT_APP_API_URL}/pl-workers/upload-pdf`, {
+          method: 'POST',
+          body: formData,
+          credentials: 'include',
+          headers: {
+            Accept: 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
+        });
 
-      if (!result.error) {
-        Alert.warning(
-          'Task has been submitted. Do not close this page or refresh until finished'
-        );
+        const result = await res.json();
 
+        if (result.error) {
+          Alert.error(result.error);
+          setIsUploading(false);
+          return;
+        }
+        setLastChunkUploaded(true);
         setTaskId(result.taskId);
       } else {
-        Alert.error(result.error);
-        setIsUploading(false)
+        await uploadFileChunked(file);
       }
     } catch (error) {
-      Alert.error(error);
-      setIsUploading(false)
-    } 
+      Alert.error(`Error: ${error.message || 'Failed to upload file'}`);
+      setIsUploading(false);
+    }
   };
 
-  React.useEffect(() => {
-    if (taskId) {
-      const intervalId = setInterval(() => checkTaskStatus(taskId), 10000); // Check every 10 seconds
-
-      return () => clearInterval(intervalId);
-    }
-  }, [taskId]);
-
-  const deleteFile = async (params: { fileName: string; url?: string }) => {
+  const checkTaskStatus = async (taskId: string) => {
     const { REACT_APP_API_URL } = getEnv();
 
-    const url = `${REACT_APP_API_URL}/pl:core/delete-file`;
+    const res = await fetch(
+      `${REACT_APP_API_URL}/pl-workers/upload-status/${taskId}`
+    );
 
-    const { fileName } = params;
-
-    const response = await fetch(url, {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-      },
-      body: `fileName=${fileName}`,
-      credentials: 'include',
-    });
-
-    const text = await response.text();
-    if (!response.ok) {
-      throw new Error(text);
+    if (res.status === 524) {
+      return;
     }
-    return text;
+
+    const result = await res.json();
+
+    if (result.status === 'completed') {
+      Alert.success('Upload completed successfully!');
+      setTaskId(null);
+      setIsUploading(false);
+
+      const pdfAttachment: IPdfAttachment = {
+        pdf: {
+          name: result.filename,
+          type: 'application/pdf',
+          url: result.data.pdf,
+        },
+        pages: result.data.pages.map((page: string, index: number) => ({
+          name: `page-${index + 1}.jpg`,
+          url: page,
+          type: 'image/jpeg',
+        })),
+      };
+
+      onChange(pdfAttachment);
+      await fetch(`${REACT_APP_API_URL}/pl-workers/delete-task/${taskId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+    } else if (result.status === 'failed') {
+      Alert.error('Task failed to complete.');
+      setTaskId(null);
+      setIsUploading(false);
+    }
   };
 
   const handleDeleteAttachment = async () => {
-    if (!attachment) {
-      return;
-    }
+    if (!attachment) return;
     setIsUploading(true);
+
     try {
-      // Delete all pages concurrently
       await Promise.all(
-        attachment.pages.map((page) =>
-          deleteFile({
-            fileName: page.name,
-            url: page.url,
-          })
-        )
+        attachment.pages.map((page) => deleteFile({ fileName: page.name }))
       );
-
-      // Delete the PDF file
-      await deleteFile({
-        fileName: attachment.pdf.name,
-        url: attachment.pdf.url,
-      });
-
+      await deleteFile({ fileName: attachment.pdf.name });
       onChange(undefined);
       Alert.success('PDF attachment removed');
     } catch (error) {
@@ -166,6 +182,33 @@ const PdfUploader = (props: Props) => {
       setIsUploading(false);
     }
   };
+
+  const deleteFile = async ({ fileName }: { fileName: string }) => {
+    const { REACT_APP_API_URL } = getEnv();
+    const url = `${REACT_APP_API_URL}/pl:core/delete-file`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      },
+      body: `fileName=${fileName}`,
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text);
+    }
+    return response.text();
+  };
+
+  useEffect(() => {
+    if (taskId && lastChunkUploaded) {
+      const intervalId = setInterval(() => checkTaskStatus(taskId), 10000);
+      return () => clearInterval(intervalId);
+    }
+  }, [taskId, lastChunkUploaded]);
 
   if (attachment) {
     return (
@@ -192,7 +235,7 @@ const PdfUploader = (props: Props) => {
           type='file'
           multiple={false}
           onChange={handlePdfUpload}
-          accept={'application/pdf'}
+          accept='application/pdf'
         />
       </label>
     </UploadBtn>
