@@ -69,4 +69,25 @@ export type QueryParams = {
 };
 export type Docs = {
     [key: string]: string | number;
-}
+};
+export type Objects = {
+    code?: string;
+};
+interface CustomFieldData {
+    field: string;
+    value: string;
+};
+export type SubUom = {
+    id: number;
+    uom: string;
+    ratio: number;
+  }
+export type ProductDoc = {
+    customFieldsData: CustomFieldData[];
+    categoryId?: string;
+    tagIds?: string[];
+    barcodes?: string[];
+    uom?: string;
+    subUoms?: SubUom[];
+    [key: string]: any;
+  }
