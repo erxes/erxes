@@ -1,16 +1,16 @@
-import customScalars from '@erxes/api-utils/src/customScalars';
-import Donate from './customResolvers/donate';
-import DonateCampaign from './customResolvers/donateCampaign';
-import loyaltyConfigQueries from './queries/configs';
-import Voucher from './customResolvers/voucher';
-import VoucherCampaign from './customResolvers/voucherCampaign';
-import Spin from './customResolvers/spin';
-import SpinCampaign from './customResolvers/spinCampaign';
-import Lottery from './customResolvers/lottery';
-import LotteryCampaign from './customResolvers/lotteryCampaign';
-import ScoreLog from './customResolvers/scoreLog';
-import Assignment from './customResolvers/assignments';
-import AssignmentCampaign from './customResolvers/assignmentCampaign';
+import customScalars from "@erxes/api-utils/src/customScalars";
+import Donate from "./customResolvers/donate";
+import DonateCampaign from "./customResolvers/donateCampaign";
+import loyaltyConfigQueries from "./queries/configs";
+import Voucher from "./customResolvers/voucher";
+import VoucherCampaign from "./customResolvers/voucherCampaign";
+import Spin from "./customResolvers/spin";
+import SpinCampaign from "./customResolvers/spinCampaign";
+import Lottery from "./customResolvers/lottery";
+import LotteryCampaign from "./customResolvers/lotteryCampaign";
+import ScoreLog from "./customResolvers/scoreLog";
+import Assignment from "./customResolvers/assignments";
+import AssignmentCampaign from "./customResolvers/assignmentCampaign";
 import {
   Configs as LoyaltyConfigMutations,
   Donates as DonateMutations,
@@ -24,8 +24,9 @@ import {
   Loyalties as LoyaltyMutations,
   ScoreLogs as ScoreLogMutations,
   Assignments as AssignmentMutations,
-  AssignmentCampaigns as AssignmentCampaignMutations
-} from './mutations';
+  AssignmentCampaigns as AssignmentCampaignMutations,
+  ScoreCampaigns as scoreCampaignMutations
+} from "./mutations";
 import {
   Donates as DonateQueries,
   DonateCampaigns as DonateCampaignQueries,
@@ -38,9 +39,10 @@ import {
   ScoreLogs as ScoreLogQueries,
   Loyalties as LoyaltyQueries,
   Assignments as AssignmentQueries,
-  AssignmentCampaigns as AssignmentCampaignQueries
-} from './queries';
-const resolvers: any = async serviceDiscovery => ({
+  AssignmentCampaigns as AssignmentCampaignQueries,
+  ScoreCampaigns as ScoreCampaignQueries
+} from "./queries";
+const resolvers: any = async (serviceDiscovery) => ({
   ...customScalars,
   Donate,
   DonateCampaign,
@@ -66,7 +68,8 @@ const resolvers: any = async serviceDiscovery => ({
     ...LoyaltyMutations,
     ...ScoreLogMutations,
     ...AssignmentMutations,
-    ...AssignmentCampaignMutations
+    ...AssignmentCampaignMutations,
+    ...scoreCampaignMutations
   },
   Query: {
     ...loyaltyConfigQueries,
@@ -81,7 +84,8 @@ const resolvers: any = async serviceDiscovery => ({
     ...ScoreLogQueries,
     ...LoyaltyQueries,
     ...AssignmentQueries,
-    ...AssignmentCampaignQueries
+    ...AssignmentCampaignQueries,
+    ...ScoreCampaignQueries
   }
 });
 
