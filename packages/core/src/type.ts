@@ -54,4 +54,19 @@ export type Action = {
 export type Webhook = {
     _id: string;
     actions: Action[];
+};
+export type Item = {
+    categoryId?: string;
+    tagIds?: string[];
+    barcodes?: string[];
+    uom?: string;
+    createdAt?: string | Date;
+    [key: string]: any;
+};
+export type QueryParams = {
+    page: number;
+    perPage: number;
+};
+export type Docs = {
+    [key: string]: string | number;
 }
