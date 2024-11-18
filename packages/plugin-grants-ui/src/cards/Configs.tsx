@@ -80,17 +80,33 @@ const Config: React.FC<Props> = (props: Props) => {
     </>
   );
 
-  let boardSelect = !!config['type'] && (
-    <BoardSelect
-      type={config['type']}
-      boardId={config?.boardId}
-      pipelineId={config?.pipelineId}
-      stageId={config?.stageId}
-      onChangeBoard={(e) => onChangeBoard(e, 'boardId')}
-      onChangePipeline={(e) => onChangeBoard(e, 'pipelineId')}
-      onChangeStage={(e) => onChangeBoard(e, 'stageId')}
-    />
-  );
+  const renderBoard = (type: string) => {
+    const boardProps = {
+      type: config['type'],
+      boardId: config?.boardId,
+      pipelineId: config?.pipelineId,
+      stageId: config?.stageId,
+      onChangeBoard: (e) => onChangeBoard(e, "boardId"),
+      onChangePipeline: (e) => onChangeBoard(e, "pipelineId"),
+      onChangeStage: (e) => onChangeBoard(e, "stageId"),
+    };
+    
+    switch (type) {
+      case "deal":
+        return <SalesBoardSelect {...boardProps} />;
+
+      case "ticket":
+        return <TicketsBoardSelect {...boardProps} />;
+
+      case "purchase":
+        return <PurchasesBoardSelect {...boardProps} />;
+
+      case "task":
+        return <TasksBoardSelect {...boardProps} />;
+    }
+  };
+
+  let boardSelect = !!config['type'] && renderBoard(config['type']);
 
   return (
     <>

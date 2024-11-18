@@ -114,7 +114,7 @@ export interface IExportField {
 
 export type ImportHistoriesQueryResponse = {
   importHistories: IImportHistoryItem;
-  stopPolling: () => any;
+  stopPolling: () => void;
 } & QueryResponse;
 
 export type ImportHistoryGetColumnsQueryResponse = {
@@ -129,9 +129,8 @@ export type ImportHistoryGetDuplicatedHeadersQueryResponse = {
 
 export type ImportHistoryDetailQueryResponse = {
   importHistoryDetail: IImportHistory;
-  subscribeToMore: any;
-  error: any;
-  stopPolling: () => any;
+  error: Error;
+  stopPolling: () => void;
 } & QueryResponse;
 
 export type FieldsCombinedByContentTypeQueryResponse = {
@@ -140,7 +139,7 @@ export type FieldsCombinedByContentTypeQueryResponse = {
 
 export type ExportHistoriesQueryResponse = {
   exportHistories: IExportHistoryItem;
-  stopPolling: () => any;
+  stopPolling: () => void;
 } & QueryResponse;
 
 export type HistoryGetTypesQueryResponse = {
@@ -149,9 +148,8 @@ export type HistoryGetTypesQueryResponse = {
 
 export type ExportHistoryDetailQueryResponse = {
   importHistoryDetail: IExportHistory;
-  subscribeToMore: any;
-  error: any;
-  stopPolling: () => any;
+  error: Error;
+  stopPolling: () => void;
 } & QueryResponse;
 
 // mutation types
@@ -159,21 +157,21 @@ export type ExportHistoryDetailQueryResponse = {
 export type RemoveMutationResponse = {
   importHistoriesRemove: (params: {
     variables: { _id: string; contentType: string };
-  }) => Promise<any>;
+  }) => Promise<JSON>;
 };
 
 export type ImportHistoryCreateMutationResponse = {
   importHistoriesCreate: (params: {
     variables: { doc: IImportCreate };
-  }) => Promise<any>;
+  }) => Promise<JSON>;
 };
 
 export type ExportHistoryCreateMutationResponse = {
   exportHistoriesCreate: (params: {
     variables: { doc: IExportHistoryDoc };
-  }) => Promise<any>;
+  }) => Promise<JSON>;
 };
 
 export type CancelMutationResponse = {
-  importCancel: (params: { variables: { _id: string } }) => Promise<any>;
+  importCancel: (params: { variables: { _id: string } }) => Promise<boolean>;
 };

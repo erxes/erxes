@@ -25,7 +25,7 @@ type RowProps = {
   type: string;
   count?: number;
   space: number;
-  types: any;
+  types: {description: string, contentType: string}[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (tag: ITag) => void;
   merge: (sourceId: string, destId: string, callback) => void;

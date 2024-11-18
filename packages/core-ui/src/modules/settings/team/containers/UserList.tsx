@@ -13,14 +13,30 @@ import { commonListComposer } from "@erxes/ui/src/utils";
 import { generatePaginationParams } from "@erxes/ui/src/utils/router";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
+import { IUser } from "modules/auth/types";
+import { QueryResponse } from "@erxes/ui/src/types";
+
+type StatusChangedMutationResponse = {
+  statusChangedMutation: (params: {
+    variables: { _id: string };
+  }) => Promise<IUser>;
+};
+
+type ListQueryResponse = {
+  users: IUser[];
+} & QueryResponse;
+
+type TotalCountQueryResponse = {
+  usersTotalCount: number;
+} & QueryResponse;
 
 type Props = ICommonListProps &
   ICommonFormProps & {
-    statusChangedMutation: any;
-    listQuery: any;
-    totalCountQuery: any;
+    statusChangedMutation: StatusChangedMutationResponse;
+    listQuery: ListQueryResponse;
+    totalCountQuery: TotalCountQueryResponse;
     renderButton: (props: IButtonMutateProps) => JSX.Element;
-  };
+  } & StatusChangedMutationResponse;
 
 class UserListContainer extends React.Component<Props> {
   changeStatus = (id: string): void => {
@@ -105,7 +121,7 @@ export default commonListComposer<{ queryParams: Record<string, string> }>({
   gqlEditMutation: graphql(gql(mutations.usersEdit), {
     name: "editMutation",
   }),
-  gqlRemoveMutation: graphql<{ queryParams: any }>(
+  gqlRemoveMutation: graphql<{ queryParams: Record<string, string> }>(
     gql(mutations.usersSetActiveStatus),
     {
       name: "statusChangedMutation",

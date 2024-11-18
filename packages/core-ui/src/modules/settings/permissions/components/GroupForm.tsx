@@ -15,7 +15,6 @@ type Props = {
   closeModal: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   object: IUserGroupDocument;
-  refetch: any;
 };
 
 const GroupForm = ({ object, renderButton, closeModal }: Props) => {
@@ -51,7 +50,7 @@ const GroupForm = ({ object, renderButton, closeModal }: Props) => {
       values._id = object._id;
     }
 
-    const onSelect = (values: any, name: string) => {
+    const onSelect = (values: string | string[], name: string) => {
       setDoc({ ...doc, [name]: values });
     };
 

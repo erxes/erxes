@@ -19,11 +19,11 @@ import { __ } from "@erxes/ui/src/utils";
 
 // Props
 type Props = {
-  queryParams: any;
+  queryParams: Record<string, string>;
   refetch?: () => void;
   fieldsGroups: IFieldGroup[];
   currentType: string;
-  removePropertyGroup: (data: { _id: string }) => any;
+  removePropertyGroup: (data: { _id: string }) => void;
   removeProperty: (data: { _id: string }) => void;
   updatePropertyVisible: (data: { _id: string; isVisible: boolean }) => void;
   updatePropertyDetailVisible: (data: {
@@ -39,9 +39,9 @@ type Props = {
     _id: string;
     isVisible: boolean;
   }) => void;
-  updateFieldOrder: (fields: IField[]) => any;
+  updateFieldOrder: (fields: IField[]) => void;
   updateGroupOrder: (groups: IFieldGroup[]) => void;
-  services: string[];
+  services: {description: string, contentType: string}[];
 };
 
 class Properties extends React.Component<

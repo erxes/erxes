@@ -20,13 +20,14 @@ import { IUserGroup } from "@erxes/ui-settings/src/permissions/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import Info from "@erxes/ui/src/components/Info";
 import React from "react";
+import { IChannel } from "@erxes/ui-inbox/src/settings/channels/types";
 
 import Select from "react-select";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   usersGroups: IUserGroup[];
-  channels: any[]; // check - IChannel
+  channels: IChannel[]; 
   units: IUnit[];
   departments: IDepartment[];
   branches: IBranch[];
@@ -50,7 +51,7 @@ const generateEmptyEntry = (email?: string) => ({
 
 const generetaOption = (array: IBranch[] = []): IOption[] => {
   const generateList = () => {
-    let list: any[] = array.map((item) => {
+    let list: IBranch[] = array.map((item) => {
       if (!array.find((dep) => dep._id === item.parentId)) {
         return { ...item, parentId: null };
       }

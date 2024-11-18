@@ -7,6 +7,7 @@ import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 
 import LeadStatusFilter from '../../components/list/LeadStatusFilter';
+import { IAbortController } from '@erxes/ui/src/types';
 
 type Props = {
   customersCountQuery?: CountQueryResponse;
@@ -30,7 +31,7 @@ class LeadStatusFilterContainer extends React.Component<Props> {
 }
 
 type WrapperProps = {
-  abortController?: any;
+  abortController?: IAbortController;
   type: string;
   loadingMainQuery: boolean;
 };

@@ -1,4 +1,4 @@
-import { BoardHeader } from '@erxes/ui-cards/src/settings/boards/styles';
+import { BoardHeader } from '@erxes/ui-sales/src/settings/boards/styles';
 import { __, ControlLabel, FormGroup } from '@erxes/ui/src';
 import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import Table from '@erxes/ui/src/components/table';

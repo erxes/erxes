@@ -49,6 +49,33 @@ class GeneralConfig extends React.Component<Props, State> {
       onChange({ ...configs, [name]: value }, 'configs');
     };
 
+    const renderBoard = (type: string) => {
+      const boardProps = {
+        type: configs?.cardType,
+        boardId: configs?.boardId,
+        pipelineId: configs?.pipelineId,
+        stageId: configs?.stageId,
+        onChangeBoard: (value) => handleConfigChange(value, "boardId"),
+        onChangePipeline: (value) => handleConfigChange(value, "pipelineId"),
+        onChangeStage: (value) => handleConfigChange(value, "stageId"),
+        autoSelectStage: true,
+      };
+      
+      switch (type) {
+        case "deal":
+          return <SalesBoardSelect {...boardProps} />;
+
+        case "ticket":
+          return <TicketsBoardSelect {...boardProps} />;
+
+        case "purchase":
+          return <PurchasesBoardSelect {...boardProps} />;
+
+        case "task":
+          return <TasksBoardSelect {...boardProps} />;
+      }
+    };
+
     return (
       <FormContainer padding="15px" $column>
         <FormGroup>

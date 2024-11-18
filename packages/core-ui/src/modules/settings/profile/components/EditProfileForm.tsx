@@ -6,6 +6,7 @@ import Form from "modules/common/components/form/Form";
 import { ModalFooter } from "modules/common/styles/main";
 import React from "react";
 import UserCommonInfos from "@erxes/ui-settings/src/common/components/UserCommonInfos";
+import { IUserDetails } from "@erxes/ui/src/auth/types";
 
 type Props = {
   currentUser: IUser;
@@ -38,7 +39,7 @@ class EditProfile extends React.Component<Props, State> {
     this.props.closeModal();
   };
 
-  handleSubmit = (values: any) => {
+  handleSubmit = (values: IUser & IUserDetails) => {
     const links = {};
 
     getConstantFromStore("social_links").forEach((link) => {
@@ -64,7 +65,7 @@ class EditProfile extends React.Component<Props, State> {
           lastName: values.lastName,
         },
         links,
-        employeeId: values.employeeId !== "" ? values.employeeId : null,
+        employeeId: values.employeeId !== "" ? values.employeeId : undefined,
       },
       this.closeAllModals
     );

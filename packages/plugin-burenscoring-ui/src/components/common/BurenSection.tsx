@@ -57,6 +57,9 @@ function Component(props: Props) {
 
   const content = (
     <>
+<<<<<<< HEAD
+      <EmptyState icon="building" text={__("No scoring")} />
+=======
       {
         totalCount && <>
           {burenCustomerScorings.map(s => (
@@ -65,6 +68,7 @@ function Component(props: Props) {
         </> ||
         <EmptyState icon="building" text="No scoring" />
       }
+>>>>>>> 1bdea7ce95baa381290bb9f9942a684757bd11de
       {scoringButton}
     </>
   );

@@ -1,11 +1,12 @@
-import { IModule } from '../types';
+import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
+import { IActions, IModule } from '../types';
 
 export type generatedList = {
   value: string;
   label?: string;
 };
 
-export const generateModuleParams = (list: IModule[]): generatedList[] => {
+export const generateModuleParams = (list: IModule[] | IActions[]): generatedList[] => {
   const sortedList = [...list].sort((a, b) => {
     return (a.description || '').localeCompare(b.description || '');
   });
@@ -16,10 +17,10 @@ export const generateModuleParams = (list: IModule[]): generatedList[] => {
   }));
 };
 
-export const generateListParams = (items: any[]): generatedList[] => {
+export const generateListParams = (items: IUserGroup[]): generatedList[] => {
   return items.map(item => ({
     value: item._id,
-    label: item.email || item.name
+    label: item.name
   }));
 };
 
@@ -27,7 +28,7 @@ export const correctValue = (data: generatedList): string => {
   return data ? data.value : '';
 };
 
-export const filterActions = (actions: any, moduleName: string) => {
+export const filterActions = (actions: IActions[], moduleName: string) => {
   if (!moduleName) {
     return [];
   }

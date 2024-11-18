@@ -23,7 +23,7 @@ export type Plugin = {
   name?: string;
   permission?: string;
   permissions?: string[];
-  children?: ChildPlugin[];
+  children?: Plugin[];
   label?: React.ReactNode;
   isPinned?: boolean;
   location?: string;
@@ -31,6 +31,7 @@ export type Plugin = {
   image?: string;
   to?: string;
   scope?: string;
+  component?: string;
 };
 
 type Integration = {
@@ -55,18 +56,19 @@ type Bots = {
   createUrl: string;
 };
 
-type Base = {
+export type Base = {
   text?: string;
   url?: string;
+  component?: string;
   scope: string;
-  module: string;
-};
+  module?: string;
+}
 
 export type PluginConfig = {
   actionForms?: string;
   activityLog?: string;
   automation?: string;
-  customNavigationLabel?: Base;
+  customNavigationLabel?: Base[];
   exposes: {
     [key: string]: string;
   };
@@ -133,7 +135,14 @@ export type PluginConfig = {
   extendSystemConfig?: string;
   carRightSidebarSection?: string;
   template?: string;
-};
+  color?: string;
+  innerWidget?: {
+    style?: string;
+    url?: string;
+    scope?: string;
+    module?: string;
+  }
+}
 
 export type Action = {
   name: string;

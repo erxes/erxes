@@ -32,7 +32,6 @@ export type StepsCompletenessQueryResponse = {
 
 export type GetAvailableFeaturesQueryResponse = {
   onboardingGetAvailableFeatures: IFeature[];
-  subscribeToMore: any;
 } & QueryResponse;
 
 export type EntriesQueryResponse = {
@@ -42,11 +41,11 @@ export type EntriesQueryResponse = {
 export type CompleteShowStepMutationResponse = {
   completeShowStepMutation: (params: {
     variables: { step: string };
-  }) => Promise<any>;
+  }) => Promise<JSON>;
 };
 
 export type ForceCompleteMutationResponse = {
-  forceCompleteMutation: () => Promise<any>;
+  forceCompleteMutation: () => Promise<JSON>;
 };
 
 export type IOnboardingHistory = IOnboardingHistoryC;

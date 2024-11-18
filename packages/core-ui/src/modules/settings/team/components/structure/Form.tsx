@@ -10,7 +10,7 @@ import Button from "@erxes/ui/src/components/Button";
 import ContactInfoForm from "../common/ContactInfoForm";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import Form from "@erxes/ui/src/components/form/Form";
-import { IStructure } from "@erxes/ui/src/team/types";
+import { ICoordinate, IStructure } from "@erxes/ui/src/team/types";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import { Title } from "@erxes/ui-settings/src/styles";
@@ -42,7 +42,7 @@ export default function StructureForm(props: Props) {
       : null
   );
 
-  const coordinateObj = object.coordinate || {};
+  const coordinateObj = object.coordinate || {} as ICoordinate;
 
   const [coordinate, setCoordinate] = useState({
     longitude: coordinateObj.longitude || "",

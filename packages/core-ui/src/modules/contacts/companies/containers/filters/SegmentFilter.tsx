@@ -1,11 +1,12 @@
-import { gql } from "@apollo/client";
-import * as compose from "lodash.flowright";
-import { withProps } from "@erxes/ui/src/utils";
-import Segments from "@erxes/ui-segments/src/containers/Filter";
-import React from "react";
-import { graphql } from "@apollo/client/react/hoc";
-import { queries } from "../../graphql";
-import { CountQueryResponse } from "../../types";
+import { gql } from '@apollo/client';
+import * as compose from 'lodash.flowright';
+import { withProps } from '@erxes/ui/src/utils';
+import Segments from '@erxes/ui-segments/src/containers/Filter';
+import React from 'react';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../../graphql';
+import { CountQueryResponse } from '../../types';
+import { IAbortController } from '@erxes/ui/src/types';
 
 const SegmentFilterContainer = (props: {
   companyCountsQuery?: CountQueryResponse;
@@ -23,7 +24,7 @@ const SegmentFilterContainer = (props: {
 
 type Props = {
   loadingMainQuery: boolean;
-  abortController?: any;
+  abortController?: IAbortController;
 };
 
 export default withProps<Props>(

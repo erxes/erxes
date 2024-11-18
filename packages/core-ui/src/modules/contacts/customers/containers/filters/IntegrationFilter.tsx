@@ -8,6 +8,7 @@ import IntegrationFilter from '../../components/list/IntegrationFilter';
 import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
 import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
 import { IntegrationGetUsedQueryResponse } from '@erxes/ui-contacts/src/customers/types';
+import { IAbortController } from '@erxes/ui/src/types';
 
 type Props = {
   customersCountQuery?: CountQueryResponse;
@@ -42,7 +43,7 @@ class IntegrationFilterContainer extends React.Component<Props> {
 }
 
 type WrapperProps = {
-  abortController?: any;
+  abortController?: IAbortController;
   type: string;
   loadingMainQuery: boolean;
 };

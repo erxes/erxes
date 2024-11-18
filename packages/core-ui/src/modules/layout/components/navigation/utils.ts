@@ -1,4 +1,4 @@
-import { Plugin, ChildPlugin, PluginConfig } from "./types";
+import { Plugin, PluginConfig } from './types';
 
 export const getLink = (url: string): string => {
   const storageValue = window.localStorage.getItem("pagination:perPage");
@@ -30,39 +30,10 @@ export const getLink = (url: string): string => {
   return url;
 };
 
-export const pluginNavigations = (): any[] => {
+export const pluginNavigations = () => {
   const plugins: PluginConfig[] = (window as any).plugins || [];
-  const navigationMenus: any[] = [
-    {
-      text: "Contacts",
-      url: "/contacts/customer",
-      icon: "icon-user",
-      location: "mainNavigation",
-      permission: "showCustomers"
-    },
-    {
-      text: "Segments",
-      url: "/segments",
-      icon: "icon-chart-pie-alt",
-      location: "mainNavigation",
-      permission: "showSegments"
-    },
-    {
-      text: "Forms",
-      url: "/forms",
-      icon: "icon-laptop",
-      location: "mainNavigation",
-      permission: "showForms"
-    },
-    {
-      text: "Insight",
-      url: "/insight",
-      icon: "icon-reload",
-      location: "mainNavigation"
-    }
-  ];
-
-  const childMenus: any[] = [];
+  const navigationMenus: Plugin[] = [];
+  const childMenus: Plugin[] = [];
 
   for (const plugin of plugins) {
     for (const menu of plugin.menus || []) {
@@ -83,18 +54,18 @@ export const pluginNavigations = (): any[] => {
   return navigationMenus;
 };
 
-export const getChildren = (plugin: Plugin): ChildPlugin[] => {
+export const getChildren = (plugin: Plugin): Plugin[] => {
   const { children, name, url, text } = plugin;
 
   if (!children) return [];
 
   return (
     children &&
-    children.filter((child: ChildPlugin) => {
+    children.filter((child: Plugin) => {
       if (
         (name && child.scope !== name) ||
-        (name === "inbox" && !(url || "").includes(child.scope)) ||
-        (child.scope === "cards" &&
+        (name === 'inbox' && !(url || '').includes(child.scope || 'do not include')) ||
+        (child.scope === 'cards' &&
           !child.text.toLowerCase().includes(text.toLowerCase()))
       )
         return null;

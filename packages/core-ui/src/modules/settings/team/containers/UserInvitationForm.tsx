@@ -16,6 +16,7 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '@erxes/ui/src/team/graphql';
 import { withProps } from '@erxes/ui/src/utils';
+import { ChannelsQueryResponse } from '@erxes/ui-inbox/src/settings/channels/types';
 
 type WrapperProps = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -23,7 +24,7 @@ type WrapperProps = {
 } & ICommonFormProps;
 
 type Props = {
-  channelsQuery: any; // check - ChannelsQueryResponse
+  channelsQuery: ChannelsQueryResponse; 
   unitsQuery: UnitsQueryResponse;
   departmentsQuery: DepartmentsQueryResponse;
   branchesQuery: BranchesQueryResponse;
@@ -49,8 +50,7 @@ const UserInviteFormContainer = (props: Props & ICommonFormProps) => {
 
 export default withProps<WrapperProps>(
   compose(
-    graphql<{}, any>(gql(channelQueries.channels), {
-      // check - ChannelsQueryResponse
+    graphql<{}, ChannelsQueryResponse>(gql(channelQueries.channels), {
       name: 'channelsQuery'
     }),
     graphql<{}, UnitsQueryResponse>(gql(queries.units), {

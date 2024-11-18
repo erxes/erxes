@@ -23,7 +23,7 @@ type Props = {
 };
 
 export default class LogModal extends React.Component<Props> {
-  private extraDesc: any[] = [];
+  private extraDesc: ILogDesc[] = [];
 
   constructor(props: Props) {
     super(props);
@@ -33,7 +33,7 @@ export default class LogModal extends React.Component<Props> {
 
   /**
    * Builds an html list from given array
-   * @param {Object|string|number[]]} array List of values
+   * @param {Object|string|number[]} array List of values
    * @param {string} name Field name at database
    */
   buildListFromArray(array: any[] = [], name: string = ''): JSX.Element {
@@ -45,9 +45,9 @@ export default class LogModal extends React.Component<Props> {
 
         // Finding mapped name behind id field
         if (this.extraDesc) {
-          const found: ILogDesc = this.extraDesc.find(
+          const found: ILogDesc = (this.extraDesc.find(
             item => item[name] === value
-          );
+          )) || {};
 
           if (found) {
             value = found.name;
@@ -115,7 +115,7 @@ export default class LogModal extends React.Component<Props> {
       if (this.extraDesc) {
         const found: ILogDesc = this.extraDesc.find(
           fieldItem => fieldItem[name] === value
-        );
+        ) || {};
 
         if (found) {
           value = found.name;

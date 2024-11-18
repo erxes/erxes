@@ -32,13 +32,14 @@ import { Link } from "react-router-dom";
 import PropertyForm from "./PropertyForm";
 import EventForm from "./EventForm";
 import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
+import { IExportFilter } from "modules/settings/importExport/types";
 
 type Props = {
   contentType: string;
   fields: IField[];
   events: IEvent[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  filterContent?: (values: any) => void;
+  filterContent?: (values: IExportFilter) => void;
   edit?: (params: { _id: string; doc: ISegmentWithConditionDoc }) => void;
   segment?: ISegment;
   headSegments: ISegment[];

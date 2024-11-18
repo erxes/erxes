@@ -10,11 +10,12 @@ import {
 import Icon from "@erxes/ui/src/components/Icon";
 import React from "react";
 import { __ } from "@erxes/ui/src/utils/core";
+import { SetupItem, TaskType } from "../types";
 
 type Props = {
-  content: any;
-  tasks: any;
-  setShow: any;
+  content: SetupItem;
+  tasks: TaskType[];
+  setShow: (status: boolean) => void;
   completedSteps: string[];
 };
 
