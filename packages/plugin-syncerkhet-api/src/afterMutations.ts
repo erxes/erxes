@@ -85,7 +85,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           const orderInfos = [
             {
               orderId: deal._id,
-              returnKind: "note"
+              returnKind: returnConfig.returnType || "note"
             }
           ];
 
