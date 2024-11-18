@@ -62,7 +62,7 @@ const ListContainer: React.FC<Props> = (props: Props) => {
 
   const { data: countData } = useQuery(FORMS_TOTAL_COUNT_QUERY, {
     variables: {
-      kind: 'lead',
+      type: 'lead',
       tag: queryParams.tag,
       brandId: queryParams.brand,
       status: queryParams.status,
