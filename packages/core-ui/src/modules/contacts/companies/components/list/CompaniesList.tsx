@@ -250,7 +250,7 @@ const CompaniesList: React.FC<IProps> = props => {
       <ManageColumns
         {...props}
         location={location}
-        history={navigate}
+        navigate={navigate}
         contentType="core:company"
       />
     );
