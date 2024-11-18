@@ -527,7 +527,7 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
                 ],
                 as: "assignedUser"
             }
-        })
+        }, { $unwind: "$assignedUser" })
 
         if (measures?.includes('averageResponseTime') || measures?.includes('averageCloseTime')) {
             pipeline.push({
@@ -551,7 +551,7 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
                 ],
                 as: "resolvedUser"
             }
-        })
+        }, { $unwind: "$resolvedUser" })
 
         if (measures?.includes('averageResponseTime') || measures?.includes('averageCloseTime')) {
             pipeline.push({
@@ -575,7 +575,7 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
                 ],
                 as: "firstRespondedUser"
             }
-        })
+        }, { $unwind: "$firstRespondedUser" })
 
         if (measures?.includes('averageResponseTime') || measures?.includes('averageCloseTime')) {
             pipeline.push({
@@ -643,17 +643,17 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
     }
 
     if (dimensions.includes("assignedTo")) {
-        projectStage.$project['assignedTo'] = { $arrayElemAt: ["$assignedUser", 0] };
+        projectStage.$project['assignedTo'] = "$assignedUser";
         workHours.push({ $ifNull: ["$assignedUserDepartments.workhours", []] });
     }
 
     if (dimensions.includes("resolvedBy")) {
-        projectStage.$project['resolvedBy'] = { $arrayElemAt: ["$resolvedUser", 0] };
+        projectStage.$project['resolvedBy'] = "$resolvedUser";
         workHours.push({ $ifNull: ["$resolvedUserDepartments.workhours", []] });
     }
 
     if (dimensions.includes("firstRespondedBy")) {
-        projectStage.$project['firstRespondedBy'] = { $arrayElemAt: ["$firstRespondedUser", 0] };
+        projectStage.$project['firstRespondedBy'] = "$firstRespondedUser"
         workHours.push({ $ifNull: ["$firstRespondedUserDepartments.workhours", []] });
     }
 

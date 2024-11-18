@@ -18,6 +18,7 @@ import {
   initCustomField
 } from "./maskUtils";
 import { escapeRegExp } from "@erxes/api-utils/src/core";
+import { nanoid } from 'nanoid';
 
 export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
@@ -28,6 +29,7 @@ export interface IProductModel extends Model<IProductDocument> {
     productIds: string[],
     productFields: IProduct
   ): Promise<IProductDocument>;
+  duplicateProduct(_id: string): Promise<IProductDocument>;
 }
 
 export const loadProductClass = (models: IModels, subdomain: string) => {
@@ -56,6 +58,18 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       if (product) {
         throw new Error("Code must be unique");
       }
+    }
+
+    public static async generateCode() {
+      let code;
+      let foundForm = true;
+
+      do {
+        code = nanoid(6);
+        foundForm = Boolean(await models.Forms.findOne({ code }));
+      } while (foundForm);
+
+      return code;
     }
 
     static fixBarcodes(barcodes?, variants?) {
@@ -328,6 +342,24 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       });
 
       return product;
+    }
+
+    public static async duplicateProduct(productId: string) {
+      const product = await models.Products.findOne({ _id: productId }).lean();
+
+      if (!product) throw new Error('Product not found');
+
+      const { _id, code, ...productData } = product;
+
+      const newCode = await this.generateCode();
+
+      const newProduct = await models.Products.createProduct({
+        ...productData,
+        code: `${code}-${newCode}`,
+        name: `${product.name} duplicated`,
+      });
+
+      return newProduct;
     }
   }
 
