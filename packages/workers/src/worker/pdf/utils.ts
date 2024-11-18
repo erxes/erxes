@@ -380,6 +380,8 @@ export const uploadToCFImages = async (file: any, subdomain?: string) => {
 
   const data: any = await response.json();
 
+  console.debug("******** data ******* ",data);
+
   if (!data.success) {
     throw new Error('Error uploading file to Cloudflare Images');
   }
