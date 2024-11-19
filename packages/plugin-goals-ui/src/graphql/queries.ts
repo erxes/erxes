@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 const conformityQueryFields = `
   $mainType: String,
   $mainTypeId: String,
@@ -44,7 +44,7 @@ export const companyFields = `
   trackedData
   tagIds
   ${
-    isEnabled('tags')
+    isEnabled("tags")
       ? `
     getTags {
       _id
@@ -150,17 +150,59 @@ export const goalTypeDetail = `
   }
 `;
 
-const pipelineDetail = `
-  query pipelineDetail($_id: String!) {
-    pipelineDetail(_id: $_id) {
+const purchasesPipelineDetail = `
+  query purchasesPipelineDetail($_id: String!) {
+    purchasesPipelineDetail(_id: $_id) {
       _id
       name
+      bgColor
+      isWatched
+      hackScoringType
+      tagId
     }
   }
 `;
-const boardDetail = `
-  query boardDetail($_id: String!) {
-    boardDetail(_id: $_id) {
+const tasksPipelineDetail = `
+  query tasksPipelineDetail($_id: String!) {
+    tasksPipelineDetail(_id: $_id) {
+      _id
+      name
+      bgColor
+      isWatched
+      hackScoringType
+      tagId
+    }
+  }
+`;
+const salesPipelineDetail = `
+  query salesPipelineDetail($_id: String!) {
+    salesPipelineDetail(_id: $_id) {
+      _id
+      name
+      bgColor
+      isWatched
+      hackScoringType
+      tagId
+    }
+  }
+`;
+
+const ticketsPipelineDetail = `
+  query ticketsPipelineDetail($_id: String!) {
+    ticketsPipelineDetail(_id: $_id) {
+      _id
+      name
+      bgColor
+      isWatched
+      hackScoringType
+      tagId
+    }
+  }
+`;
+
+const purchasesBoardDetail = `
+  query purchasesBoardDetail($_id: String!) {
+    purchasesBoardDetail(_id: $_id) {
       _id
       name
       pipelines {
@@ -170,9 +212,70 @@ const boardDetail = `
     }
   }
 `;
-const stageDetail = `
-   query stageDetail($_id:String!){
-      stageDetail(_id: $_id) {
+const ticketsBoardDetail = `
+  query ticketsBoardDetail($_id: String!) {
+    ticketsBoardDetail(_id: $_id) {
+      _id
+      name
+      pipelines {
+        _id
+        name
+      }
+    }
+  }
+`;
+
+const salesBoardDetail = `
+  query salesBoardDetail($_id: String!) {
+    salesBoardDetail(_id: $_id) {
+      _id
+      name
+      pipelines {
+        _id
+        name
+      }
+    }
+  }
+`;
+const tasksBoardDetail = `
+  query tasksBoardDetail($_id: String!) {
+    tasksBoardDetail(_id: $_id) {
+      _id
+      name
+      pipelines {
+        _id
+        name
+      }
+    }
+  }
+`;
+const salesStageDetail = `
+   query salesStageDetail($_id:String!){
+      salesStageDetail(_id: $_id) {
+        _id
+        name
+      }
+   }
+`;
+const tasksStageDetail = `
+   query tasksStageDetail($_id:String!){
+      tasksStageDetail(_id: $_id) {
+        _id
+        name
+      }
+   }
+`;
+const ticketsStageDetail = `
+   query ticketsStageDetail($_id:String!){
+      ticketsStageDetail(_id: $_id) {
+        _id
+        name
+      }
+   }
+`;
+const purchasesStageDetail = `
+   query purchasesStageDetail($_id:String!){
+      purchasesStageDetail(_id: $_id) {
         _id
         name
       }
@@ -407,9 +510,18 @@ export default {
   goalTypesMain,
   goalTypeCounts,
   goalTypeDetail,
-  pipelineDetail,
-  boardDetail,
-  stageDetail,
+  salesPipelineDetail,
+  tasksPipelineDetail,
+  ticketsPipelineDetail,
+  purchasesPipelineDetail,
+  salesBoardDetail,
+  tasksBoardDetail,
+  ticketsBoardDetail,
+  purchasesBoardDetail,
+  salesStageDetail,
+  tasksStageDetail,
+  ticketsStageDetail,
+  purchasesStageDetail,
   branchesMain,
   unitsMain,
   departmentsMain,
