@@ -87,6 +87,7 @@ const EmailTemplate = (props: Props) => {
       key={_id}
       className={selectedTemplateId === _id ? "active" : ""}
       width={width}
+      isPreview={onlyPreview}
     >
       <TemplateBox>
         {renderActions()}
