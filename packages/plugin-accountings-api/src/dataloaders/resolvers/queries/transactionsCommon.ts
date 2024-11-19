@@ -179,8 +179,7 @@ const transactionCommon = {
 
     const pagintationArgs = { page, perPage };
     if (
-      ids &&
-      ids.length &&
+      ids?.length &&
       !excludeIds &&
       ids.length > (pagintationArgs.perPage || 20)
     ) {
