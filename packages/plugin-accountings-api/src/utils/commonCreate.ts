@@ -11,87 +11,9 @@ export const commonCreate = async (models: IModels, doc: ITransaction) => {
       mainTr = await models.Transactions.createTransaction({ ...doc });
       break;
     }
-    case 'cash': {
-      const detail = doc.details[0] || {}
-      const currencyTrClass = new CurrencyTr(models, doc);
-      await currencyTrClass.checkValidationCurrency();
-
-      const taxTrsClass = new TaxTrs(models, doc, detail?.side === 'dt' ? 'ct' : 'dt', true);
-      taxTrsClass.checkTaxValidation();
-
-      const transaction =
-        await models.Transactions.createTransaction({ ...doc });
-
-      mainTr = transaction;
-
-      const currencyTr = await currencyTrClass.doCurrencyTr(transaction);
-      if (currencyTr) {
-        otherTrs.push(currencyTr)
-      }
-
-      const taxTrs = await taxTrsClass.doTaxTrs(transaction)
-
-      if (taxTrs?.length) {
-        for (const taxTr of taxTrs) {
-          otherTrs.push(taxTr)
-        }
-      }
-      break;
-    }
-    case 'bank': {
-      const detail = doc.details[0] || {}
-      const currencyTrClass = new CurrencyTr(models, doc);
-      await currencyTrClass.checkValidationCurrency();
-
-      const taxTrsClass = new TaxTrs(models, doc, detail?.side === 'dt' ? 'ct' : 'dt', true);
-      taxTrsClass.checkTaxValidation();
-
-      const transaction =
-        await models.Transactions.createTransaction({ ...doc });
-
-      mainTr = transaction;
-
-      const currencyTr = await currencyTrClass.doCurrencyTr(transaction);
-      if (currencyTr) {
-        otherTrs.push(currencyTr)
-      }
-
-      const taxTrs = await taxTrsClass.doTaxTrs(transaction)
-
-      if (taxTrs?.length) {
-        for (const taxTr of taxTrs) {
-          otherTrs.push(taxTr)
-        }
-      }
-      break;
-    }
-    case 'receivable': {
-      const detail = doc.details[0] || {}
-      const currencyTrClass = new CurrencyTr(models, doc);
-      await currencyTrClass.checkValidationCurrency();
-
-      const taxTrsClass = new TaxTrs(models, doc, detail?.side === 'dt' ? 'ct' : 'dt', true);
-      taxTrsClass.checkTaxValidation();
-
-      const transaction =
-        await models.Transactions.createTransaction({ ...doc });
-
-      mainTr = transaction;
-
-      const currencyTr = await currencyTrClass.doCurrencyTr(transaction);
-      if (currencyTr) {
-        otherTrs.push(currencyTr)
-      }
-
-      const taxTrs = await taxTrsClass.doTaxTrs(transaction)
-
-      if (taxTrs?.length) {
-        for (const taxTr of taxTrs) {
-          otherTrs.push(taxTr)
-        }
-      }
-      break;
-    }
+    case 'cash':
+    case 'bank':
+    case 'receivable':
     case 'payable': {
       const detail = doc.details[0] || {}
       const currencyTrClass = new CurrencyTr(models, doc);

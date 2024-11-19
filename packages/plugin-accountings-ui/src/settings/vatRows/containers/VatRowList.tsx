@@ -86,8 +86,8 @@ const VatRowListContainer = (props: Props) => {
     vatRowsCount,
   };
 
-  const VatRowList = (props) => {
-    return <List {...updatedProps} {...props} />;
+  const VatRowList = (params) => {
+    return <List {...updatedProps} {...params} />;
   };
 
   return <Bulk content={VatRowList} />;

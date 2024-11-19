@@ -14,7 +14,6 @@ import {
 } from "@erxes/ui/src/types";
 import { __ } from "@erxes/ui/src/utils/core";
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
 import { IVatRow } from '../types';
 
 interface IProps {
@@ -36,7 +35,6 @@ type State = {
 };
 
 function VatRowForm(props: IProps): React.ReactNode {
-  const location = useLocation();
   const vatRow = props.vatRow || ({} as IVatRow);
 
   const {
@@ -86,14 +84,11 @@ function VatRowForm(props: IProps): React.ReactNode {
     const { renderButton, closeModal, vatRow } =
       props;
     const { values, isSubmitted } = formProps;
-    const object = vatRow || ({} as IVatRow);
 
     const {
       name,
       number,
       kind,
-      formula,
-      formulaText,
       tabCount,
       isBold,
       status,

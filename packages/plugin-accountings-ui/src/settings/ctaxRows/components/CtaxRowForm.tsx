@@ -14,7 +14,6 @@ import {
 } from "@erxes/ui/src/types";
 import { __ } from "@erxes/ui/src/utils/core";
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
 import { ICtaxRow } from '../types';
 
 interface IProps {
@@ -34,7 +33,6 @@ type State = {
 };
 
 function VatRowForm(props: IProps): React.ReactNode {
-  const location = useLocation();
   const ctaxRow = props.ctaxRow || ({} as ICtaxRow);
 
   const {
@@ -79,7 +77,6 @@ function VatRowForm(props: IProps): React.ReactNode {
     const { renderButton, closeModal, ctaxRow } =
       props;
     const { values, isSubmitted } = formProps;
-    const object = ctaxRow || ({} as ICtaxRow);
 
     const {
       name,

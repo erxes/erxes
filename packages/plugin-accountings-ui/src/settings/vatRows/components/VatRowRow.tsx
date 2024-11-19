@@ -8,7 +8,6 @@ import {
   __,
 } from "@erxes/ui/src";
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import VatRowFormContainer from "../containers/VatRowForm";
 import { IVatRow } from "../types";
 
@@ -20,7 +19,6 @@ type Props = {
 
 const Row: React.FC<Props> = (props) => {
   const { vatRow, toggleBulk, isChecked } = props;
-  const navigate = useNavigate();
 
   const trigger = (
     <Button btnStyle="link">

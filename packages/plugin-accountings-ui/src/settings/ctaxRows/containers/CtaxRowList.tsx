@@ -87,8 +87,8 @@ const CtaxRowListContainer = (props: Props) => {
     ctaxRowsCount,
   };
 
-  const CtaxRowList = (props) => {
-    return <List {...updatedProps} {...props} />;
+  const CtaxRowList = (params) => {
+    return <List {...updatedProps} {...params} />;
   };
 
   return <Bulk content={CtaxRowList} />;
