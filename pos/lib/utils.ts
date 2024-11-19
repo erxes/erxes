@@ -279,9 +279,9 @@ export const getCustomerLabel = ({
   _id,
 }: Customer) => {
   if (firstName || lastName || primaryEmail || primaryPhone || code) {
-    return `${firstName || ""} ${lastName || ""} ${primaryPhone || ""} ${
-      primaryEmail || ""
-    } ${code || ""}`
+    return `${firstName ?? ""} ${lastName ?? ""} ${primaryPhone ?? ""} ${
+      primaryEmail ?? ""
+    } ${code ?? ""}`
   }
 
   return _id || "Unknown"

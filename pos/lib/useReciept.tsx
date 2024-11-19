@@ -12,11 +12,10 @@ const useReciept = (options?: { onCompleted?: () => void }) => {
   const handleIframeMessage = (event: MessageEvent) => {
     if (
       event.source === iframeRef.current?.contentWindow &&
-      event.data?.message === "close"
+      event.data?.message === "close" &&
+      onCompletedRef.current
     ) {
-      if (onCompletedRef.current) {
-        onCompletedRef.current()
-      }
+      onCompletedRef.current()
     }
   }
 
