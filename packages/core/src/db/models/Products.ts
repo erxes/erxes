@@ -62,12 +62,12 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 
     public static async generateCode() {
       let code;
-      let foundForm = true;
+      let foundProduct = true;
 
       do {
         code = nanoid(6);
-        foundForm = Boolean(await models.Forms.findOne({ code }));
-      } while (foundForm);
+        foundProduct = Boolean(await models.Products.findOne({ code }));
+      } while (foundProduct);
 
       return code;
     }
