@@ -8,7 +8,6 @@ import {
   __,
 } from "@erxes/ui/src";
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import CtaxRowFormContainer from "../containers/CtaxRowForm";
 import { ICtaxRow } from "../types";
 
@@ -20,7 +19,6 @@ type Props = {
 
 const Row: React.FC<Props> = (props) => {
   const { ctaxRow, toggleBulk, isChecked } = props;
-  const navigate = useNavigate();
 
   const trigger = (
     <Button btnStyle="link">
