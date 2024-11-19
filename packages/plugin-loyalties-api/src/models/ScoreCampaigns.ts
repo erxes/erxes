@@ -2,11 +2,13 @@ import { IUser, IUserDocument } from "@erxes/api-utils/src/types";
 import {
   IScoreCampaign,
   IScoreCampaignDocuments,
+  SCORE_CAMPAIGN_STATUSES,
   scoreCampaignSchema
 } from "./definitions/scoreCampaigns";
 import { putCreateLog, putDeleteLog, putUpdateLog } from "../logUtils";
 import { IModels } from "../connectionResolver";
 import { Model } from "mongoose";
+import { sendCoreMessage } from "../messageBroker";
 
 export interface IScoreCampaignModel extends Model<IScoreCampaignDocuments> {
   getScoreCampaign(_id: string): Promise<IScoreCampaignDocuments>;
@@ -45,6 +47,29 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       doc: IScoreCampaign,
       user: IUserDocument
     ) {
+      if (doc.fieldGroupId) {
+        if (!doc?.fieldName) {
+          throw new Error("Please provide a field name that for score field");
+        }
+
+        const field = await sendCoreMessage({
+          subdomain,
+          action: "fields.create",
+          data: {
+            text: doc.fieldName,
+            groupId: doc.fieldGroupId,
+            type: "input",
+            validation: "number",
+            contentType: `core:${doc.ownerType}`,
+            isDefinedByErxes: true
+          },
+          defaultValue: null,
+          isRPC: true
+        });
+
+        doc.fieldId = field._id;
+      }
+
       const result = await models.ScoreCampaigns.create({
         ...doc,
         createdUserId: user._id
@@ -54,7 +79,8 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         subdomain,
         {
           type: "scoreCampaign",
-          newData: doc
+          newData: doc,
+          object: doc
         },
         user
       );
@@ -69,6 +95,33 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
     ) {
       const scoreCampaign = await this.getScoreCampaign(_id);
 
+      if (scoreCampaign.ownerType !== doc.ownerType) {
+        throw new Error(
+          "You cannot modify the ownership type of the score field."
+        );
+      }
+
+      const modifiedFieldData: any = {};
+
+      if (doc.fieldGroupId !== scoreCampaign.fieldGroupId) {
+        modifiedFieldData.groupId = scoreCampaign.fieldGroupId;
+      }
+
+      if (doc.fieldName !== scoreCampaign.fieldName) {
+        modifiedFieldData.text = scoreCampaign.fieldName;
+      }
+
+      if (Object.keys(modifiedFieldData).length > 0) {
+        await sendCoreMessage({
+          subdomain,
+          action: "fields.updateOne",
+          data: {
+            selector: { _id: scoreCampaign.fieldId },
+            modifier: { $set: modifiedFieldData }
+          },
+          isRPC: true
+        });
+      }
       await putUpdateLog(
         models,
         subdomain,
@@ -98,14 +151,17 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         },
         user
       );
-      return await models.ScoreCampaigns.deleteOne({ _id });
+      return await models.ScoreCampaigns.updateOne(
+        { _id },
+        { $set: { status: SCORE_CAMPAIGN_STATUSES.ARCHIVED } }
+      );
     }
 
-    public static async removeScoreCampaigns(
-      _ids: string,
-      user: IUserDocument
-    ) {
-      return await models.ScoreCampaigns.deleteMany({ _id: { $in: _ids } });
+    public static async removeScoreCampaigns(_ids: string) {
+      return await models.ScoreCampaigns.updateMany(
+        { _id: { $in: _ids } },
+        { $set: { status: SCORE_CAMPAIGN_STATUSES.ARCHIVED } }
+      );
     }
   }
 

@@ -6,21 +6,24 @@ module.exports = {
   exposes: {
     "./routes": "./src/routes.tsx",
     "./invoiceDetailRightSection": "./src/orders/containers/InvoiceDetail.tsx",
-    "./customerSidebar": "./src/orders/containers/CustomerSidebar.tsx",
+    "./customerSidebar": "./src/orders/containers/CustomerSidebar.tsx"
   },
   routes: {
     url: "http://localhost:3016/remoteEntry.js",
     scope: "pos",
-    module: "./routes",
+    module: "./routes"
   },
   invoiceDetailRightSection: "./invoiceDetailRightSection",
+  loyaltyScoreCampaignAttributes: [
+    { label: "Pos Order Total Amount", value: "totalAmount" }
+  ],
   menus: [
     {
       text: "Pos Orders",
       url: "/pos-orders",
       icon: "icon-lamp",
       location: "mainNavigation",
-      permission: "showPos",
+      permission: "showPos"
     },
     {
       text: "POS",
@@ -29,8 +32,8 @@ module.exports = {
       location: "settings",
       scope: "pos",
       action: "posConfig",
-      permissions: ["showPos"],
-    },
+      permissions: ["showPos"]
+    }
   ],
-  customerRightSidebarSection: "./customerSidebar",
+  customerRightSidebarSection: "./customerSidebar"
 };

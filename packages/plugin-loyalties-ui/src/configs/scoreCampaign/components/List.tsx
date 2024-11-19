@@ -32,11 +32,12 @@ type Props = {
   emptyBulk: () => void;
   toggleBulk: (target: any, toAdd: boolean) => void;
   toggleAll: (targets: any[], containerId: string) => void;
-  scoreCampaigns: IScoreCampaign[];
+  campaigns: IScoreCampaign[];
   queryParams: any;
   totalCount: number;
   refetch: () => void;
   onRemove: () => void;
+  onChangeStatus: (_id: string, status: "published" | "draft") => void;
 };
 
 export default function List({
@@ -45,10 +46,11 @@ export default function List({
   isAllSelected,
   toggleAll,
   toggleBulk,
-  scoreCampaigns,
+  campaigns,
   totalCount,
   onRemove,
-  refetch
+  refetch,
+  onChangeStatus
 }: Props) {
   let timer;
 
@@ -126,8 +128,8 @@ export default function List({
 
   const onChange = () => {
     toggleAll(
-      scoreCampaigns.map(({ _id }) => _id),
-      "scoreCampaigns"
+      campaigns.map(({ _id }) => _id),
+      "campaigns"
     );
   };
 
@@ -149,12 +151,13 @@ export default function List({
         </tr>
       </thead>
       <tbody>
-        {scoreCampaigns.map((campaign) => (
+        {campaigns.map((campaign) => (
           <Row
             toggleBulk={toggleBulk}
-            isChecked={bulk.includes(campaign)}
+            isChecked={bulk.includes(campaign._id)}
             campaign={campaign}
             refetch={refetch}
+            onChangeStatus={onChangeStatus}
           />
         ))}
       </tbody>

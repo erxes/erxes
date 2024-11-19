@@ -22,6 +22,9 @@ const fields = `
     createdUserId
     status
     ownerType
+    fieldGroupId
+    fieldName
+    fieldId
 `;
 
 const scoreCampaigns = `

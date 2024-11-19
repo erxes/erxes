@@ -8,6 +8,8 @@ const scoreCampaignMutations = {
     doc: IScoreCampaign,
     { models, user }: IContext
   ) {
+    console.log({ doc });
+
     return await models.ScoreCampaigns.createScoreCampaign(doc, user);
   },
   async scoreCampaignUpdate(

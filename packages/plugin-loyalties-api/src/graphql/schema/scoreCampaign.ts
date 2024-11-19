@@ -9,6 +9,9 @@ export const types = `
         createdUserId:String,
         status:String,
         ownerType:String,
+        fieldGroupId:String,
+        fieldName:String,
+        fieldId:String,
     }
 `;
 
@@ -21,6 +24,8 @@ const COMMON_MUTATION_FIELDS = `
     createdUserId:String,
     ownerType:String,
     status:String,
+    fieldGroupId:String
+    fieldName: String
 `;
 const COMMON_QUERIES_FIELDS = `
     page: Int,

@@ -21,7 +21,10 @@ export default function List(props) {
     }
   );
 
+  const { scoreCampaigns = [], scoreCampaignsTotalCount = 0 } = data || {};
+
   const [removeScoreCampaign] = useMutation(gql(mutations.removeCampaigns));
+  const [changeScoreCampaignStatus] = useMutation(gql(mutations.update));
 
   const list = (bulkProps: IBulkContentProps) => {
     const onRemove = () => {
@@ -31,20 +34,34 @@ export default function List(props) {
         })
           .then(() => {
             Alert.success("Campaign successfully removed");
+            refetch();
+            bulkProps.emptyBulk();
           })
           .catch((error) => {
             Alert.error(error.message);
           });
       });
     };
+
+    const onChangeStatus = (_id: string, status: string) => {
+      const campaign = scoreCampaigns.find((campaign) => campaign._id === _id);
+      changeScoreCampaignStatus({
+        variables: { ...campaign, status }
+      }).then(() => {
+        Alert.success("Successfully changed the status of the campaign");
+        refetch();
+      });
+    };
+
     const updatedProps = {
       ...props,
       ...bulkProps,
       refetch,
       loading,
-      campaigns: data?.scoreCampaigns || [],
-      totalCount: data?.scoreCampaignsTotalCount || 0,
-      onRemove
+      campaigns: scoreCampaigns,
+      totalCount: scoreCampaignsTotalCount,
+      onRemove,
+      onChangeStatus
     };
 
     return <Component {...updatedProps} />;

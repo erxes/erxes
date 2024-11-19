@@ -5,7 +5,12 @@ import type {
   MessageArgsOmitService
 } from "@erxes/api-utils/src/core";
 
-import { checkVouchersSale, confirmVoucherSale } from "./utils";
+import {
+  checkVouchersSale,
+  confirmVoucherSale,
+  generateAttributes,
+  handleScore
+} from "./utils";
 import {
   consumeQueue,
   consumeRPCQueue
@@ -69,6 +74,15 @@ export const setupMessageConsumers = async () => {
       };
     }
   );
+  consumeQueue("loyalties:updateScore", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    await handleScore(models, data);
+
+    return {
+      data: null,
+      status: "success"
+    };
+  });
 };
 
 export const sendCoreMessage = async (

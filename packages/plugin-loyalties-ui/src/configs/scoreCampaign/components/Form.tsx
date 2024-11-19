@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from "react";
+import React, { useReducer, useRef, useState } from "react";
 
 import {
   Button,
@@ -14,9 +14,18 @@ import {
 } from "@erxes/ui/src/components";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import { __ } from "@erxes/ui/src/utils";
-import { OwnerBox, PaddingTop } from "../../../styles";
+import { __, Alert } from "@erxes/ui/src/utils";
+import {
+  Attributes,
+  AttributeTrigger,
+  OwnerBox,
+  PaddingTop,
+  Row
+} from "../../../styles";
 import { FlexRow } from "@erxes/ui-settings/src/styles";
+import Popover from "@erxes/ui/src/components/Popover";
+import mutations from "../graphql/mutations";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   closeModal: () => void;
@@ -26,8 +35,9 @@ type Props = {
 
 type FormProps = {
   formProps: IFormProps;
-  onChange: (e: React.FormEvent<HTMLElement>) => void;
+  onChange: (name: string, value: string) => void;
   state: any;
+  ref: any;
 };
 
 const OWNER_TYPES = [
@@ -58,58 +68,93 @@ function reducer(state, action) {
   };
 }
 
-const AddForm = ({ formProps, state, onChange }: FormProps) => {
+const Attributions = ({ ref, onChange }) => {
+  const attributes = ((window as any).plugins || [])
+    .map(
+      ({ loyaltyScoreCampaignAttributes = [] }) =>
+        loyaltyScoreCampaignAttributes
+    )
+    .flat();
+
+  if (!attributes?.length) {
+    return null;
+  }
+
+  const onClick = (value, close) => {
+    onChange(value);
+    close();
+  };
+
   return (
-    <>
-      <FormGroup>
-        <ControlLabel>{"Percent of Total amount"}</ControlLabel>
-        <FormControl
-          {...formProps}
-          name="percentageAdd"
-          required
-          placeholder="Type a percentage of the total amount to add score"
-          defaultValue={state.percentageAdd}
-          onChange={onChange}
-        />
-      </FormGroup>
-      <FormGroup>
-        <ControlLabel>{"Ratio currency"}</ControlLabel>
-        <FormControl
-          {...formProps}
-          name="currencyRatioAdd"
-          required
-          placeholder="Type a percentage of the total amount to add score"
-          defaultValue={state.currencyRatioAdd}
-          onChange={onChange}
-        />
-      </FormGroup>
-    </>
+    <Popover
+      innerRef={ref}
+      trigger={
+        <AttributeTrigger>
+          {__("Attribution")} <Icon icon="angle-down" />
+        </AttributeTrigger>
+      }
+      placement="top"
+      closeAfterSelect={true}
+    >
+      {(close) => (
+        <Attributes>
+          <>
+            <li>
+              <b>{__("Attributions")}</b>
+            </li>
+            {attributes.map((attribute) => {
+              const { label = "", value } = attribute || {};
+
+              if (!value) {
+                return null;
+              }
+              return <li onClick={() => onClick(value, close)}>{__(label)}</li>;
+            })}
+          </>
+        </Attributes>
+      )}
+    </Popover>
   );
 };
 
-const SubtractForm = ({ formProps, state, onChange }: FormProps) => {
+const ActionForm = ({ formProps, state, onChange, ref }: FormProps) => {
+  const handleChange = (e: React.FormEvent<HTMLElement>) => {
+    const { name, value } = e.currentTarget as HTMLInputElement;
+
+    onChange(name, value);
+  };
+
+  const onSelectAttribute = (value) => {
+    onChange("placeholder", `${state?.placeholder || ""}{{ ${value} }}`);
+  };
+
   return (
     <>
       <FormGroup>
-        <ControlLabel>{"Percent of Total amount"}</ControlLabel>
+        <Row $justifyContent="space-between">
+          <ControlLabel>{"Score"}</ControlLabel>
+          <Attributions ref={ref} onChange={onSelectAttribute} />
+        </Row>
         <FormControl
           {...formProps}
-          name="percentageSubtract"
+          name="placeholder"
           required
-          type="Type a percentage of the total amount to subtract score"
-          defaultValue={state.percentageSubtract}
-          onChange={onChange}
+          placeholder="Type a placeholder for subtract score"
+          value={state?.placeholder || ""}
+          onChange={handleChange}
         />
       </FormGroup>
+
       <FormGroup>
-        <ControlLabel>{"Ratio currency"}</ControlLabel>
+        <ControlLabel>{"Currency ratio"}</ControlLabel>
         <FormControl
           {...formProps}
-          name="currencyRatioSubtract"
+          name="currencyRatio"
           required
-          placeholder="Type a percentage of the total amount to add score"
-          defaultValue={state.currencyRatioSubtract}
-          onChange={onChange}
+          type="number"
+          placeholder="Type a currency ratio"
+          value={state?.currencyRatio || ""}
+          onChange={handleChange}
         />
       </FormGroup>
     </>
@@ -157,18 +202,14 @@ const SelectFieldGroup = ({ contentType, dispatch, state }) => {
   );
 };
 
-const contents = {
-  add: AddForm,
-  subtract: SubtractForm
-};
-
 export default function Form({ campaign, closeModal, refetch }: Props) {
   const [currentTab, setCurrentTab] = useState("add");
   const [isFieldEditing, setFieldEdit] = useState(false);
-  const [state, dispatch] = useReducer(reducer, { title: "" });
+  const [state, dispatch] = useReducer(reducer, { ...campaign });
+  const ref = useRef<any>(null);
 
   const generateDoc = (values) => {
-    return values;
+    return { ...values, ...state };
   };
 
   const renderButton = ({
@@ -193,7 +234,7 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
 
     return (
       <ButtonMutate
-        mutation={``}
+        mutation={object ? mutations.update : mutations.add}
         variables={values}
         callback={callback}
         isSubmitted={isSubmitted}
@@ -216,17 +257,18 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
     };
 
     const renderContent = () => {
-      const Component = contents[currentTab];
-
-      const onChange = (e) => {
-        const { value, name } = e.currentTarget as HTMLInputElement;
-
+      const onChange = (name: string, value: string) => {
         dispatch({ [currentTab]: { ...state[currentTab], [name]: value } });
       };
 
       return (
         <PaddingTop>
-          <Component formProps={formProps} state={state} onChange={onChange} />
+          <ActionForm
+            formProps={formProps}
+            state={state[currentTab] || {}}
+            onChange={onChange}
+            ref={ref}
+          />
         </PaddingTop>
       );
     };
@@ -251,7 +293,7 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
             name="description"
             required
             componentclass="textarea"
-            defaultValue={state.title}
+            defaultValue={state.description}
             onChange={onChangeInput}
           />
         </FormGroup>
@@ -312,7 +354,7 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
                   {campaign?.fieldId && (
                     <Button
                       icon="pencil"
-                      btnStyle="simple"
+                      btnStyle={isFieldEditing ? "simple" : "white"}
                       onClick={() => setFieldEdit(!isFieldEditing)}
                     />
                   )}
@@ -329,7 +371,7 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
             icon="times-circle"
             uppercase={false}
           >
-            Close
+            {__("Close")}
           </Button>
 
           {renderButton({

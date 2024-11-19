@@ -84,11 +84,12 @@ export const Card = styled.div`
   text-align: center;
 `;
 
-export const Row = styled.div`
+export const Row = styledTS<{ $justifyContent?: string }>(styled.div)`
   width: 100%;
   display: flex;
   flex-direction: row;
   padding-top: ${dimensions.coreSpacing}px;
+  ${({ $justifyContent }) => ($justifyContent ? `justify-content: ${$justifyContent};` : "")}
 
   @media (max-width: 1170px) {
     flex-direction: column;
@@ -187,4 +188,41 @@ export const OwnerBox = styledTS<{ $isSelected?: boolean }>(styled.div)`
 
   }
 
+`;
+
+export const AttributeTrigger = styled.span`
+  color: ${colors.colorSecondary};
+  font-weight: 500;
+`;
+
+export const Attributes = styled.ul`
+  list-style: none;
+  margin: 0;
+  right: 20px;
+  max-height: 200px;
+  min-width: 200px;
+  overflow: auto;
+  padding: ${dimensions.unitSpacing}px;
+  border-radius: ${dimensions.unitSpacing - 5}px;
+
+  > div {
+    padding: 0;
+  }
+
+  b {
+    margin-bottom: ${dimensions.unitSpacing + 10}px;
+    color: black;
+  }
+
+  li {
+    color: ${colors.colorCoreGray};
+    padding-bottom: ${dimensions.unitSpacing - 5}px;
+    cursor: pointer;
+    font-weight: 400;
+    transition: all ease 0.3s;
+
+    &:hover {
+      color: ${colors.textPrimary};
+    }
+  }
 `;

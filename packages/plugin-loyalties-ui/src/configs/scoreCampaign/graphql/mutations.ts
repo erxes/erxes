@@ -7,6 +7,8 @@ const mutationParams = `
     $createdUserId: String,
     $status: String
     $ownerType: String
+    $fieldGroupId:String
+    $fieldName: String
 `;
 const mutationParamsDef = `
     title: $title,
@@ -17,6 +19,8 @@ const mutationParamsDef = `
     createdUserId: $createdUserId,
     status: $status
     ownerType: $ownerType
+    fieldGroupId: $fieldGroupId
+    fieldName: $fieldName
 `;
 
 const add = `

@@ -21,6 +21,9 @@ export interface IScoreCampaign {
   createdAt: Date;
   createdUserId: string;
   ownerType: string;
+  fieldGroupId: string;
+  fieldName: string;
+  fieldId: string;
   status: string;
 }
 
@@ -53,6 +56,9 @@ export const scoreCampaignSchema = new Schema({
   createdAt: field({ type: Date, label: "Created At", default: new Date() }),
   createdUserId: field({ type: String, label: "Created User Id" }),
   ownerType: field({ type: String, label: "Owner Type" }),
+  fieldGroupId: field({ type: String, label: "Field Group" }),
+  fieldName: field({ type: String, label: "Field Name" }),
+  fieldId: field({ type: String, label: "Field Id" }),
   status: field({
     type: String,
     enum: Object.values(SCORE_CAMPAIGN_STATUSES),

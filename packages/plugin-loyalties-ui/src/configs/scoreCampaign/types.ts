@@ -13,5 +13,5 @@ export type IScoreCampaign = {
   createdAt: Date;
   createdUserId: string;
   ownerType: string;
-  status: string;
+  status: "published" | "draft" | "archived";
 };

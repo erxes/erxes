@@ -92,8 +92,6 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const score = Number(changeScore);
       const ownerFilter = { _id: { $in: ownerIds } };
 
-      console.log({ ownerType, ownerIds, changeScore });
-
       const owners = await sendCommonMessage({
         subdomain,
         serviceName,
@@ -104,7 +102,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
             : { ...ownerFilter },
         isRPC: true,
         defaultValue: []
-      }).catch(error => debugError(error.message));
+      }).catch((error) => debugError(error.message));
 
       if (!owners?.length) {
         throw new Error("Not found owners");
@@ -117,7 +115,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           action: `${contentType}.updateMany`,
           data: {
             selector: {
-              _id: { $in: owners.map(owner => owner._id) }
+              _id: { $in: owners.map((owner) => owner._id) }
             },
             modifier: {
               $inc: { score }
@@ -137,7 +135,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         createdBy
       };
 
-      const newDatas = owners.map(owner => ({
+      const newDatas = owners.map((owner) => ({
         ownerId: owner._id,
         ...commonDoc
       }));

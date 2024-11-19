@@ -45,15 +45,15 @@ export default {
   }
 };
 
-const generateAttributes = value => {
+const generateAttributes = (value) => {
   const matches = (value || "").match(/\{\{\s*([^}]+)\s*\}\}/g);
-  return matches.map(match => match.replace(/\{\{\s*|\s*\}\}/g, ""));
+  return matches.map((match) => match.replace(/\{\{\s*|\s*\}\}/g, ""));
 };
 
-const generateIds = async value => {
+const generateIds = async (value) => {
   if (
     Array.isArray(value) &&
-    (value || []).every(value => typeof value === "string")
+    (value || []).every((value) => typeof value === "string")
   ) {
     return [...new Set(value)];
   }
@@ -214,30 +214,98 @@ const createVoucher = async ({
   });
 };
 
+const replaceContent = async ({ serviceName, subdomain, data }) => {
+  const replacedContent = await sendCommonMessage({
+    serviceName,
+    subdomain,
+    action: "automations.replacePlaceHolders",
+    data,
+    isRPC: true,
+    defaultValue: {}
+  });
+
+  return replacedContent?.scoreString || 0;
+};
+
+const evalPlaceHolder = (placeholder) => {
+  if (placeholder.match(/[+\-*/]/)) {
+    try {
+      return eval(placeholder);
+    } catch (error) {
+      throw new Error(`Error occurred while calculating score ${placeholder}`);
+    }
+  }
+  return 0;
+};
+
 const generateScore = async ({
+  models,
   serviceName,
   subdomain,
   target,
-  scoreString
+  config
+}: {
+  models: IModels;
+  subdomain: string;
+  serviceName: string;
+  target: any;
+  config: any;
 }) => {
-  const data = {
-    target,
-    config: {
-      scoreString
-    }
+  let { campaignId, action, scoreString } = (config || {}) as {
+    scoreString: string;
+    campaignId: string;
+    action: "add" | "subtract";
   };
+  if (!scoreString && !campaignId) {
+    throw new Error("Please provide score config");
+  }
 
-  if (scoreString.match(/\{\{\s*([^}]+)\s*\}\}/g)) {
-    const replacedContent = await sendCommonMessage({
-      serviceName,
-      subdomain,
-      action: "automations.replacePlaceHolders",
-      data,
-      isRPC: true,
-      defaultValue: {}
+  if (campaignId) {
+    if (!["add", "subtract"].includes(action)) {
+      throw new Error("Please select action that add or subtract");
+    }
+
+    const scoreCampaign = await models.ScoreCampaigns.findOne({
+      _id: campaignId
     });
 
-    scoreString = replacedContent?.scoreString || 0;
+    if (!scoreCampaign) {
+      throw new Error("Not found score campaign");
+    }
+
+    const actionConfig = scoreCampaign[action];
+
+    console.log({ actionConfig });
+
+    const placeholder = await replaceContent({
+      serviceName,
+      subdomain,
+      data: {
+        target,
+        config: {
+          scoreString: actionConfig.placeholder
+        }
+      }
+    });
+    console.log({ placeholder });
+
+    const score = evalPlaceHolder(placeholder);
+    console.log({ score });
+
+    return Number(score) / Number(actionConfig.currencyRatio);
+  }
+
+  if (scoreString.match(/\{\{\s*([^}]+)\s*\}\}/g)) {
+    scoreString = await replaceContent({
+      serviceName,
+      subdomain,
+      data: {
+        target,
+        config: {
+          scoreString
+        }
+      }
+    });
   }
 
   if (scoreString.match(/[+\-*/]/)) {
@@ -267,9 +335,10 @@ const addScore = async ({
 }) => {
   const score = await generateScore({
     serviceName,
+    models,
     subdomain,
     target: execution.target,
-    scoreString: config.scoreString
+    config
   });
 
   if (!!config?.ownerType && !!config?.ownerIds?.length) {
@@ -300,7 +369,7 @@ const addScore = async ({
         description: "from automation"
       });
       attributes = attributes.filter(
-        attribute => attribute !== "triggerExecutor"
+        (attribute) => attribute !== "triggerExecutor"
       );
     }
 
@@ -356,7 +425,7 @@ const addScore = async ({
     const replacedContentKeys = Object.keys(replacedContent);
 
     const teamMemberKeys = replacedContentKeys.filter(
-      key => !["customers", "companies"].includes(key)
+      (key) => !["customers", "companies"].includes(key)
     );
 
     let teamMemberIds: string[] = [];
