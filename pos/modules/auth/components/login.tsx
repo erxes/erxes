@@ -24,11 +24,9 @@ const FormSchema = z.object({
       required_error: "Please enter an email to login.",
     })
     .email(),
-  password: z
-    .string({
-      required_error: "Please enter a password to login",
-    })
-    .min(8),
+  password: z.string({
+    required_error: "Please enter a password to login",
+  }),
 })
 
 const Login = ({

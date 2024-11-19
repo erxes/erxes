@@ -55,6 +55,7 @@ const Configs = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (_id) {
       setConfig(currentConfig)
+      document.title = currentConfig.name
       setOrderType((allowTypes || [])[0])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
