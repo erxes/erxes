@@ -225,7 +225,7 @@ const convertPdfToImage = async (pdfFilePath: string, directory: string) => {
   try {
     // Convert PDF to images (Poppler automatically handles this)
     execSync(
-      `pdftoppm -jpeg -r 150 ${pdfFilePath} ${path.join(
+      `pdftoppm -jpeg -r 300 ${pdfFilePath} ${path.join(
         options.out_dir,
         options.out_prefix
       )}`
@@ -379,6 +379,8 @@ export const uploadToCFImages = async (file: any, subdomain?: string) => {
   });
 
   const data: any = await response.json();
+
+  console.debug("******** data ******* ",data);
 
   if (!data.success) {
     throw new Error('Error uploading file to Cloudflare Images');
