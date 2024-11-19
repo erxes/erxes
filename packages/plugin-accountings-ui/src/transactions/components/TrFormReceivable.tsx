@@ -32,7 +32,7 @@ type Props = {
 };
 
 const TrFormReceivable = (props: Props) => {
-  const { trDoc, setTrDoc, configsMap, followTrDocs } = props;
+  const { trDoc, setTrDoc, followTrDocs } = props;
   const detail = trDoc?.details && trDoc?.details[0] || {};
 
   const onChange = (key, value) => {
