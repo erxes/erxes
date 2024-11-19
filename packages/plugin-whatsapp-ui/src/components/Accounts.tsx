@@ -35,7 +35,8 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
   }
 
   componentDidMount = () => {
-    const { accounts } = this.props;
+    const accounts = this.props.accounts;
+
     if (accounts && accounts.length > 0) {
       this.onSelectAccount(accounts[0]._id);
     }

@@ -78,7 +78,6 @@ class Whatsapp extends React.Component<Props, State> {
     accountId: string;
   }) => {
     const { accountId, kind } = this.props;
-    console.log(this.props, 'asdoaskopask');
     return {
       name: values.messengerName,
       brandId: values.brandId,
@@ -146,7 +145,6 @@ class Whatsapp extends React.Component<Props, State> {
     const { renderButton } = this.props;
     const { values, isSubmitted } = formProps;
     const { onRemoveAccount, onAccountSelect } = this.props;
-    console.log(this.props, '********');
     return (
       <>
         <Steps active={1}>

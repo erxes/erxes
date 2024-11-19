@@ -2,11 +2,11 @@ import customScalars from '@erxes/api-utils/src/customScalars';
 
 import mutations from './mutations';
 import queries from './queries';
-import whatsAPPConversationMessage from './conversationMessage';
+import InstagramConversationMessage from './conversationMessage';
 
 const resolvers: any = async () => ({
   ...customScalars,
-  whatsAPPConversationMessage,
+  InstagramConversationMessage,
   Mutation: {
     ...mutations
   },

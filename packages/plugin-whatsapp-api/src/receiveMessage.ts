@@ -16,6 +16,7 @@ const receiveMessage = async (
 
   const waId = contacts.length > 0 ? contacts[0]?.wa_id : undefined;
   if (!waId) {
+    console.error('No whatsapp ID found in contacts');
     return;
   }
 

@@ -6,7 +6,7 @@ import {
   removeIntegration,
   repairIntegrations
 } from './helpers';
-import { handleWhatsAppMessage } from './handleWhatsAppMessage';
+import { handleInstagramMessage } from './handleInstagramMessage';
 import { userIds } from './middlewares/userMiddleware';
 
 import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
@@ -64,7 +64,7 @@ export const setupMessageConsumers = async () => {
         }
 
         if (type === 'whatsapp') {
-          response.data = await handleWhatsAppMessage(models, data, subdomain);
+          response.data = await handleInstagramMessage(models, data, subdomain);
         }
 
         if (action === 'getConfigs') {
@@ -90,7 +90,7 @@ export const setupMessageConsumers = async () => {
         erxesApiId: integrationId
       });
       if (!integration) {
-        throw new Error('WhatsApp Integration not found ');
+        throw new Error('Instagram Integration not found ');
       }
       let result = {
         status: 'healthy'

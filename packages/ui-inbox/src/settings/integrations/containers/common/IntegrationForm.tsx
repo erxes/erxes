@@ -9,7 +9,7 @@ import Telegram from '../../components/telegram/Telegram';
 import TelnyxForm from '../../components/telnyx/TelnyxForm';
 import Viber from '../../components/viber/Viber';
 import WebHookForm from '../../components/webhook/Form';
-import Whatsapp from '../../components/whatsapp/Whatsapp';
+import whatsapp from '../../components/whatsapp/Whatsapp';
 import { getRefetchQueries } from '../utils';
 import { mutations } from '../../graphql';
 
@@ -29,10 +29,10 @@ const INTEGRATION_FORM = {
   chatfuel: Chatfuel,
   'smooch-viber': Viber,
   'smooch-telegram': Telegram,
-  whatsapp: Whatsapp,
+  whatsapp: whatsapp,
   telnyx: TelnyxForm,
   webhook: WebHookForm,
-  'outgoing-webhook': OutgoingWebHookFrom,
+  'outgoing-webhook': OutgoingWebHookFrom
 };
 
 class IntegrationFormContainer extends React.Component<FinalProps, State> {
@@ -50,7 +50,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
     name,
     values,
     isSubmitted,
-    callback,
+    callback
   }: IButtonMutateProps) => {
     const { type } = this.props;
 
@@ -61,7 +61,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
         callback={callback}
         isSubmitted={isSubmitted}
         refetchQueries={getRefetchQueries(type)}
-        type="submit"
+        type='submit'
         successMessage={`You successfully added a ${type} ${name}`}
       />
     );
@@ -75,7 +75,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
       callback: closeModal,
       renderButton: this.renderButton,
       channelIds,
-      onChannelChange: this.onChannelChange,
+      onChannelChange: this.onChannelChange
     };
 
     const Component = INTEGRATION_FORM[type];

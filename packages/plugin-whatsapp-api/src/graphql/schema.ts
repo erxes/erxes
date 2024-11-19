@@ -5,6 +5,18 @@ const commonCommentAndMessageFields = `
   conversationId: String
 `;
 
+const commonPostAndCommentFields = `
+  postId: String
+  recipientId: String
+  senderId: String
+  erxesApiId: String
+  attachments: [String]
+  timestamp: Date
+  permalink_url: String
+`;
+
+const commentQueryParamDefs = `conversationId: String!, isResolved: Boolean`;
+
 const pageParams = `skip: Int, limit: Int`;
 
 export const types = `
@@ -18,7 +30,7 @@ export const types = `
     _id: String! @external
   }
 
-  type WhatsappCustomer {
+  type InstagramCustomer {
     _id: String
     userId: String
     erxesApiId: String
@@ -28,9 +40,17 @@ export const types = `
     integrationId: String
   }
 
+  type InstagramComment {
+    ${commonCommentAndMessageFields}
+    commentId: String
+    ${commonPostAndCommentFields}
+    parentId: String
+    customer: InstagramCustomer
+    commentCount: Int
+    isResolved: Boolean
+  }
 
-
-  type WhatsAPPConversationMessage {
+  type InstagramConversationMessage {
     _id: String!
     ${commonCommentAndMessageFields}
     attachments: [Attachment]
@@ -48,6 +68,25 @@ export const types = `
     user: User
   }
 
+  type InstagramPostMessage {
+    _id: String!
+    ${commonCommentAndMessageFields}
+    attachments: [Attachment]
+    customerId: String
+    userId: String
+    createdAt: Date
+    commentId: String
+
+    customer: Customer
+    user: User
+  }
+
+
+  type InstagramPost @key(fields: "_id") {
+    _id: String!
+    ${commonPostAndCommentFields}
+    content:String
+  }
 
 `;
 
@@ -58,7 +97,7 @@ export const queries = `
   whatsappGetConfigs: JSON
   whatsappGetNumbers(accountId: String! kind: String!): JSON
   whatsappConversationDetail(_id: String!): JSON
-  whatsappConversationMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [WhatsAPPConversationMessage]
+  whatsappConversationMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [InstagramConversationMessage]
   whatsappConversationMessagesCount(conversationId: String!): Int
   whatsappHasTaggedMessages(conversationId: String!): Boolean
 `;

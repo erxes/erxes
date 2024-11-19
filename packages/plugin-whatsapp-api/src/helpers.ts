@@ -31,7 +31,7 @@ export const removeIntegration = async (
   if (kind.includes('whatsapp')) {
     debugWhatsapp('Removing entries');
 
-    const { whatsappNumberIds } = integration;
+    const whatsappNumberIds = integration.whatsappNumberIds;
 
     if (!whatsappNumberIds) {
       throw new Error('whatsappNumber ID not found');
@@ -153,8 +153,7 @@ export const repairIntegrations = async (
         method: 'POST',
         body: JSON.stringify({
           domain: `${DOMAIN}/gateway/pl:whatsapp`,
-          whatsappNumberIds: integration.whatsappNumberIds,
-          wabaIds: integration.whatsappNumberIds
+          whatsappNumberIds: integration.whatsappNumberIds
         }),
         headers: { 'Content-Type': 'application/json' }
       });
@@ -205,6 +204,8 @@ export const whatsappCreateIntegration = async (
 ): Promise<{ status: 'success' }> => {
   const whatsappNumberIds = JSON.parse(data).pageIds;
 
+  const account = await models.Accounts.getAccount({ _id: accountId });
+
   const integration = await models.Integrations.create({
     kind,
     accountId,
@@ -215,10 +216,10 @@ export const whatsappCreateIntegration = async (
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
-  let domain = `${DOMAIN}/gateway/pl:whatsapp`;
+  let domain = `${DOMAIN}/gateway/pl:facebook`;
 
   if (process.env.NODE_ENV !== 'production') {
-    domain = `${DOMAIN}/pl:whatsapp`;
+    domain = `${DOMAIN}/pl:facebook`;
   }
 
   if (ENDPOINT_URL) {

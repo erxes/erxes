@@ -26,7 +26,7 @@ export interface IConversationMessageDocument
 
 export const conversationMessageSchema = new Schema({
   _id: field({ pkey: true }),
-  mid: { type: String, label: 'WHATSAPP message id' },
+  mid: { type: String, label: 'INSTAGRAM message id' },
   content: { type: String },
   attachments: [attachmentSchema],
   conversationId: field({ type: String, index: true }),
