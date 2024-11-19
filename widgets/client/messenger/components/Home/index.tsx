@@ -52,7 +52,6 @@ const Home: React.FC<Props> = ({
 
   const { logo } = getUiOptions() || {};
 
-  const topicId = messengerData.knowledgeBaseTopicId;
   const messages =
     messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
 
