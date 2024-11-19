@@ -104,7 +104,7 @@ class LeadConnect extends React.PureComponent<Props, IState> {
     }
 
     return (
-      <Card p="0.5rem">
+      <Card p="0">
         <IntegrationItem>
           <LeadContent form={form} formCode={this.props.formCode} />
         </IntegrationItem>

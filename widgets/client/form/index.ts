@@ -59,7 +59,6 @@ widgetConnect({
 
     // save connection info
     connection.data = response;
-    connection.leadData = response.form.leadData || {};
 
     // set language
     setLocale(response.form.languageCode || "en");

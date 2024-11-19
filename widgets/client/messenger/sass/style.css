@@ -2490,10 +2490,14 @@ select.form-control:focus,
   margin: 0;
   overflow: hidden;
 }
+.erxes-form > h4 {
+  margin: 0;
+  padding: 1.25rem 1.125rem;
+}
 .erxes-form .erxes-form-content {
   list-style: none;
   margin: 0;
-  padding: 0 20px 20px;
+  padding: 0 1.25rem 1.125rem;
   position: relative;
 }
 .erxes-form .erxes-form-content .erxes-description {
