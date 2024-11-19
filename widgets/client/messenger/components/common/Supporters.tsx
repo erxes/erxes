@@ -1,8 +1,10 @@
-import * as classNames from "classnames";
 import * as React from "react";
-import { defaultAvatar } from "../../../icons/Icons";
+import * as classNames from "classnames";
+
 import { IUser, IUserDetails } from "../../../types";
 import { __, readFile } from "../../../utils";
+
+import { defaultAvatar } from "../../../icons/Icons";
 
 type Props = {
   users: IUser[];
@@ -23,23 +25,23 @@ class Supporters extends React.Component<Props> {
 
   renderSupporter(user: IUser, color: string) {
     const details = user.details || ({} as IUserDetails);
-
+    const { fullName = "", avatar = "", shortName = "" } = details || {};
     return (
       <div
         key={user._id}
         className="erxes-supporter erxes-tooltip"
-        data-tooltip={details.fullName}
+        data-tooltip={fullName}
       >
         <div className="avatar">
           <img
             key={user._id}
-            src={readFile(this.getAvatar(details.avatar))}
+            src={readFile(this.getAvatar(avatar))}
             style={{ borderColor: color }}
-            alt={details.fullName}
+            alt=""
           />
           {this.renderOnlineState(user.isOnline)}
         </div>
-        <span className="erxes-staff-name">{details.shortName}</span>
+        <span className="erxes-staff-name">{shortName}</span>
       </div>
     );
   }
@@ -53,17 +55,13 @@ class Supporters extends React.Component<Props> {
   }
 
   renderUsers() {
-    const {
-      users,
-      isExpanded = false,
-      color = "",
-    } = this.props;
+    const { users, isExpanded = false, color = "" } = this.props;
 
     const activeUsers = users.filter((user) => user.isActive);
 
-    const supporters = activeUsers.map((user) =>
-      this.renderSupporter(user, color)
-    );
+    const supporters = activeUsers
+      .slice(0, 4)
+      .map((user) => this.renderSupporter(user, color));
 
     const wrapperClass = classNames("erxes-supporters", {
       full: isExpanded,
@@ -77,8 +75,11 @@ class Supporters extends React.Component<Props> {
 
     if (loading) {
       return (
-        <div className="loader-wrapper">
-          <div className="loader" />
+        <div className="erxes-supporters">
+          <div className="erxes-supporter erxes-tooltip">
+            <div className="avatar"></div>
+            <span className="erxes-staff-name" />
+          </div>
         </div>
       );
     }

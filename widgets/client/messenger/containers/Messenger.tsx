@@ -1,62 +1,50 @@
-import gql from "graphql-tag";
-import * as React from "react";
-import { ChildProps, graphql } from "react-apollo";
-import DumbMessenger from "../components/Messenger";
-import { connection } from "../connection";
-import graphqTypes from "../graphql";
-import { IMessengerSupporters } from "../types";
-import { AppConsumer } from "./AppContext";
+import gql from 'graphql-tag';
+import * as React from 'react';
+import DumbMessenger from '../components/Messenger';
+import { connection } from '../connection';
+import graphqTypes from '../graphql';
+import { IMessengerSupporters } from '../types';
+import { useQuery } from '@apollo/react-hooks';
+import { useRouter } from '../context/Router';
 
 type QueryResponse = {
   widgetsMessengerSupporters: IMessengerSupporters;
 };
 
-class MessengerContainer extends React.Component<
-  ChildProps<{}, QueryResponse>,
-  {}
-> {
-  render() {
-    const { data } = this.props;
-    const info = data && data.widgetsMessengerSupporters;
-    let supporters: any = [];
-    let isOnline = false;
+const MessengerContainer = () => {
+  const { activeRoute } = useRouter();
 
-    if (info) {
-      if (info.supporters) {
-        supporters = info.supporters;
-      }
-      if (info.isOnline) {
-        isOnline = info.isOnline;
-      }
-    }
-
-    return (
-      <AppConsumer>
-        {({ activeRoute }) => {
-          return (
-            <DumbMessenger
-              activeRoute={activeRoute}
-              loading={false}
-              supporters={supporters}
-              isOnline={isOnline}
-            />
-          );
-        }}
-      </AppConsumer>
-    );
-  }
-}
-
-const MessengerWithData = graphql<{}, QueryResponse>(
-  gql(graphqTypes.messengerSupportersQuery),
-  {
-    options: () => ({
+  const { data, loading } = useQuery(
+    gql(graphqTypes.messengerSupportersQuery),
+    {
       variables: {
-        integrationId: connection.data.integrationId
+        integrationId: connection.data.integrationId,
       },
-      fetchPolicy: "network-only"
-    })
-  }
-)(MessengerContainer);
+      fetchPolicy: 'network-only',
+    }
+  );
 
-export default MessengerWithData;
+  const info = data && data.widgetsMessengerSupporters;
+  let supporters: any = [];
+  let isOnline = false;
+
+  if (info) {
+    if (info.supporters) {
+      supporters = info.supporters;
+    }
+    if (info.isOnline) {
+      isOnline = info.isOnline;
+    }
+  }
+
+  return (
+    <DumbMessenger
+      activeRoute={activeRoute}
+      loading={loading}
+      supporters={supporters}
+      isOnline={isOnline}
+    />
+  );
+};
+
+export default MessengerContainer;

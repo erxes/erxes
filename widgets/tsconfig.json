@@ -4,12 +4,7 @@
     "sourceMap": true,
     "moduleResolution": "node",
     "module": "esnext",
-      "lib": [
-      "es5",
-      "es6",
-      "dom",
-      "esnext.asynciterable"
-    ],
+    "lib": ["es5", "es6", "dom", "esnext.asynciterable"],
     "target": "es5",
     "jsx": "react",
     "allowJs": true,
