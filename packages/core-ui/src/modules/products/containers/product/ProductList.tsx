@@ -213,6 +213,7 @@ export default withProps<Props>(
       gql(mutations.productsDuplicate),
       {
         name: "productsDuplicate",
+        options,
       }
     )
   )(ProductListContainer)

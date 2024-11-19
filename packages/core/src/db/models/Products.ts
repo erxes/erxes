@@ -60,16 +60,24 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       }
     }
 
-    public static async generateCode() {
-      let code;
-      let foundProduct = true;
+    public static async generateCode(maxAttempts: number = 10) {
+      let attempts = 0;
 
-      do {
-        code = nanoid(6);
-        foundProduct = Boolean(await models.Products.findOne({ code }));
-      } while (foundProduct);
+      while (attempts < maxAttempts) {
+        const code = nanoid(6);
+        const foundProduct = await models.Products.findOne({
+          code,
+          status: { $ne: PRODUCT_STATUSES.DELETED }
+        });
 
-      return code;
+        if (!foundProduct) {
+          return code;
+        }
+
+        attempts++;
+      }
+
+      throw new Error('Unable to generate unique product code after multiple attempts');
     }
 
     static fixBarcodes(barcodes?, variants?) {
