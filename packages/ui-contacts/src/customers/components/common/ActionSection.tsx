@@ -94,7 +94,6 @@ class ActionSection extends React.Component<
         />
         <Tip text='Call' placement='top-end'>
           <Button
-            href={primaryPhone && `tel:${primaryPhone}`}
             size='small'
             btnStyle={primaryPhone ? 'primary' : 'simple'}
             disabled={primaryPhone ? false : true}

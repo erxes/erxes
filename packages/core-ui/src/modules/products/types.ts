@@ -119,6 +119,10 @@ export type MergeMutationResponse = {
   }) => Promise<any>;
 };
 
+export type ProductDuplicateMutationResponse = {
+  productsDuplicate: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
 // SETTINGS
 
 export type IConfigsMap = { [key: string]: any };
