@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 const conformityQueryFields = `
   $mainType: String,
   $mainTypeId: String,
@@ -44,7 +44,7 @@ export const companyFields = `
   trackedData
   tagIds
   ${
-    isEnabled('tags')
+    isEnabled("tags")
       ? `
     getTags {
       _id
