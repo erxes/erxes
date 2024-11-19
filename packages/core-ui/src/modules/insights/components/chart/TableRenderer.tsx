@@ -144,7 +144,7 @@ const TableList = (props: Props) => {
                         return <td>{formatNumbers(item[header], "commarize") || '-'}</td>;
                       }
 
-                      if (["totalDuration", "averageDuration"].includes(header)) {
+                      if (["totalDuration", "averageDuration", "averageResponseTime", "averageCloseTime"].includes(header)) {
                         return <td>{formatNumbers(item[header], "time", "x") || '-'}</td>;
                       }
 
@@ -168,7 +168,7 @@ const TableList = (props: Props) => {
                     return <td>{formatNumbers(item[header], "commarize") || '-'}</td>;
                   }
 
-                  if (["totalDuration", "averageDuration"].includes(header)) {
+                  if (["totalDuration", "averageDuration", "averageResponseTime", "averageCloseTime"].includes(header)) {
                     return <td>{formatNumbers(item[header], "time", "x") || '-'}</td>;
                   }
 

@@ -26,6 +26,7 @@ import { generateTree } from "../../utils";
 import { gql } from "@apollo/client";
 import { queries } from "@erxes/ui/src/team/graphql";
 import { useLocation, useNavigate } from "react-router-dom";
+import WorkhourForm from "../WorkhourForm";
 
 type Props = {
   listQuery: DepartmentsMainQueryResponse;
@@ -158,6 +159,24 @@ const MainList = (props: Props) => {
         <td>{department.userCount}</td>
         <td>
           <ActionButtons>
+            <ModalTrigger
+              title="Setup workhour of department"
+              trigger={
+                <Button btnStyle="link">
+                  <Tip text={__("Setup workhour")} placement="top">
+                    <Icon icon="clock" />
+                  </Tip>
+                </Button>
+              }
+              content={({ closeModal }) => (
+                <WorkhourForm
+                  item={department}
+                  type="department"
+                  closeModal={closeModal}
+                />
+              )}
+              size="lg"
+            />
             <ModalTrigger
               key={department._id}
               title="Edit Department"

@@ -66,12 +66,12 @@ export default class ListHeader extends React.Component<Props> {
               id="dropdown-filter-components"
             >
               <FilterGroup className="d-flex align-items-center">
-                <label>Filter by</label> &nbsp;
+                <label>{__("Filter by")}</label> &nbsp;
                 <CardTab>
                   <span
                     className={`d-flex align-items-center justify-content-center`}
                   >
-                    <Icon icon="filter" size={15} /> &nbsp; {mode}
+                    <Icon icon="filter" size={15} /> &nbsp; {__(mode)}
                   </span>
                 </CardTab>
               </FilterGroup>
@@ -87,7 +87,7 @@ export default class ListHeader extends React.Component<Props> {
                     setMode(viewMode.setMode);
                   }}
                 >
-                  {viewMode.showMode}
+                  {__(viewMode.showMode)}
                 </Dropdown.Item>
               ))}
             </Dropdown.Menu>
@@ -124,12 +124,12 @@ export default class ListHeader extends React.Component<Props> {
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-view-components">
             <FilterGroup className="d-flex align-items-center">
-              <label>View by</label> &nbsp;
+              <label>{__('View by')}</label> &nbsp;
               <CardTab>
                 <span
                   className={`d-flex align-items-center justify-content-center`}
                 >
-                  <Icon icon="layers-1" size={15} /> &nbsp; {viewType}
+                  <Icon icon="layers-1" size={15} /> &nbsp; {__(viewType)}
                 </span>
               </CardTab>
             </FilterGroup>
@@ -145,7 +145,7 @@ export default class ListHeader extends React.Component<Props> {
                   setViewType(item.type);
                 }}
               >
-                {item.label}
+                {__(item.label)}
               </Dropdown.Item>
             ))}
           </Dropdown.Menu>
@@ -156,6 +156,8 @@ export default class ListHeader extends React.Component<Props> {
 
   render() {
     const { setShowForm, type } = this.props;
+
+    const title = `Create a New ${capitalize(type)}`;
 
     return (
       <>
@@ -170,7 +172,7 @@ export default class ListHeader extends React.Component<Props> {
               onClick={() => setShowForm(true)}
               icon="add"
             >
-              Create a New {capitalize(type)}
+              {__(title)}
             </Button>
           </div>
         </HeaderWrapper>

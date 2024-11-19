@@ -22,14 +22,13 @@ type Props = {
   pipelineAssignedUsers: any;
 };
 
-export default function List({
-  currentUser,
-  config,
-  stages,
-  type,
-  pipeLinelabels,
-  pipelineAssignedUsers
-}: Props) {
+export default function List(props: Props) {
+  const {currentUser,
+    config,
+    stages,
+    type,
+    pipeLinelabels,
+    pipelineAssignedUsers} = props;
   const router = useRouter();
   const { itemId, stageId } = router.query as any;
 
@@ -66,6 +65,7 @@ export default function List({
     if (!items || items.length === 0) {
       return <EmptyState icon="ban" text="No cards" size="small" />;
     }
+    
 
     return (items || []).map((item, index) => {
       const id =

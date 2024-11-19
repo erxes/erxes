@@ -96,7 +96,6 @@ export const saveLead = (params: {
   const {
     doc,
     browserInfo,
-    integrationId,
     formId,
     saveCallback,
     userId,
@@ -137,7 +136,6 @@ export const saveLead = (params: {
     : getLocalStorageItem('customerId');
 
   const variables = {
-    integrationId,
     formId,
     browserInfo,
     submissions: submissions.filter((e) => e),

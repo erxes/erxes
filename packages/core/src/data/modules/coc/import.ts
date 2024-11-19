@@ -100,7 +100,7 @@ export default {
             : "http://localhost:4000";
           const domain = DOMAIN.replace("<subdomain>", subdomain);
 
-          const callback_url = `${domain}/pl:contacts`;
+          const callback_url = `${domain}/pl:core`;
           const endpoint = `${EMAIL_VERIFIER_ENDPOINT}/verify-bulk`;
 
           await fetch(endpoint, {

@@ -81,7 +81,7 @@ export interface IForm {
   status?: string;
 
   leadData: ILeadData;
-
+  googleMapApiKey?: string;
 }
 
 interface IAttachment {

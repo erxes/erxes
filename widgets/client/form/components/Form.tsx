@@ -1,5 +1,19 @@
 import * as React from "react";
 
+<<<<<<< HEAD
+=======
+import { AppConsumer } from '../../messenger/containers/AppContext';
+import { IEmailParams, IIntegration } from '../../types';
+import {
+  __,
+  checkLogicFulfilled,
+  fixErrorMessage,
+  loadMapApi,
+  LogicParams,
+  readFile,
+} from '../../utils';
+import { connection } from '../connection';
+>>>>>>> eba5e2bc4f803f23bc2eb9c5b5c231287980c2e6
 import {
   FieldValue,
   ICurrentStatus,
@@ -7,6 +21,7 @@ import {
   IForm,
   IFormDoc,
   ILocationOption,
+<<<<<<< HEAD
 } from "../types";
 import { IEmailParams, IIntegration, ILeadData } from "../../types";
 import {
@@ -25,7 +40,16 @@ import { getColor } from "../../messenger/utils/util";
 
 type Props = {
   // leadData: ILeadData;
+=======
+} from '../types';
+import Field from './Field';
+import TopBar from './TopBar';
+
+type Props = {
+>>>>>>> eba5e2bc4f803f23bc2eb9c5b5c231287980c2e6
   form: IForm;
+  languageCode: string;
+  leadData: any;
   integration: IIntegration;
   currentStatus: ICurrentStatus;
   callSubmit?: boolean;
@@ -71,24 +95,40 @@ class Form extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const { setHeight, form, integration } = this.props;
+    const { setHeight, integration, form, languageCode, leadData} = this.props;
 
     if (setHeight) {
       setHeight();
     }
 
+<<<<<<< HEAD
     if (form.leadData?.css) {
       const head = document.getElementsByTagName("head")[0];
       const style = document.createElement("style");
       style.setAttribute("type", "text/css");
+=======
 
-      style.appendChild(document.createTextNode(form.leadData.css));
+    if (leadData.css) {
+      const head = document.getElementsByTagName('head')[0];
+      const style = document.createElement('style');
+      style.setAttribute('type', 'text/css');
+>>>>>>> eba5e2bc4f803f23bc2eb9c5b5c231287980c2e6
+
+      style.appendChild(document.createTextNode(leadData.css));
 
       head.appendChild(style);
     }
 
+<<<<<<< HEAD
     if (form.fields.findIndex((e) => e.type === "map") !== -1) {
       const googleMapScript = loadMapApi("test", form.languageCode || "en");
+=======
+    if (form.fields.findIndex((e) => e.type === 'map') !== -1) {
+      const googleMapScript = loadMapApi(
+        form.googleMapApiKey || 'test',
+        languageCode || 'en'
+      );
+>>>>>>> eba5e2bc4f803f23bc2eb9c5b5c231287980c2e6
 
       googleMapScript.addEventListener("load", () => {
         this.setState({ mapScriptLoaded: true });
@@ -577,11 +617,19 @@ class Form extends React.Component<Props, State> {
     const { form } = this.props;
 
     return (
+<<<<<<< HEAD
       <div className="erxes-form">
         {this.renderHead(thankTitle || form.title || "")}
         <div className="erxes-form-content">
           <div className="erxes-callout-body">
             {this.renderSuccessImage(successImage || "", form.title || "")}
+=======
+      <div className='erxes-form'>
+        {this.renderHead(thankTitle || form.title || 'Thank you!')}
+        <div className='erxes-form-content'>
+          <div className='erxes-callout-body'>
+            {this.renderSuccessImage(successImage || '', form.title || '')}
+>>>>>>> eba5e2bc4f803f23bc2eb9c5b5c231287980c2e6
             {thankContent ||
               __("Thanks for your message. We will respond as soon as we can.")}
           </div>
@@ -662,16 +710,26 @@ class Form extends React.Component<Props, State> {
 }
 
 export default (props: Props) => {
+<<<<<<< HEAD
   const { form } = props;
 
   const color = form.leadData?.themeColor;
+=======
+  const { leadData } = props;
+>>>>>>> eba5e2bc4f803f23bc2eb9c5b5c231287980c2e6
 
   return (
-    <Form
-      {...props}
-      // if lead is in a messenger, return messenger theme color (getColor())
-      // else return lead theme color
-      color={color ? color : getColor()}
-    />
+    <AppConsumer>
+      {({ getColor }) => {
+        return (
+          <Form
+            {...props}
+            // if lead is in a messenger, return messenger theme color (getColor())
+            // else return lead theme color
+            color={getColor ? getColor() : leadData.themeColor || ''}
+          />
+        );
+      }}
+    </AppConsumer>
   );
 };

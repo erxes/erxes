@@ -1,5 +1,9 @@
 import { IModels } from './connectionResolver';
-import { getOrPostCreateComment, getOrCreateCustomer } from './store';
+import {
+  getOrCreateComment,
+  getOrCreateCustomer,
+  getOrCreatePostConversation
+} from './store';
 import { ICommentParams } from './types';
 import { INTEGRATION_KINDS } from './constants';
 
@@ -33,9 +37,20 @@ const receiveComment = async (
     INTEGRATION_KINDS.POST
   );
 
-  await getOrPostCreateComment(
+  const postConversation = await getOrCreatePostConversation(
+    models,
+    pageId,
+    subdomain,
+    postId,
+    integration,
+    customer,
+    params
+  );
+
+  await getOrCreateComment(
     models,
     subdomain,
+    postConversation,
     params,
     pageId,
     userId,

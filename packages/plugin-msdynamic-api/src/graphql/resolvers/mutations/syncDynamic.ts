@@ -363,7 +363,8 @@ const msdynamicSyncMutations = {
     });
 
     try {
-      response = await dealToDynamic(subdomain, syncLog, order, models);
+      const configs = await getConfig(subdomain, "DYNAMIC", {});
+      response = await dealToDynamic(subdomain, syncLog, order, models, configs);
     } catch (e) {
       await models.SyncLogs.updateOne(
         { _id: syncLog._id },

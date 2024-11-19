@@ -4,7 +4,6 @@ import { __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
 import React from 'react';
 import {
-  AutomationConstants,
   IAutomation,
   IAutomationHistory,
   IAutomationHistoryAction

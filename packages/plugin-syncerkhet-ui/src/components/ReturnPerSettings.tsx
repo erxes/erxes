@@ -156,6 +156,21 @@ class PerSettings extends React.Component<Props, State> {
         </FormGroup>
 
         {this.renderInput("userEmail", "userEmail", "")}
+        <FormGroup>
+          <ControlLabel>{"Title"}</ControlLabel>
+          <FormControl
+            componentclass="select"
+            options={[
+              { label: 'Тэмдэглэх', value: 'note' },
+              { label: 'Устгах', value: 'hard' },
+              { label: 'Буцаалтын бичилтээр', value: 'sale' },
+              { label: 'Буцаалтын /Өртгийн хамт/ бичилтээр', value: 'full' }
+            ]}
+            defaultValue={config.returnType}
+            onChange={this.onChangeInput.bind(this, "returnType")}
+            autoFocus={true}
+          />
+        </FormGroup>
 
         <ModalFooter>
           <Button
