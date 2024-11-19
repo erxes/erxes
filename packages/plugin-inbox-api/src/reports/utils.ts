@@ -3,6 +3,7 @@ import { KIND_MAP, MEASURE_LABELS, STATUS_LABELS } from './constants';
 import { sendCoreMessage } from '../messageBroker';
 import * as isoWeek from 'dayjs/plugin/isoWeek';
 
+const util = require('util')
 dayjs.extend(isoWeek);
 
 export const returnDateRange = (
@@ -235,7 +236,7 @@ export const buildAction = (measures: string[]): object => {
 };
 
 export const getDimensionPipeline = async (filter, subdomain, models) => {
-    const { dimension, measure, colDimension, rowDimension, frequencyType = '%m', sortBy, } = filter
+    const { dimension, measure, colDimension, rowDimension, frequencyType = '%m', sortBy, userType } = filter
 
     let dimensions
 
@@ -290,12 +291,22 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
     }
 
     if (dimensions?.includes('branch') || dimensions?.includes('department')) {
+
+        const currentUserType = userType || 'assignedUserId'
+
         pipeline.push(
             {
                 $lookup: {
                     from: "users",
-                    localField: "firstRespondedUserId",
-                    foreignField: "_id",
+                    let: { userId: `$${currentUserType}` },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ["$_id", "$$userId"] },
+                                isActive: true
+                            }
+                        }
+                    ],
                     as: "user"
                 }
             },
@@ -339,7 +350,7 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
         matchStage['firstRespondedUserId'] = { $ne: null };
     }
 
-    if (dimensions.includes("createdAt")) {
+    if (dimensions.includes("createdAt") || measures?.includes('averageCloseTime') || measures?.includes('averageResponseTime')) {
         matchStage["createdAt"] = { $ne: null }
     }
 
@@ -347,11 +358,11 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
         matchStage["updatedAt"] = { $ne: null }
     }
 
-    if (dimensions.includes("closedAt")) {
+    if (dimensions.includes("closedAt") || measures?.includes('averageCloseTime')) {
         matchStage["closedAt"] = { $ne: null }
     }
 
-    if (dimensions.includes("firstRespondedAt")) {
+    if (dimensions.includes("firstRespondedAt") || measures?.includes('averageResponseTime')) {
         matchStage["firstRespondedDate"] = { $ne: null }
     }
 
@@ -510,34 +521,75 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
         pipeline.push({
             $lookup: {
                 from: "users",
-                localField: "_id.assignedTo",
-                foreignField: "_id",
+                let: { assignedTo: "$_id.assignedTo" },
+                pipeline: [
+                    { $match: { $expr: { $eq: ["$_id", "$$assignedTo"] }, isActive: true } }
+                ],
                 as: "assignedUser"
             }
-        })
+        }, { $unwind: "$assignedUser" })
+
+        if (measures?.includes('averageResponseTime') || measures?.includes('averageCloseTime')) {
+            pipeline.push({
+                $lookup: {
+                    from: "departments",
+                    localField: "assignedUser.departmentIds",
+                    foreignField: "_id",
+                    as: "assignedUserDepartments"
+                }
+            })
+        }
     }
 
     if ((dimensions || []).includes('resolvedBy')) {
         pipeline.push({
             $lookup: {
                 from: "users",
-                localField: "_id.resolvedBy",
-                foreignField: "_id",
+                let: { resolvedBy: "$_id.resolvedBy" },
+                pipeline: [
+                    { $match: { $expr: { $eq: ["$_id", "$$resolvedBy"] }, isActive: true } }
+                ],
                 as: "resolvedUser"
             }
-        })
+        }, { $unwind: "$resolvedUser" })
+
+        if (measures?.includes('averageResponseTime') || measures?.includes('averageCloseTime')) {
+            pipeline.push({
+                $lookup: {
+                    from: "departments",
+                    localField: "resolvedUser.departmentIds",
+                    foreignField: "_id",
+                    as: "resolvedUserDepartments"
+                }
+            })
+        }
     }
 
     if ((dimensions || []).includes('firstRespondedBy')) {
         pipeline.push({
             $lookup: {
                 from: "users",
-                localField: "_id.firstRespondedBy",
-                foreignField: "_id",
+                let: { firstRespondedBy: "$_id.firstRespondedBy" },
+                pipeline: [
+                    { $match: { $expr: { $eq: ["$_id", "$$firstRespondedBy"] }, isActive: true } }
+                ],
                 as: "firstRespondedUser"
             }
-        })
+        }, { $unwind: "$firstRespondedUser" })
+
+        if (measures?.includes('averageResponseTime') || measures?.includes('averageCloseTime')) {
+            pipeline.push({
+                $lookup: {
+                    from: "departments",
+                    localField: "firstRespondedUser.departmentIds",
+                    foreignField: "_id",
+                    as: "firstRespondedUserDepartments"
+                }
+            })
+        }
     }
+
+    let workHours: any[] = []
 
     const projectStage = {
         $project: {
@@ -567,6 +619,7 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
 
     if ((dimensions || []).includes('department')) {
         projectStage.$project['department'] = "$department.title";
+        workHours.push({ $ifNull: [["$department.workhours"], []] });
     }
 
     if ((dimensions || []).includes('source')) {
@@ -590,15 +643,18 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
     }
 
     if (dimensions.includes("assignedTo")) {
-        projectStage.$project['assignedTo'] = { $arrayElemAt: ["$assignedUser", 0] };
+        projectStage.$project['assignedTo'] = "$assignedUser";
+        workHours.push({ $ifNull: ["$assignedUserDepartments.workhours", []] });
     }
 
     if (dimensions.includes("resolvedBy")) {
-        projectStage.$project['resolvedBy'] = { $arrayElemAt: ["$resolvedUser", 0] };
+        projectStage.$project['resolvedBy'] = "$resolvedUser";
+        workHours.push({ $ifNull: ["$resolvedUserDepartments.workhours", []] });
     }
 
     if (dimensions.includes("firstRespondedBy")) {
-        projectStage.$project['firstRespondedBy'] = { $arrayElemAt: ["$firstRespondedUser", 0] };
+        projectStage.$project['firstRespondedBy'] = "$firstRespondedUser"
+        workHours.push({ $ifNull: ["$firstRespondedUserDepartments.workhours", []] });
     }
 
     if (dimensions.includes("createdAt")) {
@@ -615,6 +671,10 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
 
     if (dimensions.includes("firstRespondedAt")) {
         projectStage.$project["firstRespondedAt"] = "$_id.firstRespondedAt"
+    }
+
+    if (workHours.length > 0) {
+        projectStage.$project['workHours'] = { $setUnion: { $concatArrays: workHours } }
     }
 
     pipeline.push(projectStage)
@@ -759,36 +819,132 @@ export const isWeekday = (date) => {
     return day !== 0 && day !== 6; // 0 = Sunday, 6 = Saturday
 }
 
-export const calculateBusinessDuration = (start, end) => {
-    let totalMilliseconds = 0;
-    let currentDay = start;
+const workSchedules = new Map();
 
-    while (currentDay.isBefore(end)) {
-        const nextDay = currentDay.add(1, 'day').startOf('day');
-        const endOfSegment = nextDay.isAfter(end) ? end : nextDay;
-
-        const dayOfWeek = currentDay.day();
-        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-            totalMilliseconds += endOfSegment.diff(currentDay);
-        }
-
-        currentDay = nextDay;
+export const calculateBusinessDuration = (start, end, workHour) => {
+    if (!workHour) {
+        return end.diff(start);
     }
 
+    const cacheKey = `${start}-${end}-${JSON.stringify(workHour)}`;
+    if (workSchedules.has(cacheKey)) {
+        return workSchedules.get(cacheKey);
+    }
+
+    const daySchedules = new Map();
+    const startTime = start.startOf('day');
+    const endTime = end.endOf('day');
+    const daysDiff = endTime.diff(startTime, 'days');
+
+    for (const [day, schedule] of Object.entries(workHour) as any) {
+        if (!schedule.inactive) {
+            const [startHour, startMin] = schedule.startFrom.split(':').map(Number);
+            const [endHour, endMin] = schedule.endTo.split(':').map(Number);
+            const [lunchStartHour, lunchStartMin] = schedule.lunchStartFrom.split(':').map(Number);
+            const [lunchEndHour, lunchEndMin] = schedule.lunchEndTo.split(':').map(Number);
+
+            const workStart = startHour * 60 + startMin;
+            const workEnd = endHour * 60 + endMin;
+            const lunchStart = lunchStartHour * 60 + lunchStartMin;
+            const lunchEnd = lunchEndHour * 60 + lunchEndMin;
+
+            const workingMinutes = (workEnd - workStart) - (lunchEnd - lunchStart);
+            daySchedules.set(day, workingMinutes * 60 * 1000);
+        }
+    }
+
+    let totalMilliseconds = 0;
+    let currentDay = start.clone();
+
+    for (let i = 0; i <= daysDiff; i++) {
+        const dayOfWeek = currentDay.format('dddd');
+        const dailyMilliseconds = daySchedules.get(dayOfWeek);
+
+        if (dailyMilliseconds) {
+            if (i === 0) {
+                const dayStart = currentDay.clone().startOf('day');
+                const validStart = dayStart.add(workHour[dayOfWeek].startFrom);
+                if (start.isAfter(validStart)) {
+                    const reduction = start.diff(validStart);
+                    totalMilliseconds += Math.max(0, dailyMilliseconds - reduction);
+                } else {
+                    totalMilliseconds += dailyMilliseconds;
+                }
+            }
+            else if (i === daysDiff) {
+                const dayEnd = currentDay.clone().endOf('day');
+                const validEnd = dayEnd.subtract(workHour[dayOfWeek].endTo);
+                if (end.isBefore(validEnd)) {
+                    const reduction = validEnd.diff(end);
+                    totalMilliseconds += Math.max(0, dailyMilliseconds - reduction);
+                } else {
+                    totalMilliseconds += dailyMilliseconds;
+                }
+            }
+            else {
+                totalMilliseconds += dailyMilliseconds;
+            }
+        }
+
+        currentDay = currentDay.add(1, 'day');
+    }
+
+    workSchedules.set(cacheKey, totalMilliseconds);
     return totalMilliseconds;
+};
+
+export const extractWorkHours = (workHours: any) => {
+
+    if (!workHours?.length || workHours.every(workhour => workhour === null)) return;
+
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const result = {} as Record<string, any>;
+
+    const schedules = workHours.filter(Boolean);
+
+    for (const day of days) {
+        const daySchedules = schedules
+            .map(schedule => schedule[day])
+            .filter(Boolean);
+
+        if (!daySchedules.length || daySchedules.every(schedule => schedule.inactive)) {
+            result[day] = { inactive: true };
+            continue;
+        }
+
+        const activeSchedules = daySchedules.filter(schedule => !schedule.inactive);
+        const firstActive = activeSchedules[0];
+
+        result[day] = {
+            startFrom: activeSchedules.reduce((earliest, current) =>
+                !current.startFrom ? earliest :
+                    !earliest ? current.startFrom :
+                        current.startFrom < earliest ? current.startFrom : earliest
+                , null),
+            endTo: activeSchedules.reduce((latest, current) =>
+                !current.endTo ? latest :
+                    !latest ? current.endTo :
+                        current.endTo > latest ? current.endTo : latest
+                , null),
+            lunchStartFrom: firstActive?.lunchStartFrom,
+            lunchEndTo: firstActive?.lunchEndTo
+        };
+    }
+
+    return result;
 };
 
 export const formatData = (data, filter) => {
 
     const { dateRange, startDate, endDate, frequencyType } = filter
 
-    const dayjsCache = new Map();
+    const dateCache = new Map();
 
-    const getDayjsObject = (dateStr) => {
-        if (!dayjsCache.has(dateStr)) {
-            dayjsCache.set(dateStr, dayjs(dateStr));
+    const parseDate = (dateStr) => {
+        if (!dateCache.has(dateStr)) {
+            dateCache.set(dateStr, dayjs(dateStr));
         }
-        return dayjsCache.get(dateStr);
+        return dateCache.get(dateStr);
     };
 
     const formattedData = [...data]
@@ -838,16 +994,28 @@ export const formatData = (data, filter) => {
         });
 
         ["averageResponseTime", "averageCloseTime"].forEach(key => {
-            if (item[key] && item[key].length > 0) {
-                const totalMilliseconds = item[key].reduce((acc, range) => {
-                    const createdTime = getDayjsObject(range['createdAt']);
-                    const resolvedTime = getDayjsObject(range['closedAt'] || range['firstRespondedDate']);
+            if (item[key]?.length > 0) {
 
-                    const businessDuration = calculateBusinessDuration(createdTime, resolvedTime);
-                    return acc + businessDuration;
-                }, 0);
+                const { workHours } = item
 
-                item[MEASURE_LABELS[key]] = totalMilliseconds / item[key].length || 0;
+                const workHour = extractWorkHours(workHours)
+
+                const chunkSize = 100;
+                let total = 0;
+
+                for (let i = 0; i < item[key].length; i += chunkSize) {
+                    const chunk = item[key].slice(i, i + chunkSize);
+
+                    const chunkTotal = chunk.reduce((acc, range) => {
+                        const createdTime = parseDate(range.createdAt);
+                        const resolvedTime = parseDate(range.closedAt || range.firstRespondedDate);
+                        return acc + calculateBusinessDuration(createdTime, resolvedTime, workHour);
+                    }, 0);
+
+                    total += chunkTotal;
+                }
+
+                item[MEASURE_LABELS[key]] = total / item[key].length || 0;
                 delete item[key];
             }
         });
@@ -1023,7 +1191,7 @@ export const buildTableData = (data: any, measures: any, dimensions: any, colDim
         }, {})
     }
 
-    return { data: [...reorderedData, total] }
+    return { data: [...reorderedData, total], headers: [...dimensions, ...measures] }
 }
 
 const rx = /(\d+)|(\D+)/g;

@@ -1,5 +1,32 @@
 # Changelog
 
+## [2.0.7](https://github.com/erxes/erxes/compare/2.0.6...2.0.7) (2024-11-19)
+
+
+### Features
+
+* add integration & brand to conversation export ([3423de5](https://github.com/erxes/erxes/commit/3423de5f8cbb4fdede2f3146656a3ebb5aff2f27))
+* duplicate products ([5070cc8](https://github.com/erxes/erxes/commit/5070cc8650a24d8dd7b1fa2ba8950ae64ec32630))
+* exclude non working time ([589991c](https://github.com/erxes/erxes/commit/589991ca22efc55d063a1c0043546ac5e6c03e66))
+* syncerkhet return deal with returnType ([742429d](https://github.com/erxes/erxes/commit/742429d9139ba2a7cf57099d63fc60011cae0246))
+* **workers:** Add background processing for large PDF uploads with Cloudflare integration and PDF to image conversion ([#5790](https://github.com/erxes/erxes/issues/5790)) ([f5d96b0](https://github.com/erxes/erxes/commit/f5d96b064dd6ce971f4c319b00effab2c55d297d))
+* **workers:** PDF upload logic to support chunked uploads, improving the handling of large files and reducing the risk of upload failures. ([#5794](https://github.com/erxes/erxes/issues/5794)) ([aae52b5](https://github.com/erxes/erxes/commit/aae52b565a82fc636de610c69cee171f4059b6b1))
+
+
+### Bug Fixes
+
+* ensure selected option appears correctly ([8399432](https://github.com/erxes/erxes/commit/8399432285bc83703476109d028cef21f55fa1da))
+* migrate customer searchText & extract attachemnt ([c4e2541](https://github.com/erxes/erxes/commit/c4e2541b79dff754f3926050b3806a2629c03948))
+* msdynamic check config ([f4bee52](https://github.com/erxes/erxes/commit/f4bee529b4890b4e947ac7ed0725bcf3065c0a52))
+* posclient poscProductSimilarities with remainder ([9b55f62](https://github.com/erxes/erxes/commit/9b55f62b1c965b7da4aade5d88e00d706a548954))
+* rename history prop to navigate in ManageColumns for Company ([2ceed3d](https://github.com/erxes/erxes/commit/2ceed3d85633ef1a2b7bea1e173390fc683245f5))
+* triage bugs ([b34b90f](https://github.com/erxes/erxes/commit/b34b90fbcbd2e7f97cd5b4b6f50106c776c56644))
+
+
+### Performance Improvements
+
+* **widget:** update messenger ([#5803](https://github.com/erxes/erxes/issues/5803)) ([ffec4f9](https://github.com/erxes/erxes/commit/ffec4f90aa8267e7879257d2e7cbf0886f31cca0))
+
 ## [2.0.6](https://github.com/erxes/erxes/compare/2.0.5...2.0.6) (2024-11-11)
 
 
