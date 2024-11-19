@@ -1,5 +1,4 @@
 import {
-  MessageArgs,
   MessageArgsOmitService,
   sendMessage
 } from "@erxes/api-utils/src/core";
@@ -7,7 +6,7 @@ import { generateModels } from "./connectionResolver";
 
 import { checkPricing, getMainConditions } from "./utils";
 import { getAllowedProducts } from "./utils/product";
-import { calculatePriceAdjust } from "./utils/rule";
+import { calculateDiscountValue, calculatePriceAdjust } from "./utils/rule";
 import { consumeRPCQueue } from "@erxes/api-utils/src/messageBroker";
 
 export const setupMessageConsumers = async () => {
@@ -32,7 +31,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue("pricing:getQuanityRules", async ({ subdomain, data }) => {
+  consumeRPCQueue("pricing:getQuantityRules", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { products, branchId, departmentId } = data;
@@ -83,11 +82,10 @@ export const setupMessageConsumers = async () => {
         const prePrice =
           (rulesByProductId[allowProductId] || {}).price || unitPrice;
 
-        const price =
-          unitPrice -
+        const price = unitPrice -
           calculatePriceAdjust(
             unitPrice,
-            (unitPrice / 100) * discountValue,
+            calculateDiscountValue(firstRule.discountType, discountValue, unitPrice),
             adjustType,
             adjustFactor
           );

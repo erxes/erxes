@@ -107,6 +107,7 @@ export const COMPANY_INDUSTRY_TYPES = [...DEFAULT_COMPANY_INDUSTRY_TYPES];
 
 export const DEFAULT_SOCIAL_LINKS = [
   { label: 'Facebook', value: 'facebook' },
+  { label: 'whatsapp', value: 'whatsapp' },
   { label: 'Twitter', value: 'twitter' },
   { label: 'Youtube', value: 'youtube' },
   { label: 'Website', value: 'website' }

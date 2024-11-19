@@ -1,4 +1,4 @@
-import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, MessageArgsOmitService, sendMessage } from '@erxes/api-utils/src/core';
 import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 import { generateModels } from './connectionResolver';
 
@@ -18,5 +18,12 @@ export const sendCommonMessage = async (
 ): Promise<any> => {
   return sendMessage({
     ...args,
+  });
+};
+
+export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
+  return sendMessage({
+    serviceName: "core",
+    ...args
   });
 };

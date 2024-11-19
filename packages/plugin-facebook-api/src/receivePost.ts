@@ -30,7 +30,7 @@ const receivePost = async (
     INTEGRATION_KINDS.POST
   );
 
-  await getOrCreatePost(models, subdomain, params, pageId, userId, integration);
+  await getOrCreatePost(models, subdomain, params, pageId, userId);
 };
 
 export default receivePost;

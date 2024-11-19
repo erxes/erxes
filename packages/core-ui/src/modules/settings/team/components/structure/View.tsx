@@ -59,6 +59,7 @@ export default function View({ structure, showEdit }: Props) {
         {renderRow("Latitude", coordinate.latitude)}
         {renderRow("Website", links.website)}
         {renderRow("Facebook", links.facebook)}
+        {renderRow("whatsapp", links.whatsapp)}
         {renderRow("Twitter", links.twitter)}
         {renderRow("Youtube", links.youtube)}
         {image && (

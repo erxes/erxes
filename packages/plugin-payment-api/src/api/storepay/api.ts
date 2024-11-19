@@ -17,7 +17,7 @@ export const storepayCallbackHandler = async (
 
   const transaction = await models.Transactions.getTransaction(
     {
-      $or: [{ 'apiResponse.value': id }, { 'apiResponse.value': Number(id) }],
+      $or: [{ 'response.value': id }, { 'response.value': Number(id) }],
     },
     true
   );
@@ -160,7 +160,7 @@ export class StorePayAPI extends BaseAPI {
         mobileNumber: details.phone,
         description: invoice.description || 'transaction',
         storeId: this.store_id,
-        callbackUrl: `${this.domain}/pl:payment/callback/${PAYMENTS.storepay.kind}`,
+        callbackUrl: `${this.domain}/pl-payment/callback/${PAYMENTS.storepay.kind}`,
       };
 
       const possibleAmount = await this.checkLoanAmount(details.phone);

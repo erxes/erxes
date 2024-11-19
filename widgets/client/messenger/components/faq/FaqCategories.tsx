@@ -1,39 +1,37 @@
-import * as React from "react";
-import Categories from "../../containers/faq/Categories";
-import SearchBar from "./SearchBar";
+import * as React from 'react';
+import Categories from '../../containers/faq/Categories';
+import SearchBar from './SearchBar';
+import Container from '../common/Container';
+import { __ } from '../../../utils';
 
 type Props = {
   topicId: string;
+  loading: boolean;
 };
 
-interface IState {
-  searchString: string;
-}
+const FaqCategories = (props: Props) => {
+  const { topicId, loading } = props;
+  const [searchString, setSearchString] = React.useState('');
 
-class FaqCategories extends React.Component<Props, IState> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = { searchString: "" };
-  }
-
-  search = (searchString: string) => {
-    this.setState({ searchString });
+  const search = (searchString: string) => {
+    setSearchString(searchString);
   };
 
-  render() {
-    const { topicId } = this.props;
-    const { searchString } = this.state;
-
-    return (
-      <>
-        <SearchBar onSearch={this.search} searchString={searchString} />
-        <div className="scroll-wrapper">
+  return (
+    <Container
+      withTopBar
+      title={__('Help')}
+      extra={<SearchBar onSearch={search} searchString={searchString} />}
+    >
+      <div className="scroll-wrapper">
+        {loading ? (
+          <div className="loader" />
+        ) : (
           <Categories topicId={topicId} searchString={searchString} />
-        </div>
-      </>
-    );
-  }
-}
+        )}
+      </div>
+    </Container>
+  );
+};
 
 export default FaqCategories;

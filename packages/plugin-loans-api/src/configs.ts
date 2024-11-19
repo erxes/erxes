@@ -8,6 +8,7 @@ import imports from './imports';
 import exporter from './exporter';
 import logs from './logUtils';
 import * as permissions from './permissions';
+import * as cookieParser from 'cookie-parser';
 import payment from './payment';
 import reports from './reports';
 import { checkContractPeriod } from './cronjobs/contractCronJobs';
@@ -66,6 +67,8 @@ export default {
     return context;
   },
 
+  middlewares: [cookieParser(), userMiddleware, cpUserMiddleware],
+
   onServerInit: async () => {
     app.get(
       '/transactions-export',
@@ -114,18 +117,22 @@ export default {
 
         const models = await generateModels(subdomain);
 
-        if (req.cpUser) {
-          const contract = await models.Contracts.findOne({
-            _id: query.contractId,
-            customerId: req.cpUser.erxesCustomerId,
-          });
+        const contract = await models.Contracts.findOne({
+          _id: query.contractId,
+        });
 
-          if (!contract) {
-            return res.status(404).send({
-              success: false,
-              error: 'Contract not found',
-            });
-          }
+        if (!contract) {
+          return res.status(404).send({
+            success: false,
+            error: 'Contract not found',
+          });
+        }
+
+        if (req.cpUser && contract.customerId !== req.cpUser.erxesCustomerId) {
+          return res.status(404).send({
+            success: false,
+            error: 'Contract not found',
+          });
         }
 
         if (query.startDate && query.endDate) {
@@ -143,7 +150,7 @@ export default {
         const data = await models.Transactions.find(filter)
           .sort({ payDate: -1 })
           .lean();
-          
+
         if (!data || !data.length) {
           return res.status(404).send({
             success: false,

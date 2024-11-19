@@ -1,4 +1,4 @@
-import channelQueries from "@erxes/ui-settings/src/channels/graphql/queries";
+import channelQueries from '@erxes/ui-settings/src/channels/graphql/queries';
 
 const nameFields = `
   firstName
@@ -169,6 +169,7 @@ const departmentsMain = `
     departmentsMain(${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter) {
       list {
         ${departmentField}
+        workhours
       }
       totalCount
       totalUsersCount
@@ -301,6 +302,7 @@ const branchesMain = `
       list {
         ${branchField}
         parent {${branchField}}
+        workhours
       }
       totalCount
       totalUsersCount
@@ -604,5 +606,5 @@ export default {
   userList,
   positionsMain,
   positions,
-  postionDetail
+  postionDetail,
 };

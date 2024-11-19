@@ -1,5 +1,5 @@
 import { IModels } from '../../connectionResolver';
-import { CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_BY_TYPES, DATERANGE_TYPES, DIMENSION_OPTIONS, MEASURE_OPTIONS, INBOX_TAG_TYPE, INTEGRATION_TYPES, STATUS_LABELS, STATUS_TYPES, KIND_MAP } from '../constants';
+import { CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_BY_TYPES, DATERANGE_TYPES, DIMENSION_OPTIONS, MEASURE_OPTIONS, INBOX_TAG_TYPE, INTEGRATION_TYPES, STATUS_LABELS, STATUS_TYPES, KIND_MAP, USER_TYPES } from '../constants';
 import {
     buildData,
     buildMatchFilter,
@@ -1308,7 +1308,7 @@ const chartTemplates = [
             subdomain: string,
         ) => {
             const pipeline = await getDimensionPipeline(filter, subdomain, models)
-            const conversations = await models.Conversations.aggregate(pipeline)
+            const conversations = await models.Conversations.aggregate(pipeline, { allowDiskUse: true })
 
             const title = 'Total conversations count';
 
@@ -1395,6 +1395,14 @@ const chartTemplates = [
                 fieldQuery: 'date',
                 fieldOptions: CUSTOM_DATE_FREQUENCY_TYPES,
                 fieldLabel: 'Select frequency type',
+            },
+            {
+                fieldName: 'userType',
+                fieldType: 'select',
+                multi: false,
+                fieldDefaultValue: 'assignedUserId',
+                fieldOptions: USER_TYPES,
+                fieldLabel: 'Select user type',
             },
             {
                 fieldName: 'departmentIds',
