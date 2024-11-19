@@ -24,12 +24,12 @@
   }
 
   .erxes-button {
-    box-shadow: 0 5px 15px 3px rgba($black, .1);
+    box-shadow: 0 5px 15px 3px rgba($black, 0.1);
     margin-top: 15px;
 
     &:hover,
     &:focus {
-      box-shadow: 0 5px 20px 5px rgba($black, .1);
+      box-shadow: 0 5px 20px 5px rgba($black, 0.1);
     }
   }
 
@@ -46,7 +46,7 @@
 
 .react-datepicker {
   border-color: $border-color !important;
-  box-shadow: 0 5px 15px -3px rgba($black, .15);
+  box-shadow: 0 5px 15px -3px rgba($black, 0.15);
 
   .react-datepicker__day--selected,
   .react-datepicker__day--keyboard-selected {
@@ -62,7 +62,7 @@
     background: $bg-color;
     border-color: $border-color;
 
-    .react-datepicker__current-month, 
+    .react-datepicker__current-month,
     .react-datepicker-time__header {
       font-weight: 500;
     }
@@ -76,7 +76,6 @@
     }
   }
 }
-
 
 .custom-select {
   display: inline-block;

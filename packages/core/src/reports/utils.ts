@@ -1441,7 +1441,7 @@ export const buildTableData = (data: any, measures: any, dimensions: any, colDim
     }, {})
   }
 
-  return { data: [...reorderedData, total] }
+  return { data: [...reorderedData, total], headers: [...dimensions, ...measures] }
 }
 
 

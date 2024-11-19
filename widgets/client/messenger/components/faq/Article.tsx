@@ -1,5 +1,5 @@
-import * as React from "react";
-import { IFaqArticle } from "../../types";
+import * as React from 'react';
+import { IFaqArticle } from '../../types';
 
 type Props = {
   article: IFaqArticle;
