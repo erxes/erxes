@@ -1,8 +1,8 @@
-import gql from "graphql-tag";
-import * as React from "react";
-import client from "../../apollo-client";
-import { IKbArticle, IKbCategory } from "../types";
-import graphql from "./graphql";
+import gql from 'graphql-tag';
+import * as React from 'react';
+import client from '../../apollo-client';
+import { IKbArticle, IKbCategory } from '../types';
+import graphql from './graphql';
 
 interface IState {
   activeRoute: string;
@@ -24,36 +24,39 @@ const AppContext = React.createContext({} as IStore);
 
 export const AppConsumer = AppContext.Consumer;
 
-export class AppProvider extends React.Component<{}, IState> {
-  constructor(props: {}) {
+export class AppProvider extends React.Component<
+  { children: React.ReactNode },
+  IState
+> {
+  constructor(props: { children: React.ReactNode }) {
     super(props);
 
     this.state = {
-      activeRoute: "CATEGORIES",
+      activeRoute: 'CATEGORIES',
       activeCategory: null,
       activeArticle: null,
-      searchString: ""
+      searchString: '',
     };
   }
 
   goToCategory = (category: IKbCategory) => {
     this.setState({
-      activeRoute: "CATEGORY_DETAIL",
-      activeCategory: category
+      activeRoute: 'CATEGORY_DETAIL',
+      activeCategory: category,
     });
   };
 
   goToArticle = (article: IKbArticle) => {
     this.setState({
-      activeRoute: "ARTICLE_DETAIL",
-      activeArticle: article
+      activeRoute: 'ARTICLE_DETAIL',
+      activeArticle: article,
     });
   };
 
   goToCategories = () => {
     this.setState({
-      activeRoute: "CATEGORIES",
-      activeCategory: null
+      activeRoute: 'CATEGORIES',
+      activeCategory: null,
     });
   };
 
@@ -61,7 +64,7 @@ export class AppProvider extends React.Component<{}, IState> {
     const { activeCategory } = this.state;
 
     this.setState({
-      activeRoute: activeCategory ? "CATEGORY_DETAIL" : "CATEGORIES"
+      activeRoute: activeCategory ? 'CATEGORY_DETAIL' : 'CATEGORIES',
     });
   };
 
@@ -70,16 +73,16 @@ export class AppProvider extends React.Component<{}, IState> {
       mutation: gql(graphql.incReactionCount),
       variables: {
         articleId,
-        reactionChoice
-      }
+        reactionChoice,
+      },
     });
   };
 
   search = (value: string) => {
-    let activeRoute = "CATEGORIES";
+    let activeRoute = 'CATEGORIES';
 
     if (value) {
-      activeRoute = "ARTICLES";
+      activeRoute = 'ARTICLES';
     }
 
     this.setState({ searchString: value, activeRoute });
@@ -95,7 +98,7 @@ export class AppProvider extends React.Component<{}, IState> {
           goToArticle: this.goToArticle,
           goToArticles: this.goToArticles,
           incReactionCount: this.incReactionCount,
-          search: this.search
+          search: this.search,
         }}
       >
         {this.props.children}

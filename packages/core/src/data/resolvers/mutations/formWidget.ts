@@ -193,7 +193,10 @@ const mutations = {
     const brand = await models.Brands.findOne({ code: args.brandCode }).lean();
 
     const form = await models.Forms.findOne({
-      code: args.formCode,
+      $or: [
+        { code: args.formCode },
+        { _id: args.formCode },
+      ],
       status: 'active',
     }).lean();
 
