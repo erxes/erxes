@@ -33,7 +33,6 @@ type Props = {
   configsMap: IConfigsMap;
   transactions?: ITransaction[];
   defaultJournal?: string;
-  parentId?: string;
   loading?: boolean;
   save: (params: any) => void;
   queryParams: IQueryParams;

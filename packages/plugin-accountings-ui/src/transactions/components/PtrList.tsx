@@ -210,12 +210,6 @@ const PtrList: React.FC<IProps> = (props) => {
     navigate(`/accountings/transaction/create?defaultJournal=${journal}`)
   }
 
-  const trigger = (
-    <Button btnStyle="success" icon="plus-circle">
-      Add account
-    </Button>
-  );
-
   const actionBarRight = () => {
     if (bulk.length > 0) {
       return (

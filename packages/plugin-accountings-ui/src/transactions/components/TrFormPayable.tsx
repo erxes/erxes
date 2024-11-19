@@ -13,7 +13,7 @@ import SelectDepartment from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
-import { ACCOUNT_KINDS, TR_CUSTOMER_TYPES, TR_SIDES } from '../../constants';
+import { TR_CUSTOMER_TYPES, TR_SIDES } from '../../constants';
 import SelectAccount from '../../settings/accounts/containers/SelectAccount';
 import { IAccount } from '../../settings/accounts/types';
 import { IConfigsMap } from '../../settings/configs/types';

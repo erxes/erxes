@@ -12,7 +12,6 @@ import React, { useMemo } from 'react';
 
 type Props = {
   queryParams: any;
-  type?: string;
 };
 
 const CtaxRowListContainer = (props: Props) => {
