@@ -3,7 +3,7 @@ import { gql, useQuery } from "@apollo/client";
 import { Spinner } from "@erxes/ui/src";
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
-import React, { useState } from "react";
+import React from "react";
 import Form from "../components/AccountCategoryForm";
 import { mutations, queries } from "../graphql";
 import { AccountCategoriesQueryResponse, AccountCategoryDetailQueryResponse } from "../types";
@@ -16,7 +16,6 @@ type Props = {
 
 const AccountCategoryFormContainer = (props: Props) => {
   const { accountCategoryId } = props;
-  const [loading, setLoading] = useState<boolean>(false);
 
   const accountCategoryDetailQuery = useQuery<AccountCategoryDetailQueryResponse>(
     gql(queries.accountCategoryDetail),

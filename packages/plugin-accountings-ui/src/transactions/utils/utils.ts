@@ -1,4 +1,3 @@
-import { TR_SIDES } from '../../constants';
 export const getTempId = () => {
   return `temp${Math.random()}`
 }

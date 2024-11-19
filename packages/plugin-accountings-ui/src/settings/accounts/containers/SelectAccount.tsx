@@ -38,7 +38,6 @@ export default ({
   multi?: boolean;
   customOption?: IOption;
   initialValue?: string | string[];
-  setParam?: boolean;
   name: string;
   filterParams?: {
     ids?: string[];

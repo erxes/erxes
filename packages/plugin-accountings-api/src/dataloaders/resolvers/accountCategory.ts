@@ -8,8 +8,8 @@ export default {
     return models.AccountCategories.findOne({ _id });
   },
 
-  isRoot(category: IAccountCategoryDocument, { }) {
-    return !Boolean(category.parentId);
+  isRoot(category: IAccountCategoryDocument) {
+    return !!!category.parentId;
   },
 
   async accountCount(

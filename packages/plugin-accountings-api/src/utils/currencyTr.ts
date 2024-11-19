@@ -82,7 +82,7 @@ export default class CurrencyTr {
     let currencyTr;
     const oldFollowInfo = (transaction.follows || []).find(f => f.type === 'currencyDiff');
 
-    const amount = (transaction.details[0].currencyAmount || 0) * (this.spotRate?.rate || 0) || transaction.details[0].amount || 0;
+    const amount = (transaction.details[0].currencyAmount ?? 0) * (this.spotRate?.rate ?? 0) || transaction.details[0].amount || 0;
 
     if (!this.currencyDiffTrDoc) {
       if (oldFollowInfo) {

@@ -22,7 +22,6 @@ type Props = {
   changeLanguage: (language: string) => void;
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
-  constants;
 };
 
 type State = {
@@ -60,16 +59,6 @@ class GeneralSettings extends React.Component<Props, State> {
     configsMap[code] = value;
 
     this.setState({ configsMap });
-  };
-
-  onChangeMultiCombo = (code: string, values) => {
-    let value = values;
-
-    if (Array.isArray(values)) {
-      value = values.map((el) => el.value);
-    }
-
-    this.onChangeConfig(code, value);
   };
 
   onChangeInput = (code: string, e) => {
@@ -195,19 +184,17 @@ class GeneralSettings extends React.Component<Props, State> {
             />
           </FormGroup>
           {configsMap.HasCtax &&
-            <>
-              <FormGroup>
-                <ControlLabel>{__('Ctax Account Payable')}</ControlLabel>
-                <SelectAccount
-                  multi={false}
-                  initialValue={configsMap.CtaxPayableAccount || ''}
-                  label='Account'
-                  name='CtaxPayableAccount'
-                  filterParams={{ journals: ['tax'] }}
-                  onSelect={(accountId) => { this.onChangeConfig('CtaxPayableAccount', accountId) }}
-                />
-              </FormGroup>
-            </>
+            <FormGroup>
+              <ControlLabel>{__('Ctax Account Payable')}</ControlLabel>
+              <SelectAccount
+                multi={false}
+                initialValue={configsMap.CtaxPayableAccount || ''}
+                label='Account'
+                name='CtaxPayableAccount'
+                filterParams={{ journals: ['tax'] }}
+                onSelect={(accountId) => { this.onChangeConfig('CtaxPayableAccount', accountId) }}
+              />
+            </FormGroup>
             || null}
         </CollapseContent>
 

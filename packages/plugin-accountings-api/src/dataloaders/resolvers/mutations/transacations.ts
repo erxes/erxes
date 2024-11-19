@@ -45,7 +45,7 @@ const transactionsMutations = {
     { _id }: { _id: string },
     { user, models, subdomain }: IContext,
   ) {
-    const transaction = await models.Transactions.getTransaction({
+    await models.Transactions.getTransaction({
       _id,
     });
     const removed = await models.Transactions.removeTransaction(_id);

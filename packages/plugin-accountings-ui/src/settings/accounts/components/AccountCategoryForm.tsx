@@ -111,15 +111,11 @@ function AccountCategoryForm(props: IProps): React.ReactNode {
     const { renderButton, closeModal, accountCategory } =
       props;
     const { values, isSubmitted } = formProps;
-    const object = accountCategory || ({} as IAccountCategory);
 
     const {
       code,
       name,
       parentId,
-      description,
-      scopeBrandIds,
-      status,
       maskStr,
     } = state;
 

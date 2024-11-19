@@ -6,7 +6,7 @@ import {
   FormColumn,
   FormWrapper
 } from "@erxes/ui/src/styles/main";
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { IConfigsMap } from '../../../settings/configs/types';
 import { ITransaction } from '../../types';
 import SelectVatRow from '../../../settings/vatRows/containers/SelectVatRow';

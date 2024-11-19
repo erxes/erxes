@@ -73,15 +73,8 @@ const AccountListContainer = (props: Props) => {
       removeAccountMutation({
         variables: { accountIds },
       })
-        .then((removeStatus) => {
-          // refresh queries
-
+        .then(() => {
           emptyBulk();
-          const status = removeStatus.data?.removeAccountMutation || '';
-
-          // status === "deleted"
-          //   ? Alert.success("You successfully deleted a Account")
-          //   : Alert.warning("Account status deleted");
         })
         .catch((e) => {
           Alert.error(e.message);
@@ -106,10 +99,10 @@ const AccountListContainer = (props: Props) => {
     currentCategory,
   };
 
-  const AccountList = (props) => {
+  const AccountList = (params) => {
     return (<AppConsumer>
       {({ currentUser }) => {
-        return <List {...updatedProps} {...props} currencies={currentUser?.configs?.dealCurrency || []} />;
+        return <List {...updatedProps} {...params} currencies={currentUser?.configs?.dealCurrency || []} />;
       }}
     </AppConsumer>)
   };

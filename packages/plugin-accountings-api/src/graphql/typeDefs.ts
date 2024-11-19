@@ -10,11 +10,7 @@ import {
   mutations as accountingsConfigMutations,
 } from './schema/config';
 
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-
 const typeDefs = async () => {
-  const contactsAvailable = await isEnabled('contacts');
-
   return gql`
     scalar JSON
     scalar Date

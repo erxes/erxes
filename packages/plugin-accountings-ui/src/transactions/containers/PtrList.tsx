@@ -12,7 +12,6 @@ import React, { useMemo } from 'react';
 
 type Props = {
   queryParams: any;
-  type?: string;
 };
 
 const PtrListContainer = (props: Props) => {
@@ -63,11 +62,6 @@ const PtrListContainer = (props: Props) => {
           // refresh queries
 
           emptyBulk();
-          const status = removeStatus.data?.removeMainTrMutation || '';
-
-          // status === "deleted"
-          //   ? Alert.success("You successfully deleted a Account")
-          //   : Alert.warning("Account status deleted");
         })
         .catch((e) => {
           Alert.error(e.message);
@@ -90,8 +84,8 @@ const PtrListContainer = (props: Props) => {
     transactionsCount,
   };
 
-  const AccountList = (props) => {
-    return <List {...updatedProps} {...props} />;
+  const AccountList = (params) => {
+    return <List {...updatedProps} {...params} />;
   };
 
   return <Bulk content={AccountList} />;
