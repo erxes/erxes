@@ -52,6 +52,7 @@ export const types = `
         author: User
         categories: [PostCategory]
         tags: [Tag]
+        customFieldsData: JSON
     }
 
     type PostList {
@@ -84,6 +85,7 @@ export const inputs = `
         audio: AttachmentInput
         documents: [AttachmentInput]
         attachments: [AttachmentInput]
+        customFieldsData: JSON
     }
 `;
 

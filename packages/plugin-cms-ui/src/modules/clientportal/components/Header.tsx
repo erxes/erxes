@@ -14,9 +14,8 @@ const MainContainer = (props: Props) => {
 
   React.useEffect(() => {
     if (currentConfig?._id) {
-      const queryParams = new URLSearchParams(window.location.search);
-      queryParams.set('cpid', currentConfig._id);
-      navigate(`?${queryParams.toString()}`, { replace: true });
+      const newPath = `/cms/posts/${currentConfig._id}`;
+      // navigate(newPath, { replace: true });
     }
   }, [currentConfig, navigate]);
 

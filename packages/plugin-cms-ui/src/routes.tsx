@@ -7,6 +7,7 @@ import {
   Routes,
   useLocation,
   useNavigate,
+  useParams
 } from 'react-router-dom';
 
 const CategoryList = asyncComponent(
@@ -23,6 +24,13 @@ const PostList = asyncComponent(
     )
 );
 
+const PostForm = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Form - Post" */ './modules/posts/containers/Form'
+    )
+);
+
 const Cms = asyncComponent(
   () =>
     import(
@@ -30,8 +38,12 @@ const Cms = asyncComponent(
     )
 );
 
-
-
+const Redirect = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - Cms" */ './modules/clientportal/containers/Redirect'
+    )
+);
 const Component = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -39,11 +51,16 @@ const Component = () => {
   return <CategoryList location={location} navigate={navigate} />;
 };
 
+const RedirectComponent = () => {
+  return <Redirect/>;
+};
+
 const PostComponent = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  return <PostList location={location} navigate={navigate} />;
-}
+
+  const { cpId = ''} = useParams();
+  console.log('PostComponent', cpId);
+  return <PostList clientPortalId={cpId}/>;
+};
 
 const CmsComponent = () => {
   const location = useLocation();
@@ -52,28 +69,42 @@ const CmsComponent = () => {
 };
 
 const routes = () => (
-
   <Routes>
-    
-      <Route
-        key='/cms/categories'
-        path='/cms/categories'
-        element={<Component />}
-      />
+    <Route
+      key='/cms/categories'
+      path='/cms/categories'
+      element={<Component />}
+    />
 
-      <Route
-        key='/cms/posts'
-        path='/cms/posts'
-        element={<PostComponent />}
-      />
-    
+    <Route
+      key='/cms/posts'
+      path='/cms/posts'
+      element={<RedirectComponent />}
+    />
+
+    <Route
+      key='/cms/posts/:cpId'
+      path='/cms/posts/:cpId'
+      element={<PostComponent />}
+    />
+
+    <Route
+      key='/cms/posts/:cpId/new'
+      path='/cms/posts/:cpId/new'
+      element={<PostForm />}
+    />
+
+    <Route
+      key='/cms/posts/:cpId/edit/:id'
+      path='/cms/posts/:cpId/edit/:id'
+      element={<PostForm />}
+    />
   </Routes>
-
 );
 
 export const menu = [
   { title: 'Posts', link: '/cms/posts' },
-  { title: 'Category', link: '/cms/categories'},
+  { title: 'Category', link: '/cms/categories' },
   { title: 'Tags', link: '/cms/tags' },
 ];
 

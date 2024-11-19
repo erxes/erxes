@@ -1,20 +1,22 @@
 import { useMutation, useQuery } from '@apollo/client';
-import { Spinner, router } from '@erxes/ui/src';
-import { Alert, confirm } from '@erxes/ui/src/utils';
+// import { router } from '@erxes/ui/src';
+
+import { Alert, confirm, router } from '@erxes/ui/src/utils';
 import React from 'react';
 import { mutations, queries } from '../graphql';
 
 import List from '../components/List';
-import { useSearchParams } from 'react-router-dom';
 
 type Props = {
+  clientPortalId: string;
   refetch: () => void;
   queryParams: any;
 };
 
 export default function ListContainer(props: Props) {
-  const [searchParams] = useSearchParams();
-  const clientPortalId = searchParams.get('cpid');
+  console.log('props', props);
+
+  const {clientPortalId} = props
 
   const { data, loading, refetch } = useQuery(queries.POST_LIST, {
     variables: {
@@ -27,7 +29,7 @@ export default function ListContainer(props: Props) {
   const [removeMutation] = useMutation(mutations.CATEGORY_REMOVE);
 
   if (loading) {
-    return <Spinner />;
+    return <>loading</>
   }
 
   const remove = (id: string) => {
@@ -48,6 +50,7 @@ export default function ListContainer(props: Props) {
   };
 
   const posts = data?.postList?.posts || [];
+  console.log('posts', posts);
 
   const totalCount = data?.postList?.totalCount || 0;
 
@@ -59,6 +62,8 @@ export default function ListContainer(props: Props) {
     refetch,
     remove,
   };
+
+  console.log('extendedProps', extendedProps);
 
   return <List {...extendedProps} />;
 }

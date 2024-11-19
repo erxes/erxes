@@ -2,6 +2,7 @@ import { Document, Schema } from 'mongoose';
 import slugify from 'slugify';
 import {nanoid} from 'nanoid';
 import { attachmentSchema, IAttachment } from '@erxes/api-utils/src/types';
+import { customFieldSchema, ICustomField } from '@erxes/api-utils/src/definitions/common';
 
 export interface IPost {
   clientPortalId: string;
@@ -30,6 +31,8 @@ export interface IPost {
   audio?: IAttachment;
   documents?: IAttachment[];
   attachments?: IAttachment[];
+
+  customFieldsData?: ICustomField;
 }
 
 export interface IPostDocument extends IPost, Document {
@@ -65,6 +68,11 @@ export const postSchema = new Schema<IPostDocument>(
     audio: { type: attachmentSchema, label: 'Audio' },
     documents: [{ type: attachmentSchema, label: 'Documents' }],
     attachments: [{ type: attachmentSchema, label: 'Attachments' }],
+    customFieldsData: {
+      type: [customFieldSchema],
+      optional: true,
+      label: "Custom fields data"
+    },
   },
   { timestamps: true }
 );

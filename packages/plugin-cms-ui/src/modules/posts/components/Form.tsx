@@ -1,139 +1,129 @@
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { IField } from '@erxes/ui-segments/src/types';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { ILocationOption } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+import LeftSideBar from './LeftSidebar';
 
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils/core';
-
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import { IPost } from '../../../types';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Button } from '@erxes/ui/src/components';
 
 type Props = {
-  post?: any;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
-  closeModal: () => void;
+  post?: IPost;
+  fields?: IField[];
 };
 
-const ProductForm = (props: Props) => {
-  const [post, setPost] = React.useState<any>(
-    props.post || {
-      title: '',
-    }
-  );
-
-  const generateDoc = () => {
-    const finalValues: any = {};
-
-    if (props.post) {
-      finalValues._id = props.post._id;
-    }
-
-    Object.keys(post).forEach((key) => {
-      if (post[key] !== undefined) {
-        finalValues[key] = post[key];
-      }
-    });
-
-    console.log('finalValues', finalValues);
-
-    return {
-      ...finalValues,
-    };
+const PostForm = (props: Props) => {
+  const defaultPost: IPost = {
+    _id: `temporaryId_${Math.random().toString(36).substr(2, 9)}`,
+    title: '',
+    slug: '',
+    content: '',
+    excerpt: '',
+    categoryIds: [],
+    tagIds: [],
+    status: 'draft',
+    authorId: '',
+    featured: false,
+    featuredDate: null,
+    scheduledDate: new Date(),
+    autoArchiveDate: new Date(),
+    publishedDate: new Date(),
+    viewCount: 0,
+    reactions: [],
+    reactionCounts: {},
+    thumbnail: undefined,
+    images: [],
+    video: undefined,
+    audio: undefined,
+    documents: [],
+    attachments: [],
+    customFieldsData: {},
   };
 
-  const renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = props;
-    const { isSubmitted } = formProps;
+  const [post, setPost] = React.useState<IPost>(
+    React.useMemo(() => props.post || defaultPost, [props.post])
+  );
 
-    const onSelectCompanies = (value: any) => {
-      setPost({
-        ...post,
-        companyIds: value,
-      });
-    };
+  const onChange = (field: string, value: any) => {
+    setPost({ ...post, [field]: value });
+  };
 
-    const renderInput = (
-      name: string,
-      type: string,
-      value: any,
-      label: string,
-      required?: boolean,
-      useNumberFormat?: boolean
-    ) => {
-      const onChangeInput = (e: any) => {
-        setPost({
-          ...post,
-          [name]: e.target.value,
-        });
-      };
+  const breadcrumb = [
+    {
+      title: __('Post'),
+      link: '/cms/posts',
+    },
+  ];
 
-      return (
-        <FormGroup>
-          <ControlLabel>{__(label)}</ControlLabel>
-          <FormControl
-            {...formProps}
-            id={name}
-            name={name}
-            type={type}
-            required={required}
-            useNumberFormat={useNumberFormat}
-            defaultValue={value}
-            value={value}
-            onChange={onChangeInput}
-          />
-        </FormGroup>
-      );
-    };
+  const content = (
+    <FormGroup>
+      <ControlLabel required={true}>{__('Content')}</ControlLabel>
+      <RichTextEditor
+        content={post.content || ''}
+        onChange={(e) => {
+          console.log(e);
+        }}
+        // isSubmitted={false}
+        height={`vh-100`}
+        name={`post_${post ? post._id : 'create'}`}
+      />
+    </FormGroup>
+  );
 
+  const renderTitle = () => {
     return (
-      <>
-        {renderInput('name', 'text', post.title, 'Name', true)}
-        {renderInput(
-          'description',
-          'text',
-          post.content,
-          'Description'
-        )}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          marginLeft: '10px',
+          width: '50%',
+        }}
+      >
+        <Icon icon='pen-1' />
 
-        <FormGroup>
-          <ControlLabel>Status</ControlLabel>
-          <br />
-          {/* <FormControl
-            className='toggle-message'
-            componentclass='checkbox'
-            checked={category.status === 'active'}
-            onChange={(e: any) => {
-              setCategory({
-                ...category,
-                status: e.target.checked ? 'active' : 'inactive',
-              });
-            }}
-          >
-            {__('Check to activate')}.
-          </FormControl> */}
-        </FormGroup>
-
-        <ModalFooter>
-          <Button btnStyle='simple' onClick={closeModal} icon='times-circle'>
-            Close
-          </Button>
-
-          {renderButton({
-            name: 'post',
-            values: generateDoc(),
-            isSubmitted,
-            callback: closeModal,
-            object: post,
-          })}
-        </ModalFooter>
-      </>
+        <FormControl
+          hideBottomBorder={true}
+          inline={true}
+          name={'post_title'}
+          type={'input'}
+          required={true}
+          placeholder='Post title'
+          value={post.title || ''}
+          onChange={(e: any) => {
+            setPost({ ...post, title: e.target.value });
+          }}
+        />
+      </div>
     );
   };
 
-  return <Form renderContent={renderContent} />;
+  const actionBarRight = (
+    <Button btnStyle='success' size='small' icon='check' onClick={() => {}}>
+      Save
+    </Button>
+  );
+
+  const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
+
+  return (
+    <Wrapper
+      header={<Wrapper.Header title={'name'} breadcrumb={breadcrumb} />}
+      mainHead={renderTitle()}
+      actionBar={actionBar}
+      leftSidebar={<LeftSideBar post={post} onChange={onChange} />}
+      // rightSidebar={<RightSidebar trip={trip} />}
+      content={content}
+      transparent={true}
+    />
+  );
 };
 
-export default ProductForm;
+export default PostForm;

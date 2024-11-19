@@ -53,6 +53,7 @@ const Input = styledTS<{
   round?: boolean;
   $hasError?: boolean;
   align?: string;
+  hideBottomBorder?: boolean;
 }>(styled.input)`
   display: block;
   border: none;
@@ -60,7 +61,8 @@ const Input = styledTS<{
   height: ${textInputHeight};
   padding: ${dimensions.unitSpacing}px 0;
   color: ${colors.textPrimary};
-  border-bottom: 1px solid;
+  border-bottom: ${(props) =>
+    props.hideBottomBorder ? "none" : "1px solid #e9e9e9"};
   border-color:${(props) =>
     props.$hasError ? colors.colorCoreRed : colors.colorShadowGray};
   background: none;

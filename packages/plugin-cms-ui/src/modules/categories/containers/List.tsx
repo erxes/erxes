@@ -5,7 +5,7 @@ import React from 'react';
 import { mutations, queries } from '../graphql';
 
 import List from '../components/List';
-import { useSearchParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 type Props = {
   refetch: () => void;
@@ -13,8 +13,13 @@ type Props = {
 };
 
 export default function ListContainer(props: Props) {
-  const [searchParams] = useSearchParams();
-  const clientPortalId = searchParams.get('cpid');
+  const { cpId: clientPortalId } = useParams(); // Destructure 'cpid' from the params
+
+  React.useEffect(() => {
+    if (clientPortalId) {
+      console.log('Client Portal ID:', clientPortalId);
+    }
+  }, [clientPortalId]);
 
   const { data, loading, refetch } = useQuery(queries.GET_CATEGORIES, {
     variables: {

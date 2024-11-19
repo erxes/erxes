@@ -14,9 +14,10 @@ import PostForm from '../containers/Form';
 import { menu } from '../../../routes';
 import Row from './Row';
 import CPHeader from '../../clientportal/containers/Header';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type Props = {
-  posts : any[];
+  posts: any[];
   totalCount: number;
   queryParams: any;
   loading: boolean;
@@ -25,6 +26,9 @@ type Props = {
 };
 
 const List = (props: Props) => {
+  console.log('****************', props);
+  const location = useLocation();
+  const navigate = useNavigate();
   const { totalCount, queryParams, loading, posts, remove } = props;
 
   const renderRow = () => {
@@ -42,17 +46,20 @@ const List = (props: Props) => {
     </Button>
   );
 
-  const formContent = (formProps) => <PostForm {...formProps}/>
+  const formContent = (formProps) => <PostForm {...formProps} />;
 
   const righActionBar = (
     <BarItems>
-      <ModalTrigger
-        size='lg'
-        title='Add post'
-        autoOpenKey='showAppAddModal'
-        trigger={trigger}
-        content={formContent}
-      />
+      <Button
+        btnStyle='success'
+        size='small'
+        icon='plus-circle'
+        onClick={() => {
+          navigate(`${location.pathname}/new`);
+        }}
+      >
+        Add post
+      </Button>
     </BarItems>
   );
 

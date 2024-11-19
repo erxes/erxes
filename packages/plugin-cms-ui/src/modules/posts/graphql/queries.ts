@@ -67,6 +67,76 @@ const POST_LIST = gql`
   }
 `;
 
+const POST = gql`
+query Post($id: String) {
+  post(_id: $id) {
+    _id
+    clientPortalId
+    title
+    slug
+    content
+    excerpt
+    categoryIds
+    status
+    tagIds
+    authorId
+    featured
+    featuredDate
+    scheduledDate
+    autoArchiveDate
+    reactions
+    reactionCounts
+    thumbnail {
+      url
+    }
+    images {
+      url
+      type
+    }
+    video {
+      url
+      type
+    }
+    audio {
+      url
+      type
+    }
+    documents {
+      url
+      type
+    }
+    attachments {
+      url
+      type
+    }
+    createdAt
+    updatedAt
+    author {
+      _id
+      details {
+        firstName
+        lastName
+        shortName
+        fullName
+        avatar
+      }
+      email
+    }
+    categories {
+      _id
+      name
+      slug
+    }
+    tags {
+      _id
+      name
+    }
+    customFieldsData
+  }
+}
+`;
+
 export default {
   POST_LIST,
+  POST
 };

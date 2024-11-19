@@ -1,3 +1,35 @@
+import { IAttachment } from "@erxes/ui/src/types";
+
+export interface IPost {
+  _id: string;
+  title: string;
+  slug: string;
+  content?: string;
+  excerpt?: string;
+  categoryIds?: string[];
+  status: 'draft' | 'published' | 'scheduled' | 'archived';
+  tagIds?: string[];
+  authorId?: string;
+  featured?: boolean;
+  featuredDate?: Date | null;
+  scheduledDate?: Date;
+  autoArchiveDate?: Date;
+  publishedDate?: Date;
+  viewCount?: number;
+  reactions?: string[];
+  reactionCounts?: { [key: string]: number };
+  thumbnail?: IAttachment;
+  images?: IAttachment[];
+  video?: IAttachment;
+  audio?: IAttachment;
+  documents?: IAttachment[];
+  attachments?: IAttachment[];
+  customFieldsData?: {
+    [key: string]: any;
+  };
+}
+
+
 export interface ICms {
   _id: string;
   name?: string;
