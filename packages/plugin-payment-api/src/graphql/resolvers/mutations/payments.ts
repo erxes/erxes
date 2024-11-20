@@ -42,7 +42,7 @@ const mutations = {
     }
 
     const payment = await models.PaymentMethods.createPayment(doc);
-
+    console.debug("payment", payment);
     if (doc.kind === 'pocket') {
       const pocketApi = new PocketAPI(doc.config, domain);
       try {
