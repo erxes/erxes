@@ -33,7 +33,7 @@ const PosContainer = (props: Props) => {
       skip: !parentId,
       fetchPolicy: "cache-and-network",
       variables: {
-        _id: parentId || ""
+        _id: parentId
       },
     }
   );
@@ -139,6 +139,7 @@ const PosContainer = (props: Props) => {
           });
         } else {
           Alert.success("You successfully updated transactions");
+          trDetailQuery.refetch();
           setLoading(false);
         }
       })
