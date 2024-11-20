@@ -135,40 +135,40 @@ const trsQueryParams = `
 `;
 
 export const queries = `
-  transactions(
+  accTransactions(
     ${trsQueryParams},
     page: Int,
     perPage: Int,
     sortField: String
     sortDirection: Int
   ): [CommonTransaction]
-  transactionDetail(_id: String!): [CommonTransaction]
-  transactionsCount(${trsQueryParams}): Int
-  ptrs(
+  accTransactionDetail(_id: String!): [CommonTransaction]
+  accTransactionsCount(${trsQueryParams}): Int
+  accPtrs(
     ${trsQueryParams},
     page: Int,
     perPage: Int,
     sortField: String
     sortDirection: Int
   ): CommonTransaction
-  oddTransactions: CommonTransaction
+  accOddTransactions: CommonTransaction
 `;
 
 export const mutations = `
-  transactionsCreate(trDocs: [TransactionInput]): [CommonTransaction]
-  transactionsUpdate(parentId: String, trDocs: [TransactionInput]): [CommonTransaction]
-  mainTrAdd(${mainTrParams}): [CommonTransaction]
-  mainTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
-  mainTrRemove(_id: String!): String
+  accTransactionsCreate(trDocs: [TransactionInput]): [CommonTransaction]
+  accTransactionsUpdate(parentId: String, trDocs: [TransactionInput]): [CommonTransaction]
+  accMainTrAdd(${mainTrParams}): [CommonTransaction]
+  accMainTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
+  accMainTrRemove(_id: String!): String
 
-  ptrRemove(_id: String!): String
+  accPtrRemove(_id: String!): String
 
-  transactionsLink(trIds: [String], ptrId: String): [CommonTransaction]
+  accTransactionsLink(trIds: [String], ptrId: String): [CommonTransaction]
 
-  cashTrAdd(${mainTrParams}): [CommonTransaction]
-  cashTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
-  fundTrAdd(${mainTrParams}): [CommonTransaction]
-  fundTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
-  debtTrAdd(${mainTrParams}): [CommonTransaction]
-  debtTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
+  accCashTrAdd(${mainTrParams}): [CommonTransaction]
+  accCashTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
+  accFundTrAdd(${mainTrParams}): [CommonTransaction]
+  accFundTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
+  accDebtTrAdd(${mainTrParams}): [CommonTransaction]
+  accDebtTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
 `;

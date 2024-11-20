@@ -178,24 +178,24 @@ const commonParams = `
 `;
 
 const transactions = `
-  query transactions(${accountsFilterParamDefs}, ${commonParamDefs}) {
-    transactions(${accountsFilterParams}, ${commonParams}) {
+  query accTransactions(${accountsFilterParamDefs}, ${commonParamDefs}) {
+    accTransactions(${accountsFilterParams}, ${commonParams}) {
       ${commonTransactionFields}
     }
   }
 `;
 
 const transactionDetail = `
-  query transactionDetail($_id: String!) {
-    transactionDetail(_id: $_id) {
+  query accTransactionDetail($_id: String!) {
+    accTransactionDetail(_id: $_id) {
       ${commonTransactionFields}
     }
   }
 `;
 
 const transactionsCount = `
-  query transactionsCount(${accountsFilterParamDefs}) {
-    transactionsCount(${accountsFilterParams})
+  query accTransactionsCount(${accountsFilterParamDefs}) {
+    accTransactionsCount(${accountsFilterParams})
   }
 `;
 

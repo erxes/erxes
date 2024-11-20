@@ -1,8 +1,8 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 import Account from './account';
 import AccountCategory from './accountCategory';
-import Transaction from './transaction';
-import TrDetail from './trDetail';
+import AccTransaction from './accTransaction';
+import AccTrDetail from './accTrDetail';
 import {
   AccountingConfigs as MutationsAccountingConfig,
   AccountCategories as MutationsAccountCategory,
@@ -26,8 +26,8 @@ const resolvers: any = {
   ...customScalars,
   Account,
   AccountCategory,
-  CommonTransaction: Transaction,
-  TrDetail,
+  CommonTransaction: AccTransaction,
+  AccTrDetail,
   Mutation: {
     ...MutationsAccountCategory,
     ...MutationsAccount,

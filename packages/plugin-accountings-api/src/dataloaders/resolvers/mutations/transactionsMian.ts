@@ -11,7 +11,7 @@ import { JOURNALS } from '../../../models/definitions/constants';
 import { ITransaction } from '../../../models/definitions/transaction';
 
 const mainTrMutations = {
-  async transactionsLink(_root, doc: { ids: string[], ptrId: string }, { user, models }) {
+  async accTransactionsLink(_root, doc: { ids: string[], ptrId: string }, { user, models }) {
     const { ids, ptrId } = doc;
     return await models.Transactions.linkTransaction(ids, ptrId)
   },
@@ -19,7 +19,7 @@ const mainTrMutations = {
    * Creates a new account category
    * @param {Object} doc Account category document
    */
-  async mainTrAdd(
+  async accMainTrAdd(
     _root,
     doc: ITransaction,
     { user, models, subdomain }: IContext,
@@ -59,7 +59,7 @@ const mainTrMutations = {
    * @param {string} param2._id VatRow id
    * @param {Object} param2.doc VatRow info
    */
-  async mainTrEdit(
+  async accMainTrEdit(
     _root,
     { _id, ...doc }: ITransaction & { _id: string },
     { user, models, subdomain }: IContext,
@@ -104,7 +104,7 @@ const mainTrMutations = {
    * Removes a account category
    * @param {string} param1._id VatRow id
    */
-  async mainTrRemove(
+  async accMainTrRemove(
     _root,
     { _id }: { _id: string },
     { user, models, subdomain }: IContext,
@@ -125,8 +125,8 @@ const mainTrMutations = {
   },
 };
 
-checkPermission(mainTrMutations, 'mainTrAdd', 'manageTransactions');
-checkPermission(mainTrMutations, 'mainTrEdit', 'manageTransactions');
-checkPermission(mainTrMutations, 'mainTrRemove', 'manageTransactions');
+checkPermission(mainTrMutations, 'accMainTrAdd', 'manageTransactions');
+checkPermission(mainTrMutations, 'accMainTrEdit', 'manageTransactions');
+checkPermission(mainTrMutations, 'accMainTrRemove', 'manageTransactions');
 
 export default mainTrMutations;

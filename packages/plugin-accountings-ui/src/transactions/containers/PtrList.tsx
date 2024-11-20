@@ -69,8 +69,8 @@ const PtrListContainer = (props: Props) => {
     });
   };
 
-  const transactions = transactionsQuery.data?.transactions || [];
-  const transactionsCount = transactionsCountQuery.data?.transactionsCount || 0;
+  const transactions = transactionsQuery.data?.accTransactions || [];
+  const transactionsCount = transactionsCountQuery.data?.accTransactionsCount || 0;
 
   const searchValue = props.queryParams.searchValue || "";
 

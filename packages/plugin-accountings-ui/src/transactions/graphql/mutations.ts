@@ -61,98 +61,98 @@ const mainTrInputParams = `
 `;
 
 const mainTrAdd = `
-  mutation mainTrAdd(${mainTrInputParamDefs}) {
-    mainTrAdd(${mainTrInputParams}) {
+  mutation accMainTrAdd(${mainTrInputParamDefs}) {
+    accMainTrAdd(${mainTrInputParams}) {
       ${commonTransactionFields}
     }
   }
 `;
 
 const mainTrEdit = `
-  mutation mainTrEdit($_id: String!${mainTrInputParamDefs}) {
-    mainTrEdit(_id: $_id, ${mainTrInputParams}) {
+  mutation accMainTrEdit($_id: String!${mainTrInputParamDefs}) {
+    accMainTrEdit(_id: $_id, ${mainTrInputParams}) {
       ${commonTransactionFields}
     }
   }
 `;
 
 const mainTrRemove = `
-  mutation mainTrRemove($_id: String!) {
-    mainTrRemove(_id: $_id)
+  mutation accMainTrRemove($_id: String!) {
+    accMainTrRemove(_id: $_id)
   }
 `;
 
 const ptrRemove = `
-  mutation ptrRemove($_id: String!) {
-    ptrRemove(_id: $_id)
+  mutation accPtrRemove($_id: String!) {
+    accPtrRemove(_id: $_id)
   }
 `;
 
 const transactionsLink = `
-  mutation transactionsLink($trIds: [String], $ptrId: String) {
-    transactionsLink(trIds: $trIds, ptrId: $ptrId)
+  mutation accTransactionsLink($trIds: [String], $ptrId: String) {
+    accTransactionsLink(trIds: $trIds, ptrId: $ptrId)
   }
 `;
 
 const cashTrAdd = `
-  mutation cashTrAdd(${mainTrInputParamDefs}) {
-    cashTrAdd(${mainTrInputParams}) {
+  mutation accCashTrAdd(${mainTrInputParamDefs}) {
+    accCashTrAdd(${mainTrInputParams}) {
       ${commonTransactionFields}
     }
   }
 `;
 
 const cashTrEdit = `
-  mutation cashTrEdit($_id: String!${mainTrInputParamDefs}) {
-    cashTrEdit(_id: $_id, ${mainTrInputParams}) {
+  mutation accCashTrEdit($_id: String!${mainTrInputParamDefs}) {
+    accCashTrEdit(_id: $_id, ${mainTrInputParams}) {
       ${commonTransactionFields}
     }
   }
 `;
 
 const fundTrAdd = `
-  mutation fundTrAdd(${mainTrInputParamDefs}) {
-    fundTrAdd(${mainTrInputParams}) {
+  mutation accFundTrAdd(${mainTrInputParamDefs}) {
+    accFundTrAdd(${mainTrInputParams}) {
       ${commonTransactionFields}
     }
   }
 `;
 
 const fundTrEdit = `
-  mutation fundTrEdit($_id: String!${mainTrInputParamDefs}) {
-    fundTrEdit(_id: $_id, ${mainTrInputParams}) {
+  mutation accFundTrEdit($_id: String!${mainTrInputParamDefs}) {
+    accFundTrEdit(_id: $_id, ${mainTrInputParams}) {
       ${commonTransactionFields}
     }
   }
 `;
 
 const debtTrAdd = `
-  mutation debtTrAdd(${mainTrInputParamDefs}) {
-    debtTrAdd(${mainTrInputParams}) {
+  mutation accDebtTrAdd(${mainTrInputParamDefs}) {
+    accDebtTrAdd(${mainTrInputParams}) {
       ${commonTransactionFields}
     }
   }
 `;
 
 const debtTrEdit = `
-  mutation debtTrEdit($_id: String!, ${mainTrInputParamDefs}) {
-    debtTrEdit(_id: $_id, ${mainTrInputParams}) {
+  mutation accDebtTrEdit($_id: String!, ${mainTrInputParamDefs}) {
+    accDebtTrEdit(_id: $_id, ${mainTrInputParams}) {
       ${commonTransactionFields}
     }
   }
 `;
 
 const transactionsCreate = `
-  mutation transactionsCreate($trDocs: [TransactionInput]) {
-    transactionsCreate(trDocs: $trDocs) {
+  mutation accTransactionsCreate($trDocs: [TransactionInput]) {
+    accTransactionsCreate(trDocs: $trDocs) {
       ${commonTransactionFields}
     }
   }
 `;
 
 const transactionsUpdate = `
-  mutation transactionsUpdate($parentId: String!, $trDocs: [TransactionInput]) {
-    transactionsUpdate(parentId: $parentId, trDocs: $trDocs) {
+  mutation accTransactionsUpdate($parentId: String!, $trDocs: [TransactionInput]) {
+    accTransactionsUpdate(parentId: $parentId, trDocs: $trDocs) {
       ${commonTransactionFields}
     }
   }

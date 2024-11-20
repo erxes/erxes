@@ -103,15 +103,15 @@ export interface ITransaction {
 }
 
 export type TransactionDetailQueryResponse = {
-  transactionDetail: ITransaction[];
+  accTransactionDetail: ITransaction[];
 } & QueryResponse;
 
 export type TransactionsQueryResponse = {
-  transactions: ITransaction[];
+  accTransactions: ITransaction[];
 } & QueryResponse;
 
 export type TransactionsCountQueryResponse = {
-  transactionsCount: number;
+  accTransactionsCount: number;
 } & QueryResponse;
 
 export type AddTransactionsMutationResponse = {

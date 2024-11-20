@@ -146,7 +146,7 @@ const generateFilter = async (
 };
 
 const transactionCommon = {
-  async transactionDetail(
+  async accTransactionDetail(
     _root,
     params: { _id: string },
     { models, user }: IContext,
@@ -163,7 +163,7 @@ const transactionCommon = {
     return await checkPermissionTrs(models, relatedTrs, user);
   },
 
-  async transactions(
+  async accTransactions(
     _root,
     params: IQueryParams & { page: number, perPage: number },
     { commonQuerySelector, models, user }: IContext,
@@ -198,7 +198,7 @@ const transactionCommon = {
     )
   },
 
-  async transactionsCount(
+  async accTransactionsCount(
     _root,
     params: IQueryParams,
     { commonQuerySelector, models, user }: IContext,

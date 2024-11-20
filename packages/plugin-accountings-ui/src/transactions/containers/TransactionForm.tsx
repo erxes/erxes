@@ -53,7 +53,7 @@ const PosContainer = (props: Props) => {
     return <Spinner objective={true} />;
   }
 
-  let transactions = trDetailQuery?.data?.transactionDetail;
+  let transactions = trDetailQuery?.data?.accTransactionDetail;
   const configs = configsQuery.data?.accountingsConfigs || [];
   const configsMap = {};
 

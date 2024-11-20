@@ -293,16 +293,7 @@ export const sendFormsMessage = (
   args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'forms',
-    ...args,
-  });
-};
-
-export const sendCardsMessage = (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'cards',
+    serviceName: 'core',
     ...args,
   });
 };
@@ -320,7 +311,7 @@ export const sendContactsMessage = (
   args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'contacts',
+    serviceName: 'core',
     ...args,
   });
 };
@@ -329,7 +320,7 @@ export const sendSegmentsMessage = async (
   args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'segments',
+    serviceName: 'core',
     ...args,
   });
 };

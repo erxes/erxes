@@ -2,7 +2,7 @@ import { IContext } from '../../../connectionResolver';
 import { ITransaction } from '../../../models/definitions/transaction';
 
 const transactionsMutations = {
-  async transactionsLink(_root, doc: { ids: string[], ptrId: string }, { user, models }) {
+  async accTransactionsLink(_root, doc: { ids: string[], ptrId: string }, { user, models }) {
     const { ids, ptrId } = doc;
     return await models.Transactions.linkTransaction(ids, ptrId)
   },
@@ -10,7 +10,7 @@ const transactionsMutations = {
    * Creates a new account category
    * @param {Object} doc Account category document
    */
-  async transactionsCreate(
+  async accTransactionsCreate(
     _root,
     { trDocs }: { trDocs: ITransaction[] },
     { user, models }: IContext,
@@ -26,7 +26,7 @@ const transactionsMutations = {
    * @param {string} param2._id VatRow id
    * @param {Object} param2.doc VatRow info
    */
-  async transactionsUpdate(
+  async accTransactionsUpdate(
     _root,
     { parentId, trDocs }: { parentId: string, trDocs: (ITransaction & { _id?: string })[] },
     { user, models }: IContext,
@@ -40,7 +40,7 @@ const transactionsMutations = {
    * Removes a account category
    * @param {string} param1._id VatRow id
    */
-  async transactionsRemove(
+  async accTransactionsRemove(
     _root,
     { _id }: { _id: string },
     { user, models, subdomain }: IContext,

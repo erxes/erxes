@@ -16,7 +16,7 @@ const cashTrMutations = {
    * Creates a new account category
    * @param {Object} doc Account category document
    */
-  async cashTrAdd(
+  async accCashTrAdd(
     _root,
     doc: ITransaction,
     { user, models, subdomain }: IContext,
@@ -59,7 +59,7 @@ const cashTrMutations = {
    * @param {string} param2._id VatRow id
    * @param {Object} param2.doc VatRow info
    */
-  async cashTrEdit(
+  async accCashTrEdit(
     _root,
     { _id, ...doc }: ITransaction & { _id: string },
     { user, models, subdomain }: IContext,
@@ -110,7 +110,7 @@ const cashTrMutations = {
    * Removes a account category
    * @param {string} param1._id VatRow id
    */
-  async cashTrRemove(
+  async accCashTrRemove(
     _root,
     { _id }: { _id: string },
     { user, models, subdomain }: IContext,
@@ -131,8 +131,8 @@ const cashTrMutations = {
   },
 };
 
-checkPermission(cashTrMutations, 'cashTrAdd', 'manageTransactions');
-checkPermission(cashTrMutations, 'cashTrEdit', 'manageTransactions');
-checkPermission(cashTrMutations, 'cashTrRemove', 'manageTransactions');
+checkPermission(cashTrMutations, 'accCashTrAdd', 'manageTransactions');
+checkPermission(cashTrMutations, 'accCashTrEdit', 'manageTransactions');
+checkPermission(cashTrMutations, 'accCashTrRemove', 'manageTransactions');
 
 export default cashTrMutations;
