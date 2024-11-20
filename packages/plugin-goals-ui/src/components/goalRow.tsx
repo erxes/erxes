@@ -1,17 +1,17 @@
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery } from "@apollo/client";
 import {
   ActionButtons,
   Button,
   formatValue,
   FormControl,
   ModalTrigger
-} from '@erxes/ui/src';
-import _ from 'lodash';
-import React, { useEffect, useState } from 'react';
-import GoalTypeForm from '../containers/goalForm';
-import { queries } from '../graphql';
-import { IGoalType } from '../types';
-import GoalView from './goalView';
+} from "@erxes/ui/src";
+import _ from "lodash";
+import React, { useEffect, useState } from "react";
+import GoalTypeForm from "../containers/goalForm";
+import { queries } from "../graphql";
+import { IGoalType } from "../types";
+import GoalView from "./goalView";
 
 type Props = {
   goalType: IGoalType;
@@ -91,10 +91,10 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
   const onClick = (e) => {
     e.stopPropagation();
   };
-  const [pipelineName, setPipelineName] = useState('');
-  const [boardName, setBoardName] = useState('');
-  const [stageName, setStageName] = useState('');
-  const [emailName, setEmail] = useState('');
+  const [pipelineName, setPipelineName] = useState("");
+  const [boardName, setBoardName] = useState("");
+  const [stageName, setStageName] = useState("");
+  const [emailName, setEmail] = useState("");
   const pipelineQueryMap = {
     task: gql(queries.tasksPipelineDetail),
     ticket: gql(queries.ticketsPipelineDetail),
@@ -143,13 +143,13 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
     // Helper function to get board data based on entity type
     const getBoardData = () => {
       switch (goalType.entity) {
-        case 'deal':
+        case "deal":
           return boardDetail.data.salesBoardDetail;
-        case 'task':
+        case "task":
           return boardDetail.data.tasksBoardDetail;
-        case 'purchase':
+        case "purchase":
           return boardDetail.data.purchasesBoardDetail;
-        case 'ticket':
+        case "ticket":
           return boardDetail.data.ticketsBoardDetail;
         default:
           return null;
@@ -165,13 +165,13 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
     // Helper function to get pipeline data based on entity type
     const getPipelineData = () => {
       switch (goalType.entity) {
-        case 'deal':
+        case "deal":
           return pipelineDetail.data.salesPipelineDetail;
-        case 'task':
+        case "task":
           return pipelineDetail.data.tasksPipelineDetail;
-        case 'purchase':
+        case "purchase":
           return pipelineDetail.data.purchasesPipelineDetail;
-        case 'ticket':
+        case "ticket":
           return pipelineDetail.data.ticketsPipelineDetail;
         default:
           return null;
@@ -187,13 +187,13 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
     // Helper function to get stage data based on entity type
     const getStageData = () => {
       switch (goalType.entity) {
-        case 'deal':
+        case "deal":
           return stageDetail.data.salesStageDetail;
-        case 'task':
+        case "task":
           return stageDetail.data.tasksStageDetail;
-        case 'purchase':
+        case "purchase":
           return stageDetail.data.purchasesStageDetail;
-        case 'ticket':
+        case "ticket":
           return stageDetail.data.ticketsStageDetail;
         default:
           return null;
@@ -241,18 +241,18 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
           onChange={onChange}
         />
       </td>
-      <td key={'name'}>{displayValue(goalType, 'name')}</td>
-      <td key={'entity'}>{displayValue(goalType, 'entity')}</td>
+      <td key={"name"}>{displayValue(goalType, "name")}</td>
+      <td key={"entity"}>{displayValue(goalType, "entity")}</td>
       <td>{boardName}</td>
       <td>{pipelineName}</td>
       <td>{stageName}</td>
-      <td key={'contributionType'}>
-        {' '}
-        {displayValue(goalType, 'contributionType')}
+      <td key={"contributionType"}>
+        {" "}
+        {displayValue(goalType, "contributionType")}
       </td>
-      <td key={'metric'}>{displayValue(goalType, 'metric')}</td>
-      <td key={'startDate'}>{displayValue(goalType, 'startDate')}</td>
-      <td key={'endDate'}>{displayValue(goalType, 'endDate')}</td>
+      <td key={"metric"}>{displayValue(goalType, "metric")}</td>
+      <td key={"startDate"}>{displayValue(goalType, "startDate")}</td>
+      <td key={"endDate"}>{displayValue(goalType, "endDate")}</td>
       <td>
         <ActionButtons>{renderEditAction(goalType)}</ActionButtons>
       </td>

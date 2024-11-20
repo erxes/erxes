@@ -49,7 +49,7 @@ export default class LeftSidebar extends React.Component<Props> {
           refetchQueries={taggerRefetchQueries}
         />
 
-        <CustomFieldsSection customer={customer} isDetail={true} />
+        <CustomFieldsSection customer={customer} isDetail={false} />
         <DevicePropertiesSection
           customer={customer}
           fields={deviceFields}

@@ -18,6 +18,7 @@ import {
   initCustomField
 } from "./maskUtils";
 import { escapeRegExp } from "@erxes/api-utils/src/core";
+import { nanoid } from 'nanoid';
 
 export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
@@ -28,6 +29,7 @@ export interface IProductModel extends Model<IProductDocument> {
     productIds: string[],
     productFields: IProduct
   ): Promise<IProductDocument>;
+  duplicateProduct(_id: string): Promise<IProductDocument>;
 }
 
 export const loadProductClass = (models: IModels, subdomain: string) => {
@@ -56,6 +58,26 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       if (product) {
         throw new Error("Code must be unique");
       }
+    }
+
+    public static async generateCode(maxAttempts: number = 10) {
+      let attempts = 0;
+
+      while (attempts < maxAttempts) {
+        const code = nanoid(6);
+        const foundProduct = await models.Products.findOne({
+          code,
+          status: { $ne: PRODUCT_STATUSES.DELETED }
+        });
+
+        if (!foundProduct) {
+          return code;
+        }
+
+        attempts++;
+      }
+
+      throw new Error('Unable to generate unique product code after multiple attempts');
     }
 
     static fixBarcodes(barcodes?, variants?) {
@@ -328,6 +350,24 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       });
 
       return product;
+    }
+
+    public static async duplicateProduct(productId: string) {
+      const product = await models.Products.findOne({ _id: productId }).lean();
+
+      if (!product) throw new Error('Product not found');
+
+      const { _id, code, ...productData } = product;
+
+      const newCode = await this.generateCode();
+
+      const newProduct = await models.Products.createProduct({
+        ...productData,
+        code: `${code}-${newCode}`,
+        name: `${product.name} duplicated`,
+      });
+
+      return newProduct;
     }
   }
 

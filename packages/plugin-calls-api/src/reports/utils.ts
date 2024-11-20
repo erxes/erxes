@@ -621,7 +621,7 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
     }, {});
   }
 
-  return { data: [...reorderedData, total] };
+  return { data: [...reorderedData, total], headers: [...dimensions, ...measures] };
 };
 
 export const getGrandStreamData = async (models, user) => {

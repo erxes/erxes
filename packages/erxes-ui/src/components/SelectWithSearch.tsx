@@ -142,6 +142,10 @@ class SelectWithSearch extends React.Component<
       this.setState({ selectedValues: [] });
     }
 
+    if (initialValues?.length) {
+      this.setState({ selectedValues: initialValues });
+    }
+
     if (customQuery.loading !== this.props.customQuery.loading) {
       const datas = customQuery[queryName] || [];
 
@@ -237,7 +241,7 @@ class SelectWithSearch extends React.Component<
       const selectedOptionValue = option ? option.value : "";
       const selectedOption = option ? option : { value: "", label: "" };
 
-      onSelect(selectedOptionValue, name, option?.extraValue);
+      onSelect(selectedOptionValue, name, option?.extraValue, option?.obj);
 
       this.setState({
         selectedValues: [selectedOptionValue],
@@ -363,7 +367,8 @@ type WrapperProps = {
   onSelect: (
     values: string[] | string,
     name: string,
-    extraValue?: string
+    extraValue?: string,
+    obj?: any
   ) => void;
   generateOptions: (datas: any[]) => IOption[];
   customQuery?: any;

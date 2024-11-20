@@ -12,10 +12,9 @@ const PrintProgress = () => {
   const activeOrderId = useAtomValue(activeOrderIdAtom)
   const printOnlyNewItems = useAtomValue(printOnlyNewItemsAtom)
   const { changeStatus } = useChangeOrderStatus()
-
   const { iframeRef } = useReciept({
     onCompleted() {
-      printOnlyNewItems &&
+      if (!showRecieptId?.includes("customer") && printOnlyNewItems) {
         changeStatus({
           variables: {
             _id: activeOrderId,
@@ -23,6 +22,7 @@ const PrintProgress = () => {
           },
           refetchQueries: ["orderDetail"],
         })
+      }
       setShowRecieptId(null)
     },
   })

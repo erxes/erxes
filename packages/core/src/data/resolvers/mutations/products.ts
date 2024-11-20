@@ -204,6 +204,20 @@ const productMutations = {
     { models }: IContext
   ) {
     return models.Products.mergeProducts(productIds, { ...productFields });
+  },
+
+  /**
+   * Duplicate a product
+   */
+
+  async productsDuplicate(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    const product = await models.Products.duplicateProduct(_id);
+
+    return product;
   }
 };
 
@@ -211,6 +225,7 @@ checkPermission(productMutations, "productsAdd", "manageProducts");
 checkPermission(productMutations, "productsEdit", "manageProducts");
 checkPermission(productMutations, "productsRemove", "removeProducts");
 checkPermission(productMutations, "productsMerge", "productsMerge");
+checkPermission(productMutations, "productsDuplicate", "manageProducts");
 
 checkPermission(productMutations, "productCategoriesAdd", "manageProducts");
 checkPermission(productMutations, "productCategoriesEdit", "manageProducts");

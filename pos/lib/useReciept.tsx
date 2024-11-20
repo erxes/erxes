@@ -3,24 +3,28 @@ import { useEffect, useRef } from "react"
 const useReciept = (options?: { onCompleted?: () => void }) => {
   const { onCompleted } = options || {}
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  const onCompletedRef = useRef(onCompleted)
+
+  useEffect(() => {
+    onCompletedRef.current = onCompleted
+  }, [onCompleted])
+
   const handleIframeMessage = (event: MessageEvent) => {
     if (
       event.source === iframeRef.current?.contentWindow &&
-      event.data?.message === "close"
+      event.data?.message === "close" &&
+      onCompletedRef.current
     ) {
-      onCompleted && onCompleted()
+      onCompletedRef.current()
     }
   }
 
   useEffect(() => {
-    // Add event listener to listen for messages from the iframe
     window.addEventListener("message", handleIframeMessage)
 
-    // Clean up the event listener when the component unmounts
     return () => {
       window.removeEventListener("message", handleIframeMessage)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return { iframeRef }

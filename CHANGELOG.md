@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.1.0-rc.2](https://github.com/erxes/erxes/compare/2.1.0-rc.1...2.1.0-rc.2) (2024-11-19)
+
+
+### Features
+
+* syncerkhet return deal with returnType ([742429d](https://github.com/erxes/erxes/commit/742429d9139ba2a7cf57099d63fc60011cae0246))
+
+
+### Bug Fixes
+
+* **goal:** tags type fixed ([a30b7c5](https://github.com/erxes/erxes/commit/a30b7c5547444e1d4e6f66dcd7d063de3cd04058))
+* pos-ui shop theme billType ([8bf5bc4](https://github.com/erxes/erxes/commit/8bf5bc4316aa087ed0d644893cfabdedc39ebb6b))
+* pos-ui ui shop theme diolog ([f757430](https://github.com/erxes/erxes/commit/f757430483dcf4386411a89e3aac9f03f3b13ef3))
+* pricing getQuantityRules ([9a04343](https://github.com/erxes/erxes/commit/9a04343ae5960dc7795e880840b86280b2df4452))
+* sales documents ([ae84b53](https://github.com/erxes/erxes/commit/ae84b53023958d635d7db7caab1d59432888a634))
+
 ## [2.1.0-rc.1](https://github.com/erxes/erxes/compare/2.1.0-rc.0...2.1.0-rc.1) (2024-11-17)
 
 

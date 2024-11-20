@@ -1,14 +1,15 @@
-import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
+import { Model } from "mongoose";
+import { IModels } from "../connectionResolver";
 import {
   sendCoreMessage,
   sendSalesMessage,
   sendTasksMessage,
   sendTicketsMessage,
   sendPurchasesMessage
-} from '../messageBroker';
-import { goalSchema, IGoal, IGoalDocument } from './definitions/goals';
-import { CONTRIBUTIONTYPE, TEAMGOALTYPE } from '../constants';
+} from "../messageBroker";
+import { goalSchema, IGoal, IGoalDocument } from "./definitions/goals";
+import { CONTRIBUTIONTYPE, TEAMGOALTYPE } from "../constants";
+import { compileFunction } from "vm";
 export interface IGoalModel extends Model<IGoalDocument> {
   getGoal(_id: string): Promise<IGoalDocument>;
   createGoal(doc: IGoal): Promise<IGoalDocument>;
@@ -131,40 +132,57 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
     }
     const data: DataItem[] = [];
 
-    for (const item of doc) {
-      let amount;
-      const type = item.periodGoal;
-      let requestData: any;
+    interface RequestData {
+      tagIds?: string[];
+      stageId?: string;
+      assignedUserIds?: string[];
+      departmentIds?: string[];
+      branchIds?: string[];
+      companyIds?: string[];
+      unit?: string[];
+    }
+    const getRequestData = (item): RequestData => {
+      let requestData: RequestData = {}; // Explicit type declaration
 
+      // Add tagIds if available
+      if (item.tagsIds && item.tagsIds.length > 0) {
+        requestData.tagIds = item.tagsIds;
+      }
+
+      // Add stageId if available
+      if (item.stageId) {
+        requestData.stageId = item.stageId;
+      }
+
+      // Handle assignedUserIds, ensuring it doesn't include empty strings
       if (item.contributionType === CONTRIBUTIONTYPE.PERSON) {
-        requestData = {
-          assignedUserIds: item.contribution
-        };
-      } else if (item.contributionType === CONTRIBUTIONTYPE.TEAM) {
-        if (item.teamGoalType === TEAMGOALTYPE.DEPARTMENT) {
-          requestData = {
-            departmentIds: item.departmentIds
-          };
-        } else if (item.teamGoalType === TEAMGOALTYPE.BRANCH) {
-          requestData = {
-            branchIds: item.branchIds
-          };
-        } else if (item.teamGoalType === TEAMGOALTYPE.COMPANIES) {
-          requestData = {
-            companyIds: item.companyIds
-          };
-        } else if (item.teamGoalType === TEAMGOALTYPE.UNITS) {
-          requestData = {
-            unit: item.unit
-          };
+        const assignedUserIds = item.contribution.filter((id) => id !== "");
+        if (assignedUserIds.length > 0) {
+          requestData.assignedUserIds = assignedUserIds;
         }
       }
 
-      if (item.tagsIds) {
-        requestData = {
-          tagIds: item.tagsIds
+      // Handle team-specific data (assuming the same logic for teams)
+      if (item.contributionType === CONTRIBUTIONTYPE.TEAM) {
+        const teamGoalMapping = {
+          [TEAMGOALTYPE.DEPARTMENT]: { departmentIds: item.department },
+          [TEAMGOALTYPE.BRANCH]: { branchIds: item.branch },
+          // [TEAMGOALTYPE.COMPANIES]: { companyIds: item.companyIds },
+          [TEAMGOALTYPE.UNITS]: { unit: item.unit }
         };
+
+        // Merge team-specific data
+        Object.assign(requestData, teamGoalMapping[item.teamGoalType]);
       }
+
+      return requestData;
+    };
+
+    for (const item of doc) {
+      let amount;
+      const type = item.periodGoal;
+      // let requestData: any;
+      let requestData = getRequestData(item);
 
       const entityMessageMap = {
         deal: sendSalesMessage,
@@ -177,25 +195,45 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       if (!cardType) {
         throw new Error(`Unsupported entity: ${item.entity}`);
       }
+      try {
+        amount = await getAmount(item, subdomain, requestData);
+      } catch (error) {
+        console.error(`Error fetching amount for ${item.entity}:`, error);
+        continue;
+      }
+      let companies;
+      if (item.contributionType === CONTRIBUTIONTYPE.TEAM) {
+        // Ensure companyIds exists before attempting to use it
 
-      const isValidRequestData = Object.values(requestData).some((value) =>
-        Array.isArray(value) ? value.length > 0 : !!value
-      );
+        if (item.companyIds && Array.isArray(item.companyIds)) {
+          const mainTypeIds = Array.isArray(amount)
+            ? amount.map((result) => result._id)
+            : [amount._id];
 
-      const requestPayload = {
-        ...(isValidRequestData ? requestData : {}),
-        stageId: item.stageId
-      };
-      amount = await cardType({
-        subdomain,
-        action: `${item.entity}s.find`,
-        data: {
-          requestPayload
-        },
-        isRPC: true
-      });
+          try {
+            companies = await getCompanies(item, subdomain, mainTypeIds);
+          } catch (error) {
+            console.error(
+              `Error fetching companies for ${item.entity}:`,
+              error
+            );
+            continue;
+          }
+        } else {
+          throw new Error(
+            '"No companyIds found or companyIds is not an array"'
+          );
+        }
+      }
+
+      if (companies.length > 0) {
+        amount = amount.filter((result) =>
+          companies.some((conformity) => conformity.mainTypeId === result._id)
+        );
+      }
       if (!Array.isArray(amount) || amount.length === 0) {
-        return;
+        console.log("No valid amount found, skipping this item.");
+        continue;
       }
 
       let customerIdsBySegments: string[] = [];
@@ -229,12 +267,12 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       let progress;
       let amountData;
       const filteredGoals: Goal[] = await getFilteredGoals(item, amount, type);
-      if (item.metric === 'Value') {
+      if (item.metric === "Value") {
         let mobileAmountsData: number | undefined;
         let data: number | undefined;
         let totalAmount = 0;
 
-        type GoalWithoutFilteredAmount = Omit<Goal, 'filteredAmount'>;
+        type GoalWithoutFilteredAmount = Omit<Goal, "filteredAmount">;
 
         const updatedGoals: GoalWithoutFilteredAmount[] = [];
         // Process filtered goals
@@ -242,7 +280,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
           let goalTotalAmount = 0;
 
           for (const items of goal.filteredAmount) {
-            if (items.productsData && items.status === 'active') {
+            if (items.productsData && items.status === "active") {
               items.productsData.forEach((product) => {
                 if (product.amount) {
                   goalTotalAmount += product.amount;
@@ -336,7 +374,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
             if (goal.filteredAmount) {
               if (Array.isArray(goal.filteredAmount)) {
                 current = goal.filteredAmount.length;
-              } else if (typeof goal.filteredAmount === 'number') {
+              } else if (typeof goal.filteredAmount === "number") {
                 current = goal.filteredAmount;
               }
             }
@@ -486,11 +524,11 @@ function parseWeek(weekString: string): { start: Date; end: Date } {
 
 function filterAmountsForGoal(goal, amounts, type) {
   let goalStartDate, goalEndDate;
-  if (type === 'Monthly') {
+  if (type === "Monthly") {
     const { start, end } = parseMonth(goal.addMonthly);
     goalStartDate = start;
     goalEndDate = end;
-  } else if (type === 'Weekly') {
+  } else if (type === "Weekly") {
     const { start, end } = parseWeek(goal.addMonthly);
     goalStartDate = start;
     goalEndDate = end;
@@ -520,4 +558,46 @@ function getFilteredGoals(item, amounts, type) {
       filteredAmount: filterAmountsForGoal(goal, amounts, type)
     }))
     .filter((goal) => goal.filteredAmount.length > 0);
+}
+
+async function getAmount(item, subdomain, requestData) {
+  const entityMessageMap = {
+    deal: sendSalesMessage,
+    task: sendTasksMessage,
+    purchase: sendPurchasesMessage,
+    ticket: sendTicketsMessage
+  };
+
+  const cardType = entityMessageMap[item.entity];
+  if (!cardType) {
+    throw new Error(`Unsupported entity: ${item.entity}`);
+  }
+
+  return await cardType({
+    subdomain,
+    action: `${item.entity}s.find`,
+    data: requestData,
+    isRPC: true
+  });
+}
+
+// Function to get companies based on companyIds and other item data
+async function getCompanies(item, subdomain, mainTypeIds) {
+  const conformities = await sendCoreMessage({
+    subdomain,
+    action: "conformities.getConformities",
+    data: {
+      mainType: item.entity,
+      mainTypeIds: mainTypeIds,
+      companyIds: item.companyIds,
+      relTypes: ["company"]
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  // Filter companies where relTypeId matches any of the provided companyIds
+  return conformities.filter((result) =>
+    item.companyIds.includes(result.relTypeId)
+  );
 }

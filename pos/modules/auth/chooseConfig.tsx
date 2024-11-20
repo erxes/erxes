@@ -5,7 +5,7 @@ import { useMutation } from "@apollo/client"
 import { useAtom, useSetAtom } from "jotai"
 import { CheckIcon, ChevronsUpDown } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import { cn, resetLocal } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -45,6 +45,7 @@ const ChooseConfig = () => {
       (conf) => conf.token.toLowerCase() === lowerToken
     )?.token
     setOpen(false)
+    resetLocal()
     return chooseConfig({ variables: { token } })
   }
 

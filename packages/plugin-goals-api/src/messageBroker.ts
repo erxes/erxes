@@ -57,7 +57,7 @@ export const sendTasksMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'tasks',
+    serviceName: "tasks",
     ...args
   });
 };
@@ -66,7 +66,7 @@ export const sendTicketsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'tickets',
+    serviceName: "tickets",
     ...args
   });
 };
@@ -75,10 +75,11 @@ export const sendPurchasesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'purchases',
+    serviceName: "purchases",
     ...args
   });
 };
+
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args

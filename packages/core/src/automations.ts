@@ -165,6 +165,12 @@ export default {
       _id: { $in: config[`${type}Ids`] }
     };
 
+    if (type === "user") {
+      const result = await models.Users.find(commonFilter).distinct("email");
+
+      return result;
+    }
+
     const CONTACT_TYPES = {
       lead: {
         model: models.Customers,
