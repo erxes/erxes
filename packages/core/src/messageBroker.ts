@@ -18,7 +18,9 @@ import { segmentsCunsomers } from "@erxes/api-utils/src/consumers/segments";
 import { searchCunsomers } from "@erxes/api-utils/src/consumers/search";
 import { tagConsumers } from "@erxes/api-utils/src/consumers/tags";
 import { reportsCunsomers } from "@erxes/api-utils/src/consumers/reports";
+
 import { templatesCunsomers } from "@erxes/api-utils/src/consumers/templates";
+import { automationsCunsomers } from "@erxes/api-utils/src/consumers/automations";
 import { registerOnboardHistory } from "./data/modules/robot";
 import templates from "./templates";
 
@@ -36,6 +38,7 @@ import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import logUtils from "./logUtils";
 import internalNotes from "./internalNotes";
 import forms from "./forms";
+import automations from "./automations";
 import { generateModels } from "./connectionResolver";
 import { USER_ROLES } from "@erxes/api-utils/src/constants";
 import imports from "./imports";
@@ -657,6 +660,8 @@ export const setupMessageConsumers = async (): Promise<void> => {
     name: "core",
     forms
   });
+
+  automationsCunsomers({ name: "core", automations });
 
   tagConsumers({ name: "core", tags });
   reportsCunsomers({ name: "core", reports });

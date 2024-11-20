@@ -81,6 +81,14 @@ export function setLocal<T>(key: string, value: T): void {
   }
 }
 
+export const resetLocal = () => {
+  Object.keys(localStorage).forEach((key) => {
+    if (!key.startsWith("pos_env_")) {
+      localStorage.removeItem(key)
+    }
+  })
+}
+
 export function hexToHsl(hex: string) {
   // Remove the '#' symbol from the hex code
   hex = hex.replace("#", "")
@@ -268,11 +276,13 @@ export const getCustomerLabel = ({
   primaryPhone,
   primaryEmail,
   code,
-  _id
+  _id,
 }: Customer) => {
-    if (firstName || lastName || primaryEmail || primaryPhone || code)  {
-      return `${firstName || ""} ${lastName || ""} ${primaryPhone || ""} ${primaryEmail || ""} ${code || ""}`
+  if (firstName || lastName || primaryEmail || primaryPhone || code) {
+    return `${firstName ?? ""} ${lastName ?? ""} ${primaryPhone ?? ""} ${
+      primaryEmail ?? ""
+    } ${code ?? ""}`
   }
 
-  return _id || 'Unknown'
+  return _id || "Unknown"
 }
