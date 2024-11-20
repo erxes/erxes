@@ -1,6 +1,15 @@
-import { generateModels } from '../../../connectionResolver';
+import { generateModels } from './connectionResolver';
+const IMPORT_EXPORT_TYPES = [
+  {
+    text: 'Reminders',
+    contentType: 'inventories',
+    icon: 'server-alt',
+    skipFilter: false,
+  },
+];
 
 export default {
+  importExportTypes: IMPORT_EXPORT_TYPES,
   insertImportItems: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -12,22 +21,24 @@ export default {
     try {
       for (const doc of docs) {
         if (doc.code) {
-          const product = await models.Products.findOne({ code: doc.code });
+          const product = await models.SafeRemainders.findOne({
+            code: doc.code,
+          });
 
           if (product) {
             delete doc.code;
-            await models.Products.updateOne(
+            await models.SafeRemainders.updateOne(
               { _id: product._id },
               { $set: { ...doc } }
             );
             updated++;
           } else {
-            const insertedProduct = await models.Products.create(doc);
+            const insertedProduct = await models.SafeRemainders.create(doc);
 
             objects.push(insertedProduct);
           }
         } else {
-          const insertedProduct = await models.Products.create(doc);
+          const insertedProduct = await models.SafeRemainders.create(doc);
 
           objects.push(insertedProduct);
         }
@@ -42,8 +53,6 @@ export default {
   prepareImportDocs: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { result, properties } = data;
-
-    const defaultUom = await models.ProductsConfigs.getConfig('defaultUOM', '');
 
     const bulkDoc: any = [];
 
@@ -62,61 +71,61 @@ export default {
         const value = (fieldValue[colIndex] || '').toString();
 
         switch (property.name) {
-          case 'customProperty':
-            {
-              doc.customFieldsData.push({
-                field: property.id,
-                value: fieldValue[colIndex],
-              });
+          // case 'customProperty':
+          //   {
+          //     doc.customFieldsData.push({
+          //       field: property.id,
+          //       value: fieldValue[colIndex],
+          //     });
 
-              doc.customFieldsData =
-                await models.Fields.prepareCustomFieldsData(
-                  doc.customFieldData
-                );
-            }
-            break;
+          //     doc.customFieldsData =
+          //       await models.Fields.prepareCustomFieldsData(
+          //         doc.customFieldData
+          //       );
+          //   }
+          //   break;
 
-          case 'categoryName':
-            {
-              const generateCode = Math.floor(Math.random() * 900) + 100;
+          // case 'categoryName':
+          //   {
+          //     const generateCode = Math.floor(Math.random() * 900) + 100;
 
-              let category = await models.ProductCategories.findOne({
-                name: { $regex: new RegExp(`^${value}$`, 'i') },
-              });
+          //     let category = await models.ProductCategories.findOne({
+          //       name: { $regex: new RegExp(`^${value}$`, 'i') },
+          //     });
 
-              if (!category) {
-                category = await models.ProductCategories.create({
-                  name: value,
-                  code: generateCode,
-                  order: `${generateCode}/`,
-                });
-              }
+          //     if (!category) {
+          //       category = await models.ProductCategories.create({
+          //         name: value,
+          //         code: generateCode,
+          //         order: `${generateCode}/`,
+          //       });
+          //     }
 
-              doc.categoryId = category ? category._id : '';
-            }
+          //     doc.categoryId = category ? category._id : '';
+          //   }
 
-            break;
+          //   break;
 
-          case 'tag':
-            {
-              const tagName = value;
+          // case 'tag':
+          //   {
+          //     const tagName = value;
 
-              let tag = await models.Tags.findOne({
-                name: tagName,
-                type: `core:product`,
-              });
+          //     let tag = await models.Tags.findOne({
+          //       name: tagName,
+          //       type: `core:product`,
+          //     });
 
-              if (!tag) {
-                tag = await models.Tags.create({
-                  name: tagName,
-                  type: `core:product`,
-                });
-              }
+          //     if (!tag) {
+          //       tag = await models.Tags.create({
+          //         name: tagName,
+          //         type: `core:product`,
+          //       });
+          //     }
 
-              doc.tagIds = tag ? [tag._id] : [];
-            }
+          //     doc.tagIds = tag ? [tag._id] : [];
+          //   }
 
-            break;
+          //   break;
 
           case 'barcodes':
             {
@@ -136,12 +145,6 @@ export default {
           case 'subUoms.ratio':
             {
               ratios = value.replace(/\s/g, '').split(',');
-            }
-            break;
-
-          case 'uom':
-            {
-              doc.uom = value || defaultUom;
             }
             break;
 
