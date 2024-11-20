@@ -15,6 +15,7 @@ import NoteFormContainer from '../../../containers/forms/NoteForm';
 import { ToolBarRemoveBtn, ToolbarBtn } from '../../../styles';
 import { renderDynamicComponent } from '../../../utils';
 import { checkNote } from '../utils';
+import EmailTemplate from '@erxes/ui-emailtemplates/src/containers/EmailTemplate';
 
 const showHandler = (data, option) => {
   if (data.nodeType === 'trigger' && ['left'].includes(option.id)) {
@@ -60,6 +61,18 @@ const renderTriggerContent = (
   }
 
   return null;
+};
+
+const renderActionContent = ({ nodeType, actionType, config }) => {
+  if (nodeType !== 'action') {
+    return null;
+  }
+
+  if (actionType !== 'sendEmail') {
+    return null;
+  }
+
+  return <EmailTemplate templateId={config?.templateId} onlyPreview />;
 };
 
 export default memo(({ id, data, selected }: NodeProps) => {
@@ -233,6 +246,11 @@ export default memo(({ id, data, selected }: NodeProps) => {
           data.triggerType,
           config
         )}
+        {renderActionContent({
+          nodeType: data.nodeType,
+          actionType: data.actionType,
+          config
+        })}
         <p>{data.description}</p>
       </Trigger>
       {handleOptions.map(
