@@ -121,6 +121,7 @@ const Template = styledTS<{
   $isLongName?: boolean;
   position?: string;
   width?: string;
+  isPreview?: boolean;
 }>(styled.div)`
   flex-basis: ${({ width }) => (width ? width : '300px')};
   display: flex;
@@ -128,7 +129,7 @@ const Template = styledTS<{
   justify-content: ${props => props.position || 'space-between'};
   border-radius: 6px;
   border: 1px solid #F1F1F2;
-  margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
+${({ isPreview }) => (isPreview ? '' : `margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;`)}
   box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.03);
 
   > h5 {
