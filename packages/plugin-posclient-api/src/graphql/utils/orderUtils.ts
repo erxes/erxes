@@ -475,8 +475,7 @@ export const prepareOrderDoc = async (
         if (prevSubscription) {
           const prevSubscriptionItem = await models.OrderItems.findOne({
             orderId: prevSubscription._id,
-            closeDate: { $gte: new Date() },
-            productId: item.productId
+            closeDate: { $gte: new Date() }
           });
 
           if (prevSubscriptionItem) {
