@@ -28,7 +28,6 @@ export const ALLOW_TYPES = [
   { value: 'loss', label: 'Loss', kind: 'out' },
   { value: 'spend', label: 'Spend', kind: 'out' },
   { value: 'reject', label: 'Reject', kind: 'out' },
-  { value: 'before', label: 'Before', kind: 'sale' }
 ];
 
 export const ALLOW_STATUSES = [
