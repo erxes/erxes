@@ -295,7 +295,7 @@ const ordersEdit = async (
 
   checkOrderStatus(order);
 
-  await validateOrder(subdomain, models, config, doc);
+  await validateOrder(subdomain, models, config, doc, order);
 
   await cleanOrderItems(doc._id, doc.items, models);
 
@@ -836,9 +836,7 @@ const orderMutations = {
             lng: marker.longitude || marker.lng,
             description: "location"
           },
-          stringValue: `${marker.longitude || marker.lng},${
-            marker.latitude || marker.lat
-          }`
+          stringValue: `${marker.longitude || marker.lng},${marker.latitude || marker.lat}`
         }
       ];
     }
@@ -901,12 +899,14 @@ const orderMutations = {
           "",
         content: `
           Pos order:
-            paid link: <a href="/pos-orders?posId=${config.posId}&search=${
-              order.number
-          }">${order.number}</a> <br />
-            posclient link: <a href="${config.pdomain ?? '/'}?orderId=${
-              order._id
-          }">${order.number}</a> <br />
+            paid link:
+            <a href="/pos-orders?posId=${config.posId}&search=${order.number}">
+              ${order.number}
+            </a> <br />
+            posclient link:
+            <a href="${config.pdomain ?? '/'}?orderId=${order._id}">
+              ${order.number}
+            </a> <br />
         `,
       },
       isRPC: true
