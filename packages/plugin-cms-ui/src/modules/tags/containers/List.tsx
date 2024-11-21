@@ -1,7 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
-// import { router } from '@erxes/ui/src';
-
-import { Alert, confirm, router } from '@erxes/ui/src/utils';
+import { Spinner, router } from '@erxes/ui/src';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 import React from 'react';
 import { mutations, queries } from '../graphql';
 
@@ -14,25 +13,26 @@ type Props = {
 };
 
 export default function ListContainer(props: Props) {
+  const { clientPortalId } = props;
 
-  const {clientPortalId} = props
+  React.useEffect(() => {}, [clientPortalId]);
 
-  const { data, loading, refetch } = useQuery(queries.POST_LIST, {
+  const { data, loading, refetch } = useQuery(queries.GET_TAGS, {
     variables: {
       ...router.generatePaginationParams(props.queryParams || {}),
-      clientPortalId
+      clientPortalId,
     },
     fetchPolicy: 'network-only',
   });
 
-  const [removeMutation] = useMutation(mutations.CATEGORY_REMOVE);
+  const [removeMutation] = useMutation(mutations.TAG_REMOVE);
 
   if (loading) {
-    return <>loading</>
+    return <Spinner />;
   }
 
   const remove = (id: string) => {
-    const message = 'Are you sure want to remove this post ?';
+    const message = 'Are you sure want to remove this tag ?';
 
     confirm(message).then(() => {
       removeMutation({
@@ -40,7 +40,7 @@ export default function ListContainer(props: Props) {
       })
         .then(() => {
           refetch();
-          Alert.success('You successfully deleted a post.');
+          Alert.success('You successfully deleted a tag.');
         })
         .catch((e) => {
           Alert.error(e.message);
@@ -48,19 +48,16 @@ export default function ListContainer(props: Props) {
     });
   };
 
-  const posts = data?.postList?.posts || [];
-
-  const totalCount = data?.postList?.totalCount || 0;
 
   const extendedProps = {
     ...props,
+    clientPortalId,
     loading,
-    posts,
-    totalCount,
+    tags: data?.cmsTags || [],
+    totalCount: data?.cmsTags?.length || 0,
     refetch,
     remove,
   };
-
 
   return <List {...extendedProps} />;
 }

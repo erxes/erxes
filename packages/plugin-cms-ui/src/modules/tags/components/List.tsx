@@ -17,7 +17,7 @@ import CPHeader from '../../clientportal/containers/Header';
 
 type Props = {
   clientPortalId: string;
-  categoryTree: any[];
+  tags: any[];
   totalCount: number;
   queryParams: any;
   loading: boolean;
@@ -26,14 +26,13 @@ type Props = {
 };
 
 const List = (props: Props) => {
-  const { totalCount, queryParams, loading, categoryTree, remove } = props;
+  const { totalCount, queryParams, loading, tags, remove } = props;
 
-  const renderRow = (categories, level = 0) => {
+  const renderRow = () => {
 
-    return categories.map((category) => (
-      <React.Fragment key={category._id}>
-        <Row category={category} remove={remove} level={level} />
-        {category.children.length > 0 && renderRow(category.children, level + 1)}
+    return tags.map((tag) => (
+      <React.Fragment key={tag._id}>
+        <Row tag={tag} remove={remove} />
       </React.Fragment>
     ));
   };
@@ -43,7 +42,7 @@ const List = (props: Props) => {
 
   const trigger = (
     <Button btnStyle='success' size='small' icon='plus-circle'>
-      Add category
+      Add tag
     </Button>
   );
 
@@ -55,7 +54,7 @@ const List = (props: Props) => {
     <BarItems>
       <ModalTrigger
         size='lg'
-        title='Add category'
+        title='Add tag'
         autoOpenKey='showAppAddModal'
         trigger={trigger}
         content={formContent}
@@ -79,13 +78,12 @@ const List = (props: Props) => {
         <tr>
           <th>{__('Name')}</th>
           <th>{__('Slug')}</th>
-          <th>{__('Description')}</th>
           <th>{__('Last modified date')}</th>
           <th>{__('Last modified by')}</th>
           <th>{__('Actions')}</th>
         </tr>
       </thead>
-      <tbody>{renderRow(categoryTree)}</tbody>
+      <tbody>{renderRow()}</tbody>
     </Table>
   );
   return (
@@ -94,7 +92,7 @@ const List = (props: Props) => {
         transparent={false}
         header={
           <Wrapper.Header
-            title={__('Category')}
+            title={__('Tag')}
             queryParams={queryParams}
             submenu={menu}
           />

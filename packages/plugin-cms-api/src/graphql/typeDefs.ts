@@ -19,6 +19,15 @@ import {
   queries as pageQueries,
   mutations as pageMutations,
 } from './schemas/page';
+
+import {
+  types as tagTypes,
+  inputs as tagInputs,
+  queries as tagQueries,
+  mutations as tagMutations,
+} from './schemas/tag';
+
+
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 const typeDefs = async () => {
@@ -34,20 +43,25 @@ const typeDefs = async () => {
     ${postTypes}
     ${pageTypes}
 
+    ${tagTypes}
+
     ${categoryInputs}
     ${postInputs}
     ${pageInputs}
+    ${tagInputs}
 
     extend type Query {
       ${categoryQueries}
       ${postQueries}
       ${pageQueries}
+      ${tagQueries}
     }
     
     extend type Mutation {
       ${categoryMutations}
       ${postMutations}
       ${pageMutations}
+      ${tagMutations}
     }
   `;
 };

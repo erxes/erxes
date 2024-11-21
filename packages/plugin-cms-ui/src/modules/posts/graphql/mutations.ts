@@ -1,31 +1,29 @@
 import { gql } from '@apollo/client';
 
-const CATEGORY_ADD = gql`
-  mutation CmsCategoriesAdd($input: PostCategoryInput!) {
-    cmsCategoriesAdd(input: $input) {
-      _id
-    }
+const POST_ADD = gql`
+mutation PostsAdd($input: PostInput!) {
+  postsAdd(input: $input) {
+    _id
   }
+}
 `;
 
-const CATEGORY_EDIT = gql`
-  mutation CmsCategoriesEdit($_id: String!, $input: PostCategoryInput!) {
-    cmsCategoriesEdit(_id: $_id, input: $input) {
-      _id
-      name
-      slug
-    }
+const POST_EDIT = gql`
+mutation PostsEdit($id: String!, $input: PostInput!) {
+  postsEdit(_id: $id, input: $input) {
+    _id
   }
+}
 `;
 
-const CATEGORY_REMOVE = gql`
+const POST_REMOVE = gql`
   mutation CmsCategoriesRemove($id: String!) {
     cmsCategoriesRemove(_id: $id)
   }
 `;
 
 export default {
-  CATEGORY_ADD,
-  CATEGORY_EDIT,
-  CATEGORY_REMOVE,
+  POST_ADD,
+  POST_EDIT,
+  POST_REMOVE,
 };

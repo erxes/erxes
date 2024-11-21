@@ -9,22 +9,20 @@ import { DateWrapper } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import React from 'react';
-import { InsuranceCategory, InsuranceProduct, User } from '../../../gql/types';
 import CategoryForm from '../containers/Form';
 
 type Props = {
-  level: number;
-  category: InsuranceCategory;
+  tag: any;
   remove: (_id: string) => void;
 };
 
 const Row = (props: Props) => {
-  const { category, level, remove } = props;
-  const user = category.lastModifiedBy;
+  const { tag, remove } = props;
+  const user = tag.lastModifiedBy;
 
   const renderRemoveAction = () => {
     const onClick = () => {
-      remove(category._id);
+      remove(tag._id);
     };
 
     return (
@@ -39,32 +37,28 @@ const Row = (props: Props) => {
     );
   };
 
-  const getFullName = (doc: User) => {
+  const getFullName = (doc: any) => {
     return doc.details ? doc.details.fullName : 'Unknown';
   };
 
   const formContent = formProps => (
-    <CategoryForm {...formProps} category={category} />
+    <CategoryForm {...formProps} category={tag} />
   );
 
   return (
     <tr>
       <td key={Math.random()}>
-        <RowTitle>{`${"-".repeat(level)} ${category.name || 'Undefined'}`}</RowTitle>
+        <RowTitle>{ tag.name || 'Undefined'}</RowTitle>
       </td>
 
       <td key={Math.random()}>
-        <RowTitle>{category.slug || 'Undefined'} </RowTitle>
-      </td>
-
-      <td key={Math.random()}>
-        <RowTitle>{category.description || 'Undefined'}</RowTitle>
+        <RowTitle>{tag.slug || 'Undefined'} </RowTitle>
       </td>
 
       <td>
         <Icon icon="calender" />{' '}
         <DateWrapper>
-          {dayjs(category.lastModifiedAt).format('lll')}
+          {dayjs(tag.lastModifiedAt).format('lll')}
         </DateWrapper>
       </td>
 
@@ -76,7 +70,7 @@ const Row = (props: Props) => {
       <td>
         <ActionButtons>
           <ModalTrigger
-            title={'Edit category'}
+            title={'Edit tag'}
             trigger={<Button btnStyle="link" icon="edit-3" />}
             content={formContent}
             size={'lg'}

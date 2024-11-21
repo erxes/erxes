@@ -1,9 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { useLocation, useNavigate } from 'react-router-dom';
-
-type Props = {
-};
 
 const GET_LAST_QUERY = gql`
   query clientPortalGetLast($kind: BusinessPortalKind) {
@@ -16,41 +13,24 @@ const GET_LAST_QUERY = gql`
   }
 `;
 
-const Redirect = (props: Props) => {
-    const location = useLocation();
-    const navigate = useNavigate();
+const Redirect = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const { data, loading, error } = useQuery(GET_LAST_QUERY, {
     variables: { kind: 'client' },
   });
 
-  console.log('data', data);
+  useEffect(() => {
+    if (data?.clientPortalGetLast?._id) {
+      const cpId = data.clientPortalGetLast._id;
+      navigate(`${location.pathname}/${cpId}`, { replace: true });
+    }
+  }, [data, navigate, location.pathname]);
 
-  if (data?.clientPortalGetLast?._id) {
-    const cpId = data.clientPortalGetLast._id;
-    navigate(`${location.pathname}/${cpId}`, { replace: true });
-  }
-
-//   React.useEffect(() => {
-//     if (loading || error || !data?.clientPortalGetLast?._id) {
-//       console.log('Loading:', loading, 'Error:', error, 'Data:', data);
-//       return; // Wait for data to be ready
-//     }
-
-//     const cpId = data.clientPortalGetLast._id;
-//     let path = '';
-
-//     if (props.route === 'post') {
-//       path = `/cms/posts/${cpId}`;
-//     } else if (props.route === 'category') {
-//       path = `/cms/categories/${cpId}`;
-//     }
-
-//     if (path) {
-//       console.log('Navigating to:', path); // Debugging log
-//       navigate(path, { replace: true });
-//     }
-//   }, [data, loading, error, navigate, props.route]);
+  // You might want to handle loading or error states
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error loading data</div>;
 
   return null;
 };

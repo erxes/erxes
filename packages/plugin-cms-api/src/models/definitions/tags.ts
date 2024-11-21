@@ -1,20 +1,20 @@
 import { Document, Schema } from 'mongoose';
 import { nanoid } from 'nanoid';
 
-export interface ITag {
+export interface IPostTag {
   clientPortalId: string;
   name: string;
   colorCode?: string;
   slug: string;
-  parentId?: string;
+
   createdUserId: string;
 }
 
-export interface ITagDocument extends ITag, Document {
+export interface IPostTagDocument extends IPostTag, Document {
   _id: string;
 }
 
-export const tagSchema = new Schema<ITagDocument>(
+export const postTagSchema = new Schema<IPostTagDocument>(
   {
     _id: { type: String, default: () => nanoid() },
     clientPortalId: { type: String, required: true },
@@ -22,11 +22,10 @@ export const tagSchema = new Schema<ITagDocument>(
     slug: { type: String, required: true, unique: true },
     createdUserId: { type: String, ref: 'User' },
     colorCode: { type: String },
-    parentId: { type: String },
   },
   { timestamps: true }
 );
 
 
 
-tagSchema.index({ slug: 1, clientPortalId: 1 }, { sparse: true });
+postTagSchema.index({ slug: 1, clientPortalId: 1 }, { sparse: true });

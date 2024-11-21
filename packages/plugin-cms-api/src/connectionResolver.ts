@@ -7,12 +7,15 @@ import { IPostCategoryDocument } from './models/definitions/categories';
 import { IPostDocument } from './models/definitions/posts';
 import { IPageModel, loadPageClass } from './models/Pages';
 import { IPageDocument } from './models/definitions/pages';
+import { IPostTagModel, loadPostTagClass } from './models/Tags';
+import { IPostTagDocument } from './models/definitions/tags';
 
 export interface IModels {
 
   Categories: ICategoryModel;
   Posts: IPostModel;
   Pages: IPageModel;
+  PostTags: IPostTagModel;
 }
 
 export interface IContext extends IMainContext {
@@ -37,6 +40,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Pages = db.model<IPageDocument, IPageModel>(
     'cms_pages',
     loadPageClass(models)
+  );
+
+  models.PostTags = db.model<IPostTagDocument, IPostTagModel>(
+    'cms_tags',
+    loadPostTagClass(models)
   );
 
   return models;

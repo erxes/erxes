@@ -26,7 +26,7 @@ type Props = {
 };
 
 const List = (props: Props) => {
-  console.log('****************', props);
+
   const location = useLocation();
   const navigate = useNavigate();
   const { totalCount, queryParams, loading, posts, remove } = props;

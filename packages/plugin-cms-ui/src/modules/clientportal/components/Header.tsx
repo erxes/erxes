@@ -21,7 +21,6 @@ const MainContainer = (props: Props) => {
 
   const title = currentConfig?.name || 'Website';
   const description = currentConfig.url || currentConfig.domain || '';
-  console.log('title', title, ' desc ', description);
 
   return (
     <div style={{ minWidth: 200 }}>

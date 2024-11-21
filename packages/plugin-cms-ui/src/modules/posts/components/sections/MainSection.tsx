@@ -22,6 +22,18 @@ const TripSection = (props: Props) => {
   const { Section } = Sidebar;
   const { post, onChange } = props;
 
+  const statusOptions = [
+    { value: 'draft', label: __('Draft') },
+    { value: 'published', label: __('Published') },
+    { value: 'scheduled', label: __('Scheduled') },
+  ];
+
+  React.useEffect(() => {
+    if (post._id) {
+      statusOptions.push({ value: 'archive', label: __('Archive') });
+    }
+  }, [post._id]);
+
   const renderRow = (label, value) => {
     return (
       <li>
@@ -32,50 +44,61 @@ const TripSection = (props: Props) => {
   };
 
   return (
-    <Box title={__('Info')} name='main' isOpen={true}>
+    <Box title={__('Post')} name='main' isOpen={true}>
       <Sidebar.Section>
         <Section>
           <SidebarList className='no-link'>
             <li>
-              <div style={{width: '100%'}}>
-              <FormGroup>
-                <ControlLabel required={true} uppercase={false}>{__('Status')}</ControlLabel>
-                <FormControl
-                  name='status'
-                  componentclass='select'
-                  placeholder={__('Select')}
-                  defaultValue={post.status || 'draft'}
-                  required={true}
-                  onChange={(e: any) => {
-                    const values: {
-                      isScheduled: boolean;
-                      scheduledDate?: Date;
-                    } = {
-                      isScheduled: false,
-                      scheduledDate: undefined,
-                    };
-                    if (e.target.value === 'scheduled') {
-                      values.isScheduled = true;
-                      values.scheduledDate = new Date();
-                    }
+              <div style={{ width: '100%' }}>
+                <FormGroup>
+                  <FormControl
+                    hideBottomBorder={true}
+                    inline={true}
+                    name={'post_title'}
+                    type={'input'}
+                    required={true}
+                    placeholder='Post title'
+                    value={post.title || ''}
+                    onChange={(e: any) => {
+                      onChange('title', e.target.value);
+                    }}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <ControlLabel required={true} uppercase={false}>
+                    {__('Status')}
+                  </ControlLabel>
+                  <FormControl
+                    name='status'
+                    componentclass='select'
+                    placeholder={__('Select')}
+                    defaultValue={post.status || 'draft'}
+                    required={true}
+                    onChange={(e: any) => {
+                      const values: {
+                        isScheduled: boolean;
+                        scheduledDate?: Date;
+                      } = {
+                        isScheduled: false,
+                        scheduledDate: undefined,
+                      };
+                      if (e.target.value === 'scheduled') {
+                        values.isScheduled = true;
+                        values.scheduledDate = new Date();
+                      }
 
-                    onChange('status', e.target.value);
-                    onChange('isScheduled', values.isScheduled);
-                    onChange('scheduledDate', values.scheduledDate);
-                  }}
-                >
-                  {[
-                    { value: 'draft' },
-                    { value: 'scheduled' },
-                    { value: 'publish' },
-                    { value: 'archive' },
-                  ].map((op) => (
-                    <option key={op.value} value={op.value}>
-                      {op.value}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
+                      onChange('status', e.target.value);
+                      onChange('isScheduled', values.isScheduled);
+                      onChange('scheduledDate', values.scheduledDate);
+                    }}
+                  >
+                    {statusOptions.map((op) => (
+                      <option key={op.value} value={op.value}>
+                        {op.label}
+                      </option>
+                    ))}
+                  </FormControl>
+                </FormGroup>
               </div>
             </li>
           </SidebarList>

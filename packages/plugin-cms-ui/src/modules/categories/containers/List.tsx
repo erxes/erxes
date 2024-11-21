@@ -5,26 +5,50 @@ import React from 'react';
 import { mutations, queries } from '../graphql';
 
 import List from '../components/List';
-import { useParams } from 'react-router-dom';
 
 type Props = {
+  clientPortalId: string;
   refetch: () => void;
   queryParams: any;
 };
 
 export default function ListContainer(props: Props) {
-  const { cpId: clientPortalId } = useParams(); // Destructure 'cpid' from the params
+  const { clientPortalId } = props;
+
+  function buildCategoryTree(categories) {
+    const categoryMap = new Map();
+  
+    // Initialize the map with all categories
+    categories.forEach((category) => {
+      categoryMap.set(category._id, { ...category, children: [] });
+    });
+  
+    const tree:any = [];
+  
+    // Build the tree by assigning children to parents
+    categories.forEach((category) => {
+      if (category.parentId) {
+        const parent = categoryMap.get(category.parentId);
+        if (parent) {
+          parent.children.push(categoryMap.get(category._id));
+        }
+      } else {
+        tree.push(categoryMap.get(category._id)); // Top-level categories
+      }
+    });
+  
+    return tree;
+  }
+  
 
   React.useEffect(() => {
-    if (clientPortalId) {
-      console.log('Client Portal ID:', clientPortalId);
-    }
+
   }, [clientPortalId]);
 
   const { data, loading, refetch } = useQuery(queries.GET_CATEGORIES, {
     variables: {
       ...router.generatePaginationParams(props.queryParams || {}),
-      clientPortalId
+      clientPortalId,
     },
     fetchPolicy: 'network-only',
   });
@@ -52,15 +76,16 @@ export default function ListContainer(props: Props) {
     });
   };
 
-  const categories = data?.cmsCategories || [];
-
   const totalCount = data?.insuranceCategoryList?.totalCount || 0;
+
+  const categoryTree = buildCategoryTree(data?.cmsCategories || []);
 
   const extendedProps = {
     ...props,
+    clientPortalId,
     loading,
-    categories,
-    totalCount,
+    categoryTree,
+    totalCount: data?.cmsCategories?.length || 0,
     refetch,
     remove,
   };

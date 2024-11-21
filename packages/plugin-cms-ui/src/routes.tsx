@@ -44,22 +44,42 @@ const Redirect = asyncComponent(
       /* webpackChunkName: "List - Cms" */ './modules/clientportal/containers/Redirect'
     )
 );
-const Component = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
 
-  return <CategoryList location={location} navigate={navigate} />;
+
+const Tags = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - Tags" */ './modules/tags/containers/List'
+  )
+)
+
+const CategoriesComponent = () => {
+  const { cpId = ''} = useParams();
+
+  return <CategoryList clientPortalId={cpId} />;
 };
+
+const TagsComponent = () => {
+  const { cpId = ''} = useParams();
+
+  return <Tags clientPortalId={cpId} />;
+}
 
 const RedirectComponent = () => {
   return <Redirect/>;
 };
 
-const PostComponent = () => {
+const PostsComponent = () => {
 
   const { cpId = ''} = useParams();
-  console.log('PostComponent', cpId);
+
   return <PostList clientPortalId={cpId}/>;
+};
+
+const PostFormComponent = () => {
+  const { cpId = ''} = useParams();
+
+  return <PostForm clientPortalId={cpId}/>;
 };
 
 const CmsComponent = () => {
@@ -73,7 +93,7 @@ const routes = () => (
     <Route
       key='/cms/categories'
       path='/cms/categories'
-      element={<Component />}
+      element={<RedirectComponent />}
     />
 
     <Route
@@ -83,21 +103,39 @@ const routes = () => (
     />
 
     <Route
+      key='/cms/tags'
+      path='/cms/tags'
+      element={<RedirectComponent />}
+    />
+
+    <Route
       key='/cms/posts/:cpId'
       path='/cms/posts/:cpId'
-      element={<PostComponent />}
+      element={<PostsComponent />}
     />
 
     <Route
       key='/cms/posts/:cpId/new'
       path='/cms/posts/:cpId/new'
-      element={<PostForm />}
+      element={<PostFormComponent />}
     />
 
     <Route
       key='/cms/posts/:cpId/edit/:id'
       path='/cms/posts/:cpId/edit/:id'
       element={<PostForm />}
+    />
+
+    <Route
+      key='/cms/categories/:cpId'
+      path='/cms/categories/:cpId'
+      element={<CategoriesComponent />}
+    />
+
+    <Route
+      key='/cms/tags/:cpId'
+      path='/cms/tags/:cpId'
+      element={<TagsComponent />}
     />
   </Routes>
 );

@@ -10,7 +10,7 @@ import { useSearchParams } from 'react-router-dom';
 
 type Props = {
   clientPortalId: string;
-  category?: any;
+  tag?: any;
   closeModal: () => void;
 };
 
@@ -33,14 +33,14 @@ const FormContainer = (props: Props) => {
       input,
     };
 
-    if (props.category) {
-      variables._id = props.category._id;
+    if (props.tag) {
+      variables._id = props.tag._id;
     }
 
     return (
       <ButtonMutate
         mutation={getGqlString(
-          props.category ? mutations.CATEGORY_EDIT : mutations.CATEGORY_ADD
+          props.tag ? mutations.TAG_EDIT : mutations.TAG_ADD
         )}
         variables={variables}
         callback={callback}
@@ -49,8 +49,8 @@ const FormContainer = (props: Props) => {
         type='submit'
         icon='check-circle'
         successMessage={`You successfully ${
-          props.category ? 'updated' : 'added'
-        } a category`}
+          props.tag ? 'updated' : 'added'
+        } a tag`}
       />
     );
   };
@@ -66,7 +66,7 @@ const FormContainer = (props: Props) => {
 const getRefetchQueries = (clientPortalId?: string) => {
   return [
     {
-      query: queries.GET_CATEGORIES,
+      query: queries.GET_TAGS,
       variables: {
         clientPortalId,
       },

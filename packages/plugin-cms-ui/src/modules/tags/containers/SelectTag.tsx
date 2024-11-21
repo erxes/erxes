@@ -1,8 +1,7 @@
+import { useQuery } from '@apollo/client';
 import React from 'react';
-import { gql, useQuery, useLazyQuery } from '@apollo/client';
-import SelectCategory from '../components/SelectCategory';
-import { queries } from '../graphql';
 import Select from 'react-select';
+import { queries } from '../graphql';
 
 type Props = {
   clientPortalId: string;
@@ -17,7 +16,7 @@ const Container = (props: Props) => {
   const [searchValue, setSearchValue] = React.useState<string>('');
   const [options, setOptions] = React.useState<any[]>([]);
 
-  const { data, loading } = useQuery(queries.GET_CATEGORIES, {
+  const { data, loading } = useQuery(queries.GET_TAGS, {
     variables: {
       clientPortalId: props.clientPortalId,
       searchValue: '',
@@ -28,9 +27,9 @@ const Container = (props: Props) => {
   React.useEffect(() => {
     if (data) {
       setOptions(
-        data.cmsCategories.map((category: any) => ({
-          value: category._id,
-          label: category.name,
+        data.cmsTags.map((tag: any) => ({
+          value: tag._id,
+          label: tag.name,
         }))
       );
     }

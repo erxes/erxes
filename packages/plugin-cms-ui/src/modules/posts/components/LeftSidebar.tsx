@@ -6,12 +6,13 @@ import TagsSection from './sections/TagsSection';
 import MainSection from './sections/MainSection';
 
 type Props = {
+  clientPortalId: string;
   post: any;
   onChange: (field: string, value: any) => void;
 };
 
 const LeftSidebar: React.FC<Props> = (props: Props) => (
-  <Sidebar wide={true}>
+  <Sidebar wide={true} hasBorder={false}>
     <MainSection {...props} />
     <CategorySection {...props} />
     <TagsSection {...props} />
