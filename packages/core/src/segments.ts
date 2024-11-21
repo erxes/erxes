@@ -30,6 +30,7 @@ export default {
     {
       type: "form_submission",
       description: "Form submission",
+      esIndex: "form_submissions",
       hideInSidebar: true
     },
     { type: "company", description: "Company", esIndex: "companies" },
@@ -68,7 +69,9 @@ export default {
     let ids: string[] = [];
 
     if (
-      associatedTypes.includes(propertyType) ||
+      associatedTypes
+        .filter(type => type !== "core:form_submission")
+        .includes(propertyType) ||
       propertyType === "core:lead"
     ) {
       const models = await generateModels(subdomain);
