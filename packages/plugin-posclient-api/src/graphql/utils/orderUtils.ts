@@ -93,11 +93,32 @@ export const generateOrderNumber = async (
   return number;
 };
 
+const validDueDate = (doc: IOrderInput, order?: IOrderDocument) => {
+  if (!doc.isPre) {
+    return true;
+  }
+  if (!doc.dueDate) {
+    return false;
+  }
+
+  const now = getPureDate(new Date());
+  if (doc.dueDate >= now) {
+    return true;
+  }
+
+  if (order && order.isPre && order.dueDate && getPureDate(order.dueDate) !== getPureDate(doc.dueDate)) {
+    return true;
+  }
+
+  return false;
+}
+
 export const validateOrder = async (
   subdomain: string,
   models: IModels,
   config: IConfigDocument,
-  doc: IOrderInput
+  doc: IOrderInput,
+  order?: IOrderDocument
 ) => {
   const { items = [] } = doc;
 
@@ -105,7 +126,7 @@ export const validateOrder = async (
     throw new Error("Products missing in order. Please add products");
   }
 
-  if (doc.isPre && (!doc.dueDate || doc.dueDate < getPureDate(new Date()))) {
+  if (!await validDueDate(doc, order)) {
     throw new Error(
       "The due date of the pre-order must be recorded in the future"
     );
@@ -441,9 +462,11 @@ export const prepareOrderDoc = async (
   for (const item of items) {
     const fixedUnitPrice = Number(
       Number(
-        ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
-          item.unitPrice ||
-          0
+        (
+          (productsOfId[item.productId] || {}).prices || {}
+        )[config.token] ||
+        item.unitPrice ||
+        0
       ).toFixed(2)
     );
 
