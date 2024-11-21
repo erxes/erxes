@@ -24,7 +24,7 @@ import { checkRemainders } from "./products";
 import { getPureDate } from "@erxes/api-utils/src";
 import { checkDirectDiscount } from "./directDiscount";
 import { IPosUserDocument } from "../../models/definitions/posUsers";
-import { sendPosMessage, sendCoreMessage } from "../../messageBroker";
+import { sendCoreMessage } from "../../messageBroker";
 import { nanoid } from "nanoid";
 import { getCompanyInfo } from "../../models/PutData";
 
