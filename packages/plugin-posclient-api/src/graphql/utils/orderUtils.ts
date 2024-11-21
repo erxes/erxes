@@ -24,7 +24,7 @@ import { checkRemainders } from "./products";
 import { getPureDate } from "@erxes/api-utils/src";
 import { checkDirectDiscount } from "./directDiscount";
 import { IPosUserDocument } from "../../models/definitions/posUsers";
-import { sendPosMessage, sendCoreMessage } from "../../messageBroker";
+import { sendCoreMessage } from "../../messageBroker";
 import { nanoid } from "nanoid";
 import { getCompanyInfo } from "../../models/PutData";
 
@@ -475,8 +475,7 @@ export const prepareOrderDoc = async (
         if (prevSubscription) {
           const prevSubscriptionItem = await models.OrderItems.findOne({
             orderId: prevSubscription._id,
-            closeDate: { $gte: new Date() },
-            productId: item.productId
+            closeDate: { $gte: new Date() }
           });
 
           if (prevSubscriptionItem) {

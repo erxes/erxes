@@ -295,13 +295,6 @@ const ordersEdit = async (
 
   checkOrderStatus(order);
 
-  if (
-    order.isPre &&
-    (order.cashAmount || order.mobileAmount || (order.paidAmounts || []).length)
-  ) {
-    throw new Error("Confirmed and isPre orders cannot be edited");
-  }
-
   await validateOrder(subdomain, models, config, doc);
 
   await cleanOrderItems(doc._id, doc.items, models);
