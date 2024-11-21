@@ -57,6 +57,7 @@ const acceptCall = async (
       callDuration: 0,
       extentionNumber,
       queueName: queue,
+      timeStamp,
     };
 
     if (timeStamp === 0) {
