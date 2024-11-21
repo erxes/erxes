@@ -85,7 +85,7 @@ export const types = ({ contacts, dailyco, calls }) => `
     callProAudio: String
     
     tags: [Tag]
-    ${contacts ? 'customer: Customer' : ''}
+    customer: Customer
     integration: Integration
     user: User
     assignedUser: User

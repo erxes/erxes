@@ -1,16 +1,16 @@
-import gql from 'graphql-tag';
-import client from '../apollo-client';
 import { getLocalStorageItem, initStorage, setLocalStorageItem } from '../common';
-import { setLocale } from '../utils';
-import widgetConnect from '../widgetConnect';
-import { connection } from './connection';
-import graphqTypes from './graphql';
+
 import { IConnectResponse } from './types';
 import asyncComponent from '../AsyncComponent';
-import {enabledServicesQuery} from '../form/graphql';
-import { EnabledServices } from '../form/types';
+import client from '../apollo-client';
+import { connection } from './connection';
+import { enabledServicesQuery } from '../form/graphql';
+import gql from 'graphql-tag';
+import graphqTypes from './graphql';
+import { setLocale } from '../utils';
+import widgetConnect from '../widgetConnect';
 
-const App = asyncComponent(() => 
+const App = asyncComponent(() =>
   import( /* webpackChunkName: "MessengerApp" */'./containers/App')
 )
 

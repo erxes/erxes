@@ -1,21 +1,12 @@
 import React from 'react';
 import EmailTemplate from '@erxes/ui-emailtemplates/src/components/EmailTemplate';
-import {
-  Button,
-  ControlLabel,
-  FormGroup,
-  Label,
-  ModalTrigger,
-  Tip,
-  __
-} from '@erxes/ui/src';
-import { Columns } from '@erxes/ui/src/styles/chooser';
-import { Column } from '@erxes/ui/src/styles/main';
+import { ControlLabel, FormGroup, Label, Tip, __ } from '@erxes/ui/src';
 import { LabelContainer } from '../styles';
 
 type Props = {
   result: any;
   action: any;
+  hideTemplate?: boolean;
 };
 
 class SendEmail extends React.Component<Props> {
@@ -64,38 +55,36 @@ class SendEmail extends React.Component<Props> {
     };
 
     return (
-      <li>
-        <ul>
-          <strong>{`From: `}</strong>
+      <ul>
+        <li>
+          <strong>From: </strong>
           {`${fromEmail || ''}`}
-        </ul>
-        <ul>
-          <strong>{`Subject: `}</strong>
+        </li>
+        <li>
+          <strong>Subject: </strong>
           {`${title || ''}`}
-        </ul>
-        <ul>
+        </li>
+        <li>
           <LabelContainer>
-            <strong>{`To:`}</strong>
+            <strong>To: </strong>
             {responses.map((response, i) => (
-              <>
-                <Tip text={getLabelText(response)}>
-                  <Label key={i} lblStyle={getLabelColor(response)}>
-                    {response?.toEmail || ''}
-                  </Label>
-                </Tip>
-              </>
+              <Tip key={i} text={getLabelText(response)}>
+                <Label lblStyle={getLabelColor(response)}>
+                  {response?.toEmail || ''}
+                </Label>
+              </Tip>
             ))}
           </LabelContainer>
-        </ul>
-      </li>
+        </li>
+      </ul>
     );
   }
 
   render() {
-    const { action, result } = this.props;
+    const { action, result, hideTemplate } = this.props;
     return (
       <div>
-        {this.renderTemplate(action, result)}
+        {!hideTemplate && this.renderTemplate(action, result)}
         <div>{this.renderEmails(result)}</div>
       </div>
     );

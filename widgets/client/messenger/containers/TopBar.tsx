@@ -1,7 +1,9 @@
 import * as React from 'react';
 import TopBar from '../components/TopBar';
 import { connection } from '../connection';
-import { AppConsumer } from './AppContext';
+import { useConversation } from '../context/Conversation';
+import { getUiOptions } from '../utils/util';
+import { useConfig } from '../context/Config';
 
 type Props = {
   middle: React.ReactNode;
@@ -11,35 +13,26 @@ type Props = {
   toggleHead?: () => void;
 };
 
-const container = (props: Props) => {
+const Container = (props: Props) => {
+  const { activeConversationId, toggle, endConversation, exportConversation } =
+    useConversation();
+
+  const { headHeight, setHeadHeight } = useConfig();
+
   return (
-    <AppConsumer>
-      {({
-        endConversation,
-        toggle,
-        setHeadHeight,
-        headHeight,
-        getUiOptions,
-        exportConversation,
-        activeConversation
-      }) => {
-        return (
-          <TopBar
-            {...props}
-            activeConversation={activeConversation}
-            color={getUiOptions().color}
-            textColor={getUiOptions().textColor || '#fff'}
-            toggleLauncher={toggle}
-            isChat={Boolean(!connection.setting.email)}
-            endConversation={endConversation}
-            exportConversation={exportConversation}
-            prevHeight={headHeight}
-            setHeadHeight={setHeadHeight}
-          />
-        );
-      }}
-    </AppConsumer>
+    <TopBar
+      {...props}
+      activeConversation={activeConversationId}
+      color={getUiOptions().color}
+      textColor={getUiOptions().textColor || '#fff'}
+      toggleLauncher={toggle}
+      isChat={Boolean(!connection.setting.email)}
+      endConversation={endConversation}
+      exportConversation={exportConversation}
+      prevHeight={headHeight}
+      setHeadHeight={setHeadHeight}
+    />
   );
 };
 
-export default container;
+export default Container;

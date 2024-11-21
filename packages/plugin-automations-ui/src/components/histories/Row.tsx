@@ -25,7 +25,10 @@ type State = {
   isShowDetail: boolean;
 };
 
-export const generateActionResult = (action: IAutomationHistoryAction) => {
+export const generateActionResult = (
+  action: IAutomationHistoryAction,
+  hideTemplate?: boolean
+) => {
   if (!action.result) {
     return 'Result has not been recorded yet';
   }
@@ -49,7 +52,9 @@ export const generateActionResult = (action: IAutomationHistoryAction) => {
   }
 
   if (action.actionType === 'sendEmail') {
-    return <SendEmail result={result} action={action} />;
+    return (
+      <SendEmail result={result} action={action} hideTemplate={hideTemplate} />
+    );
   }
 
   const Component = renderDynamicComponent(
@@ -122,7 +127,7 @@ class HistoryRow extends React.Component<Props, State> {
           <td>{}</td>
           <td>{__('Sub Time')}</td>
           <td>{__('Action Type')}</td>
-          <td colSpan={2}>{__('Results')}</td>
+          <td colSpan={3}>{__('Results')}</td>
         </tr>
 
         {actions.map(action => (
@@ -130,7 +135,7 @@ class HistoryRow extends React.Component<Props, State> {
             <td>{}</td>
             <td>{dayjs(action.createdAt).format('lll')}</td>
             <td>{__(actionsByType[action.actionType])}</td>
-            <td colSpan={2}>{generateActionResult(action)}</td>
+            <td colSpan={3}>{generateActionResult(action, true)}</td>
           </tr>
         ))}
       </>

@@ -21,14 +21,14 @@ import { IHandleLogin } from "../login"
 const FormSchema = z.object({
   email: z
     .string({
-      required_error: "Please enter an email to login.",
+      required_error: "Нэвтрэхийн тулд имэйл оруулна уу.",
     })
     .email(),
   password: z
     .string({
-      required_error: "Please enter a password to login",
+      required_error: "Нэвтрэхийн тулд нууц үг оруулна уу",
     })
-    .min(8),
+    .min(8, { message: "Нууц үг хамгийн багадаа 8 тэмдэгт байх ёстой" }),
 })
 
 const Login = ({

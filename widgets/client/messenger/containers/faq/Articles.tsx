@@ -1,28 +1,9 @@
-import gql from "graphql-tag";
-import * as React from "react";
-import { ChildProps, graphql } from "react-apollo";
-import DumbArticles from "../../components/faq/Articles";
-import queries from "../../graphql";
-import { IFaqArticle } from "../../types";
-
-type QueryResponse = {
-  widgetsKnowledgeBaseArticles: IFaqArticle[];
-};
-
-const Articles = (props: ChildProps<{}, QueryResponse>) => {
-  const { data } = props;
-
-  if (!data) {
-    return null;
-  }
-
-  return (
-    <DumbArticles
-      loading={data.loading}
-      articles={data.widgetsKnowledgeBaseArticles || []}
-    />
-  );
-};
+import gql from 'graphql-tag';
+import * as React from 'react';
+import DumbArticles from '../../components/faq/Articles';
+import queries from '../../graphql';
+import { IFaqArticle } from '../../types';
+import { useQuery } from '@apollo/client';
 
 type Props = {
   topicId?: string;
@@ -30,31 +11,27 @@ type Props = {
   articles?: IFaqArticle[];
 };
 
-const WithData = graphql<Props, QueryResponse>(
-  gql(queries.faqSearchArticlesQuery),
-  {
-    options: ownProps => ({
-      fetchPolicy: "network-only",
-      variables: {
-        topicId: ownProps.topicId,
-        searchString: ownProps.searchString
-      }
-    })
-  }
-)(Articles);
+const Articles = (props: Props) => {
+  const { topicId, searchString, articles } = props;
 
-const WithContext = (props: Props) => {
-  if (!props.searchString || !props.topicId) {
-    return (
-      <DumbArticles
-        {...props}
-        loading={false}
-        articles={props.articles || []}
-      />
-    );
-  }
+  // const { data, loading, error } = useQuery(
+  //   gql(queries.faqSearchArticlesQuery),
+  //   {
+  //     fetchPolicy: 'network-only',
+  //     variables: {
+  //       topicId,
+  //       searchString,
+  //     },
+  //   }
+  // );
 
-  return <WithData {...props} />;
+  return (
+    <DumbArticles
+      articles={articles || []}
+      // articles={articles || data?.widgetsKnowledgeBaseArticles}
+      // loading={loading}
+    />
+  );
 };
 
-export default WithContext;
+export default Articles;

@@ -13,8 +13,13 @@ const CategoriesToPrint = () => {
   )
   const config = useAtomValue(configAtom)
   const { isActive, isPrint } = config?.kitchenScreen || {}
-  const { loading, categories } = useProductCategories(() => {},
-  isActive || !isPrint)
+  const { loading, categories } = useProductCategories((cats) => {
+    setCategoriesToPrint(
+      categoriesToPrint.filter((cat) =>
+        cats.map((c: ICategory) => c.order).includes(cat)
+      )
+    )
+  }, isActive || !isPrint)
 
   if (isActive || !isPrint) {
     return null

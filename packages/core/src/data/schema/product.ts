@@ -169,6 +169,7 @@ export const mutations = `
   productsEdit(_id: String!, ${productParams}): Product
   productsRemove(productIds: [String!]): String
   productsMerge(productIds: [String], productFields: JSON): Product
+  productsDuplicate(_id: String!): Product
   productCategoriesAdd(${productCategoryParams}): ProductCategory
   productCategoriesEdit(_id: String!, ${productCategoryParams}): ProductCategory
   productCategoriesRemove(_id: String!): JSON

@@ -132,7 +132,7 @@ const RecipientsForm = ({
   const renderAttrubutionInput = () => {
     const onChange = updatedConfig => onChangeConfig(updatedConfig);
 
-    const isAvailableTriggerExecutor = ["contacts", "user"].some(c =>
+    const isAvailableTriggerExecutor = ["customer",'companies', "user"].some(c =>
       triggerType.includes(c)
     );
 
@@ -152,9 +152,11 @@ const RecipientsForm = ({
         config={config}
         triggerType={triggerType}
         inputName="attributionMails"
-        placeholder={__("Please select  some attributes from attributes section")}
+        placeholder={__(
+          "Please select  some attributes from attributes section"
+        )}
         label="Dynamic mails"
-        attrTypes={["user", "contact", "segment"]}
+        attrTypes={["user", "customer", "companies", "segment"]}
         attrWithSegmentConfig={triggerType === "forms:form_submission"}
         triggerConfig={triggerConfig}
         onChange={onChange}
