@@ -42,16 +42,26 @@ export const isInSegment = async (
   idToCheck: string,
   options: IOptions = {}
 ): Promise<boolean> => {
+  const segment = await models.Segments.getSegment(segmentId);
+
+  let defaultMustSelectorFieldName:string = '_id'
+
+  if (!segment?.name && segment.contentType === "core:form_submission") {
+    defaultMustSelectorFieldName = 'customerId'
+  }
+
   options.returnCount = true;
   options.defaultMustSelector = [
     {
       match: {
-        _id: await generateElkId(idToCheck, subdomain)
-      }
-    }
+        [defaultMustSelectorFieldName]: await generateElkId(
+          idToCheck,
+          subdomain
+        ),
+      },
+    },
   ];
 
-  const segment = await models.Segments.getSegment(segmentId);
   const count = await fetchSegment(models, subdomain, segment, options);
 
   return count > 0;
@@ -96,7 +106,6 @@ export const fetchSegment = async (
     serviceConfigs,
     isInitialCall: true
   });
-
   const { returnAssociated } = options;
 
   if (returnAssociated && contentType !== returnAssociated.relType) {
@@ -402,7 +411,7 @@ export const generateQueryBySegment = async (
 
   for (const condition of conditions) {
     if (condition.type === "property") {
-      if (condition.propertyType === "forms:form_submission") {
+      if (condition.propertyType === "core:form_submission") {
         const formFieldCondition = {
           ...condition,
           propertyName: "formFieldId",
