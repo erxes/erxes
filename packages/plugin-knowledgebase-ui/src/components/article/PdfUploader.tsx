@@ -121,8 +121,6 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
           }
         );
         
-  
-        console.log(result);
         if (result.error) {
           Alert.error(result.error);
           setIsUploading(false);
@@ -137,7 +135,6 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
         await handleChunkedUpload(file);
       }
     } catch (error) {
-      console.log(error);
       Alert.error(`Upload failed: ${error.message}`);
       setIsUploading(false);
     }
