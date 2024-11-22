@@ -1,6 +1,21 @@
 # Changelog
 
-## [2.1.0-rc.2](https://github.com/erxes/erxes/compare/2.1.0-rc.1...2.1.0-rc.2) (2024-11-19)
+## [2.0.8](https://github.com/erxes/erxes/compare/2.0.7...2.0.8) (2024-11-21)
+
+
+### Features
+
+* Pos tempbill ux ([#5804](https://github.com/erxes/erxes/issues/5804)) ([a8bf7a2](https://github.com/erxes/erxes/commit/a8bf7a2caa57f2f7de71cf99c786a77f3ecd3157))
+
+
+### Bug Fixes
+
+* **automations:** can' generate emails to send email action ([36c0624](https://github.com/erxes/erxes/commit/36c0624acaa89d39263da91d3ad6e2273bb19f34))
+* pos order dueDate validation ([6d27c42](https://github.com/erxes/erxes/commit/6d27c420e66bc8c58f783b9e17f1b86b3602912c))
+* pos order edit validation ([dab7a1c](https://github.com/erxes/erxes/commit/dab7a1cb9ddcc33861f28119d33aeb452dfcdd36))
+* **posclient:** stop  check by product when renewable  subcsription ([b534070](https://github.com/erxes/erxes/commit/b53407011990289047524b0c22d651e331dbff6c))
+
+## [2.0.7](https://github.com/erxes/erxes/compare/2.0.6...2.0.7) (2024-11-19)
 
 
 ### Features
