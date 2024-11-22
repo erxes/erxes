@@ -718,7 +718,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push(
       {
         $lookup: {
-          from: "pipeline_labels",
+          from: `${COLLECTION_MAP[type]}_pipeline_labels`,
           let: { fieldId: "$_id.labelId" },
           pipeline: [
             {
