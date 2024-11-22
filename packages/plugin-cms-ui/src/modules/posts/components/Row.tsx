@@ -11,6 +11,7 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { InsuranceCategory, InsuranceProduct, User } from '../../../gql/types';
 import PostForm from '../containers/Form';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type Props = {
   post: any;
@@ -18,6 +19,9 @@ type Props = {
 };
 
 const Row = (props: Props) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const { post, remove } = props;
   const user = post.author;
 
@@ -38,6 +42,23 @@ const Row = (props: Props) => {
     );
   };
 
+  const renderEditAction = () => {
+    const onClick = () => {
+      navigate(`${location.pathname}/edit/${post._id}`, { replace: true });
+    }
+
+    return (
+      <Tip text={__('Edit')} placement="top">
+        <Button
+          id="directionEdit"
+          btnStyle="link"
+          onClick={onClick}
+          icon="edit"
+        />
+      </Tip>
+    );
+  };
+
   const getFullName = (doc: User) => {
     return doc.details ? doc.details.fullName : 'Unknown';
   };
@@ -46,7 +67,8 @@ const Row = (props: Props) => {
     <PostForm {...formProps} post={post} />
   );
 
-
+  const categories = post.categories || [];
+  const tags = post.tags || [];
 
   return (
     <tr>
@@ -55,11 +77,11 @@ const Row = (props: Props) => {
       </td>
 
       <td key={Math.random()}>
-        <RowTitle>{post.categories.map(e => e.name).join(', ') || '-'} </RowTitle>
+        <RowTitle>{categories.map(e => e.name).join(', ') || '-'} </RowTitle>
       </td>
 
       <td key={Math.random()}>
-        <RowTitle>{post.tags.map(e => e.name).join(', ') || '-'}</RowTitle>
+        <RowTitle>{tags.map(e => e.name).join(', ') || '-'}</RowTitle>
       </td>
 
       <td key={Math.random()}>
@@ -94,12 +116,7 @@ const Row = (props: Props) => {
 
       <td>
         <ActionButtons>
-          <ModalTrigger
-            title={'Edit post'}
-            trigger={<Button btnStyle="link" icon="edit-3" />}
-            content={formContent}
-            size={'lg'}
-          />
+          {renderEditAction()}
           {renderRemoveAction()}
         </ActionButtons>
       </td>

@@ -77,9 +77,17 @@ const PostsComponent = () => {
 };
 
 const PostFormComponent = () => {
-  const { cpId = ''} = useParams();
+  const { cpId = '', id = ''} = useParams();
 
-  return <PostForm clientPortalId={cpId}/>;
+  const props: any = {
+    clientPortalId: cpId,
+  }
+
+  if (id.length) {
+    props.postId = id
+  }
+
+  return <PostForm {...props}/>;
 };
 
 const CmsComponent = () => {
@@ -123,7 +131,7 @@ const routes = () => (
     <Route
       key='/cms/posts/:cpId/edit/:id'
       path='/cms/posts/:cpId/edit/:id'
-      element={<PostForm />}
+      element={<PostFormComponent />}
     />
 
     <Route

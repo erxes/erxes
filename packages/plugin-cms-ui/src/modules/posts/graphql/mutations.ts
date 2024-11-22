@@ -17,9 +17,9 @@ mutation PostsEdit($id: String!, $input: PostInput!) {
 `;
 
 const POST_REMOVE = gql`
-  mutation CmsCategoriesRemove($id: String!) {
-    cmsCategoriesRemove(_id: $id)
-  }
+mutation PostsDelete($id: String!) {
+  postsDelete(_id: $id)
+}
 `;
 
 export default {

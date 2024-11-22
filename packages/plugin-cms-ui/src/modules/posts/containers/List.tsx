@@ -36,7 +36,7 @@ export default function ListContainer(props: Props) {
 
     confirm(message).then(() => {
       removeMutation({
-        variables: { _id: id },
+        variables: { id },
       })
         .then(() => {
           refetch();

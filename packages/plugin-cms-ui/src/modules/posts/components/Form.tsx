@@ -41,9 +41,9 @@ const PostForm = (props: Props) => {
     authorId: '',
     featured: false,
     featuredDate: null,
-    scheduledDate: new Date(),
-    autoArchiveDate: new Date(),
-    publishedDate: new Date(),
+    scheduledDate: undefined,
+    autoArchiveDate: undefined,
+    publishedDate: undefined,
     viewCount: 0,
     reactions: [],
     reactionCounts: {},
@@ -66,17 +66,34 @@ const PostForm = (props: Props) => {
   };
 
   const onChangeImage = (images: IAttachment[]) => {
+    console.log('images', images);
     if (images && images.length > 0) {
       setPost({ ...post, thumbnail: images[0] });
     }
   };
 
   const onSave = () => {
-    delete post.viewCount;
-    delete post.featuredDate;
-    delete post.publishedDate;
+    const doc: any = post;
 
-    props.onSubmit(post);
+    const fieldsToDelete = [
+      'viewCount',
+      'featuredDate',
+      'publishedDate',
+      'createdAt',
+      'updatedAt',
+      '__typename',
+      'author',
+      'categories',
+      'tags',
+      '_id',
+    ]
+
+    fieldsToDelete.forEach(field => {
+      delete doc[field];
+    });
+
+    doc.clientPortalId = clientPortalId;
+    props.onSubmit(doc);
   };
 
   const breadcrumb = [
@@ -104,7 +121,7 @@ const PostForm = (props: Props) => {
         <RichTextEditor
           content={post.content || ''}
           onChange={(e) => {
-            console.log(e);
+            onChange('content', e);
           }}
           // isSubmitted={false}
           height={`vh-100`}

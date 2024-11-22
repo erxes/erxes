@@ -13,22 +13,19 @@ module.exports = {
   },
   menus: [
     {
-      text: 'Post',
+      text: 'CMS',
       url: '/cms/posts',
       icon: 'icon-star',
       location: 'mainNavigation',
       scope: 'cms',
     },
     {
-      text: 'Posts',
-      to: '/cms/posts',
-      image: '/images/icons/erxes-25.png',
-      location: 'settings',
+      text: 'Web builder',
+      url: '/cms/web-builder',
+      icon: 'icon-star',
+      location: 'mainNavigation',
       scope: 'cms',
-      action: '',
-      permissions: [
-
-      ],
     },
+
   ],
 };

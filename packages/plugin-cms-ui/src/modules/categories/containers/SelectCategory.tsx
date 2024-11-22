@@ -1,8 +1,7 @@
+import { useQuery } from '@apollo/client';
 import React from 'react';
-import { gql, useQuery, useLazyQuery } from '@apollo/client';
-import SelectCategory from '../components/SelectCategory';
-import { queries } from '../graphql';
 import Select from 'react-select';
+import { queries } from '../graphql';
 
 type Props = {
   clientPortalId: string;
@@ -22,7 +21,6 @@ const Container = (props: Props) => {
       clientPortalId: props.clientPortalId,
       searchValue: '',
     },
-    skip: !searchValue,
   });
 
   React.useEffect(() => {

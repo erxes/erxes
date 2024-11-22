@@ -88,6 +88,7 @@ query Post($id: String) {
     reactionCounts
     thumbnail {
       url
+      type
     }
     images {
       url

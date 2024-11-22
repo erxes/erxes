@@ -49,7 +49,7 @@ export const postSchema = new Schema<IPostDocument>(
     excerpt: { type: String, default: '', optional: true },
     categoryIds: { type: [String], ref: 'PostCategory' },
     status: { type: String, default: 'draft', enum: ['draft', 'published', 'scheduled', 'archived'] },
-    tagIds: [{ type: [String], ref: 'Tag' }],
+    tagIds: { type: [String]},
     authorId: { type: String, ref: 'User' },
     viewCount: { type: Number, default: 0 },
     publishedDate: { type: Date },

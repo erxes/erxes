@@ -11,7 +11,7 @@ type Props = {
 };
 
 const Container = (props: Props) => {
-
+  console.log("props", props)
   const { value, onChange } = props;
   const [searchValue, setSearchValue] = React.useState<string>('');
   const [options, setOptions] = React.useState<any[]>([]);
@@ -21,7 +21,6 @@ const Container = (props: Props) => {
       clientPortalId: props.clientPortalId,
       searchValue: '',
     },
-    skip: !searchValue,
   });
 
   React.useEffect(() => {
@@ -33,7 +32,7 @@ const Container = (props: Props) => {
         }))
       );
     }
-  }, [data]);
+  }, [data, props.value]);
 
   const handleInputChange = (newValue: string) => {
     setSearchValue(newValue); // Update the search value when user types

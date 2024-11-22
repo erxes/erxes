@@ -59,7 +59,9 @@ const queries = {
     const { models } = context;
     const { _id } = args;
 
-    return models.Posts.findOne({ $or: [{ _id }, { slug: _id }] });
+    const post = await  models.Posts.findOne({ $or: [{ _id }, { slug: _id }] });
+    console.log("post", post)
+    return post;
   },
 
   /**
