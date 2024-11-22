@@ -149,7 +149,7 @@ class Task extends React.Component<Props, State> {
         <Detail style={{ zIndex: 103 }}>
           <FlexBody>
             <Row>
-              <ControlLabel>Set reminder 1</ControlLabel>
+              <ControlLabel>Set reminder</ControlLabel>
               <Select
                 required={true}
                 value={selectOptions(REMINDER_MINUTES).find(
