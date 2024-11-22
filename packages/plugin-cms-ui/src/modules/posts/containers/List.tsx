@@ -25,7 +25,7 @@ export default function ListContainer(props: Props) {
     fetchPolicy: 'network-only',
   });
 
-  const [removeMutation] = useMutation(mutations.CATEGORY_REMOVE);
+  const [removeMutation] = useMutation(mutations.POST_REMOVE);
 
   if (loading) {
     return <>loading</>

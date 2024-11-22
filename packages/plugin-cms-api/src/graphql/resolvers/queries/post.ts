@@ -31,7 +31,7 @@ const queries = {
   /**
    * Cms posts
    */
-  cmsPosts: async (
+  posts: async (
     _parent: any,
     args: any,
     context: IContext
@@ -55,7 +55,7 @@ const queries = {
   /**
    * Cms post
    */
-  cmsPost: async (_parent: any, args: any, context: IContext): Promise<any> => {
+  post: async (_parent: any, args: any, context: IContext): Promise<any> => {
     const { models } = context;
     const { _id } = args;
 
@@ -65,7 +65,7 @@ const queries = {
   /**
    * Cms post list
    */
-  cmsPostList: async (
+  postList: async (
     _parent: any,
     args: any,
     context: IContext

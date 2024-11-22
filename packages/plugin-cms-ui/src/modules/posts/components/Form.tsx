@@ -12,36 +12,13 @@ import LeftSideBar from './LeftSidebar';
 
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IPost } from '../../../types';
+import { IPost, IPostDocument } from '../../../types';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Button, Uploader } from '@erxes/ui/src/components';
 import RightSidebar from './RightSidebar';
 
-type PostInput = {
-  clientPortalId: string
-  title: string
-  slug: string
-  content: string
-  excerpt: string
-  categoryIds: [string]
-  featured: boolean
-  status: string
-  tagIds: [string]
-  authorId: string
-  scheduledDate: Date
-  autoArchiveDate: Date
-  reactions: [string]
-  reactionCounts: any
-  thumbnail: any
-  images: [any]
-  video: any
-  audio: any
-  documents: [any]
-  attachments: [any]
-  customFieldsData: any
-}
 
 type Props = {
   clientPortalId: string;
@@ -52,8 +29,8 @@ type Props = {
 
 const PostForm = (props: Props) => {
   const { clientPortalId } = props;
-  const defaultPost: IPost = {
-    _id: `temporaryId_${Math.random().toString(36).substr(2, 9)}`,
+  const defaultPost: IPostDocument = {
+    clientPortalId,
     title: '',
     slug: '',
     content: '',
@@ -77,9 +54,10 @@ const PostForm = (props: Props) => {
     documents: [],
     attachments: [],
     customFieldsData: {},
+
   };
 
-  const [post, setPost] = React.useState<IPost>(
+  const [post, setPost] = React.useState<IPostDocument>(
     React.useMemo(() => props.post || defaultPost, [props.post])
   );
 
@@ -91,6 +69,14 @@ const PostForm = (props: Props) => {
     if (images && images.length > 0) {
       setPost({ ...post, thumbnail: images[0] });
     }
+  };
+
+  const onSave = () => {
+    delete post.viewCount;
+    delete post.featuredDate;
+    delete post.publishedDate;
+
+    props.onSubmit(post);
   };
 
   const breadcrumb = [
@@ -122,7 +108,7 @@ const PostForm = (props: Props) => {
           }}
           // isSubmitted={false}
           height={`vh-100`}
-          name={`post_${post ? post._id : 'create'}`}
+          name={`post_${props.post ? props.post._id : 'create'}`}
         />
       </FormGroup>
     </>
@@ -142,21 +128,7 @@ const PostForm = (props: Props) => {
         }}
       >
         <h5 style={{ margin: 0 }}>{post.title ? title : __('New post')}</h5>
-        <Button
-          btnStyle='success'
-          size='small'
-          icon='check'
-          onClick={() => {
-
-            const doc: PostInput = {
-              ...post as any,
-              clientPortalId
-            };
-    
-            
-            props.onSubmit(doc);
-          }}
-        >
+        <Button btnStyle='success' size='small' icon='check' onClick={onSave}>
           Save
         </Button>
       </div>

@@ -1,7 +1,7 @@
 import { IAttachment } from "@erxes/ui/src/types";
 
-export interface IPost {
-  _id: string;
+export interface IPostDocument {
+  clientPortalId: string;
   title: string;
   slug: string;
   content?: string;
@@ -27,6 +27,10 @@ export interface IPost {
   customFieldsData?: {
     [key: string]: any;
   };
+}
+
+export interface IPost extends IPostDocument {
+  _id: string;
 }
 
 
