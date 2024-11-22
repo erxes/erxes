@@ -112,7 +112,7 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
         formData.append('file', file);
 
         const { REACT_APP_API_URL } = getEnv();
-        const result = await apiRequest(
+        const res = await apiRequest(
           `${REACT_APP_API_URL}/pl-workers/upload-pdf`,
           {
             method: 'POST',
@@ -121,18 +121,17 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
           }
         );
 
-        onChange({
-          pdf: {
-            name: result.filename,
-            type: 'application/pdf',
-            url: result.data.pdf,
-          },
-          pages: result.data.pages.map((page: string, index: number) => ({
-            name: `page-${index + 1}.jpg`,
-            url: page,
-            type: 'image/jpeg',
-          })),
-        });
+        const result = await res.json();
+        if (result.error) {
+          Alert.error(result.error);
+          setIsUploading(false);
+          return;
+        }
+        setUploadState((prev) => ({
+          ...prev,
+          taskId: result.taskId,
+          lastChunkUploaded: true,
+        }));
       } else {
         await handleChunkedUpload(file);
       }
@@ -202,10 +201,9 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
     <UploadBtn>
       {isUploading ? (
         <>
-        <p>Uploading, please wait! </p>
-        <Spinner size={20} />
+          <p>Uploading, please wait! </p>
+          <Spinner size={20} />
         </>
-       
       ) : (
         <label>
           {__('Upload a PDF')}
