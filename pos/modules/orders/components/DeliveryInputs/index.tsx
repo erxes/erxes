@@ -37,7 +37,7 @@ const DeliveryInputs = () => {
           </>
         )}
         <DirectDiscount />
-        {!!orderId && mode === "main" && (
+        {!!orderId && mode !== "market" && (
           <>
             <Separator />
             <div className="col-span-3">
