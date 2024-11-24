@@ -6,16 +6,18 @@ import React from 'react';
 import { mutations, queries } from '../graphql';
 
 import List from '../components/List';
+import { useSearchParams } from 'react-router-dom';
 
 type Props = {
-  clientPortalId: string;
+
   refetch: () => void;
   queryParams: any;
 };
 
 export default function ListContainer(props: Props) {
+  const [searchParams] = useSearchParams(); 
 
-  const {clientPortalId} = props
+  const clientPortalId = searchParams.get('web');
 
   const { data, loading, refetch } = useQuery(queries.POST_LIST, {
     variables: {
@@ -54,6 +56,7 @@ export default function ListContainer(props: Props) {
 
   const extendedProps = {
     ...props,
+    clientPortalId,
     loading,
     posts,
     totalCount,

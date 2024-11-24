@@ -12,16 +12,12 @@ const queries = {
     const {
       page,
       perPage,
-      kind,
     } = args;
 
     const query: any = {
       clientPortalId: args.clientPortalId,
     };
 
-    if (kind) {
-      query.kind = kind;
-    }
 
     if (page && perPage) {
       return paginate(
@@ -31,6 +27,32 @@ const queries = {
     }
 
     return models.Pages.find(query).sort({ createdAt: 1 });
+  },
+
+  pageList: async (parent: any, args: any, {models}: IContext) => {
+    const {
+      page = 1,
+      perPage = 20,
+      sortField = 'createdAt',
+      sortDirection = 'desc',
+      clientPortalId
+    } = args;
+
+    const query: any = {
+      clientPortalId,
+    };
+
+  
+    const totalCount = await models.Pages.find(query).countDocuments();
+
+    const pages = await paginate(
+      models.Pages.find(query).sort({ [sortField]: sortDirection }),
+      { page, perPage }
+    );
+
+    const totalPages = Math.ceil(totalCount / perPage);
+
+    return { totalCount, totalPages, currentPage: page, pages };
   },
 
   page: async (parent: any, args: any, context: IContext) => {

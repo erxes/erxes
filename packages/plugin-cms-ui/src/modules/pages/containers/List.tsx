@@ -17,8 +17,6 @@ export default function ListContainer(props: Props) {
 
   const clientPortalId = searchParams.get('web') || '';
 
-
-
   function buildCategoryTree(categories) {
     const categoryMap = new Map();
   
@@ -49,7 +47,7 @@ export default function ListContainer(props: Props) {
 
   }, [clientPortalId]);
 
-  const { data, loading, refetch } = useQuery(queries.GET_CATEGORIES, {
+  const { data, loading, refetch } = useQuery(queries.PAGE_LIST, {
     variables: {
       ...router.generatePaginationParams(props.queryParams || {}),
       clientPortalId,
@@ -57,11 +55,11 @@ export default function ListContainer(props: Props) {
     fetchPolicy: 'network-only',
   });
 
-  const [removeMutation] = useMutation(mutations.CATEGORY_REMOVE);
+  const [removeMutation] = useMutation(mutations.PAGE_REMOVE);
 
-  if (loading) {
-    return <Spinner />;
-  }
+  // if (loading) {
+  //   return <Spinner />;
+  // }
 
   const remove = (id: string) => {
     const message = 'Are you sure want to remove this category ?';
@@ -71,7 +69,7 @@ export default function ListContainer(props: Props) {
         variables: { _id: id },
       })
         .then(() => {
-          refetch();
+          // refetch();
           Alert.success('You successfully deleted a category.');
         })
         .catch((e) => {
@@ -80,17 +78,17 @@ export default function ListContainer(props: Props) {
     });
   };
 
-  const totalCount = data?.insuranceCategoryList?.totalCount || 0;
+  const totalCount = data?.pageList?.totalCount || 0;
 
-  const categoryTree = buildCategoryTree(data?.cmsCategories || []);
+  const pages = data?.pageList?.pages || [];
 
   const extendedProps = {
     ...props,
     clientPortalId,
-    loading,
-    categoryTree,
-    totalCount: data?.cmsCategories?.length || 0,
-    refetch,
+    loading: false,
+    pages,
+    totalCount,
+  
     remove,
   };
 

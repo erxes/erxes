@@ -5,15 +5,16 @@ import React from 'react';
 import { mutations, queries } from '../graphql';
 
 import List from '../components/List';
+import { useSearchParams } from 'react-router-dom';
 
 type Props = {
-  clientPortalId: string;
-  refetch: () => void;
   queryParams: any;
 };
 
 export default function ListContainer(props: Props) {
-  const { clientPortalId } = props;
+  const [searchParams] = useSearchParams(); 
+
+  const clientPortalId = searchParams.get('web') || '';
 
   React.useEffect(() => {}, [clientPortalId]);
 

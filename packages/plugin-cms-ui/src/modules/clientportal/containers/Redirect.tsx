@@ -1,30 +1,21 @@
 import React, { useEffect } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import {  useQuery } from '@apollo/client';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-const GET_LAST_QUERY = gql`
-  query clientPortalGetLast($kind: BusinessPortalKind) {
-    clientPortalGetLast(kind: $kind) {
-      _id
-      name
-      domain
-      url
-    }
-  }
-`;
+import queries from '../graphql/queries';
 
 const Redirect = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { data, loading, error } = useQuery(GET_LAST_QUERY, {
+  const { data, loading, error } = useQuery(queries.GET_LAST_QUERY, {
     variables: { kind: 'client' },
   });
 
   useEffect(() => {
     if (data?.clientPortalGetLast?._id) {
       const cpId = data.clientPortalGetLast._id;
-      navigate(`${location.pathname}/${cpId}`, { replace: true });
+      navigate(`${location.pathname}?web=${cpId}`, { replace: true });
     }
   }, [data, navigate, location.pathname]);
 

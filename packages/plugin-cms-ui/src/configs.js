@@ -21,7 +21,7 @@ module.exports = {
     },
     {
       text: 'Web builder',
-      url: '/cms/web-builder',
+      url: '/cms/web-builder/pages',
       icon: 'icon-star',
       location: 'mainNavigation',
       scope: 'cms',

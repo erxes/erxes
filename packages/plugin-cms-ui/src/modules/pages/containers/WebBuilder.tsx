@@ -1,52 +1,68 @@
-import { useQuery, useMutation } from '@apollo/client';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { getGqlString } from '@erxes/ui/src/utils/core';
+import { useQuery } from '@apollo/client';
 import React from 'react';
 
 import Spinner from '@erxes/ui/src/components/Spinner';
-import PostForm from '../components/Form';
-import { mutations, queries } from '../graphql';
+import Webbuilder from '../components/WebBuilder';
+import { queries } from '../graphql';
 
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Alert from '@erxes/ui/src/utils/Alert';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import cpQueries from '../../clientportal/graphql/queries';
+import { skip } from 'node:test';
+
 
 type Props = {
   id?: string;
-  closeModal: () => void;
 };
 
-const FormContainer = (props: Props) => {
+const WebBuilderContainer = (props: Props) => {
+
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
-  const clientPortalId = searchParams.get('web') || '';
-  const postId = props.id;
+  const pageId = props.id;
 
-  const { data, loading } = useQuery(queries.POST, {
+  const { data:pageData, loading } = useQuery(queries.PAGE, {
     variables: {
-      id: postId,
+      id: pageId,
     },
     fetchPolicy: 'network-only',
-    skip: !postId,
+    skip: !pageId,
   });
 
-  const [addMutation] = useMutation(mutations.POST_ADD);
+  const { data: clientPortalData, loading: clientPortalLoading } = useQuery(
+    cpQueries.DETAIL_QUERY,
+    {
+      variables: {
+        id: pageData?.page?.clientPortalId
+      },
+      skip: !pageData
+    }
+  )
 
-  const [editMutation] = useMutation(mutations.POST_EDIT);
+//   const [addMutation] = useMutation(mutations.POST_ADD);
 
-  if (loading) {
+//   const [editMutation] = useMutation(mutations.POST_EDIT);
+
+  if (loading || clientPortalLoading) {
     return <Spinner />;
   }
 
-  const post = postId ? data.post : null;
+  const page = pageData?.page;
+  const clinetPortal = clientPortalData?.clientPortalGetConfig;
+
+  console.log('clinetPortal', clinetPortal);
+  console.log('page', page);
+
 
   const onSubmit = (doc: any) => {
-    if (postId) {
+    console.log('doc', doc);
+    return
+    if (pageId) {
       editMutation({
         variables: {
-          id: postId,
+          id: pageId,
           input: doc,
         },
       }).then(() => {
@@ -80,20 +96,14 @@ const FormContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    clientPortalId,
-    post,
+    clinetPortal,
+    page,
     onSubmit,
   };
 
-  return <PostForm {...updatedProps} />;
+  return <Webbuilder {...updatedProps} />;
 };
 
-const getRefetchQueries = () => {
-  return [
-    {
-      query: queries.POST_LIST,
-    },
-  ];
-};
 
-export default FormContainer;
+
+export default WebBuilderContainer;

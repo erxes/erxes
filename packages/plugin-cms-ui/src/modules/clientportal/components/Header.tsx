@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import SelectCp from '../containers/SelectCp';
 
 type Props = {
@@ -11,11 +11,11 @@ const MainContainer = (props: Props) => {
     props.currentConfig
   );
   const navigate = useNavigate();
+  const location = useLocation();
 
   React.useEffect(() => {
     if (currentConfig?._id) {
-      const newPath = `/cms/posts/${currentConfig._id}`;
-      // navigate(newPath, { replace: true });
+      navigate(`${location.pathname}?web=${currentConfig._id}`, { replace: true });
     }
   }, [currentConfig, navigate]);
 

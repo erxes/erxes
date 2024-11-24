@@ -8,17 +8,16 @@ import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 
-import PostForm from '../containers/Form';
+import CategoryForm from '../containers/Form';
 // import { tumentechMenu } from '../list/CarsList';
 
-import { menu } from '../../../routes';
+import { menu, webBuilderMenu } from '../../../routes';
 import Row from './Row';
 import CPHeader from '../../clientportal/containers/Header';
-import { useLocation, useNavigate } from 'react-router-dom';
 
 type Props = {
   clientPortalId: string;
-  posts: any[];
+  pages: any[];
   totalCount: number;
   queryParams: any;
   loading: boolean;
@@ -27,13 +26,14 @@ type Props = {
 };
 
 const List = (props: Props) => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { totalCount, queryParams, loading, posts, remove } = props;
+  const { totalCount, queryParams, loading, pages, remove } = props;
 
   const renderRow = () => {
-    return posts.map((post) => (
-      <Row key={post._id} post={post} remove={remove} />
+
+    return pages.map((page) => (
+      <React.Fragment key={page._id}>
+        <Row page={page} remove={remove}  />
+      </React.Fragment>
     ));
   };
 
@@ -42,24 +42,23 @@ const List = (props: Props) => {
 
   const trigger = (
     <Button btnStyle='success' size='small' icon='plus-circle'>
-      Add post
+      Add page
     </Button>
   );
 
-  const formContent = (formProps) => <PostForm {...formProps} />;
+  const formContent = (formProps) => (
+    <CategoryForm {...formProps} clientPortalId={props.clientPortalId} />
+  );
 
   const righActionBar = (
     <BarItems>
-      <Button
-        btnStyle='success'
-        size='small'
-        icon='plus-circle'
-        onClick={() => {
-          navigate(`/cms/posts/new?web=${props.clientPortalId}`, { replace: true });
-        }}
-      >
-        Add post
-      </Button>
+      <ModalTrigger
+        size='lg'
+        title='Add page'
+        autoOpenKey='showAppAddModal'
+        trigger={trigger}
+        content={formContent}
+      />
     </BarItems>
   );
 
@@ -77,12 +76,8 @@ const List = (props: Props) => {
     <Table $whiteSpace='nowrap' $hover={true}>
       <thead>
         <tr>
-          <th>{__('Title')}</th>
-          <th>{__('Categories')}</th>
-          <th>{__('Tags')}</th>
-          <th>{__('Status')}</th>
-          <th>{__('Author')}</th>
-          <th>{__('Created date')}</th>
+          <th>{__('Name')}</th>
+          <th>{__('Path')}</th>
           <th>{__('Last modified date')}</th>
           <th>{__('Last modified by')}</th>
           <th>{__('Actions')}</th>
@@ -97,9 +92,9 @@ const List = (props: Props) => {
         transparent={false}
         header={
           <Wrapper.Header
-            title={__('Posts')}
+            title={__('Page')}
             queryParams={queryParams}
-            submenu={menu}
+            submenu={webBuilderMenu}
           />
         }
         actionBar={actionBar}
@@ -108,7 +103,7 @@ const List = (props: Props) => {
           <DataWithLoader
             data={content}
             loading={loading}
-            count={totalCount}
+            count={props.totalCount}
             emptyContent={
               <h3
                 style={{
