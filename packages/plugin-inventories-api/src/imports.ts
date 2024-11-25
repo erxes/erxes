@@ -1,4 +1,5 @@
 import { generateModels } from './connectionResolver';
+import { sendCoreMessage } from './messageBroker';
 const IMPORT_EXPORT_TYPES = [
   {
     text: 'Reminders',
@@ -51,100 +52,75 @@ export default {
   },
 
   prepareImportDocs: async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-    const { result, properties } = data;
+    const { result, properties, user } = data;
 
     const bulkDoc: any = [];
 
     // Iterating field values
     for (const fieldValue of result) {
-      const doc: any = {
-        customFieldsData: [],
-      };
+      const doc: any = {};
 
       let colIndex: number = 0;
-      let subUomNames = [];
-      let ratios = [];
 
       // Iterating through detailed properties
       for (const property of properties) {
         const value = (fieldValue[colIndex] || '').toString();
 
         switch (property.name) {
-          // case 'customProperty':
-          //   {
-          //     doc.customFieldsData.push({
-          //       field: property.id,
-          //       value: fieldValue[colIndex],
-          //     });
-
-          //     doc.customFieldsData =
-          //       await models.Fields.prepareCustomFieldsData(
-          //         doc.customFieldData
-          //       );
-          //   }
-          //   break;
-
-          // case 'categoryName':
-          //   {
-          //     const generateCode = Math.floor(Math.random() * 900) + 100;
-
-          //     let category = await models.ProductCategories.findOne({
-          //       name: { $regex: new RegExp(`^${value}$`, 'i') },
-          //     });
-
-          //     if (!category) {
-          //       category = await models.ProductCategories.create({
-          //         name: value,
-          //         code: generateCode,
-          //         order: `${generateCode}/`,
-          //       });
-          //     }
-
-          //     doc.categoryId = category ? category._id : '';
-          //   }
-
-          //   break;
-
-          // case 'tag':
-          //   {
-          //     const tagName = value;
-
-          //     let tag = await models.Tags.findOne({
-          //       name: tagName,
-          //       type: `core:product`,
-          //     });
-
-          //     if (!tag) {
-          //       tag = await models.Tags.create({
-          //         name: tagName,
-          //         type: `core:product`,
-          //       });
-          //     }
-
-          //     doc.tagIds = tag ? [tag._id] : [];
-          //   }
-
-          //   break;
-
-          case 'barcodes':
+          case 'productCategoryId':
             {
-              doc.barcodes = value
-                .replace(/\s/g, '')
-                .split(',')
-                .filter((br) => br);
+              const categoryName = value;
+
+              const category = await sendCoreMessage({
+                subdomain,
+                action: 'categories.findOne',
+                data: {
+                  name: { $regex: `^${categoryName}$`, $options: 'i' },
+                },
+                isRPC: true,
+                defaultValue: {},
+              });
+
+              doc.productCategoryId = category ? category._id : '';
+            }
+
+            break;
+
+          case 'branchId':
+            {
+              const branchtTitle = value;
+
+              const branch = await sendCoreMessage({
+                subdomain,
+                action: 'branches.findOne',
+                data: {
+                  query: {
+                    title: { $regex: `^${branchtTitle}$`, $options: 'i' },
+                  },
+                },
+                isRPC: true,
+                defaultValue: [],
+              });
+
+              doc.branchId = branch ? branch._id : '';
             }
             break;
 
-          case 'subUoms.uom':
+          case 'departmentId':
             {
-              subUomNames = value.replace(/\s/g, '').split(',');
-            }
-            break;
+              const departmentTitles = value;
 
-          case 'subUoms.ratio':
-            {
-              ratios = value.replace(/\s/g, '').split(',');
+              const department = await sendCoreMessage({
+                subdomain,
+                action: 'departments.findOne',
+                data: {
+                  title: { $regex: `^${departmentTitles}$`, $options: 'i' },
+                },
+                isRPC: true,
+                defaultValue: {},
+              });
+
+              doc.departmentId = department ? department._id : 'department';
             }
             break;
 
@@ -152,16 +128,8 @@ export default {
             {
               doc[property.name] = value;
 
-              if (property.name === 'createdAt' && value) {
-                doc.createdAt = new Date(value);
-              }
-
-              if (property.name === 'modifiedAt' && value) {
-                doc.modifiedAt = new Date(value);
-              }
-
-              if (property.name === 'isComplete') {
-                doc.isComplete = Boolean(value);
+              if (property.name === 'status') {
+                doc.status = 'draft';
               }
             }
             break;
@@ -169,19 +137,6 @@ export default {
 
         colIndex++;
       }
-
-      let ind = 0;
-      const subUoms: any = [];
-
-      for (const uom of subUomNames) {
-        subUoms.push({
-          id: Math.random(),
-          uom: uom,
-          ratio: Number(ratios[ind] || 1),
-        });
-        ind += 1;
-      }
-      doc.subUoms = subUoms;
 
       bulkDoc.push(doc);
     }
