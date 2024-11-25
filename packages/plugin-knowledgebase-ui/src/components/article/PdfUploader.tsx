@@ -112,7 +112,7 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
         formData.append('file', file);
 
         const { REACT_APP_API_URL } = getEnv();
-        const res = await apiRequest(
+        const result = await apiRequest(
           `${REACT_APP_API_URL}/pl-workers/upload-pdf`,
           {
             method: 'POST',
@@ -120,8 +120,7 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
             credentials: 'include',
           }
         );
-
-        const result = await res.json();
+        
         if (result.error) {
           Alert.error(result.error);
           setIsUploading(false);
