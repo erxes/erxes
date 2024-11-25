@@ -70,7 +70,7 @@ export const departmentSchema = schemaWrapper(
   new Schema({
     description: field({ type: String, optional: true }),
     supervisorId: field({ type: String, optional: true }),
-    parentId: field({ type: String }),
+    parentId: field({ type: String, optional: true }),
     order: field({ type: String, unique: true }),
     status: field({
       type: String,
