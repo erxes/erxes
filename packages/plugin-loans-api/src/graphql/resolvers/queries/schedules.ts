@@ -39,21 +39,10 @@ const scheduleQueries = {
       return models.FirstSchedules.find(filter).sort({ payDate: 1 });
     }
 
-    const lastTransaction = await models.Transactions.findOne({
-      contractId: params.contractId,
-      transactionType:{$ne:'give'}
-    })
-      .sort({ payDate: -1 })
-      .lean();
-    
-    if (!!lastTransaction) {
-      filter.payDate = { $lte: lastTransaction.payDate };
-    } else filter.payDate = { $lte: new Date() };
-
     return models.Schedules.find(filter).sort({ payDate: 1 });
   },
 
-  virtualSchedules: async (_root, doc: IDefaultScheduleParam, {}) => {
+  virtualSchedules: async (_root, doc: IDefaultScheduleParam, { }) => {
     const result: {
       index: Number;
       loanBalance: Number;
@@ -89,9 +78,9 @@ const scheduleQueries = {
     const perHolidays = !holidayConfig?.value
       ? []
       : Object.keys(holidayConfig.value).map(key => ({
-          month: Number(holidayConfig.value[key].month) - 1,
-          day: Number(holidayConfig.value[key].day)
-        }));
+        month: Number(holidayConfig.value[key].month) - 1,
+        day: Number(holidayConfig.value[key].day)
+      }));
 
     getGraphicValue(contract, perHolidays);
   }

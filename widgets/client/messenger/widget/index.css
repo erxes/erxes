@@ -5,51 +5,73 @@
   z-index: 2147483647;
 }
 
-#erxes-messenger-container:after {
-  content: "";
-  position: absolute;
-  opacity: 0;
-  width: 300px;
-  height: 242px;
-  right: -300px;
-  bottom: -242px;
-  z-index: -1;
-  background: url('https://s3.amazonaws.com/erxes/radial06.png');
-  background-position: 100% 100%;
-  background-repeat: no-repeat;
-  background-size: contain;
-  transition: all 1s ease;
-}
-
 #erxes-messenger-iframe {
   position: absolute !important;
-  bottom: 12px;
-  right: 12px;
   border: none;
-  max-width: none;
-  min-height: auto;
   z-index: 2147483647;
+  height: 100%;
+  width: 100%;
+  border-radius: 1rem;
 }
 
-.erxes-messenger-hidden>iframe {
-  width: 72px;
-  height: 72px;
-  max-width: none;
+.erxes-launcher {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  border: none;
+  z-index: 2147483649;
+  overflow: hidden;
+  height: 76px;
+  width: 76px;
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
 .erxes-messenger-hidden {
-  background: none;
+  position: fixed;
+  height: min(720px, 100% - 104px);
+  min-height: 80px;
+  width: 408px;
+  max-height: 720px;
+  border-radius: 1rem;
+  right: 16px;
+  bottom: 92px;
+  transform-origin: right bottom;
+  transition:
+    width 200ms ease 0s,
+    height 200ms ease 0s,
+    max-height 200ms ease 0s,
+    transform 300ms cubic-bezier(0, 1.2, 1, 1) 0s,
+    opacity 83ms ease-out 0s;
+  transform: scale(0);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .erxes-messenger-shown {
-  width: 421px;
-  height: 100%;
-  height: calc(100% - 20px);
-  max-height: 780px;
+  position: fixed;
+  height: min(690px, 100% - 20px);
+  min-height: 80px;
+  /* 400px width of messenger + scrollbar width */
+  width: 408px;
+  max-height: 720px;
+  border-radius: 1rem;
+  right: 16px;
+  bottom: 92px;
+  transform-origin: right bottom;
+  box-shadow: 0 2px 8px 1px rgba(0, 0, 0, 0.2);
+  opacity: 1;
+  transition:
+    width 200ms ease 0s,
+    height 200ms ease 0s,
+    max-height 200ms ease 0s,
+    transform 300ms cubic-bezier(0, 1.2, 1, 1) 0s,
+    opacity 83ms ease-out 0s;
+  pointer-events: all;
 }
 
 .erxes-messenger-shown:after {
-  opacity: .9 !important;
+  opacity: 0.9 !important;
   right: -20px !important;
   bottom: -20px !important;
 }
@@ -58,9 +80,8 @@
   max-height: 310px;
 }
 
-.erxes-messenger-shown>iframe,
-.erxes-notifier-shown>iframe {
-  width: 100% !important;
+.erxes-messenger-shown > iframe,
+.erxes-notifier-shown > iframe {
   height: 100% !important;
   max-width: none;
 }
@@ -83,6 +104,11 @@
 
   .erxes-messenger-shown {
     height: 100%;
+    width: 100%;
+    max-height: none;
+    display: block;
+    right: 0;
+    bottom: 0;
   }
 
   #erxes-messenger-iframe {

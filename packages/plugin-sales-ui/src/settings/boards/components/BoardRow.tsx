@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
+import SaveTemplate from '@erxes/ui-template/src/components/SaveTemplate';
 
 type Props = {
   type: string;
@@ -56,6 +57,20 @@ class BoardRow extends React.Component<Props, {}> {
     );
   }
 
+  renderTemplateModal() {
+    const { board } = this.props;
+
+    const { ...boardContent } = board;
+
+    const content = {
+      content: JSON.stringify(boardContent),
+      contentType: 'boards',
+      serviceName: 'sales',
+    };
+
+    return <SaveTemplate as='icon' {...content} />;
+  }
+
   render() {
     const { board, isActive } = this.props;
 
@@ -64,6 +79,7 @@ class BoardRow extends React.Component<Props, {}> {
         <Link to={`?boardId=${board._id}`}>{board.name}</Link>
         <ActionButtons>
           {this.renderEditAction()}
+          {this.renderTemplateModal()}
           <Tip text='Delete' placement='bottom'>
             <Button btnStyle='link' onClick={this.remove} icon='cancel-1' />
           </Tip>

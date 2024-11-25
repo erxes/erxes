@@ -14,7 +14,7 @@ export const getCloseInfo = async (
 ) => {
   const closeDate = getFullDate(date);
   const contractId = contract._id;
-  const config = await getConfig('loansConfig',subdomain)
+  const config = await getConfig('loansConfig', subdomain);
 
   let lastPaySchedule: null | Pick<ISchedule, 'payDate' | 'balance'> = await models.Schedules.findOne({
     contractId,
@@ -37,7 +37,7 @@ export const getCloseInfo = async (
   const paymentInfo = await getCalcedAmounts(models, subdomain, {
     contractId,
     payDate: closeDate
-  },config)
+  }, config);
 
-  return paymentInfo;
+  return { ...paymentInfo, interest: paymentInfo.calcInterest + paymentInfo.storedInterest };
 };

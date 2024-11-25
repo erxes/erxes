@@ -284,6 +284,9 @@ const absenceTypes = `
       requestType
       requestTimeType
       requestHoursPerDay
+      requestToType
+      absenceUserIds
+      branchIds
     }
   }
 `;

@@ -29,11 +29,10 @@ export const createSavingLoan = async (subdomain, polarisConfig, params) => {
     'savings',
   );
 
-  const savingProduct = await sendMessageBrokerData(
+  const savingProduct = await getProduct(
     subdomain,
-    'savings',
-    'contractType.findOne',
-    { _id: savingContract.contractTypeId }
+    savingContract.contractTypeId,
+    'savings'
   );
 
   const leasingExpert = await getUser(subdomain, loan.leasingExpertId);
@@ -44,7 +43,7 @@ export const createSavingLoan = async (subdomain, polarisConfig, params) => {
     subdomain,
     "loans:contract",
     loan,
-    polarisConfig.loan
+    (polarisConfig.loan && polarisConfig.loan[loan.contractTypeId || ''] || {}).values || {}
   );
 
 

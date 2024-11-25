@@ -168,10 +168,10 @@ export const calculatePriceRule = (
         rule.discountType === 'default'
           ? defaultValue
           : calculateDiscountValue(
-              rule.discountType,
-              rule.discountValue,
-              item.price
-            );
+            rule.discountType,
+            rule.discountValue,
+            item.price
+          );
 
       calculatedValue = calculatePriceAdjust(
         item.price,
@@ -238,10 +238,10 @@ export const calculateQuantityRule = (
         rule.discountType === 'default'
           ? defaultValue
           : calculateDiscountValue(
-              rule.discountType,
-              rule.discountValue,
-              item.price
-            );
+            rule.discountType,
+            rule.discountValue,
+            item.price
+          );
 
       // Calculate remainder product's price
       if (rule.type === 'every') {
@@ -315,10 +315,10 @@ export const calculateExpiryRule = (
         rule.discountType === 'default'
           ? defaultValue
           : calculateDiscountValue(
-              rule.discountType,
-              rule.discountValue,
-              item.price
-            );
+            rule.discountType,
+            rule.discountValue,
+            item.price
+          );
 
       calculatedValue = calculatePriceAdjust(
         item.price,

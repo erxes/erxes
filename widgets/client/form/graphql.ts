@@ -43,6 +43,7 @@ export const formDetailQuery = (isProductsEnabled: boolean) => `
       numberOfPages
       googleMapApiKey
       code
+      leadData
 
       fields {
         ${fieldsFragment}

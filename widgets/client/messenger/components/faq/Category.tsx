@@ -1,18 +1,25 @@
-import * as React from "react";
-import { IFaqCategory } from "../../types";
+import * as React from 'react';
+import { IFaqCategory } from '../../types';
+import { __ } from '../../../utils';
+import { IconChevronRight } from '../../../icons/Icons';
 
 type Props = {
   category: IFaqCategory;
   childrens?: IFaqCategory[];
   getCurrentItem?: (currentCategory: IFaqCategory) => void;
   onClick: (category?: IFaqCategory) => void;
+  isParent?: boolean;
 };
 
-export default class Category extends React.Component<Props> {
-  handleOnClick = (event: React.FormEvent<HTMLDivElement>) => {
+const Category: React.FC<Props> = ({
+  category,
+  getCurrentItem,
+  childrens,
+  onClick,
+  isParent,
+}) => {
+  const handleOnClick = (event: React.FormEvent<HTMLDivElement>) => {
     event.preventDefault();
-
-    const { category, getCurrentItem, childrens, onClick } = this.props;
 
     if (childrens && getCurrentItem) {
       childrens.length === 0 ? onClick(category) : getCurrentItem(category);
@@ -21,31 +28,24 @@ export default class Category extends React.Component<Props> {
     }
   };
 
-  renderCount() {
-    const { childrens, category } = this.props;
-
+  const renderCount = () => {
     if (!childrens) {
       return category.numOfArticles;
     }
 
     return childrens.length === 0 ? category.numOfArticles : childrens.length;
-  }
+  };
 
-  render() {
-    const { category } = this.props;
-
-    return (
-      <div className="erxes-list-item faq-item" onClick={this.handleOnClick}>
-        <div className="erxes-left-side">
-          <i className={`erxes-icon-${category.icon}`} />
-        </div>
-        <div className="erxes-right-side">
-          <div className="erxes-name">
-            {category.title} <span>({this.renderCount()})</span>
-          </div>
-          <div className="description">{category.description}</div>
-        </div>
+  return (
+    <div className="category-item-container" onClick={handleOnClick}>
+      <div className="category-detail">
+        <h6>{category.title}</h6>
+        <p>{category.description}</p>
+        <div className="description">{`${renderCount()} ${__(isParent ? 'categories' : 'articles')}`}</div>
       </div>
-    );
-  }
-}
+      <IconChevronRight />
+    </div>
+  );
+};
+
+export default Category;

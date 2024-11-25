@@ -193,7 +193,7 @@ const mutations = {
     const brand = await models.Brands.findOne({ code: args.brandCode }).lean();
 
     const form = await models.Forms.findOne({
-      code: args.formCode,
+      $or: [{ code: args.formCode }, { _id: args.formCode }],
       status: 'active',
     }).lean();
 
@@ -373,6 +373,20 @@ const mutations = {
       formId,
       customerId: customer._id,
       conversationId,
+    });
+
+    sendCommonMessage({
+      subdomain,
+      serviceName: 'automations',
+      action: 'trigger',
+      data: {
+        type: 'core:form_submission',
+        targets: [
+          { _id: customer._id, conversationId: conversationId || null },
+        ],
+      },
+      isRPC: true,
+      defaultValue: null,
     });
 
     return {

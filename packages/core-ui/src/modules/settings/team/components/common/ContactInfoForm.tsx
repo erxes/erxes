@@ -97,6 +97,15 @@ export default function ContactInfoForm(props: Props) {
         />
       </FormGroup>
       <FormGroup>
+        <ControlLabel>{__("whatsapp")}</ControlLabel>
+        <FormControl
+          name="whatsapp"
+          placeholder="https://whatsapp.com"
+          defaultValue={links.whatsapp}
+          onChange={onChangeLink}
+        />
+      </FormGroup>
+      <FormGroup>
         <ControlLabel>{__("Twitter")}</ControlLabel>
         <FormControl
           name="twitter"

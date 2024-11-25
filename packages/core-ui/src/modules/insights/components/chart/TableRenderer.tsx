@@ -45,6 +45,7 @@ type IDataSet = {
   title: string;
   data: number[] | any;
   labels: string[];
+  headers?: string[];
 };
 
 type Props = {
@@ -54,9 +55,9 @@ type Props = {
 };
 
 const TableList = (props: Props) => {
-  const { dataset: { data = [], labels = [], title }, filters, setFilter } = props;
+  const { dataset: { data = [], labels = [], title, headers = [] }, filters, setFilter } = props;
 
-  const headers: any = labels?.length ? [title?.split(" ").at(-1), 'Total Count'] : data.length > 0 ? Object.keys(data[0]).filter(key => key !== 'url') : []
+  const headerRow: any = labels?.length ? [title, 'Total Count'] : headers || []
   const array = labels?.length ? labels : data || []
 
   const checkSortActive = (field, direction) => {
@@ -112,7 +113,7 @@ const TableList = (props: Props) => {
       <ChartTable>
         <thead>
           <tr>
-            {(headers || []).map(header => (
+            {(headerRow || []).map(header => (
               <>{renderSorter(header)}</>
             ))}
           </tr>
@@ -137,7 +138,7 @@ const TableList = (props: Props) => {
               return (
                 <tr key={index} onDoubleClick={() => handleRowClick(item)}>
                   <td colSpan={item['total']}>Total</td>
-                  {(headers || []).map(header => {
+                  {(headerRow || []).map(header => {
                     if (header in item) {
 
                       if (["count", "totalAmount", "averageAmount", "unusedAmount", "forecastAmount"].includes(header)) {
@@ -159,7 +160,7 @@ const TableList = (props: Props) => {
 
             return (
               <tr key={index} onDoubleClick={() => handleRowClick(item)}>
-                {(headers || []).map(header => {
+                {(headerRow || []).map(header => {
                   if (header === 'description') {
                     return <td dangerouslySetInnerHTML={{ __html: item[header] }} />
                   }

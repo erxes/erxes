@@ -1,8 +1,9 @@
-import * as React from "react";
-import * as fe from "fast-equals";
+import * as React from 'react';
+import * as fe from 'fast-equals';
 
 interface IMapProps extends google.maps.MapOptions {
   style: { [key: string]: string };
+  children: React.ReactNode;
 }
 
 const Map: React.FC<IMapProps> = ({ children, style, ...options }) => {
@@ -26,6 +27,7 @@ const Map: React.FC<IMapProps> = ({ children, style, ...options }) => {
       <div ref={ref} style={style} />
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
+          //@ts-ignore
           return React.cloneElement(child, { map });
         }
       })}
@@ -35,7 +37,7 @@ const Map: React.FC<IMapProps> = ({ children, style, ...options }) => {
 
 const useDeepCompareMemoize = (value: any) => {
   const ref = React.useRef(() => {
-    throw new Error("Cannot call an event handler while rendering.");
+    throw new Error('Cannot call an event handler while rendering.');
   });
 
   if (!fe.deepEqual(value, ref.current)) {

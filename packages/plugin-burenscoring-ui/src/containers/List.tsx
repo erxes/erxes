@@ -14,7 +14,7 @@ const generateParams = ({ queryParams }) => {
 
   return {
     page: pageInfo.page,
-    perPage: pageInfo.perPage,
+    perPage: pageInfo.perPage    
   };
 };
 

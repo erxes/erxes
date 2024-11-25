@@ -23,6 +23,14 @@ const productsMerge = `
   }
 `;
 
+const productsDuplicate = `
+  mutation productsDuplicate($_id: String!) {
+    productsDuplicate(_id: $_id) {
+      _id
+    }
+  }
+`;
+
 // UOM
 
 const commonUomParams = `
@@ -83,7 +91,7 @@ export default {
   productCategoryEdit,
   productCategoryRemove,
   productsMerge,
-
+  productsDuplicate,
   uomsAdd,
   uomsEdit,
   uomsRemove,

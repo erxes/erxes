@@ -29,5 +29,6 @@ export default {
         const reDirect = `/automations/details/${automation._id}`
 
         return { reDirect };
-    }
+    },
+    getRelatedContent: async () => { }
 }

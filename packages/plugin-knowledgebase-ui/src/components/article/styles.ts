@@ -120,6 +120,7 @@ const FlexRow = styled.div`
 
 const UploadBtn = styled.div`
   position: relative;
+  min-height: 30px;
   margin-top: 10px;
   label {
     padding: 7px 15px;

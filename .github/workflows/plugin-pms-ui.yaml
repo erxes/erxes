@@ -50,7 +50,7 @@ on:
       - "packages/plugin-pms-ui/**"
       - ".github/workflows/plugin-pms-ui.yaml"
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

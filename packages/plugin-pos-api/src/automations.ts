@@ -75,16 +75,35 @@ export default {
         label: "Pos order",
         description:
           "Start with a blank workflow that enrolls and is triggered off Pos orders"
+      },
+      {
+        type: "pos:posOrder.paid",
+        img: "automation3.svg",
+        icon: "lamp",
+        label: "Pos order when paid",
+        isCustom: true,
+        description:
+          "Start with a blank workflow that enrolls and is triggered off Pos order paid"
       }
     ]
   },
 
+  checkCustomTrigger: async ({ data }) => {
+    const { collectionType, target } = data;
+
+    if (collectionType === "posOrder.paid") {
+      if (target.paidDate) {
+        return true;
+      }
+    }
+
+    return false;
+  },
   replacePlaceHolders: async ({
     subdomain,
     data: { target, config, execution }
   }) => {
     const models = generateModels(subdomain);
-
     const value = await replacePlaceHolders({
       models,
       subdomain,
@@ -94,6 +113,24 @@ export default {
       relatedValueProps: { execution },
       complexFields: ["items"]
     });
+
+    if (value.attributionMail) {
+      const type = target?.customerType || "customer";
+
+      const result = await sendCoreMessage({
+        subdomain,
+        action: "automations.getRecipientsEmails",
+        data: {
+          type,
+          config: {
+            [`${type}Ids`]: value.attributionMail
+          }
+        },
+        isRPC: true
+      });
+
+      value.attributionMail = result;
+    }
 
     return value;
   }
