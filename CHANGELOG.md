@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.0.9](https://github.com/erxes/erxes/compare/2.0.8...2.0.9) (2024-11-25)
+
+
+### Bug Fixes
+
+* msdynamic remainders with reserveRemainder bug ([f247f42](https://github.com/erxes/erxes/commit/f247f4291955c99ca985e6a68db52923ca5f602f))
+* pos order sync check paidDate ([b4b55e6](https://github.com/erxes/erxes/commit/b4b55e695362443cfce77cf077f451e56ece6519))
+* purchases, tasks, tickets, sales export import fixed ([50d65b1](https://github.com/erxes/erxes/commit/50d65b1160f08741c8273b7c3e41c6325b2f605d))
+
 ## [2.0.8](https://github.com/erxes/erxes/compare/2.0.7...2.0.8) (2024-11-21)
 
 
