@@ -421,7 +421,7 @@ export const getFormFields = async (models: IModels, formId: string) => {
 
 const generateFieldsUsers = async ({ subdomain, data }) => {
   const models = await generateModels(subdomain);
-  const { usageType, formId } = data;
+  const { usageType } = data;
 
   const { Users } = models;
 
@@ -463,6 +463,25 @@ const generateFieldsUsers = async ({ subdomain, data }) => {
       }
     }
   }
+
+  return fields;
+};
+
+const generateFormFields = async ({ subdomain, data }) => {
+  const models = await generateModels(subdomain);
+  const { config = {} } = data;
+  const { formId } = config;
+
+  const fields: Array<{
+    _id: number;
+    name: string;
+    group?: string;
+    label?: string;
+    type?: string;
+    validation?: string;
+    options?: string[];
+    selectOptions?: Array<{ label: string; value: string }>;
+  }> = [];
 
   if (formId) {
     const formFieldsValues = await getFormFields(models, formId);
@@ -653,6 +672,9 @@ export default {
 
       case "product":
         return generateProductsFields({ subdomain, data });
+
+      case "form_submission":
+        return generateFormFields({ subdomain, data });
 
       default:
         return generateFieldsUsers({ subdomain, data });
