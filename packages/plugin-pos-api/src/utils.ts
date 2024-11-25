@@ -191,9 +191,8 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
       (marker.latitude || marker.lat)
     ) {
       pushInfo.addresses = {
-        id: `${marker.longitude || marker.lng}_${
-          marker.latitude || marker.lat
-        }`,
+        id: `${marker.longitude || marker.lng}_${marker.latitude || marker.lat
+          }`,
         location: {
           type: "Point",
           coordinates: [
@@ -285,9 +284,8 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
           lng: marker.longitude || marker.lng,
           description: "location"
         },
-        stringValue: `${marker.longitude || marker.lng},${
-          marker.latitude || marker.lat
-        }`
+        stringValue: `${marker.longitude || marker.lng},${marker.latitude || marker.lat
+          }`
       }
     ];
   }
@@ -738,26 +736,29 @@ export const syncOrderFromClient = async ({
     return;
   }
 
-  if (newOrder.customerId && (await isEnabled("automations"))) {
-    await sendAutomationsMessage({
+  let convertDealId;
+  if (newOrder.paidDate) {
+    if (newOrder.customerId && (await isEnabled("automations"))) {
+      await sendAutomationsMessage({
+        subdomain,
+        action: "trigger",
+        data: {
+          type: "pos:posOrder",
+          targets: [newOrder]
+        }
+      });
+    }
+
+    await confirmLoyalties(subdomain, newOrder);
+    await otherPlugins(subdomain, newOrder, oldOrder, newOrder.userId);
+
+    convertDealId = await createDealPerOrder({
       subdomain,
-      action: "trigger",
-      data: {
-        type: "pos:posOrder",
-        targets: [newOrder]
-      }
+      models,
+      pos,
+      newOrder
     });
   }
-
-  await confirmLoyalties(subdomain, newOrder);
-  await otherPlugins(subdomain, newOrder, oldOrder, newOrder.userId);
-
-  const convertDealId = await createDealPerOrder({
-    subdomain,
-    models,
-    pos,
-    newOrder
-  });
 
   if (pos.isOnline && newOrder.subBranchId) {
     const toPos = await models.Pos.findOne({
@@ -803,9 +804,11 @@ export const syncOrderFromClient = async ({
     }
   }
 
-  await syncErkhetRemainder({ subdomain, models, pos, newOrder });
+  if (newOrder.paidDate) {
+    await syncErkhetRemainder({ subdomain, models, pos, newOrder });
 
-  await syncInventoriesRem({ subdomain, newOrder, oldBranchId, pos });
+    await syncInventoriesRem({ subdomain, newOrder, oldBranchId, pos });
+  }
 
   const syncedResponseIds = (
     (await sendEbarimtMessage({
