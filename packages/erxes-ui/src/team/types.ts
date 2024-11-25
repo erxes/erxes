@@ -167,7 +167,7 @@ export type DepartmentsMainQueryResponse = {
 
 export type BranchesMainQueryResponse = {
   branchesMain: {
-    list: IDepartment[];
+    list: IBranch[];
     totalCount: number;
     totalUsersCount: number;
   };
