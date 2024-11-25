@@ -739,25 +739,42 @@ export const syncOrderFromClient = async ({
   let convertDealId;
   if (newOrder.paidDate) {
     if (newOrder.customerId && (await isEnabled("automations"))) {
-      await sendAutomationsMessage({
-        subdomain,
-        action: "trigger",
-        data: {
-          type: "pos:posOrder",
-          targets: [newOrder]
-        }
-      });
+      try {
+        await sendAutomationsMessage({
+          subdomain,
+          action: "trigger",
+          data: {
+            type: "pos:posOrder",
+            targets: [newOrder]
+          }
+        });
+      } catch (e) {
+        console.log(subdomain, e.message);
+      }
     }
 
-    await confirmLoyalties(subdomain, newOrder);
-    await otherPlugins(subdomain, newOrder, oldOrder, newOrder.userId);
+    try {
+      await confirmLoyalties(subdomain, newOrder);
+    } catch (e) {
+      console.log(subdomain, e.message);
+    }
 
-    convertDealId = await createDealPerOrder({
-      subdomain,
-      models,
-      pos,
-      newOrder
-    });
+    try {
+      await otherPlugins(subdomain, newOrder, oldOrder, newOrder.userId);
+    } catch (e) {
+      console.log(subdomain, e.message);
+    }
+
+    try {
+      convertDealId = await createDealPerOrder({
+        subdomain,
+        models,
+        pos,
+        newOrder
+      });
+    } catch (e) {
+      console.log(subdomain, e.message);
+    }
   }
 
   if (pos.isOnline && newOrder.subBranchId) {
@@ -805,9 +822,17 @@ export const syncOrderFromClient = async ({
   }
 
   if (newOrder.paidDate) {
-    await syncErkhetRemainder({ subdomain, models, pos, newOrder });
+    try {
+      await syncErkhetRemainder({ subdomain, models, pos, newOrder });
+    } catch (e) {
+      console.log(subdomain, e.message);
+    }
 
-    await syncInventoriesRem({ subdomain, newOrder, oldBranchId, pos });
+    try {
+      await syncInventoriesRem({ subdomain, newOrder, oldBranchId, pos });
+    } catch (e) {
+      console.log(subdomain, e.message);
+    }
   }
 
   const syncedResponseIds = (
