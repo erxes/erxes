@@ -68,7 +68,7 @@ const Row = (props: Props) => {
       </td>
 
       <td key={Math.random()}>
-        <RowTitle>{`/${page.slug}` || 'Undefined'} </RowTitle>
+        <RowTitle>{`${page.slug}` || 'Undefined'} </RowTitle>
       </td>
 
 

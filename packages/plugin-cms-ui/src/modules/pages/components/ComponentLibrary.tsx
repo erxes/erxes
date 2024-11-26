@@ -1,4 +1,6 @@
 import React from 'react';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+import { Box, Button } from '@erxes/ui/src/components';
 
 type ComponentLibraryProps = {
   page: any;
@@ -10,32 +12,39 @@ type ComponentLibraryProps = {
 };
 
 const components = [
-  { type: 'navigation', content: 'Navigation Menu', style: { fontSize: '16px' } },
+  { type: 'header', content: 'Header', style: { fontSize: '16px' } },
   { type: 'footer', content: 'Footer', style: { fontSize: '16px' } },
-  { type: 'imageGallery', content: 'Image Gallery', style: { fontSize: '16px' } },
+  { type: 'slider', content: 'Slider', style: { fontSize: '16px' } },
+  // { type: 'banner', content: 'Banner', style: { fontSize: '16px' } },
+  {
+    type: 'productCategory',
+    content: 'Product categories',
+    style: { fontSize: '16px' },
+  },
+  { type: 'product', content: 'Products', style: { fontSize: '16px' } },
+  { type: 'post', content: 'Posts', style: { fontSize: '16px' } },
+  {
+    type: 'postCategory',
+    content: 'Post categories',
+    style: { fontSize: '16px' },
+  },
+  { type: 'properties', content: 'Properties', style: { fontSize: '16px' } },
+  { type: 'tours', content: 'Tours', style: { fontSize: '16px' } },
+  { type: 'forms', content: 'Form', style: { fontSize: '16px' } },
 ];
 
 const ComponentLibrary = ({ onAddComponent }: ComponentLibraryProps) => {
   return (
-    <div>
-   
-      {components.map((component) => (
-        <div
-          key={component.type}
-          onClick={() => onAddComponent(component)}
-          style={{
-            margin: '8px 0',
-            padding: '8px',
-            border: '1px solid #ccc',
-            textAlign: 'center',
-            cursor: 'pointer',
-            background: '#f9f9f9',
-          }}
-        >
-          {component.content}
-        </div>
-      ))}
-    </div>
+    <Box title={'Component library'} isOpen={true}>
+      <SidebarList className='no-link'>
+        {components.map((component) => (
+          <li key={component.type} onClick={() => onAddComponent(component)}>
+            <Button btnStyle="link" icon="plus-1" size='small' />
+            {component.content}
+          </li>
+        ))}
+      </SidebarList>
+    </Box>
   );
 };
 

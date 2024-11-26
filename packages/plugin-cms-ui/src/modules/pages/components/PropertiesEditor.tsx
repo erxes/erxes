@@ -7,6 +7,7 @@ type PropertiesEditorProps = {
 };
 
 const PropertiesEditor = ({ component, onUpdate }: PropertiesEditorProps) => {
+    console.log('component', component);
     if (!component) {
         return <p>No component selected</p>;
     }

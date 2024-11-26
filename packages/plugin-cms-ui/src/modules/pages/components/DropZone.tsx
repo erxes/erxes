@@ -14,17 +14,26 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Button } from '@erxes/ui/src/components';
 // import { any } from './App';
 
 type DropZoneProps = {
   components: any[];
   onReorder: (components: any[]) => void;
+  onSelect: (component: any) => void;
 };
 
-const SortableItem = ({ component }: { component: any }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
-    id: component.id,
-  });
+const SortableItem = ({
+  component,
+  onClick,
+}: {
+  component: any;
+  onClick: () => void;
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({
+      id: component.id,
+    });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -33,21 +42,31 @@ const SortableItem = ({ component }: { component: any }) => {
     padding: '8px',
     marginBottom: '8px',
     background: '#fff',
-    cursor: 'grab',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      {component.content}
+    <div ref={setNodeRef} style={style}>
+      <div {...attributes} {...listeners} style={{ cursor: 'grab', flex: 1 }}>
+        {component.content}
+      </div>
+      <Button
+        btnStyle='link'
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation(); 
+          onClick();
+        }}
+        icon='edit-1'
+      />
     </div>
   );
 };
 
-const DropZone = ({ components, onReorder }: DropZoneProps) => {
-  const sensors = useSensors(
-    useSensor(MouseSensor),
-    useSensor(TouchSensor)
-  );
+const DropZone = ({ components, onReorder, onSelect }: DropZoneProps) => {
+  const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
@@ -62,8 +81,15 @@ const DropZone = ({ components, onReorder }: DropZoneProps) => {
   };
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <SortableContext items={components.map((comp) => comp.id)} strategy={verticalListSortingStrategy}>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext
+        items={components.map((comp) => comp.id)}
+        strategy={verticalListSortingStrategy}
+      >
         <div
           style={{
             minHeight: '100%',
@@ -73,7 +99,11 @@ const DropZone = ({ components, onReorder }: DropZoneProps) => {
           }}
         >
           {components.map((component) => (
-            <SortableItem key={component.id} component={component} />
+            <SortableItem
+              key={component.id}
+              component={component}
+              onClick={() => onSelect(component)}
+            />
           ))}
         </div>
       </SortableContext>
