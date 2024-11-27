@@ -236,119 +236,93 @@ const callsMutations = {
       const integration = await models.Integrations.findOne({
         inboxId: doc.inboxIntegrationId,
       }).lean();
-
-      if (!integration) {
-        throw new Error('Integration not found');
-      }
+      if (!integration) throw new Error('Integration not found');
 
       const operator = integration.operators.find(
         (operator) => operator.userId === user?._id,
       );
-      if (!operator) {
-        throw new Error('Operator not found');
-      }
+      if (!operator) throw new Error('Operator not found');
 
-      return new Promise(async (resolve, reject) => {
-        let lock;
+      const lockKey = `${subdomain}:call:history:${doc.timeStamp}`;
+      let lock;
 
-        try {
-          lock = await redlock.lock(
-            `${subdomain}:call:history${doc.timeStamp}`,
-            60000,
-          );
-        } catch (e) {
-          return reject(
-            new Error(
-              `History ${doc.timeStamp} is already being processed. ${e.errorMessage}`,
-            ),
-          );
+      try {
+        lock = await redlock.lock(lockKey, 60000);
+        const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
+
+        const oldHistory = await models.CallHistory.findOne({
+          customerPhone: doc.customerPhone,
+          callStatus: doc.callStatus,
+          createdAt: { $gte: twoMinutesAgo },
+        });
+
+        if (oldHistory) return 'Call history already exists';
+
+        const history = new models.CallHistory({
+          ...doc,
+          extentionNumber: operator.gsUsername,
+          operatorPhone: integration.phone,
+          createdAt: new Date(),
+          createdBy: doc.endedBy ? user._id : null,
+          updatedBy: doc.endedBy ? user._id : null,
+        });
+
+        await history.save();
+
+        let customer = await models.Customers.findOne({
+          primaryPhone: doc.customerPhone,
+        });
+        if (!customer || !customer.erxesApiId) {
+          customer = await getOrCreateCustomer(models, subdomain, doc);
         }
 
+        // Update conversation via API
         try {
-          await lock.extend(60000);
-
-          const oldHistory = await models.CallHistory.findOne({
-            customerPhone: doc.customerPhone,
-            callStatus: doc.callStatus,
-            timeStamp: doc.timeStamp,
+          const apiConversationResponse = await sendInboxMessage({
+            subdomain,
+            action: 'integrations.receive',
+            data: {
+              action: 'create-or-update-conversation',
+              payload: JSON.stringify({
+                customerId: customer?.erxesApiId,
+                integrationId: integration.inboxId,
+                content: doc.callType || '',
+                conversationId: history.conversationId,
+                updatedAt: new Date(),
+                owner: '',
+              }),
+            },
+            isRPC: true,
           });
 
-          if (!oldHistory) {
-            const history = new models.CallHistory({
-              ...doc,
-              extentionNumber: operator.gsUsername,
-              operatorPhone: integration.phone,
-              createdAt: new Date(),
-              createdBy: doc.endedBy ? user._id : null,
-              updatedBy: doc.endedBy ? user._id : null,
-            });
+          history.conversationId = apiConversationResponse._id;
+          await history.save();
+        } catch (e) {
+          await models.CallHistory.deleteOne({ _id: history._id });
+          throw new Error(`Failed to update conversation: ${e.message}`);
+        }
 
-            try {
-              await history.save();
+        await sendInboxMessage({
+          subdomain,
+          action: 'conversationClientMessageInserted',
+          data: {
+            ...history.toObject(),
+            conversationId: history.conversationId,
+          },
+        });
 
-              resolve('Successfully edited');
-            } catch (saveError) {
-              return reject(
-                new Error(`Failed to save call history ${saveError}`),
-              );
-            }
-
-            let customer = await models.Customers.findOne({
-              primaryPhone: doc.customerPhone,
-            });
-            if (!customer || !customer.erxesApiId) {
-              customer = await getOrCreateCustomer(models, subdomain, doc);
-            }
-            //save on api
-            try {
-              const apiConversationResponse = await sendInboxMessage({
-                subdomain,
-                action: 'integrations.receive',
-                data: {
-                  action: 'create-or-update-conversation',
-                  payload: JSON.stringify({
-                    customerId: customer?.erxesApiId,
-                    integrationId: integration.inboxId,
-                    content: doc.callType || '',
-                    conversationId: history.conversationId,
-                    updatedAt: new Date(),
-                    owner: '',
-                  }),
-                },
-                isRPC: true,
-              });
-
-              history.conversationId = apiConversationResponse._id;
-
-              await history.save();
-            } catch (e) {
-              await models.CallHistory.deleteOne({ _id: history._id });
-              throw new Error(e);
-            }
-
-            await sendInboxMessage({
-              subdomain,
-              action: 'conversationClientMessageInserted',
-              data: {
-                ...history?.toObject(),
-                conversationId: history.conversationId,
-              },
-            });
-          } else {
-            return resolve('Call history already exists');
-          }
-        } catch (processingError) {
-          return reject(
-            new Error('An error occurred while processing call history'),
-          );
-        } finally {
+        return 'Successfully edited';
+      } catch (e) {
+        throw new Error(`Error processing call history: ${e.message}`);
+      } finally {
+        if (lock) {
           try {
             await lock.unlock();
           } catch (unlockError) {
             console.error('Failed to release lock:', unlockError);
           }
         }
-      });
+      }
     } else {
       throw new Error(`You cannot edit`);
     }
