@@ -203,7 +203,6 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     transferedCallStatus,
     isCronRunning,
   } = params;
-
   if (transferedCallStatus === 'local' && callType === 'incoming') {
     return 'Check the transferred call record URL!';
   }
@@ -239,7 +238,6 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       );
 
       const queue = response?.response?.queue || response?.queue;
-
       if (!queue) {
         throw new Error('Queue not found');
       }
@@ -267,7 +265,6 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         caller = extentionNumber;
         callee = customerPhone;
       }
-
       const startTime = isCronRunning
         ? getPureDate(callStartTime, -10)
         : `${startDate}T00:00:00`;
@@ -377,7 +374,6 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         );
         throw new Error('Record files not found');
       }
-
       return await cfRecordUrl(
         { fileDir, recordfiles, inboxIntegrationId, retryCount },
         user,
@@ -420,18 +416,31 @@ const cfRecordUrl = async (params, user, models, subdomain) => {
       },
       user,
     );
-
     if (records) {
       const buffer = await records?.arrayBuffer();
       if (buffer) {
-        const domain = getEnv({
+        const VERSION = getEnv({ name: 'VERSION' });
+        let defaultValue = 'http://localhost:4000';
+        if (VERSION === 'saas') {
+          defaultValue = `http://${subdomain}.api.erxes.com`;
+        }
+
+        const DOMAIN = getEnv({
           name: 'DOMAIN',
           subdomain,
-          defaultValue: 'http://localhost:4000',
+          defaultValue,
         });
-        const uploadUrl = domain.includes('localhost')
-          ? `${domain}/pl:core/upload-file`
-          : `${domain}/gateway/pl:core/upload-file`;
+        console.log(subdomain, 'subdomain', DOMAIN);
+
+        const domain = DOMAIN.replace('<subdomain>', subdomain);
+        console.log(domain, 'domain');
+
+        const uploadUrl =
+          domain.includes('localhost') || domain.includes('client1')
+            ? `${domain}/pl:core/upload-file`
+            : `${domain}/gateway/pl:core/upload-file`;
+
+        console.log('uploadUrl:', uploadUrl);
 
         const formData = new FormData();
         formData.append('file', Buffer.from(buffer), {

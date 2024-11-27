@@ -226,6 +226,14 @@ export default {
         label: "Company",
         description:
           "Start with a blank workflow that enrolls and is triggered off company"
+      },
+      {
+        type: "core:form_submission",
+        img: "automation2.svg",
+        icon: "university",
+        label: "Form submission",
+        description:
+          "Start with a blank workflow that enrolls and is triggered off form submission"
       }
     ]
   }

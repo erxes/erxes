@@ -99,6 +99,12 @@ export const articleDetailQuery = `
           avatar
         }
       }
+      publishedUser {
+        details {
+          fullName
+          avatar
+        }
+      }
       categoryId
       createdDate
       modifiedBy
@@ -129,6 +135,12 @@ export const articlesQuery = `
       modifiedDate
       categoryId
       createdUser {
+        details {
+          fullName
+          avatar
+        }
+      }
+      publishedUser {
         details {
           fullName
           avatar
