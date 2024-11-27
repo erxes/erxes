@@ -354,7 +354,7 @@ export const dealCharts = [
                 },
                 {
                     $lookup: {
-                        from: "pipeline_labels",
+                        from: "sales_pipeline_labels",
                         localField: "_id",
                         foreignField: "_id",
                         as: "label",

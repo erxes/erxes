@@ -1,13 +1,13 @@
-import { gql } from "@apollo/client";
-import BoardSelect from "@erxes/ui-sales/src/boards/containers/BoardSelect";
-import { queries as pipelineQuery } from "@erxes/ui-sales/src/boards/graphql";
-import { IPipelineLabel } from "@erxes/ui-sales/src/boards/types";
-import SelectSegments from "@erxes/ui-segments/src/containers/SelectSegments";
-import Select, { MultiValue, ActionMeta } from "react-select";
-import SalesBoardSelect from "@erxes/ui-sales/src/boards/containers/BoardSelect";
-import TicketsBoardSelect from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
-import TasksBoardSelect from "@erxes/ui-tasks/src/boards/containers/BoardSelect";
-import PurchasesBoardSelect from "@erxes/ui-purchases/src/boards/containers/BoardSelect";
+import { gql } from '@apollo/client';
+import BoardSelect from '@erxes/ui-sales/src/boards/containers/BoardSelect';
+import { queries as pipelineQuery } from '@erxes/ui-sales/src/boards/graphql';
+import { IPipelineLabel } from '@erxes/ui-sales/src/boards/types';
+import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
+import Select, { MultiValue, ActionMeta } from 'react-select';
+import SalesBoardSelect from '@erxes/ui-sales/src/boards/containers/BoardSelect';
+import TicketsBoardSelect from '@erxes/ui-tickets/src/boards/containers/BoardSelect';
+import TasksBoardSelect from '@erxes/ui-tasks/src/boards/containers/BoardSelect';
+import PurchasesBoardSelect from '@erxes/ui-purchases/src/boards/containers/BoardSelect';
 import {
   Button,
   ControlLabel,
@@ -18,7 +18,7 @@ import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
+  MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src';
 import client from '@erxes/ui/src/apolloClient';
 import { DateContainer } from '@erxes/ui/src/styles/main';
@@ -32,7 +32,7 @@ import {
   ENTITY,
   GOAL_STRUCTURE,
   GOAL_TYPE,
-  SPECIFIC_PERIOD_GOAL
+  SPECIFIC_PERIOD_GOAL,
 } from '../constants';
 import { IGoalType, IGoalTypeDoc } from '../types';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
@@ -111,7 +111,7 @@ const initialState: State = {
   endDate: new Date(),
   stageId: undefined,
   pipelineId: undefined,
-  boardId: undefined
+  boardId: undefined,
 };
 
 const reducer = (state, action) => {
@@ -136,25 +136,25 @@ const goalForm = (props: Props) => {
       client
         .query({
           query: gql(pipelineQuery.pipelineLabels),
-          variables: { pipelineId: state.pipelineId }
+          variables: { pipelineId: state.pipelineId },
         })
         .then((data) => {
           const fetchedLabels = data.data.pipelineLabels;
           const selectedLabels = goalType.pipelineLabels.map((label) => ({
             label: label.name,
-            value: label._id
+            value: label._id,
           }));
 
           dispatch({
             type: 'updateState',
             payload: {
               pipelineLabels: fetchedLabels,
-              selectedLabelIds: selectedLabels.map((label) => label.value)
-            }
+              selectedLabelIds: selectedLabels.map((label) => label.value),
+            },
           });
         })
         .catch((e) => {
-          console.error("Error while fetching pipeline labels: ", e.message);
+          console.error('Error while fetching pipeline labels: ', e.message);
         });
     }
   }, [state.pipelineId]);
@@ -186,7 +186,7 @@ const goalForm = (props: Props) => {
       teamGoalType,
       periodGoal,
       selectedLabelIds,
-      pipelineLabels
+      pipelineLabels,
     } = state;
     const finalValues = values;
     if (goalType) {
@@ -219,18 +219,18 @@ const goalForm = (props: Props) => {
       teamGoalType,
       periodGoal,
       startDate,
-      endDate
+      endDate,
     };
   };
 
   const onChangeStartDate = (value) => {
-    dispatch({ type: "updateState", payload: { startDate: value } });
+    dispatch({ type: 'updateState', payload: { startDate: value } });
   };
 
   const onChangeEndDate = (value) => {
     dispatch({
       type: 'updateState',
-      payload: { endDate: value, periodGoal: state.periodGoal || 'Weekly' }
+      payload: { endDate: value, periodGoal: state.periodGoal || 'Weekly' },
     });
   };
 
@@ -241,12 +241,12 @@ const goalForm = (props: Props) => {
   };
 
   const onChangeBranchId = (value) => {
-    dispatch({ type: "updateState", payload: { branch: value } });
+    dispatch({ type: 'updateState', payload: { branch: value } });
   };
 
   const onChangePipelineLabel = (
     newValue: MultiValue<{ value: string }>,
-    actionMeta: ActionMeta<{ value: string }>
+    actionMeta: ActionMeta<{ value: string }>,
   ) => {
     const selectedValues = newValue
       ? newValue.map((option) => option.value)
@@ -254,43 +254,43 @@ const goalForm = (props: Props) => {
 
     dispatch({
       type: 'updateState',
-      payload: { selectedLabelIds: selectedValues }
+      payload: { selectedLabelIds: selectedValues },
     });
   };
 
   const onChangeDepartments = (value) => {
-    dispatch({ type: "updateState", payload: { department: value } });
+    dispatch({ type: 'updateState', payload: { department: value } });
   };
   const onChangeCompanies = (value) => {
     dispatch({
       type: 'updateState',
       payload: {
-        companyIds: value
-      }
+        companyIds: value,
+      },
     });
   };
   const onChangeTags = (value) => {
     dispatch({
       type: 'updateState',
       payload: {
-        tags: value
-      }
+        tags: value,
+      },
     });
   };
   const onChangeProduct = (value) => {
     dispatch({
       type: 'updateState',
       payload: {
-        productIds: value
-      }
+        productIds: value,
+      },
     });
   };
   const onChangeUnites = (value) => {
-    dispatch({ type: "updateState", payload: { unit: value } });
+    dispatch({ type: 'updateState', payload: { unit: value } });
   };
 
   const onChangeStage = (stgId) => {
-    dispatch({ type: "updateState", payload: { stageId: stgId } });
+    dispatch({ type: 'updateState', payload: { stageId: stgId } });
   };
 
   const onChangePipeline = (plId) => {
@@ -298,12 +298,12 @@ const goalForm = (props: Props) => {
       .query({
         query: gql(pipelineQuery.pipelineLabels),
         fetchPolicy: 'network-only',
-        variables: { pipelineId: plId }
+        variables: { pipelineId: plId },
       })
       .then((data) => {
         dispatch({
           type: 'updateState',
-          payload: { pipelineLabels: data.data.pipelineLabels }
+          payload: { pipelineLabels: data.data.pipelineLabels },
         });
       })
       .catch((e) => {
@@ -314,7 +314,7 @@ const goalForm = (props: Props) => {
   };
 
   const onChangeBoard = (brId) => {
-    dispatch({ type: "updateState", payload: { boardId: brId } });
+    dispatch({ type: 'updateState', payload: { boardId: brId } });
   };
 
   const onChangeField = (e) => {
@@ -329,11 +329,11 @@ const goalForm = (props: Props) => {
   };
 
   const onUserChange = (userId) => {
-    dispatch({ type: "updateState", payload: { contribution: userId } });
+    dispatch({ type: 'updateState', payload: { contribution: userId } });
   };
 
   const onChangeSegments = (values) => {
-    dispatch({ type: "updateState", payload: { segmentIds: values } });
+    dispatch({ type: 'updateState', payload: { segmentIds: values } });
   };
 
   const onChangeTarget = (date, event) => {
@@ -341,7 +341,7 @@ const goalForm = (props: Props) => {
     const { value } = event.target;
     const parsedValue = parseInt(value);
     const updatedSpecificPeriodGoals = specificPeriodGoals.map((goal) =>
-      goal.addMonthly === date ? { ...goal, addTarget: parsedValue } : goal
+      goal.addMonthly === date ? { ...goal, addTarget: parsedValue } : goal,
     );
     const periods =
       periodGoal === 'Monthly'
@@ -350,26 +350,26 @@ const goalForm = (props: Props) => {
 
     periods.forEach((period) => {
       const exists = updatedSpecificPeriodGoals.some(
-        (goal) => goal.addMonthly === period
+        (goal) => goal.addMonthly === period,
       );
       if (!exists) {
         updatedSpecificPeriodGoals.push({
           _id: Math.random().toString(),
           addMonthly: period,
-          addTarget: NaN
+          addTarget: NaN,
         });
       }
     });
 
     const filteredGoals = updatedSpecificPeriodGoals.filter(
       (goal) =>
-        (periodGoal === "Monthly" && goal.addMonthly.includes("Month")) ||
-        (periodGoal === "Weekly" && goal.addMonthly.includes("Week"))
+        (periodGoal === 'Monthly' && goal.addMonthly.includes('Month')) ||
+        (periodGoal === 'Weekly' && goal.addMonthly.includes('Week')),
     );
 
     dispatch({
       type: 'updateState',
-      payload: { specificPeriodGoals: filteredGoals }
+      payload: { specificPeriodGoals: filteredGoals },
     });
   };
 
@@ -387,8 +387,8 @@ const goalForm = (props: Props) => {
               <ControlLabel>{__('Name')}</ControlLabel>
               <FormControl
                 autoFocus={true}
-                placeholder={__("Goal name")}
-                name='name'
+                placeholder={__('Goal name')}
+                name="name"
                 value={state.name}
                 onChange={onChangeField}
               />
@@ -397,14 +397,13 @@ const goalForm = (props: Props) => {
               <ControlLabel>{__('choose Entity')}</ControlLabel>
               <FormControl
                 {...formProps}
-                name='entity'
-                componentclass='select'
+                name="entity"
+                componentclass="select"
                 value={state.entity}
-                onChange={onChangeField}>
+                onChange={onChangeField}
+              >
                 {ENTITY.map((item, index) => (
-                  <option
-                    key={index}
-                    value={item.value}>
+                  <option key={index} value={item.value}>
                     {item.name}
                   </option>
                 ))}
@@ -413,17 +412,18 @@ const goalForm = (props: Props) => {
             <FormGroup>
               <FormControl
                 {...formProps}
-                componentclass='checkbox'
-                name='stageRadio'
+                componentclass="checkbox"
+                name="stageRadio"
                 checked={state.stageRadio}
                 onChange={onChangeField}
-                inline={true}>
-                {__("Stage")}
+                inline={true}
+              >
+                {__('Stage')}
               </FormControl>
               <FormControl
                 {...formProps}
-                componentclass='checkbox'
-                name='segmentRadio'
+                componentclass="checkbox"
+                name="segmentRadio"
                 checked={state.segmentRadio}
                 onChange={onChangeField}
                 inline={true}
@@ -432,26 +432,24 @@ const goalForm = (props: Props) => {
             </FormGroup>
             {state.segmentRadio === true && (
               <FormGroup>
-                {isEnabled('segments') && isEnabled('contacts') && (
-                  <>
-                    <FormGroup>
-                      <ControlLabel>Segments</ControlLabel>
-                      <SelectSegments
-                        name='segmentIds'
-                        label={__("Choose segments")}
-                        contentTypes={[`cards:${state.entity}`]}
-                        initialValue={state.segmentIds}
-                        multi={true}
-                        onSelect={(segmentIds) => onChangeSegments(segmentIds)}
-                      />
-                    </FormGroup>
-                  </>
-                )}
+                <>
+                  <FormGroup>
+                    <ControlLabel>Segments</ControlLabel>
+                    <SelectSegments
+                      name="segmentIds"
+                      label={__('Choose segments')}
+                      contentTypes={[`cards:${state.entity}`]}
+                      initialValue={state.segmentIds}
+                      multi={true}
+                      onSelect={(segmentIds) => onChangeSegments(segmentIds)}
+                    />
+                  </FormGroup>
+                </>
               </FormGroup>
             )}
             {state.stageRadio === true && (
               <FormGroup>
-                {state.entity === "deal" ? (
+                {state.entity === 'deal' ? (
                   <SalesBoardSelect
                     type={state.entity}
                     stageId={state.stageId}
@@ -461,7 +459,7 @@ const goalForm = (props: Props) => {
                     onChangePipeline={onChangePipeline}
                     onChangeBoard={onChangeBoard}
                   />
-                ) : state.entity === "ticket" ? (
+                ) : state.entity === 'ticket' ? (
                   <TicketsBoardSelect
                     type={state.entity}
                     stageId={state.stageId}
@@ -471,7 +469,7 @@ const goalForm = (props: Props) => {
                     onChangePipeline={onChangePipeline}
                     onChangeBoard={onChangeBoard}
                   />
-                ) : state.entity === "task" ? (
+                ) : state.entity === 'task' ? (
                   <TasksBoardSelect
                     type={state.entity}
                     stageId={state.stageId}
@@ -481,7 +479,7 @@ const goalForm = (props: Props) => {
                     onChangePipeline={onChangePipeline}
                     onChangeBoard={onChangeBoard}
                   />
-                ) : state.entity === "purchase" ? (
+                ) : state.entity === 'purchase' ? (
                   <PurchasesBoardSelect
                     type={state.entity}
                     stageId={state.stageId}
@@ -500,7 +498,7 @@ const goalForm = (props: Props) => {
                 <DateControl
                   {...formProps}
                   required={false}
-                  name='date'
+                  name="date"
                   value={state.startDate}
                   onChange={onChangeStartDate}
                 />
@@ -512,7 +510,7 @@ const goalForm = (props: Props) => {
                 <DateControl
                   {...formProps}
                   required={false}
-                  name='date'
+                  name="date"
                   value={state.endDate}
                   onChange={onChangeEndDate}
                 />
@@ -524,14 +522,13 @@ const goalForm = (props: Props) => {
               <ControlLabel>{__('choose goalType type')}</ControlLabel>
               <FormControl
                 {...formProps}
-                name='goalTypeChoose'
-                componentclass='select'
+                name="goalTypeChoose"
+                componentclass="select"
                 value={state.goalTypeChoose}
-                onChange={onChangeField}>
+                onChange={onChangeField}
+              >
                 {GOAL_TYPE.map((typeName, index) => (
-                  <option
-                    key={index}
-                    value={typeName}>
+                  <option key={index} value={typeName}>
                     {typeName}
                   </option>
                 ))}
@@ -541,14 +538,13 @@ const goalForm = (props: Props) => {
               <ControlLabel>{__('contribution type')}</ControlLabel>
               <FormControl
                 {...formProps}
-                name='contributionType'
-                componentclass='select'
+                name="contributionType"
+                componentclass="select"
                 value={state.contributionType}
-                onChange={onChangeField}>
+                onChange={onChangeField}
+              >
                 {CONTRIBUTION.map((item, index) => (
-                  <option
-                    key={index}
-                    value={item.value}>
+                  <option key={index} value={item.value}>
                     {item.name}
                   </option>
                 ))}
@@ -558,10 +554,10 @@ const goalForm = (props: Props) => {
               <FormGroup>
                 <ControlLabel>contribution</ControlLabel>
                 <SelectTeamMembers
-                  label='Choose users'
-                  name='userId'
-                  customOption={{ label: __("Choose user"), value: "" }}
-                  initialValue={state.contribution || ""}
+                  label="Choose users"
+                  name="userId"
+                  customOption={{ label: __('Choose user'), value: '' }}
+                  initialValue={state.contribution || ''}
                   onSelect={onUserChange}
                   multi={false}
                 />
@@ -572,14 +568,13 @@ const goalForm = (props: Props) => {
                 <ControlLabel>{__('Choose Structure')}</ControlLabel>
                 <FormControl
                   {...formProps}
-                  name='teamGoalType'
-                  componentclass='select'
+                  name="teamGoalType"
+                  componentclass="select"
                   value={state.teamGoalType}
-                  onChange={onChangeField}>
+                  onChange={onChangeField}
+                >
                   {GOAL_STRUCTURE.map((item, index) => (
-                    <option
-                      key={index}
-                      value={item.value}>
+                    <option key={index} value={item.value}>
                       {item.name}
                     </option>
                   ))}
@@ -591,8 +586,8 @@ const goalForm = (props: Props) => {
                 <FormGroup>
                   <ControlLabel>{__('Companies')}</ControlLabel>
                   <SelectCompanies
-                    label={__("Choose an Companies")}
-                    name='parentCompanyId'
+                    label={__('Choose an Companies')}
+                    name="parentCompanyId"
                     initialValue={goalType?.companyIds || state.companyIds}
                     onSelect={onChangeCompanies}
                     multi={true}
@@ -604,8 +599,8 @@ const goalForm = (props: Props) => {
                 <FormGroup>
                   <ControlLabel>{__('Departments')}</ControlLabel>
                   <SelectDepartments
-                    name='branchId'
-                    label={__("Choose Departments")}
+                    name="branchId"
+                    label={__('Choose Departments')}
                     initialValue={state?.department}
                     onSelect={onChangeDepartments}
                     multi={false}
@@ -617,8 +612,8 @@ const goalForm = (props: Props) => {
                 <FormGroup>
                   <ControlLabel>{__('Units')}</ControlLabel>
                   <SelectUnits
-                    name='branchId'
-                    label={__("Choose Units")}
+                    name="branchId"
+                    label={__('Choose Units')}
                     initialValue={state?.unit}
                     onSelect={onChangeUnites}
                     multi={false}
@@ -630,8 +625,8 @@ const goalForm = (props: Props) => {
                 <FormGroup>
                   <ControlLabel>{__('Branches')}</ControlLabel>
                   <SelectBranches
-                    name='branchId'
-                    label={__("Choose Branches")}
+                    name="branchId"
+                    label={__('Choose Branches')}
                     initialValue={state?.branch}
                     onSelect={onChangeBranchId}
                     multi={false}
@@ -642,14 +637,13 @@ const goalForm = (props: Props) => {
               <ControlLabel>{__('metric')}:</ControlLabel>
               <FormControl
                 {...formProps}
-                name='metric'
-                componentclass='select'
+                name="metric"
+                componentclass="select"
                 value={state.metric}
-                onChange={onChangeField}>
-                {["Value", "Count"].map((typeName, index) => (
-                  <option
-                    key={index}
-                    value={typeName}>
+                onChange={onChangeField}
+              >
+                {['Value', 'Count'].map((typeName, index) => (
+                  <option key={index} value={typeName}>
                     {typeName}
                   </option>
                 ))}
@@ -658,13 +652,13 @@ const goalForm = (props: Props) => {
             <FormGroup>
               <>
                 <FormGroup>
-                  <ControlLabel>{__("Tags")}</ControlLabel>
+                  <ControlLabel>{__('Tags')}</ControlLabel>
 
-                  {state.entity === "deal" ? (
+                  {state.entity === 'deal' ? (
                     <SelectTags
-                      tagsType={`${"sale"}s:${state.entity}`} // Correct template literal usage
-                      label={__("Choose Tags")}
-                      name='tagsIds'
+                      tagsType={`${'sale'}s:${state.entity}`} // Correct template literal usage
+                      label={__('Choose Tags')}
+                      name="tagsIds"
                       initialValue={goalType?.tagsIds || state.tagsIds}
                       onSelect={onChangeTags}
                       multi={true}
@@ -672,8 +666,8 @@ const goalForm = (props: Props) => {
                   ) : (
                     <SelectTags
                       tagsType={`${state.entity}s:${state.entity}`} // Correct template literal usage
-                      label={__("Choose Tags")}
-                      name='tagsIds'
+                      label={__('Choose Tags')}
+                      name="tagsIds"
                       initialValue={goalType?.tagsIds || state.tagsIds}
                       onSelect={onChangeTags}
                       multi={true}
@@ -688,8 +682,8 @@ const goalForm = (props: Props) => {
                   <FormGroup>
                     <ControlLabel>{__('Product')}</ControlLabel>
                     <SelectProducts
-                      label={__("Choose products")}
-                      name='productIds'
+                      label={__('Choose products')}
+                      name="productIds"
                       multi={true}
                       initialValue={goalType?.productIds || state.productIds}
                       onSelect={(productIds) => onChangeProduct(productIds)}
@@ -699,17 +693,16 @@ const goalForm = (props: Props) => {
               </FormGroup>
             </FormGroup>
             <FormGroup>
-              <ControlLabel>{__("choose specific period goals")}.</ControlLabel>
+              <ControlLabel>{__('choose specific period goals')}.</ControlLabel>
               <FormControl
                 {...formProps}
-                name='periodGoal'
-                componentclass='select'
+                name="periodGoal"
+                componentclass="select"
                 value={state.periodGoal}
-                onChange={onChangeField}>
+                onChange={onChangeField}
+              >
                 {SPECIFIC_PERIOD_GOAL.map((item, index) => (
-                  <option
-                    key={index}
-                    value={item.value}>
+                  <option key={index} value={item.value}>
                     {item.name}
                   </option>
                 ))}
@@ -731,11 +724,11 @@ const goalForm = (props: Props) => {
                   <ControlLabel>{__('Target')}</ControlLabel>
                   <FormGroup>
                     <FormControl
-                      type='number'
-                      name='target'
+                      type="number"
+                      name="target"
                       value={
                         state.specificPeriodGoals.find(
-                          (goal) => goal.addMonthly === month
+                          (goal) => goal.addMonthly === month,
                         )?.addTarget
                       }
                       onChange={(event) => onChangeTarget(month, event)}
@@ -760,11 +753,11 @@ const goalForm = (props: Props) => {
                   <ControlLabel>{__('Target')}</ControlLabel>
                   <FormGroup>
                     <FormControl
-                      type='number'
-                      name='target'
+                      type="number"
+                      name="target"
                       value={
                         state.specificPeriodGoals.find(
-                          (goal) => goal.addMonthly === week
+                          (goal) => goal.addMonthly === week,
                         )?.addTarget
                       }
                       onChange={(event) => onChangeTarget(week, event)}
@@ -776,17 +769,14 @@ const goalForm = (props: Props) => {
           </div>
         )}
         <ModalFooter>
-          <Button
-            btnStyle='simple'
-            onClick={closeModal}
-            icon='cancel-1'>
-            {__("Close")}
+          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
+            {__('Close')}
           </Button>
           {renderButton({
             name: 'goalType',
             values: generateDoc(values),
             isSubmitted,
-            object: goalType
+            object: goalType,
           })}
         </ModalFooter>
       </>
@@ -815,7 +805,7 @@ const mapMonths = (startDate: Date, endDate: Date): string[] => {
     'September',
     'October',
     'November',
-    'December'
+    'December',
   ];
 
   const months: string[] = [];
