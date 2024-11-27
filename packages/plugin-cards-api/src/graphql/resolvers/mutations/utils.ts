@@ -295,6 +295,13 @@ export const itemsEdit = async (
     throw new Error('Permission denied');
   }
 
+  if (doc.stageId && oldItem.stageId !== doc.stageId) {
+    const destinationStage = await models.Stages.getStage(doc.stageId);
+
+    checkMovePermission(destinationStage, user);
+    extendedDoc.stageChangedDate = new Date();
+  }
+
   if (extendedDoc.customFieldsData) {
     // clean custom field values
     extendedDoc.customFieldsData = await sendFormsMessage({
