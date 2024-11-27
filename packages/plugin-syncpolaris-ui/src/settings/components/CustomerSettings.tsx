@@ -53,18 +53,16 @@ const GeneralSettings = (props: Props) => {
   )
 
   useEffect(() => {
-    if (isEnabled("forms")) {
-      client
-        .query({
-          query: gql(fieldQueries.fieldsGroups),
-          variables: {
-            contentType: 'core:customer',
-          },
-        })
-        .then(({ data }) => {
-          setFieldGroups(data ? data.fieldsGroups : [] || []);
-        });
-    }
+    client
+      .query({
+        query: gql(fieldQueries.fieldsGroups),
+        variables: {
+          contentType: 'core:customer',
+        },
+      })
+      .then(({ data }) => {
+        setFieldGroups(data ? data.fieldsGroups : [] || []);
+      });
   }, []);
 
   const save = (e) => {
