@@ -37,6 +37,18 @@ const reportTemplates = [
       "TotalVendorPortalUsersByYear"
     ],
     img: "https://sciter.com/wp-content/uploads/2022/08/chart-js.png"
+  },
+  {
+    serviceType: "forms",
+    title: "Form chart",
+    serviceName: "core",
+    serviceLabel: "Forms",
+    description: "Form charts",
+    charts: [
+      "TotalFormCount",
+      "TotalSubmissionCount"
+    ],
+    img: "https://sciter.com/wp-content/uploads/2022/08/chart-js.png"
   }
 ];
 
