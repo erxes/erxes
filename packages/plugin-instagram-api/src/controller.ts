@@ -62,6 +62,7 @@ const init = async (app) => {
       models,
       'INSTAGRAM_VERIFY_TOKEN'
     );
+    console.log(INSTAGRAM_VERIFY_TOKEN,'INSTAGRAM_VERIFY_TOKEN')
     // when the endpoint is registered as a webhook, it must echo back
     // the 'hub.challenge' value it receives in the query arguments
     if (req.query['hub.mode'] === 'subscribe') {

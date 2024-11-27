@@ -35,6 +35,37 @@ export const graphRequest = {
   }
 };
 
+export const fetchPagePost = async (postId: string, accessToken: string) => {
+  const fields = 'message,created_time,full_picture,picture,permalink_url';
+
+  const response = await graphRequest.get(
+    `/${postId}?fields=${fields}&access_token=${accessToken}`
+  );
+
+  return response || null;
+};
+
+export const fetchPagesPostsList = async (
+  pageId: string,
+  accessToken: string,
+  limit: number
+) => {
+  const fields = 'message,created_time,full_picture,picture,permalink_url';
+
+  const response = await graphRequest.get(
+    `/${pageId}/posts?fields=${fields}&access_token=${accessToken}&limit=${limit}`
+  );
+
+  return response.data || [];
+};
+export const fetchPagePosts = async (pageId: string, accessToken: string) => {
+  const fields = 'message,created_time,full_picture,picture,permalink_url';
+  const response = await graphRequest.get(
+    `/${pageId}/posts?fields=${fields}&access_token=${accessToken}`
+  );
+
+  return response.data || [];
+};
 export const getPostDetails = async (
   pageId: string,
   pageTokens: { [key: string]: string },
