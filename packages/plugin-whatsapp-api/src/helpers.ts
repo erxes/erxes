@@ -216,10 +216,10 @@ export const whatsappCreateIntegration = async (
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
-  let domain = `${DOMAIN}/gateway/pl:facebook`;
+  let domain = `${DOMAIN}/gateway/pl:whatsapp`;
 
   if (process.env.NODE_ENV !== 'production') {
-    domain = `${DOMAIN}/pl:facebook`;
+    domain = `${DOMAIN}/pl:whatsapp`;
   }
 
   if (ENDPOINT_URL) {
