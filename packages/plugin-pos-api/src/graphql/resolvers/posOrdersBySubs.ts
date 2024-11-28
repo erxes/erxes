@@ -13,7 +13,7 @@ const resolver = {
       });
     }
 
-    if (customerType === 'company' && isEnabled('contacts')) {
+    if (customerType === 'company') {
       return await sendCoreMessage({
         subdomain,
         action: 'companies.findOne',

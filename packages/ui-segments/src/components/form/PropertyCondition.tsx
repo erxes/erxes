@@ -11,6 +11,7 @@ import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
 import { SegmentBackIcon } from "../styles";
 import Select from "react-select";
 import { __ } from "@erxes/ui/src/utils";
+import FormSubmissionSegmentForm from "@erxes/ui-forms/src/segmenForm";
 
 type Props = {
   contentType: string;
@@ -63,6 +64,16 @@ class PropertyCondition extends React.Component<Props, State> {
   renderExtraContent = () => {
     const { contentType, hideDetailForm, config, onChangeConfig } = this.props;
     const { propertyType } = this.state;
+
+    if (propertyType === "core:form_submission") {
+      return (
+        <FormSubmissionSegmentForm
+          type={contentType}
+          config={config}
+          onChangeConfig={onChangeConfig}
+        />
+      );
+    }
 
     const plugins: any[] = (window as any).plugins || [];
 

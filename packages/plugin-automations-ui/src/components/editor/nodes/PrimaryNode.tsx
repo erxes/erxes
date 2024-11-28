@@ -16,6 +16,7 @@ import { ToolBarRemoveBtn, ToolbarBtn } from '../../../styles';
 import { renderDynamicComponent } from '../../../utils';
 import { checkNote } from '../utils';
 import EmailTemplate from '@erxes/ui-emailtemplates/src/containers/EmailTemplate';
+import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 
 const showHandler = (data, option) => {
   if (data.nodeType === 'trigger' && ['left'].includes(option.id)) {
@@ -63,16 +64,34 @@ const renderTriggerContent = (
   return null;
 };
 
-const renderActionContent = ({ nodeType, actionType, config }) => {
+const renderActionContent = ({ constants, nodeType, actionType, config }) => {
   if (nodeType !== 'action') {
     return null;
   }
 
-  if (actionType !== 'sendEmail') {
-    return null;
+  const constant = (constants || []).find(c => c.type === actionType);
+
+  if (actionType == 'sendEmail') {
+    return <EmailTemplate templateId={config?.templateId} onlyPreview />;
   }
 
-  return <EmailTemplate templateId={config?.templateId} onlyPreview />;
+  if (constant?.hasNodeAdditionalContent) {
+    return (
+      <div className="actionContent">
+        {renderDynamicComponent(
+          {
+            componentType: 'actionContent',
+            config,
+            constant,
+            actionType
+          },
+          constant.type
+        )}
+      </div>
+    );
+  }
+
+  return null;
 };
 
 export default memo(({ id, data, selected }: NodeProps) => {
@@ -164,7 +183,6 @@ export default memo(({ id, data, selected }: NodeProps) => {
     if (!constant || !constant?.isAvailableOptionalConnect) {
       return null;
     }
-
     const handle = optionalId => (
       <Handle
         key={`${id}-${optionalId}-right`}
@@ -206,7 +224,7 @@ export default memo(({ id, data, selected }: NodeProps) => {
     data?.actionType === 'if' ? BRANCH_HANDLE_OPTIONS : DEFAULT_HANDLE_OPTIONS;
 
   return (
-    <>
+    <ErrorBoundary>
       <Trigger
         type={data.nodeType}
         $isHoverActionBar={isHovered}
@@ -247,6 +265,7 @@ export default memo(({ id, data, selected }: NodeProps) => {
           config
         )}
         {renderActionContent({
+          constants: constants.actionsConst,
           nodeType: data.nodeType,
           actionType: data.actionType,
           config
@@ -277,6 +296,6 @@ export default memo(({ id, data, selected }: NodeProps) => {
             </Handle>
           )
       )}
-    </>
+    </ErrorBoundary>
   );
 });
