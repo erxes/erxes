@@ -168,8 +168,8 @@ export interface IUserModel extends Model<IUserDocument> {
     secondary?: boolean
   ): boolean;
   moveUser(
-    userIds: string[],
-    clientPortalId: string
+    oldClientPortalId: string,
+    newClientPortalId: string
   ): Promise<{ userIds: string[]; clientPortalId: string }>;
 }
 
@@ -1280,18 +1280,20 @@ export const loadClientPortalUserClass = (models: IModels) => {
       return this.comparePassword(password, user.password || '');
     }
 
-    public static async moveUser(userIds, clientPortalId) {
+    public static async moveUser(oldClientPortalId, newClientPortalId) {
       const users = await models.ClientPortalUsers.find({
-        _id: { $in: userIds },
+        clientPortalId: oldClientPortalId,
       });
 
       if (!users || !users.length) {
         throw new Error('Users not found');
       }
 
+      const userIds = users.map((user) => user._id);
+
       const updatedUsers = await models.ClientPortalUsers.updateMany(
         { _id: { $in: userIds } },
-        { $set: { clientPortalId, modifiedAt: new Date() } }
+        { $set: { clientPortalId: newClientPortalId, modifiedAt: new Date() } }
       );
 
       return updatedUsers;

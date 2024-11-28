@@ -1461,12 +1461,15 @@ const clientPortalUserMutations = {
 
   async clientPortalUsersMove(
     _root,
-    { userIds, clientPortalId }: { userIds: string[]; clientPortalId: string },
+    {
+      oldClientPortalId,
+      newClientPortalId,
+    }: { oldClientPortalId: string; newClientPortalId: string },
     { models }: IContext
   ) {
     const updated = await models.ClientPortalUsers.moveUser(
-      userIds,
-      clientPortalId
+      oldClientPortalId,
+      newClientPortalId
     );
 
     return updated;
