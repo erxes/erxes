@@ -1,18 +1,19 @@
 import * as moment from "moment";
 import { generateModels, IModels } from "../../../connectionResolver";
 import { IFieldDocument } from "../../../db/models/definitions/fields";
+import { Docs, Item, QueryParams } from "../../../type";
 
 const prepareData = async (
   models: IModels,
   _subdomain: string,
-  _query: any
+  _query: QueryParams
 ): Promise<any[]> => {
-  let data: any[] = [];
+  let data: string[] = [];
 
   const { page, perPage } = _query;
   const skip = (page - 1) * perPage;
 
-  const productsFilter: any = {};
+  const productsFilter: object = {};
 
   data = await models.Products.find(productsFilter)
     .skip(skip)
@@ -25,11 +26,11 @@ const prepareData = async (
 const prepareDataCount = async (
   models: IModels,
   _subdomain: string,
-  _query: any
+  _query: QueryParams
 ): Promise<any> => {
   let data = 0;
 
-  const productsFilter: any = {};
+  const productsFilter: object = {};
 
   data = await models.Products.find(productsFilter).countDocuments();
 
@@ -59,7 +60,7 @@ const getCustomFieldsData = async (item, fieldId) => {
 export const fillValue = async (
   models: IModels,
   column: string,
-  item: any
+  item: Item
 ): Promise<string> => {
   let value = item[column];
 
@@ -153,8 +154,8 @@ export default {
     const { columnsConfig } = data;
 
     let totalCount = 0;
-    const headers = [] as any;
-    const excelHeader = [] as any;
+    const headers: string[] = [];
+    const excelHeader: string[] = [];
 
     try {
       const results = await prepareDataCount(models, subdomain, data);
@@ -196,8 +197,8 @@ export default {
 
     const { columnsConfig } = data;
 
-    const docs = [] as any;
-    const headers = [] as any;
+    const docs: Docs[] = [];
+    const headers: string[] = [];
 
     try {
       const results = await prepareData(models, subdomain, data);

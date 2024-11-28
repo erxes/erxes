@@ -184,7 +184,7 @@ const command = async () => {
           const triggers = automation.triggers || [];
           const actions = automation.actions || [];
 
-          const fixedActions = [] as any;
+          const fixedActions: string[] = [];
           const fixedTriggers = [] as any;
 
           for (const trigger of triggers) {

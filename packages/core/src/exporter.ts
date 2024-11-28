@@ -8,6 +8,8 @@ import { ICompanyDocument } from './db/models/definitions/companies';
 import { sendInboxMessage } from './messageBroker';
 import cocExport from './data/modules/coc/exporter';
 import productExport from './data/modules/product/exporter';
+import { User } from 'aws-sdk/clients/budgets';
+import { Result } from './type';
 
 const IMPORT_EXPORT_TYPES = [
   {
@@ -50,7 +52,7 @@ const prepareData = async (
   let itemIds = [];
   const skip = (page - 1) * perPage;
 
-  let data: any[] = [];
+  let data: User[] = [];
 
   if (segmentData.conditions) {
     itemIds = await fetchSegment(models, subdomain, segmentData, {
@@ -116,7 +118,7 @@ const prepareDataCount = async (
 
   let data = 0;
 
-  const contactsFilter: any = {};
+  const contactsFilter: { _id?: { $in: string[] } } = {};
 
   if (segmentData.conditions) {
     const itemIds = await fetchSegment(models, subdomain, segmentData, {
@@ -294,8 +296,8 @@ export default {
     const { columnsConfig } = data;
 
     let totalCount = 0;
-    const headers = [] as any;
-    const excelHeader = [] as any;
+    const headers: string[] = [];
+    const excelHeader: string[] = [];
     const keys = ['customer', 'lead', 'company'];
 
     try {
@@ -344,8 +346,8 @@ export default {
 
     const { columnsConfig, contentType } = data;
 
-    const docs = [] as any;
-    const headers = [] as any;
+    const docs: Result[]= [];
+    const headers: string[] = [];
     const keys = ['customer', 'lead', 'company'];
 
     try {

@@ -33,6 +33,7 @@ import {
   MODULE_NAMES
 } from "./data/modules/coc/constants";
 import { fetchSegment } from "./data/modules/segments/queryBuilder";
+import { BoardItemsFilter, MessageData } from "./type";
 
 export const createXlsFile = async () => {
   // Generating blank workbook
@@ -205,9 +206,9 @@ const prepareData = async (
 
   const contentType = type.split(":")[0];
 
-  let data: any[] = [];
+  let data: string[] = [];
 
-  const boardItemsFilter: any = {};
+  const boardItemsFilter: BoardItemsFilter = {};
 
   if (segmentData) {
     const itemIds = await fetchSegment(
@@ -290,7 +291,7 @@ const prepareData = async (
           defaultValue: []
         });
 
-        const messagesMap: { [key: string]: any[] } = {};
+        const messagesMap: { [key: string]: MessageData[] } = {};
 
         for (const message of messages) {
           const customerId = message.customerId || "";

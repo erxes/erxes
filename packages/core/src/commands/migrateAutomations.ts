@@ -3,6 +3,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 import { Collection, Db, MongoClient } from "mongodb";
+import { Action } from "../type";
 
 const { MONGO_URL } = process.env;
 
@@ -115,8 +116,8 @@ const command = async () => {
       const triggers = automation.triggers || [];
       const actions = automation.actions || [];
 
-      const fixedActions = [] as any;
-      const fixedTriggers = [] as any;
+      const fixedActions: string[] = [];
+      const fixedTriggers: Action[] = [];
 
       for (const trigger of triggers) {
         trigger.type = switchContentType(trigger.type);
@@ -169,7 +170,7 @@ const command = async () => {
 
     await Executions.find({}).forEach(execution => {
       const actions = execution.actions || [];
-      const fixedActions = [] as any;
+      const fixedActions: string[] = [];
 
       for (const action of actions) {
         const { actionType } = action;

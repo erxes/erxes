@@ -96,7 +96,7 @@ const command = async () => {
 
           Segments.updateOne({ _id: doc._id }, { $set: { contentType } });
 
-          const updatedConditions: any = [];
+          const updatedConditions: string[] = [];
 
           for (const condition of doc.conditions || []) {
             if (condition.propertyType) {
@@ -166,7 +166,7 @@ const command = async () => {
       try {
         await Webhooks.find({}).forEach(webhook => {
           const actions = webhook.actions || [];
-          const fixedActions = [] as any;
+          const fixedActions:string[] = [];
 
           for (const action of actions) {
             const type = switchContentType(action.type);

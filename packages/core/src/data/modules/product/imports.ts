@@ -1,4 +1,5 @@
 import { generateModels } from "../../../connectionResolver";
+import { Objects, ProductDoc, SubUom } from "../../../type";
 
 export default {
   insertImportItems: async ({ subdomain, data }) => {
@@ -7,7 +8,7 @@ export default {
     const { docs } = data;
 
     let updated = 0;
-    const objects: any = [];
+    const objects: Objects[] = [];
 
     try {
       for (const doc of docs) {
@@ -45,11 +46,11 @@ export default {
 
     const defaultUom = await models.ProductsConfigs.getConfig("defaultUOM", "");
 
-    const bulkDoc: any = [];
+    const bulkDoc: ProductDoc[] = [];
 
     // Iterating field values
     for (const fieldValue of result) {
-      const doc: any = {
+      const doc: ProductDoc = {
         customFieldsData: []
       };
 
@@ -158,7 +159,7 @@ export default {
       }
 
       let ind = 0;
-      const subUoms: any = [];
+      const subUoms: SubUom[] = [];
 
       for (const uom of subUomNames) {
         subUoms.push({
