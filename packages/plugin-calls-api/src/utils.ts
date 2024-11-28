@@ -10,6 +10,7 @@ import type { RequestInit, HeadersInit } from 'node-fetch';
 import { generateModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
+import { Domain } from 'domain';
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET || 'secret';
 const CALL_API_EXPIRY = 10 * 60; // 10 minutes
@@ -419,29 +420,8 @@ const cfRecordUrl = async (params, user, models, subdomain) => {
     if (records) {
       const buffer = await records?.arrayBuffer();
       if (buffer) {
-        const VERSION = getEnv({ name: 'VERSION' });
-        let defaultValue = 'http://localhost:4000';
-        if (VERSION === 'saas') {
-          defaultValue = `http://${subdomain}.api.erxes.com`;
-        }
-
-        const DOMAIN = getEnv({
-          name: 'DOMAIN',
-          subdomain,
-          defaultValue,
-        });
-        console.log(subdomain, 'subdomain', DOMAIN);
-
-        const domain = DOMAIN.replace('<subdomain>', subdomain);
-        console.log(domain, 'domain');
-
-        const uploadUrl =
-          domain.includes('localhost') || domain.includes('client1')
-            ? `${domain}/pl:core/upload-file`
-            : `${domain}/gateway/pl:core/upload-file`;
-
+        const uploadUrl = getUrl(subdomain);
         console.log('uploadUrl:', uploadUrl);
-
         const formData = new FormData();
         formData.append('file', Buffer.from(buffer), {
           filename: fileNameWithoutExtension,
@@ -451,8 +431,9 @@ const cfRecordUrl = async (params, user, models, subdomain) => {
           method: 'POST',
           body: formData,
         });
-
-        return await rec.text();
+        const a = await rec.text();
+        console.log('rec:', a);
+        return a;
       }
     }
     return;
@@ -642,4 +623,32 @@ const handleRecordUrl = async (cdr, history, result, models, subdomain) => {
   } catch (error) {
     console.log(`Failed to process record URL: ${error.message}`);
   }
+};
+
+export const getUrl = (subdomain) => {
+  const VERSION = getEnv({ name: 'VERSION' });
+  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+  let defaultValue = 'http://localhost:4000';
+
+  if (VERSION === 'saas') {
+    defaultValue = `http://${subdomain}.api.erxes.com`;
+  }
+  const DOMAIN = getEnv({
+    name: 'DOMAIN',
+    subdomain,
+    defaultValue: NODE_ENV !== 'production' ? defaultValue : undefined,
+  });
+
+  const domain = DOMAIN.replace('<subdomain>', subdomain);
+
+  if (NODE_ENV !== 'production') {
+    return `${domain}/pl:core/upload-file`;
+  }
+
+  if (VERSION === 'saas') {
+    return `${DOMAIN}/api/upload-file`;
+  }
+
+  return `${DOMAIN}/gateway/pl:core/upload-file`;
 };
