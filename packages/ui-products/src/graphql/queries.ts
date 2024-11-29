@@ -74,6 +74,20 @@ const productFields = `
     size
     type
   }
+  pdfAttachment {
+    pdf {
+      name
+      url
+      type
+      size
+    }
+    pages {
+      name
+      url
+      type
+      size
+      }
+    }
   uom
   subUoms
   taxType

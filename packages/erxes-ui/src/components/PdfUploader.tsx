@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { IPdfAttachment } from '@erxes/ui-knowledgeBase/src/types';
+
 import Attachment from '@erxes/ui/src/components/Attachment';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { __, getEnv } from '@erxes/ui/src/utils';
 import Alert from '@erxes/ui/src/utils/Alert';
-import { AttachmentContainer, UploadBtn } from './styles';
+
+import { IPdfAttachment } from '@erxes/ui/src/types';
+import { AttachmentContainer, UploadBtn } from '../styles/main';
 
 // Utility for making API requests
 const apiRequest = async (url: string, options: RequestInit) => {

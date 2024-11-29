@@ -612,6 +612,31 @@ const MenuDivider = styled.div`
   border-top: 1px solid #e9ecef;
 `;
 
+const UploadBtn = styled.div`
+  position: relative;
+  min-height: 30px;
+  margin-top: 10px;
+  label {
+    padding: 7px 15px;
+    background: ${rgba(colors.colorCoreDarkBlue, 0.05)};
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background 0.3s ease;
+    display: inline-block;
+    &:hover {
+      background: ${rgba(colors.colorCoreDarkBlue, 0.1)};
+      cursor: pointer;
+    }
+  }
+  input[type='file'] {
+    display: none;
+  }
+`;
+
+const AttachmentContainer = styled.div`
+  margin-top: 20px;
+`;
+
 export {
   Actions,
   PopoverButton,
@@ -663,4 +688,6 @@ export {
   DialogContent,
   PopoverPanel,
   TipContent,
+  UploadBtn,
+  AttachmentContainer,
 };
