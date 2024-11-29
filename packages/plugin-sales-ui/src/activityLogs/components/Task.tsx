@@ -11,7 +11,7 @@ import {
   JumpTo,
   LogWrapper,
   Row,
-  Title,
+  Title
 } from "@erxes/ui-log/src/activityLogs/styles";
 
 import Button from "@erxes/ui/src/components/Button";
@@ -58,7 +58,7 @@ class Task extends React.Component<Props, State> {
       name: task.name || "",
       closeDate: task.closeDate || dayjs(),
       showDetail: false,
-      isComplete: task.isComplete || false,
+      isComplete: task.isComplete || false
     };
   }
 
@@ -75,7 +75,7 @@ class Task extends React.Component<Props, State> {
     this.setState({ [key]: !this.state[key] } as any);
   };
 
-  handleInputChange = e => {
+  handleInputChange = (e) => {
     e.preventDefault();
 
     this.setState({ name: e.target.value });
@@ -87,7 +87,7 @@ class Task extends React.Component<Props, State> {
     this.props.save(
       {
         _id: task._id,
-        [key]: value,
+        [key]: value
       },
       () => {
         this.setState({ editing: false });
@@ -133,7 +133,7 @@ class Task extends React.Component<Props, State> {
   renderDetails() {
     const { showDetail, isComplete } = this.state;
 
-    const minuteOnChange = value => {
+    const minuteOnChange = (value) => {
       this.saveItem("reminderMinute", parseInt(value, 10));
     };
 
@@ -153,7 +153,7 @@ class Task extends React.Component<Props, State> {
               <Select
                 required={true}
                 value={selectOptions(REMINDER_MINUTES).find(
-                  option =>
+                  (option) =>
                     option.value === this.props.task.reminderMinute.toString()
                 )}
                 onChange={minuteOnChange}
@@ -171,7 +171,7 @@ class Task extends React.Component<Props, State> {
   renderCloseDate() {
     const { closeDate } = this.state;
 
-    const onDateChange = date => {
+    const onDateChange = (date) => {
       this.setState({ closeDate: date }, () => {
         this.saveItem("closeDate", closeDate);
       });
@@ -208,9 +208,9 @@ class Task extends React.Component<Props, State> {
   renderContent() {
     const { task } = this.props;
 
-    const assignedUserIds = (task.assignedUsers || []).map(user => user._id);
+    const assignedUserIds = (task.assignedUsers || []).map((user) => user._id);
 
-    const onAssignedUserSelect = usrs => {
+    const onAssignedUserSelect = (usrs) => {
       this.saveItem("assignedUserIds", usrs);
     };
 
@@ -290,7 +290,7 @@ class Task extends React.Component<Props, State> {
           </Title>
         </FlexContent>
         {!isComplete && this.renderContent()}
-        <Detail full={false}>
+        <Detail full={true}>
           <Date
             onClick={this.onChange.bind(this, "showDetail")}
             showDetail={showDetail}

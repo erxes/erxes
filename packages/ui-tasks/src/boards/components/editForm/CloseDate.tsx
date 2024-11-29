@@ -4,7 +4,7 @@ import {
   CheckBoxWrapper,
   CloseDateContent,
   CloseDateWrapper,
-  DateGrid,
+  DateGrid
 } from "../../styles/popup";
 import { generateButtonClass, selectOptions } from "../../utils";
 
@@ -43,11 +43,11 @@ class CloseDate extends React.Component<Props, State> {
     this.ref = React.createRef();
 
     this.state = {
-      dueDate: props.closeDate || dayjs(),
+      dueDate: props.closeDate || dayjs()
     };
   }
 
-  setOverlay = overlay => {
+  setOverlay = (overlay) => {
     this.overlay = overlay;
   };
 
@@ -55,23 +55,23 @@ class CloseDate extends React.Component<Props, State> {
     this.props.onChangeField("reminderMinute", parseInt(value, 10));
   };
 
-  dateOnChange = date => {
+  dateOnChange = (date) => {
     this.setState({ dueDate: date });
   };
 
-  onSave = close => {
+  onSave = (close) => {
     const { dueDate } = this.state;
 
     this.props.onChangeField("closeDate", dueDate);
     close();
   };
 
-  remove = close => {
+  remove = (close) => {
     this.props.onChangeField("closeDate", null);
     close();
   };
 
-  renderContent = close => {
+  renderContent = (close) => {
     const { reminderMinute, isCheckDate, createdDate } = this.props;
     const { dueDate } = this.state;
 
@@ -84,13 +84,13 @@ class CloseDate extends React.Component<Props, State> {
 
     const time = dayjs(dueDate).format("HH:mm");
 
-    const renderValidDate = current => {
+    const renderValidDate = (current) => {
       return isCheckDate
         ? dayjs(current).isAfter(dayjs(createdDate).subtract(1, "day"))
         : true;
     };
 
-    const onChangeDateTime = e => {
+    const onChangeDateTime = (e) => {
       const type = e.target.type;
       const value = e.target.value;
 
@@ -149,7 +149,7 @@ class CloseDate extends React.Component<Props, State> {
           value={
             reminderMinute
               ? selectOptions(REMINDER_MINUTES).filter(
-                  o => o.value === reminderMinute.toString()
+                  (o) => o.value === reminderMinute.toString()
                 )
               : null
           }
@@ -175,7 +175,7 @@ class CloseDate extends React.Component<Props, State> {
     const { isComplete, onChangeField, closeDate } = this.props;
     const time = dayjs(closeDate).format("HH:mm");
 
-    const onChange = e => onChangeField("isComplete", e.target.checked);
+    const onChange = (e) => onChangeField("isComplete", e.target.checked);
 
     const trigger = (
       <Button colorname={generateButtonClass(closeDate, isComplete)}>

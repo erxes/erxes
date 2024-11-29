@@ -36,7 +36,7 @@ class Actions extends React.Component<Props> {
     const { onUpdate, saveItem } = this.props;
 
     if (saveItem) {
-      saveItem({ priority: value }, updatedItem => {
+      saveItem({ priority: value }, (updatedItem) => {
         onUpdate(updatedItem);
       });
     }
@@ -51,10 +51,10 @@ class Actions extends React.Component<Props> {
       removeItem,
       sendToBoard,
       onChangeStage,
-      onChangeRefresh,
+      onChangeRefresh
     } = this.props;
 
-    const onLabelChange = labels => saveItem({ labels });
+    const onLabelChange = (labels) => saveItem({ labels });
 
     const tags = item.tags || [];
     const pipelineTagId = item.pipeline.tagId || "";
@@ -132,7 +132,7 @@ class Actions extends React.Component<Props> {
             item,
             contentType: "sales",
             subType: item.stage?.type,
-            path: `stageId=${item.stageId}`,
+            path: `stageId=${item.stageId}`
           },
           true
         )}
