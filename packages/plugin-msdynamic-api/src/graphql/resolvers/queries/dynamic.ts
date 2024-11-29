@@ -173,7 +173,7 @@ const msdynamicQueries = {
 
         for (const row of result) {
           if (remByCode[row.No]) {
-            result.reserveRemainder = remByCode[row.No]
+            row.reserveRemainder = remByCode[row.No]
           }
         }
       }
