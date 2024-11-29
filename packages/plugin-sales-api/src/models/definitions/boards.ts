@@ -102,6 +102,12 @@ export interface IPipeline extends ICommonFields {
   lastNum?: string;
   departmentIds?: string[];
   tagId?: string;
+  initialCategoryIds?: string[];
+  excludeCategoryIds?: string[];
+  excludeProductIds?: string[];
+  paymentIds?: string[];
+  paymentTypes?: any[];
+  erxesAppToken?: string;
 }
 
 export interface IPipelineDocument extends IPipeline, Document {
@@ -353,6 +359,22 @@ export const pipelineSchema = new Schema({
     optional: true,
     label: 'Related departments',
   }),
+
+  initialCategoryIds: field({
+    type: [String],
+    label: 'Pos initial categories',
+  }),
+  excludeCategoryIds: field({
+    type: [String],
+    label: 'product exclude categories',
+  }),
+  excludeProductIds: field({
+    type: [String],
+    label: 'exclude products',
+  }),
+  paymentIds: field({ type: [String], label: 'Online Payments' }),
+  paymentTypes: field({ type: [Object], label: 'Other Payments' }),
+  erxesAppToken: field({ type: String, label: 'Erxes App token' }),
   ...commonFieldsSchema,
 });
 
