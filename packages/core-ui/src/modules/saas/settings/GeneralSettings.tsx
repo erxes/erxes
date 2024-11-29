@@ -388,25 +388,6 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent
           transparent={true}
-          title={__("File upload")}
-          beforeTitle={<Icon icon="file-upload-alt" />}
-        >
-          <Info>
-            <a
-              target="_blank"
-              href="https://docs.erxes.io/conversations"
-              rel="noopener noreferrer"
-            >
-              {__("Learn how to set file uploading") + "."}
-            </a>
-          </Info>
-          {this.renderItem("UPLOAD_FILE_TYPES")}
-          {this.renderItem("WIDGETS_UPLOAD_FILE_TYPES")}
-          {this.renderItem("UPLOAD_SERVICE_TYPE")}
-        </CollapseContent>
-
-        <CollapseContent
-          transparent={true}
           title={__("Constants")}
           beforeTitle={<Icon icon="link-1" />}
         >

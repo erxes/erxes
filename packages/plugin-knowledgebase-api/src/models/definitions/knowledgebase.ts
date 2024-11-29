@@ -17,7 +17,7 @@ interface IFormCodes {
 }
 
 export interface IPdfAttachment {
-  pdf: IAttachment;
+  pdf?: IAttachment;
   pages: IAttachment[];
 }
 
