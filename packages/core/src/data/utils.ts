@@ -376,12 +376,12 @@ export const checkFile = async (models: IModels, file, source?: string) => {
 
   let { mime } = ft;
 
-  if (mime === 'application/zip' && file.name.endsWith('.hwpx')) {
-      mime = 'application/haansoft-hwpml'
+  if (mime === "application/zip" && file.name.endsWith(".hwpx")) {
+    mime = "application/haansoft-hwpml";
   }
 
-  if (mime === 'application/x-msi' && file.name.endsWith('.hwp')) {
-      mime = 'application/haansoft-hwp'
+  if (mime === "application/x-msi" && file.name.endsWith(".hwp")) {
+    mime = "application/haansoft-hwp";
   }
 
   // allow old ms office docs to be uploaded
@@ -492,21 +492,12 @@ const createGCS = async (models?: IModels) => {
  * Create Google Cloud Storage instance
  */
 const createCFR2 = async (models?: IModels) => {
-  const CLOUDFLARE_ACCOUNT_ID = await getConfig(
-    "CLOUDFLARE_ACCOUNT_ID",
-    "",
-    models
-  );
-  const CLOUDFLARE_ACCESS_KEY_ID = await getConfig(
-    "CLOUDFLARE_ACCESS_KEY_ID",
-    "",
-    models
-  );
-  const CLOUDFLARE_SECRET_ACCESS_KEY = await getConfig(
-    "CLOUDFLARE_SECRET_ACCESS_KEY",
-    "",
-    models
-  );
+  const {
+    CLOUDFLARE_ACCOUNT_ID,
+    CLOUDFLARE_ACCESS_KEY_ID,
+    CLOUDFLARE_SECRET_ACCESS_KEY
+  } = await getFileUploadConfigs(models);
+
   const CLOUDFLARE_ENDPOINT = `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`;
 
   if (!CLOUDFLARE_ACCESS_KEY_ID || !CLOUDFLARE_SECRET_ACCESS_KEY) {
@@ -537,23 +528,11 @@ export const uploadToCFImages = async (
 ) => {
   const sanitizedFilename = sanitizeFilename(file.name);
 
-  const CLOUDFLARE_ACCOUNT_ID = await getConfig(
-    "CLOUDFLARE_ACCOUNT_ID",
-    "",
-    models
-  );
-
-  const CLOUDFLARE_API_TOKEN = await getConfig(
-    "CLOUDFLARE_API_TOKEN",
-    "",
-    models
-  );
-
-  const CLOUDFLARE_BUCKET_NAME = await getConfig(
-    "CLOUDFLARE_BUCKET_NAME",
-    "",
-    models
-  );
+  const {
+    CLOUDFLARE_ACCOUNT_ID,
+    CLOUDFLARE_API_TOKEN,
+    CLOUDFLARE_BUCKET_NAME
+  } = await getFileUploadConfigs(models);
 
   const IS_PUBLIC = forcePrivate
     ? false
@@ -605,17 +584,8 @@ export const uploadToCFImages = async (
 const uploadToCFStream = async (file: any, models?: IModels) => {
   const sanitizedFilename = sanitizeFilename(file.name);
 
-  const CLOUDFLARE_ACCOUNT_ID = await getConfig(
-    "CLOUDFLARE_ACCOUNT_ID",
-    "",
-    models
-  );
-
-  const CLOUDFLARE_API_TOKEN = await getConfig(
-    "CLOUDFLARE_API_TOKEN",
-    "",
-    models
-  );
+  const { CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN } =
+    await getFileUploadConfigs(models);
 
   const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/stream`;
   const headers = {
@@ -658,17 +628,8 @@ export const uploadFileCloudflare = async (
     : await getConfig("FILE_SYSTEM_PUBLIC", "false");
   const sanitizedFilename = sanitizeFilename(fileObj.name);
 
-  const CLOUDFLARE_BUCKET = await getConfig(
-    "CLOUDFLARE_BUCKET_NAME",
-    "",
-    models
-  );
-
-  const CLOUDFLARE_USE_CDN = await getConfig(
-    "CLOUDFLARE_USE_CDN",
-    "false",
-    models
-  );
+  const { CLOUDFLARE_BUCKET_NAME, CLOUDFLARE_USE_CDN } =
+    await getFileUploadConfigs(models);
 
   const detectedType = fileType(fs.readFileSync(fileObj.path));
 
@@ -708,7 +669,7 @@ export const uploadFileCloudflare = async (
     r2.upload(
       {
         ContentType: fileObj.type,
-        Bucket: CLOUDFLARE_BUCKET,
+        Bucket: CLOUDFLARE_BUCKET_NAME,
         Key: fileName,
         Body: buffer,
         ACL: IS_PUBLIC === "true" ? "public-read" : undefined
@@ -780,13 +741,9 @@ export const deleteFileCloudflare = async (
   fileName: string,
   models?: IModels
 ) => {
-  const CLOUDFLARE_BUCKET = await getConfig(
-    "CLOUDFLARE_BUCKET_NAME",
-    "",
-    models
-  );
+  const { CLOUDFLARE_BUCKET_NAME } = await getFileUploadConfigs(models);
 
-  const params = { Bucket: CLOUDFLARE_BUCKET, Key: fileName };
+  const params = { Bucket: CLOUDFLARE_BUCKET_NAME, Key: fileName };
 
   // initialize r2
   const r2 = await createCFR2(models);
@@ -951,17 +908,8 @@ const readFromCFImages = async (
 ) => {
   const VERSION = getEnv({ name: "VERSION" });
 
-  const CLOUDFLARE_ACCOUNT_HASH = await getConfig(
-    "CLOUDFLARE_ACCOUNT_HASH",
-    "",
-    models
-  );
-
-  const CLOUDFLARE_BUCKET_NAME = await getConfig(
-    "CLOUDFLARE_BUCKET_NAME",
-    "",
-    models
-  );
+  const { CLOUDFLARE_BUCKET_NAME, CLOUDFLARE_ACCOUNT_HASH } =
+    await getFileUploadConfigs(models);
 
   let fileName = key;
 
@@ -997,18 +945,14 @@ const readFromCFImages = async (
 };
 
 const readFromCR2 = async (key: string, models?: IModels) => {
-  const CLOUDFLARE_R2_BUCKET = await getConfig(
-    "CLOUDFLARE_BUCKET_NAME",
-    "",
-    models
-  );
+  const { CLOUDFLARE_BUCKET_NAME } = await getFileUploadConfigs(models);
 
   const r2 = await createCFR2(models);
 
   return new Promise((resolve, reject) => {
     r2.getObject(
       {
-        Bucket: CLOUDFLARE_R2_BUCKET,
+        Bucket: CLOUDFLARE_BUCKET_NAME,
         Key: key
       },
       (error, response) => {
@@ -1036,21 +980,21 @@ const readFromCR2 = async (key: string, models?: IModels) => {
  */
 const createAzureBlobStorage = async (models?: IModels) => {
   const AZURE_STORAGE_CONNECTION_STRING = await getConfig(
-    'AZURE_STORAGE_CONNECTION_STRING',
-    '',
+    "AZURE_STORAGE_CONNECTION_STRING",
+    "",
     models
   );
   const AZURE_STORAGE_CONTAINER = await getConfig(
-    'AZURE_STORAGE_CONTAINER',
-    '',
+    "AZURE_STORAGE_CONTAINER",
+    "",
     models
   );
 
   if (!AZURE_STORAGE_CONNECTION_STRING || !AZURE_STORAGE_CONTAINER) {
-    throw new Error('Azure Blob Storage credentials are not configured');
+    throw new Error("Azure Blob Storage credentials are not configured");
   }
 
-  const BlobServiceClient = require('@azure/storage-blob').BlobServiceClient;
+  const BlobServiceClient = require("@azure/storage-blob").BlobServiceClient;
 
   // Initialize Azure Blob Storage
   const blobServiceClient = BlobServiceClient.fromConnectionString(
@@ -1089,7 +1033,6 @@ export const deleteFileAzure = async (fileName: string, models?: IModels) => {
   }
 };
 
-
 /*
  * Save file to azure blob storage
  */
@@ -1104,7 +1047,7 @@ export const uploadFileAzure = async (
 ): Promise<string> => {
   const sanitizedFilename = sanitizeFilename(file.name);
 
-  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
+  const IS_PUBLIC = await getConfig("FILE_SYSTEM_PUBLIC", "true", models);
 
   // initialize Azure Blob Storage
   const containerClient = await createAzureBlobStorage(models);
@@ -1121,25 +1064,27 @@ export const uploadFileAzure = async (
   });
 
   if (!response) {
-    throw new Error('Error uploading file to Azure Blob Storage');
+    throw new Error("Error uploading file to Azure Blob Storage");
   }
 
   // Return either the blob's URL or its name, depending on public status
-  return IS_PUBLIC === 'true' ? blockBlobClient.url : fileName;
+  return IS_PUBLIC === "true" ? blockBlobClient.url : fileName;
 };
 
 /**
  * Converts a readable stream from Azure Blob Storage into a Buffer.
- * 
+ *
  * @param {NodeJS.ReadableStream} stream - The readable stream from Azure Blob Storage.
  * @returns {Promise<Buffer>} A promise that resolves to a Buffer containing the stream data.
  */
-const azureStreamToBuffer = (stream: NodeJS.ReadableStream): Promise<Buffer> => {
+const azureStreamToBuffer = (
+  stream: NodeJS.ReadableStream
+): Promise<Buffer> => {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
-    stream.on('data', chunk => chunks.push(chunk));
-    stream.on('end', () => resolve(Buffer.concat(chunks)));
-    stream.on('error', reject);
+    stream.on("data", chunk => chunks.push(chunk));
+    stream.on("end", () => resolve(Buffer.concat(chunks)));
+    stream.on("error", reject);
   });
 };
 
@@ -1174,11 +1119,7 @@ export const readFileRequest = async ({
     }
   }
 
-  const UPLOAD_SERVICE_TYPE = await getConfig(
-    "UPLOAD_SERVICE_TYPE",
-    "AWS",
-    models
-  );
+  const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(models);
 
   if (UPLOAD_SERVICE_TYPE === "GCS") {
     const GCS_BUCKET = await getConfig(
@@ -1229,11 +1170,7 @@ export const readFileRequest = async ({
   }
 
   if (UPLOAD_SERVICE_TYPE === "CLOUDFLARE") {
-    const CLOUDFLARE_USE_CDN = await getConfig(
-      "CLOUDFLARE_USE_CDN",
-      "false",
-      models
-    );
+    const { CLOUDFLARE_USE_CDN } = await getFileUploadConfigs(models);
 
     if (
       (CLOUDFLARE_USE_CDN === "true" || CLOUDFLARE_USE_CDN === true) &&
@@ -1245,13 +1182,13 @@ export const readFileRequest = async ({
     return readFromCR2(key, models);
   }
 
-  if (UPLOAD_SERVICE_TYPE === 'AZURE') {
+  if (UPLOAD_SERVICE_TYPE === "AZURE") {
     const containerClient = await createAzureBlobStorage(models);
     const blobClient = containerClient.getBlobClient(key);
     const response = await blobClient.download();
 
     if (!response.readableStreamBody) {
-      throw new Error('No readable stream found in response');
+      throw new Error("No readable stream found in response");
     }
 
     return azureStreamToBuffer(response.readableStreamBody);
@@ -1284,11 +1221,8 @@ export const uploadFile = async (
 ): Promise<any> => {
   const IS_PUBLIC = await getConfig("FILE_SYSTEM_PUBLIC", "", models);
   const VERSION = getEnv({ name: "VERSION" });
-  const UPLOAD_SERVICE_TYPE = await getConfig(
-    "UPLOAD_SERVICE_TYPE",
-    "AWS",
-    models
-  );
+
+  const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(models);
 
   let nameOrLink = "";
 
@@ -1415,6 +1349,11 @@ export const getConfig = async (
   models?: IModels
 ) => {
   if (!models) {
+    return getEnv({ name: code, defaultValue });
+  }
+  const VERSION = getEnv({ name: "VERSION" });
+
+  if (VERSION && VERSION === "saas") {
     return getEnv({ name: code, defaultValue });
   }
 
@@ -1595,7 +1534,24 @@ export const sendMobileNotification = async (
   }
 };
 
-export const getFileUploadConfigs = async (models: IModels) => {
+export const getFileUploadConfigs = async (models?: IModels) => {
+  const VERSION = getEnv({ name: "VERSION" });
+
+  if (VERSION === "saas") {
+    return {
+      UPLOAD_SERVICE_TYPE: getEnv({ name: "UPLOAD_SERVICE_TYPE" }),
+      CLOUDFLARE_BUCKET_NAME: getEnv({ name: "CLOUDFLARE_BUCKET_NAME" }),
+      CLOUDFLARE_ACCOUNT_ID: getEnv({ name: "CLOUDFLARE_ACCOUNT_ID" }),
+      CLOUDFLARE_ACCESS_KEY_ID: getEnv({ name: "CLOUDFLARE_ACCESS_KEY_ID" }),
+      CLOUDFLARE_SECRET_ACCESS_KEY: getEnv({
+        name: "CLOUDFLARE_SECRET_ACCESS_KEY"
+      }),
+      CLOUDFLARE_API_TOKEN: getEnv({ name: "CLOUDFLARE_API_TOKEN" }),
+      CLOUDFLARE_USE_CDN: getEnv({ name: "CLOUDFLARE_USE_CDN" }),
+      CLOUDFLARE_ACCOUNT_HASH: getEnv({ name: "CLOUDFLARE_ACCOUNT_HASH" })
+    };
+  }
+
   const AWS_ACCESS_KEY_ID = await getConfig("AWS_ACCESS_KEY_ID", "", models);
   const AWS_SECRET_ACCESS_KEY = await getConfig(
     "AWS_SECRET_ACCESS_KEY",
@@ -1648,11 +1604,7 @@ export const getFileUploadConfigs = async (models: IModels) => {
     models
   );
 
-  const CLOUDFLARE_USE_CDN = await getConfig(
-    "CLOUDFLARE_USE_CDN",
-    "",
-    models
-  );
+  const CLOUDFLARE_USE_CDN = await getConfig("CLOUDFLARE_USE_CDN", "", models);
 
   return {
     AWS_FORCE_PATH_STYLE,
