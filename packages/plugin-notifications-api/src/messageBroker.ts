@@ -129,7 +129,7 @@ const sendNotification = async (
     }
   };
 
-  sendCoreMessage({
+  try{sendCoreMessage({
     subdomain,
     action: "sendEmail",
     data: {
@@ -145,7 +145,9 @@ const sendNotification = async (
       },
       modifier
     }
-  });
+  });}catch(err){
+    console.log({ err, toEmails });
+  }
 };
 
 export const setupMessageConsumers = async () => {
