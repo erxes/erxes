@@ -213,10 +213,6 @@ const processPdf = async (taskId) => {
   if (fs.existsSync(taskData.filePath)) {
     fs.unlinkSync(taskData.filePath); // Delete file if exists
   }
-
-  if (fs.existsSync(imageDir.name)) {
-    fs.rmdirSync(imageDir.name, { recursive: true }); // Delete directory if exists
-  }
 };
 
 function validateCloudflareConfig() {
