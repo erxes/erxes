@@ -72,7 +72,6 @@ export const pdfUploader = [
       taskId,
       subdomain,
       filePath: file.path,
-      pdfPath:'',
       name: filename,
       type: "application/pdf",
       status: "pending",
@@ -99,7 +98,7 @@ export const pdfUploader = [
           await handleChunks(taskId, fileDir, totalChunks);
 
           // create task data in redis
-          taskData.pdfPath = path.join(fileDir, `${taskId}.pdf`);
+          taskData.filePath = path.join(fileDir, `${taskId}.pdf`);
           await redis.set(
             `pdf_upload_task_${taskId}`,
             JSON.stringify(taskData)
@@ -171,7 +170,7 @@ const processPdf = async taskId => {
   const imageDir = tmp.dirSync({ unsafeCleanup: true });
 
   const imagePaths: any = await convertPdfToImage(
-    taskData.pdfPath,
+    taskData.filePath,
     imageDir.name
   );
 
@@ -208,6 +207,14 @@ const processPdf = async taskId => {
   taskData.progress = 100;
   taskData.result = { pdf: undefined, pages: imageUrls };
   await redis.set(`pdf_upload_task_${taskId}`, JSON.stringify(taskData));
+
+  console.debug("Task completed", taskData);
+  if (fs.existsSync(taskData.filePath)) {
+    fs.unlinkSync(taskData.filePath); // Delete file if exists
+  }
+  if (fs.existsSync(imageDir.name)) {
+    fs.rmdirSync(imageDir.name); // Delete directory if exists
+  }
 };
 
 function validateCloudflareConfig() {
