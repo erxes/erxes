@@ -12,6 +12,7 @@ import { generateErrors } from './data/modules/import/generateErrors';
 import { initBroker } from './messageBroker';
 import {
   pdfUploader,
+  processPdfTasks,
   taskChecker,
   taskRemover,
 } from './worker/pdf/utils';
@@ -91,6 +92,8 @@ app.delete('/delete-task/:taskId', taskRemover);
 const httpServer = createServer(app);
 
 const { PORT = '3700' } = process.env;
+
+processPdfTasks();
 
 httpServer.listen(PORT, async () => {
   await initApolloServer(app, httpServer);
