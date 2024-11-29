@@ -1281,18 +1281,37 @@ export const loadClientPortalUserClass = (models: IModels) => {
     }
 
     public static async moveUser(oldClientPortalId, newClientPortalId) {
-      const users = await models.ClientPortalUsers.find({
+      const oldUsers = await models.ClientPortalUsers.find({
         clientPortalId: oldClientPortalId,
       });
 
-      if (!users || !users.length) {
+      const newUsers = await models.ClientPortalUsers.find({
+        clientPortalId: newClientPortalId,
+      });
+
+      if (!oldUsers || !oldUsers.length) {
         throw new Error('Users not found');
       }
 
-      const userIds = users.map((user) => user._id);
+      const emailsInNewPortal = newUsers.map((user) => user.email);
+      const phonesInNewPortal = newUsers.map((user) => user.phone);
+
+      // Filter users1 to exclude those with matching email or phone in users2
+      const usersToUpdate = oldUsers.filter((user) => {
+        const emailMatch = user.email && emailsInNewPortal.includes(user.email);
+        const phoneMatch = user.phone && phonesInNewPortal.includes(user.phone);
+        return !(emailMatch || phoneMatch); // Include users who don't match
+      });
+
+      if (!usersToUpdate.length) {
+        throw new Error('No users updated because of duplicate email/phone');
+      }
+
+      // Get the IDs of the users to update
+      const userIdsToUpdate = usersToUpdate.map((user) => user._id);
 
       const updatedUsers = await models.ClientPortalUsers.updateMany(
-        { _id: { $in: userIds } },
+        { _id: { $in: userIdsToUpdate } },
         { $set: { clientPortalId: newClientPortalId, modifiedAt: new Date() } }
       );
 
