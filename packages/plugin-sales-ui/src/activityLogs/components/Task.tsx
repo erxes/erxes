@@ -12,25 +12,25 @@ import {
   LogWrapper,
   Row,
   Title,
-} from '@erxes/ui-log/src/activityLogs/styles';
+} from "@erxes/ui-log/src/activityLogs/styles";
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Datetime from '@nateradebaugh/react-datetime';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IItem } from '@erxes/ui-sales/src/boards/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import Popover from '@erxes/ui/src/components/Popover';
-import { REMINDER_MINUTES } from '@erxes/ui-sales/src/boards/constants';
-import React from 'react';
-import Select from 'react-select';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
-import dayjs from 'dayjs';
-import { selectOptions } from '@erxes/ui-sales/src/boards/utils';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Datetime from "@nateradebaugh/react-datetime";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IItem } from "@erxes/ui-sales/src/boards/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import Popover from "@erxes/ui/src/components/Popover";
+import { REMINDER_MINUTES } from "@erxes/ui-sales/src/boards/constants";
+import React from "react";
+import Select from "react-select";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "@erxes/ui/src/utils";
+import dayjs from "dayjs";
+import { selectOptions } from "@erxes/ui-sales/src/boards/utils";
 
 type Props = {
   task: IItem;
@@ -55,7 +55,7 @@ class Task extends React.Component<Props, State> {
     const task = props.task || {};
     this.state = {
       editing: false,
-      name: task.name || '',
+      name: task.name || "",
       closeDate: task.closeDate || dayjs(),
       showDetail: false,
       isComplete: task.isComplete || false,
@@ -108,18 +108,18 @@ class Task extends React.Component<Props, State> {
             />
           </FormGroup>
           <Button
-            icon='cancel-1'
-            btnStyle='simple'
-            size='small'
-            onClick={this.onChange.bind(this, 'editing')}
+            icon="cancel-1"
+            btnStyle="simple"
+            size="small"
+            onClick={this.onChange.bind(this, "editing")}
           >
             Cancel
           </Button>
           <Button
-            btnStyle='success'
-            size='small'
-            icon='checked-1'
-            onClick={this.saveItem.bind(this, 'name', this.state.name)}
+            btnStyle="success"
+            size="small"
+            icon="checked-1"
+            onClick={this.saveItem.bind(this, "name", this.state.name)}
           >
             Save
           </Button>
@@ -127,14 +127,14 @@ class Task extends React.Component<Props, State> {
       );
     }
 
-    return <h4 onClick={this.onChange.bind(this, 'editing')}>{task.name}</h4>;
+    return <h4 onClick={this.onChange.bind(this, "editing")}>{task.name}</h4>;
   }
 
   renderDetails() {
     const { showDetail, isComplete } = this.state;
 
     const minuteOnChange = value => {
-      this.saveItem('reminderMinute', parseInt(value, 10));
+      this.saveItem("reminderMinute", parseInt(value, 10));
     };
 
     if (!showDetail) {
@@ -146,7 +146,7 @@ class Task extends React.Component<Props, State> {
     return (
       <>
         {isComplete && this.renderContent()}
-        <Detail style={{ zIndex: 103 }}>
+        <Detail>
           <FlexBody>
             <Row>
               <ControlLabel>Set reminder</ControlLabel>
@@ -159,7 +159,7 @@ class Task extends React.Component<Props, State> {
                 onChange={minuteOnChange}
                 options={selectOptions(REMINDER_MINUTES)}
                 isClearable={true}
-                menuPlacement='top'
+                menuPlacement="top"
               />
             </Row>
           </FlexBody>
@@ -173,7 +173,7 @@ class Task extends React.Component<Props, State> {
 
     const onDateChange = date => {
       this.setState({ closeDate: date }, () => {
-        this.saveItem('closeDate', closeDate);
+        this.saveItem("closeDate", closeDate);
       });
     };
 
@@ -181,25 +181,25 @@ class Task extends React.Component<Props, State> {
       <Popover
         trigger={
           <Date>
-            <Icon icon='calendar-alt' />
-            <span>{dayjs(closeDate).format('MM/DD/YYYY')}</span>
-            <Icon icon='angle-down' size={14} />
+            <Icon icon="calendar-alt" />
+            <span>{dayjs(closeDate).format("MM/DD/YYYY")}</span>
+            <Icon icon="angle-down" size={14} />
           </Date>
         }
       >
         <Datetime
-          inputProps={{ placeholder: __('Click to select a date') }}
-          dateFormat='YYYY/MM/DD'
-          timeFormat='HH:mm'
+          inputProps={{ placeholder: __("Click to select a date") }}
+          dateFormat="YYYY/MM/DD"
+          timeFormat="HH:mm"
           value={closeDate}
           closeOnSelect={true}
           utc={true}
           input={false}
           onChange={onDateChange}
           defaultValue={dayjs()
-            .startOf('day')
-            .add(12, 'hour')
-            .format('YYYY-MM-DD HH:mm:ss')}
+            .startOf("day")
+            .add(12, "hour")
+            .format("YYYY-MM-DD HH:mm:ss")}
         />
       </Popover>
     );
@@ -211,7 +211,7 @@ class Task extends React.Component<Props, State> {
     const assignedUserIds = (task.assignedUsers || []).map(user => user._id);
 
     const onAssignedUserSelect = usrs => {
-      this.saveItem('assignedUserIds', usrs);
+      this.saveItem("assignedUserIds", usrs);
     };
 
     return (
@@ -221,8 +221,8 @@ class Task extends React.Component<Props, State> {
             <Row>
               <ControlLabel>Assigned to</ControlLabel>
               <SelectTeamMembers
-                label={__('Choose team member')}
-                name='assignedUserIds'
+                label={__("Choose team member")}
+                name="assignedUserIds"
                 initialValue={assignedUserIds}
                 onSelect={onAssignedUserSelect}
               />
@@ -246,7 +246,7 @@ class Task extends React.Component<Props, State> {
 
     const onComplete = () => {
       this.setState({ isComplete: !this.state.isComplete }, () => {
-        this.saveItem('isComplete', this.state.isComplete);
+        this.saveItem("isComplete", this.state.isComplete);
       });
     };
 
@@ -257,45 +257,45 @@ class Task extends React.Component<Props, State> {
             <strong>
               {createdUser && createdUser.details
                 ? createdUser.details.fullName || createdUser.email
-                : 'Undefined'}
-            </strong>{' '}
+                : "Undefined"}
+            </strong>{" "}
             created a task
           </FlexBody>
-          <Link to={`/task/board?_id=${boardId}&itemId=${_id}`} target='_blank'>
+          <Link to={`/task/board?_id=${boardId}&itemId=${_id}`} target="_blank">
             <JumpTo>
               Jump to task
-              <Icon icon='corner-down-right-alt' />
+              <Icon icon="corner-down-right-alt" />
             </JumpTo>
           </Link>
           <DeleteAction onClick={this.onRemove}>Delete</DeleteAction>
-          <Tip text={dayjs(createdAt).format('llll')}>
+          <Tip text={dayjs(createdAt).format("llll")}>
             <ActivityDate>
-              {dayjs(createdAt).format('MMM D, h:mm A')}
+              {dayjs(createdAt).format("MMM D, h:mm A")}
             </ActivityDate>
           </Tip>
         </FlexCenterContent>
         <FlexContent>
           <Tip
             text={
-              isComplete ? __('Mark as incomplete') : __('Mark as complete')
+              isComplete ? __("Mark as incomplete") : __("Mark as complete")
             }
           >
             <IconWrapper onClick={onComplete} isComplete={isComplete}>
-              <Icon icon='check-1' size={25} />
+              <Icon icon="check-1" size={25} />
             </IconWrapper>
           </Tip>
           <Title isComplete={isComplete} isEditing={editing}>
             {this.renderName()}
-            <Icon icon='edit' />
+            <Icon icon="edit" />
           </Title>
         </FlexContent>
         {!isComplete && this.renderContent()}
         <Detail full={false}>
           <Date
-            onClick={this.onChange.bind(this, 'showDetail')}
+            onClick={this.onChange.bind(this, "showDetail")}
             showDetail={showDetail}
           >
-            <Icon icon='angle-right' /> {__('Details')}
+            <Icon icon="angle-right" /> {__("Details")}
           </Date>
           {this.renderDetails()}
         </Detail>
