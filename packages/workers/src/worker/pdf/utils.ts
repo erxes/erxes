@@ -72,6 +72,7 @@ export const pdfUploader = [
       taskId,
       subdomain,
       filePath: file.path,
+      pdfPath:'',
       name: filename,
       type: "application/pdf",
       status: "pending",
@@ -97,11 +98,13 @@ export const pdfUploader = [
           await handleChunks(taskId, fileDir, totalChunks);
 
           // create task data in redis
+          taskData.pdfPath = path.join(fileDir, `${taskId}.pdf`);
           await redis.set(
             `pdf_upload_task_${taskId}`,
             JSON.stringify(taskData)
           );
           // await redis.lpush('pdf_upload_queue', taskId);
+
           processPdf(taskId);
           return res.status(202).send({ status: "processing" });
         }
@@ -167,7 +170,7 @@ const processPdf = async taskId => {
   const imageDir = tmp.dirSync({ unsafeCleanup: true });
 
   const imagePaths: any = await convertPdfToImage(
-    taskData.filePath,
+    taskData.pdfPath,
     imageDir.name
   );
 
