@@ -141,7 +141,7 @@ const handleChunks = async (taskId, chunkDir, totalChunks) => {
   }
   writeStream.end();
 
-  console.log('Chunks merged successfully', chunkDir);
+  console.debug('Chunks merged successfully', chunkDir);
 };
 
 const processPdf = async (taskId) => {
@@ -153,7 +153,7 @@ const processPdf = async (taskId) => {
     return;
   }
 
-  console.log('Processing task', taskData);
+  console.debug('Processing task', taskData);
 
   const taskAge = new Date().getTime() - new Date(taskData.createdAt).getTime();
 
@@ -165,7 +165,7 @@ const processPdf = async (taskId) => {
       fs.unlinkSync(taskData.filePath); // Delete file if exists
     }
 
-    console.log(`Task ${taskId} is orphaned and deleted.`);
+    console.debug(`Task ${taskId} is orphaned and deleted.`);
     return;
   }
 
