@@ -159,7 +159,6 @@ class Task extends React.Component<Props, State> {
                 onChange={minuteOnChange}
                 options={selectOptions(REMINDER_MINUTES)}
                 isClearable={true}
-                menuPlacement="top"
               />
             </Row>
           </FlexBody>
