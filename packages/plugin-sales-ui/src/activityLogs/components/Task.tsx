@@ -75,7 +75,7 @@ class Task extends React.Component<Props, State> {
     this.setState({ [key]: !this.state[key] } as any);
   };
 
-  handleInputChange = (e) => {
+  handleInputChange = e => {
     e.preventDefault();
 
     this.setState({ name: e.target.value });
@@ -133,7 +133,7 @@ class Task extends React.Component<Props, State> {
   renderDetails() {
     const { showDetail, isComplete } = this.state;
 
-    const minuteOnChange = (value) => {
+    const minuteOnChange = value => {
       this.saveItem("reminderMinute", parseInt(value, 10));
     };
 
@@ -153,7 +153,7 @@ class Task extends React.Component<Props, State> {
               <Select
                 required={true}
                 value={selectOptions(REMINDER_MINUTES).find(
-                  (option) =>
+                  option =>
                     option.value === this.props.task.reminderMinute.toString()
                 )}
                 onChange={minuteOnChange}
@@ -171,7 +171,7 @@ class Task extends React.Component<Props, State> {
   renderCloseDate() {
     const { closeDate } = this.state;
 
-    const onDateChange = (date) => {
+    const onDateChange = date => {
       this.setState({ closeDate: date }, () => {
         this.saveItem("closeDate", closeDate);
       });
@@ -208,9 +208,9 @@ class Task extends React.Component<Props, State> {
   renderContent() {
     const { task } = this.props;
 
-    const assignedUserIds = (task.assignedUsers || []).map((user) => user._id);
+    const assignedUserIds = (task.assignedUsers || []).map(user => user._id);
 
-    const onAssignedUserSelect = (usrs) => {
+    const onAssignedUserSelect = usrs => {
       this.saveItem("assignedUserIds", usrs);
     };
 
