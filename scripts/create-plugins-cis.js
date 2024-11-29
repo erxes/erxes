@@ -1,7 +1,7 @@
 var { resolve } = require('path');
 var fs = require('fs');
 
-const filePath = (pathName) => {
+const filePath = pathName => {
   if (pathName) {
     return resolve(__dirname, '..', pathName);
   }
@@ -9,7 +9,7 @@ const filePath = (pathName) => {
   return resolve(__dirname, '..');
 };
 
-var workflowsPath = (fileName) => filePath(`./.github/workflows/${fileName}`);
+var workflowsPath = fileName => filePath(`./.github/workflows/${fileName}`);
 
 var plugins = [
   { name: 'inbox', ui: true, api: true },
@@ -73,7 +73,8 @@ var plugins = [
   { name: 'burenscoring', api: true, ui: true },
   { name: 'golomtbank', api: true, ui: true },
   { name: 'accountings', api: true, ui: true },
-  { name: 'template', api: true, ui: true }
+  { name: 'pms', api: true, ui: true },
+  { name: 'template', api: true, ui: true },
 ];
 
 const pluginsMap = {};
@@ -122,7 +123,7 @@ var main = async () => {
       }
 
       pluginsMap[plugin.name] = {
-        ui: uiConfigs
+        ui: uiConfigs,
       };
     }
 
@@ -141,7 +142,7 @@ var main = async () => {
           yamlConfigs.additionalBuildSteps.length > 0
         ) {
           const steps = yamlConfigs.additionalBuildSteps
-            .map((step) => `          ${step}`)
+            .map(step => `          ${step}`)
             .join('\n');
 
           const insertIndex =
@@ -198,7 +199,7 @@ var main = async () => {
     }
   }
 
-  const actions = permissionCheckers.map((action) => action.name);
+  const actions = permissionCheckers.map(action => action.name);
   const dups = actions.filter((item, index) => actions.indexOf(item) !== index);
 
   if (dups.length) {

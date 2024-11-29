@@ -157,7 +157,7 @@ export const posSchema = schemaHooksWrapper(
     banFractions: field({ type: Boolean, label: 'has Float count' }),
     status: field({ type: String, label: 'Status', optional: true }),
   }),
-  'erxes_pos',
+  'erxes_pos'
 );
 
 export const productGroupSchema = schemaHooksWrapper(
@@ -184,7 +184,7 @@ export const productGroupSchema = schemaHooksWrapper(
       label: 'Exclude Product ids',
     }),
   }),
-  'erxes_productGroup',
+  'erxes_productGroup'
 );
 
 export const posSlotSchema = schemaHooksWrapper(
@@ -195,7 +195,7 @@ export const posSlotSchema = schemaHooksWrapper(
     posId: field({ type: String, label: 'Pos' }),
     option: field({ type: Object, label: 'Option' }),
   }),
-  'erxes_pos_slot',
+  'erxes_pos_slot'
 );
 
 export const posCoverKindValueSchema = schemaHooksWrapper(
@@ -203,5 +203,5 @@ export const posCoverKindValueSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     code: field({ type: String, label: 'Code' }),
   }),
-  'erxes_pos_slot',
+  'erxes_pos_slot'
 );
