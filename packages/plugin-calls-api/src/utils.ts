@@ -431,9 +431,7 @@ const cfRecordUrl = async (params, user, models, subdomain) => {
           method: 'POST',
           body: formData,
         });
-        const a = await rec.text();
-        console.log('rec:', a);
-        return a;
+        return await rec.text();
       }
     }
     return;
@@ -647,8 +645,8 @@ export const getUrl = (subdomain) => {
   }
 
   if (VERSION === 'saas') {
-    return `${DOMAIN}/api/upload-file`;
+    return `https://${subdomain}.api.erxes.io/api/upload-file`;
   }
 
-  return `${DOMAIN}/gateway/pl:core/upload-file`;
+  return `${domain}/gateway/pl:core/upload-file`;
 };
