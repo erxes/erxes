@@ -17,7 +17,6 @@ import * as FormData from 'form-data';
 import fetch from 'node-fetch';
 
 const tmpDir = tmp.dirSync({ unsafeCleanup: true });
-
 const config = {
   uploadServiceType: getEnv({ name: 'UPLOAD_SERVICE_TYPE' }),
   bucketName: getEnv({ name: 'CLOUDFLARE_BUCKET_NAME' }),
@@ -217,10 +216,6 @@ const processPdf = async (taskId) => {
 
   if (fs.existsSync(imageDir.name)) {
     fs.rmdirSync(imageDir.name, { recursive: true }); // Delete directory if exists
-  }
-
-  if (fs.existsSync(tmpDir.name)) {
-    fs.rmdirSync(tmpDir.name, { recursive: true });
   }
 };
 
