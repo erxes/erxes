@@ -3,8 +3,9 @@ import {
   customFieldSchema,
   IAttachment,
   ICustomField,
-} from '@erxes/api-utils/src/types';
-import { Schema, Document } from 'mongoose';
+  IPdfAttachment
+} from "@erxes/api-utils/src/types";
+import { Schema, Document } from "mongoose";
 
 import { field, schemaWrapper } from './utils';
 
@@ -115,6 +116,8 @@ export interface IProduct {
   taxCode?: string;
   sameMasks?: string[];
   sameDefault?: string[];
+
+  pdfAttachment?: IPdfAttachment;
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -225,6 +228,8 @@ export const productSchema = schemaWrapper(
     taxCode: field({ type: String, optional: true, label: 'tax type code' }),
     sameMasks: field({ type: [String] }),
     sameDefault: field({ type: [String] }),
+
+    pdfAttachment: field({ type: Object, optional: true, label: 'PDF attachment' }),
   })
 );
 

@@ -1,8 +1,12 @@
-import { Model } from 'mongoose';
-import { COMPANY_INDUSTRY_TYPES, SEX_OPTIONS, SOCIAL_LINKS } from '@erxes/api-utils/src/constants';
-import { configSchema, IConfig, IConfigDocument } from './definitions/configs';
-import { IModels } from '../../connectionResolver';
-import { getEnv } from '@erxes/api-utils/src/core';
+import { Model } from "mongoose";
+import {
+  COMPANY_INDUSTRY_TYPES,
+  SEX_OPTIONS,
+  SOCIAL_LINKS
+} from "@erxes/api-utils/src/constants";
+import { configSchema, IConfig, IConfigDocument } from "./definitions/configs";
+import { IModels } from "../../connectionResolver";
+import { getEnv } from "@erxes/api-utils/src/core";
 
 export interface IConfigModel extends Model<IConfigDocument> {
   getConfig(code: string): Promise<IConfigDocument>;
@@ -17,9 +21,9 @@ export const getValueAsString = async (
   envKey: string,
   defaultValue?: string
 ) => {
-  const VERSION = getEnv({ name: 'VERSION' });
+  const VERSION = getEnv({ name: "VERSION" });
 
-  if (VERSION && VERSION === 'saas') {
+  if (VERSION && VERSION === "saas") {
     return getEnv({ name: envKey, defaultValue });
   }
 
@@ -41,7 +45,7 @@ export const loadConfigClass = (models: IModels) => {
       const config = await models.Configs.findOne({ code });
 
       if (!config) {
-        throw new Error('Config not found');
+        throw new Error("Config not found");
       }
 
       return config;
@@ -71,50 +75,50 @@ export const loadConfigClass = (models: IModels) => {
     public static async getCloudflareConfigs() {
       const accountId = await getValueAsString(
         models,
-        'CLOUDFLARE_ACCOUNT_ID',
-        'CLOUDFLARE_ACCOUNT_ID'
+        "CLOUDFLARE_ACCOUNT_ID",
+        "CLOUDFLARE_ACCOUNT_ID"
       );
 
       const accessKeyId = await getValueAsString(
         models,
-        'CLOUDFLARE_ACCESS_KEY_ID',
-        'CLOUDFLARE_ACCESS_KEY_ID'
+        "CLOUDFLARE_ACCESS_KEY_ID",
+        "CLOUDFLARE_ACCESS_KEY_ID"
       );
 
       const secretAccessKey = await getValueAsString(
         models,
-        'CLOUDFLARE_SECRET_ACCESS_KEY',
-        'CLOUDFLARE_SECRET_ACCESS_KEY'
+        "CLOUDFLARE_SECRET_ACCESS_KEY",
+        "CLOUDFLARE_SECRET_ACCESS_KEY"
       );
 
       const bucket = await getValueAsString(
         models,
-        'CLOUDFLARE_BUCKET_NAME',
-        'CLOUDFLARE_BUCKET_NAME'
+        "CLOUDFLARE_BUCKET_NAME",
+        "CLOUDFLARE_BUCKET_NAME"
       );
 
       const useCdn = await getValueAsString(
         models,
-        'CLOUDFLARE_USE_CDN',
-        'CLOUDFLARE_USE_CDN'
+        "CLOUDFLARE_USE_CDN",
+        "CLOUDFLARE_USE_CDN"
       );
 
       const isPublic = await getValueAsString(
         models,
-        'FILE_SYSTEM_PUBLIC',
-        'FILE_SYSTEM_PUBLIC'
+        "FILE_SYSTEM_PUBLIC",
+        "FILE_SYSTEM_PUBLIC"
       );
 
       const apiToken = await getValueAsString(
         models,
-        'CLOUDFLARE_API_TOKEN',
-        'CLOUDFLARE_API_TOKEN'
+        "CLOUDFLARE_API_TOKEN",
+        "CLOUDFLARE_API_TOKEN"
       );
 
       return {
         accountId,
         accessKeyId,
-        region: 'auto',
+        region: "auto",
         secretAccessKey,
         bucket,
         useCdn,
@@ -122,7 +126,6 @@ export const loadConfigClass = (models: IModels) => {
         apiToken
       };
     }
-  
 
     public static constants() {
       return {

@@ -1,4 +1,4 @@
-import { IAttachment, QueryResponse } from '@erxes/ui/src/types';
+import { IAttachment, IPdfAttachment, QueryResponse } from '@erxes/ui/src/types';
 
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IUser } from '@erxes/ui/src/auth/types';
@@ -65,11 +65,6 @@ export interface ICategory {
 export interface IErxesForm {
   brandId: string;
   formId: string;
-}
-
-export interface IPdfAttachment {
-  pdf: IAttachment;
-  pages: IAttachment[];
 }
 
 // mutation types
