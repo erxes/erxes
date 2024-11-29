@@ -257,43 +257,6 @@ class GeneralSettings extends React.Component<Props, State> {
     );
   }
 
-  renderCloudflare() {
-    const { configsMap } = this.state;
-
-    return (
-      <CollapseContent
-        transparent={true}
-        title={__("Cloudflare")}
-        description={__("Cloudflare R2 Bucket, Images & Stream CDN configs")}
-        beforeTitle={<Icon icon="comment-upload" />}
-      >
-        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
-          {this.renderItem("CLOUDFLARE_ACCOUNT_ID")}
-          {this.renderItem("CLOUDFLARE_API_TOKEN")}
-        </FlexRow>
-        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
-          {this.renderItem("CLOUDFLARE_ACCESS_KEY_ID")}
-          {this.renderItem("CLOUDFLARE_SECRET_ACCESS_KEY")}
-        </FlexRow>
-        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
-          {this.renderItem("CLOUDFLARE_BUCKET_NAME")}
-          {this.renderItem("CLOUDFLARE_ACCOUNT_HASH")}
-        </FlexRow>
-        <FormGroup>
-          <ControlLabel>{KEY_LABELS.CLOUDFLARE_USE_CDN}</ControlLabel>
-          <p>{__("Upload images/videos to Cloudflare cdn")}</p>
-          <FormControl
-            componentclass={"checkbox"}
-            checked={configsMap.CLOUDFLARE_USE_CDN}
-            onChange={(e: any) => {
-              this.onChangeConfig("CLOUDFLARE_USE_CDN", e.target.checked);
-            }}
-          />
-        </FormGroup>
-      </CollapseContent>
-    );
-  }
-
   render() {
     const { configsMap, language } = this.state;
 
@@ -384,6 +347,23 @@ class GeneralSettings extends React.Component<Props, State> {
               </FormGroup>
             </>
           )}
+        </CollapseContent>
+
+        <CollapseContent
+          transparent={true}
+          title={__("File upload")}
+          beforeTitle={<Icon icon="file-upload-alt" />}
+        >
+          <Info>
+            <a
+              target="_blank"
+              href="https://docs.erxes.io/conversations"
+              rel="noopener noreferrer"
+            >
+              {__("Learn how to set file uploading") + "."}
+            </a>
+          </Info>
+          {this.renderItem("UPLOAD_FILE_TYPES")}
         </CollapseContent>
 
         <CollapseContent
