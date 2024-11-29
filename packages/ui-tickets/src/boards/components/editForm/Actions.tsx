@@ -36,7 +36,7 @@ class Actions extends React.Component<Props> {
     const { onUpdate, saveItem } = this.props;
 
     if (saveItem) {
-      saveItem({ priority: value }, updatedItem => {
+      saveItem({ priority: value }, (updatedItem) => {
         onUpdate(updatedItem);
       });
     }
@@ -54,7 +54,7 @@ class Actions extends React.Component<Props> {
       onChangeRefresh
     } = this.props;
 
-    const onLabelChange = labels => saveItem({ labels });
+    const onLabelChange = (labels) => saveItem({ labels });
 
     const tags = item.tags || [];
     const pipelineTagId = item.pipeline.tagId || "";
