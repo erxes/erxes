@@ -808,8 +808,6 @@ const boardQueries = {
       intervals[intervals.length - 1].endTime.getTime() - timezone
     );
 
-    const { collection } = getCollection(models, pipeline.type);
-
     if (!pipeline.tagId) {
       return intervals;
     }
@@ -832,7 +830,7 @@ const boardQueries = {
 
     const stageIds = stages.map(stage => stage._id);
 
-    const items = await collection.find(
+    const items = await models.Deals.find(
       {
         status: { $ne: "archived" },
         stageId: { $in: stageIds },
