@@ -68,7 +68,7 @@ export interface IErxesForm {
 }
 
 export interface IPdfAttachment {
-  pdf: IAttachment;
+  pdf?: IAttachment;
   pages: IAttachment[];
 }
 
