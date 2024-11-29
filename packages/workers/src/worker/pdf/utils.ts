@@ -80,7 +80,6 @@ export const pdfUploader = [
     const fileDir = path.join(tmpDir.name, taskId);
     console.debug('pdf directory', fileDir);
     if (!fs.existsSync(fileDir)) {
-      
       fs.mkdirSync(fileDir);
     }
 
@@ -137,7 +136,12 @@ const handleChunks = async (taskId, chunkDir, totalChunks) => {
     writeStream.write(chunk);
     fs.unlinkSync(chunkPath);
   }
-  writeStream.end();
+
+  await new Promise((resolve, reject) => {
+    writeStream.on('finish', resolve);
+    writeStream.on('error', reject);
+    writeStream.end();
+  });
 
   console.debug('Chunks merged successfully', chunkDir);
 };
