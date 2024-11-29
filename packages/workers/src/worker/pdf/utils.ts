@@ -41,7 +41,9 @@ const upload = multer({
   limits: { fileSize: 100 * 1024 * 1024 }, // 100 MB
   fileFilter: (_req, file, cb) => {
     // Check the file type (MIME type)
-    if ( ['application/pdf', 'application/octet-stream'].includes(file.mimetype)) {
+    if (
+      ['application/pdf', 'application/octet-stream'].includes(file.mimetype)
+    ) {
       cb(null, true); // Accept the file
     } else {
       cb(new Error('Only PDF files are allowed!')); // Reject other file types
@@ -70,37 +72,44 @@ export const pdfUploader = [
       taskId,
       subdomain,
       filePath: file.path,
-      name: file.filename,
+      name: filename,
       type: 'application/pdf',
       status: 'pending',
       createdAt: new Date(),
     };
 
+    const fileDir = path.join(tmpDir.name, taskId);
+    console.debug('pdf directory', fileDir);
+    if (!fs.existsSync(fileDir)) {
+      
+      fs.mkdirSync(fileDir);
+    }
+
     if (body.totalChunks && body.chunkIndex) {
       const chunkIndex = Number(body.chunkIndex);
       const totalChunks = Number(body.totalChunks);
-      const chunkDir = path.join(tmpDir.name, taskId);
 
-      const chunkPath = path.join(chunkDir, `pdf_chunk.part_${chunkIndex}`);
-
-      if (!fs.existsSync(chunkDir)) {
-        fs.mkdirSync(chunkDir);
-      }
-
-      if (chunkIndex === 0) {
-        // store task data in redis
-        taskData.filePath = path.join(chunkDir, `${taskId}.pdf`);
-        await redis.set(`pdf_upload_task_${taskId}`, JSON.stringify(taskData));
-      }
+      const chunkPath = path.join(fileDir, `pdf_chunk.part_${chunkIndex}`);
 
       try {
         const fileBuffer = await fs.promises.readFile(req.file.path);
-
         await fs.promises.writeFile(chunkPath, fileBuffer);
+
         if (chunkIndex === totalChunks - 1) {
-          await handleChunks(taskId, chunkDir, totalChunks);
+          await handleChunks(taskId, fileDir, totalChunks);
+
+          // create task data in redis
+          taskData.filePath = path.join(fileDir, `${taskId}.pdf`);
+          await redis.set(
+            `pdf_upload_task_${taskId}`,
+            JSON.stringify(taskData)
+          );
+          // await redis.lpush('pdf_upload_queue', taskId);
+
+          processPdf(taskId);
+          return res.status(202).send({ status: 'processing' });
         }
-        return res.status(202).send({ status: 'inprogress', taskId });
+        return res.status(200).send({ status: 'uploading', taskId });
       } catch (error) {
         console.error(error);
         return res.status(500).send('Error uploading chunk');
@@ -108,12 +117,10 @@ export const pdfUploader = [
     } else {
       try {
         await redis.set(`pdf_upload_task_${taskId}`, JSON.stringify(taskData));
-        await redis.lpush('pdf_upload_queue', taskId);
-
-        res.status(202).json({ success: true, taskId });
+        processPdf(taskId);
+        return res.status(202).send({ status: 'processing', taskId });
       } catch (e) {
         console.error(e.message);
-
         return res.status(500).json({ error: 'Something went wrong' });
       }
     }
@@ -133,115 +140,96 @@ const handleChunks = async (taskId, chunkDir, totalChunks) => {
   }
   writeStream.end();
 
-  // check pdf file is harmful or not
-
-  // push to redis
-  await redis.lpush('pdf_upload_queue', taskId);
-  console.debug('File chunks merged successfully');
+  console.debug('Chunks merged successfully', chunkDir);
 };
 
-
-export const processPdfTasks = async () => {
-  tmp.setGracefulCleanup(); // Call once, outside of the loop
-
-  while (true) {
-    const taskId = await redis.rpop('pdf_upload_queue');
-    if (!taskId) {
-      // If no tasks, wait and continue checking
-      await new Promise((resolve) => setTimeout(resolve, 1000)); 
-      continue;
-    }
-
-    let taskData: any = JSON.parse(
-      (await redis.get(`pdf_upload_task_${taskId}`)) || '{}'
-    );
-    
-    taskData.status = 'processing';
-    const taskAge = new Date().getTime() - new Date(taskData.createdAt).getTime();
-
-    // Check if task is older than 2 hours, if so, delete it
-    if (taskAge > 2 * 60 * 60 * 1000) {
-      await redis.del(`pdf_upload_task_${taskId}`);
-
-      if (fs.existsSync(taskData.filePath)) {
-        fs.unlinkSync(taskData.filePath); // Delete file if exists
-      }
-
-      console.log(`Task ${taskId} is orphaned and deleted.`);
-      continue;
-    }
-
-    // Save task with updated status back to Redis
-    await redis.set(`pdf_upload_task_${taskId}`, JSON.stringify(taskData));
-
-    try {
-      // Step 1: Validate Cloudflare config
-      await validateCloudflareConfig(taskData.subdomain);
-
-      // Step 2: Upload PDF to Cloudflare
-      const pdfUrl = await uploadToCloudflare(
-        {
-          path: taskData.filePath,
-          filename: taskData.name,
-          type: taskData.type,
-        },
-        taskData.subdomain
-      );
-
-      // Step 3: Convert images and upload
-      const imageDir = tmp.dirSync({ unsafeCleanup: true });
-      const imageUrls = await convertAndUploadImages(
-        taskData.subdomain,
-        taskData.filePath,
-        imageDir.name
-      );
-
-      // Update task data with result
-      taskData.status = 'completed';
-      taskData.result = { pdf: pdfUrl, pages: imageUrls };
-
-    } catch (e) {
-      console.error(`Error processing task ${taskId}:`, e.message);
-      taskData.status = 'failed';
-      taskData.error = e.message;
-    } finally {
-      // Cleanup file after processing
-      if (fs.existsSync(taskData.filePath)) {
-        fs.unlinkSync(taskData.filePath);
-        console.log(`Deleted file for task ${taskId}`);
-      }
-
-      // Save final task status to Redis
-      await redis.set(`pdf_upload_task_${taskId}`, JSON.stringify(taskData));
-    }
+const processPdf = async (taskId) => {
+  // const taskData = await redis.get(`pdf_upload_task_${taskId}`);
+  let taskData: any = JSON.parse(
+    (await redis.get(`pdf_upload_task_${taskId}`)) || '{}'
+  );
+  if (!taskData || !taskData.taskId) {
+    return;
   }
-};
 
+  console.debug('Processing task', taskData);
 
-async function validateCloudflareConfig(subdomain: string) {
-  const { uploadServiceType } = config;
+  const taskAge = new Date().getTime() - new Date(taskData.createdAt).getTime();
 
-  if (!['CLOUDFLARE', 'cloudflare'].includes(uploadServiceType)) {
-    throw new Error('Cloudflare not configured');
+  // Check if task is older than 2 hours, if so, delete it
+  if (taskAge > 2 * 60 * 60 * 1000) {
+    await redis.del(`pdf_upload_task_${taskId}`);
+
+    if (fs.existsSync(taskData.filePath)) {
+      fs.unlinkSync(taskData.filePath); // Delete file if exists
+    }
+
+    console.debug(`Task ${taskId} is orphaned and deleted.`);
+    return;
   }
-}
 
-async function convertAndUploadImages(
-  subdomain: string,
-  pdfPath: string,
-  tmpDir: string
-) {
-  const { useCdn } = config;
-  const imagePaths: any = await convertPdfToImage(pdfPath, tmpDir);
+  const imageDir = tmp.dirSync({ unsafeCleanup: true });
+  console.debug('Creating directory for images', imageDir.name);
+
+  const imagePaths: any = await convertPdfToImage(
+    taskData.filePath,
+    imageDir.name
+  );
 
   if (!imagePaths.length) {
     throw new Error('No images found');
   }
 
-  const uploadImage = useCdn === 'true' ? uploadToCFImages : uploadToCloudflare;
-  return Promise.all(
-    imagePaths.map((imagePath) => uploadImage(imagePath, subdomain))
-  );
+  validateCloudflareConfig();
+
+  const uploadImage =
+    config.useCdn === 'true' ? uploadToCFImages : uploadToCloudflare;
+
+  const imageUrls: any = [];
+  taskData.status = 'uploading';
+  taskData.progress = 0; // Initialize progress
+  await redis.set(`pdf_upload_task_${taskId}`, JSON.stringify(taskData));
+
+  for (let i = 0; i < imagePaths.length; i++) {
+    const imagePath = imagePaths[i];
+    try {
+      const imageUrl = await uploadImage(imagePath, taskData.subdomain);
+      imageUrls.push(imageUrl);
+
+      // Update progress
+      taskData.progress = Math.round(((i + 1) / imagePaths.length) * 100);
+      taskData.pdfAttachment = { pages: imageUrls };
+      await redis.set(`pdf_upload_task_${taskId}`, JSON.stringify(taskData));
+    } catch (error) {
+      console.error(`Error uploading image ${i + 1}:`, error.message);
+    }
+  }
+
+  taskData.status = 'completed';
+  taskData.progress = 100;
+  taskData.result = { pdf: undefined, pages: imageUrls };
+  await redis.set(`pdf_upload_task_${taskId}`, JSON.stringify(taskData));
+
+  console.debug('Task completed', taskData);
+  if (fs.existsSync(taskData.filePath)) {
+    fs.unlinkSync(taskData.filePath); // Delete file if exists
+  }
+
+  if (fs.existsSync(imageDir.name)) {
+    fs.rmdirSync(imageDir.name, { recursive: true }); // Delete directory if exists
+  }
+
+  if (fs.existsSync(tmpDir.name)) {
+    fs.rmdirSync(tmpDir.name, { recursive: true });
+  }
+};
+
+function validateCloudflareConfig() {
+  const { uploadServiceType } = config;
+
+  if (!['CLOUDFLARE', 'cloudflare'].includes(uploadServiceType)) {
+    throw new Error('Cloudflare not configured');
+  }
 }
 
 const convertPdfToImage = async (pdfFilePath: string, directory: string) => {
@@ -297,6 +285,7 @@ export const taskChecker = async (req, res) => {
 
   const result = {
     status: taskData.status,
+    progress: taskData.progress,
     data: taskData.result,
     error: taskData.error,
     filename: taskData.name,
@@ -349,7 +338,7 @@ export const uploadToCloudflare = async (
     signatureVersion: 'v4',
     region: 'auto',
   };
- 
+
   const r2 = new AWS.S3(r2Config);
 
   // upload to r2
@@ -365,7 +354,9 @@ export const uploadToCloudflare = async (
       })
       .promise();
 
-      return isPublic === 'true' ? response.Location : fileName;
+    fs.unlinkSync(fileObj.path);
+
+    return isPublic === 'true' ? response.Location : fileName;
   } catch (err) {
     throw new Error('Failed to upload to R2: ' + err.message);
   }
@@ -410,7 +401,7 @@ export const uploadToCFImages = async (file: any, subdomain?: string) => {
 
   const data: any = await response.json();
 
-  console.debug("******** data ******* ",data);
+  console.debug('******** data ******* ', data);
 
   if (!data.success) {
     throw new Error('Error uploading file to Cloudflare Images');
@@ -419,6 +410,8 @@ export const uploadToCFImages = async (file: any, subdomain?: string) => {
   if (data.result.variants.length === 0) {
     throw new Error('Error uploading file to Cloudflare Images');
   }
+
+  fs.unlinkSync(file.path);
 
   return (isPublic && isPublic !== 'false') || VERSION === 'saas'
     ? data.result.variants[0]

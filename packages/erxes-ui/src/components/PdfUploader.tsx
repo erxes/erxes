@@ -178,9 +178,13 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
           setUploadState({ taskId: null, lastChunkUploaded: false });
           break;
         default:
-          setStatus('Unknown status.');
+          setStatus('Processing pages...');
       }
     } catch (error) {
+      if (error.status === 524) {
+        return;
+      }
+
       Alert.error(`Status check failed: ${error.message}`);
       setIsUploading(false);
     }
