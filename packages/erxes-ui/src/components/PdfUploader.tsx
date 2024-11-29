@@ -12,6 +12,8 @@ import { AttachmentContainer, UploadBtn } from '../styles/main';
 const apiRequest = async (url: string, options: RequestInit) => {
   const response = await fetch(url, options);
 
+  console.debug('API Response:', response);
+
   if (response.status === 524) {
     console.warn('Ignoring 524 Timeout error');
 
