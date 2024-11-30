@@ -12,6 +12,7 @@ const productParamsDef = `
   $customFieldsData: JSON,
   $attachment: AttachmentInput,
   $attachmentMore: [AttachmentInput],
+  $pdfAttachment: PdfAttachmentInput
   $vendorId: String,
   $scopeBrandIds: [String]
   $uom: String,
@@ -49,6 +50,7 @@ const productParams = `
   customFieldsData: $customFieldsData,
   attachment: $attachment,
   attachmentMore: $attachmentMore,
+  pdfAttachment: $pdfAttachment,
   vendorId: $vendorId,
   scopeBrandIds: $scopeBrandIds,
   uom: $uom,

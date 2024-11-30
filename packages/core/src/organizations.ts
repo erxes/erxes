@@ -2,7 +2,7 @@ import * as url from "url";
 import * as dns from "dns";
 
 import { IModels } from "./connectionResolver";
-import { getConfig, getEnv } from "./data/utils";
+import { getConfig, getEnv, getFileUploadConfigs } from "./data/utils";
 
 import redis from "@erxes/api-utils/src/redis";
 import fetch from "node-fetch";

@@ -1,7 +1,6 @@
 import {
   IArticle,
   IErxesForm,
-  IPdfAttachment,
   ITopic,
 } from '@erxes/ui-knowledgeBase/src/types';
 import { FILE_MIME_TYPES } from '@erxes/ui-settings/src/general/constants';
@@ -21,14 +20,16 @@ import {
   IButtonMutateProps,
   IFormProps,
   IOption,
+  IPdfAttachment,
 } from '@erxes/ui/src/types';
 import dayjs from 'dayjs';
 import { __, extractAttachment } from 'coreui/utils';
 import React from 'react';
 import Select, { OnChangeValue } from 'react-select';
 import { articleReactions } from '../../icons.constant';
-import PdfUploader from './PdfUploader';
+
 import { FlexRow, Forms, ReactionItem } from './styles';
+import PdfUploader from '@erxes/ui/src/components/PdfUploader';
 
 type Props = {
   article: IArticle;
@@ -502,7 +503,7 @@ class ArticleForm extends React.Component<Props, State> {
         </FormGroup>
 
         <Formgroup>
-          <ControlLabel>{__('PDF')}</ControlLabel>
+          <ControlLabel>PDF</ControlLabel>
           <PdfUploader
             attachment={this.state.pdfAttachment}
             onChange={(attachment?: IPdfAttachment) => {
