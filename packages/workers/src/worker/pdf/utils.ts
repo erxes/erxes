@@ -80,6 +80,7 @@ export const pdfUploader = [
     const fileDir = path.join(tmpDir.name, taskId);
     console.debug('pdf directory', fileDir);
     if (!fs.existsSync(fileDir)) {
+      console.debug("Creating directory", fileDir);
       fs.mkdirSync(fileDir);
     }
 
