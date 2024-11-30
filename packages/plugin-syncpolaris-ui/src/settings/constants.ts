@@ -2,5 +2,6 @@ export const KEY_LABELS = {
   apiUrl: 'api url',
   role: 'role',
   companyCode: 'company',
-  token: 'token'
+  token: 'token',
+  isPush: 'is Push'
 };
