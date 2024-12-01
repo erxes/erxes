@@ -42,10 +42,6 @@ const transactionFields = `
   ctaxRowId: String
   isHandleCtax: Boolean
   ctaxAmount: Float
-
-  branchTxt: String
-  departmentTxt: String
-  customer: JSON
 `;
 
 export const types = () => `
@@ -85,6 +81,10 @@ export const types = () => `
     vatRow: VatRow
     ctaxRow: CtaxRow
     followTrs: [AccCommonTransaction]
+
+    branch: Branch
+    department: Department
+    customer: AccCustomer
   }
 
   input CommonTrDetailInput {

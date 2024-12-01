@@ -30,19 +30,18 @@ export default {
     return await models.CtaxRows.findOne({ _id: transaction.ctaxRowId });
   },
 
-  async branchTxt(transaction: ITransactionDocument, _, { subdomain }: IContext) {
+  async branch(transaction: ITransactionDocument, _, { subdomain }: IContext) {
     if (!transaction.branchId) {
       return;
     }
 
-    const branch = await sendCoreMessage({
+    return await sendCoreMessage({
       subdomain,
       action: 'branches.findOne',
       data: { _id: transaction.branchId },
       isRPC: true,
       defaultValue: {}
     });
-    return `${branch?.code} - ${branch?.title}`
   },
 
   async departmentTxt(transaction: ITransactionDocument, _, { subdomain }: IContext) {
@@ -50,14 +49,13 @@ export default {
       return;
     }
 
-    const branch = await sendCoreMessage({
+    return await sendCoreMessage({
       subdomain,
       action: 'departments.findOne',
       data: { _id: transaction.departmentId },
       isRPC: true,
       defaultValue: {}
     });
-    return `${branch?.code} - ${branch?.title}`
   },
 
   async customer(transaction: ITransactionDocument, _params, { subdomain }: IContext) {
