@@ -1,21 +1,22 @@
+import React, { useEffect, useRef, useState } from "react";
+import { __, router } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { BarItems } from "@erxes/ui/src/layout/styles";
 import Button from "@erxes/ui/src/components/Button";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
-import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import Pagination from "@erxes/ui/src/components/pagination/Pagination";
-import Table from "@erxes/ui/src/components/table";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { BarItems } from "@erxes/ui/src/layout/styles";
-import { Title } from "@erxes/ui/src/styles/main";
-import { __, router } from "@erxes/ui/src/utils";
-import React, { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import Sidebar from '../../configs/components/Sidebar';
 import Form from "../containers/VatRowForm";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
 import { IVatRow } from "../types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import Row from "./VatRowRow";
+import Sidebar from "../../configs/components/Sidebar";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Table from "@erxes/ui/src/components/table";
+import { Title } from "@erxes/ui/src/styles/main";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 
 interface IProps {
   queryParams: any;
@@ -32,7 +33,7 @@ interface IProps {
 
 const VatRowList: React.FC<IProps> = (props) => {
   const timerRef = useRef<number | null>(null);
-  const [focusedField, setFocusedField] = useState<string>('')
+  const [focusedField, setFocusedField] = useState<string>("");
 
   const {
     vatRows,
@@ -47,9 +48,7 @@ const VatRowList: React.FC<IProps> = (props) => {
     queryParams,
   } = props;
 
-  const [searchValues, setSearchValues] = useState<any>(
-    { ...queryParams }
-  );
+  const [searchValues, setSearchValues] = useState<any>({ ...queryParams });
   const [checked, setChecked] = useState<boolean>(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -100,7 +99,7 @@ const VatRowList: React.FC<IProps> = (props) => {
     const searchValue = e.target.value;
 
     setSearchValues({ ...searchValues, [searchField]: searchValue });
-    setFocusedField(searchField)
+    setFocusedField(searchField);
 
     timerRef.current = window.setTimeout(() => {
       router.removeParams(navigate, location, "page");
@@ -115,17 +114,32 @@ const VatRowList: React.FC<IProps> = (props) => {
     e.target.value = tmpValue;
   };
 
-  const renderContent = () => {
+  const renderEmptyState = () => {
     if (loading) {
       return <Spinner objective={true} />;
     }
 
+    if (!vatRowsCount) {
+      return (
+        <EmptyState image="/images/actions/8.svg" text="No Vat" size="small" />
+      );
+    }
+
+    return null;
+  };
+
+  const renderContent = () => {
     return (
       <>
         <Table $hover={true}>
           <thead>
             <tr>
-              <th>
+              <th rowSpan={2} style={{ width: 60, verticalAlign: "text-top" }}>
+                <FormControl
+                  checked={isAllSelected}
+                  componentclass="checkbox"
+                  onChange={onChange}
+                />
               </th>
               <th>{__("number")}</th>
               <th>{__("name")}</th>
@@ -135,27 +149,24 @@ const VatRowList: React.FC<IProps> = (props) => {
               <th>{__("Actions")}</th>
             </tr>
             <tr>
-              <th style={{ width: 60 }}>
-                <FormControl
-                  checked={isAllSelected}
-                  componentclass="checkbox"
-                  onChange={onChange}
-                />
-              </th>
               <th>
                 <FormControl
-                  name='number'
+                  name="number"
                   value={searchValues.number}
                   onChange={search}
-                  autoFocus={focusedField === 'number'}
+                  boxView={true}
+                  placeholder="Filter by number"
+                  autoFocus={focusedField === "number"}
                 />
               </th>
               <th>
                 <FormControl
-                  name='name'
+                  name="name"
                   value={searchValues.name}
                   onChange={search}
-                  autoFocus={focusedField === 'name'}
+                  boxView={true}
+                  placeholder="Filter by name"
+                  autoFocus={focusedField === "name"}
                 />
               </th>
               <th></th>
@@ -163,20 +174,23 @@ const VatRowList: React.FC<IProps> = (props) => {
                 <FormControl
                   componentclass="select"
                   value={searchValues.status}
-                  name='status'
+                  name="status"
+                  boxView={true}
                   options={[
-                    { label: 'Active', value: undefined },
-                    { label: 'Deleted', value: 'deleted' },
+                    { label: "Active", value: undefined },
+                    { label: "Deleted", value: "deleted" },
                   ]}
                   onChange={search}
                 />
               </th>
               <th>
                 <FormControl
-                  name='percent'
+                  name="percent"
+                  boxView={true}
                   value={searchValues.percent}
                   onChange={search}
-                  autoFocus={focusedField === 'percent'}
+                  placeholder="Filter by percent"
+                  autoFocus={focusedField === "percent"}
                 />
               </th>
               <th></th>
@@ -184,15 +198,7 @@ const VatRowList: React.FC<IProps> = (props) => {
           </thead>
           <tbody>{renderRow()}</tbody>
         </Table>
-        {!vatRowsCount &&
-          (
-            <EmptyState
-              image="/images/actions/8.svg"
-              text="No Brands"
-              size="small"
-            />
-          ) || null
-        }
+        {renderEmptyState()}
       </>
     );
   };
@@ -207,12 +213,7 @@ const VatRowList: React.FC<IProps> = (props) => {
 
     if (checked && (bulk || []).length) {
       setChecked(true);
-      router.removeParams(
-        navigate,
-        location,
-        "page",
-        "searchValue",
-      );
+      router.removeParams(navigate, location, "page", "searchValue");
       router.setParams(navigate, location, {
         ids: (bulk || []).map((b) => b._id).join(","),
       });
@@ -241,10 +242,10 @@ const VatRowList: React.FC<IProps> = (props) => {
           />
           <FormControl
             placeholder={__("Type to search")}
-            name='searchValue'
+            name="searchValue"
             onChange={search}
             value={searchValues.searchValue}
-            autoFocus={focusedField === 'searchValue'}
+            autoFocus={focusedField === "searchValue"}
             onFocus={moveCursorAtTheEnd}
           />
           <Button
@@ -263,10 +264,10 @@ const VatRowList: React.FC<IProps> = (props) => {
         <FormControl
           type="text"
           placeholder={__("Type to search")}
-          name='searchValue'
+          name="searchValue"
           onChange={search}
           value={searchValues.searchValue}
-          autoFocus={focusedField === 'searchValue'}
+          autoFocus={focusedField === "searchValue"}
           onFocus={moveCursorAtTheEnd}
         />
         <ModalTrigger
@@ -280,9 +281,7 @@ const VatRowList: React.FC<IProps> = (props) => {
     );
   };
 
-  const actionBarLeft = (
-    <Title>{`${"All vatRows"} (${vatRowsCount})`}</Title>
-  );
+  const actionBarLeft = <Title>{`${"All vatRows"} (${vatRowsCount})`}</Title>;
 
   return (
     <Wrapper

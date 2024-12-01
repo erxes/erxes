@@ -7,9 +7,10 @@ import {
   Tip,
   __,
 } from "@erxes/ui/src";
-import React from "react";
+
 import AccountFormContainer from "../containers/AccountForm";
 import { IAccount } from "../types";
+import React from "react";
 
 type Props = {
   account: IAccount;
@@ -38,7 +39,9 @@ const Row: React.FC<Props> = (props) => {
     e.stopPropagation();
   };
 
-  const content = (props) => <AccountFormContainer {...props} accountId={account._id} />;
+  const content = (props) => (
+    <AccountFormContainer {...props} accountId={account._id} />
+  );
 
   const { code, name, category, currency, kind, journal } = account;
 
@@ -63,7 +66,7 @@ const Row: React.FC<Props> = (props) => {
           <ModalTrigger
             title="Edit account"
             trigger={trigger}
-            size="xl"
+            size="lg"
             content={content}
           />
         </ActionButtons>

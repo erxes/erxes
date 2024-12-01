@@ -128,7 +128,7 @@ const AccountList: React.FC<IProps> = (props) => {
       return (
         <EmptyState
           image="/images/actions/8.svg"
-          text="No Brands"
+          text="No Accounts"
           size="small"
         />
       );
