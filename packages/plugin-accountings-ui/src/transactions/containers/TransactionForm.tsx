@@ -1,23 +1,24 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
-import { Alert, Spinner } from "@erxes/ui/src";
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   AddTransactionsMutationResponse,
   EditTransactionsMutationResponse,
   TransactionDetailQueryResponse,
 } from "../types";
-import TransactionForm from "../components/TransactionForm";
+import { Alert, Spinner } from "@erxes/ui/src";
+import React, { useState } from "react";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { mutations, queries } from "../graphql";
-import { queries as configsQueries } from "../../settings/configs/graphql";
+
 import { AccountingsConfigsQueryResponse } from "../../settings/configs/types";
+import TransactionForm from "../components/TransactionForm";
+import { queries as configsQueries } from "../../settings/configs/graphql";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   parentId?: string;
   queryParams: any;
 };
 
-const PosContainer = (props: Props) => {
+const TransactionFormContainer = (props: Props) => {
   const { parentId, queryParams } = props;
   const navigate = useNavigate();
 
@@ -25,7 +26,7 @@ const PosContainer = (props: Props) => {
 
   const configsQuery = useQuery<AccountingsConfigsQueryResponse>(
     gql(configsQueries.configs)
-  )
+  );
 
   const trDetailQuery = useQuery<TransactionDetailQueryResponse>(
     gql(queries.transactionDetail),
@@ -33,23 +34,28 @@ const PosContainer = (props: Props) => {
       skip: !parentId,
       fetchPolicy: "cache-and-network",
       variables: {
-        _id: parentId
+        _id: parentId,
       },
     }
   );
 
-  const [addTransactionsMutation] = useMutation<AddTransactionsMutationResponse>(
-    gql(mutations.transactionsCreate)
-  );
+  const [addTransactionsMutation] =
+    useMutation<AddTransactionsMutationResponse>(
+      gql(mutations.transactionsCreate)
+    );
 
-  const [editTransactionsMutation] = useMutation<EditTransactionsMutationResponse>(
-    gql(mutations.transactionsUpdate),
-    {
-      refetchQueries: ['transactionDetail'],
-    }
-  );
+  const [editTransactionsMutation] =
+    useMutation<EditTransactionsMutationResponse>(
+      gql(mutations.transactionsUpdate),
+      {
+        refetchQueries: ["transactionDetail"],
+      }
+    );
 
-  if ((trDetailQuery && trDetailQuery.loading) || (configsQuery && configsQuery.loading)) {
+  if (
+    (trDetailQuery && trDetailQuery.loading) ||
+    (configsQuery && configsQuery.loading)
+  ) {
     return <Spinner objective={true} />;
   }
 
@@ -64,7 +70,9 @@ const PosContainer = (props: Props) => {
   const save = (docs) => {
     setLoading(true);
 
-    const saveMutation = parentId ? editTransactionsMutation : addTransactionsMutation;
+    const saveMutation = parentId
+      ? editTransactionsMutation
+      : addTransactionsMutation;
 
     const trDocs: any = [];
 
@@ -73,7 +81,7 @@ const PosContainer = (props: Props) => {
         _id: doc._id,
         ptrId: doc.ptrId,
         parentId,
-        number: doc.number,
+        number: doc.number ? doc.number : "auto/new",
 
         date: new Date(doc.date),
         description: doc.description,
@@ -97,7 +105,7 @@ const PosContainer = (props: Props) => {
         isHandleCtax: doc.isHandleCtax,
         ctaxAmount: doc.ctaxAmount && Number(doc.ctaxAmount),
         details: [],
-      }
+      };
 
       for (const detail of doc.details) {
         trDoc.details.push({
@@ -110,14 +118,15 @@ const PosContainer = (props: Props) => {
           side: detail.side,
           amount: detail.amount && Number(detail.amount),
           currency: detail.currency,
-          currencyAmount: detail.currencyAmount && Number(detail.currencyAmount),
+          currencyAmount:
+            detail.currencyAmount && Number(detail.currencyAmount),
           customRate: detail.customRate && Number(detail.customRate),
           assignedUserId: detail.assignedUserId,
 
           productId: detail.productId,
           count: detail.count && Number(detail.count),
           unitPrice: detail.unitPrice && Number(detail.unitPrice),
-        })
+        });
       }
 
       trDocs.push(trDoc);
@@ -131,12 +140,18 @@ const PosContainer = (props: Props) => {
     })
       .then(() => {
         if (!parentId) {
-          const newParentId = (transactions || [])[0]?.parentId
+          const newParentId = (transactions || [])[0]?.parentId;
           Alert.success("You successfully created transactions");
 
-          navigate({
-            pathname: `/accountings/transaction/edit/${newParentId}`,
-          });
+          const pathname = newParentId
+            ? `/accountings/transaction/edit/${newParentId}`
+            : "/accountings/ptrs";
+
+          {
+            navigate({
+              pathname,
+            });
+          }
         } else {
           Alert.success("You successfully updated transactions");
           trDetailQuery.refetch();
@@ -148,7 +163,7 @@ const PosContainer = (props: Props) => {
         Alert.error(error.message);
 
         setLoading(false);
-        return docs
+        return docs;
       });
   };
 
@@ -165,4 +180,4 @@ const PosContainer = (props: Props) => {
   return <TransactionForm {...updatedProps} />;
 };
 
-export default PosContainer;
+export default TransactionFormContainer;

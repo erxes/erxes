@@ -50,13 +50,13 @@ export const types = () => `
     id: String
   }
 
-  type TrDetail @key(fields: "_id") @cacheControl(maxAge: 3) {
+  type AccTrDetail @key(fields: "_id") @cacheControl(maxAge: 3) {
     ${trDetailFields}
     follows: [FollowTrType]
     account: Account
   }
 
-  type CommonTransaction @key(fields: "_id") @cacheControl(maxAge: 3) {
+  type AccCommonTransaction @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
 
     ${transactionFields}
@@ -70,8 +70,8 @@ export const types = () => `
     originId: String
     follows: [FollowTrType]
 
-    details: [TrDetail]
-    shortDetail: TrDetail
+    details: [AccTrDetail]
+    shortDetail: AccTrDetail
     sumDt: Float
     sumCt: Float
     createdBy: String
@@ -80,7 +80,11 @@ export const types = () => `
     permission: String
     vatRow: VatRow
     ctaxRow: CtaxRow
-    followTrs: [CommonTransaction]
+    followTrs: [AccCommonTransaction]
+
+    branch: Branch
+    department: Department
+    customer: AccCustomer
   }
 
   input CommonTrDetailInput {
@@ -141,8 +145,8 @@ export const queries = `
     perPage: Int,
     sortField: String
     sortDirection: Int
-  ): [CommonTransaction]
-  accTransactionDetail(_id: String!): [CommonTransaction]
+  ): [AccCommonTransaction]
+  accTransactionDetail(_id: String!): [AccCommonTransaction]
   accTransactionsCount(${trsQueryParams}): Int
   accPtrs(
     ${trsQueryParams},
@@ -150,25 +154,25 @@ export const queries = `
     perPage: Int,
     sortField: String
     sortDirection: Int
-  ): CommonTransaction
-  accOddTransactions: CommonTransaction
+  ): AccCommonTransaction
+  accOddTransactions: AccCommonTransaction
 `;
 
 export const mutations = `
-  accTransactionsCreate(trDocs: [TransactionInput]): [CommonTransaction]
-  accTransactionsUpdate(parentId: String, trDocs: [TransactionInput]): [CommonTransaction]
-  accMainTrAdd(${mainTrParams}): [CommonTransaction]
-  accMainTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
+  accTransactionsCreate(trDocs: [TransactionInput]): [AccCommonTransaction]
+  accTransactionsUpdate(parentId: String, trDocs: [TransactionInput]): [AccCommonTransaction]
+  accMainTrAdd(${mainTrParams}): [AccCommonTransaction]
+  accMainTrEdit(_id: String!, ${mainTrParams}): [AccCommonTransaction]
   accMainTrRemove(_id: String!): String
 
   accPtrRemove(_id: String!): String
 
-  accTransactionsLink(trIds: [String], ptrId: String): [CommonTransaction]
+  accTransactionsLink(trIds: [String], ptrId: String): [AccCommonTransaction]
 
-  accCashTrAdd(${mainTrParams}): [CommonTransaction]
-  accCashTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
-  accFundTrAdd(${mainTrParams}): [CommonTransaction]
-  accFundTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
-  accDebtTrAdd(${mainTrParams}): [CommonTransaction]
-  accDebtTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
+  accCashTrAdd(${mainTrParams}): [AccCommonTransaction]
+  accCashTrEdit(_id: String!, ${mainTrParams}): [AccCommonTransaction]
+  accFundTrAdd(${mainTrParams}): [AccCommonTransaction]
+  accFundTrEdit(_id: String!, ${mainTrParams}): [AccCommonTransaction]
+  accDebtTrAdd(${mainTrParams}): [AccCommonTransaction]
+  accDebtTrEdit(_id: String!, ${mainTrParams}): [AccCommonTransaction]
 `;

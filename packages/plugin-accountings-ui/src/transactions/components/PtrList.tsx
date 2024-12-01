@@ -1,20 +1,22 @@
+import { Alert, __, router } from "@erxes/ui/src/utils";
+import React, { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import AddTransactionLink from "./AddTr";
+import { BarItems } from "@erxes/ui/src/layout/styles";
 import Button from "@erxes/ui/src/components/Button";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
-import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
-import Spinner from "@erxes/ui/src/components/Spinner";
 import FormControl from "@erxes/ui/src/components/form/Control";
-import Pagination from "@erxes/ui/src/components/pagination/Pagination";
-import Table from "@erxes/ui/src/components/table";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { BarItems } from "@erxes/ui/src/layout/styles";
-import { Title } from "@erxes/ui/src/styles/main";
-import { Alert, __, router } from "@erxes/ui/src/utils";
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import AddTransactionLink from "../containers/AddTr";
+import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
 import { ITransaction } from "../types";
-import { journalConfigMaps } from "../utils/maps";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import { PtrContent } from "../styles";
 import Row from "./PtrRow";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Table from "@erxes/ui/src/components/table";
+import { Title } from "@erxes/ui/src/styles/main";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { journalConfigMaps } from "../utils/maps";
 
 interface IProps {
   queryParams: any;
@@ -32,6 +34,7 @@ interface IProps {
 
 const PtrList: React.FC<IProps> = (props) => {
   let timer;
+  const timerRef = useRef<number | null>(null);
 
   const {
     transactions,
@@ -47,6 +50,8 @@ const PtrList: React.FC<IProps> = (props) => {
   } = props;
 
   const [searchValue, setSearchValue] = useState<string>(props.searchValue);
+  const [searchValues, setSearchValues] = useState<any>({ ...queryParams });
+  const [focusedField, setFocusedField] = useState<string>("");
   const [checked, setChecked] = useState<boolean>(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -69,33 +74,36 @@ const PtrList: React.FC<IProps> = (props) => {
 
   const toggleHalf = (id, type, checked) => {
     let trs: ITransaction[] = [];
-    if (type === 'parent') {
-      trs = transactions.filter(tr => tr.parentId === id)
+    if (type === "parent") {
+      trs = transactions.filter((tr) => tr.parentId === id);
     } else {
-      trs = transactions.filter(tr => tr.ptrId === id)
+      trs = transactions.filter((tr) => tr.ptrId === id);
     }
     toggleAll(trs, "transactions");
-  }
+  };
   const renderRows = () => {
-    let preParentId = '';
-    let prePtrId = '';
+    let preParentId = "";
+    let prePtrId = "";
+
     return transactions.map((transaction) => {
       const { ptrId, parentId } = transaction;
       const hasNewParent = preParentId !== parentId;
       const hasNewPtr = prePtrId !== ptrId;
 
-      preParentId = parentId || '';
-      prePtrId = ptrId || '';
+      preParentId = parentId || "";
+      prePtrId = ptrId || "";
 
-      return <Row
-        key={transaction._id}
-        transaction={transaction}
-        toggleBulk={toggleBulk}
-        toggleHalf={toggleHalf}
-        isChecked={(bulk || []).map((b) => b._id).includes(transaction._id)}
-        hasNewParent={hasNewParent}
-        hasNewPtr={hasNewPtr}
-      />
+      return (
+        <Row
+          key={transaction._id}
+          transaction={transaction}
+          toggleBulk={toggleBulk}
+          toggleHalf={toggleHalf}
+          isChecked={(bulk || []).map((b) => b._id).includes(transaction._id)}
+          hasNewParent={hasNewParent}
+          hasNewPtr={hasNewPtr}
+        />
+      );
     });
   };
 
@@ -124,6 +132,23 @@ const PtrList: React.FC<IProps> = (props) => {
     }, 500);
   };
 
+  const onSearch = (e) => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
+    const searchField = e.target.name;
+    const searchValue = e.target.value;
+
+    setSearchValues({ ...searchValues, [searchField]: searchValue });
+    setFocusedField(searchField);
+
+    timerRef.current = window.setTimeout(() => {
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { [searchField]: searchValue });
+    }, 800);
+  };
+
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
@@ -131,7 +156,7 @@ const PtrList: React.FC<IProps> = (props) => {
     e.target.value = tmpValue;
   };
 
-  const renderContent = () => {
+  const renderEmptyState = () => {
     if (loading) {
       return <Spinner objective={true} />;
     }
@@ -139,19 +164,23 @@ const PtrList: React.FC<IProps> = (props) => {
     if (!transactionsCount) {
       return (
         <EmptyState
-          image="/images/actions/8.svg"
-          text="No Brands"
+          image="/images/actions/28.svg"
+          text="No Transactions"
           size="small"
         />
       );
     }
 
+    return null;
+  };
+
+  const renderContent = () => {
     return (
-      <>
+      <PtrContent>
         <Table $hover={true}>
           <thead>
             <tr>
-              <th style={{ width: 60 }}>
+              <th rowSpan={2} style={{ width: 40, verticalAlign: "text-top" }}>
                 <FormControl
                   checked={isAllSelected}
                   componentclass="checkbox"
@@ -170,16 +199,63 @@ const PtrList: React.FC<IProps> = (props) => {
               <th>{__("PtrStatus")}</th>
               <th>{__("Actions")}</th>
             </tr>
+            <tr>
+              <th>
+                <FormControl
+                  name="account"
+                  value={searchValues.account}
+                  onChange={onSearch}
+                  boxView={true}
+                  placeholder="Filter by account"
+                  autoFocus={focusedField === "account"}
+                />
+              </th>
+              <th>
+                <FormControl
+                  name="number"
+                  value={searchValues.number}
+                  onChange={onSearch}
+                  boxView={true}
+                  placeholder="Filter by number"
+                  autoFocus={focusedField === "number"}
+                />
+              </th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th>
+                <FormControl
+                  name="journal"
+                  value={searchValues.journal}
+                  onChange={onSearch}
+                  boxView={true}
+                  placeholder="Filter by journal"
+                  autoFocus={focusedField === "journal"}
+                />
+              </th>
+              <th>
+                <FormControl
+                  name="status"
+                  value={searchValues.status}
+                  onChange={onSearch}
+                  boxView={true}
+                  placeholder="Filter by status"
+                  autoFocus={focusedField === "status"}
+                />
+              </th>
+            </tr>
           </thead>
           <tbody>{renderRows()}</tbody>
         </Table>
-      </>
+        {renderEmptyState()}
+      </PtrContent>
     );
   };
 
-  const breadcrumb = [
-    { title: __("Accountings"), link: "" },
-  ];
+  const breadcrumb = [{ title: __("Accountings"), link: "" }];
 
   const onChangeChecked = (e) => {
     const checked = e.target.checked;
@@ -205,10 +281,10 @@ const PtrList: React.FC<IProps> = (props) => {
 
   const onAddTr = (journal) => {
     if (!journalConfigMaps[journal]) {
-      return Alert.error('wron cho')
+      return Alert.error("wron cho");
     }
-    navigate(`/accountings/transaction/create?defaultJournal=${journal}`)
-  }
+    navigate(`/accountings/transaction/create?defaultJournal=${journal}`);
+  };
 
   const actionBarRight = () => {
     if (bulk.length > 0) {
@@ -248,9 +324,7 @@ const PtrList: React.FC<IProps> = (props) => {
           autoFocus={true}
           onFocus={moveCursorAtTheEnd}
         />
-        <Button
-          btnStyle="success"
-        >
+        <Button btnStyle="success">
           <AddTransactionLink onClick={onAddTr} />
         </Button>
       </BarItems>

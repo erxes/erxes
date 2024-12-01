@@ -40,6 +40,7 @@ type Props = {
   max?: number;
   rows?: number;
   inline?: boolean;
+  boxView?: boolean;
   className?: string;
   errors?: any;
   registerChild?: (child: any) => void;
@@ -114,6 +115,7 @@ class FormControl extends React.Component<Props> {
       onFocus: props.onFocus,
       autoFocus: props.autoFocus,
       autoComplete: props.autoComplete,
+      $boxView: props.boxView,
       min: props.min,
       max: props.max,
       id: props.id,
@@ -128,7 +130,10 @@ class FormControl extends React.Component<Props> {
       if (props.options) {
         return (
           <Column>
-            <SelectWrapper $hasError={errorMessage}>
+            <SelectWrapper
+              $hasError={errorMessage ? true : false}
+              $boxView={props.boxView}
+            >
               <Select {...attributes}>
                 {props.options.map((option, index) => {
                   return (
@@ -150,7 +155,7 @@ class FormControl extends React.Component<Props> {
 
       return (
         <Column>
-          <SelectWrapper $hasError={errorMessage}>
+          <SelectWrapper $hasError={errorMessage} $boxView={props.boxView}>
             <Select {...attributes}>{childnode}</Select>
           </SelectWrapper>
           {errorMessage}
