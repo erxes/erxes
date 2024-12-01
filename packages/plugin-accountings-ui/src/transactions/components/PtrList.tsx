@@ -1,5 +1,5 @@
 import { Alert, __, router } from "@erxes/ui/src/utils";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import AddTransactionLink from "./AddTr";
@@ -34,6 +34,7 @@ interface IProps {
 
 const PtrList: React.FC<IProps> = (props) => {
   let timer;
+  const timerRef = useRef<number | null>(null);
 
   const {
     transactions,
@@ -49,6 +50,8 @@ const PtrList: React.FC<IProps> = (props) => {
   } = props;
 
   const [searchValue, setSearchValue] = useState<string>(props.searchValue);
+  const [searchValues, setSearchValues] = useState<any>({ ...queryParams });
+  const [focusedField, setFocusedField] = useState<string>("");
   const [checked, setChecked] = useState<boolean>(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -129,6 +132,23 @@ const PtrList: React.FC<IProps> = (props) => {
     }, 500);
   };
 
+  const onSearch = (e) => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
+    const searchField = e.target.name;
+    const searchValue = e.target.value;
+
+    setSearchValues({ ...searchValues, [searchField]: searchValue });
+    setFocusedField(searchField);
+
+    timerRef.current = window.setTimeout(() => {
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { [searchField]: searchValue });
+    }, 800);
+  };
+
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
@@ -136,7 +156,7 @@ const PtrList: React.FC<IProps> = (props) => {
     e.target.value = tmpValue;
   };
 
-  const renderContent = () => {
+  const renderEmptyState = () => {
     if (loading) {
       return <Spinner objective={true} />;
     }
@@ -151,12 +171,16 @@ const PtrList: React.FC<IProps> = (props) => {
       );
     }
 
+    return null;
+  };
+
+  const renderContent = () => {
     return (
       <PtrContent>
         <Table $hover={true}>
           <thead>
             <tr>
-              <th style={{ width: 40 }}>
+              <th rowSpan={2} style={{ width: 40, verticalAlign: "text-top" }}>
                 <FormControl
                   checked={isAllSelected}
                   componentclass="checkbox"
@@ -175,9 +199,58 @@ const PtrList: React.FC<IProps> = (props) => {
               <th>{__("PtrStatus")}</th>
               <th>{__("Actions")}</th>
             </tr>
+            <tr>
+              <th>
+                <FormControl
+                  name="account"
+                  value={searchValues.account}
+                  onChange={onSearch}
+                  boxView={true}
+                  placeholder="Filter by account"
+                  autoFocus={focusedField === "account"}
+                />
+              </th>
+              <th>
+                <FormControl
+                  name="number"
+                  value={searchValues.number}
+                  onChange={onSearch}
+                  boxView={true}
+                  placeholder="Filter by number"
+                  autoFocus={focusedField === "number"}
+                />
+              </th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th>
+                <FormControl
+                  name="journal"
+                  value={searchValues.journal}
+                  onChange={onSearch}
+                  boxView={true}
+                  placeholder="Filter by journal"
+                  autoFocus={focusedField === "journal"}
+                />
+              </th>
+              <th>
+                <FormControl
+                  name="status"
+                  value={searchValues.status}
+                  onChange={onSearch}
+                  boxView={true}
+                  placeholder="Filter by status"
+                  autoFocus={focusedField === "status"}
+                />
+              </th>
+            </tr>
           </thead>
           <tbody>{renderRows()}</tbody>
         </Table>
+        {renderEmptyState()}
       </PtrContent>
     );
   };

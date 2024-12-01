@@ -72,7 +72,7 @@ const Row: React.FC<Props> = (props) => {
     (details.length &&
       `${details[0].account?.code} - ${details[0].account?.name}`) ||
     "";
-  console.log("sss", transaction);
+
   return (
     <>
       {(hasNewParent && (
