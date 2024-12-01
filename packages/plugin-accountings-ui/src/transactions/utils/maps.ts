@@ -1,18 +1,18 @@
+import { ITransaction } from "../types";
 // import * as dayjs from 'dayjs';
 import { TR_SIDES } from "../../constants";
-import TrFormCash from "../components/TrFormCash";
 import TrFormBank from "../components/TrFormBank";
+import TrFormCash from "../components/TrFormCash";
 import TrFormMain from "../components/TrFormMain";
-import { ITransaction } from "../types";
-import { getTempId } from "./utils";
-import TrFormReceivable from '../components/TrFormReceivable';
 import TrFormPayable from '../components/TrFormPayable';
+import TrFormReceivable from '../components/TrFormReceivable';
+import { getTempId } from "./utils";
 
 export const commonData = (journal, date?, side?): ITransaction => {
   return {
     _id: getTempId(),
     parentId: journal,
-    number: 'auto/new',
+    // number: 'auto/new',
     date,
     journal,
     details: [{

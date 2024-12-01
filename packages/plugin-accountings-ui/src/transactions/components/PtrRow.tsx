@@ -1,5 +1,3 @@
-import dayjs from "dayjs";
-import { Link } from 'react-router-dom';
 import {
   ActionButtons,
   Button,
@@ -8,8 +6,11 @@ import {
   Tip,
   __,
 } from "@erxes/ui/src";
-import React from "react";
+
 import { ITransaction } from "../types";
+import { Link } from "react-router-dom";
+import React from "react";
+import dayjs from "dayjs";
 
 type Props = {
   transaction: ITransaction;
@@ -21,7 +22,14 @@ type Props = {
 };
 
 const Row: React.FC<Props> = (props) => {
-  const { transaction, toggleBulk, toggleHalf, isChecked, hasNewParent, hasNewPtr } = props;
+  const {
+    transaction,
+    toggleBulk,
+    toggleHalf,
+    isChecked,
+    hasNewParent,
+    hasNewPtr,
+  } = props;
 
   const onChange = (e) => {
     if (toggleBulk) {
@@ -31,13 +39,13 @@ const Row: React.FC<Props> = (props) => {
 
   const onChangeParent = (e) => {
     if (toggleHalf) {
-      toggleHalf(transaction.parentId || '', 'parent', e.target.checked);
+      toggleHalf(transaction.parentId || "", "parent", e.target.checked);
     }
   };
 
   const onChangePtr = (e) => {
     if (toggleHalf) {
-      toggleHalf(transaction.ptrId || '', 'ptr', e.target.checked);
+      toggleHalf(transaction.ptrId || "", "ptr", e.target.checked);
     }
   };
 
@@ -45,35 +53,56 @@ const Row: React.FC<Props> = (props) => {
     e.stopPropagation();
   };
 
-  const { _id, date, number, journal, sumDt, sumCt, parentId, description, branch, department, ptrStatus, details } = transaction;
-  const accountStr = details.length && `${details[0].account?.code} - ${details[0].account?.name}` || '';
+  const {
+    _id,
+    date,
+    number,
+    journal,
+    sumDt,
+    sumCt,
+    parentId,
+    description,
+    branch,
+    department,
+    ptrStatus,
+    details,
+  } = transaction;
 
+  const accountStr =
+    (details.length &&
+      `${details[0].account?.code} - ${details[0].account?.name}`) ||
+    "";
+  console.log("sss", transaction);
   return (
     <>
-      {hasNewParent && (
-        <tr>
-          <td onClick={onClick} style={{ "padding-left": '15px' }} >
+      {(hasNewParent && (
+        <tr className="odd">
+          <td onClick={onClick}>
             <FormControl
               checked={false}
               componentclass="checkbox"
               onChange={onChangeParent}
             />
           </td>
-          <td>parent</td>
+          <td className="odd-td" colSpan={11}>
+            parent - {dayjs(date).format("YYYY-MM-DD")}
+          </td>
         </tr>
-      ) || (<></>)}
-      {hasNewPtr && (
-        <tr>
-          <td onClick={onClick} style={{ "padding-left": '30px' }} >
+      )) || <></>}
+      {(hasNewPtr && (
+        <tr className="odd">
+          <td onClick={onClick}>
             <FormControl
               checked={false}
               componentclass="checkbox"
               onChange={onChangePtr}
             />
           </td>
-          <td>ptr</td>
+          <td className="odd-td" colSpan={11}>
+            ptr
+          </td>
         </tr>
-      ) || (<></>)}
+      )) || <></>}
       <tr>
         <td onClick={onClick}>
           <FormControl
@@ -84,7 +113,7 @@ const Row: React.FC<Props> = (props) => {
         </td>
         <td>{accountStr}</td>
         <td>{number}</td>
-        <td>{dayjs(date).format('YYYY-MM-DD')}</td>
+        <td>{dayjs(date).format("YYYY-MM-DD")}</td>
         <td>{description}</td>
         <td>{sumDt.toLocaleString()}</td>
         <td>{sumCt.toLocaleString()}</td>
@@ -97,7 +126,7 @@ const Row: React.FC<Props> = (props) => {
           <ActionButtons>
             <Link to={`/accountings/transaction/edit/${parentId}?trId=${_id}`}>
               <Button btnStyle="link">
-                <Tip text={__('Manage')} placement="top">
+                <Tip text={__("Manage")} placement="top">
                   <Icon icon="edit-3" />
                 </Tip>
               </Button>
