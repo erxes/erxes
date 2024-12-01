@@ -1,4 +1,4 @@
-const posOrderFields = contactsEnabled => `
+const posOrderFields = () => `
   _id: String,
   createdAt: Date,
   status: String,
@@ -30,13 +30,7 @@ const posOrderFields = contactsEnabled => `
   department: JSON,
   subBranch: JSON,
   user: User,
-  ${
-    contactsEnabled
-      ? `
-      customer: CustomerPos
-    `
-      : ''
-  }
+  customer: CustomerPos
   syncedErkhet: Boolean,
   description: String,
   isPre: Boolean,
@@ -45,7 +39,7 @@ const posOrderFields = contactsEnabled => `
   returnInfo: JSON
 `;
 
-export const types = ({ contactsEnabled, productsEnabled }) => `
+export const types = () => `
   type CustomerPos {
     _id: String!
     code: String
@@ -56,11 +50,11 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
   }
 
   type PosOrder {
-    ${posOrderFields(contactsEnabled)}
+    ${posOrderFields()}
   }
 
   type PosOrderDetail {
-    ${posOrderFields(contactsEnabled)}
+    ${posOrderFields()}
     syncErkhetInfo: String
     putResponses: JSON
     deliveryInfo: JSON
@@ -69,7 +63,7 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
   }
 
   type PosOrderRecord {
-    ${posOrderFields(contactsEnabled)}
+    ${posOrderFields()}
   }
 
   type PosOrdersByCustomer {
@@ -102,13 +96,7 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     counts: JSON,
     count: Float,
     amount: Float,
-    ${
-      productsEnabled
-        ? `
-        category: ProductCategory
-      `
-        : ''
-    }
+    category: ProductCategory
   }
   type PosProducts {
     products: [PosProduct],
