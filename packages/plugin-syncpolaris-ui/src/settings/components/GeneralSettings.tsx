@@ -73,7 +73,11 @@ class GeneralSettings extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  renderItem = (key: string, description?: string, componentclass?: string) => {
+  onChangeCheck = (code: string, e) => {
+    this.onChangeConfig(code, e.target.checked);
+  }
+
+  renderItem = (key: string, description?: string) => {
     const { currentMap } = this.state;
 
     return (
@@ -81,9 +85,24 @@ class GeneralSettings extends React.Component<Props, State> {
         <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
-          componentclass={componentclass}
           value={currentMap[key]}
           onChange={this.onChangeInput.bind(this, key)}
+        />
+      </FormGroup>
+    );
+  };
+
+  renderCheckbox = (key: string, description?: string) => {
+    const { currentMap } = this.state;
+
+    return (
+      <FormGroup>
+        <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
+        {description && <p>{__(description)}</p>}
+        <FormControl
+          componentclass='checkbox'
+          value={currentMap[key]}
+          onChange={this.onChangeCheck.bind(this, key)}
         />
       </FormGroup>
     );
@@ -165,7 +184,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('companyCode')}
           {this.renderItem('role')}
           {this.renderItem('token')}
-          {this.renderItem('isPush', undefined, 'checkbox')}
+          {this.renderCheckbox('isPush', 'Is Push')}
 
           {this.renderFields('registerField', 'Register NO field')}
           {this.renderFields('codeField', 'Code field')}
