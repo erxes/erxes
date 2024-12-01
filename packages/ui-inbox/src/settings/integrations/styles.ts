@@ -387,7 +387,7 @@ const LeftContent = styled.div`
 const Row = styled.div`
   display: flex;
 
-  .Select {
+  .Select, .css-b62m3t-container {
     flex: 1;
   }
 

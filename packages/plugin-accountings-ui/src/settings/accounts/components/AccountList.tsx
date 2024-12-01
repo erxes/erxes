@@ -1,22 +1,23 @@
+import { IAccount, IAccountCategory } from "../types";
+import React, { useEffect, useRef, useState } from "react";
+import { __, router } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { ACCOUNT_JOURNALS } from "../../../constants";
+import { BarItems } from "@erxes/ui/src/layout/styles";
 import Button from "@erxes/ui/src/components/Button";
+import CategoryList from "./AccountCategoryList";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Form from "../containers/AccountForm";
+import FormControl from "@erxes/ui/src/components/form/Control";
 import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import FormControl from "@erxes/ui/src/components/form/Control";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
-import Table from "@erxes/ui/src/components/table";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { BarItems } from "@erxes/ui/src/layout/styles";
-import { Title } from "@erxes/ui/src/styles/main";
-import { __, router } from "@erxes/ui/src/utils";
-import React, { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import Form from "../containers/AccountForm";
-import { IAccount, IAccountCategory } from "../types";
 import Row from "./AccountRow";
-import CategoryList from "../containers/AccountCategoryList";
-import { ACCOUNT_JOURNALS } from "../../../constants";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Table from "@erxes/ui/src/components/table";
+import { Title } from "@erxes/ui/src/styles/main";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 
 interface IProps {
   queryParams: any;
@@ -35,7 +36,7 @@ interface IProps {
 
 const AccountList: React.FC<IProps> = (props) => {
   const timerRef = useRef<number | null>(null);
-  const [focusedField, setFocusedField] = useState<string>('')
+  const [focusedField, setFocusedField] = useState<string>("");
 
   const {
     accounts,
@@ -49,12 +50,10 @@ const AccountList: React.FC<IProps> = (props) => {
     isAllSelected,
     accountsCount,
     queryParams,
-    currencies
+    currencies,
   } = props;
 
-  const [searchValues, setSearchValues] = useState<any>(
-    { ...queryParams }
-  );
+  const [searchValues, setSearchValues] = useState<any>({ ...queryParams });
   const [checked, setChecked] = useState<boolean>(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -67,7 +66,7 @@ const AccountList: React.FC<IProps> = (props) => {
   }, [checked, bulk]);
 
   const renderRow = () => {
-    return accounts.map((account) => (
+    return (accounts || []).map((account) => (
       <Row
         key={account._id}
         account={account}
@@ -105,7 +104,7 @@ const AccountList: React.FC<IProps> = (props) => {
     const searchValue = e.target.value;
 
     setSearchValues({ ...searchValues, [searchField]: searchValue });
-    setFocusedField(searchField)
+    setFocusedField(searchField);
 
     timerRef.current = window.setTimeout(() => {
       router.removeParams(navigate, location, "page");
@@ -120,12 +119,12 @@ const AccountList: React.FC<IProps> = (props) => {
     e.target.value = tmpValue;
   };
 
-  const renderContent = () => {
+  const renderEmptyState = () => {
     if (loading) {
       return <Spinner objective={true} />;
     }
 
-    if (!accountsCount) {
+    if (!accountsCount || accountsCount === 0) {
       return (
         <EmptyState
           image="/images/actions/8.svg"
@@ -135,12 +134,21 @@ const AccountList: React.FC<IProps> = (props) => {
       );
     }
 
+    return null;
+  };
+
+  const renderContent = () => {
     return (
       <>
         <Table $hover={true}>
           <thead>
             <tr>
-              <th>
+              <th rowSpan={2} style={{ width: 60, verticalAlign: "text-top" }}>
+                <FormControl
+                  checked={isAllSelected}
+                  componentclass="checkbox"
+                  onChange={onChange}
+                />
               </th>
               <th>{__("Code")}</th>
               <th>{__("name")}</th>
@@ -148,89 +156,88 @@ const AccountList: React.FC<IProps> = (props) => {
               <th>{__("Currency")}</th>
               <th>{__("Kind")}</th>
               <th>{__("Journal")}</th>
-              <th>{__("Actions")}</th>
+              <th rowSpan={2} style={{ verticalAlign: "text-top" }}>
+                {__("Actions")}
+              </th>
             </tr>
             <tr>
-              <th style={{ width: 60 }}>
-                <FormControl
-                  checked={isAllSelected}
-                  componentclass="checkbox"
-                  onChange={onChange}
-                />
-              </th>
               <th>
                 <FormControl
-                  name='code'
+                  name="code"
                   value={searchValues.code}
                   onChange={search}
-                  autoFocus={focusedField === 'code'}
+                  boxView={true}
+                  placeholder="Filter by code"
+                  autoFocus={focusedField === "code"}
                 />
               </th>
               <th>
                 <FormControl
-                  name='name'
+                  name="name"
                   value={searchValues.name}
                   onChange={search}
-                  autoFocus={focusedField === 'name'}
+                  boxView={true}
+                  placeholder="Filter by name"
+                  autoFocus={focusedField === "name"}
+                />
+              </th>
+              <th>
+                <FormControl
+                  name="category"
+                  boxView={true}
+                  placeholder="Filter by category"
+                  disabled={true}
+                />
+              </th>
+              <th>
+                <FormControl
+                  componentclass="select"
+                  boxView={true}
+                  value={searchValues.currency}
+                  name="currency"
+                  options={[
+                    {
+                      label: "All",
+                      value: "",
+                    },
+                    ...(currencies || []).map((c) => ({
+                      label: c,
+                      value: c,
+                    })),
+                  ]}
+                  onChange={search}
+                />
+              </th>
+              <th>
+                <FormControl
+                  componentclass="select"
+                  boxView={true}
+                  value={searchValues.kind}
+                  name="kind"
+                  options={[
+                    { label: "All", value: "" },
+                    { label: "Active", value: "active" },
+                    { label: "Passive", value: "passive" },
+                  ]}
+                  onChange={search}
+                />
+              </th>
+              <th>
+                <FormControl
+                  componentclass="select"
+                  boxView={true}
+                  value={searchValues.journal}
+                  name="journals"
+                  options={[{ label: "All", value: "" }, ...ACCOUNT_JOURNALS]}
+                  onChange={search}
                 />
               </th>
               <th></th>
-              <th>
-                <FormControl
-                  componentclass="select"
-                  value={searchValues.currency}
-                  name='currency'
-                  options={[
-                    {
-                      label: 'All',
-                      value: ''
-                    },
-                    ...(currencies || []).map(c => ({
-                      label: c,
-                      value: c
-                    }))
-                  ]}
-                  onChange={search}
-                />
-              </th>
-              <th>
-                <FormControl
-                  componentclass="select"
-                  value={searchValues.kind}
-                  name='kind'
-                  options={[
-                    { label: 'All', value: '' },
-                    { label: 'Active', value: 'active' },
-                    { label: 'Passive', value: 'passive' },
-                  ]}
-                  onChange={search}
-                />
-              </th>
-              <th>
-                <FormControl
-                  componentclass="select"
-                  value={searchValues.journal}
-                  name='journal'
-                  options={[
-                    { label: 'All', value: '' },
-                    ...ACCOUNT_JOURNALS
-                  ]}
-                  onChange={search}
-                />
-              </th>
             </tr>
           </thead>
-          <tbody>{renderRow()}</tbody>
+          <tbody>{accountsCount ? renderRow() : <div />}</tbody>
         </Table>
-        {!accountsCount &&
-          (
-            <EmptyState
-              image="/images/actions/8.svg"
-              text="No Brands"
-              size="small"
-            />
-          ) || null
-        }
+        {renderEmptyState()}
       </>
     );
   };
@@ -280,10 +287,10 @@ const AccountList: React.FC<IProps> = (props) => {
           />
           <FormControl
             placeholder={__("Type to search")}
-            name='searchValue'
+            name="searchValue"
             onChange={search}
             value={searchValues.searchValue}
-            autoFocus={focusedField === 'searchValue'}
+            autoFocus={focusedField === "searchValue"}
             onFocus={moveCursorAtTheEnd}
           />
           <Button
@@ -302,10 +309,10 @@ const AccountList: React.FC<IProps> = (props) => {
         <FormControl
           type="text"
           placeholder={__("Type to search")}
-          name='searchValue'
+          name="searchValue"
           onChange={search}
           value={searchValues.searchValue}
-          autoFocus={focusedField === 'searchValue'}
+          autoFocus={focusedField === "searchValue"}
           onFocus={moveCursorAtTheEnd}
         />
         <ModalTrigger
@@ -320,8 +327,9 @@ const AccountList: React.FC<IProps> = (props) => {
   };
 
   const actionBarLeft = (
-    <Title>{`${currentCategory?.name || "All accounts"
-      } (${accountsCount})`}</Title>
+    <Title>{`${
+      currentCategory?.name || "All accounts"
+    } (${accountsCount})`}</Title>
   );
 
   return (
