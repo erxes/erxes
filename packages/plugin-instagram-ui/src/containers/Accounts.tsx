@@ -1,27 +1,28 @@
-import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import React from 'react';
+import * as compose from "lodash.flowright";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import React from "react";
 
 import {
   IntegrationTypesInstagram,
-  RemoveAccountMutationResponse,
-} from '@erxes/ui-inbox/src/settings/integrations/types';
-import { Alert, getEnv, withProps } from '@erxes/ui/src/utils';
-import { mutations as inboxMutations } from '@erxes/ui-inbox/src/settings/integrations/graphql';
-import { IFormProps } from '@erxes/ui/src/types';
-import Info from '@erxes/ui/src/components/Info';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Accounts from '../components/Accounts';
-import { queries } from '../graphql/index';
-import { AccountsQueryResponse } from '../types';
+  RemoveAccountMutationResponse
+} from "@erxes/ui-inbox/src/settings/integrations/types";
+import { Alert, getEnv, withProps } from "@erxes/ui/src/utils";
+import { mutations as inboxMutations } from "@erxes/ui-inbox/src/settings/integrations/graphql";
+import { IFormProps } from "@erxes/ui/src/types";
+import Info from "@erxes/ui/src/components/Info";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Accounts from "../components/Accounts";
+import { queries } from "../graphql/index";
+import { AccountsQueryResponse } from "../types";
 
 type Props = {
   kind: IntegrationTypesInstagram;
-  onSelect: (accountId?: string) => void;
+  onSelect: (accountId?: string, account?: any) => void;
   onRemove: (accountId: string) => void;
   formProps?: IFormProps;
   renderForm?: () => JSX.Element;
+  selectedAccountId?: string;
 };
 
 type FinalProps = {
@@ -37,7 +38,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
     return win.open(
       url,
       title,
-      `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`,
+      `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`
     );
   }
 
@@ -46,10 +47,10 @@ class AccountContainer extends React.Component<FinalProps, {}> {
     const { REACT_APP_API_URL } = getEnv();
     this.popupWindow(
       `${REACT_APP_API_URL}/pl:instagram/iglogin?kind=${kind}`,
-      'Integration',
+      "Integration",
       window,
       660,
-      750,
+      750
     );
   };
 
@@ -58,7 +59,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
 
     removeAccount({ variables: { _id: accountId } })
       .then(() => {
-        Alert.success('You successfully removed an account');
+        Alert.success("You successfully removed an account");
         onRemove(accountId);
       })
       .catch((e) => {
@@ -67,8 +68,14 @@ class AccountContainer extends React.Component<FinalProps, {}> {
   };
 
   render() {
-    const { kind, renderForm, getAccountsQuery, onSelect, formProps } =
-      this.props;
+    const {
+      kind,
+      renderForm,
+      getAccountsQuery,
+      onSelect,
+      formProps,
+      selectedAccountId
+    } = this.props;
     if (getAccountsQuery.loading) {
       return <Spinner objective={true} />;
     }
@@ -78,18 +85,17 @@ class AccountContainer extends React.Component<FinalProps, {}> {
     }
 
     const accounts = getAccountsQuery.instagramGetAccounts || [];
-
-    return (
-      <Accounts
-        kind={kind}
-        onAdd={this.onAdd}
-        removeAccount={this.remove}
-        onSelect={onSelect}
-        accounts={accounts}
-        formProps={formProps}
-        renderForm={renderForm}
-      />
-    );
+    const updatedProps = {
+      kind,
+      onAdd: this.onAdd,
+      removeAccount: this.remove,
+      onSelect,
+      accounts,
+      formProps,
+      renderForm,
+      selectedAccountId
+    };
+    return <Accounts {...updatedProps} />;
   }
 }
 
@@ -100,16 +106,16 @@ export default withProps<Props>(
       RemoveAccountMutationResponse,
       { _id: string; kind?: string }
     >(gql(inboxMutations.removeAccount), {
-      name: 'removeAccount',
+      name: "removeAccount",
       options: {
-        refetchQueries: ['instagramGetAccounts'],
-      },
+        refetchQueries: ["instagramGetAccounts"]
+      }
     }),
     graphql<Props, AccountsQueryResponse>(gql(queries.instagramGetAccounts), {
-      name: 'getAccountsQuery',
+      name: "getAccountsQuery",
       options: ({ kind }) => ({
-        variables: { kind },
-      }),
-    }),
-  )(AccountContainer),
+        variables: { kind }
+      })
+    })
+  )(AccountContainer)
 );

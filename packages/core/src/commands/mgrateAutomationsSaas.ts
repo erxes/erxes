@@ -96,6 +96,17 @@ const switchTriggerTypeByLabel = label => {
       changedContentType = "facebook:messages";
       break;
 
+   case "Instagram Comments":
+      changedContentType = "instagram:comments";
+      break;
+    case "Instagram Ads Message":
+      changedContentType = "instagram:ads";
+      break;
+
+    case "Instagram Message":
+      changedContentType = "instagram:messages";
+      break;
+      
     case "Conversation":
       changedContentType = "inbox:conversation";
       break;
