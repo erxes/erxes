@@ -238,7 +238,7 @@ const PtrList: React.FC<IProps> = (props) => {
               </th>
               <th>
                 <FormControl
-                  name="status"
+                  name="ptrStatus"
                   value={searchValues.status}
                   onChange={onSearch}
                   boxView={true}
