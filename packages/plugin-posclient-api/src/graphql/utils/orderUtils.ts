@@ -28,33 +28,29 @@ import { sendCoreMessage } from "../../messageBroker";
 import { nanoid } from "nanoid";
 import { getCompanyInfo } from "../../models/PutData";
 
-interface IDetailItem {
-  count: number;
-  amount: number;
-  inventoryCode: string;
-  barcode: string;
-  productId: string;
-}
-
 export const generateOrderNumber = async (
   models: IModels,
   config: IConfig
 ): Promise<string> => {
   const todayStr = moment().format("YYYYMMDD").toString();
 
-  const beginNumber =
-    (config && config.beginNumber && `${config.beginNumber}.`) || "";
-
+  let beginNumber = "";
+  let regexSuffix = "[0-9]*$";
   let suffix = "0001";
-  let number = `${todayStr}_${beginNumber}${suffix}`;
-
   let latestOrder;
+
+  if (config?.beginNumber) {
+    beginNumber = `${config.beginNumber}.`
+    regexSuffix = `${config.beginNumber}\.[0-9]*$`
+  }
+
+  let number = `${todayStr}_${beginNumber}${suffix}`;
 
   const latestOrders = await models.Orders.aggregate([
     {
       $match: {
         posToken: config.token,
-        number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) }
+        number: { $regex: new RegExp(`^${todayStr}_${regexSuffix}`) }
       }
     },
     {
