@@ -44,7 +44,7 @@ export default {
     });
   },
 
-  async departmentTxt(transaction: ITransactionDocument, _, { subdomain }: IContext) {
+  async department(transaction: ITransactionDocument, _, { subdomain }: IContext) {
     if (!transaction.departmentId) {
       return;
     }
