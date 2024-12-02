@@ -185,8 +185,7 @@ const Form = (props: Props) => {
       subUoms,
       scopeBrandIds,
       code,
-      categoryId,
-      pdfAttachment
+      categoryId
     } = state;
 
     if (product) {
@@ -194,6 +193,24 @@ const Form = (props: Props) => {
     }
 
     finalValues.attachment = attachment;
+
+    const pdfAttachment: any = { ...state.pdfAttachment };
+
+    if (pdfAttachment && pdfAttachment.__typename) {
+      delete pdfAttachment.__typename;
+    }
+
+    if (pdfAttachment.pdf && pdfAttachment.pdf.__typename) {
+      delete pdfAttachment.pdf.__typename;
+    }
+
+    pdfAttachment.pages = pdfAttachment.pages?.map((p) => {
+      const page = { ...p };
+      if (page && page.__typename) {
+        delete page.__typename;
+      }
+      return page;
+    });
 
     return {
       ...product,
