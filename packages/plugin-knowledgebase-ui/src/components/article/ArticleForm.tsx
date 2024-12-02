@@ -115,7 +115,6 @@ class ArticleForm extends React.Component<Props, State> {
       erxesForms,
       isPrivate,
       scheduledDate,
-      pdfAttachment,
     } = this.state;
 
     const finalValues = values;
@@ -123,6 +122,24 @@ class ArticleForm extends React.Component<Props, State> {
     if (article) {
       finalValues._id = article._id;
     }
+
+    const pdfAttachment: any = { ...this.state.pdfAttachment };
+
+    if (pdfAttachment && pdfAttachment.__typename) {
+      delete pdfAttachment.__typename;
+    }
+
+    if (pdfAttachment.pdf && pdfAttachment.pdf.__typename) {
+      delete pdfAttachment.pdf.__typename;
+    }
+
+    pdfAttachment.pages = pdfAttachment.pages?.map((p) => {
+      const page = { ...p };
+      if (page && page.__typename) {
+        delete page.__typename;
+      }
+      return page;
+    });
 
     return {
       _id: finalValues._id,
