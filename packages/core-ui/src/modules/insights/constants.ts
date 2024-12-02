@@ -50,5 +50,6 @@ export const SERVICE_MAP = {
   'Tasks': 'tasks',
   'Inbox': 'inbox',
   'Calls': 'calls',
-  'Contacts': 'core',
+  'Contacts': 'core:contacts',
+  'Forms': 'core:forms',
 }

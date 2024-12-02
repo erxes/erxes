@@ -187,21 +187,6 @@ const ChartFormField = (props: Props) => {
           />
         </div>
       );
-    case "forms":
-      return (
-        <div>
-          <ControlLabel> {fieldLabel}</ControlLabel>
-
-          <SelectLeads
-            multi={true}
-            name="formIds"
-            label={"Choose forms"}
-            onSelect={onChange}
-            initialValue={fieldValue}
-            filterParams={JSON.parse(fieldQueryVariables)}
-          />
-        </div>
-      );
     case "clientPortalGetConfigs":
       return (
         <div>
