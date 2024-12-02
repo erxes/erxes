@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
 import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
-import { ActionButtons, Row, Title } from '@erxes/ui-settings/src/styles';
+import { Row, Title } from '@erxes/ui-settings/src/styles';
 import client from '@erxes/ui/src/apolloClient';
 import {
   Button,
@@ -14,42 +14,21 @@ import {
 import { Wrapper } from '@erxes/ui/src/layout';
 import { FormColumn } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 import React, { useEffect, useState } from 'react';
 import { ContentBox } from '../../styles';
 import { IConfigsMap } from '../types';
 import Sidebar from './SideBar';
-
-const attrs = {
-  custSegCode: { label: 'custSegCode', description: '' },
-  isVatPayer: { label: 'isVatPayer', description: '' },
-  sexCode: { label: 'sexCode', description: '' },
-  status: { label: 'status', description: '' },
-  isCompanyCustomer: { label: 'isCompanyCustomer', description: '' },
-  industryId: { label: 'industryId', description: '' },
-  familyName: { label: 'familyName', description: '' },
-  lastName: { label: 'lastName', description: '' },
-  firstName: { label: 'firstName', description: '' },
-  registerMaskCode: { label: 'registerMaskCode', description: '' },
-  registerCode: { label: 'registerCode', description: '' },
-  birthDate: { label: 'birthDate', description: '' },
-  mobile: { label: 'mobile', description: '' },
-  countryCode: { label: 'countryCode', description: '' },
-  email: { label: 'email', description: '' },
-  phone: { label: 'phone', description: '' },
-  taxExemption: { label: 'taxExemption', description: '' },
-  maritalStatus: { label: 'maritalStatus', description: '' },
-}
+import { SYNC_TYPES } from '../../constants';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
 };
 
-const GeneralSettings = (props: Props) => {
+const PullCustomerSettings = (props: Props) => {
   const [fieldGroups, setFieldGroups] = useState<IFieldGroup[]>([]);
-  const [currentMap, setCurrentMap] = useState<any>(
-    props.configsMap.POLARIS?.customer || {}
+  const [currentMap, setCurrentMap] = useState<any[]>(
+    props.configsMap.PULL_POLARIS || []
   )
 
   useEffect(() => {
@@ -67,30 +46,15 @@ const GeneralSettings = (props: Props) => {
 
   const save = (e) => {
     e.preventDefault();
-    const tempMap = {}
-    const defaultKeys = Object.keys(attrs);
-    for (const key of Object.keys(currentMap)) {
-      const data = currentMap[key];
-      if (defaultKeys.includes(key) || key === data.title) {
-        tempMap[key] = data;
-      } else {
-        if (!data.title) {
-          continue
-        }
-        tempMap[data.title] = data;
-      }
-    }
-    props.save({ POLARIS: { ...props.configsMap.POLARIS, customer: tempMap } });
+    props.save({ PULL_POLARIS: currentMap });
   };
 
-  const addAttr = () => {
-    setCurrentMap({ ...currentMap, [`newItem-${Math.random().toString()}`]: { title: '' } })
+  const onAdd = () => {
+    setCurrentMap([...currentMap, { _id: Math.random().toString(), contentType: 'customer', kind: 'load' }])
   }
 
-  const attrDelete = (key) => {
-    const tempMap = { ...currentMap };
-    delete tempMap[key];
-    setCurrentMap({ ...tempMap })
+  const onDelete = (id) => {
+    setCurrentMap([...currentMap.filter(c => c._id !== id)])
   }
 
   const renderInput = (key: string) => {
@@ -127,7 +91,7 @@ const GeneralSettings = (props: Props) => {
 
     return (
       <>
-        <FormGroup>
+        <FormColumn maxwidth='30%'>
           <FormControl
             name="fieldGroup"
             componentclass="select"
@@ -141,7 +105,8 @@ const GeneralSettings = (props: Props) => {
             value={currentMap[key]?.groupId}
             onChange={(e) => setFieldGroup((e.target as any).value)}
           />
-
+        </FormColumn>
+        <FormColumn maxwidth='30%'>
           <FormControl
             name="formField"
             componentclass="select"
@@ -163,57 +128,75 @@ const GeneralSettings = (props: Props) => {
             value={currentMap[key]?.fieldId}
             onChange={(e) => setFormField((e.target as any).value)}
           />
-        </FormGroup>
+        </FormColumn>
       </>
     );
   };
 
-  const renderItem = (key: string, label: string, description?: string) => {
-    const setType = (value) => {
-      setCurrentMap({ ...currentMap, [key]: { ...currentMap[key] || {}, type: value } })
+  const renderPerExtra = (curr) => {
+    if (curr.kind === 'prop') {
+      return <Row>
+        <FormColumn maxwidth='5%'></FormColumn>
+        <FormColumn maxwidth='25%'>
+          {renderInput('key')}
+        </FormColumn>
+        {renderFields('key')}
+        <FormColumn maxwidth='10%'>
+          {renderInput('key')}
+        </FormColumn>
+      </Row>
     }
 
-    const setKey = (value) => {
-      setCurrentMap({ ...currentMap, [key]: { ...currentMap[key] || {}, title: value, label: value } })
-    }
+    return <></>;
+  }
 
-    const type = currentMap[key]?.type || 'str';
-    const isDefault = Object.keys(attrs).includes(key);
+  const renderItem = (curr) => {
+    const setValue = (key, value) => {
+      setCurrentMap([...currentMap.map(
+        c => c._id === curr._id && { ...curr, [key]: value } || { ...c }
+      )]);
+    }
 
     return (
-      <FormGroup>
-        <ControlLabel>{label}</ControlLabel>
-        {description && <p>{__(description)}</p>}
+      <FormGroup key={curr._id}>
         <Row>
-          <FormColumn maxwidth='10%'>
+          <FormColumn maxwidth='20%'>
             <FormControl
-              name="fieldGroup"
+              name="code"
+              componentclass="select"
+              options={SYNC_TYPES.map(st => ({ value: st.code, label: st.code }))}
+              value={curr.code}
+              onChange={(e) => setValue('code', (e.target as any).value)}
+            />
+          </FormColumn>
+          <FormColumn maxwidth='40%'>
+            <FormControl
+              name="title"
+              componentclass="select"
+              options={SYNC_TYPES.map(st => ({ value: st.code, label: st.title }))}
+              value={curr.code}
+              disabled={true}
+            />
+          </FormColumn>
+          <FormColumn maxwidth='30%'>
+            <FormControl
+              name="kind"
               componentclass="select"
               options={[
-                { value: "", label: "Any" },
-                { value: "form", label: "Form Fields" },
+                { value: 'load', label: 'component load' },
+                { value: 'click', label: 'event click' },
+                { value: 'prop', label: 'property save' },
+                { value: 'history', label: 'history save' },
               ]}
-              value={currentMap[key]?.type}
-              onChange={(e) => setType((e.target as any).value)}
+              value={curr.kind}
+              onChange={(e) => setValue('kind', (e.target as any).value)}
             />
           </FormColumn>
-          <FormColumn maxwidth='15%'>
-            <FormControl
-              name="fieldGroup"
-              value={isDefault ? key : currentMap[key].title}
-              disabled={isDefault}
-              onChange={(e) => setKey((e.target as any).value)}
-            />
+          <FormColumn maxwidth='10%'>
+            <Button btnStyle="link" icon="times-circle" onClick={onDelete.bind(this, curr._id)} />
           </FormColumn>
-          <FormColumn>
-            {
-              type === 'form' ?
-                (renderFields(key)) :
-                (renderInput(key))
-            }
-          </FormColumn>
-          {!isDefault && <Button btnStyle="link" icon="times-circle" onClick={attrDelete.bind(this, key)} />}
         </Row>
+        {renderPerExtra(curr)}
       </FormGroup >
     );
   }
@@ -228,10 +211,7 @@ const GeneralSettings = (props: Props) => {
           open={true}
         >
           {
-            Array.from(new Set(Object.keys({ ...attrs, ...currentMap }))).map(key => {
-              const data = { ...currentMap[key] || {}, ...attrs[key] || {} }
-              return renderItem(key, data?.label || key, data?.description);
-            })
+            currentMap.map(curr => renderItem(curr))
           }
         </CollapseContent>
       </ContentBox>
@@ -246,7 +226,7 @@ const GeneralSettings = (props: Props) => {
   const actionButtons = (
     <>
       <Button
-        onClick={addAttr}
+        onClick={onAdd}
         icon="add"
         uppercase={false}
       >
@@ -286,4 +266,4 @@ const GeneralSettings = (props: Props) => {
   );
 }
 
-export default GeneralSettings;
+export default PullCustomerSettings;

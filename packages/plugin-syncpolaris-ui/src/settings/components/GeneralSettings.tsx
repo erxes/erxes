@@ -9,7 +9,7 @@ import {
 
 import { ContentBox } from '../../styles';
 import { IConfigsMap } from '../types';
-import { KEY_LABELS } from '../constants';
+import { KEY_LABELS } from '../../constants';
 import React from 'react';
 import Sidebar from './SideBar';
 import { Title } from '@erxes/ui-settings/src/styles';
