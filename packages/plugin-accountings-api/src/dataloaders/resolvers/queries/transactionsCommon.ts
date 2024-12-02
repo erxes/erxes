@@ -17,6 +17,7 @@ interface IQueryParams {
   status?: string;
   searchValue?: string;
   number?: string;
+  ptrStatus: string;
 
   accountIds?: string[];
   accountType: string;
@@ -97,6 +98,8 @@ const generateFilter = async (
     departmentId,
     currency,
     statuses,
+    ptrStatus,
+    status
   } = params;
   const filter = commonQuerySelector;
 
@@ -124,6 +127,14 @@ const generateFilter = async (
   if (searchValue) {
     const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
     filter.description = { $in: [regex] };
+  }
+
+  if (ptrStatus) {
+    filter.ptrStatus = ptrStatus;
+  }
+  
+  if (status) {
+    filter.status = status;
   }
 
   if (brandId) {
