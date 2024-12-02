@@ -1,11 +1,11 @@
-import { IContext } from '../../connectionResolver';
-import { IBotDocument } from '../../models/definitions/bots';
-import { graphRequest } from '../../utils';
+import { IContext } from "../../connectionResolver";
+import { IBotDocument } from "../../models/definitions/bots";
+import { graphRequest } from "../../utils";
 
 export default {
   async account(bot: IBotDocument, _args, { models }: IContext) {
     return models.Accounts.findOne({ _id: bot.accountId }).select({
-      name: 1,
+      name: 1
     });
   },
 
@@ -13,7 +13,7 @@ export default {
     try {
       const response: any = await graphRequest.get(
         `/${pageId}?fields=name`,
-        token,
+        token
       );
       return response ? response : null;
     } catch (error) {
@@ -25,7 +25,7 @@ export default {
     try {
       const response: any = await graphRequest.get(
         `/${pageId}/picture?height=600`,
-        token,
+        token
       );
 
       if (!response) {
@@ -36,5 +36,5 @@ export default {
     } catch (err) {
       return null;
     }
-  },
+  }
 };

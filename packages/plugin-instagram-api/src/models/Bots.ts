@@ -1,7 +1,11 @@
 import { Model } from "mongoose";
 import { IModels } from "../connectionResolver";
 import { debugError } from "../debuggers";
-import { getPageAccessToken, graphRequest } from "../utils";
+import {
+  getPageAccessToken,
+  graphRequest,
+  getPageAccessTokenInstagram
+} from "../utils";
 import { IBotDocument, botSchema } from "./definitions/bots";
 
 const validateDoc = async (models: IModels, doc: any, isUpdate?: boolean) => {
@@ -59,20 +63,10 @@ export const loadBotClass = (models: IModels) => {
         throw new Error("Something went wrong");
       }
 
-      let pageTokenResponse;
-
-      try {
-        pageTokenResponse = await getPageAccessToken(pageId, account.token);
-      } catch (e) {
-        debugError(
-          `Error ocurred while trying to get page access token with ${e.message}`
-        );
-      }
-
       const bot = await models.Bots.create({
         ...doc,
         uid: account.uid,
-        token: pageTokenResponse
+        token: account.token
       });
 
       try {
@@ -112,8 +106,7 @@ export const loadBotClass = (models: IModels) => {
           bot.token = pageAccessToken;
         }
 
-        bot.accountId = relatedAccount._id as string;  // Type assertion to treat _id as a string
-
+        bot.accountId = relatedAccount._id as string; // Type assertion to treat _id as a string
       }
 
       try {
@@ -230,7 +223,6 @@ export const loadBotClass = (models: IModels) => {
           }
         }
       }
-
       if (isEnabledBackBtn) {
         generatedPersistentMenus.push({
           type: "postback",
@@ -242,14 +234,6 @@ export const loadBotClass = (models: IModels) => {
           })
         });
       }
-
-      await graphRequest.post("/me/subscribed_apps", pageAccessToken, {
-        subscribed_fields: [
-          "messages",
-          "messaging_postbacks"
-          // "messaging_referrals"
-        ]
-      });
 
       let doc: any = {
         get_started: { payload: JSON.stringify({ botId: botId }) },
@@ -268,7 +252,6 @@ export const loadBotClass = (models: IModels) => {
           }
         ]
       };
-
       if (greetText) {
         doc.greeting = [
           {
@@ -277,24 +260,11 @@ export const loadBotClass = (models: IModels) => {
           }
         ];
       }
-
-      await graphRequest.post("/me/messenger_profile", pageAccessToken, doc);
-
       return { status: "success" };
     }
 
     static async disconnectBotPageMessenger(_id) {
-      const bot = await this.getBot(_id);
-
-      const pageAccessToken = bot.token || "";
-
-      await graphRequest.delete(`/me/messenger_profile`, pageAccessToken, {
-        fields: ["get_started", "persistent_menu"],
-        access_token: pageAccessToken
-      });
-
       await models.Bots.deleteOne({ _id });
-
       return { status: "success" };
     }
   }

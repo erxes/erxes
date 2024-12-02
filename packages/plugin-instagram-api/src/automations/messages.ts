@@ -126,7 +126,7 @@ const generateMessages = async (
     if (type === "quickReplies") {
       generatedMessages.push({
         text: text || "",
-        quick_replies: quickReplies.map(quickReply => ({
+        quick_replies: quickReplies.map((quickReply) => ({
           content_type: "text",
           title: quickReply?.text || "",
           payload: generatePayloadString(
@@ -160,14 +160,11 @@ const generateMessages = async (
 
 export const checkMessageTrigger = async (subdomain, { target, config }) => {
   const { conditions = [], botId } = config;
-
   if (target.botId !== botId) {
     return;
   }
-
   const payload = target?.payload || {};
   const { persistentMenuId, isBackBtn } = payload;
-
   if (persistentMenuId && isBackBtn) {
     await sendAutomationsMessage({
       subdomain,
@@ -181,7 +178,7 @@ export const checkMessageTrigger = async (subdomain, { target, config }) => {
         }
       },
       isRPC: true
-    }).catch(error => {
+    }).catch((error) => {
       debugError(error.message);
     });
 
@@ -238,9 +235,9 @@ const generateObjectToWait = ({
   };
   let propertyName = "payload.btnId";
 
-  if (messages.some(msg => msg.type === "input")) {
+  if (messages.some((msg) => msg.type === "input")) {
     const inputMessageConfig =
-      messages.find(msg => msg.type === "input")?.input || {};
+      messages.find((msg) => msg.type === "input")?.input || {};
 
     if (inputMessageConfig.timeType === "day") {
       obj.startWaitingDate = moment()
@@ -261,7 +258,7 @@ const generateObjectToWait = ({
 
     const actionIdIfNotReply =
       optionalConnects.find(
-        connect => connect?.optionalConnectId === "ifNotReply"
+        (connect) => connect?.optionalConnectId === "ifNotReply"
       )?.actionId || null;
 
     obj.waitingActionId = actionIdIfNotReply;
@@ -288,16 +285,6 @@ const sendMessage = async (
   isLoop?: boolean
 ) => {
   try {
-    await sendReply(
-      models,
-      "me/messages",
-      {
-        recipient: { id: senderId },
-        sender_action: "typing_on",
-        tag
-      },
-      integration.erxesApiId
-    );
     const resp = await sendReply(
       models,
       "me/messages",
@@ -433,35 +420,20 @@ const getData = async (
       throw new Error(e);
     }
 
-    // const created = await models.ConversationMessages.addMessage({
-    //   conversationId: conversation._id,
-    //   content: "<p>Bot Message</p>",
-    //   internal: true,
-    //   botId,
-    //   botData: [
-    //     {
-    //       type: "text",
-    //       text: `${DOMAIN}/inbox/index?_id=${erxesApiId}`
-    //     }
-    //   ],
-    //   fromBot: true,
-    //   mid: ""
-    // });
-
     const created = await models.ConversationMessages.addMessage({
-  conversationId: conversation._id as string,  // Type assertion
-  content: "<p>Bot Message</p>",
-  internal: true,
-  mid: "",
-  botId,
-    botData: [
+      conversationId: conversation._id as string, // Type assertion
+      content: "<p>Bot Message</p>",
+      internal: true,
+      mid: "",
+      botId,
+      botData: [
         {
           type: "text",
           text: `${DOMAIN}/inbox/index?_id=${erxesApiId}`
         }
       ],
-  fromBot: true
-});
+      fromBot: true
+    });
 
     await sendInboxMessage({
       subdomain,
@@ -543,7 +515,6 @@ export const actionCreateMessage = async (
 ) => {
   const { target, triggerType, triggerConfig } = execution || {};
   const { config } = action || {};
-
   if (
     !["instagram:messages", "instagram:comments", "instagram:ads"].includes(
       triggerType
@@ -631,14 +602,14 @@ export const actionCreateMessage = async (
     //   })
     // };
     return {
-    result,
-    objToWait: generateObjectToWait({
-    messages: config?.messages || [],
-    conversation: conversation as { _id: string; } &  IConversation,
-    customer,
-    optionalConnects
-  })
-};
+      result,
+      objToWait: generateObjectToWait({
+        messages: config?.messages || [],
+        conversation: conversation as { _id: string } & IConversation,
+        customer,
+        optionalConnects
+      })
+    };
   } catch (error) {
     debugError(error.message);
     throw new Error(error.message);

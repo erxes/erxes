@@ -1,24 +1,23 @@
-import { IModels, generateModels } from '../connectionResolver';
-import { debugError } from '../debuggers';
-import { sendInboxMessage } from '../messageBroker';
-import { sendReply } from '../utils';
-import { checkContentConditions } from './utils';
+import { IModels, generateModels } from "../connectionResolver";
+import { debugError } from "../debuggers";
+import { sendInboxMessage } from "../messageBroker";
+import { sendReplyComment } from "../utils";
+import { checkContentConditions } from "./utils";
 
 export const actionCreateComment = async (
   models: IModels,
   subdomain,
   action,
-  execution,
+  execution
 ) => {
   try {
     const { target = {} } = execution || {};
     const { config } = action || {};
-
     const { recipientId, comment_id, senderId, erxesApiId } = target;
     const { text, attachments } = config;
-
     const data: any = {
-      message: `@[${senderId}] ${text}`,
+      senderId: senderId,
+      message: `${text}`
     };
 
     if (!!attachments?.length) {
@@ -29,21 +28,19 @@ export const actionCreateComment = async (
     const inboxConversation = await sendInboxMessage({
       isRPC: true,
       subdomain,
-      action: 'conversations.findOne',
+      action: "conversations.findOne",
       data: { query: { _id: erxesApiId } },
-      defaultValue: {},
+      defaultValue: {}
     });
 
     if (!inboxConversation) {
-      throw new Error('No inbox conversation found');
+      throw new Error("No inbox conversation found");
     }
-
-    await sendReply(
+    await sendReplyComment(
       models,
-      `${comment_id}/comments`,
+      `${comment_id}/replies`,
       data,
-      recipientId,
-      inboxConversation.integrationId,
+      inboxConversation.integrationId
     );
 
     await models.CommentConversationReply.create({
@@ -52,10 +49,10 @@ export const actionCreateComment = async (
       attachments: attachments,
       createdAt: new Date(Date.now()),
       content: `${text}`,
-      parentId: comment_id,
+      parentId: comment_id
     });
 
-    return { status: 'success' };
+    return { status: "success" };
   } catch (error) {
     debugError(error.message);
     throw new Error(error.message);
@@ -71,16 +68,16 @@ export const checkCommentTrigger = async (subdomain, { target, config }) => {
   const bot = await models.Bots.findOne(
     {
       _id: botId,
-      pageId: target?.recipientId,
+      pageId: target?.recipientId
     },
-    { _id: 1 },
+    { _id: 1 }
   ).lean();
 
   if (!bot) {
     return;
   }
 
-  if (postType === 'specific' && target.postId !== postId) {
+  if (postType === "specific" && target.postId !== postId) {
     return false;
   }
 
@@ -90,5 +87,5 @@ export const checkCommentTrigger = async (subdomain, { target, config }) => {
 
   return !checkContent
     ? true
-    : checkContentConditions(target?.content || '', conditions);
+    : checkContentConditions(target?.content || "", conditions);
 };

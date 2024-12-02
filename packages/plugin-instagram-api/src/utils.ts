@@ -1,17 +1,17 @@
-import * as graph from 'fbgraph';
+import * as graph from "fbgraph";
 
-import { IModels } from './connectionResolver';
-import { debugBase, debugError, debugInstagram } from './debuggers';
-import { generateAttachmentUrl, getConfig } from './commonUtils';
-import { IAttachment, IAttachmentMessage } from './types';
-import { IIntegrationDocument } from './models/Integrations';
-import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
+import { IModels } from "./connectionResolver";
+import { debugBase, debugError, debugInstagram } from "./debuggers";
+import { generateAttachmentUrl, getConfig } from "./commonUtils";
+import { IAttachment, IAttachmentMessage } from "./types";
+import { IIntegrationDocument } from "./models/Integrations";
+import { FacebookAdapter } from "botbuilder-adapter-facebook-erxes";
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
     // set access token
     graph.setAccessToken(accessToken);
-    graph.setVersion('19.0');
+    graph.setVersion("19.0");
 
     return new Promise((resolve, reject) => {
       graph[method](path, ...otherParams, (error, response) => {
@@ -23,20 +23,20 @@ export const graphRequest = {
     });
   },
   get(...args): any {
-    return this.base('get', ...args);
+    return this.base("get", ...args);
   },
 
   post(...args): any {
-    return this.base('post', ...args);
+    return this.base("post", ...args);
   },
 
   delete(...args): any {
-    return this.base('del', ...args);
+    return this.base("del", ...args);
   }
 };
 
 export const fetchPagePost = async (postId: string, accessToken: string) => {
-  const fields = 'message,created_time,full_picture,picture,permalink_url';
+  const fields = "message,created_time,full_picture,picture,permalink_url";
 
   const response = await graphRequest.get(
     `/${postId}?fields=${fields}&access_token=${accessToken}`
@@ -50,7 +50,7 @@ export const fetchPagesPostsList = async (
   accessToken: string,
   limit: number
 ) => {
-  const fields = 'message,created_time,full_picture,picture,permalink_url';
+  const fields = "message,created_time,full_picture,picture,permalink_url";
 
   const response = await graphRequest.get(
     `/${pageId}/posts?fields=${fields}&access_token=${accessToken}&limit=${limit}`
@@ -59,7 +59,7 @@ export const fetchPagesPostsList = async (
   return response.data || [];
 };
 export const fetchPagePosts = async (pageId: string, accessToken: string) => {
-  const fields = 'message,created_time,full_picture,picture,permalink_url';
+  const fields = "message,created_time,full_picture,picture,permalink_url";
   const response = await graphRequest.get(
     `/${pageId}/posts?fields=${fields}&access_token=${accessToken}`
   );
@@ -100,10 +100,10 @@ export const getPostLink = async (accessToken: string, post_id: string) => {
     );
     return response;
   } catch (e) {
-    if (e.message.includes('Error validating access token')) {
+    if (e.message.includes("Error validating access token")) {
       // Handle the invalid token case
       debugError(
-        'Access token is invalid or expired. Reauthentication required.'
+        "Access token is invalid or expired. Reauthentication required."
       );
       // Prompt reauthentication or refresh token logic here
     } else {
@@ -118,12 +118,12 @@ export const getFacebookPageIdsForInsta = async (
 ): Promise<string | null> => {
   try {
     const response: any = await graphRequest.get(
-      '/me/accounts?fields=instagram_business_account,access_token,id,name',
+      "/me/accounts?fields=instagram_business_account,access_token,id,name",
       accessToken
     );
 
     if (!response || !response.data || response.data.length === 0) {
-      throw new Error('No data found in response');
+      throw new Error("No data found in response");
     }
 
     for (const page of response.data) {
@@ -146,7 +146,7 @@ export const subscribePage = async (
   pageToken
 ): Promise<{ success: true } | any> => {
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
-    subscribed_fields: ['conversations', 'feed', 'messages']
+    subscribed_fields: ["conversations", "feed", "messages"]
   });
 };
 
@@ -158,10 +158,40 @@ export const getPageAccessToken = async (
     `${pageId}/?fields=access_token`,
     userAccessToken
   );
-
   return response.access_token;
 };
 
+export const getPageAccessTokenInstagram = async (
+  pageId: string,
+  userAccessToken: string
+) => {
+  try {
+    const response = await graphRequest.get(
+      `${pageId}/?fields=instagram_business_account,access_token`,
+      userAccessToken
+    );
+
+    // Handle cases where the Page is linked to an Instagram Business Account
+    if (response.instagram_business_account) {
+      return {
+        type: "IGUser",
+        instagramBusinessAccount: response.instagram_business_account.id
+      };
+    }
+
+    // If access_token exists, return it (Facebook Page)
+    if (response.access_token) {
+      return response.access_token;
+    }
+
+    throw new Error(
+      "Unable to retrieve access token or Instagram Business Account."
+    );
+  } catch (error) {
+    console.error("Error fetching Page Access Token:", error.message);
+    throw error;
+  }
+};
 export const refreshPageAccesToken = async (
   models: IModels,
   pageId: string,
@@ -205,13 +235,12 @@ export const getPageList = async (
   let response = {} as any;
   try {
     response = await graphRequest.get(
-      '/me/accounts?fields=instagram_business_account, access_token,id,name',
+      "/me/accounts?fields=instagram_business_account, access_token,id,name",
       accessToken
     );
   } catch (e) {
     throw e;
   }
-
   const pages: any[] = [];
   for (const page of response.data) {
     if (page.instagram_business_account) {
@@ -260,11 +289,19 @@ export const getInstagramUser = async (
     return accounInfo;
   } else {
     throw new Error(
-      'facebookPageTokensMap is undefined. Unable to get Instagram user.'
+      "facebookPageTokensMap is undefined. Unable to get Instagram user."
     );
   }
 };
 
+export const getProfile = async (facebookPageId: string, accessToken?: any) => {
+  const accounInfo: any = await graphRequest.get(
+    `${facebookPageId}?fields=profile_picture_url,username
+`,
+    accessToken
+  );
+  return accounInfo;
+};
 export const sendReply = async (
   models: IModels,
   url: string,
@@ -275,7 +312,7 @@ export const sendReply = async (
     erxesApiId: integrationId
   });
   if (!integration) {
-    throw new Error('Integration not found');
+    throw new Error("Integration not found");
   }
   const { facebookPageTokensMap = {}, facebookPageId } = integration;
 
@@ -283,7 +320,7 @@ export const sendReply = async (
 
   try {
     if (!facebookPageId) {
-      throw new Error('Facebook page ID is not defined.');
+      throw new Error("Facebook page ID is not defined.");
     }
 
     pageAccessToken = getPageAccessTokenFromMap(
@@ -292,7 +329,7 @@ export const sendReply = async (
     );
 
     if (!pageAccessToken) {
-      throw new Error('Page access token not found.');
+      throw new Error("Page access token not found.");
     }
 
     // Continue processing with `pageAccessToken`
@@ -321,6 +358,72 @@ export const sendReply = async (
     throw new Error(e.message);
   }
 };
+
+export const sendReplyComment = async (
+  models: IModels,
+  url: string,
+  data: any,
+  integrationId: string
+) => {
+  const integration = await models.Integrations.findOne({
+    erxesApiId: integrationId
+  });
+  if (!integration) {
+    throw new Error("Integration not found");
+  }
+  const { facebookPageTokensMap = {}, facebookPageId } = integration;
+
+  let pageAccessToken: string | undefined;
+
+  try {
+    if (!facebookPageId) {
+      throw new Error("Facebook page ID is not defined.");
+    }
+
+    pageAccessToken = getPageAccessTokenFromMap(
+      facebookPageId,
+      facebookPageTokensMap
+    );
+
+    if (!pageAccessToken) {
+      throw new Error("Page access token not found.");
+    }
+
+    // Continue processing with `pageAccessToken`
+  } catch (e) {
+    debugError(
+      `Error occurred while trying to get page access token: ${e.message}`
+    );
+    return e;
+  }
+  const user = data.senderId;
+  const nameResponse = await graphRequest.get(
+    `/${user}?fields=name,username&access_token=${pageAccessToken}`
+  );
+  const name = nameResponse.username || nameResponse.name;
+  const messageData = {
+    message: `@${name} ${data.message}`, // Insert the user's name dynamically into the messa
+    attachment_url: data.attachmentUrl // Include the attachment URL
+  };
+
+  try {
+    const response = await graphRequest.post(`${url}`, pageAccessToken, {
+      ...messageData
+    });
+    debugInstagram(
+      `Successfully sent data to instagram ${JSON.stringify(data)}`
+    );
+    return response;
+  } catch (e) {
+    debugError(
+      `Error ocurred while trying to send post request to facebook ${
+        e.message
+      } data: ${JSON.stringify(data)}`
+    );
+
+    throw new Error(e.message);
+  }
+};
 export const generateAttachmentMessages = (
   subdomain: string,
   attachments: IAttachment[]
@@ -328,10 +431,10 @@ export const generateAttachmentMessages = (
   const messages: IAttachmentMessage[] = [];
 
   for (const attachment of attachments || []) {
-    let type = 'file';
+    let type = "file";
 
-    if (attachment.type.startsWith('image')) {
-      type = 'image';
+    if (attachment.type.startsWith("image")) {
+      type = "image";
     }
 
     const url = generateAttachmentUrl(subdomain, attachment.url);

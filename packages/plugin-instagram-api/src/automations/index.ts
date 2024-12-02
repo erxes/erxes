@@ -31,16 +31,16 @@ export default {
       {
         type: "instagram:messages.create",
         icon: "messenger",
-        label: "Send Facebook Message",
-        description: "Send Facebook Message",
+        label: "Send Instagram Message",
+        description: "Send Instagram Message",
         isAvailable: true,
         isAvailableOptionalConnect: true
       },
       {
         type: "instagram:comments.create",
         icon: "comments-alt",
-        label: "Send Facebook Comment",
-        description: "Send Facebook Comments",
+        label: "Send Instagram Comment",
+        description: "Send Instagram Comments",
         isAvailable: true
       }
     ],
@@ -49,23 +49,11 @@ export default {
         type: "instagram:messages",
         img: "automation3.svg",
         icon: "messenger",
-        label: "Facebook Message",
+        label: "Instagram Message",
         description:
           "Start with a blank workflow that enrolls and is triggered off instagram messages",
         isCustom: true,
         conditions: [
-          {
-            type: "getStarted",
-            label: "Get Started",
-            icon: "messenger",
-            description: "User click on get started on the messenger"
-          },
-          {
-            type: "persistentMenu",
-            label: "Persistent menu",
-            icon: "menu-2",
-            description: "User click on persistent menu on the messenger"
-          },
           {
             type: "direct",
             icon: "messenger",
@@ -78,7 +66,7 @@ export default {
         type: "instagram:comments",
         img: "automation4.svg",
         icon: "comments",
-        label: "Facebook Comments",
+        label: "Instagram Comments",
         description:
           "Start with a blank workflow that enrolls and is triggered off instagram comments",
         isCustom: true
@@ -87,7 +75,7 @@ export default {
         type: "instagram:ads",
         img: "automation4.svg",
         icon: "tag-alt",
-        label: "Facebook Ads Message",
+        label: "Instagram Ads Message",
         description:
           "Start with a blank workflow that enrolls and is triggered off clicked send message on instagram ads",
         isCustom: true
@@ -151,7 +139,6 @@ export default {
     data: { target, config, relatedValueProps }
   }) => {
     const models = generateModels(subdomain);
-
     const content = await replacePlaceHolders({
       models,
       subdomain,
@@ -165,11 +152,9 @@ export default {
   },
   checkCustomTrigger: async ({ subdomain, data }) => {
     const { collectionType } = data;
-
     switch (collectionType) {
       case "messages":
         const result = await checkMessageTrigger(subdomain, data);
-
         return result;
       case "comments":
         return await checkCommentTrigger(subdomain, data);
