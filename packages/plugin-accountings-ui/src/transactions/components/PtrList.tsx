@@ -12,6 +12,7 @@ import { ITransaction } from "../types";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import { PtrContent } from "../styles";
 import Row from "./PtrRow";
+import SelectAccount from "../../settings/accounts/containers/SelectAccount";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartment from "@erxes/ui/src/team/containers/SelectDepartments";
 import Spinner from "@erxes/ui/src/components/Spinner";
@@ -192,7 +193,7 @@ const PtrList: React.FC<IProps> = (props) => {
   const renderContent = () => {
     return (
       <PtrContent>
-        <Table $hover={true} $responsive={true}>
+        <Table $hover={true} $responsive={true} $whiteSpace="wrap">
           <thead>
             <tr>
               <th rowSpan={2} style={{ width: 40, verticalAlign: "text-top" }}>
@@ -215,14 +216,15 @@ const PtrList: React.FC<IProps> = (props) => {
               <th>{__("Actions")}</th>
             </tr>
             <tr>
-              <th>
-                <FormControl
-                  name="account"
-                  value={searchValues.account}
-                  onChange={onSearch}
-                  boxView={true}
-                  placeholder="Filter by account"
-                  autoFocus={focusedField === "account"}
+              <th style={{ width: "180px" }}>
+                <SelectAccount
+                  multi={false}
+                  initialValue={searchValues.accountId || ""}
+                  label="Account"
+                  name="accountId"
+                  onSelect={(accountId) =>
+                    onSearchSelect("accountId", accountId)
+                  }
                 />
               </th>
               <th>
