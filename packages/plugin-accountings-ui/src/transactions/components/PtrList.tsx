@@ -12,6 +12,8 @@ import { ITransaction } from "../types";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import { PtrContent } from "../styles";
 import Row from "./PtrRow";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartment from "@erxes/ui/src/team/containers/SelectDepartments";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import Table from "@erxes/ui/src/components/table";
 import { Title } from "@erxes/ui/src/styles/main";
@@ -132,6 +134,19 @@ const PtrList: React.FC<IProps> = (props) => {
     }, 500);
   };
 
+  const onSearchSelect = (key, value) => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
+    setSearchValues({ ...searchValues, [key]: value });
+
+    timerRef.current = window.setTimeout(() => {
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { [key]: value });
+    }, 800);
+  };
+
   const onSearch = (e) => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -177,7 +192,7 @@ const PtrList: React.FC<IProps> = (props) => {
   const renderContent = () => {
     return (
       <PtrContent>
-        <Table $hover={true}>
+        <Table $hover={true} $responsive={true}>
           <thead>
             <tr>
               <th rowSpan={2} style={{ width: 40, verticalAlign: "text-top" }}>
@@ -224,8 +239,26 @@ const PtrList: React.FC<IProps> = (props) => {
               <th></th>
               <th></th>
               <th></th>
-              <th></th>
-              <th></th>
+              <th style={{ width: "180px" }}>
+                <SelectBranches
+                  multi={false}
+                  initialValue={searchValues.branchId}
+                  label="Branch"
+                  name="branchId"
+                  onSelect={(branchId) => onSearchSelect("branchId", branchId)}
+                />
+              </th>
+              <th style={{ width: "180px" }}>
+                <SelectDepartment
+                  multi={false}
+                  initialValue={searchValues.departmentId}
+                  label="Department"
+                  name="departmentId"
+                  onSelect={(departmentId) =>
+                    onSearchSelect("departmentId", departmentId)
+                  }
+                />
+              </th>
               <th>
                 <FormControl
                   name="journal"
