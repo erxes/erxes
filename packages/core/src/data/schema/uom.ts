@@ -1,4 +1,10 @@
 export const types = `
+  enum TimelyType {
+    daily
+    weekly
+    monthly
+    seasonally
+  }
   type Uom @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     name: String
@@ -6,6 +12,7 @@ export const types = `
     createdAt: Date
     isForSubscription:Boolean
     subscriptionConfig:JSON
+    timely: TimelyType
   }
 `;
 
@@ -14,6 +21,7 @@ const params = `
   code: String,
   isForSubscription:Boolean,
   subscriptionConfig:JSON
+  timely: TimelyType
 `;
 
 export const queries = `

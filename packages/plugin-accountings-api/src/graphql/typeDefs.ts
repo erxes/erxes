@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-
+import extendTypes from './schema/extendTypes';
 import { types as accountTypes, queries as accountQueries, mutations as accountMutations } from './schema/account';
 import { types as transactionTypes, queries as transactionQueries, mutations as transactionMutations } from './schema/transactionCommon';
 import { types as vatRowTypes, queries as vatRowQueries, mutations as vatRowMutations } from './schema/vatRow';
@@ -26,6 +26,7 @@ const typeDefs = async () => {
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
+    ${extendTypes}
     ${accountTypes()}
     ${vatRowTypes()}
     ${ctaxRowTypes()}

@@ -1,4 +1,4 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const vendorField = `
   vendor {
@@ -74,6 +74,20 @@ const productFields = `
     size
     type
   }
+  pdfAttachment {
+    pdf {
+      name
+      url
+      type
+      size
+    }
+    pages {
+      name
+      url
+      type
+      size
+      }
+    }
   uom
   subUoms
   taxType
@@ -171,6 +185,7 @@ const uoms = `
       createdAt
       isForSubscription
       subscriptionConfig
+      timely
     }
   }
 `;
@@ -200,5 +215,5 @@ export default {
   productCategories,
   productsConfigs,
   uoms,
-  uomsTotalCount
+  uomsTotalCount,
 };

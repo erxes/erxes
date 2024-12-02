@@ -1,33 +1,42 @@
-import { EmptyContent } from "@erxes/ui-log/src/activityLogs/styles";
-import { LeftContent } from "@erxes/ui-settings/src/styles";
-import { __, Alert, Button, ButtonMutate, Icon, Wrapper } from "@erxes/ui/src";
-import EmptyState from "@erxes/ui/src/components/EmptyState";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import DateControl from "@erxes/ui/src/components/form/DateControl";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import Spinner from '@erxes/ui/src/components/Spinner';
+import { Alert, Button, ButtonMutate, Icon, Wrapper, __ } from "@erxes/ui/src";
+import {
+  ContentHeader,
+  HeaderContent,
+  HeaderItems,
+} from "@erxes/ui/src/layout/styles";
+import {
+  ContentWrapper,
+  DeleteIcon,
+  FormContent,
+  FormContentHeader,
+  TransactionLinkWrapper,
+} from "../styles";
 import {
   ControlWrapper,
   Indicator,
-  StepWrapper,
 } from "@erxes/ui/src/components/step/styles";
-import { Tabs, TabTitle } from "@erxes/ui/src/components/tabs";
-import { ContentHeader, HeaderContent, HeaderItems } from "@erxes/ui/src/layout/styles";
-import {
-  FormColumn,
-  FormWrapper,
-} from "@erxes/ui/src/styles/main";
-import { IQueryParams } from "@erxes/ui/src/types";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { TR_SIDES } from "../../constants";
-import { IConfigsMap } from "../../settings/configs/types";
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
+
+import AddTransactionLink from "../components/AddTr";
 import { Box } from "../../styles";
-import AddTransactionLink from "../containers/AddTr";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import { EmptyContent } from "@erxes/ui-log/src/activityLogs/styles";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IConfigsMap } from "../../settings/configs/types";
+import { IQueryParams } from "@erxes/ui/src/types";
 import { ITransaction } from "../types";
-import { journalConfigMaps } from "../utils/maps";
+import { Link } from "react-router-dom";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { TRS } from "../utils/transactions";
+import { TR_SIDES } from "../../constants";
+import Tip from "@erxes/ui/src/components/Tip";
 import TrFormTBalance from "./TrFormTBalance";
+import { journalConfigMaps } from "../utils/maps";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -54,76 +63,81 @@ const TransactionForm = (props: Props) => {
   } = props;
 
   const [state, setState] = useState<State>({
-    date:
-      transactions?.length && transactions[0].date || new Date(),
-    number: transactions?.length && transactions[0].number || "",
+    date: (transactions?.length && transactions[0].date) || new Date(),
+    number: (transactions?.length && transactions[0].number) || "",
   });
 
   const [trDocs, setTrDocs] = useState<ITransaction[]>(
-    transactions?.length ? transactions.filter(tr => !tr.originId) :
-      (defaultJournal && [
-        journalConfigMaps[defaultJournal || ""]?.defaultData(state.date),
-      ]) ||
-      []
+    transactions?.length
+      ? transactions.filter((tr) => !tr.originId)
+      : (defaultJournal && [
+          journalConfigMaps[defaultJournal || ""]?.defaultData(state.date),
+        ]) ||
+          []
   );
 
   const [followTrDocs, setFollowTrDocs] = useState<ITransaction[]>(
-    transactions?.length && transactions.filter(tr => tr.originId) || []
-  )
+    (transactions?.length && transactions.filter((tr) => tr.originId)) || []
+  );
 
   useEffect(() => {
-    setTrDocs(transactions?.length ? transactions.filter(tr => !tr.originId) :
-      (defaultJournal && [
-        journalConfigMaps[defaultJournal || ""]?.defaultData(state.date),
-      ]) ||
-      []);
-    setFollowTrDocs(transactions?.length && transactions.filter(tr => tr.originId) || [])
+    setTrDocs(
+      transactions?.length
+        ? transactions.filter((tr) => !tr.originId)
+        : (defaultJournal && [
+            journalConfigMaps[defaultJournal || ""]?.defaultData(state.date),
+          ]) ||
+            []
+    );
+    setFollowTrDocs(
+      (transactions?.length && transactions.filter((tr) => tr.originId)) || []
+    );
   }, [transactions]);
 
   const [currentTransaction, setCurrentTransaction] = useState(
     trDocs && (trDocs.find((tr) => tr._id === queryParams.trId) || trDocs[0])
   );
 
-  const balance: { dt: number; ct: number; diff?: number; side?: string } = useMemo(() => {
-    const result = { dt: 0, ct: 0 };
+  const balance: { dt: number; ct: number; diff?: number; side?: string } =
+    useMemo(() => {
+      const result = { dt: 0, ct: 0 };
 
-    [...trDocs, ...followTrDocs].forEach((tr) => {
-      let sumDt = 0;
-      let sumCt = 0;
-      (tr.details || []).forEach((detail) => {
-        if (detail.side === TR_SIDES.DEBIT) {
-          sumDt += Number(detail.amount) ?? 0;
-        } else {
-          sumCt += Number(detail.amount) ?? 0;
-        }
+      [...trDocs, ...followTrDocs].forEach((tr) => {
+        let sumDt = 0;
+        let sumCt = 0;
+        (tr.details || []).forEach((detail) => {
+          if (detail.side === TR_SIDES.DEBIT) {
+            sumDt += Number(detail.amount) ?? 0;
+          } else {
+            sumCt += Number(detail.amount) ?? 0;
+          }
+        });
+
+        result.dt += sumDt;
+        result.ct += sumCt;
       });
 
-      result.dt += sumDt;
-      result.ct += sumCt;
-    });
+      const diff = result.dt - result.ct;
+      if (diff > 0.05 && diff < 0.05) {
+        return result;
+      }
 
-    const diff = result.dt - result.ct;
-    if (diff > 0.05 && diff < 0.05) {
-      return result;
-    }
-
-    if (diff > 0) {
-      return { ...result, side: TR_SIDES.CREDIT, diff };
-    }
-    return { ...result, side: TR_SIDES.DEBIT, diff: -1 * diff };
-  }, [trDocs]);
+      if (diff > 0) {
+        return { ...result, side: TR_SIDES.CREDIT, diff };
+      }
+      return { ...result, side: TR_SIDES.DEBIT, diff: -1 * diff };
+    }, [trDocs]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     save(trDocs);
   };
 
   const renderButtons = () => {
-    const SmallLoader = ButtonMutate.SmallLoader;
-
     const cancelButton = (
       <Link to={`/accountings/ptrs`}>
-        <Button btnStyle="simple" icon="times-circle">
+        <Button btnStyle="simple" icon="times-circle" size="small">
           Cancel
         </Button>
       </Link>
@@ -133,7 +147,12 @@ const TransactionForm = (props: Props) => {
       <Button.Group>
         {cancelButton}
 
-        <Button btnStyle="success" icon={"check-circle"} onClick={handleSubmit}>
+        <Button
+          btnStyle="success"
+          icon={"check-circle"}
+          size="small"
+          onClick={handleSubmit}
+        >
           Save
         </Button>
       </Button.Group>
@@ -144,7 +163,10 @@ const TransactionForm = (props: Props) => {
     if (!journalConfigMaps[journal]) {
       return Alert.error("wron cho");
     }
-    const trData = journalConfigMaps[journal]?.defaultData(state.date, balance.diff);
+    const trData = journalConfigMaps[journal]?.defaultData(
+      state.date,
+      balance.diff
+    );
     trDocs?.push(trData);
     setTrDocs(trDocs);
     setCurrentTransaction(trData);
@@ -152,7 +174,7 @@ const TransactionForm = (props: Props) => {
 
   const onRemoveTr = (id) => {
     setTrDocs(trDocs.filter((tr) => tr._id !== id));
-    setFollowTrDocs(followTrDocs.filter(tr => tr.originId !== id));
+    setFollowTrDocs(followTrDocs.filter((tr) => tr.originId !== id));
     if (currentTransaction?._id === id) {
       setCurrentTransaction(trDocs[0]);
     }
@@ -172,30 +194,34 @@ const TransactionForm = (props: Props) => {
       })
     );
 
-    const oldFollowTrs = followTrDocs.filter(ftr => ftr.originId === trDoc._id);
+    const oldFollowTrs = followTrDocs.filter(
+      (ftr) => ftr.originId === trDoc._id
+    );
 
     if (!oldFollowTrs.length && !fTrDocs?.length) {
       return;
     }
 
-    const oldFollowTrIds = oldFollowTrs.map(oftr => oftr._id);
-    const addFtrs = (fTrDocs || []).filter(ftr => !oldFollowTrIds.includes(ftr._id));
+    const oldFollowTrIds = oldFollowTrs.map((oftr) => oftr._id);
+    const addFtrs = (fTrDocs || []).filter(
+      (ftr) => !oldFollowTrIds.includes(ftr._id)
+    );
 
     let tempFollowTrs: ITransaction[] = [];
     for (const ftrDoc of followTrDocs) {
       if (ftrDoc.originId === trDoc._id) {
-        const currentDoc = fTrDocs?.find(ftr => ftr._id === ftrDoc._id)
+        const currentDoc = fTrDocs?.find((ftr) => ftr._id === ftrDoc._id);
         // found and edit else remove
         if (currentDoc) {
           tempFollowTrs.push({ ...ftrDoc, ...currentDoc });
         }
       } else {
-        tempFollowTrs.push(ftrDoc)
+        tempFollowTrs.push(ftrDoc);
       }
     }
 
     for (const addFtr of addFtrs) {
-      tempFollowTrs.push(addFtr)
+      tempFollowTrs.push(addFtr);
     }
 
     setFollowTrDocs(tempFollowTrs);
@@ -205,20 +231,21 @@ const TransactionForm = (props: Props) => {
     return (
       <Box>
         <EmptyContent>
-          <EmptyState
-            text={__(text)}
-            image={`/images/actions/${image}.svg`}
-          />
+          <EmptyState text={__(text)} image={`/images/actions/${image}.svg`} />
         </EmptyContent>
       </Box>
-    )
-  }
+    );
+  };
+
   const renderTabContent = () => {
     if (!currentTransaction) {
-      return renderEmptyBox('Уучлаарай. Идэвхитэй баримт сонгогдоогүй байна. Зөв табаа сонгоно уу.', '30')
+      return renderEmptyBox(
+        "Уучлаарай. Идэвхитэй баримт сонгогдоогүй байна. Зөв табаа сонгоно уу.",
+        "30"
+      );
     }
 
-    if (currentTransaction._id === 'TBalance') {
+    if (currentTransaction._id === "TBalance") {
       return (
         <Box key={currentTransaction._id}>
           <TrFormTBalance
@@ -227,22 +254,29 @@ const TransactionForm = (props: Props) => {
             transactions={[...(trDocs || []), ...(followTrDocs || [])]}
           />
         </Box>
-      )
+      );
     }
 
     if (currentTransaction.permission === "hidden") {
-      return renderEmptyBox('Уучлаарай. Таны эрх уг гүйлгээг удирдах эрх хүрсэнгүй', 'automation2');
+      return renderEmptyBox(
+        "Уучлаарай. Таны эрх уг гүйлгээг удирдах эрх хүрсэнгүй",
+        "automation2"
+      );
     }
 
     const Component = journalConfigMaps[currentTransaction?.journal]?.component;
-    const trDoc = trDocs.find((tr) => tr._id === currentTransaction._id)
+
+    const trDoc = trDocs.find((tr) => tr._id === currentTransaction._id);
     if (!trDoc) {
-      return renderEmptyBox('Уучлаарай. Идэвхитэй баримт сонгогдоогүй байна. Зөв табаа сонгоно уу.', '30')
+      return renderEmptyBox(
+        "Уучлаарай. Идэвхитэй баримт сонгогдоогүй байна. Зөв табаа сонгоно уу.",
+        "30"
+      );
     }
 
     const originTrs = trDocs.filter(
       (tr) => tr.originId === currentTransaction._id
-    )
+    );
     return (
       <Box key={currentTransaction._id}>
         <Component
@@ -250,7 +284,7 @@ const TransactionForm = (props: Props) => {
           configsMap={configsMap}
           transactions={originTrs}
           trDoc={trDoc}
-          followTrDocs={followTrDocs.filter(tr => tr.originId === trDoc._id)}
+          followTrDocs={followTrDocs.filter((tr) => tr.originId === trDoc._id)}
           setTrDoc={onEditTr}
         />
       </Box>
@@ -274,87 +308,112 @@ const TransactionForm = (props: Props) => {
 
   const content = () => {
     return (
-      <StepWrapper>
-        <LeftContent>
-          <FormWrapper>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>{__('Number')}</ControlLabel>
-                <FormControl
-                  name="number"
-                  value={state.number}
-                  autoFocus={true}
-                  required={true}
-                  onChange={e => setState((prevState) => ({
-                    ...prevState, number: (e.target as any).value
-                  }))}
-                />
-              </FormGroup>
-            </FormColumn>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>{__('Date')}</ControlLabel>
-                <DateControl
-                  required={true}
-                  value={state.date}
-                  name={'date'}
-                  placeholder="Enter date"
-                  dateFormat='YYYY-MM-DD'
-                  onChange={onChangeDate}
-                />
-              </FormGroup>
-            </FormColumn>
-          </FormWrapper>
-          <ContentHeader
-            background={'colorWhite'}
-          >
-            <HeaderContent>
-              <HeaderItems $hasFlex={true}>
-                <Tabs grayBorder={true}>
-                  {(trDocs || []).map(tr => (
-                    <TabTitle
-                      key={tr._id}
-                      className={currentTransaction?._id === tr._id ? 'active' : ''}
-                      onClick={() => setCurrentTransaction(tr)}
-                    >
-                      {__(tr.journal.toUpperCase())} - {(tr.details || [])[0]?.side}.
-                      <span onClick={(e) => e.stopPropagation()}>
-                        <Icon icon='trash-alt' onClick={onRemoveTr.bind(this, tr._id)}>
-                        </Icon>
-                      </span>
-                    </TabTitle>
-                  ))}
-                  <TabTitle
-                    className={currentTransaction?._id === 'TBalance' ? 'active' : ''}
-                    onClick={() => setCurrentTransaction({ ...currentTransaction, _id: 'TBalance' })}
-                  >
-                    <Icon icon={'alignright'}></Icon>
-                    T balance
-                  </TabTitle>
-                  <TabTitle>
-                    <AddTransactionLink onClick={onAddTr} />
-                  </TabTitle>
-                </Tabs>
-              </HeaderItems>
-              <HeaderItems $rightAligned={true}>
-                {renderButtons()}
-              </HeaderItems>
-            </HeaderContent>
-          </ContentHeader>
+      <ContentWrapper>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>{__("Number")}</ControlLabel>
+              <FormControl
+                name="number"
+                value={state.number}
+                autoFocus={true}
+                required={true}
+                onChange={(e) =>
+                  setState((prevState) => ({
+                    ...prevState,
+                    number: (e.target as any).value,
+                  }))
+                }
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>{__("Date")}</ControlLabel>
+              <DateControl
+                required={true}
+                value={state.date}
+                name={"date"}
+                placeholder="Enter date"
+                dateFormat="YYYY-MM-DD"
+                onChange={onChangeDate}
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+        <FormContent>
+          <FormContentHeader>
+            <Tabs grayBorder={true}>
+              {(trDocs || []).map((tr) => (
+                <TabTitle
+                  key={tr._id}
+                  className={currentTransaction?._id === tr._id ? "active" : ""}
+                  onClick={() => setCurrentTransaction(tr)}
+                >
+                  {TRS[tr.journal].value} - {(tr.details || [])[0]?.side}
+                  <DeleteIcon onClick={(e) => e.stopPropagation()}>
+                    <Tip text={__("Delete")}>
+                      <Icon
+                        color="#EA475D"
+                        icon="trash-alt"
+                        onClick={onRemoveTr.bind(this, tr._id)}
+                      ></Icon>
+                    </Tip>
+                  </DeleteIcon>
+                </TabTitle>
+              ))}
+              <TabTitle
+                className={
+                  currentTransaction?._id === "TBalance" ? "active" : ""
+                }
+                onClick={() =>
+                  setCurrentTransaction({
+                    ...currentTransaction,
+                    _id: "TBalance",
+                  })
+                }
+              >
+                <Icon icon={"alignright"}></Icon>T balance
+              </TabTitle>
+              <TabTitle>
+                <TransactionLinkWrapper>
+                  <AddTransactionLink onClick={onAddTr} />
+                </TransactionLinkWrapper>
+              </TabTitle>
+            </Tabs>
+            {renderButtons()}
+          </FormContentHeader>
           {renderTabContent()}
+        </FormContent>
 
-          <ControlWrapper>
-            <Indicator>
-              <>{__('You are')} {currentTransaction?.parentId ? 'editing' : 'creating'} {__('transaction')}.</>
-              <> {__('Sum Debit')}: <strong>{(balance.dt ?? 0).toLocaleString()}</strong>;</>
-              <> {__('Sum Credit')}: <strong>{(balance.ct ?? 0).toLocaleString()}</strong>;</>
-              {balance?.diff && (<> + {__(balance.side || '')}: <strong>{balance.diff}</strong>;</>) || ''}
-
-            </Indicator>
-            save template
-          </ControlWrapper>
-        </LeftContent>
-      </StepWrapper >
+        <ControlWrapper>
+          <Indicator>
+            <>
+              {__("You are")}{" "}
+              {currentTransaction?.parentId ? "editing" : "creating"}{" "}
+              {__("transaction")}.
+            </>
+            <>
+              {" "}
+              {__("Sum Debit")}:{" "}
+              <strong>{(balance.dt ?? 0).toLocaleString()}</strong>;
+            </>
+            <>
+              {" "}
+              {__("Sum Credit")}:{" "}
+              <strong>{(balance.ct ?? 0).toLocaleString()}</strong>;
+            </>
+            {(balance?.diff && (
+              <>
+                {" "}
+                + {__(balance.side || "")}: <strong>{balance.diff}</strong>;
+              </>
+            )) ||
+              ""}
+          </Indicator>
+          save template
+        </ControlWrapper>
+      </ContentWrapper>
     );
   };
 
@@ -365,10 +424,9 @@ const TransactionForm = (props: Props) => {
   return (
     <Wrapper
       header={
-        <Wrapper.Header title={__('Transaction')} breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__("Transaction")} breadcrumb={breadcrumb} />
       }
       content={content()}
-      hasBorder={true}
     />
   );
 };

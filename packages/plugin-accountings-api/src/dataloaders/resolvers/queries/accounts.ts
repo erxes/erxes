@@ -154,21 +154,21 @@ export const generateFilter = async (
     return filter;
   }
 
-  const permissions = await models.Permissions.find({ user: user._id }).lean();
+  // const permissions = await models.Permissions.find({ user: user._id }).lean();
 
-  const hasPermAccountIds = permissions.map(p => p.accountId)
+  // const hasPermAccountIds = permissions.map(p => p.accountId)
 
-  if (filter._id.$in?.length) {
-    filter._id.$in = _.intersection(filter._id.$in, hasPermAccountIds);
-    return filter;
-  }
+  // if (filter._id?.$in?.length) {
+  //   filter._id.$in = _.intersection(filter._id.$in, hasPermAccountIds);
+  //   return filter;
+  // }
 
-  if (filter._id.$nin?.length) {
-    filter._id.$nin = _.difference(filter._id.$nin, hasPermAccountIds);
-    return filter;
-  }
+  // if (filter._id?.$nin?.length) {
+  //   filter._id.$nin = _.difference(filter._id.$nin, hasPermAccountIds);
+  //   return filter;
+  // }
 
-  filter._id = { $in: hasPermAccountIds };
+  // filter._id = { $in: hasPermAccountIds };
 
   return filter;
 };

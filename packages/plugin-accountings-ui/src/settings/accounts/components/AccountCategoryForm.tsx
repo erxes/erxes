@@ -1,23 +1,21 @@
-import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import CommonForm from "@erxes/ui/src/components/form/Form";
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
 import {
   FormColumn,
   FormWrapper,
   ModalFooter,
 } from "@erxes/ui/src/styles/main";
-import {
-  IButtonMutateProps,
-  IFormProps,
-} from "@erxes/ui/src/types";
-import { __, router } from "@erxes/ui/src/utils/core";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import React, { useState } from "react";
+import { __, router } from "@erxes/ui/src/utils/core";
+
+import Button from "@erxes/ui/src/components/Button";
+import CommonForm from "@erxes/ui/src/components/form/Form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IAccountCategory } from "../types";
+import { Row } from "@erxes/ui-inbox/src/settings/integrations/styles";
+import SelectAccountCategory from "../containers/SelectAccountCategory";
 import { useLocation } from "react-router-dom";
-import SelectAccountCategory from '../containers/SelectAccountCategory';
-import { IAccountCategory } from '../types';
 
 interface IProps {
   accountCategory?: IAccountCategory;
@@ -60,21 +58,18 @@ function AccountCategoryForm(props: IProps): React.ReactNode {
 
   const [state, setState] = useState<State>({
     ...accountCategory,
-    name: name || '',
-    code: code || '',
-    order: order || '',
+    name: name || "",
+    code: code || "",
+    order: order || "",
     scopeBrandIds: scopeBrandIds || [],
-    description: description || '',
-    parentId: parentId || paramCategoryId || '',
-    status: status || '',
-    maskType: maskType || '',
-    mask: mask || '',
+    description: description || "",
+    parentId: parentId || paramCategoryId || "",
+    status: status || "",
+    maskType: maskType || "",
+    mask: mask || "",
   });
 
-  const generateDoc = (values: {
-    _id?: string;
-    description: string;
-  }) => {
+  const generateDoc = (values: { _id?: string; description: string }) => {
     const { accountCategory, accountCategories } = props;
     const finalValues = values;
     if (accountCategory) {
@@ -101,23 +96,17 @@ function AccountCategoryForm(props: IProps): React.ReactNode {
       ...accountCategory,
       ...state,
       ...finalValues,
-      status: 'active',
+      status: "active",
       maskType: genMaskType,
       mask: genMask,
     };
   };
 
   const renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal, accountCategory } =
-      props;
+    const { renderButton, closeModal, accountCategory } = props;
     const { values, isSubmitted } = formProps;
 
-    const {
-      code,
-      name,
-      parentId,
-      maskStr,
-    } = state;
+    const { code, name, parentId, maskStr } = state;
 
     return (
       <>
@@ -131,10 +120,15 @@ function AccountCategoryForm(props: IProps): React.ReactNode {
                   name="productCategoryId"
                   initialValue={parentId}
                   customOption={{
-                    value: '',
-                    label: '...Empty category',
+                    value: "",
+                    label: "...Empty category",
                   }}
-                  onSelect={(categoryId) => setState((prevState) => ({ ...prevState, categoryId: categoryId as string }))}
+                  onSelect={(categoryId) =>
+                    setState((prevState) => ({
+                      ...prevState,
+                      categoryId: categoryId as string,
+                    }))
+                  }
                   multi={false}
                 />
               </Row>
@@ -172,10 +166,6 @@ function AccountCategoryForm(props: IProps): React.ReactNode {
                 required={true}
               />
             </FormGroup>
-
-          </FormColumn>
-          <FormColumn>
-
           </FormColumn>
         </FormWrapper>
 
@@ -202,6 +192,6 @@ function AccountCategoryForm(props: IProps): React.ReactNode {
   };
 
   return <CommonForm renderContent={renderContent} />;
-};
+}
 
 export default AccountCategoryForm;

@@ -17,3 +17,17 @@ export const attachmentInput = `
     duration: Float
   }
 `;
+
+export const pdfAttachmentType = `
+  type PdfAttachment {
+    pdf: Attachment
+    pages: [Attachment]
+  }
+`;
+
+export const pdfAttachmentInput = `
+  input PdfAttachmentInput {
+    pdf: AttachmentInput
+    pages: [AttachmentInput]
+  }
+`;

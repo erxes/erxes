@@ -1,12 +1,12 @@
-import * as strip from 'strip';
-import { Model } from 'mongoose';
+import * as strip from "strip";
+import { Model } from "mongoose";
 
-import { IModels } from '../connectionResolver';
+import { IModels } from "../connectionResolver";
 import {
   IConversationMessage,
   IConversationMessageDocument,
   conversationMessageSchema
-} from './definitions/conversationMessages';
+} from "./definitions/conversationMessages";
 
 export interface IConversationMessageModel
   extends Model<IConversationMessageDocument> {
@@ -29,7 +29,7 @@ export const loadConversationMessageClass = (models: IModels) => {
       const message = await models.ConversationMessages.findOne({ _id }).lean();
 
       if (!message) {
-        throw new Error('Conversation message not found');
+        throw new Error("Conversation message not found");
       }
 
       return message;
@@ -58,20 +58,17 @@ export const loadConversationMessageClass = (models: IModels) => {
         throw new Error(`Conversation not found with id ${doc.conversationId}`);
       }
 
-      // normalize content, attachments
-      const content = doc.content || '';
+      const content = doc.content || "";
       const attachments = doc.attachments || [];
 
       doc.content = content;
       doc.attachments = attachments;
 
-      // <img> tags wrapped inside empty <p> tag should be allowed
       const contentValid =
-        content.indexOf('<img') !== -1 ? true : strip(content);
+        content.indexOf("<img") !== -1 ? true : strip(content);
 
-      // if there is no attachments and no content then throw content required error
       if (attachments.length === 0 && !contentValid) {
-        throw new Error('Content is required');
+        throw new Error("Content is required");
       }
 
       return this.createMessage({ ...doc, userId });

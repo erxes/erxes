@@ -110,11 +110,6 @@ const SignatureChooser = ({
     const brandName =
       brands.find((brand: IBrand) => brand._id === signature.brandId)?.name ||
       "";
-
-    if (brandName === "") {
-      return null;
-    }
-
     return (
       <React.Fragment key={`${signature.brandId}-${signature.signature}`}>
         <SignatureDropdownWrapper

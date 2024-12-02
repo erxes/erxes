@@ -23,6 +23,11 @@ export interface IProductData extends Document {
   assignUserId?: string;
   branchId?: string;
   departmentId?: string;
+  startDate?: Date;
+  endDate?: Date;
+  parentId?: string;
+  information?: JSON;
+  extraIds?: [];
 }
 
 interface IPaymentsData {
@@ -65,8 +70,11 @@ export const productDataSchema = new Schema(
     assignUserId: field({ type: String, optional: true, esType: 'keyword' }), // AssignUserId
     branchId: field({ type: String, optional: true, esType: 'keyword' }),
     departmentId: field({ type: String, optional: true, esType: 'keyword' }),
+    startDate: field({ type: Date, optional: true, label: 'Start date' }), //pms
+    endDate: field({ type: Date, optional: true, label: 'End date' }), //pms
+    information: field({ type: Object, optional: true, label: 'information' }), //pms
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const dealSchema = new Schema({

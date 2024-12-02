@@ -13,8 +13,9 @@ const receiveMessage = async (
 ): Promise<void> => {
   const { metadata, contacts = [], messages = [] } = messageData;
   const { phone_number_id } = metadata;
-
+  console.log(messageData,'messageData')
   const waId = contacts.length > 0 ? contacts[0]?.wa_id : undefined;
+  console.log(waId,'waId')
   if (!waId) {
     console.error('No whatsapp ID found in contacts');
     return;
@@ -27,7 +28,7 @@ const receiveMessage = async (
         { kind: INTEGRATION_KINDS.MESSENGER }
       ]
     });
-
+    console.log(integration,'integration')
     if (!integration) {
       throw new Error('whatsapp Integration not found');
     }
@@ -40,7 +41,7 @@ const receiveMessage = async (
       contacts,
       integration
     );
-
+    console.log(customer,'customer')
     if (!customer) {
       throw new Error('Failed to get or create customer');
     }
@@ -49,8 +50,9 @@ const receiveMessage = async (
       senderId: phone_number_id,
       recipientId: waId
     });
-
+    console.log(conversation,'conversation')
     const messageId = messages.length > 0 ? messages[0]?.id : undefined;
+    console.log(messageId,'messageId')
     let attachments: { type: string; url: any }[] = [];
     const type = messages.length > 0 ? messages[0]?.type : undefined;
 
@@ -96,6 +98,7 @@ const receiveMessage = async (
         content,
         integrationId: integration._id
       });
+      console.log(conversation,'new conversation')
     }
 
     const apiConversationResponse = await sendInboxMessage({
@@ -117,11 +120,11 @@ const receiveMessage = async (
 
     conversation.erxesApiId = apiConversationResponse._id;
     await conversation.save();
-
+    console.log(conversation,'await conversation.save()')
     const conversationMessage = await models.ConversationMessages.findOne({
       mid: messageId
     });
-
+    console.log(conversationMessage,'conversationMessage')
     if (!conversationMessage) {
       const createdMessage = await models.ConversationMessages.create({
         mid: messageId,
@@ -135,12 +138,13 @@ const receiveMessage = async (
         customerId: customer.erxesApiId,
         attachments
       });
-
-      await handleMessageUpdate(
+      console.log(createdMessage,'createdMessage')
+      const handleMessage =await handleMessageUpdate(
         createdMessage.toObject(),
         conversation.erxesApiId,
         subdomain
       );
+      console.log(handleMessage,'handleMessage')
     }
   } catch (error) {
     throw new Error(`Error in receiveMessage: ${error.message}`);

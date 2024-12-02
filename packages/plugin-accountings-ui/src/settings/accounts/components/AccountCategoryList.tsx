@@ -1,20 +1,21 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
-import { Header } from '@erxes/ui-settings/src/styles';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
-import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
-import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import AccountCategoryForm from '../containers/AccountCategoryForm';
-import mutation from '../graphql/mutations';
-import queries from '../graphql/queries';
-import { AccountCategoriesQueryResponse, IAccountCategory } from '../types';
-import CategoryStatusFilter from './filters/CategoryStatusFilter';
+import { AccountCategoriesQueryResponse, IAccountCategory } from "../types";
+import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import AccountCategoryForm from "../containers/AccountCategoryForm";
+import Button from "@erxes/ui/src/components/Button";
+import CategoryStatusFilter from "../containers/filters/CategoryStatusFilter";
+import CollapsibleList from "@erxes/ui/src/components/collapsibleList/CollapsibleList";
+import { Header } from "@erxes/ui-settings/src/styles";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import { SidebarList } from "@erxes/ui/src/layout/styles";
+import Tip from "@erxes/ui/src/components/Tip";
+import mutation from "../graphql/mutations";
+import queries from "../graphql/queries";
 
 interface IProps {
   queryParams: any;
@@ -37,7 +38,7 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
       },
       onCompleted: () => {
         Alert.success(`You successfully deleted a category`);
-      }
+      },
     }
   );
 
@@ -46,17 +47,13 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
     category?: IAccountCategory
   ) => {
     const content = (props) => (
-      <AccountCategoryForm
-        {...props}
-        accountCategoryId={category?._id}
-      />
+      <AccountCategoryForm {...props} accountCategoryId={category?._id} />
     );
 
     return (
       <ModalTrigger
         title="Manage category"
         trigger={trigger}
-        size="lg"
         content={content}
       />
     );
@@ -65,7 +62,7 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
   const renderEditAction = (category: IAccountCategory) => {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="bottom">
+        <Tip text={__("Edit")} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -78,8 +75,8 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
     confirm().then(() => {
       accountCategoriesRemoveMutation({
         variables: { id: productId },
-        refetchQueries: ['accountCategories', 'accounts'],
-        awaitRefetchQueries: false
+        refetchQueries: ["accountCategories", "accounts"],
+        awaitRefetchQueries: false,
       });
     });
   };
@@ -87,7 +84,7 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
   const renderRemoveAction = (category: IAccountCategory) => {
     return (
       <Button btnStyle="link" onClick={remove.bind(null, category._id)}>
-        <Tip text={__('Remove')} placement="bottom">
+        <Tip text={__("Remove")} placement="bottom">
           <Icon icon="cancel-1" />
         </Tip>
       </Button>
@@ -95,7 +92,7 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
   };
 
   const onClick = (id: string) => {
-    router.removeParams(navigate, location, 'page');
+    router.removeParams(navigate, location, "page");
     router.setParams(navigate, location, { categoryId: id });
   };
 
@@ -108,11 +105,12 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
         loading={loading}
         onClick={onClick}
         queryParams={queryParams}
-        treeView={
-          !['disabled', 'archived'].includes(
-            router.getParam(location, ['status'])
-          )
-        }
+        // treeView={
+        //   !["disabled", "archived"].includes(
+        //     router.getParam(location, ["status"])
+        //   )
+        // }
+        treeView={true}
         keyCount="productCount"
       />
     );

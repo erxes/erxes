@@ -33,13 +33,13 @@ export const accountFields = `
 const accountsFilterParamDefs = `
   $accountsStatus: String,
   $categoryId: String,
+  $currency: String,
   $searchValue: String,
   $brand: String,
   $ids: [String],
   $excludeIds: Boolean,
   $isOutBalance: Boolean,
   $branchId: String,
-  $accountsCurrency: String,
   $departmentId: String,
   $journals: [String],
   $kind: String
@@ -55,7 +55,7 @@ const accountsFilterParams = `
   excludeIds: $excludeIds,
   isOutBalance: $isOutBalance,
   branchId: $branchId,
-  currency: $accountsCurrency,
+  currency: $currency,
   departmentId: $departmentId,
   journals: $journals,
   kind: $kind

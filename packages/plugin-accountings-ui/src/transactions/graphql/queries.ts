@@ -52,6 +52,16 @@ export const commonTransactionFields = `
   customerId
   assignedUserIds
 
+  branch {
+    _id
+    title
+  }
+
+  department {
+    _id
+    title
+  }
+
   details {
     ${commonTrDetailFields}
     account {
