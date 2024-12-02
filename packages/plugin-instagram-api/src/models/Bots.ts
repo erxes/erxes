@@ -14,11 +14,11 @@ const validateDoc = async (models: IModels, doc: any, isUpdate?: boolean) => {
   }
 
   if (!doc.accountId) {
-    throw new Error("Please select a facebook account");
+    throw new Error("Please select a instagram account");
   }
 
   if (!doc.pageId) {
-    throw new Error("Please select a facebook page");
+    throw new Error("Please select a instagram page");
   }
 
   if (
@@ -106,7 +106,7 @@ export const loadBotClass = (models: IModels) => {
           bot.token = pageAccessToken;
         }
 
-        bot.accountId = relatedAccount._id as string; // Type assertion to treat _id as a string
+        bot.accountId = relatedAccount._id as string;
       }
 
       try {

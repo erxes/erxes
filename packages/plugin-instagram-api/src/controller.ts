@@ -45,7 +45,7 @@ const init = async (app) => {
         );
       }
 
-      debugError(`Error occured while connecting to facebook ${e.message}`);
+      debugError(`Error occured while connecting to instagram ${e.message}`);
       return next(e);
     }
 

@@ -175,23 +175,19 @@ const instagramQueries = {
     const comments = await models.CommentConversation.find({
       erxesApiId: conversationId
     });
-    // Extracting comment_ids from the comments array
     const comment_ids = comments?.map((item) => item.comment_id);
 
-    // Using the extracted comment_ids to search for matching comments
     const search = await models.CommentConversation.find({
-      comment_id: { $in: comment_ids } // Using $in to find documents with comment_ids in the extracted array
+      comment_id: { $in: comment_ids }
     });
 
     if (search.length > 0) {
-      // Returning the count of matching comments
       return {
         commentCount: commentCount,
         searchCount: search.length
       };
     }
 
-    // If no matching comments are found, return only the commentCount
     return {
       commentCount: commentCount,
       searchCount: 0
@@ -275,7 +271,6 @@ const instagramQueries = {
         .skip(skip || 0);
 
       if (search.length > 0) {
-        // Combine the arrays and sort by createdAt in ascending order
         return [...comment, ...search].sort((a, b) =>
           a.createdAt > b.createdAt ? 1 : -1
         );
@@ -312,7 +307,6 @@ const instagramQueries = {
       });
     }
 
-    // Return null or some appropriate value when comment is not found
     return null;
   },
   async instagramGetBotPosts(_root, { botId }, { models }: IContext) {
@@ -357,7 +351,7 @@ const instagramQueries = {
               subdomain,
               action: "integrations.find",
               data: {
-                query: { kind: "facebook-post", brandId: brandId }
+                query: { kind: "instagram-post", brandId: brandId }
               },
               isRPC: true,
               defaultValue: []
@@ -383,7 +377,7 @@ const instagramQueries = {
         subdomain,
         action: "integrations.find",
         data: {
-          query: { kind: "facebook-post" }
+          query: { kind: "instagram-post" }
         },
         isRPC: true,
         defaultValue: []
@@ -468,23 +462,10 @@ const instagramQueries = {
           return fetchPagesPostsList(pageId, accessToken, limit);
         };
 
-        // const posts = await Promise.all(
-        //   instagramPageId.map(async (pageId) => {
-        //     const accessToken = facebookPageTokensMap[pageId];
-        //     if (!accessToken) {
-        //       console.warn(`Access token missing for page ID: ${pageId}`);
-        //       return [];
-        //     }
-        //     return fetchPagePostsWithRateLimiting(pageId, accessToken, limit);
-        //   })
-        // );
         return "success";
-
-        // return posts.flat();
       })
     );
 
-    // Applying the limit to the final result
     const allPostsFlattened = allPosts.flat();
     const limitedPosts = allPostsFlattened.slice(0, limit);
 

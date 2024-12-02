@@ -350,7 +350,7 @@ export const sendReply = async (
     return response;
   } catch (e) {
     debugError(
-      `Error ocurred while trying to send post request to facebook ${
+      `Error ocurred while trying to send post request to instagram ${
         e.message
       } data: ${JSON.stringify(data)}`
     );
