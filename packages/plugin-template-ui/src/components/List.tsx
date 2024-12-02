@@ -4,7 +4,7 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
-import { Alert, router } from '@erxes/ui/src/utils';
+import { __, Alert, router } from '@erxes/ui/src/utils';
 import {
   FilterContainer,
   FlexItem,
@@ -35,6 +35,8 @@ import { getEnv } from '@erxes/ui/src/utils/index';
 import queryString from 'query-string';
 import { includesAny } from '@erxes/ui-template/src/utils';
 import { ITemplate } from '@erxes/ui-template/src/types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   location: any;
@@ -243,32 +245,57 @@ const List = (props: Props) => {
   };
 
   const renderActions = (template: ITemplate) => {
+
+    const { contentType } = template
+
+    const [serviceName] = contentType.split(':')
+
+    const items = [
+      {
+        icon: "repeat",
+        label: "Use",
+        action: (data) => handleUse(data?._id),
+        isActive: !!isEnabled(serviceName),
+        tooltip: `${serviceName} is not enabled`
+      },
+      {
+        icon: "upload-6",
+        label: "Export",
+        action: (data) => handleExport(data)
+      },
+      {
+        icon: "edit",
+        label: "Edit",
+        action: (data) => handleEdit(data)
+      },
+      {
+        icon: "trash",
+        label: "Remove",
+        action: (data) => removeTemplate(data?._id)
+      }
+    ]
+
     return (
       <TemplateActions>
         <Dropdown
           as={DropdownToggle}
           toggleComponent={<Icon icon="ellipsis-v" />}
         >
-          <li>
-            <a onClick={() => handleUse(template)}>
-              <Icon icon="repeat" /> Use
-            </a>
-          </li>
-          <li>
-            <a onClick={() => handleExport(template)}>
-              <Icon icon="upload-6" /> Export
-            </a>
-          </li>
-          <li>
-            <a onClick={() => handleEdit(template)}>
-              <Icon icon="edit" /> Edit
-            </a>
-          </li>
-          <li>
-            <a onClick={() => removeTemplate(template?._id)}>
-              <Icon icon="trash" /> Remove
-            </a>
-          </li>
+          {items.map((item, index) => {
+
+            const { icon, label, action, isActive = true } = item
+
+            return (
+              <li key={index}>
+                <a
+                  onClick={() => { if (!isActive) return; action(template) }}
+                  style={{ cursor: isActive ? 'pointer' : 'not-allowed' }}
+                >
+                  <Icon icon={icon} /> {__(label)}
+                </a>
+              </li>
+            )
+          })}
         </Dropdown>
       </TemplateActions>
     );
