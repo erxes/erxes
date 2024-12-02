@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 export const types = () => `
   extend type User @key(fields: "_id") {
@@ -32,12 +32,12 @@ export const types = () => `
     groupSize: Int
     status: String
     cost: Float
-    orders: [Order]
+    orders: [BmsOrder]
     createdAt: Date
     modifiedAt: Date
   }
 
-  type Order {
+  type BmsOrder {
     _id: String!
     customerId: String
     tourId: String
@@ -45,7 +45,7 @@ export const types = () => `
     status: String
     note: String
   }
-  input OrderInput {
+  input BmsOrderInput {
     customerId: String
     tourId: String
     amount: Float
@@ -60,8 +60,8 @@ export const types = () => `
     list: [Tour]
     total: Int
   }
-  type ListOrder {
-    list: [Order]
+  type ListBmsOrder {
+    list: [BmsOrder]
     total: Int
   }
 `;
@@ -69,7 +69,7 @@ export const types = () => `
 export const queries = `
   bmTours( page:Int, perPage:Int, status: STATUS_TOUR,innerDate: Date): ListTour
   bmTourDetail(_id:String!): Tour
-  bmOrders( tourId:String, customerId:String):ListOrder
+  bmOrders( tourId:String, customerId:String):ListBmsOrder
 `;
 
 const params = `
@@ -91,7 +91,7 @@ export const mutations = `
   bmTourAdd(${params}): Tour
   bmTourRemove(ids: [String]): JSON
   bmTourEdit(_id:String!, ${params}): Tour
-  bmOrderAdd(order:OrderInput): Order
-  bmOrderEdit(_id:String!,order:OrderInput): Order
+  bmOrderAdd(order:BmsOrderInput): BmsOrder
+  bmOrderEdit(_id:String!,order:BmsOrderInput): BmsOrder
   bmOrderRemove(ids:[String]): JSON
 `;
