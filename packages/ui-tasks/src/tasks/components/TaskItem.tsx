@@ -1,18 +1,18 @@
-import { colors } from "@erxes/ui/src/styles";
-import React from "react";
+import { colors } from '@erxes/ui/src/styles';
+import React from 'react';
 
-import Assignees from "../../boards/components/Assignees";
-import Details from "../../boards/components/Details";
-import DueDateLabel from "../../boards/components/DueDateLabel";
-import Labels from "../../boards/components/label/Labels";
-import ItemFooter from "../../boards/components/portable/ItemFooter";
-import EditForm from "../../boards/containers/editForm/EditForm";
-import { ItemContainer } from "../../boards/styles/common";
-import { PriceContainer, Right } from "../../boards/styles/item";
-import { Content } from "../../boards/styles/stage";
-import { IItem, IOptions } from "../../boards/types";
-import { renderPriority } from "../../boards/utils";
-import ItemArchivedStatus from "../../boards/components/portable/ItemArchivedStatus";
+import Assignees from '../../boards/components/Assignees';
+import Details from '../../boards/components/Details';
+import DueDateLabel from '../../boards/components/DueDateLabel';
+import Labels from '../../boards/components/label/Labels';
+import ItemFooter from '../../boards/components/portable/ItemFooter';
+import EditForm from '../../boards/containers/editForm/EditForm';
+import { ItemContainer } from '../../boards/styles/common';
+import { PriceContainer, Right } from '../../boards/styles/item';
+import { Content } from '../../boards/styles/stage';
+import { IItem, IOptions } from '../../boards/types';
+import { renderPriority } from '../../boards/utils';
+import ItemArchivedStatus from '../../boards/components/portable/ItemArchivedStatus';
 
 type Props = {
   stageId?: string;
@@ -54,7 +54,8 @@ class TaskItem extends React.PureComponent<Props> {
       closeDate,
       startDate,
       isComplete,
-      customProperties
+      customProperties,
+      tags,
     } = item;
 
     return (
@@ -66,6 +67,7 @@ class TaskItem extends React.PureComponent<Props> {
 
         <Details color="#F7CE53" items={customers || []} />
         <Details color="#EA475D" items={companies || []} />
+        <Details color="#FF6600" items={tags || []} />
         <Details
           color={colors.colorCoreOrange}
           items={customProperties || []}
@@ -96,7 +98,7 @@ class TaskItem extends React.PureComponent<Props> {
         <>
           <ItemContainer onClick={onClick}>
             <ItemArchivedStatus
-              status={item.status || "active"}
+              status={item.status || 'active'}
               skipContainer={false}
             />
             <Content>{this.renderContent()}</Content>
