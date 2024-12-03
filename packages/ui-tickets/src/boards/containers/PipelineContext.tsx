@@ -552,7 +552,8 @@ class PipelineProviderInner extends React.Component<Props, State> {
     const aboveIndex = this.findItemIndex(stageId, aboveItemId);
 
     if (aboveIndex !== undefined) {
-      const newArray = [...items, { ...item }];
+      const newArray = items.map((item) => Object.assign({}, item));
+      newArray.splice(aboveIndex + 1, 0, { ...item });
 
       this.setState({
         itemMap: {
