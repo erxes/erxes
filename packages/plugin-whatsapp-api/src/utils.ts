@@ -1,16 +1,16 @@
-import * as graph from 'fbgraph';
-import * as FormData from 'form-data';
-import { IModels } from './connectionResolver';
-import { debugError, debugWhatsapp } from './debuggers';
-import { generateAttachmentUrl, getConfig } from './commonUtils';
-import { IAttachment, IAttachmentMessage } from './types';
-import fetch from 'node-fetch'; // Ensure this is imported
-import { getEnv } from '@erxes/api-utils/src/core';
+import * as graph from "fbgraph";
+import * as FormData from "form-data";
+import { IModels } from "./connectionResolver";
+import { debugError, debugWhatsapp } from "./debuggers";
+import { generateAttachmentUrl, getConfig } from "./commonUtils";
+import { IAttachment, IAttachmentMessage } from "./types";
+import fetch from "node-fetch"; // Ensure this is imported
+import { getEnv } from "@erxes/api-utils/src/core";
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
     graph.setAccessToken(accessToken);
-    graph.setVersion('19.0');
+    graph.setVersion("19.0");
 
     return new Promise((resolve, reject) => {
       graph[method](path, ...otherParams, (error, response) => {
@@ -22,24 +22,24 @@ export const graphRequest = {
     });
   },
   get(...args): any {
-    return this.base('get', ...args);
+    return this.base("get", ...args);
   },
 
   post(...args): any {
-    return this.base('post', ...args);
+    return this.base("post", ...args);
   },
 
   delete(...args): any {
-    return this.base('del', ...args);
+    return this.base("del", ...args);
   }
 };
 
 export const getPageAccessToken = async (
-  pageId: string,
+  number: string,
   userAccessToken: string
 ) => {
   const response = await graphRequest.get(
-    `${pageId}/?fields=access_token`,
+    `${number}/?fields=access_token`,
     userAccessToken
   );
   return response.access_token;
@@ -52,7 +52,7 @@ export const wabaUserDetail = async (
 ): Promise<any[]> => {
   try {
     const response = await graphRequest.get(
-      '/me?fields=id,name,businesses{verification_status,name}',
+      "/me?fields=id,name,businesses{verification_status,name}",
       accessToken
     );
     return response;
@@ -73,7 +73,7 @@ export const sendRequest = async (url, options) => {
 
     return response;
   } catch (error) {
-    console.error('Error in sendRequest:', error);
+    console.error("Error in sendRequest:", error);
     throw error;
   }
 };
@@ -89,7 +89,7 @@ export const uploadFileFromUrl = async (
     const mediaUrl = response.url;
 
     const getMedia = await fetch(mediaUrl, {
-      method: 'GET',
+      method: "GET",
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
@@ -104,33 +104,33 @@ export const uploadFileFromUrl = async (
     const buffer = Buffer.from(await getMedia.arrayBuffer());
 
     if (!buffer) {
-      throw new Error('Failed to convert media response to buffer');
+      throw new Error("Failed to convert media response to buffer");
     }
 
     const domain = getEnv({
-      name: 'DOMAIN',
+      name: "DOMAIN",
       subdomain,
-      defaultValue: 'http://localhost:4000'
+      defaultValue: "http://localhost:4000"
     });
-    const uploadUrl = domain.includes('zrok')
+    const uploadUrl = domain.includes("zrok")
       ? `${domain}/pl:core/upload-file`
       : `${domain}/gateway/pl:core/upload-file`;
 
     const formData = new FormData();
-    const fileExtension = mimeType.split('/')[1];
+    const fileExtension = mimeType.split("/")[1];
 
-    formData.append('file', buffer, `media.${fileExtension}`);
+    formData.append("file", buffer, `media.${fileExtension}`);
 
     const uploadResponse = await fetch(uploadUrl, {
-      method: 'POST',
+      method: "POST",
       body: formData
     });
 
     const responseBody = await uploadResponse.text();
 
-    const contentType = uploadResponse.headers.get('content-type');
+    const contentType = uploadResponse.headers.get("content-type");
 
-    if (contentType && contentType.includes('application/json')) {
+    if (contentType && contentType.includes("application/json")) {
       const jsonData = JSON.parse(responseBody);
       return jsonData;
     } else {
@@ -143,6 +143,17 @@ export const uploadFileFromUrl = async (
   }
 };
 
+export const getNumberWhatsApp = async (
+  whatsappNumberIds: any,
+  accessToken?: any
+) => {
+  const accounInfo: any = await graphRequest.get(
+    `${whatsappNumberIds}
+`,
+    accessToken
+  );
+  return accounInfo;
+};
 export const getBusinessWhatsAppDetails = async (
   models: IModels,
   accessToken?: string,
@@ -150,7 +161,7 @@ export const getBusinessWhatsAppDetails = async (
 ): Promise<any[]> => {
   try {
     const response = await graphRequest.get(
-      '/me?fields=id,name,businesses{verification_status,name}',
+      "/me?fields=id,name,businesses{verification_status,name}",
       accessToken
     );
 
@@ -222,16 +233,17 @@ export const sendReply = async (
     erxesApiId: integrationId
   });
   if (!integration) {
-    throw new Error('Integration not found');
+    throw new Error("Integration not found");
   }
 
   const { accountId } = integration;
   const account = await models.Accounts.findOne({ _id: accountId });
 
   if (!account) {
-    throw new Error('Account not found');
+    throw new Error("Account not found");
   }
   const access_token = account.token;
+
   try {
     const response = await graphRequest.post(url, access_token, data);
     debugWhatsapp(
@@ -253,12 +265,12 @@ export const generateAttachmentMessages = (
   const messages: IAttachmentMessage[] = [];
 
   for (const attachment of attachments || []) {
-    let type = 'file';
+    let type = "file";
 
-    if (attachment.type.startsWith('image')) {
-      type = 'image';
-    } else if (attachment.type.startsWith('video')) {
-      type = 'video';
+    if (attachment.type.startsWith("image")) {
+      type = "image";
+    } else if (attachment.type.startsWith("video")) {
+      type = "video";
     }
 
     const url = generateAttachmentUrl(subdomain, attachment.url);

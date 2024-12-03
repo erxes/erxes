@@ -3,19 +3,19 @@ import {
   AccountItem,
   AccountTitle,
   FacebookButton
-} from '@erxes/ui-inbox/src/settings/integrations/styles';
+} from "@erxes/ui-inbox/src/settings/integrations/styles";
 import {
   IAccount,
   IntegrationTypesWhatsapp
-} from '@erxes/ui-inbox/src/settings/integrations/types';
-import { __, confirm } from 'coreui/utils';
+} from "@erxes/ui-inbox/src/settings/integrations/types";
+import { __, confirm } from "coreui/utils";
 
-import Button from '@erxes/ui/src/components/Button';
-import { CenterText } from '@erxes/ui-log/src/activityLogs/styles';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { IFormProps } from '@erxes/ui/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
+import Button from "@erxes/ui/src/components/Button";
+import { CenterText } from "@erxes/ui-log/src/activityLogs/styles";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { IFormProps } from "@erxes/ui/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
 
 type Props = {
   onSelect: (accountId?: string) => void;
@@ -45,7 +45,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
   onSelectAccount = (accountId: string) => {
     this.props.onSelect(accountId);
 
-    this.setState({ accountId: accountId || '' });
+    this.setState({ accountId: accountId || "" });
   };
 
   onRemove(accountId: string) {
@@ -53,18 +53,18 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
     confirm().then(() => {
       removeAccount(accountId);
-      this.setState({ accountId: '' });
+      this.setState({ accountId: "" });
     });
   }
 
   renderButton() {
     const { onAdd, kind } = this.props;
-    console.log(kind, '%%%%%%%%');
-    if (kind === 'whatsapp') {
+    console.log(kind, "kind");
+    if (kind === "whatsapp") {
       return (
         <FacebookButton onClick={onAdd}>
           <Icon icon='whatsapp-official' />
-          {__('Continue with facebook')}
+          {__("Continue with facebook")}
         </FacebookButton>
       );
     }
@@ -97,7 +97,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
       return (
         <EmptyState
           icon='user-6'
-          text={__('There is no linked accounts')}
+          text={__("There is no linked accounts")}
         />
       );
     }
@@ -110,17 +110,17 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
           <Button
             onClick={this.onSelectAccount.bind(this, account._id)}
             btnStyle={
-              this.state.accountId === account._id ? 'primary' : 'simple'
+              this.state.accountId === account._id ? "primary" : "simple"
             }>
             {this.state.accountId === account._id
-              ? __('Selected')
-              : __('Select This Account')}
+              ? __("Selected")
+              : __("Select This Account")}
           </Button>
 
           <Button
             onClick={this.onRemove.bind(this, account._id)}
             btnStyle='danger'>
-            {__('Remove')}
+            {__("Remove")}
           </Button>
         </div>
       </AccountItem>
@@ -130,10 +130,10 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     return (
       <>
         <AccountBox>
-          <AccountTitle>{__('Linked Accounts')}</AccountTitle>
+          <AccountTitle>{__("Linked Accounts")}</AccountTitle>
           {this.renderAccounts()}
         </AccountBox>
-        <CenterText>{__('OR')}</CenterText>
+        <CenterText>{__("OR")}</CenterText>
         <CenterText>{this.renderAccountAction()}</CenterText>
       </>
     );

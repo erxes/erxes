@@ -1,27 +1,28 @@
-import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import React from 'react';
+import * as compose from "lodash.flowright";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import React from "react";
 
 import {
   IntegrationTypesWhatsapp,
   RemoveAccountMutationResponse
-} from '@erxes/ui-inbox/src/settings/integrations/types';
-import { Alert, getEnv, withProps } from '@erxes/ui/src/utils';
-import { mutations as inboxMutations } from '@erxes/ui-inbox/src/settings/integrations/graphql';
-import { IFormProps } from '@erxes/ui/src/types';
-import Info from '@erxes/ui/src/components/Info';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Accounts from '../components/Accounts';
-import { queries } from '../graphql/index';
-import { AccountsQueryResponse } from '../types';
+} from "@erxes/ui-inbox/src/settings/integrations/types";
+import { Alert, getEnv, withProps } from "@erxes/ui/src/utils";
+import { mutations as inboxMutations } from "@erxes/ui-inbox/src/settings/integrations/graphql";
+import { IFormProps } from "@erxes/ui/src/types";
+import Info from "@erxes/ui/src/components/Info";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Accounts from "../components/Accounts";
+import { queries } from "../graphql/index";
+import { AccountsQueryResponse } from "../types";
 
 type Props = {
   kind: IntegrationTypesWhatsapp;
-  onSelect: (accountId?: string) => void;
+  onSelect: (accountId?: string, account?: any) => void;
   onRemove: (accountId: string) => void;
   formProps?: IFormProps;
   renderForm?: () => JSX.Element;
+  selectedAccountId?: string;
 };
 
 type FinalProps = {
@@ -46,7 +47,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
     const { REACT_APP_API_URL } = getEnv();
     this.popupWindow(
       `${REACT_APP_API_URL}/pl:whatsapp/login?kind=${kind}`,
-      'Integration',
+      "Integration",
       window,
       660,
       750
@@ -58,7 +59,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
 
     removeAccount({ variables: { _id: accountId } })
       .then(() => {
-        Alert.success('You successfully removed an account');
+        Alert.success("You successfully removed an account");
         onRemove(accountId);
       })
       .catch((e) => {
@@ -67,8 +68,14 @@ class AccountContainer extends React.Component<FinalProps, {}> {
   };
 
   render() {
-    const { kind, renderForm, getAccountsQuery, onSelect, formProps } =
-      this.props;
+    const {
+      kind,
+      renderForm,
+      getAccountsQuery,
+      onSelect,
+      formProps,
+      selectedAccountId
+    } = this.props;
     if (getAccountsQuery.loading) {
       return <Spinner objective={true} />;
     }
@@ -79,17 +86,18 @@ class AccountContainer extends React.Component<FinalProps, {}> {
 
     const accounts = getAccountsQuery.whatsappGetAccounts || [];
 
-    return (
-      <Accounts
-        kind={kind}
-        onAdd={this.onAdd}
-        removeAccount={this.remove}
-        onSelect={onSelect}
-        accounts={accounts}
-        formProps={formProps}
-        renderForm={renderForm}
-      />
-    );
+    const updatedProps = {
+      kind,
+      onAdd: this.onAdd,
+      removeAccount: this.remove,
+      onSelect,
+      accounts,
+      formProps,
+      renderForm,
+      selectedAccountId
+    };
+
+    return <Accounts {...updatedProps} />;
   }
 }
 
@@ -100,13 +108,13 @@ export default withProps<Props>(
       RemoveAccountMutationResponse,
       { _id: string; kind?: string }
     >(gql(inboxMutations.removeAccount), {
-      name: 'removeAccount',
+      name: "removeAccount",
       options: {
-        refetchQueries: ['whatsappGetAccounts']
+        refetchQueries: ["whatsappGetAccounts"]
       }
     }),
     graphql<Props, AccountsQueryResponse>(gql(queries.whatsappGetAccounts), {
-      name: 'getAccountsQuery',
+      name: "getAccountsQuery",
       options: ({ kind }) => ({
         variables: { kind }
       })

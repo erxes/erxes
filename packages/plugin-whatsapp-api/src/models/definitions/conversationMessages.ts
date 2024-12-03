@@ -1,7 +1,7 @@
-import { Document, Schema } from 'mongoose';
+import { Document, Schema } from "mongoose";
 
-import { attachmentSchema } from '@erxes/api-utils/src/definitions/common';
-import { field } from './utils';
+import { attachmentSchema } from "@erxes/api-utils/src/definitions/common";
+import { field } from "./utils";
 
 export interface IConversationMessage {
   mid: string;
@@ -16,6 +16,8 @@ export interface IConversationMessage {
   fromBot?: boolean;
   isCustomerRead?: boolean;
   internal?: boolean;
+  botId?: string;
+  botData?: any;
 }
 
 export interface IConversationMessageDocument
@@ -26,7 +28,7 @@ export interface IConversationMessageDocument
 
 export const conversationMessageSchema = new Schema({
   _id: field({ pkey: true }),
-  mid: { type: String, label: 'INSTAGRAM message id' },
+  mid: { type: String, label: "INSTAGRAM message id" },
   content: { type: String },
   attachments: [attachmentSchema],
   conversationId: field({ type: String, index: true }),
@@ -34,12 +36,14 @@ export const conversationMessageSchema = new Schema({
   visitorId: field({
     type: String,
     index: true,
-    label: 'unique visitor id on logger database'
+    label: "unique visitor id on logger database"
   }),
   fromBot: field({ type: Boolean }),
   userId: field({ type: String, index: true }),
   createdAt: field({ type: Date, index: true }),
   updatedAt: field({ type: Date, index: true }),
   isCustomerRead: field({ type: Boolean }),
-  internal: field({ type: Boolean })
+  internal: field({ type: Boolean }),
+  botId: field({ type: String, label: "Bot", optional: true }),
+  botData: field({ type: Object, optional: true })
 });
