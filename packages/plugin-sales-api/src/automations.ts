@@ -1,12 +1,12 @@
 import {
   replacePlaceHolders,
-  setProperty
-} from "@erxes/api-utils/src/automations";
-import { generateModels, IModels } from "./connectionResolver";
-import { itemsAdd } from "./graphql/resolvers/mutations/utils";
-import { sendCommonMessage, sendCoreMessage } from "./messageBroker";
-import { getCollection } from "./models/utils";
-import { PROBABILITY } from "./models/definitions/constants";
+  setProperty,
+} from '@erxes/api-utils/src/automations';
+import { generateModels, IModels } from './connectionResolver';
+import { itemsAdd } from './graphql/resolvers/mutations/utils';
+import { sendCommonMessage, sendCoreMessage } from './messageBroker';
+import { getCollection } from './models/utils';
+import { PROBABILITY } from './models/definitions/constants';
 
 const getRelatedValue = async (
   models: IModels,
@@ -17,18 +17,18 @@ const getRelatedValue = async (
 ) => {
   if (
     [
-      "userId",
-      "assignedUserId",
-      "closedUserId",
-      "ownerId",
-      "createdBy"
+      'userId',
+      'assignedUserId',
+      'closedUserId',
+      'ownerId',
+      'createdBy',
     ].includes(targetKey)
   ) {
     const user = await sendCoreMessage({
       subdomain,
-      action: "users.findOne",
+      action: 'users.findOne',
       data: { _id: target[targetKey] },
-      isRPC: true
+      isRPC: true,
     });
 
     if (!!relatedValueProps[targetKey]) {
@@ -37,24 +37,24 @@ const getRelatedValue = async (
     }
 
     return (
-      (user && ((user.detail && user.detail.fullName) || user.email)) || ""
+      (user && ((user.detail && user.detail.fullName) || user.email)) || ''
     );
   }
 
   if (
-    ["participatedUserIds", "assignedUserIds", "watchedUserIds"].includes(
+    ['participatedUserIds', 'assignedUserIds', 'watchedUserIds'].includes(
       targetKey
     )
   ) {
     const users = await sendCoreMessage({
       subdomain,
-      action: "users.find",
+      action: 'users.find',
       data: {
         query: {
-          _id: { $in: target[targetKey] }
-        }
+          _id: { $in: target[targetKey] },
+        },
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (!!relatedValueProps[targetKey]) {
@@ -62,71 +62,71 @@ const getRelatedValue = async (
       return users
         .filter(user => (filter ? user[filter.key] === filter.value : user))
         .map(user => user[key])
-        .join(", ");
+        .join(', ');
     }
 
     return (
       users.map(user => (user.detail && user.detail.fullName) || user.email) ||
       []
-    ).join(", ");
+    ).join(', ');
   }
 
-  if (targetKey === "tagIds") {
+  if (targetKey === 'tagIds') {
     const tags = await sendCommonMessage({
       subdomain,
-      serviceName: "core",
-      action: "tagFind",
+      serviceName: 'core',
+      action: 'tagFind',
       data: { _id: { $in: target[targetKey] } },
-      isRPC: true
+      isRPC: true,
     });
 
-    return (tags.map(tag => tag.name) || []).join(", ");
+    return (tags.map(tag => tag.name) || []).join(', ');
   }
 
-  if (targetKey === "labelIds") {
+  if (targetKey === 'labelIds') {
     const labels = await models.PipelineLabels.find({
-      _id: { $in: target[targetKey] }
+      _id: { $in: target[targetKey] },
     });
 
-    return (labels.map(label => label.name) || []).join(", ");
+    return (labels.map(label => label.name) || []).join(', ');
   }
 
-  if (["initialStageId", "stageId"].includes(targetKey)) {
+  if (['initialStageId', 'stageId'].includes(targetKey)) {
     const stage = await models.Stages.findOne({
-      _id: target[targetKey]
+      _id: target[targetKey],
     });
 
-    return (stage && stage.name) || "";
+    return (stage && stage.name) || '';
   }
 
-  if (["sourceConversationIds"].includes(targetKey)) {
+  if (['sourceConversationIds'].includes(targetKey)) {
     const conversations = await sendCommonMessage({
       subdomain,
-      serviceName: "inbox",
-      action: "conversations.find",
+      serviceName: 'inbox',
+      action: 'conversations.find',
       data: { _id: { $in: target[targetKey] } },
-      isRPC: true
+      isRPC: true,
     });
 
-    return (conversations.map(c => c.content) || []).join(", ");
+    return (conversations.map(c => c.content) || []).join(', ');
   }
 
-  if (["customers", "companies"].includes(targetKey)) {
+  if (['customers', 'companies'].includes(targetKey)) {
     const relTypeConst = {
-      companies: "company",
-      customers: "customer"
+      companies: 'company',
+      customers: 'customer',
     };
 
     const contactIds = await sendCoreMessage({
       subdomain,
-      action: "conformities.savedConformity",
+      action: 'conformities.savedConformity',
       data: {
         mainType: target.type,
         mainTypeId: target._id,
-        relTypes: [relTypeConst[targetKey]]
+        relTypes: [relTypeConst[targetKey]],
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const upperCasedTargetKey =
@@ -137,7 +137,7 @@ const getRelatedValue = async (
       action: `${targetKey}.findActive${upperCasedTargetKey}`,
       data: { selector: { _id: { $in: contactIds } } },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     if (relatedValueProps && !!relatedValueProps[targetKey]) {
@@ -147,17 +147,17 @@ const getRelatedValue = async (
           filter ? contacts[filter.key] === filter.value : contacts
         )
         .map(contacts => contacts[key])
-        .join(", ");
+        .join(', ');
     }
 
-    const result = activeContacts.map(contact => contact?._id).join(", ");
+    const result = activeContacts.map(contact => contact?._id).join(', ');
     return result;
   }
 
-  if (targetKey.includes("productsData")) {
-    const [_parentFieldName, childFieldName] = targetKey.split(".");
+  if (targetKey.includes('productsData')) {
+    const [_parentFieldName, childFieldName] = targetKey.split('.');
 
-    if (childFieldName === "amount") {
+    if (childFieldName === 'amount') {
       return generateTotalAmount(target.productsData);
     }
   }
@@ -187,7 +187,7 @@ const relatedServices = (
   target: any
 ) => [
   {
-    name: "contacts",
+    name: 'contacts',
     filter: async () => {
       if (target.isFormSubmission) {
         return { sourceConversationIds: { $in: [target.conversationId] } };
@@ -195,15 +195,15 @@ const relatedServices = (
 
       const relTypeIds = await sendCommonMessage({
         subdomain,
-        serviceName: "core",
-        action: "conformities.savedConformity",
+        serviceName: 'core',
+        action: 'conformities.savedConformity',
         data: {
           mainType: triggerCollectionType,
           mainTypeId: target._id,
-          relTypes: [moduleCollectionType]
+          relTypes: [moduleCollectionType],
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       if (!relTypeIds.length) {
@@ -211,14 +211,14 @@ const relatedServices = (
       }
 
       return { _id: { $in: relTypeIds } };
-    }
+    },
   },
   {
-    name: "inbox",
+    name: 'inbox',
     filter: async () => ({
-      sourceConversationIds: { $in: [target._id] }
-    })
-  }
+      sourceConversationIds: { $in: [target._id] },
+    }),
+  },
 ];
 
 // find trigger related module items
@@ -234,22 +234,22 @@ const getItems = async (
     return [target];
   }
 
-  const [moduleService, moduleCollectionType] = module.split(":");
-  const [triggerService, triggerCollectionType] = triggerType.split(":");
+  const [moduleService, moduleCollectionType] = module.split(':');
+  const [triggerService, triggerCollectionType] = triggerType.split(':');
 
   const models = await generateModels(subdomain);
 
   if (moduleService === triggerService) {
     const relTypeIds = await sendCommonMessage({
       subdomain,
-      serviceName: "core",
-      action: "conformities.savedConformity",
+      serviceName: 'core',
+      action: 'conformities.savedConformity',
       data: {
         mainType: triggerCollectionType,
         mainTypeId: target._id,
-        relTypes: [moduleCollectionType]
+        relTypes: [moduleCollectionType],
       },
-      isRPC: true
+      isRPC: true,
     });
 
     return models.Deals.find({ _id: { $in: relTypeIds } });
@@ -270,14 +270,14 @@ const getItems = async (
     filter = await sendCommonMessage({
       subdomain,
       serviceName: triggerService,
-      action: "getModuleRelation",
+      action: 'getModuleRelation',
       data: {
         module,
         triggerType,
-        target
+        target,
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
   }
 
@@ -289,7 +289,7 @@ export default {
     const { collectionType, target, config } = data;
     const models = await generateModels(subdomain);
 
-    if (collectionType === "deal.probability") {
+    if (collectionType === 'deal.probability') {
       const { boardId, pipelineId, stageId, probability } = config || {};
 
       if (!probability) {
@@ -304,8 +304,8 @@ export default {
       if (!stageId && pipelineId) {
         const stageIds = await models.Stages.find({
           pipelineId,
-          probability: PROBABILITY.WON
-        }).distinct("_id");
+          probability: PROBABILITY.WON,
+        }).distinct('_id');
 
         if (!stageIds.find(stageId => target.stageId === stageId)) {
           return false;
@@ -314,13 +314,13 @@ export default {
 
       if (!stageId && !pipelineId && boardId) {
         const pipelineIds = await models.Pipelines.find({ boardId }).distinct(
-          "_id"
+          '_id'
         );
 
         const stageIds = await models.Stages.find({
           pipelineId: { $in: pipelineIds },
-          probability: PROBABILITY.WON
-        }).distinct("_id");
+          probability: PROBABILITY.WON,
+        }).distinct('_id');
 
         if (!stageIds.find(stageId => target.stageId === stageId)) {
           return false;
@@ -334,12 +334,12 @@ export default {
   },
   receiveActions: async ({
     subdomain,
-    data: { action, execution, collectionType, triggerType, actionType }
+    data: { action, execution, collectionType, triggerType, actionType },
   }) => {
     const models = await generateModels(subdomain);
 
-    if (actionType === "create") {
-      if (collectionType === "checklist") {
+    if (actionType === 'create') {
+      if (collectionType === 'checklist') {
         return createChecklist(models, execution, action);
       }
 
@@ -348,7 +348,7 @@ export default {
         subdomain,
         action,
         execution,
-        collectionType
+        collectionType,
       });
     }
 
@@ -358,7 +358,7 @@ export default {
       subdomain,
       module,
       execution,
-      triggerType.split(".")[0]
+      triggerType.split('.')[0]
     );
 
     return setProperty({
@@ -370,12 +370,12 @@ export default {
       execution,
       relatedItems,
       sendCommonMessage,
-      triggerType
+      triggerType,
     });
   },
   replacePlaceHolders: async ({
     subdomain,
-    data: { target, config, relatedValueProps }
+    data: { target, config, relatedValueProps },
   }) => {
     const models = generateModels(subdomain);
 
@@ -386,47 +386,47 @@ export default {
       actionData: config,
       target,
       relatedValueProps,
-      complexFields: ["productsData"]
+      complexFields: ['productsData'],
     });
   },
   constants: {
     triggers: [
       {
-        type: "sales:deal",
-        img: "automation3.svg",
-        icon: "piggy-bank",
-        label: "Sales pipeline",
+        type: 'sales:deal',
+        img: 'automation3.svg',
+        icon: 'piggy-bank',
+        label: 'Sales pipeline',
         description:
-          "Start with a blank workflow that enrolls and is triggered off sales pipeline item"
+          'Start with a blank workflow that enrolls and is triggered off sales pipeline item',
       },
       {
-        type: "sales:deal.probability",
-        img: "automation3.svg",
-        icon: "piggy-bank",
-        label: "Sales pipelines stage probability based",
+        type: 'sales:deal.probability',
+        img: 'automation3.svg',
+        icon: 'piggy-bank',
+        label: 'Sales pipelines stage probability based',
         description:
-          "Start with a blank workflow that triggered off sales pipeline item stage probability",
-        isCustom: true
-      }
+          'Start with a blank workflow that triggered off sales pipeline item stage probability',
+        isCustom: true,
+      },
     ],
     actions: [
       {
-        type: "sales:deal.create",
-        icon: "piggy-bank",
-        label: "Create deal",
-        description: "Create deal",
+        type: 'sales:deal.create',
+        icon: 'piggy-bank',
+        label: 'Create deal',
+        description: 'Create deal',
         isAvailable: true,
-        isAvailableOptionalConnect: true
       },
       {
-        type: "sales:checklist.create",
-        icon: "piggy-bank",
-        label: "Create sales checklist",
-        description: "Create sales checklist",
-        isAvailable: true
-      }
-    ]
-  }
+        type: 'sales:checklist.create',
+        icon: 'piggy-bank',
+        label: 'Create sales checklist',
+        description: 'Create sales checklist',
+        isAvailable: true,
+        isAvailableOptionalConnect: true,
+      },
+    ],
+  },
 };
 
 const createChecklist = async (models: IModels, execution, action) => {
@@ -435,18 +435,18 @@ const createChecklist = async (models: IModels, execution, action) => {
   const prevAction = actions[actions.length - 1];
 
   const object: any = {
-    contentType: "deal"
+    contentType: 'deal',
   };
 
   if (
-    prevAction.actionType === "sales:deal.create" &&
+    prevAction.actionType === 'sales:deal.create' &&
     prevAction.nextActionId === action.id &&
     prevAction?.result?.itemId
   ) {
     object.contentTypeId = prevAction.result.itemId;
   } else {
-    if (!execution?.triggerType?.includes("sales:deal")) {
-      throw new Error("Unsupported trigger type");
+    if (!execution?.triggerType?.includes('sales:deal')) {
+      throw new Error('Unsupported trigger type');
     }
 
     object.contentTypeId = execution?.targetId;
@@ -457,7 +457,7 @@ const createChecklist = async (models: IModels, execution, action) => {
   const checklist = await models.Checklists.create({
     ...object,
     title: name,
-    createdDate: new Date()
+    createdDate: new Date(),
   });
 
   await models.ChecklistItems.insertMany(
@@ -465,15 +465,23 @@ const createChecklist = async (models: IModels, execution, action) => {
       createdDate: new Date(),
       checklistId: checklist._id,
       content: label,
-      order: i
+      order: i,
     }))
   );
 
-  return { result: checklist.toObject(), objToWait: {} };
+  return {
+    result: checklist.toObject(),
+    objToWait: {
+      objToCheck: {
+        propertyName: 'contentType',
+        general: { ...object, checklistId: checklist._id },
+      },
+    },
+  };
 };
 
 const generateIds = value => {
-  const arr = value.split(", ");
+  const arr = value.split(', ');
 
   if (Array.isArray(arr)) {
     return arr;
@@ -491,7 +499,7 @@ const actionCreate = async ({
   subdomain,
   action,
   execution,
-  collectionType
+  collectionType,
 }) => {
   const { config = {} } = action;
   let { target, triggerType } = execution || {};
@@ -503,19 +511,19 @@ const actionCreate = async ({
         subdomain,
         getRelatedValue,
         actionData: { assignedTo: action.config.assignedTo },
-        target: { ...target, type: (triggerType || "").replace("sales:", "") },
-        isRelated: false
+        target: { ...target, type: (triggerType || '').replace('sales:', '') },
+        isRelated: false,
       })
     : {};
 
   delete action.config.assignedTo;
 
   if (!!config.customers) {
-    relatedValueProps["customers"] = { key: "_id" };
+    relatedValueProps['customers'] = { key: '_id' };
     target.customers = config.customers;
   }
   if (!!config.companies) {
-    relatedValueProps["companies"] = { key: "_id" };
+    relatedValueProps['companies'] = { key: '_id' };
     target.companies = config.companies;
   }
 
@@ -526,39 +534,39 @@ const actionCreate = async ({
       subdomain,
       getRelatedValue,
       actionData: action.config,
-      target: { ...target, type: (triggerType || "").replace("sales:", "") },
-      relatedValueProps
-    }))
+      target: { ...target, type: (triggerType || '').replace('sales:', '') },
+      relatedValueProps,
+    })),
   };
 
   if (execution.target.userId) {
     newData.userId = execution.target.userId;
   }
 
-  if (execution.triggerType === "inbox:conversation") {
+  if (execution.triggerType === 'inbox:conversation') {
     newData.sourceConversationIds = [execution.targetId];
   }
 
   if (
-    ["core:customer", "core:lead"].includes(execution.triggerType) &&
+    ['core:customer', 'core:lead'].includes(execution.triggerType) &&
     execution.target.isFormSubmission
   ) {
     newData.sourceConversationIds = [execution.target.conversationId];
   }
 
-  if (newData.hasOwnProperty("assignedTo")) {
-    newData.assignedUserIds = newData.assignedTo.trim().split(", ");
+  if (newData.hasOwnProperty('assignedTo')) {
+    newData.assignedUserIds = newData.assignedTo.trim().split(', ');
   }
 
-  if (newData.hasOwnProperty("labelIds")) {
-    newData.labelIds = newData.labelIds.trim().split(", ");
+  if (newData.hasOwnProperty('labelIds')) {
+    newData.labelIds = newData.labelIds.trim().split(', ');
   }
 
-  if (newData.hasOwnProperty("cardName")) {
+  if (newData.hasOwnProperty('cardName')) {
     newData.name = newData.cardName;
   }
 
-  if (config.hasOwnProperty("stageId")) {
+  if (config.hasOwnProperty('stageId')) {
     newData.stageId = config.stageId;
   }
 
@@ -569,27 +577,27 @@ const actionCreate = async ({
     newData.companyIds = generateIds(newData.companies);
   }
 
-  if (Object.keys(newData).some(key => key.startsWith("customFieldsData"))) {
+  if (Object.keys(newData).some(key => key.startsWith('customFieldsData'))) {
     const customFieldsData: Array<{ field: string; value: string }> = [];
 
     const fieldKeys = Object.keys(newData).filter(key =>
-      key.startsWith("customFieldsData")
+      key.startsWith('customFieldsData')
     );
 
     for (const fieldKey of fieldKeys) {
-      const [, fieldId] = fieldKey.split(".");
+      const [, fieldId] = fieldKey.split('.');
 
       customFieldsData.push({
         field: fieldId,
-        value: newData[fieldKey]
+        value: newData[fieldKey],
       });
     }
     newData.customFieldsData = customFieldsData;
   }
 
-  if (newData.hasOwnProperty("attachments")) {
-    const [serviceName, itemType] = triggerType.split(":");
-    if (serviceName === "sales") {
+  if (newData.hasOwnProperty('attachments')) {
+    const [serviceName, itemType] = triggerType.split(':');
+    if (serviceName === 'sales') {
       const item = await models.Deals.findOne({ _id: target._id });
       newData.attachments = item.attachments;
     }
@@ -606,29 +614,29 @@ const actionCreate = async ({
       create
     );
 
-    if (execution.triggerType === "inbox:conversation") {
+    if (execution.triggerType === 'inbox:conversation') {
       await sendCoreMessage({
         subdomain,
-        action: "conformities.addConformity",
+        action: 'conformities.addConformity',
         data: {
-          mainType: "customer",
+          mainType: 'customer',
           mainTypeId: execution.target.customerId,
           relType: `${collectionType}`,
-          relTypeId: item._id
-        }
+          relTypeId: item._id,
+        },
       });
     } else {
-      const mainType = execution.triggerType.split(":")[1];
+      const mainType = execution.triggerType.split(':')[1];
 
       await sendCoreMessage({
         subdomain,
-        action: "conformities.addConformity",
+        action: 'conformities.addConformity',
         data: {
-          mainType: mainType.replace("lead", "customer"),
+          mainType: mainType.replace('lead', 'customer'),
           mainTypeId: execution.targetId,
           relType: `${collectionType}`,
-          relTypeId: item._id
-        }
+          relTypeId: item._id,
+        },
       });
     }
 
@@ -637,7 +645,7 @@ const actionCreate = async ({
       itemId: item._id,
       stageId: item.stageId,
       pipelineId: newData.pipelineId,
-      boardId: newData.boardId
+      boardId: newData.boardId,
     };
   } catch (e) {
     return { error: e.message };

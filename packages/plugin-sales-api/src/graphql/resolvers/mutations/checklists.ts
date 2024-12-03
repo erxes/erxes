@@ -1,11 +1,12 @@
 import {
   IChecklist,
-  IChecklistItem
-} from "../../../models/definitions/checklists";
-import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
-import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
-import { putCreateLog, putDeleteLog, putUpdateLog } from "../../../logUtils";
-import { IContext } from "../../../connectionResolver";
+  IChecklistItem,
+} from '../../../models/definitions/checklists';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
+import { IContext, IModels } from '../../../connectionResolver';
+import { sendAutomationsMessage } from '../../../messageBroker';
 
 interface IChecklistsEdit extends IChecklist {
   _id: string;
@@ -22,8 +23,8 @@ const checklistsChanged = (checklist: IChecklistsEdit) => {
       checklistsChanged: {
         _id: checklist._id,
         contentType: checklist.contentType,
-        contentTypeId: checklist.contentTypeId
-      }
+        contentTypeId: checklist.contentTypeId,
+      },
     }
   );
 };
@@ -31,11 +32,45 @@ const checklistsChanged = (checklist: IChecklistsEdit) => {
 const checklistDetailChanged = (_id: string) => {
   graphqlPubsub.publish(`salesChecklistDetailChanged:${_id}`, {
     salesChecklistDetailChanged: {
-      _id
-    }
+      _id,
+    },
   });
 };
 
+const handleAutomation = async (
+  subdomain: string,
+  models: IModels,
+  checklistId: string
+) => {
+  const checkList = await models.Checklists.findOne({
+    _id: checklistId,
+  });
+
+  if (checkList) {
+    const items = await models.ChecklistItems.find({
+      checklistId: checklistId,
+      isChecked: true,
+    }).distinct('_id');
+
+    sendAutomationsMessage({
+      subdomain,
+      action: 'trigger',
+      data: {
+        type: 'sales:checklist.create',
+        targets: [
+          {
+            checklistId: checkList._id,
+            contentType: checkList.contentType,
+            contentTypeId: checkList.contentTypeId,
+            items: items,
+          },
+        ],
+      },
+      isRPC: true,
+      defaultValue: null,
+    });
+  }
+};
 const checklistMutations = {
   /**
    * Adds checklist object and also adds an activity log
@@ -51,9 +86,9 @@ const checklistMutations = {
       models,
       subdomain,
       {
-        type: "checklist",
+        type: 'checklist',
         newData: args,
-        object: checklist
+        object: checklist,
       },
       user
     );
@@ -78,10 +113,10 @@ const checklistMutations = {
       models,
       subdomain,
       {
-        type: "checklist",
+        type: 'checklist',
         object: checklist,
         newData: doc,
-        updatedDocument: updated
+        updatedDocument: updated,
       },
       user
     );
@@ -105,7 +140,7 @@ const checklistMutations = {
     await putDeleteLog(
       models,
       subdomain,
-      { type: "checklist", object: checklist },
+      { type: 'checklist', object: checklist },
       user
     );
 
@@ -131,9 +166,9 @@ const checklistMutations = {
       models,
       subdomain,
       {
-        type: "checkListItem",
+        type: 'checkListItem',
         newData: args,
-        object: checklistItem
+        object: checklistItem,
       },
       user
     );
@@ -158,15 +193,17 @@ const checklistMutations = {
       models,
       subdomain,
       {
-        type: "checkListItem",
+        type: 'checkListItem',
         object: checklistItem,
         newData: doc,
-        updatedDocument: updated
+        updatedDocument: updated,
       },
       user
     );
 
     checklistDetailChanged(updated.checklistId);
+
+    await handleAutomation(subdomain, models, checklistItem.checklistId);
 
     return updated;
   },
@@ -185,7 +222,7 @@ const checklistMutations = {
     await putDeleteLog(
       models,
       subdomain,
-      { type: "checkListItem", object: checklistItem },
+      { type: 'checkListItem', object: checklistItem },
       user
     );
 
@@ -200,7 +237,7 @@ const checklistMutations = {
     { models }: IContext
   ) {
     return models.ChecklistItems.updateItemOrder(_id, destinationIndex);
-  }
+  },
 };
 
 moduleRequireLogin(checklistMutations);

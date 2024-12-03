@@ -10,14 +10,14 @@ import ReactFlow, {
   MiniMap,
   updateEdge,
   useEdgesState,
-  useNodesState
+  useNodesState,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import {
   AutomationConstants,
   IAutomation,
   IAutomationNote,
-  ITrigger
+  ITrigger,
 } from '../../types';
 import edgeTypes from './edges';
 import ConnectionLine from './edges/ConnectionLine';
@@ -34,7 +34,7 @@ type Props = {
   onConnection: ({
     sourceId,
     targetId,
-    type
+    type,
   }: {
     sourceId: string;
     targetId: string;
@@ -43,7 +43,7 @@ type Props = {
   showDrawer: boolean;
   toggleDrawer: ({
     type,
-    awaitingNodeId
+    awaitingNodeId,
   }: {
     type: string;
     awaitingNodeId?: string;
@@ -99,7 +99,7 @@ function AutomationEditor({
       actions,
       workFlowActions,
       onDisconnect: edge =>
-        onDisConnection({ nodes, edge, setEdges, onConnect })
+        onDisConnection({ nodes, edge, setEdges, onConnect }),
     })
   );
 
@@ -127,7 +127,7 @@ function AutomationEditor({
         actions,
         workFlowActions,
         onDisconnect: edge =>
-          onDisConnection({ nodes, edge, setEdges, onConnect })
+          onDisConnection({ nodes, edge, setEdges, onConnect }),
       })
     );
   };
@@ -137,22 +137,24 @@ function AutomationEditor({
   }, [
     JSON.stringify(triggers),
     JSON.stringify(actions),
-    JSON.stringify(workFlowActions)
+    JSON.stringify(workFlowActions),
   ]);
 
   const generateConnect = (params, source) => {
+    console.log({ source, params });
     const { sourceHandle } = params;
 
     let info: any = {
       ...params,
       sourceId: params.source,
       targetId: params.target,
-      type: source?.data?.nodeType
+      type: source?.data?.nodeType,
     };
 
     if (sourceHandle) {
       if (params?.sourceHandle.includes(params?.source)) {
         const [_sourceId, optionalConnectId] = params.sourceHandle.split('-');
+        console.log({ _sourceId, optionalConnectId });
         info.optionalConnectId = optionalConnectId;
         info.connectType = 'optional';
       }

@@ -11,6 +11,8 @@ const checkListOptionalContent = ({ data, handle }) => {
     return null;
   }
 
+  console.log({ data });
+
   return (
     <li key={`${data.id}-checklist-right`} className="optional-connect">
       {items
@@ -18,7 +20,7 @@ const checkListOptionalContent = ({ data, handle }) => {
         .map(item => (
           <li>{item.label}</li>
         ))}
-      {handle(data.id)}
+      {handle('deal')}
     </li>
   );
 };
@@ -27,7 +29,7 @@ const renderActionForm = props => {
   const { activeAction } = props;
   const actionForms = {
     'sales:checklist.create': <Checklist {...props} />,
-    'sales:deal.create': <BoardItemForm {...props} />
+    'sales:deal.create': <BoardItemForm {...props} />,
   };
 
   return actionForms[activeAction?.type];
@@ -44,6 +46,8 @@ const Automations = props => {
 
     case 'selectBoard':
       return <SelectBoard {...props} />;
+    case 'optionalContent':
+      return checkListOptionalContent(props);
 
     case 'historyActionResult':
       return <ActionResult {...props} />;

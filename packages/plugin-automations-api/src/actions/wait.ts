@@ -5,7 +5,7 @@ import { IAction } from '../models/definitions/automaions';
 import {
   EXECUTION_STATUS,
   IExecAction,
-  IExecutionDocument
+  IExecutionDocument,
 } from '../models/definitions/executions';
 import { executeActions } from '../utils';
 import * as moment from 'moment';
@@ -17,12 +17,12 @@ function accessNestedObject(obj, keys) {
 export const playWait = async (models: IModels, subdomain: string, data) => {
   const waitingExecutions = await models.Executions.find({
     waitingActionId: { $ne: null },
-    startWaitingDate: { $ne: null }
+    startWaitingDate: { $ne: null },
   });
 
   for (const exec of waitingExecutions) {
     const automation = await models.Automations.findOne({
-      _id: exec.automationId
+      _id: exec.automationId,
     }).lean();
 
     if (!automation) {
@@ -107,7 +107,7 @@ export const doWaitingResponseAction = async (
     waitingExecution;
 
   const automation = await models.Automations.findOne({
-    _id: automationId
+    _id: automationId,
   })
     .lean()
     .catch(err => {
@@ -176,7 +176,7 @@ export const setActionWait = async data => {
     waitingActionId,
     execution,
     action,
-    result
+    result,
   } = data;
 
   const execAction: IExecAction = {
@@ -184,7 +184,7 @@ export const setActionWait = async data => {
     actionType: action.type,
     actionConfig: action.config,
     nextActionId: action.nextActionId,
-    result
+    result,
   };
 
   execution.waitingActionId = waitingActionId;
@@ -210,12 +210,23 @@ export const checkWaitingResponseAction = async (
     false;
   }
 
+  console.log({ type });
+
   const waitingResponseExecution = await models.Executions.find({
-    triggerType: type,
+    $or: [
+      {
+        'triggers.type': { $in: [type] },
+      },
+      {
+        'triggers.type': { $regex: `^${type}\\..*` },
+      },
+    ],
     status: EXECUTION_STATUS.WAITING,
     objToCheck: { $exists: true, $ne: null },
-    responseActionId: { $exists: true }
+    responseActionId: { $exists: true },
   }).sort({ createdAt: -1 });
+
+  console.log({ waitingResponseExecution });
 
   for (const waitingExecution of waitingResponseExecution) {
     const { objToCheck, actions = [] } = waitingExecution;
