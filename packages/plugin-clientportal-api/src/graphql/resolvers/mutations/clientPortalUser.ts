@@ -189,7 +189,7 @@ const clientPortalUserMutations = {
             fields:
               'id,name,email,gender,education,work,picture,last_name,first_name',
           })
-      ).then(r => r.json());
+      ).then((r) => r.json());
 
       if (!response || !response.id) {
         throw new Error('Facebook authentication failed');
@@ -197,7 +197,7 @@ const clientPortalUserMutations = {
 
       const { id, name, email, picture, first_name, last_name } =
         response || {};
-        
+
       let qry: any = {};
       let user: any = {};
 
@@ -301,7 +301,7 @@ const clientPortalUserMutations = {
           {
             method: 'POST',
           }
-        ).then(r => r.json());
+        ).then((r) => r.json());
 
         if (authResponse.error) {
           throw new Error(authResponse.error.message);
@@ -332,7 +332,7 @@ const clientPortalUserMutations = {
               Authorization: `Bearer ${id_token}`,
             },
           }
-        ).then(r => r.json());
+        ).then((r) => r.json());
 
         if (userResponse.error) {
           throw new Error(userResponse.error.message);
@@ -1457,6 +1457,22 @@ const clientPortalUserMutations = {
       newPassword,
       oldPassword
     );
+  },
+
+  async clientPortalUsersMove(
+    _root,
+    {
+      oldClientPortalId,
+      newClientPortalId,
+    }: { oldClientPortalId: string; newClientPortalId: string },
+    { models }: IContext
+  ) {
+    const updated = await models.ClientPortalUsers.moveUser(
+      oldClientPortalId,
+      newClientPortalId
+    );
+
+    return updated;
   },
 };
 
