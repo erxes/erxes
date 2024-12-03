@@ -40,7 +40,7 @@ const PullCustomerSettings = (props: Props) => {
         },
       })
       .then(({ data }) => {
-        setFieldGroups(data ? data.fieldsGroups : [] || []);
+        setFieldGroups(data?.fieldsGroups || []);
       });
   }, []);
 

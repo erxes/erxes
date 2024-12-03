@@ -9,8 +9,6 @@ const getFieldsValue = (customer, fieldRule) => {
   if (customData) {
     return customData.value;
   }
-
-  return;
 }
 
 export const getCustomerFromPolaris = async (subdomain: string, customer, polarisConfig) => {

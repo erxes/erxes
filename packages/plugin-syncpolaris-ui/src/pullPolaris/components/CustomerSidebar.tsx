@@ -1,23 +1,11 @@
-import moment from 'moment';
 import {
-  ControlLabel,
-  EmptyState,
-  Form,
-  MainStyleFormColumn as FormColumn,
-  FormControl,
-  FormGroup,
-  MainStyleFormWrapper as FormWrapper,
-  Table,
   __,
 } from "@erxes/ui/src";
-import dayjs from 'dayjs';
 import Box from "@erxes/ui/src/components/Box";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import { ButtonRelated, LinkButton } from "@erxes/ui/src/styles/main";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import React, { useEffect, useState } from "react";
+import { LinkButton } from "@erxes/ui/src/styles/main";
+import React, { useEffect } from "react";
 import PullDataDetail from "./PullDataDetail";
-import PullDataForm from "../containers/PullDataForm";
 import { SidebarList } from "@erxes/ui-settings/src/styles";
 
 type Props = {
@@ -27,7 +15,6 @@ type Props = {
   loadPullData?: any[];
   loadDataLoading: boolean;
   clickConfigs: any[];
-  renderButton?: (props: IButtonMutateProps) => JSX.Element;
 };
 
 export default function PullPolarisCustomer(props: Props) {
@@ -35,25 +22,6 @@ export default function PullPolarisCustomer(props: Props) {
   useEffect(() => {
     props.getLoadPullData();
   }, []);
-
-  const trigger = (
-    <ButtonRelated>
-      <span>{__("Check another scoring...")}</span>
-    </ButtonRelated>
-  );
-  const { customerId } = props;
-  const modalContent = (props) => {
-    return <PullDataForm {...props} customerId={customerId} pullData={props.loadPullData} />;
-  };
-
-  const scoringButton = (
-    <ModalTrigger
-      size="lg"
-      title={__("Customer Scoring")}
-      trigger={trigger}
-      content={modalContent}
-    />
-  );
 
   const renderLoadRow = (loadPullPerData) => {
     const rowTrigger = (<li><LinkButton>{loadPullPerData.title}</LinkButton></li>);

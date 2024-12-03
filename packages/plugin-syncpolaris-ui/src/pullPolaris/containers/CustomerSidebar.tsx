@@ -1,10 +1,9 @@
-import { ButtonMutate, Spinner, __ } from "@erxes/ui/src";
-import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { gql, useLazyQuery, useQuery } from "@apollo/client";
+import { Spinner } from "@erxes/ui/src";
 import React from "react";
-import { mutations, queries } from "../graphql";
-import { PullPolarisConfigsQueryResponse, PullPolarisQueryResponse } from "../types";
-import { gql, useQuery, useLazyQuery } from "@apollo/client";
 import PullPolarisCustomer from "../components/CustomerSidebar";
+import { queries } from "../graphql";
+import { PullPolarisConfigsQueryResponse, PullPolarisQueryResponse } from "../types";
 
 type Props = {
   mainType?: string;
@@ -16,34 +15,6 @@ type Props = {
 
 export default function PullPolarisCustomerContainer(props: Props) {
   const { id } = props;
-  const renderButton = ({
-    name,
-    values,
-    isSubmitted,
-    object,
-  }: IButtonMutateProps) => {
-    const { closeModal } = props;
-    const afterSave = () => {
-      closeModal();
-    };
-    values.customerId = id;
-    return (<></>
-      // <ButtonMutate
-      //   icon="loading"
-      //   mutation={mutations.toCheckScoring}
-      //   variables={values}
-      //   callback={afterSave}
-      //   refetchQueries={refetch()}
-      //   isSubmitted={isSubmitted}
-      //   type="submit"
-      //   uppercase={false}
-      //   successMessage={__(`You successfully score a ${name}`)}
-      // >
-      //   {" "}
-      //   {__("Scoring")}
-      // </ButtonMutate>
-    );
-  };
 
   const configsQuery = useQuery<PullPolarisConfigsQueryResponse>(
     gql(queries.pullPolarisConfigs),
@@ -92,7 +63,6 @@ export default function PullPolarisCustomerContainer(props: Props) {
   const updatedProps = {
     ...props,
     configs,
-    renderButton,
     getLoadPullData,
     loadPullData,
     loadDataLoading,

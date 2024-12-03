@@ -8,7 +8,6 @@ import {
 } from '@erxes/ui/src/components';
 import ActionButtons from "@erxes/ui/src/components/ActionButtons";
 import { FormColumn } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 
 type Props = {
@@ -121,29 +120,27 @@ const PullCustomerExtra = (props: Props) => {
   }
 
   return (
-    <>
-      <FormGroup>
-        <Row>
-          <FormColumn maxwidth='5%'></FormColumn>
-          <FormColumn maxwidth='35%'>
-            <ControlLabel>Response key</ControlLabel>
-          </FormColumn>
-          <FormColumn maxwidth='30%'>
-            <ControlLabel>Field Gruop</ControlLabel>
-          </FormColumn>
-          <FormColumn maxwidth='30%'>
-            <ControlLabel>Field</ControlLabel>
-          </FormColumn>
-          {/* <FormColumn maxwidth='10%'>
+    <FormGroup>
+      <Row>
+        <FormColumn maxwidth='5%'></FormColumn>
+        <FormColumn maxwidth='35%'>
+          <ControlLabel>Response key</ControlLabel>
+        </FormColumn>
+        <FormColumn maxwidth='30%'>
+          <ControlLabel>Field Gruop</ControlLabel>
+        </FormColumn>
+        <FormColumn maxwidth='30%'>
+          <ControlLabel>Field</ControlLabel>
+        </FormColumn>
+        {/* <FormColumn maxwidth='10%'>
               <ControlLabel>Expire day</ControlLabel>
             </FormColumn> */}
-          <FormColumn maxwidth='5%'>
-            <ControlLabel>Actions</ControlLabel>
-          </FormColumn>
-        </Row>
-        {Object.keys(item.extra).map(key => renderPerExtra(key))}
-      </FormGroup >
-    </>
+        <FormColumn maxwidth='5%'>
+          <ControlLabel>Actions</ControlLabel>
+        </FormColumn>
+      </Row>
+      {Object.keys(item.extra).map(key => renderPerExtra(key))}
+    </FormGroup>
   )
 }
 

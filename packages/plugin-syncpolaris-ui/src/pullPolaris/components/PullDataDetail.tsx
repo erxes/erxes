@@ -1,5 +1,4 @@
-import { CollapseContent, Table, __ } from "@erxes/ui/src";
-import dayjs from "dayjs"
+import { CollapseContent, __ } from "@erxes/ui/src";
 import React from "react";
 
 type Props = {
@@ -18,6 +17,7 @@ export default function PullDataDetail(props: Props) {
         response.map(r => (
           <CollapseContent
             title={__(`${r['acntCode']}`)}
+            key={r.acntCode}
           >
             {
               Object.keys(r).map(key => (
@@ -30,7 +30,7 @@ export default function PullDataDetail(props: Props) {
     }
     return (
       Object.keys(response).map(key => (
-        <span>{key}: {response[key]}</span>
+        <span key={key}>{key}: {response[key]}</span>
       ))
     )
   }

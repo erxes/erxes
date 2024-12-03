@@ -1,3 +1,8 @@
+import { gql } from '@apollo/client';
+import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
+import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
+import { Title } from '@erxes/ui-settings/src/styles';
+import client from '@erxes/ui/src/apolloClient';
 import {
   Button,
   CollapseContent,
@@ -6,19 +11,13 @@ import {
   FormGroup,
   Icon,
 } from '@erxes/ui/src/components';
-
-import { ContentBox } from '../../styles';
-import { IConfigsMap } from '../types';
-import { KEY_LABELS } from '../../constants';
-import React from 'react';
-import Sidebar from './SideBar';
-import { Title } from '@erxes/ui-settings/src/styles';
 import { Wrapper } from '@erxes/ui/src/layout';
 import { __ } from '@erxes/ui/src/utils';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
+import React from 'react';
+import { KEY_LABELS } from '../../constants';
+import { ContentBox } from '../../styles';
+import { IConfigsMap } from '../types';
+import Sidebar from './SideBar';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -128,46 +127,44 @@ class GeneralSettings extends React.Component<Props, State> {
     }
 
     return (
-      <>
-        <FormGroup>
-          <ControlLabel>{__(`${label}`)}</ControlLabel>
-          <FormControl
-            name="fieldGroup"
-            componentclass="select"
-            options={[
-              { value: "", label: "Empty" },
-              ...(fieldGroups || []).map((fg) => ({
-                value: fg._id,
-                label: `${fg.code} - ${fg.name}`,
-              })),
-            ]}
-            value={currentMap[key]?.groupId}
-            onChange={(e) => setFieldGroup((e.target as any).value)}
-          />
+      <FormGroup>
+        <ControlLabel>{__(`${label}`)}</ControlLabel>
+        <FormControl
+          name="fieldGroup"
+          componentclass="select"
+          options={[
+            { value: "", label: "Empty" },
+            ...(fieldGroups || []).map((fg) => ({
+              value: fg._id,
+              label: `${fg.code} - ${fg.name}`,
+            })),
+          ]}
+          value={currentMap[key]?.groupId}
+          onChange={(e) => setFieldGroup((e.target as any).value)}
+        />
 
-          <FormControl
-            name="formField"
-            componentclass="select"
-            options={[
-              { value: "", label: "Empty" },
-              ...(
+        <FormControl
+          name="formField"
+          componentclass="select"
+          options={[
+            { value: "", label: "Empty" },
+            ...(
+              (
                 (
-                  (
-                    (fieldGroups || []).find(
-                      (fg) => fg._id === currentMap[key]?.groupId
-                    ) || {}
-                  ).fields || []
-                ) || []
-              ).map((f) => ({
-                value: f._id,
-                label: `${f.code} - ${f.text}`,
-              })),
-            ]}
-            value={currentMap[key]?.fieldId}
-            onChange={(e) => setFormField((e.target as any).value)}
-          />
-        </FormGroup>
-      </>
+                  (fieldGroups || []).find(
+                    (fg) => fg._id === currentMap[key]?.groupId
+                  ) || {}
+                ).fields || []
+              ) || []
+            ).map((f) => ({
+              value: f._id,
+              label: `${f.code} - ${f.text}`,
+            })),
+          ]}
+          value={currentMap[key]?.fieldId}
+          onChange={(e) => setFormField((e.target as any).value)}
+        />
+      </FormGroup>
     );
   };
 
