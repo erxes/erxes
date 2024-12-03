@@ -56,10 +56,6 @@ export default function PullPolarisCustomerContainer(props: Props) {
   const loadPullData = loadPullDataResponse.data?.pullPolarisData;
   const loadDataLoading = loadPullDataResponse.loading;
 
-  const refetch = () => {
-    return ["burenCustomerScoringsMain", "getCustomerScore"];
-  };
-
   const updatedProps = {
     ...props,
     configs,

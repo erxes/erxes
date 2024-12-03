@@ -21,7 +21,7 @@ export default function PullDataDetail(props: Props) {
           >
             {
               Object.keys(r).map(key => (
-                <span>{key}: {r[key]}</span>
+                <span key={key}>{key}: {r[key]}</span>
               ))
             }
           </CollapseContent>
@@ -36,10 +36,8 @@ export default function PullDataDetail(props: Props) {
   }
 
   return (
-    <>
-      <Box hasShadow={true}>
-        {renderResponse()}
-      </Box>
-    </>
+    <Box hasShadow={true}>
+      {renderResponse()}
+    </Box>
   );
 }
