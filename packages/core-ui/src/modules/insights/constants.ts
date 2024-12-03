@@ -45,10 +45,11 @@ export const METRIC = [
 ];
 
 export const SERVICE_MAP = {
-  'Deals': 'sales',
-  'Tickets': 'tickets',
-  'Tasks': 'tasks',
-  'Inbox': 'inbox',
-  'Calls': 'calls',
-  'Contacts': 'core'
-}
+  Deals: 'sales',
+  Tickets: 'tickets',
+  Tasks: 'tasks',
+  Inbox: 'inbox',
+  Calls: 'calls',
+  Contacts: 'core:contacts',
+  Forms: 'core:forms',
+};

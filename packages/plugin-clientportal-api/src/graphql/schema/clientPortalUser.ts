@@ -195,6 +195,7 @@ export const mutations = () => `
   
   clientPortalUsersReplacePhone(clientPortalId: String!, phone: String!): String!
   clientPortalUsersVerifyPhone(code: String!): String!
+  clientPortalUsersMove(oldClientPortalId: String!, newClientPortalId: String!): JSON
 
   clientPortalUserAssignCompany(userId: String!, erxesCompanyId: String!, erxesCustomerId: String!):  JSON
 
