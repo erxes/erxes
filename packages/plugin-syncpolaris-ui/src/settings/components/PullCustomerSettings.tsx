@@ -48,23 +48,19 @@ const PullCustomerSettings = (props: Props) => {
     e.preventDefault();
     const tempMap: any[] = []
     for (const item of currentMap) {
-      if (item.kind === 'prop') {
-        if (!item.extra) {
-          tempMap.push({ ...item, extra: {} })
-          continue
-        }
-
-        const extra = {}
-        for (const extraKey of Object.keys(item.extra)) {
-          const value = item.extra[extraKey];
-          if (value?.respKey) {
-            extra[value.respKey] = value
-          }
-        }
-        tempMap.push({ ...item, extra })
-      } else {
-        tempMap.push(item)
+      if (!item.extra) {
+        tempMap.push({ ...item, extra: {} })
+        continue
       }
+
+      const extra = {}
+      for (const extraKey of Object.keys(item.extra)) {
+        const value = item.extra[extraKey];
+        if (value?.respKey) {
+          extra[value.respKey] = value
+        }
+      }
+      tempMap.push({ ...item, extra })
     }
     props.save({ PULL_POLARIS: tempMap });
   };
@@ -133,8 +129,6 @@ const PullCustomerSettings = (props: Props) => {
               options={[
                 { value: 'load', label: 'component load' },
                 { value: 'click', label: 'event click' },
-                { value: 'prop', label: 'property save' },
-                { value: 'history', label: 'history save' },
               ]}
               value={item.kind}
               onChange={(e) => setValue('kind', (e.target as any).value)}
@@ -143,7 +137,7 @@ const PullCustomerSettings = (props: Props) => {
           <FormColumn maxwidth='5%'>
             <ActionButtons>
               <Button btnStyle="link" icon="times-circle" onClick={onDelete.bind(this, item._id)} />
-              {item.kind === 'prop' && <Button btnStyle="link" icon="add" onClick={onAddExtra.bind(this, item._id)} />}
+              <Button btnStyle="link" icon="add" onClick={onAddExtra.bind(this, item._id)} />
             </ActionButtons>
           </FormColumn>
         </Row>

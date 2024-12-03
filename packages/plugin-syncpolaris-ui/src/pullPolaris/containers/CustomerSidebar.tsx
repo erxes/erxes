@@ -69,6 +69,7 @@ export default function PullPolarisCustomerContainer(props: Props) {
 
   const configs = configsQuery.data?.pullPolarisConfigs || [];
   const loadConfigs = configs.filter(c => c.kind === 'load')
+  const clickConfigs = configs.filter(c => c.kind === 'click')
 
   const getLoadPullData = () => {
     loadPullPolarisQuery({
@@ -95,6 +96,7 @@ export default function PullPolarisCustomerContainer(props: Props) {
     getLoadPullData,
     loadPullData,
     loadDataLoading,
+    clickConfigs,
     customerId: id || '',
   };
 

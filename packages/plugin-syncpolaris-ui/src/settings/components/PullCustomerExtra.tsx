@@ -120,36 +120,31 @@ const PullCustomerExtra = (props: Props) => {
     </Row>
   }
 
-
-  if (item.kind === 'prop') {
-    return (
-      <>
-        <FormGroup>
-          <Row>
-            <FormColumn maxwidth='5%'></FormColumn>
-            <FormColumn maxwidth='35%'>
-              <ControlLabel>Response key</ControlLabel>
-            </FormColumn>
-            <FormColumn maxwidth='30%'>
-              <ControlLabel>Field Gruop</ControlLabel>
-            </FormColumn>
-            <FormColumn maxwidth='30%'>
-              <ControlLabel>Field</ControlLabel>
-            </FormColumn>
-            {/* <FormColumn maxwidth='10%'>
+  return (
+    <>
+      <FormGroup>
+        <Row>
+          <FormColumn maxwidth='5%'></FormColumn>
+          <FormColumn maxwidth='35%'>
+            <ControlLabel>Response key</ControlLabel>
+          </FormColumn>
+          <FormColumn maxwidth='30%'>
+            <ControlLabel>Field Gruop</ControlLabel>
+          </FormColumn>
+          <FormColumn maxwidth='30%'>
+            <ControlLabel>Field</ControlLabel>
+          </FormColumn>
+          {/* <FormColumn maxwidth='10%'>
               <ControlLabel>Expire day</ControlLabel>
             </FormColumn> */}
-            <FormColumn maxwidth='5%'>
-              <ControlLabel>Actions</ControlLabel>
-            </FormColumn>
-          </Row>
-          {Object.keys(item.extra).map(key => renderPerExtra(key))}
-        </FormGroup >
-      </>
-    )
-  }
-
-  return <></>;
+          <FormColumn maxwidth='5%'>
+            <ControlLabel>Actions</ControlLabel>
+          </FormColumn>
+        </Row>
+        {Object.keys(item.extra).map(key => renderPerExtra(key))}
+      </FormGroup >
+    </>
+  )
 }
 
 export default PullCustomerExtra;

@@ -26,6 +26,7 @@ type Props = {
   getLoadPullData: () => void;
   loadPullData?: any[];
   loadDataLoading: boolean;
+  clickConfigs: any[];
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
 };
 

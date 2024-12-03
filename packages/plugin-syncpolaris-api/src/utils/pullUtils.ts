@@ -1,4 +1,4 @@
-import { fetchPolaris, getCustomer } from "./utils"
+import { fetchPolaris, getCustomer, updateCustomer } from "./utils"
 
 export const getObject = async (subdomain: string, contentId: string, contentType: string) => {
   if (contentType === 'customer') {
@@ -20,4 +20,10 @@ export const getPullPolaris = async (subdomain: string, polarisConfig: any, cont
     data: [content.code, ...getSendData(code)],
     polarisConfig,
   });
+}
+
+export const checkAndSaveObj = async (subdomain, contentType, contentId, modifier) => {
+  if (contentType === 'customer') {
+    await updateCustomer(subdomain, { _id: contentId }, modifier)
+  }
 }
