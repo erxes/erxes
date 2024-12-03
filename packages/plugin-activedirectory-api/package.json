@@ -6,6 +6,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@erxes/api-utils": "*"
+    "@erxes/api-utils": "*",
+    "ldapjs": "^3.0.7"
   }
 }

@@ -1,3 +1,9 @@
+const updateConfigs = `
+  mutation configsUpdate($configsMap: JSON!) {
+    configsUpdate(configsMap: $configsMap)
+  }
+`;
+
 const commonFields = `
   $ownerId: String,
   $description: String,
@@ -54,31 +60,7 @@ const carsAdd = `
   }
 `;
 
-const carsEdit = `
-  mutation carsEdit($_id: String!, ${commonFields}) {
-    carsEdit(_id: $_id, ${commonVariables}) {
-      ownerId,
-      description,
-      plateNumber,
-      vinNumber,
-      colorCode,
-      bodyType,
-      fuelType,
-      gearBox,
-      vintageYear,
-      importYear
-    }
-  }
-`;
-
-const carsRemove = `
-  mutation carsRemove($carIds: [String]) {
-    carsRemove(carIds: $carIds)
-  }
-`;
-
 export default {
+  updateConfigs,
   carsAdd,
-  carsEdit,
-  carsRemove,
 };
