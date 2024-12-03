@@ -1,14 +1,14 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import Chooser, { CommonProps } from '@erxes/ui/src/components/Chooser';
-import { EditConformityMutation, IConformityEdit } from '../types';
+import { Alert, withProps } from "@erxes/ui/src/utils";
+import Chooser, { CommonProps } from "@erxes/ui/src/components/Chooser";
+import { EditConformityMutation, IConformityEdit } from "../types";
 
-import ItemChooser from '../../boards/components/portable/ItemChooser';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { mutations } from '../graphql';
+import ItemChooser from "../../boards/components/portable/ItemChooser";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { mutations } from "../graphql";
 
 type Props = {
   filterStageId?: (
@@ -39,9 +39,9 @@ const ConformityChooser = (props: FinalProps) => {
     refetchQuery
   } = props;
 
-  const onSelected = relTypes => {
-    const relTypeIds = relTypes.map(item => item._id);
-    const update = cache => {
+  const onSelected = (relTypes) => {
+    const relTypeIds = relTypes.map((item) => item._id);
+    const update = (cache) => {
       const variables: any = {
         mainType: data.mainType,
         mainTypeId: data.mainTypeId,
@@ -50,7 +50,7 @@ const ConformityChooser = (props: FinalProps) => {
       };
 
       // add archived items in contacts side bar
-      if (data.mainType === 'customer' || data.mainType === 'company') {
+      if (data.mainType === "customer" || data.mainType === "company") {
         variables.noSkipArchive = true;
       }
 
@@ -59,11 +59,11 @@ const ConformityChooser = (props: FinalProps) => {
         variables
       };
       const qryName = gql(refetchQuery).definitions[0].name.value;
-
-      cache.updateQuery(selector, _data => ({
+      cache.updateQuery(selector, (_data) => ({
         [qryName]: relTypes
       }));
     };
+    const qryName = gql(refetchQuery).definitions[0].name.value;
 
     editConformityMutation({
       variables: {
@@ -72,8 +72,9 @@ const ConformityChooser = (props: FinalProps) => {
         relType: data.relType,
         relTypeIds
       },
+      refetchQueries: [qryName],
       optimisticResponse: {
-        __typename: 'Mutation',
+        __typename: "Mutation",
         conformityEdit: relTypes
       },
       update
@@ -83,7 +84,7 @@ const ConformityChooser = (props: FinalProps) => {
           onSelect(relTypes);
         }
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
@@ -112,10 +113,10 @@ export default withProps<Props>(
       EditConformityMutation,
       IConformityEdit & { isSaved?: boolean }
     >(gql(mutations.conformityEdit), {
-      name: 'editConformityMutation',
+      name: "editConformityMutation",
       options: () => {
         return {
-          refetchQueries: ['activityLogs']
+          refetchQueries: ["activityLogs"]
         };
       }
     })
