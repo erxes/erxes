@@ -1,5 +1,29 @@
 # Changelog
 
+## [2.1.0](https://github.com/erxes/erxes/compare/2.1.0-rc.3...2.1.0) (2024-12-03)
+
+
+### Features
+
+* **core:** add pdfAttachment to product ([40cfd9b](https://github.com/erxes/erxes/commit/40cfd9be9b577bb8f2a0919ad0693efef7caecd3))
+* cp user move mutation add ([f5a863d](https://github.com/erxes/erxes/commit/f5a863d0bfd91f0d9eb510a8730b49b7829eb2ad))
+* form insight ([54aa96c](https://github.com/erxes/erxes/commit/54aa96c4778d47dbed50f2222a958b00169a08cc))
+* form template ([483ec7f](https://github.com/erxes/erxes/commit/483ec7f3aa0532f9cfaf68264cb4575b30c6e783))
+
+
+### Bug Fixes
+
+* **cards:** set stageChangedDate when stage chaged when editItem ([9121c2e](https://github.com/erxes/erxes/commit/9121c2e6d600ab4675e4e52efb3d39437a888227))
+* **cards:** tag, cards copy, remainder ([d8d800e](https://github.com/erxes/erxes/commit/d8d800eb62f9013cb9876d022ca58031b142a776))
+* editor wrapper resize ([fffc1b8](https://github.com/erxes/erxes/commit/fffc1b887f6806a348f97af24f0669bb1c070876))
+* fix saas upload file configs ([bedf5d0](https://github.com/erxes/erxes/commit/bedf5d04c41f83f0fe0b9307ee457bb85369fa90))
+* loans and savings contract type detail save ([aa14d5c](https://github.com/erxes/erxes/commit/aa14d5c926822fcf98071b5df3ce3edfe9e86899))
+* pos ui market billType and golomt cover ([a5c5da0](https://github.com/erxes/erxes/commit/a5c5da0433a4504b475080017e06403a321938da))
+* posOrder auto number latest order checker ([669f03a](https://github.com/erxes/erxes/commit/669f03a36b058b63b4c5ce29c96fe3269ba9769a))
+* savings section ([92e4caa](https://github.com/erxes/erxes/commit/92e4caa27690405222a3b8adbb23ad8ef236cbe4))
+* **segments:** stop counting temporary segments in saas limit ([7be82d9](https://github.com/erxes/erxes/commit/7be82d9407f9b67483660f1c29e0ca3515eafb5a))
+* some check isEnabled missing plugins ([debb0c9](https://github.com/erxes/erxes/commit/debb0c9bcebb71bbb96ced320d08ccca028ea846))
+
 ## [2.1.0-rc.3](https://github.com/erxes/erxes/compare/2.1.0-rc.2...2.1.0-rc.3) (2024-11-25)
 
 
