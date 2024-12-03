@@ -165,6 +165,12 @@ export default {
       _id: { $in: config[`${type}Ids`] }
     };
 
+    if (type === "user") {
+      const result = await models.Users.find(commonFilter).distinct("email");
+
+      return result;
+    }
+
     const CONTACT_TYPES = {
       lead: {
         model: models.Customers,
@@ -220,6 +226,14 @@ export default {
         label: "Company",
         description:
           "Start with a blank workflow that enrolls and is triggered off company"
+      },
+      {
+        type: "core:form_submission",
+        img: "automation2.svg",
+        icon: "university",
+        label: "Form submission",
+        description:
+          "Start with a blank workflow that enrolls and is triggered off form submission"
       }
     ]
   }

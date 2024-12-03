@@ -320,13 +320,15 @@ export const getUsageByPluginType = async (args: {
 
   if (pluginType === "segments") {
     if (models) {
-      totalUsage = await models.Segments.find({}).countDocuments();
+      totalUsage = await models.Segments.find({
+        name: { $exists: true },
+      }).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: "core",
-        action: "segmentCount",
-        data: {}
+        serviceName: 'core',
+        action: 'segmentCount',
+        data: { name: { $exists: true } },
       });
     }
   }

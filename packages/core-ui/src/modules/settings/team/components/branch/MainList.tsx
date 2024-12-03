@@ -20,6 +20,7 @@ import Tip from "@erxes/ui/src/components/Tip";
 import Wrapper from "modules/layout/components/Wrapper";
 import {
   generatePaginationParams,
+  removeParams,
   setParams,
 } from "@erxes/ui/src/utils/router";
 import { generateTree } from "../../utils";
@@ -278,6 +279,17 @@ const MainList = (props: Props) => {
       setSelectedItems([]);
     };
 
+    const generateList = () => {
+      let list: any[] = branches.map((item) => {
+        if (!branches.find((branch) => branch._id === item.parentId)) {
+          return { ...item, parentId: null };
+        }
+        return item;
+      });
+
+      return list;
+    };
+
     return (
       <Table>
         <thead>
@@ -299,11 +311,11 @@ const MainList = (props: Props) => {
         </thead>
         <tbody>
           {generateTree(
-            branches,
+            generateList(),
             queryParams?.parentId || null,
             (branch, level) => renderRow(branch, level),
           )}
-          {generateTree(branches, "", (branch, level) =>
+          {generateTree(generateList(), "", (branch, level) =>
             renderRow(branch, level),
           )}
         </tbody>
@@ -321,7 +333,10 @@ const MainList = (props: Props) => {
       {!queryParams.parentId ? (
         <Button
           btnStyle="white"
-          onClick={() => setParams(navigate, location, { onlyFirstLevel })}
+          onClick={() => {
+            removeParams(navigate, location, "page");
+            setParams(navigate, location, { onlyFirstLevel })
+          }}
         >
           {__(`${onlyFirstLevel ? "Show Only" : "Disable"} First Level`)}
         </Button>

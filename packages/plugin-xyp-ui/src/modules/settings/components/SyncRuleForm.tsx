@@ -43,18 +43,16 @@ const SyncRuleForm = (props: Props) => {
   const [formField, setFormField] = useState<string>(syncRule?.formField || '')
 
   useEffect(() => {
-    if (isEnabled("forms")) {
-      client
-        .query({
-          query: gql(fieldQueries.fieldsGroups),
-          variables: {
-            contentType: objectType,
-          },
-        })
-        .then(({ data }) => {
-          setFieldGroups(data ? data.fieldsGroups : [] || []);
-        });
-    }
+    client
+      .query({
+        query: gql(fieldQueries.fieldsGroups),
+        variables: {
+          contentType: objectType,
+        },
+      })
+      .then(({ data }) => {
+        setFieldGroups(data ? data.fieldsGroups : [] || []);
+      });
   }, [objectType]);
 
   const renderFooter = (formProps: IFormProps) => {
