@@ -8,13 +8,28 @@ module.exports = {
     './inboxIntegrationSettings': './src/containers/UpdateConfigsContainer.tsx',
     './activityLog': './src/containers/ActivityLogsContainer.tsx',
     './inboxConversationDetailRespondBoxMask':
-      './src/containers/TagMessageContainer.tsx'
+      './src/containers/TagMessageContainer.tsx',
+    './automation': './src/automations/index.tsx',
+    './messenger-bots': './src/automations/bots/containers/List.tsx'
   },
   routes: {
     url: 'http://localhost:3037/remoteEntry.js',
     scope: 'instagram',
     module: './routes'
   },
+  automation: './automation',
+  automationBots: [
+    {
+      name: 'instagram-messenger-bots',
+      label: 'Instagram Messenger',
+      description: 'Generate Instagram Messenger Bots',
+      logo: '/images/integrations/instagram.png',
+      list: './messenger-bots',
+      createUrl: '/settings/instagram-messenger-bot/create',
+      totalCountQuery:
+        'query IgbootMessengerBotsTotalCount { igbootMessengerBotsTotalCount }'
+    }
+  ],
   inboxIntegrationSettings: './inboxIntegrationSettings',
   inboxDirectMessage: {
     messagesQuery: {
@@ -39,7 +54,7 @@ module.exports = {
               createdAt
               isCustomerRead
               internal
-
+              botData
               attachments {
                 url
                 name

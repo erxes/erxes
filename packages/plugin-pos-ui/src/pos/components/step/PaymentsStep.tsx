@@ -5,17 +5,17 @@ import {
   FormGroup,
   Icon,
   Tip,
-  __
-} from "@erxes/ui/src";
-import { LeftItem } from "@erxes/ui/src/components/step/styles";
-import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
-import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
-import React, { useState } from "react";
-import Select, { components } from "react-select";
-import styled from "styled-components";
-import { PAYMENT_TYPE_ICONS } from "../../../constants";
-import { Block, Description, FlexColumn, FlexItem } from "../../../styles";
-import { IPos, ISlot } from "../../../types";
+  __,
+} from '@erxes/ui/src';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
+import React, { useState } from 'react';
+import Select, { components } from 'react-select';
+import styled from 'styled-components';
+import { PAYMENT_TYPE_ICONS } from '../../../constants';
+import { Block, Description, FlexColumn, FlexItem } from '../../../styles';
+import { IPos, ISlot } from '../../../types';
 
 export const SelectValue = styled.div`
   display: flex;
@@ -26,7 +26,7 @@ export const SelectValue = styled.div`
 `;
 
 type Props = {
-  onChange: (name: "pos", value: any) => void;
+  onChange: (name: 'pos', value: any) => void;
   pos: IPos;
   posSlots: ISlot[];
   envs: any;
@@ -42,13 +42,13 @@ const PaymentsStep = (props: Props) => {
   };
 
   const onChangePayments = ids => {
-    onChangeFunction("pos", { ...pos, paymentIds: ids });
+    onChangeFunction('pos', { ...pos, paymentIds: ids });
   };
 
   const onChangeInput = e => {
-    onChangeFunction("pos", {
+    onChangeFunction('pos', {
       ...pos,
-      [e.target.id]: (e.currentTarget as HTMLInputElement).value
+      [e.target.id]: (e.currentTarget as HTMLInputElement).value,
     });
   };
 
@@ -57,12 +57,12 @@ const PaymentsStep = (props: Props) => {
 
     paymentTypes.push({
       _id: Math.random().toString(),
-      type: "",
-      title: "",
-      icon: ""
+      type: '',
+      title: '',
+      icon: '',
     });
 
-    onChange("pos", { ...pos, paymentTypes });
+    onChange('pos', { ...pos, paymentTypes });
   };
 
   const content = (option): React.ReactNode => (
@@ -96,7 +96,7 @@ const PaymentsStep = (props: Props) => {
       paymentTypes = (paymentTypes || []).map(p =>
         p._id === paymentType._id ? { ...p, [name]: value } : p
       );
-      onChange("pos", { ...pos, paymentTypes });
+      onChange('pos', { ...pos, paymentTypes });
     };
 
     const onChangeInput = e => {
@@ -106,28 +106,28 @@ const PaymentsStep = (props: Props) => {
     };
 
     const onChangeSelect = option => {
-      editPayment("icon", option.value);
+      editPayment('icon', option.value);
     };
 
     const removePayment = () => {
       const paymentTypes =
         (pos.paymentTypes || []).filter(m => m._id !== paymentType._id) || [];
-      onChange("pos", { ...pos, paymentTypes });
+      onChange('pos', { ...pos, paymentTypes });
     };
 
     const getTipText = type => {
-      if (type === "golomtCard") return "continue";
-      if (type === "TDBCard" || type === "capitron")
+      if (type === 'golomtCard') return 'continue';
+      if (type === 'TDBCard' || type === 'capitron')
         return 'must config: "{port: 8078}"';
-      if (type === "khaanCard")
-        return "check localhost:27028 and contact databank";
-      return "";
+      if (type === 'khaanCard')
+        return 'check localhost:27028 and contact databank';
+      return '';
     };
 
     const iconOptions = PAYMENT_TYPE_ICONS.map(icon => ({
       value: icon,
       label: icon,
-      avatar: `${icon}`
+      avatar: `${icon}`,
     }));
 
     return (
@@ -136,9 +136,9 @@ const PaymentsStep = (props: Props) => {
           <FormColumn>
             <FormGroup>
               <FormControl
-                name="type"
+                name='type'
                 maxLength={10}
-                defaultValue={paymentType.type || ""}
+                defaultValue={paymentType.type || ''}
                 onChange={onChangeInput}
               />
             </FormGroup>
@@ -146,9 +146,9 @@ const PaymentsStep = (props: Props) => {
           <FormColumn>
             <FormGroup>
               <FormControl
-                name="title"
-                type="text"
-                defaultValue={paymentType.title || ""}
+                name='title'
+                type='text'
+                defaultValue={paymentType.title || ''}
                 onChange={onChangeInput}
               />
             </FormGroup>
@@ -156,10 +156,10 @@ const PaymentsStep = (props: Props) => {
           <FormColumn>
             <FormGroup>
               <Select
-                name="icon"
+                name='icon'
                 components={{ Option, SingleValue }}
                 value={iconOptions.find(
-                  o => o.value === (paymentType.icon || "")
+                  o => o.value === (paymentType.icon || '')
                 )}
                 onChange={onChangeSelect}
                 options={iconOptions}
@@ -171,9 +171,9 @@ const PaymentsStep = (props: Props) => {
             <FormGroup>
               <Tip text={getTipText(paymentType.type)}>
                 <FormControl
-                  name="config"
-                  type="text"
-                  defaultValue={paymentType.config || ""}
+                  name='config'
+                  type='text'
+                  defaultValue={paymentType.config || ''}
                   onChange={onChangeInput}
                 />
               </Tip>
@@ -182,8 +182,8 @@ const PaymentsStep = (props: Props) => {
           <FormColumn>
             <FormGroup>
               <Button
-                btnStyle="danger"
-                icon="trash"
+                btnStyle='danger'
+                icon='trash'
                 onClick={() => removePayment()}
               />
             </FormGroup>
@@ -197,20 +197,20 @@ const PaymentsStep = (props: Props) => {
     <FlexItem>
       <FlexColumn>
         <LeftItem>
-          {isEnabled("payment") && (
+          {isEnabled('payment') && (
             <>
-              {loadDynamicComponent("selectPayments", {
+              {loadDynamicComponent('selectPayments', {
                 defaultValue: pos.paymentIds || [],
-                onChange: (ids: string[]) => onChangePayments(ids)
+                onChange: (ids: string[]) => onChangePayments(ids),
               })}
 
               <Block>
                 <FormGroup>
                   <ControlLabel>Erxes App Token:</ControlLabel>
                   <FormControl
-                    id="erxesAppToken"
-                    type="text"
-                    value={pos.erxesAppToken || ""}
+                    id='erxesAppToken'
+                    type='text'
+                    value={pos.erxesAppToken || ''}
                     onChange={onChangeInput}
                   />
                 </FormGroup>
@@ -219,7 +219,7 @@ const PaymentsStep = (props: Props) => {
           )}
 
           <Block>
-            <h4>{__("Other payments")}</h4>
+            <h4>{__('Other payments')}</h4>
             <Description>
               type is must latin, some default types: golomtCard, khaanCard,
               TDBCard
@@ -260,8 +260,8 @@ const PaymentsStep = (props: Props) => {
               {(pos.paymentTypes || []).map(item => renderPaymentType(item))}
             </FormGroup>
             <Button
-              btnStyle="primary"
-              icon="plus-circle"
+              btnStyle='primary'
+              icon='plus-circle'
               onClick={onClickAddPayments}
             >
               Add payment

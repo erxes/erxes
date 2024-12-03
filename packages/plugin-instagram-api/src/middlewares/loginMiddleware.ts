@@ -1,28 +1,28 @@
-import * as graph from 'fbgraph';
-import { getSubdomain } from '@erxes/api-utils/src/core';
-import { generateModels } from '../connectionResolver';
-import { getConfig, getEnv } from '../commonUtils';
-import { graphRequest } from '../utils';
-import { debugInstagram, debugRequest, debugResponse } from '../debuggers';
-import { repairIntegrations } from '../helpers';
+import * as graph from "fbgraph";
+import { getSubdomain } from "@erxes/api-utils/src/core";
+import { generateModels } from "../connectionResolver";
+import { getConfig, getEnv } from "../commonUtils";
+import { graphRequest } from "../utils";
+import { debugInstagram, debugRequest, debugResponse } from "../debuggers";
+import { repairIntegrations } from "../helpers";
 
 const loginMiddleware = async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
-  const INSTAGRAM_APP_ID = await getConfig(models, 'INSTAGRAM_APP_ID');
-  const INSTAGRAM_APP_SECRET = await getConfig(models, 'INSTAGRAM_APP_SECRET');
+  const INSTAGRAM_APP_ID = await getConfig(models, "INSTAGRAM_APP_ID");
+  const INSTAGRAM_APP_SECRET = await getConfig(models, "INSTAGRAM_APP_SECRET");
 
   const INSTAGRAM_PERMISSIONS = await getConfig(
     models,
-    'INSTAGRAM_PERMISSIONS',
-    'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
+    "INSTAGRAM_PERMISSIONS",
+    "pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content"
   );
 
-  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
-  const API_DOMAIN = DOMAIN.includes('zrok') ? DOMAIN : `${DOMAIN}/gateway`;
+  const DOMAIN = getEnv({ name: "DOMAIN", subdomain });
+  const API_DOMAIN = DOMAIN.includes("zrok") ? DOMAIN : `${DOMAIN}/gateway`;
   const INSTAGRAM_LOGIN_REDIRECT_URL = await getConfig(
     models,
-    'INSTAGRAM_LOGIN_REDIRECT_URL',
+    "INSTAGRAM_LOGIN_REDIRECT_URL",
     `${API_DOMAIN}/pl:instagram/iglogin`
   );
   const conf = {
@@ -48,8 +48,8 @@ const loginMiddleware = async (req, res) => {
       debugResponse(debugInstagram, req, authUrl);
       return res.redirect(authUrl);
     } else {
-      debugResponse(debugInstagram, req, 'access denied');
-      return res.send('access denied');
+      debugResponse(debugInstagram, req, "access denied");
+      return res.send("access denied");
     }
   }
 
@@ -74,7 +74,7 @@ const loginMiddleware = async (req, res) => {
       first_name: string;
       last_name: string;
     } = await graphRequest.get(
-      'me?fields=id,first_name,last_name',
+      "me?fields=id,first_name,last_name",
       access_token
     );
 
@@ -98,13 +98,13 @@ const loginMiddleware = async (req, res) => {
       await models.Accounts.create({
         token: access_token,
         name,
-        kind: 'instagram',
+        kind: "instagram",
         uid: userAccount.id
       });
     }
-    const reactAppUrl = !DOMAIN.includes('zrok')
+    const reactAppUrl = !DOMAIN.includes("zrok")
       ? DOMAIN
-      : 'http://localhost:3000';
+      : "http://localhost:3000";
     const url = `${reactAppUrl}/settings/ig-authorization?igAuthorized=true`;
 
     debugResponse(debugInstagram, req, url);

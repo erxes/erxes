@@ -184,3 +184,10 @@ export const sendInboxMessage = (args: MessageArgsOmitService) => {
     ...args
   });
 };
+
+export const sendAutomationsMessage = (args: MessageArgsOmitService) => {
+  return sendCommonMessage({
+    serviceName: 'automations',
+    ...args
+  });
+};

@@ -175,7 +175,7 @@ class MailForm extends React.Component<Props, State> {
       showPrevEmails,
 
       fromEmail: sender,
-      from: mailWidget ? mailWidget.from : mailData.from || ([{}] as IEmail[]),
+      from: '',
       subject: mailData.subject || mailWidget ? mailWidget.subject : "",
       emailSignature: "",
       content: mailData
@@ -547,12 +547,10 @@ class MailForm extends React.Component<Props, State> {
     const { verifiedImapEmails, verifiedEngageEmails, detailQuery } =
       this.props;
 
-    const onChangeMail = (from: string) => {
-      this.setState({ from });
+    const onChangeMail = (from: string | null) => {
+    this.setState({ from: from || "" });
     };
-
     this.prepareData();
-
     return (
       <MailChooser
         onChange={onChangeMail}
@@ -722,7 +720,6 @@ class MailForm extends React.Component<Props, State> {
       brands,
       loading
     } = this.props;
-
     const onSubmitResolve = e => this.onSubmit(e, true);
 
     const onChangeAttachment = attachments => {
