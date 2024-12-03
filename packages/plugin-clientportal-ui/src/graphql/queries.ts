@@ -136,7 +136,9 @@ export const basicFields = `
   type
 
   clientPortal {
+    _id
     name
+    kind
   }
 
   erxesCustomerId
