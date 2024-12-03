@@ -513,45 +513,60 @@ const instagramQueries = {
   async igbootMessengerBots(_root, _args, { models }: IContext) {
     try {
       const bots = await models.Bots.find({});
-      const result = bots.map(async (bot) => {
-        const ig_account = await models.Accounts.getAccount({
-          _id: bot.accountId
-        });
-        const accessToken = ig_account?.token;
+      const result = await Promise.all(
+        bots.map(async (bot) => {
+          // Define accountData with a proper union type
+          let accountData: { _id: string; name: string } | null = null;
+          let page: { id: string; name: string } | null = null;
+          let getPage: any = null;
 
-        const accountData = ig_account
-          ? { _id: ig_account._id, name: ig_account.name }
-          : null;
+          const ig_account = await models.Accounts.getAccount({
+            _id: bot.accountId
+          }).catch(() => null);
 
-        const getPage = await getProfile(bot.pageId, accessToken);
+          if (ig_account) {
+            const accessToken = ig_account.token;
 
-        const page =
-          getPage && getPage.id
-            ? { id: getPage.id, name: getPage.username }
-            : null;
+            accountData = {
+              _id: ig_account._id as string,
+              name: ig_account.name
+            };
 
-        return {
-          _id: bot._id,
-          name: bot.name,
-          accountId: bot.accountId,
-          account: accountData,
-          page: page,
-          pageId: bot.pageId,
-          profileUrl: getPage?.profile_picture_url || "",
-          persistentMenus: bot.persistentMenus || [],
-          greetText: bot.greetText || "",
-          tag: bot.tag || "",
-          isEnabledBackBtn: bot.isEnabledBackBtn || false,
-          backButtonText: bot.backButtonText || ""
-        };
-      });
+            getPage = await getProfile(bot.pageId, accessToken).catch(
+              () => null
+            );
+
+            if (getPage?.id) {
+              page = {
+                id: getPage.id,
+                name: getPage.username
+              };
+            }
+          }
+
+          return {
+            _id: bot._id,
+            name: bot.name,
+            accountId: bot.accountId,
+            account: accountData,
+            page,
+            pageId: bot.pageId,
+            profileUrl: getPage?.profile_picture_url || "",
+            persistentMenus: bot.persistentMenus || [],
+            greetText: bot.greetText || "",
+            tag: bot.tag || "",
+            isEnabledBackBtn: bot.isEnabledBackBtn || false,
+            backButtonText: bot.backButtonText || ""
+          };
+        })
+      );
 
       return result;
     } catch (error) {
+      console.error("Error fetching Instagram Messenger Bots data:", error);
       throw new Error("Failed to fetch Instagram Messenger Bots data.");
     }
   },
-
   async igbootMessengerBotsTotalCount(_root, _args, { models }: IContext) {
     return await models.Bots.find({}).countDocuments();
   },
