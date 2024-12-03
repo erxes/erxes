@@ -102,7 +102,6 @@ export const fetchPolaris = async (args: IParams) => {
     return realResponse;
 
   } catch (e) {
-    console.log('ddddddddddddddddd', e)
     throw new Error(e.message);
   }
 };
