@@ -76,4 +76,5 @@ export default {
   configs,
   syncHistoriesPolaris,
   syncHistoriesCountPolaris,
+  
 };
