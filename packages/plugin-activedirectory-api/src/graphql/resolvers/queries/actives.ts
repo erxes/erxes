@@ -26,17 +26,6 @@ const generateFilter = async (
   return filter;
 };
 
-export const sortBuilder = (params) => {
-  const sortField = params.sortField;
-  const sortDirection = params.sortDirection || 0;
-
-  if (sortField) {
-    return { [sortField]: sortDirection };
-  }
-
-  return {};
-};
-
 const adQueries = {
   cars: async (
     _root,
@@ -52,30 +41,6 @@ const adQueries = {
         perPage: params.perPage,
       }
     );
-  },
-
-  carsMain: async (
-    _root,
-    params,
-    { subdomain, commonQuerySelector, models }: IContext
-  ) => {
-    const filter = await generateFilter(
-      subdomain,
-      params,
-      commonQuerySelector,
-      models
-    );
-
-    return {
-      list: await paginate(
-        models.ActiveDirectory.find(filter).sort(sortBuilder(params)),
-        {
-          page: params.page,
-          perPage: params.perPage,
-        }
-      ),
-      totalCount: await models.ActiveDirectory.find(filter).countDocuments(),
-    };
   },
 };
 

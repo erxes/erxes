@@ -1,10 +1,6 @@
 import gql from 'graphql-tag';
 
-import {
-  types as adTypes,
-  queries as adQueries,
-  mutations as adMutations,
-} from './schema/active';
+import { types as adTypes, mutations as adMutations } from './schema/active';
 
 const typeDefs = async () => {
   return gql`
@@ -12,11 +8,6 @@ const typeDefs = async () => {
     scalar Date
     
     ${adTypes()}
-    
-    extend type Query {
-
-      ${adQueries}
-    }
     
     extend type Mutation {
       ${adMutations}
