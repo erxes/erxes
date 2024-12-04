@@ -353,7 +353,7 @@ export const setProperty = async ({
 
           const field = await sendCommonMessage({
             subdomain,
-            serviceName: "forms",
+            serviceName: 'core',
             action: "fields.findOne",
             data: {
               query: { _id: fieldId }
@@ -364,7 +364,7 @@ export const setProperty = async ({
 
           const complexFieldData = await sendCommonMessage({
             subdomain,
-            serviceName: "forms",
+            serviceName: 'core',
             action: "fields.generateTypedItem",
             data: {
               field: fieldId,

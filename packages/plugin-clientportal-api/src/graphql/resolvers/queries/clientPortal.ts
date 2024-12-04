@@ -247,7 +247,7 @@ const configClientPortalQueries = {
     const fieldIds = configs.map(config => config.fieldId);
     const fields = await sendCommonMessage({
       subdomain,
-      serviceName: "forms",
+      serviceName: 'core',
       action: "fields.find",
       data: {
         query: {
