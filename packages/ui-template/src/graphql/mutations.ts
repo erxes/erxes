@@ -37,8 +37,8 @@ const templateRemove = `
 `;
 
 const templateUse = `
-  mutation templateUse($serviceName: String!, $contentType: String!, $template: JSON) {
-    templateUse(serviceName: $serviceName, contentType: $contentType, template: $template)
+  mutation templateUse($_id: String!) {
+    templateUse(_id: $_id)
   }
 `;
 

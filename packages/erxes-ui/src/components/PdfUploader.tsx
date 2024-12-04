@@ -1,14 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { IPdfAttachment } from '@erxes/ui-knowledgeBase/src/types';
+
 import Attachment from '@erxes/ui/src/components/Attachment';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { __, getEnv } from '@erxes/ui/src/utils';
 import Alert from '@erxes/ui/src/utils/Alert';
-import { AttachmentContainer, UploadBtn } from './styles';
+
+import { IPdfAttachment } from '@erxes/ui/src/types';
+import { AttachmentContainer, UploadBtn } from '../styles/main';
 
 // Utility for making API requests
 const apiRequest = async (url: string, options: RequestInit) => {
   const response = await fetch(url, options);
+
+  console.debug('API Response:', response);
+
+  if (response.status === 524) {
+    console.warn('Ignoring 524 Timeout error');
+
+    const status = url.includes('upload-status') ? 'processing' : 'uploading';
+
+    return { progress: 0, status }; 
+  }
+
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(errorText || 'Request failed');
@@ -104,10 +117,10 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
     if (!file) return;
 
     setIsUploading(true);
-
+    setStatus('Uploading...');
     try {
       if (file.size < MAX_FILE_SIZE) {
-        setStatus('Uploading...');
+        
         const formData = new FormData();
         formData.append('file', file);
         formData.append('filename', file.name);
@@ -176,7 +189,7 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
           setUploadState({ taskId: null, lastChunkUploaded: false });
           break;
         default:
-          setStatus('Unknown status.');
+          setStatus('Processing pages...');
       }
     } catch (error) {
       Alert.error(`Status check failed: ${error.message}`);

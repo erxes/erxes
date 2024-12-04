@@ -9,17 +9,18 @@ import styled from 'styled-components';
 export const EditorActions = styled.div`
   width: 100%;
   background-color: #fff;
-  position: absolute;
-  right: 0;
-  bottom: 0;
   padding: 15px;
   text-align: right;
+  margin-top: auto;
 `;
 
 export const EditorWrapper = styled.div`
   position: relative;
   resize: vertical;
   overflow: hidden;
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
 
   > .cke_chrome {
     border-bottom: 0;
@@ -137,7 +138,7 @@ class Form extends React.PureComponent<Prop, State> {
           showMentions={true}
           content={this.state.content}
           onChange={this.onEditorChange}
-          height={"fit-content"}
+          height={"100%"}
           name={`${contentType}_note_${contentTypeId}`}
           toolbar={[
             'bold',

@@ -54,11 +54,6 @@ const requestToTypes = {
   individuals: 'Set individuals',
 };
 
-const requestToWhomTypes = {
-  supervisors: 'Branch supervisors',
-  individuals: 'Set individuals',
-};
-
 function ConfigForm(props: Props) {
   const { renderButton, scheduleConfig, deviceConfig } = props;
   const { absenceType, holiday, payDate } = props;
@@ -73,10 +68,6 @@ function ConfigForm(props: Props) {
 
   const [requestToType, setRequestToType] = useState(
     absenceType?.requestToType || 'default'
-  );
-
-  const [requestToWhomType, setRequestToWhomType] = useState(
-    absenceType?.requestToWhomType || 'shift request'
   );
 
   const [hoursPerDay, setHoursPerDay] = useState(8);
@@ -107,11 +98,16 @@ function ConfigForm(props: Props) {
     (deviceConfig && deviceConfig.extractRequired) || false
   );
 
-  const [numberOfLocations, setNumberOfLocations] = useState(
-    scheduleConfig?.locations.length || 0
-  );
   const [locationsFormValues, setLocationsFormValues] = useState<any>(
-    scheduleConfig?.locations || {}
+    scheduleConfig?.locations || []
+  );
+
+  const [absenceUserIds, setAbsenceUserIds] = useState(
+    (absenceType && absenceType.absenceUserIds) || []
+  );
+
+  const [branchIds, setBranchIds] = useState(
+    (absenceType && absenceType.branchIds) || []
   );
 
   const defaultStartTime = new Date(
@@ -184,10 +180,6 @@ function ConfigForm(props: Props) {
     setRequestToType(e.value);
   };
 
-  const onRequestToWhomTypeChange = (e) => {
-    setRequestToWhomType(e.value);
-  };
-
   const toggleRequestType = (e) => {
     setRequestType(e.value);
   };
@@ -222,20 +214,27 @@ function ConfigForm(props: Props) {
   };
 
   const addLocationClick = () => {
-    const nextNum = numberOfLocations + 1;
-    setNumberOfLocations(nextNum);
-
-    const newLocationsFormValues = {
-      ...locationsFormValues,
-    };
-
-    newLocationsFormValues[nextNum] = {
+    const newLocation = {
       name: '',
       longitude: '',
       latitude: '',
     };
+    setLocationsFormValues((prevValues) => {
+      // Make sure prevValues is an array
+      if (!Array.isArray(prevValues)) {
+        console.error('prevValues is not an array', prevValues);
+        return [newLocation]; // Reset to an array with the new location
+      }
+      return [...prevValues, newLocation];
+    });
+  };
 
-    setLocationsFormValues(newLocationsFormValues);
+  const onUserSelect = (users) => {
+    setAbsenceUserIds(users);
+  };
+
+  const onBranchSelect = (branches) => {
+    setBranchIds(branches);
   };
 
   const onMouseEnter = () => {
@@ -246,31 +245,39 @@ function ConfigForm(props: Props) {
     setIsHovered(false);
   };
 
-  const onLocationsFormValueChange = (
-    locationNum: number,
-    e: any,
-    key: string
-  ) => {
-    locationsFormValues[locationNum][key] = e.target.value;
-    setLocationsFormValues({ ...locationsFormValues });
+  const onLocationsFormValueChange = (locationNum, e, key) => {
+    setLocationsFormValues((prevValues) => {
+      const newValues = [...prevValues];
+      if (newValues[locationNum]) {
+        newValues[locationNum] = {
+          ...newValues[locationNum],
+          [key]: e.target.value,
+        };
+      }
+      return newValues;
+    });
   };
 
   const renderLocationsForm = () => {
-    const remove = (num: number) => {
-      delete locationsFormValues[num];
-      setLocationsFormValues({ ...locationsFormValues });
+    const remove = (index) => {
+      setLocationsFormValues((prevValues) => {
+        if (!Array.isArray(prevValues)) {
+          console.error('prevValues is not an array', prevValues);
+          return []; // Reset to an empty array
+        }
+        return prevValues.filter((_, i) => i !== index);
+      });
     };
 
     return (
       <>
-        {Object.keys(locationsFormValues).map((num) => {
-          const locationNum = parseInt(num, 10);
+        {locationsFormValues.map((location, index) => {
           return (
             <FlexRow style={{ margin: '25px' }}>
               <Tip text={__('Remove')} placement="top">
                 <Button
                   btnStyle="link"
-                  onClick={() => remove(locationNum)}
+                  onClick={() => remove(index)}
                   icon="times-circle"
                 />
               </Tip>{' '}
@@ -278,12 +285,10 @@ function ConfigForm(props: Props) {
               <div style={{ marginLeft: '1rem' }}>
                 <FormControl
                   type="text"
-                  name={`location${num}Name`}
-                  value={locationsFormValues[num].name}
+                  name={`location${index}Name`}
+                  value={location.name}
                   required={true}
-                  onChange={(e) =>
-                    onLocationsFormValueChange(locationNum, e, 'name')
-                  }
+                  onChange={(e) => onLocationsFormValueChange(index, e, 'name')}
                 />
               </div>
               <FlexColumn $marginNum={25}>
@@ -292,11 +297,11 @@ function ConfigForm(props: Props) {
                   <div style={{ marginLeft: '1rem' }}>
                     <FormControl
                       type="text"
-                      name={`location${num}Long`}
-                      value={locationsFormValues[num].longitude}
+                      name={`location${index}Long`}
+                      value={location.longitude}
                       required={true}
                       onChange={(e) =>
-                        onLocationsFormValueChange(locationNum, e, 'longitude')
+                        onLocationsFormValueChange(index, e, 'longitude')
                       }
                     />
                   </div>
@@ -306,11 +311,11 @@ function ConfigForm(props: Props) {
                   <div style={{ marginLeft: '1rem' }}>
                     <FormControl
                       type="text"
-                      name={`location${num}Lat`}
-                      value={locationsFormValues[num].latitude}
+                      name={`location${index}Lat`}
+                      value={location.latitude}
                       required={true}
                       onChange={(e) =>
-                        onLocationsFormValueChange(locationNum, e, 'latitude')
+                        onLocationsFormValueChange(index, e, 'latitude')
                       }
                     />
                   </div>
@@ -365,9 +370,12 @@ function ConfigForm(props: Props) {
 
           requestType: `${requestType}`,
           requestTimeType: requestTime,
+          requestToType: requestToType,
 
           explRequired: explanationRequired,
           attachRequired: attachmentRequired,
+          absenceUserIds: absenceUserIds,
+          branchIds: branchIds,
           shiftRequest: requestType === 'shift request',
           _id: values._id,
         };
@@ -594,13 +602,6 @@ function ConfigForm(props: Props) {
       }));
     };
 
-    const renderRequestToWhomTypes = (array) => {
-      return array.map((ipt) => ({
-        value: ipt,
-        label: __(requestToWhomTypes[ipt]),
-      }));
-    };
-
     return (
       <ConfigFormWrapper>
         <FlexColumn $marginNum={30}>
@@ -688,53 +689,32 @@ function ConfigForm(props: Props) {
 
           {requestToType === 'individuals' && (
             <>
-              <ControlLabel required={true}>
-                Select whom can approve this request
-              </ControlLabel>
-
-              <Select
-                value={renderRequestToTypes(Object.keys(requestToTypes)).find(
-                  (option) => option.value === requestToWhomType
-                )}
-                onChange={onRequestToWhomTypeChange}
-                placeholder="Select whom"
-                options={renderRequestToWhomTypes(
-                  Object.keys(requestToWhomTypes)
-                )}
-              />
-            </>
-          )}
-
-          {requestToWhomType === 'individuals' && (
-            <>
               <ControlLabel required={true}>Select team members</ControlLabel>
 
               <SelectTeamMembers
-                // queryParams={queryParams}
-                // filterParams={filterParams}
-                // customOption={prepareCurrentUserOption(currentUser)}
                 customField="employeeId"
                 label={'Team member'}
-                onSelect={(e) => console.log(e)}
+                onSelect={onUserSelect}
+                initialValue={absenceUserIds}
                 multi={true}
                 name="userId"
               />
             </>
           )}
 
-          {requestToWhomType === 'supervisors' && (
+          {requestToType === 'supervisor' && (
             <>
               <ControlLabel required={true}>Select branches</ControlLabel>
 
               <SelectBranches
                 label="Choose branch"
                 name="branchId"
-                // initialValue={branchId || ''}
+                initialValue={branchIds || []}
                 customOption={{
                   value: '',
                   label: '...Clear branch filter',
                 }}
-                onSelect={(e) => console.log(e)}
+                onSelect={onBranchSelect}
                 multi={true}
               />
             </>

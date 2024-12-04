@@ -31,6 +31,7 @@ const DetailForm: React.FC<Props> = ({ _id }: Props) => {
       ({} as { responses: IGrantResponse[] } & IGrantRequest),
   };
 
+
   return <FormComponent {...updatedProps} />;
 };
 

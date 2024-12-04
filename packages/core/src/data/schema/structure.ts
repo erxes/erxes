@@ -1,6 +1,6 @@
 import {
   attachmentType,
-  attachmentInput
+  attachmentInput,
 } from '@erxes/api-utils/src/commonTypeDefs';
 const commonContactInfoTypes = `
 
@@ -75,6 +75,7 @@ export const types = `
 
         address: String
         radius: Int
+        hasChildren:Boolean
         workhours:JSON
         ${commonContactInfoTypes}
     }
@@ -135,7 +136,8 @@ const commonParams = `
     page: Int
     searchValue: String,
     status: String,
-    onlyFirstLevel: Boolean
+    onlyFirstLevel: Boolean,
+    parentId: String
 `;
 
 export const queries = `

@@ -46,10 +46,10 @@ class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { formData = {} as IForm } = props;
+    const formData = { ...(props.form || {}), ...(props.formData || {}) };
 
     this.state = {
-      fields: (props.formData ? props.formData.fields : []) || [],
+      fields: formData?.fields || [],
       title: formData.title || 'Form Title',
       description: formData.description || '',
       buttonText: formData.buttonText || 'Send',
@@ -81,12 +81,12 @@ class Form extends React.Component<Props, State> {
           nextProps.formData
             ? { ...nextProps.formData, type: nextProps.type }
             : {
-                title,
-                description,
-                buttonText,
-                fields,
-                type,
-              }
+              title,
+              description,
+              buttonText,
+              fields,
+              type,
+            }
         );
     }
   }
@@ -99,7 +99,7 @@ class Form extends React.Component<Props, State> {
     const { onDocChange } = this.props;
     const { title, buttonText, description, numberOfPages } = this.state;
 
-    const onChangeField = (e) => {
+    const onChangeField = e => {
       const name: keyof State = e.target.name;
       const value = (e.currentTarget as HTMLInputElement).value;
 
@@ -181,7 +181,16 @@ class Form extends React.Component<Props, State> {
         fields: [...fields, field],
         currentField: undefined,
       };
+    } else if (currentMode === 'update') {
+      selector = {
+        fields: fields.map(prevField =>
+          prevField._id === field._id ? { ...prevField, ...field } : prevField
+        ),
+        currentField: undefined,
+      };
     }
+
+    console.log({ selector, currentMode });
 
     this.setState(selector, () => {
       if (onDocChange) {
@@ -192,7 +201,7 @@ class Form extends React.Component<Props, State> {
 
   onFieldDelete = (field: IField) => {
     // remove field from state
-    const fields = this.state.fields.filter((f) => f._id !== field._id);
+    const fields = this.state.fields.filter(f => f._id !== field._id);
 
     this.setState({ fields, currentField: undefined });
   };
@@ -201,13 +210,13 @@ class Form extends React.Component<Props, State> {
     this.setState({ currentField: undefined });
   };
 
-  onChangeFieldsOrder = (fields) => {
+  onChangeFieldsOrder = fields => {
     const { onDocChange } = this.props;
 
     const allFields = this.state.fields;
 
     for (const field of fields) {
-      const index = allFields.map((e) => e._id).indexOf(field._id);
+      const index = allFields.map(e => e._id).indexOf(field._id);
 
       if (index !== -1) {
         allFields[index] = field;

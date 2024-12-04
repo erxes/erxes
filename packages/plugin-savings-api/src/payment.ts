@@ -1,6 +1,7 @@
 import { generateModels } from './connectionResolver';
 import * as moment from 'moment';
 import { TRANSACTION_TYPE } from './models/definitions/constants';
+import { savingsContractChanged } from './graphql/resolvers/mutations/contracts';
 
 export default {
   transactionCallback: async ({ subdomain, data }) => {
@@ -25,10 +26,11 @@ export default {
             payment: data.amount,
             contractId: contract._id,
             customerId: contract?.customerId,
-            description: `Payment received from customer via ${
-              data.paymentKind
-            } at ${moment(data.resolvedAt).format('YYYY-MM-DD HH:mm:ss')}`
-          },subdomain);
+            description: `Payment received from customer via ${data.paymentKind
+              } at ${moment(data.resolvedAt).format('YYYY-MM-DD HH:mm:ss')}`
+          }, subdomain);
+
+          await savingsContractChanged(await models.Contracts.getContract({ _id: contract._id }));
         }
         break;
 

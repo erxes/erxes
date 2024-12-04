@@ -1,11 +1,15 @@
 import {
   attachmentInput,
-  attachmentType
+  attachmentType,
+  pdfAttachmentType,
+  pdfAttachmentInput
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = `
   ${attachmentType}
   ${attachmentInput}
+  ${pdfAttachmentType}
+  ${pdfAttachmentInput}
   
   extend type Brand @key(fields: "_id") {
     _id: String! @external
@@ -23,16 +27,6 @@ export const types = `
   input FormCodeInput {
     brandId: String
     formId: String
-  }
-
-  type PdfAttachment {
-    pdf: Attachment
-    pages: [Attachment]
-  }
-
-  input PdfAttachmentInput {
-    pdf: AttachmentInput
-    pages: [AttachmentInput]
   }
 
   type KnowledgeBaseArticle @key(fields: "_id") {

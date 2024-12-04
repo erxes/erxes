@@ -51,16 +51,9 @@ const ListContainer = (props: Props) => {
     });
   };
 
-  const useTemplate = (template: ITemplate) => {
-    const [serviceName, contentType] = template?.contentType?.split(':') || [];
+  const useTemplate = (_id: string) => {
 
-    templateUse({
-      variables: {
-        serviceName: serviceName,
-        template: template,
-        contentType: contentType
-      }
-    })
+    templateUse({ variables: { _id } })
       .then((res) => {
         const { reDirect } = res.data.templateUse;
         if (reDirect) {

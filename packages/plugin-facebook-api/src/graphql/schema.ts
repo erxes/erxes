@@ -43,6 +43,7 @@ export const types = `
     message: String
     created_time: String
     picture: String
+    full_picture:String
     permalink_url: String
     id: String
   }
