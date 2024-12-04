@@ -347,7 +347,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
       if (doc.customFieldsData) {
         // clean custom field values
         doc.customFieldsData = await sendCommonMessage({
-          serviceName: 'forms',
+          serviceName: 'core',
           subdomain,
           action: 'fields.prepareCustomFieldsData',
           data: doc.customFieldsData,
