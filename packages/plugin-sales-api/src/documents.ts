@@ -62,7 +62,7 @@ export default {
     {
       label: "Sales",
       type: "sales",
-      subTypes: ["deal"]
+      subTypes: ["deal", "stage"]
     }
   ],
 
@@ -77,7 +77,7 @@ export default {
 
   replaceContent: async ({
     subdomain,
-    data: { stageId, itemId, content, contentype, itemIds, brandId }
+    data: { stageId, itemId, content, contentype, itemIds, brandId, branchId, departmentId }
   }) => {
     const models = await generateModels(subdomain);
     const stage = await models.Stages.findOne({ _id: stageId });
@@ -85,18 +85,10 @@ export default {
     if (!stage) {
       return "";
     }
-    let collection;
 
-    if (stage.type == "deal") {
-      collection = models.Deals;
-    }
-
-    if (!collection) {
-      return "";
-    }
     let item;
     if (contentype == "sales:stage") {
-      const items = await collection.find({
+      const items = await models.Deals.find({
         stageId: stageId,
         _id: { $in: itemIds.split(",") }
       });
@@ -111,7 +103,7 @@ export default {
         return "";
       }
     } else {
-      item = await collection.findOne({ _id: itemId });
+      item = await models.Deals.findOne({ _id: itemId });
 
       if (!item) {
         return "";
@@ -301,6 +293,24 @@ export default {
             brandId !== "noBrand" &&
             !product.scopeBrandIds.includes(brandId)) ||
           (brandId === "noBrand" && product.scopeBrandIds.length > 0)
+        ) {
+          continue;
+        }
+
+        if (
+          (branchId &&
+            branchId !== "noBranch" &&
+            pd.branchId !== branchId) ||
+          (branchId === "noBranch" && pd.branchId)
+        ) {
+          continue;
+        }
+
+        if (
+          (departmentId &&
+            departmentId !== "noDepartment" &&
+            pd.departmentId !== departmentId) ||
+          (departmentId === "noDepartment" && pd.departmentId)
         ) {
           continue;
         }
@@ -517,7 +527,7 @@ const salesStage = async (items: any[]) => {
       aggregatedData.searchText = combinedNames;
 
       if (item.productsData) {
-        item.productsData.forEach(product => {
+        item.productsData.filter(product => product.tickUsed).forEach(product => {
           const existingProduct = aggregatedData.productsData.find(
             p =>
               p.productId === product.productId &&
@@ -543,7 +553,9 @@ const salesStage = async (items: any[]) => {
               productId: product.productId,
               unitPrice: product.unitPrice,
               globalUnitPrice: product.globalUnitPrice,
-              unitPricePercent: product.unitPricePercent
+              unitPricePercent: product.unitPricePercent,
+              branchId: product.branchId,
+              departmentId: product.departmentId
             });
           }
 

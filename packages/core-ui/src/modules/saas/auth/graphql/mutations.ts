@@ -40,5 +40,5 @@ export default {
   resetPassword,
   createOwner,
   loginWithGoogle,
-  loginWithMagicLink,
+  loginWithMagicLink
 };

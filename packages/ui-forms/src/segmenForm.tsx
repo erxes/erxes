@@ -21,6 +21,7 @@ export default function Form({ config, onChangeConfig }: Props) {
         initialValue={config.formId}
         queryName="integrations"
         customQuery={queries.integrations}
+        filterParams={{ kind: "lead", perPage: 1000 }}
         generateOptions={(array) => {
           if (!config.formId) {
             onChangeConfig && onChangeConfig({ formId: array[0].form?._id });
