@@ -1,6 +1,14 @@
 # Changelog
 
 ## [2.2.0-rc.0](https://github.com/erxes/erxes/compare/2.1.0-rc.3...2.2.0-rc.0) (2024-12-03)
+## [2.1.1](https://github.com/erxes/erxes/compare/2.1.0...2.1.1) (2024-12-04)
+
+
+### Bug Fixes
+
+* **cards:** add tags field on list field types ([500cc30](https://github.com/erxes/erxes/commit/500cc30164a235aafbb049fff728e4edef203dd2))
+
+## [2.1.0](https://github.com/erxes/erxes/compare/2.1.0-rc.3...2.1.0) (2024-12-03)
 
 
 ### Features
@@ -32,6 +40,11 @@
 * **imap:** not showed signature and other little bugs ([467aec6](https://github.com/erxes/erxes/commit/467aec6f8a760d102dd5cdeb7c52665c4ab5edc8))
 * loans and savings contract type detail save ([aa14d5c](https://github.com/erxes/erxes/commit/aa14d5c926822fcf98071b5df3ce3edfe9e86899))
 * not check enabled contacts on pos-api ([8f7bebd](https://github.com/erxes/erxes/commit/8f7bebdf3c373adeabff86d5366d7830f7831cc7))
+* **cards:** set stageChangedDate when stage chaged when editItem ([9121c2e](https://github.com/erxes/erxes/commit/9121c2e6d600ab4675e4e52efb3d39437a888227))
+* **cards:** tag, cards copy, remainder ([d8d800e](https://github.com/erxes/erxes/commit/d8d800eb62f9013cb9876d022ca58031b142a776))
+* editor wrapper resize ([fffc1b8](https://github.com/erxes/erxes/commit/fffc1b887f6806a348f97af24f0669bb1c070876))
+* fix saas upload file configs ([bedf5d0](https://github.com/erxes/erxes/commit/bedf5d04c41f83f0fe0b9307ee457bb85369fa90))
+* loans and savings contract type detail save ([aa14d5c](https://github.com/erxes/erxes/commit/aa14d5c926822fcf98071b5df3ce3edfe9e86899))
 * pos ui market billType and golomt cover ([a5c5da0](https://github.com/erxes/erxes/commit/a5c5da0433a4504b475080017e06403a321938da))
 * posOrder auto number latest order checker ([669f03a](https://github.com/erxes/erxes/commit/669f03a36b058b63b4c5ce29c96fe3269ba9769a))
 * savings section ([92e4caa](https://github.com/erxes/erxes/commit/92e4caa27690405222a3b8adbb23ad8ef236cbe4))
