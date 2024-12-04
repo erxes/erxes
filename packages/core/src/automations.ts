@@ -77,9 +77,12 @@ const getItems = async (
   }
 
   const [moduleService] = module.split(":");
-  const [triggerService] = triggerType.split(":");
+  const [triggerService, triggerContentType] = triggerType.split(":");
 
-  if (moduleService === triggerService) {
+  if (
+    triggerContentType !== "form_submission" &&
+    moduleService === triggerService
+  ) {
     const relTypeIds = await sendCommonMessage({
       subdomain,
       serviceName: "core",
@@ -97,7 +100,7 @@ const getItems = async (
 
   let filter;
 
-  if (triggerType.includes("form_submission")) {
+  if (triggerContentType === "form_submission") {
     filter = { _id: target._id };
   } else {
     // send message to trigger service to get related value
