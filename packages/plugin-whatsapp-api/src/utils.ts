@@ -243,7 +243,6 @@ export const sendReply = async (
     throw new Error("Account not found");
   }
   const access_token = account.token;
-
   try {
     const response = await graphRequest.post(url, access_token, data);
     debugWhatsapp(

@@ -287,18 +287,49 @@ const sendMessage = async (
   isLoop?: boolean
 ) => {
   try {
-    const messageText = message.text;
+    let payload;
+    if (message && message.text) {
+      payload = {
+        messaging_product: "whatsapp",
+        to: recipientId,
+        type: "text",
+        text: { body: message.text || "Default text message" },
+        tag
+      };
+    } else if (message && message.attachment) {
+      const { text, buttons } = message.attachment.payload;
+      if (!Array.isArray(buttons) || buttons.length === 0) {
+        throw new Error("No valid buttons provided in attachment payload");
+      }
+      payload = {
+        messaging_product: "whatsapp",
+        to: recipientId,
+        type: "interactive",
+        interactive: {
+          type: "button",
+          body: {
+            text: text || "Default button text"
+          },
+          action: {
+            buttons: Array.isArray(buttons)
+              ? buttons.map((btn, index) => ({
+                  type: "reply",
+                  reply: {
+                    id: `button_${index}`,
+                    title: btn.title || `Button ${index + 1}`
+                  }
+                }))
+              : []
+          }
+        },
+        tag
+      };
+    }
 
     const resp = await sendReply(
       models,
       `${senderId}/messages`,
-      {
-        messaging_product: "whatsapp",
-        to: recipientId,
-        type: "text",
-        text: { body: messageText },
-        tag
-      },
+      payload,
       integration.erxesApiId
     );
     if (!resp) {
@@ -430,10 +461,6 @@ export const actionCreateMessage = async (
       } catch (error) {
         debugError(error.message);
         throw new Error(error.message);
-      }
-
-      if (!resp) {
-        throw new Error("Something went wrong to send this message");
       }
 
       const conversationMessage = await models.ConversationMessages.addMessage({

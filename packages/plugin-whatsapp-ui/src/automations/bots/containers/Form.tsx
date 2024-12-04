@@ -84,7 +84,6 @@ function Form(props: FinalProps) {
     returnToList,
     bot: whatsappBootMessengerBot
   };
-  console.log({ updatedProps });
 
   return <FormCompnent {...updatedProps} />;
 }
