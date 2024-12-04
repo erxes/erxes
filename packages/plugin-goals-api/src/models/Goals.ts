@@ -1,8 +1,15 @@
 import { Model } from "mongoose";
 import { IModels } from "../connectionResolver";
-import { sendCoreMessage, sendSalesMessage } from "../messageBroker";
+import {
+  sendCoreMessage,
+  sendSalesMessage,
+  sendTasksMessage,
+  sendTicketsMessage,
+  sendPurchasesMessage
+} from "../messageBroker";
 import { goalSchema, IGoal, IGoalDocument } from "./definitions/goals";
 import { CONTRIBUTIONTYPE, TEAMGOALTYPE } from "../constants";
+import { compileFunction } from "vm";
 export interface IGoalModel extends Model<IGoalDocument> {
   getGoal(_id: string): Promise<IGoalDocument>;
   createGoal(doc: IGoal): Promise<IGoalDocument>;
@@ -124,41 +131,114 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       filteredAmount: FilteredAmount[];
     }
     const data: DataItem[] = [];
-    for (const item of doc) {
-      let amount;
 
-      let requestData: any;
+    interface RequestData {
+      tagIds?: string[];
+      stageId?: string;
+      assignedUserIds?: string[];
+      departmentIds?: string[];
+      branchIds?: string[];
+      companyIds?: string[];
+      unit?: string[];
+    }
+    const getRequestData = (item): RequestData => {
+      let requestData: RequestData = {}; // Explicit type declaration
 
+      // Add tagIds if available
+      if (item.tagsIds && item.tagsIds.length > 0) {
+        requestData.tagIds = item.tagsIds;
+      }
+
+      // Add stageId if available
+      if (item.stageId) {
+        requestData.stageId = item.stageId;
+      }
+
+      // Handle assignedUserIds, ensuring it doesn't include empty strings
       if (item.contributionType === CONTRIBUTIONTYPE.PERSON) {
-        requestData = {
-          assignedUserIds: item.contribution
-        };
-      } else if (item.contributionType === CONTRIBUTIONTYPE.TEAM) {
-        if (item.teamGoalType === TEAMGOALTYPE.DEPARTMENT) {
-          requestData = {
-            departmentIds: item.department
-          };
-        } else if (item.teamGoalType === TEAMGOALTYPE.BRANCH) {
-          requestData = {
-            branchIds: item.branch
-          };
+        const assignedUserIds = item.contribution.filter((id) => id !== "");
+        if (assignedUserIds.length > 0) {
+          requestData.assignedUserIds = assignedUserIds;
         }
       }
-      // Send the request
-      amount = await sendSalesMessage({
-        subdomain,
-        action: item.entity + "s.find",
-        data: {
-          ...requestData, // Spread the requestData to include its properties
-          stageId: item.stageId
-        },
-        isRPC: true
-      });
+
+      // Handle team-specific data (assuming the same logic for teams)
+      if (item.contributionType === CONTRIBUTIONTYPE.TEAM) {
+        const teamGoalMapping = {
+          [TEAMGOALTYPE.DEPARTMENT]: { departmentIds: item.department },
+          [TEAMGOALTYPE.BRANCH]: { branchIds: item.branch },
+          // [TEAMGOALTYPE.COMPANIES]: { companyIds: item.companyIds },
+          [TEAMGOALTYPE.UNITS]: { unit: item.unit }
+        };
+
+        // Merge team-specific data
+        Object.assign(requestData, teamGoalMapping[item.teamGoalType]);
+      }
+
+      return requestData;
+    };
+
+    for (const item of doc) {
+      let amount;
+      const type = item.periodGoal;
+      // let requestData: any;
+      let requestData = getRequestData(item);
+
+      const entityMessageMap = {
+        deal: sendSalesMessage,
+        task: sendTasksMessage,
+        purchase: sendPurchasesMessage,
+        ticket: sendTicketsMessage
+      };
+
+      let cardType = entityMessageMap[item.entity];
+      if (!cardType) {
+        throw new Error(`Unsupported entity: ${item.entity}`);
+      }
+      try {
+        amount = await getAmount(item, subdomain, requestData);
+      } catch (error) {
+        console.error(`Error fetching amount for ${item.entity}:`, error);
+        continue;
+      }
+      let companies;
+      if (item.contributionType === CONTRIBUTIONTYPE.TEAM) {
+        // Ensure companyIds exists before attempting to use it
+
+        if (item.companyIds && Array.isArray(item.companyIds)) {
+          const mainTypeIds = Array.isArray(amount)
+            ? amount.map((result) => result._id)
+            : [amount._id];
+
+          try {
+            companies = await getCompanies(item, subdomain, mainTypeIds);
+          } catch (error) {
+            console.error(
+              `Error fetching companies for ${item.entity}:`,
+              error
+            );
+            continue;
+          }
+        } else {
+          throw new Error(
+            '"No companyIds found or companyIds is not an array"'
+          );
+        }
+      }
+
+      if (companies.length > 0) {
+        amount = amount.filter((result) =>
+          companies.some((conformity) => conformity.mainTypeId === result._id)
+        );
+      }
+      if (!Array.isArray(amount) || amount.length === 0) {
+        console.log("No valid amount found, skipping this item.");
+        continue;
+      }
 
       let customerIdsBySegments: string[] = [];
 
       try {
-        // Assuming 'item' is the object containing segmentIds
         for (const segment of item.segmentIds || []) {
           const cIds = await sendCoreMessage({
             isRPC: true,
@@ -167,14 +247,11 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
             data: { segmentId: segment }
           });
 
-          // Concatenate the fetched customer IDs to the array
           customerIdsBySegments = [...customerIdsBySegments, ...cIds];
         }
 
-        // Get the count of elements in the array
         const count = customerIdsBySegments.length;
 
-        // Update the database
         await models.Goals.updateOne(
           { _id: item._id },
           {
@@ -189,28 +266,22 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       let current;
       let progress;
       let amountData;
-
+      const filteredGoals: Goal[] = await getFilteredGoals(item, amount, type);
       if (item.metric === "Value") {
-        // Your existing goals fetching logic
-        const filteredGoals: Goal[] = await getFilteredGoals(item, amount);
-
         let mobileAmountsData: number | undefined;
         let data: number | undefined;
         let totalAmount = 0;
 
-        // Type for updated goals without filteredAmount
         type GoalWithoutFilteredAmount = Omit<Goal, "filteredAmount">;
 
         const updatedGoals: GoalWithoutFilteredAmount[] = [];
-
         // Process filtered goals
         for (const goal of filteredGoals) {
-          let goalTotalAmount = 0; // Total amount for each goal
+          let goalTotalAmount = 0;
 
-          // Calculate totalAmount for each goal
           for (const items of goal.filteredAmount) {
             if (items.productsData && items.status === "active") {
-              items.productsData.forEach(product => {
+              items.productsData.forEach((product) => {
                 if (product.amount) {
                   goalTotalAmount += product.amount;
                 }
@@ -241,47 +312,40 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
             }
           }
 
-          // Calculate progress as a percentage
-
           const progress = ((goalTotalAmount / goal.addTarget) * 100).toFixed(
             2
           );
 
-          // Prepare updated goal object
           updatedGoals.push({
             _id: goal._id,
             addMonthly: goal.addMonthly,
-            addTarget: goal.addTarget,
+            addTarget: goal.addTarget || 0,
             current: goalTotalAmount,
             progress: parseFloat(progress)
           });
 
-          // Accumulate total amount
           totalAmount += goalTotalAmount;
         }
 
-        // Merging function that now accepts GoalWithoutFilteredAmount[]
         function mergeGoalsWithDefaults(
           existingGoals: GoalWithoutFilteredAmount[],
           allGoals: Goal[]
         ): Goal[] {
           const updatedGoalsMap = new Map(
-            existingGoals.map(goal => [goal._id, goal])
+            existingGoals.map((goal) => [goal._id, goal])
           );
 
-          return allGoals.map(goal => {
+          return allGoals.map((goal) => {
             const existingGoal = updatedGoalsMap.get(goal._id);
 
             return {
               ...goal,
               current: existingGoal ? existingGoal.current : 0,
               progress: existingGoal ? existingGoal.progress : 0
-              // Add filteredAmount back if required
             };
           });
         }
 
-        // Get the result with merged goals and defaults
         const result = mergeGoalsWithDefaults(
           updatedGoals,
           item.specificPeriodGoals
@@ -304,16 +368,19 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         }
       } else if (item.metric === "Count") {
         function calculateProgressAndCurrent(filteredGoals: Goal[]): Goal[] {
-          return filteredGoals.map(goal => {
+          return filteredGoals.map((goal) => {
             let current = 0;
 
-            // Calculate total amount or count for each goal
             if (goal.filteredAmount) {
-              current = goal.filteredAmount.length; // Or your specific calculation logic
+              if (Array.isArray(goal.filteredAmount)) {
+                current = goal.filteredAmount.length;
+              } else if (typeof goal.filteredAmount === "number") {
+                current = goal.filteredAmount;
+              }
             }
 
-            // Calculate progress as a percentage of the target
-            const progress = (current / goal.addTarget) * 100;
+            const progress =
+              goal.addTarget > 0 ? (current / goal.addTarget) * 100 : 0;
 
             return {
               ...goal,
@@ -322,21 +389,20 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
             };
           });
         }
-        // Step 2: Filter goals and calculate their current and progress
-        const countGoal: Goal[] = await getFilteredGoals(item, amount);
 
+        const countGoal: Goal[] = await getFilteredGoals(item, amount, type);
         const countUpdateGoal = calculateProgressAndCurrent(countGoal);
+
         function mergeGoals(
           countUpdateGoal: Goal[],
           specificPeriodGoals: Goal[]
         ): Goal[] {
           const updatedGoalsMap = new Map(
-            countUpdateGoal.map(goal => [goal._id, goal])
+            countUpdateGoal.map((goal) => [goal._id, goal])
           );
 
-          return specificPeriodGoals.map(goal => {
+          return specificPeriodGoals.map((goal) => {
             const updatedGoal = updatedGoalsMap.get(goal._id);
-
             return {
               ...goal,
               current: updatedGoal ? updatedGoal.current : 0,
@@ -344,15 +410,13 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
             };
           });
         }
+
         const result = mergeGoals(countUpdateGoal, item.specificPeriodGoals);
+
         try {
           await models.Goals.updateOne(
             { _id: item._id },
-            {
-              $set: {
-                specificPeriodGoals: result
-              }
-            }
+            { $set: { specificPeriodGoals: result } }
           );
         } catch (error) {
           console.error("Error updating goals:", error);
@@ -422,37 +486,118 @@ function parseMonth(monthStr) {
       December: 11
     };
     const monthIndex = monthMap[month];
+    if (monthIndex === undefined) {
+      console.error(`Invalid month name: ${month}`);
+      return { start: null, end: null };
+    }
     return {
       start: new Date(Date.UTC(year, monthIndex, 1)),
       end: new Date(Date.UTC(year, monthIndex + 1, 0))
     };
+  } else {
+    console.error(`Failed to parse month for goal: ${monthStr}`);
+    return { start: null, end: null };
   }
-  return { start: null, end: null };
 }
 
-// Function to filter amounts based on the goal's start and end dates
-function filterAmountsForGoal(goal, amounts) {
-  const { start: goalStartDate, end: goalEndDate } = parseMonth(
-    goal.addMonthly
-  );
+function parseWeek(weekString: string): { start: Date; end: Date } {
+  const regex =
+    /Week of (\w{3}) (\w{3} \d{2} \d{4}) - (\w{3}) (\w{3} \d{2} \d{4})/;
+  const matches = weekString.match(regex);
 
-  if (!goalStartDate || !goalEndDate) {
-    console.error(`Failed to parse month for goal: ${goal.addMonthly}`);
+  if (!matches) {
+    throw new Error(`Invalid week string format. Received: "${weekString}"`);
+  }
+
+  const startDate = new Date(matches[2]);
+  const endDate = new Date(matches[4]);
+
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    throw new Error(`Invalid date format in week string: "${weekString}"`);
+  }
+
+  return {
+    start: startDate,
+    end: endDate
+  };
+}
+
+function filterAmountsForGoal(goal, amounts, type) {
+  let goalStartDate, goalEndDate;
+  if (type === "Monthly") {
+    const { start, end } = parseMonth(goal.addMonthly);
+    goalStartDate = start;
+    goalEndDate = end;
+  } else if (type === "Weekly") {
+    const { start, end } = parseWeek(goal.addMonthly);
+    goalStartDate = start;
+    goalEndDate = end;
+  } else {
+    console.error(`Invalid goal period: ${goal.periodGoal}`);
     return [];
   }
 
-  return amounts.filter(entry => {
-    const createdAt = new Date(entry.createdAt);
+  if (!goalStartDate || !goalEndDate) {
+    console.error(`Failed to parse dates for goal: ${goal.addMonthly}`);
+    return [];
+  }
+
+  goalStartDate = new Date(goalStartDate).getTime();
+  goalEndDate = new Date(goalEndDate).getTime();
+
+  return amounts.filter((entry) => {
+    const createdAt = new Date(entry.createdAt).getTime();
     return createdAt >= goalStartDate && createdAt <= goalEndDate;
   });
 }
 
-// Function to process specific period goals and filter associated amounts
-function getFilteredGoals(item, amounts) {
+function getFilteredGoals(item, amounts, type) {
   return item.specificPeriodGoals
-    .map(goal => ({
+    .map((goal) => ({
       ...goal,
-      filteredAmount: filterAmountsForGoal(goal, amounts)
+      filteredAmount: filterAmountsForGoal(goal, amounts, type)
     }))
-    .filter(goal => goal.filteredAmount.length > 0); // Keep goals with at least one filtered amount
+    .filter((goal) => goal.filteredAmount.length > 0);
+}
+
+async function getAmount(item, subdomain, requestData) {
+  const entityMessageMap = {
+    deal: sendSalesMessage,
+    task: sendTasksMessage,
+    purchase: sendPurchasesMessage,
+    ticket: sendTicketsMessage
+  };
+
+  const cardType = entityMessageMap[item.entity];
+  if (!cardType) {
+    throw new Error(`Unsupported entity: ${item.entity}`);
+  }
+
+  return await cardType({
+    subdomain,
+    action: `${item.entity}s.find`,
+    data: requestData,
+    isRPC: true
+  });
+}
+
+// Function to get companies based on companyIds and other item data
+async function getCompanies(item, subdomain, mainTypeIds) {
+  const conformities = await sendCoreMessage({
+    subdomain,
+    action: "conformities.getConformities",
+    data: {
+      mainType: item.entity,
+      mainTypeIds: mainTypeIds,
+      companyIds: item.companyIds,
+      relTypes: ["company"]
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  // Filter companies where relTypeId matches any of the provided companyIds
+  return conformities.filter((result) =>
+    item.companyIds.includes(result.relTypeId)
+  );
 }

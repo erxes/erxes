@@ -62,7 +62,7 @@ export async function getPaymentInfo(
   contract: IContractDocument,
   payDate: Date = new Date(),
   models: IModels,
-  config?:any
+  config?: any
 ): Promise<IPaymentInfo> {
   let paymentInfo: IPaymentInfo = {
     payment: 0,
@@ -126,7 +126,11 @@ export async function getPaymentInfo(
 
     const loss = await calcLoss(
       contract,
-      {balance:contract.loanBalanceAmount,interest:new BigNumber(lastSchedule.interestEve ?? 0).plus(lastSchedule.interestEve ?? 0).toNumber(),payment:lastSchedule.payment ?? 0},
+      {
+        balance: contract.loanBalanceAmount,
+        interest: new BigNumber(lastSchedule.interestEve ?? 0).plus(lastSchedule.interestEve ?? 0).toNumber(),
+        payment: lastSchedule.payment ?? 0
+      },
       contract.lossPercent,
       diffDay,
       config

@@ -22,6 +22,7 @@ import { reportsCunsomers } from "@erxes/api-utils/src/consumers/reports";
 import { templatesCunsomers } from "@erxes/api-utils/src/consumers/templates";
 import { automationsCunsomers } from "@erxes/api-utils/src/consumers/automations";
 import { registerOnboardHistory } from "./data/modules/robot";
+import templates from "./templates";
 
 import {
   escapeRegExp,
@@ -667,6 +668,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
   importExportCunsomers({ name: "core", imports, exporter });
   segmentsCunsomers({ name: "core", segments });
   searchCunsomers({ name: "core", search });
+  templatesCunsomers({ name: "core", templates });
 
   consumeRPCQueueMq("core:isServiceEnabled", async ({ data }) => ({
     status: "success",

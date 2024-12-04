@@ -10,7 +10,7 @@ import '@erxes/ui/src/styles/style.min.css';
 const App = () => {
   return (
     <AppProvider>
-      <PluginLayout>
+      <PluginLayout> 
         <GeneralRoutes />
       </PluginLayout>
     </AppProvider>

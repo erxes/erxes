@@ -35,7 +35,7 @@ class Brands extends React.Component<Props, {}> {
         <Table>
           <thead>
             <tr>
-              <th>{__('Brand name')}</th>
+              <th>{__("Brand name")}</th>
               <th>{__('Description')}</th>
               <th>{__('Actions')}</th>
             </tr>

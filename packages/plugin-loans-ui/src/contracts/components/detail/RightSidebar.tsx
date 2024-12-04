@@ -67,9 +67,11 @@ export default function RightSidebar(props: Props) {
           title={__("Loan Collectively Customers")}
           name={"Contract"}
         />
-
-        <DealSection contract={contract} />
       </>
+
+      {isEnabled('cards') && (
+        <DealSection contract={contract} />
+      )}
 
       <ContractsCustomFields
         contract={contract}

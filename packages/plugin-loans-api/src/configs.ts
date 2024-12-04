@@ -131,7 +131,7 @@ export default {
         if (req.cpUser && contract.customerId !== req.cpUser.erxesCustomerId) {
           return res.status(404).send({
             success: false,
-            error: 'Contract not required',
+            error: 'Contract not found',
           });
         }
 
@@ -150,7 +150,7 @@ export default {
         const data = await models.Transactions.find(filter)
           .sort({ payDate: -1 })
           .lean();
-          
+
         if (!data || !data.length) {
           return res.status(404).send({
             success: false,

@@ -77,9 +77,12 @@ const getItems = async (
   }
 
   const [moduleService] = module.split(":");
-  const [triggerService] = triggerType.split(":");
+  const [triggerService, triggerContentType] = triggerType.split(":");
 
-  if (moduleService === triggerService) {
+  if (
+    triggerContentType !== "form_submission" &&
+    moduleService === triggerService
+  ) {
     const relTypeIds = await sendCommonMessage({
       subdomain,
       serviceName: "core",
@@ -95,19 +98,25 @@ const getItems = async (
     return model.find({ _id: { $in: relTypeIds } });
   }
 
-  // send message to trigger service to get related value
-  const filter = await sendCommonMessage({
-    subdomain,
-    serviceName: triggerService,
-    action: "getModuleRelation",
-    data: {
-      module,
-      triggerType,
-      target
-    },
-    isRPC: true,
-    defaultValue: null
-  });
+  let filter;
+
+  if (triggerContentType === "form_submission") {
+    filter = { _id: target._id };
+  } else {
+    // send message to trigger service to get related value
+    filter = await sendCommonMessage({
+      subdomain,
+      serviceName: triggerService,
+      action: "getModuleRelation",
+      data: {
+        module,
+        triggerType,
+        target
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+  }
 
   return filter ? model.find(filter) : [];
 };

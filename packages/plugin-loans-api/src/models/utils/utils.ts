@@ -2,7 +2,7 @@ import { IContractDocument } from '../definitions/contracts';
 import { IDefaultScheduleParam } from '../definitions/schedules';
 import { IModels } from '../../connectionResolver';
 import { sendMessageBroker } from '../../messageBroker';
-import {BigNumber} from 'bignumber.js'
+import { BigNumber } from 'bignumber.js'
 import * as moment from 'moment'
 export const calcInterest = ({
   balance,
@@ -12,11 +12,11 @@ export const calcInterest = ({
 }: {
   balance: number;
   interestRate: number;
-  fixed?:number;
+  fixed?: number;
   dayOfMonth?: number;
 }): number => {
   const interest = new BigNumber(interestRate).div(100).div(365)
-  return new BigNumber(balance).multipliedBy(interest).multipliedBy(dayOfMonth).dp(fixed,BigNumber.ROUND_HALF_UP).toNumber()
+  return new BigNumber(balance).multipliedBy(interest).multipliedBy(dayOfMonth).dp(fixed, BigNumber.ROUND_HALF_UP).toNumber()
 };
 
 export function isWeekend(date: Date) {
@@ -70,21 +70,8 @@ export const getDaysInMonth = (date: Date) => {
   // return new Date(year, month+1, 0).getDate();
 };
 
-export const getPureDate = (date: Date) => {
-  const ndate = new Date(date);
-  const diffTimeZone = ndate.getTimezoneOffset() * 1000 * 60;
-  return new Date(ndate.getTime() - diffTimeZone);
-};
-
 export const getFullDate = (date: Date) => {
-  const ndate = getPureDate(date);
-  const year = ndate.getFullYear();
-  const month = ndate.getMonth();
-  const day = ndate.getDate();
-
-  const today = new Date(year, month, day);
-  today.setHours(0, 0, 0, 0);
-  return today;
+  return new Date(moment(date).format('YYYY-MM-DD'));
 };
 
 export const addMonths = (date, months) => {
@@ -164,13 +151,13 @@ export const calcPerMonthEqual = async (
   perHolidays: IPerHoliday[],
   nextDate: Date,
   skipInterestCalcDate: Date,
-  calculationFixed:number
+  calculationFixed: number
 ) => {
   let nextDay = nextDate;
   nextDay = checkNextDay(nextDay, doc.weekends, doc.useHoliday, perHolidays);
 
   if (getDiffDay(nextDate, skipInterestCalcDate) >= 0) {
-    const loanBalance = new BigNumber(balance).minus(payment).dp(calculationFixed,BigNumber.ROUND_HALF_UP).toNumber();
+    const loanBalance = new BigNumber(balance).minus(payment).dp(calculationFixed, BigNumber.ROUND_HALF_UP).toNumber();
     const totalPayment = payment;
 
     return {
@@ -189,7 +176,7 @@ export const calcPerMonthEqual = async (
     balance,
     interestRate: doc.interestRate,
     dayOfMonth: diffDay,
-    fixed:calculationFixed
+    fixed: calculationFixed
   });
 
   const { diffEve } = getDatesDiffMonth(currentDate, nextDay);
@@ -198,12 +185,12 @@ export const calcPerMonthEqual = async (
     balance,
     interestRate: doc.interestRate,
     dayOfMonth: diffEve,
-    fixed:calculationFixed
+    fixed: calculationFixed
   });
 
-  const calcedInterestNonce = new BigNumber(interest).minus(calcedInterestEve).dp(calculationFixed,BigNumber.ROUND_HALF_UP).toNumber()
+  const calcedInterestNonce = new BigNumber(interest).minus(calcedInterestEve).dp(calculationFixed, BigNumber.ROUND_HALF_UP).toNumber()
 
-  const loanBalance = new BigNumber(balance).minus(payment).dp(calculationFixed,BigNumber.ROUND_HALF_UP).toNumber()
+  const loanBalance = new BigNumber(balance).minus(payment).dp(calculationFixed, BigNumber.ROUND_HALF_UP).toNumber()
 
   const totalPayment = new BigNumber(payment).plus(calcedInterestEve).plus(calcedInterestNonce).toNumber();
 
@@ -233,26 +220,26 @@ export const getEqualPay = async ({
   nextDate?: Date;
   paymentDates: Date[];
   skipInterestCalcDate: Date;
-  calculationFixed:number
+  calculationFixed: number
 }) => {
   if (!leaseAmount) {
     return 0;
   }
 
-  let currentDate = getFullDate(moment(startDate).add(-1,'day').toDate());
+  let currentDate = getFullDate(moment(startDate).add(-1, 'day').toDate());
   let mainRatio = new BigNumber(0);
   let ratio = 1;
   for (let i = 0; i < paymentDates.length; i++) {
     let nextDay = paymentDates[i];
     const dayOfMonth = getDiffDay(currentDate, nextDay);
     let ratioDivider = new BigNumber(dayOfMonth).multipliedBy(new BigNumber(interestRate).dividedBy(100)).dividedBy(365).plus(1)
-    const newRatio =  new BigNumber(ratio).dividedBy(ratioDivider).toNumber() ;
+    const newRatio = new BigNumber(ratio).dividedBy(ratioDivider).toNumber();
     mainRatio = mainRatio.plus(newRatio);
     currentDate = getFullDate(nextDay);
     ratio = newRatio;
   }
 
-  return new BigNumber(leaseAmount).div(mainRatio).dp(calculationFixed,BigNumber.ROUND_HALF_UP).toNumber()
+  return new BigNumber(leaseAmount).div(mainRatio).dp(calculationFixed, BigNumber.ROUND_HALF_UP).toNumber()
 };
 
 export const calcPerMonthFixed = async (
@@ -269,7 +256,7 @@ export const calcPerMonthFixed = async (
 
   if (getDiffDay(nextDate, skipInterestCalcDate) >= 0) {
     const loanPayment = total;
-    const loanBalance = new BigNumber(balance).minus(loanPayment).dp(2,BigNumber.ROUND_HALF_UP).toNumber() ;
+    const loanBalance = new BigNumber(balance).minus(loanPayment).dp(2, BigNumber.ROUND_HALF_UP).toNumber();
 
     return {
       date: nextDay,
@@ -293,10 +280,10 @@ export const calcPerMonthFixed = async (
     dayOfMonth: diffEve
   });
 
-  const calcedInterestNonce = new BigNumber(interest).minus(calcedInterestEve).dp(2,BigNumber.ROUND_HALF_UP).toNumber()
+  const calcedInterestNonce = new BigNumber(interest).minus(calcedInterestEve).dp(2, BigNumber.ROUND_HALF_UP).toNumber()
 
   const loanPayment = new BigNumber(total).minus(calcedInterestEve).minus(calcedInterestNonce).toNumber()
-  const loanBalance = new BigNumber(balance).minus(loanPayment).dp(2,BigNumber.ROUND_HALF_UP).toNumber() ;;
+  const loanBalance = new BigNumber(balance).minus(loanPayment).dp(2, BigNumber.ROUND_HALF_UP).toNumber();;
 
   return {
     date: nextDay,
@@ -333,17 +320,34 @@ export const getRandomNumber = () => {
 };
 
 export const getNumber = async (models: IModels, contractTypeId: string) => {
-  const preNumbered = await models.Contracts.findOne({
-    contractTypeId: contractTypeId
-  }).sort({ createdAt: -1 });
+  let preNumbered;
 
   const type = await models.ContractTypes.getContractType({
     _id: contractTypeId
   });
 
-  if (!preNumbered) {
+  const latestContracts = await models.Contracts.aggregate([
+    {
+      $match: {
+        contractTypeId: contractTypeId,
+        number: { $regex: `^${type.number}[0-9]+` }
+      }
+    },
+    {
+      $project: {
+        number: 1,
+        number_len: { $strLenCP: '$number' }
+      }
+    },
+    { $sort: { number_len: -1, number: -1 } },
+    { $limit: 1 }
+  ]);
+
+  if (!latestContracts.length) {
     return `${type.number}${'0'.repeat(type.vacancy - 1)}1`;
   }
+
+  preNumbered = latestContracts[0];
 
   const preNumber = preNumbered.number;
   const preInt = Number(preNumber.replace(type.number, ''));
@@ -388,10 +392,10 @@ export const getLossPercent = async (
       a.endDate < b.endDate
         ? 1
         : a.endDate === b.endDate
-        ? a.startDate < b.startDate
-          ? 1
+          ? a.startDate < b.startDate
+            ? 1
+            : -1
           : -1
-        : -1
     );
 
   if (lossConfigs && lossConfigs.length) {
