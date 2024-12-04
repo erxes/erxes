@@ -1,11 +1,10 @@
 import { CollapseContent, __ } from "@erxes/ui/src";
+import { Box } from "@erxes/ui/src/components/step/style";
 import React from "react";
 
 type Props = {
   pullData: any;
 };
-
-import { Box } from "@erxes/ui/src/components/step/style";
 
 export default function PullDataDetail(props: Props) {
   const { pullData } = props;
