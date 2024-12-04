@@ -18,14 +18,14 @@ export const types = () => `
     commitmentInterest: Float
     createdAt: Date
     productId: String
-    productType:String
+    productType: String
     config: JSON
     
-    currency:String
-    savingPlusLoanInterest:Float
-    savingUpperPercent:Float
-    usePrePayment:Boolean
-    invoiceDay:String
+    currency: String
+    savingPlusLoanInterest: Float
+    savingUpperPercent: Float
+    usePrePayment: Boolean
+    invoiceDay: String
     customFieldsData: JSON
 
     product: Product
@@ -49,9 +49,9 @@ const queryParams = `
   searchValue: String
   sortField: String
   sortDirection: Int
-  productId:String
-  productType:String
-  leaseType:String
+  productId: String
+  productType: String
+  leaseType: String
 `;
 
 export const queries = `
@@ -79,13 +79,13 @@ const commonFields = `
   commitmentInterest: Float
   createdAt: Date
   productId: String
-  productType:String
+  productType: String
   config: JSON
-  currency:String
-  savingPlusLoanInterest:Float
-  savingUpperPercent:Float
-  usePrePayment:Boolean
-  invoiceDay:String
+  currency: String
+  savingPlusLoanInterest: Float
+  savingUpperPercent: Float
+  usePrePayment: Boolean
+  invoiceDay: String
   customFieldsData: JSON
 `;
 

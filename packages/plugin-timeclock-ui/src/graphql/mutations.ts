@@ -7,6 +7,9 @@ $shiftRequest: Boolean,
 $requestType: String,
 $requestTimeType: String
 $requestHoursPerDay: Float
+$requestToType: String
+$absenceUserIds: [String]
+$branchIds: [String]
 `;
 
 const absenceTypeValues = `
@@ -17,6 +20,9 @@ shiftRequest: $shiftRequest,
 requestType: $requestType,
 requestTimeType: $requestTimeType,
 requestHoursPerDay: $requestHoursPerDay
+requestToType: $requestToType
+absenceUserIds: $absenceUserIds
+branchIds: $branchIds
 `;
 
 const scheduleConfigParams = `

@@ -26,6 +26,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   transaction: ITransaction;
   contractId?: string;
+  lockContract?: boolean;
   type: string;
   closeModal: () => void;
 };
@@ -250,22 +251,21 @@ function TransactionFormNew(props: Props) {
                     </DateContainer>
                   </FormGroup>
                 )}
-                {!props.contractId && (
-                  <FormGroup>
-                    <ControlLabel>{__("Contract")}</ControlLabel>
-                    <SelectContracts
-                      label={__("Choose an contract")}
-                      name="contractId"
-                      initialValue={contractId}
-                      onSelect={(v) => {
-                        if (typeof v === "string") {
-                          setContractId(v);
-                        }
-                      }}
-                      multi={false}
-                    />
-                  </FormGroup>
-                )}
+                <FormGroup>
+                  <ControlLabel>{__("Contract")}</ControlLabel>
+                  <SelectContracts
+                    label={__("Choose an contract")}
+                    name="contractId"
+                    initialValue={contractId}
+                    onSelect={(v) => {
+                      if (typeof v === "string") {
+                        setContractId(v);
+                      }
+                    }}
+                    multi={false}
+                    filterParams={props.lockContract && { _ids: [contractId], excludeIds: false } || undefined}
+                  />
+                </FormGroup>
                 <FormGroup>
                   <ControlLabel>{__("Description")}</ControlLabel>
                   <DateContainer>

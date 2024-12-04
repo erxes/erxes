@@ -52,6 +52,10 @@ export interface IContractConfig {
   isAmountUseEBarimt?: any;
   isInterestUseEBarimt?: any;
   isLossUseEBarimt?: any;
+
+  boardId: string;
+  pipelineId: string;
+  stageId: string;
 }
 
 export interface IContractTypeDoc {

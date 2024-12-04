@@ -9,7 +9,12 @@ const generateFilter = async (models, params, commonQuerySelector) => {
       { number: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
       { _id: 1 }
     );
-    filter.contractId = { $in: contracts.map((item) => item._id) };
+
+    filter.$or = [
+      { contractId: { $in: contracts.map((item) => item._id) } },
+      { description: new RegExp(`.*${params.searchValue}.*`, "i") },
+      { total: params.searchValue }
+    ];
   }
 
   if (params.ids) {

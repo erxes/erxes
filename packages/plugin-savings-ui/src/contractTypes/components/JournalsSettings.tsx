@@ -12,7 +12,7 @@ import styled from "styled-components";
 
 import React, { useState } from "react";
 import { JOURNALS_KEY_LABELS } from "../constants";
-import { IContractTypeDetail } from "../types";
+import { IContractConfig, IContractTypeDetail } from "../types";
 import { __ } from "coreui/utils";
 import { ScrollWrapper } from "@erxes/ui/src/styles/main";
 
@@ -32,21 +32,18 @@ type Props = {
 };
 
 const GeneralSettings = (props: Props) => {
-  const [currentMap, setCurrentMap] = useState(
-    JSON.parse(JSON.stringify(props.contractType.config || ({} as any)))
-  );
+  const [currentMap, setCurrentMap] = useState(props.contractType.config || {} as IContractConfig);
+  const [state, setState] = useState(props.contractType);
   const { contractType } = props;
 
   const save = (e) => {
     e.preventDefault();
 
-    props.saveItem({ ...contractType, config: currentMap });
+    props.saveItem({ ...contractType, ...state, config: currentMap });
   };
 
   const onChangeConfig = (code: string, value) => {
-    currentMap[code] = value;
-
-    setCurrentMap({ ...currentMap });
+    setCurrentMap({ ...currentMap, [code]: value });
   };
 
   const onChangeInput = (code: string, e) => {
@@ -117,9 +114,28 @@ const GeneralSettings = (props: Props) => {
           })}
         </CollapseContent>
         <CollapseContent title={__("Store interest config")}>
-          {renderItem("Store interest time", "Store interest time", {
+          {renderItem("storeInterestTime", "Store interest time", {
             type: "time",
           })}
+        </CollapseContent>
+        <CollapseContent title={__("Internet bank")}>
+          <FormGroup>
+            <ControlLabel required={true}>
+              {__("Product Type")}
+            </ControlLabel>
+            <FormControl
+              name="productType"
+              componentclass="select"
+              value={state.productType}
+              onChange={e => setState({ ...state, productType: (e.target as any).value })}
+            >
+              {["private", "public"].map((typeName) => (
+                <option key={typeName} value={typeName}>
+                  {typeName}
+                </option>
+              ))}
+            </FormControl>
+          </FormGroup>
         </CollapseContent>
       </ContentBox>
     </ScrollWrapper>

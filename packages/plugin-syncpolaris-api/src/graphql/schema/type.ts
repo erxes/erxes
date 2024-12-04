@@ -1,5 +1,5 @@
 export const types = `
-  type SyncHistory {
+  type SyncHistoryPolaris {
     _id: String!
     type: String
     contentType: String

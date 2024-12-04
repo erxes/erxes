@@ -20,7 +20,7 @@ import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties
 const FIELDS_GROUPS_CONTENT_TYPES = {
   CUSTOMER: 'core:customer',
   COMPANY: 'core:company',
-  DEAL: 'cards:deal'
+  DEAL: 'sales:deal'
 };
 
 

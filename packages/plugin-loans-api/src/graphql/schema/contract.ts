@@ -27,8 +27,8 @@ export const types = () => `
     _id: String
     contractTypeId: String
     number: String
-    branchId:String
-    classification:String
+    branchId: String
+    classification: String
     status: String
     description: String
     createdBy: String
@@ -87,17 +87,17 @@ export const types = () => `
     relContractId: String
     relContract: RecContract
     dealId: String
-    hasTransaction:Boolean
-    nextPaymentDate:Date
-    nextPayment:Float
-    payedAmountSum:Float
-    loanBalanceAmount:Float
-    expiredDays:Float
-    loanTransactionHistory:JSON
-    storeInterest:JSON
-    currency:String
-    storedInterest:Float
-    lastStoredDate:Date
+    hasTransaction: Boolean
+    nextPaymentDate: Date
+    nextPayment: Float
+    payedAmountSum: Float
+    loanBalanceAmount: Float
+    expiredDays: Float
+    loanTransactionHistory: JSON
+    storeInterest: JSON
+    currency: String
+    storedInterest: Float
+    lastStoredDate: Date
     isPayFirstMonth: Boolean
     downPayment: Float
     skipAmountCalcMonth: Float
@@ -108,8 +108,8 @@ export const types = () => `
     useFee: Boolean
     loanPurpose: String
     leaseType: String
-    commitmentInterest:Float
-    endDate:Date
+    commitmentInterest: Float
+    endDate: Date
     customFieldsData: JSON
     savingContractId: String
     holidayType: String
@@ -164,10 +164,10 @@ const queryParams = `
   conformityIsRelated: Boolean
   isExpired: String
   repaymentDate: String
-  startStartDate:Date
-  endStartDate:Date
-  startCloseDate:Date
-  endCloseDate:Date
+  startStartDate: Date
+  endStartDate: Date
+  startCloseDate: Date
+  endCloseDate: Date
   dealId: String
   customerId: String
   leaseAmount: Float
@@ -200,8 +200,8 @@ export const queries = `
 const commonFields = `
   contractTypeId: String
   number: String
-  branchId:String
-  classification:String
+  branchId: String
+  classification: String
   status: String
   description: String
   createdBy: String
@@ -240,7 +240,7 @@ const commonFields = `
   relContractId: String
   dealId: String
   skipInterestCalcMonth: Float
-  currency:String
+  currency: String
   isPayFirstMonth: Boolean
   downPayment: Float
   skipAmountCalcMonth: Float

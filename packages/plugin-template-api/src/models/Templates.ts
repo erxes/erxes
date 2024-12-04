@@ -4,6 +4,7 @@ import {
   TemplateDocument,
   templateSchema
 } from './definitions/templates';
+import { getRelatedContents } from '../utils';
 
 type ITemplateDocument = Omit<
   ITemplate,
@@ -48,12 +49,21 @@ export const loadTemplateClass = (models) => {
       _subdomain: any,
       user?: any
     ) {
-      const template = await models.Templates.create({
+
+      const templateObject = {
         ...doc,
         createdAt: new Date(),
         updatedAt: new Date(),
         createdBy: user?._id
-      });
+      }
+
+      const relatedContents = await getRelatedContents(doc, _subdomain)
+
+      if ((relatedContents || []).length) {
+        Object.assign(templateObject, { relatedContents: relatedContents })
+      }
+
+      const template = await models.Templates.create(templateObject);
 
       if (!template) {
         throw new Error('Template not created');

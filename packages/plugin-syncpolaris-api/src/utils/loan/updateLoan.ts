@@ -7,12 +7,15 @@ import {
   updateContract,
   getProduct,
   genObjectOfRule,
+  customFieldToObject,
+  getFullDate,
 } from '../utils';
 import { createChangeLoanAmount } from './changeLoanAmount';
 import { changeLoanInterest } from './changeLoanInterest';
 
 export const updateLoan = async (subdomain, models, polarisConfig, syncLog, params) => {
   const loan = params.updatedDocument || params.object;
+  const loanData = await customFieldToObject(subdomain, 'loans:contract', loan);
 
   if (JSON.stringify(loan.collateralsData) !== JSON.stringify(params.object.collateralsData)) {
     return createCollateral(subdomain, polarisConfig, loan)
@@ -43,30 +46,32 @@ export const updateLoan = async (subdomain, models, polarisConfig, syncLog, para
     subdomain,
     "loans:contract",
     loan,
-    polarisConfig.loan && polarisConfig.loan[loan.contractTypeId || ''] || {}
+    (polarisConfig.loan && polarisConfig.loan[loan.contractTypeId || ''] || {}).values || {}
   );
+
 
   let sendData = [
     {
+      acntCode: loanData.number,
       custCode: customer.code,
       name: `${customer.code} ${customer.firstName} ${customer.code} ${customer.lastName}`,
-      name2: loan.custCode,
+      name2: `${customer.code} ${customer.firstName} ${customer.code} ${customer.lastName}`,
       prodCode: loanProduct?.code,
       prodType: 'LOAN',
-      purpose: loan.purpose ?? 'PURP00000022',
-      subPurpose: loan.subPurpose ?? 'SUBPURP00070',
+      purpose: loanData.purpose,
+      subPurpose: loanData.subPurpose,
       isNotAutoClass: 0,
       comRevolving: 0,
       dailyBasisCode: 'ACTUAL/365',
-      curCode: loan.currency,
-      approvAmount: loan.leaseAmount,
+      curCode: loanData.currency,
+      approvAmount: loanData.leaseAmount,
       impairmentPer: 0,
-      approvDate: loan.startDate,
+      approvDate: getFullDate(loanData.startDate),
       acntManager: leasingExpert?.employeeId,
-      brchCode: branch.code,
-      startDate: loan.startDate,
-      endDate: loan.endDate,
-      termLen: loan.tenor,
+      brchCode: branch?.code,
+      startDate: getFullDate(loanData.startDate),
+      endDate: getFullDate(loanData.endDate),
+      termLen: loanData.tenor,
       IsGetBrchFromOutside: '0',
       segCode: '1',
       status: 'N',
@@ -82,6 +87,75 @@ export const updateLoan = async (subdomain, models, polarisConfig, syncLog, para
       losMultiAcnt: 0,
       validLosAcnt: 1,
       secType: 0,
+
+      "prodName": "БИЗНЕСИЙН ЗЭЭЛ",
+      "brchName": "ТӨВ САЛБАР - ЭЦЭГ САЛБАР",
+      "flagMoveSa": "0",
+      "repayAcntCode": "MN143400100022000028",
+      "repayAcntSysNo": 1305,
+      "dynamicData": [
+        {
+          "companyCode": "STBM",
+          "objSubType": "ALL",
+          "fieldName": "ЗГ №",
+          "objKey": "MN120034110100000048",
+          "confirmationNecessary": 0,
+          "fieldValueName": "ss",
+          "fieldValue": "3r23r",
+          "filtered": 0,
+          "rn": 3,
+          "objType": "LOAN_ACNT",
+          "fieldType": 1,
+          "isMandatory": 1,
+          "fieldId": 1
+        },
+        {
+          "companyCode": "STBM",
+          "objSubType": "ALL",
+          "fieldName": "ADD DF",
+          "objKey": "MN120034110100000048",
+          "confirmationNecessary": 0,
+          "fieldValueName": "1",
+          "fieldValue": 2323,
+          "filtered": 0,
+          "rn": 4,
+          "objType": "LOAN_ACNT",
+          "fieldType": 2,
+          "isMandatory": 1,
+          "fieldId": 3
+        },
+        {
+          "companyCode": "STBM",
+          "objSubType": "ALL",
+          "fieldName": "PRIVATE FIELD",
+          "objKey": "MN120034110100000048",
+          "confirmationNecessary": 0,
+          "fieldValueName": "ss",
+          "fieldValue": "ss",
+          "filtered": 0,
+          "rn": 1,
+          "objType": "LOAN_ACNT",
+          "fieldType": 1,
+          "isMandatory": 0,
+          "fieldId": 2
+        },
+        {
+          "companyCode": "STBM",
+          "objSubType": "ALL",
+          "fieldName": "ЗЭЭЛ КОМБО",
+          "objKey": "MN120034110100000048",
+          "confirmationNecessary": 0,
+          "fieldValueName": "ss",
+          "fieldValue": "ss",
+          "filtered": 0,
+          "rn": 2,
+          "objType": "LOAN_ACNT",
+          "fieldType": 1,
+          "isMandatory": 1,
+          "fieldId": 4
+        }
+      ],
+  
       ...dataOfRules
     },
   ];

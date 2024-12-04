@@ -9,7 +9,7 @@ import {
   FilterContainer,
   FlexItem,
   FlexRow,
-  InputBar
+  InputBar,
 } from '@erxes/ui-settings/src/styles';
 import Sidebar from '../containers/Sidebar';
 
@@ -24,7 +24,7 @@ import {
   CategoryItem,
   RightDrawerContainer,
   ImportInput,
-  ImportLabel
+  ImportLabel,
 } from '@erxes/ui-template/src/styles';
 import { Transition } from '@headlessui/react';
 import Form from '@erxes/ui-template/src/containers/Form';
@@ -47,7 +47,7 @@ type Props = {
   totalCount: number;
   loading: boolean;
   removeTemplate: (id: string) => void;
-  useTemplate: (template: ITemplate) => void;
+  useTemplate: (id: string) => void;
   refetch: () => void;
 };
 
@@ -61,7 +61,7 @@ const List = (props: Props) => {
     loading,
     removeTemplate,
     useTemplate,
-    refetch
+    refetch,
   } = props;
 
   const timerRef = useRef<number | null>(null);
@@ -95,7 +95,7 @@ const List = (props: Props) => {
     setToggleDrawer(true);
   };
 
-  const handleSearch = (e) => {
+  const handleSearch = e => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
@@ -142,7 +142,7 @@ const List = (props: Props) => {
 
     if (Array.isArray(categoryIds) && !categoryIds.includes(categoryId)) {
       return router.setParams(navigate, location, {
-        categoryIds: [...categoryIds, categoryId]
+        categoryIds: [...categoryIds, categoryId],
       });
     }
 
@@ -152,19 +152,19 @@ const List = (props: Props) => {
 
     if (categoryId !== categoryIds) {
       return router.setParams(navigate, location, {
-        categoryIds: [categoryIds, categoryId]
+        categoryIds: [categoryIds, categoryId],
       });
     }
 
     router.setParams(navigate, location, { categoryIds: categoryId });
   };
 
-  const handleUse = (currentTemplate: ITemplate) => {
-    if (!currentTemplate) {
+  const handleUse = (id: string) => {
+    if (!id) {
       return;
     }
 
-    useTemplate(currentTemplate);
+    useTemplate(id);
   };
 
   const handleInput = ({ target }) => {
@@ -190,11 +190,11 @@ const List = (props: Props) => {
           method: 'POST',
           body: JSON.stringify(jsonData),
           headers: {
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+          },
         })
-          .then((response) => response.json())
-          .then((data) => {
+          .then(response => response.json())
+          .then(data => {
             if (data.success) {
               refetch();
               Alert.success('Uploaded successfully');
@@ -202,7 +202,7 @@ const List = (props: Props) => {
               Alert.error('Upload failed');
             }
           })
-          .catch((err) => {
+          .catch(err => {
             Alert.error(`Upload failed: ${err.message}`);
           });
       } catch (error) {
@@ -221,7 +221,7 @@ const List = (props: Props) => {
     const { REACT_APP_API_URL } = getEnv();
 
     const stringified = queryString.stringify({
-      _id: currentTemplate._id
+      _id: currentTemplate._id,
     });
 
     window.open(`${REACT_APP_API_URL}/pl:template/file-export?${stringified}`);
@@ -245,35 +245,34 @@ const List = (props: Props) => {
   };
 
   const renderActions = (template: ITemplate) => {
+    const { contentType } = template;
 
-    const { contentType } = template
-
-    const [serviceName] = contentType.split(':')
+    const [serviceName] = contentType.split(':');
 
     const items = [
       {
-        icon: "repeat",
-        label: "Use",
-        action: (data) => handleUse(data?._id),
+        icon: 'repeat',
+        label: 'Use',
+        action: data => handleUse(data?._id),
         isActive: !!isEnabled(serviceName),
-        tooltip: `${serviceName} is not enabled`
+        tooltip: `${serviceName} is not enabled`,
       },
       {
-        icon: "upload-6",
-        label: "Export",
-        action: (data) => handleExport(data)
+        icon: 'upload-6',
+        label: 'Export',
+        action: data => handleExport(data),
       },
       {
-        icon: "edit",
-        label: "Edit",
-        action: (data) => handleEdit(data)
+        icon: 'edit',
+        label: 'Edit',
+        action: data => handleEdit(data),
       },
       {
-        icon: "trash",
-        label: "Remove",
-        action: (data) => removeTemplate(data?._id)
-      }
-    ]
+        icon: 'trash',
+        label: 'Remove',
+        action: data => removeTemplate(data?._id),
+      },
+    ];
 
     return (
       <TemplateActions>
@@ -282,19 +281,21 @@ const List = (props: Props) => {
           toggleComponent={<Icon icon="ellipsis-v" />}
         >
           {items.map((item, index) => {
-
-            const { icon, label, action, isActive = true } = item
+            const { icon, label, action, isActive = true } = item;
 
             return (
               <li key={index}>
                 <a
-                  onClick={() => { if (!isActive) return; action(template) }}
+                  onClick={() => {
+                    if (!isActive) return;
+                    action(template);
+                  }}
                   style={{ cursor: isActive ? 'pointer' : 'not-allowed' }}
                 >
                   <Icon icon={icon} /> {__(label)}
                 </a>
               </li>
-            )
+            );
           })}
         </Dropdown>
       </TemplateActions>
@@ -360,17 +361,17 @@ const List = (props: Props) => {
     const hasMoreCategories = categories.length > 3;
 
     const remainingCategoryIds = categories
-      .filter((category) => !displayedCategories.includes(category))
-      .map((category) => category._id);
+      .filter(category => !displayedCategories.includes(category))
+      .map(category => category._id);
     const isMoreActive = includesAny(remainingCategoryIds, categoryIds);
 
     return (
       <Categories>
-        {displayedCategories.map((category) => (
+        {displayedCategories.map(category => (
           <CategoryItem
             key={category._id}
             isActive={isActive(category._id)}
-            onClick={(e) => handleCategoryClick(e, category._id)}
+            onClick={e => handleCategoryClick(e, category._id)}
           >
             {category.name}
           </CategoryItem>
