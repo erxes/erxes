@@ -425,7 +425,7 @@ export const customFieldsDataByFieldCode = async (object, subdomain) => {
   const fieldIds = customFieldsData.map(data => data.field);
 
   const fields = await sendCommonMessage({
-    serviceName: "forms",
+    serviceName: 'core',
     subdomain,
     action: "fields.find",
     data: {

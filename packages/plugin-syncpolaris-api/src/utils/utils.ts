@@ -232,7 +232,7 @@ export const genObjectOfRule = async (
   const result = {};
   const fields = await sendCommonMessage({
     subdomain,
-    serviceName: 'forms',
+    serviceName: 'core',
     action: 'fields.find',
     data: {
       query: {
