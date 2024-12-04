@@ -10,7 +10,6 @@ import {
 export const types = ({ contacts, clientPortal }) => `
   type TicketListItem {
     customPropertiesData:JSON,
-    tags: [Tag]
     
     ${commonListTypes}
   }
