@@ -57,7 +57,7 @@ export const convertToPropertyData = async (
   try {
     const fields = await sendCommonMessage({
       subdomain,
-      serviceName: "forms",
+      serviceName: 'core',
       action: "fields.find",
       data: {
         query: {
@@ -101,7 +101,7 @@ export const convertToPropertyData = async (
 
     const groups = await sendCommonMessage({
       subdomain,
-      serviceName: "forms",
+      serviceName: 'core',
       action: "fieldsGroups.find",
       data: {
         query: {

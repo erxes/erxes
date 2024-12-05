@@ -31,7 +31,7 @@ export type EditConformityVariables = {
   mainType: string;
   mainTypeId: string;
   relType: string;
-  relTypeIds: string[]
+  relTypeIds: string[];
 };
 
 // mutation types
@@ -40,9 +40,11 @@ export type AddConformityMutation = ({ variables: IConformityDoc }) => void;
 export type EditConformityMutation = ({
   variables,
   update,
-  optimisticResponse
+  optimisticResponse,
+  refetchQueries
 }: {
   variables: EditConformityVariables;
   update?: (store: any, data: any) => void;
   optimisticResponse?: any;
+  refetchQueries?: string[];
 }) => Promise<any>;

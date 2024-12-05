@@ -2,9 +2,7 @@ import { customFieldToObject, fetchPolaris, genObjectOfRule } from '../utils';
 import { IPolarisCustomer } from './types';
 import { validateObject } from './validator';
 
-export const updateCustomer = async (subdomain, models, polarisConfig, syncLog, params) => {
-  const customer = params.updatedDocument || params.object;
-
+export const updateCustomer = async (subdomain, models, polarisConfig, syncLog, customer) => {
   const data = await customFieldToObject(subdomain, "core:customer", customer);
 
   const dataOfRules = await genObjectOfRule(
@@ -15,7 +13,6 @@ export const updateCustomer = async (subdomain, models, polarisConfig, syncLog, 
   );
 
   let sendData: IPolarisCustomer = {
-    custCode: data.code,
     lastName: data.lastName,
     firstName: data.firstName,
     familyName: data.familyName,
@@ -33,7 +30,6 @@ export const updateCustomer = async (subdomain, models, polarisConfig, syncLog, 
     birthPlaceId: data.birthPlaceId,
     shortName: data.shortName,
     registerMaskCode: data.registerMaskCode || "3",
-    registerCode: data.registerCode,
     countryCode: data.countryCode || "496",
     industryName: data.industryName ?? "",
     catId: data.catId ?? "",
@@ -46,7 +42,9 @@ export const updateCustomer = async (subdomain, models, polarisConfig, syncLog, 
     fax: data.fax ?? "",
     isBl: data.isBl ?? "0",
     isPolitical: data.isPolitical ?? "0",
-    ...dataOfRules
+    ...dataOfRules,
+    custCode: customer.custCode,
+    registerCode: data.registerCode,
   };
 
   await validateObject(sendData);

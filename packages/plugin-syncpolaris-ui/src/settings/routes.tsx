@@ -5,6 +5,7 @@ import CustomerSettings from "./components/CustomerSettings";
 import DepositSettings from "./components/DepositSettings";
 import LoanSettings from "./components/LoanSettings";
 import SavingSettings from "./components/SavingSettings";
+import PullCustomerSettings from "./components/PullCustomerSettings";
 import React from "react";
 
 const Settings = asyncComponent(
@@ -33,6 +34,9 @@ const SavingSetting = () => {
   return <Settings component={SavingSettings} configCode="POLARIS" />;
 };
 
+const PullCustomerSetting = () => {
+  return <Settings component={PullCustomerSettings} configCode="PULL_POLARIS" />;
+}
 
 const routes = () => {
   return (
@@ -61,6 +65,11 @@ const routes = () => {
         key="/erxes-plugin-polaris-polaris/settings/saving"
         path="/erxes-plugin-sync-polaris/settings/saving"
         element={<SavingSetting />}
+      />
+      <Route
+        key="/erxes-plugin-polaris-polaris/pull-settings/customer"
+        path="/erxes-plugin-sync-polaris/pull-settings/customer"
+        element={<PullCustomerSetting />}
       />
     </>
   );

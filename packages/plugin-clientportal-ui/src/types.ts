@@ -142,6 +142,7 @@ export type SocialpayConfig = {
 
 export type ClientPortalConfig = {
   _id?: string;
+  kind?: string;
   name?: string;
   description?: string;
   url?: string;

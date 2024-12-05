@@ -23,4 +23,7 @@ export const queries = `
   syncHistoriesPolaris(${commonHistoryParams}): [SyncHistoryPolaris]
   syncHistoriesCountPolaris(${commonHistoryParams}): Int
   getPolarisData(${polarisData}): JSON
+
+  pullPolarisConfigs(contentType: String) : JSON
+  pullPolarisData(contentType: String, contentId: String, kind: String, codes: [String]) : JSON
 `;

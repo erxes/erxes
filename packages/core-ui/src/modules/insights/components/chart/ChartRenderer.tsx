@@ -119,6 +119,12 @@ const ChartRenderer = (props: IChartProps) => {
     plugins: [ChartDataLabels, horizontalDottedLine],
     // plugins: [ChartDataLabels],
     options: {
+      responsive: true,
+      layout: {
+        padding: {
+          top: 20
+        }
+      },
       scales: {
         y: {
           ticks: {

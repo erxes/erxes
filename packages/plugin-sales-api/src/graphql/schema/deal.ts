@@ -13,7 +13,6 @@ export const types = ({ contacts }) => `
     unUsedAmount: JSON
     amount: JSON
     customFieldsData: JSON
-    tags: [Tag]
     
     ${commonListTypes}
   }
