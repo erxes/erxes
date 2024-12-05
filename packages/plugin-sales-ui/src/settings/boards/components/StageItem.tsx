@@ -1,13 +1,12 @@
-import { __, generateTree } from "coreui/utils";
+import { __ } from "coreui/utils";
 
 import Button from "@erxes/ui/src/components/Button";
 import FormControl from "@erxes/ui/src/components/form/Control";
-import { IDepartment } from "@erxes/ui/src/team/types";
 import { IStage } from "@erxes/ui-sales/src/boards/types";
 import { PROBABILITY } from "../constants";
 import React from "react";
-import Select from "react-select";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import { StageItemContainer, StageItemRow } from "@erxes/ui-sales/src/settings/boards/styles";
 
 type Props = {
@@ -16,7 +15,6 @@ type Props = {
   remove: (stageId: string) => void;
   onChange: (stageId: string, name: string, value: any) => void;
   onKeyPress: (e: any) => void;
-  departments: IDepartment[];
 };
 
 class StageItem extends React.Component<Props> {
@@ -28,13 +26,6 @@ class StageItem extends React.Component<Props> {
       return <><div></div><div></div></>;
     }
 
-    const generateValue = () => {
-      const selected = this.props.departments.filter(
-        (department) => (departmentIds || []).includes(department._id)
-      );
-      return selected.map((s) => ({ value: s._id, label: s.title }));
-    };
-
     return (
       <>
         <SelectTeamMembers
@@ -43,25 +34,12 @@ class StageItem extends React.Component<Props> {
           initialValue={memberIds}
           onSelect={(ids) => onChange(_id, "memberIds", ids)}
         />
-        <Select
-          value={generateValue()}
-          options={generateTree(
-            this.props.departments,
-            null,
-            (node, level) => ({
-              value: node._id,
-              label: `${"---".repeat(level)} ${node.title}`,
-            })
-          )}
-          onChange={(options) =>
-            onChange(
-              _id,
-              "departmentIds",
-              (options || []).map((o) => o.value)
-            )
-          }
-          placeholder={__("Department ...")}
-          isMulti={true}
+        <SelectDepartments
+          label="select department"
+          name="departmentIds"
+          initialValue={departmentIds}
+          onSelect={(ids) => onChange(_id, "departmentIds", ids)}
+          multi={true}
         />
       </>
     );
