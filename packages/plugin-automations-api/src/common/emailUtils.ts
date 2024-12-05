@@ -404,12 +404,26 @@ export const handleEmail = async ({
   }
 };
 
+const getConfig = (configs,code)=>{
+  const version = getEnv({name:"VERSION"})
+  if (version === 'saas') {
+    return getEnv({ name: code });
+  }
+
+  return configs[code] || ''
+}
+
 const createTransporter = async ({ ses }, configs) => {
   if (ses) {
-    const AWS_SES_ACCESS_KEY_ID = configs["AWS_SES_ACCESS_KEY_ID"] || "";
-    const AWS_SES_SECRET_ACCESS_KEY =
-      configs["AWS_SES_SECRET_ACCESS_KEY"] || "";
-    const AWS_REGION = configs["AWS_REGION"] || "";
+    const AWS_SES_ACCESS_KEY_ID =
+      getConfig(configs, 'AWS_SES_ACCESS_KEY_ID') ;
+
+    const AWS_SES_SECRET_ACCESS_KEY = getConfig(
+      configs,
+      'AWS_SES_SECRET_ACCESS_KEY'
+    );
+    const AWS_REGION =
+      getConfig(configs,'AWS_REGION');
 
     AWS.config.update({
       region: AWS_REGION,
@@ -466,9 +480,9 @@ const sendEmails = async ({
 
   const DEFAULT_EMAIL_SERVICE = configs["DEFAULT_EMAIL_SERVICE"] || "SES";
   const COMPANY_EMAIL_FROM = configs["COMPANY_EMAIL_FROM"] || "";
-  const AWS_SES_CONFIG_SET = configs["AWS_SES_CONFIG_SET"] || "";
-  const AWS_SES_ACCESS_KEY_ID = configs["AWS_SES_ACCESS_KEY_ID"] || "";
-  const AWS_SES_SECRET_ACCESS_KEY = configs["AWS_SES_SECRET_ACCESS_KEY"] || "";
+  const AWS_SES_CONFIG_SET = getConfig(configs,"AWS_SES_CONFIG_SET");
+  const AWS_SES_ACCESS_KEY_ID = getConfig(configs,"AWS_SES_ACCESS_KEY_ID");
+  const AWS_SES_SECRET_ACCESS_KEY = getConfig(configs,"AWS_SES_SECRET_ACCESS_KEY");
 
   if (!fromEmail && !COMPANY_EMAIL_FROM) {
     throw new Error("From Email is required");
