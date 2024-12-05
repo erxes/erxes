@@ -45,6 +45,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
   onAdd = () => {
     const { kind } = this.props;
     const { REACT_APP_API_URL } = getEnv();
+
     this.popupWindow(
       `${REACT_APP_API_URL}/pl:whatsapp/login?kind=${kind}`,
       "Integration",
@@ -55,9 +56,9 @@ class AccountContainer extends React.Component<FinalProps, {}> {
   };
 
   remove = (accountId: string) => {
-    const { removeAccount, onRemove } = this.props;
+    const { removeAccount, onRemove, kind } = this.props;
 
-    removeAccount({ variables: { _id: accountId } })
+    removeAccount({ variables: { _id: accountId, kind } })
       .then(() => {
         Alert.success("You successfully removed an account");
         onRemove(accountId);
@@ -76,6 +77,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
       formProps,
       selectedAccountId
     } = this.props;
+
     if (getAccountsQuery.loading) {
       return <Spinner objective={true} />;
     }

@@ -47,12 +47,12 @@ export function SelectAccountPages({
 
   const pages = data?.whatsappGetNumbers || [];
 
-  const handleSelectPage = (whatsappNumberIds) => {
-    if (initialValue === whatsappNumberIds) {
-      return onSelect("", "whatsappNumberIds");
+  const handleSelectPage = (pageId) => {
+    if (initialValue === pageId) {
+      return onSelect("", "pageId");
     }
 
-    onSelect(whatsappNumberIds, "whatsappNumberIds");
+    onSelect(pageId, "pageId");
   };
 
   return (
@@ -72,20 +72,21 @@ export function SelectAccountPages({
   );
 }
 
-export const fetchPageDetail = async (account, whatsappNumberIds) => {
+export const fetchPageDetail = async (account, whatsappNumber) => {
   if (!account) return null;
-
   let name;
   let profileUrl;
-
+  let display_phone_number;
   await fetch(
-    `https://graph.facebook.com/v13.0/${whatsappNumberIds}?fields=name,picture&access_token=${account.token}`
+    `https://graph.facebook.com/v13.0/${whatsappNumber}?fields=&access_token=${account.token}`
   )
     .then((response) => response.json())
     .then((data) => {
-      name = data.name;
+      console.log(data, "dataaaa");
+      name = data.verified_name;
+      display_phone_number = data.display_phone_number;
       profileUrl = data?.picture?.data?.url;
     });
 
-  return { profileUrl, name };
+  return { profileUrl, name, display_phone_number };
 };

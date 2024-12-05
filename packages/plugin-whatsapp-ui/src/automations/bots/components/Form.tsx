@@ -70,20 +70,18 @@ function Form({ renderButton, bot, returnToList }: Props) {
   const [doc, setDoc] = useState(bot || {});
   const [selectedAccount, setAccount] = useState(null as any);
   const [isLastStep, setLastStep] = useState(false);
-
   useEffect(() => {
     if (!bot && selectedAccount) {
-      fetchPageDetail(selectedAccount, doc.whatsappNumberIds).then(
-        (response) => {
-          setDoc({
-            ...doc,
-            profileUrl: response?.profileUrl,
-            page: { ...doc.page, name: response?.name }
-          });
-        }
-      );
+      fetchPageDetail(selectedAccount, doc.pageId).then((response) => {
+        setDoc({
+          ...doc,
+          profileUrl: response?.profileUrl,
+          display_phone_number: response?.display_phone_number,
+          page: { ...doc.page, name: response?.name }
+        });
+      });
     }
-  }, [doc.whatsappNumberIds]);
+  }, [doc.pageId]);
 
   const generateDoc = (values) => {
     return { ...removeNullAndTypename(doc || {}), ...values };
@@ -147,7 +145,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
                   <ControlLabel>{__("Pages")}</ControlLabel>
                   <SelectAccountPages
                     accountId={doc?.accountId}
-                    initialValue={doc?.whatsappNumberIds}
+                    initialValue={doc?.pageId}
                     onSelect={onSelect}
                   />
                 </FormGroup>
@@ -171,25 +169,6 @@ function Form({ renderButton, bot, returnToList }: Props) {
                   defaultValue={doc?.name}
                 />
               </FormGroup>
-              <ControlLabel>
-                <FlexRow $alignItems='center'>
-                  {__("Persistent Menu")}
-
-                  <HelpPopover title=''>
-                    "A Persistent Menu is a quick-access toolbar in your chat.
-                    Customize it below for easy navigation to key bot features."
-                  </HelpPopover>
-                </FlexRow>
-              </ControlLabel>
-              <ButtonsGenerator
-                _id=''
-                buttons={doc.persistentMenus || []}
-                addButtonLabel='Add Persistent Menu'
-                onChange={(_id, _name, values) =>
-                  onChange("persistentMenus", values)
-                }
-                limit={5}
-              />
             </Padding>
           </Step>
           <Step
@@ -221,9 +200,9 @@ function Form({ renderButton, bot, returnToList }: Props) {
                 </p>
                 <ControlLabel>Tag</ControlLabel>
                 <FormControl
-                  id='whatsapp-message-tag'
+                  id='facebook-message-tag'
                   componentclass='select'
-                  placeholder={__("Select Whatsapp Tag") as string}
+                  placeholder={__("Select Facebook Tag") as string}
                   defaultValue={doc.tag || ""}
                   onChange={(e) =>
                     setDoc({
@@ -334,27 +313,25 @@ function Form({ renderButton, bot, returnToList }: Props) {
             <Preview fullHeight>
               <EmulatorWrapper>
                 <MobileEmulator
-                  disabled={!doc?.whatsappNumberIds}
+                  disabled={!doc?.pageId}
                   isLastStep={isLastStep}>
                   <div className='top-bar'>
                     <div className='dynamic-island' />
                   </div>
                   <div className='profile'>
-                    <Avatar
-                      src={
-                        doc?.profileUrl
-                          ? doc.profileUrl
-                          : "/images/erxes-bot.svg"
-                      }
-                    />
+                    <Avatar src={"/images/erxes-bot.svg"} />
                     <p>{doc?.page ? doc?.page?.name : "Profile Name"}</p>
+                    <p>
+                      {doc?.display_phone_number
+                        ? doc?.display_phone_number
+                        : "Phone Number"}
+                    </p>
                   </div>
                   {!isLastStep ? (
                     <>
                       <div className='getStarted'>
                         <p>{doc?.greetText || ""}</p>
                         <span>tap to send</span>
-                        <button>Get Started</button>
                       </div>
                       <span>
                         {`You started a chat with ${
@@ -363,7 +340,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
                     this chat to improve your experience.`}
                         <br />
                         <a
-                          href={`https://www.facebook.com/profile.php?id=${doc?.whatsappNumberIds}#`}
+                          href={`https://www.facebook.com/profile.php?id=${doc?.pageId}#`}
                           target='_blank'>
                           Learn about business chats and your privacy.
                         </a>
