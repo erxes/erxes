@@ -1,4 +1,3 @@
-iimport { debugInfo } from "@erxes/api-utils/src/debuggers";
 import { generateModels } from "../connectionResolver";
 import { actionCreateComment, checkCommentTrigger } from "./comments";
 import { actionCreateMessage, checkMessageTrigger } from "./messages";
