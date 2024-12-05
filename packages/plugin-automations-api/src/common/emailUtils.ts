@@ -406,6 +406,9 @@ export const handleEmail = async ({
 
 const getConfig = (configs,code)=>{
   const version = getEnv({name:"VERSION"})
+
+  console.log({version})
+
   if (version === 'saas') {
     return getEnv({ name: code });
   }
@@ -414,6 +417,7 @@ const getConfig = (configs,code)=>{
 }
 
 const createTransporter = async ({ ses }, configs) => {
+  console.log({ ses });
   if (ses) {
     const AWS_SES_ACCESS_KEY_ID =
       getConfig(configs, 'AWS_SES_ACCESS_KEY_ID') ;
@@ -424,6 +428,12 @@ const createTransporter = async ({ ses }, configs) => {
     );
     const AWS_REGION =
       getConfig(configs,'AWS_REGION');
+
+      console.log({
+        AWS_SES_ACCESS_KEY_ID,
+        AWS_REGION,
+        AWS_SES_SECRET_ACCESS_KEY
+      });
 
     AWS.config.update({
       region: AWS_REGION,
