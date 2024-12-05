@@ -1,37 +1,38 @@
-import * as dotenv from 'dotenv';
+import * as dotenv from "dotenv";
 import {
   whatsappCreateIntegration,
   removeAccount,
   removeCustomers,
   removeIntegration,
   repairIntegrations
-} from './helpers';
-import { handleInstagramMessage } from './handleInstagramMessage';
-import { userIds } from './middlewares/userMiddleware';
+} from "./helpers";
+import { handleWhatsAppMessage } from "./handleWhatsAppMessage";
+import { userIds } from "./middlewares/userMiddleware";
+import { sendMessage } from "@erxes/api-utils/src/core";
 
-import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
+import { sendMessage as sendCommonMessage } from "@erxes/api-utils/src/core";
 import type {
   MessageArgs,
   MessageArgsOmitService
-} from '@erxes/api-utils/src/core';
+} from "@erxes/api-utils/src/core";
 
-import { generateModels } from './connectionResolver';
+import { generateModels } from "./connectionResolver";
 import {
   consumeQueue,
   consumeRPCQueue,
   sendRPCMessage as RPC,
   RPResult
-} from '@erxes/api-utils/src/messageBroker';
+} from "@erxes/api-utils/src/messageBroker";
 
 dotenv.config();
 
 export const sendRPCMessage = async (message): Promise<any> => {
-  return RPC('rpc_queue:integrations_to_api', message);
+  return RPC("rpc_queue:integrations_to_api", message);
 };
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue(
-    'whatsapp:getAccounts',
+    "whatsapp:getAccounts",
     async ({ subdomain, data: { kind } }) => {
       const models = await generateModels(subdomain);
 
@@ -39,40 +40,40 @@ export const setupMessageConsumers = async () => {
 
       return {
         data: await models.Accounts.find(selector).lean(),
-        status: 'success'
+        status: "success"
       };
     }
   );
 
   consumeRPCQueue(
-    'whatsapp:api_to_integrations',
+    "whatsapp:api_to_integrations",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       const { action, type } = data;
       let response: RPResult = {
-        status: 'success'
+        status: "success"
       };
 
       try {
-        if (action === 'remove-account') {
+        if (action === "remove-account") {
           response.data = await removeAccount(subdomain, models, data._id);
         }
 
-        if (action === 'repair-integrations') {
+        if (action === "repair-integrations") {
           response.data = await repairIntegrations(subdomain, models, data._id);
         }
 
-        if (type === 'whatsapp') {
-          response.data = await handleInstagramMessage(models, data, subdomain);
+        if (type === "whatsapp") {
+          response.data = await handleWhatsAppMessage(models, data, subdomain);
         }
 
-        if (action === 'getConfigs') {
+        if (action === "getConfigs") {
           response.data = await models.Configs.find({});
         }
       } catch (e) {
         response = {
-          status: 'error',
+          status: "error",
           errorMessage: e.message
         };
       }
@@ -82,7 +83,7 @@ export const setupMessageConsumers = async () => {
   );
 
   consumeRPCQueue(
-    'whatsapp:getStatus',
+    "whatsapp:getStatus",
     async ({ subdomain, data: { integrationId } }) => {
       const models = await generateModels(subdomain);
 
@@ -90,61 +91,61 @@ export const setupMessageConsumers = async () => {
         erxesApiId: integrationId
       });
       if (!integration) {
-        throw new Error('Instagram Integration not found ');
+        throw new Error("Instagram Integration not found ");
       }
       let result = {
-        status: 'healthy'
+        status: "healthy"
       } as any;
 
       if (integration) {
         result = {
-          status: integration.healthStatus || 'healthy',
+          status: integration.healthStatus || "healthy",
           error: integration.error
         };
       }
 
       return {
         data: result,
-        status: 'success'
+        status: "success"
       };
     }
   );
 
   consumeRPCQueue(
-    'whatsapp:createIntegration',
+    "whatsapp:createIntegration",
     async ({ subdomain, data: { doc, kind } }) => {
       const models = await generateModels(subdomain);
-      if (kind === 'whatsapp') {
+      if (kind === "whatsapp") {
         return whatsappCreateIntegration(subdomain, models, doc);
       }
 
       return {
-        status: 'error',
-        errorMessage: 'Wrong kind'
+        status: "error",
+        errorMessage: "Wrong kind"
       };
     }
   );
 
   consumeRPCQueue(
-    'whatsapp:removeIntegrations',
+    "whatsapp:removeIntegrations",
     async ({ subdomain, data: { integrationId } }) => {
       const models = await generateModels(subdomain);
 
       await removeIntegration(subdomain, models, integrationId);
 
-      return { status: 'success' };
+      return { status: "success" };
     }
   );
 
-  consumeQueue('whatsapp:notification', async ({ subdomain, data }) => {
+  consumeQueue("whatsapp:notification", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { payload, type } = data;
     switch (type) {
-      case 'removeCustomers':
+      case "removeCustomers":
         await removeCustomers(models, data);
         break;
-      case 'addUserId':
+      case "addUserId":
         userIds.push(payload._id);
         break;
       default:
@@ -153,21 +154,35 @@ export const setupMessageConsumers = async () => {
   });
 
   consumeRPCQueue(
-    'whatsapp:conversationMessages.find',
+    "whatsapp:conversationMessages.find",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.ConversationMessages.find(data).lean()
       };
     }
   );
 };
+export const sendAutomationsMessage = (args: MessageArgsOmitService) => {
+  return sendCommonMessage({
+    serviceName: "automations",
+    ...args
+  });
+};
 
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "core",
+    ...args
+  });
+};
 export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
-    serviceName: 'inbox',
+    serviceName: "inbox",
     ...args
   });
 };

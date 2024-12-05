@@ -1,13 +1,15 @@
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
-import { setupMessageConsumers } from './messageBroker';
-import { getSubdomain } from '@erxes/api-utils/src/core';
-import { generateModels } from './connectionResolver';
-import initApp from './initApp';
-import { INTEGRATION_KINDS } from './constants';
-
+import typeDefs from "./graphql/typeDefs";
+import resolvers from "./graphql/resolvers";
+import { setupMessageConsumers } from "./messageBroker";
+import { getSubdomain } from "@erxes/api-utils/src/core";
+import { generateModels } from "./connectionResolver";
+import initApp from "./initApp";
+import { INTEGRATION_KINDS } from "./constants";
+import forms from "./forms";
+import segments from "./segments";
+import automations from "./automations";
 export default {
-  name: 'whatsapp',
+  name: "whatsapp",
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
@@ -15,10 +17,13 @@ export default {
     };
   },
   meta: {
+    automations,
+    forms,
+    segments,
     inboxIntegrations: [
       {
         kind: INTEGRATION_KINDS.MESSENGER,
-        label: 'whatsapp'
+        label: "whatsapp"
       }
     ]
   },
