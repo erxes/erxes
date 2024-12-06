@@ -35,7 +35,7 @@ export const conversationMessagesBroker = () => {
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
-      const { action, type, payload } = data;
+      const { type, payload } = data;
       const doc = JSON.parse(payload || '{}');
 
       let response: RPResult = {
@@ -50,11 +50,9 @@ export const conversationMessagesBroker = () => {
       }
       try {
         const {
-          integrationId,
           conversationId,
           content = '',
           attachments = [],
-          extraInfo,
         } = doc;
 
         const conversation = await models.Conversations.getConversation({
@@ -181,7 +179,7 @@ export const conversationMessagesBroker = () => {
   );
 
   consumeQueue('zalo:notification', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
+    await generateModels(subdomain);
 
     const { payload, type } = data;
 
