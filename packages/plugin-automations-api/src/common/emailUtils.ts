@@ -184,6 +184,7 @@ const getSegmentEmails = async ({
 };
 
 const generateFromEmail = (sender, fromUserEmail) => {
+  console.log({sender,fromUserEmail})
   if (sender && fromUserEmail) {
     return `${sender} <${fromUserEmail}>`;
   }
@@ -219,7 +220,6 @@ export const generateDoc = async ({
 
   let fromUserEmail = version === "saas" ? DEFAULT_AWS_EMAIL : "";
 
-  console.log({ fromUserId });
 
   if (fromUserId) {
     const fromUser = await sendCoreMessage({
@@ -235,6 +235,7 @@ export const generateDoc = async ({
     console.log({ fromUser });
 
     fromUserEmail = fromUser?.email;
+    console.log({fromUserEmail})
   }
 
   const replacedContent = (template?.content || "").replace(
@@ -392,10 +393,12 @@ export const handleEmail = async ({
     return { error: "Something went wrong fetching data" };
   }
 
+  console.log({params})
+
   try {
     const responses = await sendEmails({
       subdomain,
-      params: params
+      params
     });
 
     await setActivityLog({
