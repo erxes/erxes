@@ -54,6 +54,8 @@ const applyTemplate = async (data: any, templateName: string) => {
 
   template = Handlebars.compile(template.toString());
 
+  console.log({ data });
+
   return template(data);
 };
 
