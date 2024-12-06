@@ -117,7 +117,7 @@ const sendNotification = async (
     }
   } // end receiverIds loop
 
-  const DOMAIN = getEnv({ name: "DOMAIN" });
+  const DOMAIN = getEnv({ name: "DOMAIN", subdomain });
 
   link = `${DOMAIN}${link}`;
 
