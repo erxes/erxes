@@ -219,6 +219,7 @@ export const sendEmail = async (
 
     try {
       if (sendgridMail) {
+        console.log({ mailOptions });
         await sendgridMail.send(mailOptions).then(
           () => {},
           error => {
