@@ -218,7 +218,7 @@ export const generateDoc = async ({
 
   let fromUserEmail = version === "saas" ? "noreply@erxes.io" : "";
 
-  if (version !== "saas" && !!fromUserId) {
+  if (fromUserId) {
     const fromUser = await sendCoreMessage({
       subdomain,
       action: "users.findOne",
