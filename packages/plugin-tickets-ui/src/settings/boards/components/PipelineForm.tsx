@@ -4,7 +4,7 @@ import {
   DialogContent,
   DialogWrapper,
   ModalFooter,
-  ModalOverlay,
+  ModalOverlay
 } from '@erxes/ui/src/styles/main';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import { IBoard, IPipeline, IStage } from '@erxes/ui-tickets/src/boards/types';
@@ -163,7 +163,7 @@ const PipelineForm = (props: Props) => {
       numberSize,
       nameConfig,
       departmentIds,
-      tagId,
+      tagId
     };
   };
 
@@ -200,7 +200,7 @@ const PipelineForm = (props: Props) => {
       null,
       (node, level) => ({
         value: node._id,
-        label: `${'---'.repeat(level)} ${node.title}`,
+        label: `${'---'.repeat(level)} ${node.title}`
       })
     );
 
@@ -277,7 +277,7 @@ const PipelineForm = (props: Props) => {
 
     const boardOptions = boards.map(board => ({
       value: board._id,
-      label: board.name,
+      label: board.name
     }));
 
     const onChange = item => {
@@ -304,7 +304,7 @@ const PipelineForm = (props: Props) => {
     const filteredTags = tags && tags.filter(tag => !tag.parentId);
 
     const onChange = item => {
-      setTagId(item.value);
+      setTagId(item?.value);
     };
 
     const generateOptions = items => {
@@ -315,7 +315,7 @@ const PipelineForm = (props: Props) => {
       return items.map(item => {
         return {
           value: item._id,
-          label: item.name,
+          label: item.name
         };
       });
     };
@@ -492,7 +492,7 @@ const PipelineForm = (props: Props) => {
             isSubmitted,
             callback: closeModal,
             object: pipeline,
-            confirmationUpdate: true,
+            confirmationUpdate: true
           })}
         </ModalFooter>
       </div>
