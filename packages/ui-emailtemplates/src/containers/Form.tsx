@@ -1,12 +1,10 @@
-import { mutations, queries } from "../graphql";
-
+import { mutations } from "../graphql";
 import { ButtonMutate } from "@erxes/ui/src/";
 import FormComponent from "../components/Form";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
 import { IEmailTemplate } from "../types";
 import React from "react";
-import { gql } from "@apollo/client";
 
 type Props = {
   object?: IEmailTemplate;
