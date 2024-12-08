@@ -340,6 +340,10 @@ export default {
     const models = await generateModels(subdomain);
 
     if (actionType === "create") {
+      if (collectionType === "checklist") {
+        return createChecklist(models, execution, action);
+      }
+
       return actionCreate({
         models,
         subdomain,
@@ -412,13 +416,64 @@ export default {
         icon: "piggy-bank",
         label: "Create deal",
         description: "Create deal",
+        isAvailable: true,
+        isAvailableOptionalConnect: true
+      },
+      {
+        type: "sales:checklist.create",
+        icon: "piggy-bank",
+        label: "Create sales checklist",
+        description: "Create sales checklist",
         isAvailable: true
       }
     ]
   }
 };
 
-const generateIds = (value) => {
+const createChecklist = async (models: IModels, execution, action) => {
+  const { actions = [] } = execution;
+
+  const prevAction = actions[actions.length - 1];
+
+  const object: any = {
+    contentType: "deal"
+  };
+
+  if (
+    prevAction.actionType === "sales:deal.create" &&
+    prevAction.nextActionId === action.id &&
+    prevAction?.result?.itemId
+  ) {
+    object.contentTypeId = prevAction.result.itemId;
+  } else {
+    if (!execution?.triggerType?.includes("sales:deal")) {
+      throw new Error("Unsupported trigger type");
+    }
+
+    object.contentTypeId = execution?.targetId;
+  }
+
+  const { items, name } = action?.config || {};
+
+  const checklist = await models.Checklists.create({
+    ...object,
+    title: name,
+    createdDate: new Date()
+  });
+
+  await models.ChecklistItems.insertMany(
+    items.map(({ label }, i) => ({
+      createdDate: new Date(),
+      checklistId: checklist._id,
+      content: label,
+      order: i
+    }))
+  );
+
+  return { result: checklist.toObject(), objToWait: {} };
+};
+
+const generateIds = value => {
   const arr = value.split(", ");
 
   if (Array.isArray(arr)) {

@@ -19,10 +19,11 @@ type Props = {
   product: IProduct;
   isChecked: boolean;
   toggleBulk: (product: IProduct, isChecked?: boolean) => void;
+  duplicateProduct: (_id: string) => void;
 };
 
 const Row: React.FC<Props> = (props) => {
-  const { product, toggleBulk, isChecked } = props;
+  const { product, toggleBulk, isChecked, duplicateProduct } = props;
   const navigate = useNavigate();
 
   const tags = product.getTags || [];
@@ -51,7 +52,7 @@ const Row: React.FC<Props> = (props) => {
 
   const content = (props) => <ProductForm {...props} product={product} />;
 
-  const { code, name, type, category, unitPrice } = product;
+  const { _id, code, name, type, category, unitPrice } = product;
 
   return (
     <tr onClick={onTrClick}>
@@ -80,6 +81,14 @@ const Row: React.FC<Props> = (props) => {
             size="xl"
             content={content}
           />
+          <Tip text={__("Duplicate")} placement="top">
+            <Button
+              id="productDuplicate"
+              btnStyle="link"
+              onClick={() => duplicateProduct(_id)}
+              icon="copy-1"
+            />
+          </Tip>
         </ActionButtons>
       </td>
     </tr>

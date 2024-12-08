@@ -1,9 +1,9 @@
-import _ from "lodash";
-import { FormControl, formatValue } from "@erxes/ui/src";
-import React from "react";
-import { FlexItem } from "../../styles";
-import { ICar } from "../../types";
-import { useNavigate } from "react-router-dom";
+import _ from 'lodash';
+import { FormControl, formatValue } from '@erxes/ui/src';
+import React from 'react';
+import { FlexItem } from '../../styles';
+import { ICar } from '../../types';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   car: ICar;

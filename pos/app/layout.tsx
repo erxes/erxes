@@ -10,9 +10,7 @@ import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: "Erxes POS",
   description: "POS integrated with Erxes",
-  generator: "Next.js",
   manifest: "/manifest.json",
   icons: [
     { rel: "apple-touch-icon", url: "icons/icon-128x128.png" },

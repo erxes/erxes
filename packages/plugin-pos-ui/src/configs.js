@@ -6,7 +6,8 @@ module.exports = {
   exposes: {
     "./routes": "./src/routes.tsx",
     "./invoiceDetailRightSection": "./src/orders/containers/InvoiceDetail.tsx",
-    "./customerSidebar": "./src/orders/containers/CustomerSidebar.tsx"
+    "./customerSidebar": "./src/orders/containers/CustomerSidebar.tsx",
+    "./automation": "./src/automations.tsx",
   },
   routes: {
     url: "http://localhost:3016/remoteEntry.js",
@@ -17,6 +18,7 @@ module.exports = {
   loyaltyScoreCampaignAttributes: [
     { label: "Pos Order Total Amount", value: "totalAmount" }
   ],
+  automation: "./automation",
   menus: [
     {
       text: "Pos Orders",

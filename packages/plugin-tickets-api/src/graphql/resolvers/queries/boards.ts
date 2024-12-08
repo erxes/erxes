@@ -852,13 +852,13 @@ const boardQueries = {
       const endDate = new Date(interval.endTime.getTime() - timezone);
 
       const checkingItems = items.filter(
-        item => item.startDate < endDate && item.closeDate > startDate
+        item => item.startDate && item.startDate < endDate && item.closeDate && item.closeDate > startDate
       );
 
       let checkedTagIds: string[] = [];
 
       for (const item of checkingItems) {
-        checkedTagIds = checkedTagIds.concat(item.tagIds);
+        checkedTagIds = checkedTagIds.concat(item.tagIds || []);
       }
 
       interval.freeTags = tags.filter(t => !checkedTagIds.includes(t._id));

@@ -24,10 +24,12 @@ export const afterMutationHandlers = async (
     object: { _id, name }
   } = params;
 
-  if (action === "update") {
-    if (type.includes("cards")) {
+  //test
+
+  if (action === 'update') {
+    if (type.includes('cards')) {
       if (newData.stageId) {
-        const contentType = type.replace("cards:", "");
+        const contentType = type.replace('cards:', ''); 
 
         const requests = await models.Requests.find({
           $and: [

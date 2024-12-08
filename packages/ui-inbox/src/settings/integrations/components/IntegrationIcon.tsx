@@ -26,7 +26,7 @@ const RoundedBackground = styledTS<{ type: string; size?: number }>(
     (props.type === "instagram-post" && colors.socialInstagramMessenger) ||
     (props.type === "calls" && colors.socialGrandStream) ||
     (props.type === "gmail" && colors.socialGmail) ||
-    (props.type === "whatsapp" && colors.socialWhatsApp) ||
+    (props.type === 'whatsapp' && colors.socialWhatsApp) ||
     (props.type.includes("nylas") && colors.socialGmail) ||
     (props.type.includes("telegram") && colors.socialTelegram) ||
     (props.type.includes("viber") && colors.socialViber) ||
@@ -76,6 +76,9 @@ class IntegrationIcon extends React.PureComponent<Props> {
         break;
       case "viber":
         icon = "viber";
+        break;
+      case 'whatsapp':
+          icon = 'whatsapp';
         break;
       default:
         icon = "doc-text-inv-1";

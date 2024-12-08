@@ -8,11 +8,7 @@ import { getEnv } from "../utils";
 import * as AWS from "aws-sdk";
 import * as nodemailer from "nodemailer";
 import { debugError } from "@erxes/api-utils/src/debuggers";
-import {
-  isEnabled,
-  getServices,
-  getService
-} from "@erxes/api-utils/src/serviceDiscovery";
+import { getServices, getService } from "@erxes/api-utils/src/serviceDiscovery";
 import { putActivityLog } from "../logUtils";
 
 export const getEmailRecipientTypes = async () => {
@@ -38,11 +34,13 @@ export const getEmailRecipientTypes = async () => {
 
 const generateEmails = (entry, key?) => {
   if (Array.isArray(entry)) {
-    return entry
-      .map(item => item[key])
-      .filter(value =>
-        value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
-      );
+    if (key) {
+      entry = entry.map(item => item[key]);
+    }
+
+    return entry.filter(value =>
+      value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
+    );
   }
 
   if (typeof entry === "string") {
@@ -133,7 +131,9 @@ const getAttributionEmails = async ({
     defaultValue: {}
   });
 
-  return [...emails, ...generateEmails(replacedContent[key])];
+  const generatedEmails = generateEmails(replacedContent[key]);
+
+  return [...emails, ...generatedEmails];
 };
 
 const getSegmentEmails = async ({

@@ -3,10 +3,11 @@ import styled from 'styled-components';
 const RichTextEditorWrapper = styled.div<{ $position: string }>`
   position: relative;
   background: #fff;
-  overflow-y: visible;
+  overflow-y: auto;
   border-radius: 4px;
   display: flex;
   flex-direction: column;
+  height: 100%;
 
   > div {
     overflow: auto;

@@ -29,7 +29,7 @@ const DeliveryInputs = () => {
   return (
     <CollapsibleContent className="col-span-2 mb-2 border-y py-3">
       <div className="space-y-3">
-        {mode === "main" && (
+        {mode !== "market" && (
           <>
             <Delivery />
             <PreOrder />
@@ -37,7 +37,7 @@ const DeliveryInputs = () => {
           </>
         )}
         <DirectDiscount />
-        {!!orderId && mode === "main" && (
+        {!!orderId && mode !== "market" && (
           <>
             <Separator />
             <div className="col-span-3">

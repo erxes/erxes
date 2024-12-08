@@ -24,17 +24,9 @@ import { checkRemainders } from "./products";
 import { getPureDate } from "@erxes/api-utils/src";
 import { checkDirectDiscount } from "./directDiscount";
 import { IPosUserDocument } from "../../models/definitions/posUsers";
-import { sendPosMessage, sendCoreMessage } from "../../messageBroker";
+import { sendCoreMessage } from "../../messageBroker";
 import { nanoid } from "nanoid";
 import { getCompanyInfo } from "../../models/PutData";
-
-interface IDetailItem {
-  count: number;
-  amount: number;
-  inventoryCode: string;
-  barcode: string;
-  productId: string;
-}
 
 export const generateOrderNumber = async (
   models: IModels,
@@ -42,19 +34,23 @@ export const generateOrderNumber = async (
 ): Promise<string> => {
   const todayStr = moment().format("YYYYMMDD").toString();
 
-  const beginNumber =
-    (config && config.beginNumber && `${config.beginNumber}.`) || "";
-
+  let beginNumber = "";
+  let regexSuffix = "[0-9]*$";
   let suffix = "0001";
-  let number = `${todayStr}_${beginNumber}${suffix}`;
-
   let latestOrder;
+
+  if (config?.beginNumber) {
+    beginNumber = `${config.beginNumber}.`
+    regexSuffix = `${config.beginNumber}\.[0-9]*$`
+  }
+
+  let number = `${todayStr}_${beginNumber}${suffix}`;
 
   const latestOrders = await models.Orders.aggregate([
     {
       $match: {
         posToken: config.token,
-        number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) }
+        number: { $regex: new RegExp(`^${todayStr}_${regexSuffix}`) }
       }
     },
     {
@@ -93,11 +89,32 @@ export const generateOrderNumber = async (
   return number;
 };
 
+const validDueDate = (doc: IOrderInput, order?: IOrderDocument) => {
+  if (!doc.isPre) {
+    return true;
+  }
+  if (!doc.dueDate) {
+    return false;
+  }
+
+  const now = getPureDate(new Date());
+  if (doc.dueDate >= now) {
+    return true;
+  }
+
+  if (order && order.isPre && order.dueDate && getPureDate(order.dueDate) !== getPureDate(doc.dueDate)) {
+    return true;
+  }
+
+  return false;
+}
+
 export const validateOrder = async (
   subdomain: string,
   models: IModels,
   config: IConfigDocument,
-  doc: IOrderInput
+  doc: IOrderInput,
+  order?: IOrderDocument
 ) => {
   const { items = [] } = doc;
 
@@ -105,7 +122,7 @@ export const validateOrder = async (
     throw new Error("Products missing in order. Please add products");
   }
 
-  if (doc.isPre && (!doc.dueDate || doc.dueDate < getPureDate(new Date()))) {
+  if (!await validDueDate(doc, order)) {
     throw new Error(
       "The due date of the pre-order must be recorded in the future"
     );
@@ -441,9 +458,11 @@ export const prepareOrderDoc = async (
   for (const item of items) {
     const fixedUnitPrice = Number(
       Number(
-        ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
-          item.unitPrice ||
-          0
+        (
+          (productsOfId[item.productId] || {}).prices || {}
+        )[config.token] ||
+        item.unitPrice ||
+        0
       ).toFixed(2)
     );
 
@@ -475,8 +494,7 @@ export const prepareOrderDoc = async (
         if (prevSubscription) {
           const prevSubscriptionItem = await models.OrderItems.findOne({
             orderId: prevSubscription._id,
-            closeDate: { $gte: new Date() },
-            productId: item.productId
+            closeDate: { $gte: new Date() }
           });
 
           if (prevSubscriptionItem) {

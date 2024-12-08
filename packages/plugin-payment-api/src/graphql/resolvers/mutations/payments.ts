@@ -13,6 +13,7 @@ import { StripeAPI } from '../../../api/stripe/api';
 
 const mutations = {
   async paymentAdd(_root, doc: IPayment, { models, subdomain }: IContext) {
+    console.debug('Adding payment', doc, ' to ', subdomain);
     const DOMAIN = getEnv({ name: 'DOMAIN' })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
       : 'http://localhost:4000';
@@ -42,7 +43,7 @@ const mutations = {
     }
 
     const payment = await models.PaymentMethods.createPayment(doc);
-
+    console.debug("payment", payment);
     if (doc.kind === 'pocket') {
       const pocketApi = new PocketAPI(doc.config, domain);
       try {

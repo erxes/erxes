@@ -21,6 +21,11 @@ export type IAttachmentPreview = {
   data: string;
 } | null;
 
+export interface IPdfAttachment {
+  pdf?: IAttachment;
+  pages: IAttachment[];
+}
+
 export interface IAnimatedLoader {
   height?: string;
   width?: string;
@@ -141,6 +146,7 @@ export type IOption = {
   value: string;
   avatar?: string;
   extraValue?: string;
+  obj?: any;
 };
 
 export type IButtonMutateProps = {

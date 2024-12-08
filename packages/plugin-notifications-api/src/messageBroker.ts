@@ -46,6 +46,8 @@ const sendNotification = async (
   // remove duplicated ids
   const receiverIds = Array.from(new Set(receivers));
 
+  console.log({ receiverIds });
+
   await sendCoreMessage({
     subdomain,
     action: "users.updateMany",
@@ -77,6 +79,7 @@ const sendNotification = async (
   const toEmails: string[] = [];
 
   for (const recipient of recipients) {
+    console.log({ email: recipient?.email });
     if (recipient.getNotificationByEmail && recipient.email) {
       toEmails.push(recipient.email);
     }
@@ -129,23 +132,29 @@ const sendNotification = async (
     }
   };
 
-  sendCoreMessage({
-    subdomain,
-    action: "sendEmail",
-    data: {
-      toEmails,
-      title: "Notification",
-      template: {
-        name: "notification",
-        data: {
-          notification: { ...doc, link },
-          action,
-          userName: getUserDetail(createdUser)
-        }
-      },
-      modifier
-    }
-  });
+  console.log({ toEmails });
+
+  try {
+    sendCoreMessage({
+      subdomain,
+      action: "sendEmail",
+      data: {
+        toEmails,
+        title: "Notification",
+        template: {
+          name: "notification",
+          data: {
+            notification: { ...doc, link },
+            action,
+            userName: getUserDetail(createdUser)
+          }
+        },
+        modifier
+      }
+    });
+  } catch (err) {
+    console.log({ err, toEmails });
+  }
 };
 
 export const setupMessageConsumers = async () => {
@@ -154,12 +163,12 @@ export const setupMessageConsumers = async () => {
     await sendNotification(models, subdomain, data);
   });
 
-  consumeRPCQueue('notifications:send', async ({ subdomain, data }) => {
+  consumeRPCQueue("notifications:send", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     await sendNotification(models, subdomain, data);
 
     return {
-      status: 'success',
+      status: "success"
     };
   });
 

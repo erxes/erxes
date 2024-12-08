@@ -1,6 +1,6 @@
 import {
-  attachmentInput,
-  attachmentType,
+  pdfAttachmentType,
+  pdfAttachmentInput
 } from "@erxes/api-utils/src/commonTypeDefs";
 
 const productFields = `
@@ -33,9 +33,14 @@ const productFields = `
     taxType: String
     taxCode: String
     hasSimilarity: Boolean
+
+    pdfAttachment: PdfAttachment
   `;
 
 export const types = `
+  ${pdfAttachmentType}
+  ${pdfAttachmentInput}
+
   type ProductsConfig {
     _id: String!
     code: String!
@@ -101,6 +106,7 @@ const productParams = `
   subUoms: JSON,
   taxType: String,
   taxCode: String,
+  pdfAttachment: PdfAttachmentInput
 `;
 
 const productCategoryParams = `
@@ -169,6 +175,7 @@ export const mutations = `
   productsEdit(_id: String!, ${productParams}): Product
   productsRemove(productIds: [String!]): String
   productsMerge(productIds: [String], productFields: JSON): Product
+  productsDuplicate(_id: String!): Product
   productCategoriesAdd(${productCategoryParams}): ProductCategory
   productCategoriesEdit(_id: String!, ${productCategoryParams}): ProductCategory
   productCategoriesRemove(_id: String!): JSON

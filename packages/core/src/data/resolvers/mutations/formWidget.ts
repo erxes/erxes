@@ -193,7 +193,7 @@ const mutations = {
     const brand = await models.Brands.findOne({ code: args.brandCode }).lean();
 
     const form = await models.Forms.findOne({
-      code: args.formCode,
+      $or: [{ code: args.formCode }, { _id: args.formCode }],
       status: 'active',
     }).lean();
 
@@ -326,15 +326,32 @@ const mutations = {
     }
 
     // Step 4: Create or update customer
-    let customer = await models.Customers.findOne({
+
+    let customerQry:any = {
       _id: args.cachedCustomerId,
-    });
+    };
+
+    const {saveAsCustomer} = form.leadData || {}
+
+    if (saveAsCustomer) {
+      customerQry = {
+        $or: [
+          { primaryEmail: customerDoc.email },
+          { phones: customerDoc.phone },
+          {_id: args.cachedCustomerId}
+        ]
+      }
+    }
+
+    let customer = await models.Customers.findOne(customerQry);
     if (!customer) {
       customer = await models.Customers.createCustomer({
         ...customerDoc,
         emails: [customerDoc.email],
-        phones: [customerDoc.phones],
-        state: 'lead',
+        phones: [customerDoc.phone],
+        primaryEmail: saveAsCustomer ? customerDoc.email : null,
+        primaryPhone: saveAsCustomer ? customerDoc.phone : null,
+        state: saveAsCustomer ? 'customer' : 'lead',
         links: customerLinks,
         customFieldsData,
         integrationId: integration?._id,
@@ -352,6 +369,13 @@ const mutations = {
         customFieldsData,
         customerLinks
       );
+
+      if (saveAsCustomer) {
+        doc.state = 'customer';
+        doc.primaryEmail = customerDoc.email;
+        doc.primaryPhone = customerDoc.phone;
+      }
+
       await models.Customers.updateCustomer(customer._id, doc);
     }
 
@@ -373,6 +397,20 @@ const mutations = {
       formId,
       customerId: customer._id,
       conversationId,
+    });
+
+    sendCommonMessage({
+      subdomain,
+      serviceName: 'automations',
+      action: 'trigger',
+      data: {
+        type: 'core:form_submission',
+        targets: [
+          { _id: customer._id, conversationId: conversationId || null },
+        ],
+      },
+      isRPC: true,
+      defaultValue: null,
     });
 
     return {

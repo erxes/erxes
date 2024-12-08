@@ -14,7 +14,7 @@ import { Collapsible } from "@/components/ui/collapsible"
 
 import OrderCUButton from "../orders/components/orderCUButton/orderCUButton.market"
 import MakePayment from "../orders/components/settlePayment/settlePayment.market"
-import BillType from "./components/ebarimt/billType.kiosk"
+import BillType from "./components/ebarimt/billType"
 import OddAmount from "./components/OddAmount/OddAmount"
 import PaidTypes from "./components/paymentType/paidTypes"
 import PaymentTypes from "./components/paymentTypes/paymentTypes.market"

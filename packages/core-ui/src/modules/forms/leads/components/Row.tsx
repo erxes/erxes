@@ -19,6 +19,7 @@ import {
   TextInfo,
   Tip,
 } from '@erxes/ui/src/components';
+import SaveTemplate from '@erxes/ui-template/src/components/SaveTemplate';
 
 const Row = ({
   form,
@@ -136,6 +137,28 @@ const Row = ({
     );
   };
 
+  const renderTemplateModal = () => {
+
+    const {
+      brandId,
+      brand,
+      tagIds,
+      tags,
+      createdUserId,
+      createdUser,
+      createdDate,
+      ...formContent
+    } = form;
+
+    const content = {
+      content: JSON.stringify(formContent),
+      contentType: 'forms',
+      serviceName: 'core'
+    };
+
+    return <SaveTemplate as="icon" {...content} />;
+  }
+
   const renderCopyAction = () => {
     const onClick = () => copy(form._id);
 
@@ -225,6 +248,7 @@ const Row = ({
           {renderExportAction()}
           {renderSubmissionsAction()}
           {renderCopyAction()}
+          {renderTemplateModal()}
           {renderRemoveAction()}
         </ActionButtons>
       </td>

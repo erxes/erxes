@@ -111,6 +111,7 @@ class MainLayout extends React.Component<IProps, State> {
               "links.linkedIn": links.linkedIn || "",
               "links.twitter": links.twitter || "",
               "links.facebook": links.facebook || "",
+              "links.whatsapp": links.whatsapp || "",
               "links.github": links.github || "",
               "links.youtube": links.youtube || "",
               "links.website": links.website || "",

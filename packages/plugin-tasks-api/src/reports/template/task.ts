@@ -956,7 +956,7 @@ export const taskCharts = [
               },
               {
                 $lookup: {
-                  from: "pipeline_labels",
+                  from: "tasks_pipeline_labels",
                   localField: "_id",
                   foreignField: "_id",
                   as: "label",

@@ -7,12 +7,20 @@ import React from 'react';
 import styled from 'styled-components';
 
 export const EditorActions = styled.div`
-  padding: 0px 15px 37px 15px;
+  width: 100%;
+  background-color: #fff;
+  padding: 15px;
   text-align: right;
+  margin-top: auto;
 `;
 
 export const EditorWrapper = styled.div`
   position: relative;
+  resize: vertical;
+  overflow: hidden;
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
 
   > .cke_chrome {
     border-bottom: 0;
@@ -130,7 +138,7 @@ class Form extends React.PureComponent<Prop, State> {
           showMentions={true}
           content={this.state.content}
           onChange={this.onEditorChange}
-          height={150}
+          height={"100%"}
           name={`${contentType}_note_${contentTypeId}`}
           toolbar={[
             'bold',

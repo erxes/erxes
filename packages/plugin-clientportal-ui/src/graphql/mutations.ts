@@ -145,6 +145,11 @@ mutation clientPortalParticipantEdit($id: String!, $contentType: UserCardEnum, $
     _id
   }
 }`;
+const clientPortalUsersMove = `
+  mutation clientPortalUsersMove($oldClientPortalId: String!, $newClientPortalId: String!) {
+    clientPortalUsersMove(oldClientPortalId: $oldClientPortalId, newClientPortalId: $newClientPortalId)
+  }
+`;
 export default {
   createOrUpdateConfig,
   remove,
@@ -159,4 +164,5 @@ export default {
   clientPortalUserAssignCompany,
   clientPortalParticipantRelationEdit,
   clientPortalParticipantEdit,
+  clientPortalUsersMove,
 };

@@ -68,6 +68,7 @@ export const RichTextEditorContent = (props: IRichTextEditorContentProps) => {
       $autoGrow={autoGrow}
       $minHeight={convertToPx(autoGrow ? autoGrowMinHeight : height)}
       $maxHeight={convertToPx(autoGrow ? autoGrowMaxHeight : height)}
+      style={{ flex: 1 }}
     >
       <CodeMirror
         ref={codeMirrorRef}

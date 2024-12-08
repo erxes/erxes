@@ -42,6 +42,12 @@ export const types = () => `
     numberConfig: String
     numberSize: String
     nameConfig: String
+    initialCategoryIds: [String]
+    excludeCategoryIds: [String]
+    excludeProductIds: [String]
+    paymentIds: [String]
+    paymentTypes: JSON
+    erxesAppToken: String
     ${commonTypes}
   }
 
@@ -185,6 +191,12 @@ const pipelineParams = `
   numberSize: String,
   nameConfig: String,
   departmentIds: [String],
+  initialCategoryIds: [String]
+  excludeCategoryIds: [String]
+  excludeProductIds: [String]
+  paymentIds: [String]
+  paymentTypes: JSON
+  erxesAppToken: String
 `;
 
 export const mutations = `
