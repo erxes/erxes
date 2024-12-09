@@ -1,6 +1,6 @@
-import { IContext } from "../../../connectionResolver";
-import { sendCoreMessage } from "../../../messageBroker";
-import { IBoardDocument } from "../../../models/definitions/boards";
+import { IContext } from '../../../connectionResolver';
+import { sendCoreMessage } from '../../../messageBroker';
+import { IBoardDocument } from '../../../models/definitions/boards';
 
 export default {
   async pipelines(
@@ -15,13 +15,13 @@ export default {
     if (user.isOwner) {
       return models.Pipelines.find({
         boardId: board._id,
-        status: { $ne: "archived" }
+        status: { $ne: 'archived' }
       }).lean();
     }
 
     const userDetail = await sendCoreMessage({
       subdomain,
-      action: "users.findOne",
+      action: 'users.findOne',
       data: {
         _id: user._id
       },
@@ -30,16 +30,17 @@ export default {
     });
 
     const departmentIds = userDetail?.departmentIds || [];
+    const branchIds = userDetail?.branchIds || [];
 
     const query: any = {
       $and: [
-        { status: { $ne: "archived" } },
+        { status: { $ne: 'archived' } },
         { boardId: board._id },
         {
           $or: [
-            { visibility: "public" },
+            { visibility: 'public' },
             {
-              visibility: "private",
+              visibility: 'private',
               $or: [{ memberIds: { $in: [user._id] } }, { userId: user._id }]
             }
           ]
@@ -50,12 +51,16 @@ export default {
     if (departmentIds.length > 0) {
       query.$and[2].$or.push({
         $and: [
-          { visibility: "private" },
+          { visibility: 'private' },
           { departmentIds: { $in: departmentIds } }
         ]
       });
     }
-
+    if (branchIds.length > 0) {
+      query.$and[2].$or.push({
+        $and: [{ visibility: 'private' }, { branchIds: { $in: branchIds } }]
+      });
+    }
     return models.Pipelines.find(query).lean();
   }
 };

@@ -23,7 +23,7 @@ import { Flex } from '@erxes/ui/src/styles/main';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IDepartment } from '@erxes/ui/src/team/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { IOption } from '../types';
 import { ITag } from '@erxes/ui-tags/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -49,6 +49,7 @@ type Props = {
   renderExtraFields?: (formProps: IFormProps) => JSX.Element;
   extraFields?: any;
   departments: IDepartment[];
+  branches: IBranch[];
 };
 
 const PipelineForm = (props: Props) => {
@@ -93,7 +94,9 @@ const PipelineForm = (props: Props) => {
   const [departmentIds, setDepartmentIds] = useState(
     pipeline ? pipeline.departmentIds : []
   );
-
+  const [branchIds, setBranchIds] = useState(
+    pipeline ? pipeline.branchIds : []
+  );
   useEffect(() => {
     setStages((props.stages || []).map(stage => ({ ...stage })));
   }, [props.stages]);
@@ -113,7 +116,9 @@ const PipelineForm = (props: Props) => {
   const onChangeDepartments = options => {
     setDepartmentIds((options || []).map(o => o.value));
   };
-
+  const onChangeBranch = options => {
+    setBranchIds((options || []).map(o => o.value));
+  };
   const onChangeDominantUsers = items => {
     setExcludeCheckUserIds(items);
   };
@@ -165,7 +170,8 @@ const PipelineForm = (props: Props) => {
       numberSize,
       nameConfig,
       departmentIds,
-      tagId
+      tagId,
+      branchIds
     };
   };
 
@@ -206,6 +212,14 @@ const PipelineForm = (props: Props) => {
       })
     );
 
+    const branchesOptions = generateTree(
+      props.branches,
+      null,
+      (node, level) => ({
+        value: node._id,
+        label: `${'---'.repeat(level)} ${node.title}`
+      })
+    );
     return (
       <>
         <FormGroup>
@@ -230,6 +244,20 @@ const PipelineForm = (props: Props) => {
               options={departmentOptions}
               onChange={onChangeDepartments.bind(this)}
               placeholder={__('Choose department ...')}
+              isMulti={true}
+            />
+          </SelectMemberStyled>
+        </FormGroup>
+        <FormGroup>
+          <SelectMemberStyled>
+            <ControlLabel>Branches</ControlLabel>
+            <Select
+              value={branchesOptions.filter(option =>
+                branchIds?.includes(option.value)
+              )}
+              options={branchesOptions}
+              onChange={onChangeBranch.bind(this)}
+              placeholder={__('Choose branch ...')}
               isMulti={true}
             />
           </SelectMemberStyled>
