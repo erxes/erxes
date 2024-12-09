@@ -42,6 +42,7 @@ const pipelines = `
       excludeCheckUserIds
       numberConfig
       memberIds
+      branchIds
       departmentIds
       numberSize
       nameConfig
@@ -104,5 +105,5 @@ export default {
   stages,
   boardGetLast,
   boardDetail,
-  expenses,
+  expenses
 };
