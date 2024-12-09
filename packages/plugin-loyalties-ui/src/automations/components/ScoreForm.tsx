@@ -85,7 +85,7 @@ export default class ScoreForm extends React.Component<Props, State> {
 
     let Component = OWNER_TYPE_COMPONENTS[config?.ownerType];
     const { label } =
-      OWNER_TYPES.find((ot) => ot.value === config?.ownerType) || {};
+      OWNER_TYPES.find(ot => ot.value === config?.ownerType) || {};
 
     return (
       <FormGroup>
@@ -108,7 +108,7 @@ export default class ScoreForm extends React.Component<Props, State> {
           <Select
             placeholder={__("Select Owner Type")}
             name="ownerType"
-            value={OWNER_TYPES.find((o) => o.value === config?.ownerType)}
+            value={OWNER_TYPES.find(o => o.value === config?.ownerType)}
             options={OWNER_TYPES}
             isMulti={false}
             isClearable={true}
@@ -122,7 +122,7 @@ export default class ScoreForm extends React.Component<Props, State> {
           inputName="scoreString"
           label="Score"
           attrTypes={["Number"]}
-          onChange={(config) => this.setState({ config })}
+          onChange={config => this.setState({ config })}
         />
       </>
     );
@@ -132,7 +132,7 @@ export default class ScoreForm extends React.Component<Props, State> {
     const { triggerType } = this.props;
 
     const additionalAttributes: any[] = ["contacts", "user", "posOrder"].some(
-      (c) => triggerType.includes(c)
+      c => triggerType.includes(c)
     )
       ? [
           {
@@ -152,7 +152,7 @@ export default class ScoreForm extends React.Component<Props, State> {
           inputName="attribution"
           label={__("Attribution")}
           attrTypes={["user", "contact", "custom"]}
-          onChange={(config) => this.setState({ config })}
+          onChange={config => this.setState({ config })}
           customAttributions={additionalAttributes}
         />
         <FormGroup>
@@ -162,7 +162,7 @@ export default class ScoreForm extends React.Component<Props, State> {
             queryName="scoreCampaigns"
             name={"campaignId"}
             initialValue={config?.campaignId}
-            generateOptions={(list) =>
+            generateOptions={list =>
               list.map(({ _id, title }) => ({ value: _id, label: title }))
             }
             onSelect={handleChange}
@@ -172,7 +172,7 @@ export default class ScoreForm extends React.Component<Props, State> {
         <Row>
           <Button
             block
-            btnStyle={config.action === "add" ? "primary" : "simple"}
+            btnStyle={config?.action === "add" ? "primary" : "simple"}
             icon="add"
             onClick={() => handleChange("add", "action")}
           >
@@ -180,7 +180,7 @@ export default class ScoreForm extends React.Component<Props, State> {
           </Button>
           <Button
             block
-            btnStyle={config.action === "subtract" ? "primary" : "simple"}
+            btnStyle={config?.action === "subtract" ? "primary" : "simple"}
             icon="minus-circle"
             onClick={() => handleChange("subtract", "action")}
           >
@@ -209,7 +209,7 @@ export default class ScoreForm extends React.Component<Props, State> {
     const { activeAction, closeModal, addAction } = this.props;
     const { config, currentTab } = this.state;
 
-    const handleTabChange = (tab) => {
+    const handleTabChange = tab => {
       this.setState({ currentTab: tab, config: null });
     };
 

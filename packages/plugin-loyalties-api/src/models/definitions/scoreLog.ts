@@ -1,6 +1,6 @@
-import { Document, Schema } from 'mongoose';
-import { field } from './utils';
-import { OWNER_TYPES } from './constants';
+import { Document, Schema } from "mongoose";
+import { field } from "./utils";
+import { OWNER_TYPES } from "./constants";
 
 export interface IScoreLog {
   ownerType: string;
@@ -9,6 +9,7 @@ export interface IScoreLog {
   changeScore: number;
   description: string;
   createdBy?: string;
+  campaignId?: string;
 }
 
 export interface IScoreLogDocument extends Document {
@@ -18,15 +19,18 @@ export interface IScoreLogDocument extends Document {
 
 export const scoreLogSchema = new Schema({
   _id: field({ pkey: true }),
-  createdAt: field({ type: Date, label: 'Created at' }),
-  createdBy: field({ type: String, label: 'Created User', optional: true }),
+  createdAt: field({ type: Date, label: "Created at" }),
+  createdBy: field({ type: String, label: "Created User", optional: true }),
 
   ownerType: field({
     type: String,
-    label: 'Owner Type',
+    label: "Owner Type",
     enum: OWNER_TYPES.ALL
   }),
+  campaignId: field({ type: String, label: "Campaign ID", optional: true }),
   ownerId: field({ type: String }),
-  changeScore: field({ type: Number, label: 'Changed Score' }),
-  description: field({ type: String, label: 'Description' })
+  changeScore: field({ type: Number, label: "Changed Score" }),
+  description: field({ type: String, label: "Description" }),
+  serviceName: field({ type: String, label: "Service name" }),
+  targetId: field({ type: String, label: "Target" })
 });

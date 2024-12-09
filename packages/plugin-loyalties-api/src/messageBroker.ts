@@ -15,6 +15,7 @@ import {
   consumeQueue,
   consumeRPCQueue
 } from "@erxes/api-utils/src/messageBroker";
+import { getOwner } from "./models/utils";
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue(
@@ -74,6 +75,16 @@ export const setupMessageConsumers = async () => {
       };
     }
   );
+
+  consumeQueue("loyalties:doScoreCampaign", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.ScoreCampaigns.doCampaign(data),
+      status: "success"
+    };
+  });
+
   consumeQueue("loyalties:updateScore", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     await handleScore(models, data);

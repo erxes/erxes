@@ -45,15 +45,15 @@ export default {
   }
 };
 
-const generateAttributes = (value) => {
+const generateAttributes = value => {
   const matches = (value || "").match(/\{\{\s*([^}]+)\s*\}\}/g);
-  return matches.map((match) => match.replace(/\{\{\s*|\s*\}\}/g, ""));
+  return matches.map(match => match.replace(/\{\{\s*|\s*\}\}/g, ""));
 };
 
-const generateIds = async (value) => {
+const generateIds = async value => {
   if (
     Array.isArray(value) &&
-    (value || []).every((value) => typeof value === "string")
+    (value || []).every(value => typeof value === "string")
   ) {
     return [...new Set(value)];
   }
@@ -94,7 +94,11 @@ const getOwner = async ({
     ownerId = execution.targetId;
   }
 
-  if (["inbox:conversation", "pos:posOrder"].includes(execution.triggerType)) {
+  if (
+    ["inbox:conversation", "pos:posOrder"].some(type =>
+      execution.triggerType.includes(type)
+    )
+  ) {
     ownerType = "customer";
     ownerId = execution.target.customerId;
   }
@@ -227,7 +231,7 @@ const replaceContent = async ({ serviceName, subdomain, data }) => {
   return replacedContent?.scoreString || 0;
 };
 
-const evalPlaceHolder = (placeholder) => {
+const evalPlaceHolder = placeholder => {
   if (placeholder.match(/[+\-*/]/)) {
     try {
       return eval(placeholder);
@@ -333,6 +337,16 @@ const addScore = async ({
   contentType: string;
   config: any;
 }) => {
+  if (config?.campaignId) {
+    return await docScoreCampaign({
+      models,
+      subdomain,
+      contentType,
+      execution,
+      config
+    });
+  }
+
   const score = await generateScore({
     serviceName,
     models,
@@ -369,7 +383,7 @@ const addScore = async ({
         description: "from automation"
       });
       attributes = attributes.filter(
-        (attribute) => attribute !== "triggerExecutor"
+        attribute => attribute !== "triggerExecutor"
       );
     }
 
@@ -425,7 +439,7 @@ const addScore = async ({
     const replacedContentKeys = Object.keys(replacedContent);
 
     const teamMemberKeys = replacedContentKeys.filter(
-      (key) => !["customers", "companies"].includes(key)
+      key => !["customers", "companies"].includes(key)
     );
 
     let teamMemberIds: string[] = [];
@@ -495,6 +509,38 @@ const addSpin = async ({
     ownerId,
     ownerType,
     campaignId: config.spinCampaignId
+  });
+};
+
+const docScoreCampaign = async ({
+  models,
+  subdomain,
+  contentType,
+  execution,
+  config
+}: {
+  models: IModels;
+  subdomain: string;
+  contentType: string;
+  execution: any;
+  config: any;
+}) => {
+  const { ownerId, ownerType } = await getOwner({
+    models,
+    subdomain,
+    execution,
+    contentType,
+    config
+  });
+
+  return await models.ScoreCampaigns.doCampaign({
+    serviceName: execution.triggerType,
+    targetId: execution.targetId,
+    campaignId: config.campaignId,
+    actionMethod: config.action,
+    ownerId,
+    ownerType,
+    target: execution.target
   });
 };
 
