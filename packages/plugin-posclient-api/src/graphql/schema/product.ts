@@ -53,7 +53,7 @@ export const types = `
     remainders: [JSON]
     isCheckRem: Boolean
     hasSimilarity: Boolean
-    pdfAttachment: PDFAttachment
+    pdfAttachment: PdfAttachment
   }
 
   type PoscProductSimilarityGroup {
