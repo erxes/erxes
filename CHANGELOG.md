@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0-rc.5](https://github.com/erxes/erxes/compare/2.2.0-rc.4...2.2.0-rc.5) (2024-12-09)
+
+
+### Features
+
+* **cards:** add new permission feat which shows cards based on branch ([780b192](https://github.com/erxes/erxes/commit/780b192e25aa056e28779cad4b34cc514a2de9e6))
+
 ## [2.2.0-rc.4](https://github.com/erxes/erxes/compare/2.2.0-rc.3...2.2.0-rc.4) (2024-12-06)
 
 ## [2.2.0-rc.3](https://github.com/erxes/erxes/compare/2.2.0-rc.2...2.2.0-rc.3) (2024-12-06)
