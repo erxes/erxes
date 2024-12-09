@@ -73,7 +73,8 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
             type: "input",
             validation: "number",
             contentType: `core:${doc.ownerType}`,
-            isDefinedByErxes: true
+            isDefinedByErxes: true,
+            isDisabled: true
           },
           defaultValue: null,
           isRPC: true
@@ -197,27 +198,48 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         throw new Error("Owner not found");
       }
 
-      const campaign = await models.ScoreCampaigns.findOne({ _id: campaignId });
+      const campaign = await models.ScoreCampaigns.findOne({
+        _id: campaignId,
+        status: "published"
+      });
 
       if (!campaign) {
         throw new Error("Campaign not found");
       }
 
+      if (campaign.ownerType !== ownerType) {
+        throw new Error(
+          "Owner type is not the same as the owner type of the campaign"
+        );
+      }
+
       let { placeholder, currencyRatio = 0 } = campaign[actionMethod];
 
       const matches = (placeholder || "").match(/\{\{\s*([^}]+)\s*\}\}/g);
-      const attributes = (matches || []).map(match =>
+      const attributes = (matches || []).map((match) =>
         match.replace(/\{\{\s*|\s*\}\}/g, "")
       );
 
       for (const attribute of attributes) {
-        placeholder = placeholder.replace(
-          `{{ ${attribute} }}`,
-          target[attribute]
-        );
-      }
+        const [propertyName, valueToCheck, valueField] = attribute.split("-");
 
-      console.log({ placeholder });
+        if (valueToCheck && valueField) {
+          const obj = (target[propertyName] || []).find(
+            (item) => item.type === valueToCheck
+          );
+          if (obj) {
+            placeholder = placeholder.replace(
+              `{{ ${propertyName}-${valueToCheck}-${valueField} }}`,
+              obj[valueField] || "0"
+            );
+          }
+        } else {
+          placeholder = placeholder.replace(
+            `{{ ${attribute} }}`,
+            target[attribute]
+          );
+        }
+      }
 
       const changeScore = (eval(placeholder) || 0) * Number(currencyRatio) || 0;
 
@@ -237,7 +259,9 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
           ? oldScore - changeScore
           : oldScore + changeScore;
 
-      console.log({ newScore });
+      if (actionMethod === "subtract" && newScore <= 0) {
+        throw new Error("There has no enough score to subtract");
+      }
 
       let updatedCustomFieldsData;
 
@@ -260,21 +284,18 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
           preparedCustomFieldsData
         ];
       } else {
-        updatedCustomFieldsData = customFieldsData.map(customFieldData =>
+        updatedCustomFieldsData = customFieldsData.map((customFieldData) =>
           customFieldData.field === campaign.fieldId
             ? { ...customFieldData, ...preparedCustomFieldsData }
             : customFieldData
         );
       }
-      console.log({ updatedCustomFieldsData });
 
       const actionsObj = {
         user: "users.updateOne",
         customer: "customers.updateOne",
         company: "companies.updateOne"
       };
-
-      console.log({ ownerType });
 
       await sendCoreMessage({
         subdomain,
@@ -294,7 +315,8 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         createdAt: new Date(),
         campaignId: campaign._id,
         serviceName,
-        targetId
+        targetId,
+        action: actionMethod
       });
     }
   }

@@ -1,4 +1,4 @@
-import channelQueries from '@erxes/ui-settings/src/channels/graphql/queries';
+import channelQueries from "@erxes/ui-settings/src/channels/graphql/queries";
 
 const nameFields = `
   firstName
@@ -606,5 +606,5 @@ export default {
   userList,
   positionsMain,
   positions,
-  postionDetail,
+  postionDetail
 };

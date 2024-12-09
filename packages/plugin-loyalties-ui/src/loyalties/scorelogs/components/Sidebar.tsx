@@ -10,6 +10,7 @@ import {
   FormGroup,
   Icon,
   SelectTeamMembers,
+  SelectWithSearch,
   Tip,
   Wrapper,
   router
@@ -34,6 +35,15 @@ const SelectCustomers = asyncComponent(
       /* webpackChunkName: "SelectCustomers" */ "@erxes/ui-contacts/src/customers/containers/SelectCustomers"
     )
 );
+
+const campaignQuery = `
+query ScoreCampaigns {
+      scoreCampaigns {
+        _id,title
+      }
+    }
+`;
+
 interface LayoutProps {
   children: React.ReactNode;
   label: string;
@@ -87,11 +97,11 @@ const SideBar = (props: Props) => {
     refetch(result);
   };
 
-  const checkParams = type => {
+  const checkParams = (type) => {
     return router.getParam(location, type) ? true : false;
   };
 
-  const handleOwnerId = e => {
+  const handleOwnerId = (e) => {
     const result = { ...variables, ownerId: String(e) };
     setVariables(result);
     router.setParams(navigate, location, { ownerId: String(e) });
@@ -141,7 +151,7 @@ const SideBar = (props: Props) => {
         {props.clearable && (
           <ClearBtnContainer
             tabIndex={0}
-            onClick={e => handleClear(e, props.type)}
+            onClick={(e) => handleClear(e, props.type)}
           >
             <Tip text={"Clear filter"} placement="bottom">
               <Icon icon="cancel-1" />
@@ -205,6 +215,26 @@ const SideBar = (props: Props) => {
             </option>
           </FormControl>
         </Form>
+        <Form
+          label="Campaign"
+          clearable={checkParams("campaignId")}
+          type="campaignId"
+        >
+          <SelectWithSearch
+            label={"Score Campaigns"}
+            queryName="scoreCampaigns"
+            name={"campaignId"}
+            initialValue={variables?.campaignId}
+            generateOptions={(list) =>
+              list.map(({ _id, title }) => ({ value: _id, label: title }))
+            }
+            onSelect={(value) => {
+              setVariables({ ...variables, campaignId: value });
+              router.setParams(navigate, location, { campaignId: value });
+            }}
+            customQuery={campaignQuery}
+          />
+        </Form>
         <Form label="Order" clearable={checkParams("order")} type="order">
           <FormControl
             name="order"
@@ -230,7 +260,7 @@ const SideBar = (props: Props) => {
               name="startDate"
               placeholder={"Choose start date"}
               value={variables?.fromDate}
-              onChange={e => handleDate(e, "fromDate")}
+              onChange={(e) => handleDate(e, "fromDate")}
             />
           </DateContainer>
         </Form>
@@ -241,7 +271,7 @@ const SideBar = (props: Props) => {
               name="fromDate"
               placeholder={"Choose from date"}
               value={variables?.toDate}
-              onChange={e => handleDate(e, "toDate")}
+              onChange={(e) => handleDate(e, "toDate")}
             />
           </DateContainer>
         </Form>

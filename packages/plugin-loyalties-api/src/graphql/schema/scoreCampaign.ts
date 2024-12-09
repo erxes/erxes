@@ -44,4 +44,6 @@ export const queries = `
     scoreCampaigns(${COMMON_QUERIES_FIELDS}):[ScoreCampaign]
     scoreCampaignsTotalCount(${COMMON_QUERIES_FIELDS}):Int
     scoreCampaign(_id:String):ScoreCampaign
+    scoreCampaignAttributes:JSON
+    checkOwnerScore(ownerId:String,ownerType:String,campaignId:String,action:String):JSON
 `;

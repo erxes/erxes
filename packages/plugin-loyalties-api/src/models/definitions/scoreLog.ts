@@ -32,5 +32,6 @@ export const scoreLogSchema = new Schema({
   changeScore: field({ type: Number, label: "Changed Score" }),
   description: field({ type: String, label: "Description" }),
   serviceName: field({ type: String, label: "Service name" }),
-  targetId: field({ type: String, label: "Target" })
+  targetId: field({ type: String, label: "Target" }),
+  action: field({ type: String, enum: ["add", "subtract"], label: "Action" })
 });

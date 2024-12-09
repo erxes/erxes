@@ -69,6 +69,9 @@ const generateFilter = (params: IScoreParams) => {
   if (params.toDate) {
     filter.createdAt = { ...filter.createdAt, $lt: params.toDate };
   }
+  if (params.campaignId) {
+    filter.campaignId = params.campaignId;
+  }
   return filter;
 };
 
@@ -118,7 +121,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
             : { ...ownerFilter },
         isRPC: true,
         defaultValue: []
-      }).catch(error => debugError(error.message));
+      }).catch((error) => debugError(error.message));
 
       if (!owners?.length) {
         throw new Error("Not found owners");
@@ -131,7 +134,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           action: `${contentType}.updateMany`,
           data: {
             selector: {
-              _id: { $in: owners.map(owner => owner._id) }
+              _id: { $in: owners.map((owner) => owner._id) }
             },
             modifier: {
               $inc: { score }
@@ -151,7 +154,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         createdBy
       };
 
-      const newDatas = owners.map(owner => ({
+      const newDatas = owners.map((owner) => ({
         ownerId: owner._id,
         ...commonDoc
       }));
@@ -210,7 +213,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         changeScore: score,
         createdAt: new Date(),
         description,
-        createdBy
+        createdBy,
+        action: "add"
       });
     }
     static async updateOwnerScore({

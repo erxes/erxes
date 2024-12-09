@@ -17,6 +17,7 @@ import exporter from './exporter';
 import payment from './payment';
 import { exportFileRunner } from './exporterByUrl';
 import cronjobs from './cronjobs';
+import loyalties from './loyalties';
 
 export default {
   name: 'pos',
@@ -57,6 +58,7 @@ export default {
     imports,
     exporter,
     payment,
-    cronjobs
+    cronjobs,
+    loyalties
   }
 };

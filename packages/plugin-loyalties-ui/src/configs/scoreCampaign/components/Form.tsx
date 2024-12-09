@@ -26,6 +26,7 @@ import { FlexRow } from "@erxes/ui-settings/src/styles";
 import Popover from "@erxes/ui/src/components/Popover";
 import mutations from "../graphql/mutations";
 import { isEnabled } from "@erxes/ui/src/utils/core";
+import { gql, useQuery } from "@apollo/client";
 
 type Props = {
   closeModal: () => void;
@@ -68,17 +69,20 @@ function reducer(state, action) {
   };
 }
 
-const Attributions = ({ ref, onChange }) => {
-  const attributes = ((window as any).plugins || [])
-    .map(
-      ({ loyaltyScoreCampaignAttributes = [] }) =>
-        loyaltyScoreCampaignAttributes
-    )
-    .flat();
+const query = `
+query ScoreCampaignAttributes {
+  scoreCampaignAttributes
+}
+`;
 
-  if (!attributes?.length) {
+const Attributions = ({ ref, onChange }) => {
+  const { loading, data } = useQuery(gql(query));
+
+  if (loading) {
     return null;
   }
+
+  const attributes = data?.scoreCampaignAttributes || [];
 
   const onClick = (value, close) => {
     onChange(value);
