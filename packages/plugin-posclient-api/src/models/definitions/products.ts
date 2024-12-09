@@ -11,6 +11,7 @@ import {
   PRODUCT_STATUSES,
   PRODUCT_TYPES
 } from './constants';
+import { IPdfAttachment } from '@erxes/api-utils/src/types';
 
 interface IAttachment {
   url: string;
@@ -56,6 +57,7 @@ export interface IProduct extends IProductCommonFields {
   isCheckRems: { [token: string]: boolean };
   sameMasks?: string[];
   sameDefault?: string[];
+  pdfAttachment?: IPdfAttachment;
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -164,7 +166,8 @@ export const productSchema = schemaWrapper(
       label: 'check remainder by token'
     }),
     sameMasks: field({ type: [String] }),
-    sameDefault: field({ type: [String] })
+    sameDefault: field({ type: [String] }),
+    pdfAttachment: field({ type: Object, optional: true, label: 'PDF attachment' })
   })
 );
 
