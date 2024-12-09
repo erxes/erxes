@@ -356,7 +356,7 @@ export default class Stage extends React.Component<Props, State> {
   renderTriggerModal() {
     return this.state.renderModal ? (
       <StageModal
-        item={this.props.items}
+        items={this.props.items}
         toggleModal={this.toggleModal}
         stage={this.props.stage}
       />

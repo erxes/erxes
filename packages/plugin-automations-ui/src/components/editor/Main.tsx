@@ -429,6 +429,7 @@ class Editor extends React.Component<Props, State> {
                 activeAction.id
               )}
               actionsConst={actionsConst}
+              triggersConst={triggersConst}
               propertyTypesConst={propertyTypesConst}
             />
           </>
