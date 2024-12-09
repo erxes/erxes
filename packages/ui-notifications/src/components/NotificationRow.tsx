@@ -32,22 +32,22 @@ const NotificationRow = (props: Props) => {
   const getIcon = () => {
     let icon = "user-check";
 
-    if (notifType.includes("conversation")) {
+    if (notifType?.includes("conversation")) {
       icon = "comment-1";
     }
 
-    if (notifType.includes("deal")) {
+    if (notifType?.includes("deal")) {
       icon = "dollar-alt";
     }
 
-    if (notifType.includes("ticket")) {
+    if (notifType?.includes("ticket")) {
       icon = "postcard";
     }
 
-    if (notifType.includes("task")) {
+    if (notifType?.includes("task")) {
       icon = "file-check";
     }
-    if (notifType.includes("purchase")) {
+    if (notifType?.includes("purchase")) {
       icon = "dollar-alt";
     }
 
@@ -71,7 +71,7 @@ const NotificationRow = (props: Props) => {
   };
 
   const renderContent = (content: string, type: string) => {
-    if (!type.includes("conversation")) {
+    if (!type?.includes("conversation")) {
       return <b> {content}</b>;
     }
 

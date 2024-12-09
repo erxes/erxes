@@ -5,11 +5,11 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const iconWithColor = {
-  move: '3B85F4',
-  'file-minus': 'F44236',
-  notes: '8c7ae6',
-  'file-check': '34c1c6',
-  'archive-alt': 'fdb761'
+  move: '#3B85F4',
+  'file-minus': '#F44236',
+  notes: '#8c7ae6',
+  'file-check': '#34c1c6',
+  'archive-alt': '#fdb761'
 };
 
 const RoundedBackground = styledTS<{ icon: string }>(styled.span)`
@@ -19,7 +19,7 @@ const RoundedBackground = styledTS<{ icon: string }>(styled.span)`
   text-align: center;
   display: flex;
   justify-content: center;
-  background: ${props => `#${iconWithColor[props.icon]}`};
+  background: ${props => `${iconWithColor[props.icon] || colors.colorPrimary}`};
 
   i {
     color: ${colors.colorWhite};
