@@ -144,15 +144,15 @@ export default async function userMiddleware(
   //   }
   // }
 
-  const token = req.cookies["auth-token"];
+  // const token = req.cookies["auth-token"];
 
-  if (!token) {
-    return next();
-  }
+  // if (!token) {
+  //   return next();
+  // }
 
   try {
     // verify user token and retrieve stored user information
-    const { user }: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || "");
+    // const { user }: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || "");
 
     const userDoc = await models.Users.findOne({
       email: "enkhtuvshin.n@nmma.co"
@@ -170,8 +170,8 @@ export default async function userMiddleware(
     // }
 
     // save user in request
-    req.user = user;
-    req.user.loginToken = token;
+    req.user = userDoc;
+    // req.user.loginToken = token;
     req.user.sessionCode = req.headers.sessioncode || "";
 
     const currentDate = new Date();
