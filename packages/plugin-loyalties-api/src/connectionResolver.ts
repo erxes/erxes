@@ -1,45 +1,50 @@
-import * as mongoose from 'mongoose';
-import { IContext as IMainContext } from '@erxes/api-utils/src';
-import { IDonateCampaignDocument } from './models/definitions/donateCampaigns';
+import * as mongoose from "mongoose";
+import { IContext as IMainContext } from "@erxes/api-utils/src";
+import { IDonateCampaignDocument } from "./models/definitions/donateCampaigns";
 import {
   IDonateCampaignModel,
-  loadDonateCampaignClass,
-} from './models/DonateCampaigns';
-import { IDonateDocument } from './models/definitions/donates';
-import { IDonateModel, loadDonateClass } from './models/Donates';
+  loadDonateCampaignClass
+} from "./models/DonateCampaigns";
+import { IDonateDocument } from "./models/definitions/donates";
+import { IDonateModel, loadDonateClass } from "./models/Donates";
 import {
   IAssignmentCampaignModel,
-  loadAssignmentCampaignClass,
-} from './models/AssignmentCampaigns';
-import { IAssignmentModel, loadAssignmentClass } from './models/Assignments';
-import { IAssignmentCampaignDocument } from './models/definitions/assignmentCampaigns';
-import { IAssignmentDocument } from './models/definitions/assignments';
-import { ILotteryCampaignDocument } from './models/definitions/lotteryCampaigns';
+  loadAssignmentCampaignClass
+} from "./models/AssignmentCampaigns";
+import { IAssignmentModel, loadAssignmentClass } from "./models/Assignments";
+import { IAssignmentCampaignDocument } from "./models/definitions/assignmentCampaigns";
+import { IAssignmentDocument } from "./models/definitions/assignments";
+import { ILotteryCampaignDocument } from "./models/definitions/lotteryCampaigns";
 import {
   ILotteryCampaignModel,
-  loadLotteryCampaignClass,
-} from './models/LotteryCampaigns';
-import { ILotteryDocument } from './models/definitions/lotteries';
-import { ILotteryModel, loadLotteryClass } from './models/Lotteries';
-import { ILoyaltyConfigDocument } from './models/definitions/config';
-import { ILoyaltyConfigModel, loadLoyaltyConfigClass } from './models/Configs';
-import { ISpinCampaignDocument } from './models/definitions/spinCampaigns';
+  loadLotteryCampaignClass
+} from "./models/LotteryCampaigns";
+import { ILotteryDocument } from "./models/definitions/lotteries";
+import { ILotteryModel, loadLotteryClass } from "./models/Lotteries";
+import { ILoyaltyConfigDocument } from "./models/definitions/config";
+import { ILoyaltyConfigModel, loadLoyaltyConfigClass } from "./models/Configs";
+import { ISpinCampaignDocument } from "./models/definitions/spinCampaigns";
 import {
   ISpinCampaignModel,
-  loadSpinCampaignClass,
-} from './models/SpinCampaigns';
-import { ISpinDocument } from './models/definitions/spins';
-import { ISpinModel, loadSpinClass } from './models/Spins';
-import { IVoucherCampaignDocument } from './models/definitions/voucherCampaigns';
+  loadSpinCampaignClass
+} from "./models/SpinCampaigns";
+import { ISpinDocument } from "./models/definitions/spins";
+import { ISpinModel, loadSpinClass } from "./models/Spins";
+import { IVoucherCampaignDocument } from "./models/definitions/voucherCampaigns";
 import {
   IVoucherCampaignModel,
-  loadVoucherCampaignClass,
-} from './models/VoucherCampaigns';
-import { IVoucherDocument } from './models/definitions/vouchers';
-import { IVoucherModel, loadVoucherClass } from './models/Vouchers';
-import { IScoreLogModel, loadScoreLogClass } from './models/ScoreLogs';
-import { IScoreLogDocument } from './models/definitions/scoreLog';
-import { createGenerateModels } from '@erxes/api-utils/src/core';
+  loadVoucherCampaignClass
+} from "./models/VoucherCampaigns";
+import { IVoucherDocument } from "./models/definitions/vouchers";
+import { IVoucherModel, loadVoucherClass } from "./models/Vouchers";
+import { IScoreLogModel, loadScoreLogClass } from "./models/ScoreLogs";
+import { IScoreLogDocument } from "./models/definitions/scoreLog";
+import { createGenerateModels } from "@erxes/api-utils/src/core";
+import {
+  IScoreCampaignModel,
+  loadScoreCampaignClass
+} from "./models/ScoreCampaigns";
+import { IScoreCampaignDocuments } from "./models/definitions/scoreCampaigns";
 
 export interface IModels {
   LoyaltyConfigs: ILoyaltyConfigModel;
@@ -54,6 +59,7 @@ export interface IModels {
   LotteryCampaigns: ILotteryCampaignModel;
   Lotteries: ILotteryModel;
   ScoreLogs: IScoreLogModel;
+  ScoreCampaigns: IScoreCampaignModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -62,58 +68,63 @@ export interface IContext extends IMainContext {
 
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string,
+  subdomain: string
 ): IModels => {
   const models = {} as IModels;
 
   models.LoyaltyConfigs = db.model<ILoyaltyConfigDocument, ILoyaltyConfigModel>(
-    'loyalty_configs',
-    loadLoyaltyConfigClass(models, subdomain),
+    "loyalty_configs",
+    loadLoyaltyConfigClass(models, subdomain)
   );
   models.DonateCampaigns = db.model<
     IDonateCampaignDocument,
     IDonateCampaignModel
-  >('donate_campaigns', loadDonateCampaignClass(models, subdomain));
+  >("donate_campaigns", loadDonateCampaignClass(models, subdomain));
   models.Donates = db.model<IDonateDocument, IDonateModel>(
-    'donates',
-    loadDonateClass(models, subdomain),
+    "donates",
+    loadDonateClass(models, subdomain)
   );
   models.SpinCampaigns = db.model<ISpinCampaignDocument, ISpinCampaignModel>(
-    'spin_campaigns',
-    loadSpinCampaignClass(models, subdomain),
+    "spin_campaigns",
+    loadSpinCampaignClass(models, subdomain)
   );
   models.Spins = db.model<ISpinDocument, ISpinModel>(
-    'spins',
-    loadSpinClass(models, subdomain),
+    "spins",
+    loadSpinClass(models, subdomain)
   );
   models.LotteryCampaigns = db.model<
     ILotteryCampaignDocument,
     ILotteryCampaignModel
-  >('lottery_campaigns', loadLotteryCampaignClass(models, subdomain));
+  >("lottery_campaigns", loadLotteryCampaignClass(models, subdomain));
   models.Lotteries = db.model<ILotteryDocument, ILotteryModel>(
-    'lotteries',
-    loadLotteryClass(models, subdomain),
+    "lotteries",
+    loadLotteryClass(models, subdomain)
   );
   models.VoucherCampaigns = db.model<
     IVoucherCampaignDocument,
     IVoucherCampaignModel
-  >('voucher_campaigns', loadVoucherCampaignClass(models, subdomain));
+  >("voucher_campaigns", loadVoucherCampaignClass(models, subdomain));
   models.Vouchers = db.model<IVoucherDocument, IVoucherModel>(
-    'vouchers',
-    loadVoucherClass(models, subdomain),
+    "vouchers",
+    loadVoucherClass(models, subdomain)
   );
   models.AssignmentCampaigns = db.model<
     IAssignmentCampaignDocument,
     IAssignmentCampaignModel
-  >('assignment_campaigns', loadAssignmentCampaignClass(models, subdomain));
+  >("assignment_campaigns", loadAssignmentCampaignClass(models, subdomain));
   models.Assignments = db.model<IAssignmentDocument, IAssignmentModel>(
-    'assignments',
-    loadAssignmentClass(models, subdomain),
+    "assignments",
+    loadAssignmentClass(models, subdomain)
   );
   models.ScoreLogs = db.model<IScoreLogDocument, IScoreLogModel>(
-    'score_logs',
-    loadScoreLogClass(models, subdomain),
+    "score_logs",
+    loadScoreLogClass(models, subdomain)
   );
+
+  models.ScoreCampaigns = db.model<
+    IScoreCampaignDocuments,
+    IScoreCampaignModel
+  >("score_campaigns", loadScoreCampaignClass(models, subdomain));
 
   return models;
 };

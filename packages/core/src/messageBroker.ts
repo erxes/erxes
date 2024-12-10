@@ -789,7 +789,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
     }
   );
 
-  consumeQueue("putActivityLog", async args => {
+  consumeQueue("putActivityLog", async (args) => {
     const { data: obj, subdomain } = args;
 
     const models = await generateModels(subdomain);
@@ -1079,6 +1079,17 @@ export const setupMessageConsumers = async (): Promise<void> => {
   );
 
   consumeRPCQueue(
+    "core:fields.prepareCustomFieldsData",
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      return {
+        status: "success",
+        data: await models.Fields.prepareCustomFieldsData(data)
+      };
+    }
+  );
+
+  consumeRPCQueue(
     "core:fields.generateCustomFieldsData",
     async ({ subdomain, data: { customData, contentType } }) => {
       const models = await generateModels(subdomain);
@@ -1089,6 +1100,27 @@ export const setupMessageConsumers = async (): Promise<void> => {
           customData,
           contentType
         )
+      };
+    }
+  );
+
+  consumeRPCQueue("core:fields.create", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: "success",
+      data: await models.Fields.createField(data)
+    };
+  });
+
+  consumeRPCQueue(
+    "core:fields.updateOne",
+    async ({ subdomain, data: { selector, modifier } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.Fields.updateOne(selector, modifier)
       };
     }
   );

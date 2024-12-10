@@ -55,6 +55,7 @@ const commonFields = `
   }
 
   relationType
+  isDisabled
 `;
 
 const commonFieldsGroups = `

@@ -44,7 +44,7 @@ const ObjectListSchema = new Schema({
   label: field({ type: String, optional: true, label: "Label" }),
   type: field({
     type: String,
-    enum: INPUT_TYPE.map(option => option.value),
+    enum: INPUT_TYPE.map((option) => option.value),
     optional: true,
     label: "Type"
   })
@@ -246,6 +246,11 @@ export const fieldSchema = schemaWrapper(
       type: [String],
       optional: true,
       label: "Sub field ids"
+    }),
+    isDisabled: field({
+      type: Boolean,
+      optional: true,
+      label: "Is Disabled"
     })
   })
 );

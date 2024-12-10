@@ -1,73 +1,79 @@
 import {
   attachmentInput,
-  attachmentType,
-} from '@erxes/api-utils/src/commonTypeDefs';
-import gql from 'graphql-tag';
+  attachmentType
+} from "@erxes/api-utils/src/commonTypeDefs";
+import gql from "graphql-tag";
 import {
   mutations as donateCampaignMutations,
   queries as donateCampaignQueries,
-  types as donateCampaignTypes,
-} from './schema/donateCampaign';
+  types as donateCampaignTypes
+} from "./schema/donateCampaign";
 import {
   mutations as donateMutations,
   queries as donateQueries,
-  types as donateTypes,
-} from './schema/donate';
+  types as donateTypes
+} from "./schema/donate";
 import {
   mutations as spinCampaignMutations,
   queries as spinCampaignQueries,
-  types as spinCampaignTypes,
-} from './schema/spinCampaign';
+  types as spinCampaignTypes
+} from "./schema/spinCampaign";
 import {
   mutations as spinMutations,
   queries as spinQueries,
-  types as spinTypes,
-} from './schema/spin';
+  types as spinTypes
+} from "./schema/spin";
 import {
   mutations as lotteryCampaignMutations,
   queries as lotteryCampaignQueries,
-  types as lotteryCampaignTypes,
-} from './schema/lotteryCampaign';
+  types as lotteryCampaignTypes
+} from "./schema/lotteryCampaign";
 import {
   mutations as lotteryMutations,
   queries as lotteryQueries,
-  types as lotteryTypes,
-} from './schema/lottery';
+  types as lotteryTypes
+} from "./schema/lottery";
 import {
   mutations as voucherCampaignMutations,
   queries as voucherCampaignQueries,
-  types as voucherCampaignTypes,
-} from './schema/voucherCampaign';
+  types as voucherCampaignTypes
+} from "./schema/voucherCampaign";
 import {
   mutations as voucherMutations,
   queries as voucherQueries,
-  types as voucherTypes,
-} from './schema/voucher';
+  types as voucherTypes
+} from "./schema/voucher";
 import {
   mutations as loyaltyMutations,
   queries as loyaltyQueries,
-  types as loyaltyTypes,
-} from './schema/loyalty';
+  types as loyaltyTypes
+} from "./schema/loyalty";
 import {
   mutations as configMutations,
   queries as configQueries,
-  types as configTypes,
-} from './schema/config';
+  types as configTypes
+} from "./schema/config";
 import {
   mutation as ScoreLogMutations,
   queries as scoreLogQueries,
-  types as scoreLogTypes,
-} from './schema/scoreLog';
+  types as scoreLogTypes
+} from "./schema/scoreLog";
 import {
   mutations as assignmentMutations,
   queries as assignmentQueries,
-  types as assignmentTypes,
-} from './schema/assignment';
+  types as assignmentTypes
+} from "./schema/assignment";
 import {
   mutations as assignmentCampaignMutations,
   queries as assignmentCampaignQueries,
-  types as assignmentCampaignTypes,
-} from './schema/assignmentCampaign';
+  types as assignmentCampaignTypes
+} from "./schema/assignmentCampaign";
+
+import {
+  mutations as scoreCampaignMutations,
+  queries as scoreCampaignQueries,
+  types as scoreCampaignTypes
+} from "./schema/scoreCampaign";
 
 const typeDefs = async () => {
   return gql`
@@ -101,6 +107,7 @@ const typeDefs = async () => {
     ${scoreLogTypes}
     ${assignmentTypes}
     ${assignmentCampaignTypes}
+    ${scoreCampaignTypes}
 
     extend type Query {
       ${donateCampaignQueries}
@@ -116,6 +123,7 @@ const typeDefs = async () => {
       ${scoreLogQueries}
       ${assignmentQueries}
       ${assignmentCampaignQueries}
+      ${scoreCampaignQueries}
     }
 
     extend type Mutation {
@@ -132,6 +140,7 @@ const typeDefs = async () => {
       ${ScoreLogMutations}
       ${assignmentMutations}
       ${assignmentCampaignMutations}
+      ${scoreCampaignMutations}
     }
   `;
 };
