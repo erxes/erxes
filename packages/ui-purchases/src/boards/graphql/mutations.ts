@@ -82,11 +82,6 @@ export const commonListFields = `
   tagIds
   customProperties
   status
-  tags {
-    _id
-    name
-    colorCode
-  }
 `;
 
 export const commonFields = `
@@ -314,5 +309,5 @@ export default {
   pipelineLabelsLabel,
   boardItemsSaveForGanttTimeline,
   stagesUpdateOrder,
-  conversationConvertToCard,
+  conversationConvertToCard
 };
