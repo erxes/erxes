@@ -26,25 +26,29 @@ class Sidebar extends React.Component {
       <LeftSidebar header={<SidebarHeader />} hasBorder>
         <List id="SettingsSidebar">
           {this.renderListItem(
-            '/erxes-plugin-loyalty/settings/general',
-            'General config'
+            "/erxes-plugin-loyalty/settings/general",
+            "General config"
           )}
           {this.renderListItem(
-            '/erxes-plugin-loyalty/settings/voucher',
-            'Voucher'
+            "/erxes-plugin-loyalty/settings/score",
+            "Score"
           )}
           {this.renderListItem(
-            '/erxes-plugin-loyalty/settings/lottery',
-            'Lottery'
-          )}
-          {this.renderListItem('/erxes-plugin-loyalty/settings/spin', 'Spin')}
-          {this.renderListItem(
-            '/erxes-plugin-loyalty/settings/donate',
-            'Donate'
+            "/erxes-plugin-loyalty/settings/voucher",
+            "Voucher"
           )}
           {this.renderListItem(
-            '/erxes-plugin-loyalty/settings/assignment',
-            'Assignment'
+            "/erxes-plugin-loyalty/settings/lottery",
+            "Lottery"
+          )}
+          {this.renderListItem("/erxes-plugin-loyalty/settings/spin", "Spin")}
+          {this.renderListItem(
+            "/erxes-plugin-loyalty/settings/donate",
+            "Donate"
+          )}
+          {this.renderListItem(
+            "/erxes-plugin-loyalty/settings/assignment",
+            "Assignment"
           )}
         </List>
       </LeftSidebar>

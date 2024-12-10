@@ -1,6 +1,6 @@
-import { Schema } from 'mongoose';
-import { field } from './utils';
-import { CAMPAIGN_STATUS, OWNER_TYPES } from './constants';
+import { Schema } from "mongoose";
+import { field } from "./utils";
+import { CAMPAIGN_STATUS, OWNER_TYPES } from "./constants";
 
 export interface IBuyParams {
   campaignId: string;
@@ -61,6 +61,7 @@ export interface IScoreParams {
   toDate: String;
   page?: number;
   perPage?: number;
+  campaignId?: String;
 }
 
 export const attachmentSchema = new Schema(
@@ -91,32 +92,32 @@ export interface ICommonDocument {
 export const commonCampaignSchema = {
   _id: field({ pkey: true }),
 
-  createdAt: field({ type: Date, label: 'Created at' }),
-  createdBy: field({ type: String, label: 'Created by' }),
-  modifiedAt: field({ type: Date, label: 'Modified at' }),
-  modifiedBy: field({ type: String, label: 'Modified by' }),
+  createdAt: field({ type: Date, label: "Created at" }),
+  createdBy: field({ type: String, label: "Created by" }),
+  modifiedAt: field({ type: Date, label: "Modified at" }),
+  modifiedBy: field({ type: String, label: "Modified by" }),
 
-  title: field({ type: String, label: 'Title' }),
-  description: field({ type: String, label: 'Description' }),
-  startDate: field({ type: Date, label: 'Start Date' }),
-  endDate: field({ type: Date, label: 'End Date' }),
-  finishDateOfUse: field({ type: Date, label: 'Use Finsh Date' }),
+  title: field({ type: String, label: "Title" }),
+  description: field({ type: String, label: "Description" }),
+  startDate: field({ type: Date, label: "Start Date" }),
+  endDate: field({ type: Date, label: "End Date" }),
+  finishDateOfUse: field({ type: Date, label: "Use Finsh Date" }),
   attachment: field({ type: attachmentSchema }),
 
-  status: field({ type: String, enum: CAMPAIGN_STATUS.ALL, default: 'active' })
+  status: field({ type: String, enum: CAMPAIGN_STATUS.ALL, default: "active" })
 };
 
 export const commonSchema = {
   _id: field({ pkey: true }),
   campaignId: field({ type: String }),
-  createdAt: field({ type: Date, label: 'Created at' }),
-  modifiedAt: field({ type: Date, label: 'Modified at' }),
-  usedAt: field({ type: Date, label: 'Used date', optional: true }),
-  userId: field({ type: String, label: 'Modified User', optional: true }),
+  createdAt: field({ type: Date, label: "Created at" }),
+  modifiedAt: field({ type: Date, label: "Modified at" }),
+  usedAt: field({ type: Date, label: "Used date", optional: true }),
+  userId: field({ type: String, label: "Modified User", optional: true }),
 
   ownerType: field({
     type: String,
-    label: 'Owner Type',
+    label: "Owner Type",
     enum: OWNER_TYPES.ALL
   }),
   ownerId: field({ type: String })

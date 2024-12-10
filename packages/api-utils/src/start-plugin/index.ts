@@ -263,7 +263,8 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       payment,
       reports,
       templates,
-      cpCustomerHandle
+      cpCustomerHandle,
+      loyalties
     } = configs.meta;
 
     const logs = configs.meta.logs && configs.meta.logs.consumers;
@@ -393,6 +394,20 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         status: "success",
         data: await cpCustomerHandle.cpCustomerHandle(args)
       }));
+    }
+
+    if (loyalties) {
+      if (loyalties.getScoreCampaingAttributes) {
+        loyalties.aviableAttributes = true;
+
+        consumeRPCQueue(
+          `${configs.name}:getScoreCampaingAttributes`,
+          async args => ({
+            status: "success",
+            data: await loyalties.getScoreCampaingAttributes(args)
+          })
+        );
+      }
     }
   } // end configs.meta if
 

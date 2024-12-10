@@ -5,6 +5,13 @@ import Settings from "./configs/general/containers/Settings";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import queryString from "query-string";
 
+const ScoreCampaigns = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ScoreCampaigns" */ "./configs/scoreCampaign/containers/List"
+    )
+);
+
 const VoucherCampaigns = asyncComponent(
   () =>
     import(
@@ -102,6 +109,12 @@ const Assignments = asyncComponent(
       /* webpackChunkName: "KnowledgeBase" */ "./loyalties/assignments/containers/List"
     )
 );
+
+const ScoreCampaignList = () => {
+  const location = useLocation();
+
+  return <ScoreCampaigns queryParams={queryString.parse(location.search)} />;
+};
 
 const VoucherCampaignList = () => {
   const location = useLocation();
@@ -201,6 +214,11 @@ const routes = () => {
       <Route
         path="/erxes-plugin-loyalty/settings/general"
         element={<Settings />}
+      />
+
+      <Route
+        path="/erxes-plugin-loyalty/settings/score"
+        element={<ScoreCampaignList />}
       />
 
       <Route
