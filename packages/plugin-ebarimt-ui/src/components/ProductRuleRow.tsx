@@ -60,7 +60,7 @@ function IProductRuleRow({ productRule, isChecked, toggleBulk }: Props) {
       <td key={'kind'}>{displayValue(productRule, 'kind')}</td>
       <td key={'taxType'}>{displayValue(productRule, 'taxType')}</td>
       <td key={'taxCode'}>{displayValue(productRule, 'taxCode')}</td>
-      <td key={'percent'}>{displayValue(productRule, 'percent')}</td>
+      <td key={'percent'}>{displayValue(productRule, 'taxPercent')}</td>
       <td key={'actions'}>
         <ActionButtons>
           <ModalTrigger

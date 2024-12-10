@@ -183,9 +183,10 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
     if (!config.hasCitytax && config.reverseCtaxRules?.length && product.citytaxCode) {
       // when has a reverseCtitytax
       const pCtaxPercent = Number(product.citytaxPercent) || 0; // productCitytaxPercent per
+      const pTotalPercent = vatPercent + pCtaxPercent + 100;
 
-      const totalVAT = detail.totalAmount / (vatPercent + pCtaxPercent) * vatPercent;
-      const totalCityTax = detail.totalAmount / (vatPercent + pCtaxPercent) * pCtaxPercent;
+      const totalVAT = detail.totalAmount / pTotalPercent * vatPercent;
+      const totalCityTax = detail.totalAmount / pTotalPercent * pCtaxPercent;
       ableAmount += detail.totalAmount;
       ableVATAmount += totalVAT;
       ableCityTaxAmount += totalCityTax;

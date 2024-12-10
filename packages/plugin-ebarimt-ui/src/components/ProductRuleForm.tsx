@@ -57,8 +57,11 @@ const ProductRuleForm = (props: Props) => {
     if (!chosen) {
       return
     }
-
-    setState({ ...state, taxPercent: Number(chosen.percent) || 0, kind: state.taxType === 'ctax' ? 'ctax' : 'vat' })
+    if (state.taxType === 'ctax') {
+      setState({ ...state, kind: 'ctax' })
+    } else {
+      setState({ ...state, taxPercent: Number(chosen.percent) || 0, kind: 'vat' })
+    }
   }, [state.taxType]);
 
   const generateDoc = (values: { _id: string } & IEbarimtProductRuleDoc) => {
@@ -123,7 +126,7 @@ const ProductRuleForm = (props: Props) => {
             {renderFormGroup('taxPercent', 'Percent', {
               ...formProps,
               type: 'number',
-              value: state.taxPercent || 0,
+              value: Number(state.taxPercent) || 0,
               disabled: (TAX_TYPES[state.taxType || ''] || {}).percent
             })}
           </FormColumn>

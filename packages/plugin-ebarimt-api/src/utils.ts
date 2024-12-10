@@ -371,8 +371,8 @@ const calcProductsTaxRule = async (subdomain: string, models: IModels, config, p
       const productIdsByRule = await checkProductsByRule(subdomain, products, rule);
 
       for (const pId of productIdsByRule) {
-        productsById[pId].cityaxCode = rule.taxCode;
-        productsById[pId].cityaxPercent = rule.taxPercent;
+        productsById[pId].citytaxCode = rule.taxCode;
+        productsById[pId].citytaxPercent = rule.taxPercent;
       }
     }
   }
@@ -399,7 +399,7 @@ export const getPostData = async (subdomain, models: IModels, config, deal) => {
   });
 
   const productsById = await calcProductsTaxRule(subdomain, models, config, firstProducts)
-  
+
   return {
     contentType: "deal",
     contentId: deal._id,
