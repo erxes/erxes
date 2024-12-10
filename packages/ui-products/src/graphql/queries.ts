@@ -90,8 +90,6 @@ const productFields = `
     }
   uom
   subUoms
-  taxType
-  taxCode
 `;
 
 const products = `

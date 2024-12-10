@@ -48,8 +48,6 @@ export interface IProduct {
 
   uom?: string;
   subUoms?: any[];
-  taxType?: string;
-  taxCode?: string;
 
   pdfAttachment?: IPdfAttachment;
 }

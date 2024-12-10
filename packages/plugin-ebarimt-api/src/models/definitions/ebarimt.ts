@@ -1,25 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
-export interface IEbarimtConfig {
-  companyName: string;
-  ebarimtUrl: string;
-  checkTaxpayerUrl: string;
-
-  merchantTin: string;
-  companyRD: string,
-  districtCode: string;
-  posNo: string;
-  branchNo: string;
-
-  hasVat: true,
-  hasCitytax: false,
-  defaultGSCode: string,
-  vatPercent: number,
-  cityTaxPercent: number,
-  skipPutData: false
-}
-
 export interface IItem {
   _id?: string;
   id?: string;

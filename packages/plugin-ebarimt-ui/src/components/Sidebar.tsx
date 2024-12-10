@@ -36,6 +36,10 @@ const Sidebar: React.FC = () => {
           '/erxes-plugin-ebarimt/settings/return-stage',
           'Stage in Return Ebarimt config',
         )}
+        {renderListItem(
+          '/erxes-plugin-ebarimt/settings/product-rule',
+          'Product rules on TAX',
+        )}
       </List>
     </LeftSidebar>
   );

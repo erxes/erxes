@@ -78,7 +78,7 @@ export const afterMutationHandlers = async (
         ...configs[destinationStageId]
       };
 
-      const ebarimtData: IDoc = await getPostData(subdomain, config, deal);
+      const ebarimtData: IDoc = await getPostData(subdomain, models, config, deal);
 
       const ebarimtResponses: any[] = [];
 

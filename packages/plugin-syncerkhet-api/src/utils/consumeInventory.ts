@@ -35,8 +35,6 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
         ? productCategory.code
         : product.categoryCode,
       status: "active",
-      taxType: doc.vat_type || "",
-      taxCode: doc.vat_type_code || ""
     };
 
     const weightField = await sendCoreMessage({

@@ -1,5 +1,6 @@
 import * as moment from 'moment';
-import { IEbarimt, IEbarimtConfig, IEbarimtFull } from './definitions/ebarimt';
+import { IEbarimt, IEbarimtFull } from './definitions/ebarimt';
+import { IEbarimtConfig } from './definitions/configs';
 import { getCompanyInfo } from '../utils';
 
 export interface IDoc {
@@ -28,8 +29,11 @@ export interface IDoc {
       code: string;
       status?: string;
       uom?: string;
+
       taxType?: string;
       taxCode?: string;
+      citytaxCode?: string;
+      citytaxPercent?: number;
     };
     barcode?: string;
     quantity: number;
@@ -176,13 +180,26 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
       continue
     }
 
-    const totalVAT = detail.totalAmount / totalPercent * vatPercent;
-    const totalCityTax = detail.totalAmount / totalPercent * cityTaxPercent;
-    ableAmount += detail.totalAmount;
-    ableVATAmount += totalVAT;
-    ableCityTaxAmount += totalCityTax;
+    if (!config.hasCitytax && config.reverseCtaxRules?.length && product.citytaxCode) {
+      // when has a reverseCtitytax
+      const pCtaxPercent = Number(product.citytaxPercent) || 0; // productCitytaxPercent per
+      const pTotalPercent = vatPercent + pCtaxPercent + 100;
 
-    details.push({ ...stock, totalVAT, totalCityTax });
+      const totalVAT = detail.totalAmount / pTotalPercent * vatPercent;
+      const totalCityTax = detail.totalAmount / pTotalPercent * pCtaxPercent;
+      ableAmount += detail.totalAmount;
+      ableVATAmount += totalVAT;
+      ableCityTaxAmount += totalCityTax;
+      details.push({ ...stock, totalVAT, totalCityTax });
+    } else {
+      // when a main
+      const totalVAT = detail.totalAmount / totalPercent * vatPercent;
+      const totalCityTax = detail.totalAmount / totalPercent * cityTaxPercent;
+      ableAmount += detail.totalAmount;
+      ableVATAmount += totalVAT;
+      ableCityTaxAmount += totalCityTax;
+      details.push({ ...stock, totalVAT, totalCityTax });
+    }
   }
 
   return {

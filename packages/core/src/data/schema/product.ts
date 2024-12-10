@@ -30,8 +30,6 @@ const productFields = `
 
     category: ProductCategory
     vendor: Company
-    taxType: String
-    taxCode: String
     hasSimilarity: Boolean
 
     pdfAttachment: PdfAttachment
@@ -104,8 +102,6 @@ const productParams = `
   scopeBrandIds: [String]
   uom: String,
   subUoms: JSON,
-  taxType: String,
-  taxCode: String,
   pdfAttachment: PdfAttachmentInput
 `;
 

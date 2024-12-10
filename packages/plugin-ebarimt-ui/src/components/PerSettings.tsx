@@ -4,9 +4,11 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon
+  Icon,
+  SelectWithSearch
 } from "@erxes/ui/src/components";
-import { FlexBetween } from "@erxes/ui-settings/src/styles";
+import { queries } from '../graphql'
+import { FlexBetween, FlexRow } from "@erxes/ui-settings/src/styles";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 import React, { useState } from "react";
 
@@ -110,6 +112,12 @@ const PerSettings: React.FC<Props> = (props: Props) => {
       </FormGroup>
     );
   };
+
+  const generateRuleOptions = (array) => array.map(item => ({
+    value: item._id,
+    label: item.title || ''
+  }));
+
 
   const renderCheckbox = (
     key: string,
@@ -245,10 +253,50 @@ const PerSettings: React.FC<Props> = (props: Props) => {
           </FlexBetween>
           {renderInput('defaultGSCode', 'default united code', '')}
           {renderInput('branchNo', 'branch No', '')}
-          {renderCheckbox('hasVat', 'has Vat', '')}
-          {renderInput('vatPercent', 'vat Percent', '')}
-          {renderCheckbox('hasCitytax', 'has Citytax', '')}
-          {renderInput('cityTaxPercent', 'cityTax Percent', '')}
+          <FlexRow>
+            {renderCheckbox('hasVat', 'has Vat', '')}
+            {state.config.hasVat && renderInput('vatPercent', 'vat Percent', '') || <></>}
+          </FlexRow>
+          {state.config.hasVat && (
+            <FormGroup>
+              <ControlLabel>Another rules of products on vat</ControlLabel>
+              <SelectWithSearch
+                label={'reverseVatRules'}
+                queryName="ebarimtProductRules"
+                name={'reverseVatRules'}
+                initialValue={state.config['reverseVatRules']}
+                generateOptions={generateRuleOptions}
+                onSelect={ids => {
+                  onChangeConfig("reverseVatRules", ids);
+                }}
+                filterParams={{ kind: 'vat' }}
+                customQuery={queries.ebarimtProductRules}
+                multi={true}
+              />
+            </FormGroup>
+          ) || <></>}
+          <FlexRow>
+            {renderCheckbox('hasCitytax', 'has all Citytax', '')}
+            {state.config.hasCitytax && renderInput('cityTaxPercent', 'cityTax Percent', '') || <></>}
+          </FlexRow>
+          {!state.config.hasCitytax && (
+            <FormGroup>
+              <ControlLabel>Another rules of products on citytax</ControlLabel>
+              <SelectWithSearch
+                label={'reverseCtaxRules'}
+                queryName="ebarimtProductRules"
+                name={'reverseCtaxRules'}
+                initialValue={state.config['reverseCtaxRules']}
+                generateOptions={generateRuleOptions}
+                onSelect={ids => {
+                  onChangeConfig("reverseCtaxRules", ids);
+                }}
+                filterParams={{ kind: 'ctax' }}
+                customQuery={queries.ebarimtProductRules}
+                multi={true}
+              />
+            </FormGroup>
+          ) || <></>}
         </FormColumn>
       </FormWrapper>
       <ModalFooter>

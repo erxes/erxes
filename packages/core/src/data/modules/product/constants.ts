@@ -13,8 +13,6 @@ export const PRODUCT_INFO = {
   status: "Status",
   uom: "Unit of measurement",
   subUoms: "Sub unit of measurements",
-  taxType: "Tax type",
-  taxCode: "Tax code",
 
   ALL: [
     { field: "code", label: "Code" },
@@ -31,8 +29,6 @@ export const PRODUCT_INFO = {
     { field: "status", label: "Status" },
     { field: "uom", label: "Unit of measurement" },
     { field: "subUoms", label: "Sub unit of measurements" },
-    { field: "taxType", label: "Tax type" },
-    { field: "taxCode", label: "Tax code" }
   ]
 };
 

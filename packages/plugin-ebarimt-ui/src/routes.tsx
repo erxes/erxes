@@ -36,6 +36,12 @@ const PutResponsesDuplicated = asyncComponent(() =>
   )
 );
 
+const ProductRule = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "ProductRule" */ './containers/ProductRuleList'
+  )
+);
+
 const GeneralSetting = () => {
   return <Settings component={GeneralSettings} configCode="EBARIMT" />;
 };
@@ -83,6 +89,16 @@ const PutResponsesDuplicatedComponent = () => {
   );
 };
 
+const ProductRuleComponent = () => {
+  const location = useLocation();
+  
+  return (
+    <ProductRule
+      queryParams={queryString.parse(location.search)}
+    />
+  );
+};
+
 const routes = () => {
   return (
     <Routes>
@@ -106,6 +122,10 @@ const routes = () => {
       <Route
         path="/put-responses-duplicated"
         element={<PutResponsesDuplicatedComponent/>}
+      />
+      <Route
+        path="/erxes-plugin-ebarimt/settings/product-rule"
+        element={<ProductRuleComponent/>}
       />
     </Routes>
   );
