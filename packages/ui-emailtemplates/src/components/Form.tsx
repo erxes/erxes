@@ -8,11 +8,15 @@ import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
 import { IEmailTemplate } from "../types";
 import React from "react";
 import RichTextEditor from "@erxes/ui/src/containers/RichTextEditor";
+import { gql, useQuery } from "@apollo/client";
 
 type Props = {
   object?: IEmailTemplate;
   contentType?: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  additionalToolbarContent?: (props: {
+    onClick: (placeholder: string) => void;
+  }) => React.ReactNode;
 } & ICommonFormProps;
 
 type State = {
@@ -24,7 +28,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     super(props);
 
     this.state = {
-      content: (props.object && props.object.content) || "",
+      content: (props.object && props.object.content) || ""
     };
   }
 
@@ -43,7 +47,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return {
       _id: finalValues._id,
       name: finalValues.name,
-      content: this.state.content,
+      content: this.state.content
     };
   };
 
@@ -74,6 +78,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             isSubmitted={formProps.isSaved}
             name={`emailTemplates_${object._id || "create"}`}
             contentType={this?.props?.contentType}
+            additionalToolbarContent={this.props?.additionalToolbarContent}
           />
         </FormGroup>
       </>

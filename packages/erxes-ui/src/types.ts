@@ -1,5 +1,5 @@
-import { IActivityLogForMonth } from '@erxes/ui-log/src/activityLogs/types';
-import { IUser } from './auth/types';
+import { IActivityLogForMonth } from "@erxes/ui-log/src/activityLogs/types";
+import { IUser } from "./auth/types";
 
 export interface IRouterProps {
   location: any;
@@ -187,7 +187,7 @@ export type IEditorProps = {
   showMentions?: boolean;
   toolbar?: any[];
   autoFocus?: boolean;
-  toolbarLocation?: 'top' | 'bottom';
+  toolbarLocation?: "top" | "bottom";
   autoGrow?: boolean;
   autoGrowMinHeight?: number | string;
   autoGrowMaxHeight?: number | string;
@@ -195,6 +195,9 @@ export type IEditorProps = {
   isSubmitted?: boolean;
   formItems?: any;
   contentType?: string;
+  additionalToolbarContent?: (props: {
+    onClick: (placeholder: string) => void;
+  }) => React.ReactNode;
 };
 
 export type QueryResponse = {
