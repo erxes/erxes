@@ -1,4 +1,4 @@
-FROM golang:1.14.2
+FROM golang:1.20.9
 
 WORKDIR /essyncer/
 
