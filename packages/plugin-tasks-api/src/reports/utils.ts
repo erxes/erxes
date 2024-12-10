@@ -718,7 +718,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push(
       {
         $lookup: {
-          from: "pipeline_labels",
+          from: `${COLLECTION_MAP[type]}_pipeline_labels`,
           let: { fieldId: "$_id.labelId" },
           pipeline: [
             {
@@ -1385,7 +1385,7 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
 
     if (userType === "closedBy") {
 
-      const stageIds = await getStageIds({ ...filter, stageProbability: PROBABILITY_CLOSED[type] }, type, model)
+      const stageIds = await getStageIds({ ...filter, stageProbability: PROBABILITY_CLOSED }, type, model)
 
       const logs = await sendCoreMessage({
         subdomain,
@@ -1536,7 +1536,7 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
   if (status) {
 
     if (status === 'closed') {
-      const stageIds = await getStageIds({ ...filter, stageProbability: PROBABILITY_CLOSED[type] }, type, model)
+      const stageIds = await getStageIds({ ...filter, stageProbability: PROBABILITY_CLOSED }, type, model)
       matchfilter['stageId'] = { $in: stageIds };
 
     } else if (status === 'open') {
@@ -2026,12 +2026,12 @@ const rx = /(\d+)|(\D+)/g;
 const rd = /\d/;
 const rz = /^0/;
 
-export const naturalSort = (as: any, bs: any) => {
+export const naturalSort = (as: any = null, bs: any = null) => {
   if (bs !== null && as === null) {
-    return -1;
+    return 1;
   }
   if (as !== null && bs === null) {
-    return 1;
+    return -1;
   }
 
   if (typeof as === 'boolean') {

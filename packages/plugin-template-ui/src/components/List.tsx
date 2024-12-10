@@ -4,12 +4,12 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
-import { Alert, router } from '@erxes/ui/src/utils';
+import { __, Alert, router } from '@erxes/ui/src/utils';
 import {
   FilterContainer,
   FlexItem,
   FlexRow,
-  InputBar
+  InputBar,
 } from '@erxes/ui-settings/src/styles';
 import Sidebar from '../containers/Sidebar';
 
@@ -24,7 +24,7 @@ import {
   CategoryItem,
   RightDrawerContainer,
   ImportInput,
-  ImportLabel
+  ImportLabel,
 } from '@erxes/ui-template/src/styles';
 import { Transition } from '@headlessui/react';
 import Form from '@erxes/ui-template/src/containers/Form';
@@ -35,6 +35,8 @@ import { getEnv } from '@erxes/ui/src/utils/index';
 import queryString from 'query-string';
 import { includesAny } from '@erxes/ui-template/src/utils';
 import { ITemplate } from '@erxes/ui-template/src/types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   location: any;
@@ -45,7 +47,7 @@ type Props = {
   totalCount: number;
   loading: boolean;
   removeTemplate: (id: string) => void;
-  useTemplate: (template: ITemplate) => void;
+  useTemplate: (id: string) => void;
   refetch: () => void;
 };
 
@@ -59,7 +61,7 @@ const List = (props: Props) => {
     loading,
     removeTemplate,
     useTemplate,
-    refetch
+    refetch,
   } = props;
 
   const timerRef = useRef<number | null>(null);
@@ -93,7 +95,7 @@ const List = (props: Props) => {
     setToggleDrawer(true);
   };
 
-  const handleSearch = (e) => {
+  const handleSearch = e => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
@@ -140,7 +142,7 @@ const List = (props: Props) => {
 
     if (Array.isArray(categoryIds) && !categoryIds.includes(categoryId)) {
       return router.setParams(navigate, location, {
-        categoryIds: [...categoryIds, categoryId]
+        categoryIds: [...categoryIds, categoryId],
       });
     }
 
@@ -150,19 +152,19 @@ const List = (props: Props) => {
 
     if (categoryId !== categoryIds) {
       return router.setParams(navigate, location, {
-        categoryIds: [categoryIds, categoryId]
+        categoryIds: [categoryIds, categoryId],
       });
     }
 
     router.setParams(navigate, location, { categoryIds: categoryId });
   };
 
-  const handleUse = (currentTemplate: ITemplate) => {
-    if (!currentTemplate) {
+  const handleUse = (id: string) => {
+    if (!id) {
       return;
     }
 
-    useTemplate(currentTemplate);
+    useTemplate(id);
   };
 
   const handleInput = ({ target }) => {
@@ -188,11 +190,11 @@ const List = (props: Props) => {
           method: 'POST',
           body: JSON.stringify(jsonData),
           headers: {
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+          },
         })
-          .then((response) => response.json())
-          .then((data) => {
+          .then(response => response.json())
+          .then(data => {
             if (data.success) {
               refetch();
               Alert.success('Uploaded successfully');
@@ -200,7 +202,7 @@ const List = (props: Props) => {
               Alert.error('Upload failed');
             }
           })
-          .catch((err) => {
+          .catch(err => {
             Alert.error(`Upload failed: ${err.message}`);
           });
       } catch (error) {
@@ -219,7 +221,7 @@ const List = (props: Props) => {
     const { REACT_APP_API_URL } = getEnv();
 
     const stringified = queryString.stringify({
-      _id: currentTemplate._id
+      _id: currentTemplate._id,
     });
 
     window.open(`${REACT_APP_API_URL}/pl:template/file-export?${stringified}`);
@@ -243,32 +245,58 @@ const List = (props: Props) => {
   };
 
   const renderActions = (template: ITemplate) => {
+    const { contentType } = template;
+
+    const [serviceName] = contentType.split(':');
+
+    const items = [
+      {
+        icon: 'repeat',
+        label: 'Use',
+        action: data => handleUse(data?._id),
+        isActive: !!isEnabled(serviceName),
+        tooltip: `${serviceName} is not enabled`,
+      },
+      {
+        icon: 'upload-6',
+        label: 'Export',
+        action: data => handleExport(data),
+      },
+      {
+        icon: 'edit',
+        label: 'Edit',
+        action: data => handleEdit(data),
+      },
+      {
+        icon: 'trash',
+        label: 'Remove',
+        action: data => removeTemplate(data?._id),
+      },
+    ];
+
     return (
       <TemplateActions>
         <Dropdown
           as={DropdownToggle}
           toggleComponent={<Icon icon="ellipsis-v" />}
         >
-          <li>
-            <a onClick={() => handleUse(template)}>
-              <Icon icon="repeat" /> Use
-            </a>
-          </li>
-          <li>
-            <a onClick={() => handleExport(template)}>
-              <Icon icon="upload-6" /> Export
-            </a>
-          </li>
-          <li>
-            <a onClick={() => handleEdit(template)}>
-              <Icon icon="edit" /> Edit
-            </a>
-          </li>
-          <li>
-            <a onClick={() => removeTemplate(template?._id)}>
-              <Icon icon="trash" /> Remove
-            </a>
-          </li>
+          {items.map((item, index) => {
+            const { icon, label, action, isActive = true } = item;
+
+            return (
+              <li key={index}>
+                <a
+                  onClick={() => {
+                    if (!isActive) return;
+                    action(template);
+                  }}
+                  style={{ cursor: isActive ? 'pointer' : 'not-allowed' }}
+                >
+                  <Icon icon={icon} /> {__(label)}
+                </a>
+              </li>
+            );
+          })}
         </Dropdown>
       </TemplateActions>
     );
@@ -333,17 +361,17 @@ const List = (props: Props) => {
     const hasMoreCategories = categories.length > 3;
 
     const remainingCategoryIds = categories
-      .filter((category) => !displayedCategories.includes(category))
-      .map((category) => category._id);
+      .filter(category => !displayedCategories.includes(category))
+      .map(category => category._id);
     const isMoreActive = includesAny(remainingCategoryIds, categoryIds);
 
     return (
       <Categories>
-        {displayedCategories.map((category) => (
+        {displayedCategories.map(category => (
           <CategoryItem
             key={category._id}
             isActive={isActive(category._id)}
-            onClick={(e) => handleCategoryClick(e, category._id)}
+            onClick={e => handleCategoryClick(e, category._id)}
           >
             {category.name}
           </CategoryItem>

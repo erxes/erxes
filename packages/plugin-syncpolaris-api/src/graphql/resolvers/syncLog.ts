@@ -20,8 +20,8 @@ export default {
       );
     }
 
-    if (contentType === "loans:transaction") {
-      const info = syncLog.consumeData;
+    if (['loans:transaction', 'loans:contract', 'savings:contract'].includes(contentType || '')) {
+      const info = syncLog.consumeData?.updateDocument || syncLog.consumeData?.object || syncLog.consumeData;
       return info.number || contentId;
     }
 

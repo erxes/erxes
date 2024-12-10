@@ -168,7 +168,8 @@ const QuickQrForm = (props: Props) => {
             ))}
           </FormControl>
         </FormGroup>
-        <SelectDistrict onChange={onChangeDistrict} cityCode={state.city} />
+
+        <SelectDistrict onChange={onChangeDistrict} cityCode={state.city} isRequired={true}/>
         {renderItem('businessName', 'Business Name')}
         {renderItem('address', 'Address')}
         {renderItem('phone', 'Phone')}

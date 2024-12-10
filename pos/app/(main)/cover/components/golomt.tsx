@@ -5,7 +5,7 @@ import { golomtResponseAtom } from "@/store/cover.store"
 import { useAtom, useAtomValue } from "jotai"
 
 import { BANK_CARD_TYPES } from "@/lib/constants"
-import { parseBase64 } from "@/lib/utils"
+import { getLocal, parseBase64 } from "@/lib/utils"
 
 import BankAmountUi from "./bank-amount-ui"
 import { onError } from '@/components/ui/use-toast'
@@ -14,6 +14,7 @@ const Golomt = () => {
   const paymentTypes = useAtomValue(paymentTypesAtom) || []
   const [response, setResponse] = useAtom(golomtResponseAtom)
   const [loading, setLoading] = useState(false)
+  const terminalID = getLocal("golomtId")
 
   const golomt = paymentTypes.find((pt) => pt.type === BANK_CARD_TYPES.GOLOMT)
 
@@ -21,7 +22,7 @@ const Golomt = () => {
     setLoading(true)
     fetch(
       endPoint(
-        { ...initialData, operationCode: "59" },
+        { ...initialData, ...golomt?.config, operationCode: "59", terminalID },
         golomt?.config?.port || ""
       )
     )

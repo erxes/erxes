@@ -1,7 +1,7 @@
 import { IOption, IQueryParams } from "@erxes/ui/src/types";
 
 import React from "react";
-import SelectWithSearch from "@erxes/ui/src/components/SelectWithSearch";
+import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
 
 import queries from "../../graphql/queries";
 import { IContract } from "../../types";
@@ -26,7 +26,8 @@ export default ({
   multi = true,
   customOption,
   label,
-  name
+  name,
+  filterParams
 }: {
   queryParams?: IQueryParams;
   label: string;
@@ -35,6 +36,7 @@ export default ({
   customOption?: IOption;
   initialValue?: string | string[];
   name: string;
+  filterParams?: any;
 }) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
@@ -47,7 +49,7 @@ export default ({
       initialValue={defaultValue}
       generateOptions={generateCustomerOptions}
       onSelect={onSelect}
-      filterParams={{ status: "normal" }}
+      filterParams={filterParams || { status: "normal" }}
       customOption={customOption}
       multi={multi}
     />

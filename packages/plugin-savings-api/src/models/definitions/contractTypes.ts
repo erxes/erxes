@@ -1,7 +1,20 @@
 import { schemaHooksWrapper, field } from './utils';
 import { Schema, Document } from 'mongoose';
 
-export interface IContractConfig {}
+export interface IContractConfig {
+  transAccount?: string;
+  savingAccount?: string;
+  interestAccount?: string;
+  storedInterestAccount?: string;
+  minInterest?: number
+  maxInterest?: number
+  defaultInterest?: number
+  minDuration?: number
+  maxDuration?: number
+  minAmount?: number
+  maxAmount?: number
+  storeInterestTime?: string;
+}
 
 export interface IContractType {
   code: string;
@@ -21,6 +34,7 @@ export interface IContractType {
   isAllowIncome: boolean;
   isAllowOutcome: boolean;
   isDeposit: boolean;
+  productType: string;
 }
 
 export interface IContractTypeDocument extends IContractType, Document {
@@ -69,7 +83,12 @@ export const contractTypeSchema = schemaHooksWrapper(
     branchId: field({ type: String, label: 'Branch Id' }),
     isAllowIncome: field({ type: Boolean, label: 'Is Allow income' }),
     isAllowOutcome: field({ type: Boolean, label: 'Is Allow outcome' }),
-    isDeposit: field({ type: Boolean, label: 'Is Deposit' })
+    isDeposit: field({ type: Boolean, label: 'Is Deposit' }),
+    productType: field({
+      type: String,
+      default: 'private',
+      label: 'product Type'
+    }),
   }),
   'erxes_contractTypeSchema'
 );

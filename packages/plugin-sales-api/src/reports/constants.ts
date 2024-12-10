@@ -27,11 +27,7 @@ export const WEEKDAY_NAMES = [
 
 export const PROBABILITY_OPEN = ['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%'];
 
-export const PROBABILITY_CLOSED = {
-  deal: ['Won', 'Lost'],
-  task: ['Done'],
-  ticket: ['Resolved'],
-}
+export const PROBABILITY_CLOSED = ['Won', 'Lost', 'Done', 'Resolved']
 
 export const AMOUNT_RANGE_ATTRIBUTES = [
   { name: 'min', placeholder: 'Min', type: 'number', min: 0 },

@@ -4,7 +4,7 @@ import {
   CheckBoxWrapper,
   CloseDateContent,
   CloseDateWrapper,
-  DateGrid,
+  DateGrid
 } from "../../styles/popup";
 import { generateButtonClass, selectOptions } from "../../utils";
 
@@ -43,7 +43,7 @@ class CloseDate extends React.Component<Props, State> {
     this.ref = React.createRef();
 
     this.state = {
-      dueDate: props.closeDate || dayjs(),
+      dueDate: props.closeDate || dayjs()
     };
   }
 
@@ -156,6 +156,7 @@ class CloseDate extends React.Component<Props, State> {
           onChange={this.minuteOnChange}
           options={selectOptions(REMINDER_MINUTES)}
           isClearable={false}
+          menuPlacement="top"
         />
 
         <DateGrid>

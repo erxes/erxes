@@ -10,6 +10,7 @@ import logs from './logUtils';
 import { setupMessageConsumers } from './messageBroker';
 import * as permissions from './permissions';
 import webhooks from './webhooks';
+import templates from './templates';
 
 export default {
   name: 'knowledgebase',
@@ -28,6 +29,7 @@ export default {
     permissions,
     cronjobs,
     automations,
+    templates
   },
 
   apolloServerContext: async (context, req) => {

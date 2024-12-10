@@ -1198,12 +1198,12 @@ const rx = /(\d+)|(\D+)/g;
 const rd = /\d/;
 const rz = /^0/;
 
-export const naturalSort = (as: any, bs: any) => {
+export const naturalSort = (as: any = null, bs: any = null) => {
     if (bs !== null && as === null) {
-        return -1;
+        return 1;
     }
     if (as !== null && bs === null) {
-        return 1;
+        return -1;
     }
 
     if (typeof as === 'boolean') {

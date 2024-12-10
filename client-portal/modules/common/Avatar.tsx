@@ -8,17 +8,17 @@ import { readFile } from "./utils";
 import { __ } from "../../utils";
 
 type Props = {
-  user: IUser;
+  user: IUser & { status?: string };
   date: Date;
   viewCount: number;
 };
 
-export default function Avatar({ user = {} as IUser, date, viewCount }: Props) {
+export default function Avatar({ user = {} as IUser & { status?: string }, date, viewCount }: Props) {
   if (!user || !user.details) {
     return null;
   }
 
-  const { details = {} as IUserDetails } = user;
+  const { details = {} as IUserDetails, status } = user;
   const { fullName, avatar } = details;
 
   return (
@@ -30,7 +30,7 @@ export default function Avatar({ user = {} as IUser, date, viewCount }: Props) {
       />
       <div className="detail avatar-info d-flex flex-wrap">
         <div>
-          {__("Written by")}
+          {__(`${status || 'Written'} by`)}
           <span>{fullName}</span>
         </div>
         <div>

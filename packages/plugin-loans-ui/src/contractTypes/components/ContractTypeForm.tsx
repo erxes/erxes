@@ -1,4 +1,3 @@
-import { COLLATERAL_TYPE, LEASE_TYPES } from "../constants";
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
@@ -6,23 +5,22 @@ import {
   MainStyleScrollWrapper as ScrollWrapper
 } from "@erxes/ui/src/styles/eindex";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import { IContractType, IContractTypeDoc } from "../types";
-import { IProduct } from "@erxes/ui-products/src/types";
 import React, { useState } from "react";
+import { COLLATERAL_TYPE, LEASE_TYPES } from "../constants";
+import { IContractType, IContractTypeDoc } from "../types";
 
-import Button from "@erxes/ui/src/components/Button";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import Form from "@erxes/ui/src/components/form/Form";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IUser } from "@erxes/ui/src/auth/types";
-import { ORGANIZATION_TYPE } from "../../constants";
-import { __ } from "coreui/utils";
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import { IUser } from "@erxes/ui/src/auth/types";
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { __ } from "coreui/utils";
+import { ORGANIZATION_TYPE } from "../../constants";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  products: IProduct[];
   contractType: IContractType;
   closeModal: () => void;
   currentUser: IUser;
@@ -194,35 +192,6 @@ const ContractTypeForm = (props: Props) => {
                 defaultValue: contractType.vacancy || 1,
                 max: 20
               })}
-              <FormGroup>
-                <ControlLabel>{__("Product")}</ControlLabel>
-                <SelectProducts
-                  label="Choose product"
-                  name="selectedProductId"
-                  initialValue={productId}
-                  onSelect={(productId) => setProductId(productId as string)}
-                  multi={false}
-                  customOption={{ value: "", label: "Empty" }}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel required={true}>
-                  {__("Product Type")}
-                </ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="productType"
-                  componentclass="select"
-                  value={productType}
-                  onChange={onChangeField}
-                >
-                  {["private", "public"].map((typeName) => (
-                    <option key={typeName} value={typeName}>
-                      {typeName}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
             </FormColumn>
             <FormColumn>
               {renderFormGroup("Loss Percent", {

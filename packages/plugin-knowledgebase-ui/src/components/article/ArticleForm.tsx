@@ -1,7 +1,6 @@
 import {
   IArticle,
   IErxesForm,
-  IPdfAttachment,
   ITopic,
 } from '@erxes/ui-knowledgeBase/src/types';
 import { FILE_MIME_TYPES } from '@erxes/ui-settings/src/general/constants';
@@ -20,14 +19,16 @@ import {
   IButtonMutateProps,
   IFormProps,
   IOption,
+  IPdfAttachment,
 } from '@erxes/ui/src/types';
 import dayjs from 'dayjs';
 import { __, extractAttachment } from 'coreui/utils';
 import React from 'react';
 import Select, { OnChangeValue } from 'react-select';
 import { articleReactions } from '../../icons.constant';
-import PdfUploader from './PdfUploader';
+
 import { FlexRow, Forms, ReactionItem } from './styles';
+import PdfUploader from '@erxes/ui/src/components/PdfUploader';
 
 type Props = {
   article: IArticle;
@@ -113,7 +114,6 @@ class ArticleForm extends React.Component<Props, State> {
       erxesForms,
       isPrivate,
       scheduledDate,
-      pdfAttachment,
     } = this.state;
 
     const finalValues = values;
@@ -121,6 +121,24 @@ class ArticleForm extends React.Component<Props, State> {
     if (article) {
       finalValues._id = article._id;
     }
+
+    const pdfAttachment: any = { ...this.state.pdfAttachment };
+
+    if (pdfAttachment && pdfAttachment.__typename) {
+      delete pdfAttachment.__typename;
+    }
+
+    if (pdfAttachment.pdf && pdfAttachment.pdf.__typename) {
+      delete pdfAttachment.pdf.__typename;
+    }
+
+    pdfAttachment.pages = pdfAttachment.pages?.map((p) => {
+      const page = { ...p };
+      if (page && page.__typename) {
+        delete page.__typename;
+      }
+      return page;
+    });
 
     return {
       _id: finalValues._id,
@@ -501,7 +519,7 @@ class ArticleForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('PDF')}</ControlLabel>
+          <ControlLabel>PDF</ControlLabel>
           <PdfUploader
             attachment={this.state.pdfAttachment}
             onChange={(attachment?: IPdfAttachment) => {
