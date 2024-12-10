@@ -184,6 +184,7 @@ const getSegmentEmails = async ({
 };
 
 const generateFromEmail = (sender, fromUserEmail) => {
+  console.log({sender,fromUserEmail})
   if (sender && fromUserEmail) {
     return `${sender} <${fromUserEmail}>`;
   }
@@ -204,6 +205,8 @@ export const generateDoc = async ({
 }) => {
   const { templateId, fromUserId, sender } = config;
   const [serviceName, type] = triggerType.split(":");
+  const version = getEnv({ name: "VERSION" });
+  const DEFAULT_AWS_EMAIL = getEnv({ name: "AWS_DEFAULT_EMAIL" });
 
   const template = await sendCoreMessage({
     subdomain,
@@ -215,17 +218,25 @@ export const generateDoc = async ({
     defaultValue: null
   });
 
-  const fromUser = fromUserId
-    ? await sendCoreMessage({
-        subdomain,
-        action: "users.findOne",
-        data: {
-          _id: fromUserId
-        },
-        isRPC: true,
-        defaultValue: null
-      })
-    : null;
+  let fromUserEmail = version === "saas" ? DEFAULT_AWS_EMAIL : "";
+
+
+  if (fromUserId) {
+    const fromUser = await sendCoreMessage({
+      subdomain,
+      action: "users.findOne",
+      data: {
+        _id: fromUserId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    console.log({ fromUser });
+
+    fromUserEmail = fromUser?.email;
+    console.log({fromUserEmail})
+  }
 
   const replacedContent = (template?.content || "").replace(
     new RegExp(`{{\\s*${type}\\.\\s*(.*?)\\s*}}`, "g"),
@@ -261,9 +272,8 @@ export const generateDoc = async ({
 
   return {
     title: subject,
-    fromUser,
-    fromEmail: generateFromEmail(sender, fromUser?.email),
-    toEmails: toEmails.filter(email => fromUser?.email !== email),
+    fromEmail: generateFromEmail(sender, fromUserEmail),
+    toEmails: toEmails.filter(email => fromUserEmail !== email),
     customHtml: content
   };
 };
@@ -347,7 +357,6 @@ const setActivityLog = async ({
   subdomain,
   triggerType,
   target,
-  user,
   responses
 }) => {
   for (const response of responses || []) {
@@ -372,7 +381,7 @@ export const handleEmail = async ({
   triggerType,
   config
 }) => {
-  const { fromUser, ...params }: any = await generateDoc({
+  const params = await generateDoc({
     subdomain,
     triggerType,
     target,
@@ -384,17 +393,18 @@ export const handleEmail = async ({
     return { error: "Something went wrong fetching data" };
   }
 
+  console.log({params})
+
   try {
     const responses = await sendEmails({
       subdomain,
-      params: params
+      params
     });
 
     await setActivityLog({
       subdomain,
       triggerType,
       target,
-      user: fromUser,
       responses
     });
 
@@ -404,12 +414,25 @@ export const handleEmail = async ({
   }
 };
 
+const getConfig = (configs, code) => {
+  const version = getEnv({ name: "VERSION" });
+
+  if (version === "saas") {
+    return getEnv({ name: code });
+  }
+
+  return configs[code] || "";
+};
+
 const createTransporter = async ({ ses }, configs) => {
   if (ses) {
-    const AWS_SES_ACCESS_KEY_ID = configs["AWS_SES_ACCESS_KEY_ID"] || "";
-    const AWS_SES_SECRET_ACCESS_KEY =
-      configs["AWS_SES_SECRET_ACCESS_KEY"] || "";
-    const AWS_REGION = configs["AWS_REGION"] || "";
+    const AWS_SES_ACCESS_KEY_ID = getConfig(configs, "AWS_SES_ACCESS_KEY_ID");
+
+    const AWS_SES_SECRET_ACCESS_KEY = getConfig(
+      configs,
+      "AWS_SES_SECRET_ACCESS_KEY"
+    );
+    const AWS_REGION = getConfig(configs, "AWS_REGION");
 
     AWS.config.update({
       region: AWS_REGION,
@@ -466,9 +489,12 @@ const sendEmails = async ({
 
   const DEFAULT_EMAIL_SERVICE = configs["DEFAULT_EMAIL_SERVICE"] || "SES";
   const COMPANY_EMAIL_FROM = configs["COMPANY_EMAIL_FROM"] || "";
-  const AWS_SES_CONFIG_SET = configs["AWS_SES_CONFIG_SET"] || "";
-  const AWS_SES_ACCESS_KEY_ID = configs["AWS_SES_ACCESS_KEY_ID"] || "";
-  const AWS_SES_SECRET_ACCESS_KEY = configs["AWS_SES_SECRET_ACCESS_KEY"] || "";
+  const AWS_SES_CONFIG_SET = getConfig(configs, "AWS_SES_CONFIG_SET");
+  const AWS_SES_ACCESS_KEY_ID = getConfig(configs, "AWS_SES_ACCESS_KEY_ID");
+  const AWS_SES_SECRET_ACCESS_KEY = getConfig(
+    configs,
+    "AWS_SES_SECRET_ACCESS_KEY"
+  );
 
   if (!fromEmail && !COMPANY_EMAIL_FROM) {
     throw new Error("From Email is required");
