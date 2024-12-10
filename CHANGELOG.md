@@ -1,5 +1,7 @@
 # Changelog
 
+## [2.1.0-rc.6](https://github.com/erxes/erxes/compare/2.2.0-rc.6...2.1.0-rc.6) (2024-12-10)
+
 ## [2.2.0-rc.6](https://github.com/erxes/erxes/compare/2.2.0-rc.5...2.2.0-rc.6) (2024-12-10)
 
 
