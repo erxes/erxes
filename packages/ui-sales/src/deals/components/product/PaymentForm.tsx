@@ -2,7 +2,7 @@ import {
   ContentColumn,
   ContentRowTitle,
   Divider,
-  WrongLess,
+  WrongLess
 } from '../../styles';
 import Select, { components } from 'react-select';
 
@@ -38,7 +38,7 @@ class PaymentForm extends React.Component<Props, State> {
     const { payments } = this.props;
 
     this.state = {
-      paymentsData: payments || {},
+      paymentsData: payments || {}
     };
   }
 
@@ -176,9 +176,10 @@ class PaymentForm extends React.Component<Props, State> {
 
   renderPayments() {
     const part1 = PAYMENT_TYPES.map(type => this.renderPaymentsByType(type));
-    const part2 = this.props.pipelineDetail.paymentTypes.map(type =>
-      this.renderPaymentsByType(type)
-    );
+    const part2 =
+      this.props.pipelineDetail?.paymentTypes?.map(type =>
+        this.renderPaymentsByType(type)
+      ) || [];
     return [...part1, ...part2];
   }
 
