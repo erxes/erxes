@@ -1,6 +1,7 @@
 import {
   attachmentInput,
-  attachmentType
+  attachmentType,
+  pdfAttachmentType,
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 const commonFieldDefs = `
@@ -14,6 +15,7 @@ const commonFieldDefs = `
 export const types = `
   ${attachmentType}
   ${attachmentInput}
+  ${pdfAttachmentType}
 
   type PosProductCategory {
     ${commonFieldDefs}
@@ -51,6 +53,7 @@ export const types = `
     remainders: [JSON]
     isCheckRem: Boolean
     hasSimilarity: Boolean
+    pdfAttachment: PdfAttachment
   }
 
   type PoscProductSimilarityGroup {

@@ -184,6 +184,7 @@ const getSegmentEmails = async ({
 };
 
 const generateFromEmail = (sender, fromUserEmail) => {
+  console.log({sender,fromUserEmail})
   if (sender && fromUserEmail) {
     return `${sender} <${fromUserEmail}>`;
   }
@@ -205,6 +206,7 @@ export const generateDoc = async ({
   const { templateId, fromUserId, sender } = config;
   const [serviceName, type] = triggerType.split(":");
   const version = getEnv({ name: "VERSION" });
+  const DEFAULT_AWS_EMAIL = getEnv({ name: "AWS_DEFAULT_EMAIL" });
 
   const template = await sendCoreMessage({
     subdomain,
@@ -216,9 +218,10 @@ export const generateDoc = async ({
     defaultValue: null
   });
 
-  let fromUserEmail = version === "saas" ? "noreply@erxes.io" : "";
+  let fromUserEmail = version === "saas" ? DEFAULT_AWS_EMAIL : "";
 
-  if (version !== "saas" && !!fromUserId) {
+
+  if (fromUserId) {
     const fromUser = await sendCoreMessage({
       subdomain,
       action: "users.findOne",
@@ -229,7 +232,10 @@ export const generateDoc = async ({
       defaultValue: null
     });
 
+    console.log({ fromUser });
+
     fromUserEmail = fromUser?.email;
+    console.log({fromUserEmail})
   }
 
   const replacedContent = (template?.content || "").replace(
@@ -387,10 +393,12 @@ export const handleEmail = async ({
     return { error: "Something went wrong fetching data" };
   }
 
+  console.log({params})
+
   try {
     const responses = await sendEmails({
       subdomain,
-      params: params
+      params
     });
 
     await setActivityLog({
