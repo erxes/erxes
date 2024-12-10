@@ -106,6 +106,7 @@ app.get(
     console.log("initial setup");
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
+    const services = await getServices();
 
     const userCount = await models.Users.countDocuments();
 
@@ -116,8 +117,6 @@ app.get(
     await models.FieldsGroups.createSystemGroupsFields();
 
     if (req.query && req.query.update) {
-      const services = await getServices();
-
       for (const serviceName of services) {
         const service = await getService(serviceName);
         const meta = service.config?.meta || {};
@@ -143,11 +142,46 @@ app.get(
       code: new RegExp(`.*THEME_.*`, "i")
     }).lean();
 
+    const themeConfigs = {
+      THEME_LOGO: configs.find(config => config.code === "THEME_LOGO")?.value,
+      THEME_FAVICON: configs.find(config => config.code === "THEME_FAVICON")
+        ?.value
+    };
+
+    const frontendPlugins: { name: string; url: string }[] = [];
+
+    // for (const serviceName of services) {
+    //   const service = await getService(serviceName);
+    //   const meta = service.config?.meta || {};
+
+    //   frontendPlugins.push({
+    //     name: serviceName,
+    //     meta: meta
+    //   });
+    // }
+
+    const currentOrg = {
+      themeConfigs,
+      name: "Erxes",
+      plugins: frontendPlugins
+    };
+
     await models.FieldsGroups.createSystemGroupsFields();
 
-    return res.json(configs);
+    return res.json(currentOrg);
   })
 );
+
+app.get("/get-frontend-plugins", async (_req, res) => {
+  const plugins: { name: string; url: string }[] = [];
+
+  plugins.push({
+    name: "inbox",
+    url: "https://erxes-next.pages.dev/remoteEntry.js"
+  });
+
+  return res.json({ plugins });
+});
 
 // app.post('/webhooks/:id', webhookMiddleware);
 
