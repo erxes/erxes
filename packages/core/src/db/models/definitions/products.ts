@@ -102,8 +102,6 @@ export interface IProduct {
 
   uom?: string;
   subUoms?: ISubUom[];
-  taxType?: string;
-  taxCode?: string;
   sameMasks?: string[];
   sameDefault?: string[];
 
@@ -214,8 +212,6 @@ export const productSchema = schemaWrapper(
       optional: true,
       label: "Sub unit of measurements"
     }),
-    taxType: field({ type: String, optional: true, label: "TAX type" }),
-    taxCode: field({ type: String, optional: true, label: "tax type code" }),
     sameMasks: field({ type: [String] }),
     sameDefault: field({ type: [String] }),
 

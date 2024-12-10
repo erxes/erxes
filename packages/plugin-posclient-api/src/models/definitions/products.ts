@@ -51,8 +51,6 @@ export interface IProduct extends IProductCommonFields {
   attachmentMore?: IAttachment[];
   uom?: string;
   subUoms?: ISubUom[];
-  taxType?: string;
-  taxCode?: string;
   isCheckRems: { [token: string]: boolean };
   sameMasks?: string[];
   sameDefault?: string[];
@@ -156,8 +154,6 @@ export const productSchema = schemaWrapper(
     mergedIds: field({ type: [String], optional: true }),
     attachmentMore: field({ type: [attachmentSchema] }),
     tokens: field({ type: [String] }),
-    taxType: field({ type: String, optional: true, label: 'VAT type' }),
-    taxCode: field({ type: String, optional: true, label: '' }),
     isCheckRems: field({
       type: Object,
       optional: true,

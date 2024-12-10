@@ -1,12 +1,15 @@
-import { Ebarimt as EbarimtQueries } from './queries';
-import { Ebarimt as EbarimtMutations } from './mutations';
+import { Ebarimt as EbarimtQueries, ProductRules as ProductRuleQueries } from './queries';
+import { Ebarimt as EbarimtMutations, ProductRules as ProductRuleMutations } from './mutations';
 
+console.log(EbarimtMutations)
 const resolvers: any = async () => ({
   Query: {
-    ...EbarimtQueries
+    ...EbarimtQueries,
+    ...ProductRuleQueries
   },
   Mutation: {
-    ...EbarimtMutations
+    ...EbarimtMutations,
+    ...ProductRuleMutations
   }
 });
 

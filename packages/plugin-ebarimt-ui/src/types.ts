@@ -132,3 +132,72 @@ export type PutResponseReReturnMutationResponse = {
     variables: { _id: string };
   }) => Promise<any>;
 };
+
+export interface IEbarimtProductRuleDoc {
+  title: string;
+
+  // filters
+  productIds?: string[];
+  productCategoryIds?: string[];
+  excludeCategoryIds?: string[];
+  excludeProductIds?: string[];
+  tagIds?: string[];
+  excludeTagIds?: string[];
+
+  // rules
+  kind: string; // vat, ctax
+
+  // vat
+  taxType?: string;
+  taxCode?: string;
+  taxPercent?: number;
+}
+
+export interface IEbarimtProductRule extends IEbarimtProductRuleDoc {
+  _id: string;
+  createdAt: Date;
+  modifiedAt: Date;
+}
+
+// mutation types
+export type ProductRuleAddMutationResponse = {
+  carsAdd: (params: { variables: IEbarimtProductRule }) => Promise<any>;
+};
+
+export type ProductRuleEditMutationResponse = {
+  carsEdit: (params: { variables: IEbarimtProductRuleDoc }) => Promise<any>;
+};
+
+export type ProductRuleRemoveMutationVariables = {
+  carIds: string[];
+};
+
+export type ProductRulesRemoveMutationResponse = {
+  carsRemove: (params: { variables: ProductRuleRemoveMutationVariables }) => Promise<any>;
+};
+
+
+// query types
+
+export type ProductRuleListQueryVariables = {
+  page?: number;
+  perPage?: number;
+  sortField?: string;
+  sortDirection?: number;
+  productId?: string;
+  kind?: string;
+  taxCode?: string;
+  taxType?: string;
+};
+
+export type ProductRulesQueryResponse = {
+  ebarimtProductRules: IEbarimtProductRule[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type ProductRulesCountQueryResponse = {
+  ebarimtProductRulesCount: number;
+  loading: boolean;
+  refetch: () => void;
+};

@@ -118,7 +118,7 @@ const genStock = (detail, product, config) => {
     barCode,
     barCodeType,
     classificationCode: config.defaultGSCode,
-    taxProductCode: product.taxCode,
+    // taxProductCode: product.taxCode,
     measureUnit: product.uom ?? 'ш',
     qty: detail.quantity,
     unitPrice: detail.unitPrice,
@@ -154,24 +154,24 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
 
     const stock = genStock(detail, product, config);
 
-    if (product.taxType === '2') {
-      detailsFree.push({ ...stock });
-      freeAmount += detail.totalAmount;
-    } else if (product.taxType === '3') {
-      details0.push({ ...stock });
-      zeroAmount += detail.totalAmount;
-    } else if (product.taxType === '5') {
-      detailsInner.push({ ...stock });
-      innerAmount += detail.totalAmount;
-    } else {
-      const totalVAT = detail.totalAmount / totalPercent * vatPercent;
-      const totalCityTax = detail.totalAmount / totalPercent * cityTaxPercent;
-      ableAmount += detail.totalAmount;
-      ableVATAmount += totalVAT;
-      ableCityTaxAmount += totalCityTax;
+    // if (product.taxType === '2') {
+    //   detailsFree.push({ ...stock });
+    //   freeAmount += detail.totalAmount;
+    // } else if (product.taxType === '3') {
+    //   details0.push({ ...stock });
+    //   zeroAmount += detail.totalAmount;
+    // } else if (product.taxType === '5') {
+    //   detailsInner.push({ ...stock });
+    //   innerAmount += detail.totalAmount;
+    // } else {
+    const totalVAT = detail.totalAmount / totalPercent * vatPercent;
+    const totalCityTax = detail.totalAmount / totalPercent * cityTaxPercent;
+    ableAmount += detail.totalAmount;
+    ableVATAmount += totalVAT;
+    ableCityTaxAmount += totalCityTax;
 
-      details.push({ ...stock, totalVAT, totalCityTax });
-    }
+    details.push({ ...stock, totalVAT, totalCityTax });
+    // }
   }
 
   return {
