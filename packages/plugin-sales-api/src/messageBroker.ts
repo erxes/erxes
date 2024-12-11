@@ -121,7 +121,7 @@ export const setupMessageConsumers = async () => {
 
   consumeRPCQueue("sales:deals.create", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-    const deals = await models.Deals.createDeal(data);
+    const deal = await models.Deals.createDeal(data);
 
     const { customerId = "" } = data;
 
@@ -129,12 +129,25 @@ export const setupMessageConsumers = async () => {
       await createConformity(subdomain, {
         customerIds: [customerId],
         mainType: "deal",
-        mainTypeId: deals._id
+        mainTypeId: deal._id
       });
     }
+
+    const stage = await models.Stages.findOne({ _id: deal.stageId });
+
+    const pipeline = await models.Pipelines.findOne({ _id: stage?.pipelineId });
+
+    sendNotifications(models, subdomain, {
+      item: deal,
+      user: { _id: null } as any,
+      type: `dealAdd`,
+      action: `invited you to the ${pipeline?.name}`,
+      content: `'${deal.name}'.`,
+      contentType: "deal"
+    });
     return {
       status: "success",
-      data: deals
+      data: deal
     };
   });
 
