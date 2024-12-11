@@ -258,7 +258,6 @@ const checkBillType = async (subdomain, config, deal) => {
   return { type, customerCode, customerName, customerTin };
 };
 
-
 const getChildCategories = async (subdomain: string, categoryIds) => {
   const childs = await sendCoreMessage({
     subdomain,

@@ -36,6 +36,15 @@ export interface IPrice {
   [token: string]: number;
 }
 
+interface ITaxRule {
+  [token: string]: {
+    taxType?: string;
+    taxCode?: string;
+    citytaxCode?: string;
+    citytaxPercent?: number;
+  }
+}
+
 export interface IProduct extends IProductCommonFields {
   categoryId?: string;
   shortName?: string;
@@ -56,6 +65,8 @@ export interface IProduct extends IProductCommonFields {
   sameMasks?: string[];
   sameDefault?: string[];
   pdfAttachment?: IPdfAttachment;
+
+  taxRules?: ITaxRule;
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -137,6 +148,11 @@ export const productSchema = schemaWrapper(
     prices: field({
       type: Object,
       label: 'Unit price by token'
+    }),
+    taxRules: field({
+      type: Object,
+      optional: true,
+      label: 'tax rules by token'
     }),
     customFieldsData: field({
       type: [customFieldSchema],
