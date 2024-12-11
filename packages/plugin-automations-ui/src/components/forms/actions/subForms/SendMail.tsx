@@ -210,7 +210,7 @@ const RecipientsForm = ({
           "Please select  some attributes from attributes section"
         )}
         label="Dynamic mails"
-        attrTypes={["user", "customer", "companies", "segment"]}
+        attrTypes={["user", "contact", "segment"]}
         attrWithSegmentConfig={triggerType === "forms:form_submission"}
         triggerConfig={triggerConfig}
         onChange={onChange}
