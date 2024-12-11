@@ -1,9 +1,6 @@
 import { fetchByQueryWithScroll } from "@erxes/api-utils/src/elasticsearch";
 import { generateModels } from "./connectionResolver";
-import {
-  sendCommonMessage,
-  sendCoreMessage
-} from "./messageBroker";
+import { sendCommonMessage, sendCoreMessage } from "./messageBroker";
 import { generateConditionStageIds } from "./utils";
 import {
   gatherAssociatedTypes,
@@ -14,7 +11,15 @@ import {
 
 export default {
   dependentServices: [
-    { name: "contacts", twoWay: true, associated: true },
+    {
+      name: "core",
+      types: ["company", "customer", "lead"],
+      twoWay: true,
+      associated: true
+    },
+    { name: "tickets", twoWay: true, associated: true },
+    { name: "tasks", twoWay: true, associated: true },
+    { name: "purchases", twoWay: true, associated: true },
     { name: "inbox", twoWay: true }
   ],
 
@@ -96,6 +101,8 @@ export default {
     const associatedTypes: string[] = await gatherAssociatedTypes(mainType);
 
     let ids: string[] = [];
+
+    console.log({ associatedTypes, propertyType });
 
     if (associatedTypes.includes(propertyType)) {
       const mainTypeIds = await fetchByQueryWithScroll({

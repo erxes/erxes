@@ -24,7 +24,7 @@ import { checkRemainders } from "./products";
 import { getPureDate } from "@erxes/api-utils/src";
 import { checkDirectDiscount } from "./directDiscount";
 import { IPosUserDocument } from "../../models/definitions/posUsers";
-import { sendCoreMessage } from "../../messageBroker";
+import { sendCoreMessage, sendLoyaltiesMessage } from "../../messageBroker";
 import { nanoid } from "nanoid";
 import { getCompanyInfo } from "../../models/PutData";
 
@@ -40,8 +40,8 @@ export const generateOrderNumber = async (
   let latestOrder;
 
   if (config?.beginNumber) {
-    beginNumber = `${config.beginNumber}.`
-    regexSuffix = `${config.beginNumber}\.[0-9]*$`
+    beginNumber = `${config.beginNumber}.`;
+    regexSuffix = `${config.beginNumber}\.[0-9]*$`;
   }
 
   let number = `${todayStr}_${beginNumber}${suffix}`;
@@ -102,12 +102,17 @@ const validDueDate = (doc: IOrderInput, order?: IOrderDocument) => {
     return true;
   }
 
-  if (order && order.isPre && order.dueDate && getPureDate(order.dueDate) !== getPureDate(doc.dueDate)) {
+  if (
+    order &&
+    order.isPre &&
+    order.dueDate &&
+    getPureDate(order.dueDate) !== getPureDate(doc.dueDate)
+  ) {
     return true;
   }
 
   return false;
-}
+};
 
 export const validateOrder = async (
   subdomain: string,
@@ -122,7 +127,7 @@ export const validateOrder = async (
     throw new Error("Products missing in order. Please add products");
   }
 
-  if (!await validDueDate(doc, order)) {
+  if (!(await validDueDate(doc, order))) {
     throw new Error(
       "The due date of the pre-order must be recorded in the future"
     );
@@ -458,11 +463,9 @@ export const prepareOrderDoc = async (
   for (const item of items) {
     const fixedUnitPrice = Number(
       Number(
-        (
-          (productsOfId[item.productId] || {}).prices || {}
-        )[config.token] ||
-        item.unitPrice ||
-        0
+        ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
+          item.unitPrice ||
+          0
       ).toFixed(2)
     );
 
@@ -663,6 +666,46 @@ export const checkOrderAmount = (order: IOrderDocument, amount: number) => {
     paidAmount + amount > order.totalAmount
   ) {
     throw new Error("Amount exceeds total amount");
+  }
+};
+
+export const checkScoreAviableSubtractScoreCampaign = async (
+  subdomain: string,
+  models: IModels,
+  order: IOrderDocument,
+  paidAmounts
+) => {
+  for (const { type } of paidAmounts || []) {
+    const paymentTypes = await models.Configs.exists({
+      "paymentTypes.type": type,
+      "paymentTypes.scoreCampaignId": { $exists: true }
+    }).distinct("paymentTypes");
+
+    if (paymentTypes) {
+      const { scoreCampaignId, title } =
+        paymentTypes.find(config => config?.type === type) || {};
+
+      await sendLoyaltiesMessage({
+        subdomain,
+        action: "checkScoreAviableSubtract",
+        data: {
+          ownerType: order.customerType ? order.customerType : "customer",
+          ownerId: order.customerId,
+          campaignId: scoreCampaignId,
+          target: { ...order, paidAmounts }
+        },
+        isRPC: true,
+        defaultValue: false
+      }).catch(error => {
+        console.log(error);
+        if (error.message === "There has no enough score to subtract") {
+          throw new Error(
+            `There has no enough score to subtract using ${title}`
+          );
+        }
+        throw new Error(error.message);
+      });
+    }
   }
 };
 

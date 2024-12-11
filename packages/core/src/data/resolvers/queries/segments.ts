@@ -92,7 +92,15 @@ const segmentQueries = {
       const depServiceMeta = depService.config.meta || {};
 
       if (depServiceMeta.segments) {
-        const contentTypes = depServiceMeta.segments.contentTypes || [];
+        let contentTypes = depServiceMeta.segments.contentTypes || [];
+
+        if (!!dService?.types?.length) {
+          contentTypes = contentTypes.filter(({ type }) =>
+            (dService?.types || []).includes(type)
+          );
+        }
+
+        contentTypes = contentTypes;
 
         contentTypes.forEach((ct: ISegmentContentType) => {
           associatedTypes.push({

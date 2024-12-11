@@ -5,11 +5,17 @@ import type {
   MessageArgsOmitService
 } from "@erxes/api-utils/src/core";
 
-import { checkVouchersSale, confirmVoucherSale } from "./utils";
+import {
+  checkVouchersSale,
+  confirmVoucherSale,
+  generateAttributes,
+  handleScore
+} from "./utils";
 import {
   consumeQueue,
   consumeRPCQueue
 } from "@erxes/api-utils/src/messageBroker";
+import { getOwner } from "./models/utils";
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue(
@@ -69,6 +75,37 @@ export const setupMessageConsumers = async () => {
       };
     }
   );
+
+  consumeRPCQueue(
+    "loyalties:checkScoreAviableSubtract",
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.ScoreCampaigns.checkScoreAviableSubtract(data),
+        status: "success"
+      };
+    }
+  );
+
+  consumeRPCQueue("loyalties:doScoreCampaign", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.ScoreCampaigns.doCampaign(data),
+      status: "success"
+    };
+  });
+
+  consumeQueue("loyalties:updateScore", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    await handleScore(models, data);
+
+    return {
+      data: null,
+      status: "success"
+    };
+  });
 };
 
 export const sendCoreMessage = async (

@@ -75,6 +75,7 @@ export const fieldsTypes = `
 
     ${fieldCommonFields}
     relationType: String
+    isDisabled: Boolean
   }
 
   input OrderItem {
