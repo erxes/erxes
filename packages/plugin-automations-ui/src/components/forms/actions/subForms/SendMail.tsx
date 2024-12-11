@@ -42,6 +42,7 @@ type Props = {
   triggerType: string;
   triggerConfig: any;
   actionsConst: any[];
+  triggersConst: any[];
 };
 
 const checkToFieldConfigured = (emailRecipientsConst, config) => {
@@ -121,7 +122,8 @@ const RecipientsForm = ({
   triggerType,
   triggerConfig,
   config,
-  onChangeConfig
+  onChangeConfig,
+  additionalAttributes
 }) => {
   const [selectedTab, setTab] = useState("general");
 
@@ -132,8 +134,8 @@ const RecipientsForm = ({
   const renderAttrubutionInput = () => {
     const onChange = updatedConfig => onChangeConfig(updatedConfig);
 
-    const isAvailableTriggerExecutor = ["customer",'companies', "user"].some(c =>
-      triggerType.includes(c)
+    const isAvailableTriggerExecutor = ["customer", "companies", "user"].some(
+      c => triggerType.includes(c)
     );
 
     const customAttributions = isAvailableTriggerExecutor
@@ -160,7 +162,7 @@ const RecipientsForm = ({
         attrWithSegmentConfig={triggerType === "forms:form_submission"}
         triggerConfig={triggerConfig}
         onChange={onChange}
-        customAttributions={customAttributions}
+        customAttributions={[...additionalAttributes, ...customAttributions]}
         additionalContent={
           <Popover
             placement="auto"
@@ -346,7 +348,8 @@ const ConfigForm = ({
   closeModal,
   triggerConfig,
   setConfig,
-  triggerType
+  triggerType,
+  additionalAttributes
 }) => {
   const onSelect = (value, name) => {
     setConfig({ ...config, [name]: value });
@@ -397,6 +400,7 @@ const ConfigForm = ({
               emailRecipientsConst={emailRecipientsConst}
               triggerConfig={triggerConfig}
               triggerType={triggerType}
+              additionalAttributes={additionalAttributes}
             />
           )}
           onSave={setConfig}
@@ -462,13 +466,16 @@ export default function SendEmail({
   addAction,
   activeAction,
   closeModal,
-  triggerConfig
+  triggerConfig,
+  triggersConst
 }: Props) {
   const [config, setConfig] = useState<any>(activeAction?.config || {});
 
   if (config?.templateId) {
     const { emailRecipientsConst = [] } =
       actionsConst.find(action => action.type === "sendEmail") || {};
+    const { additionalAttributes = [] } =
+      (triggersConst || []).find(({ type }) => type === triggerType) || {};
 
     const updatedProps = {
       emailRecipientsConst,
@@ -478,7 +485,8 @@ export default function SendEmail({
       closeModal,
       triggerConfig,
       setConfig,
-      triggerType
+      triggerType,
+      additionalAttributes
     };
 
     return <ConfigForm {...updatedProps} />;

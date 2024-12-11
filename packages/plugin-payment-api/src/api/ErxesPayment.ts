@@ -40,7 +40,10 @@ class ErxesPayment {
         this.storepay = new StorePayAPI(payment.config, domain);
         break;
       case 'qpay':
-        this.qpay = new QpayAPI(payment.config, domain);
+        this.qpay = new QpayAPI(
+          { ...payment.config, branchCode: payment.name },
+          domain
+        );
         break;
       case 'monpay':
         this.monpay = new MonpayAPI(payment.config, domain);

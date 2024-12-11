@@ -328,7 +328,7 @@ export const getUsageByPluginType = async (args: {
         subdomain,
         serviceName: 'core',
         action: 'segmentCount',
-        data: { name: { $exists: true } },
+        data: { selector:{name: { $exists: true }} },
       });
     }
   }
