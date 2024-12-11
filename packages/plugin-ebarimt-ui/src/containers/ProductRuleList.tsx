@@ -1,18 +1,15 @@
-import { Alert, Bulk, router } from "@erxes/ui/src";
-import { ProductRulesCountQueryResponse, ProductRulesQueryResponse, ProductRulesRemoveMutationResponse } from "../types";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { mutations, queries } from "../graphql";
-
-import ProductRulesList from "../components/ProductRuleList";
+import { Alert, Bulk, router } from "@erxes/ui/src";
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import ProductRulesList from "../components/ProductRuleList";
+import { mutations, queries } from "../graphql";
+import { ProductRulesCountQueryResponse, ProductRulesQueryResponse, ProductRulesRemoveMutationResponse } from "../types";
 
 type Props = {
   queryParams: any;
 };
 
 const ProductRulesContainer = (props: Props) => {
-  const navigate = useNavigate();
   const { queryParams } = props;
 
   const productRulesQuery = useQuery<ProductRulesQueryResponse>(gql(queries.ebarimtProductRules), {

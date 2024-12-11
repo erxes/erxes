@@ -1,4 +1,4 @@
-import { ButtonMutate, Spinner } from '@erxes/ui/src';
+import { ButtonMutate } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import ProductRuleForm from '../components/ProductRuleForm';

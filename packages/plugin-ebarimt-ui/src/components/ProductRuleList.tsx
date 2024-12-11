@@ -24,7 +24,6 @@ type Props = {
   productRules: IEbarimtProductRule[];
   loading: boolean;
   totalCount: number;
-  // TODO: check is below line not throwing error ?
   toggleBulk: () => void;
   toggleAll: (targets: IEbarimtProductRule[], containerId: string) => void;
   bulk: any[];
@@ -67,7 +66,7 @@ const CarsList = (props: Props) => {
     remove({ ids }, emptyBulk);
   };
 
-  const ProductsRuleForm = formProps => {
+  const ProductsRuleForm = (formProps) => {
     return <ProductRuleForm {...formProps} queryParams={queryParams} />;
   };
 
@@ -109,11 +108,9 @@ const CarsList = (props: Props) => {
           });
 
       return (
-        <>
-          <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
-            Delete
-          </Button>
-        </>
+        <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
+          Delete
+        </Button>
       );
     }
 

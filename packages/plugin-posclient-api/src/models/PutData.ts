@@ -153,7 +153,7 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc, posToken: s
   for (const detail of (doc.details || []).filter(d => d.product)) {
     const { product } = detail;
 
-    const taxRule = product.taxRules && product.taxRules[posToken] || {};
+    const taxRule = product.taxRules?.[posToken] || {}
     const stock = genStock(detail, product, config, taxRule);
 
     if (taxRule.taxType === '2') {
@@ -165,29 +165,26 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc, posToken: s
     } else if (taxRule.taxType === '5') {
       detailsInner.push({ ...stock });
       innerAmount += detail.totalAmount;
+    } else if (!config.hasCitytax && config.reverseCtaxRules?.length && taxRule.citytaxCode) {
+      // when has a reverseCtitytax
+      const pCtaxPercent = Number(taxRule.citytaxPercent) || 0; // productCitytaxPercent per
+      const pTotalPercent = vatPercent + pCtaxPercent + 100;
+
+      const totalVAT = detail.totalAmount / pTotalPercent * vatPercent;
+      const totalCityTax = detail.totalAmount / pTotalPercent * pCtaxPercent;
+      ableAmount += detail.totalAmount;
+      ableVATAmount += totalVAT;
+      ableCityTaxAmount += totalCityTax;
+
+      details.push({ ...stock, totalVAT, totalCityTax });
     } else {
-      if (!config.hasCitytax && config.reverseCtaxRules?.length && taxRule.citytaxCode) {
-        // when has a reverseCtitytax
-        const pCtaxPercent = Number(taxRule.citytaxPercent) || 0; // productCitytaxPercent per
-        const pTotalPercent = vatPercent + pCtaxPercent + 100;
+      const totalVAT = detail.totalAmount / totalPercent * vatPercent;
+      const totalCityTax = detail.totalAmount / totalPercent * cityTaxPercent;
+      ableAmount += detail.totalAmount;
+      ableVATAmount += totalVAT;
+      ableCityTaxAmount += totalCityTax;
 
-        const totalVAT = detail.totalAmount / pTotalPercent * vatPercent;
-        const totalCityTax = detail.totalAmount / pTotalPercent * pCtaxPercent;
-        ableAmount += detail.totalAmount;
-        ableVATAmount += totalVAT;
-        ableCityTaxAmount += totalCityTax;
-
-        details.push({ ...stock, totalVAT, totalCityTax });
-      } else {
-        const totalVAT = detail.totalAmount / totalPercent * vatPercent;
-        const totalCityTax = detail.totalAmount / totalPercent * cityTaxPercent;
-        ableAmount += detail.totalAmount;
-        ableVATAmount += totalVAT;
-        ableCityTaxAmount += totalCityTax;
-
-        details.push({ ...stock, totalVAT, totalCityTax });
-      }
-
+      details.push({ ...stock, totalVAT, totalCityTax });
     }
   }
 

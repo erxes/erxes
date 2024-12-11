@@ -208,7 +208,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         }
 
         const productById = await calcProductsTaxRule(subdomain, pos.ebarimtConfig, [item]);
-        if(productById[item._id] && productById[item._id].taxRule){
+        if (productById[item._id]?.taxRule) {
           if (params.updatedDocument) {
             params.updatedDocument.taxRule = productById[item._id].taxRule;
           } else {

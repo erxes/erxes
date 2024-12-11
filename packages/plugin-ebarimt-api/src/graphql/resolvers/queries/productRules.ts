@@ -4,9 +4,7 @@ import { IContext } from "../../../connectionResolver";
 const generateFilter = async (subdomain, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
-  if (params.productId) {
-
-  }
+  // if (params.productId) {}
 
   if (params.searchValue) {
     filter.title = {
