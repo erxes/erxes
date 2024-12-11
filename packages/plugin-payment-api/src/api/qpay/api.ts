@@ -13,7 +13,7 @@ export const qpayCallbackHandler = async (models: IModels, data: any) => {
   }
 
   const transaction = await models.Transactions.getTransaction({
-    _id,
+    $or: [{ _id }, { code: _id }],
   });
 
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
@@ -45,12 +45,14 @@ export interface IQpayConfig {
   qpayMerchantUser: string;
   qpayMerchantPassword: string;
   qpayInvoiceCode: string;
+  branchCode: string;
 }
 
 export class QpayAPI extends BaseAPI {
   private qpayMerchantUser: string;
   private qpayMerchantPassword: string;
   private qpayInvoiceCode: any;
+  private branchCode: string;
   private domain?: string;
 
   constructor(config: IQpayConfig, domain?: string) {
@@ -59,6 +61,7 @@ export class QpayAPI extends BaseAPI {
     this.qpayInvoiceCode = config.qpayInvoiceCode;
     this.qpayMerchantPassword = config.qpayMerchantPassword;
     this.qpayMerchantUser = config.qpayMerchantUser;
+    this.branchCode = config.branchCode;
     this.domain = domain;
     this.apiUrl = PAYMENTS.qpay.apiUrl;
   }
@@ -93,7 +96,6 @@ export class QpayAPI extends BaseAPI {
         3600
       );
 
-
       return {
         Authorization: 'Bearer ' + res.access_token,
         'Content-Type': 'application/json',
@@ -104,17 +106,18 @@ export class QpayAPI extends BaseAPI {
     }
   }
 
-  async createInvoice(invoice: ITransactionDocument) {
+  async createInvoice(transaction: ITransactionDocument) {
     const { qpayInvoiceCode } = this;
 
     try {
       const data: IQpayInvoice = {
         invoice_code: qpayInvoiceCode,
-        sender_invoice_no: invoice._id,
+        sender_invoice_no: transaction.code,
         invoice_receiver_code: 'terminal',
-        invoice_description: invoice.description || 'test invoice',
-        amount: invoice.amount,
-        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?_id=${invoice._id}`,
+        invoice_description: transaction.description || 'test invoice',
+        sender_branch_code: this.branchCode,
+        amount: transaction.amount,
+        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?_id=${transaction.code}`,
       };
 
       const res = await this.request({
@@ -153,11 +156,11 @@ export class QpayAPI extends BaseAPI {
 
   async checkInvoice(transaction: ITransactionDocument) {
     // return PAYMENT_STATUS.PAID;
-    return this.check(transaction)
+    return this.check(transaction);
   }
 
   async manualCheck(transaction: ITransactionDocument) {
-    return this.check(transaction)
+    return this.check(transaction);
   }
 
   async cancelInvoice(invoice: ITransactionDocument) {
