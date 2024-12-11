@@ -1,7 +1,7 @@
 import { Sidebar } from '@erxes/ui/src';
 import React from 'react';
 
-import FeaturedImageSection from './sections/FeaturedImage';
+import MediaSection from './sections/MediaSection';
 
 type Props = {
   clientPortalId: string;
@@ -10,9 +10,8 @@ type Props = {
 };
 
 const LeftSidebar: React.FC<Props> = (props: Props) => (
-  <Sidebar>
-
-    <FeaturedImageSection {...props} />
+  <Sidebar wide={true}>
+    <MediaSection {...props} />
   </Sidebar>
 );
 

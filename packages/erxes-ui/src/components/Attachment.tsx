@@ -168,6 +168,7 @@ class Attachment extends React.Component<Props> {
 
   renderOtherInfo = (attachment) => {
     const { small } = this.props;
+    console.log('attachmentttttttttttttttt', attachment);
     const name = attachment.name || attachment.url || '';
 
     return (

@@ -4,6 +4,7 @@ import React from 'react';
 import CategorySection from './sections/CategorySection';
 import TagsSection from './sections/TagsSection';
 import MainSection from './sections/MainSection';
+import FeaturedImageSection from './sections/MediaSection';
 
 type Props = {
   clientPortalId: string;
@@ -12,7 +13,7 @@ type Props = {
 };
 
 const LeftSidebar: React.FC<Props> = (props: Props) => (
-  <Sidebar wide={true} hasBorder={false}>
+  <Sidebar wide={true} hasBorder={true }>
     <MainSection {...props} />
     <CategorySection {...props} />
     <TagsSection {...props} />

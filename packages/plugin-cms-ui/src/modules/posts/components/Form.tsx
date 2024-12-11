@@ -5,7 +5,7 @@ import {
   IButtonMutateProps,
   ILocationOption,
 } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __, clearTypename } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import LeftSideBar from './LeftSidebar';
@@ -18,7 +18,6 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Button, Uploader } from '@erxes/ui/src/components';
 import RightSidebar from './RightSidebar';
-
 
 type Props = {
   clientPortalId: string;
@@ -61,10 +60,9 @@ const PostForm = (props: Props) => {
   );
 
   const onChange = (field: string, value: any) => {
-    const editedPost = { ...post};
-    if (field ==='status')  {
-      editedPost.status = value;
-    }
+    console.log('onChange', field, ' - ', value);
+    const editedPost = { ...post };
+    editedPost[field] = value;
     console.log('editedPost', editedPost);
     setPost(editedPost);
   };
@@ -90,18 +88,15 @@ const PostForm = (props: Props) => {
       'categories',
       'tags',
       '_id',
-    ]
+    ];
 
-    fieldsToDelete.forEach(field => {
+    fieldsToDelete.forEach((field) => {
       delete doc[field];
     });
 
-
-    
-
     doc.clientPortalId = clientPortalId;
     console.log('doc', doc);
-    props.onSubmit(doc);
+    props.onSubmit(clearTypename(doc));
   };
 
   const breadcrumb = [
@@ -112,18 +107,7 @@ const PostForm = (props: Props) => {
   ];
 
   const content = (
-    <>
-      <FormGroup>
-        <ControlLabel>{__('Featured image')}</ControlLabel>
-        <Uploader
-          text='Select featured image'
-          accept='image/x-png,image/jpeg'
-          defaultFileList={post.thumbnail ? [post.thumbnail] : []}
-          onChange={onChangeImage}
-          single={true}
-        />
-      </FormGroup>
-
+    <div style={{ padding: '10px 15px' }}>
       <FormGroup>
         <ControlLabel required={true}>{__('Content')}</ControlLabel>
         <RichTextEditor
@@ -136,7 +120,7 @@ const PostForm = (props: Props) => {
           name={`post_${props.post ? props.post._id : 'create'}`}
         />
       </FormGroup>
-    </>
+    </div>
   );
 
   const renderHeader = () => {
@@ -172,13 +156,13 @@ const PostForm = (props: Props) => {
           clientPortalId={clientPortalId}
         />
       }
-      // rightSidebar={
-      //   <RightSidebar
-      //     post={post}
-      //     onChange={onChange}
-      //     clientPortalId={clientPortalId}
-      //   />
-      // }
+      rightSidebar={
+        <RightSidebar
+          post={post}
+          onChange={onChange}
+          clientPortalId={clientPortalId}
+        />
+      }
       content={content}
       transparent={true}
     />

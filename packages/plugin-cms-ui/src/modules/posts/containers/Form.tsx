@@ -21,7 +21,7 @@ const FormContainer = (props: Props) => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
-  const clientPortalId = searchParams.get('web') || '';
+  let clientPortalId = searchParams.get('web') || '';
   const postId = props.id;
 
   const { data, loading } = useQuery(queries.POST, {
@@ -41,6 +41,9 @@ const FormContainer = (props: Props) => {
   }
 
   const post = postId ? data.post : null;
+  if (post.clientPortalId) {
+    clientPortalId = post.clientPortalId;
+  }
 
   const onSubmit = (doc: any) => {
     if (postId) {

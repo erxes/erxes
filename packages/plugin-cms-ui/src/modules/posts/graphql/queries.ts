@@ -89,26 +89,32 @@ query Post($id: String) {
     thumbnail {
       url
       type
+      name
     }
     images {
       url
       type
+      name
     }
     video {
       url
       type
+      name
     }
     audio {
       url
       type
+      name
     }
     documents {
       url
       type
+      name
     }
     attachments {
       url
       type
+      name
     }
     createdAt
     updatedAt
