@@ -54,7 +54,6 @@ const PostForm = (props: Props) => {
     documents: [],
     attachments: [],
     customFieldsData: {},
-
   };
 
   const [post, setPost] = React.useState<IPostDocument>(
@@ -62,7 +61,12 @@ const PostForm = (props: Props) => {
   );
 
   const onChange = (field: string, value: any) => {
-    setPost({ ...post, [field]: value });
+    const editedPost = { ...post};
+    if (field ==='status')  {
+      editedPost.status = value;
+    }
+    console.log('editedPost', editedPost);
+    setPost(editedPost);
   };
 
   const onChangeImage = (images: IAttachment[]) => {
@@ -92,7 +96,11 @@ const PostForm = (props: Props) => {
       delete doc[field];
     });
 
+
+    
+
     doc.clientPortalId = clientPortalId;
+    console.log('doc', doc);
     props.onSubmit(doc);
   };
 

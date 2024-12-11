@@ -7,20 +7,21 @@ type Props = {
 };
 
 const MainContainer = (props: Props) => {
-  const [currentConfig, setCurrentConfig] = React.useState<any>(
-    props.currentConfig
+  console.log('props', props);
+  const [currentConfigId, setCurrentConfigId] = React.useState<string>(
+    props.currentConfig._id
   );
   const navigate = useNavigate();
   const location = useLocation();
 
   React.useEffect(() => {
-    if (currentConfig?._id) {
-      navigate(`${location.pathname}?web=${currentConfig._id}`, { replace: true });
+    console.log('currentConfig', currentConfigId);
+    if (currentConfigId) {
+      navigate(`${location.pathname}?web=${currentConfigId}`, {
+        replace: true,
+      });
     }
-  }, [currentConfig, navigate]);
-
-  const title = currentConfig?.name || 'Website';
-  const description = currentConfig.url || currentConfig.domain || '';
+  }, [currentConfigId, navigate]);
 
   return (
     <div style={{ minWidth: 200 }}>
@@ -28,10 +29,11 @@ const MainContainer = (props: Props) => {
         label={'a'}
         name='selectedCp'
         multi={false}
-        initialValue={currentConfig._id}
+        initialValue={currentConfigId}
         onSelect={(e) => {
           const value = e as string;
-          setCurrentConfig(value);
+          console.log('value', value);
+          setCurrentConfigId(value);
           localStorage.setItem('clientPortalId', value);
         }}
       />

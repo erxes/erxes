@@ -23,7 +23,7 @@ export default (props: {
     departmentIds?: string[];
   };
   label: string;
-  onSelect: (value: string[] | string, name: string) => void;
+  onSelect: (config:any) => void;
   multi?: boolean;
   withCustomStyle?: boolean;
   customOption?: IOption;
@@ -34,7 +34,6 @@ export default (props: {
 }) => {
   const {
     queryParams,
-    onSelect,
     customOption,
     customField,
     initialValue,
@@ -76,7 +75,7 @@ export default (props: {
       filterParams={filterParams}
       initialValue={defaultValue}
       generateOptions={generateOptions}
-      onSelect={onSelect}
+      onSelect={props.onSelect}
       customQuery={QUERY}
       customOption={customOption}
       multi={multi}

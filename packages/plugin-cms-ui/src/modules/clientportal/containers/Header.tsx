@@ -3,6 +3,7 @@ import { gql, useQuery } from '@apollo/client';
 import { Spinner } from '@erxes/ui/src/components';
 import Component from '../components/Header';
 import queries from '../graphql/queries';
+import { useSearchParams } from 'react-router-dom';
 
 type Props = {
   children?: React.ReactNode;
@@ -10,34 +11,47 @@ type Props = {
 
 
 const MainContainer = (props: Props) => {
-  const storedId = localStorage.getItem('clientPortalId');
+  const [searchParams] = useSearchParams();
+
+
+
+  const configId = searchParams.get('web') || localStorage.getItem('clientPortalId');
+  console.log('configId', configId);
 
   const { data: detailData, loading: detailLoading } = useQuery(queries.DETAIL_QUERY, {
     variables: {
-      id: storedId,
+      id: configId,
     },
-    skip: !storedId,
+    skip: !configId,
+    fetchPolicy: 'network-only',
   });
 
   const { data, loading } = useQuery(queries.GET_LAST_QUERY, {
     variables: {
       kind: 'client',
     },
+    skip: configId ? true : false,
   });
 
   if (loading || detailLoading) {
     return <Spinner />;
   }
 
-  const currentConfig = detailData
-    ? detailData.clientPortalGetConfig
-    : data?.clientPortalGetLast;
+  const config = detailData?.clientPortalGetConfig;
+  const lastConfig = data?.clientPortalGetLast;
+
+  console.log('config', config);
+  console.log('lastConfig', lastConfig);
+
+
+
+  const currentConfig = config || lastConfig;
 
   if (!currentConfig) {
     return null;
   }
 
-  return <Component currentConfig={data?.clientPortalGetLast} />;
+  return <Component currentConfig={currentConfig} />;
 };
 
 export default MainContainer;

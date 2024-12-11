@@ -87,9 +87,10 @@ const TripSection = (props: Props) => {
                         values.scheduledDate = new Date();
                       }
 
-                      onChange('status', e.target.value);
+                      
                       onChange('isScheduled', values.isScheduled);
                       onChange('scheduledDate', values.scheduledDate);
+                      onChange('status', e.target.value);
                     }}
                   >
                     {statusOptions.map((op) => (
