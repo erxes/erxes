@@ -1,4 +1,4 @@
-name: Plugin Bms UI CI
+name: Plugin bm UI CI
 
 on:
   push:
@@ -50,7 +50,7 @@ on:
       - "packages/plugin-bm-ui/**"
       - ".github/workflows/plugin-bm-ui.yaml"
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

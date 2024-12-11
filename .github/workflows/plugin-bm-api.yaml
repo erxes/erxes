@@ -1,4 +1,4 @@
-name: Plugin Bms Api CI
+name: Plugin bm Api CI
 
 on:
   push:
