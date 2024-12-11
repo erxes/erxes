@@ -68,26 +68,14 @@ export const BOARD_TYPES = {
 };
 
 export const NOTIFICATION_TYPES = {
-  DEAL_ADD: "dealAdd",
-  DEAL_REMOVE_ASSIGN: "dealRemoveAssign",
-  DEAL_EDIT: "dealEdit",
-  DEAL_CHANGE: "dealChange",
-  DEAL_DUE_DATE: "dealDueDate",
-  DEAL_DELETE: "dealDelete",
-  TICKET_ADD: "taskAdd",
-  TICKET_REMOVE_ASSIGN: "taskRemoveAssign",
-  TICKET_EDIT: "taskEdit",
-  TICKET_CHANGE: "taskChange",
-  TICKET_DUE_DATE: "taskDueDate",
-  TICKET_DELETE: "taskDelete",
+  TASK_ADD: "taskAdd",
+  TASK_REMOVE_ASSIGN: "taskRemoveAssign",
+  TASK_EDIT: "taskEdit",
+  TASK_CHANGE: "taskChange",
+  TASK_DUE_DATE: "taskDueDate",
+  TASK_DELETE: "taskDelete",
 
   ALL: [
-    "dealAdd",
-    "dealRemoveAssign",
-    "dealEdit",
-    "dealChange",
-    "dealDueDate",
-    "dealDelete",
     "taskAdd",
     "taskRemoveAssign",
     "taskEdit",
