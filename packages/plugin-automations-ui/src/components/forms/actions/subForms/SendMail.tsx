@@ -120,7 +120,9 @@ const EmailTemplatesList = ({ triggerType, onChangeConfig }) => {
       const updatedProps = {
         closeModal,
         contentType: triggerType,
-        additionalToolbarContent: SelectDocument({ triggerType }),
+        additionalToolbarContent: isEnabled("documents")
+          ? SelectDocument({ triggerType })
+          : () => null,
         params: { searchValue }
       };
 
