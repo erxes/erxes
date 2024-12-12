@@ -129,19 +129,20 @@ export default {
         return { data: [], status: "error" };
       }
 
-      ids = await sendCommonMessage({
-        serviceName,
-        subdomain,
-        action: "segments.associationFilter",
-        data: {
-          mainType,
-          propertyType,
-          positiveQuery,
-          negativeQuery
-        },
-        defaultValue: [],
-        isRPC: true
-      });
+      ids = []
+      //  await sendCommonMessage({
+      //   serviceName,
+      //   subdomain,
+      //   action: "segments.associationFilter",
+      //   data: {
+      //     mainType,
+      //     propertyType,
+      //     positiveQuery,
+      //     negativeQuery
+      //   },
+      //   defaultValue: [],
+      //   isRPC: true
+      // });
     }
 
     return { data: ids, status: "success" };
