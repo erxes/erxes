@@ -154,7 +154,7 @@ export default async function userMiddleware(
     // verify user token and retrieve stored user information
     const { user }: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
 
-    const userDoc = await models.Users.findOne({ _id: user._id });
+    const userDoc = await models.Users.findOne({ _id: user._id }, { deviceTokens: 0, validatedTokens: 0 }).lean();
 
     if (!userDoc) {
       return next();
