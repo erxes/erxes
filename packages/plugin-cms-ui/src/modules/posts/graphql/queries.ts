@@ -116,6 +116,16 @@ query Post($id: String) {
       type
       name
     }
+    pdfAttachment {
+      pages {
+        url
+        name
+        type
+        size
+        duration
+      }
+    }
+    videoUrl
     createdAt
     updatedAt
     author {

@@ -1,7 +1,7 @@
 import { Document, Schema } from 'mongoose';
 import slugify from 'slugify';
 import {nanoid} from 'nanoid';
-import { attachmentSchema, IAttachment } from '@erxes/api-utils/src/types';
+import { attachmentSchema, IAttachment, IPdfAttachment } from '@erxes/api-utils/src/types';
 import { customFieldSchema, ICustomField } from '@erxes/api-utils/src/definitions/common';
 
 export interface IPost {
@@ -31,6 +31,8 @@ export interface IPost {
   audio?: IAttachment;
   documents?: IAttachment[];
   attachments?: IAttachment[];
+  videoUrl?: string;
+  pdfAttachment?: IPdfAttachment;
 
   customFieldsData?: ICustomField;
 }
@@ -68,6 +70,8 @@ export const postSchema = new Schema<IPostDocument>(
     audio: { type: attachmentSchema, label: 'Audio' },
     documents: [{ type: attachmentSchema, label: 'Documents' }],
     attachments: [{ type: attachmentSchema, label: 'Attachments' }],
+    pdfAttachment: { type: Object, optional: true, label: 'PDF attachment' },
+    videoUrl: { type: String, label: 'Video URL' },
     customFieldsData: {
       type: [customFieldSchema],
       optional: true,

@@ -1,14 +1,4 @@
-{
-  /* <FormGroup>
-<ControlLabel>{__('Image')}</ControlLabel>
-<Uploader
-  defaultFileList={image ? [image] : []}
-  onChange={this.onChangeImage}
-  single={true}
-/>
-</FormGroup> */
-}
-
+import PdfUploader from '@erxes/ui/src/components/PdfUploader';
 import {
   __,
   ControlLabel,
@@ -19,11 +9,9 @@ import {
   Uploader,
 } from '@erxes/ui/src';
 import Box from '@erxes/ui/src/components/Box';
+import { IAttachment, IPdfAttachment } from '@erxes/ui/src/types';
 import React from 'react';
-import SelectTag from '../../../tags/containers/SelectTag';
-import { IAttachment } from '@erxes/ui/src/types';
 import styled from 'styled-components';
-import { on } from 'events';
 
 type Props = {
   clientPortalId: string;
@@ -68,7 +56,7 @@ const MediaSection = (props: Props) => {
         title = __('Featured image');
         uploaderProps.defaultFileList = post.thumbnail ? [post.thumbnail] : [];
         uploaderProps.text = __('Select featured image');
-        uploaderProps.accept = 'image/x-png,image/jpeg';
+        uploaderProps.accept = 'image/*';
         uploaderProps.single = true;
         description = __(
           'Image can be shown on the top of the post also in the list view'
@@ -80,12 +68,12 @@ const MediaSection = (props: Props) => {
         title = __('Image gallery');
         uploaderProps.defaultFileList = post.images;
         uploaderProps.text = __('Upload images');
-        uploaderProps.accept = 'image/x-png,image/jpeg';
+        uploaderProps.accept = 'image/*';
         uploaderProps.multiple = true;
         uploaderProps.limit = 10;
         description = __('Image gallery with maximum of 10 images');
         uploaderProps.icon = 'image-plus';
-     
+
         break;
       case 'video':
         title = __('Video');
@@ -126,7 +114,7 @@ const MediaSection = (props: Props) => {
     return {
       title,
       description,
-      uploaderProps
+      uploaderProps,
     };
   };
 
@@ -140,7 +128,7 @@ const MediaSection = (props: Props) => {
                 const { title, description, uploaderProps } =
                   getUploaderProps(kind);
                 return (
-                  <>
+                  <FormGroup>
                     <ControlLabel>{title}</ControlLabel>
                     <p>{description}</p>
                     <Uploader
@@ -149,17 +137,29 @@ const MediaSection = (props: Props) => {
                       {...uploaderProps}
                     />
                     <hr />
-                  </>
+                  </FormGroup>
                 );
               })}
               <FormGroup>
-                <ControlLabel>{'Youtube video'}</ControlLabel>
-                <p>{__('Enter youtube video link')}</p>
+                <ControlLabel>{'Newspaper & Magazine'}</ControlLabel>
+                <p>{'Pages of PDF file will be turned into images'}</p>
+                <PdfUploader
+                  attachment={post.pdfAttachment}
+                  onChange={(attachment?: IPdfAttachment) => {
+                    props.onChange('pdfAttachment', attachment);
+                  }}
+                />
+                <hr />
+              </FormGroup>
+
+              <FormGroup>
+                <ControlLabel>{'Video link'}</ControlLabel>
+                <p>{__('Video link such as YouTube, Vimeo etc')}</p>
                 <FormControl
                   type='text'
-                  value={post.video}
+                  value={post.videoUrl}
                   onChange={(e: any) =>
-                    props.onChange('youtubeLink', e.target.value)
+                    props.onChange('videoUrl', e.target.value)
                   }
                 />
               </FormGroup>

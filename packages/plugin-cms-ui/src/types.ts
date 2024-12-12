@@ -24,6 +24,7 @@ export interface IPostDocument {
   audio?: IAttachment;
   documents?: IAttachment[];
   attachments?: IAttachment[];
+  videoUrl?: string;
   customFieldsData?: {
     [key: string]: any;
   };

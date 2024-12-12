@@ -1,11 +1,15 @@
 import {
     attachmentType,
     attachmentInput,
+    pdfAttachmentType,
+    pdfAttachmentInput
   } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = `
   ${attachmentType}
   ${attachmentInput}
+  ${pdfAttachmentType}
+  ${pdfAttachmentInput}
 
   extend type User @key(fields: "_id") {
     _id: String! @external
@@ -46,6 +50,8 @@ export const types = `
         audio: Attachment
         documents: [Attachment]
         attachments: [Attachment]
+        pdfAttachment: PdfAttachment
+        videoUrl: String
         createdAt: Date
         updatedAt: Date
 
@@ -85,6 +91,8 @@ export const inputs = `
         audio: AttachmentInput
         documents: [AttachmentInput]
         attachments: [AttachmentInput]
+        pdfAttachment: PdfAttachmentInput
+        videoUrl: String
         customFieldsData: JSON
     }
 `;

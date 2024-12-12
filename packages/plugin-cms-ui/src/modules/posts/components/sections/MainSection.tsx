@@ -4,6 +4,7 @@ import {
   Sidebar,
   SidebarCounter,
   SidebarList,
+  Toggle,
 } from '@erxes/ui/src';
 import React from 'react';
 import Button from '@erxes/ui/src/components/Button';
@@ -65,6 +66,23 @@ const TripSection = (props: Props) => {
                   />
                 </FormGroup>
                 <FormGroup>
+                  <ControlLabel>Featured</ControlLabel>
+                  <p>Turn this post into a featured post</p>
+             
+                    <Toggle
+                      id='saveAsCustomer'
+                      checked={post.featured || false}
+                      onChange={(e: any) => {
+                        onChange('featured', e.target.checked);
+                      }}
+                      icons={{
+                        checked: <span>Yes</span>,
+                        unchecked: <span>No</span>,
+                      }}
+                    />
+                  <hr/>
+                </FormGroup>
+                <FormGroup>
                   <ControlLabel required={true} uppercase={false}>
                     {__('Status')}
                   </ControlLabel>
@@ -87,7 +105,6 @@ const TripSection = (props: Props) => {
                         values.scheduledDate = new Date();
                       }
 
-                      
                       onChange('isScheduled', values.isScheduled);
                       onChange('scheduledDate', values.scheduledDate);
                       onChange('status', e.target.value);
