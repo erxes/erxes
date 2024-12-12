@@ -1,6 +1,6 @@
 import {
   attachmentInput,
-  attachmentType
+  attachmentType,
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 const ruleFields = `
@@ -143,6 +143,6 @@ export const commonListTypes = `
   departments:[Department]
   assignedUserIds: [String]
   order: Int,
-  createdUserId:String,
+  createdUserId:String
   tags: [Tag]
 `;
