@@ -1,7 +1,7 @@
 import { __ } from '@erxes/ui/src/utils';
 import {
   Sidebar as LeftSidebar,
-  SidebarList as List
+  SidebarList as List,
 } from '@erxes/ui/src/layout';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -29,6 +29,7 @@ class Sidebar extends React.Component {
             '/erxes-plugin-loyalty/settings/general',
             'General config'
           )}
+          {this.renderListItem('/erxes-plugin-loyalty/settings/score', 'Score')}
           {this.renderListItem(
             '/erxes-plugin-loyalty/settings/voucher',
             'Voucher'

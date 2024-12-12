@@ -40,6 +40,11 @@ import { IVoucherModel, loadVoucherClass } from './models/Vouchers';
 import { IScoreLogModel, loadScoreLogClass } from './models/ScoreLogs';
 import { IScoreLogDocument } from './models/definitions/scoreLog';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
+import {
+  IScoreCampaignModel,
+  loadScoreCampaignClass,
+} from './models/ScoreCampaigns';
+import { IScoreCampaignDocuments } from './models/definitions/scoreCampaigns';
 
 export interface IModels {
   LoyaltyConfigs: ILoyaltyConfigModel;
@@ -54,6 +59,7 @@ export interface IModels {
   LotteryCampaigns: ILotteryCampaignModel;
   Lotteries: ILotteryModel;
   ScoreLogs: IScoreLogModel;
+  ScoreCampaigns: IScoreCampaignModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -114,6 +120,11 @@ export const loadClasses = (
     'score_logs',
     loadScoreLogClass(models, subdomain),
   );
+
+  models.ScoreCampaigns = db.model<
+    IScoreCampaignDocuments,
+    IScoreCampaignModel
+  >('score_campaigns', loadScoreCampaignClass(models, subdomain));
 
   return models;
 };
