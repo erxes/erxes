@@ -16,6 +16,7 @@ export const qpayCallbackHandler = async (models: IModels, data: any) => {
     $or: [{ _id }, { code: _id }],
   });
 
+
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
 
   if (payment.kind !== 'qpay') {
@@ -25,17 +26,17 @@ export const qpayCallbackHandler = async (models: IModels, data: any) => {
   try {
     const api = new QpayAPI(payment.config);
     const status = await api.checkInvoice(transaction);
-
+  
     if (status !== PAYMENT_STATUS.PAID) {
       return transaction;
     }
 
-    transaction.status = status;
-    transaction.updatedAt = new Date();
+    await models.Transactions.updateOne(
+      { _id: transaction._id },
+      { status, updatedAt: new Date() }
+    );
 
-    await transaction.save();
-
-    return transaction;
+    return models.Transactions.getTransaction({ _id: transaction._id });
   } catch (e) {
     throw new Error(e.message);
   }
@@ -112,12 +113,12 @@ export class QpayAPI extends BaseAPI {
     try {
       const data: IQpayInvoice = {
         invoice_code: qpayInvoiceCode,
-        sender_invoice_no: transaction.code,
+        sender_invoice_no: transaction.details?.sender_invoice_no || transaction.code,
         invoice_receiver_code: 'terminal',
         invoice_description: transaction.description || 'test invoice',
         sender_branch_code: this.branchCode,
         amount: transaction.amount,
-        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?_id=${transaction.code}`,
+        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?_id=${transaction._id}`,
       };
 
       const res = await this.request({

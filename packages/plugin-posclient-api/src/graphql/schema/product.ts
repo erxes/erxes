@@ -1,8 +1,8 @@
 import {
   attachmentInput,
   attachmentType,
-  pdfAttachmentType,
-} from '@erxes/api-utils/src/commonTypeDefs';
+  pdfAttachmentType
+} from "@erxes/api-utils/src/commonTypeDefs";
 
 const commonFieldDefs = `
   _id: String!

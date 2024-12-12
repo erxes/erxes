@@ -22,6 +22,7 @@ import { IContext, IOrderInput } from "../../types";
 import {
   checkOrderAmount,
   checkOrderStatus,
+  checkScoreAviableSubtractScoreCampaign,
   cleanOrderItems,
   generateOrderNumber,
   getTotalAmount,
@@ -422,8 +423,8 @@ const orderMutations = {
     });
 
     if (
-      order.type === 'delivery' &&
-      order.status === 'done' &&
+      order.type === "delivery" &&
+      order.status === "done" &&
       (order.deliveryInfo || order.description) &&
       order.customerId
     ) {
@@ -433,7 +434,7 @@ const orderMutations = {
           action: "createOrUpdateOrders",
           data: { action: "statusToDone", order, posToken: config.token }
         });
-      } catch (e) { }
+      } catch (e) {}
     }
     return await models.Orders.getOrder(_id);
   },
@@ -660,6 +661,12 @@ const orderMutations = {
 
     checkOrderStatus(order);
     checkOrderAmount(order, amount);
+    await checkScoreAviableSubtractScoreCampaign(
+      subdomain,
+      models,
+      order,
+      paidAmounts
+    );
 
     const modifier: any = {
       $set: {
@@ -905,10 +912,10 @@ const orderMutations = {
               ${order.number}
             </a> <br />
             posclient link:
-            <a href="${config.pdomain ?? '/'}?orderId=${order._id}">
+            <a href="${config.pdomain ?? "/"}?orderId=${order._id}">
               ${order.number}
             </a> <br />
-        `,
+        `
       },
       isRPC: true
     });

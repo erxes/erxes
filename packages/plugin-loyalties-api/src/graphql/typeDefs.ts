@@ -69,6 +69,12 @@ import {
   types as assignmentCampaignTypes,
 } from './schema/assignmentCampaign';
 
+import {
+  mutations as scoreCampaignMutations,
+  queries as scoreCampaignQueries,
+  types as scoreCampaignTypes,
+} from './schema/scoreCampaign';
+
 const typeDefs = async () => {
   return gql`
     scalar JSON
@@ -101,6 +107,7 @@ const typeDefs = async () => {
     ${scoreLogTypes}
     ${assignmentTypes}
     ${assignmentCampaignTypes}
+    ${scoreCampaignTypes}
 
     extend type Query {
       ${donateCampaignQueries}
@@ -116,6 +123,7 @@ const typeDefs = async () => {
       ${scoreLogQueries}
       ${assignmentQueries}
       ${assignmentCampaignQueries}
+      ${scoreCampaignQueries}
     }
 
     extend type Mutation {
@@ -132,6 +140,7 @@ const typeDefs = async () => {
       ${ScoreLogMutations}
       ${assignmentMutations}
       ${assignmentCampaignMutations}
+      ${scoreCampaignMutations}
     }
   `;
 };

@@ -4,8 +4,9 @@ import {
   FormControl,
   FormGroup,
   Icon,
+  SelectWithSearch,
   Tip,
-  __
+  __,
 } from "@erxes/ui/src";
 import { LeftItem } from "@erxes/ui/src/components/step/styles";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
@@ -32,6 +33,14 @@ type Props = {
   envs: any;
 };
 
+const campaignQuery = `
+query ScoreCampaigns {
+      scoreCampaigns {
+        _id,title
+      }
+    }
+`;
+
 const PaymentsStep = (props: Props) => {
   const { onChange, pos, posSlots, envs } = props;
 
@@ -48,7 +57,7 @@ const PaymentsStep = (props: Props) => {
   const onChangeInput = e => {
     onChangeFunction("pos", {
       ...pos,
-      [e.target.id]: (e.currentTarget as HTMLInputElement).value
+      [e.target.id]: (e.currentTarget as HTMLInputElement).value,
     });
   };
 
@@ -59,7 +68,7 @@ const PaymentsStep = (props: Props) => {
       _id: Math.random().toString(),
       type: "",
       title: "",
-      icon: ""
+      icon: "",
     });
 
     onChange("pos", { ...pos, paymentTypes });
@@ -127,7 +136,7 @@ const PaymentsStep = (props: Props) => {
     const iconOptions = PAYMENT_TYPE_ICONS.map(icon => ({
       value: icon,
       label: icon,
-      avatar: `${icon}`
+      avatar: `${icon}`,
     }));
 
     return (
@@ -179,6 +188,26 @@ const PaymentsStep = (props: Props) => {
               </Tip>
             </FormGroup>
           </FormColumn>
+          {isEnabled("loyalties") && (
+            <FormColumn>
+              <FormGroup>
+                <SelectWithSearch
+                  label={"Score Campaigns"}
+                  queryName="scoreCampaigns"
+                  name={"scoreCampaignId"}
+                  initialValue={paymentType?.scoreCampaignId}
+                  generateOptions={list =>
+                    list.map(({ _id, title }) => ({
+                      value: _id,
+                      label: title,
+                    }))
+                  }
+                  onSelect={value => editPayment("scoreCampaignId", value)}
+                  customQuery={campaignQuery}
+                />
+              </FormGroup>
+            </FormColumn>
+          )}
           <FormColumn>
             <FormGroup>
               <Button
@@ -201,7 +230,7 @@ const PaymentsStep = (props: Props) => {
             <>
               {loadDynamicComponent("selectPayments", {
                 defaultValue: pos.paymentIds || [],
-                onChange: (ids: string[]) => onChangePayments(ids)
+                onChange: (ids: string[]) => onChangePayments(ids),
               })}
 
               <Block>
@@ -254,6 +283,13 @@ const PaymentsStep = (props: Props) => {
                       <ControlLabel>Config</ControlLabel>
                     </FormGroup>
                   </FormColumn>
+                  {isEnabled("loyalties") && (
+                    <FormColumn>
+                      <FormGroup>
+                        <ControlLabel>Score Campaign</ControlLabel>
+                      </FormGroup>
+                    </FormColumn>
+                  )}
                   <FormColumn></FormColumn>
                 </FormWrapper>
               </div>

@@ -129,6 +129,7 @@ export interface IField {
 
   relationType?: string;
   subFieldIds?: string[];
+  isDisabled?: boolean;
 }
 
 export interface IFormProps {
