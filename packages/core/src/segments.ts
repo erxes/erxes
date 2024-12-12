@@ -68,8 +68,6 @@ export default {
 
     let ids: string[] = [];
 
-    console.log({ associatedTypes });
-
     if (
       associatedTypes
         .filter(type => type !== "core:form_submission")
@@ -108,6 +106,10 @@ export default {
       const serviceName = getServiceName(propertyType);
 
       if (propertyType.includes("customer", "company")) {
+        return { data: [], status: "error" };
+      }
+
+      if (serviceName === "core") {
         return { data: [], status: "error" };
       }
 

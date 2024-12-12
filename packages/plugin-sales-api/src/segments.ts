@@ -125,24 +125,24 @@ export default {
     } else {
       const serviceName = getServiceName(propertyType);
 
-      if (serviceName === "cards") {
+      if (serviceName === "sales") {
         return { data: [], status: "error" };
       }
 
-      ids = []
-      //  await sendCommonMessage({
-      //   serviceName,
-      //   subdomain,
-      //   action: "segments.associationFilter",
-      //   data: {
-      //     mainType,
-      //     propertyType,
-      //     positiveQuery,
-      //     negativeQuery
-      //   },
-      //   defaultValue: [],
-      //   isRPC: true
-      // });
+      ids = [];
+      await sendCommonMessage({
+        serviceName,
+        subdomain,
+        action: "segments.associationFilter",
+        data: {
+          mainType,
+          propertyType,
+          positiveQuery,
+          negativeQuery
+        },
+        defaultValue: [],
+        isRPC: true
+      });
     }
 
     return { data: ids, status: "success" };
