@@ -17,6 +17,7 @@ type Props = {
 
 const CategorySection = (props: Props) => {
   const { Section } = Sidebar;
+  console.log('props -----------', props);
   return (
     <Box title={__('Category')} name='category' isOpen={true}>
       <Sidebar.Section>

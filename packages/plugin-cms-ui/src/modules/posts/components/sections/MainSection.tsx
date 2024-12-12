@@ -13,6 +13,7 @@ import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Box from '@erxes/ui/src/components/Box';
+import dayjs from 'dayjs';
 
 type Props = {
   post: any;
@@ -22,6 +23,13 @@ type Props = {
 const TripSection = (props: Props) => {
   const { Section } = Sidebar;
   const { post, onChange } = props;
+  const [autoArchiveEnabled, setAutoArchiveEnabled] = React.useState(false);
+
+  const formatDate = (date: Date) => {
+    let day = dayjs(date || new Date());
+
+    return day.format('YYYY-MM-DD HH:mm');
+  };
 
   const statusOptions = [
     { value: 'draft', label: __('Draft') },
@@ -68,19 +76,19 @@ const TripSection = (props: Props) => {
                 <FormGroup>
                   <ControlLabel>Featured</ControlLabel>
                   <p>Turn this post into a featured post</p>
-             
-                    <Toggle
-                      id='saveAsCustomer'
-                      checked={post.featured || false}
-                      onChange={(e: any) => {
-                        onChange('featured', e.target.checked);
-                      }}
-                      icons={{
-                        checked: <span>Yes</span>,
-                        unchecked: <span>No</span>,
-                      }}
-                    />
-                  <hr/>
+
+                  <Toggle
+                    id='featured'
+                    checked={post.featured || false}
+                    onChange={(e: any) => {
+                      onChange('featured', e.target.checked);
+                    }}
+                    icons={{
+                      checked: <span>Yes</span>,
+                      unchecked: <span>No</span>,
+                    }}
+                  />
+                  <hr />
                 </FormGroup>
                 <FormGroup>
                   <ControlLabel required={true} uppercase={false}>
@@ -117,6 +125,58 @@ const TripSection = (props: Props) => {
                     ))}
                   </FormControl>
                 </FormGroup>
+                {post.status === 'scheduled' && (
+                  <FormGroup>
+                    <ControlLabel>{__('Publish date')}</ControlLabel>
+                    <FormControl
+                      name='scheduledDate'
+                      type='datetime-local'
+                      defaultValue={formatDate(post.scheduledDate)}
+                      onChange={(e: any) => {
+                        onChange('scheduledDate', e.target.value);
+                      }}
+                    />
+                  </FormGroup>
+                )}
+
+                {['scheduled', 'published'].includes(post.status) && (
+                  <FormGroup>
+                    <ControlLabel>Enable auto archive</ControlLabel>
+
+                    <Toggle
+                      id='autoArchive'
+                      checked={autoArchiveEnabled}
+                      onChange={(e: any) => {
+                        setAutoArchiveEnabled(e.target.checked);
+                        if (!e.target.checked) {
+                          onChange('autoArchiveDate', null);
+                        }
+                      }}
+                      icons={{
+                        checked: <span>Yes</span>,
+                        unchecked: <span>No</span>,
+                      }}
+                    />
+                    <hr />
+                  </FormGroup>
+                )}
+
+                {autoArchiveEnabled && (
+                  <FormGroup>
+                    <ControlLabel>{__('Archive date')}</ControlLabel>
+                    <p>
+                      {__('Post will be automatically archived on this date')}
+                    </p>
+                    <FormControl
+                      name='autoArchiveDate'
+                      type='datetime-local'
+                      defaultValue={formatDate(post.autoArchiveDate)}
+                      onChange={(e: any) => {
+                        onChange('autoArchiveDate', e.target.value);
+                      }}
+                    />
+                  </FormGroup>
+                )}
               </div>
             </li>
           </SidebarList>

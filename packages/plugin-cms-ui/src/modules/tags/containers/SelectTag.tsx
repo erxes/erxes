@@ -11,7 +11,6 @@ type Props = {
 };
 
 const Container = (props: Props) => {
-  console.log("props", props)
   const { value, onChange } = props;
   const [searchValue, setSearchValue] = React.useState<string>('');
   const [options, setOptions] = React.useState<any[]>([]);
@@ -54,8 +53,11 @@ const Container = (props: Props) => {
         menuPortal: (base) => ({ ...base, zIndex: 9999 }), // Adjust z-index for the dropdown
       }}
       options={options}
-      defaultValue={value}
-      // value={value}
+      value={options.filter(option => 
+        props.isMulti 
+          ? Array.isArray(value) && value.includes(option.value) 
+          : option.value === value
+      )} 
       onChange={handleChange}
       onInputChange={handleInputChange}
       isMulti={props.isMulti}
