@@ -1,6 +1,6 @@
 import { fetchPolaris } from "../utils";
 
-const getFieldsValue = (customer, fieldRule) => {
+export const getFieldsValue = (customer, fieldRule) => {
   if (fieldRule.propType) {
     return customer[fieldRule.propType]
   }
