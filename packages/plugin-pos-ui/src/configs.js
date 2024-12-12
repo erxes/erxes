@@ -12,9 +12,12 @@ module.exports = {
   routes: {
     url: "http://localhost:3016/remoteEntry.js",
     scope: "pos",
-    module: "./routes",
+    module: "./routes"
   },
   invoiceDetailRightSection: "./invoiceDetailRightSection",
+  loyaltyScoreCampaignAttributes: [
+    { label: "Pos Order Total Amount", value: "totalAmount" }
+  ],
   automation: "./automation",
   menus: [
     {
@@ -22,7 +25,7 @@ module.exports = {
       url: "/pos-orders",
       icon: "icon-lamp",
       location: "mainNavigation",
-      permission: "showPos",
+      permission: "showPos"
     },
     {
       text: "POS",
@@ -31,8 +34,8 @@ module.exports = {
       location: "settings",
       scope: "pos",
       action: "posConfig",
-      permissions: ["showPos"],
-    },
+      permissions: ["showPos"]
+    }
   ],
-  customerRightSidebarSection: "./customerSidebar",
+  customerRightSidebarSection: "./customerSidebar"
 };

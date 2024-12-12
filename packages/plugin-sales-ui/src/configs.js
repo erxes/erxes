@@ -27,6 +27,9 @@ module.exports = {
   contactDetailRightSidebar: "./contactDetailRightSidebar",
   invoiceDetailRightSection: "./invoiceDetailRightSection",
   selectRelation: "./selectRelation",
+  loyaltyScoreCampaignAttributes: [
+    { label: "Sales Total Amount", value: "productsData.amount" }
+  ],
   menus: [
     {
       text: "Sales Pipeline",

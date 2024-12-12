@@ -1,4 +1,4 @@
-import { commonFilters } from './common';
+import { commonFilters } from "./common";
 
 export const types = `
   type ScoreLog {
@@ -18,9 +18,9 @@ export const types = `
 `;
 
 export const queries = `
-  scoreLogs(${commonFilters}): [ScoreLog]
-  scoreLogList(${commonFilters},orderType:String,order:String,fromDate:String,toDate:String):List
+  scoreLogs(${commonFilters},campaignId:String): [ScoreLog]
+  scoreLogList(${commonFilters},campaignId:String,orderType:String,order:String,fromDate:String,toDate:String):List
 `;
 export const mutation = `
-  changeScore( ownerType: String, ownerId: String, changeScore: Int, description: String, createdBy: String ):JSON
+  changeScore( ownerType: String, ownerId: String, changeScore: Int, description: String, createdBy: String,campaignId:String ):JSON
 `;
