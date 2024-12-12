@@ -128,7 +128,7 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
             subdomain,
             action: "doScoreCampaign",
             data: {
-              ownerType: order.customerType ? order.customerType : "customer",
+              ownerType: order.customerType || "customer",
               ownerId: order.customerId,
               campaignId: paymentType.scoreCampaignId,
               target: order,

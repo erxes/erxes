@@ -689,7 +689,7 @@ export const checkScoreAviableSubtractScoreCampaign = async (
         subdomain,
         action: "checkScoreAviableSubtract",
         data: {
-          ownerType: order.customerType ? order.customerType : "customer",
+          ownerType: order.customerType || "customer",
           ownerId: order.customerId,
           campaignId: scoreCampaignId,
           target: { ...order, paidAmounts }

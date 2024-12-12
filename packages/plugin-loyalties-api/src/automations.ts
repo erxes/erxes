@@ -279,8 +279,6 @@ const generateScore = async ({
 
     const actionConfig = scoreCampaign[action];
 
-    console.log({ actionConfig });
-
     const placeholder = await replaceContent({
       serviceName,
       subdomain,
