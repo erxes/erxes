@@ -403,6 +403,7 @@ export const createBoardItem = async (
     });
   } catch (e) {
     if (e.message.includes(`E11000 duplicate key error`)) {
+      console.log(doc.number, type, doc.stageId)
       await createBoardItem(models, subdomain, doc, type);
     } else {
       throw new Error(e.message);
