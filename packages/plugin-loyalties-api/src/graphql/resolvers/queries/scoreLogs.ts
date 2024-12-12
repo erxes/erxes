@@ -6,8 +6,8 @@ import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
 
 const scoreLogQueries = {
-  async scoreLogs(_root, params: ICommonParams, { models }: IContext) {
-    const { ownerType, ownerId, searchValue } = params;
+  async scoreLogs(_root, params: any, { models }: IContext) {
+    const { ownerType, ownerId, searchValue, campaignId, action } = params;
     const filter: any = {};
 
     if (ownerType) {
@@ -21,6 +21,15 @@ const scoreLogQueries = {
     if (searchValue) {
       filter.description = searchValue;
     }
+
+    if (campaignId) {
+      filter.campaignId = campaignId;
+    }
+
+    if (action) {
+      filter.action = action;
+    }
+
     return paginate(
       models.ScoreLogs.find(filter).sort({ createdAt: -1 }),
       params

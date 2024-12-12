@@ -156,7 +156,7 @@ export default class GenerateField extends React.Component<Props, State> {
     let { value, errorCounter, errorMessage } = this.state;
     let checkBoxValues = this.state.checkBoxValues || [];
     const { type } = this.props.field;
-    let { validation } = this.props.field;
+    let { validation,isDisabled } = this.props.field;
 
     if (hasError) {
       value = "";
@@ -257,6 +257,10 @@ export default class GenerateField extends React.Component<Props, State> {
       errorCounter = errorCounter + 1;
 
       this.setState({ errorCounter });
+    }
+
+    if (isDisabled) {
+      attrs.disabled = true;
     }
 
     return <FormControl {...attrs} />;

@@ -61,6 +61,7 @@ export interface IScoreParams {
   toDate: String;
   page?: number;
   perPage?: number;
+  campaignId?: String;
 }
 
 export const attachmentSchema = new Schema(
