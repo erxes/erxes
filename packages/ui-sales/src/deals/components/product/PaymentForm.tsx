@@ -97,7 +97,7 @@ class PaymentForm extends React.Component<Props, State> {
       this.paymentStateChange(
         'amount',
         NAME,
-        parseFloat((e.target as HTMLInputElement).value || '0')
+        parseFloat((e.target as HTMLInputElement).value || '0'),
       );
     };
 
@@ -162,7 +162,7 @@ class PaymentForm extends React.Component<Props, State> {
             value={selectOptions.find(
               option =>
                 option.value ===
-                (paymentsData[NAME] ? paymentsData[NAME].currency : 0)
+                (paymentsData[NAME] ? paymentsData[NAME].currency : 0),
             )}
             onChange={currencyOnChange}
             components={{ Option }}
@@ -176,9 +176,10 @@ class PaymentForm extends React.Component<Props, State> {
 
   renderPayments() {
     const part1 = PAYMENT_TYPES.map(type => this.renderPaymentsByType(type));
-    const part2 = this.props.pipelineDetail.paymentTypes.map(type =>
-      this.renderPaymentsByType(type)
-    );
+    const part2 =
+      this.props.pipelineDetail?.paymentTypes?.map(type =>
+        this.renderPaymentsByType(type),
+      ) || [];
     return [...part1, ...part2];
   }
 
