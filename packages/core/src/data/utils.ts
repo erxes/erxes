@@ -54,8 +54,6 @@ const applyTemplate = async (data: any, templateName: string) => {
 
   template = Handlebars.compile(template.toString());
 
-  console.log({ data });
-
   return template(data);
 };
 
@@ -217,7 +215,6 @@ export const sendEmail = async (
 
     mailOptions.headers = headers;
 
-    console.log({ mailOptions });
     try {
       if (sendgridMail) {
         await sendgridMail.send(mailOptions).then(
@@ -231,7 +228,7 @@ export const sendEmail = async (
           }
         );
       } else {
-        transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptions);
       }
     } catch (e) {
       debugError(`Error sending email: ${e.message}`);
