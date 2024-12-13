@@ -104,8 +104,6 @@ const PostForm = (props: Props) => {
     },
   ];
 
-  console.log('post content ', post.content);
-
   const content = (
     <div style={{ padding: '10px 15px' }}>
       <FormGroup>
