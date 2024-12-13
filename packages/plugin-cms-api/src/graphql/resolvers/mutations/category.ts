@@ -52,7 +52,7 @@ const mutations = {
   /**
    * Cms category toggle status
    */
-  cmsCategorysToggleStatus: async (
+  cmsCategoriesToggleStatus: async (
     _parent: any,
     args: any,
     context: IContext
@@ -68,12 +68,12 @@ const mutations = {
 requireLogin(mutations, 'cmsCategoriesAdd');
 requireLogin(mutations, 'cmsCategoriesEdit');
 requireLogin(mutations, 'cmsCategoriesRemove');
-requireLogin(mutations, 'cmsCategorysToggleStatus');
+requireLogin(mutations, 'cmsCategoriesToggleStatus');
 
 checkPermission(mutations, 'cmsCategoriesAdd', 'cmsCategoriesAdd', []);
 checkPermission(mutations, 'cmsCategoriesEdit', 'cmsCategoriesEdit', []);
 checkPermission(mutations, 'cmsCategoriesRemove', 'cmsCategoriesRemove', []);
-checkPermission(mutations, 'cmsCategorysToggleStatus', 'cmsCategoriesEdit', []);
+checkPermission(mutations, 'cmsCategoriesToggleStatus', 'cmsCategoriesEdit', []);
 
 export default mutations;
 
