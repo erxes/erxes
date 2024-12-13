@@ -4,18 +4,19 @@ import {
   FormControl,
   FormGroup,
   Icon,
+  SelectWithSearch,
   Tip,
   __,
-} from '@erxes/ui/src';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
-import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
-import React, { useState } from 'react';
-import Select, { components } from 'react-select';
-import styled from 'styled-components';
-import { PAYMENT_TYPE_ICONS } from '../../../constants';
-import { Block, Description, FlexColumn, FlexItem } from '../../../styles';
-import { IPos, ISlot } from '../../../types';
+} from "@erxes/ui/src";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
+import React, { useState } from "react";
+import Select, { components } from "react-select";
+import styled from "styled-components";
+import { PAYMENT_TYPE_ICONS } from "../../../constants";
+import { Block, Description, FlexColumn, FlexItem } from "../../../styles";
+import { IPos, ISlot } from "../../../types";
 
 export const SelectValue = styled.div`
   display: flex;
@@ -31,6 +32,14 @@ type Props = {
   posSlots: ISlot[];
   envs: any;
 };
+
+const campaignQuery = `
+query ScoreCampaigns {
+      scoreCampaigns {
+        _id,title
+      }
+    }
+`;
 
 const PaymentsStep = (props: Props) => {
   const { onChange, pos, posSlots, envs } = props;
@@ -57,9 +66,9 @@ const PaymentsStep = (props: Props) => {
 
     paymentTypes.push({
       _id: Math.random().toString(),
-      type: '',
-      title: '',
-      icon: '',
+      type: "",
+      title: "",
+      icon: "",
     });
 
     onChange('pos', { ...pos, paymentTypes });
@@ -179,6 +188,26 @@ const PaymentsStep = (props: Props) => {
               </Tip>
             </FormGroup>
           </FormColumn>
+          {isEnabled("loyalties") && (
+            <FormColumn>
+              <FormGroup>
+                <SelectWithSearch
+                  label={"Score Campaigns"}
+                  queryName="scoreCampaigns"
+                  name={"scoreCampaignId"}
+                  initialValue={paymentType?.scoreCampaignId}
+                  generateOptions={list =>
+                    list.map(({ _id, title }) => ({
+                      value: _id,
+                      label: title,
+                    }))
+                  }
+                  onSelect={value => editPayment("scoreCampaignId", value)}
+                  customQuery={campaignQuery}
+                />
+              </FormGroup>
+            </FormColumn>
+          )}
           <FormColumn>
             <FormGroup>
               <Button
@@ -254,6 +283,13 @@ const PaymentsStep = (props: Props) => {
                       <ControlLabel>Config</ControlLabel>
                     </FormGroup>
                   </FormColumn>
+                  {isEnabled("loyalties") && (
+                    <FormColumn>
+                      <FormGroup>
+                        <ControlLabel>Score Campaign</ControlLabel>
+                      </FormGroup>
+                    </FormColumn>
+                  )}
                   <FormColumn></FormColumn>
                 </FormWrapper>
               </div>

@@ -65,6 +65,12 @@ const generateCode = async (models: IModels) => {
     }
   }
 
+  const codeExists = await models.Transactions.findOne({ code });
+
+  if (codeExists) {
+    code = await generateCode(models);
+  }
+
   return code;
 };
 

@@ -1,50 +1,47 @@
 # Changelog
 
-## [2.2.0-rc.8](https://github.com/erxes/erxes/compare/2.2.0-rc.7...2.2.0-rc.8) (2024-12-10)
-
-## [2.2.0-rc.7](https://github.com/erxes/erxes/compare/2.1.0-rc.6...2.2.0-rc.7) (2024-12-10)
-
-## [2.2.0-rc.6](https://github.com/erxes/erxes/compare/2.1.0-rc.6...2.2.0-rc.6) (2024-12-10)
-
-## [2.1.0-rc.6](https://github.com/erxes/erxes/compare/2.2.0-rc.6...2.1.0-rc.6) (2024-12-10)
-
-## [2.2.0-rc.6](https://github.com/erxes/erxes/compare/2.2.0-rc.5...2.2.0-rc.6) (2024-12-10)
+## [2.2.0-rc.9](https://github.com/erxes/erxes/compare/2.2.0-rc.8...2.2.0-rc.9) (2024-12-12)
 
 
 ### Bug Fixes
 
-* **automations:** add abilit create aws transport when ([f8d3088](https://github.com/erxes/erxes/commit/f8d308823e43a0c072c6695ca067a7314c24a1a1))
-* **automations:** remove unnecessary condition ([9221083](https://github.com/erxes/erxes/commit/9221083e7cf35b309f5c06085ff490d9a4c281f4))
-* **automations:** stop get from user from ([5b24be0](https://github.com/erxes/erxes/commit/5b24be0df91cc557b10ef4ea0af011fc599c5773))
-* **notifications:** saas ([8d20244](https://github.com/erxes/erxes/commit/8d20244436b4c53b0548ef10ec2741d277be44fb))
-* **segments:** count ([cd48fc1](https://github.com/erxes/erxes/commit/cd48fc18af8b6039e83c4be092d493812f02eb8c))
+* syncpolaris pull settings ([61caefa](https://github.com/erxes/erxes/commit/61caefae0e6ab3e2af4d1fa6675cbdfc528f9561))
+* userMiddleware exclude deviceTokens ([16ddc72](https://github.com/erxes/erxes/commit/16ddc72a578916e9ba535f7478f5bacf4536833b))
 
-## [2.2.0-rc.5](https://github.com/erxes/erxes/compare/2.2.0-rc.4...2.2.0-rc.5) (2024-12-09)
+## [2.2.0-rc.8](https://github.com/erxes/erxes/compare/2.2.0-rc.8...2.2.0-rc.9) (2024-12-10)
+
+## [2.2.0-rc.7](https://github.com/erxes/erxes/compare/2.2.0-rc.8...2.2.0-rc.9) (2024-12-10)
+
+## [2.1.0-rc.6](https://github.com/erxes/erxes/compare/2.2.0-rc.8...2.2.0-rc.9) (2024-12-10)
+
+## [2.2.0-rc.6](https://github.com/erxes/erxes/compare/2.2.0-rc.8...2.2.0-rc.9) (2024-12-10)
+
+## [2.2.0-rc.5](https://github.com/erxes/erxes/compare/2.2.0-rc.8...2.2.0-rc.9) (2024-12-09)
 
 
 ### Features
 
 * **cards:** add new permission feat which shows cards based on branch ([780b192](https://github.com/erxes/erxes/commit/780b192e25aa056e28779cad4b34cc514a2de9e6))
 
-## [2.2.0-rc.4](https://github.com/erxes/erxes/compare/2.2.0-rc.3...2.2.0-rc.4) (2024-12-06)
+## [2.2.0-rc.4](https://github.com/erxes/erxes/compare/2.2.0-rc.8...2.2.0-rc.9) (2024-12-06)
 
-## [2.2.0-rc.3](https://github.com/erxes/erxes/compare/2.2.0-rc.2...2.2.0-rc.3) (2024-12-06)
+## [2.2.0-rc.3](https://github.com/erxes/erxes/compare/2.2.0-rc.8...2.2.0-rc.9) (2024-12-06)
 
-## [2.2.0-rc.2](https://github.com/erxes/erxes/compare/2.2.0-rc.1...2.2.0-rc.2) (2024-12-05)
+## [2.2.0-rc.2](https://github.com/erxes/erxes/compare/2.2.0-rc.8...2.2.0-rc.9) (2024-12-05)
 
 
 ### Bug Fixes
 
 * wrong type field ([8417647](https://github.com/erxes/erxes/commit/8417647ca323d06128d579f490837504d79cb1df))
 
-## [2.2.0-rc.1](https://github.com/erxes/erxes/compare/2.2.0-rc.1...2.2.0-rc.2) (2024-12-04)
+## [2.2.0-rc.1](https://github.com/erxes/erxes/compare/2.2.0-rc.8...2.2.0-rc.9) (2024-12-04)
 
 
 ### Features
 
 * syncpolaris pull polaris config and save ([#5819](https://github.com/erxes/erxes/issues/5819)) ([88cf624](https://github.com/erxes/erxes/commit/88cf62415075b575d99665d36082ba977af0930d))
 
-## [2.2.0-rc.0](https://github.com/erxes/erxes/compare/2.2.0-rc.1...2.2.0-rc.2) (2024-12-03)
+## [2.2.0-rc.0](https://github.com/erxes/erxes/compare/2.2.0-rc.8...2.2.0-rc.9) (2024-12-03)
 
 
 ### Features
@@ -77,22 +74,41 @@
 
 * accounting ([#5823](https://github.com/erxes/erxes/issues/5823)) ([db3fa98](https://github.com/erxes/erxes/commit/db3fa98bffa4a1850347b34cd416b6aa422ee72a))
 
-## [2.1.2](https://github.com/erxes/erxes/compare/2.2.0-rc.1...2.2.0-rc.2) (2024-12-05)
-
-
-### Bug Fixes
-
-* **automations:** add ability set custom additional attributes in action detail form & check is getRecipientsEmails field value is array ([ffcfa87](https://github.com/erxes/erxes/commit/ffcfa876e9410330a6fc14d21f7bb4964363b580))
-* cloudflare account hash env ([62419c8](https://github.com/erxes/erxes/commit/62419c8067a75c1d8716c0635ebb82d1b4ec4cae))
-* sales documents stage type ([1661416](https://github.com/erxes/erxes/commit/166141603c5d6ae8700016715204a94b9d3a3a38))
-* **segments:** add filter params in segment form ([d72460c](https://github.com/erxes/erxes/commit/d72460cbb21837b986ad287c548d856289c22969))
-
-## [2.2.0-rc.1](https://github.com/erxes/erxes/compare/2.2.0-rc.0...2.2.0-rc.1) (2024-12-04)
+## [2.1.3](https://github.com/erxes/erxes/compare/2.2.0-rc.8...2.2.0-rc.9) (2024-12-12)
 
 
 ### Features
 
-* syncpolaris pull polaris config and save ([#5819](https://github.com/erxes/erxes/issues/5819)) ([88cf624](https://github.com/erxes/erxes/commit/88cf62415075b575d99665d36082ba977af0930d))
+* **loyalties:** score campaign ([9951e63](https://github.com/erxes/erxes/commit/9951e6301428ce3e389d6f3c8fdf9290ab5ce7ba))
+* **payment:** use payment name as qpay sender_branch_code ([fab5443](https://github.com/erxes/erxes/commit/fab5443c08398bceb5cb4bd0f47bedc04b043080))
+
+
+### Bug Fixes
+
+* deal export & notifType handle null ([8f7b106](https://github.com/erxes/erxes/commit/8f7b10607924c9bf137a302a1b2eb31c570bcc9c))
+* **sales:** can't send email notification when created sales card using rpc request ([d2a75d3](https://github.com/erxes/erxes/commit/d2a75d39beac00b5ec62876ea62856a6792c59a5))
+* **segments:** add adility prevent infinity loop in associationFilter segments ([64e4b49](https://github.com/erxes/erxes/commit/64e4b492495ca7840929fde1842fadaa474e7574))
+
+## [2.1.3](https://github.com/erxes/erxes/compare/2.1.2...2.1.3) (2024-12-12)
+
+
+### Features
+
+* **loyalties:** score campaign ([9951e63](https://github.com/erxes/erxes/commit/9951e6301428ce3e389d6f3c8fdf9290ab5ce7ba))
+* **payment:** use payment name as qpay sender_branch_code ([fab5443](https://github.com/erxes/erxes/commit/fab5443c08398bceb5cb4bd0f47bedc04b043080))
+
+
+### Bug Fixes
+
+* **automations:** add abilit create aws transport when ([f8d3088](https://github.com/erxes/erxes/commit/f8d308823e43a0c072c6695ca067a7314c24a1a1))
+* **automations:** remove unnecessary condition ([9221083](https://github.com/erxes/erxes/commit/9221083e7cf35b309f5c06085ff490d9a4c281f4))
+* **automations:** stop get from user from ([5b24be0](https://github.com/erxes/erxes/commit/5b24be0df91cc557b10ef4ea0af011fc599c5773))
+* deal export & notifType handle null ([8f7b106](https://github.com/erxes/erxes/commit/8f7b10607924c9bf137a302a1b2eb31c570bcc9c))
+* **notifications:** saas ([8d20244](https://github.com/erxes/erxes/commit/8d20244436b4c53b0548ef10ec2741d277be44fb))
+* **sales:** can't send email notification when created sales card using rpc request ([d2a75d3](https://github.com/erxes/erxes/commit/d2a75d39beac00b5ec62876ea62856a6792c59a5))
+* **segments:** add adility prevent infinity loop in associationFilter segments ([64e4b49](https://github.com/erxes/erxes/commit/64e4b492495ca7840929fde1842fadaa474e7574))
+* **segments:** count ([cd48fc1](https://github.com/erxes/erxes/commit/cd48fc18af8b6039e83c4be092d493812f02eb8c))
+
 ## [2.1.2](https://github.com/erxes/erxes/compare/2.1.1...2.1.2) (2024-12-05)
 
 

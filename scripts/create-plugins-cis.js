@@ -209,9 +209,7 @@ var main = async () => {
 
   fs.writeFileSync(
     filePath("./scripts/pluginsMap.js"),
-    `
-    module.exports = ${JSON.stringify(pluginsMap)}
-  `
+    `module.exports = ${JSON.stringify(pluginsMap, null, 2)}\n`
   );
 };
 

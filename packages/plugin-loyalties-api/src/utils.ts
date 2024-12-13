@@ -165,7 +165,7 @@ export const checkVouchersSale = async (
     action: "products.find",
     data: {
       query: { categoryId: { $in: allCatIds } },
-      sort: { _id: 1, categoryId: 1 },
+      sort: { _id: 1, categoryId: 1 }
     },
     isRPC: true,
     defaultValue: []
@@ -278,3 +278,47 @@ export interface AssignmentCheckResponse {
   segmentId: string;
   isIn: boolean;
 }
+
+export const generateAttributes = value => {
+  const matches = (value || "").match(/\{\{\s*([^}]+)\s*\}\}/g);
+  return matches.map(match => match.replace(/\{\{\s*|\s*\}\}/g, ""));
+};
+
+export const handleScore = async (models: IModels, data) => {
+  const { action, ownerId, ownerType, campaignId, target, description } = data;
+
+  const scoreCampaign = await models.ScoreCampaigns.findOne({
+    _id: campaignId
+  });
+
+  if (!scoreCampaign) {
+    throw new Error("Not found");
+  }
+
+  if (scoreCampaign.ownerType !== ownerType) {
+    throw new Error("Missmatching owner type");
+  }
+
+  const config = scoreCampaign[action as "add" | "subtract"];
+
+  const placeholer = config.placeholder;
+
+  const attributes = generateAttributes(config.placeholder);
+
+  if (attributes.length) {
+    for (const attribute of attributes) {
+      placeholer.replace(`{{ ${attribute} }}`, target[attribute]);
+    }
+  }
+
+  const scoreToChange = eval(placeholer) / Number(config.currencyRatio);
+
+  await models.ScoreLogs.changeScore({
+    ownerId,
+    ownerType,
+    changeScore: scoreToChange,
+    description
+  });
+
+  return "success";
+};
