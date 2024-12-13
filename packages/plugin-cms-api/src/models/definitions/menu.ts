@@ -22,13 +22,13 @@ export const menuItemSchema = new Schema<IMenuItemDocument>(
     _id: { type: String, default: () => nanoid() },
     clientPortalId: { type: String, required: true },
     label: { type: String, required: true },
-    contentType: { type: String, required: true },
-    contentTypeID: { type: String, required: true },
+    contentType: { type: String },
+    contentTypeID: { type: String },
     kind: { type: String, required: true },
     icon: { type: String },
     url: { type: String },
     parentId: { type: String },
-    order: { type: Number },
+    order: { type: Number , required: true },
   },
   { timestamps: true }
 );
