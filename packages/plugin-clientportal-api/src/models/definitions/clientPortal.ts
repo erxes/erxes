@@ -46,11 +46,11 @@ export interface IPasswordVerificationConfig {
   smsContent: string;
 }
 
-export interface INavigationMenuItem {
+export interface IMenuItem {
   label: string;
   url: string;
   icon?: string;
-  children?: INavigationMenuItem[];
+  children?: IMenuItem[];
   order?: number;
 }
 
@@ -123,7 +123,9 @@ export interface IClientPortal {
   vendorParentProductCategoryId?: string;
   language?: string;
 
-  navigationMenu?: INavigationMenuItem[];
+  navigationMenu?: IMenuItem[];
+  footerMenu?: IMenuItem[];
+  socialLinks?: IMenuItem[];
 }
 
 interface IStyles {
@@ -362,4 +364,6 @@ export const clientPortalSchema = new Schema({
   }),
   language: field({ type: String, optional: true }),
   navigationMenu: field({ type: [navigationMenuSchema], optional: true }),
+  footerMenu: field({ type: [navigationMenuSchema], optional: true }),
+  socialLinks: field({ type: [navigationMenuSchema], optional: true }),
 });

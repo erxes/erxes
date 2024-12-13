@@ -106,6 +106,13 @@ ${
     }
 
 
+  type MenuItem {
+    label: String
+    url: String
+    icon: String
+    children: [MenuItem]
+  }
+
   type OTPConfig {
     content: String
     codeLength: Int
@@ -165,6 +172,13 @@ ${
     subject: String
     invitationContent : String
     registrationContent : String
+  }
+
+  input MenuItemInput {
+    label: String
+    url: String
+    icon: String
+    children: [MenuItemInput]
   }
 
   enum TokenPassMethod {
@@ -252,6 +266,10 @@ ${
 
     socialpayConfig: SocialpayConfig
     language: String
+
+    navigationMenu: [MenuItem]
+    footerMenu: [MenuItem]
+    socialLinks: [MenuItem]
   }
 
   type Styles {
@@ -362,6 +380,10 @@ ${
     vendorParentProductCategoryId: String
     socialpayConfig: JSON
     language: String
+
+    navigationMenu: [MenuItemInput]
+    footerMenu: [MenuItemInput]
+    socialLinks: [MenuItemInput]
   }
 
   enum UserCardEnum {
