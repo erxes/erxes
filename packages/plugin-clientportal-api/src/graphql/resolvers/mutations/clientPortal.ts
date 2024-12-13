@@ -1,9 +1,10 @@
-import { sendCoreMessage } from '../../../messageBroker';
+import { sendCommonMessage, sendCoreMessage } from '../../../messageBroker';
 
 import { IClientPortal } from '../../../models/definitions/clientPortal';
 import { IContext } from '../../../connectionResolver';
 import { checkPermission } from '@erxes/api-utils/src';
 import { participantEditRelation, createCard } from '../../../models/utils';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 export interface IVerificationParams {
   userId: string;
@@ -15,7 +16,7 @@ const clientPortalMutations = {
   async clientPortalConfigUpdate(
     _root,
     { config }: { config: IClientPortal },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user }: IContext
   ) {
     try {
       const cpUser = await models.ClientPortalUsers.findOne({
@@ -70,21 +71,51 @@ const clientPortalMutations = {
       });
     }
 
+    if (config.template && isEnabled('cms')) {
+      if (
+        ['portfolio', 'ecommerce', 'hotel', 'restaurant', 'tour','blog'].includes(
+          config.template
+        )
+      ) {
+        sendCommonMessage({
+          subdomain,
+          serviceName: 'cms',
+          action: 'addPages',
+          data: {
+            clientPortalId: cp._id,
+            kind: config.template,
+            createdUserId: user._id,
+          },
+        });
+      }
+    }
+
     return cp;
   },
 
   async clientPortalRemove(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, subdomain }: IContext
   ) {
+    if (isEnabled('cms')) {
+      sendCommonMessage({
+        subdomain,
+        serviceName: 'cms',
+        action: 'removePages',
+        data: {
+          clientPortalId: _id,
+        },
+      });
+    }
+
     return models.ClientPortals.deleteOne({ _id });
   },
 
   async clientPortalCreateCard(
     _root,
     args,
-    { subdomain, cpUser, models }: IContext,
+    { subdomain, cpUser, models }: IContext
   ) {
     if (!cpUser) {
       throw new Error('You are not logged in');
@@ -105,7 +136,7 @@ const clientPortalMutations = {
       cpUserIds: [string];
       oldCpUserIds: [string];
     },
-    { subdomain, cpUser, models }: IContext,
+    { subdomain, cpUser, models }: IContext
   ) {
     return participantEditRelation(
       subdomain,
@@ -113,7 +144,7 @@ const clientPortalMutations = {
       type,
       cardId,
       oldCpUserIds,
-      cpUserIds,
+      cpUserIds
     );
   },
 
@@ -130,7 +161,7 @@ const clientPortalMutations = {
       offeredAmount: number;
       hasVat: Boolean;
     },
-    { subdomain, cpUser, models }: IContext,
+    { subdomain, cpUser, models }: IContext
   ) {
     const { _id, ...rest } = args;
     await models.ClientPortalUserCards.updateOne(
@@ -139,7 +170,7 @@ const clientPortalMutations = {
         $set: {
           ...rest,
         },
-      },
+      }
     );
     return models.ClientPortalUserCards.findOne({ _id: args._id });
   },
@@ -148,13 +179,13 @@ const clientPortalMutations = {
 checkPermission(
   clientPortalMutations,
   'clientPortalConfigUpdate',
-  'manageClientPortal',
+  'manageClientPortal'
 );
 
 checkPermission(
   clientPortalMutations,
   'clientPortalRemove',
-  'removeClientPortal',
+  'removeClientPortal'
 );
 
 export default clientPortalMutations;
