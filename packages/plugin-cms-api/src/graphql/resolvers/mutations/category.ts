@@ -65,8 +65,15 @@ const mutations = {
   }
 };
 
-requireLogin(mutations, 'cmsCategories');
-checkPermission(mutations, 'cmsCategories', 'manageCmsCategories', []);
+requireLogin(mutations, 'cmsCategoriesAdd');
+requireLogin(mutations, 'cmsCategoriesEdit');
+requireLogin(mutations, 'cmsCategoriesRemove');
+requireLogin(mutations, 'cmsCategorysToggleStatus');
+
+checkPermission(mutations, 'cmsCategoriesAdd', 'cmsCategoriesAdd', []);
+checkPermission(mutations, 'cmsCategoriesEdit', 'cmsCategoriesEdit', []);
+checkPermission(mutations, 'cmsCategoriesRemove', 'cmsCategoriesRemove', []);
+checkPermission(mutations, 'cmsCategorysToggleStatus', 'cmsCategoriesEdit', []);
 
 export default mutations;
 

@@ -13,7 +13,7 @@ const POST_LIST = gql`
     $sortField: String
     $sortDirection: SortDirection
   ) {
-    postList(
+    cmsPostList(
       clientPortalId: $clientPortalId
       featured: $featured
       categoryId: $categoryId
@@ -69,7 +69,7 @@ const POST_LIST = gql`
 
 const POST = gql`
 query Post($id: String) {
-  post(_id: $id) {
+  cmsPost(_id: $id) {
     _id
     clientPortalId
     title

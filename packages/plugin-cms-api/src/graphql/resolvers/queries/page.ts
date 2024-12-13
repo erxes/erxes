@@ -7,7 +7,7 @@ import {
 import { IContext } from '../../../connectionResolver';
 
 const queries = {
-  pages: async (parent: any, args: any, context: IContext) => {
+  cmsPages: async (parent: any, args: any, context: IContext) => {
     const { models } = context;
     const {
       page,
@@ -29,7 +29,7 @@ const queries = {
     return models.Pages.find(query).sort({ createdAt: 1 });
   },
 
-  pageList: async (parent: any, args: any, {models}: IContext) => {
+  cmsPageList: async (parent: any, args: any, {models}: IContext) => {
     const {
       page = 1,
       perPage = 20,
@@ -55,7 +55,7 @@ const queries = {
     return { totalCount, totalPages, currentPage: page, pages };
   },
 
-  page: async (parent: any, args: any, context: IContext) => {
+  cmsPage: async (parent: any, args: any, context: IContext) => {
     const { models } = context;
     const { _id } = args;
 

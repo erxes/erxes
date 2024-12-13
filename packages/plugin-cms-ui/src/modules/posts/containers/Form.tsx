@@ -40,7 +40,7 @@ const FormContainer = (props: Props) => {
     return <Spinner />;
   }
 
-  const post = postId ? data.post : null;
+  const post = postId ? data.cmsPost : null;
   if (post?.clientPortalId) {
     clientPortalId = post.clientPortalId;
   }

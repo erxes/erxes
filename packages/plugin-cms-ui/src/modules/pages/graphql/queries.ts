@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 
 const PAGE_LIST = gql`
   query PageList($clientPortalId: String!, $page: Int, $perPage: Int) {
-    pageList(clientPortalId: $clientPortalId, page: $page, perPage: $perPage) {
+    cmsPageList(clientPortalId: $clientPortalId, page: $page, perPage: $perPage) {
       currentPage
       totalPages
       totalCount
@@ -33,7 +33,7 @@ const PAGE_LIST = gql`
 
 const PAGE = gql`
 query Page($id: String) {
-  page(_id: $id) {
+  cmsPage(_id: $id) {
     _id
     clientPortalId
     name

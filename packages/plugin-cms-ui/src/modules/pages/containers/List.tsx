@@ -49,9 +49,9 @@ export default function ListContainer(props: Props) {
     });
   };
 
-  const totalCount = data?.pageList?.totalCount || 0;
+  const totalCount = data?.cmsPageList?.totalCount || 0;
 
-  const pages = data?.pageList?.pages || [];
+  const pages = data?.cmsPageList?.pages || [];
 
   const extendedProps = {
     ...props,

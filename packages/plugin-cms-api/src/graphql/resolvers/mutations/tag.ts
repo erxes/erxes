@@ -65,8 +65,16 @@ import {
     }
   };
   
-  requireLogin(mutations, 'cmsTags');
-  checkPermission(mutations, 'cmsTags', 'manageCmsTags', []);
+  requireLogin(mutations, 'cmsTagsAdd');
+  requireLogin(mutations, 'cmsTagsEdit');
+  requireLogin(mutations, 'cmsTagsRemove');
+  requireLogin(mutations, 'cmsTagsToggleStatus');
+  
+  checkPermission(mutations, 'cmsTagsAdd', 'cmsTagsAdd', []);
+  checkPermission(mutations, 'cmsTagsEdit', 'cmsTagsEdit', []);
+  checkPermission(mutations, 'cmsTagsRemove', 'cmsTagsRemove', []);
+  checkPermission(mutations, 'cmsTagsToggleStatus', 'cmsTagsEdit', []);
+  
   
   export default mutations;
   

@@ -1,3 +1,4 @@
+import { checkPermission, requireLogin } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 
 const mutations = {
@@ -21,5 +22,13 @@ const mutations = {
     return models.MenuItems.deleteOne({ _id });
   },
 };
+
+requireLogin(mutations, 'cmsAddMenu');
+requireLogin(mutations, 'cmsEditMenu');
+requireLogin(mutations, 'cmsRemoveMenu');
+
+checkPermission(mutations, 'cmsAddMenu', 'cmsAddMenu', []);
+checkPermission(mutations, 'cmsEditMenu', 'cmsEditMenu', []);
+checkPermission(mutations, 'cmsRemoveMenu', 'cmsRemoveMenu', []);
 
 export default mutations;

@@ -54,14 +54,14 @@ export const inputs = `
 `
 
 export const queries = `
-    page(_id: String): Page
-    pages(clientPortalId: String!, page: Int, perPage: Int): [Page]
-    pageList(clientPortalId: String!, page: Int, perPage: Int): PageList
+    cmsPage(_id: String): Page
+    cmsPages(clientPortalId: String!, page: Int, perPage: Int): [Page]
+    cmsPageList(clientPortalId: String!, page: Int, perPage: Int): PageList
 `   
 
 
 export const mutations = `
-    pagesAdd(input: PageInput!): Page
-    pagesEdit(_id: String!, input: PageInput!): Page
-    pagesRemove(_id: String!): JSON
+    cmsPagesAdd(input: PageInput!): Page
+    cmsPagesEdit(_id: String!, input: PageInput!): Page
+    cmsPagesRemove(_id: String!): JSON
 `

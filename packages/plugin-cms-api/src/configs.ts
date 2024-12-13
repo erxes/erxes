@@ -5,14 +5,19 @@ import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as session from 'express-session';
 import app from '@erxes/api-utils/src/app';
+import * as permissions from './permissions';
 
 export default {
   name: 'cms',
+  permissions,
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
       resolvers: await resolvers()
     };
+  },
+  meta: {
+    permissions
   },
 
   apolloServerContext: async (context, req, res) => {

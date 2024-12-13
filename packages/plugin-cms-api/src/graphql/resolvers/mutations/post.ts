@@ -9,7 +9,7 @@ const mutations = {
   /**
    * Cms post add
    */
-  postsAdd: async (
+  cmsPostsAdd: async (
     _parent: any,
     args: any,
     context: IContext
@@ -24,7 +24,7 @@ const mutations = {
   /**
    * Cms post edit
    */
-  postsEdit: async (
+  cmsPostsEdit: async (
     _parent: any,
     args: any,
     context: IContext
@@ -38,7 +38,7 @@ const mutations = {
   /**
    * Cms post delete
    */
-  postsDelete: async (
+  cmsPostsRemove: async (
     _parent: any,
     args: any,
     context: IContext
@@ -52,7 +52,7 @@ const mutations = {
   /**
    * Cms post change status
    */
-  postsChangeStatus: async (
+  cmsPostsChangeStatus: async (
     _parent: any,
     args: any,
     context: IContext
@@ -66,7 +66,7 @@ const mutations = {
   /**
    * Cms post increment view count
    */
-  postsIncrementViewCount: async (
+  cmsPostsIncrementViewCount: async (
     _parent: any,
     args: any,
     context: IContext
@@ -90,7 +90,7 @@ const mutations = {
   /**
    * Cms post toggle featured
    */
-  postsToggleFeatured: async (
+  cmsPostsToggleFeatured: async (
     _parent: any,
     args: any,
     context: IContext
@@ -101,5 +101,17 @@ const mutations = {
     return models.Posts.toggleFeatured(_id);
   },
 };
+
+requireLogin(mutations, 'cmsPostsAdd');
+requireLogin(mutations, 'cmsPostsEdit');
+requireLogin(mutations, 'cmsPostsRemove');
+requireLogin(mutations, 'cmsPostsChangeStatus');
+requireLogin(mutations, 'cmsPostsToggleFeatured');
+
+checkPermission(mutations, 'cmsPostsAdd', 'cmsPostsAdd', []);
+checkPermission(mutations, 'cmsPostsEdit', 'cmsPostsEdit', []);
+checkPermission(mutations, 'cmsPostsRemove', 'cmsPostsRemove', []);
+checkPermission(mutations, 'cmsPostsChangeStatus', 'cmsPostsEdit', []);
+checkPermission(mutations, 'cmsPostsToggleFeatured', 'cmsPostsEdit', []);
 
 export default mutations;

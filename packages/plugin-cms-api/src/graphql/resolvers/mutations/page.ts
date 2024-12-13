@@ -10,7 +10,7 @@ import {
     /**
      * Cms page add
      */
-    pagesAdd: async (
+    cmsPagesAdd: async (
       _parent: any,
       args: any,
       context: IContext
@@ -25,7 +25,7 @@ import {
     /**
      * Cms page edit
      */
-    pagesEdit: async (
+    cmsPagesEdit: async (
       _parent: any,
       args: any,
       context: IContext
@@ -39,7 +39,7 @@ import {
     /**
      * Cms page delete
      */
-    pagesRemove: async (
+    cmsPagesRemove: async (
       _parent: any,
       args: any,
       context: IContext
@@ -50,5 +50,13 @@ import {
       return models.Pages.deleteOne({ _id });
     },
   };
+
+  requireLogin(mutations, 'cmsPagesAdd');
+  requireLogin(mutations, 'cmsPagesEdit');
+  requireLogin(mutations, 'cmsPagesRemove');
+  
+  checkPermission(mutations, 'cmsPagesAdd', 'cmsPagesAdd', []);
+  checkPermission(mutations, 'cmsPagesEdit', 'cmsPagesEdit', []);
+  checkPermission(mutations, 'cmsPagesRemove', 'cmsPagesRemove', []);
 
   export default mutations

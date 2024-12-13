@@ -98,17 +98,17 @@ export const inputs = `
 `;
 
 export const queries = `
-    post(_id: String): Post
-    posts(clientPortalId: String!, featured: Boolean, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: SortDirection): [Post]
-    postList(clientPortalId: String!, featured: Boolean, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: SortDirection): PostList
+    cmsPost(_id: String): Post
+    cmsPosts(clientPortalId: String!, featured: Boolean, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: SortDirection): [Post]
+    cmsPostList(clientPortalId: String!, featured: Boolean, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: SortDirection): PostList
 `;
 
 export const mutations = `
-    postsAdd(input: PostInput!): Post
-    postsEdit(_id: String!, input: PostInput!): Post
-    postsDelete(_id: String!): JSON
-    postsChangeStatus(_id: String!, status: PostStatus!): Post
-    postsToggleFeatured(_id: String!): Post
+    cmsPostsAdd(input: PostInput!): Post
+    cmsPostsEdit(_id: String!, input: PostInput!): Post
+    cmsPostsRemove(_id: String!): JSON
+    cmsPostsChangeStatus(_id: String!, status: PostStatus!): Post
+    cmsPostsToggleFeatured(_id: String!): Post
 
-    postsIncrementViewCount(_id: String!): Post
+    cmsPostsIncrementViewCount(_id: String!): Post
 `;

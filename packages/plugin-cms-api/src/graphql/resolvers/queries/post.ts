@@ -31,7 +31,7 @@ const queries = {
   /**
    * Cms posts
    */
-  posts: async (
+  cmsPosts: async (
     _parent: any,
     args: any,
     context: IContext
@@ -55,7 +55,7 @@ const queries = {
   /**
    * Cms post
    */
-  post: async (_parent: any, args: any, context: IContext): Promise<any> => {
+  cmsPost: async (_parent: any, args: any, context: IContext): Promise<any> => {
     const { models } = context;
     const { _id } = args;
 
@@ -67,7 +67,7 @@ const queries = {
   /**
    * Cms post list
    */
-  postList: async (
+  cmsPostList: async (
     _parent: any,
     args: any,
     context: IContext
@@ -94,5 +94,12 @@ const queries = {
     return { totalCount, totalPages, currentPage: page, posts };
   },
 };
+
+requireLogin(queries, 'cmsPosts');
+requireLogin(queries, 'cmsPost');
+requireLogin(queries, 'cmsPostList');
+checkPermission(queries, 'cmsPosts', 'showCmsPosts', []);
+checkPermission(queries, 'cmsPost', 'manageCmsPosts', []);
+checkPermission(queries, 'cmsPostList', 'manageCmsPosts', []);
 
 export default queries;

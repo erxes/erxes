@@ -51,9 +51,9 @@ export default function ListContainer(props: Props) {
     });
   };
 
-  const posts = data?.postList?.posts || [];
+  const posts = data?.cmsPostList?.posts || [];
 
-  const totalCount = data?.postList?.totalCount || 0;
+  const totalCount = data?.cmsPostList?.totalCount || 0;
 
   const extendedProps = {
     ...props,
