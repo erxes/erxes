@@ -9,6 +9,8 @@ import { IPageModel, loadPageClass } from './models/Pages';
 import { IPageDocument } from './models/definitions/pages';
 import { IPostTagModel, loadPostTagClass } from './models/Tags';
 import { IPostTagDocument } from './models/definitions/tags';
+import { IMenuItemModel, loadMenuItemClass } from './models/Menu';
+import { IMenuItemDocument } from './models/definitions/menu';
 
 export interface IModels {
 
@@ -16,6 +18,7 @@ export interface IModels {
   Posts: IPostModel;
   Pages: IPageModel;
   PostTags: IPostTagModel;
+  MenuItems: IMenuItemModel;
 }
 
 export interface IContext extends IMainContext {
@@ -45,6 +48,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.PostTags = db.model<IPostTagDocument, IPostTagModel>(
     'cms_tags',
     loadPostTagClass(models)
+  );
+
+  models.MenuItems = db.model<IMenuItemDocument, IMenuItemModel>(
+    'cms_menu',
+    loadMenuItemClass(models)
   );
 
   return models;

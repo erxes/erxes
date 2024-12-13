@@ -10,6 +10,7 @@ export const types = `
     kind: String
     icon: String
     url: String
+    order: Int
   }
 `
 
@@ -23,6 +24,7 @@ export const inputs = `
     kind: String
     icon: String
     url: String
+    order: Int
   }
 `
 
