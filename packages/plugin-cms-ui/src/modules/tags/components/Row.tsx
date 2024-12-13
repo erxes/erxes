@@ -9,7 +9,7 @@ import { DateWrapper } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import React from 'react';
-import CategoryForm from '../containers/Form';
+import TagForm from '../containers/Form';
 
 type Props = {
   tag: any;
@@ -42,7 +42,7 @@ const Row = (props: Props) => {
   };
 
   const formContent = formProps => (
-    <CategoryForm {...formProps} category={tag} />
+    <TagForm {...formProps} category={tag} />
   );
 
   return (
