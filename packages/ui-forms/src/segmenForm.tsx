@@ -1,9 +1,9 @@
-import React from "react";
+import React from 'react';
 
-import { queries } from "@erxes/ui-leads/src/graphql";
-import SelectWithSearch from "@erxes/ui/src/components/SelectWithSearch";
-import { ControlLabel } from "@erxes/ui/src/components/form";
-import FormGroup from "@erxes/ui/src/components/form/Group";
+import { queries } from '@erxes/ui-leads/src/graphql';
+import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
+import { ControlLabel } from '@erxes/ui/src/components/form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 
 type Props = {
   type: string;
@@ -21,20 +21,17 @@ export default function Form({ config, onChangeConfig }: Props) {
         initialValue={config.formId}
         queryName="integrations"
         customQuery={queries.integrations}
-        filterParams={{ kind: "lead", perPage: 1000 }}
+        filterParams={{ kind: 'lead', perPage: 1000 }}
         generateOptions={(array) => {
-          if (!config.formId) {
+          if (!config.formId && !array?.length) {
             onChangeConfig && onChangeConfig({ formId: array[0].form?._id });
           }
-          const ar = array.map((item) => ({
+          return array.map((item) => ({
             label: item.name,
             value: item?.form?._id,
           }));
-          console.log({ ar });
-          return ar;
         }}
         onSelect={(value) => {
-          console.log({ formId: value });
           onChangeConfig && onChangeConfig({ formId: value });
         }}
       />
