@@ -153,8 +153,8 @@ const MediaSection = (props: Props) => {
               </FormGroup>
 
               <FormGroup>
-                <ControlLabel>{'Video link'}</ControlLabel>
-                <p>{__('Video link such as YouTube, Vimeo etc')}</p>
+                <ControlLabel>{'Video'}</ControlLabel>
+                <p>{__('Video link such as YouTube, Vimeo or Embed code')}</p>
                 <FormControl
                   type='text'
                   value={post.videoUrl}

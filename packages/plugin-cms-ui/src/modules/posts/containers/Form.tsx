@@ -41,7 +41,7 @@ const FormContainer = (props: Props) => {
   }
 
   const post = postId ? data.post : null;
-  if (post.clientPortalId) {
+  if (post?.clientPortalId) {
     clientPortalId = post.clientPortalId;
   }
 

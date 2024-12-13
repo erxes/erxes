@@ -125,8 +125,8 @@ const routes = () => (
     <Route key='/cms/tags' path='/cms/tags' element={<TagsComponent />} />
 
     <Route
-      key='/cms/web-builder/pages'
-      path='/cms/web-builder/pages'
+      key='/cms/pages'
+      path='/cms/pages'
       element={<PagesComponent />}
     />
 
@@ -161,14 +161,14 @@ const routes = () => (
     />
 
     <Route
-      key='/cms/web-builder/pages/:cpId'
-      path='/cms/web-builder/pages/:cpId'
+      key='/cms/pages/:cpId'
+      path='/cms/pages/:cpId'
       element={<PagesComponent />}
     />
 
     <Route
-      key='/cms/web-builder/pages/:cpId/:pageId'
-      path='/cms/web-builder/pages/:cpId/:pageId'
+      key='/cms/pages/:cpId/:pageId'
+      path='/cms/pages/:cpId/:pageId'
       element={<PageDetailComponent />}
     />
   </Routes>
@@ -178,11 +178,12 @@ export const menu = [
   { title: 'Posts', link: '/cms/posts' },
   { title: 'Category', link: '/cms/categories' },
   { title: 'Tags', link: '/cms/tags' },
+  { title: 'Pages', link: '/cms/pages' },
 ];
 
 export const webBuilderMenu = [
-  { title: 'Pages', link: '/cms/web-builder/pages' },
-  { title: 'Blocks', link: '/cms/web-builder/blocks' },
+  { title: 'Pages', link: '/cms/pages' },
+  { title: 'Blocks', link: '/cms/blocks' },
 ];
 
 export default routes;

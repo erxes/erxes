@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { nanoid } from 'nanoid';
-import { config } from 'process';
+
 
 export interface IPage {
   clientPortalId: string;

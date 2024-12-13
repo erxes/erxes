@@ -60,15 +60,13 @@ const PostForm = (props: Props) => {
   );
 
   const onChange = (field: string, value: any) => {
-    
     const editedPost = { ...post };
     editedPost[field] = value;
-    
+
     setPost(editedPost);
   };
 
   const onChangeImage = (images: IAttachment[]) => {
-    
     if (images && images.length > 0) {
       setPost({ ...post, thumbnail: images[0] });
     }
@@ -95,7 +93,7 @@ const PostForm = (props: Props) => {
     });
 
     doc.clientPortalId = clientPortalId;
-    
+
     props.onSubmit(clearTypename(doc));
   };
 
@@ -105,6 +103,8 @@ const PostForm = (props: Props) => {
       link: '/cms/posts',
     },
   ];
+
+  console.log('post content ', post.content);
 
   const content = (
     <div style={{ padding: '10px 15px' }}>

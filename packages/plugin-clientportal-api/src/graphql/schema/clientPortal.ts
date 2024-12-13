@@ -105,14 +105,6 @@ ${
       _id: String! @external
     }
 
-
-  type MenuItem {
-    label: String
-    url: String
-    icon: String
-    children: [MenuItem]
-  }
-
   type OTPConfig {
     content: String
     codeLength: Int
@@ -121,6 +113,7 @@ ${
     expireAfter: Int
     emailSubject: String
   }
+
   type TwoFactorConfig {
     content: String
     codeLength: Int
@@ -174,13 +167,6 @@ ${
     registrationContent : String
   }
 
-  input MenuItemInput {
-    label: String
-    url: String
-    icon: String
-    children: [MenuItemInput]
-  }
-
   enum TokenPassMethod {
     cookie
     header
@@ -199,6 +185,7 @@ ${
   type ClientPortal {
     _id: String!
     name: String!
+    slug: String
     kind: BusinessPortalKind!
     description: String
     url: String
@@ -267,9 +254,7 @@ ${
     socialpayConfig: SocialpayConfig
     language: String
 
-    navigationMenu: [MenuItem]
-    footerMenu: [MenuItem]
-    socialLinks: [MenuItem]
+    template: String
   }
 
   type Styles {
@@ -316,6 +301,7 @@ ${
   input ClientPortalConfigInput {
     _id: String
     name: String!
+    slug: String
     kind: BusinessPortalKind!
     description: String
     url: String
@@ -381,9 +367,7 @@ ${
     socialpayConfig: JSON
     language: String
 
-    navigationMenu: [MenuItemInput]
-    footerMenu: [MenuItemInput]
-    socialLinks: [MenuItemInput]
+    template: String
   }
 
   enum UserCardEnum {

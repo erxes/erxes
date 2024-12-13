@@ -66,7 +66,7 @@ const FormContainer = (props: Props) => {
 const getRefetchQueries = (clientPortalId?: string) => {
   return [
     {
-      query: queries.GET_CATEGORIES,
+      query: queries.PAGE_LIST,
       variables: {
         clientPortalId,
       },

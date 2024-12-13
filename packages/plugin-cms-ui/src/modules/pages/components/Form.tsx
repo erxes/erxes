@@ -8,7 +8,6 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
-import SelectCategory from '../containers/SelectCategory';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 type Props = {
@@ -166,21 +165,21 @@ const ProductForm = (props: Props) => {
             name: 'page',
             values: generateDoc(),
             isSubmitted,
-            callback: (data: any) => {
+            callback: () => {
               
 
-              if (data) {
-                const pageId = data.pagesAdd
-                  ? data.pagesAdd._id
-                  : data.pagesEdit._id;
+              // if (data) {
+              //   const pageId = data.pagesAdd
+              //     ? data.pagesAdd._id
+              //     : data.pagesEdit._id;
 
-                if (pageId) {
-                  navigate(
-                    `${location.pathname}/${props.clientPortalId}/${pageId}`,
-                    { replace: true }
-                  );
-                }
-              }
+              //   if (pageId) {
+              //     navigate(
+              //       `${location.pathname}/${props.clientPortalId}/${pageId}`,
+              //       { replace: true }
+              //     );
+              //   }
+              // }
               closeModal();
             },
             object: page,

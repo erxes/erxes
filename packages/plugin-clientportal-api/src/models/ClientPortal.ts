@@ -11,6 +11,7 @@ import {
   removeLastTrailingSlash,
   removeExtraSpaces
 } from '@erxes/api-utils/src/commonUtils';
+import slugify from 'slugify';
 
 export interface IClientPortalModel extends Model<IClientPortalDocument> {
   getConfig(_id: string): Promise<IClientPortalDocument>;
@@ -36,11 +37,16 @@ export const loadClientPortalClass = (models: IModels) => {
         doc.url = removeExtraSpaces(removeLastTrailingSlash(doc.url));
       }
 
+      if (!doc.slug && doc.name) {
+        doc.slug = slugify(doc.name, { lower: true });
+      }
+
       if (!config) {
         config = await models.ClientPortals.create(doc);
 
         return config.toJSON();
       }
+      
 
       await models.ClientPortals.findOneAndUpdate(
         { _id: config._id },
