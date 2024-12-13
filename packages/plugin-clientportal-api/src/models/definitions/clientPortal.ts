@@ -46,6 +46,14 @@ export interface IPasswordVerificationConfig {
   smsContent: string;
 }
 
+export interface INavigationMenuItem {
+  label: string;
+  url: string;
+  icon?: string;
+  children?: INavigationMenuItem[];
+  order?: number;
+}
+
 export interface IClientPortal {
   _id?: string;
   name?: string;
@@ -114,6 +122,8 @@ export interface IClientPortal {
 
   vendorParentProductCategoryId?: string;
   language?: string;
+
+  navigationMenu?: INavigationMenuItem[];
 }
 
 interface IStyles {
@@ -196,6 +206,17 @@ const mailConfigSchema = new Schema(
     subject: field({ type: String, optional: true }),
     invitationContent: field({ type: String, optional: true }),
     registrationContent: field({ type: String, optional: true }),
+  },
+  { _id: false }
+);
+
+const navigationMenuSchema = new Schema(
+  {
+    label: field({ type: String }),
+    url: field({ type: String }),
+    icon: field({ type: String, optional: true }),
+    children: field({ type: [Object], optional: true }),
+    order: field({ type: Number, optional: true }),
   },
   { _id: false }
 );
@@ -340,4 +361,5 @@ export const clientPortalSchema = new Schema({
     optional: true,
   }),
   language: field({ type: String, optional: true }),
+  navigationMenu: field({ type: [navigationMenuSchema], optional: true }),
 });
