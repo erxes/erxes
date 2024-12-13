@@ -71,23 +71,28 @@ const clientPortalMutations = {
       });
     }
 
-    if (config.template && isEnabled('cms')) {
-      if (
-        ['portfolio', 'ecommerce', 'hotel', 'restaurant', 'tour','blog'].includes(
-          config.template
-        )
-      ) {
-        sendCommonMessage({
-          subdomain,
-          serviceName: 'cms',
-          action: 'addPages',
-          data: {
-            clientPortalId: cp._id,
-            kind: config.template,
-            createdUserId: user._id,
-          },
-        });
-      }
+    if (
+      config.template &&
+      isEnabled('cms') &&
+      [
+        'portfolio',
+        'ecommerce',
+        'hotel',
+        'restaurant',
+        'tour',
+        'blog',
+      ].includes(config.template)
+    ) {
+      sendCommonMessage({
+        subdomain,
+        serviceName: 'cms',
+        action: 'addPages',
+        data: {
+          clientPortalId: cp._id,
+          kind: config.template,
+          createdUserId: user._id,
+        },
+      });
     }
 
     return cp;
