@@ -49,5 +49,5 @@ export const mutations = `
     cmsCategoriesAdd(input: PostCategoryInput!): PostCategory
     cmsCategoriesEdit(_id: String!, input: PostCategoryInput!): PostCategory
     cmsCategoriesRemove(_id: String!): JSON
-    cmsCategorysToggleStatus(_id: String!): PostCategory
+    cmsCategoriesToggleStatus(_id: String!): PostCategory
 `;
