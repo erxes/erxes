@@ -19,13 +19,13 @@ module.exports = {
       location: 'mainNavigation',
       scope: 'cms',
     },
-    {
-      text: 'Web builder',
-      url: '/cms/web-builder/pages',
-      icon: 'icon-star',
-      location: 'mainNavigation',
-      scope: 'cms',
-    },
+    // {
+    //   text: 'Web builder',
+    //   url: '/cms/web-builder/pages',
+    //   icon: 'icon-star',
+    //   location: 'mainNavigation',
+    //   scope: 'cms',
+    // },
 
   ],
 };

@@ -5,6 +5,7 @@ export const types = `
         order: Int
         contentType: String
         contentTypeId: String
+        config: JSON
     }
 
     type Page {
@@ -38,6 +39,7 @@ export const inputs = `
         order: Int
         contentType: String
         contentTypeId: String
+        config: JSON
     }
 
     input PageInput {

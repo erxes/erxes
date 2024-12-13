@@ -118,7 +118,6 @@ export const loadPostClass = (models: IModels) => {
 
       if (status === 'published' && !post.publishedDate) {
         post.publishedDate = new Date();
-        console.log('post.publishedDate', post.publishedDate);
       }
       post.status = status;
       return post.save();

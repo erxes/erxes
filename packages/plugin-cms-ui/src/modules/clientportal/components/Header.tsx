@@ -7,7 +7,7 @@ type Props = {
 };
 
 const MainContainer = (props: Props) => {
-  console.log('props', props);
+  
   const [currentConfigId, setCurrentConfigId] = React.useState<string>(
     props.currentConfig._id
   );
@@ -15,7 +15,7 @@ const MainContainer = (props: Props) => {
   const location = useLocation();
 
   React.useEffect(() => {
-    console.log('currentConfig', currentConfigId);
+    
     if (currentConfigId) {
       navigate(`${location.pathname}?web=${currentConfigId}`, {
         replace: true,
@@ -32,7 +32,7 @@ const MainContainer = (props: Props) => {
         initialValue={currentConfigId}
         onSelect={(e) => {
           const value = e as string;
-          console.log('value', value);
+          
           setCurrentConfigId(value);
           localStorage.setItem('clientPortalId', value);
         }}

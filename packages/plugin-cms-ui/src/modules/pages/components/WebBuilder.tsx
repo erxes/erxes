@@ -55,7 +55,7 @@ const WebBuilder = (props: Props) => {
     setComponents(newComponents);
   };
 
-  console.log('currentComponent', currentComponent);
+  
 
   return (
     <Wrapper

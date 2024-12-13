@@ -60,7 +60,7 @@ const queries = {
     const { _id } = args;
 
     const post = await  models.Posts.findOne({ $or: [{ _id }, { slug: _id }] });
-    console.log("post", post)
+
     return post;
   },
 

@@ -60,15 +60,15 @@ const PostForm = (props: Props) => {
   );
 
   const onChange = (field: string, value: any) => {
-    console.log('onChange', field, ' - ', value);
+    
     const editedPost = { ...post };
     editedPost[field] = value;
-    console.log('editedPost', editedPost);
+    
     setPost(editedPost);
   };
 
   const onChangeImage = (images: IAttachment[]) => {
-    console.log('images', images);
+    
     if (images && images.length > 0) {
       setPost({ ...post, thumbnail: images[0] });
     }
@@ -95,7 +95,7 @@ const PostForm = (props: Props) => {
     });
 
     doc.clientPortalId = clientPortalId;
-    console.log('doc', doc);
+    
     props.onSubmit(clearTypename(doc));
   };
 

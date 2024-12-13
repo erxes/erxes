@@ -167,7 +167,7 @@ const ProductForm = (props: Props) => {
             values: generateDoc(),
             isSubmitted,
             callback: (data: any) => {
-              console.log('data', data);
+              
 
               if (data) {
                 const pageId = data.pagesAdd

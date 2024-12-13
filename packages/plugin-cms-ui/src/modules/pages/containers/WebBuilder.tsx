@@ -52,12 +52,12 @@ const WebBuilderContainer = (props: Props) => {
   const page = pageData?.page;
   const clinetPortal = clientPortalData?.clientPortalGetConfig;
 
-  console.log('clinetPortal', clinetPortal);
-  console.log('page', page);
+  
+  
 
 
   const onSubmit = (doc: any) => {
-    console.log('doc', doc);
+    
     return
     if (pageId) {
       editMutation({
@@ -67,9 +67,9 @@ const WebBuilderContainer = (props: Props) => {
         },
       }).then(() => {
         Alert.success('You successfully edited a post', 1500);
-        console.log('success');
+        
         setTimeout(() => {
-          console.log('navigate');
+          
           navigate(`/cms/posts/${clientPortalId}`, {
             replace: true,
           });
@@ -81,7 +81,7 @@ const WebBuilderContainer = (props: Props) => {
           input: doc,
         },
       }).then((res: any) => {
-        console.log('res', res);
+        
         const postId = res.data.postsAdd._id;
         Alert.success('You successfully added a post', 1500);
 

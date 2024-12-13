@@ -1,5 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { nanoid } from 'nanoid';
+import { config } from 'process';
 
 export interface IPage {
   clientPortalId: string;
@@ -29,6 +30,7 @@ export const pageSchema = new Schema<IPageDocument>(
         order: { type: Number, required: true },
         contentType: { type: String },
         contentTypeId: { type: String },
+        config: { type: Schema.Types.Mixed },
       },
     ],
   },

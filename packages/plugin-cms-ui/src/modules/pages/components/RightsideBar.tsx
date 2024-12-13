@@ -14,7 +14,7 @@ const RightSideBar: React.FC<Props> = (props: Props) => (
     <ComponentEditor
       component={props.component}
       onUpdate={(comp) => {
-        console.log('update');
+        
       }}
     />
   </Sidebar>

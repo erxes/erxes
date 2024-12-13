@@ -54,9 +54,9 @@ const FormContainer = (props: Props) => {
         },
       }).then(() => {
         Alert.success('You successfully edited a post', 1500);
-        console.log('success');
+        
         setTimeout(() => {
-          console.log('navigate');
+          
           navigate(`/cms/posts?web=${clientPortalId}`, {
             replace: true,
           });
@@ -68,7 +68,7 @@ const FormContainer = (props: Props) => {
           input: doc,
         },
       }).then((res: any) => {
-        console.log('res', res);
+        
         const postId = res.data.postsAdd._id;
         Alert.success('You successfully added a post', 1500);
 

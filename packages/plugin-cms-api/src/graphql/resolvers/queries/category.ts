@@ -30,8 +30,6 @@ const queries = {
       ];
     }
 
-    console.log("query", query)
-
     return paginate(models.Categories.find(query).sort({ [sortField]: sortDirection }), { page, perPage });
   },
 

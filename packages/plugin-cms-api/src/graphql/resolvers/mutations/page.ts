@@ -15,7 +15,6 @@ import {
       args: any,
       context: IContext
     ): Promise<any> => {
-      console.log("user", context.user)
       const { models, user } = context;
       const { input } = args;
       input.createdUserId = user._id;

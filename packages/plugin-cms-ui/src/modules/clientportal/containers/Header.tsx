@@ -16,7 +16,7 @@ const MainContainer = (props: Props) => {
 
 
   const configId = searchParams.get('web') || localStorage.getItem('clientPortalId');
-  console.log('configId', configId);
+  
 
   const { data: detailData, loading: detailLoading } = useQuery(queries.DETAIL_QUERY, {
     variables: {
@@ -40,8 +40,8 @@ const MainContainer = (props: Props) => {
   const config = detailData?.clientPortalGetConfig;
   const lastConfig = data?.clientPortalGetLast;
 
-  console.log('config', config);
-  console.log('lastConfig', lastConfig);
+  
+  
 
 
 

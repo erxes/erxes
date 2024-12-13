@@ -11,7 +11,7 @@ type Props = {
 };
 
 const Container = (props: Props) => {
-  console.log('props', props);
+  
 
   const { value, onChange } = props;
   const [searchValue, setSearchValue] = React.useState<string>('');
