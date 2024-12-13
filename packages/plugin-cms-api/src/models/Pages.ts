@@ -24,12 +24,28 @@ export const loadPageClass = (models: IModels) => {
         doc.slug = slugify(doc.name, { lower: true });
       }
 
+      const existingPage = await models.Pages.findOne({ slug: doc.slug, clientPortalId: doc.clientPortalId });
+
+      if (existingPage) {
+        throw new Error('Page already exists');
+      }
+
       return models.Pages.create(doc);
     };
 
     public static updatePage = async (_id: string, doc: IPage) => {
       if (!doc.slug && doc.name) {
         doc.slug = slugify(doc.name, { lower: true });
+      }
+
+      const existingPage = await models.Pages.countDocuments({
+        slug: doc.slug,
+        clientPortalId: doc.clientPortalId,
+        _id: { $ne: _id },
+      });
+
+      if (existingPage > 0) {
+        throw new Error('Page already exists');
       }
 
       const page = await models.Pages.findOneAndUpdate(

@@ -1,26 +1,24 @@
 import { gql } from '@apollo/client';
 
 const PAGE_ADD = gql`
-mutation PagesAdd($input: PageInput!) {
-  pagesAdd(input: $input) {
-    _id
+  mutation PagesAdd($input: PageInput!) {
+    pagesAdd(input: $input) {
+      _id
+    }
   }
-}
 `;
 
 const PAGE_EDIT = gql`
-  mutation CmsCategoriesEdit($_id: String!, $input: PostCategoryInput!) {
-    cmsCategoriesEdit(_id: $_id, input: $input) {
+  mutation PagesEdit($id: String!, $input: PageInput!) {
+    pagesEdit(_id: $id, input: $input) {
       _id
-      name
-      slug
     }
   }
 `;
 
 const PAGE_REMOVE = gql`
-  mutation CmsCategoriesRemove($id: String!) {
-    cmsCategoriesRemove(_id: $id)
+  mutation PagesRemove($id: String!) {
+    pagesRemove(_id: $id)
   }
 `;
 

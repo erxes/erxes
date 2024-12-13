@@ -8,10 +8,10 @@ import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 
-import CategoryForm from '../containers/Form';
+import PageForm from '../containers/Form';
 // import { tumentechMenu } from '../list/CarsList';
 
-import { menu, webBuilderMenu } from '../../../routes';
+import { menu } from '../../../routes';
 import Row from './Row';
 import CPHeader from '../../clientportal/containers/Header';
 
@@ -47,7 +47,7 @@ const List = (props: Props) => {
   );
 
   const formContent = (formProps) => (
-    <CategoryForm {...formProps} clientPortalId={props.clientPortalId} />
+    <PageForm {...formProps} clientPortalId={props.clientPortalId} refetch={props.refetch} />
   );
 
   const righActionBar = (
@@ -94,7 +94,7 @@ const List = (props: Props) => {
           <Wrapper.Header
             title={__('Page')}
             queryParams={queryParams}
-            submenu={webBuilderMenu}
+            submenu={menu}
           />
         }
         actionBar={actionBar}

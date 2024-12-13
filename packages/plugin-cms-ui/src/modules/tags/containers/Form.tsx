@@ -4,7 +4,7 @@ import React from 'react';
 
 import { getGqlString } from '@erxes/ui/src/utils/core';
 
-import ProductForm from '../components/Form';
+import TagForm from '../components/Form';
 import { mutations, queries } from '../graphql';
 import { useSearchParams } from 'react-router-dom';
 
@@ -12,6 +12,7 @@ type Props = {
   clientPortalId: string;
   tag?: any;
   closeModal: () => void;
+  refetch?: () => void;
 };
 
 const FormContainer = (props: Props) => {
@@ -60,7 +61,7 @@ const FormContainer = (props: Props) => {
     renderButton,
   };
 
-  return <ProductForm {...updatedProps} />;
+  return <TagForm {...updatedProps} />;
 };
 
 const getRefetchQueries = (clientPortalId?: string) => {

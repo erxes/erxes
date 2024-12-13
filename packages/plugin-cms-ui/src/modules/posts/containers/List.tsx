@@ -7,6 +7,7 @@ import { mutations, queries } from '../graphql';
 
 import List from '../components/List';
 import { useSearchParams } from 'react-router-dom';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
 
@@ -30,7 +31,7 @@ export default function ListContainer(props: Props) {
   const [removeMutation] = useMutation(mutations.POST_REMOVE);
 
   if (loading) {
-    return <>loading</>
+    return <Spinner/>
   }
 
   const remove = (id: string) => {

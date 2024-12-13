@@ -15,6 +15,7 @@ type Props = {
   page?: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  refetch?: () => void;
 };
 
 const ProductForm = (props: Props) => {
@@ -65,7 +66,7 @@ const ProductForm = (props: Props) => {
           setPage({
             ...page,
             name: e.target.value,
-            slug: `/${e.target.value}`,
+            slug: `${e.target.value}`,
           });
         }
 
@@ -108,7 +109,7 @@ const ProductForm = (props: Props) => {
               setPage({
                 ...page,
                 name: e.target.value,
-                slug: `/${e.target.value}`,
+                slug: e.target.value,
               });
             }}
           />
@@ -126,7 +127,7 @@ const ProductForm = (props: Props) => {
             onChange={(e: any) => {
               setPage({
                 ...page,
-                slug: `/${e.target.value}`,
+                slug: `${e.target.value}`,
               });
             }}
           />
@@ -166,20 +167,10 @@ const ProductForm = (props: Props) => {
             values: generateDoc(),
             isSubmitted,
             callback: () => {
-              
+              if (props.refetch) {
+                props.refetch();
+              }
 
-              // if (data) {
-              //   const pageId = data.pagesAdd
-              //     ? data.pagesAdd._id
-              //     : data.pagesEdit._id;
-
-              //   if (pageId) {
-              //     navigate(
-              //       `${location.pathname}/${props.clientPortalId}/${pageId}`,
-              //       { replace: true }
-              //     );
-              //   }
-              // }
               closeModal();
             },
             object: page,

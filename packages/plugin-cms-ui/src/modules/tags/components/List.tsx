@@ -8,7 +8,7 @@ import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 
-import CategoryForm from '../containers/Form';
+import TagForm from '../containers/Form';
 // import { tumentechMenu } from '../list/CarsList';
 
 import { menu } from '../../../routes';
@@ -47,7 +47,7 @@ const List = (props: Props) => {
   );
 
   const formContent = (formProps) => (
-    <CategoryForm {...formProps} clientPortalId={props.clientPortalId} />
+    <TagForm {...formProps} clientPortalId={props.clientPortalId} refetch={props.refetch} />
   );
 
   const righActionBar = (

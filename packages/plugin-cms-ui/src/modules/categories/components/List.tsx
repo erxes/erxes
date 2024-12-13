@@ -48,7 +48,7 @@ const List = (props: Props) => {
   );
 
   const formContent = (formProps) => (
-    <CategoryForm {...formProps} clientPortalId={props.clientPortalId} />
+    <CategoryForm {...formProps} clientPortalId={props.clientPortalId} refetch={props.refetch} />
   );
 
   const righActionBar = (

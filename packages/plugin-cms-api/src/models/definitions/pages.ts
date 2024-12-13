@@ -20,7 +20,7 @@ export const pageSchema = new Schema<IPageDocument>(
     _id: { type: String, default: () => nanoid() },
     clientPortalId: { type: String, required: true },
     name: { type: String, required: true },
-    slug: { type: String, required: true, unique: true },
+    slug: { type: String, required: true },
     layout: { type: String, required: false },
     createdUserId: { type: String, ref: 'User' },
     pageItems: [

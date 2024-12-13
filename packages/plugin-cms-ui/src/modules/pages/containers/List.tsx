@@ -16,36 +16,7 @@ export default function ListContainer(props: Props) {
   const [searchParams] = useSearchParams(); 
 
   const clientPortalId = searchParams.get('web') || '';
-
-  function buildCategoryTree(categories) {
-    const categoryMap = new Map();
   
-    // Initialize the map with all categories
-    categories.forEach((category) => {
-      categoryMap.set(category._id, { ...category, children: [] });
-    });
-  
-    const tree:any = [];
-  
-    // Build the tree by assigning children to parents
-    categories.forEach((category) => {
-      if (category.parentId) {
-        const parent = categoryMap.get(category.parentId);
-        if (parent) {
-          parent.children.push(categoryMap.get(category._id));
-        }
-      } else {
-        tree.push(categoryMap.get(category._id)); // Top-level categories
-      }
-    });
-  
-    return tree;
-  }
-  
-
-  React.useEffect(() => {
-
-  }, [clientPortalId]);
 
   const { data, loading, refetch } = useQuery(queries.PAGE_LIST, {
     variables: {
@@ -62,15 +33,15 @@ export default function ListContainer(props: Props) {
   // }
 
   const remove = (id: string) => {
-    const message = 'Are you sure want to remove this category ?';
+    const message = 'Are you sure want to remove this page ?';
 
     confirm(message).then(() => {
       removeMutation({
-        variables: { _id: id },
+        variables: { id },
       })
         .then(() => {
-          // refetch();
-          Alert.success('You successfully deleted a category.');
+          refetch();
+          Alert.success('You successfully deleted a page.');
         })
         .catch((e) => {
           Alert.error(e.message);
@@ -88,7 +59,7 @@ export default function ListContainer(props: Props) {
     loading: false,
     pages,
     totalCount,
-  
+    refetch,
     remove,
   };
 

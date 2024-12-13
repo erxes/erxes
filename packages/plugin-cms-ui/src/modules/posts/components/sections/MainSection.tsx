@@ -90,6 +90,7 @@ const TripSection = (props: Props) => {
                   />
                   <hr />
                 </FormGroup>
+
                 <FormGroup>
                   <ControlLabel required={true} uppercase={false}>
                     {__('Status')}
@@ -125,9 +126,22 @@ const TripSection = (props: Props) => {
                     ))}
                   </FormControl>
                 </FormGroup>
+                {post.status === 'published' && (
+                  <FormGroup>
+                    <ControlLabel>{__('Published date')}</ControlLabel>
+                    <FormControl
+                      name='publishedDate'
+                      type='datetime-local'
+                      defaultValue={formatDate(post.publishedDate)}
+                      onChange={(e: any) => {
+                        onChange('publishedDate', e.target.value);
+                      }}
+                    />
+                  </FormGroup>
+                )}
                 {post.status === 'scheduled' && (
                   <FormGroup>
-                    <ControlLabel>{__('Publish date')}</ControlLabel>
+                    <ControlLabel>{__('Scheduled date')}</ControlLabel>
                     <FormControl
                       name='scheduledDate'
                       type='datetime-local'

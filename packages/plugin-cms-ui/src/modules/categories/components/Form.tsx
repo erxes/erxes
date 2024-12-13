@@ -15,6 +15,7 @@ type Props = {
   category?: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  refetch?: () => void;
 };
 
 const ProductForm = (props: Props) => {
@@ -28,9 +29,7 @@ const ProductForm = (props: Props) => {
     }
   );
 
-  React.useEffect(() => {
-  
-  }, [category]);
+  React.useEffect(() => {}, [category]);
 
   const generateDoc = () => {
     const finalValues: any = {};
@@ -44,7 +43,6 @@ const ProductForm = (props: Props) => {
         finalValues[key] = category[key];
       }
     });
-
 
     return {
       ...finalValues,
@@ -88,10 +86,10 @@ const ProductForm = (props: Props) => {
       );
     };
 
-
     return (
       <>
         {renderInput('name', 'text', category.name, 'Name', true)}
+        {renderInput('slug', 'text', category.slug, 'Slug', true)}
         {renderInput(
           'description',
           'text',
@@ -104,7 +102,6 @@ const ProductForm = (props: Props) => {
             clientPortalId={props.clientPortalId}
             value={category.parentId}
             onChange={(catId) => {
-
               setCategory({
                 ...category,
                 parentId: catId,
@@ -146,7 +143,13 @@ const ProductForm = (props: Props) => {
             name: 'category',
             values: generateDoc(),
             isSubmitted,
-            callback: closeModal,
+            callback: () => {
+              if (props.refetch) {
+                props.refetch();
+              }
+
+              closeModal();
+            },
             object: category,
           })}
         </ModalFooter>

@@ -15,10 +15,11 @@ type Props = {
   tag?: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  refetch?: () => void;
 };
 
-const ProductForm = (props: Props) => {
-  const [tag, setCategory] = React.useState<any>(
+const TagForm = (props: Props) => {
+  const [tag, setTag] = React.useState<any>(
     props.tag || {
       slug: '',
       name: '',
@@ -58,7 +59,7 @@ const ProductForm = (props: Props) => {
       useNumberFormat?: boolean
     ) => {
       const onChangeInput = (e: any) => {
-        setCategory({
+        setTag({
           ...tag,
           [name]: e.target.value,
         });
@@ -95,7 +96,12 @@ const ProductForm = (props: Props) => {
             name: 'tag',
             values: generateDoc(),
             isSubmitted,
-            callback: closeModal,
+            callback: () => {
+              if (props.refetch) {
+                props.refetch();
+              }
+              closeModal();
+            },
             object: tag,
           })}
         </ModalFooter>
@@ -106,4 +112,4 @@ const ProductForm = (props: Props) => {
   return <Form renderContent={renderContent} />;
 };
 
-export default ProductForm;
+export default TagForm;
