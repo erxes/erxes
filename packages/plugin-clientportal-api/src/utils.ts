@@ -226,7 +226,7 @@ export const initFirebase = async (subdomain: string): Promise<void> => {
           credential: admin.credential.cert(serviceAccount)
         });
       } catch (e) {
-        console.log(`initFireBase error: ${e.message}`);
+        console.error(`initFireBase error: ${e.message}`);
       }
     }
   }

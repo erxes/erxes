@@ -54,7 +54,7 @@ const clientPortalMutations = {
         }
       }
     } catch (e) {
-      console.log(e.message);
+      console.error(e.message);
     }
 
     const cp = await models.ClientPortals.createOrUpdateConfig(config);
