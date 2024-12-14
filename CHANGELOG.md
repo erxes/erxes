@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.0-rc.10](https://github.com/erxes/erxes/compare/2.2.0-rc.9...2.2.0-rc.10) (2024-12-14)
+
+
+### Bug Fixes
+
+* **automations:** can't replace placeholders of form in form submissions ([de0e482](https://github.com/erxes/erxes/commit/de0e482adef25c7704583dcb5e89c6671268b436))
+* **knowledgebase:** can't handle attachment when null in PDFUploader ([ff9ae05](https://github.com/erxes/erxes/commit/ff9ae05b0651546a3d6066d70a7ebdaa713e173e))
+
 ## [2.2.0-rc.9](https://github.com/erxes/erxes/compare/2.2.0-rc.8...2.2.0-rc.9) (2024-12-12)
 
 
