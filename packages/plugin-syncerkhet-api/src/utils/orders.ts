@@ -3,6 +3,7 @@ import {
   sendCoreMessage
 } from "../messageBroker";
 import { sendRPCMessage } from "../messageBrokerErkhet";
+import { calcProductsTaxRule } from "./productsByTaxType";
 import { getConfig, getPureDate } from "./utils";
 
 export const getPostData = async (subdomain, pos, order) => {
@@ -42,16 +43,16 @@ export const getPostData = async (subdomain, pos, order) => {
     defaultValue: []
   });
 
-  const productCodeById = {};
-  for (const product of products) {
-    productCodeById[product._id] = product.code;
-  }
+  const { productsById, oneMoreCtax, oneMoreVat } = await calcProductsTaxRule(subdomain, pos.ebarimtConfig, products)
+
+  console.log(oneMoreVat, oneMoreCtax)
 
   let sumSaleAmount = 0;
 
   for (const item of order.items) {
     // if wrong productId then not sent
-    if (!productCodeById[item.productId]) {
+    const product = productsById[item.productId]
+    if (!product) {
       continue;
     }
 
@@ -61,8 +62,9 @@ export const getPostData = async (subdomain, pos, order) => {
       count: item.count,
       amount,
       discount: item.discountAmount,
-      inventoryCode: productCodeById[item.productId],
-      workerEmail
+      inventoryCode: product.code,
+      workerEmail,
+      taxRule: product.taxRule
     });
   }
 
@@ -122,20 +124,25 @@ export const getPostData = async (subdomain, pos, order) => {
     }
   }
 
+  console.log(order.taxInfo
+    ? order.taxInfo.hasCitytax
+    : pos.ebarimtConfig?.hasCitytax
+    || oneMoreCtax || false, order.taxInfo, pos.ebarimtConfig?.hasCitytax, oneMoreCtax)
+
   const orderInfos = [
     {
       date: getPureDate(order.paidDate).toISOString().slice(0, 10),
       orderId: order._id,
-      hasVat: order.taxInfo
-        ? order.taxInfo.hasVat
-        : pos.ebarimtConfig && pos.ebarimtConfig.hasVat
-          ? true
-          : false,
-      hasCitytax: order.taxInfo
-        ? order.taxInfo.hasCitytax
-        : pos.ebarimtConfig && pos.ebarimtConfig.hasCitytax
-          ? true
-          : false,
+      hasVat: (
+        order.taxInfo
+          ? order.taxInfo.hasVat
+          : pos.ebarimtConfig?.hasVat
+      ) || oneMoreVat || false,
+      hasCitytax: (
+        order.taxInfo
+          ? order.taxInfo.hasCitytax
+          : pos.ebarimtConfig?.hasCitytax
+      ) || oneMoreCtax || false,
       billType: order.billType,
       customerCode,
       description: `${pos.name}`,
