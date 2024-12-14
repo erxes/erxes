@@ -33,7 +33,7 @@ type Props = {
   queryParams: any;
 };
 
-const CarsList = (props: Props) => {
+const ProductRuleList = (props: Props) => {
   const {
     productRules,
     loading,
@@ -226,4 +226,4 @@ const CarsList = (props: Props) => {
   );
 };
 
-export default CarsList;
+export default ProductRuleList;
