@@ -45,8 +45,6 @@ export const getPostData = async (subdomain, pos, order) => {
 
   const { productsById, oneMoreCtax, oneMoreVat } = await calcProductsTaxRule(subdomain, pos.ebarimtConfig, products)
 
-  console.log(oneMoreVat, oneMoreCtax)
-
   let sumSaleAmount = 0;
 
   for (const item of order.items) {
@@ -123,11 +121,6 @@ export const getPostData = async (subdomain, pos, order) => {
       )?.code;
     }
   }
-
-  console.log(order.taxInfo
-    ? order.taxInfo.hasCitytax
-    : pos.ebarimtConfig?.hasCitytax
-    || oneMoreCtax || false, order.taxInfo, pos.ebarimtConfig?.hasCitytax, oneMoreCtax)
 
   const orderInfos = [
     {

@@ -20,6 +20,11 @@ const ProductRuleFormContainer = (props: Props) => {
     object,
   }: IButtonMutateProps) => {
     const afterSave = (data) => {
+      if (data?.errors) {
+        // Handle errors appropriately
+        console.error('Error saving product rule:', data.errors);
+        return;
+      }
       closeModal();
     };
 

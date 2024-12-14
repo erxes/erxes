@@ -10,12 +10,12 @@ export interface IEbarimtConfig {
   posNo: string;
   branchNo: string;
 
-  hasVat: true,
-  hasCitytax: false,
+  hasVat: boolean,
+  hasCitytax: boolean,
   defaultGSCode: string,
   vatPercent: number,
   cityTaxPercent: number,
-  skipPutData: false,
+  skipPutData: boolean,
 
   reverseVatRules?: string[];
   reverseCtaxRules?: string[];

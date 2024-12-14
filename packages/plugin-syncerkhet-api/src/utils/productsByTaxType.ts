@@ -77,7 +77,7 @@ const checkProductsByRule = async (subdomain, products, rule) => {
       rule.excludeTagIds
     );
 
-    const excProductIdsTag = filterProducts.filter(p => lodash.intersection(excludeTagIds, (p.tagIds || []))).map(p => p._id);
+    const excProductIdsTag = filterProducts.filter(p => lodash.intersection(excludeTagIds, (p.tagIds || [])).length).map(p => p._id);
     filterIds = filterIds.filter(f => !excProductIdsTag.includes(f))
   }
 

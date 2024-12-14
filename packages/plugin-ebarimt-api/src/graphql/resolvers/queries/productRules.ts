@@ -29,8 +29,7 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
 };
 
 export const sortBuilder = params => {
-  const sortField = params.sortField;
-  const sortDirection = params.sortDirection || 0;
+  const { sortField, sortDirection = 0 } = params;
 
   if (sortField) {
     return { [sortField]: sortDirection };

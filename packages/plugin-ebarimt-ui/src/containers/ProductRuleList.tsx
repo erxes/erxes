@@ -65,7 +65,7 @@ const ProductRulesContainer = (props: Props) => {
       ...props,
       totalCount,
       productRules: list,
-      loading: productRulesQuery.loading && productRulesCountQuery.loading,
+      loading: productRulesQuery.loading || productRulesCountQuery.loading,
       remove: removeProductRules,
     };
 

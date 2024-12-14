@@ -57,11 +57,7 @@ const ProductRuleList = (props: Props) => {
   };
 
   const removeProductRules = productRules => {
-    const ids: string[] = [];
-
-    productRules.forEach(car => {
-      ids.push(car._id);
-    });
+    const ids: string[] = productRules.map(pr => pr._id) || [];
 
     remove({ ids }, emptyBulk);
   };
