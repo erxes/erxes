@@ -7,10 +7,11 @@ const productRuleMutations = {
     return await models.ProductRules.createProductRule({ ...doc });
   },
 
-  async ebarimtProductRuleUpdate(_root, { _id, ...doc }: { _id: string } & IProductRule, { models, subdomain }: IContext) {
+  async ebarimtProductRuleUpdate(_root, { _id, ...doc }: { _id: string } & IProductRule, { models }: IContext) {
     return await models.ProductRules.updateProductRule(_id, { ...doc });
   },
-  async ebarimtProductRulesRemove(_root, { ids }: { ids: string[] }, { models, subdomain }: IContext) {
+  async ebarimtProductRulesRemove(_root, { ids }: { ids: string[] }, { models }: IContext) {
+    return await models.ProductRules.removeProductRules(ids);
   }
 };
 

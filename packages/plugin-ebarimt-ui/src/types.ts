@@ -161,19 +161,19 @@ export interface IEbarimtProductRule extends IEbarimtProductRuleDoc {
 
 // mutation types
 export type ProductRuleAddMutationResponse = {
-  carsAdd: (params: { variables: IEbarimtProductRule }) => Promise<any>;
+  productRuleAdd: (params: { variables: IEbarimtProductRule }) => Promise<any>;
 };
 
 export type ProductRuleEditMutationResponse = {
-  carsEdit: (params: { variables: IEbarimtProductRuleDoc }) => Promise<any>;
+  productRuleEdit: (params: { variables: IEbarimtProductRuleDoc }) => Promise<any>;
 };
 
 export type ProductRuleRemoveMutationVariables = {
-  carIds: string[];
+  ids: string[];
 };
 
 export type ProductRulesRemoveMutationResponse = {
-  carsRemove: (params: { variables: ProductRuleRemoveMutationVariables }) => Promise<any>;
+  productRuleRemove: (params: { variables: ProductRuleRemoveMutationVariables }) => Promise<any>;
 };
 
 

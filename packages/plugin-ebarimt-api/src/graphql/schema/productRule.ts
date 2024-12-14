@@ -47,5 +47,5 @@ export const queries = `
 export const mutations = `
   ebarimtProductRuleCreate(${mutationParams}): EbarimtProductRule
   ebarimtProductRuleUpdate(_id: String, ${mutationParams}): EbarimtProductRule
-  ebarimtProductRulesRemove(ids: [String]): EbarimtProductRule
+  ebarimtProductRulesRemove(ids: [String]): JSON
 `;

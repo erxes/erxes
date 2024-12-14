@@ -8,6 +8,7 @@ export interface IProductRuleModel extends Model<IProductRuleDocument> {
     _id: string,
     doc: IProductRule
   ): Promise<IProductRuleDocument>;
+  removeProductRules(ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
 export const loadProductRuleClass = (models: IModels) => {
@@ -16,19 +17,17 @@ export const loadProductRuleClass = (models: IModels) => {
      * Create a putResponse
      */
     public static async createProductRule(doc: IProductRule) {
-      const response = await models.ProductRules.create({
+      return await models.ProductRules.create({
         ...doc,
         createdAt: new Date()
       });
-
-      return response;
     }
 
     /**
      * Update a putResponse
      */
     public static async updateProductRule(_id: string, doc: IProductRule) {
-      const response = await models.ProductRules.updateOne(
+      return await models.ProductRules.updateOne(
         { _id },
         {
           $set: {
@@ -37,8 +36,10 @@ export const loadProductRuleClass = (models: IModels) => {
           }
         }
       );
+    }
 
-      return response;
+    public static async removeProductRules(ids: string[]) {
+      return models.ProductRules.deleteMany({ _id: { $in: ids } });
     }
   }
 
