@@ -334,7 +334,7 @@ const checkProductsByRule = async (subdomain, products, rule) => {
       rule.excludeTagIds
     );
 
-    const excProductIdsTag = filterProducts.filter(p => lodash.intersection(excludeTagIds, (p.tagIds || []))).map(p => p._id);
+    const excProductIdsTag = filterProducts.filter(p => lodash.intersection(excludeTagIds, (p.tagIds || [])).length).map(p => p._id);
     filterIds = filterIds.filter(f => !excProductIdsTag.includes(f))
   }
 
@@ -346,37 +346,42 @@ const checkProductsByRule = async (subdomain, products, rule) => {
 }
 
 const calcProductsTaxRule = async (subdomain: string, models: IModels, config, products) => {
-  const vatRules = await models.ProductRules.find({ _id: { $in: config.reverseVatRules } }).lean();
-  const ctaxRules = await models.ProductRules.find({ _id: { $in: config.reverseCtaxRules } }).lean();
+  try {
+    const vatRules = await models.ProductRules.find({ _id: { $in: config.reverseVatRules } }).lean();
+    const ctaxRules = await models.ProductRules.find({ _id: { $in: config.reverseCtaxRules } }).lean();
 
-  const productsById = {};
-  for (const product of products) {
-    productsById[product._id] = product;
-  }
+    const productsById = {};
+    for (const product of products) {
+      productsById[product._id] = product;
+    }
 
-  if (vatRules.length) {
-    for (const rule of vatRules) {
-      const productIdsByRule = await checkProductsByRule(subdomain, products, rule);
+    if (vatRules.length) {
+      for (const rule of vatRules) {
+        const productIdsByRule = await checkProductsByRule(subdomain, products, rule);
 
-      for (const pId of productIdsByRule) {
-        productsById[pId].taxCode = rule.taxCode;
-        productsById[pId].taxType = rule.taxType;
+        for (const pId of productIdsByRule) {
+          productsById[pId].taxCode = rule.taxCode;
+          productsById[pId].taxType = rule.taxType;
+        }
       }
     }
-  }
 
-  if (ctaxRules.length) {
-    for (const rule of ctaxRules) {
-      const productIdsByRule = await checkProductsByRule(subdomain, products, rule);
+    if (ctaxRules.length) {
+      for (const rule of ctaxRules) {
+        const productIdsByRule = await checkProductsByRule(subdomain, products, rule);
 
-      for (const pId of productIdsByRule) {
-        productsById[pId].citytaxCode = rule.taxCode;
-        productsById[pId].citytaxPercent = rule.taxPercent;
+        for (const pId of productIdsByRule) {
+          productsById[pId].citytaxCode = rule.taxCode;
+          productsById[pId].citytaxPercent = rule.taxPercent;
+        }
       }
     }
-  }
 
-  return productsById
+    return productsById
+  } catch (error) {
+    console.error('Error calculating product tax rules:', error);
+    throw error;
+  }
 }
 
 export const getPostData = async (subdomain, models: IModels, config, deal) => {

@@ -15,7 +15,9 @@ const productRuleMutations = {
   }
 };
 
-checkPermission(productRuleMutations, 'putResponseReturnBill', 'specialReturnBill');
-checkPermission(productRuleMutations, 'putResponseReReturn', 'reReturnBill');
+
+checkPermission(productRuleMutations, 'ebarimtProductRuleCreate', 'syncEbarimtConfig');
+checkPermission(productRuleMutations, 'ebarimtProductRuleUpdate', 'syncEbarimtConfig');
+checkPermission(productRuleMutations, 'ebarimtProductRulesRemove', 'syncEbarimtConfig');
 
 export default productRuleMutations;
