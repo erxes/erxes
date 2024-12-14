@@ -202,7 +202,7 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
   }, [uploadState.taskId, uploadState.lastChunkUploaded]);
 
   const renderAttachments = () => {
-    if (!attachment || !attachment.pages.length) {
+    if (!attachment || !attachment?.pages?.length) {
       return null;
     }
     return (
@@ -225,7 +225,7 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
   };
 
   const renderButton = () => {
-    if (attachment && attachment.pages.length) {
+    if (attachment && attachment?.pages?.length) {
       return null;
     }
 
@@ -240,8 +240,8 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
           <label>
             {__('Upload a PDF')}
             <input
-              type='file'
-              accept='application/pdf'
+              type="file"
+              accept="application/pdf"
               onChange={handleUpload}
             />
           </label>
