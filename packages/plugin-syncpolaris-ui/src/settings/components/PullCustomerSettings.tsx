@@ -80,7 +80,15 @@ const PullCustomerSettings = (props: Props) => {
       )]);
     }
 
-    const onAddExtra = (id) => {
+    const changeCode = (e) => {
+      const code = e.target.value;
+      const title = SYNC_TYPES.find(st => st.code === code)?.title
+      setCurrentMap([...currentMap.map(
+        c => c._id === item._id && { ...item, code, title } || { ...c }
+      )]);
+    }
+
+    const onAddExtra = () => {
       setCurrentMap([...currentMap.map(
         c => c._id === item._id && {
           ...item,
@@ -104,22 +112,13 @@ const PullCustomerSettings = (props: Props) => {
     return (
       <FormGroup key={item._id}>
         <Row>
-          <FormColumn maxwidth='20%'>
+          <FormColumn maxwidth='60%'>
             <FormControl
               name="code"
               componentclass="select"
-              options={SYNC_TYPES.map(st => ({ value: st.code, label: st.code }))}
+              options={SYNC_TYPES.map(st => ({ value: st.code, label: `${st.code} - ${st.title}` }))}
               value={item.code}
-              onChange={(e) => setValue('code', (e.target as any).value)}
-            />
-          </FormColumn>
-          <FormColumn maxwidth='40%'>
-            <FormControl
-              name="title"
-              componentclass="select"
-              options={SYNC_TYPES.map(st => ({ value: st.code, label: st.title }))}
-              value={item.code}
-              disabled={true}
+              onChange={(e) => changeCode(e)}
             />
           </FormColumn>
           <FormColumn maxwidth='35%'>
@@ -137,7 +136,7 @@ const PullCustomerSettings = (props: Props) => {
           <FormColumn maxwidth='5%'>
             <ActionButtons>
               <Button btnStyle="link" icon="times-circle" onClick={onDelete.bind(this, item._id)} />
-              <Button btnStyle="link" icon="add" onClick={onAddExtra.bind(this, item._id)} />
+              <Button btnStyle="link" icon="add" onClick={onAddExtra.bind(this)} />
             </ActionButtons>
           </FormColumn>
         </Row>
@@ -151,11 +150,8 @@ const PullCustomerSettings = (props: Props) => {
       <ContentBox id={'PolarisCustomerSettingsMenu'}>
         <FormGroup>
           <Row>
-            <FormColumn maxwidth='20%'>
+            <FormColumn maxwidth='60%'>
               <ControlLabel>Pull code</ControlLabel>
-            </FormColumn>
-            <FormColumn maxwidth='40%'>
-              <ControlLabel>Pull title</ControlLabel>
             </FormColumn>
             <FormColumn maxwidth='35%'>
               <ControlLabel>Pull type</ControlLabel>

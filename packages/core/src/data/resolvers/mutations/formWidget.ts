@@ -269,11 +269,13 @@ const mutations = {
     const companyCustomData: ICustomField[] = [];
     const customerLinks: ILink = {};
     const companyLinks: ILink = {};
+    const submissionValues = {};
 
     // Step 3: Process submissions
     for (const submission of submissions) {
       const submissionType = submission.type || '';
       const value = submission.value || '';
+      submissionValues[submission._id] = submission.value;
 
       // Handle links (customer or company)
       if (submissionType.includes('customerLinks')) {
@@ -327,20 +329,20 @@ const mutations = {
 
     // Step 4: Create or update customer
 
-    let customerQry:any = {
+    let customerQry: any = {
       _id: args.cachedCustomerId,
     };
 
-    const {saveAsCustomer} = form.leadData || {}
+    const { saveAsCustomer } = form.leadData || {};
 
     if (saveAsCustomer) {
       customerQry = {
         $or: [
           { primaryEmail: customerDoc.email },
           { phones: customerDoc.phone },
-          {_id: args.cachedCustomerId}
-        ]
-      }
+          { _id: args.cachedCustomerId },
+        ],
+      };
     }
 
     let customer = await models.Customers.findOne(customerQry);
@@ -406,7 +408,11 @@ const mutations = {
       data: {
         type: 'core:form_submission',
         targets: [
-          { _id: customer._id, conversationId: conversationId || null },
+          {
+            ...submissionValues,
+            _id: customer._id,
+            conversationId: conversationId || null,
+          },
         ],
       },
       isRPC: true,

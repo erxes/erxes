@@ -772,7 +772,7 @@ const compareDepartmentIds = (
   pipelineDepartmentIds: string[],
   userDepartmentIds: string[]
 ): boolean => {
-  if (!pipelineDepartmentIds.length || !userDepartmentIds.length) {
+  if (!pipelineDepartmentIds?.length || !userDepartmentIds?.length) {
     return false;
   }
 
