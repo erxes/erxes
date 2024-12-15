@@ -4,7 +4,8 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon
+  Icon,
+  SelectWithSearch
 } from "@erxes/ui/src/components";
 import client from "@erxes/ui/src/apolloClient";
 import { gql } from "@apollo/client";
@@ -15,9 +16,23 @@ import Select from "react-select";
 import React from "react";
 import { IConfigsMap } from "../types";
 import { FieldsCombinedByType } from "../../../ui-forms/src/settings/properties/types";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+
+const ebarimtProductRules = `
+  query ebarimtProductRules(
+    $searchValue: String,
+    $kind: String,
+  ) {
+    ebarimtProductRules(
+      searchValue: $searchValue,
+      kind: $kind,
+    ) {
+      _id
+      title
+    }
+  }
+`;
 
 type Props = {
   configsMap: IConfigsMap;
@@ -141,6 +156,11 @@ class PerSettings extends React.Component<Props, State> {
     );
   };
 
+  generateRuleOptions = (array) => array.map(item => ({
+    value: item._id,
+    label: item.title || ''
+  }));
+
   render() {
     const { config } = this.state;
     const payOptions = [
@@ -198,7 +218,43 @@ class PerSettings extends React.Component<Props, State> {
           <FormColumn>
             {this.renderInput("userEmail", "userEmail", "")}
             {this.renderCheckbox("hasVat", "hasVat", "")}
+            {this.state.config.hasVat && (
+              <FormGroup>
+                <ControlLabel>Another rules of products on vat</ControlLabel>
+                <SelectWithSearch
+                  label={'reverseVatRules'}
+                  queryName="ebarimtProductRules"
+                  name={'reverseVatRules'}
+                  initialValue={this.state.config['reverseVatRules']}
+                  generateOptions={this.generateRuleOptions}
+                  onSelect={ids => {
+                    this.onChangeConfig("reverseVatRules", ids);
+                  }}
+                  filterParams={{ kind: 'vat' }}
+                  customQuery={ebarimtProductRules}
+                  multi={true}
+                />
+              </FormGroup>
+            ) || <></>}
             {this.renderCheckbox("hasCitytax", "hasCitytax", "")}
+            {!this.state.config.hasCitytax && (
+              <FormGroup>
+                <ControlLabel>Another rules of products on citytax</ControlLabel>
+                <SelectWithSearch
+                  label={'reverseCtaxRules'}
+                  queryName="ebarimtProductRules"
+                  name={'reverseCtaxRules'}
+                  initialValue={this.state.config['reverseCtaxRules']}
+                  generateOptions={this.generateRuleOptions}
+                  onSelect={ids => {
+                    this.onChangeConfig("reverseCtaxRules", ids);
+                  }}
+                  filterParams={{ kind: 'ctax' }}
+                  customQuery={ebarimtProductRules}
+                  multi={true}
+                />
+              </FormGroup>
+            ) || <></>}
 
             <FormGroup>
               <ControlLabel>{"defaultPay"}</ControlLabel>
