@@ -110,10 +110,12 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
 
   const pos = await models.Pos.findOne({
     token: order.posToken,
-    "paymentTypes.type": {
-      $in: (order?.paidAmounts || []).map(({ type }) => type)
-    },
-    "paymentTypes.scoreCampaignId": { $exists: true }
+    paymentTypes: {
+      $elemMatch: {
+        type: { $in: (order?.paidAmounts || []).map(({ type }) => type) },
+        scoreCampaignId: { $exists: true }
+      }
+    }
   });
 
   if (pos) {
