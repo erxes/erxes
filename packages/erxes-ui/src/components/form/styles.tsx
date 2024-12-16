@@ -55,6 +55,7 @@ const Input = styledTS<{
   $boxView?: boolean;
   disabled?: boolean;
   align?: string;
+  hideBottomBorder?: boolean;
 }>(styled.input)`
   display: block;
   border: ${(props) => (props.$boxView ? "1px solid" : "none")};
@@ -63,7 +64,8 @@ const Input = styledTS<{
   height: ${textInputHeight};
   padding: ${dimensions.unitSpacing}px 0;
   color: ${colors.textPrimary};
-  border-bottom: ${(props) => !props.$boxView && "1px solid"} ;
+  border-bottom: ${(props) =>
+    props.hideBottomBorder ? "none" : "1px solid #e9e9e9"};
   border-color:${(props) =>
     props.$hasError ? colors.colorCoreRed : colors.colorShadowGray};
   background: ${(props) => (props.disabled ? colors.bgActive : "none")};
