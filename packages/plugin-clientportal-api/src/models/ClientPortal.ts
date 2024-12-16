@@ -4,13 +4,16 @@ import { IModels } from '../connectionResolver';
 import {
   clientPortalSchema,
   IClientPortal,
-  IClientPortalDocument
+  IClientPortalDocument,
 } from './definitions/clientPortal';
 
 import {
   removeLastTrailingSlash,
-  removeExtraSpaces
+  removeExtraSpaces,
 } from '@erxes/api-utils/src/commonUtils';
+import slugify from 'slugify';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { sendCommonMessage } from '../messageBroker';
 
 export interface IClientPortalModel extends Model<IClientPortalDocument> {
   getConfig(_id: string): Promise<IClientPortalDocument>;
@@ -34,6 +37,10 @@ export const loadClientPortalClass = (models: IModels) => {
 
       if (doc.url) {
         doc.url = removeExtraSpaces(removeLastTrailingSlash(doc.url));
+      }
+
+      if (!doc.slug && doc.name) {
+        doc.slug = slugify(doc.name, { lower: true });
       }
 
       if (!config) {
