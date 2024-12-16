@@ -71,11 +71,12 @@ export const fetchPolaris = async (args: IParams) => {
       agent:
         config.apiUrl.includes("http://") &&
         new http.Agent({ keepAlive: true }) ||
-        new https.Agent({ keepAlive: true })
+        new https.Agent({ keepAlive: true, rejectUnauthorized: false })
     };
 
     const realResponse = await fetch(config.apiUrl, requestOptions)
       .then(async (response) => {
+        console.log(response)
         if (!response.ok) {
           const respErr = await response.text();
           throw new Error(respErr);
@@ -91,6 +92,7 @@ export const fetchPolaris = async (args: IParams) => {
         }
       })
       .catch(e => {
+        console.log(e)
         throw new Error(e.message);
       });
 
