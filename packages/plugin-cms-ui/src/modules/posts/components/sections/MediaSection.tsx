@@ -55,7 +55,7 @@ const MediaSection = (props: Props) => {
       case 'thumbnail':
         title = __('Featured image');
         uploaderProps.defaultFileList = post.thumbnail ? [post.thumbnail] : [];
-        uploaderProps.text = __('Select featured image');
+        uploaderProps.text = __('Upload featured image');
         uploaderProps.accept = 'image/*';
         uploaderProps.single = true;
         description = __(
