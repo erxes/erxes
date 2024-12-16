@@ -769,3 +769,20 @@ export const shortStrToDate = (
 export const getGqlString = doc => {
   return doc.loc && doc.loc.source.body;
 };
+
+export const clearTypename = (doc: any) => {
+  const cleanedInput = JSON.parse(JSON.stringify(doc));
+
+  // Helper function to recursively remove __typename
+  const removeTypename = (obj: any) => {
+    if (Array.isArray(obj)) {
+      obj.forEach(removeTypename);
+    } else if (typeof obj === 'object' && obj !== null) {
+      delete obj.__typename;
+      Object.values(obj).forEach(removeTypename);
+    }
+  };
+
+  removeTypename(cleanedInput);
+  return cleanedInput;
+};

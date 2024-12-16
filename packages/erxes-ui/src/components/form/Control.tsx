@@ -50,6 +50,7 @@ type Props = {
   align?: string;
   useNumberFormat?: boolean;
   fixed?: number; // useNumberFormat is true then used
+  hideBottomBorder?: boolean;
   onDoubleClick?: (e: React.FormEvent<HTMLElement>) => void;
 };
 
