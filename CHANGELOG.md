@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.1.4](https://github.com/erxes/erxes/compare/2.1.3...2.1.4) (2024-12-16)
+
+
+### Features
+
+* **automations:** add ability send documents ([3d1e04e](https://github.com/erxes/erxes/commit/3d1e04edf31582bf99bd7af1a8df4f0d03b80271))
+* ebarimt some products another tax rule ([#5845](https://github.com/erxes/erxes/issues/5845)) ([d84230f](https://github.com/erxes/erxes/commit/d84230f38750986754edd3ea427826bb4a5ba296))
+
+
+### Bug Fixes
+
+* **automations:** can't replace placeholders of form in form submissions ([de0e482](https://github.com/erxes/erxes/commit/de0e482adef25c7704583dcb5e89c6671268b436))
+* **automations:** check documents plugin enabled ([76d4df7](https://github.com/erxes/erxes/commit/76d4df7b0948ac917367c2fe1b5768043f243959))
+* **knowledgebase:** can't handle attachment when null in PDFUploader ([ff9ae05](https://github.com/erxes/erxes/commit/ff9ae05b0651546a3d6066d70a7ebdaa713e173e))
+* **pos:** check score aviable to subtract from loyalties ([8cabf47](https://github.com/erxes/erxes/commit/8cabf47dca041f5c7b13743ef0a0caaab3893fe0))
+
 ## [2.1.3](https://github.com/erxes/erxes/compare/2.1.2...2.1.3) (2024-12-12)
 
 

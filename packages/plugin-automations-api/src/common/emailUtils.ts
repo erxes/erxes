@@ -8,7 +8,11 @@ import { getEnv } from "../utils";
 import * as AWS from "aws-sdk";
 import * as nodemailer from "nodemailer";
 import { debugError } from "@erxes/api-utils/src/debuggers";
-import { getServices, getService } from "@erxes/api-utils/src/serviceDiscovery";
+import {
+  getServices,
+  getService,
+  isEnabled
+} from "@erxes/api-utils/src/serviceDiscovery";
 import { putActivityLog } from "../logUtils";
 
 export const getEmailRecipientTypes = async () => {
@@ -184,7 +188,6 @@ const getSegmentEmails = async ({
 };
 
 const generateFromEmail = (sender, fromUserEmail) => {
-  console.log({sender,fromUserEmail})
   if (sender && fromUserEmail) {
     return `${sender} <${fromUserEmail}>`;
   }
@@ -194,6 +197,38 @@ const generateFromEmail = (sender, fromUserEmail) => {
   }
 
   return null;
+};
+
+const replaceDocuments = async (subdomain, content, target) => {
+  if (!isEnabled("documents")) {
+    return content;
+  }
+
+  // Regular expression to match `documents.<id>` within `{{ }}`
+  const documentIds = [
+    ...content.matchAll(/\{\{\s*document\.([a-zA-Z0-9_]+)\s*\}\}/g)
+  ].map(match => match[1]);
+
+  if (!!documentIds?.length) {
+    for (const documentId of documentIds) {
+      const response = await sendCommonMessage({
+        serviceName: "documents",
+        subdomain,
+        action: "printDocument",
+        data: {
+          ...target,
+          _id: documentId,
+          itemId: target._id
+        },
+        isRPC: true,
+        defaultValue: ""
+      });
+
+      content = content.replace(`{{ document.${documentId} }}`, response);
+    }
+  }
+
+  return content;
 };
 
 export const generateDoc = async ({
@@ -206,7 +241,7 @@ export const generateDoc = async ({
   const { templateId, fromUserId, sender } = config;
   const [serviceName, type] = triggerType.split(":");
   const version = getEnv({ name: "VERSION" });
-  const DEFAULT_AWS_EMAIL = getEnv({ name: "AWS_DEFAULT_EMAIL" });
+  const DEFAULT_AWS_EMAIL = "support@erxes.io";
 
   const template = await sendCoreMessage({
     subdomain,
@@ -220,7 +255,6 @@ export const generateDoc = async ({
 
   let fromUserEmail = version === "saas" ? DEFAULT_AWS_EMAIL : "";
 
-
   if (fromUserId) {
     const fromUser = await sendCoreMessage({
       subdomain,
@@ -232,16 +266,15 @@ export const generateDoc = async ({
       defaultValue: null
     });
 
-    console.log({ fromUser });
-
     fromUserEmail = fromUser?.email;
-    console.log({fromUserEmail})
   }
 
-  const replacedContent = (template?.content || "").replace(
+  let replacedContent = (template?.content || "").replace(
     new RegExp(`{{\\s*${type}\\.\\s*(.*?)\\s*}}`, "g"),
     "{{ $1 }}"
   );
+
+  replacedContent = await replaceDocuments(subdomain, replacedContent, target);
 
   const { subject, content } = await sendCommonMessage({
     subdomain,
@@ -291,7 +324,7 @@ export const getRecipientEmails = async ({
   const reciepentTypeKeys = reciepentTypes.map(rT => rT.name);
 
   for (const key of Object.keys(config)) {
-    if (reciepentTypeKeys.includes(key)) {
+    if (reciepentTypeKeys.includes(key) && !!config[key]) {
       const [serviceName, contentType] = triggerType.split(":");
 
       const { type, ...reciepentType } = reciepentTypes.find(
@@ -392,8 +425,6 @@ export const handleEmail = async ({
   if (!params) {
     return { error: "Something went wrong fetching data" };
   }
-
-  console.log({params})
 
   try {
     const responses = await sendEmails({
@@ -501,7 +532,7 @@ const sendEmails = async ({
   }
 
   if (NODE_ENV === "test") {
-    return;
+    throw new Error("Node environment is required");
   }
 
   let transporter;
@@ -512,7 +543,8 @@ const sendEmails = async ({
       configs
     );
   } catch (e) {
-    return debugError(e.message);
+    debugError(e.message);
+    throw new Error(e.message);
   }
 
   const responses: any[] = [];

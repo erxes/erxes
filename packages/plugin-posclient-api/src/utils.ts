@@ -384,7 +384,8 @@ export const prepareSettlePayment = async (
       try {
         const { putData, innerData } = await models.PutResponses.putData(
           { ...ebarimtData },
-          ebarimtConfig
+          ebarimtConfig,
+          config.token
         );
         putData && ebarimtResponses.push(putData);
         innerData && ebarimtResponses.push(innerData);

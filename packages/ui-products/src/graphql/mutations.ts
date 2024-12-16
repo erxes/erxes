@@ -17,8 +17,6 @@ const productParamsDef = `
   $scopeBrandIds: [String]
   $uom: String,
   $subUoms: JSON,
-  $taxType: String,
-  $taxCode: String
 `;
 
 const productCategoryParamsDef = `
@@ -55,8 +53,6 @@ const productParams = `
   scopeBrandIds: $scopeBrandIds,
   uom: $uom,
   subUoms: $subUoms,
-  taxType: $taxType,
-  taxCode: $taxCode
 `;
 
 const productCategoryParams = `

@@ -434,8 +434,6 @@ export interface IProduct {
 
   uom?: string;
   subUoms?: any[];
-  taxType?: string;
-  taxCode?: string;
 }
 
 export interface IPaymentsData {

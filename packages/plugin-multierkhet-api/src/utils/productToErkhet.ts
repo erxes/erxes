@@ -140,8 +140,6 @@ const productSender = async (
         saleAccount: config.saleAccount,
         categoryCode: productCategory ? productCategory.code : '',
         defaultCategory: config.productCategoryCode,
-        taxType: product.taxType,
-        taxCode: product.taxCode
       }
     };
 

@@ -12,7 +12,7 @@ import { sanitizeHeaders, setUserHeader } from '@erxes/api-utils/src/headers';
 export default async function userMiddleware(
   req: Request & { user?: any },
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) {
   const url = req.headers['erxes-core-website-url'];
   const erxesCoreToken = req.headers['erxes-core-token'];
@@ -68,7 +68,7 @@ export default async function userMiddleware(
 
   let models: IModels;
   try {
-    models =  await generateModels(subdomain);
+    models = await generateModels(subdomain);
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
@@ -77,7 +77,7 @@ export default async function userMiddleware(
     try {
       const { app }: any = jwt.verify(
         appToken,
-        process.env.JWT_TOKEN_SECRET || '',
+        process.env.JWT_TOKEN_SECRET || ''
       );
 
       if (app && app._id) {
@@ -113,7 +113,7 @@ export default async function userMiddleware(
               const actionMap = await userActionsMap(
                 userPermissions,
                 groupPermissions,
-                user,
+                user
               );
 
               await redis.set(key, JSON.stringify(actionMap));
@@ -152,9 +152,13 @@ export default async function userMiddleware(
 
   try {
     // verify user token and retrieve stored user information
-    const { user }: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
-
-    const userDoc = await models.Users.findOne({ _id: user._id });
+    const decoded: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
+    const user = decoded.user;
+ 
+    const userDoc = await models.Users.findOne(
+      { _id: user._id },
+      '_id email details isOwner groupIds brandIds username code departmentIds'
+    );
 
     if (!userDoc) {
       return next();
@@ -168,7 +172,7 @@ export default async function userMiddleware(
     }
 
     // save user in request
-    req.user = user;
+    req.user = userDoc;
     req.user.loginToken = token;
     req.user.sessionCode = req.headers.sessioncode || '';
 
