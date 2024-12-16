@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import * as http from 'http';
+import * as https from 'https';
 import { IModels, generateModels } from '../connectionResolver';
 import { sendCommonMessage } from '../messageBroker';
 import { ISyncLogDocument } from '../models/definitions/syncLog';
@@ -68,7 +69,9 @@ export const fetchPolaris = async (args: IParams) => {
       headers,
       body: JSON.stringify(data),
       agent:
-        config.apiUrl.includes("http://") && new http.Agent({ keepAlive: true })
+        config.apiUrl.includes("http://") &&
+        new http.Agent({ keepAlive: true }) ||
+        new https.Agent({ keepAlive: true })
     };
 
     const realResponse = await fetch(config.apiUrl, requestOptions)

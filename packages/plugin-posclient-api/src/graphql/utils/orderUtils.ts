@@ -1,4 +1,8 @@
-import { IOrder, IOrderDocument } from "../../models/definitions/orders";
+import {
+  IOrder,
+  IOrderDocument,
+  IPaidAmount
+} from "../../models/definitions/orders";
 import { IModels } from "../../connectionResolver";
 import { IPayment } from "../resolvers/mutations/orders";
 import { IOrderInput, IOrderItemInput } from "../types";
@@ -673,17 +677,39 @@ export const checkScoreAviableSubtractScoreCampaign = async (
   subdomain: string,
   models: IModels,
   order: IOrderDocument,
-  paidAmounts
+  paidAmounts?: IPaidAmount[]
 ) => {
-  for (const { type } of paidAmounts || []) {
-    const paymentTypes = await models.Configs.exists({
-      "paymentTypes.type": type,
-      "paymentTypes.scoreCampaignId": { $exists: true }
-    }).distinct("paymentTypes");
+  if (!paidAmounts?.length) {
+    return;
+  }
 
-    if (paymentTypes) {
-      const { scoreCampaignId, title } =
-        paymentTypes.find(config => config?.type === type) || {};
+  const config = await models.Configs.findOne({
+    paymentTypes: {
+      $elemMatch: {
+        type: { $in: paidAmounts.map(({ type }) => type) },
+        scoreCampaignId: { $exists: true }
+      }
+    },
+    token: order.posToken
+  });
+
+  if (!config) {
+    return;
+  }
+
+  const { paymentTypes = [] } = config;
+
+  for (const { type } of paidAmounts || []) {
+    const paymentType = paymentTypes.find(
+      paymentType => paymentType.type === type && !!paymentType.scoreCampaignId
+    );
+
+    if (paymentType) {
+      const { scoreCampaignId, title } = paymentType || {};
+
+      if (!scoreCampaignId) {
+        continue;
+      }
 
       await sendLoyaltiesMessage({
         subdomain,
@@ -697,7 +723,6 @@ export const checkScoreAviableSubtractScoreCampaign = async (
         isRPC: true,
         defaultValue: false
       }).catch(error => {
-        console.log(error);
         if (error.message === "There has no enough score to subtract") {
           throw new Error(
             `There has no enough score to subtract using ${title}`
