@@ -9,7 +9,6 @@ import React from 'react';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 
 import PageForm from '../containers/Form';
-// import { tumentechMenu } from '../list/CarsList';
 
 import { menu } from '../../../routes';
 import Row from './Row';

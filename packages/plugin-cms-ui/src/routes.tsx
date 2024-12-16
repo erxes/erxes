@@ -9,7 +9,6 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import WebBuilder from './modules/pages/containers/Webbuilder';
 
 const CategoryList = asyncComponent(
   () =>
@@ -99,18 +98,6 @@ const PagesComponent = () => {
   return <Pages clientPortalId={cpId} />;
 };
 
-const PageDetailComponent = () => {
-  const { pageId = '' } = useParams();
-
-  return (
-    <>
-      {/* <h2>Page Detail</h2> */}
-      {/* <p>cpId: {cpId}</p> */}
-      {/* <p>pageId: {pageId}</p> */}
-      <WebBuilder id={pageId} />
-    </>
-  );
-};
 
 const routes = () => (
   <Routes>
@@ -166,11 +153,6 @@ const routes = () => (
       element={<PagesComponent />}
     />
 
-    <Route
-      key='/cms/pages/:cpId/:pageId'
-      path='/cms/pages/:cpId/:pageId'
-      element={<PageDetailComponent />}
-    />
   </Routes>
 );
 
@@ -179,11 +161,6 @@ export const menu = [
   { title: 'Category', link: '/cms/categories' },
   { title: 'Tags', link: '/cms/tags' },
   { title: 'Pages', link: '/cms/pages' },
-];
-
-export const webBuilderMenu = [
-  { title: 'Pages', link: '/cms/pages' },
-  { title: 'Blocks', link: '/cms/blocks' },
 ];
 
 export default routes;
