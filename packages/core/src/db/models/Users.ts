@@ -676,7 +676,9 @@ export const loadUserClass = (models: IModels) => {
      * Creates regular and refresh tokens using given user information
      */
     public static async createTokens(_user: IUserDocument, secret: string) {
-      const user = this.getTokenFields(_user);
+      const user = {
+        _id: _user._id,
+      }
 
       const createToken = await jwt.sign({ user }, secret, { expiresIn: "1d" });
 
