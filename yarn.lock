@@ -1994,6 +1994,37 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
+"@dnd-kit/accessibility@^3.1.1":
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/@dnd-kit/accessibility/-/accessibility-3.1.1.tgz#3b4202bd6bb370a0730f6734867785919beac6af"
+  integrity sha512-2P+YgaXF+gRsIihwwY1gCsQSYnu9Zyj2py8kY5fFvUM1qm2WA2u639R6YNVfU4GWr+ZM5mqEsfHZZLoRONbemw==
+  dependencies:
+    tslib "^2.0.0"
+
+"@dnd-kit/core@^6.2.0":
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/@dnd-kit/core/-/core-6.2.0.tgz#4c10e2242e007c33ddade090c25b470b5c11abfd"
+  integrity sha512-KVK/CJmaYGTxTPU6P0+Oy4itgffTUa80B8317sXzfOr1qUzSL29jE7Th11llXiu2haB7B9Glpzo2CDElin+geQ==
+  dependencies:
+    "@dnd-kit/accessibility" "^3.1.1"
+    "@dnd-kit/utilities" "^3.2.2"
+    tslib "^2.0.0"
+
+"@dnd-kit/sortable@^9.0.0":
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/@dnd-kit/sortable/-/sortable-9.0.0.tgz#c1910adc8265753384c44888e588491e2c2869c6"
+  integrity sha512-3/9r8Mmba0nKTbo8kPnVSFZKf/VSy94nXZ3aUwzPEh78j/LooQ/EFKRZENak4PHKBkN53mgTF/z+Sd8H+FcAnQ==
+  dependencies:
+    "@dnd-kit/utilities" "^3.2.2"
+    tslib "^2.0.0"
+
+"@dnd-kit/utilities@^3.2.2":
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/@dnd-kit/utilities/-/utilities-3.2.2.tgz#5a32b6af356dc5f74d61b37d6f7129a4040ced7b"
+  integrity sha512-+MKAJEOfaBe5SmV6t34p80MMKhjvUz0vRrvVJbPT0WElzaOJ/1xs+D+KDv+tD/NE5ujfrChEcshd4fLn0wpiqg==
+  dependencies:
+    tslib "^2.0.0"
+
 "@emotion/babel-plugin@^11.11.0":
   version "11.11.0"
   resolved "https://registry.yarnpkg.com/@emotion/babel-plugin/-/babel-plugin-11.11.0.tgz#c2d872b6a7767a9d176d007f5b31f7d504bb5d6c"
@@ -6133,6 +6164,13 @@
     "@types/qs" "*"
     "@types/range-parser" "*"
     "@types/send" "*"
+
+"@types/express-session@^1.18.0":
+  version "1.18.0"
+  resolved "https://registry.yarnpkg.com/@types/express-session/-/express-session-1.18.0.tgz#7c6f25c3604b28d6bc08a2e3929997bbc7672fa2"
+  integrity sha512-27JdDRgor6PoYlURY+Y5kCakqp5ulC0kmf7y+QwaY+hv9jEFuQOThgkjyA53RP3jmKuBsH5GR6qEfFmvb8mwOA==
+  dependencies:
+    "@types/express" "*"
 
 "@types/express@*", "@types/express@^4.16.0", "@types/express@^4.17.13", "@types/express@^4.17.17", "@types/express@^4.17.3":
   version "4.17.21"
@@ -12025,7 +12063,7 @@ express-rate-limit@^7.4.1:
   resolved "https://registry.yarnpkg.com/express-rate-limit/-/express-rate-limit-7.4.1.tgz#90954ecbcde9e7ae7b5000325395f86991191d94"
   integrity sha512-KS3efpnpIDVIXopMc65EMbWbUht7qvTCdtCR2dD/IZmi9MIkopYESwyRqLgv8Pfu589+KqDqOdzJWW7AHoACeg==
 
-express-session@^1.15.5:
+express-session@^1.15.5, express-session@^1.18.0:
   version "1.18.0"
   resolved "https://registry.yarnpkg.com/express-session/-/express-session-1.18.0.tgz#a6ae39d9091f2efba5f20fc5c65a3ce7c9ce16a3"
   integrity sha512-m93QLWr0ju+rOwApSsyso838LQwgfs44QtOP/WBiwtAgPIo/SAh1a5c6nn2BR6mFNZehTpqKDESzP+fRHVbxwQ==
@@ -13762,7 +13800,7 @@ html-minifier-terser@^6.0.2:
     relateurl "^0.2.7"
     terser "^5.10.0"
 
-html-to-text@9.0.5:
+html-to-text@9.0.5, html-to-text@^9.0.5:
   version "9.0.5"
   resolved "https://registry.yarnpkg.com/html-to-text/-/html-to-text-9.0.5.tgz#6149a0f618ae7a0db8085dca9bbf96d32bb8368d"
   integrity sha512-qY60FjREgVZL03vJU6IfMV4GDjGBIoOyvuFdpBDIX9yTlDw0TjxVBQp+P8NvpdIXNJvfWBTNul7fsAQJq2FNpg==
@@ -21863,6 +21901,11 @@ slug@^5.3.0:
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/slug/-/slug-5.3.0.tgz#d63d3a5a88d5508c1adcf2b8aeeb045c3f43760b"
   integrity sha512-h7yD2UDVyMcQRv/WLSjq7HDH6ToO/22MB381zfx6/ebtdWUlGcyxpJNVHl6WFvKjIMHf5ZxANFp/srsy4mfT/w==
+
+slugify@^1.6.6:
+  version "1.6.6"
+  resolved "https://registry.yarnpkg.com/slugify/-/slugify-1.6.6.tgz#2d4ac0eacb47add6af9e04d3be79319cbcc7924b"
+  integrity sha512-h+z7HKHYXj6wJU+AnS/+IH8Uh9fdcX1Lrhg1/VMdf9PwoBQXFcXiAdsy2tSK0P6gKwJLXp02r90ahUCqHk9rrw==
 
 smooch-core@^8.8.0:
   version "8.11.4"
