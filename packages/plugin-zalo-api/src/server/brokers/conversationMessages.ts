@@ -95,8 +95,6 @@ export const conversationMessagesBroker = () => {
         }
 
         if (attachments?.length) {
-          console.log('attachments: ', attachments?.[0]);
-
           let element = attachments?.[0];
           let type = element.type?.startsWith('image') ? 'template' : 'file';
           let template_type = element.type?.startsWith('image')

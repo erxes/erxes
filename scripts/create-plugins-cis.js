@@ -75,7 +75,8 @@ var plugins = [
   { name: "accountings", api: true, ui: true },
   { name: "pms", api: true, ui: true },
   { name: "bm", api: true, ui: true },
-  { name: "template", api: true, ui: true }
+  { name: "template", api: true, ui: true },
+  { name: "cms", api: true, ui: true },
 ];
 
 const pluginsMap = {};

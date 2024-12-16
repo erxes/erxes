@@ -4,6 +4,7 @@ import { ClientPortalUser, ClientPortalParticipant } from './clientPortalUser';
 import { ClientPortalCompany } from './clientPortalCompany';
 import ClientPortalNotification from './clientPortalNotification';
 import ClientPortalComment from './comment';
+import { ClientPortal } from './clientPortal';
 import Mutation from './mutations';
 import Query from './queries';
 
@@ -12,6 +13,7 @@ const resolvers: any = {
   Mutation,
   Query,
 
+  ClientPortal,
   ClientPortalNotification,
   ClientPortalUser,
   ClientPortalParticipant,
