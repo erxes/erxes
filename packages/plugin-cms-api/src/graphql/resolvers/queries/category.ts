@@ -47,6 +47,6 @@ const queries = {
 requireLogin(queries, 'cmsCategories');
 requireLogin(queries, 'cmsCategory');
 checkPermission(queries, 'cmsCategories', 'showCmsCategories', []);
-checkPermission(queries, 'cmsCategory', 'manageCmsCategories', []);
+checkPermission(queries, 'cmsCategory', 'showCmsCategories', []);
 
 export default queries;

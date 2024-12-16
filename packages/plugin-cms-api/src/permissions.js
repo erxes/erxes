@@ -23,6 +23,8 @@ module.exports = {
           'cmsMenuEdit',
           'cmsMenuRemove',
           'showCmsPosts',
+          'showCmsTags',
+          'showCmsCategories'
         ],
       },
       {
@@ -90,6 +92,14 @@ module.exports = {
         name: 'showCmsPosts',
         description: 'Show posts',
       },
+      {
+        name: 'showCmsTags',
+        description: 'Show cms tags'
+      },
+      {
+        name: 'showCmsCategories',
+        descriotion: 'Show cms categories'
+      }
 
     ],
   },

@@ -47,6 +47,6 @@ const queries = {
 requireLogin(queries, 'cmsTags');
 requireLogin(queries, 'cmsTag');
 checkPermission(queries, 'cmsTags', 'showCmsTags', []);
-checkPermission(queries, 'cmsTag', 'manageCmsTags', []);
+checkPermission(queries, 'cmsTag', 'showCmsTags', []);
 
 export default queries;

@@ -99,7 +99,7 @@ requireLogin(queries, 'cmsPosts');
 requireLogin(queries, 'cmsPost');
 requireLogin(queries, 'cmsPostList');
 checkPermission(queries, 'cmsPosts', 'showCmsPosts', []);
-checkPermission(queries, 'cmsPost', 'manageCmsPosts', []);
-checkPermission(queries, 'cmsPostList', 'manageCmsPosts', []);
+checkPermission(queries, 'cmsPost', 'showCmsPosts', []);
+checkPermission(queries, 'cmsPostList', 'showCmsPosts', []);
 
 export default queries;
