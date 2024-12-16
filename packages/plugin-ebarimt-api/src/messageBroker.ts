@@ -157,6 +157,15 @@ export const setupMessageConsumers = async () => {
       };
     }
   );
+
+  consumeRPCQueue("ebarimt:productRules.find", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: "success",
+      data: await models.ProductRules.find(data).lean()
+    };
+  });
 };
 
 export const sendPosMessage = async (

@@ -4649,7 +4649,7 @@ module.exports = {
     },
     "api": {
       "permissions": {
-        "multierkhet": {
+        "pms": {
           "name": "pmsConfig",
           "description": "pmsConfig",
           "actions": [

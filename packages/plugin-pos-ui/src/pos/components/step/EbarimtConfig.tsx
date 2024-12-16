@@ -4,11 +4,28 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
+  SelectWithSearch,
   Textarea,
 } from '@erxes/ui/src';
 import { Block, BlockRow, FlexColumn, FlexItem } from '../../../styles';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { IPos } from '../../../types';
+
+const ebarimtProductRules = `
+  query ebarimtProductRules(
+    $searchValue: String,
+    $kind: String,
+  ) {
+    ebarimtProductRules(
+      searchValue: $searchValue,
+      kind: $kind,
+    ) {
+      _id
+      title
+    }
+  }
+`;
+
 
 type Props = {
   onChange: (name: 'ebarimtConfig', value: any) => void;
@@ -94,6 +111,11 @@ const EbarimtConfig = (props: Props) => {
     );
   };
 
+  const generateRuleOptions = (array) => array.map(item => ({
+    value: item._id,
+    label: item.title || ''
+  }));
+
   return (
     <FlexItem>
       <FlexColumn>
@@ -127,6 +149,26 @@ const EbarimtConfig = (props: Props) => {
               {renderCheckbox('hasVat', 'Has VAT', '')}
               {renderInput('vatPercent', 'VAT Percent', '', 'number')}
             </BlockRow>
+            {config.hasVat && (
+              <BlockRow>
+                <FormGroup>
+                  <ControlLabel>Another rules of products on vat</ControlLabel>
+                  <SelectWithSearch
+                    label={'reverseVatRules'}
+                    queryName="ebarimtProductRules"
+                    name={'reverseVatRules'}
+                    initialValue={config['reverseVatRules']}
+                    generateOptions={generateRuleOptions}
+                    onSelect={ids => {
+                      onChangeConfig("reverseVatRules", ids);
+                    }}
+                    filterParams={{ kind: 'vat' }}
+                    customQuery={ebarimtProductRules}
+                    multi={true}
+                  />
+                </FormGroup>
+              </BlockRow>
+            ) || <></>}
           </Block>
           <Block>
             <h4>{__('UB city tax')}</h4>
@@ -139,6 +181,26 @@ const EbarimtConfig = (props: Props) => {
                 'number'
               )}
             </BlockRow>
+            {!config.hasCitytax && (
+              <BlockRow>
+                <FormGroup>
+                  <ControlLabel>Another rules of products on citytax</ControlLabel>
+                  <SelectWithSearch
+                    label={'reverseCtaxRules'}
+                    queryName="ebarimtProductRules"
+                    name={'reverseCtaxRules'}
+                    initialValue={config['reverseCtaxRules']}
+                    generateOptions={generateRuleOptions}
+                    onSelect={ids => {
+                      onChangeConfig("reverseCtaxRules", ids);
+                    }}
+                    filterParams={{ kind: 'ctax' }}
+                    customQuery={ebarimtProductRules}
+                    multi={true}
+                  />
+                </FormGroup>
+              </BlockRow>
+            ) || <></>}
           </Block>
           <Block />
           <Block>
