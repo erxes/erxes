@@ -11,6 +11,7 @@
     "randomatic": "^3.0.0",
     "sha256": "^0.2.0",
     "firebase-admin": "^12.5.0",
-    "crypto": "^1.0.1"
+    "crypto": "^1.0.1",
+    "slugify": "^1.6.6"
   }
 }

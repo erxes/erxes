@@ -9,7 +9,6 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { Formgroup } from '@erxes/ui/src/components/form/styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import Uploader from '@erxes/ui/src/components/Uploader';
@@ -519,7 +518,7 @@ class ArticleForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <Formgroup>
+        <FormGroup>
           <ControlLabel>PDF</ControlLabel>
           <PdfUploader
             attachment={this.state.pdfAttachment}
@@ -527,7 +526,7 @@ class ArticleForm extends React.Component<Props, State> {
               return this.setState({ pdfAttachment: attachment });
             }}
           />
-        </Formgroup>
+        </FormGroup>
 
         <FlexContent>
           <FlexItem count={2} hasSpace={true}>

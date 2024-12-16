@@ -105,7 +105,6 @@ ${
       _id: String! @external
     }
 
-
   type OTPConfig {
     content: String
     codeLength: Int
@@ -114,6 +113,7 @@ ${
     expireAfter: Int
     emailSubject: String
   }
+
   type TwoFactorConfig {
     content: String
     codeLength: Int
@@ -185,6 +185,7 @@ ${
   type ClientPortal {
     _id: String!
     name: String!
+    slug: String
     kind: BusinessPortalKind!
     description: String
     url: String
@@ -252,6 +253,8 @@ ${
 
     socialpayConfig: SocialpayConfig
     language: String
+
+    template: String
   }
 
   type Styles {
@@ -298,6 +301,7 @@ ${
   input ClientPortalConfigInput {
     _id: String
     name: String!
+    slug: String
     kind: BusinessPortalKind!
     description: String
     url: String
@@ -362,6 +366,8 @@ ${
     vendorParentProductCategoryId: String
     socialpayConfig: JSON
     language: String
+
+    template: String
   }
 
   enum UserCardEnum {
@@ -401,7 +407,7 @@ ${
 `;
 
 export const queries = (enabledPlugins) => `
-  clientPortalGetConfigs(kind:BusinessPortalKind, page: Int, perPage: Int): [ClientPortal]
+  clientPortalGetConfigs(kind:BusinessPortalKind, search: String, page: Int, perPage: Int): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
   clientPortalGetConfigByDomain(clientPortalName: String): ClientPortal
   clientPortalGetLast(kind: BusinessPortalKind): ClientPortal
@@ -469,8 +475,6 @@ export const mutations = `
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON
-
-
   clientPortalCreateCard(
         type: String!
         stageId: String!
