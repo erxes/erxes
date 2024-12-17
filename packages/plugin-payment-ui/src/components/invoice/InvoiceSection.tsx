@@ -37,7 +37,7 @@ export default function Component(props: Props) {
     }
 
     const renderStatus = (status) => {
-      let labelStyle = "error";
+      let labelStyle;
 
       switch (status) {
         case "paid":
@@ -68,9 +68,9 @@ export default function Component(props: Props) {
             </tr>
           </thead>
           <tbody>
-            {invoices.map((invoice, index) => (
+            {invoices.map((invoice) => (
               <tr
-                key={index}
+                key={invoice._id}
                 onClick={() => {
                   setCurrentInvoiceId(invoice._id);
                   setShowModal(true);
