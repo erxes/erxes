@@ -293,71 +293,70 @@ class GenerateGroup extends React.Component<Props, State> {
           .map((___, groupDataIndex) => {
             const groupDataValue = groupData[groupDataIndex] || {};
 
+            const processLogic = (logic, fields, isMultiple, groupDataValue, data, field) => {
+              let { fieldId = '' } = logic;
+            
+              if (fieldId.includes('customFieldsData')) {
+                fieldId = fieldId.split('.')[1];
+                return {
+                  fieldId,
+                  operator: logic.logicOperator,
+                  validation: fields.find((e) => e._id === fieldId)?.validation,
+                  logicValue: logic.logicValue,
+                  fieldValue: isMultiple ? groupDataValue[fieldId] : data[fieldId],
+                  type: field.type,
+                };
+              }
+            
+              return {
+                fieldId,
+                operator: logic.logicOperator,
+                logicValue: logic.logicValue,
+                fieldValue: object[logic.fieldId || ''],
+                validation: fields.find((e) => e._id === fieldId)?.validation,
+                type: field.type,
+              };
+            };
+            
+            const evaluateLogics = (field, fields, isMultiple, groupDataValue, data) => {
+              if (field.logics && field.logics.length > 0) {
+                const logics = field.logics.map((logic) => processLogic(logic, fields, isMultiple, groupDataValue, data, field));
+                return checkLogic(logics);
+              }
+              return true;
+            };
+            
+            const shouldFieldBeRendered = (field, fields, isMultiple, groupDataValue, data) => {
+              const isLogicsFulfilled = evaluateLogics(field, fields, isMultiple, groupDataValue, data);
+            
+              if (field.logicAction === 'show' && !isLogicsFulfilled) {
+                return false;
+              }
+            
+              if (field.logicAction === 'hide' && isLogicsFulfilled) {
+                return false;
+              }
+            
+              return true;
+            };
+            
             const fieldRenders = fields.map((field, index) => {
-              if (!field[isVisibleKey]) {
+              if (!field[isVisibleKey] || !shouldFieldBeRendered(field, fields, isMultiple, groupDataValue, data)) {
                 return null;
               }
-
-              if (field.logics && field.logics.length > 0) {
-                const logics: LogicParams[] = field.logics.map((logic) => {
-                  let { fieldId = '' } = logic;
-
-                  if (fieldId.includes('customFieldsData')) {
-                    fieldId = fieldId.split('.')[1];
-                    return {
-                      fieldId,
-                      operator: logic.logicOperator,
-                      validation: fields.find((e) => e._id === fieldId)
-                        ?.validation,
-                      logicValue: logic.logicValue,
-                      fieldValue: isMultiple
-                        ? groupDataValue[fieldId]
-                        : data[fieldId],
-                      type: field.type,
-                    };
-                  }
-
-                  return {
-                    fieldId,
-                    operator: logic.logicOperator,
-                    logicValue: logic.logicValue,
-                    fieldValue: object[logic.fieldId || ''],
-                    validation: fields.find((e) => e._id === fieldId)
-                      ?.validation,
-                    type: field.type,
-                  };
-                });
-
-                const isLogicsFulfilled = checkLogic(logics);
-
-                if (field.logicAction && field.logicAction === 'show') {
-                  if (!isLogicsFulfilled) {
-                    return null;
-                  }
-                }
-
-                if (field.logicAction && field.logicAction === 'hide') {
-                  if (isLogicsFulfilled) {
-                    return null;
-                  }
-                }
-              }
-
+            
               return (
                 <GenerateField
                   field={field}
                   key={index}
                   onValueChange={(val) => this.onChange(groupDataIndex, val)}
-                  defaultValue={
-                    isMultiple
-                      ? groupDataValue[field._id] || ''
-                      : data[field._id] || ''
-                  }
+                  defaultValue={isMultiple ? groupDataValue[field._id] || '' : data[field._id] || ''}
                   currentLocation={this.state.currentLocation}
                   isEditing={this.state.editing}
                 />
               );
             });
+            
 
             return (
               <div key={'group' + groupDataIndex}>
