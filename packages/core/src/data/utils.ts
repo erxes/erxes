@@ -399,6 +399,7 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     "image/gif",
     "audio/mp4",
     "audio/vnd.wave",
+    "audio/wave",
   ];
 
   const UPLOAD_FILE_TYPES = await getConfig(
