@@ -69,6 +69,8 @@ export default {
       // orgPromoCodes,
     });
 
+    console.log(contactPlugin.usage);
+
     const remainingAmount = contactPlugin.usage.remainingAmount;
 
     const experience = await coreModelExperiences.findOne({
@@ -86,8 +88,9 @@ export default {
       const bundlLimit = bundle?.pluginLimits
         ? (bundle?.pluginLimits || {})[contactPlugin.type] || 0
         : 0;
+      console.log({ bundlLimit });
 
-      contactRemaining = bundlLimit === 0 ? true : contactRemaining;
+      contactRemaining = bundlLimit > 0 ? true : contactRemaining;
     }
 
     if (experience) {
