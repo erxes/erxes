@@ -422,9 +422,13 @@ const cfRecordUrl = async (params, user, models, subdomain) => {
       if (buffer) {
         const uploadUrl = getUrl(subdomain);
         console.log('uploadUrl:', uploadUrl);
+        const removePlusSign =
+          fileNameWithoutExtension.replace(/\+/, '') ||
+          fileNameWithoutExtension;
+
         const formData = new FormData();
         formData.append('file', Buffer.from(buffer), {
-          filename: fileNameWithoutExtension,
+          filename: removePlusSign,
         });
 
         const rec = await fetch(uploadUrl, {
