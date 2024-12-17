@@ -80,11 +80,12 @@ export default {
 
     let contactRemaining = remainingAmount <= 0 ? false : true;
 
+    console.log(bundle, organization?.bundleId);
+
     if (bundle) {
-      const bundlLimit =
-        bundle?.pluginLimits || []
-          ? (bundle?.pluginLimits || {})[contactPlugin.type] || 0
-          : 0;
+      const bundlLimit = bundle?.pluginLimits
+        ? (bundle?.pluginLimits || {})[contactPlugin.type] || 0
+        : 0;
 
       contactRemaining = bundlLimit === 0 ? true : contactRemaining;
     }
