@@ -81,8 +81,6 @@ export const convertAttachment = (attachments: any = []) => {
     delete attachment?.payload?.title;
 
     let type = attachment.type;
-    let url = attachment?.url;
-
     // if( attachment?.payload?.coordinates ) {
     //     outputAttachment.url = `https://maps.google.com/maps?ll=${},${}&z=14&output=embed`
     // }
