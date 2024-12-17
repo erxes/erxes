@@ -1,4 +1,4 @@
-var { withFilter } = require('graphql-subscriptions');
+const { withFilter } = require('graphql-subscriptions');
 
 module.exports = {
   name: 'notifications',
