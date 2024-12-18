@@ -56,6 +56,17 @@ export const setupMessageConsumers = async () => {
     },
   );
 
+    consumeRPCQueue(
+      'knowledgebase:articles.count',
+      async ({ subdomain, data: { query } }) => {
+        const models = await generateModels(subdomain);
+        return {
+          status: 'success',
+          data: await models.KnowledgeBaseArticles.countDocuments(query),
+        };
+      }
+    );
+
   consumeRPCQueue(
     'knowledgebase:categories.findOne',
     async ({ subdomain, data: { query } }) => {
