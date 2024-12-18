@@ -9,7 +9,7 @@ export default async function posUserMiddleware(
 ) {
   let token;
   try {
-    token = req.cookies['pos-config-token'];
+    token = req.cookies['pos-config-token'] || req.headers['erxes-pos-token'];
   } catch (e) {}
 
   if (token) {

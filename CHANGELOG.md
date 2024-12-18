@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.1.5](https://github.com/erxes/erxes/compare/2.1.4...2.1.5) (2024-12-17)
+
+
+### Features
+
+* **cms:** introduce cms plugin ([#5848](https://github.com/erxes/erxes/issues/5848)) ([97caf5b](https://github.com/erxes/erxes/commit/97caf5b67a66341de728fd4aef2625ab514c3557))
+
+
+### Bug Fixes
+
+* **automations:** can't set first form when not selected any form ([07410da](https://github.com/erxes/erxes/commit/07410da62e67f89f4b852ca75c89b177c0686b37))
+* coreui ci up ([419a1d4](https://github.com/erxes/erxes/commit/419a1d4449d815f0f9606e0b23894fe77f6b3a23))
+* sales documents ([8b700e5](https://github.com/erxes/erxes/commit/8b700e589f28b5c82539a564b7ee86f2d88c55b2))
+
 ## [2.1.4](https://github.com/erxes/erxes/compare/2.1.3...2.1.4) (2024-12-16)
 
 
