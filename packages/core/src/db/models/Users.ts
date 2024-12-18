@@ -678,6 +678,7 @@ export const loadUserClass = (models: IModels) => {
     public static async createTokens(_user: IUserDocument, secret: string) {
       const user = {
         _id: _user._id,
+        isOwner: _user.isOwner,
       }
 
       const createToken = await jwt.sign({ user }, secret, { expiresIn: "1d" });
