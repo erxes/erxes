@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.1.6](https://github.com/erxes/erxes/compare/2.1.5...2.1.6) (2024-12-18)
+
+
+### Bug Fixes
+
+* posclient add header erxes-pos-token ([66d8b4c](https://github.com/erxes/erxes/commit/66d8b4c57b59703e81a6efb6b05e5055369491fa))
+* **saas:** can't get contact remain from bundle ([215d5b2](https://github.com/erxes/erxes/commit/215d5b2378823bc2a7fa0521c045ed8cdc4dd595))
+* **saas:** debug ([4064d80](https://github.com/erxes/erxes/commit/4064d80e3b231d2dde6ad0980dee35c76859bf6d))
+
 ## [2.1.5](https://github.com/erxes/erxes/compare/2.1.4...2.1.5) (2024-12-17)
 
 
