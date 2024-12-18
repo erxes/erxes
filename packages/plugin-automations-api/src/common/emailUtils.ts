@@ -241,7 +241,7 @@ export const generateDoc = async ({
   const { templateId, fromUserId, sender } = config;
   const [serviceName, type] = triggerType.split(":");
   const version = getEnv({ name: "VERSION" });
-  const DEFAULT_AWS_EMAIL = "support@erxes.io";
+  const DEFAULT_AWS_EMAIL = getEnv({ name: "DEFAULT_AWS_EMAIL" });
 
   const template = await sendCoreMessage({
     subdomain,
@@ -254,6 +254,10 @@ export const generateDoc = async ({
   });
 
   let fromUserEmail = version === "saas" ? DEFAULT_AWS_EMAIL : "";
+
+  console.log({ fromUserEmail });
+
+  console.log({ fromUserId });
 
   if (fromUserId) {
     const fromUser = await sendCoreMessage({
@@ -268,6 +272,7 @@ export const generateDoc = async ({
 
     fromUserEmail = fromUser?.email;
   }
+  console.log({ fromUserEmail });
 
   let replacedContent = (template?.content || "").replace(
     new RegExp(`{{\\s*${type}\\.\\s*(.*?)\\s*}}`, "g"),
@@ -425,6 +430,8 @@ export const handleEmail = async ({
   if (!params) {
     return { error: "Something went wrong fetching data" };
   }
+
+  console.log({ params });
 
   try {
     const responses = await sendEmails({
