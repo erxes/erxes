@@ -9,27 +9,28 @@ import typeDefs from './graphql/typeDefs';
 import { setupMessageConsumers } from './messageBroker';
 import cpUserMiddleware from "@erxes/api-utils/src/middlewares/clientportal";
 import * as permissions from './permissions';
-
+import automations from "./automations";
 export default {
-  name: 'clientportal',
+  name: "clientportal",
   permissions,
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers,
+      resolvers
     };
   },
   hasSubscriptions: true,
-  subscriptionPluginPath: require('path').resolve(
+  subscriptionPluginPath: require("path").resolve(
     __dirname,
-    'graphql',
-    'subscriptionPlugin.js'
+    "graphql",
+    "subscriptionPlugin.js"
   ),
 
   meta: {
     forms,
     permissions,
     afterMutations,
+    automations
   },
 
   apolloServerContext: async (context, req, res) => {
@@ -38,7 +39,7 @@ export default {
     const requestInfo = {
       secure: req.secure,
       cookies: req.cookies,
-      headers: req.headers,
+      headers: req.headers
     };
 
     const models = await generateModels(subdomain);
@@ -56,5 +57,5 @@ export default {
   },
   middlewares: [cookieParser(), cpUserMiddleware],
   onServerInit: async () => {},
-  setupMessageConsumers,
+  setupMessageConsumers
 };

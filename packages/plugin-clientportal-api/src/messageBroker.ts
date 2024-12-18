@@ -266,7 +266,23 @@ export const sendCoreMessage = async (args: MessageArgsOmitService) => {
     ...args
   });
 };
+export const sendClientPortalMessagge = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "clientportal",
+    ...args
+  });
+};
 
+export const sendSegmentsMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "segments",
+    ...args
+  });
+};
 export const sendSalesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
@@ -294,6 +310,15 @@ export const sendTicketsMessage = async (
   });
 };
 
+export const sendDocumentsGet = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "documents",
+    ...args
+  });
+};
+
 export const sendPurchasesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
@@ -308,6 +333,12 @@ export const sendKbMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "knowledgebase",
+    ...args
+  });
+};
+export const sendAutomationsMessage = (args: MessageArgsOmitService) => {
+  return sendCommonMessage({
+    serviceName: "automations",
     ...args
   });
 };
