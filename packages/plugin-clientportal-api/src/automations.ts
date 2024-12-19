@@ -53,9 +53,8 @@ export default {
       customConfig: config?.customConfig
     };
     const { _id: itemId, stageId, modifiedBy: userId, description } = commonDoc.target;
-    const orderDataMatch = description.match(/\{([\s\S]*?)\}/);
+    const orderDataMatch = description.match(/\{([^}]*)\}/);
     let sendPhoneNumber: string | undefined;
-
     const phoneMatch = description.match(/Утасны дугаар:\s*(\d+)/);
     if (phoneMatch) {
         const phone = phoneMatch[1];
@@ -75,7 +74,6 @@ export default {
     } else {
         throw new Error('Neither phone number nor order data found in the description.');
     }
-
     const document = await sendDocumentsGet({
       subdomain,
       action: "documents.print",
@@ -91,7 +89,7 @@ export default {
 
     if (document && sendPhoneNumber) {
       const htmlContent = Array.isArray(document) ? document.join("") : document;
-      const plainText = htmlContent.replace(/<\/?[^>]+(>|$)/g, "").trim(); // Remove HTML tags
+      const plainText = htmlContent.replace(/<\/?[\w\s="/.':;#-\/\?]+>/gi, "").trim();
       await sendSms(subdomain, "messagePro", sendPhoneNumber, plainText);
     }
     return "Sent";
