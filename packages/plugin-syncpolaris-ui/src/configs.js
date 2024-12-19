@@ -5,6 +5,7 @@ module.exports = {
   scope: "syncpolaris",
   exposes: {
     "./routes": "./src/routes.tsx",
+    "./customerSidebar": "./src/pullPolaris/containers/CustomerSidebar.tsx",
   },
   routes: {
     url: "http://localhost:3137/remoteEntry.js",
@@ -28,4 +29,5 @@ module.exports = {
       location: "mainNavigation",
     },
   ],
+  customerRightSidebarSection: "./customerSidebar",
 };

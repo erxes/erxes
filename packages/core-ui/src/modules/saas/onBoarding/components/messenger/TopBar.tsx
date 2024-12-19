@@ -100,6 +100,7 @@ class TopBar extends React.Component<Props> {
           <Links>
             <Socials>
               {this.renderLink('facebook-official')}
+              {this.renderLink('whatsapp')}
               {this.renderLink('twitter')}
               {this.renderLink('youtube-play')}
             </Socials>

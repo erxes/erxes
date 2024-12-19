@@ -1,4 +1,4 @@
-import { generateModels } from "../../../connectionResolver";
+import { generateModels } from '../../../connectionResolver';
 
 export default {
   insertImportItems: async ({ subdomain, data }) => {
@@ -43,14 +43,14 @@ export default {
     const models = await generateModels(subdomain);
     const { result, properties } = data;
 
-    const defaultUom = await models.ProductsConfigs.getConfig("defaultUOM", "");
+    const defaultUom = await models.ProductsConfigs.getConfig('defaultUOM', '');
 
     const bulkDoc: any = [];
 
     // Iterating field values
     for (const fieldValue of result) {
       const doc: any = {
-        customFieldsData: []
+        customFieldsData: [],
       };
 
       let colIndex: number = 0;
@@ -59,14 +59,14 @@ export default {
 
       // Iterating through detailed properties
       for (const property of properties) {
-        const value = (fieldValue[colIndex] || "").toString();
+        const value = (fieldValue[colIndex] || '').toString();
 
         switch (property.name) {
-          case "customProperty":
+          case 'customProperty':
             {
               doc.customFieldsData.push({
                 field: property.id,
-                value: fieldValue[colIndex]
+                value: fieldValue[colIndex],
               });
 
               doc.customFieldsData =
@@ -76,30 +76,40 @@ export default {
             }
             break;
 
-          case "categoryName":
+          case 'categoryName':
             {
-              const category = await models.ProductCategories.findOne({
-                name: { $regex: new RegExp(`^${value}$`, "i") }
+              const generateCode = Math.floor(Math.random() * 900) + 100;
+
+              let category = await models.ProductCategories.findOne({
+                name: { $regex: new RegExp(`^${value}$`, 'i') },
               });
 
-              doc.categoryId = category ? category._id : "";
+              if (!category) {
+                category = await models.ProductCategories.create({
+                  name: value,
+                  code: generateCode,
+                  order: `${generateCode}/`,
+                });
+              }
+
+              doc.categoryId = category ? category._id : '';
             }
 
             break;
 
-          case "tag":
+          case 'tag':
             {
               const tagName = value;
 
               let tag = await models.Tags.findOne({
                 name: tagName,
-                type: `core:product`
+                type: `core:product`,
               });
 
               if (!tag) {
                 tag = await models.Tags.create({
                   name: tagName,
-                  type: `core:product`
+                  type: `core:product`,
                 });
               }
 
@@ -108,28 +118,28 @@ export default {
 
             break;
 
-          case "barcodes":
+          case 'barcodes':
             {
               doc.barcodes = value
-                .replace(/\s/g, "")
-                .split(",")
-                .filter(br => br);
+                .replace(/\s/g, '')
+                .split(',')
+                .filter((br) => br);
             }
             break;
 
-          case "subUoms.uom":
+          case 'subUoms.uom':
             {
-              subUomNames = value.replace(/\s/g, "").split(",");
+              subUomNames = value.replace(/\s/g, '').split(',');
             }
             break;
 
-          case "subUoms.ratio":
+          case 'subUoms.ratio':
             {
-              ratios = value.replace(/\s/g, "").split(",");
+              ratios = value.replace(/\s/g, '').split(',');
             }
             break;
 
-          case "uom":
+          case 'uom':
             {
               doc.uom = value || defaultUom;
             }
@@ -139,15 +149,15 @@ export default {
             {
               doc[property.name] = value;
 
-              if (property.name === "createdAt" && value) {
+              if (property.name === 'createdAt' && value) {
                 doc.createdAt = new Date(value);
               }
 
-              if (property.name === "modifiedAt" && value) {
+              if (property.name === 'modifiedAt' && value) {
                 doc.modifiedAt = new Date(value);
               }
 
-              if (property.name === "isComplete") {
+              if (property.name === 'isComplete') {
                 doc.isComplete = Boolean(value);
               }
             }
@@ -164,7 +174,7 @@ export default {
         subUoms.push({
           id: Math.random(),
           uom: uom,
-          ratio: Number(ratios[ind] || 1)
+          ratio: Number(ratios[ind] || 1),
         });
         ind += 1;
       }
@@ -174,5 +184,5 @@ export default {
     }
 
     return bulkDoc;
-  }
+  },
 };

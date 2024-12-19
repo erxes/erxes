@@ -59,7 +59,7 @@ const catProd = `
   productId: String
 `;
 
-export const types = ({ contactsEnabled, productsEnabled }) => `
+export const types = () => `
 
   ${attachmentType}
   ${attachmentInput}
@@ -68,24 +68,12 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     _id: String! @external
   }
 
-  ${
-    contactsEnabled
-      ? `
-        extend type Customer @key(fields: "_id") {
-          _id: String! @external
-        }
-      `
-      : ''
+  extend type Customer @key(fields: "_id") {
+    _id: String! @external
   }
 
-  ${
-    productsEnabled
-      ? `
-      extend type ProductCategory @key(fields: "_id") {
-        _id: String! @external
-      }
-    `
-      : ''
+  extend type ProductCategory @key(fields: "_id") {
+    _id: String! @external
   }
 
   type CatProd {

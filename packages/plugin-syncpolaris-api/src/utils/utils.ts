@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import * as http from 'http';
+import * as https from 'https';
 import { IModels, generateModels } from '../connectionResolver';
 import { sendCommonMessage } from '../messageBroker';
 import { ISyncLogDocument } from '../models/definitions/syncLog';
@@ -11,12 +12,13 @@ interface IParams {
   models?: IModels;
   syncLog?: ISyncLogDocument;
   data?: any;
+  skipLog?: boolean;
 }
 
 type CustomFieldType = "core:customer" | "loans:contract" | "savings:contract";
 
 export const fetchPolaris = async (args: IParams) => {
-  const { op, data, subdomain, polarisConfig } = args;
+  const { op, data, subdomain, polarisConfig, skipLog } = args;
   let models = args.models;
   let syncLog = args.syncLog;
 
@@ -30,32 +32,34 @@ export const fetchPolaris = async (args: IParams) => {
     "Content-Type": "application/json"
   };
 
-  if (models && syncLog) {
-    await models.SyncLogs.updateOne(
-      { _id: syncLog._id },
-      {
-        $set: {
-          sendData: data,
-          sendStr: JSON.stringify(data || {}),
-          header: JSON.stringify(headers)
+  if (!skipLog) {
+    if (models && syncLog) {
+      await models.SyncLogs.updateOne(
+        { _id: syncLog._id },
+        {
+          $set: {
+            sendData: data,
+            sendStr: JSON.stringify(data || {}),
+            header: JSON.stringify(headers)
+          }
         }
-      }
-    );
-  } else {
-    models = await generateModels(subdomain);
-    const syncLogDoc = {
-      type: '',
-      contentType: op,
-      contentId: '',
-      createdAt: new Date(),
-      createdBy: '',
-      consumeData: {},
-      consumeStr: '',
-      sendData: data,
-      sendStr: JSON.stringify(data || {}),
-      header: JSON.stringify(headers)
-    };
-    syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+      );
+    } else {
+      models = await generateModels(subdomain);
+      const syncLogDoc = {
+        type: '',
+        contentType: op,
+        contentId: '',
+        createdAt: new Date(),
+        createdBy: '',
+        consumeData: {},
+        consumeStr: '',
+        sendData: data,
+        sendStr: JSON.stringify(data || {}),
+        header: JSON.stringify(headers)
+      };
+      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+    }
   }
 
   try {
@@ -65,7 +69,9 @@ export const fetchPolaris = async (args: IParams) => {
       headers,
       body: JSON.stringify(data),
       agent:
-        config.apiUrl.includes("http://") && new http.Agent({ keepAlive: true })
+        config.apiUrl.includes("http://") &&
+        new http.Agent({ keepAlive: true }) ||
+        new https.Agent({ keepAlive: true, rejectUnauthorized: false })
     };
 
     const realResponse = await fetch(config.apiUrl, requestOptions)
@@ -88,12 +94,14 @@ export const fetchPolaris = async (args: IParams) => {
         throw new Error(e.message);
       });
 
-    await models.SyncLogs.updateOne(
-      { _id: syncLog._id },
-      {
-        $set: { responseData: realResponse, responseStr: JSON.stringify(realResponse) },
-      },
-    );
+    if (models && syncLog) {
+      await models.SyncLogs.updateOne(
+        { _id: syncLog._id },
+        {
+          $set: { responseData: realResponse, responseStr: JSON.stringify(realResponse) },
+        },
+      );
+    }
     return realResponse;
 
   } catch (e) {

@@ -87,6 +87,12 @@ const GeneralSettings = (props: Props) => {
     setCurrentMap({ ...currentMap, [`newItem-${Math.random().toString()}`]: { title: '' } })
   }
 
+  const attrDelete = (key) => {
+    const tempMap = { ...currentMap };
+    delete tempMap[key];
+    setCurrentMap({ ...tempMap })
+  }
+
   const renderInput = (key: string) => {
     const onChangeInput = (value) => {
       setCurrentMap({ ...currentMap, [key]: { ...currentMap[key] || {}, value } })
@@ -206,7 +212,7 @@ const GeneralSettings = (props: Props) => {
                 (renderInput(key))
             }
           </FormColumn>
-          {!isDefault && <Button btnStyle="link" icon="times-circle" />}
+          {!isDefault && <Button btnStyle="link" icon="times-circle" onClick={attrDelete.bind(this, key)} />}
         </Row>
       </FormGroup >
     );

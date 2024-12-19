@@ -21,7 +21,7 @@ type Props = {
 };
 
 type State = {
-  segmentData: string;
+  segmentData?: any;
   contentType: string;
   disclaimer: boolean;
   name: string;
@@ -34,7 +34,6 @@ class Form extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      segmentData: "",
       contentType: props.contentType || "",
       disclaimer: false,
       name: "",
@@ -69,7 +68,7 @@ class Form extends React.Component<Props, State> {
   };
 
   segmentCloseModal = () => {
-    this.setState({ segmentData: "" });
+    this.setState({ segmentData: undefined });
   };
 
   onSubmit = () => {

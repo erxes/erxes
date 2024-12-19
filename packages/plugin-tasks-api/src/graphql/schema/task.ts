@@ -4,12 +4,13 @@ import {
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
-  copyParams
-} from "./common";
+  copyParams,
+} from './common';
 
 export const types = ({ contacts }) => `
   type TaskListItem {
     customPropertiesData:JSON,
+    
     ${commonListTypes}
   }
 
@@ -21,7 +22,7 @@ export const types = ({ contacts }) => `
       companies: [Company]
       customers: [Customer]
       `
-        : ""
+        : ''
     }
 
     tags: [Tag]
