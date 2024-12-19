@@ -2,27 +2,16 @@ import SelectWithSearch from '../../components/SelectWithSearch';
 import { IOption, IQueryParams } from '../../types';
 import React from 'react';
 import { IBranch } from '@erxes/ui/src/team/types';
-import { generateTree } from '../../utils';
 import {
   commonStructureParamsDef,
-  commonStructureParamsValue
+  commonStructureParamsValue,
 } from '../graphql/queries';
 
 // get user options for react-select
 export function generateBranchOptions(array: IBranch[] = []): IOption[] {
-  const generateList = () => {
-    const list = array.map(item => {
-      if (!array.find(dep => dep._id === item.parentId)) {
-        return { ...item, parentId: null };
-      }
-      return item;
-    });
-    return list;
-  };
-
-  return generateTree(generateList(), null, (node, level) => ({
-    value: node._id,
-    label: `${'\u00A0 \u00A0 '.repeat(level)} ${node.code} - ${node.title}`
+  return array.map(item => ({
+    label: `${item.code} - ${item.title}`,
+    value: item._id,
   }));
 }
 
@@ -60,7 +49,7 @@ export default (props: {
     multi = true,
     label,
     filterParams,
-    name
+    name,
   } = props;
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
