@@ -53,14 +53,14 @@ export default {
       customConfig: config?.customConfig
     };
     const { _id: itemId, stageId, modifiedBy: userId, description } = commonDoc.target;
-    const orderDataMatch = description.match(/\{([^}]*)\}/);
+    const orderDataMatches = description.match(/\{([^{}]*)\}/g);
     let sendPhoneNumber: string | undefined;
     const phoneMatch = description.match(/Утасны дугаар:\s*(\d+)/);
     if (phoneMatch) {
         const phone = phoneMatch[1];
         sendPhoneNumber = phone;
-    } else if (orderDataMatch) {
-        const cleanedJson = orderDataMatch[0]
+    } else if (orderDataMatches) {
+        const cleanedJson = orderDataMatches[0]
             .replace(/<br>/g, '')
             .replace(/&nbsp;/g, ' ')
             .trim();
@@ -85,7 +85,6 @@ export default {
       isRPC: true,
       defaultValue: null
     });
-
     if (document && sendPhoneNumber) {
       const htmlContent = Array.isArray(document) ? document.join("") : document;
       const plainText = htmlContent.replace(/<\/?[\w\s="/.':;#-\/\?]+>/gi, "").trim();
