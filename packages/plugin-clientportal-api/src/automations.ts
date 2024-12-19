@@ -1,0 +1,99 @@
+// packages / plugin - clientportal - api / src / automations.ts;
+
+import { debugError } from "@erxes/api-utils/src/debuggers";
+import {
+  sendCommonMessage,
+  sendCoreMessage,
+  sendDocumentsGet,
+} from "./messageBroker";
+import { sendSms } from "./utils";
+export default {
+  constants: {
+    actions: [
+      {
+        type: "clientportal:messagePro.create",
+        icon: "phone",
+        label: "Message Pro",
+        description:
+          "Create and manage workflows triggered by messaging interactions, enabling seamless communication and automation",
+        isAvailable: true
+      }
+    ]
+  },
+  receiveActions: async ({ subdomain, data }) => {
+    const { action, execution } = data;
+    const documentId = action.config.documentId; // Extract the documentId from the action object
+
+    const { triggerType } = execution;
+    const [serviceName, contentType] = triggerType.split(":");
+
+    let { target } = execution;
+    const { config } = action;
+
+    const { subject, body } = await sendCommonMessage({
+      subdomain,
+      serviceName,
+      action: "automations.replacePlaceHolders",
+      data: {
+        target: { ...target, type: contentType },
+        config: {
+          subject: config?.subject || "",
+          body: config?.body || ""
+        }
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    const commonDoc = {
+      subdomain,
+      subject,
+      body,
+      target,
+      customConfig: config?.customConfig
+    };
+    const { _id: itemId, stageId, modifiedBy: userId, description } = commonDoc.target;
+    const orderDataMatch = description.match(/\{([\s\S]*?)\}/);
+    let sendPhoneNumber: string | undefined;
+
+    const phoneMatch = description.match(/Утасны дугаар:\s*(\d+)/);
+    if (phoneMatch) {
+        const phone = phoneMatch[1];
+        sendPhoneNumber = phone;
+    } else if (orderDataMatch) {
+        const cleanedJson = orderDataMatch[0]
+            .replace(/<br>/g, '')
+            .replace(/&nbsp;/g, ' ')
+            .trim();
+        try {
+            const orderData = JSON.parse(cleanedJson);
+            sendPhoneNumber = orderData.phone;
+            console.log(orderData, 'Order data parsed');
+        } catch (error) {
+            throw new Error('Failed to parse order data. Please check the JSON format.');
+        }
+    } else {
+        throw new Error('Neither phone number nor order data found in the description.');
+    }
+
+    const document = await sendDocumentsGet({
+      subdomain,
+      action: "documents.print",
+      data: {
+        _id: documentId,
+        itemId: itemId,
+        stageId: stageId,
+        userId: userId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (document && sendPhoneNumber) {
+      const htmlContent = Array.isArray(document) ? document.join("") : document;
+      const plainText = htmlContent.replace(/<\/?[^>]+(>|$)/g, "").trim(); // Remove HTML tags
+      await sendSms(subdomain, "messagePro", sendPhoneNumber, plainText);
+    }
+    return "Sent";
+  }
+};
