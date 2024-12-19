@@ -67,7 +67,6 @@ export default {
         try {
             const orderData = JSON.parse(cleanedJson);
             sendPhoneNumber = orderData.phone;
-            console.log(orderData, 'Order data parsed');
         } catch (error) {
             throw new Error('Failed to parse order data. Please check the JSON format.');
         }
