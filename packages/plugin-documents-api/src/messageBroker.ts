@@ -6,6 +6,7 @@ import {
 import { consumeRPCQueue } from "@erxes/api-utils/src/messageBroker";
 import { generateModels } from "./connectionResolver";
 import { print } from "./utils";
+import { prepareDoc } from "./util";
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue("documents:findOne", async ({ subdomain, data }) => {
@@ -16,6 +17,27 @@ export const setupMessageConsumers = async () => {
       data: await models.Documents.findOne(data).lean()
     };
   });
+  consumeRPCQueue("documents:documents.print", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    try {
+      const { multipliedResults } = await prepareDoc(
+        models,
+        subdomain,
+        data,
+        data.userId
+      );
+      return {
+        status: "success",
+        data: multipliedResults // Concatenate the results here
+      };
+    } catch (err) {
+      return {
+        status: "error",
+        errorMessage: `Error: ${err.message}` // Return error message in 'errorMessage'
+      };
+    }
+  });
+  
 
   consumeRPCQueue("documents:printDocument", async ({ subdomain, data }) => {
     return {

@@ -8,6 +8,7 @@ module.exports = {
     './cardDetailAction': './src/containers/comments/CardDetailAction.tsx',
     './fieldConfig': './src/containers/FieldConfigForm.tsx',
     './Section': './src/containers/cardsRightSidebarSection/Section.tsx',
+    "./automation": "./src/automations/index.tsx"
   },
   cardDetailAction: './cardDetailAction',
   fieldConfig: './fieldConfig',
@@ -16,6 +17,7 @@ module.exports = {
     scope: 'clientportal',
     module: './routes',
   },
+  automation: "./automation",
   menus: [
     {
       text: 'Business Portal',
