@@ -314,7 +314,7 @@ export const sendKbMessage = async (
 
 export const sendCommonMessage = async (
   args: MessageArgs & { serviceName: string }
-) => {
+): Promise<any> => {
   return sendMessage({
     ...args
   });
