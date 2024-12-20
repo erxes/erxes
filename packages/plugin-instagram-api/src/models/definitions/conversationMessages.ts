@@ -17,6 +17,8 @@ export interface IConversationMessage {
   fromBot?: boolean;
   isCustomerRead?: boolean;
   internal?: boolean;
+  botId?: string;
+  botData?: any;
 }
 
 export interface IConversationMessageDocument
@@ -43,5 +45,7 @@ export const conversationMessageSchema = new Schema({
   createdAt: field({ type: Date, index: true }),
   updatedAt: field({ type: Date, index: true }),
   isCustomerRead: field({ type: Boolean }),
-  internal: field({ type: Boolean })
+  internal: field({ type: Boolean }),
+  botId: field({ type: String, label: 'Bot', optional: true }),
+  botData: field({ type: Object, optional: true })
 });

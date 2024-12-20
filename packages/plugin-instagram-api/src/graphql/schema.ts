@@ -39,7 +39,14 @@ export const types = `
     profilePic: String
     integrationId: String
   }
-
+  type InstagramPosts {
+    message: String
+    created_time: String
+    picture: String
+    full_picture:String
+    permalink_url: String
+    id: String
+  }
   type InstagramComment {
     ${commonCommentAndMessageFields}
     commentId: String
@@ -87,7 +94,35 @@ export const types = `
     ${commonPostAndCommentFields}
     content:String
   }
+  type BotPersistentMenuType {
+    _id:String
+    type:String
+    text: String
+    link: String
+  }
 
+  input BotPersistentMenuInput {
+    _id:String
+    type:String
+    text: String
+    link: String
+  }
+
+  type InstagramMessengerBot {
+    _id: String
+    name:String
+    accountId: String
+    account:JSON
+    pageId: String
+    page: JSON
+    createdAt: Date
+    persistentMenus:[BotPersistentMenuType]
+    profileUrl:String
+    greetText:String
+    tag:String
+    isEnabledBackBtn:Boolean
+    backButtonText:String
+  }
 `;
 
 export const queries = `
@@ -105,10 +140,31 @@ export const queries = `
   instagramHasTaggedMessages(conversationId: String!): Boolean
   instagramPostMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [InstagramPostMessage]
   instagramPostMessagesCount(conversationId: String!): Int
+  igbootMessengerBots:[InstagramMessengerBot]
+  igbootMessengerBotsTotalCount:Int
+  igbootMessengerBot(_id:String):InstagramMessengerBot
+  instagramGetBotPosts(botId:String):JSON
+ instagramGetPosts(channelIds: [String], brandIds: [String], limit: Int): [InstagramPosts]
+  instagramGetBotPost(botId:String,postId:String):JSON
+  instagramGetBotAds(botId:String):JSON
+`;
+const commonBotParams = `
+  name:String,
+  accountId:String,
+  pageId:String,
+  persistentMenus:[BotPersistentMenuInput],
+  greetText:String
+  tag:String,
+  isEnabledBackBtn:Boolean,
+  backButtonText:String
 `;
 
 export const mutations = `
   instagramUpdateConfigs(configsMap: JSON!): JSON
+  instagramMessengerAddBot(${commonBotParams}):JSON
+  instagramMessengerUpdateBot(_id:String,${commonBotParams}):JSON
+  instagramMessengerRemoveBot(_id:String):JSON
+  instagramMessengerRepairBot(_id:String):JSON
   instagramRepair(_id: String!): JSON
   instagramChangeCommentStatus(commentId: String): InstagramComment
   instagramReplyToComment(conversationId: String, commentId: String, content: String): InstagramComment

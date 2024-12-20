@@ -4,11 +4,10 @@ import queryString from 'query-string';
 import * as routerUtils from '@erxes/ui/src/utils/router';
 import { IItem, IOptions } from '../../types';
 import { IDeal } from '../../../deals/types';
-import { ITicket } from '../../../tickets/types';
 
 type Props = {
   stageId?: string;
-  item: IDeal | IItem | ITicket;
+  item: IDeal | IItem;
   beforePopupClose?: () => void;
   onClick?: () => void;
   options: IOptions;
@@ -17,7 +16,7 @@ type Props = {
   groupObj?: any;
 };
 
-const Item: React.FC<Props> = (props) => {
+const Item: React.FC<Props> = props => {
   const { item, groupObj, options, itemRowComponent, beforePopupClose } = props;
   const [isFormVisible, setIsFormVisible] = useState<boolean>(false);
   const location = useLocation();
@@ -26,7 +25,7 @@ const Item: React.FC<Props> = (props) => {
   useEffect(() => {
     const itemIdQueryParam = routerUtils.getParam(location, 'itemId');
     setIsFormVisible(
-      itemIdQueryParam === `${item._id}${groupObj ? groupObj._id : ''}`,
+      itemIdQueryParam === `${item._id}${groupObj ? groupObj._id : ''}`
     );
 
     const unlisten = () => {

@@ -1,4 +1,4 @@
-import { queries as teamQueries } from "@erxes/ui/src/team/graphql";
+import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
 
 const detailFields = teamQueries.detailFields;
 
@@ -233,6 +233,12 @@ const pipelineDetail = `
       isWatched
       hackScoringType
       tagId
+      initialCategoryIds
+      excludeCategoryIds
+      excludeProductIds
+      paymentIds
+      paymentTypes
+      erxesAppToken
     }
   }
 `;
@@ -439,5 +445,5 @@ export default {
   boardContentTypeDetail,
   boardLogs,
   documents,
-  deals
+  deals,
 };

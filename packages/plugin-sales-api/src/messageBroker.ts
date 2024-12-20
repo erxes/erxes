@@ -26,6 +26,7 @@ import {
   consumeQueue,
   consumeRPCQueue
 } from "@erxes/api-utils/src/messageBroker";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue("sales:editItem", async ({ subdomain, data }) => {
@@ -145,6 +146,22 @@ export const setupMessageConsumers = async () => {
       content: `'${deal.name}'.`,
       contentType: "deal"
     });
+
+    const isAutomationsAvailable = await isEnabled("automations");
+
+    if (isAutomationsAvailable) {
+      sendCommonMessage({
+        serviceName: "automations",
+        subdomain,
+        action: "trigger",
+        data: {
+          type: "sales:deal",
+          targets: [deal]
+        },
+        isRPC: true,
+        defaultValue: null
+      });
+    }
     return {
       status: "success",
       data: deal
