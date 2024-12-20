@@ -497,7 +497,7 @@ export const mutations = `
       ): JSON
       clientPortalCommentsAdd(type: String!, typeId: String!, content: String! userType: String!): ClientPortalComment
       clientPortalCommentsRemove(_id: String!): String
-      clientPortalParticipantEdit(    _id: String!,
+      clientPortalParticipantEdit(_id: String!,
         contentType: UserCardEnum,
         contentTypeId: String,
         cpUserId: String,
@@ -506,4 +506,6 @@ export const mutations = `
         paymentAmount: Float,
         offeredAmount: Float,
         hasVat: Boolean):ClientPortalParticipant
+
+  clientPortalDeployVercel(_id: String!): JSON
 `;

@@ -5,6 +5,7 @@ import { IContext } from '../../../connectionResolver';
 import { checkPermission } from '@erxes/api-utils/src';
 import { participantEditRelation, createCard } from '../../../models/utils';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { deploy } from '../../../vercelUtils';
 
 export interface IVerificationParams {
   userId: string;
@@ -178,6 +179,16 @@ const clientPortalMutations = {
       }
     );
     return models.ClientPortalUserCards.findOne({ _id: args._id });
+  },
+
+  async clientPortalDeployVercel(
+    _root,
+    args: { _id },
+    { subdomain, models }: IContext
+  ) {
+    const config = await models.ClientPortals.getConfig(args._id);
+
+    return deploy(subdomain, config);
   },
 };
 

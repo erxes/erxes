@@ -12,6 +12,9 @@
     "sha256": "^0.2.0",
     "firebase-admin": "^12.5.0",
     "crypto": "^1.0.1",
-    "slugify": "^1.6.6"
+    "slugify": "^1.6.6",
+    "tmp": "^0.2.3",
+    "simple-git": "^3.27.0",
+    "file-type": "^10.4.0"
   }
 }
