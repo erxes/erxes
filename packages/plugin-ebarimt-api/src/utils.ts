@@ -347,8 +347,8 @@ const checkProductsByRule = async (subdomain, products, rule) => {
 
 const calcProductsTaxRule = async (subdomain: string, models: IModels, config, products) => {
   try {
-    const vatRules = await models.ProductRules.find({ _id: { $in: config.reverseVatRules } }).lean();
-    const ctaxRules = await models.ProductRules.find({ _id: { $in: config.reverseCtaxRules } }).lean();
+    const vatRules = await models.ProductRules.find({ _id: { $in: config.reverseVatRules || [] } }).lean();
+    const ctaxRules = await models.ProductRules.find({ _id: { $in: config.reverseCtaxRules || [] } }).lean();
 
     const productsById = {};
     for (const product of products) {

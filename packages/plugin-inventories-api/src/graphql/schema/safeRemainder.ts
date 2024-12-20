@@ -60,7 +60,8 @@ export const mutations = `
     description: String,
     productCategoryId: String,
     attachment: AttachmentInput,
-    filterField: String
+    filterField: String,
+    items: JSON
   ): SafeRemainder
   safeRemainderRemove(_id: String!): JSON
   safeRemainderSubmit( _id: String! ): JSON

@@ -262,7 +262,7 @@ export const updateOrderItems = async (
     const doc = {
       productId: item.productId,
       count: item.count,
-      unitPrice: item.unitPrice,
+      unitPrice: item.unitPrice || 0,
       discountPercent: item.discountPercent,
       discountAmount: item.discountAmount,
       bonusCount: item.bonusCount,
@@ -271,7 +271,8 @@ export const updateOrderItems = async (
       isTake: item.isTake,
       manufacturedDate: item.manufacturedDate,
       description: item.description,
-      attachment: item.attachment
+      attachment: item.attachment,
+      byDevice: item.byDevice
     };
 
     if (itemIds.includes(item._id)) {
@@ -532,7 +533,7 @@ export const prepareOrderDoc = async (
     }
   }
 
-  const hasTakeItems = items.filter(i => i.isTake);
+  const hasTakeItems = [ORDER_TYPES.DELIVERY, ORDER_TYPES.TAKE].includes(doc.type) && items || items.filter(i => i.isTake);
 
   if (hasTakeItems.length > 0 && catProdMappings.length > 0) {
     const toAddProducts = {};
