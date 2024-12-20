@@ -1,12 +1,5 @@
-// packages / plugin - clientportal - api / src / automations.ts;
-
-import { debugError } from "@erxes/api-utils/src/debuggers";
-import {
-  sendCommonMessage,
-  sendCoreMessage,
-} from "./messageBroker";
+import { sendCommonMessage } from "./messageBroker";
 import { sendSms } from "./utils";
-import { doc } from 'prettier';
 export default {
   constants: {
     actions: [
@@ -52,26 +45,35 @@ export default {
       target,
       customConfig: config?.customConfig
     };
-    const { _id: itemId, stageId, modifiedBy: userId, description } = commonDoc.target;
+    const {
+      _id: itemId,
+      stageId,
+      modifiedBy: userId,
+      description
+    } = commonDoc.target;
     const orderDataMatches = description.match(/\{([^{}]*)\}/g);
     let sendPhoneNumber: string | undefined;
     const phoneMatch = description.match(/Утасны дугаар:\s*(\d+)/);
     if (phoneMatch) {
-        const phone = phoneMatch[1];
-        sendPhoneNumber = phone;
+      const phone = phoneMatch[1];
+      sendPhoneNumber = phone;
     } else if (orderDataMatches) {
-        const cleanedJson = orderDataMatches[0]
-            .replace(/<br>/g, '')
-            .replace(/&nbsp;/g, ' ')
-            .trim();
-        try {
-            const orderData = JSON.parse(cleanedJson);
-            sendPhoneNumber = orderData.phone;
-        } catch (error) {
-            throw new Error('Failed to parse order data. Please check the JSON format.');
-        }
+      const cleanedJson = orderDataMatches[0]
+        .replace(/<br>/g, "")
+        .replace(/&nbsp;/g, " ")
+        .trim();
+      try {
+        const orderData = JSON.parse(cleanedJson);
+        sendPhoneNumber = orderData.phone;
+      } catch (error) {
+        throw new Error(
+          "Failed to parse order data. Please check the JSON format."
+        );
+      }
     } else {
-        throw new Error('Neither phone number nor order data found in the description.');
+      throw new Error(
+        "Neither phone number nor order data found in the description."
+      );
     }
     const document = await sendCommonMessage({
       serviceName: "documents",
@@ -86,15 +88,20 @@ export default {
       isRPC: true,
       defaultValue: ""
     });
-    
+
     if (document && sendPhoneNumber) {
-      const htmlContent = Array.isArray(document) ? document.join("") : document;
+      const htmlContent = Array.isArray(document)
+        ? document.join("")
+        : document;
       const cleanedText = htmlContent
-      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "") 
-      .replace(/<\/?[a-z][\w-]*(?:\s+[a-z-]+(?:=(?:"[^"]*"|'[^']*'|[^>\s]+))?)*\s*\/?>/gi, "") 
-      .replace(/&amp;/g, "&")
-      .replace(/\s+/g, " ") 
-      .trim();     
+        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+        .replace(
+          /<\/?[a-z][\w-]*(?:\s+[a-z-]+(?:=(?:"[^"]*"|'[^']*'|[^>\s]+))?)*\s*\/?>/gi,
+          ""
+        )
+        .replace(/&amp;/g, "&")
+        .replace(/\s+/g, " ")
+        .trim();
       await sendSms(subdomain, "messagePro", sendPhoneNumber, cleanedText);
     }
     return "Sent";
