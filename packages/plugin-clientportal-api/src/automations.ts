@@ -4,7 +4,6 @@ import { debugError } from "@erxes/api-utils/src/debuggers";
 import {
   sendCommonMessage,
   sendCoreMessage,
-  sendDocumentsGet,
 } from "./messageBroker";
 import { sendSms } from "./utils";
 import { doc } from 'prettier';
@@ -92,10 +91,10 @@ export default {
       const htmlContent = Array.isArray(document) ? document.join("") : document;
       const cleanedText = htmlContent
       .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "") 
-      .replace(/<\/?[^>]+>/g, "") 
-      .replace(/&amp;/g, "&") 
-      .replace(/\s+/g, " ")
-      .trim(); 
+      .replace(/<\/?[a-z][\w-]*(?:\s+[a-z-]+(?:=(?:"[^"]*"|'[^']*'|[^>\s]+))?)*\s*\/?>/gi, "") 
+      .replace(/&amp;/g, "&")
+      .replace(/\s+/g, " ") 
+      .trim();     
       await sendSms(subdomain, "messagePro", sendPhoneNumber, cleanedText);
     }
     return "Sent";

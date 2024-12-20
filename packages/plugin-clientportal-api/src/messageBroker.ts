@@ -319,11 +319,3 @@ export const sendCommonMessage = async (
     ...args
   });
 };
-export const sendDocumentsGet = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "documents",
-    ...args
-  });
-};
