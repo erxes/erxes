@@ -12,6 +12,7 @@ export interface ISafeRemainder {
   date: Date;
   description?: string;
   status: string;
+  items?: { code: string, remainder: number }[]
 }
 
 export interface ISafeRemainderDocument extends ISafeRemainder, Document {
