@@ -128,7 +128,7 @@ export const articleSchema = new Schema({
   topicId: field({ type: String, optional: true, label: 'Topic' }),
   categoryId: field({ type: String, optional: true, label: 'Category' }),
   publishedUserId:field({ type: String, optional: true, label: 'Published user'}),
-  publishedAt: field({ type: Date, label: 'Published at' }),
+  publishedAt: field({ type: Date, optional: true, label: 'Published at' }),
   forms: field({ type: [formcodesSchema], label: 'Forms' }),
 
   pdfAttachment: field({ type: Object, optional: true, label: 'PDF attachment' }),
