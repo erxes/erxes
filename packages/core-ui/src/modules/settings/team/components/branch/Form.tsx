@@ -1,5 +1,5 @@
 import { FormControl, FormGroup } from "@erxes/ui/src/components/form";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IButtonMutateProps, IFormProps, IAttachment } from "@erxes/ui/src/types";
 import React, { useState } from "react";
 
 import Button from "@erxes/ui/src/components/Button";
@@ -9,7 +9,7 @@ import Form from "@erxes/ui/src/components/form/Form";
 import { IBranch } from "@erxes/ui/src/team/types";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import { __ } from "modules/common/utils";
+import { __, extractAttachment } from "modules/common/utils";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 
 type Props = {
@@ -27,7 +27,7 @@ export default function BranchForm(props: Props) {
   );
   const [parentId, setParentId] = useState(object?.parentId);
   const [links, setLinks] = useState(object.links || {});
-  const [image, setImage] = useState(object.image || null);
+  const [image, setImage] = useState<IAttachment | null>(object.image && extractAttachment([object.image])[0] || null);
   const [supervisorId, setSupervisorId] = useState(object.supervisorId);
 
   const coordinateObj = object.coordinate || {};
