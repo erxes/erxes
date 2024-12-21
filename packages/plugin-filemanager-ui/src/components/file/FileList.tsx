@@ -4,7 +4,6 @@ import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
 import FileRow from "./FileRow";
 import FormControl from "@erxes/ui/src/components/form/Control";
-import { ItemName } from "../../styles";
 import React from "react";
 import SortHandler from "@erxes/ui/src/components/SortHandler";
 import Table from "@erxes/ui/src/components/table";
@@ -62,8 +61,7 @@ class FileList extends React.Component<Props> {
             </tr>
           </thead>
           <tbody id="fileManagerfiles">
-            <>
-              {folders.map((folder: IFolder) => (
+                {folders.map((folder: IFolder) => (
                 <FileRow
                   key={folder._id}
                   item={folder}
@@ -79,7 +77,6 @@ class FileList extends React.Component<Props> {
                   remove={remove}
                 />
               ))}
-            </>
           </tbody>
         </Table>
       </withTableWrapper.Wrapper>

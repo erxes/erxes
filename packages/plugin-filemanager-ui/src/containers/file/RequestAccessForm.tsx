@@ -1,6 +1,6 @@
 import * as compose from 'lodash.flowright';
 
-import { mutations, queries } from '../../graphql';
+import { mutations } from '../../graphql';
 
 import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
