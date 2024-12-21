@@ -19,7 +19,6 @@ const { Section } = Wrapper.Sidebar;
 
 interface IProps {
   queryParams: any;
-  posList?: any[];
 }
 
 interface State {
