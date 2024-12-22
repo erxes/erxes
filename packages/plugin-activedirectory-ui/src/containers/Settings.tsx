@@ -56,7 +56,7 @@ export default withProps<Props>(
       name: 'configsQuery',
       options: () => ({
         variables: {
-          code: 'DYNAMIC',
+          code: 'ACTIVEDIRECTOR',
         },
         fetchPolicy: 'network-only',
       }),

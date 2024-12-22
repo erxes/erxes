@@ -1,6 +1,14 @@
 import { IContext } from '../../../connectionResolver';
-import * as ldap from 'ldapjs';
+import { Client, SearchOptions } from 'ldapts';
 import { getConfig } from '../../../utils';
+
+const decodeDN = (dn: string) => {
+  const decoded = dn.replace(/\(([0-9A-Fa-f]{2})\)/g, (match, p1) => {
+    return String.fromCharCode(parseInt(p1, 16));
+  });
+
+  return Buffer.from(decoded, 'binary').toString('utf8');
+};
 
 const adMutations = {
   async activeAdd(_root, doc, { user, subdomain, models }: IContext) {
@@ -9,29 +17,38 @@ const adMutations = {
       !mainConfig ||
       !mainConfig.apiUrl ||
       !mainConfig.adminDN ||
-      !mainConfig.adminPassword ||
-      !mainConfig.baseDN
+      !mainConfig.adminPassword
     ) {
       return;
     }
 
-    const client = ldap.createClient({
-      url: 'ldap://your-ad-server.com', // Replace with your AD server URL
-    });
+    const client = new Client({ url: mainConfig.apiUrl });
 
-    console.log(client, 'client');
+    try {
+      // const ok = decodeDN(mainConfig.adminDN);
+      await client.bind(mainConfig.adminDN, mainConfig.adminPassword);
+      console.log('Connected to Active Directory');
+    } catch (err) {
+      console.error('Error connecting to Active Directory:', err);
+    }
 
-    client.bind('username@domain.com', 'password', (err) => {
-      if (err) {
-        console.error('Error connecting to AD:', err);
-      } else {
-        console.log('Connected to Active Directory');
-      }
-    });
+    const searchBase = 'DC=light,DC=local'; // Base DN for searching
+    const searchOptions: SearchOptions = {
+      scope: 'sub', // Search entire subtree
+      filter: '(objectClass=person)', // Filter for users
+      attributes: ['cn', 'sn', 'mail', 'samAccountName'], // Specify attributes to retrieve
+    };
 
-    // const ad = await models.ActiveDirectory.createAD(doc, user);
+    try {
+      const { searchEntries } = await client.search(searchBase, searchOptions);
+      console.log('Search Results:', searchEntries);
+    } catch (err) {
+      console.error('Error during search:', err);
+    }
 
-    return 'ad';
+    const ad = await models.ActiveDirectory.createAD(doc, user);
+
+    return ad;
   },
 };
 
