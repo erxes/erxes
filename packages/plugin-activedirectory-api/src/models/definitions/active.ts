@@ -16,7 +16,6 @@ export interface IActiveDocument extends IActive, Document {
 export const activeSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
-
     createdAt: field({ type: Date, label: 'Created at' }),
     modifiedAt: field({ type: Date, label: 'Modified at' }),
   })
