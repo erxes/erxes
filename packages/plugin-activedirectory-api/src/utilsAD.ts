@@ -1,5 +1,6 @@
 import { Client, SearchOptions } from 'ldapts';
 import { getConfig } from './utils';
+
 const decodeDN = (dn: string) => {
   const decoded = dn.replace(/\(([0-9A-Fa-f]{2})\)/g, (match, p1) => {
     return String.fromCharCode(parseInt(p1, 16));
@@ -20,7 +21,7 @@ export const adSync = async (subdomain, params) => {
     await client.bind(configs.adminDN, configs.adminPassword);
     console.log('Connected to Active Directory');
   } catch (err) {
-    return { status: false, error: `'Error connect AD:' ${err}` };
+    return { status: false, error: `Error connect AD: ${err}` };
   }
 
   const searchBase = 'DC=light,DC=local'; // Base DN for searching
@@ -41,6 +42,6 @@ export const adSync = async (subdomain, params) => {
       return { status: false, error: 'Error during search user on AD' }; // Return false if no match is found
     }
   } catch (err) {
-    return { status: false, error: `'Error during search:' ${err}` };
+    return { status: false, error: `Error during search: ${err}` };
   }
 };

@@ -247,8 +247,8 @@ export const loadUserClass = (models: IModels) => {
      * Update user information
      */
     public static async updateUser(_id: string, doc: IUpdateUser) {
-      doc.password = (doc.password || '').trim();
-      doc.email = (doc.email || '').toLowerCase().trim();
+      doc.password = (doc.password ?? '').trim();
+      doc.email = (doc.email ?? '').toLowerCase().trim();
 
       if (doc.email) {
         // Checking duplicated email
@@ -417,8 +417,8 @@ export const loadUserClass = (models: IModels) => {
             username,
             details: {
               fullName,
-              firstName: (fullName || '').split(' ')[0],
-              lastName: (fullName || '').split(' ')[1] || '',
+              firstName: (fullName ?? '').split(' ')[0],
+              lastName: (fullName ?? '').split(' ')[1] || '',
             },
           },
         }

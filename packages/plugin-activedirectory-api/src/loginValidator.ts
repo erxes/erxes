@@ -8,11 +8,10 @@ export default {
 
     try {
       if (data.email) {
-        const result = await adSync(subdomain, data.email);
-        return result;
+        return await adSync(subdomain, data.email);
       }
     } catch (e) {
-      console.log(e.message);
+      return { status: false, error: `Error connecting: ${e.message}` };
     }
   },
 };
