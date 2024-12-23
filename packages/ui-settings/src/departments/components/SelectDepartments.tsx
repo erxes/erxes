@@ -13,7 +13,6 @@ type Props = {
   onChange?: (values: string[]) => any;
   defaultValue?: string[];
   isRequired?: boolean;
-  description?: string;
 };
 
 class SelectDepartments extends React.Component<Props, {}> {
