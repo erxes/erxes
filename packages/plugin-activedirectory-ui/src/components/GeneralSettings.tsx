@@ -88,7 +88,6 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('apiUrl')}
           {this.renderItem('adminDN')}
           {this.renderItem('adminPassword')}
-          {this.renderItem('baseDN')}
         </CollapseContent>
       </ContentBox>
     );
