@@ -8,7 +8,9 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { ConfigsQueryResponse, IConfigsMap } from '../types';
 import GeneralSettings from '../components/GeneralSettings';
 
-type Props = {};
+type Props = {
+  queryParams: any;
+};
 
 type FinalProps = {
   configsQuery: ConfigsQueryResponse;
