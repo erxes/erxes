@@ -96,8 +96,6 @@ export const productToErkhet = async (
       categoryCode: productCategory ? productCategory.code : "",
       defaultCategory: mainConfig.productCategoryCode,
       weight,
-      taxType: product.taxType,
-      taxCode: product.taxCode
     }
   };
 

@@ -61,7 +61,7 @@ const documentQueries = {
       label: string;
       contentType: string;
       subTypes?: string[];
-    }> = common.types;
+    }> = [...common.types];
 
     for (const serviceName of services) {
       const service = await getService(serviceName);

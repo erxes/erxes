@@ -30,6 +30,8 @@ export const checkLoyalties = async (subdomain: string, doc: IOrderInput) => {
 
   for (const item of doc.items || []) {
     const loyalty = loyalties[item.productId];
+    item.unitPrice = item.unitPrice || 0;
+
     if (loyalty) {
       if (loyalty.potentialBonus) {
         item.bonusVoucherId = loyalty.voucherId;

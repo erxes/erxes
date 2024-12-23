@@ -51,8 +51,8 @@ const generateCode = async (models: IModels) => {
   if (!last || !last.code) {
     code = `${currentDateString}-0001`;
   } else {
-    const lastInvoiceDate = last.code.split('-')[1];
-    const lastValue = Number(last.code.split('-').pop() || '0000');
+    const lastInvoiceDate = last.code.split('-')[0];
+    const lastValue = Number(last.code.split('-')[1] || '0000');
 
     if (lastInvoiceDate === currentDateString) {
       const newIncrementalValue = lastValue + 1;
@@ -63,6 +63,12 @@ const generateCode = async (models: IModels) => {
     } else {
       code = `${currentDateString}-0001`;
     }
+  }
+
+  const codeExists = await models.Transactions.findOne({ code });
+
+  if (codeExists) {
+    code = await generateCode(models);
   }
 
   return code;
@@ -95,7 +101,7 @@ export const loadTransactionClass = (models: IModels) => {
         ...doc,
         paymentKind: paymentMethod.kind,
         status: 'pending',
-        code: await generateCode(models),
+        code: await generateCode(models)
       };
 
       const transaction = await models.Transactions.create(updatedDoc);

@@ -693,7 +693,7 @@ const clientPortalUserMutations = {
         }
       }
     } catch (e) {
-      console.log(e.message);
+      console.error(e.message);
     }
 
     const phoneCode = await models.ClientPortalUsers.imposeVerificationCode({
@@ -802,7 +802,7 @@ const clientPortalUserMutations = {
         }
       }
     } catch (e) {
-      console.log(e.message);
+      console.error(e.message);
     }
     if (byPhone) {
       if (!cpUser.phone) {
@@ -1012,7 +1012,7 @@ const clientPortalUserMutations = {
         }
       }
     } catch (e) {
-      console.log(e.message);
+      console.error(e.message);
     }
 
     const emailCode = await models.ClientPortalUsers.imposeVerificationCode({

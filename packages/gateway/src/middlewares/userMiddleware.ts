@@ -152,9 +152,13 @@ export default async function userMiddleware(
 
   try {
     // verify user token and retrieve stored user information
-    const { user }: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
-
-    const userDoc = await models.Users.findOne({ _id: user._id });
+    const decoded: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
+    const user = decoded.user;
+ 
+    const userDoc = await models.Users.findOne(
+      { _id: user._id },
+      '_id email details isOwner groupIds brandIds username code departmentIds'
+    );
 
     if (!userDoc) {
       return next();

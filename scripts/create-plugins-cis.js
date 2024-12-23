@@ -75,7 +75,8 @@ var plugins = [
   { name: "accountings", api: true, ui: true },
   { name: "pms", api: true, ui: true },
   { name: "bm", api: true, ui: true },
-  { name: "template", api: true, ui: true }
+  { name: "template", api: true, ui: true },
+  { name: "cms", api: true, ui: true },
 ];
 
 const pluginsMap = {};
@@ -209,9 +210,7 @@ var main = async () => {
 
   fs.writeFileSync(
     filePath("./scripts/pluginsMap.js"),
-    `
-    module.exports = ${JSON.stringify(pluginsMap)}
-  `
+    `module.exports = ${JSON.stringify(pluginsMap, null, 2)}\n`
   );
 };
 

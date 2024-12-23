@@ -1,8 +1,8 @@
 import {
   attachmentInput,
   attachmentType,
+  pdfAttachmentInput,
   pdfAttachmentType,
-  pdfAttachmentInput
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = `
@@ -52,6 +52,7 @@ export const types = `
     pdfAttachment: PdfAttachment
     publishedUserId:String
     publishedUser:User
+    publishedAt: Date
     scheduledDate: Date
 
     forms: [FormCode]

@@ -17,7 +17,7 @@ let db: Db;
 let Logs: Collection<any>;
 let ActivityLogs: Collection<any>;
 
-const changeType = type => {
+const changeType = (type) => {
   let prefix = '';
 
   switch (type) {
@@ -106,18 +106,14 @@ const command = async () => {
   db = client.db() as Db;
 
   Logs = db.collection('logs');
-  ActivityLogs = db.collection('activity_logs');
   const limit = 1000;
 
   const logsSummary = await Logs.find({}).count();
 
-  let bulkOps: any[] = [];
+  const bulkOps: any[] = [];
 
   for (let skip = 0; skip <= logsSummary; skip = skip + limit) {
-    const logs = await Logs.find({})
-      .skip(skip)
-      .limit(limit)
-      .toArray();
+    const logs = await Logs.find({}).skip(skip).limit(limit).toArray();
     for (const log of logs) {
       const contentType = changeType(log.contentType);
       if (contentType === log.contentType) {
@@ -127,8 +123,8 @@ const command = async () => {
       bulkOps.push({
         updateOne: {
           filter: { _id: log._id },
-          update: { $set: { contentType } }
-        }
+          update: { $set: { contentType } },
+        },
       });
     }
 
@@ -142,35 +138,6 @@ const command = async () => {
   }
 
   console.log(`Logs migrated ....`);
-
-  bulkOps = [];
-
-  const activitySummary = await ActivityLogs.find({}).count();
-
-  for (let skip = 0; skip <= activitySummary; skip = skip + limit) {
-    const logs = await ActivityLogs.find({})
-      .skip(skip)
-      .limit(limit)
-      .toArray();
-    for (const log of logs) {
-      const contentType = changeType(log.contentType);
-      if (contentType === log.contentType) {
-        continue;
-      }
-
-      bulkOps.push({
-        updateOne: {
-          filter: { _id: log._id },
-          update: { $set: { contentType } }
-        }
-      });
-    }
-
-    if (bulkOps.length) {
-      await ActivityLogs.bulkWrite(bulkOps);
-    }
-  }
-
   console.log(`Process finished at: ${new Date()}`);
 
   process.exit();
