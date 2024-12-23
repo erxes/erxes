@@ -6,5 +6,6 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
     action: 'getConfig',
     data: { code, defaultValue },
     isRPC: true,
+    defaultValue: {}
   });
 };

@@ -11,7 +11,7 @@ const decodeDN = (dn: string) => {
 
 export const adSync = async (subdomain, params) => {
   const configs = await getConfig(subdomain, 'ACTIVEDIRECTOR', {});
-  if (!configs || !Object.keys(configs).length) {
+  if (!configs?.apiUrl) {
     return { status: true, error: 'First login for AD' };
   }
 
