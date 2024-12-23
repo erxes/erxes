@@ -3,6 +3,7 @@ import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import loginValidator from './loginValidator';
 
 export default {
   name: 'activedirectory',
@@ -24,5 +25,5 @@ export default {
 
   onServerInit: async () => {},
   setupMessageConsumers,
-  meta: {},
+  meta: { loginValidator },
 };

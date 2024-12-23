@@ -41,7 +41,7 @@ const adMutations = {
 
     try {
       const { searchEntries } = await client.search(searchBase, searchOptions);
-      console.log('Search Results:', searchEntries);
+      return searchEntries;
     } catch (err) {
       console.error('Error during search:', err);
     }
