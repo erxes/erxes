@@ -1,4 +1,5 @@
 import { Client, SearchOptions } from 'ldapts';
+import { getConfig } from './utils';
 const decodeDN = (dn: string) => {
   const decoded = dn.replace(/\(([0-9A-Fa-f]{2})\)/g, (match, p1) => {
     return String.fromCharCode(parseInt(p1, 16));
@@ -7,9 +8,10 @@ const decodeDN = (dn: string) => {
   return Buffer.from(decoded, 'binary').toString('utf8');
 };
 
-export const adSync = async (subdomain, params, configs) => {
-  if (!configs.apiUrl || !configs.adminDN || !configs.adminPassword) {
-    return;
+export const adSync = async (subdomain, params) => {
+  const configs = await getConfig(subdomain, 'ACTIVEDIRECTOR', {});
+  if (!configs || !Object.keys(configs).length) {
+    return true;
   }
 
   const client = new Client({ url: configs.apiUrl });

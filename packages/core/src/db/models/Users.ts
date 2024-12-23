@@ -67,6 +67,7 @@ interface ILoginParams {
   email: string;
   password?: string;
   deviceToken?: string;
+  subdomain?: string;
 }
 
 interface IPasswordParams {
@@ -737,7 +738,7 @@ export const loadUserClass = (models: IModels) => {
       email: string;
       password: string;
       deviceToken?: string;
-      subdomain: any;
+      subdomain: string;
     }) {
       email = (email || '').toLowerCase().trim();
       password = (password || '').trim();
@@ -776,11 +777,11 @@ export const loadUserClass = (models: IModels) => {
           } catch (e) {
             return console.error('Error during search:', e);
           }
-        }
 
-        if (!loginValid) {
-          // bad password
-          throw new Error('Invalid login');
+          if (!loginValid) {
+            // bad password
+            throw new Error('Invalid login');
+          }
         }
       }
 

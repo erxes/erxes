@@ -7,20 +7,9 @@ export default {
       return;
     }
 
-    let configs;
-
-    try {
-      configs = await getConfig(subdomain, 'ACTIVEDIRECTOR', {});
-      if (!configs || !Object.keys(configs).length) {
-        return;
-      }
-    } catch (e) {
-      return;
-    }
-
     try {
       if (data.email) {
-        const result = await adSync(subdomain, data.email, configs);
+        const result = await adSync(subdomain, data.email);
         return result;
       }
     } catch (e) {
