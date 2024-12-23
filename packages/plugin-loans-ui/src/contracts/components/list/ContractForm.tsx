@@ -1115,7 +1115,7 @@ function ContractForm(props: Props) {
                       <td style={{ textAlign: "center" }}>{mur.order}</td>
                       <td style={{ textAlign: "center" }}>{mur.diffDay}</td>
                       <td style={{ textAlign: "center" }}>
-                        {mur.payDate.toLocaleDateString()}
+                        {(new Date(mur.payDate)).toLocaleDateString()}
                       </td>
                       <td style={{ textAlign: "center" }}>
                         {mur.payment?.toLocaleString()}
