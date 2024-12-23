@@ -1,11 +1,17 @@
 # Changelog
 
-## [2.3.0-rc.0](https://github.com/erxes/erxes/compare/2.2.0...2.3.0-rc.0) (2024-12-19)
+## [2.2.1](https://github.com/erxes/erxes/compare/2.2.0...2.2.1) (2024-12-20)
 
 
 ### Features
 
-* **whatsapp:** chatbot v1 ([4d074e6](https://github.com/erxes/erxes/commit/4d074e67a030e295691a15e5555a65fce552551e))
+* inventories safeRemainder with census items ([19eb27d](https://github.com/erxes/erxes/commit/19eb27dc678ecd747b5285b0618d56be8e91d8b2))
+* posclient qrmenu backend ([8482dab](https://github.com/erxes/erxes/commit/8482dab481964a0038c9d693de6517c7819fd30c))
+
+
+### Bug Fixes
+
+* ebarimt product tax rule find ([4f266b0](https://github.com/erxes/erxes/commit/4f266b0507444e6745ac5373f8cd38b1dbcb330b))
 
 ## [2.2.0](https://github.com/erxes/erxes/compare/2.2.0-rc.11...2.2.0) (2024-12-19)
 
