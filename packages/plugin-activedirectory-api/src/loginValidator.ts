@@ -1,4 +1,3 @@
-import { getConfig } from './utils';
 import { adSync } from './utilsAD';
 
 export default {
