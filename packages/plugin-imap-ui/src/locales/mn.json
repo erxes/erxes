@@ -1,0 +1,12 @@
+{
+    "send email to " : "имэйл руу илгээх ",
+    "Expand email" : "имэйл-г дэлгэх",
+    "Shrink email" : "имэйл-г багасгах",
+    "See full mail" : "Бүрэн имэйлийг үзнэ үү",
+    "imap email" : "imap имэйл",
+    "Which specific Brand does this integration belong to?" : "Энэ интеграц аль Брэндэд хамаарах вэ?",
+    "Main user (for a mail with aliases)" : "Үндсэн хэрэглэгч (гаалиа нэртэй шуудангийн хувьд)",
+    "User" : "Хэрэглэгч",
+    "Password" : "Нууц үг",
+    "Log messages" : "Бүртгэлийн зурвасууд"
+}
