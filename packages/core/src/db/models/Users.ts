@@ -756,36 +756,42 @@ export const loadUserClass = (models: IModels) => {
 
       const valid = await this.comparePassword(password, user.password);
 
+      if (!valid) {
+        // bad password
+        throw new Error('Invalid login');
+      }
+
       const services = await getServices();
-      let loginValid;
 
       for (const serviceName of services) {
         const service = await getService(serviceName);
         const meta = service.config?.meta || {};
 
-        if (meta && meta.loginValidator) {
+        if (meta?.loginValidator) {
           try {
-            loginValid = await sendCommonMessage({
+            const loginValid = await sendCommonMessage({
               subdomain,
               action: 'loginValidator',
               serviceName,
-              data: { email },
+              data: { email, password },
               isRPC: true,
+              defaultValue: '',
             });
-          } catch (e) {
-            return console.error('Error during search:', e);
-          }
 
-          if (!loginValid) {
-            // bad password
-            throw new Error('Invalid login');
+            if (!loginValid.status) {
+              // bad password
+              throw new Error(
+                `${serviceName} An error occurred while login, ${loginValid.error}`
+              );
+            }
+          } catch (e) {
+            return console.error(
+              serviceName,
+              'An error occurred while login',
+              e
+            );
           }
         }
-      }
-
-      if (!valid) {
-        // bad password
-        throw new Error('Invalid login');
       }
 
       // create tokens

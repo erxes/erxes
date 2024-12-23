@@ -11,7 +11,7 @@ const decodeDN = (dn: string) => {
 export const adSync = async (subdomain, params) => {
   const configs = await getConfig(subdomain, 'ACTIVEDIRECTOR', {});
   if (!configs || !Object.keys(configs).length) {
-    return true;
+    return { status: true, error: 'First login for AD' };
   }
 
   const client = new Client({ url: configs.apiUrl });
@@ -20,28 +20,27 @@ export const adSync = async (subdomain, params) => {
     await client.bind(configs.adminDN, configs.adminPassword);
     console.log('Connected to Active Directory');
   } catch (err) {
-    console.error('Error connecting to Active Directory:', err);
+    return { status: false, error: `'Error connect AD:' ${err}` };
   }
 
   const searchBase = 'DC=light,DC=local'; // Base DN for searching
   const searchOptions: SearchOptions = {
     scope: 'sub', // Search entire subtree
-    filter: '(objectClass=user)', // Filter for users
+    filter: `(&(objectClass=user)(mail=${params}))`, // Filter for users
     attributes: ['cn', 'sn', 'mail', 'samAccountName'], // Specify attributes to retrieve
   };
 
   try {
     const { searchEntries } = await client.search(searchBase, searchOptions);
+
     const found = (searchEntries || []).find((data) => data.mail === params);
 
     if (found) {
-      console.log('Match found!');
-      return true; // Return true if match is found
+      return { status: true, error: 'successful find user' }; // Return true if match is found
     } else {
-      console.log('No match found.');
-      return false; // Return false if no match is found
+      return { status: false, error: 'Error during search user on AD' }; // Return false if no match is found
     }
   } catch (err) {
-    console.error('Error during search:', err);
+    return { status: false, error: `'Error during search:' ${err}` };
   }
 };
