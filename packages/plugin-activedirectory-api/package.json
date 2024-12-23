@@ -1,0 +1,12 @@
+{
+  "name": "@erxes/plugin-activedirectory-api",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@erxes/api-utils": "*",
+    "ldapts": "^7.2.2"
+  }
+}
