@@ -1,22 +1,22 @@
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery } from "@apollo/client";
 import {
   AccountBox,
   AccountItem,
-  AccountTitle,
-} from '@erxes/ui-inbox/src/settings/integrations/styles';
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import { queries } from '../../graphql';
-import client from '@erxes/ui/src/apolloClient';
+  AccountTitle
+} from "@erxes/ui-inbox/src/settings/integrations/styles";
+import Button from "@erxes/ui/src/components/Button";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { __ } from "@erxes/ui/src/utils/core";
+import React from "react";
+import { queries } from "../../graphql";
+import client from "@erxes/ui/src/apolloClient";
 
 export function SelectAccountPages({
   initialValue,
   filterParams,
   accountId,
-  onSelect,
+  onSelect
 }: {
   accountId: string;
   initialValue: string;
@@ -27,13 +27,18 @@ export function SelectAccountPages({
     variables: {
       ...filterParams,
       accountId,
-      kind: 'instagram-messenger',
+      kind: "instagram-messenger"
     },
-    skip: !accountId,
+    skip: !accountId
   });
 
   if (error) {
-    return <EmptyState icon="info-circle" text={error.message} />;
+    return (
+      <EmptyState
+        icon='info-circle'
+        text={error.message}
+      />
+    );
   }
 
   if (loading) {
@@ -44,23 +49,22 @@ export function SelectAccountPages({
 
   const handleSelectPage = (pageId) => {
     if (initialValue === pageId) {
-      return onSelect('', 'pageId');
+      return onSelect("", "pageId");
     }
 
-    onSelect(pageId, 'pageId');
+    onSelect(pageId, "pageId");
   };
 
   return (
     <AccountBox>
-      <AccountTitle>{__('instagram pages')}</AccountTitle>
+      <AccountTitle>{__("instagram pages")}</AccountTitle>
       {pages.map(({ id, name }) => (
         <AccountItem key={id}>
           <span>{name}</span>
           <Button
             onClick={() => handleSelectPage(id)}
-            btnStyle={initialValue === id ? 'primary' : 'simple'}
-          >
-            {initialValue === id ? __('Selected') : __('Select This Page')}
+            btnStyle={initialValue === id ? "primary" : "simple"}>
+            {initialValue === id ? __("Selected") : __("Select This Page")}
           </Button>
         </AccountItem>
       ))}
@@ -70,17 +74,26 @@ export function SelectAccountPages({
 
 export const fetchPageDetail = async (account, pageId) => {
   if (!account) return null;
-
+  console.log(pageId, "page");
   let name;
   let profileUrl;
 
   await fetch(
-    `https://graph.instagram.com/v13.0/${pageId}?fields=name,picture&access_token=${account.token}`,
+    `https://graph.facebook.com/v13.0/${pageId}? 
+     fields=username,profile_picture_url&access_token=${account.token}`
   )
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then((data) => {
-      name = data.name;
-      profileUrl = data?.picture?.data?.url;
+      name = data.username;
+      profileUrl = data?.profile_picture_url;
+    })
+    .catch((error) => {
+      console.error("Error fetching data from Graph API:", error);
     });
 
   return { profileUrl, name };

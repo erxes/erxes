@@ -1,7 +1,7 @@
-import Spinner from '@erxes/ui/src/components/Spinner';
-import React from 'react';
-import styled from 'styled-components';
-import { __ } from '@erxes/ui/src/utils/core';
+import Spinner from "@erxes/ui/src/components/Spinner";
+import React from "react";
+import styled from "styled-components";
+import { __ } from "@erxes/ui/src/utils/core";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -19,7 +19,7 @@ type Props = {
 
 export const Authorization = (props: Props) => {
   const { queryParams } = props;
-  if (queryParams.igAuthorized) {
+  if (queryParams.whatsAppAuthorized) {
     if (window.opener) {
       window.opener.location.reload();
     }
@@ -27,8 +27,8 @@ export const Authorization = (props: Props) => {
   }
   return (
     <Wrapper>
-      {queryParams.igAuthorized ? (
-        <p>{__('Whats App authorized, You can close this window')}</p>
+      {queryParams.whatsAppAuthorized ? (
+        <p>{__("Whats App authorized, You can close this window")}</p>
       ) : (
         <Spinner />
       )}

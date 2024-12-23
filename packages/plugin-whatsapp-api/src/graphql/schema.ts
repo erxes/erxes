@@ -1,4 +1,4 @@
-import { attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
+import { attachmentType } from "@erxes/api-utils/src/commonTypeDefs";
 
 const commonCommentAndMessageFields = `
   content: String
@@ -30,7 +30,7 @@ export const types = `
     _id: String! @external
   }
 
-  type InstagramCustomer {
+  type WhatsappCustomer {
     _id: String
     userId: String
     erxesApiId: String
@@ -40,17 +40,7 @@ export const types = `
     integrationId: String
   }
 
-  type InstagramComment {
-    ${commonCommentAndMessageFields}
-    commentId: String
-    ${commonPostAndCommentFields}
-    parentId: String
-    customer: InstagramCustomer
-    commentCount: Int
-    isResolved: Boolean
-  }
-
-  type InstagramConversationMessage {
+  type WhatsAppConversationMessage {
     _id: String!
     ${commonCommentAndMessageFields}
     attachments: [Attachment]
@@ -67,29 +57,46 @@ export const types = `
     customer: Customer
     user: User
   }
+   type BotPersistentMenuType {
+    _id:String
+    type:String
+    text: String
+    link: String
+  }
 
-  type InstagramPostMessage {
-    _id: String!
-    ${commonCommentAndMessageFields}
-    attachments: [Attachment]
-    customerId: String
-    userId: String
+  input BotPersistentMenuInput {
+    _id:String
+    type:String
+    text: String
+    link: String
+  }
+
+  type WhatsappMessengerBot {
+    _id: String
+    name:String
+    accountId: String
+    account:JSON
+    whatsappNumberIds: [String!]
+    page: JSON
     createdAt: Date
-    commentId: String
-
-    customer: Customer
-    user: User
+    persistentMenus:[BotPersistentMenuType]
+    profileUrl:String
+    greetText:String
+    tag:String
+    isEnabledBackBtn:Boolean
+    backButtonText:String
   }
-
-
-  type InstagramPost @key(fields: "_id") {
-    _id: String!
-    ${commonPostAndCommentFields}
-    content:String
-  }
-
 `;
-
+const commonBotParams = `
+  name:String,
+  accountId:String,
+  whatsappNumberIds: [String!]
+  persistentMenus:[BotPersistentMenuInput],
+  greetText:String
+  tag:String,
+  isEnabledBackBtn:Boolean,
+  backButtonText:String
+`;
 export const queries = `
   whatsappGetAccounts(kind: String): JSON
   whatsappGetIntegrations(kind: String): JSON
@@ -97,13 +104,19 @@ export const queries = `
   whatsappGetConfigs: JSON
   whatsappGetNumbers(accountId: String! kind: String!): JSON
   whatsappConversationDetail(_id: String!): JSON
-  whatsappConversationMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [InstagramConversationMessage]
+  whatsappConversationMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [WhatsAppConversationMessage]
   whatsappConversationMessagesCount(conversationId: String!): Int
   whatsappHasTaggedMessages(conversationId: String!): Boolean
+  whatsappBootMessengerBots:[WhatsappMessengerBot]
+  whatsappBootMessengerBotsTotalCount:Int
+  whatsappBootMessengerBot(_id:String):WhatsappMessengerBot
 `;
 
 export const mutations = `
   whatsappUpdateConfigs(configsMap: JSON!): JSON
   whatsappRepair(_id: String!): JSON
-
+ whatsappMessengerAddBot(${commonBotParams}):JSON
+ whatsappMessengerUpdateBot(_id:String,${commonBotParams}):JSON
+ whatsappMessengerRemoveBot(_id:String):JSON
+ whatsappMessengerRepairBot(_id:String):JSON
 `;

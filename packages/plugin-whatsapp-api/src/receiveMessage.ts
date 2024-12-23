@@ -1,10 +1,55 @@
-import { IModels } from './connectionResolver';
-import { sendInboxMessage } from './messageBroker';
-import { getOrCreateCustomer } from './store';
-import { IMessageData } from './types';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { INTEGRATION_KINDS } from './constants';
-import { uploadFileFromUrl } from './utils';
+import { IModels } from "./connectionResolver";
+import { sendInboxMessage, sendAutomationsMessage } from "./messageBroker";
+import { getOrCreateCustomer } from "./store";
+import { IMessageData } from "./types";
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
+import { INTEGRATION_KINDS } from "./constants";
+import { uploadFileFromUrl } from "./utils";
+import { debugError } from "./debuggers";
+import { debugInfo } from "@erxes/api-utils/src/debuggers";
+
+const checkIsBot = async (models: IModels, message, recipientId) => {
+  let selector: any = { whatsappNumberIds: recipientId };
+
+  if (message?.payload) {
+    const payload = JSON.parse(message?.payload || "{}");
+    if (payload.botId) {
+      selector = { _id: payload.botId };
+    }
+  }
+  const bot = await models.Bots.findOne(selector);
+
+  return bot;
+};
+
+const handleAutomation = async (
+  subdomain: string,
+  {
+    conversationMessage
+  }: {
+    conversationMessage: any;
+  }
+) => {
+  const target = { ...conversationMessage.toObject() };
+  let type = "whatsapp:messages";
+  await sendAutomationsMessage({
+    subdomain,
+    action: "trigger",
+    data: {
+      type,
+      targets: [target]
+    },
+    isRPC: true,
+    defaultValue: null
+  })
+    .catch((err) => {
+      debugError(`Error sending automation message: ${err.message}`);
+      throw err;
+    })
+    .then(() => {
+      debugInfo(`Sent message successfully`);
+    });
+};
 
 const receiveMessage = async (
   models: IModels,
@@ -13,11 +58,9 @@ const receiveMessage = async (
 ): Promise<void> => {
   const { metadata, contacts = [], messages = [] } = messageData;
   const { phone_number_id } = metadata;
-  console.log(messageData,'messageData')
+
   const waId = contacts.length > 0 ? contacts[0]?.wa_id : undefined;
-  console.log(waId,'waId')
   if (!waId) {
-    console.error('No whatsapp ID found in contacts');
     return;
   }
 
@@ -28,9 +71,8 @@ const receiveMessage = async (
         { kind: INTEGRATION_KINDS.MESSENGER }
       ]
     });
-    console.log(integration,'integration')
     if (!integration) {
-      throw new Error('whatsapp Integration not found');
+      throw new Error("whatsapp Integration not found");
     }
 
     const customer = await getOrCreateCustomer(
@@ -41,36 +83,35 @@ const receiveMessage = async (
       contacts,
       integration
     );
-    console.log(customer,'customer')
     if (!customer) {
-      throw new Error('Failed to get or create customer');
+      throw new Error("Failed to get or create customer");
     }
 
     let conversation = await models.Conversations.findOne({
       senderId: phone_number_id,
       recipientId: waId
     });
-    console.log(conversation,'conversation')
+    const bot = await checkIsBot(models, messageData.message, phone_number_id);
+    const botId = bot?._id;
     const messageId = messages.length > 0 ? messages[0]?.id : undefined;
-    console.log(messageId,'messageId')
     let attachments: { type: string; url: any }[] = [];
     const type = messages.length > 0 ? messages[0]?.type : undefined;
 
     const content =
-      messages[0]?.text?.body || messages[0]?.image?.caption || '';
+      messages[0]?.text?.body || messages[0]?.image?.caption || "";
     if (
-      ['image', 'video', 'sticker', 'document', 'audio'].includes(type || '')
+      ["image", "video", "sticker", "document", "audio"].includes(type || "")
     ) {
       const account = await models.Accounts.findOne({
         _id: integration.accountId
       });
       if (!account) {
-        throw new Error('Account not found');
+        throw new Error("Account not found");
       }
 
-      const mediaId = messages[0]?.[type as keyof IMessageData['message']]?.id;
+      const mediaId = messages[0]?.[type as keyof IMessageData["message"]]?.id;
       const mimeType =
-        messages[0]?.[type as keyof IMessageData['message']]?.mime_type;
+        messages[0]?.[type as keyof IMessageData["message"]]?.mime_type;
 
       if (mediaId && mimeType) {
         const uploadedMedia = await uploadFileFromUrl(
@@ -81,7 +122,7 @@ const receiveMessage = async (
         );
         attachments.push({ type: mimeType, url: uploadedMedia });
       } else {
-        console.error('Media ID or MIME type missing');
+        console.error("Media ID or MIME type missing");
       }
     }
 
@@ -96,16 +137,24 @@ const receiveMessage = async (
         senderId: phone_number_id,
         recipientId: waId,
         content,
-        integrationId: integration._id
+        integrationId: integration._id,
+        isBot: !!botId,
+        botId
       });
-      console.log(conversation,'new conversation')
+    } else {
+      const bot = await models.Bots.findOne({ _id: botId });
+
+      if (bot) {
+        conversation.botId = botId;
+      }
+      conversation.content = content || "";
     }
 
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
-      action: 'integrations.receive',
+      action: "integrations.receive",
       data: {
-        action: 'create-or-update-conversation',
+        action: "create-or-update-conversation",
         payload: JSON.stringify({
           customerId: customer.erxesApiId,
           integrationId: integration.erxesApiId,
@@ -120,11 +169,9 @@ const receiveMessage = async (
 
     conversation.erxesApiId = apiConversationResponse._id;
     await conversation.save();
-    console.log(conversation,'await conversation.save()')
-    const conversationMessage = await models.ConversationMessages.findOne({
+    let conversationMessage = await models.ConversationMessages.findOne({
       mid: messageId
     });
-    console.log(conversationMessage,'conversationMessage')
     if (!conversationMessage) {
       const createdMessage = await models.ConversationMessages.create({
         mid: messageId,
@@ -136,15 +183,32 @@ const receiveMessage = async (
         conversationId: conversation._id,
         createdAt: timestamp,
         customerId: customer.erxesApiId,
-        attachments
+        attachments,
+        botId
       });
-      console.log(createdMessage,'createdMessage')
-      const handleMessage =await handleMessageUpdate(
-        createdMessage.toObject(),
-        conversation.erxesApiId,
-        subdomain
+      await sendInboxMessage({
+        subdomain,
+        action: "conversationClientMessageInserted",
+        data: {
+          ...createdMessage.toObject(),
+          conversationId: conversation.erxesApiId
+        }
+      });
+
+      graphqlPubsub.publish(
+        `conversationMessageInserted:${conversation.erxesApiId}`,
+        {
+          conversationMessageInserted: {
+            ...createdMessage.toObject(),
+            conversationId: conversation.erxesApiId
+          }
+        }
       );
-      console.log(handleMessage,'handleMessage')
+      conversationMessage = createdMessage;
+
+      await handleAutomation(subdomain, {
+        conversationMessage
+      });
     }
   } catch (error) {
     throw new Error(`Error in receiveMessage: ${error.message}`);
@@ -154,7 +218,7 @@ const receiveMessage = async (
 async function handleMessageUpdate(messageObject, conversationId, subdomain) {
   await sendInboxMessage({
     subdomain,
-    action: 'conversationClientMessageInserted',
+    action: "conversationClientMessageInserted",
     data: { ...messageObject, conversationId }
   });
 
