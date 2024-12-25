@@ -92,20 +92,20 @@ export const calcProductsTaxRule = async (subdomain: string, config, products) =
   let oneMoreVat = false;
   let oneMoreCtax = false;
 
-  const vatRules = await sendEbarimtMessage({
+  const vatRules = config?.reverseVatRules?.length && await sendEbarimtMessage({
     subdomain,
     action: 'productRules.find',
     data: { _id: { $in: config.reverseVatRules } },
     isRPC: true,
     defaultValue: []
-  });
-  const ctaxRules = await sendEbarimtMessage({
+  }) || [];
+  const ctaxRules = config?.reverseCtaxRules?.length && await sendEbarimtMessage({
     subdomain,
     action: 'productRules.find',
     data: { _id: { $in: config.reverseCtaxRules } },
     isRPC: true,
     defaultValue: []
-  });
+  }) || [];
 
   const productsById = {};
   for (const product of products) {
