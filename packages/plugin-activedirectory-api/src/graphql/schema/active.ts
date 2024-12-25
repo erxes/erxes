@@ -7,60 +7,24 @@ export const types = () => `
     _id: String!
     createdAt: Date
     modifiedAt: Date
-    ownerId: String
-    mergedIds: [String]
-    description: String
-    owner: User
-
-    tagIds: [String]
-    plateNumber: String
-    vinNumber: String
-    colorCode: String
-    categoryId: String
-    bodyType: String
-    fuelType: String
-    gearBox: String
-    vintageYear: Float
-    importYear: Float
-    customFieldsData: JSON
+    apiUrl: String
+    adminDN: String
+    adminPassword: String
+    code: String
   }
 `;
 
-const queryParams = `
-  page: Int
-  perPage: Int
-  tag: String
-  segment: String
-  segmentData: String
-  categoryId: String
-  ids: [String]
-  searchValue: String
-  sortField: String
-  sortDirection: Int
-  brand: String
-`;
-
 export const queries = `
-  configs(${queryParams}): [ADconfig]
+  adConfigs(code: String): ADconfig
 `;
 
 const commonFields = `
-  ownerId: String,
-  description: String
-  plateNumber: String
-  vinNumber: String
-  colorCode: String
-  categoryId: String
-  bodyType: String
-  fuelType: String
-  gearBox: String
-  vintageYear: Float
-  importYear: Float
-  customFieldsData: JSON
+  apiUrl: String,
+  adminDN: String
+  adminPassword: String
+  code: String
 `;
 
 export const mutations = `
-  configsAdd(${commonFields}): ADconfig
-  configsEdit(_id: String!, ${commonFields}, customFieldsData: JSON): ADconfig
-  configsRemove(carIds: [String]): [String]
+  adConfigUpdate(${commonFields}): ADconfig
 `;

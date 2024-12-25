@@ -1,9 +1,13 @@
-const configs = `
-  query configsGetValue($code: String!) {
-    configsGetValue(code: $code)
+const adConfigs = `
+query adConfigs($code: String!) {
+  adConfigs(code: $code) {
+    apiUrl
+    adminDN
+    adminPassword
   }
+}
 `;
 
 export default {
-  configs,
+  adConfigs,
 };

@@ -2,10 +2,12 @@ import { Schema, Document } from 'mongoose';
 import { field, schemaWrapper } from './utils';
 
 export interface IConfig {
-  contentType: string;
-  contentId: string;
+  apiUrl: string;
+  adminDN: string;
+  adminPassword: string;
+  code: string;
   createdAt: Date;
-  createdBy?: string;
+  modifiedAt: Date;
 }
 
 export interface IConfigDocument extends IConfig, Document {
@@ -15,23 +17,20 @@ export interface IConfigDocument extends IConfig, Document {
 export const configSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    contentType: field({ type: String, label: 'type', index: true }),
-    contentId: field({ type: String, label: 'content', index: true }),
     createdAt: field({
       type: Date,
       default: new Date(),
       label: 'Created at',
       index: true,
     }),
-    createdBy: field({ type: String, optional: true, label: 'Created by' }),
-    consumeData: field({ type: Object }),
-    consumeStr: field({ type: String }),
-    sendData: field({ type: Object, optional: true }),
-    sendStr: field({ type: String, optional: true }),
-    responseData: field({ type: Object, optional: true }),
-    responseStr: field({ type: String, optional: true }),
-    sendSales: field({ type: [String], optional: true }),
-    responseSales: field({ type: [String], optional: true }),
-    error: field({ type: String, optional: true }),
+    modifiedAt: field({
+      type: Date,
+      default: new Date(),
+      label: 'Modified at',
+    }),
+    apiUrl: field({ type: String, label: 'apiUrl' }),
+    adminDN: field({ type: String, label: 'adminDN' }),
+    adminPassword: field({ type: String, label: 'adminPassword' }),
+    code: field({ type: String, label: 'code' }),
   })
 );

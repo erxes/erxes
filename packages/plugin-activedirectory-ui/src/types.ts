@@ -1,15 +1,15 @@
-export type IConfigsMap = { [key: string]: any };
-
 export type IConfig = {
-  _id: string;
+  _id?: string;
+  apiUrl: string;
+  adminDN?: string;
+  adminPassword?: string;
   code: string;
-  value: any;
 };
 
 // mutation types
 
 export type ConfigsQueryResponse = {
-  configsGetValue: IConfig;
+  adConfigs: IConfig;
   loading: boolean;
   refetch: () => void;
 };

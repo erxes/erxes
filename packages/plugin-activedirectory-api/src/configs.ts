@@ -3,12 +3,14 @@ import { generateModels } from './connectionResolver';
 import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import loginValidator from './loginValidator';
+import resolvers from './graphql/resolvers';
 
 export default {
   name: 'activedirectory',
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
 
