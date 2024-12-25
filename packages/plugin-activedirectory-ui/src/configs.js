@@ -19,6 +19,7 @@ module.exports = {
       location: 'settings',
       image: '/images/icons/erxes-18.svg',
       scope: 'activedirectory',
+      permission: 'showAD',
     },
   ],
 };

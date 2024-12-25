@@ -1,7 +1,4 @@
-import {
-  checkPermission,
-  requireLogin,
-} from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 
 const adQueries = {
@@ -9,5 +6,7 @@ const adQueries = {
     return models.AdConfig.findOne({ code: params.code });
   },
 };
+
+checkPermission(adQueries, 'adConfigs', 'manageAD');
 
 export default adQueries;
