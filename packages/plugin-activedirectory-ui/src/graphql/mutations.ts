@@ -1,10 +1,14 @@
 const commonFields = `
   $apiUrl: String,
+  $localUser: Boolean,
+  $userDN: String,
   $code: String,
 `;
 
 const commonVariables = `
   apiUrl: $apiUrl,
+  localUser: $localUser,
+  userDN: $userDN,
   code: $code,
 `;
 

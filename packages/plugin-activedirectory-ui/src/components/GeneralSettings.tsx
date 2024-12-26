@@ -24,18 +24,28 @@ const GeneralSettings = (props: Props) => {
   const { config, saveConfig } = props;
 
   const [apiUrl, setApiUrl] = useState<string>(config.apiUrl || '');
+  const [localUser, setLocalUser] = useState<boolean>(
+    config.localUser || false
+  );
+  const [userDN, setUserDN] = useState<string>(config.userDN || '');
 
   const save = (e) => {
     e.preventDefault();
 
     saveConfig({
-      apiUrl: apiUrl || '',
+      apiUrl,
+      localUser,
+      userDN,
       code: 'ACTIVEDIRECTOR',
     });
   };
 
   const onChangeInput = (e) => {
     setApiUrl(e.target.value);
+  };
+
+  const onChangeUserDN = (e) => {
+    setUserDN(e.target.value);
   };
 
   const renderContent = () => {
@@ -49,6 +59,20 @@ const GeneralSettings = (props: Props) => {
           <FormGroup>
             <ControlLabel>{'api url'}</ControlLabel>
             <FormControl value={apiUrl} onChange={onChangeInput} />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{'is local user'}</ControlLabel>
+            <FormControl
+              componentclass="checkbox"
+              checked={localUser}
+              onChange={() => {
+                setLocalUser(!localUser);
+              }}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{'user dn'}</ControlLabel>
+            <FormControl value={userDN} onChange={onChangeUserDN} />
           </FormGroup>
         </CollapseContent>
       </ContentBox>
