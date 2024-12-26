@@ -1,5 +1,5 @@
 import { Client, SearchOptions } from 'ldapts';
-import { getConfig } from './utils';
+import { generateModels } from './connectionResolver';
 
 const decodeDN = (dn: string) => {
   const decoded = dn.replace(/\(([0-9A-Fa-f]{2})\)/g, (match, p1) => {
@@ -10,7 +10,9 @@ const decodeDN = (dn: string) => {
 };
 
 export const adSync = async (subdomain, params) => {
-  const configs = await getConfig(subdomain, 'ACTIVEDIRECTOR', {});
+  const models = await generateModels(subdomain);
+  const configs = await models.AdConfig.findOne({ code: 'ACTIVEDIRECTOR' });
+
   if (!configs?.apiUrl) {
     return { status: true, error: 'First login for AD' };
   }

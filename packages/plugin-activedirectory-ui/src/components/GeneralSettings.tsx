@@ -28,6 +28,10 @@ const GeneralSettings = (props: Props) => {
     config.localUser || false
   );
   const [userDN, setUserDN] = useState<string>(config.userDN || '');
+  const [adminDN, setAdminDN] = useState<string>(config.adminDN || '');
+  const [adminPassword, setAdminPassword] = useState<string>(
+    config.adminPassword || ''
+  );
 
   const save = (e) => {
     e.preventDefault();
@@ -37,6 +41,8 @@ const GeneralSettings = (props: Props) => {
       localUser,
       userDN,
       code: 'ACTIVEDIRECTOR',
+      adminDN,
+      adminPassword,
     });
   };
 
@@ -46,6 +52,14 @@ const GeneralSettings = (props: Props) => {
 
   const onChangeUserDN = (e) => {
     setUserDN(e.target.value);
+  };
+
+  const onChangeAdminDN = (e) => {
+    setAdminDN(e.target.value);
+  };
+
+  const onChangePass = (e) => {
+    setAdminPassword(e.target.value);
   };
 
   const renderContent = () => {
@@ -73,6 +87,14 @@ const GeneralSettings = (props: Props) => {
           <FormGroup>
             <ControlLabel>{'user dn'}</ControlLabel>
             <FormControl value={userDN} onChange={onChangeUserDN} />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{'admin dn'}</ControlLabel>
+            <FormControl value={adminDN} onChange={onChangeAdminDN} />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{'admin pass'}</ControlLabel>
+            <FormControl value={adminPassword} onChange={onChangePass} />
           </FormGroup>
         </CollapseContent>
       </ContentBox>
