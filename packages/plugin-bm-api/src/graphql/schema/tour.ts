@@ -72,7 +72,7 @@ export const types = () => `
 `;
 
 export const queries = `
-  bmTours( page:Int, perPage:Int, status: STATUS_TOUR,innerDate: Date,branchId: String): ListTour
+  bmTours( page:Int, perPage:Int, status: STATUS_TOUR, innerDate: Date,branchId: String, tags: [String]): ListTour
   bmTourDetail(_id:String!,branchId: String): Tour
   bmOrders( tourId:String, customerId:String ,branchId: String):ListBmsOrder
 `;
