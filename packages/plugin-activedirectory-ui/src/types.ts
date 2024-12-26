@@ -1,7 +1,7 @@
 export type IConfig = {
   _id?: string;
   apiUrl: string;
-  localUser: boolean;
+  isLocalUser: boolean;
   userDN: string;
   adminDN?: string;
   adminPassword?: string;

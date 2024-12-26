@@ -9,6 +9,15 @@ const decodeDN = (dn: string) => {
   return Buffer.from(decoded, 'binary').toString('utf8');
 };
 
+const bindUser = async (client: any, dn, pass) => {
+  try {
+    await client.bind(dn, pass);
+    console.log('Connected to Active Directory');
+  } catch (err) {
+    return { status: false, error: `Error connect AD: ${err}` };
+  }
+};
+
 export const adSync = async (subdomain, params) => {
   const models = await generateModels(subdomain);
   const configs = await models.AdConfig.findOne({ code: 'ACTIVEDIRECTOR' });
@@ -19,12 +28,20 @@ export const adSync = async (subdomain, params) => {
 
   const client = new Client({ url: configs.apiUrl });
 
-  try {
-    await client.bind(configs.adminDN, configs.adminPassword);
-    console.log('Connected to Active Directory');
-  } catch (err) {
-    return { status: false, error: `Error connect AD: ${err}` };
+  if (configs.isLocalUser) {
+    await bindUser(client, configs.adminDN, configs.adminPassword);
   }
+
+  if (!configs.isLocalUser) {
+    await bindUser(client, configs.adminDN, configs.adminPassword);
+  }
+
+  // try {
+  //   await client.bind(configs.adminDN, configs.adminPassword);
+  //   console.log('Connected to Active Directory');
+  // } catch (err) {
+  //   return { status: false, error: `Error connect AD: ${err}` };
+  // }
 
   const searchBase = 'DC=light,DC=local'; // Base DN for searching
   const searchOptions: SearchOptions = {

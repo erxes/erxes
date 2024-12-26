@@ -24,8 +24,8 @@ const GeneralSettings = (props: Props) => {
   const { config, saveConfig } = props;
 
   const [apiUrl, setApiUrl] = useState<string>(config.apiUrl || '');
-  const [localUser, setLocalUser] = useState<boolean>(
-    config.localUser || false
+  const [isLocalUser, setLocalUser] = useState<boolean>(
+    config.isLocalUser || false
   );
   const [userDN, setUserDN] = useState<string>(config.userDN || '');
   const [adminDN, setAdminDN] = useState<string>(config.adminDN || '');
@@ -38,7 +38,7 @@ const GeneralSettings = (props: Props) => {
 
     saveConfig({
       apiUrl,
-      localUser,
+      isLocalUser,
       userDN,
       code: 'ACTIVEDIRECTOR',
       adminDN,
@@ -78,9 +78,9 @@ const GeneralSettings = (props: Props) => {
             <ControlLabel>{'is local user'}</ControlLabel>
             <FormControl
               componentclass="checkbox"
-              checked={localUser}
+              checked={isLocalUser}
               onChange={() => {
-                setLocalUser(!localUser);
+                setLocalUser(!isLocalUser);
               }}
             />
           </FormGroup>
