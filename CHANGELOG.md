@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.2.2](https://github.com/erxes/erxes/compare/2.2.1...2.2.2) (2024-12-27)
+
+
+### Bug Fixes
+
+* **gateway:** can't set  user logintoken sessioncode in userMiddleware ([5b4c2d3](https://github.com/erxes/erxes/commit/5b4c2d3155b6cd556487ab21595cc6641bc91f75))
+* posclient use header ([49a41da](https://github.com/erxes/erxes/commit/49a41da9af9a2035b315500b7c942642a586f2ff))
+* **segments:** get just content type is lead if source is engages ([280815d](https://github.com/erxes/erxes/commit/280815d60e4436d9241628cdfda87d27c786bb52))
+
 ## [2.2.1](https://github.com/erxes/erxes/compare/2.2.0...2.2.1) (2024-12-20)
 
 
