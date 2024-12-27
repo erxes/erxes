@@ -55,18 +55,26 @@ export const countBySegment = async (
     });
   }
 
+  console.log(`total count${segments.length}`);
+
+  let index = 0;
+
   // Count cocs by segment
   for (const s of segments) {
-    console.log({ segment: s._id });
     try {
+      console.log(`Index:${index}`);
       await qb.buildAllQueries();
       await qb.segmentFilter(s, source);
       counts[s._id] = await qb.runQueries('count');
+      console.log({ segment: s._id, count: counts[s._id] });
+      index++;
     } catch (e) {
       debugError(`Error during segment count ${e.message}`);
       counts[s._id] = 0;
     }
   }
+
+  console.log({ counts });
 
   return counts;
 };
