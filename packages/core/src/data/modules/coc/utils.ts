@@ -47,7 +47,10 @@ export const countBySegment = async (
 
   // show all contact related engages when engage
   if (source === 'engages') {
-    segments = await models.Segments.find({ name: { $exists: true } });
+    segments = await models.Segments.find({
+      name: { $exists: true },
+      contentType: 'core:lead',
+    });
   } else {
     segments = await models.Segments.find({
       contentType,
