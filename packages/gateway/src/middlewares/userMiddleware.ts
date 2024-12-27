@@ -154,11 +154,11 @@ export default async function userMiddleware(
     // verify user token and retrieve stored user information
     const decoded: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
     const user = decoded.user;
- 
+
     const userDoc = await models.Users.findOne(
       { _id: user._id },
       '_id email details isOwner groupIds brandIds username code departmentIds'
-    );
+    ).lean();
 
     if (!userDoc) {
       return next();
