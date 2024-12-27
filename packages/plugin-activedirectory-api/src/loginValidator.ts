@@ -8,7 +8,7 @@ export default {
 
     try {
       if (data.email) {
-        return await adSync(subdomain, data.email);
+        return await adSync(subdomain, data);
       }
     } catch (e) {
       return { status: false, error: `Error connecting: ${e.message}` };

@@ -10,15 +10,17 @@ const decodeDN = (dn: string) => {
 };
 
 const bindUser = async (client: any, dn, pass) => {
+  console.log(pass, 'pass');
   try {
     await client.bind(dn, pass);
+
     console.log('Connected to Active Directory');
   } catch (err) {
     return { status: false, error: `Error connect AD: ${err}` };
   }
 };
 
-export const adSync = async (subdomain, params) => {
+export const adSync = async (subdomain, data) => {
   const models = await generateModels(subdomain);
   const configs = await models.AdConfig.findOne({ code: 'ACTIVEDIRECTOR' });
 
@@ -29,7 +31,7 @@ export const adSync = async (subdomain, params) => {
   const client = new Client({ url: configs.apiUrl });
 
   if (configs.isLocalUser) {
-    await bindUser(client, configs.adminDN, configs.adminPassword);
+    await bindUser(client, data.userDN, data.password);
   }
 
   if (!configs.isLocalUser) {
@@ -46,14 +48,16 @@ export const adSync = async (subdomain, params) => {
   const searchBase = 'DC=light,DC=local'; // Base DN for searching
   const searchOptions: SearchOptions = {
     scope: 'sub', // Search entire subtree
-    filter: `(&(objectClass=user)(mail=${params}))`, // Filter for users
+    filter: `(&(objectClass=user)(mail=${data.email}))`, // Filter for users
     attributes: ['cn', 'sn', 'mail', 'samAccountName'], // Specify attributes to retrieve
   };
 
   try {
     const { searchEntries } = await client.search(searchBase, searchOptions);
 
-    const found = (searchEntries || []).find((data) => data.mail === params);
+    const found = (searchEntries || []).find(
+      (data) => data.mail === data.email
+    );
 
     if (found) {
       return { status: true, error: 'successful find user' }; // Return true if match is found
