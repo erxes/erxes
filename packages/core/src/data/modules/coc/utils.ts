@@ -62,7 +62,7 @@ export const countBySegment = async (
   // Count cocs by segment
   for (const s of segments) {
     try {
-      console.log(`Index:${index}`);
+      console.log(`Index:${index}`, `${s._id}`);
       await qb.buildAllQueries();
       await qb.segmentFilter(s, source);
       counts[s._id] = await qb.runQueries('count');
