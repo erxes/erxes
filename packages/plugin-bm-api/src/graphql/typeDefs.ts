@@ -19,6 +19,12 @@ import {
   mutations as tourMutations,
 } from './schema/tour';
 
+import {
+  types as branchTypes,
+  queries as branchQueries,
+  mutations as branchMutations,
+} from './schema/bmsbranch';
+
 const typeDefs = async () => {
   return gql`
     scalar JSON
@@ -27,16 +33,19 @@ const typeDefs = async () => {
     ${elementTypes()}
     ${itineraryTypes()}
     ${tourTypes()}
+    ${branchTypes()}
     extend type Query {
       ${itineraryQueries}
       ${elementQueries}
       ${tourQueries}
+      ${branchQueries}
     }
     
     extend type Mutation {
       ${elementMutations}
       ${itineraryMutations}
       ${tourMutations}
+      ${branchMutations}
     }
   `;
 };

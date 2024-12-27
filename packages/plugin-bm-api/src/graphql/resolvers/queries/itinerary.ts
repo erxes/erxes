@@ -4,11 +4,13 @@ import { IContext } from '../../../connectionResolver';
 const itineraryQueries = {
   async bmItineraries(
     _root,
-    { categories, page = 1, perPage = 10 },
-    { models }: IContext
+    { categories, page = 1, perPage = 10, branchId },
+    { models }: IContext,
   ) {
     const selector: any = {};
-
+    if (branchId) {
+      selector.branchId = branchId;
+    }
     const skip = Math.max(0, page - 1) * perPage;
     if (categories) {
       selector.categories = { $in: categories };

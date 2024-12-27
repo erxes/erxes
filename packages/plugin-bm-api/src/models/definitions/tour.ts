@@ -20,6 +20,9 @@ export interface ITour {
   guides: IGuideItem[];
   status: string;
   cost: number;
+  branchId: string;
+  tags: string[];
+  viewCount: number;
 }
 
 export interface ITourDocument extends ITour, Document {
@@ -45,7 +48,7 @@ export const guideItemSchema = new Schema(
     guideId: field({ type: String, optional: true }),
     type: field({ type: String, optional: true }),
   },
-  { _id: false }
+  { _id: false },
 );
 export const tourSchema = schemaHooksWrapper(
   new Schema({
@@ -76,6 +79,9 @@ export const tourSchema = schemaHooksWrapper(
       selectOptions: STATUS_TYPES,
     }),
     cost: field({ type: Number, optional: true, label: 'cost' }),
+    tags: field({ type: [String], optional: true, label: 'tags' }),
+    viewCount: field({ type: Number, optional: true, label: 'viewCount' }),
+    branchId: field({ type: String, optional: true, label: 'branchId' }),
   }),
-  'erxes_tours'
+  'erxes_tours',
 );
