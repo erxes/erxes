@@ -754,14 +754,16 @@ export const loadUserClass = (models: IModels) => {
         throw new Error('Invalid login');
       }
 
-      const valid = await this.comparePassword(password, user.password);
-
-      if (!valid) {
-        // bad password
-        throw new Error('Invalid login');
-      }
-
       const services = await getServices();
+
+      if (!services.includes('activedirectory')) {
+        const valid = await this.comparePassword(password, user.password);
+
+        if (!valid) {
+          // bad password
+          throw new Error('Invalid login');
+        }
+      }
 
       for (const serviceName of services) {
         const service = await getService(serviceName);

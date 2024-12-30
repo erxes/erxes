@@ -1,26 +1,25 @@
 import { Client, SearchOptions } from 'ldapts';
 import { generateModels } from './connectionResolver';
 
-const decodeDN = (dn: string) => {
-  const decoded = dn.replace(/\(([0-9A-Fa-f]{2})\)/g, (match, p1) => {
-    return String.fromCharCode(parseInt(p1, 16));
-  });
+const bindUser = async (
+  client: any,
+  mailOrAdminDN: string,
+  password: string,
+  userDn?: string
+) => {
+  const updateDN = userDn ? `CN=${mailOrAdminDN},${userDn}` : mailOrAdminDN;
 
-  return Buffer.from(decoded, 'binary').toString('utf8');
-};
-
-const bindUser = async (client: any, dn, pass) => {
-  console.log(pass, 'pass');
   try {
-    await client.bind(dn, pass);
-
+    await client.bind(updateDN, password);
     console.log('Connected to Active Directory');
+
+    return true;
   } catch (err) {
     return { status: false, error: `Error connect AD: ${err}` };
   }
 };
 
-export const adSync = async (subdomain, data) => {
+export const adSync = async (subdomain, params) => {
   const models = await generateModels(subdomain);
   const configs = await models.AdConfig.findOne({ code: 'ACTIVEDIRECTOR' });
 
@@ -31,40 +30,42 @@ export const adSync = async (subdomain, data) => {
   const client = new Client({ url: configs.apiUrl });
 
   if (configs.isLocalUser) {
-    await bindUser(client, data.userDN, data.password);
+    const getBind = await bindUser(
+      client,
+      params.email,
+      params.password,
+      configs.userDN
+    );
+
+    if (getBind) {
+      return { status: true, error: 'successful bind user' };
+    }
   }
 
   if (!configs.isLocalUser) {
     await bindUser(client, configs.adminDN, configs.adminPassword);
-  }
 
-  // try {
-  //   await client.bind(configs.adminDN, configs.adminPassword);
-  //   console.log('Connected to Active Directory');
-  // } catch (err) {
-  //   return { status: false, error: `Error connect AD: ${err}` };
-  // }
+    const searchBase = 'DC=light,DC=local'; // Base DN for searching
+    const searchOptions: SearchOptions = {
+      scope: 'sub', // Search entire subtree
+      filter: `(&(objectClass=user)(mail=${params.email}))`, // Filter for users
+      attributes: ['cn', 'sn', 'mail', 'samAccountName'], // Specify attributes to retrieve
+    };
 
-  const searchBase = 'DC=light,DC=local'; // Base DN for searching
-  const searchOptions: SearchOptions = {
-    scope: 'sub', // Search entire subtree
-    filter: `(&(objectClass=user)(mail=${data.email}))`, // Filter for users
-    attributes: ['cn', 'sn', 'mail', 'samAccountName'], // Specify attributes to retrieve
-  };
+    try {
+      const { searchEntries } = await client.search(searchBase, searchOptions);
 
-  try {
-    const { searchEntries } = await client.search(searchBase, searchOptions);
+      const found = (searchEntries || []).find(
+        (data) => data.mail === params.email
+      );
 
-    const found = (searchEntries || []).find(
-      (data) => data.mail === data.email
-    );
-
-    if (found) {
-      return { status: true, error: 'successful find user' }; // Return true if match is found
-    } else {
-      return { status: false, error: 'Error during search user on AD' }; // Return false if no match is found
+      if (found) {
+        return { status: true, error: 'successful find user' }; // Return true if match is found
+      } else {
+        return { status: false, error: 'Error during search user on AD' }; // Return false if no match is found
+      }
+    } catch (err) {
+      return { status: false, error: `Error during search: ${err}` };
     }
-  } catch (err) {
-    return { status: false, error: `Error during search: ${err}` };
   }
 };
