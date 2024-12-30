@@ -22,7 +22,7 @@ type Props = {
 const GeneralStep = (props: Props) => {
   const { branch, onChange } = props;
 
-  let name = 'Bms name';
+  let name = 'TMS name';
   let description: any = 'description';
 
   if (branch) {

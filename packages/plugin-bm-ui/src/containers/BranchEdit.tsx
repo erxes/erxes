@@ -43,10 +43,10 @@ const BranchEdit = (props: Props) => {
     })
       .then(data => {})
       .then(() => {
-        Alert.success('You successfully updated a pos');
+        Alert.success('You successfully updated a branch');
 
         navigate({
-          pathname: `/bms`,
+          pathname: `/tms`,
           search: '?refetchList=true',
         });
       })
