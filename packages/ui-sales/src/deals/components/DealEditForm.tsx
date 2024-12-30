@@ -47,7 +47,7 @@ type State = {
   products: (IProduct & { quantity?: number })[];
   productsData: any;
   paymentsData: IPaymentsData;
-  changePayData: IPaymentsData;
+  changePayData: { [currency: string]: number };
   updatedItem?: IItem;
   refresh: boolean;
 };
