@@ -75,6 +75,10 @@ const GeneralSettings = (props: Props) => {
             <FormControl value={apiUrl} onChange={onChangeInput} />
           </FormGroup>
           <FormGroup>
+            <ControlLabel>{'user dn'}</ControlLabel>
+            <FormControl value={userDN} onChange={onChangeUserDN} />
+          </FormGroup>
+          <FormGroup>
             <ControlLabel>{'is local user'}</ControlLabel>
             <FormControl
               componentclass="checkbox"
@@ -84,18 +88,20 @@ const GeneralSettings = (props: Props) => {
               }}
             />
           </FormGroup>
-          <FormGroup>
-            <ControlLabel>{'user dn'}</ControlLabel>
-            <FormControl value={userDN} onChange={onChangeUserDN} />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>{'admin dn'}</ControlLabel>
-            <FormControl value={adminDN} onChange={onChangeAdminDN} />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>{'admin pass'}</ControlLabel>
-            <FormControl value={adminPassword} onChange={onChangePass} />
-          </FormGroup>
+          {isLocalUser ? (
+            <>
+              <FormGroup>
+                <ControlLabel>{'admin dn'}</ControlLabel>
+                <FormControl value={adminDN} onChange={onChangeAdminDN} />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>{'admin pass'}</ControlLabel>
+                <FormControl value={adminPassword} onChange={onChangePass} />
+              </FormGroup>
+            </>
+          ) : (
+            ''
+          )}
         </CollapseContent>
       </ContentBox>
     );

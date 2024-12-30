@@ -30,11 +30,15 @@ export const configSchema = schemaWrapper(
       default: new Date(),
       label: 'Modified at',
     }),
-    apiUrl: field({ type: String, label: 'apiUrl' }),
+    apiUrl: field({ type: String, optional: true, label: 'apiUrl' }),
     isLocalUser: field({ type: Boolean, label: 'isLocalUser' }),
-    userDN: field({ type: String, label: 'userDN' }),
-    adminDN: field({ type: String, label: 'adminDN' }),
-    adminPassword: field({ type: String, label: 'adminPassword' }),
+    userDN: field({ type: String, optional: true, label: 'userDN' }),
+    adminDN: field({ type: String, optional: true, label: 'adminDN' }),
+    adminPassword: field({
+      type: String,
+      optional: true,
+      label: 'adminPassword',
+    }),
     code: field({ type: String, label: 'code' }),
   })
 );

@@ -29,7 +29,7 @@ export const adSync = async (subdomain, params) => {
 
   const client = new Client({ url: configs.apiUrl });
 
-  if (configs.isLocalUser) {
+  if (!configs.isLocalUser) {
     const getBind = await bindUser(
       client,
       params.email,
@@ -42,7 +42,7 @@ export const adSync = async (subdomain, params) => {
     }
   }
 
-  if (!configs.isLocalUser) {
+  if (configs.isLocalUser) {
     await bindUser(client, configs.adminDN, configs.adminPassword);
 
     const searchBase = 'DC=light,DC=local'; // Base DN for searching
