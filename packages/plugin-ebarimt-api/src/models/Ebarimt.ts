@@ -1,11 +1,11 @@
 import fetch from 'node-fetch';
 import {
-  IEbarimtConfig,
   IEbarimt,
   IEbarimtDocument,
   ebarimtSchema,
   IEbarimtFull
 } from './definitions/ebarimt';
+import { IEbarimtConfig } from './definitions/configs';
 import { IDoc, getEbarimtData } from './utils';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';

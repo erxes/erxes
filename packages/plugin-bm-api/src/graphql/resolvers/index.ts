@@ -15,6 +15,9 @@ import queriesOrder from './queries/order';
 import ElementItem from './elementItemResolver';
 import Element from './element';
 
+import mutationBranch from './mutations/branch';
+import queriesBranch from './queries/branch';
+
 import Tour from './tourResolver';
 
 const resolvers: any = async () => ({
@@ -27,12 +30,14 @@ const resolvers: any = async () => ({
     ...mutationItinerary,
     ...mutationTour,
     ...mutationOrder,
+    ...mutationBranch,
   },
   Query: {
     ...queriesElement,
     ...queriesItinerary,
     ...queriesTour,
     ...queriesOrder,
+    ...queriesBranch,
   },
 });
 

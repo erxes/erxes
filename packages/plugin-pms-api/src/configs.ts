@@ -10,7 +10,6 @@ import { getOrderInfo } from './routes';
 
 export default {
   name: 'pms',
-  permissions,
 
   graphql: async () => {
     return {
@@ -34,6 +33,6 @@ export default {
   meta: {
     // afterMutations,
     // afterQueries,
-    // permissions,
+    permissions,
   },
 };

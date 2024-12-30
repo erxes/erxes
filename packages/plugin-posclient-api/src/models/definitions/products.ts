@@ -11,6 +11,7 @@ import {
   PRODUCT_STATUSES,
   PRODUCT_TYPES
 } from './constants';
+import { IPdfAttachment } from '@erxes/api-utils/src/types';
 
 interface IAttachment {
   url: string;
@@ -35,6 +36,15 @@ export interface IPrice {
   [token: string]: number;
 }
 
+interface ITaxRule {
+  [token: string]: {
+    taxType?: string;
+    taxCode?: string;
+    citytaxCode?: string;
+    citytaxPercent?: number;
+  }
+}
+
 export interface IProduct extends IProductCommonFields {
   categoryId?: string;
   shortName?: string;
@@ -51,11 +61,12 @@ export interface IProduct extends IProductCommonFields {
   attachmentMore?: IAttachment[];
   uom?: string;
   subUoms?: ISubUom[];
-  taxType?: string;
-  taxCode?: string;
   isCheckRems: { [token: string]: boolean };
   sameMasks?: string[];
   sameDefault?: string[];
+  pdfAttachment?: IPdfAttachment;
+
+  taxRules?: ITaxRule;
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -138,6 +149,11 @@ export const productSchema = schemaWrapper(
       type: Object,
       label: 'Unit price by token'
     }),
+    taxRules: field({
+      type: Object,
+      optional: true,
+      label: 'tax rules by token'
+    }),
     customFieldsData: field({
       type: [customFieldSchema],
       optional: true,
@@ -156,15 +172,14 @@ export const productSchema = schemaWrapper(
     mergedIds: field({ type: [String], optional: true }),
     attachmentMore: field({ type: [attachmentSchema] }),
     tokens: field({ type: [String] }),
-    taxType: field({ type: String, optional: true, label: 'VAT type' }),
-    taxCode: field({ type: String, optional: true, label: '' }),
     isCheckRems: field({
       type: Object,
       optional: true,
       label: 'check remainder by token'
     }),
     sameMasks: field({ type: [String] }),
-    sameDefault: field({ type: [String] })
+    sameDefault: field({ type: [String] }),
+    pdfAttachment: field({ type: Object, optional: true, label: 'PDF attachment' })
   })
 );
 

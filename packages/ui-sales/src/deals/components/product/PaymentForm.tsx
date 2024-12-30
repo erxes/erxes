@@ -23,7 +23,7 @@ type Props = {
   currencies: string[];
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
   calcChangePay: () => void;
-  changePayData: { currency?: string; amount?: number };
+  changePayData: { [currency: string]: number };
   pipelineDetail: any;
 };
 
@@ -65,18 +65,16 @@ class PaymentForm extends React.Component<Props, State> {
     const { onChangePaymentsData, calcChangePay } = this.props;
     const { paymentsData } = this.state;
 
-    if (!paymentsData[name]) {
-      paymentsData[name] = {};
-    }
-    paymentsData[name][kind] = value;
+    const newPaymentData = { ...paymentsData, [name]: { ...paymentsData[name], [kind]: value } }
 
-    calcChangePay();
-    this.setState({ paymentsData });
-    onChangePaymentsData(paymentsData);
+    onChangePaymentsData(newPaymentData);
+    this.setState({ paymentsData: newPaymentData }, () => {  
+      calcChangePay();
+    });
   };
 
   selectOption = option => (
-    <div className='simple-option'>
+    <div className='simple-option' key={option.label}>
       <span>{option.label}</span>
     </div>
   );
@@ -97,7 +95,7 @@ class PaymentForm extends React.Component<Props, State> {
       this.paymentStateChange(
         'amount',
         NAME,
-        parseFloat((e.target as HTMLInputElement).value || '0')
+        parseFloat((e.target as HTMLInputElement).value || '0'),
       );
     };
 
@@ -131,7 +129,7 @@ class PaymentForm extends React.Component<Props, State> {
 
     const Option = props => {
       return (
-        <components.Option {...props}>
+        <components.Option {...props} key={type}>
           {this.selectOption(props.data)}
         </components.Option>
       );
@@ -162,7 +160,7 @@ class PaymentForm extends React.Component<Props, State> {
             value={selectOptions.find(
               option =>
                 option.value ===
-                (paymentsData[NAME] ? paymentsData[NAME].currency : 0)
+                (paymentsData[NAME] ? paymentsData[NAME].currency : 0),
             )}
             onChange={currencyOnChange}
             components={{ Option }}
@@ -176,9 +174,10 @@ class PaymentForm extends React.Component<Props, State> {
 
   renderPayments() {
     const part1 = PAYMENT_TYPES.map(type => this.renderPaymentsByType(type));
-    const part2 = this.props.pipelineDetail.paymentTypes.map(type =>
-      this.renderPaymentsByType(type)
-    );
+    const part2 =
+      this.props.pipelineDetail?.paymentTypes?.map(type =>
+        this.renderPaymentsByType(type),
+      ) || [];
     return [...part1, ...part2];
   }
 

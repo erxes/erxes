@@ -12,7 +12,7 @@ import {
 } from "@/store/order.store"
 import { showRecieptAtom } from "@/store/progress.store"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
-import { CircleCheckIcon, PrinterIcon } from "lucide-react"
+import { CheckCircleIcon, PrinterIcon } from "lucide-react"
 
 import { ORDER_TYPES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
@@ -72,7 +72,7 @@ const BuyAction = () => {
                 setTimeout(orderCU)
               }}
             >
-              <CircleCheckIcon size={16} className="mr-2" />
+              <CheckCircleIcon size={16} className="mr-2" />
               Захиалах
             </DropdownMenuItem>
             <DropdownMenuItem

@@ -12,14 +12,12 @@ import { AttachmentContainer, UploadBtn } from '../styles/main';
 const apiRequest = async (url: string, options: RequestInit) => {
   const response = await fetch(url, options);
 
-  console.debug('API Response:', response);
-
   if (response.status === 524) {
     console.warn('Ignoring 524 Timeout error');
 
     const status = url.includes('upload-status') ? 'processing' : 'uploading';
 
-    return { progress: 0, status }; 
+    return { progress: 0, status };
   }
 
   if (!response.ok) {
@@ -120,7 +118,6 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
     setStatus('Uploading...');
     try {
       if (file.size < MAX_FILE_SIZE) {
-        
         const formData = new FormData();
         formData.append('file', file);
         formData.append('filename', file.name);
@@ -204,36 +201,60 @@ const PdfUploader = ({ attachment, onChange }: Props) => {
     }
   }, [uploadState.taskId, uploadState.lastChunkUploaded]);
 
-  return attachment ? (
-    <AttachmentContainer>
-      <Attachment
-        attachment={{
-          name: 'PDF',
-          url: '',
-          type: 'application/pdf',
-        }}
-        additionalItem={
+  const renderAttachments = () => {
+    if (!attachment || !attachment?.pages?.length) {
+      return null;
+    }
+    return (
+      <AttachmentContainer>
+        <Attachment
+          attachment={{
+            name: 'PDF',
+            url: '',
+            type: 'application/pdf',
+          }}
+          additionalItem={
+            <>
+              <p>{`${__('Number of pages')}: ${attachment.pages?.length}`}</p>
+              <a onClick={() => onChange(undefined)}>{__('Delete')}</a>
+            </>
+          }
+        />
+      </AttachmentContainer>
+    );
+  };
+
+  const renderButton = () => {
+    if (attachment && attachment?.pages?.length) {
+      return null;
+    }
+
+    return (
+      <UploadBtn>
+        {isUploading ? (
           <>
-            <p>{`${__('Number of pages')}: ${attachment.pages.length}`}</p>
-            <a onClick={() => onChange(undefined)}>{__('Delete')}</a>
+            <p>{__(status)} </p>
+            <Spinner size={20} />
           </>
-        }
-      />
-    </AttachmentContainer>
-  ) : (
-    <UploadBtn>
-      {isUploading ? (
-        <>
-          <p>{__(status)} </p>
-          <Spinner size={20} />
-        </>
-      ) : (
-        <label>
-          {__('Upload a PDF')}
-          <input type='file' accept='application/pdf' onChange={handleUpload} />
-        </label>
-      )}
-    </UploadBtn>
+        ) : (
+          <label>
+            {__('Upload a PDF')}
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={handleUpload}
+            />
+          </label>
+        )}
+      </UploadBtn>
+    );
+  };
+
+  return (
+    <>
+      {renderAttachments()}
+      {renderButton()}
+    </>
   );
 };
 

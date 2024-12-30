@@ -1,11 +1,11 @@
 module.exports = {
-  multierkhet: {
-    name: "multierkhet",
-    description: "Multi Erkhet",
+  pms: {
+    name: 'pmsConfig',
+    description: 'pmsConfig',
     actions: [
       {
-        name: "multiErkhetConfig",
-        description: "Manage Multi Erkhet config",
+        name: 'pmsConfig',
+        description: 'pmsConfig',
       },
     ],
   },

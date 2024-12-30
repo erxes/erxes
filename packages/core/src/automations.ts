@@ -170,8 +170,10 @@ export default {
     const models = await generateModels(subdomain);
     const { type, config } = data;
 
+    const ids = config[`${type}Ids`];
+
     const commonFilter = {
-      _id: { $in: config[`${type}Ids`] }
+      _id: { $in: Array.isArray(ids) ? ids : [ids] }
     };
 
     if (type === "user") {
@@ -183,13 +185,12 @@ export default {
     const CONTACT_TYPES = {
       lead: {
         model: models.Customers,
-        filter: { ...commonFilter, state: "lead" }
+        filter: { ...commonFilter }
       },
       customer: {
         model: models.Customers,
         filter: {
-          ...commonFilter,
-          state: "customer"
+          ...commonFilter
         }
       },
       company: {

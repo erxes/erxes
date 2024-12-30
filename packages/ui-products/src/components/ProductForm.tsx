@@ -12,7 +12,7 @@ import {
 } from "@erxes/ui/src/types";
 import { IProduct, IProductCategory, IUom, IVariant } from "../types";
 import React, { useEffect, useState } from "react";
-import { TAX_TYPES, TYPES } from "../constants";
+import { TYPES } from "../constants";
 import { __, router } from "@erxes/ui/src/utils/core";
 
 import ActionButtons from "@erxes/ui/src/components/ActionButtons";
@@ -57,8 +57,6 @@ type State = {
   description: string;
   uom: string;
   subUoms: { _id: string; uom: string; ratio: number }[];
-  taxType: string;
-  taxCode: string;
   scopeBrandIds: string[];
   categoryId: string;
   code: string;
@@ -80,8 +78,6 @@ const Form = (props: Props) => {
     description,
     uom,
     subUoms,
-    taxType,
-    taxCode,
     scopeBrandIds,
     code,
     categoryId,
@@ -106,8 +102,6 @@ const Form = (props: Props) => {
     description: description || "",
     uom: uom || "",
     subUoms: subUoms || [],
-    taxType: taxType || "",
-    taxCode: taxCode || "",
     scopeBrandIds,
     code: code || "",
     categoryId: categoryId || paramCategoryId,
@@ -433,16 +427,6 @@ const Form = (props: Props) => {
     }));
   };
 
-  const onTaxChange = (e) => {
-    setState(
-      (prevState) =>
-        ({
-          ...prevState,
-          [e.target.name]: e.target.value,
-        }) as any
-    );
-  };
-
   const onChangeCateogry = (option) => {
     const value = option.value;
 
@@ -596,8 +580,6 @@ const Form = (props: Props) => {
       vendorId,
       description,
       barcodeDescription,
-      taxType,
-      taxCode,
       scopeBrandIds,
       code,
       categoryId,
@@ -730,35 +712,6 @@ const Form = (props: Props) => {
                 initialValue={vendorId}
                 onSelect={onComboEvent.bind(this, 'vendorId')}
                 multi={false}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Tax Type</ControlLabel>
-              <FormControl
-                {...formProps}
-                name='taxType'
-                componentclass='select'
-                onChange={onTaxChange}
-                defaultValue={taxType}
-                options={[
-                  { value: '', label: 'default' },
-                  ...Object.keys(TAX_TYPES).map((type) => ({
-                    value: type,
-                    label: TAX_TYPES[type].label,
-                  })),
-                ]}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Tax Code</ControlLabel>
-
-              <FormControl
-                {...formProps}
-                name='taxCode'
-                componentclass='select'
-                onChange={onTaxChange}
-                defaultValue={taxCode}
-                options={(TAX_TYPES[taxType || ''] || {}).options || []}
               />
             </FormGroup>
           </FormColumn>

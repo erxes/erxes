@@ -26,7 +26,6 @@ type FinalProps = {
   EditMutationResponse;
 
 const CustomFieldsSection = (props: FinalProps) => {
-  console.log("custom field section")
   const {
     customer,
     customersEdit,

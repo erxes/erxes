@@ -103,7 +103,7 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data: { selector } }) => {
       const models = await generateModels(subdomain);
 
-      console.log(
+      console.debug(
         "clientportal:clientPortalEngageNotifications.count",
         selector
       );
@@ -314,7 +314,7 @@ export const sendKbMessage = async (
 
 export const sendCommonMessage = async (
   args: MessageArgs & { serviceName: string }
-) => {
+): Promise<any> => {
   return sendMessage({
     ...args
   });

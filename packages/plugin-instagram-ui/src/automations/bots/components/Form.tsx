@@ -56,7 +56,7 @@ function removeNullAndTypename(obj) {
       cleanedObj[key] = removeNullAndTypename(obj[key]);
     }
     if (key === "persistentMenus" && Array.isArray(obj[key])) {
-      cleanedObj[key] = obj[key].map(item => {
+      cleanedObj[key] = obj[key].map((item) => {
         const { isEditing, ...rest } = item;
         return removeNullAndTypename(rest);
       });
@@ -73,7 +73,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
 
   useEffect(() => {
     if (!bot && selectedAccount) {
-      fetchPageDetail(selectedAccount, doc.pageId).then(response => {
+      fetchPageDetail(selectedAccount, doc.pageId).then((response) => {
         setDoc({
           ...doc,
           profileUrl: response?.profileUrl,
@@ -83,7 +83,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
     }
   }, [doc.pageId]);
 
-  const generateDoc = values => {
+  const generateDoc = (values) => {
     return { ...removeNullAndTypename(doc || {}), ...values };
   };
 
@@ -98,7 +98,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
       setDoc({ ...doc, [name]: value });
     };
 
-    const onChangeGreetText = e => {
+    const onChangeGreetText = (e) => {
       const { value } = e.currentTarget as HTMLInputElement;
 
       if (value.length > 160) {
@@ -108,7 +108,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
       onChange("greetText", value);
     };
 
-    const onChangeBackButtonInput = e => {
+    const onChangeBackButtonInput = (e) => {
       const { value } = e.currentTarget as HTMLInputElement;
       if (value.length > 20) {
         return null;
@@ -120,13 +120,12 @@ function Form({ renderButton, bot, returnToList }: Props) {
       <>
         <Steps>
           <Step
-            title="Select Account"
-            img="/images/icons/erxes-01.svg"
-            onClick={() => setLastStep(false)}
-          >
+            title='Select Account'
+            img='/images/icons/erxes-01.svg'
+            onClick={() => setLastStep(false)}>
             <Padding>
               <Accounts
-                kind="instagram"
+                kind='instagram'
                 selectedAccountId={doc?.accountId}
                 onRemove={() => null}
                 onSelect={(accountId, account) => {
@@ -136,11 +135,10 @@ function Form({ renderButton, bot, returnToList }: Props) {
             </Padding>
           </Step>
           <Step
-            title="Select Your Page"
-            img="/images/icons/erxes-04.svg"
+            title='Select Your Page'
+            img='/images/icons/erxes-04.svg'
             next={() => setLastStep(true)}
-            onClick={() => setLastStep(false)}
-          >
+            onClick={() => setLastStep(false)}>
             <Padding>
               <Features isToggled={doc?.accountId}>
                 <FormGroup>
@@ -155,60 +153,40 @@ function Form({ renderButton, bot, returnToList }: Props) {
             </Padding>
           </Step>
           <Step
-            title="Bot Setup"
-            img="/images/icons/erxes-24.svg"
+            title='Bot Setup'
+            img='/images/icons/erxes-24.svg'
             noButton
             back={() => setLastStep(false)}
-            onClick={() => setLastStep(true)}
-          >
+            onClick={() => setLastStep(true)}>
             <Padding>
               <FormGroup>
                 <ControlLabel>{__("Name")}</ControlLabel>
                 <p>{__("Name this bot to differentiate from the rest")}</p>
                 <FormControl
                   {...formProps}
-                  name="name"
+                  name='name'
                   required
                   defaultValue={doc?.name}
                 />
               </FormGroup>
-              <ControlLabel>
-                <FlexRow $alignItems="center">
-                  {__("Persistent Menu")}
-
-                  <HelpPopover title="">
-                    "A Persistent Menu is a quick-access toolbar in your chat.
-                    Customize it below for easy navigation to key bot features."
-                  </HelpPopover>
-                </FlexRow>
-              </ControlLabel>
-              <ButtonsGenerator
-                _id=""
-                buttons={doc.persistentMenus || []}
-                addButtonLabel="Add Persistent Menu"
-                onChange={(_id, _name, values) =>
-                  onChange("persistentMenus", values)
-                }
-                limit={5}
-              />
             </Padding>
           </Step>
           <Step
             title={__("Additional Bot Setup")}
             noButton
-            img="/images/icons/erxes-12.svg"
+            img='/images/icons/erxes-12.svg'
             back={() => setLastStep(true)}
-            onClick={() => setLastStep(true)}
-          >
+            onClick={() => setLastStep(true)}>
             <Padding>
               <FormGroup>
                 <ControlLabel>{__("Greet Message (Optional)")}</ControlLabel>
                 <FieldInfo
-                  error={doc?.greetText?.length > 160}
-                >{`${doc?.greetText?.length || 0}/160`}</FieldInfo>
+                  error={
+                    doc?.greetText?.length > 160
+                  }>{`${doc?.greetText?.length || 0}/160`}</FieldInfo>
                 <FormControl
-                  name="greetMessage"
-                  componentclass="textarea"
+                  name='greetMessage'
+                  componentclass='textarea'
                   placeholder={__("Type a greet message for your messenger")}
                   defaultValue={doc.greetText}
                   onChange={onChangeGreetText}
@@ -217,27 +195,30 @@ function Form({ renderButton, bot, returnToList }: Props) {
               <FormGroup>
                 <p>
                   You are sending a message outside the 7 days messaging window.
-                  Instagram requires a tag to be added to this message. Select
+                  Facebook requires a tag to be added to this message. Select
                   one of the following tags to send the message.
                 </p>
                 <ControlLabel>Tag</ControlLabel>
                 <FormControl
-                  id="instagram-message-tag"
-                  componentclass="select"
-                  placeholder={__("Select Instagram Tag") as string}
+                  id='facebook-message-tag'
+                  componentclass='select'
+                  placeholder={__("Select Facebook Tag") as string}
                   defaultValue={doc.tag || ""}
-                  onChange={e =>
+                  onChange={(e) =>
                     setDoc({
                       ...doc,
                       tag: (e.currentTarget as HTMLInputElement)?.value
                     })
-                  }
-                >
-                  <option key={""} value={""}>
+                  }>
+                  <option
+                    key={""}
+                    value={""}>
                     {""}
                   </option>
-                  {tags.map(tag => (
-                    <option key={tag.value} value={tag.value}>
+                  {tags.map((tag) => (
+                    <option
+                      key={tag.value}
+                      value={tag.value}>
                       {tag.label}
                     </option>
                   ))}
@@ -250,10 +231,9 @@ function Form({ renderButton, bot, returnToList }: Props) {
                   may result in restrictions on the Page's ability to send
                   messages.
                   <a
-                    href="https://developers.instagram.com/docs/messenger-platform/send-messages/message-tags/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                    href='https://developers.facebook.com/docs/messenger-platform/send-messages/message-tags/'
+                    target='_blank'
+                    rel='noopener noreferrer'>
                     {__("Learn more")}
                   </a>
                 </FacebookTagText>
@@ -276,10 +256,13 @@ function Form({ renderButton, bot, returnToList }: Props) {
                         {__("Back Button Text (optional)")}
                       </ControlLabel>
                       <FieldInfo
-                        error={doc?.backButtonText?.length > 20}
-                      >{`${doc?.backButtonText?.length || 0}/20`}</FieldInfo>
+                        error={
+                          doc?.backButtonText?.length > 20
+                        }>{`${doc?.backButtonText?.length || 0}/20`}</FieldInfo>
                       <FormControl
-                        placeholder={__("Set custom back button text for the persistent menu")}
+                        placeholder={__(
+                          "Set custom back button text for the persistent menu"
+                        )}
                         value={doc.backButtonText || ""}
                         onChange={onChangeBackButtonInput}
                       />
@@ -292,7 +275,9 @@ function Form({ renderButton, bot, returnToList }: Props) {
         </Steps>
         <ModalFooter>
           <Padding>
-            <Button btnStyle="simple" onClick={returnToList}>
+            <Button
+              btnStyle='simple'
+              onClick={returnToList}>
               {__("Cancel")}
             </Button>
             {renderButton({
@@ -327,11 +312,13 @@ function Form({ renderButton, bot, returnToList }: Props) {
           <MessengerPreview>
             <Preview fullHeight>
               <EmulatorWrapper>
-                <MobileEmulator disabled={!doc?.pageId} isLastStep={isLastStep}>
-                  <div className="top-bar">
-                    <div className="dynamic-island" />
+                <MobileEmulator
+                  disabled={!doc?.pageId}
+                  isLastStep={isLastStep}>
+                  <div className='top-bar'>
+                    <div className='dynamic-island' />
                   </div>
-                  <div className="profile">
+                  <div className='profile'>
                     <Avatar
                       src={
                         doc?.profileUrl
@@ -343,10 +330,9 @@ function Form({ renderButton, bot, returnToList }: Props) {
                   </div>
                   {!isLastStep ? (
                     <>
-                      <div className="getStarted">
+                      <div className='getStarted'>
                         <p>{doc?.greetText || ""}</p>
                         <span>tap to send</span>
-                        <button>Get Started</button>
                       </div>
                       <span>
                         {`You started a chat with ${
@@ -355,23 +341,22 @@ function Form({ renderButton, bot, returnToList }: Props) {
                     this chat to improve your experience.`}
                         <br />
                         <a
-                          href={`https://www.instagram.com/profile.php?id=${doc?.pageId}#`}
-                          target="_blank"
-                        >
+                          href={`https://www.facebook.com/profile.php?id=${doc?.pageId}#`}
+                          target='_blank'>
                           Learn about business chats and your privacy.
                         </a>
                       </span>
                     </>
                   ) : (
                     <>
-                      <div className="content">
-                        <div className="inputField">
-                          <input type="text" />
+                      <div className='content'>
+                        <div className='inputField'>
+                          <input type='text' />
                           <button>
-                            <Icon icon="send" />
+                            <Icon icon='send' />
                           </button>
                         </div>
-                        <div className="message-row">
+                        <div className='message-row'>
                           <Avatar
                             src={
                               doc?.profileUrl
@@ -382,8 +367,8 @@ function Form({ renderButton, bot, returnToList }: Props) {
                           <span>{doc?.greetText || "Get Started"}</span>
                         </div>
                       </div>
-                      <div className="persistentMenu">
-                        <div className="dragger" />
+                      <div className='persistentMenu'>
+                        <div className='dragger' />
                         <ul>
                           {(doc?.persistentMenus || [])
                             .concat(
@@ -396,7 +381,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
                                   ]
                                 : []
                             )
-                            .map(menu => (
+                            .map((menu) => (
                               <li key={menu._id}>{menu.text || ""}</li>
                             ))}
                         </ul>

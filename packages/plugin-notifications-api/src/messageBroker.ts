@@ -12,6 +12,7 @@ import {
   consumeQueue,
   consumeRPCQueue
 } from "@erxes/api-utils/src/messageBroker";
+import { debugError } from "@erxes/api-utils/src/debuggers";
 
 interface ISendNotification {
   createdUser;
@@ -46,8 +47,6 @@ const sendNotification = async (
   // remove duplicated ids
   const receiverIds = Array.from(new Set(receivers));
 
-  console.log({ receiverIds });
-
   await sendCoreMessage({
     subdomain,
     action: "users.updateMany",
@@ -79,7 +78,6 @@ const sendNotification = async (
   const toEmails: string[] = [];
 
   for (const recipient of recipients) {
-    console.log({ email: recipient?.email });
     if (recipient.getNotificationByEmail && recipient.email) {
       toEmails.push(recipient.email);
     }
@@ -119,7 +117,7 @@ const sendNotification = async (
     }
   } // end receiverIds loop
 
-  const DOMAIN = getEnv({ name: "DOMAIN" });
+  const DOMAIN = getEnv({ name: "DOMAIN", subdomain });
 
   link = `${DOMAIN}${link}`;
 
@@ -131,8 +129,6 @@ const sendNotification = async (
       data.uid = user._id;
     }
   };
-
-  console.log({ toEmails });
 
   try {
     sendCoreMessage({
@@ -153,7 +149,7 @@ const sendNotification = async (
       }
     });
   } catch (err) {
-    console.log({ err, toEmails });
+    debugError(err.message);
   }
 };
 

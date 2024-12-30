@@ -57,7 +57,10 @@ const pullPolarisQueries = {
           }
         }
       } catch (e) {
-
+        result.push({
+          ...conf,
+          response: { error: e.message }
+        })
       }
     }
 

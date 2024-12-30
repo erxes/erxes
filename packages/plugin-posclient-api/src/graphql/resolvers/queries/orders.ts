@@ -41,10 +41,11 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
     slotCode,
   } = params;
 
-  const filter: any = {
+  const mustFilter: any = {
     $or: [{ posToken: config.token }, { subToken: config.token }],
   };
 
+  const filter: any = {};
   if (searchValue) {
     filter.$or = [
       { number: { $regex: new RegExp(escapeRegExp(searchValue), 'i') } },
@@ -62,6 +63,10 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
 
   if (saleStatus) {
     filter.saleStatus = saleStatus;
+  }
+
+  if (statuses.length) {
+    filter.status = { $in: statuses }
   }
 
   if (customerType) {
@@ -108,7 +113,7 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
     filter.dueDate = dueDateQry;
   }
 
-  return { ...filter, status: { $in: statuses } };
+  return { $and: [{ ...mustFilter }, { ...filter }] };
 };
 
 const filterOrders = (params: ISearchParams, models, config) => {

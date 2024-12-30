@@ -69,7 +69,7 @@ export default function RightSidebar(props: Props) {
         />
       </>
 
-      {isEnabled('cards') && (
+      {isEnabled('sales') && (
         <DealSection contract={contract} />
       )}
 

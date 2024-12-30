@@ -5,7 +5,7 @@ import {
   sendCoreMessage
 } from "./messageBroker";
 import { IPosDocument } from "./models/definitions/pos";
-import { getChildCategories } from "./utils";
+import { calcProductsTaxRule, getChildCategories } from "./utils";
 
 const handler = async (
   subdomain,
@@ -204,6 +204,15 @@ export const afterMutationHandlers = async (subdomain, params) => {
           } else {
             params.object.unitPrice = unitPrice;
             params.object.isCheckRem = isCheckRem;
+          }
+        }
+
+        const productById = await calcProductsTaxRule(subdomain, pos.ebarimtConfig, [item]);
+        if (productById[item._id]?.taxRule) {
+          if (params.updatedDocument) {
+            params.updatedDocument.taxRule = productById[item._id].taxRule;
+          } else {
+            params.object.taxRule = productById[item._id].taxRule;
           }
         }
 

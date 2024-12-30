@@ -74,7 +74,15 @@ export default {
         icon: "lamp",
         label: "Pos order",
         description:
-          "Start with a blank workflow that enrolls and is triggered off Pos orders"
+          "Start with a blank workflow that enrolls and is triggered off Pos orders",
+        additionalAttributes: [
+          {
+            _id: Math.random(),
+            name: "customerId",
+            label: "Customer",
+            type: "customer"
+          }
+        ]
       },
       {
         type: "pos:posOrder.paid",
@@ -83,7 +91,15 @@ export default {
         label: "Pos order when paid",
         isCustom: true,
         description:
-          "Start with a blank workflow that enrolls and is triggered off Pos order paid"
+          "Start with a blank workflow that enrolls and is triggered off Pos order paid",
+        additionalAttributes: [
+          {
+            _id: Math.random(),
+            name: "customerId",
+            label: "Customer",
+            type: "customer"
+          }
+        ]
       }
     ]
   },

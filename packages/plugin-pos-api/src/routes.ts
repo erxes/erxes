@@ -1,5 +1,5 @@
 import { generateModels, IModels } from './connectionResolver';
-import { getChildCategories, getConfig } from './utils';
+import { calcProductsTaxRule, getChildCategories, getConfig } from './utils';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { IPosDocument } from './models/definitions/pos';
 import {
@@ -136,6 +136,8 @@ export const getProductsData = async (
       defaultValue: []
     });
 
+    const productsById = await calcProductsTaxRule(subdomain, pos.ebarimtConfig, products)
+
     const pricing = await sendPricingMessage({
       subdomain,
       action: 'checkPricing',
@@ -157,8 +159,10 @@ export const getProductsData = async (
       timeout: 290000
     });
 
-    for (const product of products) {
-      const discount = pricing[product._id] || {};
+    for (const productId of Object.keys(productsById)) {
+      const product = productsById[productId];
+
+      const discount = pricing[productId] || {};
 
       if (Object.keys(discount).length) {
         product.unitPrice -= discount.value;

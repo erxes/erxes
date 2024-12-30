@@ -44,8 +44,6 @@ const typeDefs = async () => {
     knowledgebase: kbAvailable,
   };
 
-  console.log('enabledPlugins', enabledPlugins);
-
   return gql`
     scalar JSON
     scalar Date
