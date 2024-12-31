@@ -1,7 +1,8 @@
 import { Client, SearchOptions } from 'ldapts';
 import { generateModels } from './connectionResolver';
+import { sendCoreMessage } from './messageBroker';
 
-const bindUser = async (
+export const bindUser = async (
   client: any,
   mailOrAdminDN: string,
   password: string,
@@ -67,5 +68,47 @@ export const adSync = async (subdomain, params) => {
     } catch (err) {
       return { status: false, error: `Error during search: ${err}` };
     }
+  }
+};
+
+export const consumeUser = async (subdomain, doc, action) => {
+  const user = await sendCoreMessage({
+    subdomain,
+    action: 'users.findOne',
+    data: { _id: doc._id },
+    isRPC: true,
+    defaultValue: {},
+  });
+
+  if (action === 'update' || action === 'create') {
+    const document: any = {
+      isActive: true,
+      email: doc.mail,
+      username: doc.sAMAccountName,
+      // password: doc.password,
+    };
+
+    if (user) {
+      await sendCoreMessage({
+        subdomain,
+        action: 'users.updateOne',
+        data: { _id: user._id, doc: { ...document } },
+        isRPC: true,
+      });
+    } else {
+      await sendCoreMessage({
+        subdomain,
+        action: 'users.create',
+        data: { doc: { ...document } },
+        isRPC: true,
+      });
+    }
+  } else if (action === 'delete' && user) {
+    await sendCoreMessage({
+      subdomain,
+      action: 'products.removeProducts',
+      data: { _ids: [user._id] },
+      isRPC: true,
+    });
   }
 };
