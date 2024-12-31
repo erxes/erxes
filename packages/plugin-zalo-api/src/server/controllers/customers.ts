@@ -17,7 +17,7 @@ export const createOrUpdateCustomer = async (
   delete data.oa_id;
   delete data.checkFollower;
 
-  let hasData = Object.keys(data).length > 1;
+  Object.keys(data).length > 1;
 
   let customer = await models.Customers.findOne({
     userId: data.userId,
@@ -48,9 +48,8 @@ export const createOrUpdateCustomer = async (
       to_display_name,
       from_avatar,
       to_avatar,
-    } = zaloUser?.data?.[0];
+    } = zaloUser?.data?.[0]||{};
 
-    const userId = src ? from_id : to_id;
     firstName = src ? from_display_name : to_display_name;
     const avatar = src ? from_avatar : to_avatar;
 
