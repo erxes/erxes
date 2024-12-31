@@ -1,4 +1,4 @@
-import { Document, Model, model, Schema } from 'mongoose';
+import { Document, Model, Schema } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { field } from './utils';
 
@@ -34,7 +34,7 @@ export interface IIntegration {
   error?: string;
 }
 
-export interface IIntegrationDocument extends IIntegration, Document {}
+export interface IIntegrationDocument extends IIntegration, Document { }
 
 // schema for integration document
 export const integrationSchema = new Schema({

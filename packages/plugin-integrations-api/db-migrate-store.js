@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-class dbStore {
+class DbStore {
   constructor() {
 
     this.url = process.env.MONGO_URL
@@ -25,8 +25,8 @@ class dbStore {
         const store = data[0]
 
         // Check if old format and convert if needed
-        if (!Object.prototype.hasOwnProperty.call(store, 'lastRun') &&
-          Object.prototype.hasOwnProperty.call(store, 'pos')) {
+        if (!Object.hasOwn(store, 'lastRun') &&
+          Object.hasOwn(store, 'pos')) {
 
           if (store.pos === 0) {
             store.lastRun = null
@@ -45,7 +45,7 @@ class dbStore {
         }
 
         // Check if does not have required properties
-        if (!Object.prototype.hasOwnProperty.call(store, 'lastRun') || !Object.prototype.hasOwnProperty.call(store, 'migrations'))
+        if (!Object.hasOwn(store, 'lastRun') || !Object.hasOwn(store, 'migrations'))
           return fn(new Error('Invalid store file'))
 
         return fn(null, store)
@@ -63,4 +63,4 @@ class dbStore {
   }
 }
 
-module.exports = dbStore;
+module.exports = DbStore;
