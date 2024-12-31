@@ -1,8 +1,7 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes , useLocation, useParams } from "react-router-dom";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import queryString from "query-string";
-import { useLocation, useParams } from "react-router-dom";
 
 const FileManager = asyncComponent(
   () =>
