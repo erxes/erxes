@@ -15,3 +15,15 @@ export type ConfigsQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type ToCheckUsersMutationResponse = {
+  toCheckAdUsers: (mutation: {
+    variables: { usercode: string; userpass: string };
+  }) => Promise<any>;
+};
+
+export type ToSyncUsersMutationResponse = {
+  toSyncAdUsers: (mutation: {
+    variables: { action: string; users: any[] };
+  }) => Promise<any>;
+};

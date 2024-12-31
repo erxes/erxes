@@ -24,7 +24,7 @@ const adMutations = {
     const users = await sendCoreMessage({
       subdomain,
       action: 'users.find',
-      data: {},
+      data: { query: { isActive: true } },
       isRPC: true,
     });
 
@@ -81,7 +81,7 @@ const adMutations = {
         count: updateUsers.length,
         items: updateUsers,
       },
-      delete: {
+      inactive: {
         count: deleteUsers.length,
         items: deleteUsers,
       },

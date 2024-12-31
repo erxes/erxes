@@ -24,6 +24,20 @@ const adConfigUpdate = `
   }
 `;
 
+const toCheckUsers = `
+  mutation toCheckAdUsers($usercode: String, $userpass: String) {
+    toCheckAdUsers(usercode: $usercode, userpass: $userpass)
+  }
+`;
+
+const toSyncUsers = `
+  mutation toSyncAdUsers($action: String, $users: [JSON]) {
+    toSyncAdUsers(action: $action, users: $users)
+  }
+`;
+
 export default {
   adConfigUpdate,
+  toCheckUsers,
+  toSyncUsers,
 };

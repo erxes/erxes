@@ -21,5 +21,13 @@ module.exports = {
       scope: 'activedirectory',
       permission: 'showAD',
     },
+    {
+      text: 'Sync Active Directory',
+      url: '/sync-activedirectory',
+      icon: 'icon-file-check-alt',
+      location: 'mainNavigation',
+      scope: 'syncactivedirectory',
+      permission: 'showAD',
+    },
   ],
 };
