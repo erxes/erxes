@@ -186,6 +186,7 @@ export const getPostData = async (subdomain, config, deal, dateType = "") => {
   // debit payments coll
   const payments = {};
   const configure = {
+    ...config,
     prepay: "preAmount",
     cash: "cashAmount",
     bank: "mobileAmount",
@@ -217,8 +218,13 @@ export const getPostData = async (subdomain, config, deal, dateType = "") => {
     } else {
       for (const key of Object.keys(payments)) {
         if (payments[key] > 0.005) {
-          payments[key] = payments[key] + sumSaleAmount;
-          continue;
+          if (payments[key] > -1 * sumSaleAmount) {
+            payments[key] = payments[key] + sumSaleAmount;
+            break;
+          } else {
+            sumSaleAmount = payments[key] + sumSaleAmount;
+            payments[key] = 0;
+          }
         }
       }
     }
