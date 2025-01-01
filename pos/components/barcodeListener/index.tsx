@@ -6,52 +6,51 @@ import { useAtomValue, useSetAtom } from "jotai";
 
 interface BarcodeListenerProps {
   children: React.ReactNode;
-  threshold?: number; // Max time in ms between key presses to consider continuous input
-  minBarcodeLength?: number; // Minimum barcode length to submit
+  threshold?: number;
+  minBarcodeLength?: number;
+  onScan?: (barcode: string) => void;
+  maxLength?: number;
 }
 
 const BarcodeListener = ({
   children,
   threshold = 100,
   minBarcodeLength = 5,
+  maxLength = 50,
+  onScan,
 }: BarcodeListenerProps) => {
   const [value, setValue] = useState("");
-  const [lastKeyPressDate, setLastKeyPressDate] = useState<Date | null>(null);
+  const [lastKeyPressTime, setLastKeyPressTime] = useState<number>(0);
   const disableBarcode = useAtomValue(disableBarcodeAtom);
   const setBarcode = useSetAtom(barcodeAtom);
 
   const handleKeyPress = useCallback(
     ({ key }: KeyboardEvent) => {
-      const currentDate = new Date();
+      const currentTime = Date.now();
+      const timeDiff = currentTime - lastKeyPressTime;
+      const isContinuousInput = timeDiff < threshold;
 
-      // Calculate time difference since the last key press
-      const isContinuousInput =
-        lastKeyPressDate &&
-        differenceInMilliseconds(currentDate, lastKeyPressDate) < threshold;
-
-      if (key.length === 1) {
-        // Add to the barcode value or reset if input is not continuous
-        setValue((prev) => (isContinuousInput ? prev + key : key));
-        setLastKeyPressDate(currentDate);
+      if (key.length === 1 && value.length < maxLength) {
+        setValue(prev => isContinuousInput ? prev + key : key);
+        setLastKeyPressTime(currentTime);
         return;
       }
 
       if (key === "Enter" && value.length >= minBarcodeLength) {
-        // Submit the barcode and reset the input
         setBarcode(value);
+        onScan?.(value);
         setValue("");
+        setLastKeyPressTime(0);
       }
     },
-    [lastKeyPressDate, threshold, value, minBarcodeLength, setBarcode]
+    [lastKeyPressTime, threshold, value, minBarcodeLength, maxLength, setBarcode, onScan]
   );
 
   useEffect(() => {
-    if (disableBarcode) return;
-
-    window.addEventListener("keydown", handleKeyPress);
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-    };
+    if (!disableBarcode) {
+      window.addEventListener("keydown", handleKeyPress);
+      return () => window.removeEventListener("keydown", handleKeyPress);
+    }
   }, [handleKeyPress, disableBarcode]);
 
   return <>{children}</>;
