@@ -31,6 +31,6 @@ const commonFields = `
 
 export const mutations = `
   adConfigUpdate(${commonFields}): ADconfig
-  toCheckAdUsers(usercode: String, userpass: String): JSON
+  toCheckAdUsers(userName: String, userPass: String): JSON
   toSyncAdUsers(action: String, users: [JSON]): JSON
 `;

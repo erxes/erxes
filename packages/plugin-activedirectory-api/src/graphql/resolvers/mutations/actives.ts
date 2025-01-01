@@ -32,7 +32,7 @@ const adMutations = {
 
     const client = new Client({ url: config.apiUrl });
 
-    await bindUser(client, params.usercode, params.userpass);
+    await bindUser(client, params.userName, params.userPass);
 
     const searchBase = 'DC=light,DC=local'; // Base DN for searching
     const searchOptions: SearchOptions = {

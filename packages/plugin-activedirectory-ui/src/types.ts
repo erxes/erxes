@@ -18,7 +18,7 @@ export type ConfigsQueryResponse = {
 
 export type ToCheckUsersMutationResponse = {
   toCheckAdUsers: (mutation: {
-    variables: { usercode: string; userpass: string };
+    variables: { userName: string; userPass: string };
   }) => Promise<any>;
 };
 
