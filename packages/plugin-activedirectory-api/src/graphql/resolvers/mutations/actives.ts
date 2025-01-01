@@ -38,7 +38,7 @@ const adMutations = {
     const searchOptions: SearchOptions = {
       scope: 'sub', // Search entire subtree
       filter: `(&(objectClass=user)(!(sAMAccountName=krbtgt))(!(sAMAccountName=administrator))(!(sAMAccountName=guest)))`, // Filter for users
-      attributes: ['cn', 'mail', 'samAccountName'], // Specify attributes to retrieve
+      attributes: ['cn', 'mail', 'samAccountName', 'givenName', 'sn'], // Specify attributes to retrieve
     };
 
     const { searchEntries } = await client.search(searchBase, searchOptions);
@@ -62,7 +62,10 @@ const adMutations = {
       if (userCodes.includes(resultUser.sAMAccountName)) {
         const user = userByCode[resultUser.sAMAccountName.toString()];
 
-        if (resultUser?.sAMAccountName === user.username) {
+        if (
+          resultUser?.sAMAccountName === user.username &&
+          resultUser?.mail === user.email
+        ) {
           matchedCount = matchedCount + 1;
         } else {
           updateUsers.push(resultUser);

@@ -116,7 +116,9 @@ const InventoryUsers = ({
         <Table $hover={true}>
           <thead>
             <tr>
-              <th>{__('Name')}</th>
+              <th>{__('User Name')}</th>
+              <th>{__('First Name')}</th>
+              <th>{__('Last Name')}</th>
               {action === 'UPDATE' ? <th>{__('Update Status')}</th> : <></>}
               {action === 'CREATE' ? <th>{__('Create Status')}</th> : <></>}
               {action === 'INACTIVE' ? <th>{__('INACTIVE Status')}</th> : <></>}
@@ -198,7 +200,11 @@ const InventoryUsers = ({
   return (
     <Wrapper
       header={
-        <Wrapper.Header title={__('Check user')} queryParams={queryParams} />
+        <Wrapper.Header
+          title={__('Check user')}
+          breadcrumb={[{ title: 'Active Directory' }]}
+          queryParams={queryParams}
+        />
       }
       content={
         <DataWithLoader

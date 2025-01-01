@@ -77,31 +77,40 @@ export const consumeUser = async (subdomain, doc, action) => {
   const user = await sendCoreMessage({
     subdomain,
     action: 'users.findOne',
-    data: { _id: doc._id },
+    data: { username: doc?.sAMAccountName || '' },
     isRPC: true,
-    defaultValue: {},
   });
 
   if (action === 'update' || action === 'create') {
     const document: any = {
       isActive: true,
-      email: doc.mail,
+      email: doc?.mail || '',
       username: doc.sAMAccountName,
-      // password: doc.password,
+      details: { firstName: doc.givenName, lastName: doc.sn },
+      password: 'Admin@123',
     };
 
     if (user) {
       await sendCoreMessage({
         subdomain,
         action: 'users.updateOne',
-        data: { _id: user._id, doc: { ...document } },
+        data: {
+          selector: {
+            _id: user._id,
+          },
+          modifier: {
+            $set: { ...document },
+          },
+        },
         isRPC: true,
       });
     } else {
       await sendCoreMessage({
         subdomain,
         action: 'users.create',
-        data: { doc: { ...document } },
+        data: {
+          ...document,
+        },
         isRPC: true,
       });
     }

@@ -6,11 +6,13 @@ type Props = {
 };
 
 const Row = ({ user, action }: Props) => {
-  const { sAMAccountName, email, syncStatus } = user;
+  const { sn, givenName, sAMAccountName, details, email, syncStatus } = user;
 
   return (
     <tr>
       <td>{action === 'INACTIVE' ? email : sAMAccountName}</td>
+      <td>{action === 'INACTIVE' ? details?.firstName : givenName}</td>
+      <td>{action === 'INACTIVE' ? details?.lastName : sn}</td>
       {action === 'CREATE' ? (
         <td>
           {syncStatus === false ? (
