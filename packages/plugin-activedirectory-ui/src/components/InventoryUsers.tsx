@@ -41,26 +41,15 @@ const InventoryUsers = ({
   );
 
   const header = <Wrapper.ActionBar right={checkButton} />;
-
   const calculatePagination = (data: any) => {
-    if (Object.keys(queryParams).length !== 1) {
-      if (queryParams.perPage !== undefined && queryParams.page === undefined) {
-        data = data.slice(queryParams.perPage * 0, queryParams.perPage * 1);
-      }
-
-      if (queryParams.page !== undefined) {
-        if (queryParams.perPage !== undefined) {
-          data = data.slice(
-            Number(queryParams.page - 1) * queryParams.perPage,
-            Number((queryParams.page - 1) * queryParams.perPage) +
-              Number(queryParams.perPage)
-          );
-        } else {
-          data = data.slice(
-            (queryParams.page - 1) * 20,
-            (queryParams.page - 1) * 20 + 20
-          );
-        }
+    if (Object.keys(queryParams).length !== 0) {
+      if (queryParams.page !== undefined && queryParams.page === undefined) {
+        data = data.slice(queryParams.page * 0, queryParams.page * 1);
+      } else {
+        data = data.slice(
+          (queryParams.page - 1) * 20,
+          (queryParams.page - 1) * 20 + 20
+        );
       }
     } else {
       data = data.slice(0, 20);
@@ -78,6 +67,7 @@ const InventoryUsers = ({
 
     const onClickSync = () => {
       data = excludeSyncTrue(data);
+
       toSyncUsers(action, data);
     };
 
@@ -129,7 +119,7 @@ const InventoryUsers = ({
       <br />
       <CollapseContent
         title={__(
-          'Create products' + (items.create ? ':  ' + items.create.count : '')
+          'Create users' + (items.create ? ':  ' + items.create.count : '')
         )}
       >
         <>
@@ -148,7 +138,7 @@ const InventoryUsers = ({
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Update products' + (items.update ? ':  ' + items.update.count : '')
+          'Update users' + (items.update ? ':  ' + items.update.count : '')
         )}
       >
         <>
@@ -167,7 +157,7 @@ const InventoryUsers = ({
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Inactive products' +
+          'Inactive users' +
             (items.inactive ? ':  ' + items.inactive.count : '')
         )}
       >
@@ -193,7 +183,7 @@ const InventoryUsers = ({
   return (
     <Wrapper
       header={
-        <Wrapper.Header title={__('Check product')} queryParams={queryParams} />
+        <Wrapper.Header title={__('Check user')} queryParams={queryParams} />
       }
       content={
         <DataWithLoader

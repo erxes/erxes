@@ -31,9 +31,9 @@ const SyncContainer = (props: FinalProps) => {
     return <Spinner />;
   }
 
-  const setSyncStatusTrue = (data: any, products: any, action: string) => {
+  const setSyncStatusTrue = (data: any, users: any, action: string) => {
     data[action].items = data[action].items.map((i) => {
-      if (products.find((c) => c.Common_Item_No === i.Common_Item_No)) {
+      if (users.find((c) => c.sAMAccountName === i.sAMAccountName)) {
         const temp = i;
         temp.syncStatus = true;
         return temp;

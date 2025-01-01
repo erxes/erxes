@@ -120,7 +120,7 @@ const adMutations = {
       case 'INACTIVE': {
         for (const user of users) {
           try {
-            await consumeUser(subdomain, user, 'inActive');
+            await consumeUser(subdomain, user, 'inactive');
           } catch (e) {
             console.log(e, 'error');
           }

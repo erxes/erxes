@@ -16,7 +16,9 @@ export const bindUser = async (
 
     return true;
   } catch (err) {
-    return { status: false, error: `Error connect AD: ${err}` };
+    console.log(`Error connect AD: ${err}`);
+
+    return false;
   }
 };
 
@@ -103,12 +105,12 @@ export const consumeUser = async (subdomain, doc, action) => {
         isRPC: true,
       });
     }
-  } else if (action === 'delete' && user) {
-    await sendCoreMessage({
-      subdomain,
-      action: 'products.removeProducts',
-      data: { _ids: [user._id] },
-      isRPC: true,
-    });
+  } else if (action === 'inactive' && user) {
+    // await sendCoreMessage({
+    //   subdomain,
+    //   action: 'products.removeProducts',
+    //   data: { _ids: [user._id] },
+    //   isRPC: true,
+    // });
   }
 };
