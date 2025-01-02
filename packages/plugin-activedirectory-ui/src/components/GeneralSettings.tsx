@@ -24,7 +24,7 @@ const GeneralSettings = (props: Props) => {
   const { config, saveConfig } = props;
 
   const [apiUrl, setApiUrl] = useState<string>(config.apiUrl || '');
-  const [isLocalUser, setLocalUser] = useState<boolean>(
+  const [isLocalUser, setIsLocalUser] = useState<boolean>(
     config.isLocalUser || false
   );
   const [userDN, setUserDN] = useState<string>(config.userDN || '');
@@ -84,7 +84,7 @@ const GeneralSettings = (props: Props) => {
               componentclass="checkbox"
               checked={isLocalUser}
               onChange={() => {
-                setLocalUser(!isLocalUser);
+                setIsLocalUser(!isLocalUser);
               }}
             />
           </FormGroup>
@@ -96,7 +96,11 @@ const GeneralSettings = (props: Props) => {
               </FormGroup>
               <FormGroup>
                 <ControlLabel>{'admin pass'}</ControlLabel>
-                <FormControl value={adminPassword} onChange={onChangePass} />
+                <FormControl
+                  type="password"
+                  value={adminPassword}
+                  onChange={onChangePass}
+                />
               </FormGroup>
             </>
           ) : (
@@ -124,27 +128,25 @@ const GeneralSettings = (props: Props) => {
   );
 
   return (
-    <>
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__('Active director config')}
-            breadcrumb={breadcrumb}
-          />
-        }
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{__('Active director configs')}</Title>}
-            right={actionButtons}
-            background="colorWhite"
-          />
-        }
-        leftSidebar={<Sidebar />}
-        content={renderContent()}
-        transparent={true}
-        hasBorder={true}
-      />
-    </>
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__('Active director config')}
+          breadcrumb={breadcrumb}
+        />
+      }
+      actionBar={
+        <Wrapper.ActionBar
+          left={<Title>{__('Active director configs')}</Title>}
+          right={actionButtons}
+          background="colorWhite"
+        />
+      }
+      leftSidebar={<Sidebar />}
+      content={renderContent()}
+      transparent={true}
+      hasBorder={true}
+    />
   );
 };
 

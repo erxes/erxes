@@ -6,13 +6,11 @@ import {
   ToCheckUsersMutationResponse,
   ToSyncUsersMutationResponse,
 } from '../types';
-import { router } from '@erxes/ui/src';
 import { Bulk } from '@erxes/ui/src/components';
 import Alert from '@erxes/ui/src/utils/Alert';
 import { mutations } from '../graphql';
 import React, { useState } from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { useLocation, useNavigate } from 'react-router-dom';
 import InventoryUsers from '../components/InventoryUsers';
 
 type Props = {

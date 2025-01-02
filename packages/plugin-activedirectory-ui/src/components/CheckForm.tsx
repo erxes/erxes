@@ -1,4 +1,3 @@
-import { __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import {
   ControlLabel,

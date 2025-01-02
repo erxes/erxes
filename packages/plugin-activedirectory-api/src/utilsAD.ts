@@ -74,7 +74,6 @@ export const adSync = async (subdomain, params) => {
 };
 
 export const consumeUser = async (subdomain, doc, action) => {
-  let deleteUser;
   const user = await sendCoreMessage({
     subdomain,
     action: 'users.findOne',
@@ -82,22 +81,13 @@ export const consumeUser = async (subdomain, doc, action) => {
     isRPC: true,
   });
 
-  if (doc._id) {
-    deleteUser = await sendCoreMessage({
-      subdomain,
-      action: 'users.findOne',
-      data: { _id: doc?._id || '' },
-      isRPC: true,
-    });
-  }
-
   if (action === 'update' || action === 'create') {
     const document: any = {
       isActive: true,
       email: doc?.mail || '',
       username: doc.sAMAccountName,
       details: { firstName: doc.givenName, lastName: doc.sn },
-      password: 'Admin@123',
+      notUsePassword: true,
     };
 
     if (user) {
@@ -124,7 +114,7 @@ export const consumeUser = async (subdomain, doc, action) => {
         isRPC: true,
       });
     }
-  } else if (action === 'inactive' && deleteUser) {
+  } else if (action === 'inactive' && user) {
     await sendCoreMessage({
       subdomain,
       action: 'users.setActiveStatus',

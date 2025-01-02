@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql, useMutation } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { Alert, withProps } from '@erxes/ui/src/utils';
@@ -7,7 +7,6 @@ import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { ConfigsQueryResponse, IConfig } from '../types';
 import GeneralSettings from '../components/GeneralSettings';
-import { useMutation } from '@apollo/client';
 
 type Props = {
   queryParams: any;

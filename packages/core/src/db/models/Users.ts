@@ -82,7 +82,7 @@ export interface IUserModel extends Model<IUserDocument> {
   }): never;
   getSecret(): string;
   generateToken(): { token: string; expires: Date };
-  createUser(doc: IUser): Promise<IUserDocument>;
+  createUser(doc: IUser & { notUsePassword?: boolean }): Promise<IUserDocument>;
   updateUser(_id: string, doc: IUpdateUser): Promise<IUserDocument>;
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
   generateUserCode(): Promise<string>;
@@ -218,16 +218,20 @@ export const loadUserClass = (models: IModels) => {
       groupIds,
       isActive,
       isOwner = false,
-    }: IUser) {
+      notUsePassword = false,
+    }: IUser & { notUsePassword?: boolean }) {
       // empty string password validation
-      if (password === '') {
+
+      if (password === '' && !notUsePassword) {
         throw new Error('Password can not be empty');
       }
 
       // Checking duplicated email
       await models.Users.checkDuplication({ email });
 
-      this.checkPassword(password);
+      if (!notUsePassword) {
+        this.checkPassword(password);
+      }
 
       return models.Users.create({
         isOwner,
@@ -238,7 +242,7 @@ export const loadUserClass = (models: IModels) => {
         groupIds,
         isActive: isActive !== undefined ? isActive : true,
         // hash password
-        password: await this.generatePassword(password),
+        password: notUsePassword ? '' : await this.generatePassword(password),
         code: await this.generateUserCode(),
       });
     }
