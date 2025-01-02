@@ -5,7 +5,7 @@ import { IContext } from '../../../connectionResolver';
 import { checkPermission } from '@erxes/api-utils/src';
 import { participantEditRelation, createCard } from '../../../models/utils';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-import { deploy } from '../../../vercelUtils';
+import { deploy } from '../../../vercel/util';
 
 export interface IVerificationParams {
   userId: string;

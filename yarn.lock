@@ -6885,6 +6885,11 @@
     "@uiw/codemirror-extensions-basic-setup" "4.22.2"
     codemirror "^6.0.0"
 
+"@vercel/sdk@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@vercel/sdk/-/sdk-1.2.0.tgz#8308c27ea6347da05228ef26b60645ca716ceb3a"
+  integrity sha512-ff0mS3kPH7/wXCbUNuZU1r2A3XGhuNi4WmGSCUg16+R2ig2wwWxaqMO3qAzWdSbNuyYWdod1nrH8sUAW4bdaSg==
+
 "@videojs/http-streaming@3.12.1":
   version "3.12.1"
   resolved "https://registry.yarnpkg.com/@videojs/http-streaming/-/http-streaming-3.12.1.tgz#0d924879bc395e66e1d112698e0f54920ffae1d7"
@@ -24963,6 +24968,11 @@ zod@^3.22.4:
   version "3.23.8"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.23.8.tgz#e37b957b5d52079769fb8097099b592f0ef4067d"
   integrity sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==
+
+zod@^3.24.1:
+  version "3.24.1"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.24.1.tgz#27445c912738c8ad1e9de1bea0359fa44d9d35ee"
+  integrity sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==
 
 zone.js@^0.11.0:
   version "0.11.8"

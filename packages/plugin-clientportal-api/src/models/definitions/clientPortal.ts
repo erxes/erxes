@@ -63,7 +63,7 @@ export interface IClientPortal {
   tokenExpiration?: number;
   refreshTokenExpiration?: number;
   tokenPassMethod?: 'cookie' | 'header';
-
+  erxesAppToken?: string;
   otpConfig?: IOTPConfig;
   twoFactorConfig?: TwoFactorConfig;
 

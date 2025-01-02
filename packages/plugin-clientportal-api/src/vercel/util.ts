@@ -4,7 +4,8 @@ import fetch from 'node-fetch';
 import * as path from 'path';
 import simpleGit from 'simple-git';
 import * as tmp from 'tmp';
-import { IClientPortalDocument } from './models/definitions/clientPortal';
+import * as crypto from 'crypto';
+import { IClientPortalDocument } from '../models/definitions/clientPortal';
 
 const layoutConfig = (config) => {
   const title = config.name || 'Adventure tours';
@@ -80,7 +81,12 @@ const getAllFiles = (dirPath, baseDir = dirPath) => {
   const items = fs.readdirSync(dirPath);
   items.forEach((item) => {
     const fullPath = path.join(dirPath, item);
-    if (item === '.git' || item === 'package-lock.json' || item === 'node_modules' || item === '.gitignore') {
+    if (
+      item === '.git' ||
+      item === 'package-lock.json' ||
+      item === 'node_modules' ||
+      item === '.gitignore'
+    ) {
       return;
     }
 
@@ -92,7 +98,16 @@ const getAllFiles = (dirPath, baseDir = dirPath) => {
       let data;
       // List of binary file extensions
       const binaryExtensions = [
-        '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot'
+        '.png',
+        '.jpg',
+        '.jpeg',
+        '.gif',
+        '.svg',
+        '.ico',
+        '.woff',
+        '.woff2',
+        '.ttf',
+        '.eot',
       ];
       if (binaryExtensions.includes(ext)) {
         console.log('buffer file:', fullPath);
@@ -112,6 +127,70 @@ const getAllFiles = (dirPath, baseDir = dirPath) => {
   return files;
 };
 
+const convertToSHA1 = (filePath: string) => {
+  const fileBuffer = fs.readFileSync(filePath);
+  return crypto.createHash("sha1").update(fileBuffer).digest("hex");
+}
+
+const uploadFileToVercel = async (filePath: string, bearerToken: string) => {
+  // const fileContent = fs.readFileSync(filePath);
+  const fileSize = fs.statSync(filePath).size;
+  const fileHash = convertToSHA1(filePath);
+
+  const result = await fetch('https://api.vercel.com/v2/files', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${bearerToken}`,
+      'Content-Length': `${fileSize}`,
+      'x-vercel-digest': fileHash,
+    }
+  }).then((res) => res.json());
+
+  console.log("file => ", filePath);
+  console.log('Upload file result:', result);
+
+  return result;
+}
+
+const allFilePaths = (dirPath: string, arrayOfFiles: string[] = []) => {
+  if (!fs.existsSync(dirPath)) {
+    throw new Error(`Directory not found: ${dirPath}`);
+  }
+
+  const files = fs.readdirSync(dirPath);
+
+  files.forEach((file) => {
+    const fullPath = path.join(dirPath, file);
+
+    // Skip .git directory
+    if (fs.statSync(fullPath).isDirectory()) {
+      if (file !== ".git") {
+        // Recurse into subdirectories
+        allFilePaths(fullPath, arrayOfFiles);
+      }
+    } else {
+      // Add file to the list
+      arrayOfFiles.push(fullPath);
+    }
+  });
+
+  return arrayOfFiles;
+}
+
+export const uploadFiles = async (path, token: string) => {
+  const files = allFilePaths(path);
+
+
+  const promises = files.map(async (file) => {
+
+    // Upload the file to Vercel
+    const result = await uploadFileToVercel(file, token);
+
+    return result;
+  });
+
+  return Promise.all(promises);
+};
 
 export const deploy = async (
   subdomain: string,
@@ -180,38 +259,55 @@ export const deploy = async (
     // }
 
     console.debug('Created Vercel configuration', tmpDir);
-    const files = await getAllFiles(tmpDir);
+    // const files = await getAllFiles(tmpDir);
+    await uploadFiles(tmpDir, VERCEL_TOKEN);
 
-    const name = config.name.toLowerCase().replace(/\s+/g, '-');
+    // const name = config.name.toLowerCase().replace(/\s+/g, '-');
+    // const { Vercel } = await import('@vercel/sdk');
 
-    // console.debug('Files', files);
-    const body = JSON.stringify({
-      name: config.name.toLowerCase().replace(/\s+/g, '-'),
-      files,
-      target: 'production',
-      project: `${name}_final`,
-      projectSettings: {
-        devCommand: 'yarn dev',
-        installCommand: 'yarn install',
-        buildCommand: 'next build',
-        outputDirectory: 'out',
-        framework: 'nextjs',
-      },
-    });
+    // const vercel = new Vercel({ bearerToken: VERCEL_TOKEN });
 
-    const result = await fetch(
-      `https://api.vercel.com/v13/deployments?forceNew=0&skipAutoDetectionConfirmation=0`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${VERCEL_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-        body,
-      }
-    ).then((response) => response.json());
+    // const result = await vercel.deployments.createDeployment({
+    //   requestBody: {
+    //     name,
+    //     project: name,
+    //     files,
+    //     target: 'production',
+    //     meta: {
+    //       'erxes-cp-id': config._id,
+    //     },
+    //   },
+    // });
 
-    console.debug('Vercel deployment result', result);
+    // console.debug('Vercel deployment result', result);
+    // // console.debug('Files', files);
+    // const body = JSON.stringify({
+    //   name: config.name.toLowerCase().replace(/\s+/g, '-'),
+    //   files,
+    //   target: 'production',
+    //   project: `${name}_final`,
+    //   projectSettings: {
+    //     devCommand: 'yarn dev',
+    //     installCommand: 'yarn install',
+    //     buildCommand: 'next build',
+    //     outputDirectory: 'out',
+    //     framework: 'nextjs',
+    //   },
+    // });
+
+    // const result = await fetch(
+    //   `https://api.vercel.com/v13/deployments?forceNew=0&skipAutoDetectionConfirmation=0`,
+    //   {
+    //     method: 'POST',
+    //     headers: {
+    //       Authorization: `Bearer ${VERCEL_TOKEN}`,
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body,
+    //   }
+    // ).then((response) => response.json());
+
+    // console.debug('Vercel deployment result', result);
   } catch (e) {
     console.error(e.message);
     throw new Error('Failed to clone template repository');
