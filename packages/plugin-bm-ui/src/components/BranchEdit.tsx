@@ -103,7 +103,7 @@ const BranchEdit = (props: Props) => {
     const SmallLoader = ButtonMutate.SmallLoader;
 
     const cancelButton = (
-      <Link to={`/bms`}>
+      <Link to={`/tms`}>
         <Button btnStyle='simple' icon='times-circle'>
           Cancel
         </Button>
@@ -127,7 +127,7 @@ const BranchEdit = (props: Props) => {
     );
   };
 
-  const breadcrumb = [{ title: 'Bms List', link: `/bms` }, { title: 'Create' }];
+  const breadcrumb = [{ title: 'TMS List', link: `/tms` }, { title: 'Create' }];
   useEffect(() => {
     setState(v => ({ ...branch, ...v }));
   }, [branch]);
@@ -162,7 +162,7 @@ const BranchEdit = (props: Props) => {
           <ControlWrapper>
             <Indicator>
               {__('You are')} {state ? 'editing' : 'creating'}{' '}
-              <strong>{state.name || ''}</strong> {__('bms')}
+              <strong>{state.name || ''}</strong> {__('tms')}
             </Indicator>
             {renderButtons()}
           </ControlWrapper>

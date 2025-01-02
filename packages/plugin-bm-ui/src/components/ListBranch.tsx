@@ -62,10 +62,10 @@ const List = (props: Props) => {
   };
 
   const renderActionBar = () => {
-    const actionBarLeft = <Title>{__('Bms')}</Title>;
+    const actionBarLeft = <Title>{__('Tms')}</Title>;
 
     const actionBarRight = (
-      <Link to={`/bms/create`}>
+      <Link to={`/tms/create`}>
         <Button btnStyle='success' icon='plus-circle'>
           Create Branch
         </Button>
@@ -105,7 +105,7 @@ const List = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Bms')}
+          title={__('Tms')}
           breadcrumb={[
             { title: 'Settings', link: '/settings' },
             { title: __('Branch list') },
@@ -123,14 +123,14 @@ const List = (props: Props) => {
           emptyContent={
             <EmptyContent
               content={{
-                title: __('Getting Started with erxes BMS'),
+                title: __('Getting Started with erxes TMS'),
                 description: __('replace description text'),
                 steps: [
                   {
                     title: __('Create branch'),
-                    description: __('Fill out the details and create your BMS'),
-                    url: `/bms/create`,
-                    urlText: 'Create BMS',
+                    description: __('Fill out the details and create your TMS'),
+                    url: `/tms/create`,
+                    urlText: 'Create TMS',
                   },
                 ],
               }}

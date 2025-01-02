@@ -58,7 +58,7 @@ const ListContainer = (props: Props) => {
           // refresh queries
           refetch();
 
-          Alert.success('You successfully deleted a bms branch.');
+          Alert.success('You successfully deleted a tms branch.');
         })
         .catch(e => {
           Alert.error(e.message);

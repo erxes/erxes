@@ -30,13 +30,13 @@ const BmsEditAdd = () => {
 const routes = () => {
   return (
     <Routes>
-      <Route path='/bms/' element={<Bms />} />
+      <Route path='/tms/' element={<Bms />} />
       <Route
-        key='/bms/edit/:bmsId'
-        path='/bms/edit/:bmsId'
+        key='/tms/edit/:bmsId'
+        path='/tms/edit/:bmsId'
         element={<BmsEditAdd />}
       />
-      <Route key='/bms/create' path='/bms/create' element={<BmsEditAdd />} />
+      <Route key='/tms/create' path='/tms/create' element={<BmsEditAdd />} />
     </Routes>
   );
 };

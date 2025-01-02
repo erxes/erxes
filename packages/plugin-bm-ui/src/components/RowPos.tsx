@@ -34,7 +34,7 @@ const Row = (props: Props) => {
 
   const manageAction = branch => {
     return (
-      <Link to={`/bms/edit/${branch._id}`}>
+      <Link to={`/tms/edit/${branch._id}`}>
         <Button btnStyle='link'>
           <Tip text={__('Manage')} placement='top'>
             <Icon icon='edit-3' />
@@ -81,7 +81,7 @@ const Row = (props: Props) => {
     <tr>
       <td>
         <RowTitle>
-          <Link to={`/bms/edit/${branch._id}`}>{branch.name}</Link>
+          <Link to={`/tms/edit/${branch._id}`}>{branch.name}</Link>
         </RowTitle>
       </td>
       <td>
