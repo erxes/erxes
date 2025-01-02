@@ -123,7 +123,7 @@ const List = (props: Props) => {
           emptyContent={
             <EmptyContent
               content={{
-                title: __('Getting Started with erxes BMS'),
+                title: __('Getting Started with erxes TMS'),
                 description: __('replace description text'),
                 steps: [
                   {
