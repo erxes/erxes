@@ -8,74 +8,61 @@ import {
 } from '@erxes/ui/src/components';
 
 import { ContentBox } from '../styles';
-import { IConfigsMap } from '../types';
-import { KEY_LABELS } from '../constants';
-import React from 'react';
+import { IConfig } from '../types';
+import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import { Title } from '@erxes/ui-settings/src/styles';
 import { Wrapper } from '@erxes/ui/src/layout';
 import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
-  save: (configsMap: IConfigsMap) => void;
-  configsMap: IConfigsMap;
+  saveConfig: (params: IConfig) => void;
+  config: IConfig;
 };
 
-type State = {
-  currentMap: IConfigsMap;
-};
+const GeneralSettings = (props: Props) => {
+  const { config, saveConfig } = props;
 
-class GeneralSettings extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  const [apiUrl, setApiUrl] = useState<string>(config.apiUrl || '');
+  const [isLocalUser, setIsLocalUser] = useState<boolean>(
+    config.isLocalUser || false
+  );
+  const [userDN, setUserDN] = useState<string>(config.userDN || '');
+  const [adminDN, setAdminDN] = useState<string>(config.adminDN || '');
+  const [adminPassword, setAdminPassword] = useState<string>(
+    config.adminPassword || ''
+  );
 
-    this.state = {
-      currentMap: props.configsMap.ACTIVEDIRECTOR || {},
-    };
-  }
-
-  componentDidUpdate(prevProps: Readonly<Props>): void {
-    if (prevProps.configsMap !== this.props.configsMap) {
-      this.setState({ currentMap: this.props.configsMap.ACTIVEDIRECTOR || {} });
-    }
-  }
-
-  save = (e) => {
+  const save = (e) => {
     e.preventDefault();
 
-    const { currentMap } = this.state;
-    const { configsMap } = this.props;
-    configsMap.ACTIVEDIRECTOR = currentMap;
-
-    this.props.save(configsMap);
+    saveConfig({
+      apiUrl,
+      isLocalUser,
+      userDN,
+      code: 'ACTIVEDIRECTOR',
+      adminDN,
+      adminPassword,
+    });
   };
 
-  onChangeConfig = (code: string, value) => {
-    const { currentMap } = this.state;
-
-    this.setState({ currentMap: { ...currentMap, [code]: value } });
+  const onChangeInput = (e) => {
+    setApiUrl(e.target.value);
   };
 
-  onChangeInput = (code: string, e) => {
-    this.onChangeConfig(code, e.target.value);
+  const onChangeUserDN = (e) => {
+    setUserDN(e.target.value);
   };
 
-  renderItem = (key: string, description?: string) => {
-    const { currentMap } = this.state;
-
-    return (
-      <FormGroup>
-        <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
-        {description && <p>{__(description)}</p>}
-        <FormControl
-          value={currentMap[key]}
-          onChange={this.onChangeInput.bind(this, key)}
-        />
-      </FormGroup>
-    );
+  const onChangeAdminDN = (e) => {
+    setAdminDN(e.target.value);
   };
 
-  renderContent = () => {
+  const onChangePass = (e) => {
+    setAdminPassword(e.target.value);
+  };
+
+  const renderContent = () => {
     return (
       <ContentBox id={'GeneralSettingsMenu'}>
         <CollapseContent
@@ -83,53 +70,84 @@ class GeneralSettings extends React.Component<Props, State> {
           beforeTitle={<Icon icon="settings" />}
           transparent={true}
         >
-          {this.renderItem('apiUrl')}
-          {this.renderItem('adminDN')}
-          {this.renderItem('adminPassword')}
+          <FormGroup>
+            <ControlLabel>{'api url'}</ControlLabel>
+            <FormControl value={apiUrl} onChange={onChangeInput} />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{'user dn'}</ControlLabel>
+            <FormControl value={userDN} onChange={onChangeUserDN} />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{'is local user'}</ControlLabel>
+            <FormControl
+              componentclass="checkbox"
+              checked={isLocalUser}
+              onChange={() => {
+                setIsLocalUser(!isLocalUser);
+              }}
+            />
+          </FormGroup>
+          {isLocalUser ? (
+            <>
+              <FormGroup>
+                <ControlLabel>{'admin dn'}</ControlLabel>
+                <FormControl value={adminDN} onChange={onChangeAdminDN} />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>{'admin pass'}</ControlLabel>
+                <FormControl
+                  type="password"
+                  value={adminPassword}
+                  onChange={onChangePass}
+                />
+              </FormGroup>
+            </>
+          ) : (
+            ''
+          )}
         </CollapseContent>
       </ContentBox>
     );
   };
 
-  render() {
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Active director config') },
-    ];
+  const breadcrumb = [
+    { title: __('Settings'), link: '/settings' },
+    { title: __('Active director config') },
+  ];
 
-    const actionButtons = (
-      <Button
-        btnStyle="success"
-        onClick={this.save}
-        icon="check-circle"
-        uppercase={false}
-      >
-        Save
-      </Button>
-    );
+  const actionButtons = (
+    <Button
+      btnStyle="success"
+      onClick={save}
+      icon="check-circle"
+      uppercase={false}
+    >
+      Save
+    </Button>
+  );
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__('Active director config')}
-            breadcrumb={breadcrumb}
-          />
-        }
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{__('Active director configs')}</Title>}
-            right={actionButtons}
-            background="colorWhite"
-          />
-        }
-        leftSidebar={<Sidebar />}
-        content={this.renderContent()}
-        transparent={true}
-        hasBorder={true}
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__('Active director config')}
+          breadcrumb={breadcrumb}
+        />
+      }
+      actionBar={
+        <Wrapper.ActionBar
+          left={<Title>{__('Active director configs')}</Title>}
+          right={actionButtons}
+          background="colorWhite"
+        />
+      }
+      leftSidebar={<Sidebar />}
+      content={renderContent()}
+      transparent={true}
+      hasBorder={true}
+    />
+  );
+};
 
 export default GeneralSettings;
