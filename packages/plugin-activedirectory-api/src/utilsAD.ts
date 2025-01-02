@@ -74,12 +74,22 @@ export const adSync = async (subdomain, params) => {
 };
 
 export const consumeUser = async (subdomain, doc, action) => {
+  let deleteUser;
   const user = await sendCoreMessage({
     subdomain,
     action: 'users.findOne',
-    data: { username: doc?.sAMAccountName || '' },
+    data: { username: doc?.sAMAccountName || doc?.username },
     isRPC: true,
   });
+
+  if (doc._id) {
+    deleteUser = await sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: { _id: doc?._id || '' },
+      isRPC: true,
+    });
+  }
 
   if (action === 'update' || action === 'create') {
     const document: any = {
@@ -114,12 +124,12 @@ export const consumeUser = async (subdomain, doc, action) => {
         isRPC: true,
       });
     }
-  } else if (action === 'inactive' && user) {
-    // await sendCoreMessage({
-    //   subdomain,
-    //   action: 'products.removeProducts',
-    //   data: { _ids: [user._id] },
-    //   isRPC: true,
-    // });
+  } else if (action === 'inactive' && deleteUser) {
+    await sendCoreMessage({
+      subdomain,
+      action: 'users.setActiveStatus',
+      data: { _id: user._id },
+      isRPC: true,
+    });
   }
 };
