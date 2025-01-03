@@ -1,5 +1,45 @@
 # Changelog
 
+## [2.3.0](https://github.com/erxes/erxes/compare/2.3.0-rc.1...2.3.0) (2025-01-03)
+
+
+### Features
+
+* Active directory improve ([#5855](https://github.com/erxes/erxes/issues/5855)) ([2db39ab](https://github.com/erxes/erxes/commit/2db39ab6761fe9fbb5c768e51e660dc48e703bb4))
+
+
+### Bug Fixes
+
+* sales pipeline deal payment form, and payment data syncerkhet ([184690a](https://github.com/erxes/erxes/commit/184690a035cc25b7472ce8ecacbebeb09b47d4f3))
+
+## [2.3.0-rc.1](https://github.com/erxes/erxes/compare/2.3.0-rc.1...2.3.0) (2024-12-23)
+
+
+### Features
+
+* add plugin sync active directory ([#5854](https://github.com/erxes/erxes/issues/5854)) ([41cca44](https://github.com/erxes/erxes/commit/41cca44b658dd535709cfa9f1dd2734b80d61a47))
+
+
+### Bug Fixes
+
+* **activedirectory:** release.yaml ([8ba7086](https://github.com/erxes/erxes/commit/8ba708661164eb830352e116dcec0a0858f5351e))
+
+## [2.3.0-rc.0](https://github.com/erxes/erxes/compare/2.3.0-rc.1...2.3.0) (2024-12-19)
+
+
+### Features
+
+* **whatsapp:** chatbot v1 ([4d074e6](https://github.com/erxes/erxes/commit/4d074e67a030e295691a15e5555a65fce552551e))
+
+## [2.2.2](https://github.com/erxes/erxes/compare/2.3.0-rc.1...2.3.0) (2024-12-27)
+
+
+### Bug Fixes
+
+* **gateway:** can't set  user logintoken sessioncode in userMiddleware ([5b4c2d3](https://github.com/erxes/erxes/commit/5b4c2d3155b6cd556487ab21595cc6641bc91f75))
+* posclient use header ([49a41da](https://github.com/erxes/erxes/commit/49a41da9af9a2035b315500b7c942642a586f2ff))
+* **segments:** get just content type is lead if source is engages ([280815d](https://github.com/erxes/erxes/commit/280815d60e4436d9241628cdfda87d27c786bb52))
+
 ## [2.3.0-rc.1](https://github.com/erxes/erxes/compare/2.3.0-rc.0...2.3.0-rc.1) (2024-12-23)
 
 
