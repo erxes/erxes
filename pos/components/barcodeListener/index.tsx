@@ -6,51 +6,55 @@ import { useAtomValue, useSetAtom } from "jotai";
 
 interface BarcodeListenerProps {
   children: React.ReactNode;
-  threshold?: number;
-  minBarcodeLength?: number;
-  onScan?: (barcode: string) => void;
-  maxLength?: number;
+  threshold?: number; // Max time in ms between key presses to consider continuous input
+  minBarcodeLength?: number; // Minimum barcode length to submit
 }
 
 const BarcodeListener = ({
   children,
   threshold = 100,
   minBarcodeLength = 5,
-  maxLength = 50,
-  onScan,
 }: BarcodeListenerProps) => {
   const [value, setValue] = useState("");
-  const [lastKeyPressTime, setLastKeyPressTime] = useState<number>(0);
+  const [lastKeyPressDate, setLastKeyPressDate] = useState<Date | null>(null);
   const disableBarcode = useAtomValue(disableBarcodeAtom);
   const setBarcode = useSetAtom(barcodeAtom);
 
   const handleKeyPress = useCallback(
     ({ key }: KeyboardEvent) => {
-      const currentTime = Date.now();
-      const timeDiff = currentTime - lastKeyPressTime;
-      const isContinuousInput = timeDiff < threshold;
+      const currentDate = new Date();
 
-      if (key.length === 1 && value.length < maxLength) {
-        setValue(prev => isContinuousInput ? prev + key : key);
-        setLastKeyPressTime(currentTime);
+      // Calculate time difference since the last key press
+      const isContinuousInput =
+        lastKeyPressDate &&
+        differenceInMilliseconds(currentDate, lastKeyPressDate) < threshold;
+
+      if (key.length === 1) {
+        // Add to the barcode value or reset if input is not continuous
+        setValue((prev) => (isContinuousInput ? prev + key : key));
+        setLastKeyPressDate(currentDate);
         return;
       }
 
       if (key === "Enter" && value.length >= minBarcodeLength) {
+        // Submit the barcode and reset the input
         setBarcode(value);
-        onScan?.(value);
         setValue("");
-        setLastKeyPressTime(0);
+      }else if (key === "Enter") {
+        // Reset the input if it's not continuous or too short
+        setValue("");
       }
     },
-    [lastKeyPressTime, threshold, value, minBarcodeLength, maxLength, setBarcode, onScan]
+    [lastKeyPressDate, threshold, value, minBarcodeLength, setBarcode]
   );
 
   useEffect(() => {
-    if (!disableBarcode) {
-      window.addEventListener("keydown", handleKeyPress);
-      return () => window.removeEventListener("keydown", handleKeyPress);
-    }
+    if (disableBarcode) return;
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
   }, [handleKeyPress, disableBarcode]);
 
   return <>{children}</>;
