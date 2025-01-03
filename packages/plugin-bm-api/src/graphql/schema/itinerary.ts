@@ -15,6 +15,7 @@ export const types = () => `
   }
   type Itinerary {
     _id: String!
+    branchId: String
     name: String
     content: String
     duration: Int
@@ -55,11 +56,12 @@ export const types = () => `
 `;
 
 export const queries = `
-  bmItineraries( page:Int, perPage:Int): ListItinerary
-  bmItineraryDetail(_id:String!): Itinerary
+  bmItineraries( page:Int, perPage:Int,branchId: String): ListItinerary
+  bmItineraryDetail(_id:String!, branchId: String): Itinerary
 `;
 
 const params = `
+  branchId: String,
   name: String,
   content: String,
   duration: Int,
@@ -77,7 +79,7 @@ const params = `
 
 export const mutations = `
   bmItineraryAdd(${params}): Itinerary
-  bmItineraryRemove(ids: [String]): JSON
+  bmItineraryRemove(ids: [String],branchId:String): JSON
   bmItineraryEdit(_id:String!, ${params}): Itinerary
 
 `;
