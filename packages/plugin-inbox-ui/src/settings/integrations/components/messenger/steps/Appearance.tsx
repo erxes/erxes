@@ -97,8 +97,6 @@ class Appearance extends React.Component<Props, State> {
   renderUploadImage(title) {
     const { logoPreviewUrl, color } = this.props;
 
-    console.log('props', this.props)
-
     return (
       <SubItem>
         <ControlLabel>{title}</ControlLabel>
