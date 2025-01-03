@@ -123,7 +123,10 @@ const BranchEdit = (props: Props) => {
     );
   };
 
-  const breadcrumb = [{ title: 'TMS List', link: `/tms` }, { title: 'Create' }];
+  const breadcrumb = [
+    { title: 'TMS List', link: `/tms` },
+    { title: branch._id ? 'Edit' : 'Create' },
+  ];
 
   useEffect(() => {
     setState(v => ({ ...branch, ...v }));
