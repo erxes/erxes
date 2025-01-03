@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.0-rc.0](https://github.com/erxes/erxes/compare/2.3.0...2.4.0-rc.0) (2025-01-03)
+
+
+### Bug Fixes
+
+* sales settings stage row ([#5838](https://github.com/erxes/erxes/issues/5838)) ([d2d328b](https://github.com/erxes/erxes/commit/d2d328b64289d8d60afdc590cd135dd028e0ce62))
+
 ## [2.3.0](https://github.com/erxes/erxes/compare/2.3.0-rc.1...2.3.0) (2025-01-03)
 
 
