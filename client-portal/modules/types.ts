@@ -317,6 +317,7 @@ export interface IKbArticle extends ICommonFields {
   reactionChoices?: string[];
   createdUser: IUser;
   publishedUser: IUser;
+  publishedAt: Date;
   viewCount?: number;
 }
 

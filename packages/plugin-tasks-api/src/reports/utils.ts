@@ -1592,7 +1592,10 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     matchfilter['customFieldsData.field'] = { $in: fieldIds };
 
     if (subFields?.length) {
-      matchfilter['customFieldValues'] = { $in: subFields };
+      matchfilter['customFieldValues'] = {
+        $regex: subFields.map(field => `(?:^|,|\\s)${field}(?:,|$|\\s)`).join('|'),
+        $options: 'i'
+      };
     }
   }
 
