@@ -36,20 +36,16 @@ const scoreCampaignMutations = {
   }
 };
 
-checkPermission(
-  scoreCampaignMutations,
-  "scoreCampaignAdd",
-  "manageScoreCampaign"
-);
+checkPermission(scoreCampaignMutations, "scoreCampaignAdd", "manageLoyalties");
 checkPermission(
   scoreCampaignMutations,
   "scoreCampaignUpdate",
-  "manageScoreCampaign"
+  "manageLoyalties"
 );
 checkPermission(
   scoreCampaignMutations,
   "scoreCampaignRemove",
-  "manageScoreCampaign"
+  "manageLoyalties"
 );
 
 export default scoreCampaignMutations;

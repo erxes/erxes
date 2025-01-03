@@ -30,7 +30,7 @@ export default function List(props) {
     const onRemove = () => {
       confirm().then(() => {
         removeScoreCampaign({
-          variables: { _ids: bulkProps.bulk }
+          variables: { _ids: bulkProps.bulk.map(({ _id }) => _id) }
         })
           .then(() => {
             Alert.success("Campaign successfully removed");
