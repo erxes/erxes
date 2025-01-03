@@ -26,7 +26,7 @@ class Lists extends React.Component<Props> {
               <p>{article.summary}</p>
 
               <Avatar
-                date={article.modifiedDate}
+                date={{modifiedAt: article.modifiedDate, publishedAt: article.publishedAt}}
                 user={{ ...article.publishedUser || article.createdUser, status: article.publishedUser ? 'Published' : 'Written' }}
                 viewCount={article.viewCount || 0}
               />

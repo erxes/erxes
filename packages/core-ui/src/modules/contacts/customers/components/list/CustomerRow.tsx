@@ -147,7 +147,12 @@ function CustomerRow({
     e.stopPropagation();
   };
 
-  const onTrClick = () => {
+  const onTrClick = (e) => {
+
+    if(e?.ctrlKey) {
+      return window.open(`/contacts/details/${customer._id}`, '__blank')
+    }
+
     navigate(`/contacts/details/${customer._id}`);
   };
 

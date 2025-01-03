@@ -226,7 +226,7 @@ const Resipients = styledTS<{ isActive?: boolean }>(styled.a)`
   padding-left: ${dimensions.unitSpacing}px;
   font-size: 12px;
   color: ${colors.colorCoreLightGray};
-  display: ${props => props.isActive && 'none'};
+  display: ${(props) => props.isActive && 'none'};
   font-weight: 500;
 
   &:hover {
@@ -313,7 +313,7 @@ const SpaceBetweenRow = styled.div`
 
 const Subject = styledTS<{ noBorder?: boolean }>(styled.div)`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  border-bottom:${props =>
+  border-bottom:${(props) =>
     !props.noBorder && `1px solid ${colors.borderPrimary}`};
 
   input {
@@ -387,7 +387,8 @@ const LeftContent = styled.div`
 const Row = styled.div`
   display: flex;
 
-  .Select, .css-b62m3t-container {
+  .Select,
+  .css-b62m3t-container {
     flex: 1;
   }
 
@@ -412,37 +413,51 @@ const SearchInput = styled.div`
   }
 `;
 
+const LogoWrapper = styledTS<{ backgroundColor?: string }>(styled.div)`
+  height: 100px;
+  padding-bottom: 15px;
+  border-radius: 4px;
+
+  > img {
+    background-color: ${(props) => (props.backgroundColor ? props.backgroundColor : '#6569DF')} !important;
+    padding: 3px;
+    height: 100%;
+    border-radius: 4px;
+  }
+`;
+
 export {
-  MessengerPreview,
-  IntegrationName,
-  BrandName,
-  Options,
-  Description,
-  Script,
-  RefreshPermission,
-  GoogleButton,
   AccountBox,
-  AccountTitle,
   AccountItem,
-  FacebookButton,
-  ImageWrapper,
-  TextWrapper,
+  AccountTitle,
   Attachments,
-  FlexRow,
-  Row,
-  Subject,
-  ToolBar,
+  BrandName,
   Content,
-  LeftContent,
-  MailEditorWrapper,
   ControlWrapper,
-  Resipients,
-  Uploading,
-  SpaceBetweenRow,
+  Description,
   EditorFooter,
+  FacebookButton,
   FileSize,
-  ShowReplyButtonWrapper,
-  ShowReplies,
+  FlexRow,
+  GoogleButton,
+  ImageWrapper,
+  IntegrationName,
+  LeftContent,
+  LogoWrapper,
+  MailEditorWrapper,
+  MessengerPreview,
+  Options,
   PopoverLinkWrapper,
-  SearchInput
+  RefreshPermission,
+  Resipients,
+  Row,
+  Script,
+  SearchInput,
+  ShowReplies,
+  ShowReplyButtonWrapper,
+  SpaceBetweenRow,
+  Subject,
+  TextWrapper,
+  ToolBar,
+  Uploading,
 };

@@ -1,15 +1,13 @@
 import { IUser, IUserDetails } from "../types";
 
-import { Avatars } from "../knowledgeBase/components/styles";
-import Icon from "./Icon";
-import React from "react";
 import dayjs from "dayjs";
-import { readFile } from "./utils";
 import { __ } from "../../utils";
+import { Avatars } from "../knowledgeBase/components/styles";
+import { readFile } from "./utils";
 
 type Props = {
   user: IUser & { status?: string };
-  date: Date;
+  date: {modifiedAt: Date, publishedAt: Date};
   viewCount: number;
 };
 
@@ -33,13 +31,17 @@ export default function Avatar({ user = {} as IUser & { status?: string }, date,
           {__(`${status || 'Written'} by`)}
           <span>{fullName}</span>
         </div>
-        <div>
-          {__("Modified at")}
-          <span>{dayjs(date).format("MMM D YYYY")}</span>
-        </div>
-        <div className="d-flex align-items-center">
-          <Icon icon="eye" size={14} />
-          <span>{viewCount}</span>
+        <div className="d-flex flex-wrap gap-2">
+          <div>
+            {__('Modified at')}
+            <span>{dayjs(date.modifiedAt).format('MMM D YYYY')}</span>
+          </div>
+          {(status === 'Published' && date.publishedAt) && (
+            <div>
+              {__('Published at')}
+              <span>{dayjs(date.publishedAt).format('MMM D YYYY')}</span>
+            </div>
+          )}
         </div>
       </div>
     </Avatars>
