@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.1](https://github.com/erxes/erxes/compare/2.3.0...2.3.1) (2025-01-05)
+
+
+### Bug Fixes
+
+* **coreui:** add some settings menu in goto navigation ([aaf1a55](https://github.com/erxes/erxes/commit/aaf1a55f65a9d68f4781b6699de83986dd55a589))
+
 ## [2.3.0](https://github.com/erxes/erxes/compare/2.3.0-rc.1...2.3.0) (2025-01-03)
 
 
