@@ -18,14 +18,13 @@ const checkDefaults = async (models: IModels, name: string, icon: string) => {
       name: one?.name,
       content: one?.content,
     });
-    console.log('abc', abc);
   }
 };
 
 const insertCategoryDefaults = async (
   models: IModels,
   name: string,
-  parentId
+  parentId,
 ) => {
   const one = await models.ElementCategories.findOne({
     name,
@@ -176,8 +175,16 @@ const LIST_CATEGORIES = [
 const elementQueries = {
   async bmElements(
     _root,
-    { categories, name, page = 1, perPage = 10, quick },
-    { models }: IContext
+    {
+      categories,
+      name,
+      page = 1,
+      perPage = 10,
+      quick,
+      sortField,
+      sortDirection,
+    },
+    { models }: IContext,
   ) {
     const selector: any = {};
 
@@ -205,7 +212,18 @@ const elementQueries = {
     if (quick) {
       selector.quick = quick;
     }
-    const list = await models.Elements.find(selector).limit(perPage).skip(skip);
+
+    let sort: any = { number: 1 };
+    if (sortField && sortDirection) {
+      sort = {
+        [sortField]: sortDirection,
+      };
+    }
+
+    const list = await models.Elements.find(selector)
+      .sort({ ...sort })
+      .limit(perPage)
+      .skip(skip);
     const total = await models.Elements.find(selector).countDocuments();
     return {
       list,
@@ -256,13 +274,13 @@ const elementQueries = {
           const childOne: any = await insertCategoryDefaults(
             models,
             child.name,
-            one._id
+            one._id,
           );
           for (const grandChild of child?.children || []) {
             const t1 = await insertCategoryDefaults(
               models,
               grandChild.name,
-              childOne?._id || ''
+              childOne?._id || '',
             );
           }
         }

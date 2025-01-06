@@ -154,7 +154,7 @@ export default function List({
         {campaigns.map((campaign) => (
           <Row
             toggleBulk={toggleBulk}
-            isChecked={bulk.includes(campaign._id)}
+            isChecked={bulk.find((item) => item._id === campaign._id)}
             campaign={campaign}
             refetch={refetch}
             onChangeStatus={onChangeStatus}

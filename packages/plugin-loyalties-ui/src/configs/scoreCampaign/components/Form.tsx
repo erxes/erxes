@@ -189,7 +189,15 @@ const SelectFieldGroup = ({ contentType, dispatch, state }) => {
 
   return (
     <FormGroup>
-      <ControlLabel>{__("Field Group")}</ControlLabel>
+      <FlexRow $justifyContent="space-between">
+        <ControlLabel>{__("Field Group")}</ControlLabel>
+        <Button
+          target="__blank"
+          href={`/settings/properties?type=${contentType}`}
+        >
+          {__("Add Field Group")}
+        </Button>
+      </FlexRow>
       <SelectWithSearch
         initialValue={state?.fieldGroupId}
         customQuery={query}

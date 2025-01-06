@@ -1,37 +1,48 @@
-const list = `
-  query listQuery($typeId: String) {
-    bms(typeId: $typeId) {
-      _id
-      name
-      expiryDate
-      createdAt
-      checked
-      typeId
-      currentType{
-        _id
-        name
-      }
+export const branchCommonFields = `
+  _id
+  name
+  description
+  createdAt
+  token
+  erxesAppToken
+  user1Ids
+  user2Ids
+  paymentIds
+  paymentTypes
+  user {
+    _id
+    details {
+      avatar
+      fullName
+    }
+  }
+  uiOptions
+  permissionConfig
+`;
+
+const bmsBranchDetail = `
+  query bmsBranchDetail($_id: String!) {
+    bmsBranchDetail(_id: $_id) {
+      ${branchCommonFields}
     }
   }
 `;
 
-const listBmTypes = `
-  query listBmTypeQuery{
-    bmTypes{
-      _id
-      name
+const bmBranchList = `
+  query bmsBranchList(
+    $sortField: String
+    $sortDirection: Int
+  ) {
+    bmsBranchList(
+      sortField: $sortField
+      sortDirection: $sortDirection
+    ) {
+      ${branchCommonFields}
     }
-  }
-`;
-
-const totalCount = `
-  query bmsTotalCount{
-    bmsTotalCount
   }
 `;
 
 export default {
-  list,
-  totalCount,
-  listBmTypes
+  bmBranchList,
+  bmsBranchDetail,
 };

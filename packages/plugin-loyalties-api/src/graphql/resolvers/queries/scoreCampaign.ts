@@ -12,7 +12,7 @@ const generateFilter = (params: any) => {
   };
 
   if (params.searchValue) {
-    filter.title = new RegExp(`^${escapeRegExp(params.filter)}`);
+    filter.title = new RegExp(`^${escapeRegExp(params.searchValue)}`);
   }
 
   if (params.status) {
@@ -104,12 +104,12 @@ const scoreCampaignQueries = {
   }
 };
 
-checkPermission(scoreCampaignQueries, "scoreCampaigns", "showScoreCampaigns");
+checkPermission(scoreCampaignQueries, "scoreCampaigns", "manageLoyalties");
 checkPermission(
   scoreCampaignQueries,
   "scoreCampaignsTotalCount",
-  "showScoreCampaigns"
+  "manageLoyalties"
 );
-checkPermission(scoreCampaignQueries, "scoreCampaign", "showScoreCampaigns");
+checkPermission(scoreCampaignQueries, "scoreCampaign", "manageLoyalties");
 
 export default scoreCampaignQueries;

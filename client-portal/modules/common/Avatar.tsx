@@ -1,17 +1,21 @@
-import { IUser, IUserDetails } from "../types";
+import { IUser, IUserDetails } from '../types';
 
-import dayjs from "dayjs";
-import { __ } from "../../utils";
-import { Avatars } from "../knowledgeBase/components/styles";
-import { readFile } from "./utils";
+import dayjs from 'dayjs';
+import { __ } from '../../utils';
+import { Avatars } from '../knowledgeBase/components/styles';
+import { readFile } from './utils';
 
 type Props = {
   user: IUser & { status?: string };
-  date: {modifiedAt: Date, publishedAt: Date};
+  date: { modifiedAt: Date; publishedAt: Date };
   viewCount: number;
 };
 
-export default function Avatar({ user = {} as IUser & { status?: string }, date, viewCount }: Props) {
+export default function Avatar({
+  user = {} as IUser & { status?: string },
+  date,
+  viewCount,
+}: Props) {
   if (!user || !user.details) {
     return null;
   }
@@ -24,19 +28,25 @@ export default function Avatar({ user = {} as IUser & { status?: string }, date,
       <img
         className="round-img"
         alt={fullName}
-        src={avatar ? readFile(avatar) : "/static/avatar-colored.svg"}
+        src={avatar ? readFile(avatar) : '/static/avatar-colored.svg'}
       />
       <div className="detail avatar-info d-flex flex-wrap">
         <div>
-          {__(`${status || 'Written'} by`)}
-          <span>{fullName}</span>
+          <div>
+            {__(`${status || 'Written'} by`)}
+            <span>{fullName}</span>
+          </div>
+          <div className="d-flex align-items-center">
+            <Icon icon="eye" size={14} />
+            <span>{viewCount}</span>
+          </div>
         </div>
         <div className="d-flex flex-wrap gap-2">
           <div>
             {__('Modified at')}
             <span>{dayjs(date.modifiedAt).format('MMM D YYYY')}</span>
           </div>
-          {(status === 'Published' && date.publishedAt) && (
+          {status === 'Published' && date.publishedAt && (
             <div>
               {__('Published at')}
               <span>{dayjs(date.publishedAt).format('MMM D YYYY')}</span>
