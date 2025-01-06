@@ -1,6 +1,6 @@
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
-import { sendCallsMessage, sendIntegrationsMessage } from '../../messageBroker';
+import { sendCallsMessage, sendCloudflareCallsMessage, sendIntegrationsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 
@@ -176,5 +176,37 @@ export default {
     // }
 
     return null;
+  },
+
+  async cloudflareCallsHistory(
+    conversation: IConversationDocument,
+    _args,
+    { models, subdomain }: IContext
+  ) {
+    const integration =
+      (await models.Integrations.findOne({
+        _id: conversation.integrationId
+      })) || ({} as any);
+
+    if (integration && integration.kind !== 'cloudflarecalls') {
+      return null;
+    }
+
+    try {
+      const response = await sendCloudflareCallsMessage({
+        subdomain,
+        action: 'getCallHistory',
+        data: {
+          erxesApiConversationId: conversation._id
+        },
+        isRPC: true
+      });
+
+      return response ? response : '';
+    } catch (e) {
+      debugError(e);
+      return null;
+    }
+
   }
 };
