@@ -3,6 +3,7 @@ import { IUser, IUserDetails } from '../types';
 import dayjs from 'dayjs';
 import { __ } from '../../utils';
 import { Avatars } from '../knowledgeBase/components/styles';
+import Icon from './Icon';
 import { readFile } from './utils';
 
 type Props = {
