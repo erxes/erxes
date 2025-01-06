@@ -266,7 +266,7 @@ export const readFile = (
     return value;
   }
   const { REACT_APP_API_URL } = getEnv();
-  let url = `${REACT_APP_API_URL}/read-file?key=${value}`;
+  let url = `${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(value)}`;
   if (width) {
     url += `&width=${width}`;
   }

@@ -1,19 +1,22 @@
-import { IUser, IUserDetails } from "../types";
+import { IUser, IUserDetails } from '../types';
 
-import { Avatars } from "../knowledgeBase/components/styles";
-import Icon from "./Icon";
-import React from "react";
-import dayjs from "dayjs";
-import { readFile } from "./utils";
-import { __ } from "../../utils";
+import dayjs from 'dayjs';
+import { __ } from '../../utils';
+import { Avatars } from '../knowledgeBase/components/styles';
+import Icon from './Icon';
+import { readFile } from './utils';
 
 type Props = {
   user: IUser & { status?: string };
-  date: Date;
+  date: { modifiedAt: Date; publishedAt: Date };
   viewCount: number;
 };
 
-export default function Avatar({ user = {} as IUser & { status?: string }, date, viewCount }: Props) {
+export default function Avatar({
+  user = {} as IUser & { status?: string },
+  date,
+  viewCount,
+}: Props) {
   if (!user || !user.details) {
     return null;
   }
@@ -42,12 +45,12 @@ export default function Avatar({ user = {} as IUser & { status?: string }, date,
         <div className="d-flex flex-wrap gap-2">
           <div>
             {__('Modified at')}
-            <span>{dayjs(date).format('MMM D YYYY')}</span>
+            <span>{dayjs(date.modifiedAt).format('MMM D YYYY')}</span>
           </div>
-          {status === 'Published' && (
+          {status === 'Published' && date.publishedAt && (
             <div>
               {__('Published at')}
-              <span>{dayjs(date).format('MMM D YYYY')}</span>
+              <span>{dayjs(date.publishedAt).format('MMM D YYYY')}</span>
             </div>
           )}
         </div>
