@@ -2,12 +2,12 @@ import {
   ILeadData,
   ILeadIntegration,
   IWebhookData
-} from '@erxes/ui-leads/src/types';
+} from "@erxes/ui-leads/src/types";
 
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { IForm } from '@erxes/ui-forms/src/forms/types';
-import { IProductCategory } from '@erxes/ui-products/src/types';
-import { QueryResponse } from '@erxes/ui/src/types';
+import { IBrand } from "@erxes/ui/src/brands/types";
+import { IForm } from "@erxes/ui-forms/src/forms/types";
+import { IProductCategory } from "@erxes/ui-products/src/types";
+import { QueryResponse } from "@erxes/ui/src/types";
 
 interface IFacebookCustomer {
   _id: string;
@@ -77,9 +77,9 @@ export interface IAccount {
 }
 
 // query types
-export type IntegrationTypes = 'facebook';
-export type IntegrationTypesInstagram = 'instagram';
-export type IntegrationTypesWhatsapp = 'Whatsapp';
+export type IntegrationTypes = "facebook";
+export type IntegrationTypesInstagram = "instagram";
+export type IntegrationTypesWhatsapp = "whatsapp";
 export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
 } & QueryResponse;

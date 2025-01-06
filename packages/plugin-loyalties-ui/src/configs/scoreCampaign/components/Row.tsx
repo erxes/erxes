@@ -15,7 +15,7 @@ import WithPermission from "coreui/withPermission";
 type Props = {
   campaign: IScoreCampaign;
   isChecked: boolean;
-  toggleBulk: (_id: string, isChecked: boolean) => void;
+  toggleBulk: (target: any, isChecked: boolean) => void;
   refetch: () => void;
   onChangeStatus: (_id: string, status: "published" | "draft") => void;
 };
@@ -34,7 +34,7 @@ export default function Row({
 }: Props) {
   const onChange = (e) => {
     if (toggleBulk) {
-      toggleBulk(campaign._id, e.target.checked);
+      toggleBulk(campaign, e.target.checked);
     }
   };
 

@@ -1,27 +1,6 @@
-export interface IBm {
-  _id: string;
-  name?: string;
-  createdAt?: Date;
-  expiryDate?: Date;
-  totalObjectCount?: number;
-  checked?: boolean;
-  typeId?: string;
-  currentType?: IType;
-}
-
-export interface IType {
-  _id: string;
-  name: string;
-}
-
 // queries
 export type BmQueryResponse = {
-  bms: IBm[];
-  refetch: () => void;
-  loading: boolean;
-};
-export type TypeQueryResponse = {
-  bmTypes: IType[];
+  bms: IBmsBranch[];
   refetch: () => void;
   loading: boolean;
 };
@@ -53,4 +32,20 @@ export type EditTypeMutationResponse = {
 
 export type RemoveTypeMutationResponse = {
   typesRemove: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type IBmsBranch = {
+  _id?: string;
+  name?: string;
+  description?: string;
+  createdAt?: Date;
+  token?: string;
+  erxesAppToken?: string;
+  user1Ids?: [string];
+  user2Ids?: [string];
+  paymentIds?: string[];
+  paymentTypes?: any[];
+  uiOptions?: any;
+  permissionConfig?: any;
+  user?: any;
 };

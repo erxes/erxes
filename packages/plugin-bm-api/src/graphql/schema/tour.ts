@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 export const types = () => `
   extend type User @key(fields: "_id") {
@@ -19,6 +19,7 @@ export const types = () => `
 
   type Tour {
     _id: String!
+    branchId: String
     name: String
     refNumber: String
     content: String
@@ -35,10 +36,13 @@ export const types = () => `
     orders: [BmsOrder]
     createdAt: Date
     modifiedAt: Date
+    viewCount: Int
+    tags: [String]
   }
 
   type BmsOrder {
     _id: String!
+    branchId: String
     customerId: String
     tourId: String
     amount: Float
@@ -46,6 +50,7 @@ export const types = () => `
     note: String
   }
   input BmsOrderInput {
+    branchId: String
     customerId: String
     tourId: String
     amount: Float
@@ -67,12 +72,13 @@ export const types = () => `
 `;
 
 export const queries = `
-  bmTours( page:Int, perPage:Int, status: STATUS_TOUR,innerDate: Date): ListTour
-  bmTourDetail(_id:String!): Tour
-  bmOrders( tourId:String, customerId:String):ListBmsOrder
+  bmTours( page:Int, perPage:Int, status: STATUS_TOUR, innerDate: Date,branchId: String, tags: [String]): ListTour
+  bmTourDetail(_id:String!,branchId: String): Tour
+  bmOrders( tourId:String, customerId:String ,branchId: String):ListBmsOrder
 `;
 
 const params = `
+  branchId: String,
   name: String,
   content: String,
   itineraryId:String,
@@ -84,12 +90,15 @@ const params = `
   cost: Float,
   location: [BMSLocationInput],
   guides:[GuideItemInput],
-  refNumber: String
+  refNumber: String,
+  tags:[String],
+  viewCount: Int
 `;
 
 export const mutations = `
   bmTourAdd(${params}): Tour
   bmTourRemove(ids: [String]): JSON
+  bmTourViewCount(_id: String): JSON
   bmTourEdit(_id:String!, ${params}): Tour
   bmOrderAdd(order:BmsOrderInput): BmsOrder
   bmOrderEdit(_id:String!,order:BmsOrderInput): BmsOrder

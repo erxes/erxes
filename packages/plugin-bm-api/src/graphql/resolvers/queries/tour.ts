@@ -4,8 +4,8 @@ import { IContext } from '../../../connectionResolver';
 const tourQueries = {
   async bmTours(
     _root,
-    { categories, page = 1, perPage = 10, status, innerDate },
-    { models }: IContext
+    { categories, page = 1, perPage = 10, status, innerDate, branchId, tags },
+    { models }: IContext,
   ) {
     const selector: any = {};
 
@@ -15,6 +15,12 @@ const tourQueries = {
     }
     if (status) {
       selector.status = status;
+    }
+    if (branchId) {
+      selector.status = branchId;
+    }
+    if (tags) {
+      selector.tags = { $in: tags };
     }
     if (innerDate) {
       const dateToCheck = innerDate;

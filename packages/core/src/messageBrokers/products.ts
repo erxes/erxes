@@ -56,9 +56,9 @@ export const setupProductMessageBroker = async (): Promise<void> => {
       return {
         data: regData
           ? await models.ProductCategories.find({
-              ...query,
-              order: { $regex: new RegExp(regData) }
-            }).sort(sort)
+            ...query,
+            order: { $regex: new RegExp(regData) }
+          }).sort(sort)
           : await models.ProductCategories.find(query).sort(sort).lean(),
         status: "success"
       };
@@ -77,31 +77,8 @@ export const setupProductMessageBroker = async (): Promise<void> => {
         };
       }
 
-      const categories = await models.ProductCategories.find({
-        _id: { $in: categoryIds }
-      }).lean();
-
-      if (!categories.length) {
-        return {
-          data: [],
-          status: "success"
-        };
-      }
-
-      const orderQry: any[] = [];
-      for (const category of categories) {
-        orderQry.push({
-          order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) }
-        });
-      }
-
       return {
-        data: await models.ProductCategories.find({
-          status: { $nin: ["disabled", "archived"] },
-          $or: orderQry
-        })
-          .sort({ order: 1 })
-          .lean(),
+        data: await models.ProductCategories.getChildCategories(categoryIds),
         status: "success"
       };
     }

@@ -124,10 +124,17 @@ const Avatars = styled.div`
     margin-left: 10px;
     font-size: 13px;
     flex: 1;
-    
+
     > div {
-      width: 250px;
       margin-right: ${dimensions.unitSpacing}px;
+
+      > div {
+        margin-right: ${dimensions.unitSpacing + 5}px;
+      }
+
+      :first-child {
+        width: 250px;
+      }
     }
 
     .darker {

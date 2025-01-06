@@ -9,6 +9,7 @@ export interface IOrder {
   amount: string;
   status: string;
   note: string;
+  branchId?: string;
 }
 
 export interface IOrderDocument extends IOrder, Document {
@@ -31,7 +32,6 @@ export const orderSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     createdAt: field({ type: Date, label: 'Created at' }),
     modifiedAt: field({ type: Date, label: 'Modified at' }),
-
     customerId: field({ type: String, optional: true, label: 'customerId' }),
     tourId: field({ type: String, optional: true, label: 'tourId' }),
     note: field({ type: String, optional: true, label: 'note' }),
@@ -45,6 +45,7 @@ export const orderSchema = schemaHooksWrapper(
       esType: 'keyword',
       selectOptions: STATUS_TYPES,
     }),
+    branchId: field({ type: String, optional: true, label: 'branchId' }),
   }),
-  'erxes_bm_orders'
+  'erxes_bm_orders',
 );
