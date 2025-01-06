@@ -651,6 +651,7 @@ const AuthDescription = styledTS<{
   height: 100%;
   background: ${(props) =>
     props.backgroundColor ||
+    thBackground ||
     colors.colorPrimaryDark} url('/images/stars.png') repeat top
     center;
   position: relative;
@@ -665,9 +666,12 @@ const AuthDescription = styledTS<{
     width: 100%;
     height: 100%;
     background: ${(props) =>
-      !props.backgroundColor &&
-      `transparent url('/images/twinkling.png') repeat top center`};
-    animation: ${twinkling} 200s linear infinite;
+      !props.backgroundColor && !thBackground
+      ? `transparent url('/images/twinkling.png') repeat top center`
+      : thBackground || 'none'};
+    animation: ${(props) =>
+      !props.backgroundColor && !thBackground ? `${twinkling} 200s linear infinite` : 'none'};
+    z-index: -1;
   }
 
   @media (max-width: 768px) {

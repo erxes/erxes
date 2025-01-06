@@ -90,7 +90,7 @@ export const replacePlaceHolders = async ({
 
         for (const complexFieldKey of [
           "customFieldsData",
-          "trackedData",
+          "trackedData"
         ].concat(complexFields || [])) {
           if (actionData[actionDataKey].includes(complexFieldKey)) {
             const regex = new RegExp(`{{ ${complexFieldKey}.([\\w\\d]+) }}`);
@@ -142,7 +142,7 @@ export const OPERATORS = {
   MULTIPLY: "multiply",
   DIVIDE: "divide",
   PERCENT: "percent",
-  ALL: ["set", "concat", "add", "subtract", "multiply", "divide", "percent"],
+  ALL: ["set", "concat", "add", "subtract", "multiply", "divide", "percent"]
 };
 
 const convertOp1 = (relatedItem, field) => {
@@ -162,8 +162,8 @@ const convertOp1 = (relatedItem, field) => {
 
 const getPerValue = async (args: {
   models;
-  subdomain;
-  relatedItem;
+  subdomain: string;
+  relatedItem: any;
   rule;
   target;
   getRelatedValue;
@@ -221,11 +221,11 @@ const getPerValue = async (args: {
       getRelatedValue,
       actionData: { config: value },
       target,
-      isRelated: op1Type === "string" ? true : false,
+      isRelated: op1Type === "string" ? true : false
     })
   ).config;
 
-  if (updatedValue.match(/[+\-*/]/)) {
+  if (updatedValue.match(/^[0-9+\-*/\s().]+$/)) {
     updatedValue = eval(updatedValue.replace(/{{.*}}/, "0"));
   }
 
@@ -353,7 +353,7 @@ export const setProperty = async ({
 
           const field = await sendCommonMessage({
             subdomain,
-            serviceName: 'core',
+            serviceName: "core",
             action: "fields.findOne",
             data: {
               query: { _id: fieldId }
@@ -364,7 +364,7 @@ export const setProperty = async ({
 
           const complexFieldData = await sendCommonMessage({
             subdomain,
-            serviceName: 'core',
+            serviceName: "core",
             action: "fields.generateTypedItem",
             data: {
               field: fieldId,
@@ -438,7 +438,7 @@ export const setProperty = async ({
       rules: (Object as any)
         .values(setDoc)
         .map((v) => String(v))
-        .join(", "),
+        .join(", ")
     });
   }
 
