@@ -16,6 +16,8 @@ import { ITourModel, loadTourClass } from './models/Tour';
 import { ITourDocument } from './models/definitions/tour';
 import { IOrderModel, loadOrderClass } from './models/Order';
 import { IOrderDocument } from './models/definitions/order';
+import { IBmsBranchModel, loadBmsBranchClass } from './models/BmsBranch';
+import { IBmsBranchDocument } from './models/definitions/bmsbranch';
 
 export interface IModels {
   Elements: IElementModel;
@@ -23,6 +25,7 @@ export interface IModels {
   Itineraries: IItineraryModel;
   Tours: ITourModel;
   Orders: IOrderModel;
+  BmsBranch: IBmsBranchModel;
 }
 
 export interface IContext extends IMainContext {
@@ -32,13 +35,13 @@ export interface IContext extends IMainContext {
 
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string
+  subdomain: string,
 ): IModels => {
   const models = {} as IModels;
 
   models.Elements = db.model<IElementModel, IElementModel>(
     'bm_elements',
-    loadElementClass(models, subdomain)
+    loadElementClass(models, subdomain),
   );
 
   models.ElementCategories = db.model<
@@ -48,18 +51,24 @@ export const loadClasses = (
 
   models.Itineraries = db.model<IItineraryDocument, IItineraryModel>(
     'bm_itinerary',
-    loadItineraryClass(models, subdomain)
+    loadItineraryClass(models, subdomain),
   );
 
   models.Tours = db.model<ITourDocument, ITourModel>(
     'bm_tours',
-    loadTourClass(models, subdomain)
+    loadTourClass(models, subdomain),
   );
 
   models.Orders = db.model<IOrderDocument, IOrderModel>(
     'bm_orders',
-    loadOrderClass(models, subdomain)
+    loadOrderClass(models, subdomain),
   );
+
+  models.BmsBranch = db.model<IBmsBranchDocument, IBmsBranchModel>(
+    'bm_branch',
+    loadBmsBranchClass(models, subdomain),
+  );
+
   return models;
 };
 

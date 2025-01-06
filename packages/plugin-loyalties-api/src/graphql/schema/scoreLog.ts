@@ -8,6 +8,7 @@ export const types = `
     description: String
     createdBy: String
     createdAt: Date
+    targetId: String
 
     owner: JSON
   }

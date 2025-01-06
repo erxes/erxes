@@ -26,20 +26,30 @@ export default function Avatar({ user = {} as IUser & { status?: string }, date,
       <img
         className="round-img"
         alt={fullName}
-        src={avatar ? readFile(avatar) : "/static/avatar-colored.svg"}
+        src={avatar ? readFile(avatar) : '/static/avatar-colored.svg'}
       />
       <div className="detail avatar-info d-flex flex-wrap">
         <div>
-          {__(`${status || 'Written'} by`)}
-          <span>{fullName}</span>
+          <div>
+            {__(`${status || 'Written'} by`)}
+            <span>{fullName}</span>
+          </div>
+          <div className="d-flex align-items-center">
+            <Icon icon="eye" size={14} />
+            <span>{viewCount}</span>
+          </div>
         </div>
-        <div>
-          {__("Modified at")}
-          <span>{dayjs(date).format("MMM D YYYY")}</span>
-        </div>
-        <div className="d-flex align-items-center">
-          <Icon icon="eye" size={14} />
-          <span>{viewCount}</span>
+        <div className="d-flex flex-wrap gap-2">
+          <div>
+            {__('Modified at')}
+            <span>{dayjs(date).format('MMM D YYYY')}</span>
+          </div>
+          {status === 'Published' && (
+            <div>
+              {__('Published at')}
+              <span>{dayjs(date).format('MMM D YYYY')}</span>
+            </div>
+          )}
         </div>
       </div>
     </Avatars>

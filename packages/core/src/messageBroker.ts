@@ -1,28 +1,28 @@
 import {
   InterMessage,
   connectToMessageBroker,
-  sendRPCMessage
-} from "@erxes/api-utils/src/messageBroker";
-import { sendMessage } from "@erxes/api-utils/src/core";
+  sendRPCMessage,
+} from '@erxes/api-utils/src/messageBroker';
+import { sendMessage } from '@erxes/api-utils/src/core';
 import type {
   MessageArgs,
-  MessageArgsOmitService
-} from "@erxes/api-utils/src/core";
+  MessageArgsOmitService,
+} from '@erxes/api-utils/src/core';
 
-import { formConsumers } from "@erxes/api-utils/src/consumers/forms";
+import { formConsumers } from '@erxes/api-utils/src/consumers/forms';
 
-import { logConsumers } from "@erxes/api-utils/src/consumers/logs";
-import { internalNoteConsumers } from "@erxes/api-utils/src/consumers/internalNotes";
-import { importExportCunsomers } from "@erxes/api-utils/src/consumers/importExport";
-import { segmentsCunsomers } from "@erxes/api-utils/src/consumers/segments";
-import { searchCunsomers } from "@erxes/api-utils/src/consumers/search";
-import { tagConsumers } from "@erxes/api-utils/src/consumers/tags";
-import { reportsCunsomers } from "@erxes/api-utils/src/consumers/reports";
+import { logConsumers } from '@erxes/api-utils/src/consumers/logs';
+import { internalNoteConsumers } from '@erxes/api-utils/src/consumers/internalNotes';
+import { importExportCunsomers } from '@erxes/api-utils/src/consumers/importExport';
+import { segmentsCunsomers } from '@erxes/api-utils/src/consumers/segments';
+import { searchCunsomers } from '@erxes/api-utils/src/consumers/search';
+import { tagConsumers } from '@erxes/api-utils/src/consumers/tags';
+import { reportsCunsomers } from '@erxes/api-utils/src/consumers/reports';
 
-import { templatesCunsomers } from "@erxes/api-utils/src/consumers/templates";
-import { automationsCunsomers } from "@erxes/api-utils/src/consumers/automations";
-import { registerOnboardHistory } from "./data/modules/robot";
-import templates from "./templates";
+import { templatesCunsomers } from '@erxes/api-utils/src/consumers/templates';
+import { automationsCunsomers } from '@erxes/api-utils/src/consumers/automations';
+import { registerOnboardHistory } from './data/modules/robot';
+import templates from './templates';
 
 import {
   escapeRegExp,
@@ -30,40 +30,40 @@ import {
   getConfigs,
   getFileUploadConfigs,
   sendEmail,
-  sendMobileNotification
-} from "./data/utils";
+  sendMobileNotification,
+} from './data/utils';
 
-import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-import logUtils from "./logUtils";
-import internalNotes from "./internalNotes";
-import forms from "./forms";
-import automations from "./automations";
-import { generateModels } from "./connectionResolver";
-import { USER_ROLES } from "@erxes/api-utils/src/constants";
-import imports from "./imports";
-import exporter from "./exporter";
-import segments from "./segments";
+import logUtils from './logUtils';
+import internalNotes from './internalNotes';
+import forms from './forms';
+import automations from './automations';
+import { generateModels } from './connectionResolver';
+import { USER_ROLES } from '@erxes/api-utils/src/constants';
+import imports from './imports';
+import exporter from './exporter';
+import segments from './segments';
 import {
   consumeQueue,
   consumeRPCQueue,
-  consumeRPCQueueMq
-} from "@erxes/api-utils/src/messageBroker";
+  consumeRPCQueueMq,
+} from '@erxes/api-utils/src/messageBroker';
 
-import { IActivityLogDocument } from "./db/models/definitions/activityLogs";
-import { receivePutLogCommand } from "./db/utils/logUtils";
+import { IActivityLogDocument } from './db/models/definitions/activityLogs';
+import { receivePutLogCommand } from './db/utils/logUtils';
 import {
   fetchSegment,
-  isInSegment
-} from "./data/modules/segments/queryBuilder";
-import { fieldsCombinedByContentType } from "./formUtils";
-import { setupContactsMessageBroker } from "./messageBrokers/contacts";
-import search from "./search";
-import { setupProductMessageBroker } from "./messageBrokers/products";
-import tags from "./tags";
-import { setupInternalNotesMessageBroker } from "./messageBrokers/internalNotes";
-import { setupMessageEmailTemplatesConsumers } from "./messageBrokers/emailTemplates";
-import reports from "./reports/reports";
+  isInSegment,
+} from './data/modules/segments/queryBuilder';
+import { fieldsCombinedByContentType } from './formUtils';
+import { setupContactsMessageBroker } from './messageBrokers/contacts';
+import search from './search';
+import { setupProductMessageBroker } from './messageBrokers/products';
+import tags from './tags';
+import { setupInternalNotesMessageBroker } from './messageBrokers/internalNotes';
+import { setupMessageEmailTemplatesConsumers } from './messageBrokers/emailTemplates';
+import reports from './reports/reports';
 
 export const initBroker = async (): Promise<void> => {
   await connectToMessageBroker(setupMessageConsumers);
@@ -76,200 +76,200 @@ export const setupMessageConsumers = async (): Promise<void> => {
   await setupMessageEmailTemplatesConsumers();
 
   consumeQueue(
-    "core:manage-installation-notification",
+    'core:manage-installation-notification',
     async ({
       subdomain,
       type,
       name,
-      message
+      message,
     }: InterMessage & { [others: string]: any }) => {
       const models = await generateModels(subdomain);
 
-      if (type === "uninstall" && message === "done") {
+      if (type === 'uninstall' && message === 'done') {
         await models.InstallationLogs.deleteMany({ pluginName: name });
         return;
       }
 
       await models.InstallationLogs.createLog({
         pluginName: name,
-        message
+        message,
       });
 
-      if (message === "done") {
+      if (message === 'done') {
         await models.InstallationLogs.deleteMany({
           pluginName: name,
-          message: { $ne: "done" }
+          message: { $ne: 'done' },
         });
       }
     }
   );
 
-  consumeQueue("core:runCrons", async () => {
-    console.log("Running crons ........");
+  consumeQueue('core:runCrons', async () => {
+    console.log('Running crons ........');
   });
 
-  consumeRPCQueue("core:permissions.find", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:permissions.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await models.Permissions.find(data).lean()
+      status: 'success',
+      data: await models.Permissions.find(data).lean(),
     };
   });
 
-  consumeQueue("core:sendMobileNotification", async ({ subdomain, data }) => {
+  consumeQueue('core:sendMobileNotification', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     await sendMobileNotification(models, data);
   });
 
-  consumeQueue("core:sendEmail", async ({ subdomain, data }) => {
+  consumeQueue('core:sendEmail', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     await sendEmail(subdomain, data, models);
   });
 
   consumeRPCQueue(
-    "core:conformities.addConformity",
+    'core:conformities.addConformity',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Conformities.addConformity(data)
+        status: 'success',
+        data: await models.Conformities.addConformity(data),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:conformities.savedConformity",
+    'core:conformities.savedConformity',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Conformities.savedConformity(data)
+        status: 'success',
+        data: await models.Conformities.savedConformity(data),
       };
     }
   );
 
-  consumeQueue("core:conformities.create", async ({ subdomain, data }) => {
+  consumeQueue('core:conformities.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await models.Conformities.create(data)
+      status: 'success',
+      data: await models.Conformities.create(data),
     };
   });
 
-  consumeQueue("core:conformities.removeConformities", async ({ data }) => {
+  consumeQueue('core:conformities.removeConformities', async ({ data }) => {
     const models = await generateModels(data);
 
     return {
-      status: "success",
-      data: await models.Conformities.removeConformities(data)
+      status: 'success',
+      data: await models.Conformities.removeConformities(data),
     };
   });
 
   consumeQueue(
-    "core:conformities.removeConformity",
+    'core:conformities.removeConformity',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Conformities.removeConformity(data)
+        status: 'success',
+        data: await models.Conformities.removeConformity(data),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:conformities.getConformities",
+    'core:conformities.getConformities',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Conformities.getConformities(data)
+        status: 'success',
+        data: await models.Conformities.getConformities(data),
       };
     }
   );
 
   consumeQueue(
-    "core:conformities.addConformities",
+    'core:conformities.addConformities',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Conformities.addConformities(data)
+        status: 'success',
+        data: await models.Conformities.addConformities(data),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:conformities.relatedConformity",
+    'core:conformities.relatedConformity',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Conformities.relatedConformity(data)
+        status: 'success',
+        data: await models.Conformities.relatedConformity(data),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:conformities.filterConformity",
+    'core:conformities.filterConformity',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Conformities.filterConformity(data)
+        status: 'success',
+        data: await models.Conformities.filterConformity(data),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:conformities.changeConformity",
+    'core:conformities.changeConformity',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Conformities.changeConformity(data)
+        status: 'success',
+        data: await models.Conformities.changeConformity(data),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:conformities.findConformities",
+    'core:conformities.findConformities',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Conformities.find(data).lean()
+        status: 'success',
+        data: await models.Conformities.find(data).lean(),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:conformities.editConformity",
+    'core:conformities.editConformity',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Conformities.editConformity(data)
+        status: 'success',
+        data: await models.Conformities.editConformity(data),
       };
     }
   );
 
   // listen for rpc queue =========
   consumeQueue(
-    "core:registerOnboardHistory",
+    'core:registerOnboardHistory',
     async ({ subdomain, data: { type, user } }) => {
       const models = await generateModels(subdomain);
 
@@ -277,80 +277,80 @@ export const setupMessageConsumers = async (): Promise<void> => {
     }
   );
 
-  consumeRPCQueue("core:getConfigs", async ({ subdomain }) => {
+  consumeRPCQueue('core:getConfigs', async ({ subdomain }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await getConfigs(models)
+      status: 'success',
+      data: await getConfigs(models),
     };
   });
 
-  consumeRPCQueue("core:configs.getValues", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:configs.getValues', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await models.Configs.find(data).distinct("value")
+      status: 'success',
+      data: await models.Configs.find(data).distinct('value'),
     };
   });
 
   consumeRPCQueue(
-    "core:configs.createOrUpdateConfig",
+    'core:configs.createOrUpdateConfig',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Configs.createOrUpdateConfig(data)
+        status: 'success',
+        data: await models.Configs.createOrUpdateConfig(data),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:configs.findOne",
+    'core:configs.findOne',
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Configs.findOne(query).lean()
+        status: 'success',
+        data: await models.Configs.findOne(query).lean(),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:getConfig",
+    'core:getConfig',
     async ({ subdomain, data: { code, defaultValue } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await getConfig(code, defaultValue, models)
+        status: 'success',
+        data: await getConfig(code, defaultValue, models),
       };
     }
   );
 
-  consumeRPCQueue("core:users.findOne", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:users.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await models.Users.findOne(data).lean()
+      status: 'success',
+      data: await models.Users.findOne(data).lean(),
     };
   });
 
-  consumeRPCQueue("core:users.getIds", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:users.getIds', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await models.Users.findUsers(data, { _id: 1 })
+      status: 'success',
+      data: await models.Users.findUsers(data, { _id: 1 }),
     };
   });
 
   consumeRPCQueue(
-    "core:users.getIdsBySearchParams",
+    'core:users.getIdsBySearchParams',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -359,49 +359,49 @@ export const setupMessageConsumers = async (): Promise<void> => {
       const query: any = {};
 
       query.$or = [
-        { email: new RegExp(`.*${searchValue}.*`, "i") },
-        { employeeId: new RegExp(`.*${searchValue}.*`, "i") },
-        { username: new RegExp(`.*${searchValue}.*`, "i") },
-        { "details.fullName": new RegExp(`.*${searchValue}.*`, "i") },
-        { "details.position": new RegExp(`.*${searchValue}.*`, "i") }
+        { email: new RegExp(`.*${searchValue}.*`, 'i') },
+        { employeeId: new RegExp(`.*${searchValue}.*`, 'i') },
+        { username: new RegExp(`.*${searchValue}.*`, 'i') },
+        { 'details.fullName': new RegExp(`.*${searchValue}.*`, 'i') },
+        { 'details.position': new RegExp(`.*${searchValue}.*`, 'i') },
       ];
 
       return {
-        status: "success",
-        data: await models.Users.find(query).distinct("_id")
+        status: 'success',
+        data: await models.Users.find(query).distinct('_id'),
       };
     }
   );
 
-  consumeRPCQueue("core:users.checkLoginAuth", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:users.checkLoginAuth', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await models.Users.checkLoginAuth(data)
+      status: 'success',
+      data: await models.Users.checkLoginAuth(data),
     };
   });
 
-  consumeRPCQueue("core:departments.find", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:departments.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await models.Departments.find(data).lean()
+      status: 'success',
+      data: await models.Departments.find(data).lean(),
     };
   });
 
-  consumeRPCQueue("core:departments.findOne", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:departments.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await models.Departments.findOne(data).lean()
+      status: 'success',
+      data: await models.Departments.findOne(data).lean(),
     };
   });
 
   consumeRPCQueue(
-    "core:departments.findWithChild",
+    'core:departments.findWithChild',
     async ({ subdomain, data: { query, fields } }) => {
       const models = await generateModels(subdomain);
 
@@ -410,173 +410,185 @@ export const setupMessageConsumers = async (): Promise<void> => {
       if (!departments.length) {
         return {
           data: [],
-          status: "success"
+          status: 'success',
         };
       }
 
       const orderQry: any[] = [];
       for (const tag of departments) {
         orderQry.push({
-          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || "")}`) }
+          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || '')}`) },
         });
       }
 
       return {
         data: await models.Departments.find(
           {
-            $or: orderQry
+            $or: orderQry,
           },
           fields || {}
         )
           .sort({ order: 1 })
           .lean(),
-        status: "success"
+        status: 'success',
       };
     }
   );
 
   consumeRPCQueue(
-    "core:users.updateOne",
+    'core:users.updateOne',
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Users.updateOne(selector, modifier)
+        status: 'success',
+        data: await models.Users.updateOne(selector, modifier),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:users.updateMany",
+    'core:users.updateMany',
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Users.updateMany(selector, modifier)
+        status: 'success',
+        data: await models.Users.updateMany(selector, modifier),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:users.getCount",
+    'core:users.getCount',
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Users.countDocuments(query)
+        status: 'success',
+        data: await models.Users.countDocuments(query),
       };
     }
   );
 
-  consumeRPCQueue("core:users.create", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:users.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await models.Users.createUser(data)
+      status: 'success',
+      data: await models.Users.createUser(data),
     };
   });
 
-  consumeRPCQueue("core:users.find", async ({ subdomain, data }) => {
+  consumeRPCQueue(
+    'core:users.setActiveStatus',
+    async ({ subdomain, data: { _id } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Users.setUserActiveOrInactive(_id),
+      };
+    }
+  );
+
+  consumeRPCQueue('core:users.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { query, sort = {}, fields, skip, limit } = data;
 
     return {
-      status: "success",
+      status: 'success',
       data: await models.Users.find(
         {
           ...query,
-          role: { $ne: USER_ROLES.SYSTEM }
+          role: { $ne: USER_ROLES.SYSTEM },
         },
         fields
       )
         .sort(sort)
         .skip(skip || 0)
         .limit(limit || 0)
-        .lean()
+        .lean(),
     };
   });
 
-  consumeRPCQueue("core:users.comparePassword", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:users.comparePassword', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { password, userPassword } = data;
 
     return {
-      status: "success",
-      data: await models.Users.comparePassword(password, userPassword)
+      status: 'success',
+      data: await models.Users.comparePassword(password, userPassword),
     };
   });
 
   consumeRPCQueue(
-    "core:brands.findOne",
+    'core:brands.findOne',
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Brands.getBrand(query)
+        status: 'success',
+        data: await models.Brands.getBrand(query),
       };
     }
   );
 
-  consumeRPCQueue("core:brands.find", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:brands.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { query } = data;
 
     return {
-      status: "success",
-      data: await models.Brands.find(query).lean()
+      status: 'success',
+      data: await models.Brands.find(query).lean(),
     };
   });
 
-  consumeRPCQueue("core:brands.create", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:brands.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await models.Brands.createBrand(data)
+      status: 'success',
+      data: await models.Brands.createBrand(data),
     };
   });
 
-  consumeRPCQueue("core:branches.aggregate", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:branches.aggregate', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { pipeline } = data;
 
     return {
-      status: "success",
-      data: await models.Branches.aggregate(pipeline).exec()
+      status: 'success',
+      data: await models.Branches.aggregate(pipeline).exec(),
     };
   });
 
-  consumeRPCQueue("core:branches.find", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:branches.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { query, fields } = data;
 
     return {
-      status: "success",
-      data: await models.Branches.find(query, fields).lean()
+      status: 'success',
+      data: await models.Branches.find(query, fields).lean(),
     };
   });
 
-  consumeRPCQueue("core:branches.findOne", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:branches.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await models.Branches.findOne(data).lean()
+      status: 'success',
+      data: await models.Branches.findOne(data).lean(),
     };
   });
 
   consumeRPCQueue(
-    "core:branches.findWithChild",
+    'core:branches.findWithChild',
     async ({ subdomain, data: { query, fields } }) => {
       const models = await generateModels(subdomain);
 
@@ -585,126 +597,126 @@ export const setupMessageConsumers = async (): Promise<void> => {
       if (!branches.length) {
         return {
           data: [],
-          status: "success"
+          status: 'success',
         };
       }
 
       const orderQry: any[] = [];
       for (const tag of branches) {
         orderQry.push({
-          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || "")}`) }
+          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || '')}`) },
         });
       }
 
       return {
         data: await models.Branches.find(
           {
-            $or: orderQry
+            $or: orderQry,
           },
           fields || {}
         )
           .sort({ order: 1 })
           .lean(),
-        status: "success"
+        status: 'success',
       };
     }
   );
 
-  consumeRPCQueue("core:units.find", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:units.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await models.Units.find(data).lean()
+      status: 'success',
+      data: await models.Units.find(data).lean(),
     };
   });
 
-  consumeRPCQueue("core:units.findOne", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:units.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await models.Units.findOne(data).lean()
+      status: 'success',
+      data: await models.Units.findOne(data).lean(),
     };
   });
 
-  consumeRPCQueue("core:userGroups.getIds", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:userGroups.getIds', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await models.UsersGroups.find(data).distinct("_id")
+      status: 'success',
+      data: await models.UsersGroups.find(data).distinct('_id'),
     };
   });
 
-  consumeRPCQueue("core:getFileUploadConfigs", async ({ subdomain }) => {
+  consumeRPCQueue('core:getFileUploadConfigs', async ({ subdomain }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await getFileUploadConfigs(models)
+      status: 'success',
+      data: await getFileUploadConfigs(models),
     };
   });
 
   logConsumers({
-    name: "core",
-    logs: logUtils
+    name: 'core',
+    logs: logUtils,
   });
 
   internalNoteConsumers({
-    name: "core",
-    internalNotes
+    name: 'core',
+    internalNotes,
   });
 
   formConsumers({
-    name: "core",
-    forms
+    name: 'core',
+    forms,
   });
 
-  automationsCunsomers({ name: "core", automations });
+  automationsCunsomers({ name: 'core', automations });
 
-  tagConsumers({ name: "core", tags });
-  reportsCunsomers({ name: "core", reports });
-  importExportCunsomers({ name: "core", imports, exporter });
-  segmentsCunsomers({ name: "core", segments });
-  searchCunsomers({ name: "core", search });
-  templatesCunsomers({ name: "core", templates });
+  tagConsumers({ name: 'core', tags });
+  reportsCunsomers({ name: 'core', reports });
+  importExportCunsomers({ name: 'core', imports, exporter });
+  segmentsCunsomers({ name: 'core', segments });
+  searchCunsomers({ name: 'core', search });
+  templatesCunsomers({ name: 'core', templates });
 
-  consumeRPCQueueMq("core:isServiceEnabled", async ({ data }) => ({
-    status: "success",
-    data: await isEnabled(data)
+  consumeRPCQueueMq('core:isServiceEnabled', async ({ data }) => ({
+    status: 'success',
+    data: await isEnabled(data),
   }));
 
   //tags
-  consumeRPCQueue("core:tagFind", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:tagFind', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       data: await models.Tags.find(data).lean(),
-      status: "success"
+      status: 'success',
     };
   });
 
-  consumeRPCQueue("core:tagFindOne", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:tagFindOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       data: await models.Tags.findOne(data).lean(),
-      status: "success"
+      status: 'success',
     };
   });
 
-  consumeRPCQueue("core:createTag", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:createTag', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await models.Tags.createTag(data)
+      status: 'success',
+      data: await models.Tags.createTag(data),
     };
   });
 
   consumeRPCQueue(
-    "core:tagWithChilds",
+    'core:tagWithChilds',
     async ({ subdomain, data: { query, fields } }) => {
       const models = await generateModels(subdomain);
 
@@ -713,32 +725,32 @@ export const setupMessageConsumers = async (): Promise<void> => {
       if (!tags.length) {
         return {
           data: [],
-          status: "success"
+          status: 'success',
         };
       }
 
       const orderQry: any[] = [];
       for (const tag of tags) {
         orderQry.push({
-          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || "")}`) }
+          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || '')}`) },
         });
       }
 
       return {
         data: await models.Tags.find(
           {
-            $or: orderQry
+            $or: orderQry,
           },
           fields || {}
         )
           .sort({ order: 1 })
           .lean(),
-        status: "success"
+        status: 'success',
       };
     }
   );
 
-  consumeQueue("putLog", async ({ data, subdomain }) => {
+  consumeQueue('putLog', async ({ data, subdomain }) => {
     const models = await generateModels(subdomain);
 
     try {
@@ -748,40 +760,40 @@ export const setupMessageConsumers = async (): Promise<void> => {
     }
   });
 
-  consumeQueue("core:visitor.createOrUpdate", async ({ data, subdomain }) => {
+  consumeQueue('core:visitor.createOrUpdate', async ({ data, subdomain }) => {
     const models = await generateModels(subdomain);
 
     await models.Visitors.createOrUpdateVisitorLog(data);
   });
 
   consumeQueue(
-    "core:visitor.convertRequest",
+    'core:visitor.convertRequest',
     async ({ data: { visitorId }, subdomain }) => {
       const models = await generateModels(subdomain);
       const visitor = await models.Visitors.getVisitorLog(visitorId);
 
       await sendInboxMessage({
         subdomain,
-        action: "visitor.convertResponse",
-        data: visitor
+        action: 'visitor.convertResponse',
+        data: visitor,
       });
     }
   );
 
   consumeQueue(
-    "core:visitor.updateEntry",
+    'core:visitor.updateEntry',
     async ({ data: { visitorId, location: browserInfo }, subdomain }) => {
       const models = await generateModels(subdomain);
 
       await models.Visitors.updateVisitorLog({
         visitorId,
-        location: browserInfo
+        location: browserInfo,
       });
     }
   );
 
   consumeQueue(
-    "core:visitor.removeEntry",
+    'core:visitor.removeEntry',
     async ({ data: { visitorId }, subdomain }) => {
       const models = await generateModels(subdomain);
 
@@ -789,7 +801,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
     }
   );
 
-  consumeQueue("putActivityLog", async (args) => {
+  consumeQueue('putActivityLog', async (args) => {
     const { data: obj, subdomain } = args;
 
     const models = await generateModels(subdomain);
@@ -797,12 +809,12 @@ export const setupMessageConsumers = async (): Promise<void> => {
     const { data, action } = obj;
 
     switch (action) {
-      case "removeActivityLogs": {
+      case 'removeActivityLogs': {
         const { type, itemIds } = data;
 
         return models.ActivityLogs.removeActivityLogs(type, itemIds);
       }
-      case "removeActivityLog": {
+      case 'removeActivityLog': {
         const { contentTypeId } = data;
 
         return models.ActivityLogs.removeActivityLog(contentTypeId);
@@ -817,7 +829,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
   });
 
   consumeQueue(
-    "core:activityLogs.updateMany",
+    'core:activityLogs.updateMany',
     async ({ data: { query, modifier }, subdomain }) => {
       const models = await generateModels(subdomain);
 
@@ -828,7 +840,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
   );
 
   consumeQueue(
-    "core:delete.old",
+    'core:delete.old',
     async ({ data: { months = 1 }, subdomain }) => {
       const models = await generateModels(subdomain);
       const now = new Date();
@@ -839,79 +851,79 @@ export const setupMessageConsumers = async (): Promise<void> => {
             now.getFullYear(),
             now.getMonth() - months,
             now.getDate()
-          )
-        }
+          ),
+        },
       });
     }
   );
 
   consumeRPCQueue(
-    "core:activityLogs.findMany",
+    'core:activityLogs.findMany',
     async ({ data: { query, options }, subdomain }) => {
       const models = await generateModels(subdomain);
 
       return {
         data: await models.ActivityLogs.find(query, options).lean(),
-        status: "success"
+        status: 'success',
       };
     }
   );
 
   consumeRPCQueue(
-    "core:emailDeliveries.create",
+    'core:emailDeliveries.create',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.EmailDeliveries.createEmailDelivery(data)
+        status: 'success',
+        data: await models.EmailDeliveries.createEmailDelivery(data),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:emailDeliveries.find",
+    'core:emailDeliveries.find',
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.EmailDeliveries.find(query).lean()
+        status: 'success',
+        data: await models.EmailDeliveries.find(query).lean(),
       };
     }
   );
 
   //segments
 
-  consumeRPCQueue("core:segmentFindOne", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:segmentFindOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       data: await models.Segments.findOne(data).lean(),
-      status: "success"
+      status: 'success',
     };
   });
 
-  consumeRPCQueue("core:segmentFind", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:segmentFind', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    return { data: await models.Segments.find(data).lean(), status: "success" };
+    return { data: await models.Segments.find(data).lean(), status: 'success' };
   });
 
   consumeRPCQueue(
-    "core:segmentCount",
+    'core:segmentCount',
     async ({ subdomain, data: { selector } }) => {
       const models = await generateModels(subdomain);
 
       return {
         data: await models.Segments.find(selector).countDocuments(),
-        status: "success"
+        status: 'success',
       };
     }
   );
 
   consumeRPCQueue(
-    "core:fetchSegment",
+    'core:fetchSegment',
     async ({ subdomain, data: { segmentId, options, segmentData } }) => {
       const models = await generateModels(subdomain);
 
@@ -921,13 +933,13 @@ export const setupMessageConsumers = async (): Promise<void> => {
 
       return {
         data: await fetchSegment(models, subdomain, segment, options),
-        status: "success"
+        status: 'success',
       };
     }
   );
 
   consumeRPCQueue(
-    "core:isInSegment",
+    'core:isInSegment',
     async ({ subdomain, data: { segmentId, idToCheck, options } }) => {
       const models = await generateModels(subdomain);
 
@@ -939,24 +951,24 @@ export const setupMessageConsumers = async (): Promise<void> => {
         options
       );
 
-      return { data, status: "success" };
+      return { data, status: 'success' };
     }
   );
 
   consumeQueue(
-    "core:removeSegment",
+    'core:removeSegment',
     async ({ subdomain, data: { segmentId } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Segments.removeSegment(segmentId)
+        status: 'success',
+        data: await models.Segments.removeSegment(segmentId),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:findSubSegments",
+    'core:findSubSegments',
     async ({ subdomain, data: { segmentIds } }) => {
       const models = await generateModels(subdomain);
 
@@ -964,8 +976,8 @@ export const setupMessageConsumers = async (): Promise<void> => {
 
       if (!segments?.length) {
         return {
-          status: "error",
-          errorMessage: "Segments not found"
+          status: 'error',
+          errorMessage: 'Segments not found',
         };
       }
 
@@ -980,12 +992,12 @@ export const setupMessageConsumers = async (): Promise<void> => {
       }
 
       return {
-        status: "success",
+        status: 'success',
         data: await models.Segments.find({
           _id: {
-            $in: subSegmentIds
-          }
-        })
+            $in: subSegmentIds,
+          },
+        }),
       };
     }
   );
@@ -993,73 +1005,73 @@ export const setupMessageConsumers = async (): Promise<void> => {
   //forms
 
   consumeRPCQueue(
-    "core:validate",
+    'core:validate',
     async ({ subdomain, data: { formId, submissions } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Forms.validateForm(formId, submissions)
+        status: 'success',
+        data: await models.Forms.validateForm(formId, submissions),
       };
     }
   );
 
-  consumeRPCQueue("core:formsFind", async ({ subdomain, data: { query } }) => {
+  consumeRPCQueue('core:formsFind', async ({ subdomain, data: { query } }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await models.Forms.find(query).lean()
+      status: 'success',
+      data: await models.Forms.find(query).lean(),
     };
   });
 
-  consumeRPCQueue("core:formsFindOne", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:formsFindOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await models.Forms.findOne(data).lean()
+      status: 'success',
+      data: await models.Forms.findOne(data).lean(),
     };
   });
 
   consumeRPCQueue(
-    "core:duplicate",
+    'core:duplicate',
     async ({ subdomain, data: { formId, userId } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Forms.duplicate(formId, userId)
+        status: 'success',
+        data: await models.Forms.duplicate(formId, userId),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:createForm",
+    'core:createForm',
     async ({ subdomain, data: { formDoc, userId } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Forms.createForm(formDoc, userId)
+        status: 'success',
+        data: await models.Forms.createForm(formDoc, userId),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:removeForm",
+    'core:removeForm',
     async ({ subdomain, data: { formId } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Forms.removeForm(formId)
+        status: 'success',
+        data: await models.Forms.removeForm(formId),
       };
     }
   );
 
   consumeQueue(
-    "core:fields.insertMany",
+    'core:fields.insertMany',
     async ({ subdomain, data: { fields } }) => {
       const models = await generateModels(subdomain);
 
@@ -1068,198 +1080,198 @@ export const setupMessageConsumers = async (): Promise<void> => {
   );
 
   consumeRPCQueue(
-    "core:fields.prepareCustomFieldsData",
+    'core:fields.prepareCustomFieldsData',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
       return {
-        status: "success",
-        data: await models.Fields.prepareCustomFieldsData(data)
+        status: 'success',
+        data: await models.Fields.prepareCustomFieldsData(data),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:fields.prepareCustomFieldsData",
+    'core:fields.prepareCustomFieldsData',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
       return {
-        status: "success",
-        data: await models.Fields.prepareCustomFieldsData(data)
+        status: 'success',
+        data: await models.Fields.prepareCustomFieldsData(data),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:fields.generateCustomFieldsData",
+    'core:fields.generateCustomFieldsData',
     async ({ subdomain, data: { customData, contentType } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
+        status: 'success',
         data: await models.Fields.generateCustomFieldsData(
           customData,
           contentType
-        )
+        ),
       };
     }
   );
 
-  consumeRPCQueue("core:fields.create", async ({ subdomain, data }) => {
+  consumeRPCQueue('core:fields.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
-      data: await models.Fields.createField(data)
+      status: 'success',
+      data: await models.Fields.createField(data),
     };
   });
 
   consumeRPCQueue(
-    "core:fields.updateOne",
+    'core:fields.updateOne',
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Fields.updateOne(selector, modifier)
+        status: 'success',
+        data: await models.Fields.updateOne(selector, modifier),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:fields.generateTypedListFromMap",
+    'core:fields.generateTypedListFromMap',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Fields.generateTypedListFromMap(data)
+        status: 'success',
+        data: await models.Fields.generateTypedListFromMap(data),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:fields.generateTypedItem",
+    'core:fields.generateTypedItem',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
+        status: 'success',
         data: await models.Fields.generateTypedItem(
           data.field,
           data.value,
           data.type,
           data.validation
-        )
+        ),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:fields.fieldsCombinedByContentType",
+    'core:fields.fieldsCombinedByContentType',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await fieldsCombinedByContentType(models, subdomain, data)
+        status: 'success',
+        data: await fieldsCombinedByContentType(models, subdomain, data),
       };
     }
   );
 
   consumeQueue(
-    "core:updateGroup",
+    'core:updateGroup',
     async ({ subdomain, data: { groupId, fieldsGroup } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.FieldsGroups.updateGroup(groupId, fieldsGroup)
+        status: 'success',
+        data: await models.FieldsGroups.updateGroup(groupId, fieldsGroup),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:fields.find",
+    'core:fields.find',
     async ({ subdomain, data: { query, projection, sort } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Fields.find(query, projection).sort(sort).lean()
+        status: 'success',
+        data: await models.Fields.find(query, projection).sort(sort).lean(),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:fields.findOne",
+    'core:fields.findOne',
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.Fields.findOne(query).lean()
+        status: 'success',
+        data: await models.Fields.findOne(query).lean(),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:fieldsGroups.find",
+    'core:fieldsGroups.find',
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.FieldsGroups.find(query).lean()
+        status: 'success',
+        data: await models.FieldsGroups.find(query).lean(),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:fieldsGroups.findOne",
+    'core:fieldsGroups.findOne',
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.FieldsGroups.findOne(query).lean()
+        status: 'success',
+        data: await models.FieldsGroups.findOne(query).lean(),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:fieldsCombinedByContentType",
+    'core:fieldsCombinedByContentType',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await fieldsCombinedByContentType(models, subdomain, data)
+        status: 'success',
+        data: await fieldsCombinedByContentType(models, subdomain, data),
       };
     }
   );
 
   consumeRPCQueue(
-    "core:submissions.find",
+    'core:submissions.find',
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.FormSubmissions.find(query).lean()
+        status: 'success',
+        data: await models.FormSubmissions.find(query).lean(),
       };
     }
   );
 
   consumeQueue(
-    "core:submissions.createFormSubmission",
+    'core:submissions.createFormSubmission',
     async ({ subdomain, data: { submissions } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
+        status: 'success',
         data: await models.FormSubmissions.insertMany(submissions, {
-          ordered: false
-        })
+          ordered: false,
+        }),
       };
     }
   );
@@ -1267,7 +1279,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
 
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    ...args
+    ...args,
   });
 };
 
@@ -1275,8 +1287,8 @@ export const sendIntegrationsMessage = (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "integrations",
-    ...args
+    serviceName: 'integrations',
+    ...args,
   });
 };
 
@@ -1284,8 +1296,8 @@ export const sendInboxMessage = (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "inbox",
-    ...args
+    serviceName: 'inbox',
+    ...args,
   });
 };
 
@@ -1293,8 +1305,8 @@ export const sendNotificationsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "notifications",
-    ...args
+    serviceName: 'notifications',
+    ...args,
   });
 };
 
@@ -1309,16 +1321,16 @@ const checkService = async (serviceName: string, needsList?: boolean) => {
 };
 
 export const getContentIds = async (subdomain: string, data) => {
-  const [serviceName] = data.contentType.split(":");
+  const [serviceName] = data.contentType.split(':');
 
   await checkService(serviceName, true);
 
   return sendCommonMessage({
     subdomain,
     serviceName,
-    action: "logs.getContentIds",
+    action: 'logs.getContentIds',
     data,
-    isRPC: true
+    isRPC: true,
   });
 };
 
@@ -1329,7 +1341,7 @@ export const fetchServiceSegments = async (
   data,
   defaultValue?
 ) => {
-  const [serviceName, type] = contentType.split(":");
+  const [serviceName, type] = contentType.split(':');
 
   return sendMessage({
     subdomain,
@@ -1338,9 +1350,9 @@ export const fetchServiceSegments = async (
     action: `logs.${action}`,
     data: {
       ...data,
-      type
+      type,
     },
-    defaultValue
+    defaultValue,
   });
 };
 
@@ -1351,7 +1363,7 @@ export const fetchServiceForms = async (
   data,
   defaultValue?
 ) => {
-  const [serviceName, type] = contentType.split(":");
+  const [serviceName, type] = contentType.split(':');
 
   return sendMessage({
     subdomain,
@@ -1360,9 +1372,9 @@ export const fetchServiceForms = async (
     action: `fields.${action}`,
     data: {
       ...data,
-      type
+      type,
     },
-    defaultValue
+    defaultValue,
   });
 };
 
@@ -1378,22 +1390,22 @@ export const getContentTypeDetail = async (
   subdomain: string,
   activityLog: IActivityLogDocument
 ) => {
-  const [serviceName] = activityLog.contentType.split(":");
+  const [serviceName] = activityLog.contentType.split(':');
 
   const enabled = await isEnabled(serviceName);
 
   return enabled
     ? sendRPCMessage(`${serviceName}:logs.getContentTypeDetail`, {
         subdomain,
-        data: activityLog
+        data: activityLog,
       })
     : null;
 };
 
 export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
-    serviceName: "clientportal",
-    ...args
+    serviceName: 'clientportal',
+    ...args,
   });
 };
 
@@ -1401,8 +1413,8 @@ export const sendEngagesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "engages",
-    ...args
+    serviceName: 'engages',
+    ...args,
   });
 };
 
@@ -1410,8 +1422,8 @@ export const sendSalesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "sales",
-    ...args
+    serviceName: 'sales',
+    ...args,
   });
 };
 
@@ -1419,8 +1431,8 @@ export const sendTasksMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "tasks",
-    ...args
+    serviceName: 'tasks',
+    ...args,
   });
 };
 
@@ -1428,8 +1440,8 @@ export const sendTicketsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "tickets",
-    ...args
+    serviceName: 'tickets',
+    ...args,
   });
 };
 
@@ -1437,7 +1449,7 @@ export const sendPurchasesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "purchases",
-    ...args
+    serviceName: 'purchases',
+    ...args,
   });
 };

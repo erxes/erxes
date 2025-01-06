@@ -77,6 +77,7 @@ var plugins = [
   { name: "bm", api: true, ui: true },
   { name: "template", api: true, ui: true },
   { name: "cms", api: true, ui: true },
+  { name: "activedirectory", api: true, ui: true },
 ];
 
 const pluginsMap = {};

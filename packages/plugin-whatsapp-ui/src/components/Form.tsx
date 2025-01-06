@@ -6,7 +6,7 @@ import {
   ImageWrapper,
   MessengerPreview,
   TextWrapper
-} from '@erxes/ui-inbox/src/settings/integrations/styles';
+} from "@erxes/ui-inbox/src/settings/integrations/styles";
 import {
   ControlWrapper,
   FlexItem,
@@ -14,26 +14,26 @@ import {
   LeftItem,
   Preview,
   StepWrapper
-} from '@erxes/ui/src/components/step/styles';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { Step, Steps } from '@erxes/ui/src/components/step';
+} from "@erxes/ui/src/components/step/styles";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { Step, Steps } from "@erxes/ui/src/components/step";
 
-import Accounts from '../containers/Accounts';
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import { IPages } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { Link } from 'react-router-dom';
-import React from 'react';
-import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
-import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
+import Accounts from "../containers/Accounts";
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { INTEGRATION_KINDS } from "@erxes/ui/src/constants/integrations";
+import { IPages } from "@erxes/ui-inbox/src/settings/integrations/types";
+import { Link } from "react-router-dom";
+import React from "react";
+import SelectBrand from "@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand";
+import SelectChannels from "@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "coreui/utils";
 
 type Props = {
   kind: string;
@@ -61,15 +61,17 @@ class Whatsapp extends React.Component<Props, State> {
     };
   }
 
-  onSelectPages = (pageId: string) => {
+  onSelectPages = (whatsappNumberIds: any) => {
     const { selectedPages } = this.state;
-    if (selectedPages.includes(pageId)) {
+    if (selectedPages.includes(whatsappNumberIds)) {
       return this.setState({
-        selectedPages: selectedPages.filter((item) => item !== pageId)
+        selectedPages: selectedPages.filter(
+          (item) => item !== whatsappNumberIds
+        )
       });
     }
 
-    this.setState({ selectedPages: [...selectedPages, pageId] });
+    this.setState({ selectedPages: [...selectedPages, whatsappNumberIds] });
   };
 
   generateDoc = (values: {
@@ -101,7 +103,7 @@ class Whatsapp extends React.Component<Props, State> {
       return (
         <EmptyState
           icon='folder-2'
-          text={__('There is no pages')}
+          text={__("There is no pages")}
         />
       );
     }
@@ -110,7 +112,7 @@ class Whatsapp extends React.Component<Props, State> {
       <FlexItem>
         <LeftItem>
           <AccountBox>
-            <AccountTitle>{__('Whatsapp Numbers')}</AccountTitle>
+            <AccountTitle>{__("Whatsapp Numbers")}</AccountTitle>
             {pages.map((page) => (
               <AccountItem key={page.id}>
                 {page.name}
@@ -119,13 +121,13 @@ class Whatsapp extends React.Component<Props, State> {
                   disabled={page.isUsed}
                   btnStyle={
                     this.state.selectedPages.includes(page.id)
-                      ? 'primary'
-                      : 'simple'
+                      ? "primary"
+                      : "simple"
                   }
                   onClick={this.onSelectPages.bind(this, page.id)}>
                   {this.state.selectedPages.includes(page.id)
-                    ? __('Selected')
-                    : __('Select')}
+                    ? __("Selected")
+                    : __("Select")}
                 </Button>
               </AccountItem>
             ))}
@@ -139,7 +141,7 @@ class Whatsapp extends React.Component<Props, State> {
     this.setState({ [key]: value } as Pick<State, keyof State>);
   };
 
-  channelOnChange = (values: string[]) => this.onChange('channelIds', values);
+  channelOnChange = (values: string[]) => this.onChange("channelIds", values);
 
   renderContent = (formProps: IFormProps) => {
     const { renderButton } = this.props;
@@ -177,7 +179,7 @@ class Whatsapp extends React.Component<Props, State> {
                 <FormGroup>
                   <ControlLabel required={true}>Integration Name</ControlLabel>
                   <p>
-                    {__('Name this integration to differentiate from the rest')}
+                    {__("Name this integration to differentiate from the rest")}
                   </p>
                   <FormControl
                     {...formProps}
@@ -189,7 +191,7 @@ class Whatsapp extends React.Component<Props, State> {
                 <SelectBrand
                   isRequired={true}
                   description={__(
-                    'Which specific Brand does this integration belong to?'
+                    "Which specific Brand does this integration belong to?"
                   )}
                   formProps={formProps}
                 />
@@ -205,8 +207,8 @@ class Whatsapp extends React.Component<Props, State> {
         </Steps>
         <ControlWrapper>
           <Indicator>
-            {__('You are creating')}
-            <strong> {this.props.kind}</strong> {__('integration')}
+            {__("You are creating")}
+            <strong> {this.props.kind}</strong> {__("integration")}
           </Indicator>
           <Button.Group>
             <Link to='/settings/integrations'>
@@ -217,7 +219,7 @@ class Whatsapp extends React.Component<Props, State> {
               </Button>
             </Link>
             {renderButton({
-              passedName: 'integration',
+              passedName: "integration",
               values: this.generateDoc(values),
               isSubmitted,
               callback: this.props.callBack
@@ -233,15 +235,15 @@ class Whatsapp extends React.Component<Props, State> {
   };
 
   render() {
-    const title = __('whatsapp');
+    const title = __("whatsapp");
     const description = __(
-      'Connect your whatsapp to start receiving Whatsapp messages in your team inbox'
+      "Connect your whatsapp to start receiving Whatsapp messages in your team inbox"
     );
 
     // Define the breadcrumb array
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Integrations'), link: '/settings/integrations' },
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Integrations"), link: "/settings/integrations" },
       { title } // Dynamically set the last title in the breadcrumb
     ];
 
@@ -259,7 +261,7 @@ class Whatsapp extends React.Component<Props, State> {
               <ImageWrapper>
                 <TextWrapper>
                   <h1>
-                    {__('Connect your')} {title}
+                    {__("Connect your")} {title}
                   </h1>
                   <p>{description}</p>
                   <img

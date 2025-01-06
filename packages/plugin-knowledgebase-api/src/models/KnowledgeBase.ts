@@ -67,6 +67,7 @@ export const loadArticleClass = (models: IModels) => {
 
       if (docFields.status === PUBLISH_STATUSES.PUBLISH) {
         doc.publishedUserId = userId;
+        doc.publishedAt = new Date();
       }
 
       return  await models.KnowledgeBaseArticles.create(doc);
@@ -98,6 +99,7 @@ export const loadArticleClass = (models: IModels) => {
       if (article.status === PUBLISH_STATUSES.DRAFT && doc.status === PUBLISH_STATUSES.PUBLISH) {
 
         doc.publishedUserId = userId;
+        doc.publishedAt = new Date();
       }
 
       return await models.KnowledgeBaseArticles.findOneAndUpdate(

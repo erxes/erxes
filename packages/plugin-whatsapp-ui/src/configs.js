@@ -1,21 +1,36 @@
 module.exports = {
   srcDir: __dirname,
-  name: 'whatsapp',
+  name: "whatsapp",
   port: 3038,
-  scope: 'whatsapp',
+  scope: "whatsapp",
   exposes: {
-    './routes': './src/routes.tsx',
-    './inboxIntegrationSettings': './src/containers/UpdateConfigsContainer.tsx',
-    './activityLog': './src/containers/ActivityLogsContainer.tsx',
-    './inboxConversationDetailRespondBoxMask':
-      './src/containers/TagMessageContainer.tsx'
+    "./routes": "./src/routes.tsx",
+    "./inboxIntegrationSettings": "./src/containers/UpdateConfigsContainer.tsx",
+    "./activityLog": "./src/containers/ActivityLogsContainer.tsx",
+    "./inboxConversationDetailRespondBoxMask":
+      "./src/containers/TagMessageContainer.tsx",
+    "./automation": "./src/automations/index.tsx",
+    "./messenger-bots": "./src/automations/bots/containers/List.tsx"
   },
   routes: {
-    url: 'http://localhost:3038/remoteEntry.js',
-    scope: 'whatsapp',
-    module: './routes'
+    url: "http://localhost:3038/remoteEntry.js",
+    scope: "whatsapp",
+    module: "./routes"
   },
-  inboxIntegrationSettings: './inboxIntegrationSettings',
+  automation: "./automation",
+  automationBots: [
+    {
+      name: "WhatsApp-bots",
+      label: "WhatsApp",
+      description: "Generate WhatsApp Bots",
+      logo: "/images/integrations/whatsapp.png",
+      list: "./messenger-bots",
+      createUrl: "/settings/whatsapp-messenger-bot/create",
+      totalCountQuery:
+        "query WhatsappBootMessengerBotsTotalCount {  whatsappBootMessengerBotsTotalCount }"
+    }
+  ],
+  inboxIntegrationSettings: "./inboxIntegrationSettings",
   inboxDirectMessage: {
     messagesQuery: {
       query: `
@@ -39,6 +54,7 @@ module.exports = {
               createdAt
               isCustomerRead
               internal
+              botData
 
               attachments {
                 url
@@ -79,8 +95,8 @@ module.exports = {
             }
           }
         `,
-      name: 'whatsappConversationMessages',
-      integrationKind: 'whatsapp'
+      name: "whatsappConversationMessages",
+      integrationKind: "whatsapp"
     },
     countQuery: {
       query: `
@@ -88,27 +104,27 @@ module.exports = {
             whatsappConversationMessagesCount(conversationId: $conversationId)
           }
         `,
-      name: 'whatsappConversationMessagesCount',
-      integrationKind: 'whatsapp'
+      name: "whatsappConversationMessagesCount",
+      integrationKind: "whatsapp"
     }
   },
   inboxIntegrations: [
     {
-      name: 'Whats App',
-      description: 'Connect and manage Whats App right from your Team Inbox',
+      name: "Whats App",
+      description: "Connect and manage Whats App right from your Team Inbox",
       inMessenger: false,
       isAvailable: true,
-      kind: 'whatsapp',
-      logo: '/images/integrations/whatsapp.png',
-      createModal: 'whatsapp',
-      createUrl: '/settings/integrations/createWhatsapp',
+      kind: "whatsapp",
+      logo: "/images/integrations/whatsapp.png",
+      createModal: "whatsapp",
+      createUrl: "/settings/integrations/createWhatsapp",
       category:
-        'All integrations, For support teams, Messaging, Social media, Conversation',
-      components: ['inboxConversationDetailRespondBoxMask']
+        "All integrations, For support teams, Messaging, Social media, Conversation",
+      components: ["inboxConversationDetailRespondBoxMask"]
     }
   ],
-  activityLog: './activityLog',
+  activityLog: "./activityLog",
   inboxConversationDetailRespondBoxMask:
-    './inboxConversationDetailRespondBoxMask',
-  inboxConversationDetail: './inboxConversationDetail'
+    "./inboxConversationDetailRespondBoxMask",
+  inboxConversationDetail: "./inboxConversationDetail"
 };
