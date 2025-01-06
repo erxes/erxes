@@ -15,7 +15,7 @@ type IProps = {
   actionSection?: any;
 };
 
-const GetConformity = (props: IProps) => {
+const PortableItemsContainer = (props: IProps) => {
 
   const { itemsQuery, component, queryName,  mainType, mainTypeId, relType, alreadyItems } = props;
 
@@ -65,4 +65,4 @@ const GetConformity = (props: IProps) => {
     return <Component {...extendedProps} />;
 }
 
-export default GetConformity
+export default PortableItemsContainer

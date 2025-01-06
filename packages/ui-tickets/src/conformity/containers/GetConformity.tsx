@@ -1,11 +1,5 @@
-import * as compose from "lodash.flowright";
-
-import { ConformityQueryResponse, ISavedConformity } from "../types";
-
-import React from "react";
-import { gql } from "@apollo/client";
-import { graphql } from "@apollo/client/react/hoc";
-import { renderWithProps } from "@erxes/ui/src/utils/core";
+import { gql, useQuery } from '@apollo/client';
+import React from 'react';
 
 type IProps = {
   mainType?: string;
@@ -21,75 +15,63 @@ type IProps = {
   actionSection?: any;
 };
 
-type FinalProps = {
-  itemsQuery: ConformityQueryResponse;
-} & IProps;
+const PortableItemsContainer = (props: IProps) => {
+  const {
+    itemsQuery,
+    component,
+    queryName,
+    mainType,
+    mainTypeId,
+    relType,
+    alreadyItems,
+  } = props;
 
-class PortableItemsContainer extends React.Component<FinalProps> {
-  onChangeItem = () => {
-    const { itemsQuery } = this.props;
-
-    itemsQuery.refetch();
+  const variables: any = {
+    mainType,
+    mainTypeId,
+    relType,
+    limit: 40,
+    isSaved: true,
   };
 
-  render() {
-    const { itemsQuery, component, queryName, alreadyItems } = this.props;
+  // conformity with mainType "user" is not saved
+  if (mainType === 'user') {
+    variables.assignedUserIds = [mainTypeId];
+    variables.isSaved = false;
+  }
 
-    let items = alreadyItems;
+  // add archived items in contacts side bar
+  if (mainType === 'customer' || mainType === 'company') {
+    variables.noSkipArchive = true;
+  }
 
-    if (!alreadyItems) {
-      if (!itemsQuery) {
-        return null;
-      }
+  const { data, refetch } = useQuery(gql(itemsQuery), {
+    skip: (!mainType && !mainTypeId && !relType) || alreadyItems !== undefined,
+    variables,
+  });
 
-      items = itemsQuery[queryName] || [];
+  let items = alreadyItems;
+
+  if (!alreadyItems) {
+    if (!data) {
+      return null;
     }
 
-    const extendedProps = {
-      ...this.props,
-      items,
-      onChangeItem: this.onChangeItem
-    };
-
-    const Component = component;
-    return <Component {...extendedProps} />;
+    items = data[queryName] || [];
   }
-}
 
-export default (props: IProps) =>
-  renderWithProps<IProps>(
-    props,
-    compose(
-      graphql<IProps, ConformityQueryResponse, ISavedConformity>(
-        gql(props.itemsQuery),
-        {
-          name: "itemsQuery",
-          skip: ({ mainType, mainTypeId, relType, alreadyItems }) =>
-            (!mainType && !mainTypeId && !relType) ||
-            alreadyItems !== undefined,
-          options: ({ mainType, mainTypeId, relType }) => {
-            const variables: any = {
-              mainType,
-              mainTypeId,
-              relType,
-              limit: 40,
-              isSaved: true
-            };
+  const onChangeItem = () => {
+    refetch();
+  };
 
-            // conformity with mainType "user" is not saved
-            if (mainType === "user") {
-              variables.assignedUserIds = [mainTypeId];
-              variables.isSaved = false;
-            }
+  const extendedProps = {
+    ...props,
+    items,
+    onChangeItem,
+  };
 
-            // add archived items in contacts side bar
-            if (mainType === "customer" || mainType === "company") {
-              variables.noSkipArchive = true;
-            }
+  const Component = component;
+  return <Component {...extendedProps} />;
+};
 
-            return { variables };
-          }
-        }
-      )
-    )(PortableItemsContainer)
-  );
+export default PortableItemsContainer;
