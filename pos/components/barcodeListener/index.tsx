@@ -36,12 +36,12 @@ const BarcodeListener = ({
         return;
       }
 
-      if (key === "Enter" && value.length >= minBarcodeLength) {
+      if (key === "Enter" && value.length >= minBarcodeLength && isContinuousInput) {
         // Submit the barcode and reset the input
         setBarcode(value);
         setValue("");
       }else if (key === "Enter") {
-        // Reset the input if it's not continuous or too short
+        // Reset the input if it's not valid (too short or not continuous)
         setValue("");
       }
     },
