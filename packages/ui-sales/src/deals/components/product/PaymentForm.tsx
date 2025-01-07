@@ -68,7 +68,7 @@ class PaymentForm extends React.Component<Props, State> {
     const newPaymentData = { ...paymentsData, [name]: { ...paymentsData[name], [kind]: value } }
 
     onChangePaymentsData(newPaymentData);
-    this.setState({ paymentsData: newPaymentData }, () => {  
+    this.setState({ paymentsData: newPaymentData }, () => {
       calcChangePay();
     });
   };
@@ -173,12 +173,19 @@ class PaymentForm extends React.Component<Props, State> {
   }
 
   renderPayments() {
-    const part1 = PAYMENT_TYPES.map(type => this.renderPaymentsByType(type));
-    const part2 =
-      this.props.pipelineDetail?.paymentTypes?.map(type =>
-        this.renderPaymentsByType(type),
-      ) || [];
-    return [...part1, ...part2];
+    const pipelinePayments = this.props.pipelineDetail?.paymentTypes || [];
+
+    const keys = [
+      ...PAYMENT_TYPES.map(t => t.type),
+      ...pipelinePayments.map(paymentType => paymentType.type)
+    ];
+    const alreadyNotExistsTypes = Object.keys(this.props.payments || {}).filter(
+      name => !keys.includes(name)
+    ).map(name => ({ type: name, title: name }));
+
+    return [...PAYMENT_TYPES, ...pipelinePayments, ...alreadyNotExistsTypes].map(type => (
+      this.renderPaymentsByType(type)
+    ));
   }
 
   render() {
