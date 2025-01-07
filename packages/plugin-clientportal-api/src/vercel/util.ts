@@ -4,7 +4,6 @@ import fetch from 'node-fetch';
 import * as path from 'path';
 import simpleGit from 'simple-git';
 import * as tmp from 'tmp';
-import * as crypto from 'crypto';
 import { IClientPortalDocument } from '../models/definitions/clientPortal';
 
 const layoutConfig = (config) => {
@@ -12,40 +11,33 @@ const layoutConfig = (config) => {
   const description =
     config.description || 'Explore the world with our exciting tour packages';
 
-  const meta: any = {
-    title: config.name,
-    description: config.description,
-  };
+  return `import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import { ApolloWrapper } from "@/lib/apollo-wrapper";
 
-  return `
-    import type { Metadata } from "next";
-    import { Inter } from "next/font/google";
-    import "./globals.css";
-    import Header from "./components/Header";
-    import Footer from "./components/Footer";
-    import { ApolloWrapper } from "@/lib/apollo-wrapper";
+const inter = Inter({ subsets: ["latin"] });
 
-    const inter = Inter({ subsets: ["latin"] });
+export const metadata: Metadata = {
+  title: "${title}",
+  description: "${description}",
+};
 
-    export const metadata: Metadata = {
-      title: "${title}",
-      description: "${description}",
-    };
-
-    export default function RootLayout({ children }: { children: React.ReactNode }) {
-      return (
-        <html lang="en">
-          <body className={inter.className}>
-            <ApolloWrapper>
-              <Header />
-              <main>{children}</main>
-              <Footer />
-            </ApolloWrapper>
-          </body>
-        </html>
-      );
-    }
-  `;
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body className={inter.className}>
+        <ApolloWrapper>
+          <Header />
+          <main>{children}</main>
+          <Footer />
+        </ApolloWrapper>
+      </body>
+    </html>
+  );
+}`;
 };
 
 const downloadImage = async (url, filePath) => {
@@ -76,126 +68,32 @@ const downloadImage = async (url, filePath) => {
   }
 };
 
-const getAllFiles = (dirPath, baseDir = dirPath) => {
-  let files: any[] = [];
-  const items = fs.readdirSync(dirPath);
-  items.forEach((item) => {
-    const fullPath = path.join(dirPath, item);
-    if (
-      item === '.git' ||
-      item === 'package-lock.json' ||
-      item === 'node_modules' ||
-      item === '.gitignore'
-    ) {
-      return;
-    }
-
-    const stats = fs.statSync(fullPath);
-    if (stats.isDirectory()) {
-      files = files.concat(getAllFiles(fullPath, baseDir));
-    } else if (stats.isFile()) {
-      const ext = path.extname(fullPath).toLowerCase();
-      let data;
-      // List of binary file extensions
-      const binaryExtensions = [
-        '.png',
-        '.jpg',
-        '.jpeg',
-        '.gif',
-        '.svg',
-        '.ico',
-        '.woff',
-        '.woff2',
-        '.ttf',
-        '.eot',
-      ];
-      if (binaryExtensions.includes(ext)) {
-        console.log('buffer file:', fullPath);
-        // Convert binary data to base64
-        data = fs.readFileSync(fullPath).toString('base64');
-      } else {
-        data = fs.readFileSync(fullPath, 'utf8'); // Read as string
-      }
-
-      files.push({
-        file: path.relative(baseDir, fullPath).replace(/\\/g, '/'),
-        data,
-      });
-    }
-  });
-
-  return files;
-};
-
-const convertToSHA1 = (filePath: string) => {
-  const fileBuffer = fs.readFileSync(filePath);
-  return crypto.createHash("sha1").update(fileBuffer).digest("hex");
-}
-
-const uploadFileToVercel = async (filePath: string, bearerToken: string) => {
-  // const fileContent = fs.readFileSync(filePath);
-  const fileSize = fs.statSync(filePath).size;
-  const fileHash = convertToSHA1(filePath);
-
-  const result = await fetch('https://api.vercel.com/v2/files', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${bearerToken}`,
-      'Content-Length': `${fileSize}`,
-      'x-vercel-digest': fileHash,
-    }
-  }).then((res) => res.json());
-
-  console.log("file => ", filePath);
-  console.log('Upload file result:', result);
-
-  return result;
-}
-
-const allFilePaths = (dirPath: string, arrayOfFiles: string[] = []) => {
+const allFilePaths = (dirPath: string, arrayOfFiles: any[] = []) => {
+  const ignoreFiles = ['.DS_Store', '.git', '.gitignore', 'README.md'];
   if (!fs.existsSync(dirPath)) {
     throw new Error(`Directory not found: ${dirPath}`);
   }
 
   const files = fs.readdirSync(dirPath);
 
-  files.forEach((file) => {
+  files.forEach((file, index) => {
     const fullPath = path.join(dirPath, file);
 
-    // Skip .git directory
     if (fs.statSync(fullPath).isDirectory()) {
-      if (file !== ".git") {
-        // Recurse into subdirectories
+      if (file !== '.git') {
         allFilePaths(fullPath, arrayOfFiles);
       }
     } else {
-      // Add file to the list
-      arrayOfFiles.push(fullPath);
+      if (!ignoreFiles.includes(file)) {
+        arrayOfFiles.push(fullPath);
+      }
     }
   });
 
   return arrayOfFiles;
-}
-
-export const uploadFiles = async (path, token: string) => {
-  const files = allFilePaths(path);
-
-
-  const promises = files.map(async (file) => {
-
-    // Upload the file to Vercel
-    const result = await uploadFileToVercel(file, token);
-
-    return result;
-  });
-
-  return Promise.all(promises);
 };
 
-export const deploy = async (
-  subdomain: string,
-  config: IClientPortalDocument
-) => {
+export const deploy = async (subdomain, config: IClientPortalDocument) => {
   if (!config.name) {
     throw new Error('Client portal name is required');
   }
@@ -204,112 +102,119 @@ export const deploy = async (
     throw new Error('Erxes app token is required');
   }
 
+  const GITHUB_TOKEN = getEnv({ name: 'GITHUB_TOKEN' });
   const tmpDir = tmp.dirSync({ unsafeCleanup: true }).name;
-  const TEMPLATE_REPO = '';
-  // const DOMAIN = getEnv({ name: 'DOMAIN' })
-  // ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-  // : 'http://localhost:4000';
+  const TEMPLATE_REPO = `https://oauth2:${GITHUB_TOKEN}@github.com/erxes-web-templates/tour-1.git`;
   const DOMAIN = 'https://apose.app.erxes.io';
   const domain = DOMAIN.replace('<subdomain>', subdomain);
   const VERCEL_TOKEN = getEnv({ name: 'VERCEL_TOKEN' });
-  const GITHUB_TOKEN = getEnv({ name: 'GITHUB_TOKEN' });
-
-  const erxesApiUrl = domain + '/gateway/graphql';
-  const erxesApiUrlWs = domain.replace('http', 'ws') + '/gateway/graphql';
 
   try {
     const git = simpleGit();
-    const repoUrl = `https://oauth2:${GITHUB_TOKEN}@github.com/erxes-web-templates/tour-1.git`;
 
-    await git.clone(repoUrl, tmpDir);
+    await git.clone(TEMPLATE_REPO, tmpDir);
     console.debug('Cloned template repository');
 
     const configPath = path.join(tmpDir, 'next.config.ts');
     const layoutPath = path.join(tmpDir, 'app', 'layout.tsx');
 
-    // Create the Vercel configuration
-    const projectConfig = `
-      import type { NextConfig } from "next";
-
-        const nextConfig: NextConfig = {
-          env: {
-            ERXES_API_URL: "${erxesApiUrl}",
-            ERXES_URL: "${domain}",
-            ERXES_FILE_URL: "${domain}/gateway/read-file?key=",
-            ERXES_CP_ID: "${config._id}",
-            ERXES_APP_TOKEN:"${config.erxesAppToken}",
-          },
-      };
-
-      export default nextConfig;
-    `;
+    const projectConfig = `export default {
+      env: {
+        ERXES_API_URL: "${domain}/gateway/graphql",
+        ERXES_URL: "${domain}",
+        ERXES_FILE_URL: "${domain}/gateway/read-file?key=",
+        ERXES_CP_ID: "${config._id}",
+        ERXES_APP_TOKEN: "${config.erxesAppToken}",
+      },
+    };`;
 
     const layout = layoutConfig(config);
 
-    await fs.writeFileSync(layoutPath, layout);
+    fs.writeFileSync(layoutPath, layout);
+    fs.writeFileSync(configPath, projectConfig);
 
-    await fs.writeFileSync(configPath, projectConfig);
-
-    // if (config.icon) {
-    //   const iconPath = path.join(tmpDir, 'app', 'favicon.ico');
-    //   await downloadImage(
-    //     `${domain}/gateway/read-file?key=${config.icon}`,
-    //     iconPath
-    //   );
-    // }
+    if (config.icon) {
+      const iconPath = path.join(tmpDir, 'app', 'favicon.ico');
+      await downloadImage(
+        `${domain}/gateway/read-file?key=${config.icon}`,
+        iconPath
+      );
+    }
 
     console.debug('Created Vercel configuration', tmpDir);
-    // const files = await getAllFiles(tmpDir);
-    await uploadFiles(tmpDir, VERCEL_TOKEN);
 
-    // const name = config.name.toLowerCase().replace(/\s+/g, '-');
-    // const { Vercel } = await import('@vercel/sdk');
+    const files = allFilePaths(tmpDir).map((filePath, index) => {
+      const encoding = path
+        .extname(filePath)
+        .match(/\.(png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)
+        ? 'base64'
+        : 'utf8';
 
-    // const vercel = new Vercel({ bearerToken: VERCEL_TOKEN });
+      const fileData = fs.readFileSync(filePath);
 
-    // const result = await vercel.deployments.createDeployment({
-    //   requestBody: {
-    //     name,
-    //     project: name,
-    //     files,
-    //     target: 'production',
-    //     meta: {
-    //       'erxes-cp-id': config._id,
-    //     },
-    //   },
-    // });
+      if (
+        path
+          .extname(filePath)
+          .match(/\.(png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)
+      ) {
+        return {
+          file: path.relative(tmpDir, filePath).replace(/\\/g, '/'),
+          data: fileData.toString('base64'),
+          encoding: 'base64',
+        };
+      }
 
-    // console.debug('Vercel deployment result', result);
-    // // console.debug('Files', files);
-    // const body = JSON.stringify({
-    //   name: config.name.toLowerCase().replace(/\s+/g, '-'),
-    //   files,
-    //   target: 'production',
-    //   project: `${name}_final`,
-    //   projectSettings: {
-    //     devCommand: 'yarn dev',
-    //     installCommand: 'yarn install',
-    //     buildCommand: 'next build',
-    //     outputDirectory: 'out',
-    //     framework: 'nextjs',
-    //   },
-    // });
+      const fileObject = {
+        file: path.relative(tmpDir, filePath).replace(/\\/g, '/'),
+        data: fileData.toString('utf8'),
+        // encoding,
+      };
 
-    // const result = await fetch(
-    //   `https://api.vercel.com/v13/deployments?forceNew=0&skipAutoDetectionConfirmation=0`,
-    //   {
-    //     method: 'POST',
-    //     headers: {
-    //       Authorization: `Bearer ${VERCEL_TOKEN}`,
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body,
-    //   }
-    // ).then((response) => response.json());
+      return fileObject;
+    });
 
-    // console.debug('Vercel deployment result', result);
-  } catch (e) {
-    console.error(e.message);
-    throw new Error('Failed to clone template repository');
+    const name = config.name.toLowerCase().replace(/\s+/g, '_');
+
+    const body = JSON.stringify({
+      name,
+      files,
+      target: 'production',
+      project: name,
+      // deploymentId: 'dpl_4mvHT7jG4e6Q6W1fvvsCzYC8KDm8',
+      projectSettings: {
+        installCommand: 'yarn install',
+        buildCommand: 'next build',
+        framework: 'nextjs',
+      },
+    });
+
+    const response = await fetch(
+      'https://api.vercel.com/v13/deployments?forceNew=0&skipAutoDetectionConfirmation=0',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${VERCEL_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body,
+      }
+    );
+
+    const result = await response.json();
+    console.debug('Vercel deployment result', result);
+
+    if (!response.ok) {
+      throw new Error(
+        `Deployment failed: ${result.error?.message || 'Unknown error'}`
+      );
+    }
+
+    return result;
+    // return null
+  } catch (error) {
+    console.error(error.message);
+    throw new Error('Failed to deploy to Vercel');
+  } finally {
+    tmp.setGracefulCleanup();
   }
 };
