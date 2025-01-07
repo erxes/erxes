@@ -39,8 +39,9 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     const accounts = this.props.accounts;
 
     if (accounts && accounts.length > 0) {
-      this.onSelectAccount(accounts[0]._id);
+      this.onSelectAccount(accounts[0]._id, accounts[0]);
     }
+
     if (this.props?.selectedAccountId) {
       const account = (accounts || []).find(
         (account) => account._id === this.props.selectedAccountId
@@ -70,8 +71,8 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     if (kind === "instagram") {
       return (
         <FacebookButton onClick={onAdd}>
-          <Icon icon='instagram-official' />
-          {__("Continue with facebook")}
+          <Icon icon='facebook-official' />
+          {__("Continue with Facebook")}
         </FacebookButton>
       );
     }
@@ -115,7 +116,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
         <div>
           <Button
-            onClick={this.onSelectAccount.bind(this, account._id)}
+            onClick={this.onSelectAccount.bind(this, account._id, account)}
             btnStyle={
               this.state.accountId === account._id ? "primary" : "simple"
             }>

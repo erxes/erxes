@@ -252,7 +252,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
 
       const newScore = oldScore - changeScore;
 
-      if (newScore <= 0) {
+      if (newScore < 0) {
         throw new Error("There has no enough score to subtract");
       }
 
@@ -341,7 +341,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
           ? oldScore - changeScore
           : oldScore + changeScore;
 
-      if (actionMethod === "subtract" && newScore <= 0) {
+      if (actionMethod === "subtract" && newScore < 0) {
         throw new Error("There has no enough score to subtract");
       }
 

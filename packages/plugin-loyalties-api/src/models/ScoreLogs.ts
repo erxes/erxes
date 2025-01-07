@@ -156,16 +156,6 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         campaignId
       } = doc;
 
-      let campaign;
-
-      if (campaignId) {
-        campaign = await models.ScoreCampaigns.findOne({ _id: campaignId });
-
-        if (!campaign) {
-          throw new Error("Campaign not found");
-        }
-      }
-
       const score = Number(changeScore);
       const owner = await getOwner(subdomain, ownerType, ownerId);
 
@@ -173,7 +163,24 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         throw new Error(`not fount ${ownerType}`);
       }
 
-      const oldScore = Number(owner.score) || 0;
+      let ownerScore = owner.score;
+
+      if (campaignId) {
+        const campaign = await models.ScoreCampaigns.findOne({
+          _id: campaignId
+        });
+
+        if (!campaign) {
+          throw new Error("Campaign not found");
+        }
+        const campaignScore =
+          (owner?.customFieldsData || []).find(
+            ({ field }) => field === campaign.fieldId
+          )?.value || 0;
+        ownerScore = campaignScore;
+      }
+
+      const oldScore = Number(ownerScore) || 0;
       const newScore = oldScore + score;
 
       if (score < 0 && newScore < 0) {
@@ -201,6 +208,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         action: "add"
       });
     }
+
     static async updateOwnerScore({
       subdomain,
       ownerType,
@@ -224,7 +232,6 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const modifier: any = { $set: { score: newScore } };
       const selector: {
         _id: string;
-        "customFieldsData.field"?: string;
       } = { _id: ownerId };
 
       if (campaignId) {
@@ -238,7 +245,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           );
         }
 
-        const customFieldsData = await sendCoreMessage({
+        const prepareCustomFieldsData = await sendCoreMessage({
           subdomain,
           action: "fields.prepareCustomFieldsData",
           data: [{ field: campaign.fieldId, value: newScore }],
@@ -246,24 +253,47 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           defaultValue: []
         });
 
-        if (!customFieldsData[0]) {
+        if (!prepareCustomFieldsData[0]) {
           throw new Error(
             "Something went wrong when preparing score field data"
           );
         }
 
-        const customFieldData: { field: string; value: number } =
-          customFieldsData[0];
+        const prepareCustomFieldData: { field: string; value: number } =
+          prepareCustomFieldsData[0];
 
-        selector["customFieldsData.field"] = customFieldData.field;
-        modifier.$set["customFieldsData.$"] = customFieldData;
+        const owner = await getOwner(subdomain, ownerType, ownerId);
+
+        const { customFieldsData } = owner || {};
+        let updatedCustomFieldsData;
+
+        if (
+          !customFieldsData ||
+          !(customFieldsData || []).find(
+            ({ field }) => field === campaign.fieldId
+          )
+        ) {
+          updatedCustomFieldsData = [
+            ...(customFieldsData || []),
+            prepareCustomFieldData
+          ];
+        } else {
+          updatedCustomFieldsData = customFieldsData.map(customFieldData =>
+            customFieldData.field === campaign.fieldId
+              ? { ...customFieldData, ...prepareCustomFieldData }
+              : customFieldData
+          );
+        }
+
+        modifier.$set["customFieldsData"] = updatedCustomFieldsData || [];
+        delete modifier.$set.score;
       }
 
       if (ownerType === "user") {
         return await updateEntity("users.updateOne", selector, modifier);
       }
       if (ownerType === "customer") {
-        console.log({ selector, modifier });
+        console.log(selector, modifier);
         return await updateEntity("customers.updateOne", selector, modifier);
       }
       if (ownerType === "company") {

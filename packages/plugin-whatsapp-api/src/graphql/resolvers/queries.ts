@@ -1,8 +1,8 @@
-import { IContext, IModels } from '../../connectionResolver';
-import { INTEGRATION_KINDS } from '../../constants';
-import { sendInboxMessage } from '../../messageBroker';
-import { IConversationMessageDocument } from '../../models/definitions/conversationMessages';
-import { getBusinessWhatsAppDetails } from '../../utils';
+import { IContext, IModels } from "../../connectionResolver";
+import { INTEGRATION_KINDS } from "../../constants";
+import { sendInboxMessage } from "../../messageBroker";
+import { IConversationMessageDocument } from "../../models/definitions/conversationMessages";
+import { getBusinessWhatsAppDetails, getNumberWhatsApp } from "../../utils";
 
 interface IKind {
   kind: string;
@@ -32,7 +32,7 @@ interface IMessagesParams extends IConversationId, IPageParams {
 }
 
 const buildSelector = async (conversationId: string, model: any) => {
-  const query = { conversationId: '' };
+  const query = { conversationId: "" };
 
   const conversation = await model.findOne({
     erxesApiId: conversationId
@@ -75,10 +75,10 @@ const whatsappQueries = {
     try {
       number = await getBusinessWhatsAppDetails(models, accessToken, kind);
     } catch (e) {
-      if (!e.message.includes('Application request limit reached')) {
+      if (!e.message.includes("Application request limit reached")) {
         await models.Integrations.updateOne(
           { accountId },
-          { $set: { healthStatus: 'account-token', error: `${e.message}` } }
+          { $set: { healthStatus: "account-token", error: `${e.message}` } }
         );
       }
     }
@@ -136,7 +136,7 @@ const whatsappQueries = {
     const commonParams = { isRPC: true, subdomain };
     const inboxConversation = await sendInboxMessage({
       ...commonParams,
-      action: 'conversations.findOne',
+      action: "conversations.findOne",
       data: { query: { _id: conversationId } }
     });
 
@@ -145,7 +145,7 @@ const whatsappQueries = {
     if (inboxConversation) {
       integration = await sendInboxMessage({
         ...commonParams,
-        action: 'integrations.findOne',
+        action: "integrations.findOne",
         data: { _id: inboxConversation.integrationId }
       });
     }
@@ -168,6 +168,73 @@ const whatsappQueries = {
       return false;
     }
     return true;
+  },
+  async whatsappBootMessengerBots(_root, _args, { models }: IContext) {
+    try {
+      const bots = await models.Bots.find({});
+      const result = await Promise.all(
+        bots.map(async (bot) => {
+          // Define accountData with a proper union type
+          let accountData: { _id: string; name: string } | null = null;
+          let page: { id: string; name: string } | null = null;
+          let getNumber: any = null;
+
+          const whatsapp_account = await models.Accounts.getAccount({
+            _id: bot.accountId
+          }).catch(() => null);
+
+          if (whatsapp_account) {
+            const accessToken = whatsapp_account.token;
+
+            accountData = {
+              _id: whatsapp_account._id as string,
+              name: whatsapp_account.name
+            };
+
+            getNumber = await getNumberWhatsApp(
+              bot.whatsappNumberIds,
+              accessToken
+            ).catch(() => null);
+
+            if (getNumber?.id) {
+              page = {
+                id: getNumber.id,
+                name: getNumber.display_phone_number
+              };
+            }
+          }
+
+          return {
+            _id: bot._id,
+            name: bot.name,
+            accountId: bot.accountId,
+            account: accountData,
+            page,
+            pageId: bot.whatsappNumberIds,
+            profileUrl: getNumber?.profile_picture_url || "",
+            persistentMenus: bot.persistentMenus || [],
+            greetText: bot.greetText || "",
+            tag: bot.tag || "",
+            isEnabledBackBtn: bot.isEnabledBackBtn || false,
+            backButtonText: bot.backButtonText || ""
+          };
+        })
+      );
+
+      return result;
+    } catch (error) {
+      throw new Error("Failed to fetch Instagram Messenger Bots data.");
+    }
+  },
+  async whatsappBootMessengerBotsTotalCount(
+    _root,
+    _args,
+    { models }: IContext
+  ) {
+    return await models.Bots.find({}).countDocuments();
+  },
+  async whatsappBootMessengerBot(_root, { _id }, { models }: IContext) {
+    return await models.Bots.findOne({ _id });
   }
 };
 

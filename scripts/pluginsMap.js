@@ -4418,17 +4418,31 @@ module.exports = {
         "./routes": "./src/routes.tsx",
         "./inboxIntegrationSettings": "./src/containers/UpdateConfigsContainer.tsx",
         "./activityLog": "./src/containers/ActivityLogsContainer.tsx",
-        "./inboxConversationDetailRespondBoxMask": "./src/containers/TagMessageContainer.tsx"
+        "./inboxConversationDetailRespondBoxMask": "./src/containers/TagMessageContainer.tsx",
+        "./automation": "./src/automations/index.tsx",
+        "./messenger-bots": "./src/automations/bots/containers/List.tsx"
       },
       "routes": {
         "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-whatsapp-ui/remoteEntry.js",
         "scope": "whatsapp",
         "module": "./routes"
       },
+      "automation": "./automation",
+      "automationBots": [
+        {
+          "name": "WhatsApp-bots",
+          "label": "WhatsApp",
+          "description": "Generate WhatsApp Bots",
+          "logo": "/images/integrations/whatsapp.png",
+          "list": "./messenger-bots",
+          "createUrl": "/settings/whatsapp-messenger-bot/create",
+          "totalCountQuery": "query WhatsappBootMessengerBotsTotalCount {  whatsappBootMessengerBotsTotalCount }"
+        }
+      ],
       "inboxIntegrationSettings": "./inboxIntegrationSettings",
       "inboxDirectMessage": {
         "messagesQuery": {
-          "query": "\n          query whatsappConversationMessages(\n            $conversationId: String!\n            $skip: Int\n            $limit: Int\n            $getFirst: Boolean\n          ) {\n            whatsappConversationMessages(\n              conversationId: $conversationId,\n              skip: $skip,\n              limit: $limit,\n              getFirst: $getFirst\n            ) {\n              _id\n              content\n              conversationId\n              customerId\n              userId\n              createdAt\n              isCustomerRead\n              internal\n\n              attachments {\n                url\n                name\n                type\n                size\n              }\n\n              user {\n                _id\n                username\n                details {\n                  avatar\n                  fullName\n                  position\n                }\n              }\n\n              customer {\n                _id\n                avatar\n                firstName\n                middleName\n                lastName\n                primaryEmail\n                primaryPhone\n                state\n\n                companies {\n                  _id\n                  primaryName\n                  website\n                }\n\n                customFieldsData\n                tagIds\n              }\n            }\n          }\n        ",
+          "query": "\n          query whatsappConversationMessages(\n            $conversationId: String!\n            $skip: Int\n            $limit: Int\n            $getFirst: Boolean\n          ) {\n            whatsappConversationMessages(\n              conversationId: $conversationId,\n              skip: $skip,\n              limit: $limit,\n              getFirst: $getFirst\n            ) {\n              _id\n              content\n              conversationId\n              customerId\n              userId\n              createdAt\n              isCustomerRead\n              internal\n              botData\n\n              attachments {\n                url\n                name\n                type\n                size\n              }\n\n              user {\n                _id\n                username\n                details {\n                  avatar\n                  fullName\n                  position\n                }\n              }\n\n              customer {\n                _id\n                avatar\n                firstName\n                middleName\n                lastName\n                primaryEmail\n                primaryPhone\n                state\n\n                companies {\n                  _id\n                  primaryName\n                  website\n                }\n\n                customFieldsData\n                tagIds\n              }\n            }\n          }\n        ",
           "name": "whatsappConversationMessages",
           "integrationKind": "whatsapp"
         },
@@ -4842,6 +4856,32 @@ module.exports = {
           ]
         }
       }
+    }
+  },
+  "activedirectory": {
+    "ui": {
+      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-activedirectory-ui/src",
+      "name": "activedirectory",
+      "scope": "activedirectory",
+      "exposes": {
+        "./routes": "./src/routes.tsx"
+      },
+      "routes": {
+        "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-activedirectory-ui/remoteEntry.js",
+        "scope": "activedirectory",
+        "module": "./routes"
+      },
+      "menus": [
+        {
+          "text": "Active Directory",
+          "to": "/settings/activedirectory/",
+          "url": "/activedirectory",
+          "location": "settings",
+          "image": "/images/icons/erxes-18.svg",
+          "scope": "activedirectory"
+        }
+      ],
+      "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-activedirectory-ui/remoteEntry.js"
     }
   }
 }

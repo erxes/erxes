@@ -19,6 +19,18 @@ export const GENERAL_SETTINGS = [
   },
   {
     name: "General Settings",
+    text: "Structure",
+    icon: "icon-chart-pie-alt",
+    url: "/settings/structure"
+  },
+  {
+    name: "General Settings",
+    text: "Apps",
+    icon: "icon-apps",
+    url: "/settings/apps"
+  },
+  {
+    name: "General Settings",
     text: "Brands",
     icon: "icon-settings",
     url: "/settings/brands"
@@ -28,6 +40,42 @@ export const GENERAL_SETTINGS = [
     text: "Import & Export",
     icon: "icon-settings",
     url: "/settings/selectMenu"
+  },
+  {
+    name: "General Settings",
+    text: "Configs of Products",
+    icon: "icon-newspaper",
+    url: "/settings/uoms-manage"
+  },
+  {
+    name: "General Settings",
+    text: "Product and services",
+    icon: "icon-box",
+    url: "/settings/product-service"
+  },
+  {
+    name: "General Settings",
+    text: "Properties",
+    icon: "icon-settings",
+    url: "/settings/properties"
+  },
+  {
+    name: "General Settings",
+    text: "System logs",
+    icon: "icon-file-medical-alt",
+    url: "/settings/logs"
+  },
+  {
+    name: "General Settings",
+    text: "Email Delivery Logs",
+    icon: "icon-fast-mail",
+    url: "/settings/emailDelivery"
+  },
+  {
+    name: "General Settings",
+    text: "Email templates",
+    icon: "icon-mail-alt",
+    url: "/settings/email-templates"
   }
 ];
 

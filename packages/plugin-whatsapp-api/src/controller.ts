@@ -37,7 +37,6 @@ const init = async (app) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
     const data = req.body;
-    console.log(data, "data");
     if (data.object !== "whatsapp_business_account") {
       return res.status(400).end();
     }
