@@ -112,17 +112,9 @@ const invoiceQueries = {
     { models, subdomain }: IContext
   ) => {
     const currentDate = getFullDate(payDate);
-    const config = await getConfig('loansConfig', subdomain);
+
     const { payment, loss, storedInterest, calcInterest, insurance, debt } =
-      await getCalcedAmounts(
-        models,
-        subdomain,
-        {
-          contractId,
-          payDate: currentDate
-        },
-        config
-      );
+      await getCalcedAmounts(models, subdomain, contractId, currentDate);
 
     return {
       contractId: contractId,

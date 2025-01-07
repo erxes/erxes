@@ -22,25 +22,19 @@ export const contractFields = `
   startDate
   firstPayDate
   scheduleDays
+  stepRules
   debt
   debtTenor
   debtLimit
   insuranceAmount
-  salvageAmount
-  salvagePercent
-  salvageTenor
   customerId
   customerType
   relationExpertId
   leasingExpertId
   riskExpertId
+  holidayType
   weekends
-  useHoliday
-  useMargin
-  useSkipInterest
-  useDebt
   relContractId
-  skipInterestCalcMonth
   dealId
   currency
   classification
@@ -49,8 +43,8 @@ export const contractFields = `
   storedInterest
   lastStoredDate
   useManualNumbering
-  useFee
   loanPurpose
+  loanDestination
   givenAmount
   leaseType
   commitmentInterest
@@ -252,7 +246,7 @@ export const contractsMain = `
     contractsMain(${listParamsMainValue}) {
       list {
         ${contractFields}
-        customers {
+        customer {
           code
           firstName
           lastName
@@ -268,10 +262,6 @@ export const contractsMain = `
 
 export const contractDetailFields = `
   branchId
-  downPayment
-  skipAmountCalcMonth
-  customPayment
-  customInterest
   invoices
   storeInterest
   loanTransactionHistory
@@ -282,17 +272,12 @@ export const contractDetailFields = `
     leaseType
   }
 
-  customers {
+  customer {
     _id
     firstName
     lastName
     primaryEmail
     primaryPhone
-  }
-  companies {
-    _id
-    primaryName
-    website
   }
 
   collateralsData

@@ -5,6 +5,7 @@ export interface IPolarisLoan {
   prodCode: string;
   prodType: string;
   purpose: string;
+  loanDestination: string;
   subPurpose: string;
   isNotAutoClass: number;
   comRevolving: number;

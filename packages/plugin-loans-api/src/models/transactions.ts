@@ -77,6 +77,8 @@ export const loadTransactionClass = (models: IModels) => {
         ...doc
       }: ITransaction
     ) {
+      const tr = await models.Transactions.create({ ...doc });
+
       const periodLock = await models.PeriodLocks.findOne({
         date: { $gte: doc.payDate }
       })
@@ -132,12 +134,15 @@ export const loadTransactionClass = (models: IModels) => {
           status: SCHEDULE_STATUS.GIVE,
           payDate: getFullDate(doc.payDate),
           balance: new BigNumber(doc.total || 0)
-            .plus(contract?.loanBalanceAmount || 0)
+            // .plus(contract?.loanBalanceAmount || 0)
+            .plus(0)
             .toNumber(),
           interestNonce: 0,
           payment: 0,
+          transactionIds: [tr._id],
           total: doc.total
         });
+        models.Transactions.updateOne({ _id: tr._id }, { $set: { scheduleId: schedule._id } })
 
         await models.Contracts.updateOne(
           { _id: contract._id },
@@ -150,15 +155,13 @@ export const loadTransactionClass = (models: IModels) => {
           }
         ];
 
-        const tr = await models.Transactions.create({ ...doc });
+
 
         return tr;
       }
 
       doc.payDate = getFullDate(doc.payDate);
       doc.contractReaction = contract;
-
-      const tr = await models.Transactions.create({ ...doc });
 
       if ((tr.calcInterest || 0) > 0 && isEnabled("savings") && contract.depositAccountId) {
         await sendMessageBroker(
@@ -412,15 +415,7 @@ export const loadTransactionClass = (models: IModels) => {
 
       const config: IConfig = await getConfig("loansConfig", subdomain);
 
-      const paymentInfo = await getCalcedAmounts(
-        models,
-        subdomain,
-        {
-          contractId: id,
-          payDate: today
-        },
-        config
-      );
+      const paymentInfo = await getCalcedAmounts(models, subdomain, id, today, config);
 
       let {
         payment = 0,

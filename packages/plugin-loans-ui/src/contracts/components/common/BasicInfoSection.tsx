@@ -166,9 +166,9 @@ const BasicInfoSection = (props: Props) => {
         <Name>{contract.number}</Name>
         {can('contractsEdit', currentUser) && (
           <ModalTrigger
-            title={__('Edit basic info')}
+            title={__('Edit contract info')}
             trigger={<Icon icon="edit" />}
-            size="lg"
+            size="xl"
             content={contractForm}
           />
         )}

@@ -24,6 +24,10 @@ function ScheduleRow({ schedule, leaseType }: Props) {
       return <Icon icon={'thumbs-down'} color={'red'} />;
     }
 
+    if (status === 'give') {
+      return <Icon icon={'telegram-alt'} color={'purple'} />;
+    }
+
     return <Icon icon={'sync-exclamation'} color={'green'} />;
   };
   const renderCell = (name, didName) => {

@@ -1,20 +1,19 @@
 export const REPAYMENT_TYPE = [
   { label: 'Equal Principal Payment', value: 'equal' }, // undsen tulbur tentsuu
   { label: 'Fixed Rate Payment', value: 'fixed' }, // niit tulbur tentsuu
-  { label: 'Custom Rate Payment', value: 'custom' } // duriin tulbur
 ];
 
 export const REPAYMENT = {
   EQUAL: 'equal', // undsen tulbur tentsuu
   FIXED: 'fixed', // niit tulbur tentsuu
-  CUSTOM: 'custom' // duriin tulbur
 };
 
 export const CONTRACT_STATUS = {
   DRAFT: 'draft',
   NORMAL: 'normal',
   CLOSED: 'closed',
-  ALL: ['draft', 'normal', 'closed']
+  PAUSE: 'pause',
+  ALL: ['draft', 'normal', 'closed', 'pause']
 };
 
 export const LOSS_CALC_TYPE = {
@@ -63,17 +62,11 @@ export const SCHEDULE_STATUS = {
 
 export const LEASE_TYPES = {
   FINANCE: 'finance',
-  SALVAGE: 'salvage',
   LINEAR: 'linear',
   CREDIT: 'credit',
   SAVING: 'saving',
 
-  ALL: ['finance', 'salvage', 'linear', 'credit', 'saving']
-};
-
-export const STORED_INTEREST_TYPES = {
-  STORED_INTEREST: 'storedInterest',
-  OUT_BALANCE: 'outBalance'
+  ALL: ['finance', 'linear', 'credit', 'saving']
 };
 
 export const INTEREST_CORRECTION_TYPE = {
@@ -82,12 +75,3 @@ export const INTEREST_CORRECTION_TYPE = {
   INTEREST_CHANGE: 'interestChange',
   ALL: ['stopInterest', 'interestReturn', 'interestChange']
 };
-
-export const COLLATERAL_TYPE = {
-  MOVABLE_ASSETS:'movableAssets',
-  REAL_ESTATE:'realEstate',
-  SECURITIES_CONTRACTS:'securitiesContracts',
-  SAVING:'saving',
-  WARRANTY:'warranty',
-  OTHER:'other'
-}

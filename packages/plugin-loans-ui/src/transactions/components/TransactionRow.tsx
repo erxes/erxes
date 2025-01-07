@@ -112,13 +112,13 @@ function TransactionRow({ transaction, isChecked, toggleBulk }: Props) {
 
     return (
       <ModalTrigger
-        title={__("Edit basic info")}
+        title={__("Edit contract info")}
         trigger={
           <Tip text="Edit" placement="left">
             <Icon icon="edit" />
           </Tip>
         }
-        size="lg"
+        size="xl"
         content={trBaseForm}
       />
     );

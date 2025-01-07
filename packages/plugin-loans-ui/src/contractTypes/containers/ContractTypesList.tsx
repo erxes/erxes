@@ -12,7 +12,6 @@ type Props = {
 };
 
 const ContractTypeListContainer = (props: Props) => {
-  const [loading, setLoading] = useState(false);
   const { queryParams } = props;
 
   const contractTypesMainQuery = useQuery<MainQueryResponse>(
@@ -60,7 +59,7 @@ const ContractTypeListContainer = (props: Props) => {
     totalCount,
     searchValue,
     contractTypes: list,
-    loading: contractTypesMainQuery.loading || loading,
+    loading: contractTypesMainQuery.loading,
     removeContractTypes,
   };
 

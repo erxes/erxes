@@ -8,7 +8,7 @@ import { CollateralButton } from "../../contracts/styles";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IContractTypeDetail } from "../types";
+import { IContractConfig, IContractTypeDetail } from "../types";
 import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
@@ -70,7 +70,7 @@ type Props = {
 };
 
 const GeneralSettings = (props: Props) => {
-  const [currentMap, setCurrentMap] = useState(props.contractType.config || {});
+  const [currentMap, setCurrentMap] = useState(props.contractType.config || {} as IContractConfig);
   const [state, setState] = useState(props.contractType)
   const { contractType } = props;
 
@@ -81,7 +81,7 @@ const GeneralSettings = (props: Props) => {
   };
 
   const onChangeConfig = (code: string, value) => {
-    setCurrentMap({ ...currentMap, [code]: value });
+    setCurrentMap({ ...(currentMap || {}), [code]: value } as IContractConfig);
   };
 
   const onChangeInput = (code: string, e) => {
@@ -304,9 +304,6 @@ const GeneralSettings = (props: Props) => {
             type: "number",
           })}
           {renderItem("maxInterest", "Max interest", {
-            type: "number",
-          })}
-          {renderItem("defaultInterest", "Default interest", {
             type: "number",
           })}
           {renderItem("minTenor", "Min tenor /Month/", {

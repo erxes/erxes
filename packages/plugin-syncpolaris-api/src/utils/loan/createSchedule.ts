@@ -1,13 +1,15 @@
 import { fetchPolaris, getFullDate } from '../utils';
 
-const getMethod = (method) => {
-  switch (method) {
+const getMethod = (contract) => {
+  if (contract.stepRules?.length) {
+    return '4'
+  }
+
+  switch (contract.repayment) {
     case 'equal':
       return '3';
     case 'fixed':
       return '1';
-    case 'custom':
-      return '4';
 
     default:
       break;
@@ -31,7 +33,7 @@ export const createLoanSchedule = async (subdomain: string, polarisConfig, contr
     contract.number,
     getFullDate(contract.startDate),
     contract.leaseAmount,
-    getMethod(contract.repayment),
+    getMethod(contract),
     'M',
     null,
     contract.scheduleDays?.[0],

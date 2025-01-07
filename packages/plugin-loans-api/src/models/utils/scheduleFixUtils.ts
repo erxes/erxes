@@ -157,7 +157,7 @@ export async function getCurrentData(
           payment: totalPaymentAmount,
           interest: totalInterestAmount
         },
-        contract.lossPercent,
+        contract.lossPercent || 0,
         diff,
         config
       );
@@ -177,7 +177,7 @@ export async function getCurrentData(
 
   mustPayDate = await getMustPayDate(
     scheduleList,
-    contract.mustPayDate,
+    new Date(), //contract.mustPayDate,
     nextDefaultSchedule
   );
 
@@ -288,7 +288,8 @@ export async function scheduleFixAfterCurrent(
   }
 
   if (updateBulks.length > 0) await models.Schedules.bulkWrite(updateBulks);
-  let mustPayDate = await getMustPayDate(scheduleList, contract.mustPayDate);
+  // let mustPayDate = await getMustPayDate(scheduleList, contract.mustPayDate);
+  let mustPayDate = await getMustPayDate(scheduleList, new Date());
   await models.Contracts.updateOne(
     { _id: contract._id },
     { $set: { mustPayDate: mustPayDate } }
@@ -302,7 +303,7 @@ export async function createTransactionSchedule(
   models: IModels,
   config: IConfig
 ) {
-  let loanBalance = contract.loanBalanceAmount;
+  let loanBalance = 0;//contract.loanBalanceAmount;
 
   const currentSchedule = await models.Schedules.findOne({
     contractId: contract._id,

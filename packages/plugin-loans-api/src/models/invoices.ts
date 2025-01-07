@@ -57,8 +57,6 @@ export const loadInvoiceClass = (models: IModels) => {
       });
       const nowDate = getFullDate(date);
 
-      const config = await getConfig('loansConfig', subdomain);
-
       for await (let contract of contracts) {
         const lastSchedule = await models.Schedules.findOne({
           contractId: contract._id
@@ -84,18 +82,12 @@ export const loadInvoiceClass = (models: IModels) => {
           invoiceDate <= contract.startDate
         )
           continue;
-        const calcInfo: any = getCalcedAmounts(
-          models,
-          subdomain,
-          {
-            contractId: contract._id,
-            payDate: nowDate
-          },
-          config
-        );
+
+        const calcInfo: any = getCalcedAmounts(models, subdomain, contract._id, nowDate);
+
         calcInfo.payment = payAmount;
         calcInfo.payDate = invoiceDate;
-        calcInfo.interestEve = contract.storedInterest;
+        calcInfo.interestEve = 0; //contract.storedInterest;
 
         calcInfo.contractId = contract._id;
         calcInfo.total =

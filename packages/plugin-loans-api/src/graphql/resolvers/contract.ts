@@ -255,16 +255,8 @@ const Contracts = {
       .sort({ payDate: 1 })
       .lean();
 
-    const config = await getConfig("loansConfig", subdomain);
-
     const calcedInfo = await getCalcedAmounts(
-      models,
-      subdomain,
-      {
-        contractId: contract._id,
-        payDate: (nextSchedule && nextSchedule.payDate) || today
-      },
-      config
+      models, subdomain, contract._id, (nextSchedule && nextSchedule.payDate) || today
     );
 
     return (
@@ -330,7 +322,8 @@ const Contracts = {
 
   async unUsedBalance(contract: IContractDocument) {
     return new BigNumber(contract.leaseAmount)
-      .minus(contract.loanBalanceAmount)
+      // .minus(contract.loanBalanceAmount)
+      .minus(0)
       .dp(2, BigNumber.ROUND_HALF_UP)
       .toNumber();
   }

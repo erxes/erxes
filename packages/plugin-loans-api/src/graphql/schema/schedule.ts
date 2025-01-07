@@ -62,6 +62,6 @@ export const queries = `
 `;
 
 export const mutations = `
-  regenSchedules(contractId: String!): String
+  regenSchedules(contractId: String!, leaseAmount: Float, ): String
   fixSchedules(contractId: String!): String
 `;

@@ -49,7 +49,7 @@ const msdynamicCheckMutations = {
       const productCodes = (products || []).map(p => p.code) || [];
 
       const response = await fetch(
-        `${itemApi}?$filter=Item_Category_Code ne '' and Blocked ne true and Allow_Ecommerce eq true`,
+        `${itemApi}?$filter=Item_Category_Code ne '' and Blocked ne true and Allow_Ecommerce eq true&$select=No,Description,Base_Unit_of_Measure,Description_2,Type,Unit_Price,Item_Category_Code`,
         {
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",

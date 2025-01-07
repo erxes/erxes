@@ -34,7 +34,7 @@ const DetailInfo = (props: Props) => {
       label,
       contract[field]
         ? (contract[field].details && contract[field].details.fullName) ||
-            contract[field].email
+        contract[field].email
         : "-"
     );
   };
@@ -56,10 +56,6 @@ const DetailInfo = (props: Props) => {
       {renderRow(
         "Lease Amount",
         contract.leaseAmount && contract.leaseAmount.toLocaleString()
-      )}
-      {renderRow(
-        "Given Amount",
-        contract.givenAmount && contract.givenAmount.toLocaleString()
       )}
       {renderRow(
         "Fee Amount",
@@ -86,7 +82,7 @@ const DetailInfo = (props: Props) => {
         renderRow(
           "Commitment interest",
           contract.commitmentInterest &&
-            contract.commitmentInterest.toLocaleString()
+          contract.commitmentInterest.toLocaleString()
         )}
       {renderRow("Loan Repayment", contract.repayment)}
       {renderRow("Start Date", dayjs(contract.startDate).format("YYYY/MM/DD"))}
@@ -102,31 +98,14 @@ const DetailInfo = (props: Props) => {
         "Insurance On Year",
         contract.insuranceAmount && contract.insuranceAmount.toLocaleString()
       )}
-      {renderRow(
-        "Salvage Amount",
-        contract.salvageAmount && contract.salvageAmount.toLocaleString()
-      )}
-      {renderRow(
-        "Salvage Percent",
-        contract.salvagePercent && contract.salvagePercent.toLocaleString()
-      )}
-      {renderRow(
-        "Salvage Tenor",
-        contract.salvageTenor && contract.salvageTenor.toLocaleString()
-      )}
+
       {renderTeamMember("Relationship officer", "relationExpert")}
       {renderTeamMember("Leasing officer", "leasingExpert")}
       {renderTeamMember("Risk officer", "riskExpert")}
       <li>
         <FieldStyle>{__(`Weekends`)}</FieldStyle>
         <SidebarCounter>
-          {contract.weekends.map((week) => WEEKENDS[week]).join(", ")}
-        </SidebarCounter>
-      </li>
-      <li>
-        <FieldStyle>{__(`Use Holiday`)}</FieldStyle>
-        <SidebarCounter>
-          {(contract.useHoliday && "Yes") || "No"}
+          {(contract.weekends || []).map((week) => WEEKENDS[week]).join(", ")}
         </SidebarCounter>
       </li>
       <li>

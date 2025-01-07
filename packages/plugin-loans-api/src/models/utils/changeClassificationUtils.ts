@@ -15,14 +15,14 @@ export async function changeClassificationContract(
   const classificationChange = {
     description: 'auto',
     invDate: currentDate,
-    total: contract.loanBalanceAmount,
+    total: 0, //contract.loanBalanceAmount,
     classification: contract.classification,
     newClassification: newClassification,
     createdAt: new Date()
   };
 
 
-  await models.Contracts.updateOne({_id:contract._id},{$set:{classification:newClassification}})
+  await models.Contracts.updateOne({ _id: contract._id }, { $set: { classification: newClassification } })
   await models.Classification.create(classificationChange);
 }
 
@@ -76,31 +76,32 @@ export async function massChangeClassification(
 export async function changeClassificationOneContract(contract: IContractDocument,
   currentDate: Date,
   models: IModels,
-  config:IConfig) {
-    
-    let newClassification = contract.classification;
+  config: IConfig) {
+
+  let newClassification = contract.classification;
 
 
-    const diffDay = getDiffDay(contract.mustPayDate, currentDate);
+  // const diffDay = getDiffDay(contract.mustPayDate, currentDate);
+  const diffDay = getDiffDay(new Date(), currentDate);
 
-    if ((config.classificationNormal ?? 0) >= diffDay)
-      newClassification = CONTRACT_CLASSIFICATION.NORMAL;
-    else if ((config.classificationExpired ?? 30) < diffDay)
-      newClassification = CONTRACT_CLASSIFICATION.EXPIRED;
-    else if ((config.classificationDoubt ?? 90) < diffDay)
-      newClassification = CONTRACT_CLASSIFICATION.DOUBTFUL;
-    else if (
-      (config.classificationNegative ?? 180) < diffDay
-    )
-      newClassification = CONTRACT_CLASSIFICATION.NEGATIVE;
-    else if ((config.classificationBad ?? 360) < diffDay)
-      newClassification = CONTRACT_CLASSIFICATION.BAD;
+  if ((config.classificationNormal ?? 0) >= diffDay)
+    newClassification = CONTRACT_CLASSIFICATION.NORMAL;
+  else if ((config.classificationExpired ?? 30) < diffDay)
+    newClassification = CONTRACT_CLASSIFICATION.EXPIRED;
+  else if ((config.classificationDoubt ?? 90) < diffDay)
+    newClassification = CONTRACT_CLASSIFICATION.DOUBTFUL;
+  else if (
+    (config.classificationNegative ?? 180) < diffDay
+  )
+    newClassification = CONTRACT_CLASSIFICATION.NEGATIVE;
+  else if ((config.classificationBad ?? 360) < diffDay)
+    newClassification = CONTRACT_CLASSIFICATION.BAD;
 
-    if (contract.classification !== newClassification)
-      changeClassificationContract(
-        contract,
-        currentDate,
-        newClassification,
-        models
-      );
+  if (contract.classification !== newClassification)
+    changeClassificationContract(
+      contract,
+      currentDate,
+      newClassification,
+      models
+    );
 }
