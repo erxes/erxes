@@ -309,7 +309,6 @@ export const getRealIdFromElk = (_id: string) => {
     if(arr?.length > 1){
       return _id.replace(`${arr[0]}__`,'');
     }
-
   }
 
   return _id
