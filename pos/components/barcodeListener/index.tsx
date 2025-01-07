@@ -32,7 +32,7 @@ const BarcodeListener = ({
         if (key.length === 1) {
                 // Only accept alphanumeric characters and common symbols
                  if (!/^[a-zA-Z0-9-_]$/.test(key)) return;
-                 
+
                   setValue((prev) => (isContinuousInput ? prev + key : key));
                   setLastKeyPressDate(currentDate);
                   return;
@@ -42,10 +42,7 @@ const BarcodeListener = ({
         // Submit the barcode and reset the input
         setBarcode(value);
         setValue("");
-      }else if (key === "Enter") {
-        // Reset the input if it's not valid (too short or not continuous)
-        setValue("");
-      }
+      }else if (key === "Enter") setValue("");
     },
     [lastKeyPressDate, threshold, value, minBarcodeLength, setBarcode]
   );
