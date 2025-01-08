@@ -28,7 +28,7 @@ type Props = {
   addAction: (action: IAction, actionId?: string, config?: any) => void;
 };
 
-const sendNotifcation = (props: Props) => {
+const SendNotifcation = (props: Props) => {
   const { activeAction, triggerType, closeModal, addAction } = props;
 
   const [config, setConfig] = useState<any>({});
@@ -264,4 +264,4 @@ const sendNotifcation = (props: Props) => {
   );
 };
 
-export default sendNotifcation;
+export default SendNotifcation;
