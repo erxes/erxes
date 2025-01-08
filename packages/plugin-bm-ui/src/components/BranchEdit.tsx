@@ -19,6 +19,7 @@ import { Link } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import PermissionStep from './step/Permission';
 import PaymentsStep from './step/PaymentsStep';
+import Appearance from './step/Appearance';
 
 type Props = {
   branch?: IBmsBranch;
@@ -33,17 +34,12 @@ const BranchEdit = (props: Props) => {
   const [state, setState] = useState<any>({
     uiOptions: branch.uiOptions || {
       colors: {
-        bodyColor: '#FFFFFF',
-        headerColor: '#6569DF',
-        footerColor: '#3CCC38',
+        primary: '#FFFFFF',
+        secondary: '#6569DF',
+        third: '#3CCC38',
       },
       logo: '',
-      bgImage: '',
-      favIcon: '',
-      receiptIcon: '',
-      kioskHeaderImage: '',
-      mobileAppImage: '',
-      qrCodeImage: '',
+      texts: {},
     },
   });
   const handleSubmit = (e: React.FormEvent) => {
@@ -89,7 +85,7 @@ const BranchEdit = (props: Props) => {
       case 2:
         carousel = state.isSkip ? 'form' : 'callout';
         break;
-      case 7:
+      case 3:
         carousel = 'success';
         break;
       default:
@@ -127,16 +123,21 @@ const BranchEdit = (props: Props) => {
     );
   };
 
-  const breadcrumb = [{ title: 'TMS List', link: `/tms` }, { title: 'Create' }];
+  const breadcrumb = [
+    { title: 'TMS List', link: `/tms` },
+    { title: branch._id ? 'Edit' : 'Create' },
+  ];
+
   useEffect(() => {
     setState(v => ({ ...branch, ...v }));
   }, [branch]);
+
   return (
     <StepWrapper>
       <Wrapper.Header title={__('Bms')} breadcrumb={breadcrumb} />
       <Content>
         <LeftContent>
-          <Steps maxStep={9}>
+          <Steps maxStep={3}>
             <Step
               img='/images/icons/erxes-12.svg'
               title={`General`}
@@ -157,6 +158,17 @@ const BranchEdit = (props: Props) => {
               onClick={onStepClick}
             >
               <PermissionStep onChange={onChange} branch={state} />
+            </Step>
+            <Step
+              img='/images/icons/erxes-04.svg'
+              title={__('Appearance')}
+              onClick={onStepClick}
+            >
+              <Appearance
+                onChange={onChange}
+                uiOptions={state.uiOptions}
+                logoPreviewUrl={state.uiOptions.logo}
+              />
             </Step>
           </Steps>
           <ControlWrapper>
