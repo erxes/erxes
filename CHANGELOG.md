@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.2](https://github.com/erxes/erxes/compare/2.3.1...2.3.2) (2025-01-06)
+
+
+### Bug Fixes
+
+* **automations:** add condition ignore when value has string with arithmetic methods ([7cb39d4](https://github.com/erxes/erxes/commit/7cb39d4660a9054fb530c3ec02785ac691ae2cdb))
+
 ## [2.3.1](https://github.com/erxes/erxes/compare/2.3.0...2.3.1) (2025-01-05)
 
 
