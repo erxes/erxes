@@ -1,11 +1,11 @@
-import { generateModels, IModels } from './connectionResolver';
+import { generateModels, IModels } from "./connectionResolver";
 import {
   sendPosclientMessage,
   sendPricingMessage,
-  sendProductsMessage
-} from './messageBroker';
-import { IPosDocument } from './models/definitions/pos';
-import { getChildCategories } from './utils';
+  sendCoreMessage
+} from "./messageBroker";
+import { IPosDocument } from "./models/definitions/pos";
+import { calcProductsTaxRule, getChildCategories } from "./utils";
 
 const handler = async (
   subdomain,
@@ -16,7 +16,7 @@ const handler = async (
 ) => {
   await sendPosclientMessage({
     subdomain,
-    action: 'crudData',
+    action: "crudData",
     data: { ...params, action, type },
     pos
   });
@@ -75,12 +75,12 @@ const isInProduct = async (
     return false;
   }
 
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
-    action: 'find',
+    action: "products.find",
     data: {
       query: {
-        status: { $ne: 'deleted' },
+        status: { $ne: "deleted" },
         categoryId: { $in: allCategoryIds },
         _id: productId
       }
@@ -120,9 +120,9 @@ const isInProductCategory = async (
       c => !excludeCatIds.includes(c)
     );
 
-    const productCategories = await sendProductsMessage({
+    const productCategories = await sendCoreMessage({
       subdomain,
-      action: 'categories.find',
+      action: "categories.find",
       data: { query: { _id: { $in: productCategoryIds } }, sort: { order: 1 } },
       isRPC: true,
       defaultValue: []
@@ -139,9 +139,9 @@ const isInUser = (pos: IPosDocument, userId: string) => {
 };
 
 export default {
-  'core:user': ['update', 'delete'],
-  'products:productCategory': ['create', 'update', 'delete'],
-  'products:product': ['create', 'update', 'delete']
+  "core:user": ["update", "delete"],
+  "products:productCategory": ["create", "update", "delete"],
+  "core:product": ["create", "update", "delete"]
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
@@ -149,7 +149,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
   const models = await generateModels(subdomain);
   const poss = await models.Pos.find({});
 
-  if (type === 'products:product') {
+  if (type === "core:product") {
     for (const pos of poss) {
       if (await isInProduct(subdomain, models, pos, params.object._id)) {
         const item = params.updatedDocument || params.object;
@@ -159,9 +159,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
         const pricing = await sendPricingMessage({
           subdomain,
-          action: 'checkPricing',
+          action: "checkPricing",
           data: {
-            prioritizeRule: 'only',
+            prioritizeRule: "only",
             totalAmount: 0,
             departmentId: pos.departmentId,
             branchId: pos.branchId,
@@ -207,7 +207,16 @@ export const afterMutationHandlers = async (subdomain, params) => {
           }
         }
 
-        await handler(subdomain, { ...params }, action, 'product', pos);
+        const productById = await calcProductsTaxRule(subdomain, pos.ebarimtConfig, [item]);
+        if (productById[item._id]?.taxRule) {
+          if (params.updatedDocument) {
+            params.updatedDocument.taxRule = productById[item._id].taxRule;
+          } else {
+            params.object.taxRule = productById[item._id].taxRule;
+          }
+        }
+
+        await handler(subdomain, { ...params }, action, "product", pos);
 
         if (params.updatedDocument) {
           params.updatedDocument.unitPrice = firstUnitPrice;
@@ -219,21 +228,21 @@ export const afterMutationHandlers = async (subdomain, params) => {
     return;
   }
 
-  if (type === 'products:productCategory') {
+  if (type === "products:productCategory") {
     for (const pos of poss) {
       if (
         await isInProductCategory(subdomain, models, pos, params.object._id)
       ) {
-        await handler(subdomain, params, action, 'productCategory', pos);
+        await handler(subdomain, params, action, "productCategory", pos);
       }
     }
     return;
   }
 
-  if (type === 'core:user') {
+  if (type === "core:user") {
     for (const pos of poss) {
       if (await isInUser(pos, params.object._id)) {
-        await handler(subdomain, params, action, 'user', pos);
+        await handler(subdomain, params, action, "user", pos);
       }
     }
     return;

@@ -57,8 +57,8 @@ const clientPortalUsersInvite = `
 `;
 
 const clientPortalUsersEdit = `
-  mutation clientPortalUsersEdit($_id: String!, ${commonUserFields}) {
-    clientPortalUsersEdit(_id: $_id, ${commonUserVariables}) {
+  mutation clientPortalUsersEdit($_id: String!, ${commonUserFields}, $password: String) {
+    clientPortalUsersEdit(_id: $_id, ${commonUserVariables}, password: $password) {
       ${clientPortalUserFields}
     }
   }
@@ -145,6 +145,11 @@ mutation clientPortalParticipantEdit($id: String!, $contentType: UserCardEnum, $
     _id
   }
 }`;
+const clientPortalUsersMove = `
+  mutation clientPortalUsersMove($oldClientPortalId: String!, $newClientPortalId: String!) {
+    clientPortalUsersMove(oldClientPortalId: $oldClientPortalId, newClientPortalId: $newClientPortalId)
+  }
+`;
 export default {
   createOrUpdateConfig,
   remove,
@@ -159,4 +164,5 @@ export default {
   clientPortalUserAssignCompany,
   clientPortalParticipantRelationEdit,
   clientPortalParticipantEdit,
+  clientPortalUsersMove,
 };

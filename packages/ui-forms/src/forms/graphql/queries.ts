@@ -30,7 +30,7 @@ const fields = `
         logicOperator
         logicValue
       }
-      groupName
+      
       associatedFieldId
       associatedField {
         _id
@@ -44,6 +44,61 @@ const fields = `
       subFieldIds
     }
   }
+`;
+const fieldsGroups = `
+query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $config: JSON) {
+  fieldsGroups(
+    contentType: $contentType
+    isDefinedByErxes: $isDefinedByErxes
+    config: $config
+  ) {
+    name
+    _id
+    description
+    code
+    order
+    isVisible
+    isVisibleInDetail
+    contentType
+    isDefinedByErxes
+    isMultiple
+    alwaysOpen
+    parentId
+    config
+
+    fields {
+      type
+      text
+      canHide
+      validation
+      regexValidation
+      options
+      isVisibleToCreate
+      locationOptions {
+        lat
+        lng
+        description
+      }
+      objectListConfigs {
+        key
+        label
+        type
+      }
+      groupId
+      searchable
+      showInCard
+      isRequired
+      _id
+      description
+      code
+      order
+      isVisible
+      isVisibleInDetail
+      contentType
+      isDefinedByErxes
+    }
+  }
+}
 `;
 
 const formFields = `
@@ -133,6 +188,20 @@ const formSubmissionTotalCount = `
   }
 `;
 
+const relations = `
+query FieldsGetRelations($contentType: String!, $isVisibleToCreate: Boolean) {
+  fieldsGetRelations(contentType: $contentType, isVisibleToCreate: $isVisibleToCreate) {
+    _id
+    contentType
+    name
+    type
+    text
+    isVisibleToCreate
+    relationType
+  }
+}
+`;
+
 export default {
   fieldsDefaultColumnsConfig,
   fieldsCombinedByContentType,
@@ -140,5 +209,7 @@ export default {
   formDetail,
   forms,
   formSubmissions,
-  formSubmissionTotalCount
+  formSubmissionTotalCount,
+  fieldsGroups,
+  relations,
 };

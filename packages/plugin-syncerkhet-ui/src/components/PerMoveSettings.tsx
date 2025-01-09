@@ -1,23 +1,24 @@
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
-import client from "@erxes/ui/src/apolloClient";
-import { gql } from "@apollo/client";
-import React from "react";
-import Select from "react-select";
-import { __ } from "@erxes/ui/src/utils";
 import {
   Button,
   CollapseContent,
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon,
+  Icon
 } from "@erxes/ui/src/components";
-import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+
+import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
+import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
 import { IConfigsMap } from "../types";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
+import React from "react";
+import Select from "react-select";
+import { __ } from "@erxes/ui/src/utils";
+import client from "@erxes/ui/src/apolloClient";
 import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
+import { gql } from "@apollo/client";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -40,23 +41,21 @@ class PerSettings extends React.Component<Props, State> {
     this.state = {
       config: props.config,
       hasOpen: false,
-      fieldsCombined: [],
+      fieldsCombined: []
     };
 
-    if (isEnabled("forms")) {
-      client
-        .query({
-          query: gql(formQueries.fieldsCombinedByContentType),
-          variables: {
-            contentType: "cards:deal",
-          },
-        })
-        .then(({ data }) => {
-          this.setState({
-            fieldsCombined: data ? data.fieldsCombinedByContentType : [] || [],
-          });
+    client
+      .query({
+        query: gql(formQueries.fieldsCombinedByContentType),
+        variables: {
+          contentType: "sales:deal"
+        }
+      })
+      .then(({ data }) => {
+        this.setState({
+          fieldsCombined: data ? data.fieldsCombinedByContentType : [] || []
         });
-    }
+      });
   }
 
   onChangeBoard = (boardId: string) => {
@@ -71,34 +70,40 @@ class PerSettings extends React.Component<Props, State> {
     this.setState({ config: { ...this.state.config, stageId } });
   };
 
-  onSave = (e) => {
+  onSave = e => {
     e.preventDefault();
     const { configsMap, currentConfigKey } = this.props;
     const { config } = this.state;
     const key = config.stageId;
 
-    delete configsMap.stageInMoveConfig[currentConfigKey];
-    configsMap.stageInMoveConfig[key] = config;
-    this.props.save(configsMap);
+    const stageInMoveConfig = { ...configsMap.stageInMoveConfig };
+
+    delete stageInMoveConfig[currentConfigKey];
+    stageInMoveConfig[key] = config;
+
+    this.props.save({ ...configsMap, stageInMoveConfig });
   };
 
-  onDelete = (e) => {
+  onDelete = e => {
     e.preventDefault();
 
     this.props.delete(this.props.currentConfigKey);
   };
 
   onChangeConfig = (code: string, value) => {
-    const { config } = this.state;
-    config[code] = value;
-    this.setState({ config });
+    this.setState(prevState => ({
+      config: {
+        ...prevState.config,
+        [code]: value
+      }
+    }));
   };
 
   onChangeInput = (code: string, e) => {
     this.onChangeConfig(code, e.target.value);
   };
 
-  onresponseCustomFieldChange = (option) => {
+  onresponseCustomFieldChange = option => {
     const value = !option ? "" : option.value.toString();
     this.onChangeConfig("responseField", value);
   };
@@ -131,7 +136,7 @@ class PerSettings extends React.Component<Props, State> {
       account: "",
       location: "",
       moveAccount: "",
-      moveLocation: "",
+      moveLocation: ""
     });
 
     this.setState({ config: { ...config, catAccLocMap } });
@@ -174,14 +179,14 @@ class PerSettings extends React.Component<Props, State> {
     );
 
     const editMapping = (id, e) => {
-      const index = catAccLocMap.findIndex((i) => i._id === id);
+      const index = catAccLocMap.findIndex(i => i._id === id);
 
       const name = e.target.name;
       const value = e.target.value;
 
       const item = {
-        ...(catAccLocMap.find((cal) => cal._id === id) || {}),
-        [name]: value,
+        ...(catAccLocMap.find(cal => cal._id === id) || {}),
+        [name]: value
       };
 
       if (index !== -1) {
@@ -194,7 +199,7 @@ class PerSettings extends React.Component<Props, State> {
     };
 
     const removeMapping = (_id: string) => {
-      const excluded = catAccLocMap.filter((m) => m._id !== _id);
+      const excluded = catAccLocMap.filter(m => m._id !== _id);
 
       this.setState({ config: { ...config, catAccLocMap: excluded } });
     };
@@ -280,9 +285,9 @@ class PerSettings extends React.Component<Props, State> {
 
   render() {
     const { config } = this.state;
-    const responseFieldOptions = (this.state.fieldsCombined || []).map((f) => ({
+    const responseFieldOptions = (this.state.fieldsCombined || []).map(f => ({
       value: f.name,
-      label: f.label,
+      label: f.label
     }));
     return (
       <CollapseContent
@@ -324,7 +329,7 @@ class PerSettings extends React.Component<Props, State> {
               <Select
                 name="responseField"
                 value={responseFieldOptions.find(
-                  (o) => o.value === config.responseField
+                  o => o.value === config.responseField
                 )}
                 onChange={this.onresponseCustomFieldChange}
                 isClearable={true}

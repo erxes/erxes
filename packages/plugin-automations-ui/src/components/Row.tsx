@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
 import React from "react";
 import Tip from "@erxes/ui/src/components/Tip";
-import WithPermission from "coreui/withPermission";
+import WithPermission from "@erxes/ui/src/components/WithPermission";
 import dayjs from "dayjs";
 import s from "underscore.string";
 
@@ -31,15 +31,15 @@ function ActionRow({
   isChecked,
   duplicate,
   toggleBulk,
-  removeAutomations,
+  removeAutomations
 }: Props) {
-  const onChange = (e) => {
+  const onChange = e => {
     if (toggleBulk) {
       toggleBulk(automation, e.target.checked);
     }
   };
 
-  const onClick = (e) => {
+  const onClick = e => {
     e.stopPropagation();
   };
 
@@ -50,11 +50,11 @@ function ActionRow({
   const editAction = () => {
     return (
       <Link to={`/automations/details/${automation._id}`}>
-        <Button btnStyle="link">
-          <Tip text={__("Edit")} placement="top">
+        <Tip text={__("Edit")} placement="top">
+          <Button btnStyle="link">
             <Icon icon="edit-3" />
-          </Tip>
-        </Button>
+          </Button>
+        </Tip>
       </Link>
     );
   };
@@ -100,7 +100,7 @@ function ActionRow({
     updatedUser,
     triggers,
     actions,
-    tags,
+    tags
   } = automation;
 
   const isActive = status !== "draft" ? true : false;
@@ -127,13 +127,13 @@ function ActionRow({
         <Icon icon="share-alt" />
         <b> {s.numberFormat(actions.length)}</b>
       </td>
-      {isEnabled("tags") && (
-        <td>
-          {(tags || []).map((tag) => (
-            <Label lblColor={tag.colorCode}>{tag.name}</Label>
-          ))}
-        </td>
-      )}
+
+      <td>
+        {(tags || []).map(tag => (
+          <Label lblColor={tag.colorCode}>{tag.name}</Label>
+        ))}
+      </td>
+
       <td>
         <FlexCenter>
           <NameCard user={updatedUser} avatarSize={30} />

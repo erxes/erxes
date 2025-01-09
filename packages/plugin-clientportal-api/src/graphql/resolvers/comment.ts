@@ -3,7 +3,7 @@ import { sendCoreMessage } from '../../messageBroker';
 import { ICommentDocument } from '../../models/definitions/comment';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.Comments.findOne({ _id });
   },
 

@@ -1,13 +1,7 @@
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-const externalId = '_id: String! @external';
+const externalId = "_id: String! @external";
 const keyFields = '@key(fields: "_id")';
 
-export const types = async () => {
-  const enabledTags = isEnabled('tags');
-  const enabledContacts = isEnabled('contacts');
-  const enabledSegments = isEnabled('segments');
-
-  return `
+export const types = `
     extend type User ${keyFields} {
       ${externalId}
     }
@@ -16,33 +10,20 @@ export const types = async () => {
       ${externalId}
     }
 
-    ${
-      enabledSegments
-        ? `
-          extend type Segment ${keyFields} {
-            ${externalId}
-          }
-        `
-        : ''
-    }
 
-    ${
-      enabledTags
-        ? `extend type Tag ${keyFields} {
+    extend type Segment ${keyFields} {
       ${externalId}
-    }`
-        : ''
     }
 
-    ${
-      enabledContacts
-        ? `
-        extend type Customer ${keyFields} {
-          ${externalId}
-        }
-      `
-        : ''
+
+    extend type Tag ${keyFields} {
+      ${externalId}
     }
+
+    extend type Customer ${keyFields} {
+      ${externalId}
+    }
+    
 
     type EngageMessage ${keyFields} {
       _id: String!
@@ -77,15 +58,9 @@ export const types = async () => {
 
       scheduleDate: EngageScheduleDate
 
-      ${enabledSegments ? 'segments: [Segment]' : ''}
-      ${
-        enabledTags
-          ? `
-        customerTags: [Tag]
-        getTags: [Tag]
-        `
-          : ''
-      }
+      segments: [Segment]
+      customerTags: [Tag]
+      getTags: [Tag]
       brands: [Brand]
       fromUser: User
       fromIntegration: JSON
@@ -217,7 +192,6 @@ export const types = async () => {
       isMobile: Boolean,
     }
   `;
-};
 
 const listParams = `
   kind: String

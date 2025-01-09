@@ -1,7 +1,7 @@
 import { fetchPolaris, getClassificationCode, getContract } from '../utils';
 import { IPolarisClassification } from './types';
 
-export const getCloseLoanDetail = async (subdomain, classification) => {
+export const getCloseLoanDetail = async (subdomain, polarisConfig, classification) => {
   const loanContract = await getContract(
     subdomain,
     classification.contractId,
@@ -21,7 +21,8 @@ export const getCloseLoanDetail = async (subdomain, classification) => {
     subdomain,
     op: '13610279',
     data: [loanChangeClassification],
-  }).then((response) => JSON.parse(response));
+    polarisConfig
+  });
 
   return loanChangeClassificationReponse.txnJrno;
 };

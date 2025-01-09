@@ -1,73 +1,73 @@
-import { getFullDate, getTomorrow } from './utils';
-import { paginate, regexSearchText } from '@erxes/api-utils/src';
+import { getFullDate, getTomorrow } from "./utils";
+import { paginate, regexSearchText } from "@erxes/api-utils/src";
 import {
-  sendCardsMessage,
   sendLoansMessage,
   sendPosMessage,
-} from '../../../messageBroker';
-import { IContext } from '../../../connectionResolver';
-import { getCompany } from '../../../utils';
+  sendSalesMessage
+} from "../../../messageBroker";
+import { IContext } from "../../../connectionResolver";
+import { getCompanyInfo, getConfig } from "../../../utils";
 
 const generateFilter = async (subdomain, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
   if (params.search) {
     filter.$or = [
-      { billId: new RegExp(`.*${params.search}.*`, 'i') },
-      { returnBillId: new RegExp(`.*${params.search}.*`, 'i') },
-      { number: new RegExp(`.*${params.search}.*`, 'i') },
+      { id: new RegExp(`.*${params.search}.*`, "i") },
+      { inactiveId: new RegExp(`.*${params.search}.*`, "i") },
+      { number: new RegExp(`.*${params.search}.*`, "i") }
     ];
   }
 
   if (params.billIdRule) {
-    if (params.billIdRule === '00') {
-      filter.billId = { $in: ['', null] };
-      filter.returnBillId = { $in: ['', null] };
+    if (params.billIdRule === "00") {
+      filter.id = { $in: ["", null] };
+      filter.inactiveId = { $in: ["", null] };
     }
-    if (params.billIdRule === '01') {
-      filter.billId = { $in: ['', null] };
-      filter.returnBillId = { $nin: ['', null] };
+    if (params.billIdRule === "01") {
+      filter.id = { $in: ["", null] };
+      filter.inactiveId = { $nin: ["", null] };
     }
-    if (params.billIdRule === '10') {
-      filter.billId = { $nin: ['', null] };
-      filter.returnBillId = { $in: ['', null] };
+    if (params.billIdRule === "10") {
+      filter.id = { $nin: ["", null] };
+      filter.inactiveId = { $in: ["", null] };
     }
-    if (params.billIdRule === '11') {
-      filter.billId = { $nin: ['', null] };
-      filter.returnBillId = { $nin: ['', null] };
+    if (params.billIdRule === "11") {
+      filter.id = { $nin: ["", null] };
+      filter.inactiveId = { $nin: ["", null] };
     }
   }
 
   if (params.contentType) {
     filter.contentType = params.contentType;
 
-    if (params.contentType === 'pos' && params.orderNumber) {
+    if (params.contentType === "pos" && params.orderNumber) {
       const posOrders = await sendPosMessage({
         subdomain,
-        action: 'orders.find',
+        action: "orders.find",
 
-        data: { number: { $regex: params.orderNumber, $options: 'mui' } },
+        data: { number: { $regex: params.orderNumber, $options: "mui" } },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
-      filter.contentId = { $in: (posOrders || []).map((p) => p._id) };
+      filter.contentId = { $in: (posOrders || []).map(p => p._id) };
     }
 
-    if (params.contentType === 'deal') {
+    if (params.contentType === "deal") {
       const dealsFilter: any = {};
       if (params.pipelineId) {
         if (params.stageId) {
           dealsFilter.stageId = params.stageId;
         } else {
-          const stages = await sendCardsMessage({
+          const stages = await sendSalesMessage({
             subdomain,
-            action: 'stages.find',
+            action: "stages.find",
             data: { pipelineId: params.pipelineId },
-            isRPC: true,
+            isRPC: true
           });
 
-          dealsFilter.stageId = { $in: (stages || []).map((s) => s._id) };
+          dealsFilter.stageId = { $in: (stages || []).map(s => s._id) };
         }
       }
       if (params.dealName) {
@@ -75,52 +75,56 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
       }
 
       if (Object.keys(dealsFilter).length) {
-        const deals = await sendCardsMessage({
+        const deals = await sendSalesMessage({
           subdomain,
-          action: 'deals.find',
+          action: "deals.find",
           data: { ...dealsFilter },
-          isRPC: true,
+          isRPC: true
         });
 
-        filter.contentId = { $in: (deals || []).map((d) => d._id) };
+        filter.contentId = { $in: (deals || []).map(d => d._id) };
       }
     }
 
-    if (params.contentType === 'loans:transaction') {
+    if (params.contentType === "loans:transaction") {
       if (params.contractNumber) {
         const loansContracts = await sendLoansMessage({
           subdomain,
-          action: 'transactions.findAtContracts',
-          data: { number: { $regex: params.contractNumber, $options: 'mui' } },
+          action: "transactions.findAtContracts",
+          data: { number: { $regex: params.contractNumber, $options: "mui" } },
           isRPC: true,
-          defaultValue: [],
+          defaultValue: []
         });
 
-        filter.contentId = { $in: (loansContracts || []).map((p) => p._id) };
+        filter.contentId = { $in: (loansContracts || []).map(p => p._id) };
       }
 
       if (params.transactionNumber) {
         const loansTransactions = await sendLoansMessage({
           subdomain,
-          action: 'transactions.find',
+          action: "transactions.find",
           data: {
-            number: { $regex: params.transactionNumber, $options: 'mui' },
+            number: { $regex: params.transactionNumber, $options: "mui" }
           },
           isRPC: true,
-          defaultValue: [],
+          defaultValue: []
         });
 
-        filter.contentId = { $in: (loansTransactions || []).map((p) => p._id) };
+        filter.contentId = { $in: (loansTransactions || []).map(p => p._id) };
       }
     }
   }
 
+  if (params.contentId) {
+    filter.contentId = params.contentId;
+  }
+
   if (params.success) {
-    filter.success = params.success;
+    filter.status = params.success;
   }
 
   if (params.billType) {
-    filter.billType = params.billType;
+    filter.type = params.billType;
   }
 
   const createdQry: any = {};
@@ -134,7 +138,7 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
     filter.createdAt = createdQry;
   }
 
-  if (params.paidDate === 'today') {
+  if (params.paidDate === "today") {
     const now = new Date();
 
     const startDate = getFullDate(now);
@@ -143,15 +147,14 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
   }
 
   if (params.isLast) {
-    filter.status = { $ne: 'inactive' };
+    filter.state = { $ne: "inactive" };
   }
 
   return filter;
 };
 
-export const sortBuilder = (params) => {
-  const sortField = params.sortField;
-  const sortDirection = params.sortDirection || 0;
+export const sortBuilder = params => {
+  const {sortField, sortDirection = 0} = params;  
 
   if (sortField) {
     return { [sortField]: sortDirection };
@@ -160,11 +163,11 @@ export const sortBuilder = (params) => {
   return { createdAt: 1 };
 };
 
-const genDuplicatedFilter = async (params) => {
+const genDuplicatedFilter = async params => {
   const { startDate, endDate, billType } = params;
 
   if (!(startDate && endDate)) {
-    throw new Error('Please, Must choose date filters');
+    throw new Error("Please, Must choose date filters");
   }
 
   const csd = new Date(startDate);
@@ -174,7 +177,7 @@ const genDuplicatedFilter = async (params) => {
       (1000 * 60 * 60 * 24) >
     32
   ) {
-    throw new Error('The date range exceeds one month');
+    throw new Error("The date range exceeds one month");
   }
 
   const filter: any = {};
@@ -190,7 +193,7 @@ const genDuplicatedFilter = async (params) => {
   }
 
   if (billType) {
-    filter.billType = billType;
+    filter.type = billType;
   }
 
   return filter;
@@ -200,23 +203,23 @@ const queries = {
   putResponses: async (
     _root,
     params,
-    { commonQuerySelector, models, subdomain }: IContext,
+    { commonQuerySelector, models, subdomain }: IContext
   ) => {
     const filter = await generateFilter(subdomain, params, commonQuerySelector);
 
     return await paginate(
-      models.PutResponses.find(filter).sort(sortBuilder(params)),
+      models.PutResponses.find(filter).sort(sortBuilder(params) as any),
       {
         page: params.page || 1,
-        perPage: params.perPage,
-      },
+        perPage: params.perPage
+      }
     );
   },
 
   putResponsesCount: async (
     _root,
     params,
-    { commonQuerySelector, models, subdomain },
+    { commonQuerySelector, models, subdomain }
   ) => {
     const filter = await generateFilter(subdomain, params, commonQuerySelector);
 
@@ -226,13 +229,13 @@ const queries = {
   putResponsesAmount: async (
     _root,
     params,
-    { commonQuerySelector, models, subdomain },
+    { commonQuerySelector, models, subdomain }
   ) => {
     const filter = await generateFilter(subdomain, params, commonQuerySelector);
     const res = await models.PutResponses.aggregate([
       { $match: filter },
-      { $project: { _id: 1, amount: 1 } },
-      { $group: { _id: '', amount: { $sum: { $toDecimal: '$amount' } } } },
+      { $project: { _id: 1, totalAmount: 1 } },
+      { $group: { _id: "", amount: { $sum: { $toDecimal: "$totalAmount" } } } }
     ]);
 
     if (!res || !res.length) {
@@ -245,12 +248,12 @@ const queries = {
   putResponsesByDate: async (
     _root,
     params,
-    { commonQuerySelector, models, subdomain }: IContext,
+    { commonQuerySelector, models, subdomain }: IContext
   ) => {
     const { createdStartDate, createdEndDate, paidDate } = params;
 
-    if (!((createdStartDate && createdEndDate) || paidDate === 'today')) {
-      throw new Error('Please, Must choose date filters');
+    if (!((createdStartDate && createdEndDate) || paidDate === "today")) {
+      throw new Error("Please, Must choose date filters");
     }
 
     const csd = new Date(createdStartDate);
@@ -260,7 +263,7 @@ const queries = {
         (1000 * 60 * 60 * 24) >
       32
     ) {
-      throw new Error('The date range exceeds one month');
+      throw new Error("The date range exceeds one month");
     }
 
     const filter = await generateFilter(subdomain, params, commonQuerySelector);
@@ -278,35 +281,39 @@ const queries = {
           counter: 0,
           cityTax: 0,
           vat: 0,
-          amount: 0,
+          amount: 0
         };
       }
 
       result[dateStr].counter += 1;
-      result[dateStr].vat += Number(res.vat) || 0;
-      result[dateStr].cityTax += Number(res.cityTax) || 0;
-      result[dateStr].amount += Number(res.amount) || 0;
+      result[dateStr].vat += Number(res.totalVAT) || 0;
+      result[dateStr].cityTax += Number(res.totalCityTax) || 0;
+      result[dateStr].amount += Number(res.totalAmount) || 0;
     }
 
     const dates = Object.keys(result).reverse();
-    return dates.map((date) => ({ date, values: result[date] }));
+    return dates.map(date => ({ date, values: result[date] }));
   },
 
   getDealLink: async (_root, param, { subdomain }) => {
-    return await sendCardsMessage({
+    return await sendSalesMessage({
       subdomain,
-      action: 'getLink',
-      data: { _id: param._id, type: 'deal' },
-      isRPC: true,
+      action: "getLink",
+      data: { _id: param._id, type: "deal" },
+      isRPC: true
     });
   },
 
   ebarimtGetCompany: async (
     _root,
     { companyRD }: { companyRD: string },
-    { subdomain },
+    { subdomain }
   ) => {
-    return getCompany(subdomain, companyRD);
+    const config = await getConfig(subdomain, "EBARIMT");
+    return getCompanyInfo({
+      checkTaxpayerUrl: config.checkTaxpayerUrl,
+      no: companyRD
+    });
   },
 
   putResponsesDuplicated: async (_root, params, { models }) => {
@@ -318,22 +325,22 @@ const queries = {
       {
         $match: {
           ...filter,
-          success: 'true',
-          $or: [{ returnBillId: { $exists: false } }, { returnBillId: '' }],
-          status: { $ne: 'inactive' },
-        },
+          status: "SUCCESS",
+          $or: [{ inactiveId: { $exists: false } }, { inactiveId: "" }],
+          state: { $ne: "inactive" }
+        }
       },
       {
         $group: {
-          _id: { contentId: '$contentId', taxType: '$taxType' },
+          _id: { contentId: "$contentId", taxType: "$taxType" },
           count: { $sum: 1 },
-          number: { $first: '$number' },
-          date: { $first: { $substr: ['$date', 0, 10] } },
-        },
+          number: { $first: "$number" },
+          date: { $first: { $substr: ["$date", 0, 10] } }
+        }
       },
       { $match: { count: { $gt: 1 } } },
       { $skip: perPage * (page - 1) },
-      { $limit: perPage },
+      { $limit: perPage }
     ]);
   },
 
@@ -344,21 +351,21 @@ const queries = {
       {
         $match: {
           ...filter,
-          success: 'true',
-          $or: [{ returnBillId: { $exists: false } }, { returnBillId: '' }],
-          status: { $ne: 'inactive' },
-        },
+          status: "SUCCESS",
+          $or: [{ inactiveId: { $exists: false } }, { inactiveId: "" }],
+          state: { $ne: "inactive" }
+        }
       },
       {
         $group: {
-          _id: { contentId: '$contentId', taxType: '$taxType' },
+          _id: { contentId: "$contentId", taxType: "$taxType" },
           count: { $sum: 1 },
-          number: { $first: '$number' },
-          date: { $first: { $substr: ['$date', 0, 10] } },
-        },
+          number: { $first: "$number" },
+          date: { $first: { $substr: ["$date", 0, 10] } }
+        }
       },
       { $match: { count: { $gt: 1 } } },
-      { $group: { _id: null, count: { $sum: 1 } } },
+      { $group: { _id: null, count: { $sum: 1 } } }
     ]);
 
     return (res.length && res[0].count) || 0;
@@ -367,10 +374,10 @@ const queries = {
   putResponsesDuplicatedDetail: async (
     _root,
     { contentId, taxType },
-    { models },
+    { models }
   ) => {
     return models.PutResponses.find({ contentId, taxType }).lean();
-  },
+  }
 };
 
 export default queries;

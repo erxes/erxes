@@ -96,10 +96,7 @@ const Row: React.FC<Props> = (props) => {
     return renderFullName(customer);
   };
 
-  const meta: any = PAYMENTCONFIGS.find(
-    (p) => p.kind === (payment?.kind || "")
-  );
-  const kind = meta ? meta.name : "NA";
+
 
   return (
     <tr onClick={onTrClick}>
@@ -110,9 +107,8 @@ const Row: React.FC<Props> = (props) => {
           onChange={onChange}
         />
       </td>
-      <td>{payment ? payment.name : "NA"}</td>
-      <td>{kind}</td>
-      <td>{amount.toLocaleString()}</td>
+      <td>{invoice.invoiceNumber || 'NA'}</td>
+      <td>{amount.toLocaleString() + " " + invoice.currency}</td>
       <td>
         <Label lblStyle={labelStyle}>{status}</Label>
       </td>

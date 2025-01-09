@@ -1,39 +1,39 @@
 import {
   MessageArgs,
   MessageArgsOmitService,
-  sendMessage,
-} from '@erxes/api-utils/src/core';
+  sendMessage
+} from "@erxes/api-utils/src/core";
 
-import { generateModels } from './connectionResolver';
-import { IXypConfig } from './graphql/resolvers/queries';
-import fetch from 'node-fetch';
+import { generateModels } from "./connectionResolver";
+import { IXypConfig } from "./graphql/resolvers/queries";
+import fetch from "node-fetch";
 import {
   InterMessage,
   RPResult,
-  consumeRPCQueue,
-} from '@erxes/api-utils/src/messageBroker';
+  consumeRPCQueue
+} from "@erxes/api-utils/src/messageBroker";
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue(
-    'xyp:fetch',
+    "xyp:fetch",
     async ({ subdomain, data }: InterMessage): Promise<RPResult> => {
       const xypConfigs = await sendCommonMessage({
         subdomain,
-        serviceName: 'core',
-        action: 'configs.findOne',
+        serviceName: "core",
+        action: "configs.findOne",
         data: {
           query: {
-            code: 'XYP_CONFIGS',
-          },
+            code: "XYP_CONFIGS"
+          }
         },
         isRPC: true,
-        defaultValue: null,
+        defaultValue: null
       });
 
       if (!xypConfigs) {
         return {
-          status: 'error',
-          errorMessage: 'XYP CONFIGS not found',
+          status: "error",
+          errorMessage: "XYP CONFIGS not found"
         };
       }
 
@@ -41,54 +41,54 @@ export const setupMessageConsumers = async () => {
 
       const config: IXypConfig = xypConfigs && xypConfigs.value;
 
-      const response = await fetch(config.url + '/api', {
-        method: 'post',
-        headers: { token: config.token, 'Content-Type': 'application/json' },
+      const response = await fetch(config.url + "/api", {
+        method: "post",
+        headers: { token: config.token, "Content-Type": "application/json" },
         body: JSON.stringify({
           params,
-          wsOperationName,
+          wsOperationName
         }),
-        timeout: 5000,
+        timeout: 5000
       });
 
       return {
-        status: 'success',
-        data: response,
+        status: "success",
+        data: response
       };
-    },
+    }
   );
 
-  consumeRPCQueue('xyp.find', async ({ subdomain, data }) => {
+  consumeRPCQueue("xyp.find", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: 'success',
+      status: "success",
       data: await models.XypData.findOne({
         contentType: data?.contentType,
-        contentTypeId: data?._id,
-      }),
+        contentTypeId: data?._id
+      })
     };
   });
-  consumeRPCQueue('xyp:insertOrUpdate', async ({ subdomain, data }) => {
+  consumeRPCQueue("xyp:insertOrUpdate", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const existingData = await models.XypData.findOne({
       contentType: data.contentType,
-      contentTypeId: data.contentTypeId,
+      contentTypeId: data.contentTypeId
     });
 
     const newData = data.data;
 
     if (!existingData) {
       return {
-        status: 'success',
-        data: await models.XypData.createXypData(data),
+        status: "success",
+        data: await models.XypData.createXypData(data)
       };
     }
 
     for (const obj of newData) {
       const serviceIndex = existingData.data.findIndex(
-        (e) => e.serviceName === obj.serviceName,
+        e => e.serviceName === obj.serviceName
       );
 
       if (serviceIndex === -1) {
@@ -96,9 +96,9 @@ export const setupMessageConsumers = async () => {
           { _id: existingData._id },
           {
             $push: {
-              data: obj,
-            },
-          },
+              data: obj
+            }
+          }
         );
       } else {
         existingData.data[serviceIndex] = obj;
@@ -106,53 +106,35 @@ export const setupMessageConsumers = async () => {
           { _id: existingData._id },
           {
             $set: {
-              data: existingData.data,
-            },
-          },
+              data: existingData.data
+            }
+          }
         );
       }
     }
 
     return {
-      status: 'success',
+      status: "success",
       data: await models.XypData.findOne({
         contentType: data.contentType,
-        contentTypeId: data.contentTypeId,
-      }),
+        contentTypeId: data.contentTypeId
+      })
     };
   });
 };
 
-export const sendContactsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'contacts',
-    ...args,
-  });
-};
-
 export const sendAutomationsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'automations',
-    ...args,
+    serviceName: "automations",
+    ...args
   });
 };
 
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    ...args,
-  });
-};
-
-export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'segments',
-    ...args,
+    ...args
   });
 };
 
@@ -160,29 +142,20 @@ export const fetchSegment = (
   subdomain: string,
   segmentId: string,
   options?,
-  segmentData?: any,
+  segmentData?: any
 ) =>
-  sendSegmentsMessage({
+  sendCoreMessage({
     subdomain,
-    action: 'fetchSegment',
+    action: "fetchSegment",
     data: { segmentId, options, segmentData },
-    isRPC: true,
+    isRPC: true
   });
-
-export const sendFormsMessage = (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'forms',
-    ...args,
-  });
-};
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'core',
-    ...args,
+    serviceName: "core",
+    ...args
   });
 };

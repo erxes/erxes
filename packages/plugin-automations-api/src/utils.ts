@@ -1,14 +1,14 @@
 import {
   IActionsMap,
   ITrigger,
-  TriggerType,
+  TriggerType
 } from './models/definitions/automaions';
 
 import { ACTIONS } from './constants';
 import {
   EXECUTION_STATUS,
   IExecAction,
-  IExecutionDocument,
+  IExecutionDocument
 } from './models/definitions/executions';
 
 import { getActionsMap } from './helpers';
@@ -21,7 +21,7 @@ import { setActionWait } from './actions/wait';
 
 export const getEnv = ({
   name,
-  defaultValue,
+  defaultValue
 }: {
   name: string;
   defaultValue?: string;
@@ -43,16 +43,20 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 export const isInSegment = async (
   subdomain: string,
   segmentId: string,
-  targetId: string,
+  targetId: string
 ) => {
   await delay(15000);
+
+  console.log({ segmentId, idToCheck: targetId });
 
   const response = await sendSegmentsMessage({
     subdomain,
     action: 'isInSegment',
     data: { segmentId, idToCheck: targetId },
-    isRPC: true,
+    isRPC: true
   });
+
+  console.log({ response });
 
   return response;
 };
@@ -62,7 +66,7 @@ export const executeActions = async (
   triggerType: string,
   execution: IExecutionDocument,
   actionsMap: IActionsMap,
-  currentActionId?: string,
+  currentActionId?: string
 ): Promise<string | null | undefined> => {
   if (!currentActionId) {
     execution.status = EXECUTION_STATUS.COMPLETE;
@@ -85,7 +89,7 @@ export const executeActions = async (
     actionId: currentActionId,
     actionType: action.type,
     actionConfig: action.config,
-    nextActionId: action.nextActionId,
+    nextActionId: action.nextActionId
   };
 
   let actionResponse: any = null;
@@ -106,7 +110,7 @@ export const executeActions = async (
       const isIn = await isInSegment(
         subdomain,
         action.config.contentId,
-        execution.targetId,
+        execution.targetId
       );
       if (isIn) {
         ifActionId = action.config.yes;
@@ -124,7 +128,7 @@ export const executeActions = async (
         triggerType,
         execution,
         actionsMap,
-        ifActionId,
+        ifActionId
       );
     }
 
@@ -141,9 +145,9 @@ export const executeActions = async (
           actionType: 'set-property',
           action,
           execution,
-          collectionType,
+          collectionType
         },
-        isRPC: true,
+        isRPC: true
       });
     }
 
@@ -154,7 +158,7 @@ export const executeActions = async (
           target: execution.target,
           triggerType,
           config: action.config,
-          execution,
+          execution
         });
       } catch (err) {
         actionResponse = err.messsage;
@@ -172,9 +176,9 @@ export const executeActions = async (
           actionType: 'create',
           action,
           execution,
-          collectionType: type.replace('.create', ''),
+          collectionType: type.replace('.create', '')
         },
-        isRPC: true,
+        isRPC: true
       });
 
       if (actionResponse?.objToWait) {
@@ -182,7 +186,7 @@ export const executeActions = async (
           ...actionResponse.objToWait,
           execution,
           action,
-          result: actionResponse?.result,
+          result: actionResponse?.result
         });
 
         return 'paused';
@@ -210,7 +214,7 @@ export const executeActions = async (
     triggerType,
     execution,
     actionsMap,
-    action.nextActionId,
+    action.nextActionId
   );
 };
 
@@ -262,7 +266,7 @@ export const calculateExecution = async ({
   subdomain,
   automationId,
   trigger,
-  target,
+  target
 }: {
   models: IModels;
   subdomain: string;
@@ -271,22 +275,21 @@ export const calculateExecution = async ({
   target: any;
 }): Promise<IExecutionDocument | null | undefined> => {
   const { id, type, config, isCustom } = trigger;
-  const { reEnrollment, reEnrollmentRules, contentId } = config;
+  const { reEnrollment, reEnrollmentRules, contentId } = config || {};
 
   try {
     if (!!isCustom) {
       const [serviceName, collectionType] = (trigger?.type || '').split(':');
 
-      if (
-        !(await sendCommonMessage({
-          subdomain,
-          serviceName,
-          action: 'automations.checkCustomTrigger',
-          data: { collectionType, automationId, trigger, target, config },
-          isRPC: true,
-          defaultValue: false,
-        }))
-      ) {
+      const isValid = await sendCommonMessage({
+        subdomain,
+        serviceName,
+        action: 'automations.checkCustomTrigger',
+        data: { collectionType, automationId, trigger, target, config },
+        isRPC: true,
+        defaultValue: false
+      });
+      if (!isValid) {
         return;
       }
     } else if (!(await isInSegment(subdomain, contentId, target._id))) {
@@ -301,7 +304,7 @@ export const calculateExecution = async ({
       targetId: target._id,
       target,
       status: EXECUTION_STATUS.ERROR,
-      description: `An error occurred while checking the is in segment: "${e.message}"`,
+      description: `An error occurred while checking the is in segment: "${e.message}"`
     });
     return;
   }
@@ -309,14 +312,15 @@ export const calculateExecution = async ({
   const executions = await models.Executions.find({
     automationId,
     triggerId: id,
-    targetId: target._id,
+    targetId: target._id
   })
     .sort({ createdAt: -1 })
     .limit(1)
     .lean();
 
-  const latestExecution: IExecutionDocument =
-    executions.length && executions[0];
+  const latestExecution: IExecutionDocument | null = executions.length
+    ? executions[0]
+    : null;
 
   if (latestExecution) {
     if (!reEnrollment || !reEnrollmentRules.length) {
@@ -345,7 +349,7 @@ export const calculateExecution = async ({
     targetId: target._id,
     target,
     status: EXECUTION_STATUS.ACTIVE,
-    description: `Met enrollement criteria`,
+    description: `Met enrollement criteria`
   });
 };
 
@@ -369,7 +373,7 @@ const isWaitingDateConfig = (dateConfig) => {
         return new Date(
           NOW.getFullYear(),
           isMonth ? NOW.getMonth() : date.getMonth(),
-          date.getDay(),
+          date.getDay()
         );
       };
 
@@ -411,7 +415,7 @@ export const receiveTrigger = async ({
   models,
   subdomain,
   type,
-  targets,
+  targets
 }: {
   models: IModels;
   subdomain: string;
@@ -420,7 +424,14 @@ export const receiveTrigger = async ({
 }) => {
   const automations = await models.Automations.find({
     status: 'active',
-    'triggers.type': { $in: [type] },
+    $or: [
+      {
+        'triggers.type': { $in: [type] }
+      },
+      {
+        'triggers.type': { $regex: `^${type}\\..*` }
+      }
+    ]
   }).lean();
 
   if (!automations.length) {
@@ -430,7 +441,7 @@ export const receiveTrigger = async ({
   for (const target of targets) {
     for (const automation of automations) {
       for (const trigger of automation.triggers) {
-        if (trigger.type !== type) {
+        if (!trigger.type.includes(type)) {
           continue;
         }
 
@@ -443,7 +454,7 @@ export const receiveTrigger = async ({
           subdomain,
           automationId: automation._id,
           trigger,
-          target,
+          target
         });
 
         if (execution) {
@@ -452,10 +463,67 @@ export const receiveTrigger = async ({
             trigger.type,
             execution,
             await getActionsMap(automation.actions),
-            trigger.actionId,
+            trigger.actionId
           );
         }
       }
     }
   }
+};
+
+export const executePrevAction = async (
+  models: IModels,
+  subdomain: string,
+  data: any
+) => {
+  const { query = {} } = data;
+
+  const lastExecution = await models.Executions.findOne(query).sort({
+    createdAt: -1
+  });
+
+  if (!lastExecution) {
+    throw new Error('No execution found');
+  }
+
+  const { actions = [] } = lastExecution;
+
+  const lastExecutionAction = actions?.at(-1);
+
+  if (!lastExecutionAction) {
+    throw new Error(`Execution doesn't execute any actions`);
+  }
+
+  const automation = await models.Automations.findOne({
+    _id: lastExecution.automationId
+  });
+
+  if (!automation) {
+    throw new Error(`No automation found of execution`);
+  }
+
+  const prevAction = automation.actions.find((action) => {
+    const { nextActionId, config } = action;
+    if (nextActionId === lastExecutionAction.actionId) {
+      return true;
+    }
+
+    const { optionalConnects = [] } = config || {};
+
+    return optionalConnects.find(
+      (c) => c.actionId === lastExecutionAction.actionId
+    );
+  });
+
+  if (!prevAction) {
+    throw new Error('No previous action found for execution');
+  }
+
+  await executeActions(
+    subdomain,
+    lastExecution.triggerType,
+    lastExecution,
+    await getActionsMap(automation.actions),
+    prevAction.id
+  );
 };

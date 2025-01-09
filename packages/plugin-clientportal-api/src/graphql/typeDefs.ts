@@ -30,28 +30,32 @@ import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 const typeDefs = async () => {
   const kbAvailable = isEnabled('knowledgebase');
-  const cardAvailable = isEnabled('cards');
-  const isContactsEnabled = isEnabled('contacts');
-  const formsAvailable = isEnabled('forms');
-  const productsAvailable = isEnabled('products');
+
+  const salesAvailable = isEnabled('sales');
+  const ticketsAvailable = isEnabled('tickets');
+  const tasksAvailable = isEnabled('tasks');
+  const purchasesAvailable = isEnabled('purchases');
+
+  const enabledPlugins = {
+    sales: salesAvailable,
+    tickets: ticketsAvailable,
+    tasks: tasksAvailable,
+    purchases: purchasesAvailable,
+    knowledgebase: kbAvailable,
+  };
 
   return gql`
     scalar JSON
     scalar Date
 
-    ${clientPortalTypes(
-      cardAvailable,
-      kbAvailable,
-      formsAvailable,
-      productsAvailable,
-    )}
-    ${clientPortalUserTypes(isContactsEnabled)}
+    ${clientPortalTypes(enabledPlugins)}
+    ${clientPortalUserTypes()}
     ${notificationTypes}
     ${commentTypes}
     ${fieldConfigTypes}
 
     extend type Query {
-     ${clientPortalQueries(cardAvailable, kbAvailable, formsAvailable)}
+     ${clientPortalQueries(enabledPlugins)}
      ${clientPortalUserQueries()}
      ${notificationQueries}
      ${commentQueries}
@@ -59,7 +63,7 @@ const typeDefs = async () => {
     }
 
     extend type Mutation {
-      ${clientPortalMutations(cardAvailable)} 
+      ${clientPortalMutations} 
       ${clientPortalUserMutations()}
       ${notificationMutations}
       ${fieldConfigMutations}

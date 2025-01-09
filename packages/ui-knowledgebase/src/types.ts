@@ -1,4 +1,4 @@
-import { IAttachment, QueryResponse } from '@erxes/ui/src/types';
+import { IAttachment, IPdfAttachment, QueryResponse } from '@erxes/ui/src/types';
 
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IUser } from '@erxes/ui/src/auth/types';
@@ -15,14 +15,18 @@ export interface IArticle {
   createdBy: string;
   createdUser: IUser;
   createdDate: Date;
+  scheduledDate: Date;
   modifiedBy: string;
   modifiedDate: Date;
   topicId: string;
   categoryId: string;
   image: IAttachment;
   attachments: [IAttachment];
+  pdfAttachment: IPdfAttachment;
   forms: IErxesForm[];
   code?: string;
+  publishedUserId?: string;
+  publishedUser?: IUser;
 }
 
 export interface ITopic {
@@ -99,6 +103,8 @@ export type CategoryVariables = {
   icon: string;
   topicIds: string[];
 };
+
+
 
 export type AddCategoriesMutationResponse = {
   addCategoriesMutation: (params: {

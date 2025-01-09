@@ -1,44 +1,45 @@
-export const types = ({ tags }) => `
+const commonNodeTypes = `
+  id: String
+  type: String
+  style: JSON
+  config: JSON
+  icon: String
+  label: String
+  description: String
+  position: JSON
+  workflowId: String
+`;
+
+const commonTriggerTypes = `
+  ${commonNodeTypes}
+  actionId: String
+  isCustom: Boolean
+`;
+
+const commonActionTypes = `
+  ${commonNodeTypes}
+  nextActionId: String
+`;
+
+export const types = () => `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
 
-    ${
-      tags
-        ? `
+
       extend type Tag @key(fields: "_id") {
         _id: String! @external
       }
-    `
-        : ''
-    }
+
 
   type Trigger {
-    id: String
-    type: String
-    actionId: String
-    style: JSON
-    config: JSON
-    icon: String
-    label: String
-    description: String
-    position:JSON
-    isCustom: Boolean
+    ${commonTriggerTypes}
 
     count: Int
   }
 
   type Action {
-    id: String
-    type: String
-    nextActionId: String
-    style: JSON
-    config: JSON
-    icon: String
-    label: String
-    description: String
-    position:JSON
-
+    ${commonActionTypes}
   }
 
   type Automation {
@@ -55,7 +56,7 @@ export const types = ({ tags }) => `
     createdUser: User
     updatedUser: User
 
-    ${tags ? `tags: [Tag]` : ''}
+    tags: [Tag]
   }
 
   type AutomationNote {
@@ -96,28 +97,11 @@ export const types = ({ tags }) => `
   }
 
   input TriggerInput {
-    id: String
-    type: String
-    actionId: String
-    style: JSON
-    config: JSON
-    icon: String
-    label: String
-    description: String
-    position:JSON
-    isCustom: Boolean
+    ${commonTriggerTypes}
   }
 
   input ActionInput {
-    id: String
-    type: String
-    nextActionId: String
-    style: JSON
-    config: JSON
-    icon: String
-    label: String
-    description: String
-    position:JSON
+    ${commonActionTypes}
   }
 `;
 
@@ -142,6 +126,10 @@ const historiesParams = `
   triggerType: String,
   beginDate: Date,
   endDate: Date,
+  targetId: String
+  targetIds: [String]
+  triggerTypes: [String]
+  ids:[String]
 `;
 
 export const queries = `
@@ -150,6 +138,7 @@ export const queries = `
   automationDetail(_id: String!): Automation
   automationNotes(automationId: String!, triggerId: String, actionId: String): [AutomationNote]
   automationHistories(${historiesParams}): [AutomationHistory]
+  automationHistoriesTotalCount(${historiesParams}):Int
   automationConfigPrievewCount(config: JSON): Int
   automationsTotalCount(status: String): automationsTotalCountResponse
   automationConstants: JSON

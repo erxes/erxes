@@ -1,49 +1,18 @@
+import { IProduct } from "@erxes/ui-products/src/types";
+
 export interface IContractConfig {
-  receivable: string;
-  temp: string;
-  giving: string;
-  tempDebt: string;
-
-  mainUserEmail: string;
-  mainHasVat: string;
-  mainHasCitytax: string;
-  mainIsEbarimt: string;
-
-  interestReceivable: string;
-  interestGiving: string;
-  interestCalcedReceive: string;
-  interestIncome: string;
-
-  extraInterestUserEmail: string;
-  extraInterestHasVat: string;
-  extraInterestHasCitytax: string;
-  extraInterestIsEbarimt: string;
-
-  insuranceReceivable: string;
-  insuranceGiving: string;
-
-  undueStock: string;
-  undueUserEmail: string;
-  undueHasVat: string;
-  undueHasCitytax: string;
-  undueIsEbarimt: string;
-
-  otherReceivable: string;
-  feeIncome: string;
-  defaultCustomer: string;
-  userEmail: string;
-  minInterest: number;
-  maxInterest: number;
-  defaultInterest: number;
-  minTenor: number;
-  maxTenor: number;
-  minAmount: number;
-  maxAmount: number;
-  normalExpirationDay: number;
-  expiredExpirationDay: number;
-  doubtExpirationDay: number;
-  negativeExpirationDay: number;
-  badExpirationDay: number;
+  transAccount: string;
+  savingAccount: string;
+  interestAccount: string;
+  storedInterestAccount: string;
+  minInterest: number
+  maxInterest: number
+  defaultInterest: number
+  minDuration: number
+  maxDuration: number
+  minAmount: number
+  maxAmount: number
+  storeInterestTime: string;
 }
 
 export interface IContractTypeDoc {
@@ -64,18 +33,16 @@ export interface IContractTypeDoc {
   closeInterestRate: number;
   createdBy?: string;
   createdAt?: boolean;
-  config?: {
-    defaultInterest: number;
-    minDuration: number;
-  };
+  config?: IContractConfig;
+  productType: string;
 }
 
 export interface IContractType extends IContractTypeDoc {
   _id: string;
+  product: IProduct
 }
 
 export interface IContractTypeDetail extends IContractType {
-  productCategories: any;
 }
 
 // mutation types

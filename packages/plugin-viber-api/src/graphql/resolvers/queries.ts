@@ -5,6 +5,7 @@ import {
   Integrations,
   IConversationMessages
 } from '../../models';
+import{ Types } from 'mongoose';
 
 const queries = {
   async viberConversationDetail(
@@ -32,7 +33,7 @@ const queries = {
     args: any,
     context: IContext
   ): Promise<any[]> {
-    const query: { conversationId: string } = { conversationId: '' };
+    const query: { conversationId?: Types.ObjectId } = {  };
     const { conversationId, limit, skip, getFirst } = args;
 
     let messages: any[] = [];
@@ -42,12 +43,16 @@ const queries = {
       '_id'
     );
 
+    if(!conversation) {
+      throw new Error(`Conversation with erxesApiId = ${conversationId} not found`);
+    }
+
     if (conversation) {
       query.conversationId = conversation._id;
     }
 
     if (limit) {
-      const sort: { createdAt: number } = getFirst
+      const sort: any = getFirst
         ? { createdAt: 1 }
         : { createdAt: -1 };
 

@@ -133,7 +133,7 @@ class PutResponsesDuplicated extends React.Component<IProps> {
             loading={loading}
             count={totalCount}
             emptyText={
-              errorMsg.replace("GraphQL error: ", "") ||
+              errorMsg?.replace("GraphQL error: ", "") ||
               "not found duplicated putResponse!"
             }
             emptyImage="/images/actions/1.svg"

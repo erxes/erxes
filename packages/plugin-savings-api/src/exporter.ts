@@ -32,7 +32,7 @@ const prepareDataCount = async (
 
   const productsFilter: any = {};
 
-  data = await models.Contracts.find(productsFilter).count();
+  data = await models.Contracts.find(productsFilter).countDocuments();
 
   return data;
 };

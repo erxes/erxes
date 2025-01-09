@@ -48,7 +48,7 @@ const List: React.FC<Props> = (props) => {
 
     return (
       <ModalTrigger
-        title="Add Config"
+        title={__("Add Config")}
         trigger={trigger}
         content={content}
         size="xl"
@@ -60,7 +60,7 @@ const List: React.FC<Props> = (props) => {
 
   const leftActionBar = (
     <HeaderDescription
-      title="Grants Configurations"
+      title={__("Grants Configurations")}
       icon="/images/actions/25.svg"
       description=""
     />
@@ -73,6 +73,8 @@ const List: React.FC<Props> = (props) => {
     rightActionBar,
     totalCount,
   };
+
+  //test 
 
   return <DefaultWrapper {...updatedProps} />;
 };

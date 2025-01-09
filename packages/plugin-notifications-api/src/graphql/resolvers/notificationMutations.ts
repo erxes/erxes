@@ -8,7 +8,7 @@ const notificationMutations = {
   /**
    * Save notification configuration
    */
-  notificationsSaveConfig(_root, doc: IConfig, { user, models }: IContext) {
+  async notificationsSaveConfig(_root, doc: IConfig, { user, models }: IContext) {
     return models.NotificationConfigurations.createOrUpdateConfiguration(
       doc,
       user,

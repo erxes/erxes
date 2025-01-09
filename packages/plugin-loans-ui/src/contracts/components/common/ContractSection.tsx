@@ -1,32 +1,32 @@
+import Alert from '@erxes/ui/src/utils/Alert';
 import Box from '@erxes/ui/src/components/Box';
+import ContractChooser from '../../containers/ContractChooser';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { MainStyleButtonRelated as ButtonRelated } from '@erxes/ui/src/styles/eindex';
-import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
-import Alert from '@erxes/ui/src/utils/Alert';
-
 import React from 'react';
-import { Link } from 'react-router-dom';
-import ContractChooser from '../../containers/ContractChooser';
-import { mutations, queries } from '../../graphql';
+import withConsumer from '../../../withConsumer';
 import { __ } from 'coreui/utils';
+import { can } from '@erxes/ui/src/utils/core';
+import { gql } from '@apollo/client';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { Link } from 'react-router-dom';
+import { MainStyleButtonRelated as ButtonRelated } from '@erxes/ui/src/styles/eindex';
+import { mutations, queries } from '../../graphql';
+import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
+import { useMutation, useQuery } from '@apollo/client';
 import {
   EditMutationResponse,
   IContract,
   IContractDoc,
   MainQueryResponse,
 } from '../../types';
-import { can } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import withConsumer from '../../../withConsumer';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { useMutation, useQuery } from '@apollo/client';
 
 type Props = {
   name: string;
   mainType?: string;
   mainTypeId?: string;
+  id?: string;
   onSelect?: (contract: IContract[]) => void;
   collapseCallback?: () => void;
   title?: string;
@@ -34,11 +34,11 @@ type Props = {
 };
 
 function Component(
-  this: any,
   {
     name,
     mainType = '',
     mainTypeId = '',
+    id = '',
     collapseCallback,
     title,
     currentUser,
@@ -50,7 +50,7 @@ function Component(
       fetchPolicy: 'network-only',
       variables:
         mainType === 'customer' || mainType === 'company'
-          ? { customerId: mainTypeId }
+          ? { customerId: mainTypeId || id }
           : { dealId: mainTypeId },
     },
   );
@@ -68,11 +68,11 @@ function Component(
           name,
           contracts: contractsQuery?.data?.contractsMain?.list,
           mainType,
-          mainTypeId,
+          mainTypeId: mainTypeId || id,
         }}
         onSelect={(contracts: IContractDoc[]) => {
           contractsDealEdit({
-            variables: { ...contracts[0], dealId: mainTypeId },
+            variables: { _id: (contracts[0] || {})._id, dealId: mainTypeId },
           })
             .then(() => {
               collapseCallback && collapseCallback();
@@ -125,7 +125,7 @@ function Component(
 
   const quickButtons = can('contractsDealEdit', currentUser) && (
     <ModalTrigger
-      title="Associate"
+      title={__("Associate")}
       trigger={contractTrigger}
       size="lg"
       content={renderContractChooser}
@@ -134,7 +134,7 @@ function Component(
 
   const relQuickButtons = (
     <ModalTrigger
-      title="Related Associate"
+      title={__("Related Associate")}
       trigger={relContractTrigger}
       size="lg"
       content={renderRelatedContractChooser}

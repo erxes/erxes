@@ -1,18 +1,18 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { EditMutationResponse, IContract } from '../../types';
+import { EditMutationResponse, IContract } from "../../types";
 
-import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
-import React, { useRef } from 'react';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import mutations from '../../graphql/mutations';
-import { withProps } from '@erxes/ui/src/utils';
+import { FieldsGroupsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
+import GenerateCustomFields from "@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields";
+import React, { useRef } from "react";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import mutations from "../../graphql/mutations";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   contract: IContract;
@@ -34,10 +34,10 @@ const ContractFieldsSection = (props: FinalProps) => {
     fieldsGroupsQuery,
     loading,
     isDetail,
-    collapseCallback,
+    collapseCallback
   } = props;
 
-  console.log('ref', ref);
+  console.log("ref", ref);
 
   if (fieldsGroupsQuery && fieldsGroupsQuery.loading) {
     return (
@@ -49,12 +49,12 @@ const ContractFieldsSection = (props: FinalProps) => {
 
   const save = (variables, callback) => {
     contractsEdit({
-      variables: { ...contract, ...variables },
+      variables: { ...contract, ...variables }
     })
       .then(() => {
         callback();
       })
-      .catch((e) => {
+      .catch(e => {
         callback(e);
       });
   };
@@ -66,7 +66,7 @@ const ContractFieldsSection = (props: FinalProps) => {
     fieldsGroups: fieldsGroupsQuery ? fieldsGroupsQuery.fieldsGroups : [],
     isDetail,
     object: contract,
-    collapseCallback,
+    collapseCallback
   };
 
   return <GenerateCustomFields ref={ref} {...updatedProps} />;
@@ -77,26 +77,25 @@ export default withProps<Props>(
     graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
       gql(fieldQueries.fieldsGroups),
       {
-        name: 'fieldsGroupsQuery',
+        name: "fieldsGroupsQuery",
         options: () => ({
           variables: {
-            contentType: 'savings:contract',
-            isDefinedByErxes: false,
-          },
-        }),
-        skip: !isEnabled('forms'),
-      },
+            contentType: "savings:contract",
+            isDefinedByErxes: false
+          }
+        })
+      }
     ),
 
     // mutations
     graphql<Props, EditMutationResponse, IContract>(
       gql(mutations.contractsEdit),
       {
-        name: 'contractsEdit',
+        name: "contractsEdit",
         options: () => ({
-          refetchQueries: ['customerDetail'],
-        }),
-      },
-    ),
-  )(ContractFieldsSection),
+          refetchQueries: ["customerDetail"]
+        })
+      }
+    )
+  )(ContractFieldsSection)
 );

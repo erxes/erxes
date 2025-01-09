@@ -4,12 +4,13 @@ import {
   pop,
   slideRight,
 } from '@erxes/ui/src/utils/animations';
+import { dimensions, typography } from '@erxes/ui/src/styles';
 import styled, { css, keyframes } from 'styled-components';
 
-import colors from '@erxes/ui/src/styles/colors';
-import { dimensions, typography } from '@erxes/ui/src/styles';
-import styledTS from 'styled-components-ts';
 import { WhiteBox } from '@erxes/ui/src/layout/styles';
+import colors from '@erxes/ui/src/styles/colors';
+import styledTS from 'styled-components-ts';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 
 export const Tab = styled(TabTitle)`
   display: flex;
@@ -75,9 +76,9 @@ export const Contacts = styled.div`
   }
 `;
 
-export const PhoneNumber = styledTS<{ shrink?: boolean }>(styled.div)`
+export const PhoneNumber = styledTS<{ $shrink?: boolean }>(styled.div)`
   ${(props) =>
-    props.shrink
+    props.$shrink
       ? `font-weight: 600;
     font-size: 15px;`
       : `font-weight: 500;
@@ -98,14 +99,14 @@ export const PhoneNumber = styledTS<{ shrink?: boolean }>(styled.div)`
 `;
 
 export const CallDetail = styledTS<{
-  isMissedCall: boolean;
-  isIncoming: boolean;
+  $isMissedCall: boolean;
+  $isIncoming: boolean;
 }>(styled.div)`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 5px 20px;
-  padding-left: ${(props) => props.isIncoming && '40px'};
+  padding-left: ${(props) => props.$isIncoming && '40px'};
   cursor: pointer;
   transition: all ease .3s;
 
@@ -124,13 +125,13 @@ export const CallDetail = styledTS<{
 
     ${PhoneNumber} {
         color: ${(props) =>
-          props.isMissedCall ? colors.colorCoreRed : colors.colorCoreDarkGray};
+          props.$isMissedCall ? colors.colorCoreRed : colors.colorCoreDarkGray};
     }
   }
 
   a {
     font-weight: 700;
-    color: ${(props) => (props.isMissedCall ? '#FF4949' : '#000')};
+    color: ${(props) => (props.$isMissedCall ? '#FF4949' : '#000')};
   }
 `;
 
@@ -138,6 +139,7 @@ export const AdditionalDetail = styled.div`
   color: #888;
   align-items: center;
   display: flex;
+  position: relative;
 
   > span {
     font-size: 11px;
@@ -167,7 +169,9 @@ export const AdditionalDetail = styled.div`
   }
 `;
 
-export const InputBar = styledTS<{ type?: string }>(styled.div)`
+export const InputBar = styledTS<{ type?: string; $transparent?: boolean }>(
+  styled.div,
+)`
   justify-content: center;
   align-items: center;
   display: flex;
@@ -177,13 +181,14 @@ export const InputBar = styledTS<{ type?: string }>(styled.div)`
   height: 41px;
   margin: ${(props) =>
     props.type === 'country' ? '5px 0px 10px 0px' : '10px 20px'};
-  border: 1px solid ${colors.borderPrimary};
+  border: 1px solid ${(props) => (props.$transparent ? 'rgba(255,255,255, 0.2)' : colors.borderPrimary)};
 
   input {
     border: 0;
     width: 100%;
-    color: ${colors.textPrimary};
+    color: ${(props) => (props.$transparent ? colors.colorWhite : colors.textPrimary)};
     padding: ${dimensions.unitSpacing}px 0;
+    background: ${(props) => props.$transparent && 'none'};
     transition: all 0.3s ease;
 
     &:focus {
@@ -192,7 +197,7 @@ export const InputBar = styledTS<{ type?: string }>(styled.div)`
     }
   
     ::placeholder {
-      color: #aaa;
+      color: ${(props) => (props.$transparent ? '#cecece' : '#aaa')};
     }
   }
 `;
@@ -277,7 +282,22 @@ export const Country = styled.div`
   margin: ${dimensions.unitSpacing}px 0;
 `;
 
-export const Keypad = styled.div`
+export const KeyPadFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
+  position: relative;
+
+  > span {
+    position: absolute;
+    right: 0;
+    top: 20px;
+    cursor: pointer;
+  }
+`;
+
+export const Keypad = styledTS<{ $transparent?: boolean }>(styled.div)`
   gap: 5px;
   display: flex;
   flex-wrap: wrap;
@@ -290,13 +310,13 @@ export const Keypad = styled.div`
     align-items: center;
     justify-content: center;
     font-size: 16px;
-    border: 1.12px solid rgba(0, 0, 0, 0.08);
+    border: 1.12px solid ${(props) => (props.$transparent ? 'rgba(255,255,255, 0.2)' : 'rgba(0, 0, 0, 0.08)')};
     border-radius: ${dimensions.unitSpacing}px;
     cursor: pointer;
     transition: all ease 0.3s;
 
     &:hover {
-      background: #f5f5f5;
+      background: ${(props) => (props.$transparent ? 'rgba(0,0,0,.12)' : '#f5f5f5')};
     }
   }
 
@@ -402,14 +422,12 @@ export const CallInfo = styledTS<{ shrink?: boolean }>(styled.div)`
 
 export const Actions = styled.div`
   display: flex;
-  gap: 20px;
+  flex: 1;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
 
   > div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
     .coming-soon {
       margin-bottom: -10px;
       margin-top: -3px;
@@ -419,10 +437,15 @@ export const Actions = styled.div`
   }
 `;
 
+export const InnerActions = styled.div`
+  display: flex;
+  gap: 25px;
+`;
+
 export const CallAction = styledTS<{
-  isDecline?: boolean;
-  active?: boolean;
-  disabled?: boolean;
+  $isDecline?: boolean;
+  $active?: boolean;
+  $disabled?: boolean;
 }>(styled.div)`
   width: 60px;
   height: 60px;
@@ -431,21 +454,21 @@ export const CallAction = styledTS<{
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  cursor: pointer;
-  color: ${(props) => (props.active ? colors.textPrimary : colors.colorWhite)};
+  cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
+  color: ${(props) => (props.$active ? colors.textPrimary : colors.colorWhite)};
   background: ${(props) =>
-    props.disabled
+    props.$disabled
       ? colors.colorShadowGray
-      : props.isDecline
+      : props.$isDecline
         ? colors.colorCoreRed
-        : props.active
+        : props.$active
           ? colors.colorWhite
           : 'rgba(255, 255, 255, 0.4)'};
-  margin-bottom: 5px;
+  margin-bottom: 2px;
   transition: all ease .3s;
 
   ${(props) =>
-    props.isDecline &&
+    props.$isDecline &&
     `
     justify-self: center;
     grid-column-start: span 3;
@@ -453,9 +476,9 @@ export const CallAction = styledTS<{
 
   &:hover {
     background: ${(props) =>
-      props.isDecline
+      props.$isDecline
         ? 'rgba(234, 71, 93, 0.6)'
-        : !props.active && !props.disabled && 'rgba(255, 255, 255, 0.2)'};
+        : !props.$active && !props.$disabled && 'rgba(255, 255, 255, 0.2)'};
   }
 `;
 
@@ -610,6 +633,7 @@ export const IncomingContent = styled.div`
   padding: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
   color: ${colors.colorWhite};
   border-radius: ${dimensions.unitSpacing}px;
+  min-width: 375px;
 
   > p {
     margin: ${dimensions.unitSpacing}px 0;
@@ -719,6 +743,108 @@ export const ActiveCalls = styled.div`
   background: ${colors.colorWhite};
 `;
 
+export const FlexWrap = styledTS(styled.div)`
+  display: flex;
+  flex-wrap: wrap;
+  padding: '20px 20px 20px 20px';
+
+  > a,
+  > div {
+    flex-basis: 240px;
+    display: flex;
+    flex-shrink: 0;
+
+    @media (min-width: 480px) {
+      flex-basis: 33.3333333%;
+    }
+
+    @media (min-width: 768px) {
+      flex-basis: 25%;
+    }
+
+    @media (min-width: 1170px) {
+      flex-basis: 20%;
+    }
+
+    @media (min-width: 1400px) {
+      flex-basis: 25%;
+    }
+  }
+`;
+
+export const SwitchboardBox = styledTS<{ nowrap?: boolean }>(styled.div)`
+padding: 20px 20px;
+  flex-basis: 250px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  flex: ${(props) => !props.nowrap && 1};
+  min-height: 200px;
+  transition: all ease 0.3s;
+
+  h5 {
+    margin: ${dimensions.unitSpacing}px 0 15px;
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: capitalize;
+  }
+
+  &:hover {
+    box-shadow: 0px 16px 24px rgb(0 0 0 / 6%), 0px 2px 6px rgb(0 0 0 / 4%),
+      0px 0px 1px rgb(0 0 0 / 4%);
+  }
+`;
+
+export const PreviewContent = styled.div`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  padding: ${dimensions.headerSpacing}px;
+  transition: all ease 0.3s;
+
+  > button {
+    margin: 0 0 ${dimensions.unitSpacing}px 0 !important;
+    min-width: 140px;
+  }
+`;
+
+export const SwitchboardPreview = styled.div`
+  width: 100%;
+  height: 100%;
+  border-radius: ${dimensions.unitSpacing - 2}px ${dimensions.unitSpacing - 2}px
+    ${dimensions.unitSpacing - 2}px ${dimensions.unitSpacing - 2}px;
+  border: 1px solid ${colors.borderPrimary};
+  background: #fefefe;
+  overflow: hidden;
+  position: relative;
+`;
+
+export const Container = styled.div`
+  position: relative;
+  margin: 0 auto;
+  width: fit-content;
+`;
+
+export const SwitchboardRate = styledTS<{ color?: string }>(styled.div)`
+  color: ${(props) => props.color};
+  font-size: 24px;
+  position: absolute;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  margin-top: 25%;
+`;
 const iconWrapperWidth = 80;
 
 const ActivityRow = styledTS<{ isConversation?: boolean }>(styled(WhiteBox))`
@@ -775,7 +901,6 @@ const AcitivityHeader = styled.div`
 const TransferCallWrapper = styled.div`
   margin: 20px 20px 0px 20px;
   padding-bottom: 20px;
-  border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
 const DialogWrapper = styledTS<{ direction?: string }>(styled.div)`
@@ -788,11 +913,225 @@ const DialogWrapper = styledTS<{ direction?: string }>(styled.div)`
   width: 360px;
   margin-top: 120px;
 `;
+
+const CallWrapper = styled.div`
+  position: absolute;
+  width: 72px;
+  z-index: 999999;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  bottom: 80px;
+  right: 12px;
+`;
+const MessageContent = styledTS<{ $internal?: boolean; $staff?: boolean }>(
+  styled.div,
+)`
+  margin-top: 5px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  border-radius: 20px;
+  background: ${colors.colorWhite};
+  background: ${(props) =>
+    props.$internal
+      ? colors.bgInternal
+      : props.$staff && colors.colorSecondary};
+  word-break: break-word;
+  box-shadow: 0 1px 1px 0 ${colors.darkShadow};
+  color: ${(props) => props.$staff && !props.$internal && colors.colorWhite};
+  text-align: left;
+
+  a {
+    color: ${(props) =>
+      props.$staff && !props.$internal
+        ? colors.colorWhite
+        : colors.linkPrimary};
+    text-decoration: underline;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  > span {
+    display: block;
+  }
+
+  .mention {
+    font-weight: bold;
+    display: inline-block;
+  }
+
+  img {
+    max-width: 300px;
+    border-radius: 2px;
+  }
+
+  ul,
+  ol {
+    padding-left: 25px;
+    margin: 0;
+  }
+
+  h3 {
+    margin-top: 0;
+  }
+
+  blockquote {
+    margin-bottom: 0;
+    border-color: ${colors.borderDarker};
+  }
+
+  pre {
+    margin-bottom: 0;
+  }
+`;
+
+const OperatorFormView = styled.div`
+  position: relative;
+  background: ${colors.bgActive};
+  padding: 5px ${dimensions.unitSpacing}px;
+  margin-bottom: ${dimensions.unitSpacing}px;
+  border-radius: 4px;
+`;
+
+const OperatorRemoveBtn = styled.div`
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  > button {
+    padding: 3px 5px;
+  }
+`;
+
+const KeyPadContainer = styled.div`
+  position: relative;
+`;
+
+const DashboardTable = styledTS<{ color: string }>(styled.div)`
+  border: 1px solid #eee;
+  border-radius: ${dimensions.unitSpacing - 2}px ${dimensions.unitSpacing - 2}px;
+  height: 400px;
+  overflow-y: auto;
+  background: ${(props) => props.color} !important;
+`;
+const GridContainer = styled.div`
+  display: grid;
+  grid-template-columns: 50% auto;
+  grid-gap: 10px;
+  padding: 0 5px 0 5px;
+`;
+
+const GridItem = styled.div`
+  background-color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+`;
+
+const Item3 = styled(GridItem)`
+  grid-row: 1 / span 2;
+`;
+
+const Header = styled.h3`
+  text-align: left;
+  margin: 0 0 10px 0;
+`;
+
+const Label = styledTS<{ $color: string }>(styled.span)`
+  border-radius: 5px;
+  padding: 3px 9px;
+  white-space: nowrap;
+  display: inline-block;
+  line-height: 1.32857143;
+  background: ${(props) => rgba(props.$color, 0.15)};
+  color: ${(props) => props.$color};
+  border: none;
+  
+  margin-left: 20%;
+  &:hover {
+    cursor: default;
+  }
+
+  &.round {
+    width: 15px;
+    height: 15px;
+    padding: 3px;
+    line-height: 0.5;
+    text-align: center;
+    font-weight: normal;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 1024px) {
+    font-size: 11px;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 12px;
+  }
+
+  @media (min-width: 1280px) {
+    font-size: 13px;
+  }
+
+  @media (min-width: 2000px) {
+    font-weight: 600;
+    font-size: 15px;
+  }
+`;
+
+const Th = styledTS<{ backgroundColor: string; color?: string }>(styled.th)`
+  background: ${(props) => props.backgroundColor} !important;
+  color: ${(props) => props.color && props.color} !important;
+`;
+
+const Td = styledTS<{ color?: string; fontWeight?: string }>(styled.td)`
+  color: ${(props) => props.color && props.color} !important;
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 1024px) {
+    font-size: 13px;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 14px;
+  }
+
+  @media (min-width: 1280px) {
+    font-size: 15px;
+  }
+
+  @media (min-width: 2000px) {
+    font-size: 20px;
+    font-weight: ${(props) => props.fontWeight && props.fontWeight} !important;
+  }
+`;
+
 export {
   ActivityRow,
   ActivityIcon,
   ActivityDate,
   AcitivityHeader,
   TransferCallWrapper,
+  CallWrapper,
   DialogWrapper,
+  MessageContent,
+  OperatorFormView,
+  OperatorRemoveBtn,
+  KeyPadContainer,
+  DashboardTable,
+  GridContainer,
+  GridItem,
+  Item3,
+  Header,
+  Label,
+  Th,
+  Td,
 };

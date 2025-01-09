@@ -169,6 +169,7 @@ const departmentsMain = `
     departmentsMain(${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter) {
       list {
         ${departmentField}
+        workhours
       }
       totalCount
       totalUsersCount
@@ -266,6 +267,7 @@ export const branchField = `
     }
   }
   radius
+  hasChildren
   ${contactInfoFields}
 `;
 
@@ -295,11 +297,12 @@ const branches = `
 `;
 
 const branchesMain = `
-  query branchesMain(${commonStructureParamsDef}, $withoutUserFilter: Boolean) {
-    branchesMain (${commonStructureParamsValue}, withoutUserFilter: $withoutUserFilter){
+  query branchesMain(${commonStructureParamsDef}, $withoutUserFilter: Boolean,$parentId:String,$onlyFirstLevel:Boolean) {
+    branchesMain (${commonStructureParamsValue}, withoutUserFilter: $withoutUserFilter,parentId: $parentId,onlyFirstLevel:$onlyFirstLevel){
       list {
         ${branchField}
         parent {${branchField}}
+        workhours
       }
       totalCount
       totalUsersCount
@@ -341,6 +344,10 @@ const userDetail = `
       branchIds
       departmentIds
       positionIds
+      positions {
+        _id
+        title
+      }
 
       details {
         ${detailFields}
@@ -413,7 +420,7 @@ const structureDetail = `
 `;
 
 const departmentDetail = `
-  query departmentDetail($_id: String) {
+  query departmentDetail($_id: String!) {
     departmentDetail(_id: $_id) {
       ${departmentField}
     }
@@ -421,7 +428,7 @@ const departmentDetail = `
 `;
 
 const unitDetail = `
-  query unitDetail($_id: String) {
+  query unitDetail($_id: String!) {
     unitDetail(_id: $_id) {
       ${unitField}
     }
@@ -442,9 +449,17 @@ const noDepartmentUsers = `
 `;
 
 const branchDetail = `
-  query branchDetail($_id: String) {
+  query branchDetail($_id: String!) {
     branchDetail(_id: $_id) {
       ${branchField}
+    }
+  }
+`;
+
+const postionDetail = `
+  query PositionDetail($_id: String) {
+    positionDetail(_id: $_id) {
+      ${positionField}
     }
   }
 `;
@@ -591,4 +606,5 @@ export default {
   userList,
   positionsMain,
   positions,
+  postionDetail,
 };

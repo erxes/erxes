@@ -302,9 +302,16 @@ export const fetchByQuery = async ({
 };
 
 export const getRealIdFromElk = (_id: string) => {
-  const arr = _id.split('__');
+  const VERSION = getEnv({ name: 'VERSION' });
+  if (VERSION && VERSION === 'saas') {
+    const arr = _id.split('__');
 
-  return arr.length === 2 ? arr[1] : arr[0];
+    if(arr?.length > 1){
+      return _id.replace(`${arr[0]}__`,'');
+    }
+  };
+
+  return _id
 };
 
 export const generateElkIds = async (ids: string[], subdomain: string) => {

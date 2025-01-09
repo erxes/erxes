@@ -1,4 +1,4 @@
-import * as compose from "lodash.flowright";
+import * as compose from 'lodash.flowright';
 
 import {
   BarItems,
@@ -18,39 +18,39 @@ import {
   Wrapper,
   __,
   generateTree,
-} from "@erxes/ui/src";
-import { COLORS, calculateMethods } from "./constants";
+} from '@erxes/ui/src';
+import { COLORS, calculateMethods } from './constants';
 import {
   ColorPick,
   ColorPicker,
   FormColumn,
   FormWrapper,
-} from "@erxes/ui/src/styles/main";
-import { FormContainer, FormGroupRow } from "../styles";
-import { IFormProps, IOption, IQueryParams } from "@erxes/ui/src/types";
+} from '@erxes/ui/src/styles/main';
+import { FormContainer, FormGroupRow } from '../styles';
+import { IFormProps, IOption, IQueryParams } from '@erxes/ui/src/types';
 import {
   RiskCalculateLogicType,
   RiskIndicatorsType,
-} from "../indicator/common/types";
-import { gql, useQuery } from "@apollo/client";
-import { isEnabled, withProps } from "@erxes/ui/src/utils/core";
-import { removeParams, setParams } from "@erxes/ui/src/utils/router";
-import { useLocation, useNavigate } from "react-router-dom";
+} from '../indicator/common/types';
+import { gql, useQuery } from '@apollo/client';
+import { withProps } from '@erxes/ui/src/utils/core';
+import { removeParams, setParams } from '@erxes/ui/src/utils/router';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-import { CustomFormGroupProps } from "./types";
-import { Link } from "react-router-dom";
-import { OperationTypes } from "../operations/common/types";
-import Popover from "@erxes/ui/src/components/Popover";
-import React from "react";
-import Select from "react-select";
-import { SidebarListItem } from "@erxes/ui-settings/src/styles";
-import TwitterPicker from "react-color/lib/Twitter";
-import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
-import { graphql } from "@apollo/client/react/hoc";
-import { queries as operationQueries } from "../operations/graphql";
-import { queries as riskIndicatorQueries } from "../indicator/graphql";
-import { queries as riskIndicatorsGroupQueries } from "../indicator/groups/graphql";
-import { tags as tagsQuery } from "../common/graphql";
+import { CustomFormGroupProps } from './types';
+import { Link } from 'react-router-dom';
+import { OperationTypes } from '../operations/common/types';
+import Popover from '@erxes/ui/src/components/Popover';
+import React from 'react';
+import Select from 'react-select';
+import { SidebarListItem } from '@erxes/ui-settings/src/styles';
+import TwitterPicker from 'react-color/lib/Twitter';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries as operationQueries } from '../operations/graphql';
+import { queries as riskIndicatorQueries } from '../indicator/graphql';
+import { queries as riskIndicatorsGroupQueries } from '../indicator/groups/graphql';
+import { tags as tagsQuery } from '../common/graphql';
 
 export const DefaultWrapper = ({
   title,
@@ -88,7 +88,7 @@ export const DefaultWrapper = ({
           data={content}
           count={totalCount}
           emptyImage="/images/actions/5.svg"
-          emptyText={__("No data")}
+          emptyText={__('No data')}
         />
       }
       leftSidebar={sidebar}
@@ -112,12 +112,12 @@ export const CustomFormGroup = ({
   );
 };
 
-export const subOption = (category) => {
+export const subOption = category => {
   const { order } = category;
   const foundedString = order.match(/[/]/gi);
   return (
     <>
-      {"\u00A0 ".repeat(foundedString.length)}
+      {'\u00A0 '.repeat(foundedString.length)}
       <Icon icon="arrows-up-right" color="#3CCC38" />
     </>
   );
@@ -147,10 +147,10 @@ export function SelectIndicators({
   function generetaOption(array: RiskIndicatorsType[] = []): IOption[] {
     let list: any[] = [];
 
-    list = array.map((item) => ({ value: item._id, label: item.name }));
+    list = array.map(item => ({ value: item._id, label: item.name }));
 
     if (ignoreIds) {
-      list = list.filter((item) => !ignoreIds.includes(item.value));
+      list = list.filter(item => !ignoreIds.includes(item.value));
     }
 
     return list;
@@ -168,7 +168,7 @@ export function SelectIndicators({
       filterParams={filterParams}
       customOption={
         customOption || !multi
-          ? { value: "", label: "Choose a Indicator" }
+          ? { value: '', label: 'Choose a Indicator' }
           : undefined
       }
       multi={multi}
@@ -200,10 +200,10 @@ export function SelectIndicatorGroups({
   function generetaOption(array: RiskIndicatorsType[] = []): IOption[] {
     let list: any[] = [];
 
-    list = array.map((item) => ({ value: item._id, label: item.name }));
+    list = array.map(item => ({ value: item._id, label: item.name }));
 
     if (ignoreIds) {
-      list = list.filter((item) => !ignoreIds.includes(item.value));
+      list = list.filter(item => !ignoreIds.includes(item.value));
     }
 
     return list;
@@ -221,7 +221,7 @@ export function SelectIndicatorGroups({
       filterParams={filterParams}
       customOption={
         customOption || !multi
-          ? { value: "", label: "Choose a Groups" }
+          ? { value: '', label: 'Choose a Groups' }
           : undefined
       }
       multi={multi}
@@ -263,13 +263,13 @@ class SelectCustomFieldsComponent extends React.Component<
       const { defaultValue, configs = [] } = this.props;
       const { name, value = [], label } = defaultValue || {};
 
-      const updateConfigs = value.map((val) => {
-        const config = configs.find((config) => config.value === val.value);
+      const updateConfigs = value.map(val => {
+        const config = configs.find(config => config.value === val.value);
         return config ? config : val;
       });
 
       this.props.onSelect({
-        _id: name.replace("customFieldsData.", ""),
+        _id: name.replace('customFieldsData.', ''),
         label,
         value: updateConfigs,
       });
@@ -280,17 +280,17 @@ class SelectCustomFieldsComponent extends React.Component<
     const { label, defaultValue, onSelect, options } = this.props;
 
     const handleChange = ({ name, value, label }) => {
-      const _id = (name || "").replace("customFieldsData.", "");
+      const _id = (name || '').replace('customFieldsData.', '');
       onSelect({ value, label, _id });
     };
 
     return (
       <Select
         placeholder={__(label)}
-        value={[{ label: "Select custom field", value: "" }, ...options].find(
-          (o) => o.value === defaultValue
+        value={[{ label: 'Select custom field', value: '' }, ...options].find(
+          o => o.value === defaultValue
         )}
-        options={[{ label: "Select custom field", value: "" }, ...options]}
+        options={[{ label: 'Select custom field', value: '' }, ...options]}
         isMulti={false}
         isClearable={true}
         onChange={handleChange}
@@ -310,12 +310,13 @@ function SelectCustomFieldsContainer(props: SelectCustomFieldFinalProps) {
   const options = fieldsCombinedByContentType
     .filter(({ selectOptions }) => !!selectOptions)
     .map(({ selectOptions, ...field }) => ({
-      ...field,
+      name: field.name,
+      label: field.label,
       value: selectOptions,
     }));
 
   const defaultValue = !!initialValue
-    ? options.find((option) => option.name.includes(initialValue))
+    ? options.find(option => option.name.includes(initialValue))
     : null;
 
   const updatedProps = {
@@ -332,13 +333,13 @@ export const SelectCustomFields = withProps<SelectCustomFieldProps>(
     graphql<SelectCustomFieldProps>(
       gql(formQueries.fieldsCombinedByContentType),
       {
-        name: "fieldsQuery",
+        name: 'fieldsQuery',
         skip: ({ type }) => !type,
         options: ({ type }) => ({
           variables: {
             contentType: `cards:${type}`,
           },
-          fetchPolicy: "no-cache",
+          fetchPolicy: 'no-cache',
         }),
       }
     )
@@ -377,9 +378,9 @@ export const SelectOperations = ({
       const order = operation.order;
       const foundedString = order?.match(/[/]/gi);
 
-      let space = "";
+      let space = '';
       if (foundedString) {
-        space = "\u00A0 \u00A0 ".repeat(foundedString.length);
+        space = '\u00A0 \u00A0 '.repeat(foundedString.length);
       }
 
       list.push({
@@ -389,7 +390,7 @@ export const SelectOperations = ({
     }
 
     if (skip) {
-      list = list.filter((item) => item.value !== skip);
+      list = list.filter(item => item.value !== skip);
     }
     return list;
   };
@@ -405,7 +406,7 @@ export const SelectOperations = ({
       customQuery={operationQueries.operations}
       filterParams={filterParams}
       customOption={
-        customOption ? customOption : { value: "", label: "Choose a Operation" }
+        customOption ? customOption : { value: '', label: 'Choose a Operation' }
       }
       multi={multi}
     />
@@ -430,7 +431,7 @@ export class CommonCalculateFields extends React.Component<Props, State> {
 
     this.state = {
       calculateLogics: props.calculateLogics || [],
-      calculateMethod: props.calculateMethod || "",
+      calculateMethod: props.calculateMethod || '',
     };
   }
 
@@ -447,32 +448,32 @@ export class CommonCalculateFields extends React.Component<Props, State> {
     const onChange = (field, value) => {
       const { calculateLogics } = this.state;
       this.setState({
-        calculateLogics: calculateLogics.map((logic) =>
+        calculateLogics: calculateLogics.map(logic =>
           logic._id === _id ? { ...logic, [field]: value } : logic
         ),
       });
     };
 
-    const onChangeColor = (hex) => {
-      onChange("color", hex);
+    const onChangeColor = hex => {
+      onChange('color', hex);
     };
-    const onChangeRow = (e) => {
+    const onChangeRow = e => {
       const { name, value } = e.currentTarget as HTMLInputElement;
 
       onChange(
         name,
-        ["value", "value2"].includes(name) ? parseInt(value) : value
+        ['value', 'value2'].includes(name) ? parseInt(value) : value
       );
     };
 
     const handleRemoveRow = () => {
       const { calculateLogics } = this.state;
       this.setState({
-        calculateLogics: calculateLogics.filter((logic) => logic._id !== _id),
+        calculateLogics: calculateLogics.filter(logic => logic._id !== _id),
       });
     };
 
-    const renderColorSelect = (selectedColor) => {
+    const renderColorSelect = selectedColor => {
       return (
         <Popover
           placement="bottom-start"
@@ -486,7 +487,7 @@ export class CommonCalculateFields extends React.Component<Props, State> {
             width="266px"
             triangle="hide"
             color={selectedColor}
-            onChange={(e) => onChangeColor(e.hex)}
+            onChange={e => onChangeColor(e.hex)}
             colors={COLORS}
           />
         </Popover>
@@ -494,7 +495,7 @@ export class CommonCalculateFields extends React.Component<Props, State> {
     };
 
     return (
-      <FormWrapper style={{ margin: "5px 0" }} key={_id}>
+      <FormWrapper style={{ margin: '5px 0' }} key={_id}>
         <FormColumn>
           <FormControl
             {...formProps}
@@ -515,8 +516,8 @@ export class CommonCalculateFields extends React.Component<Props, State> {
             onChange={onChangeRow}
           >
             <option />
-            {["(>) greater than", "(<) lower than", "(≈) between"].map(
-              (value) => (
+            {['(>) greater than', '(<) lower than', '(≈) between'].map(
+              value => (
                 <option value={value} key={value}>
                   {value}
                 </option>
@@ -534,7 +535,7 @@ export class CommonCalculateFields extends React.Component<Props, State> {
               onChange={onChangeRow}
               required
             />
-            {logic === "(≈) between" && (
+            {logic === '(≈) between' && (
               <>
                 <span>-</span>
                 <FormControl
@@ -555,7 +556,7 @@ export class CommonCalculateFields extends React.Component<Props, State> {
             btnStyle="danger"
             icon="times"
             onClick={handleRemoveRow}
-            style={{ marginLeft: "10px" }}
+            style={{ marginLeft: '10px' }}
           />
         </Tip>
       </FormWrapper>
@@ -569,9 +570,9 @@ export class CommonCalculateFields extends React.Component<Props, State> {
     const handleAddLevel = () => {
       const variables = {
         _id: Math.random().toString(),
-        name: "",
+        name: '',
         value: 0,
-        logic: "",
+        logic: '',
       };
 
       this.setState({ calculateLogics: [...calculateLogics, variables] });
@@ -584,10 +585,10 @@ export class CommonCalculateFields extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>{__("Calculate Methods")}</ControlLabel>
+          <ControlLabel>{__('Calculate Methods')}</ControlLabel>
           <Select
-            placeholder={__("Select Calculate Method")}
-            value={calculateMethods.find((o) => o.value === calculateMethod)}
+            placeholder={__('Select Calculate Method')}
+            value={calculateMethods.find(o => o.value === calculateMethod)}
             options={calculateMethods}
             isMulti={false}
             isClearable={true}
@@ -595,7 +596,7 @@ export class CommonCalculateFields extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormWrapper>
-          {["Name", "Logic", "Value", "Status Color"].map((head) => (
+          {['Name', 'Logic', 'Value', 'Status Color'].map(head => (
             <FormColumn key={head}>
               <ControlLabel required>{head}</ControlLabel>
             </FormColumn>
@@ -604,17 +605,17 @@ export class CommonCalculateFields extends React.Component<Props, State> {
             <Button btnStyle="default" icon="add" onClick={handleAddLevel} />
           </Tip>
         </FormWrapper>
-        {calculateLogics.map((logic) => this.renderLogicRow(logic, formProps))}
+        {calculateLogics.map(logic => this.renderLogicRow(logic, formProps))}
       </>
     );
   }
 }
 
-export const generateParamsIds = (ids) => {
+export const generateParamsIds = ids => {
   if (!ids?.length) {
     return undefined;
   }
-  if (typeof ids === "string") {
+  if (typeof ids === 'string') {
     return [ids];
   }
   return ids;
@@ -624,15 +625,8 @@ export function FilterByTags({ queryParams }: { queryParams: any }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  if (!isEnabled("tags")) {
-    return (
-      <Box name="tags" title="Filter by Tags">
-        <EmptyState text="Not Aviable Tags" icon="info-circle" />
-      </Box>
-    );
-  }
   const { data, error, loading } = useQuery(gql(tagsQuery), {
-    variables: { type: "riskassessment:riskassessment" },
+    variables: { type: 'riskassessment:riskassessment' },
   });
 
   if (loading) {
@@ -646,18 +640,18 @@ export function FilterByTags({ queryParams }: { queryParams: any }) {
   const tags = data?.tags || [];
 
   const handleRemoveParams = () => {
-    removeParams(navigate, location, "tagIds");
+    removeParams(navigate, location, 'tagIds');
   };
 
-  const handleSetParams = (_id) => {
+  const handleSetParams = _id => {
     let tagIds = queryParams?.tagIds || [];
-    tagIds = typeof tagIds === "string" ? [tagIds] : tagIds;
-    if (tagIds.find((tagId) => tagId === _id)) {
-      tagIds = tagIds.filter((tagId) => tagId !== _id);
+    tagIds = typeof tagIds === 'string' ? [tagIds] : tagIds;
+    if (tagIds.find(tagId => tagId === _id)) {
+      tagIds = tagIds.filter(tagId => tagId !== _id);
     } else {
       tagIds = [...tagIds, _id];
     }
-    removeParams(navigate, location, "page");
+    removeParams(navigate, location, 'page');
     setParams(navigate, location, { tagIds });
   };
   const extraButtons = (
@@ -687,9 +681,7 @@ export function FilterByTags({ queryParams }: { queryParams: any }) {
     >
       <SidebarList>
         {generateTree(
-          tags.map((tag) =>
-            !tag?.parentId ? { ...tag, parentId: null } : tag
-          ),
+          tags.map(tag => (!tag?.parentId ? { ...tag, parentId: null } : tag)),
           null,
           ({ _id, colorCode, name }, level) => {
             return (
@@ -699,7 +691,7 @@ export function FilterByTags({ queryParams }: { queryParams: any }) {
                 onClick={handleSetParams.bind(this, _id)}
               >
                 <a>
-                  {"\u00A0 \u00A0 ".repeat(level)}
+                  {'\u00A0 \u00A0 '.repeat(level)}
                   <Icon icon="tag-2" color={colorCode} />
                   {name}
                 </a>

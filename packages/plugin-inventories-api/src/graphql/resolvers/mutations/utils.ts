@@ -1,9 +1,9 @@
-import * as _ from 'lodash';
-import { generateModels } from '../../../connectionResolver';
-import { sendProductsMessage } from '../../../messageBroker';
-import { IRemainderDocument } from '../../../models/definitions/remainders';
-import { ISafeRemainderItemDocument } from '../../../models/definitions/safeRemainderItems';
-import { IUpdateRemaindersParams } from './remainders';
+import * as _ from "lodash";
+import { generateModels } from "../../../connectionResolver";
+import { sendCoreMessage } from "../../../messageBroker";
+import { IRemainderDocument } from "../../../models/definitions/remainders";
+import { ISafeRemainderItemDocument } from "../../../models/definitions/safeRemainderItems";
+import { IUpdateRemaindersParams } from "./remainders";
 
 export const updateLiveRemainders = async ({
   subdomain,
@@ -22,9 +22,9 @@ export const updateLiveRemainders = async ({
 
   if (productCategoryId) {
     // Find all products in category by categoryId
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: 'find',
+      action: "products.find",
       data: {
         query: {},
         categoryId: productCategoryId
@@ -43,9 +43,8 @@ export const updateLiveRemainders = async ({
     allProductIds = _.union(allProductIds, productIds);
   }
 
-  const safeRemainders: any = await models.SafeRemainderItems.find(
-    selector
-  ).lean();
+  const safeRemainders: any =
+    await models.SafeRemainderItems.find(selector).lean();
   const remainders: any = await models.Remainders.find(selector).lean();
   const resultRemainder: IRemainderDocument[] = [];
 
@@ -66,9 +65,8 @@ export const updateLiveRemainders = async ({
       productId
     };
 
-    const transactionItems = await models.TransactionItems.find(
-      transactionSelector
-    ).lean();
+    const transactionItems =
+      await models.TransactionItems.find(transactionSelector).lean();
     let remainderCount = safe ? safe.count : 0;
 
     for (const item of transactionItems) {
@@ -112,9 +110,9 @@ export const updateLiveRemainders = async ({
 export const getProducts = async (subdomain, productId, productCategoryId) => {
   let products: any[] = [];
   if (productId) {
-    const product = await sendProductsMessage({
+    const product = await sendCoreMessage({
       subdomain,
-      action: 'find',
+      action: "products.find",
       data: { _id: productId },
       isRPC: true
     });
@@ -122,24 +120,12 @@ export const getProducts = async (subdomain, productId, productCategoryId) => {
   }
 
   if (productCategoryId) {
-    const limit = await sendProductsMessage({
+    products = await sendCoreMessage({
       subdomain,
-      action: 'count',
+      action: "products.find",
       data: {
-        query: { status: { $nin: ['archived', 'deleted'] } },
-        categoryId: productCategoryId
-      },
-      isRPC: true,
-      defaultValue: 0
-    });
-
-    products = await sendProductsMessage({
-      subdomain,
-      action: 'find',
-      data: {
-        query: { status: { $nin: ['archived', 'deleted'] } },
+        query: { status: { $nin: ["archived", "deleted"] } },
         categoryId: productCategoryId,
-        limit,
         sort: { code: 1 }
       },
       isRPC: true,

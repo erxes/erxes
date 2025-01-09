@@ -1,13 +1,25 @@
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import {
   IContract,
   IContractDocument
-} from '../../../models/definitions/contracts';
-import { checkPermission } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
+} from "../../../models/definitions/contracts";
+import { checkPermission } from "@erxes/api-utils/src";
+import { IContext } from "../../../connectionResolver";
 
-import { createLog, deleteLog, updateLog } from '../../../logUtils';
-import { TRANSACTION_TYPE } from '../../../models/definitions/constants';
-import { sendMessageBroker } from '../../../messageBroker';
+import { createLog, deleteLog, updateLog } from "../../../logUtils";
+import { TRANSACTION_TYPE } from "../../../models/definitions/constants";
+import { sendMessageBroker } from "../../../messageBroker";
+
+export const savingsContractChanged = async (contract: IContractDocument) => {
+  graphqlPubsub.publish(
+    'savingsContractChanged',
+    {
+      savingsContractChanged: {
+        ...contract
+      },
+    },
+  );
+};
 
 const contractMutations = {
   savingsContractsAdd: async (
@@ -18,7 +30,7 @@ const contractMutations = {
     const contract = await models.Contracts.createContract(doc);
 
     const logData = {
-      type: 'contract',
+      type: "contract",
       newData: doc,
       object: contract,
       extraParams: { models }
@@ -30,27 +42,46 @@ const contractMutations = {
   },
   clientSavingsContractsAdd: async (
     _root,
-    doc: IContract,
+    doc: IContract & { secondaryPassword: string },
     { user, models, subdomain }: IContext
   ) => {
     let savingAmount = doc.savingAmount;
     if (!doc.depositAccount) {
-      throw new Error('No deposit account linked. Please select a deposit account to proceed with your savings.');
+      throw new Error(
+        "No deposit account linked. Please select a deposit account to proceed with your savings."
+      );
     }
-    
+
     doc.savingAmount = 0;
     const contract = await models.Contracts.createContract(doc);
 
+    const validate = await sendMessageBroker(
+      {
+        subdomain,
+        action: "clientPortalUsers.validatePassword",
+        data: {
+          userId: doc.customerId,
+          password: doc.secondaryPassword,
+          secondary: true
+        }
+      },
+      "clientportal"
+    );
+
+    if (validate?.status === "error") {
+      throw new Error(validate.errorMessage);
+    }
+
     const customer = await sendMessageBroker(
       {
-        action: 'customers.findOne',
+        action: "customers.findOne",
         subdomain,
         data: {
           _id: doc.customerId
         },
         isRPC: true
       },
-      'contacts'
+      "core"
     );
 
     if (savingAmount > 0 && contract) {
@@ -58,13 +89,17 @@ const contractMutations = {
         _id: doc.depositAccount
       }).lean();
 
+      if (!deposit) {
+        throw new Error(`Contract ${doc.depositAccount} not found`);
+      }
+
       await models.Transactions.createTransaction({
         payDate: doc.startDate,
         total: savingAmount,
         transactionType: TRANSACTION_TYPE.OUTCOME,
         contractId: deposit._id,
         customerId: doc.customerId,
-        description: 'saving',
+        description: "saving",
         payment: savingAmount,
         accountNumber: contract.number,
         accountHolderName: customer.firstName
@@ -76,7 +111,7 @@ const contractMutations = {
         transactionType: TRANSACTION_TYPE.INCOME,
         contractId: contract._id,
         customerId: doc.customerId,
-        description: 'saving',
+        description: "saving",
         payment: savingAmount,
         accountNumber: deposit.number,
         accountHolderName: customer.firstName
@@ -84,7 +119,7 @@ const contractMutations = {
     }
 
     const logData = {
-      type: 'contract',
+      type: "contract",
       newData: doc,
       object: contract,
       extraParams: { models }
@@ -92,6 +127,73 @@ const contractMutations = {
 
     await createLog(subdomain, user, logData);
 
+    return contract;
+  },
+
+  clientSavingSubmit: async (
+    _root,
+    { customerId }: { customerId: string },
+    { user, models, subdomain }: IContext
+  ) => {
+    const customer = await sendMessageBroker(
+      {
+        action: "customers.findOne",
+        subdomain,
+        data: {
+          _id: customerId
+        },
+        isRPC: true
+      },
+      "core"
+    );
+
+    if (!customer) {
+      throw new Error("Customer not found!");
+    }
+
+    const existingContract = await models.Contracts.findOne({
+      isDeposit: true,
+      customerId: customer._id
+    });
+
+    if (existingContract) {
+      throw new Error("Contract exists!");
+    }
+
+    const contractType = await models.ContractTypes.findOne({
+      isDeposit: true
+    });
+
+    if (!contractType) {
+      throw new Error("Deposit account type not found!");
+    }
+
+    const depositAccount: any = {
+      customerId: customerId,
+      contractTypeId: contractType._id,
+      startDate: new Date(),
+      isDeposit: true,
+      duration: 36,
+      savingAmount: 0,
+      blockAmount: 0,
+      closeInterestRate: 0,
+      description: "client submit",
+      interestRate: 0,
+      isAllowIncome: true,
+      isAllowOutcome: true
+    };
+
+    const contract = await models.Contracts.createContract(depositAccount);
+
+    const logData = {
+      type: "contract",
+      newData: depositAccount,
+      object: contract,
+      extraParams: { models }
+    };
+
+    await createLog(subdomain, user, logData);
+    await savingsContractChanged(contract)
     return contract;
   },
 
@@ -108,7 +210,7 @@ const contractMutations = {
     const updated = await models.Contracts.updateContract(_id, doc);
 
     const logData = {
-      type: 'contract',
+      type: "contract",
       object: contract,
       newData: { ...doc },
       updatedDocument: updated,
@@ -116,7 +218,7 @@ const contractMutations = {
     };
 
     await updateLog(subdomain, user, logData);
-
+    await savingsContractChanged(updated);
     return updated;
   },
   savingsContractsDealEdit: async (
@@ -140,7 +242,7 @@ const contractMutations = {
     const updated = await models.Contracts.updateContract(_id, doc);
 
     const logData = {
-      type: 'contract',
+      type: "contract",
       object: contract,
       newData: { ...doc },
       updatedDocument: updated,
@@ -148,7 +250,7 @@ const contractMutations = {
     };
 
     await updateLog(subdomain, user, logData);
-
+    await savingsContractChanged(updated);
     return updated;
   },
 
@@ -164,10 +266,11 @@ const contractMutations = {
     const contract = await models.Contracts.getContract({
       _id: doc.contractId
     });
+
     const updated = await models.Contracts.closeContract(subdomain, doc);
 
     const logData = {
-      type: 'contract',
+      type: "contract",
       object: contract,
       newData: doc,
       updatedDocument: updated,
@@ -175,6 +278,7 @@ const contractMutations = {
     };
 
     await updateLog(subdomain, user, logData);
+    await savingsContractChanged(updated);
 
     return updated;
   },
@@ -196,7 +300,7 @@ const contractMutations = {
 
     for (const contract of contracts) {
       const logData = {
-        type: 'contract',
+        type: "contract",
         object: contract,
         extraParams: { models }
       };
@@ -206,15 +310,17 @@ const contractMutations = {
 
     return contractIds;
   },
+
   savingsExpandDuration: async (
     _root,
     { _id, contractTypeId }: { _id: string; contractTypeId: string },
     { models }: IContext
   ) => {
     const contract = await models.Contracts.expandDuration(_id, contractTypeId);
-
+    await savingsContractChanged(contract);
     return contract;
   },
+
   savingsInterestChange: async (
     _root,
     {
@@ -240,6 +346,7 @@ const contractMutations = {
 
     return updatedContract;
   },
+
   savingsInterestReturn: async (
     _root,
     {
@@ -258,30 +365,31 @@ const contractMutations = {
       invDate,
       interestAmount
     });
+    await savingsContractChanged(updatedContract);
     return updatedContract;
   }
 };
 
-checkPermission(contractMutations, 'saingsContractsAdd', 'saingsContractsAdd');
+checkPermission(contractMutations, "saingsContractsAdd", "saingsContractsAdd");
 checkPermission(
   contractMutations,
-  'saingsContractsEdit',
-  'saingsContractsEdit'
+  "saingsContractsEdit",
+  "saingsContractsEdit"
 );
 checkPermission(
   contractMutations,
-  'saingsContractsDealEdit',
-  'saingsContractsDealEdit'
+  "saingsContractsDealEdit",
+  "saingsContractsDealEdit"
 );
 checkPermission(
   contractMutations,
-  'saingsContractsClose',
-  'saingsContractsClose'
+  "saingsContractsClose",
+  "saingsContractsClose"
 );
 checkPermission(
   contractMutations,
-  'saingsContractsRemove',
-  'saingsContractsRemove'
+  "saingsContractsRemove",
+  "saingsContractsRemove"
 );
 
 export default contractMutations;

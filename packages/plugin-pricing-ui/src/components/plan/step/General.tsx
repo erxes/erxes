@@ -1,7 +1,7 @@
 import {
   DateContainer,
   FormColumn,
-  FormWrapper,
+  FormWrapper
 } from "@erxes/ui/src/styles/main";
 import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
 
@@ -40,7 +40,7 @@ export default function General(props: Props) {
                 name="categories"
                 label="Choose categories"
                 initialValue={formValues.categories}
-                onSelect={(categories) => handleState("categories", categories)}
+                onSelect={categories => handleState("categories", categories)}
                 multi={true}
               />
             </FormGroup>
@@ -50,7 +50,7 @@ export default function General(props: Props) {
                 name="categoriesExcluded"
                 label="Choose categories to exclude"
                 initialValue={formValues.categoriesExcluded}
-                onSelect={(categories) =>
+                onSelect={categories =>
                   handleState("categoriesExcluded", categories)
                 }
                 multi={true}
@@ -62,9 +62,7 @@ export default function General(props: Props) {
                 name="productsExcluded"
                 label="Choose products to exclude"
                 initialValue={formValues.productsExcluded}
-                onSelect={(products) =>
-                  handleState("productsExcluded", products)
-                }
+                onSelect={products => handleState("productsExcluded", products)}
                 multi={true}
               />
             </FormGroup>
@@ -78,7 +76,7 @@ export default function General(props: Props) {
               name="products"
               label="Choose products"
               initialValue={formValues.products}
-              onSelect={(products) => handleState("products", products)}
+              onSelect={products => handleState("products", products)}
               multi={true}
             />
           </FormGroup>
@@ -90,10 +88,10 @@ export default function General(props: Props) {
             <SelectSegments
               name="segments"
               label="Choose segments"
-              contentTypes={["products:product"]}
+              contentTypes={["core:product"]}
               initialValue={formValues.segments}
               multi={true}
-              onSelect={(segmentIds) => handleState("segments", segmentIds)}
+              onSelect={segmentIds => handleState("segments", segmentIds)}
             />
           </FormGroup>
         );
@@ -106,7 +104,7 @@ export default function General(props: Props) {
               name="vendors"
               initialValue={formValues.vendors}
               multi={true}
-              onSelect={(companyIds) => handleState("vendors", companyIds)}
+              onSelect={companyIds => handleState("vendors", companyIds)}
               showAvatar={false}
             />
           </FormGroup>
@@ -117,22 +115,22 @@ export default function General(props: Props) {
             <FormGroup>
               <FormLabel>{__("Product tags")}</FormLabel>
               <SelectTags
-                tagsType="products:product"
+                tagsType="core:product"
                 name="tags"
                 label="Choose tags"
                 initialValue={formValues.tags}
-                onSelect={(tags) => handleState("tags", tags)}
+                onSelect={tags => handleState("tags", tags)}
                 multi={true}
               />
             </FormGroup>
             <FormGroup>
               <FormLabel>{__("Exclude tags")}</FormLabel>
               <SelectTags
-                tagsType="products:product"
+                tagsType="core:product"
                 name="tagsExcluded"
                 label="Choose tags to exclude"
                 initialValue={formValues.tagsExcluded}
-                onSelect={(tags) => handleState("tagsExcluded", tags)}
+                onSelect={tags => handleState("tagsExcluded", tags)}
                 multi={true}
               />
             </FormGroup>
@@ -140,11 +138,9 @@ export default function General(props: Props) {
               <FormLabel>{__("Exclude products")}</FormLabel>
               <SelectProducts
                 name="productsExcluded"
-                label="Choose products to exclude"
+                label={__("Choose products to exclude")}
                 initialValue={formValues.productsExcluded}
-                onSelect={(products) =>
-                  handleState("productsExcluded", products)
-                }
+                onSelect={products => handleState("productsExcluded", products)}
                 multi={true}
               />
             </FormGroup>
@@ -156,7 +152,7 @@ export default function General(props: Props) {
             <FormGroup>
               <FormLabel>{__("Products to bundle")}</FormLabel>
               {(formValues.productsBundle || []).map((bundles, index) => {
-                const onChange = (productIds) => {
+                const onChange = productIds => {
                   (formValues.productsBundle || [])[index] = productIds;
                   handleState("productsBundle", formValues.productsBundle);
                 };
@@ -174,7 +170,7 @@ export default function General(props: Props) {
                 onClick={() =>
                   handleState("productsBundle", [
                     ...(formValues.productsBundle || []),
-                    [],
+                    []
                   ])
                 }
               >
@@ -238,28 +234,28 @@ export default function General(props: Props) {
               options={[
                 {
                   label: "None",
-                  value: "none",
+                  value: "none"
                 },
                 {
                   label: "Round",
-                  value: "round",
+                  value: "round"
                 },
                 {
                   label: "Floor",
-                  value: "floor",
+                  value: "floor"
                 },
                 {
                   label: "Ceil",
-                  value: "ceil",
+                  value: "ceil"
                 },
                 {
                   label: "Truncate",
-                  value: "truncate",
+                  value: "truncate"
                 },
                 {
                   label: "Ends With 9",
-                  value: "endsWith9",
-                },
+                  value: "endsWith9"
+                }
               ]}
               onChange={(e: any) =>
                 handleState("priceAdjustType", e.target.value)
@@ -360,20 +356,20 @@ export default function General(props: Props) {
                 options={[
                   {
                     label: "Active",
-                    value: "active",
+                    value: "active"
                   },
                   {
                     label: "Archived",
-                    value: "archived",
+                    value: "archived"
                   },
                   {
                     label: "Draft",
-                    value: "draft",
+                    value: "draft"
                   },
                   {
                     label: "Completed",
-                    value: "completed",
-                  },
+                    value: "completed"
+                  }
                 ]}
                 onChange={(e: any) => handleState("status", e.target.value)}
                 defaultValue={formValues.status}

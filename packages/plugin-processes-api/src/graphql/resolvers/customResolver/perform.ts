@@ -1,10 +1,10 @@
 import { IPerformDocument } from '../../../models/definitions/performs';
 import { IContext } from '../../../connectionResolver';
-import { sendContactsMessage, sendCoreMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 import { getProductAndUoms } from './utils';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.Performs.findOne({ _id });
   },
 
@@ -152,7 +152,7 @@ export default {
       return;
     }
 
-    return sendContactsMessage({
+    return sendCoreMessage({
       subdomain,
       action: 'customers.findOne',
       data: { _id: perform.customerId },
@@ -166,7 +166,7 @@ export default {
       return;
     }
 
-    return sendContactsMessage({
+    return sendCoreMessage({
       subdomain,
       action: 'companies.findOne',
       data: { _id: perform.companyId },

@@ -119,7 +119,7 @@ export const userSchema = schemaWrapper(
       label: 'Created at',
     }),
     username: field({ type: String, label: 'Username' }),
-    password: field({ type: String }),
+    password: field({ type: String, optional: true }),
     resetPasswordToken: field({ type: String }),
     registrationToken: field({ type: String }),
     registrationTokenExpires: field({ type: Date }),
@@ -212,7 +212,8 @@ export const userSchema = schemaWrapper(
       sparse: true,
     }),
     chatStatus: field({
-      type: IUserChatStatus,
+      type: String,
+      enum: Object.values(IUserChatStatus),
       optional: true,
       label: 'User chat status /used for exm/',
     }),

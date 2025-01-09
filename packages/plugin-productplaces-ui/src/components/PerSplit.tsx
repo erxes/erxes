@@ -1,20 +1,20 @@
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
-import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
+import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import SelectSegments from "@erxes/ui-segments/src/containers/SelectSegments";
+import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
 import {
   Button,
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup,
-} from '@erxes/ui/src/components';
-import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
-import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
-import { IConfigsMap } from '../types';
+  FormGroup
+} from "@erxes/ui/src/components";
+import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+import { __ } from "@erxes/ui/src/utils";
+import React, { useState } from "react";
+import { IConfigsMap } from "../types";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -40,7 +40,7 @@ const PerSettings = (props: Props) => {
     setConfig({ ...config, stageId });
   };
 
-  const onSave = (e) => {
+  const onSave = e => {
     e.preventDefault();
     const key = config.stageId;
 
@@ -49,7 +49,7 @@ const PerSettings = (props: Props) => {
     save(configsMap);
   };
 
-  const onDelete = (e) => {
+  const onDelete = e => {
     e.preventDefault();
 
     props.delete(currentConfigKey);
@@ -67,15 +67,15 @@ const PerSettings = (props: Props) => {
   return (
     <CollapseContent
       title={__(config.title)}
-      open={currentConfigKey === 'newPlacesConfig' ? true : false}
+      open={currentConfigKey === "newPlacesConfig" ? true : false}
     >
       <FormWrapper>
         <FormColumn>
           <FormGroup>
-            <ControlLabel>{'Title'}</ControlLabel>
+            <ControlLabel>{"Title"}</ControlLabel>
             <FormControl
-              defaultValue={config['title']}
-              onChange={onChangeInput.bind(this, 'title')}
+              defaultValue={config["title"]}
+              onChange={onChangeInput.bind(this, "title")}
               required={true}
               autoFocus={true}
             />
@@ -95,72 +95,72 @@ const PerSettings = (props: Props) => {
         </FormColumn>
         <FormColumn>
           <FormGroup>
-            <ControlLabel>{'Product Category'}</ControlLabel>
+            <ControlLabel>{"Product Category"}</ControlLabel>
             <SelectProductCategory
               label="Choose product category"
               name="productCategoryIds"
-              initialValue={config.productCategoryIds || ''}
-              onSelect={(categoryIds) =>
-                onChangeConfig('productCategoryIds', categoryIds)
+              initialValue={config.productCategoryIds || ""}
+              onSelect={categoryIds =>
+                onChangeConfig("productCategoryIds", categoryIds)
               }
               multi={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Exclude categories')}</ControlLabel>
+            <ControlLabel>{__("Exclude categories")}</ControlLabel>
             <SelectProductCategory
               name="excludeCategoryIds"
               label="Choose categories to exclude"
               initialValue={config.excludeCategoryIds}
-              onSelect={(categoryIds) =>
-                onChangeConfig('excludeCategoryIds', categoryIds)
+              onSelect={categoryIds =>
+                onChangeConfig("excludeCategoryIds", categoryIds)
               }
               multi={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{'Product Tags'}</ControlLabel>
+            <ControlLabel>{__("Product Tags")}</ControlLabel>
             <SelectTags
-              tagsType="products:product"
+              tagsType="core:product"
               name="productTagIds"
               label="Choose product tags"
-              initialValue={config.productTagIds || ''}
-              onSelect={(tagsIds) => onChangeConfig('productTagIds', tagsIds)}
+              initialValue={config.productTagIds || ""}
+              onSelect={tagsIds => onChangeConfig("productTagIds", tagsIds)}
               multi={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Exclude tags')}</ControlLabel>
+            <ControlLabel>{__("Exclude tags")}</ControlLabel>
             <SelectTags
-              tagsType="products:product"
+              tagsType="core:product"
               name="excludeTagIds"
               label="Choose tags to exclude"
               initialValue={config.excludeTagIds}
-              onSelect={(tagIds) => onChangeConfig('excludeTagIds', tagIds)}
+              onSelect={tagIds => onChangeConfig("excludeTagIds", tagIds)}
               multi={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Exclude products')}</ControlLabel>
+            <ControlLabel>{__("Exclude products")}</ControlLabel>
             <SelectProducts
               name="excludeProductIds"
               label="Choose products to exclude"
               initialValue={config.excludeProductIds}
-              onSelect={(productIds) =>
-                onChangeConfig('excludeProductIds', productIds)
+              onSelect={productIds =>
+                onChangeConfig("excludeProductIds", productIds)
               }
               multi={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Segment')}</ControlLabel>
+            <ControlLabel>{__("Segment")}</ControlLabel>
             <SelectSegments
               name="segments"
               label="Choose segments"
-              contentTypes={['products:product']}
+              contentTypes={["core:product"]}
               initialValue={config.segments}
               multi={true}
-              onSelect={(segmentIds) => onChangeConfig('segments', segmentIds)}
+              onSelect={segmentIds => onChangeConfig("segments", segmentIds)}
             />
           </FormGroup>
         </FormColumn>

@@ -64,9 +64,6 @@ const WebhookList = (props: FinalProps) => {
 
   const renderSearch = () => {
     return (
-      <InputBar type="searchBar">
-        <Icon icon="search-1" size={20} />
-        <FlexItem>
           <FormControl
             type="text"
             placeholder={__("Type to search")}
@@ -74,8 +71,6 @@ const WebhookList = (props: FinalProps) => {
             autoFocus={true}
             value={searchValue}
           />
-        </FlexItem>
-      </InputBar>
     );
   };
 
@@ -93,7 +88,7 @@ const WebhookList = (props: FinalProps) => {
     return (
       <InputBar type="active">
         <SelectBrands
-          label="Filter by brand"
+          label={__("Filter by brand")}
           onSelect={handleBrandSelect}
           initialValue={queryParams.brandIds}
           name="selectedBrands"

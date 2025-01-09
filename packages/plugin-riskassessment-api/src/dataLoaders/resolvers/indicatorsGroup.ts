@@ -1,6 +1,6 @@
-import { IContext } from '../../connectionResolver';
-import { sendTagsMessage } from '../../messageBroker';
-import { IIndicatorsGroupsDocument } from '../../models/definitions/indicator';
+import { IContext } from "../../connectionResolver";
+import { sendCoreMessage } from "../../messageBroker";
+import { IIndicatorsGroupsDocument } from "../../models/definitions/indicator";
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -11,9 +11,9 @@ export default {
     {},
     { subdomain }: IContext
   ) {
-    return sendTagsMessage({
+    return sendCoreMessage({
       subdomain,
-      action: 'find',
+      action: "tagFind",
       data: {
         _id: { $in: indicator.tagIds }
       },

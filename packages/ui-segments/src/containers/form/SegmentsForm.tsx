@@ -1,14 +1,14 @@
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { ITrigger } from '../../types';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import SegmentsForm from '../../components/form/SegmentsForm';
-import { mutations, queries } from '../../graphql';
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { ISegment, ITrigger } from "../../types";
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { withProps } from "@erxes/ui/src/utils";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import SegmentsForm from "../../components/form/SegmentsForm";
+import { mutations, queries } from "../../graphql";
 import {
   AddMutationResponse,
   EditMutationResponse,
@@ -16,8 +16,8 @@ import {
   HeadSegmentsQueryResponse,
   ISegmentCondition,
   SegmentDetailQueryResponse,
-  SegmentsQueryResponse
-} from '../../types';
+  SegmentsQueryResponse,
+} from "../../types";
 
 type Props = {
   contentType: string;
@@ -29,6 +29,8 @@ type Props = {
   filterContent?: (values: any) => void;
   afterSave?: () => void;
   hideDetailForm?: boolean;
+  serviceConfig?: any;
+  segmentData?: ISegment;
 };
 
 type FinalProps = {
@@ -50,7 +52,7 @@ class SegmentsFormContainer extends React.Component<
     this.state = {
       loading: false,
       count: 0,
-      fields: []
+      fields: [],
     };
   }
 
@@ -60,17 +62,12 @@ class SegmentsFormContainer extends React.Component<
     isSubmitted,
     callback,
     object,
-    text
+    text,
   }: IButtonMutateProps) => {
-    const {
-      contentType,
-      history,
-      addConfig,
-      activeTrigger,
-      closeModal
-    } = this.props;
+    const { contentType, history, addConfig, activeTrigger, closeModal } =
+      this.props;
 
-    const callBackResponse = data => {
+    const callBackResponse = (data) => {
       if (history) {
         history(`/segments?contentType=${contentType}`);
       }
@@ -101,7 +98,7 @@ class SegmentsFormContainer extends React.Component<
         type="submit"
         successMessage={`Success`}
       >
-        {text || 'Save'}
+        {text || "Save"}
       </ButtonMutate>
     );
   };
@@ -110,7 +107,7 @@ class SegmentsFormContainer extends React.Component<
     conditions,
     subOf,
     config,
-    conditionsConjunction
+    conditionsConjunction,
   }: {
     conditions: ISegmentCondition[];
     subOf?: string;
@@ -129,14 +126,14 @@ class SegmentsFormContainer extends React.Component<
           conditions,
           subOf,
           config,
-          conditionsConjunction
+          conditionsConjunction,
         },
-        fetchPolicy: 'network-only'
+        fetchPolicy: "network-only",
       })
       .then(({ data }) => {
         this.setState({
           count: data.segmentsPreviewCount,
-          loading: false
+          loading: false,
         });
       });
   };
@@ -149,7 +146,8 @@ class SegmentsFormContainer extends React.Component<
       eventsQuery,
       segmentsQuery,
       history,
-      filterContent
+      filterContent,
+      segmentData,
     } = this.props;
 
     if (segmentDetailQuery.loading) {
@@ -163,13 +161,22 @@ class SegmentsFormContainer extends React.Component<
     const segments = segmentsQuery.segments || [];
     const isModal = history ? false : true;
 
+    const getSegment = () => {
+      if (!segment && segmentData) {
+        return { ...segmentData, subSegmentConditions: [segmentData] };
+      }
+      return segment;
+    };
+
     const updatedProps = {
       ...this.props,
-      segment,
-      headSegments: headSegments.filter(s =>
+      segment: getSegment(),
+      headSegments: headSegments.filter((s) =>
         s.contentType === contentType && segment ? s._id !== segment._id : true
       ),
-      segments: segments.filter(s => (segment ? s._id !== segment._id : true)),
+      segments: segments.filter((s) =>
+        segment ? s._id !== segment._id : true
+      ),
       events,
       renderButton: this.renderButton,
       previewCount: this.previewCount,
@@ -177,7 +184,7 @@ class SegmentsFormContainer extends React.Component<
       count: this.state.count,
       counterLoading: this.state.loading,
       isModal,
-      filterContent
+      filterContent,
     };
 
     return <SegmentsForm {...updatedProps} />;
@@ -189,38 +196,38 @@ export default withProps<Props>(
     graphql<Props, SegmentDetailQueryResponse, { _id?: string }>(
       gql(queries.segmentDetail),
       {
-        name: 'segmentDetailQuery',
+        name: "segmentDetailQuery",
         options: ({ id }) => ({
-          fetchPolicy: 'network-only',
-          variables: { _id: id }
-        })
+          fetchPolicy: "network-only",
+          variables: { _id: id },
+        }),
       }
     ),
     graphql<Props, HeadSegmentsQueryResponse, { contentType: string }>(
       gql(queries.headSegments),
       {
-        name: 'headSegmentsQuery',
+        name: "headSegmentsQuery",
         options: ({ contentType }) => ({
-          variables: { contentType }
-        })
+          variables: { contentType },
+        }),
       }
     ),
     graphql<Props, SegmentsQueryResponse, { contentTypes: string[] }>(
       gql(queries.segments),
       {
-        name: 'segmentsQuery',
+        name: "segmentsQuery",
         options: ({ contentType }) => ({
-          fetchPolicy: 'network-only',
-          variables: { contentTypes: [contentType] }
-        })
+          fetchPolicy: "network-only",
+          variables: { contentTypes: [contentType] },
+        }),
       }
     ),
 
     graphql<Props>(gql(queries.events), {
-      name: 'eventsQuery',
+      name: "eventsQuery",
       options: ({ contentType }) => ({
-        variables: { contentType }
-      })
+        variables: { contentType },
+      }),
     })
   )(SegmentsFormContainer)
 );

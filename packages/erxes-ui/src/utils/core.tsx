@@ -38,10 +38,11 @@ export const loadDynamicComponent = (
   componentName: string,
   injectedProps?: any,
   multi?: boolean,
-  pluginName?: string,
+  pluginName?: string
 ): any => {
   const plugins: any[] = (window as any).plugins || [];
-  const filteredPlugins = plugins.filter((plugin) => plugin[componentName]);
+
+  const filteredPlugins = plugins.filter(plugin => plugin[componentName]);
   const renderDynamicComp = (plugin: any) => (
     <ErrorBoundary key={plugin.scope}>
       <RenderDynamicComponent
@@ -55,11 +56,11 @@ export const loadDynamicComponent = (
     return null;
   }
   if (multi) {
-    return filteredPlugins.map((plugin) => renderDynamicComp(plugin));
+    return filteredPlugins.map(plugin => renderDynamicComp(plugin));
   }
   if (pluginName) {
     const withPluginName = filteredPlugins.filter(
-      (plugin) => plugin.name === pluginName,
+      plugin => plugin.name === pluginName
     );
     return renderDynamicComp(withPluginName[0]);
   }
@@ -93,7 +94,7 @@ export class RenderDynamicComponent extends React.Component<
       Comp = this.Component;
     }
     return (
-      <React.Suspense fallback="">
+      <React.Suspense fallback=''>
         <Comp {...injectedProps} />
       </React.Suspense>
     );
@@ -143,7 +144,7 @@ export const renderFullName = (data, noPhone?: boolean) => {
   return 'Unknown';
 };
 
-export const renderUserFullName = (data) => {
+export const renderUserFullName = data => {
   const { details } = data;
   if (details && details.fullName) {
     return details.fullName;
@@ -185,7 +186,7 @@ export const setBadge = (count: number, title: string) => {
 export const reorder = (
   list: string[],
   startIndex: number,
-  endIndex: number,
+  endIndex: number
 ) => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
@@ -195,10 +196,10 @@ export const reorder = (
 export const generateRandomColorCode = () => {
   return `#${Math.random().toString(16).slice(2, 8)}`;
 };
-const isNumeric = (n) => {
+const isNumeric = n => {
   return !isNaN(parseFloat(n)) && isFinite(n);
 };
-export const isTimeStamp = (timestamp) => {
+export const isTimeStamp = timestamp => {
   const newTimestamp = new Date(timestamp).getTime();
   return isNumeric(newTimestamp);
 };
@@ -208,15 +209,15 @@ export const range = (start: number, stop: number) => {
 };
 // Return the list of values that are the intersection of two arrays
 export const intersection = (array1: any[], array2: any[]) => {
-  return array1.filter((n) => array2.includes(n));
+  return array1.filter(n => array2.includes(n));
 };
 // Computes the union of the passed-in arrays: the list of unique items
 export const union = (array1: any[], array2: any[]) => {
-  return array1.concat(array2.filter((n) => !array1.includes(n)));
+  return array1.concat(array2.filter(n => !array1.includes(n)));
 };
 // Similar to without, but returns the values from array that are not present in the other arrays.
 export const difference = (array1: any[], array2: any[]) => {
-  return array1.filter((n) => !array2.includes(n));
+  return array1.filter(n => !array2.includes(n));
 };
 export const can = (actionName: string, currentUser: IUser): boolean => {
   if (!currentUser) {
@@ -242,7 +243,7 @@ export const __ = (key: string, options?: any) => {
 };
 export const isEnabled = (service: string) => {
   const enabledServices = JSON.parse(
-    localStorage.getItem('enabledServices') || '{}',
+    localStorage.getItem('enabledServices') || '{}'
   );
   return enabledServices[service];
 };
@@ -251,7 +252,11 @@ export const isEnabled = (service: string) => {
  * @param {String} - value
  * @return {String} - URL
  */
-export const readFile = (value: string, width?: number): string => {
+export const readFile = (
+  value: string,
+  width?: number,
+  inline?: boolean
+): string => {
   if (
     !value ||
     urlParser.isValidURL(value) ||
@@ -261,10 +266,15 @@ export const readFile = (value: string, width?: number): string => {
     return value;
   }
   const { REACT_APP_API_URL } = getEnv();
-  let url = `${REACT_APP_API_URL}/read-file?key=${value}`;
+  let url = `${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(value)}`;
   if (width) {
     url += `&width=${width}`;
   }
+
+  if (inline) {
+    url += `&inline=${inline}`;
+  }
+
   return url;
 };
 export const getUserAvatar = (user: IUserDoc, width?: number) => {
@@ -281,7 +291,7 @@ export const getUserAvatar = (user: IUserDoc, width?: number) => {
   return readFile(details.avatar, width);
 };
 export function withProps<IProps>(
-  Wrapped: new (props: IProps) => React.Component<IProps>,
+  Wrapped: new (props: IProps) => React.Component<IProps>
 ) {
   return class WithProps extends React.Component<IProps, {}> {
     render() {
@@ -291,11 +301,11 @@ export function withProps<IProps>(
 }
 export function renderWithProps<Props>(
   props: Props,
-  Wrapped: new (props: Props) => React.Component<Props>,
+  Wrapped: new (props: Props) => React.Component<Props>
 ) {
   return <Wrapped {...props} />;
 }
-export const isValidDate = (date) => {
+export const isValidDate = date => {
   const parsedDate = Date.parse(date);
   // Checking if it is date
   if (isNaN(date) && !isNaN(parsedDate)) {
@@ -304,18 +314,15 @@ export const isValidDate = (date) => {
   return false;
 };
 export const extractAttachment = (attachments: IAttachment[]) => {
-  return attachments.map((file) => {
-    if (!file) {
-      return;
-    }
-    return {
+  return attachments
+    .filter(file => file)
+    .map(file => ({
       name: file.name,
       type: file.type,
       url: file.url,
       size: file.size,
-      duration: file.duration,
-    };
-  });
+      duration: file.duration
+    }));
 };
 
 export const setCookie = (cname: string, cvalue: string, exdays = 100) => {
@@ -324,7 +331,7 @@ export const setCookie = (cname: string, cvalue: string, exdays = 100) => {
   const expires = `expires=${d.toUTCString()}`;
   document.cookie = `${cname}=${cvalue};${expires};path=/`;
 };
-export const getCookie = (cname) => {
+export const getCookie = cname => {
   const name = `${cname}=`;
   const ca = document.cookie.split(';');
 
@@ -375,7 +382,7 @@ export const sendDesktopNotification = (doc: {
     const notification = new Notification(doc.title, {
       body: doc.content,
       icon: '/favicon.png',
-      dir: 'ltr',
+      dir: 'ltr'
     });
 
     // notify by sound
@@ -398,7 +405,7 @@ export const sendDesktopNotification = (doc: {
   }
 
   if (Notification.permission !== 'denied') {
-    Notification.requestPermission((permission) => {
+    Notification.requestPermission(permission => {
       if (!('permission' in Notification)) {
         (Notification as any).permission = permission;
       }
@@ -409,7 +416,7 @@ export const sendDesktopNotification = (doc: {
     });
   }
 };
-export const roundToTwo = (value) => {
+export const roundToTwo = value => {
   if (!value) {
     return 0;
   }
@@ -426,12 +433,12 @@ function createLinkFromUrl(url) {
   if (!url.includes('http')) {
     url = 'http://' + url;
   }
-  const onClick = (e) => {
+  const onClick = e => {
     e.stopPropagation();
     window.open(url);
   };
   return (
-    <a href="#website" onClick={onClick}>
+    <a href='#website' onClick={onClick}>
       {urlParser.extractRootDomain(url)}
     </a>
   );
@@ -451,7 +458,7 @@ export function formatValue(value) {
       (value.includes('/') || value.includes('-'))
     ) {
       return (
-        <Tip text={dayjs(value).format('D MMM YYYY, HH:mm')} placement="top">
+        <Tip text={dayjs(value).format('D MMM YYYY, HH:mm')} placement='top'>
           <time>{dayjs(value).format('L')}</time>
         </Tip>
       );
@@ -515,18 +522,18 @@ export const storeConstantToStore = (key, values) => {
 export const getConstantFromStore = (
   key,
   isMap?: boolean,
-  isFlat?: boolean,
+  isFlat?: boolean
 ) => {
   const constant = JSON.parse(localStorage.getItem(`config:${key}`) || '[]');
 
   if (isFlat) {
-    return constant.map((element) => element.value);
+    return constant.map(element => element.value);
   }
   if (!isMap) {
     return constant;
   }
   const map = {};
-  constant.forEach((element) => {
+  constant.forEach(element => {
     map[element.value] = element.label;
   });
   return map;
@@ -556,12 +563,12 @@ export const getVersion = () => {
     envMapsDic[map.name] = map.processValue;
   }
 
-  const getItem = (name) => env[name] || envMapsDic[name] || '';
+  const getItem = name => env[name] || envMapsDic[name] || '';
 
   const VERSION = getItem('REACT_APP_VERSION');
 
   const result = {
-    VERSION,
+    VERSION
   };
   return result;
 };
@@ -574,7 +581,7 @@ export const getEnv = () => {
     envMapsDic[map.name] = map.processValue;
   }
 
-  const getItem = (name) => env[name] || envMapsDic[name] || '';
+  const getItem = name => env[name] || envMapsDic[name] || '';
 
   const VERSION = getItem('REACT_APP_VERSION');
 
@@ -595,8 +602,9 @@ export const getEnv = () => {
     .replace('http', 'ws')}/graphql`;
   const CDN_HOST = `${getItem('REACT_APP_CDN_HOST').replace(
     '<subdomain>',
-    subdomain,
+    subdomain
   )}`;
+
   const result = {
     VERSION,
     STRIPE_KEY: getItem('REACT_APP_STRIPE_KEY'),
@@ -610,9 +618,17 @@ export const getEnv = () => {
     REACT_APP_CDN_HOST: CDN_HOST,
     REACT_APP_DASHBOARD_URL: `${getItem('REACT_APP_DASHBOARD_URL').replace(
       '<subdomain>',
-      subdomain,
+      subdomain
     )}`,
+    REACT_APP_SENTRY_URL: getItem('REACT_APP_SENTRY_URL'),
+    REACT_APP_SENTRY_PROJECT_NAME: getItem('REACT_APP_SENTRY_PROJECT_NAME'),
+    REACT_APP_RELEASE: getItem('REACT_APP_RELEASE'),
+    REACT_APP_PUBLIC_POSTHOG_KEY: getItem('REACT_APP_PUBLIC_POSTHOG_KEY'),
+    REACT_APP_PUBLIC_POSTHOG_HOST: getItem('REACT_APP_PUBLIC_POSTHOG_HOST'),
+    REACT_APP_FARO_COLLECTOR_URL: getItem('REACT_APP_FARO_COLLECTOR_URL'),
+    REACT_APP_FARO_APP_NAME: getItem('REACT_APP_FARO_APP_NAME')
   };
+
   return result;
 };
 
@@ -642,9 +658,15 @@ export const generateTree = (
   parentId,
   callback,
   level = -1,
-  parentKey = 'parentId',
+  parentKey = 'parentId'
 ) => {
-  const filtered = list.filter((c) => c[parentKey] === parentId);
+  const filtered = list.filter(c => {
+    if (!parentId) {
+      return c[parentKey] === null || c[parentKey] === '';
+    } else {
+      return c[parentKey] === parentId;
+    }
+  });
   if (filtered.length > 0) {
     level++;
   } else {
@@ -654,7 +676,7 @@ export const generateTree = (
     return [
       ...tree,
       callback(node, level),
-      ...generateTree(list, node._id, callback, level, parentKey),
+      ...generateTree(list, node._id, callback, level, parentKey)
     ];
   }, []);
 };
@@ -664,11 +686,11 @@ export const removeTypename = (obj?: any[] | any) => {
     return rest;
   };
   if (Array.isArray(obj)) {
-    return obj.map((item) => deleteType(item));
+    return obj.map(item => deleteType(item));
   }
   return deleteType(obj);
 };
-export const publicUrl = (path) => {
+export const publicUrl = path => {
   const { REACT_APP_PUBLIC_PATH } = window.env || {};
 
   let prefix = '';
@@ -678,11 +700,11 @@ export const publicUrl = (path) => {
   }
   return `${prefix}${path}`;
 };
-export const getThemeItem = (code) => {
+export const getThemeItem = code => {
   const configs = JSON.parse(
-    localStorage.getItem('erxes_theme_configs') || '[]',
+    localStorage.getItem('erxes_theme_configs') || '[]'
   );
-  const config = configs.find((c) => c.code === `THEME_${code.toUpperCase()}`);
+  const config = configs.find(c => c.code === `THEME_${code.toUpperCase()}`);
 
   return config ? config.value : '';
 };
@@ -692,7 +714,7 @@ const DATE_OPTIONS = {
   h: 1000 * 60 * 60,
   m: 1000 * 60,
   s: 1000,
-  ms: 1,
+  ms: 1
 };
 const CHARACTERS =
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@#$%^&*()-=+{}[]<>.,:;"`|/?';
@@ -700,7 +722,7 @@ const BEGIN_DIFF = 1577836800000; // new Date('2020-01-01').getTime();
 export const dateToShortStr = (
   date?: Date | string | number,
   scale?: 10 | 16 | 62 | 92 | number,
-  kind?: 'd' | 'h' | 'm' | 's' | 'ms',
+  kind?: 'd' | 'h' | 'm' | 's' | 'ms'
 ) => {
   date = new Date(date || new Date());
   if (!scale) {
@@ -729,7 +751,7 @@ export const shortStrToDate = (
   shortStr: string,
   scale?: 10 | 16 | 62 | 92 | number,
   kind?: 'd' | 'h' | 'm' | 's' | 'ms',
-  resultType?: 'd' | 'n',
+  resultType?: 'd' | 'n'
 ) => {
   if (!scale) {
     scale = 62;
@@ -754,6 +776,23 @@ export const shortStrToDate = (
   }
   return intgr;
 };
-export const getGqlString = (doc) => {
+export const getGqlString = doc => {
   return doc.loc && doc.loc.source.body;
+};
+
+export const clearTypename = (doc: any) => {
+  const cleanedInput = JSON.parse(JSON.stringify(doc));
+
+  // Helper function to recursively remove __typename
+  const removeTypename = (obj: any) => {
+    if (Array.isArray(obj)) {
+      obj.forEach(removeTypename);
+    } else if (typeof obj === 'object' && obj !== null) {
+      delete obj.__typename;
+      Object.values(obj).forEach(removeTypename);
+    }
+  };
+
+  removeTypename(cleanedInput);
+  return cleanedInput;
 };

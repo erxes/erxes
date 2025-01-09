@@ -2,28 +2,30 @@ import {
   CONTRACT_STATUS,
   LEASE_TYPES,
   REPAYMENT,
-  SCHEDULE_STATUS
-} from './definitions/constants';
+  SCHEDULE_STATUS,
+} from "./definitions/constants";
 import {
   contractSchema,
   ICloseVariable,
-  IContract
-} from './definitions/contracts';
-import { getCloseInfo } from './utils/closeUtils';
+  IContract,
+  IContractDocument,
+  IInsurancesData,
+  ICollateralData,
+} from "./definitions/contracts";
+import { getCloseInfo } from "./utils/closeUtils";
 import {
   addMonths,
   calcInterest,
   getDiffDay,
   getFullDate,
-  getNumber
-} from './utils/utils';
-import { Model } from 'mongoose';
-import { IContractDocument } from './definitions/contracts';
-import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongodb';
-import { ITransaction } from './definitions/transactions';
-import { IInsurancesData } from './definitions/contracts';
-import { ICollateralData } from './definitions/contracts';
+  getNumber,
+} from "./utils/utils";
+import { Model, FilterQuery } from "mongoose";
+import { IModels } from "../connectionResolver";
+import { ITransaction } from "./definitions/transactions";
+import BigNumber from "bignumber.js";
+import { getConfig, sendMessageBroker } from "../messageBroker";
+import { IConfig } from "../interfaces/config";
 
 const getInsurancAmount = (
   insurancesData: IInsurancesData[],
@@ -43,9 +45,23 @@ export interface IContractModel extends Model<IContractDocument> {
   getContract(
     selector: FilterQuery<IContractDocument>
   ): Promise<IContractDocument>;
-  createContract(doc: IContract): Promise<IContractDocument>;
+  createContract(doc: IContract, subdomain: string): Promise<IContractDocument>;
   updateContract(_id, doc: IContract): Promise<IContractDocument>;
   closeContract(subdomain, doc: ICloseVariable);
+  clientCreditLoanRequest(
+    subdomain,
+    requestParams: {
+      contractId: string;
+      amount: number;
+      customerId: string;
+      dealtType?: "own" | "external";
+      dealtResponse?: any;
+      accountNumber?: string;
+      accountHolderName?: string;
+      externalBankName?: string;
+    },
+    contract: IContractDocument
+  );
   removeContracts(_ids);
 }
 
@@ -62,7 +78,7 @@ export const loadContractClass = (models: IModels) => {
       const contract = await models.Contracts.findOne(selector);
 
       if (!contract) {
-        throw new Error('Contract not found');
+        throw new Error("Contract not found");
       }
 
       return contract;
@@ -71,15 +87,14 @@ export const loadContractClass = (models: IModels) => {
     /**
      * Create a contract
      */
-    public static async createContract({
-      schedule,
-      ...doc
-    }: IContract & { schedule: any }): Promise<IContractDocument> {
+    public static async createContract(
+      { schedule, ...doc }: IContract & { schedule: any },
+      subdomain: string
+    ): Promise<IContractDocument> {
       doc.startDate = getFullDate(doc.startDate || new Date());
       doc.lastStoredDate = getFullDate(doc.startDate || new Date());
       doc.firstPayDate = getFullDate(doc.firstPayDate);
       doc.mustPayDate = getFullDate(doc.firstPayDate);
-      doc.lastStoredDate.setDate(doc.lastStoredDate.getDate() + 1);
       doc.endDate =
         doc.endDate ?? addMonths(new Date(doc.startDate), doc.tenor);
       if (!doc.useManualNumbering || !doc.number)
@@ -91,7 +106,7 @@ export const loadContractClass = (models: IModels) => {
       );
 
       if (doc.repayment === REPAYMENT.CUSTOM && !schedule) {
-        throw new Error('Custom graphic not exists');
+        throw new Error("Custom graphic not exists");
       }
 
       const contract = await models.Contracts.create(doc);
@@ -106,7 +121,7 @@ export const loadContractClass = (models: IModels) => {
             balance: a.balance,
             interestNonce: a.interestNonce,
             payment: a.payment,
-            total: a.total
+            total: a.total,
           };
         });
 
@@ -118,12 +133,16 @@ export const loadContractClass = (models: IModels) => {
         doc.leaseType === LEASE_TYPES.LINEAR ||
         doc.leaseType === LEASE_TYPES.SAVING
       ) {
+        if (!contract.savingContractId) {
+          throw new Error("Saving contract not selected");
+        }
+
         const diffDays = getDiffDay(doc.startDate, doc.endDate);
 
         const interest = calcInterest({
           balance: doc.leaseAmount,
           interestRate: doc.interestRate,
-          dayOfMonth: diffDays
+          dayOfMonth: diffDays,
         });
 
         const schedules = [
@@ -134,11 +153,30 @@ export const loadContractClass = (models: IModels) => {
             balance: doc.leaseAmount,
             interestNonce: interest,
             payment: doc.leaseAmount,
-            total: doc.leaseAmount
-          }
+            total: doc.leaseAmount,
+          },
         ];
 
+        await sendMessageBroker(
+          {
+            action: "block.create",
+            data: {
+              customerId: contract.customerId,
+              accountId: contract.savingContractId,
+              description: "saving collateral loan",
+              blockType: "scheduleTransaction",
+              amount: contract.leaseAmount,
+              scheduleDate: contract.endDate,
+              payDate: contract.startDate,
+            },
+            isRPC: true,
+            subdomain,
+          },
+          "savings"
+        );
+
         await models.FirstSchedules.insertMany(schedules);
+        await models.Schedules.insertMany(schedules);
       }
 
       return contract;
@@ -152,8 +190,16 @@ export const loadContractClass = (models: IModels) => {
       { schedule, ...doc }: IContract & { schedule: any }
     ): Promise<IContractDocument | null> {
       const oldContract = await models.Contracts.getContract({
-        _id
+        _id,
       });
+
+      const transactions = await models.Transactions.find({
+        contractId: _id,
+      }).lean();
+
+      if (transactions.length) {
+        throw new Error('Not update, cause: has a transactions')
+      }
 
       if (oldContract.contractTypeId !== doc.contractTypeId) {
         doc.number = await getNumber(models, doc.contractTypeId);
@@ -173,13 +219,10 @@ export const loadContractClass = (models: IModels) => {
         doc.collateralsData || []
       );
       await models.Contracts.updateOne({ _id }, { $set: doc });
-      const transactions = await models.Transactions.find({
-        contractId: _id
-      }).lean();
+
       if (
         doc.repayment === REPAYMENT.CUSTOM &&
-        schedule.length > 0 &&
-        transactions.length === 0
+        schedule.length > 0
       ) {
         await models.FirstSchedules.deleteMany({ contractId: _id });
         await models.Schedules.deleteMany({ contractId: _id });
@@ -192,7 +235,7 @@ export const loadContractClass = (models: IModels) => {
             balance: a.balance,
             interestNonce: a.interestNonce,
             payment: a.payment,
-            total: a.interestNonce + a.payment
+            total: a.interestNonce + a.payment,
           };
         });
 
@@ -209,7 +252,7 @@ export const loadContractClass = (models: IModels) => {
      */
     public static async closeContract(subdomain, doc: ICloseVariable) {
       const contract = await models.Contracts.getContract({
-        _id: doc.contractId
+        _id: doc.contractId,
       });
       const closeInfo = await getCloseInfo(
         models,
@@ -223,7 +266,7 @@ export const loadContractClass = (models: IModels) => {
         payDate: doc.closeDate,
         description: doc.description,
         currency: contract.currency,
-        total: closeInfo.total
+        total: closeInfo.total,
       };
       await models.Transactions.createTransaction(subdomain, trDoc);
 
@@ -234,13 +277,13 @@ export const loadContractClass = (models: IModels) => {
             closeDate: doc.closeDate,
             closeType: doc.closeType,
             closeDescription: doc.description,
-            status: CONTRACT_STATUS.CLOSED
-          }
+            status: CONTRACT_STATUS.CLOSED,
+          },
         }
       );
 
       return models.Contracts.getContract({
-        _id: doc.contractId
+        _id: doc.contractId,
       });
     }
 
@@ -248,18 +291,108 @@ export const loadContractClass = (models: IModels) => {
      * Remove Contract category
      */
     public static async removeContracts(_ids) {
-      const transactions = await models.Transactions.count({
-        contractId: _ids
+      const transactions = await models.Transactions.countDocuments({
+        contractId: _ids,
       });
-      if (transactions > 0)
-        throw new Error('You can not delete contract with transaction');
+      if (transactions > 0) {
+        throw new Error("You can not delete contract with transaction");
+      }
       await models.Schedules.deleteMany({
-        contractId: { $in: _ids }
+        contractId: { $in: _ids },
       });
 
       return models.Contracts.deleteMany({ _id: { $in: _ids } });
     }
+
+    public static async clientCreditLoanRequest(
+      subdomain,
+      requestParams: {
+        contractId: string;
+        amount: number;
+        customerId: string;
+        dealtType?: "own" | "external";
+        dealtResponse?: any;
+        accountNumber?: string;
+        accountHolderName?: string;
+        externalBankName?: string;
+      },
+      contract: IContractDocument
+    ) {
+      const config: IConfig = await getConfig("loansConfig", subdomain);
+      const trDate = new Date();
+      if (
+        new BigNumber(contract.leaseAmount).toNumber() >=
+        new BigNumber(contract.loanBalanceAmount)
+          .plus(requestParams.amount)
+          .dp(config.calculationFixed)
+          .toNumber()
+      ) {
+        const loanTr = await models.Transactions.createTransaction(subdomain, {
+          total: requestParams.amount,
+          give: requestParams.amount,
+          contractId: requestParams.contractId,
+          customerId: requestParams.customerId,
+          transactionType: "give",
+          payDate: new Date(),
+          currency: contract.currency,
+        });
+
+        const savingTr = {
+          contractId: contract.depositAccountId,
+          customerId: requestParams.customerId,
+          transactionType: "income",
+          description: "credit loan give",
+          payDate: trDate,
+          payment: requestParams.amount,
+          currency: contract.currency,
+          total: requestParams.amount,
+          dealtType: "external",
+          dealtResponse: loanTr,
+          accountNumber: contract.number,
+          externalBankName: "loans",
+        };
+
+        await sendMessageBroker(
+          {
+            action: "transactions.createTransaction",
+            subdomain,
+            data: savingTr,
+          },
+          "savings"
+        );
+        if (requestParams.dealtType == "external") {
+          const savingTr = {
+            contractId: contract.depositAccountId,
+            customerId: requestParams.customerId,
+            transactionType: "outcome",
+            description: "credit loan give",
+            payDate: trDate,
+            payment: requestParams.amount,
+            currency: contract.currency,
+            total: requestParams.amount,
+            dealtType: "external",
+            dealtResponse: loanTr,
+            accountNumber: requestParams.accountNumber,
+            accountHolderName: requestParams.accountHolderName,
+            externalBankName: requestParams.externalBankName,
+          };
+
+          await sendMessageBroker(
+            {
+              action: "transactions.createTransaction",
+              subdomain,
+              data: savingTr,
+            },
+            "savings"
+          );
+        }
+      } else {
+        throw new Error("Limit exceed!");
+      }
+      return contract;
+    }
   }
+
   contractSchema.loadClass(Contract);
   return contractSchema;
 };

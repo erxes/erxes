@@ -8,10 +8,11 @@ import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
+  IPdfAttachment,
 } from "@erxes/ui/src/types";
 import { IProduct, IProductCategory, IUom, IVariant } from "../types";
 import React, { useEffect, useState } from "react";
-import { TAX_TYPES, TYPES } from "../constants";
+import { TYPES } from "../constants";
 import { __, router } from "@erxes/ui/src/utils/core";
 
 import ActionButtons from "@erxes/ui/src/components/ActionButtons";
@@ -25,7 +26,7 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
-import { Row } from "@erxes/ui-inbox/src/settings/integrations/styles";
+import { Row } from "../styles";
 import Select from "react-select";
 import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
 import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
@@ -34,6 +35,7 @@ import Uploader from "@erxes/ui/src/components/Uploader";
 import { extractAttachment } from "@erxes/ui/src/utils";
 import { queries } from "../graphql";
 import { useLocation } from "react-router-dom";
+import PdfUploader from "@erxes/ui/src/components/PdfUploader";
 
 type Props = {
   product?: IProduct;
@@ -50,17 +52,17 @@ type State = {
   barcodeDescription: string;
   attachment?: IAttachment;
   attachmentMore?: IAttachment[];
+  pdfAttachment?: IPdfAttachment;
   vendorId: string;
   description: string;
   uom: string;
-  subUoms: any[];
-  taxType: string;
-  taxCode: string;
+  subUoms: { _id: string; uom: string; ratio: number }[];
   scopeBrandIds: string[];
   categoryId: string;
   code: string;
   category?: IProductCategory;
   maskStr?: string;
+  type: string;
 };
 
 const Form = (props: Props) => {
@@ -76,8 +78,6 @@ const Form = (props: Props) => {
     description,
     uom,
     subUoms,
-    taxType,
-    taxCode,
     scopeBrandIds,
     code,
     categoryId,
@@ -91,21 +91,22 @@ const Form = (props: Props) => {
   }
 
   const [state, setState] = useState<State>({
-    barcodes: barcodes ? barcodes : [],
+    ...product,
+    barcodes: barcodes || [],
     variants: fixVariants,
     barcodeInput: "",
-    barcodeDescription: barcodeDescription ? barcodeDescription : "",
-    attachment: attachment ? attachment : undefined,
-    attachmentMore: attachmentMore ? attachmentMore : undefined,
-    vendorId: vendorId ? vendorId : "",
-    description: description ? description : "",
+    barcodeDescription: barcodeDescription || "",
+    attachment: attachment,
+    attachmentMore: attachmentMore,
+    vendorId: vendorId || "",
+    description: description || "",
     uom: uom || "",
-    subUoms: subUoms ? subUoms : [],
-    taxType: taxType || "",
-    taxCode: taxCode || "",
+    subUoms: subUoms || [],
     scopeBrandIds,
     code: code || "",
     categoryId: categoryId || paramCategoryId,
+    type: product.type || "",
+    pdfAttachment: product.pdfAttachment || undefined,
   });
 
   useEffect(() => {
@@ -178,7 +179,7 @@ const Form = (props: Props) => {
       subUoms,
       scopeBrandIds,
       code,
-      categoryId,
+      categoryId
     } = state;
 
     if (product) {
@@ -187,7 +188,26 @@ const Form = (props: Props) => {
 
     finalValues.attachment = attachment;
 
+    const pdfAttachment: any = { ...state.pdfAttachment };
+
+    if (pdfAttachment && pdfAttachment.__typename) {
+      delete pdfAttachment.__typename;
+    }
+
+    if (pdfAttachment.pdf && pdfAttachment.pdf.__typename) {
+      delete pdfAttachment.pdf.__typename;
+    }
+
+    pdfAttachment.pages = pdfAttachment.pages?.map((p) => {
+      const page = { ...p };
+      if (page && page.__typename) {
+        delete page.__typename;
+      }
+      return page;
+    });
+
     return {
+      ...product,
       ...finalValues,
       code,
       categoryId,
@@ -199,8 +219,9 @@ const Form = (props: Props) => {
       barcodeDescription,
       vendorId,
       description,
+      pdfAttachment,
       uom,
-      subUoms: subUoms
+      subUoms: (subUoms || [])
         .filter((su) => su.uom)
         .map((su) => ({
           ...su,
@@ -209,9 +230,18 @@ const Form = (props: Props) => {
     };
   };
 
+  const getUoms = (uoms?: IUom[]) =>
+    (uoms || [])
+      .filter(({ isForSubscription }) =>
+        state.type === TYPES.SUBSCRIPTION
+          ? isForSubscription
+          : !isForSubscription
+      )
+      .map((e) => e.code);
+
   const renderFormTrigger = (trigger: React.ReactNode) => {
-    const content = (props) => (
-      <CategoryForm {...props} categories={props.productCategories} />
+    const content = (formProps) => (
+      <CategoryForm {...formProps} categories={props.productCategories || []} />
     );
 
     return (
@@ -226,10 +256,10 @@ const Form = (props: Props) => {
     return subUoms.map((subUom) => {
       const updateUoms = (key, value) => {
         const { subUoms = [] } = state;
-        subUom[key] = value;
+
         setState((prevState) => ({
           ...prevState,
-          subUoms: subUoms.map((su) => (su._id === subUom._id ? subUom : su)),
+          subUoms: subUoms.map((su) => (su._id === subUom._id ? { ...subUom, [key]: value } : su)),
         }));
       };
 
@@ -253,7 +283,7 @@ const Form = (props: Props) => {
               <ControlLabel>Sub UOM</ControlLabel>
               <AutoCompletionSelect
                 defaultValue={subUom.uom}
-                defaultOptions={(uoms || []).map((e) => e.code)}
+                defaultOptions={getUoms(uoms)}
                 autoCompletionType="uoms"
                 placeholder="Enter an uom"
                 queryName="uoms"
@@ -328,19 +358,19 @@ const Form = (props: Props) => {
       return;
     }
 
-    const { barcodes } = state;
+    const tempBarcodes = [...state.barcodes || []]
 
     if (barcodes.includes(value)) {
       return;
     }
 
-    barcodes.unshift(value);
+    tempBarcodes.unshift(value);
 
-    setState((prevState) => ({ ...prevState, barcodes, barcodeInput: "" }));
+    setState((prevState) => ({ ...prevState, barcodes: tempBarcodes, barcodeInput: "" }));
   };
 
   const onClickAddSub = () => {
-    const subUoms = state.subUoms;
+    const subUoms = [...(state.subUoms || [])];
 
     subUoms.push({ uom: "", ratio: 1, _id: Math.random().toString() });
     setState((prevState) => ({ ...prevState, subUoms }));
@@ -397,12 +427,6 @@ const Form = (props: Props) => {
     }));
   };
 
-  const onTaxChange = (e) => {
-    setState({
-      [e.target.name]: e.target.value,
-    } as any);
-  };
-
   const onChangeCateogry = (option) => {
     const value = option.value;
 
@@ -419,7 +443,7 @@ const Form = (props: Props) => {
 
   const renderBarcodes = () => {
     const { barcodes, variants, attachmentMore } = state;
-    if (!barcodes.length) {
+    if (!barcodes?.length) {
       return <></>;
     }
 
@@ -506,9 +530,34 @@ const Form = (props: Props) => {
     );
   };
 
+  const renderEditorField = (formProps: IFormProps, addinitionalProps) => {
+    const { _id, description } = addinitionalProps
+
+    const finalProps = {
+      content: description,
+      onChange: onChangeDescription,
+      height: 150,
+      isSubmitted: formProps.isSaved,
+      toolbar: [
+        "bold",
+        "italic",
+        "orderedList",
+        "bulletList",
+        "link",
+        "unlink",
+        "|",
+        "image",
+      ],
+      name: `product_description_${_id || 'create'}`
+    }
+
+    return (
+      <RichTextEditor {...finalProps} />
+    )
+  }
+
   const renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal, product, productCategories, uoms } =
-      props;
+    let { renderButton, closeModal, product, productCategories, uoms } = props;
     const { values, isSubmitted } = formProps;
     const object = product || ({} as IProduct);
 
@@ -522,14 +571,15 @@ const Form = (props: Props) => {
       (object.attachment && extractAttachment([object.attachment])) || [];
 
     const attachmentsMore =
-      (object.attachmentMore && extractAttachment(object.attachmentMore)) || [];
+      (object.attachmentMore &&
+        object.attachmentMore.length &&
+        extractAttachment(object.attachmentMore)) ||
+      [];
 
     const {
       vendorId,
       description,
       barcodeDescription,
-      taxType,
-      taxCode,
       scopeBrandIds,
       code,
       categoryId,
@@ -552,7 +602,7 @@ const Form = (props: Props) => {
               <Row>
                 <Select
                   {...formProps}
-                  placeholder={__("Choose a category")}
+                  placeholder={__('Choose a category')}
                   value={generateOptions().find(
                     (option) => option.value === categoryId
                   )}
@@ -574,13 +624,13 @@ const Form = (props: Props) => {
               </p>
               <FormControl
                 {...formProps}
-                name="code"
+                name='code'
                 value={code}
                 required={true}
                 onChange={(e: any) => {
                   setState((prevState) => ({
                     ...prevState,
-                    code: e.target.value.replace(/\*/g, ""),
+                    code: e.target.value.replace(/\*/g, ''),
                   }));
                 }}
               />
@@ -590,7 +640,7 @@ const Form = (props: Props) => {
               <ControlLabel required={true}>Name</ControlLabel>
               <FormControl
                 {...formProps}
-                name="name"
+                name='name'
                 defaultValue={object.name}
                 autoFocus={true}
                 required={true}
@@ -601,7 +651,7 @@ const Form = (props: Props) => {
               <ControlLabel required={true}>Short name</ControlLabel>
               <FormControl
                 {...formProps}
-                name="shortName"
+                name='shortName'
                 defaultValue={object.shortName}
                 required={false}
               />
@@ -611,51 +661,43 @@ const Form = (props: Props) => {
               <ControlLabel required={true}>Type</ControlLabel>
               <FormControl
                 {...formProps}
-                name="type"
-                componentclass="select"
+                name='type'
+                componentclass='select'
                 defaultValue={object.type}
                 required={true}
+                onChange={(e) =>
+                  setState((prevState) => ({
+                    ...prevState,
+                    type: (e.target as HTMLInputElement).value,
+                  }))
+                }
               >
-                {Object.keys(TYPES).map((typeName, index) => (
-                  <option key={index} value={TYPES[typeName]}>
-                    {typeName}
-                  </option>
-                ))}
+                {Object.keys(TYPES)
+                  .filter((type) => type !== 'ALL')
+                  .map((typeName, index) => (
+                    <option key={index} value={TYPES[typeName]}>
+                      {typeName}
+                    </option>
+                  ))}
               </FormControl>
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>Description</ControlLabel>
-              <RichTextEditor
-                content={description}
-                onChange={onChangeDescription}
-                height={150}
-                isSubmitted={formProps.isSaved}
-                name={`product_description_${description}`}
-                toolbar={[
-                  "bold",
-                  "italic",
-                  "orderedList",
-                  "bulletList",
-                  "link",
-                  "unlink",
-                  "|",
-                  "image",
-                ]}
-              />
+              {renderEditorField(formProps, { _id: object._id, description })}
             </FormGroup>
 
             <FormGroup>
               <ControlLabel required={true}>Unit price</ControlLabel>
               <p>
-                Please ensure you have set the default currency in the{" "}
-                <a href="/settings/general"> {"General Settings"}</a> of the
+                Please ensure you have set the default currency in the{' '}
+                <a href='/settings/general'> {'General Settings'}</a> of the
                 System Configuration.
               </p>
               <FormControl
                 {...formProps}
-                type="number"
-                name="unitPrice"
+                type='number'
+                name='unitPrice'
                 defaultValue={object.unitPrice}
                 required={true}
                 min={0}
@@ -664,41 +706,12 @@ const Form = (props: Props) => {
             <FormGroup>
               <ControlLabel>Vendor</ControlLabel>
               <SelectCompanies
-                label="Choose an vendor"
-                name="vendorId"
-                customOption={{ value: "", label: "No vendor chosen" }}
+                label='Choose an vendor'
+                name='vendorId'
+                customOption={{ value: '', label: 'No vendor chosen' }}
                 initialValue={vendorId}
-                onSelect={onComboEvent.bind(this, "vendorId")}
+                onSelect={onComboEvent.bind(this, 'vendorId')}
                 multi={false}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Tax Type</ControlLabel>
-              <FormControl
-                {...formProps}
-                name="taxType"
-                componentclass="select"
-                onChange={onTaxChange}
-                defaultValue={taxType}
-                options={[
-                  { value: "", label: "default" },
-                  ...Object.keys(TAX_TYPES).map((type) => ({
-                    value: type,
-                    label: TAX_TYPES[type].label,
-                  })),
-                ]}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Tax Code</ControlLabel>
-
-              <FormControl
-                {...formProps}
-                name="taxCode"
-                componentclass="select"
-                onChange={onTaxChange}
-                defaultValue={taxCode}
-                options={(TAX_TYPES[taxType || ""] || {}).options || []}
               />
             </FormGroup>
           </FormColumn>
@@ -706,11 +719,11 @@ const Form = (props: Props) => {
             <FormGroup>
               <ControlLabel>Brand</ControlLabel>
               <SelectBrands
-                label={__("Choose brands")}
+                label={__('Choose brands')}
                 onSelect={(brandIds) => onChangeBrand(brandIds as string[])}
                 initialValue={scopeBrandIds}
                 multi={true}
-                name="selectedBrands"
+                name='selectedBrands'
               />
             </FormGroup>
             <FormGroup>
@@ -734,19 +747,32 @@ const Form = (props: Props) => {
             </FormGroup>
 
             <FormGroup>
+              <ControlLabel>PDF</ControlLabel>
+              <PdfUploader
+                attachment={state.pdfAttachment}
+                onChange={(attachment?: IPdfAttachment) => {
+                  setState((prevState) => ({
+                    ...prevState,
+                    pdfAttachment: attachment,
+                  }));
+                }}
+              />
+            </FormGroup>
+
+            <FormGroup>
               <ControlLabel>Barcodes</ControlLabel>
               <Row>
                 <FormControl
                   {...formProps}
-                  name="barcodes"
+                  name='barcodes'
                   value={state.barcodeInput}
-                  autoComplete="off"
+                  autoComplete='off'
                   onChange={onChangeBarcodeInput}
                   onKeyDown={onKeyDownBarcodeInput}
                 />
                 <Button
-                  btnStyle="primary"
-                  icon="plus-circle"
+                  btnStyle='primary'
+                  icon='plus-circle'
                   onClick={() => updateBarcodes()}
                 >
                   Add barcode
@@ -764,14 +790,14 @@ const Form = (props: Props) => {
                 isSubmitted={formProps.isSaved}
                 name={`product_barcode_description_${barcodeDescription}`}
                 toolbar={[
-                  "bold",
-                  "italic",
-                  "orderedList",
-                  "bulletList",
-                  "link",
-                  "unlink",
-                  "|",
-                  "image",
+                  'bold',
+                  'italic',
+                  'orderedList',
+                  'bulletList',
+                  'link',
+                  'unlink',
+                  '|',
+                  'image',
                 ]}
               />
             </FormGroup>
@@ -780,21 +806,20 @@ const Form = (props: Props) => {
               <Row>
                 <AutoCompletionSelect
                   defaultValue={state.uom}
-                  defaultOptions={(uoms || []).map((e) => e.code)}
-                  autoCompletionType="uoms"
-                  placeholder="Enter an uom"
-                  queryName="uoms"
+                  defaultOptions={getUoms(uoms)}
+                  autoCompletionType='uoms'
+                  placeholder='Enter an uom'
+                  queryName='uoms'
                   query={queries.uoms}
                   onChange={onChangeUom}
                   required={true}
                 />
                 <Button
-                  btnStyle="primary"
+                  btnStyle='primary'
                   uppercase={false}
-                  icon="plus-circle"
+                  icon='plus-circle'
                   onClick={onClickAddSub}
                 >
-                  {" "}
                   Add sub
                 </Button>
               </Row>
@@ -806,16 +831,16 @@ const Form = (props: Props) => {
 
         <ModalFooter>
           <Button
-            btnStyle="simple"
+            btnStyle='simple'
             onClick={closeModal}
-            icon="times-circle"
+            icon='times-circle'
             uppercase={false}
           >
             Close
           </Button>
 
           {renderButton({
-            name: "product and service",
+            name: 'product and service',
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,

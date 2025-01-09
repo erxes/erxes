@@ -1,78 +1,51 @@
-import { getCloseInfo } from '../../../models/utils/closeUtils';
-import { getFullDate } from '../../../models/utils/utils';
-import { checkPermission, paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
+import { getCloseInfo } from "../../../models/utils/closeUtils";
+import { getFullDate } from "../../../models/utils/utils";
+import { checkPermission, paginate } from "@erxes/api-utils/src";
+import { IContext } from "../../../connectionResolver";
+import { sendMessageBroker } from "../../../messageBroker";
+import { customFieldToObject } from "../utils";
 
-const generateFilter = async (models, params, commonQuerySelector) => {
-  const filter: any = commonQuerySelector;
+const generateFilter = async (params, commonQuerySelector) => {
+  let filter: any = commonQuerySelector;
 
-  filter.status = { $ne: 'Deleted' };
+  filter.status = { $ne: "Deleted" };
 
-  if (params.searchValue) {
-    filter.number = { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] };
+  const {
+    page,
+    perPage,
+    ids,
+    excludeIds,
+    searchValue,
+    sortField,
+    sortDirection,
+    closeDate,
+    isExpired,
+    closeDateType,
+    repaymentDate,
+    startStartDate,
+    endStartDate,
+    leaseTypes,
+    dealIds,
+    ...otherFilter
+  } = params;
+
+  if (ids?.length) {
+    filter._id = { [excludeIds ? "$nin" : "$in"]: ids };
   }
 
-  if (params.status) {
-    filter.status = params.status;
+  if (dealIds?.length) {
+    filter.dealId = { $in: dealIds };
   }
 
-  if (params.ids) {
-    filter._id = { $in: params.ids };
+  if (searchValue) {
+    filter.number = { $in: [new RegExp(`.*${searchValue}.*`, "i")] };
   }
 
-  if (params.closeDate) {
-    const date = getFullDate(params.closeDate);
-    filter.closeDate = {
-      $gte: date,
-      $lte: new Date(date.getTime() + 1000 * 3600 * 24)
-    };
+  if (isExpired === "true") {
+    filter.isExpired = !!isExpired;
   }
 
-  if (
-    params.conformityMainTypeId &&
-    params.conformityMainType &&
-    params.conformityIsSaved
-  ) {
-    filter._id = {
-      $in: await models.Conformities.savedConformity({
-        mainType: params.conformityMainType,
-        mainTypeId: params.conformityMainTypeId,
-        relTypes: ['contract', 'contractSub']
-      })
-    };
-  }
-  if (
-    params.conformityMainTypeId &&
-    params.conformityMainType &&
-    params.conformityIsRelated
-  ) {
-    let ids = [];
-    ids = ids.concat(
-      await models.Conformities.relatedConformity({
-        mainType: params.conformityMainType,
-        mainTypeId: params.conformityMainTypeId,
-        relType: 'contract'
-      })
-    );
-    ids = ids.concat(
-      await models.Conformities.relatedConformity({
-        mainType: params.conformityMainType,
-        mainTypeId: params.conformityMainTypeId,
-        relType: 'contractSub'
-      })
-    );
-    filter._id = { $in: ids };
-  }
-
-  if (params.contractTypeId) {
-    filter.contractTypeId = params.contractTypeId;
-  }
-
-  if (params.isExpired === 'true') {
-    filter.isExpired = !!params.isExpired;
-  }
-
-  if (params.repaymentDate === 'today') {
+  if (repaymentDate === "today") {
     const date = getFullDate(new Date());
     filter.repaymentDate = {
       $gte: date,
@@ -80,17 +53,29 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     };
   }
 
-  if (!!params.closeDateType) {
+  if (closeDate) {
+    const date = getFullDate(closeDate);
+    filter.closeDate = {
+      $gte: date,
+      $lte: new Date(date.getTime() + 1000 * 3600 * 24)
+    };
+  }
+
+  if (leaseTypes) {
+    otherFilter.leaseType = leaseTypes;
+  }
+
+  if (closeDateType) {
     let currentDate = new Date();
-    switch (params.closeDateType) {
-      case 'today':
+    switch (closeDateType) {
+      case "today":
         const date = getFullDate(currentDate);
         filter.closeDate = {
           $gte: date,
           $lte: new Date(date.getTime() + 1000 * 3600 * 24)
         };
         break;
-      case 'thisWeek':
+      case "thisWeek":
         let firstDayOfWeek = new Date(
           currentDate.setDate(currentDate.getDate() - currentDate.getDay())
         );
@@ -102,7 +87,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
           $lte: lastDayOfWeek
         };
         break;
-      case 'thisMonth':
+      case "thisMonth":
         let firstDayOfMonth = new Date(
           currentDate.setDate(currentDate.getDate() - currentDate.getDay())
         );
@@ -118,85 +103,37 @@ const generateFilter = async (models, params, commonQuerySelector) => {
       default:
         break;
     }
-  }
 
-  if (params.startStartDate || params.endStartDate) {
-    switch (`${!!params.startStartDate}-${!!params.endStartDate}`) {
-      case 'true-true':
-        filter.closeDate = {
-          $gte: getFullDate(params.startStartDate),
-          $lte: getFullDate(params.endStartDate)
-        };
-        break;
-      case 'false-true':
-        filter.closeDate = {
-          $lte: getFullDate(params.endStartDate)
-        };
-        break;
-      case 'true-false':
-        filter.closeDate = {
-          $gte: getFullDate(params.startStartDate)
-        };
-        break;
-      default:
-        break;
+    if (startStartDate || endStartDate) {
+      switch (`${!!startStartDate}-${!!endStartDate}`) {
+        case "true-true":
+          filter.closeDate = {
+            $gte: getFullDate(startStartDate),
+            $lte: getFullDate(endStartDate)
+          };
+          break;
+        case "false-true":
+          filter.closeDate = {
+            $lte: getFullDate(endStartDate)
+          };
+          break;
+        case "true-false":
+          filter.closeDate = {
+            $gte: getFullDate(startStartDate)
+          };
+          break;
+        default:
+          break;
+      }
     }
   }
 
-  if (params.startCloseDate || params.endCloseDate) {
-    switch (`${!!params.startCloseDate}-${!!params.endCloseDate}`) {
-      case 'true-true':
-        filter.closeDate = {
-          $gte: getFullDate(params.startCloseDate),
-          $lte: getFullDate(params.endCloseDate)
-        };
-        break;
-      case 'false-true':
-        filter.closeDate = {
-          $lte: getFullDate(params.endCloseDate)
-        };
-        break;
-      case 'true-false':
-        filter.closeDate = {
-          $gte: getFullDate(params.startCloseDate)
-        };
-        break;
-      default:
-        break;
-    }
-  }
-
-  if (params.customerId) {
-    filter.customerId = params.customerId;
-  }
-  if (params.branchId) {
-    filter.branchId = params.branchId;
-  }
-
-  if (params.leaseAmount) {
-    filter.leaseAmount = params.leaseAmount;
-  }
-
-  if (params.interestRate) {
-    filter.interestRate = params.interestRate;
-  }
-
-  if (params.tenor) {
-    filter.tenor = params.tenor;
-  }
-
-  if (params.repayment) {
-    filter.repayment = params.repayment;
-  }
-
-  if (params.dealId) {
-    filter.dealId = params.dealId;
-  }
+  filter = { ...filter, ...(otherFilter || {}) };
 
   return filter;
 };
 
-export const sortBuilder = (params) => {
+export const sortBuilder = params => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -217,10 +154,8 @@ const contractQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    return paginate(
-      models.Contracts.find(
-        await generateFilter(models, params, commonQuerySelector)
-      ),
+    return await paginate(
+      models.Contracts.find(await generateFilter(params, commonQuerySelector)),
       {
         page: params.page,
         perPage: params.perPage
@@ -233,11 +168,9 @@ const contractQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    if (!params.customerId) throw new Error('Customer not found');
-    return paginate(
-      models.Contracts.find(
-        await generateFilter(models, params, commonQuerySelector)
-      ),
+    if (!params.customerId) throw new Error("Customer not found");
+    return await paginate(
+      models.Contracts.find(await generateFilter(params, commonQuerySelector)),
       {
         page: params.page,
         perPage: params.perPage
@@ -254,14 +187,17 @@ const contractQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    const filter = await generateFilter(models, params, commonQuerySelector);
+    const filter = await generateFilter(params, commonQuerySelector);
 
     return {
-      list: paginate(models.Contracts.find(filter).sort(sortBuilder(params)), {
-        page: params.page,
-        perPage: params.perPage
-      }),
-      totalCount: models.Contracts.find(filter).count()
+      list: await paginate(
+        models.Contracts.find(filter).sort(sortBuilder(params)),
+        {
+          page: params.page,
+          perPage: params.perPage
+        }
+      ),
+      totalCount: await models.Contracts.find(filter).countDocuments()
     };
   },
 
@@ -296,18 +232,54 @@ const contractQueries = {
 
     if (expiredContracts.length > 0) {
       alerts.push({
-        name: 'Expired contracts',
+        name: "Expired contracts",
         count: expiredContracts.length,
-        filter: expiredContracts.map((a) => a._id)
+        filter: expiredContracts.map(a => a._id)
       });
     }
 
     return alerts;
+  },
+
+  convertToContract: async (_root, params: { contentType: string; id: string }, { models, subdomain }: IContext) => {
+    const { contentType, id } = params;
+    const mappings = {
+      deal: {
+        action: "deals.findOne",
+        data: { _id: id },
+        name: "sales",
+        customFieldType: "sales:deal"
+      },
+      customer: {
+        action: "customers.findOne",
+        data: { _id: id },
+        name: "core",
+        customFieldType: "core:customer"
+      },
+      company: {
+        action: "companies.findOne",
+        data: { _id: id },
+        name: "core",
+        customFieldType: "core:company"
+      }
+    };
+    const mapping = mappings[contentType] || mappings.deal;
+    const object = await sendMessageBroker(
+      {
+        subdomain,
+        action: mapping.action,
+        data: mapping.data,
+        isRPC: true,
+      },
+      mapping.name
+    );
+
+    return await customFieldToObject(models, subdomain, mapping.customFieldType, object)
   }
 };
 
-checkPermission(contractQueries, 'contractsMain', 'showContracts');
-checkPermission(contractQueries, 'contractDetail', 'showContracts');
-checkPermission(contractQueries, 'contracts', 'showContracts');
+checkPermission(contractQueries, "contractsMain", "showContracts");
+checkPermission(contractQueries, "contractDetail", "showContracts");
+checkPermission(contractQueries, "contracts", "showContracts");
 
 export default contractQueries;

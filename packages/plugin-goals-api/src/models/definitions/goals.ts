@@ -2,6 +2,7 @@ import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
 export interface IGoal {
+  name: string;
   entity: string;
   stageId: string;
   pipelineId: string;
@@ -18,13 +19,15 @@ export interface IGoal {
   segmentIds: string[];
   startDate: Date;
   endDate: Date;
-  target: number;
-  progress: any;
   stageRadio: boolean;
   segmentRadio: boolean;
   periodGoal: string;
   teamGoalType: string;
   segmentCount: number;
+  pipelineLabels: object;
+  productIds: string[];
+  companyIds: string[];
+  tagsIds: string[];
 }
 
 export interface IGoalDocument extends IGoal, Document {
@@ -35,6 +38,7 @@ export interface IGoalDocument extends IGoal, Document {
 export const goalSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
+    name: field({ type: String, label: 'name' }),
     entity: field({ type: String, label: 'Choose Entity' }),
     contributionType: field({
       type: String,
@@ -54,11 +58,6 @@ export const goalSchema = schemaHooksWrapper(
     contribution: field({ type: [String], label: 'contribution' }),
     startDate: field({ type: Date, label: 'StartDate Durable' }),
     endDate: field({ type: Date, label: 'EndDate Durable' }),
-    target: field({ type: Number, min: 0, label: 'Target' }),
-    progress: {
-      type: Object,
-      label: 'Progress'
-    },
     department: {
       type: [String],
       label: 'Department'
@@ -76,7 +75,11 @@ export const goalSchema = schemaHooksWrapper(
     segmentIds: field({ type: [String], label: 'Segment Data' }),
     periodGoal: field({ type: String, label: 'Period ' }),
     teamGoalType: field({ type: String, label: 'Choose  Structure' }),
-    segmentCount: field({ type: Number, min: 0, label: 'segmentCount' })
+    segmentCount: field({ type: Number, min: 0, label: 'segmentCount' }),
+    pipelineLabels: field({ type: [Object], label: 'PipelineLabel' }),
+    productIds: field({ type: [String], label: 'productIds' }),
+    companyIds: field({ type: [String], label: 'companyIds' }),
+    tagsIds: field({ type: [String], label: 'tagsIds' })
   }),
   'erxes_goals'
 );

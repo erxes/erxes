@@ -1,14 +1,14 @@
-import React from 'react';
-import { ITrigger } from './types';
-import { IAction } from '@erxes/ui-automations/src/types';
-import { confirm, Alert } from '@erxes/ui/src/utils';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
-import { colors } from '@erxes/ui/src/styles';
-import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
+import React from "react";
+import { ITrigger } from "./types";
+import { IAction } from "@erxes/ui-automations/src/types";
+import { confirm, Alert } from "@erxes/ui/src/utils";
+import { rgba } from "@erxes/ui/src/styles/ecolor";
+import { colors } from "@erxes/ui/src/styles";
+import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
 
 export const connectorPaintStyle = {
   strokeWidth: 2,
-  stroke: '#a1a1a1'
+  stroke: "#a1a1a1"
 };
 
 export const hoverPaintStyle = {
@@ -20,35 +20,35 @@ export const connectorHoverStyle = {
 };
 
 export const sourceEndpoint = {
-  endpoint: 'Dot',
+  endpoint: "Dot",
   paintStyle: {
     fill: rgba(colors.colorSecondary, 1),
     radius: 10
   },
   isSource: true,
   connector: [
-    'Bezier',
+    "Bezier",
     { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true }
   ],
   connectorStyle: connectorPaintStyle,
   hoverPaintStyle,
   connectorHoverStyle,
   dropOptions: {
-    tolerance: 'touch',
-    hoverClass: 'dropHover',
-    activeClass: 'dragActive'
+    tolerance: "touch",
+    hoverClass: "dropHover",
+    activeClass: "dragActive"
   }
 };
 
 export const yesEndPoint = {
-  endpoint: 'Dot',
+  endpoint: "Dot",
   paintStyle: {
     fill: rgba(colors.colorCoreGreen, 1),
     radius: 10
   },
   isSource: true,
   connector: [
-    'Bezier',
+    "Bezier",
     { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true }
   ],
   connectorStyle: connectorPaintStyle,
@@ -57,10 +57,10 @@ export const yesEndPoint = {
   anchor: [1, 0.3],
   overlays: [
     [
-      'Label',
+      "Label",
       {
         location: [1.8, 0.5],
-        label: 'True',
+        label: "True",
         visible: true,
         labelStyle: {
           color: colors.colorCoreGreen
@@ -71,14 +71,14 @@ export const yesEndPoint = {
 };
 
 export const noEndPoint = {
-  endpoint: 'Dot',
+  endpoint: "Dot",
   paintStyle: {
     fill: rgba(colors.colorCoreRed, 1),
     radius: 10
   },
   isSource: true,
   connector: [
-    'Bezier',
+    "Bezier",
     { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true }
   ],
   connectorStyle: connectorPaintStyle,
@@ -87,10 +87,10 @@ export const noEndPoint = {
   anchor: [1, 0.7],
   overlays: [
     [
-      'Label',
+      "Label",
       {
         location: [1.9, 0.6],
-        label: 'False',
+        label: "False",
         visible: true,
         labelStyle: {
           color: colors.colorCoreRed
@@ -102,13 +102,13 @@ export const noEndPoint = {
 
 // the definition of target endpoints (will appear when the user drags a connection)
 export const targetEndpoint = {
-  endpoint: 'Dot',
+  endpoint: "Dot",
   paintStyle: { fill: rgba(colors.colorCoreYellow, 1), radius: 10 },
   hoverPaintStyle: {
     fill: colors.colorPrimary
   },
   maxConnections: -1,
-  dropOptions: { hoverClass: 'hover', activeClass: 'active' },
+  dropOptions: { hoverClass: "hover", activeClass: "active" },
   isTarget: true
 };
 
@@ -122,19 +122,19 @@ export const createInitialConnections = (
       instance.connect({
         source: `trigger-${trigger.id}`,
         target: `action-${trigger.actionId}`,
-        anchors: ['Right', 'Left']
+        anchors: ["Right", "Left"]
       });
     }
   }
 
   for (const action of actions) {
-    if (action.type === 'if') {
+    if (action.type === "if") {
       if (action.config) {
         if (action.config.yes) {
           instance.connect({
             source: `action-${action.id}`,
             target: `action-${action.config.yes}`,
-            anchors: [[1, 0.3], 'Left']
+            anchors: [[1, 0.3], "Left"]
           });
         }
 
@@ -142,7 +142,7 @@ export const createInitialConnections = (
           instance.connect({
             source: `action-${action.id}`,
             target: `action-${action.config.no}`,
-            anchors: [[1, 0.7], 'Left']
+            anchors: [[1, 0.7], "Left"]
           });
         }
       }
@@ -151,7 +151,7 @@ export const createInitialConnections = (
         instance.connect({
           source: `action-${action.id}`,
           target: `action-${action.nextActionId}`,
-          anchors: ['Right', 'Left']
+          anchors: ["Right", "Left"]
         });
       }
     }
@@ -162,31 +162,36 @@ export const connection = (
   triggers: ITrigger[],
   actions: IAction[],
   info: any,
-  actionId: any
+  actionId: any,
+  workFlowActions: { workflowId: string; actions: IAction[] }[]
 ) => {
-  const { sourceId, type, connectType } = info || {};
+  const { sourceId, type, connectType, optionalConnectId } = info || {};
 
-  if (type === 'trigger') {
+  if (type === "trigger") {
     const trigger = triggers.find(t => t.id.toString() === sourceId);
 
     if (trigger) {
       trigger.actionId = actionId;
+
+      if (info?.workflowId) {
+        trigger.workflowId = info.workflowId;
+      }
     }
   } else {
     const sourceAction = actions.find(a => a.id.toString() === sourceId);
 
     if (sourceAction) {
-      if (sourceAction.type === 'if') {
+      if (sourceAction.type === "if") {
         if (!sourceAction.config) {
           sourceAction.config = {};
         }
 
-        const [sourceHandle] = info.sourceHandle.split('-');
+        const [sourceHandle] = info.sourceHandle.split("-");
 
         sourceAction.config[sourceHandle] = actionId;
       }
 
-      if (connectType === 'optional') {
+      if (connectType === "optional") {
         const sourceConfig = sourceAction?.config || {};
 
         const optionalConnects = sourceConfig?.optionalConnects || [];
@@ -217,11 +222,14 @@ export const connection = (
         // disconnect optionalConnect if optional connect exists in sourceAction but info.optionalConnectId is undefined
 
         if (
-          !info?.optionalConnectId &&
-          optionalConnects.some(optConnect => optConnect.sourceId === sourceId)
+          optionalConnects.some(
+            optConnect =>
+              optConnect.sourceId === sourceId &&
+              optConnect.optionalConnectId === optionalConnectId
+          )
         ) {
-          updatedOptionalConnects = updatedOptionalConnects.filter(
-            optConnect => optConnect.sourceId !== sourceId
+          updatedOptionalConnects = optionalConnects.filter(
+            optConnect => optConnect.optionalConnectId !== optionalConnectId
           );
         }
 
@@ -233,13 +241,30 @@ export const connection = (
         sourceAction.nextActionId = actionId;
       }
     }
+
+    const workflow = workFlowActions.find(
+      ({ workflowId, actions }) =>
+        workflowId === info?.workflowId &&
+        actions.some(({ id }) => id.toString() === sourceId)
+    );
+
+    if (workflow) {
+      const sourceAction = actions.find(({ id }) => id === workflow.workflowId);
+
+      if (sourceAction) {
+        sourceAction.config = {
+          ...(sourceAction.config || {}),
+          workflowConnection: { sourceId, targetId: actionId }
+        };
+      }
+    }
   }
 };
 
 export const deleteConnection = instance => {
-  instance.bind('click', (conn, event) => {
+  instance.bind("click", (conn, event) => {
     confirm(
-      'Delete connection from ' + conn.sourceId + ' to ' + conn.targetId + '?'
+      "Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"
     )
       .then(() => instance.deleteConnection(conn))
       .catch(error => {

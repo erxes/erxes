@@ -1,5 +1,3 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
-
 const callsIntegrationUpdate: string = `
 mutation CallsIntegrationUpdate($configs: CallIntegrationConfigs) {
   callsIntegrationUpdate(configs: $configs)
@@ -53,30 +51,19 @@ const messageFields = `
   createdAt
   isCustomerRead
  
-  ${
-    isEnabled('contacts')
-      ? `
-      customer {
-        _id
-        avatar
-        firstName
-        primaryPhone
+  customer {
+    _id
+    avatar
+    firstName
+    primaryPhone
 
-        tagIds
-        ${
-          isEnabled('tags')
-            ? `
-            getTags {
-              _id
-              name
-              colorCode
-            }
-          `
-            : ``
-        }
+    tagIds
+    getTags {
+        _id
+        name
+        colorCode
       }
-    `
-      : ``
+    }
   }
 `;
 
@@ -123,22 +110,23 @@ const callDisconnect = `
 `;
 
 const callHistoryAdd = `
-  mutation CallHistoryAdd($inboxIntegrationId: String,$customerPhone: String, $callStartTime: Date ,$callStatus: String, $callType: String, $sessionId: String) {
-  callHistoryAdd(inboxIntegrationId: $inboxIntegrationId,  customerPhone: $customerPhone, callStartTime: $callStartTime, callStatus: $callStatus, callType: $callType, sessionId: $sessionId) {
+  mutation CallHistoryAdd($inboxIntegrationId: String,$customerPhone: String, $callStartTime: Date ,$callStatus: String, $callType: String, $timeStamp: Float, $endedBy: String, $queueName: String) {
+  callHistoryAdd(inboxIntegrationId: $inboxIntegrationId,  customerPhone: $customerPhone, callStartTime: $callStartTime, callStatus: $callStatus, callType: $callType, timeStamp: $timeStamp, endedBy: $endedBy, queueName: $queueName) {
     _id
-    sessionId
+    timeStamp
+    conversationId
   }
 }
 `;
 
 const callHistoryEdit = `
-  mutation CallHistoryEdit($id: String, $inboxIntegrationId: String, $customerPhone: String, $callDuration: Int, $callStartTime: Date, $callEndTime: Date, $callType: String, $callStatus: String, $sessionId: String) {
-    callHistoryEdit(_id: $id, inboxIntegrationId: $inboxIntegrationId, customerPhone: $customerPhone, callDuration: $callDuration, callStartTime: $callStartTime, callEndTime: $callEndTime, callType: $callType, callStatus: $callStatus, sessionId: $sessionId) 
+  mutation CallHistoryEdit($id: String, $inboxIntegrationId: String, $customerPhone: String, $callDuration: Int, $callStartTime: Date, $callEndTime: Date, $callType: String, $callStatus: String, $timeStamp: Float, $transferedCallStatus: String, $endedBy: String) {
+    callHistoryEdit(_id: $id, inboxIntegrationId: $inboxIntegrationId, customerPhone: $customerPhone, callDuration: $callDuration, callStartTime: $callStartTime, callEndTime: $callEndTime, callType: $callType, callStatus: $callStatus, timeStamp: $timeStamp, transferedCallStatus: $transferedCallStatus, endedBy: $endedBy) 
 }`;
 
 const callHistoryEditStatus = ` 
-  mutation CallHistoryEditStatus($callStatus: String, $sessionId: String) {
-    callHistoryEditStatus(callStatus: $callStatus, sessionId: $sessionId)
+  mutation CallHistoryEditStatus($callStatus: String, $timeStamp: Float) {
+    callHistoryEditStatus(callStatus: $callStatus, timeStamp: $timeStamp)
 }`;
 
 const callHistoryRemove = ` 

@@ -9,6 +9,7 @@ export interface IScoreLog {
   changeScore: number;
   description: string;
   createdBy?: string;
+  campaignId?: string;
 }
 
 export interface IScoreLogDocument extends Document {
@@ -26,7 +27,11 @@ export const scoreLogSchema = new Schema({
     label: 'Owner Type',
     enum: OWNER_TYPES.ALL
   }),
+  campaignId: field({ type: String, label: 'Campaign ID', optional: true }),
   ownerId: field({ type: String }),
   changeScore: field({ type: Number, label: 'Changed Score' }),
-  description: field({ type: String, label: 'Description' })
+  description: field({ type: String, label: 'Description' }),
+  serviceName: field({ type: String, label: 'Service name' }),
+  targetId: field({ type: String, label: 'Target' }),
+  action: field({ type: String, enum: ['add', 'subtract'], label: 'Action' })
 });

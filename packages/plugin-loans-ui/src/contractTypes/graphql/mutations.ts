@@ -17,16 +17,15 @@ const commonFields = `
   $leaseType: String
   $commitmentInterest: Float
   $createdAt: Date,
-  $productCategoryIds: [String],
   $config: JSON,
   $currency: String,
-  $productType: String,
   $savingPlusLoanInterest:Float,
   $savingUpperPercent:Float,
   $usePrePayment:Boolean
   $invoiceDay:String
   $customFieldsData: JSON
   $productId: String
+  $productType: String
 `;
 
 const commonVariables = `
@@ -46,16 +45,15 @@ const commonVariables = `
   leaseType: $leaseType
   commitmentInterest: $commitmentInterest
   createdAt: $createdAt,
-  productCategoryIds: $productCategoryIds,
   config: $config,
   currency: $currency,
-  productType: $productType,
   savingPlusLoanInterest: $savingPlusLoanInterest,
   savingUpperPercent: $savingUpperPercent,
   usePrePayment: $usePrePayment,
   invoiceDay: $invoiceDay,
   customFieldsData: $customFieldsData,
-  productId: $productId
+  productId: $productId,
+  productType: $productType
 `;
 
 const contractTypesAdd = `

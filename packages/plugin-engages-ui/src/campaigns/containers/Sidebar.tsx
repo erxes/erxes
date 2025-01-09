@@ -1,18 +1,17 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { Counts } from '@erxes/ui/src/types';
+import { Counts } from "@erxes/ui/src/types";
 
-import { CountQueryResponse } from '@erxes/ui-engage/src/types';
-import React from 'react';
-import Sidebar from '../components/Sidebar';
-import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { queries } from '@erxes/ui-engage/src/graphql';
-import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
-import { withProps } from '@erxes/ui/src/utils';
-
+import { CountQueryResponse } from "@erxes/ui-engage/src/types";
+import React from "react";
+import Sidebar from "../components/Sidebar";
+import { TagsQueryResponse } from "@erxes/ui-tags/src/types";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { queries } from "@erxes/ui-engage/src/graphql";
+import { queries as tagQueries } from "@erxes/ui-tags/src/graphql";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   queryParams: any;
@@ -34,7 +33,7 @@ const SidebarContainer = (props: FinalProps) => {
     kindCounts: kindCountsQuery.engageMessageCounts || {},
     statusCounts: statusCountsQuery.engageMessageCounts || {},
     tags: (tagsQuery && tagsQuery.tags) || [],
-    tagCounts: (tagCountsQuery && tagCountsQuery.engageMessageCounts) || {},
+    tagCounts: (tagCountsQuery && tagCountsQuery.engageMessageCounts) || {}
   };
 
   return <Sidebar {...updatedProps} />;
@@ -43,38 +42,36 @@ const SidebarContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, CountQueryResponse>(gql(queries.kindCounts), {
-      name: 'kindCountsQuery',
+      name: "kindCountsQuery"
     }),
     graphql<Props, CountQueryResponse, { kind: string }>(
       gql(queries.statusCounts),
       {
-        name: 'statusCountsQuery',
+        name: "statusCountsQuery",
         options: ({ queryParams }) => ({
           variables: {
-            kind: queryParams.kind || '',
-          },
-        }),
-      },
+            kind: queryParams.kind || ""
+          }
+        })
+      }
     ),
     graphql<Props, Counts, { type: string }>(gql(tagQueries.tags), {
-      name: 'tagsQuery',
+      name: "tagsQuery",
       options: () => ({
-        variables: { type: 'engages:engageMessage' },
-      }),
-      skip: !isEnabled('tags'),
+        variables: { type: "engages:engageMessage" }
+      })
     }),
     graphql<Props, CountQueryResponse, { kind: string; status: string }>(
       gql(queries.tagCounts),
       {
-        name: 'tagCountsQuery',
+        name: "tagCountsQuery",
         options: ({ queryParams }) => ({
           variables: {
-            kind: queryParams.kind || '',
-            status: queryParams.status || '',
-          },
-        }),
-        skip: !isEnabled('tags'),
-      },
-    ),
-  )(SidebarContainer),
+            kind: queryParams.kind || "",
+            status: queryParams.status || ""
+          }
+        })
+      }
+    )
+  )(SidebarContainer)
 );

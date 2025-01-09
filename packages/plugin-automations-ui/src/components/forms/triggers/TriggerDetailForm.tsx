@@ -59,7 +59,7 @@ function TriggerDetailForm(props: Props) {
   };
 
   const renderSettings = () => {
-    const onChange = (config) => {
+    const onChange = config => {
       activeTrigger.config = config;
       addConfig(activeTrigger, activeTrigger.id, config);
     };
@@ -89,7 +89,7 @@ function TriggerDetailForm(props: Props) {
 
     return (
       <ModalTrigger
-        title="Trigger Settings"
+        title={__("Trigger Settings")}
         trigger={trigger}
         content={content}
         hideHeader={true}
@@ -101,9 +101,9 @@ function TriggerDetailForm(props: Props) {
     let Component = renderDynamicComponent(
       {
         ...props,
-        componentType: 'triggerForm',
+        componentType: 'triggerForm'
       },
-      activeTrigger.type,
+      activeTrigger.type
     );
 
     if (Component) {
@@ -118,7 +118,7 @@ function TriggerDetailForm(props: Props) {
       <Description>
         <FlexContainer>
           <h4>
-            {activeTrigger.label} {__('based')}
+            {activeTrigger.label} {!activeTrigger?.isCustom && __('based')}
           </h4>
           {renderSettings()}
         </FlexContainer>

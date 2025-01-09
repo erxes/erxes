@@ -5,7 +5,7 @@ import {
 } from './definitions/contractTypes';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongodb';
+import { FilterQuery } from 'mongoose';
 
 export const loadContractTypeClass = (models: IModels) => {
   class ContractType {

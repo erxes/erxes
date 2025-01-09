@@ -3,7 +3,7 @@ import { ExpandWrapper, MarkdownWrapper } from "@erxes/ui-settings/src/styles";
 import {
   IAttachment,
   IButtonMutateProps,
-  IFormProps,
+  IFormProps
 } from "@erxes/ui/src/types";
 import { __, getEnv } from "coreui/utils";
 
@@ -109,11 +109,11 @@ class KnowledgeForm extends React.Component<Props, State> {
       color,
       backgroundImage,
       languageCode: topic && topic.languageCode,
-      notificationSegmentId: topic && topic.notificationSegmentId,
+      notificationSegmentId: topic && topic.notificationSegmentId
     };
   }
 
-  onColorChange = (e) => {
+  onColorChange = e => {
     this.setState({ color: e.hex });
   };
 
@@ -197,7 +197,7 @@ class KnowledgeForm extends React.Component<Props, State> {
     }
   };
 
-  onChangeNotificationSegment = (val) => {
+  onChangeNotificationSegment = val => {
     this.setState({ notificationSegmentId: val?.value || null });
   };
 
@@ -227,8 +227,8 @@ class KnowledgeForm extends React.Component<Props, State> {
         color,
         backgroundImage,
         notificationSegmentId,
-        code: finalValues.code,
-      },
+        code: finalValues.code
+      }
     };
   };
 
@@ -238,13 +238,13 @@ class KnowledgeForm extends React.Component<Props, State> {
     const { brand } = topic;
     const brandId = brand != null ? brand._id : "";
 
-    const languageOnChange = (selectLanguage) => {
+    const languageOnChange = selectLanguage => {
       this.setState({ languageCode: selectLanguage.value });
     };
 
-    const notificationSegmentOptions = this.props.segments.map((segment) => ({
+    const notificationSegmentOptions = this.props.segments.map(segment => ({
       label: `${segment.name}`,
-      value: segment._id,
+      value: segment._id
     }));
 
     return (
@@ -283,9 +283,7 @@ class KnowledgeForm extends React.Component<Props, State> {
               <ControlLabel>Language</ControlLabel>
               <Select
                 id="languageCode"
-                value={LANGUAGES.find(
-                  (o) => o.value === (languageCode || "en")
-                )}
+                value={LANGUAGES.find(o => o.value === (languageCode || "en"))}
                 options={LANGUAGES}
                 onChange={languageOnChange}
                 // formProps={formProps}
@@ -317,9 +315,10 @@ class KnowledgeForm extends React.Component<Props, State> {
         </FlexContent>
 
         <FormGroup>
-          <ControlLabel>Code</ControlLabel>
+          <ControlLabel required={true}>Code</ControlLabel>
           <FormControl
             {...formProps}
+            required={true}
             name="code"
             defaultValue={topic.code || ""}
           />
@@ -336,8 +335,8 @@ class KnowledgeForm extends React.Component<Props, State> {
                     {
                       name: "backgroundImage",
                       url: backgroundImage,
-                      type: "img",
-                    },
+                      type: "img"
+                    }
                   ]
                 : []
             }
@@ -345,19 +344,17 @@ class KnowledgeForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        {isEnabled("segments") && (
-          <FormGroup>
-            <ControlLabel>Notification segment</ControlLabel>
-            <Select
-              options={notificationSegmentOptions}
-              value={notificationSegmentOptions.find(
-                (o) => o.value === notificationSegmentId
-              )}
-              isClearable={true}
-              onChange={this.onChangeNotificationSegment}
-            />
-          </FormGroup>
-        )}
+        <FormGroup>
+          <ControlLabel>Notification segment</ControlLabel>
+          <Select
+            options={notificationSegmentOptions}
+            value={notificationSegmentOptions.find(
+              o => o.value === notificationSegmentId
+            )}
+            isClearable={true}
+            onChange={this.onChangeNotificationSegment}
+          />
+        </FormGroup>
 
         {this.renderInstallCode()}
       </React.Fragment>
@@ -376,7 +373,7 @@ class KnowledgeForm extends React.Component<Props, State> {
               title: "",
               description: "",
               languageCode: "",
-              brand: { _id: "" },
+              brand: { _id: "" }
             } as ITopic),
           { ...formProps }
         )}
@@ -407,7 +404,7 @@ class KnowledgeForm extends React.Component<Props, State> {
                 icon="plus-circle"
                 onClick={this.onSimulate}
               >
-                Simulate
+                Preview
               </Button>
             </>
           )}
@@ -416,7 +413,7 @@ class KnowledgeForm extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: topic,
+            object: topic
           })}
         </ModalFooter>
       </>

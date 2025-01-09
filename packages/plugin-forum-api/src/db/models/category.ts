@@ -1,4 +1,4 @@
-import { Document, Schema, Model, Connection, Types } from 'mongoose';
+import { Document, Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
 import { IModels } from './index';
 import * as _ from 'lodash';
 import {
@@ -20,7 +20,7 @@ import {
 } from '../../customErrors';
 
 export interface ICategory {
-  _id: any;
+  _id: Types.ObjectId;
   name: string;
   code?: string | null;
   thumbnail?: string | null;
@@ -44,8 +44,8 @@ export interface ICategory {
 export type InputCategoryInsert = Omit<ICategory, '_id'>;
 export type InputCategoryPatch = Partial<InputCategoryInsert>;
 
-export type CategoryDocument = ICategory & Document;
-export interface ICategoryModel extends Model<CategoryDocument> {
+export type CategoryDocument = HydratedDocument<ICategory>;
+export interface ICategoryModel extends Model<ICategory> {
   findByIdOrThrow(_id: string): Promise<CategoryDocument>;
   createCategory(input: InputCategoryInsert): Promise<CategoryDocument>;
   patchCategory(
@@ -86,7 +86,7 @@ export interface ICategoryModel extends Model<CategoryDocument> {
 export const getDefaultPostReadCpUserLevel = (): ReadCpUserLevels => 'GUEST';
 export const getDefaultWriteCpUserLevel = (): WriteCpUserLevels => 'REGISTERED';
 
-export const categorySchema = new Schema<CategoryDocument>({
+export const categorySchema = new Schema<ICategory>({
   name: { type: String, required: true },
   code: {
     type: String,
@@ -94,7 +94,7 @@ export const categorySchema = new Schema<CategoryDocument>({
     sparse: true
   },
   thumbnail: String,
-  parentId: { type: Types.ObjectId, index: true },
+  parentId: { type: Schema.Types.ObjectId, index: true },
   description: String,
 
   userLevelReqPostRead: {
@@ -179,7 +179,7 @@ export const generateCategoryModel = (
 
       if (patch.code) {
         const exists = await models.Category.findOne({
-          _id: { $ne: Types.ObjectId(_id) },
+          _id: { $ne: new Types.ObjectId(_id) },
           code: patch.code
         });
 
@@ -220,7 +220,7 @@ export const generateCategoryModel = (
           categoryId: _id
         });
         await models.Quiz.updateMany({ categoryId: _id }, { categoryId: null });
-        await cat.remove();
+        await cat.deleteOne();
 
         await session.commitTransaction();
       } catch (e) {
@@ -237,7 +237,7 @@ export const generateCategoryModel = (
       const matchedCategories = await models.Category.aggregate([
         {
           $match: {
-            _id: { $in: (_ids || []).map(v => Types.ObjectId(v)) }
+            _id: { $in: (_ids || []).map(v => new Types.ObjectId(v)) }
           }
         },
         {
@@ -268,7 +268,7 @@ export const generateCategoryModel = (
       const results = await models.Category.aggregate([
         {
           $match: {
-            _id: Types.ObjectId(_id)
+            _id: new Types.ObjectId(_id)
           }
         },
         {
@@ -414,7 +414,7 @@ export const generateCategoryModel = (
       let hasPermit = false;
       const fetchHasPermit = async (): Promise<boolean> => {
         hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
-          category._id,
+          category._id.toString(),
           permission,
           user.userId
         );
@@ -486,7 +486,7 @@ export const generateCategoryModel = (
   }
   categorySchema.loadClass(CategoryModel);
 
-  models.Category = con.model<CategoryDocument, ICategoryModel>(
+  models.Category = con.model<ICategory, ICategoryModel>(
     'forum_categories',
     categorySchema
   );

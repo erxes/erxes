@@ -3,23 +3,18 @@ import {
   attachmentType,
 } from '@erxes/api-utils/src/commonTypeDefs';
 
-export const types = (isContactsEnabled: boolean) => `
+export const types = () => `
 ${attachmentType}
 ${attachmentInput}
 
-${
-  isContactsEnabled
-    ? `
-      extend type Customer @key(fields: "_id") {
-        _id: String! @external
-      }
+  extend type Customer @key(fields: "_id") {
+    _id: String! @external
+  }
 
-      extend type Company @key(fields: "_id") {
-        _id: String! @external
-      }
-      `
-    : ''
-}
+  extend type Company @key(fields: "_id") {
+    _id: String! @external
+  }
+
 
 type VerificationRequest {
   status: String
@@ -90,14 +85,10 @@ type TwoFactorDevice {
 
     verificationRequest: VerificationRequest
 
-    ${
-      isContactsEnabled
-        ? `
+
         customer: Customer
         company: Company
-      `
-        : ''
-    }
+
     twoFactorDevices:[TwoFactorDevice]
   }
 
@@ -113,14 +104,7 @@ type TwoFactorDevice {
     productCategoryIds: [String]
     clientPortalId: String
     createdAt: Date
-
-    ${
-      isContactsEnabled
-        ? `
-        company: Company
-      `
-        : ''
-    }
+    company: Company
   }
 
   enum ClientPortalUserVerificationStatus {
@@ -205,12 +189,13 @@ export const mutations = () => `
   clientPortalLoginWithMailOTP(email: String!, clientPortalId: String!, deviceToken: String): JSON
   clientPortalLoginWithSocialPay(clientPortalId: String!, token: String!) : JSON
   clientPortalRefreshToken: String
-  clientPortalGoogleAuthentication(clientPortalId: String, code: String): JSON
-  clientPortalFacebookAuthentication(accessToken: String, clientPortalId: String!): JSON
+  clientPortalGoogleAuthentication(clientPortalId: String!, code: String!): JSON
+  clientPortalFacebookAuthentication(accessToken: String!, clientPortalId: String!): JSON
   clientPortalLogout: String
   
   clientPortalUsersReplacePhone(clientPortalId: String!, phone: String!): String!
   clientPortalUsersVerifyPhone(code: String!): String!
+  clientPortalUsersMove(oldClientPortalId: String!, newClientPortalId: String!): JSON
 
   clientPortalUserAssignCompany(userId: String!, erxesCompanyId: String!, erxesCustomerId: String!):  JSON
 

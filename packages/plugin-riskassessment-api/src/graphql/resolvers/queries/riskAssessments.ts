@@ -2,9 +2,10 @@ import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { IContext, IModels } from '../../../connectionResolver';
 import { statusColors } from '../../../constants';
-import { sendCardsMessage } from '../../../messageBroker';
+import { sendCommonMessage, sendCoreMessage } from '../../../messageBroker';
 import { generateSort } from '../../../utils';
 import { RiskAssessmentGroupParams } from '../types';
+import { generateCardIds } from './utils';
 
 export const generateFilter = async (
   params,
@@ -15,8 +16,8 @@ export const generateFilter = async (
   let filter: any = {
     $or: [
       { 'permittedUserIds.0': { $exists: false } },
-      { permittedUserIds: { $in: [user?._id] } }
-    ]
+      { permittedUserIds: { $in: [user?._id] } },
+    ],
   };
 
   if (params.cardType) {
@@ -31,17 +32,41 @@ export const generateFilter = async (
     filter.operationId = { $in: params.operationIds };
   }
 
-  if (params.branchIds) {
-    filter.branchId = { $in: params.branchIds };
+  if (params?.branchIds?.length) {
+    const branchIds = await sendCoreMessage({
+      subdomain,
+      action: 'branches.findWithChild',
+      data: {
+        query: {
+          _id: { $in: params.branchIds },
+        },
+        fields: { _id: 1 },
+      },
+      isRPC: true,
+      defaultValue: [],
+    }).then(branches => branches.map(({ _id }) => _id));
+
+    filter.branchId = { $in: branchIds };
   }
 
-  if (params.departmentIds) {
-    filter.departmentId = { $in: params.departmentIds };
+  if (params?.departmentIds?.length) {
+    const departmentIds = await sendCoreMessage({
+      subdomain,
+      action: 'departments.findWithChild',
+      data: {
+        query: { _id: { $in: params.departmentIds } },
+        fields: { _id: 1 },
+      },
+      isRPC: true,
+      defaultValue: [],
+    }).then(departments => departments.map(({ _id }) => _id));
+
+    filter.departmentId = { $in: departmentIds };
   }
   if (params.riskIndicatorIds) {
     const groupIds = (
       await models.IndicatorsGroups.aggregate([
-        { $match: { 'groups.indicatorIds': { $in: params.riskIndicatorIds } } }
+        { $match: { 'groups.indicatorIds': { $in: params.riskIndicatorIds } } },
       ])
     ).map(group => group._id);
 
@@ -52,7 +77,7 @@ export const generateFilter = async (
 
       filter.$or = [
         { groupId: { $in: groupIds } },
-        { indicatorId: { $in: params.riskIndicatorIds } }
+        { indicatorId: { $in: params.riskIndicatorIds } },
       ];
     }
   }
@@ -68,7 +93,7 @@ export const generateFilter = async (
 
     filter.$or = [
       { groupId: { $in: groupIds } },
-      { indicatorId: { $in: indicatorIds } }
+      { indicatorId: { $in: indicatorIds } },
     ];
   }
 
@@ -94,14 +119,15 @@ export const generateFilter = async (
     let cardIds: string[] = [];
 
     for (const cardType of cardTypes) {
-      await sendCardsMessage({
+      await sendCommonMessage({
+        serviceName: `${cardType}s`,
         subdomain,
         action: `${cardType}s.find`,
         data: {
-          'customFieldsData.value': { $in: params.customFieldsValues }
+          'customFieldsData.value': { $in: params.customFieldsValues },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       }).then(data => {
         cardIds = [...cardIds, ...data.map(item => item._id)];
       });
@@ -111,32 +137,26 @@ export const generateFilter = async (
   }
 
   if (params?.cardFilter && filter.cardType) {
-    const { name, value, values, regex } = params?.cardFilter;
-
-    let cardFilter = {
-      [name]: regex ? { $regex: new RegExp(`^${value}$`, 'i') } : value
+    filter.cardId = {
+      $in: await generateCardIds(subdomain, filter.cardType, [
+        params?.cardFilter,
+      ]),
     };
+  }
 
-    if (!!values?.length) {
-      cardFilter[name] = { $in: values };
-    }
-
-    const cards = await sendCardsMessage({
-      subdomain,
-      action: `${filter.cardType}s.find`,
-      data: cardFilter,
-      isRPC: true,
-      defaultValue: []
-    });
-
-    const cardIds = cards.map(card => card._id);
-
-    filter.cardId = { $in: cardIds };
+  if (params?.cardFilters && filter.cardType) {
+    filter.cardId = {
+      $in: await generateCardIds(
+        subdomain,
+        filter.cardType,
+        params?.cardFilters
+      ),
+    };
   }
 
   if (params.cardIds) {
     filter.cardId = {
-      $in: [...(filter?.cardId?.$in || []), ...params.cardIds]
+      $in: [...(filter?.cardId?.$in || []), ...params.cardIds],
     };
   }
 
@@ -175,7 +195,7 @@ const RiskAssessmentQueries = {
   ) {
     const riskAssessments = await models.RiskAssessments.find({
       cardId,
-      cardType
+      cardType,
     }).lean();
 
     const result: any[] = [];
@@ -188,7 +208,7 @@ const RiskAssessmentQueries = {
         result.push({
           _id: riskAssessment._id,
           permittedUserIds: riskAssessment?.permittedUserIds,
-          status: 'You does not have permit on risk assessment'
+          status: 'You does not have permit on risk assessment',
         });
       } else {
         result.push(riskAssessment);
@@ -209,7 +229,7 @@ const RiskAssessmentQueries = {
 
     return await models.RiskAssessmentGroups.find({
       assessmentId: riskAssessmentId,
-      groupId: { $in: groupIds }
+      groupId: { $in: groupIds },
     });
   },
 
@@ -255,7 +275,7 @@ const RiskAssessmentQueries = {
     const filter = await generateFilter(args, models, subdomain, user);
 
     return models.RiskAssessments.getStatistic(filter);
-  }
+  },
 };
 
 checkPermission(RiskAssessmentQueries, 'riskAssessments', 'showRiskAssessment');

@@ -1,20 +1,17 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 import {
   mutations as assetMutations,
   queries as assetQueries,
-  types as assetTypes,
-} from './schema/assets';
+  types as assetTypes
+} from "./schema/assets";
 import {
   mutations as movementMutations,
   queries as movementQueries,
-  types as movementTypes,
-} from './schema/movements';
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+  types as movementTypes
+} from "./schema/movements";
 
 const typeDefs = async () => {
-  const contactsAvailable = await isEnabled('contacts');
-
   return gql`
     scalar JSON
     scalar Date
@@ -30,8 +27,8 @@ const typeDefs = async () => {
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
-    ${assetTypes(contactsAvailable)}
-    ${movementTypes(contactsAvailable)}
+    ${assetTypes}
+    ${movementTypes}
     
     extend type Query {
       ${assetQueries}

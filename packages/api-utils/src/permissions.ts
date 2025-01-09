@@ -101,8 +101,59 @@ export const getUserActionsMap = async (
           data: userPermissionQuery,
         }));
 
+    const groupQuery = { $or: [] as any[] };
+
+    if (user?.branchIds?.length) {
+      const branches = await sendRPCMessage('core:branches.findWithChild', {
+        subdomain,
+        data: {
+          query: {
+            _id: { $in: user.branchIds },
+          },
+          fields: {
+            _id: 1,
+          },
+        },
+      });
+
+      groupQuery.$or.push({
+        branchIds: { $in: branches.map((branch) => branch._id) },
+      });
+    }
+
+    if (user?.departmentIds?.length) {
+      const departments = await sendRPCMessage(
+        'core:departments.findWithChild',
+        {
+          subdomain,
+          data: {
+            query: {
+              _id: { $in: user.departmentIds },
+            },
+            fields: {
+              _id: 1,
+            },
+          },
+        },
+      );
+      groupQuery.$or.push({
+        departmentIds: {
+          $in: departments.map((department) => department._id),
+        },
+      });
+    }
+
+    let groupIds: string[] = [];
+
+    if (groupQuery?.$or?.length > 0) {
+      groupIds = await sendRPCMessage('core:userGroups.getIds', {
+        subdomain,
+        data: groupQuery,
+      });
+    }
+
     const groupPermissionQuery = {
-      groupId: { $in: user.groupIds },
+      groupId: { $in: [...(user?.groupIds || []), ...groupIds] },
     };
 
     const groupPermissions = await (permissionsFind

@@ -1,29 +1,27 @@
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
-import * as _ from 'underscore';
-import { IModels } from './connectionResolver';
+import { debugError } from "@erxes/api-utils/src/debuggers";
+import * as _ from "underscore";
+import { IModels } from "./connectionResolver";
+import { fetchSegment, sendPosMessage, sendCoreMessage } from "./messageBroker";
+import { productSchema } from "./models/definitions/products";
+import { fetchEs } from "@erxes/api-utils/src/elasticsearch";
 import {
-  fetchSegment,
-  sendPosMessage,
-  sendSegmentsMessage,
-  sendTagsMessage,
-} from './messageBroker';
-import { productSchema } from './models/definitions/products';
-import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
-import { BILL_TYPES } from './models/definitions/constants';
+  BILL_TYPES,
+  SUBSCRIPTION_INFO_STATUS
+} from "./models/definitions/constants";
 import {
   checkOrderStatus,
-  getDistrictName,
   prepareEbarimtData,
-  validateOrderPayment,
-} from './graphql/utils/orderUtils';
-import { PutData } from './models/PutData';
+  validateOrderPayment
+} from "./graphql/utils/orderUtils";
 import {
   ISettlePaymentParams,
-  getStatus,
-} from './graphql/resolvers/mutations/orders';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { IOrderDocument } from './models/definitions/orders';
-import { IConfigDocument } from './models/definitions/configs';
+  getStatus
+} from "./graphql/resolvers/mutations/orders";
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
+import { IOrderDocument } from "./models/definitions/orders";
+import { IConfigDocument } from "./models/definitions/configs";
+import * as moment from "moment";
+import { IDoc } from "./models/PutData";
 
 type TSortBuilder = { primaryName: number } | { [index: string]: number };
 
@@ -36,7 +34,7 @@ export const getEsTypes = () => {
 
   const typesMap: { [key: string]: any } = {};
 
-  schema.eachPath((name) => {
+  schema.eachPath(name => {
     const path = schema.paths[name];
     typesMap[name] = path.options.esType;
   });
@@ -47,25 +45,25 @@ export const getEsTypes = () => {
 export const countBySegment = async (
   subdomain: string,
   contentType: string,
-  qb,
+  qb
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
   let segments: any[] = [];
 
-  segments = await sendSegmentsMessage({
+  segments = await sendCoreMessage({
     subdomain,
-    action: 'find',
+    action: "segmentFind",
     data: { contentType, name: { $exists: true } },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   for (const s of segments) {
     try {
       await qb.buildAllQueries();
       await qb.segmentFilter(s);
-      counts[s._id] = await qb.runQueries('count');
+      counts[s._id] = await qb.runQueries("count");
     } catch (e) {
       debugError(`Error during segment count ${e.message}`);
       counts[s._id] = 0;
@@ -78,23 +76,23 @@ export const countBySegment = async (
 export const countByTag = async (
   subdomain: string,
   type: string,
-  qb,
+  qb
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
-  const tags = await sendTagsMessage({
+  const tags = await sendCoreMessage({
     subdomain,
-    action: 'find',
+    action: "tagFind",
     data: { type },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   for (const tag of tags) {
     await qb.buildAllQueries();
     await qb.tagFilter(tag._id);
 
-    counts[tag._id] = await qb.runQueries('count');
+    counts[tag._id] = await qb.runQueries("count");
   }
 
   return counts;
@@ -113,10 +111,10 @@ export class Builder {
   public models: IModels;
   public subdomain: string;
 
-  private contentType: 'products';
+  private contentType: "products";
 
   constructor(models: IModels, subdomain: string, params: IListArgs, context) {
-    this.contentType = 'products';
+    this.contentType = "products";
     this.context = context;
     this.params = params;
     this.models = models;
@@ -130,7 +128,7 @@ export class Builder {
   }
 
   public resetNegativeList() {
-    this.negativeList = [{ term: { status: 'deleted' } }];
+    this.negativeList = [{ term: { status: "deleted" } }];
   }
 
   public resetPositiveList() {
@@ -147,14 +145,14 @@ export class Builder {
       this.subdomain,
       segment._id,
       { returnSelector: true },
-      segmentData,
+      segmentData
     );
 
     this.positiveList = [...this.positiveList, selector];
   }
 
   public getRelType() {
-    return 'product';
+    return "product";
   }
 
   /*
@@ -173,35 +171,35 @@ export class Builder {
 
     // filter by segment
     if (this.params.segment) {
-      const segment = await sendSegmentsMessage({
+      const segment = await sendCoreMessage({
         isRPC: true,
-        action: 'findOne',
+        action: "segmentFindOne",
         subdomain: this.subdomain,
-        data: { _id: this.params.segment },
+        data: { _id: this.params.segment }
       });
 
       await this.segmentFilter(segment);
     }
   }
 
-  public async runQueries(action = 'search'): Promise<any> {
+  public async runQueries(action = "search"): Promise<any> {
     const queryOptions: any = {
       query: {
         bool: {
           must: this.positiveList,
-          must_not: this.negativeList,
-        },
-      },
+          must_not: this.negativeList
+        }
+      }
     };
 
     let totalCount = 0;
 
     const totalCountResponse = await fetchEs({
       subdomain: this.subdomain,
-      action: 'count',
+      action: "count",
       index: this.contentType,
       body: queryOptions,
-      defaultValue: 0,
+      defaultValue: 0
     });
 
     totalCount = totalCountResponse.count;
@@ -210,19 +208,19 @@ export class Builder {
       subdomain: this.subdomain,
       action,
       index: this.contentType,
-      body: queryOptions,
+      body: queryOptions
     });
 
-    const list = response.hits.hits.map((hit) => {
+    const list = response.hits.hits.map(hit => {
       return {
         _id: hit._id,
-        ...hit._source,
+        ...hit._source
       };
     });
 
     return {
       list,
-      totalCount,
+      totalCount
     };
   }
 }
@@ -230,7 +228,7 @@ export class Builder {
 export const updateMobileAmount = async (
   subdomain: string,
   models: IModels,
-  paymentParams: any[],
+  paymentParams: any[]
 ) => {
   const firstData = (paymentParams || [])[0] || {};
   const { contentTypeId } = firstData;
@@ -249,21 +247,30 @@ export const updateMobileAmount = async (
     }
 
     await models.Orders.updateOne(orderSelector, {
-      $addToSet: { mobileAmounts: { _id, amount } },
+      $addToSet: { mobileAmounts: { _id, amount } }
     });
   }
 
   let order = await models.Orders.findOne(orderSelector).lean();
+
+  if (!order) {
+    throw new Error(`Order not found`);
+  }
+
   const sumMobileAmount = (order.mobileAmounts || []).reduce(
     (sum, i) => sum + i.amount,
-    0,
+    0
   );
 
   await models.Orders.updateOne(orderSelector, {
-    $set: { mobileAmount: sumMobileAmount },
+    $set: { mobileAmount: sumMobileAmount }
   });
 
   order = await models.Orders.findOne(orderSelector).lean();
+
+  if (!order) {
+    throw new Error(`Order not found`);
+  }
 
   const { billType, totalAmount, registerNumber, _id } = order;
 
@@ -275,14 +282,16 @@ export const updateMobileAmount = async (
     ) {
       const conf = await models.Configs.findOne({ token: posToken });
       if (!conf) {
-        debugError(`Error occurred while sending data to erxes: config not found`);
+        debugError(
+          `Error occurred while sending data to erxes: config not found`
+        );
         return;
       }
 
       await prepareSettlePayment(subdomain, models, order, conf, {
         _id,
         billType,
-        registerNumber,
+        registerNumber
       });
 
       return sumMobileAmount;
@@ -294,38 +303,38 @@ export const updateMobileAmount = async (
     const config = await models.Configs.findOne({ token: posToken });
     if (config?.isOnline) {
       const products = await models.Products.find({
-        _id: { $in: items.map((i) => i.productId) },
+        _id: { $in: items.map(i => i.productId) }
       }).lean();
       for (const item of items) {
-        const product = products.find((p) => p._id === item.productId) || {};
-        item.productName = `${product.code} - ${product.name}`;
+        const product = products.find(p => p._id === item.productId);
+        item.productName = `${product?.code} - ${product?.name}`;
       }
     }
 
     try {
       sendPosMessage({
         subdomain,
-        action: 'createOrUpdateOrders',
+        action: "createOrUpdateOrders",
         data: {
           posToken,
-          action: 'makePayment',
+          action: "makePayment",
           order,
-          items,
-        },
+          items
+        }
       });
     } catch (e) {
       debugError(`Error occurred while sending data to erxes: ${e.message}`);
     }
   }
 
-  graphqlPubsub.publish('ordersOrdered', {
+  graphqlPubsub.publish("ordersOrdered", {
     ordersOrdered: {
       ...order,
       mobileAmount: sumMobileAmount,
       _id: order._id,
       status: order.status,
-      customerId: order.customerId,
-    },
+      customerId: order.customerId
+    }
   });
 
   return sumMobileAmount;
@@ -336,12 +345,12 @@ export const prepareSettlePayment = async (
   models: IModels,
   order: IOrderDocument,
   config: IConfigDocument,
-  { _id, billType, registerNumber }: ISettlePaymentParams,
+  { _id, billType, registerNumber }: ISettlePaymentParams
 ) => {
   checkOrderStatus(order);
 
   const items = await models.OrderItems.find({
-    orderId: order._id,
+    orderId: order._id
   }).lean();
 
   await validateOrderPayment(order, { billType });
@@ -353,7 +362,8 @@ export const prepareSettlePayment = async (
     !ebarimtConfig ||
     !Object.keys(ebarimtConfig) ||
     !ebarimtConfig.districtCode ||
-    !ebarimtConfig.companyRD
+    !ebarimtConfig.companyRD ||
+    !ebarimtConfig.merchantTin
   ) {
     billType = BILL_TYPES.INNER;
   }
@@ -362,71 +372,37 @@ export const prepareSettlePayment = async (
     const ebarimtResponses: any[] = [];
 
     if (billType !== BILL_TYPES.INNER) {
-      const ebarimtDatas = await prepareEbarimtData(
+      const ebarimtData: IDoc = await prepareEbarimtData(
         models,
         order,
         ebarimtConfig,
         items,
         billType,
-        registerNumber,
-        config.paymentTypes,
+        registerNumber
       );
 
-      ebarimtConfig.districtName = getDistrictName(
-        (ebarimtConfig && ebarimtConfig.districtCode) || '',
-      );
-
-      for (const data of ebarimtDatas) {
-        let response;
-
-        if (data.inner) {
-          const putData = new PutData({
-            ...config,
-            ...data,
-            config,
-            models,
-          });
-
-          response = {
-            _id: Math.random(),
-            billId: 'Түр баримт',
-            ...(await putData.generateTransactionInfo()),
-            registerNo: ebarimtConfig.companyRD || '',
-            success: 'true',
-          };
-          ebarimtResponses.push(response);
-
-          await models.OrderItems.updateOne(
-            { _id: { $in: data.itemIds } },
-            { $set: { isInner: true } },
-          );
-
-          continue;
-        }
-
-        try {
-          response = await models.PutResponses.putData({
-            ...data,
-            config: ebarimtConfig,
-            models,
-          });
-        } catch (e) {
-          response = {
-            _id: `Err${Math.random()}`,
-            billId: 'Error',
-            success: 'false',
-            message: e.message
-          }
-        }
-        
-        ebarimtResponses.push(response);
+      try {
+        const { putData, innerData } = await models.PutResponses.putData(
+          { ...ebarimtData },
+          ebarimtConfig,
+          config.token
+        );
+        putData && ebarimtResponses.push(putData);
+        innerData && ebarimtResponses.push(innerData);
+      } catch (e) {
+        ebarimtResponses.push({
+          _id: `Err${Math.random()}`,
+          billId: "Error",
+          success: "false",
+          message: e.message
+        });
       }
     }
 
     if (
       billType === BILL_TYPES.INNER ||
       (ebarimtResponses.length &&
-        !ebarimtResponses.filter((er) => er.success !== 'true').length)
+        !ebarimtResponses.filter(er => er.status !== "SUCCESS").length)
     ) {
       await models.Orders.updateOne(
         { _id },
@@ -438,47 +414,112 @@ export const prepareSettlePayment = async (
             modifiedAt: now,
             status: getStatus(
               config,
-              'settle',
+              "settle",
               { ...order, paidDate: now },
-              { ...order },
-            ),
-          },
-        },
+              { ...order }
+            )
+          }
+        }
       );
     }
 
     order = await models.Orders.getOrder(_id);
 
-    graphqlPubsub.publish('ordersOrdered', {
+    graphqlPubsub.publish("ordersOrdered", {
       ordersOrdered: {
         ...order,
         _id,
         status: order.status,
-        customerId: order.customerId,
-      },
+        customerId: order.customerId
+      }
     });
 
     if (config.isOnline) {
       const products = await models.Products.find({
-        _id: { $in: items.map((i) => i.productId) },
+        _id: { $in: items.map(i => i.productId) }
       }).lean();
+
+      let uoms: any[] = [];
+
+      if (products.find(product => product?.type === "subscription")) {
+        uoms = await sendCoreMessage({
+          subdomain,
+          action: "uoms.find",
+          data: {
+            code: { $in: products.map(product => product?.uom) }
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+      }
+
       for (const item of items) {
-        const product = products.find((p) => p._id === item.productId) || {};
-        item.productName = `${product.code} - ${product.name}`;
+        const product = products.find(p => p._id === item.productId);
+        item.productName = `${product?.code} - ${product?.name}`;
+
+        const uom = uoms.find(uom => uom?.code === product?.uom);
+
+        if (
+          product?.type === "subscription" &&
+          order?.subscriptionInfo?.status === SUBSCRIPTION_INFO_STATUS.ACTIVE &&
+          uom
+        ) {
+          const { isForSubscription, subscriptionConfig = {} } = uom || {};
+
+          const {
+            rule,
+            subsRenewable,
+            period: periodConfig
+          } = subscriptionConfig;
+
+          if (isForSubscription && rule === "startPaidDate" && !subsRenewable) {
+            const period = (periodConfig || "").replace("ly", "");
+
+            if (period) {
+              item.closeDate = new Date(
+                moment()
+                  .add(item?.count || 0, period)
+                  .toISOString()
+              );
+            }
+          }
+
+          if (subsRenewable && order?.subscriptionInfo?.prevSubscriptionId) {
+            const prevSubscriptionId =
+              order?.subscriptionInfo?.prevSubscriptionId;
+
+            await models.Orders.updateOne(
+              { _id: prevSubscriptionId },
+              { "subscriptionInfo.status": SUBSCRIPTION_INFO_STATUS.DONE }
+            );
+            await sendPosMessage({
+              subdomain,
+              action: "orders.updateOne",
+              data: {
+                selector: { _id: prevSubscriptionId },
+                modifier: {
+                  "subscriptionInfo.status": SUBSCRIPTION_INFO_STATUS.DONE
+                }
+              },
+              isRPC: true,
+              defaultValue: null
+            });
+          }
+        }
       }
     }
 
     try {
       sendPosMessage({
         subdomain,
-        action: 'createOrUpdateOrders',
+        action: "createOrUpdateOrders",
         data: {
           posToken: config.token,
-          action: 'makePayment',
+          action: "makePayment",
           responses: ebarimtResponses,
           order,
-          items,
-        },
+          items
+        }
       });
     } catch (e) {
       debugError(`Error occurred while sending data to erxes: ${e.message}`);

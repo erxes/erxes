@@ -1,5 +1,5 @@
-import { Document, Schema } from 'mongoose';
-import { STATUSES } from '../../constants';
+import { Document, Schema } from "mongoose";
+import { STATUSES } from "../../constants";
 
 export type IActionsMap = { [key: string]: IAction };
 
@@ -12,16 +12,17 @@ export interface IAction {
   icon?: string;
   label?: string;
   description?: string;
+  workflowId?: string;
 }
 
 export type TriggerType =
-  | 'customer'
-  | 'company'
-  | 'deal'
-  | 'task'
-  | 'purchase'
-  | 'ticket'
-  | 'conversation';
+  | "customer"
+  | "company"
+  | "deal"
+  | "task"
+  | "purchase"
+  | "ticket"
+  | "conversation";
 
 export interface ITrigger {
   id: string;
@@ -31,12 +32,14 @@ export interface ITrigger {
     contentId: string;
     reEnrollment: boolean;
     reEnrollmentRules: string[];
+    dateConfig: any;
   };
   style?: any;
   icon?: string;
   label?: string;
   description?: string;
   isCustom?: boolean;
+  workflowId?: string;
 }
 
 export interface IAutomation {
@@ -71,8 +74,9 @@ export const triggerSchema = new Schema(
     label: { type: String, optional: true },
     description: { type: String, optional: true },
     isCustom: { type: Boolean, optional: true },
+    workflowId: { type: String, optional: true }
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const actionSchema = new Schema(
@@ -86,8 +90,9 @@ export const actionSchema = new Schema(
     icon: { type: String, optional: true },
     label: { type: String, optional: true },
     description: { type: String, optional: true },
+    workflowId: { type: String, optional: true }
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const automationSchema = new Schema({
@@ -98,10 +103,10 @@ export const automationSchema = new Schema({
   createdAt: {
     type: Date,
     default: new Date(),
-    label: 'Created date',
+    label: "Created date"
   },
   createdBy: { type: String },
-  updatedAt: { type: Date, default: new Date(), label: 'Updated date' },
+  updatedAt: { type: Date, default: new Date(), label: "Updated date" },
   updatedBy: { type: String },
-  tagIds: { type: [String], label: 'Tag Ids', optional: true },
+  tagIds: { type: [String], label: "Tag Ids", optional: true }
 });

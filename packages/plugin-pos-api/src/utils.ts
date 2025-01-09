@@ -1,59 +1,72 @@
-import { sendMessage } from '@erxes/api-utils/src/messageBroker';
-import redis from '@erxes/api-utils/src/redis';
-import { IModels } from './connectionResolver';
+import { sendMessage } from "@erxes/api-utils/src/messageBroker";
+import * as lodash from "lodash";
+import redis from "@erxes/api-utils/src/redis";
+import { generateModels, IModels } from "./connectionResolver";
 import {
   sendAutomationsMessage,
-  sendCardsMessage,
-  sendContactsMessage,
+  sendSalesMessage,
   sendCoreMessage,
   sendEbarimtMessage,
   sendInventoriesMessage,
   sendLoyaltiesMessage,
   sendPosclientHealthCheck,
   sendPosclientMessage,
-  sendProductsMessage,
-  sendSyncerkhetMessage,
-} from './messageBroker';
-import { IPosOrder } from './models/definitions/orders';
-import { IPosDocument } from './models/definitions/pos';
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+  sendSyncerkhetMessage
+} from "./messageBroker";
+import { IPosOrder, IPosOrderDocument } from "./models/definitions/orders";
+import { IPosDocument } from "./models/definitions/pos";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+import { debugError } from "./debugger";
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
   return await sendCoreMessage({
     subdomain,
-    action: 'getConfig',
+    action: "getConfig",
     data: { code, defaultValue },
-    isRPC: true,
+    isRPC: true
   });
 };
 
 export const getChildCategories = async (subdomain: string, categoryIds) => {
-  const childs = await sendProductsMessage({
+  const childs = await sendCoreMessage({
     subdomain,
-    action: 'categories.withChilds',
+    action: "categories.withChilds",
     data: { ids: categoryIds },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
-  const catIds: string[] = (childs || []).map((ch) => ch._id) || [];
+  const catIds: string[] = (childs || []).map(ch => ch._id) || [];
   return Array.from(new Set(catIds));
+};
+
+const getChildTags = async (subdomain: string, tagIds) => {
+  const childs = await sendCoreMessage({
+    subdomain,
+    action: "tagWithChilds",
+    data: { query: { _id: { $in: tagIds } }, fields: { _id: 1 } },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const foundTagIds: string[] = (childs || []).map(ch => ch._id) || [];
+  return Array.from(new Set(foundTagIds));
 };
 
 export const getBranchesUtil = async (
   subdomain: string,
   models: IModels,
-  posToken: string,
+  posToken: string
 ) => {
   const pos = await models.Pos.findOne({ token: posToken }).lean();
 
   if (!pos) {
-    return { error: 'not found pos' };
+    return { error: "not found pos" };
   }
 
   const allowsPos = await models.Pos.find({
     isOnline: { $ne: true },
-    branchId: { $in: pos.allowBranchIds },
+    branchId: { $in: pos.allowBranchIds }
   })
     .sort({ onServer: -1, name: 1 })
     .lean();
@@ -62,8 +75,8 @@ export const getBranchesUtil = async (
 
   const { ALL_AUTO_INIT } = process.env;
 
-  if ([true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '')) {
-    healthyBranchIds = allowsPos.map((p) => p.branchId);
+  if ([true, "true", "True", "1"].includes(ALL_AUTO_INIT || "")) {
+    healthyBranchIds = allowsPos.map(p => p.branchId);
   } else {
     for (const allowPos of allowsPos) {
       if (healthyBranchIds.includes(allowPos.branchId)) {
@@ -72,10 +85,10 @@ export const getBranchesUtil = async (
 
       const response = await sendPosclientHealthCheck({
         subdomain,
-        pos: allowPos,
+        pos: allowPos
       });
 
-      if (response && response.healthy === 'ok') {
+      if (response && response.healthy === "ok") {
         healthyBranchIds.push(allowPos.branchId);
       }
     }
@@ -83,7 +96,7 @@ export const getBranchesUtil = async (
 
   return await sendCoreMessage({
     subdomain,
-    action: 'branches.find',
+    action: "branches.find",
     data: {
       query: { _id: { $in: healthyBranchIds } },
       fields: {
@@ -98,16 +111,59 @@ export const getBranchesUtil = async (
         code: 1,
         order: 1,
         status: 1,
-        links: 1,
-      },
+        links: 1
+      }
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 };
 
 export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
-  const confirmItems = (order.items || []).filter((i) => i.bonusCount) || [];
+  const models = await generateModels(subdomain);
+
+  const pos = await models.Pos.findOne({
+    token: order.posToken,
+    paymentTypes: {
+      $elemMatch: {
+        type: { $in: (order?.paidAmounts || []).map(({ type }) => type) },
+        scoreCampaignId: { $exists: true }
+      }
+    }
+  });
+
+  if (pos) {
+    const { paymentTypes = [] } = pos;
+    for (const paymentType of paymentTypes) {
+      if (
+        paymentType.scoreCampaignId &&
+        (order?.paidAmounts || []).find(({ type }) => type === paymentType.type)
+      ) {
+        try {
+          await sendLoyaltiesMessage({
+            subdomain,
+            action: "doScoreCampaign",
+            data: {
+              ownerType: order.customerType || "customer",
+              ownerId: order.customerId,
+              campaignId: paymentType.scoreCampaignId,
+              target: order,
+              actionMethod: "subtract",
+              serviceName: "pos",
+              targetId: (order as any)?._id
+            },
+            isRPC: true
+          });
+        } catch (error) {
+          console.error({ error });
+          debugError(error);
+          throw new Error(error.message);
+        }
+      }
+    }
+  }
+
+  const confirmItems = (order.items || []).filter(i => i.bonusCount) || [];
 
   if (!confirmItems.length) {
     return;
@@ -117,17 +173,17 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
   for (const item of confirmItems) {
     checkInfo[item.productId] = {
       voucherId: item.bonusVoucherId,
-      count: item.bonusCount,
+      count: item.bonusCount
     };
   }
 
   try {
     await sendLoyaltiesMessage({
       subdomain,
-      action: 'confirmLoyalties',
+      action: "confirmLoyalties",
       data: {
-        checkInfo,
-      },
+        checkInfo
+      }
     });
   } catch (e) {
     console.log(e.message);
@@ -135,32 +191,32 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
 };
 
 const otherPlugins = async (subdomain, newOrder, oldOrder?, userId?) => {
-  const value = await redis.get('afterMutations');
-  const afterMutations = JSON.parse(value || '{}');
+  const value = await redis.get("afterMutations");
+  const afterMutations = JSON.parse(value || "{}");
 
   if (
-    afterMutations['pos:order'] &&
-    afterMutations['pos:order']['synced'] &&
-    afterMutations['pos:order']['synced'].length
+    afterMutations["pos:order"] &&
+    afterMutations["pos:order"]["synced"] &&
+    afterMutations["pos:order"]["synced"].length
   ) {
     const user = await sendCoreMessage({
       subdomain,
-      action: 'users.findOne',
+      action: "users.findOne",
       data: { _id: userId },
-      isRPC: true,
+      isRPC: true
     });
 
-    for (const service of afterMutations['pos:order']['synced']) {
+    for (const service of afterMutations["pos:order"]["synced"]) {
       await sendMessage(`${service}:afterMutation`, {
         subdomain,
         data: {
-          type: 'pos:order',
-          action: 'synced',
+          type: "pos:order",
+          action: "synced",
           object: oldOrder || newOrder,
           updatedDocument: newOrder,
           newData: newOrder,
-          user,
-        },
+          user
+        }
       });
     }
   }
@@ -174,16 +230,16 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
     description,
     phone,
     email,
-    saveInfo,
+    saveInfo
   } = deliveryInfo;
 
-  const customerType = doneOrder.customerType || 'customer';
+  const customerType = doneOrder.customerType || "customer";
   if (
     saveInfo &&
     doneOrder.customerId &&
-    ['customer', 'company'].includes(customerType)
+    ["customer", "company"].includes(customerType)
   ) {
-    const moduleTxt = customerType === 'company' ? 'companies' : 'customers';
+    const moduleTxt = customerType === "company" ? "companies" : "customers";
 
     const pushInfo: any = {};
 
@@ -193,18 +249,16 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
       (marker.latitude || marker.lat)
     ) {
       pushInfo.addresses = {
-        id: `${marker.longitude || marker.lng}_${
-          marker.latitude || marker.lat
-        }`,
+        id: `${marker.longitude || marker.lng}_${marker.latitude || marker.lat}`,
         location: {
-          type: 'Point',
+          type: "Point",
           coordinates: [
             marker.longitude || marker.lng,
-            marker.latitude || marker.lat,
-          ],
+            marker.latitude || marker.lat
+          ]
         },
         address,
-        short: description,
+        short: description
       };
     }
 
@@ -217,16 +271,16 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
     }
 
     if (Object.keys(pushInfo).length) {
-      await sendContactsMessage({
+      await sendCoreMessage({
         subdomain,
         action: `${moduleTxt}.updateOne`,
         data: {
           selector: { _id: doneOrder.customerId },
           modifier: {
-            $addToSet: pushInfo,
-          },
+            $addToSet: pushInfo
+          }
         },
-        isRPC: true,
+        isRPC: true
       });
     }
   }
@@ -241,19 +295,19 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     name: `Delivery: ${doneOrder.number}`,
     startDate: doneOrder.createdAt,
     closeDate: doneOrder.dueDate,
-    description,
+    description: `<p>${doneOrder.description || ""}</p> <p>${description || ""}</p>`,
     stageId: deliveryConfig.stageId,
     assignedUserIds: deliveryConfig.assignedUserIds,
     watchedUserIds: deliveryConfig.watchedUserIds,
-    productsData: doneOrder.items.map((i) => ({
+    productsData: doneOrder.items.map(i => ({
       productId: i.productId,
-      uom: 'PC',
-      currency: 'MNT',
+      uom: "PC",
+      currency: "MNT",
       quantity: i.count,
       unitPrice: i.unitPrice,
       amount: i.count * i.unitPrice,
-      tickUsed: true,
-    })),
+      tickUsed: true
+    }))
   };
 
   if (deliveryConfig.mapCustomField) {
@@ -274,88 +328,86 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     // }
     dealsData.customFieldsData = [
       {
-        field: deliveryConfig.mapCustomField.replace('customFieldsData.', ''),
+        field: deliveryConfig.mapCustomField.replace("customFieldsData.", ""),
         locationValue: {
-          type: 'Point',
+          type: "Point",
           coordinates: [
             marker.longitude || marker.lng,
-            marker.latitude || marker.lat,
-          ],
+            marker.latitude || marker.lat
+          ]
         },
         value: {
           lat: marker.latitude || marker.lat,
           lng: marker.longitude || marker.lng,
-          description: 'location',
+          description: "location"
         },
-        stringValue: `${marker.longitude || marker.lng},${
-          marker.latitude || marker.lat
-          }`,
-      },
+        stringValue: `${marker.longitude || marker.lng},${marker.latitude || marker.lat}`
+      }
     ];
   }
 
   if ((doneOrder.deliveryInfo || {}).dealId) {
-    const deal = await sendCardsMessage({
+    const deal = await sendSalesMessage({
       subdomain,
-      action: 'deals.updateOne',
+      action: "deals.updateOne",
       data: {
         selector: { _id: doneOrder.deliveryInfo.dealId },
-        modifier: dealsData,
+        modifier: dealsData
       },
       isRPC: true,
-      defaultValue: {},
+      defaultValue: {}
     });
 
-    await sendCardsMessage({
+    await sendSalesMessage({
       subdomain,
-      action: 'pipelinesChanged',
+      action: "salesPipelinesChanged",
       data: {
         pipelineId: deliveryConfig.pipelineId,
-        action: 'itemUpdate',
+        action: "itemUpdate",
         data: {
           item: deal,
-          destinationStageId: deliveryConfig.stageId,
-        },
-      },
+          destinationStageId: deliveryConfig.stageId
+        }
+      }
     });
   } else {
-    const deal = await sendCardsMessage({
+    const deal = await sendSalesMessage({
       subdomain,
-      action: 'deals.create',
+      action: "deals.create",
       data: dealsData,
       isRPC: true,
-      defaultValue: {},
+      defaultValue: {}
     });
 
     if (
       doneOrder.customerId &&
       deal._id &&
-      ['customer', 'company'].includes(doneOrder.customerType || 'customer')
+      ["customer", "company"].includes(doneOrder.customerType || "customer")
     ) {
       await sendCoreMessage({
         subdomain,
-        action: 'conformities.addConformity',
+        action: "conformities.addConformity",
         data: {
-          mainType: 'deal',
+          mainType: "deal",
           mainTypeId: deal._id,
-          relType: doneOrder.customerType || 'customer',
-          relTypeId: doneOrder.customerId,
+          relType: doneOrder.customerType || "customer",
+          relTypeId: doneOrder.customerId
         },
-        isRPC: true,
+        isRPC: true
       });
     }
 
-    await sendCardsMessage({
+    await sendSalesMessage({
       subdomain,
-      action: 'pipelinesChanged',
+      action: "salesPipelinesChanged",
       data: {
         pipelineId: deliveryConfig.pipelineId,
-        action: 'itemAdd',
+        action: "itemAdd",
         data: {
           item: deal,
-          destinationStageId: deliveryConfig.stageId,
-        },
-      },
+          destinationStageId: deliveryConfig.stageId
+        }
+      }
     });
 
     await models.PosOrders.updateOne(
@@ -364,10 +416,10 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
         $set: {
           deliveryInfo: {
             ...deliveryInfo,
-            dealId: deal._id,
-          },
-        },
-      },
+            dealId: deal._id
+          }
+        }
+      }
     );
   }
 };
@@ -376,7 +428,7 @@ export const statusToDone = async ({
   subdomain,
   models,
   order,
-  pos,
+  pos
 }: {
   subdomain;
   models;
@@ -385,7 +437,7 @@ export const statusToDone = async ({
 }) => {
   // must have
   const doneOrder = await models.PosOrders.findOne({
-    _id: order._id,
+    _id: order._id
   }).lean();
 
   if (!doneOrder) {
@@ -399,7 +451,7 @@ export const statusToDone = async ({
   if (pos.isOnline && doneOrder.subBranchId) {
     const toPos = await models.Pos.findOne({
       branchId: doneOrder.subBranchId,
-      _id: { $ne: pos._id },
+      _id: { $ne: pos._id }
     })
       .sort({ onServer: -1, name: 1 })
       .lean();
@@ -408,87 +460,128 @@ export const statusToDone = async ({
     if (toPos) {
       await sendPosclientMessage({
         subdomain,
-        action: 'erxes-posclient-to-pos-api',
+        action: "erxes-posclient-to-pos-api",
         data: {
           order: {
             ...doneOrder,
             posToken: doneOrder.posToken,
             subToken: toPos.token,
-            status: 'reDoing',
-          },
+            status: "reDoing"
+          }
         },
-        pos: toPos,
+        pos: toPos
       });
     }
   }
 
   return {
-    status: 'success',
+    status: "success"
   };
 };
 
-const createDealPerOrder = async ({ subdomain, pos, newOrder }) => {
+const createDealPerOrder = async ({
+  subdomain,
+  models,
+  pos,
+  newOrder
+}: {
+  subdomain: string;
+  models: IModels;
+  pos: IPosDocument;
+  newOrder: IPosOrderDocument;
+}) => {
   // ===> sync cards config then
   const { cardsConfig } = pos;
 
   const currentCardsConfig: any = (Object.values(cardsConfig || {}) || []).find(
-    (c) =>
-      (c || ({} as any)).branchId && (c as any).branchId === newOrder.branchId,
+    c =>
+      (c || ({} as any)).branchId && (c as any).branchId === newOrder.branchId
   );
 
   if (currentCardsConfig && currentCardsConfig.stageId) {
-    const cardDeal = await sendCardsMessage({
+    const paymentsData: any = {};
+    if (newOrder.cashAmount) {
+      paymentsData.cash = {
+        amount: newOrder.cashAmount,
+        currency: "MNT"
+      };
+    }
+    if (newOrder.mobileAmount) {
+      paymentsData.bank = {
+        amount: newOrder.cashAmount,
+        currency: "MNT"
+      };
+    }
+    if (newOrder.paidAmounts?.length) {
+      let otherAmount = 0;
+      for (const paidAmount of newOrder.paidAmounts) {
+        otherAmount += paidAmount.amount;
+      }
+      paymentsData.other = {
+        amount: newOrder.paidAmounts.reduce(
+          (sum, curr) => curr.amount + sum,
+          0
+        ),
+        currency: "MNT"
+      };
+    }
+
+    const cardDeal = await sendSalesMessage({
       subdomain,
-      action: 'deals.create',
+      action: "deals.create",
       data: {
         name: `Cards: ${newOrder.number}`,
         startDate: newOrder.createdAt,
-        description: newOrder.deliveryInfo ? newOrder.deliveryInfo.address : '',
+        description: `<p>${newOrder.description}</p>`,
         stageId: currentCardsConfig.stageId,
         assignedUserIds: currentCardsConfig.assignedUserIds,
-        productsData: newOrder.items.map((i) => ({
+        productsData: (newOrder.items || []).map(i => ({
           productId: i.productId,
-          uom: 'PC',
-          currency: 'MNT',
+          uom: "PC",
+          currency: "MNT",
           quantity: i.count,
           unitPrice: i.unitPrice,
-          amount: i.count * i.unitPrice,
-          tickUsed: true,
+          amount: i.count * (i.unitPrice || 0),
+          tickUsed: true
         })),
+        paymentsData
       },
       isRPC: true,
-      defaultValue: {},
+      defaultValue: {}
     });
 
     if (newOrder.customerId && cardDeal._id) {
       await sendCoreMessage({
         subdomain,
-        action: 'conformities.addConformity',
+        action: "conformities.addConformity",
         data: {
-          mainType: 'deal',
+          mainType: "deal",
           mainTypeId: cardDeal._id,
-          relType: newOrder.customerType || 'customer',
-          relTypeId: newOrder.customerId,
+          relType: newOrder.customerType || "customer",
+          relTypeId: newOrder.customerId
         },
-        isRPC: true,
+        isRPC: true
       });
     }
 
-    await sendCardsMessage({
+    await sendSalesMessage({
       subdomain,
-      action: 'pipelinesChanged',
+      action: "salesPipelinesChanged",
       data: {
         pipelineId: currentCardsConfig.pipelineId,
-        action: 'itemAdd',
+        action: "itemAdd",
         data: {
           item: cardDeal,
-          destinationStageId: currentCardsConfig.stageId,
-        },
-      },
+          destinationStageId: currentCardsConfig.stageId
+        }
+      }
     });
 
-    await newOrder.updateOne({ _id: newOrder._id }, { $set: { convertDealId: cardDeal._id } });
-    return cardDeal._id
+    await models.PosOrders.updateOne(
+      { _id: newOrder._id },
+      { $set: { convertDealId: cardDeal._id } }
+    );
+    return cardDeal._id;
   }
   // end sync cards config then <
   return;
@@ -505,41 +598,41 @@ const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
     return;
   }
 
-  if (newOrder.status === 'return') {
+  if (newOrder.status === "return") {
     resp = await sendSyncerkhetMessage({
       subdomain,
-      action: 'returnOrder',
+      action: "returnOrder",
       data: {
         pos,
-        order: newOrder,
+        order: newOrder
       },
       isRPC: true,
       defaultValue: {},
-      timeout: 50000,
+      timeout: 50000
     });
   } else {
     resp = await sendSyncerkhetMessage({
       subdomain,
-      action: 'toOrder',
+      action: "toOrder",
       data: {
         pos,
-        order: newOrder,
+        order: newOrder
       },
       isRPC: true,
       defaultValue: {},
-      timeout: 50000,
+      timeout: 50000
     });
   }
 
   if (resp && (resp.message || resp.error)) {
     const txt = JSON.stringify({
       message: resp.message,
-      error: resp.error,
+      error: resp.error
     });
 
     await models.PosOrders.updateOne(
       { _id: newOrder._id },
-      { $set: { syncErkhetInfo: txt } },
+      { $set: { syncErkhetInfo: txt } }
     );
   }
 };
@@ -548,14 +641,14 @@ const syncInventoriesRem = async ({
   subdomain,
   newOrder,
   oldBranchId,
-  pos,
+  pos
 }) => {
   if (!(pos.checkRemainder && newOrder.departmentId)) {
     return;
   }
 
   let multiplier = 1;
-  if (newOrder.status === 'return') {
+  if (newOrder.status === "return") {
     multiplier = -1;
   }
 
@@ -567,32 +660,32 @@ const syncInventoriesRem = async ({
       ) {
         sendInventoriesMessage({
           subdomain,
-          action: 'remainders.updateMany',
+          action: "remainders.updateMany",
           data: {
             branchId: newOrder.branchId,
             departmentId: newOrder.departmentId,
-            productsData: (newOrder.items || []).map((item) => ({
+            productsData: (newOrder.items || []).map(item => ({
               productId: item.productId,
               uom: item.uom,
-              diffSoonOut: item.count * multiplier,
-            })),
-          },
+              diffSoonOut: item.count * multiplier
+            }))
+          }
         });
       }
 
       if (oldBranchId && oldBranchId !== newOrder.branchId) {
         sendInventoriesMessage({
           subdomain,
-          action: 'remainders.updateMany',
+          action: "remainders.updateMany",
           data: {
             branchId: oldBranchId,
             departmentId: newOrder.departmentId,
-            productsData: (newOrder.items || []).map((item) => ({
+            productsData: (newOrder.items || []).map(item => ({
               productId: item.productId,
               uom: item.uom,
-              diffSoonOut: -1 * item.count * multiplier,
-            })),
-          },
+              diffSoonOut: -1 * item.count * multiplier
+            }))
+          }
         });
       }
 
@@ -609,34 +702,34 @@ const syncInventoriesRem = async ({
   ) {
     sendInventoriesMessage({
       subdomain,
-      action: 'remainders.updateMany',
+      action: "remainders.updateMany",
       data: {
         branchId: newOrder.branchId,
         departmentId: newOrder.departmentId,
-        productsData: (newOrder.items || []).map((item) => ({
+        productsData: (newOrder.items || []).map(item => ({
           productId: item.productId,
           uom: item.uom,
           diffCount: -1 * item.count * multiplier,
-          diffSoonOut: newOrder.isPre ? -1 * item.count * multiplier : 0,
-        })),
-      },
+          diffSoonOut: newOrder.isPre ? -1 * item.count * multiplier : 0
+        }))
+      }
     });
   }
 
   if (oldBranchId && oldBranchId !== newOrder.branchId) {
     sendInventoriesMessage({
       subdomain,
-      action: 'remainders.updateMany',
+      action: "remainders.updateMany",
       data: {
         branchId: oldBranchId,
         departmentId: newOrder.departmentId,
-        productsData: (newOrder.items || []).map((item) => ({
+        productsData: (newOrder.items || []).map(item => ({
           productId: item.productId,
           uom: item.uom,
           diffCount: item.count * multiplier,
-          diffSoonOut: newOrder.isPre ? item.count * multiplier : 0,
-        })),
-      },
+          diffSoonOut: newOrder.isPre ? item.count * multiplier : 0
+        }))
+      }
     });
   }
 };
@@ -648,7 +741,7 @@ export const syncOrderFromClient = async ({
   items,
   pos,
   posToken,
-  responses,
+  responses
 }: {
   subdomain: string;
   models: IModels;
@@ -659,16 +752,16 @@ export const syncOrderFromClient = async ({
   responses;
 }) => {
   const oldOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
-  const oldBranchId = oldOrder ? oldOrder.branchId : '';
+  const oldBranchId = oldOrder ? oldOrder.branchId : "";
 
-  if (await isEnabled('ebarimt')) {
+  if (await isEnabled("ebarimt")) {
     for (const response of responses || []) {
       if (response && response._id) {
         await sendEbarimtMessage({
           subdomain,
-          action: 'putresponses.createOrUpdate',
+          action: "putresponses.createOrUpdate",
           data: { _id: response._id, doc: { ...response, posToken } },
-          isRPC: true,
+          isRPC: true
         });
       }
     }
@@ -683,10 +776,10 @@ export const syncOrderFromClient = async ({
         items,
         scopeBrandIds: pos.scopeBrandIds,
         branchId: order.branchId || pos.branchId,
-        departmentId: order.departmentId || pos.departmentId,
-      },
+        departmentId: order.departmentId || pos.departmentId
+      }
     },
-    { upsert: true },
+    { upsert: true }
   );
 
   const newOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
@@ -695,26 +788,51 @@ export const syncOrderFromClient = async ({
     return;
   }
 
-  if (newOrder.customerId && (await isEnabled('automations'))) {
-    await sendAutomationsMessage({
-      subdomain,
-      action: 'trigger',
-      data: {
-        type: 'pos:posOrder',
-        targets: [newOrder],
-      },
-    });
+  let convertDealId;
+  if (newOrder.paidDate) {
+    if (newOrder.customerId && (await isEnabled("automations"))) {
+      try {
+        await sendAutomationsMessage({
+          subdomain,
+          action: "trigger",
+          data: {
+            type: "pos:posOrder",
+            targets: [newOrder]
+          }
+        });
+      } catch (e) {
+        console.log(subdomain, e.message);
+      }
+    }
+
+    try {
+      await confirmLoyalties(subdomain, newOrder);
+    } catch (e) {
+      console.log(subdomain, e.message);
+    }
+
+    try {
+      await otherPlugins(subdomain, newOrder, oldOrder, newOrder.userId);
+    } catch (e) {
+      console.log(subdomain, e.message);
+    }
+
+    try {
+      convertDealId = await createDealPerOrder({
+        subdomain,
+        models,
+        pos,
+        newOrder
+      });
+    } catch (e) {
+      console.log(subdomain, e.message);
+    }
   }
-
-  await confirmLoyalties(subdomain, newOrder);
-  await otherPlugins(subdomain, newOrder, oldOrder, newOrder.userId);
-
-  const convertDealId = await createDealPerOrder({ subdomain, pos, newOrder });
 
   if (pos.isOnline && newOrder.subBranchId) {
     const toPos = await models.Pos.findOne({
       branchId: newOrder.subBranchId,
-      _id: { $ne: pos._id },
+      _id: { $ne: pos._id }
     })
       .sort({ onServer: -1, name: 1 })
       .lean();
@@ -723,11 +841,11 @@ export const syncOrderFromClient = async ({
     if (toPos) {
       await sendPosclientMessage({
         subdomain,
-        action: 'erxes-posclient-to-pos-api',
+        action: "erxes-posclient-to-pos-api",
         data: {
-          order: { ...newOrder, convertDealId, posToken, subToken: toPos.token },
+          order: { ...newOrder, convertDealId, posToken, subToken: toPos.token }
         },
-        pos: toPos,
+        pos: toPos
       });
     }
 
@@ -739,49 +857,175 @@ export const syncOrderFromClient = async ({
     ) {
       const toCancelPos = await models.Pos.findOne({
         branchId: oldOrder.subBranchId,
-        _id: { $ne: pos._id },
+        _id: { $ne: pos._id }
       }).lean();
 
       if (toCancelPos) {
         await sendPosclientMessage({
           subdomain,
-          action: 'erxes-posclient-to-pos-api-remove',
+          action: "erxes-posclient-to-pos-api-remove",
           data: {
-            order: { ...newOrder, posToken, subToken: toPos.token },
+            order: { ...newOrder, posToken, subToken: toCancelPos.token }
           },
-          pos: toCancelPos,
+          pos: toCancelPos
         });
       }
     }
   }
 
-  await syncErkhetRemainder({ subdomain, models, pos, newOrder });
+  if (newOrder.paidDate) {
+    try {
+      await syncErkhetRemainder({ subdomain, models, pos, newOrder });
+    } catch (e) {
+      console.log(subdomain, e.message);
+    }
 
-  await syncInventoriesRem({ subdomain, newOrder, oldBranchId, pos });
+    try {
+      await syncInventoriesRem({ subdomain, newOrder, oldBranchId, pos });
+    } catch (e) {
+      console.log(subdomain, e.message);
+    }
+  }
 
-  const syncedResponeIds = (
+  const syncedResponseIds = (
     (await sendEbarimtMessage({
       subdomain,
-      action: 'putresponses.find',
+      action: "putresponses.find",
       data: {
-        query: { _id: { $in: (responses || []).map((resp) => resp._id) } },
+        query: { _id: { $in: (responses || []).map(resp => resp._id) } }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     })) || []
-  ).map((r) => r._id);
+  ).map(r => r._id);
 
   // return info saved
   await sendPosclientMessage({
     subdomain,
     action: `updateSynced`,
     data: {
-      status: 'ok',
+      status: "ok",
       posToken,
-      responseIds: syncedResponeIds,
+      responseIds: syncedResponseIds,
       orderId: newOrder._id,
       convertDealId
     },
-    pos,
+    pos
   });
 };
+
+const checkProductsByRule = async (subdomain, products, rule) => {
+  let filterIds: string[] = [];
+  const productIds = products.map(p => p._id)
+
+  if (rule.productCategoryIds?.length) {
+    const includeCatIds = await getChildCategories(
+      subdomain,
+      rule.productCategoryIds
+    );
+
+    const includeProductIdsCat = products.filter(p => includeCatIds.includes(p.categoryId)).map(p => p._id);
+    filterIds = filterIds.concat(lodash.intersection(includeProductIdsCat, productIds));
+  }
+
+  if (rule.tagIds?.length) {
+    const includeTagIds = await getChildTags(
+      subdomain,
+      rule.tagIds
+    );
+
+    const includeProductIdsTag = products.filter(p => lodash.intersection(includeTagIds, (p.tagIds || [])).length).map(p => p._id);
+    filterIds = filterIds.concat(lodash.intersection(includeProductIdsTag, productIds));
+  }
+
+  if (rule.productIds?.length) {
+    filterIds = filterIds.concat(lodash.intersection(rule.productIds, productIds));
+  }
+
+  if (!filterIds.length) {
+    return [];
+  }
+
+  // found an special products
+  const filterProducts = products.filter(p => filterIds.includes(p._id));
+  if (rule.excludeCatIds?.length) {
+    const excludeCatIds = await getChildCategories(
+      subdomain,
+      rule.excludeCatIds
+    );
+
+    const excProductIdsCat = filterProducts.filter(p => excludeCatIds.includes(p.categoryId)).map(p => p._id);
+    filterIds = filterIds.filter(f => !excProductIdsCat.includes(f));
+  }
+
+  if (rule.excludeTagIds?.length) {
+    const excludeTagIds = await getChildTags(
+      subdomain,
+      rule.excludeTagIds
+    );
+
+    const excProductIdsTag = filterProducts.filter(p => lodash.intersection(excludeTagIds, (p.tagIds || [])).length).map(p => p._id);
+    filterIds = filterIds.filter(f => !excProductIdsTag.includes(f))
+  }
+
+  if (rule.excludeProductIds?.length) {
+    filterIds = filterIds.filter(f => !rule.excludeProductIds.includes(f));
+  }
+
+  return filterIds;
+}
+
+export const calcProductsTaxRule = async (subdomain: string, config, products) => {
+  const vatRules = config?.reverseVatRules?.length && await sendEbarimtMessage({
+    subdomain,
+    action: 'productRules.find',
+    data: { _id: { $in: config.reverseVatRules } },
+    isRPC: true,
+    defaultValue: []
+  }) || [];
+
+  const ctaxRules = config?.reverseCtaxRules?.length && await sendEbarimtMessage({
+    subdomain,
+    action: 'productRules.find',
+    data: { _id: { $in: config.reverseCtaxRules } },
+    isRPC: true,
+    defaultValue: []
+  }) || [];
+
+  const productsById = {};
+  for (const product of products) {
+    productsById[product._id] = product;
+  }
+
+  if (vatRules.length) {
+    for (const rule of vatRules) {
+      const productIdsByRule = await checkProductsByRule(subdomain, products, rule);
+
+      for (const pId of productIdsByRule) {
+        if (!productsById[pId].taxRule) {
+          productsById[pId].taxRule = {};
+        }
+
+        productsById[pId].taxRule.taxCode = rule.taxCode;
+        productsById[pId].taxRule.taxType = rule.taxType;
+      }
+    }
+  }
+
+  if (ctaxRules.length) {
+    for (const rule of ctaxRules) {
+      const productIdsByRule = await checkProductsByRule(subdomain, products, rule);
+
+      for (const pId of productIdsByRule) {
+        if (!productsById[pId].taxRule) {
+          productsById[pId].taxRule = {};
+        }
+
+        productsById[pId].taxRule.citytaxCode = rule.taxCode;
+        productsById[pId].taxRule.citytaxPercent = rule.taxPercent;
+      }
+    }
+  }
+
+  return productsById
+}

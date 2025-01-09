@@ -5,7 +5,7 @@ module.exports = {
   scope: "xyp",
   exposes: {
     "./routes": "./src/routes.tsx",
-    "./xypConfigs": "./src/modules/XypConfigs.tsx",
+    "./xypConfigs": "./src/modules//settings/components/XypConfigs.tsx",
     "./customerSidebar":
       "./src/modules/contacts/containers/CustomerSidebar.tsx",
   },
@@ -16,7 +16,19 @@ module.exports = {
     scope: "xyp",
     module: "./routes",
   },
+  menus: [
+    {
+      text: "XYP Sync Rules",
+      to: "/xyp-sync-rules",
+      image: "/images/icons/erxes-05.svg",
+      location: "settings",
+      scope: "xyp",
+      action: "xyp sync rule",
+      permissions: [],
+    },
+  ],
 
   customerRightSidebarSection: "./customerSidebar",
   carRightSidebarSection: "./customerSidebar",
+  dealRightSidebarSection: "./customerSidebar",
 };

@@ -1,11 +1,14 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import client from '../../../apollo-client';
-import { formConnectMutation } from '../../../form/graphql';
-import { __, checkRules, requestBrowserInfo } from '../../../utils';
-import { connection } from '../../connection';
-import LeadContent from './LeadContent';
-import IntegrationItem from '../../components/IntegrationItem';
+import * as React from "react";
+
+import { __, checkRules, requestBrowserInfo } from "../../../utils";
+
+import Card from "../../components/Card.tsx";
+import IntegrationItem from "../../components/IntegrationItem";
+import LeadContent from "./LeadContent";
+import client from "../../../apollo-client";
+import { connection } from "../../connection";
+import { formConnectMutation } from "../../../form/graphql";
+import gql from "graphql-tag";
 
 interface IState {
   loading: boolean;
@@ -27,7 +30,7 @@ class LeadConnect extends React.PureComponent<Props, IState> {
 
   saveBrowserInfo() {
     requestBrowserInfo({
-      source: 'fromMessenger',
+      source: "fromMessenger",
       callback: (browserInfo) => {
         connection.browserInfo = browserInfo;
         this.setState({ browserInfo });
@@ -56,7 +59,7 @@ class LeadConnect extends React.PureComponent<Props, IState> {
 
         if (!response) {
           this.setState({ hasError: true });
-          throw new Error('Integration not found');
+          throw new Error("Integration not found");
         }
 
         // save connection info
@@ -75,7 +78,7 @@ class LeadConnect extends React.PureComponent<Props, IState> {
 
   render() {
     if (this.state.hasError) {
-      return <h4>{__('Failed')}</h4>;
+      return <h4>{__("Failed")}</h4>;
     }
 
     if (this.state.loading) {
@@ -88,11 +91,11 @@ class LeadConnect extends React.PureComponent<Props, IState> {
 
     const leadData = connection.leadData[this.props.formCode];
 
-    const { integration } = leadData;
+    const { form } = leadData;
 
     // check rules ======
     const isPassedAllRules = checkRules(
-      integration.leadData.rules || [],
+      form?.leadData.rules || [],
       this.state.browserInfo
     );
 
@@ -101,9 +104,11 @@ class LeadConnect extends React.PureComponent<Props, IState> {
     }
 
     return (
-      <IntegrationItem>
-        <LeadContent formCode={this.props.formCode} />;
-      </IntegrationItem>
+      <Card p="0">
+        <IntegrationItem>
+          <LeadContent form={form} formCode={this.props.formCode} />
+        </IntegrationItem>
+      </Card>
     );
   }
 }

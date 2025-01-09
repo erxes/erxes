@@ -2,28 +2,28 @@ import {
   EditorContainer,
   TestEmailWrapper,
   VerifyCancel,
-  VerifyCheck,
+  VerifyCheck
 } from "@erxes/ui-engage/src/styles";
-import { FlexItem, FlexPad } from "@erxes/ui/src/components/step/styles";
 import { IEmailFormProps, IEngageEmail } from "@erxes/ui-engage/src/types";
+import { FlexItem, FlexPad } from "@erxes/ui/src/components/step/styles";
 
-import Button from "@erxes/ui/src/components/Button";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import ErrorMsg from "@erxes/ui/src/components/ErrorMsg";
+import { generateEmailTemplateParams } from "@erxes/ui-engage/src/utils";
 import { FlexContent } from "@erxes/ui-log/src/activityLogs/styles";
+import { IUser } from "@erxes/ui/src/auth/types";
+import ErrorMsg from "@erxes/ui/src/components/ErrorMsg";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
 import HelpPopover from "@erxes/ui/src/components/HelpPopover";
-import { ISelectedOption } from "@erxes/ui/src/types";
-import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
-import React from "react";
-import RichTextEditor from "../containers/RichTextEditor";
-import Select, { components } from "react-select";
 import Tip from "@erxes/ui/src/components/Tip";
 import Uploader from "@erxes/ui/src/components/Uploader";
+import { ISelectedOption } from "@erxes/ui/src/types";
 import { __ } from "coreui/utils";
-import { generateEmailTemplateParams } from "@erxes/ui-engage/src/utils";
+import React from "react";
+import Select, { components } from "react-select";
+import EngageTest from "../containers/EngageTest";
+import RichTextEditor from "../containers/RichTextEditor";
 
 type EmailParams = {
   content: string;
@@ -35,7 +35,6 @@ type EmailParams = {
 type Props = IEmailFormProps & {
   verifiedEmails: string[];
   error?: string;
-  sendTestEmail: (params: EmailParams) => void;
 };
 
 type State = {
@@ -46,7 +45,7 @@ type State = {
 };
 
 const getEmail = (users: IUser[], fromUserId: string): string => {
-  const user = users.find((u) => u._id === fromUserId);
+  const user = users.find(u => u._id === fromUserId);
 
   return user && user.email ? user.email : "";
 };
@@ -59,7 +58,7 @@ class EmailForm extends React.Component<Props, State> {
       fromUserId: props.fromUserId,
       content: props.content,
       email: props.email,
-      testEmail: getEmail(props.users, props.fromUserId),
+      testEmail: getEmail(props.users, props.fromUserId)
     };
   }
 
@@ -78,7 +77,7 @@ class EmailForm extends React.Component<Props, State> {
     this.props.onChange("fromUserId", fromUserId);
   };
 
-  templateChange = (value) => {
+  templateChange = value => {
     const email = { ...this.state.email } as IEngageEmail;
 
     email.templateId = value;
@@ -88,8 +87,8 @@ class EmailForm extends React.Component<Props, State> {
     });
   };
 
-  findTemplate = (id) => {
-    const template = this.props.templates.find((t) => t._id === id);
+  findTemplate = id => {
+    const template = this.props.templates.find(t => t._id === id);
 
     if (template) {
       return template.content;
@@ -119,27 +118,29 @@ class EmailForm extends React.Component<Props, State> {
       const { users, verifiedEmails } = this.props;
       const options: any[] = [];
 
-      users.map((user) =>
+      users.forEach(user => {
+        if (!verifiedEmails.includes(user.email)) {
+          return;
+        }
         options.push({
           value: user._id,
-          label: user.email || user.username,
-          disabled: !verifiedEmails.includes(user.email),
-        })
-      );
+          label: user.email || user.username
+        });
+      });
 
       return options;
     };
 
-    const optionRenderer = (option) => (
+    const optionRenderer = option => (
       <FlexContent>
         {!option.disabled ? (
-          <Tip placement="auto" text="Email verified">
+          <Tip placement="auto" text={__("Email verified")}>
             <VerifyCheck>
               <Icon icon="check-circle" />
             </VerifyCheck>
           </Tip>
         ) : (
-          <Tip placement="auto" text="Email not verified">
+          <Tip placement="auto" text={__("Email not verified")}>
             <VerifyCancel>
               <Icon icon="times-circle" />
             </VerifyCancel>
@@ -148,8 +149,8 @@ class EmailForm extends React.Component<Props, State> {
         {option.label}
       </FlexContent>
     );
-    
-    const Option = (props) => {
+
+    const Option = props => {
       return (
         <components.Option {...props}>
           {optionRenderer(props.data)}
@@ -161,7 +162,7 @@ class EmailForm extends React.Component<Props, State> {
       <Select
         placeholder={__("Choose users")}
         value={selectOptions().find(
-          (option) => option.value === this.state.fromUserId
+          option => option.value === this.state.fromUserId
         )}
         onChange={onChangeUser}
         components={{ Option }}
@@ -172,43 +173,16 @@ class EmailForm extends React.Component<Props, State> {
   }
 
   renderTestEmailSection() {
-    const { content: propContent, email, sendTestEmail, users } = this.props;
-    const { content, fromUserId, testEmail } = this.state;
-
-    const onChange = (e) => {
-      const value = (e.target as HTMLInputElement).value;
-
-      this.setState({ testEmail: value });
-    };
-
-    const sendAsTest = () => {
-      sendTestEmail({
-        from: getEmail(users, fromUserId),
-        to: testEmail || "",
-        content: propContent || content,
-        title: email && email.subject ? email.subject : "",
-      });
-    };
+    const { content: propContent, email, users } = this.props;
+    const { content, fromUserId } = this.state;
 
     return (
       <TestEmailWrapper>
-        <FormGroup>
-          <ControlLabel>Send to the following email as test:</ControlLabel>
-          <HelpPopover>Only one email address must be typed</HelpPopover>
-          <FormControl
-            type="text"
-            onChange={onChange}
-            defaultValue={testEmail}
-          />
-          <Button
-            disabled={testEmail ? false : true}
-            btnStyle="primary"
-            icon="send"
-            onClick={sendAsTest}
-          >
-            Send
-          </Button>
-        </FormGroup>
+        <EngageTest
+          from={getEmail(users, fromUserId)}
+          content={propContent || content}
+          title={email && email.subject ? email.subject : ""}
+        />
       </TestEmailWrapper>
     );
   }
@@ -216,19 +190,19 @@ class EmailForm extends React.Component<Props, State> {
   render() {
     const { attachments } = this.state.email;
 
-    const onChangeSubject = (e) =>
+    const onChangeSubject = e =>
       this.changeContent("subject", (e.target as HTMLInputElement).value);
 
-    const onChangeReplyTo = (e) =>
+    const onChangeReplyTo = e =>
       this.changeContent("replyTo", (e.target as HTMLInputElement).value);
 
-    const onChangeSender = (e) =>
+    const onChangeSender = e =>
       this.changeContent("sender", (e.target as HTMLInputElement).value);
 
-    const onChangeAttachment = (attachmentsArr) =>
+    const onChangeAttachment = attachmentsArr =>
       this.changeContent("attachments", attachmentsArr);
 
-    const onChangeTemplate = (e) => {
+    const onChangeTemplate = e => {
       this.templateChange(e.value);
     };
 
@@ -238,7 +212,7 @@ class EmailForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>
               From:
-              <HelpPopover title="The email address is not verified (x) by Amazon Ses services.">
+              <HelpPopover title={__("The email address is not verified (x) by Amazon Ses services.")}>
                 <div>
                   If you want to verify your email:
                   <ol>
@@ -294,7 +268,7 @@ class EmailForm extends React.Component<Props, State> {
             <Select
               onChange={onChangeTemplate}
               value={generateEmailTemplateParams(this.props.templates).find(
-                (option) => option.value === this.state.email.templateId
+                option => option.value === this.state.email.templateId
               )}
               options={generateEmailTemplateParams(this.props.templates)}
               isClearable={false}

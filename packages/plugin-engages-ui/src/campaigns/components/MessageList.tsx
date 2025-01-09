@@ -98,7 +98,7 @@ class List extends React.Component<Props> {
       avgClickPercent,
       avgRenderingFailurePercent,
       avgRejectPercent,
-      avgSendPercent,
+      avgSendPercent
     } = emailPercentages;
 
     const content = () => (
@@ -173,7 +173,7 @@ class List extends React.Component<Props> {
     return (
       <>
         {this.renderPercentage()}
-        <Link to="/campaigns/create?kind=manual">
+        <Link to="/campaigns/create">
           <Button btnStyle="success" size="small" icon="plus-circle">
             {__("New broadcast")}
           </Button>
@@ -191,12 +191,12 @@ class List extends React.Component<Props> {
       loading,
       queryParams,
       isAllSelected,
-      refetch,
+      refetch
     } = this.props;
 
     const actionBar = (
       <Wrapper.ActionBar
-        left={isEnabled("tags") && this.renderTagger()}
+        left={this.renderTagger()}
         right={this.renderRightActionBar()}
       />
     );
@@ -220,12 +220,12 @@ class List extends React.Component<Props> {
             <th>{__("From")}</th>
             <th>{__("Created by")}</th>
             <th>{__("Created date")}</th>
-            {isEnabled("tags") && <th>{__("Tags")}</th>}
+            <th>{__("Tags")}</th>
             <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody id="engageMessages">
-          {messages.map((message) => (
+          {messages.map(message => (
             <MessageListRow
               isChecked={bulk.includes(message)}
               toggleBulk={toggleBulk}

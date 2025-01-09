@@ -542,7 +542,7 @@ class InstallCode extends React.PureComponent<Props, State> {
             icon="plus-circle"
             onClick={this.onSimulate}
           >
-            Simulate
+            Preview
           </Button>
 
           <Button

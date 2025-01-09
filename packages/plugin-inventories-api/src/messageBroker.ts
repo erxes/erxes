@@ -1,123 +1,105 @@
 import {
   consumeQueue,
-  consumeRPCQueue,
-} from '@erxes/api-utils/src/messageBroker';
-import { generateModels } from './connectionResolver';
-import { sendMessage } from '@erxes/api-utils/src/core';
+  consumeRPCQueue
+} from "@erxes/api-utils/src/messageBroker";
+import { generateModels } from "./connectionResolver";
+import { sendMessage } from "@erxes/api-utils/src/core";
 import type {
   MessageArgs,
-  MessageArgsOmitService,
-} from '@erxes/api-utils/src/core';
+  MessageArgsOmitService
+} from "@erxes/api-utils/src/core";
 
 export const setupMessageConsumers = async () => {
-  consumeRPCQueue('inventories:remainders', async ({ subdomain, data }) => {
+  consumeRPCQueue("inventories:remainders", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       data: await models.Remainders.getRemainders(subdomain, data),
-      status: 'success',
+      status: "success"
     };
   });
 
-  consumeRPCQueue('inventories:remainderCount', async ({ subdomain, data }) => {
+  consumeRPCQueue("inventories:remainderCount", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       data: await models.Remainders.getRemainderCount(subdomain, data),
-      status: 'success',
+      status: "success"
     };
   });
 
   consumeQueue(
-    'inventories:remainders.updateMany',
+    "inventories:remainders.updateMany",
     async ({ subdomain, data: { branchId, departmentId, productsData } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.Remainders.updateRemainders(
           subdomain,
           branchId,
           departmentId,
-          productsData,
-        ),
+          productsData
+        )
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'inventories:reserveRemainders.find',
+    "inventories:reserveRemainders.find",
     async ({ subdomain, data: { productIds, branchId, departmentId } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.ReserveRems.find({
           branchId,
           departmentId,
-          productId: { $in: productIds },
-        }).lean(),
+          productId: { $in: productIds }
+        }).lean()
       };
-    },
+    }
   );
 
-  consumeRPCQueue('inventories:transactionAdd', async ({ subdomain, data }) => {
+  consumeRPCQueue("inventories:transactionAdd", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       data: await models.Transactions.createTransaction(data),
-      status: 'success',
+      status: "success"
     };
   });
 };
 
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    ...args,
+    ...args
   });
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'core',
-    ...args,
-  });
-};
-
-export const sendProductsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'products',
-    ...args,
-  });
-};
-
-export const sendFormsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'forms',
-    ...args,
+    serviceName: "core",
+    ...args
   });
 };
 
 export const sendPosMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'pos',
-    ...args,
+    serviceName: "pos",
+    ...args
   });
 };
 
 export const sendProcessesMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'processes',
-    ...args,
+    serviceName: "processes",
+    ...args
   });
 };

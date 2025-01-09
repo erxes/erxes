@@ -1,77 +1,85 @@
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
-import { Alert, Button, __ } from '@erxes/ui/src';
-import client from '@erxes/ui/src/apolloClient';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import React, { useEffect, useState } from 'react';
-import { Block, FlexColumn, FlexItem, FlexRow } from '../../../styles';
-import { IConfigsMap, IPos } from '../../../types';
-import PerConfigs from '../cardsGroup/PerConfigs';
+import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
+import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
+import { Alert, Button, __ } from "@erxes/ui/src";
+import client from "@erxes/ui/src/apolloClient";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { gql } from "@apollo/client";
+import React, { useEffect, useState } from "react";
+import { Block, FlexColumn, FlexItem, FlexRow } from "../../../styles";
+import { IConfigsMap, IPos } from "../../../types";
+import PerConfigs from "../cardsGroup/PerConfigs";
 
 type Props = {
-  onChange: (name: 'cardsConfig', value: any) => void;
+  onChange: (name: "cardsConfig", value: any) => void;
   pos?: IPos;
 };
 
 const CardsConfig = (props: Props) => {
   const { pos, onChange } = props;
 
-  const [config, setConfig] = useState<IConfigsMap>(
-    pos && pos.cardsConfig ? pos.cardsConfig : {},
-  );
+  const [config, setConfig] = useState<IConfigsMap>(pos?.cardsConfig || {});
 
   const [fieldsCombined, setFieldsCombined] = useState<FieldsCombinedByType[]>(
-    [],
+    []
   );
 
   useEffect(() => {
-    if (isEnabled('forms')) {
-      client
-        .query({
-          query: gql(formQueries.fieldsCombinedByContentType),
-          variables: {
-            contentType: 'cards:deal',
-          },
-        })
-        .then(({ data }) => {
-          setFieldsCombined(data ? data.fieldsCombinedByContentType : [] || []);
-        });
-    }
+    client
+      .query({
+        query: gql(formQueries.fieldsCombinedByContentType),
+        variables: {
+          contentType: "sales:deal"
+        }
+      })
+      .then(({ data }) => {
+        setFieldsCombined(data ? data.fieldsCombinedByContentType : [] || []);
+      });
   }, []);
 
-  const handleAdd = (e) => {
+  const handleAdd = e => {
     e.preventDefault();
 
-    setConfig((prevConfig) => ({
+    setConfig(prevConfig => ({
       ...prevConfig,
       newCardsConfig: {
-        branchId: '',
-        boardId: '',
-        pipelineId: '',
-        stageId: '',
+        branchId: "",
+        boardId: "",
+        pipelineId: "",
+        stageId: "",
         assignedUserIds: [],
-        deliveryMapField: '',
-      },
+        deliveryMapField: ""
+      }
     }));
   };
 
   const handleDelete = (currentConfigKey: string) => {
-    delete config[currentConfigKey];
+    const newConfig = {};
 
-    setConfig(config);
-    onChange('cardsConfig', config);
+    Object.keys(config).forEach(key => {
+      if (key !== currentConfigKey) {
+        newConfig[key] = config[key];
+      }
+    });
 
-    Alert.success('You successfully deleted stage in cards settings.');
+    setConfig(newConfig);
+    onChange("cardsConfig", newConfig);
+
+    Alert.success("You successfully deleted stage in cards settings.");
   };
 
-  const handleEdit = (key, currenConfig: any) => {
-    delete config[key];
-    config[currenConfig.branchId] = { ...currenConfig };
+  const handleEdit = (oldKey, currenConfig: any) => {
+    const newConfig = {};
 
-    setConfig(config);
-    onChange('cardsConfig', config);
+    Object.keys(config).forEach(key => {
+      if (key !== oldKey) {
+        newConfig[key] = config[key];
+      }
+    });
+
+    newConfig[currenConfig.branchId] = { ...currenConfig };
+    setConfig(newConfig);
+    onChange("cardsConfig", newConfig);
   };
 
   const renderCollapse = () => {
@@ -91,7 +99,7 @@ const CardsConfig = (props: Props) => {
           {actionButtons}
           <br />
           <br />
-          {Object.keys(config).map((key) => (
+          {Object.keys(config).map(key => (
             <PerConfigs
               key={key}
               config={config[key]}

@@ -1,7 +1,7 @@
 import { IContext } from '../../../connectionResolver';
 
 const fieldQueries = {
-  clientPortalFieldConfig(
+  async clientPortalFieldConfig(
     _root,
     { fieldId }: { fieldId: string },
     { models }: IContext

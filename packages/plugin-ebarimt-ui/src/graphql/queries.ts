@@ -50,37 +50,47 @@ const listParamsValue = `
   paidDate: $paidDate
 `;
 
-const responseFields = `
+export const responseFields = `
   _id
-  createdAt
-  modifiedAt
+  number
+
   contentType
   contentId
-  number
-  success
-  billId
-  date
-  macAddress
-  internalCode
-  billType
-  lotteryWarningMsg
-  errorCode
-  message
+
+  totalAmount
+  totalVAT
+  totalCityTax
+  districtCode
+  branchNo
+  merchantTin
+  posNo
+  customerTin
+  customerName
+  consumerNo
+  type
+  inactiveId
+  invoiceId
+  reportMonth
+  data
+  receipts
+  payments
+
+  easy
+
   getInformation
-  taxType
+  sendInfo
+  state
+
+  createdAt
+  modifiedAt
+
+  id
+  posId
+  status
+  message
   qrData
   lottery
-  amount
-  cityTax
-  vat
-  cashAmount
-  nonCashAmount
-  returnBillId
-  sendInfo
-  stocks
-  registerNo
-  customerNo
-  customerName
+  date
 `;
 
 const putResponses = `
@@ -134,6 +144,66 @@ const getDealLink = `
     getDealLink(_id: $_id)
   }
 `;
+
+export const ebarimtProductRuleFields = `
+  _id
+  createdAt
+  modifiedAt
+  title
+  productIds
+  productCategoryIds
+  excludeCategoryIds
+  excludeProductIds
+  tagIds
+  excludeTagIds
+  kind
+  taxType
+  taxCode
+  taxPercent
+`;
+
+const productRuleQryParamsDef = `
+  $searchValue: String,
+  $productId: String,
+  $kind: String,
+  $taxCode: String,
+  $taxType: String,
+`;
+
+const productRuleQryParamsVal = `
+  searchValue: $searchValue,
+  productId: $productId,
+  kind: $kind,
+  taxCode: $taxCode,
+  taxType: $taxType,
+`;
+
+const ebarimtProductRules = `
+  query ebarimtProductRules(
+    ${productRuleQryParamsDef}
+    $page: Int
+    $perPage: Int
+    $sortField: String
+    $sortDirection: Int
+  ) {
+    ebarimtProductRules(
+      ${productRuleQryParamsVal}
+      page: $page
+      perPage: $perPage
+      sortField: $sortField
+      sortDirection: $sortDirection
+    ) {
+      ${ebarimtProductRuleFields}
+    }
+  }
+`;
+
+const ebarimtProductRulesCount = `
+  query ebarimtProductRulesCount(${productRuleQryParamsDef}) {
+    ebarimtProductRulesCount(${productRuleQryParamsVal})
+  }
+`;
+
 export default {
   configs,
   putResponses,
@@ -144,4 +214,6 @@ export default {
   putResponsesDuplicated,
   putResponsesDuplicatedCount,
   putResponsesDuplicatedDetail,
+  ebarimtProductRules,
+  ebarimtProductRulesCount,
 };

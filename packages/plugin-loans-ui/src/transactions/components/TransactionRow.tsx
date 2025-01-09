@@ -1,11 +1,9 @@
 import {
-  Button,
-  ButtonMutate,
   FormControl,
   Icon,
   ModalTrigger,
   Tip,
-  formatValue,
+  formatValue
 } from "@erxes/ui/src";
 import { TrNumberCols, TrRows } from "../../contracts/styles";
 
@@ -64,7 +62,6 @@ function TransactionRow({ transaction, isChecked, toggleBulk }: Props) {
           size="lg"
           content={trAmountForm}
         />
-        &nbsp; &nbsp;
       </>
     );
   };
@@ -161,7 +158,7 @@ function TransactionRow({ transaction, isChecked, toggleBulk }: Props) {
       <TrNumberCols key={"total"}>
         {displayNumber(transaction, "total")}
       </TrNumberCols>
-      <td key={"manage"}>
+      <td key={"manage"} style={{ display: "flex", flexDirection: "row" }}>
         {renderChangeBtn()}
         {renderEBarimtBtn(!!transaction.ebarimt)}
         {renderEditBrn()}

@@ -31,9 +31,6 @@ export default `
     }
   }
   customerId
-  ${
-    isEnabled('contacts')
-      ? `
   customer {
     _id
     visitorContactInfo
@@ -44,9 +41,6 @@ export default `
     middleName
     lastName
     emails
-  }
-  `
-      : ``
   }
   messageCount
   participatorCount
@@ -61,16 +55,11 @@ export default `
     }
   }
   tagIds
-  ${
-    isEnabled('tags')
-      ? `
+
   tags {
     _id
     name
     colorCode
-  }
-  `
-      : ``
   }
 
   ${
@@ -87,8 +76,8 @@ export default `
       isEnabled('calls')
         ? `
   callHistory {
-    receiverNumber
-    callerNumber
+    customerPhone
+    operatorPhone
     callDuration
     callStartTime
     callEndTime
@@ -106,8 +95,15 @@ export default `
 
 
   readUserIds
+  readUsers {
+    _id
+    username
+    details {
+      avatar
+      fullName
+      position
+    }
+  }
   callProAudio
   customFieldsData
-  
-  bookingProductId
 `;

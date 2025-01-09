@@ -3,21 +3,15 @@ import {
   Button,
   DataWithLoader,
   FormControl,
-  Icon,
   ModalTrigger,
   Pagination,
   Table,
   Tip,
   Wrapper,
   __,
-  router,
+  router
 } from "@erxes/ui/src";
-import {
-  FlexItem,
-  FlexRow,
-  InputBar,
-  Title,
-} from "@erxes/ui-settings/src/styles";
+import { FlexRow, Title } from "@erxes/ui-settings/src/styles";
 import React, { useRef, useState } from "react";
 
 import { ContainerBox } from "../../../style";
@@ -51,7 +45,7 @@ const List = (props: Props) => {
     remove,
     isAllSelected,
     toggleAll,
-    toggleBulk,
+    toggleBulk
   } = props;
 
   const [searchValue, setSearchValue] = useState(queryParams.searchValue || "");
@@ -59,7 +53,7 @@ const List = (props: Props) => {
 
   const timerRef = useRef<number | null>(null);
 
-  const handleSearch = (e) => {
+  const handleSearch = e => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
@@ -69,15 +63,17 @@ const List = (props: Props) => {
     setSearchValue(value);
 
     timerRef.current = window.setTimeout(() => {
-      router.removeParams(navigate, location, "page");
-      router.setParams(navigate, location, { searchValue: value });
+      router.setParams(navigate, location, {
+        searchValue: value,
+        page: undefined
+      });
     }, 500);
   };
 
-  const renderFormContent = (formProps) => {
+  const renderFormContent = formProps => {
     const updatedProps = {
       ...formProps,
-      queryParams: queryParams || {},
+      queryParams: queryParams || {}
     };
 
     return <Form {...updatedProps} />;
@@ -87,7 +83,7 @@ const List = (props: Props) => {
     toggleAll(movements, "movements");
 
     setSelectedRows(
-      !isAllSelected ? movements.map((movement) => movement._id || "") : []
+      !isAllSelected ? movements.map(movement => movement._id || "") : []
     );
   };
 
@@ -99,14 +95,14 @@ const List = (props: Props) => {
     toggleBulk(movement, isChecked!);
 
     if (!isChecked) {
-      const newSelectedRow = selectedRows.filter((item) => item !== movementId);
+      const newSelectedRow = selectedRows.filter(item => item !== movementId);
       return setSelectedRows(newSelectedRow);
     }
     setSelectedRows([...selectedRows, movementId]);
   };
 
-  const renderRow = (props) => {
-    return movements.map((movement) => (
+  const renderRow = props => {
+    return movements.map(movement => (
       <Row
         key={movement._id}
         movement={movement}
@@ -148,7 +144,7 @@ const List = (props: Props) => {
     setSelectedRows([]);
   };
 
-  const moveCursorAtTheEnd = (e) => {
+  const moveCursorAtTheEnd = e => {
     const tmpValue = e.target.value;
 
     e.target.value = "";
@@ -178,19 +174,14 @@ const List = (props: Props) => {
 
     return (
       <FlexRow>
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
-          <FlexItem>
-            <FormControl
-              type="text"
-              placeholder={__("Type to search")}
-              onChange={handleSearch}
-              value={searchValue}
-              autoFocus={true}
-              onFocus={moveCursorAtTheEnd}
-            />
-          </FlexItem>
-        </InputBar>
+        <FormControl
+          type="text"
+          placeholder={__("Type to search")}
+          onChange={handleSearch}
+          value={searchValue}
+          autoFocus={true}
+          onFocus={moveCursorAtTheEnd}
+        />
         <ModalTrigger
           title="Add Movement"
           content={renderFormContent}

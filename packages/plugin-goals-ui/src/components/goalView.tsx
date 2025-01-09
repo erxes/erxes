@@ -24,19 +24,21 @@ const GoalView = (props: Props) => {
     boardName,
     pipelineName,
     stageName,
-    emailName,
+    emailName
   } = props;
-
-  const nestedProgressValue = data.progress.progress;
-  const current = data.progress.current;
 
   return (
     <div>
-      <ControlLabel>
-        <span style={{ fontWeight: 'bold', color: 'black' }}>Monthly:</span>{' '}
-        {__(' ' + data.entity + ', ' + emailName)}
-      </ControlLabel>
-
+      <FormGroup>
+        <ControlLabel>
+          <span style={{ fontWeight: 'bold', color: 'black' }}>Name:</span>{' '}
+          {__(' ' + data.name)}
+        </ControlLabel>
+        <ControlLabel>
+          <span style={{ fontWeight: 'bold', color: 'black' }}>Monthly:</span>{' '}
+          {__(' ' + data.entity + ', ' + emailName)}
+        </ControlLabel>
+      </FormGroup>
       <FlexContent>
         <FlexItem>
           <BoardHeader>
@@ -89,54 +91,9 @@ const GoalView = (props: Props) => {
               {dayjs(data.startDate).format('YYYY-MM-DD ')}-{' '}
               {dayjs(data.endDate).format('YYYY-MM-DD ')}
             </ControlLabel>
-
-            <ControlLabel>
-              <span style={{ fontWeight: 'bold', color: 'black' }}>
-                {__('Current:')}
-              </span>{' '}
-              {current}
-            </ControlLabel>
-            <ControlLabel>
-              <span style={{ fontWeight: 'bold', color: 'black' }}>
-                {__('Target:')}
-              </span>{' '}
-              {data.target}
-            </ControlLabel>
-            <ControlLabel>
-              <span style={{ fontWeight: 'bold', color: 'black' }}>
-                {__('Progress:')}
-              </span>{' '}
-              {nestedProgressValue}%
-            </ControlLabel>
           </FormGroup>
         </FlexItem>
       </FlexContent>
-
-      <ControlLabel>
-        <span style={{ fontWeight: 'bold', color: 'black' }}>
-          {__('Month')}
-        </span>{' '}
-        {data.entity}
-      </ControlLabel>
-
-      <FlexContent>
-        <FlexItem>
-          <BoardHeader>
-            <FormGroup>
-              <ControlLabel>
-                {__(
-                  data.entity +
-                    ' progressed: ' +
-                    pipelineName +
-                    ', ' +
-                    stageName,
-                )}
-              </ControlLabel>
-            </FormGroup>
-          </BoardHeader>
-        </FlexItem>
-      </FlexContent>
-
       <FlexContent>
         <FlexItem>
           <BoardHeader>
@@ -184,7 +141,7 @@ const GoalView = (props: Props) => {
                 {data.specificPeriodGoals.map((element, index) => (
                   <tr key={index}>
                     <td>{element.addTarget}</td>
-                    <td>{current}</td>
+                    <td>{element.current}</td>
                     <td>{element.progress + '%'}</td>
                     <td>{element.addMonthly}</td>
                   </tr>

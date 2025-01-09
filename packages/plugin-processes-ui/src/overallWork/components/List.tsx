@@ -51,6 +51,7 @@ class OverallWorks extends React.Component<IProps, {}> {
 
     return (
       <Wrapper
+        hasBorder={true}
         header={
           <Wrapper.Header title={__(`Overall works`)} submenu={menuNavs} />
         }
@@ -61,7 +62,7 @@ class OverallWorks extends React.Component<IProps, {}> {
             data={mainContent}
             loading={false}
             count={totalCount}
-            emptyText="Add in your first work!"
+            emptyText={__("Add in your first work!")}
             emptyImage="/images/actions/1.svg"
           />
         }

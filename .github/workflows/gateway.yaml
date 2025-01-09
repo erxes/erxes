@@ -3,17 +3,17 @@ name: Gateway CI
 on:
   push:
     branches:
-      - 'dev'
+      - "dev"
       - master
       - rc
-      - 'staging'
-      - build-test
+      - "staging"
+      - v2
     paths:
-      - 'packages/api-utils/**'
-      - 'packages/gateway/**'
-      - '.github/workflows/gateway.yaml'
+      - "packages/api-utils/**"
+      - "packages/gateway/**"
+      - ".github/workflows/gateway.yaml"
 
-jobs:
+jobs: 
   gateway:
     runs-on: ubuntu-20.04
 
@@ -47,7 +47,7 @@ jobs:
           yarn build gateway
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'v2' || github.ref == 'refs/heads/v2' )
         run: |
           cd dist/erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

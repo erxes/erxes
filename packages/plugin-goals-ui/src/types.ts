@@ -1,3 +1,5 @@
+import { IPipelineLabel } from '@erxes/ui-cards/src/boards/types';
+
 export interface ISpecificPeriodGoal {
   progress: string;
   _id: string;
@@ -8,6 +10,7 @@ export interface ISpecificPeriodGoal {
 
 export interface IGoalTypeDoc {
   createdAt?: Date;
+  name: String;
   entity: string;
   stageId: any;
   stageName: string;
@@ -21,23 +24,19 @@ export interface IGoalTypeDoc {
   unit: string[];
   branch: string[];
   specificPeriodGoals: ISpecificPeriodGoal[];
-  progress: {
-    current: string;
-    progress: string;
-    amountData: string;
-    target: number;
-    _id: string;
-  };
   chooseStage: string;
   startDate: Date;
   endDate: Date;
-  target: number;
   segmentIds: string[];
   stageRadio: boolean;
   segmentRadio: boolean;
   periodGoal: string;
   teamGoalType: string;
   segmentCount: number;
+  pipelineLabels: any;
+  productIds: string[];
+  companyIds: string[];
+  tagsIds: string[];
 }
 
 export interface IGoalType extends IGoalTypeDoc {
@@ -46,8 +45,6 @@ export interface IGoalType extends IGoalTypeDoc {
   map(arg0: (item: any, index: any) => void): import('react').ReactNode;
   forEach(arg0: (goal: any) => void): unknown;
 }
-
-// mutation types
 
 export type EditMutationResponse = {
   goalTypesEdit: (params: { variables: IGoalType }) => Promise<any>;
@@ -77,8 +74,6 @@ export type MergeMutationResponse = {
 export type AddMutationResponse = {
   goalTypesAdd: (params: { variables: IGoalTypeDoc }) => Promise<any>;
 };
-
-// query types
 
 export type ListQueryVariables = {
   page?: number;

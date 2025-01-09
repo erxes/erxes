@@ -21,15 +21,10 @@ const receiveComment = async (
       { kind: INTEGRATION_KINDS.POST }
     ]
   });
-
-  if (userId === pageId) {
-    return;
-  }
   if (!integration) {
     throw new Error('Integration not found');
   }
   const { facebookPageTokensMap, facebookPageId } = integration;
-
   const customer = await getOrCreateCustomer(
     models,
     subdomain,
@@ -39,25 +34,27 @@ const receiveComment = async (
     INTEGRATION_KINDS.POST,
     facebookPageTokensMap
   );
-  const postConversation = await getOrCreatePostConversation(
-    models,
-    pageId,
-    subdomain,
-    postId,
-    integration,
-    customer,
-    params
-  );
-  await getOrCreateComment(
-    models,
-    subdomain,
-    postConversation,
-    params,
-    pageId,
-    userId,
-    integration,
-    customer
-  );
+  if (customer) {
+    const postConversation = await getOrCreatePostConversation(
+      models,
+      pageId,
+      subdomain,
+      postId,
+      integration,
+      customer,
+      params
+    );
+    await getOrCreateComment(
+      models,
+      subdomain,
+      postConversation,
+      params,
+      pageId,
+      userId,
+      integration,
+      customer
+    );
+  }
 };
 
 export default receiveComment;

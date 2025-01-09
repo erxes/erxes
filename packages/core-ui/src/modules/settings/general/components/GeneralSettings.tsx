@@ -1,9 +1,9 @@
-import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
+import { ColorPick, ColorPicker, LinkButton } from "@erxes/ui/src/styles/main";
 import {
   ContentBox,
   FlexRow,
   ImageWrapper,
-  Title
+  Title,
 } from "@erxes/ui-settings/src/styles";
 import {
   DATA_RETENTION_DURATION,
@@ -12,13 +12,13 @@ import {
   KEY_LABELS,
   LANGUAGES,
   LOG_RETENTION_DURATION,
-  SERVICE_TYPES
+  SERVICE_TYPES,
 } from "@erxes/ui-settings/src/general/constants";
 import {
   __,
   loadDynamicComponent,
   readFile,
-  uploadHandler
+  uploadHandler,
 } from "modules/common/utils";
 
 import ActivateInstallation from "./ActivateInstallation";
@@ -30,7 +30,10 @@ import EmailConfigForm from "@erxes/ui-settings/src/general/components/EmailConf
 import { FormControl } from "modules/common/components/form";
 import FormGroup from "modules/common/components/form/Group";
 import Header from "@erxes/ui-settings/src/general/components/Header";
-import { IConfigsMap } from "@erxes/ui-settings/src/general/types";
+import {
+  IConfigsMap,
+  IEmailConfig,
+} from "@erxes/ui-settings/src/general/types";
 import Icon from "modules/common/components/Icon";
 import Info from "modules/common/components/Info";
 import Popover from "@erxes/ui/src/components/Popover";
@@ -39,6 +42,7 @@ import Select from "react-select";
 import { SelectTeamMembers } from "@erxes/ui/src";
 import TwitterPicker from "react-color/lib/Twitter";
 import Wrapper from "modules/layout/components/Wrapper";
+import { FlexColumn } from "@erxes/ui/src/components/step/style";
 
 type Props = {
   currentLanguage: string;
@@ -61,7 +65,7 @@ class GeneralSettings extends React.Component<Props, State> {
     this.state = {
       configsMap: props.configsMap,
       language: props.currentLanguage,
-      isSaved: false
+      isSaved: false,
     };
   }
 
@@ -85,7 +89,7 @@ class GeneralSettings extends React.Component<Props, State> {
     this.setState({ configsMap });
   };
 
-  onChangeEmailConfig = (emailConfig: any) => {
+  onChangeEmailConfig = (emailConfig: IEmailConfig) => {
     this.onChangeConfig("COMPANY_EMAIL_FROM", emailConfig.email);
     this.onChangeConfig("COMPANY_EMAIL_TEMPLATE_TYPE", emailConfig.type);
     this.onChangeConfig("COMPANY_EMAIL_TEMPLATE", emailConfig.template);
@@ -113,12 +117,39 @@ class GeneralSettings extends React.Component<Props, State> {
     this.setState({ language: language.value });
   };
 
-  renderItem = (key: string, description?: string, componentClass?: string) => {
+  onChangeGooglAdditionalJSON = (index, e) => {
+    const credentials =
+      this.state?.configsMap?.GOOGLE_APP_ADDITIONAL_CREDS_JSON || [];
+
+    credentials[index] = (e.currentTarget as HTMLInputElement).value;
+
+    this.onChangeConfig("GOOGLE_APP_ADDITIONAL_CREDS_JSON", credentials);
+  };
+
+  onRemoveGoogleAdditionalJSON = index => {
+    let credentials =
+      this.state?.configsMap?.GOOGLE_APP_ADDITIONAL_CREDS_JSON || [];
+
+    credentials = credentials.filter((_, i) => i !== index);
+
+    this.onChangeConfig("GOOGLE_APP_ADDITIONAL_CREDS_JSON", credentials);
+  };
+
+  renderItem = (
+    key: string,
+    description?: string,
+    componentClass?: string,
+    actionComponent?: React.ReactNode
+  ) => {
     const { configsMap } = this.state;
 
     return (
       <FormGroup>
-        <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
+        <FlexRow $justifyContent={actionComponent ? "space-between" : ""}>
+          <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
+
+          {actionComponent ? actionComponent : null}
+        </FlexRow>
         {description && <p>{__(description)}</p>}
         <FormControl
           componentclass={componentClass}
@@ -144,12 +175,12 @@ class GeneralSettings extends React.Component<Props, State> {
             <ColorPicker style={{ backgroundColor: value }} />
           </ColorPick>
         }
-        placement="bottom-start"
+        placement='bottom-start'
       >
         <TwitterPicker
           color={value}
           onChange={this.onChangeColor.bind(this, field)}
-          triangle="hide"
+          triangle='hide'
         />
       </Popover>
     );
@@ -171,7 +202,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
       afterRead: ({ result }) => {
         return;
-      }
+      },
     });
   };
 
@@ -188,7 +219,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <img alt={field} src={readFile(value)} />
           </ImageWrapper>
         ) : null}
-        <input type="file" onChange={this.handleLogoChange.bind(this, field)} />
+        <input type='file' onChange={this.handleLogoChange.bind(this, field)} />
       </FormGroup>
     );
   }
@@ -207,8 +238,9 @@ class GeneralSettings extends React.Component<Props, State> {
       value = defaultValues[kind] || "";
     }
 
-    const optionValue = value.every(i => typeof i === "string")
-      ? constant.filter(o => value.includes(o.value))
+
+    const optionValue = value?.every((i) => typeof i === "string")
+      ? constant.filter((o) => value.includes(o.value))
       : value;
 
     return (
@@ -227,6 +259,11 @@ class GeneralSettings extends React.Component<Props, State> {
 
   renderCloudflare() {
     const { configsMap } = this.state;
+
+    const handleChange = (e: React.FormEvent<HTMLElement>) => {
+      const event = e as React.ChangeEvent<HTMLInputElement>;
+      this.onChangeConfig("CLOUDFLARE_USE_CDN", event.target.checked);
+    };
 
     return (
       <CollapseContent
@@ -253,9 +290,7 @@ class GeneralSettings extends React.Component<Props, State> {
           <FormControl
             componentclass={"checkbox"}
             checked={configsMap.CLOUDFLARE_USE_CDN}
-            onChange={(e: any) => {
-              this.onChangeConfig("CLOUDFLARE_USE_CDN", e.target.checked);
-            }}
+            onChange={handleChange}
           />
         </FormGroup>
       </CollapseContent>
@@ -267,15 +302,15 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __("Settings"), link: "/settings" },
-      { title: __("General system config") }
+      { title: __("General system config") },
     ];
 
     const actionButtons = (
       <Button
-        id="generalSettingsSave"
-        btnStyle="success"
+        id='generalSettingsSave'
+        btnStyle='success'
         onClick={this.save}
-        icon="check-circle"
+        icon='check-circle'
       >
         Save
       </Button>
@@ -283,7 +318,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const mimeTypeOptions = FILE_MIME_TYPES.map(item => ({
       value: item.value,
-      label: `${item.label} (${item.extension})`
+      label: `${item.label} (${item.extension})`,
     }));
     const mimeTypeDesc = __(
       "Comma-separated list of media types. Leave it blank for accepting all media types"
@@ -291,8 +326,13 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const emailServiceOptions = [
       { label: "SES", value: "SES" },
-      { label: "Custom", value: "custom" }
+      { label: "Custom", value: "custom" },
     ];
+
+    const handleChange = (e: React.FormEvent<HTMLElement>) => {
+      const event = e as React.ChangeEvent<HTMLInputElement>;
+      this.onChangeConfig("CHECK_TEAM_MEMBER_SHOWN", event.target.checked);
+    };
 
     const content = (
       <ContentBox id={"GeneralSettingsMenu"}>
@@ -317,7 +357,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <ControlLabel>Currency</ControlLabel>
             <Select
               options={CURRENCIES}
-              value={CURRENCIES.filter(o =>
+              value={CURRENCIES.filter((o) =>
                 configsMap.dealCurrency?.includes(o.value)
               )}
               onChange={this.onChangeMultiCombo.bind(this, "dealCurrency")}
@@ -328,14 +368,9 @@ class GeneralSettings extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>{__("with team member restrictions")}</ControlLabel>
             <FormControl
-              componentclass="checkbox"
+              componentclass='checkbox'
               checked={configsMap.CHECK_TEAM_MEMBER_SHOWN}
-              onChange={e =>
-                this.onChangeConfig(
-                  "CHECK_TEAM_MEMBER_SHOWN",
-                  (e.target as any).checked
-                )
-              }
+              onChange={handleChange}
             />
           </FormGroup>
 
@@ -346,9 +381,9 @@ class GeneralSettings extends React.Component<Props, State> {
                   {__("Team members who can access every branches")}
                 </ControlLabel>
                 <SelectTeamMembers
-                  name="BRANCHES_MASTER_TEAM_MEMBERS_IDS"
+                  name='BRANCHES_MASTER_TEAM_MEMBERS_IDS'
                   initialValue={configsMap.BRANCHES_MASTER_TEAM_MEMBERS_IDS}
-                  label="Select team members"
+                  label='Select team members'
                   onSelect={(values, name) => this.onChangeConfig(name, values)}
                 />
               </FormGroup>
@@ -357,8 +392,8 @@ class GeneralSettings extends React.Component<Props, State> {
                   {__("Team members who can access every departments")}
                 </ControlLabel>
                 <SelectTeamMembers
-                  name="DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS"
-                  label="Select team members"
+                  name='DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS'
+                  label='Select team members'
                   initialValue={configsMap.DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS}
                   onSelect={(values, name) => this.onChangeConfig(name, values)}
                 />
@@ -372,7 +407,7 @@ class GeneralSettings extends React.Component<Props, State> {
           title={__("Theme")}
           beforeTitle={<Icon icon="puzzle" />}
         >
-          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+          <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
             {this.renderUploadImage(
               "THEME_LOGO",
               "Transparent PNG, around 3:1 aspect ratio. Max width: 600px."
@@ -405,19 +440,19 @@ class GeneralSettings extends React.Component<Props, State> {
         >
           <Info>
             <a
-              target="_blank"
-              href="https://docs.erxes.io/conversations"
-              rel="noopener noreferrer"
+              target='_blank'
+              href='https://docs.erxes.io/conversations'
+              rel='noopener noreferrer'
             >
               {__("Learn how to set file uploading") + "."}
             </a>
           </Info>
-          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+          <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
             <FormGroup>
               <ControlLabel>{KEY_LABELS.UPLOAD_FILE_TYPES}</ControlLabel>
               {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
               <Select
-                value={mimeTypeOptions.filter(o =>
+                value={mimeTypeOptions.filter((o) =>
                   (configsMap.UPLOAD_FILE_TYPES || []).includes(o.value)
                 )}
                 options={mimeTypeOptions}
@@ -426,7 +461,7 @@ class GeneralSettings extends React.Component<Props, State> {
                   "UPLOAD_FILE_TYPES"
                 )}
                 isMulti={true}
-                delimiter=","
+                delimiter=','
                 // simpleValue={true}
               />
             </FormGroup>
@@ -436,7 +471,7 @@ class GeneralSettings extends React.Component<Props, State> {
               </ControlLabel>
               {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
               <Select
-                value={mimeTypeOptions.filter(o =>
+                value={mimeTypeOptions.filter((o) =>
                   (configsMap.WIDGETS_UPLOAD_FILE_TYPES || []).includes(o.value)
                 )}
                 options={mimeTypeOptions}
@@ -445,18 +480,18 @@ class GeneralSettings extends React.Component<Props, State> {
                   "WIDGETS_UPLOAD_FILE_TYPES"
                 )}
                 isMulti={true}
-                delimiter=","
+                delimiter=','
                 // simpleValue={true}
               />
             </FormGroup>
           </FlexRow>
-          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+          <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
             <FormGroup>
               <ControlLabel>{KEY_LABELS.UPLOAD_SERVICE_TYPE}</ControlLabel>
               <Select
                 options={SERVICE_TYPES}
                 value={SERVICE_TYPES.find(
-                  o => (configsMap.UPLOAD_SERVICE_TYPE || "AWS") === o.value
+                  (o) => (configsMap.UPLOAD_SERVICE_TYPE || "AWS") === o.value
                 )}
                 isClearable={false}
                 onChange={this.onChangeSingleCombo.bind(
@@ -471,7 +506,7 @@ class GeneralSettings extends React.Component<Props, State> {
               <Select
                 options={FILE_SYSTEM_TYPES}
                 value={FILE_SYSTEM_TYPES.find(
-                  o => o.value === (configsMap.FILE_SYSTEM_PUBLIC || "true")
+                  (o) => o.value === (configsMap.FILE_SYSTEM_PUBLIC || "true")
                 )}
                 isClearable={false}
                 isSearchable={false}
@@ -491,9 +526,9 @@ class GeneralSettings extends React.Component<Props, State> {
         >
           <Info>
             <a
-              target="_blank"
-              href="https://docs.erxes.io/conversations"
-              rel="noopener noreferrer"
+              target='_blank'
+              href='https://docs.erxes.io/conversations'
+              rel='noopener noreferrer'
             >
               {__(
                 "Learn how to create or find your Google Cloud Storage bucket"
@@ -510,14 +545,14 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent
           transparent={true}
-          title="AWS S3"
-          beforeTitle={<Icon icon="server-network" />}
+          title='AWS S3'
+          beforeTitle={<Icon icon='server-network' />}
         >
           <Info>
             <a
-              target="_blank"
-              href="https://docs.erxes.io/conversations"
-              rel="noopener noreferrer"
+              target='_blank'
+              href='https://docs.erxes.io/conversations'
+              rel='noopener noreferrer'
             >
               {__("Learn how to set AWS S3 Variables")}
             </a>
@@ -539,8 +574,8 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent
           transparent={true}
-          title="AWS SES"
-          beforeTitle={<Icon icon="shield-check" />}
+          title='AWS SES'
+          beforeTitle={<Icon icon='shield-check' />}
         >
           <Info>
             <p>
@@ -549,9 +584,9 @@ class GeneralSettings extends React.Component<Props, State> {
               ) + "."}
             </p>
             <a
-              target="_blank"
-              href="https://docs.erxes.io/conversations"
-              rel="noopener noreferrer"
+              target='_blank'
+              href='https://docs.erxes.io/conversations'
+              rel='noopener noreferrer'
             >
               {__("Learn how to set Amazon SES variables")}
             </a>
@@ -568,14 +603,29 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent
           transparent={true}
-          title="Google"
-          beforeTitle={<Icon icon="google" />}
+          title={__("Azure Blob Storage")}
+          beforeTitle={<Icon icon="cloud-check" />}
+        >
+          <FormGroup>
+            <ControlLabel>Container Name</ControlLabel>
+            {this.renderItem("AZURE_STORAGE_CONTAINER")}
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Connection String</ControlLabel>
+            {this.renderItem("AZURE_STORAGE_CONNECTION_STRING")}
+          </FormGroup>
+        </CollapseContent>
+
+        <CollapseContent
+          transparent={true}
+          title='Google'
+          beforeTitle={<Icon icon='google' />}
         >
           <Info>
             <a
-              target="_blank"
-              href="https://docs.erxes.io/conversations"
-              rel="noopener noreferrer"
+              target='_blank'
+              href='https://docs.erxes.io/conversations'
+              rel='noopener noreferrer'
             >
               {__("Learn how to set Google variables")}
             </a>
@@ -584,7 +634,7 @@ class GeneralSettings extends React.Component<Props, State> {
             {this.renderItem("GOOGLE_PROJECT_ID")}
             {this.renderItem("GOOGLE_CLIENT_ID")}
           </FlexRow>
-          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+          <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
             {this.renderItem(
               "GOOGLE_CLIENT_SECRET",
               "Client Secret key are required for authentication and authorization purposes"
@@ -594,12 +644,54 @@ class GeneralSettings extends React.Component<Props, State> {
               "The topic value created in Gmail setup"
             )}
           </FlexRow>
-          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
-            {this.renderItem(
-              "GOOGLE_APPLICATION_CREDENTIALS_JSON",
-              "Firebase config for notifications"
-            )}
+          <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
+            <FlexColumn>
+              {this.renderItem(
+                "GOOGLE_APPLICATION_CREDENTIALS_JSON",
+                "Firebase config for notifications",
+                undefined,
+                configsMap?.GOOGLE_APPLICATION_CREDENTIALS_JSON ? (
+                  <LinkButton
+                    onClick={() =>
+                      this.onChangeConfig("GOOGLE_APP_ADDITIONAL_CREDS_JSON", [
+                        ...(configsMap?.GOOGLE_APP_ADDITIONAL_CREDS_JSON || []),
+                        "",
+                      ])
+                    }
+                  >
+                    {__("+ Add additional JSON config")}
+                  </LinkButton>
+                ) : undefined
+              )}
+              {(configsMap?.GOOGLE_APP_ADDITIONAL_CREDS_JSON || []).map(
+                (additionalJSON, index) => (
+                  <FlexRow key={index}>
+                    <FormControl
+                      value={additionalJSON}
+                      onChange={this.onChangeGooglAdditionalJSON.bind(
+                        this,
+                        index
+                      )}
+                    />
+                    <Button
+                      btnStyle='danger'
+                      icon='times'
+                      onClick={this.onRemoveGoogleAdditionalJSON.bind(
+                        this,
+                        index
+                      )}
+                    />
+                  </FlexRow>
+                )
+              )}
+            </FlexColumn>
             {this.renderItem("GOOGLE_MAP_API_KEY", "Google Map Api Key")}
+          </FlexRow>
+          <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
+            {this.renderItem(
+              'GOOGLE_APPLICATION_CREDENTIALS',
+              'Google service account`s key path'
+            )}
           </FlexRow>
         </CollapseContent>
 
@@ -610,9 +702,9 @@ class GeneralSettings extends React.Component<Props, State> {
         >
           <Info>
             <a
-              target="_blank"
-              href="https://docs.erxes.io/conversations"
-              rel="noopener noreferrer"
+              target='_blank'
+              href='https://docs.erxes.io/conversations'
+              rel='noopener noreferrer'
             >
               {__("Learn more about Email Settings")}
             </a>
@@ -622,9 +714,9 @@ class GeneralSettings extends React.Component<Props, State> {
             emailConfig={{
               email: configsMap.COMPANY_EMAIL_FROM,
               type: configsMap.COMPANY_EMAIL_TEMPLATE_TYPE,
-              template: configsMap.COMPANY_EMAIL_TEMPLATE
+              template: configsMap.COMPANY_EMAIL_TEMPLATE,
             }}
-            emailText="Set an email address you wish to send your internal transactional emails from. For example, task notifications, team member mentions, etc."
+            emailText='Set an email address you wish to send your internal transactional emails from. For example, task notifications, team member mentions, etc.'
             setEmailConfig={this.onChangeEmailConfig}
             isSaved={this.state.isSaved}
           />
@@ -638,7 +730,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <Select
               options={emailServiceOptions}
               value={emailServiceOptions.find(
-                o => o.value === (configsMap.DEFAULT_EMAIL_SERVICE || "SES")
+                (o) => o.value === (configsMap.DEFAULT_EMAIL_SERVICE || "SES")
               )}
               isClearable={false}
               isSearchable={false}
@@ -657,9 +749,9 @@ class GeneralSettings extends React.Component<Props, State> {
         >
           <Info>
             <a
-              target="_blank"
-              href="https://docs.erxes.io/conversations"
-              rel="noopener noreferrer"
+              target='_blank'
+              href='https://docs.erxes.io/conversations'
+              rel='noopener noreferrer'
             >
               {__("Learn the case of custom email service")}
             </a>
@@ -680,7 +772,7 @@ class GeneralSettings extends React.Component<Props, State> {
           title={__("Data retention")}
           beforeTitle={<Icon icon="cloud-data-connection" />}
         >
-          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+          <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
             <FormGroup>
               <ControlLabel>
                 {KEY_LABELS.NOTIFICATION_DATA_RETENTION}
@@ -688,7 +780,8 @@ class GeneralSettings extends React.Component<Props, State> {
               <Select
                 options={DATA_RETENTION_DURATION}
                 value={DATA_RETENTION_DURATION.find(
-                  o => o.value === (configsMap.NOTIFICATION_DATA_RETENTION || 3)
+                  (o) =>
+                    o.value === (configsMap.NOTIFICATION_DATA_RETENTION || 3)
                 )}
                 isClearable={false}
                 isSearchable={false}
@@ -703,7 +796,7 @@ class GeneralSettings extends React.Component<Props, State> {
               <Select
                 options={LOG_RETENTION_DURATION}
                 value={LOG_RETENTION_DURATION.find(
-                  o => o.value === (configsMap.LOG_DATA_RETENTION || 1)
+                  (o) => o.value === (configsMap.LOG_DATA_RETENTION || 1)
                 )}
                 isClearable={false}
                 isSearchable={false}
@@ -736,8 +829,8 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent
           transparent={true}
-          title="MessagePro"
-          beforeTitle={<Icon icon="comment-alt-verify" />}
+          title='MessagePro'
+          beforeTitle={<Icon icon='comment-alt-verify' />}
         >
           <FlexRow $alignItems="flex-start" $justifyContent="space-between">
             {this.renderItem("MESSAGE_PRO_API_KEY")}
@@ -763,7 +856,7 @@ class GeneralSettings extends React.Component<Props, State> {
         }
         mainHead={
           <Header
-            title="System configuration"
+            title='System configuration'
             description={
               __(
                 "Set up your initial account settings so that things run smoothly in unison"

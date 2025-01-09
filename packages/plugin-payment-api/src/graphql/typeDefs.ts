@@ -18,6 +18,12 @@ import {
   types as configsTypes,
 } from './schema/paymentConfigs';
 
+import {
+  queries as transactionsQueries,
+  mutations as transactionsMutations,
+  types as transactionsTypes
+} from './schema/transactions';
+
 const typeDefs = async () => {
   return gql`
     scalar JSON
@@ -37,18 +43,21 @@ const typeDefs = async () => {
     ${invoiceTypes}
     ${paymentTypes}
     ${configsTypes}
+    ${transactionsTypes}
 
     
     extend type Query {
       ${invoiceQueries}
       ${paymentQueries}
       ${configsQueries}
+      ${transactionsQueries}
     }
     
     extend type Mutation {
       ${paymentMutations}
       ${configsMutations}
       ${invoiceMutations}
+      ${transactionsMutations}
     }
   `;
 };

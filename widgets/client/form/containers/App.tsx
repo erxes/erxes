@@ -1,9 +1,11 @@
-import * as React from "react";
-import DumbApp from "../components/App";
-import { connection } from "../connection";
-import { AppConsumer, AppProvider } from "./AppContext";
-import { postMessage, saveBrowserInfo } from "./utils";
-import "../sass/style.min.css";
+import * as React from 'react';
+import DumbApp from '../components/App';
+import { connection } from '../connection';
+import { AppConsumer, AppProvider } from './AppContext';
+import { postMessage, saveBrowserInfo } from './utils';
+import '../sass/style.min.css';
+import { ICurrentStatus, IForm, IFormDoc } from '../types';
+import { IEmailParams, IIntegration } from '../../types';
 
 type Props = {
   loadType: string;
@@ -17,44 +19,65 @@ type Props = {
   setCallSubmit: (state: boolean) => void;
   setExtraContent: (content: string) => void;
   onChangeCurrentStatus: (status: string) => void;
+  isSubmitting?: boolean;
+  currentStatus: ICurrentStatus;
+  save: (
+    doc: IFormDoc,
+    formCode?: string,
+    requiredPaymentAmount?: number
+  ) => void;
+  createNew: () => void;
+  sendEmail: (params: IEmailParams) => void;
+  extraContent?: string;
+  callSubmit: boolean;
+  invoiceLink?: string;
+  getIntegration: () => IIntegration;
+  getForm: () => IForm;
 };
 
 class App extends React.Component<Props> {
   componentDidMount() {
     saveBrowserInfo();
 
-    window.addEventListener("message", event => {
-      const { fromPublisher, fromPayment, message, action, formId, html, invoice } = event.data;
+    window.addEventListener('message', (event) => {
+      const {
+        fromPublisher,
+        fromPayment,
+        message,
+        action,
+        formId,
+        html,
+        invoice,
+      } = event.data;
 
       if (fromPublisher) {
         // receive sendingBrowserInfo command from publisher
-        if (message === "sendingBrowserInfo") {
+        if (message === 'sendingBrowserInfo') {
           this.props.init();
         }
 
         if (formId === connection.setting.form_id) {
           // receive show popup command from publisher
-          if (action === "showPopup") {
+          if (action === 'showPopup') {
             this.props.showPopup();
           }
 
           // receive call submit command
-          if (action === "callSubmit") {
+          if (action === 'callSubmit') {
             this.props.setCallSubmit(true);
           }
 
-          if (action === "extraFormContent") {
+          if (action === 'extraFormContent') {
             this.props.setExtraContent(html);
           }
         }
       }
 
       if (fromPayment) {
-        if (message === "paymentSuccessfull") {
-          this.props.onChangeCurrentStatus("SUCCESS");
+        if (message === 'paymentSuccessfull') {
+          this.props.onChangeCurrentStatus('SUCCESS');
         }
       }
-
     });
   }
 
@@ -63,65 +86,61 @@ class App extends React.Component<Props> {
   }
 
   render() {
-    const {
-      isPopupVisible,
-      isFormVisible,
-      isCalloutVisible,
-      loadType
-    } = this.props;
+    const { isPopupVisible, isFormVisible, isCalloutVisible, loadType } =
+      this.props;
 
     let parentClass;
-    let containerClass = "";
+    let containerClass = '';
 
     const extendedProps = { ...this.props, containerClass };
 
-    if (loadType === "popup") {
+    if (loadType === 'popup') {
       if (isPopupVisible) {
-        parentClass = "erxes-modal-iframe";
-        containerClass = "modal-form open";
+        parentClass = 'erxes-modal-iframe';
+        containerClass = 'modal-form open';
       } else {
-        parentClass = "erxes-modal-iframe hidden";
-        containerClass = "modal-form";
+        parentClass = 'erxes-modal-iframe hidden';
+        containerClass = 'modal-form';
       }
     }
 
-    if (loadType === "slideInLeft") {
-      parentClass = "erxes-slide-left-iframe";
-      containerClass = "container-slide-in-left";
+    if (loadType === 'slideInLeft') {
+      parentClass = 'erxes-slide-left-iframe';
+      containerClass = 'container-slide-in-left';
     }
 
-    if (loadType === "slideInRight") {
-      parentClass = "erxes-slide-right-iframe";
-      containerClass = "container-slide-in-right";
+    if (loadType === 'slideInRight') {
+      parentClass = 'erxes-slide-right-iframe';
+      containerClass = 'container-slide-in-right';
     }
 
-    if (loadType === "dropdown") {
-      parentClass = "erxes-dropdown-iframe";
-      containerClass = "container-dropdown";
+    if (loadType === 'dropdown') {
+      parentClass = 'erxes-dropdown-iframe';
+      containerClass = 'container-dropdown';
 
       if (isCalloutVisible) {
-        containerClass += " call-out";
+        containerClass += ' call-out';
       }
     }
 
-    if (loadType === "embedded") {
-      parentClass = "erxes-embedded-iframe";
-      containerClass = "container-embedded";
+    if (loadType === 'embedded') {
+      parentClass = 'erxes-embedded-iframe';
+      containerClass = 'container-embedded';
     }
 
-    if (loadType === "shoutbox") {
+    if (loadType === 'shoutbox') {
       if (isCalloutVisible || isFormVisible) {
-        parentClass = "erxes-shoutbox-iframe";
+        parentClass = 'erxes-shoutbox-iframe';
       } else {
-        parentClass = "erxes-shoutbox-iframe erxes-hidden";
+        parentClass = 'erxes-shoutbox-iframe erxes-hidden';
       }
 
-      containerClass = "container-shoutbox";
+      containerClass = 'container-shoutbox';
     }
 
     postMessage({
-      message: "changeContainerClass",
-      className: parentClass
+      message: 'changeContainerClass',
+      className: parentClass,
     });
 
     extendedProps.containerClass = containerClass;
@@ -133,7 +152,7 @@ class App extends React.Component<Props> {
 const WithContext = () => (
   <AppProvider>
     <AppConsumer>
-      {value => {
+      {(value) => {
         const {
           init,
           closePopup,
@@ -142,15 +161,25 @@ const WithContext = () => (
           isFormVisible,
           isCalloutVisible,
           setHeight,
-          getIntegrationConfigs,
+          getFormConfigs,
           setCallSubmit,
           setExtraContent,
-          onChangeCurrentStatus
+          onChangeCurrentStatus,
+          isSubmitting,
+          currentStatus,
+          save,
+          createNew,
+          sendEmail,
+          extraContent,
+          callSubmit,
+          invoiceLink,
+          getIntegration,
+          getForm,
         } = value;
 
         return (
           <App
-            loadType={getIntegrationConfigs().loadType}
+            loadType={getFormConfigs().loadType}
             isPopupVisible={isPopupVisible}
             isFormVisible={isFormVisible}
             isCalloutVisible={isCalloutVisible}
@@ -161,6 +190,16 @@ const WithContext = () => (
             closePopup={closePopup}
             showPopup={showPopup}
             onChangeCurrentStatus={onChangeCurrentStatus}
+            isSubmitting={isSubmitting}
+            currentStatus={currentStatus}
+            save={save}
+            createNew={createNew}
+            sendEmail={sendEmail}
+            extraContent={extraContent}
+            callSubmit={callSubmit}
+            invoiceLink={invoiceLink}
+            getIntegration={getIntegration}
+            getForm={getForm}
           />
         );
       }}

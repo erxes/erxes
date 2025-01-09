@@ -13,12 +13,12 @@ import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor"
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
-  MainStyleDateContainer as DateContainer,
+  MainStyleDateContainer as DateContainer
 } from "@erxes/ui/src/styles/eindex";
 import {
   IAttachment,
   IButtonMutateProps,
-  IFormProps,
+  IFormProps
 } from "@erxes/ui/src/types";
 import { IAssignmentCampaign } from "../types";
 import { extractAttachment, __ } from "@erxes/ui/src/utils";
@@ -60,7 +60,7 @@ const EditForm = (props: Props) => {
 
     return {
       ...finalValues,
-      ...assignmentCampaign,
+      ...assignmentCampaign
     };
   };
 
@@ -80,7 +80,7 @@ const EditForm = (props: Props) => {
     onChange(date, type);
   };
 
-  const onInputChange = (e) => {
+  const onInputChange = e => {
     e.preventDefault();
     const value = e.target.value;
     const name = e.target.name;
@@ -92,13 +92,13 @@ const EditForm = (props: Props) => {
     const { renderButton } = props;
     const { values, isSubmitted } = formProps;
 
-    const onChangeVoucherCampaign = (selected) => {
+    const onChangeVoucherCampaign = selected => {
       const value = (selected || {}).value;
 
       onChange(value, "voucherCampaignId");
     };
 
-    const onChangeSegments = (segmentIds) => {
+    const onChangeSegments = segmentIds => {
       onChange(segmentIds, "segmentIds");
     };
 
@@ -111,9 +111,9 @@ const EditForm = (props: Props) => {
       navigate(`/erxes-plugin-loyalty/settings/assignment`);
     };
 
-    const voucherOptions = props.voucherCampaigns.map((voucher) => ({
+    const voucherOptions = props.voucherCampaigns.map(voucher => ({
       label: `${voucher.title}`,
-      value: voucher._id,
+      value: voucher._id
     }));
 
     return (
@@ -179,17 +179,17 @@ const EditForm = (props: Props) => {
             </FormGroup>
           </FormColumn>
         </FormWrapper>
-        {isEnabled("segments") && isEnabled("contacts") && (
+        {
           <>
             <FormGroup>
               <ControlLabel>Segments</ControlLabel>
               <SelectSegments
                 name="segmentIds"
-                label="Choose segments"
+                label={__("Choose segments")}
                 initialValue={assignmentCampaign.segmentIds}
-                contentTypes={["contacts:customer", "contacts:lead"]}
+                contentTypes={["core:customer", "core:lead"]}
                 multi={true}
-                onSelect={(segmentIds) => onChangeSegments(segmentIds)}
+                onSelect={segmentIds => onChangeSegments(segmentIds)}
               />
             </FormGroup>
             <SegmentFields
@@ -198,13 +198,13 @@ const EditForm = (props: Props) => {
               assignmentCampaign={assignmentCampaign}
             />
           </>
-        )}
+        }
         <FormGroup>
           <ControlLabel>Voucher Campaign</ControlLabel>
           <Select
             placeholder={__("Choose voucher campaign")}
             value={voucherOptions.find(
-              (o) => o.value === assignmentCampaign.voucherCampaignId
+              o => o.value === assignmentCampaign.voucherCampaignId
             )}
             options={voucherOptions}
             name="voucherCampaignId"
@@ -229,7 +229,7 @@ const EditForm = (props: Props) => {
               "link",
               "unlink",
               "|",
-              "image",
+              "image"
             ]}
           />
         </FormGroup>
@@ -273,7 +273,7 @@ const EditForm = (props: Props) => {
             values: generateDoc(values),
             isSubmitted,
             object: assignmentCampaign,
-            callback: onSave,
+            callback: onSave
           })}
         </FormFooter>
       </>
@@ -282,7 +282,7 @@ const EditForm = (props: Props) => {
 
   const breadcrumb = [
     { title: __("Settings"), link: "/settings" },
-    { title: __("Assignment Campaign") },
+    { title: __("Assignment Campaign") }
   ];
 
   const content = (

@@ -1,5 +1,5 @@
 import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
-import { sendContactsMessage, sendInboxMessage } from './messageBroker';
+import { sendCoreMessage, sendInboxMessage } from './messageBroker';
 // import { Customers, Messages } from '../../plugin-zalo-ui/models';
 import * as dotenv from 'dotenv';
 import { generateModels } from './connectionResolver';
@@ -36,7 +36,7 @@ const saveMessages = async (linkedin, integration, criteria) => {
   //   let customerId;
 
   //   if (!prev) {
-  //     const customer = await sendContactsMessage({
+  //     const customer = await sendCoreMessage({
   //       subdomain: 'os',
   //       action: 'customers.findOne',
   //       data: {
@@ -48,7 +48,7 @@ const saveMessages = async (linkedin, integration, criteria) => {
   //     if (customer) {
   //       customerId = customer._id;
   //     } else {
-  //       const apiCustomerResponse = await sendContactsMessage({
+  //       const apiCustomerResponse = await sendCoreMessage({
   //         subdomain: 'os',
   //         action: 'customers.createCustomer',
   //         data: {

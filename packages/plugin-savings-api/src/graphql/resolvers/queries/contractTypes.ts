@@ -13,14 +13,21 @@ const generateFilter = async (params, commonQuerySelector) => {
     ];
   }
 
-  // if (params.ids) {
-  //   filter._id = { $in: params.ids };
-  // }
+  if (params.ids?.length) {
+    filter._id = { [params.excludeIds ? '$nin' : '$in']: params.ids };
+  }
+  
+  if (params.productType) {
+    filter.productType = params.productType;
+  }
 
+  if (![undefined, null, ''].includes(params.isDeposit)) {
+    filter.isDeposit = params.isDeposit && { $eq: true } || { $ne: true };
+  }
   return filter;
 };
 
-export const sortBuilder = params => {
+export const sortBuilder = (params) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -63,14 +70,14 @@ const contractTypeQueries = {
     const filter = await generateFilter(params, commonQuerySelector);
 
     return {
-      list: paginate(
+      list: await paginate(
         models.ContractTypes.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
           perPage: params.perPage
         }
       ),
-      totalCount: models.ContractTypes.find(filter).count()
+      totalCount: await models.ContractTypes.find(filter).countDocuments()
     };
   },
 

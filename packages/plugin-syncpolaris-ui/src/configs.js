@@ -5,6 +5,7 @@ module.exports = {
   scope: "syncpolaris",
   exposes: {
     "./routes": "./src/routes.tsx",
+    "./customerSidebar": "./src/pullPolaris/containers/CustomerSidebar.tsx",
   },
   routes: {
     url: "http://localhost:3137/remoteEntry.js",
@@ -22,10 +23,11 @@ module.exports = {
       permission: "syncPolarisConfig",
     },
     {
-      text: "Sync Polariss",
+      text: "Sync Polaris",
       url: "/sync-polaris-history",
       icon: "icon-star",
       location: "mainNavigation",
     },
   ],
+  customerRightSidebarSection: "./customerSidebar",
 };

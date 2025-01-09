@@ -1,16 +1,15 @@
 import * as AWS from 'aws-sdk';
 
-import { debugInfo } from '@erxes/api-utils/src/debuggers';
-import { sendContactsMessage } from '../messageBroker';
-import { ISESConfig } from '../models/Configs';
-import { SES_DELIVERY_STATUSES } from '../constants';
-import { generateModels, IModels } from '../connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
 import { sendMessage } from '@erxes/api-utils/src/messageBroker';
+import { generateModels, IModels } from '../connectionResolver';
+import { SES_DELIVERY_STATUSES } from '../constants';
+import { sendCoreMessage } from '../messageBroker';
+import { ISESConfig } from '../models/Configs';
 
 export const getApi = async (models: IModels, type: string): Promise<any> => {
   const config: ISESConfig = await models.Configs.getSESConfigs();
-
   if (!config) {
     return;
   }
@@ -37,6 +36,8 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
     parsedMessage = message;
   }
 
+  console.log('parsedMessage', parsedMessage);
+
   const { eventType, mail } = parsedMessage;
 
   if (!mail) {
@@ -46,7 +47,7 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
   const { headers } = mail;
 
   const engageMessageId = headers.find(
-    (header) => header.name === 'Engagemessageid',
+    (header) => header.name === 'Engagemessageid'
   );
 
   const mailId = headers.find((header) => header.name === 'Mailmessageid');
@@ -54,7 +55,7 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
   const customerId = headers.find((header) => header.name === 'Customerid');
 
   const emailDeliveryId = headers.find(
-    (header) => header.name === 'Emaildeliveryid',
+    (header) => header.name === 'Emaildeliveryid'
   );
 
   const to = headers.find((header) => header.name === 'To');
@@ -99,7 +100,7 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
     type === SES_DELIVERY_STATUSES.REJECT;
 
   if (rejected) {
-    sendContactsMessage({
+    sendCoreMessage({
       subdomain,
       action: 'customers.setUnsubscribed',
       isRPC: false,
@@ -110,45 +111,74 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
   return true;
 };
 
-// aws service middleware
+// AWS service middleware
+
 export const engageTracker = async (req, res) => {
-  const chunks: any = [];
-
-  req.setEncoding('utf8');
-
-  req.on('data', (chunk) => {
-    chunks.push(chunk);
-  });
-
-  req.on('end', async () => {
-    const message = JSON.parse(chunks.join(''));
-
-    debugInfo(`receiving on tracker: ${JSON.stringify(message)}`);
-
+  try {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
-    const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
+    // Handle case where req.body is populated (typically for SaaS SES events)
+    if (req.body && Object.keys(req.body).length) {
+      const { message: messageString } = req.body;
 
-    if (Type === 'SubscriptionConfirmation') {
-      await getApi(models, 'sns').then((api) =>
-        api.confirmSubscription({ Token, TopicArn }).promise(),
-      );
+      if (messageString) {
+        const message = JSON.parse(messageString);
 
-      return res.end('success');
+        await handleMessage(models, subdomain, message);
+
+        return res.end('success');
+      }
+
+      return res.end('no message content');
     }
 
-    if (
-      Message ===
-      'Successfully validated SNS topic for Amazon SES event publishing.'
-    ) {
-      res.end('success');
-    }
+    // Handle case for streamed incoming data (e.g., SNS notifications)
+    const chunks: any = [];
 
-    await handleMessage(models, subdomain, Message);
+    req.setEncoding('utf8');
 
-    return res.end('success');
-  });
+    req.on('data', (chunk) => {
+      chunks.push(chunk);
+    });
+
+    req.on('end', async () => {
+      try {
+        const message = JSON.parse(chunks.join(''));
+
+        debugInfo(`Receiving on tracker: ${JSON.stringify(message)}`);
+
+        const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
+
+        // Handle SNS Subscription Confirmation
+        if (Type === 'SubscriptionConfirmation') {
+          const snsApi = await getApi(models, 'sns');
+          await snsApi.confirmSubscription({ Token, TopicArn }).promise();
+
+          return res.end('success');
+        }
+
+        // Handle SNS topic validation confirmation for SES event publishing
+        if (
+          Message ===
+          'Successfully validated SNS topic for Amazon SES event publishing.'
+        ) {
+          return res.end('success');
+        }
+
+        // Process the actual message
+        await handleMessage(models, subdomain, Message);
+
+        return res.end('success');
+      } catch (error) {
+        console.error('Error processing message:', error);
+        return res.status(500).end('Error processing message');
+      }
+    });
+  } catch (error) {
+    console.error('Error in engageTracker:', error);
+    return res.status(500).end('Internal server error');
+  }
 };
 
 export const awsRequests = {

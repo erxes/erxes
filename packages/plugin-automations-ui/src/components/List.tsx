@@ -1,5 +1,5 @@
 import { AutomationsCount, IAutomation } from "../types";
-import { __, router } from "coreui/utils";
+import { __, router } from "@erxes/ui/src/utils";
 
 import { BarItems } from "@erxes/ui/src/layout/styles";
 import Button from "@erxes/ui/src/components/Button";
@@ -58,7 +58,7 @@ class AutomationsList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue,
+      searchValue: this.props.searchValue
     };
   }
 
@@ -68,7 +68,7 @@ class AutomationsList extends React.Component<IProps, State> {
     toggleAll(automations, "automations");
   };
 
-  search = (e) => {
+  search = e => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -79,24 +79,23 @@ class AutomationsList extends React.Component<IProps, State> {
     this.setState({ searchValue });
 
     this.timer = setTimeout(() => {
-      router.removeParams(navigate, location, "page");
-      router.setParams(navigate, location, { searchValue });
+      router.setParams(navigate, location, { searchValue, page: undefined });
     }, 500);
   };
 
-  removeAutomations = (automations) => {
+  removeAutomations = automations => {
     const automationIds: string[] = [];
 
-    automations.forEach((automation) => {
+    automations.forEach(automation => {
       automationIds.push(automation._id);
     });
 
     this.props.removeAutomations({ automationIds }, this.props.emptyBulk);
   };
 
-  archiveAutomations = (automations) => {
+  archiveAutomations = automations => {
     const automationIds: string[] = automations.map(
-      (automation) => automation._id
+      automation => automation._id
     );
 
     const isRestore = this.props?.queryParams?.status === "archived";
@@ -107,7 +106,7 @@ class AutomationsList extends React.Component<IProps, State> {
     );
   };
 
-  moveCursorAtTheEnd = (e) => {
+  moveCursorAtTheEnd = e => {
     const tmpValue = e.target.value;
     e.target.value = "";
     e.target.value = tmpValue;
@@ -135,7 +134,7 @@ class AutomationsList extends React.Component<IProps, State> {
       counts,
       location,
       addAutomation,
-      emptyBulk,
+      emptyBulk
     } = this.props;
 
     const automations = this.props.automations || [];
@@ -156,7 +155,7 @@ class AutomationsList extends React.Component<IProps, State> {
               <th>{__("Status")}</th>
               <th>{__("Triggers")}</th>
               <th>{__("Action")}</th>
-              {isEnabled("tags") && <th>{__("Tags")}</th>}
+              <th>{__("Tags")}</th>
               <th>{__("Last updated by")}</th>
               <th>{__("Created by")}</th>
               <th>{__("Last update")}</th>
@@ -165,7 +164,7 @@ class AutomationsList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="automations" className={isExpand ? "expand" : ""}>
-            {(automations || []).map((automation) => (
+            {(automations || []).map(automation => (
               <Row
                 key={automation._id}
                 automation={automation}
@@ -202,19 +201,17 @@ class AutomationsList extends React.Component<IProps, State> {
           >
             {queryParams.status === "archived" ? "Restore" : "Archive"}
           </Button>
-          {isEnabled("tags") && (
-            <TaggerPopover
-              type={TAG_TYPES.AUTOMATION}
-              successCallback={emptyBulk}
-              singleSelect
-              targets={bulk}
-              trigger={
-                <Button btnStyle="simple" size="small" icon="tag-alt">
-                  Tag
-                </Button>
-              }
-            />
-          )}
+          <TaggerPopover
+            type={TAG_TYPES.AUTOMATION}
+            successCallback={emptyBulk}
+            singleSelect
+            targets={bulk}
+            trigger={
+              <Button btnStyle="simple" size="small" icon="tag-alt">
+                Tag
+              </Button>
+            }
+          />
         </BarItems>
       );
     }
@@ -223,7 +220,7 @@ class AutomationsList extends React.Component<IProps, State> {
       <BarItems>
         <FormControl
           type="text"
-          placeholder={__("Search an automation")}
+          placeholder={__("Type to search")}
           onChange={this.search}
           value={this.state.searchValue}
           autoFocus={true}

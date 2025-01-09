@@ -1,24 +1,24 @@
-import { sendMessage } from '@erxes/api-utils/src/core';
+import { sendMessage } from "@erxes/api-utils/src/core";
 import type {
   MessageArgs,
-  MessageArgsOmitService,
-} from '@erxes/api-utils/src/core';
-import * as dotenv from 'dotenv';
-import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
-import { Records } from './models';
-import { getDailyData, getRecordings } from './utils';
+  MessageArgsOmitService
+} from "@erxes/api-utils/src/core";
+import * as dotenv from "dotenv";
+import { consumeRPCQueue } from "@erxes/api-utils/src/messageBroker";
+import { Records } from "./models";
+import { getDailyData, getRecordings } from "./utils";
 
 dotenv.config();
 
 export const setupMessageConsumers = async () => {
-  consumeRPCQueue('dailyco:getDailyRoom', async (args): Promise<any> => {
+  consumeRPCQueue("dailyco:getDailyRoom", async (args): Promise<any> => {
     const { subdomain, data } = args;
     const { contentType, contentTypeId, messageId } = data;
 
     const callRecord = await Records.findOne({
       contentTypeId,
       contentType,
-      messageId,
+      messageId
     });
 
     if (!callRecord) {
@@ -31,39 +31,39 @@ export const setupMessageConsumers = async () => {
 
     const recordingLinks = await getRecordings(
       subdomain,
-      callRecord.recordings,
+      callRecord.recordings
     );
 
     return {
-      status: 'success',
+      status: "success",
       data: {
         url: `https://${domain_name}.daily.co/${roomName}?t=${token}`,
         name: roomName,
         status,
-        recordingLinks: recordingLinks.map((recording) => recording.url) || [],
-      },
+        recordingLinks: recordingLinks.map(recording => recording.url) || []
+      }
     };
   });
 };
 
-export const sendContactsMessage = (args: MessageArgsOmitService) => {
+export const sendCoreMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
-    serviceName: 'contacts',
-    ...args,
+    serviceName: "core",
+    ...args
   });
 };
 
 export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
-    serviceName: 'inbox',
-    ...args,
+    serviceName: "inbox",
+    ...args
   });
 };
 
 export const sendCommonMessage = async (
-  args: MessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    ...args,
+    ...args
   });
 };

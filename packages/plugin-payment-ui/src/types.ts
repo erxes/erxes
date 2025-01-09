@@ -1,7 +1,10 @@
-import { ICompany } from '@erxes/ui-contacts/src/companies/types';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 
 import { Counts, QueryResponse } from '@erxes/ui/src/types';
+
+export type District = {
+  name: string;
+  code: string;
+};
 
 export interface IPayment {
   name: string;
@@ -63,9 +66,21 @@ export type InvoicesCount = {
   byStatus: Counts;
 };
 
-export interface IInvoice {
+export interface ITransaction {
   _id: string;
   amount: number;
+  status: string;
+  paymentKind: string;
+  paymentId: string;
+  payment: any;
+  details: any;
+}
+
+export interface IInvoice {
+  _id: string;
+  invoiceNumber: string;
+  amount: number;
+  currency: string;
   contentType: string;
   contentTypeId: string;
   createdAt: Date;
@@ -82,6 +97,7 @@ export interface IInvoice {
   errorDescription?: string;
   pluginData?: any;
   idOfProvider: string;
+  transactions: ITransaction[];
 }
 
 export interface IPaymentConfig {

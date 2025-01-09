@@ -2,6 +2,7 @@ import { IModels } from '../../connectionResolver';
 import { getConfig } from '../../messageBroker';
 import { SCHEDULE_STATUS } from '../definitions/constants';
 import { IContractDocument } from '../definitions/contracts';
+import { ISchedule } from '../definitions/schedules';
 import { getCalcedAmounts } from './transactionUtils';
 import { getFullDate } from './utils';
 
@@ -13,9 +14,9 @@ export const getCloseInfo = async (
 ) => {
   const closeDate = getFullDate(date);
   const contractId = contract._id;
-  const config = await getConfig('loansConfig',subdomain)
+  const config = await getConfig('loansConfig', subdomain);
 
-  let lastPaySchedule = await models.Schedules.findOne({
+  let lastPaySchedule: null | Pick<ISchedule, 'payDate' | 'balance'> = await models.Schedules.findOne({
     contractId,
     status: { $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS] }
   })
@@ -36,7 +37,7 @@ export const getCloseInfo = async (
   const paymentInfo = await getCalcedAmounts(models, subdomain, {
     contractId,
     payDate: closeDate
-  },config)
+  }, config);
 
-  return paymentInfo;
+  return { ...paymentInfo, interest: paymentInfo.calcInterest + paymentInfo.storedInterest };
 };

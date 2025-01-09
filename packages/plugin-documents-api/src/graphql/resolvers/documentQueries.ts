@@ -1,8 +1,9 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../connectionResolver';
-import { sendCommonMessage } from '../../messageBroker';
-import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { paginate } from "@erxes/api-utils/src";
+import { IContext } from "../../connectionResolver";
+import { sendCommonMessage } from "../../messageBroker";
+import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
+import common from "../../common";
 
 interface IListParams {
   limit: number;
@@ -26,20 +27,20 @@ const generateFilter = (args: IListParams) => {
     filter.$or = [
       { subType },
       { subType: { $exists: false } },
-      { subType: { $in: ['', null, undefined] } },
+      { subType: { $in: ["", null, undefined] } }
     ];
   }
 
   if (searchValue) {
-    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+    filter.name = new RegExp(`.*${searchValue}.*`, "i");
   }
 
   return filter;
 };
 
 const documentQueries = {
-  documents(_root, args: IListParams, { models }: IContext) {
-    const sort = { date: -1 };
+  async documents(_root, args: IListParams, { models }: IContext) {
+    const sort: any = { date: -1 };
 
     const selector = generateFilter(args);
 
@@ -50,7 +51,7 @@ const documentQueries = {
     return paginate(models.Documents.find(selector).sort(sort), args);
   },
 
-  documentsDetail(_root, { _id }, { models }: IContext) {
+  async documentsDetail(_root, { _id }, { models }: IContext) {
     return models.Documents.findOne({ _id });
   },
 
@@ -60,12 +61,7 @@ const documentQueries = {
       label: string;
       contentType: string;
       subTypes?: string[];
-    }> = [
-      {
-        label: 'Team members',
-        contentType: 'core:user',
-      },
-    ];
+    }> = [...common.types];
 
     for (const serviceName of services) {
       const service = await getService(serviceName);
@@ -77,7 +73,7 @@ const documentQueries = {
           fieldTypes.push({
             label: type.label,
             contentType: `${type.type}`,
-            subTypes: type.subTypes,
+            subTypes: type.subTypes
           });
         }
       }
@@ -89,45 +85,35 @@ const documentQueries = {
   async documentsGetEditorAttributes(
     _root,
     { contentType },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
-    if (contentType === 'core:user') {
-      const fields = await sendCommonMessage({
-        subdomain,
-        serviceName: 'forms',
-        action: 'fields.fieldsCombinedByContentType',
-        isRPC: true,
-        data: {
-          contentType,
-        },
-      });
+    const [serviceName, type] = contentType.split(":");
 
-      return fields.map((f) => ({ value: f.name, name: f.label }));
+    const editorAttributes = common.editorAttributes[type];
+
+    if (editorAttributes) {
+      return await editorAttributes({ subdomain, data: { contentType } });
     }
 
-    let data: any = {};
-
-    if (contentType.match(new RegExp('contacts:'))) {
-      data.contentType = contentType;
-      contentType = 'contacts';
-    }
-
-    return sendCommonMessage({
+    return await sendCommonMessage({
       subdomain,
-      serviceName: contentType,
-      action: 'documents.editorAttributes',
+      serviceName,
+      action: "documents.editorAttributes",
+      data: {
+        contentType
+      },
       isRPC: true,
-      data,
+      defaultValue: []
     });
   },
 
-  documentsTotalCount(_root, args: IListParams, { models }: IContext) {
+  async documentsTotalCount(_root, args: IListParams, { models }: IContext) {
     const selector = generateFilter(args);
 
     return models.Documents.find(selector).countDocuments();
-  },
+  }
 };
 
-checkPermission(documentQueries, 'documents', 'showDocuments', []);
+checkPermission(documentQueries, "documents", "showDocuments", []);
 
 export default documentQueries;

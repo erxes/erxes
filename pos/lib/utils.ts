@@ -1,26 +1,30 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-import { IEbarimtConfig, IPaymentType } from "@/types/config.types"
+import { IPaymentType } from "@/types/config.types"
 import { Customer } from "@/types/customer.types"
+import { IPaidAmount, OrderItem } from "@/types/order.types"
 import { ALL_BANK_CARD_TYPES } from "@/lib/constants"
-
-import { IPaidAmount } from "../types/order.types"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 export const READ_FILE = "/read-file?key="
 
+export const ERXES_SASS = "erxes-saas/"
+
 export const readFile = (url: string = "") => {
+  const { NEXT_PUBLIC_MAIN_API_DOMAIN } = getEnv()
+
+  if (url.startsWith(ERXES_SASS)) {
+    return NEXT_PUBLIC_MAIN_API_DOMAIN + READ_FILE + url
+  }
+
   if (url.includes(READ_FILE)) {
     const apiUrl = url.split(READ_FILE)[0]
-    return url.replace(apiUrl, getEnv().NEXT_PUBLIC_SERVER_API_DOMAIN || "")
+
+    return url.replace(apiUrl, NEXT_PUBLIC_MAIN_API_DOMAIN || "")
   }
-  // if (url.startsWith("/") && typeof window !== "undefined") {
-  //   const { protocol, host } = window.location
-  //   return `${protocol}//${host}${url}`
-  // }
   return url
 }
 
@@ -28,6 +32,22 @@ export const getEnv = (): any => {
   const envs: any = {}
 
   if (typeof window !== "undefined") {
+    const appVersion =
+      localStorage.getItem(`pos_env_NEXT_PUBLIC_APP_VERSION`) || "OS"
+
+    if (appVersion === "SAAS") {
+      const subdomain = window.location.hostname
+        .replace(/(^\w+:|^)\/\//, "")
+        .split(".")[0]
+
+      for (const envMap of (window as any).envMaps) {
+        const value = localStorage.getItem(`pos_env_${envMap.name}`) ?? ""
+        envs[envMap.name] = value.replace("<subdomain>", subdomain)
+      }
+
+      return envs
+    }
+
     for (const envMap of (window as any).envMaps || []) {
       envs[envMap.name] = localStorage.getItem(`pos_env_${envMap.name}`)
     }
@@ -59,6 +79,14 @@ export function setLocal<T>(key: string, value: T): void {
   } catch (error) {
     console.error("Error storing data in localStorage:", error)
   }
+}
+
+export const resetLocal = () => {
+  Object.keys(localStorage).forEach((key) => {
+    if (!key.startsWith("pos_env_")) {
+      localStorage.removeItem(key)
+    }
+  })
 }
 
 export function hexToHsl(hex: string) {
@@ -133,9 +161,42 @@ export const formatNum = (num: number | string, splitter?: string): string => {
   return "0"
 }
 
+export const getCartTotal = (items: OrderItem[]) =>
+  (items || []).reduce(
+    (total, item) => total + (item?.count || 0) * (item.unitPrice || 0),
+    0
+  )
+
+export const getItemInputs = (items: OrderItem[]) =>
+  items.map(
+    ({
+      _id,
+      productId,
+      count,
+      unitPrice,
+      isPackage,
+      isTake,
+      status,
+      manufacturedDate,
+      description,
+      attachment,
+    }) => ({
+      _id,
+      productId,
+      count,
+      unitPrice,
+      isPackage,
+      isTake,
+      status,
+      manufacturedDate,
+      description,
+      attachment,
+    })
+  )
+
 export const getSumsOfAmount = (
   paidAmounts: { type: string; amount: number }[],
-  paymentTypes?: IEbarimtConfig["paymentTypes"]
+  paymentTypes?: IPaymentType[]
 ) => {
   const result: any = {}
 
@@ -213,4 +274,15 @@ export const getCustomerLabel = ({
   firstName,
   lastName,
   primaryPhone,
-}: Customer) => `${firstName || ""} ${lastName || ""} ${primaryPhone || ""}`
+  primaryEmail,
+  code,
+  _id,
+}: Customer) => {
+  if (firstName || lastName || primaryEmail || primaryPhone || code) {
+    return `${firstName ?? ""} ${lastName ?? ""} ${primaryPhone ?? ""} ${
+      primaryEmail ?? ""
+    } ${code ?? ""}`
+  }
+
+  return _id || "Unknown"
+}

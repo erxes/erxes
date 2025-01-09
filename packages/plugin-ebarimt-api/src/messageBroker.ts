@@ -1,22 +1,20 @@
-import { generateModels } from './connectionResolver';
-import { sendMessage } from '@erxes/api-utils/src/core';
+import { generateModels } from "./connectionResolver";
+import { sendMessage } from "@erxes/api-utils/src/core";
 import type {
   MessageArgs,
-  MessageArgsOmitService,
-} from '@erxes/api-utils/src/core';
+  MessageArgsOmitService
+} from "@erxes/api-utils/src/core";
 
-import { afterMutationHandlers } from './afterMutations';
-import { beforeResolverHandlers } from './beforeResolvers';
-import { getCompany, getConfig } from './utils';
-import { getPostDataCommon } from './commonUtils';
-import { PutData } from './models/utils';
+import { afterMutationHandlers } from "./afterMutations";
+import { beforeResolverHandlers } from "./beforeResolvers";
+import { getCompanyInfo, getConfig } from "./utils";
 import {
   consumeQueue,
-  consumeRPCQueue,
-} from '@erxes/api-utils/src/messageBroker';
+  consumeRPCQueue
+} from "@erxes/api-utils/src/messageBroker";
 
 export const setupMessageConsumers = async () => {
-  consumeQueue('ebarimt:afterMutation', async ({ subdomain, data }) => {
+  consumeQueue("ebarimt:afterMutation", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     await afterMutationHandlers(models, subdomain, data);
@@ -24,321 +22,199 @@ export const setupMessageConsumers = async () => {
     return;
   });
 
-  consumeRPCQueue('ebarimt:beforeResolver', async ({ subdomain, data }) => {
+  consumeRPCQueue("ebarimt:beforeResolver", async ({ subdomain, data }) => {
     return {
       data: await beforeResolverHandlers(subdomain, data),
-      status: 'success',
+      status: "success"
     };
   });
 
   consumeRPCQueue(
-    'ebarimt:putresponses.find',
+    "ebarimt:putresponses.find",
     async ({ subdomain, data: { query, sort } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.PutResponses.find(query)
           .sort(sort || {})
-          .lean(),
+          .lean()
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'ebarimt:putresponses.putData',
+    "ebarimt:putresponses.putDatas",
     async ({
       subdomain,
-      data: { contentType, contentId, productsById, orderInfo, config },
+      data: { contentType, contentId, orderInfo, config }
     }) => {
       const models = await generateModels(subdomain);
-      // orderInfo = {
-      //   number: string /unique in day/,
-      //   date:
-      //     date.toISOString().split('T')[0] +
-      //     ' ' +
-      //     date.toTimeString().split(' ')[0],
-      //   orderId: =contentId,
-      //   hasVat: boolean,
-      //   hasCitytax: boolean,
-      //   billType: 1 | 3,
-      //   customerCode: string [7],
-      //   customerName: string,
-      //   description: string,
-      //   details: [{
-      //     productId: string
-      //     amount: number,
-      //     count: number,
-      //     inventoryCode: string,
-      //     discount?: number
-      //   }],
-      //   cashAmount: number,
-      //   nonCashAmount: number
-      // };
-
-      // config = {
-      //   districtName: string,
-      //   vatPercent?: number,
-      //   cityTaxPercent?: number
-      //   defaultGSCode?: string *
-      //   companyRD: string
-      // }
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.PutResponses.putData(
           {
             ...orderInfo,
-            productsById,
             contentType,
-            contentId,
+            contentId
           },
-          { ...(await getConfig(subdomain, 'EBARIMT', {})), ...config },
-        ),
+          { ...(await getConfig(subdomain, "EBARIMT", {})), ...config }
+        )
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'ebarimt:putresponses.putDatas',
-    async ({
-      subdomain,
-      data: { contentType, contentId, orderInfo, config },
-    }) => {
-      const models = await generateModels(subdomain);
-      // orderInfo = {
-      //   number: string /unique in day/,
-      //   date:
-      //     date.toISOString().split('T')[0] +
-      //     ' ' +
-      //     date.toTimeString().split(' ')[0],
-      //   orderId: =contentId,
-      //   billType: '1' | '3',
-      //   customerCode?: string [7],
-      //   customerName?: string,
-      //   description: string,
-      //   details: [{
-      //     productId: string
-      //     amount: number,
-      //     count: number,
-      //     discount?: number
-      //   }],
-      //   cashAmount: number,
-      //   nonCashAmount: number
-      // };
-
-      // config = {
-      //   districtName: string,
-      //   hasVat: boolean;
-      //   vatPercent?: number,
-      //   hasCitytax: boolean
-      //   cityTaxPercent?: number
-      //   defaultGSCode?: string *
-      //   companyRD: string
-      // }
-      const mainConfig = {
-        ...config,
-        ...(await getConfig(subdomain, 'EBARIMT', {})),
-      };
-
-      const ebarimtDatas = await getPostDataCommon(
-        subdomain,
-        mainConfig,
-        contentType,
-        contentId,
-        orderInfo,
-      );
-      const ebarimtResponses: any[] = [];
-
-      for (const ebarimtData of ebarimtDatas) {
-        let ebarimtResponse;
-
-        if (config.skipPutData || ebarimtData.inner) {
-          const putData = new PutData({
-            ...mainConfig,
-            ...ebarimtData,
-            config,
-            models,
-          });
-          ebarimtResponse = {
-            _id: Math.random(),
-            billId: 'Түр баримт',
-            ...(await putData.generateTransactionInfo()),
-            registerNo: mainConfig.companyRD || '',
-          };
-        } else {
-          ebarimtResponse = await models.PutResponses.putData(
-            ebarimtData,
-            mainConfig,
-          );
-        }
-        if (ebarimtResponse._id) {
-          ebarimtResponses.push(ebarimtResponse);
-        }
-      }
-
-      return {
-        status: 'success',
-        data: ebarimtResponses,
-      };
-    },
-  );
-
-  consumeRPCQueue(
-    'ebarimt:putresponses.returnBill',
+    "ebarimt:putresponses.returnBill",
     async ({ subdomain, data: { contentType, contentId, number, config } }) => {
       const models = await generateModels(subdomain);
       const mainConfig = {
-        ...(await getConfig(subdomain, 'EBARIMT', {})),
-        ...config,
+        ...(await getConfig(subdomain, "EBARIMT", {})),
+        ...config
       };
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.PutResponses.returnBill(
           { contentType, contentId, number },
-          mainConfig,
-        ),
+          mainConfig
+        )
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'ebarimt:putresponses.createOrUpdate',
+    "ebarimt:putresponses.createOrUpdate",
     async ({ subdomain, data: { _id, doc } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.PutResponses.updateOne(
           { _id },
           { $set: { ...doc } },
-          { upsert: true },
-        ),
+          { upsert: true }
+        )
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'ebarimt:putresponses.putHistory',
+    "ebarimt:putresponses.putHistory",
     async ({ subdomain, data: { contentType, contentId, taxType } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.PutResponses.putHistory({
           contentType,
-          contentId,
-          taxType,
-        }),
+          contentId
+        })
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'ebarimt:putresponses.putHistories',
+    "ebarimt:putresponses.putHistories",
     async ({ subdomain, data: { contentType, contentId } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.PutResponses.putHistories({
           contentType,
-          contentId,
-        }),
+          contentId
+        })
       };
-    },
+    }
   );
 
   consumeQueue(
-    'ebarimt:putresponses.bulkWrite',
+    "ebarimt:putresponses.bulkWrite",
     async ({ subdomain, data: { bulkOps } }) => {
       const models = await generateModels(subdomain);
 
       await models.PutResponses.bulkWrite(bulkOps);
 
       return {
-        status: 'success',
+        status: "success"
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'ebarimt:putresponses.getCompany',
+    "ebarimt:putresponses.getCompany",
     async ({ subdomain, data: { companyRD } }) => {
+      const config = (await getConfig(subdomain, "EBARIMT", {})) || {};
+      const response = await getCompanyInfo({
+        checkTaxpayerUrl: config.checkTaxpayerUrl,
+        no: companyRD
+      });
       return {
-        status: 'success',
-        data: await getCompany(subdomain, companyRD),
+        status: "success",
+        data: response.result?.data
       };
-    },
+    }
   );
-};
 
-export const sendProductsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'products',
-    ...args,
+  consumeRPCQueue("ebarimt:productRules.find", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: "success",
+      data: await models.ProductRules.find(data).lean()
+    };
   });
 };
 
 export const sendPosMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'pos',
-    ...args,
+    serviceName: "pos",
+    ...args
   });
 };
 
 export const sendLoansMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'loans',
-    ...args,
+    serviceName: "loans",
+    ...args
   });
 };
 
-export const sendContactsMessage = async (
-  args: MessageArgsOmitService,
+export const sendSalesMessage = async (
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'contacts',
-    ...args,
+    serviceName: "sales",
+    ...args
   });
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'core',
-    ...args,
-  });
-};
-
-export const sendCardsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'cards',
-    ...args,
+    serviceName: "core",
+    ...args
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'notifications',
-    ...args,
+    serviceName: "notifications",
+    ...args
   });
 };
 
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    ...args,
+    ...args
   });
 };

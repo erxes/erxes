@@ -4,15 +4,49 @@ import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-export const Trigger = styledTS<{ type: string; $isHoverActionBar?: boolean }>(
-  styled.div,
-)`
+const getNodeHeaderColor = (type: 'trigger' | 'action' | 'workflow') => {
+  switch (type) {
+    case 'trigger':
+      return rgba(colors.colorPrimary, 0.12);
+    case 'workflow':
+      return rgba('#DCDCDC', 0.5);
+    default:
+      return rgba(colors.colorCoreOrange, 0.12);
+  }
+};
+
+const getNodeIconColor = (type: 'trigger' | 'action' | 'workflow') => {
+  switch (type) {
+    case 'trigger':
+      return colors.colorSecondary;
+    case 'workflow':
+      return '#838383';
+    default:
+      return `${colors.colorCoreOrange} !important`;
+  }
+};
+
+export const Trigger = styledTS<{
+  type: 'trigger' | 'action' | 'workflow';
+  $isHoverActionBar?: boolean;
+  $isSelected?: boolean;
+}>(styled.div)`
   max-width: 300px;
   padding: 3px;
   background: #f5f5f5;
   border: 1px solid ${colors.borderPrimary};
   border-radius: 8px;
   cursor: pointer;
+
+  ${({ $isSelected }) =>
+    $isSelected
+      ? `
+      border: 2px dashed ${colors.colorSecondary} ;
+      
+    `
+      : `
+        border: 1px solid ${colors.borderPrimary};
+      `}
 
   > p {
     font-size: 13px;
@@ -23,10 +57,7 @@ export const Trigger = styledTS<{ type: string; $isHoverActionBar?: boolean }>(
   }
 
   .header {
-    background: ${(props) =>
-      props.type === 'trigger'
-        ? rgba(colors.colorPrimary, 0.12)
-        : rgba(colors.colorCoreOrange, 0.12)};
+    background: ${props => getNodeHeaderColor(props.type)};
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -50,10 +81,7 @@ export const Trigger = styledTS<{ type: string; $isHoverActionBar?: boolean }>(
         flex-shrink: 0;
         margin-right: ${dimensions.unitSpacing}px;
         background: ${colors.colorWhite};
-        color: ${(props) =>
-          props.type === 'trigger'
-            ? colors.colorSecondary
-            : `${colors.colorCoreOrange} !important`};
+        color: ${props => getNodeIconColor(props.type)};
       }
     }
 
@@ -102,7 +130,7 @@ export const Trigger = styledTS<{ type: string; $isHoverActionBar?: boolean }>(
   }
 
   .optional-connects {
-    background-color:${(props) =>
+    background-color:${props =>
       props.type === 'trigger'
         ? rgba(colors.colorPrimary, 0.12)
         : rgba(colors.colorCoreOrange, 0.12)};
@@ -186,4 +214,35 @@ export const ActionContent = styled.div`
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 2px;
+`;
+
+export const EdgeButton = styled.button`
+  width: 20px;
+  height: 20px;
+  background: ${colors.colorSecondary};
+  color: white;
+  border: 1px solid #fff;
+  cursor: pointer;
+  border-radius: 50%;
+  font-size: 12px;
+  line-height: 1;
+
+  &:hover {
+    box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.08);
+  }
+`;
+
+export const NodeStatusTrigger = styledTS<{ error?: boolean }>(styled.button)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: ${({ error }) => (error ? colors.colorCoreRed : colors.colorCoreGreen)};
+  color: white;
+  border: 1px solid #fff;
+  cursor: pointer;
+  border-radius: 50%;
+  font-size: 12px;
+  line-height: 1;
 `;

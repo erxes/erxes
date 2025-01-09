@@ -1,9 +1,4 @@
-import {
-  FilterContainer,
-  InputBar,
-  LeftActionBar,
-  Title,
-} from "@erxes/ui-settings/src/styles";
+import { LeftActionBar, Title } from "@erxes/ui-settings/src/styles";
 import {
   IPosition,
   PositionsMainQueryResponse,
@@ -35,7 +30,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 type Props = {
   listQuery: PositionsMainQueryResponse;
   deletePositions: (ids: string[], callback: () => void) => void;
-  queryParams: any;
+  queryParams: Record<string, string>;
 };
 
 const MainList = (props: Props) => {
@@ -74,7 +69,7 @@ const MainList = (props: Props) => {
     const handleSelect = () => {
       if (selectedItems.includes(position._id)) {
         const removedSelectedItems = selectedItems.filter(
-          (selectItem) => selectItem !== position._id
+          (selectItem) => selectItem !== position._id,
         );
         setSelectedItems(removedSelectedItems);
         return;
@@ -115,7 +110,7 @@ const MainList = (props: Props) => {
               title="Edit position"
               content={({ closeModal }) => (
                 <Form
-                  item={position}
+                  itemId={position._id}
                   queryType="positions"
                   closeModal={closeModal}
                   additionalRefetchQueries={refetchQueries()}
@@ -164,11 +159,11 @@ const MainList = (props: Props) => {
         </thead>
         <tbody>
           {generateTree(positions, null, (position, level) =>
-            renderRow(position, level)
+            renderRow(position, level),
           )}
 
           {generateTree(positions, "", (position, level) =>
-            renderRow(position, level)
+            renderRow(position, level),
           )}
 
           {/* {positions.map(p => renderRow(p, 1))} */}
@@ -223,19 +218,14 @@ const MainList = (props: Props) => {
     };
 
     return (
-      <FilterContainer $marginRight={true}>
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
-          <FormControl
-            type="text"
-            placeholder={__("Type to search")}
-            onChange={search}
-            value={searchValue}
-            autoFocus={true}
-            onFocus={moveCursorAtTheEnd}
-          />
-        </InputBar>
-      </FilterContainer>
+      <FormControl
+        type="text"
+        placeholder={__("Type to search")}
+        onChange={search}
+        value={searchValue}
+        autoFocus={true}
+        onFocus={moveCursorAtTheEnd}
+      />
     );
   };
   const rightActionBar = (

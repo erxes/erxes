@@ -1,11 +1,10 @@
 import { generateModels, IModels } from './connectionResolver';
-import { getChildCategories, getConfig } from './utils';
+import { calcProductsTaxRule, getChildCategories, getConfig } from './utils';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { IPosDocument } from './models/definitions/pos';
 import {
   sendCoreMessage,
-  sendPricingMessage,
-  sendProductsMessage
+  sendPricingMessage
 } from './messageBroker';
 import { USER_FIELDS } from './contants';
 
@@ -95,7 +94,7 @@ export const getProductsData = async (
       c => !excludeCatIds.includes(c)
     );
 
-    const productCategories = await sendProductsMessage({
+    const productCategories = await sendCoreMessage({
       subdomain,
       action: 'categories.find',
       data: { query: { _id: { $in: productCategoryIds } }, sort: { order: 1 } },
@@ -123,34 +122,21 @@ export const getProductsData = async (
     const categoryIds = categories.map(cat => cat._id);
     const productsByCatId = {};
 
-    const limit = await sendProductsMessage({
+    const products: any[] = await sendCoreMessage({
       subdomain,
-      action: 'count',
-      data: {
-        query: {
-          status: { $ne: 'deleted' },
-          categoryId: { $in: categoryIds },
-          _id: { $nin: group.excludedProductIds }
-        }
-      },
-      isRPC: true,
-      defaultValue: 0
-    });
-
-    const products: any[] = await sendProductsMessage({
-      subdomain,
-      action: 'find',
+      action: 'products.find',
       data: {
         query: {
           status: { $ne: 'deleted' },
           categoryId: { $in: categoryIds },
           _id: { $nin: group.excludedProductIds }
         },
-        limit
       },
       isRPC: true,
       defaultValue: []
     });
+
+    const productsById = await calcProductsTaxRule(subdomain, pos.ebarimtConfig, products)
 
     const pricing = await sendPricingMessage({
       subdomain,
@@ -170,11 +156,13 @@ export const getProductsData = async (
       isRPC: true,
       isMQ: true,
       defaultValue: {},
-      timeout: 50000
+      timeout: 290000
     });
 
-    for (const product of products) {
-      const discount = pricing[product._id] || {};
+    for (const productId of Object.keys(productsById)) {
+      const product = productsById[productId];
+
+      const discount = pricing[productId] || {};
 
       if (Object.keys(discount).length) {
         product.unitPrice -= discount.value;
@@ -223,12 +211,11 @@ export const getProductsData = async (
   }
 
   if (followProductIds.length) {
-    const followProducts = await sendProductsMessage({
+    const followProducts = await sendCoreMessage({
       subdomain,
-      action: 'find',
+      action: 'products.find',
       data: {
         query: { _id: { $in: followProductIds } },
-        limit: followProductIds.length
       },
       isRPC: true,
       defaultValue: []
@@ -292,7 +279,7 @@ export const posSyncConfig = async (req, res) => {
       });
     case 'productsConfigs':
       return res.send(
-        await sendProductsMessage({
+        await sendCoreMessage({
           subdomain,
           action: 'productsConfigs.getConfig',
           data: { code: 'similarityGroup', defaultValue: {} },

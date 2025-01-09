@@ -28,9 +28,15 @@ const acceptCall = async (
     callStartTime,
     callType,
     callStatus,
-    sessionId,
+    timeStamp,
     inboxIntegrationId,
+    queueName,
   } = params;
+
+  let queue = queueName as any;
+  if (queueName === '') {
+    queue = null; // or set a default value
+  }
 
   let customer = await models.Customers.findOne({
     primaryPhone: customerPhone,
@@ -38,22 +44,34 @@ const acceptCall = async (
 
   let history;
   try {
-    history = new models.CallHistory({
+    const historyData: any = {
       operatorPhone,
       customerPhone,
       callStartTime,
       callType,
       callStatus,
-      sessionId,
       inboxIntegrationId,
       createdAt: new Date(),
       createdBy: user._id,
       updatedBy: user._id,
       callDuration: 0,
       extentionNumber,
-    });
+      queueName: queue,
+      timeStamp,
+    };
+
+    if (timeStamp === 0) {
+      historyData.timeStamp = Date.now().toString();
+    }
+
+    history = new models.CallHistory(historyData);
 
     try {
+      await models.CallHistory.deleteMany({
+        timeStamp,
+        callStatus: { $eq: 'cancelled' },
+      });
+
       await history.save();
     } catch (error) {
       await models.CallHistory.deleteOne({ _id: history._id });
@@ -67,7 +85,10 @@ const acceptCall = async (
     );
   }
   if (!customer || !customer.erxesApiId) {
-    customer = await getOrCreateCustomer(models, subdomain, customerPhone);
+    customer = await getOrCreateCustomer(models, subdomain, {
+      inboxIntegrationId: params.inboxIntegrationId,
+      primaryPhone: params.customerPhone,
+    });
   }
   //save on api
   try {

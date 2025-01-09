@@ -1,34 +1,34 @@
-import * as _ from 'underscore';
-import { Model } from 'mongoose';
-import { getOwner } from './utils';
-import { IModels } from '../connectionResolver';
+import * as _ from "underscore";
+import { Model, models } from "mongoose";
+import { getOwner } from "./utils";
+import { IModels } from "../connectionResolver";
 import {
   IScoreLogDocument,
   scoreLogSchema,
   IScoreLog
-} from './definitions/scoreLog';
+} from "./definitions/scoreLog";
 import {
   sendClientPortalMessage,
   sendCommonMessage,
-  sendContactsMessage,
   sendCoreMessage
-} from '../messageBroker';
+} from "../messageBroker";
 
-import { IScoreParams } from './definitions/common';
-import { paginate } from '@erxes/api-utils/src';
+import { IScoreParams } from "./definitions/common";
+import { paginate } from "@erxes/api-utils/src";
+import { debugError } from "@erxes/api-utils/src/debuggers";
 
 const OWNER_TYPES = {
   customer: {
-    serviceName: 'contacts',
-    contentType: 'customers'
+    serviceName: "core",
+    contentType: "customers"
   },
   company: {
-    serviceName: 'contacts',
-    contentType: 'companies'
+    serviceName: "core",
+    contentType: "companies"
   },
   user: {
-    serviceName: 'core',
-    contentType: 'users'
+    serviceName: "core",
+    contentType: "users"
   }
 };
 
@@ -53,6 +53,9 @@ const generateFilter = (params: IScoreParams) => {
   if (params.toDate) {
     filter.createdAt = { ...filter.createdAt, $lt: params.toDate };
   }
+  if (params.campaignId) {
+    filter.campaignId = params.campaignId;
+  }
   return filter;
 };
 
@@ -62,20 +65,20 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const scoreLog = await models.ScoreLogs.findOne({ _id }).lean();
 
       if (!scoreLog) {
-        throw new Error('not found scoreLog rule');
+        throw new Error("not found scoreLog rule");
       }
 
       return scoreLog;
     }
 
     public static async getScoreLogs(doc: IScoreParams) {
-      const { order, orderType } = doc;
+      const { order = -1, orderType = "createdAt" } = doc;
       const filter = generateFilter(doc);
-      const list = paginate(
-        models.ScoreLogs.find(filter).sort({ [orderType]: order }),
+      const list = await paginate(
+        models.ScoreLogs.find(filter).sort({ [orderType]: order } as any),
         doc
       );
-      const total = await models.ScoreLogs.find(filter).count();
+      const total = await models.ScoreLogs.find(filter).countDocuments();
       return { list, total };
     }
 
@@ -85,7 +88,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         ownerIds,
         changeScore,
         description,
-        createdBy = ''
+        createdBy = ""
       } = doc;
       const { serviceName, contentType } = OWNER_TYPES[ownerType] || {};
 
@@ -97,15 +100,15 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         serviceName,
         action: `${contentType}.find`,
         data:
-          contentType === 'users'
+          contentType === "users"
             ? { query: { ...ownerFilter } }
             : { ...ownerFilter },
         isRPC: true,
         defaultValue: []
-      });
+      }).catch(error => debugError(error.message));
 
       if (!owners?.length) {
-        throw new Error('Not found owners');
+        throw new Error("Not found owners");
       }
 
       try {
@@ -149,7 +152,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         ownerId,
         changeScore,
         description,
-        createdBy = ''
+        createdBy = "",
+        campaignId
       } = doc;
 
       const score = Number(changeScore);
@@ -159,7 +163,24 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         throw new Error(`not fount ${ownerType}`);
       }
 
-      const oldScore = Number(owner.score) || 0;
+      let ownerScore = owner.score;
+
+      if (campaignId) {
+        const campaign = await models.ScoreCampaigns.findOne({
+          _id: campaignId
+        });
+
+        if (!campaign) {
+          throw new Error("Campaign not found");
+        }
+        const campaignScore =
+          (owner?.customFieldsData || []).find(
+            ({ field }) => field === campaign.fieldId
+          )?.value || 0;
+        ownerScore = campaignScore;
+      }
+
+      const oldScore = Number(ownerScore) || 0;
       const newScore = oldScore + score;
 
       if (score < 0 && newScore < 0) {
@@ -170,11 +191,12 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         subdomain,
         ownerId,
         ownerType,
-        newScore
+        newScore,
+        campaignId
       });
 
       if (!response || !Object.keys(response || {})?.length) {
-        throw new Error('Something went wrong for give score');
+        throw new Error("Something went wrong for give score");
       }
       return await models.ScoreLogs.create({
         ownerId,
@@ -182,50 +204,105 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         changeScore: score,
         createdAt: new Date(),
         description,
-        createdBy
+        createdBy,
+        action: "add"
       });
     }
-    static async updateOwnerScore({ subdomain, ownerType, ownerId, newScore }) {
-      if (ownerType === 'user') {
-        return await sendCoreMessage({
+
+    static async updateOwnerScore({
+      subdomain,
+      ownerType,
+      ownerId,
+      newScore,
+      campaignId
+    }) {
+      const updateEntity = async (
+        action: string,
+        selector: any,
+        modifier: any
+      ) =>
+        await sendCoreMessage({
           subdomain,
-          action: 'users.updateOne',
-          data: {
-            selector: { _id: ownerId },
-            modifier: { $set: { score: newScore } }
-          },
+          action,
+          data: { selector, modifier },
           isRPC: true,
           defaultValue: null
         });
-      }
-      if (ownerType === 'customer') {
-        return await sendContactsMessage({
-          subdomain,
-          action: 'customers.updateOne',
-          data: {
-            selector: { _id: ownerId },
-            modifier: { $set: { score: newScore } }
-          },
-          isRPC: true,
-          defaultValue: null
+
+      const modifier: any = { $set: { score: newScore } };
+      const selector: {
+        _id: string;
+      } = { _id: ownerId };
+
+      if (campaignId) {
+        const campaign = await models.ScoreCampaigns.findOne({
+          _id: campaignId
         });
-      }
-      if (ownerType === 'company') {
-        return await sendContactsMessage({
+
+        if (!campaign?.fieldId) {
+          throw new Error(
+            "Something went wrong when trying to find campaign field"
+          );
+        }
+
+        const prepareCustomFieldsData = await sendCoreMessage({
           subdomain,
-          action: 'companies.updateCommon',
-          data: {
-            selector: { _id: ownerId },
-            modifier: { $set: { score: newScore } }
-          },
+          action: "fields.prepareCustomFieldsData",
+          data: [{ field: campaign.fieldId, value: newScore }],
           isRPC: true,
-          defaultValue: null
+          defaultValue: []
         });
+
+        if (!prepareCustomFieldsData[0]) {
+          throw new Error(
+            "Something went wrong when preparing score field data"
+          );
+        }
+
+        const prepareCustomFieldData: { field: string; value: number } =
+          prepareCustomFieldsData[0];
+
+        const owner = await getOwner(subdomain, ownerType, ownerId);
+
+        const { customFieldsData } = owner || {};
+        let updatedCustomFieldsData;
+
+        if (
+          !customFieldsData ||
+          !(customFieldsData || []).find(
+            ({ field }) => field === campaign.fieldId
+          )
+        ) {
+          updatedCustomFieldsData = [
+            ...(customFieldsData || []),
+            prepareCustomFieldData
+          ];
+        } else {
+          updatedCustomFieldsData = customFieldsData.map(customFieldData =>
+            customFieldData.field === campaign.fieldId
+              ? { ...customFieldData, ...prepareCustomFieldData }
+              : customFieldData
+          );
+        }
+
+        modifier.$set["customFieldsData"] = updatedCustomFieldsData || [];
+        delete modifier.$set.score;
       }
-      if (ownerType === 'cpUser') {
+
+      if (ownerType === "user") {
+        return await updateEntity("users.updateOne", selector, modifier);
+      }
+      if (ownerType === "customer") {
+        console.log(selector, modifier);
+        return await updateEntity("customers.updateOne", selector, modifier);
+      }
+      if (ownerType === "company") {
+        return await updateEntity("companies.updateOne", selector, modifier);
+      }
+      if (ownerType === "cpUser") {
         const cpUser = await sendClientPortalMessage({
           subdomain,
-          action: 'clientPortalUsers.findOne',
+          action: "clientPortalUsers.findOne",
           data: {
             _id: ownerId
           },
@@ -234,14 +311,14 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         });
 
         if (!cpUser) {
-          throw new Error('Not Found Owner');
+          throw new Error("Not Found Owner");
         }
-        return await sendContactsMessage({
+        return await sendCoreMessage({
           subdomain,
-          action: 'customers.updateOne',
+          action: "customers.updateOne",
           data: {
             selector: { _id: cpUser.erxesCustomerId },
-            modifier: { $set: { score: newScore } }
+            modifier
           },
           isRPC: true,
           defaultValue: null

@@ -54,8 +54,6 @@ module.exports = {
           'integrationsRemove',
           'integrationsArchive',
           'integrationsEdit',
-          'integrationsCreateBookingIntegration',
-          'integrationsEditBookingIntegration'
         ]
       },
       {
@@ -97,14 +95,6 @@ module.exports = {
       {
         name: 'integrationsEdit',
         description: 'Edit common integration fields'
-      },
-      {
-        name: 'integrationsCreateBookingIntegration',
-        description: 'Create booking integration'
-      },
-      {
-        name: 'integrationsEditBookingIntegration',
-        description: 'Edit booking integration'
       }
     ]
   },

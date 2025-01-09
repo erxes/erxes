@@ -6,7 +6,7 @@ import {
   IMapActivityContent,
   SentWho,
 } from "../styles";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import Button from "@erxes/ui/src/components/Button";
 import { CenterText } from "@erxes/ui-log/src/activityLogs/styles";
@@ -24,7 +24,7 @@ type Props = {
 };
 
 const ActivityItem = (props: Props) => {
-  const { activity, currentUser } = props;
+  const { activity } = props;
 
   const { contentTypeDetail = {}, contentType } = activity;
   const { body, subject, createdAt } = contentTypeDetail;
@@ -32,6 +32,19 @@ const ActivityItem = (props: Props) => {
   const [shrink, setShrink] = useState<boolean>(
     (contentTypeDetail.body || "").length > 380 ? true : false
   );
+
+  useEffect(() => {
+    const activityRows = document.querySelectorAll(".activity-row");
+
+    activityRows.forEach((row) => {
+      const styleTags =
+        (row.getElementsByTagName("style") as any) || ([] as any);
+
+      while (styleTags && styleTags.length > 0) {
+        styleTags[0].parentNode.removeChild(styleTags[0]);
+      }
+    });
+  }, [body]);
 
   const renderWhom = (contentTypeDetail) => {
     const { from, to } = contentTypeDetail;
@@ -81,8 +94,8 @@ const ActivityItem = (props: Props) => {
   const iconAndColor = getIconAndColor("email");
 
   return (
-    <ActivityRow>
-      <Tip text={"imap email"} placement="top">
+    <ActivityRow className="activity-row">
+      <Tip text={__("imap email")} placement="top">
         <ActivityIcon color={iconAndColor.color}>
           <Icon icon={iconAndColor.icon} />
         </ActivityIcon>

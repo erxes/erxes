@@ -1,12 +1,13 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import client from './apollo-client';
+import { getEnv } from './utils';
 
 // base connect function for all widgets
-const widgetConnect = params => {
+const widgetConnect = (params) => {
   const { postParams, connectMutation, connectCallback, AppContainer } = params;
 
-  window.addEventListener('message', event => {
+  window.addEventListener('message', (event) => {
     // connect to api using passed setting
     if (!(event.data.fromPublisher && event.data.setting)) {
       return;
@@ -15,7 +16,7 @@ const widgetConnect = params => {
     // call connect mutation
     connectMutation(event)
       .then(async (response) => {
-        const { ApolloProvider } = await import('react-apollo');
+        const { ApolloProvider } = await import('@apollo/client');
 
         if (!response) {
           return;
@@ -33,7 +34,8 @@ const widgetConnect = params => {
             ...postParams,
             message: 'connected',
             connectionInfo: data,
-            setting: event.data.setting
+            apiUrl: getEnv()?.API_URL || '',
+            setting: event.data.setting,
           },
           '*'
         );
@@ -51,16 +53,18 @@ const widgetConnect = params => {
         }
 
         // render root react component
-        ReactDOM.render(
+
+        const container = document.getElementById('root');
+        const root = createRoot(container); // createRoot(container!) if you use TypeScript
+        root.render(
           <ApolloProvider client={client}>
             <AppContainer />
-          </ApolloProvider>,
-          document.getElementById('root')
+          </ApolloProvider>
         );
       })
 
-      .catch(error => {
-        console.log(error); // eslint-disable-line
+      .catch((error) => {
+        console.error(error); // eslint-disable-line
       });
   });
 };

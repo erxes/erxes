@@ -1,27 +1,26 @@
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import {
-  sendCardsMessage,
+  sendSalesMessage,
   sendCoreMessage,
-  sendPricingMessage,
-  sendProductsMessage,
-} from './messageBroker';
-import { setPlace } from './utils/setPlace';
-import { splitData } from './utils/splitData';
-import { getConfig, getCustomer } from './utils/utils';
+  sendPricingMessage
+} from "./messageBroker";
+import { setPlace } from "./utils/setPlace";
+import { splitData } from "./utils/splitData";
+import { getConfig, getCustomer } from "./utils/utils";
 
 export default {
-  'cards:deal': ['update'],
+  "sales:deal": ["update"]
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action, user } = params;
 
-  if (type === 'cards:deal') {
-    if (action === 'update') {
+  if (type === "sales:deal") {
+    if (action === "update") {
       const deal = params.updatedDocument;
       const oldDeal = params.object;
-      const destinationStageId = deal.stageId || '';
+      const destinationStageId = deal.stageId || "";
 
       if (!(destinationStageId && destinationStageId !== oldDeal.stageId)) {
         return;
@@ -33,18 +32,18 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
       const splitConfigs = await getConfig(
         subdomain,
-        'dealsProductsDataSplit',
-        {},
+        "dealsProductsDataSplit",
+        {}
       );
       const placeConfigs = await getConfig(
         subdomain,
-        'dealsProductsDataPlaces',
-        {},
+        "dealsProductsDataPlaces",
+        {}
       );
       const printConfigs = await getConfig(
         subdomain,
-        'dealsProductsDataPrint',
-        {},
+        "dealsProductsDataPrint",
+        {}
       );
 
       if (
@@ -58,15 +57,15 @@ export const afterMutationHandlers = async (subdomain, params) => {
       }
 
       let pDatas = deal.productsData;
-      const products = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
-        action: 'find',
+        action: "products.find",
         data: {
-          query: { _id: { $in: pDatas.map((pd) => pd.productId) } },
-          limit: pDatas.length,
+          query: { _id: { $in: pDatas.map(pd => pd.productId) } },
+          limit: pDatas.length
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
       const productById = {};
       for (const product of products) {
@@ -79,7 +78,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           deal._id,
           pDatas,
           splitConfigs[destinationStageId],
-          productById,
+          productById
         );
       }
 
@@ -90,13 +89,13 @@ export const afterMutationHandlers = async (subdomain, params) => {
           deal._id,
           pDatas,
           placeConfig,
-          productById,
+          productById
         );
 
-        if ((await isEnabled('pricing')) && placeConfig.checkPricing) {
+        if ((await isEnabled("pricing")) && placeConfig.checkPricing) {
           const groupedData: any = {};
           for (const data of pDatas) {
-            const { branchId = '', departmentId = '' } = data;
+            const { branchId = "", departmentId = "" } = data;
 
             if (!Object.keys(groupedData).includes(branchId)) {
               groupedData[branchId] = {};
@@ -119,23 +118,23 @@ export const afterMutationHandlers = async (subdomain, params) => {
               if (perDatas.length) {
                 const pricing = await sendPricingMessage({
                   subdomain,
-                  action: 'checkPricing',
+                  action: "checkPricing",
                   data: {
-                    prioritizeRule: 'exclude',
+                    prioritizeRule: "exclude",
                     totalAmount: perDatas.reduce(
-                      (sum, cur) => (sum + cur.amount, 0),
+                      (sum, cur) => (sum + cur.amount, 0)
                     ),
                     departmentId: departmentId,
                     branchId: branchId,
-                    products: perDatas.map((i) => ({
+                    products: perDatas.map(i => ({
                       itemId: i._id,
                       productId: i.productId,
                       quantity: i.quantity,
-                      price: i.unitPrice,
-                    })),
+                      price: i.unitPrice
+                    }))
                   },
                   isRPC: true,
-                  defaultValue: {},
+                  defaultValue: {}
                 });
 
                 for (const item of perDatas) {
@@ -144,12 +143,12 @@ export const afterMutationHandlers = async (subdomain, params) => {
                   if (discount) {
                     isSetPricing = true;
 
-                    if (discount.type === 'percentage') {
+                    if (discount.type === "percentage") {
                       item.discountPercent = parseFloat(
                         (
                           (discount.value / (item.unitPrice || 1)) *
                           100
-                        ).toFixed(2),
+                        ).toFixed(2)
                       );
                       item.discount = discount.value * item.quantity;
                       item.amount =
@@ -172,14 +171,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
           }
 
           if (isSetPricing) {
-            await sendCardsMessage({
+            await sendSalesMessage({
               subdomain,
-              action: 'deals.updateOne',
+              action: "deals.updateOne",
               data: {
                 selector: { _id: deal._id },
-                modifier: { $set: { productsData: afterPricingData } },
+                modifier: { $set: { productsData: afterPricingData } }
               },
-              isRPC: true,
+              isRPC: true
             });
           }
           pDatas = afterPricingData;
@@ -192,15 +191,15 @@ export const afterMutationHandlers = async (subdomain, params) => {
         if (printConfig.conditions.length) {
           const { customerCode, customerName } = await getCustomer(
             subdomain,
-            deal,
+            deal
           );
 
-          const branchIds = pDatas.map((pd) => pd.branchId);
+          const branchIds = pDatas.map(pd => pd.branchId);
           const branches = await sendCoreMessage({
             subdomain,
-            action: 'branches.find',
+            action: "branches.find",
             data: { query: { _id: { $in: branchIds } } },
-            isRPC: true,
+            isRPC: true
           });
 
           const branchById = {};
@@ -208,12 +207,12 @@ export const afterMutationHandlers = async (subdomain, params) => {
             branchById[branch._id] = branch;
           }
 
-          const departmentIds = pDatas.map((pd) => pd.departmentId);
+          const departmentIds = pDatas.map(pd => pd.departmentId);
           const departments = await sendCoreMessage({
             subdomain,
-            action: 'departments.find',
+            action: "departments.find",
             data: { _id: { $in: departmentIds } },
-            isRPC: true,
+            isRPC: true
           });
 
           const departmentById = {};
@@ -223,17 +222,17 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
           await sendCoreMessage({
             subdomain,
-            action: 'branches.find',
+            action: "branches.find",
             data: {},
-            isRPC: true,
+            isRPC: true
           });
           const content: any = [];
 
           for (const condition of printConfig.conditions) {
             const filteredData = pDatas.filter(
-              (pd) =>
+              pd =>
                 pd.branchId === condition.branchId &&
-                pd.departmentId === condition.departmentId,
+                pd.departmentId === condition.departmentId
             );
             if (filteredData.length) {
               content.push({
@@ -246,11 +245,11 @@ export const afterMutationHandlers = async (subdomain, params) => {
                 number: deal.number,
                 customerCode,
                 customerName,
-                pDatas: filteredData.map((fd) => ({
+                pDatas: filteredData.map(fd => ({
                   ...fd,
-                  product: productById[fd.productId],
+                  product: productById[fd.productId]
                 })),
-                amount: filteredData.reduce((sum, i) => sum + i.amount, 0),
+                amount: filteredData.reduce((sum, i) => sum + i.amount, 0)
               });
             }
           }
@@ -260,9 +259,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
               productPlacesResponded: {
                 userId: user._id,
                 responseId: deal._id,
-                sessionCode: user.sessionCode || '',
-                content,
-              },
+                sessionCode: user.sessionCode || "",
+                content
+              }
             });
           }
         }

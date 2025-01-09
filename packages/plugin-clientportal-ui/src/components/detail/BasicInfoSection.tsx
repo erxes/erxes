@@ -1,19 +1,20 @@
-import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
-import { confirm } from "@erxes/ui/src/utils";
+import { Actions, Flex } from "@erxes/ui/src/styles/main";
+import { __, loadDynamicComponent } from "@erxes/ui/src/utils";
+
 import Alert from "@erxes/ui/src/utils/Alert";
 import Button from "@erxes/ui/src/components/Button";
-import { ModalTrigger } from "@erxes/ui/src/components";
-import Icon from "@erxes/ui/src/components/Icon";
-import Tip from "@erxes/ui/src/components/Tip";
-import { Actions } from "@erxes/ui/src/styles/main";
 import ClientPortalUserForm from "../../containers/ClientPortalUserForm";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import ExtendSubscription from '@erxes/ui-forum/src/containers/ExtendSubscriptionForm';
+import EmailWidget from "@erxes/ui-inbox/src/inbox/components/EmailWidget";
 import { IClientPortalUser } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { ModalTrigger } from "@erxes/ui/src/components";
 import React from "react";
 import SmsForm from "@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm";
-import { loadDynamicComponent, __ } from "@erxes/ui/src/utils";
-// import ExtendSubscription from '@erxes/ui-forum/src/containers/ExtendSubscriptionForm';
-import EmailWidget from "@erxes/ui-inbox/src/inbox/components/EmailWidget";
+import Tip from "@erxes/ui/src/components/Tip";
+import { confirm } from "@erxes/ui/src/utils";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
@@ -28,7 +29,7 @@ const BasicInfoSection: React.FC<Props> = ({
   isSmall,
 }: Props) => {
   const renderActions = () => {
-    const { phone, email } = clientPortalUser;
+    const { phone, email, isEmailVerified } = clientPortalUser;
 
     const smsForm = (props) => <SmsForm {...props} phone={phone} />;
 
@@ -36,8 +37,8 @@ const BasicInfoSection: React.FC<Props> = ({
       <>
         {(isEnabled("engages") || isEnabled("imap")) && (
           <EmailWidget
-            disabled={email ? false : true}
-            buttonStyle={email ? "primary" : "simple"}
+            disabled={isEmailVerified && email ? false : true}
+            buttonStyle={isEmailVerified && email ? "primary" : "simple"}
             emailTo={email}
             customerId={clientPortalUser._id || undefined}
             buttonSize="small"
@@ -53,23 +54,24 @@ const BasicInfoSection: React.FC<Props> = ({
               size="small"
               btnStyle={phone ? "primary" : "simple"}
             >
-              <Tip text="Send SMS" placement="top-end">
-                <Icon icon="message" />
-              </Tip>
+              <Icon icon="message" />
             </Button>
           }
           content={smsForm}
+          tipText="Send SMS"
         />
-        <Button
-          href={phone && `tel:${phone}`}
-          size="small"
-          btnStyle={phone ? "primary" : "simple"}
-          disabled={phone ? false : true}
-        >
-          <Tip text="Call" placement="top-end">
-            <Icon icon="phone" />
-          </Tip>
-        </Button>
+        <Tip text="Call" placement="top-end">
+          <Flex>
+            <Button
+              href={phone && `tel:${phone}`}
+              size="small"
+              btnStyle={phone ? "primary" : "simple"}
+              disabled={phone ? false : true}
+            >
+              <Icon icon="phone" />
+            </Button>
+          </Flex>
+        </Tip>
       </>
     );
   };
@@ -88,7 +90,14 @@ const BasicInfoSection: React.FC<Props> = ({
     );
   };
 
-  const renderEditButton = () => {
+  const renderDropdown = () => {
+    const onClick = () =>
+      confirm()
+        .then(() => remove())
+        .catch((error) => {
+          Alert.error(error.message);
+        });
+
     const customerForm = (props) => {
       return (
         <ClientPortalUserForm
@@ -99,56 +108,37 @@ const BasicInfoSection: React.FC<Props> = ({
       );
     };
 
-    return (
-      <li>
-        <ModalTrigger
-          title="Edit basic info"
-          trigger={<a href="#edit">{__("Edit")}</a>}
-          size="lg"
-          content={customerForm}
-        />
-      </li>
-    );
-  };
-
-  const renderDropdown = () => {
-    const onClick = () =>
-      confirm()
-        .then(() => remove())
-        .catch((error) => {
-          Alert.error(error.message);
-        });
+    const menuItems = [
+      {
+        title: "Edit basic info",
+        trigger: <a href="#edit">{__("Edit")}</a>,
+        content: customerForm,
+        additionalModalProps: { size: "lg" },
+      }
+    ];
 
     const extendSubscription = (props) => {
-      if (!isEnabled("forum")) {
-        return null;
-      }
-
       // TODO: use loadDynamicComponent
-      // return (
-      //   <ExtendSubscription {...props} clientPortalUser={clientPortalUser} />
-      // );
+      return (
+        <ExtendSubscription {...props} clientPortalUser={clientPortalUser} />
+      );
     };
+
+    if (isEnabled("forum")) {
+      menuItems.push({
+        title: "Extend Subscription",
+        trigger: <a href="#extend-subscription">{__("Extend Subscription")}</a>,
+        content: extendSubscription,
+        additionalModalProps: { size: "lg" }
+      })
+    }
 
     return (
       <Dropdown
         as={DropdownToggle}
-        unmount={false}
         toggleComponent={renderButton()}
+        modalMenuItems={menuItems}
       >
-        {renderEditButton()}
-        {isEnabled("forum") && (
-          <ModalTrigger
-            title="Extend Subscription"
-            trigger={
-              <li>
-                <a href="#extend-subscription">{__("Extend Subscription")}</a>
-              </li>
-            }
-            size="lg"
-            content={extendSubscription}
-          />
-        )}
         <li>
           <a href="#delete" onClick={onClick}>
             {__("Delete")}

@@ -1,25 +1,23 @@
 import { IModels } from '../../connectionResolver';
-import { PAYMENTS, PAYMENT_STATUS } from '../constants';
-import { IInvoiceDocument } from '../../models/definitions/invoices';
-import redis from '../../redis';
+import { ITransactionDocument } from '../../models/definitions/transactions';
+import redis from '@erxes/api-utils/src/redis';
 import { BaseAPI } from '../base';
+import { PAYMENTS, PAYMENT_STATUS } from '../constants';
 import { IQpayInvoice } from '../types';
 
 export const qpayCallbackHandler = async (models: IModels, data: any) => {
-  const { identifier } = data;
+  const { _id } = data;
 
-  if (!identifier) {
-    throw new Error('Invoice id is required');
+  if (!_id) {
+    throw new Error('Transaction id is required');
   }
 
-  const invoice = await models.Invoices.getInvoice(
-    {
-      identifier,
-    },
-    true,
-  );
+  const transaction = await models.Transactions.getTransaction({
+    $or: [{ _id }, { code: _id }],
+  });
 
-  const payment = await models.Payments.getPayment(invoice.selectedPaymentId);
+
+  const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
 
   if (payment.kind !== 'qpay') {
     throw new Error('Payment config type is mismatched');
@@ -27,25 +25,18 @@ export const qpayCallbackHandler = async (models: IModels, data: any) => {
 
   try {
     const api = new QpayAPI(payment.config);
-    const status = await api.checkInvoice(invoice);
-
+    const status = await api.checkInvoice(transaction);
+  
     if (status !== PAYMENT_STATUS.PAID) {
-      return invoice;
+      return transaction;
     }
 
-    await models.Invoices.updateOne(
-      { _id: invoice._id },
-      {
-        $set: {
-          status,
-          resolvedAt: new Date(),
-        },
-      },
+    await models.Transactions.updateOne(
+      { _id: transaction._id },
+      { status, updatedAt: new Date() }
     );
 
-    invoice.status = status;
-
-    return invoice;
+    return models.Transactions.getTransaction({ _id: transaction._id });
   } catch (e) {
     throw new Error(e.message);
   }
@@ -55,12 +46,14 @@ export interface IQpayConfig {
   qpayMerchantUser: string;
   qpayMerchantPassword: string;
   qpayInvoiceCode: string;
+  branchCode: string;
 }
 
 export class QpayAPI extends BaseAPI {
   private qpayMerchantUser: string;
   private qpayMerchantPassword: string;
   private qpayInvoiceCode: any;
+  private branchCode: string;
   private domain?: string;
 
   constructor(config: IQpayConfig, domain?: string) {
@@ -69,6 +62,7 @@ export class QpayAPI extends BaseAPI {
     this.qpayInvoiceCode = config.qpayInvoiceCode;
     this.qpayMerchantPassword = config.qpayMerchantPassword;
     this.qpayMerchantUser = config.qpayMerchantUser;
+    this.branchCode = config.branchCode;
     this.domain = domain;
     this.apiUrl = PAYMENTS.qpay.apiUrl;
   }
@@ -84,45 +78,47 @@ export class QpayAPI extends BaseAPI {
     }
 
     try {
-      const { access_token } = await this.request({
+      const res = await this.request({
         method: 'POST',
         path: PAYMENTS.qpay.actions.getToken,
         headers: {
           Authorization:
             'Basic ' +
             Buffer.from(
-              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`,
+              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`
             ).toString('base64'),
         },
       }).then((r) => r.json());
 
       await redis.set(
         `qpay_token_${this.qpayMerchantUser}`,
-        access_token,
+        res.access_token,
         'EX',
-        3600,
+        3600
       );
 
       return {
-        Authorization: 'Bearer ' + access_token,
+        Authorization: 'Bearer ' + res.access_token,
         'Content-Type': 'application/json',
       };
     } catch (e) {
+      console.error('error', e);
       throw new Error(e.message);
     }
   }
 
-  async createInvoice(invoice: IInvoiceDocument) {
+  async createInvoice(transaction: ITransactionDocument) {
     const { qpayInvoiceCode } = this;
 
     try {
       const data: IQpayInvoice = {
         invoice_code: qpayInvoiceCode,
-        sender_invoice_no: invoice._id,
+        sender_invoice_no: transaction.details?.sender_invoice_no || transaction.code,
         invoice_receiver_code: 'terminal',
-        invoice_description: invoice.description || 'test invoice',
-        amount: invoice.amount,
-        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?identifier=${invoice.identifier}`,
+        invoice_description: transaction.description || 'test invoice',
+        sender_branch_code: this.branchCode,
+        amount: transaction.amount,
+        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?_id=${transaction._id}`,
       };
 
       const res = await this.request({
@@ -141,48 +137,38 @@ export class QpayAPI extends BaseAPI {
     }
   }
 
-  async checkInvoice(invoice: IInvoiceDocument) {
+  private async check(transaction) {
+    try {
+      const res = await this.request({
+        method: 'GET',
+        path: `${PAYMENTS.qpay.actions.invoice}/${transaction.response.invoice_id}`,
+        headers: await this.getHeaders(),
+      }).then((r) => r.json());
+
+      if (res.invoice_status === 'CLOSED') {
+        return PAYMENT_STATUS.PAID;
+      }
+
+      return PAYMENT_STATUS.PENDING;
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  }
+
+  async checkInvoice(transaction: ITransactionDocument) {
     // return PAYMENT_STATUS.PAID;
-    try {
-      const res = await this.request({
-        method: 'GET',
-        path: `${PAYMENTS.qpay.actions.invoice}/${invoice.apiResponse.invoice_id}`,
-        headers: await this.getHeaders(),
-      }).then((r) => r.json());
-
-      if (res.invoice_status === 'CLOSED') {
-        return PAYMENT_STATUS.PAID;
-      }
-
-      return PAYMENT_STATUS.PENDING;
-    } catch (e) {
-      throw new Error(e.message);
-    }
+    return this.check(transaction);
   }
 
-  async manualCheck(invoice: IInvoiceDocument) {
-    try {
-      const res = await this.request({
-        method: 'GET',
-        path: `${PAYMENTS.qpay.actions.invoice}/${invoice.apiResponse.invoice_id}`,
-        headers: await this.getHeaders(),
-      }).then((r) => r.json());
-
-      if (res.invoice_status === 'CLOSED') {
-        return PAYMENT_STATUS.PAID;
-      }
-
-      return PAYMENT_STATUS.PENDING;
-    } catch (e) {
-      throw new Error(e.message);
-    }
+  async manualCheck(transaction: ITransactionDocument) {
+    return this.check(transaction);
   }
 
-  async cancelInvoice(invoice: IInvoiceDocument) {
+  async cancelInvoice(invoice: ITransactionDocument) {
     try {
       await this.request({
         method: 'DELETE',
-        path: `${PAYMENTS.qpay.actions.invoice}/${invoice.apiResponse.invoice_id}`,
+        path: `${PAYMENTS.qpay.actions.invoice}/${invoice.response.invoice_id}`,
         headers: await this.getHeaders(),
       });
     } catch (e) {

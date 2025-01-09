@@ -1,9 +1,9 @@
-import { IOverallProductsData } from './../../../models/definitions/overallWorks';
-import { getRatio } from '../../../utils/utils';
+import { IOverallProductsData } from "./../../../models/definitions/overallWorks";
+import { getRatio } from "../../../utils/utils";
 import {
-  sendProductsMessage,
+  sendCoreMessage,
   sendInventoriesMessage
-} from '../../../messageBroker';
+} from "../../../messageBroker";
 
 export const getProductsDataOnOwork = async (
   subdomain: string,
@@ -17,9 +17,9 @@ export const getProductsDataOnOwork = async (
 
   const productIds = productsData.map(np => np.productId);
 
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
-    action: 'find',
+    action: "products.find",
     data: { query: { _id: { $in: productIds } }, limit: productIds.length },
     isRPC: true,
     defaultValue: []
@@ -32,7 +32,7 @@ export const getProductsDataOnOwork = async (
 
   const reserveRems = await sendInventoriesMessage({
     subdomain,
-    action: 'reserveRemainders.find',
+    action: "reserveRemainders.find",
     data: {
       productIds,
       branchId,
@@ -49,7 +49,7 @@ export const getProductsDataOnOwork = async (
 
   const liveRems = await sendInventoriesMessage({
     subdomain,
-    action: 'remainders',
+    action: "remainders",
     data: {
       productIds,
       branchIds: [branchId],

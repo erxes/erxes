@@ -184,16 +184,21 @@
   }
 }
 @keyframes shake {
-  10%, 90% {
+  10%,
+  90% {
     transform: translate3d(-1px, 0, 0);
   }
-  20%, 80% {
+  20%,
+  80% {
     transform: translate3d(2px, 0, 0);
   }
-  30%, 50%, 70% {
+  30%,
+  50%,
+  70% {
     transform: translate3d(-4px, 0, 0);
   }
-  40%, 60% {
+  40%,
+  60% {
     transform: translate3d(4px, 0, 0);
   }
 }
@@ -258,7 +263,19 @@ body {
   -ms-box-sizing: border-box;
   -o-box-sizing: border-box;
   box-sizing: border-box;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
+    sans-serif;
   margin: 0;
 }
 
@@ -275,7 +292,19 @@ body {
 .erxes-widget button,
 .erxes-widget input,
 .erxes-widget textarea {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
+    sans-serif;
 }
 
 .icon {
@@ -360,7 +389,9 @@ a {
   text-overflow: ellipsis;
   top: 100%;
   transform: translateY(0%);
-  transition: transform 0.3s cubic-bezier(0.2, 1, 0.2, 1), opacity 0.2s cubic-bezier(0.2, 1, 0.2, 1);
+  transition:
+    transform 0.3s cubic-bezier(0.2, 1, 0.2, 1),
+    opacity 0.2s cubic-bezier(0.2, 1, 0.2, 1);
   white-space: nowrap;
   will-change: transform, opacity;
   z-index: 1;
@@ -383,7 +414,8 @@ a {
 .erxes-button span {
   color: #fff;
 }
-.erxes-button:hover, .erxes-button:focus {
+.erxes-button:hover,
+.erxes-button:focus {
   background: #34bb30;
   cursor: pointer;
   text-decoration: none;
@@ -397,9 +429,10 @@ a {
   opacity: 0.7;
 }
 .erxes-button.btn-primary {
-  background: #6569DF;
+  background: #6569df;
 }
-.erxes-button.btn-primary:hover, .erxes-button.btn-primary:focus {
+.erxes-button.btn-primary:hover,
+.erxes-button.btn-primary:focus {
   background: #5054db;
 }
 .erxes-button.btn-outline {
@@ -407,7 +440,8 @@ a {
   border: 1px solid #888;
   color: #686868;
 }
-.erxes-button.btn-outline:hover, .erxes-button.btn-outline:focus {
+.erxes-button.btn-outline:hover,
+.erxes-button.btn-outline:focus {
   background: transparent;
   opacity: 0.8;
 }
@@ -429,7 +463,8 @@ a {
 .erxes-objectlist-button span {
   color: #fff;
 }
-.erxes-objectlist-button:hover, .erxes-objectlist-button:focus {
+.erxes-objectlist-button:hover,
+.erxes-objectlist-button:focus {
   background: #e73049;
   cursor: pointer;
   text-decoration: none;
@@ -442,9 +477,10 @@ a {
   opacity: 0.7;
 }
 .erxes-objectlist-button.btn-primary {
-  background: #6569DF;
+  background: #6569df;
 }
-.erxes-objectlist-button.btn-primary:hover, .erxes-objectlist-button.btn-primary:focus {
+.erxes-objectlist-button.btn-primary:hover,
+.erxes-objectlist-button.btn-primary:focus {
   background: #5054db;
 }
 .erxes-objectlist-button.btn-outline {
@@ -452,7 +488,8 @@ a {
   border: 1px solid #888;
   color: #686868;
 }
-.erxes-objectlist-button.btn-outline:hover, .erxes-objectlist-button.btn-outline:focus {
+.erxes-objectlist-button.btn-outline:hover,
+.erxes-objectlist-button.btn-outline:focus {
   background: transparent;
   opacity: 0.8;
 }
@@ -471,7 +508,8 @@ a {
 .erxes-objectlist-cancel-button span {
   color: #888888;
 }
-.erxes-objectlist-cancel-button:hover, .erxes-objectlist-cancel-button:focus {
+.erxes-objectlist-cancel-button:hover,
+.erxes-objectlist-cancel-button:focus {
   background: #dcdee1;
   cursor: pointer;
   text-decoration: none;
@@ -484,9 +522,10 @@ a {
   opacity: 0.7;
 }
 .erxes-objectlist-cancel-button.btn-primary {
-  background: #6569DF;
+  background: #6569df;
 }
-.erxes-objectlist-cancel-button.btn-primary:hover, .erxes-objectlist-cancel-button.btn-primary:focus {
+.erxes-objectlist-cancel-button.btn-primary:hover,
+.erxes-objectlist-cancel-button.btn-primary:focus {
   background: #5054db;
 }
 .erxes-objectlist-cancel-button.btn-outline {
@@ -494,7 +533,8 @@ a {
   border: 1px solid #888;
   color: #686868;
 }
-.erxes-objectlist-cancel-button.btn-outline:hover, .erxes-objectlist-cancel-button.btn-outline:focus {
+.erxes-objectlist-cancel-button.btn-outline:hover,
+.erxes-objectlist-cancel-button.btn-outline:focus {
   background: transparent;
   opacity: 0.8;
 }
@@ -527,7 +567,8 @@ a {
   padding: 6px 15px;
   width: 100%;
 }
-.form-control[type=checkbox], .form-control[type=radio] {
+.form-control[type="checkbox"],
+.form-control[type="radio"] {
   display: inline-block;
   height: inherit;
   margin: 0 8px 5px 0;
@@ -536,7 +577,7 @@ a {
   box-shadow: none;
   -webkit-appearance: checkbox;
 }
-.form-control[type=radio] {
+.form-control[type="radio"] {
   -webkit-appearance: radio;
 }
 .form-control:focus {
@@ -547,7 +588,8 @@ select.form-control,
 select.form-control:focus,
 .select.form-control,
 .select.form-control:focus {
-  background: url(http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png) no-repeat right;
+  background: url(http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png)
+    no-repeat right;
   background-size: 8px;
   background-position-x: calc(100% - 10px);
 }
@@ -574,7 +616,9 @@ select.form-control:focus,
   margin: 0 10px 3px 10px;
   border-radius: 4px;
 }
-.msf_multiselect li:hover, .msf_multiselect li:focus, .msf_multiselect li.active {
+.msf_multiselect li:hover,
+.msf_multiselect li:focus,
+.msf_multiselect li.active {
   background-color: #f0f0f0;
 }
 
@@ -684,7 +728,9 @@ select.form-control:focus,
 ::-webkit-scrollbar-thumb {
   background: rgba(215, 215, 215, 0.7);
   border-radius: 4px;
-  box-shadow: inset 0 -3px 0 0 transparent, inset 0 3px 0 0 transparent;
+  box-shadow:
+    inset 0 -3px 0 0 transparent,
+    inset 0 3px 0 0 transparent;
 }
 
 ::-webkit-scrollbar-track {
@@ -713,7 +759,9 @@ select.form-control:focus,
   right: 8px;
   text-align: center;
   top: auto;
-  transition: box-shadow 0.3s ease-in-out, background-image 0.3s ease-in;
+  transition:
+    box-shadow 0.3s ease-in-out,
+    background-image 0.3s ease-in;
   width: 56px;
   z-index: 2147483646;
 }
@@ -731,12 +779,16 @@ select.form-control:focus,
   top: -5px;
   width: 20px;
 }
-.erxes-launcher.close, .erxes-launcher.close-launcher {
+.erxes-launcher.close,
+.erxes-launcher.close-launcher {
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="22" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>') !important;
   background-position: 50%;
-  transition: box-shadow 0.3s ease-in-out, background-image 0.3s ease-in;
+  transition:
+    box-shadow 0.3s ease-in-out,
+    background-image 0.3s ease-in;
 }
-.erxes-launcher.close::before, .erxes-launcher.close-launcher::before {
+.erxes-launcher.close::before,
+.erxes-launcher.close-launcher::before {
   animation: none;
 }
 .erxes-launcher::before {
@@ -766,7 +818,7 @@ select.form-control:focus,
 }
 
 [class*=" erxes-icon-"],
-[class^=erxes-icon-] {
+[class^="erxes-icon-"] {
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
@@ -1090,7 +1142,7 @@ button {
   margin-left: auto;
   padding: 0.25rem 1rem;
   border-radius: 4px;
-  border-color: #6569DF;
+  border-color: #6569df;
   border-width: 1px;
   color: #673fbd;
   margin-right: 0;
@@ -1098,7 +1150,7 @@ button {
   transition: all 0.2s ease-in-out;
 }
 button:hover {
-  background-color: #6569DF;
+  background-color: #6569df;
   color: #fff;
 }
 button.removeBtn {
@@ -1124,7 +1176,11 @@ button.removeBtn {
 .form-group .field-groups .field-group .field-group-row .subField-item {
   margin-right: 20px;
 }
-.form-group .field-groups .field-group .field-group-row .subField-item:last-child {
+.form-group
+  .field-groups
+  .field-group
+  .field-group-row
+  .subField-item:last-child {
   margin: 0;
 }
 .form-group .field-groups .field-group:first-child {
@@ -1267,8 +1323,8 @@ button.removeBtn {
 .container-slide-in-right .erxes-form {
   background: #fff;
   -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  -moz-user-select: none;
+  user-select: none;
 }
 
 .container-shoutbox {
@@ -1280,8 +1336,8 @@ button.removeBtn {
 }
 .container-shoutbox .erxes-form {
   -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  -moz-user-select: none;
+  user-select: none;
   box-shadow: 0 5px 13px -2px rgba(0, 0, 0, 0.25);
   margin-left: 10px;
   margin-right: 20px;
@@ -1384,7 +1440,7 @@ button.removeBtn {
 }
 
 .object-list-item {
-  border-bottom: 2px dashed #DEE4E7;
+  border-bottom: 2px dashed #dee4e7;
   padding-top: 10px;
   padding-bottom: 10px;
-}/*# sourceMappingURL=style.css.map */
+} /*# sourceMappingURL=style.css.map */

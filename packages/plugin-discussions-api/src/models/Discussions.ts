@@ -39,7 +39,7 @@ export const loadDiscussionClass = models => {
      */
     public static async saveDiscussion({ _id, doc }) {
       if (_id) {
-        await models.Discussions.update({ _id }, { $set: doc });
+        await models.Discussions.updateOne({ _id }, { $set: doc });
         return models.Discussions.findOne({ _id });
       }
 

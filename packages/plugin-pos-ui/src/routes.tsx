@@ -37,6 +37,20 @@ const PosProductList = asyncComponent(
     )
 );
 
+const PosOrdesByCustomers = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PosOrdesByCustomers" */ "./orders/containers/OrdersByCustomers"
+    )
+);
+
+const PosOrdersBySubs = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PosOrdesBySubscriptions" */ "./orders/containers/OrdersBySubs"
+    )
+);
+
 const SettingsComponent = () => {
   const location = useLocation();
   return <List queryParams={queryString.parse(location.search)} />;
@@ -75,6 +89,18 @@ const OrderItemsComponent = () => {
   return <PosProductList queryParams={queryString.parse(location.search)} />;
 };
 
+const OrdersByCustomersCompoenent = () => {
+  const location = useLocation();
+  return (
+    <PosOrdesByCustomers queryParams={queryString.parse(location.search)} />
+  );
+};
+
+const OrdersBySubsCompoenent = () => {
+  const location = useLocation();
+  return <PosOrdersBySubs queryParams={queryString.parse(location.search)} />;
+};
+
 const routes = () => {
   return (
     <Routes>
@@ -109,6 +135,16 @@ const routes = () => {
         key="/pos-order-summary"
         path="/pos-order-summary"
         element={<OrderSummaryComponent />}
+      />
+      <Route
+        key="/pos-orders-by-customers"
+        path="/pos-orders-by-customers"
+        element={<OrdersByCustomersCompoenent />}
+      />
+      <Route
+        key="/pos-orders-by-subscriptions"
+        path="/pos-orders-by-subscriptions"
+        element={<OrdersBySubsCompoenent />}
       />
     </Routes>
   );

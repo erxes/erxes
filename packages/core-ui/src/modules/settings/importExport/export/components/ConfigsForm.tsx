@@ -8,15 +8,16 @@ import React from "react";
 import { SubHeading } from "@erxes/ui-settings/src/styles";
 import _ from "lodash";
 import { __ } from "modules/common/utils";
+import { IExportField } from "../../types";
 
 type Props = {
-  columns: any[];
+  columns: IExportField[];
   contentType: string;
   onClickField: (column) => void;
 };
 
 type State = {
-  columns: any[];
+  columns: IExportField[];
   searchValue: string;
 };
 
@@ -125,7 +126,7 @@ class ConfigsForm extends React.Component<Props, State> {
           <FormGroup>
             <SubHeading>{__("Properties to export")}</SubHeading>
 
-            <FormControl placeholder={__("Search")} onChange={this.onSearch} />
+            <FormControl placeholder={__("Type to search")} onChange={this.onSearch} />
           </FormGroup>
 
           <FormWrapper>{this.renderOperators(results)}</FormWrapper>

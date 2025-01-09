@@ -16,35 +16,49 @@ export type ConfigsQueryResponse = {
 };
 
 export type IPutResponse = {
-  _id: string;
-  createdAt: Date;
-  modifiedAt: Date;
+  number: string;
+
+  // Холбогдох обьект
   contentType: string;
   contentId: string;
-  number: string;
-  success: string;
-  billId: string;
-  date: string;
-  macAddress: string;
-  internalCode: string;
-  billType: string;
-  lotteryWarningMsg: string;
-  errorCode: string;
+  posToken?: string;
+
+  totalAmount?: number;
+  totalVAT?: number;
+  totalCityTax?: number;
+  districtCode?: string;
+  branchNo?: string;
+  merchantTin?: string;
+  posNo?: string;
+  customerTin?: string;
+  consumerNo?: string;
+  type?: string;
+  inactiveId?: string;
+  invoiceId?: string;
+  reportMonth?: string;
+  data?: any;
+  receipts?: any[];
+  payments?: any[];
+
+  easy?: boolean;
+
+  // billType == 1 and lottery is null or '' then save
+  getInformation?: string;
+  // Ебаримт руу илгээсэн мэдээлэл
+  sendInfo?: any
+  state?: string;
+
+  createdAt: Date;
+  modifiedAt: Date;
+
+  _id: string;
+  id: string;
+  posId: number;
+  status: string;
   message: string;
-  getInformation: string;
-  taxType: string;
   qrData: string;
   lottery: string;
-  amount: string;
-  cityTax: string;
-  vat: string;
-  cashAmount: string;
-  nonCashAmount: string;
-  returnBillId: string;
-  sendInfo: any;
-  stocks: any;
-  customerNo: string;
-  customerName: string;
+  date: string;
 };
 
 export type PutResponsesQueryResponse = {
@@ -111,4 +125,79 @@ export type PutResponseReturnBillMutationResponse = {
   putResponseReturnBill: (mutation: {
     variables: { _id: string };
   }) => Promise<any>;
+};
+
+export type PutResponseReReturnMutationResponse = {
+  putResponseReReturn: (mutation: {
+    variables: { _id: string };
+  }) => Promise<any>;
+};
+
+export interface IEbarimtProductRuleDoc {
+  title: string;
+
+  // filters
+  productIds?: string[];
+  productCategoryIds?: string[];
+  excludeCategoryIds?: string[];
+  excludeProductIds?: string[];
+  tagIds?: string[];
+  excludeTagIds?: string[];
+
+  // rules
+  kind: string; // vat, ctax
+
+  // vat
+  taxType?: string;
+  taxCode?: string;
+  taxPercent?: number;
+}
+
+export interface IEbarimtProductRule extends IEbarimtProductRuleDoc {
+  _id: string;
+  createdAt: Date;
+  modifiedAt: Date;
+}
+
+// mutation types
+export type ProductRuleAddMutationResponse = {
+  productRuleAdd: (params: { variables: IEbarimtProductRule }) => Promise<any>;
+};
+
+export type ProductRuleEditMutationResponse = {
+  productRuleEdit: (params: { variables: IEbarimtProductRuleDoc }) => Promise<any>;
+};
+
+export type ProductRuleRemoveMutationVariables = {
+  ids: string[];
+};
+
+export type ProductRulesRemoveMutationResponse = {
+  productRuleRemove: (params: { variables: ProductRuleRemoveMutationVariables }) => Promise<any>;
+};
+
+
+// query types
+
+export type ProductRuleListQueryVariables = {
+  page?: number;
+  perPage?: number;
+  sortField?: string;
+  sortDirection?: number;
+  productId?: string;
+  kind?: string;
+  taxCode?: string;
+  taxType?: string;
+};
+
+export type ProductRulesQueryResponse = {
+  ebarimtProductRules: IEbarimtProductRule[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type ProductRulesCountQueryResponse = {
+  ebarimtProductRulesCount: number;
+  loading: boolean;
+  refetch: () => void;
 };

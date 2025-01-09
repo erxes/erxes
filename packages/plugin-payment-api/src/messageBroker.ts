@@ -1,47 +1,47 @@
 import {
   MessageArgs,
   MessageArgsOmitService,
-  sendMessage,
-} from '@erxes/api-utils/src/core';
+  sendMessage
+} from "@erxes/api-utils/src/core";
 
-import { generateModels } from './connectionResolver';
-import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
+import { generateModels } from "./connectionResolver";
+import { consumeRPCQueue } from "@erxes/api-utils/src/messageBroker";
 
 export const setupMessageConsumers = async () => {
-  consumeRPCQueue('payment:invoices.findOne', async ({ subdomain, data }) => {
+  consumeRPCQueue("payment:invoices.findOne", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: 'success',
-      data: await models.Invoices.findOne(data).lean(),
+      status: "success",
+      data: await models.Invoices.findOne(data).lean()
     };
   });
 };
 
-export const sendContactsMessage = async (
-  args: MessageArgsOmitService,
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'contacts',
-    ...args,
+    serviceName: "core",
+    ...args
   });
 };
 
 export const sendCommonMessage = async (
   serviceName: string,
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName,
-    ...args,
+    ...args
   });
 };
 
 export const sendInboxMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'inbox',
-    ...args,
+    serviceName: "inbox",
+    ...args
   });
 };

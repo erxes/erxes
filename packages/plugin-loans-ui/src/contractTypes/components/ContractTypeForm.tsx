@@ -1,29 +1,26 @@
-import { COLLATERAL_TYPE, LEASE_TYPES } from "../constants";
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
+  MainStyleScrollWrapper as ScrollWrapper
 } from "@erxes/ui/src/styles/eindex";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import { IContractType, IContractTypeDoc } from "../types";
-import { IProduct, IProductCategory } from "@erxes/ui-products/src/types";
 import React, { useState } from "react";
+import { COLLATERAL_TYPE, LEASE_TYPES } from "../constants";
+import { IContractType, IContractTypeDoc } from "../types";
 
-import Button from "@erxes/ui/src/components/Button";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import Form from "@erxes/ui/src/components/form/Form";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import { IUser } from "@erxes/ui/src/auth/types";
-import { ORGANIZATION_TYPE } from "../../constants";
-import Select from "react-select";
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { __ } from "coreui/utils";
+import { ORGANIZATION_TYPE } from "../../constants";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  productCategories: IProductCategory[];
-  products: IProduct[];
   contractType: IContractType;
   closeModal: () => void;
   currentUser: IUser;
@@ -34,9 +31,6 @@ const ContractTypeForm = (props: Props) => {
 
   const [lossCalcType, setLossCalcType] = useState(
     contractType.lossCalcType || "fromInterest"
-  );
-  const [productCategoryIds, setProductCategoryIds] = useState(
-    contractType.productCategoryIds
   );
   const [leaseType, setLeaseType] = useState(
     contractType.leaseType || "finance"
@@ -50,15 +44,11 @@ const ContractTypeForm = (props: Props) => {
     contractType.useManualNumbering
   );
   const [useFee, setUseFee] = useState(contractType.useFee);
-  const [productType, setProductType] = useState(contractType.productType);
   const [collateralType, setCollateralType] = useState(
     contractType.collateralType
   );
   const [currency, setCurrency] = useState(
     contractType.currency || props.currentUser.configs?.dealCurrency?.[0]
-  );
-  const [usePrePayment, setUsePrePayment] = useState(
-    contractType.usePrePayment || false
   );
   const [savingPlusLoanInterest, setSavingPlusLoanInterest] = useState(
     contractType.savingPlusLoanInterest
@@ -68,6 +58,7 @@ const ContractTypeForm = (props: Props) => {
   );
   const [invoiceDay, setInvoiceDay] = useState(contractType.invoiceDay);
   const [productId, setProductId] = useState(contractType?.productId);
+  const [productType, setProductType] = useState(contractType.productType);
 
   const generateDoc = (values: { _id: string } & IContractTypeDoc) => {
     const finalValues = values;
@@ -88,19 +79,17 @@ const ContractTypeForm = (props: Props) => {
       useDebt,
       useSkipInterest,
       leaseType,
-      productCategoryIds,
       description: finalValues.description,
-      productType,
       currency: finalValues.currency,
       commitmentInterest: Number(finalValues.commitmentInterest),
-      savingPlusLoanInterest: Number(finalValues.savingPlusLoanInterest),
-      savingUpperPercent: Number(finalValues.savingUpperPercent),
-      usePrePayment,
+      savingPlusLoanInterest: Number(savingPlusLoanInterest),
+      savingUpperPercent: Number(savingUpperPercent),
       invoiceDay,
       useManualNumbering,
       useFee,
       collateralType,
       productId,
+      productType,
     };
   };
 
@@ -123,49 +112,50 @@ const ContractTypeForm = (props: Props) => {
   const onChangeField = (e) => {
     const name = (e.target as HTMLInputElement).name;
     const value =
-      e.target.type === "checkbox"
-        ? (e.target as HTMLInputElement).checked
-        : (e.target as HTMLInputElement).value;
-    const setHandler =
-      name === "productType"
-        ? setProductType
-        : name === "currency"
-          ? setCurrency
-          : name === "leaseType"
-            ? setLeaseType
-            : name === "collateralType"
-              ? setCollateralType
-              : name === "invoiceDay"
-                ? setInvoiceDay
-                : name === "lossCalcType"
-                  ? setLossCalcType
-                  : name === "useDebt"
-                    ? setUseDebt
-                    : name === "useMargin"
-                      ? setUseMargin
-                      : name === "useSkipInterest"
-                        ? setUseSkipInterest
-                        : name === "useManualNumbering"
-                          ? setUseManualNumbering
-                          : setUseFee;
+      e.target.type === "checkbox" ? e.target.checked : e.target.value;
 
-    setHandler(value as any);
+    switch (name) {
+      case "currency":
+        setCurrency(value);
+        break;
+      case "leaseType":
+        setLeaseType(value);
+        break;
+      case "collateralType":
+        setCollateralType(value);
+        break;
+      case "invoiceDay":
+        setInvoiceDay(value);
+        break;
+      case "lossCalcType":
+        setLossCalcType(value);
+        break;
+      case "useDebt":
+        setUseDebt(value);
+        break;
+      case "useMargin":
+        setUseMargin(value);
+        break;
+      case "useSkipInterest":
+        setUseSkipInterest(value);
+        break;
+      case "useManualNumbering":
+        setUseManualNumbering(value);
+        break;
+      case "useFee":
+        setUseFee(value);
+        break;
+      case "productType":
+        setProductType(value);
+        break;
+      default:
+        break;
+    }
   };
 
   const renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton, currentUser } = props;
     const { values, isSubmitted } = formProps;
-
-    const onSelectProductCategory = (values) => {
-      setProductCategoryIds(values.map((item) => item.value));
-    };
-
-    const productCategoriesOption = props.productCategories.map((category) => ({
-      value: category._id,
-      label: `${"\u00A0  ".repeat(
-        (category.order.match(/[/]/gi) || []).length
-      )}${category.code} - ${category.name}`,
-    }));
 
     const onSelectProduct = (data) => {
       setProductId(data.value);
@@ -180,19 +170,19 @@ const ContractTypeForm = (props: Props) => {
                 ...formProps,
                 name: "code",
                 required: true,
-                defaultValue: contractType.code || "",
+                defaultValue: contractType.code || ""
               })}
               {renderFormGroup("Name", {
                 ...formProps,
                 name: "name",
                 required: true,
-                defaultValue: contractType.name || "",
+                defaultValue: contractType.name || ""
               })}
               {renderFormGroup("Start Number", {
                 ...formProps,
                 name: "number",
                 required: true,
-                defaultValue: contractType.number || "",
+                defaultValue: contractType.number || ""
               })}
               {renderFormGroup("After vacancy count", {
                 ...formProps,
@@ -200,50 +190,15 @@ const ContractTypeForm = (props: Props) => {
                 required: true,
                 type: "number",
                 defaultValue: contractType.vacancy || 1,
-                max: 20,
+                max: 20
               })}
-
-              {leaseType !== LEASE_TYPES.SAVING && (
-                <FormGroup>
-                  <ControlLabel>{__("Allow Product Categories")}</ControlLabel>
-                  <FormControl 
-                    name="productType"
-                    componentclass="select"
-                    placeholder={__("Select product categories")}
-                    value={productCategoriesOption.filter((o) =>
-                      productCategoryIds?.includes(o.value)
-                    )}
-                    onChange={onSelectProductCategory}
-                    options={productCategoriesOption}
-                  />
-                </FormGroup>
-              )}
-              <FormGroup>
-                <ControlLabel required={true}>
-                  {__("Product Type")}
-                </ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="productType"
-                  componentclass="select"
-                  value={productType}
-                  required={true}
-                  onChange={onChangeField}
-                >
-                  {["private", "public"].map((typeName, index) => (
-                    <option key={`undeType${index}`} value={typeName}>
-                      {typeName}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
             </FormColumn>
             <FormColumn>
               {renderFormGroup("Loss Percent", {
                 ...formProps,
                 name: "lossPercent",
                 defaultValue: contractType.lossPercent || "",
-                type: "number",
+                type: "number"
               })}
 
               <FormGroup>
@@ -256,13 +211,11 @@ const ContractTypeForm = (props: Props) => {
                   required={true}
                   onChange={onChangeField}
                 >
-                  {props.currentUser.configs?.dealCurrency?.map(
-                    (typeName, index) => (
-                      <option key={index} value={typeName}>
-                        {typeName}
-                      </option>
-                    )
-                  )}
+                  {props.currentUser.configs?.dealCurrency?.map((typeName) => (
+                    <option key={typeName} value={typeName}>
+                      {typeName}
+                    </option>
+                  ))}
                 </FormControl>
               </FormGroup>
 
@@ -277,8 +230,8 @@ const ContractTypeForm = (props: Props) => {
                   required={true}
                   onChange={onChangeField}
                 >
-                  {LEASE_TYPES.ALL.map((typeName, index) => (
-                    <option key={index} value={typeName}>
+                  {LEASE_TYPES.ALL.map((typeName) => (
+                    <option key={typeName} value={typeName}>
                       {typeName}
                     </option>
                   ))}
@@ -296,8 +249,8 @@ const ContractTypeForm = (props: Props) => {
                       required={true}
                       onChange={onChangeField}
                     >
-                      {COLLATERAL_TYPE.ALL.map((typeName, index) => (
-                        <option key={index} value={typeName}>
+                      {COLLATERAL_TYPE.ALL.map((typeName) => (
+                        <option key={typeName} value={typeName}>
                           {typeName}
                         </option>
                       ))}
@@ -311,7 +264,7 @@ const ContractTypeForm = (props: Props) => {
                   required: true,
                   type: "number",
                   useNumberFormat: true,
-                  value: contractType.commitmentInterest,
+                  value: contractType.commitmentInterest
                 })}
               {leaseType === LEASE_TYPES.CREDIT &&
                 renderFormGroup("Invoice day", {
@@ -323,45 +276,47 @@ const ContractTypeForm = (props: Props) => {
                   value: invoiceDay,
                   componentclass: "select",
                   onChange: onChangeField,
-                  children: new Array(31).fill(1).map((_, index) => (
-                    <option key={index} value={index + 1}>
+                  children: new Array(31).fill(1).map((day, index) => (
+                    <option key={day} value={index + 1}>
                       {index + 1}
                     </option>
-                  )),
+                  ))
                 })}
               {currentUser?.configs?.loansConfig?.organizationType ===
                 ORGANIZATION_TYPE.ENTITY && (
-                <FormGroup>
-                  <ControlLabel required={true}>
-                    {__("Loss calc type")}
-                  </ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    name="lossCalcType"
-                    componentclass="select"
-                    value={lossCalcType}
-                    required={true}
-                    onChange={onChangeField}
-                  >
-                    {[
-                      "fromInterest",
-                      "fromAmount",
-                      "fromTotalPayment",
-                      "fromEndAmount",
-                    ].map((typeName, index) => (
-                      <option key={`undeType${index}`} value={typeName}>
-                        {typeName}
-                      </option>
-                    ))}
-                  </FormControl>
-                </FormGroup>
-              )}
+                  <FormGroup>
+                    <ControlLabel required={true}>
+                      {__("Loss calc type")}
+                    </ControlLabel>
+                    <FormControl
+                      {...formProps}
+                      name="lossCalcType"
+                      componentclass="select"
+                      value={lossCalcType}
+                      required={true}
+                      onChange={onChangeField}
+                    >
+                      {[
+                        "fromInterest",
+                        "fromAmount",
+                        "fromTotalPayment",
+                        "fromEndAmount"
+                      ].map((typeName) => (
+                        <option key={`undeType${typeName}`} value={typeName}>
+                          {typeName}
+                        </option>
+                      ))}
+                    </FormControl>
+                  </FormGroup>
+                )}
               {leaseType === LEASE_TYPES.SAVING &&
                 renderFormGroup("Saving upper interest", {
                   ...formProps,
                   name: "savingPlusLoanInterest",
                   required: true,
                   defaultValue: contractType.savingPlusLoanInterest || 0,
+                  onChange: (e: any) =>
+                    setSavingPlusLoanInterest(e.target.value)
                 })}
               {leaseType === LEASE_TYPES.SAVING &&
                 renderFormGroup("Saving upper percent", {
@@ -370,6 +325,7 @@ const ContractTypeForm = (props: Props) => {
                   required: true,
                   max: 100,
                   defaultValue: contractType.savingUpperPercent || 0,
+                  onChange: (e) => setSavingUpperPercent(e.target.value)
                 })}
               {leaseType !== LEASE_TYPES.SAVING &&
                 renderFormGroup("Is use debt", {
@@ -379,7 +335,7 @@ const ContractTypeForm = (props: Props) => {
                   componentclass: "checkbox",
                   name: "useDebt",
                   checked: useDebt,
-                  onChange: onChangeField,
+                  onChange: onChangeField
                 })}
               {leaseType !== LEASE_TYPES.SAVING &&
                 renderFormGroup("Is use margin amount", {
@@ -389,7 +345,7 @@ const ContractTypeForm = (props: Props) => {
                   componentclass: "checkbox",
                   name: "useMargin",
                   checked: useMargin,
-                  onChange: onChangeField,
+                  onChange: onChangeField
                 })}
               {leaseType !== LEASE_TYPES.SAVING &&
                 renderFormGroup("Is use skip interest", {
@@ -399,7 +355,7 @@ const ContractTypeForm = (props: Props) => {
                   componentclass: "checkbox",
                   name: "useSkipInterest",
                   checked: useSkipInterest,
-                  onChange: onChangeField,
+                  onChange: onChangeField
                 })}
               {leaseType !== LEASE_TYPES.SAVING &&
                 renderFormGroup("Is use manual numbering", {
@@ -409,7 +365,7 @@ const ContractTypeForm = (props: Props) => {
                   componentclass: "checkbox",
                   name: "useManualNumbering",
                   checked: useManualNumbering,
-                  onChange: onChangeField,
+                  onChange: onChangeField
                 })}
               {leaseType !== LEASE_TYPES.SAVING &&
                 renderFormGroup("Is use fee", {
@@ -419,7 +375,7 @@ const ContractTypeForm = (props: Props) => {
                   componentclass: "checkbox",
                   name: "useFee",
                   checked: useFee,
-                  onChange: onChangeField,
+                  onChange: onChangeField
                 })}
             </FormColumn>
           </FormWrapper>
@@ -430,7 +386,7 @@ const ContractTypeForm = (props: Props) => {
                 name: "description",
                 max: 140,
                 componentclass: "textarea",
-                defaultValue: contractType.description || "",
+                defaultValue: contractType.description || ""
               })}
             </FormColumn>
           </FormWrapper>
@@ -445,7 +401,7 @@ const ContractTypeForm = (props: Props) => {
             name: "contractType",
             values: generateDoc(values),
             isSubmitted,
-            object: props.contractType,
+            object: props.contractType
           })}
         </ModalFooter>
       </>

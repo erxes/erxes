@@ -3,16 +3,16 @@ name: Workers CI
 on:
   push:
     branches:
-      - 'dev'
+      - "dev"
       - master
       - rc
-      - 'staging'
+      - v2
     paths:
-      - 'packages/api-utils/**'
-      - 'packages/workers/**'
-      - '.github/workflows/workers.yaml'
+      - "packages/api-utils/**"
+      - "packages/workers/**"
+      - ".github/workflows/workers.yaml"
 
-jobs:
+jobs: 
   workers:
     runs-on: ubuntu-22.04
 
@@ -46,7 +46,7 @@ jobs:
           yarn build workers
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/v2'  )
         run: |
           cd dist/erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

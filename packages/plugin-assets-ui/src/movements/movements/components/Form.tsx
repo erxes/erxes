@@ -9,24 +9,24 @@ import {
   ModalTrigger,
   SelectTeamMembers,
   Table,
-  __,
+  __
 } from "@erxes/ui/src";
 import { CommonFormGroup, CommonItemRow } from "../../../common/utils";
 import {
   ContainerBox,
   MovementItemContainer,
-  MovementTableWrapper,
+  MovementTableWrapper
 } from "../../../style";
 import {
   ContentColumn,
   ItemRow,
-  ItemText,
-} from "@erxes/ui-cards/src/deals/styles";
+  ItemText
+} from "@erxes/ui-sales/src/deals/styles";
 import {
   DateContainer,
   FormColumn,
   FormWrapper,
-  ModalFooter,
+  ModalFooter
 } from "@erxes/ui/src/styles/main";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { IMovementItem, IMovementType } from "../../../common/types";
@@ -75,7 +75,7 @@ const Form = (props: Props) => {
       setDescription(detail.description || "");
       setMovedAt(detail.movedAt || "");
       setSelectedItemsIds(
-        detail?.items && detail.items.map((item) => item.assetId)
+        detail?.items && detail.items.map(item => item.assetId)
       );
     }
 
@@ -92,14 +92,14 @@ const Form = (props: Props) => {
         departmentId,
         customerId,
         companyId,
-        teamMemberId,
+        teamMemberId
       }) => ({
         assetId,
         branchId,
         departmentId,
         customerId,
         companyId,
-        teamMemberId,
+        teamMemberId
       })
     );
     const doc = { items, description, movedAt };
@@ -109,30 +109,30 @@ const Form = (props: Props) => {
     return { ...doc };
   };
 
-  const assetChooser = (props) => {
-    const handleSelect = (datas) => {
-      const newSelectedItemsIds = datas.map((data) => data._id);
+  const assetChooser = props => {
+    const handleSelect = datas => {
+      const newSelectedItemsIds = datas.map(data => data._id);
       client
         .query({
           query: gql(queries.itemsCurrentLocation),
           fetchPolicy: "network-only",
-          variables: { assetIds: newSelectedItemsIds },
+          variables: { assetIds: newSelectedItemsIds }
         })
-        .then((res) => {
+        .then(res => {
           const { currentAssetMovementItems } = res.data;
           setSelectedItemsIds(newSelectedItemsIds);
 
-          const selectedItems = datas.map((data) => ({
+          const selectedItems = datas.map(data => ({
             assetId: data._id,
             assetDetail: {
               _id: data._id,
-              name: data.name,
-            },
+              name: data.name
+            }
           }));
 
-          const newVariables = selectedItems.map((selectedItem) => {
+          const newVariables = selectedItems.map(selectedItem => {
             const newItem = currentAssetMovementItems.find(
-              (item) => item.assetId === selectedItem.assetId
+              item => item.assetId === selectedItem.assetId
             );
             if (newItem) {
               return newItem;
@@ -147,13 +147,13 @@ const Form = (props: Props) => {
     const updatedProps = {
       ...props,
       handleSelect,
-      selectedAssetIds: selectedItemsIds,
+      selectedAssetIds: selectedItemsIds
     };
 
     return <AssetChooser {...updatedProps} />;
   };
 
-  const renderChooser = (trigger) => {
+  const renderChooser = trigger => {
     const chooserTrigger = trigger ? trigger : <Button>Select Assets</Button>;
 
     return (
@@ -196,8 +196,8 @@ const Form = (props: Props) => {
       text = asset?.customer?.primaryEmail;
     }
 
-    const handleChange = (selected) => {
-      const newVariables = variables.map((item) =>
+    const handleChange = selected => {
+      const newVariables = variables.map(item =>
         item.assetId === asset.assetId
           ? { ...item, [field]: selected === "" ? null : selected }
           : item
@@ -225,29 +225,29 @@ const Form = (props: Props) => {
 
   const changeCurrentItem = (id: string) => {
     if (currentItems.includes(id)) {
-      const newCurrentItems = currentItems.filter((item) => item !== id);
+      const newCurrentItems = currentItems.filter(item => item !== id);
       return setCurrentItems(newCurrentItems);
     }
 
-    setCurrentItems((prevCurrentItems) => [...prevCurrentItems, id]);
+    setCurrentItems(prevCurrentItems => [...prevCurrentItems, id]);
   };
 
-  const handleGeneralDate = (e) => {
+  const handleGeneralDate = e => {
     setMovedAt(e);
   };
 
-  const handleGeneralDescription = (e) => {
+  const handleGeneralDescription = e => {
     const { value } = e.currentTarget as HTMLInputElement;
 
     setDescription(value);
   };
 
   const handleChangeRowItem = (prevItemId, newItem) => {
-    const newVariables = variables.map((item) =>
+    const newVariables = variables.map(item =>
       item.assetId === prevItemId ? newItem : item
     );
     const removedSeletedItemIds = selectedItemsIds.filter(
-      (item) => item !== prevItemId
+      item => item !== prevItemId
     );
 
     setVariables(newVariables);
@@ -258,16 +258,16 @@ const Form = (props: Props) => {
     const handleGeneralOptions = (value, field) => {
       setCurrentItems([]);
 
-      const newVariables = variables.map((item) =>
+      const newVariables = variables.map(item =>
         checkedItems.includes(item.assetId)
           ? { ...item, [field]: value === "" ? null : value }
           : item
       );
 
       setVariables(newVariables);
-      setGeneral((prevGeneral) => ({
+      setGeneral(prevGeneral => ({
         ...prevGeneral,
-        [field]: value === "" ? null : value,
+        [field]: value === "" ? null : value
       }));
     };
 
@@ -349,13 +349,11 @@ const Form = (props: Props) => {
   };
 
   const renderRow = () => {
-    const removeRow = (id) => {
-      const newVariables = variables.filter((item) => item.assetId !== id);
-      const newSelectedItems = selectedItemsIds.filter(
-        (itemId) => itemId !== id
-      );
+    const removeRow = id => {
+      const newVariables = variables.filter(item => item.assetId !== id);
+      const newSelectedItems = selectedItemsIds.filter(itemId => itemId !== id);
       if (currentItems.includes(id)) {
-        const newCurrentItems = currentItems.filter((item) => item !== id);
+        const newCurrentItems = currentItems.filter(item => item !== id);
         setCurrentItems(newCurrentItems);
       }
 
@@ -364,12 +362,12 @@ const Form = (props: Props) => {
     };
     const onChangeCheckedItems = (id: string) => {
       if (checkedItems.includes(id)) {
-        return setCheckedItems(checkedItems.filter((item) => item !== id));
+        return setCheckedItems(checkedItems.filter(item => item !== id));
       }
       return setCheckedItems([...checkedItems, id]);
     };
 
-    return variables.map((item) => (
+    return variables.map(item => (
       <MovementItems
         key={item.assetId}
         item={item}
@@ -392,7 +390,7 @@ const Form = (props: Props) => {
 
   const renderList = () => {
     const onChange = () => {
-      const newCheckedItems = variables.map((item) => item.assetId);
+      const newCheckedItems = variables.map(item => item.assetId);
 
       setCheckedItems(checkedItems.length > 0 ? [] : newCheckedItems);
     };
@@ -473,7 +471,7 @@ const Form = (props: Props) => {
               values: generateDoc(),
               isSubmitted,
               callback: closeModal,
-              object: !_loadash.isEmpty(detail),
+              object: !_loadash.isEmpty(detail)
             })}
           </ModalFooter>
         )}

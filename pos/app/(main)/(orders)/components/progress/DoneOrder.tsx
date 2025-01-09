@@ -1,5 +1,4 @@
-import { mutations } from "@/modules/orders/graphql"
-import { useMutation } from "@apollo/client"
+import useChangeOrderStatus from "@/modules/orders/hooks/useChangeOrderStatus"
 import { ArrowDownIcon, XIcon } from "lucide-react"
 
 import { IOrder } from "@/types/order.types"
@@ -12,7 +11,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-const DoneOrder = ({ number, status, _id }: IOrder) => {
+const DoneOrder = ({ number, _id }: IOrder) => {
   return (
     <Button
       className="mx-1 bg-green-500 hover:bg-green-500 px-0 space-x-1"
@@ -43,7 +42,7 @@ const DoneOrderAction = ({
   _id?: string
 }) => {
   const Icon = actionType === "complete" ? XIcon : ArrowDownIcon
-  const [changeStatus, { loading }] = useMutation(mutations.orderChangeStatus)
+  const { changeStatus, loading } = useChangeOrderStatus()
   return (
     <TooltipProvider>
       <Tooltip>

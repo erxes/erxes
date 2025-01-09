@@ -1,5 +1,5 @@
-import { KhanbankAccount } from '../types';
-import { BaseApi } from './base';
+import { KhanbankAccount } from "../types";
+import { BaseApi } from "./base";
 
 export class AccountsApi extends BaseApi {
   public params;
@@ -17,8 +17,8 @@ export class AccountsApi extends BaseApi {
   async list() {
     try {
       const res = await this.request({
-        method: 'GET',
-        path: 'accounts'
+        method: "GET",
+        path: "accounts"
       });
 
       const accounts: KhanbankAccount[] = res.accounts.map(account => {
@@ -61,7 +61,7 @@ export class AccountsApi extends BaseApi {
   async get(accountNumber: string) {
     try {
       const res = await this.request({
-        method: 'GET',
+        method: "GET",
         path: `accounts/${accountNumber}/`
       });
 
@@ -82,11 +82,16 @@ export class AccountsApi extends BaseApi {
   async getHolder(accountNumber: string, bankCode?: string) {
     try {
       const res = await this.request({
-        method: 'GET',
-        path: `accounts/${accountNumber}/name?bank=${bankCode}`
+        method: "GET",
+        path: `accounts/cam/`,
+        params: { acct: accountNumber, bank_code: bankCode }
       });
-
-      return { ...res.account, ...res.customer };
+      return {
+        number: res.iban,
+        currency: res.alias,
+        custFirstName: res.name,
+        custLastName: res.msgId
+      };
     } catch (e) {
       throw new Error(e.message);
     }

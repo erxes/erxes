@@ -3,7 +3,6 @@ import { IField, ISegmentCondition, ISegmentMap } from "../../types";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import PropertyForm from "./PropertyForm";
 import PropertyList from "../../containers/form/PropertyList";
@@ -12,11 +11,11 @@ import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
 import { SegmentBackIcon } from "../styles";
 import Select from "react-select";
 import { __ } from "@erxes/ui/src/utils";
+import FormSubmissionSegmentForm from "@erxes/ui-forms/src/segmenForm";
 
 type Props = {
   contentType: string;
   associationTypes: any[];
-  forms?: IIntegration[];
   segment: ISegmentMap;
   addCondition: (condition: ISegmentCondition, segmentKey: string) => void;
   onClickBackToList: () => void;
@@ -44,11 +43,11 @@ class PropertyCondition extends React.Component<Props, State> {
 
     this.state = {
       propertyType: contentType,
-      searchValue: "",
+      searchValue: ""
     };
   }
 
-  onClickProperty = (field) => {
+  onClickProperty = field => {
     this.setState({ chosenProperty: field });
   };
 
@@ -56,7 +55,7 @@ class PropertyCondition extends React.Component<Props, State> {
     this.setState({ chosenProperty: undefined, searchValue: "" });
   };
 
-  onSearch = (e) => {
+  onSearch = e => {
     const value = e.target.value;
 
     this.setState({ searchValue: value });
@@ -65,6 +64,16 @@ class PropertyCondition extends React.Component<Props, State> {
   renderExtraContent = () => {
     const { contentType, hideDetailForm, config, onChangeConfig } = this.props;
     const { propertyType } = this.state;
+
+    if (propertyType === "core:form_submission") {
+      return (
+        <FormSubmissionSegmentForm
+          type={contentType}
+          config={config}
+          onChangeConfig={onChangeConfig}
+        />
+      );
+    }
 
     const plugins: any[] = (window as any).plugins || [];
 
@@ -80,7 +89,7 @@ class PropertyCondition extends React.Component<Props, State> {
               propertyType,
               onChangeConfig,
               hideDetailForm,
-              component: "filter",
+              component: "filter"
             }}
           />
         );
@@ -96,22 +105,22 @@ class PropertyCondition extends React.Component<Props, State> {
 
     const { chosenProperty, propertyType, searchValue } = this.state;
 
-    const onChange = (e) => {
+    const onChange = e => {
       const value = e.value;
 
       this.setState({ propertyType: value, chosenProperty: undefined });
     };
 
-    const options = associationTypes.map((option) => ({
+    const options = associationTypes.map(option => ({
       value: option.value,
-      label: option.description,
+      label: option.description
     }));
 
     const generateSelect = () => {
       return (
         <Select
           isClearable={false}
-          value={options.find((option) => option.value === propertyType)}
+          value={options.find(option => option.value === propertyType)}
           options={options}
           onChange={onChange}
         />

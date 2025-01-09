@@ -7,6 +7,7 @@ const integrationCommonFields = `
     wsServer: String
     operators: JSON
     token: String
+    queues: [String]
 `;
 
 const types = `
@@ -69,7 +70,7 @@ const types = `
     callEndTime: Date
     callType: String
     callStatus: String
-    sessionId: String
+    timeStamp: Float
     modifiedAt: Date
     createdAt: Date
     createdBy: String
@@ -81,7 +82,12 @@ const types = `
   }
 `;
 
-export const subscriptions = `sessionTerminateRequested(userId: String): JSON`;
+export const subscriptions = `
+  sessionTerminateRequested(userId: String): JSON
+  waitingCallReceived(extension: String): String
+  talkingCallReceived(extension: String): String
+  agentCallReceived(extension: String): String
+  `;
 
 const commonHistoryFields = `
   operatorPhone: String
@@ -91,8 +97,10 @@ const commonHistoryFields = `
   callEndTime: Date
   callType: String
   callStatus: String
-  sessionId: String
+  timeStamp: Float
   inboxIntegrationId: String
+  transferedCallStatus: String
+  endedBy: String
 `;
 
 const mutationFilterParams = `
@@ -101,6 +109,7 @@ const mutationFilterParams = `
   startDate: String
   endDate: String
   integrationId: String
+  searchValue: String
 `;
 
 const filterParams = `
@@ -114,9 +123,14 @@ const queries = `
   callsCustomerDetail(customerPhone: String): Customer
   callsActiveSession: CallActiveSession
   callHistories(${filterParams}, skip: Int): [CallHistory]
+  callHistoriesTotalCount(${filterParams}, skip: Int): Int
   callsGetConfigs: JSON
   callGetAgentStatus: String
   callExtensionList(integrationId: String!): JSON
+  callQueueList(integrationId: String!): JSON
+  callWaitingList(queue: String!): String
+  callProceedingList(queue: String!): String
+  callQueueMemberList(integrationId: String!, queue: String!): JSON
   `;
 
 const mutations = `
@@ -125,9 +139,9 @@ const mutations = `
   callUpdateActiveSession: JSON
   callTerminateSession: JSON
   callDisconnect: String
-  callHistoryAdd(${commonHistoryFields}): CallHistory
+  callHistoryAdd(${commonHistoryFields}, queueName: String): CallHistory
   callHistoryEdit(_id: String,${commonHistoryFields}): String
-  callHistoryEditStatus(callStatus: String, conversationId: String): String
+  callHistoryEditStatus(callStatus: String, timeStamp: Float): String
   callHistoryRemove(_id: String!): JSON
   callsUpdateConfigs(configsMap: JSON!): JSON
   callsPauseAgent(status: String!, integrationId: String!): String

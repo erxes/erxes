@@ -1,19 +1,44 @@
 import {
   ILeadData,
   ILeadIntegration,
-  IWebhookData,
-} from '@erxes/ui-leads/src/types';
+  IWebhookData
+} from "@erxes/ui-leads/src/types";
 
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { IForm } from '@erxes/ui-forms/src/forms/types';
-import { IProductCategory } from '@erxes/ui-products/src/types';
-import { QueryResponse } from '@erxes/ui/src/types';
+import { IBrand } from "@erxes/ui/src/brands/types";
+import { IForm } from "@erxes/ui-forms/src/forms/types";
+import { IProductCategory } from "@erxes/ui-products/src/types";
+import { QueryResponse } from "@erxes/ui/src/types";
+
+interface IFacebookCustomer {
+  _id: string;
+  userId: string;
+  erxesApiId: string;
+  firstName?: string;
+  lastName?: string;
+  profilePic?: string;
+  integrationId: string;
+}
 
 export interface IPages {
   id: string;
   name?: string;
   checked?: boolean;
   isUsed?: boolean;
+}
+
+export interface IFacebookComment {
+  _id: string;
+  postId: string;
+  conversationId: string;
+  parentId: string;
+  commentId: string;
+  content: string;
+  attachments: string[];
+  commentCount: number;
+  timestamp: Date;
+  customer: IFacebookCustomer;
+  isResolved: boolean;
+  permalink_url: string;
 }
 
 export interface IImapForm {
@@ -52,8 +77,9 @@ export interface IAccount {
 }
 
 // query types
-export type IntegrationTypes = 'facebook';
-export type IntegrationTypesInstagram = 'instagram';
+export type IntegrationTypes = "facebook";
+export type IntegrationTypesInstagram = "instagram";
+export type IntegrationTypesWhatsapp = "whatsapp";
 export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
 } & QueryResponse;
@@ -118,7 +144,9 @@ export type RemoveMutationResponse = {
 };
 
 export type RepairMutationResponse = {
-  repairIntegration: (params: { variables: { _id: string, kind: string } }) => Promise<any>;
+  repairIntegration: (params: {
+    variables: { _id: string; kind: string };
+  }) => Promise<any>;
 };
 
 export type RemoveAccountMutationResponse = {
@@ -172,7 +200,11 @@ export interface ILink {
   twitter?: string;
   facebook?: string;
   instagram?: string;
+  whatsapp?: string;
   youtube?: string;
+}
+export interface IExternalLink {
+  url: string;
 }
 
 export interface IOnlineHour {
@@ -222,6 +254,7 @@ export interface IMessengerData {
   onlineHours?: IOnlineHour[];
   hideWhenOffline?: boolean;
   links?: ILink;
+  externalLinks?: IExternalLink[];
 }
 
 export interface IUiOptions {

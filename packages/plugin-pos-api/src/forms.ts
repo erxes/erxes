@@ -1,7 +1,7 @@
-import { generateFieldsFromSchema } from '@erxes/api-utils/src';
-import { generateModels } from './connectionResolver';
-import { EXTEND_FIELDS, POS_ORDER_INFO } from './contants';
-import { sendProductsMessage } from './messageBroker';
+import { generateFieldsFromSchema } from "@erxes/api-utils/src";
+import { generateModels } from "./connectionResolver";
+import { EXTEND_FIELDS, POS_ORDER_INFO } from "./contants";
+import { sendCoreMessage } from "./messageBroker";
 
 const generateProductsOptions = async (
   subdomain: string,
@@ -9,9 +9,9 @@ const generateProductsOptions = async (
   label: string,
   type: string
 ) => {
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
-    action: 'find',
+    action: "products.find",
     data: {
       query: {}
     },
@@ -26,7 +26,7 @@ const generateProductsOptions = async (
 };
 
 export default {
-  types: [{ description: 'Pos Order', type: 'pos' }],
+  types: [{ description: "Pos Order", type: "pos" }],
   fields: async ({ subdomain, data }) => {
     const { usageType } = data;
     const models = await generateModels(subdomain);
@@ -47,7 +47,7 @@ export default {
     fields = EXTEND_FIELDS;
 
     if (schema) {
-      fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
+      fields = [...fields, ...(await generateFieldsFromSchema(schema, ""))];
 
       for (const name of Object.keys(schema.paths)) {
         const path = schema.paths[name];
@@ -61,16 +61,16 @@ export default {
       }
     }
 
-    if (fields.find(field => field.name === 'items.productId')) {
+    if (fields.find(field => field.name === "items.productId")) {
       const productOptions = await generateProductsOptions(
         subdomain,
-        'items.productId',
-        'Product',
-        'product'
+        "items.productId",
+        "Product",
+        "product"
       );
 
       fields = fields.map(field =>
-        field.name === 'items.productId'
+        field.name === "items.productId"
           ? { ...field, selectOptions: productOptions }
           : field
       );

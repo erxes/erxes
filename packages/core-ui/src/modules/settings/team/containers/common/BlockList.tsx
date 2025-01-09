@@ -8,11 +8,11 @@ import { MenuFooter } from 'modules/settings/styles';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { mutations } from '@erxes/ui/src/team/graphql';
-import { queries } from '@erxes/ui/src/team/graphql';
+// import { queries } from '@erxes/ui/src/team/graphql';
 import { useQuery } from '@apollo/client';
 
 type Props = {
-  queryParams: string;
+  queryParams: Record<string, string>;
   queryType: string;
   title: string;
 };
@@ -20,8 +20,27 @@ type Props = {
 export default function BlockListContainer(props: Props) {
   const { queryType, title, queryParams } = props;
 
-  const listQuery = useQuery(gql(queries[queryType]), {
-    variables: queryType === 'units' ? undefined : { withoutUserFilter: true }
+  const [params, paramsDef, additionalField] = [
+    'branches',
+    'departments',
+  ].includes(queryType)
+    ? [
+        '($withoutUserFilter:Boolean)',
+        '(withoutUserFilter:$withoutUserFilter)',
+        'parentId',
+      ]
+    : ['', '', ''];
+
+  const query = `
+    query ${queryType}${params}{
+      ${queryType}${paramsDef} {
+        _id,title,code,${additionalField}
+      }
+    }
+  `;
+
+  const listQuery = useQuery(gql(query), {
+    variables: queryType === 'units' ? undefined : { withoutUserFilter: true },
   });
 
   const [deleteMutation] = useMutation(gql(mutations[queryType + 'Remove']));
@@ -34,7 +53,7 @@ export default function BlockListContainer(props: Props) {
 
           Alert.success('Successfully deleted');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     });

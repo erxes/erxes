@@ -3,14 +3,14 @@ import {
   fetchPolaris,
   getCustomer,
   getDepositAccount,
-  getContract,
-} from '../utils';
+  getContract
+} from "../utils";
 
-export const createLoanRepayment = async (subdomain, transaction) => {
+export const createLoanRepayment = async (subdomain, polarisConfig, transaction) => {
   const loanContract = await getContract(
     subdomain,
     transaction.contractId,
-    'loans',
+    "loans"
   );
 
   const customer = await getCustomer(subdomain, loanContract.customerId);
@@ -19,8 +19,8 @@ export const createLoanRepayment = async (subdomain, transaction) => {
 
   const customerData = await customFieldToObject(
     subdomain,
-    'contacts:customer',
-    customer,
+    "core:customer",
+    customer
   );
 
   const loanRepayment = {
@@ -36,7 +36,7 @@ export const createLoanRepayment = async (subdomain, transaction) => {
     tcustName: customerData.firstName,
     tcustAddr: `${customerData.address}`,
     tcustRegister: customerData.registerCode,
-    tcustRegisterMask: '3',
+    tcustRegisterMask: "3",
     tcustContact: customerData.mobile,
     isPreview: 0,
     isPreviewFee: 0,
@@ -45,21 +45,22 @@ export const createLoanRepayment = async (subdomain, transaction) => {
       {
         CALCMETHOD: 0,
         PREINTAMT: transaction.total,
-        PREPRINCAMT: '',
-        CUSTCODE: '',
-        FUTUREPAYMENTDATE: transaction.payDate,
-      },
+        PREPRINCAMT: "",
+        CUSTCODE: "",
+        FUTUREPAYMENTDATE: transaction.payDate
+      }
     ],
     tranAmt: transaction.total,
     tranCurCode: transaction.currency,
-    cashBankNote: '',
+    cashBankNote: ""
   };
 
   const loanRepaymentReponse = await fetchPolaris({
     subdomain,
     op: '13610250',
     data: [loanRepayment],
-  }).then((response) => JSON.parse(response));
+    polarisConfig
+  });
 
   return loanRepaymentReponse.txnJrno;
 };

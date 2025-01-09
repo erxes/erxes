@@ -1,4 +1,4 @@
-import { mutations, queries } from "../graphql";
+import { mutations } from "../graphql";
 
 import { ButtonMutate } from "@erxes/ui/src/";
 import FormComponent from "../components/Form";
@@ -6,12 +6,14 @@ import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
 import { IEmailTemplate } from "../types";
 import React from "react";
-import { gql } from "@apollo/client";
 
 type Props = {
   object?: IEmailTemplate;
   params?: any;
   contentType?: string;
+  additionalToolbarContent?: (props: {
+    onClick: (placeholder: string) => void;
+  }) => React.ReactNode;
 } & ICommonFormProps;
 
 const Form = (props: Props) => {
@@ -21,7 +23,7 @@ const Form = (props: Props) => {
     isSubmitted,
     callback,
     confirmationUpdate,
-    object,
+    object
   }: IButtonMutateProps) => {
     const afterMutate = () => {
       if (callback) {
@@ -53,7 +55,7 @@ const Form = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    renderButton,
+    renderButton
   };
 
   return <FormComponent {...updatedProps} />;

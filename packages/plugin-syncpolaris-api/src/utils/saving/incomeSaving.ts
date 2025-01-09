@@ -1,7 +1,7 @@
 import { incomeDeposit } from '../deposit/incomeDeposit';
 import { fetchPolaris, getContract } from '../utils';
 
-export const incomeSaving = async (subdomain, params) => {
+export const incomeSaving = async (subdomain, models, polarisConfig, syncLog, params) => {
   const savingTransactionParams = params.updatedDocument || params.object;
 
   const savingContract = await getContract(
@@ -15,7 +15,7 @@ export const incomeSaving = async (subdomain, params) => {
   }
 
   if (savingContract.isDeposit) {
-    return await incomeDeposit(subdomain, params);
+    return await incomeDeposit(subdomain, polarisConfig, params);
   }
 
   let sendData = {
@@ -44,11 +44,12 @@ export const incomeSaving = async (subdomain, params) => {
     ],
   };
 
-  const result = await fetchPolaris({
+  return await fetchPolaris({
     op: '13610015',
     data: [sendData],
     subdomain,
+    models,
+    polarisConfig,
+    syncLog
   });
-
-  return result;
 };

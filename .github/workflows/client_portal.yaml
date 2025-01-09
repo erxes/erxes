@@ -6,11 +6,10 @@ on:
       - dev
       - master
       - rc
-      - staging
-      - build-test
+      - v2
     paths:
-      - "client-portal/**"
-      - ".github/workflows/client_portal.yaml"
+      - 'client-portal/**'
+      - '.github/workflows/client_portal.yaml'
   pull_request:
     branches:
       - master
@@ -18,10 +17,11 @@ on:
       - dev
       - apm
       - staging
+      - v1
     paths:
-      - "client-portal/**"
+      - 'client-portal/**'
 
-jobs:
+jobs: 
   client-portal:
     runs-on: ubuntu-20.04
 
@@ -55,7 +55,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'v2' || github.ref == 'refs/heads/v2' )
         run: |
           cd client-portal
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

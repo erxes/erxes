@@ -2,6 +2,7 @@ import { getCloseInfo } from '../../../models/utils/closeUtils';
 import { getFullDate } from '../../../models/utils/utils';
 import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
+import { sendMessageBroker } from '../../../messageBroker';
 
 const generateFilter = async (models, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -236,7 +237,7 @@ const contractQueries = {
       params,
       commonQuerySelector
     );
-    return paginate(models.Contracts.find(loanContractsQuery), {
+    return await paginate(models.Contracts.find(loanContractsQuery), {
       page: params.page,
       perPage: params.perPage
     });
@@ -254,11 +255,14 @@ const contractQueries = {
     const filter = await generateFilter(models, params, commonQuerySelector);
 
     return {
-      list: paginate(models.Contracts.find(filter).sort(sortBuilder(params)), {
-        page: params.page,
-        perPage: params.perPage
-      }),
-      totalCount: models.Contracts.find(filter).count()
+      list: await paginate(
+        models.Contracts.find(filter).sort(sortBuilder(params)),
+        {
+          page: params.page,
+          perPage: params.perPage
+        }
+      ),
+      totalCount: await models.Contracts.find(filter).countDocuments()
     };
   },
 
@@ -302,6 +306,64 @@ const contractQueries = {
     }
 
     return alerts;
+  },
+  /**
+   * @param _root
+   * @returns OK
+   */
+  checkAccountBalance: async (
+    _root,
+    {
+      contractId,
+      requiredAmount
+    }: {
+      contractId: string;
+      requiredAmount: number;
+    },
+    { models }: IContext
+  ) => {
+    const account = await models.Contracts.findById({
+      _id: contractId
+    });
+
+    if (!account) {
+      throw new Error('Account not found.');
+    }
+
+    if (account.savingAmount < requiredAmount) {
+      throw new Error('Account balance not reached.');
+    }
+
+    return 'OK';
+  },
+
+  getAccountOwner: async (
+    _root,
+    { accountNumber },
+    { models, subdomain }: IContext
+  ) => {
+    const account = await models.Contracts.findOne({ number: accountNumber });
+
+    if (!account) {
+      throw new Error('cant find account')
+    }
+
+    if (!account.customerId) {
+      throw new Error('this account has not customer')
+    }
+
+    const customer = await sendMessageBroker(
+      {
+        action: 'customers.findOne',
+        subdomain,
+        data: { _id: account?.customerId },
+        isRPC: true,
+        defaultValue: {}
+      },
+      'core'
+    );
+
+    return `${customer?.firstName} ${customer?.lastName}`;
   }
 };
 

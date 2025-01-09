@@ -12,17 +12,18 @@ import {
 
 const carMutations = {
   carsAdd: async (_root, doc, { user, docModifier, models, subdomain }) => {
-    const car = models.Cars.createCar(docModifier(doc), user);
+    const car = await models.Cars.createCar(docModifier(doc), user);
 
     await putCreateLog(
       subdomain,
       {
-        type: 'car',
+        type: 'cars:car',
         newData: doc,
         object: car,
         extraParams: { models },
+        description: `"${car.plateNumber}" has been created`,
       },
-      user,
+      user
     );
 
     return car;
@@ -35,13 +36,14 @@ const carMutations = {
     await putUpdateLog(
       subdomain,
       {
-        type: 'car',
+        type: 'cars:car',
         object: car,
         newData: { ...doc },
         updatedDocument: updated,
         extraParams: { models },
+        description: `"${car.plateNumber}" has been updated`,
       },
-      user,
+      user
     );
 
     return updated;
@@ -50,25 +52,24 @@ const carMutations = {
   carsRemove: async (
     _root,
     { carIds }: { carIds: string[] },
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext
   ) => {
     const cars = await models.Cars.find({ _id: { $in: carIds } }).lean();
 
     await models.Cars.removeCars(carIds);
 
-    // for (const car of cars) {
-    //   messageBroker().sendMessage("putActivityLog", {
-    //     action: "removeActivityLog",
-    //     data: { contentTypeId: car._id },
-    //   });
-
-    //   await putDeleteLog(
-    //     messageBroker(),
-    //     gatherDescriptions,
-    //     { type: "car", object: car, extraParams: { models } },
-    //     user
-    //   );
-    // }
+    for (const car of cars) {
+      await putDeleteLog(
+        subdomain,
+        {
+          type: 'cars:car',
+          object: car,
+          description: `"${car.plateNumber}" has been deleted`,
+          extraParams: { models },
+        },
+        user
+      );
+    }
 
     return carIds;
   },
@@ -80,21 +81,22 @@ const carMutations = {
   carCategoriesAdd: async (
     _root,
     doc,
-    { docModifier, models, subdomain, user },
+    { docModifier, models, subdomain, user }
   ) => {
     const carCategory = await models.CarCategories.createCarCategory(
-      docModifier(doc),
+      docModifier(doc)
     );
 
     await putCreateLog(
       subdomain,
       {
-        type: 'car-category',
+        type: 'cars:car-category',
         newData: { ...doc, order: carCategory.order },
         object: carCategory,
+        description: `"${carCategory.name}" has been created`,
         extraParams: { models },
       },
-      user,
+      user
     );
 
     return carCategory;
@@ -103,7 +105,7 @@ const carMutations = {
   carCategoriesEdit: async (
     _root,
     { _id, ...doc },
-    { models, subdomain, user },
+    { models, subdomain, user }
   ) => {
     const carCategory = await models.CarCategories.getCarCatogery({
       _id,
@@ -113,13 +115,14 @@ const carMutations = {
     await putUpdateLog(
       subdomain,
       {
-        type: 'car-category',
+        type: 'cars:car-category',
         object: carCategory,
         newData: doc,
         updatedDocument: updated,
+        description: `"${carCategory.name}" has been updated`,
         extraParams: { models },
       },
-      user,
+      user
     );
 
     return updated;
@@ -128,7 +131,7 @@ const carMutations = {
   carCategoriesRemove: async (
     _root,
     { _id }: { _id: string },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user }: IContext
   ) => {
     const carCategory = await models.CarCategories.getCarCatogery({
       _id,
@@ -137,8 +140,13 @@ const carMutations = {
 
     await putDeleteLog(
       subdomain,
-      { type: 'car-category', object: carCategory, extraParams: { models } },
-      user,
+      {
+        type: 'cars:car-category',
+        object: carCategory,
+        description: `"${carCategory.name}" has been deleted`,
+        extraParams: { models },
+      },
+      user
     );
 
     return removed;

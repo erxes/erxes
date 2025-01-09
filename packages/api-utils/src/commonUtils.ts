@@ -75,7 +75,7 @@ export const decryptText = (data: IEncryptionData): string => {
   const decipher = crypto.createDecipheriv(
     data.algorithm,
     Buffer.from(data.key),
-    iv,
+    iv
   );
 
   // decipher
@@ -128,4 +128,16 @@ export const readFileUrl = (value: string) => {
   });
 
   return `${DOMAIN}/gateway/read-file?key=${value}`;
+};
+
+export const isImage = (mimetypeOrName: string) => {
+  const extensions = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
+
+  // extract extension from file name
+  const extension = mimetypeOrName.split('.').pop();
+  if (extensions.includes(extension || '')) {
+    return true;
+  }
+
+  return mimetypeOrName.includes('image');
 };

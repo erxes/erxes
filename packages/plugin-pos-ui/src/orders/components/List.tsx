@@ -1,3 +1,11 @@
+import MainHead from './MainHead';
+import React from 'react';
+import RightMenu from './RightMenu';
+import Row from './Row';
+import { IOrder } from '../types';
+import { IQueryParams } from '@erxes/ui/src/types';
+import { menuPos } from '../../constants';
+import { TableWrapper } from '../../styles';
 import {
   BarItems,
   DataWithLoader,
@@ -7,15 +15,6 @@ import {
   Wrapper,
   __,
 } from "@erxes/ui/src";
-import { IQueryParams } from "@erxes/ui/src/types";
-
-import { IOrder } from "../types";
-import React from "react";
-import RightMenu from "./RightMenu";
-import Row from "./Row";
-import { TableWrapper } from "../../styles";
-import { Title } from "@erxes/ui-settings/src/styles";
-import { menuPos } from "../../constants";
 
 type Props = {
   orders: IOrder[];
@@ -66,16 +65,26 @@ const List = (props: Props) => {
       queryParams,
     };
 
-    const actionBarLeft = <Title>{__("Pos Orders")}</Title>;
-
     const actionBarRight = (
       <BarItems>
         <RightMenu {...rightMenuProps} />
       </BarItems>
     );
 
-    return <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />;
+    return <Wrapper.ActionBar right={actionBarRight} />;
   };
+
+  const renderMainHead = () => {
+    return (
+      <MainHead
+        icon="/images/actions/26.svg"
+        title=""
+        summary={summary || {}}
+        staticKeys={staticKeys}
+        actionBar={renderActionBar()}
+      />
+    )
+  }
 
   const renderContent = () => {
     const otherPayTitles = (summary ? Object.keys(summary) || [] : [])
@@ -146,14 +155,14 @@ const List = (props: Props) => {
     <Wrapper
       header={<Wrapper.Header title={__(`Pos Orders`)} submenu={menuPos} />}
       hasBorder={true}
-      actionBar={renderActionBar()}
+      mainHead={renderMainHead()}
       footer={<Pagination count={(summary || {}).count || 0} />}
       content={
         <DataWithLoader
           data={renderContent()}
           loading={loading}
           count={(orders || []).length}
-          emptyText="Add in your first order!"
+          emptyText={__("Add in your first order!")}
           emptyImage="/images/actions/1.svg"
         />
       }

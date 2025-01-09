@@ -33,6 +33,7 @@ import Notifications from '../components/notifications/Notifications';
 import Popup from 'reactjs-popup';
 import RegisterContainer from '../../user/containers/Register';
 import { withRouter } from 'next/router';
+import { __ } from '../../../utils';
 
 type Props = {
   config: Config;
@@ -83,7 +84,7 @@ function Header({
   };
 
   const renderAuth = () => {
-    if (!config.ticketToggle || !config.taskToggle || !config.dealToggle) {
+    if (!config.ticketToggle && !config.taskToggle && !config.dealToggle) {
       return null;
     }
 
@@ -152,7 +153,7 @@ function Header({
             >
               <div>
                 <Icon icon="settings" />
-                Settings
+              {__('Settings')}
               </div>
             </Dropdown.Item>
             <Dropdown.Divider />
@@ -166,7 +167,7 @@ function Header({
               }}
             >
               <Icon icon="logout-1" />
-              Logout
+              {__('Logout')}
             </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>

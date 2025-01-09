@@ -2,6 +2,7 @@ import { FormEvent, useState } from "react"
 import { mutations } from "@/modules/orders/graphql"
 import { orderPasswordAtom } from "@/store/config.store"
 import { openCancelDialogAtom, paymentDetailAtom } from "@/store/history.store"
+import { activeOrderIdAtom, setInitialAtom } from "@/store/order.store"
 import { useMutation } from "@apollo/client"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
@@ -19,7 +20,7 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useToast } from "@/components/ui/use-toast"
+import { onError } from "@/components/ui/use-toast"
 
 export const OrderCancelTrigger = ({
   loading,
@@ -61,7 +62,8 @@ const OrderCancel = ({
 }) => {
   const orderPassword = useAtomValue(orderPasswordAtom)
   const [open, changeOpen] = useAtom(openCancelDialogAtom)
-  const { onError } = useToast()
+  const activeOrderId = useAtomValue(activeOrderIdAtom)
+  const reset = useSetAtom(setInitialAtom)
   const [value, setValue] = useState("")
   const [error, setError] = useState(false)
   const [ref, setFocus] = useFocus()
@@ -76,9 +78,10 @@ const OrderCancel = ({
       changeOpen(null)
       focus()
       !!onCompleted && onCompleted()
+      activeOrderId === _id && reset()
     },
     onError(error) {
-      onError(error)
+      onError(error.message)
       changeOpen(null)
       focus()
     },
@@ -114,23 +117,26 @@ const OrderCancel = ({
           </AlertDialogHeader>
 
           <form onSubmit={handleSubmit}>
-            {orderPassword && <div>
-              <Label htmlFor="pass">Нууц үг</Label>
-              <Input
-                id="pass"
-                type="password"
-                autoComplete="off"
-                className="block my-1"
-                onChange={(e) => setValue(e.target.value)}
-              />
+            {orderPassword && (
+              <div>
+                <Label htmlFor="pass">Нууц үг</Label>
+                <Input
+                  id="pass"
+                  type="password"
+                  autoComplete="off"
+                  className="block my-1"
+                  onChange={(e) => setValue(e.target.value)}
+                />
 
-              <div
-                className={error ? "text-destructive" : "text-muted-foreground"}
-              >
-                Баталгаажуулах нууц {error && "зөв"} үгээ оруулана уу
+                <div
+                  className={
+                    error ? "text-destructive" : "text-muted-foreground"
+                  }
+                >
+                  Баталгаажуулах нууц {error && "зөв"} үгээ оруулана уу
+                </div>
               </div>
-            </div>
-            }
+            )}
 
             <AlertDialogFooter className="pt-6">
               <AlertDialogCancel>Болих</AlertDialogCancel>

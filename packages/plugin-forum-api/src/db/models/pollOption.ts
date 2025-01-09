@@ -1,5 +1,5 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { Document, Schema, Model, Connection, Types } from 'mongoose';
+import { Document, Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
 import { ICpUser } from '../../graphql';
 import { IModels } from './index';
 import * as _ from 'lodash';
@@ -7,8 +7,7 @@ import { LoginRequiredError } from '../../customErrors';
 import { UserTypes } from '../../consts';
 
 export interface PollOption {
-  _id: any;
-  postId: string;
+  postId: Types.ObjectId;
   title: string;
   createdByCpId?: string | null;
   createdById?: string | null;
@@ -25,7 +24,7 @@ const pollOptionSchema = new Schema<PollOption>({
   order: { type: Number, default: 0, required: true }
 });
 
-export type PollOptionDocument = PollOption & Document;
+export type PollOptionDocument = HydratedDocument<PollOption>;
 
 export interface PollOptionModel extends Model<PollOptionDocument> {
   findOwnedByIdOrThrow(
@@ -35,7 +34,7 @@ export interface PollOptionModel extends Model<PollOptionDocument> {
   findByIdOrThrow(_id: string): Promise<PollOptionDocument>;
 
   handleChanges(
-    postId: string,
+    postId: string | Types.ObjectId,
     options: { _id?: string; title: string }[],
     userType: UserTypes,
     userId: string
@@ -72,7 +71,7 @@ export const generatePollOptionModel = (
     }
 
     public static async handleChanges(
-      postId: string,
+      postId: string | Types.ObjectId,
       options: { _id?: string; title: string; order?: number }[],
       userType: UserTypes,
       userId: string
@@ -99,7 +98,7 @@ export const generatePollOptionModel = (
           const optionToInsert = {
             title,
             order,
-            postId: Types.ObjectId(postId.toString()),
+            postId: new Types.ObjectId(postId.toString()),
             createdAt: new Date()
           };
           optionToInsert[
@@ -143,7 +142,7 @@ export const generatePollOptionModel = (
 
   pollOptionSchema.loadClass(PollOptionStatics);
 
-  models.PollOption = con.model<PollOptionDocument, PollOptionModel>(
+  models.PollOption = con.model<PollOption, PollOptionModel>(
     'forum_poll_options',
     pollOptionSchema
   );

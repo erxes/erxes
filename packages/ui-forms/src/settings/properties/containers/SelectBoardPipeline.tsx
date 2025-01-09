@@ -1,17 +1,26 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { graphql, ChildProps } from '@apollo/client/react/hoc';
+import { ChildProps, graphql } from "@apollo/client/react/hoc";
 
-import { BoardsQueryResponse } from '@erxes/ui-cards/src/boards/types';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import React from 'react';
-import SelectBoards from '../components/SelectBoardPipeline';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
-import { mutations } from '@erxes/ui-cards/src/settings/boards/graphql';
-import { queries } from '@erxes/ui-cards/src/boards/graphql';
-import { withProps } from '@erxes/ui/src/utils';
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { BoardsQueryResponse as PurchasesBoardsQueryResponse } from "@erxes/ui-purchases/src/boards/types";
+import React from "react";
+import { BoardsQueryResponse as SalesBoardsQueryResponse } from "@erxes/ui-sales/src/boards/types";
+import SelectBoards from "../components/SelectBoardPipeline";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { BoardsQueryResponse as TasksBoardsQueryResponse } from "@erxes/ui-tasks/src/boards/types";
+import { BoardsQueryResponse as TicketsBoardsQueryResponse } from "@erxes/ui-tickets/src/boards/types";
+import { gql } from "@apollo/client";
+import { mutations as purchasesMutations } from "@erxes/ui-purchases/src/settings/boards/graphql";
+import { queries as purchasesQueries } from "@erxes/ui-purchases/src/boards/graphql";
+import { mutations as salesMutations } from "@erxes/ui-sales/src/settings/boards/graphql";
+import { queries as salesQueries } from "@erxes/ui-sales/src/boards/graphql";
+import { mutations as tasksMutations } from "@erxes/ui-tasks/src/settings/boards/graphql";
+import { queries as tasksQueries } from "@erxes/ui-tasks/src/boards/graphql";
+import { mutations as ticketsMutations } from "@erxes/ui-tickets/src/settings/boards/graphql";
+import { queries as ticketsQueries } from "@erxes/ui-tickets/src/boards/graphql";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   onChangeItems: (items: any) => any;
@@ -22,13 +31,60 @@ type Props = {
 };
 
 type FinalProps = {
-  boardsQuery: BoardsQueryResponse;
+  salesBoardsQuery: SalesBoardsQueryResponse;
+  ticketsdBoardsQuery: TicketsBoardsQueryResponse;
+  tasksBoardsQuery: TasksBoardsQueryResponse;
+  purchasesBoardsQuery: PurchasesBoardsQueryResponse;
 } & Props;
 
 const SelectContainer = (props: ChildProps<FinalProps>) => {
-  const { boardsQuery } = props;
+  const {
+    salesBoardsQuery,
+    ticketsdBoardsQuery,
+    tasksBoardsQuery,
+    purchasesBoardsQuery,
+    type,
+  } = props;
 
-  const boards = boardsQuery.boards || [];
+  let boardsQuery:
+    | SalesBoardsQueryResponse
+    | TicketsBoardsQueryResponse
+    | TasksBoardsQueryResponse
+    | PurchasesBoardsQueryResponse
+    | undefined;
+
+  let mutations;
+
+  let queryResponse;
+
+  switch (type) {
+    case "deal":
+      boardsQuery = salesBoardsQuery;
+      mutations = salesMutations;
+      queryResponse = "salesBoards";
+      break;
+    case "ticket":
+      boardsQuery = ticketsdBoardsQuery;
+      mutations = ticketsMutations;
+      queryResponse = "ticketsBoards";
+      break;
+    case "task":
+      boardsQuery = tasksBoardsQuery;
+      mutations = tasksMutations;
+      queryResponse = "tasksBoards";
+      break;
+    case "purchase":
+      boardsQuery = purchasesBoardsQuery;
+      mutations = purchasesMutations;
+      queryResponse = "purchasesBoards";
+      break;
+  }
+
+  if (!boardsQuery) {
+    return null;
+  }
+
+  const boards = boardsQuery[queryResponse] || [];
 
   if (boardsQuery.loading) {
     return <Spinner objective={true} />;
@@ -38,10 +94,10 @@ const SelectContainer = (props: ChildProps<FinalProps>) => {
     name,
     values,
     isSubmitted,
-    callback
+    callback,
   }: IButtonMutateProps) => {
     const callBackResponse = () => {
-      boardsQuery.refetch();
+      boardsQuery && boardsQuery.refetch();
 
       if (callback) {
         callback();
@@ -64,7 +120,7 @@ const SelectContainer = (props: ChildProps<FinalProps>) => {
     ...props,
     boards,
     items: [],
-    renderButton
+    renderButton,
   };
 
   return <SelectBoards {...updatedProps} />;
@@ -73,22 +129,61 @@ const SelectContainer = (props: ChildProps<FinalProps>) => {
 const getRefetchQueries = () => {
   return [
     {
-      query: gql(queries.boards),
-      variables: {}
-    }
+      query: gql(salesQueries.boards),
+      variables: {},
+    },
   ];
 };
 
 export default withProps<Props>(
   compose(
-    graphql<Props, BoardsQueryResponse, { type: string }>(gql(queries.boards), {
-      name: 'boardsQuery',
-      options: ({ type }) => ({
-        variables: {
-          type
-        },
-        refetchQueries: getRefetchQueries
-      })
-    })
+    graphql<Props, SalesBoardsQueryResponse, { type: string }>(
+      gql(salesQueries.boards),
+      {
+        name: "salesBoardsQuery",
+        options: ({ type }) => ({
+          variables: {
+            type,
+          },
+          refetchQueries: getRefetchQueries,
+        }),
+      }
+    ),
+    graphql<Props, TicketsBoardsQueryResponse, { type: string }>(
+      gql(ticketsQueries.boards),
+      {
+        name: "ticketsdBoardsQuery",
+        options: ({ type }) => ({
+          variables: {
+            type,
+          },
+          refetchQueries: getRefetchQueries,
+        }),
+      }
+    ),
+    graphql<Props, TasksBoardsQueryResponse, { type: string }>(
+      gql(tasksQueries.boards),
+      {
+        name: "tasksBoardsQuery",
+        options: ({ type }) => ({
+          variables: {
+            type,
+          },
+          refetchQueries: getRefetchQueries,
+        }),
+      }
+    ),
+    graphql<Props, PurchasesBoardsQueryResponse, { type: string }>(
+      gql(purchasesQueries.boards),
+      {
+        name: "purchasesBoardsQuery",
+        options: ({ type }) => ({
+          variables: {
+            type,
+          },
+          refetchQueries: getRefetchQueries,
+        }),
+      }
+    )
   )(SelectContainer)
 );

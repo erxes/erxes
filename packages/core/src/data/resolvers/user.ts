@@ -4,26 +4,32 @@ import {
   DEFAULT_CONSTANT_VALUES,
   USER_ROLES,
 } from '@erxes/api-utils/src/constants';
-import { IContext } from '../../connectionResolver';
-import { IUserDocument } from '../../db/models/definitions/users';
-import { getUserActionsMap } from '@erxes/api-utils/src';
-import { getConfigs, getEnv } from '../utils';
 import {
   coreModelExperiences,
-  getOrgPromoCodes,
   getOrganizationDetail,
+  coreModelBundles,
   getPlugin,
 } from '@erxes/api-utils/src/saas/saas';
+import { getConfigs, getEnv } from '../utils';
+
+import { IContext } from '../../connectionResolver';
+import { IUserDocument } from '../../db/models/definitions/users';
 import { calcUsage } from '@erxes/api-utils/src/saas/chargeUtils';
 import { getRelatedOrganizations } from '../../organizations';
+import { getUserActionsMap } from '@erxes/api-utils/src';
 
 export default {
   __resolveReference: async ({ _id }, { models }: IContext) => {
     const user = await models.Users.findOne({ _id });
+
+    if (!user) {
+      return null;
+    }
+
     return user;
   },
 
-  status(user: IUserDocument) {
+  async status(user: IUserDocument) {
     if (user.registrationToken) {
       return 'Not verified';
     }
@@ -54,13 +60,13 @@ export default {
         type: 'contacts',
       })) || {};
 
-    const orgPromoCodes = await getOrgPromoCodes(organization);
+    // const orgPromoCodes = await getOrgPromoCodes(organization);
 
     contactPlugin.usage = await calcUsage({
       subdomain,
       pluginType: contactPlugin.type,
       organization,
-      orgPromoCodes,
+      // orgPromoCodes,
     });
 
     const remainingAmount = contactPlugin.usage.remainingAmount;
@@ -68,10 +74,21 @@ export default {
     const experience = await coreModelExperiences.findOne({
       _id: organization.experienceId,
     });
+    const bundle = await coreModelBundles.findOne({
+      _id: organization?.bundleId,
+    });
 
     let contactRemaining = remainingAmount <= 0 ? false : true;
 
+    if (bundle) {
+      const bundlLimit = bundle?.pluginLimits
+        ? (bundle?.pluginLimits || {})[contactPlugin.type] || 0
+        : 0;
+      contactRemaining = bundlLimit > 0 ? true : contactRemaining;
+    }
+
     if (experience) {
+      organization.experience = experience;
       const expContactLimit = experience.pluginLimits
         ? experience.pluginLimits[contactPlugin.type] || 0
         : 0;
@@ -131,11 +148,9 @@ export default {
   async permissionActions(
     user: IUserDocument,
     _args,
-    { subdomain, models: { Permissions } }: IContext,
+    { subdomain, models: { Permissions } }: IContext
   ) {
-    return getUserActionsMap(subdomain, user, (query) =>
-      Permissions.find(query),
-    );
+    return getUserActionsMap(subdomain, user, query => Permissions.find(query));
   },
 
   async configs(_user, _args, { models }: IContext) {
@@ -145,13 +160,13 @@ export default {
   async configsConstants(_user, _args, { models }: IContext) {
     const results: any[] = [];
     const configs = await getConfigs(models);
-    const constants = models.Configs.constants();
+    const constants = await models.Configs.constants();
 
     for (const key of Object.keys(constants)) {
       const configValues = configs[key] || [];
       const constant = constants[key];
 
-      let values = constant.filter((c) => configValues.includes(c.value));
+      let values = constant.filter(c => configValues.includes(c.value));
 
       if (!values || values.length === 0) {
         values = DEFAULT_CONSTANT_VALUES[key];
@@ -170,7 +185,7 @@ export default {
     const entries = await models.OnboardingHistories.find({
       userId: user._id,
     });
-    const completed = entries.find((item) => item.isCompleted);
+    const completed = entries.find(item => item.isCompleted);
 
     /**
      * When multiple entries are recorded, using findOne() gave wrong result.
@@ -200,7 +215,7 @@ export default {
       (await models.Users.find({
         score: { $gt: user.score || 0 },
         role: { $ne: USER_ROLES.SYSTEM },
-      }).count()) + 1
+      }).countDocuments()) + 1
     );
   },
 };

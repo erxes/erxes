@@ -24,7 +24,7 @@ type FinalProps = Props &
   ClientPortalVerifyUsersMutationResponse;
 
 const ClientportalUserListContainer: React.FC<FinalProps> = (
-  props: FinalProps,
+  props: FinalProps
 ) => {
   const [loading, setLoading] = useState(false);
   const { queryParams } = props;
@@ -40,21 +40,21 @@ const ClientportalUserListContainer: React.FC<FinalProps> = (
         ...generatePaginationParams(queryParams),
       },
       fetchPolicy: 'network-only',
-    },
+    }
   );
   const clientPortalUserTotalCountQuery =
     useQuery<ClientPortalUserTotalCountQueryResponse>(
       gql(queries.clientPortalUserCounts),
       {
         fetchPolicy: 'network-only',
-      },
+      }
     );
 
   const [clientPortalUsersRemove] = useMutation(
     gql(mutations.clientPortalUsersRemove),
     {
       refetchQueries: getRefetchQueries(),
-    },
+    }
   );
 
   const [clientPortalUsersVerify] = useMutation(gql(mutations.verifyUsers), {
@@ -70,13 +70,12 @@ const ClientportalUserListContainer: React.FC<FinalProps> = (
         emptyBulk();
         Alert.success('You successfully deleted a client portal user');
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
 
   const verifyUsers = (type, userIds) => {
-    const { clientPortalUsersVerify } = props;
     clientPortalUsersVerify({
       variables: {
         type,
@@ -86,7 +85,7 @@ const ClientportalUserListContainer: React.FC<FinalProps> = (
       .then(() => {
         Alert.success('You successfully verified a client portal user');
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
@@ -112,7 +111,7 @@ const ClientportalUserListContainer: React.FC<FinalProps> = (
     verifyUsers,
   };
 
-  const content = (props) => {
+  const content = props => {
     return <ClientPortalUserList {...updatedProps} {...props} />;
   };
 

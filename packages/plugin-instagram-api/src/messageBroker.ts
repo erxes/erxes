@@ -93,7 +93,9 @@ export const setupMessageConsumers = async () => {
       const integration = await models.Integrations.findOne({
         erxesApiId: integrationId
       });
-
+      if (!integration) {
+        throw new Error('Instagram Integration not found ');
+      }
       let result = {
         status: 'healthy'
       } as any;
@@ -179,6 +181,13 @@ export const sendCoreMessage = async (
 export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
+    ...args
+  });
+};
+
+export const sendAutomationsMessage = (args: MessageArgsOmitService) => {
+  return sendCommonMessage({
+    serviceName: 'automations',
     ...args
   });
 };

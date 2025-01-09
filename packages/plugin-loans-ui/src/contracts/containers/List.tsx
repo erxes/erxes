@@ -2,7 +2,7 @@ import { gql } from "@apollo/client";
 import { router } from "@erxes/ui/src/utils/core";
 import Alert from "@erxes/ui/src/utils/Alert";
 import Bulk from "@erxes/ui/src/components/Bulk";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ContractList from "../components/list/ContractsList";
 import { mutations, queries } from "../graphql";
 import queryString from "query-string";
@@ -10,6 +10,7 @@ import { MainQueryResponse, RemoveMutationResponse } from "../types";
 import { FILTER_PARAMS_CONTRACT } from "../../constants";
 import { useMutation, useQuery } from "@apollo/client";
 import { useLocation, useNavigate } from "react-router-dom";
+import subscriptions from "../graphql/subscriptions";
 
 type Props = {
   queryParams: any;
@@ -129,6 +130,17 @@ const ContractListContainer = (props: Props) => {
   const searchValue = queryParams.searchValue || "";
   const { list = [], totalCount = 0 } =
     contractsMainQuery?.data?.contractsMain || {};
+
+  useEffect(() => {
+    return contractsMainQuery.subscribeToMore({
+      document: gql(subscriptions.loansContractChanged),
+      variables: { ids: list.map(l => l._id) },
+      updateQuery: (prev) => {
+        contractsMainQuery.refetch();
+        return prev
+      }
+    });
+  });
 
   const alerts =
     contractsAlertQuery?.data?.contractsAlert || ([] as ContractAlert[]);

@@ -36,7 +36,7 @@ export default {
 
   replaceContent: async ({ subdomain, data: { contractId, content } }) => {
     const models = await generateModels(subdomain);
-    const contract = await models.Contracts.findOne({ _id: contractId }).lean();
+    const contract : any = await models.Contracts.findOne({ _id: contractId }).lean();
 
     if (!contract) return content;
 
@@ -48,7 +48,7 @@ export default {
           data: { _id: contract.customerId },
           isRPC: true
         },
-        'contacts'
+        'core'
       );
       contract.customerName = customer.firstName;
       contract.customerLastName = customer.lastName;
@@ -62,7 +62,7 @@ export default {
           data: { _id: contract.customerId },
           isRPC: true
         },
-        'contacts'
+        'core'
       );
 
       contract.customerName = company.primaryName;

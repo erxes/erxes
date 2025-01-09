@@ -11,13 +11,14 @@ import {
   PayDatesQueryResponse,
   HolidaysQueryResponse,
   ScheduleConfigQueryResponse,
-  DeviceConfigsQueryResponse
+  DeviceConfigsQueryResponse,
 } from '../../types';
 import { mutations, queries } from '../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { generateParams } from '../../utils';
+import client from '@erxes/ui/src/apolloClient';
 
 type Props = {
   getActionBar: (actionBar: any) => void;
@@ -65,15 +66,42 @@ const ListContainer = (props: FinalProps) => {
     listPayDatesQuery,
     listHolidaysQuery,
     listScheduleConfigsQuery,
-    listDeviceConfigsQuery
+    listDeviceConfigsQuery,
   } = props;
+
+  const onScheduleSubmit = (values: any, object: any, callback: any) => {
+    let mutation;
+
+    mutation = object
+      ? mutations.scheduleConfigEdit
+      : mutations.scheduleConfigAdd;
+
+    client
+      .mutate({
+        mutation: gql(mutation),
+        variables: values,
+        refetchQueries: [{ query: gql(queries.scheduleConfigs) }],
+      })
+      .then(({ data }) => {
+        Alert.success(
+          `You successfully ${object ? 'updated' : 'added'} ${name}`
+        );
+
+        if (callback) {
+          callback();
+        }
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
+  };
 
   const renderButton = ({
     values,
     isSubmitted,
     callback,
     object,
-    name
+    name,
   }: IButtonMutateProps) => {
     let mutation;
     if (name === 'absenceType') {
@@ -100,6 +128,10 @@ const ListContainer = (props: FinalProps) => {
         : mutations.deviceConfigAdd;
     }
 
+    if (!values) {
+      return null;
+    }
+
     return (
       <ButtonMutate
         mutation={mutation}
@@ -107,20 +139,20 @@ const ListContainer = (props: FinalProps) => {
         callback={callback}
         refetchQueries={[
           {
-            query: gql(queries.absenceTypes)
+            query: gql(queries.absenceTypes),
           },
           {
-            query: gql(queries.holidays)
+            query: gql(queries.holidays),
           },
           {
-            query: gql(queries.payDates)
+            query: gql(queries.payDates),
           },
           {
-            query: gql(queries.scheduleConfigs)
+            query: gql(queries.scheduleConfigs),
           },
           {
-            query: gql(queries.deviceConfigs)
-          }
+            query: gql(queries.deviceConfigs),
+          },
         ]}
         isSubmitted={isSubmitted}
         btnStyle="primary"
@@ -132,11 +164,11 @@ const ListContainer = (props: FinalProps) => {
     );
   };
 
-  const removeAbsenceType = absenceId => {
+  const removeAbsenceType = (absenceId) => {
     confirm('Are you sure to remove this absence type').then(() => {
       removeAbsenceTypeMutation({ variables: { _id: absenceId } })
         .then(() => Alert.success('Successfully removed an absence type'))
-        .catch(err => {
+        .catch((err) => {
           Alert.error(err);
         });
     });
@@ -146,7 +178,7 @@ const ListContainer = (props: FinalProps) => {
     confirm('Are you sure to remove this holiday').then(() => {
       removeHolidayMutation({ variables: { _id: `${_id}` } })
         .then(() => Alert.success('Successfully removed holiday'))
-        .catch(err => {
+        .catch((err) => {
           Alert.error(err);
         });
     });
@@ -156,7 +188,7 @@ const ListContainer = (props: FinalProps) => {
     confirm('Are you sure to remove this holiday').then(() => {
       removePayDateMutation({ variables: { _id: `${_id}` } })
         .then(() => Alert.success('Successfully removed payDate'))
-        .catch(err => {
+        .catch((err) => {
           Alert.error(err);
         });
     });
@@ -166,7 +198,7 @@ const ListContainer = (props: FinalProps) => {
     confirm('Are you sure to remove this schedule config').then(() => {
       removeScheduleConfigMutation({ variables: { _id: `${_id}` } })
         .then(() => Alert.success('Successfully removed schedule config'))
-        .catch(err => {
+        .catch((err) => {
           Alert.error(err);
         });
     });
@@ -176,7 +208,7 @@ const ListContainer = (props: FinalProps) => {
     confirm('Are you sure to remove this device config').then(() => {
       removeDeviceConfigMutation({ variables: { _id: `${_id}` } })
         .then(() => Alert.success('Successfully removed schedule config'))
-        .catch(err => {
+        .catch((err) => {
           Alert.error(err);
         });
     });
@@ -201,7 +233,7 @@ const ListContainer = (props: FinalProps) => {
     removeScheduleConfig,
     renderButton,
     removeDeviceConfig,
-    refetchDeviceConfigsQuery
+    refetchDeviceConfigsQuery,
   };
 
   return <ConfigList {...updatedProps} />;
@@ -212,64 +244,64 @@ export default withProps<Props>(
     graphql<Props, AbsenceTypeQueryResponse>(gql(queries.absenceTypes), {
       name: 'listAbsenceTypesQuery',
       options: () => ({
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<Props, PayDatesQueryResponse>(gql(queries.payDates), {
       name: 'listPayDatesQuery',
       options: () => ({
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<Props, PayDatesQueryResponse>(gql(queries.holidays), {
       name: 'listHolidaysQuery',
       options: () => ({
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<Props, PayDatesQueryResponse>(gql(queries.scheduleConfigs), {
       name: 'listScheduleConfigsQuery',
       options: () => ({
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
 
     graphql<Props, PayDatesQueryResponse>(gql(queries.deviceConfigs), {
       name: 'listDeviceConfigsQuery',
       options: ({ queryParams }) => ({
         variables: generateParams(queryParams),
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
 
     graphql<Props, AbsenceMutationResponse>(gql(mutations.absenceTypeRemove), {
       name: 'removeAbsenceTypeMutation',
       options: ({ absenceId }) => ({
         variables: {
-          _id: absenceId
+          _id: absenceId,
         },
-        refetchQueries: ['absenceTypes']
-      })
+        refetchQueries: ['absenceTypes'],
+      }),
     }),
 
     graphql<Props, ConfigMutationResponse>(gql(mutations.holidayRemove), {
       name: 'removeHolidayMutation',
       options: ({ payDates }) => ({
         variables: {
-          dateNums: payDates
+          dateNums: payDates,
         },
-        refetchQueries: ['holidays']
-      })
+        refetchQueries: ['holidays'],
+      }),
     }),
 
     graphql<Props, ConfigMutationResponse>(gql(mutations.payDateRemove), {
       name: 'removePayDateMutation',
       options: ({ payDates }) => ({
         variables: {
-          dateNums: payDates
+          dateNums: payDates,
         },
-        refetchQueries: ['payDates']
-      })
+        refetchQueries: ['payDates'],
+      }),
     }),
 
     graphql<Props, ConfigMutationResponse>(
@@ -278,20 +310,20 @@ export default withProps<Props>(
         name: 'removeScheduleConfigMutation',
         options: ({ scheduleConfigId }) => ({
           variables: {
-            _id: scheduleConfigId
+            _id: scheduleConfigId,
           },
-          refetchQueries: ['scheduleConfigs']
-        })
+          refetchQueries: ['scheduleConfigs'],
+        }),
       }
     ),
     graphql<Props, ConfigMutationResponse>(gql(mutations.deviceConfigRemove), {
       name: 'removeDeviceConfigMutation',
       options: ({ deviceConfigId }) => ({
         variables: {
-          _id: deviceConfigId
+          _id: deviceConfigId,
         },
-        refetchQueries: ['deviceConfigs']
-      })
+        refetchQueries: ['deviceConfigs'],
+      }),
     })
   )(ListContainer)
 );

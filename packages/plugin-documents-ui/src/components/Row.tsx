@@ -34,9 +34,11 @@ function Row({ obj, remove }: Props) {
         <ModalTrigger
           content={modalContent}
           size="lg"
-          title="Edit Document"
+          title={__("Edit Document")}
           autoOpenKey="showDocumentModal"
           trigger={trigger}
+          tipText="Edit"
+          tipPlacement='top'
         />
         <Tip text={__('Delete')} placement="top">
           <Button

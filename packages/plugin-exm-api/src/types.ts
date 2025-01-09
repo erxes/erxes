@@ -83,7 +83,6 @@ export interface IMessage {
   messengerAppData?: any;
   engageData?: IEngageData;
   contentType?: string;
-  bookingWidgetData?: any;
 }
 
 export interface IMessageDocument extends IMessage, Document {

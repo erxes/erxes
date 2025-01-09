@@ -1,17 +1,13 @@
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import { generateModels, IModels } from './connectionResolver';
-import { IMPORT_EXPORT_TYPES } from './constants';
-import {
-  fetchSegment,
-  sendCoreMessage,
-  sendTagsMessage,
-} from './messageBroker';
-import * as moment from 'moment';
+import { IUserDocument } from "@erxes/api-utils/src/types";
+import { generateModels, IModels } from "./connectionResolver";
+import { IMPORT_EXPORT_TYPES } from "./constants";
+import { fetchSegment, sendCoreMessage } from "./messageBroker";
+import * as moment from "moment";
 
 const prepareData = async (
   models: IModels,
   subdomain: string,
-  query: any,
+  query: any
 ): Promise<any[]> => {
   const { segmentData, page, perPage } = query;
 
@@ -24,9 +20,9 @@ const prepareData = async (
   if (segmentData.conditions) {
     const itemIds = await fetchSegment(
       subdomain,
-      '',
+      "",
       { page, perPage },
-      segmentData,
+      segmentData
     );
 
     conversationsFilter._id = { $in: itemIds };
@@ -47,7 +43,7 @@ const prepareData = async (
 const prepareDataCount = async (
   models: IModels,
   subdomain: string,
-  query: any,
+  query: any
 ): Promise<any> => {
   const { segmentData } = query;
 
@@ -58,15 +54,15 @@ const prepareDataCount = async (
   if (segmentData.conditions) {
     const itemIds = await fetchSegment(
       subdomain,
-      '',
+      "",
       { scroll: true, page: 1, perPage: 10000 },
-      segmentData,
+      segmentData
     );
 
     conversationsFilter._id = { $in: itemIds };
   }
 
-  data = await models.Conversations.find(conversationsFilter).count();
+  data = await models.Conversations.find(conversationsFilter).countDocuments();
 
   return data;
 };
@@ -75,106 +71,163 @@ export const fillValue = async (
   models: IModels,
   subdomain: string,
   column: string,
-  item: any,
+  item: any
 ): Promise<string> => {
   let value = item[column];
   switch (column) {
-    case 'createdAt':
-      value = moment(value).format('YYYY-MM-DD');
+    case "createdAt":
+      value = moment(value).format("YYYY-MM-DD");
 
       break;
 
-    case 'updatedAt':
-      value = moment(value).format('YYYY-MM-DD');
+    case "updatedAt":
+      value = moment(value).format("YYYY-MM-DD");
 
       break;
 
-    case 'closedAt':
-      value = moment(value).format('YYYY-MM-DD');
+    case "closedAt":
+      value = moment(value).format("YYYY-MM-DD");
 
       break;
 
-    case 'firstRespondedDate':
-      value = moment(value).format('YYYY-MM-DD');
+    case "firstRespondedDate":
+      value = moment(value).format("YYYY-MM-DD");
 
       break;
 
-    case 'messageCount':
+    case "messageCount":
       value = item.messageCount || 0;
 
       break;
 
-    case 'assignedUserId':
+    case "assignedUserId":
       const assignedUser: IUserDocument | null = await sendCoreMessage({
         subdomain,
-        action: 'users.findOne',
+        action: "users.findOne",
         data: {
-          _id: item.assignedUserId,
+          _id: item.assignedUserId
         },
-        isRPC: true,
+        isRPC: true
       });
 
-      value = assignedUser ? assignedUser.username : 'user not found';
+      value = assignedUser ? assignedUser.username : "user not found";
 
       break;
 
-    case 'closedUserId':
+    case "closedUserId":
       const closedUser: IUserDocument | null = await sendCoreMessage({
         subdomain,
-        action: 'users.findOne',
+        action: "users.findOne",
         data: {
-          _id: item.closedUserId,
+          _id: item.closedUserId
         },
-        isRPC: true,
+        isRPC: true
       });
 
-      value = closedUser ? closedUser.username : 'user not found';
+      value = closedUser ? closedUser.username : "user not found";
 
       break;
 
-    case 'isCustomerRespondedLast':
-      value = item.isCustomerRespondedLast ? 'true' : 'false';
+    case "isCustomerRespondedLast":
+      value = item.isCustomerRespondedLast ? "true" : "false";
 
       break;
 
-    case 'participatedUserIds':
+    case "participatedUserIds":
       const resultValues = [] as any;
 
       for (const userId of item.participatedUserIds) {
         const participatedUser: IUserDocument | null = await sendCoreMessage({
           subdomain,
-          action: 'users.findOne',
+          action: "users.findOne",
           data: {
-            _id: userId,
+            _id: userId
           },
-          isRPC: true,
+          isRPC: true
         });
 
-        resultValues.push(participatedUser ? participatedUser.username : '');
+        resultValues.push(participatedUser ? participatedUser.username : "");
       }
 
-      value = (resultValues ? resultValues : []).join(', ');
+      value = (resultValues ? resultValues : []).join(", ");
 
       break;
 
-    case 'tag':
-      const tags = await sendTagsMessage({
+    case "tag":
+    case 'tagIds':
+      const tags = await sendCoreMessage({
         subdomain,
-        action: 'find',
+        action: "tagFind",
         data: {
-          _id: { $in: item.tagIds || [] },
+          _id: { $in: item.tagIds || [] }
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
-      let tagNames = '';
+      let tagNames = "";
 
       for (const tag of tags) {
-        tagNames = tagNames.concat(tag.name, ', ');
+        tagNames = tagNames.concat(tag.name, ", ");
       }
 
-      value = tags ? tagNames : '-';
+      value = tags ? tagNames : "-";
+
+      break;
+
+    case "integrationId":
+      const integration = await models.Integrations.findOne({ _id: item.integrationId }).lean()
+
+      value = integration ? integration.name : "-";
+
+      break;
+
+    case "integrationKind":
+      const integrationForKind = await models.Integrations.findOne({ _id: item.integrationId }).lean()
+
+      value = integrationForKind ? integrationForKind.kind : "-";
+
+      break;
+
+    case "brandId":
+      const integrationForBrand = await models.Integrations.findOne({ _id: item.integrationId }).lean()
+
+      if (integrationForBrand) {
+        const brand = await sendCoreMessage({
+          subdomain,
+          action: "brands.findOne",
+          data: {
+            query: {
+              _id: integrationForBrand.brandId
+            }
+          },
+          isRPC: true,
+          defaultValue: {}
+        });
+
+        value = brand ? brand.name : "-";
+      }
+
+      break;
+
+    case "customerId":
+      const customer = await sendCoreMessage({
+        subdomain,
+        action: "customers.findOne",
+        data: {
+          _id: item.customerId
+        },
+        isRPC: true
+      });
+
+      if (customer) {
+        value = (customer.firstName && customer.lastName ? `${customer.firstName} ${customer.lastName}` : null)
+          || customer.firstName
+          || customer.lastName
+          || customer.PrimaryEmail
+          || customer.PrimaryPhone
+          || "-"
+      }
 
       break;
 
@@ -182,7 +235,7 @@ export const fillValue = async (
       break;
   }
 
-  return value || '-';
+  return value || "-";
 };
 
 export default {
@@ -211,7 +264,7 @@ export default {
       }
     } catch (e) {
       return {
-        error: e.message,
+        error: e.message
       };
     }
     return { totalCount, excelHeader };
@@ -238,7 +291,7 @@ export default {
         for (const column of headers) {
           const value = await fillValue(models, subdomain, column, item);
 
-          result[column] = value || '-';
+          result[column] = value || "-";
         }
 
         docs.push(result);
@@ -247,5 +300,5 @@ export default {
       return { error: e.message };
     }
     return { docs };
-  },
+  }
 };

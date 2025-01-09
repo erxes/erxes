@@ -1,5 +1,6 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src';
 import { IModels, generateModels } from './connectionResolver';
+import { sendRPCMessage } from '@erxes/api-utils/src/messageBroker';
 
 const generateBotOptions = async (models: IModels, fields) => {
   const bots = await models.Bots.find({});
@@ -7,12 +8,12 @@ const generateBotOptions = async (models: IModels, fields) => {
   const selectOptions: Array<{ label: string; value: any }> = bots.map(
     (bot) => ({
       value: bot._id,
-      label: bot.name,
-    }),
+      label: bot.name
+    })
   );
 
   return fields.map((field) =>
-    field.name === 'botId' ? { ...field, selectOptions } : field,
+    field.name === 'botId' ? { ...field, selectOptions } : field
   );
 };
 
@@ -56,7 +57,7 @@ const generateFields = async ({ subdomain, data }) => {
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
         ];
       }
     }
@@ -65,11 +66,28 @@ const generateFields = async ({ subdomain, data }) => {
   fields = [
     ...fields,
     ...[
-      { _id: Math.random(), name: 'content', label: 'Content', type: 'String' },
-    ],
+      { _id: Math.random(), name: 'content', label: 'Content', type: 'String' }
+    ]
   ];
 
   fields = await generateBotOptions(models, fields);
+
+  const customerFields = await sendRPCMessage(
+    'core:fieldsCombinedByContentType',
+    {
+      data: { contentType: 'core:customer' },
+      subdomain,
+      defaultValue: []
+    }
+  );
+
+  fields = [
+    ...fields,
+    ...customerFields.map((field) => ({
+      ...field,
+      name: `customer.${field.name}`
+    }))
+  ];
 
   return fields;
 };
@@ -77,7 +95,7 @@ const generateFields = async ({ subdomain, data }) => {
 export default {
   types: [
     { description: 'Facebook Messages', type: 'messages' },
-    { description: 'Facebook Comments', type: 'comments' },
+    { description: 'Facebook Comments', type: 'comments' }
   ],
-  fields: generateFields,
+  fields: generateFields
 };

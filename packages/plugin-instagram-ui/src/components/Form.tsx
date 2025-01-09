@@ -5,7 +5,7 @@ import {
   Content,
   ImageWrapper,
   MessengerPreview,
-  TextWrapper,
+  TextWrapper
 } from "@erxes/ui-inbox/src/settings/integrations/styles";
 import {
   ControlWrapper,
@@ -13,7 +13,7 @@ import {
   Indicator,
   LeftItem,
   Preview,
-  StepWrapper,
+  StepWrapper
 } from "@erxes/ui/src/components/step/styles";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { Step, Steps } from "@erxes/ui/src/components/step";
@@ -57,7 +57,7 @@ class Instagram extends React.Component<Props, State> {
 
     this.state = {
       selectedPages: [],
-      channelIds: [],
+      channelIds: []
     };
   }
 
@@ -65,7 +65,7 @@ class Instagram extends React.Component<Props, State> {
     const { selectedPages } = this.state;
     if (selectedPages.includes(pageId)) {
       return this.setState({
-        selectedPages: selectedPages.filter((item) => item !== pageId),
+        selectedPages: selectedPages.filter((item) => item !== pageId)
       });
     }
 
@@ -86,8 +86,8 @@ class Instagram extends React.Component<Props, State> {
       accountId: accountId ? accountId : values.accountId,
       channelIds: this.state.channelIds,
       data: {
-        pageIds: this.state.selectedPages,
-      },
+        pageIds: this.state.selectedPages
+      }
     };
   };
 
@@ -99,7 +99,12 @@ class Instagram extends React.Component<Props, State> {
     }
 
     if (pages.length === 0) {
-      return <EmptyState icon="folder-2" text={__("There is no pages")} />;
+      return (
+        <EmptyState
+          icon='folder-2'
+          text={__("There is no pages")}
+        />
+      );
     }
 
     return (
@@ -118,8 +123,7 @@ class Instagram extends React.Component<Props, State> {
                       ? "primary"
                       : "simple"
                   }
-                  onClick={this.onSelectPages.bind(this, page.id)}
-                >
+                  onClick={this.onSelectPages.bind(this, page.id)}>
                   {this.state.selectedPages.includes(page.id)
                     ? __("Selected")
                     : __("Select")}
@@ -146,11 +150,13 @@ class Instagram extends React.Component<Props, State> {
     return (
       <>
         <Steps active={1}>
-          <Step img="/images/icons/erxes-01.svg" title="Connect Account">
+          <Step
+            img='/images/icons/erxes-01.svg'
+            title='Connect Account'>
             <FlexItem>
               <LeftItem>
                 <Accounts
-                  kind="instagram"
+                  kind='instagram'
                   onSelect={onAccountSelect}
                   onRemove={onRemoveAccount}
                 />
@@ -158,15 +164,16 @@ class Instagram extends React.Component<Props, State> {
             </FlexItem>
           </Step>
 
-          <Step img="/images/icons/erxes-04.svg" title="Connect Your Pages">
+          <Step
+            img='/images/icons/erxes-04.svg'
+            title='Connect Your Pages'>
             {this.renderPages()}
           </Step>
 
           <Step
-            img="/images/icons/erxes-16.svg"
-            title="Integration Setup"
-            noButton={true}
-          >
+            img='/images/icons/erxes-16.svg'
+            title={__("Integration Setup")}
+            noButton={true}>
             <FlexItem>
               <LeftItem>
                 <FormGroup>
@@ -176,7 +183,7 @@ class Instagram extends React.Component<Props, State> {
                   </p>
                   <FormControl
                     {...formProps}
-                    name="messengerName"
+                    name='messengerName'
                     required={true}
                   />
                 </FormGroup>
@@ -204,8 +211,10 @@ class Instagram extends React.Component<Props, State> {
             <strong> {this.props.kind}</strong> {__("integration")}
           </Indicator>
           <Button.Group>
-            <Link to="/settings/integrations">
-              <Button btnStyle="simple" icon="times-circle">
+            <Link to='/settings/integrations'>
+              <Button
+                btnStyle='simple'
+                icon='times-circle'>
                 Cancel
               </Button>
             </Link>
@@ -213,7 +222,7 @@ class Instagram extends React.Component<Props, State> {
               passedName: "integration",
               values: this.generateDoc(values),
               isSubmitted,
-              callback: this.props.callBack,
+              callback: this.props.callBack
             })}
           </Button.Group>
         </ControlWrapper>
@@ -241,12 +250,15 @@ class Instagram extends React.Component<Props, State> {
     const breadcrumb = [
       { title: __("Settings"), link: "/settings" },
       { title: __("Integrations"), link: "/settings/integrations" },
-      { title },
+      { title }
     ];
 
     return (
       <StepWrapper>
-        <Wrapper.Header title={title} breadcrumb={breadcrumb} />
+        <Wrapper.Header
+          title={title}
+          breadcrumb={breadcrumb}
+        />
         <Content>
           {this.renderForm()}
 
@@ -258,7 +270,10 @@ class Instagram extends React.Component<Props, State> {
                     {__("Connect your")} {title}
                   </h1>
                   <p>{description}</p>
-                  <img alt={title} src="/images/previews/facebook.png" />
+                  <img
+                    alt={title}
+                    src='/images/previews/facebook.png'
+                  />
                 </TextWrapper>
               </ImageWrapper>
             </Preview>

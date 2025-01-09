@@ -1,6 +1,6 @@
-import styled from 'styled-components';
-import { dimensions, colors } from '@erxes/ui/src/styles';
-import { HeaderContent } from '@erxes/ui-cards/src/boards/styles/item';
+import styled from "styled-components";
+import { dimensions, colors } from "@erxes/ui/src/styles";
+import { HeaderContent } from "@erxes/ui-sales/src/boards/styles/item";
 
 export const ScrolledContent = styled.div`
   flex: 1;
@@ -66,5 +66,15 @@ export const BackIcon = styled.div`
     i {
       box-shadow: 0 0 2px 0 rgba(101, 105, 223, 0.4);
     }
+  }
+`;
+
+export const ItemRowHeader = styled.h5`
+  display: flex;
+  flex-direction: column;
+
+  > span {
+    font-size: 11px;
+    color: ${colors.colorLightGray};
   }
 `;

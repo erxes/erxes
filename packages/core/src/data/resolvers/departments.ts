@@ -2,7 +2,7 @@ import { IContext } from '../../connectionResolver';
 import { IDepartmentDocument } from '../../db/models/definitions/structures';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.Departments.findOne({ _id });
   },
 
@@ -23,26 +23,26 @@ export default {
     return userIds;
   },
 
-  userCount(department: IDepartmentDocument, _args, { models }: IContext) {
+  async userCount(department: IDepartmentDocument, _args, { models }: IContext) {
     return models.Users.countDocuments({
       departmentIds: { $in: department._id || [] },
       isActive: true
     });
   },
 
-  parent(department: IDepartmentDocument, _args, { models }: IContext) {
+  async parent(department: IDepartmentDocument, _args, { models }: IContext) {
     return models.Departments.findOne({ _id: department.parentId });
   },
 
-  children(department: IDepartmentDocument, _args, { models }: IContext) {
+  async children(department: IDepartmentDocument, _args, { models }: IContext) {
     return models.Departments.find({ parentId: department._id });
   },
 
-  childCount(department: IDepartmentDocument, _args, { models }: IContext) {
+  async childCount(department: IDepartmentDocument, _args, { models }: IContext) {
     return models.Departments.countDocuments({ parentId: department._id });
   },
 
-  supervisor(department: IDepartmentDocument, _args, { models }: IContext) {
+  async supervisor(department: IDepartmentDocument, _args, { models }: IContext) {
     return models.Users.findOne({
       _id: department.supervisorId,
       isActive: true

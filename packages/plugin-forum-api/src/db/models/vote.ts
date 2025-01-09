@@ -1,17 +1,17 @@
-import { Document, Schema, Model, Connection, Types } from 'mongoose';
+import { Document, Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
 import { IModels } from './index';
 import { ICpUser } from '../../graphql';
 
 interface IVote {
-  contentId: string;
+  contentId: Types.ObjectId;
   userId: string;
 }
 
-export type VoteDocument = IVote & Document;
-export type VoteModel = Model<VoteDocument>;
+export type VoteDocument = HydratedDocument<IVote>;
+export type VoteModel = Model<IVote>;
 
-export const voteSchema = new Schema<VoteDocument>({
-  contentId: Types.ObjectId,
+export const voteSchema = new Schema<IVote>({
+  contentId: Schema.Types.ObjectId,
   userId: String
 });
 voteSchema.index({ contentId: 1, userId: 1 }, { unique: true });
@@ -28,7 +28,7 @@ const vote = (ToInsert: VoteModels, ToDelete: VoteModels) => async (
 ) => {
   if (!cpUser) throw new Error(`Unauthorized`);
   const doc: IVote = {
-    contentId: contentId,
+    contentId: new Types.ObjectId(contentId),
     userId: cpUser.userId
   };
 
@@ -52,16 +52,16 @@ export const generateVoteModels = (
   con: Connection,
   models: IModels
 ): void => {
-  models.PostUpVote = con.model<VoteDocument>('forum_post_upvote', voteSchema);
-  models.PostDownVote = con.model<VoteDocument>(
+  models.PostUpVote = con.model<IVote>('forum_post_upvote', voteSchema);
+  models.PostDownVote = con.model<IVote>(
     'forum_post_downvote',
     voteSchema
   );
-  models.CommentUpVote = con.model<VoteDocument>(
+  models.CommentUpVote = con.model<IVote>(
     'forum_comment_upvote',
     voteSchema
   );
-  models.CommentDownVote = con.model<VoteDocument>(
+  models.CommentDownVote = con.model<IVote>(
     'forum_comment_downvote',
     voteSchema
   );

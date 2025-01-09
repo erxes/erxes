@@ -1,4 +1,4 @@
-const posOrderFields = (contactsEnabled) => `
+const posOrderFields = () => `
   _id: String,
   createdAt: Date,
   status: String,
@@ -30,13 +30,7 @@ const posOrderFields = (contactsEnabled) => `
   department: JSON,
   subBranch: JSON,
   user: User,
-  ${
-    contactsEnabled
-      ? `
-      customer: CustomerPos
-    `
-      : ''
-  }
+  customer: CustomerPos
   syncedErkhet: Boolean,
   description: String,
   isPre: Boolean,
@@ -45,7 +39,7 @@ const posOrderFields = (contactsEnabled) => `
   returnInfo: JSON
 `;
 
-export const types = ({ contactsEnabled, productsEnabled }) => `
+export const types = () => `
   type CustomerPos {
     _id: String!
     code: String
@@ -56,11 +50,11 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
   }
 
   type PosOrder {
-    ${posOrderFields(contactsEnabled)}
+    ${posOrderFields()}
   }
 
   type PosOrderDetail {
-    ${posOrderFields(contactsEnabled)}
+    ${posOrderFields()}
     syncErkhetInfo: String
     putResponses: JSON
     deliveryInfo: JSON
@@ -69,7 +63,25 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
   }
 
   type PosOrderRecord {
-    ${posOrderFields(contactsEnabled)}
+    ${posOrderFields()}
+  }
+
+  type PosOrdersByCustomer {
+    _id: String,
+    customerType: String,
+    customerDetail:JSON,
+    orders:[PosOrder]
+    totalOrders:Int,
+    totalAmount:Int
+  }
+
+  type PosOrdersBySubs {
+    _id: String,
+    customerType: String,
+    customerId:String,
+    customer:JSON,
+    status:String
+    closeDate:Date
   }
 
   type PosProduct {
@@ -84,13 +96,7 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     counts: JSON,
     count: Float,
     amount: Float,
-    ${
-      productsEnabled
-        ? `
-        category: ProductCategory
-      `
-        : ''
-    }
+    category: ProductCategory
   }
   type PosProducts {
     products: [PosProduct],
@@ -98,11 +104,16 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
   }
 `;
 
-const queryParams = `
+const commonQueryParams = `
   page: Int
   perPage: Int
   sortField: String
   sortDirection: Int
+
+`;
+
+const queryParams = `
+  ${commonQueryParams}
   search: String
   paidStartDate: Date
   paidEndDate: Date
@@ -125,6 +136,16 @@ const groupParams = `
   groupField: String
 `;
 
+const commonSubsQueryParams = `
+  ${commonQueryParams}
+  customerId:String,
+  userId:String,
+  companyId:String,
+  status:String,
+  closeFrom:String,
+  closeTo:String,
+`;
+
 export const queries = `
   posOrders(${queryParams}): [PosOrder]
   posOrderDetail(_id: String): PosOrderDetail
@@ -134,6 +155,11 @@ export const queries = `
   posOrdersTotalCount(${queryParams}): JSON
   posOrderRecords(${queryParams}): [PosOrderRecord]
   posOrderRecordsCount(${queryParams}): Int
+  posOrderCustomers(${commonQueryParams}):[PosOrdersByCustomer]
+  posOrderCustomersTotalCount(${commonQueryParams}):Int
+  checkSubscription(customerId:String, productId:String,productIds:[String]): PosOrder
+  posOrderBySubscriptions(${commonSubsQueryParams}):[PosOrdersBySubs]
+  posOrderBySubscriptionsTotalCount(${commonSubsQueryParams}):Int
 `;
 
 export const mutations = `

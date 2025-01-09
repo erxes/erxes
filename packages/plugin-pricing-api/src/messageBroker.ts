@@ -1,17 +1,16 @@
 import {
-  MessageArgs,
   MessageArgsOmitService,
-  sendMessage,
-} from '@erxes/api-utils/src/core';
-import { generateModels } from './connectionResolver';
+  sendMessage
+} from "@erxes/api-utils/src/core";
+import { generateModels } from "./connectionResolver";
 
-import { checkPricing, getMainConditions } from './utils';
-import { getAllowedProducts } from './utils/product';
-import { calculatePriceAdjust } from './utils/rule';
-import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
+import { checkPricing, getMainConditions } from "./utils";
+import { getAllowedProducts } from "./utils/product";
+import { calculateDiscountValue, calculatePriceAdjust } from "./utils/rule";
+import { consumeRPCQueue } from "@erxes/api-utils/src/messageBroker";
 
 export const setupMessageConsumers = async () => {
-  consumeRPCQueue('pricing:checkPricing', async ({ subdomain, data }) => {
+  consumeRPCQueue("pricing:checkPricing", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { prioritizeRule, totalAmount, departmentId, branchId, products } =
@@ -26,13 +25,13 @@ export const setupMessageConsumers = async () => {
           totalAmount,
           departmentId,
           branchId,
-          products,
+          products
         )) || {},
-      status: 'success',
+      status: "success"
     };
   });
 
-  consumeRPCQueue('pricing:getQuanityRules', async ({ subdomain, data }) => {
+  consumeRPCQueue("pricing:getQuantityRules", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { products, branchId, departmentId } = data;
@@ -42,7 +41,7 @@ export const setupMessageConsumers = async () => {
       productsById[product._id] = product;
     }
 
-    const productIds = products.map((pr) => pr._id);
+    const productIds = products.map(pr => pr._id);
     const rulesByProductId = {};
 
     const conditions = getMainConditions(branchId, departmentId);
@@ -50,7 +49,7 @@ export const setupMessageConsumers = async () => {
 
     const plans = await models.PricingPlans.find({
       ...conditions,
-      'quantityRules.0': { $exists: true },
+      "quantityRules.0": { $exists: true }
     }).sort({ value: -1 });
 
     let value = 0;
@@ -62,7 +61,7 @@ export const setupMessageConsumers = async () => {
       const allowedProductIds = await getAllowedProducts(
         subdomain,
         plan,
-        productIds || [],
+        productIds || []
       );
 
       const rules = plan.quantityRules || [];
@@ -83,19 +82,18 @@ export const setupMessageConsumers = async () => {
         const prePrice =
           (rulesByProductId[allowProductId] || {}).price || unitPrice;
 
-        const price =
-          unitPrice -
+        const price = unitPrice -
           calculatePriceAdjust(
             unitPrice,
-            (unitPrice / 100) * discountValue,
+            calculateDiscountValue(firstRule.discountType, discountValue, unitPrice),
             adjustType,
-            adjustFactor,
+            adjustFactor
           );
 
         if (price < prePrice) {
           rulesByProductId[allowProductId] = {
             value,
-            price,
+            price
           };
         }
       }
@@ -103,34 +101,16 @@ export const setupMessageConsumers = async () => {
 
     return {
       data: rulesByProductId,
-      status: 'success',
+      status: "success"
     };
   });
 };
 
-export const sendProductsMessage = async (
-  args: MessageArgsOmitService,
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'products',
-    ...args,
-  });
-};
-
-export const sendTagsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'tags',
-    ...args,
-  });
-};
-
-export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'segments',
-    ...args,
+    serviceName: "core",
+    ...args
   });
 };

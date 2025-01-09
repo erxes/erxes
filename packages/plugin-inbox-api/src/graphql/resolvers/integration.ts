@@ -7,7 +7,7 @@ import { IContext } from '../../connectionResolver';
 import { isServiceRunning } from '../../utils';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.Integrations.findOne({ _id });
   },
   brand(integration: IIntegrationDocument) {
@@ -22,15 +22,24 @@ export default {
     );
   },
 
-  async form(integration: IIntegrationDocument) {
-    if (!integration.formId) {
-      return null;
-    }
-
-    return { __typename: 'Form', _id: integration.formId };
+  async form(
+    integration: IIntegrationDocument,
+    _args,
+    { subdomain }: IContext
+  ) {
+    return sendCommonMessage({
+      serviceName: 'core',
+      action: 'formsFindOne',
+      data: {
+        integrationId: integration._id,
+      },
+      subdomain,
+      isRPC: true,
+      defaultValue: null,
+    });
   },
 
-  channels(integration: IIntegrationDocument, _args, { models }: IContext) {
+  async channels(integration: IIntegrationDocument, _args, { models }: IContext) {
     return models.Channels.find({
       integrationIds: { $in: [integration._id] },
     });
@@ -43,7 +52,7 @@ export default {
     }));
   },
 
-  websiteMessengerApps(
+  async websiteMessengerApps(
     integration: IIntegrationDocument,
     _args,
     { models }: IContext,
@@ -57,7 +66,7 @@ export default {
     return [];
   },
 
-  knowledgeBaseMessengerApps(
+  async knowledgeBaseMessengerApps(
     integration: IIntegrationDocument,
     _args,
     { models }: IContext,
@@ -71,7 +80,7 @@ export default {
     return [];
   },
 
-  leadMessengerApps(
+  async leadMessengerApps(
     integration: IIntegrationDocument,
     _args,
     { models }: IContext,

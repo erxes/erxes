@@ -14,6 +14,7 @@ import GenerateField from './GenerateField';
 import Icon from '../../common/Icon';
 import ProductSection from './product/ProductSection';
 import { checkLogic } from '../../utils/forms';
+import { __ } from '../../../utils';
 
 type Props = {
   handleSubmit: (doc) => void;
@@ -57,7 +58,7 @@ export default function Form({
         const alert = customField.value;
 
         if (!alert) {
-          return Alert.error('Please enter or choose a required field');
+          return Alert.error(__('Please enter or choose a required field'));
         }
       }
     }
@@ -115,7 +116,7 @@ export default function Form({
 
     return (
       <FormGroup>
-        <ControlLabel>{label}</ControlLabel>
+        <ControlLabel>{__(label)}</ControlLabel>
         <FormControl
           name={name}
           placeholder={placeholder}
@@ -193,15 +194,17 @@ export default function Form({
     );
   }
 
+  const title = `Add a new ${type}`;
+
   return (
     <>
       <DetailHeader className="d-flex align-items-center">
         <span onClick={() => closeModal()}>
-          <Icon icon="leftarrow-3" /> Back
+          <Icon icon="leftarrow-3" /> {__("Back")}
         </span>
       </DetailHeader>
       <FormWrapper>
-        <h4>Add a new {type}</h4>
+        <h4>{__(title)}</h4>
         <div className="content">
           {renderControl({
             name: 'subject',

@@ -3,12 +3,12 @@ import {
   ContentBox,
   FlexRow,
   ImageWrapper,
-  Title,
+  Title
 } from "@erxes/ui-settings/src/styles";
 import {
   FILE_MIME_TYPES,
   KEY_LABELS,
-  LANGUAGES,
+  LANGUAGES
 } from "@erxes/ui-settings/src/general/constants";
 import { __, readFile, uploadHandler } from "modules/common/utils";
 
@@ -22,8 +22,7 @@ import Header from "@erxes/ui-settings/src/general/components/Header";
 import { IConfigsMap } from "@erxes/ui-settings/src/general/types";
 import Icon from "modules/common/components/Icon";
 import Info from "modules/common/components/Info";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
+import Popover from "@erxes/ui/src/components/Popover";
 import React from "react";
 import Select from "react-select";
 import { SelectTeamMembers } from "@erxes/ui/src";
@@ -52,11 +51,11 @@ class GeneralSettings extends React.Component<Props, State> {
     this.state = {
       configsMap: props.configsMap,
       language: props.currentLanguage,
-      isSaved: false,
+      isSaved: false
     };
   }
 
-  save = (e) => {
+  save = e => {
     e.preventDefault();
 
     const { configsMap, language } = this.state;
@@ -80,7 +79,7 @@ class GeneralSettings extends React.Component<Props, State> {
     let value = values;
 
     if (Array.isArray(values)) {
-      value = values.map((el) => el.value);
+      value = values.map(el => el.value);
     }
 
     this.onChangeConfig(code, value);
@@ -94,7 +93,7 @@ class GeneralSettings extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  onLanguageChange = (language) => {
+  onLanguageChange = language => {
     this.setState({ language: language.value });
   };
 
@@ -116,9 +115,9 @@ class GeneralSettings extends React.Component<Props, State> {
   renderItem = (key: string) => {
     const { configsMap } = this.state;
 
-    const mimeTypeOptions = FILE_MIME_TYPES.map((item) => ({
+    const mimeTypeOptions = FILE_MIME_TYPES.map(item => ({
       value: item.value,
-      label: `${item.label} (${item.extension})`,
+      label: `${item.label} (${item.extension})`
     }));
     const mimeTypeDesc =
       "Comma-separated list of media types. Leave it blank for accepting all media types";
@@ -128,7 +127,9 @@ class GeneralSettings extends React.Component<Props, State> {
         <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
         {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
         <Select
-          value={configsMap[key]}
+          value={mimeTypeOptions.filter(o =>
+            (configsMap.WIDGETS_UPLOAD_FILE_TYPES || []).includes(o.value)
+          )}
           options={mimeTypeOptions}
           onChange={this.onChangeMultiCombo.bind(this, key)}
           isMulti={true}
@@ -139,35 +140,54 @@ class GeneralSettings extends React.Component<Props, State> {
     );
   };
 
+  renderItemInput = (
+    key: string,
+    description?: string,
+    componentClass?: string,
+    actionComponent?: React.ReactNode
+  ) => {
+    const { configsMap } = this.state;
+
+    return (
+      <FormGroup>
+        <FlexRow $justifyContent={actionComponent ? "space-between" : ""}>
+          <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
+
+          {actionComponent ? actionComponent : null}
+        </FlexRow>
+        {description && <p>{__(description)}</p>}
+        <FormControl
+          componentclass={componentClass}
+          defaultValue={configsMap[key]}
+          onChange={this.onChangeInput.bind(this, key)}
+        />
+      </FormGroup>
+    );
+  };
+
   onChangeColor = (field, e) => {
     this.onChangeConfig(field, e.hex);
   };
 
-  renderColorPicker = (field) => {
+  renderColorPicker = field => {
     const { configsMap } = this.state;
     const value = configsMap[field];
 
-    const popoverContent = (
-      <Popover id="color-picker">
+    return (
+      <Popover
+        placement="bottom-start"
+        trigger={
+          <ColorPick>
+            <ColorPicker style={{ backgroundColor: value }} />
+          </ColorPick>
+        }
+      >
         <TwitterPicker
           color={value}
           onChange={this.onChangeColor.bind(this, field)}
           triangle="hide"
         />
       </Popover>
-    );
-
-    return (
-      <OverlayTrigger
-        trigger="click"
-        rootClose={true}
-        placement="bottom-start"
-        overlay={popoverContent}
-      >
-        <ColorPick>
-          <ColorPicker style={{ backgroundColor: value }} />
-        </ColorPick>
-      </OverlayTrigger>
     );
   };
 
@@ -187,7 +207,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
       afterRead: ({ result }) => {
         return;
-      },
+      }
     });
   };
 
@@ -237,49 +257,12 @@ class GeneralSettings extends React.Component<Props, State> {
     );
   }
 
-  renderCloudflare() {
-    const { configsMap } = this.state;
-
-    return (
-      <CollapseContent
-        transparent={true}
-        title={__("Cloudflare")}
-        description={__("Cloudflare R2 Bucket, Images & Stream CDN configs")}
-        beforeTitle={<Icon icon="comment-upload" />}
-      >
-        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
-          {this.renderItem("CLOUDFLARE_ACCOUNT_ID")}
-          {this.renderItem("CLOUDFLARE_API_TOKEN")}
-        </FlexRow>
-        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
-          {this.renderItem("CLOUDFLARE_ACCESS_KEY_ID")}
-          {this.renderItem("CLOUDFLARE_SECRET_ACCESS_KEY")}
-        </FlexRow>
-        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
-          {this.renderItem("CLOUDFLARE_BUCKET_NAME")}
-          {this.renderItem("CLOUDFLARE_ACCOUNT_HASH")}
-        </FlexRow>
-        <FormGroup>
-          <ControlLabel>{KEY_LABELS.CLOUDFLARE_USE_CDN}</ControlLabel>
-          <p>{__("Upload images/videos to Cloudflare cdn")}</p>
-          <FormControl
-            componentclass={"checkbox"}
-            checked={configsMap.CLOUDFLARE_USE_CDN}
-            onChange={(e: any) => {
-              this.onChangeConfig("CLOUDFLARE_USE_CDN", e.target.checked);
-            }}
-          />
-        </FormGroup>
-      </CollapseContent>
-    );
-  }
-
   render() {
     const { configsMap, language } = this.state;
 
     const breadcrumb = [
       { title: __("Settings"), link: "/settings" },
-      { title: __("General system config") },
+      { title: __("General system config") }
     ];
 
     const actionButtons = (
@@ -316,7 +299,9 @@ class GeneralSettings extends React.Component<Props, State> {
             <ControlLabel>Currency</ControlLabel>
             <Select
               options={CURRENCIES}
-              value={configsMap.dealCurrency}
+              value={CURRENCIES.filter(o =>
+                configsMap.dealCurrency?.includes(o.value)
+              )}
               onChange={this.onChangeMultiCombo.bind(this, "dealCurrency")}
               isMulti={true}
             />
@@ -327,7 +312,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <FormControl
               componentclass="checkbox"
               checked={configsMap.CHECK_TEAM_MEMBER_SHOWN}
-              onChange={(e) =>
+              onChange={e =>
                 this.onChangeConfig(
                   "CHECK_TEAM_MEMBER_SHOWN",
                   (e.target as any).checked
@@ -379,8 +364,6 @@ class GeneralSettings extends React.Component<Props, State> {
             </a>
           </Info>
           {this.renderItem("UPLOAD_FILE_TYPES")}
-          {this.renderItem("WIDGETS_UPLOAD_FILE_TYPES")}
-          {this.renderItem("UPLOAD_SERVICE_TYPE")}
         </CollapseContent>
 
         <CollapseContent
@@ -391,6 +374,17 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderConstant("sex_choices")}
           {this.renderConstant("company_industry_types")}
           {this.renderConstant("social_links")}
+        </CollapseContent>
+
+        <CollapseContent
+          transparent={true}
+          title="MessagePro"
+          beforeTitle={<Icon icon="comment-alt-verify" />}
+        >
+          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+            {this.renderItemInput("MESSAGE_PRO_API_KEY")}
+            {this.renderItemInput("MESSAGE_PRO_PHONE_NUMBER")}
+          </FlexRow>
         </CollapseContent>
       </ContentBox>
     );

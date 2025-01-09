@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
-import useConfig from "@/modules/auth/hooks/useConfig"
 import { queries } from "@/modules/orders/graphql"
 import { modeAtom } from "@/store"
+import { ebarimtConfigAtom } from "@/store/config.store"
 import {
   printTypeAtom,
   putResponsesAtom,
@@ -15,7 +15,7 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
 import { BILL_TYPES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
+import { onError } from "@/components/ui/use-toast"
 import Amount from "@/app/reciept/components/Amount"
 import Footer from "@/app/reciept/components/footer"
 import EbarimtHeader from "@/app/reciept/components/header"
@@ -29,14 +29,14 @@ const Reciept = () => {
   const [type, setType] = useAtom(printTypeAtom)
   const putResponses = useAtomValue(putResponsesAtom)
   const setOrderStates = useSetAtom(setOrderStatesAtom)
-  const { config, loading } = useConfig("ebarimt")
-  const { onError } = useToast()
 
-  const { hasCopy } = config.ebarimtConfig || {}
+  const { hasCopy } = useAtomValue(ebarimtConfigAtom) || {}
 
-  const { loading: loadingDetail, data } = useQuery(queries.ebarimtDetail, {
+  const { loading, data } = useQuery(queries.ebarimtDetail, {
     fetchPolicy: "network-only",
-    onError,
+    onError({ message }) {
+      onError(message)
+    },
     skip: !_id,
     variables: { _id },
   })
@@ -65,18 +65,28 @@ const Reciept = () => {
       return setTimeout(() => window.print(), 20)
     }
 
+    if (mode === "mobile") {
+      return window.close()
+    }
+
     const data = { message: "close" }
     window.parent.postMessage(data, "*")
   }, [hasCopy, mode, putResponses.length, setType, type])
 
   useEffect(() => {
+    if (mode === "mobile") {
+      return
+    }
     window.addEventListener("afterprint", handleAfterPrint)
     return () => {
       window.removeEventListener("afterprint", handleAfterPrint)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handleAfterPrint])
 
-  if (loading || loadingDetail) return null
+  if (loading) {
+    return null
+  }
 
   return (
     <>
@@ -86,9 +96,10 @@ const Reciept = () => {
       <Footer />
       <Button
         onClick={handleClick}
-        className="mx-3 w-40 text-xs font-bold print:hidden"
+        className="px-6 text-xs print:hidden w-full"
+        variant="secondary"
       >
-        Print
+        хэвлэх
       </Button>
     </>
   )

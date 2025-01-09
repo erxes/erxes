@@ -1,28 +1,27 @@
 import {
   customFieldToObject,
   fetchPolaris,
+  genObjectOfRule,
   getBranch,
-  getCustomer,
-  getProduct,
   sendMessageBrokerData,
   updateContract
-} from '../utils';
-import { IPolarisDeposit } from './types';
-import { validateDepositObject } from './validator';
+} from "../utils";
+import { IPolarisDeposit } from "./types";
+import { validateDepositObject } from "./validator";
 
-export const createDeposit = async (subdomain: string, params) => {
+export const createDeposit = async (subdomain: string, models, polarisConfig, syncLog, params) => {
   const deposit = params.updatedDocument || params.object;
 
   const objectDeposit = await customFieldToObject(
     subdomain,
-    'savings:contract',
+    "savings:contract",
     deposit
   );
 
   const savingProduct = await sendMessageBrokerData(
     subdomain,
-    'savings',
-    'contractType.findOne',
+    "savings",
+    "contractType.findOne",
     { _id: deposit.contractTypeId }
   );
 
@@ -30,13 +29,20 @@ export const createDeposit = async (subdomain: string, params) => {
 
   const customer = await sendMessageBrokerData(
     subdomain,
-    'contacts',
-    'customers.findOne',
+    "core",
+    "customers.findOne",
     { _id: deposit.customerId }
   );
-  
+
+  const dataOfRules = await genObjectOfRule(
+    subdomain,
+    "savings:contract",
+    objectDeposit,
+    (polarisConfig.deposit && polarisConfig.deposit[deposit.contractTypeId || ''] || {}).values || {}
+  )
+
   let sendData: IPolarisDeposit = {
-    acntType: 'CA',
+    acntType: "CA",
     prodCode: savingProduct.code,
     brchCode: branch.code,
     curCode: objectDeposit.currency,
@@ -55,25 +61,27 @@ export const createDeposit = async (subdomain: string, params) => {
     capMethod: '0',
     segCode: '81',
     paymtDefault: '',
-    odType: 'NON'
+    odType: 'NON',
+    ...dataOfRules
   };
 
   await validateDepositObject(sendData);
 
   const depositCode = await fetchPolaris({
     subdomain,
-    op: '13610020',
-    data: [sendData]
+    op: "13610020",
+    data: [sendData],
+    models,
+    polarisConfig,
+    syncLog
   });
 
-  console.log('depositCode', depositCode);
-
-  if (typeof depositCode === 'string') {
+  if (typeof depositCode === "string") {
     await updateContract(
       subdomain,
       { _id: deposit._id },
       { $set: { number: JSON.parse(depositCode) } },
-      'savings'
+      "savings"
     );
   }
 

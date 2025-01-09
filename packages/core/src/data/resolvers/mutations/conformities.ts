@@ -1,9 +1,14 @@
-import { IContext } from '../../../connectionResolver';
-import { sendCardsMessage } from '../../../messageBroker';
+import { IContext } from "../../../connectionResolver";
+import {
+  sendPurchasesMessage,
+  sendSalesMessage,
+  sendTasksMessage,
+  sendTicketsMessage
+} from "../../../messageBroker";
 import {
   IConformityAdd,
   IConformityEdit
-} from '../../../db/models/definitions/conformities';
+} from "../../../db/models/definitions/conformities";
 
 const conformityMutations = {
   /**
@@ -16,20 +21,62 @@ const conformityMutations = {
   /**
    * Edit conformity
    */
-  async conformityEdit(_root, doc: IConformityEdit, { subdomain, models }: IContext) {
-    const { addedTypeIds, removedTypeIds } = await models.Conformities.editConformity({
-      ...doc
-    });
+  async conformityEdit(
+    _root,
+    doc: IConformityEdit,
+    { subdomain, models }: IContext
+  ) {
+    const { addedTypeIds, removedTypeIds } =
+      await models.Conformities.editConformity({
+        ...doc
+      });
 
-    await sendCardsMessage({
-      subdomain,
-      action: 'publishHelperItems',
-      data: {
-        addedTypeIds,
-        removedTypeIds,
-        doc
-      }
-    });
+    switch (doc.mainType || doc.relType) {
+      case "deal":
+        await sendSalesMessage({
+          subdomain,
+          action: "publishHelperItems",
+          data: {
+            addedTypeIds,
+            removedTypeIds,
+            doc
+          }
+        });
+      case "ticket":
+        await sendTicketsMessage({
+          subdomain,
+          action: "publishHelperItems",
+          data: {
+            addedTypeIds,
+            removedTypeIds,
+            doc
+          }
+        });
+
+      case "task":
+        await sendTasksMessage({
+          subdomain,
+          action: "publishHelperItems",
+          data: {
+            addedTypeIds,
+            removedTypeIds,
+            doc
+          }
+        });
+
+      case "purchase":
+        await sendPurchasesMessage({
+          subdomain,
+          action: "publishHelperItems",
+          data: {
+            addedTypeIds,
+            removedTypeIds,
+            doc
+          }
+        });
+
+        break;
+    }
   }
 };
 

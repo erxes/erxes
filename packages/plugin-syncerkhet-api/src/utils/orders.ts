@@ -1,28 +1,13 @@
-import { generateModels } from '../connectionResolver';
+import { generateModels } from "../connectionResolver";
 import {
-  sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
-} from '../messageBroker';
-import { sendRPCMessage } from '../messageBrokerErkhet';
-
-export const getPureDate = (date: Date) => {
-  const ndate = new Date(date);
-  const diffTimeZone = Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
-  return new Date(ndate.getTime() - diffTimeZone);
-};
-
-export const getConfig = async (subdomain, code, defaultValue?) => {
-  return await sendCoreMessage({
-    subdomain,
-    action: 'getConfig',
-    data: { code, defaultValue },
-    isRPC: true
-  });
-};
+  sendCoreMessage
+} from "../messageBroker";
+import { sendRPCMessage } from "../messageBrokerErkhet";
+import { calcProductsTaxRule } from "./productsByTaxType";
+import { getConfig, getPureDate } from "./utils";
 
 export const getPostData = async (subdomain, pos, order) => {
-  let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
+  let erkhetConfig = await getConfig(subdomain, "ERKHET", {});
 
   if (
     !erkhetConfig ||
@@ -41,33 +26,31 @@ export const getPostData = async (subdomain, pos, order) => {
       (
         await sendCoreMessage({
           subdomain,
-          action: 'users.findOne',
+          action: "users.findOne",
           data: { _id: order.userId },
           isRPC: true,
           defaultValue: {}
         })
       ).email) ||
-    '';
+    "";
 
   const productsIds = order.items.map(item => item.productId);
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
-    action: 'find',
+    action: "products.find",
     data: { query: { _id: { $in: productsIds } } },
     isRPC: true,
     defaultValue: []
   });
 
-  const productCodeById = {};
-  for (const product of products) {
-    productCodeById[product._id] = product.code;
-  }
+  const { productsById, oneMoreCtax, oneMoreVat } = await calcProductsTaxRule(subdomain, pos.ebarimtConfig, products)
 
   let sumSaleAmount = 0;
 
   for (const item of order.items) {
     // if wrong productId then not sent
-    if (!productCodeById[item.productId]) {
+    const product = productsById[item.productId]
+    if (!product) {
       continue;
     }
 
@@ -77,8 +60,9 @@ export const getPostData = async (subdomain, pos, order) => {
       count: item.count,
       amount,
       discount: item.discountAmount,
-      inventoryCode: productCodeById[item.productId],
-      workerEmail
+      inventoryCode: product.code,
+      workerEmail,
+      taxRule: product.taxRule
     });
   }
 
@@ -103,60 +87,59 @@ export const getPostData = async (subdomain, pos, order) => {
     sumSaleAmount -= paidAmount.amount;
   }
 
-  if (sumSaleAmount > 0.005) {
-    payments[pos.erkhetConfig.defaultPay] = sumSaleAmount;
+  if (sumSaleAmount > 0.005 || sumSaleAmount < -0.005) {
+    payments[pos.erkhetConfig.defaultPay] =
+      (payments[pos.erkhetConfig.defaultPay] || 0) + sumSaleAmount;
   }
 
-  let customerCode = '';
+  let customerCode = "";
   if (order.customerId) {
-    const customerType = order.customerType || 'customer';
-    if (customerType === 'company') {
-      customerCode = customerCode = (
-        (await sendContactsMessage({
+    const customerType = order.customerType || "customer";
+    if (customerType === "company") {
+      customerCode = (
+        await sendCoreMessage({
           subdomain,
-          action: 'companies.findOne',
+          action: "companies.findOne",
           data: {
             _id: order.customerId
           },
           isRPC: true,
           defaultValue: {}
-        })) || {}
-      ).code;
+        })
+      )?.code;
     } else {
       customerCode = (
-        (await sendContactsMessage({
+        await sendCoreMessage({
           subdomain,
-          action: 'customers.findOne',
+          action: "customers.findOne",
           data: {
             _id: order.customerId
           },
           isRPC: true,
           defaultValue: {}
-        })) || {}
-      ).code;
+        })
+      )?.code;
     }
   }
 
   const orderInfos = [
     {
-      date: getPureDate(order.paidDate)
-        .toISOString()
-        .slice(0, 10),
+      date: getPureDate(order.paidDate).toISOString().slice(0, 10),
       orderId: order._id,
-      hasVat: order.taxInfo
-        ? order.taxInfo.hasVat
-        : pos.ebarimtConfig && pos.ebarimtConfig.hasVat
-        ? true
-        : false,
-      hasCitytax: order.taxInfo
-        ? order.taxInfo.hasCitytax
-        : pos.ebarimtConfig && pos.ebarimtConfig.hasCitytax
-        ? true
-        : false,
+      hasVat: (
+        order.taxInfo
+          ? order.taxInfo.hasVat
+          : pos.ebarimtConfig?.hasVat
+      ) || oneMoreVat || false,
+      hasCitytax: (
+        order.taxInfo
+          ? order.taxInfo.hasCitytax
+          : pos.ebarimtConfig?.hasCitytax
+      ) || oneMoreCtax || false,
       billType: order.billType,
       customerCode,
       description: `${pos.name}`,
-      number: `${pos.erkhetConfig.beginNumber || ''}${order.number}`,
+      number: `${pos.erkhetConfig.beginNumber || ""}${order.number}`,
       details,
       ...payments
     }
@@ -174,7 +157,7 @@ export const getPostData = async (subdomain, pos, order) => {
 };
 
 export const orderDeleteToErkhet = async (subdomain, pos, order) => {
-  let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
+  let erkhetConfig = await getConfig(subdomain, "ERKHET", {});
   const models = await generateModels(subdomain);
 
   if (
@@ -187,7 +170,7 @@ export const orderDeleteToErkhet = async (subdomain, pos, order) => {
   }
 
   const syncLog = await models.SyncLogs.syncLogsAdd({
-    contentType: 'pos:order',
+    contentType: "pos:order",
     createdAt: new Date(),
     contentId: order._id,
     consumeData: order,
@@ -198,7 +181,7 @@ export const orderDeleteToErkhet = async (subdomain, pos, order) => {
       {
         date: order.paidDate,
         orderId: order._id,
-        returnKind: 'hard'
+        returnKind: "hard"
       }
     ];
 
@@ -215,9 +198,9 @@ export const orderDeleteToErkhet = async (subdomain, pos, order) => {
     return await sendRPCMessage(
       models,
       syncLog,
-      'rpc_queue:erxes-automation-erkhet',
+      "rpc_queue:erxes-automation-erkhet",
       {
-        action: 'get-response-return-order',
+        action: "get-response-return-order",
         isJson: true,
         isEbarimt: false,
         payload: JSON.stringify(postData),

@@ -34,7 +34,7 @@ export interface IOrderItemInput {
   _id: string;
   productId: string;
   count: number;
-  unitPrice: number;
+  unitPrice?: number;
   isPackage?: boolean;
   isTake?: boolean;
   status?: string;
@@ -45,12 +45,15 @@ export interface IOrderItemInput {
   manufacturedDate?: string; // Unix epoch number
   description?: string;
   attachment?: IAttachment;
+  closeDate?: Date;
+  byDevice?: { [deviceToken: string]: number }
 }
 
 export interface IOrderInput {
   items: IOrderItemInput[];
   totalAmount: number;
   directDiscount?: number;
+  directIsAmount?: boolean;
   type: string;
   customerId?: string;
   customerType?: string;
@@ -62,4 +65,8 @@ export interface IOrderInput {
   description: string;
   isPre?: boolean;
   buttonType?: string;
+  closeDate?: Date;
+  subscriptionId?: string;
+  isSingle?: boolean;
+  deviceId?: string;
 }

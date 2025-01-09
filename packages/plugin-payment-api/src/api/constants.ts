@@ -8,6 +8,7 @@ export const PAYMENTS = {
       invoice: 'invoice',
     },
     handlerMethod: 'GET',
+    acceptedCurrencies: ['MNT'],
   },
 
   qpayQuickqr: {
@@ -23,7 +24,10 @@ export const PAYMENTS = {
       merchantList: 'merchant/list',
       checkInvoice: 'payment/check',
       invoice: 'invoice',
+      cities: 'aimaghot',
+      districts: 'sumduureg',
     },
+    acceptedCurrencies: ['MNT'],
   },
   socialpay: {
     title: 'Social Pay',
@@ -36,6 +40,7 @@ export const PAYMENTS = {
       invoiceCancel: 'pos/invoice/cancel',
     },
     handlerMethod: 'POST',
+    acceptedCurrencies: ['MNT'],
   },
   monpay: {
     title: 'MonPay',
@@ -48,6 +53,7 @@ export const PAYMENTS = {
       branchLogin: 'rest/branch/login',
     },
     handlerMethod: 'GET',
+    acceptedCurrencies: ['MNT'],
   },
   storepay: {
     title: 'storepay',
@@ -57,6 +63,7 @@ export const PAYMENTS = {
       invoice: 'invoice',
     },
     handlerMethod: 'GET',
+    acceptedCurrencies: ['MNT'],
   },
   pocket: {
     title: 'pocket',
@@ -69,6 +76,19 @@ export const PAYMENTS = {
       cancel: 'payment-gateway/transaction/cancel',
     },
     handlerMethod: 'GET',
+    acceptedCurrencies: ['MNT'],
+  },
+  minupay: {
+    title: 'MinuPay',
+    kind: 'minupay',
+    apiUrl: 'https://api.minu.mn',
+    actions: {
+      login: 'oncom/login',
+      invoice: 'oncom/invoice',
+      checkInvoice: 'oncom/checkTxn',
+    },
+    handlerMethod: 'POST',
+    acceptedCurrencies: ['MNT'],
   },
   wechatpay: {
     title: 'WeChat Pay',
@@ -80,6 +100,7 @@ export const PAYMENTS = {
       getPayment: 'payment',
     },
     handlerMethod: 'POST',
+    acceptedCurrencies: ['MNT'],
   },
   paypal: {
     kind: 'paypal',
@@ -91,6 +112,25 @@ export const PAYMENTS = {
     handlerMethod: 'POST',
   },
 
+  golomt: {
+    title: 'Golomt E-Commerce',
+    kind: 'golomt',
+    apiUrl: 'https://ecommerce.golomtbank.com',
+    actions: {
+      invoice: 'api/invoice',
+      invoiceCheck: 'api/inquiry',
+    },
+    handlerMethod: 'POST',
+    acceptedCurrencies: ['MNT'],
+  },
+
+  stripe: {
+    title: 'Stripe',
+    kind: 'stripe',
+    acceptedCurrencies: ['USD'],
+  },
+
+
   ALL: [
     'qpay',
     'socialpay',
@@ -99,7 +139,10 @@ export const PAYMENTS = {
     'pocket',
     'wechatpay',
     'paypal',
+    'minupay',
     'qpayQuickqr',
+    'golomt',
+    'stripe'
   ],
 };
 
@@ -110,14 +153,25 @@ export const PAYMENT_STATUS = {
   FAILED: 'failed',
   CANCELLED: 'cancelled',
   REJECTED: 'rejected',
-
   ALL: ['paid', 'pending', 'refunded', 'failed', 'cancelled', 'rejected'],
 };
 
-export const PLUGIN_RESOLVERS_META = {
-  'inbox:conversations': {
-    action: 'getConversation',
-    queryKey: 'conversationId',
-  },
-  'cards:deals': { action: 'deals.findOne', queryKey: '_id' },
-};
+export const CURRENCIES = [
+  'AED', 'AFN', 'ALL', 'AMD', 'ANG', 'AOA', 'ARS', 'AUD', 'AWG', 'AZN',
+  'BAM', 'BBD', 'BDT', 'BGN', 'BHD', 'BIF', 'BMD', 'BND', 'BOB', 'BRL',
+  'BSD', 'BTC', 'BTN', 'BWP', 'BYN', 'BZD', 'CAD', 'CDF', 'CHF', 'CLF',
+  'CLP', 'CNH', 'CNY', 'COP', 'CRC', 'CUC', 'CUP', 'CVE', 'CZK', 'DJF',
+  'DKK', 'DOP', 'DZD', 'EGP', 'ERN', 'ETB', 'EUR', 'FJD', 'FKP', 'GBP',
+  'GEL', 'GGP', 'GHS', 'GIP', 'GMD', 'GNF', 'GTQ', 'GYD', 'HKD', 'HNL',
+  'HRK', 'HTG', 'HUF', 'IDR', 'ILS', 'IMP', 'INR', 'IQD', 'IRR', 'ISK',
+  'JEP', 'JMD', 'JOD', 'JPY', 'KES', 'KGS', 'KHR', 'KMF', 'KPW', 'KRW',
+  'KWD', 'KYD', 'KZT', 'LAK', 'LBP', 'LKR', 'LRD', 'LSL', 'LYD', 'MAD',
+  'MDL', 'MGA', 'MKD', 'MMK', 'MNT', 'MOP', 'MRO', 'MRU', 'MUR', 'MVR',
+  'MWK', 'MXN', 'MYR', 'MZN', 'NAD', 'NGN', 'NIO', 'NOK', 'NPR', 'NZD',
+  'OMR', 'PAB', 'PEN', 'PGK', 'PHP', 'PKR', 'PLN', 'PYG', 'QAR', 'RON',
+  'RSD', 'RUB', 'RWF', 'SAR', 'SBD', 'SCR', 'SDG', 'SEK', 'SGD', 'SHP',
+  'SLL', 'SOS', 'SRD', 'SSP', 'STD', 'STN', 'SVC', 'SYP', 'SZL', 'THB',
+  'TJS', 'TMT', 'TND', 'TOP', 'TRY', 'TTD', 'TWD', 'TZS', 'UAH', 'UGX',
+  'USD', 'UYU', 'UZS', 'VEF', 'VND', 'VUV', 'WST', 'XAF', 'XAG', 'XAU',
+  'XCD', 'XDR', 'XOF', 'XPD'
+]

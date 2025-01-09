@@ -1,9 +1,9 @@
 import {
   attachmentType,
-  attachmentInput,
-} from '@erxes/api-utils/src/commonTypeDefs';
+  attachmentInput
+} from "@erxes/api-utils/src/commonTypeDefs";
 
-export const types = ({ contacts, tags }) => `
+export const types = () => `
 
   ${attachmentType}
   ${attachmentInput}
@@ -12,29 +12,19 @@ export const types = ({ contacts, tags }) => `
     _id: String! @external
   }
 
-  ${
-    tags
-      ? `
+
         extend type Tag @key(fields: "_id") {
           _id: String! @external
         }
-      `
-      : ''
-  }
 
-  ${
-    contacts
-      ? `
-        extend type Customer @key(fields: "_id") {
+
+     extend type Customer @key(fields: "_id") {
           _id: String! @external
         }
 
         extend type Company @key(fields: "_id") {
           _id: String! @external
         }
-        `
-      : ''
-  }
   
 
   type CarCategory {
@@ -58,16 +48,10 @@ export const types = ({ contacts, tags }) => `
     mergedIds: [String]
     description: String
     owner: User
-    ${
-      contacts
-        ? `
-      customers: [Customer]
-      companies: [Company]
-      `
-        : ''
-    }
+    customers: [Customer]
+    companies: [Company]
 
-    ${tags ? `getTags: [Tag]` : ''}
+    getTags: [Tag]
     tagIds: [String]
     plateNumber: String
     vinNumber: String

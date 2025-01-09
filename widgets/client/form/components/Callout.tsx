@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { AppConsumer } from '../../messenger/containers/AppContext';
 import { readFile } from '../../utils';
 import { ICallout } from '../types';
 import TopBar from './TopBar';
+import { getColor } from '../../messenger/utils/util';
 
 type Props = {
   onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void;
@@ -65,7 +65,6 @@ class Callout extends React.Component<Props, State> {
 
   renderHead(title: string) {
     const { hasTopBar, color } = this.props;
-
     if (hasTopBar) {
       return <TopBar title={title} color={color} />;
     }
@@ -97,18 +96,18 @@ class Callout extends React.Component<Props, State> {
     }
 
     return (
-      <div className="erxes-form">
+      <div className='erxes-form'>
         {this.renderHead(title)}
 
-        <div className="erxes-form-content">
-          <div className="erxes-callout-body" ref={this.callOutRef}>
+        <div className='erxes-form-content'>
+          <div className='erxes-callout-body' ref={this.callOutRef}>
             {this.renderFeaturedImage(featuredImage, title, calloutImgSize)}
             {body}
           </div>
           <button
             style={{ background: color }}
-            type="button"
-            className="erxes-button btn-block"
+            type='button'
+            className='erxes-button btn-block'
             onClick={onSubmit}
           >
             {buttonText}
@@ -119,17 +118,13 @@ class Callout extends React.Component<Props, State> {
   }
 }
 
-export default (props: Props) => (
-  <AppConsumer>
-    {({ getColor }) => {
-      return (
-        <Callout
-          {...props}
-          // if lead is in a messenger, return messenger theme color (getColor())
-          // else return lead theme color
-          color={getColor ? getColor() : props.color}
-        />
-      );
-    }}
-  </AppConsumer>
-);
+export default (props: Props) => {
+  return (
+    <Callout
+      {...props}
+      // if lead is in a messenger, return messenger theme color (getColor())
+      // else return lead theme color
+      color={props.color ? props.color : getColor()}
+    />
+  );
+};

@@ -8,7 +8,6 @@ import {
   DataWithLoader,
   EmptyState,
   FormControl,
-  Icon,
   Pagination,
   router,
   Table,
@@ -18,7 +17,7 @@ import { IPosProduct } from "../types";
 import { IProductCategory } from "@erxes/ui-products/src/types";
 import { IQueryParams } from "@erxes/ui/src/types";
 import { menuPos } from "../../constants";
-import { InputBar, Title, FlexItem } from "@erxes/ui-settings/src/styles";
+import { Title } from "@erxes/ui-settings/src/styles";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
@@ -139,19 +138,14 @@ const ProductList = (props: Props) => {
 
     const actionBarRight = (
       <BarItems>
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
-          <FlexItem>
-            <FormControl
-              type="text"
-              placeholder={__("Type to search")}
-              onChange={search}
-              defaultValue={searchValue}
-              autoFocus={true}
-              onFocus={moveCursorAtTheEnd}
-            />
-          </FlexItem>
-        </InputBar>
+        <FormControl
+          type="text"
+          placeholder={__("Type to search")}
+          onChange={search}
+          defaultValue={searchValue}
+          autoFocus={true}
+          onFocus={moveCursorAtTheEnd}
+        />
         <RightMenu {...rightMenuProps} />
       </BarItems>
     );

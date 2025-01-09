@@ -29,7 +29,7 @@ function ForumSubscriptionOrder({
 export default ForumSubscriptionOrder;
 
 /*
-  _id: any;
+  _id: Types.ObjectId;
 
   invoiceId?: string | null;
 

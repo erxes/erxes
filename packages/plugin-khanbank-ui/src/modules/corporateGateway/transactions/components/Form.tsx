@@ -38,7 +38,7 @@ const TransactionForm = (props: Props) => {
     amount: 0,
     currency:
       accounts.find((a) => a.number === props.accountNumber)?.currency || "MNT",
-    transferid: "",
+    transferid: new Date().getTime().toString(),
     toBank: "050000",
     toCurrency: props.accountHolder.currency || "MNT",
     description: "",
@@ -302,7 +302,7 @@ const TransactionForm = (props: Props) => {
     const authModal = () => {
       return (
         <ModalTrigger
-          title={"Confirmation"}
+          title={__("Confirmation")}
           size={"sm"}
           enforceFocus={false}
           trigger={

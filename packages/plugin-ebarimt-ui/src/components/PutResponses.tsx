@@ -31,6 +31,7 @@ type IProps = {
   onSelect: (values: string[] | string, key: string) => void;
   isFiltered: boolean;
   clearFilter: () => void;
+  onReReturn: (_id: string) => void;
 };
 
 const PutResponses: React.FC<IProps> = (props: IProps) => {
@@ -47,6 +48,7 @@ const PutResponses: React.FC<IProps> = (props: IProps) => {
     onSelect,
     isFiltered,
     clearFilter,
+    onReReturn
   } = props;
 
   const mainContent = (
@@ -55,33 +57,33 @@ const PutResponses: React.FC<IProps> = (props: IProps) => {
         <thead>
           <tr>
             <th>
-              <SortHandler sortField={"billId"} label={__("BillID")} />
+              <SortHandler sortField={'billId'} label={__('BillID')} />
             </th>
             <th>
-              <SortHandler sortField={"number"} label={__("Number")} />
+              <SortHandler sortField={'number'} label={__('Number')} />
             </th>
             <th>
-              <SortHandler sortField={"date"} label={__("Date")} />
+              <SortHandler sortField={'date'} label={__('Date')} />
             </th>
             <th>
-              <SortHandler sortField={"success"} label={__("Success")} />
+              <SortHandler sortField={'status'} label={__('Status')} />
             </th>
             <th>
-              <SortHandler sortField={"billType"} label={__("Bill Type")} />
+              <SortHandler sortField={'type'} label={__('Bill Type')} />
             </th>
             <th>
-              <SortHandler sortField={"taxType"} label={__("Tax Type")} />
+              <SortHandler label={__('receipts')} />
             </th>
             <th>
-              <SortHandler sortField={"amount"} label={__("Amount")} />
+              <SortHandler sortField={'totalAmount'} label={__('Amount')} />
             </th>
             <th>
-              <SortHandler sortField={"message"} label={__("Message")} />
+              <SortHandler sortField={'message'} label={__('Message')} />
             </th>
             <th>
               <SortHandler
-                sortField={"returnBillId"}
-                label={__("Return BillID")}
+                sortField={"InactiveId"}
+                label={__("Inactive ID")}
               />
             </th>
             <th>Үйлдлүүд</th>
@@ -93,6 +95,7 @@ const PutResponses: React.FC<IProps> = (props: IProps) => {
               putResponse={putResponse}
               key={putResponse._id}
               history={history}
+              onReReturn={onReReturn}
             />
           ))}
         </tbody>
@@ -140,7 +143,7 @@ const PutResponses: React.FC<IProps> = (props: IProps) => {
           data={mainContent}
           loading={loading}
           count={totalCount}
-          emptyText="Add in your first putResponse!"
+          emptyText={__("Add in your first putResponse!")}
           emptyImage="/images/actions/1.svg"
         />
       }

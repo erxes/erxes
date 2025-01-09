@@ -7,11 +7,13 @@ import { Info } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import Row from './Row';
 import { __ } from 'modules/common/utils';
+import { IColumnWithChosenField, IImportColumn } from '../../types';
+import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
 
 type Props = {
-  columns: any[];
-  fields: any[];
-  columnWithChosenField: any;
+  columns: IImportColumn;
+  fields: FieldsCombinedByType[];
+  columnWithChosenField: IColumnWithChosenField;
   onChangeColumn: (column, value, contentType, columns) => void;
   contentType: string;
 };

@@ -3,7 +3,7 @@ import {
   ICollateralTypeDocument,
   collateralTypeSchema
 } from './definitions/collateralType';
-import { FilterQuery } from 'mongodb';
+import { FilterQuery } from 'mongoose';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 

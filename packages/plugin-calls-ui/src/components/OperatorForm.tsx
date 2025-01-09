@@ -1,10 +1,12 @@
+import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
+import { OperatorFormView, OperatorRemoveBtn } from '../styles';
+
+import Button from '@erxes/ui/src/components/Button';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { Operator } from '../types';
 import React from 'react';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
 import { __ } from '@erxes/ui/src/utils/core';
-import { Operator } from '../types';
-import Button from '@erxes/ui/src/components/Button';
 
 type Props = {
   operator?: Operator;
@@ -37,26 +39,23 @@ const OperatorForm = (props: Props) => {
     removeOperator && removeOperator(index);
   };
 
+  const onForwardChange = (e: any) => {
+    onChangeDetails('gsForwardAgent', e.target.checked, index);
+  };
+
   return (
-    <FormGroup>
+    <OperatorFormView>
+      <OperatorRemoveBtn>
+        <Button onClick={() => remove()} btnStyle="danger" icon="times" />
+      </OperatorRemoveBtn>
       <FormGroup>
-        <div style={{ display: 'flex' }}>
-          <div style={{ width: '90%' }}>
-            <SelectTeamMembers
-              label={`Choose operator ${index + 1}`}
-              name="selectedMembers"
-              multi={false}
-              initialValue={operator?.userId || (operator && operator?.userId)}
-              onSelect={onSelectUser}
-            />
-          </div>
-          <Button
-            onClick={() => remove()}
-            btnStyle="danger"
-            icon="times"
-            style={{ padding: '7px 15px' }}
-          />
-        </div>
+        <SelectTeamMembers
+          label={`Choose operator ${index + 1}`}
+          name="selectedMembers"
+          multi={false}
+          initialValue={operator?.userId || (operator && operator?.userId)}
+          onSelect={onSelectUser}
+        />
       </FormGroup>
       <FormGroup>
         <ControlLabel required={true}>
@@ -85,7 +84,16 @@ const OperatorForm = (props: Props) => {
           required={true}
         />
       </FormGroup>
-    </FormGroup>
+      <FormGroup>
+        <ControlLabel required>{__('Is forwarding')}</ControlLabel>
+
+        <FormControl
+          checked={!!operator && operator.gsForwardAgent}
+          componentclass="checkbox"
+          onChange={onForwardChange}
+        />
+      </FormGroup>
+    </OperatorFormView>
   );
 };
 

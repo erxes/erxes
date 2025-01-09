@@ -2,14 +2,13 @@ import { useCallback, useEffect, useState } from "react"
 
 import { IBillType } from "@/types/order.types"
 import { BANK_CARD_TYPES } from "@/lib/constants"
-import { useToast } from "@/components/ui/use-toast"
+import { onError as errorHandle, toast } from "@/components/ui/use-toast"
 
 import usePaymentType from "./usePaymentType"
 
 const PATH = "http://localhost:27028"
 
-const useKhanCard = (args?: { skipCheck?: boolean }) => {
-  const { skipCheck } = args || {}
+const useKhanCard = () => {
   const [loading, setLoading] = useState(true)
   const [isAlive, setIsAlive] = useState(false)
 
@@ -38,30 +37,29 @@ const useKhanCard = (args?: { skipCheck?: boolean }) => {
   )
 
   useEffect(() => {
-    if (skipCheck) {
+    if (!type) {
       setLoading(false)
-      setIsAlive(true)
+      setIsAlive(false)
       return
     }
     checkIsAlive()
-  }, [checkIsAlive, skipCheck])
+  }, [checkIsAlive, type])
 
-  return { checkIsAlive, loading, isAlive }
+  return { checkIsAlive, loading: loading && !!type, isAlive }
 }
 
 export const useSendTransaction = ({
   onCompleted,
   onError,
 }: {
-  onCompleted: () => void
+  onCompleted: (data?: any) => void
   onError: () => void
 }) => {
-  const { onError: errorHandle, toast } = useToast()
   const [loading, setLoading] = useState(true)
 
   const error = (message: string) => {
     onError && onError()
-    errorHandle({ message })
+    errorHandle(message)
   }
 
   const sendTransaction = async ({
@@ -96,7 +94,7 @@ export const useSendTransaction = ({
           const { response_code, response_msg } = response
           if (response_code === "000") {
             toast({ description: "Transaction was successful" })
-            onCompleted && onCompleted()
+            onCompleted && onCompleted(response)
             return setLoading(false)
           }
           return error(response_msg)
@@ -119,14 +117,17 @@ export const useSettlement = ({
   onCompleted: (response: any) => void
   onError?: () => void
 }) => {
-  const { onError: errorHandle, toast } = useToast()
   const [loading, setLoading] = useState(false)
   const error = (message: string) => {
     onError && onError()
     setLoading(false)
-    errorHandle({ message })
+    errorHandle(message)
   }
-  const sendSettlement = async ({ number }: { number: string }) => {
+  const sendSettlement: ({
+    number,
+  }: {
+    number: any
+  }) => Promise<void> = async ({ number }) => {
     setLoading(true)
     fetch(PATH, {
       method: "POST",

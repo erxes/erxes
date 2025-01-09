@@ -20,10 +20,11 @@ import React from "react";
 import { generatePaginationParams } from "modules/common/utils/router";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
+import { NavigateFunction } from 'react-router-dom';
 
 type Props = {
-  navigate: any;
-  queryParams: any;
+  navigate: NavigateFunction;
+  queryParams: Record<string, string>;
   permissionsQuery: PermissionsQueryResponse;
   modulesQuery: PermissionModulesQueryResponse;
   actionsQuery: PermissionActionsQueryResponse;

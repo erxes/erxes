@@ -49,9 +49,11 @@ export default {
 
   replaceContent: async ({ subdomain, data: { contractId, content } }) => {
     const models = await generateModels(subdomain);
-    const contract = await models.Contracts.findOne({ _id: contractId }).lean();
+    const contractDocument = await models.Contracts.findOne({ _id: contractId }).lean();
 
-    if (!contract) return content;
+    if (!contractDocument) return content;
+
+    let contract = contractDocument as any;
 
     if (contract.customerType === 'customer') {
       const customer = await sendMessageBroker(
@@ -61,7 +63,7 @@ export default {
           data: { _id: contract.customerId },
           isRPC: true
         },
-        'contacts'
+        'core'
       );
       contract.customerName = customer.firstName;
       contract.customerLastName = customer.lastName;
@@ -75,7 +77,7 @@ export default {
           data: { _id: contract.customerId },
           isRPC: true
         },
-        'contacts'
+        'core'
       );
 
       contract.customerName = company.primaryName;
@@ -85,7 +87,7 @@ export default {
       contractId: contract._id
     })
       .sort({ payDate: 1 })
-      .lean<ISchedule>();
+      .lean();
     contract.loanScheduleInfo = `
       <table>
         <tbody>

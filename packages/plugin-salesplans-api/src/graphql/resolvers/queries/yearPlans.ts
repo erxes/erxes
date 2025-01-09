@@ -5,7 +5,7 @@ import {
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
 import { MONTHS } from '../../../constants';
-import { sendProductsMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 
 interface IListArgs {
   page: number;
@@ -81,21 +81,10 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
     }
 
     if (Object.keys(productFilter).length) {
-      const limit = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
-        action: 'count',
-        data: {
-          ...productFilter,
-          categoryId: productCategoryId
-        },
-        isRPC: true,
-        defaultValue: 0
-      });
-
-      const products = await sendProductsMessage({
-        subdomain,
-        action: 'find',
-        data: { ...productFilter, limit, fields: { _id: 1 } },
+        action: 'products.find',
+        data: { ...productFilter, fields: { _id: 1 } },
         isRPC: true,
         defaultValue: []
       });
@@ -127,7 +116,7 @@ const labelsQueries = {
     { models, subdomain }: IContext
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
-    return await models.YearPlans.find(filter).count();
+    return await models.YearPlans.find(filter).countDocuments();
   },
 
   yearPlansSum: async (
@@ -144,7 +133,7 @@ const labelsQueries = {
 
     for (const plan of plans) {
       for (const month of MONTHS) {
-        result[month] += Number(plan.values[month]);
+        result[month] += Number(plan.values ? plan.values[month] : 0);
       }
     }
     return result;

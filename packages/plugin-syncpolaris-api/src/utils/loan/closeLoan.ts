@@ -5,7 +5,7 @@ import {
   getProduct,
 } from '../utils';
 
-export const createLoanClose = async (subdomain, transaction) => {
+export const createLoanClose = async (subdomain, polarisConfig, transaction) => {
   const depositAccount = await getDepositAccount(
     subdomain,
     transaction.customerId,
@@ -63,7 +63,8 @@ export const createLoanClose = async (subdomain, transaction) => {
     subdomain,
     op: '13610267',
     data: [loanClose],
-  }).then((response) => JSON.parse(response));
+    polarisConfig
+  });
 
   return loanGiveReponse.txnJrno;
 };

@@ -1,37 +1,30 @@
 import React from 'react';
-import EmailTemplate from '@erxes/ui-emailtemplates/src/containers/EmailTemplate';
-import {
-  Button,
-  ControlLabel,
-  FormGroup,
-  Label,
-  ModalTrigger,
-  Tip,
-  __
-} from '@erxes/ui/src';
-import { Columns } from '@erxes/ui/src/styles/chooser';
-import { Column } from '@erxes/ui/src/styles/main';
+import EmailTemplate from '@erxes/ui-emailtemplates/src/components/EmailTemplate';
+import { ControlLabel, FormGroup, Label, Tip, __ } from '@erxes/ui/src';
 import { LabelContainer } from '../styles';
 
 type Props = {
   result: any;
   action: any;
+  hideTemplate?: boolean;
 };
 
 class SendEmail extends React.Component<Props> {
   constructor(props) {
     super(props);
-
-    this.renderContent = this.renderContent.bind(this);
   }
 
-  renderTemplate(action) {
+  renderTemplate(action, result) {
     const { actionConfig } = action;
 
     return (
       <FormGroup>
         <ControlLabel>{__('Email Template')}</ControlLabel>
-        <EmailTemplate templateId={actionConfig.templateId} onlyPreview />
+        <EmailTemplate
+          templateId={actionConfig?.templateId}
+          template={{ content: result.customHtml }}
+          onlyPreview
+        />
       </FormGroup>
     );
   }
@@ -62,55 +55,38 @@ class SendEmail extends React.Component<Props> {
     };
 
     return (
-      <li>
-        <ul>
-          <strong>{`From: `}</strong>
+      <ul>
+        <li>
+          <strong>From: </strong>
           {`${fromEmail || ''}`}
-        </ul>
-        <ul>
-          <strong>{`Subject: `}</strong>
+        </li>
+        <li>
+          <strong>Subject: </strong>
           {`${title || ''}`}
-        </ul>
-        <ul>
+        </li>
+        <li>
           <LabelContainer>
-            <strong>{`To:`}</strong>
+            <strong>To: </strong>
             {responses.map((response, i) => (
-              <>
-                <Tip text={getLabelText(response)}>
-                  <Label key={i} lblStyle={getLabelColor(response)}>
-                    {response?.toEmail || ''}
-                  </Label>
-                </Tip>
-              </>
+              <Tip key={i} text={getLabelText(response)}>
+                <Label lblStyle={getLabelColor(response)}>
+                  {response?.toEmail || ''}
+                </Label>
+              </Tip>
             ))}
           </LabelContainer>
-        </ul>
-      </li>
-    );
-  }
-
-  renderContent() {
-    const { action, result } = this.props;
-
-    return (
-      <Columns>
-        {this.renderTemplate(action)}
-        <Column>{this.renderEmails(result)}</Column>
-      </Columns>
+        </li>
+      </ul>
     );
   }
 
   render() {
-    const trigger = <Button size="small" icon="eye" btnStyle="simple" />;
-
+    const { action, result, hideTemplate } = this.props;
     return (
-      <ModalTrigger
-        title=""
-        size="lg"
-        hideHeader
-        trigger={trigger}
-        content={this.renderContent}
-      />
+      <div>
+        {!hideTemplate && this.renderTemplate(action, result)}
+        <div>{this.renderEmails(result)}</div>
+      </div>
     );
   }
 }

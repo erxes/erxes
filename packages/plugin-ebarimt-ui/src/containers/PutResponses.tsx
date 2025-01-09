@@ -1,19 +1,19 @@
-import { gql } from "@apollo/client";
-import PutResponse from "../components/PutResponses";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { Bulk, Spinner } from "@erxes/ui/src/components";
+import { IQueryParams } from "@erxes/ui/src/types";
+import { Alert, router } from '@erxes/ui/src/utils';
 import queryString from "query-string";
 import React from "react";
-import { Bulk, Spinner } from "@erxes/ui/src/components";
-import { router } from "@erxes/ui/src/utils";
-import { IQueryParams } from "@erxes/ui/src/types";
+import { useLocation, useNavigate } from "react-router-dom";
+import PutResponse from "../components/PutResponses";
+import { FILTER_PARAMS } from "../constants";
+import { mutations, queries } from "../graphql";
 import {
+  PutResponseReReturnMutationResponse,
   PutResponsesAmountQueryResponse,
   PutResponsesCountQueryResponse,
   PutResponsesQueryResponse,
 } from "../types";
-import { queries } from "../graphql";
-import { FILTER_PARAMS } from "../constants";
-import { useQuery } from "@apollo/client";
-import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
@@ -50,6 +50,23 @@ const PutResponsesContainer: React.FC<Props> = (props) => {
     }
   );
 
+  const [reReturn] = useMutation<PutResponseReReturnMutationResponse>(
+    gql(mutations.putResponseReReturn),
+  );
+
+  const onReReturn = (_id) => {
+    reReturn({
+      variables: {
+        _id
+      }
+    }).then(() => {
+      Alert.success('Articles assigned successfully');
+      putResponsesQuery.refetch()
+    }).catch((e) => {
+      Alert.error(e.message);
+    });
+  }
+
   const onSearch = (search: string, key?: string) => {
     router.removeParams(navigate, location, "page");
 
@@ -72,15 +89,7 @@ const PutResponsesContainer: React.FC<Props> = (props) => {
   };
 
   const onFilter = (filterParams: IQueryParams) => {
-    router.removeParams(navigate, location, "page");
-
-    for (const key of Object.keys(filterParams)) {
-      if (filterParams[key]) {
-        router.setParams(navigate, location, { [key]: filterParams[key] });
-      } else {
-        router.removeParams(navigate, location, key);
-      }
-    }
+    router.setParams(navigate, location, filterParams);
 
     return router;
   };
@@ -98,7 +107,7 @@ const PutResponsesContainer: React.FC<Props> = (props) => {
   };
 
   const clearFilter = () => {
-    const params = generateQueryParams(history);
+    const params = generateQueryParams(location);
     router.removeParams(navigate, location, ...Object.keys(params));
   };
 
@@ -136,6 +145,7 @@ const PutResponsesContainer: React.FC<Props> = (props) => {
     onSearch: onSearch,
     isFiltered: isFiltered(),
     clearFilter: clearFilter,
+    onReReturn
   };
 
   const putResponsesList = (props) => {

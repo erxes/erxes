@@ -8,34 +8,36 @@ import {
   DetailMainContainer,
   DetailStyle,
   Hashtag,
-  PluginTitle
-} from '../../styles';
-import { Attachment, TabTitle, Tabs } from '@erxes/ui/src/components';
+  PluginTitle,
+} from "../../styles";
+import { Attachment, TabTitle, Tabs } from "@erxes/ui/src/components";
 
-import { Alert } from 'modules/common/utils';
-import { ListHeader } from '../../styles';
-import { PluginCategories } from '../styles';
-import React from 'react';
-import RightSidebar from './RightSidebar';
-import Wrapper from './Wrapper';
-import { __ } from '@erxes/ui/src/utils';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import { queries } from '../../graphql';
+import { Alert } from "modules/common/utils";
+import { ListHeader } from "../../styles";
+import { PluginCategories } from "../styles";
+import React from "react";
+import RightSidebar from "./RightSidebar";
+import Wrapper from "./Wrapper";
+import { __ } from "@erxes/ui/src/utils";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { queries } from "../../graphql";
+import { ManageInstallFunction, Plugin } from "../../types";
 
 type Props = {
   id: string;
-  enabledServicesQuery: any;
-  manageInstall: any;
-  plugin: any;
-  plugins: any[];
+  manageInstall: ManageInstallFunction;
+  plugin: Plugin;
+  plugins: Plugin[];
 };
 
 type State = {
   tabType: string;
   lastLogMessage: string;
-  plugin: any;
-  loading: any;
+  plugin: Plugin;
+  loading: {
+    [key: string]: boolean;
+  };
 };
 
 class PluginDetails extends React.Component<Props, State> {
@@ -45,35 +47,34 @@ class PluginDetails extends React.Component<Props, State> {
     const plugin = props.plugin || {};
 
     this.state = {
-      tabType: 'Description',
-      lastLogMessage: '',
+      tabType: "Description",
+      lastLogMessage: "",
       plugin,
-      loading: {}
+      loading: {},
     };
 
     client
       .query({
         query: gql(queries.getInstallationStatus),
-        fetchPolicy: 'network-only',
-        variables: { name: plugin.osName }
+        fetchPolicy: "network-only",
+        variables: { name: plugin.osName },
       })
       .then(({ data: { configsGetInstallationStatus } }) => {
         plugin.status = configsGetInstallationStatus.status;
-
         this.setState({ plugin });
       });
 
     const querySubscription = client
       .watchQuery({
         query: gql(queries.getInstallationStatus),
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
         pollInterval: 3000,
-        variables: { name: plugin.osName }
+        variables: { name: plugin.osName },
       })
       .subscribe({
         next: ({ data: { configsGetInstallationStatus } }) => {
           const installationType = localStorage.getItem(
-            'currentInstallationType'
+            "currentInstallationType"
           );
 
           const { status, lastLogMessage } = configsGetInstallationStatus;
@@ -83,35 +84,37 @@ class PluginDetails extends React.Component<Props, State> {
           }
 
           if (
-            (installationType === 'install' && status === 'installed') ||
-            (installationType === 'uninstall' && status === 'notExisting')
+            (installationType === "install" && status === "installed") ||
+            (installationType === "uninstall" && status === "notExisting")
           ) {
             querySubscription.unsubscribe();
-            localStorage.setItem('currentInstallationType', '');
-            Alert.success('Success');
+            localStorage.setItem("currentInstallationType", "");
+            Alert.success("Success");
             window.location.reload();
           }
         },
-        error: e => {
+        error: (e) => {
           Alert.error(e.message);
-        }
+        },
       });
   }
 
   renderContent = () => {
     const { plugin, tabType } = this.state;
 
-    if (tabType === 'Description') {
+    if (tabType === "Description") {
       return (
         <>
-          <span dangerouslySetInnerHTML={{ __html: plugin.shortDescription }} />
+          <span
+            dangerouslySetInnerHTML={{ __html: plugin.shortDescription || "" }}
+          />
           <Detail>
             <ListHeader>
               <ColorHeader>
                 <b>📝 DESCRIPTION</b>
               </ColorHeader>
             </ListHeader>
-            <p dangerouslySetInnerHTML={{ __html: plugin.description }} />
+            <p dangerouslySetInnerHTML={{ __html: plugin.description || "" }} />
           </Detail>
           <Detail>
             <ListHeader>
@@ -120,17 +123,19 @@ class PluginDetails extends React.Component<Props, State> {
               </ColorHeader>
             </ListHeader>
             <AdditionalDesc
-              dangerouslySetInnerHTML={{ __html: plugin.features }}
+              dangerouslySetInnerHTML={{ __html: plugin.features || "" }}
             />
           </Detail>
         </>
       );
     }
 
-    if (tabType === 'Guide') {
+    if (tabType === "Guide") {
       return (
         <>
-          <DetailStyle dangerouslySetInnerHTML={{ __html: plugin.tango }} />
+          <DetailStyle
+            dangerouslySetInnerHTML={{ __html: plugin.tango || "" }}
+          />
         </>
       );
     }
@@ -147,7 +152,7 @@ class PluginDetails extends React.Component<Props, State> {
 
     return categories.map((category, index) => (
       <Hashtag key={index}>
-        {'#'}
+        {"#"}
         {category}
       </Hashtag>
     ));
@@ -155,7 +160,7 @@ class PluginDetails extends React.Component<Props, State> {
 
   renderScreenshots() {
     const { screenShots } = this.state.plugin;
-    const items = screenShots.split(',');
+    const items = (screenShots || "").split(",");
 
     if (!items || items.length === 0) {
       return null;
@@ -164,8 +169,8 @@ class PluginDetails extends React.Component<Props, State> {
     return items.map((item, index) => {
       const attachment = {
         name: item,
-        type: 'image',
-        url: item
+        type: "image",
+        url: item,
       };
 
       return <Attachment key={index} simple={true} attachment={attachment} />;
@@ -177,27 +182,27 @@ class PluginDetails extends React.Component<Props, State> {
     const { loading, plugin, lastLogMessage, tabType } = this.state;
 
     const breadcrumb = [
-      { title: __('Marketplace'), link: '/marketplace' },
-      { title: plugin.title || '' }
+      { title: __("Marketplace"), link: "/marketplace" },
+      { title: plugin.title || "" },
     ];
 
     const manageInstall = (type: string, name: string) => {
-      localStorage.setItem('currentInstallationType', type);
+      localStorage.setItem("currentInstallationType", type);
 
       this.setState({ loading: { [name]: true } });
 
       this.props
         .manageInstall({
-          variables: { type, name }
+          variables: { type, name },
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
           this.setState({ loading: { [name]: false } });
-          localStorage.setItem('currentInstallationType', '');
+          localStorage.setItem("currentInstallationType", "");
         });
     };
 
-    const handleSelect = tab => {
+    const handleSelect = (tab) => {
       this.setState({ tabType: tab });
     };
 
@@ -206,33 +211,33 @@ class PluginDetails extends React.Component<Props, State> {
         return null;
       }
 
-      if (plugin.status === 'installed') {
+      if (plugin.status === "installed") {
         return (
           <div>
             <button
-              onClick={manageInstall.bind(this, 'uninstall', plugin.osName)}
+              onClick={manageInstall.bind(this, "uninstall", plugin.osName)}
               className="uninstall"
             >
               {loading[plugin.osName]
                 ? `Uninstalling ... ${
-                    lastLogMessage ? `(${lastLogMessage})` : ''
+                    lastLogMessage ? `(${lastLogMessage})` : ""
                   }`
-                : 'Uninstall'}
+                : "Uninstall"}
             </button>
 
-            <div style={{ clear: 'both' }} />
+            <div style={{ clear: "both" }} />
           </div>
         );
       }
 
       return (
         <button
-          onClick={manageInstall.bind(this, 'install', plugin.osName)}
+          onClick={manageInstall.bind(this, "install", plugin.osName)}
           className="install"
         >
-          {loading[plugin.osName] || plugin.status === 'installing'
-            ? `Installing ... ${lastLogMessage ? `(${lastLogMessage})` : ''}`
-            : 'Install'}
+          {loading[plugin.osName] || plugin.status === "installing"
+            ? `Installing ... ${lastLogMessage ? `(${lastLogMessage})` : ""}`
+            : "Install"}
         </button>
       );
     };
@@ -242,7 +247,7 @@ class PluginDetails extends React.Component<Props, State> {
         <PluginTitle>
           <Center>
             <img
-              src={plugin.avatar || plugin.image || '/images/no-plugin.png'}
+              src={plugin.avatar || plugin.image || "/images/no-plugin.png"}
             />
             <DetailInformation>
               <b>{plugin.title}</b>
@@ -257,14 +262,14 @@ class PluginDetails extends React.Component<Props, State> {
         <div className="plugin-detail-tabs">
           <Tabs>
             <TabTitle
-              onClick={() => handleSelect('Description')}
-              className={tabType === 'Description' ? 'active' : ''}
+              onClick={() => handleSelect("Description")}
+              className={tabType === "Description" ? "active" : ""}
             >
               Description
             </TabTitle>
             <TabTitle
-              onClick={() => handleSelect('Guide')}
-              className={tabType === 'Guide' ? 'active' : ''}
+              onClick={() => handleSelect("Guide")}
+              className={tabType === "Guide" ? "active" : ""}
             >
               Guide
             </TabTitle>
@@ -278,7 +283,7 @@ class PluginDetails extends React.Component<Props, State> {
     return (
       <Wrapper
         mainHead={
-          <Wrapper.Header title={plugin.title} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={plugin.title || ""} breadcrumb={breadcrumb} />
         }
         rightSidebar={<RightSidebar plugin={plugin} plugins={plugins} />}
         content={content}

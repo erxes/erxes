@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import strip from 'strip';
 import xss from 'xss';
 
@@ -22,33 +22,41 @@ type TemplateListProps = {
 // response templates
 const TemplateList = (props: TemplateListProps) => {
   const { suggestionsState, onSelect } = props;
+  const { searchText, templates } = suggestionsState;
 
-  function normalizeIndex(selectedIndex: number, max: number) {
-    let index = selectedIndex % max;
+  const [hoverIndex, setHoverIndex] = useState(0);
 
-    if (index < 0) {
-      index += max;
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'ArrowUp') {
+      setHoverIndex((hoverIndex + templates.length - 1) % templates.length);
     }
+    if (event.key === 'ArrowDown') {
+      setHoverIndex((hoverIndex + 1) % templates.length);
+    }
+    if (event.key === 'Enter') {
+      onSelect(hoverIndex);
+    }
+  };
 
-    return index;
-  }
-
-  const { selectedIndex, searchText, templates } = suggestionsState;
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [hoverIndex]);
 
   if (!templates) {
     return null;
   }
-
-  const normalizedIndex = normalizeIndex(selectedIndex, templates.length);
 
   return (
     <ResponseSuggestions>
       {templates.map((template, index) => {
         const style: any = {};
 
-        if (normalizedIndex === index) {
-          style.backgroundColor = '#5629B6';
-          style.color = '#ffffff';
+        if (hoverIndex === index) {
+          style.backgroundColor = '#ededfb';
+          style.color = 'black';
         }
 
         const onClick = () => onSelect(index);

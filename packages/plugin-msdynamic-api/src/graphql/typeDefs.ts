@@ -15,6 +15,7 @@ const types = `
     sendStr: String
     responseData: JSON
     responseStr: String
+    sendSales: [String]
     responseSales: [String]
     error: String
     content: String
@@ -27,6 +28,17 @@ const types = `
     syncedDate: Date
     syncedBillNumber: String
     syncedCustomer: String
+  }
+
+  type MsdCustomerRelation {
+    _id: String
+    brandId: String
+    customerId: String
+    modifiedAt: Date
+    no: String
+    response: JSON
+
+    brand: JSON
   }
 `;
 

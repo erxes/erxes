@@ -1,14 +1,18 @@
-import { CustomerState, Name, NameContainer } from '../../styles';
-import { InfoWrapper, Links } from '@erxes/ui/src/styles/main';
+import {
+  AvatarWrapper,
+  CustomerState,
+  Name,
+  NameContainer,
+} from "../../styles";
+import { InfoWrapper, Links } from "@erxes/ui/src/styles/main";
 
-import { AvatarWrapper } from '@erxes/ui-log/src/activityLogs/styles';
-import CustomerForm from '@erxes/ui-contacts/src/customers/containers/CustomerForm';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import React from 'react';
-import { renderFullName } from '@erxes/ui/src/utils';
+import CustomerForm from "../../containers/CustomerForm";
+import { ICustomer } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import React from "react";
+import { renderFullName } from "@erxes/ui/src/utils";
 
 type Props = {
   customer: ICustomer;
@@ -26,8 +30,8 @@ class InfoSection extends React.Component<Props> {
       return null;
     }
 
-    if (!value.includes('http')) {
-      link = 'https://'.concat(value);
+    if (!value.includes("http")) {
+      link = "https://".concat(value);
     }
 
     return (
@@ -44,13 +48,13 @@ class InfoSection extends React.Component<Props> {
 
     return (
       <Links>
-        {this.renderLink(links.facebook, 'facebook-official')}
-        {this.renderLink(links.instagram, 'instagram')}
-        {this.renderLink(links.linkedIn, 'linkedin')}
-        {this.renderLink(links.twitter, 'twitter')}
-        {this.renderLink(links.youtube, 'youtube-play')}
-        {this.renderLink(links.github, 'github-circled')}
-        {this.renderLink(links.website, 'external-link-alt')}
+        {this.renderLink(links.facebook, "facebook-official")}
+        {this.renderLink(links.instagram, "instagram")}
+        {this.renderLink(links.linkedIn, "linkedin")}
+        {this.renderLink(links.twitter, "twitter")}
+        {this.renderLink(links.youtube, "youtube-play")}
+        {this.renderLink(links.github, "github-circled")}
+        {this.renderLink(links.website, "external-link-alt")}
       </Links>
     );
   }

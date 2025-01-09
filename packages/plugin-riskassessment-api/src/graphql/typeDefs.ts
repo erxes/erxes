@@ -1,34 +1,33 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 import {
   mutations as formSubmissionsMutations,
-  types as formSubmissionsType,
-} from './schema/formSubmissions';
+  types as formSubmissionsType
+} from "./schema/formSubmissions";
 import {
   mutations as RiskIndicatorsMutations,
   queries as RiskIndicatorsQueries,
-  types as RiskIndicatorsTypes,
-} from './schema/riskIndicator';
+  types as RiskIndicatorsTypes
+} from "./schema/riskIndicator";
 
 import {
   mutations as OpearionMutations,
   queries as OpearionQueries,
-  types as OpearionTypes,
-} from './schema/operations';
+  types as OpearionTypes
+} from "./schema/operations";
 import {
   mutations as PlanMutations,
   queries as PlanQueries,
-  types as PlanTypes,
-} from './schema/plans';
+  types as PlanTypes
+} from "./schema/plans";
 import {
   mutations as RiskAsessmentMutations,
   queries as RiskAsessmentQueries,
-  types as RiskAsessmentTypes,
-} from './schema/riskAssessment';
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+  types as RiskAsessmentTypes
+} from "./schema/riskAssessment";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 const typeDefs = async () => {
-  const tagsAvailable = isEnabled('tags');
   return gql`
     scalar JSON
     scalar Date
@@ -46,17 +45,11 @@ const typeDefs = async () => {
           _id: String! @external
     }
 
-    ${
-      tagsAvailable
-        ? `
-        extend type Tag @key(fields: "_id") {
+    extend type Tag @key(fields: "_id") {
           _id: String! @external
-        }
-        `
-        : ''
     }
 
-    ${RiskIndicatorsTypes(tagsAvailable)}
+    ${RiskIndicatorsTypes()}
     ${OpearionTypes}
     ${RiskAsessmentTypes}
     ${formSubmissionsType}

@@ -245,7 +245,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
 
       await models.Responses.deleteMany({ requestId: request._id });
 
-      request.remove();
+      request.deleteOne();
       return 'canceled';
     }
 

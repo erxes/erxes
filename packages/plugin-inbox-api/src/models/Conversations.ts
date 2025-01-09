@@ -4,18 +4,19 @@ import { cleanHtml } from '@erxes/api-utils/src/core';
 import { CONVERSATION_STATUSES } from './definitions/constants';
 import {
   IMessageDocument,
-  IResolveAllConversationParam,
+  IResolveAllConversationParam
 } from './definitions/conversationMessages';
 import {
   conversationSchema,
   IConversation,
-  IConversationDocument,
+  IConversationDocument
 } from './definitions/conversations';
 import { IModels } from '../connectionResolver';
-import { sendCoreMessage, sendFormsMessage } from '../messageBroker';
+import { sendCoreMessage } from '../messageBroker';
 import { putCreateLog } from '../logUtils';
 import { MODULE_NAMES } from '../constants';
 import { sendToWebhook } from '@erxes/api-utils/src';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
@@ -25,48 +26,48 @@ export interface IConversationModel extends Model<IConversationDocument> {
 
   assignUserConversation(
     conversationIds: string[],
-    assignedUserId?: string,
+    assignedUserId?: string
   ): Promise<IConversationDocument[]>;
 
   unassignUserConversation(
-    conversationIds: string[],
+    conversationIds: string[]
   ): Promise<IConversationDocument[]>;
 
   changeCustomerStatus(
     status: string,
     customerId: string,
-    integrationId: string,
+    integrationId: string
   ): Promise<IMessageDocument[]>;
 
   changeStatusConversation(
     conversationIds: string[],
     status: string,
-    userId?: string,
+    userId?: string
   ): Promise<IConversationDocument>;
 
   markAsReadConversation(
     _id: string,
-    userId: string,
+    userId: string
   ): Promise<IConversationDocument>;
 
   newOrOpenConversation(): IConversationDocument[];
 
   addParticipatedUsers(
     conversationId: string,
-    userId: string,
+    userId: string
   ): Promise<IConversationDocument>;
   addManyParticipatedUsers(
     conversationId: string,
-    userId: string[],
+    userId: string[]
   ): Promise<IConversationDocument>;
 
   changeCustomer(
     newCustomerId: string,
-    customerIds: string[],
+    customerIds: string[]
   ): Promise<IConversationDocument[]>;
 
   removeCustomersConversations(
-    customerId: string[],
+    customerId: string[]
   ): Promise<{ n: number; ok: number }>;
   widgetsUnreadMessagesQuery(conversations: IConversationDocument[]): any;
 
@@ -76,7 +77,7 @@ export interface IConversationModel extends Model<IConversationDocument> {
 
   resolveAllConversation(
     query: any,
-    param: IResolveAllConversationParam,
+    param: IResolveAllConversationParam
   ): Promise<{ n: number; nModified: number; ok: number }>;
 }
 
@@ -115,7 +116,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
     public static async createConversation(doc: IConversation) {
       const now = new Date();
       const userRelevance = await this.getUserRelevance({
-        skillId: doc.skillId,
+        skillId: doc.skillId
       });
 
       const result = await models.Conversations.create({
@@ -126,7 +127,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         updatedAt: doc.createdAt || now,
         number: (await models.Conversations.find().countDocuments()) + 1,
         messageCount: 0,
-        ...(userRelevance ? { userRelevance } : {}),
+        ...(userRelevance ? { userRelevance } : {})
       });
 
       await sendToWebhook({
@@ -134,8 +135,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
         data: {
           action: 'create',
           type: 'inbox:conversation',
-          params: result,
-        },
+          params: result
+        }
       });
 
       await putCreateLog(
@@ -144,11 +145,11 @@ export const loadClass = (models: IModels, subdomain: string) => {
         {
           type: MODULE_NAMES.CONVERSATION,
           newData: result,
-          object: result,
+          object: result
         },
         {
-          _id: doc.customerId,
-        },
+          _id: doc.customerId
+        }
       );
 
       return result;
@@ -165,11 +166,11 @@ export const loadClass = (models: IModels, subdomain: string) => {
       doc.updatedAt = new Date();
 
       // clean custom field values
-      doc.customFieldsData = await sendFormsMessage({
+      doc.customFieldsData = await sendCoreMessage({
         subdomain,
         action: 'fields.prepareCustomFieldsData',
         data: doc.customFieldsData,
-        isRPC: true,
+        isRPC: true
       });
 
       return models.Conversations.updateOne({ _id }, { $set: doc });
@@ -187,7 +188,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         status: CONVERSATION_STATUSES.OPEN,
 
         closedAt: null,
-        closedUserId: null,
+        closedUserId: null
       });
 
       return models.Conversations.findOne({ _id });
@@ -198,7 +199,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async assignUserConversation(
       conversationIds: string[],
-      assignedUserId?: string,
+      assignedUserId?: string
     ) {
       await this.checkExistanceConversations(conversationIds);
 
@@ -206,9 +207,9 @@ export const loadClass = (models: IModels, subdomain: string) => {
         subdomain,
         action: 'users.findOne',
         data: {
-          _id: assignedUserId,
+          _id: assignedUserId
         },
-        isRPC: true,
+        isRPC: true
       });
 
       if (!user) {
@@ -218,7 +219,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       await models.Conversations.updateMany(
         { _id: { $in: conversationIds } },
         { $set: { assignedUserId } },
-        { multi: true },
+        { multi: true }
       );
 
       return models.Conversations.find({ _id: { $in: conversationIds } });
@@ -233,7 +234,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       await models.Conversations.updateMany(
         { _id: { $in: conversationIds } },
         { $unset: { assignedUserId: 1 } },
-        { multi: true },
+        { multi: true }
       );
 
       return models.Conversations.find({ _id: { $in: conversationIds } });
@@ -247,12 +248,12 @@ export const loadClass = (models: IModels, subdomain: string) => {
     public static async changeCustomerStatus(
       status: string,
       customerId: string,
-      integrationId: string,
+      integrationId: string
     ) {
       const customerConversations = await models.Conversations.find({
         customerId,
         integrationId,
-        status: 'open',
+        status: 'open'
       });
 
       const promises: Array<Promise<IMessageDocument>> = [];
@@ -262,8 +263,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
           models.ConversationMessages.addMessage({
             conversationId: conversationObj._id,
             content: `Customer has ${status}`,
-            fromBot: true,
-          }),
+            fromBot: true
+          })
         );
       }
 
@@ -275,7 +276,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
     public static changeStatusConversation(
       conversationIds: string[],
       status: string,
-      userId: string,
+      userId: string
     ) {
       let closedAt;
       let closedUserId;
@@ -290,7 +291,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       return models.Conversations.updateMany(
         { _id: { $in: conversationIds } },
         { $set: { status, closedAt, closedUserId, updatedAt } },
-        { multi: true },
+        { multi: true }
       );
     }
 
@@ -309,7 +310,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       // if current user is first one
       if (!readUserIds || readUserIds.length === 0) {
         await models.Conversations.updateConversation(_id, {
-          readUserIds: [userId],
+          readUserIds: [userId]
         });
       }
 
@@ -318,6 +319,9 @@ export const loadClass = (models: IModels, subdomain: string) => {
         readUserIds.push(userId);
         await models.Conversations.updateConversation(_id, { readUserIds });
       }
+      graphqlPubsub.publish(`conversationChanged:${_id}`, {
+        conversationChanged: { conversationId: _id, type: 'inbox:conversation' }
+      });
 
       return models.Conversations.findOne({ _id });
     }
@@ -328,11 +332,11 @@ export const loadClass = (models: IModels, subdomain: string) => {
     public static async newOrOpenConversation() {
       return models.Conversations.find({
         status: {
-          $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN],
+          $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN]
         },
         updatedAt: {
-          $gte: new Date(new Date().getTime() - 12 * 60 * 1000),
-        },
+          $gte: new Date(new Date().getTime() - 12 * 60 * 1000)
+        }
       });
     }
 
@@ -341,13 +345,13 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static addManyParticipatedUsers(
       conversationId: string,
-      userIds: string[],
+      userIds: string[]
     ) {
       return models.Conversations.updateOne(
         { _id: conversationId },
         {
-          $addToSet: { participatedUserIds: { $each: userIds } },
-        },
+          $addToSet: { participatedUserIds: { $each: userIds } }
+        }
       );
     }
     /**
@@ -357,8 +361,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
       return models.Conversations.updateOne(
         { _id: conversationId },
         {
-          $addToSet: { participatedUserIds: userId },
-        },
+          $addToSet: { participatedUserIds: userId }
+        }
       );
     }
 
@@ -367,17 +371,17 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async changeCustomer(
       newCustomerId: string,
-      customerIds: string,
+      customerIds: string
     ) {
       // Updating every conversation and conversation messages of new customer
       await models.ConversationMessages.updateMany(
         { customerId: { $in: customerIds } },
-        { $set: { customerId: newCustomerId } },
+        { $set: { customerId: newCustomerId } }
       );
 
       await models.Conversations.updateMany(
         { customerId: { $in: customerIds } },
-        { $set: { customerId: newCustomerId } },
+        { $set: { customerId: newCustomerId } }
       );
 
       // Returning updated list of conversation of new customer
@@ -390,14 +394,14 @@ export const loadClass = (models: IModels, subdomain: string) => {
     public static async removeCustomersConversations(customerIds: string[]) {
       // Finding every conversation of customer
       const conversations = await models.Conversations.find({
-        customerId: { $in: customerIds },
+        customerId: { $in: customerIds }
       });
 
       // Removing conversations and conversation messages
       const conversationIds = conversations.map((conv) => conv._id);
 
       await models.ConversationMessages.deleteMany({
-        conversationId: { $in: conversationIds },
+        conversationId: { $in: conversationIds }
       });
 
       await models.Conversations.deleteMany({ _id: { $in: conversationIds } });
@@ -410,7 +414,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       await stream(
         async (chunk) => {
           await models.ConversationMessages.deleteMany({
-            conversationId: { $in: chunk },
+            conversationId: { $in: chunk }
           });
           await models.Conversations.deleteMany({ _id: { $in: chunk } });
         },
@@ -425,29 +429,29 @@ export const loadClass = (models: IModels, subdomain: string) => {
           return models.ConversationMessages.find(
             {
               engageData: { $exists: true, $ne: null },
-              'engageData.messageId': engageMessageId,
+              'engageData.messageId': engageMessageId
             },
-            { conversationId: 1, _id: 0 },
+            { conversationId: 1, _id: 0 }
           ) as any;
         },
-        1000,
+        1000
       );
     }
 
     public static widgetsUnreadMessagesQuery(
-      conversations: IConversationDocument[],
+      conversations: IConversationDocument[]
     ) {
       const unreadMessagesSelector = {
         userId: { $exists: true },
         internal: false,
-        isCustomerRead: { $ne: true },
+        isCustomerRead: { $ne: true }
       };
 
       const conversationIds = conversations.map((c) => c._id);
 
       return {
         conversationId: { $in: conversationIds },
-        ...unreadMessagesSelector,
+        ...unreadMessagesSelector
       };
     }
 
@@ -456,12 +460,12 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static resolveAllConversation(
       query: any,
-      param: IResolveAllConversationParam,
+      param: IResolveAllConversationParam
     ) {
       return models.Conversations.updateMany(
         query,
         { $set: param },
-        { multi: true },
+        { multi: true }
       );
     }
 
@@ -477,14 +481,14 @@ export const loadClass = (models: IModels, subdomain: string) => {
         action: 'users.find',
         data: {
           query: {
-            _id: { $in: skill.memberIds || [] },
+            _id: { $in: skill.memberIds || [] }
           },
           sort: {
-            createdAt: 1,
-          },
+            createdAt: 1
+          }
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       if (users.length === 0) {

@@ -5,7 +5,7 @@ import { FlexItem } from "@erxes/ui/src/components/step/styles";
 import {
   CAMPAIGN_TARGET_TYPES,
   METHODS,
-  BUSINESS_PORTAL_KINDS,
+  BUSINESS_PORTAL_KINDS
 } from "@erxes/ui-engage/src/constants";
 import { SelectMessageType } from "@erxes/ui-engage/src/styles";
 import { ClientPortalConfig } from "@erxes/plugin-clientportal-ui/src/types";
@@ -54,7 +54,7 @@ class MessageTypeStep extends React.Component<Props, State> {
       messageType = CAMPAIGN_TARGET_TYPES.TAG;
     }
 
-    this.state = { messageType, segmentType: segmentType || "contacts:lead" };
+    this.state = { messageType, segmentType: segmentType || "core:lead" };
   }
 
   onChange = (key, e: React.FormEvent<HTMLElement>) => {
@@ -83,12 +83,12 @@ class MessageTypeStep extends React.Component<Props, State> {
             defaultValue={this.props.businessPortalKind || ""}
             options={[
               { value: "", label: "Select a business portal" },
-              ...BUSINESS_PORTAL_KINDS.ALL.map((item) => ({
+              ...BUSINESS_PORTAL_KINDS.ALL.map(item => ({
                 value: item,
-                label: item + " portal",
-              })),
+                label: item + " portal"
+              }))
             ]}
-            onChange={(e) => {
+            onChange={e => {
               this.props.handleClientPortalKindChange(
                 (e.target as HTMLInputElement).value
               );
@@ -127,10 +127,10 @@ class MessageTypeStep extends React.Component<Props, State> {
             componentclass="select"
             options={[
               { value: "", label: `Select a ${businessPortalKind} portal` },
-              ...clientPortalGetConfigs.map((item) => ({
+              ...clientPortalGetConfigs.map(item => ({
                 value: item._id,
-                label: item.name,
-              })),
+                label: item.name
+              }))
             ]}
             onChange={this.onChange.bind(this, "cpId")}
             required
@@ -151,20 +151,21 @@ class MessageTypeStep extends React.Component<Props, State> {
       return null;
     }
 
-    const segmentOptions = (this.props.segmentsTypes || []).length > 0
-      ? (this.props.segmentsTypes || [] as any).map((type) => ({
-          label: type.description,
-          value: type.contentType,
-        }))
-      : [
-          { value: "contacts:lead", label: "Leads" },
-          { value: "contacts:customer", label: "Customers" },
-          { value: "contacts:company", label: "Company contacts" },
-          { value: "cards:deal", label: "Deal contacts" },
-          { value: "cards:task", label: "Task contacts" },
-          { value: "cards:ticket", label: "Ticket contacts" },
-          { value: "cards:purchase", label: "Purchase contacts" },
-        ];
+    const segmentOptions =
+      (this.props.segmentsTypes || []).length > 0
+        ? (this.props.segmentsTypes || ([] as any)).map(type => ({
+            label: type.description,
+            value: type.contentType
+          }))
+        : [
+            { value: "core:lead", label: "Leads" },
+            { value: "core:customer", label: "Customers" },
+            { value: "core:company", label: "Company contacts" },
+            { value: "sales:deal", label: "Deal contacts" },
+            { value: "tasks:task", label: "Task contacts" },
+            { value: "tickets:ticket", label: "Ticket contacts" },
+            { value: "purchases:purchase", label: "Purchase contacts" }
+          ];
 
     return (
       <SelectMessageType>
@@ -185,9 +186,9 @@ class MessageTypeStep extends React.Component<Props, State> {
   renderSelector() {
     const { clientPortalGetConfigs, method } = this.props;
 
-    const options = CAMPAIGN_TARGET_TYPES.ALL.map((opt) => ({
+    const options = CAMPAIGN_TARGET_TYPES.ALL.map(opt => ({
       value: opt,
-      label: opt.split(":")[1],
+      label: opt.split(":")[1]
     }));
 
     if (
@@ -277,7 +278,7 @@ class MessageTypeStep extends React.Component<Props, State> {
       messageType: this.state.messageType,
       segmentType: this.state.segmentType,
       cpId: this.state.cpId,
-      renderContent: (args) => this.renderContent(args),
+      renderContent: args => this.renderContent(args)
     };
 
     const Component = this.stepComponent();

@@ -4,16 +4,23 @@ import { field, getDateFieldDefinition } from './utils';
 export interface IEbarimtConfig {
   companyName: string;
   ebarimtUrl: string;
-  checkCompanyUrl: string;
+  checkTaxpayerUrl: string;
+
+  merchantTin: string;
+  companyRD: string,
+  districtCode: string;
+  posNo: string;
+  branchNo: string;
+
   hasVat: boolean;
   hasCitytax: boolean;
-  districtCode: string;
-  companyRD: string;
-  defaultGSCode: string;
-  vatPercent: number;
-  cityTaxPercent: number;
-  footerText: string;
-  hasCopy?: boolean;
+  defaultGSCode: string,
+  vatPercent: number,
+  cityTaxPercent: number,
+  reverseVatRules?: string[],
+  reverseCtaxRules?: string[],
+  footerText?: string;
+  hasCopy: boolean;
 }
 
 interface IConfigColors {
@@ -83,7 +90,7 @@ export interface IConfigDocument extends Document, IConfig {
   _id: string;
 }
 
-export interface IProductGroup {}
+export interface IProductGroup { }
 
 export interface IProductGroupDocument extends Document, IProductGroup {
   _id: string;
@@ -97,23 +104,19 @@ const ebarimtConfigSchema = new Schema(
       optional: true,
       label: 'Ebarimt server url',
     }),
-    checkCompanyUrl: field({
+    checkTaxpayerUrl: field({
       type: String,
       optional: true,
-      label: 'Company info url',
+      label: 'Ebarimt tin url',
     }),
+
+    merchantTin: field({ type: String, optional: true, label: 'Tin' }),
+    companyRD: field({ type: String, optional: true, label: 'Company rd' }),
+    districtCode: field({ type: String, optional: true, label: 'district Code' }),
+    posNo: field({ type: String, optional: true, label: 'Pos NO' }),
+    branchNo: field({ type: String, optional: true, label: 'Branch NO' }),
     hasVat: field({ type: Boolean, optional: true }),
     hasCitytax: field({ type: Boolean, optional: true }),
-    districtCode: field({
-      type: String,
-      optional: true,
-      label: 'Province or district code',
-    }),
-    companyRD: field({
-      type: String,
-      optional: true,
-      label: 'Company register number',
-    }),
     defaultGSCode: field({
       type: String,
       optional: true,
@@ -125,6 +128,8 @@ const ebarimtConfigSchema = new Schema(
       optional: true,
       label: 'UB city tax percent',
     },
+    reverseVatRules: field({ type: [String], optional: true, label: 'reverseVatRules' }),
+    reverseCtaxRules: field({ type: [String], optional: true, label: 'reverseCtaxRules' }),
     footerText: field({ type: String, optional: true, label: 'Footer text' }),
     hasCopy: field({ type: Boolean, optional: true }),
   },

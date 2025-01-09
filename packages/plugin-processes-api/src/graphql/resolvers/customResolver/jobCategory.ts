@@ -3,7 +3,7 @@ import { JOB_CATEGORY_STATUSES } from '../../../models/definitions/constants';
 import { IJobCategoryDocument } from '../../../models/definitions/jobCategories';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.JobCategories.findOne({ _id });
   },
 

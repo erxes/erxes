@@ -1,37 +1,49 @@
-import { DropNav, UserHelper } from '../styles';
-import { __, getEnv } from 'modules/common/utils';
-import { colors, dimensions } from 'modules/common/styles';
+import { DropNav, Setup, UserHelper } from "../styles";
+import {
+  FrontlineTasks,
+  GeneralTasks,
+  MarketingTasks,
+  OperationTasks,
+  SalesTasks,
+} from "modules/welcome/constants";
+import { colors, dimensions } from "modules/common/styles";
 
-import BrandChooser from './BrandChooser';
-import { IUser } from 'modules/auth/types';
-import Icon from 'modules/common/components/Icon';
-import { Link } from 'react-router-dom';
-import { Menu } from '@headlessui/react';
-import { MenuDivider } from '@erxes/ui/src/styles/main';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import Organizations from 'modules/saas/navigation/Organizations';
-import React from 'react';
-import Search from '../containers/Search';
-import { SubMenu } from 'modules/saas/navigation/styles';
-import Usage from 'modules/saas/settings/plans/components/Usage';
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import { getVersion } from '@erxes/ui/src/utils/core';
-import { pluginsOfTopNavigations } from 'pluginUtils';
-import styled from 'styled-components';
+import BrandChooser from "./BrandChooser";
+import Button from "@erxes/ui/src/components/Button";
+import { IOrganization } from "@erxes/ui/src/auth/types";
+import { IUser } from "modules/auth/types";
+import Icon from "modules/common/components/Icon";
+import { Link } from "react-router-dom";
+import { Menu } from "@headlessui/react";
+import { MenuDivider } from "@erxes/ui/src/styles/main";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import NameCard from "modules/common/components/nameCard/NameCard";
+import Organizations from "modules/saas/navigation/Organizations";
+import ProgressBar from "@erxes/ui/src/components/ProgressBar";
+import React from "react";
+import Search from "../containers/Search";
+import { SubMenu } from "modules/saas/navigation/styles";
+import Tip from "modules/common/components/Tip";
+import Usage from "modules/saas/settings/plans/components/Usage";
+import { __ } from "modules/common/utils";
+import asyncComponent from "modules/common/components/AsyncComponent";
+import { getVersion } from "@erxes/ui/src/utils/core";
+import { pluginsOfTopNavigations } from "pluginUtils";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const Signature = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Signature" */ '@erxes/ui-settings/src/email/containers/Signature'
-    ),
+      /* webpackChunkName:"Signature" */ "@erxes/ui-settings/src/email/containers/Signature"
+    )
 );
 
 const ChangePassword = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"ChangePassword" */ 'modules/settings/profile/containers/ChangePassword'
-    ),
+      /* webpackChunkName:"ChangePassword" */ "modules/settings/profile/containers/ChangePassword"
+    )
 );
 
 const UserInfo = styled.div`
@@ -53,23 +65,38 @@ const NameCardWrapper = styled.div`
   padding: 10px 20px 0;
 `;
 
-export const NavItem = styled.div`
+export const NavItem = styledTS<{ center?: boolean }>(styled.div)`
   padding-left: 18px;
   display: table-cell;
   vertical-align: middle;
 
   > a {
     color: ${colors.textSecondary};
-    display: flex;
+    display: ${(props) => (props.center ? "inline-block" : "flex")};
     align-items: center;
+
+    &.setup {
+      padding: 2px 15px;
+    }
 
     &:hover {
       color: ${colors.colorSecondary};
     }
   }
 
-  .dropdown-menu {
-    min-width: 240px;
+  [id^="headlessui-menu-items-"] {
+    min-width: 220px;
+  }
+
+  [id^="headlessui-menu-items-"] button {
+    border: none;
+    background: none;
+    text-align: left;
+
+    &:hover {
+      background: ${colors.bgActive};
+      cursor: pointer;
+    }
   }
 `;
 
@@ -103,14 +130,20 @@ const QuickNavigation = ({
   onChangeBrands: (value: string) => void;
   release: string;
 }) => {
+  const onFeedbackClick = () => {
+    (window as any).Userback.open();
+  };
+
   const passContent = (props) => <ChangePassword {...props} />;
   const signatureContent = (props) => <Signature {...props} />;
-
+  const completedSteps = currentUser.onboardingHistory
+    ? currentUser.onboardingHistory.completedSteps || []
+    : [];
   const brands = currentUser.brands || [];
 
   const brandOptions = brands.map((brand) => ({
     value: brand._id,
-    label: brand.name || '',
+    label: brand.name || "",
   }));
 
   let brandsCombo;
@@ -127,16 +160,103 @@ const QuickNavigation = ({
     );
   }
 
-  const { CORE_URL } = getEnv();
   const { VERSION } = getVersion();
 
+  const compareStepsWithActions = (completedSteps, tasks) => {
+    return tasks.map((task) => ({
+      ...task,
+      isCompleted: completedSteps.includes(task.action),
+    }));
+  };
+
+  const calculateCompletionPercentage = (tasks) => {
+    const totalTasks = tasks.length;
+    const completedTasks = tasks.filter((task) => task.isCompleted).length;
+
+    return (completedTasks / totalTasks) * 100;
+  };
+
+  const renderProcess = () => {
+    const { experience } =
+      currentUser?.currentOrganization || ({} as IOrganization);
+    const eCode = experience?.customCode || "marketing";
+
+    const operationTasks =
+      eCode === "marketing"
+        ? MarketingTasks
+        : eCode === "sales"
+          ? SalesTasks
+          : eCode === "frontline"
+            ? FrontlineTasks
+            : eCode === "operation"
+              ? OperationTasks
+              : [];
+
+    const allTasks = [...GeneralTasks, ...operationTasks];
+
+    const tasksWithCompletionStatus = compareStepsWithActions(
+      completedSteps,
+      allTasks
+    );
+    const completionPercentage = calculateCompletionPercentage(
+      tasksWithCompletionStatus
+    );
+
+    // const steps = completedSteps.includes('');
+    const percentage = Number(completionPercentage.toFixed(1)) || 0;
+
+    return (
+      <ProgressBar
+        percentage={percentage}
+        type="circle"
+        height="28"
+        color="#32D583"
+        strokeWidthNumber={5}
+      >
+        <span>{percentage}%</span>
+      </ProgressBar>
+    );
+  };
+
   return (
-    <nav id={'SettingsNav'}>
+    <nav id={"SettingsNav"}>
       {brandsCombo}
+
+      {VERSION && VERSION === "saas" && (
+        <NavItem center={true}>
+          <Button size="small" href="https://erxes.io/add-ons">
+            <Icon icon="star" />
+            <span>{__(`Upgrade your plan`)}</span>
+          </Button>
+
+          <Button
+            className="setup"
+            size="small"
+            btnStyle="simple"
+            href="/welcome"
+          >
+            <Setup>
+              <Icon icon="settings" />
+              <span>{__(`Continue Setup`)}</span>
+              {renderProcess()}
+              <Icon icon="angle-right-b" />
+            </Setup>
+          </Button>
+        </NavItem>
+      )}
 
       <NavItem>
         <Search />
       </NavItem>
+
+      <NavItem>
+        <Tip text={__("Userback feedback widget")} placement="bottom">
+          <a href="#feedback" onClick={onFeedbackClick}>
+            <Icon icon="feedback" size={20} />
+          </a>
+        </Tip>
+      </NavItem>
+
       {pluginsOfTopNavigations()}
       <NavItem>
         <Menu as="div" className="relative">
@@ -154,18 +274,18 @@ const QuickNavigation = ({
             </NameCardWrapper>
             <MenuDivider />
             <Menu.Item>
-              <Link to="/profile">{__('My Profile')}</Link>
+              <Link to="/profile">{__("My Profile")}</Link>
             </Menu.Item>
             <Menu.Item>
               <DropNav>
-                {__('Account Settings')}
+                {__("Account Settings")}
                 <Icon icon="angle-right" />
                 <ul>
                   <ModalTrigger
                     title="Change Password"
                     trigger={
                       <li>
-                        <a href="#change-password">{__('Change password')}</a>
+                        <a href="#change-password">{__("Change password")}</a>
                       </li>
                     }
                     content={passContent}
@@ -176,7 +296,7 @@ const QuickNavigation = ({
                     enforceFocus={false}
                     trigger={
                       <li>
-                        <a href="#email">{__('Email signatures')}</a>
+                        <a href="#email">{__("Email signatures")}</a>
                       </li>
                     }
                     content={signatureContent}
@@ -186,40 +306,28 @@ const QuickNavigation = ({
             </Menu.Item>
             <MenuDivider />
             {VERSION &&
-            VERSION === 'saas' &&
+            VERSION === "saas" &&
             currentUser.currentOrganization ? (
               <>
                 <Menu.Item>
-                  <DropNav>
-                    {__('Global Profile')} <Icon icon="angle-right" />
-                    <ul>
-                      <li>
-                        <a href={`${CORE_URL}/organizations`}>
-                          {__('Go to Global Profile')}
-                        </a>
-                      </li>
-                      <li>
-                        <a href={`${CORE_URL}/billing`}>
-                          {__('Go to Billing')}
-                        </a>
-                      </li>
-                    </ul>
-                  </DropNav>
+                  <Link to="https://erxes.io/organizations">
+                    {__("Go to Global Profile")}
+                  </Link>
                 </Menu.Item>
 
                 <MenuDivider />
-                <SubMenu>
-                  <Menu.Item>
+                <Menu.Item>
+                  <SubMenu>
                     <Organizations
                       organizations={currentUser.organizations || []}
                     />
-                  </Menu.Item>
-                </SubMenu>
+                  </SubMenu>
+                </Menu.Item>
                 <Usage />
               </>
             ) : null}
             <Menu.Item>
-              <a onClick={logout}>{__('Sign out')}</a>
+              <button onClick={logout}>{__("Sign out")}</button>
             </Menu.Item>
             {release ? (
               <Version>

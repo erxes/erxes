@@ -4,6 +4,7 @@ export interface IQpayInvoice {
   sender_invoice_no: string;
   invoice_receiver_code: string;
   invoice_description: string;
+  sender_branch_code?: string;
   amount: number;
   callback_url: string;
 }
@@ -14,6 +15,16 @@ export interface ISocialPayInvoice {
   invoice: string;
   terminal: string;
   phone?: string;
+}
+
+export interface IGolomtInvoice {
+  amount: string;
+  callback: string;
+  checksum: string;
+  genToken: 'Y' | 'N';
+  returnType: 'POST' | 'GET' | 'MOBILE';
+  transactionId: string;
+  socialDeeplink: 'Y' | 'N';
 }
 
 export interface IMonpayInvoice {

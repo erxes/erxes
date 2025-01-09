@@ -318,14 +318,14 @@ function AbsenceList(props: Props) {
             <>
               <ModalTrigger
                 size="lg"
-                title="Approve Request"
+                title={__("Approve Request")}
                 trigger={checkInOutFormBtn}
                 content={(contentProps) =>
                   openCheckInOutForm(contentProps, absence, absence.reason)
                 }
               />
               <ModalTrigger
-                title="Reject request"
+                title={__("Reject request")}
                 trigger={rejectBtn}
                 content={({ closeModal }) =>
                   rejectRequestContent(closeModal, absence._id)
@@ -343,7 +343,7 @@ function AbsenceList(props: Props) {
                 Approve
               </Button>
               <ModalTrigger
-                title="Reject request"
+                title={__("Reject request")}
                 trigger={rejectBtn}
                 content={({ closeModal }) =>
                   rejectRequestContent(closeModal, absence._id)
@@ -377,7 +377,7 @@ function AbsenceList(props: Props) {
           <th>{__("Date")}</th>
           <th>{__("From")}</th>
           <th>{__("To")}</th>
-          <th>{__("Total hours ")}</th>
+          <th>{__("Total hours")}</th>
           <th onClick={toggleSeeDates} style={{ cursor: "pointer" }}>
             <div style={{ display: "flex", flex: "row", alignItems: "center" }}>
               <div>{__("See dates")}</div>

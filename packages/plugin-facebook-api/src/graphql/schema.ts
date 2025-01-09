@@ -39,7 +39,14 @@ export const types = `
     profilePic: String
     integrationId: String
   }
-
+  type FacebookPosts {
+    message: String
+    created_time: String
+    picture: String
+    full_picture:String
+    permalink_url: String
+    id: String
+  }
   type FacebookComment {
     ${commonCommentAndMessageFields}
     commentId: String
@@ -112,6 +119,10 @@ export const types = `
     createdAt: Date
     persistentMenus:[BotPersistentMenuType]
     profileUrl:String
+    greetText:String
+    tag:String
+    isEnabledBackBtn:Boolean
+    backButtonText:String
   }
 `;
 
@@ -131,17 +142,31 @@ export const queries = `
 
   facebookPostMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [FacebookPostMessage]
   facebookPostMessagesCount(conversationId: String!): Int
+
   facebootMessengerBots:[FacebookMessengerBot]
   facebootMessengerBotsTotalCount:Int
   facebootMessengerBot(_id:String):FacebookMessengerBot
   facebookGetBotPosts(botId:String):JSON
+  facebookGetPosts(channelIds: [String], brandIds: [String], limit: Int): [FacebookPosts]
   facebookGetBotPost(botId:String,postId:String):JSON
+  facebookGetBotAds(botId:String):JSON
+`;
+
+const commonBotParams = `
+  name:String,
+  accountId:String,
+  pageId:String,
+  persistentMenus:[BotPersistentMenuInput],
+  greetText:String
+  tag:String,
+  isEnabledBackBtn:Boolean,
+  backButtonText:String
 `;
 
 export const mutations = `
   facebookUpdateConfigs(configsMap: JSON!): JSON
-  facebookMessengerAddBot(name:String,accountId:String,pageId:String,persistentMenus:[BotPersistentMenuInput]):JSON
-  facebookMessengerUpdateBot(_id:String,name:String,accountId:String,pageId:String,persistentMenus:[BotPersistentMenuInput]):JSON
+  facebookMessengerAddBot(${commonBotParams}):JSON
+  facebookMessengerUpdateBot(_id:String,${commonBotParams}):JSON
   facebookMessengerRemoveBot(_id:String):JSON
   facebookMessengerRepairBot(_id:String):JSON
   facebookRepair(_id: String!): JSON

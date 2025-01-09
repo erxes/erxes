@@ -1,4 +1,4 @@
-import { IBookingData } from './booking/types';
+
 import { ICallout } from './form/types';
 import { IAttachment, IWebsiteApp } from './messenger/types';
 
@@ -91,9 +91,14 @@ export interface IIntegrationMessengerOnlineHours {
 }
 
 export interface IIntegrationLink {
-  twitter?: string;
   facebook?: string;
+  instagram?: string;
+  twitter?: string;
   youtube?: string;
+}
+
+export interface IIntegrationExternalLink {
+  url: string
 }
 
 export interface IIntegrationMessengerDataMessagesItem {
@@ -132,9 +137,10 @@ export interface IIntegrationMessengerData {
   showTimezone?: boolean;
   messages?: IIntegrationMessengerDataMessagesItem;
   links?: IIntegrationLink;
+  externalLinks?: IIntegrationExternalLink[];
 }
 
-export interface IIntegrationLeadData {
+export interface ILeadData {
   loadType: string;
   successAction?: string;
   fromEmail?: string;
@@ -171,12 +177,11 @@ export interface IIntegration {
   languageCode?: string;
   tagIds?: string[];
   formId: string;
-  leadData: IIntegrationLeadData;
+  leadData: ILeadData;
   messengerData: IIntegrationMessengerData;
   twitterData: IIntegrationTwitterData;
   facebookData: IIntegrationFacebookData;
   uiOptions: IIntegrationUiOptions;
-  bookingData: IBookingData;
 }
 export interface IRule {
   _id: string;

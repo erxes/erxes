@@ -2,7 +2,7 @@ import * as compose from "lodash.flowright";
 
 import {
   PropertyConsumer,
-  PropertyProvider,
+  PropertyProvider
 } from "@erxes/ui-contacts/src/customers/propertyContext";
 
 import { CustomerDetailQueryResponse } from "@erxes/ui-contacts/src/customers/types";
@@ -43,7 +43,7 @@ class Sidebar extends React.Component<FinalProps, State> {
 
     this.state = {
       customer: {} as ICustomer,
-      loading: true,
+      loading: true
     };
   }
 
@@ -85,14 +85,14 @@ class Sidebar extends React.Component<FinalProps, State> {
       .query({
         query: gql(queries.generateCustomerDetailQuery(this.mergeProperties())),
         fetchPolicy: "network-only",
-        variables: { _id: customerId },
+        variables: { _id: customerId }
       })
       .then(({ data }: { data: any }) => {
         if (data && data.customerDetail) {
           this.setState({ customer: data.customerDetail, loading: false });
         }
       })
-      .catch((error) => {
+      .catch(error => {
         console.log(error.message); // tslint:disable-line
       });
 
@@ -113,8 +113,8 @@ class Sidebar extends React.Component<FinalProps, State> {
     const taggerRefetchQueries = [
       {
         query: gql(queries.generateCustomerDetailQuery(mergedProperties)),
-        variables: { _id: customer._id },
-      },
+        variables: { _id: customer._id }
+      }
     ];
 
     return (
@@ -125,7 +125,7 @@ class Sidebar extends React.Component<FinalProps, State> {
             customerFields,
             conversationFields,
             customerVisibility,
-            deviceVisibility,
+            deviceVisibility
           }) => {
             const updatedProps = {
               ...this.props,
@@ -137,7 +137,7 @@ class Sidebar extends React.Component<FinalProps, State> {
               deviceFields,
               customerFields,
               customerVisibility,
-              deviceVisibility,
+              deviceVisibility
             };
 
             return <DumbSidebar {...updatedProps} />;
@@ -156,9 +156,9 @@ export default withProps<Props>(
         name: "customerDetailQuery",
         options: ({ conversation }) => ({
           variables: {
-            _id: conversation.customerId,
-          },
-        }),
+            _id: conversation.customerId
+          }
+        })
       }
     )
   )(withCurrentUser(Sidebar))

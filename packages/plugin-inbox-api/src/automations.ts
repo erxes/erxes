@@ -7,7 +7,7 @@ export default {
         icon: 'chat-bubble-user',
         label: 'Conversation',
         description:
-          'Start with a blank workflow that enralls and is triggered off conversation'
+          'Start with a blank workflow that enrolls and is triggered off conversation'
       }
     ]
   }

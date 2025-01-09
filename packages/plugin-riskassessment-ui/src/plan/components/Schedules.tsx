@@ -4,13 +4,13 @@ import {
   ModalTrigger,
   Tip,
   Wrapper,
-  __,
+  __
 } from "@erxes/ui/src";
 import { Config, IPLan, ISchedule } from "../common/types";
 import { FormContainer, ScheduleCard } from "../../styles";
 
 import { ActivityDate } from "@erxes/ui-log/src/activityLogs/styles";
-import Assignees from "@erxes/ui-cards/src/boards/components/Assignees";
+import Assignees from "@erxes/ui-sales/src/boards/components/Assignees";
 import React from "react";
 import ScheduleForm from "./ScheduleForm";
 import dayjs from "dayjs";
@@ -28,7 +28,7 @@ class SchedulesConfig extends React.Component<Props> {
   }
 
   renderDuplicateForm(props) {
-    const onClick = (e) => {
+    const onClick = e => {
       e.stopPropagation();
     };
 
@@ -42,7 +42,7 @@ class SchedulesConfig extends React.Component<Props> {
       const updatedProps = {
         ...props,
         closeModal,
-        duplicate: true,
+        duplicate: true
       };
 
       return <ScheduleForm {...updatedProps} />;
@@ -51,7 +51,7 @@ class SchedulesConfig extends React.Component<Props> {
     return (
       <ModalTrigger
         size="lg"
-        title="Duplicate Schedule"
+        title={__("Duplicate Schedule")}
         content={content}
         trigger={trigger}
       />
@@ -67,7 +67,7 @@ class SchedulesConfig extends React.Component<Props> {
     const content = ({ closeModal }) => {
       const updatedProps = {
         ...props,
-        closeModal,
+        closeModal
       };
       return <ScheduleForm {...updatedProps} />;
     };
@@ -75,7 +75,7 @@ class SchedulesConfig extends React.Component<Props> {
     return (
       <ModalTrigger
         size="lg"
-        title={`Edit Plan`}
+        title={__(`Edit Plan`)}
         content={content}
         trigger={trigger}
       />
@@ -98,7 +98,7 @@ class SchedulesConfig extends React.Component<Props> {
         closeModal,
         cardType: configs?.cardType,
         pipelineId: configs.pipelineId,
-        refetch,
+        refetch
       };
 
       return <ScheduleForm {...updatedProps} />;
@@ -118,7 +118,7 @@ class SchedulesConfig extends React.Component<Props> {
     const { removeSchedule, plan, refetch } = this.props;
     const { configs = {} as Config } = plan;
 
-    const handleRemomve = (e) => {
+    const handleRemomve = e => {
       e.stopPropagation();
       removeSchedule(schedule._id);
     };
@@ -128,7 +128,7 @@ class SchedulesConfig extends React.Component<Props> {
       cardType: configs.cardType,
       pipelineId: configs.pipelineId,
       schedule: schedule,
-      refetch,
+      refetch
     };
 
     if (plan.status === "archived") {
@@ -144,7 +144,7 @@ class SchedulesConfig extends React.Component<Props> {
 
       return (
         <ModalTrigger
-          title="Detail Schedule"
+          title={__("Detail Schedule")}
           size="lg"
           content={content}
           trigger={trigger}
@@ -198,7 +198,7 @@ class SchedulesConfig extends React.Component<Props> {
       <>
         <Wrapper.ActionBar right={this.renderAddForm()} />
         <FormContainer $row $gap padding="25px">
-          {list.map((schedule) => this.renderSchedule(schedule))}
+          {list.map(schedule => this.renderSchedule(schedule))}
         </FormContainer>
       </>
     );

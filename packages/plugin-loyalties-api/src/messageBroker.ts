@@ -1,30 +1,36 @@
-import { generateModels } from './connectionResolver';
-import { sendMessage } from '@erxes/api-utils/src/core';
+import { generateModels } from "./connectionResolver";
+import { sendMessage } from "@erxes/api-utils/src/core";
 import type {
   MessageArgs,
-  MessageArgsOmitService,
-} from '@erxes/api-utils/src/core';
+  MessageArgsOmitService
+} from "@erxes/api-utils/src/core";
 
-import { checkVouchersSale, confirmVoucherSale } from './utils';
+import {
+  checkVouchersSale,
+  confirmVoucherSale,
+  generateAttributes,
+  handleScore
+} from "./utils";
 import {
   consumeQueue,
-  consumeRPCQueue,
-} from '@erxes/api-utils/src/messageBroker';
+  consumeRPCQueue
+} from "@erxes/api-utils/src/messageBroker";
+import { getOwner } from "./models/utils";
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue(
-    'loyalties:voucherCampaigns.find',
+    "loyalties:voucherCampaigns.find",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
         data: await models.VoucherCampaigns.find(data).lean(),
-        status: 'success',
+        status: "success"
       };
-    },
+    }
   );
 
-  consumeRPCQueue('loyalties:checkLoyalties', async ({ subdomain, data }) => {
+  consumeRPCQueue("loyalties:checkLoyalties", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { ownerType, ownerId, products } = data;
     return {
@@ -33,23 +39,23 @@ export const setupMessageConsumers = async () => {
         subdomain,
         ownerType,
         ownerId,
-        products,
+        products
       ),
-      status: 'success',
+      status: "success"
     };
   });
 
-  consumeQueue('loyalties:confirmLoyalties', async ({ subdomain, data }) => {
+  consumeQueue("loyalties:confirmLoyalties", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { checkInfo } = data;
     return {
       data: await confirmVoucherSale(models, checkInfo),
-      status: 'success',
+      status: "success"
     };
   });
 
   consumeQueue(
-    'loyalties:automations.receiveSetPropertyForwardTo',
+    "loyalties:automations.receiveSetPropertyForwardTo",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -60,77 +66,81 @@ export const setupMessageConsumers = async () => {
         ownerType: data.collectionType,
         changeScore: data.setDoc[Object.keys(data.setDoc)[0]],
         createdAt: new Date(),
-        description: 'Via automation',
+        description: "Via automation"
       });
 
       return {
         data: response,
-        status: 'success',
+        status: "success"
       };
-    },
+    }
   );
-};
 
-export const sendProductsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'products',
-    ...args,
+  consumeRPCQueue(
+    "loyalties:checkScoreAviableSubtract",
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.ScoreCampaigns.checkScoreAviableSubtract(data),
+        status: "success"
+      };
+    }
+  );
+
+  consumeRPCQueue("loyalties:doScoreCampaign", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.ScoreCampaigns.doCampaign(data),
+      status: "success"
+    };
   });
-};
 
-export const sendContactsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'contacts',
-    ...args,
+  consumeQueue("loyalties:updateScore", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    await handleScore(models, data);
+
+    return {
+      data: null,
+      status: "success"
+    };
   });
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'core',
-    ...args,
+    serviceName: "core",
+    ...args
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'notifications',
-    ...args,
+    serviceName: "notifications",
+    ...args
   });
 };
 
 export const sendClientPortalMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'clientportal',
-    ...args,
+    serviceName: "clientportal",
+    ...args
   });
 };
 
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    ...args,
+    ...args
   });
 };
 
 export const sendNotification = (subdomain: string, data) => {
-  return sendNotificationsMessage({ subdomain, action: 'send', data });
-};
-
-export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'segments',
-    ...args,
-  });
+  return sendNotificationsMessage({ subdomain, action: "send", data });
 };

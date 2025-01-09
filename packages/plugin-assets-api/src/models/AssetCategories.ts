@@ -123,7 +123,7 @@ export const loadAssetCategoriesClass = (models: IModels) => {
       }
     }
     public static async generateOrder(
-      parentCategory: IAssetCategories,
+      parentCategory: IAssetCategories | null,
       doc: IAssetCategories
     ) {
       const order = parentCategory

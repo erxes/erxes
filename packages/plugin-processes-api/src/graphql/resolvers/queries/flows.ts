@@ -1,5 +1,5 @@
 import { paginate } from '@erxes/api-utils/src/core';
-import { sendProductsMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 // import {
 //   checkPermission,
 //   requireLogin
@@ -41,10 +41,10 @@ const generateFilter = async (
     if (categoryId === 'unknownCategory') {
       selector.productId = { $in: ['', null, undefined] };
     } else {
-      const products = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
-        action: 'find',
-        data: { query: {}, categoryId, fields: { _id: 1 }, limit: 10000 },
+        action: 'products.find',
+        data: { query: {}, categoryId, fields: { _id: 1 } },
         isRPC: true,
         defaultValue: []
       });
@@ -116,7 +116,7 @@ const flowQueries = {
     );
   },
 
-  flowsAll(_root, _arg, { models }: IContext) {
+  async flowsAll(_root, _arg, { models }: IContext) {
     // const selector = generateFilter(params, commonQuerySelector);
 
     return models.Flows.find()
@@ -137,13 +137,13 @@ const flowQueries = {
       commonQuerySelector
     );
 
-    return models.Flows.find(selector).count();
+    return models.Flows.find(selector).countDocuments();
   },
 
   /**
    * Get one flow
    */
-  flowDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async flowDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Flows.findOne({ _id });
   }
 

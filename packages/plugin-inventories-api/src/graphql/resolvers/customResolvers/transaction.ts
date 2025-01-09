@@ -1,5 +1,5 @@
-import { IContext } from '../../../connectionResolver';
-import { sendProductsMessage } from '../../../messageBroker';
+import { IContext } from "../../../connectionResolver";
+import { sendCoreMessage } from "../../../messageBroker";
 
 export default {
   async transactionItems_product(transaction: any, _, { subdomain }: IContext) {
@@ -7,9 +7,9 @@ export default {
 
     transaction.transactionItems.map((item: any) => {
       result.push(
-        sendProductsMessage({
+        sendCoreMessage({
           subdomain,
-          action: 'findOne',
+          action: "products.findOne",
           data: {
             _id: item.productId
           },

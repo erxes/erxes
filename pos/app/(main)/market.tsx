@@ -8,7 +8,7 @@ import OrderDetail from "@/modules/orders/OrderDetail"
 import BarcodeResult from "@/modules/products/barcodeResult.market"
 
 import BarcodeListener from "@/components/barcodeListener"
-import Header from "@/components/header"
+import Header from "@/components/header/header.market"
 
 const Market = () => {
   return (

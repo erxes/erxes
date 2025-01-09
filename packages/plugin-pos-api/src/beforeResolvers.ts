@@ -1,8 +1,8 @@
 import { IModels } from './connectionResolver';
-import { sendProductsMessage } from './messageBroker';
+import { sendCoreMessage } from './messageBroker';
 
 export default {
-  contacts: ['productsRemove']
+  products: ['productsRemove']
 };
 
 export const beforeResolverHandlers = async (
@@ -33,9 +33,9 @@ export const beforeResolverHandlers = async (
   }
 
   if (usedProductsIds.length > 0) {
-    await sendProductsMessage({
+    await sendCoreMessage({
       subdomain,
-      action: 'update',
+      action: 'products.updateProducts',
       data: {
         selector: { _id: { $in: usedProductsIds } },
         modifier: { $set: { status: 'deleted' } }

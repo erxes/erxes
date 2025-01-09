@@ -6,20 +6,21 @@ on:
       - dev
       - master
       - rc
+      - staging
+      - v1
     paths:
-      - 'widgets/**'
-      - '.github/workflows/widgets.yaml'
+      - "widgets/**"
+      - ".github/workflows/widgets.yaml"
   pull_request:
     branches:
       - master
       - rc
       - dev
-      - master
-      - rc
+      - v1
     paths:
-      - 'widgets/**'
+      - "widgets/**"
 
-jobs:
+jobs: 
   widgets:
     runs-on: ubuntu-22.04
 
@@ -49,11 +50,11 @@ jobs:
         run: |
           cd widgets
           rm -rf node_modules
-          yarn install --frozen-lockfile --production
+          yarn install --frozen-lockfile 
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'v2' )
         run: |
           cd widgets
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

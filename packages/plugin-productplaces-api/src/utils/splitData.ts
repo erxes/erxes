@@ -1,6 +1,6 @@
-import * as _ from 'lodash';
-import { sendCardsMessage, sendSegmentsMessage } from '../messageBroker';
-import { getChildCategories, getChildTags } from './utils';
+import * as _ from "lodash";
+import { sendSalesMessage, sendCoreMessage } from "../messageBroker";
+import { getChildCategories, getChildTags } from "./utils";
 
 const checkSplit = async (
   subdomain,
@@ -60,9 +60,9 @@ const checkSplit = async (
     segmentRes = false;
     for (const segmentId of config.segmentIds) {
       if (
-        await sendSegmentsMessage({
+        await sendCoreMessage({
           subdomain,
-          action: 'isInSegment',
+          action: "isInSegment",
           data: { segmentId, idToCheck: pdata.productId }
         })
       ) {
@@ -154,9 +154,9 @@ export const splitData = async (
     }
   }
 
-  await sendCardsMessage({
+  await sendSalesMessage({
     subdomain,
-    action: 'deals.updateOne',
+    action: "deals.updateOne",
     data: {
       selector: { _id: dealId },
       modifier: { $set: { productsData: pdatas } }

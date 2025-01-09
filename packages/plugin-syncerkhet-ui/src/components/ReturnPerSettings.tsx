@@ -4,13 +4,14 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon,
+  Icon
 } from "@erxes/ui/src/components";
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
-import { __ } from "@erxes/ui/src/utils";
+
+import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
+import { IConfigsMap } from "../types";
 import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
 import React from "react";
-import { IConfigsMap } from "../types";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -31,7 +32,7 @@ class PerSettings extends React.Component<Props, State> {
 
     this.state = {
       config: props.config,
-      hasOpen: false,
+      hasOpen: false
     };
   }
 
@@ -47,24 +48,28 @@ class PerSettings extends React.Component<Props, State> {
     this.setState({ config: { ...this.state.config, stageId } });
   };
 
-  onSave = (e) => {
+  onSave = e => {
     e.preventDefault();
+
     const { configsMap, currentConfigKey } = this.props;
     const { config } = this.state;
     const key = config.stageId;
 
-    delete configsMap.returnEbarimtConfig[currentConfigKey];
-    configsMap.returnEbarimtConfig[key] = config;
-    this.props.save(configsMap);
+    const returnEbarimtConfig = { ...configsMap.returnEbarimtConfig };
+
+    delete returnEbarimtConfig[currentConfigKey];
+
+    returnEbarimtConfig[key] = config;
+    this.props.save({ ...configsMap, returnEbarimtConfig });
   };
 
-  onDelete = (e) => {
+  onDelete = e => {
     e.preventDefault();
 
     this.props.delete(this.props.currentConfigKey);
   };
 
-  onChangeCombo = (option) => {
+  onChangeCombo = option => {
     this.onChangeConfig("defaultPay", option.value);
   };
 
@@ -73,9 +78,12 @@ class PerSettings extends React.Component<Props, State> {
   };
 
   onChangeConfig = (code: string, value) => {
-    const { config } = this.state;
-    config[code] = value;
-    this.setState({ config });
+    this.setState(prevState => ({
+      config: {
+        ...prevState.config,
+        [code]: value
+      }
+    }));
   };
 
   onChangeInput = (code: string, e) => {
@@ -148,6 +156,21 @@ class PerSettings extends React.Component<Props, State> {
         </FormGroup>
 
         {this.renderInput("userEmail", "userEmail", "")}
+        <FormGroup>
+          <ControlLabel>{"Title"}</ControlLabel>
+          <FormControl
+            componentclass="select"
+            options={[
+              { label: 'Тэмдэглэх', value: 'note' },
+              { label: 'Устгах', value: 'hard' },
+              { label: 'Буцаалтын бичилтээр', value: 'sale' },
+              { label: 'Буцаалтын /Өртгийн хамт/ бичилтээр', value: 'full' }
+            ]}
+            defaultValue={config.returnType}
+            onChange={this.onChangeInput.bind(this, "returnType")}
+            autoFocus={true}
+          />
+        </FormGroup>
 
         <ModalFooter>
           <Button

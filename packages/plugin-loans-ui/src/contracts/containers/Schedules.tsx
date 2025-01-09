@@ -5,6 +5,7 @@ import SchedulesList from '../components/schedules/SchedulesList';
 import { queries } from '../graphql';
 import { SchedulesQueryResponse, ScheduleYearsQueryResponse } from '../types';
 import { useQuery } from '@apollo/client';
+import subscriptions from '../graphql/subscriptions';
 
 type Props = {
   contractId: string;
@@ -30,6 +31,17 @@ const SchedulesListContainer = (props: Props) => {
     },
   );
 
+  useEffect(() => {
+    return schedulesQuery.subscribeToMore({
+      document: gql(subscriptions.loansSchedulesChanged),
+      variables: { contractId },
+      updateQuery: () => {
+        schedulesQuery.refetch();
+      }
+    });
+  });
+
+
   const scheduleYearsQuery = useQuery<ScheduleYearsQueryResponse>(
     gql(queries.scheduleYears),
     {
@@ -40,18 +52,15 @@ const SchedulesListContainer = (props: Props) => {
     },
   );
 
-  useEffect(() => {
-    schedulesQuery.refetch({
-      currentYear,
-    });
-  }, [currentYear]);
-
   if (scheduleYearsQuery.loading) {
     return null;
   }
 
   const onClickYear = (year: number) => {
-    setCurrentYear(year);
+    setCurrentYear(year)
+    schedulesQuery.refetch({
+      year
+    });
   };
 
   const scheduleYears = scheduleYearsQuery?.data?.scheduleYears || [];

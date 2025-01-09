@@ -1,8 +1,8 @@
 import { IContext } from '../../types';
 import { escapeRegExp, getPureDate, paginate } from '@erxes/api-utils/src/core';
-import fetch from 'node-fetch';
 import { sendPosMessage } from '../../../messageBroker';
 import { IConfig } from '../../../models/definitions/configs';
+import { getCompanyInfo } from '../../../models/PutData';
 
 interface ISearchParams {
   searchValue?: string;
@@ -41,10 +41,11 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
     slotCode,
   } = params;
 
-  const filter: any = {
+  const mustFilter: any = {
     $or: [{ posToken: config.token }, { subToken: config.token }],
   };
 
+  const filter: any = {};
   if (searchValue) {
     filter.$or = [
       { number: { $regex: new RegExp(escapeRegExp(searchValue), 'i') } },
@@ -62,6 +63,10 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
 
   if (saleStatus) {
     filter.saleStatus = saleStatus;
+  }
+
+  if (statuses.length) {
+    filter.status = { $in: statuses }
   }
 
   if (customerType) {
@@ -108,7 +113,7 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
     filter.dueDate = dueDateQry;
   }
 
-  return { ...filter, status: { $in: statuses } };
+  return { $and: [{ ...mustFilter }, { ...filter }] };
 };
 
 const filterOrders = (params: ISearchParams, models, config) => {
@@ -133,7 +138,7 @@ const filterOrders = (params: ISearchParams, models, config) => {
 };
 
 const orderQueries = {
-  orders(_root, params: ISearchParams, { models, config }: IContext) {
+  async orders(_root, params: ISearchParams, { models, config }: IContext) {
     return filterOrders(params, models, config);
   },
 
@@ -149,7 +154,7 @@ const orderQueries = {
     const filter = generateFilter(config, params);
     return await models.Orders.find({
       ...filter,
-    }).count();
+    }).countDocuments();
   },
 
   async fullOrderItems(
@@ -200,31 +205,28 @@ const orderQueries = {
       return models.Orders.findOne({ _id, ...tokenFilter });
     }
 
-    if (!customerId) {
+    const order = await models.Orders.findOne({ _id, ...tokenFilter }).lean();
+
+    if (!order || !(order.customerType === 'visitor' || order.customerId === customerId)) {
       throw new Error('Not found');
     }
 
-    return models.Orders.findOne({ _id, ...tokenFilter });
+    return order;
   },
 
   async ordersCheckCompany(_root, { registerNumber }, { config }: IContext) {
-    if (!registerNumber) {
+    const checkTaxpayerUrl = config.ebarimtConfig?.checkTaxpayerUrl;
+
+    if (!checkTaxpayerUrl) {
+      throw new Error('Not found check taxpayer url');
+    }
+    const resp = await getCompanyInfo({ checkTaxpayerUrl, no: registerNumber });
+
+    if (resp.status !== 'checked' || !resp.tin) {
       throw new Error('Company register number required for checking');
     }
-    const url =
-      config && config.ebarimtConfig && config.ebarimtConfig.checkCompanyUrl;
 
-    if (url) {
-      const response = await fetch(
-        url + '?' + new URLSearchParams({ regno: registerNumber }),
-      ).then((res) => res.json());
-      return response;
-    }
-
-    return {
-      error: 'ebarimt config error',
-      message: 'Check company url is not configured',
-    };
+    return resp.result?.data;
   },
 
   async ordersDeliveryInfo(_root, { orderId }, { subdomain }: IContext) {

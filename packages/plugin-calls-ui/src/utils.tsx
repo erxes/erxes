@@ -1,12 +1,17 @@
-import { Actions, CallAction, InCallFooter, Keypad } from './styles';
+import {
+  Actions,
+  CallAction,
+  InCallFooter,
+  InnerActions,
+  Keypad,
+} from './styles';
+import React from 'react';
 import { numbers, symbols } from './constants';
 
+import DialogComponent from './components/Dialog';
 import { Icon } from '@erxes/ui/src/components';
-import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import moment from 'moment';
-import TransferCall from './containers/TransferCall';
-import DialogComponent from './components/Dialog';
 
 export const formatPhone = (phone) => {
   var num;
@@ -15,7 +20,6 @@ export const formatPhone = (phone) => {
   } else {
     num = phone;
   }
-  // remove everything but digits & '+' sign
   num = num.toString().replace(/[^+0-9]/g, '');
 
   return num;
@@ -42,9 +46,10 @@ export const getSpentTime = (seconds: number) => {
     </>
   );
 };
-export const renderKeyPad = (handNumPad) => {
+
+export const renderKeyPad = (handNumPad, isTransparent?: boolean) => {
   return (
-    <Keypad>
+    <Keypad $transparent={isTransparent}>
       {numbers.map((n) => (
         <div className="number" key={n} onClick={() => handNumPad(n)}>
           {n}
@@ -70,6 +75,21 @@ export const renderKeyPad = (handNumPad) => {
     </Keypad>
   );
 };
+
+export const endCallOption = (endCall, onClickKeyPad) => {
+  return (
+    <>
+      <div>
+        <CallAction onClick={endCall} $isDecline={true}>
+          <Icon size={20} icon="phone-slash" />
+        </CallAction>
+        {__('End Call')}
+      </div>
+      <span onClick={onClickKeyPad}>{__('Hide Keypad')}</span>
+    </>
+  );
+};
+
 export const callActions = (
   isMuted,
   handleAudioToggle,
@@ -77,32 +97,51 @@ export const callActions = (
   inboxId,
   disableTransferCall,
   direction,
+  gotoDetail,
+  disableDetail,
+  onClickKeyPad,
 ) => {
   return (
     <InCallFooter>
       <Actions>
-        <div>
-          <CallAction
-            key={isMuted() ? 'UnMute' : 'Mute'}
-            active={isMuted() ? true : false}
-            onClick={handleAudioToggle}
-          >
-            <Icon size={20} icon={'phone-times'} />
-          </CallAction>
-          {isMuted() ? __('UnMute') : __('Mute')}
-        </div>
-        <div>
-          <DialogComponent
-            title="Transfer call"
-            inboxId={inboxId}
-            disabled={disableTransferCall}
-            direction={direction}
-          />
+        <InnerActions>
+          <div>
+            <CallAction
+              key={isMuted() ? 'UnMute' : 'Mute'}
+              $active={isMuted() ? true : false}
+              onClick={handleAudioToggle}
+            >
+              <Icon size={20} icon={'phone-times'} />
+            </CallAction>
+            {isMuted() ? __('UnMute') : __('Mute')}
+          </div>
+          <div>
+            <DialogComponent
+              title={__("Transfer call")}
+              inboxId={inboxId}
+              disabled={disableTransferCall}
+              direction={direction}
+            />
 
-          {__('Transfer')}
-        </div>
+            {__('Transfer')}
+          </div>
+          <div>
+            <CallAction onClick={gotoDetail} $disabled={disableDetail}>
+              <Icon size={20} icon={'book-alt'} />
+            </CallAction>
+
+            {__('Detail')}
+          </div>
+          <div>
+            <CallAction onClick={onClickKeyPad}>
+              <Icon size={20} icon={'dialpad-alt'} />
+            </CallAction>
+
+            {__('Keypad')}
+          </div>
+        </InnerActions>
         <div>
-          <CallAction onClick={endCall} isDecline={true}>
+          <CallAction onClick={endCall} $isDecline={true}>
             <Icon size={20} icon="phone-slash" />
           </CallAction>
           {__('End Call')}
@@ -134,6 +173,7 @@ export const setLocalStorage = (isRegistered, isAvailable) => {
         token: callConfig.token,
         operators: callConfig.operators,
         isAvailable,
+        queues: callConfig.queues || [],
       }),
     );
 };
@@ -148,4 +188,19 @@ export const extractPhoneNumberFromCounterpart = (counterpart) => {
   const endIndex = counterpart.indexOf('@');
   if (startIndex >= endIndex || startIndex === -1 || endIndex === -1) return '';
   return counterpart.slice(startIndex, endIndex);
+};
+
+export const formatTime = (seconds: number): string => {
+  if (seconds < 60) {
+    return `${seconds} sec`;
+  } else if (seconds < 3600) {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes} min ${secs} sec`;
+  } else {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours} hr ${minutes} min`;
+  }
 };

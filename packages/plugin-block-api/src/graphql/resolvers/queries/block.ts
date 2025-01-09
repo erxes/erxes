@@ -1,5 +1,4 @@
-import { IContext } from '../../../connectionResolver';
-import { sendContactsMessage, sendFormsMessage } from '../../../messageBroker';
+import { IContext } from "../../../connectionResolver";
 
 const blockQueries = {
   async getBalance(_root, { erxesCustomerId }, { models }: IContext) {
@@ -21,7 +20,7 @@ const blockQueries = {
           $group: {
             _id: null,
             total: {
-              $sum: '$amount'
+              $sum: "$amount"
             }
           }
         }
@@ -33,7 +32,7 @@ const blockQueries = {
   },
 
   async totalInvestmentCount(_root, _arg, { models }: IContext) {
-    const total = await models.Investments.find({}).count();
+    const total = await models.Investments.find({}).countDocuments();
 
     return total;
   },
@@ -43,7 +42,7 @@ const blockQueries = {
   },
 
   async isVerified(_root, { erxesCustomerId }, { models }: IContext) {
-    let isVerified = 'false';
+    let isVerified = "false";
 
     const block = await models.Blocks.findOne({ erxesCustomerId });
 

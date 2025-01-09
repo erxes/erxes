@@ -50,6 +50,7 @@ class ConditionDetailContainer extends React.Component<FinalProps, {}> {
 
       choiceOptions: chosenProperty.options || [],
       validation: chosenProperty.validation || "",
+      selectionConfig: chosenProperty?.selectionConfig,
     };
 
     return (

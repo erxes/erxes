@@ -10,5 +10,3 @@ export interface ICollateral {
   curCode: string;
   description: string;
 }
-
-

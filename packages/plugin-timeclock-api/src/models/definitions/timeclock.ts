@@ -56,12 +56,15 @@ export interface IAbsenceType {
   name: string;
 
   requestType?: string;
+  requestToType?: string;
   requestTimeType?: string;
   requestHoursPerDay: number;
 
   explRequired: boolean;
   attachRequired: boolean;
   shiftRequest: boolean;
+  absenceUserIds?: [string];
+  branchIds?: [string];
 }
 
 export interface IAbsenceDocument extends IAbsence, Document {
@@ -119,6 +122,11 @@ export interface IScheduleConfig {
   lunchBreakInMins: number;
   shiftStart?: string;
   shiftEnd?: string;
+  locations?: any;
+  hasOvertime?: boolean;
+  overtimeExists?: boolean;
+  startFlexible?: boolean;
+  endFlexible?: boolean;
 }
 
 export interface IScheduleConfigDocument extends IScheduleConfig, Document {
@@ -144,34 +152,13 @@ export interface IReportCheckDocument extends IReportCheck, Document {
   _id: string;
 }
 
-export interface IScheduleConfigOrder {
-  userId: string;
-  orderedList: IScheduleConfigOrderItem[];
-}
-
-export interface IScheduleConfigOrderDocument
-  extends IScheduleConfigOrder,
-    Document {
-  _id: string;
-}
-export interface IScheduleConfigOrderItem {
-  scheduleConfigId: string;
-  order: number;
-  pinned: boolean;
-}
-export interface IScheduleConfigOrderItemDocument
-  extends IScheduleConfigOrderItem,
-    Document {
-  _id: string;
-}
-
 export const attachmentSchema = new Schema(
   {
     name: field({ type: String }),
     url: field({ type: String }),
     type: field({ type: String }),
     size: field({ type: Number, optional: true }),
-    duration: field({ type: Number, optional: true })
+    duration: field({ type: Number, optional: true }),
   },
   { _id: false }
 );
@@ -182,9 +169,9 @@ export const timeLogSchema = new Schema({
   deviceSerialNo: field({
     type: String,
     label: 'Terminal device serial number',
-    optional: true
+    optional: true,
   }),
-  timelog: field({ type: Date, label: 'Shift starting time', index: true })
+  timelog: field({ type: Date, label: 'Shift starting time', index: true }),
 });
 
 timeLogSchema.index({ userId: 1, timelog: 1, deviceSerialNo: 1 });
@@ -197,52 +184,52 @@ export const timeclockSchema = new Schema({
   shiftActive: field({
     type: Boolean,
     label: 'Is shift started and active',
-    default: false
+    default: false,
   }),
   shiftNotClosed: field({
     type: Boolean,
     label: 'Whether shift was not closed by user',
-    optional: true
+    optional: true,
   }),
   branchName: field({
     type: String,
-    label: 'Name of branch where user clocked in / out'
+    label: 'Name of branch where user clocked in / out',
   }),
   deviceName: field({
     type: String,
-    label: 'Device name, which user used to clock in / out '
+    label: 'Device name, which user used to clock in / out ',
   }),
   deviceType: field({
     type: String,
-    label: 'Which device used for clock in/out'
+    label: 'Which device used for clock in/out',
   }),
   inDevice: field({
     type: String,
     label: 'check in device name',
-    optional: true
+    optional: true,
   }),
   outDevice: field({
     type: String,
     label: 'check out device name',
-    optional: true
+    optional: true,
   }),
   inDeviceType: field({
     type: String,
     label: 'check in device type',
-    optional: true
+    optional: true,
   }),
   outDeviceType: field({
     type: String,
     label: 'check out device type',
-    optional: true
-  })
+    optional: true,
+  }),
 });
 
 timeclockSchema.index({
   userId: 1,
   shiftStart: 1,
   shiftEnd: 1,
-  shiftActive: 1
+  shiftActive: 1,
 });
 
 export const absenceTypeSchema = new Schema({
@@ -252,20 +239,32 @@ export const absenceTypeSchema = new Schema({
   requestTimeType: field({ type: String, label: 'Either by day or by hours' }),
   requestHoursPerDay: field({
     type: Number,
-    label: 'Hours per day if requestTimeType is by day'
+    label: 'Hours per day if requestTimeType is by day',
   }),
   explRequired: field({
     type: Boolean,
-    label: 'whether absence type requires explanation'
+    label: 'whether absence type requires explanation',
   }),
   attachRequired: field({
     type: Boolean,
-    label: 'whether absence type requires attachment'
+    label: 'whether absence type requires attachment',
   }),
   shiftRequest: field({
     type: Boolean,
-    label: 'whether absence type is shift request'
-  })
+    label: 'whether absence type is shift request',
+  }),
+  requestToType: field({
+    type: String,
+    label: 'Absence type request type',
+  }),
+  absenceUserIds: field({
+    type: [String],
+    label: 'Absence user id',
+  }),
+  branchIds: field({
+    type: [String],
+    label: 'Branch Ids',
+  }),
 });
 
 absenceTypeSchema.index({ name: 1, requestType: 1 });
@@ -281,50 +280,50 @@ export const absenceSchema = new Schema({
 
   requestDates: field({
     type: [String],
-    label: 'Requested dates in string format'
+    label: 'Requested dates in string format',
   }),
 
   reason: field({ type: String, label: 'reason for absence' }),
   explanation: field({
     type: String,
     label: 'explanation by a team member',
-    optional: true
+    optional: true,
   }),
 
   solved: field({
     type: Boolean,
     default: false,
-    label: 'whether absence request is solved or pending'
+    label: 'whether absence request is solved or pending',
   }),
   attachment: field({
     type: attachmentSchema,
     label: 'Attachment',
-    optional: true
+    optional: true,
   }),
   status: field({
     type: String,
-    label: 'Status of absence request, whether approved or rejected'
+    label: 'Status of absence request, whether approved or rejected',
   }),
   checkInOutRequest: field({
     type: Boolean,
-    label: 'Whether request is check in/out request'
+    label: 'Whether request is check in/out request',
   }),
 
   absenceTypeId: field({
     type: String,
-    label: 'id of an absence type'
+    label: 'id of an absence type',
   }),
 
   absenceTimeType: field({
     type: String,
     default: 'by hour',
-    label: 'absence time type either by day or by hour'
+    label: 'absence time type either by day or by hour',
   }),
 
   totalHoursOfAbsence: field({
     type: String,
-    label: 'total hours of absence request'
-  })
+    label: 'total hours of absence request',
+  }),
 });
 
 absenceSchema.index({ userId: 1, startTime: 1, endTime: 1 });
@@ -335,40 +334,44 @@ export const scheduleSchema = new Schema({
   solved: field({
     type: Boolean,
     default: false,
-    label: 'whether schedule request is solved or pending'
+    label: 'whether schedule request is solved or pending',
   }),
   status: field({
     type: String,
-    label: 'Status of schedule request, whether approved or rejected'
+    label: 'Status of schedule request, whether approved or rejected',
   }),
   scheduleConfigId: field({
     type: String,
-    label: 'Schedule Config id used for reports'
+    label: 'Schedule Config id used for reports',
   }),
   scheduleChecked: field({
     type: Boolean,
     label: 'Whether schedule is checked by employee',
-    default: false
+    default: false,
   }),
   submittedByAdmin: field({
     type: Boolean,
     label: 'Whether schedule was submitted/assigned directly by an admin',
-    default: false
+    default: false,
   }),
   totalBreakInMins: field({
     type: Number,
-    label: 'Total break time in mins'
+    label: 'Total break time in mins',
   }),
   createdByRequest: field({
     type: Boolean,
     label: 'Whether schedule was created by shift request',
     default: false,
-    optional: true
+    optional: true,
   }),
   note: field({
     type: String,
-    label: 'Note'
-  })
+    label: 'Note',
+  }),
+  overtimeExists: field({
+    type: Boolean,
+    label: 'Whether include overtime',
+  }),
 });
 
 scheduleSchema.index({ userId: 1, solved: 1, status: 1 });
@@ -378,51 +381,51 @@ export const scheduleShiftSchema = new Schema({
   scheduleId: field({ type: String, label: 'id of an according schedule' }),
   scheduleConfigId: field({
     type: String,
-    label: 'id of an according schedule config'
+    label: 'id of an according schedule config',
   }),
   configName: field({
     type: String,
-    label: 'name of schedule config'
+    label: 'name of schedule config',
   }),
   configShiftStart: field({
     type: String,
-    label: 'starting time of config day shift'
+    label: 'starting time of config day shift',
   }),
   configShiftEnd: field({
     type: String,
-    label: 'ending time of config day shift'
+    label: 'ending time of config day shift',
   }),
   overnightShift: field({
     type: Boolean,
-    label: 'to be sure of whether shift occurs overnight'
+    label: 'to be sure of whether shift occurs overnight',
   }),
   lunchBreakInMins: field({
     type: Number,
-    label: 'lunch break of the shift'
+    label: 'lunch break of the shift',
   }),
   chosenScheduleConfigId: field({
     type: String,
-    label: '_id of a chosen schedule config when creating schedule'
+    label: '_id of a chosen schedule config when creating schedule',
   }),
   solved: field({
     type: Boolean,
     default: false,
-    label: 'whether shift is solved or pending'
+    label: 'whether shift is solved or pending',
   }),
   status: field({
     type: String,
-    label: 'Status of shift request, whether approved or rejected'
+    label: 'Status of shift request, whether approved or rejected',
   }),
   shiftStart: field({
     type: Date,
-    label: 'starting date and time of the shift'
+    label: 'starting date and time of the shift',
   }),
-  shiftEnd: field({ type: Date, label: 'ending date and time of the shift' })
+  shiftEnd: field({ type: Date, label: 'ending date and time of the shift' }),
 });
 
 export const payDateSchema = new Schema({
   _id: field({ pkey: true }),
-  payDates: field({ type: [Number], label: 'pay dates' })
+  payDates: field({ type: [Number], label: 'pay dates' }),
 });
 
 export const scheduleConfigSchema = new Schema({
@@ -430,21 +433,39 @@ export const scheduleConfigSchema = new Schema({
   scheduleName: field({
     type: String,
     label: 'Name of the schedule',
-    index: true
+    index: true,
   }),
   lunchBreakInMins: field({
     type: Number,
     label: 'Lunch break in mins',
-    default: 30
+    default: 30,
   }),
   shiftStart: field({
     type: String,
-    label: 'starting time of shift'
+    label: 'starting time of shift',
   }),
   shiftEnd: field({
     type: String,
-    label: 'ending time of shift'
-  })
+    label: 'ending time of shift',
+  }),
+
+  startFlexible: field({
+    type: Boolean,
+    label: 'startFlexible',
+  }),
+  endFlexible: field({
+    type: Boolean,
+    label: 'endFlexible',
+  }),
+  overtimeExists: field({
+    type: Boolean,
+    label: 'overtimeExists',
+  }),
+
+  locations: field({
+    type: JSON,
+    label: 'additional locations of schedule config',
+  }),
 });
 
 export const deviceConfigSchema = new Schema({
@@ -453,12 +474,12 @@ export const deviceConfigSchema = new Schema({
   serialNo: field({
     type: String,
     label: 'Serial number of the device',
-    index: true
+    index: true,
   }),
   extractRequired: field({
     type: Boolean,
-    label: 'whether extract from the device'
-  })
+    label: 'whether extract from the device',
+  }),
 });
 
 deviceConfigSchema.index({ serialNo: 1 });
@@ -469,30 +490,10 @@ export const reportCheckSchema = new Schema({
   startDate: field({ type: String, label: 'Start date of report' }),
   endDate: field({
     type: String,
-    label: 'End date of report'
-  })
-});
-
-export const scheduleConfigOrderItemSchema = new Schema({
-  scheduleConfigId: field({ type: String, index: true }),
-  pinned: field({ type: Boolean, default: false }),
-  order: field({ type: Number, index: true }),
-  label: field({ type: String, label: 'startTime ~ endTime (scheduleName)' })
-});
-
-export const scheduleConfigOrderSchema = new Schema({
-  _id: field({ pkey: true }),
-  userId: field({
-    type: String,
-    label: 'User of the report',
-    unique: true,
-    index: true
+    label: 'End date of report',
   }),
-  orderedList: field({
-    type: [scheduleConfigOrderItemSchema],
-    label: 'personalized order of schedule configs'
-  })
 });
+
 // common types
 export interface IScheduleReport {
   date?: string;

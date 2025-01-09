@@ -1,7 +1,8 @@
+import { colors, dimensions } from '@erxes/ui/src/styles';
+
+import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors, dimensions } from '@erxes/ui/src/styles';
-import { rgba } from 'modules/common/styles/color';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const unitSpace = `${dimensions.unitSpacing}px`;
@@ -10,19 +11,21 @@ const MainContent = styledTS<{ flexStart?: boolean; full?: boolean }>(
   styled.div,
 )`
   display: flex;
-  width: 60%;
   flex-direction: column;
   align-items: center;
+  border-radius: 24px;
+  margin: ${unitSpace};
+  background: linear-gradient(119.44deg, #8D94FF 2.96%, #6335FF 51.52%, #8B73BD 100.08%);
   justify-content: ${(props) => (props.flexStart ? 'start' : 'center')};
-  overflow: auto;
   padding: ${(props) => (props.full ? '0' : `${dimensions.headerSpacing}px`)};
 `;
 
 const Content = styled.div`
   background: ${colors.colorWhite};
   color: #444;
-  display: flex;
-  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  width: 100%;
   height: 100%;
   overflow: hidden;
 `;
@@ -53,21 +56,18 @@ const RightSidebarContent = styled.div`
 const CarouselWrapper = styled.div`
   width: 80%;
   height: 100%;
-  margin-top: 70px;
 
   .carousel-caption {
     position: relative;
-    color: #444;
+    color: #fff;
     left: 0;
     right: 0;
     bottom: 0;
-    padding: 42px 0 15%;
-    text-align: left;
+    text-align: center;
 
     p {
-      line-height: 26px;
       font-size: 14px;
-      color: rgba(25, 27, 31, 0.6);
+      color: #fff;
     }
   }
 
@@ -90,7 +90,7 @@ const CarouselWrapper = styled.div`
     }
 
     .image-wrapper {
-      height: 350px;
+      height: 300px;
       width: 100%;
 
       img {
@@ -101,16 +101,23 @@ const CarouselWrapper = styled.div`
     }
   }
 
-  .carousel-indicators li {
-    background-color: ${colors.colorPrimary};
-    width: 40px;
-    height: 4px;
-    border-radius: 7px;
-    opacity: 0.3;
-    border: none;
+  .carousel-indicators {
+    display: flex;
+    left: 65%;
+    gap: 5px;
 
-    &.active {
-      opacity: 1 !important;
+    span {
+      background-color: ${colors.colorPrimary};
+      width: 40px;
+      height: 4px;
+      border-radius: 7px;
+      opacity: 0.3;
+      border: none;
+      cursor: pointer;
+
+      &.active {
+        opacity: 1 !important;
+      }
     }
   }
 
@@ -141,8 +148,7 @@ const SuccessContent = styled.div`
 
 const LeftSidebar = styledTS<{ showStar?: boolean }>(styled.div)`
   position: relative;
-  background: #f5f5f5;
-  width: 40%;
+  width: 100%;
   flex-shrink: 0;
   overflow: hidden;
   padding: ${dimensions.headerSpacing}px;
@@ -175,6 +181,10 @@ const LeftSidebar = styledTS<{ showStar?: boolean }>(styled.div)`
     right: 0;
     bottom: 100px;
     transform: scaleX(-1);
+  }
+
+  button {
+    height: 40px;
   }
 `;
 
@@ -210,7 +220,7 @@ const WelcomeContainer = styled.div`
 
   h1 {
     color: rgba(0, 0, 0, 0.7);
-    background: #f5f5f5;
+    background: #fff;
     font-size: 36px;
 
     @media (min-width: 1500px) {
@@ -273,29 +283,24 @@ const GeneralInformationForm = styled.div`
     line-height: 18px;
   }
 
-  .form-group {
-    height: 70px;
-    margin-bottom: 45px;
-    border-radius: 8px;
-
-    .form-control {
-      margin-top: 20px;
-      border-radius: 8px;
-      border: none;
-    }
-  }
-
   label {
     color: ${colors.colorBlack};
     font-size: 14px;
     margin-bottom: 20px;
+    display: inline;
+    text-transform: none;
+    font-weight: 400;
   }
 
-  .form-control {
+  input {
     background: #f5f5f5;
     height: 50px;
     font-size: 14px;
-    padding: ${dimensions.coreSpacing}px 20px ${dimensions.unitSpacing}px;
+    margin-top: 20px;
+    border-radius: 8px;
+    border: none;
+    padding: ${dimensions.coreSpacing}px;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
 
     &:focus {
       outline: 0;
@@ -326,6 +331,10 @@ const SidebarContent = styledTS<{ isCenter?: boolean }>(styled.div)`
   .color-accent {
     height: 135px !important;
 
+    input {
+      padding: 1px 0 1px 8px;
+    }
+
     label {
       font-size: 12px;
       font-weight: 600;
@@ -341,7 +350,7 @@ const SidebarContent = styledTS<{ isCenter?: boolean }>(styled.div)`
     margin-bottom: 24px;
     border-radius: 8px;
 
-    .form-control {
+    input {
       border-radius: 8px;
       border: none;
     }
@@ -356,7 +365,7 @@ const SidebarContent = styledTS<{ isCenter?: boolean }>(styled.div)`
         color: ${colors.colorPrimary};
       }
 
-      .form-control {
+      input {
         &:focus {
           border-color: inherit;
         }
@@ -367,7 +376,7 @@ const SidebarContent = styledTS<{ isCenter?: boolean }>(styled.div)`
       background: ${rgba(colors.colorPrimary, 0.1)};
       border-color: ${rgba(colors.colorPrimary, 0.1)};
 
-      .form-control {
+      input {
         background: ${rgba(colors.colorPrimary, 0.1)};
       }
     }
@@ -387,8 +396,10 @@ const SidebarContent = styledTS<{ isCenter?: boolean }>(styled.div)`
       -webkit-transform 0.2s ease-out;
   }
 
-  .form-control {
-    background: ${colors.colorWhite};
+  input {
+    position: relative;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    z-index: 5;
     transition: all ease 0.3s;
     height: 50px;
     font-size: 14px;
@@ -590,11 +601,11 @@ const ContentBox = styled.div`
   .form-group {
     padding: 0 15px 15px 15px;
 
-    .form-control {
+    input {
       background: #f5f5f5;
       height: 50px;
       font-size: 14px;
-      padding: ${dimensions.coreSpacing}px 20px ${dimensions.unitSpacing}px;
+      padding: ${dimensions.coreSpacing}px;
       border-radius: 8px;
       border: none;
 

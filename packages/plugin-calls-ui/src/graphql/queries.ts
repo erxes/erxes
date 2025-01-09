@@ -22,6 +22,7 @@ const callUserIntegrations: any = `
       phone
       wsServer
       token
+      queues
     }
   }
 `;
@@ -36,20 +37,12 @@ const callCustomerDetail: string = `
       phones
       phone
       tagIds
-        ${
-          isEnabled('tags')
-            ? `
-          getTags {
-            _id
-            name
-            colorCode
-                    type
-
-          }
-        `
-            : ``
-        }
-     
+      getTags {
+          _id
+          name
+          colorCode
+          type
+      }
     }
 }
 `;
@@ -96,6 +89,7 @@ const customers = `
       _id
       firstName
       primaryPhone
+      primaryEmail
       phones
       phone
       tagIds
@@ -114,8 +108,8 @@ const activeSession = `
 }`;
 
 const callHistories = `
-  query CallHistories($limit: Int, $callStatus: String, $callType: String, $startDate: String, $endDate: String, $skip: Int, $integrationId: String) {
-    callHistories(limit: $limit, callStatus: $callStatus, callType: $callType, startDate: $startDate, endDate: $endDate, skip: $skip, integrationId: $integrationId) {
+  query CallHistories($limit: Int, $callStatus: String, $callType: String, $startDate: String, $endDate: String, $skip: Int, $integrationId: String, $searchValue: String) {
+    callHistories(limit: $limit, callStatus: $callStatus, callType: $callType, startDate: $startDate, endDate: $endDate, skip: $skip, integrationId: $integrationId, searchValue: $searchValue) {
       _id
     operatorPhone
     customerPhone
@@ -124,7 +118,7 @@ const callHistories = `
     callEndTime
     callType
     callStatus
-    sessionId
+    timeStamp
     modifiedAt
     createdAt
     createdBy
@@ -136,18 +130,12 @@ const callHistories = `
       avatar
       email
       firstName
-      ${
-        isEnabled('tags')
-          ? `
-          getTags {
-            _id
-            name
-            colorCode
-                    type
+      getTags {
+        _id
+        name
+        colorCode
+        type
 
-          }
-        `
-          : ``
       }
       phone
       primaryEmail
@@ -156,6 +144,12 @@ const callHistories = `
     }
     }
 }`;
+
+const callHistoriesTotalCount = `
+  query callHistoriesTotalCount($limit: Int, $callStatus: String, $callType: String, $startDate: String, $endDate: String, $integrationId: String, $searchValue: String, $skip: Int) {
+    callHistoriesTotalCount(limit: $limit, callStatus: $callStatus, callType: $callType, startDate: $startDate, endDate: $endDate, integrationId: $integrationId, searchValue: $searchValue, skip: $skip)
+  }
+`;
 
 const callsGetConfigs = `
   query callsGetConfigs {
@@ -175,14 +169,43 @@ const callExtensionList = `
 }
 `;
 
+const callQueueList = `
+  query callQueueList($integrationId: String!) {
+  callQueueList(integrationId: $integrationId)
+}
+`;
+
+const callWaitingList = `
+  query callWaitingList($queue: String!) {
+  callWaitingList(queue: $queue)
+}
+`;
+
+const callProceedingList = `
+  query callProceedingList( $queue: String!) {
+  callProceedingList(queue: $queue)
+}
+`;
+
+const callQueueMemberList = `
+  query callQueueMemberList($integrationId: String!, $queue: String!) {
+  callQueueMemberList(integrationId: $integrationId, queue: $queue)
+}
+`;
+
 export default {
   callsIntegrationDetail,
   callUserIntegrations,
   callCustomerDetail,
+  callHistoriesTotalCount,
   customers,
   activeSession,
   callHistories,
   callsGetConfigs,
   callGetAgentStatus,
   callExtensionList,
+  callQueueList,
+  callWaitingList,
+  callProceedingList,
+  callQueueMemberList,
 };

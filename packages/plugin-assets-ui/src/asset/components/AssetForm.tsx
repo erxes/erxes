@@ -12,7 +12,6 @@ import {
   extractAttachment,
 } from "@erxes/ui/src";
 import {
-  CommonFormGroup,
   SelectWithAssetCategory,
   SelectWithAssets,
 } from "../../common/utils";
@@ -133,7 +132,7 @@ function AssetForm({
   };
 
   const onChangeAttachmentMore = (files: IAttachment[]) => {
-    setAttachmentMore(files ? files : undefined);
+    setAttachmentMore(files);
   };
 
   const onChangeCurrentTab = (selecteTab) => {

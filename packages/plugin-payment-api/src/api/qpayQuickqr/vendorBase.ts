@@ -13,7 +13,7 @@ export class VendorBaseAPI {
     let username = process.env.QUICK_QR_USERNAME || '';
     let password = process.env.QUICK_QR_PASSWORD || '';
 
-    if (config.mccCode !== '0000') {
+    if (config.isFlat) {
       username = process.env.FLAT_QUICK_QR_USERNAME || '';
       password = process.env.FLAT_QUICK_QR_PASSWORD || '';
     }
@@ -139,6 +139,16 @@ export class VendorBaseAPI {
         requestOptions,
       ).then((r) => r.json());
 
+      console.debug('path', path);
+      console.debug('params', params);
+      console.debug('data', data);
+      console.debug('response', response);
+      
+      if (response.error) {
+        console.error('response.error', response.error);
+        throw new Error(response.error);
+      }
+
       return response;
     } catch (e) {
       if (e.message === 'UnauthorizedError') {
@@ -146,7 +156,7 @@ export class VendorBaseAPI {
         return await this.makeRequest(args);
       }
 
-      throw new Error(e.message);
+      throw new Error(e);
     }
   }
 }

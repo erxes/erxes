@@ -12,7 +12,7 @@ import {
 import { IModels } from '../connectionResolver';
 import { IWork } from '../models/definitions/works';
 import { JOB_TYPES } from '../models/definitions/constants';
-import { sendProductsMessage, sendSalesplansMessage } from '../messageBroker';
+import { sendCoreMessage, sendSalesplansMessage } from '../messageBroker';
 import { getRatio } from './utils';
 
 interface IListArgs {
@@ -94,7 +94,9 @@ export class consumeSalesPlans {
 
     const flowByProducId = {};
     for (const flow of flows) {
-      flowByProducId[flow.productId] = flow;
+      if(flow.productId) {
+        flowByProducId[flow.productId] = flow;
+      }
     }
 
     this.flows = flows;
@@ -154,18 +156,10 @@ export class consumeSalesPlans {
       );
     }
 
-    const limit = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain: this.subdomain,
-      action: 'count',
+      action: 'products.find',
       data: { query: { _id: { $in: cProductIds } } },
-      isRPC: true,
-      defaultValue: 0
-    });
-
-    const products = await sendProductsMessage({
-      subdomain: this.subdomain,
-      action: 'find',
-      data: { query: { _id: { $in: cProductIds } }, limit },
       isRPC: true,
       defaultValue: []
     });

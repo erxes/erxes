@@ -1,17 +1,17 @@
 import {
   checkPermission,
   requireLogin
-} from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
-import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
+} from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
+import { sendCoreMessage } from "../../../messageBroker";
 import {
   IRemainderParams,
   IRemainderProductsParams,
   IRemaindersParams
-} from '../../../models/definitions/remainders';
-import { getPosOrders } from '../utils/posOrders';
-import { getProcesses } from '../utils/processes';
-import { getSafeRemainders } from '../utils/safeRemainders';
+} from "../../../models/definitions/remainders";
+import { getPosOrders } from "../utils/posOrders";
+import { getProcesses } from "../utils/processes";
+import { getSafeRemainders } from "../utils/safeRemainders";
 
 const remainderQueries = {
   remainders: async (
@@ -63,9 +63,9 @@ const remainderQueries = {
 
     const productFilter: any = {};
     if (categoryId) {
-      const productCategories = await sendProductsMessage({
+      const productCategories = await sendCoreMessage({
         subdomain,
-        action: 'categories.withChilds',
+        action: "categories.withChilds",
         data: {
           _id: categoryId
         },
@@ -79,17 +79,10 @@ const remainderQueries = {
       productFilter._id = { $in: productIds };
     }
 
-    const limit = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: 'count',
+      action: "products.find",
       data: { query: productFilter },
-      isRPC: true
-    });
-
-    const products = await sendProductsMessage({
-      subdomain,
-      action: 'find',
-      data: { query: productFilter, limit },
       isRPC: true
     });
 
@@ -102,14 +95,14 @@ const remainderQueries = {
 
     const branch = await sendCoreMessage({
       subdomain,
-      action: 'branches.findOne',
+      action: "branches.findOne",
       data: { _id: branchId },
       isRPC: true
     });
 
     const department = await sendCoreMessage({
       subdomain,
-      action: 'departments.findOne',
+      action: "departments.findOne",
       data: { _id: departmentId },
       isRPC: true
     });
@@ -150,7 +143,10 @@ const remainderQueries = {
   }
 };
 
-requireLogin(remainderQueries, 'tagDetail');
-checkPermission(remainderQueries, 'remainders', 'showTags', []);
+requireLogin(remainderQueries, "remainders");
+requireLogin(remainderQueries, "remainderCount");
+requireLogin(remainderQueries, "remainderProducts");
+checkPermission(remainderQueries, "remainderDetail", "manageRemainders", []);
+checkPermission(remainderQueries, "remaindersLog", "manageRemainders", []);
 
 export default remainderQueries;

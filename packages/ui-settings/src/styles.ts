@@ -124,7 +124,6 @@ const SidebarListItem = styledTS<{
     (props.$isActive && rgba(colors.colorPrimary, 0.2)) ||
     props.backgroundColor ||
     colors.colorWhite};
-  overflow: hidden;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -254,6 +253,24 @@ const WidgetBackgrounds = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+
+  .dropdown-btn {
+    width: 100%;
+    margin-bottom: 20px;
+
+    &:last-child {
+      margin-bottom: 0px;
+    }
+
+    > button {
+      width: 100%;
+
+      div {
+        flex-direction: row;
+        gap: 8px;
+      }
+    }
+  }
 `;
 
 const FlexItem = styled(DateContainer)`

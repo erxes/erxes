@@ -18,7 +18,7 @@ import Conversation from './conversation';
 import Channel from './channel';
 import Integration from './integration';
 import ConversationMessage from './conversationMessage';
-import BookingData from './bookingData';
+
 import Customer from './customer';
 import Script from './script';
 import ScriptMutations from './scriptMutations';
@@ -31,7 +31,6 @@ const resolvers: any = {
   Channel,
   Integration,
   ConversationMessage,
-  BookingData,
   Script,
   ResponseTemplate,
   Mutation: {

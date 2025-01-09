@@ -22,7 +22,7 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   _id: string;
-  queryParams: any;
+  queryParams: Record<string, string>;
   renderEditForm?: ({
     closeModal,
     user,
@@ -121,6 +121,7 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
         closeModal={localProps.closeModal}
         object={localProps.user}
         renderButton={renderButton}
+        queryParams={props.queryParams}
       />
     );
   };

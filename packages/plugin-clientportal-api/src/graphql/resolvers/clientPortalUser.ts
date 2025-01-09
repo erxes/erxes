@@ -1,13 +1,13 @@
 import { IContext } from '../../connectionResolver';
-import { sendContactsMessage } from '../../messageBroker';
+import { sendCoreMessage } from '../../messageBroker';
 import { IUser } from '../../models/definitions/clientPortalUser';
 import { customFieldsDataByFieldCode } from '../../utils';
 
 const ClientPortalUser = {
-  __resolveReference: ({ _id }, { models }: IContext) => {
+  __resolveReference: async ({ _id }, { models }: IContext) => {
     return models.ClientPortalUsers.findOne({ _id });
   },
-  clientPortal(user, _args, { models: { ClientPortals } }: IContext) {
+  async clientPortal(user, _args, { models: { ClientPortals } }: IContext) {
     return (
       user.clientPortalId &&
       ClientPortals.findOne({
@@ -34,13 +34,13 @@ const ClientPortalUser = {
     );
   },
 
-  customFieldsDataByFieldCode(company: IUser, _, { subdomain }: IContext) {
+  async customFieldsDataByFieldCode(company: IUser, _, { subdomain }: IContext) {
     return customFieldsDataByFieldCode(company, subdomain);
   },
 
   async companyName(user, _args, { subdomain }: IContext) {
     if (user.erxesCompanyId) {
-      const company = await sendContactsMessage({
+      const company = await sendCoreMessage({
         subdomain,
         action: 'companies.findOne',
         data: {
@@ -60,10 +60,10 @@ const ClientPortalUser = {
 };
 
 const ClientPortalParticipant = {
-  __resolveReference: ({ _id }, { models }: IContext) => {
+  __resolveReference: async ({ _id }, { models }: IContext) => {
     return models.ClientPortalUserCards.findOne({ _id });
   },
-  cpUser(user, _args, { models: { ClientPortalUsers } }: IContext) {
+  async cpUser(user, _args, { models: { ClientPortalUsers } }: IContext) {
     return (
       user.cpUserId &&
       ClientPortalUsers.findOne({

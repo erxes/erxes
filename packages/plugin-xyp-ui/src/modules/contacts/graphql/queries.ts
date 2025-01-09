@@ -4,7 +4,10 @@ const list = `
       _id
       contentType
       contentTypeId
-      data
+      data {
+        serviceName
+        data
+      }
     }
   }
 `;
@@ -14,59 +17,79 @@ const serviceChoosen = `
   }
 `;
 const detail = `
-query xypDataDetail($id: String, $contentType: String, $contentTypeId: String) {
-  xypDataDetail(_id: $id, contentType: $contentType, contentTypeId: $contentTypeId) {
-    _id
-    contentType
-    contentTypeId
-    createdAt
-    data
-    updatedAt
+  query xypDataDetail($id: String, $contentType: String, $contentTypeId: String) {
+    xypDataDetail(_id: $id, contentType: $contentType, contentTypeId: $contentTypeId) {
+      _id
+      contentType
+      contentTypeId
+      createdAt
+      data
+      updatedAt
+    }
   }
-}`;
+`;
+
 const customerDetail = `
-query customerDetail($_id: String!) {
-  customerDetail(_id: $_id) {
-    _id
-    firstName
-    middleName
-    lastName
-    avatar
-    sex
-    birthDate
-    primaryEmail
-    emails
-    primaryPhone
-    phones
-    state
-    visitorContactInfo
-    modifiedAt
-    position
-    department
-    leadStatus
-    hasAuthority
-    description
-    isSubscribed
-    code
-    emailValidationStatus
-    phoneValidationStatus
-    score
-    isOnline
-    lastSeenAt
-    sessionCount
-    links
-    ownerId
-    integrationId
-    createdAt
-    remoteAddress
-    location
-    customFieldsData
-    trackedData
-    tagIds
-    urlVisits
-    __typename
+  query customerDetail($_id: String!) {
+    customerDetail(_id: $_id) {
+      _id
+      firstName
+      middleName
+      lastName
+      avatar
+      sex
+      birthDate
+      primaryEmail
+      emails
+      primaryPhone
+      phones
+      state
+      visitorContactInfo
+      modifiedAt
+      position
+      department
+      leadStatus
+      hasAuthority
+      description
+      isSubscribed
+      code
+      emailValidationStatus
+      phoneValidationStatus
+      score
+      isOnline
+      lastSeenAt
+      sessionCount
+      links
+      ownerId
+      integrationId
+      createdAt
+      remoteAddress
+      location
+      customFieldsData
+      trackedData
+      tagIds
+      urlVisits
+      __typename
+    }
   }
-}`;
+`;
+
+const xypDataByObject = `
+  query xypDataByObject($contentType: String, $contentTypeId: String) {
+    xypDataByObject(contentType: $contentType, contentTypeId: $contentTypeId) {
+      _id
+      contentType
+      contentTypeId
+      createdAt
+      data {
+        serviceName
+        data
+      }
+      updatedAt
+    }
+  }
+`;
+
 const totalCount = `
   query xypsTotalCount{
     xypsTotalCount
@@ -177,6 +200,7 @@ query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $config: J
 export default {
   detail,
   customerDetail,
+  xypDataByObject,
   xypRequest,
   list,
   totalCount,

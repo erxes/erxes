@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 export const assetParamsDef = `
   $name: String,
   $categoryId: String,
@@ -66,7 +66,7 @@ export const assetFields = `
   categoryId
   parentId
   vendorId
-  ${isEnabled('contacts') ? vendorField : ``}
+  ${vendorField}
   description
   unitPrice
   createdAt

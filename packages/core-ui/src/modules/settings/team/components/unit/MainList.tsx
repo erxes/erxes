@@ -1,9 +1,4 @@
-import {
-  FilterContainer,
-  InputBar,
-  LeftActionBar,
-  Title,
-} from "@erxes/ui-settings/src/styles";
+import { LeftActionBar, Title } from "@erxes/ui-settings/src/styles";
 import { IUnit, UnitsMainQueryResponse } from "@erxes/ui/src/team/types";
 import { __, router } from "@erxes/ui/src/utils";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -28,7 +23,7 @@ import Wrapper from "modules/layout/components/Wrapper";
 type Props = {
   listQuery: UnitsMainQueryResponse;
   deleteUnits: (ids: string[], callback: () => void) => void;
-  queryParams: any;
+  queryParams: Record<string, string>;
 };
 
 const MainList = (props: Props) => {
@@ -37,7 +32,7 @@ const MainList = (props: Props) => {
   const location = useLocation();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [searchValue, setSearchValue] = useState(
-    props.queryParams.searchValue || ""
+    props.queryParams.searchValue || "",
   );
 
   const remove = (_id?: string) => {
@@ -88,19 +83,14 @@ const MainList = (props: Props) => {
     };
 
     return (
-      <FilterContainer $marginRight={true}>
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
-          <FormControl
-            type="text"
-            placeholder={__("Type to search")}
-            onChange={search}
-            value={searchValue}
-            autoFocus={true}
-            onFocus={moveCursorAtTheEnd}
-          />
-        </InputBar>
-      </FilterContainer>
+      <FormControl
+        type="text"
+        placeholder={__("Type to search")}
+        onChange={search}
+        value={searchValue}
+        autoFocus={true}
+        onFocus={moveCursorAtTheEnd}
+      />
     );
   };
 
@@ -108,7 +98,7 @@ const MainList = (props: Props) => {
     const handleSelect = () => {
       if (selectedItems.includes(unit._id)) {
         const removedSelectedItems = selectedItems.filter(
-          (selectItem) => selectItem !== unit._id
+          (selectItem) => selectItem !== unit._id,
         );
         return setSelectedItems(removedSelectedItems);
       }
@@ -148,7 +138,11 @@ const MainList = (props: Props) => {
               key={unit._id}
               title="Edit Unit"
               content={({ closeModal }) => (
-                <Form closeModal={closeModal} item={unit} queryType="units" />
+                <Form
+                  closeModal={closeModal}
+                  itemId={unit._id}
+                  queryType="units"
+                />
               )}
               trigger={trigger}
             />

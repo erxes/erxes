@@ -19,7 +19,7 @@ class Modal extends React.Component<Props, {}> {
     const { setExtraInfo, hideMask } = this.props;
 
     const tag = (
-      document.getElementById("facebook-message-tag") as HTMLInputElement
+      document.getElementById("instagram-message-tag") as HTMLInputElement
     ).value;
 
     setExtraInfo({ tag });
@@ -49,7 +49,7 @@ class Modal extends React.Component<Props, {}> {
           </p>
           <ControlLabel>Tag</ControlLabel>
           <FormControl
-            id="facebook-message-tag"
+            id="instagram-message-tag"
             componentclass="select"
             placeholder={__("Select Facebook Tag") as string}
             defaultValue={extraInfo.tag || ""}
@@ -67,7 +67,7 @@ class Modal extends React.Component<Props, {}> {
             Use of tags outside of the approved use cases may result in
             restrictions on the Page's ability to send messages.
             <a
-              href="https://developers.facebook.com/docs/messenger-platform/send-messages/message-tags/"
+              href="https://developers.instagram.com/docs/messenger-platform/send-messages/message-tags/"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -90,7 +90,7 @@ class Modal extends React.Component<Props, {}> {
 
     return (
       <ModalTrigger
-        title="Choose tag"
+        title={__("Choose tag")}
         trigger={trigger}
         content={this.renderForm}
       />

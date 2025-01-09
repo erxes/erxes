@@ -1,6 +1,6 @@
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { ITag } from '@erxes/ui-tags/src/types';
-import { QueryResponse } from '@erxes/ui/src/types';
+import { IPdfAttachment, QueryResponse } from '@erxes/ui/src/types';
 
 export interface IProductDoc {
   _id?: string;
@@ -16,6 +16,9 @@ export interface IUom {
   name: string;
   code: string;
   createdAt: Date;
+  isForSubscription?: boolean;
+  subscriptionConfig?: any;
+  timely?: string;
 }
 
 export interface IVariant {
@@ -46,8 +49,8 @@ export interface IProduct {
 
   uom?: string;
   subUoms?: any[];
-  taxType?: string;
-  taxCode?: string;
+
+  pdfAttachment?: IPdfAttachment;
 }
 
 export interface IProductCategory {

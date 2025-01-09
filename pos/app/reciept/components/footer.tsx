@@ -4,18 +4,24 @@ import { useAtomValue } from "jotai"
 
 const Footer = () => {
   const type = useAtomValue(printTypeAtom)
-  const config = useAtomValue(ebarimtConfigAtom)
+  const { footerText } = useAtomValue(ebarimtConfigAtom) || {}
   const description = useAtomValue(descriptionAtom)
-  const { footerText } = config?.ebarimtConfig || {}
 
-  if (type === "inner") return null
+  if (type === "inner") {
+    return null
+  }
 
   return (
     <>
       {!!description && (
         <div className="text-[11px]">Тайлбар: {description}</div>
       )}
-      <div className="text-[11px]">{footerText}</div>
+      {!!footerText && (
+        <div
+          className="text-[11px] whitespace-pre-line"
+          dangerouslySetInnerHTML={{ __html: footerText }}
+        />
+      )}
     </>
   )
 }

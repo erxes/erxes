@@ -245,7 +245,7 @@ const generateFilterCat = async ({
   }
 
   if (ids && ids.length > 0) {
-    filter._id = { [excludeIds ? '$nin' : '$in']: ids };    
+    filter._id = { [excludeIds ? '$nin' : '$in']: ids };
   }
 
   return filter;
@@ -304,7 +304,7 @@ const productQueries = {
     }
 
     if (groupedSimilarity) {
-      return await getSimilaritiesProducts(models, filter, {
+      return await getSimilaritiesProducts(models, filter, sortParams, {
         groupedSimilarity,
         ...paginationArgs
       });
@@ -375,8 +375,8 @@ const productQueries = {
 
   async poscProductSimilarities(
     _root,
-    { _id, groupedSimilarity },
-    { models }: IContext
+    { _id, groupedSimilarity, branchId }: { _id: string, groupedSimilarity: string, branchId?: string },
+    { models, subdomain, config }: IContext
   ) {
     const product = await models.Products.getProduct({ _id });
 
@@ -388,10 +388,7 @@ const productQueries = {
             .replace(/\*/g, '.')
             .replace(/_/g, '.')}.*`,
           'igu',
-        ) : new RegExp(
-          `.*${str}.*`,
-          'igu',
-        );
+        ) : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
       const similarityGroups =
@@ -433,7 +430,12 @@ const productQueries = {
 
       if (!matchedMasks.length) {
         return {
-          products: await models.Products.find({ _id })
+          products: await checkRemainders(
+            subdomain,
+            config,
+            await models.Products.find({ _id }),
+            branchId || ''
+          )
         };
       }
 
@@ -487,10 +489,14 @@ const productQueries = {
       };
 
       let products = await models.Products.find(filters)
-        .sort({ code: 1 })
-        .lean();
+        .sort({ code: 1 });
       if (!products.length) {
-        products = [product];
+        products = await checkRemainders(
+          subdomain,
+          config,
+          [product],
+          branchId || ''
+        );
       }
       return {
         products,
@@ -503,7 +509,12 @@ const productQueries = {
     });
     if (!category.isSimilarity || !category.similarities.length) {
       return {
-        products: await models.Products.find({ _id })
+        products: await checkRemainders(
+          subdomain,
+          config,
+          await models.Products.find({ _id }),
+          branchId || ''
+        )
       };
     }
 
@@ -523,7 +534,12 @@ const productQueries = {
     }[] = category.similarities.map(r => ({ ...r }));
 
     return {
-      products: await models.Products.find(filters).sort({ code: 1 }),
+      products: await checkRemainders(
+        subdomain,
+        config,
+        await models.Products.find(filters).sort({ code: 1 }),
+        branchId || ''
+      ),
       groups
     };
   },
@@ -634,7 +650,7 @@ const productQueries = {
     return result[0];
   },
 
-  poscProductCategoryDetail(
+  async poscProductCategoryDetail(
     _root,
     { _id }: { _id: string },
     { models }: IContext
@@ -651,7 +667,7 @@ const productQueries = {
 
     const d = await sendPricingMessage({
       subdomain,
-      action: 'getQuanityRules',
+      action: 'getQuantityRules',
       data: {
         departmentId: config.departmentId,
         branchId: config.branchId,

@@ -1,10 +1,10 @@
 import * as dotenv from 'dotenv';
-import { nanoid } from 'nanoid';
 
 import { IAttachment } from '@erxes/api-utils/src/types';
 import { ICustomer } from './types';
-import { getEnv } from './utils';
+
 import { readFileUrl } from '@erxes/api-utils/src/commonUtils';
+import { getEnv } from '@erxes/api-utils/src/core';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 
 dotenv.config();
@@ -41,14 +41,22 @@ const prepareContentAndSubject = (
 };
 
 const prepareEmailHeader = (
+  subdomain: string,
   configSet: string,
   customerId: string,
   engageMessageId?: string
 ) => {
+  const DOMAIN = getEnv({ name: 'DOMAIN' })
+    ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+    : 'http://localhost:4000';
+  const domain = DOMAIN.replace('<subdomain>', subdomain);
+  const callbackUrl = `${domain}/pl:engages`;
+
   const header: any = {
     'X-SES-CONFIGURATION-SET': configSet || 'erxes',
     CustomerId: customerId,
-    MailMessageId: randomAlphanumeric()
+    MailMessageId: randomAlphanumeric(),
+    Host: callbackUrl
   };
 
   if (engageMessageId) {
@@ -59,6 +67,7 @@ const prepareEmailHeader = (
 };
 
 export const prepareEmailParams = (
+  subdomain: string,
   customer: ICustomer,
   data: any,
   configSet: string
@@ -78,6 +87,6 @@ export const prepareEmailParams = (
     subject: replacedSubject,
     attachments: prepareAttachments(attachments),
     html: replacedContent,
-    headers: prepareEmailHeader(configSet, customer._id, engageMessageId)
+    headers: prepareEmailHeader(subdomain, configSet, customer._id, engageMessageId)
   };
 };

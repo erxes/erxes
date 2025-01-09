@@ -1,9 +1,7 @@
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
-} from '@erxes/ui-cards/src/conformity/graphql/queries';
-
-import { isEnabled } from '@erxes/ui/src/utils/core';
+} from "@erxes/ui-sales/src/conformity/graphql/queries";
 
 export const companyFields = `
   _id
@@ -42,16 +40,11 @@ export const companyFields = `
   customFieldsData
   trackedData
   tagIds
-  ${
-    isEnabled('tags')
-      ? `
-    getTags {
+  
+  getTags {
       _id
       name
       colorCode
-    }
-  `
-      : ``
   }
   score
 `;

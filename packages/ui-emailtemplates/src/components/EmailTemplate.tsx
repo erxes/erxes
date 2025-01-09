@@ -5,7 +5,7 @@ import {
   Template,
   TemplateBox,
   TemplateBoxInfo,
-  TemplateInfo,
+  TemplateInfo
 } from "../styles";
 import { Icon, ModalTrigger } from "@erxes/ui/src";
 
@@ -18,6 +18,7 @@ type Props = {
   templateId: string;
   selectedTemplateId?: string;
   onlyPreview?: boolean;
+  width?: string;
 };
 
 const EmailTemplate = (props: Props) => {
@@ -27,6 +28,7 @@ const EmailTemplate = (props: Props) => {
     handleSelect,
     templateId,
     onlyPreview,
+    width
   } = props;
   const { _id, name, createdAt, modifiedAt, createdUser, content } = template;
 
@@ -42,7 +44,7 @@ const EmailTemplate = (props: Props) => {
     return dayjs(modifiedAt).format("DD MMM YYYY");
   };
 
-  const renderView = (content) => {
+  const renderView = content => {
     const trigger = (
       <div>
         <Icon icon="eye" /> View
@@ -81,7 +83,12 @@ const EmailTemplate = (props: Props) => {
   };
 
   return (
-    <Template key={_id} className={selectedTemplateId === _id ? "active" : ""}>
+    <Template
+      key={_id}
+      className={selectedTemplateId === _id ? "active" : ""}
+      width={width}
+      isPreview={onlyPreview}
+    >
       <TemplateBox>
         {renderActions()}
         <IframePreview>
@@ -98,8 +105,8 @@ const EmailTemplate = (props: Props) => {
           <TemplateInfo>
             <p>Created by</p>
             {createdUser ? (
-              createdUser.details.fullName && (
-                <p>{createdUser.details.fullName}</p>
+              createdUser?.details?.fullName && (
+                <p>{createdUser?.details?.fullName}</p>
               )
             ) : (
               <p>erxes Inc</p>

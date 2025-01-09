@@ -6,7 +6,7 @@ import { IIntegrationModel, loadIntegrationClass } from './models/Integrations';
 import { IIntegrationDocument } from './models/definitions/integrations';
 import { ICustomerModel, loadCustomerClass } from './models/Customers';
 
-import { ICustomerDocument } from './models/definitions/customers';
+import { ICustomer, ICustomerDocument } from './models/definitions/customers';
 import { IActiveSessionDocument } from './models/definitions/activeSessions';
 import {
   IActiveSessionModel,
@@ -45,7 +45,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'calls_integrations',
     loadIntegrationClass(models),
   );
-  models.Customers = db.model<ICustomerDocument, ICustomerModel>(
+  models.Customers = db.model<ICustomer, ICustomerModel>(
     'calls_customers',
     loadCustomerClass(models),
   );

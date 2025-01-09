@@ -14,10 +14,9 @@ import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { ITopic } from "@erxes/ui-knowledgebase/src/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import KnowledgeForm from "../../containers/knowledge/KnowledgeForm";
-import { Menu } from "@headlessui/react";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import React from "react";
 import { __ } from "@erxes/ui/src/utils/core";
+import SaveTemplate from "@erxes/ui-template/src/components/SaveTemplate";
 
 type Props = {
   queryParams: any;
@@ -75,6 +74,28 @@ class KnowledgeRow extends React.Component<Props, State> {
     }
   }
 
+  renderTemplateModal() {
+    const { topic } = this.props;
+    const {
+      brand,
+      categories,
+      createdBy,
+      createdDate,
+      modifiedBy,
+      modifiedDate,
+      parentCategories,
+      ...topicContent
+    } = topic
+
+    const content = {
+      content: JSON.stringify(topicContent),
+      contentType: 'topic',
+      serviceName: 'knowledgebase'
+    };
+
+    return <SaveTemplate as="menuItem" {...content} />;
+  }
+
   renderManage() {
     const { topic, renderButton, remove, refetchTopics, queryParams } =
       this.props;
@@ -82,7 +103,7 @@ class KnowledgeRow extends React.Component<Props, State> {
     const addCategory = <a>{__("Add category")}</a>;
     const manageTopic = <a>{__("Edit Knowledge Base")}</a>;
 
-    const content = (props) => (
+    const kbContent = (props) => (
       <KnowledgeForm
         {...props}
         renderButton={renderButton}
@@ -100,30 +121,29 @@ class KnowledgeRow extends React.Component<Props, State> {
       />
     );
 
+    const menuItems = [
+      {
+        title: "Manage Knowledge Base",
+        trigger: manageTopic,
+        content: kbContent,
+        additionalModalProps: { enforceFocus: false, size: "lg" },
+      },
+      {
+        title: "Add Category",
+        trigger: addCategory,
+        content: categoryContent,
+        additionalModalProps: { autoOpenKey: "showKBAddCategoryModal" },
+      },
+    ];
+
     return (
       <RowActions>
         <Dropdown
-          unmount={false}
           as={DropdownToggle}
           toggleComponent={<Icon icon="cog" size={15} />}
+          modalMenuItems={menuItems}
         >
-          <Menu.Item>
-            <ModalTrigger
-              title="Manage Knowledge Base"
-              trigger={manageTopic}
-              content={content}
-              enforceFocus={false}
-              size="lg"
-            />
-          </Menu.Item>
-          <Menu.Item>
-            <ModalTrigger
-              title="Add Category"
-              trigger={addCategory}
-              autoOpenKey="showKBAddCategoryModal"
-              content={categoryContent}
-            />
-          </Menu.Item>
+          {this.renderTemplateModal()}
         </Dropdown>
         <DropIcon onClick={this.toggle} $isOpen={this.state.detailed} />
       </RowActions>

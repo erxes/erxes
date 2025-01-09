@@ -123,8 +123,7 @@ const List = (props: IProps) => {
                 onChange={onChange}
               />
             </th>
-            <th>{__("Payment name")}</th>
-            <th>{__("Kind")}</th>
+            <th>{__("Invoice Number")}</th>
             <th>{__("Amount")}</th>
             <th>{__("Status")}</th>
             <th>{__("Customer")}</th>
@@ -196,7 +195,7 @@ const List = (props: IProps) => {
           data={content}
           loading={props.loading}
           count={counts.total}
-          emptyText="There is no data"
+          emptyText={__("There is no data")}
           emptyImage="/images/actions/5.svg"
         />
       }

@@ -10,6 +10,7 @@ export interface IList {
   consumeStr: any;
   sendData: any;
   sendStr: any;
+  header: string;
   responseData: any;
   responseStr: any;
   error: string;

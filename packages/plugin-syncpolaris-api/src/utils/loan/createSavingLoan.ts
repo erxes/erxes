@@ -8,9 +8,11 @@ import {
   updateContract,
   getProduct,
   getContract,
+  genObjectOfRule,
+  sendMessageBrokerData,
 } from '../utils';
 
-export const createSavingLoan = async (subdomain, params) => {
+export const createSavingLoan = async (subdomain, polarisConfig, params) => {
   const loan = params.updatedDocument || params.object;
 
   const loanData = await customFieldToObject(subdomain, 'loans:contract', loan);
@@ -27,17 +29,23 @@ export const createSavingLoan = async (subdomain, params) => {
     'savings',
   );
 
+  const savingProduct = await getProduct(
+    subdomain,
+    savingContract.contractTypeId,
+    'savings'
+  );
+
   const leasingExpert = await getUser(subdomain, loan.leasingExpertId);
 
   const branch = await getBranch(subdomain, loan.branchId);
 
-  console.log('loanData===>', loanData);
-  console.log('customer===>', customer);
-  console.log('loanProduct===>', loanProduct);
-  console.log('depositAccount===>', depositAccount);
-  console.log('savingContract===>', savingContract);
-  console.log('leasingExpert===>', leasingExpert);
-  console.log('branch===>', branch);
+  const dataOfRules = await genObjectOfRule(
+    subdomain,
+    "loans:contract",
+    loan,
+    (polarisConfig.loan && polarisConfig.loan[loan.contractTypeId || ''] || {}).values || {}
+  );
+
 
   let sendData: any = [
     {
@@ -55,8 +63,8 @@ export const createSavingLoan = async (subdomain, params) => {
       isPreviewFee: 0,
       isBlockInt: 0,
       collAcnt: {
-        name: 'Барьцаа хөрөнгийн нэр',
-        name2: 'Барьцаа хөрөнгийн нэр 2дагч хэлээр',
+        name: savingProduct.name,
+        name2: savingProduct.name,
         custCode: customer.code,
         prodCode: savingContract.number,
         prodType: 'COLL',
@@ -64,7 +72,7 @@ export const createSavingLoan = async (subdomain, params) => {
         brchCode: '10',
         status: 'N',
         key2SysNo: '1306',
-        key2: '001022000003',
+        key2: savingContract.number,
         price: loanData.leaseAmount,
         curCode: savingContract.currency,
       },
@@ -108,6 +116,7 @@ export const createSavingLoan = async (subdomain, params) => {
             fieldValue: 1,
           },
         ],
+        ...dataOfRules
       },
       acntNrs: {
         startDate: loanData.startDate,
@@ -133,7 +142,8 @@ export const createSavingLoan = async (subdomain, params) => {
     op: '13610265',
     data: [sendData],
     subdomain,
-  }).then((a) => JSON.parse(a));
+    polarisConfig
+  });
 
   if (typeof result === 'string') {
     await updateContract(

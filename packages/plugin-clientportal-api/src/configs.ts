@@ -7,9 +7,9 @@ import forms from './forms';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 import { setupMessageConsumers } from './messageBroker';
-import cpUserMiddleware from './middlewares/cpUserMiddleware';
+import cpUserMiddleware from "@erxes/api-utils/src/middlewares/clientportal";
 import * as permissions from './permissions';
-
+import automations from "./automations";
 export default {
   name: 'clientportal',
   permissions,
@@ -23,13 +23,14 @@ export default {
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'graphql',
-    'subscriptionPlugin.js',
+    'subscriptionPlugin.js'
   ),
 
   meta: {
     forms,
     permissions,
     afterMutations,
+    automations
   },
 
   apolloServerContext: async (context, req, res) => {
@@ -47,7 +48,7 @@ export default {
     context.models = models;
     context.requestInfo = requestInfo;
     context.res = res;
-
+    context.isPassed2FA = req?.isPassed2FA;
     if (req.cpUser) {
       context.cpUser = req.cpUser;
     }

@@ -1,20 +1,76 @@
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Label from '@erxes/ui/src/components/Label';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
 import React from 'react';
-import { IAutomationHistory, IAutomationHistoryAction } from '../../types';
+import {
+  IAutomation,
+  IAutomationHistory,
+  IAutomationHistoryAction
+} from '../../types';
 import { renderDynamicComponent } from '../../utils';
 import SendEmail from './components/SendEmail';
+import { Button, ModalTrigger } from '@erxes/ui/src';
+import Preview from './Preview';
 
 type Props = {
   history: IAutomationHistory;
   actionsByType: any;
   triggersByType: any;
+  automation: IAutomation;
+  constants: any;
 };
 
 type State = {
   isShowDetail: boolean;
+};
+
+export const generateActionResult = (
+  action: IAutomationHistoryAction,
+  hideTemplate?: boolean
+) => {
+  if (!action.result) {
+    return 'Result has not been recorded yet';
+  }
+
+  const { result } = action;
+
+  if (result.error) {
+    return result.error;
+  }
+
+  if (action.actionType === 'setProperty') {
+    return `Update for ${(result.result || []).length} ${
+      result.module
+    }: ${result.fields || ''}, (${result.result.map(
+      r => (r.error && r.error) || ''
+    )})`;
+  }
+
+  if (action.actionType === 'if') {
+    return `Condition: ${result.condition}`;
+  }
+
+  if (action.actionType === 'sendEmail') {
+    return (
+      <SendEmail result={result} action={action} hideTemplate={hideTemplate} />
+    );
+  }
+
+  const Component = renderDynamicComponent(
+    {
+      action,
+      result: action.result,
+      componentType: 'historyActionResult'
+    },
+    action.actionType
+  );
+
+  if (Component) {
+    return Component;
+  }
+
+  return JSON.stringify(result);
 };
 
 class HistoryRow extends React.Component<Props, State> {
@@ -45,49 +101,6 @@ class HistoryRow extends React.Component<Props, State> {
     return '';
   };
 
-  generateActionResult = (action: IAutomationHistoryAction) => {
-    if (!action.result) {
-      return 'Result has not been recorded yet';
-    }
-
-    const { result } = action;
-
-    if (result.error) {
-      return result.error;
-    }
-
-    if (action.actionType === 'setProperty') {
-      return `Update for ${(result.result || []).length} ${
-        result.module
-      }: ${result.fields || ''}, (${result.result.map(
-        r => (r.error && r.error) || ''
-      )})`;
-    }
-
-    if (action.actionType === 'if') {
-      return `Condition: ${result.condition}`;
-    }
-
-    if (action.actionType === 'sendEmail') {
-      return <SendEmail result={result} action={action} />;
-    }
-
-    const Component = renderDynamicComponent(
-      {
-        action,
-        result: action.result,
-        componentType: 'historyActionResult'
-      },
-      action.actionType
-    );
-
-    if (Component) {
-      return Component;
-    }
-
-    return JSON.stringify(result);
-  };
-
   renderDetail = () => {
     const { isShowDetail } = this.state;
 
@@ -114,7 +127,7 @@ class HistoryRow extends React.Component<Props, State> {
           <td>{}</td>
           <td>{__('Sub Time')}</td>
           <td>{__('Action Type')}</td>
-          <td colSpan={2}>{__('Results')}</td>
+          <td colSpan={3}>{__('Results')}</td>
         </tr>
 
         {actions.map(action => (
@@ -122,12 +135,33 @@ class HistoryRow extends React.Component<Props, State> {
             <td>{}</td>
             <td>{dayjs(action.createdAt).format('lll')}</td>
             <td>{__(actionsByType[action.actionType])}</td>
-            <td colSpan={2}>{this.generateActionResult(action)}</td>
+            <td colSpan={3}>{generateActionResult(action, true)}</td>
           </tr>
         ))}
       </>
     );
   };
+
+  renderPreview() {
+    const { automation, constants, history } = this.props;
+
+    const updatedProps = {
+      automation,
+      constants,
+      history
+    };
+
+    const content = ({}) => <Preview {...updatedProps} />;
+
+    return (
+      <ModalTrigger
+        title=""
+        size="xl"
+        content={content}
+        trigger={<Button btnStyle="white" icon="eye" />}
+      />
+    );
+  }
 
   render() {
     const { triggersByType, history } = this.props;
@@ -143,7 +177,7 @@ class HistoryRow extends React.Component<Props, State> {
 
     return (
       <>
-        <tr id={_id} key={_id} onClick={trClick}>
+        <tr id={_id} key={_id}>
           <td>{this.generateName()}</td>
           <td>{description}</td>
           <td>{triggersByType[triggerType]}</td>
@@ -151,6 +185,10 @@ class HistoryRow extends React.Component<Props, State> {
             <Label lblStyle={labelStyle}>{status}</Label>
           </td>
           <td>{dayjs(createdAt).format('lll')}</td>
+          <td>
+            {this.renderPreview()}
+            <Button btnStyle="simple" icon="downarrow-2" onClick={trClick} />
+          </td>
         </tr>
         {this.renderDetail()}
       </>

@@ -4,8 +4,7 @@ import * as mongoose from 'mongoose';
 dotenv.config();
 
 const options = {
-  useNewUrlParser: true,
-  useCreateIndex: true
+  family: 4,
 };
 
 const main = async () => {

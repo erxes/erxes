@@ -36,7 +36,9 @@ const mutations = {
       throw new Error('Access denied');
     }
 
-    const filesCount = await models.Files.find({ folderId: _id }).count();
+    const filesCount = await models.Files.find({
+      folderId: _id
+    }).countDocuments();
 
     if (filesCount > 0) {
       throw new Error('This folder contains files');
@@ -44,7 +46,7 @@ const mutations = {
 
     const subFoldersCount = await models.Folders.find({
       parentId: _id
-    }).count();
+    }).countDocuments();
 
     if (subFoldersCount > 0) {
       throw new Error('This folder contains folders');
@@ -53,9 +55,22 @@ const mutations = {
     return models.Folders.deleteOne({ _id });
   },
 
-  async filemanagerFileCreate(_root, doc, { models, user }: IContext) {
+  async filemanagerFileCreate(
+    _root,
+    doc,
+    { models, user, subdomain }: IContext
+  ) {
     const result = await models.Files.saveFile({
       doc: { ...doc, createdUserId: user._id }
+    });
+
+    await sendCoreMessage({
+      subdomain,
+      action: 'registerOnboardHistory',
+      data: {
+        type: 'fileManagerFileCreate',
+        user
+      }
     });
 
     await models.Logs.createLog({
@@ -126,7 +141,7 @@ const mutations = {
       contentTypeId: _id,
       userId: user._id,
       description: `Shared with ${sharedUsers
-        .map(u => u.username || u.email)
+        .map((u) => u.username || u.email)
         .join(' ')}`
     });
 
@@ -198,7 +213,7 @@ const mutations = {
       throw new Error('Permission denied');
     }
 
-    const response = await models.AckRequests.update(
+    const response = await models.AckRequests.updateOne(
       { _id },
       { $set: { status: 'acked' } }
     );
@@ -268,11 +283,11 @@ const mutations = {
       description: 'Access request confirmed'
     });
 
-    await models.Files.update(
+    await models.Files.updateOne(
       { _id: file._id },
       { $push: { permissionUserIds: request.fromUserId } }
     );
-    await models.AccessRequests.remove({ _id: requestId });
+    await models.AccessRequests.deleteOne({ _id: requestId });
 
     return 'ok';
   },
@@ -288,7 +303,7 @@ const mutations = {
       throw new Error('Permission denied');
     }
 
-    await models.Files.update(
+    await models.Files.updateOne(
       { _id: sourceId },
       { $set: { relatedFileIds: targetIds } }
     );
@@ -308,7 +323,7 @@ const mutations = {
     }
 
     for (const targetId of targetIds) {
-      await models.Files.update(
+      await models.Files.updateOne(
         { _id: sourceId },
         { $pull: { relatedFileIds: targetId } }
       );
@@ -328,7 +343,7 @@ const mutations = {
     });
 
     if (prevRelation) {
-      await models.Relations.update(
+      await models.Relations.updateOne(
         { _id: prevRelation._id },
         { $set: { fileIds } }
       );

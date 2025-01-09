@@ -11,9 +11,7 @@ const GolomtSheet = () => {
     BANK_CARD_TYPES.GOLOMT
   )
   const { sendTransaction } = useGolomtTransaction({
-    onCompleted(data) {
-      handleAddPayment(data)
-    },
+    onCompleted: handleAddPayment,
     onError: closePaymentSheet,
   })
 

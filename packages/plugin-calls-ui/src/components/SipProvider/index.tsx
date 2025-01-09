@@ -7,7 +7,6 @@ import {
   CALL_STATUS_ACTIVE,
   CALL_STATUS_IDLE,
   CALL_STATUS_STARTING,
-  CALL_STATUS_STOPPING,
   SIP_ERROR_TYPE_CONFIGURATION,
   SIP_ERROR_TYPE_CONNECTION,
   SIP_ERROR_TYPE_REGISTRATION,
@@ -58,19 +57,22 @@ export default class SipProvider extends React.Component<
     callUserIntegration: ICallConfigDoc;
     createSession: () => void;
     updateHistory: (
-      callId: string,
+      timeStamp: number,
       callStartTime: Date,
       callEndTime: Date,
       callStatus: string,
       direction: string,
       customerPhone: string,
+      diversionHeader?: string,
+      endedBy?: string,
     ) => void;
     addHistory: (
       callStatus: string,
-      sessionId: string,
+      timeStamp: number,
       direction: string,
       customerPhone: string,
       callStartTime: Date,
+      queueName: string | null,
     ) => void;
   },
   {
@@ -80,6 +82,7 @@ export default class SipProvider extends React.Component<
     callStatus: CallStatus;
     callDirection: CallDirection | null;
     callCounterpart: string | null;
+    groupName: string | null;
     callId: string | null;
     rtcSession;
   }
@@ -135,6 +138,8 @@ export default class SipProvider extends React.Component<
     debug: false,
   };
   private ua;
+  private ringbackTone;
+
   private remoteAudio;
   private logger;
 
@@ -148,9 +153,11 @@ export default class SipProvider extends React.Component<
       callStatus: CALL_STATUS_IDLE,
       callDirection: null,
       callCounterpart: null,
+      groupName: '',
       callId: null,
     };
     this.ua = null;
+    this.ringbackTone = '';
 
     this.remoteAudio = window.document.getElementById('sip-provider-audio');
     this.remoteAudio?.remove();
@@ -170,6 +177,7 @@ export default class SipProvider extends React.Component<
         direction: this.state.callDirection,
         counterpart: this.state.callCounterpart,
         startTime: this.state.rtcSession?._start_time?.toString(),
+        groupName: this.state.groupName,
       },
       registerSip: this.registerSip,
       unregisterSip: this.unregisterSip,
@@ -244,8 +252,14 @@ export default class SipProvider extends React.Component<
       this.reinitializeJsSIP();
     }
     const { callUserIntegration } = this.props;
-    const { inboxId, phone, wsServer, token, operators } =
-      callUserIntegration || {};
+    const {
+      inboxId,
+      phone,
+      wsServer,
+      token,
+      operators,
+      queues = [],
+    } = callUserIntegration || {};
     if (
       inboxId !== callConfig.inboxId ||
       phone !== callConfig.phone ||
@@ -262,6 +276,7 @@ export default class SipProvider extends React.Component<
           token: token,
           operators: operators,
           isAvailable: callConfig.isAvailable,
+          queues,
         }),
       );
     }
@@ -380,7 +395,6 @@ export default class SipProvider extends React.Component<
     const options = {
       extraHeaders,
       mediaConstraints: { audio: true, video: false },
-      rtcOfferConstraints: { iceRestart: this.props.iceRestart },
       pcConfig: {
         iceServers,
       },
@@ -395,7 +409,7 @@ export default class SipProvider extends React.Component<
   };
 
   public stopCall = () => {
-    this.setState({ callStatus: CALL_STATUS_STOPPING });
+    this.setState({ callStatus: CALL_STATUS_IDLE });
     this.ua?.terminateSessions();
   };
 
@@ -411,13 +425,87 @@ export default class SipProvider extends React.Component<
     }
   }
 
+  public playUnavailableAudio() {
+    if (!this.ringbackTone) {
+      this.ringbackTone = new Audio('/sound/unAvailableCall.mp3');
+      this.ringbackTone.loop = false;
+      this.ringbackTone
+        .play()
+        .catch(() => {
+          this.ringbackTone = null;
+        })
+        .then(() => {
+          this.ringbackTone = null;
+        });
+    }
+  }
+
+  public playBusyAudio() {
+    if (!this.ringbackTone) {
+      this.ringbackTone = new Audio('/sound/busyCall.mp3');
+      this.ringbackTone.loop = false;
+      this.ringbackTone
+        .play()
+        .catch(() => {
+          this.ringbackTone = null;
+        })
+        .then(() => {
+          this.ringbackTone = null;
+        });
+    }
+  }
+
+  public playHangupTone() {
+    if (!this.ringbackTone) {
+      this.ringbackTone = new Audio('/sound/hangup.mp3');
+      this.ringbackTone.loop = false;
+      this.ringbackTone
+        .play()
+        .catch(() => {
+          this.ringbackTone = null;
+        })
+        .then(() => {
+          this.ringbackTone = null;
+        });
+    }
+  }
+  public playRingbackTone() {
+    if (!this.ringbackTone) {
+      this.ringbackTone = new Audio('/sound/outgoingRingtone.mp3');
+      this.ringbackTone.loop = true;
+
+      setTimeout(() => {
+        this.ringbackTone?.play().catch(() => {
+          this.stopRingbackTone();
+        });
+      }, 4000);
+    } else {
+      this.stopRingbackTone();
+    }
+  }
+
+  public stopRingbackTone() {
+    if (this.ringbackTone) {
+      this.ringbackTone.pause();
+      this.ringbackTone.currentTime = 0;
+      this.ringbackTone = null;
+    }
+  }
+
   public reinitializeJsSIP() {
     if (this.ua) {
       this.ua.stop();
       this.ua = null;
     }
 
-    const { host, port, pathname, user, password, autoRegister } = this.props;
+    const {
+      host = 'call.erxes.io',
+      port = '8089',
+      pathname,
+      user,
+      password,
+      autoRegister,
+    } = this.props;
     if (!host || !port || !user) {
       this.setState({
         sipStatus: SIP_STATUS_DISCONNECTED,
@@ -482,11 +570,14 @@ export default class SipProvider extends React.Component<
 
     ua.on('disconnected', (e) => {
       this.logger.debug('UA "disconnected" event');
+
+      if (e.code === 1006) {
+        setTimeout(this.reinitializeJsSIP, 5000);
+      }
       if (this.ua !== ua) {
         return;
       }
       setLocalStorage(false, false);
-      console.log('disconnected:', e);
       this.setState({
         sipStatus: SIP_STATUS_ERROR,
         sipErrorType: SIP_ERROR_TYPE_CONNECTION,
@@ -529,7 +620,6 @@ export default class SipProvider extends React.Component<
 
     ua.on('registrationFailed', (data) => {
       this.logger.debug('UA "registrationFailed" event');
-      console.log('registrationfailed:', data);
       if (this.ua !== ua) {
         return;
       }
@@ -549,7 +639,6 @@ export default class SipProvider extends React.Component<
         if (!this || this.ua !== ua) {
           return;
         }
-        // identify call direction
         if (originator === 'local') {
           const foundUri = rtcRequest.to.toString();
           const toDelimiterPosition = foundUri.indexOf(';') || null;
@@ -559,22 +648,35 @@ export default class SipProvider extends React.Component<
             callCounterpart:
               foundUri.substring(0, toDelimiterPosition) || foundUri,
           });
+
+          rtcSession.connection.ontrack = (event) => {
+            const mediaStream = new MediaStream();
+            mediaStream.addTrack(event.track);
+            this.remoteAudio.autoplay = true;
+            this.remoteAudio.srcObject = mediaStream;
+          };
         } else if (originator === 'remote') {
           const foundUri = rtcRequest.from.toString();
           const delimiterPosition = foundUri.indexOf(';') || null;
+
+          const fromParameters = rtcRequest.from._parameters;
+          const groupName = fromParameters['x-gs-group-name'] || '';
+
           this.setState({
             callDirection: CALL_DIRECTION_INCOMING,
             callStatus: CALL_STATUS_STARTING,
             callCounterpart:
               foundUri.substring(0, delimiterPosition) || foundUri,
+            groupName,
           });
         }
-
+        const diversionHeader = rtcRequest.getHeader('Diversion');
+        const timeStamp = rtcRequest.getHeader('Timestamp') || 0;
         const { rtcSession: rtcSessionInState } = this.state;
 
         let direction = 'OUTGOING';
         let customerPhone = '';
-        // Avoid if busy or other incoming
+
         if (rtcSessionInState) {
           this.logger.debug('incoming call replied with 486 "Busy Here"');
           rtcSession.terminate({
@@ -584,10 +686,9 @@ export default class SipProvider extends React.Component<
           return;
         }
         this.setState({ rtcSession });
-        rtcSession.on('progress', function (data) {
-          if (data.originator === 'remote') data.response.body = null;
-        });
+
         rtcSession.on('failed', (e) => {
+          this.stopRingbackTone();
           this.logger.debug('UA failed event');
           if (this.ua !== ua) {
             return;
@@ -607,12 +708,14 @@ export default class SipProvider extends React.Component<
           }
           if (updateHistory && session) {
             updateHistory(
-              session._id,
+              timeStamp,
               session.start_time,
               session.end_time,
               'cancelled',
               direction,
               customerPhone,
+              diversionHeader || '',
+              e.originator,
             );
           }
           this.setState({
@@ -625,15 +728,15 @@ export default class SipProvider extends React.Component<
 
           rtcSession = null;
         });
-        rtcSession.on('peerconnection', (e) => {
+
+        rtcSession.on('ended', (data) => {
+          this.stopRingbackTone();
           if (this.ua !== ua) {
             return;
           }
-        });
 
-        rtcSession.on('ended', (data) => {
-          if (this.ua !== ua) {
-            return;
+          if (data.cause === 'Terminated') {
+            this.playHangupTone();
           }
           console.log('ended:', data);
           const { updateHistory } = this.props;
@@ -650,12 +753,14 @@ export default class SipProvider extends React.Component<
           }
           if (updateHistory && session) {
             updateHistory(
-              session._id,
+              timeStamp,
               session.start_time,
               session.end_time,
               'connected',
               direction,
               customerPhone,
+              diversionHeader || '',
+              data.originator,
             );
           }
           this.setState({
@@ -663,13 +768,13 @@ export default class SipProvider extends React.Component<
             callStatus: CALL_STATUS_IDLE,
             callDirection: null,
             callCounterpart: null,
+            groupName: '',
           });
           this.ua?.terminateSessions();
           rtcSession = null;
         });
 
         rtcSession.on('bye', () => {
-          console.log('bye:');
           if (this.ua !== ua) {
             return;
           }
@@ -678,13 +783,13 @@ export default class SipProvider extends React.Component<
             callStatus: CALL_STATUS_IDLE,
             callDirection: null,
             callCounterpart: null,
+            groupName: '',
           });
           this.ua?.terminateSessions();
           rtcSession = null;
         });
 
         rtcSession.on('rejected', function (e) {
-          console.log('rejected:', e);
           if (this.ua !== ua) {
             return;
           }
@@ -693,7 +798,7 @@ export default class SipProvider extends React.Component<
 
           if (updateHistory && session) {
             updateHistory(
-              session._id,
+              timeStamp,
               session.start_time,
               session.end_time,
               'rejected',
@@ -705,11 +810,14 @@ export default class SipProvider extends React.Component<
             callStatus: CALL_STATUS_IDLE,
             callDirection: null,
             callCounterpart: null,
+            groupName: '',
           });
           this.ua?.terminateSessions();
         });
 
         rtcSession.on('accepted', () => {
+          this.stopRingbackTone();
+
           if (this.ua !== ua) {
             return;
           }
@@ -728,14 +836,17 @@ export default class SipProvider extends React.Component<
           if (addHistory) {
             addHistory(
               'active',
-              this.state.rtcSession._id,
+              timeStamp,
               direction,
               customerPhone,
               this.state.rtcSession.start_time,
+              this.state.groupName,
             );
           }
-          [this.remoteAudio.srcObject] =
-            rtcSession.connection.getRemoteStreams();
+          if (originator === 'remote') {
+            [this.remoteAudio.srcObject] =
+              rtcSession.connection.getRemoteStreams();
+          }
 
           const played = this.remoteAudio.play();
 

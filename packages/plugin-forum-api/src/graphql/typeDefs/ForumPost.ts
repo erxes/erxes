@@ -8,7 +8,7 @@ export const translationAndPostCommonFields = `
   custom: JSON
 `;
 
-export default function ForumPost({ isTagsEnabled }) {
+export default function ForumPost() {
   return `
   type ForumPostTranslation {
     lang: String!
@@ -82,8 +82,7 @@ export default function ForumPost({ isTagsEnabled }) {
     isFeaturedByUser: Boolean
 
     quizzes: [ForumQuiz!]
-
-    ${isTagsEnabled ? 'tags: [Tag!]' : ''}
+    tags: [Tag!]
   }
 `;
 }

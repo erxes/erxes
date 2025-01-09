@@ -7,9 +7,11 @@ import {
   OrderItem,
   OrderItemInput,
 } from "@/types/order.types"
-import { ORDER_STATUSES } from "@/lib/constants"
+import { ORDER_ITEM_STATUSES, ORDER_STATUSES } from "@/lib/constants"
+import { getCartTotal, getItemInputs } from "@/lib/utils"
 
 import { banFractionsAtom, orderPasswordAtom } from "./config.store"
+import { activeOrderIdAtom } from "./order.store"
 
 interface IUpdateItem {
   _id: string
@@ -19,6 +21,7 @@ interface IUpdateItem {
   attachment?: { url?: string } | null
   fromAdd?: boolean
   allowed?: boolean
+  status?: IOrderItemStatus
 }
 
 export const changeCartItem = (
@@ -49,7 +52,9 @@ export const changeCartItem = (
 
     if (!fromAdd) {
       return cart.map((item) =>
-        item._id === _id ? { ...item, count: validCount } : item
+        item._id === _id
+          ? { ...item, count: validCount < 0 ? 0 : validCount }
+          : item
       )
     }
 
@@ -106,61 +111,41 @@ export const addToCart = (
 // Atoms
 // cart
 export const cartAtom = atomWithStorage<OrderItem[]>("cart", [])
-export const cartChangedAtom = atomWithStorage<boolean>("cartChanged", false)
-
+export const cartChangedAtom = atomWithStorage<boolean | string>(
+  "cartChanged",
+  false
+)
 export const orderItemInput = atom<OrderItemInput[]>((get) =>
-  get(cartAtom).map(
-    ({
-      _id,
-      productId,
-      count,
-      unitPrice,
-      isPackage,
-      isTake,
-      status,
-      manufacturedDate,
-      description,
-      attachment,
-    }) => ({
-      _id,
-      productId,
-      count,
-      unitPrice,
-      isPackage,
-      isTake,
-      status,
-      manufacturedDate,
-      description,
-      attachment,
-    })
-  )
+  getItemInputs(get(cartAtom))
 )
 export const requirePasswordAtom = atom<IUpdateItem | null>(null)
+
 export const totalAmountAtom = atom<number>((get) =>
-  (get(cartAtom) || []).reduce(
-    (total, item) => total + (item?.count || 0) * (item.unitPrice || 0),
-    0
-  )
+  getCartTotal(get(cartAtom))
 )
 export const addToCartAtom = atom(
   () => "",
   (get, set, update: IAddToCartInput) => {
-    set(cartChangedAtom, true)
+    set(cartChangedAtom, get(activeOrderIdAtom) ?? "-")
     set(cartAtom, addToCart(update, get(cartAtom)))
   }
 )
 export const updateCartAtom = atom(
   () => "",
-  (get, set, update: IUpdateItem) => {
+  (get, set, { status, ...update }: IUpdateItem) => {
     if (
       !!get(orderPasswordAtom) &&
+      !!get(activeOrderIdAtom) &&
       !update.allowed &&
-      update.count === (get(banFractionsAtom) ? 0 : -1)
+      update.count === (get(banFractionsAtom) ? 0 : -1) &&
+      [ORDER_ITEM_STATUSES.DONE, ORDER_ITEM_STATUSES.CONFIRM].includes(
+        status || ""
+      )
     ) {
       set(requirePasswordAtom, update)
       return
     }
-    set(cartChangedAtom, true)
+    set(cartChangedAtom, get(activeOrderIdAtom) ?? "-")
     set(
       cartAtom,
       changeCartItem(update, get(cartAtom), !!get(banFractionsAtom))

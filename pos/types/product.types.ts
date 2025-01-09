@@ -22,10 +22,12 @@ export interface IProduct extends IProductBase {
   description?: string | null
   attachment?: { url?: string } | null
   remainder?: number
+  remainders?: { location: string; remainder: number }[]
   code?: string
   manufacturedDate?: string
   hasSimilarity?: boolean
   customFieldsData?: CustomField[]
+  category?: ICategory
 }
 
 export interface IUseProducts {

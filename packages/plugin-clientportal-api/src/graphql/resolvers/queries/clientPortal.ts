@@ -3,11 +3,10 @@ import { paginate } from '@erxes/api-utils/src';
 
 import { IContext, IModels } from '../../../connectionResolver';
 import {
-  sendCardsMessage,
   sendCommonMessage,
-  sendContactsMessage,
-  sendCoreMessage,
   sendKbMessage,
+  sendTasksMessage,
+  sendTicketsMessage,
 } from '../../../messageBroker';
 import { getCards, getUserCards } from '../../../utils';
 
@@ -33,12 +32,29 @@ const getByHost = async (models: IModels, requestInfo, clientPortalName?) => {
 const configClientPortalQueries = {
   async clientPortalGetConfigs(
     _root,
-    args: { kind?: string; page?: number; perPage?: number },
+    args: { kind?: string; page?: number; perPage?: number; search?: string },
     { models }: IContext
   ) {
-    const { kind = 'client' } = args;
+    const { kind, search } = args;
 
-    return paginate(models.ClientPortals.find({ kind }), args);
+    if (search) {
+      const res = await models.ClientPortals.find({
+        $or: [
+          { name: { $regex: new RegExp(`^${search}$`, 'i') } },
+          { domain: { $regex: new RegExp(`^${search}$`, 'i') } },
+          { url: { $regex: new RegExp(search, 'i') } },
+        ],
+      }).lean();
+      return res
+    }
+
+    const query: any = {};
+
+    if (kind) {
+      query.kind = kind;
+    }
+
+    return paginate(models.ClientPortals.find(query), args);
   },
 
   async clientPortalConfigsTotalCount(_root, _args, { models }: IContext) {
@@ -48,7 +64,7 @@ const configClientPortalQueries = {
   /**
    * Get last config
    */
-  clientPortalGetLast(_root, { kind }, { models }: IContext) {
+  async clientPortalGetLast(_root, { kind }, { models }: IContext) {
     return models.ClientPortals.findOne({ kind }).sort({
       createdAt: -1,
     });
@@ -77,7 +93,7 @@ const configClientPortalQueries = {
   ) {
     const config = await getByHost(models, requestInfo);
 
-    return sendCardsMessage({
+    return sendTasksMessage({
       subdomain,
       action: 'stages.find',
       data: {
@@ -94,7 +110,7 @@ const configClientPortalQueries = {
   ) {
     const config = await getByHost(models, requestInfo);
 
-    const stage = await sendCardsMessage({
+    const stage = await sendTasksMessage({
       subdomain,
       action: 'stages.findOne',
       data: {
@@ -107,7 +123,7 @@ const configClientPortalQueries = {
       throw new Error('Invalid request');
     }
 
-    return sendCardsMessage({
+    return sendTasksMessage({
       subdomain,
       action: 'tasks.find',
       data: {
@@ -150,8 +166,12 @@ const configClientPortalQueries = {
     return getCards('purchase', context, _args);
   },
 
-  clientPortalTicket(_root, { _id }: { _id: string }, { subdomain }: IContext) {
-    return sendCardsMessage({
+  async clientPortalTicket(
+    _root,
+    { _id }: { _id: string },
+    { subdomain }: IContext
+  ) {
+    return sendTicketsMessage({
       subdomain,
       action: 'tickets.findOne',
       data: {
@@ -241,11 +261,11 @@ const configClientPortalQueries = {
       return [];
     }
 
-    const fieldIds = configs.map(config => config.fieldId);
+    const fieldIds = configs.map((config) => config.fieldId);
     const fields = await sendCommonMessage({
       subdomain,
-      serviceName: 'forms',
-      action: 'fields.find',
+      serviceName: 'core',
+      action: "fields.find",
       data: {
         query: {
           _id: { $in: fieldIds },
@@ -260,8 +280,8 @@ const configClientPortalQueries = {
       return fields;
     }
 
-    return fields.map(field => {
-      const found = required.find(config => config.fieldId === field._id);
+    return fields.map((field) => {
+      const found = required.find((config) => config.fieldId === field._id);
 
       if (!found) {
         return field;
@@ -315,7 +335,7 @@ const configClientPortalQueries = {
     return users;
   },
 
-  clientPortalUserTickets(
+  async clientPortalUserTickets(
     _root,
     { userId }: { userId: string },
     { models, cpUser, subdomain }: IContext
@@ -328,7 +348,7 @@ const configClientPortalQueries = {
     return getUserCards(id, 'ticket', models, subdomain);
   },
 
-  clientPortalUserDeals(
+  async clientPortalUserDeals(
     _root,
     { userId }: { userId: string },
     { models, cpUser, subdomain }: IContext
@@ -342,7 +362,7 @@ const configClientPortalQueries = {
     return getUserCards(id, 'deal', models, subdomain);
   },
 
-  clientPortalUserPurchases(
+  async clientPortalUserPurchases(
     _root,
     { userId }: { userId: string },
     { models, cpUser, subdomain }: IContext
@@ -356,7 +376,7 @@ const configClientPortalQueries = {
     return getUserCards(id, 'purchase', models, subdomain);
   },
 
-  clientPortalUserTasks(
+  async clientPortalUserTasks(
     _root,
     { userId }: { userId: string },
     { models, cpUser, subdomain }: IContext
@@ -370,7 +390,7 @@ const configClientPortalQueries = {
     return getUserCards(id, 'task', models, subdomain);
   },
 
-  clientPortalParticipantDetail(
+  async clientPortalParticipantDetail(
     _root,
     {
       _id,
@@ -442,7 +462,7 @@ const configClientPortalQueries = {
 
     if (contentType) filter.contentType = contentType;
     if (contentTypeId) filter.contentTypeId = contentTypeId;
-    if (users?.length > 0) filter.cpUserId = { $in: users.map(d => d._id) };
+    if (users?.length > 0) filter.cpUserId = { $in: users.map((d) => d._id) };
     else return [];
     return models.ClientPortalUserCards.find(filter);
   },

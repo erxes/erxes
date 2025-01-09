@@ -13,6 +13,12 @@ export const types = `
     byStatus: JSON
     total: Int
   }
+
+  type PaymentPublic {
+    _id: String
+    name: String
+    kind: String
+  }
 `;
 
 const paymentOptionsParams = `
@@ -29,10 +35,15 @@ const paymentOptionsParams = `
 
 export const queries = `
   payments(status: String): [Payment]
+
+  paymentsPublic(kind: String, _ids:[String], currency: String): [PaymentPublic]
   paymentsCountByType: paymentsTotalCount
   paymentsTotalCount(kind: String, status: String): paymentsTotalCount
 
   qpayGetMerchant(_id: String!): JSON
+  qpayGetDistricts(cityCode: String!): JSON
+
+  paymentsGetStripeKey(_id: String!): String
 `;
 
 const params = `
@@ -46,27 +57,4 @@ export const mutations = `
   paymentAdd(${params}): Payment
   paymentEdit(_id: String!,${params}): Payment
   paymentRemove(_id: String!): String
-
-  qpayRegisterMerchantCompany(
-    registerNumber: String
-    name: String
-    mccCode: String
-    city: String
-    district: String
-    address: String
-    phone: String
-    email: String
-  ): JSON
-
-  qpayRegisterMerchantCustomer: JSON
-
-  qpayCreateInvoice(
-    merchantId: String
-    amount: Int
-    mccCode: String
-    description: String
-    callbackUrl: String
-  ): JSON
-
-
 `;

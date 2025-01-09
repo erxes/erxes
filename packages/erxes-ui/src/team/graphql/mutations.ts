@@ -159,6 +159,7 @@ const commonDeparmentParamsDef = `
   $code: String
   $supervisorId: String
   $userIds: [String]
+  $workhours: JSON
 `;
 
 const commonDeparmentParams = `
@@ -168,6 +169,7 @@ const commonDeparmentParams = `
   code: $code
   supervisorId: $supervisorId
   userIds: $userIds
+  workhours: $workhours
 `;
 
 const departmentsAdd = `
@@ -254,6 +256,7 @@ const commonBranchParamsDef = `
   $parentId: String
   $userIds: [String]
   $radius: Int
+  $workhours: JSON
   ${commonContactInfoParamsDef}
 `;
 
@@ -265,6 +268,7 @@ const commonBranchParams = `
   supervisorId: $supervisorId
   userIds: $userIds
   radius: $radius
+  workhours: $workhours
   ${commonContactInfoParams}
 `;
 
@@ -334,5 +338,5 @@ export default {
   branchesRemove,
   positionsAdd,
   positionsEdit,
-  positionsRemove,
+  positionsRemove
 };

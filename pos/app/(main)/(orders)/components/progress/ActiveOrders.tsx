@@ -30,9 +30,12 @@ const ActiveOrders = () => {
   useEffect(() => {
     subToOrderStatuses(ORDER_STATUSES.ALL)
     subToItems(ORDER_ITEM_STATUSES.ALL)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (loading) return null
+  if (loading) {
+    return null
+  }
 
   const arr = []
 

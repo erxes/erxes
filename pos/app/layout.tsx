@@ -10,9 +10,7 @@ import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: "Erxes POS",
   description: "POS integrated with Erxes",
-  generator: "Next.js",
   manifest: "/manifest.json",
   icons: [
     { rel: "apple-touch-icon", url: "icons/icon-128x128.png" },
@@ -35,13 +33,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
             src="/js/env.js"
           />
           <meta
-            name="viewport"
-            content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover"
-          />
-          <meta
             name="theme-color"
             media="(prefers-color-scheme: dark)"
             content="#fff"
+          />
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
           />
         </head>
         <body

@@ -1,28 +1,15 @@
-import { generateModels } from './connectionResolver';
-import { customerToDynamic, dealToDynamic } from './utils';
+import { generateModels } from "./connectionResolver";
+import { customerToDynamic } from "./utilsCustomer";
+import { dealToDynamic, getConfig } from "./utils";
 
 const allowTypes = {
-  'contacts:customer': ['create'],
-  'contacts:company': ['create'],
-  'pos:order': ['synced'],
+  "core:customer": ["create"],
+  "core:company": ["create"],
+  "pos:order": ["synced"]
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action, user } = params;
-
-  const models = await generateModels(subdomain);
-
-  const syncLogDoc = {
-    type: '',
-    contentType: type,
-    contentId: params.object._id,
-    createdAt: new Date(),
-    createdBy: user._id,
-    consumeData: params,
-    consumeStr: JSON.stringify(params),
-  };
-
-  let syncLog;
 
   if (!Object.keys(allowTypes).includes(type)) {
     return;
@@ -32,37 +19,54 @@ export const afterMutationHandlers = async (subdomain, params) => {
     return;
   }
 
+  let configs;
+
   try {
-    if (type === 'contacts:customer') {
-      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+    configs = await getConfig(subdomain, "DYNAMIC", {});
+    if (!configs || !Object.keys(configs).length) {
+      return;
+    }
+  } catch (e) {
+    return;
+  }
 
-      if (action === 'create') {
-        customerToDynamic(subdomain, syncLog, params.object, models);
-        return;
-      }
+  const models = await generateModels(subdomain);
+
+  const syncLogDoc = {
+    type: "",
+    contentType: type,
+    contentId: params.object?._id,
+    createdAt: new Date(),
+    createdBy: user?._id,
+    consumeData: params,
+    consumeStr: JSON.stringify(params)
+  };
+
+  let syncLog;
+
+  try {
+    if (type === "core:customer" && action === "create") {
+      await customerToDynamic(subdomain, params.updatedDocument || params.object, models, configs);
+      return;
     }
 
-    if (type === 'contacts:company') {
-      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-
-      if (action === 'create') {
-        customerToDynamic(subdomain, syncLog, params.object, models);
-        return;
-      }
+    if (type === "core:company" && action === "create") {
+      await customerToDynamic(subdomain, params.updatedDocument || params.object, models, configs);
+      return;
     }
 
-    if (type === 'pos:order') {
+    if (type === "pos:order") {
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
-      if (action === 'synced') {
-        dealToDynamic(subdomain, syncLog, params.object, models);
+      if (action === "synced") {
+        await dealToDynamic(subdomain, syncLog, params.updatedDocument || params.object, models, configs);
         return;
       }
     }
   } catch (e) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
-      { $set: { error: e.message } },
+      { $set: { error: e.message } }
     );
   }
 };

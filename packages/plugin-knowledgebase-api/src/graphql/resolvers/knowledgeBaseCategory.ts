@@ -3,12 +3,20 @@ import { ICategoryDocument } from '../../models/definitions/knowledgebase';
 import { IContext } from '../../connectionResolver';
 
 export const KnowledgeBaseCategory = {
-  articles(category: ICategoryDocument, _args, { models }: IContext) {
-    return models.KnowledgeBaseArticles.find({
+  async articles(category: ICategoryDocument, args, { models }: IContext) {
+    const { status } = args;
+    const query = {
       categoryId: category._id,
-      status: { $in: [PUBLISH_STATUSES.PUBLISH, PUBLISH_STATUSES.DRAFT] }
-    }).sort({
-      createdDate: -1
+      status: {
+        $in: [PUBLISH_STATUSES.PUBLISH, PUBLISH_STATUSES.DRAFT],
+      },
+    };
+    if (status) {
+      query.status = status;
+    }
+
+    return models.KnowledgeBaseArticles.find(query).sort({
+      createdDate: -1,
     });
   },
 
@@ -16,37 +24,50 @@ export const KnowledgeBaseCategory = {
     const articles = await models.KnowledgeBaseArticles.find(
       {
         categoryId: category._id,
-        status: { $in: [PUBLISH_STATUSES.PUBLISH, PUBLISH_STATUSES.DRAFT] }
+        status: { $in: [PUBLISH_STATUSES.PUBLISH, PUBLISH_STATUSES.DRAFT] },
       },
       { createdBy: 1 }
     );
 
-    const authorIds = articles.map(article => article.createdBy);
+    const authorIds = articles.map((article) => article.createdBy);
 
-    return (authorIds || []).map(_id => ({
+    return (authorIds || []).map((_id) => ({
       __typename: 'User',
-      _id
+      _id,
     }));
   },
 
-  firstTopic(category: ICategoryDocument, _args, { models }: IContext) {
+  async firstTopic(category: ICategoryDocument, _args, { models }: IContext) {
     return models.KnowledgeBaseTopics.findOne({ _id: category.topicId });
   },
 
-  numOfArticles(category: ICategoryDocument, _args, { models }: IContext) {
-    return models.KnowledgeBaseArticles.find({
+  async numOfArticles(
+    category: ICategoryDocument,
+    args,
+    { models }: IContext
+  ) {
+    const { status } = args;
+    const query = {
       categoryId: category._id,
-      status: { $in: [PUBLISH_STATUSES.PUBLISH, PUBLISH_STATUSES.DRAFT] }
-    }).countDocuments();
-  }
+      status: {
+        $in: [PUBLISH_STATUSES.PUBLISH, PUBLISH_STATUSES.DRAFT],
+      },
+    };
+
+    if (status) {
+      query.status = status;
+    }
+
+    return models.KnowledgeBaseArticles.find(query).countDocuments();
+  },
 };
 
 export const KnowledgeBaseParentCategory = {
   ...KnowledgeBaseCategory,
 
-  childrens(category: ICategoryDocument, _args, { models }: IContext) {
+  async childrens(category: ICategoryDocument, _args, { models }: IContext) {
     return models.KnowledgeBaseCategories.find({
-      parentCategoryId: category._id
+      parentCategoryId: category._id,
     }).sort({ title: 1 });
-  }
+  },
 };

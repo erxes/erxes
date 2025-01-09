@@ -1,9 +1,9 @@
-import { generateModels } from './connectionResolver';
-import { sendCardsMessage } from './messageBroker';
+import { generateModels } from "./connectionResolver";
+import { sendCardsMessage } from "./messageBroker";
 
 export default {
-  'cards:ticket': ['create', 'update', 'delete'],
-  'cards:task': ['create', 'update', 'delete']
+  "tickets:ticket": ["create", "update", "delete"],
+  "tasks:task": ["create", "update", "delete"]
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
@@ -12,9 +12,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
   const models = await generateModels(subdomain);
 
   if (
-    ['create', 'update'].includes(action) &&
+    ["create", "update"].includes(action) &&
     (newData?.customFieldsData || []).find(
-      field => field?.extraValue === 'riskAssessmentVisitors'
+      field => field?.extraValue === "riskAssessmentVisitors"
     )
   ) {
     await handleVistors({
@@ -28,12 +28,12 @@ export const afterMutationHandlers = async (subdomain, params) => {
     return;
   }
 
-  if (action === 'create') {
+  if (action === "create") {
     await handleConfig({ models, subdomain, params });
     return;
   }
 
-  if (action === 'delete') {
+  if (action === "delete") {
     const riskAssessment = await models.RiskAssessments.findOne({
       cardId: _id
     });
@@ -54,16 +54,16 @@ const handleVistors = async ({
   customFieldsData,
   newData
 }) => {
-  const contentType = type.replace('cards:', '');
+  const contentType = type.replace("cards:", "");
 
   const oldVisitorIds =
     customFieldsData.find(
-      field => field?.extraValue === 'riskAssessmentVisitors'
+      field => field?.extraValue === "riskAssessmentVisitors"
     )?.value || [];
 
   const newVisitorIds =
     (newData?.customFieldsData || []).find(
-      field => field?.extraValue === 'riskAssessmentVisitors'
+      field => field?.extraValue === "riskAssessmentVisitors"
     )?.value || [];
 
   const removedVistorIds = oldVisitorIds.filter(
@@ -75,7 +75,7 @@ const handleVistors = async ({
 
   await sendCardsMessage({
     subdomain,
-    action: 'sendNotifications',
+    action: "sendNotifications",
     data: {
       item: object,
       user,
@@ -96,10 +96,10 @@ const handleConfig = async ({ models, subdomain, params }) => {
     object || {};
   const stage = await sendCardsMessage({
     subdomain,
-    action: 'stages.findOne',
+    action: "stages.findOne",
     data: {
       _id: stageId,
-      type: type.replace('cards:', '')
+      type: type.replace("cards:", "")
     },
     isRPC: true,
     defaultValue: {}
@@ -107,7 +107,7 @@ const handleConfig = async ({ models, subdomain, params }) => {
 
   const [pipeline] = await sendCardsMessage({
     subdomain,
-    action: 'pipelines.find',
+    action: "pipelines.find",
     data: {
       _id: stage?.pipelineId
     },
@@ -116,7 +116,7 @@ const handleConfig = async ({ models, subdomain, params }) => {
   });
 
   const commonFilter = {
-    cardType: type.replace('cards:', ''),
+    cardType: type.replace("cards:", ""),
     boardId: pipeline.boardId,
     pipelineId: stage.pipelineId
   };
@@ -124,7 +124,7 @@ const handleConfig = async ({ models, subdomain, params }) => {
   const addedRiskAssessment: any[] = [];
   const conformity = {
     cardId: _id,
-    cardType: type.replace('cards:', '')
+    cardType: type.replace("cards:", "")
   } as any;
 
   if (!!branchIds?.length) {
@@ -139,7 +139,7 @@ const handleConfig = async ({ models, subdomain, params }) => {
     const config = await models.RiskAssessmentsConfigs.findOne({
       $or: [
         { ...commonFilter, stageId, customFieldId: data.field },
-        { ...commonFilter, stageId: '', customFieldId: data.field }
+        { ...commonFilter, stageId: "", customFieldId: data.field }
       ]
     })
       .sort({ createdAt: -1 })
@@ -151,22 +151,20 @@ const handleConfig = async ({ models, subdomain, params }) => {
       if (customField) {
         if (!!customField?.indicatorIds?.length) {
           for (const indicatorId of customField.indicatorIds) {
-            const addedConformity = await models.RiskAssessments.addRiskAssessment(
-              {
+            const addedConformity =
+              await models.RiskAssessments.addRiskAssessment({
                 ...conformity,
                 indicatorId: indicatorId || undefined
-              }
-            );
+              });
             addedRiskAssessment.push(addedConformity);
           }
         } else {
-          const addedConformity = await models.RiskAssessments.addRiskAssessment(
-            {
+          const addedConformity =
+            await models.RiskAssessments.addRiskAssessment({
               ...conformity,
               indicatorId: customField.indicatorId,
               groupId: customField.groupId
-            }
-          );
+            });
           addedRiskAssessment.push(addedConformity);
         }
       }
@@ -179,7 +177,7 @@ const handleConfig = async ({ models, subdomain, params }) => {
     const config = await models.RiskAssessmentsConfigs.findOne({
       $or: [
         { ...filter, stageId },
-        { ...filter, stageId: '' }
+        { ...filter, stageId: "" }
       ]
     })
       .sort({ createdAt: -1 })

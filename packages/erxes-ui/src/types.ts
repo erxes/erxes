@@ -1,5 +1,5 @@
-import { IActivityLogForMonth } from '@erxes/ui-log/src/activityLogs/types';
-import { IUser } from './auth/types';
+import { IActivityLogForMonth } from "@erxes/ui-log/src/activityLogs/types";
+import { IUser } from "./auth/types";
 
 export interface IRouterProps {
   location: any;
@@ -20,6 +20,11 @@ export type IAttachmentPreview = {
   type: string;
   data: string;
 } | null;
+
+export interface IPdfAttachment {
+  pdf?: IAttachment;
+  pages: IAttachment[];
+}
 
 export interface IAnimatedLoader {
   height?: string;
@@ -115,7 +120,6 @@ export interface IField {
   };
   logics?: IFieldLogic[];
   logicAction?: string;
-  groupName?: string;
   pageNumber?: number;
   searchable?: boolean;
   showInCard?: boolean;
@@ -125,6 +129,7 @@ export interface IField {
 
   relationType?: string;
   subFieldIds?: string[];
+  isDisabled?: boolean;
 }
 
 export interface IFormProps {
@@ -142,6 +147,7 @@ export type IOption = {
   value: string;
   avatar?: string;
   extraValue?: string;
+  obj?: any;
 };
 
 export type IButtonMutateProps = {
@@ -183,7 +189,7 @@ export type IEditorProps = {
   showMentions?: boolean;
   toolbar?: any[];
   autoFocus?: boolean;
-  toolbarLocation?: 'top' | 'bottom';
+  toolbarLocation?: "top" | "bottom";
   autoGrow?: boolean;
   autoGrowMinHeight?: number | string;
   autoGrowMaxHeight?: number | string;
@@ -191,6 +197,9 @@ export type IEditorProps = {
   isSubmitted?: boolean;
   formItems?: any;
   contentType?: string;
+  additionalToolbarContent?: (props: {
+    onClick: (placeholder: string) => void;
+  }) => React.ReactNode;
 };
 
 export type QueryResponse = {
@@ -211,3 +220,8 @@ export type ActivityLogQueryResponse = {
 export type Counts = {
   [key: string]: number;
 };
+
+export interface IAbortController {
+  readonly signal: AbortSignal;
+  abort?: () => void;
+}

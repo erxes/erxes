@@ -3,7 +3,7 @@ import {
   Routes,
   useLocation,
   useNavigate,
-  useParams,
+  useParams
 } from "react-router-dom";
 
 import React from "react";
@@ -77,7 +77,7 @@ const ResponseListComponent = () => {
 const routes = () => {
   return (
     <Routes>
-      <Route path="/forms" element={<Forms />} />
+      {/* <Route path="/forms" element={<Forms />} />
       <Route
         key="/forms/create"
         path="/forms/create"
@@ -94,7 +94,7 @@ const routes = () => {
         key="/forms/responses/:integrationId?/:formId?"
         path="/forms/responses/:integrationId?/:formId?"
         element={<ResponseListComponent />}
-      />
+      /> */}
     </Routes>
   );
 };

@@ -1,8 +1,15 @@
-import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendSegmentsMessage } from '../messageBroker';
-import { goalSchema, IGoal, IGoalDocument } from './definitions/goals';
-import { CONTRIBUTIONTYPE, TEAMGOALTYPE } from '../constants';
+import { Model } from "mongoose";
+import { IModels } from "../connectionResolver";
+import {
+  sendCoreMessage,
+  sendSalesMessage,
+  sendTasksMessage,
+  sendTicketsMessage,
+  sendPurchasesMessage
+} from "../messageBroker";
+import { goalSchema, IGoal, IGoalDocument } from "./definitions/goals";
+import { CONTRIBUTIONTYPE, TEAMGOALTYPE } from "../constants";
+import { compileFunction } from "vm";
 export interface IGoalModel extends Model<IGoalDocument> {
   getGoal(_id: string): Promise<IGoalDocument>;
   createGoal(doc: IGoal): Promise<IGoalDocument>;
@@ -93,59 +100,158 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       amountData: any;
       target: number;
     }
+    interface Product {
+      amount: number;
+    }
 
+    interface PaymentData {
+      prepay?: number;
+      cash?: number;
+      bankTransaction?: number;
+      posTerminal?: number;
+      wallet?: number;
+      barter?: number;
+      receivable?: number;
+      other?: number;
+    }
+
+    interface FilteredAmount {
+      productsData?: Product[];
+      mobileAmounts?: { amount: number }[];
+      paymentsData?: PaymentData;
+      status?: string;
+    }
+
+    interface Goal {
+      _id: string;
+      addMonthly: string;
+      addTarget: number;
+      current?: number;
+      progress?: number;
+      filteredAmount: FilteredAmount[];
+    }
     const data: DataItem[] = [];
-    for (const item of doc) {
-      let amount;
 
-      let requestData: any;
+    interface RequestData {
+      tagIds?: string[];
+      stageId?: string;
+      assignedUserIds?: string[];
+      departmentIds?: string[];
+      branchIds?: string[];
+      companyIds?: string[];
+      unit?: string[];
+    }
+    const getRequestData = (item): RequestData => {
+      let requestData: RequestData = {}; // Explicit type declaration
 
+      // Add tagIds if available
+      if (item.tagsIds && item.tagsIds.length > 0) {
+        requestData.tagIds = item.tagsIds;
+      }
+
+      // Add stageId if available
+      if (item.stageId) {
+        requestData.stageId = item.stageId;
+      }
+
+      // Handle assignedUserIds, ensuring it doesn't include empty strings
       if (item.contributionType === CONTRIBUTIONTYPE.PERSON) {
-        requestData = {
-          assignedUserIds: item.contribution
-        };
-      } else if (item.contributionType === CONTRIBUTIONTYPE.TEAM) {
-        if (item.teamGoalType === TEAMGOALTYPE.DEPARTMENT) {
-          requestData = {
-            departmentIds: item.department
-          };
-        } else if (item.teamGoalType === TEAMGOALTYPE.BRANCH) {
-          requestData = {
-            branchIds: item.branch
-          };
+        const assignedUserIds = item.contribution.filter((id) => id !== "");
+        if (assignedUserIds.length > 0) {
+          requestData.assignedUserIds = assignedUserIds;
         }
       }
-      // Send the request
-      amount = await sendCardsMessage({
-        subdomain,
-        action: item.entity + 's.find',
-        data: {
-          ...requestData, // Spread the requestData to include its properties
-          stageId: item.stageId
-        },
-        isRPC: true
-      });
+
+      // Handle team-specific data (assuming the same logic for teams)
+      if (item.contributionType === CONTRIBUTIONTYPE.TEAM) {
+        const teamGoalMapping = {
+          [TEAMGOALTYPE.DEPARTMENT]: { departmentIds: item.department },
+          [TEAMGOALTYPE.BRANCH]: { branchIds: item.branch },
+          // [TEAMGOALTYPE.COMPANIES]: { companyIds: item.companyIds },
+          [TEAMGOALTYPE.UNITS]: { unit: item.unit }
+        };
+
+        // Merge team-specific data
+        Object.assign(requestData, teamGoalMapping[item.teamGoalType]);
+      }
+
+      return requestData;
+    };
+
+    for (const item of doc) {
+      let amount;
+      const type = item.periodGoal;
+      // let requestData: any;
+      let requestData = getRequestData(item);
+
+      const entityMessageMap = {
+        deal: sendSalesMessage,
+        task: sendTasksMessage,
+        purchase: sendPurchasesMessage,
+        ticket: sendTicketsMessage
+      };
+
+      let cardType = entityMessageMap[item.entity];
+      if (!cardType) {
+        throw new Error(`Unsupported entity: ${item.entity}`);
+      }
+      try {
+        amount = await getAmount(item, subdomain, requestData);
+      } catch (error) {
+        console.error(`Error fetching amount for ${item.entity}:`, error);
+        continue;
+      }
+      let companies;
+      if (item.contributionType === CONTRIBUTIONTYPE.TEAM) {
+        // Ensure companyIds exists before attempting to use it
+
+        if (item.companyIds && Array.isArray(item.companyIds)) {
+          const mainTypeIds = Array.isArray(amount)
+            ? amount.map((result) => result._id)
+            : [amount._id];
+
+          try {
+            companies = await getCompanies(item, subdomain, mainTypeIds);
+          } catch (error) {
+            console.error(
+              `Error fetching companies for ${item.entity}:`,
+              error
+            );
+            continue;
+          }
+        } else {
+          throw new Error(
+            '"No companyIds found or companyIds is not an array"'
+          );
+        }
+      }
+
+      if (companies.length > 0) {
+        amount = amount.filter((result) =>
+          companies.some((conformity) => conformity.mainTypeId === result._id)
+        );
+      }
+      if (!Array.isArray(amount) || amount.length === 0) {
+        console.log("No valid amount found, skipping this item.");
+        continue;
+      }
 
       let customerIdsBySegments: string[] = [];
 
       try {
-        // Assuming 'item' is the object containing segmentIds
         for (const segment of item.segmentIds || []) {
-          const cIds = await sendSegmentsMessage({
+          const cIds = await sendCoreMessage({
             isRPC: true,
             subdomain,
             action: 'fetchSegment',
             data: { segmentId: segment }
           });
 
-          // Concatenate the fetched customer IDs to the array
           customerIdsBySegments = [...customerIdsBySegments, ...cIds];
         }
 
-        // Get the count of elements in the array
         const count = customerIdsBySegments.length;
 
-        // Update the database
         await models.Goals.updateOne(
           { _id: item._id },
           {
@@ -160,129 +266,160 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       let current;
       let progress;
       let amountData;
-
-      if (item.metric === 'Value') {
-        let mobileAmountsData;
-        let data;
+      const filteredGoals: Goal[] = await getFilteredGoals(item, amount, type);
+      if (item.metric === "Value") {
+        let mobileAmountsData: number | undefined;
+        let data: number | undefined;
         let totalAmount = 0;
-        for (const items of amount) {
-          if (items.productsData && items.status === 'active') {
-            const productsData = items.productsData;
 
-            productsData.forEach(item => {
-              totalAmount += item.amount;
-            });
-          }
-          if (items.mobileAmounts && items.mobileAmounts.length > 0) {
-            mobileAmountsData = items.mobileAmounts[0].amount;
-          }
-          if (items.paymentsData) {
-            const paymentsData = items.paymentsData;
-            if (paymentsData.prepay) {
-              data = paymentsData.prepay;
-            } else if (paymentsData.cash) {
-              data = paymentsData.cash;
-            } else if (paymentsData.bankTransaction) {
-              data = paymentsData.bankTransaction;
-            } else if (paymentsData.posTerminal) {
-              data = paymentsData.posTerminal;
-            } else if (paymentsData.wallet) {
-              data = paymentsData.wallet;
-            } else if (paymentsData.barter) {
-              data = paymentsData.barter;
-            } else if (paymentsData.receivable) {
-              data = paymentsData.receivable;
-            } else if (paymentsData.other) {
-              data = paymentsData.other;
+        type GoalWithoutFilteredAmount = Omit<Goal, "filteredAmount">;
+
+        const updatedGoals: GoalWithoutFilteredAmount[] = [];
+        // Process filtered goals
+        for (const goal of filteredGoals) {
+          let goalTotalAmount = 0;
+
+          for (const items of goal.filteredAmount) {
+            if (items.productsData && items.status === "active") {
+              items.productsData.forEach((product) => {
+                if (product.amount) {
+                  goalTotalAmount += product.amount;
+                }
+              });
+            }
+            if (items.mobileAmounts && items.mobileAmounts.length > 0) {
+              mobileAmountsData = items.mobileAmounts[0].amount;
+            }
+            if (items.paymentsData) {
+              const paymentsData = items.paymentsData;
+              if (paymentsData.prepay) {
+                data = paymentsData.prepay;
+              } else if (paymentsData.cash) {
+                data = paymentsData.cash;
+              } else if (paymentsData.bankTransaction) {
+                data = paymentsData.bankTransaction;
+              } else if (paymentsData.posTerminal) {
+                data = paymentsData.posTerminal;
+              } else if (paymentsData.wallet) {
+                data = paymentsData.wallet;
+              } else if (paymentsData.barter) {
+                data = paymentsData.barter;
+              } else if (paymentsData.receivable) {
+                data = paymentsData.receivable;
+              } else if (paymentsData.other) {
+                data = paymentsData.other;
+              }
             }
           }
+
+          const progress = ((goalTotalAmount / goal.addTarget) * 100).toFixed(
+            2
+          );
+
+          updatedGoals.push({
+            _id: goal._id,
+            addMonthly: goal.addMonthly,
+            addTarget: goal.addTarget || 0,
+            current: goalTotalAmount,
+            progress: parseFloat(progress)
+          });
+
+          totalAmount += goalTotalAmount;
         }
-        current = totalAmount;
-        amountData = {
+
+        function mergeGoalsWithDefaults(
+          existingGoals: GoalWithoutFilteredAmount[],
+          allGoals: Goal[]
+        ): Goal[] {
+          const updatedGoalsMap = new Map(
+            existingGoals.map((goal) => [goal._id, goal])
+          );
+
+          return allGoals.map((goal) => {
+            const existingGoal = updatedGoalsMap.get(goal._id);
+
+            return {
+              ...goal,
+              current: existingGoal ? existingGoal.current : 0,
+              progress: existingGoal ? existingGoal.progress : 0
+            };
+          });
+        }
+
+        const result = mergeGoalsWithDefaults(
+          updatedGoals,
+          item.specificPeriodGoals
+        );
+        const amountData = {
           mobileAmountsData,
           paymentsData: data
         };
-        progress = await differenceFunction(current, item.target);
-        if (
-          item.specificPeriodGoals &&
-          Array.isArray(item.specificPeriodGoals)
-        ) {
-          const updatedSpecificPeriodGoals = item.specificPeriodGoals
-            .filter(
-              result =>
-                current !== 0 &&
-                !isNaN(current) &&
-                result.addTarget !== 0 &&
-                result.addTarget !== null
-            )
-            .map(result => {
-              let convertedNumber;
-              if (current === 0 || result.addTarget === 0) {
-                convertedNumber = 100;
-              } else {
-                const diff = (current / result.addTarget) * 100;
-                convertedNumber = diff.toFixed(3);
-              }
-
-              return {
-                ...result,
-                addMonthly: result.addMonthly, // update other properties as needed
-                current,
-                progress: convertedNumber // updating the progress property
-              };
-            });
-
+        try {
           await models.Goals.updateOne(
             { _id: item._id },
             {
               $set: {
-                specificPeriodGoals: updatedSpecificPeriodGoals
+                specificPeriodGoals: result
               }
             }
           );
+        } catch (error) {
+          console.error('Error updating goals:', error);
         }
       } else if (item.metric === 'Count') {
-        const activeElements = amount.filter(item => item.status === 'active');
-        current = activeElements.length;
-        progress = await differenceFunction(current, item.target);
+        function calculateProgressAndCurrent(filteredGoals: Goal[]): Goal[] {
+          return filteredGoals.map((goal) => {
+            let current = 0;
 
-        if (
-          item.specificPeriodGoals &&
-          Array.isArray(item.specificPeriodGoals)
-        ) {
-          const updatedSpecificPeriodGoals = item.specificPeriodGoals
-            .filter(
-              result =>
-                current !== 0 &&
-                !isNaN(current) &&
-                result.addTarget !== 0 &&
-                result.addTarget !== null
-            )
-            .map(result => {
-              let convertedNumber;
-              if (current === 0 || result.addTarget === 0) {
-                convertedNumber = 100;
-              } else {
-                const diff = (current / result.addTarget) * 100;
-                convertedNumber = diff.toFixed(3);
-              }
-
-              return {
-                ...result,
-                addMonthly: result.addMonthly, // update other properties as needed
-                current,
-                progress: convertedNumber // updating the progress property
-              };
-            });
-
-          await models.Goals.updateOne(
-            { _id: item._id },
-            {
-              $set: {
-                specificPeriodGoals: updatedSpecificPeriodGoals
+            if (goal.filteredAmount) {
+              if (Array.isArray(goal.filteredAmount)) {
+                current = goal.filteredAmount.length;
+              } else if (typeof goal.filteredAmount === "number") {
+                current = goal.filteredAmount;
               }
             }
+
+            const progress =
+              goal.addTarget > 0 ? (current / goal.addTarget) * 100 : 0;
+
+            return {
+              ...goal,
+              current,
+              progress: parseFloat(progress.toFixed(2)) // Round to 2 decimal places
+            };
+          });
+        }
+
+        const countGoal: Goal[] = await getFilteredGoals(item, amount, type);
+        const countUpdateGoal = calculateProgressAndCurrent(countGoal);
+
+        function mergeGoals(
+          countUpdateGoal: Goal[],
+          specificPeriodGoals: Goal[]
+        ): Goal[] {
+          const updatedGoalsMap = new Map(
+            countUpdateGoal.map((goal) => [goal._id, goal])
           );
+
+          return specificPeriodGoals.map((goal) => {
+            const updatedGoal = updatedGoalsMap.get(goal._id);
+            return {
+              ...goal,
+              current: updatedGoal ? updatedGoal.current : 0,
+              progress: updatedGoal ? updatedGoal.progress : 0
+            };
+          });
+        }
+
+        const result = mergeGoals(countUpdateGoal, item.specificPeriodGoals);
+
+        try {
+          await models.Goals.updateOne(
+            { _id: item._id },
+            { $set: { specificPeriodGoals: result } }
+          );
+        } catch (error) {
+          console.error('Error updating goals:', error);
         }
       }
 
@@ -325,19 +462,142 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
     }
   }
 
-  async function differenceFunction(amount: number, target: number) {
-    let convertedNumber;
-    if (amount === 0 || target === 0 || isNaN(amount)) {
-      convertedNumber = 0;
-    } else {
-      const diff = (amount / target) * 100;
-      convertedNumber = diff.toFixed(3);
-    }
-
-    return convertedNumber;
-  }
-
   goalSchema.loadClass(Goal);
 
   return goalSchema;
 };
+
+function parseMonth(monthStr) {
+  const match = monthStr.match(/Month of (\w+) (\d{4})/);
+  if (match) {
+    const [_, month, year] = match;
+    const monthMap = {
+      January: 0,
+      February: 1,
+      March: 2,
+      April: 3,
+      May: 4,
+      June: 5,
+      July: 6,
+      August: 7,
+      September: 8,
+      October: 9,
+      November: 10,
+      December: 11
+    };
+    const monthIndex = monthMap[month];
+    if (monthIndex === undefined) {
+      console.error(`Invalid month name: ${month}`);
+      return { start: null, end: null };
+    }
+    return {
+      start: new Date(Date.UTC(year, monthIndex, 1)),
+      end: new Date(Date.UTC(year, monthIndex + 1, 0))
+    };
+  } else {
+    console.error(`Failed to parse month for goal: ${monthStr}`);
+    return { start: null, end: null };
+  }
+}
+
+function parseWeek(weekString: string): { start: Date; end: Date } {
+  const regex =
+    /Week of (\w{3}) (\w{3} \d{2} \d{4}) - (\w{3}) (\w{3} \d{2} \d{4})/;
+  const matches = weekString.match(regex);
+
+  if (!matches) {
+    throw new Error(`Invalid week string format. Received: "${weekString}"`);
+  }
+
+  const startDate = new Date(matches[2]);
+  const endDate = new Date(matches[4]);
+
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    throw new Error(`Invalid date format in week string: "${weekString}"`);
+  }
+
+  return {
+    start: startDate,
+    end: endDate
+  };
+}
+
+function filterAmountsForGoal(goal, amounts, type) {
+  let goalStartDate, goalEndDate;
+  if (type === "Monthly") {
+    const { start, end } = parseMonth(goal.addMonthly);
+    goalStartDate = start;
+    goalEndDate = end;
+  } else if (type === "Weekly") {
+    const { start, end } = parseWeek(goal.addMonthly);
+    goalStartDate = start;
+    goalEndDate = end;
+  } else {
+    console.error(`Invalid goal period: ${goal.periodGoal}`);
+    return [];
+  }
+
+  if (!goalStartDate || !goalEndDate) {
+    console.error(`Failed to parse dates for goal: ${goal.addMonthly}`);
+    return [];
+  }
+
+  goalStartDate = new Date(goalStartDate).getTime();
+  goalEndDate = new Date(goalEndDate).getTime();
+
+  return amounts.filter((entry) => {
+    const createdAt = new Date(entry.createdAt).getTime();
+    return createdAt >= goalStartDate && createdAt <= goalEndDate;
+  });
+}
+
+function getFilteredGoals(item, amounts, type) {
+  return item.specificPeriodGoals
+    .map((goal) => ({
+      ...goal,
+      filteredAmount: filterAmountsForGoal(goal, amounts, type)
+    }))
+    .filter((goal) => goal.filteredAmount.length > 0);
+}
+
+async function getAmount(item, subdomain, requestData) {
+  const entityMessageMap = {
+    deal: sendSalesMessage,
+    task: sendTasksMessage,
+    purchase: sendPurchasesMessage,
+    ticket: sendTicketsMessage
+  };
+
+  const cardType = entityMessageMap[item.entity];
+  if (!cardType) {
+    throw new Error(`Unsupported entity: ${item.entity}`);
+  }
+
+  return await cardType({
+    subdomain,
+    action: `${item.entity}s.find`,
+    data: requestData,
+    isRPC: true
+  });
+}
+
+// Function to get companies based on companyIds and other item data
+async function getCompanies(item, subdomain, mainTypeIds) {
+  const conformities = await sendCoreMessage({
+    subdomain,
+    action: "conformities.getConformities",
+    data: {
+      mainType: item.entity,
+      mainTypeIds: mainTypeIds,
+      companyIds: item.companyIds,
+      relTypes: ["company"]
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  // Filter companies where relTypeId matches any of the provided companyIds
+  return conformities.filter((result) =>
+    item.companyIds.includes(result.relTypeId)
+  );
+}

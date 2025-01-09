@@ -1,46 +1,47 @@
-import { Alert, __, loadDynamicComponent } from "@erxes/ui/src/utils";
-import { Dialog, Transition } from "@headlessui/react";
+import { Alert, __, loadDynamicComponent } from '@erxes/ui/src/utils';
+import { Dialog, Transition } from '@headlessui/react';
 import {
   DialogContent,
   DialogWrapper,
   ModalFooter,
   ModalOverlay,
-} from "@erxes/ui/src/styles/main";
+} from '@erxes/ui/src/styles/main';
 import {
   FlexRow,
   LeftSection,
   Preview,
   PreviewSection,
   ShowPreview,
-} from "../styles";
-import { IField, IFieldLogic, IOption } from "@erxes/ui/src/types";
+} from '../styles';
+import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types';
 
-import Button from "@erxes/ui/src/components/Button";
-import CollapseContent from "@erxes/ui/src/components/CollapseContent";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import FieldLogics from "./FieldLogics";
-import FieldPreview from "./FieldPreview";
-import { FlexItem } from "@erxes/ui/src/components/step/styles";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import GroupedField from "./GroupedField";
-import { IProductCategory } from "@erxes/ui-products/src/types";
-import Icon from "@erxes/ui/src/components/Icon";
-import LocationOptions from "./LocationOptions";
-import ObjectListConfigs from "./ObjectListConfigs";
-import React from "react";
-import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
-import Select from "react-select";
-import SelectProperty from "@erxes/ui-forms/src/settings/properties/containers/SelectProperty";
-import Toggle from "@erxes/ui/src/components/Toggle";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-import { stringToRegex } from "../../settings/properties/utils";
+import Button from '@erxes/ui/src/components/Button';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FieldLogics from './FieldLogics';
+import FieldPreview from './FieldPreview';
+import { FlexItem } from '@erxes/ui/src/components/step/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import GroupedField from './GroupedField';
+import { IProductCategory } from '@erxes/ui-products/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import LocationOptions from './LocationOptions';
+import ObjectListConfigs from './ObjectListConfigs';
+import React from 'react';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+import Select from 'react-select';
+import SelectProperty from '@erxes/ui-forms/src/settings/properties/containers/SelectProperty';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { stringToRegex } from '../../settings/properties/utils';
+import SelectProductCategory from '@erxes/ui-products/src/containers/form/SelectProductCategory';
 
 type Props = {
   onSubmit: (field: IField) => void;
   onDelete: (field: IField) => void;
   onCancel: () => void;
-  mode: "create" | "update";
+  mode: 'create' | 'update';
   field: IField;
   fields: IField[];
   numberOfPages: number;
@@ -65,14 +66,14 @@ class FieldForm extends React.Component<Props, State> {
     };
 
     let group =
-      (field.associatedField && field.associatedField.contentType) || "";
+      (field.associatedField && field.associatedField.contentType) || '';
 
-    if (field.type.includes("customerLinks")) {
-      group = "customer";
+    if (field.type.includes('customerLinks')) {
+      group = 'customer';
     }
 
-    if (field.type.includes("companyLinks")) {
-      group = "company";
+    if (field.type.includes('companyLinks')) {
+      group = 'company';
     }
 
     this.state = {
@@ -90,10 +91,8 @@ class FieldForm extends React.Component<Props, State> {
   };
 
   onEditorChange = (content: string) => {
-    const { field } = this.state;
-
+    const field = { ...this.state.field };
     field.content = content;
-
     this.setState({ field });
   };
 
@@ -109,11 +108,11 @@ class FieldForm extends React.Component<Props, State> {
   };
 
   onChangeLocation = (options) => {
-    this.setFieldAttrChanges("locationOptions", options);
+    this.setFieldAttrChanges('locationOptions', options);
   };
 
   onChangeObjectListConfig = (objectListConfigs) => {
-    this.setFieldAttrChanges("objectListConfigs", objectListConfigs);
+    this.setFieldAttrChanges('objectListConfigs', objectListConfigs);
   };
 
   onPropertyChange = (selectedField: IField) => {
@@ -122,8 +121,8 @@ class FieldForm extends React.Component<Props, State> {
     field.associatedFieldId = selectedField._id;
     field.associatedField = {
       _id: selectedField._id,
-      text: selectedField.text || "",
-      contentType: group || "",
+      text: selectedField.text || '',
+      contentType: group || '',
     };
 
     field.validation = selectedField.validation;
@@ -132,19 +131,19 @@ class FieldForm extends React.Component<Props, State> {
     field.text = selectedField.text;
     field.description = selectedField.description;
 
-    if (group === "contacts:company") {
+    if (group === 'core:company') {
       switch (field.type) {
-        case "avatar":
-          field.type = "company_avatar";
+        case 'avatar':
+          field.type = 'company_avatar';
           break;
-        case "description":
-          field.type = "company_description";
+        case 'description':
+          field.type = 'company_description';
           break;
-        case "isSubscribed":
-          field.type = "company_isSubscribed";
+        case 'isSubscribed':
+          field.type = 'company_isSubscribed';
           break;
-        case "size":
-          field.validation = "number";
+        case 'size':
+          field.validation = 'number';
           break;
 
         default:
@@ -156,7 +155,7 @@ class FieldForm extends React.Component<Props, State> {
       field,
       selectedOption: {
         value: selectedField._id,
-        label: selectedField.text || "",
+        label: selectedField.text || '',
       },
     });
   };
@@ -166,7 +165,7 @@ class FieldForm extends React.Component<Props, State> {
       this.setState({
         field: {
           ...this.state.field,
-          regexValidation: "",
+          regexValidation: '',
         },
       });
       return;
@@ -187,8 +186,8 @@ class FieldForm extends React.Component<Props, State> {
 
     const { field } = this.state;
 
-    if (field.type !== "html" && !field.text?.length) {
-      return Alert.error(__("Label is required!"));
+    if (field.type !== 'html' && !field.text?.length) {
+      return Alert.error(__('Label is required!'));
     }
 
     this.props.onSubmit(field);
@@ -208,47 +207,47 @@ class FieldForm extends React.Component<Props, State> {
     const { field } = this.state;
     const type = field.type;
 
-    if (type !== "input" && type !== "email" && type !== "phone") {
+    if (type !== 'input' && type !== 'email' && type !== 'phone') {
       return null;
     }
 
     const validation = (e) => {
       const value = (e.currentTarget as HTMLInputElement).value;
       this.onFieldChange(
-        "validation",
+        'validation',
         (e.currentTarget as HTMLInputElement).value
       );
     };
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="validation">Validation:</ControlLabel>
+        <ControlLabel htmlFor='validation'>Validation:</ControlLabel>
 
         <FormControl
-          id="validation"
-          componentclass="select"
-          value={field.validation || ""}
+          id='validation'
+          componentclass='select'
+          value={field.validation || ''}
           onChange={validation}
         >
           <option />
-          <option value="email">{__("Email")}</option>
-          <option value="number">{__("Number")}</option>
-          <option value="datetime">{__("Date Time")}</option>
-          <option value="date">{__("Date")}</option>
-          <option value="phone">{__("Phone")}</option>
-          <option value="regex">{__("Regular Expression")}</option>
+          <option value='email'>{__('Email')}</option>
+          <option value='number'>{__('Number')}</option>
+          <option value='datetime'>{__('Date Time')}</option>
+          <option value='date'>{__('Date')}</option>
+          <option value='phone'>{__('Phone')}</option>
+          <option value='regex'>{__('Regular Expression')}</option>
         </FormControl>
 
-        {field.validation === "regex" && (
+        {field.validation === 'regex' && (
           <>
             <FormControl
-              id="regex"
-              placeholder="enter sample text here"
-              componentclass="input"
+              id='regex'
+              placeholder='Enter sample text here'
+              componentclass='input'
               onChange={this.onRegexChange}
             />
             {field.regexValidation && (
-              <p>RegexPattern: {field.regexValidation || ""}</p>
+              <p>RegexPattern: {field.regexValidation || ''}</p>
             )}
           </>
         )}
@@ -261,22 +260,22 @@ class FieldForm extends React.Component<Props, State> {
 
     const onChange = (e) =>
       this.onFieldChange(
-        "options",
-        (e.currentTarget as HTMLInputElement).value.split("\n")
+        'options',
+        (e.currentTarget as HTMLInputElement).value.split('\n')
       );
 
-    if (!["select", "check", "radio", "multiSelect"].includes(field.type)) {
+    if (!['select', 'check', 'radio', 'multiSelect'].includes(field.type)) {
       return null;
     }
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="type">Options:</ControlLabel>
+        <ControlLabel htmlFor='type'>Options:</ControlLabel>
 
         <FormControl
-          id="options"
-          componentclass="textarea"
-          value={(field.options || []).join("\n")}
+          id='options'
+          componentclass='textarea'
+          value={(field.options || []).join('\n')}
           onChange={onChange}
         />
       </FormGroup>
@@ -286,13 +285,13 @@ class FieldForm extends React.Component<Props, State> {
   renderLocationOptions() {
     const { field } = this.state;
 
-    if (field.type !== "map") {
+    if (field.type !== 'map') {
       return null;
     }
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="locationOptions">Options:</ControlLabel>
+        <ControlLabel htmlFor='locationOptions'>Options:</ControlLabel>
         <LocationOptions
           locationOptions={field.locationOptions || []}
           onChange={this.onChangeLocation}
@@ -304,7 +303,7 @@ class FieldForm extends React.Component<Props, State> {
   renderExtraButton() {
     const { mode, field } = this.props;
 
-    if (mode === "create") {
+    if (mode === 'create') {
       return null;
     }
 
@@ -314,7 +313,7 @@ class FieldForm extends React.Component<Props, State> {
     };
 
     return (
-      <Button btnStyle="danger" onClick={onDelete} icon="minus-circle-1">
+      <Button btnStyle='danger' onClick={onDelete} icon='minus-circle-1'>
         Delete
       </Button>
     );
@@ -323,25 +322,25 @@ class FieldForm extends React.Component<Props, State> {
   renderMultipleSelectCheckBox() {
     const { field } = this.state;
 
-    const isSelect = ["select", "multiSelect"].includes(field.type);
+    const isSelect = ['select', 'multiSelect'].includes(field.type);
 
     if (!isSelect) {
       return;
     }
 
     const onChange = (e) => {
-      field.type = e.target.checked ? "multiSelect" : "select";
+      field.type = e.target.checked ? 'multiSelect' : 'select';
       this.setState({ field });
     };
 
     return (
       <FormGroup>
         <FlexRow>
-          <ControlLabel htmlFor="description">
-            {__("Select multiple values")}
+          <ControlLabel htmlFor='description'>
+            {__('Select multiple values')}
           </ControlLabel>
           <Toggle
-            defaultChecked={field.type === "multiSelect"}
+            defaultChecked={field.type === 'multiSelect'}
             icons={{
               checked: <span>Yes</span>,
               unchecked: <span>No</span>,
@@ -356,13 +355,13 @@ class FieldForm extends React.Component<Props, State> {
   renderObjectListOptions() {
     const { field } = this.state;
 
-    if (field.type !== "objectList") {
+    if (field.type !== 'objectList') {
       return null;
     }
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="objectListConfigs">
+        <ControlLabel htmlFor='objectListConfigs'>
           Object List Configs:
         </ControlLabel>
         <ObjectListConfigs
@@ -380,17 +379,17 @@ class FieldForm extends React.Component<Props, State> {
     const handleChange = (e) => {
       const { value } = e.currentTarget as HTMLInputElement;
 
-      this.onFieldChange("optionsValues", value);
+      this.onFieldChange('optionsValues', value);
     };
 
-    if (["select", "radio"].includes(field.type)) {
+    if (['select', 'radio'].includes(field.type)) {
       return (
-        <CollapseContent title={__("Field Value")}>
+        <CollapseContent title={__('Field Value')}>
           <FormGroup>
-            <ControlLabel>{__("Value")}</ControlLabel>
+            <ControlLabel>{__('Value')}</ControlLabel>
             <FormControl
-              id="FieldValue"
-              componentclass="textarea"
+              id='FieldValue'
+              componentclass='textarea'
               defaultValue={optionsValues}
               onChange={handleChange}
             />
@@ -415,12 +414,12 @@ class FieldForm extends React.Component<Props, State> {
     }
 
     const onChange = (option) => {
-      this.onFieldChange("pageNumber", option.value);
+      this.onFieldChange('pageNumber', option.value);
     };
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="pageNumber">Page number</ControlLabel>
+        <ControlLabel htmlFor='pageNumber'>Page number</ControlLabel>
         <Select
           required={true}
           value={options.find(
@@ -434,6 +433,14 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
+  renderProductField() {
+    const { field } = this.state;
+
+    return (
+      <SelectProductCategory field={field} onChange={this.onFieldChange} />
+    );
+  }
+
   renderGroupedField() {
     const { fields } = this.props;
     const { field } = this.state;
@@ -442,7 +449,7 @@ class FieldForm extends React.Component<Props, State> {
       this.setState({ field: value });
     };
 
-    if (field.type !== "parentField") {
+    if (field.type !== 'parentField') {
       return null;
     }
 
@@ -454,52 +461,52 @@ class FieldForm extends React.Component<Props, State> {
     const { field } = this.state;
 
     const text = (e) =>
-      this.onFieldChange("text", (e.currentTarget as HTMLInputElement).value);
+      this.onFieldChange('text', (e.currentTarget as HTMLInputElement).value);
 
     const toggle = (e) =>
       this.onFieldChange(
-        "isRequired",
+        'isRequired',
         (e.currentTarget as HTMLInputElement).checked
       );
 
     return (
       <>
         <CollapseContent
-          title={__("General settings")}
+          title={__('General settings')}
           compact={true}
           open={true}
         >
           <FormGroup>
             <ControlLabel
-              htmlFor="text"
-              required={(field.type || "") !== "html" ? true : false}
+              htmlFor='text'
+              required={(field.type || '') !== 'html' ? true : false}
             >
               Field Label
             </ControlLabel>
 
             <FormControl
-              id="FieldLabel"
-              type="text"
-              value={field.text || ""}
+              id='FieldLabel'
+              type='text'
+              value={field.text || ''}
               onChange={text}
               autoFocus={true}
             />
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel htmlFor="description">Field description</ControlLabel>
+            <ControlLabel htmlFor='description'>Field description</ControlLabel>
             <RichTextEditor
-              content={field.description || ""}
+              content={field.description || ''}
               toolbar={[
-                "source",
-                "bold",
-                "italic",
-                "orderedList",
-                "bulletList",
-                "link",
-                "unlink",
-                "|",
-                "image",
+                'source',
+                'bold',
+                'italic',
+                'orderedList',
+                'bulletList',
+                'link',
+                'unlink',
+                '|',
+                'image',
               ]}
               autoGrow={true}
               autoGrowMinHeight={120}
@@ -514,8 +521,8 @@ class FieldForm extends React.Component<Props, State> {
 
           <FormGroup>
             <FlexRow>
-              <ControlLabel htmlFor="description">
-                {__("Field is required")}
+              <ControlLabel htmlFor='description'>
+                {__('Field is required')}
               </ControlLabel>
               <Toggle
                 defaultChecked={field.isRequired || false}
@@ -526,9 +533,9 @@ class FieldForm extends React.Component<Props, State> {
                 onChange={toggle}
               />
             </FlexRow>
-            {isEnabled("payment") && field.type === "productCategory" && (
+            {isEnabled('payment') && field.type === 'productCategory' && (
               <p>
-                {__("If you need to enable payment, field must be required!")}
+                {__('If you need to enable payment, field must be required!')}
               </p>
             )}
           </FormGroup>
@@ -536,7 +543,6 @@ class FieldForm extends React.Component<Props, State> {
           {this.renderGroupedField()}
 
           {this.renderOptions()}
-          {this.renderGroupName()}
 
           {this.renderLocationOptions()}
 
@@ -545,16 +551,13 @@ class FieldForm extends React.Component<Props, State> {
           {this.renderObjectListOptions()}
 
           {this.renderColumn()}
-          {loadDynamicComponent("extendFormField", {
-            field,
-            onChange: this.onFieldChange,
-          })}
+          {this.renderProductField()}
           {this.renderHtml()}
           {this.renderCustomPropertyGroup()}
           {this.renderCustomProperty()}
         </CollapseContent>
         {fields.length > 0 && (
-          <CollapseContent title={__("Logic")} compact={true}>
+          <CollapseContent title={__('Logic')} compact={true}>
             <FieldLogics
               fields={fields.filter(
                 (f) => !(field.subFieldIds || []).includes(f._id)
@@ -580,9 +583,9 @@ class FieldForm extends React.Component<Props, State> {
 
           <ModalFooter>
             <Button
-              btnStyle="simple"
-              type="button"
-              icon="times-circle"
+              btnStyle='simple'
+              type='button'
+              icon='times-circle'
               onClick={onCancel}
             >
               Cancel
@@ -592,10 +595,10 @@ class FieldForm extends React.Component<Props, State> {
 
             <Button
               onClick={this.onSubmit}
-              btnStyle="success"
-              icon={mode === "update" ? "check-circle" : "plus-circle"}
+              btnStyle='success'
+              icon={mode === 'update' ? 'check-circle' : 'plus-circle'}
             >
-              {mode === "update" ? "Save" : "Add to Form"}
+              {mode === 'update' ? 'Save' : 'Add to Form'}
             </Button>
           </ModalFooter>
         </LeftSection>
@@ -605,7 +608,7 @@ class FieldForm extends React.Component<Props, State> {
             <FieldPreview field={field} otherFields={this.props.fields} />
 
             <ShowPreview>
-              <Icon icon="eye" /> {__("Field preview")}
+              <Icon icon='eye' /> {__('Field preview')}
             </ShowPreview>
           </Preview>
         </PreviewSection>
@@ -618,17 +621,17 @@ class FieldForm extends React.Component<Props, State> {
 
     if (
       [
-        "email",
-        "phone",
-        "firstName",
-        "lastName",
-        "middleName",
-        "companyName",
-        "companyEmail",
-        "companyPhone",
-        "html",
-        "productCategory",
-        "parentField",
+        'email',
+        'phone',
+        'firstName',
+        'lastName',
+        'middleName',
+        'companyName',
+        'companyEmail',
+        'companyPhone',
+        'html',
+        'productCategory',
+        'parentField',
       ].includes(field.type)
     ) {
       return null;
@@ -639,14 +642,14 @@ class FieldForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Property type:</ControlLabel>
           <FormControl
-            id="propertyGroup"
-            componentclass="select"
+            id='propertyGroup'
+            componentclass='select'
             defaultValue={group}
             onChange={this.onPropertyGroupChange}
           >
-            <option value={""} />
-            <option value={"contacts:customer"}>Customer</option>
-            <option value={"contacts:company"}>Company</option>
+            <option value={''} />
+            <option value={'core:customer'}>Customer</option>
+            <option value={'core:company'}>Company</option>
           </FormControl>
         </FormGroup>
       </>
@@ -657,13 +660,13 @@ class FieldForm extends React.Component<Props, State> {
     const { field } = this.state;
     const { productCategories = [] } = this.props;
 
-    if (field.type !== "productCategory") {
+    if (field.type !== 'productCategory') {
       return null;
     }
 
     const onCategoryChange = (e) => {
       this.onFieldChange(
-        "productCategoryId",
+        'productCategoryId',
         (e.currentTarget as HTMLInputElement).value
       );
     };
@@ -673,9 +676,9 @@ class FieldForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Categories:</ControlLabel>
           <FormControl
-            id="productCategories"
-            componentclass="select"
-            defaultValue={field.productCategoryId || ""}
+            id='productCategories'
+            componentclass='select'
+            defaultValue={field.productCategoryId || ''}
             onChange={onCategoryChange}
           >
             <option>-</option>
@@ -693,24 +696,24 @@ class FieldForm extends React.Component<Props, State> {
   renderColumn() {
     const { field } = this.state;
 
-    if (["html", "parentField"].includes(field.type)) {
+    if (['html', 'parentField'].includes(field.type)) {
       return;
     }
 
     const onChangeColumn = (e) =>
       this.onFieldChange(
-        "column",
+        'column',
         parseInt((e.currentTarget as HTMLInputElement).value, 10)
       );
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="validation">Field width:</ControlLabel>
+        <ControlLabel htmlFor='validation'>Field width:</ControlLabel>
 
         <FormControl
-          id="validation"
-          componentclass="select"
-          value={field.column || ""}
+          id='validation'
+          componentclass='select'
+          value={field.column || ''}
           onChange={onChangeColumn}
         >
           <option value={1}>Full width</option>
@@ -725,25 +728,25 @@ class FieldForm extends React.Component<Props, State> {
   renderHtml() {
     const { field } = this.state;
 
-    if (field.type !== "html") {
+    if (field.type !== 'html') {
       return;
     }
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="html">HTML:</ControlLabel>
+        <ControlLabel htmlFor='html'>HTML:</ControlLabel>
         <RichTextEditor
-          content={field.content || ""}
+          content={field.content || ''}
           toolbar={[
-            "source",
-            "bold",
-            "italic",
-            "orderedList",
-            "bulletList",
-            "link",
-            "unlink",
-            "|",
-            "image",
+            'source',
+            'bold',
+            'italic',
+            'orderedList',
+            'bulletList',
+            'link',
+            'unlink',
+            '|',
+            'image',
           ]}
           autoFocus={true}
           autoGrow={true}
@@ -755,38 +758,10 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
-  renderGroupName() {
-    const { field } = this.state;
-    if (field.type === "parentField") {
-      return null;
-    }
-
-    const groupName = (e) =>
-      this.onFieldChange(
-        "groupName",
-        (e.currentTarget as HTMLInputElement).value
-      );
-    return (
-      <FormGroup>
-        <ControlLabel htmlFor="text" required={false}>
-          Group Name
-        </ControlLabel>
-        <p>Use with logic and group multiple fields</p>
-        <FormControl
-          id="GroupName"
-          type="text"
-          value={field.groupName || ""}
-          onChange={groupName}
-          autoFocus={false}
-        />
-      </FormGroup>
-    );
-  }
-
   renderCustomProperty() {
     const { selectedOption, group } = this.state;
 
-    if (group === "") {
+    if (group === '') {
       return;
     }
 
@@ -800,7 +775,7 @@ class FieldForm extends React.Component<Props, State> {
           <SelectProperty
             queryParams={{ type: group }}
             defaultValue={defaultValue}
-            description="Any data collected through this field will copy to:"
+            description='Any data collected through this field will copy to:'
             onChange={this.onPropertyChange}
           />
         </FormGroup>
@@ -813,27 +788,27 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <Transition appear show={true} as={React.Fragment}>
-        <Dialog as="div" onClose={onCancel} className={` relative z-10`}>
+        <Dialog as='div' onClose={onCancel} className={` relative z-10`}>
           <Transition.Child
             as={React.Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
+            enter='ease-out duration-300'
+            enterFrom='opacity-0'
+            enterTo='opacity-100'
+            leave='ease-in duration-200'
+            leaveFrom='opacity-100'
+            leaveTo='opacity-0'
           >
             <ModalOverlay />
           </Transition.Child>
           <DialogWrapper>
             <DialogContent>
               <Dialog.Panel className={` dialog-size-xl`}>
-                <Dialog.Title as="h3">
-                  {mode === "create" ? "Add" : "Edit"} {field.type} field
-                  <Icon icon="times" size={24} onClick={onCancel} />
+                <Dialog.Title as='h3'>
+                  {mode === 'create' ? 'Add' : 'Edit'} {field.type} field
+                  <Icon icon='times' size={24} onClick={onCancel} />
                 </Dialog.Title>
                 <Transition.Child>
-                  <div className="dialog-description">
+                  <div className='dialog-description'>
                     {this.renderContent()}
                   </div>
                 </Transition.Child>

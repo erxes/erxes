@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { IEmailParams, IIntegration, IIntegrationLeadData } from '../../types';
+import { IEmailParams, IIntegration, ILeadData } from '../../types';
 import { checkRules, getEnv } from '../../utils';
 import { connection } from '../connection';
 import { ICurrentStatus, IForm, IFormDoc, ISaveFormResponse } from '../types';
@@ -42,7 +42,7 @@ interface IStore extends IState {
   setExtraContent: (content: string) => void;
   getIntegration: () => IIntegration;
   getForm: () => IForm;
-  getIntegrationConfigs: () => IIntegrationLeadData;
+  getFormConfigs: () => ILeadData;
   onChangeCurrentStatus: (status: string) => void;
 }
 
@@ -50,8 +50,11 @@ const AppContext = React.createContext({} as IStore);
 
 export const AppConsumer = AppContext.Consumer;
 
-export class AppProvider extends React.Component<{}, IState> {
-  constructor(props: {}) {
+export class AppProvider extends React.Component<
+  { children: React.ReactNode },
+  IState
+> {
+  constructor(props: { children: React.ReactNode }) {
     super(props);
 
     this.state = {
@@ -69,13 +72,13 @@ export class AppProvider extends React.Component<{}, IState> {
    */
   init = async () => {
     const { data, browserInfo, hasPopupHandlers } = connection;
-    const { integration } = data;
+    const { form } = data;
 
     if (!browserInfo) {
       return;
     }
 
-    const { loadType, callout, rules } = integration.leadData;
+    const { loadType, callout, rules } = form.leadData;
 
     // check rules ======
     const isPassedAllRules = await checkRules(rules, browserInfo);
@@ -114,21 +117,20 @@ export class AppProvider extends React.Component<{}, IState> {
   showForm = () => {
     const cookies = cookie.parse(document.cookie);
 
-    const paymentCookies = Object.keys(cookies).filter(key =>
+    const paymentCookies = Object.keys(cookies).filter((key) =>
       key.includes('paymentData')
     );
 
     if (paymentCookies.length > 0) {
       if (cookies[paymentCookies[0]]) {
         const { API_URL } = getEnv();
-  
+
         this.setState({
-          currentStatus: { status: 'PAYMENT_PENDING'},
+          currentStatus: { status: 'PAYMENT_PENDING' },
           invoiceLink: `${API_URL}/pl:payment/gateway?params=${cookies[paymentCookies[0]]}`,
         });
       }
     }
-
 
     this.setState({
       isCalloutVisible: false,
@@ -156,8 +158,8 @@ export class AppProvider extends React.Component<{}, IState> {
    */
   showPopup = () => {
     const { data } = connection;
-    const { integration } = data;
-    const { callout } = integration.leadData;
+    const { form } = data;
+    const { callout } = form.leadData;
 
     this.setState({ isPopupVisible: true });
 
@@ -201,7 +203,6 @@ export class AppProvider extends React.Component<{}, IState> {
     saveLead({
       doc,
       browserInfo: connection.browserInfo,
-      integrationId: this.getIntegration()._id,
       formId: this.getForm()._id,
       userId: connection.setting.user_id,
       saveCallback: async (response: ISaveFormResponse) => {
@@ -245,7 +246,7 @@ export class AppProvider extends React.Component<{}, IState> {
         postMessage({
           message: 'submitResponse',
           status,
-          response
+          response,
         });
 
         this.setState({
@@ -253,7 +254,7 @@ export class AppProvider extends React.Component<{}, IState> {
           isSubmitting: false,
           currentStatus: {
             status,
-            errors
+            errors,
           },
         });
       },
@@ -298,8 +299,8 @@ export class AppProvider extends React.Component<{}, IState> {
     return connection.data.form;
   };
 
-  getIntegrationConfigs = () => {
-    return this.getIntegration().leadData;
+  getFormConfigs = () => {
+    return this.getForm().leadData;
   };
 
   onChangeCurrentStatus = (status: string) => {
@@ -324,7 +325,7 @@ export class AppProvider extends React.Component<{}, IState> {
           setExtraContent: this.setExtraContent,
           getIntegration: this.getIntegration,
           getForm: this.getForm,
-          getIntegrationConfigs: this.getIntegrationConfigs,
+          getFormConfigs: this.getFormConfigs,
           onChangeCurrentStatus: this.onChangeCurrentStatus,
         }}
       >

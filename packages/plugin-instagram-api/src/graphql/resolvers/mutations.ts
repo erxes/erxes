@@ -22,7 +22,7 @@ const instagramMutations = {
   async instagramRepair(
     _root,
     { _id }: { _id: string },
-    { subdomain, models }: IContext,
+    { subdomain, models }: IContext
   ) {
     await repairIntegrations(subdomain, models, _id);
 
@@ -32,7 +32,7 @@ const instagramMutations = {
   async instagramChangeCommentStatus(
     _root,
     params: ICommentStatusParams,
-    { models }: IContext,
+    { models }: IContext
   ) {
     const { commentId } = params;
     const comment = await models.CommentConversation.findOne({ commentId });
@@ -43,7 +43,7 @@ const instagramMutations = {
 
     await models.CommentConversation.updateOne(
       { commentId },
-      { $set: { isResolved: !comment.isResolved } },
+      { $set: { isResolved: !comment.isResolved } }
     );
 
     return models.CommentConversation.findOne({ _id: comment._id });
@@ -52,7 +52,7 @@ const instagramMutations = {
   async instagramReplyToComment(
     _root,
     params: IReplyParams,
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user }: IContext
   ) {
     const { commentId, content, attachments, conversationId } = params;
 
@@ -60,8 +60,8 @@ const instagramMutations = {
     const post = await models.PostConversations.findOne({
       $or: [
         { erxesApiId: conversationId },
-        { postId: comment ? comment.postId : '' },
-      ],
+        { postId: comment ? comment.postId : '' }
+      ]
     });
     if (!post) {
       throw new Error('Post not found');
@@ -79,14 +79,14 @@ const instagramMutations = {
       attachment = {
         type: 'file',
         payload: {
-          url: attachments[0].url,
-        },
+          url: attachments[0].url
+        }
       };
     }
 
     let data = {
       message: content,
-      attachment_url: attachment.url,
+      attachment_url: attachment.url
     };
 
     const id = comment ? comment.comment_id : post.postId;
@@ -94,7 +94,7 @@ const instagramMutations = {
     if (comment && comment.comment_id) {
       data = {
         message: ` @[${comment.senderId}] ${content}`,
-        attachment_url: attachment.url,
+        attachment_url: attachment.url
       };
     }
 
@@ -103,15 +103,14 @@ const instagramMutations = {
         isRPC: true,
         subdomain,
         action: 'conversations.findOne',
-        data: { query: { _id: conversationId } },
+        data: { query: { _id: conversationId } }
       });
-
+   
       await sendReply(
         models,
         `${id}/comments`,
         data,
-        recipientId,
-        inboxConversation && inboxConversation.integrationId,
+        inboxConversation && inboxConversation.integrationId
       );
 
       sendInboxMessage({
@@ -123,14 +122,32 @@ const instagramMutations = {
           conversations: [inboxConversation],
           type: 'conversationStateChange',
           mobile: true,
-          messageContent: content,
-        },
+          messageContent: content
+        }
       });
 
       return { status: 'success' };
     } catch (e) {
       throw new Error(e.message);
     }
+  },
+    async instagramMessengerAddBot(_root, args, { models }: IContext) {
+    return await models.Bots.addBot(args);
+  },
+
+  async instagramMessengerUpdateBot(
+    _root,
+    { _id, ...args },
+    { models }: IContext,
+  ) {
+    return await models.Bots.updateBot(_id, args);
+  },
+
+  async instagramMessengerRemoveBot(_root, { _id }, { models }: IContext) {
+    return await models.Bots.removeBot(_id);
+  },
+  async instagramMessengerRepairBot(_root, { _id }, { models }: IContext) {
+    return await models.Bots.repair(_id);
   },
 };
 

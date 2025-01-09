@@ -25,11 +25,11 @@ const FlexCenter = styled(Flex)`
 const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 0 ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
 
-  > a, button {
+  a, button {
     flex: 1;
-    padding: 4px 15px;
 
     i {
       font-size: 12px;
@@ -37,11 +37,12 @@ const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
     }
   }
 
-  > div, > button {
+  > div {
     margin-left: ${dimensions.unitSpacing}px;
+    position: relative;
   }
 
-  .dropdown {
+  [id^="headlessui-menu-items-"] {
     display: ${(props) => (props.isSmall ? 'inline-block' : 'block')};
   }
 
@@ -98,8 +99,10 @@ const TipContent = styled.div`
   box-shadow:
     rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
     rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
-  padding: 4px;
+  padding: 4px 7px !important;
+  font-weight: 400 !important;
   border-radius: 4px;
+  color: #000 !important;
 `;
 
 const FullContent = styledTS<{ $center: boolean; $align?: boolean }>(
@@ -232,6 +235,7 @@ const Links = styled.div`
 
 const FormWrapper = styled.div`
   display: flex;
+  flex-wrap: wrap;
 
   img {
     display: block;
@@ -242,9 +246,10 @@ const FormWrapper = styled.div`
   }
 `;
 
-const FormColumn = styled.div`
+const FormColumn = styledTS<{ maxwidth?: string }>(styled.div)`
   flex: 1;
   padding-right: 40px;
+  max-width: ${(props) => props.maxwidth};
 
   &:last-of-type {
     padding: 0;
@@ -574,7 +579,7 @@ const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000;
+  z-index: 1050;
   width: 100%;
   height: 100%;
   background: rgba(48, 67, 92, 0.5);
@@ -597,7 +602,7 @@ const DialogWrapper = styled.div`
   position: fixed;
   inset: 0;
   overflow-y: auto;
-  z-index: 1040;
+  z-index: 1050;
 `;
 
 const MenuDivider = styled.div`
@@ -605,6 +610,31 @@ const MenuDivider = styled.div`
   margin: 0.5rem 0;
   overflow: hidden;
   border-top: 1px solid #e9ecef;
+`;
+
+const UploadBtn = styled.div`
+  position: relative;
+  min-height: 30px;
+  margin-top: 10px;
+  label {
+    padding: 7px 15px;
+    background: ${rgba(colors.colorCoreDarkBlue, 0.05)};
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background 0.3s ease;
+    display: inline-block;
+    &:hover {
+      background: ${rgba(colors.colorCoreDarkBlue, 0.1)};
+      cursor: pointer;
+    }
+  }
+  input[type='file'] {
+    display: none;
+  }
+`;
+
+const AttachmentContainer = styled.div`
+  margin-top: 20px;
 `;
 
 export {
@@ -658,4 +688,6 @@ export {
   DialogContent,
   PopoverPanel,
   TipContent,
+  UploadBtn,
+  AttachmentContainer,
 };

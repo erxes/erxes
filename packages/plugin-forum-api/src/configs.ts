@@ -1,33 +1,33 @@
-import * as serverTiming from 'server-timing';
+import * as serverTiming from "server-timing";
 
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
-import * as cookieParser from 'cookie-parser';
-import { setupMessageConsumers, sendSegmentsMessage } from './messageBroker';
-import * as permissions from './permissions';
-import { routeErrorHandling } from '@erxes/api-utils/src/requests';
-import { getSubdomain } from '@erxes/api-utils/src/core';
-import cpUserMiddleware from './middlewares/cpUserMiddleware';
-import { generateModels } from './db/models';
-import { IContext } from './graphql';
-import cronjobs from './cronjobs';
-import tags from './tags';
-import { generateAllDataLoaders } from './graphql/dataloaders';
+import typeDefs from "./graphql/typeDefs";
+import resolvers from "./graphql/resolvers";
+import * as cookieParser from "cookie-parser";
+import { setupMessageConsumers } from "./messageBroker";
+import * as permissions from "./permissions";
+
+import { getSubdomain } from "@erxes/api-utils/src/core";
+import cpUserMiddleware from "@erxes/api-utils/src/middlewares/clientportal";
+import { generateModels } from "./db/models";
+import { IContext } from "./graphql";
+import cronjobs from "./cronjobs";
+import tags from "./tags";
+import { generateAllDataLoaders } from "./graphql/dataloaders";
 
 export default {
-  name: 'forum',
+  name: "forum",
   permissions,
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers(),
+      resolvers: await resolvers()
     };
   },
   hasSubscriptions: false,
 
   meta: {
     cronjobs,
-    tags,
+    tags
   },
 
   apolloServerContext: async (context, req, res): Promise<IContext> => {
@@ -39,7 +39,7 @@ export default {
     context.serverTiming = {
       startTime: res.startTime,
       endTime: res.endTime,
-      setMetric: res.setMetric,
+      setMetric: res.setMetric
     };
 
     if (req.cpUser) {
@@ -52,5 +52,5 @@ export default {
   },
   middlewares: [(serverTiming as any)(), cookieParser(), cpUserMiddleware],
   onServerInit: async () => {},
-  setupMessageConsumers,
+  setupMessageConsumers
 };

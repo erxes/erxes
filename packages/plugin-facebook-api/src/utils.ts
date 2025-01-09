@@ -39,12 +39,12 @@ export const graphRequest = {
 
   delete(...args): any {
     return this.base('del', ...args);
-  },
+  }
 };
 export const getPostDetails = async (
   pageId: string,
   pageTokens: { [key: string]: string },
-  postId: string,
+  postId: string
 ) => {
   let pageAccessToken;
 
@@ -58,7 +58,7 @@ export const getPostDetails = async (
   try {
     const response: any = await graphRequest.get(
       `/${postId}?fields=permalink_url,message,created_time`,
-      pageAccessToken,
+      pageAccessToken
     );
 
     return response;
@@ -70,11 +70,11 @@ export const getPostDetails = async (
 export const getPageList = async (
   models: IModels,
   accessToken?: string,
-  kind?: string,
+  kind?: string
 ) => {
   const response: any = await graphRequest.get(
     '/me/accounts?limit=100',
-    accessToken,
+    accessToken
   );
 
   const pages: any[] = [];
@@ -82,13 +82,13 @@ export const getPageList = async (
   for (const page of response.data) {
     const integration = await models.Integrations.findOne({
       facebookPageIds: page.id,
-      kind,
+      kind
     });
 
     pages.push({
       id: page.id,
       name: page.name,
-      isUsed: integration ? true : false,
+      isUsed: integration ? true : false
     });
   }
 
@@ -97,11 +97,11 @@ export const getPageList = async (
 
 export const getPageAccessToken = async (
   pageId: string,
-  userAccessToken: string,
+  userAccessToken: string
 ) => {
   const response = await graphRequest.get(
     `${pageId}/?fields=access_token`,
-    userAccessToken,
+    userAccessToken
   );
 
   return response.access_token;
@@ -110,10 +110,10 @@ export const getPageAccessToken = async (
 export const refreshPageAccesToken = async (
   models: IModels,
   pageId: string,
-  integration: IIntegrationDocument,
+  integration: IIntegrationDocument
 ) => {
   const account = await models.Accounts.getAccount({
-    _id: integration.accountId,
+    _id: integration.accountId
   });
 
   const facebookPageTokensMap = integration.facebookPageTokensMap || {};
@@ -124,7 +124,7 @@ export const refreshPageAccesToken = async (
 
   await models.Integrations.updateOne(
     { _id: integration._id },
-    { $set: { facebookPageTokensMap } },
+    { $set: { facebookPageTokensMap } }
   );
 
   return facebookPageTokensMap;
@@ -132,24 +132,24 @@ export const refreshPageAccesToken = async (
 
 export const getPageAccessTokenFromMap = (
   pageId: string,
-  pageTokens: { [key: string]: string },
+  pageTokens: { [key: string]: string }
 ): string => {
   return (pageTokens || {})[pageId];
 };
 
 export const subscribePage = async (
   pageId,
-  pageToken,
+  pageToken
 ): Promise<{ success: true } | any> => {
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
-    subscribed_fields: ['conversations', 'feed', 'messages'],
+    subscribed_fields: ['conversations', 'feed', 'messages']
   });
 };
 
 export const getPostLink = async (
   pageId: string,
   pageTokens: { [key: string]: string },
-  postId: string,
+  postId: string
 ) => {
   let pageAccessToken;
 
@@ -163,7 +163,7 @@ export const getPostLink = async (
   try {
     const response: any = await graphRequest.get(
       `/${postId}?fields=permalink_url`,
-      pageAccessToken,
+      pageAccessToken
     );
     return response.permalink_url ? response.permalink_url : '';
   } catch (e) {
@@ -174,7 +174,7 @@ export const getPostLink = async (
 
 export const unsubscribePage = async (
   pageId,
-  pageToken,
+  pageToken
 ): Promise<{ success: true } | any> => {
   return graphRequest
     .delete(`${pageId}/subscribed_apps`, pageToken)
@@ -189,7 +189,7 @@ export const getFacebookUser = async (
   models: IModels,
   pageId: string,
   pageTokens: { [key: string]: string },
-  fbUserId: string,
+  fbUserId: string
 ) => {
   let pageAccessToken;
 
@@ -210,7 +210,7 @@ export const getFacebookUser = async (
     if (e.message.includes('access token')) {
       await models.Integrations.updateOne(
         { facebookPageIds: pageId },
-        { $set: { healthStatus: 'page-token', error: `${e.message}` } },
+        { $set: { healthStatus: 'page-token', error: `${e.message}` } }
       );
     }
 
@@ -218,58 +218,37 @@ export const getFacebookUser = async (
   }
 };
 
-export const uploadMedia = async (subdomain: string, url: any, video) => {
+export const uploadMedia = async (
+  subdomain: string,
+  url: string,
+  video: boolean
+) => {
   const mediaFile = `${randomAlphanumeric()}.${video ? 'mp4' : 'jpg'}`;
 
-  const { AWS_BUCKET, FILE_SYSTEM_PUBLIC } =
-    await getFileUploadConfigs(subdomain);
-
-  // initialize s3
+  const { AWS_BUCKET } = await getFileUploadConfigs(subdomain);
   const s3 = await createAWS(subdomain);
 
   try {
     const response = await fetch(url);
-
-    if (!response.ok)
+    if (!response.ok) {
       throw new Error(
-        `uploadMedia: unexpected response ${response.statusText}`,
+        `uploadMedia: unexpected response ${response.statusText}`
       );
+    }
 
-    /**
-     * If directly piping response body to s3.upload body doesn't work we can
-     * save it to disk first
-     *
-     * import { pipeline } from 'node:stream/promises';
-     * await pipeline(response.body, fs.createWriteStream(mediaFile));
-     *
-     * then pipe it into body using
-     *
-     * Body: fs.createReadStream(mediaFile)
-     */
+    const uploadParams = {
+      Bucket: AWS_BUCKET,
+      Key: mediaFile,
+      Body: response.body,
+      ACL: 'public-read',
+      ContentDisposition: 'inline', // Set this header to make it viewable in the browser
+      ContentType: video ? 'video/mp4' : 'image/jpeg' // Set the appropriate Content-Type
+    };
 
-    return new Promise((resolve, reject) => {
-      s3.upload(
-        {
-          Bucket: AWS_BUCKET,
-          Key: mediaFile,
-          Body: response.body,
-          ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined,
-        },
-        (err, res) => {
-          if (err) {
-            reject(err);
-          }
-          const file = FILE_SYSTEM_PUBLIC === 'true' ? res.Location : res.key;
-
-          return resolve(file);
-        },
-      );
-    });
+    const data = await s3.upload(uploadParams).promise(); // Use .promise() for cleaner code
+    return data.Location; // Return the public URL of the uploaded file
   } catch (e) {
-    debugError(
-      `Error occurred while getting facebook user profile pic: ${e.message}`,
-    );
-
+    debugError(`Error occurred while uploading media: ${e.message}`);
     return null;
   }
 };
@@ -278,9 +257,9 @@ export const getFacebookUserProfilePic = async (
   pageId: string,
   pageTokens: { [key: string]: string },
   fbId: string,
-  subdomain: string,
-) => {
-  let pageAccessToken;
+  subdomain: string
+): Promise<string | null> => {
+  let pageAccessToken: string;
 
   try {
     pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
@@ -292,7 +271,7 @@ export const getFacebookUserProfilePic = async (
   try {
     const response: any = await graphRequest.get(
       `/${fbId}/picture?height=600`,
-      pageAccessToken,
+      pageAccessToken
     );
 
     const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
@@ -301,16 +280,17 @@ export const getFacebookUserProfilePic = async (
       const awsResponse = await uploadMedia(
         subdomain,
         response.location,
-        false,
+        false
       );
 
-      return awsResponse;
+      return awsResponse as string; // Ensure the return type is string
     }
 
-    return null;
+    // Return the profile picture URL directly if not uploading to AWS
+    return response.location as string; // Type assertion to ensure it's a string
   } catch (e) {
     debugError(
-      `Error occurred while getting facebook user profile pic: ${e.message}`,
+      `Error occurred while getting facebook user profile pic: ${e.message}`
     );
     return null;
   }
@@ -319,7 +299,7 @@ export const getFacebookUserProfilePic = async (
 export const restorePost = async (
   postId: string,
   pageId: string,
-  pageTokens: { [key: string]: string },
+  pageTokens: { [key: string]: string }
 ) => {
   let pageAccessToken;
 
@@ -327,7 +307,7 @@ export const restorePost = async (
     pageAccessToken = await getPageAccessTokenFromMap(pageId, pageTokens);
   } catch (e) {
     debugError(
-      `Error ocurred while trying to get page access token with ${e.message}`,
+      `Error ocurred while trying to get page access token with ${e.message}`
     );
   }
 
@@ -345,10 +325,10 @@ export const sendReply = async (
   url: string,
   data: any,
   recipientId: string,
-  integrationId: string,
+  integrationId: string
 ) => {
   const integration = await models.Integrations.getIntegration({
-    erxesApiId: integrationId,
+    erxesApiId: integrationId
   });
 
   const { facebookPageTokensMap = {} } = integration;
@@ -358,18 +338,18 @@ export const sendReply = async (
   try {
     pageAccessToken = getPageAccessTokenFromMap(
       recipientId,
-      facebookPageTokensMap,
+      facebookPageTokensMap
     );
   } catch (e) {
     debugError(
-      `Error ocurred while trying to get page access token with ${e.message}`,
+      `Error ocurred while trying to get page access token with ${e.message}`
     );
     return e;
   }
 
   try {
     const response = await graphRequest.post(`${url}`, pageAccessToken, {
-      ...data,
+      ...data
     });
     debugFacebook(`Successfully sent data to facebook ${JSON.stringify(data)}`);
     return response;
@@ -377,18 +357,18 @@ export const sendReply = async (
     debugError(
       `Error ocurred while trying to send post request to facebook ${
         e.message
-      } data: ${JSON.stringify(data)}`,
+      } data: ${JSON.stringify(data)}`
     );
 
     if (e.message.includes('access token')) {
       await models.Integrations.updateOne(
         { _id: integration._id },
-        { $set: { healthStatus: 'page-token', error: `${e.message}` } },
+        { $set: { healthStatus: 'page-token', error: `${e.message}` } }
       );
     } else if (e.code !== 10) {
       await models.Integrations.updateOne(
         { _id: integration._id },
-        { $set: { healthStatus: 'account-token', error: `${e.message}` } },
+        { $set: { healthStatus: 'account-token', error: `${e.message}` } }
       );
     }
 
@@ -402,7 +382,7 @@ export const sendReply = async (
 
 export const generateAttachmentMessages = (
   subdomain: string,
-  attachments: IAttachment[],
+  attachments: IAttachment[]
 ) => {
   const messages: IAttachmentMessage[] = [];
 
@@ -419,9 +399,9 @@ export const generateAttachmentMessages = (
       attachment: {
         type,
         payload: {
-          url,
-        },
-      },
+          url
+        }
+      }
     });
   }
 
@@ -432,7 +412,7 @@ export const fetchPagePost = async (postId: string, accessToken: string) => {
   const fields = 'message,created_time,full_picture,picture,permalink_url';
 
   const response = await graphRequest.get(
-    `/${postId}?fields=${fields}&access_token=${accessToken}`,
+    `/${postId}?fields=${fields}&access_token=${accessToken}`
   );
 
   return response || null;
@@ -440,9 +420,31 @@ export const fetchPagePost = async (postId: string, accessToken: string) => {
 
 export const fetchPagePosts = async (pageId: string, accessToken: string) => {
   const fields = 'message,created_time,full_picture,picture,permalink_url';
+  const response = await graphRequest.get(
+    `/${pageId}/posts?fields=${fields}&access_token=${accessToken}`
+  );
+
+  return response.data || [];
+};
+
+export const fetchPagesPosts = async (pageId: string, accessToken: string) => {
+  const fields = 'message,created_time,full_picture,picture,permalink_url';
+  const response = await graphRequest.get(
+    `/${pageId}/posts?fields=${fields}&access_token=${accessToken}`
+  );
+
+  return response.data || [];
+};
+
+export const fetchPagesPostsList = async (
+  pageId: string,
+  accessToken: string,
+  limit: number
+) => {
+  const fields = 'message,created_time,full_picture,picture,permalink_url';
 
   const response = await graphRequest.get(
-    `/${pageId}/posts?fields=${fields}&access_token=${accessToken}`,
+    `/${pageId}/posts?fields=${fields}&access_token=${accessToken}&limit=${limit}`
   );
 
   return response.data || [];
@@ -463,7 +465,7 @@ export const getAdapter = async (models: IModels): Promise<any> => {
 
   const FACEBOOK_VERIFY_TOKEN = await getConfig(
     models,
-    'FACEBOOK_VERIFY_TOKEN',
+    'FACEBOOK_VERIFY_TOKEN'
   );
   const FACEBOOK_APP_SECRET = await getConfig(models, 'FACEBOOK_APP_SECRET');
 
@@ -476,7 +478,7 @@ export const getAdapter = async (models: IModels): Promise<any> => {
     app_secret: FACEBOOK_APP_SECRET,
     getAccessTokenForPage: async (pageId: string) => {
       return accessTokensByPageId[pageId];
-    },
+    }
   });
 };
 
@@ -486,7 +488,7 @@ export const createAWS = async (subdomain: string) => {
     AWS_COMPATIBLE_SERVICE_ENDPOINT,
     AWS_BUCKET,
     AWS_SECRET_ACCESS_KEY,
-    AWS_ACCESS_KEY_ID,
+    AWS_ACCESS_KEY_ID
   } = await getFileUploadConfigs(subdomain);
 
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
@@ -500,7 +502,7 @@ export const createAWS = async (subdomain: string) => {
     s3ForcePathStyle?: boolean;
   } = {
     accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY
   };
 
   if (AWS_FORCE_PATH_STYLE === 'true') {
@@ -513,4 +515,20 @@ export const createAWS = async (subdomain: string) => {
 
   // initialize s3
   return new AWS.S3(options);
+};
+
+export const checkIsAdsOpenThread = (entry: any[] = []) => {
+  const messaging = entry[0]?.messaging || [];
+
+  const referral = (messaging || [])[0]?.message?.referral;
+
+  if (!referral) {
+    return false;
+  }
+
+  const isSourceAds = referral?.source === 'ADS';
+  const isTypeOpenThread = referral?.type === 'OPEN_THREAD';
+  const hasAdsContextData = !referral?.ads_context_data;
+
+  return isSourceAds && isTypeOpenThread && hasAdsContextData;
 };

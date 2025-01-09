@@ -169,6 +169,24 @@ export type ICover = {
   modifiedUser: IUser;
 };
 
+export type OrdersByCustomer = {
+  _id: string;
+  customerType: string;
+  customerDetail: any;
+  orders: IOrder[];
+  totalOrders: number;
+  totalAmount: number;
+};
+
+export type PosOrdersBySub = {
+  _id: string;
+  customerType: string;
+  customerId: string;
+  customer: any;
+  status: string;
+  closeDate: string;
+};
+
 export type CoversQueryResponse = {
   posCovers: ICover[];
   loading: boolean;
@@ -180,6 +198,16 @@ export type CoversCountQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type OrderByCustomersQueryResponse = {
+  posOrderCustomers: OrdersByCustomer[];
+  posOrderCustomersTotalCount: number;
+} & QueryResponse;
+
+export type OrderBySubsQueryResponse = {
+  posOrderBySubscriptions: PosOrdersBySub[];
+  posOrderBySubscriptionsTotalCount:number
+} & QueryResponse;
 
 export type CoverDetailQueryResponse = {
   posCoverDetail: ICover;

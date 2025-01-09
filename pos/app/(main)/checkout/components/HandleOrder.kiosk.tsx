@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic"
 import Link from "next/link"
-import { kioskDialogOpenAtom, kioskModalView } from "@/store"
+import { checkoutDialogOpenAtom, checkoutModalViewAtom } from "@/store"
 import { useAtom } from "jotai"
 
 import { Button } from "@/components/ui/button"
@@ -8,22 +8,22 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog"
 
 import SuccessDialog from "./successDialog"
 
-const BillType = dynamic(
+const BillType: any = dynamic(
   () => import("@/modules/checkout/components/ebarimt/billType.kiosk")
 )
 
-const RegisterNumber = dynamic(
+const RegisterNumber: any = dynamic(
   () => import("@/modules/checkout/components/ebarimt/registerNumber.kiosk")
 )
 
-const SelectPaymentType = dynamic(
+const SelectPaymentType: any = dynamic(
   () =>
     import("@/modules/checkout/components/paymentType/selectPaymentType.kiosk")
 )
 
 const HandleOrder = () => {
-  const [view, setView] = useAtom(kioskModalView)
-  const [open, setOpen] = useAtom(kioskDialogOpenAtom)
+  const [view, setView] = useAtom(checkoutModalViewAtom)
+  const [open, setOpen] = useAtom(checkoutDialogOpenAtom)
 
   return (
     <>

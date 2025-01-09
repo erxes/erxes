@@ -1,17 +1,19 @@
-import classnames from "classnames";
-import { TEXT_COLORS } from "@erxes/ui-cards/src/boards/constants";
-import { ControlLabel } from "@erxes/ui/src/components/form";
-import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
+import { LogoWrapper } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import { TEXT_COLORS } from "@erxes/ui-sales/src/boards/constants";
 import {
   BackgroundSelector,
   SubItem,
-  WidgetBackgrounds,
+  WidgetBackgrounds
 } from "@erxes/ui-settings/src/styles";
-import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
-import React from "react";
+import { ControlLabel } from "@erxes/ui/src/components/form";
 import Popover from "@erxes/ui/src/components/Popover";
-import TwitterPicker from "react-color/lib/Twitter";
+import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
+import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
 import { __, uploadHandler } from "@erxes/ui/src/utils";
+import { readFile } from '@erxes/ui/src/utils/core';
+import classnames from "classnames";
+import React from "react";
+import TwitterPicker from "react-color/lib/Twitter";
 
 type Props = {
   onChange: (
@@ -45,7 +47,7 @@ class Appearance extends React.Component<Props, State> {
       wallpaper: props.wallpaper,
       logoPreviewStyle: {},
       logo: {},
-      logoPreviewUrl: {},
+      logoPreviewUrl: {}
     };
   }
 
@@ -54,7 +56,7 @@ class Appearance extends React.Component<Props, State> {
     this.setState({ [name]: value } as unknown as Pick<State, keyof State>);
   };
 
-  handleLogoChange = (e) => {
+  handleLogoChange = e => {
     const imageFile = e.target.files;
 
     uploadHandler({
@@ -71,7 +73,7 @@ class Appearance extends React.Component<Props, State> {
 
       afterRead: ({ result }) => {
         this.onChange("logoPreviewUrl", result);
-      },
+      }
     });
   };
 
@@ -93,9 +95,16 @@ class Appearance extends React.Component<Props, State> {
   }
 
   renderUploadImage(title) {
+    const { logoPreviewUrl, color } = this.props;
+
     return (
       <SubItem>
         <ControlLabel>{title}</ControlLabel>
+        {logoPreviewUrl && 
+          <LogoWrapper backgroundColor={color}>
+            <img src={readFile(logoPreviewUrl)} alt="Preview" />
+          </LogoWrapper>
+        }
         <input
           type="file"
           accept="image/png, image/jpeg"

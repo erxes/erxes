@@ -1,9 +1,9 @@
-import { Model } from 'mongoose';
-import { IModels } from '../../connectionResolver';
+import { Model } from "mongoose";
+import { IModels } from "../../connectionResolver";
 import {
   getPermissionActionsMap,
   IActionsMap
-} from '../../data/permissions/utils';
+} from "../../data/permissions/utils";
 import {
   IPermission,
   IPermissionDocument,
@@ -12,7 +12,7 @@ import {
   IUserGroupDocument,
   permissionSchema,
   userGroupSchema
-} from './definitions/permissions';
+} from "./definitions/permissions";
 
 export interface IPermissionModel extends Model<IPermissionDocument> {
   createPermission(doc: IPermissionParams): Promise<IPermissionDocument[]>;
@@ -115,7 +115,7 @@ export const loadPermissionClass = (models: IModels) => {
       }).countDocuments();
 
       if (count !== ids.length) {
-        throw new Error('Permission not found');
+        throw new Error("Permission not found");
       }
 
       return models.Permissions.deleteMany({ _id: { $in: ids } });
@@ -125,7 +125,7 @@ export const loadPermissionClass = (models: IModels) => {
       const permission = await models.Permissions.findOne({ _id: id });
 
       if (!permission) {
-        throw new Error('Permission not found');
+        throw new Error("Permission not found");
       }
 
       return permission;
@@ -143,7 +143,7 @@ export const loadUserGroupClass = (models: IModels) => {
       const userGroup = await models.UsersGroups.findOne({ _id });
 
       if (!userGroup) {
-        throw new Error('User group not found');
+        throw new Error("User group not found");
       }
 
       return userGroup;
@@ -194,7 +194,7 @@ export const loadUserGroupClass = (models: IModels) => {
      * @return {Promise}
      */
     public static async removeGroup(_id: string) {
-      const groupObj = await models.UsersGroups.findOne({ _id });
+      const groupObj = await models.UsersGroups.findOneAndDelete({ _id });
 
       if (!groupObj) {
         throw new Error(`Group not found with id ${_id}`);
@@ -207,15 +207,15 @@ export const loadUserGroupClass = (models: IModels) => {
 
       await models.Permissions.deleteMany({ groupId: groupObj._id });
 
-      return groupObj.remove();
+      return groupObj;
     }
 
     public static async copyGroup(sourceGroupId: string, memberIds?: string[]) {
       const sourceGroup = await models.UsersGroups.getGroup(sourceGroupId);
 
-      const nameCount = await models.UsersGroups.countDocuments({
-        name: new RegExp(`${sourceGroup.name}`, 'i')
-      });
+      const nameCount = await models.UsersGroups.find({
+        name: new RegExp(`${sourceGroup.name}`, "i")
+      }).countDocuments();
 
       const clone = await models.UsersGroups.createGroup(
         {

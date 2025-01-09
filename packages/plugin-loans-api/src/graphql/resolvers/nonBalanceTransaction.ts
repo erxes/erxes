@@ -4,7 +4,7 @@ import { INonBalanceTransaction } from '../../models/definitions/nonBalanceTrans
 
 const nonBalanceTransactions = {
 
-  customer(nonBalanceTransaction: INonBalanceTransaction, _, { subdomain }: IContext) {
+  async customer(nonBalanceTransaction: INonBalanceTransaction, _, { subdomain }: IContext) {
     return sendMessageBroker(
       {
         subdomain,
@@ -12,10 +12,10 @@ const nonBalanceTransactions = {
         data: { _id: nonBalanceTransaction.customerId },
         isRPC: true
       },
-      'contacts'
+      'core'
     );
   },
-  contract(nonBalanceTransaction: INonBalanceTransaction, _, { models }: IContext) {
+  async contract(nonBalanceTransaction: INonBalanceTransaction, _, { models }: IContext) {
     return models.Contracts.findOne({ _id: nonBalanceTransaction.contractId });
   }
 };

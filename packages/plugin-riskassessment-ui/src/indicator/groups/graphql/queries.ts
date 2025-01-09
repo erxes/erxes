@@ -1,7 +1,5 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
-
 const commonParams = `
-$ids:[String]
+    $ids:[String]
     $searchValue: String
     $tagIds:[String]
     $perPage: Int
@@ -9,29 +7,59 @@ $ids:[String]
 `;
 
 const commonParamsDef = `
-ids:$ids
+    ids:$ids
     searchValue: $searchValue
     perPage: $perPage
     page: $page
     tagIds:$tagIds
 `;
 
+const CALCULATE_LOGIC_FIELDS = `
+     _id
+    name
+    value
+    logic
+    color
+
+`;
+const COMMON_GROUP_FIELDS = `
+    _id,
+    name,
+    description,
+    tagIds
+    tags{_id,name,colorCode}
+    ignoreZeros
+    calculateMethod,
+`;
+
 const list = `
     query RiskIndicatorsGroups (${commonParams}) {
         riskIndicatorsGroups(${commonParamsDef}) {
-            _id,
-            name,
-            description,
-            tagIds
-            ${isEnabled('tags') ? `tags{_id,name,colorCode}` : ''}
-            ignoreZeros
-            calculateMethod,
+            ${COMMON_GROUP_FIELDS}
             calculateLogics {
+                ${CALCULATE_LOGIC_FIELDS}
+            }
+            groups {
                 _id
                 name
-                value
-                logic
-                color
+                calculateMethod
+                percentWeight
+                indicatorIds
+                calculateLogics { ${CALCULATE_LOGIC_FIELDS} }
+            }
+            createdAt
+            modifiedAt
+        },
+        riskIndicatorsGroupsTotalCount(${commonParamsDef})
+    }
+`;
+
+const getFullDetail = `
+    query RiskIndicatorsGroup ($_id:String) {
+        riskIndicatorsGroup(_id:$_id){
+            ${COMMON_GROUP_FIELDS}
+            calculateLogics {
+                 ${CALCULATE_LOGIC_FIELDS}
             }
             groups {
                 _id
@@ -40,17 +68,13 @@ const list = `
                 percentWeight
                 indicatorIds
                 calculateLogics {
-                    _id
-                    name
-                    value
-                    logic
-                    color
+                    ${CALCULATE_LOGIC_FIELDS}
                 }
             }
             createdAt
             modifiedAt
-        },
-        riskIndicatorsGroupsTotalCount(${commonParamsDef})
+        }
+
     }
 `;
 
@@ -69,4 +93,4 @@ const detail = `
     }
 `;
 
-export default { list, detail };
+export default { list, detail, getFullDetail };

@@ -7,7 +7,7 @@ import {
   FormGroup,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
+  MainStyleScrollWrapper as ScrollWrapper
 } from "@erxes/ui/src";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { IInsuranceType, IInsuranceTypeDoc } from "../types";
@@ -19,7 +19,6 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const SelectCompanies = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "SelectCompanies" */ "@erxes/ui-contacts/src/companies/containers/SelectCompanies"
     )
@@ -49,7 +48,7 @@ const InsuranceTypeForm = (props: Props) => {
       percent: Number(finalValues.percent),
       description: finalValues.description,
       companyId,
-      yearPercents: finalValues.yearPercents,
+      yearPercents: finalValues.yearPercents
     };
   };
 
@@ -66,7 +65,7 @@ const InsuranceTypeForm = (props: Props) => {
     const { closeModal, renderButton } = props;
     const { values, isSubmitted } = formProps;
 
-    const onSelectCompany = (value) => {
+    const onSelectCompany = value => {
       setCompanyId(value);
     };
 
@@ -79,40 +78,38 @@ const InsuranceTypeForm = (props: Props) => {
                 ...formProps,
                 name: "code",
                 required: true,
-                defaultValue: insuranceType.code || "",
+                defaultValue: insuranceType.code || ""
               })}
               {renderFormGroup("Name", {
                 ...formProps,
                 name: "name",
                 required: true,
-                defaultValue: insuranceType.name || "",
+                defaultValue: insuranceType.name || ""
               })}
 
-              {isEnabled("contacts") && (
-                <FormGroup>
-                  <ControlLabel required>{__("Company")}</ControlLabel>
-                  <SelectCompanies
-                    label="Choose an company"
-                    name="companyId"
-                    initialValue={companyId}
-                    required
-                    onSelect={onSelectCompany}
-                    multi={false}
-                  />
-                </FormGroup>
-              )}
+              <FormGroup>
+                <ControlLabel required>{__("Company")}</ControlLabel>
+                <SelectCompanies
+                  label={__("Choose an company")}
+                  name="companyId"
+                  initialValue={companyId}
+                  required
+                  onSelect={onSelectCompany}
+                  multi={false}
+                />
+              </FormGroup>
 
               {renderFormGroup("Percent", {
                 ...formProps,
                 name: "percent",
                 type: "number",
-                defaultValue: insuranceType.percent || 0,
+                defaultValue: insuranceType.percent || 0
               })}
 
               {renderFormGroup("Year Percents", {
                 ...formProps,
                 name: "yearPercents",
-                defaultValue: insuranceType.yearPercents || "",
+                defaultValue: insuranceType.yearPercents || ""
               })}
 
               <FormGroup>
@@ -138,7 +135,7 @@ const InsuranceTypeForm = (props: Props) => {
             name: "insuranceType",
             values: generateDoc(values),
             isSubmitted,
-            object: props.insuranceType,
+            object: props.insuranceType
           })}
         </ModalFooter>
       </>

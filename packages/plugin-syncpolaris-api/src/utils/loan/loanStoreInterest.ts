@@ -1,7 +1,7 @@
 import { fetchPolaris } from '../utils';
 import { IPolarisStoreInterest } from './types';
 
-export const createLoanStoreInterest = async (subdomain, storeInterest) => {
+export const createLoanStoreInterest = async (subdomain, polarisConfig, storeInterest) => {
   const loanStoreInterest: IPolarisStoreInterest = {
     txnAcntCode: storeInterest.number,
     txnAmount: storeInterest.amount,
@@ -17,7 +17,8 @@ export const createLoanStoreInterest = async (subdomain, storeInterest) => {
     subdomain,
     op: '13610257',
     data: [loanStoreInterest],
-  }).then((response) => JSON.parse(response));
+    polarisConfig,
+  });
 
   return loanGiveReponse.txnJrno;
 };

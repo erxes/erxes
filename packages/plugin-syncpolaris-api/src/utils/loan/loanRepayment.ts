@@ -3,15 +3,15 @@ import {
   fetchPolaris,
   getCustomer,
   getDepositAccount,
-  getContract,
-} from '../utils';
-import { IPolarisRepayment } from './types';
+  getContract
+} from "../utils";
+import { IPolarisRepayment } from "./types";
 
-export const createLoanRepayment = async (subdomain, transaction) => {
+export const createLoanRepayment = async (subdomain, models, polarisConfig, syncLog, transaction) => {
   const loanContract = await getContract(
     subdomain,
     transaction.contractId,
-    'loans',
+    "loans"
   );
 
   const customer = await getCustomer(subdomain, loanContract.customerId);
@@ -20,32 +20,35 @@ export const createLoanRepayment = async (subdomain, transaction) => {
 
   const customerData = await customFieldToObject(
     subdomain,
-    'contacts:customer',
-    customer,
+    "core:customer",
+    customer
   );
 
   const loanRepayment: IPolarisRepayment = {
     txnAcntCode: loanContract.number,
     txnAmount: transaction.total,
     rate: 1,
-    rateTypeId: '16',
+    rateTypeId: "16",
     contAcntCode: deposit.number,
     contAmount: transaction.total,
     contRate: 1,
     txnDesc: `${customerData.registerCode} ${transaction.description}`,
     tcustRegister: customerData.registerCode,
-    tcustRegisterMask: '3',
-    sourceType: 'TLLR',
+    tcustRegisterMask: "3",
+    sourceType: "TLLR",
     isPreview: 0,
     isPreviewFee: null,
-    isTmw: 1,
+    isTmw: 1
   };
 
   const loanRepaymentReponse = await fetchPolaris({
     subdomain,
-    op: '13610250',
+    op: "13610250",
     data: [loanRepayment],
-  }).then((response) => JSON.parse(response));
+    models,
+    polarisConfig,
+    syncLog
+  });
 
   return loanRepaymentReponse.txnJrno;
 };

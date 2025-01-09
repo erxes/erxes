@@ -1,31 +1,32 @@
-import { Actions, InfoWrapper } from "@erxes/ui/src/styles/main";
-import { Alert, __, confirm } from "@erxes/ui/src/utils";
-import { AssetContent, ContainerBox } from "../../../style";
+import { Actions, InfoWrapper } from '@erxes/ui/src/styles/main';
+import { Alert, __, confirm } from '@erxes/ui/src/utils';
+import { AssetContent, ContainerBox } from '../../../style';
 import {
   FieldStyle,
   SidebarCounter,
   SidebarFlexRow,
-  SidebarList,
-} from "@erxes/ui/src/layout/styles";
-import React, { useState } from "react";
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
+import React, { useState } from 'react';
 
-import AssetForm from "../../containers/AssetForm";
-import AssignArticles from "../../containers/actions/Assign";
-import Attachment from "@erxes/ui/src/components/Attachment";
-import Button from "@erxes/ui/src/components/Button";
-import Dropdown from "@erxes/ui/src/components/Dropdown";
-import { IAsset } from "../../../common/types";
-import { IAttachment } from "@erxes/ui/src/types";
-import Icon from "@erxes/ui/src/components/Icon";
-import KnowledgeBase from "../../containers/detail/KnowledgeBase";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import { Name } from "@erxes/ui-contacts/src/customers/styles";
-import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
-import { Tip } from "@erxes/ui/src";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-import moment from "moment";
-import { useNavigate } from "react-router-dom";
-import xss from "xss";
+import AssetForm from '../../containers/AssetForm';
+import AssignArticles from '../../containers/actions/Assign';
+import Attachment from '@erxes/ui/src/components/Attachment';
+import Button from '@erxes/ui/src/components/Button';
+import Dropdown from '@erxes/ui/src/components/Dropdown';
+import { IAsset } from '../../../common/types';
+import { IAttachment } from '@erxes/ui/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import KnowledgeBase from '../../containers/detail/KnowledgeBase';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { Name } from '@erxes/ui-contacts/src/customers/styles';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { Tip } from '@erxes/ui/src';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
+import xss from 'xss';
+import KbArticleHistories from '../../containers/detail/KbArticleHistories';
 
 type Props = {
   asset: IAsset;
@@ -54,11 +55,11 @@ function BasicInfo({ asset, remove, assignKbArticles }: Props) {
     return (
       <li>
         <FieldStyle>{__(`Vendor`)}</FieldStyle>
-        <SidebarCounter>{vendor.primaryName || ""}</SidebarCounter>
+        <SidebarCounter>{vendor.primaryName || ''}</SidebarCounter>
         <Button
           onClick={() => navigate(`/companies/detail/${vendor._id}`)}
           btnStyle="link"
-          style={{ padding: "0", paddingLeft: "8px" }}
+          style={{ padding: '0', paddingLeft: '8px' }}
         >
           <Tip text="See Vendor Detail" placement="bottom">
             <Icon icon="rightarrow" />
@@ -69,7 +70,7 @@ function BasicInfo({ asset, remove, assignKbArticles }: Props) {
   };
 
   const renderView = (name, variable, extraField?: any) => {
-    const defaultName = name.includes("count") ? 0 : "-";
+    const defaultName = name.includes('count') ? 0 : '-';
 
     return (
       <li>
@@ -77,31 +78,6 @@ function BasicInfo({ asset, remove, assignKbArticles }: Props) {
         <SidebarCounter>{variable || defaultName}</SidebarCounter>
         {extraField && extraField}
       </li>
-    );
-  };
-  const renderKbDetail = () => {
-    const content = (props) => (
-      <AssignArticles
-        {...props}
-        knowledgeData={asset?.knowledgeData}
-        assignedArticleIds={asset.kbArticleIds}
-        objects={[asset]}
-        save={assignKbArticles}
-      />
-    );
-
-    return (
-      <ModalTrigger
-        title="Edit Assigned Knowledgebase Articles"
-        dialogClassName="modal-1000w"
-        content={content}
-        size="xl"
-        trigger={
-          <li>
-            <a href="#assign">{__("Assign")}</a>
-          </li>
-        }
-      />
     );
   };
 
@@ -113,24 +89,48 @@ function BasicInfo({ asset, remove, assignKbArticles }: Props) {
           Alert.error(error.message);
         });
 
+    const editForm = (props) => <AssetForm {...props} asset={asset || {}} />;
+    const kbForm = (props) => (
+      <AssignArticles
+        {...props}
+        knowledgeData={asset?.knowledgeData}
+        assignedArticleIds={asset.kbArticleIds}
+        objects={[asset]}
+        save={assignKbArticles}
+      />
+    );
+
+    const menuItems = [
+      {
+        title: 'Edit basic info',
+        trigger: <a href="#edit">{__('Edit')}</a>,
+        content: editForm,
+        additionalModalProps: { size: 'lg' }
+      },
+      isEnabled('knowledgebase') && {
+        title: 'Edit Assigned Knowledgebase Articles',
+        trigger: <a href="#assign">{__('Assign')}</a>,
+        content: kbForm,
+        additionalModalProps: { className: 'modal-1000w', size: 'xl' }
+      }
+    ];
+
     return (
       <Actions>
         <Dropdown
-          unmount={false}
           toggleComponent={
             <Button btnStyle="simple" size="medium">
-              {__("Action")}
+              {__('Action')}
               <Icon icon="angle-down" />
             </Button>
           }
+          modalMenuItems={menuItems}
         >
           <li>
             <a href="#delete" onClick={onDelete}>
-              {__("Delete")}
+              {__('Delete')}
             </a>
           </li>
-          {renderEditForm()}
-          {isEnabled("knowledgebase") && renderKbDetail()}
         </Dropdown>
       </Actions>
     );
@@ -144,29 +144,12 @@ function BasicInfo({ asset, remove, assignKbArticles }: Props) {
     return <Attachment attachment={item} />;
   };
 
-  const renderEditForm = () => {
-    const content = (props) => <AssetForm {...props} asset={asset || {}} />;
-
-    return (
-      <ModalTrigger
-        title="Edit basic info"
-        trigger={
-          <li>
-            <a href="#edit">{__("Edit")}</a>
-          </li>
-        }
-        size="lg"
-        content={content}
-      />
-    );
-  };
-
   const changeAssetDetail = () => {
     return (
       <Button
         onClick={() => navigate(`/settings/asset/detail/${asset.parent._id}`)}
         btnStyle="link"
-        style={{ padding: "0", paddingLeft: "8px" }}
+        style={{ padding: '0', paddingLeft: '8px' }}
       >
         <Tip text="See Parent Asset Detail" placement="bottom">
           <Icon icon="rightarrow" />
@@ -183,8 +166,19 @@ function BasicInfo({ asset, remove, assignKbArticles }: Props) {
     return (
       <AssetContent
         dangerouslySetInnerHTML={{
-          __html: xss(asset.description),
+          __html: xss(asset.description)
         }}
+      />
+    );
+  };
+
+  const renderKbArticleHistories = () => {
+    return (
+      <ModalTrigger
+        title="Knowledge base articles histories"
+        trigger={<Icon icon="eye" />}
+        content={() => <KbArticleHistories assetId={asset._id} />}
+        size="lg"
       />
     );
   };
@@ -198,27 +192,28 @@ function BasicInfo({ asset, remove, assignKbArticles }: Props) {
 
       {renderImage(asset.attachment)}
       <SidebarList className="no-link">
-        {renderView("Code", asset.code)}
-        {renderView("Type", asset.type)}
-        {renderView("Category", asset.category ? asset.category.name : "")}
+        {renderView('Code', asset.code)}
+        {renderView('Type', asset.type)}
+        {renderView('Category', asset.category ? asset.category.name : '')}
         {renderView(
-          "Parent",
-          asset.parent ? asset.parent.name : "",
+          'Parent',
+          asset.parent ? asset.parent.name : '',
           asset.parent && changeAssetDetail()
         )}
-        {renderView("Unit price", (asset.unitPrice || 0).toLocaleString())}
+        {renderView('Unit price', (asset.unitPrice || 0).toLocaleString())}
         {renderVendor(asset.vendor)}
         {renderView(
-          "Create At",
-          moment(asset.createdAt).format("YYYY-MM-DD HH:mm")
+          'Create At',
+          moment(asset.createdAt).format('YYYY-MM-DD HH:mm')
         )}
         {renderView(
-          "Knowledge Base",
+          'Knowledge Base',
           <Icon
-            icon={showKnowledgeBase ? "uparrow" : "downarrow-2"}
+            icon={showKnowledgeBase ? 'uparrow' : 'downarrow-2'}
             onClick={() => setShowKnowledgeBase(!showKnowledgeBase)}
           />
         )}
+        {renderView('Knowledge Base Histories', renderKbArticleHistories())}
         {showKnowledgeBase && (
           <KnowledgeBase asset={asset} kbArticleIds={asset.kbArticleIds} />
         )}

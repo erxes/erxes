@@ -1,11 +1,12 @@
-import { checkPermission } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
-import { sendMessageBroker } from '../../../messageBroker';
+import { checkPermission } from "@erxes/api-utils/src";
+import { IContext } from "../../../connectionResolver";
+import { sendMessageBroker } from "../../../messageBroker";
 import {
   ITransaction,
   ITransactionDocument
-} from '../../../models/definitions/transactions';
-import { createLog, deleteLog, updateLog } from '../../../logUtils';
+} from "../../../models/definitions/transactions";
+import { createLog, deleteLog, updateLog } from "../../../logUtils";
+import { loansSchedulesChanged } from "./schedules";
 
 const transactionMutations = {
   transactionsAdd: async (
@@ -18,8 +19,55 @@ const transactionMutations = {
       doc
     );
 
+    if (transaction.contractId) {
+      await loansSchedulesChanged(transaction.contractId);
+    }
+
     const logData = {
-      type: 'transaction',
+      type: "transaction",
+      newData: doc,
+      object: transaction,
+      extraParams: { models }
+    };
+
+    await createLog(subdomain, user, logData);
+
+    return transaction;
+  },
+
+  clientTransactionsAdd: async (
+    _root,
+    doc: ITransaction & { secondaryPassword: string },
+    { user, models, subdomain }: IContext
+  ) => {
+    const validate = await sendMessageBroker(
+      {
+        subdomain,
+        action: "clientPortalUsers.validatePassword",
+        data: {
+          userId: doc.customerId,
+          password: doc.secondaryPassword,
+          secondary: true
+        }
+      },
+      "clientportal"
+    );
+
+    if (validate?.status === "error") {
+      throw new Error(validate.errorMessage);
+    }
+
+    const transaction = await models.Transactions.createTransaction(
+      subdomain,
+      doc
+    );
+
+    if (transaction.contractId) {
+      await loansSchedulesChanged(transaction.contractId);
+    }
+
+    const logData = {
+      type: "transaction",
       newData: doc,
       object: transaction,
       extraParams: { models }
@@ -49,8 +97,12 @@ const transactionMutations = {
       doc
     );
 
+    if (updated.contractId) {
+      await loansSchedulesChanged(updated.contractId);
+    }
+
     const logData = {
-      type: 'transaction',
+      type: "transaction",
       object: transaction,
       newData: { ...doc },
       updatedDocument: updated,
@@ -75,10 +127,18 @@ const transactionMutations = {
       _id
     });
 
-    const updated = await models.Transactions.changeTransaction(_id, doc,subdomain);
+    const updated = await models.Transactions.changeTransaction(
+      _id,
+      doc,
+      subdomain
+    );
+
+    if (updated.contractId) {
+      await loansSchedulesChanged(updated.contractId);
+    }
 
     const logData = {
-      type: 'transaction',
+      type: "transaction",
       object: transaction,
       newData: { ...doc },
       updatedDocument: updated,
@@ -100,39 +160,48 @@ const transactionMutations = {
     { models, user, subdomain }: IContext
   ) => {
     // TODO: contracts check
+
     const transactions = await models.Transactions.find({
-      _id: { $in: transactionIds },
-      isManual: true
+      _id: { $in: transactionIds }
     }).lean();
 
-    await models.Transactions.removeTransactions(transactions.map(a => a._id),subdomain);
+    await models.Transactions.removeTransactions(
+      transactions.map((a) => a._id),
+      subdomain
+    );
 
     for (const transaction of transactions) {
       const logData = {
-        type: 'transaction',
+        type: "transaction",
         object: transaction,
         extraParams: { models }
       };
 
-      if (!!transaction.ebarimt && transaction.isManual)
+      if (!!transaction.ebarimt && transaction.isManual) {
         await sendMessageBroker(
           {
-            action: 'putresponses.returnBill',
+            action: "putresponses.returnBill",
             data: {
-              contentType: 'loans:transaction',
+              contentType: "loans:transaction",
               contentId: transaction._id,
               number: transaction.number
             },
             subdomain
           },
-          'ebarimt'
+          "ebarimt"
         );
+      }
+
+      if (transaction.contractId) {
+        await loansSchedulesChanged(transaction.contractId);
+      }
 
       await deleteLog(subdomain, user, logData);
     }
 
     return transactionIds;
   },
+
   createEBarimtOnTransaction: async (
     _root,
     {
@@ -159,17 +228,17 @@ const transactionMutations = {
     return transaction;
   }
 };
-checkPermission(transactionMutations, 'transactionsAdd', 'manageTransactions');
-checkPermission(transactionMutations, 'transactionsEdit', 'manageTransactions');
+checkPermission(transactionMutations, "transactionsAdd", "manageTransactions");
+checkPermission(transactionMutations, "transactionsEdit", "manageTransactions");
 checkPermission(
   transactionMutations,
-  'transactionsChange',
-  'manageTransactions'
+  "transactionsChange",
+  "manageTransactions"
 );
 checkPermission(
   transactionMutations,
-  'transactionsRemove',
-  'transactionsRemove'
+  "transactionsRemove",
+  "transactionsRemove"
 );
 
 export default transactionMutations;

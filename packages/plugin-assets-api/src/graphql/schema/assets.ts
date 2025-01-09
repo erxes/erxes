@@ -1,22 +1,20 @@
 import {
   attachmentInput,
   attachmentType
-} from '@erxes/api-utils/src/commonTypeDefs';
-import { assetCategoryParams, assetParams } from '../../common/graphql/asset';
+} from "@erxes/api-utils/src/commonTypeDefs";
+import { assetCategoryParams, assetParams } from "../../common/graphql/asset";
 
-export const types = contactsAvailable => `
+export const types = `
 
     ${attachmentType}
     ${attachmentInput}
     
-    ${
-      contactsAvailable
-        ? `
-          extend type Company @key(fields: "_id") {
-            _id: String! @external
-          }
-        `
-        : ''
+    extend type User @key(fields: "_id") {
+      _id: String! @external
+    }
+
+    extend type Company @key(fields: "_id") {
+        _id: String! @external
     }
 
     type AssetCategory @key(fields: "_id") @cacheControl(maxAge: 3) {
@@ -54,7 +52,20 @@ export const types = contactsAvailable => `
       parent:Asset
       isRoot: Boolean
       childAssetCount:Int
-      ${contactsAvailable ? 'vendor: Company' : ''}
+      vendor: Company
+    }
+
+    type AssetKBArticleHistory {
+      _id: String
+      assetId: String
+      kbArticleId: String
+      createdAt: Date
+      userId: String
+      action: String
+
+      article: JSON
+      asset:Asset
+      user:User
     }
 `;
 
@@ -81,6 +92,7 @@ export const queries = `
   assetCategories(parentId: String, searchValue: String, status: String, withKbOnly: Boolean): [AssetCategory]
   assetCategoryDetail(_id: String): AssetCategory
   assetCategoriesTotalCount: Int
+  assetKbArticlesHistories(assetId:String):[AssetKBArticleHistory]
 `;
 
 export const mutations = `

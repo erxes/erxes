@@ -40,7 +40,7 @@ export const findBranches = async (subdomain: string, branchIds: string[]) => {
 
 export const findDepartments = async (
   subdomain: string,
-  departmentIds: string[],
+  departmentIds: string[]
 ) => {
   const branches = await sendCoreMessage({
     subdomain,
@@ -67,7 +67,7 @@ export const findUser = async (subdomain: string, userId: string) => {
 
 export const findBranchUsers = async (
   subdomain: string,
-  branchIds: string[],
+  branchIds: string[]
 ) => {
   const branchUsers = await sendCoreMessage({
     subdomain,
@@ -80,7 +80,7 @@ export const findBranchUsers = async (
 
 export const findDepartmentUsers = async (
   subdomain: string,
-  departmentIds: string[],
+  departmentIds: string[]
 ) => {
   const deptUsers = await sendCoreMessage({
     subdomain,
@@ -95,7 +95,7 @@ export const returnUnionOfUserIds = async (
   branchIds: string[],
   departmentIds: string[],
   userIds: string[],
-  subdomain: any,
+  subdomain: any
 ) => {
   if (userIds.length) {
     return userIds;
@@ -110,7 +110,7 @@ export const returnUnionOfUserIds = async (
   if (departmentIds) {
     const departmentUsers = await findDepartmentUsers(subdomain, departmentIds);
     const departmentUserIds = departmentUsers.map(
-      (departmentUser) => departmentUser._id,
+      (departmentUser) => departmentUser._id
     );
     concatBranchDept.push(...departmentUserIds);
   }
@@ -128,6 +128,7 @@ export const createScheduleShiftsByUserIds = async (
   scheduleShifts,
   models: IModels,
   totalBreakInMins?: number,
+  scheduleConfigId?: string
 ) => {
   const shiftsBulkCreateOps: any[] = [];
 
@@ -139,6 +140,7 @@ export const createScheduleShiftsByUserIds = async (
       status: 'Approved',
       submittedByAdmin: true,
       totalBreakInMins,
+      scheduleConfigId,
     });
 
     for (const shift of scheduleShifts) {
@@ -171,7 +173,7 @@ export const timeclockReportByUser = async (
   userId: string,
   selectedMonth: string,
   selectedYear: string,
-  selectedDate?: string,
+  selectedDate?: string
 ) => {
   let report: any = {
     scheduleReport: [],
@@ -183,7 +185,7 @@ export const timeclockReportByUser = async (
   const NOW = new Date();
 
   const selectedMonthIndex = new Date(
-    Date.parse(selectedMonth + ' 1, 2000'),
+    Date.parse(selectedMonth + ' 1, 2000')
   ).getMonth();
 
   const nextMonthIndex = selectedMonthIndex === 11 ? 0 : selectedMonthIndex + 1;
@@ -191,13 +193,13 @@ export const timeclockReportByUser = async (
   // get 1st of month
   const startOfSelectedMonth = new Date(
     parseFloat(selectedYear),
-    selectedMonthIndex,
+    selectedMonthIndex
   );
   // start of the next month
   const startOfNextMonth = new Date(
     parseFloat(selectedYear),
     nextMonthIndex,
-    1,
+    1
   );
 
   // start, end Time filter for queries
@@ -231,7 +233,7 @@ export const timeclockReportByUser = async (
         $gte: startOfSelectedMonth,
         $lte: startOfNextMonth,
       },
-    })),
+    }))
   );
 
   const scheduleShiftConfigsSelectedMonth = await models.ScheduleConfigs.find({
@@ -271,11 +273,11 @@ export const timeclockReportByUser = async (
   const requestsOfSelectedMonth = totalRequestsOfUser.filter(
     (req) =>
       dayjs(req.startTime) >= dayjs(startOfSelectedMonth) &&
-      dayjs(req.startTime) < dayjs(startOfNextMonth),
+      dayjs(req.startTime) < dayjs(startOfNextMonth)
   );
 
   const absenceTypeIds = requestsOfSelectedMonth.map(
-    (req) => req.absenceTypeId,
+    (req) => req.absenceTypeId
   );
   let totalHoursAbsenceSelectedMonth = 0;
 
@@ -301,7 +303,7 @@ export const timeclockReportByUser = async (
     // absence by day
     if (request.absenceTimeType === 'by day' && request.requestDates) {
       const getAbsenceType = absenceTypes.find(
-        (absType) => absType._id === request.absenceTypeId,
+        (absType) => absType._id === request.absenceTypeId
       );
 
       const getTotalHoursOfAbsence =
@@ -371,13 +373,13 @@ export const timeclockReportByUser = async (
     const totalDaysWorkedSelectedMonth = new Set(
       timeclocksOfSelectedMonth.map((shift) => {
         return new Date(shift.shiftStart).toLocaleDateString();
-      }),
+      })
     ).size;
 
     const totalDaysScheduledSelectedMonth = new Set(
       scheduleShiftsSelectedMonth.map((scheduleShift) =>
-        new Date(scheduleShift.shiftStart || '').toLocaleDateString(),
-      ),
+        new Date(scheduleShift.shiftStart || '').toLocaleDateString()
+      )
     ).size;
 
     //  schedules
@@ -385,7 +387,7 @@ export const timeclockReportByUser = async (
       let lunchBreakOfDay = 0;
 
       const scheduleDateString = new Date(
-        scheduleShift.shiftStart || '',
+        scheduleShift.shiftStart || ''
       ).toLocaleDateString();
 
       // schedule duration per shift
@@ -417,7 +419,7 @@ export const timeclockReportByUser = async (
           (shift) =>
             shift.date === selectedDayString &&
             shift.recordedStart &&
-            !shift.checked,
+            !shift.checked
         );
 
         scheduledShiftStartSelectedDay = scheduleShift.shiftStart;
@@ -450,7 +452,7 @@ export const timeclockReportByUser = async (
       }
 
       const recordedShiftIdx = report.scheduleReport.findIndex(
-        (shift) => shift.date === scheduleDateString && !shift.checked,
+        (shift) => shift.date === scheduleDateString && !shift.checked
       );
 
       // no timeclock found, thus not worked on a scheduled day
@@ -480,14 +482,14 @@ export const timeclockReportByUser = async (
 
     // calcute shifts worked outside schedule
     const shiftsWorkedOutsideSchedule = report.scheduleReport.filter(
-      (shift) => !shift.checked,
+      (shift) => !shift.checked
     );
 
     totalDaysWorkedOutsideSchedule = shiftsWorkedOutsideSchedule.length;
 
     totalHoursWorkedOutsideSchedule = shiftsWorkedOutsideSchedule.reduce(
       (partialHoursSum, shift) => partialHoursSum + shift.shiftDuration || 0,
-      0,
+      0
     );
 
     totalDaysNotWorked = new Set(notWorkedDays).size;
@@ -536,7 +538,7 @@ export const timeclockReportPreliminary = async (
   startDate: Date,
   endDate: Date,
   teamMembersObj?: any,
-  exportToXlsx?: boolean,
+  exportToXlsx?: boolean
 ) => {
   const models = await generateModels(subdomain);
 
@@ -582,7 +584,7 @@ export const timeclockReportPreliminary = async (
           },
         },
       ],
-    })),
+    }))
   );
 
   userIds.forEach(async (currUserId) => {
@@ -593,11 +595,11 @@ export const timeclockReportPreliminary = async (
     }
 
     const currUserTimeclocks = timeclocks.filter(
-      (timeclock) => timeclock.userId === currUserId,
+      (timeclock) => timeclock.userId === currUserId
     );
 
     const currUserSchedules = schedules.filter(
-      (schedule) => schedule.userId === currUserId,
+      (schedule) => schedule.userId === currUserId
     );
 
     // get shifts of schedule
@@ -605,8 +607,8 @@ export const timeclockReportPreliminary = async (
     currUserSchedules.forEach(async (userSchedule) => {
       currUserScheduleShifts.push(
         ...shiftsOfSchedule.filter(
-          (scheduleShift) => scheduleShift.scheduleId === userSchedule._id,
-        ),
+          (scheduleShift) => scheduleShift.scheduleId === userSchedule._id
+        )
       );
     });
 
@@ -619,14 +621,14 @@ export const timeclockReportPreliminary = async (
           if (!shift.shiftActive) {
             return new Date(shift.shiftStart).toLocaleDateString();
           }
-        }),
+        })
       ).size;
     }
     if (currUserScheduleShifts) {
       totalDaysScheduledPerUser += new Set(
         currUserScheduleShifts.map((shiftOfSchedule) =>
-          new Date(shiftOfSchedule.shiftStart).toLocaleDateString(),
-        ),
+          new Date(shiftOfSchedule.shiftStart).toLocaleDateString()
+        )
       ).size;
     }
 
@@ -650,7 +652,7 @@ export const timeclockReportFinal = async (
   startDate?: Date,
   endDate?: Date,
   teamMembersObj?: any,
-  exportToXlsx?: boolean,
+  exportToXlsx?: boolean
 ) => {
   const models = await generateModels(subdomain);
   const usersReport: IUsersReport = {};
@@ -726,11 +728,11 @@ export const timeclockReportFinal = async (
           },
         },
       ],
-    })),
+    }))
   );
 
   const shiftsOfScheduleConfigIds = shiftsOfSchedule.map(
-    (scheduleShift) => scheduleShift.scheduleConfigId,
+    (scheduleShift) => scheduleShift.scheduleConfigId
   );
   const scheduleShiftsConfigs = await models.ScheduleConfigs.find({
     _id: { $in: shiftsOfScheduleConfigIds },
@@ -741,14 +743,14 @@ export const timeclockReportFinal = async (
   scheduleShiftsConfigs.map(
     (scheduleConfig) =>
       (scheduleShiftConfigsMap[scheduleConfig._id] =
-        scheduleConfig.lunchBreakInMins),
+        scheduleConfig.lunchBreakInMins)
   );
 
   const schedulesObj = createSchedulesObj(
     userIds,
     schedules,
     shiftsOfSchedule,
-    scheduleShiftConfigsMap,
+    scheduleShiftConfigsMap
   );
 
   userIds.forEach(async (currUserId) => {
@@ -759,21 +761,20 @@ export const timeclockReportFinal = async (
     }
 
     const currUserTimeclocks = timeclocks.filter(
-      (timeclock) => timeclock.userId === currUserId,
+      (timeclock) => timeclock.userId === currUserId
     );
 
     const filterSchedules = shiftsOfSchedule.map(
-      (scheduleShift) => scheduleShift.scheduleId,
+      (scheduleShift) => scheduleShift.scheduleId
     );
 
     const currUserSchedules = schedules.filter(
       (schedule) =>
-        schedule.userId === currUserId &&
-        filterSchedules.includes(schedule._id),
+        schedule.userId === currUserId && filterSchedules.includes(schedule._id)
     );
 
     const currUserScheduleIds = currUserSchedules.map(
-      (schedule) => schedule._id,
+      (schedule) => schedule._id
     );
 
     // get shifts of schedule
@@ -781,8 +782,8 @@ export const timeclockReportFinal = async (
     for (const userSchedule of currUserSchedules) {
       currUserScheduleShifts.push(
         ...shiftsOfSchedule.filter(
-          (scheduleShift) => scheduleShift.scheduleId === userSchedule._id,
-        ),
+          (scheduleShift) => scheduleShift.scheduleId === userSchedule._id
+        )
       );
     }
 
@@ -807,14 +808,14 @@ export const timeclockReportFinal = async (
           (userScheduleShift.lunchBreakInMins ||
             scheduleShiftConfigsMap[userScheduleShift.scheduleConfigId] ||
             0),
-        0,
+        0
       ) / 60;
 
     if (currUserTimeclocks) {
       totalDaysWorkedPerUser = new Set(
         currUserTimeclocks.map((shift) =>
-          new Date(shift.shiftStart).toLocaleDateString(),
-        ),
+          new Date(shift.shiftStart).toLocaleDateString()
+        )
       ).size;
 
       for (const currUserTimeclock of currUserTimeclocks) {
@@ -846,7 +847,7 @@ export const timeclockReportFinal = async (
 
           totalHoursOvernightPerUser += returnOvernightHours(
             shiftStart,
-            shiftEnd,
+            shiftEnd
           );
 
           if (
@@ -860,11 +861,11 @@ export const timeclockReportFinal = async (
             const scheduleShiftEnd = getScheduleOfTheDay.shiftEnd;
 
             const getScheduleDuration = Math.abs(
-              scheduleShiftEnd.getTime() - scheduleShiftStart.getTime(),
+              scheduleShiftEnd.getTime() - scheduleShiftStart.getTime()
             );
 
             const getTimeClockDuration = Math.abs(
-              shiftEnd.getTime() - shiftStart.getTime(),
+              shiftEnd.getTime() - shiftStart.getTime()
             );
 
             // get difference in schedule duration and time clock duration
@@ -898,8 +899,8 @@ export const timeclockReportFinal = async (
     if (currUserScheduleShifts) {
       totalDaysScheduledPerUser += new Set(
         currUserScheduleShifts.map((shiftOfSchedule) =>
-          new Date(shiftOfSchedule.shiftStart).toLocaleDateString(),
-        ),
+          new Date(shiftOfSchedule.shiftStart).toLocaleDateString()
+        )
       ).size;
 
       currUserScheduleShifts.forEach((scheduledDay) => {
@@ -918,22 +919,22 @@ export const timeclockReportFinal = async (
     const userAbsenceInfo: IUserAbsenceInfo = returnUserAbsenceInfo(
       {
         requestsShiftRequest: relatedAbsences.requestsShiftRequest.filter(
-          (absence) => absence.userId === currUserId,
+          (absence) => absence.userId === currUserId
         ),
         requestsWorkedAbroad: relatedAbsences.requestsWorkedAbroad.filter(
-          (absence) => absence.userId === currUserId,
+          (absence) => absence.userId === currUserId
         ),
         requestsPaidAbsence: relatedAbsences.requestsPaidAbsence.filter(
-          (absence) => absence.userId === currUserId,
+          (absence) => absence.userId === currUserId
         ),
         requestsUnpaidAbsence: relatedAbsences.requestsUnpaidAbsence.filter(
-          (absence) => absence.userId === currUserId,
+          (absence) => absence.userId === currUserId
         ),
         requestsSick: relatedAbsences.requestsSick.filter(
-          (absence) => absence.userId === currUserId,
+          (absence) => absence.userId === currUserId
         ),
       },
-      relatedAbsenceTypes,
+      relatedAbsenceTypes
     );
 
     // deduct lunch breaks from total scheduled hours
@@ -984,7 +985,7 @@ export const timeclockReportPivot = async (
   startDate?: Date,
   endDate?: Date,
   teamMembersObj?: any,
-  exportToXlsx?: boolean,
+  exportToXlsx?: boolean
 ) => {
   const models = await generateModels(subdomain);
   const usersReport: any = {};
@@ -1029,11 +1030,11 @@ export const timeclockReportPivot = async (
           },
         },
       ],
-    })),
+    }))
   );
 
   const shiftsOfScheduleConfigIds = shiftsOfSchedule.map(
-    (scheduleShift) => scheduleShift.scheduleConfigId,
+    (scheduleShift) => scheduleShift.scheduleConfigId
   );
   const scheduleShiftsConfigs = await models.ScheduleConfigs.find({
     _id: { $in: shiftsOfScheduleConfigIds },
@@ -1044,14 +1045,14 @@ export const timeclockReportPivot = async (
   scheduleShiftsConfigs.map(
     (scheduleConfig) =>
       (scheduleShiftConfigsMap[scheduleConfig._id] =
-        scheduleConfig.lunchBreakInMins),
+        scheduleConfig.lunchBreakInMins)
   );
 
   const schedulesObj = createSchedulesObj(
     userIds,
     schedules,
     shiftsOfSchedule,
-    scheduleShiftConfigsMap,
+    scheduleShiftConfigsMap
   );
 
   userIds.forEach(async (currUserId) => {
@@ -1062,11 +1063,11 @@ export const timeclockReportPivot = async (
     }
 
     const currUserTimeclocks = timeclocks.filter(
-      (timeclock) => timeclock.userId === currUserId,
+      (timeclock) => timeclock.userId === currUserId
     );
 
     const currUserSchedules = schedules.filter(
-      (schedule) => schedule.userId === currUserId,
+      (schedule) => schedule.userId === currUserId
     );
 
     // get shifts of schedule
@@ -1074,8 +1075,8 @@ export const timeclockReportPivot = async (
     currUserSchedules.forEach((userSchedule) => {
       currUserScheduleShifts.push(
         ...shiftsOfSchedule.filter(
-          (scheduleShift) => scheduleShift.scheduleId === userSchedule._id,
-        ),
+          (scheduleShift) => scheduleShift.scheduleId === userSchedule._id
+        )
       );
     });
 
@@ -1092,12 +1093,12 @@ export const timeclockReportPivot = async (
         if (shiftStart && shiftEnd) {
           totalHoursOvernightPerShift = returnOvernightHours(
             shiftStart,
-            shiftEnd,
+            shiftEnd
           );
 
           const scheduledDay = shiftStart.toLocaleDateString();
           const getTimeClockDuration = Math.abs(
-            shiftEnd.getTime() - shiftStart.getTime(),
+            shiftEnd.getTime() - shiftStart.getTime()
           );
 
           let scheduleShiftStart;
@@ -1115,7 +1116,7 @@ export const timeclockReportPivot = async (
             lunchBreakInHrs = getScheduleOfTheDay.lunchBreakInMins / 60;
 
             getScheduleDuration = Math.abs(
-              scheduleShiftEnd.getTime() - scheduleShiftStart.getTime(),
+              scheduleShiftEnd.getTime() - scheduleShiftStart.getTime()
             );
 
             // get difference in schedule duration and time clock duration
@@ -1177,7 +1178,7 @@ export const timeclockReportPivot = async (
       scheduleReport: totalShiftsOfUser.sort(
         (a, b) =>
           new Date(a.timeclockStart).getTime() -
-          new Date(b.timeclockStart).getTime(),
+          new Date(b.timeclockStart).getTime()
       ),
     };
   });
@@ -1187,7 +1188,7 @@ export const timeclockReportPivot = async (
 
 const returnTotalAbsences = async (
   totalRequests: IAbsence[],
-  models: IModels,
+  models: IModels
 ): Promise<{
   requestsShiftRequest: IAbsence[];
   requestsWorkedAbroad: IAbsence[];
@@ -1202,7 +1203,7 @@ const returnTotalAbsences = async (
   });
 
   const paidAbsenceTypeIds = paidAbsenceTypes.map(
-    (paidAbsence) => paidAbsence._id,
+    (paidAbsence) => paidAbsence._id
   );
 
   const shiftRequestAbsenceTypes = await models.AbsenceTypes.find({
@@ -1210,7 +1211,7 @@ const returnTotalAbsences = async (
   });
 
   const shiftRequestAbsenceTypeIds = shiftRequestAbsenceTypes.map(
-    (absenceType) => absenceType._id,
+    (absenceType) => absenceType._id
   );
 
   // get all unpaid absence types' ids
@@ -1219,28 +1220,28 @@ const returnTotalAbsences = async (
   });
 
   const unpaidAbsenceTypeIds = unpaidAbsenceTypes.map(
-    (unpaidAbsence) => unpaidAbsence._id,
+    (unpaidAbsence) => unpaidAbsence._id
   );
 
   // find Absences
   const requestsShiftRequest = totalRequests.filter((request) =>
-    shiftRequestAbsenceTypeIds.includes(request.absenceTypeId || ''),
+    shiftRequestAbsenceTypeIds.includes(request.absenceTypeId || '')
   );
 
   const requestsWorkedAbroad = totalRequests.filter((request) =>
-    request.reason.toLocaleLowerCase().includes('томилолт'),
+    request.reason.toLocaleLowerCase().includes('томилолт')
   );
 
   const requestsPaidAbsence = totalRequests.filter((request) =>
-    paidAbsenceTypeIds.includes(request.absenceTypeId || ''),
+    paidAbsenceTypeIds.includes(request.absenceTypeId || '')
   );
 
   const requestsUnpaidAbsence = totalRequests.filter((request) =>
-    unpaidAbsenceTypeIds.includes(request.absenceTypeId || ''),
+    unpaidAbsenceTypeIds.includes(request.absenceTypeId || '')
   );
 
   const requestsSick = totalRequests.filter((request) =>
-    request.reason.toLowerCase().includes('өвдсөн цаг'),
+    request.reason.toLowerCase().includes('өвдсөн цаг')
   );
 
   return {
@@ -1254,7 +1255,7 @@ const returnTotalAbsences = async (
 
 const returnUserAbsenceInfo = (
   relatedAbsences: any,
-  relatedAbsenceTypes: IAbsenceTypeDocument[],
+  relatedAbsenceTypes: IAbsenceTypeDocument[]
 ): IUserAbsenceInfo => {
   let totalHoursShiftRequest = 0;
   let totalHoursWorkedAbroad = 0;
@@ -1269,7 +1270,7 @@ const returnUserAbsenceInfo = (
     }
 
     const absenceType = relatedAbsenceTypes.find(
-      (absType) => absType._id === request.absenceTypeId,
+      (absType) => absType._id === request.absenceTypeId
     );
 
     if (absenceType && absenceType.requestTimeType === 'by day') {
@@ -1277,7 +1278,7 @@ const returnUserAbsenceInfo = (
         ? request.requestDates.length
         : Math.ceil(
             (request.endTime.getTime() - request.startTime.getTime()) /
-              MMSTODAYS,
+              MMSTODAYS
           );
 
       totalHoursShiftRequest += getTotalDays * absenceType.requestHoursPerDay;
@@ -1295,7 +1296,7 @@ const returnUserAbsenceInfo = (
     }
 
     const absenceType = relatedAbsenceTypes.find(
-      (absType) => absType._id === request.absenceTypeId,
+      (absType) => absType._id === request.absenceTypeId
     );
 
     if (absenceType && absenceType.requestTimeType === 'by day') {
@@ -1303,7 +1304,7 @@ const returnUserAbsenceInfo = (
         ? request.requestDates.length
         : Math.ceil(
             (request.endTime.getTime() - request.startTime.getTime()) /
-              MMSTODAYS,
+              MMSTODAYS
           );
 
       totalHoursWorkedAbroad += getTotalDays * absenceType.requestHoursPerDay;
@@ -1316,7 +1317,7 @@ const returnUserAbsenceInfo = (
 
   relatedAbsences.requestsPaidAbsence.forEach((request) => {
     const absenceType = relatedAbsenceTypes.find(
-      (absType) => absType._id === request.absenceTypeId,
+      (absType) => absType._id === request.absenceTypeId
     );
 
     if (absenceType && absenceType.requestTimeType === 'by day') {
@@ -1324,7 +1325,7 @@ const returnUserAbsenceInfo = (
         ? request.requestDates.length
         : Math.ceil(
             (request.endTime.getTime() - request.startTime.getTime()) /
-              (1000 * 3600 * 24),
+              (1000 * 3600 * 24)
           );
       totalHoursPaidAbsence += getTotalDays * absenceType.requestHoursPerDay;
       return;
@@ -1340,7 +1341,7 @@ const returnUserAbsenceInfo = (
     }
 
     const absenceType = relatedAbsenceTypes.find(
-      (absType) => absType._id === request.absenceTypeId,
+      (absType) => absType._id === request.absenceTypeId
     );
 
     if (absenceType && absenceType.requestTimeType === 'by day') {
@@ -1348,7 +1349,7 @@ const returnUserAbsenceInfo = (
         ? request.requestDates.length
         : Math.ceil(
             (request.endTime.getTime() - request.startTime.getTime()) /
-              MMSTODAYS,
+              MMSTODAYS
           );
 
       totalHoursUnpaidAbsence += getTotalDays * absenceType.requestHoursPerDay;
@@ -1366,7 +1367,7 @@ const returnUserAbsenceInfo = (
     }
 
     const absenceType = relatedAbsenceTypes.find(
-      (absType) => absType._id === request.absenceTypeId,
+      (absType) => absType._id === request.absenceTypeId
     );
 
     if (absenceType && absenceType.requestTimeType === 'by day') {
@@ -1374,7 +1375,7 @@ const returnUserAbsenceInfo = (
         ? request.requestDates.length
         : Math.ceil(
             (request.endTime.getTime() - request.startTime.getTime()) /
-              MMSTODAYS,
+              MMSTODAYS
           );
 
       totalHoursSick += getTotalDays * absenceType.requestHoursPerDay;
@@ -1423,13 +1424,13 @@ const createSchedulesObj = (
   userIds: string[],
   totalSchedules: IScheduleDocument[],
   totalScheduleShifts: IShiftDocument[],
-  scheduleShiftsConfigsMap?: { [scheduleConfigId: string]: number },
+  scheduleShiftsConfigsMap?: { [scheduleConfigId: string]: number }
 ) => {
   const returnObject = {};
 
   for (const userId of userIds) {
     const currEmpSchedules = totalSchedules.filter(
-      (schedule) => schedule.userId === userId,
+      (schedule) => schedule.userId === userId
     );
 
     if (currEmpSchedules.length) {
@@ -1437,7 +1438,7 @@ const createSchedulesObj = (
     }
     for (const empSchedule of currEmpSchedules) {
       const currEmpScheduleShifts = totalScheduleShifts.filter(
-        (scheduleShift) => scheduleShift.scheduleId === empSchedule._id,
+        (scheduleShift) => scheduleShift.scheduleId === empSchedule._id
       );
 
       currEmpScheduleShifts.forEach((currEmpScheduleShift) => {
@@ -1464,7 +1465,7 @@ const createSchedulesObj = (
 export const findTimeclockTeamMemberIds = async (
   models: any,
   startDate: Date,
-  endDate: Date,
+  endDate: Date
 ) => {
   const timeclockUserIds = await models.Timeclocks.find({
     shiftStart: {
@@ -1499,7 +1500,7 @@ export const findTimeclockTeamMemberIds = async (
   }).distinct('userId');
 
   const allUserIds = Array.from(
-    new Set([...timeclockUserIds, ...requestsUserIds, ...scheduleUserIds]),
+    new Set([...timeclockUserIds, ...requestsUserIds, ...scheduleUserIds])
   );
 
   return allUserIds;
@@ -1508,7 +1509,7 @@ export const findTimeclockTeamMemberIds = async (
 export const timeclockReportByUsers = async (
   userIds: string[],
   models: IModels,
-  queryParams: any,
+  queryParams: any
 ): Promise<IUserReport[]> => {
   const returnReport: any[] = [];
 
@@ -1589,4 +1590,38 @@ export const timeclockReportByUsers = async (
   }
 
   return returnReport;
+};
+
+export const timeclockLocation = async (
+  longitude: number,
+  latitude: number,
+  actionLongitude: number,
+  actionLatitude: number
+) => {
+  // convert long, lat into radians
+  const longRad = (Math.PI * longitude) / 180;
+  const latRad = (latitude * Math.PI) / 180;
+  const EARTH_RADIUS = 6378.14;
+
+  // convert into radians
+  const branchLong = (actionLongitude * Math.PI) / 180;
+  const branchLat = (actionLatitude * Math.PI) / 180;
+
+  const longDiff = longRad - branchLong;
+  const latDiff = latRad - branchLat;
+
+  // distance in km
+  const dist =
+    EARTH_RADIUS *
+    2 *
+    Math.asin(
+      Math.sqrt(
+        Math.pow(Math.sin(latDiff / 2), 2) +
+          Math.cos(latRad) *
+            Math.cos(branchLat) *
+            Math.pow(Math.sin(longDiff / 2), 2)
+      )
+    );
+
+  return dist;
 };

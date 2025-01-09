@@ -1,17 +1,33 @@
 const commonParamsDef = `
-  $title: String,
-  $description: String,
-  $buttonText: String,
-  $type: String!,
+  $type: String!
+  $name: String!
+  $title: String
+  $description: String
+  $buttonText: String
   $numberOfPages: Int
+  $visibility: String
+  $leadData: JSON
+  $languageCode: String
+  $departmentIds: [String]
+  $tagIds: [String]
+  $brandId: String
+  $integrationId: String
 `;
 
 const commonParams = `
-  title: $title,
-  description: $description,
-  buttonText: $buttonText,
-  type: $type,
-  numberOfPages: $numberOfPages
+  name: $name
+  type: $type
+    title: $title
+    description: $description
+    buttonText: $buttonText
+    numberOfPages: $numberOfPages
+    visibility: $visibility
+    leadData: $leadData
+    languageCode: $languageCode
+    departmentIds: $departmentIds
+    tagIds: $tagIds
+    brandId: $brandId
+    integrationId: $integrationId
 `;
 
 const addForm = `
@@ -108,18 +124,18 @@ const formSubmissionsSave = `
   }
 `;
 
-const fieldsBulkAddAndEdit = `
-  mutation fieldsBulkAddAndEdit(
+const fieldsBulkAction = `
+  mutation fieldsBulkAction(
     $contentType: String!,
     $contentTypeId: String,
-    $addingFields: [FieldItem],
-    $editingFields: [FieldItem]
+    $newFields: [FieldItem],
+    $updatedFields: [FieldItem]
   ) {
-      fieldsBulkAddAndEdit(
+      fieldsBulkAction(
         contentType: $contentType,
         contentTypeId: $contentTypeId,
-        addingFields: $addingFields,
-        editingFields: $editingFields
+        newFields: $newFields,
+        updatedFields: $updatedFields
       ) {
         _id
         contentTypeId
@@ -134,5 +150,5 @@ export default {
   fieldsEdit,
   fieldsRemove,
   formSubmissionsSave,
-  fieldsBulkAddAndEdit
+  fieldsBulkAction
 };

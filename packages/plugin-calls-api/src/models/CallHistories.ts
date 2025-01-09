@@ -4,19 +4,23 @@ import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import {
   callHistorySchema,
+  ICallHistory,
   ICallHistoryDocument,
 } from './definitions/callHistories';
 
 export interface ICallHistoryModel extends Model<ICallHistoryDocument> {
-  getCallHistory(sessionId: string): Promise<ICallHistoryDocument>;
+  getCallHistory(history: ICallHistory): Promise<ICallHistoryDocument>;
   getCallHistories(selector, user: IUser): Promise<ICallHistoryDocument>;
+  getHistoriesCount(selector, user: IUser): Promise<ICallHistoryDocument>;
 }
 
 export const loadCallHistoryClass = (models: IModels) => {
   class CallHistory {
-    public static async getCallHistory(sessionId) {
-      const history = await models.CallHistory.findOne({ sessionId });
-      return history;
+    public static async getCallHistory({ _id, callType, timeStamp }) {
+      if (callType === 'outgoing') {
+        return await models.CallHistory.findOne({ _id });
+      }
+      return await models.CallHistory.findOne({ timeStamp });
     }
     public static async getCallHistories(selector, user) {
       const integration = await models.Integrations.getIntegration(
@@ -32,16 +36,25 @@ export const loadCallHistoryClass = (models: IModels) => {
       if (!operator) {
         throw new Error('Operator not found');
       }
-      selector.extentionNumber = operator.gsUsername;
-      delete selector.integrationId;
+      const historyFilter: any = {};
 
-      if (selector?.callStatus === 'missed') {
-        selector.callStatus = { $ne: 'connected' };
+      historyFilter.extentionNumber = operator.gsUsername;
+
+      if (selector?.callStatus === 'cancelled') {
+        historyFilter.callStatus = { $eq: 'cancelled' };
+        delete historyFilter.extentionNumber;
+        historyFilter.operatorPhone = integration.phone;
       } else {
+        delete historyFilter.callStatus;
         delete selector.callStatus;
       }
+      if (selector.searchValue) {
+        historyFilter.customerPhone = {
+          $in: [new RegExp(`.*${selector.searchValue}.*`, 'i')],
+        };
+      }
       const histories = await models.CallHistory.find({
-        ...selector,
+        ...historyFilter,
       })
         .sort({ modifiedAt: -1 })
         .skip(selector.skip || 0)
@@ -49,9 +62,43 @@ export const loadCallHistoryClass = (models: IModels) => {
 
       return histories;
     }
+    public static async getHistoriesCount(selector, user) {
+      const integration = await models.Integrations.getIntegration(
+        user?._id,
+        selector.integrationId,
+      );
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
+      const operator = integration.operators.find(
+        (operator) => operator.userId === user?._id,
+      );
+      if (!operator) {
+        throw new Error('Operator not found');
+      }
+      const historyFilter: any = {};
+
+      historyFilter.extentionNumber = operator.gsUsername;
+
+      if (selector?.callStatus === 'missed') {
+        historyFilter.callStatus = { $ne: 'connected' };
+      } else {
+        delete historyFilter.callStatus;
+        delete selector.callStatus;
+      }
+      if (selector.searchValue) {
+        historyFilter.customerPhone = {
+          $in: [new RegExp(`.*${selector.searchValue}.*`, 'i')],
+        };
+      }
+
+      return await models.CallHistory.countDocuments({
+        ...historyFilter,
+      });
+    }
   }
 
   callHistorySchema.loadClass(CallHistory);
-
+  callHistorySchema.index({ timeStamp: 1 }, { unique: true });
   return callHistorySchema;
 };

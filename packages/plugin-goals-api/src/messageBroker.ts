@@ -3,7 +3,7 @@ import { generateModels } from './connectionResolver';
 import { sendMessage } from '@erxes/api-utils/src/core';
 import type {
   MessageArgs,
-  MessageArgsOmitService,
+  MessageArgsOmitService
 } from '@erxes/api-utils/src/core';
 
 export const setupMessageConsumers = async () => {
@@ -12,7 +12,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       data: await models.Goals.find(data).lean(),
-      status: 'success',
+      status: 'success'
     };
   });
 
@@ -21,7 +21,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       data: await models.Goals.findOne(data).lean(),
-      status: 'success',
+      status: 'success'
     };
   });
 
@@ -30,39 +30,58 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
-      data: await models.Goals.createGoal(data),
+      data: await models.Goals.createGoal(data)
     };
   });
 };
 
-export const sendCardsMessage = (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'cards',
-    ...args,
-  });
-};
-
-export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'segments',
-    ...args,
-  });
-};
-
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args,
+    ...args
   });
 };
+
+export const sendSalesMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'sales',
+    ...args
+  });
+};
+
+export const sendTasksMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "tasks",
+    ...args
+  });
+};
+
+export const sendTicketsMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "tickets",
+    ...args
+  });
+};
+
+export const sendPurchasesMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "purchases",
+    ...args
+  });
+};
+
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    ...args,
+    ...args
   });
 };

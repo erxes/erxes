@@ -15,6 +15,7 @@ export interface IPostParams {
   message?: string;
   from?: any;
   permalink_url?: string;
+  verb: string;
 }
 
 export interface ICommentParams {
@@ -45,6 +46,16 @@ export interface IChannelData {
     mid: string;
     quick_reply?: any;
     payload?: any;
+    referral?: {
+      source: string;
+      type: string;
+      ad_id: string;
+      ads_context_data: {
+        ad_title: string;
+        post_id: string;
+        photo_url: string;
+      };
+    };
   };
   postback: {
     title: string;

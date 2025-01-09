@@ -1,64 +1,66 @@
-import { IOrder, IOrderDocument } from '../../models/definitions/orders';
-import { IModels } from '../../connectionResolver';
-import { IPayment } from '../resolvers/mutations/orders';
-import { IOrderInput, IOrderItemInput } from '../types';
-import { IOrderItemDocument } from '../../models/definitions/orderItems';
-import fetch from 'node-fetch';
 import {
-  DISTRICTS,
+  IOrder,
+  IOrderDocument,
+  IPaidAmount
+} from "../../models/definitions/orders";
+import { IModels } from "../../connectionResolver";
+import { IPayment } from "../resolvers/mutations/orders";
+import { IOrderInput, IOrderItemInput } from "../types";
+import { IOrderItemDocument } from "../../models/definitions/orderItems";
+import {
   BILL_TYPES,
   ORDER_TYPES,
-  ORDER_ITEM_STATUSES
-} from '../../models/definitions/constants';
+  ORDER_ITEM_STATUSES,
+  PRODUCT_TYPES,
+  SUBSCRIPTION_INFO_STATUS
+} from "../../models/definitions/constants";
 import {
   IConfigDocument,
   IConfig,
   IEbarimtConfig
-} from '../../models/definitions/configs';
-import * as moment from 'moment';
-import { debugError } from '@erxes/api-utils/src/debuggers';
-import { isValidBarcode } from './otherUtils';
-import { IProductDocument } from '../../models/definitions/products';
-import { checkLoyalties } from './loyalties';
-import { checkPricing } from './pricing';
-import { checkRemainders } from './products';
-import { getPureDate } from '@erxes/api-utils/src';
-import { checkDirectDiscount } from './directDiscount';
-import { IPosUserDocument } from '../../models/definitions/posUsers';
-
-interface IDetailItem {
-  count: number;
-  amount: number;
-  inventoryCode: string;
-  barcode: string;
-  productId: string;
-}
+} from "../../models/definitions/configs";
+import * as moment from "moment";
+import { debugError } from "@erxes/api-utils/src/debuggers";
+import { IProductDocument } from "../../models/definitions/products";
+import { checkLoyalties } from "./loyalties";
+import { checkPricing } from "./pricing";
+import { checkRemainders } from "./products";
+import { getPureDate } from "@erxes/api-utils/src";
+import { checkDirectDiscount } from "./directDiscount";
+import { IPosUserDocument } from "../../models/definitions/posUsers";
+import { sendCoreMessage, sendLoyaltiesMessage } from "../../messageBroker";
+import { nanoid } from "nanoid";
+import { getCompanyInfo } from "../../models/PutData";
 
 export const generateOrderNumber = async (
   models: IModels,
   config: IConfig
 ): Promise<string> => {
-  const todayStr = moment().format('YYYYMMDD').toString();
+  const todayStr = moment().format("YYYYMMDD").toString();
 
-  const beginNumber =
-    (config && config.beginNumber && `${config.beginNumber}.`) || '';
-
-  let suffix = '0001';
-  let number = `${todayStr}_${beginNumber}${suffix}`;
-
+  let beginNumber = "";
+  let regexSuffix = "[0-9]*$";
+  let suffix = "0001";
   let latestOrder;
+
+  if (config?.beginNumber) {
+    beginNumber = `${config.beginNumber}.`;
+    regexSuffix = `${config.beginNumber}\.[0-9]*$`;
+  }
+
+  let number = `${todayStr}_${beginNumber}${suffix}`;
 
   const latestOrders = await models.Orders.aggregate([
     {
       $match: {
         posToken: config.token,
-        number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) }
+        number: { $regex: new RegExp(`^${todayStr}_${regexSuffix}`) }
       }
     },
     {
       $project: {
         number: 1,
-        number_len: { $strLenCP: '$number' }
+        number_len: { $strLenCP: "$number" }
       }
     },
     { $sort: { number_len: -1, number: -1 } },
@@ -70,9 +72,9 @@ export const generateOrderNumber = async (
   }
 
   if (latestOrder && latestOrder._id) {
-    const parts = latestOrder.number.split('_');
+    const parts = latestOrder.number.split("_");
 
-    const suffixParts = parts[1].split('.');
+    const suffixParts = parts[1].split(".");
     const latestSuffix =
       (suffixParts.length === 2 && suffixParts[1]) || suffixParts[0];
 
@@ -84,28 +86,54 @@ export const generateOrderNumber = async (
         Math.round(Math.random() * (config.maxSkipNumber - 1) + 1)) ||
       1;
 
-    suffix = String(latestNum + addend).padStart(4, '0');
+    suffix = String(latestNum + addend).padStart(4, "0");
     number = `${todayStr}_${beginNumber}${suffix}`;
   }
 
   return number;
 };
 
+const validDueDate = (doc: IOrderInput, order?: IOrderDocument) => {
+  if (!doc.isPre) {
+    return true;
+  }
+  if (!doc.dueDate) {
+    return false;
+  }
+
+  const now = getPureDate(new Date());
+  if (doc.dueDate >= now) {
+    return true;
+  }
+
+  if (
+    order &&
+    order.isPre &&
+    order.dueDate &&
+    getPureDate(order.dueDate) !== getPureDate(doc.dueDate)
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
 export const validateOrder = async (
   subdomain: string,
   models: IModels,
   config: IConfigDocument,
-  doc: IOrderInput
+  doc: IOrderInput,
+  order?: IOrderDocument
 ) => {
   const { items = [] } = doc;
 
   if (!items.filter(i => !i.isPackage).length) {
-    throw new Error('Products missing in order. Please add products');
+    throw new Error("Products missing in order. Please add products");
   }
 
-  if (doc.isPre && (!doc.dueDate || doc.dueDate < getPureDate(new Date()))) {
+  if (!(await validDueDate(doc, order))) {
     throw new Error(
-      'The due date of the pre-order must be recorded in the future'
+      "The due date of the pre-order must be recorded in the future"
     );
   }
 
@@ -117,8 +145,17 @@ export const validateOrder = async (
   for (const item of items) {
     // will throw error if product is not found
     if (!productIds.includes(item.productId)) {
-      throw new Error('Products missing in order');
+      throw new Error("Products missing in order");
     }
+  }
+
+  if (
+    products.find(product => product?.type === PRODUCT_TYPES.SUBSCRIPTION) &&
+    !doc?.customerId
+  ) {
+    throw new Error(
+      "Please ensure that the customer information is included in the order, as there are subscription-based products within it."
+    );
   }
 
   if (
@@ -127,7 +164,7 @@ export const validateOrder = async (
     config.departmentId
   ) {
     const checkProducts = products.filter(
-      p => (p.isCheckRems || {})[config.token || ''] || false
+      p => (p.isCheckRems || {})[config.token || ""] || false
     );
 
     if (checkProducts.length) {
@@ -167,7 +204,7 @@ export const validateOrder = async (
       }
 
       if (errors.length) {
-        throw new Error(errors.join(', '));
+        throw new Error(errors.join(", "));
       }
     }
   }
@@ -175,7 +212,7 @@ export const validateOrder = async (
 
 export const validateOrderPayment = (order: IOrder, doc: IPayment) => {
   if (order.paidDate) {
-    throw new Error('Order has already been paid');
+    throw new Error("Order has already been paid");
   }
   const {
     cashAmount: paidCash = 0,
@@ -225,7 +262,7 @@ export const updateOrderItems = async (
     const doc = {
       productId: item.productId,
       count: item.count,
-      unitPrice: item.unitPrice,
+      unitPrice: item.unitPrice || 0,
       discountPercent: item.discountPercent,
       discountAmount: item.discountAmount,
       bonusCount: item.bonusCount,
@@ -234,7 +271,8 @@ export const updateOrderItems = async (
       isTake: item.isTake,
       manufacturedDate: item.manufacturedDate,
       description: item.description,
-      attachment: item.attachment
+      attachment: item.attachment,
+      byDevice: item.byDevice
     };
 
     if (itemIds.includes(item._id)) {
@@ -258,12 +296,13 @@ export const getTotalAmount = (items: IOrderItemInput[] = []): number => {
   return Number(total.toFixed(2));
 };
 
-export const getDistrictName = (districtCode: string): string => {
-  if (DISTRICTS[districtCode]) {
-    return DISTRICTS[districtCode];
+const mathRound = (value, p = 2) => {
+  if (!value || isNaN(Number(value))) {
+    return 0;
   }
 
-  return '';
+  let converter = 10 ** p;
+  return Math.round(value * converter) / converter;
 };
 
 export const prepareEbarimtData = async (
@@ -271,214 +310,71 @@ export const prepareEbarimtData = async (
   order: IOrderDocument,
   config: IEbarimtConfig,
   items: IOrderItemDocument[] = [],
-  orderBillType: string,
-  registerNumber?: string,
-  paymentTypes?: any[]
+  orderBillType?: string,
+  registerNumber?: string
 ) => {
-  if (!config) {
-    throw new Error('has not ebarimt config');
-  }
-  if (!order) {
-    throw new Error('Order must be specified');
-  }
-
-  let billType = orderBillType || order.billType || BILL_TYPES.CITIZEN;
-  let customerCode = '';
-  let customerName = '';
+  const billType = orderBillType || order.billType || BILL_TYPES.CITIZEN;
+  let type: string = billType === "3" ? "B2B_RECEIPT" : "B2C_RECEIPT";
+  let customerTin = "";
+  let customerCode = "";
+  let customerName = "";
 
   if (registerNumber) {
-    const response = await fetch(
-      config.checkCompanyUrl +
-        '?' +
-        new URLSearchParams({ regno: registerNumber })
-    ).then(res => res.json());
+    const resp = await getCompanyInfo({
+      checkTaxpayerUrl: config.checkTaxpayerUrl,
+      no: registerNumber
+    });
 
-    if (response.found) {
-      billType = BILL_TYPES.ENTITY;
+    if (resp.status === "checked" && resp.tin) {
+      type = "B2B_RECEIPT";
+      customerTin = resp.tin;
       customerCode = registerNumber;
-      customerName = response.name;
-    }
-  }
-
-  let itemAmountPrePercent = 0;
-  const preTaxPaymentTypes = (paymentTypes || []).filter(p =>
-    (p.config || '').includes('preTax: true')
-  );
-  if (
-    preTaxPaymentTypes.length &&
-    order.paidAmounts &&
-    order.paidAmounts.length
-  ) {
-    let preSentAmount = 0;
-    for (const preTaxPaymentType of preTaxPaymentTypes) {
-      const matchOrderPays = order.paidAmounts.filter(
-        pa => pa.type === preTaxPaymentType.type
-      );
-      if (matchOrderPays.length) {
-        for (const matchOrderPay of matchOrderPays) {
-          preSentAmount += matchOrderPay.amount;
-        }
-      }
-    }
-
-    if (preSentAmount && preSentAmount <= order.totalAmount) {
-      itemAmountPrePercent = (preSentAmount / order.totalAmount) * 100;
+      customerName = resp.result?.data?.name;
     }
   }
 
   const productIds = items.map(item => item.productId);
-  const products = await models.Products.find({ _id: { $in: productIds } });
+  const products: IProductDocument[] = await models.Products.find({
+    _id: { $in: productIds }
+  }).lean();
   const productsById = {};
 
   for (const product of products) {
     productsById[product._id] = product;
   }
 
-  const details: IDetailItem[] = [];
-  const detailsFree: IDetailItem[] = [];
-  const details0: IDetailItem[] = [];
-  const detailsInner: (IDetailItem & { itemId: string })[] = [];
-  let amountDefault = 0;
-  let amountFree = 0;
-  let amount0 = 0;
-  let amountInner = 0;
+  return {
+    contentType: "pos",
+    contentId: order._id,
+    number: order.number ?? "",
 
-  for (const item of items) {
-    const product = productsById[item.productId];
+    date: new Date(),
+    type,
 
-    // if wrong productId then not sent
-    if (!product) {
-      continue;
-    }
-
-    const tempAmount = (item.count || 0) * (item.unitPrice || 0);
-    const amount = tempAmount - (tempAmount / 100) * itemAmountPrePercent;
-
-    const stock = {
-      count: item.count,
-      amount,
-      discount: item.discountAmount,
-      inventoryCode: product.code,
-      productId: item.productId
-    };
-
-    if (product.taxType === '2') {
-      detailsFree.push({ ...stock, barcode: product.taxCode });
-      amountFree += amount;
-    } else if (product.taxType === '3' && billType === '3') {
-      details0.push({ ...stock, barcode: product.taxCode });
-      amount0 += amount;
-    } else if (product.taxType === '5') {
-      detailsInner.push({
-        ...stock,
-        barcode: product.taxCode,
-        itemId: item._id
-      });
-      amountInner += amount;
-    } else {
-      let trueBarcode = '';
-      for (const barcode of product.barcodes) {
-        if (isValidBarcode(barcode)) {
-          trueBarcode = barcode;
-          continue;
-        }
-      }
-      details.push({ ...stock, barcode: trueBarcode });
-      amountDefault += amount;
-    }
-  }
-
-  const commonOderInfo = {
-    date: new Date().toISOString().slice(0, 10),
-    orderId: order._id,
-    number: order.number,
-    hasVat: config.hasVat || false,
-    hasCitytax: config.hasCitytax || false,
-    billType,
     customerCode,
     customerName,
-    description: order.number,
-    ebarimtResponse: {},
-    productsById,
-    contentType: 'pos',
-    contentId: order._id
+    customerTin,
+
+    details: items
+      .filter(item => {
+        return Boolean(productsById[item.productId]);
+      })
+      .map(item => {
+        const product: IProductDocument = productsById[item.productId];
+        return {
+          recId: item._id,
+          product,
+          quantity: item.count,
+          unitPrice: item.unitPrice ?? 0,
+          totalDiscount: item.discountAmount,
+          totalAmount: mathRound(item.count * (item.unitPrice ?? 0), 4)
+        };
+      }),
+    nonCashAmounts: [
+      ...(order.paidAmounts || []),
+      ...(order.mobileAmounts || [])
+    ].map(pay => ({ amount: pay.amount }))
   };
-
-  const result: any[] = [];
-  let calcCashAmount = order.cashAmount || 0;
-  let cashAmount = 0;
-
-  if (detailsFree && detailsFree.length) {
-    if (calcCashAmount > amountFree) {
-      cashAmount = amountFree;
-      calcCashAmount -= amountFree;
-    } else {
-      cashAmount = calcCashAmount;
-      calcCashAmount = 0;
-    }
-    result.push({
-      ...commonOderInfo,
-      hasVat: false,
-      taxType: '2',
-      details: detailsFree,
-      cashAmount,
-      nonCashAmount: amountFree - cashAmount
-    });
-  }
-
-  if (details0 && details0.length) {
-    if (calcCashAmount > amount0) {
-      cashAmount = amount0;
-      calcCashAmount -= amount0;
-    } else {
-      cashAmount = calcCashAmount;
-      calcCashAmount = 0;
-    }
-    result.push({
-      ...commonOderInfo,
-      hasVat: false,
-      taxType: '3',
-      details: details0,
-      cashAmount,
-      nonCashAmount: amount0 - cashAmount
-    });
-  }
-
-  if (detailsInner && detailsInner.length) {
-    if (calcCashAmount > amountInner) {
-      cashAmount = amountInner;
-      calcCashAmount -= amountInner;
-    } else {
-      cashAmount = calcCashAmount;
-      calcCashAmount = 0;
-    }
-    result.push({
-      ...commonOderInfo,
-      hasVat: false,
-      hasCityTax: false,
-      itemIds: detailsInner.map(di => di.itemId),
-      inner: true,
-      details: detailsInner,
-      cashAmount,
-      nonCashAmount: amountInner - cashAmount
-    });
-  }
-
-  if (details && details.length) {
-    if (calcCashAmount > amountDefault) {
-      cashAmount = amountDefault;
-    } else {
-      cashAmount = calcCashAmount;
-    }
-    result.push({
-      ...commonOderInfo,
-      details,
-      cashAmount,
-      nonCashAmount: amountDefault - cashAmount
-    });
-  }
-
-  return result;
 };
 
 const getMatchMaps = (matchOrders, lastCatProdMaps, product) => {
@@ -537,9 +433,11 @@ export const prepareOrderDoc = async (
   doc: IOrderInput,
   config: IConfigDocument,
   models: IModels,
-  posUser: IPosUserDocument
+  posUser?: IPosUserDocument
 ) => {
   const { catProdMappings = [] } = config;
+
+  let subscriptionUoms: any[] = [];
 
   const items = doc.items.filter(i => !i.isPackage) || [];
 
@@ -551,6 +449,18 @@ export const prepareOrderDoc = async (
 
   for (const prod of products) {
     productsOfId[prod._id] = prod;
+  }
+
+  let subscriptionInfo;
+
+  if (products.find(product => product?.type === PRODUCT_TYPES.SUBSCRIPTION)) {
+    subscriptionUoms = await sendCoreMessage({
+      subdomain,
+      action: "uoms.find",
+      data: { isForSubscription: true },
+      isRPC: true,
+      defaultValue: []
+    });
   }
 
   // set unitPrice
@@ -566,9 +476,64 @@ export const prepareOrderDoc = async (
 
     item.unitPrice = isNaN(fixedUnitPrice) ? 0 : fixedUnitPrice;
     doc.totalAmount += (item.count || 0) * fixedUnitPrice;
+
+    let startDate;
+
+    if (
+      productsOfId[item.productId]?.type === PRODUCT_TYPES.SUBSCRIPTION &&
+      subscriptionUoms.find(
+        uom => uom.code === productsOfId[item.productId]?.uom
+      )
+    ) {
+      const { subscriptionConfig = {} } =
+        subscriptionUoms.find(
+          ({ code }) => code === productsOfId[item.productId]?.uom
+        ) || {};
+
+      if (subscriptionConfig?.subsRenewable) {
+        const prevSubscription = await models.Orders.findOne({
+          customerId: doc?.customerId,
+          "subscriptionInfo.status": SUBSCRIPTION_INFO_STATUS.ACTIVE,
+          paidDate: { $exists: true }
+        })
+          .sort({ createdAt: -1 })
+          .lean();
+
+        if (prevSubscription) {
+          const prevSubscriptionItem = await models.OrderItems.findOne({
+            orderId: prevSubscription._id,
+            closeDate: { $gte: new Date() }
+          });
+
+          if (prevSubscriptionItem) {
+            subscriptionInfo = {
+              subscriptionId: prevSubscription.subscriptionInfo?.subscriptionId,
+              status: SUBSCRIPTION_INFO_STATUS.ACTIVE,
+              prevSubscriptionId: prevSubscription._id
+            };
+
+            startDate = prevSubscriptionItem?.closeDate;
+          }
+        }
+      }
+      const period = (subscriptionConfig?.period || "").replace("ly", "");
+
+      item.closeDate = new Date(
+        moment(startDate)
+          .add(item.count || 0, period)
+          .toISOString()
+      );
+
+      if (!subscriptionInfo) {
+        subscriptionInfo = {
+          subscriptionId: doc?.subscriptionId || nanoid(),
+          status: SUBSCRIPTION_INFO_STATUS.ACTIVE
+        };
+      }
+    }
   }
 
-  const hasTakeItems = items.filter(i => i.isTake);
+  const hasTakeItems = [ORDER_TYPES.DELIVERY, ORDER_TYPES.TAKE].includes(doc.type) && items || items.filter(i => i.isTake);
 
   if (hasTakeItems.length > 0 && catProdMappings.length > 0) {
     const toAddProducts = {};
@@ -595,16 +560,16 @@ export const prepareOrderDoc = async (
 
     for (const item of hasTakeItems) {
       const product = productsOfId[item.productId];
-      const category = categoriesOfId[product.categoryId || ''];
+      const category = categoriesOfId[product.categoryId || ""];
 
       if (!category) {
         continue;
       }
 
-      const perOrders = category.order.split('/');
+      const perOrders = category.order.split("/");
       const matchOrders: string[] = [];
       for (let i = perOrders.length - 1; i > 0; i--) {
-        matchOrders.push(`${perOrders.slice(0, i).join('/')}/`);
+        matchOrders.push(`${perOrders.slice(0, i).join("/")}/`);
       }
 
       const matchMap = getMatchMaps(matchOrders, lastCatProdMaps, product);
@@ -657,7 +622,8 @@ export const prepareOrderDoc = async (
     }).lean();
 
     if (deliveryProd) {
-      const deliveryUnitPrice = (deliveryProd.prices || {})[config.token || ''] || 0;
+      const deliveryUnitPrice =
+        (deliveryProd.prices || {})[config.token || ""] || 0;
       items.push({
         _id: Math.random().toString(),
         productId: deliveryProd._id,
@@ -670,12 +636,17 @@ export const prepareOrderDoc = async (
     }
   }
 
-  return await checkPrices(subdomain, { ...doc, items }, config, posUser);
+  return await checkPrices(
+    subdomain,
+    { ...doc, items, subscriptionInfo },
+    config,
+    posUser
+  );
 };
 
 export const checkOrderStatus = (order: IOrderDocument) => {
   if (order.paidDate) {
-    throw new Error('Order is already paid');
+    throw new Error("Order is already paid");
   }
 };
 
@@ -688,18 +659,79 @@ export const checkOrderAmount = (order: IOrderDocument, amount: number) => {
     (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0);
 
   if (amount < 0 && paidAmount < order.totalAmount) {
-    throw new Error('Amount less 0');
+    throw new Error("Amount less 0");
   }
 
   if (amount > 0 && paidAmount > order.totalAmount) {
-    throw new Error('Amount exceeds total amount');
+    throw new Error("Amount exceeds total amount");
   }
 
   if (
     paidAmount <= order.totalAmount &&
     paidAmount + amount > order.totalAmount
   ) {
-    throw new Error('Amount exceeds total amount');
+    throw new Error("Amount exceeds total amount");
+  }
+};
+
+export const checkScoreAviableSubtractScoreCampaign = async (
+  subdomain: string,
+  models: IModels,
+  order: IOrderDocument,
+  paidAmounts?: IPaidAmount[]
+) => {
+  if (!paidAmounts?.length) {
+    return;
+  }
+
+  const config = await models.Configs.findOne({
+    paymentTypes: {
+      $elemMatch: {
+        type: { $in: paidAmounts.map(({ type }) => type) },
+        scoreCampaignId: { $exists: true }
+      }
+    },
+    token: order.posToken
+  });
+
+  if (!config) {
+    return;
+  }
+
+  const { paymentTypes = [] } = config;
+
+  for (const { type } of paidAmounts || []) {
+    const paymentType = paymentTypes.find(
+      paymentType => paymentType.type === type && !!paymentType.scoreCampaignId
+    );
+
+    if (paymentType) {
+      const { scoreCampaignId, title } = paymentType || {};
+
+      if (!scoreCampaignId) {
+        continue;
+      }
+
+      await sendLoyaltiesMessage({
+        subdomain,
+        action: "checkScoreAviableSubtract",
+        data: {
+          ownerType: order.customerType || "customer",
+          ownerId: order.customerId,
+          campaignId: scoreCampaignId,
+          target: { ...order, paidAmounts }
+        },
+        isRPC: true,
+        defaultValue: false
+      }).catch(error => {
+        if (error.message === "There has no enough score to subtract") {
+          throw new Error(
+            `There has no enough score to subtract using ${title}`
+          );
+        }
+        throw new Error(error.message);
+      });
+    }
   }
 };
 
@@ -733,4 +765,67 @@ export const reverseItemStatus = async (
     debugError(e);
     return e;
   }
+};
+
+export const fakePutData = async (
+  models: IModels,
+  items: IOrderItemDocument[],
+  order: IOrderDocument,
+  config: IConfig
+) => {
+  const products = await models.Products.find({
+    _id: { $in: items.map(item => item.productId) }
+  });
+  const productById = {};
+  for (const product of products) {
+    productById[product._id] = product;
+  }
+
+  return {
+    id: "tempBill",
+    number: order.number,
+    contentType: "pos",
+    contentId: order._id,
+    posToken: config.token,
+    totalAmount: order.totalAmount,
+    totalVAT: 0,
+    totalCityTax: 0,
+    type: "9",
+    status: "SUCCESS",
+    qrData: "",
+    lottery: "",
+    date: moment(order.paidDate).format("yyyy-MM-dd hh:mm:ss"),
+
+    cashAmount: order.cashAmount ?? 0,
+    nonCashAmount: order.totalAmount - (order.cashAmount ?? 0),
+    registerNo: "",
+    customerNo: "",
+    customerName: "",
+
+    receipts: [
+      {
+        _id: "",
+        id: "",
+        totalAmount: order.totalAmount,
+        totalVAT: 0,
+        totalCityTax: 0,
+        taxType: "NOT_SEND",
+        items: items.map(item => ({
+          _id: item._id,
+          id: item.id,
+          name:
+            productById[item.productId].shortName ||
+            productById[item.productId].name,
+          measureUnit: productById[item.productId].uom || "ш",
+          qty: item.count,
+          unitPrice: item.unitPrice,
+          totalAmount: (item.unitPrice ?? 0) * item.count,
+          totalVAT: 0,
+          totalCityTax: 0,
+          totalBonus: item.discountAmount
+        }))
+      }
+    ],
+    payments: [{}]
+  };
 };

@@ -25,7 +25,9 @@ const paymentsTotalCountQuery = gql`
 
 const invoicesFields = `
     _id
+    invoiceNumber
     amount
+    currency
     contentType
     contentTypeId
     createdAt
@@ -33,10 +35,6 @@ const invoicesFields = `
     customerId
     description
     email
-    payment {
-      name
-      kind
-    }
     phone
     resolvedAt
     status
@@ -74,7 +72,7 @@ const getInvoice = gql`
     invoiceDetail(_id: $_id) {
       _id
       amount
-      apiResponse
+      currency
       contentType
       contentTypeId
       createdAt
@@ -83,19 +81,26 @@ const getInvoice = gql`
       customerType
       description
       email
-      payment {
-        _id
-        createdAt
-        kind
-        name
-      }
-      paymentId
-      paymentKind
+      invoiceNumber
       phone
-      resolvedAt
+      remainingAmount
       status
-      idOfProvider
-      errorDescription
+      resolvedAt
+      transactions {
+        _id
+        amount
+        response
+        status
+        paymentKind
+        paymentId
+        payment {
+          _id
+          kind
+          name
+        }
+        details
+        createdAt
+      }
     }
   }
 `;
@@ -132,6 +137,12 @@ const paymentConfigsTotalCount = gql`
   }
 `;
 
+const districts = gql`
+  query qpayGetDistricts($cityCode: String!) {
+    qpayGetDistricts(cityCode: $cityCode)
+  }
+`;
+
 export default {
   payments,
   paymentsTotalCountQuery,
@@ -141,5 +152,7 @@ export default {
   invoicesTotalCount,
 
   paymentConfigsQuery,
-  paymentConfigsTotalCount
+  paymentConfigsTotalCount,
+
+  districts,
 };

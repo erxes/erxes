@@ -61,14 +61,14 @@ const IframeFullScreen = styled.div`
   }
 `;
 
-const TemplateWrapper = styled.div`
+const TemplateWrapper = styledTS<{ $isGrid?: boolean }>(styled.div)`
   display: flex;
   flex-wrap: wrap;
   overflow: auto;
   padding: 5px;
   justify-content: center;
   > div {
-    min-width: 440px;
+    min-width: ${({ $isGrid }) => ($isGrid ? '200px' : '440px')};
   }
 `;
 
@@ -117,16 +117,19 @@ const Actions = styled.div`
   }
 `;
 
-const Template = styledTS<{ $isLongName?: boolean; position?: string }>(
-  styled.div
-)`
-  flex-basis: 300px;
+const Template = styledTS<{
+  $isLongName?: boolean;
+  position?: string;
+  width?: string;
+  isPreview?: boolean;
+}>(styled.div)`
+  flex-basis: ${({ width }) => (width ? width : '300px')};
   display: flex;
   flex-direction: column;
   justify-content: ${props => props.position || 'space-between'};
   border-radius: 6px;
   border: 1px solid #F1F1F2;
-  margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
+${({ isPreview }) => (isPreview ? '' : `margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;`)}
   box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.03);
 
   > h5 {

@@ -10,7 +10,7 @@ import {
 //   requireLogin
 // } from '@erxes/api-utils/src/permissions';
 import { IContext, IModels } from '../../../connectionResolver';
-import { sendProductsMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 
 interface IParam {
   search: string;
@@ -83,17 +83,10 @@ const generateFilter = async (
   }
 
   if (productCategoryId) {
-    const limit = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: 'count',
-      data: { categoryId: productCategoryId },
-      isRPC: true,
-    });
-
-    const products = await sendProductsMessage({
-      subdomain,
-      action: 'find',
-      data: { limit, categoryId: productCategoryId, fields: { _id: 1 } },
+      action: 'products.find',
+      data: { categoryId: productCategoryId, fields: { _id: 1 } },
       isRPC: true,
     });
 
@@ -108,6 +101,10 @@ const generateFilter = async (
     const category = await models.JobCategories.findOne({
       _id: jobCategoryId,
     }).lean();
+
+    if(!category) {
+      throw new Error(`JobCategory ${jobCategoryId} not found`);
+    }
 
     const categories = await models.JobCategories.find(
       { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
@@ -171,7 +168,7 @@ const workQueries = {
       commonQuerySelector,
     );
 
-    return models.Works.find(selector).count();
+    return models.Works.find(selector).countDocuments();
   },
 };
 

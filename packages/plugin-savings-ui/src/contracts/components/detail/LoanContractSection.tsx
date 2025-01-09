@@ -29,7 +29,7 @@ function LoanContractSection({ loanContracts }: Props) {
   );
 
   return (
-    <Box title={__(`${'Loan Contracts'}`)} name="showContracts" isOpen={true}>
+    <Box title={__(`${'Saving Contracts'}`)} name="showContracts" isOpen={true}>
       {content}
     </Box>
   );

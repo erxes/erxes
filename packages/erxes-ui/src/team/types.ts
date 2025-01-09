@@ -1,10 +1,10 @@
-import { IAttachment, QueryResponse } from '@erxes/ui/src/types';
+import { IAttachment, QueryResponse } from "@erxes/ui/src/types";
 import {
   IUser,
   IUserDetails,
   IUserDoc,
-  IUserLinks,
-} from '@erxes/ui/src/auth/types';
+  IUserLinks
+} from "@erxes/ui/src/auth/types";
 
 export type IInvitationEntry = {
   email: string;
@@ -83,6 +83,15 @@ interface IStructureCommon {
   code: string;
   supervisorId: string;
   supervisor: IUser;
+  hasChildren?: boolean;
+}
+
+interface IWorkhourSchedule {
+  inactive?: boolean;
+  startFrom: string;
+  endTo: string;
+  lunchStartFrom?: string;
+  lunchEndTo?: string;
 }
 
 export interface IDepartment extends IStructureCommon {
@@ -92,6 +101,7 @@ export interface IDepartment extends IStructureCommon {
   userIds: string[];
   userCount: number;
   users: IUser[];
+  workhours: { [key: string]: IWorkhourSchedule };
 }
 
 export interface IUnit extends IStructureCommon {
@@ -120,6 +130,7 @@ export interface IBranch extends IStructureCommon, IContactInfo {
   userCount: number;
   users: IUser[];
   radius: number;
+  workhours: { [key: string]: IWorkhourSchedule };
 }
 export interface IPosition extends IStructureCommon, IContactInfo {
   parentId: string | null;
@@ -156,7 +167,7 @@ export type DepartmentsMainQueryResponse = {
 
 export type BranchesMainQueryResponse = {
   branchesMain: {
-    list: IDepartment[];
+    list: IBranch[];
     totalCount: number;
     totalUsersCount: number;
   };

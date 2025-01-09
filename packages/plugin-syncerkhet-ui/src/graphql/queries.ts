@@ -1,6 +1,6 @@
 // Settings
 
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const configs = `
   query configsGetValue($code: String!) {
@@ -192,9 +192,7 @@ const posOrderDetail = `
         email
       }
       convertDealId
-      ${
-        isEnabled('contacts')
-          ? `
+
         customer {
           _id
           code
@@ -203,9 +201,7 @@ const posOrderDetail = `
           primaryEmail
           primaryPhone
         }
-      `
-          : ``
-      }
+
       syncErkhetInfo
       putResponses
       deliveryInfo

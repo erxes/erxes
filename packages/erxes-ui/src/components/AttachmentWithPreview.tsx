@@ -117,6 +117,7 @@ type Props = {
   onLoad?: () => void;
   full?: boolean;
   icon?: string;
+  forceShowIcon?: boolean;
   attachments?: IAttachment[];
   attachment: IAttachment;
 };
@@ -301,9 +302,13 @@ class AttachmentWithPreview extends React.Component<Props, State> {
   }
 
   renderAttachmentPreview() {
-    const { onLoad, attachment, icon } = this.props;
+    const { onLoad, attachment, icon, forceShowIcon } = this.props;
 
     if (!attachment.url && icon) {
+      return <Icon icon={icon} onClick={this.onToggle} />;
+    }
+
+    if (forceShowIcon && icon) {
       return <Icon icon={icon} onClick={this.onToggle} />;
     }
 

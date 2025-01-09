@@ -2,6 +2,7 @@ import { colors, dimensions } from '@erxes/ui/src/styles';
 
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import styled from 'styled-components';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 
 const RowArticle = styled.div`
   background-color: ${colors.colorWhite};
@@ -117,6 +118,20 @@ const FlexRow = styled.div`
   }
 `;
 
+const PageImage = styled.img`
+  width: 100px; // Set appropriate width
+  height: auto; // Maintain aspect ratio
+  margin-right: 10px; // Space between images
+`;
+
+const DeleteButton = styled.button`
+  background-color: red; // Change to your desired color
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+`;
+
 export {
   RowArticle,
   ArticleTitle,
@@ -128,4 +143,6 @@ export {
   FillContent,
   FlexRow,
   Forms,
+  PageImage,
+  DeleteButton,
 };

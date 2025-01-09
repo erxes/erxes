@@ -1,11 +1,12 @@
-import { ControlLabel, Form, FormControl, FormGroup } from "../../common/form";
-import { IAttachment, IFormProps } from "../../common/types";
-import React, { useState } from "react";
-import { SettingsContent, SettingsTitle } from "../../styles/profile";
+import { ControlLabel, Form, FormControl, FormGroup } from '../../common/form';
+import { IAttachment, IFormProps } from '../../common/types';
+import React, { useState } from 'react';
+import { SettingsContent, SettingsTitle } from '../../styles/profile';
 
-import { IUser } from "../../types";
-import { ModalFooter } from "../../common/form/styles";
-import Uploader from "../../common/Uploader";
+import { IUser } from '../../types';
+import { ModalFooter } from '../../common/form/styles';
+import Uploader from '../../common/Uploader';
+import { __ } from '../../../utils';
 
 type Props = {
   currentUser: IUser;
@@ -18,8 +19,8 @@ function Profile({ currentUser, renderButton }: Props) {
   const [image, setImage] = useState(
     dbImage
       ? ({
-          name: "avatar",
-          type: "img",
+          name: 'avatar',
+          type: 'img',
           url: dbImage,
         } as IAttachment)
       : null
@@ -59,23 +60,23 @@ function Profile({ currentUser, renderButton }: Props) {
 
     return (
       <>
-        <SettingsTitle>User Profile</SettingsTitle>
+        <SettingsTitle>{__("User profile")}</SettingsTitle>
         <SettingsContent>
           <FormGroup horizontal={true}>
             <div>
-              <ControlLabel>First name</ControlLabel>
+              <ControlLabel>{__('First name')}</ControlLabel>
               <FormControl
                 {...formProps}
-                name="firstName"
+                name='firstName'
                 defaultValue={object.firstName}
               />
             </div>
 
             <div>
-              <ControlLabel>Last name</ControlLabel>
+              <ControlLabel>{__('Last name')}</ControlLabel>
               <FormControl
                 {...formProps}
-                name="lastName"
+                name='lastName'
                 defaultValue={object.lastName}
               />
             </div>
@@ -83,20 +84,20 @@ function Profile({ currentUser, renderButton }: Props) {
 
           <FormGroup horizontal={true}>
             <div>
-              <ControlLabel>User name</ControlLabel>
+              <ControlLabel>{__('User name')}</ControlLabel>
               <FormControl
                 {...formProps}
-                name="username"
+                name='username'
                 defaultValue={object.username}
               />
             </div>
 
             <div>
-              <ControlLabel required={true}>Email</ControlLabel>
+              <ControlLabel required={true}> {__('Email')}</ControlLabel>
               <FormControl
                 {...formProps}
-                name="email"
-                type="email"
+                name='email'
+                type='email'
                 defaultValue={object.email}
                 required={true}
               />
@@ -105,26 +106,26 @@ function Profile({ currentUser, renderButton }: Props) {
 
           <FormGroup horizontal={true}>
             <div>
-              <ControlLabel>Phone</ControlLabel>
+              <ControlLabel>{__('Phone')}</ControlLabel>
               <FormControl
                 {...formProps}
-                name="phone"
+                name='phone'
                 defaultValue={object.phone}
               />
             </div>
 
             <div>
-              <ControlLabel>Company name</ControlLabel>
+              <ControlLabel>{__('Company name')}</ControlLabel>
               <FormControl
                 {...formProps}
-                name="companyName"
+                name='companyName'
                 defaultValue={object.companyName}
               />
             </div>
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Avatar</ControlLabel>
+            <ControlLabel>{__('Avatar')}</ControlLabel>
             <Uploader
               defaultFileList={image ? [image] : []}
               onChange={onChangeImage}
@@ -135,7 +136,7 @@ function Profile({ currentUser, renderButton }: Props) {
           <ModalFooter>
             <>
               {renderButton({
-                name: "user group",
+                name: 'user group',
                 values: generateDoc(values),
                 isSubmitted,
                 callback: () => ({}),

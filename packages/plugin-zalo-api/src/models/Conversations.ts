@@ -1,9 +1,10 @@
-import { Model, Document, Schema } from 'mongoose';
+import { Model, Document, Schema, HydratedDocument } from 'mongoose';
 import { IModels } from '.';
 import { field } from './definitions/utils';
 
 export interface IConversation {
   // id on erxes-api
+  _id :string;
   erxesApiId?: string;
   timestamp: Date;
   senderId: string;
@@ -14,9 +15,9 @@ export interface IConversation {
   zaloConversationId: string;
 }
 
-export interface IConversationDocument extends IConversation, Document {}
+export type IConversationDocument = HydratedDocument<IConversation>;
 
-export const conversationSchema = new Schema({
+export const conversationSchema = new Schema<IConversation>({
   _id: field({ pkey: true }),
   erxesApiId: String,
   timestamp: Date,
@@ -30,7 +31,7 @@ export const conversationSchema = new Schema({
 
 conversationSchema.index({ senderId: 1, recipientId: 1 }, { unique: true });
 
-export interface IConversationModel extends Model<IConversationDocument> {
+export interface IConversationModel extends Model<IConversation> {
   getConversation(selector): Promise<IConversationDocument>;
 }
 

@@ -1,5 +1,6 @@
 import { IModels } from '../../connectionResolver';
 import { IInvoiceDocument } from '../../models/definitions/invoices';
+import { ITransactionDocument } from '../../models/definitions/transactions';
 import { PAYMENTS, PAYMENT_STATUS } from '../constants';
 import { VendorBaseAPI } from './vendorBase';
 
@@ -18,6 +19,17 @@ type MerchantCommonParams = {
   email: string;
 };
 
+interface IMerchantCompanyParams extends MerchantCommonParams {
+  companyName: string;
+  name: string;
+}
+
+interface IMerchantCustomerParams extends MerchantCommonParams {
+  businessName: string;
+  firstName: string;
+  lastName: string;
+}
+
 export const meta = {
   // apiUrl: 'https://sandbox-quickqr.qpay.mn',
   apiUrl: 'https://quickqr.qpay.mn',
@@ -31,26 +43,24 @@ export const meta = {
     getMerchant: 'merchant',
     merchantList: 'merchant/list',
     checkInvoice: 'payment/check',
-
+    cities: 'aimaghot',
+    districts: 'sumduureg',
     invoice: 'invoice',
   },
 };
 
 export const quickQrCallbackHandler = async (models: IModels, data: any) => {
-  const { identifier } = data;
+  const { _id } = data;
 
-  if (!identifier) {
+  if (!_id) {
     throw new Error('Invoice id is required');
   }
 
-  const invoice = await models.Invoices.getInvoice(
-    {
-      identifier,
-    },
-    true,
-  );
+  const transaction = await models.Transactions.getTransaction({
+    _id,
+  });
 
-  const payment = await models.Payments.getPayment(invoice.selectedPaymentId);
+  const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
 
   if (payment.kind !== PAYMENTS.qpayQuickqr.kind) {
     throw new Error('Payment config type is mismatched');
@@ -58,25 +68,18 @@ export const quickQrCallbackHandler = async (models: IModels, data: any) => {
 
   try {
     const api = new QPayQuickQrAPI(payment.config);
-    const status = await api.checkInvoice(invoice);
+    const status = await api.checkInvoice(transaction);
 
     if (status !== PAYMENT_STATUS.PAID) {
-      return invoice;
+      return transaction;
     }
 
-    await models.Invoices.updateOne(
-      { _id: invoice._id },
-      {
-        $set: {
-          status,
-          resolvedAt: new Date(),
-        },
-      },
-    );
+    transaction.status = status;
+    transaction.updatedAt = new Date();
 
-    invoice.status = status;
+    await transaction.save();
 
-    return invoice;
+    return transaction;
   } catch (e) {
     throw new Error(e.message);
   }
@@ -92,7 +95,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
     this.config = config;
   }
 
-  async createCompany(args: MerchantCommonParams & { name: string }) {
+  async createCompany(args: IMerchantCompanyParams) {
     try {
       return await this.makeRequest({
         method: 'POST',
@@ -101,20 +104,23 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
           ...args,
           register_number: args.registerNumber,
           mcc_code: args.mccCode,
+          company_name: args.companyName,
         },
       });
     } catch (e) {
-      const errorObj = JSON.parse(e.message);
-
-      if (errorObj.message === 'MERCHANT_ALREADY_REGISTERED') {
-        return await this.updateExistingMerchant(args);
+      if (e.message.includes('MERCHANT_ALREADY_REGISTERED')) {
+        return await this.updateExistingMerchant({
+          ...args,
+          company_name: args.companyName,
+          name: args.name,
+        });
       }
 
-      throw new Error(e.message);
+      throw new Error(e);
     }
   }
 
-  async updateCompany(args: MerchantCommonParams & { name: string }) {
+  async updateCompany(args: IMerchantCompanyParams) {
     return await this.makeRequest({
       method: 'PUT',
       path: `${meta.paths.company}/${this.config.merchantId}`,
@@ -122,15 +128,14 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         ...args,
         register_number: args.registerNumber,
         mcc_code: args.mccCode,
+        company_name: args.companyName,
       },
     });
   }
 
-  async createCustomer(
-    args: MerchantCommonParams & { firstName: string; lastName: string },
-  ) {
+  async createCustomer(args: IMerchantCustomerParams) {
     try {
-      return await this.makeRequest({
+      const res = await this.makeRequest({
         method: 'POST',
         path: meta.paths.person,
         data: {
@@ -139,12 +144,13 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
           mcc_code: args.mccCode,
           first_name: args.firstName,
           last_name: args.lastName,
+          business_name: args.businessName,
         },
       });
-    } catch (e) {
-      const errorObj = JSON.parse(e.message);
 
-      if (errorObj.message === 'MERCHANT_ALREADY_REGISTERED') {
+      return res;
+    } catch (e) {
+      if (e.message.includes('MERCHANT_ALREADY_REGISTERED')) {
         return await this.updateExistingMerchant({
           ...args,
           first_name: args.firstName,
@@ -152,13 +158,11 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         });
       }
 
-      throw new Error(e.message);
+      throw new Error(e);
     }
   }
 
-  async updateCustomer(
-    args: MerchantCommonParams & { firstName: string; lastName: string },
-  ) {
+  async updateCustomer(args: IMerchantCustomerParams) {
     return await this.makeRequest({
       method: 'PUT',
       path: `${meta.paths.person}/${this.config.merchantId}`,
@@ -168,6 +172,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         mcc_code: args.mccCode,
         first_name: args.firstName,
         last_name: args.lastName,
+        business_name: args.businessName,
       },
     });
   }
@@ -179,6 +184,9 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         path: `${meta.paths.getMerchant}/${this.config.merchantId}`,
       });
     } catch (e) {
+      if (e.message.includes('MERCHANT_NOTFOUND')) {
+        return;
+      }
       throw new Error(e.message);
     }
   }
@@ -188,7 +196,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
 
     if (list.rows.length > 0) {
       const existingMerchant = list.rows.find(
-        (item: any) => item.register_number === args.registerNumber,
+        (item: any) => item.register_number === args.registerNumber
       );
       const path =
         existingMerchant.type === 'COMPANY'
@@ -200,6 +208,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
           path: `${path}/${existingMerchant.id}`,
           data: {
             ...args,
+            business_name: args.businessName,
             register_number: args.registerNumber,
             mcc_code: args.mccCode,
           },
@@ -208,7 +217,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
     }
   }
 
-  async createInvoice(invoice: IInvoiceDocument) {
+  async createInvoice(invoice: ITransactionDocument) {
     const res = await this.makeRequest({
       method: 'POST',
       path: meta.paths.invoice,
@@ -218,7 +227,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         currency: 'MNT',
         // customer_name: 'erxes',
         // customer_logo: 'https://erxes.io/static/images/logo/icon.png',
-        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpayQuickqr.kind}?identifier=${invoice.identifier}`,
+        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpayQuickqr.kind}?_id=${invoice._id}`,
         description: invoice.description || 'Гүйлгээ',
         mcc_code: this.config.mccCode,
         bank_accounts: [
@@ -232,20 +241,22 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         ],
       },
     });
-
+    
     return {
       ...res,
       qrData: `data:image/jpg;base64,${res.qr_image}`,
     };
   }
 
-  async checkInvoice(invoice: IInvoiceDocument) {
+  async checkInvoice(invoice: ITransactionDocument) {
+    // return 'paid'
+
     try {
       const res = await this.makeRequest({
         method: 'POST',
         path: meta.paths.checkInvoice,
         data: {
-          invoice_id: invoice.apiResponse.id,
+          invoice_id: invoice.response.id,
         },
       });
 
@@ -259,13 +270,14 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
     }
   }
 
-  async manualCheck(invoice: IInvoiceDocument) {
+  async manualCheck(invoice: ITransactionDocument) {
+    // return ""
     try {
       const res = await this.makeRequest({
         method: 'POST',
         path: meta.paths.checkInvoice,
         data: {
-          invoice_id: invoice.apiResponse.id,
+          invoice_id: invoice.response.id,
         },
       });
 
@@ -290,6 +302,13 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
     return await this.makeRequest({
       method: 'POST',
       path: meta.paths.merchantList,
+    });
+  }
+
+  async getDistricts(city: string) {
+    return await this.makeRequest({
+      method: 'GET',
+      path: `${meta.paths.districts}/${city}`,
     });
   }
 }

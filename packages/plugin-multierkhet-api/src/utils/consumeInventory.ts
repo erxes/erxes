@@ -1,4 +1,4 @@
-import { sendProductsMessage } from '../messageBroker';
+import { sendCoreMessage } from "../messageBroker";
 
 export const consumeInventory = async (
   subdomain,
@@ -7,9 +7,9 @@ export const consumeInventory = async (
   old_code,
   action
 ) => {
-  const product = await sendProductsMessage({
+  const product = await sendCoreMessage({
     subdomain,
-    action: 'findOne',
+    action: "products.findOne",
     data: { code: old_code },
     isRPC: true,
     defaultValue: {}
@@ -17,35 +17,34 @@ export const consumeInventory = async (
 
   const brandIds = (product || {}).scopeBrandIds || [];
 
-  if ((action === 'update' && old_code) || action === 'create') {
-    const productCategory = await sendProductsMessage({
+  if ((action === "update" && old_code) || action === "create") {
+    const productCategory = await sendCoreMessage({
       subdomain,
-      action: 'categories.findOne',
+      action: "categories.findOne",
       data: { code: doc.category_code },
       isRPC: true
     });
 
-    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
+    if (!brandIds.includes(config.brandId) && config.brandId !== "noBrand") {
       brandIds.push(config.brandId);
     }
 
     const document: any = {
-      name: doc.nickname || doc.name,
-      type: doc.is_service ? 'service' : 'product',
+      name: doc.name || "",
+      shortName: doc.nickname || "",
+      type: doc.is_service ? "service" : "product",
       unitPrice: doc.unit_price,
       code: doc.code,
       productId: doc.id,
       uom: doc.measure_unit_code,
       subUoms: product?.subUoms,
-      barcodes: doc.barcodes ? doc.barcodes.split(',') : [],
+      barcodes: doc.barcodes ? doc.barcodes.split(",") : [],
       categoryId: productCategory ? productCategory._id : product.categoryId,
       categoryCode: productCategory
         ? productCategory.code
         : product.categoryCode,
-      description: eval('`' + config.consumeDescription + '`'),
-      status: 'active',
-      taxType: doc.vat_type || '',
-      taxCode: doc.vat_type_code || '',
+      description: eval("`" + config.consumeDescription + "`"),
+      status: "active",
       scopeBrandIds: brandIds
     };
 
@@ -65,26 +64,26 @@ export const consumeInventory = async (
     }
 
     if (product) {
-      await sendProductsMessage({
+      await sendCoreMessage({
         subdomain,
-        action: 'updateProduct',
+        action: "products.updateProduct",
         data: { _id: product._id, doc: { ...document } },
         isRPC: true
       });
     } else {
-      await sendProductsMessage({
+      await sendCoreMessage({
         subdomain,
-        action: 'createProduct',
+        action: "products.createProduct",
         data: { doc: { ...document } },
         isRPC: true
       });
     }
-  } else if (action === 'delete' && product) {
+  } else if (action === "delete" && product) {
     const anotherBrandIds = brandIds.filter(b => b && b !== config.brandId);
     if (anotherBrandIds.length) {
-      await sendProductsMessage({
+      await sendCoreMessage({
         subdomain,
-        action: 'updateProduct',
+        action: "products.updateProduct",
         data: {
           _id: product._id,
           doc: { ...product, scopeBrandIds: anotherBrandIds }
@@ -92,9 +91,9 @@ export const consumeInventory = async (
         isRPC: true
       });
     } else {
-      await sendProductsMessage({
+      await sendCoreMessage({
         subdomain,
-        action: 'removeProducts',
+        action: "products.removeProducts",
         data: { _ids: [product._id] },
         isRPC: true
       });
@@ -109,24 +108,24 @@ export const consumeInventoryCategory = async (
   old_code,
   action
 ) => {
-  const productCategory = await sendProductsMessage({
+  const productCategory = await sendCoreMessage({
     subdomain,
-    action: 'categories.findOne',
+    action: "categories.findOne",
     data: { code: old_code },
     isRPC: true
   });
 
   const brandIds = (productCategory || {}).scopeBrandIds || [];
 
-  if ((action === 'update' && old_code) || action === 'create') {
-    const parentCategory = await sendProductsMessage({
+  if ((action === "update" && old_code) || action === "create") {
+    const parentCategory = await sendCoreMessage({
       subdomain,
-      action: 'categories.findOne',
+      action: "categories.findOne",
       data: { code: doc.parent_code },
       isRPC: true
     });
 
-    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
+    if (!brandIds.includes(config.brandId) && config.brandId !== "noBrand") {
       brandIds.push(config.brandId);
     }
 
@@ -138,9 +137,9 @@ export const consumeInventoryCategory = async (
     };
 
     if (productCategory) {
-      await sendProductsMessage({
+      await sendCoreMessage({
         subdomain,
-        action: 'categories.updateProductCategory',
+        action: "categories.updateProductCategory",
         data: {
           _id: productCategory._id,
           doc: {
@@ -153,24 +152,24 @@ export const consumeInventoryCategory = async (
         isRPC: true
       });
     } else {
-      await sendProductsMessage({
+      await sendCoreMessage({
         subdomain,
-        action: 'categories.createProductCategory',
+        action: "categories.createProductCategory",
         data: {
           doc: {
             ...document,
-            parentId: parentCategory ? parentCategory._id : ''
+            parentId: parentCategory ? parentCategory._id : ""
           }
         },
         isRPC: true
       });
     }
-  } else if (action === 'delete' && productCategory) {
+  } else if (action === "delete" && productCategory) {
     const anotherBrandIds = brandIds.filter(b => b && b !== config.brandId);
     if (anotherBrandIds.length) {
-      await sendProductsMessage({
+      await sendCoreMessage({
         subdomain,
-        action: 'updateProduct',
+        action: "products.updateProduct",
         data: {
           _id: productCategory._id,
           doc: { ...productCategory, scopeBrandIds: anotherBrandIds }
@@ -178,9 +177,9 @@ export const consumeInventoryCategory = async (
         isRPC: true
       });
     } else {
-      await sendProductsMessage({
+      await sendCoreMessage({
         subdomain,
-        action: 'categories.removeProductCategory',
+        action: "categories.removeProductCategory",
         data: {
           _id: productCategory._id
         },

@@ -1,4 +1,5 @@
 import { SCHEDULE_STATUS } from '../../../models/definitions/constants';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import {
   fixSchedules,
   reGenerateSchedules,
@@ -9,6 +10,17 @@ import { getConfig, sendMessageBroker } from '../../../messageBroker';
 import { getFullDate } from '../../../models/utils/utils';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { IConfig } from '../../../interfaces/config';
+
+export const loansSchedulesChanged = (contractId: string) => {
+  graphqlPubsub.publish(
+    `loansSchedulesChanged:${contractId}`,
+    {
+      loansSchedulesChanged: {
+        _id: contractId,
+      },
+    },
+  );
+};
 
 const scheduleMutations = {
   regenSchedules: async (
@@ -29,20 +41,23 @@ const scheduleMutations = {
       }
     }
 
-    const holidayConfig: any = await getConfig('holidayConfig',subdomain);
-    
-    const loansConfig: IConfig = await getConfig('loansConfig',subdomain);
+    const holidayConfig: any = await getConfig('holidayConfig', subdomain);
+
+    const loansConfig: IConfig = await getConfig('loansConfig', subdomain);
 
     const perHolidays = !holidayConfig?.value
       ? []
       : Object.keys(holidayConfig.value).map((key) => ({
-          month: Number(holidayConfig.value[key].month) - 1,
-          day: Number(holidayConfig.value[key].day),
-        }));
+        month: Number(holidayConfig.value[key].month) - 1,
+        day: Number(holidayConfig.value[key].day),
+      }));
 
     const contract = await models.Contracts.getContract({
       _id: contractId,
     });
+
+    await reGenerateSchedules(models, contract, perHolidays, loansConfig);
+    await loansSchedulesChanged(contractId);
 
     if (isEnabled('syncpolaris')) {
       const schedules = await models.FirstSchedules.find({
@@ -60,8 +75,6 @@ const scheduleMutations = {
         );
       }
     }
-    
-    await reGenerateSchedules(models, contract, perHolidays,loansConfig);
 
     return 'ok';
   },
@@ -108,6 +121,7 @@ const scheduleMutations = {
     if (!countSchedules && !countTransaction) return 'ok';
 
     await fixSchedules(models, contractId, subdomain);
+    await loansSchedulesChanged(contractId);
 
     return 'ok';
   },

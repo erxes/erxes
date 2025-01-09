@@ -7,7 +7,7 @@ import {
   ScrollContent,
   SidebarActions,
   SidebarContent,
-  ToggleButton,
+  ToggleButton
 } from "./styles";
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -72,14 +72,16 @@ type Props = {
   resolveAll: () => void;
 };
 
-const LeftSidebar: React.FC<Props> = (props) => {
+const LeftSidebar: React.FC<Props> = props => {
   const { currentUser, currentConversationId, queryParams, bulk, toggleBulk } =
     props;
 
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [isOpen, setIsOpen] = useState<boolean>(props.config.showAddition);
+  const [isOpen, setIsOpen] = useState<boolean>(
+    props.config?.showAddition || false
+  );
   const [counts, setItemCounts] = useState<any>({});
 
   const renderTrigger = (text: string) => {
@@ -180,7 +182,7 @@ const LeftSidebar: React.FC<Props> = (props) => {
                 query={{
                   queryName: "channelsByMembers",
                   variables: { memberIds: [currentUser._id] },
-                  dataName: "channelsByMembers",
+                  dataName: "channelsByMembers"
                 }}
                 counts="byChannels"
                 paramKey="channelId"
@@ -190,7 +192,7 @@ const LeftSidebar: React.FC<Props> = (props) => {
               />
             </FilterToggler>
 
-            {isEnabled("segments") && (
+            {
               <FilterToggler
                 groupText="Segments"
                 toggleName="showSegments"
@@ -201,8 +203,8 @@ const LeftSidebar: React.FC<Props> = (props) => {
                     queryName: "segmentList",
                     dataName: "segments",
                     variables: {
-                      contentTypes: [TAG_TYPES.CONVERSATION],
-                    },
+                      contentTypes: [TAG_TYPES.CONVERSATION]
+                    }
                   }}
                   queryParams={queryParams}
                   counts="bySegment"
@@ -213,7 +215,7 @@ const LeftSidebar: React.FC<Props> = (props) => {
                   setCounts={setCounts}
                 />
               </FilterToggler>
-            )}
+            }
 
             <FilterToggler
               groupText="Brands"
@@ -238,7 +240,7 @@ const LeftSidebar: React.FC<Props> = (props) => {
               <FilterList
                 query={{
                   queryName: "integrationsGetUsedTypes",
-                  dataName: "integrationsGetUsedTypes",
+                  dataName: "integrationsGetUsedTypes"
                 }}
                 queryParams={queryParams}
                 counts="byIntegrationTypes"
@@ -248,32 +250,30 @@ const LeftSidebar: React.FC<Props> = (props) => {
               />
             </FilterToggler>
 
-            {isEnabled("tags") && (
-              <FilterToggler
-                groupText="Tags"
-                toggleName="showTags"
-                manageUrl="/settings/tags/inbox:conversation"
-              >
-                <FilterList
-                  query={{
-                    queryName: "tagList",
-                    dataName: "tags",
-                    variables: {
-                      type: TAG_TYPES.CONVERSATION,
-                      perPage: 100,
-                    },
-                  }}
-                  queryParams={queryParams}
-                  counts="byTags"
-                  paramKey="tag"
-                  icon="tag-alt"
-                  refetchRequired={refetchRequired}
-                  multiple={true}
-                  treeView={true}
-                  setCounts={setCounts}
-                />
-              </FilterToggler>
-            )}
+            <FilterToggler
+              groupText="Tags"
+              toggleName="showTags"
+              manageUrl="/settings/tags/inbox:conversation"
+            >
+              <FilterList
+                query={{
+                  queryName: "tagList",
+                  dataName: "tags",
+                  variables: {
+                    type: TAG_TYPES.CONVERSATION,
+                    perPage: 100
+                  }
+                }}
+                queryParams={queryParams}
+                counts="byTags"
+                paramKey="tag"
+                icon="tag-alt"
+                refetchRequired={refetchRequired}
+                multiple={true}
+                treeView={true}
+                setCounts={setCounts}
+              />
+            </FilterToggler>
           </ScrollContent>
         </SidebarContent>
       </Transition>

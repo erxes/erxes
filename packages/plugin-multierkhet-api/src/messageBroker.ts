@@ -1,273 +1,255 @@
-import { sendMessage, MessageArgsOmitService } from '@erxes/api-utils/src/core';
-import { afterMutationHandlers } from './afterMutations';
-import { afterQueryHandlers } from './afterQueries';
+import { sendMessage, MessageArgsOmitService } from "@erxes/api-utils/src/core";
+import { afterMutationHandlers } from "./afterMutations";
+import { afterQueryHandlers } from "./afterQueries";
 
-import { generateModels } from './connectionResolver';
-import { sendRPCMessage } from './messageBrokerErkhet';
-import { loansTransactionToErkhet } from './utils/loansTransactionToErkhet';
-import { getPostData, orderDeleteToErkhet } from './utils/orders';
+import { generateModels } from "./connectionResolver";
+import { sendRPCMessage } from "./messageBrokerErkhet";
+import { loansTransactionToErkhet } from "./utils/loansTransactionToErkhet";
+import { getPostData, orderDeleteToErkhet } from "./utils/orders";
 import {
   consumeQueue,
-  consumeRPCQueue,
-} from '@erxes/api-utils/src/messageBroker';
+  consumeRPCQueue
+} from "@erxes/api-utils/src/messageBroker";
 
 export const setupMessageConsumers = async () => {
-  consumeQueue('multierkhet:afterMutation', async ({ subdomain, data }) => {
+  consumeQueue("multierkhet:afterMutation", async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;
   });
 
-  consumeRPCQueue('multierkhet:afterQuery', async ({ subdomain, data }) => {
+  consumeRPCQueue("multierkhet:afterQuery", async ({ subdomain, data }) => {
     return {
-      status: 'success',
-      data: await afterQueryHandlers(subdomain, data),
+      status: "success",
+      data: await afterQueryHandlers(subdomain, data)
     };
   });
 
-  consumeRPCQueue('multierkhet:getConfig', async ({ subdomain, data }) => {
+  consumeRPCQueue("multierkhet:getConfig", async ({ subdomain, data }) => {
     const { code, defaultValue } = data;
     const models = await generateModels(subdomain);
 
     return {
-      status: 'success',
-      data: models.Configs.getConfig(code, defaultValue),
+      status: "success",
+      data: models.Configs.getConfig(code, defaultValue)
     };
   });
 
-  consumeRPCQueue('multierkhet:toOrder', async ({ subdomain, data }) => {
+  consumeRPCQueue("multierkhet:toOrder", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { pos, order } = data;
     const syncLogDoc = {
-      contentType: 'pos:order',
+      contentType: "pos:order",
       createdAt: new Date(),
-      createdBy: order.userId,
+      createdBy: order.userId
     };
     const syncLog = await models.SyncLogs.syncLogsAdd({
       ...syncLogDoc,
       contentId: order._id,
       consumeData: order,
-      consumeStr: JSON.stringify(order),
+      consumeStr: JSON.stringify(order)
     });
     try {
       const postData = await getPostData(subdomain, pos, order);
       if (!postData) {
         return {
-          status: 'success',
-          data: {},
+          status: "success",
+          data: {}
         };
       }
 
       return {
-        status: 'success',
+        status: "success",
         data: await sendRPCMessage(
           models,
           syncLog,
-          'rpc_queue:erxes-automation-erkhet',
+          "rpc_queue:erxes-automation-erkhet",
           {
-            action: 'get-response-send-order-info',
+            action: "get-response-send-order-info",
             isEbarimt: false,
             payload: JSON.stringify(postData),
             thirdService: true,
-            isJson: true,
-          },
-        ),
+            isJson: true
+          }
+        )
       };
     } catch (e) {
       await models.SyncLogs.updateOne(
         { _id: syncLog._id },
-        { $set: { error: e.message } },
+        { $set: { error: e.message } }
       );
       return {
-        status: 'success',
-        data: { error: e.message },
+        status: "success",
+        data: { error: e.message }
       };
     }
   });
 
   consumeRPCQueue(
-    'multierkhet:loanTransaction',
+    "multierkhet:loanTransaction",
     async ({ subdomain, data }) => {
       const { generals, orderId } = data;
       const models = await generateModels(subdomain);
 
       const syncLogDoc = {
-        contentType: 'loans:transaction',
-        createdAt: new Date(),
+        contentType: "loans:transaction",
+        createdAt: new Date()
       };
       const syncLog = await models.SyncLogs.syncLogsAdd({
         ...syncLogDoc,
         contentId: orderId,
         consumeData: data,
-        consumeStr: JSON.stringify(data),
+        consumeStr: JSON.stringify(data)
       });
 
       try {
         const postData = await loansTransactionToErkhet(
           subdomain,
           generals,
-          orderId,
+          orderId
         );
         if (!postData) {
           return {
-            status: 'success',
-            data: {},
+            status: "success",
+            data: {}
           };
         }
 
         return {
-          status: 'success',
+          status: "success",
           data: await sendRPCMessage(
             models,
             syncLog,
-            'rpc_queue:erxes-automation-erkhet',
+            "rpc_queue:erxes-automation-erkhet",
             {
-              action: 'get-response-send-journal-orders',
+              action: "get-response-send-journal-orders",
               isEbarimt: false,
               payload: JSON.stringify(postData),
               thirdService: true,
-              isJson: true,
-            },
-          ),
+              isJson: true
+            }
+          )
         };
       } catch (e) {
         await models.SyncLogs.updateOne(
           { _id: syncLog._id },
-          { $set: { error: e.message } },
+          { $set: { error: e.message } }
         );
         return {
-          status: 'success',
-          data: { error: e.message },
+          status: "success",
+          data: { error: e.message }
         };
       }
-    },
+    }
   );
 
   consumeRPCQueue(
-    'multierkhet:deleteTransaction',
+    "multierkhet:deleteTransaction",
     async ({ subdomain, data }) => {
       const { generals, orderId } = data;
       const models = await generateModels(subdomain);
       const syncLogDoc = {
-        contentType: 'loans:transaction',
-        createdAt: new Date(),
+        contentType: "loans:transaction",
+        createdAt: new Date()
       };
       const syncLog = await models.SyncLogs.syncLogsAdd({
         ...syncLogDoc,
         contentId: orderId,
         consumeData: data,
-        consumeStr: JSON.stringify(data),
+        consumeStr: JSON.stringify(data)
       });
 
       try {
         const postData = await loansTransactionToErkhet(
           subdomain,
           generals,
-          orderId,
+          orderId
         );
         if (!postData) {
           return {
-            status: 'success',
-            data: {},
+            status: "success",
+            data: {}
           };
         }
 
         return {
-          status: 'success',
+          status: "success",
           data: await sendRPCMessage(
             models,
             syncLog,
-            'rpc_queue:erxes-automation-erkhet',
+            "rpc_queue:erxes-automation-erkhet",
             {
-              action: 'get-response-delete-journal-orders',
+              action: "get-response-delete-journal-orders",
               isEbarimt: false,
               payload: JSON.stringify(postData),
               thirdService: true,
-              isJson: true,
-            },
-          ),
+              isJson: true
+            }
+          )
         };
       } catch (e) {
         await models.SyncLogs.updateOne(
           { _id: syncLog._id },
-          { $set: { error: e.message } },
+          { $set: { error: e.message } }
         );
         return {
-          status: 'success',
-          data: { error: e.message },
+          status: "success",
+          data: { error: e.message }
         };
       }
-    },
+    }
   );
 
-  consumeRPCQueue('multierkhet:returnOrder', async ({ subdomain, data }) => {
+  consumeRPCQueue("multierkhet:returnOrder", async ({ subdomain, data }) => {
     const { pos, order } = data;
 
     return {
-      status: 'success',
-      data: await orderDeleteToErkhet(subdomain, pos, order),
+      status: "success",
+      data: await orderDeleteToErkhet(subdomain, pos, order)
     };
   });
 };
 
-export const sendProductsMessage = async (
-  args: MessageArgsOmitService,
+export const sendSalesMessage = async (
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'products',
-    ...args,
-  });
-};
-
-export const sendContactsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'contacts',
-    ...args,
-  });
-};
-
-export const sendCardsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'cards',
-    ...args,
+    serviceName: "sales",
+    ...args
   });
 };
 
 export const sendPosMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'pos',
-    ...args,
+    serviceName: "pos",
+    ...args
   });
 };
 
 export const sendEbarimtMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'ebarimt',
-    ...args,
+    serviceName: "ebarimt",
+    ...args
   });
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'core',
-    ...args,
+    serviceName: "core",
+    ...args
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'notifications',
-    ...args,
+    serviceName: "notifications",
+    ...args
   });
 };

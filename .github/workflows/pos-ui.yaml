@@ -7,6 +7,7 @@ on:
       - master
       - rc
       - staging
+      - v1
     paths:
       - 'pos/**'
       - '.github/workflows/pos-ui.yaml'
@@ -17,21 +18,22 @@ on:
       - master
       - rc
       - staging
+      - v1
     paths:
       - 'pos/**'
       - '.github/workflows/pos-ui.yaml'
 
-jobs:
+jobs: 
   pos-ui:
     runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js 18.17.x
+      - name: Use Node.js 18.18.0
         uses: actions/setup-node@v4
         with:
-          node-version: 18.17.x
+          node-version: 18.18.0
 
       - name: Build
         run: |
@@ -41,7 +43,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'v2')
         run: |
           cd pos
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

@@ -1,85 +1,87 @@
-import { IContext } from '../../connectionResolver';
-import { getConfig, sendCoreMessage, sendMessageBroker } from '../../messageBroker';
+import BigNumber from "bignumber.js";
+import { IContext } from "../../connectionResolver";
 import {
-  SCHEDULE_STATUS
-} from '../../models/definitions/constants';
-import { IContractDocument } from '../../models/definitions/contracts';
-import { IContract } from '../../models/definitions/contracts';
-import { getCalcedAmounts } from '../../models/utils/transactionUtils';
+  getConfig,
+  sendCoreMessage,
+  sendMessageBroker
+} from "../../messageBroker";
+import { SCHEDULE_STATUS } from "../../models/definitions/constants";
+import { IContractDocument, IContract } from "../../models/definitions/contracts";
+import { getCalcedAmounts } from "../../models/utils/transactionUtils";
 import {
   getDiffDay,
   getFullDate,
   getNextMonthDay
-} from '../../models/utils/utils';
+} from "../../models/utils/utils";
 
 const Contracts = {
-  contractType(contract: IContract, _, { models }: IContext) {
+  async contractType(contract: IContract, _, { models }: IContext) {
     return models.ContractTypes.findOne({ _id: contract.contractTypeId });
   },
 
-  relationExpert(contract: IContract, _, { subdomain }: IContext) {
+  async relationExpert(contract: IContract, _, { subdomain }: IContext) {
     if (!contract.relationExpertId) return null;
 
     return sendCoreMessage({
       subdomain,
-      action: 'users.findOne',
+      action: "users.findOne",
       data: { _id: contract.relationExpertId },
       isRPC: true
     });
   },
 
-  leasingExpert(contract: IContract, _, { subdomain }: IContext) {
+  async leasingExpert(contract: IContract, _, { subdomain }: IContext) {
     if (!contract.leasingExpertId) return null;
 
     return sendCoreMessage({
       subdomain,
-      action: 'users.findOne',
+      action: "users.findOne",
       data: { _id: contract.leasingExpertId },
       isRPC: true
     });
   },
 
-  riskExpert(contract: IContract, _, { subdomain }: IContext) {
+  async riskExpert(contract: IContract, _, { subdomain }: IContext) {
     if (!contract.riskExpertId) return null;
 
     return sendCoreMessage({
       subdomain,
-      action: 'users.findOne',
+      action: "users.findOne",
       data: { _id: contract.riskExpertId },
       isRPC: true
     });
   },
 
   async customers(contract: IContract, _, { subdomain }: IContext) {
-    if (contract.customerType !== 'customer') return null;
+    if (contract.customerType !== "customer") {
+      return null;
+    }
 
-    const customer = await sendMessageBroker(
+    return await sendMessageBroker(
       {
         subdomain,
-        action: 'customers.findOne',
+        action: "customers.findOne",
         data: { _id: contract.customerId },
         isRPC: true
       },
-      'contacts'
-    );
-
-    return customer;
+      "core"
+    );;
   },
 
   async companies(contract: IContract, _, { subdomain }: IContext) {
-    if (contract.customerType !== 'company') return null;
+    if (contract.customerType !== "company") {
+      return null;
+    }
 
-    const company = await sendMessageBroker(
+    return await sendMessageBroker(
       {
         subdomain,
-        action: 'companies.findOne',
+        action: "companies.findOne",
         data: { _id: contract.customerId },
         isRPC: true
       },
-      'contacts'
+      "core"
     );
-
-    return company;
   },
 
   async insurances(
@@ -101,15 +103,15 @@ const Contracts = {
       const company = await sendMessageBroker(
         {
           subdomain,
-          action: 'companies.findOne',
+          action: "companies.findOne",
           data: { _id: insurance.companyId },
           isRPC: true
         },
-        'contacts'
+        "core"
       );
 
       insurances.push({
-        ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
+        ...(typeof data.toJSON === "function" ? data.toJSON() : data),
         insurance,
         company
       });
@@ -129,11 +131,11 @@ const Contracts = {
       const collateral = await sendMessageBroker(
         {
           subdomain,
-          action: 'findOne',
+          action: "products.findOne",
           data: { _id: data.collateralId },
           isRPC: true
         },
-        'products'
+        "core"
       );
 
       const insuranceType = await models.InsuranceTypes.findOne({
@@ -141,7 +143,7 @@ const Contracts = {
       });
 
       collaterals.push({
-        ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
+        ...(typeof data.toJSON === "function" ? data.toJSON() : data),
         collateral,
         insuranceType
       });
@@ -192,7 +194,7 @@ const Contracts = {
     return currentSchedule;
   },
 
-  relContract(contract: IContractDocument, _, { models }: IContext) {
+  async relContract(contract: IContractDocument, _, { models }: IContext) {
     if (!contract.relContractId) {
       return;
     }
@@ -216,6 +218,10 @@ const Contracts = {
       isDefault: true
     }).sort({ payDate: 1 });
 
+    if (!expiredSchedule?.payDate) {
+      return 0;
+    }
+
     const paymentDate = getFullDate(expiredSchedule?.payDate as Date);
     const days = Math.ceil(
       (today.getTime() - paymentDate.getTime()) / (1000 * 3600 * 24)
@@ -231,7 +237,7 @@ const Contracts = {
       payDate: { $lte: today }
     }).lean();
 
-    return schedules.reduce((a, b) => a + b.didPayment, 0) || 0;
+    return schedules.reduce((a, b) => a + (b.didPayment || 0), 0) || 0;
   },
 
   async nextPayment(
@@ -249,12 +255,17 @@ const Contracts = {
       .sort({ payDate: 1 })
       .lean();
 
-      const config = await getConfig('loansConfig',subdomain)
+    const config = await getConfig("loansConfig", subdomain);
 
-    const calcedInfo = await getCalcedAmounts(models, subdomain, {
-      contractId: contract._id,
-      payDate: (nextSchedule && nextSchedule.payDate) || today
-    },config);
+    const calcedInfo = await getCalcedAmounts(
+      models,
+      subdomain,
+      {
+        contractId: contract._id,
+        payDate: (nextSchedule && nextSchedule.payDate) || today
+      },
+      config
+    );
 
     return (
       (calcedInfo.payment || 0) +
@@ -266,7 +277,7 @@ const Contracts = {
     );
   },
 
-  async nextPaymentDate(contract: IContractDocument, {}, { models }: IContext) {
+  async nextPaymentDate(contract: IContractDocument, { }, { models }: IContext) {
     const today = getFullDate(new Date());
 
     const nextSchedule = await models.Schedules.findOne({
@@ -282,7 +293,7 @@ const Contracts = {
 
   async loanTransactionHistory(
     contract: IContractDocument,
-    {},
+    { },
     { models }: IContext
   ) {
     const transactions = await models.Transactions.find({
@@ -295,7 +306,7 @@ const Contracts = {
     return transactions;
   },
 
-  async storeInterest(contract: IContractDocument, {}, { models }: IContext) {
+  async storeInterest(contract: IContractDocument, { }, { models }: IContext) {
     const storedInterests = await models.StoredInterest.find({
       contractId: contract._id
     })
@@ -305,7 +316,8 @@ const Contracts = {
 
     return storedInterests;
   },
-  async invoices(contract: IContractDocument, {}, { models }: IContext) {
+
+  async invoices(contract: IContractDocument, { }, { models }: IContext) {
     const invoices = await models.Invoices.find({
       contractId: contract._id
     })
@@ -314,6 +326,13 @@ const Contracts = {
       .lean();
 
     return invoices;
+  },
+
+  async unUsedBalance(contract: IContractDocument) {
+    return new BigNumber(contract.leaseAmount)
+      .minus(contract.loanBalanceAmount)
+      .dp(2, BigNumber.ROUND_HALF_UP)
+      .toNumber();
   }
 };
 

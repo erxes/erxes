@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 
-import { PAYMENTS } from '../../api/constants';
+import { CURRENCIES, PAYMENTS } from '../../api/constants';
 import { field } from './utils';
 
 export interface IPayment {
@@ -8,6 +8,7 @@ export interface IPayment {
   kind: string;
   status: string;
   config: any;
+  acceptedCurrencies: string[];
 }
 
 export interface IPaymentDocument extends IPayment, Document {
@@ -25,5 +26,6 @@ export const paymentSchema = new Schema({
   }),
   status: field({ type: String, label: 'Status' }),
   config: field({ type: Object, label: 'Config' }),
-  createdAt: field({ type: Date, default: new Date(), label: 'Created at' })
+  createdAt: field({ type: Date, default: Date.now, label: 'Created at' }),
+  acceptedCurrencies: field({ type: [String], label: 'Accepted currencies', enum: CURRENCIES })
 });

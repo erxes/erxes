@@ -1,14 +1,16 @@
-import { Action, Name } from "../../contracts/styles";
-import { SidebarCounter, SidebarList } from "@erxes/ui/src/layout/styles";
+import { Action, Name, Description } from "../../contracts/styles";
+import {
+  SidebarCounter,
+  SidebarList,
+  FieldStyle
+} from "@erxes/ui/src/layout/styles";
 
 import Alert from "@erxes/ui/src/utils/Alert";
 import Button from "@erxes/ui/src/components/Button";
 import ContractTypeForm from "../containers/ContractTypeForm";
 import ContractTypesCustomFields from "./ContractTypesCustomFields";
-import { Description } from "../../contracts/styles";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
-import { FieldStyle } from "@erxes/ui/src/layout/styles";
 import { IContractTypeDetail } from "../types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { MainStyleInfoWrapper as InfoWrapper } from "@erxes/ui/src/styles/eindex";
@@ -40,7 +42,7 @@ const DetailInfo = (props: Props) => {
     const onDelete = () =>
       confirm()
         .then(() => remove && remove())
-        .catch((error) => {
+        .catch(error => {
           Alert.error(error.message);
         });
 
@@ -68,7 +70,7 @@ const DetailInfo = (props: Props) => {
   const { contractType } = props;
   const { Section } = Sidebar;
 
-  const content = (props) => (
+  const content = props => (
     <ContractTypeForm {...props} contractType={contractType} />
   );
 
@@ -116,10 +118,10 @@ const DetailInfo = (props: Props) => {
               <FieldStyle>{__(`Allow categories`)}</FieldStyle>
             </li>
             <ul>
-              {contractType.productCategories.map((cat) => {
+              {(contractType.productCategories || []).map((cat) => {
                 return (
-                  <li key={cat._id}>
-                    {cat.code} - {cat.name}
+                  <li key={cat?._id}>
+                    {cat?.code} - {cat?.name}
                   </li>
                 );
               })}
@@ -129,15 +131,14 @@ const DetailInfo = (props: Props) => {
             </li>
             <Description
               dangerouslySetInnerHTML={{
-                __html: contractType.description,
+                __html: contractType.description
               }}
             />
           </SidebarList>
         </Section>
       </Sidebar.Section>
-      {isEnabled("forms") && (
-        <ContractTypesCustomFields contractType={props.contractType} isDetail />
-      )}
+
+      <ContractTypesCustomFields contractType={props.contractType} isDetail />
     </Sidebar>
   );
 };

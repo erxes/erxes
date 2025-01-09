@@ -3,9 +3,9 @@ import {
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables,
+  RemoveMutationVariables
 } from "../types";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { mutations, queries } from "../graphql";
 import { useMutation, useQuery } from "@apollo/client";
 
@@ -14,6 +14,7 @@ import { FILTER_PARAMS_CONTRACT } from "../../constants";
 import { gql } from "@apollo/client";
 import queryString from "query-string";
 import { useLocation, useNavigate } from "react-router-dom";
+import subscriptions from "../graphql/subscriptions";
 
 type Props = {
   queryParams: any;
@@ -27,11 +28,12 @@ const generateQueryParams = (location) => {
 };
 
 const ContractListContainer = (props: Props) => {
-  const [loading, setLoading] = useState(false);
   const { queryParams } = props;
-  const [date, setDate] = useState(new Date());
+
   const location = useLocation();
   const navigate = useNavigate();
+
+  const date = useMemo(() => new Date(), []);
 
   const contractsMainQuery = useQuery<MainQueryResponse>(
     gql(queries.contractsMain),
@@ -62,8 +64,9 @@ const ContractListContainer = (props: Props) => {
         sortDirection: queryParams.sortDirection
           ? parseInt(queryParams.sortDirection, 10)
           : undefined,
+        isDeposit: props.isDeposit
       },
-      fetchPolicy: "network-only",
+      fetchPolicy: "network-only"
     }
   );
 
@@ -71,16 +74,16 @@ const ContractListContainer = (props: Props) => {
     gql(queries.savingsContractsAlert),
     {
       variables: {
-        date,
+        date
       },
-      fetchPolicy: "network-only",
+      fetchPolicy: "network-only"
     }
   );
 
   const [contractsRemove] = useMutation<RemoveMutationResponse>(
     gql(mutations.contractsRemove),
     {
-      refetchQueries: ["contractsMain"],
+      refetchQueries: ["contractsMain"]
     }
   );
 
@@ -121,7 +124,7 @@ const ContractListContainer = (props: Props) => {
 
   const removeContracts = ({ contractIds }, emptyBulk) => {
     contractsRemove({
-      variables: { contractIds },
+      variables: { contractIds }
     })
       .then(() => {
         emptyBulk();
@@ -138,19 +141,30 @@ const ContractListContainer = (props: Props) => {
   const alerts: SavingAlert[] =
     savingsContractsAlertQuery?.data?.savingsContractsAlert || [];
 
+  useEffect(() => {
+    return contractsMainQuery.subscribeToMore({
+      document: gql(subscriptions.savingsContractChanged),
+      variables: { ids: list.map(l => l._id) },
+      updateQuery: (prev) => {
+        contractsMainQuery.refetch();
+        return prev
+      }
+    });
+  });
+
   const updatedProps = {
     ...props,
     totalCount,
     searchValue,
     contracts: list,
     alerts,
-    loading: contractsMainQuery.loading || loading,
+    loading: contractsMainQuery.loading,
     queryParams: queryParams,
     removeContracts,
     onSelect: onSelect,
     onSearch: onSearch,
     isFiltered: isFiltered(),
-    clearFilter: clearFilter,
+    clearFilter: clearFilter
   };
 
   const contractsList = (props) => {

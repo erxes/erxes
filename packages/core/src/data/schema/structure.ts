@@ -41,6 +41,7 @@ export const types = `
         users: [User]
         userCount: Int
         userIds: [String]
+        workhours:JSON
     }
 
     type Unit @key(fields: "_id") @cacheControl(maxAge: 3) {
@@ -70,9 +71,12 @@ export const types = `
         userCount: Int
         parent: Branch
         children: [Branch]
+        status:String
 
         address: String
         radius: Int
+        hasChildren:Boolean
+        workhours:JSON
         ${commonContactInfoTypes}
     }
 
@@ -132,6 +136,8 @@ const commonParams = `
     page: Int
     searchValue: String,
     status: String,
+    onlyFirstLevel: Boolean,
+    parentId: String
 `;
 
 export const queries = `
@@ -181,6 +187,7 @@ const commonDepartmentParams = `
     code: String
     parentId: String
     userIds: [String]
+    workhours: JSON
 `;
 
 const commonUnitParams = `
@@ -200,7 +207,7 @@ const commonBranchParams = `
     parentId: String
     userIds: [String]
     radius: Int
-
+    workhours: JSON
     ${commonContactInfoParams}
 `;
 
@@ -214,11 +221,11 @@ const commonPositionParams = `
 
 export const mutations = `
     structuresAdd(${commonStructureParams}): Structure
-    structuresEdit(_id: String!, ${commonStructureParams}): Structure
+    structuresEdit(_id: String!,${commonStructureParams}): Structure
     structuresRemove(_id: String!): JSON
 
     departmentsAdd(${commonDepartmentParams}): Department
-    departmentsEdit(_id: String!, ${commonDepartmentParams}): Department
+    departmentsEdit(_id: String!,${commonDepartmentParams}): Department
     departmentsRemove(ids: [String!]): JSON
 
     unitsAdd(${commonUnitParams}): Unit

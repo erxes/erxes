@@ -167,6 +167,10 @@ export interface IUserModel extends Model<IUserDocument> {
     password: string,
     secondary?: boolean
   ): boolean;
+  moveUser(
+    oldClientPortalId: string,
+    newClientPortalId: string
+  ): Promise<{ userIds: string[]; clientPortalId: string }>;
 }
 
 export const loadClientPortalUserClass = (models: IModels) => {
@@ -259,7 +263,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
       if (doc.customFieldsData) {
         // clean custom field values
         doc.customFieldsData = await sendCommonMessage({
-          serviceName: 'forms',
+          serviceName: 'core',
           subdomain,
           action: 'fields.prepareCustomFieldsData',
           data: doc.customFieldsData,
@@ -343,12 +347,17 @@ export const loadClientPortalUserClass = (models: IModels) => {
       if (doc.customFieldsData) {
         // clean custom field values
         doc.customFieldsData = await sendCommonMessage({
-          serviceName: 'forms',
+          serviceName: 'core',
           subdomain,
           action: 'fields.prepareCustomFieldsData',
           data: doc.customFieldsData,
           isRPC: true,
         });
+      }
+
+      if (doc.password) {
+        this.checkPassword(doc.password);
+        doc.password = await this.generatePassword(doc.password);
       }
 
       await models.ClientPortalUsers.updateOne(
@@ -491,7 +500,9 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       // check current password ============
-      const valid = await this.comparePassword(currentPassword, user.password);
+      const valid = user.password
+        ? await this.comparePassword(currentPassword, user.password)
+        : false;
 
       if (!valid) {
         throw new Error('Incorrect current password');
@@ -584,7 +595,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
       this.checkPassword(password);
 
       if (phone.includes('@')) {
-        const field = isSecondary ? 'password' : 'secondaryPassword';
+        const field = isSecondary ? 'secondaryPassword' : 'password';
         await models.ClientPortalUsers.findByIdAndUpdate(user._id, {
           isEmailVerified: true,
           [field]: await this.generatePassword(password),
@@ -594,7 +605,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       // set new password
-      const field = isSecondary ? 'password' : 'secondaryPassword';
+      const field = isSecondary ? 'secondaryPassword' : 'password';
 
       await models.ClientPortalUsers.findByIdAndUpdate(user._id, {
         isPhoneVerified: true,
@@ -843,9 +854,9 @@ export const loadClientPortalUserClass = (models: IModels) => {
       let isFound;
       if (cp.twoFactorConfig?.enableTwoFactor) {
         if (twoFactor && twoFactor.key && twoFactor.device) {
-          isFound = user.twoFactorDevices?.find(x => x.key === twoFactor.key);
+          isFound = user.twoFactorDevices?.find((x) => x.key === twoFactor.key);
         } else {
-          throw new Error('2FA is enabled, fill the arguments');
+          throw new Error('TwoFactor argument is required');
         }
       }
 
@@ -1267,6 +1278,44 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       return this.comparePassword(password, user.password || '');
+    }
+
+    public static async moveUser(oldClientPortalId, newClientPortalId) {
+      const oldUsers = await models.ClientPortalUsers.find({
+        clientPortalId: oldClientPortalId,
+      });
+
+      const newUsers = await models.ClientPortalUsers.find({
+        clientPortalId: newClientPortalId,
+      });
+
+      if (!oldUsers || !oldUsers.length) {
+        throw new Error('Users not found');
+      }
+
+      const emailsInNewPortal = newUsers.map((user) => user.email);
+      const phonesInNewPortal = newUsers.map((user) => user.phone);
+
+      // Filter users1 to exclude those with matching email or phone in users2
+      const usersToUpdate = oldUsers.filter((user) => {
+        const emailMatch = user.email && emailsInNewPortal.includes(user.email);
+        const phoneMatch = user.phone && phonesInNewPortal.includes(user.phone);
+        return !(emailMatch || phoneMatch); // Include users who don't match
+      });
+
+      if (!usersToUpdate.length) {
+        throw new Error('No users updated because of duplicate email/phone');
+      }
+
+      // Get the IDs of the users to update
+      const userIdsToUpdate = usersToUpdate.map((user) => user._id);
+
+      const updatedUsers = await models.ClientPortalUsers.updateMany(
+        { _id: { $in: userIdsToUpdate } },
+        { $set: { clientPortalId: newClientPortalId, modifiedAt: new Date() } }
+      );
+
+      return updatedUsers;
     }
   }
 

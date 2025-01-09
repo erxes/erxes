@@ -3,12 +3,50 @@ import { DEFAULT_OPERATORS, OPERATORS } from "../constants";
 
 import { ISegmentCondition } from "../../types";
 import React from "react";
+import { gql, useQuery } from "@apollo/client";
+import Spinner from "@erxes/ui/src/components/Spinner";
 
 type Props = {
   condition: ISegmentCondition;
   field: any;
   segmentKey: string;
   onClickProperty: (field, condition, segmentKey) => void;
+};
+
+const SelectionConfigLabel = ({ selectionConfig, propertyValue }) => {
+  const { queryName, labelField, valueField = "_id" } = selectionConfig;
+
+  if (!queryName && !labelField) {
+    return propertyValue;
+  }
+
+  const query = `
+    query ${queryName}($ids: [String]) {
+      ${queryName}(ids: $ids) {
+        ${labelField},${valueField}
+      }
+    }
+  `;
+
+  const ids = propertyValue.includes(",")
+    ? propertyValue.split(",")
+    : [propertyValue];
+
+  const { data, loading } = useQuery(gql(query), {
+    variables: { ids },
+  });
+
+  if (loading) {
+    return <Spinner objective />;
+  }
+
+  const list = (data || {})[queryName] || [];
+
+  if (!list?.length) {
+    return propertyValue;
+  }
+
+  return `${list.map((item) => item[labelField]).join(", ")}`;
 };
 
 class PropertyDetail extends React.Component<Props, {}> {
@@ -35,7 +73,12 @@ class PropertyDetail extends React.Component<Props, {}> {
   renderValue = () => {
     const { condition, field } = this.props;
 
-    const { selectOptions = [], choiceOptions = [], type } = field;
+    const {
+      selectOptions = [],
+      choiceOptions = [],
+      selectionConfig,
+      type,
+    } = field;
     const { propertyValue = "" } = condition;
 
     let text = propertyValue;
@@ -48,6 +91,14 @@ class PropertyDetail extends React.Component<Props, {}> {
       text = `${new Date(propertyValue).toDateString()} ${new Date(
         propertyValue
       ).toTimeString()}`;
+    }
+
+    if (selectionConfig) {
+      const updatedProps = {
+        selectionConfig,
+        propertyValue,
+      };
+      return <SelectionConfigLabel {...updatedProps} />;
     }
 
     if (selectOptions.length > 0) {
@@ -80,7 +131,11 @@ class PropertyDetail extends React.Component<Props, {}> {
     const value = this.renderValue();
 
     let propertyTypeText = propertyType.replace("_", " ");
-    let valueText = <span>{` ${operator} ${value}`}</span>;
+    let valueText = (
+      <span>
+        {` ${operator} `} {value}
+      </span>
+    );
 
     if (propertyType === "form_submission") {
       propertyTypeText = group;
@@ -97,7 +152,13 @@ class PropertyDetail extends React.Component<Props, {}> {
       propertyOperator &&
       ["wobm", "woam", "wobd", "woad"].indexOf(propertyOperator) >= 0
     ) {
-      valueText = <span>{` ${value} ${operator}`}</span>;
+      valueText = (
+        <span>
+          {` `}
+          {value}
+          {` ${operator}`}
+        </span>
+      );
     }
 
     return (

@@ -1,37 +1,37 @@
-import { ControlLabel, FormGroup } from "@erxes/ui/src/components/form";
+import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
 import {
   FilterItem,
   FlexRow,
   FlexRowLeft,
   SchedulesTableWrapper,
   ToggleButton,
-} from "../../styles";
-import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
-import { ISchedule, IScheduleConfig, IShift } from "../../types";
-import React, { useEffect, useState } from "react";
+} from '../../styles';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
+import { ISchedule, IScheduleConfig, IShift } from '../../types';
+import React, { useEffect, useState } from 'react';
 import {
   dateFormat,
   dateOfTheMonthFormat,
   dayOfTheWeekFormat,
   timeFormat,
-} from "../../constants";
-import { isEnabled, router } from "@erxes/ui/src/utils/core";
-import { useLocation, useNavigate } from "react-router-dom";
+} from '../../constants';
+import { isEnabled, router } from '@erxes/ui/src/utils/core';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-import Button from "@erxes/ui/src/components/Button";
-import { IUser } from "@erxes/ui/src/auth/types";
-import Icon from "@erxes/ui/src/components/Icon";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Pagination from "@erxes/ui/src/components/pagination/Pagination";
-import ScheduleForm from "../../containers/schedule/ScheduleForm";
-import Select from "react-select";
-import Table from "@erxes/ui/src/components/table";
-import Tip from "@erxes/ui/src/components/Tip";
-import { Title } from "@erxes/ui-settings/src/styles";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { __ } from "@erxes/ui/src/utils";
-import { confirm } from "@erxes/ui/src/utils";
-import dayjs from "dayjs";
+import Button from '@erxes/ui/src/components/Button';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import ScheduleForm from '../../containers/schedule/ScheduleForm';
+import Select from 'react-select';
+import Table from '@erxes/ui/src/components/table';
+import Tip from '@erxes/ui/src/components/Tip';
+import { Title } from '@erxes/ui-settings/src/styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from '@erxes/ui/src/utils';
+import { confirm } from '@erxes/ui/src/utils';
+import dayjs from 'dayjs';
 
 type Props = {
   currentUser: IUser;
@@ -51,14 +51,6 @@ type Props = {
   solveShift: (shiftId: string, status: string) => void;
   submitRequest: (
     userId: any,
-    filledShifts: any,
-    totalBreakInMins?: number | string,
-    selectedScheduleConfigId?: string
-  ) => void;
-  submitSchedule: (
-    branchIds: any,
-    departmentIds: any,
-    userIds: any,
     filledShifts: any,
     totalBreakInMins?: number | string,
     selectedScheduleConfigId?: string
@@ -95,18 +87,18 @@ function ScheduleList(props: Props) {
   );
 
   const [selectedScheduleStatus, setScheduleStatus] = useState(
-    router.getParam(location, "scheduleStatus") || ""
+    router.getParam(location, 'scheduleStatus') || ''
   );
   const [showButtons, setShowButtons] = useState(false);
 
   const [isSideBarOpen, setIsOpen] = useState(
-    localStorage.getItem("isSideBarOpen") === "true" ? true : false
+    localStorage.getItem('isSideBarOpen') === 'true' ? true : false
   );
 
   const onToggleSidebar = () => {
     const toggleIsOpen = !isSideBarOpen;
     setIsOpen(toggleIsOpen);
-    localStorage.setItem("isSideBarOpen", toggleIsOpen.toString());
+    localStorage.setItem('isSideBarOpen', toggleIsOpen.toString());
   };
 
   const { startDate, endDate } = queryParams;
@@ -142,8 +134,8 @@ function ScheduleList(props: Props) {
     while (startRange <= endRange) {
       const backgroundColor =
         startRange.toDate().getDay() === 0 || startRange.toDate().getDay() === 6
-          ? "#f4c1bc"
-          : "white";
+          ? '#f4c1bc'
+          : 'white';
 
       daysAndDatesHeaders.push({
         columnNo,
@@ -154,7 +146,7 @@ function ScheduleList(props: Props) {
       });
 
       columnNo += 1;
-      startRange = startRange.add(1, "day");
+      startRange = startRange.add(1, 'day');
     }
 
     lastColumnIdx = columnNo;
@@ -174,7 +166,7 @@ function ScheduleList(props: Props) {
 
   const modalContent = (closeModal, scheduleOfMember?: ISchedule) => (
     <ScheduleForm
-      modalContentType={""}
+      modalContentType={''}
       closeModal={closeModal}
       {...props}
       scheduleOfMember={scheduleOfMember}
@@ -184,9 +176,12 @@ function ScheduleList(props: Props) {
   const adminConfigContent = (closeModal, scheduleOfMember?: ISchedule) => {
     let sortedSchedule: any = scheduleOfMember;
 
+    const getShifts = scheduleOfMember?.shifts
+      ? [...scheduleOfMember.shifts]
+      : [];
     sortedSchedule = {
       ...scheduleOfMember,
-      shifts: scheduleOfMember?.shifts.sort(
+      shifts: getShifts.sort(
         (a, b) =>
           new Date(a.shiftStart).getTime() - new Date(b.shiftStart).getTime()
       ),
@@ -194,7 +189,7 @@ function ScheduleList(props: Props) {
 
     return (
       <ScheduleForm
-        modalContentType={"adminConfig"}
+        modalContentType={'adminConfig'}
         scheduleOfMember={sortedSchedule}
         closeModal={closeModal}
         {...props}
@@ -204,19 +199,19 @@ function ScheduleList(props: Props) {
 
   const filterSchedules = (schedules: ISchedule[]) => {
     switch (selectedScheduleStatus) {
-      case "Rejected":
+      case 'Rejected':
         return schedules.filter(
           (schedule) =>
             schedule.solved &&
-            schedule.status?.toLocaleLowerCase() === "rejected"
+            schedule.status?.toLocaleLowerCase() === 'rejected'
         );
-      case "Pending":
+      case 'Pending':
         return schedules.filter((schedule) => !schedule.solved);
       default:
         return schedules.filter(
           (schedule) =>
             schedule.solved &&
-            schedule.status?.toLocaleLowerCase() === "approved"
+            schedule.status?.toLocaleLowerCase() === 'approved'
         );
     }
   };
@@ -237,13 +232,13 @@ function ScheduleList(props: Props) {
         scheduleConfigId: shift.scheduleConfigId,
         lunchBreakInMins: shift.lunchBreakInMins,
       })),
-      userType: "admin",
+      userType: 'admin',
       checkOnly: true,
-      status: "Approved",
+      status: 'Approved',
     });
 
     if (!checkDuplicateShifts.length) {
-      solveSchedule(scheduleOfMember._id, "Approved");
+      solveSchedule(scheduleOfMember._id, 'Approved');
     }
   };
 
@@ -258,12 +253,14 @@ function ScheduleList(props: Props) {
       </ToggleButton>
 
       <Title
-        style={{ marginRight: "10px" }}
+        style={{
+          marginRight: '10px',
+        }}
       >{` Total: ${scheduleOfMembers.length}`}</Title>
     </FlexRowLeft>
   );
 
-  const selectOptions = ["Approved", "Rejected", "Pending"].map((el) => ({
+  const selectOptions = ['Approved', 'Rejected', 'Pending'].map((el) => ({
     value: el,
     label: el,
   }));
@@ -286,7 +283,7 @@ function ScheduleList(props: Props) {
         </FormGroup>
       </FilterItem>
       <ModalTrigger
-        title={__("Send schedule request")}
+        title={__('Send schedule request')}
         size="lg"
         trigger={trigger}
         content={({ closeModal }) => modalContent(closeModal)}
@@ -295,7 +292,7 @@ function ScheduleList(props: Props) {
       {isCurrentUserSupervisor && (
         <ModalTrigger
           size="lg"
-          title={__("Schedule config - Admin")}
+          title={__('Schedule config - Admin')}
           trigger={adminConfigTrigger}
           content={({ closeModal }) => adminConfigContent(closeModal)}
         />
@@ -326,29 +323,29 @@ function ScheduleList(props: Props) {
             onMouseOver={() => setShowButtons(true)}
             onMouseLeave={() => setShowButtons(false)}
           >
-            {""}
+            {''}
           </th>
-          {selectedScheduleStatus === "Pending" && (
-            <th rowSpan={2} style={{ textAlign: "center" }}>
-              {__("Action")}
+          {selectedScheduleStatus === 'Pending' && (
+            <th rowSpan={2} style={{ textAlign: 'center' }}>
+              {__('Action')}
             </th>
           )}
           <th rowSpan={2} className="fixed-column">
-            {__("Team members")}
+            {__('Team members')}
           </th>
 
-          <th rowSpan={2}>{__("Employee Id")}</th>
-          <th rowSpan={2}>{__("Total days")}</th>
-          <th rowSpan={2}>{__("Total hours")}</th>
-          <th rowSpan={2}>{__("Total Break")}</th>
-          {!isEnabled("bichil") && <th rowSpan={2}>{__("Member checked")}</th>}
+          <th rowSpan={2}>{__('Employee Id')}</th>
+          <th rowSpan={2}>{__('Total days')}</th>
+          <th rowSpan={2}>{__('Total hours')}</th>
+          <th rowSpan={2}>{__('Total Break')}</th>
+          {!isEnabled('bichil') && <th rowSpan={2}>{__('Member checked')}</th>}
           {daysAndDatesHeaders.map((column) => {
             return (
               <th
                 key={column.dateField}
                 style={{
                   backgroundColor: column.backgroundColor,
-                  border: "1px solid #EEE",
+                  border: '1px solid #EEE',
                 }}
               >
                 {dayjs(column.date).format(dayOfTheWeekFormat)}
@@ -363,7 +360,7 @@ function ScheduleList(props: Props) {
                 key={column.dateField}
                 style={{
                   backgroundColor: column.backgroundColor,
-                  border: "1px solid #EEE",
+                  border: '1px solid #EEE',
                 }}
               >
                 {column.text}
@@ -383,7 +380,7 @@ function ScheduleList(props: Props) {
       scheduleConfigId: string;
     };
 
-    const listShiftsOnCorrectColumn: { [columnNo: number]: ShiftString[] } = [];
+    const listShiftsOnCorrectColumn: { [columnNo: number]: ShiftString[] } = {};
 
     for (const shift of shiftsOfMember) {
       const findColumn = daysAndDatesHeaders.find(
@@ -426,26 +423,27 @@ function ScheduleList(props: Props) {
 
     for (let i = 1; i < lastColumnIdx; i++) {
       if (i in listShiftsOnCorrectColumn) {
-        const shiftsOfDay = listShiftsOnCorrectColumn[i].map((shift, index) => {
+        const getShifts = listShiftsOnCorrectColumn[i];
+        const shiftsOfDay = getShifts.map((shift, index) => {
           const getScheduleConfigName = scheduleConfigsWrappedById[
             shift.scheduleConfigId
           ]
             ? scheduleConfigsWrappedById[shift.scheduleConfigId].scheduleName
-            : "insert";
+            : 'insert';
 
           return (
-            <Tip key={index} text={getScheduleConfigName}>
-              <td
-                style={{
-                  cursor: "default",
-                  backgroundColor: shift.backgroundColor,
-                  border: "1px solid #EEE",
-                }}
-              >
+            <td
+              style={{
+                cursor: 'default',
+                backgroundColor: shift.backgroundColor,
+                border: '1px solid #EEE',
+              }}
+            >
+              <Tip key={index} text={getScheduleConfigName} placement="auto">
                 <div>{shift.shiftStart}</div>
                 <div>{shift.shiftEnd}</div>
-              </td>
-            </Tip>
+              </Tip>
+            </td>
           );
         });
         listRowOnColumnOrder.push(...shiftsOfDay);
@@ -459,8 +457,8 @@ function ScheduleList(props: Props) {
       listRowOnColumnOrder.push(
         <td
           style={{
-            backgroundColor: "#dddddd",
-            border: "1px solid #EEE",
+            backgroundColor: '#dddddd',
+            border: '1px solid #EEE',
           }}
         />
       );
@@ -474,12 +472,12 @@ function ScheduleList(props: Props) {
 
     const name = user && details && details.fullName ? details.fullName : email;
 
-    const employeeId = user && user.employeeId ? user.employeeId : "";
+    const employeeId = user && user.employeeId ? user.employeeId : '';
 
     const scheduleChecked =
       scheduleOfMember.scheduleChecked || !scheduleOfMember.submittedByAdmin
-        ? "Танилцсан"
-        : "Танилцаагүй";
+        ? 'Танилцсан'
+        : 'Танилцаагүй';
 
     const totalDaysScheduled = new Set(
       scheduleOfMember.shifts.map((shift) =>
@@ -510,19 +508,19 @@ function ScheduleList(props: Props) {
     );
 
     return (
-      <tr style={{ textAlign: "left" }}>
+      <tr style={{ textAlign: 'left' }}>
         <td
           onMouseOver={() => setShowButtons(true)}
           onMouseLeave={() => setShowButtons(false)}
-          style={{ textAlign: "center" }}
+          style={{ textAlign: 'center' }}
         >
           {showButtons && (
             <FlexRow>
               {isCurrentUserSupervisor &&
-                selectedScheduleStatus === "Approved" && (
+                selectedScheduleStatus === 'Approved' && (
                   <ModalTrigger
                     size="lg"
-                    title={__("Edit schedule - Admin")}
+                    title={__('Edit schedule - Admin')}
                     trigger={editScheduleTrigger}
                     content={({ closeModal }) =>
                       adminConfigContent(closeModal, scheduleOfMember)
@@ -530,10 +528,10 @@ function ScheduleList(props: Props) {
                   />
                 )}
 
-              {selectedScheduleStatus !== "Approved" && (
+              {selectedScheduleStatus !== 'Approved' && (
                 <ModalTrigger
                   size="lg"
-                  title={__("Edit schedule request")}
+                  title={__('Edit schedule request')}
                   trigger={editScheduleTrigger}
                   content={({ closeModal }) =>
                     modalContent(closeModal, scheduleOfMember)
@@ -541,27 +539,27 @@ function ScheduleList(props: Props) {
                 />
               )}
               {isCurrentUserSupervisor && (
-                <Tip text={"Remove Schedule"} placement="top">
+                <Tip text={__('Remove Schedule')} placement="top">
                   <Button
                     size="small"
                     icon="times-circle"
                     btnStyle="link"
                     onClick={() =>
-                      removeSchedule(scheduleOfMember._id, "schedule")
+                      removeSchedule(scheduleOfMember._id, 'schedule')
                     }
                   />
                 </Tip>
               )}
-              {selectedScheduleStatus === "Rejected" &&
+              {selectedScheduleStatus === 'Rejected' &&
                 isCurrentUserSupervisor && (
-                  <Tip text={"Approve Schedule"} placement="top">
+                  <Tip text={__('Approve Schedule')} placement="top">
                     <Button
                       size="small"
                       icon="checked"
                       btnStyle="link"
                       onClick={() => {
                         confirm(
-                          "Are you sure to Approve according schedule ?"
+                          'Are you sure to Approve according schedule ?'
                         ).then(() => checkAndApproveSchedule(scheduleOfMember));
                       }}
                     />
@@ -571,7 +569,7 @@ function ScheduleList(props: Props) {
           )}
         </td>
 
-        {selectedScheduleStatus === "Pending" && (
+        {selectedScheduleStatus === 'Pending' && (
           <td>
             <FlexRow>
               <Button
@@ -586,7 +584,7 @@ function ScheduleList(props: Props) {
                 disabled={scheduleOfMember.solved}
                 size="small"
                 btnStyle="danger"
-                onClick={() => solveSchedule(scheduleOfMember._id, "Rejected")}
+                onClick={() => solveSchedule(scheduleOfMember._id, 'Rejected')}
               >
                 Reject
               </Button>
@@ -598,7 +596,7 @@ function ScheduleList(props: Props) {
         <td>{totalDaysScheduled}</td>
         <td>{totalHoursScheduled.toFixed(1)}</td>
         <td>{totalBreakInHours.toFixed(1)}</td>
-        {!isEnabled("bichil") && <td>{scheduleChecked}</td>}
+        {!isEnabled('bichil') && <td>{scheduleChecked}</td>}
         {renderScheduleShifts(scheduleOfMember.shifts, user._id)}
       </tr>
     );

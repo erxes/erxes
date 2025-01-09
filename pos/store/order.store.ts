@@ -1,5 +1,13 @@
 "use client"
 
+import {
+  currentAmountAtom,
+  mobileTabAtom,
+  orderCollapsibleAtom,
+  paymentAmountTypeAtom,
+  refetchOrderAtom,
+  refetchUserAtom,
+} from "@/store"
 import { atom } from "jotai"
 import { atomWithStorage } from "jotai/utils"
 
@@ -11,6 +19,7 @@ import {
   IOrderUser,
   IPaidAmount,
   IPutResponse,
+  OrderItem,
   PayByProductItem,
 } from "@/types/order.types"
 
@@ -46,6 +55,7 @@ export const putResponsesAtom = atom<IPutResponse[]>([])
 export const printTypeAtom = atom<string | null>(null)
 
 // slot
+export const savedSlotCodeAtom = atom<string | null>(null)
 export const slotCodeAtom = atom<string | null>(null)
 
 // delivery
@@ -59,8 +69,64 @@ export const orderTotalAmountAtom = atom<number>(0)
 export const cashAmountAtom = atom<number>(0)
 export const mobileAmountAtom = atom<number>(0)
 export const directDiscountAtom = atom<number>(0)
+export const directIsAmountAtom = atomWithStorage<boolean>(
+  "directIsAmount",
+  false
+)
 export const paidAmountsAtom = atom<IPaidAmount[]>([])
 export const payByProductAtom = atom<PayByProductItem[]>([])
+
+export const splitOrderItemsAtom = atom<{
+  mainItems: OrderItem[]
+  subItems: OrderItem[]
+}>((get) => {
+  const type = get(paymentAmountTypeAtom)
+  if (type === "items") {
+    return {
+      mainItems: get(cartAtom)
+        .map((item) => {
+          const payByProduct = get(payByProductAtom).find(
+            (product) => product._id === item._id
+          )
+          return {
+            ...item,
+            count: payByProduct ? item.count - payByProduct.count : item.count,
+          }
+        })
+        .filter((item) => item.count > 0),
+      subItems: get(cartAtom)
+        .map((item) => {
+          const payByProduct = get(payByProductAtom).find(
+            (product) => product._id === item._id
+          )
+          return {
+            ...item,
+            count: payByProduct?.count || 0,
+          }
+        })
+        .filter((item) => item.count > 0),
+    }
+  }
+
+  const percent =
+    type === "percent"
+      ? Number((get(currentAmountAtom) / 100).toFixed(1))
+      : (get(currentAmountAtom) / get(totalAmountAtom)) * 100
+
+  const getItems = (type: "main" | "sub") =>
+    get(cartAtom).map((item) => {
+      const percentCount = (item.count * percent) / 100
+      return {
+        ...item,
+        count: type === "main" ? item.count - percentCount : percentCount,
+      }
+    })
+
+  return {
+    mainItems: getItems("main"),
+    subItems: getItems("sub"),
+  }
+})
 export const payByProductTotalAtom = atom<number>((get) =>
   get(payByProductAtom).reduce((prev, pr) => prev + pr.count * pr.unitPrice, 0)
 )
@@ -73,6 +139,15 @@ export const paidOrderIdAtom = atomWithStorage<string | null>(
   null
 )
 
+export const resetPayByProductAtom = atom(
+  () => "",
+  (get, set) => {
+    set(paidOrderIdAtom, null)
+    set(paidProductsAtom, [])
+    set(payByProductAtom, [])
+  }
+)
+
 export const getTotalPaidAmountAtom = atom(
   (get) =>
     get(paidAmountsAtom).reduce((total, item) => total + item.amount, 0) +
@@ -83,6 +158,11 @@ export const unPaidAmountAtom = atom(
   (get) => get(orderTotalAmountAtom) - get(getTotalPaidAmountAtom)
 )
 export const paidDateAtom = atom<string | null>(null)
+export const askSaveAtom = atom((get) =>
+  get(activeOrderIdAtom)
+    ? get(cartChangedAtom) === get(activeOrderIdAtom)
+    : get(cartChangedAtom) === "-"
+)
 
 // cashier
 export const orderUserAtom = atom<IOrderUser | null>(null)
@@ -91,13 +171,16 @@ export const orderUserAtom = atom<IOrderUser | null>(null)
 export const setInitialAtom = atom(
   () => "",
   (get, set) => {
+    set(mobileTabAtom, "products")
     set(cartAtom, [])
+    set(cartChangedAtom, false)
     set(customerAtom, null)
     set(customerTypeAtom, "")
     set(orderTypeAtom, (get(allowTypesAtom) || [])[0] || "eat")
     set(registerNumberAtom, "")
     set(billTypeAtom, null)
     set(slotCodeAtom, null)
+    set(savedSlotCodeAtom, null)
     set(descriptionAtom, null)
     set(activeOrderIdAtom, null)
     set(cashAmountAtom, 0)
@@ -114,6 +197,7 @@ export const setInitialAtom = atom(
     set(buttonTypeAtom, null)
     set(selectedTabAtom, "plan")
     set(directDiscountAtom, 0)
+    set(orderCollapsibleAtom, false)
   }
 )
 
@@ -143,21 +227,27 @@ export const setOrderStatesAtom = atom(
       dueDate,
       isPre,
       directDiscount,
+      directIsAmount,
     }: IOrder
   ) => {
     set(activeOrderIdAtom, _id || null)
     set(customerAtom, customer || null)
+
     const { directDiscount: allowDirectDiscount, directDiscountLimit } =
       get(permissionConfigAtom) || {}
-    allowDirectDiscount &&
-      directDiscountLimit &&
-      set(directDiscountAtom, directDiscount || 0)
+    const discount = directDiscount ?? 0
+    if (allowDirectDiscount && directDiscountLimit) {
+      set(directDiscountAtom, discount)
+      set(directIsAmountAtom, !!directIsAmount)
+    }
+
     set(customerTypeAtom, customerType || "")
-    !get(cartChangedAtom) && set(cartAtom, items)
+    askSaveAtom && set(cartAtom, items)
     set(orderTypeAtom, type || "eat")
     set(billTypeAtom, billType || "1")
     set(registerNumberAtom, registerNumber || "")
     set(slotCodeAtom, slotCode || null)
+    set(savedSlotCodeAtom, slotCode ?? null)
     set(descriptionAtom, description || null)
     set(cashAmountAtom, cashAmount || 0)
     set(mobileAmountAtom, mobileAmount || 0)
@@ -172,11 +262,20 @@ export const setOrderStatesAtom = atom(
     set(isPreAtom, isPre)
   }
 )
+export const setOnOrderChangeAtom = atom(
+  () => {},
+  (get, set) => {
+    set(refetchUserAtom, true)
+    set(refetchOrderAtom, true)
+    set(cartChangedAtom, false)
+  }
+)
 
 export const orderValuesAtom = atom((get) => ({
   items: get(orderItemInput),
   totalAmount: get(totalAmountAtom),
   directDiscount: get(directDiscountAtom),
+  directIsAmount: get(directDiscountAtom) ? get(directIsAmountAtom) : undefined,
   type: get(orderTypeAtom),
   _id: get(activeOrderIdAtom),
   customerType: get(customerTypeAtom),

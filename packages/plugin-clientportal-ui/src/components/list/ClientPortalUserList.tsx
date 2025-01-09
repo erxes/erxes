@@ -1,28 +1,29 @@
-import { Alert, confirm, router } from "@erxes/ui/src/utils";
-import React, { useEffect, useState } from "react";
-
-import { BarItems } from "@erxes/ui/src/layout/styles";
-import Button from "@erxes/ui/src/components/Button";
-import ClientPortalUserForm from "../../containers/ClientPortalUserForm";
-import ClientPortalUserRow from "./ClientPortalUserRow";
-import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
-import { EMPTY_CONTENT_CONTACTS } from "@erxes/ui-settings/src/constants";
-import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import { IClientPortalUser } from "../../types";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Pagination from "@erxes/ui/src/components/pagination/Pagination";
-import Sidebar from "./Sidebar";
-import Table from "@erxes/ui/src/components/table";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { __ } from "@erxes/ui/src/utils/core";
-import { menuContacts } from "@erxes/ui/src/utils/menus";
-import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
+import { Alert, confirm, router } from '@erxes/ui/src/utils';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import Button from '@erxes/ui/src/components/Button';
+import ClientPortalUserForm from '../../containers/ClientPortalUserForm';
+import ClientPortalUserRow from './ClientPortalUserRow';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IClientPortalUser } from '../../types';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import Sidebar from './Sidebar';
+import Table from '@erxes/ui/src/components/table';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from '@erxes/ui/src/utils/core';
+import { menuContacts } from '@erxes/ui/src/utils/menus';
+import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
+import ClientPortalMoveForm from '../../containers/ClientPortalMoveForm';
 
 interface IProps {
   type: string;
-  kind: "client" | "vendor";
+  kind: 'client' | 'vendor';
   queryParams: any;
   clientPortalUsers: IClientPortalUser[];
   clientPortalUserCount: number;
@@ -58,7 +59,7 @@ const ClientportalUserList: React.FC<IProps> = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const [state, setState] = useState({
     searchValue: searchValue,
   });
@@ -67,10 +68,10 @@ const ClientportalUserList: React.FC<IProps> = ({
     setState((prevState) => ({ ...prevState, searchValue }));
   }, [searchValue]);
 
-  const timerRef = React.useRef<number | null>(null);
+  const timerRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const onChange = () => {
-    toggleAll(clientPortalUsers, "clientPortalUsers");
+    toggleAll(clientPortalUsers, 'clientPortalUsers');
   };
 
   const removeUsersHandler = (clientPortalUsersToRemove: any[]) => {
@@ -112,20 +113,21 @@ const ClientportalUserList: React.FC<IProps> = ({
                 />
               </th>
               <th>#</th>
-              <th>{__("ID Verification")}</th>
-              <th>{__("Email")}</th>
-              <th>{__("Phone")}</th>
-              <th>{__("User Name")}</th>
-              <th>{__("Code")}</th>
-              <th>{__("First Name")}</th>
-              <th>{__("Last Name")}</th>
-              <th>{__("Company name")}</th>
-              <th>{__("Type")}</th>
-              <th>{__("from")}</th>
-              <th>{__("Status")}</th>
-              <th>{__("Session count")}</th>
-              <th>{__("Last seen at")}</th>
-              <th>{__("Registered at")}</th>
+              <th>{__('ID Verification')}</th>
+              <th>{__('Email')}</th>
+              <th>{__('Phone')}</th>
+              <th>{__('User Name')}</th>
+              <th>{__('Code')}</th>
+              <th>{__('First Name')}</th>
+              <th>{__('Last Name')}</th>
+              <th>{__('Company name')}</th>
+              <th>{__('Type')}</th>
+              <th>{__('from')}</th>
+              <th>{__('Status')}</th>
+              <th>{__('Session count')}</th>
+              <th>{__('Last seen at')}</th>
+              <th>{__('Registered at')}</th>
+              <th>{__('Modified at')}</th>
             </tr>
           </thead>
           <tbody id="clientPortalUsers">
@@ -154,15 +156,15 @@ const ClientportalUserList: React.FC<IProps> = ({
     setState((prevState) => ({ ...prevState, searchValue }));
 
     timerRef.current = setTimeout(() => {
-      router.removeParams(navigate,location, "page");
-      router.setParams(navigate,location, { searchValue });
+      router.removeParams(navigate, location, 'page');
+      router.setParams(navigate, location, { searchValue });
     }, 500);
   };
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
-    e.target.value = "";
+    e.target.value = '';
     e.target.value = tmpValue;
   };
 
@@ -172,19 +174,37 @@ const ClientportalUserList: React.FC<IProps> = ({
     </Button>
   );
 
+  const moveTrigger = (
+    <Button btnStyle="default" size="small" icon="plus-circle">
+      Move user
+    </Button>
+  );
+
   const customerForm = (props) => {
     return <ClientPortalUserForm {...props} size="lg" kind={kind} />;
+  };
+
+  const moveForm = (props) => {
+    return <ClientPortalMoveForm {...props} size="sm" kind={kind} />;
   };
 
   const actionBarRight = (
     <BarItems>
       <FormControl
         type="text"
-        placeholder={__("Type to search")}
+        placeholder={__('Type to search')}
         onChange={searchHandler}
         value={state.searchValue}
         autoFocus={true}
         onFocus={moveCursorAtTheEnd}
+      />
+
+      <ModalTrigger
+        title="Move user"
+        autoOpenKey="showCustomerModal"
+        trigger={moveTrigger}
+        content={moveForm}
+        backDrop="static"
       />
 
       <ModalTrigger

@@ -32,7 +32,7 @@ export interface IMessengerOnlineHours {
 
 export interface IMessengerOnlineHoursDocument
   extends IMessengerOnlineHours,
-    Document {}
+  Document { }
 
 export interface IMessengerDataMessagesItem {
   greetings?: { title?: string; message?: string };
@@ -66,6 +66,7 @@ export interface IMessengerData {
   showTimezone?: boolean;
   messages?: IMessageDataMessages;
   links?: ILink;
+  externalLinks?: IExternalLink[]
   showChat?: boolean;
   showLauncher?: boolean;
   hideWhenOffline?: boolean;
@@ -74,7 +75,7 @@ export interface IMessengerData {
   showVideoCallRequest?: boolean;
 }
 
-export interface IMessengerDataDocument extends IMessengerData, Document {}
+export interface IMessengerDataDocument extends IMessengerData, Document { }
 
 export interface ICallout extends Document {
   title?: string;
@@ -90,36 +91,6 @@ export interface IAttachment {
   url: string;
   size: number;
   type: string;
-}
-
-export interface IBookingStyle {
-  itemShape?: string;
-  widgetColor?: string;
-
-  productAvailable?: string;
-  baseFont?: string;
-
-  line?: string;
-  rows?: number;
-  columns?: number;
-  margin?: number;
-}
-
-export interface IBookingData {
-  name?: string;
-  description?: string;
-  image?: IAttachment;
-  style?: IBookingStyle;
-  userFilters?: string[];
-  productCategoryId?: string;
-  viewCount?: number;
-  navigationText?: string;
-  bookingFormText?: string;
-  productFieldIds?: string[];
-}
-
-export interface IBookingDataDocument extends IBookingData, Document {
-  viewCount?: number;
 }
 
 export interface ILeadData {
@@ -168,7 +139,7 @@ export interface IUiOptions {
 }
 
 // subdocument schema for messenger UiOptions
-export interface IUiOptionsDocument extends IUiOptions, Document {}
+export interface IUiOptionsDocument extends IUiOptions, Document { }
 
 export interface IIntegration {
   kind: string;
@@ -183,9 +154,12 @@ export interface IIntegration {
   isActive?: boolean;
   isConnected?: boolean;
   channelIds?: string[];
-  bookingData?: IBookingData;
   departmentIds?: string[];
   visibility?: string;
+}
+
+export interface IExternalLink {
+  url: String
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {
@@ -197,7 +171,6 @@ export interface IIntegrationDocument extends IIntegration, Document {
   messengerData?: IMessengerDataDocument;
   webhookData?: IWebhookData;
   uiOptions?: IUiOptionsDocument;
-  bookingData?: IBookingDataDocument;
 }
 
 // subdocument schema for MessengerOnlineHours
@@ -245,6 +218,7 @@ const messengerDataSchema = new Schema(
       twitter: String,
       youtube: String,
     },
+    externalLinks: field({ type: Object, optional: true }),
     requireAuth: field({ type: Boolean, default: true }),
     showChat: field({ type: Boolean, default: true }),
     showLauncher: field({ type: Boolean, default: true }),
@@ -430,60 +404,6 @@ const webhookDataSchema = new Schema(
   { _id: false },
 );
 
-export const bookingStyleSchema = new Schema(
-  {
-    itemShape: field({ type: String, optional: true, label: 'Shape' }),
-    widgetColor: field({ type: String, label: 'Widget color' }),
-
-    productAvailable: field({ type: String, label: 'Product available' }),
-    baseFont: field({ type: String, optional: true, label: 'Font' }),
-
-    line: field({ type: String, optional: true, label: 'Line' }),
-    columns: field({ type: Number, optional: true, label: 'Columns' }),
-    rows: field({ type: Number, optional: true, label: 'Rows' }),
-    margin: field({ type: Number, optional: true, label: 'Margin' }),
-  },
-  { _id: false },
-);
-
-const bookingSchema = new Schema(
-  {
-    name: field({ type: String }),
-    description: field({ type: String }),
-    image: field({ type: attachmentSchema }),
-
-    style: field({ type: bookingStyleSchema }),
-    userFilters: field({ type: [String], optional: true, label: 'Filter' }),
-
-    productCategoryId: field({
-      type: String,
-      optional: true,
-      label: 'Product category',
-    }),
-    viewCount: field({
-      type: Number,
-      optional: true,
-      label: 'View count',
-    }),
-    navigationText: field({
-      type: String,
-      optional: true,
-      label: 'Navigation text',
-    }),
-    bookingFormText: field({
-      type: String,
-      optional: true,
-      label: 'Booking form text',
-    }),
-    productFieldIds: field({
-      type: [String],
-      optional: true,
-      label: 'Custom fields',
-    }),
-  },
-  { _id: false },
-);
-
 // schema for integration document
 export const integrationSchema = schemaHooksWrapper(
   new Schema({
@@ -499,17 +419,8 @@ export const integrationSchema = schemaHooksWrapper(
     name: field({ type: String, label: 'Name' }),
     brandId: field({ type: String, label: 'Brand' }),
 
-    visibility: field({ type: String, label: 'Visibility' }),
-    departmentIds: field({ type: [String], label: 'Departments' }),
-
-    languageCode: field({
-      type: String,
-      optional: true,
-      label: 'Language code',
-    }),
     tagIds: field({ type: [String], label: 'Tags', index: true }),
     formId: field({ type: String, label: 'Form' }),
-    leadData: field({ type: leadDataSchema, label: 'Lead data' }),
     isActive: field({
       type: Boolean,
       optional: true,
@@ -527,8 +438,6 @@ export const integrationSchema = schemaHooksWrapper(
     formData: field({ type: leadDataSchema }),
     messengerData: field({ type: messengerDataSchema }),
     uiOptions: field({ type: uiOptionsSchema }),
-
-    bookingData: field({ type: bookingSchema }),
   }),
   'erxes_integrations',
 );

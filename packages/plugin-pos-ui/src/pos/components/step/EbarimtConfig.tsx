@@ -1,12 +1,34 @@
-import React, { useState } from "react";
-import { __, ControlLabel, FormControl, FormGroup } from "@erxes/ui/src";
-import { Block, BlockRow, FlexColumn, FlexItem } from "../../../styles";
-import { LeftItem } from "@erxes/ui/src/components/step/styles";
-import { IPos } from "../../../types";
-import { DISTRICTS } from "../../../constants";
+import React, { useState } from 'react';
+import {
+  __,
+  ControlLabel,
+  FormControl,
+  FormGroup,
+  SelectWithSearch,
+  Textarea,
+} from '@erxes/ui/src';
+import { Block, BlockRow, FlexColumn, FlexItem } from '../../../styles';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import { IPos } from '../../../types';
+
+const ebarimtProductRules = `
+  query ebarimtProductRules(
+    $searchValue: String,
+    $kind: String,
+  ) {
+    ebarimtProductRules(
+      searchValue: $searchValue,
+      kind: $kind,
+    ) {
+      _id
+      title
+    }
+  }
+`;
+
 
 type Props = {
-  onChange: (name: "ebarimtConfig", value: any) => void;
+  onChange: (name: 'ebarimtConfig', value: any) => void;
   pos?: IPos;
 };
 
@@ -17,27 +39,28 @@ const EbarimtConfig = (props: Props) => {
     props.pos && props.pos.ebarimtConfig
       ? props.pos.ebarimtConfig
       : {
-          companyName: "",
-          ebarimtUrl: "",
-          checkCompanyUrl: "",
-          hasVat: false,
-          hasCitytax: false,
-          defaultPay: "debtAmount",
-          districtCode: "",
-          companyRD: "",
-          defaultGSCode: "",
-          vatPercent: 0,
-          cityTaxPercent: 0,
-          footerText: "",
-          hasCopy: false,
-        }
+        companyName: '',
+        ebarimtUrl: '',
+        checkCompanyUrl: '',
+        hasVat: false,
+        hasCitytax: false,
+        defaultPay: 'debtAmount',
+        districtCode: '',
+        companyRD: '',
+        defaultGSCode: '',
+        vatPercent: 0,
+        cityTaxPercent: 0,
+        headerText: '',
+        footerText: '',
+        hasCopy: false,
+      }
   );
 
   const onChangeConfig = (code: string, value) => {
     const newConfig = { ...config, [code]: value };
 
     setConfig(newConfig);
-    onChange("ebarimtConfig", newConfig);
+    onChange('ebarimtConfig', newConfig);
   };
 
   const onChangeCheckbox = (code: string, e) => {
@@ -52,15 +75,17 @@ const EbarimtConfig = (props: Props) => {
     key: string,
     title?: string,
     description?: string,
-    type?: string
+    type?: string,
+    textarea?: boolean
   ) => {
+    const Control = textarea ? Textarea : FormControl;
     return (
       <FormGroup>
         <ControlLabel>{title || key}</ControlLabel>
         {description && <p>{__(description)}</p>}
-        <FormControl
+        <Control
           value={config[key]}
-          type={type || "text"}
+          type={type || 'text'}
           onChange={onChangeInput.bind(this, key)}
           required={true}
         />
@@ -86,69 +111,104 @@ const EbarimtConfig = (props: Props) => {
     );
   };
 
+  const generateRuleOptions = (array) => array.map(item => ({
+    value: item._id,
+    label: item.title || ''
+  }));
+
   return (
     <FlexItem>
       <FlexColumn>
         <LeftItem>
           <Block>
-            <h4>{__("Main")}</h4>
+            <h4>{__('Main')}</h4>
             <BlockRow>
-              {renderInput("companyName", "Company name", "")}
-              {renderInput("ebarimtUrl", "E-barimt URL", "")}
-              {renderInput("checkCompanyUrl", "Company check URL", "")}
+              {renderInput('companyName', 'company Name')}
+              {renderInput('ebarimtUrl', 'ebarimt Url')}
+              {renderInput('checkTaxpayerUrl', 'check taxpayer Url')}
             </BlockRow>
           </Block>
 
           <Block>
-            <h4>{__("Other")}</h4>
+            <h4>{__('Other')}</h4>
             <BlockRow>
-              <FormGroup>
-                <ControlLabel>{__("Provice/District")}</ControlLabel>
-                <FormControl
-                  componentclass="select"
-                  defaultValue={config.districtCode}
-                  options={[
-                    { value: "", label: "Choose District" },
-                    ...DISTRICTS,
-                  ]}
-                  onChange={onChangeInput.bind(this, "districtCode")}
-                  required={true}
-                />
-              </FormGroup>
-              {renderInput("companyRD", "Company register number", "")}
-              {renderInput(
-                "defaultGSCode",
-                "default GSCode",
-                "https://ebarimt.mn/img/buteegdehuun%20uilchilgeenii%20negdsen%20angilal.pdf"
-              )}
+              {renderInput('companyRD', 'companyRD', '')}
+              {renderInput('merchantTin', 'merchantTin', '')}
+              {renderInput('posNo', 'posNo', '')}
+            </BlockRow>
+            <BlockRow>
+              {renderInput('districtCode', 'districtCode', '')}
+              {renderInput('branchNo', 'branchNo', '')}
+              {renderInput('defaultGSCode', 'defaultGSCode', '')}
             </BlockRow>
           </Block>
 
           <Block>
-            <h4>{__("VAT")}</h4>
+            <h4>{__('VAT')}</h4>
             <BlockRow>
-              {renderCheckbox("hasVat", "Has VAT", "")}
-              {renderInput("vatPercent", "VAT Percent", "", "number")}
+              {renderCheckbox('hasVat', 'Has VAT', '')}
+              {renderInput('vatPercent', 'VAT Percent', '', 'number')}
             </BlockRow>
+            {config.hasVat && (
+              <BlockRow>
+                <FormGroup>
+                  <ControlLabel>Another rules of products on vat</ControlLabel>
+                  <SelectWithSearch
+                    label={'reverseVatRules'}
+                    queryName="ebarimtProductRules"
+                    name={'reverseVatRules'}
+                    initialValue={config['reverseVatRules']}
+                    generateOptions={generateRuleOptions}
+                    onSelect={ids => {
+                      onChangeConfig("reverseVatRules", ids);
+                    }}
+                    filterParams={{ kind: 'vat' }}
+                    customQuery={ebarimtProductRules}
+                    multi={true}
+                  />
+                </FormGroup>
+              </BlockRow>
+            ) || <></>}
           </Block>
           <Block>
-            <h4>{__("UB city tax")}</h4>
+            <h4>{__('UB city tax')}</h4>
             <BlockRow>
-              {renderCheckbox("hasCitytax", "Has UB city tax", "")}
+              {renderCheckbox('hasCitytax', 'Has UB city tax', '')}
               {renderInput(
-                "cityTaxPercent",
-                "UB city tax Percent",
-                "",
-                "number"
+                'cityTaxPercent',
+                'UB city tax Percent',
+                '',
+                'number'
               )}
             </BlockRow>
+            {!config.hasCitytax && (
+              <BlockRow>
+                <FormGroup>
+                  <ControlLabel>Another rules of products on citytax</ControlLabel>
+                  <SelectWithSearch
+                    label={'reverseCtaxRules'}
+                    queryName="ebarimtProductRules"
+                    name={'reverseCtaxRules'}
+                    initialValue={config['reverseCtaxRules']}
+                    generateOptions={generateRuleOptions}
+                    onSelect={ids => {
+                      onChangeConfig("reverseCtaxRules", ids);
+                    }}
+                    filterParams={{ kind: 'ctax' }}
+                    customQuery={ebarimtProductRules}
+                    multi={true}
+                  />
+                </FormGroup>
+              </BlockRow>
+            ) || <></>}
           </Block>
           <Block />
           <Block>
-            <h4>{__("Footer")}</h4>
+            <h4>{__('UI Config')}</h4>
             <BlockRow>
-              {renderInput("footerText", "Footer text", "")}
-              {renderCheckbox("hasCopy", "Has copy", "")}
+              {renderInput('headerText', 'Header text', '', 'text', true)}
+              {renderInput('footerText', 'Footer text', '', 'text', true)}
+              {renderCheckbox('hasCopy', 'Has copy', '')}
             </BlockRow>
           </Block>
           <Block />

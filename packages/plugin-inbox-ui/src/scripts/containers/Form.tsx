@@ -1,54 +1,44 @@
-import * as compose from 'lodash.flowright';
-
+import { gql, useQuery } from '@apollo/client';
 import Form from '../components/Form';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { queries as integrationQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { IntegrationsQueryResponse } from '@erxes/ui-inbox/src/settings/integrations/types';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries as integrationQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
-import { withProps } from '@erxes/ui/src/utils';
+import React from 'react';
 
 type Props = {
-  integrationsQuery: IntegrationsQueryResponse;
-  kbTopicsQuery: TopicsQueryResponse;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
-const FormContainer = (props: Props & ICommonFormProps) => {
-  const { integrationsQuery, kbTopicsQuery } = props;
+const FormContainer: React.FC<Props & ICommonFormProps> = (props) => {
+  const { data: integrationsData, loading: integrationsLoading } = useQuery<IntegrationsQueryResponse>(
+    gql(integrationQueries.integrations)
+  );
+  
+  const { data: kbTopicsData, loading: kbTopicsLoading } = useQuery<TopicsQueryResponse>(
+    gql(kbQueries.knowledgeBaseTopicsShort),
+    { skip: !isEnabled('knowledgebase') }
+  );
 
-  if (integrationsQuery.loading || (kbTopicsQuery && kbTopicsQuery.loading)) {
+  if (integrationsLoading || kbTopicsLoading) {
     return <Spinner objective={true} />;
   }
 
-  const integrations = integrationsQuery.integrations;
-
-  const kbTopics = (kbTopicsQuery && kbTopicsQuery.knowledgeBaseTopics) || [];
+  const integrations = integrationsData?.integrations || [];
+  const kbTopics = kbTopicsData?.knowledgeBaseTopics || [];
 
   const updatedProps = {
     ...props,
     messengers: integrations.filter(i => i.kind === 'messenger'),
     leads: integrations.filter(i => i.kind === 'lead'),
-    kbTopics
+    kbTopics,
   };
 
   return <Form {...updatedProps} />;
 };
 
-export default withProps<ICommonFormProps>(
-  compose(
-    graphql(gql(integrationQueries.integrations), {
-      name: 'integrationsQuery'
-    }),
-    graphql(gql(kbQueries.knowledgeBaseTopics), {
-      name: 'kbTopicsQuery',
-      skip: !isEnabled('knowledgebase')
-    })
-  )(FormContainer)
-);
+export default FormContainer;

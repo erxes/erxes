@@ -5,11 +5,7 @@ import { IIntegrationDocument } from '../../models/definitions/integrations';
 import { getOrCreateEngageMessage } from '../../widgetUtils';
 
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
-import {
-  sendCoreMessage,
-  sendFormsMessage,
-  sendKnowledgeBaseMessage
-} from '../../messageBroker';
+import { sendCoreMessage, sendKnowledgeBaseMessage } from '../../messageBroker';
 import { IContext, IModels } from '../../connectionResolver';
 
 const isMessengerOnline = async (
@@ -21,12 +17,8 @@ const isMessengerOnline = async (
     return false;
   }
 
-  const {
-    availabilityMethod,
-    isOnline,
-    onlineHours,
-    timezone
-  } = integration.messengerData;
+  const { availabilityMethod, isOnline, onlineHours, timezone } =
+    integration.messengerData;
 
   const modifiedIntegration = {
     ...(integration.toJSON ? integration.toJSON() : integration),
@@ -79,7 +71,7 @@ const getWidgetMessages = (models: IModels, conversationId: string) => {
 };
 
 export default {
-  widgetsGetMessengerIntegration(
+  async widgetsGetMessengerIntegration(
     _root,
     args: { brandCode: string },
     { models }: IContext
@@ -90,7 +82,7 @@ export default {
     );
   },
 
-  widgetsConversations(
+  async widgetsConversations(
     _root,
     args: { integrationId: string; customerId?: string; visitorId?: string },
     { models }: IContext
@@ -141,13 +133,16 @@ export default {
       participatedUsers: await fetchUsers(models, subdomain, integration, {
         _id: { $in: conversation.participatedUserIds }
       }),
+      readUsers: await fetchUsers(models, subdomain, integration, {
+        _id: { $in: conversation.readUserIds }
+      }),
       supporters: await fetchUsers(models, subdomain, integration, {
         _id: { $in: messengerData.supporterIds }
       })
     };
   },
 
-  widgetsMessages(
+  async widgetsMessages(
     _root,
     args: { conversationId: string },
     { models }: IContext
@@ -157,7 +152,7 @@ export default {
     return getWidgetMessages(models, conversationId);
   },
 
-  widgetsUnreadCount(
+  async widgetsUnreadCount(
     _root,
     args: { conversationId: string },
     { models }: IContext
@@ -253,39 +248,6 @@ export default {
     return {
       __typename: 'ProductCategory',
       _id
-    };
-  },
-
-  async widgetsBookingProductWithFields(
-    _root,
-    { _id }: { _id: string },
-    { subdomain }: IContext
-  ) {
-    const fields = await sendFormsMessage({
-      subdomain,
-      action: 'fields.find',
-      data: {
-        query: {
-          contentType: 'product'
-        },
-        sort: {
-          order: 1
-        }
-      },
-      isRPC: true
-    });
-
-    return {
-      fields: fields.map(field => {
-        return {
-          __typename: 'Field',
-          _id: field._id
-        };
-      }),
-      product: {
-        __typename: 'Product',
-        _id
-      }
     };
   },
 

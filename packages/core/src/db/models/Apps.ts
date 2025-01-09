@@ -1,13 +1,13 @@
-import { Model } from 'mongoose';
-import * as jwt from 'jsonwebtoken';
-import * as dotenv from 'dotenv';
+import { Model } from "mongoose";
+import * as jwt from "jsonwebtoken";
+import * as dotenv from "dotenv";
 
-import { IModels } from '../../connectionResolver';
-import { appSchema, IAppDocument, IApp } from './definitions/apps';
+import { IModels } from "../../connectionResolver";
+import { appSchema, IAppDocument, IApp } from "./definitions/apps";
 
 dotenv.config();
 
-const { JWT_TOKEN_SECRET = '' } = process.env;
+const { JWT_TOKEN_SECRET = "" } = process.env;
 
 export interface IAppModel extends Model<IAppDocument> {
   getApp(_id: string): Promise<IAppDocument>;
@@ -22,7 +22,7 @@ export const loadAppClass = (models: IModels) => {
       const app = await models.Apps.findOne({ _id });
 
       if (!app) {
-        throw new Error('App not found');
+        throw new Error("App not found");
       }
 
       return app;
@@ -32,8 +32,6 @@ export const loadAppClass = (models: IModels) => {
       const app = await models.Apps.create(doc);
       const tokenOptions: any = {};
       const refreshOptions: any = {};
-
-      console.log(doc, 'doc');
 
       if (doc.expireDate && !doc.noExpire) {
         const date = new Date(doc.expireDate);
@@ -78,7 +76,7 @@ export const loadAppClass = (models: IModels) => {
       const app = await models.Apps.getApp(_id);
 
       if (app.isEnabled) {
-        throw new Error('Can not remove an enabled app');
+        throw new Error("Can not remove an enabled app");
       }
 
       return models.Apps.deleteOne({ _id });

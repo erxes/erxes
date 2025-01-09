@@ -1,23 +1,23 @@
-import dayjs from 'dayjs';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import Label from '@erxes/ui/src/components/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import React from 'react';
-import ArticleForm from '../../containers/article/ArticleForm';
-import { IArticle } from '@erxes/ui-knowledgebase/src/types';
+import dayjs from "dayjs";
+import Button from "@erxes/ui/src/components/Button";
+import Icon from "@erxes/ui/src/components/Icon";
+import Label from "@erxes/ui/src/components/Label";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Tip from "@erxes/ui/src/components/Tip";
+import React from "react";
+import ArticleForm from "../../containers/article/ArticleForm";
+import { IArticle } from "@erxes/ui-knowledgebase/src/types";
 import {
   ArticleMeta,
   ArticleTitle,
   AuthorName,
   ReactionCount,
   ReactionCounts,
-  RowArticle,
-} from './styles';
-import { ActionButtons } from '@erxes/ui-settings/src/styles';
-import { Column } from '@erxes/ui/src/styles/main';
-import { __, getUserAvatar } from '@erxes/ui/src/utils';
+  RowArticle
+} from "./styles";
+import { ActionButtons } from "@erxes/ui-settings/src/styles";
+import { Column } from "@erxes/ui/src/styles/main";
+import { __, getUserAvatar } from "@erxes/ui/src/utils";
 
 type Props = {
   article: IArticle;
@@ -30,6 +30,7 @@ type Props = {
 const ArticleRow = (props: Props) => {
   const { article, queryParams, currentCategoryId, topicId, remove } = props;
   const user = article.createdUser;
+  const publishedUser = article?.publishedUser;
 
   const handleRemove = () => {
     remove(article._id);
@@ -42,14 +43,14 @@ const ArticleRow = (props: Props) => {
       <ReactionCounts>
         {reactions.map(([key, value]) => (
           <ReactionCount key={key}>
-            <img src={key} alt="reaction" /> {value}
+            <img src={key} alt="reaction" /> {`${value}`}
           </ReactionCount>
         ))}
       </ReactionCounts>
     );
   };
 
-  const renderForm = (formProps) => (
+  const renderForm = formProps => (
     <ArticleForm
       {...formProps}
       article={article}
@@ -59,14 +60,15 @@ const ArticleRow = (props: Props) => {
     />
   );
 
-  const renderEditAction = (trigger) => {
+  const renderEditAction = (trigger, tip?) => {
     return (
       <ModalTrigger
         size="lg"
-        title="Edit"
+        title={__("Edit")}
         trigger={trigger}
         content={renderForm}
         enforceFocus={false}
+        tipText={tip}
       />
     );
   };
@@ -74,7 +76,7 @@ const ArticleRow = (props: Props) => {
   const title = (
     <ArticleTitle>
       {article.title}
-      {article.status === 'draft' && (
+      {article.status === "draft" && (
         <Label lblStyle="simple">{article.status}</Label>
       )}
     </ArticleTitle>
@@ -82,9 +84,7 @@ const ArticleRow = (props: Props) => {
 
   const editButton = (
     <Button btnStyle="link">
-      <Tip text={__('Edit')}>
-        <Icon icon="edit" />
-      </Tip>
+      <Icon icon="edit" />
     </Button>
   );
 
@@ -95,24 +95,44 @@ const ArticleRow = (props: Props) => {
         <p>{article.summary}</p>
         <ArticleMeta>
           <img
-            alt={(user && user.details && user.details.fullName) || 'author'}
+            alt={(user && user.details && user.details.fullName) || "author"}
             src={getUserAvatar(user)}
           />
-          {__('Written By')}
+          {__("Written By")}
           <AuthorName>
             {user &&
               ((user.details && user.details.fullName) ||
                 user.username ||
                 user.email)}
           </AuthorName>
-          <Icon icon="clock-eight" /> {__('Created')}{' '}
-          {dayjs(article.createdDate).format('ll')}
+          {publishedUser && (
+            <>
+              <img
+                alt={
+                  (publishedUser &&
+                    publishedUser.details &&
+                    publishedUser.details.fullName) ||
+                  "author"
+                }
+                src={getUserAvatar(publishedUser)}
+              />
+              {__("Published By")}
+              <AuthorName>
+                {publishedUser &&
+                  ((publishedUser.details && publishedUser.details.fullName) ||
+                    publishedUser.username ||
+                    publishedUser.email)}
+              </AuthorName>
+            </>
+          )}
+          <Icon icon="clock-eight" /> {__("Created")}{" "}
+          {dayjs(article.createdDate).format("ll")}
           {renderReactions()}
         </ArticleMeta>
       </Column>
       <ActionButtons>
-        {renderEditAction(editButton)}
-        <Tip text={__('Delete')}>
+        {renderEditAction(editButton, "Edit")}
+        <Tip text={__("Delete")}>
           <Button btnStyle="link" onClick={handleRemove} icon="cancel-1" />
         </Tip>
       </ActionButtons>

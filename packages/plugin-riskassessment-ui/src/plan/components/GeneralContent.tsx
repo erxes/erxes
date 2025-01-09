@@ -1,21 +1,21 @@
-import { CARDTYPES, STRUCTURETYPES } from "../common/constants";
-import { Column, DateContainer } from "@erxes/ui/src/styles/main";
+import { CARDTYPES, STRUCTURETYPES } from '../common/constants';
+import { Column, DateContainer } from '@erxes/ui/src/styles/main';
 import {
   ControlLabel,
   DateControl,
   FormControl,
   FormGroup,
   __,
-} from "@erxes/ui/src";
+} from '@erxes/ui/src';
 
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
-import { Columns } from "@erxes/ui/src/styles/chooser";
-import { FormContainer } from "../../styles";
-import React from "react";
-import Select from "react-select";
-import { SelectStructure } from "../common/utils";
-import { SelectTags } from "../../indicator/common/utils";
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import BoardSelectContainer from '@erxes/ui-tickets/src/boards/containers/BoardSelect';
+import { Columns } from '@erxes/ui/src/styles/chooser';
+import { FormContainer } from '../../styles';
+import React from 'react';
+import Select from 'react-select';
+import { SelectStructure } from '../common/utils';
+import { SelectTags } from '../../indicator/common/utils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 type Props = {
   onChange: (value, name) => void;
   plan: any;
@@ -46,13 +46,13 @@ class GeneralConfig extends React.Component<Props, State> {
     };
 
     const handleConfigChange = (value, name) => {
-      onChange({ ...configs, [name]: value }, "configs");
+      onChange({ ...configs, [name]: value }, 'configs');
     };
 
     return (
       <FormContainer padding="15px" $column>
         <FormGroup>
-          <ControlLabel required>{__("Name")}</ControlLabel>
+          <ControlLabel required>{__('Name')}</ControlLabel>
           <FormControl
             name="name"
             defaultValue={plan?.name}
@@ -61,49 +61,47 @@ class GeneralConfig extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel required>{__("Structure Type")}</ControlLabel>
+          <ControlLabel required>{__('Structure Type')}</ControlLabel>
           <Select
             name="structureType"
-            placeholder={__("Select structure Type")}
+            placeholder={__('Select structure Type')}
             value={STRUCTURETYPES.find((o) => o.value === plan?.structureType)}
             options={STRUCTURETYPES}
             isMulti={false}
             isClearable={true}
-            onChange={(props) => onChange(props?.value, "structureType")}
+            onChange={(props) => onChange(props?.value, 'structureType')}
           />
         </FormGroup>
         <SelectStructure
           name="structureTypeId"
           label="General"
-          structureType={structureType || ""}
+          structureType={structureType || ''}
           structureTypeId={plan?.structureTypeId}
           onChange={onChange}
           multi={false}
         />
-        {isEnabled("tags") && (
-          <FormGroup>
-            <ControlLabel>{__("Tags")}</ControlLabel>
-            <SelectTags
-              name="tagId"
-              label="Choose Tags"
-              initialValue={plan.tagId}
-              onSelect={onChange}
-            />
-          </FormGroup>
-        )}
+        <FormGroup>
+          <ControlLabel>{__('Tags')}</ControlLabel>
+          <SelectTags
+            name="tagId"
+            label="Choose Tags"
+            initialValue={plan.tagId}
+            onSelect={onChange}
+          />
+        </FormGroup>
         {structureType && (
           <>
             <FormGroup>
-              <ControlLabel>{__("Card Type")}</ControlLabel>
+              <ControlLabel>{__('Card Type')}</ControlLabel>
               <Select
                 name="type"
-                placeholder={__("Select card type")}
+                placeholder={__('Select card type')}
                 value={CARDTYPES.find((o) => o.value === configs?.cardType)}
                 options={CARDTYPES}
                 isMulti={false}
                 isClearable={true}
                 onChange={(props) =>
-                  onChange({ ...configs, cardType: props?.value }, "configs")
+                  onChange({ ...configs, cardType: props?.value }, 'configs')
                 }
               />
             </FormGroup>
@@ -113,53 +111,53 @@ class GeneralConfig extends React.Component<Props, State> {
                 boardId={configs?.boardId}
                 pipelineId={configs?.pipelineId}
                 stageId={configs?.stageId}
-                onChangeBoard={(value) => handleConfigChange(value, "boardId")}
+                onChangeBoard={(value) => handleConfigChange(value, 'boardId')}
                 onChangePipeline={(value) =>
-                  handleConfigChange(value, "pipelineId")
+                  handleConfigChange(value, 'pipelineId')
                 }
-                onChangeStage={(value) => handleConfigChange(value, "stageId")}
+                onChangeStage={(value) => handleConfigChange(value, 'stageId')}
                 autoSelectStage
               />
             )}
           </>
         )}
 
-        <Columns style={{ gap: "20px" }}>
+        <Columns style={{ gap: '20px' }}>
           <Column>
             <FormGroup>
-              <ControlLabel>{__("Create Date")}</ControlLabel>
+              <ControlLabel>{__('Create Date')}</ControlLabel>
               <DateContainer>
                 <DateControl
                   name="createDate"
                   value={plan.createDate}
-                  placeholder="select from create date "
-                  onChange={(date) => onChange(date, "createDate")}
+                  placeholder={__("select from create date ")}
+                  onChange={(date) => onChange(date, 'createDate')}
                 />
               </DateContainer>
             </FormGroup>
           </Column>
           <Column>
             <FormGroup>
-              <ControlLabel>{__("Start Date")}</ControlLabel>
+              <ControlLabel>{__('Start Date')}</ControlLabel>
               <DateContainer>
                 <DateControl
                   name="startDate"
                   value={plan.startDate}
-                  placeholder="select from start date "
-                  onChange={(date) => onChange(date, "startDate")}
+                  placeholder={__("select from start date ")}
+                  onChange={(date) => onChange(date, 'startDate')}
                 />
               </DateContainer>
             </FormGroup>
           </Column>
           <Column>
             <FormGroup>
-              <ControlLabel>{__("End Date")}</ControlLabel>
+              <ControlLabel>{__('End Date')}</ControlLabel>
               <DateContainer>
                 <DateControl
                   name="closeDate"
                   value={plan.closeDate}
-                  placeholder="select from end date "
-                  onChange={(date) => onChange(date, "closeDate")}
+                  placeholder={__("select from end date ")}
+                  onChange={(date) => onChange(date, 'closeDate')}
                 />
               </DateContainer>
             </FormGroup>

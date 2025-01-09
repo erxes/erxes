@@ -85,8 +85,8 @@ export function getToolbarControl({
     if (
       items.some((item) =>
         ['alignLeft', 'alignRight', 'alignCenter', 'alignJustify'].includes(
-          item,
-        ),
+          item
+        )
       )
     )
       return [
@@ -107,17 +107,17 @@ export function getToolbarControl({
   } else {
     if (!isValidToolbarParam(control)) return null;
 
-    const controlItems = control.items.map((item: any, index: number) =>
-      getControlItem(item, item + index),
+    const controlItems = control.items.map((item: any) =>
+      getControlItem(item, item)
     );
 
     if (!control.isMoreControl)
       return (
         <RichTextEditor.ControlsGroup
+          key={control.items.join('-')}
           isDropdown={true}
           controlNames={getControlNames(control.items)}
           toolbarPlacement={toolbarLocation}
-          key={getControlNames(control.items).toString()}
         >
           {controlItems}
         </RichTextEditor.ControlsGroup>
@@ -125,7 +125,7 @@ export function getToolbarControl({
     return (
       <RichTextEditor.MoreControl
         toolbarPlacement={toolbarLocation}
-        key={getControlNames(control.items).toString()}
+        key={control.items.join('-')}
       >
         {controlItems}
       </RichTextEditor.MoreControl>
@@ -141,9 +141,12 @@ export const getToolbar = ({ toolbar, toolbarLocation }: ToolbarParamType) => {
       // Separator encountered, push the current group to the controlGroups array
       if (currentGroup.length > 0) {
         controlGroups.push(
-          <RichTextEditor.ControlsGroup key={`$${item}-${index}`}>
-            {currentGroup}
-          </RichTextEditor.ControlsGroup>,
+          <React.Fragment key={`${item}-${index}`}>
+            <RichTextEditor.ControlsGroup>
+              {currentGroup}
+            </RichTextEditor.ControlsGroup>
+            <RichTextEditor.Separator />
+          </React.Fragment>
         );
         currentGroup = [];
       }
@@ -158,7 +161,7 @@ export const getToolbar = ({ toolbar, toolbarLocation }: ToolbarParamType) => {
     controlGroups.push(
       <RichTextEditor.ControlsGroup key={`last-group-${controlGroups.length}`}>
         {currentGroup}
-      </RichTextEditor.ControlsGroup>,
+      </RichTextEditor.ControlsGroup>
     );
   }
   return controlGroups;

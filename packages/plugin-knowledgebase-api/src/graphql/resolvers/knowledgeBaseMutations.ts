@@ -1,12 +1,12 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from "@erxes/api-utils/src/permissions";
 
-import { ITopic } from '../../models/definitions/knowledgebase';
-import { IArticleCreate, ICategoryCreate } from '../../models/KnowledgeBase';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
-import { MODULE_NAMES } from '../../constants';
-import { IContext } from '../../connectionResolver';
-import { sendCoreMessage, sendSegmentsMessage } from '../../messageBroker';
-import { stripHtml } from '@erxes/api-utils/src/core';
+import { ITopic } from "../../models/definitions/knowledgebase";
+import { IArticleCreate, ICategoryCreate } from "../../models/KnowledgeBase";
+import { putCreateLog, putDeleteLog, putUpdateLog } from "../../logUtils";
+import { MODULE_NAMES } from "../../constants";
+import { IContext } from "../../connectionResolver";
+import { sendCoreMessage } from "../../messageBroker";
+import { stripHtml } from "@erxes/api-utils/src/core";
 
 const knowledgeBaseMutations = {
   /**
@@ -195,6 +195,14 @@ const knowledgeBaseMutations = {
     { doc }: { doc: IArticleCreate },
     { user, models, subdomain }: IContext
   ) {
+    if (doc.status === 'scheduled' && !doc.scheduledDate) {
+      throw new Error('Scheduled Date must be supplied');
+    }
+
+    if(doc.status === 'scheduled' && doc.scheduledDate && doc.scheduledDate < new Date()){
+      throw new Error('Scheduled Date can not be in the past !');
+    }
+
     const kbArticle = await models.KnowledgeBaseArticles.createDoc(
       doc,
       user._id
@@ -215,14 +223,23 @@ const knowledgeBaseMutations = {
       user
     );
 
+    await sendCoreMessage({
+      subdomain,
+      action: 'registerOnboardHistory',
+      data: {
+        type: 'knowledgeBaseArticleCreate',
+        user
+      }
+    });
+
     const topic = await models.KnowledgeBaseTopics.findOne({
       _id: kbArticle.topicId
     });
 
     if (topic && topic.notificationSegmentId) {
-      const userIds = await sendSegmentsMessage({
+      const userIds = await sendCoreMessage({
         subdomain,
-        action: 'fetchSegment',
+        action: "fetchSegment",
         data: {
           segmentId: topic.notificationSegmentId
         },
@@ -231,13 +248,13 @@ const knowledgeBaseMutations = {
 
       sendCoreMessage({
         subdomain,
-        action: 'sendMobileNotification',
+        action: "sendMobileNotification",
         data: {
           title: doc.title,
           body: stripHtml(doc.content),
-          receivers: userIds.filter(userId => userId !== user._id),
+          receivers: userIds.filter((userId) => userId !== user._id),
           data: {
-            type: 'knowledge',
+            type: "knowledge",
             id: kbArticle._id
           }
         }
@@ -256,6 +273,15 @@ const knowledgeBaseMutations = {
     { user, models, subdomain }: IContext
   ) {
     const kbArticle = await models.KnowledgeBaseArticles.getArticle(_id);
+
+    if (doc.status === 'scheduled' && !doc.scheduledDate) {
+      throw new Error('Scheduled Date must be supplied');
+    }
+
+    if(doc.status === 'scheduled' && doc.scheduledDate && doc.scheduledDate < new Date()){
+      throw new Error('Scheduled Date can not be in the past !');
+    }
+
     const updated = await models.KnowledgeBaseArticles.updateDoc(
       _id,
       doc,
@@ -300,55 +326,63 @@ const knowledgeBaseMutations = {
     );
 
     return removed;
+  },
+
+  async knowledgeBaseArticlesIncrementViewCount(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    return await models.KnowledgeBaseArticles.incrementViewCount(_id);
   }
 };
 
 checkPermission(
   knowledgeBaseMutations,
-  'knowledgeBaseTopicsAdd',
-  'manageKnowledgeBase'
+  "knowledgeBaseTopicsAdd",
+  "manageKnowledgeBase"
 );
 checkPermission(
   knowledgeBaseMutations,
-  'knowledgeBaseTopicsEdit',
-  'manageKnowledgeBase'
+  "knowledgeBaseTopicsEdit",
+  "manageKnowledgeBase"
 );
 checkPermission(
   knowledgeBaseMutations,
-  'knowledgeBaseTopicsRemove',
-  'manageKnowledgeBase'
-);
-
-checkPermission(
-  knowledgeBaseMutations,
-  'knowledgeBaseCategoriesAdd',
-  'manageKnowledgeBase'
-);
-checkPermission(
-  knowledgeBaseMutations,
-  'knowledgeBaseCategoriesEdit',
-  'manageKnowledgeBase'
-);
-checkPermission(
-  knowledgeBaseMutations,
-  'knowledgeBaseCategoriesRemove',
-  'manageKnowledgeBase'
+  "knowledgeBaseTopicsRemove",
+  "manageKnowledgeBase"
 );
 
 checkPermission(
   knowledgeBaseMutations,
-  'knowledgeBaseArticlesAdd',
-  'manageKnowledgeBase'
+  "knowledgeBaseCategoriesAdd",
+  "manageKnowledgeBase"
 );
 checkPermission(
   knowledgeBaseMutations,
-  'knowledgeBaseArticlesEdit',
-  'manageKnowledgeBase'
+  "knowledgeBaseCategoriesEdit",
+  "manageKnowledgeBase"
 );
 checkPermission(
   knowledgeBaseMutations,
-  'knowledgeBaseArticlesRemove',
-  'manageKnowledgeBase'
+  "knowledgeBaseCategoriesRemove",
+  "manageKnowledgeBase"
+);
+
+checkPermission(
+  knowledgeBaseMutations,
+  "knowledgeBaseArticlesAdd",
+  "manageKnowledgeBase"
+);
+checkPermission(
+  knowledgeBaseMutations,
+  "knowledgeBaseArticlesEdit",
+  "manageKnowledgeBase"
+);
+checkPermission(
+  knowledgeBaseMutations,
+  "knowledgeBaseArticlesRemove",
+  "manageKnowledgeBase"
 );
 
 export default knowledgeBaseMutations;

@@ -55,8 +55,11 @@ export interface IAbsenceType {
   shiftRequest: boolean;
 
   requestType: string;
+  requestToType: string;
   requestTimeType: string;
   requestHoursPerDay?: number;
+  absenceUserIds?: [string];
+  branchIds?: [string];
 }
 
 export interface IReport {
@@ -170,19 +173,11 @@ export interface IScheduleConfig {
   lunchBreakInMins: number;
   shiftStart: string;
   shiftEnd: string;
+  locations: any[];
+  startFlexible?: boolean;
+  endFlexible?: boolean;
+  overtimeExists?: boolean;
   configDays: IScheduleConfigDays[];
-}
-
-export interface IScheduleConfigOrder {
-  _id?: string;
-  userId: string;
-  orderedList: IScheduleConfigOrderItem[];
-}
-export interface IScheduleConfigOrderItem {
-  scheduleConfigId: string;
-  order: number;
-  pinned: boolean;
-  label?: string;
 }
 
 export interface IScheduleConfigDays {
@@ -248,10 +243,6 @@ export type PayDatesQueryResponse = {
   loading: boolean;
 };
 
-export type ScheduleConfigOrderQueryResponse = {
-  scheduleConfigOrder: IScheduleConfigOrder;
-} & QueryResponse;
-
 export type HolidaysQueryResponse = {
   holidays: IAbsence[];
 } & QueryResponse;
@@ -263,7 +254,10 @@ export type ScheduleConfigQueryResponse = {
 export type DepartmentsQueryResponse = {
   timeclockDepartments: IDepartment[];
   departments: IDepartment[];
-};
+} & QueryResponse;
+export type DepartmentsQueryAdminResponse = {
+  departments: IDepartment[];
+} & QueryResponse;
 export type DeviceConfigsQueryResponse = {
   deviceConfigs: { list: IDeviceConfig[]; totalCount: number };
 } & QueryResponse;
@@ -275,6 +269,10 @@ export type ScheduleQueryResponse = {
 export type BranchesQueryResponse = {
   branches: IBranch[];
   timeclockBranches: IBranch[];
+} & QueryResponse;
+
+export type BranchesQueryAdminResponse = {
+  branches: IBranch[];
 } & QueryResponse;
 
 export type ReportsQueryResponse = {
@@ -472,6 +470,5 @@ export type ScheduleMutationResponse = {
     variables: ScheduleMutationVariables;
   }) => Promise<any>;
 
-  scheduleConfigOrderEditMutation: (params: { variables: any }) => Promise<any>;
   editScheduleMutation: (params: { variables: any }) => Promise<any>;
 };

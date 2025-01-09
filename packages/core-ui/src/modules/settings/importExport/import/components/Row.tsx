@@ -6,17 +6,23 @@ import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "modules/common/utils";
 import Select from "react-select";
 import dayjs from "dayjs";
+import { IColumnWithChosenField, IImportColumn } from "../../types";
+import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
 
 type Props = {
-  columns: any[];
+  columns: IImportColumn;
   column: string;
-  fields: any[];
-  columnWithChosenField: any;
+  fields: FieldsCombinedByType[];
+  columnWithChosenField: IColumnWithChosenField;
   onChangeColumn: (column, value, contentType, columns) => void;
   contentType: string;
 };
 
-class Row extends React.Component<Props, {}> {
+type State = {
+  value: string;
+}
+
+class Row extends React.Component<Props, State> {
   renderSampleDatas = () => {
     const { column, columns } = this.props;
 
@@ -33,7 +39,6 @@ class Row extends React.Component<Props, {}> {
 
   onChange = ({ value }) => {
     const { column, contentType, columns } = this.props;
-
     this.props.onChangeColumn(column, value, contentType, columns);
   };
 
@@ -57,17 +62,19 @@ class Row extends React.Component<Props, {}> {
       );
 
       for (const sample of sampleDatas) {
-        if (chosenField.type === "date") {
-          if (!dayjs(sample).isValid()) {
-            matched = false;
+        if(chosenField) {
+          if (chosenField.type === "date") {
+            if (!dayjs(sample).isValid()) {
+              matched = false;
+            }
           }
-        }
-
-        if (chosenField.label && chosenField.label.includes("Email")) {
-          const re = /\S+@\S+\.\S+/;
-
-          if (!re.test(sample)) {
-            matched = false;
+  
+          if (chosenField.label && chosenField.label.includes("Email")) {
+            const re = /\S+@\S+\.\S+/;
+  
+            if (!re.test(sample)) {
+              matched = false;
+            }
           }
         }
       }
@@ -92,12 +99,13 @@ class Row extends React.Component<Props, {}> {
     const renderValue = () => {
       const chosenField = columnWithChosenField[contentType];
 
+
       if (!chosenField) {
         return "";
       }
 
       if (chosenField) {
-        return chosenField[column] && chosenField[column];
+        return renderOptions().find(option => option.value === (chosenField[column] && chosenField[column].value))
       }
 
       return "";

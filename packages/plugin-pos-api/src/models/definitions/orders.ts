@@ -1,6 +1,7 @@
 import { IAttachment } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
+import { SUBSCRIPTION_INFO_STATUS } from '../../contants';
 
 export interface IPosOrderItem {
   createdAt?: Date;
@@ -16,6 +17,7 @@ export interface IPosOrderItem {
   manufacturedDate?: string;
   description?: string;
   attachment?: IAttachment;
+  closeDate?: Date;
 }
 export interface IPosOrderItemDocument extends IPosOrderItem, Document {
   _id: string;
@@ -50,6 +52,7 @@ export interface IPosOrder {
   printedEbarimt?: Boolean;
   billType?: string;
   billId?: string;
+  registerNumber?: string;
   oldBillId?: string;
   type: string;
   userId?: string;
@@ -67,6 +70,10 @@ export interface IPosOrder {
   taxInfo?: any;
   convertDealId?: string;
   returnInfo?: any;
+  subscriptionInfo?: {
+    subscriptionId: string;
+    status: string;
+  };
 }
 export interface IPosOrderDocument extends IPosOrder, Document {
   _id: string;
@@ -129,7 +136,12 @@ const posOrderItemSchema = schemaHooksWrapper(
     }),
     manufacturedDate: field({ type: String, label: 'manufactured' }),
     description: field({ type: String, label: 'Description' }),
-    attachment: field({ type: Object, label: 'Attachment' })
+    attachment: field({ type: Object, label: 'Attachment' }),
+    closeDate: field({
+      type: Date,
+      label: 'Subscription Close Date',
+      optional: true
+    })
   }),
   'erxes_posOrderItem'
 );
@@ -153,6 +165,25 @@ const returnInfoSchema = new Schema({
   returnBy: field({ type: String }),
   description: field({ type: String })
 });
+
+const subscriptionInfo = new Schema(
+  {
+    subscriptionId: field({
+      type: String,
+      label: 'Subscription Id',
+      optional: true
+    }),
+    status: field({
+      type: String,
+      label: 'Subscription Status',
+      enum: SUBSCRIPTION_INFO_STATUS.ALL,
+      default: SUBSCRIPTION_INFO_STATUS.ACTIVE
+    })
+  },
+  {
+    _id: false
+  }
+);
 
 export const posOrderSchema = schemaHooksWrapper(
   new Schema({
@@ -237,7 +268,13 @@ export const posOrderSchema = schemaHooksWrapper(
       type: returnInfoSchema,
       optional: true,
       label: 'Return information'
-    })
+    }),
+    subscriptionInfo: field({
+      type: subscriptionInfo,
+      optional: true,
+      label: 'Subscription Info'
+    }),
+    closeDate: field({ type: Date, optional: true, label: 'Close Date' })
   }),
   'erxes_posOrders'
 );

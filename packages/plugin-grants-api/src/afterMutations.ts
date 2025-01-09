@@ -1,14 +1,14 @@
-import { IModels } from './connectionResolver';
+import { IModels } from "./connectionResolver";
 import {
-  sendCardsMessage,
+  sendCommonMessage,
   sendCoreMessage,
   sendNotificationsMessage
-} from './messageBroker';
+} from "./messageBroker";
 
 export default {
-  'cards:ticket': ['update', 'create'],
-  'cards:task': ['update', 'create'],
-  'cards:deal': ['update', 'create']
+  "tickets:ticket": ["update", "create"],
+  "tasks:task": ["update", "create"],
+  "sales:deal": ["update", "create"]
 };
 
 export const afterMutationHandlers = async (
@@ -24,10 +24,12 @@ export const afterMutationHandlers = async (
     object: { _id, name }
   } = params;
 
+  //test
+
   if (action === 'update') {
     if (type.includes('cards')) {
       if (newData.stageId) {
-        const contentType = type.replace('cards:', '');
+        const contentType = type.replace('cards:', ''); 
 
         const requests = await models.Requests.find({
           $and: [
@@ -49,7 +51,7 @@ export const afterMutationHandlers = async (
           const sourceContentTypes: string[] = [];
 
           for (const request of requests) {
-            const params = JSON.parse(request?.params || '{}');
+            const params = JSON.parse(request?.params || "{}");
 
             if (params.itemId && params.sourceType) {
               itemIds.push(params.itemId);
@@ -59,7 +61,7 @@ export const afterMutationHandlers = async (
 
           const conformities = await sendCoreMessage({
             subdomain,
-            action: 'conformities.findConformities',
+            action: "conformities.findConformities",
             data: {
               relType: contentType,
               mainType: { $in: sourceContentTypes },
@@ -75,18 +77,19 @@ export const afterMutationHandlers = async (
             const request = await models.Requests.findOne({
               contentType: conformity.mainType,
               contentTypeId: conformity.mainTypeId,
-              status: 'approved'
+              status: "approved"
             });
             if (request) {
               const { configs, itemId, sourceType } = JSON.parse(
-                request.params || '{}'
+                request.params || "{}"
               );
 
               for (const config of configs || []) {
                 if (config.sourceStageId === newData.stageId) {
-                  await sendCardsMessage({
+                  await sendCommonMessage({
                     subdomain,
-                    action: 'editItem',
+                    serviceName:contentType,
+                    action: "editItem",
                     data: {
                       itemId,
                       type: sourceType,
@@ -102,34 +105,36 @@ export const afterMutationHandlers = async (
           }
 
           if (!!receiverIds.length) {
-            const link = await sendCardsMessage({
+            const link = await sendCommonMessage({
+              serviceName:contentType,
               subdomain,
               action: 'getLink',
               data: { _id, type: contentType },
               isRPC: true,
-              defaultValue: null
+              defaultValue: null,
             });
 
             await sendNotificationsMessage({
               subdomain,
-              action: 'send',
+              action: "send",
               data: {
                 createdUser: user,
                 receivers: receiverIds,
                 title: `grant`,
                 action: `changed stage of`,
                 content: name,
-                notifType: 'plugin',
+                notifType: "plugin",
                 link: link
               }
             });
             sendCoreMessage({
-              subdomain: 'os',
-              action: 'sendMobileNotification',
+              subdomain: "os",
+              action: "sendMobileNotification",
               data: {
                 title: `Grant`,
-                body: `${user?.details?.fullName ||
-                  user?.details?.shortName} wants ${action}`,
+                body: `${
+                  user?.details?.fullName || user?.details?.shortName
+                } wants ${action}`,
                 receivers: receiverIds,
                 data: { _id, type: contentType }
               }

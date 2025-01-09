@@ -1,9 +1,9 @@
-import { IContext } from '../../../connectionResolver';
-import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
-import { IDayPlanDocument } from '../../../models/definitions/dayPlans';
+import { IContext } from "../../../connectionResolver";
+import { sendCoreMessage } from "../../../messageBroker";
+import { IDayPlanDocument } from "../../../models/definitions/dayPlans";
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.DayPlans.findOne({ _id });
   },
 
@@ -14,7 +14,7 @@ export default {
 
     return await sendCoreMessage({
       subdomain,
-      action: 'branches.findOne',
+      action: "branches.findOne",
       data: { _id: plan.branchId },
       isRPC: true
     });
@@ -27,7 +27,7 @@ export default {
 
     return await sendCoreMessage({
       subdomain,
-      action: 'departments.findOne',
+      action: "departments.findOne",
       data: { _id: plan.departmentId },
       isRPC: true
     });
@@ -38,9 +38,9 @@ export default {
       return;
     }
 
-    return await sendProductsMessage({
+    return await sendCoreMessage({
       subdomain,
-      action: 'findOne',
+      action: "products.findOne",
       data: { _id: plan.productId },
       isRPC: true
     });

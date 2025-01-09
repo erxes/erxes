@@ -11,7 +11,7 @@ import React from 'react';
 
 type Props = {
   navCollapse: number;
-  onClickHandleIcon: (event: any) => void;
+  onClickHandleIcon: (type: string) => void;
 };
 
 export default class Navigation extends React.Component<Props> {

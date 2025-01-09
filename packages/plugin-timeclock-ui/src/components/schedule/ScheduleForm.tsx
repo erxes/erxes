@@ -1,42 +1,33 @@
-import * as icons from "react-bootstrap-icons";
-
-import { Alert, __ } from "@erxes/ui/src/utils";
+import { Alert, __ } from '@erxes/ui/src/utils';
 import {
-  CustomContainer,
   FlexCenter,
   FlexColumn,
   FlexRow,
   MarginX,
   MarginY,
-  SortItem,
-} from "../../styles";
-import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
-import {
-  ISchedule,
-  IScheduleConfig,
-  IScheduleConfigOrder,
-  IScheduleForm,
-} from "../../types";
-import React, { useEffect, useState } from "react";
-import { compareStartAndEndTime, prepareCurrentUserOption } from "../../utils";
-import { dateFormat, timeFormat } from "../../constants";
+} from '../../styles';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
+import { ISchedule, IScheduleConfig, IScheduleForm } from '../../types';
+import React, { useState } from 'react';
+import { compareStartAndEndTime, prepareCurrentUserOption } from '../../utils';
+import { dateFormat, timeFormat } from '../../constants';
 
-import Button from "@erxes/ui/src/components/Button";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import DatePicker from "../datepicker/DatePicker";
-import DateRange from "../datepicker/DateRange";
-import Datetime from "@nateradebaugh/react-datetime";
-import { FormControl } from "@erxes/ui/src/components/form";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IUser } from "@erxes/ui/src/auth/types";
-import Icon from "@erxes/ui/src/components/Icon";
-import Popover from "@erxes/ui/src/components/Popover";
-import { PopoverButton } from "@erxes/ui/src/styles/main";
-import { Row } from "../../styles";
-import Select from "react-select";
-import SelectDepartments from "@erxes/ui-settings/src/departments/containers/SelectDepartments";
-import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import dayjs from "dayjs";
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import DatePicker from '../datepicker/DatePicker';
+import DateRange from '../datepicker/DateRange';
+import Datetime from '@nateradebaugh/react-datetime';
+import { FormControl } from '@erxes/ui/src/components/form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Popover from '@erxes/ui/src/components/Popover';
+import { PopoverButton } from '@erxes/ui/src/styles/main';
+import { Row } from '../../styles';
+import Select from 'react-select';
+import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import dayjs from 'dayjs';
 
 type Props = {
   currentUser: IUser;
@@ -49,10 +40,8 @@ type Props = {
   queryParams: any;
   modalContentType: string;
   scheduleConfigs: IScheduleConfig[];
-  scheduleConfigOrder?: IScheduleConfigOrder;
 
   checkDuplicateScheduleShifts: (values: any) => any;
-  scheduleConfigOrderEdit: (values: any) => any;
   editSchedule: (scheduleId: string, shifts: any, closeModal: any) => any;
 
   closeModal: any;
@@ -69,9 +58,7 @@ function ScheduleForm(props: Props) {
 
     modalContentType,
     scheduleConfigs,
-    scheduleConfigOrder,
     checkDuplicateScheduleShifts,
-    scheduleConfigOrderEdit,
     editSchedule,
 
     scheduleOfMember,
@@ -114,7 +101,7 @@ function ScheduleForm(props: Props) {
   };
 
   if (!scheduleConfigs) {
-    Alert.error("Please add schedule config in configuration section!");
+    Alert.error('Please add schedule config in configuration section!');
   }
 
   const filterParams = isCurrentUserAdmin
@@ -131,26 +118,10 @@ function ScheduleForm(props: Props) {
     scheduleConfigsObject[scheduleConfig._id] = scheduleConfig;
   });
 
-  const [scheduleConfigsOrderData, setScheduleConfigsOrderData] = useState({
-    userId: currentUser._id,
-    orderedList:
-      scheduleConfigOrder &&
-      scheduleConfigOrder.orderedList.length === scheduleConfigs.length
-        ? scheduleConfigOrder.orderedList
-        : scheduleConfigs.map((s, index) => {
-            return {
-              scheduleConfigId: s._id,
-              order: index,
-              pinned: false,
-              label: `${s.shiftStart} ~ ${s.shiftEnd}\xa0\xa0\xa0(${s.scheduleName})`,
-            };
-          }),
-  });
-
   const [inputDefaultChecked, setInputDefaultChecked] = useState(false);
 
   const [selectedScheduleConfigId, setScheduleConfigId] = useState(
-    scheduleConfigsOrderData.orderedList[0]?.scheduleConfigId
+    scheduleOfMember.scheduleConfigId || scheduleConfigs[0]?._id
   );
 
   const [lastSelectedDate, setlastSelectedDate] = useState(new Date());
@@ -177,7 +148,7 @@ function ScheduleForm(props: Props) {
       : 0
   );
 
-  const [contentType, setContentType] = useState("By Date Range");
+  const [contentType, setContentType] = useState('By Date Range');
 
   const [userIds, setUserIds] = useState(
     scheduleOfMember?.user?._id ? [scheduleOfMember?.user?._id] : []
@@ -186,15 +157,7 @@ function ScheduleForm(props: Props) {
   const [departmentIds, setDepartmentIds] = useState([]);
   const [branchIds, setBranchIds] = useState<any[]>([]);
 
-  const [showScheduleConfigOrder, setShowScheduleConfigOrder] = useState(false);
-
   const [overlayTrigger, setOverlayTrigger] = useState<any>(null);
-
-  useEffect(() => {
-    setScheduleConfigId(
-      scheduleConfigsOrderData.orderedList[0].scheduleConfigId
-    );
-  }, [scheduleConfigsOrderData]);
 
   const renderBranchOptions = (branchesList: any[]) => {
     return branchesList.map((branch) => ({
@@ -205,9 +168,9 @@ function ScheduleForm(props: Props) {
   };
 
   const renderScheduleConfigOptions = () => {
-    return scheduleConfigsOrderData.orderedList.map((s) => ({
-      value: s.scheduleConfigId,
-      label: s.label,
+    return scheduleConfigs.map((s) => ({
+      value: s._id,
+      label: s.scheduleName,
     }));
   };
 
@@ -230,13 +193,13 @@ function ScheduleForm(props: Props) {
 
       const getShiftStart = dayjs(
         shiftDay?.toLocaleDateString() +
-          " " +
+          ' ' +
           scheduleConfigsObject[selectedScheduleConfidId].shiftStart
       ).toDate();
 
       const getShiftEnd = dayjs(
         shiftDay?.toLocaleDateString() +
-          " " +
+          ' ' +
           scheduleConfigsObject[selectedScheduleConfidId].shiftEnd
       ).toDate();
 
@@ -332,21 +295,6 @@ function ScheduleForm(props: Props) {
     ];
   };
 
-  // const onScheduleEdit = async () => {
-  //   const checkDuplicateShifts = await checkDuplicateScheduleShifts({
-  //     branchIds,
-  //     departmentIds,
-  //     userIds,
-  //     shifts: pickSubset,
-  //     checkOnly: true,
-  //     status: 'Approved'
-  //   });
-
-  //   if (!checkDuplicateShifts.length) {
-  //     editSchedule(scheduleId, pickSubset);
-  //   }
-  // };
-
   const onSubmitClick = () => {
     if (scheduleId) {
       editSchedule(scheduleId, pickSubset, closeModal);
@@ -359,7 +307,8 @@ function ScheduleForm(props: Props) {
       userIds,
       shifts: pickSubset,
       totalBreakInMins: calculateScheduledDaysAndHours()[2],
-      userType: "employee",
+      userType: 'employee',
+      scheduleConfigId: selectedScheduleConfigId,
       closeModal,
     });
   };
@@ -376,9 +325,10 @@ function ScheduleForm(props: Props) {
       userIds,
       shifts: pickSubset,
       totalBreakInMins: calculateScheduledDaysAndHours()[2],
-      userType: "admin",
+      userType: 'admin',
+      scheduleConfigId: selectedScheduleConfigId,
       closeModal,
-      status: "Approved",
+      status: 'Approved',
     });
   };
 
@@ -403,15 +353,15 @@ function ScheduleForm(props: Props) {
     const prevScheduleDates = scheduleDates;
 
     const getLatestDayKey = dates_arr.length
-      ? dayjs(dates_arr[0]).add(1, "day").toDate().toLocaleDateString()
+      ? dayjs(dates_arr[0]).add(1, 'day').toDate().toLocaleDateString()
       : new Date().toLocaleDateString();
 
     const [getCorrectShiftStart, getCorrectShiftEnd, overnight] =
       compareStartAndEndTime(
         scheduleDates,
         getLatestDayKey,
-        new Date(getLatestDayKey + " " + defaultStartTime),
-        new Date(getLatestDayKey + " " + defaultEndTime)
+        new Date(getLatestDayKey + ' ' + defaultStartTime),
+        new Date(getLatestDayKey + ' ' + defaultEndTime)
       );
 
     prevScheduleDates[scheduleDaysLastIdx] = {
@@ -447,10 +397,10 @@ function ScheduleForm(props: Props) {
         scheduleDates,
         shiftDate,
         new Date(
-          shiftDate + " " + scheduleConfigsObject[scheduleConfigId].shiftStart
+          shiftDate + ' ' + scheduleConfigsObject[scheduleConfigId].shiftStart
         ),
         new Date(
-          shiftDate + " " + scheduleConfigsObject[scheduleConfigId].shiftEnd
+          shiftDate + ' ' + scheduleConfigsObject[scheduleConfigId].shiftEnd
         )
       );
 
@@ -486,15 +436,15 @@ function ScheduleForm(props: Props) {
     const getDate = dayjs(scheduleDates[day_key].shiftDate).format(dateFormat);
     const getTime = dayjs(timeVal).format(timeFormat);
 
-    if (type === "start") {
+    if (type === 'start') {
       const [correctShiftStart, correctShiftEnd, isOvernightShift] =
         compareStartAndEndTime(
           scheduleDates,
           day_key,
-          new Date(getDate + " " + getTime),
+          new Date(getDate + ' ' + getTime),
           new Date(
             getDate +
-              " " +
+              ' ' +
               dayjs(scheduleDates[day_key].shiftEnd).format(timeFormat)
           ),
           getDate
@@ -510,10 +460,10 @@ function ScheduleForm(props: Props) {
           day_key,
           new Date(
             getDate +
-              " " +
+              ' ' +
               dayjs(scheduleDates[day_key].shiftStart).format(timeFormat)
           ),
-          new Date(getDate + " " + getTime),
+          new Date(getDate + ' ' + getTime),
           getDate
         );
       prevScheduleDates[day_key].shiftStart = correctShiftStart;
@@ -570,10 +520,10 @@ function ScheduleForm(props: Props) {
           btnStyle="success"
           style={{ marginTop: 10 }}
           onClick={() =>
-            userType === "admin" ? onAdminSubmitClick() : onSubmitClick()
+            userType === 'admin' ? onAdminSubmitClick() : onSubmitClick()
           }
         >
-          {"Submit"}
+          {'Submit'}
         </Button>
       </FlexCenter>
     );
@@ -582,12 +532,12 @@ function ScheduleForm(props: Props) {
   const dateSelection = () => (
     <FlexColumn $marginNum={20}>
       <FlexRow>
-        <div style={{ width: "60%" }}>
+        <div style={{ width: '60%' }}>
           <Popover
             placement="top-start"
             trigger={
               <PopoverButton>
-                {__("Please select date")}
+                {__('Please select date')}
                 <Icon icon="angle-down" />
               </PopoverButton>
             }
@@ -607,14 +557,13 @@ function ScheduleForm(props: Props) {
         filterParams={filterParams}
         initialValue={userIds}
         customOption={prepareCurrentUserOption(currentUser)}
-        label={"Team member"}
+        label={__('Team member')}
         onSelect={onUserSelect}
         multi={false}
         name="userId"
       />
       {displayTotalDaysHoursBreakMins()}
-      {scheduleConfitOrderBox}
-      {showScheduleConfigOrder && scheduleConfigOrderContent}
+
       <FormGroup>
         <ControlLabel>Select schedule for all</ControlLabel>
         <Select
@@ -629,7 +578,7 @@ function ScheduleForm(props: Props) {
       </FormGroup>
       {dateSelection()}
       {renderWeekDays()}
-      {actionButtons("employee")}
+      {actionButtons('employee')}
     </FlexColumn>
   );
 
@@ -642,7 +591,7 @@ function ScheduleForm(props: Props) {
 
     return (
       <FlexCenter>
-        <div style={{ width: "35%" }}>
+        <div style={{ width: '35%' }}>
           <FlexRow>
             <MarginX margin={20}>
               <FlexColumn $marginNum={0}>
@@ -662,129 +611,8 @@ function ScheduleForm(props: Props) {
     );
   };
 
-  const omitTypeName = (scheduleConfigOrderData: IScheduleConfigOrder) => {
-    const orderData = scheduleConfigOrderData;
-
-    return {
-      userId: orderData.userId,
-      orderedList: orderData.orderedList.map((s) => ({
-        order: s.order,
-        scheduleConfigId: s.scheduleConfigId,
-        pinned: s.pinned,
-        label: s.label,
-      })),
-    };
-  };
-
-  const scheduleConfigOrderDataEdit = (scheduleConfigOrderData: any) => {
-    setScheduleConfigsOrderData(scheduleConfigOrderData);
-    scheduleConfigOrderEdit(omitTypeName(scheduleConfigOrderData));
-  };
-
-  const unpinScheduleConfig = (currentConfigOrder: number) => {
-    let firstUnpinnedOrderNum = scheduleConfigsOrderData.orderedList.length;
-
-    const newScheduleConfigsOrderData = scheduleConfigsOrderData;
-
-    for (const scheduleConfigsOrderItem of newScheduleConfigsOrderData.orderedList) {
-      if (!scheduleConfigsOrderItem.pinned) {
-        firstUnpinnedOrderNum = scheduleConfigsOrderItem.order;
-        break;
-      }
-    }
-
-    const lastPinnedOrderNum = firstUnpinnedOrderNum - 1;
-
-    for (const scheduleConfigsOrderItem of newScheduleConfigsOrderData.orderedList) {
-      if (scheduleConfigsOrderItem.order < currentConfigOrder) {
-        continue;
-      }
-
-      if (scheduleConfigsOrderItem.order > lastPinnedOrderNum) {
-        break;
-      }
-
-      if (scheduleConfigsOrderItem.order === currentConfigOrder) {
-        scheduleConfigsOrderItem.order = lastPinnedOrderNum;
-        scheduleConfigsOrderItem.pinned = false;
-        continue;
-      }
-      scheduleConfigsOrderItem.order = scheduleConfigsOrderItem.order - 1;
-    }
-
-    scheduleConfigOrderDataEdit({ ...newScheduleConfigsOrderData });
-  };
-
-  const pinScheduleConfig = (currentConfigOrder: number) => {
-    let firstUnpinnedOrderNum = 0;
-
-    const newScheduleConfigsOrderData = scheduleConfigsOrderData;
-
-    for (const scheduleConfigsOrderItem of newScheduleConfigsOrderData.orderedList) {
-      if (!scheduleConfigsOrderItem.pinned) {
-        firstUnpinnedOrderNum = scheduleConfigsOrderItem.order;
-        break;
-      }
-    }
-
-    const lastPinnedOrderNum = firstUnpinnedOrderNum - 1;
-
-    for (const scheduleConfigsOrderItem of newScheduleConfigsOrderData.orderedList) {
-      if (scheduleConfigsOrderItem.order > currentConfigOrder) {
-        break;
-      }
-
-      if (scheduleConfigsOrderItem.order <= lastPinnedOrderNum) {
-        continue;
-      }
-
-      if (scheduleConfigsOrderItem.order === currentConfigOrder) {
-        scheduleConfigsOrderItem.order = firstUnpinnedOrderNum;
-        scheduleConfigsOrderItem.pinned = true;
-        continue;
-      }
-      scheduleConfigsOrderItem.order = scheduleConfigsOrderItem.order + 1;
-    }
-
-    scheduleConfigOrderDataEdit({ ...newScheduleConfigsOrderData });
-  };
-
-  const scheduleConfitOrderBox = (
-    <CustomContainer
-      onClick={() => setShowScheduleConfigOrder(!showScheduleConfigOrder)}
-    >
-      <ControlLabel>Select schedule configs order</ControlLabel>
-      <MarginX margin={5}>
-        {showScheduleConfigOrder ? (
-          <Icon icon="angle-down" />
-        ) : (
-          <Icon icon="angle-right" />
-        )}
-      </MarginX>
-    </CustomContainer>
-  );
-  const scheduleConfigOrderContent = (
-    <>
-      {scheduleConfigsOrderData.orderedList
-        .sort((a, b) => a.order - b.order)
-        .map((s: any) => (
-          <SortItem key={s.scheduleConfigId}>
-            <div>{s.label}</div>
-            {s.pinned ? (
-              <icons.PinFill
-                color="#673FBD"
-                onClick={() => unpinScheduleConfig(s.order)}
-              />
-            ) : (
-              <icons.Pin onClick={() => pinScheduleConfig(s.order)} />
-            )}
-          </SortItem>
-        ))}
-    </>
-  );
-
   const adminConfigDefaultContent = () => {
-    const contentTypeOptions = ["By Date Range", "By Date Selection"].map(
+    const contentTypeOptions = ['By Date Range', 'By Date Selection'].map(
       (day) => ({
         value: day,
         label: __(day),
@@ -793,7 +621,7 @@ function ScheduleForm(props: Props) {
 
     return (
       <FlexColumn $marginNum={10}>
-        <div style={{ marginBottom: "0" }}>
+        <div style={{ marginBottom: '0' }}>
           <SelectDepartments
             disabled={scheduleId ? true : false}
             isRequired={false}
@@ -802,7 +630,7 @@ function ScheduleForm(props: Props) {
           />
         </div>
         <FormGroup>
-          <div style={{ marginBottom: "0" }}>
+          <div style={{ marginBottom: '0' }}>
             <ControlLabel>Branches</ControlLabel>
             <Row>
               <Select
@@ -814,7 +642,7 @@ function ScheduleForm(props: Props) {
                   )
                 }
                 onChange={onBranchSelect}
-                placeholder="Select branch"
+                placeholder={__('Select branch')}
                 isMulti={true}
                 options={branches && renderBranchOptions(branches)}
               />
@@ -822,23 +650,21 @@ function ScheduleForm(props: Props) {
           </div>
         </FormGroup>
         <FormGroup>
-          <div style={{ marginBottom: "0" }}>
+          <div style={{ marginBottom: '0' }}>
             <ControlLabel>Team members </ControlLabel>
-            <div style={{ width: "100%" }}>
+            <div style={{ width: '100%' }}>
               <SelectTeamMembers
                 customField="employeeId"
                 filterParams={filterParams}
                 customOption={prepareCurrentUserOption(currentUser)}
                 initialValue={userIds}
-                label={"Select team member"}
+                label={__('Select team member')}
                 onSelect={onUserSelect}
                 name="userId"
               />
             </div>
           </div>
         </FormGroup>
-        {scheduleConfitOrderBox}
-        {showScheduleConfigOrder && scheduleConfigOrderContent}
 
         <FormGroup>
           <ControlLabel>Select schedule for all</ControlLabel>
@@ -869,14 +695,14 @@ function ScheduleForm(props: Props) {
         <Select
           value={contentTypeOptions.find((o) => o.value === contentType)}
           onChange={onContentTypeSelect}
-          placeholder="Select Content Type"
+          placeholder={__('Select Content Type')}
           isClearable={true}
           options={contentTypeOptions}
         />
 
         <MarginY margin={20}>{displayTotalDaysHoursBreakMins()}</MarginY>
         {renderAdminConfigSwitchContent()}
-        {actionButtons("admin")}
+        {actionButtons('admin')}
       </FlexColumn>
     );
   };
@@ -898,7 +724,7 @@ function ScheduleForm(props: Props) {
 
     while (temp <= endRange) {
       totalDatesArray.push(temp.format(dateFormat));
-      temp = temp.add(1, "day");
+      temp = temp.add(1, 'day');
     }
 
     const newDatesByRange: IScheduleForm = {};
@@ -922,8 +748,8 @@ function ScheduleForm(props: Props) {
         compareStartAndEndTime(
           scheduleDates,
           eachDay,
-          new Date(eachDay + " " + defaultStartTime),
-          new Date(eachDay + " " + defaultEndTime),
+          new Date(eachDay + ' ' + defaultStartTime),
+          new Date(eachDay + ' ' + defaultEndTime),
           eachDay
         );
 
@@ -945,19 +771,19 @@ function ScheduleForm(props: Props) {
   };
 
   const displayStartEndBreak = (
-    <FlexRow style={{ width: "40%" }}>
-      <ControlLabel>{__("Start:")} </ControlLabel>
-      <ControlLabel>{__("End:")} </ControlLabel>
-      <ControlLabel>{__("Break:")} </ControlLabel>
-      <ControlLabel>{__("Input:")} </ControlLabel>
-      <ControlLabel>{__("Delete:")} </ControlLabel>
+    <FlexRow style={{ width: '40%' }}>
+      <ControlLabel>{__('Start:')} </ControlLabel>
+      <ControlLabel>{__('End:')} </ControlLabel>
+      <ControlLabel>{__('Break:')} </ControlLabel>
+      <ControlLabel>{__('Input:')} </ControlLabel>
+      <ControlLabel>{__('Delete:')} </ControlLabel>
     </FlexRow>
   );
   const adminConfigByDateRange = () => {
     return (
       <FlexColumn $marginNum={20}>
         <FlexRow>
-          <div style={{ width: "60%" }}>
+          <div style={{ width: '60%' }}>
             <DateRange
               showTime={false}
               startDate={dateRangeStart}
@@ -978,8 +804,8 @@ function ScheduleForm(props: Props) {
     if (dateString) {
       // handle click on a different month
       if (
-        JSON.stringify(dateString).split("-")[1] !==
-        JSON.stringify(lastSelectedDate).split("-")[1]
+        JSON.stringify(dateString).split('-')[1] !==
+        JSON.stringify(lastSelectedDate).split('-')[1]
       ) {
         setlastSelectedDate(new Date(dateString));
       }
@@ -1006,8 +832,8 @@ function ScheduleForm(props: Props) {
         compareStartAndEndTime(
           scheduleDates,
           getDate,
-          new Date(getDate + " " + defaultStartTime),
-          new Date(getDate + " " + defaultEndTime),
+          new Date(getDate + ' ' + defaultStartTime),
+          new Date(getDate + ' ' + defaultEndTime),
           getDate
         );
 
@@ -1049,7 +875,7 @@ function ScheduleForm(props: Props) {
     return (
       <td
         {...dateTimeProps}
-        className={`rdtDay ${isSelected ? "rdtActive" : ""}`}
+        className={`rdtDay ${isSelected ? 'rdtActive' : ''}`}
       >
         {new Date(currentDate).getDate()}
       </td>
@@ -1058,7 +884,7 @@ function ScheduleForm(props: Props) {
 
   const renderDateSelection = () => {
     return (
-      <div style={{ position: "relative" }}>
+      <div style={{ position: 'relative' }}>
         <Datetime
           open={true}
           input={false}
@@ -1081,12 +907,12 @@ function ScheduleForm(props: Props) {
   const adminConfigBySelect = () => (
     <FlexColumn $marginNum={20}>
       <FlexRow>
-        <div style={{ width: "60%" }}>
+        <div style={{ width: '60%' }}>
           <Popover
             placement="top-start"
             trigger={
               <PopoverButton>
-                {__("Please select date")}
+                {__('Please select date')}
                 <Icon icon="angle-down" />
               </PopoverButton>
             }
@@ -1101,16 +927,16 @@ function ScheduleForm(props: Props) {
   );
 
   const onContentTypeSelect = (contntType) => {
-    localStorage.setItem("contentType", JSON.stringify(contntType));
+    localStorage.setItem('contentType', JSON.stringify(contntType));
     const contType = JSON.parse(
-      localStorage.getItem("contentType") || "[]"
+      localStorage.getItem('contentType') || '[]'
     ).value;
     setContentType(contType);
   };
 
   const renderAdminConfigSwitchContent = () => {
     switch (contentType) {
-      case "By Date Selection":
+      case 'By Date Selection':
         return adminConfigBySelect();
       default:
         return adminConfigByDateRange();
@@ -1118,7 +944,7 @@ function ScheduleForm(props: Props) {
   };
 
   switch (modalContentType) {
-    case "adminConfig":
+    case 'adminConfig':
       return adminConfigDefaultContent();
     default:
       return modalContent();

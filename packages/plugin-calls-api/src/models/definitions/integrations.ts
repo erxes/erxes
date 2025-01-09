@@ -1,10 +1,11 @@
 import { Schema, Document } from 'mongoose';
 import { field } from './utils';
 
-interface Operator {
+export interface Operator {
   userId: string;
   gsUsername: string;
   gsPassword: string;
+  gsForwardAgent: boolean;
 }
 
 export interface IIntegration {
@@ -13,6 +14,7 @@ export interface IIntegration {
   phone: String;
   operators: [Operator];
   token: String;
+  queues: [String];
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {}
@@ -23,5 +25,6 @@ export const integrationSchema = new Schema({
   wsServer: field({ type: String, label: 'web socket server' }),
   phone: field({ type: String, label: 'phone number', unique: true }),
   operators: field({ type: Object, label: 'Operator maps' }),
-  token: field({ type: String, label: 'token' })
+  token: field({ type: String, label: 'token' }),
+  queues: field({ type: [String], label: 'queues' }),
 });

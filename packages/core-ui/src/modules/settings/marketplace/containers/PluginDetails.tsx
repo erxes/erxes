@@ -8,6 +8,7 @@ import { graphql } from '@apollo/client/react/hoc';
 import { mutations } from '@erxes/ui-settings/src/general/graphql';
 import { queries } from '../graphql';
 import { withProps } from 'modules/common/utils';
+import { Plugin } from '../types';
 
 type Props = {
   id: string;
@@ -19,8 +20,8 @@ type FinalProps = {
 } & Props;
 
 type State = {
-  plugin: any;
-  plugins: any[];
+  plugin: Plugin;
+  plugins: Plugin[];
 };
 
 class PluginDetailsContainer extends React.Component<FinalProps, State> {
@@ -28,7 +29,7 @@ class PluginDetailsContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      plugin: {},
+      plugin: {} as Plugin,
       plugins: []
     };
   }
@@ -36,8 +37,8 @@ class PluginDetailsContainer extends React.Component<FinalProps, State> {
   async componentDidMount() {
     const url =
       process.env.NODE_ENV === 'production'
-        ? `https://erxes.io/pluginDetail/${this.props.id}`
-        : `http://127.0.0.1:3500/pluginDetail/${this.props.id}`;
+        ? `https://erxes.io/api/pluginDetail?id=${this.props.id}`
+        : `http://127.0.0.1:3500/api/pluginDetail?id=${this.props.id}`;
 
     fetch(url)
       .then(async response => {
@@ -51,8 +52,8 @@ class PluginDetailsContainer extends React.Component<FinalProps, State> {
 
     const pluginsUrl =
       process.env.NODE_ENV === 'production'
-        ? 'https://erxes.io/plugins'
-        : 'http://127.0.0.1:3500/plugins';
+        ? 'https://erxes.io/api/plugins'
+        : 'http://127.0.0.1:3500/api/plugins';
 
     fetch(pluginsUrl)
       .then(async response => {

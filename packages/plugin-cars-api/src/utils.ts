@@ -1,25 +1,21 @@
-import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
-import { generateFieldsFromSchema } from '@erxes/api-utils/src';
-import * as _ from 'underscore';
-import { generateModels, IModels } from './connectionResolver';
-import {
-  fetchSegment,
-  sendSegmentsMessage,
-  sendTagsMessage,
-} from './messageBroker';
-import { debugError } from '@erxes/api-utils/src/debuggers';
+import { fetchEs } from "@erxes/api-utils/src/elasticsearch";
+import { generateFieldsFromSchema } from "@erxes/api-utils/src";
+import * as _ from "underscore";
+import { generateModels, IModels } from "./connectionResolver";
+import { fetchSegment, sendCoreMessage } from "./messageBroker";
+import { debugError } from "@erxes/api-utils/src/debuggers";
 
 export interface ICountBy {
   [index: string]: number;
 }
 
-const gatherNames = async (params) => {
+const gatherNames = async params => {
   const {
     collection,
     idFields,
     foreignKey,
     prevList,
-    nameFields = [],
+    nameFields = []
   } = params;
   let options = [] as any;
 
@@ -58,24 +54,24 @@ const gatherCarFieldNames = async (models, doc, prevList = null) => {
     options = await gatherNames({
       collection: models.CarCategories,
       idFields: [doc.categoryId],
-      foreignKey: 'categoryId',
+      foreignKey: "categoryId",
       prevList: options,
-      nameFields: ['name'],
+      nameFields: ["name"]
     });
   }
 
   return options;
 };
 
-export const gatherDescriptions = async (params) => {
+export const gatherDescriptions = async params => {
   const { action, obj, type, updatedDocument, extraParams } = params;
   const { models } = extraParams;
 
   let extraDesc = [] as any;
-  let description = '';
+  let description = "";
 
   switch (type) {
-    case 'car': {
+    case "car": {
       description = `${obj.plateNumber || obj.vinNumber} has been ${action}d`;
 
       extraDesc = await gatherCarFieldNames(models, obj);
@@ -84,12 +80,12 @@ export const gatherDescriptions = async (params) => {
         extraDesc = await gatherCarFieldNames(
           models,
           updatedDocument,
-          extraDesc,
+          extraDesc
         );
       }
       break;
     }
-    case 'car-category': {
+    case "car-category": {
       description = `"${obj.name}" has been ${action}d`;
 
       const parentIds: string[] = [];
@@ -106,8 +102,8 @@ export const gatherDescriptions = async (params) => {
         extraDesc = await gatherNames({
           collection: models.CarCategories,
           idFields: parentIds,
-          foreignKey: 'parentId',
-          nameFields: ['name'],
+          foreignKey: "parentId",
+          nameFields: ["name"]
         });
       }
     }
@@ -136,7 +132,7 @@ export const generateFields = async ({ subdomain }) => {
 
   if (schema) {
     // generate list using customer or company schema
-    fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
+    fields = [...fields, ...(await generateFieldsFromSchema(schema, ""))];
 
     for (const name of Object.keys(schema.paths)) {
       const path = schema.paths[name];
@@ -145,16 +141,16 @@ export const generateFields = async ({ subdomain }) => {
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
         ];
       }
     }
   }
 
-  fields = fields.filter((field) => {
+  fields = fields.filter(field => {
     if (
-      field.name === 'parentCarCategoryId' ||
-      field.name === 'carCategoryId'
+      field.name === "parentCarCategoryId" ||
+      field.name === "carCategoryId"
     ) {
       return false;
     }
@@ -163,48 +159,48 @@ export const generateFields = async ({ subdomain }) => {
   });
 
   const parentCategories = await models.CarCategories.find({
-    $or: [{ parentId: null }, { parentId: '' }],
+    $or: [{ parentId: null }, { parentId: "" }]
   });
 
   const categories = await models.CarCategories.find({
-    $or: [{ parentId: { $ne: null } }, { parentId: { $ne: '' } }],
+    $or: [{ parentId: { $ne: null } }, { parentId: { $ne: "" } }]
   });
 
   const additionalFields = [
     {
       _id: Math.random(),
-      name: 'parentCarCategoryId',
-      label: 'Category',
-      type: 'String',
-      selectOptions: parentCategories.map((category) => ({
+      name: "parentCarCategoryId",
+      label: "Category",
+      type: "String",
+      selectOptions: parentCategories.map(category => ({
         value: category._id,
-        label: category.name,
-      })),
+        label: category.name
+      }))
     },
     {
       _id: Math.random(),
-      name: 'carCategoryId',
-      label: 'Sub category',
-      type: 'String',
-      selectOptions: categories.map((category) => ({
+      name: "carCategoryId",
+      label: "Sub category",
+      type: "String",
+      selectOptions: categories.map(category => ({
         value: category._id,
-        label: category.name,
-      })),
+        label: category.name
+      }))
     },
     {
       _id: Math.random(),
-      name: 'drivers',
-      label: 'Driver(s)',
-      type: 'String',
-      selectOptions: undefined,
+      name: "drivers",
+      label: "Driver(s)",
+      type: "String",
+      selectOptions: undefined
     },
     {
       _id: Math.random(),
-      name: 'companies',
-      label: 'Company(s)',
-      type: 'String',
-      selectOptions: undefined,
-    },
+      name: "companies",
+      label: "Company(s)",
+      type: "String",
+      selectOptions: undefined
+    }
   ];
 
   return [...additionalFields, ...fields];
@@ -213,25 +209,25 @@ export const generateFields = async ({ subdomain }) => {
 export const countBySegment = async (
   subdomain: string,
   contentType: string,
-  qb,
+  qb
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
   let segments: any[] = [];
 
-  segments = await sendSegmentsMessage({
+  segments = await sendCoreMessage({
     subdomain,
-    action: 'find',
+    action: "segmentFind",
     data: { contentType, name: { $exists: true } },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   for (const s of segments) {
     try {
       await qb.buildAllQueries();
       await qb.segmentFilter(s);
-      counts[s._id] = await qb.runQueries('count');
+      counts[s._id] = await qb.runQueries("count");
     } catch (e) {
       debugError(`Error during segment count ${e.message}`);
       counts[s._id] = 0;
@@ -254,10 +250,10 @@ export class Builder {
   public models: IModels;
   public subdomain: string;
 
-  private contentType: 'cars';
+  private contentType: "cars";
 
   constructor(models: IModels, subdomain: string, params: IListArgs, context) {
-    this.contentType = 'cars';
+    this.contentType = "cars";
     this.context = context;
     this.params = params;
     this.models = models;
@@ -271,7 +267,7 @@ export class Builder {
   }
 
   public resetNegativeList() {
-    this.negativeList = [{ term: { status: 'deleted' } }];
+    this.negativeList = [{ term: { status: "deleted" } }];
   }
 
   public resetPositiveList() {
@@ -286,10 +282,10 @@ export class Builder {
     let tagIds: string[] = [tagId];
 
     if (withRelated) {
-      const tag = await sendTagsMessage({
+      const tag = await sendCoreMessage({
         subdomain: this.subdomain,
-        action: 'find',
-        data: { _id: tagId },
+        action: "tagFindOne",
+        data: { _id: tagId }
       });
 
       tagIds = [tagId, ...(tag?.relatedIds || [])];
@@ -297,8 +293,8 @@ export class Builder {
 
     this.positiveList.push({
       terms: {
-        tagIds,
-      },
+        tagIds
+      }
     });
   }
 
@@ -308,14 +304,14 @@ export class Builder {
       this.subdomain,
       segment._id,
       { returnSelector: true },
-      segmentData,
+      segmentData
     );
 
     this.positiveList = [...this.positiveList, selector];
   }
 
   public getRelType() {
-    return 'car';
+    return "car";
   }
 
   /*
@@ -334,35 +330,35 @@ export class Builder {
 
     // filter by segment
     if (this.params.segment) {
-      const segment = await sendSegmentsMessage({
+      const segment = await sendCoreMessage({
         isRPC: true,
-        action: 'findOne',
+        action: "segmentFindOne",
         subdomain: this.subdomain,
-        data: { _id: this.params.segment },
+        data: { _id: this.params.segment }
       });
 
       await this.segmentFilter(segment);
     }
   }
 
-  public async runQueries(action = 'search'): Promise<any> {
+  public async runQueries(action = "search"): Promise<any> {
     const queryOptions: any = {
       query: {
         bool: {
           must: this.positiveList,
-          must_not: this.negativeList,
-        },
-      },
+          must_not: this.negativeList
+        }
+      }
     };
 
     let totalCount = 0;
 
     const totalCountResponse = await fetchEs({
       subdomain: this.subdomain,
-      action: 'count',
+      action: "count",
       index: this.contentType,
       body: queryOptions,
-      defaultValue: 0,
+      defaultValue: 0
     });
 
     totalCount = totalCountResponse.count;
@@ -371,23 +367,23 @@ export class Builder {
       subdomain: this.subdomain,
       action,
       index: this.contentType,
-      body: queryOptions,
+      body: queryOptions
     });
 
-    if (action === 'count') {
+    if (action === "count") {
       return response && response.count ? response.count : 0;
     }
 
-    const list = response.hits.hits.map((hit) => {
+    const list = response.hits.hits.map(hit => {
       return {
         _id: hit._id,
-        ...hit._source,
+        ...hit._source
       };
     });
 
     return {
       list,
-      totalCount,
+      totalCount
     };
   }
 }

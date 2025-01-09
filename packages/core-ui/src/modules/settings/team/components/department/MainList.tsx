@@ -2,12 +2,7 @@ import {
   DepartmentsMainQueryResponse,
   IDepartment,
 } from "@erxes/ui/src/team/types";
-import {
-  FilterContainer,
-  InputBar,
-  LeftActionBar,
-  Title,
-} from "@erxes/ui-settings/src/styles";
+import { LeftActionBar, Title } from "@erxes/ui-settings/src/styles";
 import { __, router } from "@erxes/ui/src/utils";
 
 import ActionButtons from "@erxes/ui/src/components/ActionButtons";
@@ -31,10 +26,11 @@ import { generateTree } from "../../utils";
 import { gql } from "@apollo/client";
 import { queries } from "@erxes/ui/src/team/graphql";
 import { useLocation, useNavigate } from "react-router-dom";
+import WorkhourForm from "../WorkhourForm";
 
 type Props = {
   listQuery: DepartmentsMainQueryResponse;
-  queryParams: any;
+  queryParams: Record<string, string>;
   deleteDepartments: (ids: string[], callback: () => void) => void;
 };
 
@@ -44,7 +40,7 @@ const MainList = (props: Props) => {
   const location = useLocation();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [searchValue, setSearchValue] = useState(
-    props.queryParams.searchValue || ""
+    props.queryParams.searchValue || "",
   );
 
   const refetchQueries = () => [
@@ -114,19 +110,14 @@ const MainList = (props: Props) => {
     };
 
     return (
-      <FilterContainer $marginRight={true}>
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
-          <FormControl
-            type="text"
-            placeholder={__("Type to search")}
-            onChange={search}
-            value={searchValue}
-            autoFocus={true}
-            onFocus={moveCursorAtTheEnd}
-          />
-        </InputBar>
-      </FilterContainer>
+      <FormControl
+        type="text"
+        placeholder={__("Type to search")}
+        onChange={search}
+        value={searchValue}
+        autoFocus={true}
+        onFocus={moveCursorAtTheEnd}
+      />
     );
   };
 
@@ -134,7 +125,7 @@ const MainList = (props: Props) => {
     const handleSelect = () => {
       if (selectedItems.includes(department._id)) {
         const removedSelectedItems = selectedItems.filter(
-          (selectItem) => selectItem !== department._id
+          (selectItem) => selectItem !== department._id,
         );
         return setSelectedItems(removedSelectedItems);
       }
@@ -169,11 +160,29 @@ const MainList = (props: Props) => {
         <td>
           <ActionButtons>
             <ModalTrigger
+              title="Setup workhour of department"
+              trigger={
+                <Button btnStyle="link">
+                  <Tip text={__("Setup workhour")} placement="top">
+                    <Icon icon="clock" />
+                  </Tip>
+                </Button>
+              }
+              content={({ closeModal }) => (
+                <WorkhourForm
+                  item={department}
+                  type="department"
+                  closeModal={closeModal}
+                />
+              )}
+              size="lg"
+            />
+            <ModalTrigger
               key={department._id}
               title="Edit Department"
               content={({ closeModal }) => (
                 <Form
-                  item={department}
+                  itemId={department._id}
                   queryType="departments"
                   additionalRefetchQueries={refetchQueries()}
                   closeModal={closeModal}

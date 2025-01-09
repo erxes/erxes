@@ -57,6 +57,7 @@ type Props = {
   isModal?: boolean;
   hideDetailForm?: boolean;
   count: number;
+  serviceConfig?: any;
 };
 
 type State = {
@@ -99,12 +100,12 @@ class SegmentFormAutomations extends React.Component<Props, State> {
           conditionsConjunction: "and",
         },
       ],
-      config: {},
+      config: { ...(props?.serviceConfig || {}) },
     };
 
     if (
       !props.segment ||
-      (props.segment && props.segment.subSegmentConditions.length === 0)
+      (props.segment && props.segment?.subSegmentConditions?.length === 0)
     ) {
       state = "list";
       showAddGroup = false;
@@ -112,24 +113,26 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
     if (
       props.segment ||
-      (props.segment && props.segment.subSegmentConditions.length > 0)
+      (props.segment && props.segment?.subSegmentConditions?.length > 0)
     ) {
       state = "list";
     }
 
-    const segments = segment.subSegmentConditions.map((item: ISegment) => ({
-      _id: item._id,
-      key: Math.random().toString(),
-      contentType: item.contentType || "customer",
-      config: item.config,
-      conditionsConjunction: item.conditionsConjunction,
-      conditions: item.conditions
-        ? item.conditions.map((cond: ISegmentCondition) => ({
-            key: Math.random().toString(),
-            ...cond,
-          }))
-        : [],
-    }));
+    const segments = (segment?.subSegmentConditions || []).map(
+      (item: ISegment) => ({
+        _id: item._id,
+        key: Math.random().toString(),
+        contentType: item.contentType || "customer",
+        config: item.config,
+        conditionsConjunction: item.conditionsConjunction,
+        conditions: item.conditions
+          ? item.conditions.map((cond: ISegmentCondition) => ({
+              key: Math.random().toString(),
+              ...cond,
+            }))
+          : [],
+      })
+    );
 
     this.state = {
       ...segment,

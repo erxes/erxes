@@ -5,19 +5,21 @@ import {
   FlexItem,
   FullPreview,
   MobilePreview,
-  TabletPreview,
-} from './style';
-import { TabTitle, Tabs } from '../tabs';
-import { isEnabled, loadDynamicComponent } from '../../utils/core';
+  TabletPreview
+} from "./style";
+import { TabTitle, Tabs } from "../tabs";
+import { isEnabled, loadDynamicComponent } from "../../utils/core";
 
-import CalloutPreview from './preview/CalloutPreview';
-import FormPreview from './preview/FormPreview';
-import { IConfig } from '@erxes/ui-settings/src/general/types';
-import { IField } from '../../types';
-import Icon from '../Icon';
-import React from 'react';
-import SuccessPreview from './preview/SuccessPreview';
-import { __ } from '../../utils';
+import CalloutPreview from "./preview/CalloutPreview";
+import FormPreview from "./preview/FormPreview";
+import { IConfig } from "@erxes/ui-settings/src/general/types";
+import { IField } from "../../types";
+import Icon from "../Icon";
+import React from "react";
+import SuccessPreview from "./preview/SuccessPreview";
+import { __ } from "../../utils";
+import FieldForm from "@erxes/ui-forms/src/forms/components/FieldForm";
+import FieldsPreview from "@erxes/ui-forms/src/forms/components/FieldsPreview";
 
 type Props = {
   formData: any; // check - IFormData
@@ -29,7 +31,7 @@ type Props = {
   theme: string;
   image?: string;
   calloutImgSize?: string;
-  onChange: (name: 'carousel', value: string) => void;
+  onChange: (name: "carousel", value: string) => void;
   onDocChange?: (doc: any) => void; // check - IFormData
   carousel: string;
   thankTitle?: string;
@@ -42,7 +44,7 @@ type Props = {
 
 type State = {
   currentTab: string;
-  currentMode: 'create' | 'update' | undefined;
+  currentMode: "create" | "update" | undefined;
   currentField?: IField;
   fields: IField[];
   currentPage: number;
@@ -53,11 +55,11 @@ class FullPreviewStep extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentTab: 'desktop',
+      currentTab: "desktop",
       currentMode: undefined,
       currentField: undefined,
       fields: (props.formData && props.formData.fields) || [],
-      currentPage: 1,
+      currentPage: 1
     };
   }
 
@@ -87,7 +89,7 @@ class FullPreviewStep extends React.Component<Props, State> {
   };
 
   onFieldClick = (field: IField) => {
-    this.setState({ currentMode: 'update', currentField: field });
+    this.setState({ currentMode: "update", currentField: field });
   };
 
   onFieldSubmit = (field: IField) => {
@@ -95,20 +97,20 @@ class FullPreviewStep extends React.Component<Props, State> {
 
     let selector = { fields, currentField: undefined };
 
-    if (currentMode === 'create') {
+    if (currentMode === "create") {
       selector = {
         fields: [...fields, field],
-        currentField: undefined,
+        currentField: undefined
       };
-    } else if (currentMode === 'update') {
-      const index = fields.map((e) => e._id).indexOf(field._id);
+    } else if (currentMode === "update") {
+      const index = fields.map(e => e._id).indexOf(field._id);
       let newFields = [...fields];
       if (index !== -1) {
-        newFields.splice(index,1,field);
+        newFields.splice(index, 1, field);
       }
       selector = {
         fields: newFields,
-        currentField: undefined,
+        currentField: undefined
       };
     }
 
@@ -119,7 +121,7 @@ class FullPreviewStep extends React.Component<Props, State> {
 
   onFieldDelete = (field: IField) => {
     // remove field from state
-    const fields = this.state.fields.filter((f) => f._id !== field._id);
+    const fields = this.state.fields.filter(f => f._id !== field._id);
 
     this.setState({ fields, currentField: undefined }, () => {
       this.renderReturnValues(fields);
@@ -130,11 +132,11 @@ class FullPreviewStep extends React.Component<Props, State> {
     this.setState({ currentField: undefined });
   };
 
-  onChangeFieldsOrder = (fields) => {
+  onChangeFieldsOrder = fields => {
     let allFields = this.state.fields;
 
     for (const field of fields) {
-      const index = allFields.map((e) => e._id).indexOf(field._id);
+      const index = allFields.map(e => e._id).indexOf(field._id);
 
       if (index !== -1) {
         allFields[index] = field;
@@ -149,7 +151,7 @@ class FullPreviewStep extends React.Component<Props, State> {
   };
 
   onChangePreview = (value: string) => {
-    return this.props.onChange('carousel', value);
+    return this.props.onChange("carousel", value);
   };
 
   renderReturnValues(fields) {
@@ -162,7 +164,7 @@ class FullPreviewStep extends React.Component<Props, State> {
         description: formData.description,
         buttonText: formData.buttonText,
         type: formData.type,
-        numberOfPages: formData.numberOfPages,
+        numberOfPages: formData.numberOfPages
       });
     }
   }
@@ -171,20 +173,31 @@ class FullPreviewStep extends React.Component<Props, State> {
     const { carousel, formData, configs } = this.props;
     const { currentMode, currentField, fields } = this.state;
 
-    if (carousel === 'callout') {
+    if (carousel === "callout") {
       return <CalloutPreview {...this.props} />;
     }
 
-    if (carousel === 'form') {
-      const previewRenderer = () =>
-        loadDynamicComponent('fieldPreview', {
-          fields: fields || [],
-          formDesc: formData.description,
-          onFieldClick: this.onFieldClick,
-          onChangeFieldsOrder: this.onChangeFieldsOrder,
-          currentPage: this.state.currentPage,
-          configs,
-        });
+    if (carousel === "form") {
+      const fieldFormProps = {
+        mode: currentMode || "create",
+        fields,
+        field: currentField as IField,
+        numberOfPages: formData.numberOfPages || 1,
+        onSubmit: this.onFieldSubmit,
+        onDelete: this.onFieldDelete,
+        onCancel: this.onFieldFormCancel
+      };
+
+      const fielReviewProps = {
+        fields: fields || [],
+        formDesc: formData.description,
+        onFieldClick: this.onFieldClick,
+        onChangeFieldsOrder: this.onChangeFieldsOrder,
+        currentPage: this.state.currentPage,
+        configs
+      };
+
+      const previewRenderer = () => <FieldsPreview {...fielReviewProps} />;
 
       return (
         <>
@@ -192,21 +205,12 @@ class FullPreviewStep extends React.Component<Props, State> {
             {...this.props}
             title={formData.title}
             btnText={formData.buttonText}
-            previewRenderer={isEnabled('forms') && previewRenderer}
+            previewRenderer={previewRenderer}
             currentPage={this.state.currentPage}
             onPageChange={this.onPageChange}
           />
-          {currentField &&
-            isEnabled('forms') &&
-            loadDynamicComponent('formPreview', {
-              mode: currentMode || 'create',
-              fields,
-              field: currentField,
-              numberOfPages: formData.numberOfPages || 1,
-              onSubmit: this.onFieldSubmit,
-              onDelete: this.onFieldDelete,
-              onCancel: this.onFieldFormCancel,
-            })}
+
+          {currentField && <FieldForm {...fieldFormProps} />}
         </>
       );
     }
@@ -217,11 +221,11 @@ class FullPreviewStep extends React.Component<Props, State> {
   renderResolutionPreview() {
     const { currentTab } = this.state;
 
-    if (currentTab === 'desktop') {
+    if (currentTab === "desktop") {
       return <DesktopPreview>{this.renderPreview()}</DesktopPreview>;
     }
 
-    if (currentTab === 'tablet') {
+    if (currentTab === "tablet") {
       return <TabletPreview>{this.renderPreview()}</TabletPreview>;
     }
 
@@ -236,30 +240,30 @@ class FullPreviewStep extends React.Component<Props, State> {
         <FullPreview>
           <Tabs $full={true}>
             <TabTitle
-              className={currentTab === 'desktop' ? 'active' : ''}
-              onClick={this.onChangeTab.bind(this, 'desktop')}
+              className={currentTab === "desktop" ? "active" : ""}
+              onClick={this.onChangeTab.bind(this, "desktop")}
             >
-              <Icon icon="monitor-1" /> {__('Desktop')}
+              <Icon icon="monitor-1" /> {__("Desktop")}
             </TabTitle>
             <TabTitle
-              className={currentTab === 'tablet' ? 'active' : ''}
-              onClick={this.onChangeTab.bind(this, 'tablet')}
+              className={currentTab === "tablet" ? "active" : ""}
+              onClick={this.onChangeTab.bind(this, "tablet")}
             >
-              <Icon icon="tablet" /> {__('Tablet')}
+              <Icon icon="tablet" /> {__("Tablet")}
             </TabTitle>
             <TabTitle
-              className={currentTab === 'mobile' ? 'active' : ''}
-              onClick={this.onChangeTab.bind(this, 'mobile')}
+              className={currentTab === "mobile" ? "active" : ""}
+              onClick={this.onChangeTab.bind(this, "mobile")}
             >
-              <Icon icon="mobile-android" /> {__('Mobile')}
+              <Icon icon="mobile-android" /> {__("Mobile")}
             </TabTitle>
           </Tabs>
           {this.renderResolutionPreview()}
 
           <CarouselSteps>
-            {!this.props.skip && this.carouseItems('CallOut', 'callout')}
-            {this.carouseItems('Form', 'form')}
-            {this.carouseItems('Success', 'success')}
+            {!this.props.skip && this.carouseItems("CallOut", "callout")}
+            {this.carouseItems("Form", "form")}
+            {this.carouseItems("Success", "success")}
           </CarouselSteps>
         </FullPreview>
       </FlexItem>

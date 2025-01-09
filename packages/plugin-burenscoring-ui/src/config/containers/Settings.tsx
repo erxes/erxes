@@ -1,11 +1,13 @@
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import { ConfigsResponse, IConfigsMaps } from '../../types';
-import { mutations, queries } from '../../graphql';
+import { Alert } from "@erxes/ui/src/utils";
+import {
+  ConfigsResponse,
+  CustomerFieldsResponse,
+  IConfigsMaps
+} from "../../types";
+import { mutations, queries } from "../../graphql";
 
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import { useQuery, useMutation, gql } from "@apollo/client";
+import React from "react";
 
 type Props = {
   component: any;
@@ -16,53 +18,56 @@ type FinalProps = {
   updateConfigs: (configsMap: IConfigsMaps) => Promise<void>;
 } & Props;
 
-class SettingsContainer extends React.Component<FinalProps> {
-  render() {
-    const { updateConfigs, configsQuery } = this.props;
-
-    // create or update action
-    const save = (map: IConfigsMaps) => {
-      updateConfigs({
-        variables: { configsMap: map },
-      })
-        .then(() => {
-          configsQuery.refetch();
-
-          Alert.success(
-            'You successfully updated scoring config',
-          );
-        })
-        .catch((error) => {
-          Alert.error(error.message);
-        });
-    };
-
-    const configs = configsQuery.configs || [];
-
-    const configsMap = {};
-
-    for (const config of configs) {
-      configsMap[config.code] = config.value;
+export default function SettingsContainer(props: FinalProps) {
+  const { data, loading, refetch } = useQuery<ConfigsResponse>(
+    gql(queries.BurenConfigs),
+    {
+      fetchPolicy: "network-only"
     }
+  );
 
-    const Component = this.props.component;
-    const updatedProps = {
-      ...this.props,
-      configsMap,
-      save,
-      loading: configsQuery.loading,
-    };
-    return <Component {...updatedProps}/>
+  const customFields = useQuery<CustomerFieldsResponse>(
+    gql(queries.fieldsCombinedByContentType),
+
+    {
+      variables: {
+        contentType: "core:customer"
+      },
+      fetchPolicy: "network-only"
+    }
+  );
+  const [updateConfigs] = useMutation(gql(mutations.updateScoringConfigs));
+  // create or update action
+  const save = (map: IConfigsMaps) => {
+    updateConfigs({
+      variables: { configsMap: map }
+    })
+      .then(() => {
+        refetch();
+
+        Alert.success("You successfully updated scoring config");
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
+  const configs = data?.configs || [];
+
+  const configsMap = {};
+
+  for (const config of configs) {
+    configsMap[config.code] = config.value;
   }
-}
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, ConfigsResponse>(gql(queries.BurenConfigs), {
-      name: 'configsQuery'
-    }),
-    graphql<{}>(gql(mutations.updateScoringConfigs), {
-      name: 'updateConfigs',
-    }),
-  )(SettingsContainer),
-);
+  const Component = props.component;
+  const updatedProps = {
+    ...props,
+    configsMap,
+    save,
+    loading: loading,
+    customFields: customFields?.data || []
+  };
+  if (loading) return null;
+  return <Component {...updatedProps} />;
+}

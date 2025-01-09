@@ -1,16 +1,16 @@
-import Common from '../Common';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
-import JobReferChooser from '../../../../../job/containers/refer/Chooser';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import { Alert, __ } from '@erxes/ui/src/utils';
-import { ControlLabel } from '@erxes/ui/src/components/form';
-import { IJob } from '../../../../types';
-import { IJobRefer } from '../../../../../job/types';
-import { IProduct } from '@erxes/ui-products/src/types';
-import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
+import Common from "../Common";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import JobReferChooser from "../../../../../job/containers/refer/Chooser";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import { Alert, __ } from "@erxes/ui/src/utils";
+import { ControlLabel } from "@erxes/ui/src/components/form";
+import { IJob } from "../../../../types";
+import { IJobRefer } from "../../../../../job/types";
+import { IProduct } from "@erxes/ui-products/src/types";
+import { ProductButton } from "@erxes/ui-sales/src/deals/styles";
 
 type Props = {
   closeModal: () => void;
@@ -42,12 +42,12 @@ class JobForm extends React.Component<Props, State> {
     const { jobReferId } = config;
 
     this.state = {
-      jobReferId: jobReferId || '',
+      jobReferId: jobReferId || "",
       jobRefer,
-      description: description || '',
-      currentTab: 'inputs',
+      description: description || "",
+      currentTab: "inputs",
 
-      categoryId: ''
+      categoryId: ""
     };
   }
 
@@ -68,7 +68,7 @@ class JobForm extends React.Component<Props, State> {
 
     let content = (
       <div onClick={onClick}>
-        {__('Choose Job')} <Icon icon="plus-circle" />
+        {__("Choose Job")} <Icon icon="plus-circle" />
       </div>
     );
 
@@ -93,10 +93,10 @@ class JobForm extends React.Component<Props, State> {
     const onChangeJob = jobRefers => {
       let selected: any;
       if (!jobRefers.length) {
-        this.setState({ jobReferId: '', jobRefer: undefined }, () => {
+        this.setState({ jobReferId: "", jobRefer: undefined }, () => {
           this.props.setMainState({
             product: undefined,
-            productId: ''
+            productId: ""
           });
         });
         return;
@@ -105,7 +105,7 @@ class JobForm extends React.Component<Props, State> {
       selected = jobRefers[0];
       this.setState({ jobReferId: selected._id, jobRefer: selected }, () => {
         if (!selected.resultProducts.length) {
-          return Alert.error('This endPoint job has not result products');
+          return Alert.error("This endPoint job has not result products");
         }
 
         const endProduct = selected.resultProducts[0].product || {};
@@ -128,10 +128,10 @@ class JobForm extends React.Component<Props, State> {
           closeModal={onCloseModal}
           onSelect={onChangeJob}
           onChangeCategory={categoryId => this.setState({ categoryId })}
-          types={['end']}
+          types={["end"]}
           categoryId={this.state.categoryId}
           data={{
-            name: 'Jobs',
+            name: "Jobs",
             jobRefers: jobRefer ? [jobRefer] : []
           }}
           limit={1}
@@ -144,7 +144,7 @@ class JobForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Jobs</ControlLabel>
           <ModalTrigger
-            title="Choose a JOB"
+            title={__("Choose a JOB")}
             trigger={this.renderJobTrigger(jobRefer)}
             size="lg"
             content={content}
@@ -155,7 +155,7 @@ class JobForm extends React.Component<Props, State> {
           <FormControl
             name="description"
             value={description}
-            onChange={onChangeValue.bind(this, 'description')}
+            onChange={onChangeValue.bind(this, "description")}
           />
         </FormGroup>
       </>
@@ -168,7 +168,7 @@ class JobForm extends React.Component<Props, State> {
     return (
       <Common
         {...this.props}
-        name={(jobRefer && jobRefer.name) || 'Unknown'}
+        name={(jobRefer && jobRefer.name) || "Unknown"}
         description={description}
         jobRefer={jobRefer}
         config={{ jobReferId }}
