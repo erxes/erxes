@@ -179,7 +179,7 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
       name,
       files,
       target: 'production',
-      project: name,
+      project: `${name}_${subdomain}`,
       // deploymentId: 'dpl_4mvHT7jG4e6Q6W1fvvsCzYC8KDm8',
       projectSettings: {
         installCommand: 'yarn install',
