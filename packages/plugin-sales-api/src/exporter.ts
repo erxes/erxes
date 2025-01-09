@@ -640,14 +640,18 @@ export default {
             const sortedItem = [] as any;
 
             for (const productDoc of productDocs) {
-              sortedItem.push(productDoc[i]);
+              if (productDoc[i]) {
+                sortedItem.push(productDoc[i]);
+              }
             }
 
-            productsArray.push(sortedItem);
+            if (sortedItem.length) {
+              productsArray.push(sortedItem);
+            }
           }
         }
 
-        if (productDocs.length > 0) {
+        if (productsArray.length > 0) {
           let index = 0;
 
           for (const productElement of productsArray) {

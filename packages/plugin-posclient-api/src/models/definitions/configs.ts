@@ -17,6 +17,8 @@ export interface IEbarimtConfig {
   defaultGSCode: string,
   vatPercent: number,
   cityTaxPercent: number,
+  reverseVatRules?: string[],
+  reverseCtaxRules?: string[],
   footerText?: string;
   hasCopy: boolean;
 }
@@ -126,6 +128,8 @@ const ebarimtConfigSchema = new Schema(
       optional: true,
       label: 'UB city tax percent',
     },
+    reverseVatRules: field({ type: [String], optional: true, label: 'reverseVatRules' }),
+    reverseCtaxRules: field({ type: [String], optional: true, label: 'reverseCtaxRules' }),
     footerText: field({ type: String, optional: true, label: 'Footer text' }),
     hasCopy: field({ type: Boolean, optional: true }),
   },

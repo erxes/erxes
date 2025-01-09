@@ -16,7 +16,7 @@ import {
 import { createLog, deleteLog, updateLog } from "../../../logUtils";
 import { putActivityLog } from "@erxes/api-utils/src/logUtils";
 
-const loansContractChanged = async (contract: IContractDocument) => {
+export const loansContractChanged = async (contract: IContractDocument) => {
   graphqlPubsub.publish(
     'loansContractChanged',
     {

@@ -18,6 +18,7 @@ import {
   initCustomField
 } from "./maskUtils";
 import { escapeRegExp } from "@erxes/api-utils/src/core";
+import { nanoid } from 'nanoid';
 
 export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
@@ -28,6 +29,7 @@ export interface IProductModel extends Model<IProductDocument> {
     productIds: string[],
     productFields: IProduct
   ): Promise<IProductDocument>;
+  duplicateProduct(_id: string): Promise<IProductDocument>;
 }
 
 export const loadProductClass = (models: IModels, subdomain: string) => {
@@ -56,6 +58,26 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       if (product) {
         throw new Error("Code must be unique");
       }
+    }
+
+    public static async generateCode(maxAttempts: number = 10) {
+      let attempts = 0;
+
+      while (attempts < maxAttempts) {
+        const code = nanoid(6);
+        const foundProduct = await models.Products.findOne({
+          code,
+          status: { $ne: PRODUCT_STATUSES.DELETED }
+        });
+
+        if (!foundProduct) {
+          return code;
+        }
+
+        attempts++;
+      }
+
+      throw new Error('Unable to generate unique product code after multiple attempts');
     }
 
     static fixBarcodes(barcodes?, variants?) {
@@ -329,6 +351,24 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 
       return product;
     }
+
+    public static async duplicateProduct(productId: string) {
+      const product = await models.Products.findOne({ _id: productId }).lean();
+
+      if (!product) throw new Error('Product not found');
+
+      const { _id, code, ...productData } = product;
+
+      const newCode = await this.generateCode();
+
+      const newProduct = await models.Products.createProduct({
+        ...productData,
+        code: `${code}-${newCode}`,
+        name: `${product.name} duplicated`,
+      });
+
+      return newProduct;
+    }
   }
 
   productSchema.loadClass(Product);
@@ -346,6 +386,7 @@ export interface IProductCategoryModel extends Model<IProductCategoryDocument> {
     doc: IProductCategory
   ): Promise<IProductCategoryDocument>;
   removeProductCategory(_id: string): void;
+  getChildCategories(categoryIds: string[]): Promise<IProductCategoryDocument[]>;
 }
 
 export const loadProductCategoryClass = (models: IModels) => {
@@ -478,6 +519,40 @@ export const loadProductCategoryClass = (models: IModels) => {
         : `${doc.code}/`;
 
       return order;
+    }
+
+    public static async getChildCategories(categoryIds: string[]) {
+      if (!categoryIds.length) {
+        return {
+          data: [],
+          status: "success"
+        };
+      }
+
+      const categories = await models.ProductCategories.find({
+        _id: { $in: categoryIds }
+      }).lean();
+
+      if (!categories.length) {
+        return {
+          data: [],
+          status: "success"
+        };
+      }
+
+      const orderQry: any[] = [];
+      for (const category of categories) {
+        orderQry.push({
+          order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) }
+        });
+      }
+
+      return await models.ProductCategories.find({
+        status: { $nin: ["disabled", "archived"] },
+        $or: orderQry
+      })
+        .sort({ order: 1 })
+        .lean()
     }
   }
 

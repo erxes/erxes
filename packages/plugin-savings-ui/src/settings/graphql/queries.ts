@@ -1,4 +1,4 @@
-import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
+import { customerFields } from '@erxes/ui-contacts/src/customers/graphql/queries';
 
 // Settings
 
@@ -15,7 +15,7 @@ const configs = `
 const customerDetail = `
   query customerDetail($_id: String!) {
     customerDetail(_id: $_id) {
-      ${customerQueries.customerFields}
+      ${customerFields}
     }
   }
 `;

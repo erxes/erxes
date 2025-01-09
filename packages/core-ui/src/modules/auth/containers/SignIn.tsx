@@ -41,7 +41,7 @@ const SignInContainer = () => {
   };
 
   const updatedProps = {
-    renderButton,
+    renderButton
   };
 
   return <SignIn {...updatedProps} />;

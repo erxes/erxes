@@ -178,6 +178,7 @@ export const importProducts = async (
               $set: {
                 ...product,
                 [`prices.${token}`]: product.unitPrice,
+                [`taxRules.${token}`]: product.taxRule,
                 uom: product.uom || 'ш',
                 attachment: attachmentUrlChanger(product.attachment),
                 attachmentMore: (product.attachmentMore || []).map(a =>
@@ -345,6 +346,7 @@ export const receiveProduct = async (models: IModels, data) => {
         ...info,
         [`prices.${token}`]: info.unitPrice,
         [`isCheckRems.${token}`]: info.isCheckRem,
+        [`taxRules.${token}`]: info.taxRule,
         tokens,
         sameDefault: info.sameDefault || undefined,
         sameMasks: info.sameMasks || undefined,

@@ -667,7 +667,7 @@ const productQueries = {
 
     const d = await sendPricingMessage({
       subdomain,
-      action: 'getQuanityRules',
+      action: 'getQuantityRules',
       data: {
         departmentId: config.departmentId,
         branchId: config.branchId,

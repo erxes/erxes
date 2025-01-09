@@ -12,6 +12,7 @@ import {
   consumeQueue,
   consumeRPCQueue
 } from "@erxes/api-utils/src/messageBroker";
+import { debugError } from "@erxes/api-utils/src/debuggers";
 
 interface ISendNotification {
   createdUser;
@@ -116,7 +117,7 @@ const sendNotification = async (
     }
   } // end receiverIds loop
 
-  const DOMAIN = getEnv({ name: "DOMAIN" });
+  const DOMAIN = getEnv({ name: "DOMAIN", subdomain });
 
   link = `${DOMAIN}${link}`;
 
@@ -129,23 +130,27 @@ const sendNotification = async (
     }
   };
 
-  sendCoreMessage({
-    subdomain,
-    action: "sendEmail",
-    data: {
-      toEmails,
-      title: "Notification",
-      template: {
-        name: "notification",
-        data: {
-          notification: { ...doc, link },
-          action,
-          userName: getUserDetail(createdUser)
-        }
-      },
-      modifier
-    }
-  });
+  try {
+    sendCoreMessage({
+      subdomain,
+      action: "sendEmail",
+      data: {
+        toEmails,
+        title: "Notification",
+        template: {
+          name: "notification",
+          data: {
+            notification: { ...doc, link },
+            action,
+            userName: getUserDetail(createdUser)
+          }
+        },
+        modifier
+      }
+    });
+  } catch (err) {
+    debugError(err.message);
+  }
 };
 
 export const setupMessageConsumers = async () => {
@@ -154,12 +159,12 @@ export const setupMessageConsumers = async () => {
     await sendNotification(models, subdomain, data);
   });
 
-  consumeRPCQueue('notifications:send', async ({ subdomain, data }) => {
+  consumeRPCQueue("notifications:send", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     await sendNotification(models, subdomain, data);
 
     return {
-      status: 'success',
+      status: "success"
     };
   });
 

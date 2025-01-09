@@ -20,7 +20,7 @@ import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties
 const FIELDS_GROUPS_CONTENT_TYPES = {
   CUSTOMER: 'core:customer',
   COMPANY: 'core:company',
-  DEAL: 'cards:deal'
+  DEAL: 'sales:deal'
 };
 
 
@@ -43,18 +43,16 @@ const SyncRuleForm = (props: Props) => {
   const [formField, setFormField] = useState<string>(syncRule?.formField || '')
 
   useEffect(() => {
-    if (isEnabled("forms")) {
-      client
-        .query({
-          query: gql(fieldQueries.fieldsGroups),
-          variables: {
-            contentType: objectType,
-          },
-        })
-        .then(({ data }) => {
-          setFieldGroups(data ? data.fieldsGroups : [] || []);
-        });
-    }
+    client
+      .query({
+        query: gql(fieldQueries.fieldsGroups),
+        variables: {
+          contentType: objectType,
+        },
+      })
+      .then(({ data }) => {
+        setFieldGroups(data ? data.fieldsGroups : [] || []);
+      });
   }, [objectType]);
 
   const renderFooter = (formProps: IFormProps) => {

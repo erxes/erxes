@@ -53,18 +53,16 @@ const GeneralSettings = (props: Props) => {
   )
 
   useEffect(() => {
-    if (isEnabled("forms")) {
-      client
-        .query({
-          query: gql(fieldQueries.fieldsGroups),
-          variables: {
-            contentType: 'core:customer',
-          },
-        })
-        .then(({ data }) => {
-          setFieldGroups(data ? data.fieldsGroups : [] || []);
-        });
-    }
+    client
+      .query({
+        query: gql(fieldQueries.fieldsGroups),
+        variables: {
+          contentType: 'core:customer',
+        },
+      })
+      .then(({ data }) => {
+        setFieldGroups(data ? data.fieldsGroups : [] || []);
+      });
   }, []);
 
   const save = (e) => {
@@ -87,6 +85,12 @@ const GeneralSettings = (props: Props) => {
 
   const addAttr = () => {
     setCurrentMap({ ...currentMap, [`newItem-${Math.random().toString()}`]: { title: '' } })
+  }
+
+  const attrDelete = (key) => {
+    const tempMap = { ...currentMap };
+    delete tempMap[key];
+    setCurrentMap({ ...tempMap })
   }
 
   const renderInput = (key: string) => {
@@ -208,7 +212,7 @@ const GeneralSettings = (props: Props) => {
                 (renderInput(key))
             }
           </FormColumn>
-          {!isDefault && <Button btnStyle="link" icon="times-circle" />}
+          {!isDefault && <Button btnStyle="link" icon="times-circle" onClick={attrDelete.bind(this, key)} />}
         </Row>
       </FormGroup >
     );

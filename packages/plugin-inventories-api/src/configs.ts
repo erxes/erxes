@@ -7,6 +7,8 @@ import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { exportCensusRunner } from './exporterByUrl';
 import * as permissions from './permissions';
+import imports from './imports';
+import forms from './forms';
 
 export default {
   name: 'inventories',
@@ -32,5 +34,7 @@ export default {
 
   meta: {
     permissions,
+    imports,
+    forms,
   },
 };

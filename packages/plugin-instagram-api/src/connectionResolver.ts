@@ -50,6 +50,8 @@ import {
 
 import { ICommentConversationDocument } from './models/definitions/comment_conversations';
 import { ICommentConversationReplyDocument } from './models/definitions/comment_conversations_reply';
+import { IBotModel, loadBotClass } from './models/Bots';
+import { IBotDocument } from './models/definitions/bots';
 export interface IModels {
   PostConversations: IPostConversationModel;
   CommentConversation: ICommentConversationModel;
@@ -61,6 +63,8 @@ export interface IModels {
   Configs: IConfigModel;
   Integrations: IIntegrationModel;
   Logs: ILogModel;
+  Bots: IBotModel;
+
 }
 
 export interface IContext extends IMainContext {
@@ -116,6 +120,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IConversationMessageModel
   >('instagram_conversation_messages', loadConversationMessageClass(models));
 
+  models.Bots = db.model<IBotDocument, IBotModel>(
+    'instagram_messengers_bots',
+    loadBotClass(models)
+  );
   return models;
 };
 

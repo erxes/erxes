@@ -1,4 +1,4 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 export const commonMutationVariables = `
   $parentId: String,
@@ -82,6 +82,11 @@ export const commonListFields = `
   tagIds
   customProperties
   status
+  tags {
+    _id
+    name
+    colorCode
+  }
 `;
 
 export const commonFields = `

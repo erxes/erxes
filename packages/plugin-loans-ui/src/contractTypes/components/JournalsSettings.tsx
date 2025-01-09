@@ -18,6 +18,8 @@ import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "coreui/utils";
 import dimensions from "@erxes/ui/src/styles/dimensions";
 import styled from "styled-components";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import BoardSelectContainer from '@erxes/ui-sales/src/boards/containers/BoardSelect';
 
 export const DISTRICTS = [
   { value: "Архангай", label: "Архангай" },
@@ -69,18 +71,17 @@ type Props = {
 
 const GeneralSettings = (props: Props) => {
   const [currentMap, setCurrentMap] = useState(props.contractType.config || {});
+  const [state, setState] = useState(props.contractType)
   const { contractType } = props;
 
   const save = (e) => {
     e.preventDefault();
 
-    props.saveItem({ ...contractType, config: currentMap });
+    props.saveItem({ ...contractType, ...state, config: currentMap });
   };
 
   const onChangeConfig = (code: string, value) => {
-    currentMap[code] = value;
-
-    setCurrentMap(currentMap);
+    setCurrentMap({ ...currentMap, [code]: value });
   };
 
   const onChangeInput = (code: string, e) => {
@@ -332,6 +333,50 @@ const GeneralSettings = (props: Props) => {
               type: "number",
               useNumberFormat: true,
             })}
+        </CollapseContent>
+
+        <CollapseContent title={__("Internet bank")}>
+          <FormGroup>
+            <ControlLabel>{__("Product")}</ControlLabel>
+            <SelectProducts
+              label="Choose product"
+              name="selectedProductId"
+              initialValue={state.productId}
+              onSelect={(productId) => setState({ ...state, productId: productId as string })}
+              multi={false}
+              customOption={{ value: "", label: "Empty" }}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel required={true}>
+              {__("Product Type")}
+            </ControlLabel>
+            <FormControl
+              name="productType"
+              componentclass="select"
+              value={state.productType}
+              onChange={e => setState({ ...state, productType: (e.target as any).value })}
+            >
+              {["private", "public"].map((typeName) => (
+                <option key={typeName} value={typeName}>
+                  {typeName}
+                </option>
+              ))}
+            </FormControl>
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Destination Stage</ControlLabel>
+            <BoardSelectContainer
+              type="deal"
+              autoSelectStage={false}
+              boardId={currentMap.boardId}
+              pipelineId={currentMap.pipelineId}
+              stageId={currentMap.stageId}
+              onChangeBoard={(boardId) => setCurrentMap({ ...currentMap, boardId: boardId })}
+              onChangePipeline={(pipelineId) => setCurrentMap({ ...currentMap, pipelineId: pipelineId })}
+              onChangeStage={(stageId) => setCurrentMap({ ...currentMap, stageId: stageId })}
+            />
+          </FormGroup>
         </CollapseContent>
       </ContentBox>
     </ScrollWrapper>

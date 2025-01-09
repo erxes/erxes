@@ -118,7 +118,7 @@ export default {
         quantityRules = await sendCommonMessage({
           subdomain,
           serviceName: "pricing",
-          action: "getQuanityRules",
+          action: "getQuantityRules",
           isRPC: true,
           defaultValue: [],
           data: {

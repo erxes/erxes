@@ -18,10 +18,11 @@ import {
 } from "../../../models/definitions/constants";
 import { IPaidAmount } from "../../../models/definitions/orders";
 import { IPosUserDocument } from "../../../models/definitions/posUsers";
-import { IContext, IOrderInput } from "../../types";
+import { IContext, IOrderInput, IOrderItemInput } from "../../types";
 import {
   checkOrderAmount,
   checkOrderStatus,
+  checkScoreAviableSubtractScoreCampaign,
   cleanOrderItems,
   generateOrderNumber,
   getTotalAmount,
@@ -58,8 +59,8 @@ interface IPaymentParams {
 
 interface IOrderEditParams extends IOrderInput {
   _id: string;
-  billType: string;
-  registerNumber: string;
+  billType?: string;
+  registerNumber?: string;
 }
 
 export interface IOrderChangeParams {
@@ -295,14 +296,7 @@ const ordersEdit = async (
 
   checkOrderStatus(order);
 
-  if (
-    order.isPre &&
-    (order.cashAmount || order.mobileAmount || (order.paidAmounts || []).length)
-  ) {
-    throw new Error("Confirmed and isPre orders cannot be edited");
-  }
-
-  await validateOrder(subdomain, models, config, doc);
+  await validateOrder(subdomain, models, config, doc, order);
 
   await cleanOrderItems(doc._id, doc.items, models);
 
@@ -374,12 +368,85 @@ const ordersEdit = async (
   return updatedOrder;
 };
 
+const getItemInput = (item) => {
+  return {
+    ...item,
+    _id: item._id,
+    productId: item.productId,
+    count: item.count,
+    unitPrice: item.unitPrice || 0,
+    isPackage: item.isPackage,
+    isTake: item.isTake,
+    status: item.status,
+    discountPercent: item.discountPercent,
+    discountAmount: item.discountAmount,
+    bonusCount: item.bonusCount,
+    bonusVoucherId: item.bonusVoucherId,
+    manufacturedDate: item.manufacturedDate,
+    description: item.description,
+    attachment: item.attachment,
+    closeDate: item.closeDate
+  }
+}
+
 const orderMutations = {
   async ordersAdd(
     _root,
     doc: IOrderInput,
     { posUser, config, models, subdomain }: IContext
   ) {
+    if (doc.origin === 'qrMenu' && doc.isSingle === false && doc.slotCode) {
+      if (doc.deviceId) {
+        doc.items = doc.items.map(i => ({ ...i, byDevice: { [doc.deviceId || '']: i.count } }));
+      }
+      const slotInSameOrder = await models.Orders.findOne({
+        $or: [{ posToken: config.token }, { subToken: config.token }],
+        paidDate: { $exists: false },
+        status: {
+          $in: [
+            "new",
+            "doing",
+            "done",
+            "complete",
+            "reDoing",
+            "pending"
+          ]
+        },
+        origin: 'qrMenu',
+        slotCode: doc.slotCode,
+        isSingle: { $ne: true }
+      }).sort({ createdAt: -1 }).lean();
+
+      if (slotInSameOrder?._id) {
+        const items: IOrderItemInput[] = (await models.OrderItems.find(
+          { orderId: slotInSameOrder._id }
+        ).lean()).map(item => ({ ...getItemInput(item) }));
+
+        for (const newItem of doc.items || []) {
+          const duplicatedItem = items.find(i => (
+            i.productId === newItem.productId &&
+            i.isPackage === newItem.isPackage &&
+            i.isTake === newItem.isTake
+          ));
+
+          if (duplicatedItem) {
+            duplicatedItem.count += newItem.count;
+
+            duplicatedItem.byDevice = {
+              ...duplicatedItem.byDevice || {},
+              [doc.deviceId || '']: (((duplicatedItem.byDevice || {})[doc.deviceId || '']) || 0) + newItem.count
+            }
+          } else {
+            items.push({
+              ...getItemInput(newItem),
+              byDevice: { [doc.deviceId || '']: newItem.count }
+            })
+          }
+        }
+
+        return ordersEdit({ ...doc, ...slotInSameOrder, items }, { posUser, config, models, subdomain });
+      }
+    }
     return ordersAdd(doc, { posUser, config, models, subdomain });
   },
 
@@ -429,8 +496,8 @@ const orderMutations = {
     });
 
     if (
-      order.type === 'delivery' &&
-      order.status === 'done' &&
+      order.type === "delivery" &&
+      order.status === "done" &&
       (order.deliveryInfo || order.description) &&
       order.customerId
     ) {
@@ -584,7 +651,8 @@ const orderMutations = {
 
       response = await models.PutResponses.putData(
         { ...ebarimtData },
-        ebarimtConfig
+        ebarimtConfig,
+        config.token
       );
       ebarimtResponses.push(response);
 
@@ -666,6 +734,12 @@ const orderMutations = {
 
     checkOrderStatus(order);
     checkOrderAmount(order, amount);
+    await checkScoreAviableSubtractScoreCampaign(
+      subdomain,
+      models,
+      order,
+      paidAmounts
+    );
 
     const modifier: any = {
       $set: {
@@ -843,9 +917,7 @@ const orderMutations = {
             lng: marker.longitude || marker.lng,
             description: "location"
           },
-          stringValue: `${marker.longitude || marker.lng},${
-            marker.latitude || marker.lat
-          }`
+          stringValue: `${marker.longitude || marker.lng},${marker.latitude || marker.lat}`
         }
       ];
     }
@@ -908,13 +980,15 @@ const orderMutations = {
           "",
         content: `
           Pos order:
-            paid link: <a href="/pos-orders?posId=${config.posId}&search=${
-              order.number
-          }">${order.number}</a> <br />
-            posclient link: <a href="${config.pdomain ?? '/'}?orderId=${
-              order._id
-          }">${order.number}</a> <br />
-        `,
+            paid link:
+            <a href="/pos-orders?posId=${config.posId}&search=${order.number}">
+              ${order.number}
+            </a> <br />
+            posclient link:
+            <a href="${config.pdomain ?? "/"}?orderId=${order._id}">
+              ${order.number}
+            </a> <br />
+        `
       },
       isRPC: true
     });

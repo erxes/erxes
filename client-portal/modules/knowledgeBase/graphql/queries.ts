@@ -99,6 +99,12 @@ export const articleDetailQuery = `
           avatar
         }
       }
+      publishedUser {
+        details {
+          fullName
+          avatar
+        }
+      }
       categoryId
       createdDate
       modifiedBy
@@ -134,6 +140,13 @@ export const articlesQuery = `
           avatar
         }
       }
+      publishedUser {
+        details {
+          fullName
+          avatar
+        }
+      }
+      publishedAt
     }
   }
 `;

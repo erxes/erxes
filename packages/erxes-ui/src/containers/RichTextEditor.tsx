@@ -78,6 +78,7 @@ const EditorContainer = (props: FinalProps) => {
     insertItems,
     showMentions,
     onCtrlEnter,
+    additionalToolbarContent,
     ...otherProps
   } = props;
 
@@ -125,6 +126,7 @@ const EditorContainer = (props: FinalProps) => {
       })}
       onCtrlEnter={onCtrlEnter}
       placeholderProp={placeholderItems}
+      additionalToolbarContent={additionalToolbarContent}
     />
   );
 };

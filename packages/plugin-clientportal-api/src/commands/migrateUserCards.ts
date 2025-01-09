@@ -3,8 +3,6 @@ import { nanoid } from 'nanoid';
 
 const MONGO_URL = process.argv[2] || 'mongodb://localhost:27017/erxes';
 
-console.log('MONGO_URL', MONGO_URL);
-
 if (!MONGO_URL) {
   throw new Error(`Environment variable MONGO_URL not set.`);
 }
@@ -17,9 +15,10 @@ let Cards;
 let ClientPortals;
 
 const command = async () => {
+  console.time('start time');
   try {
     await client.connect();
-    console.log('Connected to ', MONGO_URL);
+    console.debug('Connected to ', MONGO_URL);
     db = client.db();
 
     Cards = db.collection('client_portal_user_cards');
@@ -53,7 +52,8 @@ const command = async () => {
     console.error('eeeeeeee ', e);
   }
 
-  console.log(`Process finished at: ${new Date()}`);
+  // console.de(`Process finished at: ${new Date()}`);
+  console.timeEnd('end time');
 
   process.exit();
 };

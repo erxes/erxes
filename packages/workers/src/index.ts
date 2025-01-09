@@ -12,10 +12,8 @@ import { generateErrors } from './data/modules/import/generateErrors';
 import { initBroker } from './messageBroker';
 import {
   pdfUploader,
-  processPdfTasks,
   taskChecker,
   taskRemover,
-  uploadLimiter,
 } from './worker/pdf/utils';
 import { join, leave } from './serviceDiscovery';
 import { readFileRequest } from './worker/export/utils';
@@ -84,7 +82,7 @@ app.use((error, _req, res, _next) => {
 });
 
 // upload only pdf
-app.post('/upload-pdf', uploadLimiter, pdfUploader);
+app.post('/upload-pdf', pdfUploader);
 
 app.get('/upload-status/:taskId', taskChecker);
 
@@ -93,8 +91,6 @@ app.delete('/delete-task/:taskId', taskRemover);
 const httpServer = createServer(app);
 
 const { PORT = '3700' } = process.env;
-
-processPdfTasks();
 
 httpServer.listen(PORT, async () => {
   await initApolloServer(app, httpServer);

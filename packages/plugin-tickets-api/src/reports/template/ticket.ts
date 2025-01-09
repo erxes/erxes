@@ -1016,7 +1016,7 @@ export const ticketCharts = [
             },
             {
               $lookup: {
-                from: "pipeline_labels",
+                from: "tickets_pipeline_labels",
                 localField: "_id",
                 foreignField: "_id",
                 as: "label",

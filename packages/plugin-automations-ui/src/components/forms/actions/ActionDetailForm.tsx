@@ -1,6 +1,7 @@
 import { IAction } from '@erxes/ui-automations/src/types';
 import React from 'react';
 import { ActionForms } from './';
+import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 
 type Props = {
   activeAction: IAction;
@@ -9,6 +10,7 @@ type Props = {
   addAction: (action: IAction, actionId?: string, config?: any) => void;
   closeModal: () => void;
   actionsConst: any[];
+  triggersConst: any[];
   propertyTypesConst: any[];
 };
 
@@ -26,7 +28,11 @@ class ActionDetailForm extends React.Component<Props> {
 
     const { type } = activeAction;
 
-    return <>{ActionForms({ onSave: this.onSave, ...this.props })[type]}</>;
+    return (
+      <ErrorBoundary>
+        {ActionForms({ onSave: this.onSave, ...this.props })[type]}
+      </ErrorBoundary>
+    );
   }
 }
 

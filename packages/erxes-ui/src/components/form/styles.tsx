@@ -52,19 +52,25 @@ const Formgroup = styledTS<{ $horizontal?: boolean }>(styled.div)`
 const Input = styledTS<{
   round?: boolean;
   $hasError?: boolean;
+  $boxView?: boolean;
+  disabled?: boolean;
   align?: string;
+  hideBottomBorder?: boolean;
 }>(styled.input)`
   display: block;
-  border: none;
+  border: ${(props) => (props.$boxView ? "1px solid" : "none")};
+  outline: 0;
   width: 100%;
   height: ${textInputHeight};
   padding: ${dimensions.unitSpacing}px 0;
   color: ${colors.textPrimary};
-  border-bottom: 1px solid;
+  border-bottom: ${(props) =>
+    props.hideBottomBorder ? "none" : "1px solid #e9e9e9"};
   border-color:${(props) =>
     props.$hasError ? colors.colorCoreRed : colors.colorShadowGray};
-  background: none;
+  background: ${(props) => (props.disabled ? colors.bgActive : "none")};
   transition: all 0.3s ease;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "text")};
 
   ${(props) => {
     if (props.round) {
@@ -73,6 +79,14 @@ const Input = styledTS<{
         border: 1px solid ${colors.borderDarker};
         border-radius: 20px;
         padding: 5px 20px;
+      `;
+    }
+
+    if (props.$boxView) {
+      return `
+        border-radius: 5px;
+        padding: ${dimensions.unitSpacing}px;
+        font-weight: 400;
       `;
     }
 
@@ -103,10 +117,11 @@ const Input = styledTS<{
   }
 `;
 
-const SelectWrapper = styledTS<{ $hasError?: boolean }>(styled.div)`
+const SelectWrapper = styledTS<{ $hasError?: boolean; $boxView?: boolean }>(
+  styled.div
+)`
   overflow: hidden;
-  border-bottom: 1px solid ${(props) =>
-    props.$hasError ? colors.colorCoreRed : colors.colorShadowGray};
+  border-bottom: ${(props) => !props.boxView && `1px solid ${props.$hasError ? colors.colorCoreRed : colors.colorShadowGray}`};
   width: 100%;
   height: ${textInputHeight};
   position: relative;
@@ -129,6 +144,19 @@ const SelectWrapper = styledTS<{ $hasError?: boolean }>(styled.div)`
     line-height: 1;
     -webkit-font-smoothing: antialiased;
   }
+
+  ${(props) => {
+    if (props.$boxView) {
+      return `
+        border-radius: 5px;
+        padding: 0 ${dimensions.unitSpacing}px;
+        font-weight: 400;
+        border: ${`1px solid ${colors.colorShadowGray}`};
+      `;
+    }
+
+    return "";
+  }};
 `;
 
 const Select = styled(Input).attrs({

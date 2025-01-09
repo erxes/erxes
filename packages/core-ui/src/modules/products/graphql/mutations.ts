@@ -23,6 +23,14 @@ const productsMerge = `
   }
 `;
 
+const productsDuplicate = `
+  mutation productsDuplicate($_id: String!) {
+    productsDuplicate(_id: $_id) {
+      _id
+    }
+  }
+`;
+
 // UOM
 
 const commonUomParams = `
@@ -30,13 +38,15 @@ const commonUomParams = `
   $code: String
   $isForSubscription:Boolean
   $subscriptionConfig:JSON
+  $timely: TimelyType
 `;
 
 const commonUomParamsDef = `
   name: $name,
   code: $code,
   isForSubscription: $isForSubscription,
-  subscriptionConfig:$subscriptionConfig
+  subscriptionConfig: $subscriptionConfig,
+  timely: $timely
 `;
 
 const uomsAdd = `
@@ -44,6 +54,7 @@ const uomsAdd = `
     uomsAdd(${commonUomParamsDef}) {
       _id
       name
+      timely
       code
       createdAt
     }
@@ -55,6 +66,7 @@ const uomsEdit = `
     uomsEdit(_id: $_id, ${commonUomParamsDef}) {
       _id
       name
+      timely
       code
       createdAt
     }
@@ -79,10 +91,10 @@ export default {
   productCategoryEdit,
   productCategoryRemove,
   productsMerge,
-
+  productsDuplicate,
   uomsAdd,
   uomsEdit,
   uomsRemove,
 
-  productsConfigsUpdate
+  productsConfigsUpdate,
 };

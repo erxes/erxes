@@ -50,7 +50,7 @@ export const productToErkhet = async (
     isRPC: true
   });
 
-  let weight = 1;
+  let weight;
 
   const weightField = await sendCoreMessage({
     subdomain,
@@ -66,7 +66,7 @@ export const productToErkhet = async (
     );
 
     if (weightData && weightData.value) {
-      weight = Number(weightData.value) || 1;
+      weight = Number(weightData.value) || undefined;
     }
   }
 
@@ -96,8 +96,6 @@ export const productToErkhet = async (
       categoryCode: productCategory ? productCategory.code : "",
       defaultCategory: mainConfig.productCategoryCode,
       weight,
-      taxType: product.taxType,
-      taxCode: product.taxCode
     }
   };
 

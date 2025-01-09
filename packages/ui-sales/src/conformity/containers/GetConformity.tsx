@@ -1,11 +1,5 @@
-import * as compose from 'lodash.flowright';
-
-import { ConformityQueryResponse, ISavedConformity } from '../types';
-
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { renderWithProps } from '@erxes/ui/src/utils/core';
+import { gql, useQuery } from '@apollo/client';
+import React from 'react'
 
 type IProps = {
   mainType?: string;
@@ -21,73 +15,54 @@ type IProps = {
   actionSection?: any;
 };
 
-type FinalProps = {
-  itemsQuery: ConformityQueryResponse;
-} & IProps;
+const PortableItemsContainer = (props: IProps) => {
 
-class PortableItemsContainer extends React.Component<FinalProps> {
-  onChangeItem = () => {
-    const { itemsQuery } = this.props;
+  const { itemsQuery, component, queryName,  mainType, mainTypeId, relType, alreadyItems } = props;
 
-    itemsQuery.refetch();
+  const variables: any = {
+    mainType,
+    mainTypeId,
+    relType,
+    noSkipArchive: true,
+    limit: 40,
+    isSaved: true,
+    sortField: 'status',
+    sortDirection: 1
   };
 
-  render() {
-    const { itemsQuery, component, queryName, alreadyItems } = this.props;
+  if (mainType === 'user') {
+    variables.assignedUserIds = [mainTypeId];
+    variables.isSaved = false;
+  }
 
-    let items = alreadyItems;
+  const {data, refetch} = useQuery(gql(itemsQuery), {
+    skip: (!mainType && !mainTypeId && !relType) ||
+    alreadyItems !== undefined,
+    variables
+  })
+
+  let items = alreadyItems;
 
     if (!alreadyItems) {
-      if (!itemsQuery) {
+      if (!data) {
         return null;
       }
 
-      items = itemsQuery[queryName] || [];
+      items = data[queryName] || [];
     }
 
+    const onChangeItem = () => {
+      refetch()
+    };
+
     const extendedProps = {
-      ...this.props,
+      ...props,
       items,
-      onChangeItem: this.onChangeItem
+      onChangeItem
     };
 
     const Component = component;
     return <Component {...extendedProps} />;
-  }
 }
 
-export default (props: IProps) =>
-  renderWithProps<IProps>(
-    props,
-    compose(
-      graphql<IProps, ConformityQueryResponse, ISavedConformity>(
-        gql(props.itemsQuery),
-        {
-          name: 'itemsQuery',
-          skip: ({ mainType, mainTypeId, relType, alreadyItems }) =>
-            (!mainType && !mainTypeId && !relType) ||
-            alreadyItems !== undefined,
-          options: ({ mainType, mainTypeId, relType }) => {
-            const variables: any = {
-              mainType,
-              mainTypeId,
-              relType,
-              noSkipArchive: true,
-              limit: 40,
-              isSaved: true,
-              sortField: 'status',
-              sortDirection: 1
-            };
-
-            // conformity with mainType "user" is not saved
-            if (mainType === 'user') {
-              variables.assignedUserIds = [mainTypeId];
-              variables.isSaved = false;
-            }
-
-            return { variables };
-          }
-        }
-      )
-    )(PortableItemsContainer)
-  );
+export default PortableItemsContainer

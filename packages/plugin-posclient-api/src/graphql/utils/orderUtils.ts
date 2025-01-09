@@ -1,4 +1,8 @@
-import { IOrder, IOrderDocument } from "../../models/definitions/orders";
+import {
+  IOrder,
+  IOrderDocument,
+  IPaidAmount
+} from "../../models/definitions/orders";
 import { IModels } from "../../connectionResolver";
 import { IPayment } from "../resolvers/mutations/orders";
 import { IOrderInput, IOrderItemInput } from "../types";
@@ -24,17 +28,9 @@ import { checkRemainders } from "./products";
 import { getPureDate } from "@erxes/api-utils/src";
 import { checkDirectDiscount } from "./directDiscount";
 import { IPosUserDocument } from "../../models/definitions/posUsers";
-import { sendPosMessage, sendCoreMessage } from "../../messageBroker";
+import { sendCoreMessage, sendLoyaltiesMessage } from "../../messageBroker";
 import { nanoid } from "nanoid";
 import { getCompanyInfo } from "../../models/PutData";
-
-interface IDetailItem {
-  count: number;
-  amount: number;
-  inventoryCode: string;
-  barcode: string;
-  productId: string;
-}
 
 export const generateOrderNumber = async (
   models: IModels,
@@ -42,19 +38,23 @@ export const generateOrderNumber = async (
 ): Promise<string> => {
   const todayStr = moment().format("YYYYMMDD").toString();
 
-  const beginNumber =
-    (config && config.beginNumber && `${config.beginNumber}.`) || "";
-
+  let beginNumber = "";
+  let regexSuffix = "[0-9]*$";
   let suffix = "0001";
-  let number = `${todayStr}_${beginNumber}${suffix}`;
-
   let latestOrder;
+
+  if (config?.beginNumber) {
+    beginNumber = `${config.beginNumber}.`;
+    regexSuffix = `${config.beginNumber}\.[0-9]*$`;
+  }
+
+  let number = `${todayStr}_${beginNumber}${suffix}`;
 
   const latestOrders = await models.Orders.aggregate([
     {
       $match: {
         posToken: config.token,
-        number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) }
+        number: { $regex: new RegExp(`^${todayStr}_${regexSuffix}`) }
       }
     },
     {
@@ -93,11 +93,37 @@ export const generateOrderNumber = async (
   return number;
 };
 
+const validDueDate = (doc: IOrderInput, order?: IOrderDocument) => {
+  if (!doc.isPre) {
+    return true;
+  }
+  if (!doc.dueDate) {
+    return false;
+  }
+
+  const now = getPureDate(new Date());
+  if (doc.dueDate >= now) {
+    return true;
+  }
+
+  if (
+    order &&
+    order.isPre &&
+    order.dueDate &&
+    getPureDate(order.dueDate) !== getPureDate(doc.dueDate)
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
 export const validateOrder = async (
   subdomain: string,
   models: IModels,
   config: IConfigDocument,
-  doc: IOrderInput
+  doc: IOrderInput,
+  order?: IOrderDocument
 ) => {
   const { items = [] } = doc;
 
@@ -105,7 +131,7 @@ export const validateOrder = async (
     throw new Error("Products missing in order. Please add products");
   }
 
-  if (doc.isPre && (!doc.dueDate || doc.dueDate < getPureDate(new Date()))) {
+  if (!(await validDueDate(doc, order))) {
     throw new Error(
       "The due date of the pre-order must be recorded in the future"
     );
@@ -236,7 +262,7 @@ export const updateOrderItems = async (
     const doc = {
       productId: item.productId,
       count: item.count,
-      unitPrice: item.unitPrice,
+      unitPrice: item.unitPrice || 0,
       discountPercent: item.discountPercent,
       discountAmount: item.discountAmount,
       bonusCount: item.bonusCount,
@@ -245,7 +271,8 @@ export const updateOrderItems = async (
       isTake: item.isTake,
       manufacturedDate: item.manufacturedDate,
       description: item.description,
-      attachment: item.attachment
+      attachment: item.attachment,
+      byDevice: item.byDevice
     };
 
     if (itemIds.includes(item._id)) {
@@ -475,8 +502,7 @@ export const prepareOrderDoc = async (
         if (prevSubscription) {
           const prevSubscriptionItem = await models.OrderItems.findOne({
             orderId: prevSubscription._id,
-            closeDate: { $gte: new Date() },
-            productId: item.productId
+            closeDate: { $gte: new Date() }
           });
 
           if (prevSubscriptionItem) {
@@ -507,7 +533,7 @@ export const prepareOrderDoc = async (
     }
   }
 
-  const hasTakeItems = items.filter(i => i.isTake);
+  const hasTakeItems = [ORDER_TYPES.DELIVERY, ORDER_TYPES.TAKE].includes(doc.type) && items || items.filter(i => i.isTake);
 
   if (hasTakeItems.length > 0 && catProdMappings.length > 0) {
     const toAddProducts = {};
@@ -645,6 +671,67 @@ export const checkOrderAmount = (order: IOrderDocument, amount: number) => {
     paidAmount + amount > order.totalAmount
   ) {
     throw new Error("Amount exceeds total amount");
+  }
+};
+
+export const checkScoreAviableSubtractScoreCampaign = async (
+  subdomain: string,
+  models: IModels,
+  order: IOrderDocument,
+  paidAmounts?: IPaidAmount[]
+) => {
+  if (!paidAmounts?.length) {
+    return;
+  }
+
+  const config = await models.Configs.findOne({
+    paymentTypes: {
+      $elemMatch: {
+        type: { $in: paidAmounts.map(({ type }) => type) },
+        scoreCampaignId: { $exists: true }
+      }
+    },
+    token: order.posToken
+  });
+
+  if (!config) {
+    return;
+  }
+
+  const { paymentTypes = [] } = config;
+
+  for (const { type } of paidAmounts || []) {
+    const paymentType = paymentTypes.find(
+      paymentType => paymentType.type === type && !!paymentType.scoreCampaignId
+    );
+
+    if (paymentType) {
+      const { scoreCampaignId, title } = paymentType || {};
+
+      if (!scoreCampaignId) {
+        continue;
+      }
+
+      await sendLoyaltiesMessage({
+        subdomain,
+        action: "checkScoreAviableSubtract",
+        data: {
+          ownerType: order.customerType || "customer",
+          ownerId: order.customerId,
+          campaignId: scoreCampaignId,
+          target: { ...order, paidAmounts }
+        },
+        isRPC: true,
+        defaultValue: false
+      }).catch(error => {
+        if (error.message === "There has no enough score to subtract") {
+          throw new Error(
+            `There has no enough score to subtract using ${title}`
+          );
+        }
+        throw new Error(error.message);
+      });
+    }
   }
 };
 

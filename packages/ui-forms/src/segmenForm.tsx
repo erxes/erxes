@@ -1,16 +1,9 @@
-import { gql } from "@apollo/client";
-import { ControlLabel } from "@erxes/ui/src/components/form";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import Select from "react-select";
-import React from "react";
-import { withProps } from "@erxes/ui/src/utils";
-import * as compose from "lodash.flowright";
-import { graphql } from "@apollo/client/react/hoc";
+import React from 'react';
 
-import Spinner from "@erxes/ui/src/components/Spinner";
-import { FormsQueryResponse } from "@erxes/ui-forms/src/forms/types";
-import { queries } from "@erxes/ui-leads/src/graphql";
-import { INTEGRATION_KINDS } from "@erxes/ui/src/constants/integrations";
+import { queries } from '@erxes/ui-leads/src/graphql';
+import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
+import { ControlLabel } from '@erxes/ui/src/components/form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 
 type Props = {
   type: string;
@@ -18,59 +11,31 @@ type Props = {
   onChangeConfig?: (value) => void;
 };
 
-class Form extends React.Component<any, any, any> {
-  onChangeForm = (_key, e) => {
-    const formId = e ? e.value : "";
-
-    const result = { formId };
-
-    this.props.onChangeConfig(result);
-  };
-
-  render() {
-    const { config, formsQuery } = this.props;
-
-    if (formsQuery.loading) {
-      return <Spinner />;
-    }
-
-    const { formId } = config || {};
-    const forms = formsQuery.integrations || [];
-
-    if (forms[0] && !formId) {
-      this.props.onChangeConfig({ formId: forms[0].formId });
-    }
-
-    const options = forms.map(b => ({ value: b.formId, label: b.name }));
-
-    return (
-      <>
-        <FormGroup>
-          <ControlLabel>Form</ControlLabel>
-          <Select
-            value={options.find(option => option.value === formId)}
-            options={options}
-            isClearable={true}
-            onChange={this.onChangeForm.bind(this, "formId")}
-          />
-        </FormGroup>
-      </>
-    );
-  }
-}
-
-export default withProps<Props>(
-  compose(
-    graphql<Props, FormsQueryResponse, {}>(gql(queries.integrations), {
-      name: "formsQuery",
-      options: ({}) => {
-        return {
-          variables: {
-            kind: INTEGRATION_KINDS.FORMS,
-            perPage: 1000
+export default function Form({ config, onChangeConfig }: Props) {
+  return (
+    <FormGroup>
+      <ControlLabel>Form</ControlLabel>
+      <SelectWithSearch
+        name="formId"
+        label="Form"
+        initialValue={config.formId}
+        queryName="integrations"
+        customQuery={queries.integrations}
+        filterParams={{ kind: 'lead', perPage: 1000 }}
+        generateOptions={array => {
+          if (!config.formId && !!array?.length) {
+            const { form = {} } = (array || [])[0] || {};
+            onChangeConfig && onChangeConfig({ formId: form?._id });
           }
-        };
-      }
-    })
-  )(Form)
-);
+          return array.map(item => ({
+            label: item.name,
+            value: item?.form?._id,
+          }));
+        }}
+        onSelect={value => {
+          onChangeConfig && onChangeConfig({ formId: value });
+        }}
+      />
+    </FormGroup>
+  );
+}

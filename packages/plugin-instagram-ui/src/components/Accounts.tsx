@@ -3,28 +3,29 @@ import {
   AccountItem,
   AccountTitle,
   FacebookButton
-} from '@erxes/ui-inbox/src/settings/integrations/styles';
+} from "@erxes/ui-inbox/src/settings/integrations/styles";
 import {
   IAccount,
   IntegrationTypesInstagram
-} from '@erxes/ui-inbox/src/settings/integrations/types';
-import { __, confirm } from 'coreui/utils';
+} from "@erxes/ui-inbox/src/settings/integrations/types";
+import { __, confirm } from "coreui/utils";
 
-import Button from '@erxes/ui/src/components/Button';
-import { CenterText } from '@erxes/ui-log/src/activityLogs/styles';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { IFormProps } from '@erxes/ui/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
+import Button from "@erxes/ui/src/components/Button";
+import { CenterText } from "@erxes/ui-log/src/activityLogs/styles";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { IFormProps } from "@erxes/ui/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
 
 type Props = {
-  onSelect: (accountId?: string) => void;
+  onSelect: (accountId?: string, account?: IAccount) => void;
   accounts: IAccount[];
   formProps?: IFormProps;
   onAdd: () => void;
   kind: IntegrationTypesInstagram;
   renderForm?: () => JSX.Element;
   removeAccount: (accountId: string) => void;
+  selectedAccountId?: string;
 };
 
 class Accounts extends React.Component<Props, { accountId?: string }> {
@@ -38,14 +39,21 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     const accounts = this.props.accounts;
 
     if (accounts && accounts.length > 0) {
-      this.onSelectAccount(accounts[0]._id);
+      this.onSelectAccount(accounts[0]._id, accounts[0]);
+    }
+
+    if (this.props?.selectedAccountId) {
+      const account = (accounts || []).find(
+        (account) => account._id === this.props.selectedAccountId
+      );
+      this.onSelectAccount(this.props.selectedAccountId, account);
     }
   };
 
-  onSelectAccount = (accountId: string) => {
-    this.props.onSelect(accountId);
+  onSelectAccount = (accountId: string, account?: IAccount) => {
+    this.props.onSelect(accountId, account);
 
-    this.setState({ accountId: accountId || '' });
+    this.setState({ accountId: accountId || "" });
   };
 
   onRemove(accountId: string) {
@@ -53,18 +61,18 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
     confirm().then(() => {
       removeAccount(accountId);
-      this.setState({ accountId: '' });
+      this.setState({ accountId: "" });
     });
   }
 
   renderButton() {
     const { onAdd, kind } = this.props;
 
-    if (kind === 'instagram') {
+    if (kind === "instagram") {
       return (
         <FacebookButton onClick={onAdd}>
-          <Icon icon='instagram-official' />
-          {__('Continue with facebook')}
+          <Icon icon='facebook-official' />
+          {__("Continue with Facebook")}
         </FacebookButton>
       );
     }
@@ -97,7 +105,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
       return (
         <EmptyState
           icon='user-6'
-          text={__('There is no linked accounts')}
+          text={__("There is no linked accounts")}
         />
       );
     }
@@ -108,19 +116,19 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
         <div>
           <Button
-            onClick={this.onSelectAccount.bind(this, account._id)}
+            onClick={this.onSelectAccount.bind(this, account._id, account)}
             btnStyle={
-              this.state.accountId === account._id ? 'primary' : 'simple'
+              this.state.accountId === account._id ? "primary" : "simple"
             }>
             {this.state.accountId === account._id
-              ? __('Selected')
-              : __('Select This Account')}
+              ? __("Selected")
+              : __("Select This Account")}
           </Button>
 
           <Button
             onClick={this.onRemove.bind(this, account._id)}
             btnStyle='danger'>
-            {__('Remove')}
+            {__("Remove")}
           </Button>
         </div>
       </AccountItem>
@@ -130,10 +138,10 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     return (
       <>
         <AccountBox>
-          <AccountTitle>{__('Linked Accounts')}</AccountTitle>
+          <AccountTitle>{__("Linked Accounts")}</AccountTitle>
           {this.renderAccounts()}
         </AccountBox>
-        <CenterText>{__('OR')}</CenterText>
+        <CenterText>{__("OR")}</CenterText>
         <CenterText>{this.renderAccountAction()}</CenterText>
       </>
     );

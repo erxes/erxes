@@ -1,5 +1,6 @@
 import { generateModels } from './connectionResolver';
 import { createCustomer } from './utils/customer/createCustomer';
+import { getCustomerFromPolaris } from './utils/customer/getCustomerDetail';
 import { updateCustomer } from './utils/customer/updateCustomer';
 import { createDeposit } from './utils/deposit/createDeposit';
 import { updateDeposit } from './utils/deposit/updateDeposit';
@@ -69,8 +70,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
     switch (type) {
       case "core:customer":
         response = await customerMethod(
-          action,
-          preSuccessValue,
           subdomain,
           models,
           polarisConfig,
@@ -110,13 +109,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
         response = await loansTransactionMethod(subdomain, models, polarisConfig, syncLog, params);
         break;
     }
-
-    await models.SyncLogs.updateOne(
-      { _id: syncLog._id },
-      {
-        $set: { responseData: response, responseStr: JSON.stringify(response) }
-      }
-    );
   } catch (e) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
@@ -125,14 +117,25 @@ export const afterMutationHandlers = async (subdomain, params) => {
   }
 };
 
-const customerMethod = async (action, preSuccessValue, subdomain, models, polarisConfig, syncLog, params) => {
-  if (action === 'create' || action === 'update') {
-    if (!preSuccessValue) {
-      return await createCustomer(subdomain, models, polarisConfig, syncLog, params);
-    }
+const customerMethod = async (subdomain, models, polarisConfig, syncLog, params) => {
+  const customer = params.updatedDocument || params.object;
+  const { isPush, registerField, codeField } = polarisConfig;
 
-    return await updateCustomer(subdomain, models, polarisConfig, syncLog, params)
+  if (!isPush || !registerField?.fieldId || !codeField?.fieldId) {
+    return;
   }
+
+  const { registerCode, custCode, polarisCustomer } = await getCustomerFromPolaris(subdomain, customer, polarisConfig);
+
+  if (!registerCode) {
+    return;
+  }
+
+  if (custCode && polarisCustomer) {
+    return await updateCustomer(subdomain, models, polarisConfig, syncLog, { ...customer, custCode, registerCode });
+  }
+
+  return await createCustomer(subdomain, models, polarisConfig, syncLog, { ...customer, registerCode });
 };
 
 const savingContractMethod = async (

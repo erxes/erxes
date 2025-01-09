@@ -123,7 +123,7 @@ jobs:
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
 
-          docker buildx imagetools create erxes/plugin-purchases-api:rc --tag  erxes/plugin-purchases-api:${GITHUB_REF#refs/tags/}
+          docker buildx imagetools create erxes/plugin-purchases-api:master --tag  erxes/plugin-purchases-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-sales-api
         run: >
@@ -131,7 +131,7 @@ jobs:
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
 
-          docker buildx imagetools create erxes/plugin-sales-api:rc --tag  erxes/plugin-sales-api:${GITHUB_REF#refs/tags/}
+          docker buildx imagetools create erxes/plugin-sales-api:master --tag  erxes/plugin-sales-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-tasks-api
         run: >
@@ -139,7 +139,7 @@ jobs:
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
 
-          docker buildx imagetools create erxes/plugin-tasks-api:rc --tag  erxes/plugin-tasks-api:${GITHUB_REF#refs/tags/}
+          docker buildx imagetools create erxes/plugin-tasks-api:master --tag  erxes/plugin-tasks-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-tickets-api
         run: >
@@ -147,7 +147,7 @@ jobs:
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
 
-          docker buildx imagetools create erxes/plugin-tickets-api:rc --tag  erxes/plugin-tickets-api:${GITHUB_REF#refs/tags/}
+          docker buildx imagetools create erxes/plugin-tickets-api:master --tag  erxes/plugin-tickets-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-clientportal-api
         run: >
@@ -591,6 +591,13 @@ jobs:
 
           docker buildx imagetools create erxes/plugin-burenscoring-api:master --tag  erxes/plugin-burenscoring-api:${GITHUB_REF#refs/tags/}
 
+      - name: plugin-activedirectory-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker buildx imagetools create erxes/plugin-activedirectory-api:master --tag  erxes/plugin-activedirectory-api:${GITHUB_REF#refs/tags/}
+
       - name: inbox ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-inbox-ui
           s3://erxes-release-plugins/uis/plugin-inbox-ui/${GITHUB_REF#refs/tags/}/
@@ -605,19 +612,19 @@ jobs:
           s3://erxes-release-plugins/uis/plugin-cards-ui/${GITHUB_REF#refs/tags/}/
 
       - name: sales ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-sales-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-sales-ui
           s3://erxes-release-plugins/uis/plugin-sales-ui/${GITHUB_REF#refs/tags/}/
 
       - name: tickets ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-tickets-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-tickets-ui
           s3://erxes-release-plugins/uis/plugin-tickets-ui/${GITHUB_REF#refs/tags/}/
 
       - name: tasks ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-tasks-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-tasks-ui
           s3://erxes-release-plugins/uis/plugin-tasks-ui/${GITHUB_REF#refs/tags/}/
 
       - name: purchases ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-purchases-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-purchases-ui
           s3://erxes-release-plugins/uis/plugin-purchases-ui/${GITHUB_REF#refs/tags/}/
 
       - name: clientportal ui
@@ -800,3 +807,7 @@ jobs:
       - name: burenscoring ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-burenscoring-ui
           s3://erxes-release-plugins/uis/plugin-burenscoring-ui/${GITHUB_REF#refs/tags/}/
+
+      - name: activedirectory ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-activedirectory-ui
+          s3://erxes-release-plugins/uis/plugin-activedirectory-ui/${GITHUB_REF#refs/tags/}/

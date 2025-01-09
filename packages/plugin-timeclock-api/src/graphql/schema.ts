@@ -77,6 +77,9 @@ export const types = `
     requestType: String
     requestTimeType: String
     requestHoursPerDay: Float
+    requestToType: String
+    absenceUserIds: [String]
+    branchIds: [String]
   }
 
   
@@ -355,7 +358,9 @@ const absenceType_params = `
     requestType: String
     requestTimeType: String
     requestHoursPerDay: Float
-  
+    requestToType: String
+    absenceUserIds: [String]
+    branchIds: [String]
 `;
 
 const scheduleConfigParams = `

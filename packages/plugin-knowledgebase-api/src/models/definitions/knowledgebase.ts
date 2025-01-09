@@ -1,4 +1,4 @@
-import { attachmentSchema, IAttachment } from '@erxes/api-utils/src/types';
+import { attachmentSchema, IPdfAttachment } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 import { PUBLISH_STATUSES } from './constants';
 import { field, schemaWrapper } from './utils';
@@ -16,10 +16,7 @@ interface IFormCodes {
   formId: string;
 }
 
-export interface IPdfAttachment {
-  pdf: IAttachment;
-  pages: IAttachment[];
-}
+
 
 export interface IArticle {
   title?: string;
@@ -33,6 +30,7 @@ export interface IArticle {
   categoryId?: string;
   topicId?: string;
   publishedUserId?: string;
+  publishedAt?: Date;
   scheduledDate?: Date;
 
   forms?: IFormCodes[];
@@ -130,7 +128,7 @@ export const articleSchema = new Schema({
   topicId: field({ type: String, optional: true, label: 'Topic' }),
   categoryId: field({ type: String, optional: true, label: 'Category' }),
   publishedUserId:field({ type: String, optional: true, label: 'Published user'}),
-
+  publishedAt: field({ type: Date, optional: true, label: 'Published at' }),
   forms: field({ type: [formcodesSchema], label: 'Forms' }),
 
   pdfAttachment: field({ type: Object, optional: true, label: 'PDF attachment' }),

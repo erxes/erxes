@@ -38,6 +38,7 @@ const burenScoringMutations = {
     const models = await generateModels(subdomain);
     return await models.BurenScorings.createBurenScoring(subdomain, data);
   },
+
   toCheckScore: async (
     _root,
     {
