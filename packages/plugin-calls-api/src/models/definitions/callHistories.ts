@@ -44,7 +44,7 @@ export const callHistorySchema = new Schema({
       'rejected',
       'cancelled',
       'active',
-      'transfered',
+      'transferred',
       'cancelledToAnswered',
     ],
     default: 'missed',

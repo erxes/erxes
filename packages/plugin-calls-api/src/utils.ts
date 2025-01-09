@@ -72,7 +72,6 @@ export const sendToGrandStream = async (models, args, user) => {
     : operator?.gsUsername || '1001';
 
   let cookie = await getOrSetCallCookie(wsServer);
-
   if (!cookie) {
     throw new Error('Cookie not found');
   }
@@ -208,10 +207,10 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     callStartTime,
     callEndTime,
     _id,
-    transferedCallStatus,
+    transferredCallStatus,
     isCronRunning,
   } = params;
-  if (transferedCallStatus === 'local' && callType === 'incoming') {
+  if (transferredCallStatus === 'local' && callType === 'incoming') {
     return 'Check the transferred call record URL!';
   }
 
@@ -258,13 +257,13 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         momentTz(callStartTime).tz(tz) || momentTz(callStartTime)
       ).format('YYYY-MM-DD');
       const endDate = (
-        momentTz(callEndTime).tz(tz) || momentTz(callStartTime)
+        momentTz(callEndTime).tz(tz) || momentTz(callEndTime)
       ).format('YYYY-MM-DD');
 
       let caller = customerPhone;
       let callee = extentionNumber || extension || operator;
 
-      if (transferedCallStatus === 'remote') {
+      if (transferredCallStatus === 'remote') {
         callee = extentionNumber || extension;
       }
 
@@ -363,10 +362,10 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       }
 
       if (
-        ['QUEUE', 'TRANSFERED'].some((substring) =>
+        ['QUEUE', 'TRANSFER'].some((substring) =>
           lastCreatedObject?.action_type?.includes(substring),
         ) &&
-        !(transferedCallStatus === 'remote' && callType === 'incoming')
+        !(transferredCallStatus === 'remote' && callType === 'incoming')
       ) {
         fileDir = 'queue';
       }
@@ -389,7 +388,13 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         subdomain,
       );
     } catch (error) {
-      console.error('Error in fetchRecordUrl:', error);
+      console.error('Error in fetchRecordUrl:', error.message);
+      if (
+        error.message !== 'Success' &&
+        Object.values(errorList).includes(error.message)
+      ) {
+        throw error;
+      }
       if (retryCount > 1) {
         return fetchRecordUrl(retryCount - 1);
       }
@@ -670,7 +675,6 @@ const errorList: ErrorList = {
   0: 'Success',
   [-1]: 'Invalid parameters',
   [-5]: 'Need authentication',
-  [-6]: 'Cookie error',
   [-7]: 'Connection closed',
   [-8]: 'System timeout',
   [-9]: 'Abnormal system error!',
