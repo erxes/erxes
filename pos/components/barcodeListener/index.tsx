@@ -1,44 +1,62 @@
-import { useCallback, useEffect, useState } from "react"
-import { barcodeAtom } from "@/store/barcode.store"
-import { disableBarcodeAtom } from "@/store/ui.store"
-import { differenceInMilliseconds } from "date-fns"
-import { useAtomValue, useSetAtom } from "jotai"
+import React, { useCallback, useEffect, useState } from "react";
+import { barcodeAtom } from "@/store/barcode.store";
+import { disableBarcodeAtom } from "@/store/ui.store";
+import { differenceInMilliseconds } from "date-fns";
+import { useAtomValue, useSetAtom } from "jotai";
 
-const BarcodeListener = ({ children }: { children: React.ReactNode }) => {
-  const [value, setValue] = useState("")
-  const [changeDate, setChangeDate] = useState<Date | null>()
-  const disableBarcode = useAtomValue(disableBarcodeAtom)
-  const setBarcode = useSetAtom(barcodeAtom)
-
-  const handleKeyPress = useCallback(
-    ({ key }: { key: string }) => {
-      const date = new Date()
-      const diff =
-        differenceInMilliseconds(date, new Date(changeDate || 0)) < 30
-
-      if ((key || "").length === 1) {
-        setValue((prev) => (diff ? prev + key : key.toString()))
-        return setChangeDate(date)
-      }
-
-      if (key === "Enter" && value.length > 4 && diff) {
-        setBarcode(value)
-        setValue("")
-      }
-    },
-    [changeDate, setBarcode, value]
-  )
-
-  useEffect(() => {
-    if (disableBarcode) {
-      return
-    }
-    window.addEventListener("keydown", handleKeyPress)
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress)
-    }
-  }, [changeDate, value, handleKeyPress, disableBarcode])
-  return <>{children}</>
+interface BarcodeListenerProps {
+  children: React.ReactNode;
+  threshold?: number; // Max time in ms between key presses to consider continuous input
+  minBarcodeLength?: number; // Minimum barcode length to submit
 }
 
-export default BarcodeListener
+const BarcodeListener = ({
+  children,
+  threshold = 100,
+  minBarcodeLength = 5,
+}: BarcodeListenerProps) => {
+  const [value, setValue] = useState("");
+  const [lastKeyPressDate, setLastKeyPressDate] = useState<Date | null>(null);
+  const disableBarcode = useAtomValue(disableBarcodeAtom);
+  const setBarcode = useSetAtom(barcodeAtom);
+
+  const handleKeyPress = useCallback(
+    ({ key }: KeyboardEvent) => {
+      const currentDate = new Date();
+
+      // Calculate time difference since the last key press
+      const isContinuousInput =
+        lastKeyPressDate &&
+        differenceInMilliseconds(currentDate, lastKeyPressDate) < threshold;
+
+        if (key.length === 1) {
+                // Only accept alphanumeric characters and common symbols
+                 if (!/^[a-zA-Z0-9-_]$/.test(key)) return;
+
+                  setValue((prev) => (isContinuousInput ? prev + key : key));
+                  setLastKeyPressDate(currentDate);
+                  return;
+                }
+
+      if (key === "Enter" && value.length >= minBarcodeLength && isContinuousInput) {
+        // Submit the barcode and reset the input
+        setBarcode(value);
+        setValue("");
+      }else if (key === "Enter") setValue("");
+    },
+    [lastKeyPressDate, threshold, value, minBarcodeLength, setBarcode]
+  );
+
+  useEffect(() => {
+    if (disableBarcode) return;
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [handleKeyPress, disableBarcode]);
+
+  return <>{children}</>;
+};
+
+export default BarcodeListener;
