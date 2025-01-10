@@ -1,8 +1,6 @@
 import { __ } from 'coreui/utils';
 import React from 'react';
 
-import SchedulesList from '../../containers/Schedules';
-import { ScrollTableColls } from '../../styles';
 import withConsumer from '../../../withConsumer';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Box from '@erxes/ui/src/components/Box';
@@ -47,44 +45,32 @@ function ScheduleSection({
       });
 
   const renderExtraButton = () => {
-    if (contract.repayment !== 'custom') {
-      if (isFirst) {
-        return (
-          <button onClick={onRegenSchedules} title="create schedule">
-            <Icon icon="refresh-1" />
-          </button>
-        );
-      }
-
-      if (hasTransaction)
-        return (
-          <button onClick={onFixSchedules} title={'fix schedule'}>
-            <Icon icon="refresh-1" />
-          </button>
-        );
-
+    if (isFirst) {
       return (
-        null
+        <button onClick={onRegenSchedules} title="create schedule">
+          <Icon icon="refresh-1" />
+        </button>
       );
     }
-    return 
 
+    if (hasTransaction)
+      return (
+        <button onClick={onFixSchedules} title={'fix schedule'}>
+          <Icon icon="refresh-1" />
+        </button>
+      );
+
+    return (
+      null
+    );
   };
+
+  if (contract.repayment !== "custom") {
+    return ()
+  }
   return (
-    <Box
-      title={__(`${(isFirst && 'First ') || ''}Schedules`)}
-      name="showSchedules"
-      isOpen={true}
-      extraButtons={can('manageSchedule', currentUser) && renderExtraButton()}
-    >
-      <ScrollTableColls>
-        <SchedulesList
-          contractId={contract._id}
-          isFirst={isFirst}
-          leaseType={leaseType}
-        ></SchedulesList>
-      </ScrollTableColls>
-    </Box>
+
+    
   );
 }
 

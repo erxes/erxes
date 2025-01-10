@@ -1,7 +1,6 @@
 import { IContext } from '../../../connectionResolver';
 import { sendMessageBroker } from '../../../messageBroker';
 import { IDefaultScheduleParam } from '../../../models/definitions/schedules';
-import { getGraphicValue } from '../../../models/utils/scheduleUtils';
 import { calcPerVirtual, getFullDate } from '../../../models/utils/utils';
 
 const scheduleQueries = {
@@ -39,7 +38,7 @@ const scheduleQueries = {
       return models.FirstSchedules.find(filter).sort({ payDate: 1 });
     }
 
-    return models.Schedules.find(filter).sort({ payDate: 1 });
+    return models.Schedules.find(filter).sort({ payDate: 1, createdAt: 1 });
   },
 
   virtualSchedules: async (_root, doc: IDefaultScheduleParam, { }) => {
@@ -60,6 +59,7 @@ const scheduleQueries = {
       }
     }
   },
+
   getGraphicValue: async (_root, { contract }, { subdomain }: IContext) => {
     const holidayConfig: any = await sendMessageBroker(
       {
@@ -82,7 +82,7 @@ const scheduleQueries = {
         day: Number(holidayConfig.value[key].day)
       }));
 
-    getGraphicValue(contract, perHolidays);
+    // getGraphicValue(contract, perHolidays);
   }
 };
 

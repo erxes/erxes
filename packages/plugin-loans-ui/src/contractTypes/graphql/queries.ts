@@ -7,24 +7,37 @@ export const contractTypeFields = `
   number
   vacancy
   leaseType
-  createdAt
+  currency
+
+  defaultInterest
+  useSkipInterest
+  skipInterestDay
+  skipInterestMonth
+
   lossPercent
   lossCalcType
+  skipLossDay
+  allowLateDay
+
+  allowPartOfLease
+  limitIsCurrent
+  commitmentInterest
+
   useMargin
-  useSkipInterest
   useDebt
-  config
-  currency
-  productId
-  productType
   useManualNumbering
   useFee
-  commitmentInterest
+
   savingPlusLoanInterest
   savingUpperPercent
-  usePrePayment
-  invoiceDay
-  customFieldsData
+
+  config
+  productId
+  productType
+  
+  createdAt
+  modifiedAt
+
   product {
     _id
     code
