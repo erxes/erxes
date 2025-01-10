@@ -1,9 +1,9 @@
-import React from 'react';
-import TimeView from '../../components/Time';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
-import { Alert, withProps } from '@erxes/ui/src/utils';
+import React from "react";
+import TimeView from "../../components/Time";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { graphql } from "@apollo/client/react/hoc";
+import { Alert, withProps } from "@erxes/ui/src/utils";
 import {
   IFilterParams,
   IItem,
@@ -13,12 +13,12 @@ import {
   ITimeData,
   RemoveStageMutation,
   SaveItemMutation
-} from '../../types';
-import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
-import { subscriptions } from '../../graphql';
-import { getFilterParams } from '../../utils';
-import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
-import moment from 'moment';
+} from "../../types";
+import { TagsQueryResponse } from "@erxes/ui-tags/src/types";
+import { subscriptions } from "../../graphql";
+import { getFilterParams } from "../../utils";
+import { queries as tagQueries } from "@erxes/ui-tags/src/graphql";
+import moment from "moment";
 
 type Props = {
   options: IOptions;
@@ -65,11 +65,11 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
         prev,
         {
           subscriptionData: {
-            data: { pipelinesChanged }
+            data: { salesPipelinesChanged }
           }
         }
       ) => {
-        if (!pipelinesChanged || !pipelinesChanged.data) {
+        if (!salesPipelinesChanged || !salesPipelinesChanged.data) {
           return;
         }
 
@@ -115,23 +115,23 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
       const variables: any = { _id: itemId };
 
       if (data.startDate) {
-        variables['startDate'] = data.startDate;
+        variables["startDate"] = data.startDate;
       }
 
       if (data.closeDate) {
-        variables['closeDate'] = data.closeDate;
+        variables["closeDate"] = data.closeDate;
       }
 
       if (data.tagIds) {
-        variables['tagIds'] = data.tagIds;
+        variables["tagIds"] = data.tagIds;
       }
 
       if (data.assignedUserIds) {
-        variables['assignedUserIds'] = data.assignedUserIds;
+        variables["assignedUserIds"] = data.assignedUserIds;
       }
 
       if (data.stageId) {
-        variables['stageId'] = data.stageId;
+        variables["stageId"] = data.stageId;
       }
 
       editMutation({ variables })
@@ -162,7 +162,7 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
 
     const events: any[] = [];
 
-    if (groupType === 'stage') {
+    if (groupType === "stage") {
       for (const item of this.state.items) {
         events.push({
           id: item._id,
@@ -174,7 +174,7 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
       }
     }
 
-    if (groupType === 'tags') {
+    if (groupType === "tags") {
       for (const item of this.state.items) {
         for (const tagId of item.tagIds || []) {
           events.push({
@@ -188,7 +188,7 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
       }
     }
 
-    if (groupType === 'members') {
+    if (groupType === "members") {
       for (const item of this.state.items) {
         for (const assignedUser of item.assignedUsers || []) {
           events.push({
@@ -223,14 +223,14 @@ const withQuery = ({ options }) => {
   return withProps<Props>(
     compose(
       graphql<Props>(gql(options.queries.itemsQuery), {
-        name: 'itemsQuery',
+        name: "itemsQuery",
         options: ({ queryParams }) => ({
           variables: getFilterParams(queryParams, options.getExtraParams),
-          fetchPolicy: 'network-only'
+          fetchPolicy: "network-only"
         })
       }),
       graphql<Props>(gql(options.mutations.editMutation), {
-        name: 'editMutation',
+        name: "editMutation",
         options: ({ queryParams }: Props) => ({
           refetchQueries: [
             {
