@@ -23,11 +23,10 @@ const prepareData = async (
 
   const contactsFilter: any = {};
 
-  if (segmentData.conditions) {
+  if (segmentData && segmentData.conditions) {
     const itemIds = await fetchSegment(models, subdomain, segmentData, {
-      scroll: true,
-      page: 1,
-      perPage: 10000,
+      page: page,
+      perPage: perPage
     });
 
     contactsFilter._id = { $in: itemIds };
@@ -40,9 +39,9 @@ const prepareData = async (
           .skip(skip)
           .limit(perPage)
           .lean();
+      } else {
+        data = await models.Companies.find(contactsFilter).lean();
       }
-
-      data = await models.Companies.find(contactsFilter).lean();
 
       break;
     case 'lead':
@@ -51,9 +50,9 @@ const prepareData = async (
           .skip(skip)
           .limit(perPage)
           .lean();
+      } else {
+        data = await models.Customers.find(contactsFilter).lean();
       }
-
-      data = await models.Customers.find(contactsFilter).lean();
 
       break;
     case 'visitor':
@@ -62,9 +61,9 @@ const prepareData = async (
           .skip(skip)
           .limit(perPage)
           .lean();
+      } else {
+        data = await models.Customers.find(contactsFilter).lean();
       }
-
-      data = await models.Customers.find(contactsFilter).lean();
 
       break;
     case MODULE_NAMES.CUSTOMER:
@@ -73,9 +72,9 @@ const prepareData = async (
           .skip(skip)
           .limit(perPage)
           .lean();
+      } else {
+        data = await models.Customers.find(contactsFilter).lean();
       }
-
-      data = await models.Customers.find(contactsFilter).lean();
 
       break;
   }
@@ -96,11 +95,11 @@ const prepareDataCount = async (
 
   const contactsFilter: any = {};
 
-  if (segmentData.conditions) {
+  if (segmentData && segmentData.conditions) {
     const itemIds = await fetchSegment(models, subdomain, segmentData, {
       scroll: true,
       page: 1,
-      perPage: 10000,
+      perPage: 10000
     });
 
     contactsFilter._id = { $in: itemIds };
@@ -196,12 +195,12 @@ export const fillValue = async (
     case 'mergedIds':
       const customers: ICustomerDocument[] | null = await models.Customers.find(
         {
-          _id: { $in: item.mergedIds || [] },
+          _id: { $in: item.mergedIds || [] }
         }
       );
 
       value = customers
-        .map((cus) => cus.firstName || cus.primaryEmail)
+        .map(cus => cus.firstName || cus.primaryEmail)
         .join(', ');
 
       break;
@@ -212,7 +211,7 @@ export const fillValue = async (
       break;
     case 'parentCompanyId':
       const parent: ICompanyDocument | null = await models.Companies.findOne({
-        _id: item.parentCompanyId,
+        _id: item.parentCompanyId
       });
 
       value = parent ? parent.primaryName : '';
@@ -238,7 +237,7 @@ export const fillValue = async (
         action: 'integrations.findOne',
         data: { _id: item.integrationId || [] },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       value = integration ? integration.name : '-';
@@ -247,7 +246,7 @@ export const fillValue = async (
 
     case 'ownerEmail':
       const owner: IUserDocument | null = await models.Users.findOne({
-        _id: { $in: item.ownerId || '' },
+        _id: { $in: item.ownerId || '' }
       });
 
       value = owner ? owner.email : '-';
@@ -300,7 +299,7 @@ export default {
       }
     } catch (e) {
       return {
-        error: e.message,
+        error: e.message
       };
     }
     return { totalCount, excelHeader };
@@ -368,5 +367,5 @@ export default {
       return { error: e.message };
     }
     return { docs };
-  },
+  }
 };
