@@ -174,7 +174,7 @@ const userParams = `
   avatar: String
 `;
 
-export const mutations = () => `
+export const mutations = (cmsAvailable) => `
   clientPortalUsersInvite(${userParams}, disableVerificationMail: Boolean): ClientPortalUser
   clientPortalUsersEdit(_id: String!, ${userParams}): ClientPortalUser
   clientPortalUsersRemove(clientPortalUserIds: [String!]): JSON
@@ -209,4 +209,18 @@ export const mutations = () => `
   clientPortalUpdateUser(_id: String!, doc: ClientPortalUserUpdate!): JSON
 
   clientPortalUserSetSecondaryPassword(newPassword: String!, oldPassword:String): String
+
+  ${
+    cmsAvailable
+      ? `
+
+  clientPortalUserAddPost(input: PostInput!): Post
+  clientPortalUserEditPost(_id: String!, input: PostInput!): Post
+  clientPortalUserRemovePost(_id: String!): JSON
+  clientPortalUserChangeStatus(_id: String!, status: PostStatus!): Post
+  clientPortalUserToggleFeatured(_id: String!): Post
+    `
+      : ''
+  }
+  }
 `;

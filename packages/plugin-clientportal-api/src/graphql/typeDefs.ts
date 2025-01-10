@@ -30,6 +30,7 @@ import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 const typeDefs = async () => {
   const kbAvailable = isEnabled('knowledgebase');
+  const cmsAvailable = await isEnabled('cms');
 
   const salesAvailable = isEnabled('sales');
   const ticketsAvailable = isEnabled('tickets');
@@ -42,11 +43,22 @@ const typeDefs = async () => {
     tasks: tasksAvailable,
     purchases: purchasesAvailable,
     knowledgebase: kbAvailable,
+    cms: cmsAvailable
   };
 
   return gql`
     scalar JSON
     scalar Date
+
+    ${
+      cmsAvailable
+        ? `
+        extend type Post @key(fields: "_id") {
+          _id: String! @external
+        }
+      `
+        : ''
+    }
 
     ${clientPortalTypes(enabledPlugins)}
     ${clientPortalUserTypes()}

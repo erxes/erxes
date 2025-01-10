@@ -34,20 +34,29 @@ import {
   mutations as menuMutations,
 } from './schemas/menu';
 
-
-
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 const typeDefs = async () => {
-  const isClientportalEnabled = await isEnabled(
-    'clientportal'
-  );
+  const isClientportalEnabled = await isEnabled('clientportal');
 
   return gql`
     scalar JSON
     scalar Date
 
-    ${categoryTypes({isClientportalEnabled})}
+    ${
+      isClientportalEnabled
+        ? `
+        extend type ClientPortalUser @key(fields: "_id") {
+          _id: String! @external
+        }
+
+        extend type ClientPortal @key(fields: "_id") {
+          _id: String! @external
+        }
+      `
+        : ''
+    }
+    
     ${postTypes}
     ${pageTypes}
 
