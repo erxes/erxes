@@ -119,19 +119,20 @@ export async function getPaymentInfo(
 
   //loss calculation from expiration
   if (
-    lastSchedule.status === SCHEDULE_STATUS.EXPIRED &&
-    contract.lossPercent > 0
+    lastSchedule.status === SCHEDULE_STATUS.EXPIRED
+    // contract.lossPercent > 0
   ) {
     paymentInfo.expiredDay = diffDay;
 
     const loss = await calcLoss(
       contract,
       {
-        balance: contract.loanBalanceAmount,
+        balance: 0,//contract.loanBalanceAmount,
         interest: new BigNumber(lastSchedule.interestEve ?? 0).plus(lastSchedule.interestEve ?? 0).toNumber(),
         payment: lastSchedule.payment ?? 0
       },
-      contract.lossPercent,
+      // contract.lossPercent,
+      0,
       diffDay,
       config
     );
@@ -139,7 +140,8 @@ export async function getPaymentInfo(
     if (loss > 0) paymentInfo.loss += loss;
   }
 
-  if (contract.commitmentInterest > 0) {
+  // if (contract.commitmentInterest > 0) {
+  if (0 > 0) {
     paymentInfo.commitmentInterest =
       getValue(lastSchedule.commitmentInterest, 0) -
       getValue(lastSchedule.didCommitmentInterest, 0);

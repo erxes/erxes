@@ -25,6 +25,7 @@ export const types = () => `
     insurance: Float
     debt: Float
     total: Float
+    giveAmount: Float
 
     didLoss: Float
     didInterest: Float
@@ -62,6 +63,6 @@ export const queries = `
 `;
 
 export const mutations = `
-  regenSchedules(contractId: String!): String
+  regenSchedules(contractId: String!, leaseAmount: Float, ): String
   fixSchedules(contractId: String!): String
 `;

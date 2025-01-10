@@ -5,10 +5,15 @@ export interface IContractConfig {
   temp: string;
   giving: string;
   tempDebt: string;
+
   mainUserEmail: string;
   mainHasVat: string;
   mainHasCitytax: string;
   mainIsEbarimt: string;
+
+  districtName: string;
+  isAmountUseEBarimt: boolean;
+  isLossUseEBarimt: boolean;
 
   interestReceivable: string;
   interestGiving: string;
@@ -33,61 +38,69 @@ export interface IContractConfig {
   feeIncome: string;
   defaultCustomer: string;
   userEmail: string;
-  minInterest: number;
-  maxInterest: number;
-  defaultInterest: number;
-  minTenor: number;
-  maxTenor: number;
-  minAmount: number;
-  maxAmount: number;
+  repaymentTemp: string;
+
+  isAutoSendEBarimt: boolean;
+
   normalExpirationDay: number;
   expiredExpirationDay: number;
   doubtExpirationDay: number;
   negativeExpirationDay: number;
   badExpirationDay: number;
-  minCommitmentInterest: number;
-  maxCommitmentInterest: number;
-
-  districtName?: any;
-  isAmountUseEBarimt?: any;
-  isInterestUseEBarimt?: any;
-  isLossUseEBarimt?: any;
 
   boardId: string;
   pipelineId: string;
   stageId: string;
+
+  minInterest: number;
+  maxInterest: number;
+  minTenor: number;
+  maxTenor: number;
+  minAmount: number;
+  maxAmount: number;
+  minCommitmentInterest: number;
+  maxCommitmentInterest: number;
 }
 
 export interface IContractTypeDoc {
-  code: string;
-  name: string;
-  description: string;
-  status: string;
-  number: string;
-  vacancy: number;
-  leaseType: string;
-  commitmentInterest: number;
-  createdAt: Date;
-  config: IContractConfig;
-  lossPercent: number;
-  lossCalcType: string;
-  useMargin: boolean;
-  useDebt: boolean;
-  useSkipInterest: boolean;
-  useManualNumbering: boolean;
-  useFee: boolean;
-  currency: string;
-  collateralType: string;
-  savingPlusLoanInterest: number;
-  savingUpperPercent: number;
-  usePrePayment: boolean;
-  invoiceDay: string;
+  code?: string;
+  name?: string;
+  description?: string;
+  status?: string;
+  number?: string;
+  vacancy?: number;
+  leaseType?: string;
+  currency?: string;
+
+  defaultInterest?: number;
+  useSkipInterest?: boolean;
+  skipInterestDay?: number;
+  skipInterestMonth?: number;
+
+  lossPercent?: number;
+  lossCalcType?: string;
+  skipLossDay?: number;
+  allowLateDay?: number;
+
+  allowPartOfLease?: boolean;
+  limitIsCurrent?: boolean;
+  commitmentInterest?: number;
+
+  useMargin?: boolean;
+  useDebt?: boolean;
+  useManualNumbering?: boolean;
+  useFee?: boolean;
+
+  savingPlusLoanInterest?: number;
+  savingUpperPercent?: number;
+
+  config?: IContractConfig;
+  productId?: string
+  productType?: string;
 }
 
 export interface IContractType extends IContractTypeDoc {
   _id: string;
-  productType?: any;
-  productId?: string;
   product?: IProduct
 }
 

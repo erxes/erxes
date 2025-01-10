@@ -5,6 +5,15 @@ import {
 } from './definitions/schedules';
 import { Model, FilterQuery } from 'mongoose';
 import { IModels } from '../connectionResolver';
+
+export interface IFirstScheduleModel extends Model<IScheduleDocument> { }
+
+export const loadFirstScheduleClass = (models: IModels) => {
+  class FirstSchedule { }
+  scheduleSchema.loadClass(FirstSchedule);
+  return scheduleSchema;
+}
+
 export interface IScheduleModel extends Model<IScheduleDocument> {
   getLastSchedule(
     contractId: string,
@@ -15,6 +24,7 @@ export interface IScheduleModel extends Model<IScheduleDocument> {
   updateSchedule(_id: string, doc: IScheduleDocument);
   removeSchedule(_ids: string[]);
 }
+
 export const loadScheduleClass = (models: IModels) => {
   class Schedule {
     /**
@@ -62,9 +72,7 @@ export const loadScheduleClass = (models: IModels) => {
       return models.Schedules.findOne({
         contractId: contractId,
         payDate: { $lte: payDate }
-      })
-        .sort({ payDate: -1 })
-        .lean();
+      }).sort({ payDate: -1, createdAt: -1 }).lean();
     }
   }
   scheduleSchema.loadClass(Schedule);
