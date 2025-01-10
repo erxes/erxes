@@ -1,14 +1,14 @@
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import { queries as userQueries } from '@erxes/ui/src/team/graphql';
-import { AllUsersQueryResponse, IUser } from '@erxes/ui/src/auth/types';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
-import { mutations, queries, subscriptions } from '../../graphql';
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { Alert, confirm, withProps } from "@erxes/ui/src/utils";
+import { queries as userQueries } from "@erxes/ui/src/team/graphql";
+import { AllUsersQueryResponse, IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import ErrorMsg from "@erxes/ui/src/components/ErrorMsg";
+import { mutations, queries, subscriptions } from "../../graphql";
 import {
   CopyMutation,
   DetailQueryResponse,
@@ -16,11 +16,11 @@ import {
   IItemParams,
   IOptions,
   RemoveMutation,
-  SaveMutation,
-} from '../../types';
-import { invalidateCache } from '../../utils';
-import { PipelineConsumer } from '../PipelineContext';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+  SaveMutation
+} from "../../types";
+import { invalidateCache } from "../../utils";
+import { PipelineConsumer } from "../PipelineContext";
+import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
 
 type WrapperProps = {
   itemId: string;
@@ -74,9 +74,9 @@ class EditFormContainer extends React.Component<FinalProps> {
         prev,
         {
           subscriptionData: {
-            data: { salesPipelinesChanged },
-          },
-        },
+            data: { salesPipelinesChanged }
+          }
+        }
       ) => {
         if (!salesPipelinesChanged || !salesPipelinesChanged.data) {
           return;
@@ -84,14 +84,14 @@ class EditFormContainer extends React.Component<FinalProps> {
 
         const { proccessId } = salesPipelinesChanged;
 
-        if (proccessId === localStorage.getItem('proccessId')) {
+        if (proccessId === localStorage.getItem("proccessId")) {
           return;
         }
 
-        if (document.querySelectorAll('.modal').length < 2) {
+        if (document.querySelectorAll(".modal").length < 2) {
           this.props.detailQuery.refetch();
         }
-      },
+      }
     });
   }
 
@@ -116,7 +116,7 @@ class EditFormContainer extends React.Component<FinalProps> {
 
     const proccessId = Math.random().toString();
 
-    localStorage.setItem('proccessId', proccessId);
+    localStorage.setItem("proccessId", proccessId);
 
     copyMutation({ variables: { _id: itemId, proccessId } })
       .then(({ data }) => {
@@ -136,7 +136,7 @@ class EditFormContainer extends React.Component<FinalProps> {
 
     const proccessId = Math.random().toString();
 
-    localStorage.setItem('proccessId', proccessId);
+    localStorage.setItem("proccessId", proccessId);
 
     doc.proccessId = proccessId;
 
@@ -174,20 +174,20 @@ class EditFormContainer extends React.Component<FinalProps> {
 
         .catch(error => {
           Alert.error(error.message);
-        }),
+        })
     );
   };
 
   updateTimeTrack = (
     doc: { _id: string; status: string; timeSpent: number },
-    callback?,
+    callback?
   ) => {
     const { options } = this.props;
 
     client
       .mutate({
         variables: { ...doc, type: options.type },
-        mutation: gql(mutations.boardItemUpdateTimeTracking),
+        mutation: gql(mutations.boardItemUpdateTimeTracking)
       })
       .then(() => {
         if (callback) {
@@ -225,7 +225,7 @@ class EditFormContainer extends React.Component<FinalProps> {
       saveItem: this.saveItem,
       copyItem: this.copyItem,
       updateTimeTrack: this.updateTimeTrack,
-      users,
+      users
     };
 
     const EditForm = options.EditForm;
@@ -241,9 +241,9 @@ const withQuery = (props: ContainerProps) => {
     refetchQueries: [
       {
         query: gql(queries.stageDetail),
-        variables: { _id: stageId },
-      },
-    ],
+        variables: { _id: stageId }
+      }
+    ]
   });
 
   return withProps<ContainerProps>(
@@ -251,52 +251,52 @@ const withQuery = (props: ContainerProps) => {
       graphql<ContainerProps, DetailQueryResponse, { _id: string }>(
         gql(options.queries.detailQuery),
         {
-          name: 'detailQuery',
+          name: "detailQuery",
           options: ({ itemId }: { itemId: string }) => {
             return {
               variables: {
-                _id: itemId,
+                _id: itemId
               },
-              fetchPolicy: 'network-only',
+              fetchPolicy: "network-only"
             };
-          },
-        },
+          }
+        }
       ),
       graphql<ContainerProps, AllUsersQueryResponse>(
         gql(userQueries.allUsers),
         {
-          name: 'usersQuery',
-        },
+          name: "usersQuery"
+        }
       ),
       graphql<ContainerProps, SaveMutation, IItemParams>(
         gql(options.mutations.addMutation),
         {
-          name: 'addMutation',
-          options: refetchOptions,
-        },
+          name: "addMutation",
+          options: refetchOptions
+        }
       ),
       graphql<ContainerProps, SaveMutation, IItemParams>(
         gql(options.mutations.copyMutation),
         {
-          name: 'copyMutation',
-          options: refetchOptions,
-        },
+          name: "copyMutation",
+          options: refetchOptions
+        }
       ),
       graphql<ContainerProps, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),
         {
-          name: 'editMutation',
-          options: refetchOptions,
-        },
+          name: "editMutation",
+          options: refetchOptions
+        }
       ),
       graphql<ContainerProps, RemoveMutation, { _id: string }>(
         gql(options.mutations.removeMutation),
         {
-          name: 'removeMutation',
-          options: refetchOptions,
-        },
-      ),
-    )(EditFormContainer),
+          name: "removeMutation",
+          options: refetchOptions
+        }
+      )
+    )(EditFormContainer)
   );
 };
 
