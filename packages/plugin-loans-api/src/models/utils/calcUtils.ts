@@ -10,7 +10,6 @@ import { calcLoss } from './lossUtils';
 import { generateSchedules } from './scheduleUtils';
 import { calcInterest, getDatesDiffMonth, getDiffDay, getFullDate } from './utils';
 import { ISchedule, IScheduleDocument } from '../definitions/schedules';
-import { after } from 'node:test';
 
 export const getCalcedAmountsOnDate = async (models: IModels, contract: IContractDocument, date: Date, calculationFixed?: number) => {
   if (!calculationFixed) {
@@ -328,7 +327,6 @@ const getAmountByPriority = (
 export const afterPayTrInSchedule = async (models: IModels, contract: IContractDocument, tr: ITransactionDocument, config) => {
   // contract.allowLateDay;
   const currentDate = getFullDate(tr.payDate);
-  tr.total
   const calculationFixed = config.calculationFixed || 2
 
   const amounts = await getCalcedAmountsOnDate(models, contract, tr.payDate, calculationFixed);
@@ -470,12 +468,7 @@ export const afterPayTrInSchedule = async (models: IModels, contract: IContractD
         indDate = afterCurrentSchedule.payDate;
       }
     }
-
   }
-
-
-
-
 }
 
 export const trInSchedule = async (subdomain: string, models: IModels, contract: IContractDocument, tr: ITransactionDocument) => {

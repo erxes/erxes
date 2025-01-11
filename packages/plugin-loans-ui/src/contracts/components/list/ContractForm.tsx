@@ -663,24 +663,24 @@ function ContractForm(props: Props) {
                   />
                 </DateContainer>
               </FormGroup>
-              {contract.leaseType === LEASE_TYPES.FINANCE && (
-                <FormGroup>
-                  <ControlLabel required={true}>{__("Repayment")}</ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    name="repayment"
-                    componentclass="select"
-                    value={contract.repayment}
-                    onChange={onChangeField}
-                  >
-                    {["fixed", "equal"].map((typeName) => (
-                      <option key={typeName} value={typeName}>
-                        {__(typeName + "Method")}
-                      </option>
-                    ))}
-                  </FormControl>
-                </FormGroup>
-              )}
+
+              <FormGroup>
+                <ControlLabel required={true}>{__("Repayment")}</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="repayment"
+                  componentclass="select"
+                  value={contract.repayment}
+                  onChange={onChangeField}
+                >
+                  {["fixed", "equal"].map((typeName) => (
+                    <option key={typeName} value={typeName}>
+                      {__(typeName + "Method")}
+                    </option>
+                  ))}
+                </FormControl>
+              </FormGroup>
+
               {renderFormGroup("Tenor /duration month/", {
                 type: "number",
                 name: "tenor",
@@ -706,22 +706,20 @@ function ContractForm(props: Props) {
                 })}
             </FormColumn>
             <FormColumn>
-              {contract.leaseType === LEASE_TYPES.FINANCE && (
-                <FormGroup>
-                  <ControlLabel required>{__("Schedule Days")}</ControlLabel>
-                  <Select
-                    required
-                    className="flex-item"
-                    placeholder={__("Choose an schedule Days")}
-                    value={scheduleOptions.filter((o) =>
-                      contract.scheduleDays?.includes(o.value)
-                    )}
-                    onChange={onSelectScheduleDays}
-                    isMulti={true}
-                    options={scheduleOptions}
-                  />
-                </FormGroup>
-              )}
+              <FormGroup>
+                <ControlLabel required>{__("Schedule Days")}</ControlLabel>
+                <Select
+                  required
+                  className="flex-item"
+                  placeholder={__("Choose an schedule Days")}
+                  value={scheduleOptions.filter((o) =>
+                    contract.scheduleDays?.includes(o.value)
+                  )}
+                  onChange={onSelectScheduleDays}
+                  isMulti={true}
+                  options={scheduleOptions}
+                />
+              </FormGroup>
 
               <FormGroup>
                 <ControlLabel required={true}>{__("End Date")}</ControlLabel>
