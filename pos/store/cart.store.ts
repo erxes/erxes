@@ -13,6 +13,7 @@ import { getCartTotal, getItemInputs } from "@/lib/utils"
 import { banFractionsAtom, orderPasswordAtom } from "./config.store"
 import { activeOrderIdAtom } from "./order.store"
 
+
 interface IUpdateItem {
   _id: string
   count?: number
@@ -158,3 +159,4 @@ export const setCartAtom = atom(
     set(cartAtom, update)
   }
 )
+

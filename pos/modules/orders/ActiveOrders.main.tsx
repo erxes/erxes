@@ -1,3 +1,4 @@
+'use client'
 import { useEffect } from "react"
 import { selectedTabAtom, slotFilterAtom } from "@/store"
 import { activeOrderIdAtom } from "@/store/order.store"
@@ -43,6 +44,7 @@ const ActiveOrders = () => {
       }
     },
   })
+  console.log(fullOrders)
 
   useEffect(() => {
     subToOrderStatuses(ORDER_STATUSES.ALL)
