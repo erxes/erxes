@@ -44,7 +44,6 @@ const ActiveOrders = () => {
       }
     },
   })
-  console.log(fullOrders)
 
   useEffect(() => {
     subToOrderStatuses(ORDER_STATUSES.ALL)
@@ -64,7 +63,7 @@ const ActiveOrders = () => {
             {totalCount > fullOrders.length && (
               <Button
                 size="sm"
-                loading={loading}
+                disabled={loading}
                 className="whitespace-nowrap font-bold my-2"
                 onClick={handleLoadMore}
               >

@@ -23,7 +23,6 @@ const ChooseOrder = ({
 }: IOrder) => {
   const activeOrder = useAtomValue(activeOrderIdAtom)
   const setNextOrder = useSetAtom(nextOrderIdAtom)
-console.log("you just clicked")
   return (
     <TooltipProvider>
       <Tooltip>

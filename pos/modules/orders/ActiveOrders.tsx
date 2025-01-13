@@ -79,7 +79,7 @@ const ActiveOrders = () => {
             {totalCount > fullOrders.length && (
               <Button
                 size="sm"
-                loading={loading}
+                disabled={loading}
                 className="whitespace-nowrap font-bold my-2 md:col-span-5"
                 variant={"secondary"}
                 onClick={handleLoadMore}

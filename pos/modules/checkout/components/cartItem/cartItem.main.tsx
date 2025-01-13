@@ -70,7 +70,6 @@ const CartItem = ({
       changeItem({ ...changes, _id: id });
     });
   };
-  console.log(ids , 'hhe')
   const displayCount = combinedCount || count;
 
   return (
