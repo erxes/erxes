@@ -1,11 +1,14 @@
 import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
-import { IConfigModel, loadConfigClass } from './models/LoanResearch';
-import { IConfigDocument } from './models/definitions/loansResearch';
+import {
+  ILoansResearchModel,
+  loadLoansResearchClass,
+} from './models/LoanResearch';
+import { ILoanResearchDocument } from './models/definitions/loansResearch';
 
 export interface IModels {
-  AdConfig: IConfigModel;
+  LoansResearch: ILoansResearchModel;
 }
 
 export interface IContext extends IMainContext {
@@ -19,9 +22,9 @@ export const loadClasses = (
 ): IModels => {
   const models = {} as IModels;
 
-  models.AdConfig = db.model<IConfigDocument, IConfigModel>(
-    'activedirector_configs',
-    loadConfigClass(models)
+  models.LoansResearch = db.model<ILoanResearchDocument, ILoansResearchModel>(
+    'loansresearch',
+    loadLoansResearchClass(models)
   );
 
   return models;

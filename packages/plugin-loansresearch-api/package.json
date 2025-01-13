@@ -6,7 +6,6 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@erxes/api-utils": "*",
-    "ldapts": "^7.2.2"
+    "@erxes/api-utils": "*"
   }
 }

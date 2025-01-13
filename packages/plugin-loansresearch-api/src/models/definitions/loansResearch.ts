@@ -1,7 +1,7 @@
 import { Schema, Document } from 'mongoose';
 import { field, schemaWrapper } from './utils';
 
-export interface IConfig {
+export interface ILoanResearch {
   apiUrl: string;
   adminDN: string;
   adminPassword: string;
@@ -12,7 +12,7 @@ export interface IConfig {
   modifiedAt: Date;
 }
 
-export interface IConfigDocument extends IConfig, Document {
+export interface ILoanResearchDocument extends ILoanResearch, Document {
   _id: string;
 }
 

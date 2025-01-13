@@ -3,7 +3,7 @@ import {
   types as lsTypes,
   queries as lsQueries,
   mutations as lsMutations,
-} from './schema/active';
+} from './schema/loanResearch';
 
 const typeDefs = async () => {
   return gql`

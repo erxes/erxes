@@ -1,37 +1,68 @@
 import {
-  IConfig,
-  IConfigDocument,
+  ILoanResearch,
+  ILoanResearchDocument,
   configSchema,
 } from './definitions/loansResearch';
-import { Model } from 'mongoose';
+import { Model, FilterQuery } from 'mongoose';
 import { IModels } from '../connectionResolver';
 
-export interface IConfigModel extends Model<IConfigDocument> {
-  createOrUpdateConfig(doc: IConfig): Promise<IConfigDocument>;
+export interface ILoansResearchModel extends Model<ILoanResearchDocument> {
+  getLoanResearch(selector: FilterQuery<ILoanResearchDocument>);
+  createLoansResearch(doc: ILoanResearch);
+  updateLoansResearch(_id: string, doc: ILoanResearch);
+  removeLoansResearches(_ids: string[]);
 }
 
-export const loadConfigClass = (models: IModels) => {
-  class Config {
-    public static async createOrUpdateConfig(doc: IConfig) {
-      const obj = await models.AdConfig.findOne({ code: doc.code });
+export const loadLoansResearchClass = (models: IModels) => {
+  class LoanResearch {
+    /**
+     *
+     * Get Invoice
+     */
 
-      if (obj) {
-        await models.AdConfig.updateOne(
-          { _id: obj._id },
-          { $set: { ...doc, modifiedAt: new Date() } }
-        );
+    public static async getLoanResearch(
+      selector: FilterQuery<ILoanResearchDocument>
+    ) {
+      const loanResearch = await models.LoansResearch.findOne(selector);
 
-        return models.AdConfig.findOne({ _id: obj._id });
+      if (!loanResearch) {
+        throw new Error('Loan Research not found');
       }
 
-      return models.AdConfig.create({
-        ...doc,
-        createdAt: new Date(),
-      });
+      return loanResearch;
+    }
+
+    /**
+     * Create a Loans Research
+     */
+    public static async createLoansResearch(doc: ILoanResearch) {
+      return models.LoansResearch.create(doc);
+    }
+
+    /**
+     * Update Loans Research
+     */
+    public static async updateLoansResearch(
+      _id: string,
+      doc: ILoanResearchDocument
+    ) {
+      await models.LoansResearch.updateOne(
+        { _id },
+        { $set: { ...doc, modifiedAt: new Date() } }
+      );
+
+      return models.LoansResearch.findOne({ _id });
+    }
+
+    /**
+     * Remove Loans Research
+     */
+    public static async removeLoansResearches(_ids: string[]) {
+      return models.LoansResearch.deleteMany({ _id: { $in: _ids } });
     }
   }
 
-  configSchema.loadClass(Config);
+  configSchema.loadClass(LoanResearch);
 
   return configSchema;
 };
