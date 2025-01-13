@@ -116,7 +116,7 @@ export class QpayAPI extends BaseAPI {
         sender_invoice_no: transaction.details?.sender_invoice_no || transaction.code,
         invoice_receiver_code: 'terminal',
         invoice_description: transaction.description || 'test invoice',
-        sender_branch_code: this.branchCode,
+        // sender_branch_code: this.branchCode, TODO: renable after proper branch code config
         amount: transaction.amount,
         callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?_id=${transaction._id}`,
       };
