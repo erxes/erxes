@@ -12,12 +12,11 @@ const connectionOptions: mongoose.ConnectOptions = {
 const { MONGO_URL } = process.env;
 
 mongoose.connection
-  .on('connected', () => {
-      })
-  .on('disconnected', () => {
-      })
+  .on('connected', () => {})
+  .on('disconnected', () => {})
   .on('error', (error) => {
-      });
+    console.error(error);
+  });
 
 export const connect = async (URL?: string, options?) => {
   return mongoose.connect(URL || MONGO_URL, {
