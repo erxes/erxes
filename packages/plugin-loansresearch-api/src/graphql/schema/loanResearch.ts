@@ -24,9 +24,6 @@ export const types = () => `
 const queryParams = `
   page: Int
   perPage: Int
-  contractId: String
-  customerId: String
-  companyId: String
   sortField: String
   sortDirection: Int
 `;

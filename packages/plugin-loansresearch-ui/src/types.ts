@@ -1,4 +1,4 @@
-export type IConfig = {
+export type ILoanResearch = {
   _id?: string;
   apiUrl: string;
   isLocalUser: boolean;
@@ -8,22 +8,8 @@ export type IConfig = {
   code: string;
 };
 
-// mutation types
-
-export type ConfigsQueryResponse = {
-  adConfigs: IConfig;
+export type MainQueryResponse = {
+  loansResearchMain: { list: ILoanResearch[]; totalCount: number };
   loading: boolean;
   refetch: () => void;
-};
-
-export type ToCheckUsersMutationResponse = {
-  toCheckAdUsers: (mutation: {
-    variables: { userName: string; userPass: string };
-  }) => Promise<any>;
-};
-
-export type ToSyncUsersMutationResponse = {
-  toSyncAdUsers: (mutation: {
-    variables: { action: string; users: any[] };
-  }) => Promise<any>;
 };

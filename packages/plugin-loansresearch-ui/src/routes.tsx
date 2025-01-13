@@ -2,33 +2,25 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 
 import queryString from 'query-string';
 import React from 'react';
-import SettingsContainer from './containers/Settings';
-import SyncListContainer from './containers/SyncListContainer';
+import LoansResearchListContainer from './containers/LoansResearchListContainer';
 
-const List = () => {
+const LoansResearchListComponent = () => {
   const location = useLocation();
 
-  return <SettingsContainer queryParams={queryString.parse(location.search)} />;
-};
-
-const SyncAdListComponent = () => {
-  const location = useLocation();
-
-  return <SyncListContainer queryParams={queryString.parse(location.search)} />;
+  return (
+    <LoansResearchListContainer
+      queryParams={queryString.parse(location.search)}
+    />
+  );
 };
 
 const routes = () => {
   return (
     <Routes>
       <Route
-        path="/settings/loansresearch"
-        key="/settings/loansresearch"
-        element={<List />}
-      />
-      <Route
-        key="/sync-loansresearch"
-        path="/sync-loansresearch"
-        element={<SyncAdListComponent />}
+        key="/loansresearch"
+        path="/loansresearch"
+        element={<LoansResearchListComponent />}
       />
     </Routes>
   );
