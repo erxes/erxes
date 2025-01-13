@@ -1,9 +1,11 @@
-import { UserHeader } from "@erxes/ui-contacts/src/customers/styles";
+// import RightSidebar from "./RightSidebar";
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 import { __, renderFullName } from "coreui/utils";
 
 import ActionSection from "@erxes/ui-contacts/src/customers/containers/ActionSection";
 import ActivityInputs from "@erxes/ui-log/src/activityLogs/components/ActivityInputs";
 import ActivityLogs from "@erxes/ui-log/src/activityLogs/containers/ActivityLogs";
+import EmailWidget from "@erxes/ui-inbox/src/inbox/components/EmailWidget";
 import { ICustomer } from "../../types";
 import { IField } from "@erxes/ui/src/types";
 import { IFieldsVisibility } from "@erxes/ui-contacts/src/customers/types";
@@ -11,14 +13,12 @@ import Icon from "@erxes/ui/src/components/Icon";
 import InfoSection from "@erxes/ui-contacts/src/customers/components/common/InfoSection";
 import LeadState from "@erxes/ui-contacts/src/customers/containers/LeadState";
 import LeftSidebar from "./LeftSidebar";
+import PrintAction from "@erxes/ui-contacts/src/customers/components/common/PrintAction";
 import React from "react";
-import RightSidebar from "./RightSidebar";
-import { TabTitle } from "@erxes/ui/src/components/tabs";
+import { UserHeader } from "@erxes/ui-contacts/src/customers/styles";
 import Widget from "@erxes/ui-engage/src/containers/Widget";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { isEnabled } from "@erxes/ui/src/utils/core";
-import PrintAction from "@erxes/ui-contacts/src/customers/components/common/PrintAction";
-import EmailWidget from "@erxes/ui-inbox/src/inbox/components/EmailWidget";
 
 type Props = {
   customer: ICustomer;
@@ -29,11 +29,19 @@ type Props = {
   deviceFieldsVisibility: (key: string) => IFieldsVisibility;
 };
 
-class CustomerDetails extends React.Component<Props> {
+class CustomerDetails extends React.Component<Props, { currentTab: string }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      currentTab: "actions",
+    };
+  }
+
   renderEmailTab = () => {
     const { customer } = this.props;
 
-    if (!customer.primaryEmail || customer.emailValidationStatus !== 'valid') {
+    if (!customer.primaryEmail || customer.emailValidationStatus !== "valid") {
       return null;
     }
 
@@ -73,6 +81,41 @@ class CustomerDetails extends React.Component<Props> {
     return null;
   };
 
+  renderRightSidebar = () => {
+    const { currentTab } = this.state;
+
+    return (
+      <div>
+        <Tabs full={true} direction="vertical">
+          <TabTitle
+            direction="vertical"
+            className={currentTab === "detail" ? "active" : ""}
+            // onClick={this.tabOnClick.bind(this, 'actions')}
+          >
+            <Icon size={16} icon={"file-info-alt"} />
+            {__("Detail")}
+          </TabTitle>
+          <TabTitle
+            direction="vertical"
+            className={currentTab === "properties" ? "active" : ""}
+            // onClick={this.tabOnClick.bind(this, 'favourite')}
+          >
+            <Icon size={16} icon={"settings"} />
+            {__("Properties")}
+          </TabTitle>
+          <TabTitle
+            direction="vertical"
+            className={currentTab === "activity" ? "active" : ""}
+            // onClick={this.tabOnClick.bind(this, 'favourite')}
+          >
+            <Icon size={16} icon={"graph-bar"} />
+            {__("Activity")}
+          </TabTitle>
+        </Tabs>
+      </div>
+    );
+  };
+
   render() {
     const {
       customer,
@@ -80,12 +123,12 @@ class CustomerDetails extends React.Component<Props> {
       fields,
       taggerRefetchQueries,
       fieldsVisibility,
-      deviceFieldsVisibility
+      deviceFieldsVisibility,
     } = this.props;
 
     const breadcrumb = [
       { title: __("Contacts"), link: "/contacts" },
-      { title: renderFullName(customer) }
+      { title: renderFullName(customer) },
     ];
 
     const content = (
@@ -107,7 +150,7 @@ class CustomerDetails extends React.Component<Props> {
               { name: "imap:email", label: "Email" },
               { name: "tasks:task", label: "Task" },
               // { name: 'sms', label: 'SMS' },
-              { name: "engages:campaign", label: "Campaign" }
+              { name: "engages:campaign", label: "Campaign" },
             ]}
           />
         }
@@ -144,7 +187,8 @@ class CustomerDetails extends React.Component<Props> {
             deviceFieldsVisibility={deviceFieldsVisibility}
           />
         }
-        rightSidebar={<RightSidebar customer={customer} />}
+        // rightSidebar={<RightSidebar customer={customer} />}
+        rightSidebar={this.renderRightSidebar()}
         content={content}
         transparent={true}
       />
