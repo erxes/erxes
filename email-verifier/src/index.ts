@@ -6,7 +6,7 @@ import { validateBulkPhones, validateSinglePhone } from './apiPhoneVerifier';
 import { connect } from './connection';
 import './cronJobs/verifier';
 
-import { debugBase, debugCrons, debugRequest } from './utils';
+import { debugCrons } from './utils';
 
 // load environment variables
 dotenv.config();
@@ -23,7 +23,7 @@ app.use(urlencodedMiddleware);
 app.use(jsonMiddleware);
 
 app.post('/verify-single', async (req, res, next) => {
-  debugRequest(debugBase, req);
+  // debugRequest(debugBase, req);
 
   const { email, phone, hostname } = req.body;
 
@@ -47,7 +47,7 @@ app.post('/verify-single', async (req, res, next) => {
 });
 
 app.post('/verify-bulk', async (req, res, next) => {
-  debugRequest(debugBase, req);
+  // debugRequest(debugBase, req);
 
   const { phones, emails, hostname } = req.body;
 
@@ -73,16 +73,14 @@ app.post('/verify-bulk', async (req, res, next) => {
 app.use((error, _req, res, _next) => {
   const msg = filterXSS(error.message);
 
-  debugBase(`Error: `, msg);
-  res.status(500).send(msg);
+    res.status(500).send(msg);
 });
 
 const { PORT } = process.env;
 
 app.listen(PORT, async () => {
   await connect();
-  debugBase(`Email verifier server is running on port ${PORT}`);
-});
+  });
 
 const { PORT_CRONS = 4700 } = process.env;
 
