@@ -1,4 +1,3 @@
-// import { Action, Name } from '../../styles';
 import { Actions } from '@erxes/ui/src/styles/main';
 import {
   Alert,

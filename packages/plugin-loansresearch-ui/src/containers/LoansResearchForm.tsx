@@ -11,8 +11,6 @@ type Props = {
 };
 
 const LoansResearchFormContainer = (props: Props) => {
-  const { closeModal } = props;
-
   const renderButton = ({
     name,
     values,

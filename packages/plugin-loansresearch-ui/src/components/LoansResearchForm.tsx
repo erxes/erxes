@@ -5,16 +5,10 @@ import {
   Form,
   FormControl,
   FormGroup,
-  Icon,
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
-  SelectTeamMembers,
-  generateCategoryOptions,
-  extractAttachment,
 } from '@erxes/ui/src';
-import { IUser } from '@erxes/ui/src/auth/types';
 import {
   IButtonMutateProps,
   IFormProps,

@@ -2,7 +2,7 @@ import { Alert } from '@erxes/ui/src';
 import { ILoanResearch, RemoveMutationResponse } from '../../types';
 import { mutations } from '../../graphql';
 
-import BasicInfoSection from '../../components/common/BasicInfoSection';
+import BasicInfoSection from '../../components/detail/BasicInfoSection';
 import React from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
