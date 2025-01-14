@@ -26,6 +26,11 @@ type Props = {
   toggleBulk: () => void;
   toggleAll: (targets: ILoanResearch[], containerId: string) => void;
   bulk: any[];
+  removeLResearch: (
+    doc: { loanResearchIds: string[] },
+    emptyBulk: () => void
+  ) => void;
+  emptyBulk: () => void;
 };
 
 const LoansResearchList = (props: Props) => {
@@ -38,6 +43,8 @@ const LoansResearchList = (props: Props) => {
     toggleAll,
     toggleBulk,
     bulk,
+    removeLResearch,
+    emptyBulk,
   } = props;
 
   const onChange = () => {
@@ -46,6 +53,16 @@ const LoansResearchList = (props: Props) => {
 
   const loanForm = (formProps) => {
     return <LoansResearchForm {...formProps} queryParams={queryParams} />;
+  };
+
+  const remove = (loanResearches) => {
+    const loanResearchIds: string[] = [];
+
+    loanResearches.forEach((research) => {
+      loanResearchIds.push(research._id);
+    });
+
+    removeLResearch({ loanResearchIds }, emptyBulk);
   };
 
   const renderActionBarRight = () => {
@@ -59,7 +76,7 @@ const LoansResearchList = (props: Props) => {
       const onClick = () =>
         confirm()
           .then(() => {
-            // removeCars(bulk);
+            remove(bulk);
           })
           .catch((error) => {
             Alert.error(error.message);

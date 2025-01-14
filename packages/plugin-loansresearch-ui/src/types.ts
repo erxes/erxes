@@ -27,3 +27,9 @@ export type MainQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type RemoveMutationResponse = {
+  loansResearchRemove: (params: {
+    variables: { loanResearchIds: string[] };
+  }) => Promise<any>;
+};

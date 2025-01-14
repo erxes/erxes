@@ -1,13 +1,6 @@
-import {
-  FormControl,
-  Icon,
-  ModalTrigger,
-  Tip,
-  formatValue,
-} from '@erxes/ui/src';
+import { FormControl } from '@erxes/ui/src';
 import React from 'react';
 import _ from 'lodash';
-import { __ } from 'coreui/utils';
 import { ILoanResearch } from '../types';
 
 type Props = {
@@ -28,7 +21,7 @@ function LoansResearchRow({ loanResearch, isChecked, toggleBulk }: Props) {
   };
 
   return (
-    <>
+    <tr>
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
@@ -38,7 +31,7 @@ function LoansResearchRow({ loanResearch, isChecked, toggleBulk }: Props) {
       </td>
 
       <td key={'dealId'}>{(loanResearch && loanResearch.dealId) || ''} </td>
-    </>
+    </tr>
   );
 }
 
