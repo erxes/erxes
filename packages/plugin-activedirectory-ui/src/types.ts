@@ -1,15 +1,29 @@
-export type IConfigsMap = { [key: string]: any };
-
 export type IConfig = {
-  _id: string;
+  _id?: string;
+  apiUrl: string;
+  isLocalUser: boolean;
+  userDN: string;
+  adminDN?: string;
+  adminPassword?: string;
   code: string;
-  value: any;
 };
 
 // mutation types
 
 export type ConfigsQueryResponse = {
-  configsGetValue: IConfig;
+  adConfigs: IConfig;
   loading: boolean;
   refetch: () => void;
+};
+
+export type ToCheckUsersMutationResponse = {
+  toCheckAdUsers: (mutation: {
+    variables: { userName: string; userPass: string };
+  }) => Promise<any>;
+};
+
+export type ToSyncUsersMutationResponse = {
+  toSyncAdUsers: (mutation: {
+    variables: { action: string; users: any[] };
+  }) => Promise<any>;
 };

@@ -48,7 +48,7 @@ export const types = () => `
 `;
 
 export const queries = `
-  bmElements(categories: [String],name: String, page:Int, perPage:Int,quick: Boolean): ListElement
+  bmElements(categories: [String],name: String, page:Int, perPage:Int,quick: Boolean,sortField:String, sortDirection:Int): ListElement
   bmElementDetail(_id:String!): Element
   bmElementCategoryies(parentId:String): [ElementCategory]
   bmElementsInit: JSON

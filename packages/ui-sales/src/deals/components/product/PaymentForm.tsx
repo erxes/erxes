@@ -23,7 +23,7 @@ type Props = {
   currencies: string[];
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
   calcChangePay: () => void;
-  changePayData: { currency?: string; amount?: number };
+  changePayData: { [currency: string]: number };
   pipelineDetail: any;
 };
 
@@ -65,18 +65,16 @@ class PaymentForm extends React.Component<Props, State> {
     const { onChangePaymentsData, calcChangePay } = this.props;
     const { paymentsData } = this.state;
 
-    if (!paymentsData[name]) {
-      paymentsData[name] = {};
-    }
-    paymentsData[name][kind] = value;
+    const newPaymentData = { ...paymentsData, [name]: { ...paymentsData[name], [kind]: value } }
 
-    calcChangePay();
-    this.setState({ paymentsData });
-    onChangePaymentsData(paymentsData);
+    onChangePaymentsData(newPaymentData);
+    this.setState({ paymentsData: newPaymentData }, () => {  
+      calcChangePay();
+    });
   };
 
   selectOption = option => (
-    <div className='simple-option'>
+    <div className='simple-option' key={option.label}>
       <span>{option.label}</span>
     </div>
   );
@@ -131,7 +129,7 @@ class PaymentForm extends React.Component<Props, State> {
 
     const Option = props => {
       return (
-        <components.Option {...props}>
+        <components.Option {...props} key={type}>
           {this.selectOption(props.data)}
         </components.Option>
       );

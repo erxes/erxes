@@ -1,11 +1,11 @@
-import { gql } from '@apollo/client';
+import { gql, useMutation } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { mutations, queries } from '../graphql';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { ConfigsQueryResponse, IConfigsMap } from '../types';
+import { ConfigsQueryResponse, IConfig } from '../types';
 import GeneralSettings from '../components/GeneralSettings';
 
 type Props = {
@@ -14,29 +14,26 @@ type Props = {
 
 type FinalProps = {
   configsQuery: ConfigsQueryResponse;
-  updateConfigs: (configsMap: IConfigsMap) => Promise<void>;
 } & Props;
 
 const GeneralSettingsContainer = (props: FinalProps) => {
-  const { updateConfigs, configsQuery } = props;
+  const { configsQuery } = props;
+  const [addHistoryMutation] = useMutation(gql(mutations.adConfigUpdate));
+
   if (configsQuery.loading) {
     return <Spinner objective={true} />;
   }
 
-  const config = configsQuery.configsGetValue || [];
+  const config = configsQuery.adConfigs || {};
 
-  const configsMap = { [config.code]: config.value };
-
-  const save = (map: IConfigsMap) => {
-    updateConfigs({
-      variables: { configsMap: map },
+  const saveConfig = (doc: IConfig) => {
+    addHistoryMutation({
+      variables: { ...doc },
     })
       .then(() => {
         configsQuery.refetch();
 
-        Alert.success(
-          'You successfully updated stage in sync msdynamic settings'
-        );
+        Alert.success('You successfully updated active director config');
       })
       .catch((error) => {
         Alert.error(error.message);
@@ -45,8 +42,8 @@ const GeneralSettingsContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    save,
-    configsMap,
+    config,
+    saveConfig,
     loading: configsQuery.loading,
   };
   return <GeneralSettings {...updatedProps} />;
@@ -54,7 +51,7 @@ const GeneralSettingsContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ConfigsQueryResponse>(gql(queries.configs), {
+    graphql<Props, ConfigsQueryResponse>(gql(queries.adConfigs), {
       name: 'configsQuery',
       options: () => ({
         variables: {
@@ -63,8 +60,11 @@ export default withProps<Props>(
         fetchPolicy: 'network-only',
       }),
     }),
-    graphql<{}>(gql(mutations.updateConfigs), {
+    graphql<{}>(gql(mutations.adConfigUpdate), {
       name: 'updateConfigs',
+      options: {
+        refetchQueries: ['adConfigs'],
+      },
     })
   )(GeneralSettingsContainer)
 );

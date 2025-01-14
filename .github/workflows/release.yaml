@@ -591,20 +591,6 @@ jobs:
 
           docker buildx imagetools create erxes/plugin-burenscoring-api:rc --tag  erxes/plugin-burenscoring-api:${GITHUB_REF#refs/tags/}
 
-      - name: plugin-bm-api
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker buildx imagetools create erxes/plugin-bm-api:rc --tag  erxes/plugin-bm-api:${GITHUB_REF#refs/tags/}
-
-      - name: plugin-pms-api
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker buildx imagetools create erxes/plugin-pms-api:rc --tag  erxes/plugin-pms-api:${GITHUB_REF#refs/tags/}
-
       - name: plugin-activedirectory-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
@@ -822,14 +808,6 @@ jobs:
         run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-burenscoring-ui
           s3://erxes-release-plugins/uis/plugin-burenscoring-ui/${GITHUB_REF#refs/tags/}/
 
-      - name: bm ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-bm-ui
-          s3://erxes-release-plugins/uis/plugin-bm-ui/${GITHUB_REF#refs/tags/}/
-
-      - name: pms ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-pms-ui
-          s3://erxes-release-plugins/uis/plugin-pms-ui/${GITHUB_REF#refs/tags/}/
-
       - name: activedirectory ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-activedirectory-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-activedirectory-ui
           s3://erxes-release-plugins/uis/plugin-activedirectory-ui/${GITHUB_REF#refs/tags/}/

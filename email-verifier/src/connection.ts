@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import mongoose = require('mongoose');
-import { debugBase } from './utils';
 
 dotenv.config();
 
@@ -13,14 +12,10 @@ const connectionOptions: mongoose.ConnectOptions = {
 const { MONGO_URL } = process.env;
 
 mongoose.connection
-  .on('connected', () => {
-    debugBase(`Connected to the database: ${MONGO_URL}`);
-  })
-  .on('disconnected', () => {
-    debugBase(`Disconnected from the database: ${MONGO_URL}`);
-  })
+  .on('connected', () => {})
+  .on('disconnected', () => {})
   .on('error', (error) => {
-    debugBase(`Database connection error: ${MONGO_URL}`, error);
+    console.error(error);
   });
 
 export const connect = async (URL?: string, options?) => {

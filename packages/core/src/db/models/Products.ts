@@ -386,6 +386,7 @@ export interface IProductCategoryModel extends Model<IProductCategoryDocument> {
     doc: IProductCategory
   ): Promise<IProductCategoryDocument>;
   removeProductCategory(_id: string): void;
+  getChildCategories(categoryIds: string[]): Promise<IProductCategoryDocument[]>;
 }
 
 export const loadProductCategoryClass = (models: IModels) => {
@@ -518,6 +519,40 @@ export const loadProductCategoryClass = (models: IModels) => {
         : `${doc.code}/`;
 
       return order;
+    }
+
+    public static async getChildCategories(categoryIds: string[]) {
+      if (!categoryIds.length) {
+        return {
+          data: [],
+          status: "success"
+        };
+      }
+
+      const categories = await models.ProductCategories.find({
+        _id: { $in: categoryIds }
+      }).lean();
+
+      if (!categories.length) {
+        return {
+          data: [],
+          status: "success"
+        };
+      }
+
+      const orderQry: any[] = [];
+      for (const category of categories) {
+        orderQry.push({
+          order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) }
+        });
+      }
+
+      return await models.ProductCategories.find({
+        status: { $nin: ["disabled", "archived"] },
+        $or: orderQry
+      })
+        .sort({ order: 1 })
+        .lean()
     }
   }
 
