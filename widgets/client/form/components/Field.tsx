@@ -14,16 +14,15 @@ import {
   IProduct,
 } from '../types';
 
-import Datetime from '@nateradebaugh/react-datetime';
+import uploadHandler from '../../uploadHandler';
+import { __ } from '../../utils';
+import { connection } from '../connection';
 import MSFmultiSelect from '../multipleSelectScript';
+import PhoneInput from './fields/PhoneInput';
 import Map from './Map';
 import Marker from './Marker';
 import ObjectList from './ObjectList';
 import Product from './Product';
-import { __ } from '../../utils';
-import { connection } from '../connection';
-import uploadHandler from '../../uploadHandler';
-import PhoneInput from './fields/PhoneInput';
 
 type Props = {
   field: IField;
@@ -88,7 +87,7 @@ export default class Field extends React.Component<Props, State> {
     options: string[],
     id: string,
     onChange: () => void,
-    value?: string
+    value?: string,
   ) {
     let values: string[] = [];
     if (value) {
@@ -125,7 +124,7 @@ export default class Field extends React.Component<Props, State> {
     options: string[],
     id: string,
     onChange: (e: React.FormEvent<HTMLInputElement>) => void,
-    value?: string
+    value?: string,
   ) {
     const selectedIndex = options.indexOf(value || '');
 
@@ -180,7 +179,7 @@ export default class Field extends React.Component<Props, State> {
 
     if (field.type === 'multiSelect' || field.type === 'industry') {
       const multiSelects = Array.from(
-        document.querySelectorAll(`#_id${field._id}`)
+        document.querySelectorAll(`#_id${field._id}`),
       );
 
       const onChange = (checked: boolean, value: string) => {
@@ -191,7 +190,7 @@ export default class Field extends React.Component<Props, State> {
             multipleSelectValues.push(value);
           } else {
             multipleSelectValues = multipleSelectValues.filter(
-              (e) => e === value
+              (e) => e === value,
             );
           }
           this.onChange(multipleSelectValues.toString());
@@ -225,7 +224,7 @@ export default class Field extends React.Component<Props, State> {
             const selected = selectedValues.indexOf(e) > -1 ? true : false;
 
             return { caption: e, value: e, selected };
-          })
+          }),
         );
 
         return select;
@@ -281,7 +280,7 @@ export default class Field extends React.Component<Props, State> {
     self.onChange(attachments);
   };
 
-  onDateChange = (date?: Date | string) => {
+  onDateChange = (date?: any) => {
     this.setState({ dateValue: date || '' });
     this.onChange(date || '');
   };
@@ -342,21 +341,17 @@ export default class Field extends React.Component<Props, State> {
   };
 
   renderDatepicker(id: string) {
-    let defaultValue = new Date();
+    let defaultValue: any = this.props.value ? this.props.value : '';
 
-    if (this.props.value) {
-      defaultValue = new Date(String(this.props.value));
-    }
+    console.log('defaultValue', defaultValue);
 
     return (
-      <Datetime
-        inputProps={{ id }}
-        value={this.state.dateValue}
-        viewDate={new Date()}
-        defaultValue={defaultValue}
-        onChange={this.onDateChange as any}
-        dateFormat="YYYY/MM/DD"
-        timeFormat={false}
+      <input
+        type="date"
+        id="date"
+        name="date"
+        value={defaultValue}
+        onChange={(e) => this.onDateChange(e.target.value)}
       />
     );
   }
@@ -373,21 +368,15 @@ export default class Field extends React.Component<Props, State> {
   }
 
   renderDateTimepicker(id: string) {
-    let defaultValue = new Date();
-
-    if (this.props.value) {
-      defaultValue = new Date(String(this.props.value));
-    }
+    let defaultValue: any = this.props.value || '';
 
     return (
-      <Datetime
-        inputProps={{ id }}
-        value={this.state.dateTimeValue}
-        viewDate={new Date()}
-        defaultValue={defaultValue}
-        onChange={this.onDateTimeChange as any}
-        timeFormat="HH:mm"
-        dateFormat="YYYY/MM/DD"
+      <input
+        type="datetime-local"
+        id="datetime"
+        name="datetime"
+        value={defaultValue}
+        onChange={(e) => this.onDateTimeChange(e.target.value)}
       />
     );
   }
@@ -440,7 +429,7 @@ export default class Field extends React.Component<Props, State> {
                 position={
                   new google.maps.LatLng(
                     currentLocation.lat,
-                    currentLocation.lng
+                    currentLocation.lng,
                   )
                 }
                 content={__('Select your location')}
@@ -485,7 +474,7 @@ export default class Field extends React.Component<Props, State> {
 
       if (index >= 0 && index < values.length) {
         const currentIndex = values[index].findIndex(
-          (subValue: any) => subValue._id === subField._id
+          (subValue: any) => subValue._id === subField._id,
         );
 
         if (currentIndex === -1) {
@@ -511,7 +500,7 @@ export default class Field extends React.Component<Props, State> {
           type: e.type,
           text: e.text,
           value: '',
-        })) || []
+        })) || [],
       );
       this.setState({ subFields, subValues: values });
       this.onChange(values);
@@ -617,6 +606,7 @@ export default class Field extends React.Component<Props, State> {
     };
 
     if (validation === 'date') {
+      console.log('renderDatepicker');
       return (
         <div className="date-input">{this.renderDatepicker(field._id)} </div>
       );
@@ -675,7 +665,7 @@ export default class Field extends React.Component<Props, State> {
             onChange: this.onSelectChange,
             id: field._id,
             value: String(value),
-          }
+          },
         );
 
       case 'industry':
@@ -694,7 +684,7 @@ export default class Field extends React.Component<Props, State> {
           options,
           field._id,
           this.onCheckboxesChange,
-          values
+          values,
         );
 
       case 'radio':
@@ -703,7 +693,7 @@ export default class Field extends React.Component<Props, State> {
           options,
           field._id,
           this.onRadioButtonsChange,
-          String(value)
+          String(value),
         );
 
       case 'isSubscribed':
@@ -712,7 +702,7 @@ export default class Field extends React.Component<Props, State> {
           ['Yes', 'No'],
           field._id,
           this.onRadioButtonsChange,
-          String(value)
+          String(value),
         );
 
       case 'company_isSubscribed':
@@ -721,7 +711,7 @@ export default class Field extends React.Component<Props, State> {
           ['Yes', 'No'],
           field._id,
           this.onRadioButtonsChange,
-          String(value)
+          String(value),
         );
 
       case 'hasAuthority':
@@ -730,7 +720,7 @@ export default class Field extends React.Component<Props, State> {
           ['Yes', 'No'],
           field._id,
           this.onRadioButtonsChange,
-          String(value)
+          String(value),
         );
 
       case 'file':
@@ -823,7 +813,7 @@ export default class Field extends React.Component<Props, State> {
 
           return previousValue;
         },
-        {}
+        {},
       );
 
       const objectListValue = this.state.objectListConfigs || [];
