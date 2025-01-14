@@ -1,18 +1,21 @@
 import { FormControl } from '@erxes/ui/src';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import _ from 'lodash';
 import { ILoanResearch } from '../types';
 
 type Props = {
-  loanResearch: ILoanResearch;
+  loansResearch: ILoanResearch;
   isChecked: boolean;
   toggleBulk: (transaction: ILoanResearch, isChecked?: boolean) => void;
 };
 
-function LoansResearchRow({ loanResearch, isChecked, toggleBulk }: Props) {
+function LoansResearchRow({ loansResearch, isChecked, toggleBulk }: Props) {
+  const navigate = useNavigate();
+
   const onChange = (e) => {
     if (toggleBulk) {
-      toggleBulk(loanResearch, e.target.checked);
+      toggleBulk(loansResearch, e.target.checked);
     }
   };
 
@@ -20,8 +23,12 @@ function LoansResearchRow({ loanResearch, isChecked, toggleBulk }: Props) {
     e.stopPropagation();
   };
 
+  const onTrClick = () => {
+    navigate(`/loansresearch/details/${loansResearch._id}`);
+  };
+
   return (
-    <tr>
+    <tr onClick={onTrClick}>
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
@@ -30,7 +37,7 @@ function LoansResearchRow({ loanResearch, isChecked, toggleBulk }: Props) {
         />
       </td>
 
-      <td key={'dealId'}>{(loanResearch && loanResearch.dealId) || ''} </td>
+      <td key={'dealId'}>{(loansResearch && loansResearch.dealId) || ''} </td>
     </tr>
   );
 }

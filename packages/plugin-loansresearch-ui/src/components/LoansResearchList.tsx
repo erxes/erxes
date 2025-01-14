@@ -68,7 +68,7 @@ const LoansResearchList = (props: Props) => {
   const renderActionBarRight = () => {
     const addTrigger = (
       <Button btnStyle="success" icon="plus-circle">
-        Add car
+        Add loan research
       </Button>
     );
 
@@ -130,11 +130,11 @@ const LoansResearchList = (props: Props) => {
         </tr>
       </thead>
       <tbody id="loanResearches">
-        {loanResearches.map((loanResearch) => (
+        {loanResearches.map((loansResearch) => (
           <LoansResearchRow
-            loanResearch={loanResearch}
-            isChecked={bulk.includes(loanResearch)}
-            key={loanResearch._id}
+            loansResearch={loansResearch}
+            isChecked={bulk.includes(loansResearch)}
+            key={loansResearch._id}
             toggleBulk={toggleBulk}
           />
         ))}

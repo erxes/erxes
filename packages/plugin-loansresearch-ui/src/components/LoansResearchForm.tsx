@@ -29,13 +29,13 @@ import { CUSTOMER_TYPES } from '../constants';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  LoansResearch: ILoanResearch;
+  loansResearch: ILoanResearch;
   closeModal: () => void;
 };
 
 const LoansResearchForm = (props: Props) => {
   const {
-    LoansResearch = {} as ILoanResearch,
+    loansResearch = {} as ILoanResearch,
     closeModal,
     renderButton,
   } = props;
@@ -43,15 +43,15 @@ const LoansResearchForm = (props: Props) => {
   const [attachment, setAttachment] = React.useState<IAttachment | undefined>(
     undefined
   );
-  const [dealId, setDealId] = useState<string>(LoansResearch?.dealId || '');
+  const [dealId, setDealId] = useState<string>(loansResearch?.dealId || '');
   const [customerType, setCustomerType] = useState<string>(
-    LoansResearch?.customerType || ''
+    loansResearch?.customerType || ''
   );
   const [customerId, setCustomerId] = useState<string>(
-    LoansResearch?.customerId || ''
+    loansResearch?.customerId || ''
   );
   const [debtIncomeRatio, setDebtIncomeRatio] = useState<number>(
-    LoansResearch?.debtIncomeRatio || 0
+    loansResearch?.debtIncomeRatio || 0
   );
   const [incomes, setIncomes] = React.useState<IIncome | undefined>(undefined);
   const [loans, setLoans] = React.useState<ILoan | undefined>(undefined);
@@ -59,8 +59,8 @@ const LoansResearchForm = (props: Props) => {
   const generateDoc = (values: { _id: string } & ILoanResearch) => {
     const finalValues = values;
 
-    if (LoansResearch) {
-      finalValues._id = LoansResearch._id;
+    if (loansResearch) {
+      finalValues._id = loansResearch._id;
     }
 
     return {
@@ -145,7 +145,8 @@ const LoansResearchForm = (props: Props) => {
             name: 'loansResearch',
             values: generateDoc(values),
             isSubmitted,
-            object: props.LoansResearch,
+            callback: closeModal,
+            object: props.loansResearch,
           })}
         </ModalFooter>
       </>

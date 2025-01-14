@@ -78,7 +78,7 @@ const lsQueries = {
    * Get one loans Research detail
    */
 
-  loanResearchDetail: async (_root, { _id }, { models }: IContext) => {
+  loansResearchDetail: async (_root, { _id }, { models }: IContext) => {
     return models.LoansResearch.getLoanResearch({ _id });
   },
 };

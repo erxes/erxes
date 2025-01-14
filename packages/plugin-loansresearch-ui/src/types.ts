@@ -20,6 +20,13 @@ export type ILoanResearch = {
   incomes: IIncome;
   loans: ILoan;
   debtIncomeRatio: number;
+  createdAt: Date;
+  modifiedAt: Date;
+};
+
+export type DetailQueryResponse = {
+  loansResearchDetail: ILoanResearch;
+  loading: boolean;
 };
 
 export type MainQueryResponse = {

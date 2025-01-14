@@ -6,7 +6,7 @@ import LoansResearchForm from '../components/LoansResearchForm';
 import { ILoanResearch } from '../types';
 
 type Props = {
-  LoansResearch: ILoanResearch;
+  loansResearch: ILoanResearch;
   closeModal: () => void;
 };
 
@@ -17,19 +17,16 @@ const LoansResearchFormContainer = (props: Props) => {
     name,
     values,
     isSubmitted,
+    callback,
     object,
   }: IButtonMutateProps) => {
-    const afterSave = (data) => {
-      closeModal();
-    };
-
     return (
       <ButtonMutate
         mutation={
           object ? mutations.loansResearchEdit : mutations.loansResearchAdd
         }
         variables={values}
-        callback={afterSave}
+        callback={callback}
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         type="submit"
@@ -48,7 +45,7 @@ const LoansResearchFormContainer = (props: Props) => {
 };
 
 const getRefetchQueries = () => {
-  return ['loansResearchMain', 'loanResearchDetail'];
+  return ['loansResearchMain', 'loansResearchDetail'];
 };
 
 export default LoansResearchFormContainer;

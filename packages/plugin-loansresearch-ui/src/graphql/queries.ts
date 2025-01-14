@@ -53,12 +53,12 @@ const loansResearchMain = `
   }
 `;
 
-const loanResearchDetail = `
-query loanResearchDetail($_id: String!)) {
-  loanResearchDetail(_id: $_id) {
+const loansResearchDetail = `
+query loansResearchDetail($_id: String!) {
+  loansResearchDetail(_id: $_id) {
     ${loansResearchFields}
   }
 }
 `;
 
-export default { loansResearchMain, loanResearchDetail };
+export default { loansResearchMain, loansResearchDetail };
