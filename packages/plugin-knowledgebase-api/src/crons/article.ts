@@ -30,20 +30,21 @@ export const publish = async (subdomain: string) => {
 
 export default {
   handleMinutelyJob: async () => {
-    const VERSION = getEnv({ name: 'VERSION' });
+    return
+    // const VERSION = getEnv({ name: 'VERSION' });
 
-    if (VERSION && VERSION === 'saas') {
-      const organizations = await getOrganizations();
+    // if (VERSION && VERSION === 'saas') {
+    //   const organizations = await getOrganizations();
 
-      for (const org of organizations) {
-        if (org.subdomain.length === 0) {
-          continue;
-        }
+    //   for (const org of organizations) {
+    //     if (org.subdomain.length === 0) {
+    //       continue;
+    //     }
       
-        await publish(org.subdomain);
-      }
-    } else {
-      await publish('os');
-    }
+    //     await publish(org.subdomain);
+    //   }
+    // } else {
+    //   await publish('os');
+    // }
   },
 };
