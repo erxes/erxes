@@ -228,16 +228,16 @@ export const dealToDynamic = async (
       Sell_to_Phone_No: customer?.primaryPhone || "",
       Sell_to_E_Mail: customer?.primaryEmail || "",
       External_Document_No: order.number,
-      Responsibility_Center: config.responsibilityCenter || "BEV-DIST",
-      Sync_Type: config.syncType || "ECOMMERCE",
+      Responsibility_Center: config.responsibilityCenter || "",
+      Sync_Type: config.syncType || "",
       Mobile_Phone_No: customer?.primaryPhone || "",
-      VAT_Bus_Posting_Group: config.vatBusPostingGroup || "DOMESTIC",
-      Payment_Terms_Code: config.paymentTermsCode || "28TH",
+      VAT_Bus_Posting_Group: config.vatBusPostingGroup || "",
+      Payment_Terms_Code: config.paymentTermsCode || "",
       Payment_Method_Code: config.paymentMethodCode || "CASH",
-      Customer_Price_Group: config.customerPricingGroup || "ONLINE",
+      Customer_Price_Group: config.customerPricingGroup || "",
       Prices_Including_VAT: true,
       BillType: config.billType || "Receipt",
-      Location_Code: config.locationCode || "BEV-01",
+      Location_Code: config.locationCode || "",
       CustomerNo:
         customer?.customFieldsDataByFieldCode?.vatCustomer?.value ||
         customer?.customFieldsDataByFieldCode?.vatCompany?.value

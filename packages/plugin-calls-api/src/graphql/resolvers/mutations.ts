@@ -16,7 +16,7 @@ export interface ISession {
 }
 interface ICallHistoryEdit extends ICallHistory {
   _id: string;
-  transferedCallStatus: string;
+  transferredCallStatus: string;
 }
 
 const callsMutations = {
@@ -151,8 +151,8 @@ const callsMutations = {
     });
     if (history && history.callStatus === 'active') {
       let callStatus = doc.callStatus;
-      if (doc.transferedCallStatus) {
-        callStatus = 'transfered';
+      if (doc.transferredCallStatus) {
+        callStatus = 'transferred';
       }
 
       await models.CallHistory.deleteMany({
