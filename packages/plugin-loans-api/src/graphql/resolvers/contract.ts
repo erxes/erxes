@@ -322,7 +322,11 @@ const Contracts = {
   },
 
   async unUsedBalance(contract: IContractDocument, { }, { models }: IContext) {
-    models.Schedules.find({ contractId: contract._id, })
+    const schedule = await models.Schedules.findOne({ contractId: contract._id, }).lean();
+    if (!schedule?._id) {
+      return contract.leaseAmount;
+    }
+
     const lastDidSchedule = await models.Schedules.findOne({
       contractId: contract._id,
       payDate: { $lte: getFullDate(new Date()) },
