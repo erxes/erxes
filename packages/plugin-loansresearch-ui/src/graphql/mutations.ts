@@ -1,43 +1,45 @@
 const commonFields = `
-  $apiUrl: String,
-  $isLocalUser: Boolean,
-  $userDN: String,
-  $adminDN: String
-  $adminPassword: String
-  $code: String,
+  $dealId: String
+  $customerType: String
+  $customerId: String
+  $incomes: IncomeInput
+  $loans: LoanInput
+  $debtIncomeRatio: Float
 `;
 
 const commonVariables = `
-  apiUrl: $apiUrl,
-  isLocalUser: $isLocalUser,
-  userDN: $userDN,
-  adminDN: $adminDN
-  adminPassword: $adminPassword
-  code: $code,
+  dealId: $dealId
+  customerType: $customerType
+  customerId: $customerId
+  incomes: $incomes
+  loans: $loans
+  debtIncomeRatio: $debtIncomeRatio
 `;
 
-const adConfigUpdate = `
-  mutation adConfigUpdate(${commonFields}) {
-    adConfigUpdate(${commonVariables}) {
+const loansResearchAdd = `
+  mutation loansResearchAdd(${commonFields}) {
+    loansResearchAdd(${commonVariables}) {
       _id
     }
   }
 `;
 
-const toCheckUsers = `
-  mutation toCheckAdUsers($userName: String, $userPass: String) {
-    toCheckAdUsers(userName: $userName, userPass: $userPass)
+const loansResearchEdit = `
+  mutation loansResearchEdit($_id: String!, ${commonFields}) {
+    loansResearchEdit(_id: $_id, ${commonVariables}) {
+      _id
+    }
   }
 `;
 
-const toSyncUsers = `
-  mutation toSyncAdUsers($action: String, $users: [JSON]) {
-    toSyncAdUsers(action: $action, users: $users)
+const loansResearchRemove = `
+  mutation loansResearchRemove($loanResearchIds: [String]) {
+    loansResearchRemove(loanResearchIds: $loanResearchIds)
   }
 `;
 
 export default {
-  adConfigUpdate,
-  toCheckUsers,
-  toSyncUsers,
+  loansResearchAdd,
+  loansResearchEdit,
+  loansResearchRemove,
 };

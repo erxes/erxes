@@ -14,12 +14,31 @@ const listParamsValue = `
 
 export const loansResearchFields = `
   _id
-  apiUrl
-  isLocalUser
-  userDN
-  adminDN
-  adminPassword
-  code
+  dealId
+  customerType
+  customerId
+  incomes {
+    _id
+    incomeType
+    files {
+      url
+      name
+      size
+      type
+    }
+  }
+  loans {
+    _id
+    startDate
+    closeDate
+    files {
+      url
+      name
+      size
+      type
+    }
+  }
+  debtIncomeRatio
   createdAt
 `;
 

@@ -39,7 +39,7 @@ const LoansResearchListContainer = (props: Props) => {
     ...props,
     loading: loansResearchMainQuery.loading,
     totalCount,
-    loanResearch: list,
+    loanResearches: list,
   };
 
   const content = (bulkProps) => (
