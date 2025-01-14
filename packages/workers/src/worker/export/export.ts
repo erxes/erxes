@@ -253,7 +253,8 @@ async function main() {
       for (const header of excelHeader) {
         const value = doc[header];
 
-        sheet.cell(rowIndex, columnIndex + 1).value(value || "-");
+        const safeValue = Array.isArray(value) ? value.toString() : value;
+        sheet.cell(rowIndex, columnIndex + 1).value(safeValue || "-");
         columnIndex++;
       }
 
