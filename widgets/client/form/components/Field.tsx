@@ -343,10 +343,9 @@ export default class Field extends React.Component<Props, State> {
   renderDatepicker(id: string) {
     let defaultValue: any = this.props.value ? this.props.value : '';
 
-    console.log('defaultValue', defaultValue);
-
     return (
       <input
+        className='form-control'
         type='date'
         id='date'
         name='date'
@@ -372,6 +371,7 @@ export default class Field extends React.Component<Props, State> {
 
     return (
       <input
+        className='form-control'
         type='datetime-local'
         id='datetime'
         name='datetime'
@@ -606,7 +606,6 @@ export default class Field extends React.Component<Props, State> {
     };
 
     if (validation === 'date') {
-      console.log('renderDatepicker');
       return (
         <div className='date-input'>{this.renderDatepicker(field._id)} </div>
       );
