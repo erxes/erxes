@@ -1,13 +1,27 @@
 import { Schema, Document } from 'mongoose';
 import { field, schemaWrapper } from './utils';
+import { IAttachment } from '@erxes/api-utils/src/types';
+
+export interface IIncome {
+  _id: string;
+  incomeType: String;
+  files: IAttachment;
+}
+
+export interface ILoan {
+  _id: string;
+  startDate: Date;
+  closeDate: Date;
+  files: IAttachment;
+}
 
 export interface ILoanResearch {
-  apiUrl: string;
-  adminDN: string;
-  adminPassword: string;
-  code: string;
-  isLocalUser: string;
-  userDN: string;
+  dealId: string;
+  customerType: string;
+  customerId: string;
+  incomes: IIncome;
+  loans: ILoan;
+  debtIncomeRatio: number;
   createdAt: Date;
   modifiedAt: Date;
 }
@@ -15,6 +29,40 @@ export interface ILoanResearch {
 export interface ILoanResearchDocument extends ILoanResearch, Document {
   _id: string;
 }
+
+const attachmentSchema = new Schema(
+  {
+    name: { type: String },
+    url: { type: String },
+    type: { type: String },
+    size: { type: Number, optional: true },
+    duration: { type: Number, optional: true },
+  },
+  { _id: false }
+);
+
+export const incomeSchema = schemaWrapper(
+  new Schema(
+    {
+      _id: { type: String },
+      incomeType: { type: String },
+      files: { type: [attachmentSchema] },
+    },
+    { _id: false }
+  )
+);
+
+export const loanSchema = schemaWrapper(
+  new Schema(
+    {
+      _id: { type: String },
+      startDate: { type: Date, optional: true },
+      closeDate: { type: Date, optional: true },
+      files: { type: [attachmentSchema] },
+    },
+    { _id: false }
+  )
+);
 
 export const configSchema = schemaWrapper(
   new Schema({
@@ -30,15 +78,13 @@ export const configSchema = schemaWrapper(
       default: new Date(),
       label: 'Modified at',
     }),
-    apiUrl: field({ type: String, optional: true, label: 'apiUrl' }),
-    isLocalUser: field({ type: Boolean, label: 'isLocalUser' }),
-    userDN: field({ type: String, optional: true, label: 'userDN' }),
-    adminDN: field({ type: String, optional: true, label: 'adminDN' }),
-    adminPassword: field({
-      type: String,
-      optional: true,
-      label: 'adminPassword',
+    dealId: field({ type: String, optional: true, label: 'deal id' }),
+    customerType: field({ type: String, label: 'customer type' }),
+    customerId: field({ type: String, optional: true, label: 'customer id' }),
+    incomes: field({ type: incomeSchema }),
+    loans: field({
+      type: loanSchema,
     }),
-    code: field({ type: String, label: 'code' }),
+    debtIncomeRatio: field({ type: Number, label: 'debt to income ratio' }),
   })
 );

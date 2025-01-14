@@ -1,24 +1,65 @@
+import {
+  attachmentType,
+  attachmentInput,
+} from '@erxes/api-utils/src/commonTypeDefs';
+
+const commonIncomeTypes = `
+  _id: String
+  incomeType: String 
+`;
+
+const commonLoanTypes = `
+  _id: String
+  startDate: Date
+  closeDate: Date
+`;
+
 export const types = () => `
+
+  ${attachmentType}
+  ${attachmentInput}
+  
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
 
+  type Income {
+    ${commonIncomeTypes}
+    files: [Attachment]
+  }
+
+  type Loan {
+    ${commonLoanTypes}
+    files: [Attachment]
+  }
+
   type LoansResearch {
     _id: String!
+    dealId: String
+    customerType: String
+    customerId: String
+    incomes: Income
+    loans: Loan
+    debtIncomeRatio: Float
     createdAt: Date
     modifiedAt: Date
-    apiUrl: String
-    isLocalUser: Boolean
-    userDN: String
-    adminDN: String
-    adminPassword: String
-    code: String
   }
 
   type LoansResearchListResponse {
     list: [LoansResearch],
     totalCount: Int,
   }
+
+  input IncomeInput {
+    ${commonIncomeTypes}
+    files: [AttachmentInput]
+  }
+
+  input LoanInput {
+    ${commonLoanTypes}
+    files: [AttachmentInput]
+  }
+
 `;
 
 const queryParams = `
@@ -34,12 +75,12 @@ export const queries = `
 `;
 
 const commonFields = `
-  apiUrl: String
-  isLocalUser: Boolean
-  userDN: String
-  adminDN: String
-  adminPassword: String
-  code: String
+  dealId: String
+  customerType: String
+  customerId: String
+  incomes: IncomeInput
+  loans: LoanInput
+  debtIncomeRatio: Float
 `;
 
 export const mutations = `

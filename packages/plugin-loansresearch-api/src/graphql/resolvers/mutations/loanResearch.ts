@@ -5,11 +5,7 @@ import {
 } from '../../../models/definitions/loansResearch';
 
 const loanResearchMutations = {
-  loansResearchAdd: async (
-    _root,
-    doc: ILoanResearch,
-    { user, models, subdomain }: IContext
-  ) => {
+  loansResearchAdd: async (_root, doc: ILoanResearch, { models }: IContext) => {
     const loanResearch = await models.LoansResearch.createLoansResearch(doc);
 
     return loanResearch;
@@ -21,7 +17,7 @@ const loanResearchMutations = {
   loansResearchEdit: async (
     _root,
     { _id, ...doc }: ILoanResearchDocument,
-    { models, user, subdomain }: IContext
+    { models }: IContext
   ) => {
     const updated = await models.LoansResearch.updateLoansResearch(_id, doc);
 
@@ -35,7 +31,7 @@ const loanResearchMutations = {
   loansResearchRemove: async (
     _root,
     { loanResearchIds }: { loanResearchIds: string[] },
-    { models, user, subdomain }: IContext
+    { models }: IContext
   ) => {
     await models.LoansResearch.removeLoansResearches(loanResearchIds);
 
