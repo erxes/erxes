@@ -11,7 +11,7 @@
   "license": "SEE LICENSE IN LICENSE",
   "scripts": {
     "start": "node dist",
-    "dev": "ERXES_TELEMETRY_DISABLED=1 NODE_ENV=development nodemon src/index.ts",
+    "dev": "ERXES_TELEMETRY_DISABLED=1 NODE_ENV=development nodemon --require ../api-utils/src/instrumentation.ts src/index.ts",
     "loadTestData": "ts-node ./src/commands/loadTestData.ts",
     "build": "tsc",
     "test": "node --expose-gc --max_old_space_size=8000 ./node_modules/.bin/jest --forceExit --silent --logHeapUsage --w=1",

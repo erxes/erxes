@@ -6,7 +6,7 @@
   "dependencies": {
     "@apollo/client": "^3.9.5",
     "@erxes/ui": "*",
-    "@grafana/faro-react": "^1.7.3",
+    "@grafana/faro-react": "^1.12.2",
     "@headlessui/react": "1.7.16",
     "@nateradebaugh/react-datetime": "4.0.0-rc.10",
     "@popperjs/core": "^2.11.8",
@@ -23,11 +23,13 @@
     "posthog-js": "^1.139.2",
     "query-string": "^5.0.0",
     "react": "^18.1.0",
+    "react-barcode": "^1.4.5",
     "react-bootstrap": "^2.9.2",
     "react-color": "^2.19.3",
     "react-dom": "^18.1.0",
     "react-error-boundary": "^4.0.12",
     "react-popper": "^2.3.0",
+    "react-qr-code": "^2.0.8",
     "react-router-dom": "^6.21.2",
     "react-select": "^5.8.0",
     "react-transition-group": "^4.4.5",
@@ -36,9 +38,7 @@
     "styled-components-ts": "^0.0.15",
     "typescript": "5.3.3",
     "underscore.string": "^3.3.5",
-    "xss": "1.0.14",
-    "react-barcode": "^1.4.5",
-    "react-qr-code": "^2.0.8"
+    "xss": "1.0.14"
   },
   "scripts": {
     "start": "webpack serve --open --mode development",
