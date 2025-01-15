@@ -306,8 +306,10 @@ export const getRealIdFromElk = (_id: string) => {
   if (VERSION && VERSION === 'saas') {
     const arr = _id.split('__');
 
-    return arr.length === 2 ? arr[1] : arr[0];
-  }
+    if(arr?.length > 1){
+      return _id.replace(`${arr[0]}__`,'');
+    }
+  };
 
   return _id
 };

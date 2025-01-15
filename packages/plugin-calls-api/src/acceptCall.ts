@@ -72,16 +72,16 @@ const acceptCall = async (
         callStatus: { $eq: 'cancelled' },
       });
 
-      await history.save();
+      await history?.save();
     } catch (error) {
-      await models.CallHistory.deleteOne({ _id: history._id });
-      console.error('Error saving call history:', error);
+      await models.CallHistory.deleteOne({ _id: history?._id });
+      console.error('Error saving call history:', error.message);
     }
   } catch (e) {
     throw new Error(
       e.message.includes('duplicate')
         ? 'Concurrent request: call history duplication'
-        : e,
+        : e.message,
     );
   }
   if (!customer || !customer.erxesApiId) {
