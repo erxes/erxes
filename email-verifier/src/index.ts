@@ -47,8 +47,7 @@ app.post('/verify-single', async (req, res, next) => {
 });
 
 app.post('/verify-bulk', async (req, res, next) => {
-  // debugRequest(debugBase, req);
-
+  console.debug("bulk verification request from", req.headers.origin);
   const { phones, emails, hostname } = req.body;
 
   if (phones) {
