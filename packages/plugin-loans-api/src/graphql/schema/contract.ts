@@ -187,6 +187,7 @@ const queryParams = `
   status: String
   leaseType: String
   leaseTypes: [String]
+  statuses: [String]
 
   dealIds: [String]
 `;

@@ -8,8 +8,6 @@ import { getCloseInfo } from "../../../models/utils/closeUtils";
 const generateFilter = async (params, commonQuerySelector) => {
   let filter: any = commonQuerySelector;
 
-  filter.status = { $ne: "Deleted" };
-
   const {
     page,
     perPage,
@@ -26,8 +24,14 @@ const generateFilter = async (params, commonQuerySelector) => {
     endStartDate,
     leaseTypes,
     dealIds,
+    statuses,
     ...otherFilter
   } = params;
+
+  filter.status = { $ne: "Deleted" };
+  if (statuses?.length) {
+    filter.status = {$in: statuses}
+  }
 
   if (ids?.length) {
     filter._id = { [excludeIds ? "$nin" : "$in"]: ids };
