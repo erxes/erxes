@@ -22,9 +22,9 @@ const jsonMiddleware = express.json() as express.RequestHandler;
 app.use(urlencodedMiddleware);
 app.use(jsonMiddleware);
 
-app.get('/', (_req, res) => {
+app.get('/', (req, res) => {
   // return do not panic, it's healthy
-  console.debug('health check request from', _req.headers.origin);
+  console.debug('health check request from', req.headers.origin);
   const html = `<!DOCTYPE html>
                   <html lang="en">
                   <head>
@@ -42,9 +42,9 @@ app.get('/', (_req, res) => {
 });
 
 app.post('/verify-single', async (req, res, next) => {
-  // debugRequest(debugBase, req);
 
   const { email, phone, hostname } = req.body;
+  console.debug('single verification request from', hostname);
 
   if (email) {
     try {
@@ -66,9 +66,8 @@ app.post('/verify-single', async (req, res, next) => {
 });
 
 app.post('/verify-bulk', async (req, res, next) => {
-  console.debug('bulk verification request from', req.headers.origin);
   const { phones, emails, hostname } = req.body;
-
+  console.debug('bulk verification request from', hostname);
   if (phones) {
     try {
       const result = await validateBulkPhones(phones, hostname);
