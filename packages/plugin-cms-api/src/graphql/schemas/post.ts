@@ -33,7 +33,7 @@ export const types = `
 
     union Author = User | ClientPortalUser
 
-    type Post {
+    type Post @key(fields: "_id") @cacheControl(maxAge: 3) {
         _id: String!
         authorKind: PostAuthorKind
         authorId: String
@@ -46,8 +46,7 @@ export const types = `
         categoryIds: [String]
         status: PostStatus
         tagIds: [String]
-        authorKind: PostAuthorKind
-        authorId: String
+  
         featured: Boolean
         featuredDate: Date
         scheduledDate: Date

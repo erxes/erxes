@@ -52,23 +52,22 @@ const typeDefs = async () => {
 
     ${
       cmsAvailable
-        ? `
+        && `
         extend type Post @key(fields: "_id") {
           _id: String! @external
         }
       `
-        : ''
     }
 
     ${clientPortalTypes(enabledPlugins)}
-    ${clientPortalUserTypes()}
+    ${clientPortalUserTypes}
     ${notificationTypes}
     ${commentTypes}
     ${fieldConfigTypes}
 
     extend type Query {
      ${clientPortalQueries(enabledPlugins)}
-     ${clientPortalUserQueries()}
+     ${clientPortalUserQueries(cmsAvailable)}
      ${notificationQueries}
      ${commentQueries}
      ${fieldConfigQueries}
@@ -76,7 +75,7 @@ const typeDefs = async () => {
 
     extend type Mutation {
       ${clientPortalMutations} 
-      ${clientPortalUserMutations()}
+      ${clientPortalUserMutations(cmsAvailable)}
       ${notificationMutations}
       ${fieldConfigMutations}
     }
