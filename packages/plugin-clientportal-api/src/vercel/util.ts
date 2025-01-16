@@ -5,6 +5,7 @@ import * as path from 'path';
 import simpleGit from 'simple-git';
 import * as tmp from 'tmp';
 import { IClientPortalDocument } from '../models/definitions/clientPortal';
+import { sendCommonMessage } from '../messageBroker';
 
 const layoutConfig = (config) => {
   const title = config.name || 'Adventure tours';
@@ -106,6 +107,21 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
     throw new Error('Template id is required');
   }
 
+  const pages = await sendCommonMessage({
+    subdomain,
+    serviceName: 'cms',
+    action: 'getPages',
+    data: {
+      clientPortalId: config._id,
+    },
+    isRpc: true,
+    defaultValue: [],
+  });
+  
+  if (pages.length === 0) {
+    throw new Error('No pages found');
+  }
+
   const GITHUB_TOKEN = getEnv({ name: 'GITHUB_TOKEN' });
   const tmpDir = tmp.dirSync({ unsafeCleanup: true }).name;
   const TEMPLATE_REPO = `https://oauth2:${GITHUB_TOKEN}@github.com/erxes-web-templates/${config.templateId}.git`;
@@ -121,6 +137,7 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
 
     const configPath = path.join(tmpDir, 'next.config.ts');
     const layoutPath = path.join(tmpDir, 'app', 'layout.tsx');
+    const dataPath = path.join(tmpDir, 'data.json');
 
     const projectConfig = `export default {
       env: {
