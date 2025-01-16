@@ -34,11 +34,11 @@ const ListContainer = (props: Props) => {
   );
 
   useEffect(() => {
-    console.log("test = ", window.location.host.split("."));
     const parts = window.location.host.split(".");
     if (parts.length === 4) {
-      // miracle.tms.erxes.io
-      setTmsLink("https://" + parts[0] + ".tms.erxes.io");
+      if (parts[1] + parts[2] + parts[3] === "app.erxes.io") {
+        setTmsLink("https://" + parts[0] + ".tms.erxes.io");
+      }
     }
     refetch();
   }, [queryParams.page]);
