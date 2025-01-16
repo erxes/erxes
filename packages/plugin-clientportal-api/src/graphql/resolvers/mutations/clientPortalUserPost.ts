@@ -35,7 +35,7 @@ const postMutations = {
       clientPortalId: cpUser.clientPortalId,
     };
 
-    const result = await sendCommonMessage({
+    return await sendCommonMessage({
       subdomain,
       serviceName: 'cms',
       action: 'addPost',
@@ -43,8 +43,6 @@ const postMutations = {
       isRPC: true,
       defaultValue: null,
     });
-
-    return result.data;
   },
 
   clientPortalUserEditPost: async (
@@ -58,7 +56,7 @@ const postMutations = {
 
     await checkUserOwnsPost(subdomain, cpUser._id, args._id);
 
-    const result = await sendCommonMessage({
+    return await sendCommonMessage({
       subdomain,
       serviceName: 'cms',
       action: 'editPost',
@@ -66,8 +64,6 @@ const postMutations = {
       isRPC: true,
       defaultValue: null,
     });
-
-    return result.data;
   },
 
   clientPortalUserRemovePost: async (
@@ -81,7 +77,7 @@ const postMutations = {
 
     await checkUserOwnsPost(subdomain, cpUser._id, args._id);
 
-    const result = await sendCommonMessage({
+    await sendCommonMessage({
       subdomain,
       serviceName: 'cms',
       action: 'removePost',
@@ -90,7 +86,7 @@ const postMutations = {
       defaultValue: null,
     });
 
-    return result.data;
+    return 'removed';
   },
 
   clientPortalUserChangeStatus: async (
@@ -104,7 +100,7 @@ const postMutations = {
 
     await checkUserOwnsPost(subdomain, cpUser._id, args._id);
 
-    const result = await sendCommonMessage({
+    return await sendCommonMessage({
       subdomain,
       serviceName: 'cms',
       action: 'editPost',
@@ -112,8 +108,6 @@ const postMutations = {
       isRPC: true,
       defaultValue: null,
     });
-
-    return result.data;
   },
 
   clientPortalUserToggleFeatured: async (
@@ -127,7 +121,7 @@ const postMutations = {
 
     const post = await checkUserOwnsPost(subdomain, cpUser._id, args._id);
 
-    const result = await sendCommonMessage({
+    return await sendCommonMessage({
       subdomain,
       serviceName: 'cms',
       action: 'editPost',
@@ -135,8 +129,6 @@ const postMutations = {
       isRPC: true,
       defaultValue: null,
     });
-
-    return result.data;
   },
 };
 

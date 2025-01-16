@@ -165,9 +165,9 @@ const clientPortalUserQueries = {
       throw new Error('login required');
     }
 
-    const query = { ...args, authorId: cpUser._id };
+    const query = { ...args, authorId: cpUser._id, clientPortalId: cpUser.clientPortalId };
 
-    const { data } = await sendCommonMessage({
+    return await sendCommonMessage({
       subdomain,
       serviceName: 'cms',
       action: 'getPostsPaginated',
@@ -175,8 +175,6 @@ const clientPortalUserQueries = {
       isRPC: true,
       defaultValue: null,
     });
-
-    return data;
   },
 };
 
