@@ -12,6 +12,7 @@ export const types = `
         _id: String!
         clientPortalId: String
         name: String
+        description: String
         type: String
         slug: String
         content: String
@@ -45,6 +46,7 @@ export const inputs = `
     input PageInput {
         clientPortalId: String
         name: String
+        description: String
         status: String
         type: String
         slug: String

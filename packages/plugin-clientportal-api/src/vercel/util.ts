@@ -102,9 +102,13 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
     throw new Error('Erxes app token is required');
   }
 
+  if (!config.templateId) {
+    throw new Error('Template id is required');
+  }
+
   const GITHUB_TOKEN = getEnv({ name: 'GITHUB_TOKEN' });
   const tmpDir = tmp.dirSync({ unsafeCleanup: true }).name;
-  const TEMPLATE_REPO = `https://oauth2:${GITHUB_TOKEN}@github.com/erxes-web-templates/tour-1.git`;
+  const TEMPLATE_REPO = `https://oauth2:${GITHUB_TOKEN}@github.com/erxes-web-templates/${config.templateId}.git`;
   const DOMAIN = 'https://apose.app.erxes.io';
   const domain = DOMAIN.replace('<subdomain>', subdomain);
   const VERCEL_TOKEN = getEnv({ name: 'VERCEL_TOKEN' });
@@ -128,9 +132,9 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
       },
     };`;
 
-    const layout = layoutConfig(config);
+    // const layout = layoutConfig(config);
 
-    fs.writeFileSync(layoutPath, layout);
+    // fs.writeFileSync(layoutPath, layout);
     fs.writeFileSync(configPath, projectConfig);
 
     if (config.icon) {
@@ -141,7 +145,6 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
       );
     }
 
-    console.debug('Created Vercel configuration', tmpDir);
 
     const files = allFilePaths(tmpDir).map((filePath, index) => {
       const encoding = path

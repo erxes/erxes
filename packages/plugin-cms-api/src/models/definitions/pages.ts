@@ -5,6 +5,8 @@ import { nanoid } from 'nanoid';
 export interface IPage {
   clientPortalId: string;
   name: string;
+  description: string;
+  content: string;
   slug: string;
   layout: string;
   pageItems: any[];
@@ -20,6 +22,8 @@ export const pageSchema = new Schema<IPageDocument>(
     _id: { type: String, default: () => nanoid() },
     clientPortalId: { type: String, required: true },
     name: { type: String, required: true },
+    description: { type: String },
+    content: { type: String },
     slug: { type: String, required: true },
     layout: { type: String, required: false },
     createdUserId: { type: String, ref: 'User' },
