@@ -1,11 +1,11 @@
-import { gql, useQuery, useMutation } from "@apollo/client";
-import { Alert, confirm, Bulk, router } from "@erxes/ui/src";
-import React, { useEffect, useState } from "react";
-import { RemoveMutationResponse } from "../types";
+import { gql, useQuery, useMutation } from '@apollo/client';
+import { Alert, confirm, Bulk, router } from '@erxes/ui/src';
+import React, { useEffect } from 'react';
+import { RemoveMutationResponse } from '../types';
 
-import { queries, mutations } from "../graphql";
-import List from "../components/ListBranch";
-import { useLocation } from "react-router-dom";
+import { queries, mutations } from '../graphql';
+import List from '../components/ListBranch';
+import { useLocation } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -14,8 +14,8 @@ type Props = {
 const ListContainer = (props: Props) => {
   const { queryParams } = props;
   const location = useLocation();
-  const [tmsLink, setTmsLink] = useState("");
-  const shouldRefetchList = router.getParam(location, "refetchList");
+
+  const shouldRefetchList = router.getParam(location, 'refetchList');
 
   const branchListQuery = useQuery(gql(queries.bmBranchList), {
     variables: {
@@ -24,22 +24,16 @@ const ListContainer = (props: Props) => {
       sortField: queryParams.sortField,
       sortDirection: queryParams.sortDirection
         ? parseInt(queryParams.sortDirection, 10)
-        : undefined
+        : undefined,
     },
-    fetchPolicy: "network-only"
+    fetchPolicy: 'network-only',
   });
 
   const [posRemove] = useMutation<RemoveMutationResponse>(
-    gql(mutations.bmsBranchRemove)
+    gql(mutations.bmsBranchRemove),
   );
 
   useEffect(() => {
-    const parts = window.location.host.split(".");
-    if (parts.length === 4) {
-      if (parts[1] + parts[2] + parts[3] === "app.erxes.io") {
-        setTmsLink("https://" + parts[0] + ".tms.erxes.io");
-      }
-    }
     refetch();
   }, [queryParams.page]);
 
@@ -54,17 +48,17 @@ const ListContainer = (props: Props) => {
   };
 
   const remove = (posId: string) => {
-    const message = "Are you sure?";
+    const message = 'Are you sure?';
 
     confirm(message).then(() => {
       posRemove({
-        variables: { _id: posId }
+        variables: { _id: posId },
       })
         .then(() => {
           // refresh queries
           refetch();
 
-          Alert.success("You successfully deleted a tms branch.");
+          Alert.success('You successfully deleted a tms branch.');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -82,8 +76,7 @@ const ListContainer = (props: Props) => {
       remove,
       loading: branchListQuery.loading,
       totalCount,
-      tmsLink,
-      refetch
+      refetch,
     };
 
     return <List {...updatedProps} {...bulkProps} />;

@@ -1,6 +1,9 @@
 import { generateModels, IModels } from "./connectionResolver";
 import { IMPORT_EXPORT_TYPES, MODULE_NAMES } from "./constants";
-import { fetchSegment, sendCoreMessage } from "./messageBroker";
+import {
+  fetchSegment,
+  sendCoreMessage
+} from "./messageBroker";
 import * as moment from "moment";
 import { IUserDocument } from "@erxes/api-utils/src/types";
 import { IPipelineLabelDocument } from "./models/definitions/pipelineLabels";
@@ -26,7 +29,7 @@ const prepareData = async (
   const boardItemsFilter: any = {};
   let itemIds = [];
 
-  if (segmentData && segmentData.conditions) {
+  if (segmentData.conditions) {
     itemIds = await fetchSegment(subdomain, "", { page, perPage }, segmentData);
 
     boardItemsFilter._id = { $in: itemIds };
@@ -39,9 +42,9 @@ const prepareData = async (
           .skip(skip)
           .limit(perPage)
           .lean();
-      } else {
-        data = await models.Purchases.find(boardItemsFilter).lean();
       }
+
+      data = await models.Purchases.find(boardItemsFilter).lean();
 
       break;
   }
@@ -62,7 +65,7 @@ const prepareDataCount = async (
 
   const boardItemsFilter: any = {};
 
-  if (segmentData && segmentData.conditions) {
+  if (segmentData.conditions) {
     const itemIds = await fetchSegment(
       subdomain,
       "",

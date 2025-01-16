@@ -65,11 +65,11 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
         prev,
         {
           subscriptionData: {
-            data: { ticketsPipelinesChanged }
+            data: { pipelinesChanged }
           }
         }
       ) => {
-        if (!ticketsPipelinesChanged || !ticketsPipelinesChanged.data) {
+        if (!pipelinesChanged || !pipelinesChanged.data) {
           return;
         }
 
