@@ -1,9 +1,9 @@
 import {
-    attachmentType,
-    attachmentInput,
-    pdfAttachmentType,
-    pdfAttachmentInput
-  } from '@erxes/api-utils/src/commonTypeDefs';
+  attachmentType,
+  attachmentInput,
+  pdfAttachmentType,
+  pdfAttachmentInput,
+} from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = `
   ${attachmentType}
@@ -11,14 +11,13 @@ export const types = `
   ${pdfAttachmentType}
   ${pdfAttachmentInput}
 
-  extend type User @key(fields: "_id") {
-    _id: String! @external
-  }
+    extend type User @key(fields: "_id") {
+      _id: String! @external
+    }
 
-
-  extend type Tag @key(fields: "_id") {
-    _id: String! @external
-  }
+    extend type Tag @key(fields: "_id") {
+      _id: String! @external
+    }
     
     enum PostStatus {
         draft
@@ -27,8 +26,18 @@ export const types = `
         archived
     }
 
-    type Post {
+    enum PostAuthorKind {
+        user
+        clientPortalUser
+    }
+
+    union Author = User | ClientPortalUser
+
+    type Post @key(fields: "_id") @cacheControl(maxAge: 3) {
         _id: String!
+        authorKind: PostAuthorKind
+        authorId: String
+        author: Author
         clientPortalId: String
         title: String
         slug: String
@@ -37,7 +46,7 @@ export const types = `
         categoryIds: [String]
         status: PostStatus
         tagIds: [String]
-        authorId: String
+  
         featured: Boolean
         featuredDate: Date
         scheduledDate: Date
@@ -55,7 +64,7 @@ export const types = `
         createdAt: Date
         updatedAt: Date
 
-        author: User
+        
         categories: [PostCategory]
         tags: [Tag]
         customFieldsData: JSON
