@@ -3,6 +3,7 @@ import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 
 import { IContext } from '../../../connectionResolver';
+import { sendCommonMessage } from '../../../messageBroker';
 
 const clientPortalUserQueries = {
   /**
@@ -153,6 +154,27 @@ const clientPortalUserQueries = {
     { models }: IContext
   ) {
     return models.Companies.find({ clientPortalId }).lean();
+  },
+
+  async clientPortalUserPosts(
+    _root,
+    args: any,
+    { cpUser, subdomain }: IContext
+  ) {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
+    const query = { ...args, authorId: cpUser._id, clientPortalId: cpUser.clientPortalId };
+
+    return await sendCommonMessage({
+      subdomain,
+      serviceName: 'cms',
+      action: 'getPostsPaginated',
+      data: query,
+      isRPC: true,
+      defaultValue: null,
+    });
   },
 };
 
