@@ -136,8 +136,6 @@ export const setupMessageConsumers = async () => {
       { page, perPage }
     );
 
-    console.log('posts', posts);
-
     const totalPages = Math.ceil(totalCount / perPage);
 
     const result = { totalCount, totalPages, currentPage: page, posts };
