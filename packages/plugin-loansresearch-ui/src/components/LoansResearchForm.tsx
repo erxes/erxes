@@ -1,13 +1,12 @@
 import {
   __,
   Button,
-  ControlLabel,
   Form,
-  FormControl,
-  FormGroup,
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
+  Tabs,
+  TabTitle,
 } from '@erxes/ui/src';
 import {
   IButtonMutateProps,
@@ -15,11 +14,11 @@ import {
   IAttachment,
 } from '@erxes/ui/src/types';
 import React, { useState } from 'react';
-import Select from 'react-select';
 
-import { Uploader } from '@erxes/ui/src';
 import { IIncome, ILoan, ILoanResearch } from '../types';
-import { CUSTOMER_TYPES } from '../constants';
+import DealForm from './form/Deal';
+import IncomeForm from './form/Incomes';
+import LoanForm from './form/Loans';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -34,7 +33,8 @@ const LoansResearchForm = (props: Props) => {
     renderButton,
   } = props;
 
-  const [attachment, setAttachment] = React.useState<IAttachment | undefined>(
+  const [currentTab, setCurrentTab] = useState('Deals');
+  const [attachment, setAttachment] = React.useState<IAttachment[] | undefined>(
     undefined
   );
   const [dealId, setDealId] = useState<string>(loansResearch?.dealId || '');
@@ -47,8 +47,8 @@ const LoansResearchForm = (props: Props) => {
   const [debtIncomeRatio, setDebtIncomeRatio] = useState<number>(
     loansResearch?.debtIncomeRatio || 0
   );
-  const [incomes, setIncomes] = React.useState<IIncome | undefined>(undefined);
-  const [loans, setLoans] = React.useState<ILoan | undefined>(undefined);
+  const [incomes, setIncomes] = React.useState<IIncome[]>([]);
+  const [loans, setLoans] = React.useState<ILoan[]>([]);
 
   const generateDoc = (values: { _id: string } & ILoanResearch) => {
     const finalValues = values;
@@ -65,69 +65,59 @@ const LoansResearchForm = (props: Props) => {
     };
   };
 
-  const onChangeDealId = (e) => {
-    setDealId(e.target.value);
-  };
+  const renderTabContent = () => {
+    if (currentTab === 'Deals') {
+      return (
+        <DealForm
+          dealId={dealId}
+          setDealId={setDealId}
+          customerType={customerType}
+          setCustomerType={setCustomerType}
+          customerId={customerId}
+          setCustomerId={setCustomerId}
+        />
+      );
+    }
 
-  const onChangeCustomerId = (e) => {
-    setCustomerId(e.target.value);
-  };
+    if (currentTab === 'Incomes') {
+      return <IncomeForm loansResearch={loansResearch} />;
+    }
 
-  const onCustomerTypeChange = (option) => {
-    setCustomerType(option.value);
+    if (currentTab === 'Loans') {
+      return <LoanForm loansResearch={loansResearch} />;
+    }
   };
 
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
-    // const attachments =
-    //   (car.attachment && extractAttachment([car.attachment])) || [];
-
     return (
       <>
         <FormWrapper>
           <FormColumn>
-            <FormGroup>
-              <ControlLabel>{'Deal'}</ControlLabel>
-              <FormControl
-                name="dealId"
-                onChange={onChangeDealId}
-                value={dealId}
-              />
-            </FormGroup>
+            <Tabs grayBorder={true} full={true}>
+              <TabTitle
+                className={currentTab === 'Deals' ? 'active' : ''}
+                onClick={() => setCurrentTab('Deals')}
+              >
+                {__('Deals')}
+              </TabTitle>
+              <TabTitle
+                className={currentTab === 'Incomes' ? 'active' : ''}
+                onClick={() => setCurrentTab('Incomes')}
+              >
+                {__('Incomes')}
+              </TabTitle>
+              <TabTitle
+                className={currentTab === 'Loans' ? 'active' : ''}
+                onClick={() => setCurrentTab('Loans')}
+              >
+                {__('Loans')}
+              </TabTitle>
+            </Tabs>
 
-            <FormGroup>
-              <ControlLabel>{'Customer'}</ControlLabel>
-              <FormControl
-                name="customerId"
-                value={customerId}
-                onChange={onChangeCustomerId}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <ControlLabel>Customer type</ControlLabel>
-              <Select
-                value={CUSTOMER_TYPES.find((o) => o.value === customerType)}
-                onChange={onCustomerTypeChange}
-                options={CUSTOMER_TYPES}
-                isClearable={false}
-              />
-            </FormGroup>
+            {renderTabContent()}
           </FormColumn>
-
-          {/* <FormColumn>
-            <FormGroup>
-              <ControlLabel>Featured image</ControlLabel>
-
-              <Uploader
-                defaultFileList={attachments}
-                onChange={onChangeAttachment}
-                multiple={false}
-                single={true}
-              />
-            </FormGroup>
-          </FormColumn> */}
         </FormWrapper>
 
         <ModalFooter>

@@ -19,8 +19,8 @@ export interface ILoanResearch {
   dealId: string;
   customerType: string;
   customerId: string;
-  incomes: IIncome;
-  loans: ILoan;
+  incomes: IIncome[];
+  loans: ILoan[];
   debtIncomeRatio: number;
   createdAt: Date;
   modifiedAt: Date;
@@ -79,11 +79,16 @@ export const configSchema = schemaWrapper(
       label: 'Modified at',
     }),
     dealId: field({ type: String, optional: true, label: 'deal id' }),
-    customerType: field({ type: String, label: 'customer type' }),
+    customerType: field({
+      type: String,
+      optional: true,
+      label: 'customer type',
+    }),
     customerId: field({ type: String, optional: true, label: 'customer id' }),
-    incomes: field({ type: incomeSchema }),
+    incomes: field({ type: [incomeSchema], optional: true }),
     loans: field({
-      type: loanSchema,
+      type: [loanSchema],
+      optional: true,
     }),
     debtIncomeRatio: field({ type: Number, label: 'debt to income ratio' }),
   })

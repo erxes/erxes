@@ -3,13 +3,13 @@ import { IAttachment } from '@erxes/ui/src/types';
 export type IIncome = {
   _id?: string;
   incomeType: String;
-  files: IAttachment;
+  files: IAttachment[];
 };
 export type ILoan = {
   _id?: string;
   startDate: Date;
   closeDate: Date;
-  files: IAttachment;
+  files: IAttachment[];
 };
 
 export type ILoanResearch = {
@@ -17,8 +17,8 @@ export type ILoanResearch = {
   dealId: string;
   customerType: string;
   customerId: string;
-  incomes: IIncome;
-  loans: ILoan;
+  incomes: IIncome[];
+  loans: ILoan[];
   debtIncomeRatio: number;
   createdAt: Date;
   modifiedAt: Date;

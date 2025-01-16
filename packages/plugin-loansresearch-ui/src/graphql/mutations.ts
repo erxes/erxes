@@ -2,8 +2,8 @@ const commonFields = `
   $dealId: String
   $customerType: String
   $customerId: String
-  $incomes: IncomeInput
-  $loans: LoanInput
+  $incomes: [IncomeInput]
+  $loans: [LoanInput]
   $debtIncomeRatio: Float
 `;
 

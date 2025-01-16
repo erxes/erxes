@@ -28,3 +28,7 @@ export const List = styled(SidebarList)`
     }
   }
 `;
+
+export const MarginTop = styled.div`
+  margin-top: ${dimensions.coreSpacing}px;
+`;
