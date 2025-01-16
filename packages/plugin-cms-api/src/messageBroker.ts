@@ -82,10 +82,28 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue('cms:find', async ({ data }) => {
+  consumeRPCQueue('cms:pages.find', async ({ data, subdomain }) => {
+    const models = await generateModels(subdomain);
+
     return {
       status: 'success',
-      // data: await Cmss.find({})
+      data: await models.Pages.find(data).lean(),
+    };
+  });
+
+  consumeRPCQueue('cms:getPages', async ({ data, subdomain }) => {
+    const models = await generateModels(subdomain);
+    const pages = await models.Pages.find(data).lean();
+
+    const pagesWithItems: any[] = [];
+    for (const page of pages) {
+      const items = await models.PageItems.find({ pageId: page._id }).lean();
+      pagesWithItems.push({ ...page, pageItems: items });
+    }
+
+    return {
+      status: 'success',
+      data: pagesWithItems,
     };
   });
 
