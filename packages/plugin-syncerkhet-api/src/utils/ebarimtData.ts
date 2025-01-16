@@ -2,6 +2,7 @@ import fetch from "node-fetch";
 import {
   sendCoreMessage
 } from "../messageBroker";
+import { calcProductsTaxRule } from "./productsByTaxType";
 
 export const validConfigMsg = async config => {
   if (!config.url) {
@@ -98,7 +99,7 @@ export const getPostData = async (subdomain, config, deal, dateType = "") => {
     userEmailById[user._id] = user.email;
   }
 
-  const productsIds = deal.productsData.map(item => item.productId);
+  const productsIds = deal.productsData.filter(pd => pd.tickUsed).map(item => item.productId);
 
   const products = await sendCoreMessage({
     subdomain,
@@ -111,10 +112,7 @@ export const getPostData = async (subdomain, config, deal, dateType = "") => {
     defaultValue: []
   });
 
-  const productCodeById = {};
-  for (const product of products) {
-    productCodeById[product._id] = product.code;
-  }
+  const { productsById, oneMoreCtax, oneMoreVat } = await calcProductsTaxRule(subdomain, config, products)
 
   const details: any = [];
 
@@ -159,7 +157,8 @@ export const getPostData = async (subdomain, config, deal, dateType = "") => {
     }
 
     // if wrong productId then not sent
-    if (!productCodeById[productData.productId]) {
+    const product = productsById[productData.productId]
+    if (!product) {
       continue;
     }
 
@@ -175,16 +174,19 @@ export const getPostData = async (subdomain, config, deal, dateType = "") => {
       count: productData.quantity,
       amount: productData.amount,
       discount: productData.discount,
-      inventoryCode: productCodeById[productData.productId],
+      inventoryCode: product.code,
       otherCode,
       workerEmail:
-        productData.assignUserId && userEmailById[productData.assignUserId]
+        productData.assignUserId && userEmailById[productData.assignUserId],
+
+      taxRule: product.taxRule
     });
   }
 
   // debit payments coll
   const payments = {};
   const configure = {
+    ...config,
     prepay: "preAmount",
     cash: "cashAmount",
     bank: "mobileAmount",
@@ -216,8 +218,13 @@ export const getPostData = async (subdomain, config, deal, dateType = "") => {
     } else {
       for (const key of Object.keys(payments)) {
         if (payments[key] > 0.005) {
-          payments[key] = payments[key] + sumSaleAmount;
-          continue;
+          if (payments[key] > -1 * sumSaleAmount) {
+            payments[key] = payments[key] + sumSaleAmount;
+            break;
+          } else {
+            sumSaleAmount = payments[key] + sumSaleAmount;
+            payments[key] = 0;
+          }
         }
       }
     }
@@ -259,8 +266,8 @@ export const getPostData = async (subdomain, config, deal, dateType = "") => {
       checkDate,
       orderId: deal._id,
       number: deal.number || "",
-      hasVat: config.hasVat || false,
-      hasCitytax: config.hasCitytax || false,
+      hasVat: config.hasVat || oneMoreVat || false,
+      hasCitytax: config.hasCitytax || oneMoreCtax || false,
       billType,
       customerCode,
       description: deal.name,

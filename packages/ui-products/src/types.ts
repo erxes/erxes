@@ -18,6 +18,7 @@ export interface IUom {
   createdAt: Date;
   isForSubscription?: boolean;
   subscriptionConfig?: any;
+  timely?: string;
 }
 
 export interface IVariant {
@@ -48,8 +49,6 @@ export interface IProduct {
 
   uom?: string;
   subUoms?: any[];
-  taxType?: string;
-  taxCode?: string;
 
   pdfAttachment?: IPdfAttachment;
 }

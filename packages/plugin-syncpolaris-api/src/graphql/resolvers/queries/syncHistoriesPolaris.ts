@@ -7,7 +7,7 @@ import { getDepositBalance } from '../../../utils/deposit/getDepositBalance';
 import { getLoanCollaterials } from '../../../utils/loan/getLoanCollaterials';
 import { getSavingTransactions } from '../../../utils/saving/getSavingTransactions';
 import { getConfig } from '../../../utils/utils';
-
+//
 const generateFilter = (params) => {
   const {
     userId,
@@ -27,7 +27,7 @@ const generateFilter = (params) => {
     query.createdBy = userId;
   }
   if (contentType) {
-    query.contentType = { $regex: `.*${escapeRegExp(contentType)}.*` };
+    query.contentType = { $regex: `.*${escapeRegExp(contentType)}.*` }; 
   }
   if (contentId) {
     query.contentId = contentId;

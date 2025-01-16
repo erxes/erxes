@@ -1,15 +1,15 @@
-import { ActionButtons } from "@erxes/ui-settings/src/styles";
-import BoardForm from "./BoardForm";
-import { BoardItem } from "@erxes/ui-sales/src/settings/boards/styles";
-import Button from "@erxes/ui/src/components/Button";
-import { IBoard } from "@erxes/ui-sales/src/boards/types";
-import { IButtonMutateProps } from "@erxes/ui/src/types";
-import Icon from "@erxes/ui/src/components/Icon";
-import { Link } from "react-router-dom";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import React from "react";
-import Tip from "@erxes/ui/src/components/Tip";
-import SaveTemplate from "@erxes/ui-template/src/components/SaveTemplate";
+import { ActionButtons } from '@erxes/ui-settings/src/styles';
+import BoardForm from './BoardForm';
+import { BoardItem } from '@erxes/ui-sales/src/settings/boards/styles';
+import Button from '@erxes/ui/src/components/Button';
+import { IBoard } from '@erxes/ui-sales/src/boards/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import SaveTemplate from '@erxes/ui-template/src/components/SaveTemplate';
 
 type Props = {
   type: string;
@@ -32,8 +32,8 @@ class BoardRow extends React.Component<Props, {}> {
     const { board, renderButton, type } = this.props;
 
     const editTrigger = (
-      <Button btnStyle="link">
-        <Icon icon="edit" />
+      <Button btnStyle='link'>
+        <Icon icon='edit' />
       </Button>
     );
 
@@ -49,9 +49,9 @@ class BoardRow extends React.Component<Props, {}> {
     return (
       <ModalTrigger
         size={this.size}
-        title="Edit"
+        title='Edit'
         trigger={editTrigger}
-        tipText="Edit"
+        tipText='Edit'
         content={content}
       />
     );
@@ -60,17 +60,15 @@ class BoardRow extends React.Component<Props, {}> {
   renderTemplateModal() {
     const { board } = this.props;
 
-    const {
-      ...boardContent
-    } = board
+    const { ...boardContent } = board;
 
     const content = {
       content: JSON.stringify(boardContent),
       contentType: 'boards',
-      serviceName: 'sales'
+      serviceName: 'sales',
     };
 
-    return <SaveTemplate as="icon" {...content} />;
+    return <SaveTemplate as='icon' {...content} />;
   }
 
   render() {
@@ -82,8 +80,8 @@ class BoardRow extends React.Component<Props, {}> {
         <ActionButtons>
           {this.renderEditAction()}
           {this.renderTemplateModal()}
-          <Tip text="Delete" placement="bottom">
-            <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
+          <Tip text='Delete' placement='bottom'>
+            <Button btnStyle='link' onClick={this.remove} icon='cancel-1' />
           </Tip>
         </ActionButtons>
       </BoardItem>

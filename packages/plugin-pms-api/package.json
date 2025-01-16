@@ -1,0 +1,11 @@
+{
+  "name": "@erxes/pms",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@erxes/api-utils": "*"
+  }
+}

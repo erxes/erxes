@@ -64,7 +64,7 @@ export default class StageModal extends React.Component<Props, State> {
     client
       .query({
         query: gql(queries.documents),
-        variables: { contentType: "sales", subType: "stageDeal" }
+        variables: { contentType: "sales", subType: "stage" }
       })
       .then(({ data }) => {
         this.setState({

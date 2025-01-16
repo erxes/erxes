@@ -1,0 +1,13 @@
+{
+  "name": "plugin-accountings-ui",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "webpack serve --mode development",
+    "build": "webpack --mode production"
+  },
+  "dependencies": {
+    "@erxes/ui" : "*",
+    "react-barcode": "^1.4.5",
+    "react-qr-code": "^2.0.8"
+  }
+}

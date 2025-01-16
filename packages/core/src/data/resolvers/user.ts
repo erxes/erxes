@@ -7,6 +7,7 @@ import {
 import {
   coreModelExperiences,
   getOrganizationDetail,
+  coreModelBundles,
   getPlugin,
 } from '@erxes/api-utils/src/saas/saas';
 import { getConfigs, getEnv } from '../utils';
@@ -20,7 +21,7 @@ import { getUserActionsMap } from '@erxes/api-utils/src';
 export default {
   __resolveReference: async ({ _id }, { models }: IContext) => {
     const user = await models.Users.findOne({ _id });
-    
+
     if (!user) {
       return null;
     }
@@ -73,8 +74,18 @@ export default {
     const experience = await coreModelExperiences.findOne({
       _id: organization.experienceId,
     });
+    const bundle = await coreModelBundles.findOne({
+      _id: organization?.bundleId,
+    });
 
     let contactRemaining = remainingAmount <= 0 ? false : true;
+
+    if (bundle) {
+      const bundlLimit = bundle?.pluginLimits
+        ? (bundle?.pluginLimits || {})[contactPlugin.type] || 0
+        : 0;
+      contactRemaining = bundlLimit > 0 ? true : contactRemaining;
+    }
 
     if (experience) {
       organization.experience = experience;
@@ -137,11 +148,9 @@ export default {
   async permissionActions(
     user: IUserDocument,
     _args,
-    { subdomain, models: { Permissions } }: IContext,
+    { subdomain, models: { Permissions } }: IContext
   ) {
-    return getUserActionsMap(subdomain, user, (query) =>
-      Permissions.find(query),
-    );
+    return getUserActionsMap(subdomain, user, query => Permissions.find(query));
   },
 
   async configs(_user, _args, { models }: IContext) {
@@ -157,7 +166,7 @@ export default {
       const configValues = configs[key] || [];
       const constant = constants[key];
 
-      let values = constant.filter((c) => configValues.includes(c.value));
+      let values = constant.filter(c => configValues.includes(c.value));
 
       if (!values || values.length === 0) {
         values = DEFAULT_CONSTANT_VALUES[key];
@@ -176,7 +185,7 @@ export default {
     const entries = await models.OnboardingHistories.find({
       userId: user._id,
     });
-    const completed = entries.find((item) => item.isCompleted);
+    const completed = entries.find(item => item.isCompleted);
 
     /**
      * When multiple entries are recorded, using findOne() gave wrong result.

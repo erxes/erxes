@@ -10,6 +10,7 @@ import {
   Label,
   ModalTrigger,
   SelectTeamMembers,
+  Spinner,
   TabTitle,
   Tabs,
   __,
@@ -34,6 +35,13 @@ import { Padding } from "../styles";
 import { ItemRow } from "@erxes/ui-automations/src/components/forms/actions/ItemRow";
 import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import { gql, useQuery } from "@apollo/client";
+import Select, {
+  type DropdownIndicatorProps,
+  components,
+  MenuProps
+} from "react-select";
+import { getReactSelectStyle } from "@erxes/ui/src/components/richTextEditor/RichTextEditorControl/styles";
 
 type Props = {
   activeAction: any;
@@ -56,6 +64,49 @@ const checkToFieldConfigured = (emailRecipientsConst, config) => {
   );
 };
 
+const SelectDocument = ({ triggerType }) => {
+  const query = `query Documents($contentType: String) {
+  documents(contentType: $contentType) {
+    _id
+    name
+    code
+  }
+}`;
+  const [serviceName] = triggerType.includes("core")
+    ? triggerType.split(".")
+    : triggerType.split(":");
+
+  const { data, loading } = useQuery(gql(query), {
+    variables: {
+      contentType: serviceName
+    }
+  });
+
+  return ({ onClick }) => {
+    if (loading) {
+      return <Spinner objective />;
+    }
+
+    return (
+      <Select
+        placeholder="Documents"
+        isMulti={false}
+        isSearchable={false}
+        menuPlacement="auto"
+        maxMenuHeight={200}
+        isLoading={loading}
+        onChange={(val: any) => onClick(`document.${val.value}`)}
+        options={(data?.documents || []).map(({ _id, name }) => ({
+          value: _id,
+          label: name
+        }))}
+        menuPortalTarget={document.body}
+        styles={getReactSelectStyle(false)}
+      />
+    );
+  };
+};
+
 const EmailTemplatesList = ({ triggerType, onChangeConfig }) => {
   const [searchValue, setSearchValue] = useState("");
   const addTemplateForm = () => {
@@ -69,6 +120,9 @@ const EmailTemplatesList = ({ triggerType, onChangeConfig }) => {
       const updatedProps = {
         closeModal,
         contentType: triggerType,
+        additionalToolbarContent: isEnabled("documents")
+          ? SelectDocument({ triggerType })
+          : () => null,
         params: { searchValue }
       };
 
@@ -158,7 +212,7 @@ const RecipientsForm = ({
           "Please select  some attributes from attributes section"
         )}
         label="Dynamic mails"
-        attrTypes={["user", "customer", "companies", "segment"]}
+        attrTypes={["user", "contact", "segment"]}
         attrWithSegmentConfig={triggerType === "forms:form_submission"}
         triggerConfig={triggerConfig}
         onChange={onChange}

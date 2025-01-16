@@ -14,16 +14,15 @@ import {
   IProduct,
 } from '../types';
 
-import Datetime from '@nateradebaugh/react-datetime';
+import uploadHandler from '../../uploadHandler';
+import { __ } from '../../utils';
+import { connection } from '../connection';
 import MSFmultiSelect from '../multipleSelectScript';
+import PhoneInput from './fields/PhoneInput';
 import Map from './Map';
 import Marker from './Marker';
 import ObjectList from './ObjectList';
 import Product from './Product';
-import { __ } from '../../utils';
-import { connection } from '../connection';
-import uploadHandler from '../../uploadHandler';
-import PhoneInput from './fields/PhoneInput';
 
 type Props = {
   field: IField;
@@ -62,7 +61,7 @@ export default class Field extends React.Component<Props, State> {
     return (
       <select
         {...attrs}
-        className="form-control"
+        className='form-control'
         id={attrs.multiple ? `_id${attrs.id}` : ''}
         value={attrs.value || options[0]}
       >
@@ -76,11 +75,11 @@ export default class Field extends React.Component<Props, State> {
   }
 
   static renderInput(attrs: any) {
-    return <input {...attrs} className="form-control" />;
+    return <input {...attrs} className='form-control' />;
   }
 
   static renderTextarea(attrs: any) {
-    return <textarea {...attrs} className="form-control" />;
+    return <textarea {...attrs} className='form-control' />;
   }
 
   static renderCheckboxes(
@@ -96,7 +95,7 @@ export default class Field extends React.Component<Props, State> {
     }
 
     return (
-      <div className="check-control">
+      <div className='check-control'>
         {options.map((option, index) => {
           const checked = values.indexOf(option) > -1 ? true : false;
 
@@ -281,7 +280,7 @@ export default class Field extends React.Component<Props, State> {
     self.onChange(attachments);
   };
 
-  onDateChange = (date?: Date | string) => {
+  onDateChange = (date?: any) => {
     this.setState({ dateValue: date || '' });
     this.onChange(date || '');
   };
@@ -342,21 +341,16 @@ export default class Field extends React.Component<Props, State> {
   };
 
   renderDatepicker(id: string) {
-    let defaultValue = new Date();
-
-    if (this.props.value) {
-      defaultValue = new Date(String(this.props.value));
-    }
+    let defaultValue: any = this.props.value ? this.props.value : '';
 
     return (
-      <Datetime
-        inputProps={{ id }}
-        value={this.state.dateValue}
-        viewDate={new Date()}
-        defaultValue={defaultValue}
-        onChange={this.onDateChange as any}
-        dateFormat="YYYY/MM/DD"
-        timeFormat={false}
+      <input
+        className='form-control'
+        type='date'
+        id='date'
+        name='date'
+        value={defaultValue}
+        onChange={(e) => this.onDateChange(e.target.value)}
       />
     );
   }
@@ -373,21 +367,16 @@ export default class Field extends React.Component<Props, State> {
   }
 
   renderDateTimepicker(id: string) {
-    let defaultValue = new Date();
-
-    if (this.props.value) {
-      defaultValue = new Date(String(this.props.value));
-    }
+    let defaultValue: any = this.props.value || '';
 
     return (
-      <Datetime
-        inputProps={{ id }}
-        value={this.state.dateTimeValue}
-        viewDate={new Date()}
-        defaultValue={defaultValue}
-        onChange={this.onDateTimeChange as any}
-        timeFormat="HH:mm"
-        dateFormat="YYYY/MM/DD"
+      <input
+        className='form-control'
+        type='datetime-local'
+        id='datetime'
+        name='datetime'
+        value={defaultValue}
+        onChange={(e) => this.onDateTimeChange(e.target.value)}
       />
     );
   }
@@ -526,20 +515,20 @@ export default class Field extends React.Component<Props, State> {
     };
 
     return (
-      <div className="field-groups">
+      <div className='field-groups'>
         {this.state.subFields.map((fields, index) => {
           {
             return (
-              <div className="field-group">
+              <div className='field-group'>
                 {subFields.length > 1 && (
                   <button
-                    className="removeBtn"
+                    className='removeBtn'
                     onClick={() => onRemoveClick(index)}
                   >
                     X
                   </button>
                 )}
-                <div className="field-group-row">
+                <div className='field-group-row'>
                   {fields.map((subField: IField) => {
                     const value = values[index]
                       ? values[index].find((v: any) => v._id === subField._id)
@@ -548,7 +537,7 @@ export default class Field extends React.Component<Props, State> {
                     return (
                       <div
                         key={`${subField._id}-${index}`}
-                        className="subField-item"
+                        className='subField-item'
                       >
                         <Field
                           key={subField._id}
@@ -568,7 +557,7 @@ export default class Field extends React.Component<Props, State> {
           }
         })}
 
-        <button onClick={onAddClick} type="button">
+        <button onClick={onAddClick} type='button'>
           {__('add more')}
         </button>
       </div>
@@ -618,13 +607,13 @@ export default class Field extends React.Component<Props, State> {
 
     if (validation === 'date') {
       return (
-        <div className="date-input">{this.renderDatepicker(field._id)} </div>
+        <div className='date-input'>{this.renderDatepicker(field._id)} </div>
       );
     }
 
     if (validation === 'datetime') {
       return (
-        <div className="date-input">
+        <div className='date-input'>
           {this.renderDateTimepicker(field._id)}{' '}
         </div>
       );
@@ -833,7 +822,7 @@ export default class Field extends React.Component<Props, State> {
     };
 
     return (
-      <button onClick={onClick} type="button">
+      <button onClick={onClick} type='button'>
         add value
       </button>
     );
@@ -858,17 +847,17 @@ export default class Field extends React.Component<Props, State> {
     };
 
     return (
-      <div className="form-group" style={fieldStyle()}>
-        <label className="control-label" htmlFor={`field-${field._id}`}>
+      <div className='form-group' style={fieldStyle()}>
+        <label className='control-label' htmlFor={`field-${field._id}`}>
           {field.text}
-          {field.isRequired ? <span className="required">*</span> : null}
+          {field.isRequired ? <span className='required'>*</span> : null}
         </label>
 
-        <span className="error">{error && error.text}</span>
+        <span className='error'>{error && error.text}</span>
 
         {field.description ? (
           <div
-            className="description"
+            className='description'
             dangerouslySetInnerHTML={{ __html: field.description }}
           />
         ) : null}
@@ -877,7 +866,7 @@ export default class Field extends React.Component<Props, State> {
 
         {this.renderControl()}
 
-        {isAttachingFile ? <div className="loader" /> : null}
+        {isAttachingFile ? <div className='loader' /> : null}
       </div>
     );
   }

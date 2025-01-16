@@ -4,7 +4,7 @@ import {
   DialogContent,
   DialogWrapper,
   ModalFooter,
-  ModalOverlay,
+  ModalOverlay
 } from '@erxes/ui/src/styles/main';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import { IBoard, IPipeline, IStage } from '@erxes/ui-tasks/src/boards/types';
@@ -23,7 +23,7 @@ import { Flex } from '@erxes/ui/src/styles/main';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IDepartment } from '@erxes/ui/src/team/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { IOption } from '../types';
 import { ITag } from '@erxes/ui-tags/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -49,6 +49,7 @@ type Props = {
   renderExtraFields?: (formProps: IFormProps) => JSX.Element;
   extraFields?: any;
   departments: IDepartment[];
+  branches: IBranch[];
 };
 
 const PipelineForm = (props: Props) => {
@@ -93,7 +94,9 @@ const PipelineForm = (props: Props) => {
   const [departmentIds, setDepartmentIds] = useState(
     pipeline ? pipeline.departmentIds : []
   );
-
+  const [branchIds, setBranchIds] = useState(
+    pipeline ? pipeline.branchIds : []
+  );
   useEffect(() => {
     setStages((props.stages || []).map(stage => ({ ...stage })));
   }, [props.stages]);
@@ -113,7 +116,9 @@ const PipelineForm = (props: Props) => {
   const onChangeDepartments = options => {
     setDepartmentIds((options || []).map(o => o.value));
   };
-
+  const onChangeBranch = options => {
+    setBranchIds((options || []).map(o => o.value));
+  };
   const onChangeDominantUsers = items => {
     setExcludeCheckUserIds(items);
   };
@@ -166,6 +171,7 @@ const PipelineForm = (props: Props) => {
       nameConfig,
       departmentIds,
       tagId,
+      branchIds
     };
   };
 
@@ -202,10 +208,18 @@ const PipelineForm = (props: Props) => {
       null,
       (node, level) => ({
         value: node._id,
-        label: `${'---'.repeat(level)} ${node.title}`,
+        label: `${'---'.repeat(level)} ${node.title}`
       })
     );
 
+    const branchesOptions = generateTree(
+      props.branches,
+      null,
+      (node, level) => ({
+        value: node._id,
+        label: `${'---'.repeat(level)} ${node.title}`
+      })
+    );
     return (
       <>
         <FormGroup>
@@ -230,6 +244,20 @@ const PipelineForm = (props: Props) => {
               options={departmentOptions}
               onChange={onChangeDepartments.bind(this)}
               placeholder={__('Choose department ...')}
+              isMulti={true}
+            />
+          </SelectMemberStyled>
+        </FormGroup>
+        <FormGroup>
+          <SelectMemberStyled>
+            <ControlLabel>Branches</ControlLabel>
+            <Select
+              value={branchesOptions.filter(option =>
+                branchIds?.includes(option.value)
+              )}
+              options={branchesOptions}
+              onChange={onChangeBranch.bind(this)}
+              placeholder={__('Choose branch ...')}
               isMulti={true}
             />
           </SelectMemberStyled>
@@ -279,7 +307,7 @@ const PipelineForm = (props: Props) => {
 
     const boardOptions = boards.map(board => ({
       value: board._id,
-      label: board.name,
+      label: board.name
     }));
 
     const onChange = item => {
@@ -306,7 +334,7 @@ const PipelineForm = (props: Props) => {
     const filteredTags = tags && tags.filter(tag => !tag.parentId);
 
     const onChange = item => {
-      setTagId(item.value);
+      setTagId(item?.value);
     };
 
     const generateOptions = items => {
@@ -317,7 +345,7 @@ const PipelineForm = (props: Props) => {
       return items.map(item => {
         return {
           value: item._id,
-          label: item.name,
+          label: item.name
         };
       });
     };
@@ -494,7 +522,7 @@ const PipelineForm = (props: Props) => {
             isSubmitted,
             callback: closeModal,
             object: pipeline,
-            confirmationUpdate: true,
+            confirmationUpdate: true
           })}
         </ModalFooter>
       </div>

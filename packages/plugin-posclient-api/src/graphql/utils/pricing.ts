@@ -39,6 +39,7 @@ export const checkPricing = async (
 
   for (const item of doc.items || []) {
     const discount = pricing[item._id];
+    item.unitPrice = item.unitPrice || 0;
 
     if (discount) {
       if (discount.bonusProducts.length !== 0) {
@@ -80,6 +81,7 @@ export const checkPricing = async (
       doc.items.push(bonusProduct);
     } else {
       const item = doc.items[orderIndex];
+      item.unitPrice = item.unitPrice || 0;
 
       item.bonusCount = bonusProductsToAdd[bonusProductId].count;
 

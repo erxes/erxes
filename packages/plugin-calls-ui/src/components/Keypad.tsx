@@ -165,7 +165,7 @@ const KeyPad = (props: Props, context) => {
       }
     }
     if (call?.status !== CALL_STATUS_ACTIVE) {
-      localStorage.removeItem('transferedCallStatus');
+      localStorage.removeItem('transferredCallStatus');
     }
 
     return () => {

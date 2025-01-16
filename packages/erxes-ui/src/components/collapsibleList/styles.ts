@@ -64,7 +64,7 @@ const SidebarListItem = styledTS<{
 }>(styled.li)`
   position: relative;
   background: ${props =>
-    (props.isActive && rgba(colors.colorPrimary, 0.2)) ||
+    (props.$isActive && rgba(colors.colorPrimary, 0.2)) ||
     props.backgroundColor ||
     colors.colorWhite};
   overflow: hidden;

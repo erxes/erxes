@@ -4,20 +4,37 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon
+  Icon,
+  SelectWithSearch
 } from "@erxes/ui/src/components";
 import client from "@erxes/ui/src/apolloClient";
 import { gql } from "@apollo/client";
 import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
+import { queries as boardQueries } from "@erxes/ui-sales/src/boards/graphql";
 import { __ } from "@erxes/ui/src/utils";
 import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
 import Select from "react-select";
 import React from "react";
 import { IConfigsMap } from "../types";
 import { FieldsCombinedByType } from "../../../ui-forms/src/settings/properties/types";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+import { FlexRow } from "@erxes/ui-settings/src/styles";
+
+const ebarimtProductRules = `
+  query ebarimtProductRules(
+    $searchValue: String,
+    $kind: String,
+  ) {
+    ebarimtProductRules(
+      searchValue: $searchValue,
+      kind: $kind,
+    ) {
+      _id
+      title
+    }
+  }
+`;
 
 type Props = {
   configsMap: IConfigsMap;
@@ -31,6 +48,7 @@ type State = {
   config: any;
   hasOpen: boolean;
   fieldsCombined: FieldsCombinedByType[];
+  pipeline?: any;
 };
 
 class PerSettings extends React.Component<Props, State> {
@@ -42,6 +60,15 @@ class PerSettings extends React.Component<Props, State> {
       hasOpen: false,
       fieldsCombined: []
     };
+
+    if (props.config.pipelineId) {
+      client.query({
+        query: gql(boardQueries.pipelineDetail),
+        variables: { _id: props.config.pipelineId },
+      }).then(({ data }) => {
+        this.setState({ pipeline: data?.salesPipelineDetail || {} })
+      })
+    }
 
     client
       .query({
@@ -62,7 +89,16 @@ class PerSettings extends React.Component<Props, State> {
   };
 
   onChangePipeline = (pipelineId: string) => {
-    this.setState({ config: { ...this.state.config, pipelineId } });
+    this.setState({ config: { ...this.state.config, pipelineId } }, () => {
+      if (pipelineId) {
+        client.query({
+          query: gql(boardQueries.pipelineDetail),
+          variables: { _id: pipelineId },
+        }).then(({ data }) => {
+          this.setState({ pipeline: data?.salesPipelineDetail || {} })
+        })
+      }
+    });
   };
 
   onChangeStage = (stageId: string) => {
@@ -87,8 +123,8 @@ class PerSettings extends React.Component<Props, State> {
     this.props.delete(this.props.currentConfigKey);
   };
 
-  onChangeCombo = option => {
-    this.onChangeConfig("defaultPay", option.value);
+  onChangeCombo = (option, code?) => {
+    this.onChangeConfig(code || "defaultPay", option.value);
   };
 
   onChangeCheckbox = (code: string, e) => {
@@ -141,12 +177,21 @@ class PerSettings extends React.Component<Props, State> {
     );
   };
 
+  generateRuleOptions = (array) => array.map(item => ({
+    value: item._id,
+    label: item.title || ''
+  }));
+
   render() {
     const { config } = this.state;
     const payOptions = [
-      { value: "debtAmount", label: "debtAmount" },
-      { value: "cashAmount", label: "cashAmount" },
-      { value: "cardAmount", label: "cardAmount" }
+      { value: "debtAmount", label: "Зээлийн данс" },
+      { value: "cashAmount", label: "Бэлэн мөнгө данс" },
+      { value: "cardAmount", label: "Картын данс" },
+      { value: "card2Amount", label: "Картын данс нэмэлт" },
+      { value: "mobileAmount", label: "Мобайл данс" },
+      { value: "debtBarterAmount", label: "Бартер данс" },
+      { value: "preAmount", label: "Урьдчилгаа данс" },
     ];
     const responseFieldOptions = (this.state.fieldsCombined || []).map(f => ({
       value: f.name,
@@ -198,20 +243,70 @@ class PerSettings extends React.Component<Props, State> {
           <FormColumn>
             {this.renderInput("userEmail", "userEmail", "")}
             {this.renderCheckbox("hasVat", "hasVat", "")}
+            {this.state.config.hasVat && (
+              <FormGroup>
+                <ControlLabel>Another rules of products on vat</ControlLabel>
+                <SelectWithSearch
+                  label={'reverseVatRules'}
+                  queryName="ebarimtProductRules"
+                  name={'reverseVatRules'}
+                  initialValue={this.state.config['reverseVatRules']}
+                  generateOptions={this.generateRuleOptions}
+                  onSelect={ids => {
+                    this.onChangeConfig("reverseVatRules", ids);
+                  }}
+                  filterParams={{ kind: 'vat' }}
+                  customQuery={ebarimtProductRules}
+                  multi={true}
+                />
+              </FormGroup>
+            ) || <></>}
             {this.renderCheckbox("hasCitytax", "hasCitytax", "")}
+            {!this.state.config.hasCitytax && (
+              <FormGroup>
+                <ControlLabel>Another rules of products on citytax</ControlLabel>
+                <SelectWithSearch
+                  label={'reverseCtaxRules'}
+                  queryName="ebarimtProductRules"
+                  name={'reverseCtaxRules'}
+                  initialValue={this.state.config['reverseCtaxRules']}
+                  generateOptions={this.generateRuleOptions}
+                  onSelect={ids => {
+                    this.onChangeConfig("reverseCtaxRules", ids);
+                  }}
+                  filterParams={{ kind: 'ctax' }}
+                  customQuery={ebarimtProductRules}
+                  multi={true}
+                />
+              </FormGroup>
+            ) || <></>}
 
+          </FormColumn>
+        </FormWrapper>
+        <FlexRow>
+          <FormGroup>
+            <ControlLabel>{"defaultPay"}</ControlLabel>
+            <Select
+              value={payOptions.find(o => o.value === config.defaultPay)}
+              onChange={this.onChangeCombo}
+              isClearable={false}
+              required={true}
+              options={payOptions}
+            />
+          </FormGroup>
+          {(this.state.pipeline?.paymentTypes || []).map((payType) => (
             <FormGroup>
-              <ControlLabel>{"defaultPay"}</ControlLabel>
+              <ControlLabel>{payType.title}</ControlLabel>
               <Select
-                value={payOptions.find(o => o.value === config.defaultPay)}
-                onChange={this.onChangeCombo}
+                value={payOptions.find(o => o.value === config[payType.type])}
+                onChange={option => this.onChangeCombo(option, payType.type)}
                 isClearable={false}
                 required={true}
                 options={payOptions}
               />
             </FormGroup>
-          </FormColumn>
-        </FormWrapper>
+          ))}
+        </FlexRow>
         <ModalFooter>
           <Button
             btnStyle="danger"

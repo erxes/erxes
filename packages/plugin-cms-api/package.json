@@ -1,0 +1,17 @@
+{
+  "name": "@erxes/plugin-cms-api",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@erxes/api-utils": "*",
+    "express-session": "^1.18.0",
+    "slugify": "^1.6.6",
+    "html-to-text": "^9.0.5"
+  },
+  "devDependencies": {
+    "@types/express-session": "^1.18.0"
+  }
+}

@@ -45,8 +45,6 @@ export const consumeInventory = async (
         : product.categoryCode,
       description: eval("`" + config.consumeDescription + "`"),
       status: "active",
-      taxType: doc.vat_type || "",
-      taxCode: doc.vat_type_code || "",
       scopeBrandIds: brandIds
     };
 

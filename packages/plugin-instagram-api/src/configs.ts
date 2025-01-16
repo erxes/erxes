@@ -6,6 +6,8 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import initApp from './initApp';
 import { INTEGRATION_KINDS } from './constants';
+import automations from './automations';
+import forms from './forms';
 
 export default {
   name: 'instagram',
@@ -16,6 +18,8 @@ export default {
     };
   },
   meta: {
+    automations,
+    forms,
     inboxIntegrations: [
       {
         kind: INTEGRATION_KINDS.MESSENGER,

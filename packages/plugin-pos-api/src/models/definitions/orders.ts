@@ -52,6 +52,7 @@ export interface IPosOrder {
   printedEbarimt?: Boolean;
   billType?: string;
   billId?: string;
+  registerNumber?: string;
   oldBillId?: string;
   type: string;
   userId?: string;
