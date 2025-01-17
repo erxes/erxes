@@ -1,8 +1,16 @@
-import { FormControl } from '@erxes/ui/src';
+import {
+  ActionButtons,
+  Button,
+  FormControl,
+  Icon,
+  ModalTrigger,
+  Tip,
+  __,
+} from '@erxes/ui/src';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import _ from 'lodash';
 import { ILoanResearch } from '../types';
+import LoansResearchForm from '../containers/LoansResearchForm';
 
 type Props = {
   loansResearch: ILoanResearch;
@@ -11,7 +19,17 @@ type Props = {
 };
 
 function LoansResearchRow({ loansResearch, isChecked, toggleBulk }: Props) {
-  const navigate = useNavigate();
+  const trigger = (
+    <Button btnStyle="link">
+      <Tip text={__('Edit')} placement="bottom">
+        <Icon icon="edit-3" />
+      </Tip>
+    </Button>
+  );
+
+  const content = (props) => (
+    <LoansResearchForm {...props} loansResearch={loansResearch} />
+  );
 
   const onChange = (e) => {
     if (toggleBulk) {
@@ -23,12 +41,8 @@ function LoansResearchRow({ loansResearch, isChecked, toggleBulk }: Props) {
     e.stopPropagation();
   };
 
-  const onTrClick = () => {
-    navigate(`/loansresearch/details/${loansResearch._id}`);
-  };
-
   return (
-    <tr onClick={onTrClick}>
+    <tr>
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
@@ -38,6 +52,16 @@ function LoansResearchRow({ loansResearch, isChecked, toggleBulk }: Props) {
       </td>
 
       <td key={'dealId'}>{(loansResearch && loansResearch.dealId) || ''} </td>
+      <td onClick={onClick}>
+        <ActionButtons>
+          <ModalTrigger
+            title="Edit basic info"
+            trigger={trigger}
+            size="xl"
+            content={content}
+          />
+        </ActionButtons>
+      </td>
     </tr>
   );
 }

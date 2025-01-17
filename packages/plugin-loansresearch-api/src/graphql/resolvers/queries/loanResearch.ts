@@ -73,14 +73,6 @@ const lsQueries = {
       totalCount: await models.LoansResearch.find(filter).countDocuments(),
     };
   },
-
-  /**
-   * Get one loans Research detail
-   */
-
-  loansResearchDetail: async (_root, { _id }, { models }: IContext) => {
-    return models.LoansResearch.getLoanResearch({ _id });
-  },
 };
 
 export default lsQueries;

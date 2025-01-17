@@ -71,7 +71,6 @@ const queryParams = `
 
 export const queries = `
   loansResearchMain(${queryParams}): LoansResearchListResponse
-  loansResearchDetail(_id: String!): LoansResearch
 `;
 
 const commonFields = `

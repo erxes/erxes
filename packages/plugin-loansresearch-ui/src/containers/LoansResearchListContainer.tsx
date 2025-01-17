@@ -73,7 +73,7 @@ const LoansResearchListContainer = (props: Props) => {
 };
 
 const generateOptions = () => ({
-  refetchQueries: ['loansResearchMain', 'loansResearchDetail'],
+  refetchQueries: ['loansResearchMain'],
 });
 
 export default LoansResearchListContainer;

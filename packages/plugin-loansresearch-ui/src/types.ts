@@ -24,11 +24,6 @@ export type ILoanResearch = {
   modifiedAt: Date;
 };
 
-export type DetailQueryResponse = {
-  loansResearchDetail: ILoanResearch;
-  loading: boolean;
-};
-
 export type MainQueryResponse = {
   loansResearchMain: { list: ILoanResearch[]; totalCount: number };
   loading: boolean;

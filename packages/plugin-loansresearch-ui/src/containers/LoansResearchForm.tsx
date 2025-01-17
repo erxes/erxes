@@ -43,7 +43,7 @@ const LoansResearchFormContainer = (props: Props) => {
 };
 
 const getRefetchQueries = () => {
-  return ['loansResearchMain', 'loansResearchDetail'];
+  return ['loansResearchMain'];
 };
 
 export default LoansResearchFormContainer;

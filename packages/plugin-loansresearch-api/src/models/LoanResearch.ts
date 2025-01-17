@@ -7,7 +7,6 @@ import { Model, FilterQuery } from 'mongoose';
 import { IModels } from '../connectionResolver';
 
 export interface ILoansResearchModel extends Model<ILoanResearchDocument> {
-  getLoanResearch(selector: FilterQuery<ILoanResearchDocument>);
   createLoansResearch(doc: ILoanResearch);
   updateLoansResearch(_id: string, doc: ILoanResearch);
   removeLoansResearches(_ids: string[]);
@@ -15,23 +14,6 @@ export interface ILoansResearchModel extends Model<ILoanResearchDocument> {
 
 export const loadLoansResearchClass = (models: IModels) => {
   class LoanResearch {
-    /**
-     *
-     * Get Invoice
-     */
-
-    public static async getLoanResearch(
-      selector: FilterQuery<ILoanResearchDocument>
-    ) {
-      const loanResearch = await models.LoansResearch.findOne(selector);
-
-      if (!loanResearch) {
-        throw new Error('Loan Research not found');
-      }
-
-      return loanResearch;
-    }
-
     /**
      * Create a Loans Research
      */
