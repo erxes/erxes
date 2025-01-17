@@ -523,10 +523,7 @@ export const loadProductCategoryClass = (models: IModels) => {
 
     public static async getChildCategories(categoryIds: string[]) {
       if (!categoryIds.length) {
-        return {
-          data: [],
-          status: "success"
-        };
+        return []
       }
 
       const categories = await models.ProductCategories.find({
@@ -534,10 +531,7 @@ export const loadProductCategoryClass = (models: IModels) => {
       }).lean();
 
       if (!categories.length) {
-        return {
-          data: [],
-          status: "success"
-        };
+        return [];
       }
 
       const orderQry: any[] = [];
