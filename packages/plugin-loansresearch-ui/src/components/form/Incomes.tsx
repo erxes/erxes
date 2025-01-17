@@ -6,12 +6,12 @@ import {
   extractAttachment,
 } from '@erxes/ui/src';
 import { IAttachment } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
+import React from 'react';
 import Select from 'react-select';
 
 import { Uploader } from '@erxes/ui/src';
-import { IIncome, ILoan, ILoanResearch } from '../../types';
-import { CUSTOMER_TYPES, INCOME_TYPES } from '../../constants';
+import { IIncome } from '../../types';
+import { INCOME_TYPES } from '../../constants';
 import { MarginTop } from '../../styles';
 
 const getEmptyIncome = () => ({
@@ -21,112 +21,90 @@ const getEmptyIncome = () => ({
 });
 
 type Props = {
-  loansResearch: ILoanResearch;
+  incomes: IIncome[];
+  setIncomes: (incomes) => void;
 };
 
 const IncomeForm = (props: Props) => {
-  const { loansResearch = {} as ILoanResearch } = props;
+  const { incomes, setIncomes } = props;
 
-  const [currentTab, setCurrentTab] = useState('This session');
-  const [attachment, setAttachment] = React.useState<IAttachment[] | undefined>(
-    undefined
-  );
-  const [dealId, setDealId] = useState<string>(loansResearch?.dealId || '');
-  const [customerType, setCustomerType] = useState<string>(
-    loansResearch?.customerType || ''
-  );
-  const [customerId, setCustomerId] = useState<string>(
-    loansResearch?.customerId || ''
-  );
-  const [debtIncomeRatio, setDebtIncomeRatio] = useState<number>(
-    loansResearch?.debtIncomeRatio || 0
-  );
-  const [incomes, setIncomes] = React.useState<IIncome[]>([]);
-  const [loans, setLoans] = React.useState<ILoan[]>([]);
+  const onChangeIncomeItem = (_id: string, key: string, value: any) => {
+    const income = incomes.find((f) => f._id === _id);
 
-  const onChangeDealId = (e) => {
-    setDealId(e.target.value);
+    if (income) {
+      income[key] = value;
+
+      setIncomes([...incomes]);
+    }
   };
 
-  const onChangeCustomerId = (e) => {
-    setCustomerId(e.target.value);
-  };
+  const onChangeAttachmentMore = (
+    _id: string,
+    key: string,
+    files: IAttachment[]
+  ) => {
+    const income = incomes.find((f) => f._id === _id);
 
-  const onCustomerTypeChange = (option) => {
-    setCustomerType(option.value);
-  };
+    if (income) {
+      income[key] = files;
 
-  const onChangeAttachmentMore = (files: IAttachment[]) => {
-    setAttachment(files);
+      setIncomes([...incomes]);
+    }
   };
 
   const onChangeFeature = () => {
     setIncomes([...incomes, getEmptyIncome()]);
   };
 
-  const renderIncomeForm = () => {
-    const attachment =
-      (loansResearch.incomes &&
-        extractAttachment(loansResearch.incomes.files)) ||
-      [];
+  const removeFeature = (_id?: string) => {
+    const modifiedIncomes = incomes.filter((f) => f._id !== _id);
 
+    setIncomes(modifiedIncomes);
+  };
+
+  const renderIncomeForm = () => {
     return (
       <>
-        {incomes.map((income, index) => {
+        {incomes.map((income) => {
           return (
             <>
               <FormGroup>
                 <ControlLabel>Income type</ControlLabel>
                 <Select
                   value={INCOME_TYPES.find(
-                    (o) => o.value === incomes.incomeType
+                    (o) => o.value === income.incomeType
                   )}
-                  onChange={onCustomerTypeChange}
+                  onChange={(item: any) =>
+                    onChangeIncomeItem(income._id, 'incomeType', item.value)
+                  }
                   options={INCOME_TYPES}
                   isClearable={false}
                 />
               </FormGroup>
 
               <FormGroup>
-                <ControlLabel>Secondary Images</ControlLabel>
+                <ControlLabel>Files</ControlLabel>
 
                 <Uploader
-                  defaultFileList={attachment}
-                  onChange={onChangeAttachmentMore}
+                  defaultFileList={
+                    (income.files && extractAttachment(income.files)) || []
+                  }
+                  onChange={(files: any) =>
+                    onChangeAttachmentMore(income._id, 'files', files)
+                  }
                   multiple={true}
                   single={false}
                 />
               </FormGroup>
+              <Button
+                btnStyle="danger"
+                onClick={() => removeFeature(income._id)}
+              >
+                X
+              </Button>
             </>
           );
         })}
-      </>
-    );
-  };
-
-  const renderLoanForm = () => {
-    return (
-      <>
-        <FormGroup>
-          <ControlLabel>Loan type</ControlLabel>
-          <Select
-            value={CUSTOMER_TYPES.find((o) => o.value === customerType)}
-            onChange={onCustomerTypeChange}
-            options={CUSTOMER_TYPES}
-            isClearable={false}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Secondary Images</ControlLabel>
-
-          <Uploader
-            defaultFileList={attachment}
-            onChange={onChangeAttachmentMore}
-            multiple={true}
-            single={false}
-          />
-        </FormGroup>
       </>
     );
   };

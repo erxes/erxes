@@ -8,11 +8,7 @@ import {
   Tabs,
   TabTitle,
 } from '@erxes/ui/src';
-import {
-  IButtonMutateProps,
-  IFormProps,
-  IAttachment,
-} from '@erxes/ui/src/types';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React, { useState } from 'react';
 
 import { IIncome, ILoan, ILoanResearch } from '../types';
@@ -34,9 +30,6 @@ const LoansResearchForm = (props: Props) => {
   } = props;
 
   const [currentTab, setCurrentTab] = useState('Deals');
-  const [attachment, setAttachment] = React.useState<IAttachment[] | undefined>(
-    undefined
-  );
   const [dealId, setDealId] = useState<string>(loansResearch?.dealId || '');
   const [customerType, setCustomerType] = useState<string>(
     loansResearch?.customerType || ''
@@ -44,11 +37,14 @@ const LoansResearchForm = (props: Props) => {
   const [customerId, setCustomerId] = useState<string>(
     loansResearch?.customerId || ''
   );
+  const [incomes, setIncomes] = useState<IIncome[]>(
+    loansResearch?.incomes || []
+  );
+  const [loans, setLoans] = useState<ILoan[]>(loansResearch?.loans || []);
+
   const [debtIncomeRatio, setDebtIncomeRatio] = useState<number>(
     loansResearch?.debtIncomeRatio || 0
   );
-  const [incomes, setIncomes] = React.useState<IIncome[]>([]);
-  const [loans, setLoans] = React.useState<ILoan[]>([]);
 
   const generateDoc = (values: { _id: string } & ILoanResearch) => {
     const finalValues = values;
@@ -62,6 +58,8 @@ const LoansResearchForm = (props: Props) => {
       dealId,
       customerType,
       customerId,
+      incomes,
+      loans,
     };
   };
 
@@ -80,11 +78,11 @@ const LoansResearchForm = (props: Props) => {
     }
 
     if (currentTab === 'Incomes') {
-      return <IncomeForm loansResearch={loansResearch} />;
+      return <IncomeForm incomes={incomes} setIncomes={setIncomes} />;
     }
 
     if (currentTab === 'Loans') {
-      return <LoanForm loansResearch={loansResearch} />;
+      return <LoanForm loans={loans} setLoans={setLoans} />;
     }
   };
 

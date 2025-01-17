@@ -1,5 +1,6 @@
 import { colors, dimensions, SidebarList } from '@erxes/ui/src';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 export const ContentBox = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -31,4 +32,20 @@ export const List = styled(SidebarList)`
 
 export const MarginTop = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
+`;
+
+export const FlexRow = styledTS<{
+  $alignItems?: string;
+  $justifyContent?: string;
+}>(styled.div)`
+  display: flex;
+
+  > div {
+    flex: 1;
+    margin-right: ${dimensions.coreSpacing}px;
+
+    &:last-child {
+      margin: 0;
+    }
+  }
 `;

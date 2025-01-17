@@ -38,8 +38,8 @@ export const types = () => `
     dealId: String
     customerType: String
     customerId: String
-    incomes: Income
-    loans: Loan
+    incomes: [Income]
+    loans: [Loan]
     debtIncomeRatio: Float
     createdAt: Date
     modifiedAt: Date

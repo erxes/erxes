@@ -1,12 +1,12 @@
 import { IAttachment } from '@erxes/ui/src/types';
 
 export type IIncome = {
-  _id?: string;
+  _id: string;
   incomeType: String;
   files: IAttachment[];
 };
 export type ILoan = {
-  _id?: string;
+  _id: string;
   startDate: Date;
   closeDate: Date;
   files: IAttachment[];
