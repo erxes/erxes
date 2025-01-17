@@ -7,6 +7,101 @@ import * as tmp from 'tmp';
 import { IClientPortalDocument } from '../models/definitions/clientPortal';
 import { sendCommonMessage } from '../messageBroker';
 
+
+const buildConfigs = async (subdomain:string, config: IClientPortalDocument, pages, menus) => {
+  const json = {
+    "template": config.template,
+    "templateId": config.templateId,
+    "meta": {
+      "title": config.name,
+      "description": config.description || config.name,
+      "logo": config.logo || "",
+      "favicon": config.icon || "",
+      "keywords": config.keywords || "",
+      // "coverImage": "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png",
+      "author": subdomain,
+      "url": config.url
+    },
+    "appearance": {
+      "theme": "light",
+      "baseFont": config.styles?.baseFont || "Roboto, sans-serif",
+      "headingFont": config.styles?.headingFont || "Roboto, sans-serif",
+      "baseColor": config.styles?.baseColor || "#3f51b5",
+      "backgroundColor": config.styles?.backgroundColor || "#f5f5f5",
+    },
+    "menus": {
+      "main": [
+        {
+          "label": "Home",
+          "url": "/",
+          "icon": "dashboard",
+          "parentId": ""
+        },
+        {
+          "label": "About",
+          "url": "/about",
+          "icon": "about",
+          "parentId": ""
+        },
+        {
+          "label": "Contact",
+          "url": "/contact",
+          "icon": "contact",
+          "parentId": ""
+        }
+      ],
+      "footerMenu": [
+        {
+          "title": "Dashboard",
+          "url": "/dashboard",
+          "icon": "dashboard"
+        },
+        {
+          "title": "Language",
+          "url": "/dashboard/language",
+          "icon": "language"
+        },
+        {
+          "title": "about",
+          "url": "/dashboard/about",
+          "icon": "about"
+        }
+      ]
+    },
+    "additional": {
+      "copyright": {
+        "text": "© 2019 erxes Inc. All rights reserved.",
+        "url": "https://www.erxes.io"
+      },
+      "social": [
+        {
+          "name": "facebook",
+          "url": "https://www.facebook.com/erxes.io"
+        },
+        {
+          "name": "twitter",
+          "url": "https://twitter.com/erxesio"
+        },
+        {
+          "name": "linkedin",
+          "url": "https://www.linkedin.com/company/erxes"
+        },
+        {
+          "name": "youtube",
+          "url": "https://www.youtube.com/channel/UCJ1bNel6mOz8Kv1b0eIc5kg"
+        }
+      ],
+      "integrations": {
+        "googleAnalytics": "UA-XXXXX-X",
+        "facebookPixel": "1234567890",
+        "GTM": "GTM-XXXXX",
+        "messengerId": "Your CRM API Key"
+      }
+    }
+  }
+}
+
+
 const layoutConfig = (config) => {
   const title = config.name || 'Adventure tours';
   const description =
@@ -122,9 +217,33 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
     throw new Error('No pages found');
   }
 
-  console.debug('Pages:', pages);
+  const mainMenus = await sendCommonMessage({
+    subdomain,
+    serviceName: 'cms',
+    action: 'menus.find',
+    data: {
+      clientPortalId: config._id,
+      kind: 'main',
+    },
+    isRPC: true,
+    defaultValue: [],
+  });
 
-  return
+  const footerMenus = await sendCommonMessage({
+    subdomain,
+    serviceName: 'cms',
+    action: 'menus.find',
+    data: {
+      clientPortalId: config._id,
+      kind: 'footer',
+    },
+    isRPC: true,
+    defaultValue: [],
+  })
+
+  if (mainMenus.length === 0 && footerMenus.length === 0) {
+    throw new Error('No menus found');
+  }
 
   const GITHUB_TOKEN = getEnv({ name: 'GITHUB_TOKEN' });
   const tmpDir = tmp.dirSync({ unsafeCleanup: true }).name;
@@ -141,8 +260,9 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
 
     const configPath = path.join(tmpDir, 'next.config.ts');
     const layoutPath = path.join(tmpDir, 'app', 'layout.tsx');
-    const dataPath = path.join(tmpDir, 'data.json');
+    const dataPath = path.join(tmpDir, 'data','configs.json');
 
+    
     const projectConfig = `export default {
       env: {
         ERXES_API_URL: "${domain}/gateway/graphql",
