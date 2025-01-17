@@ -87,23 +87,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
-      data: await models.Pages.find(data).lean(),
-    };
-  });
-
-  consumeRPCQueue('cms:getPages', async ({ data, subdomain }) => {
-    const models = await generateModels(subdomain);
-    const pages = await models.Pages.find(data).lean();
-
-    const pagesWithItems: any[] = [];
-    for (const page of pages) {
-      const items = await models.PageItems.find({ pageId: page._id }).lean();
-      pagesWithItems.push({ ...page, pageItems: items });
-    }
-
-    return {
-      status: 'success',
-      data: pagesWithItems,
+      data: await models.Pages.find(data).sort({ order: 1 }).lean(),
     };
   });
 

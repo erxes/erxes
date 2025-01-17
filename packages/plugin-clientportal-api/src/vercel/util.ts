@@ -110,17 +110,21 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
   const pages = await sendCommonMessage({
     subdomain,
     serviceName: 'cms',
-    action: 'getPages',
+    action: 'pages.find',
     data: {
       clientPortalId: config._id,
     },
-    isRpc: true,
+    isRPC: true,
     defaultValue: [],
   });
   
   if (pages.length === 0) {
     throw new Error('No pages found');
   }
+
+  console.debug('Pages:', pages);
+
+  return
 
   const GITHUB_TOKEN = getEnv({ name: 'GITHUB_TOKEN' });
   const tmpDir = tmp.dirSync({ unsafeCleanup: true }).name;
@@ -193,7 +197,7 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
       return fileObject;
     });
 
-    const name = config.name.toLowerCase().replace(/\s+/g, '_');
+    const name = (config.name || '').toLowerCase().replace(/\s+/g, '_');
 
     const body = JSON.stringify({
       name,
