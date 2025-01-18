@@ -11,6 +11,19 @@ type Props = {
 };
 
 const LoansResearchFormContainer = (props: Props) => {
+  const deepCleanTypename = (obj: any): any => {
+    if (Array.isArray(obj)) {
+      return obj.map(deepCleanTypename); // Recursively clean arrays
+    } else if (obj && typeof obj === 'object') {
+      const { __typename, ...rest } = obj; // Remove __typename
+      return Object.keys(rest).reduce((cleaned, key) => {
+        cleaned[key] = deepCleanTypename(rest[key]); // Recursively clean nested objects
+        return cleaned;
+      }, {});
+    }
+    return obj; // Return primitive values as-is
+  };
+
   const renderButton = ({
     name,
     values,
@@ -18,12 +31,14 @@ const LoansResearchFormContainer = (props: Props) => {
     callback,
     object,
   }: IButtonMutateProps) => {
+    const cleanedVariables = deepCleanTypename(values);
+
     return (
       <ButtonMutate
         mutation={
           object ? mutations.loansResearchEdit : mutations.loansResearchAdd
         }
-        variables={values}
+        variables={cleanedVariables}
         callback={callback}
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
