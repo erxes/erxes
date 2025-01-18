@@ -4,6 +4,7 @@ import {
   ControlLabel,
   FormGroup,
   extractAttachment,
+  FormControl,
 } from '@erxes/ui/src';
 import { IAttachment } from '@erxes/ui/src/types';
 import React from 'react';
@@ -12,7 +13,7 @@ import Select from 'react-select';
 import { Uploader } from '@erxes/ui/src';
 import { IIncome } from '../../types';
 import { INCOME_TYPES } from '../../constants';
-import { MarginTop } from '../../styles';
+import { FlexRow, MarginTop } from '../../styles';
 
 const getEmptyIncome = () => ({
   _id: Math.random().toString(),
@@ -23,10 +24,25 @@ const getEmptyIncome = () => ({
 type Props = {
   incomes: IIncome[];
   setIncomes: (incomes) => void;
+  totalMonth: number;
+  setTotalMonth: (totalMonth) => void;
+  totalIncome: number;
+  setTotalIncome: (totalIncome) => void;
+  monthlyIncome: number;
+  setMonthlyIncome: (monthlyIncome) => void;
 };
 
 const IncomeForm = (props: Props) => {
-  const { incomes, setIncomes } = props;
+  const {
+    incomes,
+    setIncomes,
+    totalMonth,
+    setTotalMonth,
+    totalIncome,
+    setTotalIncome,
+    monthlyIncome,
+    setMonthlyIncome,
+  } = props;
 
   const onChangeIncomeItem = (_id: string, key: string, value: any) => {
     const income = incomes.find((f) => f._id === _id);
@@ -117,6 +133,36 @@ const IncomeForm = (props: Props) => {
           + Add Incomes
         </Button>
       </FormGroup>
+
+      <FlexRow>
+        <FormGroup>
+          <ControlLabel>Total Month</ControlLabel>
+          <FormControl
+            type="number"
+            defaultValue={totalMonth}
+            onChange={(e: any) => setTotalMonth(Number(e.target.value))}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Total Income</ControlLabel>
+          <FormControl
+            type="number"
+            defaultValue={totalIncome}
+            onChange={(e: any) => setTotalIncome(Number(e.target.value))}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Monthly Income</ControlLabel>
+          <FormControl
+            type="number"
+            name="monthlyIncome"
+            defaultValue={monthlyIncome}
+            onChange={(e: any) => setMonthlyIncome(Number(e.target.value))}
+          />
+        </FormGroup>
+      </FlexRow>
 
       {renderIncomeForm()}
     </MarginTop>

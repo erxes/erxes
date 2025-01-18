@@ -38,6 +38,11 @@ export const loansResearchFields = `
       type
     }
   }
+  totalMonth
+  totalIncome
+  monthlyIncome
+  totalLoanAmount
+  monthlyPaymentAmount
   debtIncomeRatio
   createdAt
 `;

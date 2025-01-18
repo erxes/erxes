@@ -4,6 +4,11 @@ const commonFields = `
   $customerId: String
   $incomes: [IncomeInput]
   $loans: [LoanInput]
+  $totalMonth: Int
+  $totalIncome: Int
+  $monthlyIncome: Int
+  $totalLoanAmount: Int
+  $monthlyPaymentAmount: Int
   $debtIncomeRatio: Float
 `;
 
@@ -13,6 +18,11 @@ const commonVariables = `
   customerId: $customerId
   incomes: $incomes
   loans: $loans
+  totalMonth: $totalMonth
+  totalIncome: $totalIncome
+  monthlyIncome: $monthlyIncome
+  totalLoanAmount: $totalLoanAmount
+  monthlyPaymentAmount: $monthlyPaymentAmount
   debtIncomeRatio: $debtIncomeRatio
 `;
 

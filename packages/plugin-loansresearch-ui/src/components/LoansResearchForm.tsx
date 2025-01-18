@@ -42,6 +42,22 @@ const LoansResearchForm = (props: Props) => {
   );
   const [loans, setLoans] = useState<ILoan[]>(loansResearch?.loans || []);
 
+  const [totalMonth, setTotalMonth] = useState<number>(
+    loansResearch?.totalMonth || 0
+  );
+  const [totalIncome, setTotalIncome] = useState<number>(
+    loansResearch?.totalIncome || 0
+  );
+  const [monthlyIncome, setMonthlyIncome] = useState<number>(
+    loansResearch?.monthlyIncome || 0
+  );
+  const [totalLoanAmount, setTotalLoanAmount] = useState<number>(
+    loansResearch?.totalLoanAmount || 0
+  );
+  const [monthlyPaymentAmount, setMonthlyPaymentAmount] = useState<number>(
+    loansResearch?.monthlyPaymentAmount || 0
+  );
+
   const [debtIncomeRatio, setDebtIncomeRatio] = useState<number>(
     loansResearch?.debtIncomeRatio || 0
   );
@@ -60,6 +76,11 @@ const LoansResearchForm = (props: Props) => {
       customerId,
       incomes,
       loans,
+      totalMonth,
+      totalIncome,
+      monthlyIncome,
+      totalLoanAmount,
+      monthlyPaymentAmount,
     };
   };
 
@@ -78,11 +99,31 @@ const LoansResearchForm = (props: Props) => {
     }
 
     if (currentTab === 'Incomes') {
-      return <IncomeForm incomes={incomes} setIncomes={setIncomes} />;
+      return (
+        <IncomeForm
+          incomes={incomes}
+          setIncomes={setIncomes}
+          totalMonth={totalMonth}
+          setTotalMonth={setTotalMonth}
+          totalIncome={totalIncome}
+          setTotalIncome={setTotalIncome}
+          monthlyIncome={monthlyIncome}
+          setMonthlyIncome={setMonthlyIncome}
+        />
+      );
     }
 
     if (currentTab === 'Loans') {
-      return <LoanForm loans={loans} setLoans={setLoans} />;
+      return (
+        <LoanForm
+          loans={loans}
+          setLoans={setLoans}
+          totalLoanAmount={totalLoanAmount}
+          setTotalLoanAmount={setTotalLoanAmount}
+          monthlyPaymentAmount={monthlyPaymentAmount}
+          setMonthlyPaymentAmount={setMonthlyPaymentAmount}
+        />
+      );
     }
   };
 

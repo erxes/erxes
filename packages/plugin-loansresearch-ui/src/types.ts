@@ -19,6 +19,11 @@ export type ILoanResearch = {
   customerId: string;
   incomes: IIncome[];
   loans: ILoan[];
+  totalMonth: number;
+  totalIncome: number;
+  monthlyIncome: number;
+  totalLoanAmount: number;
+  monthlyPaymentAmount: number;
   debtIncomeRatio: number;
   createdAt: Date;
   modifiedAt: Date;

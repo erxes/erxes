@@ -21,6 +21,11 @@ export interface ILoanResearch {
   customerId: string;
   incomes: IIncome[];
   loans: ILoan[];
+  totalMonth: number;
+  totalIncome: number;
+  monthlyIncome: number;
+  totalLoanAmount: number;
+  monthlyPaymentAmount: number;
   debtIncomeRatio: number;
   createdAt: Date;
   modifiedAt: Date;
@@ -90,6 +95,27 @@ export const configSchema = schemaWrapper(
       type: [loanSchema],
       optional: true,
     }),
-    debtIncomeRatio: field({ type: Number, label: 'debt to income ratio' }),
+    totalMonth: field({ type: Number, optional: true, label: 'total month' }),
+    totalIncome: field({ type: Number, optional: true, label: 'total income' }),
+    monthlyIncome: field({
+      type: Number,
+      optional: true,
+      label: 'monthly income',
+    }),
+    totalLoanAmount: field({
+      type: Number,
+      optional: true,
+      label: 'total loan amount',
+    }),
+    monthlyPaymentAmount: field({
+      type: Number,
+      optional: true,
+      label: 'monthly payment amount',
+    }),
+    debtIncomeRatio: field({
+      type: Number,
+      optional: true,
+      label: 'debt to income ratio',
+    }),
   })
 );

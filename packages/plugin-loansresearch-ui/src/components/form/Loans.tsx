@@ -4,6 +4,7 @@ import {
   ControlLabel,
   FormGroup,
   extractAttachment,
+  FormControl,
 } from '@erxes/ui/src';
 import { IAttachment } from '@erxes/ui/src/types';
 import React from 'react';
@@ -26,10 +27,21 @@ const getEmptyIncome = () => ({
 type Props = {
   loans: ILoan[];
   setLoans: (loans) => void;
+  totalLoanAmount: number;
+  setTotalLoanAmount: (totalLoanAmount) => void;
+  monthlyPaymentAmount: number;
+  setMonthlyPaymentAmount: (monthlyPaymentAmount) => void;
 };
 
 const LoanForm = (props: Props) => {
-  const { loans, setLoans } = props;
+  const {
+    loans,
+    setLoans,
+    totalLoanAmount,
+    setTotalLoanAmount,
+    monthlyPaymentAmount,
+    setMonthlyPaymentAmount,
+  } = props;
 
   const onChangeAttachmentMore = (
     _id: string,
@@ -137,6 +149,28 @@ const LoanForm = (props: Props) => {
           + Add Loans
         </Button>
       </FormGroup>
+
+      <FlexRow>
+        <FormGroup>
+          <ControlLabel>Total Loan Amount</ControlLabel>
+          <FormControl
+            type="number"
+            defaultValue={totalLoanAmount}
+            onChange={(e: any) => setTotalLoanAmount(Number(e.target.value))}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Monthly Payment Amount</ControlLabel>
+          <FormControl
+            type="number"
+            defaultValue={monthlyPaymentAmount}
+            onChange={(e: any) =>
+              setMonthlyPaymentAmount(Number(e.target.value))
+            }
+          />
+        </FormGroup>
+      </FlexRow>
 
       {renderLoanForm()}
     </MarginTop>

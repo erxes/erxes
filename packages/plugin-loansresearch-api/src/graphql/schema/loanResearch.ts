@@ -40,6 +40,11 @@ export const types = () => `
     customerId: String
     incomes: [Income]
     loans: [Loan]
+    totalMonth: Int
+    totalIncome: Int
+    monthlyIncome: Int
+    totalLoanAmount: Int
+    monthlyPaymentAmount: Int
     debtIncomeRatio: Float
     createdAt: Date
     modifiedAt: Date
@@ -79,6 +84,11 @@ const commonFields = `
   customerId: String
   incomes: [IncomeInput]
   loans: [LoanInput]
+  totalMonth: Int
+  totalIncome: Int
+  monthlyIncome: Int
+  totalLoanAmount: Int
+  monthlyPaymentAmount: Int
   debtIncomeRatio: Float
 `;
 
