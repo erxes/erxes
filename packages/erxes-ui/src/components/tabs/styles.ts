@@ -15,7 +15,7 @@ const TabContainer = styledTS<{ $grayBorder?: boolean; $full?: boolean; $directi
   flex-direction: ${props => props.$direction === "vertical" ? "column" : "row"};
   justify-content: ${(props) => props.$full && 'space-evenly'};
   flex-shrink: 0;
-  height: ${dimensions.headerSpacing}px;
+  height: ${props => props.$direction === "vertical" ? '100%' : `${dimensions.headerSpacing}px`};
 `;
 
 const TabCaption = styledTS<{ direction?: string; }>(styled.span)`

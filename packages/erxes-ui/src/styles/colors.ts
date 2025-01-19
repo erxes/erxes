@@ -27,6 +27,7 @@ const colorWhite = '#FFF';
 // backgrounds
 const bgMain = '#EDF1F5';
 const bgDark = rgba(colorBlack, 0.95);
+const bgExtraLight = rgba(colorBlack, 0.05);
 const bgLight = '#FAFAFA';
 const bgActive = '#F0F0F0';
 const bgGray = '#e6e6e6';
@@ -88,6 +89,7 @@ export default {
 
   bgMain,
   bgDark,
+  bgExtraLight,
   bgLight,
   bgActive,
   bgUnread,

@@ -79,7 +79,7 @@ export default class RightSidebar extends React.Component<Props> {
     const mainTypeName = renderFullName(customer);
 
     return (
-      <Sidebar>
+      <Sidebar full={true} wide={true}>
         <CompanySection mainType="customer" mainTypeId={customer._id} />
         {isEnabled("tickets") && (
           <>
