@@ -1,7 +1,6 @@
 import { Document, Schema } from 'mongoose';
 
 import { field } from './utils';
-import { template } from '@babel/core';
 
 export interface IOTPConfig {
   emailSubject?: any;
