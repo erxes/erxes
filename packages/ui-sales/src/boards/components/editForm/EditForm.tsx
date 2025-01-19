@@ -1,28 +1,31 @@
-import { Dialog, Transition } from "@headlessui/react";
+import { ArchiveStatus, HeaderContentSmall } from "../../styles/item";
 import {
-  DialogContent,
-  DialogWrapper,
-  ModalOverlay
-} from "@erxes/ui/src/styles/main";
+  EditFormContent,
+  RightDrawerContainer,
+  TopHeader,
+  TopHeaderButton,
+} from "../../styles/rightMenu";
 import { IEditFormContent, IItem, IItemParams, IOptions } from "../../types";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { __, router as routerUtils } from "@erxes/ui/src/utils";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { ArchiveStatus } from "../../styles/item";
-import { CloseModal } from "@erxes/ui/src/styles/main";
+import { ActionItem } from "../../styles/popup";
+import { ArchiveBtn } from "./ArchiveBtn";
+import { CSSTransition } from "react-transition-group";
+import Comment from "../../../comment/containers/Comment";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import Icon from "@erxes/ui/src/components/Icon";
-import styled from "styled-components";
-
-const Relative = styled.div`
-  position: relative;
-`;
+import Watch from "../../containers/editForm/Watch";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   options: IOptions;
   item: IItem;
   addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
-  removeItem: (itemId: string, callback: () => void) => void;
+  removeItem: (itemId: string, callback?: () => void) => void;
   copyItem: (itemId: string, callback: () => void, msg?: string) => void;
   beforePopupClose: (afterPopupClose?: () => void) => void;
   formContent: ({ state, copy, remove }: IEditFormContent) => React.ReactNode;
@@ -30,6 +33,7 @@ type Props = {
   saveItem: (doc, callback?: (item) => void) => void;
   isPopupVisible?: boolean;
   hideHeader?: boolean;
+  sendToBoard?: (item: any) => void;
   refresh: boolean;
 };
 
@@ -42,20 +46,25 @@ function EditForm(props: Props) {
     copyItem,
     options,
     beforePopupClose,
-    refresh
+    refresh,
+    sendToBoard,
+    isPopupVisible,
   } = props;
 
   const location = useLocation();
   const navigate = useNavigate();
+  const wrapperRef = useRef<any>(null);
+
   const [stageId, setStageId] = useState(item.stageId);
   const [updatedItem, setUpdatedItem] = useState(item);
   const [prevStageId, setPrevStageId] = useState<string>("");
+  const [viewMode, setViewMode] = useState("sidebar");
 
   useEffect(() => {
     if (item.stageId !== stageId) {
       setPrevStageId(item.stageId);
 
-      saveItem({ stageId }, updatedItem => {
+      saveItem({ stageId }, (updatedItem) => {
         if (onUpdate) {
           onUpdate(updatedItem, prevStageId);
         }
@@ -69,6 +78,14 @@ function EditForm(props: Props) {
     }
   }, [item]);
 
+  useEffect(() => {
+    document.addEventListener("mousedown", onHideModal);
+
+    return () => {
+      document.removeEventListener("mousedown", onHideModal);
+    };
+  }, [isPopupVisible]);
+
   const onChangeStage = (stageId: string) => {
     setStageId(stageId);
     const { item } = props;
@@ -79,7 +96,7 @@ function EditForm(props: Props) {
   };
 
   const saveItemHandler = (doc: { [key: string]: any }) => {
-    saveItem(doc, updatedItem => {
+    saveItem(doc, (updatedItem) => {
       setUpdatedItem(updatedItem);
     });
   };
@@ -100,26 +117,25 @@ function EditForm(props: Props) {
     }
   };
 
-  const onHideModal = () => {
+  const onHideModal = (event) => {
     if (refresh) {
       routerUtils.setParams(navigate, location, { key: Math.random() });
     }
 
-    closeModal(() => {
-      if (updatedItem) {
-        const itemName = localStorage.getItem(`${updatedItem._id}Name`) || "";
-
-        if (itemName && updatedItem.name !== itemName) {
-          saveItemHandler({ itemName });
+    if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+      closeModal(() => {
+        if (updatedItem) {
+          const itemName = localStorage.getItem(`${updatedItem._id}Name`) || "";
+          if (itemName && updatedItem.name !== itemName) {
+            saveItemHandler({ itemName });
+          }
+          localStorage.removeItem(`${updatedItem._id}Name`);
         }
-
-        localStorage.removeItem(`${updatedItem._id}Name`);
-      }
-
-      if (updatedItem && props.onUpdate) {
-        props.onUpdate(updatedItem, prevStageId);
-      }
-    });
+        if (updatedItem && props.onUpdate) {
+          props.onUpdate(updatedItem, prevStageId);
+        }
+      });
+    }
   };
 
   const renderArchiveStatus = () => {
@@ -135,61 +151,101 @@ function EditForm(props: Props) {
     return null;
   };
 
+  const renderNumber = () => {
+    const { number } = item;
+
+    if (!number) {
+      return null;
+    }
+
+    return (
+      <HeaderContentSmall>
+        <ControlLabel>Number</ControlLabel>
+        <p>{number}</p>
+      </HeaderContentSmall>
+    );
+  };
+
   const renderHeader = () => {
     if (props.hideHeader) {
       return (
-        <CloseModal onClick={onHideModal}>
-          <Icon icon="times" />
-        </CloseModal>
+        <TopHeader>
+          <span>{renderNumber()}hi</span>
+          <div className="right">
+            <Dropdown
+              as={DropdownToggle}
+              toggleComponent={
+                <TopHeaderButton>
+                  <Icon icon="ellipsis-h" />
+                </TopHeaderButton>
+              }
+              isMenuWidthFit={true}
+            >
+              <li>
+                <ActionItem>
+                  <Watch item={item} options={options} isSmall={true} />
+                </ActionItem>
+              </li>
+              <li>
+                <ActionItem>
+                  {(isEnabled("clientportal") && <Comment item={item} />) || ""}
+                </ActionItem>
+              </li>
+              <li>
+                <ActionItem>
+                  <ArchiveBtn
+                    item={item}
+                    removeItem={removeItem}
+                    saveItem={saveItem}
+                    sendToBoard={sendToBoard}
+                    onChangeStage={onChangeStage}
+                  />
+                </ActionItem>
+              </li>
+            </Dropdown>
+            <TopHeaderButton onClick={onHideModal}>
+              <Icon icon="window" />
+            </TopHeaderButton>
+            <TopHeaderButton onClick={() => closeModal()}>
+              <Icon icon="times" />
+            </TopHeaderButton>
+          </div>
+        </TopHeader>
       );
     }
 
     return (
-      <Dialog.Title as="h3">
+      <h3>
         {__("Edit")}
         <Icon icon="times" size={24} onClick={onHideModal} />
-      </Dialog.Title>
+      </h3>
     );
   };
 
   return (
-    <Transition appear show={props.isPopupVisible} as={Fragment}>
-      <Dialog as="div" onClose={onHideModal} className={` relative z-10`}>
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <ModalOverlay />
-        </Transition.Child>
-        <DialogWrapper>
-          <DialogContent>
-            <Dialog.Panel className={` dialog-size-xl`}>
-              {renderArchiveStatus()}
+    <div className="edit-form-trigger">
+      <CSSTransition
+        in={isPopupVisible}
+        timeout={100}
+        classNames="slide-in-right"
+        unmountOnExit={true}
+      >
+        <RightDrawerContainer width={"45%"} ref={wrapperRef}>
+          <EditFormContent>
+            {renderArchiveStatus()}
 
-              <Transition.Child>
-                <Relative>
-                  {renderHeader()}
-                  <div className="dialog-description">
-                    {props.formContent({
-                      state: { stageId, updatedItem, prevStageId },
-                      saveItem: saveItemHandler,
-                      onChangeStage,
-                      copy,
-                      remove
-                    })}
-                  </div>
-                </Relative>
-              </Transition.Child>
-            </Dialog.Panel>
-          </DialogContent>
-        </DialogWrapper>
-      </Dialog>
-    </Transition>
+            {renderHeader()}
+            {props.formContent({
+              state: { stageId, updatedItem, prevStageId },
+              saveItem: saveItemHandler,
+              onChangeStage,
+              copy,
+              remove,
+            })}
+          </EditFormContent>
+        </RightDrawerContainer>
+      </CSSTransition>
+    </div>
   );
 }
 

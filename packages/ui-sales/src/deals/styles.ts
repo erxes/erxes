@@ -299,6 +299,24 @@ const VoucherCard = styled.div`
   }
 `;
 
+const LeftSide = styled.div`
+  flex: 1;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  width: 80%;
+  overflow: auto;
+  height: calc(100% - 60px);
+`;
+
+const RightSide = styled.div`
+  width: 80px;
+  border-left: 1px solid ${colors.borderPrimary};
+`;
+
+const EditFormContent = styled.div`
+  display: flex;
+  height: 100%;
+`;
+
 export {
   ProductName,
   FormContainer,
@@ -321,5 +339,8 @@ export {
   VoucherCard,
   RemoveRow,
   VoucherContainer,
-  FlexRowGap
+  FlexRowGap,
+  LeftSide,
+  RightSide,
+  EditFormContent
 };
