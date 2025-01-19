@@ -131,7 +131,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 };
 
 const downloadImage = async (url, filePath) => {
-  console.log('Downloading image:', url);
   try {
     const response = await fetch(url);
     if (!response.ok) {
@@ -144,7 +143,6 @@ const downloadImage = async (url, filePath) => {
     // Return a promise to handle stream events
     return new Promise<void>((resolve, reject) => {
       fileStream.on('finish', () => {
-        console.log('Download complete:', filePath);
         resolve();
       });
       fileStream.on('error', (error) => {
@@ -242,7 +240,9 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
   const GITHUB_TOKEN = getEnv({ name: 'GITHUB_TOKEN' });
   const tmpDir = tmp.dirSync({ unsafeCleanup: true }).name;
   const TEMPLATE_REPO = `https://oauth2:${GITHUB_TOKEN}@github.com/erxes-web-templates/${config.templateId}.git`;
-  const DOMAIN = 'https://apose.app.erxes.io';
+  const DOMAIN = getEnv({ name: 'DOMAIN' })
+    ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+    : 'http://localhost:4000';
   const domain = DOMAIN.replace('<subdomain>', subdomain);
   const VERCEL_TOKEN = getEnv({ name: 'VERCEL_TOKEN' });
 
@@ -253,7 +253,7 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
     console.debug('Cloned template repository');
 
     const configPath = path.join(tmpDir, 'next.config.ts');
-    const layoutPath = path.join(tmpDir, 'app', 'layout.tsx');
+    // const layoutPath = path.join(tmpDir, 'app', 'layout.tsx');
     const dataPath = path.join(tmpDir, 'data', 'configs.json');
 
     const projectConfig = `export default {
@@ -276,7 +276,9 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
     fs.writeFileSync(dataPath, JSON.stringify(configsJson));
 
     for (const page of pages) {
-      const fileName = ['/','','home'].includes(page.slug) ? 'index' : page.slug;
+      const fileName = ['/', '', 'home'].includes(page.slug)
+        ? 'index'
+        : page.slug;
       const pagePath = path.join(tmpDir, 'data/pages', `${fileName}.json`);
       const pageContent = buildPageConfigs(page);
       fs.writeFileSync(pagePath, JSON.stringify(pageContent));
@@ -289,7 +291,6 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
         iconPath
       );
     }
-    console.debug(tmpDir);
 
     const files = allFilePaths(tmpDir).map((filePath, index) => {
       const encoding = path
@@ -349,7 +350,6 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
     );
 
     const result = await response.json();
-    console.debug('Vercel deployment result', result);
 
     if (!response.ok) {
       throw new Error(
