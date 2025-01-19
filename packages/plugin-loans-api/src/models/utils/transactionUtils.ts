@@ -7,13 +7,12 @@ import {
   LEASE_TYPES,
   SCHEDULE_STATUS
 } from '../definitions/constants';
-import { IContractDocument } from '../definitions/contracts';
 import { ISchedule, IScheduleDocument } from '../definitions/schedules';
 import {
   ICalcTrParams,
   ITransactionDocument
 } from '../definitions/transactions';
-import { getDiffDay, getFullDate, getDatesDiffMonth, calcInterest } from './utils';
+import { getFullDate } from './utils';
 import { IConfig } from '../../interfaces/config';
 import { getConfig } from '../../messageBroker';
 import { scheduleFixAfterCurrent } from './scheduleFixUtils';
@@ -242,6 +241,7 @@ export const trAfterSchedule = async (
       contractId: contract._id,
       isDefault: false,
       payDate: trDate,
+      interestRate: contract.interestRate,
       transactionIds: [tr._id],
       didPayment: tr.payment ?? 0,
       didStoredInterest: tr.storedInterest ?? 0,

@@ -4,11 +4,11 @@ import { IModels } from '../../connectionResolver';
 import { IConfig } from '../../interfaces/config';
 import { getConfig } from '../../messageBroker';
 import { SCHEDULE_STATUS } from '../definitions/constants';
-import { IContractDocument } from '../definitions/contracts';
+import { IContract, IContractDocument } from '../definitions/contracts';
 import { ITransactionDocument } from '../definitions/transactions';
 import { calcLoss } from './lossUtils';
-import { generateSchedules } from './scheduleUtils';
-import { calcInterest, getDatesDiffMonth, getDiffDay, getFullDate } from './utils';
+import { generateSchedules, insuranceHelper, scheduleHelper } from './scheduleUtils';
+import { addMonths, calcInterest, calcPerMonthEqual, getDatesDiffMonth, getDiffDay, getEqualPay, getFullDate } from './utils';
 import { ISchedule, IScheduleDocument } from '../definitions/schedules';
 
 export const getCalcedAmountsOnDate = async (models: IModels, contract: IContractDocument, date: Date, calculationFixed?: number) => {
@@ -98,7 +98,7 @@ export const getCalcedAmountsOnDate = async (models: IModels, contract: IContrac
 
   const interest = calcInterest({
     balance: preSchedule.didBalance || preSchedule.balance,
-    interestRate: contract.interestRate, // stepRule
+    interestRate: preSchedule.interestRate ?? contract.interestRate,
     dayOfMonth: diffDay,
     fixed: calculationFixed
   });
@@ -107,7 +107,7 @@ export const getCalcedAmountsOnDate = async (models: IModels, contract: IContrac
 
   const calcedInterestEve = calcInterest({
     balance: preSchedule.didBalance || preSchedule.balance,
-    interestRate: contract.interestRate,
+    interestRate: preSchedule.interestRate ?? contract.interestRate,
     dayOfMonth: diffEve,
     fixed: calculationFixed
   });
@@ -115,7 +115,7 @@ export const getCalcedAmountsOnDate = async (models: IModels, contract: IContrac
 
   const commitmentInterest = calcInterest({
     balance: preSchedule.unUsedBalance,
-    interestRate: contract.interestRate, // stepRule
+    interestRate: preSchedule.interestRate ?? contract.interestRate,
     dayOfMonth: diffDay,
     fixed: calculationFixed
   });
@@ -189,32 +189,150 @@ const firstGiveTr = async (subdomain, models: IModels, contract: IContractDocume
   await models.Schedules.insertMany(bulkEntries.map(b => ({ ...b, unUsedBalance })));
 }
 
-export const fixFutureSchedules = async (subdomain, models: IModels, contract: IContractDocument, futureSchedules: ISchedule[], currentSchedule: ISchedule) => {
-  // TODO: dahin uldseniig uguhud ireeduin huvaari uldegdeldee dahin generate
-  // const fakeContract = {
-  //   ...contract
+export const fixFutureSchedules = async (subdomain, models: IModels, contract: IContractDocument, currentSchedule: ISchedule, futureSchedules: ISchedule[]) => {
+  const dateRanges = futureSchedules.map(fsh => fsh.payDate);
 
-  // };
-  // const bulkEntries: any[] = [];
-  // for (const fSch of futureSchedules) {
+  const mainConfigs = await getConfig('loansConfig', subdomain, {});
 
-  // }
+  const unUsedBalance = currentSchedule.unUsedBalance;
+  contract.stepRules?.filter(sr => sr.firstPayDate > currentSchedule.payDate)
 
+  let bulkEntries: any[] = [];
+  let balance = currentSchedule.didBalance || currentSchedule.balance;
+  let startDate: Date = getFullDate(contract.startDate);
+  let tenor = futureSchedules.length;
+
+  if (contract.stepRules?.length) {
+    for (const stepRule of contract.stepRules.sort((a, b) => a.firstPayDate.getTime() - b.firstPayDate.getTime())) {
+      if (!stepRule.salvageAmount) {
+        if (stepRule.totalMainAmount) {
+          stepRule.salvageAmount = balance - stepRule.totalMainAmount;
+        }
+
+        if (stepRule.mainPayPerMonth) {
+          stepRule.salvageAmount = balance - (stepRule.mainPayPerMonth * stepRule.tenor)
+        }
+      }
+
+      bulkEntries = await scheduleHelper(
+        bulkEntries,
+        {
+          contractId: contract._id,
+          repayment: contract.repayment,
+          startDate,
+          balance,
+          interestRate: stepRule.interestRate ?? contract.interestRate,
+          tenor: stepRule.tenor,
+          salvageAmount: stepRule.salvageAmount || 0,
+          skipInterestCalcMonth: stepRule.skipInterestCalcMonth,
+          skipInterestCalcDay: stepRule.skipInterestCalcDay,
+          skipAmountCalcMonth: stepRule.skipAmountCalcMonth,
+          skipAmountCalcDay: stepRule.skipAmountCalcDay,
+          dateRanges
+        },
+        mainConfigs.calculationFixed,
+      )
+
+      if (bulkEntries.length) {
+        const preEntry: any = bulkEntries[bulkEntries.length - 1];
+        startDate = preEntry.payDate;
+        balance = preEntry.balance;
+      }
+      tenor = tenor - stepRule.tenor
+    }
+  }
+
+  if (tenor > 0) {
+    bulkEntries = await scheduleHelper(
+      bulkEntries,
+      {
+        contractId: contract._id,
+        repayment: contract.repayment,
+        startDate,
+        balance,
+        interestRate: contract.interestRate,
+        tenor,
+        salvageAmount: 0,
+        unUsedBalance,
+        skipInterestCalcMonth: !bulkEntries.length && contract.skipInterestCalcMonth || undefined,
+        skipInterestCalcDay: !bulkEntries.length && contract.skipInterestCalcDay || undefined,
+        skipAmountCalcMonth: !bulkEntries.length && contract.skipAmountCalcMonth || undefined,
+        skipAmountCalcDay: !bulkEntries.length && contract.skipAmountCalcDay || undefined,
+        dateRanges
+      },
+      mainConfigs.calculationFixed
+    )
+  }
+
+  // insurance schedule
+  const insuranceTypeIds = (contract.collateralsData || []).map(
+    coll => coll.insuranceTypeId
+  );
+  (contract.insurancesData || []).map(ins => ins.insuranceTypeId)
+
+  const insuranceTypes = await models.InsuranceTypes.find({
+    _id: { $in: insuranceTypeIds }
+  });
+  const insuranceTypeRulesById = {};
+  for (const insType of insuranceTypes) {
+    insuranceTypeRulesById[insType._id] = insType;
+  }
+
+  let insuranceIndex = 0;
+  let first10 = 0;
+  let on11 = 0;
+  let monthCounter = 1;
+
+  while (insuranceIndex < bulkEntries.length - 12) {
+    const currentYear = parseInt(String(insuranceIndex / 12)) + 1;
+    if (monthCounter === 1) {
+      const helper = insuranceHelper(
+        contract,
+        insuranceTypeRulesById,
+        currentYear
+      );
+      first10 = helper.first10;
+      on11 = helper.on11;
+    }
+    if (monthCounter === 12) {
+      monthCounter = 1;
+      insuranceIndex += 1;
+      continue;
+    }
+
+    const monthInsurance = monthCounter === 11 ? on11 : first10;
+    bulkEntries[insuranceIndex].insurance = monthInsurance;
+    bulkEntries[insuranceIndex].total += monthInsurance;
+
+    insuranceIndex += 1;
+    monthCounter += 1;
+  }
+
+  if (contract.debt) {
+    const debtTenor =
+      Math.min(contract.debtTenor || 0, bulkEntries.length) || 1;
+
+    const perDebt = Math.round(contract.debt / debtTenor);
+    const firstDebt = contract.debt - perDebt * (debtTenor - 1);
+
+    let monthDebt = perDebt;
+    for (let i = 0; i < debtTenor; i++) {
+      monthDebt = i === 0 ? firstDebt : perDebt;
+      bulkEntries[i].debt = monthDebt;
+      bulkEntries[i].total += monthDebt;
+    }
+  }
+
+  return bulkEntries
 }
 
 export const afterGiveTrInSchedule = async (subdomain, models: IModels, contract: IContractDocument, tr: ITransactionDocument, calculationFixed = 2) => {
   const alreadySchedules = await models.Schedules.findOne({ contractId: contract._id }).lean();
-  const alreadyTrs = await models.Transactions.find({ contractId: contract._id }).lean();
 
   if (!alreadySchedules?._id) {
     await firstGiveTr(subdomain, models, contract, tr);
     return;
   }
-
-  const afterSchedules = await models.Schedules.find({
-    contractId: contract._id,
-    payDate: { $gt: tr.payDate }
-  }).sort({ payDate: 1, giveAmount: -1, didStoredInterest: -1, didInterestNonce: -1, didInterestEve: -1 }).lean();
 
   const amounts = await getCalcedAmountsOnDate(models, contract, tr.payDate, calculationFixed);
 
@@ -243,7 +361,35 @@ export const afterGiveTrInSchedule = async (subdomain, models: IModels, contract
     giveAmount: tr.total
   });
 
-  await fixFutureSchedules(subdomain, models, contract, afterSchedules, currentSchedule);
+  const futureSchedules: IScheduleDocument[] = await models.Schedules.find({
+    contractId: contract._id,
+    payDate: { $gt: getFullDate(currentSchedule.payDate) }
+  }).sort({ payDate: 1, createdAt: 1 }).lean();
+
+  const bulkEntries = await fixFutureSchedules(subdomain, models, contract, currentSchedule, futureSchedules);
+  const updateBulkOps: {
+    updateOne: {
+      filter: { _id: string };
+      update: any;
+      upsert: true;
+    };
+  }[] = [];
+
+  let index = 0
+  for (const futureSch of futureSchedules) {
+    const updInfos = bulkEntries[index]
+    updateBulkOps.push({
+      updateOne: {
+        filter: { _id: futureSch._id },
+        update: { $set: { ...updInfos } },
+        upsert: true
+      }
+    });
+
+    index++;
+  }
+
+  await models.Schedules.bulkWrite(updateBulkOps);
 }
 
 const getAmountByPriority = (
@@ -324,6 +470,7 @@ const getAmountByPriority = (
 
   return result;
 }
+
 export const afterPayTrInSchedule = async (models: IModels, contract: IContractDocument, tr: ITransactionDocument, config) => {
   // contract.allowLateDay;
   const currentDate = getFullDate(tr.payDate);
@@ -351,9 +498,9 @@ export const afterPayTrInSchedule = async (models: IModels, contract: IContractD
     didBalance = 0;
   }
 
-  let currentSchedule = preSchedule?.payDate === currentDate ?
+  let currentSchedule = getFullDate(preSchedule?.payDate) === currentDate ?
     preSchedule :
-    skippedSchedules?.find(ss => ss.payDate === currentDate);
+    skippedSchedules?.find(ss => getFullDate(ss.payDate) === currentDate);
 
 
   if (currentSchedule) {
@@ -406,7 +553,8 @@ export const afterPayTrInSchedule = async (models: IModels, contract: IContractD
       transactionIds: [tr._id]
     })
   }
-  const updStatusSchedules = skippedSchedules?.filter(ss => ss.payDate !== currentDate);
+
+  const updStatusSchedules = skippedSchedules?.filter(ss => getFullDate(ss.payDate) !== currentDate);
   if (updStatusSchedules?.length) {
     await models.Schedules.updateMany({ _id: { $in: updStatusSchedules.map(u => u._id) } }, { $set: { status: SCHEDULE_STATUS.SKIPPED } });
   }
@@ -420,8 +568,6 @@ export const afterPayTrInSchedule = async (models: IModels, contract: IContractD
     if (afterSchedules.length) {
       let diffPayment = didPayment - amounts.payment;
       let indBalance = currentSchedule.didBalance ?? 0;
-      let indDate = currentSchedule.payDate;
-
 
       for (const afterCurrentSchedule of afterSchedules) {
         if (diffPayment <= 0) {
@@ -431,7 +577,7 @@ export const afterPayTrInSchedule = async (models: IModels, contract: IContractD
 
         const interest = calcInterest({
           balance: indBalance,
-          interestRate: contract.interestRate,
+          interestRate: afterCurrentSchedule.interestRate ?? contract.interestRate,
           dayOfMonth: diffDay,
           fixed: calculationFixed
         });
@@ -440,7 +586,7 @@ export const afterPayTrInSchedule = async (models: IModels, contract: IContractD
 
         const calcedInterestEve = calcInterest({
           balance: indBalance,
-          interestRate: contract.interestRate,
+          interestRate: afterCurrentSchedule.interestRate ?? contract.interestRate,
           dayOfMonth: diffEve,
           fixed: calculationFixed
         });
@@ -465,7 +611,6 @@ export const afterPayTrInSchedule = async (models: IModels, contract: IContractD
         })
 
         diffPayment = diffPayment - (afterCurrentSchedule.payment ?? 0);
-        indDate = afterCurrentSchedule.payDate;
       }
     }
   }

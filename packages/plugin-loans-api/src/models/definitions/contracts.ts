@@ -80,7 +80,6 @@ export interface IContract {
   stepRules?: {
     scheduleDays?: number[];
     tenor: number; // loan duration month
-    repayment?: string;
     interestRate?: number;
 
     firstPayDate: Date;
@@ -92,7 +91,7 @@ export interface IContract {
     skipInterestCalcMonth?: number;
     skipInterestCalcDay?: number;
     skipAmountCalcMonth?: number;
-    skipAmountCalcDayd?: number;
+    skipAmountCalcDay?: number;
   }[];
 
   skipInterestCalcMonth: number;

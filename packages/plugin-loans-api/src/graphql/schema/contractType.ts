@@ -27,7 +27,6 @@ export const types = () => `
     useMargin: Boolean
     useDebt: Boolean
     useManualNumbering: Boolean
-    useFee: Boolean
 
     savingPlusLoanInterest: Float
     savingUpperPercent: Float
@@ -40,6 +39,15 @@ export const types = () => `
     modifiedAt: Date
 
     product: Product
+
+    feePercent: Float
+    defaultFee: Float
+    useCollateral: Boolean
+    minPercentMargin: Float
+
+    requirements: [String]
+    customerDocuments: [String]
+    companyDocuments: [String]
   }
 
   type ContractTypesListResponse {
@@ -99,7 +107,6 @@ const commonFields = `
   useMargin: Boolean
   useDebt: Boolean
   useManualNumbering: Boolean
-  useFee: Boolean
 
   savingPlusLoanInterest: Float
   savingUpperPercent: Float
@@ -107,6 +114,15 @@ const commonFields = `
   config: JSON
   productId: String
   productType: String
+
+  feePercent: Float
+  defaultFee: Float
+  minPercentMargin: Float
+  useCollateral: Boolean
+
+  requirements: [String]
+  customerDocuments: [String]
+  companyDocuments: [String]
 `;
 
 export const mutations = `

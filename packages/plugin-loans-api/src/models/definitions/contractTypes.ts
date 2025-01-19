@@ -95,7 +95,6 @@ export interface IContractType {
   useMargin: boolean;
   useDebt: boolean;
   useManualNumbering: boolean;
-  useFee: boolean;
 
   savingPlusLoanInterest: number;
   savingUpperPercent: number;
@@ -103,6 +102,15 @@ export interface IContractType {
   config: IContractConfig;
   productId: string
   productType: string;
+
+  feePercent?: number;
+  defaultFee?: number;
+  useCollateral?: boolean;
+  minPercentMargin?: number;
+
+  requirements?: string[];
+  customerDocuments?: string[];
+  companyDocuments?: string[];
 }
 
 export interface IContractTypeDocument extends IContractType, Document {
@@ -151,7 +159,6 @@ export const contractTypeSchema = schemaHooksWrapper(
     useMargin: field({ type: Boolean, label: 'Use margin', optional: true }),
     useDebt: field({ type: Boolean, label: 'Use debt', optional: true }),
     useManualNumbering: field({ type: Boolean, label: 'use manual numbering' }),
-    useFee: field({ type: Boolean, label: 'use fee' }),
 
     savingPlusLoanInterest: field({ type: Number, default: 0, label: 'Saving loan plus interest' }),
     savingUpperPercent: field({ type: Number, default: 0, label: 'Saving loan upper percent' }),
@@ -160,6 +167,15 @@ export const contractTypeSchema = schemaHooksWrapper(
     config: field({ type: Object }),
     productId: field({ type: String, optional: true, label: 'product' }),
     productType: field({ type: String, default: 'private', optional: true, label: 'product Type' }),
+
+    feePercent: field({ type: Number, label: 'fee Percent', optional: true }),
+    defaultFee: field({ type: Number, label: 'default Fee', optional: true }),
+    useCollateral: field({ type: Boolean, label: 'Use Collateral', optional: true }),
+    minPercentMargin: field({ type: Number, label: 'pre Percent', optional: true }),
+
+    requirements: field({ type: [String], optional: true, label: 'requirements' }),
+    customerDocuments: field({ type: [String], optional: true, label: 'customer Documents' }),
+    companyDocuments: field({ type: [String], optional: true, label: 'company Documents' }),
 
     createdAt: field({ type: Date, default: () => new Date(), label: 'Created at' }),
     modifiedAt: field({ type: Date, optional: true, label: 'Created at' }),

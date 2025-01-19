@@ -15,6 +15,7 @@ export interface ISchedule {
   createdAt: Date;
   status: 'pending' | 'done' | 'skipped' | 'pre' | 'less' | 'expired' | 'give';
   payDate: Date;
+  interestRate: number;
 
   balance: number;
   unUsedBalance: number;
@@ -82,6 +83,7 @@ export const scheduleSchema = schemaHooksWrapper(
       default: new Date(),
       label: 'Created at'
     }),
+    interestRate: field({ type: Number, label: 'Interest Rate' }),
 
     balance: field({ type: Number, min: 0, label: 'Loan Balance' }),
     unUsedBalance: field({ type: Number, min: 0, label: 'Un used balance' }),

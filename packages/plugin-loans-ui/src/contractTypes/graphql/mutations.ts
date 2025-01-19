@@ -27,7 +27,6 @@ const commonFields = `
   $useMargin: Boolean,
   $useDebt: Boolean,
   $useManualNumbering: Boolean,
-  $useFee: Boolean,
 
   $savingPlusLoanInterest: Float,
   $savingUpperPercent: Float,
@@ -35,6 +34,15 @@ const commonFields = `
   $config: JSON,
   $productId: String,
   $productType: String,
+
+  $feePercent: Float,
+  $defaultFee: Float,
+  $useCollateral: Boolean,
+  $minPercentMargin: Float,
+
+  $requirements: [String],
+  $customerDocuments: [String],
+  $companyDocuments: [String],
 `;
 
 const commonVariables = `
@@ -64,7 +72,6 @@ const commonVariables = `
   useMargin: $useMargin,
   useDebt: $useDebt,
   useManualNumbering: $useManualNumbering,
-  useFee: $useFee,
 
   savingPlusLoanInterest: $savingPlusLoanInterest,
   savingUpperPercent: $savingUpperPercent,
@@ -72,6 +79,15 @@ const commonVariables = `
   config: $config,
   productId: $productId,
   productType: $productType,
+
+  feePercent: $feePercent,
+  defaultFee: $defaultFee,
+  useCollateral: $useCollateral,
+  minPercentMargin: $minPercentMargin,
+
+  requirements: $requirements,
+  customerDocuments: $customerDocuments,
+  companyDocuments: $companyDocuments,
 `;
 
 const contractTypesAdd = `

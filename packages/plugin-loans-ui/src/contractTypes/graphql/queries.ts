@@ -26,7 +26,6 @@ export const contractTypeFields = `
   useMargin
   useDebt
   useManualNumbering
-  useFee
 
   savingPlusLoanInterest
   savingUpperPercent
@@ -34,6 +33,15 @@ export const contractTypeFields = `
   config
   productId
   productType
+
+  feePercent
+  defaultFee
+  useCollateral
+  minPercentMargin
+
+  requirements
+  customerDocuments
+  companyDocuments
   
   createdAt
   modifiedAt

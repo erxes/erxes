@@ -89,7 +89,6 @@ export interface IContractTypeDoc {
   useMargin?: boolean;
   useDebt?: boolean;
   useManualNumbering?: boolean;
-  useFee?: boolean;
 
   savingPlusLoanInterest?: number;
   savingUpperPercent?: number;
@@ -97,6 +96,15 @@ export interface IContractTypeDoc {
   config?: IContractConfig;
   productId?: string
   productType?: string;
+
+  feePercent?: number;
+  defaultFee?: number;
+  useCollateral?: boolean;
+  minPercentMargin?: number;
+
+  requirements?: String[];
+  customerDocuments?: String[];
+  companyDocuments?: String[];
 }
 
 export interface IContractType extends IContractTypeDoc {

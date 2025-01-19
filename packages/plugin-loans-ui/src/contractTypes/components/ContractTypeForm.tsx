@@ -127,6 +127,15 @@ const ContractTypeForm = (props: Props) => {
                 max: 20,
                 onChange: onChangeField
               })}
+              {renderFormGroup("Is use manual numbering", {
+                ...formProps,
+                className: "flex-item",
+                type: "checkbox",
+                componentclass: "checkbox",
+                name: "useManualNumbering",
+                checked: contractType.useManualNumbering,
+                onChange: onChangeField
+              })}
               {renderFormGroup("Default Interest", {
                 ...formProps,
                 name: "defaultInterest",
@@ -143,24 +152,51 @@ const ContractTypeForm = (props: Props) => {
                 checked: contractType.useSkipInterest,
                 onChange: onChangeField
               })}
-              {contractType.useSkipInterest && renderFormGroup("skip Interest Day", {
+              {contractType.useSkipInterest &&
+                (<>
+                  {renderFormGroup("skip Interest Day", {
+                    ...formProps,
+                    name: "skipInterestDay",
+                    required: true,
+                    type: "number",
+                    defaultValue: contractType.skipInterestDay || 0,
+                    onChange: onChangeField
+                  })}
+                  {renderFormGroup("skip Interest Month", {
+                    ...formProps,
+                    name: "skipInterestMonth",
+                    required: true,
+                    type: "number",
+                    defaultValue: contractType.skipInterestMonth || 0,
+                    onChange: onChangeField
+                  })}
+                </>)
+              }
+              {renderFormGroup("Is use collateral", {
                 ...formProps,
-                name: "skipInterestDay",
-                required: true,
-                type: "number",
-                defaultValue: contractType.skipInterestDay || 0,
-                onChange: onChangeField
-              })}
-              {contractType.useSkipInterest && renderFormGroup("skip Interest Month", {
-                ...formProps,
-                name: "skipInterestMonth",
-                required: true,
-                type: "number",
-                defaultValue: contractType.skipInterestMonth || 0,
+                className: "flex-item",
+                type: "checkbox",
+                componentclass: "checkbox",
+                name: "useCollateral",
+                checked: contractType.useCollateral,
                 onChange: onChangeField
               })}
             </FormColumn>
             <FormColumn>
+              {renderFormGroup("Fee percent of lease Amount", {
+                ...formProps,
+                name: "feePercent",
+                type: "number",
+                defaultValue: contractType.feePercent || 0,
+                onChange: onChangeField
+              })}
+              {renderFormGroup("Static default fee amount", {
+                ...formProps,
+                name: "defaultFee",
+                type: "number",
+                defaultValue: contractType.defaultFee || 0,
+                onChange: onChangeField
+              })}
               {renderFormGroup("Loss Percent", {
                 ...formProps,
                 name: "lossPercent",
@@ -258,63 +294,59 @@ const ContractTypeForm = (props: Props) => {
                 </FormControl>
               </FormGroup>
 
-              {contractType.leaseType === LEASE_TYPES.SAVING &&
-                renderFormGroup("Saving upper interest", {
-                  ...formProps,
-                  name: "savingPlusLoanInterest",
-                  required: true,
-                  defaultValue: contractType.savingPlusLoanInterest || 0,
-                  onChange: onChangeField
-                })}
-              {contractType.leaseType === LEASE_TYPES.SAVING &&
-                renderFormGroup("Saving upper percent", {
-                  ...formProps,
-                  name: "savingUpperPercent",
-                  required: true,
-                  max: 100,
-                  defaultValue: contractType.savingUpperPercent || 0,
-                  onChange: onChangeField
-                })}
-              {contractType.leaseType !== LEASE_TYPES.SAVING &&
-                renderFormGroup("Is use debt", {
-                  ...formProps,
-                  className: "flex-item",
-                  type: "checkbox",
-                  componentclass: "checkbox",
-                  name: "useDebt",
-                  checked: contractType.useDebt,
-                  onChange: onChangeField
-                })}
-              {contractType.leaseType !== LEASE_TYPES.SAVING &&
-                renderFormGroup("Is use margin amount", {
-                  ...formProps,
-                  className: "flex-item",
-                  type: "checkbox",
-                  componentclass: "checkbox",
-                  name: "useMargin",
-                  checked: contractType.useMargin,
-                  onChange: onChangeField
-                })}
-              {contractType.leaseType !== LEASE_TYPES.SAVING &&
-                renderFormGroup("Is use manual numbering", {
-                  ...formProps,
-                  className: "flex-item",
-                  type: "checkbox",
-                  componentclass: "checkbox",
-                  name: "useManualNumbering",
-                  checked: contractType.useManualNumbering,
-                  onChange: onChangeField
-                })}
-              {contractType.leaseType !== LEASE_TYPES.SAVING &&
-                renderFormGroup("Is use fee", {
-                  ...formProps,
-                  className: "flex-item",
-                  type: "checkbox",
-                  componentclass: "checkbox",
-                  name: "useFee",
-                  checked: contractType.useFee,
-                  onChange: onChangeField
-                })}
+              {contractType.leaseType === LEASE_TYPES.SAVING && (
+                <>
+                  {renderFormGroup("Saving upper interest", {
+                    ...formProps,
+                    name: "savingPlusLoanInterest",
+                    required: true,
+                    defaultValue: contractType.savingPlusLoanInterest || 0,
+                    onChange: onChangeField
+                  })}
+                  {
+                    renderFormGroup("Saving upper percent", {
+                      ...formProps,
+                      name: "savingUpperPercent",
+                      required: true,
+                      max: 100,
+                      defaultValue: contractType.savingUpperPercent || 0,
+                      onChange: onChangeField
+                    })}
+                </>
+              ) || (
+                  <>
+                    {renderFormGroup("Is use debt", {
+                      ...formProps,
+                      className: "flex-item",
+                      type: "checkbox",
+                      componentclass: "checkbox",
+                      name: "useDebt",
+                      checked: contractType.useDebt,
+                      onChange: onChangeField
+                    })}
+                    {renderFormGroup("Is use margin amount", {
+                      ...formProps,
+                      className: "flex-item",
+                      type: "checkbox",
+                      componentclass: "checkbox",
+                      name: "useMargin",
+                      checked: contractType.useMargin,
+                      onChange: onChangeField
+                    })}
+                    {contractType.useMargin &&
+                      (<>
+                        {renderFormGroup("min margin and lease amounts ratio", {
+                          ...formProps,
+                          name: "minPercentMargin",
+                          required: true,
+                          type: "number",
+                          defaultValue: contractType.minPercentMargin || 0,
+                          onChange: onChangeField
+                        })}
+                      </>)
+                    }
+                  </>
+                )}
             </FormColumn>
           </FormWrapper>
           <FormWrapper>

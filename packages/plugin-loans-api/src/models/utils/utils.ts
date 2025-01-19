@@ -55,10 +55,8 @@ export const getFullDate = (date: Date) => {
   return new Date(moment(date).format('YYYY-MM-DD'));
 };
 
-export const addMonths = (date, months) => {
-  date.setMonth(date.getMonth() + months);
-
-  return new Date(date);
+export const addMonths = (date: Date, months: number) => {
+  return new Date(moment(new Date(date)).add(months, 'M').format('YYYY-MM-DD'))
 };
 
 export const getNextMonthDay = (date: Date, days: number[]) => {
@@ -124,6 +122,10 @@ export const checkNextDay = (
   return date;
 };
 
+export const getInterestCurrentMonth = (contract, date) => {
+
+}
+
 export const calcPerMonthEqual = async ({
   currentDate,
   balance,
@@ -151,6 +153,7 @@ export const calcPerMonthEqual = async ({
     if (skipAmountCalcDate && getDiffDay(nextDate, skipAmountCalcDate) >= 0) {
       return {
         date: nextDate,
+        interestRate: 0,
         loanBalance: balance,
         calcedInterestEve: 0,
         calcedInterestNonce: 0,
@@ -164,6 +167,7 @@ export const calcPerMonthEqual = async ({
 
     return {
       date: nextDate,
+      interestRate: 0,
       loanBalance,
       calcedInterestEve: 0,
       calcedInterestNonce: 0,
@@ -203,6 +207,7 @@ export const calcPerMonthEqual = async ({
   if (skipAmountCalcDate && getDiffDay(nextDate, skipAmountCalcDate) >= 0) {
     return {
       date: nextDate,
+      interestRate,
       loanBalance: balance,
       calcedInterestEve,
       calcedInterestNonce,
@@ -218,6 +223,7 @@ export const calcPerMonthEqual = async ({
 
   return {
     date: nextDate,
+    interestRate,
     loanBalance,
     calcedInterestEve,
     calcedInterestNonce,
@@ -287,6 +293,7 @@ export const calcPerMonthFixed = async ({
     if (skipAmountCalcDate && getDiffDay(nextDate, skipAmountCalcDate) >= 0) {
       return {
         date: nextDate,
+        interestRate: 0,
         loanBalance: balance,
         loanPayment: 0,
         calcedInterestEve: 0,
@@ -300,6 +307,7 @@ export const calcPerMonthFixed = async ({
 
     return {
       date: nextDate,
+      interestRate: 0,
       loanBalance,
       loanPayment,
       calcedInterestEve: 0,
@@ -338,6 +346,7 @@ export const calcPerMonthFixed = async ({
   if (skipAmountCalcDate && getDiffDay(nextDate, skipAmountCalcDate) >= 0) {
     return {
       date: nextDate,
+      interestRate: 0,
       loanBalance: balance,
       loanPayment: 0,
       calcedInterestEve,
@@ -352,6 +361,7 @@ export const calcPerMonthFixed = async ({
 
   return {
     date: nextDate,
+    interestRate,
     loanBalance,
     loanPayment,
     calcedInterestEve,
