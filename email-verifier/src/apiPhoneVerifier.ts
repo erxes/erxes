@@ -70,8 +70,7 @@ const bulkClearOut = async (unverifiedPhones: string[], hostname: string) => {
 
     await sendFile(url, CLEAR_OUT_PHONE_API_KEY, fileName, hostname, redisKey);
   } catch (e) {
-    debugBase(`Error occured during bulk phone validation ${e.message}`);
-    throw e;
+        throw e;
   }
 };
 
@@ -97,8 +96,7 @@ export const validateSinglePhone = async (phone: string, hostname: string) => {
   const phoneOnDb = await Phones.findOne({ phone }).lean();
 
   if (phoneOnDb) {
-    debugBase(`This phone number is already verified`);
-    try {
+        try {
       return sendRequest({
         url: `${hostname}/verifier/webhook`,
         method: 'POST',
@@ -112,8 +110,7 @@ export const validateSinglePhone = async (phone: string, hostname: string) => {
   }
 
   if (!phone.includes('+')) {
-    debugBase('Phone number must include country code for verification!');
-    return { phone, status: PHONE_VALIDATION_STATUSES.UNKNOWN };
+        return { phone, status: PHONE_VALIDATION_STATUSES.UNKNOWN };
   }
 
   let response: { status?: string; data?: any } = {};
@@ -123,8 +120,7 @@ export const validateSinglePhone = async (phone: string, hostname: string) => {
       `Phone number is not found on verifier DB. Sending request to clearoutphone`
     );
     response = await singleClearOut(phone);
-    debugBase(`Received single phone validation status`);
-  } catch (e) {
+      } catch (e) {
     return { phone, status: PHONE_VALIDATION_STATUSES.UNKNOWN };
   }
   try {
@@ -139,8 +135,7 @@ export const validateSinglePhone = async (phone: string, hostname: string) => {
         localFormat: data.localFormat,
       });
 
-      debugBase(`Sending single phone validation status to erxes-api`);
-
+      
       await sendRequest({
         url: `${hostname}/verifier/webhook`,
         method: 'POST',
@@ -188,8 +183,7 @@ export const validateBulkPhones = async (
 
   if (verifiedPhones.length > 0) {
     try {
-      debugBase(`Sending already verified phones to erxes-api`);
-
+      
       await sendRequest({
         url: `${hostname}/verifier/webhook`,
         method: 'POST',
@@ -204,8 +198,7 @@ export const validateBulkPhones = async (
 
   if (unverifiedPhones.length > 0) {
     try {
-      debugBase(`Sending  unverified phones to clearoutphone`);
-      await bulkClearOut(unverifiedPhones, hostname);
+            await bulkClearOut(unverifiedPhones, hostname);
     } catch (e) {
       throw e;
     }
@@ -220,8 +213,7 @@ export const getBulkResult = async (listId: string, hostname: string) => {
   };
 
   try {
-    debugBase(`Downloading bulk phone validation result`);
-    const response: any = await fetch(url, {
+        const response: any = await fetch(url, {
       method: 'POST',
       headers,
       body: JSON.stringify({ list_id: listId }),
@@ -275,8 +267,7 @@ export const getBulkResult = async (listId: string, hostname: string) => {
         }
       }
 
-      debugBase(`Sending bulk phone validation result to erxes-api`);
-
+      
       await sendRequest({
         url: `${hostname}/verifier/webhook`,
         method: 'POST',
