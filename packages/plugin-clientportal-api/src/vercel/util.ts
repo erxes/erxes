@@ -7,100 +7,94 @@ import * as tmp from 'tmp';
 import { IClientPortalDocument } from '../models/definitions/clientPortal';
 import { sendCommonMessage } from '../messageBroker';
 
-
-const buildConfigs = async (subdomain:string, config: IClientPortalDocument, pages, menus) => {
-  const json = {
-    "template": config.template,
-    "templateId": config.templateId,
-    "meta": {
-      "title": config.name,
-      "description": config.description || config.name,
-      "logo": config.logo || "",
-      "favicon": config.icon || "",
-      "keywords": config.keywords || "",
-      // "coverImage": "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png",
-      "author": subdomain,
-      "url": config.url
-    },
-    "appearance": {
-      "theme": "light",
-      "baseFont": config.styles?.baseFont || "Roboto, sans-serif",
-      "headingFont": config.styles?.headingFont || "Roboto, sans-serif",
-      "baseColor": config.styles?.baseColor || "#3f51b5",
-      "backgroundColor": config.styles?.backgroundColor || "#f5f5f5",
-    },
-    "menus": {
-      "main": [
-        {
-          "label": "Home",
-          "url": "/",
-          "icon": "dashboard",
-          "parentId": ""
-        },
-        {
-          "label": "About",
-          "url": "/about",
-          "icon": "about",
-          "parentId": ""
-        },
-        {
-          "label": "Contact",
-          "url": "/contact",
-          "icon": "contact",
-          "parentId": ""
-        }
-      ],
-      "footerMenu": [
-        {
-          "title": "Dashboard",
-          "url": "/dashboard",
-          "icon": "dashboard"
-        },
-        {
-          "title": "Language",
-          "url": "/dashboard/language",
-          "icon": "language"
-        },
-        {
-          "title": "about",
-          "url": "/dashboard/about",
-          "icon": "about"
-        }
-      ]
-    },
-    "additional": {
-      "copyright": {
-        "text": "© 2019 erxes Inc. All rights reserved.",
-        "url": "https://www.erxes.io"
-      },
-      "social": [
-        {
-          "name": "facebook",
-          "url": "https://www.facebook.com/erxes.io"
-        },
-        {
-          "name": "twitter",
-          "url": "https://twitter.com/erxesio"
-        },
-        {
-          "name": "linkedin",
-          "url": "https://www.linkedin.com/company/erxes"
-        },
-        {
-          "name": "youtube",
-          "url": "https://www.youtube.com/channel/UCJ1bNel6mOz8Kv1b0eIc5kg"
-        }
-      ],
-      "integrations": {
-        "googleAnalytics": "UA-XXXXX-X",
-        "facebookPixel": "1234567890",
-        "GTM": "GTM-XXXXX",
-        "messengerId": "Your CRM API Key"
-      }
+const buildConfigs = (
+  subdomain: string,
+  config: IClientPortalDocument,
+  mainMenus,
+  footerMenus
+) => {
+  const links: any[] = [];
+  const { externalLinks = {} } = config;
+  for (const name of Object.keys(externalLinks)) {
+    const url = externalLinks[name];
+    if (name && url) {
+      links.push({ name, url });
     }
   }
-}
 
+  const json = {
+    template: config.template,
+    templateId: config.templateId,
+    meta: {
+      title: config.name,
+      description: config.description || config.name,
+      logo: config.logo || '',
+      favicon: config.icon || '',
+      keywords: config.keywords || '',
+      // "coverImage": "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png",
+      author: subdomain,
+      url: config.url,
+    },
+    appearance: {
+      theme: 'light',
+      baseFont: config.styles?.baseFont || 'Roboto, sans-serif',
+      headingFont: config.styles?.headingFont || 'Roboto, sans-serif',
+      baseColor: config.styles?.baseColor || '#3f51b5',
+      backgroundColor: config.styles?.backgroundColor || '#f5f5f5',
+    },
+    menus: {
+      main: mainMenus.map((m) => {
+        return {
+          label: m.label,
+          url: m.url,
+          icon: m.icon,
+          parentId: m.parentId,
+        };
+      }),
+      footerMenu: footerMenus.map((m) => {
+        return {
+          label: m.label,
+          url: m.url,
+          icon: m.icon,
+          parentId: m.parentId,
+        };
+      }),
+    },
+    additional: {
+      copyright: {
+        text: config.copyright || 'All rights reserved.',
+        url: config.url,
+      },
+      social: links,
+      integrations: {
+        googleAnalytics: config.googleAnalytics,
+        facebookPixel: config.facebookPixel,
+        GTM: config.googleTagManager,
+        messengerId: config.messengerBrandCode,
+      },
+    },
+  };
+
+  return json;
+};
+
+const buildPageConfigs = (page) => {
+  return {
+    title: page.name,
+    description: page.description || page.name,
+    coverImage: page.coverImage,
+    pageItems: page.pageItems.map((item) => {
+      return {
+        type: item.type,
+        content: item.content,
+        order: item.order,
+        contentType: item.contentType,
+        contentTypeId: item.contentTypeId,
+        config: item.config,
+      };
+    }),
+  };
+};
 
 const layoutConfig = (config) => {
   const title = config.name || 'Adventure tours';
@@ -212,7 +206,7 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
     isRPC: true,
     defaultValue: [],
   });
-  
+
   if (pages.length === 0) {
     throw new Error('No pages found');
   }
@@ -239,7 +233,7 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
     },
     isRPC: true,
     defaultValue: [],
-  })
+  });
 
   if (mainMenus.length === 0 && footerMenus.length === 0) {
     throw new Error('No menus found');
@@ -260,9 +254,8 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
 
     const configPath = path.join(tmpDir, 'next.config.ts');
     const layoutPath = path.join(tmpDir, 'app', 'layout.tsx');
-    const dataPath = path.join(tmpDir, 'data','configs.json');
+    const dataPath = path.join(tmpDir, 'data', 'configs.json');
 
-    
     const projectConfig = `export default {
       env: {
         ERXES_API_URL: "${domain}/gateway/graphql",
@@ -278,6 +271,17 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
     // fs.writeFileSync(layoutPath, layout);
     fs.writeFileSync(configPath, projectConfig);
 
+    const configsJson = buildConfigs(subdomain, config, mainMenus, footerMenus);
+
+    fs.writeFileSync(dataPath, JSON.stringify(configsJson));
+
+    for (const page of pages) {
+      const fileName = ['/','','home'].includes(page.slug) ? 'index' : page.slug;
+      const pagePath = path.join(tmpDir, 'data/pages', `${fileName}.json`);
+      const pageContent = buildPageConfigs(page);
+      fs.writeFileSync(pagePath, JSON.stringify(pageContent));
+    }
+
     if (config.icon) {
       const iconPath = path.join(tmpDir, 'app', 'favicon.ico');
       await downloadImage(
@@ -285,7 +289,7 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
         iconPath
       );
     }
-
+    console.debug(tmpDir);
 
     const files = allFilePaths(tmpDir).map((filePath, index) => {
       const encoding = path

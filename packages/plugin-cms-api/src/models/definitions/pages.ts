@@ -11,6 +11,7 @@ export interface IPage {
   layout: string;
   pageItems: any[];
   createdUserId: string;
+  coverImage?: string;
 }
 
 export interface IPageDocument extends IPage, Document {
@@ -27,6 +28,7 @@ export const pageSchema = new Schema<IPageDocument>(
     slug: { type: String, required: true },
     layout: { type: String, required: false },
     createdUserId: { type: String, ref: 'User' },
+    coverImage: { type: String },
     pageItems: [
       {
         type: { type: String, required: true },

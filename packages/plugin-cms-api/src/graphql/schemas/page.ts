@@ -13,6 +13,7 @@ export const types = `
         clientPortalId: String
         name: String
         description: String
+        coverImage: String
         type: String
         slug: String
         content: String
@@ -47,6 +48,7 @@ export const inputs = `
         clientPortalId: String
         name: String
         description: String
+        coverImage: String
         status: String
         type: String
         slug: String

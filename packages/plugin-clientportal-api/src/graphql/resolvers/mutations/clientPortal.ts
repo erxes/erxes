@@ -183,12 +183,31 @@ const clientPortalMutations = {
 
   async clientPortalDeployVercel(
     _root,
-    args: { _id },
+    args: { _id; vercelId?: string },
     { subdomain, models }: IContext
   ) {
-    const config = await models.ClientPortals.getConfig(args._id);
+    const config = await models.ClientPortals.findOne({
+      $or: [{ _id: args._id }, { vercelId: args.vercelId }],
+    });
 
-    return deploy(subdomain, config);
+    if (!config) {
+      throw new Error('Config not found');
+    }
+
+    const vercelResult = await deploy(subdomain, config);
+
+    if (!vercelResult) {
+      throw new Error('Could not deploy');
+    }
+
+    if (!config.vercelId) {
+      await models.ClientPortals.updateOne(
+        { _id: config._id },
+        { $set: { vercelId: vercelResult.projectId } }
+      );
+    }
+
+    return vercelResult;
   },
 };
 

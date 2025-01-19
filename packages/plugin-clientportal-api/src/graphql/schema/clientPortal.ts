@@ -259,6 +259,9 @@ ${
     keywords: String
     copyright: String
     externalLinks: JSON
+    googleAnalytics: String
+    facebookPixel: String
+    googleTagManager: String
   }
 
   type Styles {
@@ -376,6 +379,9 @@ ${
     keywords: String
     copyright: String
     externalLinks: JSON
+    googleAnalytics: String
+    facebookPixel: String
+    googleTagManager: String
   }
 
   enum UserCardEnum {
@@ -516,5 +522,5 @@ export const mutations = `
         offeredAmount: Float,
         hasVat: Boolean):ClientPortalParticipant
 
-  clientPortalDeployVercel(_id: String!): JSON
+  clientPortalDeployVercel(_id: String!, vercelId: String): JSON
 `;
