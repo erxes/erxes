@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.0-rc.0](https://github.com/erxes/erxes/compare/2.4.0...2.5.0-rc.0) (2025-01-19)
+
+
+### Features
+
+* **clientportal:** MessagePro sends an SMS to the customer's phone number. ([94c4a8b](https://github.com/erxes/erxes/commit/94c4a8b9faa47777e1fc7fb9ca5cdbe282676fd1))
+
 ## [2.4.0](https://github.com/erxes/erxes/compare/2.3.2...2.4.0) (2025-01-19)
 
 
