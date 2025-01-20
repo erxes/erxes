@@ -142,7 +142,6 @@ export const getOrSetCallCookie = async (wsServer) => {
   }
 
   let callCookie = await redis.get('callCookie');
-
   if (callCookie) {
     return callCookie;
   }
@@ -643,18 +642,7 @@ export const getUrl = (subdomain) => {
   const VERSION = getEnv({ name: 'VERSION' });
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
-  let defaultValue = 'http://localhost:4000';
-
-  if (VERSION === 'saas') {
-    defaultValue = `http://${subdomain}.api.erxes.com`;
-  }
-  const DOMAIN = getEnv({
-    name: 'DOMAIN',
-    subdomain,
-    defaultValue: NODE_ENV !== 'production' ? defaultValue : undefined,
-  });
-
-  const domain = DOMAIN.replace('<subdomain>', subdomain);
+  const domain = getDomain(subdomain);
 
   if (NODE_ENV !== 'production') {
     return `${domain}/pl:core/upload-file`;
@@ -665,6 +653,22 @@ export const getUrl = (subdomain) => {
   }
 
   return `${domain}/gateway/pl:core/upload-file`;
+};
+
+export const getDomain = (subdomain) => {
+  const defaultValue = 'http://localhost:4000';
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  const baseDefault =
+    VERSION === 'os' ? defaultValue : `http://${subdomain}.api.erxes.com`;
+
+  const DOMAIN = getEnv({
+    name: 'DOMAIN',
+    subdomain,
+    defaultValue: baseDefault,
+  });
+
+  return DOMAIN.replace('<subdomain>', subdomain);
 };
 
 type ErrorList = {
