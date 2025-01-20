@@ -1,5 +1,5 @@
 import { ITransaction, transactionSchema } from "./definitions/transactions";
-import { INVOICE_STATUS, SCHEDULE_STATUS } from "./definitions/constants";
+import { INVOICE_STATUS } from "./definitions/constants";
 import { findContractOfTr } from "./utils/findUtils";
 import {
   removeTrAfterSchedule,

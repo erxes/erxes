@@ -4,11 +4,11 @@ import { IModels } from '../../connectionResolver';
 import { IConfig } from '../../interfaces/config';
 import { getConfig } from '../../messageBroker';
 import { SCHEDULE_STATUS } from '../definitions/constants';
-import { IContract, IContractDocument } from '../definitions/contracts';
+import { IContractDocument } from '../definitions/contracts';
 import { ITransactionDocument } from '../definitions/transactions';
 import { calcLoss } from './lossUtils';
 import { generateSchedules, insuranceHelper, scheduleHelper } from './scheduleUtils';
-import { addMonths, calcInterest, calcPerMonthEqual, getDatesDiffMonth, getDiffDay, getEqualPay, getFullDate } from './utils';
+import { calcInterest, getDatesDiffMonth, getDiffDay, getFullDate } from './utils';
 import { ISchedule, IScheduleDocument } from '../definitions/schedules';
 
 export const getCalcedAmountsOnDate = async (models: IModels, contract: IContractDocument, date: Date, calculationFixed?: number) => {
@@ -77,18 +77,21 @@ export const getCalcedAmountsOnDate = async (models: IModels, contract: IContrac
       didBalance: preSchedule.didBalance ?? 0,
       unUsedBalance: preSchedule.unUsedBalance ?? 0,
 
-      loss: preSchedule.loss ?? 0,
-      interestEve: preSchedule.interestEve ?? 0,
-      interestNonce: preSchedule.interestNonce ?? 0,
-      storedInterest: preSchedule.storedInterest ?? 0,
+      loss: (preSchedule.loss ?? 0) - (preSchedule.didLoss ?? 0),
+      interestEve: (preSchedule.interestEve ?? 0) - (preSchedule.didInterestEve ?? 0),
+      interestNonce: (preSchedule.interestNonce ?? 0) - (preSchedule.didInterestNonce ?? 0),
+      storedInterest: (preSchedule.storedInterest ?? 0) - (preSchedule.didStoredInterest ?? 0),
       commitmentInterest: preSchedule.commitmentInterest ?? 0,
-      payment: preSchedule.payment ?? 0,
-      insurance: preSchedule.insurance ?? 0,
-      debt: preSchedule.debt ?? 0,
-      total: preSchedule.total ?? 0,
+      payment: (preSchedule.payment ?? 0) - (preSchedule.didPayment ?? 0),
+      insurance: (preSchedule.insurance ?? 0) - (preSchedule.didInsurance ?? 0),
+      debt: (preSchedule.debt ?? 0) - (preSchedule.didDebt ?? 0),
+      total: (preSchedule.total ?? 0) - (preSchedule.total ?? 0),
       giveAmount: preSchedule.giveAmount ?? 0,
-      calcInterest: BigNumber(preSchedule.storedInterest ?? 0).plus(preSchedule.interestEve ?? 0).plus(preSchedule.interestNonce ?? 0).toNumber(),
-      closeAmount: BigNumber(preSchedule.didBalance ?? 0).plus(preSchedule.total).toNumber(),
+      calcInterest: BigNumber(preSchedule.storedInterest ?? 0).plus(preSchedule.interestEve ?? 0).plus(preSchedule.interestNonce ?? 0)
+        .minus(preSchedule.didStoredInterest ?? 0).minus(preSchedule.didInterestEve ?? 0).minus(preSchedule.didInterestNonce ?? 0).toNumber(),
+      closeAmount: BigNumber(preSchedule.didBalance ?? 0).plus(preSchedule.total).minus(preSchedule.didTotal ?? 0).toNumber(),
+      preSchedule,
+      skippedSchedules
     }
   }
 
@@ -152,7 +155,8 @@ export const getCalcedAmountsOnDate = async (models: IModels, contract: IContrac
     .plus(result.interestEve).plus(result.interestNonce).plus(result.storedInterest)
     .plus(result.insurance).plus(result.debt).plus(result.loss).toNumber();
 
-  const closeAmount = BigNumber(preSchedule.didBalance ?? preSchedule.balance).plus(result.total).toNumber()
+  const closeAmount = BigNumber(preSchedule.didBalance ?? preSchedule.balance).plus(result.total).toNumber();
+
   return {
     ...result,
     calcInterest: BigNumber(result.storedInterest).plus(result.interestEve).plus(result.interestNonce).toNumber(),
@@ -199,7 +203,7 @@ export const fixFutureSchedules = async (subdomain, models: IModels, contract: I
 
   let bulkEntries: any[] = [];
   let balance = currentSchedule.didBalance || currentSchedule.balance;
-  let startDate: Date = getFullDate(contract.startDate);
+  let startDate: Date = getFullDate(currentSchedule.payDate);
   let tenor = futureSchedules.length;
 
   if (contract.stepRules?.length) {
@@ -321,6 +325,12 @@ export const fixFutureSchedules = async (subdomain, models: IModels, contract: I
       bulkEntries[i].debt = monthDebt;
       bulkEntries[i].total += monthDebt;
     }
+  }
+
+  const sumStoredInterest = (currentSchedule.interestEve ?? 0) + (currentSchedule.interestNonce ?? 0) + (currentSchedule.storedInterest ?? 0);
+  if (sumStoredInterest && bulkEntries.length) {
+    bulkEntries[0].storedInterest = (bulkEntries[0].storedInterest ?? 0) + sumStoredInterest;
+    bulkEntries[0].total = (bulkEntries[0].total ?? 0) + sumStoredInterest;
   }
 
   return bulkEntries
@@ -474,17 +484,19 @@ const getAmountByPriority = (
 export const afterPayTrInSchedule = async (models: IModels, contract: IContractDocument, tr: ITransactionDocument, config) => {
   // contract.allowLateDay;
   const currentDate = getFullDate(tr.payDate);
+
   const calculationFixed = config.calculationFixed || 2
 
-  const amounts = await getCalcedAmountsOnDate(models, contract, tr.payDate, calculationFixed);
-  const { preSchedule, skippedSchedules } = amounts;
+  const amountInfos = await getCalcedAmountsOnDate(models, contract, currentDate, calculationFixed);
+  const { preSchedule, skippedSchedules } = amountInfos;
+
   if (!preSchedule) {
     return;
   }
 
   let surplus = 0;
   const didInfo = getAmountByPriority(
-    tr.total, { ...amounts }
+    tr.total, { ...amountInfos }
   );
   const { didDebt, didLoss, didStoredInterest, didInterestEve, didInterestNonce, didInsurance, didPayment } = didInfo;
   let status = didInfo.status;
@@ -498,13 +510,12 @@ export const afterPayTrInSchedule = async (models: IModels, contract: IContractD
     didBalance = 0;
   }
 
-  let currentSchedule = getFullDate(preSchedule?.payDate) === currentDate ?
+  let currentSchedule = !getDiffDay(getFullDate(preSchedule?.payDate), currentDate) ?
     preSchedule :
-    skippedSchedules?.find(ss => getFullDate(ss.payDate) === currentDate);
-
+    skippedSchedules?.find(ss => !getDiffDay(getFullDate(ss.payDate), currentDate));
 
   if (currentSchedule) {
-    models.Schedules.updateOne({
+    await models.Schedules.updateOne({
       _id: currentSchedule._id
     }, {
       $set: {
@@ -522,23 +533,26 @@ export const afterPayTrInSchedule = async (models: IModels, contract: IContractD
       },
       $addToSet: { transactionIds: tr._id }
     })
+    currentSchedule = (await models.Schedules.findOne({ _id: currentSchedule._id }).lean()) as IScheduleDocument;
   } else {
     currentSchedule = await models.Schedules.create({
       contractId: contract._id,
       status,
+      payDate: getFullDate(tr.payDate),
+      interestRate: preSchedule.interestRate,
 
-      balance: amounts.balance,
-      unUsedBalance: amounts.unUsedBalance,
+      balance: amountInfos.balance,
+      unUsedBalance: amountInfos.unUsedBalance,
 
-      loss: amounts.loss,
-      interestEve: amounts.interestEve,
-      interestNonce: amounts.interestNonce,
-      storedInterest: amounts.storedInterest,
-      commitmentInterest: amounts.commitmentInterest,
-      payment: amounts.payment,
-      insurance: amounts.insurance,
-      debt: amounts.debt,
-      total: amounts.total,
+      loss: amountInfos.loss,
+      interestEve: amountInfos.interestEve,
+      interestNonce: amountInfos.interestNonce,
+      storedInterest: amountInfos.storedInterest,
+      commitmentInterest: amountInfos.commitmentInterest,
+      payment: amountInfos.payment,
+      insurance: amountInfos.insurance,
+      debt: amountInfos.debt,
+      total: amountInfos.total,
 
       didDebt,
       didLoss,
@@ -559,14 +573,14 @@ export const afterPayTrInSchedule = async (models: IModels, contract: IContractD
     await models.Schedules.updateMany({ _id: { $in: updStatusSchedules.map(u => u._id) } }, { $set: { status: SCHEDULE_STATUS.SKIPPED } });
   }
 
-  if (amounts.payment < didPayment) {
+  if (amountInfos.payment < didPayment) {
     const afterSchedules = await models.Schedules.find({
       contractId: contract._id,
-      payDate: { $gt: tr.payDate }
+      payDate: { $gt: getFullDate(tr.payDate) }
     }).sort({ payDate: 1, createdAt: 1 }).lean();
 
     if (afterSchedules.length) {
-      let diffPayment = didPayment - amounts.payment;
+      let diffPayment = didPayment - amountInfos.payment;
       let indBalance = currentSchedule.didBalance ?? 0;
 
       for (const afterCurrentSchedule of afterSchedules) {
