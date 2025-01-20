@@ -521,6 +521,4 @@ export const mutations = `
         paymentAmount: Float,
         offeredAmount: Float,
         hasVat: Boolean):ClientPortalParticipant
-
-  clientPortalDeployVercel(_id: String!, vercelId: String): JSON
 `;

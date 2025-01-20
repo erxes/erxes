@@ -181,34 +181,6 @@ const clientPortalMutations = {
     return models.ClientPortalUserCards.findOne({ _id: args._id });
   },
 
-  async clientPortalDeployVercel(
-    _root,
-    args: { _id; vercelId?: string },
-    { subdomain, models }: IContext
-  ) {
-    const config = await models.ClientPortals.findOne({
-      $or: [{ _id: args._id }, { vercelId: args.vercelId }],
-    });
-
-    if (!config) {
-      throw new Error('Config not found');
-    }
-
-    const vercelResult = await deploy(subdomain, config);
-
-    if (!vercelResult) {
-      throw new Error('Could not deploy');
-    }
-
-    if (!config.vercelId) {
-      await models.ClientPortals.updateOne(
-        { _id: config._id },
-        { $set: { vercelId: vercelResult.projectId } }
-      );
-    }
-
-    return vercelResult;
-  },
 };
 
 checkPermission(
