@@ -51,16 +51,16 @@ const CartItem = ({
   const changeItem = useSetAtom(updateCartAtom);
   const banFractions = useAtomValue(banFractionsAtom);
   const type = useAtomValue(orderTypeAtom);
-  const ids = _id.split(",");
   const total = useAtomValue(totalAmountAtom);
   const [showCancel, setShowCancel] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
   useEffect(() => {
     setHasMounted(true);
   }, []);
+
   useEffect(() => {
-    if (hasMounted && total === 0) {
-      setShowCancel(true);
+    if (hasMounted) {
+      setShowCancel(total === 0);
     }
   }, [total, hasMounted]);
 
@@ -70,7 +70,10 @@ const CartItem = ({
       changeItem({ ...changes, _id: id });
     });
   };
-  const displayCount = combinedCount || count;
+
+  const displayCount = combinedCount !== undefined ? combinedCount : count;
+  console.log(displayCount , productName)
+
 
   return (
     <Collapsible className={cn(idx === 0 && "bg-primary/10")}>

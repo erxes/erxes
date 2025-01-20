@@ -59,7 +59,7 @@ const ProductItem = ({ attachment, name, code, unitPrice, remainder, remainders,
   const allowZeroRemainder = useAtomValue(allowZeroRemainderAtom);
 
   const handleAddToCart = () => {
-    if (remainder === 0 && !allowZeroRemainder) {
+    if (typeof remainder === 'number' && remainder === 0 && !allowZeroRemainder) {  
       toast({
         variant: "destructive",
         description: "Бүтээгдэхүүн хүрэлцэхгүй байна",
