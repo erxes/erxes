@@ -3,9 +3,9 @@ import {
   attachmentType,
   pdfAttachmentType,
   pdfAttachmentInput
-} from '@erxes/api-utils/src/commonTypeDefs';
+} from "@erxes/api-utils/src/commonTypeDefs";
 
-export const types = `
+export const types = enabledPlugins => `
 ${attachmentType}
 ${attachmentInput}
 ${pdfAttachmentType}
@@ -152,13 +152,17 @@ type TwoFactorDevice {
         videoUrl: String
         customFieldsData: JSON
     }
-
-    type ClientportalUserPostList {
+${
+  enabledPlugins.cms
+    ? `type ClientportalUserPostList {
         posts: [Post]
         totalCount: Int
         totalPages: Int
         currentPage: Int
-    }
+    }`
+    : ``
+}
+    
 `;
 
 export const conformityQueryFields = `
@@ -183,7 +187,7 @@ const queryParams = `
   ${conformityQueryFields}
 `;
 
-export const queries = (cmsAvailable) => `
+export const queries = cmsAvailable => `
   clientPortalCurrentUser: ClientPortalUser
   clientPortalUserDetail(_id: String!): ClientPortalUser
   clientPortalUsers(${queryParams}): [ClientPortalUser]
@@ -197,7 +201,7 @@ export const queries = (cmsAvailable) => `
         ? `
   clientPortalUserPosts(searchValue: String, page: Int, perPage: Int): ClientportalUserPostList
     `
-        : ''
+        : ""
     }  
 `;
 
@@ -224,7 +228,7 @@ const userParams = `
   avatar: String
 `;
 
-export const mutations = (cmsAvailable) => `
+export const mutations = cmsAvailable => `
   clientPortalUsersInvite(${userParams}, disableVerificationMail: Boolean): ClientPortalUser
   clientPortalUsersEdit(_id: String!, ${userParams}): ClientPortalUser
   clientPortalUsersRemove(clientPortalUserIds: [String!]): JSON
@@ -269,7 +273,7 @@ export const mutations = (cmsAvailable) => `
   clientPortalUserChangeStatus(_id: String!, status: String!): Post
   clientPortalUserToggleFeatured(_id: String!): Post
     `
-      : ''
+      : ""
   }
   
 `;

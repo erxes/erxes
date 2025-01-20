@@ -1,42 +1,42 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 import {
   mutations as clientPortalMutations,
   queries as clientPortalQueries,
-  types as clientPortalTypes,
-} from './schema/clientPortal';
+  types as clientPortalTypes
+} from "./schema/clientPortal";
 import {
   mutations as clientPortalUserMutations,
   queries as clientPortalUserQueries,
-  types as clientPortalUserTypes,
-} from './schema/clientPortalUser';
+  types as clientPortalUserTypes
+} from "./schema/clientPortalUser";
 import {
   queries as notificationQueries,
   mutations as notificationMutations,
-  types as notificationTypes,
-} from './schema/clientPortalNotifications';
+  types as notificationTypes
+} from "./schema/clientPortalNotifications";
 
 import {
   queries as commentQueries,
-  types as commentTypes,
-} from './schema/comment';
+  types as commentTypes
+} from "./schema/comment";
 
 import {
   queries as fieldConfigQueries,
   types as fieldConfigTypes,
-  mutations as fieldConfigMutations,
-} from './schema/fieldConfigs';
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+  mutations as fieldConfigMutations
+} from "./schema/fieldConfigs";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 const typeDefs = async () => {
-  const kbAvailable = isEnabled('knowledgebase');
-  const cmsAvailable = await isEnabled('cms');
+  const kbAvailable = isEnabled("knowledgebase");
+  const cmsAvailable = await isEnabled("cms");
 
-  const salesAvailable = isEnabled('sales');
-  const ticketsAvailable = isEnabled('tickets');
-  const tasksAvailable = isEnabled('tasks');
-  const purchasesAvailable = isEnabled('purchases');
-
+  const salesAvailable = isEnabled("sales");
+  const ticketsAvailable = isEnabled("tickets");
+  const tasksAvailable = isEnabled("tasks");
+  const purchasesAvailable = isEnabled("purchases");
+  console.log("cmsAvailable", cmsAvailable);
   const enabledPlugins = {
     sales: salesAvailable,
     tickets: ticketsAvailable,
@@ -63,15 +63,16 @@ const typeDefs = async () => {
 
     ${
       cmsAvailable
-        && `
+        ? `
         extend type Post @key(fields: "_id") {
           _id: String! @external
         }
       `
+        : ``
     }
 
     ${clientPortalTypes(enabledPlugins)}
-    ${clientPortalUserTypes}
+    ${clientPortalUserTypes(enabledPlugins)}
     ${notificationTypes}
     ${commentTypes}
     ${fieldConfigTypes}
