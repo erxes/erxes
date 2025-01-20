@@ -344,14 +344,23 @@ const contractQueries = {
   ) => {
     const account = await models.Contracts.findOne({ number: accountNumber });
 
+    if (!account) {
+      throw new Error('cant find account')
+    }
+
+    if (!account.customerId) {
+      throw new Error('this account has not customer')
+    }
+
     const customer = await sendMessageBroker(
       {
         action: 'customers.findOne',
         subdomain,
         data: { _id: account?.customerId },
-        isRPC: true
+        isRPC: true,
+        defaultValue: {}
       },
-      'contacts'
+      'core'
     );
 
     return `${customer?.firstName} ${customer?.lastName}`;

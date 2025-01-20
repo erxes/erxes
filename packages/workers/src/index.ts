@@ -1,17 +1,23 @@
+import app from '@erxes/api-utils/src/app';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import { disconnect } from '@erxes/api-utils/src/mongo-connection';
+import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import * as cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
 import { createServer } from 'http';
 import { filterXSS } from 'xss';
 import { initApolloServer } from './apolloClient';
-import { join, leave } from './serviceDiscovery';
-import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { generateErrors } from './data/modules/import/generateErrors';
-import { getSubdomain } from '@erxes/api-utils/src/core';
-import { readFileRequest } from './worker/export/utils';
-import app from '@erxes/api-utils/src/app';
-import { disconnect } from '@erxes/api-utils/src/mongo-connection';
 import { initBroker } from './messageBroker';
+import {
+  pdfUploader,
+  taskChecker,
+  taskRemover,
+} from './worker/pdf/utils';
+import { join, leave } from './serviceDiscovery';
+import { readFileRequest } from './worker/export/utils';
+import userMiddleware from '@erxes/api-utils/src/middlewares/user';
 
 async function closeHttpServer() {
   try {
@@ -43,7 +49,7 @@ app.get(
 
     res.attachment(`${name}.csv`);
     return res.send(response);
-  }),
+  })
 );
 
 app.get('/read-file', async (req: any, res: any) => {
@@ -66,12 +72,21 @@ app.use(express.urlencoded());
 app.use(express.json());
 app.use(cookieParser());
 
+app.use(userMiddleware);
+
 // Error handling middleware
 app.use((error, _req, res, _next) => {
   console.error(error.stack);
 
   res.status(500).send(filterXSS(error.message));
 });
+
+// upload only pdf
+app.post('/upload-pdf', pdfUploader);
+
+app.get('/upload-status/:taskId', taskChecker);
+
+app.delete('/delete-task/:taskId', taskRemover);
 
 const httpServer = createServer(app);
 

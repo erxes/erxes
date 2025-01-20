@@ -5,17 +5,18 @@ import {
   customFieldToObject,
   getFullDate,
   updateContract,
+  sendMessageBrokerData,
+  genObjectOfRule,
   getProduct,
-  sendMessageBrokerData
-} from "../utils";
-import { activeLoan } from "./activeLoan";
-import { createSavingLoan } from "./createSavingLoan";
+} from '../utils';
+import { activeLoan } from './activeLoan';
+import { createSavingLoan } from './createSavingLoan';
 
-export const createLoan = async (subdomain, models, syncLog, params) => {
+export const createLoan = async (subdomain, models, polarisConfig, syncLog, params) => {
   const loan = params.updatedDocument || params.object;
 
-  if (loan.leaseType === "saving")
-    return await createSavingLoan(subdomain, params);
+  if (loan.leaseType === 'saving')
+    return await createSavingLoan(subdomain, polarisConfig, params);
 
   const loanData = await customFieldToObject(subdomain, "loans:contract", loan);
 
@@ -26,16 +27,18 @@ export const createLoan = async (subdomain, models, syncLog, params) => {
     { _id: loan.customerId }
   );
 
-  const loanProduct = await sendMessageBrokerData(
-    subdomain,
-    "loans",
-    "contractType.findOne",
-    { _id: loan.contractTypeId }
-  );
+  const loanProduct = await getProduct(subdomain, loan.contractTypeId, 'loans');
 
   const leasingExpert = await getUser(subdomain, loan.leasingExpertId);
 
   const branch = await getBranch(subdomain, loan.branchId);
+
+  const dataOfRules = await genObjectOfRule(
+    subdomain,
+    "loans:contract",
+    loan,
+    (polarisConfig.loan && polarisConfig.loan[loan.contractTypeId || ''] || {}).values || {}
+  );
 
   let sendData: any = {
     custCode: customer.code,
@@ -71,7 +74,8 @@ export const createLoan = async (subdomain, models, syncLog, params) => {
     notSendToCib: 0,
     losMultiAcnt: 0,
     validLosAcnt: 1,
-    secType: 0
+    secType: 0,
+    ...dataOfRules
   };
 
   const result = await fetchPolaris({
@@ -79,6 +83,7 @@ export const createLoan = async (subdomain, models, syncLog, params) => {
     data: [sendData],
     subdomain,
     models,
+    polarisConfig,
     syncLog
   });
 
@@ -89,7 +94,7 @@ export const createLoan = async (subdomain, models, syncLog, params) => {
       { $set: { number: result } },
       "loans"
     );
-    await activeLoan(subdomain, [result, "данс нээв", null]);
+    await activeLoan(subdomain, polarisConfig, [result, 'данс нээв', null]);
   }
 
   return result;

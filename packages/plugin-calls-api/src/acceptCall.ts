@@ -44,13 +44,12 @@ const acceptCall = async (
 
   let history;
   try {
-    history = new models.CallHistory({
+    const historyData: any = {
       operatorPhone,
       customerPhone,
       callStartTime,
       callType,
       callStatus,
-      timeStamp,
       inboxIntegrationId,
       createdAt: new Date(),
       createdBy: user._id,
@@ -58,7 +57,14 @@ const acceptCall = async (
       callDuration: 0,
       extentionNumber,
       queueName: queue,
-    });
+      timeStamp,
+    };
+
+    if (timeStamp === 0) {
+      historyData.timeStamp = Date.now().toString();
+    }
+
+    history = new models.CallHistory(historyData);
 
     try {
       await models.CallHistory.deleteMany({
@@ -66,20 +72,23 @@ const acceptCall = async (
         callStatus: { $eq: 'cancelled' },
       });
 
-      await history.save();
+      await history?.save();
     } catch (error) {
-      await models.CallHistory.deleteOne({ _id: history._id });
-      console.error('Error saving call history:', error);
+      await models.CallHistory.deleteOne({ _id: history?._id });
+      console.error('Error saving call history:', error.message);
     }
   } catch (e) {
     throw new Error(
       e.message.includes('duplicate')
         ? 'Concurrent request: call history duplication'
-        : e,
+        : e.message,
     );
   }
   if (!customer || !customer.erxesApiId) {
-    customer = await getOrCreateCustomer(models, subdomain, customerPhone);
+    customer = await getOrCreateCustomer(models, subdomain, {
+      inboxIntegrationId: params.inboxIntegrationId,
+      primaryPhone: params.customerPhone,
+    });
   }
   //save on api
   try {

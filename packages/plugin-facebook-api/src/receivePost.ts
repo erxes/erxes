@@ -7,13 +7,13 @@ const receivePost = async (
   models: IModels,
   subdomain: string,
   params: IPostParams,
-  pageId: string,
+  pageId: string
 ) => {
   const integration = await models.Integrations.findOne({
     $and: [
       { facebookPageIds: { $in: pageId } },
-      { kind: INTEGRATION_KINDS.POST },
-    ],
+      { kind: INTEGRATION_KINDS.POST }
+    ]
   });
 
   if (!integration) {
@@ -27,7 +27,7 @@ const receivePost = async (
     subdomain,
     pageId,
     userId,
-    INTEGRATION_KINDS.POST,
+    INTEGRATION_KINDS.POST
   );
 
   await getOrCreatePost(models, subdomain, params, pageId, userId);

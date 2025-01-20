@@ -9,7 +9,6 @@ import { generateModels, IContext, IModels } from "./connectionResolver";
 import {
   sendCoreMessage,
   sendCommonMessage,
-  sendContactsMessage,
   sendPurchasesMessage,
   sendSalesMessage,
   sendTasksMessage,
@@ -227,7 +226,7 @@ export const initFirebase = async (subdomain: string): Promise<void> => {
           credential: admin.credential.cert(serviceAccount)
         });
       } catch (e) {
-        console.log(`initFireBase error: ${e.message}`);
+        console.error(`initFireBase error: ${e.message}`);
       }
     }
   }
@@ -426,7 +425,7 @@ export const customFieldsDataByFieldCode = async (object, subdomain) => {
   const fieldIds = customFieldsData.map(data => data.field);
 
   const fields = await sendCommonMessage({
-    serviceName: "forms",
+    serviceName: 'core',
     subdomain,
     action: "fields.find",
     data: {
@@ -506,7 +505,7 @@ export const getCards = async (
     return [];
   }
 
-  const customer = await sendContactsMessage({
+  const customer = await sendCoreMessage({
     subdomain,
     action: "customers.findOne",
     data: {

@@ -1,4 +1,4 @@
-import { attachmentSchema } from '@erxes/api-utils/src/types';
+import { attachmentSchema, IPdfAttachment } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 import { PUBLISH_STATUSES } from './constants';
 import { field, schemaWrapper } from './utils';
@@ -16,6 +16,8 @@ interface IFormCodes {
   formId: string;
 }
 
+
+
 export interface IArticle {
   title?: string;
   summary?: string;
@@ -24,12 +26,16 @@ export interface IArticle {
   isPrivate?: boolean;
   reactionChoices?: string[];
   reactionCounts?: { [key: string]: number };
+  viewCount?: number;
   categoryId?: string;
   topicId?: string;
   publishedUserId?: string;
+  publishedAt?: Date;
   scheduledDate?: Date;
 
   forms?: IFormCodes[];
+
+  pdfAttachment?: IPdfAttachment;
 }
 
 export interface IArticleDocument extends ICommonFields, IArticle, Document {
@@ -51,6 +57,7 @@ export interface ICategoryDocument extends ICommonFields, ICategory, Document {
 
 export interface ITopic {
   title?: string;
+  code?: string;
   description?: string;
   brandId?: string;
   categoryIds?: string[];
@@ -73,7 +80,7 @@ const commonFields = {
   modifiedBy: field({ type: String, label: 'Modified by' }),
   modifiedDate: field({ type: Date, label: 'Modified at' }),
   title: field({ type: String, label: 'Title' }),
-  code: field({ type: String, unique: true, label: 'Code', sparse: true}),
+  code: field({ type: String, optional: true, sparse: true, unique: true, label: 'Code' }),
 };
 
 const formcodesSchema = new Schema(
@@ -121,8 +128,10 @@ export const articleSchema = new Schema({
   topicId: field({ type: String, optional: true, label: 'Topic' }),
   categoryId: field({ type: String, optional: true, label: 'Category' }),
   publishedUserId:field({ type: String, optional: true, label: 'Published user'}),
-
+  publishedAt: field({ type: Date, optional: true, label: 'Published at' }),
   forms: field({ type: [formcodesSchema], label: 'Forms' }),
+
+  pdfAttachment: field({ type: Object, optional: true, label: 'PDF attachment' }),
   ...commonFields,
 });
 

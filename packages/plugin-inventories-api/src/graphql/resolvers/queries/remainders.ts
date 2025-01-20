@@ -3,7 +3,7 @@ import {
   requireLogin
 } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
-import { sendCoreMessage, sendProductsMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 import {
   IRemainderParams,
   IRemainderProductsParams,
@@ -63,7 +63,7 @@ const remainderQueries = {
 
     const productFilter: any = {};
     if (categoryId) {
-      const productCategories = await sendProductsMessage({
+      const productCategories = await sendCoreMessage({
         subdomain,
         action: "categories.withChilds",
         data: {
@@ -79,17 +79,10 @@ const remainderQueries = {
       productFilter._id = { $in: productIds };
     }
 
-    const limit = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: "productCount",
+      action: "products.find",
       data: { query: productFilter },
-      isRPC: true
-    });
-
-    const products = await sendProductsMessage({
-      subdomain,
-      action: "productFind",
-      data: { query: productFilter, limit },
       isRPC: true
     });
 
@@ -150,7 +143,10 @@ const remainderQueries = {
   }
 };
 
-requireLogin(remainderQueries, "tagDetail");
-checkPermission(remainderQueries, "remainders", "showTags", []);
+requireLogin(remainderQueries, "remainders");
+requireLogin(remainderQueries, "remainderCount");
+requireLogin(remainderQueries, "remainderProducts");
+checkPermission(remainderQueries, "remainderDetail", "manageRemainders", []);
+checkPermission(remainderQueries, "remaindersLog", "manageRemainders", []);
 
 export default remainderQueries;

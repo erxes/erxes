@@ -139,7 +139,7 @@ const SpinCampaigns = (props: Props) => {
           />
           <ModalTrigger
             size={"lg"}
-            title="Add spin campaign"
+            title={__("Add spin campaign")}
             trigger={trigger}
             autoOpenKey="showProductModal"
             content={modalContent}
@@ -154,7 +154,7 @@ const SpinCampaigns = (props: Props) => {
   const header = (
     <HeaderDescription
       icon="/images/actions/25.svg"
-      title="Loyalty configs"
+      title={__("Loyalty configs")}
       description=""
     />
   );

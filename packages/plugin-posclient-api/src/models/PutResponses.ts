@@ -13,7 +13,8 @@ import { IModels } from '../connectionResolver';
 export interface IPutResponseModel extends Model<IEbarimtDocument> {
   putData(
     doc: IDoc,
-    config: IEbarimtConfig
+    config: IEbarimtConfig,
+    posToken: string
   ): Promise<{ putData?: IEbarimtDocument, innerData?: IEbarimtFull }>;
   returnBill(
     doc: { contentType: string; contentId: string; number: string },
@@ -59,12 +60,12 @@ const checkContinuingRequest = async (models, contentType, contentId) => {
 
 export const loadPutResponseClass = (models: IModels) => {
   class PutResponse {
-    public static async putData(doc: IDoc, config: IEbarimtConfig) {
+    public static async putData(doc: IDoc, config: IEbarimtConfig, posToken: string) {
       // check previously post
       const { contentId, contentType } = doc;
       await checkContinuingRequest(models, contentType, contentId);
 
-      const { status, msg, data, innerData } = await getEbarimtData({ config, doc });
+      const { status, msg, data, innerData } = await getEbarimtData({ config, doc, posToken });
 
       if (status !== 'ok' || !(data || innerData)) {
         throw new Error(msg)

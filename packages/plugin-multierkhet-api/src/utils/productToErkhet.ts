@@ -1,7 +1,7 @@
 import { getSyncLogDoc, toErkhet } from './utils';
 
 import { IModels } from '../connectionResolver';
-import { sendProductsMessage } from '../messageBroker';
+import { sendCoreMessage } from '../messageBroker';
 
 const productCategorySender = async (
   models,
@@ -54,7 +54,7 @@ export const productCategoryToErkhet = async (
     return;
   }
 
-  const parentProductCategory = await sendProductsMessage({
+  const parentProductCategory = await sendCoreMessage({
     subdomain,
     action: 'categories.findOne',
     data: { _id: category.parentId },
@@ -140,8 +140,6 @@ const productSender = async (
         saleAccount: config.saleAccount,
         categoryCode: productCategory ? productCategory.code : '',
         defaultCategory: config.productCategoryCode,
-        taxType: product.taxType,
-        taxCode: product.taxCode
       }
     };
 
@@ -165,7 +163,7 @@ export const productToErkhet = async (subdomain, models, params, action) => {
     return;
   }
 
-  const productCategory = await sendProductsMessage({
+  const productCategory = await sendCoreMessage({
     subdomain,
     action: 'categories.findOne',
     data: { _id: product.categoryId },

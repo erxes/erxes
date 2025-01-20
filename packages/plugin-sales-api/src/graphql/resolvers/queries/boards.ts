@@ -67,21 +67,21 @@ const boardQueries = {
     const pipelineFilter = user.isOwner
       ? {}
       : {
-          $or: [
-            { $eq: ["$visibility", "public"] },
-            {
-              $and: [
-                { $eq: ["$visibility", "private"] },
-                {
-                  $or: [
-                    { $in: [user._id, "$memberIds"] },
-                    { $eq: ["$userId", user._id] }
-                  ]
-                }
-              ]
-            }
-          ]
-        };
+        $or: [
+          { $eq: ["$visibility", "public"] },
+          {
+            $and: [
+              { $eq: ["$visibility", "private"] },
+              {
+                $or: [
+                  { $in: [user._id, "$memberIds"] },
+                  { $eq: ["$userId", user._id] }
+                ]
+              }
+            ]
+          }
+        ]
+      };
 
     return Boards.aggregate([
       { $match: { ...commonQuerySelector, type } },
@@ -194,22 +194,22 @@ const boardQueries = {
       user.isOwner || isAll
         ? {}
         : {
-            status: { $ne: "archived" },
-            $or: [
-              { visibility: "public" },
-              {
-                $and: [
-                  { visibility: "private" },
-                  {
-                    $or: [
-                      { memberIds: { $in: [user._id] } },
-                      { userId: user._id }
-                    ]
-                  }
-                ]
-              }
-            ]
-          };
+          status: { $ne: "archived" },
+          $or: [
+            { visibility: "public" },
+            {
+              $and: [
+                { visibility: "private" },
+                {
+                  $or: [
+                    { memberIds: { $in: [user._id] } },
+                    { userId: user._id }
+                  ]
+                }
+              ]
+            }
+          ]
+        };
 
     if (!user.isOwner && !isAll) {
       const userDetail = await sendCoreMessage({
@@ -614,7 +614,7 @@ const boardQueries = {
       const pipeline = await Pipelines.getPipeline(stage.pipelineId);
       const board = await Boards.getBoard(pipeline.boardId);
 
-      dealUrl = `/deal/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${deal._id}`;
+      dealUrl = `/deal/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${deal._id}`;
     }
 
     return {
@@ -754,7 +754,6 @@ const boardQueries = {
       for (const group of groups) {
         const { config = {} } = group;
 
-        console.log("-a-dsadadsd");
         const fields = await sendCoreMessage({
           subdomain,
           action: "fields.find",
@@ -809,8 +808,6 @@ const boardQueries = {
       intervals[intervals.length - 1].endTime.getTime() - timezone
     );
 
-    const { collection } = getCollection(models, pipeline.type);
-
     if (!pipeline.tagId) {
       return intervals;
     }
@@ -833,7 +830,7 @@ const boardQueries = {
 
     const stageIds = stages.map(stage => stage._id);
 
-    const items = await collection.find(
+    const items = await models.Deals.find(
       {
         status: { $ne: "archived" },
         stageId: { $in: stageIds },
@@ -854,13 +851,13 @@ const boardQueries = {
       const endDate = new Date(interval.endTime.getTime() - timezone);
 
       const checkingItems = items.filter(
-        item => item.startDate < endDate && item.closeDate > startDate
+        item => item.startDate && item.startDate < endDate && item.closeDate && item.closeDate > startDate
       );
 
       let checkedTagIds: string[] = [];
 
       for (const item of checkingItems) {
-        checkedTagIds = checkedTagIds.concat(item.tagIds);
+        checkedTagIds = checkedTagIds.concat(item.tagIds || []);
       }
 
       interval.freeTags = tags.filter(t => !checkedTagIds.includes(t._id));

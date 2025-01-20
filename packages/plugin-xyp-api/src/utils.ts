@@ -1,8 +1,9 @@
 import { sendCommonMessage, sendCoreMessage } from "./messageBroker";
 import { IXypDataDocument } from "./models/definitions/xypdata";
 
-import { nanoid } from "nanoid";
-import { IModels } from "./connectionResolver";
+import { nanoid } from 'nanoid';
+import { IModels } from './connectionResolver';
+import { ISyncRuleDocument } from './models/definitions/syncRule';
 
 /*
  * Mongoose field options wrapper
@@ -56,7 +57,7 @@ export const convertToPropertyData = async (
   try {
     const fields = await sendCommonMessage({
       subdomain,
-      serviceName: "forms",
+      serviceName: 'core',
       action: "fields.find",
       data: {
         query: {
@@ -100,7 +101,7 @@ export const convertToPropertyData = async (
 
     const groups = await sendCommonMessage({
       subdomain,
-      serviceName: "forms",
+      serviceName: 'core',
       action: "fieldsGroups.find",
       data: {
         query: {
@@ -194,55 +195,79 @@ const getObject = async (
   return;
 };
 
-const saveObject = async (subdomain, type) => {
-  if (type === "contacts:customer") {
+const saveObject = async (subdomain, type, object, modifier) => {
+  if (type === 'core:customer') {
     return await sendCoreMessage({
       subdomain,
-      action: "customers.updateOne",
-      // data: { _id: customerId },
+      action: 'customers.updateOne',
+      data: { selector: { _id: object._id }, modifier },
       isRPC: true,
       defaultValue: {}
     });
   }
-};
-export const syncData = async (
-  subdomain: string,
-  models: IModels,
-  doc: IXypDataDocument
-) => {
+}
+
+export const syncData = async (subdomain: string, models: IModels, doc: IXypDataDocument) => {
   for (const docData of doc.data) {
     const { serviceName, data } = docData;
     if (!data) {
       continue;
     }
 
-    const syncRules = await models.SyncRules.find({ serviceName });
+    const syncRules: ISyncRuleDocument[] = await models.SyncRules.find({ serviceName }).lean();
     if (!syncRules.length) {
       continue;
     }
 
-    const objectTypes = [...new Set(syncRules.map(sr => sr.objectType))];
+    const syncRulesObjTypes = [...new Set(syncRules.map(sr => sr.objectType))];
 
-    if (!objectTypes.length) {
+    if (!syncRulesObjTypes.length) {
       continue;
     }
 
-    for (const objectType of objectTypes) {
-      //
-      const objSyncRules = syncRules.filter(sr => sr.objectType === objectType);
-      const relObject = await getObject(subdomain, objectType, doc);
+    for (const syncRulesObjType of syncRulesObjTypes) {
+      const filteredSyncRules = syncRules.filter(sr => sr.serviceName === serviceName && sr.objectType === syncRulesObjType);
+      const relObject = await getObject(subdomain, syncRulesObjType, doc);
 
-      // sendFormsMessage({
-      //   subdomain,
-      //   action: 'fields.find',
-      //   data: {
-      //     query: {
+      const fields = await sendCoreMessage({
+        subdomain,
+        action: 'fields.find',
+        data: {
+          query: {
+            _id: { $in: filteredSyncRules.map(osr => osr.formField) }
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
 
-      //     }
-      //   }
-      // })
+      const toUpdateData: any = { customFieldsData: relObject.customFieldsData };
+      for (const field of fields) {
+        const syncRule = filteredSyncRules.find(fsr => fsr.formField === field._id);
 
-      // await saveObject()
+        const responseKey = syncRule?.responseKey || '';
+
+        if (!responseKey) {
+          continue;
+        }
+
+        if (field.isDefinedByErxes) {
+          toUpdateData[field.type] = data[responseKey]
+        } else {
+          if (toUpdateData.customFieldsData.map(cfd => cfd.field).includes(field._id)) {
+            toUpdateData.customFieldsData = toUpdateData.customFieldsData.filter(cfd => cfd.field !== field._id)
+          }
+
+          toUpdateData.customFieldsData.push({
+            field: field._id,
+            value: data[responseKey],
+            stringValue: (data[responseKey] || '').toString(),
+          })
+        }
+
+      }
+
+      await saveObject(subdomain, syncRulesObjType, relObject, toUpdateData)
     }
   }
 };

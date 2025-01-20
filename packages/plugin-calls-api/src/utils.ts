@@ -4,11 +4,15 @@ import * as crypto from 'crypto';
 import redis from '@erxes/api-utils/src/redis';
 import { getEnv } from '@erxes/api-utils/src/core';
 import * as FormData from 'form-data';
-import * as moment from 'moment';
+import * as momentTz from 'moment-timezone';
+
 import type { RequestInit, HeadersInit } from 'node-fetch';
+import { generateModels } from './connectionResolver';
+import { sendInboxMessage } from './messageBroker';
+import { getOrCreateCustomer } from './store';
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET || 'secret';
-const CALL_API_EXPIRY = 10 * 60; // 10 minutes
+const CALL_API_EXPIRY = 60 * 60; // 1 hour
 const MAX_RETRY_COUNT = 3;
 
 export const generateToken = async (integrationId, username?, password?) => {
@@ -16,7 +20,7 @@ export const generateToken = async (integrationId, username?, password?) => {
   return jwt.sign(payload, JWT_TOKEN_SECRET);
 };
 
-const sendRequest = async (url, options) => {
+export const sendRequest = async (url, options) => {
   try {
     const response = await fetch(url, options);
 
@@ -53,7 +57,6 @@ export const sendToGrandStream = async (models, args, user) => {
   } = args;
 
   if (retryCount <= 0) {
-    console.log('Retry limit exceeded:', data);
     throw new Error('Retry limit exceeded.');
   }
 
@@ -69,6 +72,10 @@ export const sendToGrandStream = async (models, args, user) => {
     : operator?.gsUsername || '1001';
 
   let cookie = await getOrSetCallCookie(wsServer);
+  if (!cookie) {
+    throw new Error('Cookie not found');
+  }
+
   cookie = cookie?.toString();
 
   const requestOptions: RequestInit & { headers: HeadersInit } = {
@@ -126,7 +133,7 @@ export const sendToGrandStream = async (models, args, user) => {
   }
 };
 
-const getOrSetCallCookie = async (wsServer) => {
+export const getOrSetCallCookie = async (wsServer) => {
   const { CALL_API_USER, CALL_API_PASSWORD } = process.env;
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -153,7 +160,6 @@ const getOrSetCallCookie = async (wsServer) => {
     });
 
     const data = await challengeResponse.json();
-
     const { challenge } = data?.response;
     const hashedPassword = crypto
       .createHash('md5')
@@ -174,10 +180,19 @@ const getOrSetCallCookie = async (wsServer) => {
 
     const loginData = await loginResponse.json();
     const { cookie } = loginData.response;
-
-    await redis.set('callCookie', cookie, 'EX', CALL_API_EXPIRY);
-    console.log(cookie, 'cok');
-    return cookie;
+    if (loginData.status === 0) {
+      await redis.set('callCookie', cookie, 'EX', CALL_API_EXPIRY);
+      console.log(cookie, 'successfully cookie');
+      return cookie;
+    } else if (errorList.hasOwnProperty(loginData.status)) {
+      console.log(
+        errorList[loginData.status],
+        CALL_API_USER,
+        'Login:',
+        CALL_API_PASSWORD,
+      );
+      throw new Error(errorList[loginData.status]);
+    }
   } catch (error) {
     console.error('Error in getOrSetCallCookie:', error);
     throw error;
@@ -192,11 +207,10 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     callStartTime,
     callEndTime,
     _id,
-    transferedCallStatus,
+    transferredCallStatus,
     isCronRunning,
   } = params;
-
-  if (transferedCallStatus === 'local' && callType === 'incoming') {
+  if (transferredCallStatus === 'local' && callType === 'incoming') {
     return 'Check the transferred call record URL!';
   }
 
@@ -231,7 +245,6 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       );
 
       const queue = response?.response?.queue || response?.queue;
-
       if (!queue) {
         throw new Error('Queue not found');
       }
@@ -239,13 +252,18 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       const extension = queue.find((queueItem) =>
         queueItem.members.split(',').includes(extentionNumber),
       )?.extension;
+      const tz = 'Asia/Shanghai' || momentTz.tz.guess();
+      const startDate = (
+        momentTz(callStartTime).tz(tz) || momentTz(callStartTime)
+      ).format('YYYY-MM-DD');
+      const endDate = (
+        momentTz(callEndTime).tz(tz) || momentTz(callEndTime)
+      ).format('YYYY-MM-DD');
 
-      const startDate = moment(callStartTime).format('YYYY-MM-DD');
-      const endDate = moment(callEndTime).format('YYYY-MM-DD');
       let caller = customerPhone;
       let callee = extentionNumber || extension || operator;
 
-      if (transferedCallStatus === 'remote') {
+      if (transferredCallStatus === 'remote') {
         callee = extentionNumber || extension;
       }
 
@@ -254,7 +272,6 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         caller = extentionNumber;
         callee = customerPhone;
       }
-
       const startTime = isCronRunning
         ? getPureDate(callStartTime, -10)
         : `${startDate}T00:00:00`;
@@ -297,6 +314,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
           'startedDate: ',
           startTime,
           endTime,
+          callStartTime,
         );
         throw new Error('CDR root not found');
       }
@@ -315,6 +333,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
           'startedDate: ',
           startTime,
           endTime,
+          callStartTime,
         );
         throw new Error('Not found cdr');
       }
@@ -337,15 +356,16 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
           callee,
           'startedDate: ',
           startDate,
+          callStartTime,
         );
         throw new Error('Last created object disposition is not ANSWERED');
       }
 
       if (
-        ['QUEUE', 'TRANSFERED'].some((substring) =>
+        ['QUEUE', 'TRANSFER'].some((substring) =>
           lastCreatedObject?.action_type?.includes(substring),
         ) &&
-        !(transferedCallStatus === 'remote' && callType === 'incoming')
+        !(transferredCallStatus === 'remote' && callType === 'incoming')
       ) {
         fileDir = 'queue';
       }
@@ -357,57 +377,24 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
           callee,
           'startedDate: ',
           startDate,
+          callStartTime,
         );
         throw new Error('Record files not found');
       }
-
-      const parts = recordfiles.split('/');
-      const fileNameWithoutExtension = parts[1].split('@')[0];
-
-      const records = await sendToGrandStream(
-        models,
-        {
-          path: 'api',
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          data: {
-            request: {
-              action: 'recapi',
-              filedir: fileDir,
-              filename: fileNameWithoutExtension,
-            },
-          },
-          integrationId: inboxIntegrationId,
-          retryCount,
-          isConvertToJson: false,
-        },
+      return await cfRecordUrl(
+        { fileDir, recordfiles, inboxIntegrationId, retryCount },
         user,
-      );
-
-      const buffer = await records.arrayBuffer();
-      const domain = getEnv({
-        name: 'DOMAIN',
+        models,
         subdomain,
-        defaultValue: 'http://localhost:4000',
-      });
-      const uploadUrl = domain.includes('localhost')
-        ? `${domain}/pl:core/upload-file`
-        : `${domain}/gateway/pl:core/upload-file`;
-
-      const formData = new FormData();
-      formData.append('file', Buffer.from(buffer), {
-        filename: fileNameWithoutExtension,
-      });
-
-      const rec = await fetch(uploadUrl, {
-        method: 'POST',
-        body: formData,
-      });
-
-      const ret = await rec.text();
-      return ret;
+      );
     } catch (error) {
-      console.error('Error in fetchRecordUrl:', error);
+      console.error('Error in fetchRecordUrl:', error.message);
+      if (
+        error.message !== 'Success' &&
+        Object.values(errorList).includes(error.message)
+      ) {
+        throw error;
+      }
       if (retryCount > 1) {
         return fetchRecordUrl(retryCount - 1);
       }
@@ -416,6 +403,56 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
   };
 
   return fetchRecordUrl(MAX_RETRY_COUNT);
+};
+
+const cfRecordUrl = async (params, user, models, subdomain) => {
+  const { fileDir, recordfiles, inboxIntegrationId, retryCount } = params;
+  const parts = recordfiles?.split('/');
+  const fileNameWithoutExtension = parts?.[1]?.split('@')[0];
+  if (fileNameWithoutExtension) {
+    const records = await sendToGrandStream(
+      models,
+      {
+        path: 'api',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: {
+          request: {
+            action: 'recapi',
+            filedir: fileDir,
+            filename: fileNameWithoutExtension,
+          },
+        },
+        integrationId: inboxIntegrationId,
+        retryCount,
+        isConvertToJson: false,
+      },
+      user,
+    );
+    if (records) {
+      const buffer = await records?.arrayBuffer();
+      if (buffer) {
+        const uploadUrl = getUrl(subdomain);
+        console.log('uploadUrl:', uploadUrl);
+        const removePlusSign =
+          fileNameWithoutExtension.replace(/\+/, '') ||
+          fileNameWithoutExtension;
+
+        const formData = new FormData();
+        formData.append('file', Buffer.from(buffer), {
+          filename: removePlusSign,
+        });
+
+        const rec = await fetch(uploadUrl, {
+          method: 'POST',
+          body: formData,
+        });
+        return await rec.text();
+      }
+    }
+    return;
+  }
+  return;
 };
 
 function findTransferCall(data: any): any {
@@ -468,4 +505,203 @@ export const getPureDate = (date: Date, updateTime) => {
   const updatedDate = new Date(ndate.getTime() + updateTime * 1000);
 
   return new Date(updatedDate.getTime() + diffTimeZone);
+};
+
+export const saveCdrData = async (subdomain, cdrData, result) => {
+  const models = await generateModels(subdomain);
+
+  try {
+    for (const cdr of cdrData) {
+      const history = createHistoryObject(cdr, result);
+      await saveCallHistory(models, history);
+      await processCustomerAndConversation(
+        models,
+        history,
+        cdr,
+        result,
+        subdomain,
+      );
+    }
+  } catch (error) {
+    console.error(`Error in saveCdrData: ${error.message}`);
+  }
+};
+
+const createHistoryObject = (cdr, result) => {
+  const callType = cdr.userfield === 'Outbound' ? 'outgoing' : 'incoming';
+  const customerPhone = cdr.userfield === 'Inbound' ? cdr.src : cdr.dst;
+
+  return {
+    operatorPhone: result.phone,
+    customerPhone,
+    callDuration: parseInt(cdr.billsec),
+    callStartTime: new Date(cdr.start),
+    callEndTime: new Date(cdr.end),
+    callType,
+    callStatus: cdr.disposition === 'ANSWERED' ? 'connected' : 'missed',
+    timeStamp: cdr.cdr ? parseInt(cdr.cdr) : 0,
+    createdAt: cdr.start ? new Date(cdr.start) : new Date(),
+    extentionNumber: cdr.userfield === 'Inbound' ? cdr.dst : cdr.src,
+    inboxIntegrationId: result.inboxId,
+    recordFiles: cdr.recordfiles,
+    queueName: cdr.lastdata ? cdr.lastdata.split(',')[0] : '',
+    conversationId: '',
+  };
+};
+
+const saveCallHistory = async (models, history) => {
+  try {
+    await models.CallHistory.updateOne(
+      { timeStamp: history.timeStamp },
+      { $set: history },
+      { upsert: true },
+    );
+  } catch (error) {
+    throw new Error(`Failed to save call history: ${error.message}`);
+  }
+};
+
+const processCustomerAndConversation = async (
+  models,
+  history,
+  cdr,
+  result,
+  subdomain,
+) => {
+  let customer = await models.Customers.findOne({
+    primaryPhone: history.customerPhone,
+  });
+  if (!customer || !customer.erxesApiId) {
+    customer = await getOrCreateCustomer(models, subdomain, {
+      inboxIntegrationId: result.inboxId,
+      primaryPhone: history.customerPhone,
+    });
+  }
+
+  try {
+    const conversationResponse = await sendInboxMessage({
+      subdomain,
+      action: 'integrations.receive',
+      data: {
+        action: 'create-or-update-conversation',
+        payload: JSON.stringify({
+          customerId: customer?.erxesApiId,
+          integrationId: result.inboxId,
+          content: history.callType || '',
+          conversationId: history.timeStamp,
+          updatedAt: history.callStartTime,
+          createdAt: history.callStartTime,
+        }),
+      },
+      isRPC: true,
+    });
+
+    await models.CallHistory.updateOne(
+      { timeStamp: history.timeStamp },
+      { $set: { conversationId: conversationResponse._id } },
+      { upsert: true },
+    );
+  } catch (error) {
+    await models.CallHistory.deleteOne({ timeStamp: history.timeStamp });
+    console.log(`Failed to handle conversation: ${error.message}`);
+  }
+
+  await handleRecordUrl(cdr, history, result, models, subdomain);
+};
+
+const handleRecordUrl = async (cdr, history, result, models, subdomain) => {
+  if (history?.recordUrl) return;
+
+  try {
+    if (cdr?.recordfiles) {
+      const recordPath = await cfRecordUrl(
+        {
+          fileDir: 'queue',
+          recordfiles: cdr?.recordfiles,
+          inboxIntegrationId: result.inboxId,
+          retryCount: 1,
+        },
+        '',
+        models,
+        subdomain,
+      );
+
+      if (recordPath) {
+        await models.CallHistory.updateOne(
+          { timeStamp: history.timeStamp },
+          { $set: { recordUrl: recordPath } },
+          { upsert: true },
+        );
+      }
+    }
+  } catch (error) {
+    console.log(`Failed to process record URL: ${error.message}`);
+  }
+};
+
+export const getUrl = (subdomain) => {
+  const VERSION = getEnv({ name: 'VERSION' });
+  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+  let defaultValue = 'http://localhost:4000';
+
+  if (VERSION === 'saas') {
+    defaultValue = `http://${subdomain}.api.erxes.com`;
+  }
+  const DOMAIN = getEnv({
+    name: 'DOMAIN',
+    subdomain,
+    defaultValue: NODE_ENV !== 'production' ? defaultValue : undefined,
+  });
+
+  const domain = DOMAIN.replace('<subdomain>', subdomain);
+
+  if (NODE_ENV !== 'production') {
+    return `${domain}/pl:core/upload-file`;
+  }
+
+  if (VERSION === 'saas') {
+    return `https://${subdomain}.api.erxes.io/api/upload-file`;
+  }
+
+  return `${domain}/gateway/pl:core/upload-file`;
+};
+
+type ErrorList = {
+  [key: number]: string;
+};
+
+const errorList: ErrorList = {
+  0: 'Success',
+  [-1]: 'Invalid parameters',
+  [-5]: 'Need authentication',
+  [-7]: 'Connection closed',
+  [-8]: 'System timeout',
+  [-9]: 'Abnormal system error!',
+  [-15]: 'Invalid value',
+  [-16]: 'No such item. Please refresh the page and try again',
+  [-19]: 'Unsupported',
+  [-24]: 'Failed to operate data',
+  [-25]: 'Failed to update data',
+  [-26]: 'Failed to get data',
+  [-37]: 'Wrong account or password!',
+  [-43]:
+    'Some data on this page has been modified or deleted. Please refresh the page and try again',
+  [-44]: 'This item has been added',
+  [-45]:
+    'Operating too frequently or other users are doing the same operation. Please retry after 15 seconds',
+  [-46]:
+    'Operating too frequently or other users are doing the same operation. Please retry after 15 seconds',
+  [-47]: 'No permission',
+  [-50]: 'Command contains sensitive characters',
+  [-51]: 'Another task is running now',
+  [-57]:
+    'Operating too frequently, or other users are doing the same operation. Please retry after 60 seconds',
+  [-68]: 'Login restriction',
+  [-69]:
+    'There is currently a conference going on. Changes cannot be applied at this time',
+  [-70]: 'Login forbidden',
+  [-71]: "The username doesn't exist",
+  [-90]: 'The conference is busy, cannot be edited or deleted',
+  [-98]: 'There are currently digital calls. Failed to apply configuration',
 };

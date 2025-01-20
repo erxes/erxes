@@ -6,9 +6,10 @@
     "build": "webpack --mode production"
   },
   "dependencies": {
-    "@erxes/ui" : "*",
+    "@erxes/ui": "*",
     "bat-draft-js-mention-plugin": "^2.0.1",
     "fuzzysearch-highlight": "^1.0.3",
+    "react-audio-player": "^0.17.0",
     "react-to-print": "^2.13.0"
   }
 }

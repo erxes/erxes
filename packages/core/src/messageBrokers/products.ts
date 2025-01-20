@@ -39,7 +39,7 @@ export const setupProductMessageBroker = async (): Promise<void> => {
     };
   });
 
-  consumeRPCQueue("core:productFindOne", async ({ subdomain, data }) => {
+  consumeRPCQueue("core:products.findOne", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -56,9 +56,9 @@ export const setupProductMessageBroker = async (): Promise<void> => {
       return {
         data: regData
           ? await models.ProductCategories.find({
-              ...query,
-              order: { $regex: new RegExp(regData) }
-            }).sort(sort)
+            ...query,
+            order: { $regex: new RegExp(regData) }
+          }).sort(sort)
           : await models.ProductCategories.find(query).sort(sort).lean(),
         status: "success"
       };
@@ -77,31 +77,8 @@ export const setupProductMessageBroker = async (): Promise<void> => {
         };
       }
 
-      const categories = await models.ProductCategories.find({
-        _id: { $in: categoryIds }
-      }).lean();
-
-      if (!categories.length) {
-        return {
-          data: [],
-          status: "success"
-        };
-      }
-
-      const orderQry: any[] = [];
-      for (const category of categories) {
-        orderQry.push({
-          order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) }
-        });
-      }
-
       return {
-        data: await models.ProductCategories.find({
-          status: { $nin: ["disabled", "archived"] },
-          $or: orderQry
-        })
-          .sort({ order: 1 })
-          .lean(),
+        data: await models.ProductCategories.getChildCategories(categoryIds),
         status: "success"
       };
     }
@@ -152,7 +129,7 @@ export const setupProductMessageBroker = async (): Promise<void> => {
   );
 
   consumeRPCQueue(
-    "core:productFind",
+    "core:products.find",
     async ({
       subdomain,
       data: { query, sort, skip, limit, categoryId, categoryIds, fields }
@@ -212,7 +189,7 @@ export const setupProductMessageBroker = async (): Promise<void> => {
   );
 
   consumeRPCQueue(
-    "core:count",
+    "core:products.count",
     async ({ subdomain, data: { query, categoryId } }) => {
       const models = await generateModels(subdomain);
 
@@ -251,7 +228,7 @@ export const setupProductMessageBroker = async (): Promise<void> => {
   );
 
   consumeRPCQueue(
-    "core:createProduct",
+    "core:products.createProduct",
     async ({ subdomain, data: { doc } }) => {
       const models = await generateModels(subdomain);
 
@@ -263,7 +240,7 @@ export const setupProductMessageBroker = async (): Promise<void> => {
   );
 
   consumeRPCQueue(
-    "core:updateProduct",
+    "core:products.updateProduct",
     async ({ subdomain, data: { _id, doc } }) => {
       const models = await generateModels(subdomain);
 
@@ -275,7 +252,7 @@ export const setupProductMessageBroker = async (): Promise<void> => {
   );
 
   consumeRPCQueue(
-    "core:removeProducts",
+    "core:products.removeProducts",
     async ({ subdomain, data: { _ids } }) => {
       const models = await generateModels(subdomain);
 
@@ -287,7 +264,7 @@ export const setupProductMessageBroker = async (): Promise<void> => {
   );
 
   consumeQueue(
-    "core:productUpdate",
+    "core:products.updateProducts",
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
 

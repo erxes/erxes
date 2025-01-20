@@ -1,6 +1,6 @@
 import { getSubdomain } from "@erxes/api-utils/src/core";
 import { IModels, generateModels } from "../connectionResolver";
-import { sendCoreMessage, sendProductsMessage } from "../messageBroker";
+import { sendCoreMessage } from "../messageBroker";
 import { sendRPCMessage } from "../messageBrokerErkhet";
 import { getConfig, getPureDate } from "./utils";
 
@@ -27,9 +27,9 @@ export const getPostData = async (subdomain, userEmail, order) => {
     "";
 
   const productsIds = order.details.map(item => item.productId);
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
-    action: "productFind",
+    action: "products.find",
     data: { query: { _id: { $in: productsIds } } },
     isRPC: true,
     defaultValue: []

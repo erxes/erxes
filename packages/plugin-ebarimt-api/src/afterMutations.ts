@@ -78,7 +78,7 @@ export const afterMutationHandlers = async (
         ...configs[destinationStageId]
       };
 
-      const ebarimtData: IDoc = await getPostData(subdomain, config, deal);
+      const ebarimtData: IDoc = await getPostData(subdomain, models, config, deal);
 
       const ebarimtResponses: any[] = [];
 
@@ -142,7 +142,11 @@ export const afterMutationHandlers = async (
               userId: user._id,
               responseId: ebarimtResponses.map(er => er._id).join("-"),
               sessionCode: user.sessionCode || "",
-              content: ebarimtResponses.map(er => ({ ...config, ...er }))
+              content: ebarimtResponses.map(er => ({
+                ...config,
+                ...er,
+                description: config.withDescription && deal.description || ''
+              }))
             }
           });
         }

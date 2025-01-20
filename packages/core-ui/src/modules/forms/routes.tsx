@@ -1,39 +1,39 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 
-import queryString from 'query-string';
-import React from 'react';
+import queryString from "query-string";
+import React from "react";
 import {
   Route,
   Routes,
   useLocation,
   useNavigate,
-  useParams,
-} from 'react-router-dom';
+  useParams
+} from "react-router-dom";
 
 const Properties = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Settings Properties" */ './containers/Properties'
+      /* webpackChunkName: "Settings Properties" */ "./containers/Properties"
     )
 );
 
 const FormsContainer = asyncComponent(
-  () => import(/* webpackChunkName: "Forms" */ './containers/Forms')
+  () => import(/* webpackChunkName: "Forms" */ "./containers/Forms")
 );
 
 const LeadsContainer = asyncComponent(
-  () => import(/* webpackChunkName: "Leads - List" */ './leads/containers/List')
+  () => import(/* webpackChunkName: "Leads - List" */ "./leads/containers/List")
 );
 
 const CreateLead = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Forms - CreateLead" */ './leads/containers/CreateLead'
+      /* webpackChunkName: "Forms - CreateLead" */ "./leads/containers/CreateLead"
     )
 );
 
 const EditLead = asyncComponent(
-  () => import(/* webpackChunkName: "EditLead" */ './leads/containers/EditLead')
+  () => import(/* webpackChunkName: "EditLead" */ "./leads/containers/EditLead")
 );
 
 const ResponseList = asyncComponent(
@@ -48,6 +48,7 @@ const Responses = () => {
 
   const queryParams = queryString.parse(location.search);
   const { formId } = useParams();
+  console.log({ queryParams, formId });
 
   return <ResponseList queryParams={queryParams} formId={formId} />;
 };
@@ -94,18 +95,18 @@ const EditLeadComponent = () => {
 
 const routes = () => (
   <Routes>
-    <Route path='/settings/properties/' element={<PropertiesComp />} />
-    <Route path='/forms/' element={<Forms />} />
-    <Route path='/forms/leads/' element={<Leads />} />
-    <Route path='/forms/leads/create' element={<CreateLeadComponent />} />
+    <Route path="/settings/properties/" element={<PropertiesComp />} />
+    <Route path="/forms/" element={<Forms />} />
+    <Route path="/forms/leads/" element={<Leads />} />
+    <Route path="/forms/leads/create" element={<CreateLeadComponent />} />
     <Route
-      key='/forms/leads/edit/:formId'
-      path='/forms/leads/edit/:formId'
+      key="/forms/leads/edit/:formId"
+      path="/forms/leads/edit/:formId"
       element={<EditLeadComponent />}
     />
     <Route
-      key='/forms/responses/:formId?'
-      path='/forms/responses/:formId?'
+      key="/forms/responses/:formId?"
+      path="/forms/responses/:formId?"
       element={<Responses />}
     />
   </Routes>

@@ -1,11 +1,6 @@
 import { generateModels, IModels } from "./connectionResolver";
 import { IMPORT_EXPORT_TYPES, MODULE_NAMES } from "./constants";
-import {
-  fetchSegment,
-  sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
-} from "./messageBroker";
+import { fetchSegment, sendCoreMessage } from "./messageBroker";
 import * as moment from "moment";
 import { IUserDocument } from "@erxes/api-utils/src/types";
 import { IPipelineLabelDocument } from "./models/definitions/pipelineLabels";
@@ -31,7 +26,7 @@ const prepareData = async (
   const boardItemsFilter: any = {};
   let itemIds = [];
 
-  if (segmentData.conditions) {
+  if (segmentData && segmentData.conditions) {
     itemIds = await fetchSegment(subdomain, "", { page, perPage }, segmentData);
 
     boardItemsFilter._id = { $in: itemIds };
@@ -44,9 +39,9 @@ const prepareData = async (
           .skip(skip)
           .limit(perPage)
           .lean();
+      } else {
+        data = await models.Purchases.find(boardItemsFilter).lean();
       }
-
-      data = await models.Purchases.find(boardItemsFilter).lean();
 
       break;
   }
@@ -67,7 +62,7 @@ const prepareDataCount = async (
 
   const boardItemsFilter: any = {};
 
-  if (segmentData.conditions) {
+  if (segmentData && segmentData.conditions) {
     const itemIds = await fetchSegment(
       subdomain,
       "",
@@ -125,9 +120,9 @@ const fillPurchaseProductValue = async (subdomain, column, item) => {
 
       case "productsData.name":
         product =
-          (await sendProductsMessage({
+          (await sendCoreMessage({
             subdomain,
-            action: "productFindOne",
+            action: "products.findOne",
             data: {
               _id: productData.productId
             },
@@ -139,9 +134,9 @@ const fillPurchaseProductValue = async (subdomain, column, item) => {
 
       case "productsData.code":
         product =
-          (await sendProductsMessage({
+          (await sendCoreMessage({
             subdomain,
-            action: "productFindOne",
+            action: "products.findOne",
             data: {
               _id: productData.productId
             },
@@ -461,7 +456,7 @@ const fillValue = async (
       const customerIds = await getCustomerIds(subdomain, type, item._id);
 
       for (const id of customerIds) {
-        const customer = await sendContactsMessage({
+        const customer = await sendCoreMessage({
           subdomain,
           action: "customers.findOne",
           data: { _id: id },
@@ -484,7 +479,7 @@ const fillValue = async (
       const companyIds = await getCompanyIds(subdomain, type, item._id);
 
       for (const id of companyIds) {
-        const company = await sendContactsMessage({
+        const company = await sendCoreMessage({
           subdomain,
           action: "companies.findOne",
           data: { _id: id },

@@ -43,6 +43,7 @@ export const formDetailQuery = (isProductsEnabled: boolean) => `
       numberOfPages
       googleMapApiKey
       code
+      leadData
 
       fields {
         ${fieldsFragment}
@@ -77,11 +78,6 @@ export const formConnectMutation = `
         description
         leadData
         languageCode
-      }
-      integration {
-        _id
-        name
-        
       }
     }
   }

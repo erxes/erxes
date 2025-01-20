@@ -39,10 +39,14 @@
     "migrateCardsBoards": "node_modules/.bin/ts-node src/commands/migrateCardsBoards.ts",
     "migrateCardName": "node_modules/.bin/ts-node src/commands/migrateCardName.ts",
     "migrateForms": "node_modules/.bin/ts-node src/commands/migrateLeadForms.ts",
-    "migrateAutomations": "node_modules/.bin/ts-node src/commands/migrateAutomations.ts"
+    "migrateAutomations": "node_modules/.bin/ts-node src/commands/migrateAutomations.ts",
+    "migrateCompaniesSearchText": "node_modules/.bin/ts-node src/commands/migrateCompaniesSearchText.ts",
+    "migrateCustomersSearchText": "node_modules/.bin/ts-node src/commands/migrateCustomersSearchText.ts",
+    "migrateCharts": "node_modules/.bin/ts-node src/commands/migrateCharts.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.9.3",
+    "@azure/storage-blob": "^12.25.0",
     "@erxes/api-utils": "*",
     "@kubernetes/client-node": "^0.20.0",
     "@sendgrid/mail": "^7.7.0",

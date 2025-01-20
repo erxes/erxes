@@ -47,12 +47,16 @@ export const isInSegment = async (
 ) => {
   await delay(15000);
 
+  console.log({ segmentId, idToCheck: targetId });
+
   const response = await sendSegmentsMessage({
     subdomain,
     action: 'isInSegment',
     data: { segmentId, idToCheck: targetId },
     isRPC: true
   });
+
+  console.log({ response });
 
   return response;
 };
@@ -277,16 +281,15 @@ export const calculateExecution = async ({
     if (!!isCustom) {
       const [serviceName, collectionType] = (trigger?.type || '').split(':');
 
-      if (
-        !(await sendCommonMessage({
-          subdomain,
-          serviceName,
-          action: 'automations.checkCustomTrigger',
-          data: { collectionType, automationId, trigger, target, config },
-          isRPC: true,
-          defaultValue: false
-        }))
-      ) {
+      const isValid = await sendCommonMessage({
+        subdomain,
+        serviceName,
+        action: 'automations.checkCustomTrigger',
+        data: { collectionType, automationId, trigger, target, config },
+        isRPC: true,
+        defaultValue: false
+      });
+      if (!isValid) {
         return;
       }
     } else if (!(await isInSegment(subdomain, contentId, target._id))) {

@@ -57,22 +57,27 @@ const generateUsersOptions = async (
   name: string,
   label: string,
   type: string,
-  subdomain: string
+  selectionConfig?: any
 ) => {
-  const models = await generateModels(subdomain);
-  const users = await models.Users.find({}).lean();
+  // const models = await generateModels(subdomain);
+  // const users = await models.Users.find({}).lean();
 
-  const options: Array<{ label: string; value: any }> = users.map(user => ({
-    value: user._id,
-    label: user.username || user.email || ""
-  }));
+  // const options: Array<{ label: string; value: any }> = users.map((user) => ({
+  //   value: user._id,
+  //   label: user.username || user.email || '',
+  // }));
 
   return {
     _id: Math.random(),
     name,
     label,
     type,
-    selectOptions: options
+    selectionConfig: {
+      ...selectionConfig,
+      queryName: "users",
+      labelField: "email"
+    }
+    // selectOptions: options
   };
 };
 
@@ -318,12 +323,7 @@ export const generateContactsFields = async ({ subdomain, data }) => {
     }
   }
 
-  const ownerOptions = await generateUsersOptions(
-    "ownerId",
-    "Owner",
-    "user",
-    subdomain
-  );
+  const ownerOptions = await generateUsersOptions("ownerId", "Owner", "user");
 
   const tags = await getTags(
     subdomain,
@@ -421,7 +421,7 @@ export const getFormFields = async (models: IModels, formId: string) => {
 
 const generateFieldsUsers = async ({ subdomain, data }) => {
   const models = await generateModels(subdomain);
-  const { usageType, formId } = data;
+  const { usageType } = data;
 
   const { Users } = models;
 
@@ -463,6 +463,25 @@ const generateFieldsUsers = async ({ subdomain, data }) => {
       }
     }
   }
+
+  return fields;
+};
+
+const generateFormFields = async ({ subdomain, data }) => {
+  const models = await generateModels(subdomain);
+  const { config = {} } = data;
+  const { formId } = config;
+
+  const fields: Array<{
+    _id: number;
+    name: string;
+    group?: string;
+    label?: string;
+    type?: string;
+    validation?: string;
+    options?: string[];
+    selectOptions?: Array<{ label: string; value: string }>;
+  }> = [];
 
   if (formId) {
     const formFieldsValues = await getFormFields(models, formId);
@@ -653,6 +672,9 @@ export default {
 
       case "product":
         return generateProductsFields({ subdomain, data });
+
+      case "form_submission":
+        return generateFormFields({ subdomain, data });
 
       default:
         return generateFieldsUsers({ subdomain, data });

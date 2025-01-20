@@ -189,7 +189,7 @@ module.exports = configs => (env, args) => {
               try {
                 return window.coreui.init(arg)
               } catch(e) {
-                console.log('remote container already initialized')
+                console.error('remote container already initialized')
               }
             }
           }

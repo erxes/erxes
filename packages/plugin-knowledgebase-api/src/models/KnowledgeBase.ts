@@ -33,6 +33,9 @@ export interface IArticleModel extends Model<IArticleDocument> {
     reactionChoice: string,
     modifyType: 'inc' | 'dec'
   ): void;
+  incrementViewCount(
+    articleId: string,
+  ): void;
 }
 
 export const loadArticleClass = (models: IModels) => {
@@ -64,6 +67,7 @@ export const loadArticleClass = (models: IModels) => {
 
       if (docFields.status === PUBLISH_STATUSES.PUBLISH) {
         doc.publishedUserId = userId;
+        doc.publishedAt = new Date();
       }
 
       return  await models.KnowledgeBaseArticles.create(doc);
@@ -95,6 +99,7 @@ export const loadArticleClass = (models: IModels) => {
       if (article.status === PUBLISH_STATUSES.DRAFT && doc.status === PUBLISH_STATUSES.PUBLISH) {
 
         doc.publishedUserId = userId;
+        doc.publishedAt = new Date();
       }
 
       return await models.KnowledgeBaseArticles.findOneAndUpdate(
@@ -129,6 +134,13 @@ export const loadArticleClass = (models: IModels) => {
       await models.KnowledgeBaseArticles.updateOne(
         { _id: articleId },
         { $set: { reactionCounts } }
+      );
+    }
+
+    public static async incrementViewCount(articleId: string) {
+      return await models.KnowledgeBaseArticles.updateOne(
+        { _id: articleId },
+        { $inc: { viewCount: 1 } }
       );
     }
   }

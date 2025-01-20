@@ -1,53 +1,87 @@
-export const types = (cardAvailable, kbAvailable, productsAvailable) => `
+export const types = (enabledPlugins) => `
 ${
-  cardAvailable
+  enabledPlugins.tasks
     ? `
   extend type TasksStage @key(fields: "_id") {
     _id: String! @external
   }
-  extend type SalesStage @key(fields: "_id") {
-    _id: String! @external
+
+  input TasksItemDate {
+    month: Int
+    year: Int
   }
-    extend type TicketsStage @key(fields: "_id") {
-    _id: String! @external
-  }
-    extend type PurchasesStage @key(fields: "_id") {
-    _id: String! @external
-  }
+
   extend type Task @key(fields: "_id") {
     _id: String! @external
   }
-  extend type Ticket @key(fields: "_id") {
+  `
+    : ''
+}
+
+${
+  enabledPlugins.sales
+    ? `
+  extend type SalesStage @key(fields: "_id") {
     _id: String! @external
-  }
-  extend type Purchase @key(fields: "_id") {
-    _id: String! @external
-  }
-  extend type Deal @key(fields: "_id") {
-    _id: String! @external
-  }
-  input TicketsItemDate {
-    month: Int
-    year: Int
   }
   input SalesItemDate {
     month: Int
     year: Int
   }
-  input PurchasesItemDate {
-    month: Int
-    year: Int
+
+  extend type Deal @key(fields: "_id") {
+    _id: String! @external
   }
-  input TasksItemDate {
-    month: Int
-    year: Int
-  }
-   `
+    `
     : ''
 }
 
 ${
-  kbAvailable
+  enabledPlugins.purchases
+    ? `
+  input PurchasesItemDate {
+    month: Int
+    year: Int
+  }
+
+  extend type PurchasesStage @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  extend type Purchase @key(fields: "_id") {
+    _id: String! @external
+  }
+    `
+    : ''
+}
+
+${
+  enabledPlugins.tickets
+    ? `
+
+    extend type TicketsStage @key(fields: "_id") {
+    _id: String! @external
+  }
+
+
+  extend type Ticket @key(fields: "_id") {
+    _id: String! @external
+  }
+
+
+  input TicketsItemDate {
+    month: Int
+    year: Int
+  }
+    `
+    : ''
+}
+
+
+   
+
+${
+  enabledPlugins.knowledgebase
     ? `
    extend type KnowledgeBaseTopic @key(fields: "_id") {
     _id: String! @external
@@ -61,20 +95,15 @@ ${
     : ''
 }
 
-${
-  productsAvailable
-    ? `
+
     extend type ProductCategory @key(fields: "_id") {
       _id: String! @external
     }
-  `
-    : ''
-}
+
 
     extend type Field @key(fields: "_id") {
       _id: String! @external
     }
-
 
   type OTPConfig {
     content: String
@@ -84,6 +113,7 @@ ${
     expireAfter: Int
     emailSubject: String
   }
+
   type TwoFactorConfig {
     content: String
     codeLength: Int
@@ -155,6 +185,7 @@ ${
   type ClientPortal {
     _id: String!
     name: String!
+    slug: String
     kind: BusinessPortalKind!
     description: String
     url: String
@@ -221,6 +252,9 @@ ${
     testUserOTP: String
 
     socialpayConfig: SocialpayConfig
+    language: String
+
+    template: String
   }
 
   type Styles {
@@ -267,6 +301,7 @@ ${
   input ClientPortalConfigInput {
     _id: String
     name: String!
+    slug: String
     kind: BusinessPortalKind!
     description: String
     url: String
@@ -330,6 +365,9 @@ ${
     refreshTokenExpiration: Int
     vendorParentProductCategoryId: String
     socialpayConfig: JSON
+    language: String
+
+    template: String
   }
 
   enum UserCardEnum {
@@ -368,56 +406,76 @@ ${
 
 `;
 
-export const queries = (cardAvailable, kbAvailable) => `
-  clientPortalGetConfigs(kind:BusinessPortalKind, page: Int, perPage: Int): [ClientPortal]
+export const queries = (enabledPlugins) => `
+  clientPortalGetConfigs(kind:BusinessPortalKind, search: String, page: Int, perPage: Int): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
   clientPortalGetConfigByDomain(clientPortalName: String): ClientPortal
   clientPortalGetLast(kind: BusinessPortalKind): ClientPortal
   clientPortalConfigsTotalCount: Int
   clientPortalGetAllowedFields(_id: String!): [Field]
+
+
+  clientPortalParticipantDetail(_id: String, contentType:String, contentTypeId:String, cpUserId:String): ClientPortalParticipant
+  clientPortalParticipants(contentType: String!, contentTypeId: String!, userKind: BusinessPortalKind): [ClientPortalParticipant]
+  clientPortalCardUsers(contentType: String!, contentTypeId: String!, userKind: BusinessPortalKind): [ClientPortalUser]
+
   ${
-    cardAvailable
+    enabledPlugins.sales
       ? `
-    clientPortalGetTaskStages: [TasksStage]
-    clientPortalGetTasks(stageId: String!): [TasksStage]
-    clientPortalTickets(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TicketsItemDate): [Ticket]
-    clientPortalDeals(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: SalesItemDate): [Deal]
-    clientPortalPurchases(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: PurchasesItemDate): [Purchase]
-    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TasksItemDate): [TasksStage]
-    clientPortalTicket(_id: String!): Ticket
-    clientPortalCardUsers(contentType: String!, contentTypeId: String!, userKind: BusinessPortalKind): [ClientPortalUser]
-    clientPortalUserTickets(userId: String): [Ticket]
     clientPortalUserDeals(userId: String): [Deal]
-    clientPortalUserPurchases(userId: String): [Purchase]
-    clientPortalUserTasks(userId: String): [TasksStage]
-    clientPortalParticipantDetail(_id: String, contentType:String, contentTypeId:String, cpUserId:String): ClientPortalParticipant
-    clientPortalParticipants(contentType: String!, contentTypeId: String!, userKind: BusinessPortalKind): [ClientPortalParticipant]
+    clientPortalDeals(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: SalesItemDate): [Deal]
    `
       : ''
   }
 
   ${
-    kbAvailable
+    enabledPlugins.tasks
+      ? `
+    clientPortalGetTaskStages: [TasksStage]
+    clientPortalGetTasks(stageId: String!): [TasksStage]
+    clientPortalUserTasks(userId: String): [TasksStage]
+    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TasksItemDate): [TasksStage]
+        `
+      : ''
+  } 
+
+  ${
+    enabledPlugins.tickets
+      ? `
+    clientPortalTicket(_id: String!): Ticket
+    clientPortalTickets(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TicketsItemDate): [Ticket]
+    clientPortalUserTickets(userId: String): [Ticket]
+    
+    `
+      : ''
+  }
+  
+  ${
+    enabledPlugins.purchases
+      ? `
+    clientPortalPurchases(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: PurchasesItemDate): [Purchase]
+    clientPortalUserPurchases(userId: String): [Purchase]
+    `
+      : ''
+  }
+
+  ${
+    enabledPlugins.knowledgebase
       ? `
     clientPortalKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
-    clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String], topicId: String, isPrivate: Boolean): 
-[KnowledgeBaseArticle]
+    clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String], topicId: String, isPrivate: Boolean): [KnowledgeBaseArticle]
    `
       : ''
   }
 `;
 
-export const mutations = cardAvailable => `
+export const mutations = `
   clientPortalConfigUpdate (
     config: ClientPortalConfigInput!
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON
-
-  ${
-    cardAvailable
-      ? `
-      clientPortalCreateCard(
+  clientPortalCreateCard(
         type: String!
         stageId: String!
         subject: String!
@@ -430,8 +488,8 @@ export const mutations = cardAvailable => `
         customFieldsData: JSON
         labelIds: [String]
         productsData: JSON
-      ): JSON
-      clientPortalParticipantRelationEdit(
+  ): JSON
+  clientPortalParticipantRelationEdit(
         type: String!
         cardId: String!
         oldCpUserIds: [String]
@@ -448,7 +506,4 @@ export const mutations = cardAvailable => `
         paymentAmount: Float,
         offeredAmount: Float,
         hasVat: Boolean):ClientPortalParticipant
-     `
-      : ''
-  }
 `;

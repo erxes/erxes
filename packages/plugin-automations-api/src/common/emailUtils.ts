@@ -9,9 +9,9 @@ import * as AWS from "aws-sdk";
 import * as nodemailer from "nodemailer";
 import { debugError } from "@erxes/api-utils/src/debuggers";
 import {
-  isEnabled,
   getServices,
-  getService
+  getService,
+  isEnabled
 } from "@erxes/api-utils/src/serviceDiscovery";
 import { putActivityLog } from "../logUtils";
 
@@ -38,11 +38,13 @@ export const getEmailRecipientTypes = async () => {
 
 const generateEmails = (entry, key?) => {
   if (Array.isArray(entry)) {
-    return entry
-      .map(item => item[key])
-      .filter(value =>
-        value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
-      );
+    if (key) {
+      entry = entry.map(item => item[key]);
+    }
+
+    return entry.filter(value =>
+      value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
+    );
   }
 
   if (typeof entry === "string") {
@@ -133,7 +135,9 @@ const getAttributionEmails = async ({
     defaultValue: {}
   });
 
-  return [...emails, ...generateEmails(replacedContent[key])];
+  const generatedEmails = generateEmails(replacedContent[key]);
+
+  return [...emails, ...generatedEmails];
 };
 
 const getSegmentEmails = async ({
@@ -195,6 +199,38 @@ const generateFromEmail = (sender, fromUserEmail) => {
   return null;
 };
 
+const replaceDocuments = async (subdomain, content, target) => {
+  if (!isEnabled("documents")) {
+    return content;
+  }
+
+  // Regular expression to match `documents.<id>` within `{{ }}`
+  const documentIds = [
+    ...content.matchAll(/\{\{\s*document\.([a-zA-Z0-9_]+)\s*\}\}/g)
+  ].map(match => match[1]);
+
+  if (!!documentIds?.length) {
+    for (const documentId of documentIds) {
+      const response = await sendCommonMessage({
+        serviceName: "documents",
+        subdomain,
+        action: "printDocument",
+        data: {
+          ...target,
+          _id: documentId,
+          itemId: target._id
+        },
+        isRPC: true,
+        defaultValue: ""
+      });
+
+      content = content.replace(`{{ document.${documentId} }}`, response);
+    }
+  }
+
+  return content;
+};
+
 export const generateDoc = async ({
   subdomain,
   target,
@@ -204,6 +240,8 @@ export const generateDoc = async ({
 }) => {
   const { templateId, fromUserId, sender } = config;
   const [serviceName, type] = triggerType.split(":");
+  const version = getEnv({ name: "VERSION" });
+  const DEFAULT_AWS_EMAIL = getEnv({ name: "DEFAULT_AWS_EMAIL" });
 
   const template = await sendCoreMessage({
     subdomain,
@@ -215,22 +253,33 @@ export const generateDoc = async ({
     defaultValue: null
   });
 
-  const fromUser = fromUserId
-    ? await sendCoreMessage({
-        subdomain,
-        action: "users.findOne",
-        data: {
-          _id: fromUserId
-        },
-        isRPC: true,
-        defaultValue: null
-      })
-    : null;
+  let fromUserEmail = version === "saas" ? DEFAULT_AWS_EMAIL : "";
 
-  const replacedContent = (template?.content || "").replace(
+  console.log({ fromUserEmail });
+
+  console.log({ fromUserId });
+
+  if (fromUserId) {
+    const fromUser = await sendCoreMessage({
+      subdomain,
+      action: "users.findOne",
+      data: {
+        _id: fromUserId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    fromUserEmail = fromUser?.email;
+  }
+  console.log({ fromUserEmail });
+
+  let replacedContent = (template?.content || "").replace(
     new RegExp(`{{\\s*${type}\\.\\s*(.*?)\\s*}}`, "g"),
     "{{ $1 }}"
   );
+
+  replacedContent = await replaceDocuments(subdomain, replacedContent, target);
 
   const { subject, content } = await sendCommonMessage({
     subdomain,
@@ -261,9 +310,8 @@ export const generateDoc = async ({
 
   return {
     title: subject,
-    fromUser,
-    fromEmail: generateFromEmail(sender, fromUser?.email),
-    toEmails: toEmails.filter(email => fromUser?.email !== email),
+    fromEmail: generateFromEmail(sender, fromUserEmail),
+    toEmails: toEmails.filter(email => fromUserEmail !== email),
     customHtml: content
   };
 };
@@ -281,7 +329,7 @@ export const getRecipientEmails = async ({
   const reciepentTypeKeys = reciepentTypes.map(rT => rT.name);
 
   for (const key of Object.keys(config)) {
-    if (reciepentTypeKeys.includes(key)) {
+    if (reciepentTypeKeys.includes(key) && !!config[key]) {
       const [serviceName, contentType] = triggerType.split(":");
 
       const { type, ...reciepentType } = reciepentTypes.find(
@@ -347,7 +395,6 @@ const setActivityLog = async ({
   subdomain,
   triggerType,
   target,
-  user,
   responses
 }) => {
   for (const response of responses || []) {
@@ -372,7 +419,7 @@ export const handleEmail = async ({
   triggerType,
   config
 }) => {
-  const { fromUser, ...params }: any = await generateDoc({
+  const params = await generateDoc({
     subdomain,
     triggerType,
     target,
@@ -384,17 +431,18 @@ export const handleEmail = async ({
     return { error: "Something went wrong fetching data" };
   }
 
+  console.log({ params });
+
   try {
     const responses = await sendEmails({
       subdomain,
-      params: params
+      params
     });
 
     await setActivityLog({
       subdomain,
       triggerType,
       target,
-      user: fromUser,
       responses
     });
 
@@ -404,12 +452,25 @@ export const handleEmail = async ({
   }
 };
 
+const getConfig = (configs, code) => {
+  const version = getEnv({ name: "VERSION" });
+
+  if (version === "saas") {
+    return getEnv({ name: code });
+  }
+
+  return configs[code] || "";
+};
+
 const createTransporter = async ({ ses }, configs) => {
   if (ses) {
-    const AWS_SES_ACCESS_KEY_ID = configs["AWS_SES_ACCESS_KEY_ID"] || "";
-    const AWS_SES_SECRET_ACCESS_KEY =
-      configs["AWS_SES_SECRET_ACCESS_KEY"] || "";
-    const AWS_REGION = configs["AWS_REGION"] || "";
+    const AWS_SES_ACCESS_KEY_ID = getConfig(configs, "AWS_SES_ACCESS_KEY_ID");
+
+    const AWS_SES_SECRET_ACCESS_KEY = getConfig(
+      configs,
+      "AWS_SES_SECRET_ACCESS_KEY"
+    );
+    const AWS_REGION = getConfig(configs, "AWS_REGION");
 
     AWS.config.update({
       region: AWS_REGION,
@@ -466,16 +527,19 @@ const sendEmails = async ({
 
   const DEFAULT_EMAIL_SERVICE = configs["DEFAULT_EMAIL_SERVICE"] || "SES";
   const COMPANY_EMAIL_FROM = configs["COMPANY_EMAIL_FROM"] || "";
-  const AWS_SES_CONFIG_SET = configs["AWS_SES_CONFIG_SET"] || "";
-  const AWS_SES_ACCESS_KEY_ID = configs["AWS_SES_ACCESS_KEY_ID"] || "";
-  const AWS_SES_SECRET_ACCESS_KEY = configs["AWS_SES_SECRET_ACCESS_KEY"] || "";
+  const AWS_SES_CONFIG_SET = getConfig(configs, "AWS_SES_CONFIG_SET");
+  const AWS_SES_ACCESS_KEY_ID = getConfig(configs, "AWS_SES_ACCESS_KEY_ID");
+  const AWS_SES_SECRET_ACCESS_KEY = getConfig(
+    configs,
+    "AWS_SES_SECRET_ACCESS_KEY"
+  );
 
   if (!fromEmail && !COMPANY_EMAIL_FROM) {
     throw new Error("From Email is required");
   }
 
   if (NODE_ENV === "test") {
-    return;
+    throw new Error("Node environment is required");
   }
 
   let transporter;
@@ -486,7 +550,8 @@ const sendEmails = async ({
       configs
     );
   } catch (e) {
-    return debugError(e.message);
+    debugError(e.message);
+    throw new Error(e.message);
   }
 
   const responses: any[] = [];

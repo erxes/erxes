@@ -40,8 +40,10 @@ export const loadCallHistoryClass = (models: IModels) => {
 
       historyFilter.extentionNumber = operator.gsUsername;
 
-      if (selector?.callStatus === 'missed') {
-        historyFilter.callStatus = { $ne: 'connected' };
+      if (selector?.callStatus === 'cancelled') {
+        historyFilter.callStatus = { $eq: 'cancelled' };
+        delete historyFilter.extentionNumber;
+        historyFilter.operatorPhone = integration.phone;
       } else {
         delete historyFilter.callStatus;
         delete selector.callStatus;

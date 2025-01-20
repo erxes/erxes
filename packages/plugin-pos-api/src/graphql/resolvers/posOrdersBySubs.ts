@@ -1,5 +1,5 @@
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-import { sendContactsMessage, sendCoreMessage } from '../../messageBroker';
+import { sendCoreMessage } from '../../messageBroker';
 
 const resolver = {
   customer: async ({ customerId, customerType }, {}, { subdomain }) => {
@@ -13,8 +13,8 @@ const resolver = {
       });
     }
 
-    if (customerType === 'company' && isEnabled('contacts')) {
-      return await sendContactsMessage({
+    if (customerType === 'company') {
+      return await sendCoreMessage({
         subdomain,
         action: 'companies.findOne',
         data: { _id: customerId },
@@ -24,7 +24,7 @@ const resolver = {
     }
 
     if (!!customerId && !customerType) {
-      return await sendContactsMessage({
+      return await sendCoreMessage({
         subdomain,
         action: 'customers.findOne',
         data: { _id: customerId },

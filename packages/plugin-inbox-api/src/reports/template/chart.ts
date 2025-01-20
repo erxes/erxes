@@ -1,10 +1,11 @@
 import { IModels } from '../../connectionResolver';
-import { CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_BY_TYPES, DATERANGE_TYPES, DIMENSION_OPTIONS, INBOX_TAG_TYPE, INTEGRATION_TYPES, STATUS_KIND, STATUS_TYPES } from '../constants';
+import { CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_BY_TYPES, DATERANGE_TYPES, DIMENSION_OPTIONS, MEASURE_OPTIONS, INBOX_TAG_TYPE, INTEGRATION_TYPES, STATUS_LABELS, STATUS_TYPES, KIND_MAP, USER_TYPES } from '../constants';
 import {
+    buildData,
     buildMatchFilter,
     getDimensionPipeline,
-    getIntegrationsKinds
 } from '../utils';
+const util = require('util')
 
 const chartTemplates = [
     {
@@ -898,10 +899,8 @@ const chartTemplates = [
 
             const conversations = await models.Conversations.aggregate(pipeline)
 
-            const kindMap = await getIntegrationsKinds();
-
             const totalConversationByIntegrations = (conversations || []).reduce((acc, { integration, count }) => {
-                acc[kindMap[integration] || integration] = count
+                acc[KIND_MAP[integration] || integration] = count
                 return acc
             }, {})
 
@@ -1197,7 +1196,7 @@ const chartTemplates = [
             const conversations = await models.Conversations.aggregate(pipeline)
 
             const totalConversationByStatus = (conversations || []).reduce((acc, { status, count }) => {
-                acc[STATUS_KIND[status]] = count
+                acc[STATUS_LABELS[status]] = count
                 return acc
             }, {})
 
@@ -1299,40 +1298,89 @@ const chartTemplates = [
             'radar',
             'polarArea',
             'table',
-            'number'
+            'number',
+            'pivotTable'
         ],
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: any,
             subdomain: string,
         ) => {
             const pipeline = await getDimensionPipeline(filter, subdomain, models)
+            const conversations = await models.Conversations.aggregate(pipeline, { allowDiskUse: true })
 
-            const conversations = await models.Conversations.aggregate(pipeline)
-
-            const totalConversation = (conversations || []).reduce((acc, { key, count }) => {
-                acc[key] = count
-                return acc
-            }, {})
-
-            const data = Object.values(totalConversation);
-            const labels = Object.keys(totalConversation);
             const title = 'Total conversations count';
 
-            const datasets = { title, data, labels };
-
-            return datasets;
+            return { title, ...buildData({ chartType, data: conversations, filter }) };
         },
 
         filterTypes: [
+            // DIMENSION FILTER
+            {
+                fieldName: 'rowDimension',
+                fieldType: 'select',
+                multi: true,
+                logics: [
+                    {
+                        logicFieldName: 'chartType',
+                        logicFieldValue: 'pivotTable',
+                    },
+                ],
+                fieldValueOptions: [
+                    {
+                        fieldName: 'showTotal',
+                        fieldType: 'checkbox',
+                        fieldLabel: 'Show total',
+                        fieldDefaultValue: false
+                    }
+                ],
+                fieldOptions: DIMENSION_OPTIONS,
+                fieldLabel: 'Select row',
+            },
+            {
+                fieldName: 'colDimension',
+                fieldType: 'select',
+                multi: true,
+                logics: [
+                    {
+                        logicFieldName: 'chartType',
+                        logicFieldValue: 'pivotTable',
+                    },
+                ],
+                fieldValueOptions: [
+                    {
+                        fieldName: 'showTotal',
+                        fieldType: 'checkbox',
+                        fieldLabel: 'Show total',
+                        fieldDefaultValue: false
+                    }
+                ],
+                fieldOptions: DIMENSION_OPTIONS,
+                fieldLabel: 'Select column',
+            },
             {
                 fieldName: 'dimension',
                 fieldType: 'select',
-                multi: false,
+                multi: true,
+                logics: [
+                    {
+                        logicFieldName: 'chartType',
+                        logicFieldValue: 'pivotTable',
+                        logicFieldOperator: "ne",
+                    },
+                ],
                 fieldOptions: DIMENSION_OPTIONS,
-                fieldDefaultValue: 'teamMember',
+                fieldDefaultValue: ['teamMember'],
                 fieldLabel: 'Select dimension',
+            },
+            {
+                fieldName: 'measure',
+                fieldType: 'select',
+                multi: true,
+                fieldOptions: MEASURE_OPTIONS,
+                fieldDefaultValue: ['count'],
+                fieldLabel: 'Select measure',
             },
             {
                 fieldName: 'frequencyType',
@@ -1347,6 +1395,14 @@ const chartTemplates = [
                 fieldQuery: 'date',
                 fieldOptions: CUSTOM_DATE_FREQUENCY_TYPES,
                 fieldLabel: 'Select frequency type',
+            },
+            {
+                fieldName: 'userType',
+                fieldType: 'select',
+                multi: false,
+                fieldDefaultValue: 'assignedUserId',
+                fieldOptions: USER_TYPES,
+                fieldLabel: 'Select user type',
             },
             {
                 fieldName: 'departmentIds',

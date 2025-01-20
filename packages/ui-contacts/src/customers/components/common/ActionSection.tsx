@@ -94,7 +94,6 @@ class ActionSection extends React.Component<
         />
         <Tip text='Call' placement='top-end'>
           <Button
-            href={primaryPhone && `tel:${primaryPhone}`}
             size='small'
             btnStyle={primaryPhone ? 'primary' : 'simple'}
             disabled={primaryPhone ? false : true}
@@ -234,15 +233,19 @@ class ActionSection extends React.Component<
         unmount={false}
       >
         <Menu.Item>
-          <TargetMerge
-            onSave={merge}
-            object={coc}
-            searchObject={search}
-            mergeForm={cocType === 'customer' ? CustomersMerge : CompaniesMerge}
-            generateOptions={
-              cocType === 'customer' ? generateOptions : targetMergeOptions
-            }
-          />
+          {({ close }) => (
+            <div onClick={close}>
+              <TargetMerge
+                onSave={merge}
+                object={coc}
+                searchObject={search}
+                mergeForm={cocType === "customer" ? CustomersMerge : CompaniesMerge}
+                generateOptions={
+                  cocType === "customer" ? generateOptions : targetMergeOptions
+                }
+              />
+            </div>
+          )}
         </Menu.Item>
         <Menu.Item>
           <a href='#delete' onClick={onClick}>

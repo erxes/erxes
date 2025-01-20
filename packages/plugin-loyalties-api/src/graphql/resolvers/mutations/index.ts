@@ -11,6 +11,7 @@ import Loyalties from './loyalties';
 import ScoreLogs from './scoreLogs';
 import Assignments from './assignments';
 import AssignmentCampaigns from './assignmentCampaign';
+import ScoreCampaigns from './scoreCampaign';
 export {
   Configs,
   DonateCampaigns,
@@ -24,5 +25,6 @@ export {
   Loyalties,
   ScoreLogs,
   Assignments,
-  AssignmentCampaigns
+  AssignmentCampaigns,
+  ScoreCampaigns,
 };

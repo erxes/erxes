@@ -16,7 +16,7 @@ import {
 import { createLog, deleteLog, updateLog } from "../../../logUtils";
 import { putActivityLog } from "@erxes/api-utils/src/logUtils";
 
-const loansContractChanged = async (contract: IContractDocument) => {
+export const loansContractChanged = async (contract: IContractDocument) => {
   graphqlPubsub.publish(
     'loansContractChanged',
     {
@@ -268,11 +268,11 @@ const contractMutations = {
       const collateral = await sendMessageBroker(
         {
           subdomain,
-          action: "findOne",
+          action: "products.findOne",
           data: { _id: data.collateralId },
           isRPC: true
         },
-        "products"
+        "core"
       );
 
       const insuranceType = await models.InsuranceTypes.findOne({
@@ -453,7 +453,7 @@ const contractMutations = {
         data: { _id: customerId },
         isRPC: true
       },
-      "contacts"
+      "core"
     );
 
     const customerScore = await sendMessageBroker(
@@ -521,7 +521,7 @@ const contractMutations = {
           },
           isRPC: true
         },
-        "contacts"
+        "core"
       );
     }
 

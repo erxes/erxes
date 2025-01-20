@@ -1,23 +1,22 @@
-import * as React from 'react';
-import * as RTG from 'react-transition-group';
-import { IconEnvelope, IconErxes } from '../../../icons/Icons';
+import * as React from "react";
 
 import {
-  IIntegrationLink,
   IIntegrationMessengerData,
   IIntegrationMessengerDataMessagesItem,
   IUser,
-} from '../../../types';
-import { __, readFile } from '../../../utils';
-import SocialLink from './../common/SocialLink';
-import Supporters from './../common/Supporters';
-import Card from './../Card.tsx';
-import Button from './../common/Button';
-import { useConversation } from '../../context/Conversation';
-import Featured from '../faq/Featured';
-import Container from '../common/Container';
-import { getUiOptions } from '../../utils/util';
-import WebsiteApp from '../../containers/websiteApp/WebsiteApp';
+} from "../../../types";
+import { adjustBrightness, getColor, getUiOptions } from "../../utils/util";
+
+import Button from "./../common/Button";
+import Card from "./../Card.tsx";
+import Container from "../common/Container";
+import Featured from "../faq/Featured";
+import { IconEnvelope } from "../../../icons/Icons";
+import SocialLink from "./../common/SocialLink";
+import Supporters from "./../common/Supporters";
+import WebsiteApp from "../../containers/websiteApp/WebsiteApp";
+import { __ } from "../../../utils";
+import { useConversation } from "../../context/Conversation";
 
 type Props = {
   supporters: IUser[];
@@ -44,16 +43,15 @@ const Home: React.FC<Props> = ({
     ? {
         background: `linear-gradient(
         119deg,
-        ${color} 2.96%,
+        ${adjustBrightness(color, -60)} 2.96%,
         ${color} 51.52%,
-        #fff 100.08%
+        #caf4f7 100.08%
       )`,
       }
     : {};
 
   const { logo } = getUiOptions() || {};
 
-  const topicId = messengerData.knowledgeBaseTopicId;
   const messages =
     messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
 
@@ -73,8 +71,8 @@ const Home: React.FC<Props> = ({
 
   const renderGreetings = () => (
     <div className="greeting-info">
-      <h3>{greetings.title || __('Welcome')}</h3>
-      <div>{greetings.message || __('Welcome description')}</div>
+      <h3>{greetings.title || __("Welcome")}</h3>
+      <div>{greetings.message || __("Welcome description")}</div>
     </div>
   );
 
@@ -88,7 +86,7 @@ const Home: React.FC<Props> = ({
     return (
       <Card>
         <div className="contact-channels">
-          <span>{__('Talk us on your favourite channels')}</span>
+          <span>{__("Talk us on your favourite channels")}</span>
           <div className="channel-list">
             {Object.entries(links).map(([key, { url }]) => {
               return (
@@ -113,10 +111,12 @@ const Home: React.FC<Props> = ({
   };
 
   const renderGettingStarted = () => {
+    const color = getColor();
+
     return (
       <Card>
         <div className="getting-started-wrapper">
-          <span>{__('Getting started')}</span>
+          <span>{__("Getting started")}</span>
           <div className="getting-started-content-wrapper">
             <div className="supporters-info-wrapper">
               <Supporters
@@ -126,15 +126,18 @@ const Home: React.FC<Props> = ({
                 isOnline={isOnline}
               />
               <div className="schedule-info-wrapper">
-                <span>{__('Our usually reply time')}</span>
-                <span className="response-rate">
+                <span>{__("Our usually reply time")}</span>
+                <span
+                  className="response-rate"
+                  style={{ color: color ? color : "#4f33af" }}
+                >
                   💬 {messengerData.responseRate}
                 </span>
               </div>
             </div>
             <div>
               <Button icon={<IconEnvelope />} onClick={createConversation}>
-                <span className="font-semibold">{__('Send us a message')}</span>
+                <span className="font-semibold">{__("Send us a message")}</span>
               </Button>
             </div>
           </div>

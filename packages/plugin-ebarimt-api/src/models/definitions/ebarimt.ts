@@ -1,25 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
-export interface IEbarimtConfig {
-  companyName: string;
-  ebarimtUrl: string;
-  checkTaxpayerUrl: string;
-
-  merchantTin: string;
-  companyRD: string,
-  districtCode: string;
-  posNo: string;
-  branchNo: string;
-
-  hasVat: true,
-  hasCitytax: false,
-  defaultGSCode: string,
-  vatPercent: number,
-  cityTaxPercent: number,
-  skipPutData: false
-}
-
 export interface IItem {
   _id?: string;
   id?: string;
@@ -189,9 +170,9 @@ export const ebarimtSchema = schemaHooksWrapper(
     branchNo: field({ type: String, label: 'branchNo' }),
     merchantTin: field({ type: String, label: 'merchantTin' }),
     posNo: field({ type: String, label: 'posNo' }),
-    customerTin: field({ type: String, label: 'customerTin' }),
-    customerName: field({ type: String, label: 'customerName' }),
-    consumerNo: field({ type: String, label: 'consumerNo' }),
+    customerTin: field({ type: String, optional: true, label: 'customerTin' }),
+    customerName: field({ type: String, optional: true, label: 'customerName' }),
+    consumerNo: field({ type: String, optional: true, label: 'consumerNo' }),
     type: field({ type: String, label: 'type' }),
     inactiveId: field({ type: String, label: 'inactiveId' }),
     invoiceId: field({ type: String, label: 'invoiceId' }),

@@ -7,7 +7,7 @@ import {
   __,
 } from '@erxes/ui/src';
 import { Card } from './styles';
-import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import BoardSelect from '@erxes/ui-tickets/src/boards/containers/BoardSelect';
 import CardActionComponent from './ActionComponent';
 
 type Props = {
@@ -38,7 +38,7 @@ const Config: React.FC<Props> = (props: Props) => {
     };
 
     return (
-      <CollapseContent title="Action Configuration">
+      <CollapseContent title={__("Action Configuration")}>
         <CardActionComponent {...updatedProps} />
       </CollapseContent>
     );
@@ -94,7 +94,7 @@ const Config: React.FC<Props> = (props: Props) => {
 
   return (
     <>
-      <CollapseContent title="Main Configuration">
+      <CollapseContent title={__("Main Configuration")}>
         {selectCardType}
         {boardSelect}
       </CollapseContent>

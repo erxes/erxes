@@ -113,7 +113,7 @@ export const replacePlaceHolders = async ({
               );
             } else {
               const complexFieldData = target[complexFieldKey].find(
-                cfd => cfd.field === fieldId
+                (cfd) => cfd.field === fieldId
               );
 
               actionData[actionDataKey] = actionData[actionDataKey].replace(
@@ -147,13 +147,13 @@ export const OPERATORS = {
 
 const convertOp1 = (relatedItem, field) => {
   if (
-    ["customFieldsData", "trackedData"].some(complexField =>
+    ["customFieldsData", "trackedData"].some((complexField) =>
       field.includes(complexField)
     )
   ) {
     const [complexFieldKey, nestedComplexFieldKey] = field.split(".");
     return (relatedItem[complexFieldKey] || []).find(
-      nestedObj => nestedObj.field === nestedComplexFieldKey
+      (nestedObj) => nestedObj.field === nestedComplexFieldKey
     )?.value;
   }
 
@@ -162,8 +162,8 @@ const convertOp1 = (relatedItem, field) => {
 
 const getPerValue = async (args: {
   models;
-  subdomain;
-  relatedItem;
+  subdomain: string;
+  relatedItem: any;
   rule;
   target;
   getRelatedValue;
@@ -225,7 +225,7 @@ const getPerValue = async (args: {
     })
   ).config;
 
-  if (updatedValue.match(/[+\-*/]/)) {
+  if (updatedValue.match(/^[0-9+\-*/\s().]+$/)) {
     updatedValue = eval(updatedValue.replace(/{{.*}}/, "0"));
   }
 
@@ -376,13 +376,13 @@ export const setProperty = async ({
 
           if (
             (relatedItem[complexFieldKey] || []).find(
-              obj => obj.field === fieldId
+              (obj) => obj.field === fieldId
             )
           ) {
             selectorDoc[`${complexFieldKey}.field`] = fieldId;
 
             const complexFieldDataKeys = Object.keys(complexFieldData).filter(
-              key => key !== "field"
+              (key) => key !== "field"
             );
 
             for (const complexFieldDataKey of complexFieldDataKeys) {
@@ -437,10 +437,10 @@ export const setProperty = async ({
       _id: relatedItem._id,
       rules: (Object as any)
         .values(setDoc)
-        .map(v => String(v))
+        .map((v) => String(v))
         .join(", ")
     });
   }
 
-  return { module, fields: rules.map(r => r.field).join(", "), result };
+  return { module, fields: rules.map((r) => r.field).join(", "), result };
 };

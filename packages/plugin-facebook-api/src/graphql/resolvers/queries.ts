@@ -1,13 +1,14 @@
-import { IContext, IModels } from "../../connectionResolver";
-import { INTEGRATION_KINDS } from "../../constants";
-import { sendInboxMessage } from "../../messageBroker";
-import { IConversationMessageDocument } from "../../models/definitions/conversationMessages";
+import { IContext, IModels } from '../../connectionResolver';
+import { INTEGRATION_KINDS } from '../../constants';
+import { sendInboxMessage } from '../../messageBroker';
+import { IConversationMessageDocument } from '../../models/definitions/conversationMessages';
 import {
   fetchPagePost,
   fetchPagePosts,
   getPageList,
-  graphRequest
-} from "../../utils";
+  graphRequest,
+  fetchPagesPostsList
+} from '../../utils';
 
 interface IKind {
   kind: string;
@@ -37,7 +38,7 @@ interface IMessagesParams extends IConversationId, IPageParams {
 }
 
 const buildSelector = async (conversationId: string, model: any) => {
-  const query = { conversationId: "" };
+  const query = { conversationId: '' };
 
   const conversation = await model.findOne({
     erxesApiId: conversationId
@@ -93,18 +94,18 @@ const facebookQueries = {
       parentId?: string;
       senderId?: string;
     } = {
-      postId: post ? post.postId || "" : "",
+      postId: post ? post.postId || '' : '',
       isResolved: isResolved === true
     };
 
-    if (senderId && senderId !== "undefined") {
+    if (senderId && senderId !== 'undefined') {
       const customer = await models.Customers.findOne({ erxesApiId: senderId });
 
       if (customer && customer.userId) {
         query.senderId = customer.userId;
       }
     } else {
-      query.parentId = commentId !== "undefined" ? commentId : "";
+      query.parentId = commentId !== 'undefined' ? commentId : '';
     }
 
     const result = await models.CommentConversation.aggregate([
@@ -113,46 +114,46 @@ const facebookQueries = {
       },
       {
         $lookup: {
-          from: "customers_facebooks",
-          localField: "senderId",
-          foreignField: "userId",
-          as: "customer"
+          from: 'customers_facebooks',
+          localField: 'senderId',
+          foreignField: 'userId',
+          as: 'customer'
         }
       },
       {
         $unwind: {
-          path: "$customer",
+          path: '$customer',
           preserveNullAndEmptyArrays: true
         }
       },
       {
         $lookup: {
-          from: "posts_conversations_facebooks",
-          localField: "postId",
-          foreignField: "postId",
-          as: "post"
+          from: 'posts_conversations_facebooks',
+          localField: 'postId',
+          foreignField: 'postId',
+          as: 'post'
         }
       },
       {
         $unwind: {
-          path: "$post",
+          path: '$post',
           preserveNullAndEmptyArrays: true
         }
       },
       {
         $lookup: {
-          from: "comments_facebooks",
-          localField: "commentId",
-          foreignField: "parentId",
-          as: "replies"
+          from: 'comments_facebooks',
+          localField: 'commentId',
+          foreignField: 'parentId',
+          as: 'replies'
         }
       },
       {
         $addFields: {
-          commentCount: { $size: "$replies" },
-          "customer.avatar": "$customer.profilePic",
-          "customer._id": "$customer.erxesApiId",
-          conversationId: "$post.erxesApiId"
+          commentCount: { $size: '$replies' },
+          'customer.avatar': '$customer.profilePic',
+          'customer._id': '$customer.erxesApiId',
+          conversationId: '$post.erxesApiId'
         }
       },
 
@@ -174,7 +175,7 @@ const facebookQueries = {
       erxesApiId: conversationId
     });
     // Extracting comment_ids from the comments array
-    const comment_ids = comments?.map(item => item.comment_id);
+    const comment_ids = comments?.map((item) => item.comment_id);
 
     // Using the extracted comment_ids to search for matching comments
     const search = await models.CommentConversation.find({
@@ -205,10 +206,10 @@ const facebookQueries = {
     try {
       pages = await getPageList(models, accessToken, kind);
     } catch (e) {
-      if (!e.message.includes("Application request limit reached")) {
+      if (!e.message.includes('Application request limit reached')) {
         await models.Integrations.updateOne(
           { accountId },
-          { $set: { healthStatus: "account-token", error: `${e.message}` } }
+          { $set: { healthStatus: 'account-token', error: `${e.message}` } }
         );
       }
     }
@@ -266,7 +267,7 @@ const facebookQueries = {
         .sort(sort)
         .skip(skip || 0);
 
-      const comment_ids = comment?.map(item => item.comment_id);
+      const comment_ids = comment?.map((item) => item.comment_id);
       const search = await models.CommentConversationReply.find({
         parentId: comment_ids
       })
@@ -305,12 +306,10 @@ const facebookQueries = {
     const comment = await models.CommentConversation.findOne({
       erxesApiId: erxesApiId
     });
-
     if (comment) {
       const postConversation = await models.PostConversations.findOne({
         postId: comment.postId
       });
-
       return postConversation; // Return the postConversation when comment is found
     }
 
@@ -322,16 +321,183 @@ const facebookQueries = {
     const bot = await models.Bots.findOne({ _id: botId });
 
     if (!bot) {
-      throw new Error("Bot not found");
+      throw new Error('Bot not found');
     }
 
     return await fetchPagePosts(bot.pageId, bot.token);
   },
+
+  async facebookGetPosts(
+    _root,
+    {
+      brandIds,
+      channelIds,
+      limit = 20 // Default limit of 20 posts if not provided
+    }: {
+      brandIds: string | string[];
+      channelIds: string | string[];
+      limit?: number;
+    },
+    { models, subdomain }: IContext
+  ) {
+    const filteredBrandIds = Array.isArray(brandIds)
+      ? brandIds.filter((id) => id !== '')
+      : brandIds.split(',').filter((id) => id !== '');
+    const filteredChannelIds = Array.isArray(channelIds)
+      ? channelIds.filter((id) => id !== '')
+      : channelIds.split(',').filter((id) => id !== '');
+
+    let integrations: any[] = [];
+
+    let response;
+    if (filteredBrandIds.length > 0) {
+      for (const BrandId of filteredBrandIds) {
+        const splitBrandIds = BrandId.split(',');
+        for (const brandId of splitBrandIds) {
+          try {
+            response = await sendInboxMessage({
+              subdomain,
+              action: 'integrations.find',
+              data: {
+                query: { kind: 'facebook-post', brandId: brandId }
+              },
+              isRPC: true,
+              defaultValue: []
+            });
+
+            if (Array.isArray(response)) {
+              integrations.push(...response);
+            } else {
+              integrations.push(response);
+            }
+          } catch (error) {
+            throw new Error(
+              `Error fetching Brand with ID ${brandId}: ${error.message}`
+            );
+          }
+        }
+      }
+    } else if (
+      filteredChannelIds.length === 0 &&
+      filteredBrandIds.length === 0
+    ) {
+      response = await sendInboxMessage({
+        subdomain,
+        action: 'integrations.find',
+        data: {
+          query: { kind: 'facebook-post' }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+      if (Array.isArray(response)) {
+        integrations.push(...response);
+      } else {
+        integrations.push(response);
+      }
+    }
+
+    let channels: any[] = [];
+    if (filteredChannelIds.length > 0) {
+      for (const combinedChannelIds of filteredChannelIds) {
+        const splitChannelIds = combinedChannelIds.split(',');
+
+        for (const channelId of splitChannelIds) {
+          try {
+            const response = await sendInboxMessage({
+              subdomain,
+              action: 'channels.find',
+              data: { _id: channelId },
+              isRPC: true,
+              defaultValue: []
+            });
+            if (Array.isArray(response)) {
+              channels.push(...response);
+            } else {
+              channels.push(response);
+            }
+          } catch (error) {
+            throw new Error(
+              `Error fetching channel with ID ${channelId}: ${error.message}`
+            );
+          }
+        }
+      }
+    }
+
+    const channelIntegrationIds = channels.flatMap(
+      (channel: any) => channel.integrationIds
+    );
+
+    const allIntegrationIds = integrations.map(
+      (integration: { _id: string }) => integration._id
+    );
+    const uniqueIntegrationIds = [
+      ...new Set([...allIntegrationIds, ...channelIntegrationIds])
+    ];
+
+    const fetchedIntegrations = await models.Integrations.find({
+      erxesApiId: { $in: uniqueIntegrationIds }
+    });
+
+    if (fetchedIntegrations.length === 0) {
+      throw new Error('No integrations found in the database');
+    }
+
+    const allPosts = await Promise.all(
+      fetchedIntegrations.map(async (integration) => {
+        const { facebookPageIds, facebookPageTokensMap } = integration;
+
+        if (!facebookPageIds || facebookPageIds.length === 0) {
+          return [];
+        }
+
+        if (
+          !facebookPageTokensMap ||
+          Object.keys(facebookPageTokensMap).length === 0
+        ) {
+          return [];
+        }
+
+        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+        const fetchPagePostsWithRateLimiting = async (
+          pageId,
+          accessToken,
+          limit
+        ) => {
+          await delay(1000);
+          return fetchPagesPostsList(pageId, accessToken, limit);
+        };
+
+        const posts = await Promise.all(
+          facebookPageIds.map(async (pageId) => {
+            const accessToken = facebookPageTokensMap[pageId];
+            if (!accessToken) {
+              console.warn(`Access token missing for page ID: ${pageId}`);
+              return [];
+            }
+            return fetchPagePostsWithRateLimiting(pageId, accessToken, limit);
+          })
+        );
+
+        return posts.flat();
+      })
+    );
+
+    // Applying the limit to the final result
+    const allPostsFlattened = allPosts.flat();
+    const limitedPosts = allPostsFlattened.slice(0, limit);
+
+    return limitedPosts;
+  },
+
+
   async facebookGetBotPost(_root, { botId, postId }, { models }: IContext) {
     const bot = await models.Bots.findOne({ _id: botId });
 
     if (!bot) {
-      throw new Error("Bot not found");
+      throw new Error('Bot not found');
     }
 
     return await fetchPagePost(postId, bot.token);
@@ -341,7 +507,7 @@ const facebookQueries = {
     const bot = await models.Bots.findOne({ _id: botId });
 
     if (!bot) {
-      throw new Error("Bot not found");
+      throw new Error('Bot not found');
     }
 
     const adAccounts = await graphRequest.get(
@@ -351,14 +517,14 @@ const facebookQueries = {
     const adAccountId = adAccounts?.data[0]?.id;
 
     if (!adAccountId) {
-      throw new Error("Something went wrong during fetch ads");
+      throw new Error('Something went wrong during fetch ads');
     }
 
     const { data } = await graphRequest.get(
       `${adAccountId}/adsets?fields=id,name,adcreatives{thumbnail_url},ads{id}&access_token=${bot.token}`
     );
 
-    return data.map(data => ({
+    return data.map((data) => ({
       _id: data?.ads?.data[0]?.id,
       name: data.name,
       thumbnail: data?.adcreatives?.data[0]?.thumbnail_url
@@ -373,7 +539,7 @@ const facebookQueries = {
     const commonParams = { isRPC: true, subdomain };
     const inboxConversation = await sendInboxMessage({
       ...commonParams,
-      action: "conversations.findOne",
+      action: 'conversations.findOne',
       data: { query: { _id: conversationId } }
     });
 
@@ -382,7 +548,7 @@ const facebookQueries = {
     if (inboxConversation) {
       integration = await sendInboxMessage({
         ...commonParams,
-        action: "integrations.findOne",
+        action: 'integrations.findOne',
         data: { _id: inboxConversation.integrationId }
       });
     }

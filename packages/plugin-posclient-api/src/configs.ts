@@ -53,7 +53,7 @@ export default {
 
     context.config = {};
 
-    if (req.posConfig && req.posConfig._id) {
+    if (req.posConfig?._id) {
       context.config = req.posConfig;
     } else {
       if (models) {

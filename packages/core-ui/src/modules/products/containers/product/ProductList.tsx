@@ -5,6 +5,7 @@ import {
   CategoryDetailQueryResponse,
   MergeMutationResponse,
   MergeMutationVariables,
+  ProductDuplicateMutationResponse,
   ProductRemoveMutationResponse,
   ProductsCountQueryResponse,
   ProductsQueryResponse,
@@ -30,7 +31,8 @@ type FinalProps = {
   productCategoryDetailQuery: CategoryDetailQueryResponse;
 } & Props &
   ProductRemoveMutationResponse &
-  MergeMutationResponse;
+  MergeMutationResponse &
+  ProductDuplicateMutationResponse;
 
 const ProductListContainer = (props: FinalProps) => {
   const [mergeProductLoading, setMergeProductLoading] = useState(false);
@@ -43,6 +45,7 @@ const ProductListContainer = (props: FinalProps) => {
     productsMerge,
     queryParams,
     productCategoryDetailQuery,
+    productsDuplicate,
   } = props;
 
   const products = productsQuery.products || [];
@@ -89,6 +92,18 @@ const ProductListContainer = (props: FinalProps) => {
       });
   };
 
+  const duplicateProduct = (_id: string) => {
+    productsDuplicate({
+      variables: { _id },
+    })
+      .then((result: any) => {
+        Alert.success("You successfully duplicated a product");
+      })
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+  };
+
   const searchValue = props.queryParams.searchValue || "";
 
   const updatedProps = {
@@ -101,6 +116,7 @@ const ProductListContainer = (props: FinalProps) => {
     productsCount: productsCountQuery.productsTotalCount || 0,
     currentCategory: productCategoryDetailQuery.productCategoryDetail || {},
     mergeProducts,
+    duplicateProduct
   };
 
   const productList = (props) => {
@@ -144,6 +160,7 @@ export default withProps<Props>(
             type: queryParams.type,
             segment: queryParams.segment,
             segmentData: queryParams.segmentData,
+            image: queryParams.image,
             ids: queryParams.ids && queryParams.ids.split(","),
             ...generatePaginationParams(queryParams),
           },
@@ -162,6 +179,7 @@ export default withProps<Props>(
           type: queryParams.type,
           segment: queryParams.segment,
           segmentData: queryParams.segmentData,
+          image: queryParams.image,
           ids: queryParams.ids && queryParams.ids.split(","),
         },
         fetchPolicy: "network-only",
@@ -189,6 +207,13 @@ export default withProps<Props>(
       gql(mutations.productsMerge),
       {
         name: "productsMerge",
+      }
+    ),
+    graphql<Props, ProductDuplicateMutationResponse, { _id: string }>(
+      gql(mutations.productsDuplicate),
+      {
+        name: "productsDuplicate",
+        options,
       }
     )
   )(ProductListContainer)

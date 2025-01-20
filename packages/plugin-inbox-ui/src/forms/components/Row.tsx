@@ -16,7 +16,6 @@ import { RowTitle } from "@erxes/ui-engage/src/styles";
 import Tags from "@erxes/ui/src/components/Tags";
 import TextInfo from "@erxes/ui/src/components/TextInfo";
 import Tip from "@erxes/ui/src/components/Tip";
-import WithPermission from "@erxes/ui/src/components/WithPermission";
 import dayjs from "dayjs";
 
 type Props = {
@@ -53,7 +52,7 @@ class Row extends React.Component<Props> {
       </Button>
     );
 
-    const content = (props) => <Manage integration={integration} {...props} />;
+    const content = props => <Manage integration={integration} {...props} />;
 
     return (
       <ModalTrigger
@@ -77,11 +76,9 @@ class Row extends React.Component<Props> {
     }
 
     return (
-      <WithPermission action="integrationsArchive">
-        <Tip text={__("Archive")} placement="top">
-          <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
-        </Tip>
-      </WithPermission>
+      <Tip text={__("Archive")} placement="top">
+        <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
+      </Tip>
     );
   }
 
@@ -91,7 +88,7 @@ class Row extends React.Component<Props> {
 
     const onClick = () => {
       window.open(
-        `${REACT_APP_API_URL}/pl:contacts/file-export?type=customer&popupData=true&form=${integration.formId}`,
+        `${REACT_APP_API_URL}/file-export?type=customer&popupData=true&form=${integration.formId}`,
         "_blank"
       );
     };
@@ -127,11 +124,9 @@ class Row extends React.Component<Props> {
     }
 
     return (
-      <WithPermission action="integrationsArchive">
-        <Tip text={__("Unarchive")} placement="top">
-          <Button btnStyle="link" onClick={onClick} icon="redo" />
-        </Tip>
-      </WithPermission>
+      <Tip text={__("Unarchive")} placement="top">
+        <Button btnStyle="link" onClick={onClick} icon="redo" />
+      </Tip>
     );
   }
 
@@ -141,16 +136,14 @@ class Row extends React.Component<Props> {
     const onClick = () => remove(integration._id);
 
     return (
-      <WithPermission action="integrationsRemove">
-        <Tip text={__("Delete")} placement="top">
-          <Button
-            id="integrationDelete"
-            btnStyle="link"
-            onClick={onClick}
-            icon="times-circle"
-          />
-        </Tip>
-      </WithPermission>
+      <Tip text={__("Delete")} placement="top">
+        <Button
+          id="integrationDelete"
+          btnStyle="link"
+          onClick={onClick}
+          icon="times-circle"
+        />
+      </Tip>
     );
   }
 
@@ -173,7 +166,7 @@ class Row extends React.Component<Props> {
 
     const createdUser = form.createdUser || {
       _id: "",
-      details: { fullName: "" },
+      details: { fullName: "" }
     };
     const tags = integration.tags;
 
@@ -181,7 +174,7 @@ class Row extends React.Component<Props> {
       ? lead.conversionRate.toString()
       : "0.00";
 
-    const onChange = (e) => {
+    const onChange = e => {
       if (toggleBulk) {
         toggleBulk(integration, e.target.checked);
       }

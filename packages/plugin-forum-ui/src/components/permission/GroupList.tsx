@@ -48,7 +48,7 @@ const GroupList = (props: IProps) => {
     const content = (props) => <GroupForm {...props} group={object} />;
 
     return (
-      <ModalTrigger title="New Group" trigger={trigger} content={content} />
+      <ModalTrigger title={__("New Group")} trigger={trigger} content={content} />
     );
   };
 
@@ -138,7 +138,7 @@ const GroupList = (props: IProps) => {
         data={renderContent()}
         loading={false}
         count={objects.length}
-        emptyText="There is no group"
+        emptyText={__("There is no group")}
         emptyImage="/images/actions/26.svg"
       />
       <LoadMore all={objects.length} loading={false} />

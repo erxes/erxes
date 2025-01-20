@@ -90,7 +90,7 @@ const InsuranceTypeForm = (props: Props) => {
               <FormGroup>
                 <ControlLabel required>{__("Company")}</ControlLabel>
                 <SelectCompanies
-                  label="Choose an company"
+                  label={__("Choose an company")}
                   name="companyId"
                   initialValue={companyId}
                   required

@@ -26,9 +26,9 @@ import { useQuery, useMutation } from '@apollo/client';
 
 type Props = {
   name: string;
-  contractsQuery?: MainQueryResponse;
   mainType?: string;
   mainTypeId?: string;
+  id?: string;
   onSelect?: (contract: IContract[]) => void;
   collapseCallback?: () => void;
   contractsDealEdit: any;
@@ -42,6 +42,7 @@ function Component(
     name,
     mainType = '',
     mainTypeId = '',
+    id = '',
     collapseCallback,
     title,
     currentUser,
@@ -53,7 +54,7 @@ function Component(
       fetchPolicy: 'network-only',
       variables:
         mainType === 'customer' || mainType === 'company'
-          ? { customerId: mainTypeId }
+          ? { customerId: mainTypeId || id }
           : { dealId: mainTypeId },
     },
   );

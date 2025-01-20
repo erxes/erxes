@@ -42,6 +42,7 @@ export interface IItinerary {
   info2?: string;
   info3?: string;
   info4?: string;
+  branchId?: string;
 }
 
 export interface IItineraryDocument extends IItinerary, Document {
@@ -59,14 +60,14 @@ export const locationSchema = new Schema(
     name: field({ type: String, label: 'name' }),
     mapId: field({ type: String, label: 'mapId' }),
   },
-  { _id: false }
+  { _id: false },
 );
 const elementOfItinerarySchema = new Schema(
   {
     elementId: field({ type: String, label: 'elementId' }),
     orderOfDay: field({ type: Number, label: 'orderOfDay' }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 const groupDay = new Schema(
@@ -76,7 +77,7 @@ const groupDay = new Schema(
     content: field({ type: String, label: 'content' }),
     elements: field({ type: [elementOfItinerarySchema], label: 'elements' }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const initnarySchema = schemaHooksWrapper(
@@ -114,6 +115,7 @@ export const initnarySchema = schemaHooksWrapper(
     info2: field({ type: String, optional: true, label: 'info' }),
     info3: field({ type: String, optional: true, label: 'info' }),
     info4: field({ type: String, optional: true, label: 'info' }),
+    branchId: field({ type: String, optional: true, label: 'branchId' }),
   }),
-  'erxes_itineraries'
+  'erxes_itineraries',
 );

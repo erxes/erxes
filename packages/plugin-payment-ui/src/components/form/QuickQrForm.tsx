@@ -1,18 +1,17 @@
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { IPaymentDocument } from '../../types';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
-import { SettingsContent } from './styles';
-import { __ } from '@erxes/ui/src/utils';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import Button from '@erxes/ui/src/components/Button';
-import { PAYMENT_KINDS, BANK_CODES, MCC_CODES, CITIES } from '../constants';
-import Toggle from '@erxes/ui/src/components/Toggle';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
+import React from 'react';
 import Select from 'react-select';
 import SelectDistrict from '../../containers/SelectDistrict';
+import { IPaymentDocument } from '../../types';
+import { BANK_CODES, CITIES, MCC_CODES, PAYMENT_KINDS } from '../constants';
+import { SettingsContent } from './styles';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -169,7 +168,8 @@ const QuickQrForm = (props: Props) => {
             ))}
           </FormControl>
         </FormGroup>
-        <SelectDistrict onChange={onChangeDistrict} cityCode={state.city} />
+
+        <SelectDistrict onChange={onChangeDistrict} cityCode={state.city} isRequired={true}/>
         {renderItem('businessName', 'Business Name')}
         {renderItem('address', 'Address')}
         {renderItem('phone', 'Phone')}

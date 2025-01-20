@@ -1,4 +1,5 @@
 import { sendCoreMessage, sendMessageBroker } from "../../messageBroker";
+import { IModels } from "../../connectionResolver";
 
 const getFieldsWithCode = async (subdomain, contentType) => {
   return await sendMessageBroker(
@@ -19,7 +20,7 @@ const getFieldsWithCode = async (subdomain, contentType) => {
       isRPC: true,
       defaultValue: []
     },
-    "forms"
+    "core"
   );
 };
 
@@ -59,18 +60,32 @@ const getCustomerInfo = async (subdomain, type, id) => {
     return {};
   }
 
-  if (type === "contacts:customer") {
+  if (type === "core:customer") {
     return { customerType: "customer", customerId: id };
   }
 
-  if (type === "contacts:company") {
+  if (type === "core:company") {
     return { customerType: "company", customerId: id };
   }
 
   return {};
 };
 
+const getProductInfo = async (models: IModels, type, object) => {
+  if (type === 'sales:deal') {
+    const { productsData } = object;
+    if (!productsData?.length) {
+      return {};
+    }
+
+    const contractType = await models.ContractTypes.findOne({ productId: { $in: productsData.map(p => p.productId) }, productType: 'public' }).lean();
+    return { contractTypeId: contractType?._id }
+  }
+  return {};
+}
+
 export const customFieldToObject = async (
+  models: IModels,
   subdomain,
   customFieldType,
   object
@@ -91,6 +106,7 @@ export const customFieldToObject = async (
 
   return {
     ...result,
-    ...(await getCustomerInfo(subdomain, customFieldType, object._id))
+    ...(await getCustomerInfo(subdomain, customFieldType, object._id)),
+    ...(await getProductInfo(models, customFieldType, object))
   };
 };

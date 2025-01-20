@@ -1,37 +1,27 @@
 import { paginate } from "@erxes/api-utils/src/core";
 import {
-  checkPermission,
-  requireLogin
+  checkPermission
 } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
-import { sendProductsMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 
 export const generateFilterItems = async (subdomain: string, params: any) => {
   const { remainderId, productCategoryIds, status, diffType } = params;
   const query: any = { remainderId };
 
   if (productCategoryIds && productCategoryIds.length) {
-    const categories = await sendProductsMessage({
+    const categories = await sendCoreMessage({
       subdomain,
       action: "categories.withChilds",
       data: { ids: productCategoryIds },
       isRPC: true
     });
 
-    const limit = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: "productCount",
-      data: { query: { categoryId: { $in: categories.map(c => c._id) } } },
-      isRPC: true,
-      defaultValue: 0
-    });
-
-    const products = await sendProductsMessage({
-      subdomain,
-      action: "productFind",
+      action: "products.find",
       data: {
         query: { categoryId: { $in: categories.map(c => c._id) } },
-        limit
       },
       isRPC: true,
       defaultValue: []
@@ -92,7 +82,7 @@ const safeRemainderItemsQueries = {
   }
 };
 
-requireLogin(safeRemainderItemsQueries, "tagDetail");
-checkPermission(safeRemainderItemsQueries, "remainders", "showTags", []);
+checkPermission(safeRemainderItemsQueries, "safeRemainderItems", "manageRemainders", []);
+checkPermission(safeRemainderItemsQueries, "safeRemainderItemsCount", "manageRemainders", []);
 
 export default safeRemainderItemsQueries;

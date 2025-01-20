@@ -603,6 +603,21 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent
           transparent={true}
+          title={__("Azure Blob Storage")}
+          beforeTitle={<Icon icon="cloud-check" />}
+        >
+          <FormGroup>
+            <ControlLabel>Container Name</ControlLabel>
+            {this.renderItem("AZURE_STORAGE_CONTAINER")}
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Connection String</ControlLabel>
+            {this.renderItem("AZURE_STORAGE_CONNECTION_STRING")}
+          </FormGroup>
+        </CollapseContent>
+
+        <CollapseContent
+          transparent={true}
           title='Google'
           beforeTitle={<Icon icon='google' />}
         >

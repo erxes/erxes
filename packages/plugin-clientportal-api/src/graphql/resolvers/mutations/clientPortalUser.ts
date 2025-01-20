@@ -5,7 +5,7 @@ import * as randomize from 'randomatic';
 
 import { tokenHandler } from '../../../auth/authUtils';
 import { IContext } from '../../../connectionResolver';
-import { sendContactsMessage, sendCoreMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
 import {
   IInvitiation,
@@ -189,7 +189,7 @@ const clientPortalUserMutations = {
             fields:
               'id,name,email,gender,education,work,picture,last_name,first_name',
           })
-      ).then(r => r.json());
+      ).then((r) => r.json());
 
       if (!response || !response.id) {
         throw new Error('Facebook authentication failed');
@@ -197,7 +197,7 @@ const clientPortalUserMutations = {
 
       const { id, name, email, picture, first_name, last_name } =
         response || {};
-        
+
       let qry: any = {};
       let user: any = {};
 
@@ -209,7 +209,7 @@ const clientPortalUserMutations = {
 
       qry.clientPortalId = clientPortalId;
 
-      let customer = await sendContactsMessage({
+      let customer = await sendCoreMessage({
         subdomain,
         action: 'customers.findOne',
         data: {
@@ -237,7 +237,7 @@ const clientPortalUserMutations = {
       }
 
       if (!customer) {
-        customer = await sendContactsMessage({
+        customer = await sendCoreMessage({
           subdomain,
           action: 'customers.createCustomer',
           data: {
@@ -301,7 +301,7 @@ const clientPortalUserMutations = {
           {
             method: 'POST',
           }
-        ).then(r => r.json());
+        ).then((r) => r.json());
 
         if (authResponse.error) {
           throw new Error(authResponse.error.message);
@@ -332,7 +332,7 @@ const clientPortalUserMutations = {
               Authorization: `Bearer ${id_token}`,
             },
           }
-        ).then(r => r.json());
+        ).then((r) => r.json());
 
         if (userResponse.error) {
           throw new Error(userResponse.error.message);
@@ -364,7 +364,7 @@ const clientPortalUserMutations = {
 
     qry.clientPortalId = clientPortalId;
 
-    let customer = await sendContactsMessage({
+    let customer = await sendCoreMessage({
       subdomain,
       action: 'customers.findOne',
       data: {
@@ -410,7 +410,7 @@ const clientPortalUserMutations = {
     }
 
     if (!customer) {
-      customer = await sendContactsMessage({
+      customer = await sendCoreMessage({
         subdomain,
         action: 'customers.createCustomer',
         data: {
@@ -693,7 +693,7 @@ const clientPortalUserMutations = {
         }
       }
     } catch (e) {
-      console.log(e.message);
+      console.error(e.message);
     }
 
     const phoneCode = await models.ClientPortalUsers.imposeVerificationCode({
@@ -802,7 +802,7 @@ const clientPortalUserMutations = {
         }
       }
     } catch (e) {
-      console.log(e.message);
+      console.error(e.message);
     }
     if (byPhone) {
       if (!cpUser.phone) {
@@ -1012,7 +1012,7 @@ const clientPortalUserMutations = {
         }
       }
     } catch (e) {
-      console.log(e.message);
+      console.error(e.message);
     }
 
     const emailCode = await models.ClientPortalUsers.imposeVerificationCode({
@@ -1303,7 +1303,7 @@ const clientPortalUserMutations = {
 
     const { userId, erxesCompanyId, erxesCustomerId } = args;
 
-    const getCompany = await sendContactsMessage({
+    const getCompany = await sendCoreMessage({
       subdomain,
       action: 'companies.findOne',
       data: { _id: erxesCompanyId },
@@ -1457,6 +1457,22 @@ const clientPortalUserMutations = {
       newPassword,
       oldPassword
     );
+  },
+
+  async clientPortalUsersMove(
+    _root,
+    {
+      oldClientPortalId,
+      newClientPortalId,
+    }: { oldClientPortalId: string; newClientPortalId: string },
+    { models }: IContext
+  ) {
+    const updated = await models.ClientPortalUsers.moveUser(
+      oldClientPortalId,
+      newClientPortalId
+    );
+
+    return updated;
   },
 };
 

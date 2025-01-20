@@ -34,7 +34,7 @@ const breadcrumb = [
 const headerDescription = (
   <HeaderDescription
     icon="/images/actions/28.svg"
-    title="Notification config"
+    title={__("Notification config")}
     description={`${__(
       `This allows you to see erxes's real-time notification on all system`,
     )}`}

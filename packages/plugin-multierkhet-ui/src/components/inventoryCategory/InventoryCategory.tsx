@@ -164,7 +164,7 @@ const InventoryCategory = (props: Props) => {
               items.create ? renderTable(items.create?.items, 'CREATE') : []
             }
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={__('Please check first.')}
             emptyIcon="leaf"
             size="large"
             objective={true}
@@ -187,7 +187,7 @@ const InventoryCategory = (props: Props) => {
           <DataWithLoader
             data={items.update ? renderTable(items.update.items, 'UPDATE') : []}
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={__('Please check first.')}
             emptyIcon="leaf"
             size="large"
             objective={true}
@@ -210,7 +210,7 @@ const InventoryCategory = (props: Props) => {
           <DataWithLoader
             data={items.delete ? renderTable(items.delete.items, 'DELETE') : []}
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={__('Please check first.')}
             emptyIcon="leaf"
             size="large"
             objective={true}

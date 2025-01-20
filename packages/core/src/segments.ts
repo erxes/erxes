@@ -30,6 +30,7 @@ export default {
     {
       type: "form_submission",
       description: "Form submission",
+      esIndex: "form_submissions",
       hideInSidebar: true
     },
     { type: "company", description: "Company", esIndex: "companies" },
@@ -68,7 +69,9 @@ export default {
     let ids: string[] = [];
 
     if (
-      associatedTypes.includes(propertyType) ||
+      associatedTypes
+        .filter(type => type !== "core:form_submission")
+        .includes(propertyType) ||
       propertyType === "core:lead"
     ) {
       const models = await generateModels(subdomain);
@@ -102,7 +105,11 @@ export default {
     } else {
       const serviceName = getServiceName(propertyType);
 
-      if (propertyType.includes("customers", "company")) {
+      if (propertyType.includes("customer", "company")) {
+        return { data: [], status: "error" };
+      }
+
+      if (serviceName === "core") {
         return { data: [], status: "error" };
       }
 

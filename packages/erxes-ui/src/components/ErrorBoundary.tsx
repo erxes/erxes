@@ -1,15 +1,25 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-import { ErrorBoundary as ReactErrorBoundary } from "react-error-boundary";
+import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary';
 
-const ErrorFallback = ({ error }: { error: Error | null }) => (
-  <p>Something went wrong. ({error?.message})</p>
+const ErrorFallback = ({
+  error,
+  pluginName,
+}: {
+  error: Error | null;
+  pluginName?: string;
+}) => (
+  <p>
+    Something went wrong. ({pluginName ? `${pluginName}: ` : ''}
+    {error?.message})
+  </p>
 );
 
-const ErrorBoundary: React.FC<{ children: any; pluginName?: string }> = ({
-  children,
-  pluginName,
-}) => {
+const ErrorBoundary: React.FC<{
+  children: any;
+  pluginName?: string;
+  error?: Error;
+}> = ({ children, pluginName, error }) => {
   const [hasError, setHasError] = useState(false);
 
   const handleError = (error: Error, errorInfo: React.ErrorInfo) => {
@@ -20,7 +30,7 @@ const ErrorBoundary: React.FC<{ children: any; pluginName?: string }> = ({
 
   if (hasError) {
     // You can render any custom fallback UI
-    return <ErrorFallback error={null} />;
+    return <ErrorFallback error={error || null} pluginName={pluginName} />;
   }
 
   return (

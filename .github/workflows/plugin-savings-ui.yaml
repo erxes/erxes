@@ -50,7 +50,7 @@ on:
       - "packages/plugin-savings-ui/**"
       - ".github/workflows/plugin-savings-ui.yaml"
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

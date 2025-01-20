@@ -1,5 +1,5 @@
 import { IContext } from "../../../connectionResolver";
-import { sendCoreMessage, sendProductsMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 import { IReserveRemDocument } from "../../../models/definitions/reserveRems";
 
 export default {
@@ -38,9 +38,9 @@ export default {
     _,
     { dataLoaders, subdomain }: IContext
   ) {
-    return await sendProductsMessage({
+    return await sendCoreMessage({
       subdomain,
-      action: "productFindOne",
+      action: "products.findOne",
       data: { _id: reserveRem.productId },
       isRPC: true
     });

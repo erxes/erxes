@@ -88,12 +88,20 @@ const insightQueries = {
 
   async insightChartTemplatesList(
     _root,
-    { serviceName }: { serviceName: string },
+    { serviceName: currentService }: { serviceName: string },
     {}: IContext
   ) {
+
+    const [serviceName, contentType] = currentService.split(':');
+
     const service = await getService(serviceName);
 
     const chartTemplates = service.config?.meta?.reports?.chartTemplates;
+
+    if (contentType) {
+      return chartTemplates.filter(t => t.serviceType === contentType);
+    }
+
     return chartTemplates;
   },
 
@@ -134,9 +142,12 @@ const insightQueries = {
 
   async chartGetResult(
     _root,
-    { serviceName, templateType, chartType, filter, dimension },
+    { serviceName: currentService, templateType, chartType, filter, dimension },
     { subdomain, user }: IContext
   ) {
+
+    const [serviceName] = currentService.split(':');
+
     const chartResult = await sendCommonMessage({
       subdomain,
       serviceName,
@@ -152,7 +163,24 @@ const insightQueries = {
     });
 
     return chartResult;
-  }
+  },
+
+  async insightPinnedList(_root, { }, { models, user }: IContext) {
+    const dashboards = await models.Dashboards.find({ userIds: { $in: [user._id] } }) || [];
+    const reports = await models.Reports.find({ userIds: { $in: [user._id] } }) || [];
+
+    const dashboardsWithType = dashboards.map(dashboard => ({
+      ...dashboard.toObject(),
+      type: 'dashboard'
+    }));
+
+    const reportsWithType = reports.map(report => ({
+      ...report.toObject(),
+      type: 'report'
+    }));
+
+    return [...dashboardsWithType, ...reportsWithType];
+  },
 };
 
 export default insightQueries;

@@ -29,9 +29,137 @@ interface IDoc {
   timestamp?: string | number;
   permalink_url?: '';
 }
+export const getOrCreateComment = async (
+  models: IModels,
+  subdomain: string,
+  postConversation: any,
+  commentParams: ICommentParams,
+  pageId: string,
+  userId: string,
+  verb: string,
+  integration: IIntegrationDocument,
+  customer: ICustomerDocument
+) => {
+  const mainConversation = await models.CommentConversation.findOne({
+    comment_id: commentParams.comment_id
+  });
+  const parentConversation = await models.CommentConversation.findOne({
+    comment_id: commentParams.parent_id
+  });
+  const replyConversation = await models.CommentConversationReply.findOne({
+    comment_id: commentParams.comment_id
+  });
+  if (mainConversation || replyConversation) {
+    return;
+  }
+  const post = await models.PostConversations.findOne({
+    postId: commentParams.post_id
+  });
+  let attachment: any[] = [];
+  if (commentParams.photo) {
+    attachment = [
+      {
+        name: 'Photo', // You can set a name for the attachment
+        url: commentParams.photo,
+        type: 'image' // You can set the type based on your requirements
+        // You may want to include other properties like size, duration if applicable
+      }
+    ];
+  }
+  if (!post) {
+    throw new Error('Post not found');
+  }
+  const doc = {
+    attachments: attachment,
+    recipientId: pageId,
+    senderId: userId,
+    createdAt: commentParams.post.updated_time,
+    postId: commentParams.post_id,
+    comment_id: commentParams.comment_id,
+    content: commentParams.message,
+    customerId: customer.erxesApiId,
+    parentId: commentParams.parent_id
+  };
+  if (parentConversation) {
+    await models.CommentConversationReply.create({
+      ...doc
+    });
+  } else {
+    await models.CommentConversation.create({
+      ...doc
+    });
+  }
+  let conversation;
+  conversation = await models.CommentConversation.findOne({
+    comment_id: commentParams.comment_id
+  });
+  if (conversation === null) {
+    conversation = await models.CommentConversation.findOne({
+      comment_id: commentParams.parent_id
+    });
+  }
+  try {
+    const apiConversationResponse = await sendInboxMessage({
+      subdomain,
+      action: 'integrations.receive',
+      data: {
+        action: 'create-or-update-conversation',
+        payload: JSON.stringify({
+          customerId: customer.erxesApiId,
+          integrationId: integration.erxesApiId,
+          content: commentParams.message,
+          attachments: attachment,
+          conversationId: conversation.erxesApiId
+        })
+      },
+      isRPC: true
+    });
+    conversation.erxesApiId = apiConversationResponse?._id;
+    await conversation.save();
+  } catch (error) {
+    await models.CommentConversation.deleteOne({
+      _id: conversation?._id
+    });
+    throw new Error(error.message);
+  }
+  try {
+    await sendInboxMessage({
+      subdomain,
+      action: 'conversationClientMessageInserted',
+      data: {
+        ...conversation?.toObject(),
+        conversationId: conversation.erxesApiId
+      }
+    });
+    graphqlPubsub.publish(
+      `conversationMessageInserted:${conversation.erxesApiId}`,
+      {
+        conversationMessageInserted: {
+          ...conversation?.toObject(),
+          conversationId: conversation.erxesApiId
+        }
+      }
+    );
+  } catch {
+    throw new Error(
+      `Failed to update the database with the Erxes API response for this conversation.`
+    );
+  }
 
+  if (conversation) {
+    await sendAutomationsMessage({
+      subdomain,
+      action: 'trigger',
+      data: {
+        type: `facebook:comments`,
+        targets: [conversation?.toObject()]
+      },
+      defaultValue: null
+    }).catch((err) => debugError(err.message));
+  }
+};
 export const generatePostDoc = async (
-  postParams: IPostParams,
+  postParams: any,
   pageId: string,
   userId: string,
   subdomain: string
@@ -46,68 +174,44 @@ export const generatePostDoc = async (
     photo_id,
     video_id
   } = postParams;
-  let generatedMediaUrls: any[] = [];
+  let generatedMediaUrls: string[] = [];
 
   const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
 
-  const mediaUrls = postParams.photos || [];
-  const mediaLink = postParams.link || '';
-
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    if (mediaLink) {
+    if (link) {
       if (video_id) {
-        generatedMediaUrls = (await uploadMedia(
-          subdomain,
-          mediaLink,
-          true
-        )) as any;
-      }
-
-      if (photo_id) {
-        generatedMediaUrls = (await uploadMedia(
-          subdomain,
-          mediaLink,
-          false
-        )) as any;
+        const mediaUrl = await uploadMedia(subdomain, link, true);
+        if (typeof mediaUrl === 'string') generatedMediaUrls.push(mediaUrl);
+      } else if (photo_id) {
+        const mediaUrl = await uploadMedia(subdomain, link, false);
+        if (typeof mediaUrl === 'string') generatedMediaUrls.push(mediaUrl);
       }
     }
 
-    if (mediaUrls.length > 0) {
-      generatedMediaUrls = await Promise.all(
-        mediaUrls.map((url) => uploadMedia(subdomain, url, false))
+    if (photos && photos.length > 0) {
+      const mediaUrls = await Promise.all(
+        photos.map((url) => uploadMedia(subdomain, url, false))
+      );
+
+      generatedMediaUrls = mediaUrls.filter(
+        (url): url is string => url !== null && typeof url === 'string'
       );
     }
   }
 
-  const doc: IDoc = {
+  const doc = {
     postId: post_id || id,
     content: message || '...',
     recipientId: pageId,
     senderId: userId,
-    permalink_url: ''
+    permalink_url: '',
+    attachments: generatedMediaUrls.length > 0 ? generatedMediaUrls : [],
+    timestamp: created_time ? new Date(created_time) : undefined
   };
-
-  if (link) {
-    doc.attachments = generatedMediaUrls;
-  }
-
-  // Posted multiple image
-  if (photos) {
-    if (UPLOAD_SERVICE_TYPE === 'AWS') {
-      doc.attachments = generatedMediaUrls;
-    }
-    if (UPLOAD_SERVICE_TYPE === 'local') {
-      doc.attachments = photos;
-    }
-  }
-
-  if (created_time) {
-    doc.timestamp = created_time;
-  }
 
   return doc;
 };
-
 const generateCommentDoc = (
   commentParams: ICommentParams,
   pageId: string,
@@ -252,185 +356,6 @@ export const getOrCreatePost = async (
   return post;
 };
 
-export const getOrCreateComment = async (
-  models: IModels,
-  subdomain: string,
-  postConversation: any,
-  commentParams: ICommentParams,
-  pageId: string,
-  userId: string,
-  verb: string,
-  integration: IIntegrationDocument,
-  customer: ICustomerDocument
-) => {
-  if (verb === 'remove') {
-    return;
-  }
-
-  const mainConversation = await models.CommentConversation.findOne({
-    comment_id: commentParams.comment_id
-  });
-
-  const parentConversation = await models.CommentConversation.findOne({
-    comment_id: commentParams.parent_id
-  });
-
-  const replyConversation = await models.CommentConversationReply.findOne({
-    comment_id: commentParams.comment_id
-  });
-
-  const post = await models.PostConversations.findOne({
-    postId: commentParams.post_id
-  });
-
-  if (!post) {
-    throw new Error('Post not found');
-  }
-
-  let attachments: any[] = [];
-  if (commentParams.photo) {
-    attachments = [
-      {
-        name: 'Photo',
-        url: commentParams.photo,
-        type: 'image'
-      }
-    ];
-  }
-
-  const doc = {
-    attachments,
-    recipientId: pageId,
-    senderId: userId,
-    createdAt: commentParams.post.updated_time,
-    postId: commentParams.post_id,
-    comment_id: commentParams.comment_id,
-    content: commentParams.message,
-    customerId: customer.erxesApiId,
-    parentId: commentParams.parent_id
-  };
-
-  if (verb === 'edited') {
-    if (mainConversation) {
-      await models.CommentConversation.updateMany(
-        { comment_id: commentParams.comment_id },
-        { $set: { content: doc.content } }
-      );
-    }
-    if (replyConversation) {
-      await models.CommentConversationReply.updateMany(
-        { comment_id: commentParams.comment_id },
-        { $set: { content: doc.content } }
-      );
-    }
-  }
-  if (mainConversation || replyConversation) {
-    return;
-  }
-
-  if (parentConversation) {
-    await models.CommentConversationReply.create({ ...doc });
-  } else {
-    await models.CommentConversation.create({ ...doc });
-  }
-
-  let conversation = await models.CommentConversation.findOne({
-    comment_id: commentParams.comment_id
-  });
-
-  if (!conversation) {
-    conversation = await models.CommentConversation.findOne({
-      comment_id: commentParams.parent_id
-    });
-  }
-
-  if (!conversation) {
-    throw new Error('Failed to find or create conversation');
-  }
-
-  try {
-    const apiConversationResponse = await sendInboxMessage({
-      subdomain,
-      action: 'integrations.receive',
-      data: {
-        action: 'create-or-update-conversation',
-        payload: JSON.stringify({
-          customerId: customer.erxesApiId,
-          integrationId: integration.erxesApiId,
-          content: commentParams.message,
-          attachments,
-          conversationId: conversation.erxesApiId
-        })
-      },
-      isRPC: true
-    });
-
-    conversation.erxesApiId = apiConversationResponse?._id;
-    await conversation.save();
-  } catch (error) {
-    await models.CommentConversation.deleteOne({ _id: conversation._id });
-    throw new Error(error.message);
-  }
-
-  try {
-    await sendInboxMessage({
-      subdomain,
-      action: 'conversationClientMessageInserted',
-      data: {
-        ...conversation.toObject(),
-        conversationId: conversation.erxesApiId
-      }
-    });
-
-    graphqlPubsub.publish(
-      `conversationMessageInserted:${conversation.erxesApiId}`,
-      {
-        conversationMessageInserted: {
-          ...conversation.toObject(),
-          conversationId: conversation.erxesApiId
-        }
-      }
-    );
-  } catch {
-    throw new Error(
-      'Failed to update the database with the Erxes API response for this conversation.'
-    );
-  }
-
-  const targetConversation = parentConversation
-    ? await models.CommentConversationReply.findOne({
-        comment_id: commentParams.comment_id,
-        parentId: commentParams.parent_id
-      })
-    : conversation;
-
-  if (!targetConversation) {
-    throw new Error('Target conversation not found');
-  }
-
-  const targetObject = targetConversation.toObject();
-
-  try {
-    await sendAutomationsMessage({
-      subdomain,
-      action: 'trigger',
-      data: {
-        type: `facebook:comments`,
-        targets: [
-          {
-            ...targetObject,
-            postId: conversation.postId,
-            erxesApiId: conversation.erxesApiId
-          }
-        ]
-      },
-      defaultValue: null
-    });
-  } catch (err) {
-    debugError(err.message);
-  }
-};
-
 export const getOrCreateCustomer = async (
   models: IModels,
   subdomain: string,
@@ -519,3 +444,42 @@ export const getOrCreateCustomer = async (
 
   return customer;
 };
+
+function getMediaSources(postDetails: any): string[] {
+  const mediaSources: Set<string> = new Set();
+
+  if (Array.isArray(postDetails?.attachments?.data)) {
+    postDetails.attachments.data.forEach((attachment: any) => {
+      const mediaType = attachment.media_type;
+
+      if (mediaType === 'photo' && attachment.media?.image?.src) {
+        mediaSources.add(attachment.media.image.src); // No need to append 'jpg'
+      } else if (mediaType === 'video' && attachment.media?.source) {
+        mediaSources.add(attachment.media.source); // No need to append 'mp'
+      } else if (
+        mediaType === 'album' &&
+        Array.isArray(attachment.subattachments?.data)
+      ) {
+        attachment.subattachments.data.forEach((subattachment: any) => {
+          if (subattachment.media) {
+            if (
+              subattachment.type === 'photo' &&
+              subattachment.media?.image?.src
+            ) {
+              mediaSources.add(subattachment.media.image.src); // No need to append 'jpg'
+            } else if (
+              subattachment.type === 'video' &&
+              subattachment.media?.source
+            ) {
+              mediaSources.add(subattachment.media.source); // No need to append 'mp'
+            }
+          }
+        });
+      }
+    });
+  } else {
+    return [];
+  }
+
+  return Array.from(mediaSources);
+}

@@ -8,10 +8,8 @@ import { itemsAdd } from '../graphql/resolvers/mutations/utils';
 import { generateModels, IModels } from '../connectionResolver';
 import {
   sendCommonMessage,
-  sendContactsMessage,
   sendCoreMessage,
-  sendInboxMessage,
-  sendProductsMessage,
+  sendInboxMessage
 } from '../messageBroker';
 import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
@@ -405,6 +403,7 @@ export const createBoardItem = async (
     });
   } catch (e) {
     if (e.message.includes(`E11000 duplicate key error`)) {
+      console.log(doc.number, type, doc.stageId)
       await createBoardItem(models, subdomain, doc, type);
     } else {
       throw new Error(e.message);
@@ -448,9 +447,9 @@ export const createBoardItem = async (
 
 // check booking convert
 const checkBookingConvert = async (subdomain: string, productId: string) => {
-  const product = await sendProductsMessage({
+  const product = await sendCoreMessage({
     subdomain,
-    action: 'productFindOne',
+    action: 'products.findOne',
     data: { _id: productId },
     isRPC: true,
   });
@@ -631,7 +630,7 @@ export const updateName = async (
       const idsCustomers = await getCustomerIds(subdomain, type, item._id);
       const idsCompanies = await getCompanyIds(subdomain, type, item._id);
 
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
         action: 'customers.find',
         data: {
@@ -641,7 +640,7 @@ export const updateName = async (
         defaultValue: [],
       });
 
-      const companies = await sendContactsMessage({
+      const companies = await sendCoreMessage({
         subdomain,
         action: 'companies.find',
         data: {

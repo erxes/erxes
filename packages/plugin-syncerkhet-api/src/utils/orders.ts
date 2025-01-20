@@ -1,10 +1,9 @@
 import { generateModels } from "../connectionResolver";
 import {
-  sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "../messageBroker";
 import { sendRPCMessage } from "../messageBrokerErkhet";
+import { calcProductsTaxRule } from "./productsByTaxType";
 import { getConfig, getPureDate } from "./utils";
 
 export const getPostData = async (subdomain, pos, order) => {
@@ -36,24 +35,22 @@ export const getPostData = async (subdomain, pos, order) => {
     "";
 
   const productsIds = order.items.map(item => item.productId);
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
-    action: "productFind",
+    action: "products.find",
     data: { query: { _id: { $in: productsIds } } },
     isRPC: true,
     defaultValue: []
   });
 
-  const productCodeById = {};
-  for (const product of products) {
-    productCodeById[product._id] = product.code;
-  }
+  const { productsById, oneMoreCtax, oneMoreVat } = await calcProductsTaxRule(subdomain, pos.ebarimtConfig, products)
 
   let sumSaleAmount = 0;
 
   for (const item of order.items) {
     // if wrong productId then not sent
-    if (!productCodeById[item.productId]) {
+    const product = productsById[item.productId]
+    if (!product) {
       continue;
     }
 
@@ -63,8 +60,9 @@ export const getPostData = async (subdomain, pos, order) => {
       count: item.count,
       amount,
       discount: item.discountAmount,
-      inventoryCode: productCodeById[item.productId],
-      workerEmail
+      inventoryCode: product.code,
+      workerEmail,
+      taxRule: product.taxRule
     });
   }
 
@@ -99,7 +97,7 @@ export const getPostData = async (subdomain, pos, order) => {
     const customerType = order.customerType || "customer";
     if (customerType === "company") {
       customerCode = (
-        await sendContactsMessage({
+        await sendCoreMessage({
           subdomain,
           action: "companies.findOne",
           data: {
@@ -111,7 +109,7 @@ export const getPostData = async (subdomain, pos, order) => {
       )?.code;
     } else {
       customerCode = (
-        await sendContactsMessage({
+        await sendCoreMessage({
           subdomain,
           action: "customers.findOne",
           data: {
@@ -128,16 +126,18 @@ export const getPostData = async (subdomain, pos, order) => {
     {
       date: getPureDate(order.paidDate).toISOString().slice(0, 10),
       orderId: order._id,
-      hasVat: order.taxInfo
-        ? order.taxInfo.hasVat
-        : pos.ebarimtConfig && pos.ebarimtConfig.hasVat
-          ? true
-          : false,
-      hasCitytax: order.taxInfo
-        ? order.taxInfo.hasCitytax
-        : pos.ebarimtConfig && pos.ebarimtConfig.hasCitytax
-          ? true
-          : false,
+      hasVat: order.billType === '9' ? false : (
+        (order.taxInfo
+          ? order.taxInfo.hasVat
+          : pos.ebarimtConfig?.hasVat
+        ) || oneMoreVat || false
+      ),
+      hasCitytax: order.billType === '9' ? false : (
+        (order.taxInfo
+          ? order.taxInfo.hasCitytax
+          : pos.ebarimtConfig?.hasCitytax
+        ) || oneMoreCtax || false
+      ),
       billType: order.billType,
       customerCode,
       description: `${pos.name}`,

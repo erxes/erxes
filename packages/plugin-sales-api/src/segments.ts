@@ -1,10 +1,6 @@
 import { fetchByQueryWithScroll } from "@erxes/api-utils/src/elasticsearch";
 import { generateModels } from "./connectionResolver";
-import {
-  sendCommonMessage,
-  sendCoreMessage,
-  sendProductsMessage
-} from "./messageBroker";
+import { sendCommonMessage, sendCoreMessage } from "./messageBroker";
 import { generateConditionStageIds } from "./utils";
 import {
   gatherAssociatedTypes,
@@ -15,7 +11,15 @@ import {
 
 export default {
   dependentServices: [
-    { name: "contacts", twoWay: true, associated: true },
+    {
+      name: "core",
+      types: ["company", "customer", "lead"],
+      twoWay: true,
+      associated: true
+    },
+    { name: "tickets", twoWay: true, associated: true },
+    { name: "tasks", twoWay: true, associated: true },
+    { name: "purchases", twoWay: true, associated: true },
     { name: "inbox", twoWay: true }
   ],
 
@@ -98,6 +102,8 @@ export default {
 
     let ids: string[] = [];
 
+    console.log({ associatedTypes, propertyType });
+
     if (associatedTypes.includes(propertyType)) {
       const mainTypeIds = await fetchByQueryWithScroll({
         subdomain,
@@ -119,11 +125,12 @@ export default {
     } else {
       const serviceName = getServiceName(propertyType);
 
-      if (serviceName === "cards") {
+      if (serviceName === "sales") {
         return { data: [], status: "error" };
       }
 
-      ids = await sendCommonMessage({
+      ids = [];
+      await sendCommonMessage({
         serviceName,
         subdomain,
         action: "segments.associationFilter",
@@ -173,9 +180,9 @@ const generateProductsCategoryProductIds = async (subdomain, condition) => {
   if (propertyName === "productsData.categoryId") {
     productCategoryIds.push(propertyValue);
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: "productFind",
+      action: "products.find",
       data: {
         categoryIds: [...new Set(productCategoryIds)],
         fields: { _id: 1 }

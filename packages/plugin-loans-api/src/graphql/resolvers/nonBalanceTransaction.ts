@@ -12,7 +12,7 @@ const nonBalanceTransactions = {
         data: { _id: nonBalanceTransaction.customerId },
         isRPC: true
       },
-      'contacts'
+      'core'
     );
   },
   async contract(nonBalanceTransaction: INonBalanceTransaction, _, { models }: IContext) {

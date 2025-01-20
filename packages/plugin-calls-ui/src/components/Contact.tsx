@@ -1,13 +1,13 @@
-import { AdditionalDetail, ContactItem, Contacts, InputBar } from "../styles";
-import React, { useState } from "react";
+import { AdditionalDetail, ContactItem, Contacts, InputBar } from '../styles';
+import React, { useState } from 'react';
 
-import Dropdown from "@erxes/ui/src/components/Dropdown";
-import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
-import { EmptyState } from "@erxes/ui/src/components";
-import { FormControl } from "@erxes/ui/src/components/form";
-import Icon from "@erxes/ui/src/components/Icon";
-import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
-import { __ } from "@erxes/ui/src/utils";
+import Dropdown from '@erxes/ui/src/components/Dropdown';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import { EmptyState } from '@erxes/ui/src/components';
+import { FormControl } from '@erxes/ui/src/components/form';
+import Icon from '@erxes/ui/src/components/Icon';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   customers?: any;
@@ -22,17 +22,15 @@ const Contact: React.FC<Props> = ({
   searchCustomer,
   changeMainTab,
 }: Props) => {
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState('');
 
   const renderContact = () => {
-    const [searchValue, setSearchValue] = useState("");
-
     const onCall = (phoneNumber) => {
-      changeMainTab(phoneNumber, "Keyboard");
+      changeMainTab(phoneNumber, 'Keyboard');
     };
 
     if (!customers || customers.length === 0) {
-      return <EmptyState icon="ban" text="There is no contact" size="small" />;
+      return <EmptyState icon="ban" text={__("There is no contact" )}size="small" />;
     }
 
     return customers.map((customer, i) => {
@@ -42,7 +40,7 @@ const Contact: React.FC<Props> = ({
             user={customer}
             key={i}
             avatarSize={40}
-            secondLine={customer.primaryPhone}
+            secondLine={customer.primaryPhone || customer.primaryEmail}
           />
           <AdditionalDetail>
             <Dropdown
@@ -50,7 +48,7 @@ const Contact: React.FC<Props> = ({
               toggleComponent={<Icon icon="ellipsis-v" size={18} />}
             >
               <li key="call" onClick={() => onCall(customer?.primaryPhone)}>
-                <Icon icon="outgoing-call" /> {__("Call")}
+                <Icon icon="outgoing-call" /> {__('Call')}
               </li>
             </Dropdown>
           </AdditionalDetail>
@@ -79,7 +77,7 @@ const Contact: React.FC<Props> = ({
     <>
       <InputBar type="searchBar">
         <FormControl
-          placeholder={__("Type to search")}
+          placeholder={__('Type to search')}
           name="searchValue"
           onChange={onChange}
           value={searchValue}

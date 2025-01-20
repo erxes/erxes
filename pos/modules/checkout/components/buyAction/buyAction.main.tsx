@@ -12,9 +12,12 @@ import {
 } from "@/store/order.store"
 import { showRecieptAtom } from "@/store/progress.store"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { CheckCircleIcon, PrinterIcon } from "lucide-react"
 
 import { ORDER_TYPES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import SplitButton from "@/components/ui/split-button"
 import PrintProgress from "@/app/(main)/(orders)/components/progress/PrintProgress"
 
 const OrderFinish: any = dynamic(() => import("../orderFinish"), {
@@ -27,16 +30,21 @@ const BuyAction = () => {
   const setShowRecieptId = useSetAtom(showRecieptAtom)
   const type = useAtomValue(orderTypeAtom)
   const router = useRouter()
-  const isPay = buttonType === "pay"
+
   const config = useAtomValue(configAtom)
   const { isActive, isPrint } = config?.kitchenScreen || {}
 
   const onCompleted = (_id: string, isPre?: boolean) => {
-    if (isPay) {
+    if (buttonType === "pay") {
       router.push("/checkout?orderId=" + _id)
-    } else {
-      !isActive && isPrint && !isPre && setShowRecieptId(_id)
+    } else if (
+      buttonType === "kitchen" ||
+      buttonType === "customer" ||
+      (buttonType === "order" && !isActive && isPrint && !isPre)
+    ) {
+      setShowRecieptId(_id + (buttonType === "customer" ? "?customer" : ""))
     }
+
     return setActiveOrder(_id)
   }
 
@@ -48,24 +56,46 @@ const BuyAction = () => {
 
   return (
     <>
-      <Button
+      <SplitButton
         size="lg"
         onClick={() => {
           setButtonType("order")
-          setTimeout(() => orderCU())
+          setTimeout(orderCU)
         }}
-        loading={loading && !isPay}
+        loading={loading && buttonType !== "pay"}
         disabled={disableOrder}
+        options={
+          <>
+            <DropdownMenuItem
+              onClick={() => {
+                setButtonType("order")
+                setTimeout(orderCU)
+              }}
+            >
+              <CheckCircleIcon size={16} className="mr-2" />
+              Захиалах
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setButtonType("customer")
+                setTimeout(orderCU)
+              }}
+            >
+              <PrinterIcon size={16} className="mr-2" />
+              Түр баримт хэвлэх
+            </DropdownMenuItem>
+          </>
+        }
       >
         Захиалах
-      </Button>
+      </SplitButton>
       <div className="flex items-center col-span-2 gap-2">
         <SettingsTrigger />
         {ORDER_TYPES.SALES.includes(type) ? (
           <Button
             size="lg"
             className="bg-green-500 hover:bg-green-500/90 flex-auto"
-            loading={loading && isPay}
+            loading={loading && buttonType === "pay"}
             disabled={disabled}
             onClick={() => {
               setButtonType("pay")

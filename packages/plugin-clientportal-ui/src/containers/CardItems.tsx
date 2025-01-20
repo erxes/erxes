@@ -68,7 +68,7 @@ const CardItems = (props: Props) => {
       hideQuickButtons={true}
       items={items || []}
       onChangeItem={() => {
-        console.log("onChangeItem");
+        console.debug("onChangeItem");
       }}
     />
   );

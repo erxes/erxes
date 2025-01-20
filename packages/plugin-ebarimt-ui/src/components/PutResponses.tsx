@@ -143,7 +143,7 @@ const PutResponses: React.FC<IProps> = (props: IProps) => {
           data={mainContent}
           loading={loading}
           count={totalCount}
-          emptyText="Add in your first putResponse!"
+          emptyText={__("Add in your first putResponse!")}
           emptyImage="/images/actions/1.svg"
         />
       }

@@ -1,4 +1,7 @@
-import { IFacebookComment, IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+import {
+  IFacebookComment,
+  IIntegration
+} from '@erxes/ui-inbox/src/settings/integrations/types';
 
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { ITag } from '@erxes/ui-tags/src/types';
@@ -53,6 +56,7 @@ export interface IConversation {
   customer: ICustomer;
   assignedUser: IUser;
   participatedUsers?: IUser[];
+  readUsers: IUser[];
   tags: ITag[];
   updatedAt: Date;
   idleTime: number;
@@ -144,7 +148,7 @@ export interface IBotData {
     {
       title: string;
       payload: string;
-    },
+    }
   ];
   wrapped?: {
     type: string;

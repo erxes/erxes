@@ -1,6 +1,6 @@
 import { fetchPolaris } from '../utils';
 
-export const createChangeLoanAmount = async (subdomain, params) => {
+export const createChangeLoanAmount = async (subdomain, polarisConfig, params) => {
   const sendData = [
     {},
     params.number,
@@ -13,6 +13,7 @@ export const createChangeLoanAmount = async (subdomain, params) => {
     subdomain,
     op: '13611117',
     data: sendData,
+    polarisConfig
   });
 
   return loanChangeLoanAmountResponse.txnJrno;

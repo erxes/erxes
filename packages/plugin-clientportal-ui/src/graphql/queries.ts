@@ -119,6 +119,7 @@ export const commonFields = `
   refreshTokenExpiration
   tokenPassMethod
   vendorParentProductCategoryId
+  language
 `;
 
 export const basicFields = `
@@ -135,7 +136,9 @@ export const basicFields = `
   type
 
   clientPortal {
+    _id
     name
+    kind
   }
 
   erxesCustomerId

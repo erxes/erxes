@@ -15,6 +15,7 @@ import {
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
+
 export interface IModels {
   KnowledgeBaseArticles: IArticleModel;
   KnowledgeBaseCategories: ICategoryModel;
@@ -42,7 +43,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'knowledgebase_topics',
     loadTopicClass(models),
   );
-
+  
   return models;
 };
 

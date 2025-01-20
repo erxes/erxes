@@ -1,27 +1,26 @@
 import { ISyncLogDocument } from "../../models/definitions/syncLog";
-import { customFieldToObject, updateCustomer, fetchPolaris } from "../utils";
-import { getCustomerDetailByRegister } from "./getCustomerDetailByRegister";
+import { customFieldToObject, updateCustomer, fetchPolaris, genObjectOfRule } from "../utils";
 import { IPolarisCustomer } from "./types";
 import { validateObject } from "./validator";
 
-export const createCustomer = async (
-  subdomain: string,
-  models,
-  syncLog: ISyncLogDocument,
-  params
-) => {
-  const customer = params.updatedDocument || params.object;
-
+export const createCustomer = async (subdomain: string, models, polarisConfig, syncLog: ISyncLogDocument, customer) => {
   const data = await customFieldToObject(subdomain, "core:customer", customer);
+
+  const dataOfRules = await genObjectOfRule(
+    subdomain,
+    "core:customer",
+    data,
+    polarisConfig.customer
+  );
 
   let sendData: IPolarisCustomer = {
     lastName: data.lastName,
     firstName: data.firstName,
     familyName: data.familyName,
-    email: data.emails.join(","),
+    email: data.primaryEmail,
     mobile: data.phones.join(","),
     birthDate: data.birthDate,
-    custSegCode: "81",
+    custSegCode: data.custSegCode,
     isVatPayer: data.isVatPayer,
     sexCode: data.sexCode,
     taxExemption: data.taxExemption ?? "0",
@@ -30,21 +29,22 @@ export const createCustomer = async (
     isCompanyCustomer: 1,
     industryId: data.industryId,
     birthPlaceId: data.birthPlaceId,
-    shortName: data.middleName,
-    registerMaskCode: "3",
-    registerCode: data.registerCode,
-    countryCode: "496",
+    shortName: data.shortName,
+    registerMaskCode: data.registerMaskCode || "3",
+    countryCode: data.countryCode || "496",
     industryName: data.industryName ?? "",
     catId: data.catId ?? "",
     ethnicGroupId: data.ethnicGroupId ?? "",
     langCode: data.langCode ?? "1",
-    maritalStatus: data.maritalStatus ?? "1",
+    maritalStatus: data.maritalStatus || "1",
     birthPlaceName: data.birthPlaceName ?? "",
     birthPlaceDetail: data.birthPlaceDetail ?? "",
-    phone: data.phones.join(","),
+    phone: data.primaryEmail,
     fax: data.fax ?? "",
     isBl: data.isBl ?? "0",
-    isPolitical: data.isPolitical ?? "0"
+    isPolitical: data.isPolitical ?? "0",
+    ...dataOfRules,
+    registerCode: customer.registerCode,
   };
 
   await validateObject(sendData);
@@ -54,31 +54,31 @@ export const createCustomer = async (
     op: "13610313",
     data: [sendData],
     models,
+    polarisConfig,
     syncLog
-  }).catch(async e => {
-    //check register number duplicated
-    if (e.message.includes("41020330")) {
-      let customerData = await getCustomerDetailByRegister(subdomain, {
-        register: sendData.registerCode
-      });
-
-      if (customerData) {
-        await updateCustomer(
-          subdomain,
-          { _id: customer._id },
-          { code: customerData.custCode }
-        );
-      }
-    } else {
-      throw new Error(e.message);
-    }
   });
 
   if (customerCode) {
+    const data: any = {};
+
+    if (polarisConfig.codeField.propType) {
+      data[polarisConfig.codeField.propType] = customerCode;
+    } else {
+      const customDatas = customer.customFieldsData.filter(cfd => cfd.field !== polarisConfig.codeField.fieldId);
+      data.customFieldsData = [
+        ...customDatas,
+        {
+          field: polarisConfig.codeField.fieldId,
+          value: customerCode,
+          stringValue: customerCode
+        }
+      ]
+    }
+
     await updateCustomer(
       subdomain,
       { _id: customer._id },
-      { code: customerCode }
+      data
     );
   }
 

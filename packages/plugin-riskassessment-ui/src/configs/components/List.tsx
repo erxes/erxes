@@ -11,18 +11,18 @@ import {
   Table,
   __,
   confirm,
-} from "@erxes/ui/src";
-import { DefaultWrapper, SelectCustomFields } from "../../common/utils";
-import { Padding, SidebarHeader } from "../../styles";
-import React, { useState } from "react";
-import { cardTypes, subMenu } from "../../common/constants";
-import { removeParams, setParams } from "@erxes/ui/src/utils/router";
-import { useLocation, useNavigate } from "react-router-dom";
+} from '@erxes/ui/src';
+import { DefaultWrapper, SelectCustomFields } from '../../common/utils';
+import { Padding, SidebarHeader } from '../../styles';
+import React, { useState } from 'react';
+import { cardTypes, subMenu } from '../../common/constants';
+import { removeParams, setParams } from '@erxes/ui/src/utils/router';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
-import Form from "../containers/Form";
-import Row from "./Row";
-import Select from "react-select";
+import BoardSelectContainer from '@erxes/ui-tickets/src/boards/containers/BoardSelect';
+import Form from '../containers/Form';
+import Row from './Row';
+import Select from 'react-select';
 
 type Props = {
   queryParams: any;
@@ -57,17 +57,17 @@ const List = (props: Props) => {
 
     const selectAllItems = () => {
       if (!selectedItems.length) {
-        const configIds = configs.map((config) => config._id);
+        const configIds = configs.map(config => config._id);
         return setSelectedItems(configIds);
       }
 
       setSelectedItems([]);
     };
 
-    const selectItem = (id) => {
+    const selectItem = id => {
       if (selectedItems.includes(id)) {
         const removedSelectedItems = selectedItems.filter(
-          (selectItem) => selectItem !== id
+          selectItem => selectItem !== id
         );
         return setSelectedItems(removedSelectedItems);
       }
@@ -85,24 +85,24 @@ const List = (props: Props) => {
                 onClick={selectAllItems}
               />
             </th>
-            <th>{__("Board")}</th>
-            <th>{__("Pipeline")}</th>
-            <th>{__("Stage")}</th>
-            <th>{__("Field")}</th>
-            <th>{__("Risk Assessment")}</th>
+            <th>{__('Board')}</th>
+            <th>{__('Pipeline')}</th>
+            <th>{__('Stage')}</th>
+            <th>{__('Field')}</th>
+            <th>{__('Risk Assessment')}</th>
             <th>
               <SortHandler sortField="createdAt" />
-              {__("Created At")}
+              {__('Created At')}
             </th>
             <th>
               <SortHandler sortField="modifiedAt" />
-              {__("Modified At")}
+              {__('Modified At')}
             </th>
-            <th>{__("Action")}</th>
+            <th>{__('Action')}</th>
           </tr>
         </thead>
         <tbody>
-          {configs.map((config) => (
+          {configs.map(config => (
             <Row
               {...props}
               key={config._id}
@@ -127,8 +127,8 @@ const List = (props: Props) => {
 
   const handleFilterParams = (type, value) => {
     if (!value) {
-      if (type === "cardType") {
-        for (const param of ["cardType", "boardId", "pipelineId", "stageId"]) {
+      if (type === 'cardType') {
+        for (const param of ['cardType', 'boardId', 'pipelineId', 'stageId']) {
           removeParams(navigate, location, param);
         }
         return;
@@ -138,40 +138,57 @@ const List = (props: Props) => {
     setParams(navigate, location, { [type]: value });
   };
 
+  const clearFilters = () => {
+    return removeParams(
+      navigate,
+      location,
+      ...['cardType', 'boardId', 'pipelineId', 'stageId', 'customFieldId']
+    );
+  };
+
   const sidebar = (
     <Sidebar
       full
-      header={<SidebarHeader>{__("Addition Filters")}</SidebarHeader>}
+      header={<SidebarHeader>{__('Addition Filters')}</SidebarHeader>}
     >
       <Padding $horizontal>
+        {Object.keys(queryParams || {}).length ? (
+          <Button btnStyle="warning" block onClick={clearFilters}>
+            {__('Clear Filters')}
+          </Button>
+        ) : (
+          <></>
+        )}
         <FormGroup>
-          <ControlLabel>{__("Type")}</ControlLabel>
+          <ControlLabel>{__('Type')}</ControlLabel>
           <Select
-            placeholder={__("Select Type")}
-            value={cardTypes.find((o) => o.value === queryParams?.cardType)}
+            placeholder={__('Select Type')}
+            value={cardTypes.find(o => o.value === queryParams?.cardType)}
             options={cardTypes}
             isMulti={false}
             isClearable={true}
-            onChange={(e) => handleFilterParams("cardType", e?.value)}
+            onChange={e => handleFilterParams('cardType', e?.value)}
           />
         </FormGroup>
-        <BoardSelectContainer
-          type={queryParams?.cardType}
-          boardId={queryParams?.boardId}
-          pipelineId={queryParams?.pipelineId}
-          stageId={queryParams?.stageId}
-          onChangeBoard={(e) => handleFilterParams("boardId", e)}
-          onChangePipeline={(e) => handleFilterParams("pipelineId", e)}
-          onChangeStage={(e) => handleFilterParams("stageId", e)}
-          autoSelectStage={false}
-        />
+        {queryParams?.cardType && (
+          <BoardSelectContainer
+            type={queryParams?.cardType}
+            boardId={queryParams?.boardId}
+            pipelineId={queryParams?.pipelineId}
+            stageId={queryParams?.stageId}
+            onChangeBoard={e => handleFilterParams('boardId', e)}
+            onChangePipeline={e => handleFilterParams('pipelineId', e)}
+            onChangeStage={e => handleFilterParams('stageId', e)}
+            autoSelectStage={false}
+          />
+        )}
         <FormGroup>
-          <ControlLabel>{__("Custom field")}</ControlLabel>
+          <ControlLabel>{__('Custom field')}</ControlLabel>
           <SelectCustomFields
             label="Select Custom Field"
             name="customField"
             initialValue={queryParams?.customFieldId}
-            onSelect={({ _id }) => handleFilterParams("customFieldId", _id)}
+            onSelect={({ _id }) => handleFilterParams('customFieldId', _id)}
             type={queryParams?.cardType}
           />
         </FormGroup>
@@ -199,7 +216,7 @@ const List = (props: Props) => {
   );
 
   const updatedProps = {
-    title: "Configrations",
+    title: 'Configrations',
     content: renderContent(),
     rightActionBar,
     leftActionBar,

@@ -118,22 +118,13 @@ export const setupMessageConsumers = async () => {
   consumeQueue("engages:sendEmail", async ({ data, subdomain }) => {
     const models = await generateModels(subdomain);
 
-    await sendEmail(models, data);
+    await sendEmail(subdomain, models, data);
   });
 };
 
 export const removeEngageConversations = async (_id: string): Promise<any> => {
   // FIXME: This doesn't look like it should be calling consumeQueue
   // return consumeQueue('removeEngageConversations', _id);
-};
-
-export const sendContactsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "core",
-    ...args
-  });
 };
 
 export const sendCoreMessage = async (

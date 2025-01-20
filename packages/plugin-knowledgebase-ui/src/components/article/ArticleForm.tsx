@@ -1,32 +1,34 @@
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
-import { FlexRow, Forms, ReactionItem } from './styles';
 import {
   IArticle,
   IErxesForm,
   ITopic,
 } from '@erxes/ui-knowledgeBase/src/types';
+import { FILE_MIME_TYPES } from '@erxes/ui-settings/src/general/constants';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Icon from '@erxes/ui/src/components/Icon';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
   IOption,
+  IPdfAttachment,
 } from '@erxes/ui/src/types';
-import Select, { OnChangeValue } from 'react-select';
-import Datetime from '@nateradebaugh/react-datetime';
+import dayjs from 'dayjs';
 import { __, extractAttachment } from 'coreui/utils';
-
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FILE_MIME_TYPES } from '@erxes/ui-settings/src/general/constants';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
-import Uploader from '@erxes/ui/src/components/Uploader';
+import Select, { OnChangeValue } from 'react-select';
 import { articleReactions } from '../../icons.constant';
+
+import { FlexRow, Forms, ReactionItem } from './styles';
+import PdfUploader from '@erxes/ui/src/components/PdfUploader';
 
 type Props = {
   article: IArticle;
@@ -44,6 +46,7 @@ type State = {
   categoryId: string;
   scheduledDate?: Date;
   attachments: IAttachment[];
+  pdfAttachment?: IPdfAttachment | undefined;
   image: IAttachment | null;
   erxesForms: IErxesForm[];
   isPrivate: boolean;
@@ -69,6 +72,9 @@ class ArticleForm extends React.Component<Props, State> {
       attachments,
       isPrivate: article.isPrivate || false,
       isScheduled: article.status === 'scheduled' || false,
+      scheduledDate:
+        article.status === 'scheduled' ? article.scheduledDate : undefined,
+      pdfAttachment: article.pdfAttachment || undefined,
     };
   }
 
@@ -116,14 +122,23 @@ class ArticleForm extends React.Component<Props, State> {
       finalValues._id = article._id;
     }
 
-    if (this.state.isScheduled && !this.state.scheduledDate) {
-      return alert(__('Please select a publish date'));
-    } else if (
-      this.state.scheduledDate &&
-      this.state.scheduledDate < new Date()
-    ) {
-      return alert(__('Publish date cannot be in the past'));
+    const pdfAttachment: any = { ...this.state.pdfAttachment };
+
+    if (pdfAttachment && pdfAttachment.__typename) {
+      delete pdfAttachment.__typename;
     }
+
+    if (pdfAttachment.pdf && pdfAttachment.pdf.__typename) {
+      delete pdfAttachment.pdf.__typename;
+    }
+
+    pdfAttachment.pages = pdfAttachment.pages?.map((p) => {
+      const page = { ...p };
+      if (page && page.__typename) {
+        delete page.__typename;
+      }
+      return page;
+    });
 
     return {
       _id: finalValues._id,
@@ -145,6 +160,7 @@ class ArticleForm extends React.Component<Props, State> {
         categoryId,
         image,
         scheduledDate,
+        pdfAttachment,
       },
     };
   };
@@ -194,6 +210,12 @@ class ArticleForm extends React.Component<Props, State> {
     erxesForm[key] = value;
 
     this.setState({ erxesForms });
+  };
+
+  formatDate = (date: Date) => {
+    let day = dayjs(date || new Date());
+
+    return day.format('YYYY-MM-DD HH:mm');
   };
 
   addErxesForm = () => {
@@ -338,23 +360,6 @@ class ArticleForm extends React.Component<Props, State> {
     );
   };
 
-  renderScheduleDate() {
-    if (this.props.article.status === 'active') {
-      return null;
-    }
-
-    return (
-      <Datetime
-        dateFormat='YYYY/MM/DD'
-        timeFormat='HH:mm'
-        closeOnSelect={false}
-        closeOnTab={true}
-        value={''}
-        // onChange={this.onChangeDate}
-      />
-    );
-  }
-
   renderContent = (formProps: IFormProps) => {
     const { article, renderButton, closeModal } = this.props;
     const { attachments, reactionChoices, content, image, isPrivate } =
@@ -383,8 +388,13 @@ class ArticleForm extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Code')}</ControlLabel>
-          <FormControl {...formProps} name='code' defaultValue={object.code} />
+          <ControlLabel required={true}>{__('Code')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name='code'
+            defaultValue={object.code}
+            required={true}
+          />
         </FormGroup>
 
         <FormGroup>
@@ -445,7 +455,7 @@ class ArticleForm extends React.Component<Props, State> {
                   if (e.target.value === 'scheduled') {
                     this.setState({
                       isScheduled: true,
-                      scheduledDate: new Date(Date.now() + 1000 * 60 * 60)
+                      scheduledDate: new Date(Date.now() + 1000 * 60 * 60),
                     });
                   } else {
                     this.setState({
@@ -475,16 +485,14 @@ class ArticleForm extends React.Component<Props, State> {
                 <ControlLabel required={true}>
                   {__('Publish date')}
                 </ControlLabel>
-                <Datetime
-                  dateFormat='YYYY/MM/DD'
-                  timeFormat='HH:mm'
-                  closeOnSelect={false}
-                  closeOnTab={true}
-                  value={this.state.scheduledDate}
-                  onChange={(d: any) => {
-                    const date = new Date(d);
-
-                    this.setState({ scheduledDate: date });
+                <FormControl
+                  name='scheduledDate'
+                  type='datetime-local'
+                  defaultValue={this.formatDate(
+                    this.state.scheduledDate || new Date()
+                  )}
+                  onChange={(e: any) => {
+                    this.setState({ scheduledDate: new Date(e.target.value) });
                   }}
                 />
               </FormGroup>
@@ -507,6 +515,16 @@ class ArticleForm extends React.Component<Props, State> {
             defaultFileList={attachments}
             onChange={this.onChangeAttachments}
             single={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>PDF</ControlLabel>
+          <PdfUploader
+            attachment={this.state.pdfAttachment}
+            onChange={(attachment?: IPdfAttachment) => {
+              return this.setState({ pdfAttachment: attachment });
+            }}
           />
         </FormGroup>
 
@@ -554,7 +572,7 @@ class ArticleForm extends React.Component<Props, State> {
                   this.onChangeAttachment('type', e.target.value)
                 }
                 options={[
-                  { value: '', label: 'Select type' },
+                  { value: '', label: __('Select type') },
                   ...mimeTypeOptions,
                 ]}
               />

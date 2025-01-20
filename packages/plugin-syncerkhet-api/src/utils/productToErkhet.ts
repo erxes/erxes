@@ -1,4 +1,4 @@
-import { sendCoreMessage, sendProductsMessage } from "../messageBroker";
+import { sendCoreMessage } from "../messageBroker";
 import { toErkhet } from "./utils";
 
 export const productCategoryToErkhet = async (
@@ -12,7 +12,7 @@ export const productCategoryToErkhet = async (
   const productCategory = params.updatedDocument || params.object;
   const oldProductCategory = params.object;
 
-  const parentProductCategory = await sendProductsMessage({
+  const parentProductCategory = await sendCoreMessage({
     subdomain,
     action: "categories.findOne",
     data: { _id: productCategory.parentId },
@@ -43,14 +43,14 @@ export const productToErkhet = async (
   const product = params.updatedDocument || params.object;
   const oldProduct = params.object;
 
-  const productCategory = await sendProductsMessage({
+  const productCategory = await sendCoreMessage({
     subdomain,
     action: "categories.findOne",
     data: { _id: product.categoryId },
     isRPC: true
   });
 
-  let weight = 1;
+  let weight;
 
   const weightField = await sendCoreMessage({
     subdomain,
@@ -66,7 +66,7 @@ export const productToErkhet = async (
     );
 
     if (weightData && weightData.value) {
-      weight = Number(weightData.value) || 1;
+      weight = Number(weightData.value) || undefined;
     }
   }
 
@@ -96,8 +96,6 @@ export const productToErkhet = async (
       categoryCode: productCategory ? productCategory.code : "",
       defaultCategory: mainConfig.productCategoryCode,
       weight,
-      taxType: product.taxType,
-      taxCode: product.taxCode
     }
   };
 

@@ -1,5 +1,5 @@
 import * as _ from "underscore";
-import { Model } from "mongoose";
+import { Model, models } from "mongoose";
 import { getOwner } from "./utils";
 import { IModels } from "../connectionResolver";
 import {
@@ -10,7 +10,6 @@ import {
 import {
   sendClientPortalMessage,
   sendCommonMessage,
-  sendContactsMessage,
   sendCoreMessage
 } from "../messageBroker";
 
@@ -54,6 +53,9 @@ const generateFilter = (params: IScoreParams) => {
   if (params.toDate) {
     filter.createdAt = { ...filter.createdAt, $lt: params.toDate };
   }
+  if (params.campaignId) {
+    filter.campaignId = params.campaignId;
+  }
   return filter;
 };
 
@@ -92,8 +94,6 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       const score = Number(changeScore);
       const ownerFilter = { _id: { $in: ownerIds } };
-
-      console.log({ ownerType, ownerIds, changeScore });
 
       const owners = await sendCommonMessage({
         subdomain,
@@ -152,7 +152,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         ownerId,
         changeScore,
         description,
-        createdBy = ""
+        createdBy = "",
+        campaignId
       } = doc;
 
       const score = Number(changeScore);
@@ -162,7 +163,24 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         throw new Error(`not fount ${ownerType}`);
       }
 
-      const oldScore = Number(owner.score) || 0;
+      let ownerScore = owner.score;
+
+      if (campaignId) {
+        const campaign = await models.ScoreCampaigns.findOne({
+          _id: campaignId
+        });
+
+        if (!campaign) {
+          throw new Error("Campaign not found");
+        }
+        const campaignScore =
+          (owner?.customFieldsData || []).find(
+            ({ field }) => field === campaign.fieldId
+          )?.value || 0;
+        ownerScore = campaignScore;
+      }
+
+      const oldScore = Number(ownerScore) || 0;
       const newScore = oldScore + score;
 
       if (score < 0 && newScore < 0) {
@@ -173,7 +191,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         subdomain,
         ownerId,
         ownerType,
-        newScore
+        newScore,
+        campaignId
       });
 
       if (!response || !Object.keys(response || {})?.length) {
@@ -185,45 +204,100 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         changeScore: score,
         createdAt: new Date(),
         description,
-        createdBy
+        createdBy,
+        action: "add"
       });
     }
-    static async updateOwnerScore({ subdomain, ownerType, ownerId, newScore }) {
-      if (ownerType === "user") {
-        return await sendCoreMessage({
+
+    static async updateOwnerScore({
+      subdomain,
+      ownerType,
+      ownerId,
+      newScore,
+      campaignId
+    }) {
+      const updateEntity = async (
+        action: string,
+        selector: any,
+        modifier: any
+      ) =>
+        await sendCoreMessage({
           subdomain,
-          action: "users.updateOne",
-          data: {
-            selector: { _id: ownerId },
-            modifier: { $set: { score: newScore } }
-          },
+          action,
+          data: { selector, modifier },
           isRPC: true,
           defaultValue: null
         });
+
+      const modifier: any = { $set: { score: newScore } };
+      const selector: {
+        _id: string;
+      } = { _id: ownerId };
+
+      if (campaignId) {
+        const campaign = await models.ScoreCampaigns.findOne({
+          _id: campaignId
+        });
+
+        if (!campaign?.fieldId) {
+          throw new Error(
+            "Something went wrong when trying to find campaign field"
+          );
+        }
+
+        const prepareCustomFieldsData = await sendCoreMessage({
+          subdomain,
+          action: "fields.prepareCustomFieldsData",
+          data: [{ field: campaign.fieldId, value: newScore }],
+          isRPC: true,
+          defaultValue: []
+        });
+
+        if (!prepareCustomFieldsData[0]) {
+          throw new Error(
+            "Something went wrong when preparing score field data"
+          );
+        }
+
+        const prepareCustomFieldData: { field: string; value: number } =
+          prepareCustomFieldsData[0];
+
+        const owner = await getOwner(subdomain, ownerType, ownerId);
+
+        const { customFieldsData } = owner || {};
+        let updatedCustomFieldsData;
+
+        if (
+          !customFieldsData ||
+          !(customFieldsData || []).find(
+            ({ field }) => field === campaign.fieldId
+          )
+        ) {
+          updatedCustomFieldsData = [
+            ...(customFieldsData || []),
+            prepareCustomFieldData
+          ];
+        } else {
+          updatedCustomFieldsData = customFieldsData.map(customFieldData =>
+            customFieldData.field === campaign.fieldId
+              ? { ...customFieldData, ...prepareCustomFieldData }
+              : customFieldData
+          );
+        }
+
+        modifier.$set["customFieldsData"] = updatedCustomFieldsData || [];
+        delete modifier.$set.score;
+      }
+
+      if (ownerType === "user") {
+        return await updateEntity("users.updateOne", selector, modifier);
       }
       if (ownerType === "customer") {
-        return await sendContactsMessage({
-          subdomain,
-          action: "customers.updateOne",
-          data: {
-            selector: { _id: ownerId },
-            modifier: { $set: { score: newScore } }
-          },
-          isRPC: true,
-          defaultValue: null
-        });
+        console.log(selector, modifier);
+        return await updateEntity("customers.updateOne", selector, modifier);
       }
       if (ownerType === "company") {
-        return await sendContactsMessage({
-          subdomain,
-          action: "companies.updateCommon",
-          data: {
-            selector: { _id: ownerId },
-            modifier: { $set: { score: newScore } }
-          },
-          isRPC: true,
-          defaultValue: null
-        });
+        return await updateEntity("companies.updateOne", selector, modifier);
       }
       if (ownerType === "cpUser") {
         const cpUser = await sendClientPortalMessage({
@@ -239,12 +313,12 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         if (!cpUser) {
           throw new Error("Not Found Owner");
         }
-        return await sendContactsMessage({
+        return await sendCoreMessage({
           subdomain,
           action: "customers.updateOne",
           data: {
             selector: { _id: cpUser.erxesCustomerId },
-            modifier: { $set: { score: newScore } }
+            modifier
           },
           isRPC: true,
           defaultValue: null

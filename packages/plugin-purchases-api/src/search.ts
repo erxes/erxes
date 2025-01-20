@@ -45,19 +45,19 @@ const search = async ({ subdomain, data: { value } }) => {
       items: await searchBoardItems(models, subdomain, "purchases", value)
     },
     {
-      module: "stages",
+      module: "purchases_stages",
       items: await doSearch({
         subdomain,
-        index: "stages",
+        index: "purchases_stages",
         value,
         fields: ["name"]
       })
     },
     {
-      module: "pipelines",
+      module: "purchases_pipelines",
       items: await doSearch({
         subdomain,
-        index: "pipelines",
+        index: "purchases_pipelines",
         value,
         fields: ["name"]
       })

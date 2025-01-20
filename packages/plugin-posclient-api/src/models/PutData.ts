@@ -34,7 +34,8 @@ export interface IDoc {
 
 export interface IPutDataArgs {
   config: IEbarimtConfig;
-  doc: IDoc
+  doc: IDoc;
+  posToken: string;
 }
 
 const isValidBarcode = (barcode: string): boolean => {
@@ -83,7 +84,7 @@ const isValidBarcode = (barcode: string): boolean => {
 
 const getCustomerInfo = async (type: string, config: IEbarimtConfig, doc: IDoc) => {
   if (type === 'B2B_RECEIPT') {
-    const tinre = /(^\d{11}$)|(^\d{12}$)/;
+    const tinre = /(^\d{11}$)|(^\d{12}$)|(^\d{14}$)/;
     if (tinre.test(doc.customerTin || '')) {
       return { customerTin: doc.customerTin, customerName: doc.customerName }
     }
@@ -108,7 +109,7 @@ const getCustomerInfo = async (type: string, config: IEbarimtConfig, doc: IDoc) 
   return {};
 }
 
-const genStock = (detail, product, config) => {
+const genStock = (detail, product, config, taxRule) => {
   const barCode = detail.barcode ?? (product.barcodes || [])[0] ?? '';
   const barCodeType = isValidBarcode(barCode) ? 'GS1' : 'UNDEFINED'
 
@@ -118,7 +119,7 @@ const genStock = (detail, product, config) => {
     barCode,
     barCodeType,
     classificationCode: config.defaultGSCode,
-    taxProductCode: product.taxCode,
+    taxProductCode: taxRule.taxCode,
     measureUnit: product.uom ?? 'ш',
     qty: detail.quantity,
     unitPrice: detail.unitPrice,
@@ -131,7 +132,7 @@ const genStock = (detail, product, config) => {
   };
 }
 
-const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
+const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc, posToken: string) => {
   const details: any[] = [];
   const detailsFree: any[] = [];
   const details0: any[] = [];
@@ -152,17 +153,30 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
   for (const detail of (doc.details || []).filter(d => d.product)) {
     const { product } = detail;
 
-    const stock = genStock(detail, product, config);
+    const taxRule = product.taxRules?.[posToken] || {}
+    const stock = genStock(detail, product, config, taxRule);
 
-    if (product.taxType === '2') {
+    if (taxRule.taxType === '2') {
       detailsFree.push({ ...stock });
       freeAmount += detail.totalAmount;
-    } else if (product.taxType === '3') {
+    } else if (taxRule.taxType === '3') {
       details0.push({ ...stock });
       zeroAmount += detail.totalAmount;
-    } else if (product.taxType === '5') {
+    } else if (taxRule.taxType === '5') {
       detailsInner.push({ ...stock });
       innerAmount += detail.totalAmount;
+    } else if (!config.hasCitytax && config.reverseCtaxRules?.length && taxRule.citytaxCode) {
+      // when has a reverseCtitytax
+      const pCtaxPercent = Number(taxRule.citytaxPercent) || 0; // productCitytaxPercent per
+      const pTotalPercent = vatPercent + pCtaxPercent + 100;
+
+      const totalVAT = detail.totalAmount / pTotalPercent * vatPercent;
+      const totalCityTax = detail.totalAmount / pTotalPercent * pCtaxPercent;
+      ableAmount += detail.totalAmount;
+      ableVATAmount += totalVAT;
+      ableCityTaxAmount += totalCityTax;
+
+      details.push({ ...stock, totalVAT, totalCityTax });
     } else {
       const totalVAT = detail.totalAmount / totalPercent * vatPercent;
       const totalCityTax = detail.totalAmount / totalPercent * cityTaxPercent;
@@ -189,7 +203,7 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
 }
 
 export const getEbarimtData = async (params: IPutDataArgs) => {
-  const { config, doc } = params;
+  const { config, doc, posToken } = params;
   const type = doc.type || 'B2C_RECEIPT';
 
   const { customerTin, consumerNo, msg, customerName } = await getCustomerInfo(type, config, doc);
@@ -213,7 +227,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     innerAmount,
     ableVATAmount,
     ableCityTaxAmount,
-  } = await getArrangeProducts(config, doc);
+  } = await getArrangeProducts(config, doc, posToken);
 
   let innerData: IEbarimtFull | undefined = undefined;
   let mainData: IEbarimt | undefined = undefined;
@@ -348,7 +362,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
 }
 
 export const getCompanyInfo = async ({ checkTaxpayerUrl, no }: { checkTaxpayerUrl: string, no: string }) => {
-  const tinre = /(^\d{11}$)|(^\d{12}$)/;
+  const tinre = /(^\d{11}$)|(^\d{12}$)|(^\d{14}$)/;
   if (tinre.test(no)) {
     const result = await fetch(
       // `https://api.ebarimt.mn/api/info/check/getInfo?tin=${tinNo}`

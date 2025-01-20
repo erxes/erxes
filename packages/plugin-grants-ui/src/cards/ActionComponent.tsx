@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Attribution from "@erxes/ui-automations/src/containers/forms/actions/Attribution";
-import BoardSelect from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import BoardSelect from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
 import { CollapseContent, Icon } from "@erxes/ui/src";
 import {
   ControlLabel,
@@ -34,13 +34,16 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
       onChangeStage: (e) => handleChange(e, "stageId"),
     };
 
+    console.log({ updateProps });
+
     return (
       <div>
         <BoardSelect {...updateProps} />
         <DividerBox>{__("ELSE")}</DividerBox>
         <SelectStage
+        cardType={updateProps.type}
           name="declinedStageId"
-          label="Declined Stage"
+          label={__("Declined Stage")}
           pipelineId={pipelineId || null}
           initialValue={(params?.logics || [])[0]?.targetStageId}
           onSelect={({ value }) =>
@@ -54,7 +57,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
     );
   };
 
-  const renderConfigs = () => {
+  const renderConfigs = (cardType:'deal'|'ticket'|'task') => {
     const { pipelineId } = source || {};
 
     const {
@@ -97,25 +100,27 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
         <FormWrapper>
           <FormColumn>
             <SelectStage
+              cardType={cardType}
               name="sourceStageId"
               label={`${params.type} stage`}
               pipelineId={params.pipelineId}
               initialValue={config.sourceStageId}
               excludeIds={selectedSourceStageIds}
               onSelect={({ value }) =>
-                onSelect(value, "sourceStageId", config._id)
+                onSelect(value, 'sourceStageId', config._id)
               }
             />
           </FormColumn>
           <FormColumn>
             <SelectStage
+              cardType={cardType}
               name="destinationStageId"
-              label="Destination stage"
+              label={__("Destination stage")}
               pipelineId={pipelineId}
               excludeIds={selectedDestinationStageIds}
               initialValue={config.destinationStageId}
               onSelect={({ value }) =>
-                onSelect(value, "destinationStageId", config._id)
+                onSelect(value, 'destinationStageId', config._id)
               }
             />
           </FormColumn>
@@ -124,7 +129,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
     ));
   };
 
-  const renderLogics = () => {
+  const renderLogics = (cardType: 'deal' | 'ticket' | 'task') => {
     const { pipelineId } = source || {};
 
     const removeLogic = (_id) => {
@@ -143,8 +148,8 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
     };
 
     const logicOptions = [
-      { value: "approved", label: "Approved" },
-      { value: "declined", label: "Declined" },
+      { value: 'approved', label: 'Approved' },
+      { value: 'declined', label: 'Declined' },
     ];
 
     const generateOptions = (_id, options) => {
@@ -164,7 +169,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
         <FormWrapper>
           <FormColumn>
             <FormGroup>
-              <ControlLabel required>{__("Logic")}</ControlLabel>
+              <ControlLabel required>{__('Logic')}</ControlLabel>
               <Select
                 value={generateOptions(logic._id, logicOptions).find(
                   (o) => o.value === logic.logic
@@ -172,19 +177,20 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
                 options={generateOptions(logic._id, logicOptions)}
                 isClearable={true}
                 onChange={({ value }) =>
-                  onChangeLogic(logic._id, value, "logic")
+                  onChangeLogic(logic._id, value, 'logic')
                 }
               />
             </FormGroup>
           </FormColumn>
           <FormColumn>
             <SelectStage
+              cardType={cardType}
               name="targetStageId"
-              label="Stage"
+              label={__("Stage")}
               pipelineId={pipelineId || null}
               initialValue={logic.targetStageId}
               onSelect={({ value }) =>
-                onChangeLogic(logic._id, value, "targetStageId")
+                onChangeLogic(logic._id, value, 'targetStageId')
               }
             />
           </FormColumn>
@@ -232,22 +238,22 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
     return (
       <>
         <FormGroup>
-          <ControlLabel required>{__("Card Type")}</ControlLabel>
+          <ControlLabel required>{__('Card Type')}</ControlLabel>
           <SelectCardType
             type={type}
             handleSelect={handleSelect}
             params={params}
           />
         </FormGroup>
-        {params["type"] !== type && (
+        {params['type'] !== type && (
           <>
-            <CollapseContent title="Settings" compact>
+            <CollapseContent title={__("Settings")} compact>
               <BoardSelect {...updateProps} />
               <FormGroup>
                 <Row>
-                  <ControlLabel required>{__("Name")}</ControlLabel>
+                  <ControlLabel required>{__('Name')}</ControlLabel>
                   <Attribution
-                    triggerType={`cards:${params["type"]}`}
+                    triggerType={`cards:${params['type']}`}
                     inputName="name"
                     config={params}
                     setConfig={(updatedParams) => onChange(updatedParams)}
@@ -263,13 +269,13 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
             <Row>
               <FormGroup>
                 <ControlLabel>
-                  {__(`Track changes ${params?.type || ""}`)}
+                  {__(`Track changes ${params?.type || ''}`)}
                 </ControlLabel>
                 <FormControl
                   checked={!!params?.configs}
                   componentclass="checkbox"
                   onClick={() =>
-                    handleChange(!params?.configs ? [] : null, "configs")
+                    handleChange(!params?.configs ? [] : null, 'configs')
                   }
                 />
               </FormGroup>
@@ -279,25 +285,25 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
                   checked={!!params?.logics}
                   componentclass="checkbox"
                   onClick={() =>
-                    handleChange(!params?.logics ? [] : null, "logics")
+                    handleChange(!params?.logics ? [] : null, 'logics')
                   }
                 />
               </FormGroup>
             </Row>
 
             {!!params?.configs && (
-              <CollapseContent title="Track Changes Configurations" compact>
-                {renderConfigs()}
+              <CollapseContent title={__("Track Changes Configurations")} compact>
+                {renderConfigs(type)}
                 <LinkButton onClick={addConfig}>
-                  <Icon icon="plus-1" /> {__("Add config")}
+                  <Icon icon="plus-1" /> {__('Add config')}
                 </LinkButton>
               </CollapseContent>
             )}
             {!!params?.logics && (
-              <CollapseContent title="After logics" compact>
-                {renderLogics()}
+              <CollapseContent title={__("After logics")} compact>
+                {renderLogics(type)}
                 <LinkButton onClick={addLogics}>
-                  <Icon icon="plus-1" /> {__("Add logic")}
+                  <Icon icon="plus-1" /> {__('Add logic')}
                 </LinkButton>
               </CollapseContent>
             )}

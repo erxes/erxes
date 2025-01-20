@@ -69,9 +69,15 @@ var plugins = [
   { name: "syncpolaris", api: true, ui: true },
   { name: "reports", api: true, ui: true },
   { name: "instagram", api: true, ui: true },
+  { name: "whatsapp", api: true, ui: true },
   { name: "burenscoring", api: true, ui: true },
   { name: "golomtbank", api: true, ui: true },
-  { name: "template", api: true, ui: true }
+  { name: "accountings", api: true, ui: true },
+  { name: "pms", api: true, ui: true },
+  { name: "bm", api: true, ui: true },
+  { name: "template", api: true, ui: true },
+  { name: "cms", api: true, ui: true },
+  { name: "activedirectory", api: true, ui: true },
 ];
 
 const pluginsMap = {};
@@ -205,9 +211,7 @@ var main = async () => {
 
   fs.writeFileSync(
     filePath("./scripts/pluginsMap.js"),
-    `
-    module.exports = ${JSON.stringify(pluginsMap)}
-  `
+    `module.exports = ${JSON.stringify(pluginsMap, null, 2)}\n`
   );
 };
 

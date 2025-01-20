@@ -105,7 +105,7 @@ const instagramMutations = {
         action: 'conversations.findOne',
         data: { query: { _id: conversationId } }
       });
-
+   
       await sendReply(
         models,
         `${id}/comments`,
@@ -130,7 +130,25 @@ const instagramMutations = {
     } catch (e) {
       throw new Error(e.message);
     }
-  }
+  },
+    async instagramMessengerAddBot(_root, args, { models }: IContext) {
+    return await models.Bots.addBot(args);
+  },
+
+  async instagramMessengerUpdateBot(
+    _root,
+    { _id, ...args },
+    { models }: IContext,
+  ) {
+    return await models.Bots.updateBot(_id, args);
+  },
+
+  async instagramMessengerRemoveBot(_root, { _id }, { models }: IContext) {
+    return await models.Bots.removeBot(_id);
+  },
+  async instagramMessengerRepairBot(_root, { _id }, { models }: IContext) {
+    return await models.Bots.repair(_id);
+  },
 };
 
 export default instagramMutations;

@@ -9,29 +9,11 @@ export const setupMessageConsumers = async () => {
   });
 };
 
-export const sendProductsMessage = async (
+export const sendSalesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "core",
-    ...args
-  });
-};
-
-export const sendContactsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "core",
-    ...args
-  });
-};
-
-export const sendCardsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "cards",
+    serviceName: "sales",
     ...args
   });
 };

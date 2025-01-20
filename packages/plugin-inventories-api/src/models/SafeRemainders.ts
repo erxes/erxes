@@ -4,7 +4,7 @@ import { Model } from "mongoose";
 import * as _ from "underscore";
 import * as xlsxPopulate from "xlsx-populate";
 import { IModels } from "../connectionResolver";
-import { sendProductsMessage } from "../messageBroker";
+import { sendCoreMessage } from "../messageBroker";
 import {
   SAFE_REMAINDER_ITEM_STATUSES,
   SAFE_REMAINDER_STATUSES
@@ -59,7 +59,8 @@ export const loadSafeRemainderClass = (models: IModels) => {
         description,
         productCategoryId,
         attachment,
-        filterField
+        filterField,
+        items
       } = params;
 
       // Create new safe remainder
@@ -140,7 +141,10 @@ export const loadSafeRemainderClass = (models: IModels) => {
             query: { [filterField]: { $in: Object.keys(attachDatas) } }
           };
         }
-        fs.unlink(filePath, () => {});
+        fs.unlink(filePath, () => { });
+      } else if (items?.length) {
+        const codes: string[] = items.map(i => i.code)
+        productFilter = { query: { code: { $in: codes } } }
       } else {
         productFilter = {
           categoryId: productCategoryId,
@@ -149,22 +153,12 @@ export const loadSafeRemainderClass = (models: IModels) => {
       }
 
       // Get products related to product category
-      const limit = await sendProductsMessage({
+      const products: any = await sendCoreMessage({
         subdomain,
-        action: "productCount",
-        data: {
-          ...productFilter
-        },
-        isRPC: true
-      });
-
-      const products: any = await sendProductsMessage({
-        subdomain,
-        action: "productFind",
+        action: "products.find",
         data: {
           ...productFilter,
           sort: { code: 1 },
-          limit
         },
         isRPC: true
       });
@@ -194,8 +188,8 @@ export const loadSafeRemainderClass = (models: IModels) => {
           const datasKey = String(
             attachFieldId
               ? product.customFieldsData.find(
-                  cfd => cfd.field === attachFieldId
-                )?.value
+                cfd => cfd.field === attachFieldId
+              )?.value
               : product[filterField]
           );
           const { lastCount, changeCount } = attachDatas[datasKey];
@@ -205,6 +199,10 @@ export const loadSafeRemainderClass = (models: IModels) => {
           } else {
             count = lastCount;
           }
+        }
+
+        if (items?.length) {
+          count = (items.find(i => i.code === product.code))?.remainder || 0
         }
 
         bulkOps.push({

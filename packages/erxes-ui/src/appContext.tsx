@@ -1,7 +1,7 @@
-import { IUser } from './auth/types';
-import React from 'react';
-import T from 'i18n-react';
-import dayjs from 'dayjs';
+import { IUser } from "./auth/types";
+import React from "react";
+import T from "i18n-react";
+import dayjs from "dayjs";
 
 interface IState {
   currentUser?: IUser;
@@ -33,7 +33,7 @@ export class AppProvider extends React.Component<
     super(props);
 
     // initiliaze locale ======
-    const currentLanguage = localStorage.getItem('currentLanguage') || 'en';
+    const currentLanguage = localStorage.getItem("currentLanguage") || "en";
 
     this.state = {
       currentUser: props.currentUser,
@@ -42,16 +42,16 @@ export class AppProvider extends React.Component<
       isShownIndicator: false,
       isRemovingImport: false,
 
-      isDoneIndicatorAction: false,
+      isDoneIndicatorAction: false
     };
 
     this.setLocale(currentLanguage);
   }
 
   checkisShownIndicatorData = () => {
-    const lastImport = localStorage.getItem('erxes_import_data');
-    const type = localStorage.getItem('erxes_import_data_type');
-    const isRemovingImport = type === 'remove' ? true : false;
+    const lastImport = localStorage.getItem("erxes_import_data");
+    const type = localStorage.getItem("erxes_import_data_type");
+    const isRemovingImport = type === "remove" ? true : false;
 
     if (lastImport) {
       return this.setState({ isShownIndicator: true, isRemovingImport });
@@ -63,15 +63,15 @@ export class AppProvider extends React.Component<
   closeLoadingBar = () => {
     this.setState({ isShownIndicator: false });
 
-    localStorage.setItem('erxes_import_data', '');
-    localStorage.setItem('erxes_import_data_type', '');
+    localStorage.setItem("erxes_import_data", "");
+    localStorage.setItem("erxes_import_data_type", "");
   };
 
   showLoadingBar = (isRemovingImport: boolean) => {
     this.setState({
       isDoneIndicatorAction: false,
       isShownIndicator: true,
-      isRemovingImport,
+      isRemovingImport
     });
   };
 
@@ -84,28 +84,28 @@ export class AppProvider extends React.Component<
   }
 
   setLocale = (currentLanguage: string): void => {
-    if (currentLanguage !== 'mn') {
+    if (currentLanguage !== "mn") {
       import(`dayjs/locale/${currentLanguage}.js`)
         .then(() => dayjs.locale(currentLanguage))
-        .catch((_) => dayjs.locale('en'));
+        .catch(_ => dayjs.locale("en"));
     }
 
     fetch(`/locales/${currentLanguage}.json`)
-      .then((res) => res.json())
-      .catch(() => console.log(`${currentLanguage} translation not found`))
-      .then((json) => {
+      .then(res => res.json())
+      .catch(() => console.error(`${currentLanguage} translation not found`))
+      .then(json => {
         T.setTexts(json);
         this.setState({ isLoadedLocale: true });
       })
-      .catch((e) => {
-        console.log(e);
+      .catch(e => {
+        console.error(e);
         this.setState({ isLoadedLocale: true });
       });
   };
 
   changeLanguage = (languageCode): void => {
     if (this.state.currentLanguage !== languageCode) {
-      localStorage.setItem('currentLanguage', languageCode || 'en');
+      localStorage.setItem("currentLanguage", languageCode || "en");
       window.location.reload();
     }
   };
@@ -116,7 +116,7 @@ export class AppProvider extends React.Component<
       currentLanguage,
       isShownIndicator,
       isRemovingImport,
-      isDoneIndicatorAction,
+      isDoneIndicatorAction
     } = this.state;
 
     return (
@@ -131,7 +131,7 @@ export class AppProvider extends React.Component<
           doneIndicatorAction: this.doneIndicatorAction,
           isShownIndicator,
           isRemovingImport,
-          isDoneIndicatorAction,
+          isDoneIndicatorAction
         }}
       >
         {this.props.children}

@@ -118,11 +118,11 @@ class PipelineProviderInner extends React.Component<Props, State> {
         prev,
         {
           subscriptionData: {
-            data: { pipelinesChanged }
+            data: { ticketsPipelinesChanged }
           }
         }
       ) => {
-        if (!pipelinesChanged || !pipelinesChanged.data) {
+        if (!ticketsPipelinesChanged || !ticketsPipelinesChanged.data) {
           return;
         }
 
@@ -130,7 +130,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
           data: { item, aboveItemId, destinationStageId, oldStageId },
           action,
           proccessId
-        } = pipelinesChanged;
+        } = ticketsPipelinesChanged;
 
         if (proccessId !== localStorage.getItem("proccessId")) {
           if (action === "orderUpdated") {
@@ -550,12 +550,13 @@ class PipelineProviderInner extends React.Component<Props, State> {
     const aboveIndex = this.findItemIndex(stageId, aboveItemId);
 
     if (aboveIndex !== undefined) {
-      items.splice(aboveIndex + 1, 0, { ...item });
+      const newArray = items.map(item => Object.assign({}, item));
+      newArray.splice(aboveIndex + 1, 0, { ...item });
 
       this.setState({
         itemMap: {
           ...itemMap,
-          [stageId]: [...items]
+          [stageId]: [...newArray]
         },
         itemIds: [...itemIds, item._id]
       });

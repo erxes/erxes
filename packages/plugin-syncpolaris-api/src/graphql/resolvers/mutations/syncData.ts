@@ -5,6 +5,7 @@ import {
   preSyncDatas,
   syncDataToErxes,
 } from '../../../utils/toSyncUtils/utils';
+import { getConfig } from '../../../utils/utils';
 
 const syncmutations = {
   async toSyncPolaris(
@@ -15,8 +16,10 @@ const syncmutations = {
     try {
       const preCustomFields = await getCustomFields(subdomain, type);
       const customFields = preCustomFields.fields;
+      const polarisConfig = await getConfig(subdomain, 'POLARIS', {});
+      
       for await (const item of items) {
-        const polarisData = await getPolarisData(type, subdomain, item);
+        const polarisData = await getPolarisData(type, subdomain, polarisConfig, item);
         const updateData = await preSyncDatas(item, polarisData, customFields);
         if (Object.keys(updateData).length > 0)
           await syncDataToErxes(type, subdomain, item, updateData);

@@ -2,10 +2,7 @@ import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 import { getEnv } from '@erxes/api-utils/src';
 import { IModels } from './connectionResolver';
-import {
-  ACTIVITY_CONTENT_TYPES,
-  CAMPAIGN_KINDS
-} from './constants';
+import { ACTIVITY_CONTENT_TYPES, CAMPAIGN_KINDS } from './constants';
 import { prepareEmailParams } from './emailUtils';
 import {
   getTelnyxInfo,
@@ -17,6 +14,7 @@ import {
   createTransporter,
   getConfig,
   getConfigs,
+  getValueAsString,
   setCampaignCount,
 } from './utils';
 
@@ -35,6 +33,12 @@ export const start = async (
   } = data;
 
   const configs = await getConfigs(models);
+  const configSet = await getValueAsString(
+    models,
+    "configSet",
+    "AWS_SES_CONFIG_SET",
+    "erxes"
+  );
 
   await models.Stats.findOneAndUpdate(
     { engageMessageId },
@@ -51,12 +55,11 @@ export const start = async (
   }
 
   const transporter = await createTransporter(models);
-  const VERSION = getEnv({ name: 'VERSION' });
 
   const sendCampaignEmail = async (customer: ICustomer) => {
     try {
       await transporter.sendMail(
-        prepareEmailParams(customer, data, configs.configSet),
+        prepareEmailParams(subdomain, customer, data, configSet)
       );
 
       const msg = `Sent email to: ${customer.primaryEmail}`;
@@ -70,7 +73,7 @@ export const start = async (
       await models.Logs.createLog(
         engageMessageId,
         'failure',
-        `Error occurred while sending email to ${customer.primaryEmail}: ${e.message}`,
+        `Error occurred while sending email to ${customer.primaryEmail}: ${e.message}`
       );
     }
   };
@@ -286,14 +289,24 @@ export const sendBulkSms = async (
   } // end customers loop
 }; // end sendBuklSms()
 
-export const sendEmail = async (models: IModels, data: any) => {
+export const sendEmail = async (
+  subdomain: string,
+  models: IModels,
+  data: any
+) => {
   const transporter = await createTransporter(models);
   const { customer } = data;
-  const configs = await getConfigs(models);
+
+  const configSet = await getValueAsString(
+    models,
+    "configSet",
+    "AWS_SES_CONFIG_SET",
+    "erxes"
+  );
 
   try {
     await transporter.sendMail(
-      prepareEmailParams(customer, data, configs.configSet)
+      prepareEmailParams(subdomain, customer, data, configSet)
     );
 
     debugInfo(`Sent email to: ${customer?.primaryEmail}`);

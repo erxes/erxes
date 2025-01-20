@@ -2,10 +2,10 @@ import { generateModels, IModels } from "./connectionResolver";
 import {
   sendPosclientMessage,
   sendPricingMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "./messageBroker";
 import { IPosDocument } from "./models/definitions/pos";
-import { getChildCategories } from "./utils";
+import { calcProductsTaxRule, getChildCategories } from "./utils";
 
 const handler = async (
   subdomain,
@@ -75,9 +75,9 @@ const isInProduct = async (
     return false;
   }
 
-  const products = await sendProductsMessage({
+  const products = await sendCoreMessage({
     subdomain,
-    action: "productFind",
+    action: "products.find",
     data: {
       query: {
         status: { $ne: "deleted" },
@@ -120,7 +120,7 @@ const isInProductCategory = async (
       c => !excludeCatIds.includes(c)
     );
 
-    const productCategories = await sendProductsMessage({
+    const productCategories = await sendCoreMessage({
       subdomain,
       action: "categories.find",
       data: { query: { _id: { $in: productCategoryIds } }, sort: { order: 1 } },
@@ -204,6 +204,15 @@ export const afterMutationHandlers = async (subdomain, params) => {
           } else {
             params.object.unitPrice = unitPrice;
             params.object.isCheckRem = isCheckRem;
+          }
+        }
+
+        const productById = await calcProductsTaxRule(subdomain, pos.ebarimtConfig, [item]);
+        if (productById[item._id]?.taxRule) {
+          if (params.updatedDocument) {
+            params.updatedDocument.taxRule = productById[item._id].taxRule;
+          } else {
+            params.object.taxRule = productById[item._id].taxRule;
           }
         }
 

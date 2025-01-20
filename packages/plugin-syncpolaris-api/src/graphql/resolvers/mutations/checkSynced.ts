@@ -20,7 +20,7 @@ const checkMutations = {
     for await (const item of items) {
       const preData = await getCustomFields(subdomain, type, item);
       const preCheckData = preData?.item;
-      const polarisData = await getPolarisData(type, subdomain, preCheckData);
+      const polarisData = await getPolarisData(type, subdomain, config, preCheckData);
       const result = await findDiffrentData(preCheckData, polarisData);
       if (typeof result !== 'undefined') datas.push(result);
     }

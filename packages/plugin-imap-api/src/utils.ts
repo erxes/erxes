@@ -4,7 +4,7 @@ import * as Imap from 'node-imap';
 import { simpleParser } from 'mailparser';
 import { IModels, generateModels } from './connectionResolver';
 import {
-  sendContactsMessage,
+  sendCoreMessage,
   sendImapMessage,
   sendInboxMessage,
 } from './messageBroker';
@@ -134,7 +134,7 @@ const saveMessages = async (
     let customerId;
 
     if (!prev) {
-      const customer = await sendContactsMessage({
+      const customer = await sendCoreMessage({
         subdomain,
         action: 'customers.findOne',
         data: {
@@ -146,7 +146,7 @@ const saveMessages = async (
       if (customer) {
         customerId = customer._id;
       } else {
-        const apiCustomerResponse = await sendContactsMessage({
+        const apiCustomerResponse = await sendCoreMessage({
           subdomain,
           action: 'customers.createCustomer',
           data: {

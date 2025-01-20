@@ -1,8 +1,10 @@
-import * as classNames from 'classnames';
-import * as React from 'react';
-import { defaultAvatar } from '../../../icons/Icons';
-import { IUser, IUserDetails } from '../../../types';
-import { __, readFile } from '../../../utils';
+import * as React from "react";
+import * as classNames from "classnames";
+
+import { IUser, IUserDetails } from "../../../types";
+import { __, readFile } from "../../../utils";
+
+import { defaultAvatar } from "../../../icons/Icons";
 
 type Props = {
   users: IUser[];
@@ -23,7 +25,7 @@ class Supporters extends React.Component<Props> {
 
   renderSupporter(user: IUser, color: string) {
     const details = user.details || ({} as IUserDetails);
-    const { fullName = '', avatar = '', shortName = '' } = details || {};
+    const { fullName = "", avatar = "", shortName = "" } = details || {};
     return (
       <div
         key={user._id}
@@ -45,7 +47,7 @@ class Supporters extends React.Component<Props> {
   }
 
   renderOnlineState(isOnline: boolean) {
-    const stateClasses = classNames('erxes-state', {
+    const stateClasses = classNames("erxes-state", {
       online: isOnline,
     });
 
@@ -53,15 +55,15 @@ class Supporters extends React.Component<Props> {
   }
 
   renderUsers() {
-    const { users, isExpanded = false, color = '' } = this.props;
+    const { users, isExpanded = false, color = "" } = this.props;
 
     const activeUsers = users.filter((user) => user.isActive);
 
-    const supporters = activeUsers.map((user) =>
-      this.renderSupporter(user, color)
-    );
+    const supporters = activeUsers
+      .slice(0, 4)
+      .map((user) => this.renderSupporter(user, color));
 
-    const wrapperClass = classNames('erxes-supporters', {
+    const wrapperClass = classNames("erxes-supporters", {
       full: isExpanded,
     });
 
@@ -92,8 +94,8 @@ class Supporters extends React.Component<Props> {
 
     return (
       <div className="erxes-topbar-title">
-        <div>{__('Conversation')}</div>
-        <span>{__('with Support staff')}</span>
+        <div>{__("Conversation")}</div>
+        <span>{__("with Support staff")}</span>
       </div>
     );
   }

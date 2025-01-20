@@ -17,10 +17,13 @@ type Props = {
   onDocChange?: (doc: IFormData) => void;
   formData?: IFormData;
   type: string;
+  isAviableToSaveWhenReady?: boolean;
   isReadyToSave: boolean;
   showMessage?: boolean;
   currentMode?: 'create' | 'update' | undefined;
   currentField?: IField;
+  fieldTypes?: string[];
+  name?: string;
 };
 
 const CreateFormContainer: React.FC<Props> = ({
@@ -56,6 +59,7 @@ const CreateFormContainer: React.FC<Props> = ({
           buttonText,
           type: type || 'lead',
           numberOfPages: Number(numberOfPages),
+          name: props.name,
         },
       })
         .then(({ data }) => {
@@ -89,7 +93,7 @@ const CreateFormContainer: React.FC<Props> = ({
             Alert.success('You successfully added a form');
           }
         })
-        .catch((error) => {
+        .catch(error => {
           Alert.error(error.message);
         });
     },

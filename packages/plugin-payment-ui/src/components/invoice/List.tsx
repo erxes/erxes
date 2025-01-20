@@ -195,7 +195,7 @@ const List = (props: IProps) => {
           data={content}
           loading={props.loading}
           count={counts.total}
-          emptyText="There is no data"
+          emptyText={__("There is no data")}
           emptyImage="/images/actions/5.svg"
         />
       }

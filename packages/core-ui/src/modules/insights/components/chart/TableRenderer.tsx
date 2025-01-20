@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { commarizeNumbers } from "../../utils";
+import { formatNumbers } from "../../utils";
 import { colors } from "@erxes/ui/src/styles";
 import { ChartTable, ScrollWrapper } from "../../styles";
 
@@ -45,6 +45,7 @@ type IDataSet = {
   title: string;
   data: number[] | any;
   labels: string[];
+  headers?: string[];
 };
 
 type Props = {
@@ -54,9 +55,9 @@ type Props = {
 };
 
 const TableList = (props: Props) => {
-  const { dataset: { data = [], labels = [], title }, filters, setFilter } = props;
+  const { dataset: { data = [], labels = [], title, headers = [] }, filters, setFilter } = props;
 
-  const headers: any = labels?.length ? [title?.split(" ").at(-1), 'Total Count'] : data.length > 0 ? Object.keys(data[0]) : []
+  const headerRow: any = labels?.length ? [title, 'Total Count'] : headers || []
   const array = labels?.length ? labels : data || []
 
   const checkSortActive = (field, direction) => {
@@ -68,7 +69,6 @@ const TableList = (props: Props) => {
     }
     return '';
   };
-
 
   const sortHandler = (field, direction) => {
     const sort = [...(filters["sortBy"] || [])];
@@ -88,6 +88,14 @@ const TableList = (props: Props) => {
     }
   };
 
+  const handleRowClick = (item) => {
+    const { url } = item
+
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  }
+
   const renderSorter = (label) => {
     return (
       <SortWrapper>
@@ -105,7 +113,7 @@ const TableList = (props: Props) => {
       <ChartTable>
         <thead>
           <tr>
-            {(headers || []).map(header => (
+            {(headerRow || []).map(header => (
               <>{renderSorter(header)}</>
             ))}
           </tr>
@@ -114,25 +122,55 @@ const TableList = (props: Props) => {
           {(array || []).map((item, index) => {
 
             if (labels?.length) {
+              const formatType = title.toLowerCase().includes('time') || title?.toLowerCase().includes('duration') ? 'time' : "commarize"
+
               return (
-                <tr>
+                <tr key={index} onDoubleClick={() => handleRowClick(item)}>
                   <td>
                     <b>{item}</b>
                   </td>
-                  <td>{data[index]}</td>
+                  <td>{formatNumbers(data[index], formatType, "x")}</td>
                 </tr>
               )
             }
 
+            if (item.hasOwnProperty('total') && !!item['total']) {
+              return (
+                <tr key={index} onDoubleClick={() => handleRowClick(item)}>
+                  <td colSpan={item['total']}>Total</td>
+                  {(headerRow || []).map(header => {
+                    if (header in item) {
+
+                      if (["count", "totalAmount", "averageAmount", "unusedAmount", "forecastAmount"].includes(header)) {
+                        return <td>{formatNumbers(item[header], "commarize") || '-'}</td>;
+                      }
+
+                      if (["totalDuration", "averageDuration", "averageResponseTime", "averageCloseTime"].includes(header)) {
+                        return <td>{formatNumbers(item[header], "time", "x") || '-'}</td>;
+                      }
+
+                      return (
+                        <td key={header}>{item[header] || '-'}</td>
+                      );
+                    }
+                  })}
+                </tr>
+              );
+            }
+
             return (
-              <tr key={index}>
-                {(headers || []).map(header => {
+              <tr key={index} onDoubleClick={() => handleRowClick(item)}>
+                {(headerRow || []).map(header => {
                   if (header === 'description') {
                     return <td dangerouslySetInnerHTML={{ __html: item[header] }} />
                   }
 
                   if (["count", "totalAmount", "averageAmount", "unusedAmount", "forecastAmount"].includes(header)) {
-                    return <td>{commarizeNumbers(item[header]) || '-'}</td>;
+                    return <td>{formatNumbers(item[header], "commarize") || '-'}</td>;
+                  }
+
+                  if (["totalDuration", "averageDuration", "averageResponseTime", "averageCloseTime"].includes(header)) {
+                    return <td>{formatNumbers(item[header], "time", "x") || '-'}</td>;
                   }
 
                   return <td>{item[header] || '-'}</td>;

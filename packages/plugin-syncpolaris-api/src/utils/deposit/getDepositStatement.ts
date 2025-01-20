@@ -1,6 +1,6 @@
 import { fetchPolaris } from '../utils';
 
-export const getDepositStatement = async (subdomain, params) => {
+export const getDepositStatement = async (subdomain, polarisConfig, params) => {
   return await fetchPolaris({
     op: '13610302',
     data: [
@@ -16,6 +16,7 @@ export const getDepositStatement = async (subdomain, params) => {
         count: 100,
       },
     ],
+    polarisConfig,
     subdomain,
   });
 };

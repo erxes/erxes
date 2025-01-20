@@ -6,7 +6,8 @@ import { getDepositStatement } from '../../../utils/deposit/getDepositStatement'
 import { getDepositBalance } from '../../../utils/deposit/getDepositBalance';
 import { getLoanCollaterials } from '../../../utils/loan/getLoanCollaterials';
 import { getSavingTransactions } from '../../../utils/saving/getSavingTransactions';
-
+import { getConfig } from '../../../utils/utils';
+//
 const generateFilter = (params) => {
   const {
     userId,
@@ -26,7 +27,7 @@ const generateFilter = (params) => {
     query.createdBy = userId;
   }
   if (contentType) {
-    query.contentType = { $regex: `.*${escapeRegExp(contentType)}.*` };
+    query.contentType = { $regex: `.*${escapeRegExp(contentType)}.*` }; 
   }
   if (contentId) {
     query.contentId = contentId;
@@ -71,17 +72,18 @@ const polarisQueries = {
 
   async getPolarisData(_root, params, { subdomain }: IContext) {
     const { method, data } = params;
+    const polarisConfig = await getConfig(subdomain, 'POLARIS', {})
     switch (method) {
       case 'getLoanDetail':
-        return await getLoanDetail(subdomain, data);
+        return await getLoanDetail(subdomain, polarisConfig, data);
       case 'getDepositStatement':
-        return await getDepositStatement(subdomain, data);
+        return await getDepositStatement(subdomain, polarisConfig, data);
       case 'getDepositBalance':
-        return await getDepositBalance(subdomain, data);
+        return await getDepositBalance(subdomain, polarisConfig, data);
       case 'getLoanCollaterals':
-        return await getLoanCollaterials(subdomain, data);
+        return await getLoanCollaterials(subdomain, polarisConfig, data);
       case 'getSavingTransactions':
-        return await getSavingTransactions(subdomain, data);
+        return await getSavingTransactions(subdomain, polarisConfig, data);
 
       default:
         break;

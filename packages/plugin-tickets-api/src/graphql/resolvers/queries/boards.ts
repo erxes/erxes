@@ -614,7 +614,7 @@ const boardQueries = {
       const pipeline = await Pipelines.getPipeline(stage.pipelineId);
       const board = await Boards.getBoard(pipeline.boardId);
 
-      ticketUrl = `/ticket/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${ticket._id}`;
+      ticketUrl = `/ticket/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${ticket._id}`;
     }
 
     return {
@@ -852,13 +852,13 @@ const boardQueries = {
       const endDate = new Date(interval.endTime.getTime() - timezone);
 
       const checkingItems = items.filter(
-        item => item.startDate < endDate && item.closeDate > startDate
+        item => item.startDate && item.startDate < endDate && item.closeDate && item.closeDate > startDate
       );
 
       let checkedTagIds: string[] = [];
 
       for (const item of checkingItems) {
-        checkedTagIds = checkedTagIds.concat(item.tagIds);
+        checkedTagIds = checkedTagIds.concat(item.tagIds || []);
       }
 
       interval.freeTags = tags.filter(t => !checkedTagIds.includes(t._id));

@@ -1,19 +1,12 @@
 import { ButtonMutate, withCurrentUser } from "@erxes/ui/src";
-import { IUser, UsersQueryResponse } from "@erxes/ui/src/auth/types";
-import {
-  ProductCategoriesQueryResponse,
-  ProductsQueryResponse,
-} from "@erxes/ui-products/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
 
 import ContractTypeForm from "../components/ContractTypeForm";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { IContractType } from "../types";
 import React from "react";
 import { __ } from "coreui/utils";
-import { gql } from "@apollo/client";
 import { mutations } from "../graphql";
-import productCategoryQueries from "@erxes/ui-products/src/graphql/queries";
-import { useQuery } from "@apollo/client";
 
 type Props = {
   contractType: IContractType;
@@ -26,12 +19,6 @@ type FinalProps = {
 } & Props;
 
 const ContractTypeFromContainer = (props: FinalProps) => {
-  const productCategoriesQuery = useQuery<ProductCategoriesQueryResponse>(
-    gql(productCategoryQueries.productCategories)
-  );
-
-  const productsQuery = useQuery(gql(productCategoryQueries.products));
-
   const { closeModal, getAssociatedContractType } = props;
   const renderButton = ({
     name,
@@ -57,27 +44,17 @@ const ContractTypeFromContainer = (props: FinalProps) => {
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         type="submit"
-        successMessage={`You successfully ${
-          object ? "updated" : "added"
-        } a ${name}`}
+        successMessage={`You successfully ${object ? "updated" : "added"
+          } a ${name}`}
       >
         {__("Save")}
       </ButtonMutate>
     );
   };
 
-  if (productCategoriesQuery.loading || productsQuery.loading) {
-    return null;
-  }
-
-  const productCategories =
-    productCategoriesQuery?.data?.productCategories || [];
-
   const updatedProps = {
     ...props,
     renderButton,
-    productCategories,
-    products: productsQuery?.data?.products || [],
   };
   return <ContractTypeForm {...updatedProps} />;
 };

@@ -73,6 +73,8 @@ const addEditParams = `
   buttonType: String,
   description: String,
   isPre: Boolean,
+  isSingle: Boolean,
+  deviceId: String,
 `;
 
 export const types = `
@@ -98,6 +100,7 @@ export const types = `
     manufacturedDate: String
     description: String
     attachment: JSON
+    byDevice: JSON
   }
 
   type PosPutResponse {

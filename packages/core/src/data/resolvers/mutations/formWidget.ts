@@ -9,7 +9,7 @@ import {
 } from '../../../messageBrokers/utils';
 import { graphqlPubsub } from '../../../pubsub';
 import { registerOnboardHistory } from '../../utils';
-
+import { nanoid } from 'nanoid';
 // helpers
 
 // Helper function to merge customer custom field data
@@ -91,7 +91,7 @@ async function createConversationAndMessage({
       integrationId: integration?._id,
       content: form.title,
       formWidgetData: submissions,
-      status: 'new'
+      status: 'new',
     },
     isRPC: true,
   });
@@ -103,6 +103,7 @@ async function saveFormSubmissions(
   models: IModels,
   { submissions, formId, customerId, conversationId }
 ) {
+  const groupId = nanoid();
   const submissionDocs = submissions.map((submission) => {
     let value = submission.value || '';
     if (submission.validation === 'number') value = Number(submission.value);
@@ -117,6 +118,7 @@ async function saveFormSubmissions(
       customerId,
       contentType: 'lead',
       conversationId: conversationId || undefined,
+      groupId,
     };
   });
 
@@ -179,7 +181,7 @@ function updateCustomerDoc(
     customerDoc.phones = [...customer.phones, customerDoc.phone];
   }
 
-  return customerDoc
+  return customerDoc;
 }
 
 const mutations = {
@@ -190,25 +192,13 @@ const mutations = {
   ) {
     const brand = await models.Brands.findOne({ code: args.brandCode }).lean();
 
-    const form = await models.Forms.findOne({ code: args.formCode, status:"active" }).lean();
+    const form = await models.Forms.findOne({
+      $or: [{ code: args.formCode }, { _id: args.formCode }],
+      status: 'active',
+    }).lean();
 
     if (!brand || !form) {
       throw new Error('Invalid configuration');
-    }
-
-    let integration = null;
-
-    if (isEnabled('inbox') && form.integrationId) {
-      integration = await sendCommonMessage({
-        serviceName: 'inbox',
-        action: 'integrations.findOne',
-        data: {
-          _id: form.integrationId,
-        },
-        isRPC: true,
-        defaultValue: null,
-        subdomain,
-      });
     }
 
     if (form.leadData && form.leadData.loadType === 'embedded') {
@@ -236,9 +226,7 @@ const mutations = {
       }
     }
 
-    // return integration details
     return {
-      integration,
       form,
     };
   },
@@ -281,11 +269,13 @@ const mutations = {
     const companyCustomData: ICustomField[] = [];
     const customerLinks: ILink = {};
     const companyLinks: ILink = {};
+    const submissionValues = {};
 
     // Step 3: Process submissions
     for (const submission of submissions) {
       const submissionType = submission.type || '';
       const value = submission.value || '';
+      submissionValues[submission._id] = submission.value;
 
       // Handle links (customer or company)
       if (submissionType.includes('customerLinks')) {
@@ -338,15 +328,32 @@ const mutations = {
     }
 
     // Step 4: Create or update customer
-    let customer = await models.Customers.findOne({
+
+    let customerQry: any = {
       _id: args.cachedCustomerId,
-    });
+    };
+
+    const { saveAsCustomer } = form.leadData || {};
+
+    if (saveAsCustomer) {
+      customerQry = {
+        $or: [
+          { primaryEmail: customerDoc.email },
+          { phones: customerDoc.phone },
+          { _id: args.cachedCustomerId },
+        ],
+      };
+    }
+
+    let customer = await models.Customers.findOne(customerQry);
     if (!customer) {
       customer = await models.Customers.createCustomer({
         ...customerDoc,
         emails: [customerDoc.email],
-        phones: [customerDoc.phones],
-        state: 'lead',
+        phones: [customerDoc.phone],
+        primaryEmail: saveAsCustomer ? customerDoc.email : null,
+        primaryPhone: saveAsCustomer ? customerDoc.phone : null,
+        state: saveAsCustomer ? 'customer' : 'lead',
         links: customerLinks,
         customFieldsData,
         integrationId: integration?._id,
@@ -354,8 +361,7 @@ const mutations = {
         scopeBrandIds: [form.brandId],
       });
 
-      await models.Forms.increaseContactsGathered(form._id)
-
+      await models.Forms.increaseContactsGathered(form._id);
     } else {
       const doc = updateCustomerDoc(
         customer,
@@ -365,6 +371,13 @@ const mutations = {
         customFieldsData,
         customerLinks
       );
+
+      if (saveAsCustomer) {
+        doc.state = 'customer';
+        doc.primaryEmail = customerDoc.email;
+        doc.primaryPhone = customerDoc.phone;
+      }
+
       await models.Customers.updateCustomer(customer._id, doc);
     }
 
@@ -386,6 +399,24 @@ const mutations = {
       formId,
       customerId: customer._id,
       conversationId,
+    });
+
+    sendCommonMessage({
+      subdomain,
+      serviceName: 'automations',
+      action: 'trigger',
+      data: {
+        type: 'core:form_submission',
+        targets: [
+          {
+            ...submissionValues,
+            _id: customer._id,
+            conversationId: conversationId || null,
+          },
+        ],
+      },
+      isRPC: true,
+      defaultValue: null,
     });
 
     return {

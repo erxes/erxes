@@ -1,6 +1,6 @@
 import { IModels } from "./connectionResolver";
 import {
-  sendCardsMessage,
+  sendCommonMessage,
   sendCoreMessage,
   sendNotificationsMessage
 } from "./messageBroker";
@@ -24,10 +24,12 @@ export const afterMutationHandlers = async (
     object: { _id, name }
   } = params;
 
-  if (action === "update") {
-    if (type.includes("cards")) {
+  //test
+
+  if (action === 'update') {
+    if (type.includes('cards')) {
       if (newData.stageId) {
-        const contentType = type.replace("cards:", "");
+        const contentType = type.replace('cards:', ''); 
 
         const requests = await models.Requests.find({
           $and: [
@@ -84,8 +86,9 @@ export const afterMutationHandlers = async (
 
               for (const config of configs || []) {
                 if (config.sourceStageId === newData.stageId) {
-                  await sendCardsMessage({
+                  await sendCommonMessage({
                     subdomain,
+                    serviceName:contentType,
                     action: "editItem",
                     data: {
                       itemId,
@@ -102,12 +105,13 @@ export const afterMutationHandlers = async (
           }
 
           if (!!receiverIds.length) {
-            const link = await sendCardsMessage({
+            const link = await sendCommonMessage({
+              serviceName:contentType,
               subdomain,
-              action: "getLink",
+              action: 'getLink',
               data: { _id, type: contentType },
               isRPC: true,
-              defaultValue: null
+              defaultValue: null,
             });
 
             await sendNotificationsMessage({

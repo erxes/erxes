@@ -112,7 +112,7 @@ const IncomingCall = (props: Props, context) => {
     }
     if (status !== 'accepted') {
       if (call.status === CALL_STATUS_STARTING) {
-        localStorage.removeItem('transferedCallStatus');
+        localStorage.removeItem('transferredCallStatus');
       }
       setHaveIncomingCall(true);
     }

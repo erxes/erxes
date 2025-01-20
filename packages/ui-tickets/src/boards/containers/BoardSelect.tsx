@@ -56,7 +56,7 @@ class BoardSelectContainer extends React.Component<FinalProps> {
     stagesQuery
       .refetch({ pipelineId })
       .then(({ data }) => {
-        const stages = data.stages;
+        const stages = data.ticketsStages;
 
         this.props.onChangePipeline(pipelineId, stages);
 

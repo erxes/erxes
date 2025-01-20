@@ -113,6 +113,9 @@ export interface IClientPortal {
   testUserOTP?: number;
 
   vendorParentProductCategoryId?: string;
+  language?: string;
+  slug?: string;
+  template?: string;
 }
 
 interface IStyles {
@@ -195,6 +198,17 @@ const mailConfigSchema = new Schema(
     subject: field({ type: String, optional: true }),
     invitationContent: field({ type: String, optional: true }),
     registrationContent: field({ type: String, optional: true }),
+  },
+  { _id: false }
+);
+
+const navigationMenuSchema = new Schema(
+  {
+    label: field({ type: String }),
+    url: field({ type: String }),
+    icon: field({ type: String, optional: true }),
+    children: field({ type: [Object], optional: true }),
+    order: field({ type: Number, optional: true }),
   },
   { _id: false }
 );
@@ -338,4 +352,7 @@ export const clientPortalSchema = new Schema({
     },
     optional: true,
   }),
+  language: field({ type: String, optional: true }),
+  slug: field({ type: String, optional: true }),
+  template: field({ type: String, optional: true }),
 });

@@ -42,6 +42,7 @@ const pipelines = `
       excludeCheckUserIds
       numberConfig
       memberIds
+      branchIds
       departmentIds
       numberSize
       nameConfig
@@ -51,6 +52,12 @@ const pipelines = `
           fullName
         } 
       }
+      initialCategoryIds
+      excludeCategoryIds
+      excludeProductIds
+      paymentIds
+      paymentTypes
+      erxesAppToken
     }
   }
 `;

@@ -6,15 +6,6 @@ import type {
 
 export const setupMessageConsumers = async () => {};
 
-export const sendContactsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "core",
-    ...args
-  });
-};
-
 export const sendInternalNotesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
@@ -47,15 +38,6 @@ export const sendInboxMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "inbox",
-    ...args
-  });
-};
-
-export const sendProductsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "core",
     ...args
   });
 };

@@ -1,8 +1,6 @@
 import { generateModels } from "./connectionResolver";
 import {
-  sendContactsMessage,
-  sendCoreMessage,
-  sendProductsMessage
+  sendCoreMessage
 } from "./messageBroker";
 import * as _ from "lodash";
 
@@ -64,7 +62,7 @@ export default {
     {
       label: "Sales",
       type: "sales",
-      subTypes: ["deal"]
+      subTypes: ["deal", "stage"]
     }
   ],
 
@@ -79,7 +77,7 @@ export default {
 
   replaceContent: async ({
     subdomain,
-    data: { stageId, itemId, content, contentype, itemIds, brandId }
+    data: { stageId, itemId, content, contentype, itemIds, brandId, branchId, departmentId }
   }) => {
     const models = await generateModels(subdomain);
     const stage = await models.Stages.findOne({ _id: stageId });
@@ -87,18 +85,10 @@ export default {
     if (!stage) {
       return "";
     }
-    let collection;
 
-    if (stage.type == "deal") {
-      collection = models.Deals;
-    }
-
-    if (!collection) {
-      return "";
-    }
     let item;
     if (contentype == "sales:stage") {
-      const items = await collection.find({
+      const items = await models.Deals.find({
         stageId: stageId,
         _id: { $in: itemIds.split(",") }
       });
@@ -113,7 +103,7 @@ export default {
         return "";
       }
     } else {
-      item = await collection.findOne({ _id: itemId });
+      item = await models.Deals.findOne({ _id: itemId });
 
       if (!item) {
         return "";
@@ -200,7 +190,7 @@ export default {
         defaultValue: []
       });
 
-      const activeCustomers = await sendContactsMessage({
+      const activeCustomers = await sendCoreMessage({
         subdomain,
         action: "customers.findActiveCustomers",
         data: { selector: { _id: { $in: customerIds } } },
@@ -211,7 +201,7 @@ export default {
       const customerRows: string[] = [];
 
       for (const item of activeCustomers) {
-        const name = await sendContactsMessage({
+        const name = await sendCoreMessage({
           subdomain,
           action: "customers.getCustomerName",
           data: { customer: item },
@@ -241,7 +231,7 @@ export default {
         defaultValue: []
       });
 
-      const activeCompanies = await sendContactsMessage({
+      const activeCompanies = await sendCoreMessage({
         subdomain,
         action: "companies.findActiveCompanies",
         data: { selector: { _id: { $in: companyIds } } },
@@ -252,7 +242,7 @@ export default {
       const companyRows: string[] = [];
 
       for (const item of activeCompanies) {
-        const name = await sendContactsMessage({
+        const name = await sendCoreMessage({
           subdomain,
           action: "companies.getCompanyName",
           data: { company: item },
@@ -287,9 +277,9 @@ export default {
           continue;
         }
 
-        const product = await sendProductsMessage({
+        const product = await sendCoreMessage({
           subdomain,
-          action: "productFindOne",
+          action: "products.findOne",
           data: { _id: pd.productId },
           isRPC: true
         });
@@ -303,6 +293,24 @@ export default {
             brandId !== "noBrand" &&
             !product.scopeBrandIds.includes(brandId)) ||
           (brandId === "noBrand" && product.scopeBrandIds.length > 0)
+        ) {
+          continue;
+        }
+
+        if (
+          (branchId &&
+            branchId !== "noBranch" &&
+            pd.branchId !== branchId) ||
+          (branchId === "noBranch" && pd.branchId)
+        ) {
+          continue;
+        }
+
+        if (
+          (departmentId &&
+            departmentId !== "noDepartment" &&
+            pd.departmentId !== departmentId) ||
+          (departmentId === "noDepartment" && pd.departmentId)
         ) {
           continue;
         }
@@ -397,9 +405,9 @@ export default {
         continue;
       }
 
-      const product = await sendProductsMessage({
+      const product = await sendCoreMessage({
         subdomain,
-        action: "findOne",
+        action: "products.findOne",
         data: { _id: pd.productId },
         isRPC: true
       });
@@ -519,7 +527,7 @@ const salesStage = async (items: any[]) => {
       aggregatedData.searchText = combinedNames;
 
       if (item.productsData) {
-        item.productsData.forEach(product => {
+        item.productsData.filter(product => product.tickUsed).forEach(product => {
           const existingProduct = aggregatedData.productsData.find(
             p =>
               p.productId === product.productId &&
@@ -545,7 +553,9 @@ const salesStage = async (items: any[]) => {
               productId: product.productId,
               unitPrice: product.unitPrice,
               globalUnitPrice: product.globalUnitPrice,
-              unitPricePercent: product.unitPricePercent
+              unitPricePercent: product.unitPricePercent,
+              branchId: product.branchId,
+              departmentId: product.departmentId
             });
           }
 

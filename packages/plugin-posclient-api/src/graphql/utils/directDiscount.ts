@@ -52,6 +52,8 @@ const applyDiscount = (
   directDiscount: number
 ): void => {
   for (const item of items || []) {
+    item.unitPrice = item.unitPrice || 0;
+
     const discountValue = parseFloat(
       ((item.unitPrice * directDiscount) / 100).toFixed(2)
     );

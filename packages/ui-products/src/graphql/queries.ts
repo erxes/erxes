@@ -1,4 +1,4 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const vendorField = `
   vendor {
@@ -74,10 +74,22 @@ const productFields = `
     size
     type
   }
+  pdfAttachment {
+    pdf {
+      name
+      url
+      type
+      size
+    }
+    pages {
+      name
+      url
+      type
+      size
+      }
+    }
   uom
   subUoms
-  taxType
-  taxCode
 `;
 
 const products = `
@@ -96,7 +108,8 @@ const products = `
     $pipelineId: String,
     $boardId: String,
     $segment: String,
-    $segmentData: String
+    $segmentData: String,
+    $image: String,
   ) {
     products(
       type: $type,
@@ -113,7 +126,8 @@ const products = `
       pipelineId: $pipelineId,
       boardId: $boardId,
       segment: $segment,
-      segmentData: $segmentData
+      segmentData: $segmentData,
+      image: $image,
     ) {
       ${productFields}
     }
@@ -169,6 +183,7 @@ const uoms = `
       createdAt
       isForSubscription
       subscriptionConfig
+      timely
     }
   }
 `;
@@ -198,5 +213,5 @@ export default {
   productCategories,
   productsConfigs,
   uoms,
-  uomsTotalCount
+  uomsTotalCount,
 };

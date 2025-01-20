@@ -11,6 +11,11 @@ interface IDashboardEdit extends IDashboard {
   _id: string;
 }
 
+const SERVICE_MAP = {
+  'contacts': 'core:contacts',
+  'forms': 'core:forms',
+}
+
 const getChartTemplatesForService = async (serviceName, charts) => {
   const service = await getService(serviceName);
   const chartTemplates = service.config?.meta?.reports?.chartTemplates;
@@ -29,7 +34,7 @@ const addChartsForDashboard = async (
   if (chartTemplates) {
     await models.Charts.insertMany(
       chartTemplates.map(c => ({
-        serviceName,
+        serviceName: SERVICE_MAP[c.serviceType] || serviceName,
         chartType: c.chartTypes[0],
         contentId,
         contentType: "core:dashboard",
@@ -116,6 +121,7 @@ const dashboardMutations = {
     { _id, ...doc }: IDashboardDocument,
     { models, user }: IContext
   ) {
+    const dashboard = await models.Dashboards.findOne({ _id });
     const dashboardCharts = await models.Charts.find({ contentId: _id });
     const baseCharts = dashboardCharts.map(item => item.templateType);
     const changes = compareArrays(baseCharts, doc.charts || []);
@@ -138,6 +144,14 @@ const dashboardMutations = {
       for (const chart of doc.charts) {
         await models.Charts.updateChart(chart._id, { ...chart });
       }
+    }
+
+    const userIds = new Set<string>(dashboard?.userIds || []);
+
+    if (doc.userId) {
+      userIds.has(doc.userId) ? userIds.delete(doc.userId) : userIds.add(doc.userId);
+
+      doc.userIds = [...userIds];
     }
 
     return await models.Dashboards.updateDashboard(_id, {

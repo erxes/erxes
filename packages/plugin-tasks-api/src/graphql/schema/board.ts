@@ -23,6 +23,7 @@ export const types = () => `
     visibility: String!
     memberIds: [String]
     departmentIds: [String]
+    branchIds: [String]
     members: [User]
     bgColor: String
     isWatched: Boolean
@@ -185,6 +186,7 @@ const pipelineParams = `
   numberSize: String,
   nameConfig: String,
   departmentIds: [String],
+  branchIds: [String],
 `;
 
 export const mutations = `

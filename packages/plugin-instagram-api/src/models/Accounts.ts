@@ -1,7 +1,7 @@
-import { Document, Model, Schema } from 'mongoose';
+import { Document, Model, Schema } from "mongoose";
 
-import { IModels } from '../connectionResolver';
-import { field } from './definitions/utils';
+import { IModels } from "../connectionResolver";
+import { field } from "./definitions/utils";
 
 export interface IAccount {
   kind: string;
@@ -49,7 +49,7 @@ export const loadAccountClass = (models: IModels) => {
       const account = await models.Accounts.findOne(selector);
 
       if (!account) {
-        throw new Error('Account not found');
+        throw new Error("Account not found");
       }
 
       return account;

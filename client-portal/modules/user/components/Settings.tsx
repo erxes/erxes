@@ -7,6 +7,7 @@ import { ModalFooter } from "../../common/form/styles";
 import { NotificationSettingsRow } from "../../styles/notifications";
 import React from "react";
 import Toggle from "react-toggle";
+import { __ } from "../../../utils";
 
 type Props = {
   currentUser: IUser;
@@ -37,11 +38,11 @@ function Settings({ currentUser = {} as IUser, onSave }: Props) {
 
   return (
     <>
-      <SettingsTitle>User Settings</SettingsTitle>
+      <SettingsTitle>{__("User Settings")}</SettingsTitle>
       <SettingsContent>
-        <ControlLabel>{"Notification settings"}</ControlLabel>
+        <ControlLabel>{__("Notification settings")}</ControlLabel>
         <NotificationSettingsRow>
-          <p>Receive notification by email</p>
+          <p>{__("Receive notification by email")}</p>
           <div className="d-flex align-items-center">
             <Toggle
               defaultChecked={receiveByEmail}
@@ -52,7 +53,7 @@ function Settings({ currentUser = {} as IUser, onSave }: Props) {
           </div>
         </NotificationSettingsRow>
         <NotificationSettingsRow>
-          <p>Receive notification by SMS</p>
+          <p>{__("Receive notification by SMS")}</p>
           <div className="d-flex align-items-center">
             <Toggle
               defaultChecked={receiveBySms}
@@ -69,7 +70,7 @@ function Settings({ currentUser = {} as IUser, onSave }: Props) {
             uppercase={false}
             icon="check-circle"
           >
-            Save
+            {__("Save")}
           </Button>
         </ModalFooter>
       </SettingsContent>

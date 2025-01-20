@@ -2,7 +2,7 @@ import { requireLogin } from "@erxes/api-utils/src/permissions";
 
 import * as dotenv from "dotenv";
 import { IContext } from "../../../connectionResolver";
-import { sendProductsMessage, sendSalesMessage } from "../../../messageBroker";
+import { sendCoreMessage, sendSalesMessage } from "../../../messageBroker";
 
 dotenv.config();
 
@@ -57,9 +57,9 @@ const configQueries = {
 
     const productsIds = deal.productsData.map(item => item.productId);
 
-    const products = await sendProductsMessage({
+    const products = await sendCoreMessage({
       subdomain,
-      action: "productFind",
+      action: "products.find",
       data: {
         query: { _id: { $in: productsIds } },
         limit: deal.productsData.length

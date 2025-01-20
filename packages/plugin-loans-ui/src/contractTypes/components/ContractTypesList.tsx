@@ -113,7 +113,9 @@ const ContractTypesList = (props: IProps) => {
             <th>
               <SortHandler sortField={"number"} label={__("Start Number")} />
             </th>
+            <th>{__("Lease Type")}</th>
             <th>{__("After vacancy count")}</th>
+            <th>{__("Product")}</th>
             <th></th>
           </tr>
         </thead>
@@ -174,7 +176,7 @@ const ContractTypesList = (props: IProps) => {
       />
 
       <ModalTrigger
-        title="New contractType"
+        title={__("New contractType")}
         size="lg"
         trigger={addTrigger}
         autoOpenKey="showContractTypeModal"
@@ -208,7 +210,7 @@ const ContractTypesList = (props: IProps) => {
           data={mainContent}
           loading={loading}
           count={contractTypes.length}
-          emptyText="Add in your first contractType!"
+          emptyText={__("Add in your first contractType!")}
           emptyImage="/images/actions/1.svg"
         />
       }

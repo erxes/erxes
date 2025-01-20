@@ -3,6 +3,7 @@ import { paginate } from "@erxes/api-utils/src";
 import { IContext } from "../../connectionResolver";
 import { sendCommonMessage } from "../../messageBroker";
 import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
+import common from "../../common";
 
 interface IListParams {
   limit: number;
@@ -60,12 +61,7 @@ const documentQueries = {
       label: string;
       contentType: string;
       subTypes?: string[];
-    }> = [
-      {
-        label: "Team members",
-        contentType: "core:user"
-      }
-    ];
+    }> = [...common.types];
 
     for (const serviceName of services) {
       const service = await getService(serviceName);
@@ -91,33 +87,23 @@ const documentQueries = {
     { contentType },
     { subdomain }: IContext
   ) {
-    if (contentType === "core:user") {
-      const fields = await sendCommonMessage({
-        subdomain,
-        serviceName: "forms",
-        action: "fields.fieldsCombinedByContentType",
-        isRPC: true,
-        data: {
-          contentType
-        }
-      });
+    const [serviceName, type] = contentType.split(":");
 
-      return fields.map(f => ({ value: f.name, name: f.label }));
+    const editorAttributes = common.editorAttributes[type];
+
+    if (editorAttributes) {
+      return await editorAttributes({ subdomain, data: { contentType } });
     }
 
-    let data: any = {};
-
-    if (contentType.match(new RegExp("core:"))) {
-      data.contentType = contentType;
-      contentType = "contacts";
-    }
-
-    return sendCommonMessage({
+    return await sendCommonMessage({
       subdomain,
-      serviceName: contentType,
+      serviceName,
       action: "documents.editorAttributes",
+      data: {
+        contentType
+      },
       isRPC: true,
-      data
+      defaultValue: []
     });
   },
 

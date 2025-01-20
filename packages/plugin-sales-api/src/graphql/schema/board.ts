@@ -23,6 +23,7 @@ export const types = () => `
     visibility: String!
     memberIds: [String]
     departmentIds: [String]
+    branchIds: [String]
     members: [User]
     bgColor: String
     isWatched: Boolean
@@ -42,6 +43,12 @@ export const types = () => `
     numberConfig: String
     numberSize: String
     nameConfig: String
+    initialCategoryIds: [String]
+    excludeCategoryIds: [String]
+    excludeProductIds: [String]
+    paymentIds: [String]
+    paymentTypes: JSON
+    erxesAppToken: String
     ${commonTypes}
   }
 
@@ -185,6 +192,13 @@ const pipelineParams = `
   numberSize: String,
   nameConfig: String,
   departmentIds: [String],
+  branchIds: [String],
+  initialCategoryIds: [String]
+  excludeCategoryIds: [String]
+  excludeProductIds: [String]
+  paymentIds: [String]
+  paymentTypes: JSON
+  erxesAppToken: String
 `;
 
 export const mutations = `

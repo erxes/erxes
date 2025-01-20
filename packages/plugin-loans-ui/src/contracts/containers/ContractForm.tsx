@@ -38,6 +38,7 @@ const ContractFromContainer = (props: FinalProps) => {
         contentType: data?.mainType,
         id: data?.mainTypeId
       },
+      skip: !data?.mainTypeId,
       fetchPolicy: "network-only",
     }
   );

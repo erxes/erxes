@@ -199,6 +199,7 @@ export const checkPermission = async (
   checkLogin(user);
 
   const actionName = PERMISSION_MAP[type][mutationName];
+  console.log({ user }, 'p');
 
   let allowed = await can(subdomain, actionName, user);
 

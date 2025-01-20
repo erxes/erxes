@@ -1,8 +1,9 @@
-import * as React from 'react';
-import { IconChevronLeft } from '../../../../icons/Icons';
-import BottomNavBar from '../../BottomNavBar';
-import { useRouter } from '../../../context/Router';
-import { getColor } from '../../../utils/util';
+import * as React from "react";
+
+import BottomNavBar from "../../BottomNavBar";
+import { IconChevronLeft } from "../../../../icons/Icons";
+import { getColor } from "../../../utils/util";
+import { useRouter } from "../../../context/Router";
 
 type Props = {
   withTopBar?: boolean;
@@ -36,7 +37,7 @@ const Container: React.FC<Props> = ({
       119deg,
       ${color} 2.96%,
       ${color} 51.52%,
-      #fff 100.08%
+      #caf4f7 100.08%
     )`,
       }
     : {};
@@ -50,7 +51,7 @@ const Container: React.FC<Props> = ({
       setActiveRoute(backRoute);
       return;
     }
-    setActiveRoute('home');
+    setActiveRoute("home");
   };
 
   return (
@@ -61,7 +62,7 @@ const Container: React.FC<Props> = ({
             <div className="icon" onClick={handleBackClick}>
               <IconChevronLeft />
             </div>
-            {typeof title === 'string' ? (
+            {typeof title === "string" ? (
               <div className="title">{title}</div>
             ) : (
               title

@@ -1,7 +1,7 @@
 import {
   ClearBtnContainer,
   FilterRowContainer,
-  PaddingTop
+  PaddingTop,
 } from "../../../styles";
 import {
   ControlLabel,
@@ -10,9 +10,10 @@ import {
   FormGroup,
   Icon,
   SelectTeamMembers,
+  SelectWithSearch,
   Tip,
   Wrapper,
-  router
+  router,
 } from "@erxes/ui/src";
 import { DateContainer, ScrollWrapper } from "@erxes/ui/src/styles/main";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -34,6 +35,15 @@ const SelectCustomers = asyncComponent(
       /* webpackChunkName: "SelectCustomers" */ "@erxes/ui-contacts/src/customers/containers/SelectCustomers"
     )
 );
+
+const campaignQuery = `
+query ScoreCampaigns {
+      scoreCampaigns {
+        _id,title
+      }
+    }
+`;
+
 interface LayoutProps {
   children: React.ReactNode;
   label: string;
@@ -204,6 +214,26 @@ const SideBar = (props: Props) => {
               {"Changed Score"}
             </option>
           </FormControl>
+        </Form>
+        <Form
+          label="Campaign"
+          clearable={checkParams("campaignId")}
+          type="campaignId"
+        >
+          <SelectWithSearch
+            label={"Score Campaigns"}
+            queryName="scoreCampaigns"
+            name={"campaignId"}
+            initialValue={variables?.campaignId}
+            generateOptions={list =>
+              list.map(({ _id, title }) => ({ value: _id, label: title }))
+            }
+            onSelect={value => {
+              setVariables({ ...variables, campaignId: value });
+              router.setParams(navigate, location, { campaignId: value });
+            }}
+            customQuery={campaignQuery}
+          />
         </Form>
         <Form label="Order" clearable={checkParams("order")} type="order">
           <FormControl

@@ -50,7 +50,7 @@ on:
       - "packages/plugin-inventories-ui/**"
       - ".github/workflows/plugin-inventories-ui.yaml"
 
-jobs:
+jobs: 
   ui:
     runs-on: ubuntu-22.04
 

@@ -2,14 +2,14 @@ import {
   IAttachment,
   MutationVariables,
   QueryResponse
-} from "@erxes/ui/src/types";
+} from '@erxes/ui/src/types';
 
-import { IActivityLog } from "@erxes/ui-log/src/activityLogs/types";
-import { ICompany } from "@erxes/ui-contacts/src/companies/types";
-import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
-import { ISavedConformity } from "../conformity/types";
-import { ITag } from "@erxes/ui-tags/src/types";
-import { IUser } from "@erxes/ui/src/auth/types";
+import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import { ISavedConformity } from '../conformity/types';
+import { ITag } from '@erxes/ui-tags/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface IOptions {
   EditForm: any;
@@ -71,6 +71,7 @@ export interface IPipeline {
   createdUser: IUser;
   members?: any[];
   departmentIds?: string[];
+  branchIds?: string[];
   memberIds?: string[];
   condition?: string;
   label?: string;
@@ -90,6 +91,13 @@ export interface IPipeline {
   numberConfig?: string;
   numberSize?: string;
   nameConfig?: string;
+  initialCategoryIds: string[];
+  excludeCategoryIds: string[];
+  excludeProductIds: string[];
+
+  paymentIds?: string[];
+  paymentTypes?: any[];
+  erxesAppToken?: string;
 }
 
 export interface IBoard {
@@ -443,7 +451,6 @@ export type ConvertToMutationVariables = {
   itemId?: string;
   itemName?: string;
   stageId?: string;
-  
 };
 
 export type ConvertToMutationResponse = {

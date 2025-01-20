@@ -22,12 +22,21 @@ export default {
     );
   },
 
-  async form(integration: IIntegrationDocument) {
-    if (!integration.formId) {
-      return null;
-    }
-
-    return { __typename: 'Form', _id: integration.formId };
+  async form(
+    integration: IIntegrationDocument,
+    _args,
+    { subdomain }: IContext
+  ) {
+    return sendCommonMessage({
+      serviceName: 'core',
+      action: 'formsFindOne',
+      data: {
+        integrationId: integration._id,
+      },
+      subdomain,
+      isRPC: true,
+      defaultValue: null,
+    });
   },
 
   async channels(integration: IIntegrationDocument, _args, { models }: IContext) {

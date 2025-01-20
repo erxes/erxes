@@ -6,7 +6,6 @@ import { debugError } from "@erxes/api-utils/src/debuggers";
 import { CAMPAIGN_KINDS } from "../../constants";
 import { checkCampaignDoc, send } from "../../engageUtils";
 import {
-  sendContactsMessage,
   sendCoreMessage,
   sendImapMessage
 } from "../../messageBroker";
@@ -378,7 +377,7 @@ const engageMutations = {
       ? { _id: customerId }
       : { primaryEmail: doc.to };
 
-    const customer = await sendContactsMessage({
+    const customer = await sendCoreMessage({
       subdomain,
       action: "customers.findOne",
       data: customerQuery,
@@ -388,8 +387,8 @@ const engageMutations = {
     doc.body = body || "";
 
     try {
-      await sendEmail(models, {
-        fromEmail: doc.from || "",
+      await sendEmail(subdomain, models, {
+        fromEmail: doc.from || '',
         email: {
           content: doc.body,
           subject: doc.subject,
@@ -408,7 +407,7 @@ const engageMutations = {
       throw e;
     }
 
-    const customerIds = await sendContactsMessage({
+    const customerIds = await sendCoreMessage({
       subdomain,
       action: "customers.getCustomerIds",
       data: {

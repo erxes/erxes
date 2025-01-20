@@ -39,9 +39,12 @@ const COPY_MUTATION = gql`
 type Props = {
   queryParams: any;
   location?: any;
+  navigate?: any;
 };
 
-const ListContainer: React.FC<Props> = ({ queryParams, location }) => {
+const ListContainer: React.FC<Props> = (props: Props) => {
+  const { location, queryParams } = props;
+
   const { data, refetch, loading } = useQuery(FORMS_QUERY, {
     variables: {
       ...generatePaginationParams(queryParams),
@@ -59,7 +62,7 @@ const ListContainer: React.FC<Props> = ({ queryParams, location }) => {
 
   const { data: countData } = useQuery(FORMS_TOTAL_COUNT_QUERY, {
     variables: {
-      kind: 'lead',
+      type: 'lead',
       tag: queryParams.tag,
       brandId: queryParams.brand,
       status: queryParams.status,
@@ -151,11 +154,12 @@ const ListContainer: React.FC<Props> = ({ queryParams, location }) => {
   );
 
   const forms = data?.forms || [];
-  const counts = countData?.integrationsTotalCount || null;
+  const counts = countData?.formsTotalCount || null;
 
   const totalCount = (counts && counts.total) || 0;
 
   const updatedProps = {
+    ...props,
     forms,
     counts,
     totalCount,
@@ -164,6 +168,7 @@ const ListContainer: React.FC<Props> = ({ queryParams, location }) => {
     archive,
     copy,
     refetch,
+   
   };
 
   const content = (props: any) => {

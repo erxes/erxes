@@ -10,6 +10,7 @@ import {
   Label,
   ModalTrigger,
   SelectTeamMembers,
+  Spinner,
   TabTitle,
   Tabs,
   __,
@@ -34,6 +35,13 @@ import { Padding } from "../styles";
 import { ItemRow } from "@erxes/ui-automations/src/components/forms/actions/ItemRow";
 import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import { gql, useQuery } from "@apollo/client";
+import Select, {
+  type DropdownIndicatorProps,
+  components,
+  MenuProps
+} from "react-select";
+import { getReactSelectStyle } from "@erxes/ui/src/components/richTextEditor/RichTextEditorControl/styles";
 
 type Props = {
   activeAction: any;
@@ -42,6 +50,7 @@ type Props = {
   triggerType: string;
   triggerConfig: any;
   actionsConst: any[];
+  triggersConst: any[];
 };
 
 const checkToFieldConfigured = (emailRecipientsConst, config) => {
@@ -53,6 +62,49 @@ const checkToFieldConfigured = (emailRecipientsConst, config) => {
       ? (config[key] || [])?.length
       : config[key] && configKeys.includes(key)
   );
+};
+
+const SelectDocument = ({ triggerType }) => {
+  const query = `query Documents($contentType: String) {
+  documents(contentType: $contentType) {
+    _id
+    name
+    code
+  }
+}`;
+  const [serviceName] = triggerType.includes("core")
+    ? triggerType.split(".")
+    : triggerType.split(":");
+
+  const { data, loading } = useQuery(gql(query), {
+    variables: {
+      contentType: serviceName
+    }
+  });
+
+  return ({ onClick }) => {
+    if (loading) {
+      return <Spinner objective />;
+    }
+
+    return (
+      <Select
+        placeholder="Documents"
+        isMulti={false}
+        isSearchable={false}
+        menuPlacement="auto"
+        maxMenuHeight={200}
+        isLoading={loading}
+        onChange={(val: any) => onClick(`document.${val.value}`)}
+        options={(data?.documents || []).map(({ _id, name }) => ({
+          value: _id,
+          label: name
+        }))}
+        menuPortalTarget={document.body}
+        styles={getReactSelectStyle(false)}
+      />
+    );
+  };
 };
 
 const EmailTemplatesList = ({ triggerType, onChangeConfig }) => {
@@ -68,6 +120,9 @@ const EmailTemplatesList = ({ triggerType, onChangeConfig }) => {
       const updatedProps = {
         closeModal,
         contentType: triggerType,
+        additionalToolbarContent: isEnabled("documents")
+          ? SelectDocument({ triggerType })
+          : () => null,
         params: { searchValue }
       };
 
@@ -101,7 +156,7 @@ const EmailTemplatesList = ({ triggerType, onChangeConfig }) => {
         <BarItems>
           <FormControl
             name="searchValue"
-            placeholder="Type to search"
+            placeholder={__("Type to search")}
             value={searchValue}
             onChange={onSearch}
           />
@@ -121,7 +176,8 @@ const RecipientsForm = ({
   triggerType,
   triggerConfig,
   config,
-  onChangeConfig
+  onChangeConfig,
+  additionalAttributes
 }) => {
   const [selectedTab, setTab] = useState("general");
 
@@ -132,8 +188,8 @@ const RecipientsForm = ({
   const renderAttrubutionInput = () => {
     const onChange = updatedConfig => onChangeConfig(updatedConfig);
 
-    const isAvailableTriggerExecutor = ["contacts", "user"].some(c =>
-      triggerType.includes(c)
+    const isAvailableTriggerExecutor = ["customer", "companies", "user"].some(
+      c => triggerType.includes(c)
     );
 
     const customAttributions = isAvailableTriggerExecutor
@@ -152,13 +208,15 @@ const RecipientsForm = ({
         config={config}
         triggerType={triggerType}
         inputName="attributionMails"
-        placeholder="Please select  some attributes from attributes section"
+        placeholder={__(
+          "Please select  some attributes from attributes section"
+        )}
         label="Dynamic mails"
         attrTypes={["user", "contact", "segment"]}
         attrWithSegmentConfig={triggerType === "forms:form_submission"}
         triggerConfig={triggerConfig}
         onChange={onChange}
-        customAttributions={customAttributions}
+        customAttributions={[...additionalAttributes, ...customAttributions]}
         additionalContent={
           <Popover
             placement="auto"
@@ -344,7 +402,8 @@ const ConfigForm = ({
   closeModal,
   triggerConfig,
   setConfig,
-  triggerType
+  triggerType,
+  additionalAttributes
 }) => {
   const onSelect = (value, name) => {
     setConfig({ ...config, [name]: value });
@@ -359,8 +418,8 @@ const ConfigForm = ({
     >
       <DrawerDetail>
         <ItemRow
-          title={"Sender"}
-          description="Who is sending email"
+          title={__("Sender")}
+          description={__("Who is sending email")}
           buttonText="sender"
           isDone={config?.fromUserId}
           config={config}
@@ -370,7 +429,7 @@ const ConfigForm = ({
               <SelectTeamMembers
                 name="fromUserId"
                 initialValue={doc?.fromUserId || config?.fromUserId}
-                label="Select sender user"
+                label={__("Select sender user")}
                 onSelect={(value, name) => onChange({ ...doc, [name]: value })}
                 filterParams={{
                   status: "Verified"
@@ -383,7 +442,7 @@ const ConfigForm = ({
           subContent={config?.fromUserId ? "" : "Select Sender"}
         />
         <ItemRow
-          title={"Reciepent"}
+          title={__("Reciepent")}
           description=""
           buttonText="select recipients"
           config={config}
@@ -395,21 +454,22 @@ const ConfigForm = ({
               emailRecipientsConst={emailRecipientsConst}
               triggerConfig={triggerConfig}
               triggerType={triggerType}
+              additionalAttributes={additionalAttributes}
             />
           )}
           onSave={setConfig}
           subContent={config?.to ? "" : "Select recipients"}
         />
         <ItemRow
-          title={"Subject"}
-          description="Configure the subject of the email"
+          title={__("Subject")}
+          description={__("Configure the subject of the email")}
           buttonText="subject"
           config={config}
           isDone={config?.subject}
           content={(doc, onChange) => (
             <PlaceHolderInput
               inputName="subject"
-              label="Email Subject"
+              label={__("Email Subject")}
               config={doc}
               onChange={() => null}
               onKeyPress={(e: any) => {
@@ -419,7 +479,7 @@ const ConfigForm = ({
               triggerType={triggerType}
             />
           )}
-          subContent={config?.subject ? "" : "Enter subject"}
+          subContent={__(config?.subject ? "" : "Enter subject")}
           onSave={doc => setConfig({ ...config, ...doc })}
         />
 
@@ -433,10 +493,10 @@ const ConfigForm = ({
             />
           </FlexRow>
           <ModalTrigger
-            title="Email Templates"
+            title={__("Email Templates")}
             size="xl"
             trigger={
-              <Button btnStyle="white">{`Change email template`}</Button>
+              <Button btnStyle="white">{__(`Change email template`)}</Button>
             }
             content={() => (
               <EmailTemplatesList
@@ -460,13 +520,16 @@ export default function SendEmail({
   addAction,
   activeAction,
   closeModal,
-  triggerConfig
+  triggerConfig,
+  triggersConst
 }: Props) {
   const [config, setConfig] = useState<any>(activeAction?.config || {});
 
   if (config?.templateId) {
     const { emailRecipientsConst = [] } =
       actionsConst.find(action => action.type === "sendEmail") || {};
+    const { additionalAttributes = [] } =
+      (triggersConst || []).find(({ type }) => type === triggerType) || {};
 
     const updatedProps = {
       emailRecipientsConst,
@@ -476,7 +539,8 @@ export default function SendEmail({
       closeModal,
       triggerConfig,
       setConfig,
-      triggerType
+      triggerType,
+      additionalAttributes
     };
 
     return <ConfigForm {...updatedProps} />;

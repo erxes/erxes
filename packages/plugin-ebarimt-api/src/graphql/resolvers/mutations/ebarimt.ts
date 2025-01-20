@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { getConfig, returnResponse } from '../../../utils';

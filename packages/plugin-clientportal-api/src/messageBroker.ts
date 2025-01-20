@@ -103,7 +103,7 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data: { selector } }) => {
       const models = await generateModels(subdomain);
 
-      console.log(
+      console.debug(
         "clientportal:clientPortalEngageNotifications.count",
         selector
       );
@@ -165,7 +165,7 @@ export const setupMessageConsumers = async () => {
             updateOne: { filter: selector, update: { $set: doc } }
           });
         } else {
-          const customer = await sendContactsMessage({
+          const customer = await sendCoreMessage({
             subdomain,
             action: "customers.findOne",
             data: { primaryEmail: doc.email },
@@ -267,15 +267,6 @@ export const sendCoreMessage = async (args: MessageArgsOmitService) => {
   });
 };
 
-export const sendContactsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "core",
-    ...args
-  });
-};
-
 export const sendSalesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
@@ -323,7 +314,7 @@ export const sendKbMessage = async (
 
 export const sendCommonMessage = async (
   args: MessageArgs & { serviceName: string }
-) => {
+): Promise<any> => {
   return sendMessage({
     ...args
   });

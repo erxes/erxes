@@ -15,19 +15,15 @@ import {
   queries as posCoverQueries,
   mutations as posCoverMutations
 } from "./schema/covers";
-import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 const typeDefs = async () => {
-  const contactsEnabled = true;
-  const productsEnabled = true;
-
   return gql`
     scalar JSON
     scalar Date
     
 
-    ${posTypes({ contactsEnabled, productsEnabled })}
-    ${posOrderTypes({ contactsEnabled, productsEnabled })}
+    ${posTypes()}
+    ${posOrderTypes()}
     ${posCoverTypes}
 
     extend type Query {

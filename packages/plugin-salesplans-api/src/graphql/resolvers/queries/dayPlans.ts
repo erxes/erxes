@@ -4,7 +4,7 @@ import {
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
-import { sendProductsMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 
 interface IListArgs {
   page: number;
@@ -80,20 +80,10 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
     }
 
     if (Object.keys(productFilter).length) {
-      const limit = await sendProductsMessage({
+      const products = await sendCoreMessage({
         subdomain,
-        action: 'count',
-        data: {
-          ...productFilter
-        },
-        isRPC: true,
-        defaultValue: 0
-      });
-
-      const products = await sendProductsMessage({
-        subdomain,
-        action: 'find',
-        data: { ...productFilter, limit, fields: { _id: 1 } },
+        action: 'products.find',
+        data: { ...productFilter, fields: { _id: 1 } },
         isRPC: true,
         defaultValue: []
       });

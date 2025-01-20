@@ -2,7 +2,6 @@ import { generateModels, IModels } from "./connectionResolver";
 import {
   sendClientPortalMessage,
   sendCommonMessage,
-  sendContactsMessage,
   sendCoreMessage
 } from "./messageBroker";
 
@@ -95,7 +94,11 @@ const getOwner = async ({
     ownerId = execution.targetId;
   }
 
-  if (["inbox:conversation", "pos:posOrder"].includes(execution.triggerType)) {
+  if (
+    ["inbox:conversation", "pos:posOrder"].some(type =>
+      execution.triggerType.includes(type)
+    )
+  ) {
     ownerType = "customer";
     ownerId = execution.target.customerId;
   }
@@ -121,7 +124,7 @@ const getOwner = async ({
     });
 
     if (customerIds.length) {
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
         action: "customers.find",
         data: {
@@ -191,7 +194,7 @@ const createVoucher = async ({
     });
 
     if (customerIds.length) {
-      const customers = await sendContactsMessage({
+      const customers = await sendCoreMessage({
         subdomain,
         action: "customers.find",
         data: {
@@ -215,30 +218,96 @@ const createVoucher = async ({
   });
 };
 
+const replaceContent = async ({ serviceName, subdomain, data }) => {
+  const replacedContent = await sendCommonMessage({
+    serviceName,
+    subdomain,
+    action: "automations.replacePlaceHolders",
+    data,
+    isRPC: true,
+    defaultValue: {}
+  });
+
+  return replacedContent?.scoreString || 0;
+};
+
+const evalPlaceHolder = placeholder => {
+  if (placeholder.match(/[+\-*/]/)) {
+    try {
+      return eval(placeholder);
+    } catch (error) {
+      throw new Error(`Error occurred while calculating score ${placeholder}`);
+    }
+  }
+  return 0;
+};
+
 const generateScore = async ({
+  models,
   serviceName,
   subdomain,
   target,
-  scoreString
+  config
+}: {
+  models: IModels;
+  subdomain: string;
+  serviceName: string;
+  target: any;
+  config: any;
 }) => {
-  const data = {
-    target,
-    config: {
-      scoreString
-    }
+  let { campaignId, action, scoreString } = (config || {}) as {
+    scoreString: string;
+    campaignId: string;
+    action: "add" | "subtract";
   };
+  if (!scoreString && !campaignId) {
+    throw new Error("Please provide score config");
+  }
 
-  if (scoreString.match(/\{\{\s*([^}]+)\s*\}\}/g)) {
-    const replacedContent = await sendCommonMessage({
-      serviceName,
-      subdomain,
-      action: "automations.replacePlaceHolders",
-      data,
-      isRPC: true,
-      defaultValue: {}
+  if (campaignId) {
+    if (!["add", "subtract"].includes(action)) {
+      throw new Error("Please select action that add or subtract");
+    }
+
+    const scoreCampaign = await models.ScoreCampaigns.findOne({
+      _id: campaignId
     });
 
-    scoreString = replacedContent?.scoreString || 0;
+    if (!scoreCampaign) {
+      throw new Error("Not found score campaign");
+    }
+
+    const actionConfig = scoreCampaign[action];
+
+    const placeholder = await replaceContent({
+      serviceName,
+      subdomain,
+      data: {
+        target,
+        config: {
+          scoreString: actionConfig.placeholder
+        }
+      }
+    });
+    console.log({ placeholder });
+
+    const score = evalPlaceHolder(placeholder);
+    console.log({ score });
+
+    return Number(score) / Number(actionConfig.currencyRatio);
+  }
+
+  if (scoreString.match(/\{\{\s*([^}]+)\s*\}\}/g)) {
+    scoreString = await replaceContent({
+      serviceName,
+      subdomain,
+      data: {
+        target,
+        config: {
+          scoreString
+        }
+      }
+    });
   }
 
   if (scoreString.match(/[+\-*/]/)) {
@@ -266,11 +335,22 @@ const addScore = async ({
   contentType: string;
   config: any;
 }) => {
+  if (config?.campaignId) {
+    return await docScoreCampaign({
+      models,
+      subdomain,
+      contentType,
+      execution,
+      config
+    });
+  }
+
   const score = await generateScore({
     serviceName,
+    models,
     subdomain,
     target: execution.target,
-    scoreString: config.scoreString
+    config
   });
 
   if (!!config?.ownerType && !!config?.ownerIds?.length) {
@@ -427,6 +507,38 @@ const addSpin = async ({
     ownerId,
     ownerType,
     campaignId: config.spinCampaignId
+  });
+};
+
+const docScoreCampaign = async ({
+  models,
+  subdomain,
+  contentType,
+  execution,
+  config
+}: {
+  models: IModels;
+  subdomain: string;
+  contentType: string;
+  execution: any;
+  config: any;
+}) => {
+  const { ownerId, ownerType } = await getOwner({
+    models,
+    subdomain,
+    execution,
+    contentType,
+    config
+  });
+
+  return await models.ScoreCampaigns.doCampaign({
+    serviceName: execution.triggerType,
+    targetId: execution.targetId,
+    campaignId: config.campaignId,
+    actionMethod: config.action,
+    ownerId,
+    ownerType,
+    target: execution.target
   });
 };
 
