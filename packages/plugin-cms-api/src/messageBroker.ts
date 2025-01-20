@@ -3,6 +3,8 @@ import {
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
 import { generateModels } from './connectionResolver';
+import { queryBuilder } from './graphql/resolvers/queries/post';
+import { paginate } from '@erxes/api-utils/src';
 
 export const setupMessageConsumers = async () => {
   consumeQueue('cms:addPages', async ({ subdomain, data }) => {
@@ -84,6 +86,72 @@ export const setupMessageConsumers = async () => {
     return {
       status: 'success',
       // data: await Cmss.find({})
+    };
+  });
+
+  consumeRPCQueue('cms:addPost', async ({ data, subdomain }) => {
+    const models = await generateModels(subdomain);
+
+    const post = await models.Posts.createPost(data);
+    return {
+      status: 'success',
+      data: post,
+    };
+  });
+
+  consumeRPCQueue('cms:editPost', async ({ data, subdomain }) => {
+    const models = await generateModels(subdomain);
+    const { _id, ...rest } = data;
+    const post = await models.Posts.updatePost(_id, rest);
+    return {
+      status: 'success',
+      data: post,
+    };
+  });
+
+  consumeRPCQueue('cms:deletePost', async ({ data, subdomain }) => {
+    const models = await generateModels(subdomain);
+    const post = await models.Posts.deletePost(data);
+    return {
+      status: 'success',
+      data: post,
+    };
+  });
+
+  consumeRPCQueue('cms:getPostsPaginated', async ({ data, subdomain }) => {
+    const models = await generateModels(subdomain);
+    const {
+      page = 1,
+      perPage = 20,
+      sortField = 'publishedDate',
+      sortDirection = 'desc',
+    } = data;
+
+    const query = queryBuilder(data);
+
+    const totalCount = await models.Posts.find(query).countDocuments();
+
+    const posts = await paginate(
+      models.Posts.find(query).sort({ [sortField]: sortDirection }),
+      { page, perPage }
+    );
+
+    const totalPages = Math.ceil(totalCount / perPage);
+
+    const result = { totalCount, totalPages, currentPage: page, posts };
+
+    return {
+      status: 'success',
+      data: result,
+    };
+  });
+
+  consumeRPCQueue('cms:getPost', async ({ data, subdomain }) => {
+    const models = await generateModels(subdomain);
+    const post = await models.Posts.findOne(data);
+    return {
+      status: 'success',
+      data: post,
     };
   });
 };

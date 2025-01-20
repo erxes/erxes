@@ -116,6 +116,13 @@ export interface IClientPortal {
   language?: string;
   slug?: string;
   template?: string;
+  templateId?: string;
+  keywords?: string,
+  copyright?: string
+
+  externalLinks?: {
+    [key: string]: string;
+  }
 }
 
 interface IStyles {
@@ -355,4 +362,8 @@ export const clientPortalSchema = new Schema({
   language: field({ type: String, optional: true }),
   slug: field({ type: String, optional: true }),
   template: field({ type: String, optional: true }),
+  templateId: field({ type: String, optional: true }),
+  keywords: field({ type: String, optional: true }),
+  copyright: field({ type: String, optional: true }),
+  externalLinks: field({ type: Object, optional: true }),
 });

@@ -255,6 +255,10 @@ ${
     language: String
 
     template: String
+    templateId: String
+    keywords: String
+    copyright: String
+    externalLinks: JSON
   }
 
   type Styles {
@@ -368,6 +372,10 @@ ${
     language: String
 
     template: String
+    templateId: String
+    keywords: String
+    copyright: String
+    externalLinks: JSON
   }
 
   enum UserCardEnum {
@@ -376,6 +384,7 @@ ${
     ticket
     purchase
   }
+    
   enum UserCardStatusEnum {
     participating
     invited
