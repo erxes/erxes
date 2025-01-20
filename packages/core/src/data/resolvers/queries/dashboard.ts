@@ -13,7 +13,7 @@ export const sortBuilder = (params) => {
 
 const DashboardQueries = {
   dashboardList: async (_root, params, { models, user }: IContext) => {
-    const totalCount = await models.Dashboards.getDashboardsCount({}, user);
+    const totalCount = await models.Dashboards.getDashboardsCount(params, user);
 
     const list = await models.Dashboards.getDashboards(params, user);
 

@@ -9,6 +9,7 @@ import {
 } from './definitions/insight';
 
 export interface IDashboardModel extends Model<IDashboardDocument> {
+  generateFilter(params, user): Record<string, any>;
   getDashboard(_id: string): Promise<IDashboardDocument>;
   getDashboards(
     params: IListParams,
@@ -17,7 +18,7 @@ export interface IDashboardModel extends Model<IDashboardDocument> {
   getDashboardsCount(
     params: IListParams,
     user: IUserDocument,
-  ): Promise<IDashboardDocument[]>;
+  ): Promise<number>;
   createDashboard(doc: IDashboard): Promise<IDashboardDocument>;
   updateDashboard(_id: string, doc: IDashboard): Promise<IDashboardDocument>;
   removeDashboard(_id: string): Promise<IDashboardDocument>;
@@ -36,7 +37,7 @@ interface IListParams {
 
 export const loadDashboardClass = (models: IModels, _subdomain: string) => {
   class Dashboard {
-    public static async generateFilter(
+    public static generateFilter(
       params: IListParams,
       user: IUserDocument,
     ) {
@@ -125,7 +126,7 @@ export const loadDashboardClass = (models: IModels, _subdomain: string) => {
       params: IListParams,
       user: IUserDocument,
     ) {
-      const filter = await this.generateFilter(params, user);
+      const filter = models.Dashboards.generateFilter(params, user);
 
       const dashboards = await models.Dashboards.find(filter).sort({
         createdAt: -1,
@@ -138,7 +139,7 @@ export const loadDashboardClass = (models: IModels, _subdomain: string) => {
       params: IListParams,
       user: IUserDocument,
     ) {
-      const filter = await this.generateFilter(params, user);
+      const filter = models.Dashboards.generateFilter(params, user);
 
       const dashboard = await models.Dashboards.countDocuments(filter);
 

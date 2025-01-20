@@ -4,6 +4,7 @@ import { IModels } from '../../connectionResolver';
 import { IReport, IReportDocument, reportSchema } from './definitions/insight';
 
 export interface IReportModel extends Model<IReportDocument> {
+  generateFilter(params, user): Record<string, any>;
   getReport(_id: string): Promise<IReportDocument>;
   getReports(
     params: IListParams,
@@ -12,7 +13,7 @@ export interface IReportModel extends Model<IReportDocument> {
   getReportsCount(
     params: IListParams,
     user: IUserDocument,
-  ): Promise<IReportDocument[]>;
+  ): Promise<number>;
   createReport(doc: IReport): Promise<IReportDocument>;
   updateReport(_id: string, doc: IReport): Promise<IReportDocument>;
   removeReport(_id: string): void;
@@ -31,7 +32,7 @@ interface IListParams {
 
 export const loadReportClass = (models: IModels) => {
   class Report {
-    public static async generateFilter(
+    public static generateFilter(
       params: IListParams,
       user: IUserDocument,
     ) {
@@ -115,7 +116,7 @@ export const loadReportClass = (models: IModels) => {
     }
 
     public static async getReports(params: IListParams, user: IUserDocument) {
-      const filter = await this.generateFilter(params, user);
+      const filter = models.Reports.generateFilter(params, user);
 
       const reports = await models.Reports.find(filter).sort({
         createdAt: -1,
@@ -128,7 +129,7 @@ export const loadReportClass = (models: IModels) => {
       params: IListParams,
       user: IUserDocument,
     ) {
-      const filter = await this.generateFilter(params, user);
+      const filter = models.Reports.generateFilter(params, user);
 
       const report = await models.Reports.countDocuments(filter);
 

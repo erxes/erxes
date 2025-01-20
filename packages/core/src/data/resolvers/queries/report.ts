@@ -2,9 +2,9 @@ import { IContext } from '../../../connectionResolver';
 
 const reportsQueries = {
   async reportList(_root, params, { models, user }: IContext) {
-    const totalCount = await models.Reports.getReportsCount({}, user);
+    const totalCount = await models.Reports.getReportsCount(params, user);
 
-    const list = await models.Reports.getReports({}, user)
+    const list = await models.Reports.getReports(params, user)
 
     return { list, totalCount };
   },
