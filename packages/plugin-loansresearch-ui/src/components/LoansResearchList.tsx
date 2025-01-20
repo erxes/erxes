@@ -125,8 +125,28 @@ const LoansResearchList = (props: Props) => {
             />
           </th>
           <th>
-            <SortHandler sortField={'dealId'} label={__('dealId')} />
+            <SortHandler sortField={'dealId'} label={__('Deal Id')} />
           </th>
+          <th>
+            <SortHandler
+              sortField={'customerType'}
+              label={__('Customer Type')}
+            />
+          </th>
+          <th>
+            <SortHandler
+              sortField={'debtIncomeRatio'}
+              label={__('Debt Income Ratio')}
+            />
+          </th>
+          <th>
+            <SortHandler
+              sortField={'increaseMonthlyPaymentAmount'}
+              label={__('Increase amount')}
+            />
+          </th>
+
+          <th>{__('Actions')}</th>
         </tr>
       </thead>
       <tbody id="loanResearches">

@@ -51,7 +51,17 @@ function LoansResearchRow({ loansResearch, isChecked, toggleBulk }: Props) {
         />
       </td>
 
-      <td key={'dealId'}>{(loansResearch && loansResearch.dealId) || ''} </td>
+      <td key={'dealId'}>{(loansResearch && loansResearch?.dealId) || ''} </td>
+      <td key={'customerType'}>
+        {(loansResearch && loansResearch?.customerType) || ''}{' '}
+      </td>
+      <td key={'debtIncomeRatio'}>
+        {(loansResearch && loansResearch?.debtIncomeRatio) || ''}{' '}
+      </td>
+      <td key={'increaseMonthlyPaymentAmount'}>
+        {(loansResearch && loansResearch?.increaseMonthlyPaymentAmount) || ''}{' '}
+      </td>
+
       <td onClick={onClick}>
         <ActionButtons>
           <ModalTrigger
