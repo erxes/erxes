@@ -651,7 +651,6 @@ const AuthDescription = styledTS<{
   height: 100%;
   background: ${(props) =>
     props.backgroundColor ||
-    thBackground ||
     colors.colorPrimaryDark} url('/images/stars.png') repeat top
     center;
   position: relative;
