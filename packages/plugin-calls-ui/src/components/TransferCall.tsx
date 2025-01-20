@@ -11,6 +11,36 @@ interface IProps {
   closeModal: any;
 }
 
+const renderOptions = (array) => {
+  return array.map((obj) => ({
+    value: obj.extension,
+    label: obj.fullname,
+    status: obj.status,
+  }));
+};
+
+const getStatusColor = (status) => {
+  switch (status.toLowerCase()) {
+    case 'idle':
+      return 'green';
+    case 'inuse':
+      return 'red';
+    case 'ringing':
+      return 'orange';
+    case 'paused':
+      return 'gray';
+    default:
+      return 'black';
+  }
+};
+
+const formatOptionLabel = ({ label, status }) => (
+  <div>
+    <span>{label}</span>{' '}
+    <span style={{ color: getStatusColor(status) }}>({status})</span>
+  </div>
+);
+
 const TransferCallForm = (props: IProps) => {
   const { datas = {}, callTransfer } = props;
   const initialExtension = datas?.[0]?.extension ?? null;
@@ -27,26 +57,20 @@ const TransferCallForm = (props: IProps) => {
     selectedExtension && callTransfer(selectedExtension);
   };
 
-  const renderOptions = (array) => {
-    return array.map((obj) => ({
-      value: obj.extension,
-      label: obj.fullname || obj.extension,
-    }));
-  };
-
   return (
     <>
       <FormGroup>
         <ControlLabel>Transfer call</ControlLabel>
 
         <Select
-          placeholder={__('Choose a extension')}
+          placeholder={__('Choose an extension')}
           value={renderOptions(datas).find(
             (o) => o.value === selectedExtension,
           )}
           options={renderOptions(datas)}
           onChange={onChange}
           isClearable={false}
+          formatOptionLabel={formatOptionLabel} // Apply custom label formatting
         />
       </FormGroup>
 
