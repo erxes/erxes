@@ -1,9 +1,13 @@
 import { EditFormContent, LeftSide, RightSide } from "../styles";
-import { IDeal, IDealParams, IPaymentsData } from "../types";
+import { IDeal, IDealParams } from "../types";
 import { IEditFormContent, IItem, IOptions } from "../../boards/types";
 import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 import TaskTimer, { STATUS_TYPES } from "@erxes/ui/src/components/Timer";
-import { __, loadDynamicComponent } from "@erxes/ui/src/utils";
+import {
+  __,
+  loadDynamicComponent,
+  router as routerUtils,
+} from "@erxes/ui/src/utils";
 
 import ActivityLogs from "@erxes/ui-log/src/activityLogs/containers/ActivityLogs";
 import ChildrenSection from "../../boards/containers/editForm/ChildrenSection";
@@ -11,18 +15,15 @@ import CommonActions from "../../boards/components/editForm/CommonActions";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import CustomFieldsSection from "../../boards/containers/editForm/CustomFieldsSection";
 import EditForm from "../../boards/components/editForm/EditForm";
-import { Flex } from "@erxes/ui/src/styles/main";
+import FullEditForm from "./FullEditForm";
 import { HeaderContentSmall } from "../../boards/styles/item";
-import { IProduct } from "@erxes/ui-products/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
-import Left from "../../boards/components/editForm/Left";
 import PortablePurchase from "@erxes/ui-purchases/src/purchases/components/PortablePurchases";
 import PortableTasks from "@erxes/ui-tasks/src/tasks/components/PortableTasks";
 import PortableTickets from "@erxes/ui-tickets/src/tickets/components/PortableTickets";
-import ProductSection from "./ProductSection";
+import ProductSectionComponent from "./product/ProductSection";
 import React from "react";
-import Sidebar from "../../boards/components/editForm/Sidebar";
 import SidebarConformity from "../../boards/components/editForm/SidebarConformity";
 import Top from "../../boards/components/editForm/Top";
 import { isEnabled } from "@erxes/ui/src/utils/core";
@@ -52,9 +53,6 @@ type Props = {
 type State = {
   amount: any;
   unUsedAmount: any;
-  products: (IProduct & { quantity?: number })[];
-  productsData: any;
-  paymentsData: IPaymentsData;
   changePayData: { [currency: string]: number };
   updatedItem?: IItem;
   refresh: boolean;
@@ -70,25 +68,6 @@ export default class DealEditForm extends React.Component<Props, State> {
     this.state = {
       amount: item.amount || {},
       unUsedAmount: item.unUsedAmount || {},
-      productsData: item.products ? item.products.map((p) => ({ ...p })) : [],
-      products: item.products
-        ? item.products.map((p) => {
-            const newProduct = { ...p.product };
-            newProduct.quantity = p.quantity;
-            if (p.product.uom !== p.uom) {
-              newProduct.subUoms = Array.from(
-                new Set([
-                  ...(p.product.subUoms || []),
-                  { uom: p.product.uom, ratio: 1 },
-                ])
-              );
-              newProduct.uom = p.uom;
-            }
-            return newProduct;
-          })
-        : [],
-
-      paymentsData: item.paymentsData,
       changePayData: {},
       refresh: false,
       currentTab: "customer",
@@ -122,10 +101,6 @@ export default class DealEditForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
-  };
-
   onChangeRefresh = () => {
     this.setState({
       refresh: !this.state.refresh,
@@ -134,64 +109,6 @@ export default class DealEditForm extends React.Component<Props, State> {
 
   tabOnClick = (currentTab: string) => {
     this.setState({ currentTab });
-  };
-
-  saveProductsData = () => {
-    const { productsData, paymentsData } = this.state;
-    const { saveItem } = this.props;
-    const products: IProduct[] = [];
-    const amount: any = {};
-    const unUsedAmount: any = {};
-    const filteredProductsData: any = [];
-
-    productsData.forEach((data) => {
-      // products
-      if (data.product) {
-        if (data.currency) {
-          // calculating item amount
-          if (data.tickUsed) {
-            if (!amount[data.currency]) {
-              amount[data.currency] = data.amount || 0;
-            } else {
-              amount[data.currency] += data.amount || 0;
-            }
-          } else {
-            if (!unUsedAmount[data.currency]) {
-              unUsedAmount[data.currency] = data.amount || 0;
-            } else {
-              unUsedAmount[data.currency] += data.amount || 0;
-            }
-          }
-        }
-        // collecting data for ItemCounter component
-        products.push(data.product);
-        data.productId = data.product._id;
-        filteredProductsData.push(data);
-      }
-    });
-
-    Object.keys(paymentsData || {}).forEach((key) => {
-      const perData = paymentsData[key];
-
-      if (!perData.currency || !perData.amount || perData.amount === 0) {
-        delete paymentsData[key];
-      }
-    });
-
-    this.setState(
-      {
-        productsData: filteredProductsData,
-        products,
-        amount,
-        unUsedAmount,
-        paymentsData,
-      },
-      () => {
-        saveItem({ productsData, paymentsData }, (updatedItem) => {
-          this.setState({ updatedItem });
-        });
-      }
-    );
   };
 
   beforePopupClose = (afterPopupClose?: () => void) => {
@@ -212,23 +129,10 @@ export default class DealEditForm extends React.Component<Props, State> {
   };
 
   renderProductSection = () => {
-    const { products, productsData, paymentsData } = this.state;
-
-    const pDataChange = (pData) => this.onChangeField("productsData", pData);
-    const prsChange = (prs) => this.onChangeField("products", prs);
-    const payDataChange = (payData) =>
-      this.onChangeField("paymentsData", payData);
-
     return (
-      <ProductSection
-        onChangeProductsData={pDataChange}
-        onChangeProducts={prsChange}
-        onChangePaymentsData={payDataChange}
-        productsData={productsData}
-        paymentsData={paymentsData}
-        products={products}
-        saveProductsData={this.saveProductsData}
-        dealQuery={this.props.item}
+      <ProductSectionComponent
+        item={this.props.item}
+        saveItem={this.props.saveItem}
       />
     );
   };
@@ -392,16 +296,29 @@ export default class DealEditForm extends React.Component<Props, State> {
     copy,
     remove,
   }: IEditFormContent) => {
-    // const {
-    //   item,
-    //   currentUser,
-    //   options,
-    //   onUpdate,
-    //   addItem,
-    //   sendToBoard,
-    //   updateTimeTrack
-    // } = this.props;
+    const { item, currentUser, options, onUpdate, addItem, sendToBoard } =
+      this.props;
     const { currentTab } = this.state;
+    const isFullQueryParam = routerUtils.getParam(location, "isFull");
+
+    if (isFullQueryParam === "true") {
+      return (
+        <FullEditForm
+          options={options}
+          saveItem={saveItem}
+          copy={copy}
+          remove={remove}
+          onUpdate={onUpdate}
+          sendToBoard={sendToBoard}
+          item={item}
+          addItem={addItem}
+          amount={this.renderAmount}
+          onChangeStage={onChangeStage}
+          onChangeRefresh={this.onChangeRefresh}
+          currentUser={currentUser}
+        />
+      );
+    }
 
     return (
       <EditFormContent>

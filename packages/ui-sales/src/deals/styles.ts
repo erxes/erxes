@@ -317,6 +317,38 @@ const EditFormContent = styled.div`
   height: 100%;
 `;
 
+const FullContainer = styled.div`
+  display: flex;
+  height: 100%;
+`;
+
+const FullLeftSide = styled.div`
+  width: 70%;
+  flex: 1;
+  border-right: 1px solid ${colors.borderPrimary};
+`;
+
+const FullRightSide = styled.div`
+  width: 30%;
+  padding: ${dimensions.coreSpacing}px;
+  overflow: auto;
+`;
+
+const HeaderContainer = styled.div`
+  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
+`;
+
+const LeftBody = styled.div`
+  height: 100%;
+`;
+
+const LeftBodyContent = styled.div`
+  background: ${colors.bgLight};
+  height: calc(100% - 160px);
+  overflow: auto;
+  padding: ${dimensions.coreSpacing}px;
+`;
+
 export {
   ProductName,
   FormContainer,
@@ -327,6 +359,7 @@ export {
   ItemText,
   Amount,
   ProductItemContainer,
+  HeaderContainer,
   ContentRowTitle,
   ItemRow,
   ContentColumn,
@@ -342,5 +375,10 @@ export {
   FlexRowGap,
   LeftSide,
   RightSide,
-  EditFormContent
+  EditFormContent,
+  FullContainer,
+  FullLeftSide,
+  FullRightSide,
+  LeftBody,
+  LeftBodyContent
 };

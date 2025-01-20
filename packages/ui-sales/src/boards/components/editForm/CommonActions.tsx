@@ -1,149 +1,26 @@
-import {
-  ChooseDates,
-  Content,
-  ContentWrapper,
-  GridContainer,
-  TitleRow,
-} from "../../styles/item";
-import {
-  EditorActions,
-  EditorWrapper,
-} from "@erxes/ui-internalnotes/src/components/Form";
+import { ChooseDates, GridContainer, TitleRow } from "../../styles/item";
 import { IItem, IItemParams, IOptions } from "../../types";
-import React, { useEffect, useState } from "react";
-import { __, extractAttachment } from "@erxes/ui/src/utils";
 
 import Actions from "./Actions";
-import Button from "@erxes/ui/src/components/Button";
 import Checklists from "../../../checklists/containers/Checklists";
 import { ColorButton } from "../../styles/common";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
+import DueDateChooser from "./DueDateChooser";
+import FileAndDescription from "./FileAndDescription";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IAttachment } from "@erxes/ui/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import LabelChooser from "../../containers/label/LabelChooser";
 import Labels from "../label/Labels";
 import { PopoverButton } from "@erxes/ui-inbox/src/inbox/styles";
-import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
+import React from "react";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import { TAG_TYPES } from "@erxes/ui-tags/src/constants";
 import TaggerPopover from "@erxes/ui-tags/src/components/TaggerPopover";
 import Tags from "@erxes/ui/src/components/Tags";
-import Uploader from "@erxes/ui/src/components/Uploader";
-import xss from "xss";
-
-type DescProps = {
-  item: IItem;
-  saveItem: (doc: { [key: string]: any }, callback?: (item) => void) => void;
-  contentType: string;
-};
-
-const Description = (props: DescProps) => {
-  const { item, saveItem, contentType } = props;
-  const [edit, setEdit] = useState(false);
-  const [isSubmitted, setSubmit] = useState(false);
-  const [description, setDescription] = useState(item.description);
-
-  useEffect(() => {
-    setDescription(item.description);
-  }, [item.description]);
-
-  useEffect(() => {
-    if (isSubmitted) {
-      setEdit(false);
-    }
-  }, [isSubmitted]);
-
-  const onSend = () => {
-    saveItem({ description });
-    setSubmit(true);
-  };
-
-  const toggleEdit = () => {
-    setEdit((currentValue) => !currentValue);
-    setSubmit(false);
-  };
-
-  const onChangeDescription = (content: string) => {
-    setDescription(content);
-  };
-
-  const renderFooter = () => {
-    return (
-      <EditorActions>
-        <Button
-          icon="times-circle"
-          btnStyle="simple"
-          size="small"
-          onClick={toggleEdit}
-        >
-          Cancel
-        </Button>
-        {item.description !== description && (
-          <Button
-            onClick={onSend}
-            btnStyle="success"
-            size="small"
-            icon="check-circle"
-          >
-            Save
-          </Button>
-        )}
-      </EditorActions>
-    );
-  };
-
-  return (
-    <FormGroup>
-      <ContentWrapper $isEditing={edit}>
-        <TitleRow>
-          <ControlLabel uppercase={true}>
-            <Icon icon="align-left-justify" />
-            {__("Description")}
-          </ControlLabel>
-        </TitleRow>
-
-        {!edit ? (
-          <Content
-            onClick={toggleEdit}
-            dangerouslySetInnerHTML={{
-              __html: item.description
-                ? xss(item.description)
-                : `${__("Add a more detailed description")}...`,
-            }}
-          />
-        ) : (
-          <EditorWrapper>
-            <RichTextEditor
-              content={description}
-              onChange={onChangeDescription}
-              height={"max-content"}
-              isSubmitted={isSubmitted}
-              autoFocus={true}
-              name={`${contentType}_description_${item._id}`}
-              toolbar={[
-                "bold",
-                "italic",
-                "orderedList",
-                "bulletList",
-                "link",
-                "unlink",
-                "|",
-                "image",
-              ]}
-              onCtrlEnter={onSend}
-            />
-
-            {renderFooter()}
-          </EditorWrapper>
-        )}
-      </ContentWrapper>
-    </FormGroup>
-  );
-};
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   item: IItem;
@@ -157,6 +34,7 @@ type Props = {
   onChangeStage?: (stageId: string) => void;
   onChangeRefresh: () => void;
   currentUser: IUser;
+  isFullView?: boolean;
 };
 
 const CommonActions = (props: Props) => {
@@ -172,13 +50,9 @@ const CommonActions = (props: Props) => {
     onChangeStage,
     onChangeRefresh,
     currentUser,
+    isFullView,
   } = props;
 
-  const onChangeAttachment = (files: IAttachment[]) =>
-    saveItem({ attachments: files });
-
-  const attachments =
-    (item.attachments && extractAttachment(item.attachments)) || [];
   const userOnChange = (usrs) => saveItem({ assignedUserIds: usrs });
   const onChangeStructure = (values, name) => saveItem({ [name]: values });
   const onLabelChange = (labels) => saveItem({ labels });
@@ -224,6 +98,10 @@ const CommonActions = (props: Props) => {
         />
       </FormGroup>
 
+      {isFullView && (
+        <DueDateChooser item={item} saveItem={saveItem} onUpdate={onUpdate} />
+      )}
+
       <FormGroup>
         <ControlLabel uppercase={true}>Assigned to</ControlLabel>
         <SelectTeamMembers
@@ -239,7 +117,7 @@ const CommonActions = (props: Props) => {
         />
       </FormGroup>
 
-      <GridContainer>
+      <GridContainer $isFull={isFullView}>
         <FormGroup>
           <ControlLabel uppercase={true}>{__("Branches")}</ControlLabel>
           <SelectBranches
@@ -260,7 +138,7 @@ const CommonActions = (props: Props) => {
         </FormGroup>
       </GridContainer>
 
-      <GridContainer>
+      <GridContainer $isFull={isFullView}>
         <FormGroup>
           <TitleRow>
             <ControlLabel uppercase={true}>{__("Labels")}</ControlLabel>
@@ -293,18 +171,9 @@ const CommonActions = (props: Props) => {
         </FormGroup>
       </GridContainer>
 
-      <FormGroup>
-        <TitleRow>
-          <ControlLabel uppercase={true}>
-            <Icon icon="paperclip" />
-            {__("Attachments")}
-          </ControlLabel>
-        </TitleRow>
-
-        <Uploader defaultFileList={attachments} onChange={onChangeAttachment} />
-      </FormGroup>
-
-      <Description item={item} saveItem={saveItem} contentType={options.type} />
+      {!isFullView && (
+        <FileAndDescription item={item} options={options} saveItem={saveItem} />
+      )}
 
       <Checklists
         contentType={options.type}

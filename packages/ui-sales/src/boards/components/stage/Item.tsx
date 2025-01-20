@@ -66,7 +66,7 @@ const Item: React.FC<Props> = (props) => {
 
     const itemIdQueryParam = routerUtils.getParam(location, "itemId");
     if (itemIdQueryParam) {
-      routerUtils.removeParams(navigate, location, "itemId");
+      routerUtils.removeParams(navigate, location, "itemId", "isFull");
     }
 
     if (beforePopupClose) {

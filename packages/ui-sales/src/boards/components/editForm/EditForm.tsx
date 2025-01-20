@@ -55,10 +55,13 @@ function EditForm(props: Props) {
   const navigate = useNavigate();
   const wrapperRef = useRef<any>(null);
 
+  const isFullQueryParam = routerUtils.getParam(location, "isFull");
+
   const [stageId, setStageId] = useState(item.stageId);
   const [updatedItem, setUpdatedItem] = useState(item);
   const [prevStageId, setPrevStageId] = useState<string>("");
-  const [viewMode, setViewMode] = useState("sidebar");
+
+  const isFullMode = isFullQueryParam === "true" ? true : false;
 
   useEffect(() => {
     if (item.stageId !== stageId) {
@@ -78,13 +81,13 @@ function EditForm(props: Props) {
     }
   }, [item]);
 
-  useEffect(() => {
-    document.addEventListener("mousedown", onHideModal);
+  // useEffect(() => {
+  //   document.addEventListener("mousedown", onHideModal);
 
-    return () => {
-      document.removeEventListener("mousedown", onHideModal);
-    };
-  }, [isPopupVisible]);
+  //   return () => {
+  //     document.removeEventListener("mousedown", onHideModal);
+  //   };
+  // }, [isPopupVisible]);
 
   const onChangeStage = (stageId: string) => {
     setStageId(stageId);
@@ -107,6 +110,14 @@ function EditForm(props: Props) {
 
   const copy = () => {
     copyItem(item._id, closeModal, options.texts.copySuccessText);
+  };
+
+  const onToggle = () => {
+    if (!isFullMode) {
+      return routerUtils.setParams(navigate, location, { isFull: !isFullMode });
+    }
+
+    return routerUtils.removeParams(navigate, location, "isFull");
   };
 
   const closeModal = (afterPopupClose?: () => void) => {
@@ -170,7 +181,7 @@ function EditForm(props: Props) {
     if (props.hideHeader) {
       return (
         <TopHeader>
-          <span>{renderNumber()}hi</span>
+          <span>{renderNumber()}</span>
           <div className="right">
             <Dropdown
               as={DropdownToggle}
@@ -203,7 +214,7 @@ function EditForm(props: Props) {
                 </ActionItem>
               </li>
             </Dropdown>
-            <TopHeaderButton onClick={onHideModal}>
+            <TopHeaderButton onClick={onToggle}>
               <Icon icon="window" />
             </TopHeaderButton>
             <TopHeaderButton onClick={() => closeModal()}>
@@ -230,7 +241,10 @@ function EditForm(props: Props) {
         classNames="slide-in-right"
         unmountOnExit={true}
       >
-        <RightDrawerContainer width={"45%"} ref={wrapperRef}>
+        <RightDrawerContainer
+          width={isFullMode ? "calc(100% - 100px)" : "45%"}
+          ref={wrapperRef}
+        >
           <EditFormContent>
             {renderArchiveStatus()}
 

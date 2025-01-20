@@ -272,8 +272,8 @@ export const LeftContainer = styled.div`
   }
 `;
 
-export const GridContainer = styled.div`
-  display: grid;
+export const GridContainer = styledTS<{ $isFull?: boolean }>(styled.div)`
+  display: ${props => props.$isFull ? 'block' : 'grid'};
   grid-template-columns: 1fr 1fr;
   gap: ${dimensions.coreSpacing}px;
 `;
