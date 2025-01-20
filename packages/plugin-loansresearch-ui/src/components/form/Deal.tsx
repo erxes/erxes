@@ -12,6 +12,8 @@ type Props = {
   setCustomerId: (dealId: string) => void;
   customerType: string;
   setCustomerType: (dealId: string) => void;
+  debtIncomeRatio: number;
+  increaseMonthlyPaymentAmount: number;
 };
 
 const DealForm = (props: Props) => {
@@ -22,6 +24,8 @@ const DealForm = (props: Props) => {
     setCustomerId,
     customerType,
     setCustomerType,
+    debtIncomeRatio,
+    increaseMonthlyPaymentAmount,
   } = props;
 
   const onChangeDealId = (e) => {
@@ -59,6 +63,19 @@ const DealForm = (props: Props) => {
           onChange={onCustomerTypeChange}
           options={CUSTOMER_TYPES}
           isClearable={false}
+        />
+      </FormGroup>
+
+      <FormGroup>
+        <ControlLabel>Dept income ratio</ControlLabel>
+        <FormControl type="number" defaultValue={debtIncomeRatio} />
+      </FormGroup>
+
+      <FormGroup>
+        <ControlLabel>Increase Monthly Payment Amount</ControlLabel>
+        <FormControl
+          type="number"
+          defaultValue={increaseMonthlyPaymentAmount}
         />
       </FormGroup>
     </MarginTop>

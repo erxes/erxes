@@ -9,7 +9,7 @@ import {
   TabTitle,
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { IIncome, ILoan, ILoanResearch } from '../types';
 import DealForm from './form/Deal';
@@ -62,6 +62,17 @@ const LoansResearchForm = (props: Props) => {
     loansResearch?.debtIncomeRatio || 0
   );
 
+  const [increaseMonthlyPaymentAmount, setIncreaseMonthlyPaymentAmount] =
+    useState<number>(loansResearch?.increaseMonthlyPaymentAmount || 0);
+
+  useEffect(() => {
+    const ratio = (monthlyPaymentAmount / monthlyIncome) * 100;
+    const increaseAmount = monthlyIncome * 0.45 - monthlyPaymentAmount;
+
+    setDebtIncomeRatio(ratio);
+    setIncreaseMonthlyPaymentAmount(increaseAmount);
+  }, [monthlyIncome, monthlyPaymentAmount]);
+
   const generateDoc = (values: { _id: string } & ILoanResearch) => {
     const finalValues = values;
 
@@ -81,6 +92,8 @@ const LoansResearchForm = (props: Props) => {
       monthlyIncome,
       totalLoanAmount,
       monthlyPaymentAmount,
+      debtIncomeRatio,
+      increaseMonthlyPaymentAmount,
     };
   };
 
@@ -94,6 +107,8 @@ const LoansResearchForm = (props: Props) => {
           setCustomerType={setCustomerType}
           customerId={customerId}
           setCustomerId={setCustomerId}
+          debtIncomeRatio={debtIncomeRatio}
+          increaseMonthlyPaymentAmount={increaseMonthlyPaymentAmount}
         />
       );
     }

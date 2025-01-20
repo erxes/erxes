@@ -46,6 +46,7 @@ export const types = () => `
     totalLoanAmount: Int
     monthlyPaymentAmount: Int
     debtIncomeRatio: Float
+    increaseMonthlyPaymentAmount: Float
     createdAt: Date
     modifiedAt: Date
   }
@@ -90,6 +91,7 @@ const commonFields = `
   totalLoanAmount: Int
   monthlyPaymentAmount: Int
   debtIncomeRatio: Float
+  increaseMonthlyPaymentAmount: Float
 `;
 
 export const mutations = `

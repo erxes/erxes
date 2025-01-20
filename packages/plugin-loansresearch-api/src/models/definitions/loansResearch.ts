@@ -27,6 +27,7 @@ export interface ILoanResearch {
   totalLoanAmount: number;
   monthlyPaymentAmount: number;
   debtIncomeRatio: number;
+  increaseMonthlyPaymentAmount: number;
   createdAt: Date;
   modifiedAt: Date;
 }
@@ -116,6 +117,11 @@ export const configSchema = schemaWrapper(
       type: Number,
       optional: true,
       label: 'debt to income ratio',
+    }),
+    increaseMonthlyPaymentAmount: field({
+      type: Number,
+      optional: true,
+      label: 'increase monthly payment amount',
     }),
   })
 );

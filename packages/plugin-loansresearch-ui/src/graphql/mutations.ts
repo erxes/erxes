@@ -10,6 +10,7 @@ const commonFields = `
   $totalLoanAmount: Int
   $monthlyPaymentAmount: Int
   $debtIncomeRatio: Float
+  $increaseMonthlyPaymentAmount: Float
 `;
 
 const commonVariables = `
@@ -24,6 +25,7 @@ const commonVariables = `
   totalLoanAmount: $totalLoanAmount
   monthlyPaymentAmount: $monthlyPaymentAmount
   debtIncomeRatio: $debtIncomeRatio
+  increaseMonthlyPaymentAmount: $increaseMonthlyPaymentAmount
 `;
 
 const loansResearchAdd = `

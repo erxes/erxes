@@ -44,6 +44,7 @@ export const loansResearchFields = `
   totalLoanAmount
   monthlyPaymentAmount
   debtIncomeRatio
+  increaseMonthlyPaymentAmount
   createdAt
 `;
 

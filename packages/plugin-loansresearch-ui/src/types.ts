@@ -25,6 +25,7 @@ export type ILoanResearch = {
   totalLoanAmount: number;
   monthlyPaymentAmount: number;
   debtIncomeRatio: number;
+  increaseMonthlyPaymentAmount: number;
   createdAt: Date;
   modifiedAt: Date;
 };
