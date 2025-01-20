@@ -3,7 +3,7 @@ import {
   ILoanResearchDocument,
   configSchema,
 } from './definitions/loansResearch';
-import { Model, FilterQuery } from 'mongoose';
+import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 
 export interface ILoansResearchModel extends Model<ILoanResearchDocument> {

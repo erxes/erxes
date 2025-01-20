@@ -12,65 +12,21 @@ export const sortBuilder = (params) => {
   return {};
 };
 
-const generateFilter = (params, commonQuerySelector) => {
-  const filter: any = commonQuerySelector;
-
-  const {
-    userId,
-    contentType,
-    contentId,
-    searchConsume,
-    searchSend,
-    searchResponse,
-    searchError,
-  } = params;
-
-  if (userId) {
-    filter.createdBy = userId;
-  }
-  // if (contentType) {
-  //   query.contentType = { $regex: `.*${escapeRegExp(contentType)}.*` };
-  // }
-  // if (contentId) {
-  //   query.contentId = contentId;
-  // }
-  // if (searchConsume) {
-  //   query.consumeStr = { $regex: `.*${escapeRegExp(searchConsume)}.*` };
-  // }
-  // if (searchSend) {
-  //   query.sendStr = { $regex: `.*${escapeRegExp(searchSend)}.*` };
-  // }
-  // if (searchResponse) {
-  //   query.responseStr = { $regex: `.*${escapeRegExp(searchResponse)}.*` };
-  // }
-  // if (searchError) {
-  //   query.error = { $regex: `.*${escapeRegExp(searchError)}.*` };
-  // }
-
-  return filter;
-};
-
 const lsQueries = {
   /**
    * loan Research for only main list
    */
 
-  loansResearchMain: async (
-    _root,
-    params,
-    { commonQuerySelector, models }: IContext
-  ) => {
-    const filter = await generateFilter(params, commonQuerySelector);
-
+  loansResearchMain: async (_root, params, { models }: IContext) => {
     return {
       list: await paginate(
-        models.LoansResearch.find(filter).sort(sortBuilder(params)),
+        models.LoansResearch.find().sort(sortBuilder(params)),
         {
           page: params.page,
           perPage: params.perPage,
         }
       ),
-      totalCount: await models.LoansResearch.find(filter).countDocuments(),
+      totalCount: await models.LoansResearch.find().countDocuments(),
     };
   },
 };
