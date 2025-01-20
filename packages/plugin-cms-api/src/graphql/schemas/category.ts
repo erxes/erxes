@@ -1,8 +1,4 @@
-export const types = ({isClientportalEnabled}) => `
-    extend type ClientPortal @key(fields: "_id") {
-      _id: String! @external
-    }
-
+export const types = `
     enum CategoryStatus {
         active
         inactive

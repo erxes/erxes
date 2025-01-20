@@ -27,6 +27,7 @@ type Props = {
 };
 
 const PostForm = (props: Props) => {
+
   const { clientPortalId } = props;
   const defaultPost: IPostDocument = {
     clientPortalId,
@@ -52,7 +53,7 @@ const PostForm = (props: Props) => {
     audio: undefined,
     documents: [],
     attachments: [],
-    customFieldsData: {},
+    customFieldsData: [],
   };
 
   const [post, setPost] = React.useState<IPostDocument>(
@@ -85,6 +86,7 @@ const PostForm = (props: Props) => {
       'author',
       'categories',
       'tags',
+      'authorKind',
       '_id',
     ];
 

@@ -6,6 +6,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as session from 'express-session';
 import app from '@erxes/api-utils/src/app';
 import * as permissions from './permissions';
+import forms from './forms';
 
 export default {
   name: 'cms',
@@ -17,7 +18,8 @@ export default {
     };
   },
   meta: {
-    permissions
+    permissions,
+    forms
   },
 
   apolloServerContext: async (context, req, res) => {

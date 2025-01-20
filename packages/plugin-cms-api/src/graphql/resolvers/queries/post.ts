@@ -6,7 +6,7 @@ import {
 
 import { IContext } from '../../../connectionResolver';
 
-const queryBuilder = (args: any) => {
+export const queryBuilder = (args: any) => {
   let query: any = {
     clientPortalId: args.clientPortalId,
   };
@@ -22,6 +22,18 @@ const queryBuilder = (args: any) => {
       { content: { $regex: args.searchValue, $options: 'i' } },
       { excerpt: { $regex: args.searchValue, $options: 'i' } },
     ];
+  }
+
+  if (args.categoryIds) {
+    query.categoryIds = { $in: args.categoryIds };
+  }
+
+  if (args.tagIds) {
+    query.tagIds = { $in: args.tagIds };
+  }
+
+  if (args.authorId) {
+    query.authorId = args.authorId;
   }
 
   return query;

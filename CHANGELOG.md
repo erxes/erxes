@@ -1,5 +1,34 @@
 # Changelog
 
+## [2.4.0](https://github.com/erxes/erxes/compare/2.3.2...2.4.0) (2025-01-19)
+
+
+### Features
+
+* add clientportaluser posts and custom properties to cms post([#5871](https://github.com/erxes/erxes/issues/5871)) ([5e10e25](https://github.com/erxes/erxes/commit/5e10e251c072f9f02953bfe0440439696e7c3927))
+
+
+### Bug Fixes
+
+* auth description ([3ba4a65](https://github.com/erxes/erxes/commit/3ba4a65748f43638a5262c4f53411b7efdd12828))
+* getRealIdFromElk can't get _id when version saas ([1288354](https://github.com/erxes/erxes/commit/128835495d583634c3a633fa95b207477bbc4e3f))
+* **loyalties:** check new score lower than 0 ([210ae23](https://github.com/erxes/erxes/commit/210ae23c21f18fc4e59060d62bf115f76aca0c52))
+* msdynamic default value empty string ([691c1ec](https://github.com/erxes/erxes/commit/691c1eceebb3639f9c5f6f43a934d443d9e05a09))
+* **sales:** show relations on adding deal ([6c52eae](https://github.com/erxes/erxes/commit/6c52eaee7040d8ec6239448fd7b47298812763fd))
+* syncerkhet from posorder and billType is inner then hasnot vat ([708dda7](https://github.com/erxes/erxes/commit/708dda7f6cec96f165038d5e80539e6e441c47bd))
+
+
+### Performance Improvements
+
+* **knowledgebase:** optimize cron job ([7011441](https://github.com/erxes/erxes/commit/701144125ccea0e847615e04d2b5621c76961b03))
+
+## [2.4.0-rc.0](https://github.com/erxes/erxes/compare/2.3.2...2.4.0) (2025-01-03)
+
+
+### Bug Fixes
+
+* sales settings stage row ([#5838](https://github.com/erxes/erxes/issues/5838)) ([d2d328b](https://github.com/erxes/erxes/commit/d2d328b64289d8d60afdc590cd135dd028e0ce62))
+
 ## [2.3.2](https://github.com/erxes/erxes/compare/2.3.1...2.3.2) (2025-01-06)
 
 

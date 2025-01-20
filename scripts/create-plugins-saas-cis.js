@@ -62,7 +62,9 @@ var plugins = [
   // { name: 'zms', api: true, ui: true },
   // { name: 'syncpolaris', api: true, ui: true },
   // { name: 'reports', api: true, ui: true },
-  { name: 'instagram', api: true, ui: true }
+  { name: 'instagram', api: true, ui: true },
+  { name: 'cms', api: true, ui: true },
+  { name: 'bm', api: true, ui: true }
   // { name: 'burenscoring', api: true, ui: true },
   // { name: 'golomtbank', api: true, ui: true },
   // { name: 'template', api: true, ui: true }
