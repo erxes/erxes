@@ -64,6 +64,15 @@ export default {
         isRPC: true,
         defaultValue: [],
       });
+      const user = await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          _id: history.createdBy,
+        },
+        isRPC: true,
+      });
+
       results.push({
         _id: history._id,
         contentType: 'calls:customer',
@@ -71,6 +80,7 @@ export default {
         contentTypeDetail: {
           history,
           conversationMessages: messages ? messages : [],
+          assignedUser: user ? { details: user.details, _id: user._id } : {},
         },
       });
     }

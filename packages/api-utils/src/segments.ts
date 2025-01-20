@@ -143,6 +143,6 @@ const gatherServicesAssociatedTypes = async (
       continue;
     }
 
-    associatedTypes.push(`${serviceName}:${contentType.type}`);
+    associatedTypes.push(`${serviceName}:${contentType.type}`); 
   }
 };

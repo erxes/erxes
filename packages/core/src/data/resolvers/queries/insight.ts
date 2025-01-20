@@ -1,6 +1,6 @@
-import { IContext } from "../../../connectionResolver";
-import { sendCommonMessage } from "../../../messageBroker";
-import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { IContext } from '../../../connectionResolver';
+import { sendCommonMessage } from '../../../messageBroker';
 
 const insightQueries = {
   /**
@@ -8,19 +8,19 @@ const insightQueries = {
    */
   async insightGetLast(_root, params, { models }: IContext) {
     const dashboard = await models.Dashboards.findOne({}).sort({
-      createdAt: -1
+      createdAt: -1,
     });
 
     if (dashboard) {
-      return { _id: dashboard._id, type: "dashboard" };
+      return { _id: dashboard._id, type: 'dashboard' };
     }
 
     const report = await models.Reports.findOne({}).sort({
-      createdAt: -1
+      createdAt: -1,
     });
 
     if (report) {
-      return { _id: report._id, type: "report" };
+      return { _id: report._id, type: 'report' };
     }
   },
 
@@ -31,7 +31,7 @@ const insightQueries = {
 
     for (const serviceName of serviceNames) {
       const service = await getService(serviceName);
-      const reportTemplates = service.config?.meta?.reports?.reportTemplates
+      const reportTemplates = service.config?.meta?.reports?.reportTemplates;
 
       if (reportTemplates) {
         for (const reportTemplate of reportTemplates) {
@@ -47,13 +47,13 @@ const insightQueries = {
   async insightTemplatesList(
     _root,
     { searchValue, serviceName },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const totalTemplatesList: any = [];
 
     const filterBySearchValue = (reportTemplates: any[], searchVal: string) => {
-      return reportTemplates.filter(t =>
-        t.title.toLowerCase().includes(searchVal.toLowerCase())
+      return reportTemplates.filter((t) =>
+        t.title.toLowerCase().includes(searchVal.toLowerCase()),
       );
     };
 
@@ -63,7 +63,7 @@ const insightQueries = {
 
       if (reportTemplates) {
         totalTemplatesList.push(
-          ...filterBySearchValue(reportTemplates, searchValue || "")
+          ...filterBySearchValue(reportTemplates, searchValue || ''),
         );
       }
 
@@ -78,7 +78,7 @@ const insightQueries = {
 
       if (reportTemplates) {
         totalTemplatesList.push(
-          ...filterBySearchValue(reportTemplates, searchValue || "")
+          ...filterBySearchValue(reportTemplates, searchValue || ''),
         );
       }
     }
@@ -89,9 +89,8 @@ const insightQueries = {
   async insightChartTemplatesList(
     _root,
     { serviceName: currentService }: { serviceName: string },
-    {}: IContext
+    {}: IContext,
   ) {
-
     const [serviceName, contentType] = currentService.split(':');
 
     const service = await getService(serviceName);
@@ -99,7 +98,7 @@ const insightQueries = {
     const chartTemplates = service.config?.meta?.reports?.chartTemplates;
 
     if (contentType) {
-      return chartTemplates.filter(t => t.serviceType === contentType);
+      return chartTemplates.filter((t) => t.serviceType === contentType);
     }
 
     return chartTemplates;
@@ -108,7 +107,7 @@ const insightQueries = {
   async insightChartGetFilterTypes(
     _root,
     { serviceName, templateType },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const service = await getService(serviceName);
 
@@ -117,7 +116,7 @@ const insightQueries = {
     let filterTypes = [];
 
     if (templates) {
-      const template = templates.find(t => t.templateType === templateType);
+      const template = templates.find((t) => t.templateType === templateType);
       if (template) {
         filterTypes = template.filterTypes || [];
       }
@@ -143,40 +142,42 @@ const insightQueries = {
   async chartGetResult(
     _root,
     { serviceName: currentService, templateType, chartType, filter, dimension },
-    { subdomain, user }: IContext
+    { subdomain, user }: IContext,
   ) {
-
     const [serviceName] = currentService.split(':');
 
     const chartResult = await sendCommonMessage({
       subdomain,
       serviceName,
-      action: "reports.getChartResult",
+      action: 'reports.getChartResult',
       data: {
         filter,
         dimension,
         templateType,
         chartType,
-        currentUser: user
+        currentUser: user,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     return chartResult;
   },
 
-  async insightPinnedList(_root, { }, { models, user }: IContext) {
-    const dashboards = await models.Dashboards.find({ userIds: { $in: [user._id] } }) || [];
-    const reports = await models.Reports.find({ userIds: { $in: [user._id] } }) || [];
+  async insightPinnedList(_root, {}, { models, user }: IContext) {
+    const dashboards =
+      (await models.Dashboards.getDashboards({ userIds: [user._id] }, user)) ||
+      [];
+    const reports =
+      (await models.Reports.getReports({ userIds: [user._id] }, user)) || [];
 
-    const dashboardsWithType = dashboards.map(dashboard => ({
+    const dashboardsWithType = dashboards.map((dashboard) => ({
       ...dashboard.toObject(),
-      type: 'dashboard'
+      type: 'dashboard',
     }));
 
-    const reportsWithType = reports.map(report => ({
+    const reportsWithType = reports.map((report) => ({
       ...report.toObject(),
-      type: 'report'
+      type: 'report',
     }));
 
     return [...dashboardsWithType, ...reportsWithType];
