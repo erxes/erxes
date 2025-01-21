@@ -139,10 +139,9 @@ const Receipt = ({ date, report }: any) => {
           <label>Гарын үсэг:</label>
           <span> _____________________</span>
         </p>
-
         <Button
           onClick={() => window.print()}
-          className="print:hidden w-full"
+          className="print:hidden fixed bottom-4 w-full max-w-[70mm] mx-auto px-2 z-10"
           size="sm"
         >
           Хэвлэх

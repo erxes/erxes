@@ -7,9 +7,9 @@ import {
   useQuery,
 } from "@apollo/client"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { format } from "date-fns"
+import { format, set, isToday, isFuture } from "date-fns"
 import { useSetAtom } from "jotai"
-import { SearchIcon } from "lucide-react"
+import { SearchIcon } from 'lucide-react'
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 
@@ -34,6 +34,8 @@ const FormSchema = z.object({
   posNumber: z.date({
     required_error: "Тайлан шүүх өдрөө сонгоно уу",
   }),
+  hour: z.string().regex(/^([0-1]?[0-9]|2[0-3])$/, "Цаг 0-23 хооронд байна"),
+  minute: z.string().regex(/^[0-5]?[0-9]$/, "Минут 0-59 хооронд байна"),
 })
 
 const ReportForm = ({
@@ -46,19 +48,40 @@ const ReportForm = ({
   const setReportDate = useSetAtom(reportDateAtom)
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues: {
+      hour: "00",
+      minute: "00",
+    },
   })
+
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
+    const dateWithTime = set(data.posNumber, {
+      hours: parseInt(data.hour),
+      minutes: parseInt(data.minute),
+    })
+
+    if (isToday(data.posNumber)) {
+      const now = new Date()
+      if (isFuture(dateWithTime)) {
+        form.setError('hour', {
+          type: 'manual',
+          message: 'Ирээдүйн цаг оруулах боломжгүй',
+        })
+        return
+      }
+    }
+
     getReport({
       variables: {
         posUserIds: data.posUserIds,
-        posNumber: format(data.posNumber, "yyyyMMdd"),
+        posNumber: format(dateWithTime, "yyyyMMddHHmm"),
       },
     })
-    setReportDate(data.posNumber)
+    setReportDate(dateWithTime)
   }
-  const { data, loading: loadingUsers } = useQuery(queries.users)
 
-  const { posUsers } = data || {}
+  const { data: userData, loading: loadingUsers } = useQuery(queries.users)
+  const { posUsers } = userData || {}
 
   return (
     <Form {...form}>
@@ -109,6 +132,46 @@ const ReportForm = ({
             </FormItem>
           )}
         />
+        <div className="flex space-x-2">
+          <FormField
+            control={form.control}
+            name="hour"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Цаг</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="number"
+                    min="0"
+                    max="23"
+                    placeholder="00"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="minute"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Минут</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="number"
+                    min="0"
+                    max="59"
+                    placeholder="00"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <Button type="submit" className="w-full" size="sm" loading={loading}>
           {!loading && <SearchIcon className="h-4 w-4 mr-1" />}
           Тайлан шүүх
