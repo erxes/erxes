@@ -86,13 +86,16 @@ export default function HelpCenter() {
           <button 
             className="lg:hidden bg-indigo-600 text-white px-4 py-2 rounded-md mb-4"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-expanded={isMenuOpen}  
+            aria-controls="help-topics-menu"
           >
             {isMenuOpen ? 'Close Menu' : 'Open Menu'}
           </button>
 
-          <nav className={`lg:w-1/3 ${isMenuOpen ? 'block' : 'hidden'} lg:block`}>
+          <nav className={`lg:w-1/3 ${isMenuOpen ? 'block' : 'hidden'} lg:block`}  
+              aria-label="Help topics navigation" >
             <div className="bg-white rounded-lg shadow-lg p-6">
-              <ul className="space-y-2">
+              <ul id="help-topics-menu" className="space-y-2" role="menu">  
                 {helpTopics.map((topic) => (
                   <li key={topic.id}>
                     <button
@@ -123,6 +126,10 @@ export default function HelpCenter() {
                   width={1384}
                   height={477}
                   className="w-full h-auto rounded-lg shadow-md"
+                  onError={(e) => {  
+                    const target = e.target as HTMLImageElement;  
+                    target.src = "/placeholder.svg";  
+                  }}  
                 />
               </div>
               <div 
