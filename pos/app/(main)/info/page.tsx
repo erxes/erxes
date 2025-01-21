@@ -74,7 +74,10 @@ export default function HelpCenter() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const sanitizeDescription = (description: string) => {
-    return DOMPurify.sanitize(description)
+    return DOMPurify.sanitize(description, {
+      ALLOWED_TAGS: ['ul', 'li', 'p', 'br'],
+      ALLOWED_ATTR: ['class']
+    });
   }
 
   return (
