@@ -30,8 +30,13 @@ export const List = styled(SidebarList)`
   }
 `;
 
-export const MarginTop = styled.div`
+export const MarginTop = styledTS<{
+  borderBottom?: boolean;
+}>(styled.div)`
   margin-top: ${dimensions.coreSpacing}px;
+
+  ${(props) => (props.borderBottom ? 'border-bottom: 1px solid #e9e9e9' : '')};
+  ${(props) => (props.borderBottom ? 'padding-bottom: 5px;' : '')};
 `;
 
 export const FlexRow = styledTS<{

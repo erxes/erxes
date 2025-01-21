@@ -82,7 +82,7 @@ const LoanForm = (props: Props) => {
       <>
         {loans.map((loan) => {
           return (
-            <>
+            <MarginTop borderBottom={true}>
               <FlexRow>
                 <FormGroup>
                   <FormLabel>{__('Start Date')}</FormLabel>
@@ -134,7 +134,7 @@ const LoanForm = (props: Props) => {
               <Button btnStyle="danger" onClick={() => removeFeature(loan._id)}>
                 X
               </Button>
-            </>
+            </MarginTop>
           );
         })}
       </>
@@ -143,13 +143,6 @@ const LoanForm = (props: Props) => {
 
   return (
     <MarginTop>
-      <FormGroup>
-        <ControlLabel>Loans</ControlLabel>
-        <Button size="small" onClick={() => onChangeFeature()}>
-          + Add Loans
-        </Button>
-      </FormGroup>
-
       <FlexRow>
         <FormGroup>
           <ControlLabel>Total Loan Amount</ControlLabel>
@@ -171,6 +164,13 @@ const LoanForm = (props: Props) => {
           />
         </FormGroup>
       </FlexRow>
+
+      <FormGroup>
+        <ControlLabel>Loans</ControlLabel>
+        <Button size="small" onClick={() => onChangeFeature()}>
+          + Add Loans
+        </Button>
+      </FormGroup>
 
       {renderLoanForm()}
     </MarginTop>

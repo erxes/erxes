@@ -83,7 +83,7 @@ const IncomeForm = (props: Props) => {
       <>
         {incomes.map((income) => {
           return (
-            <>
+            <MarginTop borderBottom={true}>
               <FormGroup>
                 <ControlLabel>Income type</ControlLabel>
                 <Select
@@ -118,7 +118,7 @@ const IncomeForm = (props: Props) => {
               >
                 X
               </Button>
-            </>
+            </MarginTop>
           );
         })}
       </>
@@ -127,13 +127,6 @@ const IncomeForm = (props: Props) => {
 
   return (
     <MarginTop>
-      <FormGroup>
-        <ControlLabel>Incomes</ControlLabel>
-        <Button size="small" onClick={() => onChangeFeature()}>
-          + Add Incomes
-        </Button>
-      </FormGroup>
-
       <FlexRow>
         <FormGroup>
           <ControlLabel>Total Month</ControlLabel>
@@ -163,6 +156,13 @@ const IncomeForm = (props: Props) => {
           />
         </FormGroup>
       </FlexRow>
+
+      <FormGroup>
+        <ControlLabel>Incomes</ControlLabel>
+        <Button size="small" onClick={() => onChangeFeature()}>
+          + Add Incomes
+        </Button>
+      </FormGroup>
 
       {renderIncomeForm()}
     </MarginTop>
