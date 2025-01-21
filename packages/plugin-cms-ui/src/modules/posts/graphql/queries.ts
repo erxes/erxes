@@ -30,17 +30,33 @@ const POST_LIST = gql`
       totalPages
       posts {
         _id
+        authorKind
         author {
+        ... on User {
           _id
+          username
           email
           details {
             fullName
-            firstName
             shortName
+            avatar
+            firstName
             lastName
+            middleName
           }
-          username
         }
+        ... on ClientPortalUser {
+          _id
+          fullName
+          firstName
+          lastName
+          email
+          username
+          customer {
+            avatar
+          }
+        }
+      }
         categoryIds
         categories {
           _id
@@ -128,17 +144,33 @@ query Post($id: String) {
     videoUrl
     createdAt
     updatedAt
-    author {
-      _id
-      details {
-        firstName
-        lastName
-        shortName
-        fullName
-        avatar
+    authorKind
+        author {
+        ... on User {
+          _id
+          username
+          email
+          details {
+            fullName
+            shortName
+            avatar
+            firstName
+            lastName
+            middleName
+          }
+        }
+        ... on ClientPortalUser {
+          _id
+          fullName
+          firstName
+          lastName
+          email
+          username
+          customer {
+            avatar
+          }
+        }
       }
-      email
-    }
     categories {
       _id
       name

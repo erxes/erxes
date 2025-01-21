@@ -131,9 +131,10 @@ const IncomingCall = (props: Props, context) => {
   };
 
   const onAcceptCall = () => {
-    if (audioRef.current) {
+    if (audioRef.current && audioRef.current.src) {
       audioRef.current.pause();
       audioRef.current.src = '';
+      audioRef.current.load();
     }
     if (!hasMicrophone) {
       return Alert.error('Check your microphone');
@@ -148,11 +149,11 @@ const IncomingCall = (props: Props, context) => {
   };
 
   const onDeclineCall = () => {
-    if (audioRef.current) {
+    if (audioRef.current && audioRef.current.src) {
       audioRef.current.pause();
       audioRef.current.src = '';
+      audioRef.current.load();
     }
-
     setHaveIncomingCall(false);
     const { stopCall } = context;
     if (stopCall) {
@@ -294,9 +295,10 @@ const IncomingCall = (props: Props, context) => {
   }
 
   if (status === 'accepted' && !haveIncomingCall && !hideIncomingCall) {
-    if (audioRef.current) {
+    if (audioRef.current && audioRef.current.src) {
       audioRef.current.pause();
       audioRef.current.src = '';
+      audioRef.current.load();
     }
 
     const renderContent = () => {
