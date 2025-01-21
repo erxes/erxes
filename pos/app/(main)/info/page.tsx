@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState  } from 'react'
+import { ErrorBoundary } from 'react-error-boundary';
 import Image from 'next/image'
 import { StaticImageData } from 'next/image'
 import DOMPurify from 'dompurify'
@@ -17,6 +18,15 @@ type HelpTopic = {
   title: string
   description: string
   image: StaticImageData 
+}
+
+function ErrorFallback({error}: {error: Error}) {
+  return (
+    <div className="text-red-600 p-4">
+      <h2>Something went wrong:</h2>
+      <pre>{error.message}</pre>
+    </div>
+  );
 }
 
 const helpTopics: HelpTopic[] = [
@@ -81,6 +91,7 @@ export default function HelpCenter() {
   }
 
   return (
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
     <div className="bg-gradient-to-br  min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-center text-indigo-900 mb-8">Help Center</h1>
@@ -128,7 +139,10 @@ export default function HelpCenter() {
                   alt={selectedTopic.title}
                   width={1384}
                   height={477}
-                  className="w-full h-auto rounded-lg shadow-md"
+                  className="w-full h-auto rounded-lg shadow-md transition-opacity"
+                  loading="lazy"
+                  placeholder="blur"
+                  blurDataURL="/placeholder.svg"
                   onError={(e) => {  
                     const target = e.target as HTMLImageElement;  
                     target.src = "/placeholder.svg";  
@@ -144,5 +158,6 @@ export default function HelpCenter() {
         </div>
       </div>
     </div>
+    </ErrorBoundary>
   )
 }

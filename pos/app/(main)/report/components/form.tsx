@@ -55,7 +55,7 @@ const FormSchema = z.object({
   (data) => !isDateTimeInTheFuture(data.posNumber, data.hour, data.minute),
   {
     message: "Ирээдүйн цаг оруулах боломжгүй",
-    path: ["hour"], 
+    path: ["posNumber", "hour", "minute"],
   }
 )
 
