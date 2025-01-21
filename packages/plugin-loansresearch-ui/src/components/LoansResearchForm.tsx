@@ -66,12 +66,19 @@ const LoansResearchForm = (props: Props) => {
     useState<number>(loansResearch?.increaseMonthlyPaymentAmount || 0);
 
   useEffect(() => {
+    let increaseAmount;
     const ratio = (monthlyPaymentAmount / monthlyIncome) * 100;
-    const increaseAmount = monthlyIncome * 0.45 - monthlyPaymentAmount;
+    if (customerType === 'Customer') {
+      increaseAmount = monthlyIncome * 0.8 - monthlyPaymentAmount;
+    }
+
+    if (customerType === 'Company') {
+      increaseAmount = monthlyIncome * 0.7 - monthlyPaymentAmount;
+    }
 
     setDebtIncomeRatio(ratio);
     setIncreaseMonthlyPaymentAmount(increaseAmount);
-  }, [monthlyIncome, monthlyPaymentAmount]);
+  }, [monthlyIncome, monthlyPaymentAmount, customerType]);
 
   const generateDoc = (values: { _id: string } & ILoanResearch) => {
     const finalValues = values;

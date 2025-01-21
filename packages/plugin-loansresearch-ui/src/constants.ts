@@ -5,5 +5,5 @@ export const CUSTOMER_TYPES = [
 
 export const INCOME_TYPES = [
   { label: 'Salary', value: 'Salary' },
-  { label: 'Salary1', value: 'Salary1' },
+  { label: 'Business', value: 'Business' },
 ];
