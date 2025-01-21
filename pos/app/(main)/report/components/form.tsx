@@ -38,13 +38,15 @@ const FormSchema = z.object({
   minute: z.string().regex(/^[0-5]?[0-9]$/, "Минут 0-59 хооронд байна"),
 })
 
+interface ReportFormProps {
+  getReport: LazyQueryExecFunction<any, OperationVariables>
+  loading: boolean
+}
+
 const ReportForm = ({
   getReport,
   loading,
-}: {
-  getReport: LazyQueryExecFunction<any, OperationVariables>
-  loading: boolean
-}) => {
+}: ReportFormProps) => {
   const setReportDate = useSetAtom(reportDateAtom)
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -61,7 +63,6 @@ const ReportForm = ({
     })
 
     if (isToday(data.posNumber)) {
-      const now = new Date()
       if (isFuture(dateWithTime)) {
         form.setError('hour', {
           type: 'manual',
