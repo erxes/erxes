@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { StaticImageData } from 'next/image'
+import DOMPurify from 'dompurify'
 import zahialga from "./images/zahialga.png"
 import cursor from "./images/cursor.png"
 import zaal from "./images/zaal.png"
@@ -72,6 +73,10 @@ export default function HelpCenter() {
   const [selectedTopic, setSelectedTopic] = useState<HelpTopic>(helpTopics[0])
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
+  const sanitizeDescription = (description: string) => {
+    return DOMPurify.sanitize(description)
+  }
+
   return (
     <div className="bg-gradient-to-br  min-h-screen">
       <div className="container mx-auto px-4 py-8">
@@ -108,8 +113,6 @@ export default function HelpCenter() {
               </ul>
             </div>
           </nav>
-
-          {/* Content area */}
           <main className="lg:w-2/3">
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h2 className="text-2xl font-semibold text-indigo-900 mb-4">{selectedTopic.title}</h2>
@@ -124,7 +127,7 @@ export default function HelpCenter() {
               </div>
               <div 
                 className="prose prose-indigo max-w-none"
-                dangerouslySetInnerHTML={{ __html: selectedTopic.description }}
+                dangerouslySetInnerHTML={{ __html: sanitizeDescription(selectedTopic.description) }}
               />
             </div>
           </main>
