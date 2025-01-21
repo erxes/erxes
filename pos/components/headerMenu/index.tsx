@@ -11,6 +11,7 @@ import {
   PackagePlus,
   SettingsIcon,
   TimerResetIcon,
+  InfoIcon
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -41,6 +42,7 @@ const HeaderMenu = () => {
     }
     if (adminIds?.includes(user?._id || "")) {
       menu.push(reportMenu)
+      menu.push(infoMenu)
     }
 
     return menu
@@ -111,6 +113,12 @@ const reportMenu = {
   href: "report",
   Icon: FileBarChart2Icon,
   text: "Тайлан",
+}
+
+const infoMenu = {
+  href: "info",
+  Icon: InfoIcon,
+  text: "Туслах цэс",
 }
 
 const progressMenu = {
