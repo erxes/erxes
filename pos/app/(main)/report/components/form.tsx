@@ -1,20 +1,18 @@
-"use client"
-import { reportDateAtom } from "@/store"
-import {
-  LazyQueryExecFunction,
-  useQuery,
-} from "@apollo/client"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { format, set, isFuture } from "date-fns"
-import { useSetAtom } from "jotai"
-import { SearchIcon } from 'lucide-react'
-import { useForm } from "react-hook-form"
-import * as z from "zod"
+"use client";
 
-import { Customer } from "@/types/customer.types"
-import { Button } from "@/components/ui/button"
-import { DatePicker } from "@/components/ui/date-picker"
-import { FacetedFilter } from "@/components/ui/faceted-filter"
+import { reportDateAtom } from "@/store";
+import { type LazyQueryExecFunction, useQuery } from "@apollo/client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format, set, isFuture } from "date-fns";
+import { useSetAtom } from "jotai";
+import { SearchIcon } from "lucide-react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
+import type { Customer } from "@/types/customer.types";
+import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
+import { FacetedFilter } from "@/components/ui/faceted-filter";
 import {
   Form,
   FormControl,
@@ -22,80 +20,89 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { queries } from "../graphql"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { queries } from "../graphql";
+import { TimePicker } from "./timePicker";
 
-const isDateTimeInTheFuture = (date: Date, hour: number, minute: number) => {
-  const dateWithTime = set(date, { hours: hour, minutes: minute })
-  return isFuture(dateWithTime)
-}
+const isDateTimeInTheFuture = (date: Date | null, timeString: string) => {
+  if (!date) return false; // Prevent invalid date errors
+  const [hours, minutes] = timeString.split(":").map(Number);
+  const dateWithTime = set(date, { hours, minutes });
+  return isFuture(dateWithTime);
+};
 
 interface UsersQueryResponse {
-  posUsers: Customer[]
+  posUsers: Customer[];
 }
 
 interface ReportVariables {
-  posUserIds?: string[]
-  posNumber: string
+  posUserIds?: string[];
+  posNumber: string;
 }
 
-const FormSchema = z.object({
-  posUserIds: z.array(z.string()).optional(),
-  posNumber: z.date({
-    required_error: "Тайлан шүүх өдрөө сонгоно уу",
-  }),
-  hour: z.number()
-    .min(0, "Цаг 0-оос их байх ёстой")
-    .max(23, "Цаг 23-аас бага байх ёстой"),
-  minute: z.number()
-    .min(0, "Минут 0-оос их байх ёстой")
-    .max(59, "Минут 59-өөс бага байх ёстой"),
-}).refine(
-  (data) => !isDateTimeInTheFuture(data.posNumber, data.hour, data.minute),
-  {
+const FormSchema = z
+  .object({
+    posUserIds: z.array(z.string()).optional(),
+    posNumber: z
+      .date({
+        required_error: "Тайлан шүүх өдрөө сонгоно уу",
+      })
+      .nullable(),
+    time: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format"),
+  })
+  .refine((data) => !isDateTimeInTheFuture(data.posNumber, data.time), {
     message: "Ирээдүйн цаг оруулах боломжгүй",
-    path: ["posNumber", "hour", "minute"],
-  }
-)
+    path: ["posNumber", "time"],
+  });
 
-type FormValues = z.infer<typeof FormSchema>
+type FormValues = z.infer<typeof FormSchema>;
 
 interface ReportFormProps {
-  getReport: LazyQueryExecFunction<any, ReportVariables>
-  loading: boolean
+  getReport: LazyQueryExecFunction<any, ReportVariables>;
+  loading: boolean;
 }
 
-const ReportForm = ({
-  getReport,
-  loading,
-}: ReportFormProps) => {
-  const setReportDate = useSetAtom(reportDateAtom)
+const ReportForm = ({ getReport, loading }: ReportFormProps) => {
+  const setReportDate = useSetAtom(reportDateAtom);
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      hour: 0,
-      minute: 0,
+      posNumber: new Date(), 
+      time: "00:00",
     },
-  })
+  });
 
   const onSubmit = (data: FormValues) => {
-    const dateWithTime = set(data.posNumber, {
-      hours: data.hour,
-      minutes: data.minute,
-    })
+    const [hours, minutes] = data.time.split(":").map(Number);
+    const dateWithTime = set(data.posNumber || new Date(), { hours, minutes });
 
     getReport({
       variables: {
         posUserIds: data.posUserIds,
         posNumber: format(dateWithTime, "yyyyMMddHHmm"),
       },
-    })
-    setReportDate(dateWithTime)
+    });
+    setReportDate(dateWithTime);
+  };
+
+  const {
+    data: userData,
+    loading: loadingUsers,
+    error: usersError,
+  } = useQuery<UsersQueryResponse>(queries.users);
+  const posUsers = userData?.posUsers || [];
+
+  if (usersError) {
+    return <div>Error loading users. Please try again later.</div>;
   }
 
-  const { data: userData, loading: loadingUsers } = useQuery<UsersQueryResponse>(queries.users)
-  const { posUsers = [] } = userData || {}
+  const posUserOptions = posUsers.map((user) => ({
+    label: user.email || "Unknown",
+    value: user._id,
+  }));
 
   return (
     <Form {...form}>
@@ -114,10 +121,7 @@ const ReportForm = ({
                   <Input disabled placeholder="Уншиж байна..." />
                 ) : (
                   <FacetedFilter
-                    options={posUsers.map((user) => ({
-                      label: user.email || "Unknown",
-                      value: user._id,
-                    }))}
+                    options={posUserOptions}
                     title="Ажилчид"
                     values={field.value}
                     onSelect={field.onChange}
@@ -136,7 +140,7 @@ const ReportForm = ({
               <FormLabel className="block">Oгноо</FormLabel>
               <FormControl>
                 <DatePicker
-                  date={field.value}
+                  date={field.value || new Date()}
                   setDate={field.onChange}
                   toDate={new Date()}
                   className="w-full"
@@ -146,55 +150,26 @@ const ReportForm = ({
             </FormItem>
           )}
         />
-        <div className="flex space-x-2">
-          <FormField
-            control={form.control}
-            name="hour"
-            render={({ field: { onChange, ...field } }) => (
-              <FormItem className="flex-1">
-                <FormLabel>Цаг</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    type="number"
-                    min={0}
-                    max={23}
-                    placeholder="00"
-                    onChange={(e) => onChange(Number(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="minute"
-            render={({ field: { onChange, ...field } }) => (
-              <FormItem className="flex-1">
-                <FormLabel>Минут</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    type="number"
-                    min={0}
-                    max={59}
-                    placeholder="00"
-                    onChange={(e) => onChange(Number(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="time"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Цаг</FormLabel>
+              <FormControl>
+                <TimePicker value={field.value} onChange={field.onChange} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <Button type="submit" className="w-full" size="sm" loading={loading}>
           {!loading && <SearchIcon className="h-4 w-4 mr-1" />}
           Тайлан шүүх
         </Button>
       </form>
     </Form>
-  )
-}
+  );
+};
 
-export default ReportForm
+export default ReportForm;
