@@ -1,4 +1,4 @@
-import { sendCommonMessage } from "./messageBroker";
+import { sendCommonMessage, sendCoreMessage } from "./messageBroker";
 import { sendSms } from "./utils";
 export default {
   constants: {
@@ -16,7 +16,6 @@ export default {
   receiveActions: async ({ subdomain, data }) => {
     const { action, execution } = data;
     const documentId = action.config.documentId; // Extract the documentId from the action object
-
     const { triggerType } = execution;
     const [serviceName, contentType] = triggerType.split(":");
 
@@ -45,35 +44,56 @@ export default {
       target,
       customConfig: config?.customConfig
     };
-    const {
-      _id: itemId,
-      stageId,
-      modifiedBy: userId,
-      description
-    } = commonDoc.target;
-    const orderDataMatches = description.match(/\{([^{}]*)\}/g);
-    let sendPhoneNumber: string | undefined;
-    const phoneMatch = description.match(/Утасны дугаар:\s*(\d+)/);
-    if (phoneMatch) {
-      const phone = phoneMatch[1];
-      sendPhoneNumber = phone;
-    } else if (orderDataMatches) {
-      const cleanedJson = orderDataMatches[0]
-        .replace(/<br>/g, "")
-        .replace(/&nbsp;/g, " ")
-        .trim();
-      try {
-        const orderData = JSON.parse(cleanedJson);
-        sendPhoneNumber = orderData.phone;
-      } catch (error) {
-        throw new Error(
-          "Failed to parse order data. Please check the JSON format."
-        );
+    const { _id: itemId, stageId, modifiedBy: userId } = commonDoc.target;
+
+    const customerIds = await sendCoreMessage({
+      subdomain,
+      action: "conformities.savedConformity",
+      data: {
+        mainType: "deal",
+        mainTypeId: itemId,
+        relTypes: ["customer"]
+      },
+      isRPC: true
+    });
+
+    let customerCode = "";
+    let customerPhone = "";
+
+    const getCustomerPhone = (customer) => {
+      return customer?.primaryPhone || ""; // Retrieve primaryPhone or return an empty string
+    };
+
+    if (customerIds.length > 0) {
+      const customers = await sendCoreMessage({
+        subdomain,
+        action: "customers.findActiveCustomers",
+        data: {
+          selector: { _id: { $in: customerIds } },
+          fields: {
+            _id: 1,
+            code: 1,
+            firstName: 1,
+            lastName: 1,
+            primaryEmail: 1,
+            primaryPhone: 1
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      let customer = customers.find((c) => c.code && c.code.match(/^\d{8}$/g));
+
+      if (customer) {
+        customerCode = customer.code || "";
+        customerPhone = getCustomerPhone(customer); // Get the phone number
+      } else {
+        if (customers.length) {
+          customer = customers[0];
+          customerPhone = getCustomerPhone(customer); // Get the phone number
+        }
       }
-    } else {
-      throw new Error(
-        "Neither phone number nor order data found in the description."
-      );
     }
     const document = await sendCommonMessage({
       serviceName: "documents",
@@ -89,7 +109,7 @@ export default {
       defaultValue: ""
     });
 
-    if (document && sendPhoneNumber) {
+    if (document && customerPhone) {
       const htmlContent = Array.isArray(document)
         ? document.join("")
         : document;
@@ -102,7 +122,7 @@ export default {
         .replace(/&amp;/g, "&")
         .replace(/\s+/g, " ")
         .trim();
-      await sendSms(subdomain, "messagePro", sendPhoneNumber, cleanedText);
+      await sendSms(subdomain, "messagePro", customerPhone, cleanedText);
     }
     return "Sent";
   }
