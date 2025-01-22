@@ -153,7 +153,6 @@ const callsQueries = {
             action: 'queueapi',
             startTime: formattedDate,
             endTime: formattedDate,
-            queues: '6501,6503',
           },
         },
         integrationId: integrationId,
