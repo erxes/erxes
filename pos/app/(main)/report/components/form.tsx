@@ -1,6 +1,7 @@
 "use client";
 
 import { reportDateAtom } from "@/store";
+
 import { LazyQueryExecFunction, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, isFuture } from "date-fns";
@@ -58,7 +59,7 @@ interface ReportVariables {
 }
 
 interface ReportFormProps {
-  getReport: LazyQueryExecFunction<{ report: Report }, ReportVariables>;
+  getReport: LazyQueryExecFunction<any, ReportVariables>;
   loading: boolean;
 }
 
