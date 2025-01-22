@@ -1,11 +1,21 @@
 # Changelog
 
 ## [2.5.0-rc.0](https://github.com/erxes/erxes/compare/2.4.0...2.5.0-rc.0) (2025-01-19)
+## [2.4.1](https://github.com/erxes/erxes/compare/2.4.0...2.4.1) (2025-01-22)
 
 
 ### Features
 
 * **clientportal:** MessagePro sends an SMS to the customer's phone number. ([94c4a8b](https://github.com/erxes/erxes/commit/94c4a8b9faa47777e1fc7fb9ca5cdbe282676fd1))
+* add loans research plugin ([#5862](https://github.com/erxes/erxes/issues/5862)) ([6fc7e5a](https://github.com/erxes/erxes/commit/6fc7e5a3da70c323d73e61ab5cf26637ec0ef363))
+
+
+### Bug Fixes
+
+* **clientportal:** check cms plugin is aviable in Post type and ClientportalUserPostList type ([c4e6f02](https://github.com/erxes/erxes/commit/c4e6f021fa5960fae315e6eeef9dc6e2b0d36860))
+* **core:** get GOOGLE_APPLICATION_CREDENTIALS_JSON from env in firebase ([c361698](https://github.com/erxes/erxes/commit/c361698b97b9b54587fbc7f0a4f3563feff94e64))
+* fix visibility ([fc84e8d](https://github.com/erxes/erxes/commit/fc84e8df559ecf3ea56e324f3c627146b4bbe4db))
+* **sales:** can't get stage probability in custom trigger & only wait if checked some items of checklist in create checklist action ([4918e3e](https://github.com/erxes/erxes/commit/4918e3ecb29006abd08bab8eb31d496f5bbe2238))
 
 ## [2.4.0](https://github.com/erxes/erxes/compare/2.3.2...2.4.0) (2025-01-19)
 

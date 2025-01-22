@@ -36,7 +36,6 @@ const typeDefs = async () => {
   const ticketsAvailable = isEnabled("tickets");
   const tasksAvailable = isEnabled("tasks");
   const purchasesAvailable = isEnabled("purchases");
-  console.log("cmsAvailable", cmsAvailable);
   const enabledPlugins = {
     sales: salesAvailable,
     tickets: ticketsAvailable,

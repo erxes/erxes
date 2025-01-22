@@ -10,6 +10,7 @@ const filePath = pathName => {
 };
 
 var workflowsPath = fileName => filePath(`./.github/workflows/${fileName}`);
+var workflowsSamplePath = fileName => filePath(`./scripts/sample/${fileName}`);
 
 var plugins = [
   { name: "inbox", ui: true, api: true },
@@ -78,16 +79,17 @@ var plugins = [
   { name: "template", api: true, ui: true },
   { name: "cms", api: true, ui: true },
   { name: "activedirectory", api: true, ui: true },
+  { name: "loansresearch", api: true, ui: true },
 ];
 
 const pluginsMap = {};
 
 var main = async () => {
   const uiContentBuffer = fs.readFileSync(
-    workflowsPath("plugin-sample-ui.yaml")
+    workflowsSamplePath("plugin-sample-ui.yaml")
   );
   const apiContentBuffer = fs.readFileSync(
-    workflowsPath("plugin-sample-api.yaml")
+    workflowsSamplePath("plugin-sample-api.yaml")
   );
 
   permissionCheckers = [];

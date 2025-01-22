@@ -69,6 +69,7 @@ export default function TriggerForm({
         }
         onChangeStage={stageId => onChangeConfig('stageId', stageId)}
         autoSelectStage
+        autoSelectPipeline
         isOptional
       />
       <ModalFooter>

@@ -25,6 +25,7 @@ import { urlify } from '@erxes/ui/src/utils/urlParser';
 import withConsumer from '../withConsumer';
 import xss from 'xss';
 import ReactAudioPlayer from 'react-audio-player';
+import Participators from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators';
 
 type Props = {
   contentType: string;
@@ -74,6 +75,7 @@ const CallWrapper = styled.div`
 const StatusContent = styled.div`
   display: flex;
   align-items: center;
+  gap: 10px;
 `;
 const Audio = styled.div`
   flex: 1;
@@ -94,7 +96,11 @@ const Audio = styled.div`
 const ActivityItem = (props: Props) => {
   const { activity, currentUser } = props;
   const { contentTypeDetail = {}, contentType = '' } = activity;
-  const { history = {}, conversationMessages = [] } = contentTypeDetail;
+  const {
+    history = {},
+    conversationMessages = [],
+    assignedUser = {},
+  } = contentTypeDetail;
   const { createdAt = '', recordUrl = '' } = history;
 
   const renderAudio = () => {
@@ -119,7 +125,13 @@ const ActivityItem = (props: Props) => {
         <CallWrapper>
           <StatusContent>
             <div>
-              <h5>{callType} call</h5>
+              <StatusContent>
+                <h5>{callType} call</h5>
+                {assignedUser && (
+                  <Participators participatedUsers={[assignedUser]} />
+                )}
+              </StatusContent>
+
               <span>Call duration: {callDuration}s</span>
             </div>
           </StatusContent>
