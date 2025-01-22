@@ -58,7 +58,7 @@ interface ReportVariables {
 }
 
 interface ReportFormProps {
-  getReport: LazyQueryExecFunction<any, ReportVariables>;
+  getReport: LazyQueryExecFunction<{ report: Report }, ReportVariables>;
   loading: boolean;
 }
 
@@ -76,7 +76,11 @@ const ReportForm = ({ getReport, loading }: ReportFormProps) => {
     try {
       const combinedDate = combineDateTime(data.posNumber, data.time);
       if (!combinedDate) {
-        throw new Error("Invalid date-time combination");
+        form.setError("time", {
+                  type: "manual",
+                  message: "Invalid date-time combination"
+                });
+                return;
       }
 
       getReport({
@@ -88,6 +92,10 @@ const ReportForm = ({ getReport, loading }: ReportFormProps) => {
       setReportDate(combinedDate);
     } catch (error) {
       console.error("Error processing date-time:", error);
+      form.setError("root", {
+              type: "manual",
+              message: "An error occurred while generating the report"
+            });
     }
   };
 
