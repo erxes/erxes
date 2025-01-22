@@ -15,7 +15,11 @@ interface TimePickerProps {
 }
 
 export function TimePicker({ value, onChange }: TimePickerProps) {
-  const isValidTime = (time: string) => /^(\d{2}):(\d{2})$/.test(time);
+    const isValidTime = (time: string) => {
+            if (!/^(\d{2}):(\d{2})$/.test(time)) return false;
+            const [hours, minutes] = time.split(':').map(Number);
+            return hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59;
+          };
   const parsedValue = isValidTime(value) ? value : "00:00";
 
   const hours = Number.parseInt(parsedValue.split(":")[0]);
@@ -25,7 +29,7 @@ export function TimePicker({ value, onChange }: TimePickerProps) {
 
   const handleHourChange = (newHour: string) => {
     const hourNumber = Number.parseInt(newHour);
-    if (!isNaN(hourNumber)) {
+    if (!Number.isNaN(hourNumber)) {
       const hour24 =
         period === "PM"
           ? hourNumber === 12
@@ -40,7 +44,7 @@ export function TimePicker({ value, onChange }: TimePickerProps) {
 
   const handleMinuteChange = (newMinute: string) => {
     const minuteNumber = Number.parseInt(newMinute);
-    if (!isNaN(minuteNumber)) {
+    if (!Number.isNaN(minuteNumber)) {
       onChange(`${hours.toString().padStart(2, "0")}:${minuteNumber.toString().padStart(2, "0")}`);
     }
   };

@@ -3,7 +3,7 @@
 import { reportDateAtom } from "@/store";
 import { type LazyQueryExecFunction, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format, set, isFuture } from "date-fns";
+import { format, set, isFuture, isValid } from "date-fns";
 import { useSetAtom } from "jotai";
 import { SearchIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -26,9 +26,9 @@ import { queries } from "../graphql";
 import { TimePicker } from "./timePicker";
 
 const isDateTimeInTheFuture = (date: Date | null, timeString: string) => {
-  if (!date) return false; // Prevent invalid date errors
+  if (!date) return false; 
   const [hours, minutes] = timeString.split(":").map(Number);
-  const dateWithTime = set(date, { hours, minutes });
+  const dateWithTime = set(date, { hours, minutes, seconds: 0, milliseconds: 0 });
   return isFuture(dateWithTime);
 };
 
@@ -76,18 +76,24 @@ const ReportForm = ({ getReport, loading }: ReportFormProps) => {
   });
 
   const onSubmit = (data: FormValues) => {
-    const [hours, minutes] = data.time.split(":").map(Number);
-    const dateWithTime = set(data.posNumber || new Date(), { hours, minutes });
-
-    getReport({
-      variables: {
-        posUserIds: data.posUserIds,
-        posNumber: format(dateWithTime, "yyyyMMddHHmm"),
-      },
-    });
-    setReportDate(dateWithTime);
-  };
-
+      try {
+         const [hours, minutes] = data.time.split(":").map(Number);
+         const dateWithTime = set(data.posNumber || new Date(), { hours, minutes });
+        if (!isValid(dateWithTime)) {
+          throw new Error("Invalid date-time combination");
+        }
+     
+         getReport({
+           variables: {
+             posUserIds: data.posUserIds,
+             posNumber: format(dateWithTime, "yyyyMMddHHmm"),
+           },
+         });
+         setReportDate(dateWithTime);
+       } catch (error) {
+        console.error("Error processing date-time:", error);
+        }
+     };
   const {
     data: userData,
     loading: loadingUsers,
