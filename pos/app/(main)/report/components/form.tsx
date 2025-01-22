@@ -1,13 +1,15 @@
 "use client";
 
 import { reportDateAtom } from "@/store";
-import { type LazyQueryExecFunction, useQuery } from "@apollo/client";
+import { LazyQueryExecFunction, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format, set, isFuture, isValid } from "date-fns";
+import { format, isFuture } from "date-fns";
 import { useSetAtom } from "jotai";
 import { SearchIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+
+import { combineDateTime } from "../utils/date";
 
 import type { Customer } from "@/types/customer.types";
 import { Button } from "@/components/ui/button";
@@ -25,22 +27,6 @@ import { Input } from "@/components/ui/input";
 import { queries } from "../graphql";
 import { TimePicker } from "./timePicker";
 
-const isDateTimeInTheFuture = (date: Date | null, timeString: string) => {
-  if (!date) return false; 
-  const [hours, minutes] = timeString.split(":").map(Number);
-  const dateWithTime = set(date, { hours, minutes, seconds: 0, milliseconds: 0 });
-  return isFuture(dateWithTime);
-};
-
-interface UsersQueryResponse {
-  posUsers: Customer[];
-}
-
-interface ReportVariables {
-  posUserIds?: string[];
-  posNumber: string;
-}
-
 const FormSchema = z
   .object({
     posUserIds: z.array(z.string()).optional(),
@@ -53,12 +39,23 @@ const FormSchema = z
       .string()
       .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format"),
   })
-  .refine((data) => !isDateTimeInTheFuture(data.posNumber, data.time), {
-    message: "Ирээдүйн цаг оруулах боломжгүй",
-    path: ["posNumber", "time"],
+  .superRefine((data, ctx) => {
+    const combinedDate = combineDateTime(data.posNumber, data.time);
+    if (combinedDate && isFuture(combinedDate)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["posNumber", "time"],
+        message: "Ирээдүйн цаг оруулах боломжгүй",
+      });
+    }
   });
 
 type FormValues = z.infer<typeof FormSchema>;
+
+interface ReportVariables {
+  posUserIds?: string[];
+  posNumber: string;
+}
 
 interface ReportFormProps {
   getReport: LazyQueryExecFunction<any, ReportVariables>;
@@ -76,29 +73,30 @@ const ReportForm = ({ getReport, loading }: ReportFormProps) => {
   });
 
   const onSubmit = (data: FormValues) => {
-      try {
-         const [hours, minutes] = data.time.split(":").map(Number);
-         const dateWithTime = set(data.posNumber || new Date(), { hours, minutes });
-        if (!isValid(dateWithTime)) {
-          throw new Error("Invalid date-time combination");
-        }
-     
-         getReport({
-           variables: {
-             posUserIds: data.posUserIds,
-             posNumber: format(dateWithTime, "yyyyMMddHHmm"),
-           },
-         });
-         setReportDate(dateWithTime);
-       } catch (error) {
-        console.error("Error processing date-time:", error);
-        }
-     };
+    try {
+      const combinedDate = combineDateTime(data.posNumber, data.time);
+      if (!combinedDate) {
+        throw new Error("Invalid date-time combination");
+      }
+
+      getReport({
+        variables: {
+          posUserIds: data.posUserIds,
+          posNumber: format(combinedDate, "yyyyMMddHHmm"),
+        },
+      });
+      setReportDate(combinedDate);
+    } catch (error) {
+      console.error("Error processing date-time:", error);
+    }
+  };
+
   const {
     data: userData,
     loading: loadingUsers,
     error: usersError,
-  } = useQuery<UsersQueryResponse>(queries.users);
+  } = useQuery<{ posUsers: Customer[] }>(queries.users);
+
   const posUsers = userData?.posUsers || [];
 
   if (usersError) {
@@ -169,7 +167,7 @@ const ReportForm = ({ getReport, loading }: ReportFormProps) => {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" size="sm" loading={loading}>
+        <Button type="submit" className="w-full" size="sm" disabled={loading}>
           {!loading && <SearchIcon className="h-4 w-4 mr-1" />}
           Тайлан шүүх
         </Button>
