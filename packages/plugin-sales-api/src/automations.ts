@@ -304,7 +304,7 @@ export default {
       if (!stageId && pipelineId) {
         const stageIds = await models.Stages.find({
           pipelineId,
-          probability: PROBABILITY.WON
+          probability
         }).distinct("_id");
 
         if (!stageIds.find(stageId => target.stageId === stageId)) {
