@@ -304,7 +304,7 @@ export default {
       if (!stageId && pipelineId) {
         const stageIds = await models.Stages.find({
           pipelineId,
-          probability: PROBABILITY.WON
+          probability
         }).distinct("_id");
 
         if (!stageIds.find(stageId => target.stageId === stageId)) {
@@ -319,7 +319,7 @@ export default {
 
         const stageIds = await models.Stages.find({
           pipelineId: { $in: pipelineIds },
-          probability: PROBABILITY.WON
+          probability
         }).distinct("_id");
 
         if (!stageIds.find(stageId => target.stageId === stageId)) {
@@ -439,8 +439,8 @@ const createChecklist = async (models: IModels, execution, action) => {
   };
 
   if (
-    prevAction.actionType === "sales:deal.create" &&
-    prevAction.nextActionId === action.id &&
+    prevAction?.actionType === "sales:deal.create" &&
+    prevAction?.nextActionId === action.id &&
     prevAction?.result?.itemId
   ) {
     object.contentTypeId = prevAction.result.itemId;
@@ -469,7 +469,13 @@ const createChecklist = async (models: IModels, execution, action) => {
     }))
   );
 
-  return { result: checklist.toObject(), objToWait: {} };
+  if(items.some(item=>!!item?.isChecked)){
+
+    return { result: checklist.toObject(), objToWait: {} };
+  }
+
+  return checklist.toObject();
+
 };
 
 const generateIds = value => {
