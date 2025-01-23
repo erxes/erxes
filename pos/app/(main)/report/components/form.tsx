@@ -116,10 +116,9 @@ const ReportForm = ({ getReport, loading }: ReportFormProps) => {
       });
 
       if (result.data) {
-        if (!isNaN(combinedDate.getTime())) {
+        if (!Number.isNaN(combinedDate.getTime())) {
           setReportDate(combinedDate);
         }
-        console.log("Report Data:", result.data.dailyReport.report);
       } else {
         console.error("No data returned from the report query");
       }
