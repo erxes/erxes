@@ -18,6 +18,7 @@ module.exports = {
       icon: 'icon-file-check-alt',
       location: 'mainNavigation',
       scope: 'loansresearch',
+      permission: 'showLoanResearch',
     },
   ],
 };

@@ -3,6 +3,7 @@ import { generateModels } from './connectionResolver';
 import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import resolvers from './graphql/resolvers';
+import * as permissions from './permissions';
 
 export default {
   name: 'loansresearch',
@@ -24,5 +25,5 @@ export default {
 
   onServerInit: async () => {},
   setupMessageConsumers,
-  meta: {},
+  meta: { permissions },
 };
