@@ -334,6 +334,20 @@ const Contracts = {
     }).sort({ payDate: -1, createdAt: -1 }).lean();
     return lastDidSchedule?.unUsedBalance || 0;
   },
+
+  async givenAmount(contract: IContractDocument, { }, { models }: IContext) {
+    const giveSchedules = await models.Schedules.find({ contractId: contract._id, giveAmount: { $exists: true, $gte: 0 } }).lean();
+    if (!giveSchedules?.length) {
+      return 0;
+    }
+
+    return giveSchedules.reduce((sum, curr) => sum + (curr.giveAmount ?? 0), 0);
+  },
+  async loanBalanceAmount(contract: IContractDocument, { }, { models }: IContext) {
+    const lastHasDidBalanceSchedule = await models.Schedules.findOne({ contractId: contract._id, didBalance: { $exists: true, $gte: 0 } }).sort({ payDate: -1, createdAt: -1 }).lean();
+
+    return lastHasDidBalanceSchedule?.didBalance || 0;
+  }
 };
 
 export default Contracts;

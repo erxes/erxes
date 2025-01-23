@@ -1,11 +1,13 @@
 export const REPAYMENT_TYPE = [
   { label: 'Equal Principal Payment', value: 'equal' }, // undsen tulbur tentsuu
   { label: 'Fixed Rate Payment', value: 'fixed' }, // niit tulbur tentsuu
+  { label: 'Last of date', value: 'last' }, // niit tulbur tentsuu
 ];
 
 export const REPAYMENT = {
   EQUAL: 'equal', // undsen tulbur tentsuu
   FIXED: 'fixed', // niit tulbur tentsuu
+  LAST: 'last', // hugatsaanii etsest neg udaa
 };
 
 export const CONTRACT_STATUS = {

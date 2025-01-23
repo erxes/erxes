@@ -673,7 +673,7 @@ function ContractForm(props: Props) {
                   value={contract.repayment}
                   onChange={onChangeField}
                 >
-                  {["fixed", "equal"].map((typeName) => (
+                  {["fixed", "equal", "last"].map((typeName) => (
                     <option key={typeName} value={typeName}>
                       {__(typeName + "Method")}
                     </option>
