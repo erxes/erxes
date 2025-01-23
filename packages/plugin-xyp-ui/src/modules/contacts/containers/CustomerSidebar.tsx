@@ -13,6 +13,7 @@ type Props = {
 
 const getContentType = (mainType) => {
   if (mainType === "customer") return "core:customer";
+  if (mainType === "deal") return "sales:deal";
   if (mainType.includes(":")) return mainType;
   return `default:${mainType}`;
 };
