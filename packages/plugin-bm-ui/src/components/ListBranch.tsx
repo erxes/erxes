@@ -6,7 +6,7 @@ import {
   SortHandler,
   Table,
   Wrapper,
-  __,
+  __
 } from '@erxes/ui/src';
 
 import { IBmsBranch } from '../types';
@@ -29,6 +29,7 @@ type Props = {
   remove: (posId: string) => void;
   refetch?: () => void;
   counts: any; //*checkType
+  tmsLink: string;
 };
 
 const List = (props: Props) => {
@@ -41,6 +42,7 @@ const List = (props: Props) => {
     bulk,
     toggleBulk,
     toggleAll,
+    tmsLink
   } = props;
 
   queryParams.loadingMainQuery = loading;
@@ -57,6 +59,7 @@ const List = (props: Props) => {
         toggleBulk={toggleBulk}
         branch={branch}
         remove={remove}
+        tmsLink={tmsLink}
       />
     ));
   };
@@ -108,7 +111,7 @@ const List = (props: Props) => {
           title={__('Tms')}
           breadcrumb={[
             { title: 'Settings', link: '/settings' },
-            { title: __('Branch list') },
+            { title: __('Branch list') }
           ]}
           queryParams={queryParams}
         />
@@ -130,9 +133,9 @@ const List = (props: Props) => {
                     title: __('Create branch'),
                     description: __('Fill out the details and create your TMS'),
                     url: `/tms/create`,
-                    urlText: 'Create TMS',
-                  },
-                ],
+                    urlText: 'Create TMS'
+                  }
+                ]
               }}
               maxItemWidth='360px'
             />
