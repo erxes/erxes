@@ -64,37 +64,49 @@ const OrderNotificationCarousel: React.FC<OrderNotificationCarouselProps> = ({
   return (
     <>
       <Carousel className="w-full max-w-xs mx-auto">
-        <CarouselContent>
-          {fullOrders.map((order) => (
-            <CarouselItem key={order._id}>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Order #{order.number}</CardTitle>
-                  <CardDescription>Status: {order.status}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p>Table: {order.slotCode}</p>
-                </CardContent>
-                <CardFooter className="flex justify-between">
-                  <Button 
-                    onClick={() => onOrderApprove(order._id)} 
-                    variant="outline" 
-                    size="sm"
-                  >
-                    <Check className="mr-2 h-4 w-4" /> Approve
-                  </Button>
-                  <Button 
-                    onClick={() => onOrderReject({ _id: order._id, number: order.number || '' })}
-                    variant="outline" 
-                    size="sm"
-                  >
-                    <X className="mr-2 h-4 w-4" /> Reject
-                  </Button>
-                </CardFooter>
-              </Card>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
+      <CarouselContent>
+  {fullOrders.length === 0 ? (
+    <div className="flex justify-center items-center h-full">
+      <p>No orders to display</p>
+    </div>
+  ) : (
+    fullOrders.map((order) => (
+      <CarouselItem key={order._id}>
+        <Card>
+          <CardHeader>
+            <CardTitle>Order #{order.number}</CardTitle>
+            <CardDescription>Status: {order.status}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p>Table: {order.slotCode}</p>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button 
+              onClick={() => onOrderApprove(order._id)} 
+              variant="outline" 
+              size="sm"
+            >
+              <Check className="mr-2 h-4 w-4" /> Approve
+            </Button>
+            <Button 
+             onClick={() => {  
+                if (!order.number) {  
+                  console.error('Order number is missing:', order);  
+                  return;  
+                }  
+                onOrderReject({ _id: order._id, number: order.number });  
+              }}  
+              variant="outline" 
+              size="sm"
+            >
+              <X className="mr-2 h-4 w-4" /> Reject
+            </Button>
+          </CardFooter>
+        </Card>
+      </CarouselItem>
+    ))
+  )}
+</CarouselContent>
         <CarouselPrevious />
         <CarouselNext />
       </Carousel>

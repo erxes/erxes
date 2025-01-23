@@ -1,46 +1,50 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useAtomValue, useSetAtom } from "jotai"
-import { Bell, AlertCircle } from 'lucide-react'
-import { 
-  activeOrderIdAtom, 
-  setInitialAtom 
-} from "@/store/order.store"
-import { totalAmountAtom } from "@/store/cart.store"
-import { selectedTabAtom, slotFilterAtom } from "@/store"
-import { openCancelDialogAtom } from "@/store/history.store"
-import { orderCollapsibleAtom } from "@/store"
-import { ORDER_STATUSES } from "@/lib/constants"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogDescription, 
-  DialogTrigger 
-} from "@/components/ui/dialog"
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useAtomValue, useSetAtom } from "jotai";
+import { Bell, AlertCircle } from "lucide-react";
+import {
+  activeOrderIdAtom,
+  setInitialAtom,
+} from "@/store/order.store";
+import { totalAmountAtom } from "@/store/cart.store";
+import { selectedTabAtom, slotFilterAtom } from "@/store";
+import { openCancelDialogAtom } from "@/store/history.store";
+import { orderCollapsibleAtom } from "@/store";
+import { ORDER_STATUSES } from "@/lib/constants";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
-import OrderNotificationCarousel from "./components/orderNotfModal/orderNotfModal.main"
-import useFullOrders from "./hooks/useFullOrders"
-import { queries } from "./graphql"
+import OrderNotificationCarousel from "./components/orderNotfModal/orderNotfModal.main";
+import useFullOrders from "./hooks/useFullOrders";
+import { queries } from "./graphql";
+
+interface Subscription {
+  unsubscribe: () => void;
+}
 
 const OrderNotf = () => {
-  const { ALL } = ORDER_STATUSES
-  const total = useAtomValue(totalAmountAtom)
-  const setSelectedTab = useSetAtom(selectedTabAtom)
-  const setActiveOrderId = useSetAtom(activeOrderIdAtom)
-  const setSlotCode = useSetAtom(slotFilterAtom)
-  const changeCancel = useSetAtom(openCancelDialogAtom)
-  const setInitialStates = useSetAtom(setInitialAtom)
-  const setOpenCollapsible = useSetAtom(orderCollapsibleAtom)
+  const { ALL } = ORDER_STATUSES;
+  const total = useAtomValue(totalAmountAtom);
+  const setSelectedTab = useSetAtom(selectedTabAtom);
+  const setActiveOrderId = useSetAtom(activeOrderIdAtom);
+  const setSlotCode = useSetAtom(slotFilterAtom);
+  const changeCancel = useSetAtom(openCancelDialogAtom);
+  const setInitialStates = useSetAtom(setInitialAtom);
+  const setOpenCollapsible = useSetAtom(orderCollapsibleAtom);
 
-  const [isOpen, setIsOpen] = useState(false)
-  const [previousOrderCount, setPreviousOrderCount] = useState(0)
-  const [orderId, setOrderId] = useState<string | null>(null)
-  const [orderNumber, setOrderNumber] = useState<string | null>(null)
+  const [isOpen, setIsOpen] = useState(false);
+  const previousOrderCountRef = useRef(0);
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const [orderNumber, setOrderNumber] = useState<string | null>(null);
 
   const {
     fullOrders,
@@ -48,7 +52,7 @@ const OrderNotf = () => {
     totalCount,
     loading,
     handleLoadMore,
-    refetch
+    refetch,
   } = useFullOrders({
     variables: {
       sortDirection: -1,
@@ -59,56 +63,71 @@ const OrderNotf = () => {
     query: queries.activeOrders,
     onCompleted(orders) {
       if (orders.length === 1) {
-        setActiveOrderId(orders[0]._id)
-        setSelectedTab("products")
+        setActiveOrderId(orders[0]._id);
+        setSelectedTab("products");
       }
     },
-  })
+  });
 
-  useEffect(() => {
-    const subscription: any = subToOrderStatuses(ORDER_STATUSES.ALL) 
-     return () => 
-        {  subscription?.unsubscribe?.()
-     }
-  }, [subToOrderStatuses])
+  const subToOrderStatusesMemoized = useCallback((): Subscription | void => {
+    return subToOrderStatuses(ORDER_STATUSES.ALL);
+  }, [subToOrderStatuses]);
 
   useEffect(() => {
     try {
-    if (totalCount > previousOrderCount) {
-      setIsOpen(true)
-    }
-    setPreviousOrderCount(totalCount)
-    } catch (error) { 
-         console.error('Error updating order notifications:', error) 
+      const subscription = subToOrderStatusesMemoized();
+      return () => {
+        if (subscription?.unsubscribe) {
+          subscription.unsubscribe();
         }
-  }, [totalCount, previousOrderCount])
-  const handleOrderClick = (orderId: string) => {
-    setActiveOrderId(orderId)
-    setSelectedTab("products")
-    setIsOpen(false)
-  }
+      };
+    } catch (error) {
+      console.error("Error subscribing to order statuses:", error);
+    }
+  }, [subToOrderStatusesMemoized]);
 
-  const handleReject = (orderToReject: { _id: string, number: string }) => {
-    setOrderId(orderToReject._id)
-    setOrderNumber(orderToReject.number)
-    changeCancel(orderToReject._id)
-  }
+  useEffect(() => {
+    try {
+      if (totalCount > previousOrderCountRef.current) {
+        setIsOpen(true);
+      }
+      previousOrderCountRef.current = totalCount;
+    } catch (error) {
+      console.error("Error updating order notifications:", error);
+    }
+  }, [totalCount]);
+
+  const handleOrderClick = (orderId: string) => {
+    setActiveOrderId(orderId);
+    setSelectedTab("products");
+    setIsOpen(false);
+  };
+
+  const handleReject = (orderToReject: { _id: string; number: string }) => {
+    setOrderId(orderToReject._id);
+    setOrderNumber(orderToReject.number);
+    changeCancel(orderToReject._id);
+  };
 
   const handleCancelComplete = () => {
-    setInitialStates()
-    setOpenCollapsible(false)
-    setIsOpen(false)
-    refetch()
-  }
+    setInitialStates();
+    setOpenCollapsible(false);
+    setIsOpen(false);
+    refetch();
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="icon" className="relative">
-          {totalCount > 0 ? <AlertCircle className="h-5 w-5 text-orange-500" /> : <Bell className="h-5 w-5" />}
+          {totalCount > 0 ? (
+            <AlertCircle className="h-5 w-5 text-orange-500" />
+          ) : (
+            <Bell className="h-5 w-5" />
+          )}
           {totalCount > 0 && (
-            <Badge 
-              variant="destructive" 
+            <Badge
+              variant="destructive"
               className="absolute -top-2 -right-2 px-2 py-1 text-xs"
             >
               {totalCount}
@@ -121,12 +140,12 @@ const OrderNotf = () => {
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">New Orders</DialogTitle>
           <DialogDescription className="text-lg">
-            {totalCount} {totalCount === 1 ? 'order' : 'orders'} waiting
+            {totalCount} {totalCount === 1 ? "order" : "orders"} waiting
           </DialogDescription>
         </DialogHeader>
 
-        <OrderNotificationCarousel 
-          fullOrders={fullOrders} 
+        <OrderNotificationCarousel
+          fullOrders={fullOrders}
           onOrderApprove={handleOrderClick}
           onOrderReject={handleReject}
           totalCount={totalCount}
@@ -138,7 +157,7 @@ const OrderNotf = () => {
         />
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default OrderNotf
+export default OrderNotf;
