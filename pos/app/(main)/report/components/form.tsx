@@ -1,7 +1,6 @@
 "use client";
 
 import { reportDateAtom } from "@/store";
-
 import { LazyQueryExecFunction, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, isFuture } from "date-fns";
@@ -11,7 +10,6 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { combineDateTime } from "../utils/date";
-
 import type { Customer } from "@/types/customer.types";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -28,6 +26,13 @@ import { Input } from "@/components/ui/input";
 import { queries } from "../graphql";
 import { TimePicker } from "./timePicker";
 
+interface DailyReportResponse {
+  dailyReport: {
+    report: string;
+    __typename: string;
+  };
+}
+
 const FormSchema = z
   .object({
     posUserIds: z.array(z.string()).optional(),
@@ -41,6 +46,15 @@ const FormSchema = z
       .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format"),
   })
   .superRefine((data, ctx) => {
+    if (!data.posNumber) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["posNumber"],
+        message: "Тайлан шүүх өдрөө сонгоно уу",
+      });
+      return;
+    }
+
     const combinedDate = combineDateTime(data.posNumber, data.time);
     if (combinedDate && isFuture(combinedDate)) {
       ctx.addIssue({
@@ -59,44 +73,62 @@ interface ReportVariables {
 }
 
 interface ReportFormProps {
-  getReport: LazyQueryExecFunction<any, ReportVariables>;
+  getReport: LazyQueryExecFunction<DailyReportResponse, ReportVariables>;
   loading: boolean;
 }
+
+const LOADING_TEXT = "Уншиж байна...";
 
 const ReportForm = ({ getReport, loading }: ReportFormProps) => {
   const setReportDate = useSetAtom(reportDateAtom);
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      posNumber: new Date(), 
+      posNumber: new Date(),
       time: "00:00",
     },
   });
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     try {
+      if (!data.posNumber) {
+        form.setError("posNumber", {
+          type: "manual",
+          message: "Тайлан шүүх өдрөө сонгоно уу",
+        });
+        return;
+      }
+
       const combinedDate = combineDateTime(data.posNumber, data.time);
       if (!combinedDate) {
         form.setError("time", {
-                  type: "manual",
-                  message: "Invalid date-time combination"
-                });
-                return;
+          type: "manual",
+          message: "Invalid date-time combination",
+        });
+        return;
       }
 
-      getReport({
+      const result = await getReport({
         variables: {
-          posUserIds: data.posUserIds,
+          posUserIds: data.posUserIds || [],
           posNumber: format(combinedDate, "yyyyMMddHHmm"),
         },
       });
-      setReportDate(combinedDate);
+
+      if (result.data) {
+        if (!isNaN(combinedDate.getTime())) {
+          setReportDate(combinedDate);
+        }
+        console.log("Report Data:", result.data.dailyReport.report);
+      } else {
+        console.error("No data returned from the report query");
+      }
     } catch (error) {
-      console.error("Error processing date-time:", error);
+      console.error("Error generating report:", error);
       form.setError("root", {
-              type: "manual",
-              message: "An error occurred while generating the report"
-            });
+        type: "manual",
+        message: error instanceof Error ? error.message : "An error occurred while generating the report",
+      });
     }
   };
 
@@ -106,12 +138,12 @@ const ReportForm = ({ getReport, loading }: ReportFormProps) => {
     error: usersError,
   } = useQuery<{ posUsers: Customer[] }>(queries.users);
 
-  const posUsers = userData?.posUsers || [];
-
   if (usersError) {
-    return <div>Error loading users. Please try again later.</div>;
+    console.error("Error loading users:", usersError);
+    return <div>Ажилчдын мэдээллийг ачааллахад алдаа гарлаа. Дараа дахин оролдоно уу.</div>;
   }
 
+  const posUsers = userData?.posUsers || [];
   const posUserOptions = posUsers.map((user) => ({
     label: user.email || "Unknown",
     value: user._id,
@@ -131,7 +163,7 @@ const ReportForm = ({ getReport, loading }: ReportFormProps) => {
               <FormLabel>Ажилчид</FormLabel>
               <FormControl>
                 {loadingUsers ? (
-                  <Input disabled placeholder="Уншиж байна..." />
+                  <Input disabled placeholder={LOADING_TEXT} />
                 ) : (
                   <FacetedFilter
                     options={posUserOptions}
@@ -176,8 +208,14 @@ const ReportForm = ({ getReport, loading }: ReportFormProps) => {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" size="sm" disabled={loading}>
-          {!loading && <SearchIcon className="h-4 w-4 mr-1" />}
+        <Button
+          type="submit"
+          className="w-full"
+          size="sm"
+          disabled={loading}
+          aria-label="Тайлан шүүх"
+        >
+          {!loading && <SearchIcon className="h-4 w-4 mr-1" aria-hidden="true" />}
           Тайлан шүүх
         </Button>
       </form>
