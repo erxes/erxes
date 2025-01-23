@@ -4938,10 +4938,37 @@ module.exports = {
           "url": "/loansresearch",
           "icon": "icon-file-check-alt",
           "location": "mainNavigation",
-          "scope": "loansresearch"
+          "scope": "loansresearch",
+          "permission": "showLoanResearch"
         }
       ],
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loansresearch-ui/remoteEntry.js"
+    },
+    "api": {
+      "permissions": {
+        "loansResearch": {
+          "name": "loansResearch",
+          "description": "LoansResearch",
+          "actions": [
+            {
+              "name": "loansResearchAll",
+              "description": "All",
+              "use": [
+                "showLoanResearch",
+                "manageLoanResearch"
+              ]
+            },
+            {
+              "name": "showLoanResearch",
+              "description": "Show loansresearch"
+            },
+            {
+              "name": "manageLoanResearch",
+              "description": "Manage loansresearch"
+            }
+          ]
+        }
+      }
     }
   }
 }
