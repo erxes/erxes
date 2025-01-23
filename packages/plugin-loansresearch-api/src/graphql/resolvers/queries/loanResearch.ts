@@ -1,4 +1,5 @@
 import { paginate } from '@erxes/api-utils/src';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 
 export const sortBuilder = (params) => {
@@ -30,5 +31,7 @@ const lsQueries = {
     };
   },
 };
+
+checkPermission(lsQueries, 'loansResearchMain', 'showLoanResearch');
 
 export default lsQueries;
