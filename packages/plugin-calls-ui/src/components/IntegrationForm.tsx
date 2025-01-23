@@ -36,6 +36,7 @@ const IntegrationForm: React.FC<Props> = ({
         phone: values.phone,
         wsServer: values.wsServer,
         operators,
+        queues: values.queues,
       },
     };
   };
@@ -143,7 +144,9 @@ const IntegrationForm: React.FC<Props> = ({
         <SelectBrand
           isRequired={true}
           formProps={formProps}
-          description={__('Which specific Brand does this integration belong to?')}
+          description={__(
+            'Which specific Brand does this integration belong to?',
+          )}
         />
 
         <SelectChannels

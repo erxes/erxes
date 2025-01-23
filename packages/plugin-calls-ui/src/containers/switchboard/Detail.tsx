@@ -16,6 +16,7 @@ function DetailContainer() {
         queue,
       },
       fetchPolicy: 'network-only',
+      pollInterval: 3 * 60 * 1000,
     });
 
   const { data: initialTalkingCall, loading: initialTalkingLoading } = useQuery(
@@ -24,6 +25,7 @@ function DetailContainer() {
       variables: {
         queue,
       },
+      pollInterval: 3 * 60 * 1000,
     },
   );
 
