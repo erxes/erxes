@@ -5,7 +5,7 @@ import {
   pdfAttachmentInput
 } from '@erxes/api-utils/src/commonTypeDefs';
 
-export const types = `
+export const types = (cmsAvailable: boolean) => `
 ${attachmentType}
 ${attachmentInput}
 ${pdfAttachmentType}
@@ -153,11 +153,16 @@ type TwoFactorDevice {
         customFieldsData: JSON
     }
 
-    type ClientportalUserPostList {
-        posts: [Post]
-        totalCount: Int
-        totalPages: Int
-        currentPage: Int
+    ${
+      cmsAvailable
+        ? `
+        type ClientportalUserPostList {
+          posts: [Post]
+          totalCount: Int
+          totalPages: Int
+          currentPage: Int
+        }`
+        : ''
     }
 `;
 

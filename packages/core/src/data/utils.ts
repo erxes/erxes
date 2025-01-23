@@ -300,16 +300,15 @@ export const initFirebase = async (
   if (customConfig) {
     codeString = customConfig;
   } else {
-    const config = await models.Configs.findOne({
-      code: "GOOGLE_APPLICATION_CREDENTIALS_JSON",
-    });
-
-    if (!config) {
+    const GOOGLE_APPLICATION_CREDENTIALS_JSON = await getConfig(
+      'GOOGLE_APPLICATION_CREDENTIALS_JSON',"",models
+    );
+    if (!GOOGLE_APPLICATION_CREDENTIALS_JSON) {
       throw new Error(
-        "Cannot find google application credentials JSON configuration",
+        'Cannot find google application credentials JSON configuration'
       );
     }
-    codeString = config.value;
+    codeString = GOOGLE_APPLICATION_CREDENTIALS_JSON;
   }
 
   if (codeString[0] === "{" && codeString[codeString.length - 1] === "}") {

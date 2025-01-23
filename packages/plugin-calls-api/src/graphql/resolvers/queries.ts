@@ -77,6 +77,14 @@ const callsQueries = {
     { integrationId },
     { models, user }: IContext,
   ) {
+    const integration = await models.Integrations.getIntegration(
+      user._id,
+      integrationId,
+    );
+    if (!integration) {
+      throw new Error('Integration not found');
+    }
+    console.log(integration, 'integration');
     const queueData = (await sendToGrandStream(
       models,
       {
@@ -105,7 +113,17 @@ const callsQueries = {
       const { account } = queueData?.response;
 
       if (account) {
-        return account;
+        const gsUsernames = integration.operators.map(
+          (operator) => operator.gsUsername,
+        );
+
+        const matchedAgents = account.filter(
+          (agent) =>
+            gsUsernames.includes(agent.extension) &&
+            agent.status !== 'Unavailable',
+        );
+
+        return matchedAgents;
       }
       return [];
     }
@@ -135,7 +153,6 @@ const callsQueries = {
             action: 'queueapi',
             startTime: formattedDate,
             endTime: formattedDate,
-            queues: '6501,6503',
           },
         },
         integrationId: integrationId,

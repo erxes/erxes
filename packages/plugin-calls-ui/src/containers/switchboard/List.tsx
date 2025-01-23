@@ -21,7 +21,7 @@ function ListContainer(props: IProps) {
     variables: {
       integrationId: inboxId,
     },
-    nextFetchPolicy: 'cache-first',
+    nextFetchPolicy: 'network-only',
   });
 
   if (loading) {
