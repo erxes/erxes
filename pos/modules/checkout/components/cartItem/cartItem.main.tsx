@@ -34,6 +34,7 @@ interface CartItemProps extends OrderItem {
   productIds?: string[];
   combinedCount?: number;
   unitPrice: number;
+  itemIds: string[];
 }
 
 const CartItem = ({
@@ -48,6 +49,7 @@ const CartItem = ({
   idx,
   productId,
   combinedCount,
+  itemIds,
 }: CartItemProps) => {
   const changeItem = useSetAtom(updateCartAtom);
   const banFractions = useAtomValue(banFractionsAtom);
@@ -55,6 +57,7 @@ const CartItem = ({
   const total = useAtomValue(totalAmountAtom);
   const [showCancel, setShowCancel] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
+
   useEffect(() => {
     setHasMounted(true);
   }, []);
@@ -66,31 +69,28 @@ const CartItem = ({
   }, [total, hasMounted]);
 
   const handleChangeItem = (changes: Partial<OrderItem>) => {
-    const ids = _id.split(",");
-    ids.forEach((id) => {
+    itemIds.forEach((id) => {
       changeItem({ ...changes, _id: id });
     });
   };
 
   const displayCount = combinedCount !== undefined ? combinedCount : count;
-  console.log(displayCount , productName)
-
 
   return (
     <Collapsible className={cn(idx === 0 && "bg-primary/10")}>
       {showCancel && (
         <ProductCancel
-        _id={_id}
-        number={(idx + 1).toString()}
-        refetchQueries={["ActiveOrders"]}
-        autoShow={true} 
-        onCompleted={() => {
-          console.log(`Order ${_id} cancelled`);
-          setShowCancel(false);
-        }}
+          _id={_id}
+          number={(idx + 1).toString()}
+          refetchQueries={["ActiveOrders"]}
+          autoShow={true}
+          onCompleted={() => {
+            console.log(`Order ${_id} cancelled`);
+            setShowCancel(false);
+          }}
         />
       )}
-       {count !== 0 && (
+      {count !== 0 && (
         <motion.div
           variants={itemVariants}
           animate="animate"

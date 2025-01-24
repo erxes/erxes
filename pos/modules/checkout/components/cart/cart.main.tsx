@@ -31,6 +31,7 @@ const Cart = () => {
           combinedCount={item.count}
           productId={item._id}
           unitPrice={item.unitPrice || 0}
+          itemIds={item.itemIds || []}
         />
       ))}
       </AnimatePresence>

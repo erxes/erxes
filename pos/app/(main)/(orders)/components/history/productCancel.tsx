@@ -73,14 +73,18 @@ const ProductCancel = ({
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
   const [ref, setFocus] = useFocus();
-
+  
   const [orderCancel, { loading }] = useMutation(mutations.ordersCancel, {
     variables: { _id },
     onCompleted: () => {
       changeOpen(null);
       setFocus();
-      if (onCompleted) onCompleted();
-      if (activeOrderId === _id) reset();
+      if (onCompleted) {
+        onCompleted();
+      }
+      if (activeOrderId === _id) {
+        reset();
+      }
     },
     onError: (error) => {
       onError(error.message);
@@ -106,7 +110,7 @@ const ProductCancel = ({
 
   const handleCancel = () => {
     changeOpen(null);
-    window.location.reload()
+   reset()
   };
 
   return (

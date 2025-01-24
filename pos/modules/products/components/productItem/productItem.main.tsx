@@ -13,7 +13,6 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
 const allowZeroRemainderAtom = atom(true);
-const hasRemainderProductsAtom = atom(false);
 
 const FoodRestrictionToggle = ({ products }: { products: IProduct[] }) => {
   const [allowZeroRemainder, setAllowZeroRemainder] = useAtom(allowZeroRemainderAtom);
