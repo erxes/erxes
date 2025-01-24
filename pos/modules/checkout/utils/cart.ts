@@ -10,7 +10,7 @@ export function combineCartItems(
   items: OrderItem[],
   handlePriceMismatch?: (productName: string, unitPrice: number | undefined) => void
 ): OrderItem[] {
-  if (!items || items.length === 0) {
+  if (!items?.length) {
     return [];
   }
 
@@ -23,21 +23,27 @@ export function combineCartItems(
       continue;
     }
 
-    const itemCount = Math.max(0, count); 
-
     if (combinedItems.has(productName)) {
-      const existing = combinedItems.get(productName)!;
+      const existing = combinedItems.get(productName);
+      if (!existing) {
+        throw new Error(`Unexpected: Item ${productName} not found in map`);
+      }
+
+      if (unitPrice !== undefined && unitPrice <= 0) {
+        throw new Error(`Invalid price for ${productName}: ${unitPrice}`);
+      }
 
       if (existing.unitPrice !== unitPrice) {
         handlePriceMismatch?.(productName, unitPrice);
       }
-      existing.count += itemCount;
+
+      existing.count += count;
       existing.itemIds = existing.itemIds || [existing._id];
       existing.itemIds.push(_id);
     } else {
       combinedItems.set(productName, {
         ...item,
-        count: itemCount,
+        count,
         itemIds: [_id],
       });
     }
