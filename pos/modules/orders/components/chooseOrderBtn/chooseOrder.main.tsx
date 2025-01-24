@@ -23,7 +23,6 @@ const ChooseOrder = ({
 }: IOrder) => {
   const activeOrder = useAtomValue(activeOrderIdAtom)
   const setNextOrder = useSetAtom(nextOrderIdAtom)
-
   return (
     <TooltipProvider>
       <Tooltip>

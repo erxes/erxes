@@ -1,3 +1,4 @@
+'use client'
 import { useEffect } from "react"
 import { selectedTabAtom, slotFilterAtom } from "@/store"
 import { activeOrderIdAtom } from "@/store/order.store"
@@ -62,7 +63,7 @@ const ActiveOrders = () => {
             {totalCount > fullOrders.length && (
               <Button
                 size="sm"
-                loading={loading}
+                disabled={loading}
                 className="whitespace-nowrap font-bold my-2"
                 onClick={handleLoadMore}
               >

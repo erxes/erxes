@@ -140,7 +140,7 @@ const OrderCancel = ({
 
             <AlertDialogFooter className="pt-6">
               <AlertDialogCancel>Болих</AlertDialogCancel>
-              <Button variant="destructive" type="submit" loading={loading}>
+              <Button variant="destructive" type="submit" disabled={loading}>
                 Устгах
               </Button>
             </AlertDialogFooter>

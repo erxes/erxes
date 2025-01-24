@@ -42,10 +42,10 @@ const PaymentTypeHandlers = () => {
           Бараагаар
         </TabsTrigger>
       </TabsList>
-      <TabsContent value="amount">
+      <TabsContent value="amount" className="text-black">
         <Keys />
       </TabsContent>
-      <TabsContent value="percent">
+      <TabsContent value="percent" className="text-black">
         <Keys />
       </TabsContent>
       <TabsContent value="items" className="flex-auto">
