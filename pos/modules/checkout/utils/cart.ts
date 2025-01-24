@@ -6,48 +6,32 @@ interface OrderItem {
   unitPrice?: number;
 }
 
-export function combineCartItems(
-  items: OrderItem[],
-  handlePriceMismatch?: (productName: string, unitPrice: number | undefined) => void
-): OrderItem[] {
+export function combineCartItems(items: OrderItem[]): OrderItem[] {
   if (!items?.length) {
     return [];
   }
-
-  const combinedItems: Map<string, OrderItem> = new Map();
-
-  for (const item of items) {
+  const combinedItems: { [key: string]: OrderItem } = {};
+  items.forEach((item) => {
     const { productName, _id, count, unitPrice } = item;
-
-    if (!productName || count <= 0) {
-      continue;
+    if (!productName) {
+      return;
     }
-
-    if (combinedItems.has(productName)) {
-      const existing = combinedItems.get(productName);
-      if (!existing) {
-        throw new Error(`Unexpected: Item ${productName} not found in map`);
-      }
-
-      if (unitPrice !== undefined && unitPrice <= 0) {
-        throw new Error(`Invalid price for ${productName}: ${unitPrice}`);
-      }
-
+    const itemCount = Number(count) || 0;
+    if (combinedItems[productName]) {
+      const existing = combinedItems[productName];
       if (existing.unitPrice !== unitPrice) {
-        handlePriceMismatch?.(productName, unitPrice);
+        throw new Error(`Price mismatch for ${productName}`);
       }
-
-      existing.count += count;
+      existing.count = (existing.count || 0) + itemCount;
       existing.itemIds = existing.itemIds || [existing._id];
       existing.itemIds.push(_id);
     } else {
-      combinedItems.set(productName, {
+      combinedItems[productName] = {
         ...item,
-        count,
+        count: itemCount,
         itemIds: [_id],
-      });
+      };
     }
-  }
-
-  return Array.from(combinedItems.values());
+  });
+  return Object.values(combinedItems);
 }
