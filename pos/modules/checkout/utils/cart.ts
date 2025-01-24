@@ -6,32 +6,42 @@ interface OrderItem {
   unitPrice?: number;
 }
 
-export function combineCartItems(items: OrderItem[]): OrderItem[] {
-  if (!items?.length) {
+export function combineCartItems(
+  items: OrderItem[],
+  handlePriceMismatch?: (productName: string, unitPrice: number | undefined) => void
+): OrderItem[] {
+  if (!items || items.length === 0) {
     return [];
   }
-  const combinedItems: { [key: string]: OrderItem } = {};
-  items.forEach((item) => {
+
+  const combinedItems: Map<string, OrderItem> = new Map();
+
+  for (const item of items) {
     const { productName, _id, count, unitPrice } = item;
-    if (!productName) {
-      return;
+
+    if (!productName || count <= 0) {
+      continue;
     }
-    const itemCount = Number(count) || 0;
-    if (combinedItems[productName]) {
-      const existing = combinedItems[productName];
+
+    const itemCount = Math.max(0, count); 
+
+    if (combinedItems.has(productName)) {
+      const existing = combinedItems.get(productName)!;
+
       if (existing.unitPrice !== unitPrice) {
-        console.warn(`Price mismatch for ${productName}`);
+        handlePriceMismatch?.(productName, unitPrice);
       }
-      existing.count = (existing.count || 0) + itemCount;
+      existing.count += itemCount;
       existing.itemIds = existing.itemIds || [existing._id];
       existing.itemIds.push(_id);
     } else {
-      combinedItems[productName] = {
+      combinedItems.set(productName, {
         ...item,
         count: itemCount,
         itemIds: [_id],
-      };
+      });
     }
-  });
-  return Object.values(combinedItems);
+  }
+
+  return Array.from(combinedItems.values());
 }

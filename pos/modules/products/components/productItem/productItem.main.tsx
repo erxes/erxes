@@ -67,7 +67,16 @@ const ProductItem = ({ attachment, name, code, unitPrice, remainder, remainders,
       return;
     }
 
-    addToCart({ name, _id, unitPrice });
+        try {  
+            addToCart({ name, _id, unitPrice });  
+          } catch (error) {  
+            toast({  
+              variant: "destructive",  
+              description: "Сагсанд нэмэх үед алдаа гарлаа",  
+              title: "Анхаар",  
+            });  
+            return;  
+          }  
 
     if (mode === "mobile") {
       toast({
@@ -83,10 +92,13 @@ const ProductItem = ({ attachment, name, code, unitPrice, remainder, remainders,
   };
 
   return (
-    <button type="button"  aria-label={`Add ${name} to cart`}
-      className={`relative rounded-lg border p-3 text-center ${
-        remainder === 0 && !allowZeroRemainder ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-      }`}
+    <button  
+      type="button"  
+      aria-label={`Add ${name} to cart`}  
+      disabled={remainder === 0 && !allowZeroRemainder}  
+      className={`relative rounded-lg border p-3 text-center ${  
+        remainder === 0 && !allowZeroRemainder ? "opacity-50" : "cursor-pointer"  
+      }`}  
       onClick={handleAddToCart}
       >
       <Image
