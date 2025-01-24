@@ -76,6 +76,8 @@ export interface IContractTypeDoc {
   useSkipInterest?: boolean;
   skipInterestDay?: number;
   skipInterestMonth?: number;
+  skipPaymentDay?: number;
+  skipPaymentMonth?: number;
 
   lossPercent?: number;
   lossCalcType?: string;
@@ -101,6 +103,9 @@ export interface IContractTypeDoc {
   defaultFee?: number;
   useCollateral?: boolean;
   minPercentMargin?: number;
+
+  overPaymentIsNext?: boolean;
+  collectivelyRule?: string;
 
   requirements?: String[];
   customerDocuments?: String[];

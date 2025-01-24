@@ -177,7 +177,7 @@ const ContractTypesList = (props: IProps) => {
 
       <ModalTrigger
         title={__("New contractType")}
-        size="lg"
+        size="xl"
         trigger={addTrigger}
         autoOpenKey="showContractTypeModal"
         content={contractTypeForm}

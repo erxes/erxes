@@ -14,6 +14,8 @@ const commonFields = `
   $useSkipInterest: Boolean,
   $skipInterestDay: Float,
   $skipInterestMonth: Float,
+  $skipPaymentDay: Float,
+  $skipPaymentMonth: Float,
 
   $lossPercent: Float,
   $lossCalcType: String,
@@ -40,6 +42,9 @@ const commonFields = `
   $useCollateral: Boolean,
   $minPercentMargin: Float,
 
+  $overPaymentIsNext: Boolean,
+  $collectivelyRule: String,
+
   $requirements: [String],
   $customerDocuments: [String],
   $companyDocuments: [String],
@@ -59,6 +64,8 @@ const commonVariables = `
   useSkipInterest: $useSkipInterest,
   skipInterestDay: $skipInterestDay,
   skipInterestMonth: $skipInterestMonth,
+  skipPaymentDay: $skipPaymentDay,
+  skipPaymentMonth: $skipPaymentMonth,
 
   lossPercent: $lossPercent,
   lossCalcType: $lossCalcType,
@@ -84,6 +91,9 @@ const commonVariables = `
   defaultFee: $defaultFee,
   useCollateral: $useCollateral,
   minPercentMargin: $minPercentMargin,
+
+  overPaymentIsNext: $overPaymentIsNext,
+  collectivelyRule: $collectivelyRule,
 
   requirements: $requirements,
   customerDocuments: $customerDocuments,

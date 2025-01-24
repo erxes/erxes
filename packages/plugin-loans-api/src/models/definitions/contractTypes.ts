@@ -1,4 +1,4 @@
-import { LEASE_TYPES } from './constants';
+import { COLLECTIVELY_RULES, LEASE_TYPES } from './constants';
 import { schemaHooksWrapper, field } from './utils';
 import { Schema, Document } from 'mongoose';
 
@@ -82,6 +82,8 @@ export interface IContractType {
   useSkipInterest?: boolean;
   skipInterestDay?: number;
   skipInterestMonth?: number;
+  skipPaymentDay?: number;
+  skipPaymentMonth?: number;
 
   lossPercent?: number;
   lossCalcType?: string;
@@ -107,6 +109,9 @@ export interface IContractType {
   defaultFee?: number;
   useCollateral?: boolean;
   minPercentMargin?: number;
+
+  overPaymentIsNext?: boolean;
+  collectivelyRule?: string;
 
   requirements?: string[];
   customerDocuments?: string[];
@@ -144,8 +149,10 @@ export const contractTypeSchema = schemaHooksWrapper(
 
     defaultInterest: field({ type: Number, min: 0, max: 100, label: 'Default Percent', optional: true }),
     useSkipInterest: field({ type: Boolean, label: 'use skip interest' }),
-    skipInteresDay: field({ type: Number, label: 'Skip interest Day', optional: true }),
-    skipInteresMonth: field({ type: Number, label: 'Skip interest Month', optional: true }),
+    skipInterestDay: field({ type: Number, label: 'Skip interest Day', optional: true }),
+    skipInterestMonth: field({ type: Number, label: 'Skip interest Month', optional: true }),
+    skipPaymentDay: field({ type: Number, label: 'Skip interest Day', optional: true }),
+    skipPaymentMonth: field({ type: Number, label: 'Skip interest Month', optional: true }),
 
     lossPercent: field({ type: Number, min: 0, max: 100, label: 'Loss Percent', optional: true }),
     lossCalcType: field({ type: String, label: 'Loss Calc Type', optional: true }),
@@ -173,9 +180,13 @@ export const contractTypeSchema = schemaHooksWrapper(
     useCollateral: field({ type: Boolean, label: 'Use Collateral', optional: true }),
     minPercentMargin: field({ type: Number, label: 'pre Percent', optional: true }),
 
+    collectivelyRule: field({ type: String, optional: true, enum: COLLECTIVELY_RULES.ALL, label: 'collectively Rule' }),
+    overPaymentIsNext: field({ type: Boolean, label: 'Use Collateral', default: false, optional: true }),
+
     requirements: field({ type: [String], optional: true, label: 'requirements' }),
     customerDocuments: field({ type: [String], optional: true, label: 'customer Documents' }),
     companyDocuments: field({ type: [String], optional: true, label: 'company Documents' }),
+
 
     createdAt: field({ type: Date, default: () => new Date(), label: 'Created at' }),
     modifiedAt: field({ type: Date, optional: true, label: 'Created at' }),

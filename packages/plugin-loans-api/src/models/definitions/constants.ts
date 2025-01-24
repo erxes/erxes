@@ -72,6 +72,14 @@ export const LEASE_TYPES = {
   ALL: ['finance', 'linear', 'credit', 'saving']
 };
 
+export const COLLECTIVELY_RULES = {
+  FREE: 'free',
+  MUST: 'must',
+  NOT: 'not',
+
+  ALL: ['free', 'must', 'not']
+};
+
 export const INTEREST_CORRECTION_TYPE = {
   STOP_INTEREST: 'stopInterest',
   INTEREST_RETURN: 'interestReturn',

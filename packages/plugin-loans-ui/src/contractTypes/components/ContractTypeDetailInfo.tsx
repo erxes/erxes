@@ -81,7 +81,7 @@ const DetailInfo = (props: Props) => {
           <ModalTrigger
             title={__("Edit basic info")}
             trigger={<Icon icon="edit" />}
-            size="lg"
+            size="xl"
             content={content}
           />
         </InfoWrapper>

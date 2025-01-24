@@ -14,6 +14,8 @@ export const types = () => `
     useSkipInterest: Boolean
     skipInterestDay: Float
     skipInterestMonth: Float
+    skipPaymentDay: Float
+    skipPaymentMonth: Float
 
     lossPercent: Float
     lossCalcType: String
@@ -44,6 +46,9 @@ export const types = () => `
     defaultFee: Float
     useCollateral: Boolean
     minPercentMargin: Float
+
+    overPaymentIsNext: Boolean
+    collectivelyRule: String
 
     requirements: [String]
     customerDocuments: [String]
@@ -94,6 +99,8 @@ const commonFields = `
   useSkipInterest: Boolean
   skipInterestDay: Float
   skipInterestMonth: Float
+  skipPaymentDay: Float
+  skipPaymentMonth: Float
 
   lossPercent: Float
   lossCalcType: String
@@ -117,8 +124,11 @@ const commonFields = `
 
   feePercent: Float
   defaultFee: Float
-  minPercentMargin: Float
   useCollateral: Boolean
+  minPercentMargin: Float
+
+  overPaymentIsNext: Boolean
+  collectivelyRule: String
 
   requirements: [String]
   customerDocuments: [String]
