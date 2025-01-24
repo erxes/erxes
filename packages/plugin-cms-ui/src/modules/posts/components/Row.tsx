@@ -31,12 +31,12 @@ const Row = (props: Props) => {
     };
 
     return (
-      <Tip text={__('Delete')} placement="top">
+      <Tip text={__('Delete')} placement='top'>
         <Button
-          id="directionDelete"
-          btnStyle="link"
+          id='directionDelete'
+          btnStyle='link'
           onClick={onClick}
-          icon="times-circle"
+          icon='times-circle'
         />
       </Tip>
     );
@@ -45,15 +45,15 @@ const Row = (props: Props) => {
   const renderEditAction = () => {
     const onClick = () => {
       navigate(`${location.pathname}/edit/${post._id}`, { replace: true });
-    }
+    };
 
     return (
-      <Tip text={__('Edit')} placement="top">
+      <Tip text={__('Edit')} placement='top'>
         <Button
-          id="directionEdit"
-          btnStyle="link"
+          id='directionEdit'
+          btnStyle='link'
           onClick={onClick}
-          icon="edit"
+          icon='edit'
         />
       </Tip>
     );
@@ -63,12 +63,42 @@ const Row = (props: Props) => {
     return doc.details ? doc.details.fullName : 'Unknown';
   };
 
-  const formContent = formProps => (
-    <PostForm {...formProps} post={post} />
-  );
+  const formContent = (formProps) => <PostForm {...formProps} post={post} />;
 
   const categories = post.categories || [];
   const tags = post.tags || [];
+
+  const renderUser = (user) => {
+    return (
+      <>
+        <NameCard.Avatar user={user} size={20} />
+        <RowTitle>{(user && getFullName(user)) || 'Unknown'} </RowTitle>
+      </>
+    );
+  };
+
+  const renderCPUser = (user) => {
+    let name = (user.firstName || '') + ' ' + (user.lastName || '');
+
+    if (name.length === 0) {
+      name = user.email || user.username || user.phone || 'Unknown';
+    }
+
+    const userDoc = {
+      _id: user._id,
+      details: {
+        avatar: user.avatar,
+        fullName: name,
+      },
+    };
+
+    return (
+      <>
+        <NameCard.Avatar user={userDoc} size={20} />
+        <RowTitle>{name} </RowTitle>
+      </>
+    );
+  };
 
   return (
     <tr>
@@ -77,11 +107,11 @@ const Row = (props: Props) => {
       </td>
 
       <td key={Math.random()}>
-        <RowTitle>{categories.map(e => e.name).join(', ') || '-'} </RowTitle>
+        <RowTitle>{categories.map((e) => e.name).join(', ') || '-'} </RowTitle>
       </td>
 
       <td key={Math.random()}>
-        <RowTitle>{tags.map(e => e.name).join(', ') || '-'}</RowTitle>
+        <RowTitle>{tags.map((e) => e.name).join(', ') || '-'}</RowTitle>
       </td>
 
       <td key={Math.random()}>
@@ -89,29 +119,22 @@ const Row = (props: Props) => {
       </td>
 
       <td key={Math.random()}>
-        <NameCard.Avatar user={user} size={20} />
-        <RowTitle>{(user && getFullName(user)) || 'Unknown'} </RowTitle>
+        {post.authorKind === 'user' ? renderUser(user) : renderCPUser(user)}
       </td>
 
       <td>
-        <Icon icon="calender" />{' '}
-        <DateWrapper>
-          {dayjs(post.createdAt).format('lll')}
-        </DateWrapper>
+        <Icon icon='calender' />{' '}
+        <DateWrapper>{dayjs(post.createdAt).format('lll')}</DateWrapper>
       </td>
 
       <td>
-        <Icon icon="calender" />{' '}
-        <DateWrapper>
-          {dayjs(post.createdAt).format('lll')}
-        </DateWrapper>
+        <Icon icon='calender' />{' '}
+        <DateWrapper>{dayjs(post.createdAt).format('lll')}</DateWrapper>
       </td>
 
       <td>
-        <Icon icon="calender" />{' '}
-        <DateWrapper>
-          {dayjs(post.createdAt).format('lll')}
-        </DateWrapper>
+        <Icon icon='calender' />{' '}
+        <DateWrapper>{dayjs(post.createdAt).format('lll')}</DateWrapper>
       </td>
 
       <td>

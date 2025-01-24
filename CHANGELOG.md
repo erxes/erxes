@@ -1,11 +1,18 @@
 # Changelog
 
-## [2.4.0-rc.0](https://github.com/erxes/erxes/compare/2.3.0...2.4.0-rc.0) (2025-01-03)
+## [2.3.2](https://github.com/erxes/erxes/compare/2.3.1...2.3.2) (2025-01-06)
 
 
 ### Bug Fixes
 
-* sales settings stage row ([#5838](https://github.com/erxes/erxes/issues/5838)) ([d2d328b](https://github.com/erxes/erxes/commit/d2d328b64289d8d60afdc590cd135dd028e0ce62))
+* **automations:** add condition ignore when value has string with arithmetic methods ([7cb39d4](https://github.com/erxes/erxes/commit/7cb39d4660a9054fb530c3ec02785ac691ae2cdb))
+
+## [2.3.1](https://github.com/erxes/erxes/compare/2.3.0...2.3.1) (2025-01-05)
+
+
+### Bug Fixes
+
+* **coreui:** add some settings menu in goto navigation ([aaf1a55](https://github.com/erxes/erxes/commit/aaf1a55f65a9d68f4781b6699de83986dd55a589))
 
 ## [2.3.0](https://github.com/erxes/erxes/compare/2.3.0-rc.1...2.3.0) (2025-01-03)
 

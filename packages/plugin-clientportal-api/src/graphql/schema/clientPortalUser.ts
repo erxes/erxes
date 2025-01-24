@@ -1,11 +1,15 @@
 import {
   attachmentInput,
   attachmentType,
+  pdfAttachmentType,
+  pdfAttachmentInput
 } from '@erxes/api-utils/src/commonTypeDefs';
 
-export const types = () => `
+export const types = `
 ${attachmentType}
 ${attachmentInput}
+${pdfAttachmentType}
+${pdfAttachmentInput}
 
   extend type Customer @key(fields: "_id") {
     _id: String! @external
@@ -117,6 +121,44 @@ type TwoFactorDevice {
     token: String
     refreshToken: String
   }
+
+   enum PostAuthorKind {
+        user
+        clientPortalUser
+    }
+
+  input PostDocumentInput {
+        clientPortalId: String
+        title: String
+        slug: String
+        content: String
+        excerpt: String
+        categoryIds: [String]
+        featured: Boolean
+        status: String
+        tagIds: [String]
+        authorId: String
+        scheduledDate: Date
+        autoArchiveDate: Date
+        reactions: [String]
+        reactionCounts: JSON
+        thumbnail: AttachmentInput
+        images: [AttachmentInput]
+        video: AttachmentInput
+        audio: AttachmentInput
+        documents: [AttachmentInput]
+        attachments: [AttachmentInput]
+        pdfAttachment: PdfAttachmentInput
+        videoUrl: String
+        customFieldsData: JSON
+    }
+
+    type ClientportalUserPostList {
+        posts: [Post]
+        totalCount: Int
+        totalPages: Int
+        currentPage: Int
+    }
 `;
 
 export const conformityQueryFields = `
@@ -141,7 +183,7 @@ const queryParams = `
   ${conformityQueryFields}
 `;
 
-export const queries = () => `
+export const queries = (cmsAvailable) => `
   clientPortalCurrentUser: ClientPortalUser
   clientPortalUserDetail(_id: String!): ClientPortalUser
   clientPortalUsers(${queryParams}): [ClientPortalUser]
@@ -149,6 +191,14 @@ export const queries = () => `
   clientPortalUserCounts(type: String): Int
 
   clientPortalCompanies(clientPortalId: String!): [ClientPortalCompany]
+
+    ${
+      cmsAvailable
+        ? `
+  clientPortalUserPosts(searchValue: String, page: Int, perPage: Int): ClientportalUserPostList
+    `
+        : ''
+    }  
 `;
 
 const userParams = `
@@ -174,7 +224,7 @@ const userParams = `
   avatar: String
 `;
 
-export const mutations = () => `
+export const mutations = (cmsAvailable) => `
   clientPortalUsersInvite(${userParams}, disableVerificationMail: Boolean): ClientPortalUser
   clientPortalUsersEdit(_id: String!, ${userParams}): ClientPortalUser
   clientPortalUsersRemove(clientPortalUserIds: [String!]): JSON
@@ -209,4 +259,17 @@ export const mutations = () => `
   clientPortalUpdateUser(_id: String!, doc: ClientPortalUserUpdate!): JSON
 
   clientPortalUserSetSecondaryPassword(newPassword: String!, oldPassword:String): String
+
+  ${
+    cmsAvailable
+      ? `
+  clientPortalUserAddPost(input: PostDocumentInput!): Post
+  clientPortalUserEditPost(_id: String!, input: PostDocumentInput!): Post
+  clientPortalUserRemovePost(_id: String!): JSON
+  clientPortalUserChangeStatus(_id: String!, status: String!): Post
+  clientPortalUserToggleFeatured(_id: String!): Post
+    `
+      : ''
+  }
+  
 `;
