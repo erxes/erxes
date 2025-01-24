@@ -17,9 +17,23 @@ export const loansResearchFields = `
   dealId
   customerType
   customerId
+  debtIncomeRatio
+  increaseMonthlyPaymentAmount
+
+  averageSalaryIncome
+  averageBusinessIncome
+  totalIncome
   incomes {
     _id
     incomeType
+    totalSalaryIncome
+    totalMonth
+
+    businessLine
+    businessDetails
+    businessProfile
+    businessIncome
+
     files {
       url
       name
@@ -27,10 +41,21 @@ export const loansResearchFields = `
       type
     }
   }
+
+  monthlyCostAmount
+  monthlyLoanAmount
+  totalPaymentAmount
   loans {
     _id
+    loanType
+    loanName
+    loanLocation
     startDate
     closeDate
+    loanAmount
+
+    costName
+    monthlyCostAmount
     files {
       url
       name
@@ -38,13 +63,7 @@ export const loansResearchFields = `
       type
     }
   }
-  totalMonth
-  totalIncome
-  monthlyIncome
-  totalLoanAmount
-  monthlyPaymentAmount
-  debtIncomeRatio
-  increaseMonthlyPaymentAmount
+
   createdAt
 `;
 

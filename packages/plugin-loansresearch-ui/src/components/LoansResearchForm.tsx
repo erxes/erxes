@@ -37,26 +37,6 @@ const LoansResearchForm = (props: Props) => {
   const [customerId, setCustomerId] = useState<string>(
     loansResearch?.customerId || ''
   );
-  const [incomes, setIncomes] = useState<IIncome[]>(
-    loansResearch?.incomes || []
-  );
-  const [loans, setLoans] = useState<ILoan[]>(loansResearch?.loans || []);
-
-  const [totalMonth, setTotalMonth] = useState<number>(
-    loansResearch?.totalMonth || 0
-  );
-  const [totalIncome, setTotalIncome] = useState<number>(
-    loansResearch?.totalIncome || 0
-  );
-  const [monthlyIncome, setMonthlyIncome] = useState<number>(
-    loansResearch?.monthlyIncome || 0
-  );
-  const [totalLoanAmount, setTotalLoanAmount] = useState<number>(
-    loansResearch?.totalLoanAmount || 0
-  );
-  const [monthlyPaymentAmount, setMonthlyPaymentAmount] = useState<number>(
-    loansResearch?.monthlyPaymentAmount || 0
-  );
 
   const [debtIncomeRatio, setDebtIncomeRatio] = useState<number>(
     loansResearch?.debtIncomeRatio || 0
@@ -65,20 +45,47 @@ const LoansResearchForm = (props: Props) => {
   const [increaseMonthlyPaymentAmount, setIncreaseMonthlyPaymentAmount] =
     useState<number>(loansResearch?.increaseMonthlyPaymentAmount || 0);
 
+  // income state
+  const [incomes, setIncomes] = useState<IIncome[]>(
+    loansResearch?.incomes || []
+  );
+  const [averageSalaryIncome, setAverageSalaryIncome] = useState<number>(
+    loansResearch?.averageSalaryIncome || 0
+  );
+  const [averageBusinessIncome, setAverageBusinessIncome] = useState<number>(
+    loansResearch?.averageBusinessIncome || 0
+  );
+  const [totalIncome, setTotalIncome] = useState<number>(
+    loansResearch?.totalIncome || 0
+  );
+
+  // loan state
+  const [loans, setLoans] = useState<ILoan[]>(loansResearch?.loans || []);
+
+  const [monthlyCostAmount, setTotalLoanAmount] = useState<number>(
+    loansResearch?.monthlyCostAmount || 0
+  );
+  const [monthlyLoanAmount, setMonthlyPaymentAmount] = useState<number>(
+    loansResearch?.monthlyLoanAmount || 0
+  );
+  const [totalPaymentAmount, setTotalPaymentAmount] = useState<number>(
+    loansResearch?.totalPaymentAmount || 0
+  );
+
   useEffect(() => {
     let increaseAmount;
-    const ratio = (monthlyPaymentAmount / monthlyIncome) * 100;
+    const ratio = (monthlyLoanAmount / averageBusinessIncome) * 100;
     if (customerType === 'Customer') {
-      increaseAmount = monthlyIncome * 0.8 - monthlyPaymentAmount;
+      increaseAmount = averageBusinessIncome * 0.8 - monthlyLoanAmount;
     }
 
     if (customerType === 'Company') {
-      increaseAmount = monthlyIncome * 0.7 - monthlyPaymentAmount;
+      increaseAmount = averageBusinessIncome * 0.7 - monthlyLoanAmount;
     }
 
     setDebtIncomeRatio(ratio);
     setIncreaseMonthlyPaymentAmount(increaseAmount);
-  }, [monthlyIncome, monthlyPaymentAmount, customerType]);
+  }, [averageBusinessIncome, monthlyLoanAmount, customerType]);
 
   const generateDoc = (values: { _id: string } & ILoanResearch) => {
     const finalValues = values;
@@ -94,11 +101,12 @@ const LoansResearchForm = (props: Props) => {
       customerId,
       incomes,
       loans,
-      totalMonth,
+      averageSalaryIncome,
       totalIncome,
-      monthlyIncome,
-      totalLoanAmount,
-      monthlyPaymentAmount,
+      averageBusinessIncome,
+      monthlyCostAmount,
+      monthlyLoanAmount,
+      totalPaymentAmount,
       debtIncomeRatio,
       increaseMonthlyPaymentAmount,
     };
@@ -125,12 +133,12 @@ const LoansResearchForm = (props: Props) => {
         <IncomeForm
           incomes={incomes}
           setIncomes={setIncomes}
-          totalMonth={totalMonth}
-          setTotalMonth={setTotalMonth}
+          averageSalaryIncome={averageSalaryIncome}
+          setAverageSalaryIncome={setAverageSalaryIncome}
           totalIncome={totalIncome}
           setTotalIncome={setTotalIncome}
-          monthlyIncome={monthlyIncome}
-          setMonthlyIncome={setMonthlyIncome}
+          averageBusinessIncome={averageBusinessIncome}
+          setAverageBusinessIncome={setAverageBusinessIncome}
         />
       );
     }
@@ -140,10 +148,12 @@ const LoansResearchForm = (props: Props) => {
         <LoanForm
           loans={loans}
           setLoans={setLoans}
-          totalLoanAmount={totalLoanAmount}
+          monthlyCostAmount={monthlyCostAmount}
           setTotalLoanAmount={setTotalLoanAmount}
-          monthlyPaymentAmount={monthlyPaymentAmount}
+          monthlyLoanAmount={monthlyLoanAmount}
           setMonthlyPaymentAmount={setMonthlyPaymentAmount}
+          totalPaymentAmount={totalPaymentAmount}
+          setTotalPaymentAmount={setTotalPaymentAmount}
         />
       );
     }

@@ -24,24 +24,24 @@ const getEmptyIncome = () => ({
 type Props = {
   incomes: IIncome[];
   setIncomes: (incomes) => void;
-  totalMonth: number;
-  setTotalMonth: (totalMonth) => void;
+  averageSalaryIncome: number;
+  setAverageSalaryIncome: (averageSalaryIncome) => void;
   totalIncome: number;
   setTotalIncome: (totalIncome) => void;
-  monthlyIncome: number;
-  setMonthlyIncome: (monthlyIncome) => void;
+  averageBusinessIncome: number;
+  setAverageBusinessIncome: (averageBusinessIncome) => void;
 };
 
 const IncomeForm = (props: Props) => {
   const {
     incomes,
     setIncomes,
-    totalMonth,
-    setTotalMonth,
+    averageSalaryIncome,
+    setAverageSalaryIncome,
     totalIncome,
     setTotalIncome,
-    monthlyIncome,
-    setMonthlyIncome,
+    averageBusinessIncome,
+    setAverageBusinessIncome,
   } = props;
 
   const onChangeIncomeItem = (_id: string, key: string, value: any) => {
@@ -98,6 +98,100 @@ const IncomeForm = (props: Props) => {
                 />
               </FormGroup>
 
+              {income.incomeType === 'Salary' && (
+                <>
+                  <FormGroup>
+                    <ControlLabel>total Salary Income</ControlLabel>
+                    <FormControl
+                      type="number"
+                      defaultValue={income?.totalSalaryIncome || 0}
+                      onChange={(e: any) =>
+                        onChangeIncomeItem(
+                          income._id,
+                          'totalSalaryIncome',
+                          Number(e.target.value)
+                        )
+                      }
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>total month</ControlLabel>
+                    <FormControl
+                      type="number"
+                      defaultValue={income?.totalMonth || 0}
+                      onChange={(e: any) =>
+                        onChangeIncomeItem(
+                          income._id,
+                          'totalMonth',
+                          Number(e.target.value)
+                        )
+                      }
+                    />
+                  </FormGroup>
+                </>
+              )}
+
+              {income.incomeType === 'Business' && (
+                <>
+                  <FormGroup>
+                    <ControlLabel>business Line</ControlLabel>
+                    <FormControl
+                      type="text"
+                      defaultValue={income?.businessLine || ''}
+                      onChange={(e: any) =>
+                        onChangeIncomeItem(
+                          income._id,
+                          'businessLine',
+                          e.target.value
+                        )
+                      }
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>business Details</ControlLabel>
+                    <FormControl
+                      type="text"
+                      defaultValue={income?.businessDetails || ''}
+                      onChange={(e: any) =>
+                        onChangeIncomeItem(
+                          income._id,
+                          'businessDetails',
+                          e.target.value
+                        )
+                      }
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>business profile</ControlLabel>
+                    <FormControl
+                      type="text"
+                      defaultValue={income?.businessProfile || ''}
+                      onChange={(e: any) =>
+                        onChangeIncomeItem(
+                          income._id,
+                          'businessProfile',
+                          e.target.value
+                        )
+                      }
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>business income</ControlLabel>
+                    <FormControl
+                      type="number"
+                      defaultValue={income.businessIncome || 0}
+                      onChange={(e: any) =>
+                        onChangeIncomeItem(
+                          income._id,
+                          'businessIncome',
+                          Number(e.target.value)
+                        )
+                      }
+                    />
+                  </FormGroup>
+                </>
+              )}
+
               <FormGroup>
                 <ControlLabel>Files</ControlLabel>
 
@@ -129,11 +223,25 @@ const IncomeForm = (props: Props) => {
     <MarginTop>
       <FlexRow>
         <FormGroup>
-          <ControlLabel>Total Month</ControlLabel>
+          <ControlLabel>Average Salary Income</ControlLabel>
           <FormControl
             type="number"
-            defaultValue={totalMonth}
-            onChange={(e: any) => setTotalMonth(Number(e.target.value))}
+            defaultValue={averageSalaryIncome}
+            onChange={(e: any) =>
+              setAverageSalaryIncome(Number(e.target.value))
+            }
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Average Business Income</ControlLabel>
+          <FormControl
+            type="number"
+            name="averageBusinessIncome"
+            defaultValue={averageBusinessIncome}
+            onChange={(e: any) =>
+              setAverageBusinessIncome(Number(e.target.value))
+            }
           />
         </FormGroup>
 
@@ -143,16 +251,6 @@ const IncomeForm = (props: Props) => {
             type="number"
             defaultValue={totalIncome}
             onChange={(e: any) => setTotalIncome(Number(e.target.value))}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Monthly Income</ControlLabel>
-          <FormControl
-            type="number"
-            name="monthlyIncome"
-            defaultValue={monthlyIncome}
-            onChange={(e: any) => setMonthlyIncome(Number(e.target.value))}
           />
         </FormGroup>
       </FlexRow>

@@ -9,6 +9,7 @@ import {
 import { IAttachment } from '@erxes/ui/src/types';
 import React from 'react';
 import Datetime from '@nateradebaugh/react-datetime';
+import Select from 'react-select';
 
 import { Uploader } from '@erxes/ui/src';
 import { ILoan } from '../../types';
@@ -16,6 +17,7 @@ import { MarginTop } from '../../styles';
 import { FormLabel } from '@erxes/ui/src/components/form/styles';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import { FlexRow } from '../../styles';
+import { LOAN_TYPES } from '../../constants';
 
 const getEmptyIncome = () => ({
   _id: Math.random().toString(),
@@ -27,21 +29,35 @@ const getEmptyIncome = () => ({
 type Props = {
   loans: ILoan[];
   setLoans: (loans) => void;
-  totalLoanAmount: number;
-  setTotalLoanAmount: (totalLoanAmount) => void;
-  monthlyPaymentAmount: number;
-  setMonthlyPaymentAmount: (monthlyPaymentAmount) => void;
+  monthlyCostAmount: number;
+  setTotalLoanAmount: (monthlyCostAmount) => void;
+  monthlyLoanAmount: number;
+  setMonthlyPaymentAmount: (monthlyLoanAmount) => void;
+  totalPaymentAmount: number;
+  setTotalPaymentAmount: (totalPaymentAmount) => void;
 };
 
 const LoanForm = (props: Props) => {
   const {
     loans,
     setLoans,
-    totalLoanAmount,
+    monthlyCostAmount,
     setTotalLoanAmount,
-    monthlyPaymentAmount,
+    monthlyLoanAmount,
     setMonthlyPaymentAmount,
+    totalPaymentAmount,
+    setTotalPaymentAmount,
   } = props;
+
+  const onChangeLoanItem = (_id: string, key: string, value: any) => {
+    const loan = loans.find((f) => f._id === _id);
+
+    if (loan) {
+      loan[key] = value;
+
+      setLoans([...loans]);
+    }
+  };
 
   const onChangeAttachmentMore = (
     _id: string,
@@ -83,39 +99,123 @@ const LoanForm = (props: Props) => {
         {loans.map((loan) => {
           return (
             <MarginTop borderBottom={true}>
-              <FlexRow>
-                <FormGroup>
-                  <FormLabel>{__('Start Date')}</FormLabel>
-                  <DateContainer>
-                    <Datetime
-                      dateFormat="MM/DD/YYYY"
-                      closeOnSelect={true}
-                      utc={true}
-                      timeFormat={true}
-                      defaultValue={loan?.startDate}
-                      onChange={(e: any) =>
-                        onChangeDate(loan._id, 'startDate', e.getTime())
-                      }
-                    />
-                  </DateContainer>
-                </FormGroup>
+              <FormGroup>
+                <ControlLabel>Income type</ControlLabel>
+                <Select
+                  value={LOAN_TYPES.find((o) => o.value === loan.loanType)}
+                  onChange={(item: any) =>
+                    onChangeLoanItem(loan._id, 'loanType', item.value)
+                  }
+                  options={LOAN_TYPES}
+                  isClearable={false}
+                />
+              </FormGroup>
 
-                <FormGroup>
-                  <FormLabel>{__('Close Date')}</FormLabel>
-                  <DateContainer>
-                    <Datetime
-                      dateFormat="MM/DD/YYYY"
-                      closeOnSelect={true}
-                      utc={true}
-                      timeFormat={true}
-                      defaultValue={loan?.closeDate}
+              {loan.loanType === 'Loan' && (
+                <>
+                  <FormGroup>
+                    <ControlLabel>loan name</ControlLabel>
+                    <FormControl
+                      type="text"
+                      defaultValue={loan?.loanName || ''}
                       onChange={(e: any) =>
-                        onChangeDate(loan._id, 'closeDate', e.getTime())
+                        onChangeLoanItem(loan._id, 'loanName', e.target.value)
                       }
                     />
-                  </DateContainer>
-                </FormGroup>
-              </FlexRow>
+                  </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>loanLocation</ControlLabel>
+                    <FormControl
+                      type="text"
+                      defaultValue={loan?.loanLocation || ''}
+                      onChange={(e: any) =>
+                        onChangeLoanItem(
+                          loan._id,
+                          'loanLocation',
+                          e.target.value
+                        )
+                      }
+                    />
+                  </FormGroup>
+
+                  <FlexRow>
+                    <FormGroup>
+                      <FormLabel>{__('Start Date')}</FormLabel>
+                      <DateContainer>
+                        <Datetime
+                          dateFormat="MM/DD/YYYY"
+                          closeOnSelect={true}
+                          utc={true}
+                          timeFormat={true}
+                          defaultValue={loan?.startDate}
+                          onChange={(e: any) =>
+                            onChangeDate(loan._id, 'startDate', e.getTime())
+                          }
+                        />
+                      </DateContainer>
+                    </FormGroup>
+
+                    <FormGroup>
+                      <FormLabel>{__('Close Date')}</FormLabel>
+                      <DateContainer>
+                        <Datetime
+                          dateFormat="MM/DD/YYYY"
+                          closeOnSelect={true}
+                          utc={true}
+                          timeFormat={true}
+                          defaultValue={loan?.closeDate}
+                          onChange={(e: any) =>
+                            onChangeDate(loan._id, 'closeDate', e.getTime())
+                          }
+                        />
+                      </DateContainer>
+                    </FormGroup>
+                  </FlexRow>
+                  <FormGroup>
+                    <ControlLabel>loan amount</ControlLabel>
+                    <FormControl
+                      type="number"
+                      defaultValue={loan?.loanAmount || 0}
+                      onChange={(e: any) =>
+                        onChangeLoanItem(
+                          loan._id,
+                          'loanAmount',
+                          Number(e.target.value)
+                        )
+                      }
+                    />
+                  </FormGroup>
+                </>
+              )}
+
+              {loan.loanType === 'Cost' && (
+                <>
+                  <FormGroup>
+                    <ControlLabel>cost name</ControlLabel>
+                    <FormControl
+                      type="text"
+                      defaultValue={loan?.costName || ''}
+                      onChange={(e: any) =>
+                        onChangeLoanItem(loan._id, 'costName', e.target.value)
+                      }
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>monthly cost amount</ControlLabel>
+                    <FormControl
+                      type="number"
+                      defaultValue={loan?.monthlyCostAmount || 0}
+                      onChange={(e: any) =>
+                        onChangeLoanItem(
+                          loan._id,
+                          'monthlyCostAmount',
+                          Number(e.target.value)
+                        )
+                      }
+                    />
+                  </FormGroup>
+                </>
+              )}
 
               <FormGroup>
                 <ControlLabel>Files</ControlLabel>
@@ -145,22 +245,31 @@ const LoanForm = (props: Props) => {
     <MarginTop>
       <FlexRow>
         <FormGroup>
-          <ControlLabel>Total Loan Amount</ControlLabel>
+          <ControlLabel>Monthly Cost Amount</ControlLabel>
           <FormControl
             type="number"
-            defaultValue={totalLoanAmount}
+            defaultValue={monthlyCostAmount}
             onChange={(e: any) => setTotalLoanAmount(Number(e.target.value))}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Monthly Payment Amount</ControlLabel>
+          <ControlLabel>Mnthly Loan Amount</ControlLabel>
           <FormControl
             type="number"
-            defaultValue={monthlyPaymentAmount}
+            defaultValue={monthlyLoanAmount}
             onChange={(e: any) =>
               setMonthlyPaymentAmount(Number(e.target.value))
             }
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Total Payment Amount</ControlLabel>
+          <FormControl
+            type="number"
+            defaultValue={totalPaymentAmount}
+            onChange={(e: any) => setTotalPaymentAmount(Number(e.target.value))}
           />
         </FormGroup>
       </FlexRow>

@@ -5,13 +5,28 @@ import {
 
 const commonIncomeTypes = `
   _id: String
-  incomeType: String 
+  incomeType: String
+  totalSalaryIncome: Int
+  totalMonth: Int
+
+  businessLine: String
+  businessDetails: String
+  businessProfile: String
+  businessIncome: Int
 `;
 
 const commonLoanTypes = `
   _id: String
+  loanType: String
+
+  loanName: String
+  loanLocation: String
   startDate: Date
   closeDate: Date
+  loanAmount: Int
+  
+  costName: String
+  monthlyCostAmount: Int
 `;
 
 export const types = () => `
@@ -25,6 +40,7 @@ export const types = () => `
 
   type Income {
     ${commonIncomeTypes}
+    financialInformation: Attachment
     files: [Attachment]
   }
 
@@ -38,15 +54,19 @@ export const types = () => `
     dealId: String
     customerType: String
     customerId: String
-    incomes: [Income]
-    loans: [Loan]
-    totalMonth: Int
-    totalIncome: Int
-    monthlyIncome: Int
-    totalLoanAmount: Int
-    monthlyPaymentAmount: Int
     debtIncomeRatio: Float
     increaseMonthlyPaymentAmount: Float
+
+    averageSalaryIncome: Int
+    averageBusinessIncome: Int
+    totalIncome: Int
+    incomes: [Income]
+
+    monthlyCostAmount: Int
+    monthlyLoanAmount: Int
+    totalPaymentAmount: Int
+    loans: [Loan]
+    
     createdAt: Date
     modifiedAt: Date
   }
@@ -58,6 +78,7 @@ export const types = () => `
 
   input IncomeInput {
     ${commonIncomeTypes}
+    financialInformation: AttachmentInput
     files: [AttachmentInput]
   }
 
@@ -83,15 +104,18 @@ const commonFields = `
   dealId: String
   customerType: String
   customerId: String
-  incomes: [IncomeInput]
-  loans: [LoanInput]
-  totalMonth: Int
-  totalIncome: Int
-  monthlyIncome: Int
-  totalLoanAmount: Int
-  monthlyPaymentAmount: Int
   debtIncomeRatio: Float
   increaseMonthlyPaymentAmount: Float
+
+  averageSalaryIncome: Int
+  averageBusinessIncome: Int
+  totalIncome: Int
+  incomes: [IncomeInput]
+
+  monthlyCostAmount: Int
+  monthlyLoanAmount: Int
+  totalPaymentAmount: Int
+  loans: [LoanInput]  
 `;
 
 export const mutations = `
