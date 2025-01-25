@@ -75,14 +75,14 @@ const ProductCancel = ({
   const [ref, setFocus] = useFocus();
   
   const [orderCancel, { loading }] = useMutation(mutations.ordersCancel, {
-    variables: { _id },
+    variables: { _id: activeOrderId },
     onCompleted: () => {
       changeOpen(null);
       setFocus();
       if (onCompleted) {
         onCompleted();
       }
-      if (activeOrderId === _id) {
+      if ( _id) {
         reset();
       }
     },
