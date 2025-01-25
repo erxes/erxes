@@ -82,9 +82,7 @@ const ProductCancel = ({
       if (onCompleted) {
         onCompleted();
       }
-      if ( _id) {
-        reset();
-      }
+      reset();
     },
     onError: (error) => {
       onError(error.message);
