@@ -75,7 +75,7 @@ const ProductCancel = ({
   const [ref, setFocus] = useFocus();
   
   const [orderCancel, { loading }] = useMutation(mutations.ordersCancel, {
-    variables: { _id: activeOrderId },
+    variables: { _id: activeOrderId || '' },
     onCompleted: () => {
       changeOpen(null);
       setFocus();
@@ -94,7 +94,14 @@ const ProductCancel = ({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (value === orderPassword || !orderPassword) {
+    if (!orderPassword) {  
+          return orderCancel();  
+        }  
+        if (!value.trim()) {  
+          setError(true);  
+          return;  
+        }  
+        if (value === orderPassword) {  
       return orderCancel();
     }
     setError(true);
@@ -131,10 +138,10 @@ const ProductCancel = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} aria-label="Cancel order form">  
             {orderPassword && (
               <div>
-                <Label htmlFor="pass">Нууц үг</Label>
+                <Label htmlFor="pass" aria-label="Password">Нууц үг</Label>  
                 <Input
                   id="pass"
                   type="password"
@@ -142,9 +149,13 @@ const ProductCancel = ({
                   className="block my-1"
                   value={value}
                   onChange={(e) => setValue(e.target.value)}
+                  aria-invalid={error}  
+                  aria-describedby="password-error"  
                 />
                 <div
-                  className={
+                 id="password-error"  
+                 role="alert"  
+                className={
                     error ? "text-destructive" : "text-muted-foreground"
                   }
                 >
