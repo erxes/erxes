@@ -1,11 +1,11 @@
-import React from 'react';
-import HistoryName from './components/HistoryName';
+import React from "react";
+import HistoryName from "./components/HistoryName";
 
-const Automation = props => {
+const Automation = (props) => {
   const { componentType } = props;
 
   switch (componentType) {
-    case 'HistoryName':
+    case "HistoryName":
       return <HistoryName {...props} />;
 
     default:

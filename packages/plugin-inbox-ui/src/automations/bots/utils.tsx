@@ -9,10 +9,12 @@ import EmptyState from "@erxes/ui/src/components/EmptyState";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { __ } from "@erxes/ui/src/utils/core";
 import React from "react";
-import { queries } from "../../graphql";
+// import { queries } from "../";
 import client from "@erxes/ui/src/apolloClient";
-
-/*************  ✨ Codeium Command 🌟  *************/
+import {
+  mutations,
+  queries
+} from "@erxes/ui-inbox/src/settings/integrations/graphql";
 export function SelectAccountPages({
   initialValue,
   filterParams,
@@ -24,15 +26,14 @@ export function SelectAccountPages({
   filterParams?: any;
   onSelect: (value: string, name: string) => void;
 }) {
-  const { error, loading, data } = useQuery(gql(queries.instagramGetPages), {
+  const { error, loading, data } = useQuery(gql(queries.integrations), {
     variables: {
       ...filterParams,
       accountId,
-      kind: "instagram-messenger"
+      kind: "messenger"
     },
     skip: !accountId
   });
-
   if (error) {
     return (
       <EmptyState
@@ -41,24 +42,19 @@ export function SelectAccountPages({
       />
     );
   }
-
   if (loading) {
     return <Spinner objective />;
   }
-
-  const pages = data?.instagramGetPages || [];
-
+  const pages = data?.whatsappGetNumbers || [];
   const handleSelectPage = (pageId) => {
     if (initialValue === pageId) {
       return onSelect("", "pageId");
     }
-
     onSelect(pageId, "pageId");
   };
-
   return (
     <AccountBox>
-      <AccountTitle>{__("instagram pages")}</AccountTitle>
+      <AccountTitle>{__("Whatsapp Numbers")}</AccountTitle>
       {pages.map(({ id, name }) => (
         <AccountItem key={id}>
           <span>{name}</span>
@@ -72,31 +68,22 @@ export function SelectAccountPages({
     </AccountBox>
   );
 }
-/******  4ad7435e-6000-4a89-b4da-267e36922e81  *******/
 
-export const fetchPageDetail = async (account, pageId) => {
+export const fetchPageDetail = async (account, whatsappNumber) => {
   if (!account) return null;
-  console.log(pageId, "page");
   let name;
   let profileUrl;
-
+  let display_phone_number;
   await fetch(
-    `https://graph.facebook.com/v13.0/${pageId}? 
-     fields=username,profile_picture_url&access_token=${account.token}`
+    `https://graph.facebook.com/v13.0/${whatsappNumber}?fields=&access_token=${account.token}`
   )
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    })
+    .then((response) => response.json())
     .then((data) => {
-      name = data.username;
-      profileUrl = data?.profile_picture_url;
-    })
-    .catch((error) => {
-      console.error("Error fetching data from Graph API:", error);
+      console.log(data, "dataaaa");
+      name = data.verified_name;
+      display_phone_number = data.display_phone_number;
+      profileUrl = data?.picture?.data?.url;
     });
 
-  return { profileUrl, name };
+  return { profileUrl, name, display_phone_number };
 };

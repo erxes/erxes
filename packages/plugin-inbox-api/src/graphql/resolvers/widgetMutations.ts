@@ -209,11 +209,7 @@ const createVisitor = async (subdomain: string, visitorId: string) => {
   return customer;
 };
 
-
 const widgetMutations = {
-
-
-
   async widgetsLeadIncreaseViewCount(
     _root,
     { formId }: { formId: string },
@@ -490,7 +486,7 @@ const widgetMutations = {
         }
 
         const timeDelay = integrationConfigs.find(
-          config => config.code === "VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS"
+          (config) => config.code === "VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS"
         ) || { value: "0" };
 
         const timeDelayIntValue = parseInt(timeDelay.value || "0", 10);
@@ -501,7 +497,7 @@ const widgetMutations = {
           const defaultValue = "Video call request has already sent";
 
           const messageForDelay = integrationConfigs.find(
-            config => config.code === "VIDEO_CALL_MESSAGE_FOR_TIME_DELAY"
+            (config) => config.code === "VIDEO_CALL_MESSAGE_FOR_TIME_DELAY"
           ) || { value: defaultValue };
 
           throw new Error(messageForDelay.value || defaultValue);
@@ -635,7 +631,7 @@ const widgetMutations = {
             }),
             headers: { "Content-Type": "application/json" }
           }
-        ).then(r => r.json());
+        ).then((r) => r.json());
 
         const { responses } = botRequest;
 
@@ -903,7 +899,7 @@ const widgetMutations = {
     let mailAttachment: any = [];
 
     if (attachments.length > 0) {
-      mailAttachment = attachments.map(file => {
+      mailAttachment = attachments.map((file) => {
         return {
           filename: file.name || "",
           path: file.url || ""
@@ -1053,7 +1049,7 @@ const widgetMutations = {
           text: payload
         }),
         headers: { "Content-Type": "application/json" }
-      }).then(r => r.json());
+      }).then((r) => r.json());
 
       const { responses } = botRequest;
 
@@ -1116,7 +1112,7 @@ const widgetMutations = {
         text: "getStarted"
       }),
       headers: { "Content-Type": "application/json" }
-    }).then(r => r.json());
+    }).then((r) => r.json());
 
     await redis.set(
       `bot_initial_message_${integrationId}`,
@@ -1125,6 +1121,23 @@ const widgetMutations = {
 
     return { botData: botRequest.responses };
   },
+
+  async widgetsMessengerAddBot(_root, args, { models }: IContext) {
+    return await models.Bots.addBot(args);
+  },
+  async widgetsMessengerUpdateBot(
+    _root,
+    { _id, ...args },
+    { models }: IContext
+  ) {
+    return await models.Bots.updateBot(_id, args);
+  },
+  async widgetsMessengerRemoveBot(_root, { _id }, { models }: IContext) {
+    return await models.Bots.removeBot(_id);
+  },
+  async widgetsMessengerRepairBot(_root, { _id }, { models }: IContext) {
+    return await models.Bots.repair(_id);
+  }
 };
 
 export default widgetMutations;

@@ -10,7 +10,7 @@ export const types = ({ products, knowledgeBase }) => `
       _id: String! @external
     }
     `
-      : ''
+      : ""
   }
 
     extend type Field @key(fields: "_id") {
@@ -30,7 +30,7 @@ export const types = ({ products, knowledgeBase }) => `
       _id: String! @external
     }
     `
-      : ''
+      : ""
   }
 
   type MessengerConnectResponse {
@@ -42,7 +42,33 @@ export const types = ({ products, knowledgeBase }) => `
     visitorId: String
     brand: Brand
   }
-
+  type BotPersistentMenuType {
+    _id:String
+    type:String
+    text: String
+    link: String
+  }
+  input BotPersistentMenuInput {
+    _id:String
+    type:String
+    text: String
+    link: String
+  }
+  type WidgetsMessengerBot {
+    _id: String
+    name:String
+    accountId: String
+    account:JSON
+    widgetsNumberIds: [String!]
+    page: JSON
+    createdAt: Date
+    persistentMenus:[BotPersistentMenuType]
+    profileUrl:String
+    greetText:String
+    tag:String
+    isEnabledBackBtn:Boolean
+    backButtonText:String
+  }
   type ConversationDetailResponse {
     _id: String
     messages: [ConversationMessage]
@@ -64,8 +90,20 @@ export const types = ({ products, knowledgeBase }) => `
     isOnline: Boolean
   }
 `;
-
+const commonBotParams = `
+  name:String,
+  accountId:String,
+  persistentMenus:[BotPersistentMenuInput],
+  greetText:String
+  tag:String,
+  isEnabledBackBtn:Boolean,
+  backButtonText:String
+`;
 export const queries = ({ products, knowledgeBase }) => `
+  widgetsbootMessengerBotsTotalCount:Int
+  widgetsBootMessengerBots:[WidgetsMessengerBot]
+  widgetsBootMessengerBotsTotalCount:Int
+  widgetsBootMessengerBot(_id:String):WidgetsMessengerBot
   widgetsConversations(integrationId: String!, customerId: String, visitorId: String): [Conversation]
   widgetsConversationDetail(_id: String, integrationId: String!): ConversationDetailResponse
   widgetsGetMessengerIntegration(brandCode: String!): Integration
@@ -81,7 +119,7 @@ export const queries = ({ products, knowledgeBase }) => `
       widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
       widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
     `
-      : ''
+      : ""
   }
 
 
@@ -148,4 +186,8 @@ export const mutations = () => `
 
   widgetsLeadIncreaseViewCount(formId: String!): JSON
   widgetsSendTypingInfo(conversationId: String!, text: String): String
+ widgetsMessengerAddBot(${commonBotParams}):JSON
+ widgetsMessengerUpdateBot(_id:String,${commonBotParams}):JSON
+ widgetsMessengerRemoveBot(_id:String):JSON
+ widgetsMessengerRepairBot(_id:String):JSON
 `;

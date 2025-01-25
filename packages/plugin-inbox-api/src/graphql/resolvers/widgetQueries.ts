@@ -1,12 +1,12 @@
-import * as momentTz from 'moment-timezone';
+import * as momentTz from "moment-timezone";
 
-import { IIntegrationDocument } from '../../models/definitions/integrations';
+import { IIntegrationDocument } from "../../models/definitions/integrations";
 
-import { getOrCreateEngageMessage } from '../../widgetUtils';
+import { getOrCreateEngageMessage } from "../../widgetUtils";
 
-import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
-import { sendCoreMessage, sendKnowledgeBaseMessage } from '../../messageBroker';
-import { IContext, IModels } from '../../connectionResolver';
+import { IBrowserInfo } from "@erxes/api-utils/src/definitions/common";
+import { sendCoreMessage, sendKnowledgeBaseMessage } from "../../messageBroker";
+import { IContext, IModels } from "../../connectionResolver";
 
 const isMessengerOnline = async (
   models: IModels,
@@ -41,7 +41,7 @@ const fetchUsers = async (
 ) => {
   const users = await sendCoreMessage({
     subdomain,
-    action: 'users.find',
+    action: "users.find",
     data: { query },
     isRPC: true,
     defaultValue: []
@@ -78,7 +78,7 @@ export default {
   ) {
     return models.Integrations.getWidgetIntegration(
       args.brandCode,
-      'messenger'
+      "messenger"
     );
   },
 
@@ -246,7 +246,7 @@ export default {
 
   async widgetsProductCategory(_root, { _id }: { _id: string }) {
     return {
-      __typename: 'ProductCategory',
+      __typename: "ProductCategory",
       _id
     };
   },
@@ -261,16 +261,16 @@ export default {
     args: { topicId: string; searchString: string },
     { subdomain }: IContext
   ) {
-    const { topicId, searchString = '' } = args;
+    const { topicId, searchString = "" } = args;
 
     return sendKnowledgeBaseMessage({
       subdomain,
-      action: 'articles.find',
+      action: "articles.find",
       data: {
         query: {
           topicId,
-          content: { $regex: `.*${searchString.trim()}.*`, $options: 'i' },
-          status: 'publish'
+          content: { $regex: `.*${searchString.trim()}.*`, $options: "i" },
+          status: "publish"
         }
       },
       isRPC: true
@@ -289,7 +289,7 @@ export default {
 
     const topic = await sendKnowledgeBaseMessage({
       ...commonOptions,
-      action: 'topics.findOne',
+      action: "topics.findOne",
       data: {
         query: {
           _id
@@ -300,7 +300,7 @@ export default {
     if (topic && topic.createdBy) {
       const user = await sendCoreMessage({
         ...commonOptions,
-        action: 'users.findOne',
+        action: "users.findOne",
         data: {
           _id: topic.createdBy
         },
@@ -309,14 +309,78 @@ export default {
 
       sendCoreMessage({
         subdomain,
-        action: 'registerOnboardHistory',
+        action: "registerOnboardHistory",
         data: {
-          type: 'knowledgeBaseInstalled',
+          type: "knowledgeBaseInstalled",
           user
         }
       });
     }
 
     return topic;
+  },
+
+  async widgetsBootMessengerBots(_root, _args, { models }: IContext) {
+    try {
+      const bots = await models.Bots.find({});
+      // const result = await Promise.all(
+      //   bots.map(async (bot) => {
+      //     // Define accountData with a proper union type
+      //     let accountData: { _id: string; name: string } | null = null;
+      //     let page: { id: string; name: string } | null = null;
+      //     let getNumber: any = null;
+
+      //     const whatsapp_account = await models.Accounts.getAccount({
+      //       _id: bot.accountId
+      //     }).catch(() => null);
+
+      //     if (whatsapp_account) {
+      //       const accessToken = whatsapp_account.token;
+
+      //       accountData = {
+      //         _id: whatsapp_account._id as string,
+      //         name: whatsapp_account.name
+      //       };
+
+      //       getNumber = await getNumberWhatsApp(
+      //         bot.whatsappNumberIds,
+      //         accessToken
+      //       ).catch(() => null);
+
+      //       if (getNumber?.id) {
+      //         page = {
+      //           id: getNumber.id,
+      //           name: getNumber.display_phone_number
+      //         };
+      //       }
+      //     }
+
+      //     return {
+      //       _id: bot._id,
+      //       name: bot.name,
+      //       accountId: bot.accountId,
+      //       account: accountData,
+      //       page,
+      //       pageId: bot.whatsappNumberIds,
+      //       profileUrl: getNumber?.profile_picture_url || "",
+      //       persistentMenus: bot.persistentMenus || [],
+      //       greetText: bot.greetText || "",
+      //       tag: bot.tag || "",
+      //       isEnabledBackBtn: bot.isEnabledBackBtn || false,
+      //       backButtonText: bot.backButtonText || ""
+      //     };
+      //   })
+      // );
+
+      // return result;
+    } catch (error) {
+      throw new Error("Failed to fetch Instagram Messenger Bots data.");
+    }
+  },
+  async widgetsBootMessengerBotsTotalCount(_root, _args, { models }: IContext) {
+    return await models.Bots.find({}).countDocuments();
+  },
+  async widgetsBootMessengerBot(_root, { _id }, { models }: IContext) {
+    return await models.Bots.findOne({ _id });
   }
 };
