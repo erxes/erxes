@@ -78,6 +78,7 @@ class ErxesPayment {
         break;
       case 'khanbank':
         this.khanbank = new KhanbankAPI(payment.config, subdomain || '');
+        break;
       default:
         break;
     }
