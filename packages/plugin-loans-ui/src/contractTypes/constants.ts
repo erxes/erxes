@@ -37,6 +37,9 @@ export const JOURNALS_KEY_LABELS = {
   boardId: "Initial board",
   pipelineId: "Initial pipeline",
   stageId: "Initial stage",
+  requirementsTxt: "Requirements Txt",
+  customerDocumentsTxt: "Customer Documents Txt",
+  companyDocumentsTxt: "Company Documents Txt",
 };
 
 export const LEASE_TYPES = {
