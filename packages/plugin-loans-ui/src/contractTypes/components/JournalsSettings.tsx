@@ -300,10 +300,10 @@ const GeneralSettings = (props: Props) => {
         </CollapseContent>
 
         <CollapseContent title={__("Range config")}>
-          {renderItem("minInterest", "Min interest", {
+          {renderItem("minInterest", `Min interest (month: ${((currentMap.minInterest ?? 0) / 12).toLocaleString()})`, {
             type: "number",
           })}
-          {renderItem("maxInterest", "Max interest", {
+          {renderItem("maxInterest", `Max  interest (month: ${((currentMap.maxInterest ?? 0) / 12).toLocaleString()})`, {
             type: "number",
           })}
           {renderItem("minTenor", "Min tenor /Month/", {

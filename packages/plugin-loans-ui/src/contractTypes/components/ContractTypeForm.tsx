@@ -138,12 +138,19 @@ const ContractTypeForm = (props: Props) => {
                 checked: contractType.useManualNumbering,
                 onChange: onChangeField
               })}
-              {renderFormGroup("Default Interest", {
+              {renderFormGroup("Default Interest in Year", {
                 ...formProps,
                 name: "defaultInterest",
                 type: "number",
-                defaultValue: contractType.defaultInterest || 0,
+                value: contractType.defaultInterest || 0,
                 onChange: onChangeField
+              })}
+              {renderFormGroup("Default Interest in Month", {
+                ...formProps,
+                name: "defaultInterestInMonth",
+                type: "number",
+                value: (contractType.defaultInterest || 0) / 12,
+                onChange: (e => setContractType({ ...contractType, 'defaultInterest': (e.target as any).value * 12 }) )
               })}
               {renderFormGroup("Fee percent of lease Amount", {
                 ...formProps,
