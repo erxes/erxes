@@ -37,10 +37,16 @@ export class BaseApi {
         requestOptions.headers['Content-Type'] = 'application/json';
       }
 
-      return await fetch(
+      const res =  await fetch(
         `${this.apiUrl}/${path}?` + new URLSearchParams(params),
         requestOptions,
-      ).then((res) => res.json());
+      )
+
+      if (!res.ok) {
+        throw new Error(await res.text());
+      }
+
+      return await res.json();
     } catch (e) {
       const errorMessage = JSON.parse(e.message).message || e.message;
       throw new Error(errorMessage);

@@ -74,6 +74,26 @@ export const loadInvoiceClass = (models: IModels) => {
     }
 
     public static async checkInvoice(_id: string) {
+      const unpaidTransactions = await models.Transactions.find({
+        invoiceId: _id,
+        status: 'pending',
+      });
+
+      if (unpaidTransactions.length > 0) {
+        for (const transaction of unpaidTransactions) {
+          const status = await models.Transactions.checkTransaction(
+            transaction._id
+          );
+
+          if (status === 'paid') {
+            await models.Transactions.updateOne(
+              { _id: transaction._id },
+              { $set: { status: 'paid' } }
+            );
+          }
+        }
+      }
+
       const invoice = await models.Invoices.getInvoice({ _id });
 
       const totalAmount = await models.Transactions.aggregate([
