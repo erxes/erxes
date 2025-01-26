@@ -45,13 +45,14 @@ const IncomeForm = (props: Props) => {
   } = props;
 
   const onChangeIncomeItem = (_id: string, key: string, value: any) => {
-    const income = incomes.find((f) => f._id === _id);
-
-    if (income) {
-      income[key] = value;
-
-      setIncomes([...incomes]);
-    }
+    setIncomes((prevIncomes) =>
+      prevIncomes.map(
+        (income) =>
+          income._id === _id
+            ? { ...income, [key]: value } // Update the specific key
+            : income // Leave other incomes unchanged
+      )
+    );
   };
 
   const onChangeAttachmentMore = (
@@ -59,13 +60,14 @@ const IncomeForm = (props: Props) => {
     key: string,
     files: IAttachment[]
   ) => {
-    const income = incomes.find((f) => f._id === _id);
-
-    if (income) {
-      income[key] = files;
-
-      setIncomes([...incomes]);
-    }
+    setIncomes((prevIncomes) =>
+      prevIncomes.map(
+        (income) =>
+          income._id === _id
+            ? { ...income, [key]: files } // Update the specific key
+            : income // Leave other incomes unchanged
+      )
+    );
   };
 
   const onChangeFeature = () => {

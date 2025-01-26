@@ -50,13 +50,14 @@ const LoanForm = (props: Props) => {
   } = props;
 
   const onChangeLoanItem = (_id: string, key: string, value: any) => {
-    const loan = loans.find((f) => f._id === _id);
-
-    if (loan) {
-      loan[key] = value;
-
-      setLoans([...loans]);
-    }
+    setLoans((prevLoans) =>
+      prevLoans.map(
+        (loan) =>
+          loan._id === _id
+            ? { ...loan, [key]: value } // Update the specific key
+            : loan // Leave other incomes unchanged
+      )
+    );
   };
 
   const onChangeAttachmentMore = (
@@ -64,13 +65,14 @@ const LoanForm = (props: Props) => {
     key: string,
     files: IAttachment[]
   ) => {
-    const loan = loans.find((f) => f._id === _id);
-
-    if (loan) {
-      loan[key] = files;
-
-      setLoans([...loans]);
-    }
+    setLoans((prevLoans) =>
+      prevLoans.map(
+        (loan) =>
+          loan._id === _id
+            ? { ...loan, [key]: files } // Update the specific key
+            : loan // Leave other incomes unchanged
+      )
+    );
   };
 
   const onChangeDate = (_id: string, key: string, date: any) => {
