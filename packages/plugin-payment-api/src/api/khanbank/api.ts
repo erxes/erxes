@@ -23,7 +23,7 @@ export const khanbankCallbackHandler = async (
 
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
 
-  if (payment.kind !== 'qpay') {
+  if (payment.kind !== 'khanbank') {
     throw new Error('Payment config type is mismatched');
   }
 
