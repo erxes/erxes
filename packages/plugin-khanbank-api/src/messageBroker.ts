@@ -233,7 +233,18 @@ export const setupMessageConsumers = async () => {
         endDate,
       });
 
-      const count = response.total.count;
+      const count = response.total.count || 0;
+
+      if (count === 0) {
+        return {
+          status: 'success',
+          data: {
+            lastRecord: 0,
+            accountName: response.customerName,
+            currency: response.currency,
+          },
+        };
+      }
 
       const latestTransaction = response.transactions[count - 1];
 
