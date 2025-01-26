@@ -66,6 +66,10 @@ export interface IContractConfig {
   maxAmount: number;
   minCommitmentInterest: number;
   maxCommitmentInterest: number;
+
+  requirements?: string[];
+  customerDocuments?: string[];
+  companyDocuments?: string[];
 }
 
 export interface IContractType {
@@ -112,10 +116,6 @@ export interface IContractType {
 
   overPaymentIsNext?: boolean;
   collectivelyRule?: string;
-
-  requirements?: string[];
-  customerDocuments?: string[];
-  companyDocuments?: string[];
 }
 
 export interface IContractTypeDocument extends IContractType, Document {

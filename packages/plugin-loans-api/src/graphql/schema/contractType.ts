@@ -49,10 +49,6 @@ export const types = () => `
 
     overPaymentIsNext: Boolean
     collectivelyRule: String
-
-    requirements: [String]
-    customerDocuments: [String]
-    companyDocuments: [String]
   }
 
   type ContractTypesListResponse {
@@ -129,10 +125,6 @@ const commonFields = `
 
   overPaymentIsNext: Boolean
   collectivelyRule: String
-
-  requirements: [String]
-  customerDocuments: [String]
-  companyDocuments: [String]
 `;
 
 export const mutations = `

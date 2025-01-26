@@ -44,10 +44,6 @@ const commonFields = `
 
   $overPaymentIsNext: Boolean,
   $collectivelyRule: String,
-
-  $requirements: [String],
-  $customerDocuments: [String],
-  $companyDocuments: [String],
 `;
 
 const commonVariables = `
@@ -94,10 +90,6 @@ const commonVariables = `
 
   overPaymentIsNext: $overPaymentIsNext,
   collectivelyRule: $collectivelyRule,
-
-  requirements: $requirements,
-  customerDocuments: $customerDocuments,
-  companyDocuments: $companyDocuments,
 `;
 
 const contractTypesAdd = `

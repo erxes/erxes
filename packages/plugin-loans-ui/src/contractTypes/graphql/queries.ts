@@ -43,10 +43,6 @@ export const contractTypeFields = `
 
   overPaymentIsNext
   collectivelyRule
-
-  requirements
-  customerDocuments
-  companyDocuments
   
   createdAt
   modifiedAt
