@@ -48,6 +48,8 @@ const ContractTypeForm = (props: Props) => {
       commitmentInterest: Number(contractType.commitmentInterest || 0),
       savingPlusLoanInterest: Number(contractType.savingPlusLoanInterest || 0),
       savingUpperPercent: Number(contractType.savingUpperPercent || 0),
+      feePercent: Number(contractType.feePercent || 0),
+      defaultFee: Number(contractType.defaultFee || 0),
     };
   };
 
@@ -150,7 +152,7 @@ const ContractTypeForm = (props: Props) => {
                 name: "defaultInterestInMonth",
                 type: "number",
                 value: (contractType.defaultInterest || 0) / 12,
-                onChange: (e => setContractType({ ...contractType, 'defaultInterest': (e.target as any).value * 12 }) )
+                onChange: (e => setContractType({ ...contractType, 'defaultInterest': (e.target as any).value * 12 }))
               })}
               {renderFormGroup("Fee percent of lease Amount", {
                 ...formProps,

@@ -7,54 +7,60 @@ import { IContractType } from '../types';
 
 // get contractType options for react-select
 export function generateContractTypeOptions(
-  array: IContractType[] = [],
-  useFields?: string[]
+  array: IContractType[] = []
 ): IOption[] {
   return array.map(item => {
     const contractType = item || ({} as IContractType);
 
-    ContractTypeById[contractType._id] = contractType;
-
     return {
       value: contractType._id,
-      label: `${contractType.code || ''} - ${contractType.name || ''}`
+      label: `${contractType.code || ''} - ${contractType.name || ''}`,
+      obj: contractType
     };
   });
 }
 
-export let ContractTypeById = {};
-
 export default ({
   queryParams,
   onSelect,
-  value,
-  multi = true,
+  initialValue,
+  multi = false,
+  customOption,
   label,
   name,
-  disabled
+  filterParams,
 }: {
   queryParams?: IQueryParams;
   label: string;
-  onSelect: (value: string[] | string, name: string) => void;
+  onSelect: (values: string[] | string, obj?: IContractType, name?: string, extraValue?: string) => void;
   multi?: boolean;
   customOption?: IOption;
-  value?: string | string[];
+  initialValue?: string | string[];
   name: string;
-  disabled?: boolean;
+  filterParams?: {
+    ids?: string[];
+    status?: string;
+    searchValue?: string;
+  };
 }) => {
-  const defaultValue = queryParams ? queryParams[name] : value;
+  const defaultValue = queryParams ? queryParams[name] : initialValue;
+
+  const onSelected = (id: string[] | string, name: string, extraValue?: string, obj?: any) => {
+    onSelect(id, obj, name, extraValue);
+  }
 
   return (
     <SelectWithSearch
       label={label}
       queryName="contractTypes"
       name={name}
-      disabled={disabled}
+      customQuery={queries.contractTypes}
+      filterParams={filterParams}
       initialValue={defaultValue}
       generateOptions={generateContractTypeOptions}
-      onSelect={onSelect}
-      customQuery={queries.contractTypes}
+      onSelect={onSelected}
       multi={multi}
+      customOption={customOption}
     />
   );
 };

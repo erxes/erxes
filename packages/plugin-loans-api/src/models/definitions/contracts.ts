@@ -75,7 +75,7 @@ export interface IContract {
   scheduleDays: number[];
   tenor: number; // loan duration month
   repayment: string;
-  interestRate: number;
+  interestRate: number; //year
 
   stepRules?: {
     scheduleDays?: number[];
