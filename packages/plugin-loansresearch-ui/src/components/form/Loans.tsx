@@ -55,7 +55,7 @@ const LoanForm = (props: Props) => {
         (loan) =>
           loan._id === _id
             ? { ...loan, [key]: value } // Update the specific key
-            : loan // Leave other incomes unchanged
+            : loan // Leave other loans unchanged
       )
     );
   };
@@ -70,19 +70,20 @@ const LoanForm = (props: Props) => {
         (loan) =>
           loan._id === _id
             ? { ...loan, [key]: files } // Update the specific key
-            : loan // Leave other incomes unchanged
+            : loan // Leave other loans unchanged
       )
     );
   };
 
   const onChangeDate = (_id: string, key: string, date: any) => {
-    const loan = loans.find((f) => f._id === _id);
-
-    if (loan) {
-      loan[key] = date;
-
-      setLoans([...loans]);
-    }
+    setLoans((prevLoans) =>
+      prevLoans.map(
+        (loan) =>
+          loan._id === _id
+            ? { ...loan, [key]: date } // Update the specific key
+            : loan // Leave other loans unchanged
+      )
+    );
   };
 
   const onChangeFeature = () => {
