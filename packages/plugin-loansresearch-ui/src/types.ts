@@ -23,7 +23,7 @@ export type ILoan = {
   loanAmount: number;
 
   costName: string;
-  monthlyCostAmount: number;
+  costAmount: number;
   files: IAttachment[];
 };
 

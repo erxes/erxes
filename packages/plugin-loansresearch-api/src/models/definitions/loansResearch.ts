@@ -26,7 +26,7 @@ export interface ILoan {
   loanAmount: number;
 
   costName: string;
-  monthlyCostAmount: number;
+  costAmount: number;
   files: IAttachment[];
 }
 
@@ -122,7 +122,7 @@ export const loanSchema = schemaWrapper(
       closeDate: { type: Date, optional: true },
 
       costName: { type: String, optional: true },
-      monthlyCostAmount: { type: Number, optional: true },
+      costAmount: { type: Number, optional: true },
 
       files: { type: [attachmentSchema] },
     },

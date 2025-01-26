@@ -26,7 +26,7 @@ const commonLoanTypes = `
   loanAmount: Int
   
   costName: String
-  monthlyCostAmount: Int
+  costAmount: Int
 `;
 
 export const types = () => `

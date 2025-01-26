@@ -55,7 +55,7 @@ export const loansResearchFields = `
     loanAmount
 
     costName
-    monthlyCostAmount
+    costAmount
     files {
       url
       name

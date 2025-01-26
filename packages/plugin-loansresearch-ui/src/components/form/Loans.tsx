@@ -30,11 +30,8 @@ type Props = {
   loans: ILoan[];
   setLoans: (loans) => void;
   monthlyCostAmount: number;
-  setTotalLoanAmount: (monthlyCostAmount) => void;
   monthlyLoanAmount: number;
-  setMonthlyPaymentAmount: (monthlyLoanAmount) => void;
   totalPaymentAmount: number;
-  setTotalPaymentAmount: (totalPaymentAmount) => void;
 };
 
 const LoanForm = (props: Props) => {
@@ -42,11 +39,8 @@ const LoanForm = (props: Props) => {
     loans,
     setLoans,
     monthlyCostAmount,
-    setTotalLoanAmount,
     monthlyLoanAmount,
-    setMonthlyPaymentAmount,
     totalPaymentAmount,
-    setTotalPaymentAmount,
   } = props;
 
   const onChangeLoanItem = (_id: string, key: string, value: any) => {
@@ -207,11 +201,11 @@ const LoanForm = (props: Props) => {
                     <ControlLabel>monthly cost amount</ControlLabel>
                     <FormControl
                       type="number"
-                      defaultValue={loan?.monthlyCostAmount || 0}
+                      defaultValue={loan?.costAmount || 0}
                       onChange={(e: any) =>
                         onChangeLoanItem(
                           loan._id,
-                          'monthlyCostAmount',
+                          'costAmount',
                           Number(e.target.value)
                         )
                       }
@@ -248,22 +242,21 @@ const LoanForm = (props: Props) => {
     <MarginTop>
       <FlexRow>
         <FormGroup>
-          <ControlLabel>Monthly Cost Amount</ControlLabel>
+          <ControlLabel>Monthly Loan Amount</ControlLabel>
           <FormControl
             type="number"
-            defaultValue={monthlyCostAmount}
-            onChange={(e: any) => setTotalLoanAmount(Number(e.target.value))}
+            defaultValue={monthlyLoanAmount}
+            disabled={true}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Mnthly Loan Amount</ControlLabel>
+          <ControlLabel>Monthly Cost Amount</ControlLabel>
+
           <FormControl
             type="number"
-            defaultValue={monthlyLoanAmount}
-            onChange={(e: any) =>
-              setMonthlyPaymentAmount(Number(e.target.value))
-            }
+            defaultValue={monthlyCostAmount}
+            disabled={true}
           />
         </FormGroup>
 
@@ -272,7 +265,7 @@ const LoanForm = (props: Props) => {
           <FormControl
             type="number"
             defaultValue={totalPaymentAmount}
-            onChange={(e: any) => setTotalPaymentAmount(Number(e.target.value))}
+            disabled={true}
           />
         </FormGroup>
       </FlexRow>

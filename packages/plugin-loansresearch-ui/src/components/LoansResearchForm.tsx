@@ -62,10 +62,10 @@ const LoansResearchForm = (props: Props) => {
   // loan state
   const [loans, setLoans] = useState<ILoan[]>(loansResearch?.loans || []);
 
-  const [monthlyCostAmount, setTotalLoanAmount] = useState<number>(
+  const [monthlyCostAmount, setTotalCostAmount] = useState<number>(
     loansResearch?.monthlyCostAmount || 0
   );
-  const [monthlyLoanAmount, setMonthlyPaymentAmount] = useState<number>(
+  const [monthlyLoanAmount, setMonthlyLoanAmount] = useState<number>(
     loansResearch?.monthlyLoanAmount || 0
   );
   const [totalPaymentAmount, setTotalPaymentAmount] = useState<number>(
@@ -86,6 +86,32 @@ const LoansResearchForm = (props: Props) => {
     setDebtIncomeRatio(ratio);
     setIncreaseMonthlyPaymentAmount(increaseAmount);
   }, [averageBusinessIncome, monthlyLoanAmount, customerType]);
+
+  useEffect(() => {
+    if (loans && loans.length > 0) {
+      // Calculate total loan amount
+      const loanSum = loans.reduce(
+        (accumulator, loan) => accumulator + (loan.loanAmount || 0),
+        0
+      );
+
+      // Calculate total cost amount
+      const costSum = loans.reduce(
+        (accumulator, loan) => accumulator + (loan.costAmount || 0),
+        0
+      );
+
+      // Update the states independently
+      setMonthlyLoanAmount(loanSum);
+      setTotalCostAmount(costSum);
+    }
+  }, [loans]);
+
+  useEffect(() => {
+    const haha = monthlyCostAmount + monthlyLoanAmount;
+
+    setTotalPaymentAmount(haha);
+  }, [monthlyCostAmount, monthlyLoanAmount]);
 
   const generateDoc = (values: { _id: string } & ILoanResearch) => {
     const finalValues = values;
@@ -149,11 +175,8 @@ const LoansResearchForm = (props: Props) => {
           loans={loans}
           setLoans={setLoans}
           monthlyCostAmount={monthlyCostAmount}
-          setTotalLoanAmount={setTotalLoanAmount}
           monthlyLoanAmount={monthlyLoanAmount}
-          setMonthlyPaymentAmount={setMonthlyPaymentAmount}
           totalPaymentAmount={totalPaymentAmount}
-          setTotalPaymentAmount={setTotalPaymentAmount}
         />
       );
     }
