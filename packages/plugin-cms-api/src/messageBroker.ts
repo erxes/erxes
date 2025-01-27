@@ -2,7 +2,7 @@ import {
   consumeQueue,
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
-import { generateModels } from './connectionResolver';
+import { generateModels, IModels } from './connectionResolver';
 import { queryBuilder } from './graphql/resolvers/queries/post';
 import { paginate } from '@erxes/api-utils/src';
 
@@ -11,6 +11,15 @@ export const setupMessageConsumers = async () => {
     const models = await generateModels(subdomain);
 
     const { clientPortalId, kind, createdUserId } = data;
+
+    const existingPages = await models.Pages.find({
+      clientPortalId,
+    }).lean();
+
+    const pageExists = async (page: string) => {
+      return existingPages.find((p) => p.slug === page);
+    };
+
     const defaultPages = ['home', 'about', 'contact', 'privacy', 'terms'];
     const tourPages = [
       'tours',
@@ -34,16 +43,11 @@ export const setupMessageConsumers = async () => {
 
     const commerceKinds = ['ecommerce', 'restaurant', 'hotel'];
 
-    const bulk: any[] = defaultPages.map((page) => ({
-      createdUserId,
-      clientPortalId,
-      name: page,
-      slug: page,
-      pageItems: [],
-    }));
+    const bulk: any[] = [];
 
-    if (kind === 'tour') {
-      tourPages.forEach((page) => {
+    for (const page of defaultPages) {
+      const exists = await pageExists(page);
+      if (!exists) {
         bulk.push({
           createdUserId,
           clientPortalId,
@@ -51,19 +55,37 @@ export const setupMessageConsumers = async () => {
           slug: page,
           pageItems: [],
         });
-      });
+      }
+    }
+
+    if (kind === 'tour') {
+      for (const page of tourPages) {
+        const exists = await pageExists(page);
+        if (!exists) {
+          bulk.push({
+            createdUserId,
+            clientPortalId,
+            name: page,
+            slug: page,
+            pageItems: [],
+          });
+        }
+      }
     }
 
     if (commerceKinds.includes(kind)) {
-      ecommercePages.forEach((page) => {
-        bulk.push({
-          createdUserId,
-          clientPortalId,
-          name: page,
-          slug: page,
-          pageItems: [],
-        });
-      });
+      for (const page of ecommercePages) {
+        const exists = await pageExists(page);
+        if (!exists) {
+          bulk.push({
+            createdUserId,
+            clientPortalId,
+            name: page,
+            slug: page,
+            pageItems: [],
+          });
+        }
+      }
     }
 
     models.Pages.create(bulk);
@@ -82,11 +104,22 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue('cms:find', async ({ data }) => {
+  consumeRPCQueue('cms:pages.find', async ({ data, subdomain }) => {
+    const models = await generateModels(subdomain);
+
     return {
       status: 'success',
-      // data: await Cmss.find({})
+      data: await models.Pages.find(data).lean(),
     };
+  });
+
+  consumeRPCQueue('cms:menus.find', async ({ data, subdomain }) => {
+    const models:IModels = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.MenuItems.find(data).sort({ order: 1 }).lean(),
+    }
   });
 
   consumeRPCQueue('cms:addPost', async ({ data, subdomain }) => {
