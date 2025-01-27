@@ -25,11 +25,8 @@ type Props = {
   incomes: IIncome[];
   setIncomes: (incomes) => void;
   averageSalaryIncome: number;
-  setAverageSalaryIncome: (averageSalaryIncome) => void;
   totalIncome: number;
-  setTotalIncome: (totalIncome) => void;
   averageBusinessIncome: number;
-  setAverageBusinessIncome: (averageBusinessIncome) => void;
 };
 
 const IncomeForm = (props: Props) => {
@@ -37,11 +34,8 @@ const IncomeForm = (props: Props) => {
     incomes,
     setIncomes,
     averageSalaryIncome,
-    setAverageSalaryIncome,
     totalIncome,
-    setTotalIncome,
     averageBusinessIncome,
-    setAverageBusinessIncome,
   } = props;
 
   const onChangeIncomeItem = (_id: string, key: string, value: any) => {
@@ -229,9 +223,7 @@ const IncomeForm = (props: Props) => {
           <FormControl
             type="number"
             defaultValue={averageSalaryIncome}
-            onChange={(e: any) =>
-              setAverageSalaryIncome(Number(e.target.value))
-            }
+            disabled={true}
           />
         </FormGroup>
 
@@ -241,9 +233,7 @@ const IncomeForm = (props: Props) => {
             type="number"
             name="averageBusinessIncome"
             defaultValue={averageBusinessIncome}
-            onChange={(e: any) =>
-              setAverageBusinessIncome(Number(e.target.value))
-            }
+            disabled={true}
           />
         </FormGroup>
 
@@ -252,7 +242,7 @@ const IncomeForm = (props: Props) => {
           <FormControl
             type="number"
             defaultValue={totalIncome}
-            onChange={(e: any) => setTotalIncome(Number(e.target.value))}
+            disabled={true}
           />
         </FormGroup>
       </FlexRow>

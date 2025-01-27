@@ -62,7 +62,7 @@ const LoansResearchForm = (props: Props) => {
   // loan state
   const [loans, setLoans] = useState<ILoan[]>(loansResearch?.loans || []);
 
-  const [monthlyCostAmount, setTotalCostAmount] = useState<number>(
+  const [monthlyCostAmount, setMonthlyCostAmount] = useState<number>(
     loansResearch?.monthlyCostAmount || 0
   );
   const [monthlyLoanAmount, setMonthlyLoanAmount] = useState<number>(
@@ -74,18 +74,30 @@ const LoansResearchForm = (props: Props) => {
 
   useEffect(() => {
     let increaseAmount;
-    const ratio = (monthlyLoanAmount / averageBusinessIncome) * 100;
+
+    const ratio = (totalPaymentAmount / totalIncome) * 100;
+
     if (customerType === 'Customer') {
-      increaseAmount = averageBusinessIncome * 0.8 - monthlyLoanAmount;
+      increaseAmount = averageSalaryIncome * 0.8 - totalPaymentAmount;
     }
 
     if (customerType === 'Company') {
-      increaseAmount = averageBusinessIncome * 0.7 - monthlyLoanAmount;
+      increaseAmount = averageBusinessIncome * 0.7 - totalPaymentAmount;
+    }
+
+    if (customerType === 'Customer+Company') {
+      increaseAmount = totalIncome * 0.7 - totalPaymentAmount;
     }
 
     setDebtIncomeRatio(ratio);
     setIncreaseMonthlyPaymentAmount(increaseAmount);
-  }, [averageBusinessIncome, monthlyLoanAmount, customerType]);
+  }, [
+    averageSalaryIncome,
+    averageBusinessIncome,
+    totalIncome,
+    totalPaymentAmount,
+    customerType,
+  ]);
 
   useEffect(() => {
     if (loans && loans.length > 0) {
@@ -101,17 +113,42 @@ const LoansResearchForm = (props: Props) => {
         0
       );
 
-      // Update the states independently
       setMonthlyLoanAmount(loanSum);
-      setTotalCostAmount(costSum);
+      setMonthlyCostAmount(costSum);
     }
   }, [loans]);
 
   useEffect(() => {
-    const haha = monthlyCostAmount + monthlyLoanAmount;
+    const totalPayment = monthlyCostAmount + monthlyLoanAmount;
 
-    setTotalPaymentAmount(haha);
+    setTotalPaymentAmount(totalPayment);
   }, [monthlyCostAmount, monthlyLoanAmount]);
+
+  useEffect(() => {
+    if (incomes && incomes.length > 0) {
+      // Calculate total salary income amount
+      const salarySum = incomes.reduce((accumulator, income) => {
+        const monthlyIncome =
+          (income.totalSalaryIncome || 0) / (income.totalMonth || 1);
+        return accumulator + monthlyIncome;
+      }, 0);
+
+      // Calculate total business income amount
+      const businessSum = incomes.reduce(
+        (accumulator, income) => accumulator + (income.businessIncome || 0),
+        0
+      );
+
+      setAverageSalaryIncome(salarySum);
+      setAverageBusinessIncome(businessSum);
+    }
+  }, [incomes]);
+
+  useEffect(() => {
+    const total = averageSalaryIncome + averageBusinessIncome;
+
+    setTotalIncome(total);
+  }, [averageSalaryIncome, averageBusinessIncome]);
 
   const generateDoc = (values: { _id: string } & ILoanResearch) => {
     const finalValues = values;
@@ -160,11 +197,8 @@ const LoansResearchForm = (props: Props) => {
           incomes={incomes}
           setIncomes={setIncomes}
           averageSalaryIncome={averageSalaryIncome}
-          setAverageSalaryIncome={setAverageSalaryIncome}
           totalIncome={totalIncome}
-          setTotalIncome={setTotalIncome}
           averageBusinessIncome={averageBusinessIncome}
-          setAverageBusinessIncome={setAverageBusinessIncome}
         />
       );
     }
