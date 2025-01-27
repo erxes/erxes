@@ -11,7 +11,6 @@ type Props = {
   customerId: string;
   setCustomerId: (dealId: string) => void;
   customerType: string;
-  setCustomerType: (dealId: string) => void;
   totalIncome: number;
   totalPaymentAmount: number;
   debtIncomeRatio: number;
@@ -25,7 +24,6 @@ const DealForm = (props: Props) => {
     customerId,
     setCustomerId,
     customerType,
-    setCustomerType,
     totalIncome,
     totalPaymentAmount,
     debtIncomeRatio,
@@ -38,10 +36,6 @@ const DealForm = (props: Props) => {
 
   const onChangeCustomerId = (e) => {
     setCustomerId(e.target.value);
-  };
-
-  const onCustomerTypeChange = (option) => {
-    setCustomerType(option.value);
   };
 
   return (
@@ -64,7 +58,7 @@ const DealForm = (props: Props) => {
         <ControlLabel>Customer type</ControlLabel>
         <Select
           value={CUSTOMER_TYPES.find((o) => o.value === customerType)}
-          onChange={onCustomerTypeChange}
+          isDisabled={true}
           options={CUSTOMER_TYPES}
           isClearable={false}
         />

@@ -190,7 +190,6 @@ const LoansResearchForm = (props: Props) => {
           dealId={dealId}
           setDealId={setDealId}
           customerType={customerType}
-          setCustomerType={setCustomerType}
           customerId={customerId}
           setCustomerId={setCustomerId}
           totalIncome={totalIncome}
