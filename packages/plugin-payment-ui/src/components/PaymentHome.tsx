@@ -19,21 +19,7 @@ type Props = {
 
 const Home: React.FC<Props> = ({ queryParams, totalCount }: Props) => {
   const [searchValue, setSearchValue] = useState('');
-  const [payments, setPayments] = useState(
-    PAYMENTCONFIGS.filter(
-      (payment) => payment.category.indexOf('Payment method') !== -1,
-    ),
-  );
-
-  useEffect(() => {
-    setPayments(
-      PAYMENTCONFIGS.filter(
-        (payment) =>
-          payment.name.toLowerCase().indexOf(searchValue) !== -1 &&
-          payment.category.indexOf(queryParams.kind || 'Payment method') !== -1,
-      ),
-    );
-  }, [searchValue, queryParams.kind]);
+  const [payments, setPayments] = useState(PAYMENTCONFIGS);
 
   const onSearch = (e) => {
     setSearchValue(e.target.value.toLowerCase());
@@ -43,14 +29,39 @@ const Home: React.FC<Props> = ({ queryParams, totalCount }: Props) => {
     const datas = [] as any;
     const rows = [...payments];
 
-    while (rows.length > 0) {
+    if (isEnabled('khanbank')) {
+      rows.push({
+        name: 'Khanbank',
+        description: 'Khanbank',
+        isAvailable: true,
+        kind: 'khanbank',
+        logo: 'images/payments/khanbank.png',
+        inputs: [
+        ],
+        acceptedCurrencies: ['MNT'],
+      });
+    }
+
+    const sorted = rows.sort((a, b) => {
+      if (a.isAvailable && !b.isAvailable) {
+        return -1;
+      }
+
+      if (!a.isAvailable && b.isAvailable) {
+        return 1;
+      }
+
+      return 0;
+    });
+
+    while (sorted.length > 0) {
       datas.push(
         <PaymentRow
-          key={rows.length}
-          payments={rows.splice(0, 4)}
+          key={sorted.length}
+          payments={sorted.splice(0, 4)}
           paymentsCount={totalCount}
           queryParams={queryParams}
-        />,
+        />
       );
     }
 
@@ -59,7 +70,7 @@ const Home: React.FC<Props> = ({ queryParams, totalCount }: Props) => {
         <FullHeight>
           <EmptyState
             text={`No results for1 "${searchValue}"`}
-            image="/images/actions/2.svg"
+            image='/images/actions/2.svg'
           />
         </FullHeight>
       );
@@ -71,9 +82,9 @@ const Home: React.FC<Props> = ({ queryParams, totalCount }: Props) => {
   const renderSearch = () => {
     return (
       <SearchInput isInPopover={false}>
-        <Icon icon="search-1" />
+        <Icon icon='search-1' />
         <FormControl
-          type="text"
+          type='text'
           placeholder={__('Type to search for an payments') + '...'}
           onChange={onSearch}
         />
@@ -88,7 +99,7 @@ const Home: React.FC<Props> = ({ queryParams, totalCount }: Props) => {
         <Wrapper.ActionBar
           left={<Title>{queryParams.kind || 'All Payments'}</Title>}
           right={renderSearch()}
-          background="colorWhite"
+          background='colorWhite'
         />
       }
       content={
