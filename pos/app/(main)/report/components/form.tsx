@@ -29,7 +29,6 @@ import { TimePicker } from "./timePicker";
 interface DailyReportResponse {
   dailyReport: {
     report: string;
-    __typename: string;
   };
 }
 
