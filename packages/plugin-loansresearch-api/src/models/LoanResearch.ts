@@ -1,7 +1,7 @@
 import {
   ILoanResearch,
   ILoanResearchDocument,
-  configSchema,
+  loanResearchSchema,
 } from './definitions/loansResearch';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
@@ -44,7 +44,7 @@ export const loadLoansResearchClass = (models: IModels) => {
     }
   }
 
-  configSchema.loadClass(LoanResearch);
+  loanResearchSchema.loadClass(LoanResearch);
 
-  return configSchema;
+  return loanResearchSchema;
 };
