@@ -13,6 +13,8 @@ export const contractTypeFields = `
   useSkipInterest
   skipInterestDay
   skipInterestMonth
+  skipPaymentDay
+  skipPaymentMonth
 
   lossPercent
   lossCalcType
@@ -39,9 +41,8 @@ export const contractTypeFields = `
   useCollateral
   minPercentMargin
 
-  requirements
-  customerDocuments
-  companyDocuments
+  overPaymentIsNext
+  collectivelyRule
   
   createdAt
   modifiedAt

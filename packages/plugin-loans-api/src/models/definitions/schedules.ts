@@ -41,6 +41,7 @@ export interface ISchedule {
   didInsurance?: number;
   didDebt?: number;
   didTotal: number;
+  freezeAmount?: number;
   surplus?: number;
 
   scheduleDidPayment?: number;

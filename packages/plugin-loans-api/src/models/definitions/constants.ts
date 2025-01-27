@@ -1,11 +1,13 @@
 export const REPAYMENT_TYPE = [
   { label: 'Equal Principal Payment', value: 'equal' }, // undsen tulbur tentsuu
   { label: 'Fixed Rate Payment', value: 'fixed' }, // niit tulbur tentsuu
+  { label: 'Last of date', value: 'last' }, // niit tulbur tentsuu
 ];
 
 export const REPAYMENT = {
   EQUAL: 'equal', // undsen tulbur tentsuu
   FIXED: 'fixed', // niit tulbur tentsuu
+  LAST: 'last', // hugatsaanii etsest neg udaa
 };
 
 export const CONTRACT_STATUS = {
@@ -68,6 +70,14 @@ export const LEASE_TYPES = {
   SAVING: 'saving',
 
   ALL: ['finance', 'linear', 'credit', 'saving']
+};
+
+export const COLLECTIVELY_RULES = {
+  FREE: 'free',
+  MUST: 'must',
+  NOT: 'not',
+
+  ALL: ['free', 'must', 'not']
 };
 
 export const INTEREST_CORRECTION_TYPE = {

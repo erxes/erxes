@@ -14,6 +14,8 @@ export const types = () => `
     useSkipInterest: Boolean
     skipInterestDay: Float
     skipInterestMonth: Float
+    skipPaymentDay: Float
+    skipPaymentMonth: Float
 
     lossPercent: Float
     lossCalcType: String
@@ -45,9 +47,8 @@ export const types = () => `
     useCollateral: Boolean
     minPercentMargin: Float
 
-    requirements: [String]
-    customerDocuments: [String]
-    companyDocuments: [String]
+    overPaymentIsNext: Boolean
+    collectivelyRule: String
   }
 
   type ContractTypesListResponse {
@@ -94,6 +95,8 @@ const commonFields = `
   useSkipInterest: Boolean
   skipInterestDay: Float
   skipInterestMonth: Float
+  skipPaymentDay: Float
+  skipPaymentMonth: Float
 
   lossPercent: Float
   lossCalcType: String
@@ -117,12 +120,11 @@ const commonFields = `
 
   feePercent: Float
   defaultFee: Float
-  minPercentMargin: Float
   useCollateral: Boolean
+  minPercentMargin: Float
 
-  requirements: [String]
-  customerDocuments: [String]
-  companyDocuments: [String]
+  overPaymentIsNext: Boolean
+  collectivelyRule: String
 `;
 
 export const mutations = `

@@ -21,13 +21,11 @@ import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { __ } from "coreui/utils";
 import dayjs from "dayjs";
 import moment from "moment";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { LoanPurpose } from "../../../constants";
 import { LEASE_TYPES } from "../../../contractTypes/constants";
-import SelectContractType, {
-  ContractTypeById,
-} from "../../../contractTypes/containers/SelectContractType";
+import SelectContractType from "../../../contractTypes/containers/SelectContractType";
 import { IContractType, IContractTypeDoc } from "../../../contractTypes/types";
 import { RelType } from "../../containers/ContractForm";
 import { IContract, IContractDoc } from "../../types";
@@ -90,7 +88,9 @@ export const Tabs = ({ tabs }: ITabs) => {
 }
 
 function ContractForm(props: Props) {
-  const [contract, setContract] = useState(props.contract || {} as IContract);
+  const [contract, setContract] = useState(props.contract || {
+    customerType: 'customer'
+  } as IContract);
   const [contractType, setContractType] = useState<IContractTypeDoc>(props.contract?.contractType || {});
 
   const generateDoc = (values: { _id: string } & IContractDoc) => {
@@ -136,6 +136,10 @@ function ContractForm(props: Props) {
     return result;
   };
 
+  useEffect(() => {
+    setContract({ ...contract, feeAmount: contractType?.defaultFee || contract.leaseAmount / 100 * (contractType?.feePercent ?? 0) });
+  }, [contractType, contract.leaseAmount]);
+
   const renderFormGroup = (label, props) => {
     if (!label) return <FormControl {...props} />;
     return (
@@ -170,11 +174,12 @@ function ContractForm(props: Props) {
     setContract((v) => ({ ...v, [name]: value }));
   };
 
-  const onSelectContractType = (value) => {
-    const selectedContractType: IContractType = ContractTypeById[value];
+  const onSelectContractType = (contractTypeId, obj?: IContractType) => {
+    const selectedContractType = obj || {} as IContractType;
+
 
     let changingStateValue: any = {
-      contractTypeId: value,
+      contractTypeId,
       leaseType: (selectedContractType && selectedContractType.leaseType) || "finance",
       commitmentInterest:
         (selectedContractType && selectedContractType.commitmentInterest) || 0,
@@ -184,7 +189,7 @@ function ContractForm(props: Props) {
       currency: selectedContractType.currency,
       useManualNumbering: selectedContractType?.useManualNumbering,
       interestRate: selectedContractType.defaultInterest,
-      useFee: selectedContractType?.useFee,
+      feeAmount: selectedContractType.defaultFee || contract.leaseAmount / 100 * (selectedContractType.feePercent ?? 0)
     };
 
     if (!contract.lossPercent) {
@@ -319,8 +324,8 @@ function ContractForm(props: Props) {
                 <SelectContractType
                   label={__("Choose type")}
                   name="contractTypeId"
-                  value={contract.contractTypeId || ""}
-                  onSelect={onSelectContractType}
+                  initialValue={contract.contractTypeId || ""}
+                  onSelect={(contractTypeId, obj) => { onSelectContractType(contractTypeId, obj) }}
                   multi={false}
                 />
               </FormGroup>
@@ -335,30 +340,31 @@ function ContractForm(props: Props) {
                   onChange: onCheckCustomerType,
                 })}
               </div>
-              {contract.customerType === "customer" && (
-                <FormGroup>
-                  <ControlLabel required={true}>{__("Customer")}</ControlLabel>
-                  <SelectCustomers
-                    label={__("Choose customer")}
-                    name="customerId"
-                    initialValue={contract.customerId}
-                    onSelect={onSelectCustomer}
-                    multi={false}
-                  />
-                </FormGroup>
-              )}
-              {contract.customerType === "company" && (
-                <FormGroup>
-                  <ControlLabel required={true}>{__("Company")}</ControlLabel>
-                  <SelectCompanies
-                    label={__("Choose company")}
-                    name="customerId"
-                    initialValue={contract.customerId}
-                    onSelect={onSelectCustomer}
-                    multi={false}
-                  />
-                </FormGroup>
-              )}
+              {
+                contract.customerType === "company" && (
+                  <FormGroup>
+                    <ControlLabel required={true}>{__("Company")}</ControlLabel>
+                    <SelectCompanies
+                      label={__("Choose company")}
+                      name="customerId"
+                      initialValue={contract.customerId}
+                      onSelect={onSelectCustomer}
+                      multi={false}
+                    />
+                  </FormGroup>
+                ) || (
+                  <FormGroup>
+                    <ControlLabel required={true}>{__("Customer")}</ControlLabel>
+                    <SelectCustomers
+                      label={__("Choose customer")}
+                      name="customerId"
+                      initialValue={contract.customerId}
+                      onSelect={onSelectCustomer}
+                      multi={false}
+                    />
+                  </FormGroup>
+                )
+              }
               {contract.useManualNumbering &&
                 renderFormGroup("Contract Number", {
                   ...formProps,
@@ -384,7 +390,7 @@ function ContractForm(props: Props) {
                   />
                 </DateContainer>
               </FormGroup>
-              {contractType.useFee && renderFormGroup("Fee Amount", {
+              {renderFormGroup("Fee Amount", {
                 ...formProps,
                 type: "number",
                 name: "feeAmount",
@@ -419,7 +425,6 @@ function ContractForm(props: Props) {
                   onChange: onChangeField,
                   onClick: onFieldClick,
                 })}
-
             </FormColumn>
             <FormColumn>
               <FormGroup>
@@ -673,7 +678,7 @@ function ContractForm(props: Props) {
                   value={contract.repayment}
                   onChange={onChangeField}
                 >
-                  {["fixed", "equal"].map((typeName) => (
+                  {["fixed", "equal", "last"].map((typeName) => (
                     <option key={typeName} value={typeName}>
                       {__(typeName + "Method")}
                     </option>
@@ -734,7 +739,7 @@ function ContractForm(props: Props) {
                 </DateContainer>
               </FormGroup>
 
-              {renderFormGroup("Interest Rate", {
+              {renderFormGroup("Interest Rate in Year", {
                 ...formProps,
                 type: "number",
                 useNumberFormat: true,
@@ -744,6 +749,13 @@ function ContractForm(props: Props) {
                 errors: checkValidation(),
                 onChange: onChangeField,
                 onClick: onFieldClick,
+              })}
+              {renderFormGroup("Interest rate in Month", {
+                ...formProps,
+                name: "interestRateInMonth",
+                type: "number",
+                value: (contract.interestRate || 0) / 12,
+                onChange: (e => setContract({ ...contract, 'interestRate': (e.target as any).value * 12 }))
               })}
 
               <FormGroup>

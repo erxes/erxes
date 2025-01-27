@@ -100,6 +100,7 @@ export const types = () => `
     contractType: ContractType
     relContract: RecContract
     customer: Customer
+    givenAmount: Float
 
     hasTransaction: Boolean
     nextPaymentDate: Date

@@ -64,24 +64,42 @@ const ContentWrapper = styled.div`
   background: white;
 `;
 
+interface IContractConfigMap extends IContractConfig {
+  requirementsTxt?: string;
+  customerDocumentsTxt?: string;
+  companyDocumentsTxt?: string;
+}
+
 type Props = {
   contractType: IContractTypeDetail;
   saveItem: (doc: IContractTypeDetail, callback?: (item) => void) => void;
 };
 
 const GeneralSettings = (props: Props) => {
-  const [currentMap, setCurrentMap] = useState(props.contractType.config || {} as IContractConfig);
+  const [currentMap, setCurrentMap] = useState({
+    ...props.contractType.config || {} as IContractConfigMap,
+    requirementsTxt: props.contractType.config?.requirements?.join('\n'),
+    customerDocumentsTxt: props.contractType.config?.customerDocuments?.join('\n'),
+    companyDocumentsTxt: props.contractType.config?.companyDocuments?.join('\n'),
+  });
   const [state, setState] = useState(props.contractType)
   const { contractType } = props;
 
   const save = (e) => {
     e.preventDefault();
 
-    props.saveItem({ ...contractType, ...state, config: currentMap });
+    props.saveItem({
+      ...contractType, ...state, config: {
+        ...currentMap,
+        requirements: currentMap.requirementsTxt?.split('\n'),
+        customerDocuments: currentMap.customerDocumentsTxt?.split('\n'),
+        companyDocuments: currentMap.companyDocumentsTxt?.split('\n'),
+      }
+    });
   };
 
   const onChangeConfig = (code: string, value) => {
-    setCurrentMap({ ...(currentMap || {}), [code]: value } as IContractConfig);
+    setCurrentMap({ ...(currentMap || {}), [code]: value });
   };
 
   const onChangeInput = (code: string, e) => {
@@ -300,10 +318,10 @@ const GeneralSettings = (props: Props) => {
         </CollapseContent>
 
         <CollapseContent title={__("Range config")}>
-          {renderItem("minInterest", "Min interest", {
+          {renderItem("minInterest", `Min interest (month: ${((currentMap.minInterest ?? 0) / 12).toLocaleString()})`, {
             type: "number",
           })}
-          {renderItem("maxInterest", "Max interest", {
+          {renderItem("maxInterest", `Max  interest (month: ${((currentMap.maxInterest ?? 0) / 12).toLocaleString()})`, {
             type: "number",
           })}
           {renderItem("minTenor", "Min tenor /Month/", {
@@ -374,6 +392,11 @@ const GeneralSettings = (props: Props) => {
               onChangeStage={(stageId) => setCurrentMap({ ...currentMap, stageId: stageId })}
             />
           </FormGroup>
+        </CollapseContent>
+        <CollapseContent title={__("Requirements")}>
+          {renderItem("requirementsTxt", "", { componentclass: "textarea" })}
+          {renderItem("customerDocumentsTxt", "", { componentclass: "textarea" })}
+          {renderItem("companyDocumentsTxt", "", { componentclass: "textarea" })}
         </CollapseContent>
       </ContentBox>
     </ScrollWrapper>

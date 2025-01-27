@@ -1,4 +1,4 @@
-import { LEASE_TYPES } from './constants';
+import { COLLECTIVELY_RULES, LEASE_TYPES } from './constants';
 import { schemaHooksWrapper, field } from './utils';
 import { Schema, Document } from 'mongoose';
 
@@ -66,6 +66,10 @@ export interface IContractConfig {
   maxAmount: number;
   minCommitmentInterest: number;
   maxCommitmentInterest: number;
+
+  requirements?: string[];
+  customerDocuments?: string[];
+  companyDocuments?: string[];
 }
 
 export interface IContractType {
@@ -82,6 +86,8 @@ export interface IContractType {
   useSkipInterest?: boolean;
   skipInterestDay?: number;
   skipInterestMonth?: number;
+  skipPaymentDay?: number;
+  skipPaymentMonth?: number;
 
   lossPercent?: number;
   lossCalcType?: string;
@@ -108,9 +114,8 @@ export interface IContractType {
   useCollateral?: boolean;
   minPercentMargin?: number;
 
-  requirements?: string[];
-  customerDocuments?: string[];
-  companyDocuments?: string[];
+  overPaymentIsNext?: boolean;
+  collectivelyRule?: string;
 }
 
 export interface IContractTypeDocument extends IContractType, Document {
@@ -142,19 +147,21 @@ export const contractTypeSchema = schemaHooksWrapper(
     leaseType: field({ type: String, enum: LEASE_TYPES.ALL, label: 'Lease Type', required: true, default: LEASE_TYPES.FINANCE }),
     currency: field({ type: String, default: 'MNT', label: 'contract type currency of lease' }),
 
-    defaultInterest: field({ type: Number, min: 0, max: 100, label: 'Default Percent', optional: true }),
+    defaultInterest: field({ type: Number, label: 'Default Percent', optional: true }),
     useSkipInterest: field({ type: Boolean, label: 'use skip interest' }),
-    skipInteresDay: field({ type: Number, label: 'Skip interest Day', optional: true }),
-    skipInteresMonth: field({ type: Number, label: 'Skip interest Month', optional: true }),
+    skipInterestDay: field({ type: Number, label: 'Skip interest Day', optional: true }),
+    skipInterestMonth: field({ type: Number, label: 'Skip interest Month', optional: true }),
+    skipPaymentDay: field({ type: Number, label: 'Skip interest Day', optional: true }),
+    skipPaymentMonth: field({ type: Number, label: 'Skip interest Month', optional: true }),
 
-    lossPercent: field({ type: Number, min: 0, max: 100, label: 'Loss Percent', optional: true }),
+    lossPercent: field({ type: Number, label: 'Loss Percent', optional: true }),
     lossCalcType: field({ type: String, label: 'Loss Calc Type', optional: true }),
     skipLossDay: field({ type: Number, label: 'Skip loss day', optional: true }),
     allowLateDay: field({ type: Number, label: 'Allow late day', optional: true }),
 
     allowPartOfLease: field({ type: Boolean, label: 'Allow part of lease', optional: true }),
     limitIsCurrent: field({ type: Boolean, label: 'Limit Is Current balance', optional: true }),
-    commitmentInterest: field({ type: Number, min: 0, max: 100, label: 'Commitment Interest', default: 0 }),
+    commitmentInterest: field({ type: Number, label: 'Commitment Interest', default: 0 }),
 
     useMargin: field({ type: Boolean, label: 'Use margin', optional: true }),
     useDebt: field({ type: Boolean, label: 'Use debt', optional: true }),
@@ -173,9 +180,13 @@ export const contractTypeSchema = schemaHooksWrapper(
     useCollateral: field({ type: Boolean, label: 'Use Collateral', optional: true }),
     minPercentMargin: field({ type: Number, label: 'pre Percent', optional: true }),
 
+    collectivelyRule: field({ type: String, optional: true, enum: COLLECTIVELY_RULES.ALL, label: 'collectively Rule' }),
+    overPaymentIsNext: field({ type: Boolean, label: 'Use Collateral', default: false, optional: true }),
+
     requirements: field({ type: [String], optional: true, label: 'requirements' }),
     customerDocuments: field({ type: [String], optional: true, label: 'customer Documents' }),
     companyDocuments: field({ type: [String], optional: true, label: 'company Documents' }),
+
 
     createdAt: field({ type: Date, default: () => new Date(), label: 'Created at' }),
     modifiedAt: field({ type: Date, optional: true, label: 'Created at' }),

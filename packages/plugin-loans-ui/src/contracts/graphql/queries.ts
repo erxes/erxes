@@ -2,6 +2,7 @@ import {
   conformityQueryFieldDefs,
   conformityQueryFields
 } from "@erxes/ui-sales/src/conformity";
+import { contractTypeFields } from "../../contractTypes/graphql/queries";
 
 export const contractFields = `
   _id
@@ -253,6 +254,7 @@ export const contractsMain = `
         }
         contractType {
           name
+
         }
       }
       totalCount
@@ -266,10 +268,10 @@ export const contractDetailFields = `
   storeInterest
   loanTransactionHistory
   depositAccountId
+  nextPayment
+  payedAmountSum
   contractType {
-    code
-    name
-    leaseType
+    ${contractTypeFields}
   }
 
   customer {
@@ -312,8 +314,6 @@ export const contractDetail = `
     contractDetail(_id: $_id) {
       ${contractFields}
       ${contractDetailFields}
-      nextPayment
-      payedAmountSum
     }
   }
 `;

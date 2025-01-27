@@ -1,65 +1,69 @@
 import { IProduct } from "@erxes/ui-products/src/types";
 
 export interface IContractConfig {
-  receivable: string;
-  temp: string;
-  giving: string;
-  tempDebt: string;
+  receivable?: string;
+  temp?: string;
+  giving?: string;
+  tempDebt?: string;
 
-  mainUserEmail: string;
-  mainHasVat: string;
-  mainHasCitytax: string;
-  mainIsEbarimt: string;
+  mainUserEmail?: string;
+  mainHasVat?: string;
+  mainHasCitytax?: string;
+  mainIsEbarimt?: string;
 
-  districtName: string;
-  isAmountUseEBarimt: boolean;
-  isLossUseEBarimt: boolean;
+  districtName?: string;
+  isAmountUseEBarimt?: boolean;
+  isLossUseEBarimt?: boolean;
 
-  interestReceivable: string;
-  interestGiving: string;
-  interestCalcedReceive: string;
-  interestIncome: string;
+  interestReceivable?: string;
+  interestGiving?: string;
+  interestCalcedReceive?: string;
+  interestIncome?: string;
 
-  extraInterestUserEmail: string;
-  extraInterestHasVat: string;
-  extraInterestHasCitytax: string;
-  extraInterestIsEbarimt: string;
+  extraInterestUserEmail?: string;
+  extraInterestHasVat?: string;
+  extraInterestHasCitytax?: string;
+  extraInterestIsEbarimt?: string;
 
-  insuranceReceivable: string;
-  insuranceGiving: string;
+  insuranceReceivable?: string;
+  insuranceGiving?: string;
 
-  lossStock: string;
-  lossUserEmail: string;
-  lossHasVat: string;
-  lossHasCitytax: string;
-  lossIsEbarimt: string;
+  lossStock?: string;
+  lossUserEmail?: string;
+  lossHasVat?: string;
+  lossHasCitytax?: string;
+  lossIsEbarimt?: string;
 
-  otherReceivable: string;
-  feeIncome: string;
-  defaultCustomer: string;
-  userEmail: string;
-  repaymentTemp: string;
+  otherReceivable?: string;
+  feeIncome?: string;
+  defaultCustomer?: string;
+  userEmail?: string;
+  repaymentTemp?: string;
 
-  isAutoSendEBarimt: boolean;
+  isAutoSendEBarimt?: boolean;
 
-  normalExpirationDay: number;
-  expiredExpirationDay: number;
-  doubtExpirationDay: number;
-  negativeExpirationDay: number;
-  badExpirationDay: number;
+  normalExpirationDay?: number;
+  expiredExpirationDay?: number;
+  doubtExpirationDay?: number;
+  negativeExpirationDay?: number;
+  badExpirationDay?: number;
 
   boardId: string;
   pipelineId: string;
   stageId: string;
 
-  minInterest: number;
-  maxInterest: number;
-  minTenor: number;
-  maxTenor: number;
-  minAmount: number;
-  maxAmount: number;
-  minCommitmentInterest: number;
-  maxCommitmentInterest: number;
+  minInterest?: number;
+  maxInterest?: number;
+  minTenor?: number;
+  maxTenor?: number;
+  minAmount?: number;
+  maxAmount?: number;
+  minCommitmentInterest?: number;
+  maxCommitmentInterest?: number;
+
+  requirements?: string[];
+  customerDocuments?: string[];
+  companyDocuments?: string[];
 }
 
 export interface IContractTypeDoc {
@@ -76,6 +80,8 @@ export interface IContractTypeDoc {
   useSkipInterest?: boolean;
   skipInterestDay?: number;
   skipInterestMonth?: number;
+  skipPaymentDay?: number;
+  skipPaymentMonth?: number;
 
   lossPercent?: number;
   lossCalcType?: string;
@@ -102,9 +108,8 @@ export interface IContractTypeDoc {
   useCollateral?: boolean;
   minPercentMargin?: number;
 
-  requirements?: String[];
-  customerDocuments?: String[];
-  companyDocuments?: String[];
+  overPaymentIsNext?: boolean;
+  collectivelyRule?: string;
 }
 
 export interface IContractType extends IContractTypeDoc {
