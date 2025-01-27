@@ -62,7 +62,6 @@ const renderButton = ({
 };
 
 function renderCreate(kind: string) {
-  console.log(kind);
   if (!kind) {
     return null;
   }

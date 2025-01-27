@@ -276,7 +276,7 @@ export const setupMessageConsumers = async () => {
   consumeRPCQueue('khanbank:findTransaction', async ({ subdomain, data }) => {
     const { configId, accountNumber, record, description, type } = data;
 
-    if (!configId || !accountNumber || !record) {
+    if (!configId || !accountNumber || !record || !description) {
       return {
         status: 'error',
         errorMessage: 'Config id, account number and record is required',
@@ -299,13 +299,15 @@ export const setupMessageConsumers = async () => {
       const response = await api.statements.record(accountNumber, record);
 
       const transactions = response.transactions.filter((transaction) => {
+        const normalizedDesc = transaction.description.toLowerCase();
+        const searchDesc = description.toLowerCase();
         if (type === 'income') {
           return (
-            transaction.amount > 0 && transaction.description.includes(description)
+            transaction.amount > 0 && normalizedDesc.includes(searchDesc)
           );
         } else {
           return (
-            transaction.amount < 0 && transaction.description.includes(description)
+            transaction.amount < 0 && normalizedDesc.includes(searchDesc)
           );
         }
       });

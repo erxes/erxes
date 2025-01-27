@@ -44,7 +44,7 @@ const Khanbank = (props: Props) => {
       },
     });
 
-  if (loading) {
+  if (loading || accountsLoading) {
     return <Spinner />;
   }
 

@@ -112,10 +112,6 @@ const ConfigForm: React.FC<Props> = ({
         <SettingsContent title={__('General settings')}>
           {renderItem('paymentName', 'Name', 'text')}
 
-          {/* {inputs.map((input: any) => {
-            const { label, key, type } = input;
-            return renderItem(key, label, type);
-          })} */}
 
           <FormGroup>
             <ControlLabel required={true}>Config</ControlLabel>
@@ -155,8 +151,8 @@ const ConfigForm: React.FC<Props> = ({
               <ControlLabel required={true}>Account</ControlLabel>
               <FormControl
                 {...formProps}
-                id='config'
-                name='config'
+                id='accountSelect'
+                name='accountNumber'
                 componentclass='select'
                 required={true}
                 defaultValue={state.configMap.accountNumber}

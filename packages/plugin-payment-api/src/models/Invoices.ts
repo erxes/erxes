@@ -80,17 +80,36 @@ export const loadInvoiceClass = (models: IModels) => {
       });
 
       if (unpaidTransactions.length > 0) {
-        for (const transaction of unpaidTransactions) {
-          const status = await models.Transactions.checkTransaction(
-            transaction._id
+        try {
+          // Process transactions in parallel for better performance
+          const statusChecks = await Promise.all(
+            unpaidTransactions.map((transaction) =>
+              models.Transactions.checkTransaction(transaction._id)
+            )
           );
 
-          if (status === 'paid') {
-            await models.Transactions.updateOne(
-              { _id: transaction._id },
-              { $set: { status: 'paid' } }
-            );
+          // Update transactions atomically using bulkWrite
+          const bulkOps = unpaidTransactions.map((transaction, index) => ({
+            updateOne: {
+              filter: {
+                _id: transaction._id,
+                status: 'pending', // Ensure status hasn't changed
+              },
+              update: {
+                $set: {
+                  status: statusChecks[index] === 'paid' ? 'paid' : 'pending',
+                },
+              },
+            },
+          }));
+
+          if (bulkOps.length > 0) {
+            await models.Transactions.bulkWrite(bulkOps);
           }
+        } catch (error) {
+          console.error(
+            `Error checking transaction statuses: ${error.message}`
+          );
         }
       }
 
