@@ -12,11 +12,19 @@ const queries = {
     const {
       page,
       perPage,
+      searchValue
     } = args;
 
     const query: any = {
       clientPortalId: args.clientPortalId,
     };
+
+    if (searchValue) {
+      query.$or = [
+        { name: { $regex: searchValue, $options: 'i' } },
+        { slug: { $regex: searchValue, $options: 'i' } },
+      ];
+    }
 
 
     if (page && perPage) {
@@ -35,12 +43,20 @@ const queries = {
       perPage = 20,
       sortField = 'createdAt',
       sortDirection = 'desc',
-      clientPortalId
+      clientPortalId,
+      searchValue
     } = args;
 
     const query: any = {
       clientPortalId,
     };
+
+    if (searchValue) {
+      query.$or = [
+        { name: { $regex: searchValue, $options: 'i' } },
+        { slug: { $regex: searchValue, $options: 'i' } },
+      ];
+    }
 
   
     const totalCount = await models.Pages.find(query).countDocuments();

@@ -69,4 +69,17 @@ export class StatementsApi extends BaseApi {
       throw new Error(e.message);
     }
   }
+
+  async record(accountNumber: string, record: number) {
+    try {
+      return await this.request({
+        method: 'GET',
+        path: `statements/${accountNumber}/record`,
+        params: { record }
+      });
+    } catch (e) {
+      console.error(e);
+      throw new Error(e.message);
+    }
+  }
 }

@@ -1,11 +1,12 @@
 import React from 'react';
 import Modal from 'react-modal';
 import { usePayment } from './Payments';
-import Minupay from './minupay';
-import QrPayment from './qrpayment';
+import Minupay from './Minupay';
+import QrPayment from './QrPayment';
 import PhonePayment from './phonepayment';
 import GolomtForm from './GolomtForm';
 import StripePayment from './Stripe';
+import Khanbank from './KhanbankForm';
 
 const PaymentModal = () => {
   const { isOpen, onClose, kind = 'default' } = usePayment();
@@ -18,6 +19,8 @@ const PaymentModal = () => {
         return <GolomtForm />;
       case 'stripe':
         return <StripePayment />;
+      case 'khanbank':
+        return <Khanbank />;
       default:
         return (
           <>
