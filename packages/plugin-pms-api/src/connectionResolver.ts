@@ -7,17 +7,20 @@ import { IConfigDocument } from './models/definitions/configs';
 import { ICleaningModel, loadCleaningClass } from './models/Cleaning';
 import {
   ICleaningDocument,
-  ICleaningHistoryDocument,
+  ICleaningHistoryDocument
 } from './models/definitions/cleaning';
 import {
   ICleaningHistoryModel,
-  loadCleaningHistoryClass,
+  loadCleaningHistoryClass
 } from './models/CleaningHistory';
+import { ITmsBranchModel, loadBmsBranchClass } from './models/TmsBranch';
+import { ITmsBranchDocument } from './models/definitions/tmsbranch';
 
 export interface IModels {
   Configs: IConfigModel;
   Cleaning: ICleaningModel;
   History: ICleaningHistoryModel;
+  TmsBranch: ITmsBranchModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -41,6 +44,10 @@ export const loadClasses = (
   models.History = db.model<ICleaningHistoryDocument, ICleaningHistoryModel>(
     'pms_history',
     loadCleaningHistoryClass(models, subdomain)
+  );
+  models.TmsBranch = db.model<ITmsBranchDocument, ITmsBranchModel>(
+    'pms_branch',
+    loadBmsBranchClass(models, subdomain)
   );
   return models;
 };
