@@ -89,7 +89,7 @@ const IntegrationEditForm = (props: IProps) => {
       {renderInput('queues', 'Queues', details.queues)}
 
       <>
-        {operators.map((operator, index) => (
+        {operators?.map((operator, index) => (
           <OperatorForm
             operator={operator}
             index={index}

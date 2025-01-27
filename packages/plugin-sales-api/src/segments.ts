@@ -102,8 +102,6 @@ export default {
 
     let ids: string[] = [];
 
-    console.log({ associatedTypes, propertyType });
-
     if (associatedTypes.includes(propertyType)) {
       const mainTypeIds = await fetchByQueryWithScroll({
         subdomain,

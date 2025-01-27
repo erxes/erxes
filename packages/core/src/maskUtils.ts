@@ -138,20 +138,20 @@ export const checkSameMaskConfig = async (models: IModels, doc: IProduct) => {
 
     const codeRegex = ["*", ".", "_"].includes(mask)
       ? new RegExp(
-          `^${mask
-            .replace(/\./g, "\\.")
-            .replace(/\*/g, ".")
-            .replace(/_/g, ".")}.*`,
-          "igu"
-        )
+        `^${mask
+          .replace(/\./g, "\\.")
+          .replace(/\*/g, ".")
+          .replace(/_/g, ".")}.*`,
+        "igu"
+      )
       : new RegExp(`.*${mask}.*`, "igu");
 
     const filterFieldVal = filterFieldDef.includes("customFieldsData.")
       ? (
-          doc.customFieldsData.find(
-            cfd => filterFieldDef.replace("customFieldsData.", "") === cfd.field
-          ) || {}
-        ).stringValue
+        doc.customFieldsData.find(
+          cfd => filterFieldDef.replace("customFieldsData.", "") === cfd.field
+        ) || {}
+      ).stringValue
       : doc[filterFieldDef];
 
     if (
@@ -159,7 +159,7 @@ export const checkSameMaskConfig = async (models: IModels, doc: IProduct) => {
       (maskValue.rules || [])
         .map(sg => sg.fieldId)
         .filter(sgf => (customFieldIds || []).includes(sgf)).length ===
-        (maskValue.rules || []).length
+      (maskValue.rules || []).length
     ) {
       result.push(mask);
     }
@@ -178,8 +178,8 @@ export const groupBySameMasksAggregator = (isCount = false) => {
       $addFields: {
         sameMasksLen: {
           $cond: {
-            if: { $isArray: "$sameMasks" },
-            then: { $size: "$sameMasks" },
+            if: { $isArray: '$sameMasks' },
+            then: { $size: '$sameMasks' },
             else: 0
           }
         }
@@ -189,16 +189,27 @@ export const groupBySameMasksAggregator = (isCount = false) => {
       $addFields: {
         sameMasks: {
           $cond: {
-            if: { $gt: ["$sameMasksLen", 0] },
-            then: "$sameMasks",
-            else: ["$_id"]
+            if: { $gt: ['$sameMasksLen', 0] },
+            then: '$sameMasks',
+            else: ['$_id']
           }
         }
       }
     },
     {
-      $unwind: "$sameMasks"
-    }
+      $unwind: '$sameMasks'
+    },
+    {
+      $addFields: {
+        sameSort: {
+          $cond: {
+            if: { $and: [{ $isArray: '$sameDefault' }, { $in: ['$sameMasks', '$sameDefault'] }] },
+            then: '1',
+            else: ''
+          }
+        }
+      }
+    },
   ];
 
   if (isCount) {
@@ -206,13 +217,13 @@ export const groupBySameMasksAggregator = (isCount = false) => {
       ...sameArr,
       {
         $group: {
-          _id: { sameMasks: "$sameMasks" },
-          product: { $first: "$code" }
+          _id: { sameMasks: '$sameMasks' },
+          product: { $first: '$code' }
         }
       },
       {
         $group: {
-          _id: { code: "$product" }
+          _id: { code: '$product' }
         }
       }
     ];
@@ -220,20 +231,12 @@ export const groupBySameMasksAggregator = (isCount = false) => {
 
   return [
     ...sameArr,
-    { $sort: { "product.code": 1 } },
+    { $sort: { 'sameSort': -1 } },
     {
       $group: {
-        _id: { sameMasks: "$sameMasks" },
+        _id: { sameMasks: '$sameMasks' },
         count: { $sum: 1 },
-        product: { $first: "$$ROOT" }
-      }
-    },
-    { $sort: { "product.code": 1 } },
-    {
-      $group: {
-        _id: { code: "$product.code" },
-        count: { $max: "$count" },
-        product: { $first: "$product" }
+        product: { $first: '$$ROOT' }
       }
     }
   ];
@@ -243,30 +246,30 @@ export const groupByCategoryAggregator = (isCount = false) => {
   const sameArr = [
     {
       $lookup: {
-        from: "product_categories",
-        localField: "categoryId",
-        foreignField: "_id",
-        as: "category"
+        from: 'product_categories',
+        localField: 'categoryId',
+        foreignField: '_id',
+        as: 'category'
       }
     },
-    { $unwind: "$category" },
+    { $unwind: '$category' },
     {
       $addFields: {
         same: {
           $cond: {
             if: {
               $and: [
-                { $eq: ["$category.isSimilarity", true] },
+                { $eq: ['$category.isSimilarity', true] },
                 {
                   $setIsSubset: [
-                    "$category.similarities.fieldId",
-                    "$customFieldsData.field"
+                    '$category.similarities.fieldId',
+                    '$customFieldsData.field'
                   ]
                 }
               ]
             },
-            then: "$categoryId",
-            else: "$_id"
+            then: '$categoryId',
+            else: '$_id'
           }
         }
       }
@@ -278,7 +281,7 @@ export const groupByCategoryAggregator = (isCount = false) => {
       ...sameArr,
       {
         $group: {
-          _id: { same: "$same" }
+          _id: { same: '$same' }
         }
       }
     ];
@@ -288,12 +291,11 @@ export const groupByCategoryAggregator = (isCount = false) => {
     ...sameArr,
     {
       $group: {
-        _id: { same: "$same" },
+        _id: { same: '$same' },
         count: { $sum: 1 },
-        product: { $first: "$$ROOT" }
+        product: { $first: '$$ROOT' }
       }
     },
-    { $sort: { "product.code": 1 } }
   ];
 };
 
@@ -302,15 +304,23 @@ export const aggregatePaginator = params => {
   return [{ $skip: perPage * (page - 1) }, { $limit: perPage }];
 };
 
-export const getSimilaritiesProducts = async (models, filter, params) => {
+export const getSimilaritiesProducts = async (models, filter, sortParams, params) => {
+  const sortKey: string = Object.keys(sortParams)[0] || 'code';
+  const productSort = {
+    [`product.${sortKey}`]: sortParams[sortKey] || 1
+  };
+
   const aggregates =
-    params.groupedSimilarity === "config"
+    params.groupedSimilarity === 'config'
       ? groupBySameMasksAggregator()
       : groupByCategoryAggregator();
+
   const groupedData = await models.Products.aggregate([
     { $match: filter },
+    { $sort: sortParams },
     ...aggregates,
-    ...aggregatePaginator(params)
+    ...aggregatePaginator(params),
+    { $sort: productSort },
   ]);
 
   return groupedData.map(gd => ({
@@ -321,7 +331,7 @@ export const getSimilaritiesProducts = async (models, filter, params) => {
 
 export const getSimilaritiesProductsCount = async (models, filter, params) => {
   const aggregates =
-    params.groupedSimilarity === "config"
+    params.groupedSimilarity === 'config'
       ? groupBySameMasksAggregator(true)
       : groupByCategoryAggregator(true);
   const groupedData = await models.Products.aggregate([

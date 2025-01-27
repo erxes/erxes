@@ -69,15 +69,16 @@ const typeDefs = async () => {
 
     ${
       cmsAvailable
-        && `
+        ? `
         extend type Post @key(fields: "_id") {
           _id: String! @external
         }
       `
+        : ''
     }
 
     ${clientPortalTypes(enabledPlugins)}
-    ${clientPortalUserTypes}
+    ${clientPortalUserTypes(cmsAvailable)}
     ${notificationTypes}
     ${commentTypes}
     ${fieldConfigTypes}
