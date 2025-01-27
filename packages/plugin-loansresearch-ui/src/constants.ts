@@ -1,7 +1,7 @@
 export const CUSTOMER_TYPES = [
-  { label: 'Customer', value: 'Customer' },
-  { label: 'Company', value: 'Company' },
-  { label: 'Customer+Company', value: 'Customer+Company' },
+  { label: 'Salary', value: 'Salary' },
+  { label: 'Business', value: 'Business' },
+  { label: 'Salary+Business', value: 'Salary+Business' },
 ];
 
 export const INCOME_TYPES = [

@@ -76,15 +76,15 @@ const LoansResearchForm = (props: Props) => {
 
     const ratio = (totalPaymentAmount / totalIncome) * 100;
 
-    if (customerType === 'Customer') {
+    if (customerType === 'Salary') {
       increaseAmount = averageSalaryIncome * 0.8 - totalPaymentAmount;
     }
 
-    if (customerType === 'Company') {
+    if (customerType === 'Business') {
       increaseAmount = averageBusinessIncome * 0.7 - totalPaymentAmount;
     }
 
-    if (customerType === 'Customer+Company') {
+    if (customerType === 'Salary+Business') {
       increaseAmount = totalIncome * 0.7 - totalPaymentAmount;
     }
 
@@ -112,6 +112,15 @@ const LoansResearchForm = (props: Props) => {
         (accumulator, income) => accumulator + (income.businessIncome || 0),
         0
       );
+
+      const types = incomes.map((income) => income.incomeType);
+      if (types.includes('Salary') && types.includes('Business')) {
+        setCustomerType('Salary+Business');
+      } else if (types.includes('Salary')) {
+        setCustomerType('Salary');
+      } else if (types.includes('Business')) {
+        setCustomerType('Business');
+      }
 
       setAverageSalaryIncome(salarySum);
       setAverageBusinessIncome(businessSum);

@@ -58,7 +58,7 @@ export interface ILoanResearchDocument extends ILoanResearch, Document {
 export const INCOME_TYPE = {
   SALARY: 'Salary',
   BUSINESS: 'Business',
-  ALL: ['Salary', 'Business', 'Customer+Company'],
+  ALL: ['Salary', 'Business'],
 };
 
 export const LOAN_TYPE = {
