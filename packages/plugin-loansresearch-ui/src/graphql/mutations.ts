@@ -5,14 +5,14 @@ const commonFields = `
   $debtIncomeRatio: Float
   $increaseMonthlyPaymentAmount: Float
 
-  $averageSalaryIncome: Int
-  $averageBusinessIncome: Int
-  $totalIncome: Int
+  $averageSalaryIncome: Float
+  $averageBusinessIncome: Float
+  $totalIncome: Float
   $incomes: [IncomeInput]
 
-  $monthlyCostAmount: Int
-  $monthlyLoanAmount: Int
-  $totalPaymentAmount: Int
+  $monthlyCostAmount: Float
+  $monthlyLoanAmount: Float
+  $totalPaymentAmount: Float
   $loans: [LoanInput]
 `;
 

@@ -12,6 +12,8 @@ type Props = {
   setCustomerId: (dealId: string) => void;
   customerType: string;
   setCustomerType: (dealId: string) => void;
+  totalIncome: number;
+  totalPaymentAmount: number;
   debtIncomeRatio: number;
   increaseMonthlyPaymentAmount: number;
 };
@@ -24,6 +26,8 @@ const DealForm = (props: Props) => {
     setCustomerId,
     customerType,
     setCustomerType,
+    totalIncome,
+    totalPaymentAmount,
     debtIncomeRatio,
     increaseMonthlyPaymentAmount,
   } = props;
@@ -67,8 +71,26 @@ const DealForm = (props: Props) => {
       </FormGroup>
 
       <FormGroup>
+        <ControlLabel>Average income</ControlLabel>
+        <FormControl type="number" defaultValue={totalIncome} disabled={true} />
+      </FormGroup>
+
+      <FormGroup>
+        <ControlLabel>Monthly payment</ControlLabel>
+        <FormControl
+          type="number"
+          defaultValue={totalPaymentAmount}
+          disabled={true}
+        />
+      </FormGroup>
+
+      <FormGroup>
         <ControlLabel>Dept income ratio</ControlLabel>
-        <FormControl type="number" defaultValue={debtIncomeRatio} />
+        <FormControl
+          type="number"
+          defaultValue={debtIncomeRatio}
+          disabled={true}
+        />
       </FormGroup>
 
       <FormGroup>
@@ -76,6 +98,7 @@ const DealForm = (props: Props) => {
         <FormControl
           type="number"
           defaultValue={increaseMonthlyPaymentAmount}
+          disabled={true}
         />
       </FormGroup>
     </MarginTop>

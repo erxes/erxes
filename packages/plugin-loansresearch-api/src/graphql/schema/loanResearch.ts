@@ -6,13 +6,13 @@ import {
 const commonIncomeTypes = `
   _id: String
   incomeType: String
-  totalSalaryIncome: Int
+  totalSalaryIncome: Float
   totalMonth: Int
 
   businessLine: String
   businessDetails: String
   businessProfile: String
-  businessIncome: Int
+  businessIncome: Float
 `;
 
 const commonLoanTypes = `
@@ -23,10 +23,10 @@ const commonLoanTypes = `
   loanLocation: String
   startDate: Date
   closeDate: Date
-  loanAmount: Int
+  loanAmount: Float
   
   costName: String
-  costAmount: Int
+  costAmount: Float
 `;
 
 export const types = () => `
@@ -57,14 +57,14 @@ export const types = () => `
     debtIncomeRatio: Float
     increaseMonthlyPaymentAmount: Float
 
-    averageSalaryIncome: Int
-    averageBusinessIncome: Int
-    totalIncome: Int
+    averageSalaryIncome: Float
+    averageBusinessIncome: Float
+    totalIncome: Float
     incomes: [Income]
 
-    monthlyCostAmount: Int
-    monthlyLoanAmount: Int
-    totalPaymentAmount: Int
+    monthlyCostAmount: Float
+    monthlyLoanAmount: Float
+    totalPaymentAmount: Float
     loans: [Loan]
     
     createdAt: Date
@@ -107,14 +107,14 @@ const commonFields = `
   debtIncomeRatio: Float
   increaseMonthlyPaymentAmount: Float
 
-  averageSalaryIncome: Int
-  averageBusinessIncome: Int
-  totalIncome: Int
+  averageSalaryIncome: Float
+  averageBusinessIncome: Float
+  totalIncome: Float
   incomes: [IncomeInput]
 
-  monthlyCostAmount: Int
-  monthlyLoanAmount: Int
-  totalPaymentAmount: Int
+  monthlyCostAmount: Float
+  monthlyLoanAmount: Float
+  totalPaymentAmount: Float
   loans: [LoanInput]  
 `;
 

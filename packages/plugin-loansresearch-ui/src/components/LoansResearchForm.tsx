@@ -41,7 +41,6 @@ const LoansResearchForm = (props: Props) => {
   const [debtIncomeRatio, setDebtIncomeRatio] = useState<number>(
     loansResearch?.debtIncomeRatio || 0
   );
-
   const [increaseMonthlyPaymentAmount, setIncreaseMonthlyPaymentAmount] =
     useState<number>(loansResearch?.increaseMonthlyPaymentAmount || 0);
 
@@ -100,31 +99,6 @@ const LoansResearchForm = (props: Props) => {
   ]);
 
   useEffect(() => {
-    if (loans && loans.length > 0) {
-      // Calculate total loan amount
-      const loanSum = loans.reduce(
-        (accumulator, loan) => accumulator + (loan.loanAmount || 0),
-        0
-      );
-
-      // Calculate total cost amount
-      const costSum = loans.reduce(
-        (accumulator, loan) => accumulator + (loan.costAmount || 0),
-        0
-      );
-
-      setMonthlyLoanAmount(loanSum);
-      setMonthlyCostAmount(costSum);
-    }
-  }, [loans]);
-
-  useEffect(() => {
-    const totalPayment = monthlyCostAmount + monthlyLoanAmount;
-
-    setTotalPaymentAmount(totalPayment);
-  }, [monthlyCostAmount, monthlyLoanAmount]);
-
-  useEffect(() => {
     if (incomes && incomes.length > 0) {
       // Calculate total salary income amount
       const salarySum = incomes.reduce((accumulator, income) => {
@@ -149,6 +123,31 @@ const LoansResearchForm = (props: Props) => {
 
     setTotalIncome(total);
   }, [averageSalaryIncome, averageBusinessIncome]);
+
+  useEffect(() => {
+    if (loans && loans.length > 0) {
+      // Calculate total loan amount
+      const loanSum = loans.reduce(
+        (accumulator, loan) => accumulator + (loan.loanAmount || 0),
+        0
+      );
+
+      // Calculate total cost amount
+      const costSum = loans.reduce(
+        (accumulator, loan) => accumulator + (loan.costAmount || 0),
+        0
+      );
+
+      setMonthlyLoanAmount(loanSum);
+      setMonthlyCostAmount(costSum);
+    }
+  }, [loans]);
+
+  useEffect(() => {
+    const totalPayment = monthlyCostAmount + monthlyLoanAmount;
+
+    setTotalPaymentAmount(totalPayment);
+  }, [monthlyCostAmount, monthlyLoanAmount]);
 
   const generateDoc = (values: { _id: string } & ILoanResearch) => {
     const finalValues = values;
@@ -185,6 +184,8 @@ const LoansResearchForm = (props: Props) => {
           setCustomerType={setCustomerType}
           customerId={customerId}
           setCustomerId={setCustomerId}
+          totalIncome={totalIncome}
+          totalPaymentAmount={totalPaymentAmount}
           debtIncomeRatio={debtIncomeRatio}
           increaseMonthlyPaymentAmount={increaseMonthlyPaymentAmount}
         />
