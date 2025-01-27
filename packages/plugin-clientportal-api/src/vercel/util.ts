@@ -367,8 +367,7 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
   }
 };
 
-
-export const getDomains = async (projectId:string) => {
+export const getDomains = async (projectId: string) => {
   const VERCEL_TOKEN = getEnv({ name: 'VERCEL_TOKEN' });
 
   const response = await fetch(
@@ -380,12 +379,26 @@ export const getDomains = async (projectId:string) => {
     }
   );
 
-  console.log('response', response);
+  return await response.json();
+};
+
+export const getDomainConfig = async (domain: string) => {
+  const VERCEL_TOKEN = getEnv({ name: 'VERCEL_TOKEN' });
+  const VERCEL_TEAM_ID = getEnv({ name: 'VERCEL_TEAM_ID' });
+
+  const response = await fetch(
+    `https://api.vercel.com/v6/domains/${domain}/config?teamId=${VERCEL_TEAM_ID}`,
+    {
+      headers: {
+        Authorization: `Bearer ${VERCEL_TOKEN}`,
+      },
+    }
+  );
 
   return await response.json();
-}
+};
 
-export const removeProject = async (projectId:string) => {
+export const removeProject = async (projectId: string) => {
   const VERCEL_TOKEN = getEnv({ name: 'VERCEL_TOKEN' });
 
   const response = await fetch(
@@ -396,12 +409,12 @@ export const removeProject = async (projectId:string) => {
         Authorization: `Bearer ${VERCEL_TOKEN}`,
       },
     }
-  )
+  );
 
   return await response.json();
-}
+};
 
-export const addDomain = async (projectId:string, domain:string) => {
+export const addDomain = async (projectId: string, domain: string) => {
   const VERCEL_TOKEN = getEnv({ name: 'VERCEL_TOKEN' });
 
   const response = await fetch(
@@ -414,7 +427,7 @@ export const addDomain = async (projectId:string, domain:string) => {
       },
       body: JSON.stringify({ name: domain }),
     }
-  )
+  );
 
   return await response.json();
-}
+};

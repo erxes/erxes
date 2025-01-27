@@ -1,5 +1,6 @@
 export const queries = `
     clientPortalGetVercelDomains(_id: String!): JSON
+    clientPortalGetVercelDomainConfig(domain: String!): JSON
 `
 
 export const mutations = `
