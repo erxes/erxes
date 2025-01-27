@@ -25,6 +25,7 @@ import dashboards from "./dashboard";
 import reports from "./report";
 import sections from "./section";
 import charts from "./chart";
+import view from "./view";
 
 import {
   fieldMutations as fields,
@@ -58,5 +59,6 @@ export default {
   ...dashboards,
   ...reports,
   ...sections,
-  ...charts
+  ...charts,
+  ...view
 };

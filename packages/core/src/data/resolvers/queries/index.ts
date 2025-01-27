@@ -33,6 +33,7 @@ import dashboards from "./dashboard";
 import reports from "./report";
 import sections from "./section";
 import insights from "./insight";
+import view from "./view";
 
 export default {
   ...users,
@@ -65,5 +66,6 @@ export default {
   ...dashboards,
   ...reports,
   ...sections,
-  ...insights
+  ...insights,
+  ...view
 };
