@@ -279,7 +279,7 @@ export const setupMessageConsumers = async () => {
     if (!configId || !accountNumber || !record || !description) {
       return {
         status: 'error',
-        errorMessage: 'Config id, account number and record is required',
+        errorMessage: 'Config id, account number, record, and description are required',
       };
     }
 
