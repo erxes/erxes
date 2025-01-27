@@ -1,8 +1,8 @@
 import * as moment from 'moment';
 
 import React, { useState } from 'react';
-import { gql, useMutation, useQuery, useSubscription } from '@apollo/client';
-import { mutations, queries, subscriptions } from '../graphql';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import { mutations, queries } from '../graphql';
 
 import { Alert } from '@erxes/ui/src/utils';
 import { CALL_DIRECTION_INCOMING } from '../lib/enums';
@@ -12,17 +12,13 @@ import IncomingCallContainer from './IncomingCall';
 import { ModalTrigger } from '@erxes/ui/src/components';
 import SipProvider from '../components/SipProvider';
 import WidgetContainer from './Widget';
-import { setLocalStorage } from '../utils';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 const SipProviderContainer = (props) => {
   const [config, setConfig] = useState(
     JSON.parse(localStorage.getItem('config:call_integrations') || '{}'),
   );
-  const callInfo = JSON.parse(localStorage.getItem('callInfo') || '{}');
-  const isConnectCallRequested = JSON.parse(
-    localStorage.getItem('isConnectCallRequested') || '{}',
-  );
+
   const [historyId, setHistoryId] = useState('');
   const [hideIncomingCall, setHideIncomingCall] = useState(false);
   const [currentCallConversationId, setCurrentCallConversationId] =
@@ -37,40 +33,6 @@ const SipProviderContainer = (props) => {
   const [updateHistoryMutation] = useMutation(gql(mutations.callHistoryEdit));
   const [addHistoryMutation] = useMutation(gql(mutations.callHistoryAdd));
 
-  useSubscription(gql(subscriptions.sessionTerminateRequested), {
-    variables: { userId: props.currentUser._id },
-    onSubscriptionData: () => {
-      if (
-        !callInfo?.isRegistered ||
-        isConnectCallRequested ||
-        isConnectCallRequested === 'true'
-      ) {
-        setConfig({
-          inboxId: config?.inboxId,
-          phone: config?.phone,
-          wsServer: config?.wsServer,
-          token: config?.token,
-          operators: config?.operators,
-          isAvailable: true,
-          queues: config?.queues || [],
-        });
-        setLocalStorage(true, true);
-        localStorage.removeItem('isConnectCallRequested');
-      } else {
-        setConfig({
-          inboxId: config?.inboxId,
-          phone: config?.phone,
-          wsServer: config?.wsServer,
-          token: config?.token,
-          operators: config?.operators,
-          isAvailable: false,
-          queues: config?.queues || [],
-        });
-        setLocalStorage(false, false);
-        localStorage.removeItem('isConnectCallRequested');
-      }
-    },
-  });
   const createSession = () => {
     createActiveSession()
       .then(() => {})
@@ -197,6 +159,12 @@ const SipProviderContainer = (props) => {
   const callsGetConfigs = callConfigData.callsGetConfigs;
 
   if (!callUserIntegrations || callUserIntegrations.length === 0) {
+    Alert.warning('Check your integrations');
+    return null;
+  }
+
+  if (!callsGetConfigs || callsGetConfigs.length === 0) {
+    Alert.warning('Check your call configs');
     return null;
   }
 

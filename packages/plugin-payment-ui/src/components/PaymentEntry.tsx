@@ -10,8 +10,9 @@ import { mutations } from '../graphql';
 import { ByKindTotalCount } from '../types';
 import { PAYMENTCONFIGS } from './constants';
 import { Box, PaymentItem, Ribbon, Type } from './styles';
-import ConfigForm from './form/ConfigForm';
-import QuickQrForm from './form/QuickQrForm';
+import ConfigForm from './forms/ConfigForm';
+import QuickQrForm from './forms/QuickQrForm';
+import Khanbank from '../containers/forms/Khanbank';
 
 type Props = {
   payment: any;
@@ -37,7 +38,7 @@ function renderType(type: string) {
 
   return (
     <Type>
-      <Icon icon="comment-alt-lines" /> {__('Payment type')}
+      <Icon icon='comment-alt-lines' /> {__('Payment type')}
     </Type>
   );
 }
@@ -54,7 +55,7 @@ const renderButton = ({
       callback={callback}
       refetchQueries={getRefetchQueries()}
       isSubmitted={isSubmitted}
-      type="submit"
+      type='submit'
       successMessage={__(`You successfully added a `) + `${values.kind}`}
     />
   );
@@ -66,6 +67,20 @@ function renderCreate(kind: string) {
   }
 
   const trigger = <button>+ {__('Add')}</button>;
+
+  if (kind === 'khanbank') {
+    const formContent = (props) => (
+      <Khanbank {...props} renderButton={renderButton} />
+    );
+    return (
+      <ModalTrigger
+        size='lg'
+        title='Khanbank'
+        trigger={trigger}
+        content={formContent}
+      />
+    );
+  }
 
   const meta: any = PAYMENTCONFIGS.find((p) => p.kind === kind);
 
@@ -81,8 +96,12 @@ function renderCreate(kind: string) {
     Component = QuickQrForm;
   }
 
+  if (kind === 'khanbank') {
+    Component = Khanbank;
+  }
+
   const formContent = (props) => (
-    <Component {...props} renderButton={renderButton} metaData={meta}  />
+    <Component {...props} renderButton={renderButton} metaData={meta} />
   );
 
   const size = meta.modalSize || 'lg';
@@ -98,13 +117,21 @@ function renderCreate(kind: string) {
 }
 
 function Entry({ payment, getClassName, toggleBox, paymentsCount }: Props) {
-  const { kind, isAvailable, name, description, logo, inMessenger, acceptedCurrencies = [] } = payment;
+  const {
+    kind,
+    isAvailable,
+    name,
+    description,
+    logo,
+    inMessenger,
+    acceptedCurrencies = [],
+  } = payment;
 
   return (
     <PaymentItem key={name} className={getClassName(kind)}>
       <Box onClick={() => toggleBox(kind)} isInMessenger={inMessenger}>
         <img
-          alt="logo"
+          alt='logo'
           src={`${getEnv().REACT_APP_API_URL}/pl:payment/static/${logo}`}
         />
         <h5>

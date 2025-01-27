@@ -6,7 +6,6 @@ export const PAYMENTCONFIGS = [
     isAvailable: true,
     kind: 'qpay',
     logo: 'images/payments/qpay.png',
-    category: 'Payment method',
 
     link: 'mailto:%20info@qpay.mn?subject=QPay%20Registration&body=Dear%20QPay%20Team,%0D%0A%0D%0AI%20would%20like%20to%20',
     inputs: [
@@ -24,7 +23,7 @@ export const PAYMENTCONFIGS = [
     kind: 'qpayQuickqr',
     logo: 'images/payments/qpay.png',
     createUrl: '/settings/payments/createQpay',
-    category: 'Payment method',
+
     modalSize: 'xl',
     acceptedCurrencies: ['MNT'],
   },
@@ -35,7 +34,6 @@ export const PAYMENTCONFIGS = [
     isAvailable: true,
     kind: 'socialpay',
     logo: 'images/payments/socialpay.png',
-    category: 'Payment method',
 
     link: 'https://www.golomtbank.com/retail/digital-bank/socialpay',
     inputs: [
@@ -51,7 +49,6 @@ export const PAYMENTCONFIGS = [
     isAvailable: true,
     kind: 'monpay',
     logo: 'images/payments/monpay.png',
-    category: 'Payment method',
 
     link: 'mailto:%20Merchantservice@mobifinance.mn?subject=MonPay%20Merchant%20Registration&body=Dear%20MonPay%20Team,%0D%0A%0D%0AI%20would%20like%20to%20',
     inputs: [
@@ -67,7 +64,6 @@ export const PAYMENTCONFIGS = [
     isAvailable: true,
     kind: 'storepay',
     logo: 'images/payments/storepay.png',
-    category: 'Payment method',
 
     inputs: [
       { key: 'storeId', label: 'Store id' },
@@ -85,7 +81,7 @@ export const PAYMENTCONFIGS = [
     isAvailable: true,
     kind: 'pocket',
     logo: 'images/payments/pocket.png',
-    category: 'Payment method',
+
     inputs: [
       { key: 'pocketMerchant', label: 'Merchant' },
       { key: 'pocketClientId', label: 'Client ID' },
@@ -99,7 +95,7 @@ export const PAYMENTCONFIGS = [
     isAvailable: true,
     kind: 'minupay',
     logo: 'images/payments/minupay.png',
-    category: 'Payment method',
+
     inputs: [
       { key: 'username', label: 'Username' },
       { key: 'password', label: 'Password', type: 'password' },
@@ -114,7 +110,6 @@ export const PAYMENTCONFIGS = [
     isAvailable: true,
     kind: 'golomt',
     logo: 'images/payments/golomt.png',
-    category: 'Payment method',
 
     link: 'https://www.golomtbank.com/en/cards/8172',
     inputs: [
@@ -131,7 +126,6 @@ export const PAYMENTCONFIGS = [
     isAvailable: true,
     kind: 'stripe',
     logo: 'images/payments/stripe.png',
-    category: 'Payment method',
 
     link: 'https://dashboard.stripe.com/register',
     inputs: [
@@ -146,7 +140,7 @@ export const PAYMENTCONFIGS = [
     isAvailable: false,
     kind: 'wechatpay',
     logo: 'images/payments/wechatpay.png',
-    category: 'Payment method',
+
     acceptedCurrencies: ['MNT'],
   },
   {
@@ -155,7 +149,7 @@ export const PAYMENTCONFIGS = [
     isAvailable: false,
     kind: 'paypal',
     logo: 'images/payments/paypal.png',
-    category: 'Payment method',
+
     acceptedCurrencies: ['USD'],
   },
 ];
