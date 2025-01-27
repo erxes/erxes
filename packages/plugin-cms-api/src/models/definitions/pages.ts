@@ -31,6 +31,7 @@ export const pageSchema = new Schema<IPageDocument>(
     coverImage: { type: String },
     pageItems: [
       {
+        name: { type: String },
         type: { type: String, required: true },
         content: { type: Schema.Types.Mixed },
         order: { type: Number, required: true },

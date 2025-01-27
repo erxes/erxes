@@ -1,5 +1,6 @@
 export const types = `
     type PageItem {
+        name: String
         type: String
         content: String
         order: Int
@@ -36,6 +37,7 @@ export const types = `
 
 export const inputs = `
     input PageItemInput {
+        name: String
         type: String
         content: String
         order: Int
