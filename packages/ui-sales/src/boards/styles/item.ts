@@ -224,8 +224,8 @@ export const MetaInfo = styled.div`
   }
 `;
 
-export const HeaderContentSmall = styled.div`
-  text-align: right;
+export const HeaderContentSmall = styledTS<{ $align?: string }>(styled.div)`
+  text-align: ${props => props.$align ? props.$align : 'right'};
   margin-left: 20px;
   min-width: 160px;
   flex-shrink: 0;

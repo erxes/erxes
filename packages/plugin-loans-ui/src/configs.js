@@ -2,12 +2,12 @@ module.exports = {
   srcDir: __dirname,
   name: "loans",
   port: 3227,
-  scope: 'loans',
+  scope: "loans",
   exposes: {
     "./routes": "./src/routes.tsx",
     // './settings': './src/Settings.tsx',
     "./contractSection":
-    "./src/contracts/components/common/ContractSection.tsx",
+      "./src/contracts/components/common/ContractSection.tsx",
   },
   routes: {
     url: "http://localhost:3227/remoteEntry.js",
@@ -74,5 +74,8 @@ module.exports = {
   ],
   customerRightSidebarSection: "./contractSection",
   companyRightSidebarSection: "./contractSection",
-  dealRightSidebarSection: "./contractSection",
+  dealRightSidebarSection: {
+    title: "Loan contract",
+    component: "./contractSection",
+  },
 };

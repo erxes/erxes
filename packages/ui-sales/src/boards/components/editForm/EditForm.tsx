@@ -170,7 +170,7 @@ function EditForm(props: Props) {
     }
 
     return (
-      <HeaderContentSmall>
+      <HeaderContentSmall $align="left">
         <ControlLabel>Number</ControlLabel>
         <p>{number}</p>
       </HeaderContentSmall>

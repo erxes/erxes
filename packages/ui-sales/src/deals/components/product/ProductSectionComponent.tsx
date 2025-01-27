@@ -2,7 +2,8 @@ import { IDeal, IDealParams, IPaymentsData } from "../../types";
 
 import { IItem } from "../../../boards/types";
 import { IProduct } from "@erxes/ui-products/src/types";
-import ProductSection from "../ProductSection";
+import ProductForm from "../../containers/product/ProductForm";
+import { ProductFormContainer } from "@erxes/ui/src/styles/main";
 import React from "react";
 
 type Props = {
@@ -120,22 +121,36 @@ export default class ProductSectionComponent extends React.Component<
     const { products, productsData, paymentsData } = this.state;
 
     const pDataChange = (pData) => this.onChangeField("productsData", pData);
-    const prsChange = (prs) => this.onChangeField("products", prs);
+    // const prsChange = (prs) => this.onChangeField("products", prs);
     const payDataChange = (payData) =>
       this.onChangeField("paymentsData", payData);
 
     return (
-      <ProductSection
-        onChangeProductsData={pDataChange}
-        onChangeProducts={prsChange}
-        onChangePaymentsData={payDataChange}
-        productsData={productsData}
-        paymentsData={paymentsData}
-        products={products}
-        saveProductsData={this.saveProductsData}
-        dealQuery={this.props.item}
-        isFullMode={this.props.isFullMode}
-      />
+      <ProductFormContainer>
+        <ProductForm
+          onChangeProductsData={pDataChange}
+          onChangePaymentsData={payDataChange}
+          productsData={productsData}
+          products={products}
+          paymentsData={paymentsData}
+          saveProductsData={this.saveProductsData}
+          dealQuery={this.props.item}
+        />
+      </ProductFormContainer>
     );
+
+    // return (
+    //   <ProductSection
+    //     onChangeProductsData={pDataChange}
+    //     onChangeProducts={prsChange}
+    //     onChangePaymentsData={payDataChange}
+    //     productsData={productsData}
+    //     paymentsData={paymentsData}
+    //     products={products}
+    //     saveProductsData={this.saveProductsData}
+    //     dealQuery={this.props.item}
+    //     isFullMode={this.props.isFullMode}
+    //   />
+    // );
   }
 }

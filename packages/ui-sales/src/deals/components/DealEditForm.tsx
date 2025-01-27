@@ -10,7 +10,6 @@ import {
 } from "@erxes/ui/src/utils";
 
 import ActivityLogs from "@erxes/ui-log/src/activityLogs/containers/ActivityLogs";
-import ChildrenSection from "../../boards/containers/editForm/ChildrenSection";
 import CommonActions from "../../boards/components/editForm/CommonActions";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import CustomFieldsSection from "../../boards/containers/editForm/CustomFieldsSection";
@@ -22,12 +21,11 @@ import Icon from "@erxes/ui/src/components/Icon";
 import PortablePurchase from "@erxes/ui-purchases/src/purchases/components/PortablePurchases";
 import PortableTasks from "@erxes/ui-tasks/src/tasks/components/PortableTasks";
 import PortableTickets from "@erxes/ui-tickets/src/tickets/components/PortableTickets";
-import ProductSectionComponent from "./product/ProductSection";
+import ProductSectionComponent from "./product/ProductSectionComponent";
 import React from "react";
 import SidebarConformity from "../../boards/components/editForm/SidebarConformity";
 import Top from "../../boards/components/editForm/Top";
 import { isEnabled } from "@erxes/ui/src/utils/core";
-import queryString from "query-string";
 
 type Props = {
   options: IOptions;
@@ -135,22 +133,6 @@ export default class DealEditForm extends React.Component<Props, State> {
         saveItem={this.props.saveItem}
       />
     );
-  };
-
-  renderChildrenSection = () => {
-    const { item, options } = this.props;
-
-    const updatedProps = {
-      ...this.props,
-      type: "deal",
-      itemId: item._id,
-      stageId: item.stageId,
-      pipelineId: item.pipeline._id,
-      options,
-      queryParams: queryString.parse(window.location.search) || {},
-    };
-
-    return <ChildrenSection {...updatedProps} />;
   };
 
   renderItems = () => {
@@ -296,8 +278,15 @@ export default class DealEditForm extends React.Component<Props, State> {
     copy,
     remove,
   }: IEditFormContent) => {
-    const { item, currentUser, options, onUpdate, addItem, sendToBoard } =
-      this.props;
+    const {
+      item,
+      currentUser,
+      options,
+      onUpdate,
+      addItem,
+      sendToBoard,
+      updateTimeTrack,
+    } = this.props;
     const { currentTab } = this.state;
     const isFullQueryParam = routerUtils.getParam(location, "isFull");
 
@@ -312,9 +301,11 @@ export default class DealEditForm extends React.Component<Props, State> {
           sendToBoard={sendToBoard}
           item={item}
           addItem={addItem}
+          updateTimeTrack={updateTimeTrack}
           amount={this.renderAmount}
           onChangeStage={onChangeStage}
           onChangeRefresh={this.onChangeRefresh}
+          renderItems={this.renderItems}
           currentUser={currentUser}
         />
       );
