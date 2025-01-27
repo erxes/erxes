@@ -61,8 +61,8 @@ export const inputs = `
 
 export const queries = `
     cmsPage(_id: String): Page
-    cmsPages(clientPortalId: String!, page: Int, perPage: Int): [Page]
-    cmsPageList(clientPortalId: String!, page: Int, perPage: Int): PageList
+    cmsPages(clientPortalId: String!, page: Int, perPage: Int, searchValue: String): [Page]
+    cmsPageList(clientPortalId: String!, page: Int, perPage: Int, searchValue: String): PageList
 `   
 
 
