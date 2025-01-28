@@ -20,6 +20,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   loansResearch: ILoanResearch;
   closeModal: () => void;
+  queryParams: any;
 };
 
 const LoansResearchForm = (props: Props) => {
@@ -27,6 +28,7 @@ const LoansResearchForm = (props: Props) => {
     loansResearch = {} as ILoanResearch,
     closeModal,
     renderButton,
+    queryParams,
   } = props;
 
   const [currentTab, setCurrentTab] = useState('Deals');
@@ -70,6 +72,12 @@ const LoansResearchForm = (props: Props) => {
   const [totalPaymentAmount, setTotalPaymentAmount] = useState<number>(
     loansResearch?.totalPaymentAmount || 0
   );
+
+  useEffect(() => {
+    if (queryParams && queryParams.itemId) {
+      setDealId(queryParams.itemId);
+    }
+  }, [queryParams]);
 
   useEffect(() => {
     let increaseAmount;
@@ -188,7 +196,6 @@ const LoansResearchForm = (props: Props) => {
       return (
         <DealForm
           dealId={dealId}
-          setDealId={setDealId}
           customerType={customerType}
           customerId={customerId}
           setCustomerId={setCustomerId}

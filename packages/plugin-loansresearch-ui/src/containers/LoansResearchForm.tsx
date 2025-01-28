@@ -8,6 +8,7 @@ import { ILoanResearch } from '../types';
 type Props = {
   loansResearch: ILoanResearch;
   closeModal: () => void;
+  queryParams: any;
 };
 
 const LoansResearchFormContainer = (props: Props) => {
