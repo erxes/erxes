@@ -30,6 +30,10 @@ const lsQueries = {
       totalCount: await models.LoansResearch.find().countDocuments(),
     };
   },
+
+  loanResearchDetail: async (_root, { dealId }, { models }: IContext) => {
+    return models.LoansResearch.getLoanResearch({ dealId });
+  },
 };
 
 checkPermission(lsQueries, 'loansResearchMain', 'showLoanResearch');

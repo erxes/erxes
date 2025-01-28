@@ -78,4 +78,12 @@ const loansResearchMain = `
   }
 `;
 
-export default { loansResearchMain };
+const loanResearchDetail = `
+query loanResearchDetail($dealId: String!) {
+  loanResearchDetail(dealId: $dealId) {
+    ${loansResearchFields}
+  }
+}
+`;
+
+export default { loansResearchMain, loanResearchDetail };
