@@ -52,7 +52,7 @@ export const Row = (props: Props) => {
       </Td>
       <Td fontWeight="bold">{callList.callerid || ''}</Td>
       {!isWaiting && <Td fontWeight="bold">{callList.calleeid}</Td>}
-      <Td fontWeight="bold">{getSpentTime(timeSpent + 31)}</Td>
+      <Td fontWeight="bold">{getSpentTime(timeSpent)}</Td>
     </tr>
   );
 };

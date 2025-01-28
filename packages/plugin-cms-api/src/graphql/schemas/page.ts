@@ -1,5 +1,6 @@
 export const types = `
     type PageItem {
+        name: String
         type: String
         content: String
         order: Int
@@ -12,6 +13,8 @@ export const types = `
         _id: String!
         clientPortalId: String
         name: String
+        description: String
+        coverImage: String
         type: String
         slug: String
         content: String
@@ -34,6 +37,7 @@ export const types = `
 
 export const inputs = `
     input PageItemInput {
+        name: String
         type: String
         content: String
         order: Int
@@ -45,6 +49,8 @@ export const inputs = `
     input PageInput {
         clientPortalId: String
         name: String
+        description: String
+        coverImage: String
         status: String
         type: String
         slug: String
@@ -55,8 +61,8 @@ export const inputs = `
 
 export const queries = `
     cmsPage(_id: String): Page
-    cmsPages(clientPortalId: String!, page: Int, perPage: Int): [Page]
-    cmsPageList(clientPortalId: String!, page: Int, perPage: Int): PageList
+    cmsPages(clientPortalId: String!, page: Int, perPage: Int, searchValue: String): [Page]
+    cmsPageList(clientPortalId: String!, page: Int, perPage: Int, searchValue: String): PageList
 `   
 
 

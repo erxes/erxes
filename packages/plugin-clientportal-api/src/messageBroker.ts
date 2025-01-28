@@ -103,10 +103,6 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data: { selector } }) => {
       const models = await generateModels(subdomain);
 
-      console.debug(
-        "clientportal:clientPortalEngageNotifications.count",
-        selector
-      );
       return {
         data: await models.ClientPortalNotifications.find(
           selector

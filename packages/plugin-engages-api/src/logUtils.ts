@@ -235,6 +235,47 @@ export const putCreateLog = async (subdomain: string, logDoc, user) => {
 };
 
 export default {
+  collectItems: async ({ subdomain, data }) => {
+    const { contentId } = data;
+    const customer = await sendCoreMessage({
+      subdomain,
+      action: "customers.findOne",
+      isRPC: true,
+      data: {
+        _id: contentId
+      }
+    });
+
+    if (!customer) {
+      return {
+        status: "success",
+        data: []
+      };
+    }
+
+    const result = await sendCoreMessage({
+      subdomain,
+      action: "emailDeliveries.find",
+      isRPC: true,
+      data: {
+        query: { to: { $in: customer.primaryEmail || [] } }
+      }
+    });
+
+    const results: any = [];
+    for (const message of result) {
+      results.push({
+        _id: message._id,
+        contentType: "engages:customer",
+        createdAt: message.createdAt,
+        contentTypeDetail: message
+      });
+    }
+    return {
+      status: "success",
+      data: results
+    };
+  },
   getSchemaLabels: ({ data: { type } }) => ({
     status: "success",
     data: getSchemaLabels(type, [

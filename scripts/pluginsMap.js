@@ -4693,8 +4693,8 @@ module.exports = {
       },
       "menus": [
         {
-          "text": "Bms",
-          "url": "/bms",
+          "text": "Tms",
+          "url": "/tms",
           "icon": "icon-star",
           "location": "mainNavigation"
         }
@@ -4878,10 +4878,70 @@ module.exports = {
           "url": "/activedirectory",
           "location": "settings",
           "image": "/images/icons/erxes-18.svg",
-          "scope": "activedirectory"
+          "scope": "activedirectory",
+          "permission": "showAD"
+        },
+        {
+          "text": "Sync Active Directory",
+          "url": "/sync-activedirectory",
+          "icon": "icon-file-check-alt",
+          "location": "mainNavigation",
+          "scope": "syncactivedirectory",
+          "permission": "showAD"
         }
       ],
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-activedirectory-ui/remoteEntry.js"
+    },
+    "api": {
+      "permissions": {
+        "cars": {
+          "name": "activedirectory",
+          "description": "ActiveDirectory",
+          "actions": [
+            {
+              "name": "all",
+              "description": "All",
+              "use": [
+                "showAD",
+                "manageAD"
+              ]
+            },
+            {
+              "name": "showAD",
+              "description": "Show activedirectory"
+            },
+            {
+              "name": "manageAD",
+              "description": "Manage activedirectory"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "loansresearch": {
+    "ui": {
+      "srcDir": "/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-loansresearch-ui/src",
+      "name": "loansresearch",
+      "scope": "loansresearch",
+      "exposes": {
+        "./routes": "./src/routes.tsx"
+      },
+      "routes": {
+        "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loansresearch-ui/remoteEntry.js",
+        "scope": "loansresearch",
+        "module": "./routes"
+      },
+      "menus": [
+        {
+          "text": "Loans Reserch",
+          "url": "/loansresearch",
+          "icon": "icon-file-check-alt",
+          "location": "mainNavigation",
+          "scope": "loansresearch"
+        }
+      ],
+      "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loansresearch-ui/remoteEntry.js"
     }
   }
 }

@@ -130,6 +130,11 @@ export const PAYMENTS = {
     acceptedCurrencies: ['USD'],
   },
 
+  khanbank: {
+    title: 'Khan Bank',
+    kind: 'khanbank',
+    acceptedCurrencies: ['MNT','USD'],
+  },
 
   ALL: [
     'qpay',
@@ -142,7 +147,8 @@ export const PAYMENTS = {
     'minupay',
     'qpayQuickqr',
     'golomt',
-    'stripe'
+    'stripe',
+    'khanbank',
   ],
 };
 

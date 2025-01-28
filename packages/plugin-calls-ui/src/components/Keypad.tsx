@@ -63,9 +63,6 @@ const KeyPad = (props: Props, context) => {
   const Sip = context;
   const inputRef = useRef<any>(null);
   const navigate = useNavigate();
-  // const outgoingAudio = useRef(new Audio("/sound/outgoing.mp3"));
-  // const pickupAudio = useRef(new Audio("/sound/pickup.mp3"));
-  // const hangupAudio = useRef(new Audio("/sound/hangup.mp3"));
 
   const { call, mute, unmute, isMuted } = Sip;
   const {
@@ -88,7 +85,6 @@ const KeyPad = (props: Props, context) => {
   const [number, setNumber] = useState(phoneNumber || '');
   const [code, setCode] = useState('0');
   const [dialCode, setDialCode] = useState('');
-  // const [ringingSound, setRingingSound] = useState(false);
 
   const [showTrigger, setShowTrigger] = useState(false);
   const [showKeyPad, setShowKeyPad] = useState(false);
@@ -147,16 +143,10 @@ const KeyPad = (props: Props, context) => {
         CALL_STATUS_STARTING &&
       hasMicrophone
     ) {
-      // setRingingSound(true);
       addCustomer(inboxId, formatedPhone);
     }
     if (call?.status === CALL_STATUS_ACTIVE) {
       const { startTime } = call;
-      // setRingingSound(false);
-
-      // const audio = pickupAudio.current;
-      // audio.play();
-
       if (startTime) {
         timer = setInterval(() => {
           const diff = calculateTimeElapsed(startTime);
@@ -228,16 +218,13 @@ const KeyPad = (props: Props, context) => {
       isAvailable: isConnected ? true : false,
       queues: integration?.queues || [],
     });
+
     localStorage.setItem(
-      'isConnectCallRequested',
-      isConnected ? 'true' : 'false',
-    ),
-      localStorage.setItem(
-        'callInfo',
-        JSON.stringify({
-          isUnRegistered: isConnected ? true : false,
-        }),
-      );
+      'callInfo',
+      JSON.stringify({
+        isUnRegistered: isConnected ? true : false,
+      }),
+    );
   };
 
   const handNumPad = (e) => {
