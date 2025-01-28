@@ -79,6 +79,7 @@ const productsQueryParams = `
   isKiosk: Boolean,
   groupedSimilarity: String,
   categoryMeta: String,
+  image: String,
 `;
 
 const productCategoriesParams = `
