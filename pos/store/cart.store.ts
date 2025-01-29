@@ -149,7 +149,10 @@ export const updateCartAtom = atom(
 
     const changedCartItems = changeCartItem(update, get(cartAtom), !!get(banFractionsAtom))
 
-    changedCartItems.length === 0 && set(setOpenCancelDialogAtom)
+    const currentCart = get(cartAtom)
+  if (currentCart.length > 0 && changedCartItems.length === 0) {
+  set(setOpenCancelDialogAtom)
+}
     set(
       cartAtom,
       changedCartItems

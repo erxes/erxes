@@ -277,7 +277,10 @@ export const openCancelDialogAtom = atom<string | null>(null)
 export const setOpenCancelDialogAtom = atom(get => null, (get, set) => {
   const totalPaidAmount = get(getTotalPaidAmountAtom)
   const activeOrderId = get(activeOrderIdAtom)
-  if(totalPaidAmount <= 0) {
+  if (typeof totalPaidAmount === 'number' && 
+     totalPaidAmount <= 0 && 
+     activeOrderId && 
+     get(openCancelDialogAtom) !== activeOrderId) {  
     set(openCancelDialogAtom, activeOrderId)
   }
 })

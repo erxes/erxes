@@ -45,11 +45,14 @@ export const HistoryOrderCancelTrigger = ({
   )
 }
 
-export const CheckoutCancel = ({order}: {order:IOrder}) => {
- const { _id, number } = order || {}
+export const CheckoutCancel = ({ order }: { order: IOrder | null }) => {
+  if (!order) return null;
 
-  return (<OrderCancel _id={_id} number={number || ""} refetchQueries={['ActiveOrders']}/>)
-}
+  const { _id, number } = order || {};
+  if (!_id) return null;
+
+  return (<OrderCancel _id={_id} number={number || ""} refetchQueries={['ActiveOrders']} />);
+};
 
 export const useOrderCancel = (order
   :IOrder | null
