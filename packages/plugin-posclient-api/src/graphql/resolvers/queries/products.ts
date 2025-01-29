@@ -309,6 +309,9 @@ const productQueries = {
       searchValue,
       vendorId,
       tag,
+      tags,
+      excludeTags,
+      tagWithRelated,
       ids,
       excludeIds,
       pipelineId,
@@ -318,6 +321,7 @@ const productQueries = {
       isKiosk,
       categoryMeta,
       groupedSimilarity,
+      image,
       sortField,
       sortDirection,
       ...paginationArgs
@@ -331,6 +335,9 @@ const productQueries = {
       searchValue,
       vendorId,
       tag,
+      tags,
+      excludeTags,
+      tagWithRelated,
       ids,
       excludeIds,
       pipelineId,
@@ -338,6 +345,7 @@ const productQueries = {
       segment,
       segmentData,
       categoryMeta,
+      image,
       isKiosk
     });
 
