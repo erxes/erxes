@@ -3,9 +3,8 @@ import { updateCartAtom } from "@/store/cart.store";
 import { banFractionsAtom } from "@/store/config.store";
 import { orderTypeAtom } from "@/store/order.store";
 import { motion, Variants } from "framer-motion";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { ChevronDown, Minus, Plus } from "lucide-react";
-import { totalAmountAtom } from "@/store/cart.store";
 import { OrderItem } from "@/types/order.types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -26,10 +25,6 @@ import {
 } from "@/components/ui/tooltip";
 import Uploader from "@/components/ui/uploader";
 import CartItemStatus from "./cartItemStatus";
-import OrderCancel from "@/app/(main)/(orders)/components/history/orderCancel";
-import { useState, useEffect } from "react";
-import { openCancelDialogAtom } from "@/store/history.store";
-import { activeOrderIdAtom } from "@/store/order.store";
 
 const CartItem = ({
   productName,
@@ -46,37 +41,9 @@ const CartItem = ({
   const changeItem = useSetAtom(updateCartAtom);
   const banFractions = useAtomValue(banFractionsAtom);
   const type = useAtomValue(orderTypeAtom);
-  const total = useAtomValue(totalAmountAtom);
-  const [open, changeOpen] = useAtom(openCancelDialogAtom);
-  const activeOrderId = useAtomValue(activeOrderIdAtom);
-  const [showCancel, setShowCancel] = useState(false);
-  const [hasMounted, setHasMounted] = useState(false);
-
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (hasMounted && total === 0) {
-      changeOpen(activeOrderId);
-      setShowCancel(true);
-    }
-  }, [total, hasMounted, activeOrderId, changeOpen]);
 
   return (
     <Collapsible className={cn(idx === 0 && "bg-primary/10")}>
-        <OrderCancel
-          _id= {activeOrderId || ''}
-          number={(idx + 1).toString()}
-          refetchQueries={["ActiveOrders"]}
-          onCompleted={() => {
-            setShowCancel(false);
-          }}
-          open={showCancel}
-          onOpenChange={setShowCancel}
-        />
-      
-      {count !== 0 && (
         <motion.div
           variants={itemVariants}
           animate="animate"
@@ -182,8 +149,7 @@ const CartItem = ({
             </CollapsibleContent>
           </motion.div>
         </motion.div>
-      )}
-    </Collapsible>
+          </Collapsible>
   );
 };
 

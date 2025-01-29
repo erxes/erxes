@@ -10,6 +10,7 @@ const Cart = () => {
   const cart = useAtomValue(cartAtom)
   const isEmpty = !cart.length
 
+
   if (isEmpty) {
     return (
       <div className="flex items-center justify-center h-full">

@@ -1,8 +1,8 @@
-import { FormEvent, useState } from "react"
+import { FormEvent,  useState } from "react"
 import { mutations } from "@/modules/orders/graphql"
 import { orderPasswordAtom } from "@/store/config.store"
-import { openCancelDialogAtom, paymentDetailAtom } from "@/store/history.store"
-import { activeOrderIdAtom, setInitialAtom } from "@/store/order.store"
+import { paymentDetailAtom } from "@/store/history.store"
+import { activeOrderIdAtom, openCancelDialogAtom, setInitialAtom } from "@/store/order.store"
 import { useMutation } from "@apollo/client"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
@@ -21,32 +21,51 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { onError } from "@/components/ui/use-toast"
+import { IOrder } from "@/types/order.types"
 
-export const OrderCancelTrigger = ({
+export const HistoryOrderCancelTrigger = ({
   loading,
   _id,
 }: {
   loading?: boolean
   _id: string
 }) => {
-  const changeOpen = useSetAtom(openCancelDialogAtom)
-  const { cashAmount, mobileAmount, paidAmounts } =
-    useAtomValue(paymentDetailAtom) || {}
-
-  const paidTotal =
-    (cashAmount || 0) +
-    (mobileAmount || 0) +
-    (paidAmounts?.reduce((total, el) => el.amount + total, 0) || 0)
+  const paymentDetail =
+    useAtomValue(paymentDetailAtom)
+  const { changeOpen, notPaid } = useOrderCancel(paymentDetail)
 
   return (
     <DropdownMenuItem
       className="text-destructive focus:text-destructive"
       onClick={() => changeOpen(_id)}
-      disabled={loading || paidTotal > 0}
+      disabled={loading || notPaid}
     >
       Устгах
     </DropdownMenuItem>
   )
+}
+
+export const CheckoutCancel = ({order}: {order:IOrder}) => {
+ const { _id, number } = order || {}
+
+  return (<OrderCancel _id={_id} number={number || ""} refetchQueries={['ActiveOrders']}/>)
+}
+
+export const useOrderCancel = (order
+  :IOrder | null
+) => {
+  const { cashAmount, mobileAmount, paidAmounts } = order || {}
+  const changeOpen = useSetAtom(openCancelDialogAtom)
+
+  const paidTotal =
+    (cashAmount || 0) +
+    (mobileAmount || 0) +
+    (paidAmounts?.reduce((total, el) => el.amount + total, 0) || 0)
+  
+  return {
+    changeOpen,
+    notPaid: paidTotal <= 0,
+  }
 }
 
 const OrderCancel = ({
@@ -59,8 +78,6 @@ const OrderCancel = ({
   number: string
   refetchQueries?: string[]
   onCompleted?: () => void
-  open: boolean;
-  onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const orderPassword = useAtomValue(orderPasswordAtom)
   const [open, changeOpen] = useAtom(openCancelDialogAtom)
