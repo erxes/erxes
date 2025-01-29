@@ -1,3 +1,8 @@
+import {
+  conformityQueryFieldDefs,
+  conformityQueryFields,
+} from '@erxes/ui-sales/src/conformity/graphql/queries';
+
 const listParamsDef = `
   $page: Int
   $perPage: Int
@@ -86,4 +91,15 @@ query loanResearchDetail($dealId: String!) {
 }
 `;
 
-export default { loansResearchMain, loanResearchDetail };
+const customers = `
+  query customers(${conformityQueryFields}) {
+    customers(${conformityQueryFieldDefs}) {
+      _id
+      firstName
+      primaryPhone
+      primaryEmail
+    }
+  }
+`;
+
+export default { loansResearchMain, loanResearchDetail, customers };

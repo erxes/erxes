@@ -21,6 +21,7 @@ type Props = {
   loansResearch: ILoanResearch;
   closeModal: () => void;
   queryParams: any;
+  customer: any;
 };
 
 const LoansResearchForm = (props: Props) => {
@@ -29,6 +30,7 @@ const LoansResearchForm = (props: Props) => {
     closeModal,
     renderButton,
     queryParams,
+    customer,
   } = props;
 
   const [currentTab, setCurrentTab] = useState('Deals');
@@ -78,6 +80,12 @@ const LoansResearchForm = (props: Props) => {
       setDealId(queryParams.itemId);
     }
   }, [queryParams]);
+
+  useEffect(() => {
+    if (customer) {
+      setCustomerId(customer._id);
+    }
+  }, [customer]);
 
   useEffect(() => {
     let increaseAmount;
@@ -198,7 +206,6 @@ const LoansResearchForm = (props: Props) => {
           dealId={dealId}
           customerType={customerType}
           customerId={customerId}
-          setCustomerId={setCustomerId}
           totalIncome={totalIncome}
           totalPaymentAmount={totalPaymentAmount}
           debtIncomeRatio={debtIncomeRatio}
