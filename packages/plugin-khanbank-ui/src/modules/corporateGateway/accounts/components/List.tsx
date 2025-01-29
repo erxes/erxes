@@ -7,7 +7,6 @@ import { FieldStyle } from "@erxes/ui/src/layout/styles";
 import { IKhanbankAccount } from "../types";
 import { Link } from "react-router-dom";
 import React from "react";
-import WithPermission from "@erxes/ui/src/components/WithPermission";
 
 type Props = {
   queryParams: any;
@@ -27,14 +26,16 @@ const List = (props: any) => {
     });
   };
 
+
+
   return (accounts || []).map((account) => (
     <>
-      <WithPermission action="khanbankAccounts">
+
         <SidebarListItem
           id={account.number}
           key={account.number}
           onClick={onClickRow}
-          isActive={queryParams.account === account.number}
+          $isActive={queryParams.account === account.number}
         >
           <Link to={`?_id=${props._id}&account=${account.number}`}>
             <FieldStyle>
@@ -42,8 +43,9 @@ const List = (props: any) => {
               <Description>{account.name}</Description>
             </FieldStyle>
           </Link>
+          
         </SidebarListItem>
-      </WithPermission>
+   
     </>
   ));
 };
