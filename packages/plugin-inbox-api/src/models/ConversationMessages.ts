@@ -5,19 +5,20 @@ import { MESSAGE_TYPES } from './definitions/constants';
 import {
   IMessage,
   IMessageDocument,
-  messageSchema
+  messageSchema,
 } from './definitions/conversationMessages';
 
 export interface IMessageModel extends Model<IMessageDocument> {
   getMessage(_id: string): Promise<IMessageDocument>;
   createMessage(doc: IMessage): Promise<IMessageDocument>;
   addMessage(doc: IMessage, userId?: string): Promise<IMessageDocument>;
+  updateMessage(_id: string, fields: IMessage): Promise<IMessageDocument>;
   getNonAsnweredMessage(conversationId: string);
   getAdminMessages(conversationId: string);
   widgetsGetUnreadMessagesCount(conversationId: string): Promise<number>;
   markSentAsReadMessages(conversationId: string): Promise<IMessageDocument>;
   forceReadCustomerPreviousEngageMessages(
-    customerId: string
+    customerId: string,
   ): Promise<IMessageDocument>;
   updateVisitorEngageMessages(visitorId: string, customerId: string);
 }
@@ -43,11 +44,11 @@ export const loadClass = (models: IModels) => {
       const message = await models.ConversationMessages.create({
         internal: false,
         ...doc,
-        createdAt: doc.createdAt || new Date()
+        createdAt: doc.createdAt || new Date(),
       });
 
       const messageCount = await models.ConversationMessages.find({
-        conversationId: message.conversationId
+        conversationId: message.conversationId,
       }).countDocuments();
 
       // update conversation ====
@@ -56,7 +57,7 @@ export const loadClass = (models: IModels) => {
         updatedAt: Date;
         isCustomerRespondedLast?: boolean;
       } = {
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       if (!doc.fromBot) {
@@ -66,21 +67,21 @@ export const loadClass = (models: IModels) => {
 
       await models.Conversations.updateConversation(
         message.conversationId,
-        convDocModifier
+        convDocModifier,
       );
 
       if (message.userId) {
         // add created user to participators
         await models.Conversations.addParticipatedUsers(
           message.conversationId,
-          message.userId
+          message.userId,
         );
       }
 
       // add mentioned users to participators
       await models.Conversations.addManyParticipatedUsers(
         message.conversationId,
-        message.mentionedUserIds || []
+        message.mentionedUserIds || [],
       );
 
       return message;
@@ -91,7 +92,7 @@ export const loadClass = (models: IModels) => {
      */
     public static async addMessage(doc: IMessage, userId?: string) {
       const conversation = await models.Conversations.findOne({
-        _id: doc.conversationId
+        _id: doc.conversationId,
       });
 
       if (!conversation) {
@@ -136,10 +137,22 @@ export const loadClass = (models: IModels) => {
 
       await models.Conversations.updateConversation(
         doc.conversationId,
-        modifier
+        modifier,
       );
 
       return this.createMessage({ ...doc, userId });
+    }
+
+    public static async updateMessage(_id: string, fields: IMessage) {
+      if (fields.internal) {
+        await models.ConversationMessages.updateOne(
+          { _id },
+          { $set: { ...fields } },
+        );
+
+        return models.ConversationMessages.findOne({ _id }).lean();
+      }
+      return '';
     }
 
     /**
@@ -148,7 +161,7 @@ export const loadClass = (models: IModels) => {
     public static getNonAsnweredMessage(conversationId: string) {
       return models.ConversationMessages.findOne({
         conversationId,
-        customerId: { $exists: true }
+        customerId: { $exists: true },
       })
         .sort({ createdAt: -1 })
         .lean();
@@ -164,7 +177,7 @@ export const loadClass = (models: IModels) => {
         isCustomerRead: { $ne: true },
 
         // exclude internal notes
-        internal: false
+        internal: false,
       })
         .sort({ createdAt: 1 })
         .lean();
@@ -175,7 +188,7 @@ export const loadClass = (models: IModels) => {
         conversationId,
         userId: { $exists: true },
         internal: false,
-        isCustomerRead: { $ne: true }
+        isCustomerRead: { $ne: true },
       });
     }
 
@@ -187,10 +200,10 @@ export const loadClass = (models: IModels) => {
         {
           conversationId,
           userId: { $exists: true },
-          isCustomerRead: { $ne: true }
+          isCustomerRead: { $ne: true },
         },
         { $set: { isCustomerRead: true } },
-        { multi: true }
+        { multi: true },
       );
     }
 
@@ -203,22 +216,22 @@ export const loadClass = (models: IModels) => {
           customerId,
           engageData: { $exists: true },
           'engageData.engageKind': { $ne: 'auto' },
-          isCustomerRead: { $ne: true }
+          isCustomerRead: { $ne: true },
         },
-        { $set: { isCustomerRead: true } }
+        { $set: { isCustomerRead: true } },
       );
     }
 
     public static async updateVisitorEngageMessages(
       visitorId: string,
-      customerId: string
+      customerId: string,
     ) {
       return models.ConversationMessages.updateMany(
         {
           visitorId,
-          engageData: { $exists: true }
+          engageData: { $exists: true },
         },
-        { $set: { customerId, visitorId: '' } }
+        { $set: { customerId, visitorId: '' } },
       );
     }
   }
