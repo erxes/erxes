@@ -1,20 +1,26 @@
-import * as mongoose from 'mongoose';
-import { IProductReviewModel } from './models/productreview';
-import { IProductreviewDocument } from './models/definitions/productreview';
-import { loadProductReviewClass } from './models/productreview';
-import { loadWishlistClass } from './models/wishlist';
-import { loadLastViewedItemClass } from './models/lastViewedItem';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
-import { IWishlistModel } from './models/wishlist';
-import { IWishlistDocument } from './models/definitions/wishlist';
-import { ILastViewedItemModel } from './models/lastViewedItem';
+import * as mongoose from 'mongoose';
+import { IAddressModel, loadAddressClass } from './models/address';
+import { IAddressDocument } from './models/definitions/address';
 import { ILastViewedItemDocument } from './models/definitions/lastViewedItem';
+import { IProductreviewDocument } from './models/definitions/productreview';
+import { IWishlistDocument } from './models/definitions/wishlist';
+import {
+  ILastViewedItemModel,
+  loadLastViewedItemClass,
+} from './models/lastViewedItem';
+import {
+  IProductReviewModel,
+  loadProductReviewClass,
+} from './models/productreview';
+import { IWishlistModel, loadWishlistClass } from './models/wishlist';
 
 export interface IModels {
   ProductReview: IProductReviewModel;
   Wishlist: IWishlistModel;
   LastViewedItem: ILastViewedItemModel;
+  Address: IAddressModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -39,7 +45,10 @@ export const loadClasses = (
     ILastViewedItemDocument,
     ILastViewedItemModel
   >('ecommerce_lastvieweditem', loadLastViewedItemClass(models, subdomain));
-
+  models.Address = db.model<IAddressDocument, IAddressModel>(
+    'ecommerce_address',
+    loadAddressClass(models, subdomain),
+  );
   return models;
 };
 

@@ -34,6 +34,7 @@ interface IProductParams extends ICommonParams {
   isKiosk?: boolean;
   groupedSimilarity?: string;
   categoryMeta?: string;
+  image?: string;
 }
 
 interface ICategoryParams extends ICommonParams {
@@ -64,6 +65,7 @@ const generateFilter = async (
     segmentData,
     categoryMeta,
     isKiosk,
+    image,
     ...paginationArgs
   }: IProductParams
 ) => {
@@ -121,6 +123,10 @@ const generateFilter = async (
 
   if (vendorId) {
     filter.vendorId = vendorId;
+  }
+
+  if (image) {
+    filter['attachment.url'] = image === 'hasImage' ? { $exists: true } : { $exists: false }
   }
 
   const $and: any[] = [{}];

@@ -1,28 +1,32 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 
 import {
-  productreview as productreviewMutations,
+  address as addressMutations,
   lastViewedItem as lastViewedItemMutations,
-  wishlist as wishlistMutations
+  productreview as productreviewMutations,
+  wishlist as wishlistMutations,
 } from './mutations';
 import {
-  productreview as productreviewQueries,
+  address as addressQueries,
   lastViewedItem as lastViewedItemQueries,
-  wishlist as wishlistQueries
+  productreview as productreviewQueries,
+  wishlist as wishlistQueries,
 } from './queries';
 
-const resolvers: any = async serviceDiscovery => ({
+const resolvers: any = async (serviceDiscovery) => ({
   ...customScalars,
   Mutation: {
     ...productreviewMutations,
     ...wishlistMutations,
-    ...lastViewedItemMutations
+    ...lastViewedItemMutations,
+    ...addressMutations,
   },
   Query: {
     ...productreviewQueries,
     ...wishlistQueries,
-    ...lastViewedItemQueries
-  }
+    ...lastViewedItemQueries,
+    ...addressQueries,
+  },
 });
 
 export default resolvers;
