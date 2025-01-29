@@ -59,6 +59,8 @@ const OrderCancel = ({
   number: string
   refetchQueries?: string[]
   onCompleted?: () => void
+  open: boolean;
+  onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const orderPassword = useAtomValue(orderPasswordAtom)
   const [open, changeOpen] = useAtom(openCancelDialogAtom)

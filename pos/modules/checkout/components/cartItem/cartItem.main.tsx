@@ -65,16 +65,17 @@ const CartItem = ({
 
   return (
     <Collapsible className={cn(idx === 0 && "bg-primary/10")}>
-      {showCancel && activeOrderId && (
         <OrderCancel
-          _id={activeOrderId}
+          _id= {activeOrderId || ''}
           number={(idx + 1).toString()}
           refetchQueries={["ActiveOrders"]}
           onCompleted={() => {
             setShowCancel(false);
           }}
+          open={showCancel}
+          onOpenChange={setShowCancel}
         />
-      )}
+      
       {count !== 0 && (
         <motion.div
           variants={itemVariants}
