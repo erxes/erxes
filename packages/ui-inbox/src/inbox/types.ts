@@ -1,6 +1,6 @@
 import {
   IFacebookComment,
-  IIntegration
+  IIntegration,
 } from '@erxes/ui-inbox/src/settings/integrations/types';
 
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
@@ -148,7 +148,7 @@ export interface IBotData {
     {
       title: string;
       payload: string;
-    }
+    },
   ];
   wrapped?: {
     type: string;
@@ -203,11 +203,27 @@ export type AddMessageMutationVariables = {
   attachments?: any;
 };
 
+export type EditMessageMutationVariables = {
+  _id: string;
+  content: string;
+  contentType?: string;
+  mentionedUserIds?: string[];
+  internal?: boolean;
+  attachments?: any;
+};
+
 export type AddMessageMutationResponse = {
   addMessageMutation: (doc: {
     variables: AddMessageMutationVariables;
     optimisticResponse: any;
     update: any;
+  }) => Promise<any>;
+};
+
+export type EditMessageMutationResponse = {
+  editMessageMutation: (doc: {
+    variables: EditMessageMutationVariables;
+    optimisticResponse: any;
   }) => Promise<any>;
 };
 

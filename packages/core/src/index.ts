@@ -62,6 +62,7 @@ import {
 } from "./data/modules/coc/verifierUtils";
 import { buildFile } from "./exporterByUrl";
 import reports from "./reports/reports";
+import { getOrganizationDetail } from "@erxes/api-utils/src/saas/saas";
 
 const {
   JWT_TOKEN_SECRET,
@@ -146,6 +147,74 @@ app.get(
     await models.FieldsGroups.createSystemGroupsFields();
 
     return res.json(configs);
+  })
+);
+
+app.get(
+  "/v3/initial-setup",
+  routeErrorHandling(async (req: any, res) => {
+    console.log("initial setup");
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
+
+    const VERSION = getEnv({ name: "VERSION" });
+
+    let organizationInfo;
+
+    if (VERSION === "saas") {
+      organizationInfo = await getOrganizationDetail({ subdomain, models });
+    } else {
+      organizationInfo = {
+        type: "os",
+        config: {}
+      };
+    }
+
+    const userCount = await models.Users.countDocuments();
+
+    if (userCount === 0) {
+      organizationInfo.hasOwner = false;
+
+      res.json(organizationInfo);
+    } else {
+      organizationInfo.hasOwner = true;
+    }
+
+    await models.FieldsGroups.createSystemGroupsFields();
+
+    if (req.query && req.query.update) {
+      const services = await getServices();
+
+      for (const serviceName of services) {
+        const service = await getService(serviceName);
+        const meta = service.config?.meta || {};
+
+        if (meta && meta.initialSetup && meta.initialSetup.generateAvailable) {
+          await sendCommonMessage({
+            subdomain,
+            action: "initialSetup",
+            serviceName,
+            data: {}
+          });
+        }
+      }
+    }
+
+    const envMaps = JSON.parse(req.query.envs || "{}");
+
+    for (const key of Object.keys(envMaps)) {
+      res.cookie(key, envMaps[key], authCookieOptions({ secure: req.secure }));
+    }
+
+    const configs = await models.Configs.find({
+      code: new RegExp(`.*THEME_.*`, "i")
+    }).lean();
+
+    await models.FieldsGroups.createSystemGroupsFields();
+
+    organizationInfo.configs = configs;
+
+    return res.json(organizationInfo);
   })
 );
 

@@ -72,6 +72,9 @@ const productsQueryParams = `
   searchValue: String,
   vendorId: String,
   tag: String,
+  tags: [String]
+  excludeTags: [String]
+  tagWithRelated: Boolean
   ids: [String],
   excludeIds: Boolean,
   segment: String,
@@ -79,6 +82,7 @@ const productsQueryParams = `
   isKiosk: Boolean,
   groupedSimilarity: String,
   categoryMeta: String,
+  image: String,
 `;
 
 const productCategoriesParams = `

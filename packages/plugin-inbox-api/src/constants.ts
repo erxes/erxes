@@ -2,15 +2,14 @@ import { ruleSchema } from '@erxes/api-utils/src/definitions/common';
 
 import { channelSchema } from './models/definitions/channels';
 import { responseTemplateSchema } from './models/definitions/responseTemplates';
-import {
-  integrationSchema,
-} from './models/definitions/integrations';
+import { integrationSchema } from './models/definitions/integrations';
 
 export const MODULE_NAMES = {
   CHANNEL: 'channel',
   EMAIL_TEMPLATE: 'emailTemplate',
   RESPONSE_TEMPLATE: 'responseTemplate',
   CONVERSATION: 'conversation',
+  CONVERSATION_MESSAGE: 'conversation_message',
   INTEGRATION: 'integration',
   SCRIPT: 'script',
 };

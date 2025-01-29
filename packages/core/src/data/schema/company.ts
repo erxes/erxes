@@ -60,6 +60,9 @@ const queryParams = `
   perPage: Int
   segment: String
   tag: String
+  tags: [String]
+  excludeTags: [String]
+  tagWithRelated: Boolean
   ids: [String]
   excludeIds: Boolean
   searchValue: String
