@@ -13,7 +13,7 @@ export interface ISchedule {
   contractId: string;
   version: string;
   createdAt: Date;
-  status: 'pending' | 'done' | 'skipped' | 'pre' | 'less' | 'expired' | 'give';
+  status: 'pending' | 'done' | 'skipped' | 'pre' | 'less' | 'expired' | 'give';  
   payDate: Date;
   interestRate: number;
 

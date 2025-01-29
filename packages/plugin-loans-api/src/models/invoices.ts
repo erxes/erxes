@@ -8,7 +8,7 @@ import { IModels } from '../connectionResolver';
 import { CONTRACT_STATUS, LEASE_TYPES } from './definitions/constants';
 import { getFullDate } from './utils/utils';
 import { getConfig } from '../messageBroker';
-import { getCalcedAmountsOnDate } from './utils/calcUtils';
+import { getCalcedAmountsOnDate } from './utils/calcHelpers';
 export interface IInvoiceModel extends Model<IInvoiceDocument> {
   getInvoice(selector: FilterQuery<IInvoiceDocument>);
   createCreditMassInvoice(subdomain, date);

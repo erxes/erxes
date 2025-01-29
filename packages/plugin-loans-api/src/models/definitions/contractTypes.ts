@@ -178,10 +178,10 @@ export const contractTypeSchema = schemaHooksWrapper(
     feePercent: field({ type: Number, label: 'fee Percent', optional: true }),
     defaultFee: field({ type: Number, label: 'default Fee', optional: true }),
     useCollateral: field({ type: Boolean, label: 'Use Collateral', optional: true }),
-    minPercentMargin: field({ type: Number, label: 'pre Percent', optional: true }),
+    minPercentMargin: field({ type: Number, label: 'Pre Percent', optional: true }),
 
     collectivelyRule: field({ type: String, optional: true, enum: COLLECTIVELY_RULES.ALL, label: 'collectively Rule' }),
-    overPaymentIsNext: field({ type: Boolean, label: 'Use Collateral', default: false, optional: true }),
+    overPaymentIsNext: field({ type: Boolean, label: 'Over Payment is next schedule', default: false, optional: true }),
 
     requirements: field({ type: [String], optional: true, label: 'requirements' }),
     customerDocuments: field({ type: [String], optional: true, label: 'customer Documents' }),

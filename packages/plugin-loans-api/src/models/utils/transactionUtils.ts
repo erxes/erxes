@@ -16,7 +16,7 @@ import { getFullDate } from './utils';
 import { IConfig } from '../../interfaces/config';
 import { getConfig } from '../../messageBroker';
 import { scheduleFixAfterCurrent } from './scheduleFixUtils';
-import { getCalcedAmountsOnDate } from './calcUtils';
+import { getCalcedAmountsOnDate } from './calcHelpers';
 //#endregion
 
 /**

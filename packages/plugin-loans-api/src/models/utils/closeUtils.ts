@@ -1,6 +1,6 @@
 import { IModels } from '../../connectionResolver';
 import { IContractDocument } from '../definitions/contracts';
-import { getCalcedAmountsOnDate } from './calcUtils';
+import { getCalcedAmountsOnDate } from './calcHelpers';
 import { getFullDate } from './utils';
 
 export const getCloseInfo = async (
