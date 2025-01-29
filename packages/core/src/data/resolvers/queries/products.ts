@@ -27,6 +27,9 @@ interface IQueryParams {
   vendorId?: string;
   brand?: string;
   tag: string;
+  tags?: string[];
+  excludeTags?: string[];
+  tagWithRelated?: boolean;
   page?: number;
   perPage?: number;
   sortField?: string;
@@ -53,6 +56,9 @@ const generateFilter = async (
     vendorId,
     brand,
     tag,
+    tags,
+    excludeTags,
+    tagWithRelated,
     ids,
     excludeIds,
     segment,
@@ -117,6 +123,32 @@ const generateFilter = async (
 
   if (tag) {
     filter.tagIds = { $in: [tag] };
+  }
+
+  if (tags?.length) {
+    let tagIds: string[] = tags;
+
+    if (tagWithRelated) {
+      const tagObjs = await models.Tags.find({ _id: { $in: tagIds } }).lean();
+      tagObjs.forEach(tag => {
+        tagIds = tagIds.concat(tag.relatedIds || [])
+      })
+    }
+
+    andFilters.push({ tagIds: { $in: tagIds } });
+  }
+
+  if (excludeTags?.length) {
+    let tagIds: string[] = excludeTags;
+
+    if (tagWithRelated) {
+      const tagObjs = await models.Tags.find({ _id: { $in: tagIds } }).lean();
+      tagObjs.forEach(tag => {
+        tagIds = tagIds.concat(tag.relatedIds || [])
+      })
+    }
+
+    andFilters.push({ tagIds: { $nin: tagIds } });
   }
 
   // search =========

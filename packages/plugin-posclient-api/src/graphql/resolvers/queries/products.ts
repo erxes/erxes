@@ -3,7 +3,7 @@ import { IContext } from '../../types';
 import { IModels } from '../../../connectionResolver';
 import { IProductCategoryDocument } from '../../../models/definitions/products';
 import { PRODUCT_STATUSES } from '../../../models/definitions/constants';
-import { sendPricingMessage } from '../../../messageBroker';
+import { sendCoreMessage, sendPricingMessage } from '../../../messageBroker';
 import { Builder } from '../../../utils';
 import { checkRemainders } from '../../utils/products';
 import { IConfigDocument } from '../../../models/definitions/configs';
@@ -27,6 +27,9 @@ interface IProductParams extends ICommonParams {
   vendorId?: string;
   branchId?: string;
   tag?: string;
+  tags?: string[];
+  excludeTags?: string[];
+  tagWithRelated?: boolean;
   pipelineId?: string;
   boardId?: string;
   segment?: string;
@@ -59,6 +62,9 @@ const generateFilter = async (
     searchValue,
     vendorId,
     tag,
+    tags,
+    excludeTags,
+    tagWithRelated,
     ids,
     excludeIds,
     segment,
@@ -70,6 +76,8 @@ const generateFilter = async (
   }: IProductParams
 ) => {
   const { token } = config;
+  const $and: any[] = [{}];
+
   const filter: any = {
     status: { $ne: PRODUCT_STATUSES.DELETED },
     tokens: { $in: [token] }
@@ -89,6 +97,42 @@ const generateFilter = async (
 
   if (tag) {
     filter.tagIds = { $in: [tag] };
+  }
+
+  if (tags?.length) {
+    let tagIds: string[] = tags;
+
+    if (tagWithRelated) {
+      const tagObjs = await sendCoreMessage({
+        subdomain,
+        action: 'core:tagWithChilds',
+        data: { query: { _id: { $in: tagIds } } },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      tagIds = tagObjs.map(t => t._id);
+    }
+
+    $and.push({ tagIds: { $in: tagIds } });
+  }
+
+  if (excludeTags?.length) {
+    let tagIds: string[] = excludeTags;
+
+    if (tagWithRelated) {
+      const tagObjs = await sendCoreMessage({
+        subdomain,
+        action: 'core:tagWithChilds',
+        data: { query: { _id: { $in: tagIds } } },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      tagIds = tagObjs.map(t => t._id);
+    }
+
+    $and.push({ tagIds: { $nin: tagIds } });
   }
 
   // search =========
@@ -128,8 +172,6 @@ const generateFilter = async (
   if (image) {
     filter['attachment.url'] = image === 'hasImage' ? { $exists: true } : { $exists: false }
   }
-
-  const $and: any[] = [{}];
 
   if (categoryId) {
     const category = await models.ProductCategories.getProductCategory({

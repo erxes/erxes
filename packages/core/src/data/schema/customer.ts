@@ -77,6 +77,9 @@ const queryParams = `
   tag: String
   ids: [String]
   excludeIds: Boolean
+  tags: [String]
+  excludeTags: [String]
+  tagWithRelated: Boolean
   searchValue: String
   autoCompletion: Boolean
   autoCompletionType: String
