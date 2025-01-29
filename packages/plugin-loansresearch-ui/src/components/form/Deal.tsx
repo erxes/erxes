@@ -7,9 +7,7 @@ import { MarginTop } from '../../styles';
 
 type Props = {
   dealId: string;
-  setDealId: (dealId: string) => void;
   customerId: string;
-  setCustomerId: (dealId: string) => void;
   customerType: string;
   totalIncome: number;
   totalPaymentAmount: number;
@@ -20,9 +18,7 @@ type Props = {
 const DealForm = (props: Props) => {
   const {
     dealId,
-    setDealId,
     customerId,
-    setCustomerId,
     customerType,
     totalIncome,
     totalPaymentAmount,
@@ -30,28 +26,16 @@ const DealForm = (props: Props) => {
     increaseMonthlyPaymentAmount,
   } = props;
 
-  const onChangeDealId = (e) => {
-    setDealId(e.target.value);
-  };
-
-  const onChangeCustomerId = (e) => {
-    setCustomerId(e.target.value);
-  };
-
   return (
     <MarginTop>
       <FormGroup>
         <ControlLabel>{'Deal'}</ControlLabel>
-        <FormControl name="dealId" onChange={onChangeDealId} value={dealId} />
+        <FormControl name="dealId" value={dealId} disabled={true} />
       </FormGroup>
 
       <FormGroup>
         <ControlLabel>{'Customer'}</ControlLabel>
-        <FormControl
-          name="customerId"
-          value={customerId}
-          onChange={onChangeCustomerId}
-        />
+        <FormControl name="customerId" value={customerId} disabled={true} />
       </FormGroup>
 
       <FormGroup>

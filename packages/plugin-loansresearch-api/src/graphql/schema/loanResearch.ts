@@ -94,10 +94,12 @@ const queryParams = `
   perPage: Int
   sortField: String
   sortDirection: Int
+  dealId: String
 `;
 
 export const queries = `
   loansResearchMain(${queryParams}): LoansResearchListResponse
+  loanResearchDetail(dealId: String!): LoansResearch
 `;
 
 const commonFields = `

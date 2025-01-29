@@ -5,6 +5,7 @@ module.exports = {
   scope: 'loansresearch',
   exposes: {
     './routes': './src/routes.tsx',
+    './loansResearchSidebar': './src/containers/LoansResearchSidebar.tsx',
   },
   routes: {
     url: 'http://localhost:3012/remoteEntry.js',
@@ -21,4 +22,5 @@ module.exports = {
       permission: 'showLoanResearch',
     },
   ],
+  dealRightSidebarSection: './loansResearchSidebar',
 };

@@ -55,6 +55,11 @@ export type MainQueryResponse = {
   refetch: () => void;
 };
 
+export type DetailQueryResponse = {
+  loanResearchDetail: ILoanResearch;
+  loading: boolean;
+};
+
 export type RemoveMutationResponse = {
   loansResearchRemove: (params: {
     variables: { loanResearchIds: string[] };
