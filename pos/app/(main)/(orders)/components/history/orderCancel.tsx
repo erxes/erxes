@@ -95,6 +95,10 @@ const OrderCancel = ({
     }
     return setError(true)
   }
+  const handleCancel = () => {
+    changeOpen(null);
+    reset();
+  };
 
   return (
     <>
@@ -139,7 +143,7 @@ const OrderCancel = ({
             )}
 
             <AlertDialogFooter className="pt-6">
-              <AlertDialogCancel>Болих</AlertDialogCancel>
+              <AlertDialogCancel onClick={handleCancel}>Болих</AlertDialogCancel>
               <Button variant="destructive" type="submit" loading={loading}>
                 Устгах
               </Button>
