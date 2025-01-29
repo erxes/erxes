@@ -1,8 +1,7 @@
 import { ButtonMutate, Spinner } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { useQuery } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 
 import { mutations, queries } from '../graphql';
 import LoansResearchForm from '../components/LoansResearchForm';

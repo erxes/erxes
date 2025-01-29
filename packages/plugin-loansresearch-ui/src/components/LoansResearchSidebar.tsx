@@ -10,7 +10,6 @@ import LoansResearchFormContainer from '../containers/LoansResearchForm';
 type Props = {
   loansResearch: ILoanResearch;
   queryParams: any;
-  closeModal: () => void;
 };
 
 const LoansResearchSidebar = (props: Props) => {
