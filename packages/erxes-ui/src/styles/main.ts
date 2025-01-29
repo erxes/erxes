@@ -667,8 +667,9 @@ const DynamicContentLeft = styled.div`
   }
 `;
 
-const DynamicContentRight = styled.div`
-  height: 100%;
+const DynamicContentRight = styledTS<{ overflow?: boolean }>(styled.div)`
+  height: calc(100% - 25px);
+  overflow: ${props => props.overflow ? 'auto' : 'initial'}
 `;
 
 const ProductFormContainer = styled.div`

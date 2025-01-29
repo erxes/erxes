@@ -738,6 +738,7 @@ class GenerateGroups extends React.Component<
     const renderChildGroupsName = (childGroups) => {
       return childGroups.map((child) => (
         <div
+          key={child._id}
           className={`custom-child-title custom-title ${child.name === this.state.currentTitle ? "active" : ""}`}
           onClick={() => this.setState({ currentTitle: child.name })}
         >
@@ -768,7 +769,7 @@ class GenerateGroups extends React.Component<
               );
             })}
           </DynamicContentLeft>
-          <DynamicContentRight>
+          <DynamicContentRight overflow={true}>
             {this.renderGroups(activeGroups)}
           </DynamicContentRight>
         </DynamicContent>
