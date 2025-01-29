@@ -164,6 +164,9 @@ interface ICommonListArgs {
   tag?: string;
   ids?: string[];
   excludeIds?: boolean;
+  tags?: string[];
+  excludeTags?: string[];
+  tagWithRelated?: boolean;
   searchValue?: string;
   autoCompletion?: boolean;
   autoCompletionType?: string;
@@ -229,12 +232,12 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       segment,
       source === 'engages' && !segment.contentType.includes('contacts')
         ? {
-            returnAssociated: {
-              mainType: segment.contentType,
-              relType: `core:${this.getRelType()}`,
-            },
-            returnSelector: true,
-          }
+          returnAssociated: {
+            mainType: segment.contentType,
+            relType: `core:${this.getRelType()}`,
+          },
+          returnSelector: true,
+        }
         : { returnSelector: true }
     );
 
@@ -256,6 +259,28 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
         tagIds,
       },
     });
+  }
+
+  // filter by tagId
+  public async tagsFilter(tags: string[], isExclude: boolean, withRelated?: boolean) {
+    let tagIds: string[] = tags;
+
+    if (withRelated) {
+      const tagObjs = await this.models.Tags.find({ _id: { $in: tagIds } });
+      tagObjs.forEach(tag => {
+        tagIds = tagIds.concat(tag.relatedIds || [])
+      })
+    }
+
+    if (isExclude) {
+      this.negativeList.push({
+        terms: { tagIds },
+      });
+    } else {
+      this.positiveList.push({
+        terms: { tagIds },
+      });
+    }
   }
 
   // filter by search value
@@ -405,6 +430,14 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       await this.tagFilter(this.params.tag, true);
     }
 
+    if (this.params.tags) {
+      await this.tagsFilter(this.params.tags, false, this.params.tagWithRelated)
+    }
+
+    if (this.params.excludeTags) {
+      await this.tagsFilter(this.params.excludeTags, true, this.params.tagWithRelated)
+    }
+
     // filter by leadStatus
     if (this.params.leadStatus) {
       this.leadStatusFilter(this.params.leadStatus);
@@ -426,9 +459,9 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     if (this.params.searchValue) {
       this.params.autoCompletion
         ? this.searchByAutoCompletionType(
-            this.params.searchValue,
-            this.params.autoCompletionType || ''
-          )
+          this.params.searchValue,
+          this.params.autoCompletionType || ''
+        )
         : this.searchFilter(this.params.searchValue);
     }
 
