@@ -29,14 +29,6 @@ import CartItemStatus from "./cartItemStatus";
 import ProductCancel from "@/app/(main)/(orders)/components/history/productCancel";
 import { useState, useEffect } from "react";
 
-interface CartItemProps extends OrderItem {
-  idx: number;
-  productIds?: string[];
-  combinedCount?: number;
-  unitPrice: number;
-  itemIds: string[];
-}
-
 const CartItem = ({
   productName,
   count,
@@ -48,9 +40,7 @@ const CartItem = ({
   attachment,
   idx,
   productId,
-  combinedCount,
-  itemIds,
-}: CartItemProps) => {
+}: OrderItem & { idx: number }) => {
   const changeItem = useSetAtom(updateCartAtom);
   const banFractions = useAtomValue(banFractionsAtom);
   const type = useAtomValue(orderTypeAtom);
@@ -67,14 +57,6 @@ const CartItem = ({
       setShowCancel(total === 0);
     }
   }, [total, hasMounted]);
-
-  const handleChangeItem = (changes: Partial<OrderItem>) => {
-    itemIds.forEach((id) => {
-      changeItem({ ...changes, _id: id });
-    });
-  };
-
-  const displayCount = combinedCount !== undefined ? combinedCount : count;
 
   return (
     <Collapsible className={cn(idx === 0 && "bg-primary/10")}>
@@ -113,9 +95,6 @@ const CartItem = ({
                       id={_id}
                       checked={isTake}
                       disabled={type !== "eat"}
-                      onCheckedChange={(checked) =>
-                        handleChangeItem({ isTake: !!checked })
-                      }
                     />
                   </TooltipTrigger>
                   <TooltipContent>
@@ -164,32 +143,29 @@ const CartItem = ({
             <div className="flex w-5/12 items-center justify-end">
               <Button
                 className={countBtnClass}
-                onClick={() =>
-                  handleChangeItem({ count: (displayCount || 0) - 1, status })
-                }
+                onClick={() => changeItem({ _id, count: (count || 0) - 1 })}
               >
                 <Minus className="h-3 w-3" strokeWidth={4} />
               </Button>
               <FocusChanger>
-                <Input
-                  className="mx-2 w-10 border-none p-1 text-center text-sm font-semibold [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                  type="number"
-                  onChange={(e) =>
-                    handleChangeItem({
-                      count: banFractions
-                        ? parseInt(e.target.value)
-                        : Number(e.target.value),
-                      status,
-                    })
-                  }
-                  value={displayCount.toString()}
-                />
-              </FocusChanger>
+              <Input
+                className="mx-2 w-10 border-none p-1 text-center text-sm font-semibold [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                type="number"
+                onChange={(e) =>
+                  changeItem({
+                    _id,
+                    count: banFractions
+                      ? parseInt(e.target.value)
+                      : Number(e.target.value),
+                    status,
+                  })
+                }
+                value={count.toString()}
+              />
+            </FocusChanger>
               <Button
                 className={countBtnClass}
-                onClick={() =>
-                  handleChangeItem({ count: (displayCount || 0) + 1 })
-                }
+                onClick={() => changeItem({ _id, count: (count || 0) + 1 })}
               >
                 <Plus className="h-3 w-3" strokeWidth={4} />
               </Button>
@@ -202,9 +178,7 @@ const CartItem = ({
                 id={`description-${_id}`}
                 placeholder="Тайлбар бичих"
                 value={description}
-                onChange={(e) =>
-                  handleChangeItem({ description: e.target.value })
-                }
+                onChange={(e) => changeItem({ _id, description: e.target.value })}
               />
             </div>
             <div>
@@ -213,7 +187,7 @@ const CartItem = ({
                 id={`attachment-${_id}`}
                 attachment={attachment}
                 setAttachment={(attachment?: { url?: string } | null) =>
-                  handleChangeItem({ attachment })
+                  changeItem({ _id, attachment })
                 }
               />
             </div>
