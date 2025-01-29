@@ -310,8 +310,9 @@ export const prepareEbarimtData = async (
   order: IOrderDocument,
   config: IEbarimtConfig,
   items: IOrderItemDocument[] = [],
+  paymentTypes: any[],
   orderBillType?: string,
-  registerNumber?: string
+  registerNumber?: string,
 ) => {
   const billType = orderBillType || order.billType || BILL_TYPES.CITIZEN;
   let type: string = billType === "3" ? "B2B_RECEIPT" : "B2C_RECEIPT";
@@ -330,6 +331,33 @@ export const prepareEbarimtData = async (
       customerTin = resp.tin;
       customerCode = registerNumber;
       customerName = resp.result?.data?.name;
+    }
+  }
+
+  let itemAmountPrePercent = 0;
+  const preTaxPaymentTypes: string[] = (paymentTypes || []).filter(p =>
+    (p.config || '').includes('preTax: true')
+  ).map(p => p.type);
+
+  if (
+    preTaxPaymentTypes.length &&
+    order.paidAmounts &&
+    order.paidAmounts.length
+  ) {
+    let preSentAmount = 0;
+    for (const preTaxPaymentType of preTaxPaymentTypes) {
+      const matchOrderPays = order.paidAmounts.filter(
+        pa => pa.type === preTaxPaymentType
+      );
+      if (matchOrderPays.length) {
+        for (const matchOrderPay of matchOrderPays) {
+          preSentAmount += matchOrderPay.amount;
+        }
+      }
+    }
+
+    if (preSentAmount && preSentAmount <= order.totalAmount) {
+      itemAmountPrePercent = (preSentAmount / order.totalAmount) * 100;
     }
   }
 
@@ -361,17 +389,21 @@ export const prepareEbarimtData = async (
       })
       .map(item => {
         const product: IProductDocument = productsById[item.productId];
+        const tempAmount = (item.count ?? 0) * (item.unitPrice ?? 0);
+        const minusAmount = (tempAmount / 100) * itemAmountPrePercent;
+        const totalAmount = mathRound(tempAmount - minusAmount, 4);
+
         return {
           recId: item._id,
           product,
           quantity: item.count,
           unitPrice: item.unitPrice ?? 0,
-          totalDiscount: item.discountAmount,
-          totalAmount: mathRound(item.count * (item.unitPrice ?? 0), 4)
+          totalDiscount: (item.discountAmount ?? 0) + minusAmount,
+          totalAmount
         };
       }),
     nonCashAmounts: [
-      ...(order.paidAmounts || []),
+      ...(order.paidAmounts || []).filter(pa => !preTaxPaymentTypes.includes(pa.type)),
       ...(order.mobileAmounts || [])
     ].map(pay => ({ amount: pay.amount }))
   };
@@ -469,8 +501,8 @@ export const prepareOrderDoc = async (
     const fixedUnitPrice = Number(
       Number(
         ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
-          item.unitPrice ||
-          0
+        item.unitPrice ||
+        0
       ).toFixed(2)
     );
 

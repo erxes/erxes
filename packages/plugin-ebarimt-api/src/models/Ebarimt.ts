@@ -117,7 +117,7 @@ export const loadPutResponseClass = (models: IModels) => {
           .catch((err) => {
             throw new Error(err.message);
           });
-
+        console.log(JSON.stringify(response), 'rrrrrrrrrrrrrrr')
         if (prePutResponse && response.status === 'SUCCESS') {
           await models.PutResponses.updateOne(
             { _id: prePutResponse._id },

@@ -7,6 +7,8 @@ const getNum = (n) => {
   })
 }
 
+let totalDiscount = 0;
+
 const getRows = receipts => {
   let res = '';
   let ind = 0;
@@ -14,6 +16,9 @@ const getRows = receipts => {
   for (const receipt of receipts) {
     for (const item of receipt.items) {
       ind += 1;
+      const discount = item.unitPrice * item.qty - item.totalAmount;
+      totalDiscount += discount;
+
       res = res.concat(`
       <tr class="inventory-info">
         <td colspan="4">
@@ -23,7 +28,7 @@ const getRows = receipts => {
       <tr class="right">
         <td class="right">${getNum(item.unitPrice)}</td>
         <td class="right">${item.qty}</td>
-        <td class="right">${getNum(item.totalVAT)}</td>
+        <td class="right">${getNum(discount)}</td>
         <td class="right">${getNum(item.totalAmount)}</td>
       </tr>
       `);
@@ -66,6 +71,7 @@ const customize = (response, field, defaultVal) => {
 }
 
 export default (response, counter?) => {
+  totalDiscount = 0;
   return `
     <div class="receipt" id="${(response._id || '')}">
       ${(counter > 0 && '<div class="splitter"></div>') || ''}
@@ -97,7 +103,7 @@ export default (response, counter?) => {
             <tr class="text-center">
               <th>Нэгж үнэ</th>
               <th>Тоо</th>
-              <th>НӨАТ</th>
+              <th>Хөн</th>
               <th>Нийт үнэ</th>
             </tr>
           </thead>
@@ -111,6 +117,7 @@ export default (response, counter?) => {
           ${response.totalVAT > 0 && `<p><label>НӨАТ:</label> ${getNum(response.totalVAT)}</p>` || ''}
           ${response.totalCityTax > 0 && `<p><label>НХАТ:</label> ${getNum(response.totalCityTax)}</p>` || ''}
           <p><label>Бүгд үнэ:</label> ${getNum(response.totalAmount)}</p>
+          ${totalDiscount > 0 && `<p><label>ХӨН:</label> ${getNum(totalDiscount)}</p>` || ''}
         </div>
 
         <div class="center barcode">

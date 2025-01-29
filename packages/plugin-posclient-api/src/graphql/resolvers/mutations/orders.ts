@@ -643,6 +643,7 @@ const orderMutations = {
         order,
         ebarimtConfig,
         items,
+        config.paymentTypes,
         doc.billType,
         doc.registerNumber || order.registerNumber
       );
