@@ -637,6 +637,49 @@ const AttachmentContainer = styled.div`
   margin-top: 20px;
 `;
 
+const DynamicContent = styled.div`
+  display: grid;
+  grid-template-columns: 250px 2fr;
+  height: 100%;
+`;
+
+const DynamicContentLeft = styled.div`
+  border-right: 1px solid ${colors.borderPrimary};
+  margin-right: ${dimensions.coreSpacing}px;
+  padding-right: ${dimensions.coreSpacing}px;
+
+  .custom-title {
+    padding: ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing}px;
+    font-weight: 500;
+    color: #666;
+    line-height: ${dimensions.coreSpacing - 5}px;
+
+    &.active {
+      background: rgba(119, 99, 241, 0.1);
+      color: #7763F1;
+      border-radius: ${dimensions.unitSpacing - 6}px;
+    }
+  }
+
+  .custom-child-title {
+    padding: ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing}px ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+    color: ${colors.colorCoreGray};
+  }
+`;
+
+const DynamicContentRight = styledTS<{ overflow?: boolean }>(styled.div)`
+  height: calc(100% - 25px);
+  overflow: ${props => props.overflow ? 'auto' : 'initial'}
+`;
+
+const ProductFormContainer = styled.div`
+  margin-bottom: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+
+  .flex-wrap {
+    flex-wrap: wrap;
+  }
+`;
+
 export {
   Actions,
   PopoverButton,
@@ -690,4 +733,8 @@ export {
   TipContent,
   UploadBtn,
   AttachmentContainer,
+  DynamicContent,
+  DynamicContentLeft,
+  DynamicContentRight,
+  ProductFormContainer,
 };

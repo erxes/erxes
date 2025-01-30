@@ -1,31 +1,34 @@
-import Alert from '@erxes/ui/src/utils/Alert';
-import Box from '@erxes/ui/src/components/Box';
-import ContractChooser from '../../containers/ContractChooser';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import withConsumer from '../../../withConsumer';
-import { __ } from 'coreui/utils';
-import { can } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { Link } from 'react-router-dom';
-import { MainStyleButtonRelated as ButtonRelated } from '@erxes/ui/src/styles/eindex';
-import { mutations, queries } from '../../graphql';
-import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
-import { useMutation, useQuery } from '@apollo/client';
 import {
   EditMutationResponse,
   IContract,
   IContractDoc,
   MainQueryResponse,
-} from '../../types';
+} from "../../types";
+import { mutations, queries } from "../../graphql";
+import { useMutation, useQuery } from "@apollo/client";
+
+import Alert from "@erxes/ui/src/utils/Alert";
+import Box from "@erxes/ui/src/components/Box";
+import { MainStyleButtonRelated as ButtonRelated } from "@erxes/ui/src/styles/eindex";
+import ContractChooser from "../../containers/ContractChooser";
+import DynamicComponentContent from "@erxes/ui/src/components/dynamicComponent/Content";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import { SectionBodyItem } from "@erxes/ui/src/layout/styles";
+import { __ } from "coreui/utils";
+import { can } from "@erxes/ui/src/utils/core";
+import { gql } from "@apollo/client";
+import withConsumer from "../../../withConsumer";
 
 type Props = {
   name: string;
   mainType?: string;
   mainTypeId?: string;
+  showType?: string;
   id?: string;
   onSelect?: (contract: IContract[]) => void;
   collapseCallback?: () => void;
@@ -33,31 +36,30 @@ type Props = {
   currentUser: IUser;
 };
 
-function Component(
-  {
-    name,
-    mainType = '',
-    mainTypeId = '',
-    id = '',
-    collapseCallback,
-    title,
-    currentUser,
-  }: Props,
-) {
+function Component({
+  name,
+  mainType = "",
+  mainTypeId = "",
+  id = "",
+  collapseCallback,
+  title,
+  currentUser,
+  showType,
+}: Props) {
   const contractsQuery = useQuery<MainQueryResponse>(
     gql(queries.contractsMain),
     {
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
       variables:
-        mainType === 'customer' || mainType === 'company'
+        mainType === "customer" || mainType === "company"
           ? { customerId: mainTypeId || id }
           : { dealId: mainTypeId },
-    },
+    }
   );
 
   const [contractsDealEdit] = useMutation<EditMutationResponse>(
     gql(mutations.contractsDealEdit),
-    { refetchQueries: ['contractsMain'] },
+    { refetchQueries: ["contractsMain"] }
   );
 
   const renderContractChooser = (props) => {
@@ -119,11 +121,11 @@ function Component(
 
   const relContractTrigger = (
     <ButtonRelated>
-      <span>{__('See related contracts..')}</span>
+      <span>{__("See related contracts..")}</span>
     </ButtonRelated>
   );
 
-  const quickButtons = can('contractsDealEdit', currentUser) && (
+  const quickButtons = can("contractsDealEdit", currentUser) && (
     <ModalTrigger
       title={__("Associate")}
       trigger={contractTrigger}
@@ -147,7 +149,7 @@ function Component(
         <SectionBodyItem key={index}>
           <Link to={`/erxes-plugin-loan/contract-details/${contract._id}`}>
             <Icon icon="arrow-to-right" style={{ marginRight: 5 }} />
-            <span>{contract.number || 'Unknown'}</span>
+            <span>{contract.number || "Unknown"}</span>
           </Link>
         </SectionBodyItem>
       ))}
@@ -158,9 +160,13 @@ function Component(
     </>
   );
 
+  if (showType && showType === "list") {
+    return <DynamicComponentContent>{content}</DynamicComponentContent>;
+  }
+
   return (
     <Box
-      title={__(`${title || 'Loan Contracts'}`)}
+      title={__(`${title || "Loan Contracts"}`)}
       name="showContracts"
       extraButtons={quickButtons}
       isOpen={true}
