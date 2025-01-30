@@ -6,6 +6,7 @@ import { ArchiveBtn } from "./ArchiveBtn";
 import ChecklistAdd from "../../../checklists/components/AddButton";
 import { ColorButton } from "../../styles/common";
 import Comment from "../../../comment/containers/Comment";
+import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import React from "react";
 import Watch from "../../containers/editForm/Watch";
@@ -21,6 +22,7 @@ type Props = {
   sendToBoard?: (item: any) => void;
   onChangeStage?: (stageId: string) => void;
   onChangeRefresh: () => void;
+  currentUser: IUser;
 };
 
 class Actions extends React.Component<Props> {
@@ -33,6 +35,8 @@ class Actions extends React.Component<Props> {
       removeItem,
       sendToBoard,
       onChangeStage,
+      onChangeRefresh,
+      currentUser,
     } = this.props;
 
     return (
@@ -51,6 +55,7 @@ class Actions extends React.Component<Props> {
           saveItem={saveItem}
           sendToBoard={sendToBoard}
           onChangeStage={onChangeStage}
+          currentUser={currentUser}
         />
 
         {loadDynamicComponent(

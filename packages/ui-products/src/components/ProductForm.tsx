@@ -345,7 +345,7 @@ const Form = (props: Props) => {
         value = e.target.value;
     }
 
-    setState({ [variable]: value } as any);
+    setState((prevState) => ({ ...prevState, [variable]: value }));
   };
 
   const onChangeUom = ({ selectedOption }) => {

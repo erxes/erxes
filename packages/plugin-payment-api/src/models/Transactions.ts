@@ -1,6 +1,6 @@
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { Model } from 'mongoose';
-
+import { getEnv } from '@erxes/api-utils/src/core';
 import { IModels } from '../connectionResolver';
 import redisUtils from '../redisUtils';
 import {
@@ -17,20 +17,20 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
     invoiceId,
     paymentId,
     amount,
-    apiDomain,
+    subdomain,
     description,
     details,
   }: {
     invoiceId: string;
     paymentId: string;
     amount: number;
-    apiDomain: string;
+    subdomain: string;
     description?: string;
     details?: any;
   }): Promise<ITransactionDocument>;
   updateTransaction(_id: string, doc: any): Promise<ITransactionDocument>;
   cancelTransaction(_id: string): Promise<string>;
-
+  checkTransaction(_id: string): Promise<string>;
   removeTransactions(_ids: string[]): Promise<any>;
 }
 
@@ -89,6 +89,7 @@ export const loadTransactionClass = (models: IModels) => {
     }
 
     public static async createTransaction(doc: any) {
+      const { subdomain } = doc;
       if (!doc.amount && doc.amount === 0) {
         throw new Error('Amount is required');
       }
@@ -101,12 +102,12 @@ export const loadTransactionClass = (models: IModels) => {
         ...doc,
         paymentKind: paymentMethod.kind,
         status: 'pending',
-        code: await generateCode(models)
+        code: await generateCode(models),
       };
 
       const transaction = await models.Transactions.create(updatedDoc);
 
-      const api = new ErxesPayment(paymentMethod, doc.apiDomain);
+      const api = new ErxesPayment(paymentMethod, subdomain);
 
       try {
         const reponse = await api.createInvoice(transaction);

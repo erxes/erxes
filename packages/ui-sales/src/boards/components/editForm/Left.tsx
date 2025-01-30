@@ -26,6 +26,7 @@ import Labels from "../label/Labels";
 import Uploader from "@erxes/ui/src/components/Uploader";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 import xss from "xss";
+import { IUser } from "@erxes/ui/src/auth/types";
 
 type DescProps = {
   item: IItem;
@@ -148,6 +149,7 @@ type Props = {
   sendToBoard?: (item: any) => void;
   onChangeStage?: (stageId: string) => void;
   onChangeRefresh: () => void;
+  currentUser: IUser;
 };
 
 const Left = (props: Props) => {
@@ -161,7 +163,8 @@ const Left = (props: Props) => {
     addItem,
     sendToBoard,
     onChangeStage,
-    onChangeRefresh
+    onChangeRefresh,
+    currentUser
   } = props;
 
   const onChangeAttachment = (files: IAttachment[]) =>
@@ -182,6 +185,7 @@ const Left = (props: Props) => {
         sendToBoard={sendToBoard}
         onChangeStage={onChangeStage}
         onChangeRefresh={onChangeRefresh}
+        currentUser={currentUser}
       />
 
       {item.labels.length > 0 && (

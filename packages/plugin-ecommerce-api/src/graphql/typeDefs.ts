@@ -1,20 +1,26 @@
 import gql from 'graphql-tag';
 import {
-  types as productreviewTypes,
-  queries as productreviewQueries,
   mutations as productreviewMutations,
+  queries as productreviewQueries,
+  types as productreviewTypes,
 } from './schema/productreview';
 import {
-  types as wishlistTypes,
-  queries as wishlistQueries,
   mutations as wishlistMutations,
+  queries as wishlistQueries,
+  types as wishlistTypes,
 } from './schema/wishlist';
 
 import {
-  types as lastViewedItemTypes,
-  queries as lastViewedItemQueries,
   mutations as lastViewedItemMutations,
+  queries as lastViewedItemQueries,
+  types as lastViewedItemTypes,
 } from './schema/lastViewedItem';
+
+import {
+  mutations as addressMutations,
+  queries as addressQueries,
+  types as addressTypes,
+} from './schema/address';
 
 const typeDefs = async () => {
   return gql`
@@ -28,17 +34,20 @@ const typeDefs = async () => {
     ${productreviewTypes}
     ${wishlistTypes}
     ${lastViewedItemTypes}
+    ${addressTypes}
 
     extend type Query {
       ${productreviewQueries}
       ${wishlistQueries}
       ${lastViewedItemQueries}
+      ${addressQueries}
     }
 
     extend type Mutation {
       ${productreviewMutations}
       ${wishlistMutations}
       ${lastViewedItemMutations}
+      ${addressMutations}
     }
   `;
 };

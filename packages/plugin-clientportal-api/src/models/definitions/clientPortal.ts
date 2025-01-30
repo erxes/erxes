@@ -1,7 +1,6 @@
 import { Document, Schema } from 'mongoose';
 
 import { field } from './utils';
-import { template } from '@babel/core';
 
 export interface IOTPConfig {
   emailSubject?: any;
@@ -64,7 +63,7 @@ export interface IClientPortal {
   tokenExpiration?: number;
   refreshTokenExpiration?: number;
   tokenPassMethod?: 'cookie' | 'header';
-
+  erxesAppToken?: string;
   otpConfig?: IOTPConfig;
   twoFactorConfig?: TwoFactorConfig;
 
@@ -118,12 +117,17 @@ export interface IClientPortal {
   slug?: string;
   template?: string;
   templateId?: string;
-  keywords?: string,
-  copyright?: string
+  keywords?: string;
+  copyright?: string;
 
   externalLinks?: {
     [key: string]: string;
   }
+
+  googleAnalytics?: string;
+  facebookPixel?: string;
+  googleTagManager?: string;
+  vercelProjectId?: string;
 }
 
 interface IStyles {
@@ -367,4 +371,8 @@ export const clientPortalSchema = new Schema({
   keywords: field({ type: String, optional: true }),
   copyright: field({ type: String, optional: true }),
   externalLinks: field({ type: Object, optional: true }),
+  googleAnalytics: field({ type: String, optional: true }),
+  facebookPixel: field({ type: String, optional: true }),
+  googleTagManager: field({ type: String, optional: true }),
+  vercelProjectId: field({ type: String, optional: true }),
 });
