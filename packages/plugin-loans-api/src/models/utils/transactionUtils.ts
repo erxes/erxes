@@ -7,17 +7,16 @@ import {
   LEASE_TYPES,
   SCHEDULE_STATUS
 } from '../definitions/constants';
-import { IContractDocument } from '../definitions/contracts';
 import { ISchedule, IScheduleDocument } from '../definitions/schedules';
 import {
-  ICalcDivideParams,
   ICalcTrParams,
   ITransactionDocument
 } from '../definitions/transactions';
-import { getDiffDay, getFullDate, getDatesDiffMonth, calcInterest } from './utils';
+import { getFullDate } from './utils';
 import { IConfig } from '../../interfaces/config';
 import { getConfig } from '../../messageBroker';
 import { scheduleFixAfterCurrent } from './scheduleFixUtils';
+import { getCalcedAmountsOnDate } from './calcUtils';
 //#endregion
 
 /**
@@ -67,137 +66,6 @@ export const getAOESchedules = async (
  * @returns calculatedLoss
  */
 
-async function fillCommitmentInterest(
-  contract: IContractDocument,
-  result: any,
-  models: IModels
-) {
-  const schedules = await models.Schedules.find({
-    contractId: contract._id,
-    status: SCHEDULE_STATUS.PENDING
-  }).sort({ payDate: 1 });
-
-  let beginDate = contract.startDate;
-  let unUsedBalance = contract.leaseAmount;
-
-  for await (let schedule of schedules) {
-    const { diffEve, diffNonce } = getDatesDiffMonth(
-      beginDate,
-      schedule.payDate
-    );
-
-    beginDate = schedule.payDate;
-    unUsedBalance = contract.leaseAmount - schedule.balance;
-
-    result.commitmentInterestEve += calcInterest({
-      balance: unUsedBalance,
-      interestRate: contract.commitmentInterest,
-      dayOfMonth: diffEve
-    });
-
-    result.commitmentInterestNonce += calcInterest({
-      balance: unUsedBalance,
-      interestRate: contract.commitmentInterest,
-      dayOfMonth: diffNonce
-    });
-  }
-
-  result.commitmentInterest =
-    result.commitmentInterestEve + result.commitmentInterestNonce;
-
-  result.balance = result.schedule?.[-1]?.balance;
-
-  return result;
-}
-
-/**
- * this method generate loan payment data
- * @param models
- * @param subdomain
- * @param doc
- * @returns {loss: number; interestEve: number;   interestNonce: number;   total: number;   insurance: number;   debt: number;   payment: number;   preSchedule: any;}
- */
-export const getCalcedAmounts = async (
-  models: IModels,
-  subdomain: string,
-  doc: ICalcDivideParams,
-  config: IConfig
-) => {
-  let result: {
-    loss: number;
-    total: number;
-    insurance: number;
-    debt: number;
-    payment: number;
-    balance: number;
-    unUsedBalance: number;
-    storedInterest: number;
-    commitmentInterest: number;
-    calcInterest: number;
-    closeAmount: number;
-  } = {
-    loss: 0,
-    insurance: 0,
-    debt: 0,
-    payment: 0,
-    total: 0,
-    balance: 0,
-    unUsedBalance: 0,
-    storedInterest: 0,
-    commitmentInterest: 0,
-    calcInterest: 0,
-    closeAmount: 0
-  };
-
-  if (!doc.contractId) {
-    return result;
-  }
-
-  const trDate = getFullDate(doc.payDate);
-
-  const contract = await models.Contracts.getContract({
-    _id: doc.contractId
-  });
-
-  /**
-   * @property preSchedule /schedule of done or less payed/
-   * @property nextSchedule /schedule of pending/
-   */
-  result.balance = contract.loanBalanceAmount;
-  result.storedInterest = contract.storedInterest;
-
-  let schedules = await models.Schedules.find({
-    contractId: contract._id,
-    status: { $ne: 'give' },
-    payDate: {
-      $lte: trDate
-    }
-  });
-
-  schedules.forEach((row) => {
-    result.payment = new BigNumber(result.payment)
-      .plus(row.payment || 0)
-      .minus(row.didPayment || 0)
-      .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
-      .toNumber();
-  });
-
-  result.payment = Math.max(0, result.payment)
-
-  const diffDay = contract.lastStoredDate ? getDiffDay(contract.lastStoredDate, trDate) : 0;
-
-  result.calcInterest = calcInterest({
-    balance: contract.loanBalanceAmount,
-    interestRate: contract.interestRate,
-    dayOfMonth: diffDay,
-    fixed: config.calculationFixed
-  });
-
-  result.total = result.calcInterest + result.balance + result.storedInterest;
-
-  return result;
-};
-
 /**
  * get payment information
  * @param models
@@ -242,17 +110,9 @@ export const transactionRule = async (
     return result;
   }
 
-  const config = await getConfig('loansConfig', subdomain);
-
-  result.calcedInfo = await getCalcedAmounts(
-    models,
-    subdomain,
-    {
-      contractId: doc.contractId,
-      payDate: doc.payDate
-    },
-    config
-  );
+  const config = await getConfig('loansConfig', subdomain, {});
+  const contract = await models.Contracts.getContract({ _id: doc.contractId });
+  result.calcedInfo = await getCalcedAmountsOnDate(models, contract, doc.payDate, config.calculationFixed);
 
   const {
     payment = 0,
@@ -261,8 +121,8 @@ export const transactionRule = async (
     interestNonce = 0,
     insurance = 0,
     debt = 0,
+    storedInterest = 0,
     preSchedule,
-    commitmentInterest
   } = result.calcedInfo;
   result.calcedInfo.total =
     payment +
@@ -271,7 +131,7 @@ export const transactionRule = async (
     interestNonce +
     insurance +
     debt +
-    commitmentInterest;
+    storedInterest;
 
   delete result.calcedInfo.preSchedule;
 
@@ -291,13 +151,13 @@ export const transactionRule = async (
 
   result.loss = loss;
   mainAmount = mainAmount - loss;
-  if (commitmentInterest > mainAmount) {
-    result.commitmentInterest = mainAmount;
+  if (storedInterest > mainAmount) {
+    result.storedInterest = mainAmount;
     return result;
   }
 
-  result.commitmentInterest = commitmentInterest;
-  mainAmount = mainAmount - commitmentInterest;
+  result.storedInterest = storedInterest;
+  mainAmount = mainAmount - storedInterest;
   if (interestEve > mainAmount) {
     result.interestEve = mainAmount;
     return result;
@@ -377,10 +237,11 @@ export const trAfterSchedule = async (
     );
   } else {
     const schedule: ISchedule = {
-      balance: contract.loanBalanceAmount,
+      balance: 0, // contract.loanBalanceAmount,
       contractId: contract._id,
       isDefault: false,
       payDate: trDate,
+      interestRate: contract.interestRate,
       transactionIds: [tr._id],
       didPayment: tr.payment ?? 0,
       didStoredInterest: tr.storedInterest ?? 0,

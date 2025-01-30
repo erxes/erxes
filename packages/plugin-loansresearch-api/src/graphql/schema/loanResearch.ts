@@ -5,13 +5,28 @@ import {
 
 const commonIncomeTypes = `
   _id: String
-  incomeType: String 
+  incomeType: String
+  totalSalaryIncome: Float
+  totalMonth: Int
+
+  businessLine: String
+  businessDetails: String
+  businessProfile: String
+  businessIncome: Float
 `;
 
 const commonLoanTypes = `
   _id: String
+  loanType: String
+
+  loanName: String
+  loanLocation: String
   startDate: Date
   closeDate: Date
+  loanAmount: Float
+  
+  costName: String
+  costAmount: Float
 `;
 
 export const types = () => `
@@ -25,6 +40,7 @@ export const types = () => `
 
   type Income {
     ${commonIncomeTypes}
+    financialInformation: Attachment
     files: [Attachment]
   }
 
@@ -38,15 +54,19 @@ export const types = () => `
     dealId: String
     customerType: String
     customerId: String
-    incomes: [Income]
-    loans: [Loan]
-    totalMonth: Int
-    totalIncome: Int
-    monthlyIncome: Int
-    totalLoanAmount: Int
-    monthlyPaymentAmount: Int
     debtIncomeRatio: Float
     increaseMonthlyPaymentAmount: Float
+
+    averageSalaryIncome: Float
+    averageBusinessIncome: Float
+    totalIncome: Float
+    incomes: [Income]
+
+    monthlyCostAmount: Float
+    monthlyLoanAmount: Float
+    totalPaymentAmount: Float
+    loans: [Loan]
+    
     createdAt: Date
     modifiedAt: Date
   }
@@ -58,6 +78,7 @@ export const types = () => `
 
   input IncomeInput {
     ${commonIncomeTypes}
+    financialInformation: AttachmentInput
     files: [AttachmentInput]
   }
 
@@ -73,25 +94,30 @@ const queryParams = `
   perPage: Int
   sortField: String
   sortDirection: Int
+  dealId: String
 `;
 
 export const queries = `
   loansResearchMain(${queryParams}): LoansResearchListResponse
+  loanResearchDetail(dealId: String!): LoansResearch
 `;
 
 const commonFields = `
   dealId: String
   customerType: String
   customerId: String
-  incomes: [IncomeInput]
-  loans: [LoanInput]
-  totalMonth: Int
-  totalIncome: Int
-  monthlyIncome: Int
-  totalLoanAmount: Int
-  monthlyPaymentAmount: Int
   debtIncomeRatio: Float
   increaseMonthlyPaymentAmount: Float
+
+  averageSalaryIncome: Float
+  averageBusinessIncome: Float
+  totalIncome: Float
+  incomes: [IncomeInput]
+
+  monthlyCostAmount: Float
+  monthlyLoanAmount: Float
+  totalPaymentAmount: Float
+  loans: [LoanInput]  
 `;
 
 export const mutations = `

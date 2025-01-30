@@ -1,4 +1,5 @@
 import { paginate } from '@erxes/api-utils/src';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 
 export const sortBuilder = (params) => {
@@ -29,6 +30,12 @@ const lsQueries = {
       totalCount: await models.LoansResearch.find().countDocuments(),
     };
   },
+
+  loanResearchDetail: async (_root, { dealId }, { models }: IContext) => {
+    return models.LoansResearch.getLoanResearch({ dealId });
+  },
 };
+
+checkPermission(lsQueries, 'loansResearchMain', 'showLoanResearch');
 
 export default lsQueries;

@@ -1705,7 +1705,8 @@ module.exports = {
       "scope": "engages",
       "exposes": {
         "./routes": "./src/routes.tsx",
-        "./automation": "./src/automation.tsx"
+        "./automation": "./src/automation.tsx",
+        "./activityLog": "./src/ActivityLog.tsx"
       },
       "routes": {
         "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-engages-ui/remoteEntry.js",
@@ -1713,6 +1714,7 @@ module.exports = {
         "module": "./routes"
       },
       "automation": "./automation",
+      "activityLog": "./activityLog",
       "menus": [
         {
           "text": "Broadcast",
@@ -3628,6 +3630,18 @@ module.exports = {
           "permission": "showContracts"
         },
         {
+          "text": "Loan config",
+          "image": "/images/icons/erxes-16.svg",
+          "to": "/erxes-plugin-loan/main-settings",
+          "action": "loanConfig",
+          "scope": "loans",
+          "location": "settings",
+          "permissions": [
+            "manageLoanConfigs"
+          ],
+          "permission": "manageLoanConfigs"
+        },
+        {
           "text": "Contract types",
           "image": "/images/icons/erxes-01.svg",
           "to": "/erxes-plugin-loan/contract-types/",
@@ -3650,18 +3664,6 @@ module.exports = {
             "manageInsuranceTypes"
           ],
           "permission": "manageInsuranceTypes"
-        },
-        {
-          "text": "Loan config",
-          "image": "/images/icons/erxes-16.svg",
-          "to": "/erxes-plugin-loan/holiday-settings/",
-          "action": "loanConfig",
-          "scope": "loans",
-          "location": "settings",
-          "permissions": [
-            "manageLoanConfigs"
-          ],
-          "permission": "manageLoanConfigs"
         },
         {
           "text": "Transaction",
@@ -4938,10 +4940,37 @@ module.exports = {
           "url": "/loansresearch",
           "icon": "icon-file-check-alt",
           "location": "mainNavigation",
-          "scope": "loansresearch"
+          "scope": "loansresearch",
+          "permission": "showLoanResearch"
         }
       ],
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loansresearch-ui/remoteEntry.js"
+    },
+    "api": {
+      "permissions": {
+        "loansResearch": {
+          "name": "loansResearch",
+          "description": "LoansResearch",
+          "actions": [
+            {
+              "name": "loansResearchAll",
+              "description": "All",
+              "use": [
+                "showLoanResearch",
+                "manageLoanResearch"
+              ]
+            },
+            {
+              "name": "showLoanResearch",
+              "description": "Show loansresearch"
+            },
+            {
+              "name": "manageLoanResearch",
+              "description": "Manage loansresearch"
+            }
+          ]
+        }
+      }
     }
   }
 }

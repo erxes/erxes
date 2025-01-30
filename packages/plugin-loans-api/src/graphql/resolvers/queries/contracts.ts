@@ -1,14 +1,12 @@
-import { getCloseInfo } from "../../../models/utils/closeUtils";
 import { getFullDate } from "../../../models/utils/utils";
 import { checkPermission, paginate } from "@erxes/api-utils/src";
 import { IContext } from "../../../connectionResolver";
 import { sendMessageBroker } from "../../../messageBroker";
 import { customFieldToObject } from "../utils";
+import { getCloseInfo } from "../../../models/utils/closeUtils";
 
 const generateFilter = async (params, commonQuerySelector) => {
   let filter: any = commonQuerySelector;
-
-  filter.status = { $ne: "Deleted" };
 
   const {
     page,
@@ -26,8 +24,14 @@ const generateFilter = async (params, commonQuerySelector) => {
     endStartDate,
     leaseTypes,
     dealIds,
+    statuses,
     ...otherFilter
   } = params;
+
+  filter.status = { $ne: "Deleted" };
+  if (statuses?.length) {
+    filter.status = {$in: statuses}
+  }
 
   if (ids?.length) {
     filter._id = { [excludeIds ? "$nin" : "$in"]: ids };
@@ -212,12 +216,12 @@ const contractQueries = {
   closeInfo: async (
     _root,
     { contractId, date },
-    { models, subdomain }: IContext
+    { models }: IContext
   ) => {
     const contract = await models.Contracts.getContract({
       _id: contractId
     });
-    return getCloseInfo(models, subdomain, contract, date);
+    return await getCloseInfo(models, contract, date);
   },
 
   contractsAlert: async (_root, { date }, { models }: IContext) => {

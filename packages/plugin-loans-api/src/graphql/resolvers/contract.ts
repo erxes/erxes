@@ -6,8 +6,8 @@ import {
   sendMessageBroker
 } from "../../messageBroker";
 import { SCHEDULE_STATUS } from "../../models/definitions/constants";
-import { IContractDocument, IContract } from "../../models/definitions/contracts";
-import { getCalcedAmounts } from "../../models/utils/transactionUtils";
+import { IContract, IContractDocument } from "../../models/definitions/contracts";
+import { getCalcedAmountsOnDate } from "../../models/utils/calcUtils";
 import {
   getDiffDay,
   getFullDate,
@@ -255,16 +255,9 @@ const Contracts = {
       .sort({ payDate: 1 })
       .lean();
 
-    const config = await getConfig("loansConfig", subdomain);
-
-    const calcedInfo = await getCalcedAmounts(
-      models,
-      subdomain,
-      {
-        contractId: contract._id,
-        payDate: (nextSchedule && nextSchedule.payDate) || today
-      },
-      config
+    const config = await getConfig('loansConfig', subdomain, {});
+    const calcedInfo = await getCalcedAmountsOnDate(
+      models, contract, (nextSchedule && nextSchedule.payDate) || today, config.calculationFixed
     );
 
     return (
@@ -328,11 +321,32 @@ const Contracts = {
     return invoices;
   },
 
-  async unUsedBalance(contract: IContractDocument) {
-    return new BigNumber(contract.leaseAmount)
-      .minus(contract.loanBalanceAmount)
-      .dp(2, BigNumber.ROUND_HALF_UP)
-      .toNumber();
+  async unUsedBalance(contract: IContractDocument, { }, { models }: IContext) {
+    const schedule = await models.Schedules.findOne({ contractId: contract._id, }).lean();
+    if (!schedule?._id) {
+      return contract.leaseAmount;
+    }
+
+    const lastDidSchedule = await models.Schedules.findOne({
+      contractId: contract._id,
+      payDate: { $lte: getFullDate(new Date()) },
+      didBalance: { $exists: true, $gte: 0 }
+    }).sort({ payDate: -1, createdAt: -1 }).lean();
+    return lastDidSchedule?.unUsedBalance || 0;
+  },
+
+  async givenAmount(contract: IContractDocument, { }, { models }: IContext) {
+    const giveSchedules = await models.Schedules.find({ contractId: contract._id, giveAmount: { $exists: true, $gte: 0 } }).lean();
+    if (!giveSchedules?.length) {
+      return 0;
+    }
+
+    return giveSchedules.reduce((sum, curr) => sum + (curr.giveAmount ?? 0), 0);
+  },
+  async loanBalanceAmount(contract: IContractDocument, { }, { models }: IContext) {
+    const lastHasDidBalanceSchedule = await models.Schedules.findOne({ contractId: contract._id, didBalance: { $exists: true, $gte: 0 } }).sort({ payDate: -1, createdAt: -1 }).lean();
+
+    return lastHasDidBalanceSchedule?.didBalance || 0;
   }
 };
 

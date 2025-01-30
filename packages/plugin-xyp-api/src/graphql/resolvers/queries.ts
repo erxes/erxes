@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 import { IContext } from '../../connectionResolver';
-import { sendCommonMessage } from '../../messageBroker';
+import { sendCommonMessage, sendCoreMessage } from '../../messageBroker';
 
 export interface IXypConfig {
   url: string;
@@ -55,9 +55,38 @@ const xypQueries = {
   async xypDataByObject(
     _root,
     { contentType, contentTypeId },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
-    return await models.XypData.find({ contentType, contentTypeId }).lean();
+    const datas = await models.XypData.find({ contentType, contentTypeId }).lean();
+
+    if (contentType === 'sales:deal' && !datas.length) {
+      const conformitiesCustomerIds = await sendCoreMessage({
+        subdomain,
+        action: 'conformities.savedConformity',
+        data: {
+          mainType: 'deal', mainTypeId: contentTypeId,
+          relTypes: ['customer']
+        },
+        isRPC: true, defaultValue: []
+      })
+      if (conformitiesCustomerIds.length) {
+        return await models.XypData.find({ contentType: 'core:customer', contentTypeId: { $in: conformitiesCustomerIds } }).lean();
+      }
+
+      const conformitiesCompanyIds = await sendCoreMessage({
+        subdomain,
+        action: 'conformities.savedConformity',
+        data: {
+          mainType: 'deal', mainTypeId: contentTypeId,
+          relTypes: ['company']
+        },
+        isRPC: true, defaultValue: []
+      })
+      if (conformitiesCustomerIds.length) {
+        return await models.XypData.find({ contentType: 'core:company', contentTypeId: { $in: conformitiesCompanyIds } }).lean();
+      }
+    }
+    return datas;
   },
 
   async xypDataDetail(
@@ -191,7 +220,7 @@ const xypQueries = {
     if (contentTypeId) {
       filter.contentTypeId = contentTypeId;
     }
-    
+
     return await models.XypData.findOne(filter).sort({ createdAt: -1 })
   },
 

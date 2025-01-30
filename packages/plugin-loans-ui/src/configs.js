@@ -24,6 +24,16 @@ module.exports = {
       permission: "showContracts",
     },
     {
+      text: "Loan config",
+      image: "/images/icons/erxes-16.svg",
+      to: "/erxes-plugin-loan/main-settings",
+      action: "loanConfig",
+      scope: "loans",
+      location: "settings",
+      permissions: ["manageLoanConfigs"],
+      permission: "manageLoanConfigs",
+    },
+    {
       text: "Contract types",
       image: "/images/icons/erxes-01.svg",
       to: "/erxes-plugin-loan/contract-types/",
@@ -42,16 +52,6 @@ module.exports = {
       location: "settings",
       permissions: ["manageInsuranceTypes"],
       permission: "manageInsuranceTypes",
-    },
-    {
-      text: "Loan config",
-      image: "/images/icons/erxes-16.svg",
-      to: "/erxes-plugin-loan/holiday-settings/",
-      action: "loanConfig",
-      scope: "loans",
-      location: "settings",
-      permissions: ["manageLoanConfigs"],
-      permission: "manageLoanConfigs",
     },
     {
       text: "Transaction",
