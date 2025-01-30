@@ -138,7 +138,7 @@ const LoansResearchForm = (props: Props) => {
         setCustomerType('Business');
       }
 
-      setAverageSalaryIncome(salarySum);
+      setAverageSalaryIncome(salarySum / incomes.length);
       setAverageBusinessIncome(businessSum);
     }
   }, [incomes]);

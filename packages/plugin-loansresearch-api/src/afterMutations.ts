@@ -20,7 +20,12 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
   try {
     if (type === 'xyp:xyp' && action === 'create') {
-      await salaryToResearch(subdomain, params.object, models);
+      await salaryToResearch(
+        subdomain,
+        object,
+        object.customerId || object.contentTypeId,
+        models
+      );
 
       return;
     }
