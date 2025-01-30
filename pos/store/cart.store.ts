@@ -11,7 +11,7 @@ import { ORDER_ITEM_STATUSES, ORDER_STATUSES } from "@/lib/constants"
 import { getCartTotal, getItemInputs } from "@/lib/utils"
 
 import { banFractionsAtom, orderPasswordAtom } from "./config.store"
-import { activeOrderIdAtom } from "./order.store"
+import { activeOrderIdAtom, setOpenCancelDialogAtom } from "./order.store"
 
 interface IUpdateItem {
   _id: string
@@ -146,9 +146,16 @@ export const updateCartAtom = atom(
       return
     }
     set(cartChangedAtom, get(activeOrderIdAtom) ?? "-")
+
+    const changedCartItems = changeCartItem(update, get(cartAtom), !!get(banFractionsAtom))
+
+    const currentCart = get(cartAtom)
+  if (currentCart.length > 0 && changedCartItems.length === 0) {
+  set(setOpenCancelDialogAtom)
+}
     set(
       cartAtom,
-      changeCartItem(update, get(cartAtom), !!get(banFractionsAtom))
+      changedCartItems
     )
   }
 )
