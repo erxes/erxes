@@ -12,6 +12,7 @@ const RightSide = styled.div`
 
 const LeftSide = styled.div`
     width: 340px;
+    overflow: auto;
 `;
 
 export {

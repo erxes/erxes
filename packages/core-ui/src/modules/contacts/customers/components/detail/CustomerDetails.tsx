@@ -6,6 +6,7 @@ import {
 import { LeftSide, RightSide, VerticalRightSidebar } from "../../styles";
 import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 import { __, renderFullName } from "coreui/utils";
+import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
 
 import ActionSection from "@erxes/ui-contacts/src/customers/containers/ActionSection";
 import ActivityInputs from "@erxes/ui-log/src/activityLogs/components/ActivityInputs";
@@ -27,7 +28,6 @@ import { UserHeader } from "@erxes/ui-contacts/src/customers/styles";
 import WebsiteActivity from "@erxes/ui-contacts/src/customers/components/common/WebsiteActivity";
 import Widget from "@erxes/ui-engage/src/containers/Widget";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   customer: ICustomer;
@@ -112,9 +112,9 @@ class CustomerDetails extends React.Component<
     } = this.props;
 
     switch (currentTab) {
-      case "detail":
+      case "related":
         return <RightSidebar customer={customer} />;
-      case "properties":
+      case "detail":
         return (
           <>
             <TaggerSection
@@ -159,11 +159,17 @@ class CustomerDetails extends React.Component<
 
     return (
       <CollapseSidebar
-        title={__("Categories")}
+        title={__("Properties")}
         onToggle={this.onCollapseSidebar}
         isCollapsed={this.state.isLeftSidebarCollapsed}
       >
         <CustomFieldsSection customer={customer} isDetail={false} />
+
+        {loadDynamicComponent(
+          "customerRightSidebarSection",
+          { mainType: "customer", id: customer._id },
+          true
+        )}
       </CollapseSidebar>
     );
   };
@@ -188,11 +194,11 @@ class CustomerDetails extends React.Component<
             </TabTitle>
             <TabTitle
               direction="vertical"
-              className={currentTab === "properties" ? "active" : ""}
-              onClick={this.tabOnClick.bind(this, "properties")}
+              className={currentTab === "related" ? "active" : ""}
+              onClick={this.tabOnClick.bind(this, "related")}
             >
               <Icon size={16} icon={"settings"} />
-              {__("Properties")}
+              {__("Related")}
             </TabTitle>
             <TabTitle
               direction="vertical"
