@@ -345,7 +345,7 @@ const LeftBody = styled.div`
 
 const LeftBodyContent = styled.div`
   background: ${colors.bgLight};
-  height: calc(100% - 160px);
+  height: calc(100% - 180px);
   overflow: auto;
   padding: ${dimensions.coreSpacing}px;
 `;

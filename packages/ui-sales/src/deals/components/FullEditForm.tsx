@@ -102,12 +102,6 @@ const FullEditForm = (props: Props) => {
         >
           {__("Properties")}
         </TabTitle>
-        <TabTitle
-          className={currentTab === "activity" ? "active" : ""}
-          onClick={() => setCurrentTab("activity")}
-        >
-          {__("Activity")}
-        </TabTitle>
 
         {loadDynamicTabTitle(
           "dealRightSidebarTab",
@@ -145,6 +139,16 @@ const FullEditForm = (props: Props) => {
           contentTypeId={item._id}
           contentType={`sales:${options.type}`}
           showEmail={false}
+        />
+        <ActivityLogs
+          target={item.name}
+          contentId={item._id}
+          contentType={`sales:${options.type}`}
+          extraTabs={
+            options.type === "tasks:task" && isEnabled("tasks")
+              ? []
+              : [{ name: "tasks:task", label: "Task" }]
+          }
         />
       </>
     );
@@ -185,19 +189,6 @@ const FullEditForm = (props: Props) => {
       case "properties":
         return (
           <CustomFieldsSection item={item} options={options} showType="list" />
-        );
-      case "activity":
-        return (
-          <ActivityLogs
-            target={item.name}
-            contentId={item._id}
-            contentType={`sales:${options.type}`}
-            extraTabs={
-              options.type === "tasks:task" && isEnabled("tasks")
-                ? []
-                : [{ name: "tasks:task", label: "Task" }]
-            }
-          />
         );
       case "dynamic":
         return loadDynamicTabContent(
