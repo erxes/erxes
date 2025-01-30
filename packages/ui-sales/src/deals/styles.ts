@@ -332,6 +332,7 @@ const FullRightSide = styled.div`
   width: 30%;
   padding: ${dimensions.coreSpacing}px;
   overflow: auto;
+  height: calc(100% - 70px);
 `;
 
 const HeaderContainer = styled.div`

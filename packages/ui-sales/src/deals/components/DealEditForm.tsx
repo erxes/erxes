@@ -354,44 +354,6 @@ export default class DealEditForm extends React.Component<Props, State> {
         </RightSide>
       </EditFormContent>
     );
-
-    // return (
-    //   <>
-    //     <Top
-    //       options={options}
-    //       amount={this.renderAmount}
-    //       stageId={item.stageId}
-    //       item={item}
-    //       saveItem={saveItem}
-    //       onChangeStage={onChangeStage}
-    //     />
-
-    //     <Flex>
-    //       <Left
-    //         options={options}
-    //         saveItem={saveItem}
-    //         copyItem={copy}
-    //         removeItem={remove}
-    //         onUpdate={onUpdate}
-    //         sendToBoard={sendToBoard}
-    //         item={item}
-    //         addItem={addItem}
-    //         onChangeStage={onChangeStage}
-    //         onChangeRefresh={this.onChangeRefresh}
-    //       />
-    //       <Sidebar
-    //         options={options}
-    //         item={item}
-    //         updateTimeTrack={updateTimeTrack}
-    //         sidebar={this.renderProductSection}
-    //         saveItem={saveItem}
-    //         renderItems={this.renderItems}
-    //         childrenSection={this.renderChildrenSection}
-    //         currentUser={currentUser}
-    //       />
-    //     </Flex>
-    //   </>
-    // );
   };
 
   render() {

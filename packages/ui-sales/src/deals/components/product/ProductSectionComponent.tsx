@@ -121,7 +121,7 @@ export default class ProductSectionComponent extends React.Component<
     const { products, productsData, paymentsData } = this.state;
 
     const pDataChange = (pData) => this.onChangeField("productsData", pData);
-    // const prsChange = (prs) => this.onChangeField("products", prs);
+    // const prsChange = (prs) => this.onChangeField("products", prs); //onChangeProducts
     const payDataChange = (payData) =>
       this.onChangeField("paymentsData", payData);
 
@@ -138,19 +138,5 @@ export default class ProductSectionComponent extends React.Component<
         />
       </ProductFormContainer>
     );
-
-    // return (
-    //   <ProductSection
-    //     onChangeProductsData={pDataChange}
-    //     onChangeProducts={prsChange}
-    //     onChangePaymentsData={payDataChange}
-    //     productsData={productsData}
-    //     paymentsData={paymentsData}
-    //     products={products}
-    //     saveProductsData={this.saveProductsData}
-    //     dealQuery={this.props.item}
-    //     isFullMode={this.props.isFullMode}
-    //   />
-    // );
   }
 }

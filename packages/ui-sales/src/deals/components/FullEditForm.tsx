@@ -10,6 +10,11 @@ import { IItem, IItemParams, IOptions } from "../../boards/types";
 import React, { useState } from "react";
 import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 import TaskTimer, { STATUS_TYPES } from "@erxes/ui/src/components/Timer";
+import {
+  isEnabled,
+  loadDynamicTabContent,
+  loadDynamicTabTitle,
+} from "@erxes/ui/src/utils/core";
 
 import ActivityInputs from "@erxes/ui-log/src/activityLogs/components/ActivityInputs";
 import ActivityLogs from "@erxes/ui-log/src/activityLogs/containers/ActivityLogs";
@@ -19,11 +24,12 @@ import CustomFieldsSection from "../../boards/containers/editForm/CustomFieldsSe
 import DealDynamicComponent from "./DynamicComponent";
 import FileAndDescription from "../../boards/components/editForm/FileAndDescription";
 import Header from "../../boards/components/editForm/Header";
+import { HeaderContent } from "../../boards/styles/item";
 import { IUser } from "@erxes/ui/src/auth/types";
+import Move from "../../boards/containers/editForm/Move";
 import ProductSectionComponent from "./product/ProductSectionComponent";
 import SidebarConformity from "../../boards/components/editForm/SidebarConformity";
 import { __ } from "@erxes/ui/src/utils";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import queryString from "query-string";
 
 type Props = {
@@ -102,13 +108,38 @@ const FullEditForm = (props: Props) => {
         >
           {__("Activity")}
         </TabTitle>
+
+        {loadDynamicTabTitle(
+          "dealRightSidebarTab",
+          {
+            id: item._id,
+            mainType: "deal",
+            mainTypeId: item._id,
+            object: item,
+          },
+          true
+        )}
       </Tabs>
     );
   };
 
   const renderOverview = () => {
+    function renderMove() {
+      const { options, onChangeStage, item } = props;
+
+      return (
+        <Move
+          options={options}
+          item={item}
+          stageId={item.stageId}
+          onChangeStage={onChangeStage}
+        />
+      );
+    }
+
     return (
       <>
+        <HeaderContent>{renderMove()}</HeaderContent>
         <FileAndDescription item={item} options={options} saveItem={saveItem} />
         <ActivityInputs
           contentTypeId={item._id}
@@ -167,6 +198,17 @@ const FullEditForm = (props: Props) => {
                 : [{ name: "tasks:task", label: "Task" }]
             }
           />
+        );
+      case "dynamic":
+        return loadDynamicTabContent(
+          "dealRightSidebarTab",
+          {
+            id: item._id,
+            mainType: "deal",
+            mainTypeId: item._id,
+            object: item,
+          },
+          true
         );
       default:
         return null;

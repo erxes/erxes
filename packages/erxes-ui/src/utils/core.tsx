@@ -76,6 +76,112 @@ export const loadDynamicComponent = (
   return renderDynamicComp(filteredPlugins[0]);
 };
 
+export const loadDynamicTabTitle = (
+  componentName: string,
+  injectedProps?: any,
+  multi?: boolean,
+  pluginName?: string
+): any => {
+  const plugins: any[] = (window as any).plugins || [];
+  const filteredPlugins = plugins.filter((plugin) => plugin[componentName]);
+  const [currentTitle, setCurrentTitle] = useState(
+    localStorage.getItem("dealDynamicActiveComponent") || ""
+  );
+
+  const onTitleClick = (key) => {
+    localStorage.setItem("dealDynamicActiveComponent", key);
+    setCurrentTitle(key);
+    window.dispatchEvent(new Event("storage"));
+  };
+
+  const renderDynamicComp = (plugin: any) => {
+    return (
+      <ErrorBoundary key={plugin.scope}>
+        <div
+          className={`custom-tab ${currentTitle === `${plugin.scope}:${plugin[componentName].title}` ? "active" : ""}`}
+          onClick={() =>
+            onTitleClick(`${plugin.scope}:${plugin[componentName].title}`)
+          }
+        >
+          {plugin[componentName].title}
+        </div>
+      </ErrorBoundary>
+    );
+  };
+  if (filteredPlugins && filteredPlugins.length === 0) {
+    return null;
+  }
+  if (multi) {
+    return filteredPlugins.map((plugin) => renderDynamicComp(plugin));
+  }
+  if (pluginName) {
+    const withPluginName = filteredPlugins.filter(
+      (plugin) => plugin.name === pluginName
+    );
+    return renderDynamicComp(withPluginName[0]);
+  }
+  return renderDynamicComp(filteredPlugins[0]);
+};
+
+export const loadDynamicTabContent = (
+  componentName: string,
+  injectedProps?: any,
+  multi?: boolean,
+  pluginName?: string
+): any => {
+  const plugins: any[] = (window as any).plugins || [];
+  const filteredPlugins = plugins.filter((plugin) => plugin[componentName]);
+
+  const [activeComponent, setActiveComponent] = useState(
+    localStorage.getItem("dealDynamicActiveComponent") || ""
+  );
+
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      setActiveComponent(
+        localStorage.getItem("dealDynamicActiveComponent") || ""
+      );
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+
+  const renderDynamicComp = (plugin: any) => {
+    const pluginCustomName = `${plugin.scope}:${plugin[componentName].title}`;
+
+    if (activeComponent !== pluginCustomName) {
+      return null;
+    }
+
+    return (
+      <ErrorBoundary key={plugin.scope}>
+        <RenderDynamicComponent
+          scope={plugin.scope}
+          component={plugin[componentName].component}
+          injectedProps={injectedProps ? injectedProps : {}}
+        />
+      </ErrorBoundary>
+    );
+  };
+  if (filteredPlugins && filteredPlugins.length === 0) {
+    return null;
+  }
+  if (multi) {
+    return filteredPlugins.map((plugin) => renderDynamicComp(plugin));
+  }
+  if (pluginName) {
+    const withPluginName = filteredPlugins.filter(
+      (plugin) => plugin.name === pluginName
+    );
+    return renderDynamicComp(withPluginName[0]);
+  }
+  return renderDynamicComp(filteredPlugins[0]);
+};
+
 export const loadDynamicComponentTitle = (
   componentName: string,
   injectedProps?: any,

@@ -34,4 +34,8 @@ module.exports = {
     title: "Xyp",
     component: "./customerSidebar",
   },
+  dealRightSidebarTab: {
+    title: "Xyp tab",
+    component: "./customerSidebar",
+  },
 };
