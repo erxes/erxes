@@ -1,6 +1,4 @@
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import { NextFunction, Request, Response } from 'express';
-import { generateModels, IModels } from './connectionResolver';
 
 export default async function clientPortalMiddleware(
   req: Request & { clientPortalId?: any },
