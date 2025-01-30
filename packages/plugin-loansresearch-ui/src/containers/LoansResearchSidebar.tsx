@@ -15,7 +15,7 @@ const LoansResearchSidebarContainer = () => {
     gql(queries.loanResearchDetail),
     {
       variables: {
-        dealId: queryParams.itemId,
+        dealId: queryParams?.itemId || '',
       },
     }
   );

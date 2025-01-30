@@ -76,7 +76,7 @@ const LoansResearchForm = (props: Props) => {
   );
 
   useEffect(() => {
-    if (queryParams && queryParams.itemId) {
+    if (queryParams && queryParams?.itemId) {
       setDealId(queryParams.itemId);
     }
   }, [queryParams]);
