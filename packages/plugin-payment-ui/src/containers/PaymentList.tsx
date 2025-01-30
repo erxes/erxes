@@ -24,6 +24,7 @@ const IntegrationListContainer = (props: Props) => {
     notifyOnNetworkStatusChange: true,
     variables: {
       paymentIds: [],
+      kind,
     },
     fetchPolicy: 'network-only',
   });
