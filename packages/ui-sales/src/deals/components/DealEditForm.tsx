@@ -159,7 +159,6 @@ export default class DealEditForm extends React.Component<Props, State> {
 
     return (
       <>
-        {this.renderProductSection()}
         <SidebarConformity
           options={options}
           item={item}
@@ -231,6 +230,8 @@ export default class DealEditForm extends React.Component<Props, State> {
         return this.renderCustomerDetail(props);
       case "detail":
         return this.renderDetail(props.saveItem);
+      case "product":
+        return this.renderProductSection();
       case "properties":
         return this.renderProperties();
       case "activity":
@@ -323,8 +324,8 @@ export default class DealEditForm extends React.Component<Props, State> {
               className={currentTab === "customer" ? "active" : ""}
               onClick={this.tabOnClick.bind(this, "customer")}
             >
-              <Icon size={16} icon={"users-alt"} />
-              {__("Customer")}
+              <Icon size={16} icon={"newspaper"} />
+              {__("Overview")}
             </TabTitle>
             <TabTitle
               direction="vertical"
@@ -333,6 +334,14 @@ export default class DealEditForm extends React.Component<Props, State> {
             >
               <Icon size={16} icon={"file-info-alt"} />
               {__("Detail")}
+            </TabTitle>
+            <TabTitle
+              direction="vertical"
+              className={currentTab === "product" ? "active" : ""}
+              onClick={this.tabOnClick.bind(this, "product")}
+            >
+              <Icon size={16} icon={"bar-chart"} />
+              {__("Products")}
             </TabTitle>
             <TabTitle
               direction="vertical"

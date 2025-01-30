@@ -674,6 +674,10 @@ const DynamicContentRight = styledTS<{ overflow?: boolean }>(styled.div)`
 
 const ProductFormContainer = styled.div`
   margin-bottom: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+
+  .flex-wrap {
+    flex-wrap: wrap;
+  }
 `;
 
 export {

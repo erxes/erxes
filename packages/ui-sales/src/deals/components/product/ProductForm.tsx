@@ -467,7 +467,7 @@ class ProductForm extends React.Component<Props, State> {
   renderProductFilter() {
     const { filterValues } = this.state;
     return (
-      <FlexRowGap>
+      <FlexRowGap className="flex-wrap">
         <FormGroup>
           <ControlLabel>By product</ControlLabel>
           <FormControl

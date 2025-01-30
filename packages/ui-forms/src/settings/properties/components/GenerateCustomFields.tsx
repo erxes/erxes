@@ -605,7 +605,7 @@ class GenerateGroups extends React.Component<
 
     this.state = {
       currentTitle: props.fieldsGroups
-        ? props.fieldsGroups.filter((gro) => !gro.parentId)[0].name
+        ? props.fieldsGroups.filter((gro) => !gro.parentId)[0]?.name
         : "",
     };
   }

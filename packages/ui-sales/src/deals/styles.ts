@@ -304,7 +304,7 @@ const LeftSide = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   width: 80%;
   overflow: auto;
-  height: calc(100% - 60px);
+  height: calc(100% - 70px);
 `;
 
 const RightSide = styled.div`
