@@ -1,8 +1,3 @@
-import React, { useState } from 'react';
-import moment from 'moment';
-import Box from '@erxes/ui/src/components/Box';
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
 import {
   Button,
   ControlLabel,
@@ -10,18 +5,24 @@ import {
   ErrorMsg,
   Form,
   ModalTrigger,
-  Spinner
-} from '@erxes/ui/src/components';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
+  Spinner,
+} from "@erxes/ui/src/components";
+import { ButtonRelated, ModalFooter } from "@erxes/ui/src/styles/main";
+import React, { useState } from "react";
 
-import { ButtonRelated, ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils/core';
-import Select from 'react-select';
-import { IOperation } from '../types';
-import { Footer } from '@erxes/ui/src/styles/chooser';
-import Table from '@erxes/ui/src/components/table';
-import { ItemContent } from '@erxes/ui/src/components/empty/styles';
+import Box from "@erxes/ui/src/components/Box";
+import CollapseContent from "@erxes/ui/src/components/CollapseContent";
+import DynamicComponentContent from "@erxes/ui/src/components/dynamicComponent/Content";
+import { Footer } from "@erxes/ui/src/styles/chooser";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IOperation } from "../types";
+import { ItemContent } from "@erxes/ui/src/components/empty/styles";
+import Select from "react-select";
+import { SidebarList } from "@erxes/ui/src/layout/styles";
+import Table from "@erxes/ui/src/components/table";
+import { __ } from "@erxes/ui/src/utils/core";
+import moment from "moment";
 
 type Props = {
   xypDatas: any[];
@@ -30,6 +31,7 @@ type Props = {
   xypServiceList: any;
   loading: any;
   error: string;
+  showType?: string;
 };
 
 function Sidebar({
@@ -39,48 +41,51 @@ function Sidebar({
   xypServiceList,
   error,
   loading,
+  showType,
 }: Props) {
   const [params, setParams] = useState({});
   const [operation, setOperation] = useState<IOperation>({
-    orgName: '',
-    wsOperationDetail: '',
-    wsOperationName: '',
-    wsVersion: '',
-    wsWsdlEndpoint: '',
+    orgName: "",
+    wsOperationDetail: "",
+    wsOperationName: "",
+    wsVersion: "",
+    wsWsdlEndpoint: "",
     input: [],
-    output: []
+    output: [],
   });
 
   const onChangeTag = (value: any) => {
     const operation = xypServiceList?.find(
-      x => x.wsOperationName === value.value
+      (x) => x.wsOperationName === value.value
     );
     setOperation(operation);
   };
 
-  const renderServiceChooser = props => {
+  const renderServiceChooser = (props) => {
     if (loading) return <Spinner size={40} objective />;
 
     if (error) {
       return <ErrorMsg>Хур дамжин сервер</ErrorMsg>;
     }
 
-    const operationList = list?.value?.servicelist.map(d => ({
+    const operationList = list?.value?.servicelist.map((d) => ({
       value: d,
-      label: xypServiceList?.find(x => x.wsOperationName === d)
-        ?.wsOperationDetail
+      label: xypServiceList?.find((x) => x.wsOperationName === d)
+        ?.wsOperationDetail,
     }));
 
     const onChange = (e: any) => {
       e.persist();
-      setParams(prev => ({ ...prev, [e.target.name]: e.target.value }));
+      setParams((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
     return (
       <>
         <Select
-          placeholder={__('Type to search...')}
-          value={operationList?.find(o => o.value === operation.wsOperationName)}
+          placeholder={__("Type to search...")}
+          value={operationList?.find(
+            (o) => o.value === operation.wsOperationName
+          )}
           onChange={onChangeTag}
           isLoading={props.loading}
           options={operationList}
@@ -111,7 +116,7 @@ function Sidebar({
               <Button
                 btnStyle="simple"
                 uppercase={false}
-                onClick={() => { }}
+                onClick={() => {}}
                 icon="times-circle"
               >
                 Cancel
@@ -119,7 +124,7 @@ function Sidebar({
               <Button
                 btnStyle="success"
                 onClick={() => {
-                  fetchData(operation, params, {}, () => { });
+                  fetchData(operation, params, {}, () => {});
                 }}
                 icon="check-circle"
                 uppercase={false}
@@ -135,7 +140,7 @@ function Sidebar({
 
   const relServiceTrigger = (
     <ButtonRelated>
-      <span>{__('Fetch data...')}</span>
+      <span>{__("Fetch data...")}</span>
     </ButtonRelated>
   );
 
@@ -149,17 +154,21 @@ function Sidebar({
   );
 
   const renderServiceItem = (i, output) => {
-    const items = Object.keys(i).filter(key => typeof i[key] !== 'object');
+    const items = Object.keys(i).filter((key) => typeof i[key] !== "object");
 
     const renderOutput = (value: any) => {
-      return output?.find(x => x.wsResponseName === value) || { wsResponseDetail: value };
+      return (
+        output?.find((x) => x.wsResponseName === value) || {
+          wsResponseDetail: value,
+        }
+      );
     };
     const renderData = (type: string, key: string) => {
-      if (type?.toLowerCase()?.includes('byte')) {
+      if (type?.toLowerCase()?.includes("byte")) {
         return <img height={80} src={`data:image/png;base64,${i[key]}`} />;
       }
-      if (type?.toLowerCase()?.includes('date')) {
-        return moment(i[key]).format('YYYY-MM-DD');
+      if (type?.toLowerCase()?.includes("date")) {
+        return moment(i[key]).format("YYYY-MM-DD");
       }
 
       return i[key];
@@ -200,21 +209,21 @@ function Sidebar({
   const modalContent = (props, xd, d: any) => {
     if (!d.data) return <div>мэдээлэл байхгүй</div>;
     const output =
-      (xypServiceList.find(x => x.wsOperationName === d?.serviceName)
+      (xypServiceList.find((x) => x.wsOperationName === d?.serviceName)
         ?.output as any) || [];
 
     if (d.data?.list?.length || d.data?.listData?.length) {
       const renderListItems = (listItem: any, index: number) => {
-        const title =
-          `${listItem['name'] ||
-          listItem['code'] ||
-          listItem['title'] ||
-          listItem['month'] ||
-          listItem['markName'] || ''
-          } ${listItem['modelName'] ||
-          d?.serviceDescription ||
-          d?.serviceName || ''
-          }`;
+        const title = `${
+          listItem["name"] ||
+          listItem["code"] ||
+          listItem["title"] ||
+          listItem["month"] ||
+          listItem["markName"] ||
+          ""
+        } ${
+          listItem["modelName"] || d?.serviceDescription || d?.serviceName || ""
+        }`;
         return (
           <CollapseContent
             title={__(title)}
@@ -230,8 +239,8 @@ function Sidebar({
       return (
         <Table $striped $bordered $responsive key={d?.serviceDescription}>
           <tbody id="hurData">
-            {(d.data.list || d.data.listData || []).map((listItem, index: number) =>
-              renderListItems(listItem, index)
+            {(d.data.list || d.data.listData || []).map(
+              (listItem, index: number) => renderListItems(listItem, index)
             )}
           </tbody>
         </Table>
@@ -245,13 +254,13 @@ function Sidebar({
       <>
         <SidebarList className="no-link">
           {/* {loading && <DataWithLoader data="This is data" loading objective />} */}
-          {(xypDatas || []).map((xd) => (
+          {(xypDatas || []).map((xd) =>
             (xd.data || []).map((d) => (
               <ModalTrigger
-                title={`${moment(xd.createdAt).format('YYYY-MM-DD')} - ${d?.serviceName}`}
+                title={`${moment(xd.createdAt).format("YYYY-MM-DD")} - ${d?.serviceName}`}
                 trigger={
                   <ul key={`${xd._id} ${d?.serviceName}`}>
-                    <span>{moment(xd.createdAt).format('YYYY-MM-DD')}:</span>
+                    <span>{moment(xd.createdAt).format("YYYY-MM-DD")}:</span>
                     <li>{d?.serviceName}</li>
                   </ul>
                 }
@@ -260,12 +269,16 @@ function Sidebar({
                 key={d?.serviceName}
               />
             ))
-          ))}
+          )}
         </SidebarList>
         {relQuickButtons}
       </>
     );
   };
+
+  if (showType && showType === "list") {
+    return <DynamicComponentContent>{content()}</DynamicComponentContent>;
+  }
 
   return (
     <Box title="Xyp" name="xyp" isOpen={true}>
