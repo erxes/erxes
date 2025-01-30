@@ -14,9 +14,13 @@ const mutations = {
     args: any,
     context: IContext
   ): Promise<any> => {
-    const { models, user } = context;
+    const { models, user, clientPortalId } = context;
     const { input } = args;
     input.authorId = user._id;
+    
+    if (clientPortalId) {
+      input.clientPortalId = clientPortalId;
+    }
 
     return models.Posts.createPost(input);
   },

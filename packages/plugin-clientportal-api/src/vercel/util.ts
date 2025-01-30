@@ -258,9 +258,9 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
 
     const projectConfig = `export default {
       env: {
-        ERXES_API_URL: "${domain}/gateway/graphql",
+        ERXES_API_URL: "${domain}/graphql",
         ERXES_URL: "${domain}",
-        ERXES_FILE_URL: "${domain}/gateway/read-file?key=",
+        ERXES_FILE_URL: "${domain}/read-file?key=",
         ERXES_CP_ID: "${config._id}",
         ERXES_APP_TOKEN: "${config.erxesAppToken}",
       },
@@ -287,7 +287,7 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
     if (config.icon) {
       const iconPath = path.join(tmpDir, 'app', 'favicon.ico');
       await downloadImage(
-        `${domain}/gateway/read-file?key=${config.icon}`,
+        `${domain}/read-file?key=${config.icon}`,
         iconPath
       );
     }
@@ -431,3 +431,18 @@ export const addDomain = async (projectId: string, domain: string) => {
 
   return await response.json();
 };
+
+export const getDeploymentEvents = async (id: string) => {
+  const VERCEL_TOKEN = getEnv({ name: 'VERCEL_TOKEN' });
+
+  const response = await fetch(
+    `https://api.vercel.com/v3/deployments/${id}/events`,
+    {
+      headers: {
+        Authorization: `Bearer ${VERCEL_TOKEN}`,
+      },
+    }
+  );
+
+  return await response.json();
+}
