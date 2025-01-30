@@ -20,6 +20,8 @@ const posCommonFields = `
   permissionConfig: JSON
   uiOptions: JSON
   pipelineConfig: JSON
+  extraProductCategories: JSON
+  roomCategories: JSON
 `;
 
 export const types = () => `

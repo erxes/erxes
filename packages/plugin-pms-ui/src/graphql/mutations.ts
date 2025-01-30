@@ -14,6 +14,8 @@ const commonFields = `
   $uiOptions: JSON
   $permissionConfig: JSON
   $pipelineConfig: JSON
+  $extraProductCategories: JSON
+  $roomCategories: JSON
 `;
 
 const commonVariables = `
@@ -31,6 +33,8 @@ const commonVariables = `
   uiOptions: $uiOptions
   permissionConfig: $permissionConfig
   pipelineConfig: $pipelineConfig
+  extraProductCategories: $extraProductCategories
+  roomCategories: $roomCategories
 `;
 
 const tmsBranchAdd = `

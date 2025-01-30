@@ -78,4 +78,6 @@ export type IPmsBranch = {
   permissionConfig?: any;
   user?: any;
   pipelineConfig?: any;
+  roomCategories?: string[];
+  extraProductCategories?: string[];
 };

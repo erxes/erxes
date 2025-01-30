@@ -9,18 +9,19 @@ import { IPmsBranch } from '../../types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 
 type Props = {
-  onChange: (name: 'pipelineConfig', value: any) => void;
-  pms?: IPmsBranch;
+  onChange: (name: string, value: any) => void;
+  branch?: IPmsBranch;
 };
 
 const DeliveryConfig = (props: Props) => {
-  const { pms, onChange } = props;
+  const { branch, onChange } = props;
 
   const [config, setConfig] = useState<any>(
-    pms && pms.pipelineConfig
-      ? pms.pipelineConfig
+    branch && branch.pipelineConfig
+      ? branch.pipelineConfig
       : {
           boardId: '',
           pipelineId: '',
@@ -46,8 +47,8 @@ const DeliveryConfig = (props: Props) => {
   }, []);
 
   useEffect(() => {
-    setConfig(pms?.pipelineConfig || {});
-  }, [pms]);
+    setConfig(branch?.pipelineConfig || {});
+  }, [branch]);
 
   const onChangeConfig = (code: string, value) => {
     const newConfig = { ...config, [code]: value };
@@ -91,6 +92,42 @@ const DeliveryConfig = (props: Props) => {
             </Block>
           )) ||
             'Please, enabled cards plugin'}
+          <Block>
+            <h4>{__('Room Cateogies')}</h4>
+            <BlockRow>
+              <SelectProductCategory
+                label={__('Choose product category')}
+                name='roomCategories'
+                initialValue={branch?.roomCategories}
+                customOption={{
+                  value: '',
+                  label: '...Clear product category filter'
+                }}
+                onSelect={categoryIds => {
+                  onChange('roomCategories', categoryIds);
+                }}
+                multi={true}
+              />
+            </BlockRow>
+          </Block>
+          <Block>
+            <h4>{__('extra product Cateogies')}</h4>
+            <BlockRow>
+              <SelectProductCategory
+                label={__('Choose product category')}
+                name='extraProductCategories'
+                initialValue={branch?.extraProductCategories}
+                customOption={{
+                  value: '',
+                  label: '...Clear product category filter'
+                }}
+                onSelect={categoryIds => {
+                  onChange('extraProductCategories', categoryIds);
+                }}
+                multi={true}
+              />
+            </BlockRow>
+          </Block>
         </LeftItem>
       </FlexColumn>
     </FlexItem>

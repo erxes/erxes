@@ -16,6 +16,8 @@ export interface ITmsBranch {
   permissionConfig?: any;
   status: string;
   pipelineConfig: any;
+  extraProductCategories?: string[];
+  roomCategories?: string[];
 }
 export interface ITmsBranchDocument extends ITmsBranch, Document {
   _id: string;
@@ -45,7 +47,12 @@ export const tmsBranchSchema = schemaHooksWrapper(
       optional: true,
       label: 'Permission'
     }),
-    status: field({ type: String, label: 'Status', optional: true })
+    status: field({ type: String, label: 'Status', optional: true }),
+    extraProductCategories: field({
+      type: [String],
+      label: ' extraProductCategories ids'
+    }),
+    roomCategories: field({ type: [String], label: ' roomCategories ids' })
   }),
   'tms_branch'
 );

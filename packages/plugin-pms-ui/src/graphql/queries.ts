@@ -22,6 +22,8 @@ export const branchCommonFields = `
   uiOptions
   permissionConfig
   pipelineConfig
+  extraProductCategories
+  roomCategories
 `;
 
 const tmsBranchDetail = `

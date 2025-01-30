@@ -72,7 +72,9 @@ const BranchEdit = (props: Props) => {
       paymentTypes: state.paymentTypes || [],
       uiOptions: state.uiOptions,
       permissionConfig: state.permissionConfig || {},
-      pipelineConfig: state.pipelineConfig || {}
+      pipelineConfig: state.pipelineConfig || {},
+      extraProductCategories: state.extraProductCategories || [],
+      roomCategories: state.roomCategories || []
     };
 
     save(doc);
@@ -179,7 +181,7 @@ const BranchEdit = (props: Props) => {
               title={__('Pipeline Config')}
               onClick={onStepClick}
             >
-              <DeliveryConfig onChange={onChange} pms={state} />
+              <DeliveryConfig onChange={onChange} branch={state} />
             </Step>
           </Steps>
           <ControlWrapper>
