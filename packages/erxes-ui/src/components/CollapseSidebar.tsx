@@ -35,6 +35,7 @@ const Title = styled.span`
 const Content = styled.div`
   padding: ${dimensions.unitSpacing}px;
   flex: 1;
+  overflow: auto;
 `;
 
 const IconWrapper = styled.div`
