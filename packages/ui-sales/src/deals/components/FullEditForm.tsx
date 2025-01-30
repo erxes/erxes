@@ -127,6 +127,7 @@ const FullEditForm = (props: Props) => {
           item={item}
           stageId={item.stageId}
           onChangeStage={onChangeStage}
+          hasGreyBackground={true}
         />
       );
     }

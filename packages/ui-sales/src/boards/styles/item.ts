@@ -387,7 +387,7 @@ export const Stages = styled.ul`
   padding: 0;
 `;
 
-export const StageItem = styledTS<{ $isPass: boolean }>(styled.li)`
+export const StageItem = styledTS<{ $isPass: boolean, $hasGreyBackground?: boolean }>(styled.li)`
   text-align: right;
   position: relative;
   margin-left: 10px;
@@ -426,7 +426,7 @@ export const StageItem = styledTS<{ $isPass: boolean }>(styled.li)`
     position: relative;
     z-index: 10;
     cursor: pointer;
-    background: ${colors.colorWhite};
+    background: ${props => props.$hasGreyBackground ? colors.bgLight : colors.colorWhite};
     display: inline-block;
   }
   
