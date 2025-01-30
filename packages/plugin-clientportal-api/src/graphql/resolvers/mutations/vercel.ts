@@ -4,9 +4,10 @@ import { clientPortal } from '../../../permissions';
 import { addDomain, deploy, removeProject } from '../../../vercel/util';
 
 const getConfig = async (_id: string, models: IModels) => {
-  const config: IClientPortalDocument | null = await models.ClientPortals.findOne({
-    $or: [{ _id: _id }, { vercelProjectId: _id }],
-  });
+  const config: IClientPortalDocument | null =
+    await models.ClientPortals.findOne({
+      $or: [{ _id: _id }, { vercelProjectId: _id }],
+    });
 
   if (!config) {
     throw new Error('Config not found');
@@ -39,12 +40,17 @@ const mutations = {
       throw new Error('Could not deploy');
     }
 
-    if (!config.vercelProjectId) {
-      await models.ClientPortals.updateOne(
-        { _id: config._id },
-        { $set: { vercelProjectId: vercelResult.projectId } }
-      );
+    const update: any = {
+      $set: {
+        lastVercelDeploymentId: vercelResult.id,
+      },
+    };
+
+    if (config.vercelProjectId) {
+      update.$set.vercelProjectId = vercelResult.projectId;
     }
+
+    await models.ClientPortals.updateOne({ _id: config._id }, update);
 
     return vercelResult;
   },

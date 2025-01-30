@@ -55,21 +55,27 @@ const queries = {
     }
   },
 
-  async clientPortalGetVercelDeployment(
+  async clientPortalGetVercelDeploymentStatus(
     _root,
-    { deploymentId }: { deploymentId: string },
+    { _id }: { _id: string },
     { models }: IContext
   ) {
-    const events = await getDeploymentEvents(deploymentId);
+    const config = await models.ClientPortals.findOne({ _id });
+
+    if (!config || !config.lastVercelDeploymentId) {
+      throw new Error('Config not found or has not been deployed to Vercel');
+    }
+
+    const events = await getDeploymentEvents(config.lastVercelDeploymentId);
 
     if (events.length === 0) {
       throw new Error('No events found');
     }
 
     const complete = events.find(
-      event => event.text === 'Deployment completed'
+      (event) => event.text === 'Deployment completed'
     );
-    
+
     if (complete) {
       return complete;
     }
