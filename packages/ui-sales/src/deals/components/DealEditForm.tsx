@@ -303,6 +303,7 @@ export default class DealEditForm extends React.Component<Props, State> {
             addItem={addItem}
             onChangeStage={onChangeStage}
             onChangeRefresh={this.onChangeRefresh}
+            currentUser={currentUser}
           />
           <Sidebar
             options={options}

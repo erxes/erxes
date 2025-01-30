@@ -18,6 +18,7 @@ import Watch from "../../containers/editForm/Watch";
 import Comment from "../../../comment/containers/Comment";
 import { loadDynamicComponent, __ } from "@erxes/ui/src/utils";
 import { isEnabled } from "@erxes/ui/src/utils/core";
+import { IUser } from "@erxes/ui/src/auth/types";
 
 type Props = {
   item: IItem;
@@ -29,6 +30,7 @@ type Props = {
   sendToBoard?: (item: any) => void;
   onChangeStage?: (stageId: string) => void;
   onChangeRefresh: () => void;
+  currentUser: IUser;
 };
 
 class Actions extends React.Component<Props> {
@@ -51,7 +53,8 @@ class Actions extends React.Component<Props> {
       removeItem,
       sendToBoard,
       onChangeStage,
-      onChangeRefresh
+      onChangeRefresh,
+      currentUser,
     } = this.props;
 
     const onLabelChange = (labels) => saveItem({ labels });
@@ -115,6 +118,7 @@ class Actions extends React.Component<Props> {
           saveItem={saveItem}
           sendToBoard={sendToBoard}
           onChangeStage={onChangeStage}
+          currentUser={currentUser}
         />
 
         <TaggerPopover

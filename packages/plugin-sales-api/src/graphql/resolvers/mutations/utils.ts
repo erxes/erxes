@@ -22,7 +22,7 @@ import {
   putDeleteLog,
   putUpdateLog
 } from "../../../logUtils";
-import { checkUserIds } from "@erxes/api-utils/src";
+import { can, checkUserIds } from "@erxes/api-utils/src";
 import {
   copyChecklists,
   copyPipelineLabels,
@@ -267,6 +267,10 @@ export const itemsEdit = async (
     canEditMemberIds.length > 0 &&
     !canEditMemberIds.includes(user._id)
   ) {
+    throw new Error("Permission denied");
+  }
+
+  if (doc.status === "archived" && oldItem.status === 'active' && !(await can(subdomain, 'dealsArchive', user))) {
     throw new Error("Permission denied");
   }
 
