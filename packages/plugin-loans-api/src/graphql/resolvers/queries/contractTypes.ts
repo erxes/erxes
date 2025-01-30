@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import * as _ from "lodash";
 import { paginate } from "@erxes/api-utils/src";
 import { IContext } from "../../../connectionResolver";
 import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
