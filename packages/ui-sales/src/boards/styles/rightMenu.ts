@@ -189,6 +189,14 @@ const TopHeader = styled.div`
   .right {
     display: flex;
     gap: ${dimensions.unitSpacing}px;
+
+    .menuWidthFit {
+      right: ${dimensions.unitSpacing}px;
+
+      button {
+        padding: 0;
+      }
+    }
   }
 `;
 
