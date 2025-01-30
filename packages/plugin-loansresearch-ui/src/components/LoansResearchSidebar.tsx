@@ -44,7 +44,7 @@ const LoansResearchSidebar = (props: Props) => {
   );
 
   const content = () => {
-    if (!loansResearch._id) {
+    if (!loansResearch) {
       return <EmptyState icon="building" text="No research" />;
     }
 
