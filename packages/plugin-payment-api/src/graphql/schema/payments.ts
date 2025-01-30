@@ -34,7 +34,7 @@ const paymentOptionsParams = `
 `;
 
 export const queries = `
-  payments(status: String): [Payment]
+  payments(status: String, kind: String): [Payment]
 
   paymentsPublic(kind: String, _ids:[String], currency: String): [PaymentPublic]
   paymentsCountByType: paymentsTotalCount
