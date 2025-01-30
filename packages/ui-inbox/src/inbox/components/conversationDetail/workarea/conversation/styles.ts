@@ -1,13 +1,16 @@
 import { AttachmentWrapper, Meta } from '@erxes/ui/src/components/Attachment';
+import { PopoverList } from '@erxes/ui/src/components/filterableList/styles';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { darken, rgba } from '@erxes/ui/src/styles/ecolor';
 import styled, { css } from 'styled-components';
 
 import styledTS from 'styled-components-ts';
 
-const MessageContent = styledTS<{ $internal?: boolean; $staff?: boolean }>(
-  styled.div,
-)`
+const MessageContent = styledTS<{
+  $internal?: boolean;
+  $staff?: boolean;
+  $isEditable?: boolean;
+}>(styled.div)`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   border-radius: 20px;
   border-bottom-left-radius: 2px;
@@ -30,6 +33,13 @@ const MessageContent = styledTS<{ $internal?: boolean; $staff?: boolean }>(
       ${AttachmentWrapper}, ${Meta} {
         color: ${rgba(colors.colorWhite, 0.9)};
       }
+    `};
+  ${(props) =>
+    props.$internal &&
+    props.$isEditable &&
+    css`
+      display: inline-flex;
+      flex-direction: row;
     `};
 
   a {
@@ -203,7 +213,7 @@ const FormTable = styled.div`
     flex-shrink: 0;
     font-size: 11px;
     float: right;
-    
+
     color: ${colors.colorCoreLightGray};
     margin-left: 10px;
     cursor: pointer;
@@ -342,6 +352,10 @@ const ProductItem = styledTS(styled.div)`
     height: 100px;
     border-radius: 8px;
   }
+`;
+
+export const ActionList = styledTS(styled.div)`
+  margin-left: 5px;
 `;
 
 export {

@@ -130,6 +130,9 @@ const productsQueryParams = `
   tag: String,
   ids: [String],
   excludeIds: Boolean,
+  tags: [String]
+  excludeTags: [String]
+  tagWithRelated: Boolean
   pipelineId: String,
   boardId: String,
   segment: String,
