@@ -678,6 +678,10 @@ const ProductFormContainer = styled.div`
   .flex-wrap {
     flex-wrap: wrap;
   }
+
+  thead th {
+    z-index: 0;
+  }
 `;
 
 export {

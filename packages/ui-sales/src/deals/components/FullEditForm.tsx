@@ -103,16 +103,21 @@ const FullEditForm = (props: Props) => {
           {__("Properties")}
         </TabTitle>
 
-        {loadDynamicTabTitle(
-          "dealRightSidebarTab",
-          {
-            id: item._id,
-            mainType: "deal",
-            mainTypeId: item._id,
-            object: item,
-          },
-          true
-        )}
+        <TabTitle
+          className={currentTab === "dynamic" ? "active" : ""}
+          onClick={() => setCurrentTab("dynamic")}
+        >
+          {loadDynamicTabTitle(
+            "dealRightSidebarTab",
+            {
+              id: item._id,
+              mainType: "deal",
+              mainTypeId: item._id,
+              object: item,
+            },
+            true
+          )}
+        </TabTitle>
       </Tabs>
     );
   };

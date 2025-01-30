@@ -68,7 +68,7 @@ export default class DealEditForm extends React.Component<Props, State> {
       unUsedAmount: item.unUsedAmount || {},
       changePayData: {},
       refresh: false,
-      currentTab: "customer",
+      currentTab: "overview",
     };
   }
 
@@ -226,8 +226,8 @@ export default class DealEditForm extends React.Component<Props, State> {
     const { currentTab } = this.state;
 
     switch (currentTab) {
-      case "customer":
-        return this.renderCustomerDetail(props);
+      case "overview":
+        return this.renderOverview(props);
       case "detail":
         return this.renderDetail(props.saveItem);
       case "product":
@@ -241,7 +241,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     }
   };
 
-  renderCustomerDetail = ({ saveItem, onChangeStage, copy, remove }) => {
+  renderOverview = ({ saveItem, onChangeStage, copy, remove }) => {
     const { item, options, onUpdate, sendToBoard, addItem, currentUser } =
       this.props;
 
@@ -321,8 +321,8 @@ export default class DealEditForm extends React.Component<Props, State> {
           <Tabs direction="vertical">
             <TabTitle
               direction="vertical"
-              className={currentTab === "customer" ? "active" : ""}
-              onClick={this.tabOnClick.bind(this, "customer")}
+              className={currentTab === "overview" ? "active" : ""}
+              onClick={this.tabOnClick.bind(this, "overview")}
             >
               <Icon size={16} icon={"newspaper"} />
               {__("Overview")}

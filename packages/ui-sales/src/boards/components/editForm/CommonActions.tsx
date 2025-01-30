@@ -95,6 +95,7 @@ const CommonActions = (props: Props) => {
           sendToBoard={sendToBoard}
           onChangeStage={onChangeStage}
           onChangeRefresh={onChangeRefresh}
+          currentUser={currentUser}
         />
       </FormGroup>
 

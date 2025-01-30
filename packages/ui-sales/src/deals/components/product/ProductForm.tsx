@@ -434,7 +434,7 @@ class ProductForm extends React.Component<Props, State> {
     }
 
     saveProductsData();
-    closeModal();
+    closeModal && closeModal();
   };
 
   onFilter = (name, value, callback?, params?) => {
@@ -789,13 +789,15 @@ class ProductForm extends React.Component<Props, State> {
             {advancedView ? "Compact view" : "Advanced view"}
           </Button>
 
-          <Button
-            btnStyle="simple"
-            onClick={this.props.closeModal}
-            icon="times-circle"
-          >
-            Cancel
-          </Button>
+          {this.props.closeModal && (
+            <Button
+              btnStyle="simple"
+              onClick={this.props.closeModal}
+              icon="times-circle"
+            >
+              Cancel
+            </Button>
+          )}
 
           <Button btnStyle="success" onClick={this.onClick} icon="check-circle">
             Save

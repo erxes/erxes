@@ -5,7 +5,7 @@ declare var window;
 import * as router from "./router";
 
 import { IUser, IUserDoc } from "../auth/types";
-import React, { useEffect, useState } from "react";
+import React, { act, useEffect, useState } from "react";
 
 import ErrorBoundary from "../components/ErrorBoundary";
 import { IAttachment } from "../types";
@@ -85,11 +85,11 @@ export const loadDynamicTabTitle = (
   const plugins: any[] = (window as any).plugins || [];
   const filteredPlugins = plugins.filter((plugin) => plugin[componentName]);
   const [currentTitle, setCurrentTitle] = useState(
-    localStorage.getItem("dealDynamicActiveComponent") || ""
+    localStorage.getItem("dealDynamicTab") || ""
   );
 
   const onTitleClick = (key) => {
-    localStorage.setItem("dealDynamicActiveComponent", key);
+    localStorage.setItem("dealDynamicTab", key);
     setCurrentTitle(key);
     window.dispatchEvent(new Event("storage"));
   };
@@ -97,14 +97,14 @@ export const loadDynamicTabTitle = (
   const renderDynamicComp = (plugin: any) => {
     return (
       <ErrorBoundary key={plugin.scope}>
-        <div
+        <span
           className={`custom-tab ${currentTitle === `${plugin.scope}:${plugin[componentName].title}` ? "active" : ""}`}
           onClick={() =>
             onTitleClick(`${plugin.scope}:${plugin[componentName].title}`)
           }
         >
           {plugin[componentName].title}
-        </div>
+        </span>
       </ErrorBoundary>
     );
   };
@@ -133,14 +133,12 @@ export const loadDynamicTabContent = (
   const filteredPlugins = plugins.filter((plugin) => plugin[componentName]);
 
   const [activeComponent, setActiveComponent] = useState(
-    localStorage.getItem("dealDynamicActiveComponent") || ""
+    localStorage.getItem("dealDynamicTab") || ""
   );
 
   useEffect(() => {
     const handleStorageChange = (event) => {
-      setActiveComponent(
-        localStorage.getItem("dealDynamicActiveComponent") || ""
-      );
+      setActiveComponent(localStorage.getItem("dealDynamicTab") || "");
     };
 
     window.addEventListener("storage", handleStorageChange);
@@ -167,6 +165,7 @@ export const loadDynamicTabContent = (
       </ErrorBoundary>
     );
   };
+
   if (filteredPlugins && filteredPlugins.length === 0) {
     return null;
   }

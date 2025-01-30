@@ -1,5 +1,6 @@
 import { IDeal, IDealParams, IPaymentsData } from "../../types";
 
+import Alert from "@erxes/ui/src/utils/Alert";
 import { IItem } from "../../../boards/types";
 import { IProduct } from "@erxes/ui-products/src/types";
 import ProductForm from "../../containers/product/ProductForm";
@@ -113,6 +114,8 @@ export default class ProductSectionComponent extends React.Component<
         saveItem({ productsData, paymentsData }, (updatedItem) => {
           this.setState({ updatedItem });
         });
+
+        Alert.success("You successfully updated a product");
       }
     );
   };

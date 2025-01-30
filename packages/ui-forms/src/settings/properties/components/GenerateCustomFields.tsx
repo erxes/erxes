@@ -598,14 +598,14 @@ type GroupsProps = {
 
 class GenerateGroups extends React.Component<
   GroupsProps,
-  { currentTitle: string }
+  { currentFieldGroupId: string }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
-      currentTitle: props.fieldsGroups
-        ? props.fieldsGroups.filter((gro) => !gro.parentId)[0]?.name
+      currentFieldGroupId: props.fieldsGroups
+        ? props.fieldsGroups.filter((gro) => !gro.parentId)[0]?._id
         : "",
     };
   }
@@ -728,7 +728,7 @@ class GenerateGroups extends React.Component<
     const groups = fieldsGroups.filter((gro) => !gro.parentId);
 
     const activeGroups = fieldsGroups.filter(
-      (group) => group.name === this.state.currentTitle
+      (group) => group._id === this.state.currentFieldGroupId
     );
 
     if (!groups || groups.length === 0) {
@@ -739,8 +739,8 @@ class GenerateGroups extends React.Component<
       return childGroups.map((child) => (
         <div
           key={child._id}
-          className={`custom-child-title custom-title ${child.name === this.state.currentTitle ? "active" : ""}`}
-          onClick={() => this.setState({ currentTitle: child.name })}
+          className={`custom-child-title custom-title ${child._id === this.state.currentFieldGroupId ? "active" : ""}`}
+          onClick={() => this.setState({ currentFieldGroupId: child._id })}
         >
           {child.name}
         </div>
@@ -759,8 +759,10 @@ class GenerateGroups extends React.Component<
               return (
                 <div className="custom-group" key={group._id}>
                   <div
-                    className={`custom-title ${group.name === this.state.currentTitle ? "active" : ""}`}
-                    onClick={() => this.setState({ currentTitle: group.name })}
+                    className={`custom-title ${group._id === this.state.currentFieldGroupId ? "active" : ""}`}
+                    onClick={() =>
+                      this.setState({ currentFieldGroupId: group._id })
+                    }
                   >
                     {group.name}
                   </div>
