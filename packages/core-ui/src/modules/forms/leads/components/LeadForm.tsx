@@ -69,6 +69,8 @@ type State = {
   isRequireOnce?: boolean;
   saveAsCustomer?: boolean;
   clearCacheAfterSave?: boolean;
+  contactsGathered?: number;
+  viewCount?: number;
   isSkip?: boolean;
   color: string;
   logoPreviewStyle?: { opacity?: string };
@@ -171,6 +173,8 @@ class Lead extends React.Component<Props, State> {
       successPreviewStyle: {},
       departmentIds: form.departmentIds || [],
       visibility: form.visibility || 'public',
+      contactsGathered: leadData.contactsGathered || 0,
+      viewCount: leadData.viewCount || 0,
     };
   }
 
@@ -245,6 +249,8 @@ class Lead extends React.Component<Props, State> {
         successImage: this.state.successImage,
         successImageSize: this.state.successImageSize,
         verifyEmail: this.state.verifyEmail,
+        contactsGathered: this.state.contactsGathered,
+        viewCount: this.state.viewCount,
       },
     };
 
