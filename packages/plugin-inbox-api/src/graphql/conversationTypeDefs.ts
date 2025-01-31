@@ -1,7 +1,7 @@
 import {
   attachmentInput,
-  attachmentType,
-} from '@erxes/api-utils/src/commonTypeDefs';
+  attachmentType
+} from "@erxes/api-utils/src/commonTypeDefs";
 
 export const types = ({ contacts, dailyco, calls }) => `
   ${attachmentType}
@@ -33,7 +33,7 @@ export const types = ({ contacts, dailyco, calls }) => `
         recordingLinks: [String]
       }
     `
-      : ''
+      : ""
   }
 
   ${
@@ -56,7 +56,7 @@ export const types = ({ contacts, dailyco, calls }) => `
         recordUrl: String
       }
     `
-      : ''
+      : ""
   }
 
   extend type User @key(fields: "_id") {
@@ -92,8 +92,8 @@ export const types = ({ contacts, dailyco, calls }) => `
     participatedUsers: [User]
     readUsers: [User]
     participatorCount: Int
-    ${dailyco ? 'videoCallData: VideoCallData' : ''}
-    ${calls ? 'callHistory: CallHistoryData' : ''}
+    ${dailyco ? "videoCallData: VideoCallData" : ""}
+    ${calls ? "callHistory: CallHistoryData" : ""}
     customFieldsData: JSON
   }
 
@@ -126,7 +126,7 @@ export const types = ({ contacts, dailyco, calls }) => `
     user: User
     customer: Customer
     mailData: MailData
-    ${dailyco ? 'videoCallData: VideoCallData' : ''}
+    ${dailyco ? "videoCallData: VideoCallData" : ""}
     contentType: String
     mid: String
   }
