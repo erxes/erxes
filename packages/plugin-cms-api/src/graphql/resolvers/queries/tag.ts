@@ -10,14 +10,17 @@ const queries = {
   /**
    * Cms tags list
    */
-  async cmsTags(
-    _parent: any,
-    args: any,
-    context: IContext
-  ): Promise<any> {
+  async cmsTags(_parent: any, args: any, context: IContext): Promise<any> {
     const { models } = context;
-    const {clientPortalId, searchValue, status, page = 1, perPage = 20, sortField = 'name', sortDirection = 'asc' } = args;
-
+    const {
+      searchValue,
+      status,
+      page = 1,
+      perPage = 20,
+      sortField = 'name',
+      sortDirection = 'asc',
+    } = args;
+    const clientPortalId = context.clientPortalId || args.clientPortalId;
     const query = {
       clientPortalId,
       ...(status && { status }),
@@ -30,7 +33,10 @@ const queries = {
       ];
     }
 
-    return paginate(models.PostTags.find(query).sort({ [sortField]: sortDirection }), { page, perPage });
+    return paginate(
+      models.PostTags.find(query).sort({ [sortField]: sortDirection }),
+      { page, perPage }
+    );
   },
 
   /**
@@ -38,9 +44,17 @@ const queries = {
    */
   async cmsTag(_parent: any, args: any, context: IContext): Promise<any> {
     const { models } = context;
-    const { _id } = args;
+    const { _id, slug } = args;
+    const clientPortalId = context.clientPortalId || args.clientPortalId;
+    if (!_id && !slug) {
+      return null;
+    }
 
-    return models.PostTags.findOne({ $or: [{ _id }, { slug: _id }] });
+    if (slug) {
+      return models.PostTags.findOne({ slug, clientPortalId });
+    }
+
+    return models.PostTags.findOne({ _id });
   },
 };
 

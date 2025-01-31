@@ -128,6 +128,7 @@ export interface IClientPortal {
   facebookPixel?: string;
   googleTagManager?: string;
   vercelProjectId?: string;
+  lastVercelDeploymentId?: string;
 }
 
 interface IStyles {
@@ -375,4 +376,5 @@ export const clientPortalSchema = new Schema({
   facebookPixel: field({ type: String, optional: true }),
   googleTagManager: field({ type: String, optional: true }),
   vercelProjectId: field({ type: String, optional: true }),
+  lastVercelDeploymentId: field({ type: String, optional: true }),
 });

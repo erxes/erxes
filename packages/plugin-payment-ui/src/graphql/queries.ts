@@ -3,8 +3,8 @@ import { gql } from '@apollo/client';
 import { paymentConfigFields } from './common';
 
 const payments = gql`
-  query payments($status: String) {
-    payments(status: $status) {
+  query payments($status: String, $kind: String) {
+    payments(status: $status, kind: $kind) {
       _id
       name
       kind
