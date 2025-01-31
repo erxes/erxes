@@ -32,11 +32,11 @@ const Comments: React.FC<{ postId: string }> = ({ postId }) => {
         isSubmitted={isSubmitted}
         callback={callback}
         icon="send"
-        children=""
-        successMessage="You successfully write a comment"
+        successMessage="You successfully wrote a comment"
       />
     );
   };
+  
 
   return (
     <CommentComponent
