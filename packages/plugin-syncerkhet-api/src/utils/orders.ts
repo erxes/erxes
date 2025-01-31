@@ -54,8 +54,7 @@ export const getPostData = async (subdomain, pos, order, paymentTypes) => {
 
   if (
     preTaxPaymentTypes.length &&
-    order.paidAmounts &&
-    order.paidAmounts.length
+    order.paidAmounts?.length
   ) {
     let preSentAmount = 0;
     for (const preTaxPaymentType of preTaxPaymentTypes) {

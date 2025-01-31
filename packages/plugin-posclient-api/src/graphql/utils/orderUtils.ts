@@ -309,7 +309,7 @@ export const prepareEbarimtData = async (
   models: IModels,
   order: IOrderDocument,
   config: IEbarimtConfig,
-  items: IOrderItemDocument[] = [],
+  items: IOrderItemDocument[],
   paymentTypes: any[],
   orderBillType?: string,
   registerNumber?: string,
@@ -341,8 +341,7 @@ export const prepareEbarimtData = async (
 
   if (
     preTaxPaymentTypes.length &&
-    order.paidAmounts &&
-    order.paidAmounts.length
+    order.paidAmounts?.length
   ) {
     let preSentAmount = 0;
     for (const preTaxPaymentType of preTaxPaymentTypes) {
