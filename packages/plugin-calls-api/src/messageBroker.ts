@@ -94,7 +94,7 @@ export const setupMessageConsumers = async () => {
 
       const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
       const domain = getDomain(subdomain);
-      if (ENDPOINT_URL) {
+      if (ENDPOINT_URL && subdomain !== 'os') {
         // send domain to core endpoints
 
         try {
@@ -155,7 +155,7 @@ export const setupMessageConsumers = async () => {
 
       const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
 
-      if (ENDPOINT_URL) {
+      if (ENDPOINT_URL && subdomain !== 'os') {
         // send domain to core endpoints
         try {
           await fetch(`${ENDPOINT_URL}/remove-endpoint`, {
