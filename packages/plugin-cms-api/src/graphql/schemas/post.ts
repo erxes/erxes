@@ -38,7 +38,7 @@ export const types = `
         authorKind: PostAuthorKind
         authorId: String
         author: Author
-        clientPortalId: String
+        clientPortalId: String!
         title: String
         slug: String
         content: String
@@ -107,9 +107,9 @@ export const inputs = `
 `;
 
 export const queries = `
-    cmsPost(_id: String): Post
-    cmsPosts(clientPortalId: String!, featured: Boolean, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: SortDirection): [Post]
-    cmsPostList(clientPortalId: String!, featured: Boolean, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: SortDirection): PostList
+    cmsPost(_id: String, slug: String): Post
+    cmsPosts(clientPortalId: String, featured: Boolean, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: SortDirection): [Post]
+    cmsPostList(clientPortalId: String, featured: Boolean, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: SortDirection): PostList
 `;
 
 export const mutations = `

@@ -1,8 +1,9 @@
+import { IUser } from '@erxes/ui/src/auth/types';
 import { ColorButton } from '../../styles/common';
 import { IItem } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import colors from '@erxes/ui/src/styles/colors';
-import { __ } from '@erxes/ui/src/utils';
+import { __, can } from '@erxes/ui/src/utils';
 import React from 'react';
 
 interface IProps {
@@ -11,10 +12,11 @@ interface IProps {
   saveItem: (doc: { [key: string]: any }, callback?: (item) => void) => void;
   sendToBoard?: (item: any) => void;
   onChangeStage?: (stageId: string) => void;
+  currentUser: IUser
 }
 
 export const ArchiveBtn = (props: IProps) => {
-  const { removeItem, item, saveItem, sendToBoard, onChangeStage } = props;
+  const { removeItem, item, saveItem, sendToBoard, onChangeStage, currentUser } = props;
 
   if (item.status === 'archived') {
     const onRemove = () => removeItem(item._id);
@@ -29,10 +31,13 @@ export const ArchiveBtn = (props: IProps) => {
 
     return (
       <>
-        <ColorButton color={colors.colorCoreRed} onClick={onRemove}>
-          <Icon icon="times-circle" />
-          {__('Delete')}
-        </ColorButton>
+        {can('dealsRemove', currentUser) && (
+          <ColorButton color={colors.colorCoreRed} onClick={onRemove}>
+            <Icon icon="times-circle" />
+            {__('Delete')}
+          </ColorButton>
+        )}
+
         <ColorButton onClick={onSendToBoard}>
           <Icon icon="redo" />
           {__('Send to board')}
@@ -47,6 +52,9 @@ export const ArchiveBtn = (props: IProps) => {
       onChangeStage(item.stageId);
     }
   };
+
+  if (!can('dealsArchive', currentUser))
+    return <></>;
 
   return (
     <ColorButton onClick={onArchive}>
