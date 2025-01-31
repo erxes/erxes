@@ -98,7 +98,7 @@ export const isAfter = (
   expiresTimestamp: number,
   defaultMillisecond?: number,
 ) => {
-  const millisecond = defaultMillisecond || new Date().getTime();
+  const millisecond = defaultMillisecond ?? new Date().getTime();
   const expiresMillisecond = new Date(expiresTimestamp * 1000).getTime();
 
   if (expiresMillisecond > millisecond) {
