@@ -11,7 +11,7 @@ export const validConfigMsg = async config => {
   return "";
 };
 
-export const getPostData = async (subdomain, config, deal, dateType = "") => {
+export const getPostData = async (subdomain, config, deal, paymentTypes, dateType = "") => {
   let billType = 1;
   let customerCode = "";
 
@@ -150,6 +150,37 @@ export const getPostData = async (subdomain, config, deal, dateType = "") => {
     }
   }
 
+  let itemAmountPrePercent = 0;
+  const preTaxPaymentTypes: string[] = (paymentTypes || []).filter(p =>
+    (p.config || '').includes('preTax: true')
+  ).map(p => p.type);
+
+  if (
+    preTaxPaymentTypes.length &&
+    deal.paymentsData &&
+    Object.keys(deal.paymentsData).length
+  ) {
+    let preSentAmount = 0;
+    for (const preTaxPaymentType of preTaxPaymentTypes) {
+      const matchOrderPayKeys = Object.keys(deal.paymentsData).filter(
+        pa => pa === preTaxPaymentType
+      );
+
+      if (matchOrderPayKeys.length) {
+        for (const key of matchOrderPayKeys) {
+          const matchOrderPay = deal.paymentsData[key]
+          preSentAmount += Number(matchOrderPay.amount);
+        }
+      }
+    }
+    const values: any[] = Object.values(deal.paymentsData);
+    const dealTotalPay = (values).map(p => p.amount).reduce((sum, cur) => sum + cur, 0);
+
+    if (preSentAmount && preSentAmount <= dealTotalPay) {
+      itemAmountPrePercent = (preSentAmount / dealTotalPay) * 100;
+    }
+  }
+
   for (const productData of deal.productsData) {
     // not tickUsed product not sent
     if (!productData.tickUsed) {
@@ -170,10 +201,14 @@ export const getPostData = async (subdomain, config, deal, dateType = "") => {
       otherCode = `${branch.code || ""}_${department.code || ""}`;
     }
 
+    const tempAmount = productData.amount;
+    const minusAmount = (tempAmount / 100) * itemAmountPrePercent;
+    const totalAmount = tempAmount - minusAmount;
+
     details.push({
       count: productData.quantity,
-      amount: productData.amount,
-      discount: productData.discount,
+      amount: totalAmount,
+      discount: productData.discount + minusAmount,
       inventoryCode: product.code,
       otherCode,
       workerEmail:
@@ -201,7 +236,7 @@ export const getPostData = async (subdomain, config, deal, dateType = "") => {
     return { amount: predet.amount + detail.amount };
   }).amount;
 
-  for (const paymentKind of Object.keys(deal.paymentsData || [])) {
+  for (const paymentKind of Object.keys(deal.paymentsData || []).filter(pay => !preTaxPaymentTypes.includes(pay))) {
     const payment = deal.paymentsData[paymentKind];
     payments[configure[paymentKind]] =
       (payments[configure[paymentKind]] || 0) + payment.amount;

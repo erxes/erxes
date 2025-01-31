@@ -4,6 +4,7 @@ import { nanoid } from "nanoid";
 import { IModels } from "./connectionResolver";
 import { IDoc, getEbarimtData } from "./models/utils";
 import { getConfig, getPostData } from "./utils";
+import { sendSalesMessage } from "./messageBroker";
 
 export default {
   "sales:deal": ["update"]
@@ -78,7 +79,15 @@ export const afterMutationHandlers = async (
         ...configs[destinationStageId]
       };
 
-      const ebarimtData: IDoc = await getPostData(subdomain, models, config, deal);
+      const pipeline = await sendSalesMessage({
+        subdomain,
+        action: 'pipelines.findOne',
+        data: { stageId: destinationStageId },
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      const ebarimtData: IDoc = await getPostData(subdomain, models, config, deal, pipeline.paymentTypes);
 
       const ebarimtResponses: any[] = [];
 

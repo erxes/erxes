@@ -9,6 +9,7 @@ import { customerToErkhet, companyToErkhet } from "./utils/customerToErkhet";
 import { generateModels } from "./connectionResolver";
 import { getIncomeData } from "./utils/incomeData";
 import { userToErkhet } from "./utils/userToErkhet";
+import { sendSalesMessage } from "./messageBroker";
 
 const allowTypes = {
   "core:user": ["create", "update"],
@@ -158,7 +159,16 @@ export const afterMutationHandlers = async (subdomain, params) => {
             ...configs[destinationStageId],
             ...(await getConfig(subdomain, "ERKHET", {}))
           };
-          const postData = await getPostData(subdomain, config, deal);
+
+          const pipeline = await sendSalesMessage({
+            subdomain,
+            action: 'pipelines.findOne',
+            data: { stageId: destinationStageId },
+            isRPC: true,
+            defaultValue: {}
+          });
+
+          const postData = await getPostData(subdomain, config, deal, pipeline.paymentTypes);
 
           const response = await sendRPCMessage(
             models,

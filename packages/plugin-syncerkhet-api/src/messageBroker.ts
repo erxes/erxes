@@ -39,7 +39,7 @@ export const setupMessageConsumers = async () => {
       consumeStr: JSON.stringify(order)
     });
     try {
-      const postData = await getPostData(subdomain, pos, order);
+      const postData = await getPostData(subdomain, pos, order, pos.paymentTypes);
       if (!postData) {
         return {
           status: "success",
