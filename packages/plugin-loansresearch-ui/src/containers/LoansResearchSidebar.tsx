@@ -11,21 +11,21 @@ const LoansResearchSidebarContainer = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  const loansResearchMainQuery = useQuery<DetailQueryResponse>(
+  const loansResearchDetailQuery = useQuery<DetailQueryResponse>(
     gql(queries.loanResearchDetail),
     {
       variables: {
-        dealId: queryParams.itemId,
+        dealId: queryParams?.itemId || '',
       },
     }
   );
 
-  if (loansResearchMainQuery.loading) {
+  if (loansResearchDetailQuery.loading) {
     return <Spinner />;
   }
 
-  const loansResearch =
-    loansResearchMainQuery?.data?.loanResearchDetail || ({} as ILoanResearch);
+  const loansResearch = loansResearchDetailQuery?.data
+    ?.loanResearchDetail as ILoanResearch;
 
   const updatedProps = {
     queryParams,
