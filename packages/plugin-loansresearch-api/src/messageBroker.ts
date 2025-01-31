@@ -9,7 +9,6 @@ import { afterMutationHandlers } from './afterMutations';
 export const setupMessageConsumers = async () => {
   consumeQueue('loansresearch:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
-    return;
   });
 };
 

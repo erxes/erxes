@@ -300,11 +300,7 @@ export const otherPlugins = async (subdomain, doc) => {
   const value = await redis.get('afterMutations');
   const afterMutations = JSON.parse(value || '{}');
 
-  if (
-    afterMutations['xyp:xyp'] &&
-    afterMutations['xyp:xyp']['create'] &&
-    afterMutations['xyp:xyp']['create'].length
-  ) {
+  if (afterMutations['xyp:xyp']?.['create']?.length) {
     for (const service of afterMutations['xyp:xyp']['create']) {
       await sendMessage(`${service}:afterMutation`, {
         subdomain,
