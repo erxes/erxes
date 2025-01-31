@@ -1,22 +1,22 @@
-import * as classNames from 'classnames';
-import * as React from 'react';
-import { useRef, useEffect, useState } from 'react';
-import { setLocalStorageItem } from '../../common';
-import { iconCall, iconVideo } from '../../icons/Icons';
+import * as classNames from "classnames";
+import * as React from "react";
+import { useRef, useEffect, useState } from "react";
+import { setLocalStorageItem } from "../../common";
+import { iconCall, iconVideo } from "../../icons/Icons";
 import {
   IIntegrationMessengerData,
   IIntegrationMessengerDataMessagesItem,
-  IIntegrationUiOptions,
-} from '../../types';
-import { __, makeClickableLink, scrollTo } from '../../utils';
-import { MESSAGE_TYPES } from '../constants';
-import { IBotData, IMessage } from '../types';
-import Message from './Message';
-import MessageBot from './MessageBot';
-import AccquireInformation from './AccquireInformation';
-import Bot from './bot/Bot';
-import { OPERATOR_STATUS } from './bot/constants';
-import { connection } from '../connection';
+  IIntegrationUiOptions
+} from "../../types";
+import { __, makeClickableLink, scrollTo } from "../../utils";
+import { MESSAGE_TYPES } from "../constants";
+import { IBotData, IMessage } from "../types";
+import Message from "./Message";
+import MessageBot from "./MessageBot";
+import AccquireInformation from "./AccquireInformation";
+import Bot from "./bot/Bot";
+import { OPERATOR_STATUS } from "./bot/constants";
+import { connection } from "../connection";
 
 type Props = {
   messages: IMessage[];
@@ -52,7 +52,7 @@ const MessagesList: React.FC<Props> = (props) => {
     uiOptions,
     messengerData,
     messages,
-    conversationId = '',
+    conversationId = "",
     getBotInitialMessage,
     saveGetNotified,
     onSelectSkill,
@@ -71,11 +71,11 @@ const MessagesList: React.FC<Props> = (props) => {
     botTyping,
     selectedSkill,
     errorMessage,
-    isLoading,
+    isLoading
   } = props;
 
-  const backgroundClass = classNames('erxes-messages-background', {
-    [`bg-${uiOptions.wallpaper}`]: uiOptions.wallpaper,
+  const backgroundClass = classNames("erxes-messages-background", {
+    [`bg-${uiOptions.wallpaper}`]: uiOptions.wallpaper
   });
 
   const nodeRef = useRef<HTMLDivElement>(null);
@@ -89,7 +89,7 @@ const MessagesList: React.FC<Props> = (props) => {
   useEffect(() => {
     const newConversation =
       messages.length === 0 &&
-      (!conversationId || (conversationId || '').length === 0);
+      (!conversationId || (conversationId || "").length === 0);
 
     if (messengerData.botShowInitialMessage && newConversation) {
       getBotInitialMessage((initialMessage) => {
@@ -99,7 +99,7 @@ const MessagesList: React.FC<Props> = (props) => {
     const node = nodeRef.current;
     if (node) {
       node.scrollTop = node.scrollHeight;
-      makeClickableLink('#erxes-messages a');
+      makeClickableLink("#erxes-messages a");
     }
   }, []);
 
@@ -114,11 +114,11 @@ const MessagesList: React.FC<Props> = (props) => {
       };
 
       // Attach scroll event listener
-      node.addEventListener('scroll', handleScroll);
+      node.addEventListener("scroll", handleScroll);
 
       // Cleanup event listener on unmount
       return () => {
-        node.removeEventListener('scroll', handleScroll);
+        node.removeEventListener("scroll", handleScroll);
       };
     }
   }, []);
@@ -129,7 +129,7 @@ const MessagesList: React.FC<Props> = (props) => {
     if (node && shouldScrollBottom) {
       scrollTo(node, node.scrollHeight, 500);
     }
-    makeClickableLink('#erxes-messages a');
+    makeClickableLink("#erxes-messages a");
   }, [messages, shouldScrollBottom]);
 
   const scrollBottom = () => {
@@ -143,7 +143,7 @@ const MessagesList: React.FC<Props> = (props) => {
   const onNotify = ({ type, value }: { type: string; value: string }) => {
     saveGetNotified({ type, value }, () => {
       setHideNotifyInput(true);
-      setLocalStorageItem('hasNotified', 'true');
+      setLocalStorageItem("hasNotified", "true");
     });
   };
 
@@ -172,7 +172,7 @@ const MessagesList: React.FC<Props> = (props) => {
     }
 
     return (
-      <li className="erxes-spacial-message right away">{messages.away}</li>
+      <li className='erxes-spacial-message right away'>{messages.away}</li>
     );
   };
 
@@ -186,19 +186,19 @@ const MessagesList: React.FC<Props> = (props) => {
         messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
 
       return (
-        <li className="erxes-spacial-message with-background">
-          <span> {messages.thank || __('Thank you') + '.'}</span>
+        <li className='erxes-spacial-message with-background'>
+          <span> {messages.thank || __("Thank you") + "."}</span>
         </li>
       );
     }
 
     return (
-      <li className="erxes-spacial-message with-background auth">
+      <li className='erxes-spacial-message with-background auth'>
         <AccquireInformation
           save={onNotify}
           color={getColor}
           loading={false}
-          textColor={uiOptions.textColor || '#fff'}
+          textColor={uiOptions.textColor || "#fff"}
         />
       </li>
     );
@@ -211,7 +211,7 @@ const MessagesList: React.FC<Props> = (props) => {
       return null;
     }
 
-    return <li className="erxes-spacial-message right">{messages.welcome}</li>;
+    return <li className='erxes-spacial-message right'>{messages.welcome}</li>;
   };
 
   const renderSkillOptionsMessage = (
@@ -219,21 +219,21 @@ const MessagesList: React.FC<Props> = (props) => {
   ) => {
     const newConversation =
       messages.length === 0 &&
-      (!conversationId || (conversationId || '').length === 0);
+      (!conversationId || (conversationId || "").length === 0);
 
     if (!messengerData.skillData || !newConversation || selectedSkill) {
       return null;
     }
 
     const { options = [] } = messengerData.skillData;
-    const { color, textColor = '#fff' } = uiOptions;
+    const { color, textColor = "#fff" } = uiOptions;
 
     if (options.length === 0) {
       return null;
     }
 
     return (
-      <div className="skill-content">
+      <div className='skill-content'>
         {options.map((option, index) => {
           const handleClick = () =>
             handleSkillSelect(option.skillId, option.response);
@@ -241,10 +241,9 @@ const MessagesList: React.FC<Props> = (props) => {
           return (
             <div key={index}>
               <div
-                className="skill-card erxes-button"
+                className='skill-card erxes-button'
                 onClick={handleClick}
-                style={{ background: color, color: textColor }}
-              >
+                style={{ background: color, color: textColor }}>
                 {option.label}
               </div>
             </div>
@@ -260,8 +259,8 @@ const MessagesList: React.FC<Props> = (props) => {
     }
 
     return (
-      <li className="from-customer">
-        <div className="erxes-message from-customer gray">{skillResponse}</div>
+      <li className='from-customer'>
+        <div className='erxes-message from-customer gray'>{skillResponse}</div>
       </li>
     );
   };
@@ -272,34 +271,31 @@ const MessagesList: React.FC<Props> = (props) => {
     }
 
     const sendCallRequest = () => {
-      sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '');
+      sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, "");
     };
 
-    const { color, textColor = '#fff' } = uiOptions;
+    const { color, textColor = "#fff" } = uiOptions;
 
     return (
       <div
-        className="app-message-box call-request"
-        style={{ borderColor: color }}
-      >
-        <h5>{__('Audio and video call')}</h5>
-        <p>{__('You can contact the operator by voice or video!')}</p>
-        <div className="call-buttons">
+        className='app-message-box call-request'
+        style={{ borderColor: color }}>
+        <h5>{__("Audio and video call")}</h5>
+        <p>{__("You can contact the operator by voice or video!")}</p>
+        <div className='call-buttons'>
           <button
-            className="erxes-button"
+            className='erxes-button'
             style={{ background: color }}
-            onClick={sendCallRequest}
-          >
+            onClick={sendCallRequest}>
             {iconCall(textColor)}
             <span style={{ background: color, color: textColor }}>
-              {__('Audio call')}
+              {__("Audio call")}
             </span>
           </button>
           <button
-            className="erxes-button"
+            className='erxes-button'
             style={{ background: color }}
-            onClick={sendCallRequest}
-          >
+            onClick={sendCallRequest}>
             {iconVideo(textColor)}
             <span style={{ color: textColor }}>Video call</span>
           </button>
@@ -309,7 +305,7 @@ const MessagesList: React.FC<Props> = (props) => {
   };
 
   const renderSingleMessage = (message: any) => {
-    const { color, textColor = '#fff' } = uiOptions;
+    const { color, textColor = "#fff" } = uiOptions;
     const { botEndpointUrl } = messengerData;
     const _id: any = message._id;
 
@@ -319,11 +315,10 @@ const MessagesList: React.FC<Props> = (props) => {
       toggleVideo: toggleVideoCall,
       sendTypingInfo,
       replyAutoAnswer,
-      ...message,
+      ...message
     };
 
-    const showBotMessage = botEndpointUrl && message.botData !== null;
-
+    const showBotMessage = message.botData !== null;
     const content = showBotMessage ? (
       <MessageBot
         color={color}
@@ -332,7 +327,10 @@ const MessagesList: React.FC<Props> = (props) => {
         scrollBottom={scrollBottom}
       />
     ) : (
-      <Message key={message._id} {...messageProps} />
+      <Message
+        key={message._id}
+        {...messageProps}
+      />
     );
 
     if (_id < 0) {
@@ -368,14 +366,13 @@ const MessagesList: React.FC<Props> = (props) => {
     }
 
     return (
-      <div className="bot-message">
-        <div className="quick-replies">
+      <div className='bot-message'>
+        <div className='quick-replies'>
           <div
-            className="reply-button"
+            className='reply-button'
             onClick={handleOperatorStatus}
-            style={{ borderColor: getColor }}
-          >
-            {__('Contact with Operator')}
+            style={{ borderColor: getColor }}>
+            {__("Contact with Operator")}
           </div>
         </div>
       </div>
@@ -390,8 +387,8 @@ const MessagesList: React.FC<Props> = (props) => {
     return (
       <li>
         <Bot />
-        <div className="erxes-message top">
-          <div className="bot-indicator">
+        <div className='erxes-message top'>
+          <div className='bot-indicator'>
             <span />
             <span />
             <span />
@@ -407,12 +404,11 @@ const MessagesList: React.FC<Props> = (props) => {
     }
 
     return (
-      <li className="from-customer">
+      <li className='from-customer'>
         <div
-          className="app-message-box spaced flexible"
-          style={{ borderColor: 'red' }}
-        >
-          <div className="user-info horizontal">{errorMessage}</div>
+          className='app-message-box spaced flexible'
+          style={{ borderColor: "red" }}>
+          <div className='user-info horizontal'>{errorMessage}</div>
         </div>
       </li>
     );
@@ -427,10 +423,14 @@ const MessagesList: React.FC<Props> = (props) => {
   };
 
   return (
-    <div className={backgroundClass} ref={nodeRef}>
-      <ul id="erxes-messages" className="erxes-messages-list slide-in">
+    <div
+      className={backgroundClass}
+      ref={nodeRef}>
+      <ul
+        id='erxes-messages'
+        className='erxes-messages-list slide-in'>
         {isLoading ? (
-          <div className="loader" />
+          <div className='loader' />
         ) : (
           <>
             {renderBotGreetingMessage(messengerData)}

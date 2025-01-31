@@ -1,6 +1,5 @@
-
-import { ICallout } from './form/types';
-import { IAttachment, IWebsiteApp } from './messenger/types';
+import { ICallout } from "./form/types";
+import { IAttachment, IWebsiteApp } from "./messenger/types";
 
 export type ENV = {
   ROOT_URL: string;
@@ -98,7 +97,7 @@ export interface IIntegrationLink {
 }
 
 export interface IIntegrationExternalLink {
-  url: string
+  url: string;
 }
 
 export interface IIntegrationMessengerDataMessagesItem {
@@ -118,6 +117,7 @@ export interface IIntegrationMessengerData {
     }>;
   };
   botEndpointUrl?: string;
+  botCheck?: boolean;
   botShowInitialMessage?: boolean;
   supporterIds: string[];
   notifyCustomer: boolean;
@@ -228,4 +228,4 @@ export interface ICountry {
   name: string;
   dialCode: string;
   emoji: string;
-};
+}

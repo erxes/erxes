@@ -1,14 +1,14 @@
-import { Document, Schema } from 'mongoose';
+import { Document, Schema } from "mongoose";
 import {
   customFieldSchema,
   ICustomField
-} from '@erxes/api-utils/src/definitions/common';
+} from "@erxes/api-utils/src/definitions/common";
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_SELECT_OPTIONS,
   CONVERSATION_STATUSES
-} from './constants';
-import { field } from './utils';
+} from "./constants";
+import { field } from "./utils";
 
 export interface IConversation {
   skillId?: string;
@@ -40,6 +40,8 @@ export interface IConversation {
 
   isCustomerRespondedLast?: boolean;
   customFieldsData?: ICustomField[];
+  isBot?: boolean;
+  botId?: string;
 }
 
 // Conversation schema
@@ -53,57 +55,65 @@ export interface IConversationDocument extends IConversation, Document {
 
 export const conversationSchemaOptions = {
   operatorStatus: field({
-    type: 'String',
+    type: "String",
     enum: CONVERSATION_OPERATOR_STATUS.ALL,
-    label: 'Operator Status',
+    label: "Operator Status",
     selectOptions: CONVERSATION_SELECT_OPTIONS.OPERATOR_STATUS,
     optional: true
   }),
-  content: field({ type: 'String', label: 'Content', optional: true }),
-  integrationId: field({ type: 'String', index: true }),
-  customerId: field({ type: 'String', index: true }),
+  content: field({ type: "String", label: "Content", optional: true }),
+  integrationId: field({ type: "String", index: true }),
+  customerId: field({ type: "String", index: true }),
   visitorId: field({
-    type: 'String'
+    type: "String"
   }),
-  userId: field({ type: 'String' }),
-  assignedUserId: field({ type: 'String' }),
-  participatedUserIds: field({ type: ['String'] }),
-  userRelevance: field({ type: 'String' }),
-  readUserIds: field({ type: ['String'] }),
-  createdAt: field({ type: 'Date', label: 'Created at' }),
-  updatedAt: field({ type: 'Date', label: 'Updated at', index: true }),
+  userId: field({ type: "String" }),
+  assignedUserId: field({ type: "String" }),
+  participatedUserIds: field({ type: ["String"] }),
+  userRelevance: field({ type: "String" }),
+  readUserIds: field({ type: ["String"] }),
+  createdAt: field({ type: "Date", label: "Created at" }),
+  updatedAt: field({ type: "Date", label: "Updated at", index: true }),
 
   closedAt: field({
-    type: 'Date',
-    label: 'Closed at',
+    type: "Date",
+    label: "Closed at",
     optional: true
   }),
 
   closedUserId: field({
-    type: 'String',
+    type: "String",
     optional: true
   }),
 
   status: field({
-    type: 'String',
+    type: "String",
     enum: CONVERSATION_STATUSES.ALL,
     selectOptions: CONVERSATION_SELECT_OPTIONS.STATUS,
-    label: 'Status',
+    label: "Status",
     index: true
   }),
-  messageCount: field({ type: 'Number', label: 'Message count' }),
-  tagIds: field({ type: ['String'], index: true }),
+  messageCount: field({ type: "Number", label: "Message count" }),
+  tagIds: field({ type: ["String"], index: true }),
 
   // number of total conversations
-  number: field({ type: 'Number' }),
+  number: field({ type: "Number" }),
 
-  firstRespondedUserId: field({ type: 'String' }),
-  firstRespondedDate: field({ type: 'Date', label: 'First responded date' }),
+  firstRespondedUserId: field({ type: "String" }),
+  firstRespondedDate: field({ type: "Date", label: "First responded date" }),
 
   isCustomerRespondedLast: field({
-    type: 'Boolean',
-    label: 'Last responder is customer'
+    type: "Boolean",
+    label: "Last responder is customer"
   }),
+  isBot: field({
+    type: "Boolean",
+    label: "isBot"
+  }),
+  botId: field({
+    type: "String",
+    label: "botId"
+  })
 };
 
 export const conversationSchema = new Schema({
@@ -111,7 +121,7 @@ export const conversationSchema = new Schema({
   customFieldsData: field({
     type: [customFieldSchema],
     optional: true,
-    label: 'Custom fields data'
+    label: "Custom fields data"
   }),
   ...conversationSchemaOptions
 });

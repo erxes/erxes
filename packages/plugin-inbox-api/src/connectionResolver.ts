@@ -44,6 +44,8 @@ import { IScriptModel } from "./models/Scripts";
 import { IScriptDocument } from "./models/definitions/scripts";
 import { loadClass as loadScriptClass } from "./models/Scripts";
 import { createGenerateModels } from "@erxes/api-utils/src/core";
+import { IBotDocument } from "./models/definitions/bots";
+import { IBotModel, loadBotClass } from "./models/Bots";
 
 export interface IModels {
   Channels: IChannelModel;
@@ -55,6 +57,7 @@ export interface IModels {
   ConversationMessages: IMessageModel;
   Conversations: IConversationModel;
   Scripts: IScriptModel;
+  Bots: IBotModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -104,7 +107,10 @@ export const loadClasses = (
     "scripts",
     loadScriptClass(models, subdomain)
   );
-
+  models.Bots = db.model<IBotDocument, IBotModel>(
+    "widgets_messengers_bots",
+    loadBotClass(models)
+  );
   return models;
 };
 

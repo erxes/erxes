@@ -22,7 +22,7 @@ import search from "./search";
 import widgetsMiddleware from "./middlewares/widgetsMiddleware";
 import { getSubdomain } from "@erxes/api-utils/src/core";
 import webhooks from "./webhooks";
-import automations from "./automations";
+import automations from "../src/automations";
 import cronjobs from "./cronjobs/conversations";
 import dashboards from "./dashboards";
 import webhookMiddleware from "./middlewares/webhookMiddleware";
@@ -103,7 +103,7 @@ export default {
 
           return res.json(response);
         },
-        res => res.json({ status: "success" })
+        (res) => res.json({ status: "success" })
       )
     );
 
@@ -117,7 +117,7 @@ export default {
           const response = await identifyCustomer(subdomain, args);
           return res.json(response);
         },
-        res => res.json({})
+        (res) => res.json({})
       )
     );
 
@@ -130,7 +130,7 @@ export default {
           const response = await updateCustomerProperties(subdomain, req.body);
           return res.json(response);
         },
-        res => res.json({})
+        (res) => res.json({})
       )
     );
 

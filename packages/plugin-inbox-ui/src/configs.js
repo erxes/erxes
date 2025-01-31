@@ -1,103 +1,103 @@
 module.exports = {
   srcDir: __dirname,
-  name: 'inbox',
+  name: "inbox",
   port: 3009,
-  scope: 'inbox',
+  scope: "inbox",
   exposes: {
-    './routes': './src/routes.tsx',
-    './activityLog': './src/activityLogs/activityLog.tsx',
-    './automation': './src/automations/automation.tsx',
-    './unreadCount': './src/inbox/containers/UnreadCount.tsx',
-    './actionForms': './src/settings/integrations/containers/ActionForms',
-    './emailWidget': './src/inbox/containers/EmailWidget.tsx',
-    './integrationDetailsForm': './src/forms/components/CallproEditForm.tsx',
+    "./routes": "./src/routes.tsx",
+    "./activityLog": "./src/activityLogs/activityLog.tsx",
+    "./automation": "./src/automations/index.tsx",
+    "./unreadCount": "./src/inbox/containers/UnreadCount.tsx",
+    "./actionForms": "./src/settings/integrations/containers/ActionForms",
+    "./emailWidget": "./src/inbox/containers/EmailWidget.tsx",
+    "./integrationDetailsForm": "./src/forms/components/CallproEditForm.tsx"
   },
   routes: {
-    url: 'http://localhost:3009/remoteEntry.js',
-    scope: 'inbox',
-    module: './routes'
+    url: "http://localhost:3009/remoteEntry.js",
+    scope: "inbox",
+    module: "./routes"
   },
-  activityLog: './activityLog',
-  automation: './automation',
-  actionForms: './actionForms',
+  activityLog: "./activityLog",
+  automation: "./automation",
+  actionForms: "./actionForms",
   menus: [
     {
-      text: 'Team Inbox',
-      url: '/inbox',
-      icon: 'icon-chat',
-      location: 'mainNavigation',
-      permission: 'showConversations'
+      text: "Team Inbox",
+      url: "/inbox",
+      icon: "icon-chat",
+      location: "mainNavigation",
+      permission: "showConversations"
     },
     {
-      text: 'Skills',
-      to: '/settings/skills',
-      image: '/images/icons/erxes-29.png',
-      location: 'settings',
-      scope: 'inbox',
-      action: 'skillTypesAll',
+      text: "Skills",
+      to: "/settings/skills",
+      image: "/images/icons/erxes-29.png",
+      location: "settings",
+      scope: "inbox",
+      action: "skillTypesAll",
       permissions: [
-        'getSkillTypes',
-        'getSkill',
-        'getSkills',
-        'manageSkills',
-        'manageSkillTypes'
+        "getSkillTypes",
+        "getSkill",
+        "getSkills",
+        "manageSkills",
+        "manageSkillTypes"
       ]
     },
     {
-      text: 'Channels',
-      to: '/settings/channels',
-      image: '/images/icons/erxes-05.svg',
-      location: 'settings',
-      scope: 'inbox',
-      action: 'channelsAll',
-      permissions: ['showChannels', 'manageChannels']
+      text: "Channels",
+      to: "/settings/channels",
+      image: "/images/icons/erxes-05.svg",
+      location: "settings",
+      scope: "inbox",
+      action: "channelsAll",
+      permissions: ["showChannels", "manageChannels"]
     },
     {
-      text: 'Integrations',
-      to: '/settings/integrations',
-      image: '/images/icons/erxes-04.svg',
-      location: 'settings',
-      scope: 'inbox',
-      action: 'integrationsAll',
+      text: "Integrations",
+      to: "/settings/integrations",
+      image: "/images/icons/erxes-04.svg",
+      location: "settings",
+      scope: "inbox",
+      action: "integrationsAll",
       permissions: [
-        'showIntegrations',
-        'integrationsCreateMessengerIntegration',
-        'integrationsEditMessengerIntegration',
-        'integrationsSaveMessengerAppearanceData',
-        'integrationsSaveMessengerConfigs',
-        'integrationsCreateLeadIntegration',
-        'integrationsEditLeadIntegration',
-        'integrationsRemove',
-        'integrationsArchive',
-        'integrationsEdit'
+        "showIntegrations",
+        "integrationsCreateMessengerIntegration",
+        "integrationsEditMessengerIntegration",
+        "integrationsSaveMessengerAppearanceData",
+        "integrationsSaveMessengerConfigs",
+        "integrationsCreateLeadIntegration",
+        "integrationsEditLeadIntegration",
+        "integrationsRemove",
+        "integrationsArchive",
+        "integrationsEdit"
       ]
     },
     {
-      text: 'Integrations config',
-      to: '/settings/integrations-config',
-      image: '/images/icons/erxes-24.svg',
-      location: 'settings',
-      scope: 'inbox',
-      action: 'generalSettingsAll',
-      permissions: ['manageGeneralSettings', 'showGeneralSettings']
+      text: "Integrations config",
+      to: "/settings/integrations-config",
+      image: "/images/icons/erxes-24.svg",
+      location: "settings",
+      scope: "inbox",
+      action: "generalSettingsAll",
+      permissions: ["manageGeneralSettings", "showGeneralSettings"]
     },
     {
-      text: 'Responses',
-      to: '/settings/response-templates',
-      image: '/images/icons/erxes-10.svg',
-      location: 'settings',
-      scope: 'inbox',
-      action: 'responseTemplatesAll',
-      permissions: ['manageResponseTemplate', 'showResponseTemplates']
+      text: "Responses",
+      to: "/settings/response-templates",
+      image: "/images/icons/erxes-10.svg",
+      location: "settings",
+      scope: "inbox",
+      action: "responseTemplatesAll",
+      permissions: ["manageResponseTemplate", "showResponseTemplates"]
     },
     {
-      text: 'Widget Script Manager',
-      to: '/settings/scripts',
-      image: '/images/icons/erxes-34.png',
-      location: 'settings',
-      scope: 'inbox',
-      action: 'scriptsAll',
-      permissions: ['manageScripts', 'showScripts']
+      text: "Widget Script Manager",
+      to: "/settings/scripts",
+      image: "/images/icons/erxes-34.png",
+      location: "settings",
+      scope: "inbox",
+      action: "scriptsAll",
+      permissions: ["manageScripts", "showScripts"]
     },
     {
       text: "Send an Email",
@@ -105,15 +105,15 @@ module.exports = {
       icon: "icon-envelope",
       location: "topNavigation",
       scope: "inbox",
-      component: "./emailWidget",
+      component: "./emailWidget"
     }
   ],
   customNavigationLabel: [
     {
       text: "unreadCount",
       component: "./unreadCount",
-      scope: "inbox",
+      scope: "inbox"
     }
   ],
-  integrationDetailsForm: './integrationDetailsForm',
+  integrationDetailsForm: "./integrationDetailsForm"
 };
