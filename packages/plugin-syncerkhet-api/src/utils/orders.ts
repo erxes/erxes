@@ -6,7 +6,7 @@ import { sendRPCMessage } from "../messageBrokerErkhet";
 import { calcProductsTaxRule } from "./productsByTaxType";
 import { getConfig, getPureDate } from "./utils";
 
-export const getPostData = async (subdomain, pos, order) => {
+export const getPostData = async (subdomain, pos, order, paymentTypes) => {
   let erkhetConfig = await getConfig(subdomain, "ERKHET", {});
 
   if (
@@ -47,6 +47,33 @@ export const getPostData = async (subdomain, pos, order) => {
 
   let sumSaleAmount = 0;
 
+  let itemAmountPrePercent = 0;
+  const preTaxPaymentTypes: string[] = (paymentTypes || []).filter(p =>
+    (p.config || '').includes('preTax: true')
+  ).map(p => p.type);
+
+  if (
+    preTaxPaymentTypes.length &&
+    order.paidAmounts &&
+    order.paidAmounts.length
+  ) {
+    let preSentAmount = 0;
+    for (const preTaxPaymentType of preTaxPaymentTypes) {
+      const matchOrderPays = order.paidAmounts.filter(
+        pa => pa.type === preTaxPaymentType
+      );
+      if (matchOrderPays.length) {
+        for (const matchOrderPay of matchOrderPays) {
+          preSentAmount += matchOrderPay.amount;
+        }
+      }
+    }
+
+    if (preSentAmount && preSentAmount <= order.totalAmount) {
+      itemAmountPrePercent = (preSentAmount / order.totalAmount) * 100;
+    }
+  }
+
   for (const item of order.items) {
     // if wrong productId then not sent
     const product = productsById[item.productId]
@@ -54,8 +81,12 @@ export const getPostData = async (subdomain, pos, order) => {
       continue;
     }
 
-    const amount = item.count * item.unitPrice;
+    const tempAmount = (item.count ?? 0) * (item.unitPrice ?? 0);
+    const minusAmount = (tempAmount / 100) * itemAmountPrePercent;
+    const amount = tempAmount - minusAmount;
+
     sumSaleAmount += amount;
+
     details.push({
       count: item.count,
       amount,
@@ -77,7 +108,7 @@ export const getPostData = async (subdomain, pos, order) => {
     sumSaleAmount -= order.mobileAmount;
   }
 
-  for (const paidAmount of order.paidAmounts || []) {
+  for (const paidAmount of (order.paidAmounts || []).filter(pa => !preTaxPaymentTypes.includes(pa.type))) {
     const erkhetType = pos.erkhetConfig[`_${paidAmount.type}`];
     if (!erkhetType) {
       continue;
