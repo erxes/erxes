@@ -1,20 +1,21 @@
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
 
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IMessages } from '@erxes/ui-inbox/src/settings/integrations/types';
-import React from 'react';
-import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
-import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { __ } from 'coreui/utils';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IMessages } from "@erxes/ui-inbox/src/settings/integrations/types";
+import React from "react";
+import SelectBrand from "@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand";
+import SelectChannels from "@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import { __ } from "coreui/utils";
 
 type Props = {
   onChange: (name: any, value: any) => void;
   title?: string;
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
+  botCheck?: boolean;
   brandId?: string;
   channelIds?: string[];
 };
@@ -28,23 +29,25 @@ class Connection extends React.Component<Props, State> {
     this.props.onChange(name, value);
   };
 
-  brandOnChange = e => this.onChangeFunction('brandId', e.target.value);
+  brandOnChange = (e) => this.onChangeFunction("brandId", e.target.value);
 
-  handleToggle = e =>
-    this.onChangeFunction('botShowInitialMessage', e.target.checked);
+  handleToggle = (e) =>
+    this.onChangeFunction("botShowInitialMessage", e.target.checked);
+
+  handleToggleBot = (e) => this.onChangeFunction("botCheck", e.target.checked);
 
   channelOnChange = (values: string[]) =>
-    this.onChangeFunction('channelIds', values);
+    this.onChangeFunction("channelIds", values);
 
-  changeBotEndpointUrl = e => {
+  changeBotEndpointUrl = (e) => {
     this.props.onChange(
-      'botEndpointUrl',
+      "botEndpointUrl",
       (e.currentTarget as HTMLInputElement).value
     );
   };
 
-  onChangeTitle = e =>
-    this.props.onChange('title', (e.currentTarget as HTMLInputElement).value);
+  onChangeTitle = (e) =>
+    this.props.onChange("title", (e.currentTarget as HTMLInputElement).value);
 
   render() {
     return (
@@ -52,7 +55,7 @@ class Connection extends React.Component<Props, State> {
         <LeftItem>
           <FormGroup>
             <ControlLabel required={true}>Integration Name</ControlLabel>
-            <p>{__('Name this integration to differentiate from the rest')}</p>
+            <p>{__("Name this integration to differentiate from the rest")}</p>
 
             <FormControl
               required={true}
@@ -66,7 +69,7 @@ class Connection extends React.Component<Props, State> {
             isRequired={true}
             onChange={this.brandOnChange}
             description={__(
-              'Which specific Brand does this integration belong to?'
+              "Which specific Brand does this integration belong to?"
             )}
           />
 
@@ -78,7 +81,7 @@ class Connection extends React.Component<Props, State> {
 
           <FormGroup>
             <ControlLabel>Bot Press Endpoint URL</ControlLabel>
-            <p>{__('Please enter your Bot Press endpoint URL')}</p>
+            <p>{__("Please enter your Bot Press endpoint URL")}</p>
 
             <FormControl
               required={false}
@@ -88,14 +91,26 @@ class Connection extends React.Component<Props, State> {
           </FormGroup>
           <FormGroup>
             <ControlLabel>Bot show initial message</ControlLabel>
-            <p>{__('Please build initial message in BotPress builder')}</p>
+            <p>{__("Please build initial message in BotPress builder")}</p>
 
             <Toggle
               checked={this.props.botShowInitialMessage}
               onChange={this.handleToggle}
               icons={{
-                checked: <span>{__('Yes')}</span>,
-                unchecked: <span>{__('No')}</span>
+                checked: <span>{__("Yes")}</span>,
+                unchecked: <span>{__("No")}</span>
+              }}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Generate Messenger Bots</ControlLabel>
+            <p>{__("Please check messenger bot")}</p>
+            <Toggle
+              checked={this.props.botCheck}
+              onChange={this.handleToggleBot}
+              icons={{
+                checked: <span>{__("Yes")}</span>,
+                unchecked: <span>{__("No")}</span>
               }}
             />
           </FormGroup>
