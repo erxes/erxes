@@ -20,7 +20,7 @@ import * as ws from 'ws';
 import {
   getServices,
   join,
-  leave,
+  leave
 } from '@erxes/api-utils/src/serviceDiscovery';
 import { applyInspectorEndpoints } from '../inspect';
 import app from '@erxes/api-utils/src/app';
@@ -38,6 +38,7 @@ import { searchCunsomers } from '../consumers/search';
 import { templatesCunsomers } from '../consumers/templates';
 import { segmentsCunsomers } from '../consumers/segments';
 import { reportsCunsomers } from '../consumers/reports';
+import '@erxes/api-utils/src/instrumentation';
 
 const { PORT, USE_BRAND_RESTRICTIONS } = process.env;
 
@@ -145,12 +146,12 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       schema: buildSubgraphSchema([
         {
           typeDefs,
-          resolvers,
-        },
+          resolvers
+        }
       ]),
 
       // for graceful shutdown
-      plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+      plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
     });
   };
 
@@ -179,7 +180,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
             docModifier: (doc) => doc,
             commonQuerySelector: {},
             user,
-            res,
+            res
           };
         } else {
           let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
@@ -214,14 +215,14 @@ export async function startPlugin(configs: any): Promise<express.Express> {
             commonQuerySelectorElk,
             userBrandIdsSelector,
             user,
-            res,
+            res
           };
         }
 
         await configs.apolloServerContext(context, req, res);
 
         return context;
-      },
+      }
     })
   );
 
@@ -232,7 +233,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   if (configs.freeSubscriptions) {
     const wsServer = new ws.Server({
       server: httpServer,
-      path: '/subscriptions',
+      path: '/subscriptions'
     });
 
     await configs.freeSubscriptions(wsServer);
@@ -265,7 +266,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       templates,
       cpCustomerHandle,
       loyalties,
-      loginValidator,
+      loginValidator
     } = configs.meta;
 
     const logs = configs.meta.logs && configs.meta.logs.consumers;
@@ -277,7 +278,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     if (logs) {
       logConsumers({
         name: configs.name,
-        logs,
+        logs
       });
     }
 
@@ -295,7 +296,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(`${configs.name}:webhooks.getInfo`, async (args) => ({
           status: 'success',
-          data: await webhooks.getInfo(args),
+          data: await webhooks.getInfo(args)
         }));
       }
     }
@@ -303,7 +304,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     if (internalNotes) {
       internalNoteConsumers({
         name: configs.name,
-        internalNotes,
+        internalNotes
       });
     }
 
@@ -327,7 +328,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeQueue(`${configs.name}:initialSetup`, async (args) => ({
           status: 'success',
-          data: await initialSetup.generate(args),
+          data: await initialSetup.generate(args)
         }));
 
         app.post('/initial-setup', async (req, res) => {
@@ -356,7 +357,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
       consumeRPCQueue(`${configs.name}:readFileHook`, async (args) => ({
         status: 'success',
-        data: await readFileHook.action(args),
+        data: await readFileHook.action(args)
       }));
     }
 
@@ -365,7 +366,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
       consumeRPCQueue(`${configs.name}:documentPrintHook`, async (args) => ({
         status: 'success',
-        data: await documentPrintHook.action(args),
+        data: await documentPrintHook.action(args)
       }));
     }
 
@@ -374,7 +375,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         payment.callbackAvailable = true;
         consumeQueue(`${configs.name}:paymentCallback`, async (args) => ({
           status: 'success',
-          data: await payment.callback(args),
+          data: await payment.callback(args)
         }));
       }
 
@@ -384,7 +385,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           `${configs.name}:paymentTransactionCallback`,
           async (args) => ({
             status: 'success',
-            data: await payment.transactionCallback(args),
+            data: await payment.transactionCallback(args)
           })
         );
       }
@@ -393,7 +394,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     if (cpCustomerHandle) {
       consumeQueue(`${configs.name}:cpCustomerHandle`, async (args) => ({
         status: 'success',
-        data: await cpCustomerHandle.cpCustomerHandle(args),
+        data: await cpCustomerHandle.cpCustomerHandle(args)
       }));
     }
 
@@ -405,7 +406,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           `${configs.name}:getScoreCampaingAttributes`,
           async (args) => ({
             status: 'success',
-            data: await loyalties.getScoreCampaingAttributes(args),
+            data: await loyalties.getScoreCampaingAttributes(args)
           })
         );
       }
@@ -414,7 +415,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     if (loginValidator) {
       consumeRPCQueue(`${configs.name}:loginValidator`, async (args) => ({
         status: 'success',
-        data: await loginValidator.loginValidator(args),
+        data: await loginValidator.loginValidator(args)
       }));
     }
   } // end configs.meta if
@@ -424,7 +425,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     port: PORT || '',
     hasSubscriptions: configs.hasSubscriptions,
     importExportTypes: configs.importExportTypes,
-    meta: configs.meta,
+    meta: configs.meta
   });
 
   configs.onServerInit();

@@ -2,7 +2,7 @@
   "name": "gateway",
   "version": "1.0.0",
   "scripts": {
-    "dev": "NODE_ENV=development nodemon --require ../api-utils/src/instrumentation.ts src/index.ts",
+    "dev": "NODE_ENV=development nodemon  src/index.ts",
     "build": "yarn tsc"
   },
   "dependencies": {
