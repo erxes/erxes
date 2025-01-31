@@ -1,8 +1,4 @@
-export const types = ({isClientportalEnabled}) => `
-    extend type ClientPortal @key(fields: "_id") {
-      _id: String! @external
-    }
-
+export const types = `
     enum CategoryStatus {
         active
         inactive
@@ -41,8 +37,8 @@ export const inputs = `
 `;
 
 export const queries = `
-    cmsCategories(clientPortalId: String!, searchValue: String, status: CategoryStatus, page: Int, perPage: Int, sortField: String, sortDirection: SortDirection): [PostCategory]
-    cmsCategory(_id: String!): PostCategory
+    cmsCategories(clientPortalId: String, searchValue: String, status: CategoryStatus, page: Int, perPage: Int, sortField: String, sortDirection: SortDirection): [PostCategory]
+    cmsCategory(_id: String, slug: String): PostCategory
 `;
 
 export const mutations = `

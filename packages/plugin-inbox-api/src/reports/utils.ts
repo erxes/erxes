@@ -3,7 +3,6 @@ import { KIND_MAP, MEASURE_LABELS, STATUS_LABELS } from './constants';
 import { sendCoreMessage } from '../messageBroker';
 import * as isoWeek from 'dayjs/plugin/isoWeek';
 
-const util = require('util')
 dayjs.extend(isoWeek);
 
 export const returnDateRange = (
@@ -250,7 +249,7 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
 
     const pipeline: any[] = [];
 
-    const matchFilter = await buildMatchFilter(filter, subdomain, models)
+    const matchFilter = await buildMatchFilter(filter, subdomain, models, userType)
 
     if (dimensions?.includes('tag')) {
         pipeline.push({

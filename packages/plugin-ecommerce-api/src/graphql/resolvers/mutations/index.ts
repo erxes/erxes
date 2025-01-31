@@ -1,4 +1,5 @@
+import address from './address';
+import lastViewedItem from './lastViewedItem';
 import productreview from './productreview';
 import wishlist from './wishlist';
-import lastViewedItem from './lastViewedItem';
-export { productreview, wishlist, lastViewedItem };
+export { address, lastViewedItem, productreview, wishlist };

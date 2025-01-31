@@ -201,7 +201,7 @@ const mutations = {
       throw new Error('Invalid configuration');
     }
 
-    if (form.leadData && form.leadData.loadType === 'embedded') {
+    if (form.leadData) {
       await models.Forms.increaseViewCount(form._id);
     }
 

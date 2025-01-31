@@ -6,7 +6,9 @@ type CarouselButton = {
   type: string;
   title: string;
   text: string;
-  payload: string;
+  payload: {
+    btnId?: string;
+  };
   url?: string;
 };
 
@@ -40,7 +42,6 @@ export default class Carousel extends React.Component<Props, State> {
   renderButton(button: CarouselButton) {
     const { type, title, text, url, payload } = button;
     const { replyAutoAnswer, scrollBottom } = this.props;
-
     if (type === BUTTON_TYPES.openUrl) {
       return (
         <a className="card-action" target="_blank" href={url}>
@@ -50,14 +51,11 @@ export default class Carousel extends React.Component<Props, State> {
     }
 
     const handleClick = () => {
-      replyAutoAnswer(
-        title,
-        type === BUTTON_TYPES.saySomething ? text : payload,
-        type
-      );
+      const message = typeof payload === "string" ? payload : payload?.btnId || "";
+      replyAutoAnswer(title, message, type);
       scrollBottom();
     };
-
+    
     return (
       <div onClick={handleClick} className="card-action">
         {title}

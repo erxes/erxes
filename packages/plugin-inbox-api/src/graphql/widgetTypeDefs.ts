@@ -49,6 +49,8 @@ export const types = ({ products, knowledgeBase }) => `
     operatorStatus: String
     participatedUsers: [User]
     readUsers: [User]
+    botData:JSON
+    fromBot:Boolean
     isOnline: Boolean
     supporters: [User]
   }
@@ -113,6 +115,7 @@ export const mutations = () => `
   widgetsInsertMessage(
     integrationId: String!
     customerId: String
+    payload: String
     visitorId: String
     conversationId: String
     message: String,
@@ -123,11 +126,11 @@ export const mutations = () => `
 
   widgetBotRequest(
     customerId: String
+    payload: String
     visitorId: String
     conversationId: String
     integrationId: String!,
     message: String!
-    payload: String!
     type: String!
     ): JSON
 

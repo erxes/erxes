@@ -99,7 +99,7 @@ const commonHistoryFields = `
   callStatus: String
   timeStamp: Float
   inboxIntegrationId: String
-  transferedCallStatus: String
+  transferredCallStatus: String
   endedBy: String
 `;
 

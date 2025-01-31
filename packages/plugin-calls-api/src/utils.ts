@@ -10,10 +10,9 @@ import type { RequestInit, HeadersInit } from 'node-fetch';
 import { generateModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
-import { Domain } from 'domain';
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET || 'secret';
-const CALL_API_EXPIRY = 10 * 60; // 10 minutes
+const CALL_API_EXPIRY = 60 * 60; // 1 hour
 const MAX_RETRY_COUNT = 3;
 
 export const generateToken = async (integrationId, username?, password?) => {
@@ -73,7 +72,6 @@ export const sendToGrandStream = async (models, args, user) => {
     : operator?.gsUsername || '1001';
 
   let cookie = await getOrSetCallCookie(wsServer);
-
   if (!cookie) {
     throw new Error('Cookie not found');
   }
@@ -144,7 +142,6 @@ export const getOrSetCallCookie = async (wsServer) => {
   }
 
   let callCookie = await redis.get('callCookie');
-
   if (callCookie) {
     return callCookie;
   }
@@ -162,7 +159,6 @@ export const getOrSetCallCookie = async (wsServer) => {
     });
 
     const data = await challengeResponse.json();
-
     const { challenge } = data?.response;
     const hashedPassword = crypto
       .createHash('md5')
@@ -183,10 +179,19 @@ export const getOrSetCallCookie = async (wsServer) => {
 
     const loginData = await loginResponse.json();
     const { cookie } = loginData.response;
-
-    await redis.set('callCookie', cookie, 'EX', CALL_API_EXPIRY);
-    console.log(cookie, 'cok');
-    return cookie;
+    if (loginData.status === 0) {
+      await redis.set('callCookie', cookie, 'EX', CALL_API_EXPIRY);
+      console.log(cookie, 'successfully cookie');
+      return cookie;
+    } else if (errorList.hasOwnProperty(loginData.status)) {
+      console.log(
+        errorList[loginData.status],
+        CALL_API_USER,
+        'Login:',
+        CALL_API_PASSWORD,
+      );
+      throw new Error(errorList[loginData.status]);
+    }
   } catch (error) {
     console.error('Error in getOrSetCallCookie:', error);
     throw error;
@@ -201,10 +206,10 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     callStartTime,
     callEndTime,
     _id,
-    transferedCallStatus,
+    transferredCallStatus,
     isCronRunning,
   } = params;
-  if (transferedCallStatus === 'local' && callType === 'incoming') {
+  if (transferredCallStatus === 'local' && callType === 'incoming') {
     return 'Check the transferred call record URL!';
   }
 
@@ -251,13 +256,13 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         momentTz(callStartTime).tz(tz) || momentTz(callStartTime)
       ).format('YYYY-MM-DD');
       const endDate = (
-        momentTz(callEndTime).tz(tz) || momentTz(callStartTime)
+        momentTz(callEndTime).tz(tz) || momentTz(callEndTime)
       ).format('YYYY-MM-DD');
 
       let caller = customerPhone;
       let callee = extentionNumber || extension || operator;
 
-      if (transferedCallStatus === 'remote') {
+      if (transferredCallStatus === 'remote') {
         callee = extentionNumber || extension;
       }
 
@@ -356,10 +361,10 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       }
 
       if (
-        ['QUEUE', 'TRANSFERED'].some((substring) =>
+        ['QUEUE', 'TRANSFER'].some((substring) =>
           lastCreatedObject?.action_type?.includes(substring),
         ) &&
-        !(transferedCallStatus === 'remote' && callType === 'incoming')
+        !(transferredCallStatus === 'remote' && callType === 'incoming')
       ) {
         fileDir = 'queue';
       }
@@ -382,7 +387,13 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         subdomain,
       );
     } catch (error) {
-      console.error('Error in fetchRecordUrl:', error);
+      console.error('Error in fetchRecordUrl:', error.message);
+      if (
+        error.message !== 'Success' &&
+        Object.values(errorList).includes(error.message)
+      ) {
+        throw error;
+      }
       if (retryCount > 1) {
         return fetchRecordUrl(retryCount - 1);
       }
@@ -631,18 +642,7 @@ export const getUrl = (subdomain) => {
   const VERSION = getEnv({ name: 'VERSION' });
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
-  let defaultValue = 'http://localhost:4000';
-
-  if (VERSION === 'saas') {
-    defaultValue = `http://${subdomain}.api.erxes.com`;
-  }
-  const DOMAIN = getEnv({
-    name: 'DOMAIN',
-    subdomain,
-    defaultValue: NODE_ENV !== 'production' ? defaultValue : undefined,
-  });
-
-  const domain = DOMAIN.replace('<subdomain>', subdomain);
+  const domain = getDomain(subdomain);
 
   if (NODE_ENV !== 'production') {
     return `${domain}/pl:core/upload-file`;
@@ -653,4 +653,59 @@ export const getUrl = (subdomain) => {
   }
 
   return `${domain}/gateway/pl:core/upload-file`;
+};
+
+export const getDomain = (subdomain) => {
+  const defaultValue = 'http://localhost:4000';
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  const baseDefault =
+    VERSION === 'os' ? defaultValue : `http://${subdomain}.api.erxes.com`;
+
+  const DOMAIN = getEnv({
+    name: 'DOMAIN',
+    subdomain,
+    defaultValue: baseDefault,
+  });
+
+  return DOMAIN.replace('<subdomain>', subdomain);
+};
+
+type ErrorList = {
+  [key: number]: string;
+};
+
+const errorList: ErrorList = {
+  0: 'Success',
+  [-1]: 'Invalid parameters',
+  [-5]: 'Need authentication',
+  [-7]: 'Connection closed',
+  [-8]: 'System timeout',
+  [-9]: 'Abnormal system error!',
+  [-15]: 'Invalid value',
+  [-16]: 'No such item. Please refresh the page and try again',
+  [-19]: 'Unsupported',
+  [-24]: 'Failed to operate data',
+  [-25]: 'Failed to update data',
+  [-26]: 'Failed to get data',
+  [-37]: 'Wrong account or password!',
+  [-43]:
+    'Some data on this page has been modified or deleted. Please refresh the page and try again',
+  [-44]: 'This item has been added',
+  [-45]:
+    'Operating too frequently or other users are doing the same operation. Please retry after 15 seconds',
+  [-46]:
+    'Operating too frequently or other users are doing the same operation. Please retry after 15 seconds',
+  [-47]: 'No permission',
+  [-50]: 'Command contains sensitive characters',
+  [-51]: 'Another task is running now',
+  [-57]:
+    'Operating too frequently, or other users are doing the same operation. Please retry after 60 seconds',
+  [-68]: 'Login restriction',
+  [-69]:
+    'There is currently a conference going on. Changes cannot be applied at this time',
+  [-70]: 'Login forbidden',
+  [-71]: "The username doesn't exist",
+  [-90]: 'The conference is busy, cannot be edited or deleted',
+  [-98]: 'There are currently digital calls. Failed to apply configuration',
 };

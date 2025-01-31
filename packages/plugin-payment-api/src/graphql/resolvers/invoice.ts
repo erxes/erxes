@@ -11,6 +11,10 @@ export default {
     return models.Transactions.find({ invoiceId: invoice._id });
   },
 
+  async description(invoice: IInvoiceDocument, _args, { models }: IContext) {
+    return invoice.description || invoice.invoiceNumber;
+  },
+
   async remainingAmount(invoice: IInvoiceDocument, _args, { models }: IContext) {
     // find paid transactions with invoiceId
     const transactions = await models.Transactions.find({

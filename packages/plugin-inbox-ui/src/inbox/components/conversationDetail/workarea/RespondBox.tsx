@@ -1,8 +1,11 @@
 import {
   AddMessageMutationVariables,
-  IConversation
+  EditMessageMutationVariables,
+  IConversation,
+  IMessage,
 } from '@erxes/ui-inbox/src/inbox/types';
 import { Alert, __, readFile, uploadHandler } from 'coreui/utils';
+
 import {
   Attachment,
   AttachmentIndicator,
@@ -14,17 +17,16 @@ import {
   MaskWrapper,
   PreviewImg,
   RespondBoxStyled,
-  SmallEditor
+  SmallEditor,
 } from '@erxes/ui-inbox/src/inbox/styles';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   getPluginConfig,
-  isEnabled,
-  loadDynamicComponent
+  loadDynamicComponent,
 } from '@erxes/ui/src/utils/core';
 import {
   useDebounce,
-  useDebouncedCallback
+  useDebouncedCallback,
 } from '@erxes/ui/src/components/richTextEditor/hooks';
 
 import Button from '@erxes/ui/src/components/Button';
@@ -49,8 +51,8 @@ type Props = {
   conversation: IConversation;
   currentUser: IUser;
   sendMessage: (
-    message: AddMessageMutationVariables,
-    callback: (error: Error) => void
+    message: AddMessageMutationVariables & EditMessageMutationVariables,
+    callback: (error: Error) => void,
   ) => void;
   onSearchChange: (value: string) => void;
   showInternal: boolean;
@@ -61,6 +63,8 @@ type Props = {
   refetchDetail: () => void;
   refetchResponseTemplates: (content: string) => void;
   mentionSuggestion?: MentionSuggestionParams;
+  editMessage?: IMessage;
+  onEditMessageId?: (id: string) => void;
 };
 
 type State = {
@@ -80,11 +84,13 @@ const RespondBox = (props: Props) => {
     currentUser,
     sendMessage,
     setAttachmentPreview,
-    responseTemplates
+    responseTemplates,
+    editMessage,
+    onEditMessageId,
   } = props;
 
   const forwardedRef = useRef<EditorMethods>(null);
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState(editMessage?.content || '');
   const [state, setState] = useState<State>({
     isInactive: !checkIsActive(props.conversation),
     isInternal: props.showInternal || false,
@@ -92,19 +98,23 @@ const RespondBox = (props: Props) => {
     attachments: [],
     responseTemplate: '',
     mentionedUserIds: [],
-    loading: {}
+    loading: {},
   });
   const [debouncedContent] = useDebounce(content, 200);
 
   useEffect(() => {
+    setContent(editMessage?.content || '');
+  }, [editMessage?.content]);
+
+  useEffect(() => {
     setState((prevState) => ({
       ...prevState,
-      isInactive: !checkIsActive(props.conversation)
+      isInactive: !checkIsActive(props.conversation),
     }));
 
     setState((prevState) => ({
       ...prevState,
-      isInternal: props.showInternal
+      isInternal: props.showInternal,
     }));
   }, [props.conversation, props.showInternal]);
 
@@ -126,7 +136,7 @@ const RespondBox = (props: Props) => {
         }
       }
     },
-    200
+    200,
   );
 
   function checkIsActive(conversation: IConversation) {
@@ -151,7 +161,7 @@ const RespondBox = (props: Props) => {
 
   const onSend = (e: React.FormEvent) => {
     e.preventDefault();
-    addMessage();
+    upsertMessage();
   };
 
   const onSelectTemplate = (responseTemplate?: IResponseTemplate) => {
@@ -165,7 +175,7 @@ const RespondBox = (props: Props) => {
       ...prevState,
       responseTemplate: responseTemplate.content,
       // set attachment from response template files
-      attachments: responseTemplate.files || []
+      attachments: responseTemplate.files || [],
     }));
   };
 
@@ -186,12 +196,12 @@ const RespondBox = (props: Props) => {
       afterUpload: ({ status }) => {
         if (status === 'ok') {
           const remainedAttachments = state.attachments.filter(
-            (a) => a.url !== url
+            (a) => a.url !== url,
           );
 
           setState((prevState) => ({
             ...prevState,
-            attachments: remainedAttachments
+            attachments: remainedAttachments,
           }));
 
           Alert.success('You successfully deleted a file');
@@ -203,7 +213,7 @@ const RespondBox = (props: Props) => {
         delete loading[url];
 
         setState((prevState) => ({ ...prevState, loading }));
-      }
+      },
     });
   };
 
@@ -222,8 +232,8 @@ const RespondBox = (props: Props) => {
           ...prevState,
           attachments: [
             ...state.attachments,
-            Object.assign({ url: response }, fileInfo)
-          ]
+            Object.assign({ url: response }, fileInfo),
+          ],
         }));
 
         // remove preview
@@ -236,7 +246,7 @@ const RespondBox = (props: Props) => {
         if (setAttachmentPreview) {
           setAttachmentPreview(Object.assign({ data: result }, fileInfo));
         }
-      }
+      },
     });
   };
 
@@ -256,16 +266,17 @@ const RespondBox = (props: Props) => {
     return ret > 0 ? ret : 0;
   };
 
-  const addMessage = () => {
+  const upsertMessage = () => {
     const { isInternal, attachments, extraInfo } = state;
     const message = {
       conversationId: conversation._id,
+      _id: editMessage?._id || '',
       content: cleanText(content) || ' ',
       extraInfo,
       contentType: 'text',
       internal: isInternal,
       attachments,
-      mentionedUserIds: getParsedMentions(useGenerateJSON(content)) as string[]
+      mentionedUserIds: getParsedMentions(useGenerateJSON(content)) as string[],
     };
 
     setState((prevState) => ({ ...prevState, sending: true }));
@@ -280,7 +291,7 @@ const RespondBox = (props: Props) => {
         ...prevState,
         attachments: [],
         sending: false,
-        mentionedUserIds: []
+        mentionedUserIds: [],
       }));
       setContent('');
     });
@@ -291,7 +302,7 @@ const RespondBox = (props: Props) => {
 
     localStorage.setItem(
       `showInternalState-${props.conversation._id}`,
-      String(state.isInternal)
+      String(state.isInternal),
     );
   };
 
@@ -307,7 +318,7 @@ const RespondBox = (props: Props) => {
                 {attachment.type.startsWith('image') && (
                   <PreviewImg
                     style={{
-                      backgroundImage: `url(${readFile(attachment.url)})`
+                      backgroundImage: `url(${readFile(attachment.url)})`,
                     }}
                   />
                 )}
@@ -321,7 +332,7 @@ const RespondBox = (props: Props) => {
                 <SmallLoader />
               ) : (
                 <Icon
-                  icon='times'
+                  icon="times"
                   onClick={handleDeleteFile.bind(this, attachment.url)}
                 />
               )}
@@ -337,11 +348,9 @@ const RespondBox = (props: Props) => {
   function renderMask() {
     if (state.isInactive) {
       return (
-        <Mask
-          id='mask'
-          onClick={hideMask}>
+        <Mask id="mask" onClick={hideMask}>
           {__(
-            'Customer is offline Click to hide and send messages and they will receive them the next time they are online'
+            'Customer is offline Click to hide and send messages and they will receive them the next time they are online',
           )}
         </Mask>
       );
@@ -359,7 +368,7 @@ const RespondBox = (props: Props) => {
     }
 
     const placeholder = __(
-      `To send your ${type} press Enter and Shift + Enter to add a new line`
+      `To send your ${type} press Enter and Shift + Enter to add a new line`,
     );
 
     const handleDragOver = (event) => {
@@ -382,8 +391,8 @@ const RespondBox = (props: Props) => {
               ...prevState,
               attachments: [
                 ...prevState.attachments,
-                { url: response, ...fileInfo }
-              ]
+                { url: response, ...fileInfo },
+              ],
             }));
 
             if (setAttachmentPreview) {
@@ -394,15 +403,12 @@ const RespondBox = (props: Props) => {
             if (setAttachmentPreview) {
               setAttachmentPreview({ data: result, ...fileInfo });
             }
-          }
+          },
         });
       }
     };
     return (
-      <div
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-        style={{}}>
+      <div onDragOver={handleDragOver} onDrop={handleDrop} style={{}}>
         <Editor
           ref={forwardedRef}
           currentConversation={conversation._id}
@@ -414,7 +420,7 @@ const RespondBox = (props: Props) => {
           mentionSuggestion={props.mentionSuggestion}
           responseTemplates={responseTemplates}
           limit={conversation.integration.kind === 'telnyx' ? 160 : undefined}
-          onCtrlEnter={addMessage}
+          onCtrlEnter={upsertMessage}
         />
       </div>
     );
@@ -431,9 +437,9 @@ const RespondBox = (props: Props) => {
       <>
         {
           <FormControl
-            id='conversationInternalNote'
-            className='toggle-message'
-            componentclass='checkbox'
+            id="conversationInternalNote"
+            className="toggle-message"
+            componentclass="checkbox"
             checked={isInternal}
             onChange={toggleForm}
             // disabled={ props.disableInternalState}
@@ -477,12 +483,8 @@ const RespondBox = (props: Props) => {
 
         <label>
           <Tip text={__('Attach file')}>
-            <Icon icon='paperclip' />
-            <input
-              type='file'
-              onChange={handleFileInput}
-              multiple={true}
-            />
+            <Icon icon="paperclip" />
+            <input type="file" onChange={handleFileInput} multiple={true} />
           </Tip>
         </label>
 
@@ -492,13 +494,18 @@ const RespondBox = (props: Props) => {
           content={content}
           onSelect={onSelectTemplate}
         />
-
-        <Button
-          onClick={onSend}
-          btnStyle='success'
-          size='small'
-          icon='message'>
-          {!disabled && 'Send'}
+        {editMessage && content && (
+          <Button
+            onClick={() => onEditMessageId && onEditMessageId('')}
+            btnStyle="warning"
+            size="small"
+            icon="cancel"
+          >
+            {'Cancel'}
+          </Button>
+        )}
+        <Button onClick={onSend} btnStyle="success" size="small" icon="message">
+          {!disabled && (editMessage && content ? 'Save' : 'Send')}
         </Button>
       </EditorActions>
     );
@@ -525,7 +532,7 @@ const RespondBox = (props: Props) => {
 
     const integrations = getPluginConfig({
       pluginName: integration.kind.split('-')[0],
-      configName: 'inboxIntegrations'
+      configName: 'inboxIntegrations',
     });
 
     let dynamicComponent = null;
@@ -535,7 +542,7 @@ const RespondBox = (props: Props) => {
 
       if (entry && entry.components && entry.components.length > 0) {
         const name = entry.components.find(
-          (el) => el === 'inboxConversationDetailRespondBoxMask'
+          (el) => el === 'inboxConversationDetailRespondBoxMask',
         );
 
         if (name) {
@@ -543,7 +550,7 @@ const RespondBox = (props: Props) => {
             hideMask: hideMask,
             extraInfo,
             setExtraInfo,
-            conversationId: conversation._id
+            conversationId: conversation._id,
           });
         }
       }
@@ -553,9 +560,7 @@ const RespondBox = (props: Props) => {
       <MaskWrapper>
         {renderMask()}
         {!isInternal && dynamicComponent}
-        <RespondBoxStyled
-          $isInternal={isInternal}
-          $isInactive={isInactive}>
+        <RespondBoxStyled $isInternal={isInternal} $isInactive={isInactive}>
           {renderBody()}
         </RespondBoxStyled>
       </MaskWrapper>
@@ -565,10 +570,7 @@ const RespondBox = (props: Props) => {
   function renderMailRespondBox() {
     return (
       <MailRespondBox $isInternal={true}>
-        <NameCard.Avatar
-          user={currentUser}
-          size={34}
-        />
+        <NameCard.Avatar user={currentUser} size={34} />
         <SmallEditor>{renderBody()}</SmallEditor>
       </MailRespondBox>
     );

@@ -29,6 +29,7 @@ type Props = {
       | 'channelIds'
       | 'theme'
       | 'saveAsCustomer'
+      | 'clearCacheAfterSave'
       | 'visibility'
       | 'departmentIds',
     value: any
@@ -41,6 +42,7 @@ type Props = {
   language?: string;
   isRequireOnce?: boolean;
   saveAsCustomer?: boolean;
+  clearCacheAfterSave?: boolean;
   fields?: IField[];
   brand?: IBrand;
   channelIds?: string[];
@@ -49,7 +51,6 @@ type Props = {
   integrationId?: string;
   isIntegrationSubmitted?: boolean;
   onFieldEdit?: () => void;
- 
 };
 
 const OptionStep = (props: Props) => {
@@ -94,7 +95,13 @@ const OptionStep = (props: Props) => {
     );
   };
 
-  const { language, brand, isRequireOnce, saveAsCustomer } = props;
+  const {
+    language,
+    brand,
+    isRequireOnce,
+    saveAsCustomer,
+    clearCacheAfterSave,
+  } = props;
 
   const onChange = (e) => {
     onChangeFunction('brand', (e.currentTarget as HTMLInputElement).value);
@@ -151,7 +158,7 @@ const OptionStep = (props: Props) => {
           isSubmitted: props.isIntegrationSubmitted,
           description: __(
             "Choose payment methods you'd like to enable on this form"
-          )
+          ),
         })}
       </>
     );
@@ -161,7 +168,7 @@ const OptionStep = (props: Props) => {
     <FlexItem>
       <LeftItem>
         <FormGroup>
-          <ControlLabel required={true}>Form Name</ControlLabel>
+          <ControlLabel required={true}>{__('Form Name')}</ControlLabel>
           <p>
             {__('Name this form to differentiate from the rest internally')}
           </p>
@@ -192,7 +199,7 @@ const OptionStep = (props: Props) => {
         )}
 
         <FormGroup>
-          <ControlLabel required={true}>Visibility</ControlLabel>
+          <ControlLabel required={true}>{__('Visibility')}</ControlLabel>
           <FormControl
             name='visibility'
             componentclass='select'
@@ -207,7 +214,7 @@ const OptionStep = (props: Props) => {
         {renderDepartments()}
 
         <FormGroup>
-          <ControlLabel>Language</ControlLabel>
+          <ControlLabel>{__('Language')}</ControlLabel>
           <Select
             id='language'
             value={LANGUAGES.find((o) => o.value === language)}
@@ -218,10 +225,11 @@ const OptionStep = (props: Props) => {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Limit to 1 response</ControlLabel>
+          <ControlLabel>{__('Limit to 1 response')}</ControlLabel>
           <Description>
-            Turn on to receive a submission from the visitor only once. Once a
-            submission is received, the form will not display again.
+            {__(
+              'Turn on to receive a submission from the visitor only once. Once a submission is received, the form will not display again.'
+            )}
           </Description>
           <div>
             <Toggle
@@ -237,12 +245,30 @@ const OptionStep = (props: Props) => {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Save as customer</ControlLabel>
-          <Description>Forcibly turn lead to customer.</Description>
+          <ControlLabel>{__('Save as customer')}</ControlLabel>
+          <Description>{__('Forcibly turn lead to customer.')}</Description>
           <div>
             <Toggle
               id='saveAsCustomer'
               checked={saveAsCustomer || false}
+              onChange={onSwitchHandler}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>,
+              }}
+            />
+          </div>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>{__('Clear cache after submission')}</ControlLabel>
+          <Description>
+            {__('Prevents customer ID from being stored in browser cache')}
+          </Description>
+          <div>
+            <Toggle
+              id='clearCacheAfterSave'
+              checked={clearCacheAfterSave || false}
               onChange={onSwitchHandler}
               icons={{
                 checked: <span>Yes</span>,

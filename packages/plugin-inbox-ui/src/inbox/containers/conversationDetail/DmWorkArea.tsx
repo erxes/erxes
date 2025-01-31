@@ -1,30 +1,32 @@
-import * as compose from "lodash.flowright";
+import * as compose from 'lodash.flowright';
 
 import {
   AddMessageMutationResponse,
   AddMessageMutationVariables,
   DmConfig,
+  EditMessageMutationResponse,
+  EditMessageMutationVariables,
   IConversation,
   IMessage,
   MessagesQueryResponse,
-  MessagesTotalCountQuery
-} from "@erxes/ui-inbox/src/inbox/types";
+  MessagesTotalCountQuery,
+} from '@erxes/ui-inbox/src/inbox/types';
 import {
   mutations,
   queries,
-  subscriptions
-} from "@erxes/ui-inbox/src/inbox/graphql";
-import { sendDesktopNotification, withProps } from "@erxes/ui/src/utils";
+  subscriptions,
+} from '@erxes/ui-inbox/src/inbox/graphql';
+import { sendDesktopNotification, withProps } from '@erxes/ui/src/utils';
 
-import { AppConsumer } from "coreui/appContext";
-import DmWorkArea from "../../components/conversationDetail/workarea/DmWorkArea";
-import { IUser } from "@erxes/ui/src/auth/types";
-import { NOTIFICATION_TYPE } from "../../constants";
-import React from "react";
-import { gql } from "@apollo/client";
-import { graphql } from "@apollo/client/react/hoc";
-import { isConversationMailKind } from "@erxes/ui-inbox/src/inbox/utils";
-import strip from "strip";
+import { AppConsumer } from 'coreui/appContext';
+import DmWorkArea from '../../components/conversationDetail/workarea/DmWorkArea';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { NOTIFICATION_TYPE } from '../../constants';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { isConversationMailKind } from '@erxes/ui-inbox/src/inbox/utils';
+import strip from 'strip';
 
 // messages limit
 let initialLimit = 10;
@@ -42,7 +44,8 @@ type FinalProps = {
   messagesQuery: any;
   messagesTotalCountQuery: any;
 } & Props &
-  AddMessageMutationResponse;
+  AddMessageMutationResponse &
+  EditMessageMutationResponse;
 
 type State = {
   loadingMessages: boolean;
@@ -50,28 +53,28 @@ type State = {
 };
 
 const getQueryString = (
-  type: "messagesQuery" | "countQuery",
-  dmConfig?: DmConfig
+  type: 'messagesQuery' | 'countQuery',
+  dmConfig?: DmConfig,
 ): string => {
   const defaultQuery =
-    type === "messagesQuery"
-      ? "conversationMessages"
-      : "conversationMessagesTotalCount";
+    type === 'messagesQuery'
+      ? 'conversationMessages'
+      : 'conversationMessagesTotalCount';
 
   return dmConfig ? dmConfig[type].query : defaultQuery;
 };
 
 const getListQueryName = (dmConfig?: DmConfig) => {
-  return dmConfig ? dmConfig.messagesQuery.name : "conversationMessages";
+  return dmConfig ? dmConfig.messagesQuery.name : 'conversationMessages';
 };
 
 const getQueryResult = (queryResponse: object, countQuery?: boolean) => {
   let key = countQuery
-    ? "conversationMessagesTotalCount"
-    : "conversationMessages";
+    ? 'conversationMessagesTotalCount'
+    : 'conversationMessages';
 
   for (const k of Object.keys(queryResponse)) {
-    if (k.includes("ConversationMessages")) {
+    if (k.includes('ConversationMessages')) {
       key = k;
       break;
     }
@@ -82,11 +85,11 @@ const getQueryResult = (queryResponse: object, countQuery?: boolean) => {
 
 const getQueryResultKey = (queryResponse: object, countQuery?: boolean) => {
   let key = countQuery
-    ? "conversationMessagesTotalCount"
-    : "conversationMessages";
+    ? 'conversationMessagesTotalCount'
+    : 'conversationMessages';
 
   for (const k of Object.keys(queryResponse || {})) {
-    if (k.includes("ConversationMessages")) {
+    if (k.includes('ConversationMessages')) {
       key = k;
       break;
     }
@@ -102,7 +105,7 @@ class WorkArea extends React.Component<FinalProps, State> {
   constructor(props) {
     super(props);
 
-    this.state = { loadingMessages: false, typingInfo: "" };
+    this.state = { loadingMessages: false, typingInfo: '' };
 
     this.prevMessageInsertedSubscription = null;
   }
@@ -123,7 +126,7 @@ class WorkArea extends React.Component<FinalProps, State> {
       }
 
       if (this.prevTypingInfoSubscription) {
-        this.setState({ typingInfo: "" });
+        this.setState({ typingInfo: '' });
         this.prevTypingInfoSubscription();
       }
 
@@ -142,7 +145,7 @@ class WorkArea extends React.Component<FinalProps, State> {
           // current user's message is being showed after insert message
           // mutation. So to prevent from duplication we are ignoring current
           // user's messages from subscription
-          const isMessenger = kind === "messenger";
+          const isMessenger = kind === 'messenger';
 
           if (isMessenger && message.userId === currentUser._id) {
             return;
@@ -160,7 +163,7 @@ class WorkArea extends React.Component<FinalProps, State> {
           }
 
           // check whether or not already inserted
-          const prevEntry = messages.find(m => m._id === message._id);
+          const prevEntry = messages.find((m) => m._id === message._id);
 
           if (prevEntry) {
             return;
@@ -169,17 +172,17 @@ class WorkArea extends React.Component<FinalProps, State> {
           // add new message to messages list
           const next = {
             ...prev,
-            [getListQueryName(dmConfig)]: [...messages, message]
+            [getListQueryName(dmConfig)]: [...messages, message],
           };
 
           // send desktop notification
           sendDesktopNotification({
             title: NOTIFICATION_TYPE[kind] || `You have a new ${kind} message`,
-            content: strip(message.content) || ""
+            content: strip(message.content) || '',
           });
 
           return next;
-        }
+        },
       });
 
       this.prevTypingInfoSubscription = messagesQuery.subscribeToMore({
@@ -189,14 +192,14 @@ class WorkArea extends React.Component<FinalProps, State> {
           _prev,
           {
             subscriptionData: {
-              data: { conversationClientTypingStatusChanged }
-            }
-          }
+              data: { conversationClientTypingStatusChanged },
+            },
+          },
         ) => {
           this.setState({
-            typingInfo: conversationClientTypingStatusChanged.text
+            typingInfo: conversationClientTypingStatusChanged.text,
           });
-        }
+        },
       });
     }
   }
@@ -204,67 +207,93 @@ class WorkArea extends React.Component<FinalProps, State> {
   addMessage = ({
     variables,
     optimisticResponse,
-    callback
+    callback,
   }: {
     variables: any;
     optimisticResponse: any;
     callback?: (e?) => void;
   }) => {
-    const { addMessageMutation, currentId, dmConfig } = this.props;
-    // immediate ui update =======
-    let update;
+    const { addMessageMutation, editMessageMutation, currentId, dmConfig } =
+      this.props;
 
-    if (optimisticResponse) {
-      update = (cache, { data: { conversationMessageAdd } }) => {
-        const message = conversationMessageAdd;
-
-        let messagesQuery = queries.conversationMessages;
-
-        if (dmConfig) {
-          messagesQuery = getQueryString("messagesQuery", dmConfig);
-        }
-
-        const selector = {
-          query: gql(messagesQuery),
-          variables: {
-            conversationId: currentId,
-            limit: initialLimit,
-            skip: 0
-          }
-        };
-
-        try {
-          cache.updateQuery(selector, data => {
-            const key = getQueryResultKey(data || {});
-            const messages = data ? data[key] : [];
-
-            // check duplications
-            if (messages.find(m => m._id === message._id)) {
-              return {};
-            }
-
-            return { [key]: [...messages, message] };
-          });
-        } catch (e) {
-          console.error(e);
-          return;
-        }
+    // Enhance optimisticResponse with conversationId from variables
+    const enhancedOptimisticResponse = { ...optimisticResponse };
+    if (optimisticResponse?.conversationMessageAdd) {
+      enhancedOptimisticResponse.conversationMessageAdd = {
+        ...optimisticResponse.conversationMessageAdd,
+        conversationId: variables.conversationId,
+      };
+    }
+    if (optimisticResponse?.conversationMessageEdit) {
+      enhancedOptimisticResponse.conversationMessageEdit = {
+        ...optimisticResponse.conversationMessageEdit,
+        conversationId: variables.conversationId,
       };
     }
 
-    addMessageMutation({ variables, optimisticResponse, update })
-      .then(() => {
-        if (callback) {
-          callback();
+    const updateCache = (message: any, isEdit: boolean) => (cache) => {
+      let messagesQuery = queries.conversationMessages;
+      if (dmConfig) {
+        messagesQuery = getQueryString('messagesQuery', dmConfig);
+      }
 
-          // clear saved messages from storage
-          localStorage.removeItem(currentId || "");
-        }
+      const selector = {
+        query: gql(messagesQuery),
+        variables: {
+          conversationId: currentId,
+          limit: initialLimit,
+          skip: 0,
+        },
+      };
+
+      try {
+        cache.updateQuery(selector, (data) => {
+          const key = getQueryResultKey(data || {});
+          const messages = data ? data[key] : [];
+
+          // Check for existing message to avoid duplicates
+          const existingIndex = messages.findIndex(
+            (m) => m._id === message._id,
+          );
+          if (existingIndex !== -1) {
+            if (isEdit) {
+              const updatedMessages = [...messages];
+              updatedMessages[existingIndex] = message;
+              return { [key]: updatedMessages };
+            }
+            return data;
+          }
+
+          return { [key]: [...messages, message] };
+        });
+      } catch (e) {
+        console.error('Cache update error:', e);
+      }
+    };
+
+    let update;
+    if (enhancedOptimisticResponse.conversationMessageAdd) {
+      update = updateCache(
+        enhancedOptimisticResponse.conversationMessageAdd,
+        false,
+      );
+    }
+
+    const mutation = enhancedOptimisticResponse.conversationMessageEdit
+      ? editMessageMutation
+      : addMessageMutation;
+
+    mutation({
+      variables,
+      optimisticResponse: enhancedOptimisticResponse,
+      update,
+    })
+      .then(() => {
+        callback?.();
+        localStorage.removeItem(currentId || '');
       })
-      .catch(e => {
-        if (callback) {
-          callback(e);
-        }
+      .catch((e) => {
+        callback?.(e);
       });
   };
 
@@ -274,7 +303,7 @@ class WorkArea extends React.Component<FinalProps, State> {
 
     const conversationMessagesTotalCount = getQueryResult(
       messagesTotalCountQuery,
-      true
+      true,
     );
 
     const conversationMessages = getQueryResult(messagesQuery);
@@ -290,7 +319,7 @@ class WorkArea extends React.Component<FinalProps, State> {
         variables: {
           conversationId: currentId,
           limit: 10,
-          skip: conversationMessages.length
+          skip: conversationMessages.length,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
           this.setState({ loadingMessages: false });
@@ -300,7 +329,7 @@ class WorkArea extends React.Component<FinalProps, State> {
           }
 
           const prevConversationMessages = getQueryResult(prev);
-          const prevMessageIds = prevConversationMessages.map(m => m._id);
+          const prevMessageIds = prevConversationMessages.map((m) => m._id);
 
           const fetchedMessages: IMessage[] = [];
 
@@ -316,10 +345,10 @@ class WorkArea extends React.Component<FinalProps, State> {
             ...prev,
             [getListQueryName(dmConfig)]: [
               ...fetchedMessages,
-              ...prevConversationMessages
-            ]
+              ...prevConversationMessages,
+            ],
           };
-        }
+        },
       });
     }
   };
@@ -337,7 +366,7 @@ class WorkArea extends React.Component<FinalProps, State> {
       addMessage: this.addMessage,
       loading: messagesQuery.loading || loadingMessages,
       refetchMessages: messagesQuery.refetch,
-      typingInfo
+      typingInfo,
     };
 
     return <DmWorkArea {...updatedProps} />;
@@ -352,8 +381,8 @@ const generateWithQuery = (props: Props) => {
   let countQuery = queries.conversationMessagesTotalCount;
 
   if (dmConfig) {
-    listQuery = getQueryString("messagesQuery", dmConfig);
-    countQuery = getQueryString("countQuery", dmConfig);
+    listQuery = getQueryString('messagesQuery', dmConfig);
+    countQuery = getQueryString('countQuery', dmConfig);
   }
 
   return withProps<Props & { currentUser: IUser }>(
@@ -363,11 +392,11 @@ const generateWithQuery = (props: Props) => {
         MessagesQueryResponse,
         { conversationId?: string; limit: number }
       >(gql(listQuery), {
-        name: "messagesQuery",
+        name: 'messagesQuery',
         options: ({ currentId }) => {
           const windowHeight = window.innerHeight;
           const isMail = isConversationMailKind(currentConversation);
-          const isDm = integration.kind === "messenger" || dmConfig;
+          const isDm = integration.kind === 'messenger' || dmConfig;
 
           // 330 - height of above and below sections of detail area
           // 45 -  min height of per message
@@ -379,29 +408,35 @@ const generateWithQuery = (props: Props) => {
             variables: {
               conversationId: currentId,
               limit: isDm || isMail ? initialLimit : 0,
-              skip: 0
+              skip: 0,
             },
-            fetchPolicy: "network-only"
+            fetchPolicy: 'network-only',
           };
-        }
+        },
       }),
       graphql<Props, MessagesTotalCountQuery, { conversationId?: string }>(
         gql(countQuery),
         {
-          name: "messagesTotalCountQuery",
+          name: 'messagesTotalCountQuery',
           options: ({ currentId }) => ({
             variables: { conversationId: currentId },
-            fetchPolicy: "network-only"
-          })
-        }
+            fetchPolicy: 'network-only',
+          }),
+        },
       ),
       graphql<Props, AddMessageMutationResponse, AddMessageMutationVariables>(
         gql(mutations.conversationMessageAdd),
         {
-          name: "addMessageMutation"
-        }
-      )
-    )(WorkArea)
+          name: 'addMessageMutation',
+        },
+      ),
+      graphql<Props, EditMessageMutationResponse, EditMessageMutationVariables>(
+        gql(mutations.conversationMessageEdit),
+        {
+          name: 'editMessageMutation',
+        },
+      ),
+    )(WorkArea),
   );
 };
 

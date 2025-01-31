@@ -4,7 +4,7 @@ export const BOT_CUSTOM_TYPES = {
 
 export const BUTTON_TYPES = {
   saySomething: "say_something",
-  openUrl: "open_url",
+  openUrl: "openUrl",
   postBack: "postback",
 };
 

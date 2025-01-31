@@ -22,10 +22,29 @@ const jsonMiddleware = express.json() as express.RequestHandler;
 app.use(urlencodedMiddleware);
 app.use(jsonMiddleware);
 
+app.get('/', (req, res) => {
+  // return do not panic, it's healthy
+  console.debug('health check request from', req.headers.origin);
+  const html = `<!DOCTYPE html>
+                  <html lang="en">
+                  <head>
+                    <meta charset="UTF-8">
+                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Health Check</title>
+                  </head>
+                  <body>
+                    <h1>Health status</h1>
+                    <p>It's healthy</p>
+                  </body>
+                  </html>`;
+  res.send(html);
+});
+
 app.post('/verify-single', async (req, res, next) => {
-  // debugRequest(debugBase, req);
 
   const { email, phone, hostname } = req.body;
+  console.debug('single verification request from', hostname);
 
   if (email) {
     try {
@@ -47,10 +66,8 @@ app.post('/verify-single', async (req, res, next) => {
 });
 
 app.post('/verify-bulk', async (req, res, next) => {
-  // debugRequest(debugBase, req);
-
   const { phones, emails, hostname } = req.body;
-
+  console.debug('bulk verification request from', hostname);
   if (phones) {
     try {
       const result = await validateBulkPhones(phones, hostname);
@@ -73,14 +90,14 @@ app.post('/verify-bulk', async (req, res, next) => {
 app.use((error, _req, res, _next) => {
   const msg = filterXSS(error.message);
 
-    res.status(500).send(msg);
+  res.status(500).send(msg);
 });
 
 const { PORT } = process.env;
 
 app.listen(PORT, async () => {
   await connect();
-  });
+});
 
 const { PORT_CRONS = 4700 } = process.env;
 

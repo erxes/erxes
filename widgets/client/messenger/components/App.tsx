@@ -17,7 +17,6 @@ const App: React.FC<Props> = ({ showLauncher }) => {
 
     return <Launcher />;
   };
-
   return isMessengerVisible ? (
     <div className="erxes-messenger">
       <MessengerContainer />

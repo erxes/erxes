@@ -33,7 +33,7 @@ export const generateCategoryOptions = (
       result.push(
         <option key={category._id} value={category._id}>
           {space}
-          {drawCode ? `${category.code} - ` : ''}
+          {drawCode ? `${category.code} - ` : ''} 
           {category.name}
         </option>
       );

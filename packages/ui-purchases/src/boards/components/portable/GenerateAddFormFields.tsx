@@ -1,16 +1,17 @@
-import { AddContent, AddRow } from '../../styles/item';
+import { AddContent, AddRow } from "../../styles/item";
 
-import AssignedUsers from './AssignedUsers';
-import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
-import { IField } from '@erxes/ui/src/types';
-import { LogicParams } from '@erxes/ui-forms/src/settings/properties/types';
-import PipelineLabels from './PipelineLabels';
-import React from 'react';
-import { checkLogic } from '@erxes/ui-forms/src/settings/properties/utils';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+import AssignedUsers from "./AssignedUsers";
+import GenerateField from "@erxes/ui-forms/src/settings/properties/components/GenerateField";
+import { IField } from "@erxes/ui/src/types";
+import { LogicParams } from "@erxes/ui-forms/src/settings/properties/types";
+import PipelineLabels from "./PipelineLabels";
+import React from "react";
+import { checkLogic } from "@erxes/ui-forms/src/settings/properties/utils";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
 
 type Props = {
   object: any;
@@ -51,7 +52,7 @@ function GenerateAddFormFields(props: Props) {
 
       customFieldsData.forEach(c => {
         if (c.field === f._id) {
-          c.value = '';
+          c.value = "";
         }
       });
     }
@@ -62,9 +63,9 @@ function GenerateAddFormFields(props: Props) {
         field.extraValue = extraValue;
       }
 
-      onChangeField('customFieldsData', customFieldsData);
+      onChangeField("customFieldsData", customFieldsData);
     } else {
-      onChangeField('customFieldsData', [
+      onChangeField("customFieldsData", [
         ...customFieldsData,
         { field: _id, value, extraValue }
       ]);
@@ -83,7 +84,7 @@ function GenerateAddFormFields(props: Props) {
     <>
       {fields.map((field, index) => {
         const renderField = () => {
-          if (field.field === 'labelIds') {
+          if (field.field === "labelIds") {
             return (
               <PipelineLabels
                 field={field}
@@ -93,46 +94,60 @@ function GenerateAddFormFields(props: Props) {
             );
           }
 
-          if (field.field === 'assignedUserIds') {
+          if (field.field === "assignedUserIds") {
             return (
               <AssignedUsers field={field} onChangeField={onChangeField} />
             );
           }
 
-          if (field.field === 'branchIds') {
+          if (field.field === "branchIds") {
             return (
               <FormGroup>
                 <ControlLabel>Branches</ControlLabel>
                 <SelectBranches
-                  label="Choose branch"
-                  name="branches"
+                  label='Choose branch'
+                  name='branches'
                   initialValue={[]}
                   multi={true}
                   onSelect={branchIds => {
-                    onChangeField('branchIds', branchIds);
+                    onChangeField("branchIds", branchIds);
                   }}
                 />
               </FormGroup>
             );
           }
 
-          if (field.field === 'departmentIds') {
+          if (field.field === "departmentIds") {
             return (
               <FormGroup>
                 <ControlLabel>Departments</ControlLabel>
                 <SelectDepartments
-                  label="Choose department"
-                  name="departments"
+                  label='Choose department'
+                  name='departments'
                   initialValue={[]}
                   multi={true}
                   onSelect={departmentIds => {
-                    onChangeField('departmentIds', departmentIds);
+                    onChangeField("departmentIds", departmentIds);
                   }}
                 />
               </FormGroup>
             );
           }
-
+          if (field.field === "tagIds") {
+            return (
+              <FormGroup>
+                <ControlLabel>Tags</ControlLabel>
+                <SelectTags
+                  tagsType='purchases:purchase'
+                  name='tagIds'
+                  label='Choose tags'
+                  initialValue={[]}
+                  onSelect={tags => onChangeField("tagIds", tags)}
+                  multi={true}
+                />
+              </FormGroup>
+            );
+          }
           return (
             <GenerateField
               field={field}
@@ -159,10 +174,10 @@ function GenerateAddFormFields(props: Props) {
           });
 
           const logics: LogicParams[] = field.logics.map(logic => {
-            let { fieldId = '' } = logic;
+            let { fieldId = "" } = logic;
 
-            if (fieldId.includes('customFieldsData')) {
-              fieldId = fieldId.split('.')[1];
+            if (fieldId.includes("customFieldsData")) {
+              fieldId = fieldId.split(".")[1];
               return {
                 fieldId,
                 operator: logic.logicOperator,
@@ -179,7 +194,7 @@ function GenerateAddFormFields(props: Props) {
               fieldId,
               operator: logic.logicOperator,
               logicValue: logic.logicValue,
-              fieldValue: object[logic.fieldId || ''] || '',
+              fieldValue: object[logic.fieldId || ""] || "",
               validation: fields.find(e => e._id === fieldId)?.validation,
               type: field.type
             };

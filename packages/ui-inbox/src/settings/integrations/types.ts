@@ -237,6 +237,7 @@ export interface ISkillData {
 export interface IMessengerData {
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
+  botCheck?: boolean;
   skillData?: ISkillData;
   messages?: IMessages;
   notifyCustomer?: boolean;

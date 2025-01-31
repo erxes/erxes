@@ -9,10 +9,12 @@ type Props = {
   message: IMessage;
   isSameUser: boolean;
   conversationFirstMessage?: IMessage;
+  onEditMessageId?: (id: string) => void;
+  currentUserId?: string;
 };
 
 function Message(props: Props) {
-  const { message, isSameUser } = props;
+  const { message, isSameUser, onEditMessageId, currentUserId } = props;
 
   if (message.formWidgetData) {
     return <FormMessage {...props} />;
@@ -31,6 +33,8 @@ function Message(props: Props) {
       message={message}
       isStaff={message.userId ? true : false}
       isSameUser={isSameUser}
+      onEditMessageId={onEditMessageId}
+      currentUserId={currentUserId}
     />
   );
 }

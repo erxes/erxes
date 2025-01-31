@@ -34,7 +34,7 @@ function MessageBot(props: Props) {
     sendTypingInfo,
     scrollBottom,
   } = props;
-
+ 
   if (botData?.length && botData.length === 0) {
     return null;
   }
@@ -99,7 +99,7 @@ function MessageBot(props: Props) {
       replyAutoAnswer,
       sendTypingInfo,
     };
-
+    
     return botData?.map((item, idx) => {
       switch (item.type) {
         case 'text':

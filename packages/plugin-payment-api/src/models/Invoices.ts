@@ -74,6 +74,45 @@ export const loadInvoiceClass = (models: IModels) => {
     }
 
     public static async checkInvoice(_id: string) {
+      const unpaidTransactions = await models.Transactions.find({
+        invoiceId: _id,
+        status: 'pending',
+      });
+
+      if (unpaidTransactions.length > 0) {
+        try {
+          // Process transactions in parallel for better performance
+          const statusChecks = await Promise.all(
+            unpaidTransactions.map((transaction) =>
+              models.Transactions.checkTransaction(transaction._id)
+            )
+          );
+
+          // Update transactions atomically using bulkWrite
+          const bulkOps = unpaidTransactions.map((transaction, index) => ({
+            updateOne: {
+              filter: {
+                _id: transaction._id,
+                status: 'pending', // Ensure status hasn't changed
+              },
+              update: {
+                $set: {
+                  status: statusChecks[index] === 'paid' ? 'paid' : 'pending',
+                },
+              },
+            },
+          }));
+
+          if (bulkOps.length > 0) {
+            await models.Transactions.bulkWrite(bulkOps);
+          }
+        } catch (error) {
+          console.error(
+            `Error checking transaction statuses: ${error.message}`
+          );
+        }
+      }
+
       const invoice = await models.Invoices.getInvoice({ _id });
 
       const totalAmount = await models.Transactions.aggregate([
