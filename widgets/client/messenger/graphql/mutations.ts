@@ -9,6 +9,7 @@ const WIDGETS_INSERT_MESSAGE_MUTATION = ({ queryVariables, queryParams }: { quer
                   $conversationId: String
                   $attachments: [AttachmentInput]
                   $skillId: String
+                  $payload: String
                 ) {
     
                 widgetsInsertMessage(
@@ -18,6 +19,8 @@ const WIDGETS_INSERT_MESSAGE_MUTATION = ({ queryVariables, queryParams }: { quer
                   conversationId: $conversationId
                   attachments: $attachments
                   skillId: $skillId
+                  payload: $payload
+
                 ) {
                   ${MESSAGE_FIELDS}
                 }
@@ -25,7 +28,7 @@ const WIDGETS_INSERT_MESSAGE_MUTATION = ({ queryVariables, queryParams }: { quer
 const WIDGET_BOT_REQUEST_MUTATION = gql`
 mutation widgetBotRequest(
   $message: String!
-  $payload: String!
+  $payload: String
   $type: String!
   $conversationId: String
   $customerId: String

@@ -1,7 +1,7 @@
 import { Document, Schema } from 'mongoose';
 import { MESSAGE_TYPES } from './constants';
 import { field } from './utils';
-
+import { attachmentSchema } from '@erxes/api-utils/src/definitions/common';
 interface IEngageDataRules {
   kind: string;
   text: string;
@@ -56,15 +56,15 @@ export interface IMessageDocument extends IMessage, Document {
   createdAt: Date;
 }
 
-const attachmentSchema = new Schema(
-  {
-    url: field({ type: String }),
-    name: field({ type: String }),
-    size: field({ type: Number }),
-    type: field({ type: String })
-  },
-  { _id: false }
-);
+// const attachmentSchema = new Schema(
+//   {
+//     url: field({ type: String }),
+//     name: field({ type: String }),
+//     size: field({ type: Number }),
+//     type: field({ type: String })
+//   },
+//   { _id: false }
+// );
 
 const engageDataRuleSchema = new Schema(
   {

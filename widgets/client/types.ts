@@ -117,6 +117,8 @@ export interface IIntegrationMessengerData {
       skillId: string;
     }>;
   };
+  botCheck?:boolean,
+  payload:string
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
   supporterIds: string[];

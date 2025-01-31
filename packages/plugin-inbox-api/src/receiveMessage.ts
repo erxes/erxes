@@ -44,7 +44,7 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
 
     let customer;
 
-    const getCustomer = async selector =>
+    const getCustomer = async (selector) =>
       sendCoreMessage({
         subdomain,
         action: "customers.findOne",
@@ -93,7 +93,6 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
 
   if (action === "create-or-update-conversation") {
     const { conversationId, content, owner, updatedAt } = doc;
-
     let user;
 
     if (owner) {
@@ -223,7 +222,7 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
       defaultValue: []
     });
 
-    return sendSuccess({ userIds: users.map(user => user._id) });
+    return sendSuccess({ userIds: users.map((user) => user._id) });
   }
   throw new Error(`Unknown action: ${action}`);
 };
@@ -287,7 +286,7 @@ export const collectConversations = async (
     defaultValue: []
   });
 
-  const contentIds = activities.map(activity => activity.content);
+  const contentIds = activities.map((activity) => activity.content);
 
   let conversations: IConversationDocument[] = [];
 

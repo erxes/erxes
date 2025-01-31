@@ -313,6 +313,7 @@ const MessagesList: React.FC<Props> = (props) => {
     const { botEndpointUrl } = messengerData;
     const _id: any = message._id;
 
+
     const messageProps = {
       color,
       textColor,
@@ -322,8 +323,8 @@ const MessagesList: React.FC<Props> = (props) => {
       ...message,
     };
 
-    const showBotMessage = botEndpointUrl && message.botData !== null;
 
+    const showBotMessage = message.botData !== null;
     const content = showBotMessage ? (
       <MessageBot
         color={color}
