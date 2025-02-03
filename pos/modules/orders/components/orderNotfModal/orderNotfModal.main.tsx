@@ -36,6 +36,7 @@ interface OrderNotificationCarouselProps {
   onCancelComplete: () => void;
 }
 
+
 const OrderNotificationCarousel: React.FC<OrderNotificationCarouselProps> = ({
   fullOrders,
   onOrderApprove,
@@ -60,6 +61,14 @@ const OrderNotificationCarousel: React.FC<OrderNotificationCarouselProps> = ({
       setError(err instanceof Error ? err.message : 'Failed to load more orders. Please try again later.')
     }
   }
+const handleOrderReject = (order: IOrder): void => {
+    if (!order.number) {
+        console.error('Order number is missing:', order);
+        setError('Order number is missing.');
+        return;
+    }
+    onOrderReject({ _id: order._id, number: order.number });
+};
 
   return (
     <>
@@ -89,13 +98,7 @@ const OrderNotificationCarousel: React.FC<OrderNotificationCarouselProps> = ({
               <Check className="mr-2 h-4 w-4" /> Approve
             </Button>
             <Button 
-             onClick={() => {  
-                if (!order.number) {  
-                  console.error('Order number is missing:', order);  
-                  return;  
-                }  
-                onOrderReject({ _id: order._id, number: order.number });  
-              }}  
+             onClick={() => handleOrderReject(order)}
               variant="outline" 
               size="sm"
             >
