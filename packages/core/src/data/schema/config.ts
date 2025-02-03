@@ -15,6 +15,7 @@ export const types = `
 export const queries = `
   search(value: String!): [JSON]
   configs: [Config]
+  configsByCode(codes: [String], pattern: String): [Config]
   configsGetVersion(releaseNotes: Boolean): JSON
   configsGetEnv: ENV
   configsConstants: JSON
