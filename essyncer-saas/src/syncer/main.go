@@ -2,21 +2,22 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"log"
-	"os"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/olivere/elastic"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
 func putTemplate(indexSuffix string, mapping string) {
 	elasticsearchURL := os.Getenv("ELASTICSEARCH_URL")
 
@@ -65,10 +66,10 @@ func putTemplate(indexSuffix string, mapping string) {
 type Plugins struct {
 	Plugins []Plugin `json:"plugins"`
 }
-    
+
 type Plugin struct {
-	Db_name   string `json:"db_name"`
-	Script   string `json:"script"`
+	Db_name     string       `json:"db_name"`
+	Script      string       `json:"script"`
 	Collections []Collection `json:"collections"`
 }
 
@@ -78,6 +79,20 @@ type Collection struct {
 	Script string `json:"script"`
 }
 
+func fetchPluginsFromURL(url string) ([]byte, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch plugins.json: %s", resp.Status)
+	}
+
+	return ioutil.ReadAll(resp.Body)
+}
+
 func main() {
 	mongoURL := os.Getenv("MONGO_URL")
 	coreMongoURL := os.Getenv("CORE_MONGO_URL") + "&connect=direct"
@@ -85,22 +100,19 @@ func main() {
 
 	var ctx = context.TODO()
 
-	jsonFile, err := os.Open("/data/essyncerData/plugins.json")
-
-	// if we os.Open returns an error then handle it
+	// Fetch plugins.json from URL
+	pluginsURL := "https://pub-b4000d5767e14a6f835f4e70b3470577.r2.dev/plugins.json" // Replace with the actual URL
+	byteValue, err := fetchPluginsFromURL(pluginsURL)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
-	// defer the closing of our jsonFile so that we can parse it later on
-	defer jsonFile.Close()
-
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-
 	var plugins Plugins
-	json.Unmarshal([]byte(byteValue), &plugins)
+	if err := json.Unmarshal(byteValue, &plugins); err != nil {
+		log.Fatal(err)
+	}
 
-	fmt.Println("Successfully Opened plugins.json", plugins)
+	fmt.Println("Successfully fetched plugins.json", plugins)
 	fmt.Println("Mongo url ", mongoURL)
 	fmt.Println("Elasticsearch url ", elasticsearchURL)
 
@@ -244,7 +256,6 @@ func main() {
 		elasticsearch-max-bytes = 2000000
 		elasticsearch-max-conns = 2
 	`)
-
 
 	f.WriteString(fmt.Sprintf("direct-read-namespaces=[%s]", strings.Join(namespaces, ",")))
 

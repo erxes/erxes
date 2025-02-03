@@ -100,7 +100,16 @@ const checkSyncedMutations = {
             ...configs[syncedStageId],
             ...mainConfig
           };
-          const postData = await getPostData(subdomain, config, deal, dateType);
+
+          const pipeline = await sendSalesMessage({
+            subdomain,
+            action: 'pipelines.findOne',
+            data: { stageId: configStageId || deal.stageId },
+            isRPC: true,
+            defaultValue: {}
+          });
+
+          const postData = await getPostData(subdomain, config, deal, pipeline.paymentTypes, dateType);
 
           const response = await sendRPCMessage(
             models,
@@ -252,7 +261,7 @@ const checkSyncedMutations = {
       try {
         const pos = posByToken[order.posToken];
 
-        const postData = await getPostDataOrders(subdomain, pos, order);
+        const postData = await getPostDataOrders(subdomain, pos, order, pos.paymentTypes);
         if (!postData) {
           result.skipped.push(order._id);
           throw new Error("maybe, has not config");

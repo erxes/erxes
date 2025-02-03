@@ -377,6 +377,7 @@ export const prepareSettlePayment = async (
         order,
         ebarimtConfig,
         items,
+        config.paymentTypes,
         billType,
         registerNumber
       );
