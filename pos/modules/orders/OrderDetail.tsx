@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { orderCollapsibleAtom, refetchOrderAtom } from "@/store"
 import { cartChangedAtom } from "@/store/cart.store"
 import { configAtom } from "@/store/config.store"
@@ -11,6 +11,7 @@ import { ORDER_STATUSES } from "@/lib/constants"
 import Loader from "@/components/ui/loader"
 import { onError } from "@/components/ui/use-toast"
 
+import { CheckoutCancel } from "./components/orderCancel"
 import { queries, subscriptions } from "./graphql"
 
 const OrderDetail = ({
@@ -27,8 +28,10 @@ const OrderDetail = ({
   const setPaymentSheet = useSetAtom(paymentSheetAtom)
   const setRefetchOrder = useSetAtom(refetchOrderAtom)
   const setOrderCollapsible = useSetAtom(orderCollapsibleAtom)
+  const [loading, setLoading] = useState(true)
 
-  const [getOrderDetail, { loading, data, refetch, subscribeToMore }] =
+
+  const [getOrderDetail, { data, refetch, subscribeToMore }] =
     useLazyQuery(queries.orderDetail, {
       fetchPolicy: "network-only",
       onError({ message }) {
@@ -56,6 +59,7 @@ const OrderDetail = ({
   useEffect(() => {
     const { orderDetail } = data || {}
     if (orderDetail?._id === _id) {
+      setLoading(false)
       setOrderStates(orderDetail)
       inCheckout && setOrderCollapsible(false)
     }
@@ -63,12 +67,19 @@ const OrderDetail = ({
   }, [_id, data, setOrderStates])
 
   useEffect(() => {
-    !!_id && getOrderDetail({ variables: { _id } })
+    _id ? getOrderDetail({ variables: { _id } }) : setLoading(false)
   }, [_id, getOrderDetail])
 
   if (loading) return <Loader />
 
-  return <>{children}</>
+  return (
+    <>
+      {children}
+      {inCheckout && !!data?.orderDetail&& (
+        <CheckoutCancel order={data?.orderDetail}/>
+      )}
+    </>
+  )
 }
 
 export default OrderDetail
