@@ -2,10 +2,12 @@ import { gql, useQuery } from "@apollo/client";
 import React from "react";
 import Item from "../components/Item";
 import Spinner from "../../common/Spinner";
+import { IUser } from '../../types';
 
 type Props = {
   stageId: string;
   backgroundColor?: string;
+  currentUser: IUser;
 };
 
 const clientPortalGetTasks = `

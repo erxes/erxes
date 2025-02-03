@@ -5,6 +5,7 @@ import List from "../components/List";
 import React from "react";
 import Spinner from "../../common/Spinner";
 import { queries } from "../graphql";
+import { getType } from '../../common/utils';
 
 type Props = {
   currentUser: IUser;
@@ -54,10 +55,11 @@ function ListContainer({ currentUser, type, config, ...props }: Props) {
     return <Spinner objective={true} />;
   }
 
+  const aliasType = getType(type)
  
-  const stages = stagesData && stagesData[`${type}sStages`] || [];
-  const pipeLinelabels = labels[`${type}sPipelineLabels`] || [];
-  const pipelineAssignedUsers = assignedUsers[`${type}sPipelineAssignedUsers`] || [];
+  const stages = stagesData && stagesData[`${aliasType}sStages`] || [];
+  const pipeLinelabels = labels[`${aliasType}sPipelineLabels`] || [];
+  const pipelineAssignedUsers = assignedUsers[`${aliasType}sPipelineAssignedUsers`] || [];
 
   const updatedProps = {
     ...props,

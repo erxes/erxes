@@ -22,9 +22,10 @@ import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils";
 import client from "@erxes/ui/src/apolloClient";
 import { gql } from "@apollo/client";
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { can, isEnabled } from "@erxes/ui/src/utils/core";
 import { queries } from "../../graphql";
 import { selectConfigOptions } from "../../utils";
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   advancedView?: boolean;
@@ -39,6 +40,7 @@ type Props = {
   currentProduct?: string;
   dealQuery: IDeal;
   confirmLoyalties: any;
+  currentUser: IUser
 };
 
 type State = {
@@ -383,6 +385,25 @@ class ProductItem extends React.Component<Props, State> {
       });
   };
 
+  renderManageableField(control) {
+
+    const{ currentUser } = this.props
+
+    const isManageable = can('dealUpdateProductsData', currentUser)
+
+    if(isManageable) {
+      return <FormControl {...control}/>
+    }
+
+    const value = control?.value ?? control?.defaultValue;
+
+    if (typeof value !== 'number' || isNaN(value)) {
+      return <>-</>;
+    }
+
+    return <>{Number.isInteger(value) ? value : value.toFixed(2)}</>;
+  }
+
   render() {
     const {
       advancedView,
@@ -449,34 +470,33 @@ class ProductItem extends React.Component<Props, State> {
           />
         </td>
         <td>
-          <FormControl
-            value={productData.unitPrice || ""}
-            type="number"
-            placeholder="0"
-            name="unitPrice"
-            onChange={this.onChange}
-          />
+          {this.renderManageableField({
+            value:productData.unitPrice || "",
+            type:"number",
+            placeholder:"0",
+            name:"unitPrice",
+            onChange:this.onChange
+          })}
         </td>
         <td>
-          <FormControl
-            value={productData.discountPercent || ""}
-            type="number"
-            min={0}
-            max={100}
-            placeholder="0"
-            name="discountPercent"
-            onChange={this.onChange}
-          />
+          {this.renderManageableField({
+            value:productData.discountPercent || "",
+            type:"number",
+            min:0,
+            max:100,
+            placeholder:"0",
+            name:"discountPercent",
+            onChange:this.onChange
+          })}
         </td>
-
         <td>
-          <FormControl
-            value={productData.discount || ""}
-            type="number"
-            placeholder="0"
-            name="discount"
-            onChange={this.onChange}
-          />
+          {this.renderManageableField({
+            value:productData.discount || "",
+            type:"number",
+            placeholder:"0",
+            name:"discount",
+            onChange:this.onChange
+          })}
         </td>
         <td style={avStyle}>
           <FormControl

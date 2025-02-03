@@ -80,3 +80,11 @@ export const reorder = (
 export const capitalize = (word: string) => {
   return word.charAt(0).toUpperCase() + word.slice(1);
 };
+
+export const getType = (key: string) => {
+  const TYPE_ALIASES = {
+    deal: 'sale'
+  }
+
+  return TYPE_ALIASES[key] || key
+}

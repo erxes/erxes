@@ -51,6 +51,7 @@ class ProductFormContainer extends React.Component<Props> {
               this.props.salesPipelineDetailQuery.salesPipelineDetail,
             loading: productCategoriesQuery.loading,
             currencies: configs.dealCurrency || [],
+            currentUser
           };
 
           return <ProductForm {...extendedProps} />;

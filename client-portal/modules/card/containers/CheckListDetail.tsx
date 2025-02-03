@@ -4,13 +4,15 @@ import { queries } from '../graphql';
 import { Config } from '../../types';
 import CheckList from '../components/CheckListDetail';
 import Spinner from '../../common/Spinner';
+import { getType } from '../../common/utils';
 
 type Props = {
   checklist: any;
   config: Config;
+  type: string
 };
-function CheckListDetail({ checklist, config }: Props) {
-  const { data, loading } = useQuery(gql(queries.checklistDetail), {
+function CheckListDetail({ checklist, config, type }: Props) {
+  const { data, loading } = useQuery(gql(queries[`${type}ChecklistDetail`]), {
     variables: { _id: checklist._id },
     skip: !checklist,
     context: {
@@ -24,7 +26,7 @@ function CheckListDetail({ checklist, config }: Props) {
     return <Spinner />;
   }
 
-  return <CheckList checklist={data.checklistDetail} />;
+  return <CheckList checklist={data[`${getType(type)}sChecklistDetail`]} />;
 }
 
 export default CheckListDetail;

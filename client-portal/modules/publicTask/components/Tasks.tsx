@@ -54,7 +54,7 @@ function PublicTasks({ stages, config, stageId, currentUser }: Props) {
         ))}
       </TabContainers>
 
-      <Item stageId={stageId && stageId.toString()} />
+      <Item stageId={stageId && stageId.toString()} currentUser={currentUser} />
     </>
   );
 }

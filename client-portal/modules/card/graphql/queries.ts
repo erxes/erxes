@@ -480,17 +480,73 @@ const productCategories = `
   }
 `;
 
-const checklists = `
+const taskChecklists = `
     query checklists($contentType: String, $contentTypeId: String) {
-      checklists( contentType: $contentType, contentTypeId: $contentTypeId  ) {
+      tasksChecklists( contentType: $contentType, contentTypeId: $contentTypeId  ) {
         _id
       }
     }
 `;
 
-const checklistDetail = `
+const ticketChecklists = `
+    query checklists($contentType: String, $contentTypeId: String) {
+      ticketsChecklists( contentType: $contentType, contentTypeId: $contentTypeId  ) {
+        _id
+      }
+    }
+`;
+
+const dealChecklists = `
+    query checklists($contentType: String, $contentTypeId: String) {
+      salesChecklists( contentType: $contentType, contentTypeId: $contentTypeId  ) {
+        _id
+      }
+    }
+`;
+
+const taskChecklistDetail = `
   query checklistDetail($_id: String!) {
-    checklistDetail(_id: $_id) {
+    tasksChecklistDetail(_id: $_id) {
+      _id
+      contentType
+      contentTypeId
+      title
+      createdUserId
+      createdDate
+      items {
+        _id
+        checklistId
+        isChecked
+        content
+      }
+      percent    
+    }
+  }
+`;
+
+const ticketChecklistDetail = `
+  query checklistDetail($_id: String!) {
+    ticketsChecklistDetail(_id: $_id) {
+      _id
+      contentType
+      contentTypeId
+      title
+      createdUserId
+      createdDate
+      items {
+        _id
+        checklistId
+        isChecked
+        content
+      }
+      percent    
+    }
+  }
+`;
+
+const dealChecklistDetail = `
+  query checklistDetail($_id: String!) {
+    salesChecklistDetail(_id: $_id) {
       _id
       contentType
       contentTypeId
@@ -535,6 +591,10 @@ export default {
   dealStages,
   purchaseStages,
   productCategories,
-  checklists,
-  checklistDetail,
+  taskChecklists,
+  ticketChecklists,
+  dealChecklists,
+  taskChecklistDetail,
+  ticketChecklistDetail,
+  dealChecklistDetail
 };
