@@ -30,5 +30,12 @@ module.exports = {
 
   customerRightSidebarSection: "./customerSidebar",
   carRightSidebarSection: "./customerSidebar",
-  dealRightSidebarSection: "./customerSidebar",
+  dealRightSidebarSection: {
+    title: "Xyp",
+    component: "./customerSidebar",
+  },
+  dealRightSidebarTab: {
+    title: "Xyp tab",
+    component: "./customerSidebar",
+  },
 };

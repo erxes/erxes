@@ -7,14 +7,13 @@ import {
 } from './models';
 import {
   bulkClearOut,
-  verifyOnClearout,
-  debugBase,
+  bulkMailsso,
   getEnv,
   isValidDomain,
   isValidEmail,
   sendRequest,
-  verifyOnMailsso,
-  bulkMailsso,
+  verifyOnClearout,
+  verifyOnMailsso
 } from './utils';
 
 dotenv.config();
@@ -28,13 +27,11 @@ export const single = async (email: string, hostname: string) => {
   email = email.toString();
 
   if (!isValidEmail(email)) {
-    debugBase(`This email is not valid`, email);
-    return { email, status: EMAIL_VALIDATION_STATUSES.INVALID };
+        return { email, status: EMAIL_VALIDATION_STATUSES.INVALID };
   }
 
   if (!isValidDomain(email)) {
-    debugBase(`This domain is not valid`, email);
-    return { email, status: EMAIL_VALIDATION_STATUSES.INVALID };
+        return { email, status: EMAIL_VALIDATION_STATUSES.INVALID };
   }
 
   const oneMonthAgo = new Date();
@@ -46,8 +43,7 @@ export const single = async (email: string, hostname: string) => {
   });
 
   if (emailOnDb) {
-    debugBase(`This email is already verified`, email);
-    try {
+        try {
       return sendRequest({
         url: `${hostname}/verifier/webhook`,
         method: 'POST',
@@ -109,8 +105,7 @@ export const bulk = async (emails: string[], hostname: string) => {
   );
   
   if (invalidEntries.length > 0) {
-    debugBase(`Sending invalid emails to erxes-api`, invalidEntries);
-    await sendRequest({
+        await sendRequest({
       url: `${hostname}/verifier/webhook`,
       method: 'POST',
       body: {
@@ -121,8 +116,7 @@ export const bulk = async (emails: string[], hostname: string) => {
 
   if (verifiedEmails.length > 0) {
     try {
-      debugBase(`Sending already verified emails to erxes-api`);
-
+      
       await sendRequest({
         url: `${hostname}/verifier/webhook`,
         method: 'POST',
@@ -138,8 +132,7 @@ export const bulk = async (emails: string[], hostname: string) => {
   if (unverifiedEmails.length > 0) {
     if (MAIL_VERIFIER_SERVICE === 'clearout') {
       try {
-        debugBase(`Sending  unverified email to clearout`);
-        await bulkClearOut(unverifiedEmails, hostname);
+                await bulkClearOut(unverifiedEmails, hostname);
       } catch (e) {
         throw e;
       }

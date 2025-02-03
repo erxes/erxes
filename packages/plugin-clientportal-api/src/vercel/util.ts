@@ -361,7 +361,7 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
     // return null
   } catch (error) {
     console.error(error.message);
-    throw new Error('Failed to deploy to Vercel');
+    throw new Error('Failed to deploy to Vercel: ' + error.message);
   } finally {
     tmp.setGracefulCleanup();
   }

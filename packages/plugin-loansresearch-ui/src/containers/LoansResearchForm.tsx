@@ -32,7 +32,7 @@ const LoansResearchFormContainer = (props: Props) => {
   const customersQuery = useQuery(gql(queries.customers), {
     variables: {
       mainType: 'deal',
-      mainTypeId: queryParams.itemId,
+      mainTypeId: queryParams?.itemId || '',
       relType: 'customer',
       isSaved: true,
     },

@@ -3,7 +3,6 @@ import { getBulkResult, getStatus } from "../apiPhoneVerifier";
 import { Emails } from "../models";
 import {
   bulkMailsso,
-  debugBase,
   debugCrons,
   getArray,
   getEnv,
@@ -109,8 +108,7 @@ schedule.scheduleJob("2 * * * * *", async () => {
     await setArray("erxes_email_verifier_list_ids", unfinished);
     try {
       if (hostname.length) {
-        debugBase(`Sending bulk email validation result to erxes-api`);
-
+        
         await sendRequest({
           url: `${hostname}/verifier/webhook`,
           method: "POST",
