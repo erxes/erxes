@@ -11,6 +11,40 @@ export const validConfigMsg = async config => {
   return "";
 };
 
+const calcPreTaxPercentage = (paymentTypes, deal) => {
+  let itemAmountPrePercent = 0;
+  const preTaxPaymentTypes: string[] = (paymentTypes || []).filter(p =>
+    (p.config || '').includes('preTax: true')
+  ).map(p => p.type);
+
+  if (
+    preTaxPaymentTypes.length &&
+    deal.paymentsData &&
+    Object.keys(deal.paymentsData).length
+  ) {
+    let preSentAmount = 0;
+    for (const preTaxPaymentType of preTaxPaymentTypes) {
+      const matchOrderPayKeys = Object.keys(deal.paymentsData).filter(
+        pa => pa === preTaxPaymentType
+      );
+
+      if (matchOrderPayKeys.length) {
+        for (const key of matchOrderPayKeys) {
+          const matchOrderPay = deal.paymentsData[key]
+          preSentAmount += Number(matchOrderPay.amount);
+        }
+      }
+    }
+    const values: any[] = Object.values(deal.paymentsData);
+    const dealTotalPay = (values).map(p => p.amount).reduce((sum, cur) => sum + cur, 0);
+
+    if (preSentAmount && preSentAmount <= dealTotalPay) {
+      itemAmountPrePercent = (preSentAmount / dealTotalPay) * 100;
+    }
+  }
+  return { itemAmountPrePercent, preTaxPaymentTypes }
+}
+
 export const getPostData = async (subdomain, config, deal, paymentTypes, dateType = "") => {
   let billType = 1;
   let customerCode = "";
@@ -113,6 +147,7 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
   });
 
   const { productsById, oneMoreCtax, oneMoreVat } = await calcProductsTaxRule(subdomain, config, products)
+  const { itemAmountPrePercent, preTaxPaymentTypes } = calcPreTaxPercentage(paymentTypes, deal);
 
   const details: any = [];
 
@@ -147,37 +182,6 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
 
     for (const department of departments) {
       departmentsById[department._id] = department;
-    }
-  }
-
-  let itemAmountPrePercent = 0;
-  const preTaxPaymentTypes: string[] = (paymentTypes || []).filter(p =>
-    (p.config || '').includes('preTax: true')
-  ).map(p => p.type);
-
-  if (
-    preTaxPaymentTypes.length &&
-    deal.paymentsData &&
-    Object.keys(deal.paymentsData).length
-  ) {
-    let preSentAmount = 0;
-    for (const preTaxPaymentType of preTaxPaymentTypes) {
-      const matchOrderPayKeys = Object.keys(deal.paymentsData).filter(
-        pa => pa === preTaxPaymentType
-      );
-
-      if (matchOrderPayKeys.length) {
-        for (const key of matchOrderPayKeys) {
-          const matchOrderPay = deal.paymentsData[key]
-          preSentAmount += Number(matchOrderPay.amount);
-        }
-      }
-    }
-    const values: any[] = Object.values(deal.paymentsData);
-    const dealTotalPay = (values).map(p => p.amount).reduce((sum, cur) => sum + cur, 0);
-
-    if (preSentAmount && preSentAmount <= dealTotalPay) {
-      itemAmountPrePercent = (preSentAmount / dealTotalPay) * 100;
     }
   }
 

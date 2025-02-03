@@ -425,8 +425,8 @@ const orderMutations = {
         for (const newItem of doc.items || []) {
           const duplicatedItem = items.find(i => (
             i.productId === newItem.productId &&
-            i.isPackage === newItem.isPackage &&
-            i.isTake === newItem.isTake
+            Boolean(i.isPackage) === Boolean(newItem.isPackage) &&
+            Boolean(i.isTake) === Boolean(newItem.isTake)
           ));
 
           if (duplicatedItem) {

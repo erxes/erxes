@@ -393,26 +393,7 @@ export const mathRound = (value, p = 2) => {
   return Math.round(value * converter) / converter;
 };
 
-export const getPostData = async (subdomain, models: IModels, config, deal, paymentTypes) => {
-  const { type, customerCode, customerName, customerTin } = await checkBillType(
-    subdomain,
-    config,
-    deal
-  );
-
-  const activeProductsData = deal.productsData.filter(prData => prData.tickUsed);
-  const productsIds = activeProductsData.map(item => item.productId);
-
-  const firstProducts = await sendCoreMessage({
-    subdomain,
-    action: "products.find",
-    data: { query: { _id: { $in: productsIds } }, limit: productsIds.length },
-    isRPC: true,
-    defaultValue: []
-  });
-
-  const productsById = await calcProductsTaxRule(subdomain, models, config, firstProducts)
-
+const calcPreTaxPercentage = (paymentTypes, deal) => {
   let itemAmountPrePercent = 0;
   const preTaxPaymentTypes: string[] = (paymentTypes || []).filter(p =>
     (p.config || '').includes('preTax: true')
@@ -443,6 +424,30 @@ export const getPostData = async (subdomain, models: IModels, config, deal, paym
       itemAmountPrePercent = (preSentAmount / dealTotalPay) * 100;
     }
   }
+
+  return { itemAmountPrePercent, preTaxPaymentTypes }
+}
+
+export const getPostData = async (subdomain, models: IModels, config, deal, paymentTypes) => {
+  const { type, customerCode, customerName, customerTin } = await checkBillType(
+    subdomain,
+    config,
+    deal
+  );
+
+  const activeProductsData = deal.productsData.filter(prData => prData.tickUsed);
+  const productsIds = activeProductsData.map(item => item.productId);
+
+  const firstProducts = await sendCoreMessage({
+    subdomain,
+    action: "products.find",
+    data: { query: { _id: { $in: productsIds } }, limit: productsIds.length },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const productsById = await calcProductsTaxRule(subdomain, models, config, firstProducts);
+  const { itemAmountPrePercent, preTaxPaymentTypes } = calcPreTaxPercentage(paymentTypes, deal);
 
   return {
     contentType: "deal",

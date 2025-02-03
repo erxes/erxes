@@ -6,6 +6,35 @@ import { sendRPCMessage } from "../messageBrokerErkhet";
 import { calcProductsTaxRule } from "./productsByTaxType";
 import { getConfig, getPureDate } from "./utils";
 
+const calcPreTaxPercentage = (paymentTypes, order) => {
+  let itemAmountPrePercent = 0;
+  const preTaxPaymentTypes: string[] = (paymentTypes || []).filter(p =>
+    (p.config || '').includes('preTax: true')
+  ).map(p => p.type);
+
+  if (
+    preTaxPaymentTypes.length &&
+    order.paidAmounts?.length
+  ) {
+    let preSentAmount = 0;
+    for (const preTaxPaymentType of preTaxPaymentTypes) {
+      const matchOrderPays = order.paidAmounts.filter(
+        pa => pa.type === preTaxPaymentType
+      );
+      if (matchOrderPays.length) {
+        for (const matchOrderPay of matchOrderPays) {
+          preSentAmount += matchOrderPay.amount;
+        }
+      }
+    }
+
+    if (preSentAmount && preSentAmount <= order.totalAmount) {
+      itemAmountPrePercent = (preSentAmount / order.totalAmount) * 100;
+    }
+  }
+  return { itemAmountPrePercent, preTaxPaymentTypes }
+}
+
 export const getPostData = async (subdomain, pos, order, paymentTypes) => {
   let erkhetConfig = await getConfig(subdomain, "ERKHET", {});
 
@@ -45,33 +74,9 @@ export const getPostData = async (subdomain, pos, order, paymentTypes) => {
 
   const { productsById, oneMoreCtax, oneMoreVat } = await calcProductsTaxRule(subdomain, pos.ebarimtConfig, products)
 
+  const { itemAmountPrePercent, preTaxPaymentTypes } = calcPreTaxPercentage(paymentTypes, order);
+
   let sumSaleAmount = 0;
-
-  let itemAmountPrePercent = 0;
-  const preTaxPaymentTypes: string[] = (paymentTypes || []).filter(p =>
-    (p.config || '').includes('preTax: true')
-  ).map(p => p.type);
-
-  if (
-    preTaxPaymentTypes.length &&
-    order.paidAmounts?.length
-  ) {
-    let preSentAmount = 0;
-    for (const preTaxPaymentType of preTaxPaymentTypes) {
-      const matchOrderPays = order.paidAmounts.filter(
-        pa => pa.type === preTaxPaymentType
-      );
-      if (matchOrderPays.length) {
-        for (const matchOrderPay of matchOrderPays) {
-          preSentAmount += matchOrderPay.amount;
-        }
-      }
-    }
-
-    if (preSentAmount && preSentAmount <= order.totalAmount) {
-      itemAmountPrePercent = (preSentAmount / order.totalAmount) * 100;
-    }
-  }
 
   for (const item of order.items) {
     // if wrong productId then not sent
