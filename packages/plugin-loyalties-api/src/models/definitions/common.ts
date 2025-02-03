@@ -55,8 +55,8 @@ export interface ICommonParams {
 export interface IScoreParams {
   ownerType: String;
   ownerId: String;
-  orderType: string;
-  order: String;
+  sortField: string;
+  sortDirection: String;
   fromDate: String;
   toDate: String;
   page?: number;

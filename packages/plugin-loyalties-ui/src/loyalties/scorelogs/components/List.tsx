@@ -1,168 +1,133 @@
-import * as dayjs from 'dayjs';
-
 import {
+  Button,
   DataWithLoader,
-  FormControl,
-  Info,
+  Icon,
+  ModalTrigger,
   Pagination,
-  Spinner,
   Table,
   __,
 } from '@erxes/ui/src';
 
-import { IScoreLogParams } from '../types';
-import { Link } from 'react-router-dom';
-import React from 'react';
-import ScoreFormContainer from '../containers/Form';
-import Sidebar from '../components/Sidebar';
-import { Title } from '@erxes/ui/src/styles/main';
+import { Title } from '@erxes/ui-settings/src/styles';
 import { Wrapper } from '@erxes/ui/src/layout';
+import { SimpleButton } from '@erxes/ui/src/styles/main';
+import React, { useState } from 'react';
 import { menuLoyalties } from '../../common/constants';
+import Sidebar from '../components/Sidebar';
+import Form from '../containers/Form';
+import { IScoreLogParams } from '../types';
+import Row from './Row';
+import Statistics from './Statistics';
 
-interface IProps  {
+type Props = {
   loading: boolean;
-  error: any;
   queryParams: any;
-  scoreLogs: [IScoreLogParams];
+  scoreLogs: IScoreLogParams[];
+  statistics: any;
   total: number;
   refetch: (variables: any) => void;
-}
+};
 
-class ScoreLogsListComponent extends React.Component<IProps> {
-  constructor(props) {
-    super(props);
-  }
+const tablehead = [
+  'Owner Name',
+  'Email',
+  'Phone',
+  'Owner Type',
+  'Total Score',
+  'Actions',
+];
 
-  render() {
-    const { loading, queryParams, scoreLogs, total, error, refetch } =
-      this.props;
+const ScoreLogsListComponent = (props: Props) => {
+  const { loading, queryParams, scoreLogs, statistics, total, refetch } = props;
 
-    const tablehead = [
-      'Email',
-      'Owner Name',
-      'Owner Type',
-      'Changed Score',
-      'Total Score',
-      'Created At',
-    ];
+  const [toggleSidebar, setToggleSidebar] = useState<boolean>(false);
 
-    if (loading) {
-      return <Spinner />;
-    }
+  const modalContent = (props) => <Form {...props} />;
 
-    const route = (type) => {
-      switch (type) {
-        case 'customer':
-          return 'contacts';
-        case 'user':
-          return 'settings/team';
-        case 'company':
-          return 'companies';
-        case 'cpUser':
-          return 'settings/client-portal/users';
-      }
-    };
-    const email = (type, owner) => {
-      if (!owner) {
-        return '-';
-      }
-      switch (type) {
-        case 'customer':
-          return owner?.primaryEmail;
-        case 'user':
-          return owner?.email;
-        case 'company':
-          return owner?.primaryEmail ? owner?.primaryEmail : owner?.primaryName;
-        case 'cpUser':
-          return owner?.email || '-';
-      }
-    };
-    const name = (type, owner) => {
-      if (!owner) {
-        return '-';
-      }
-      switch (type) {
-        case 'customer':
-          return `${owner?.firstName} ${owner?.lastName}`;
-        case 'user':
-          return owner?.details?.fullName;
-        case 'company':
-          return owner?.primaryName;
-        case 'cpUser':
-          return owner?.username || (owner?.firstName && owner?.lastName)
-            ? `${owner?.firstName} ${owner.lastName}`
-            : '-';
-      }
-    };
+  const renderForm = () => {
+    const trigger = <Button btnStyle="success">{__('Give Score')}</Button>;
 
-    const Content = error ? (
-      <Info>{error.message}</Info>
-    ) : (
-      <Table>
-        <thead>
-          <tr>
-            {tablehead.map((p) => (
-              <th key={p}>{p}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {scoreLogs?.map((p, i) => (
-            <tr key={i}>
-              <td>
-                <Link to={`/${route(p.ownerType)}/details/${p.ownerId}`}>
-                  {email(p.ownerType, p.owner)}
-                </Link>
-              </td>
-              <td>{name(p.ownerType, p.owner)}</td>
-              <td>{p.ownerType}</td>
-              <td>{p.changeScore}</td>
-              <td>{p.owner?.score}</td>
-              <td>{dayjs(p.createdAt).format('lll')}</td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-    );
-
-    const header = (
-      <Wrapper.Header title={__('Score') + `(${1})`} submenu={menuLoyalties} />
-    );
-
-    const sidebar = (
-      <Sidebar
-        loadingMainQuery={loading}
-        queryParams={queryParams}
-        refetch={refetch}
+    return (
+      <ModalTrigger
+        title="Add Score"
+        trigger={trigger}
+        autoOpenKey="showVoucherModal"
+        content={modalContent}
+        backDrop="static"
       />
     );
+  };
 
-    const content = (
-      <>
-        <Wrapper.ActionBar
-          left={<Title>All Score List</Title>}
-          right={<ScoreFormContainer />}
-        />
+  const header = (
+    <Wrapper.Header
+      title={__('Score') + `(${total})`}
+      submenu={menuLoyalties}
+    />
+  );
+
+  const actionBar = (
+    <Wrapper.ActionBar
+      right={renderForm()}
+      left={
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <SimpleButton
+            id="btn-inbox-channel-visible"
+            $isActive={toggleSidebar}
+            onClick={() => setToggleSidebar(!toggleSidebar)}
+          >
+            <Icon icon="subject" />
+          </SimpleButton>
+          <Title>{`All Score List (${total})`}</Title>
+        </div>
+      }
+    />
+  );
+
+  const sideBar = (
+    <Sidebar
+      loadingMainQuery={loading}
+      queryParams={queryParams}
+      refetch={refetch}
+      toggleSidebar={toggleSidebar}
+    />
+  );
+
+  const content = (
+    <Table>
+      <thead>
+        <tr>
+          {tablehead.map((p) => (
+            <th key={p}>{p}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {scoreLogs?.map((p, i) => (
+          <Row key={i} scoreLog={p} headers={tablehead} />
+        ))}
+      </tbody>
+    </Table>
+  );
+
+  return (
+    <Wrapper
+      header={header}
+      leftSidebar={sideBar}
+      actionBar={actionBar}
+      mainHead={<Statistics statistics={statistics} />}
+      content={
         <DataWithLoader
-          data={Content}
+          data={content}
           loading={loading}
           count={total}
           emptyText="Empty list"
           emptyImage="/images/actions/1.svg"
         />
-      </>
-    );
-
-    return (
-      <Wrapper
-        header={header}
-        leftSidebar={sidebar}
-        content={content}
-        footer={<Pagination count={total} />}
-        hasBorder
-      />
-    );
-  }
-}
+      }
+      footer={<Pagination count={total} />}
+      hasBorder
+    />
+  );
+};
 
 export default ScoreLogsListComponent;

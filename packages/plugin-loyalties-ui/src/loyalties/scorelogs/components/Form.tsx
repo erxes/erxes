@@ -4,44 +4,46 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  ModalTrigger,
   SelectTeamMembers,
   SelectWithSearch,
-  __
-} from "@erxes/ui/src";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
+  __,
+} from '@erxes/ui/src';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 
-import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
-import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
-import { IFormProps } from "@erxes/ui/src/types";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-import React, { useState } from "react";
-import SelectClientPortalUser from "../../../common/SelectClientPortalUsers";
-import { getOwnerTypes } from "../../common/constants";
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
+import { IFormProps } from '@erxes/ui/src/types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import React, { useState } from 'react';
+import SelectClientPortalUser from '../../../common/SelectClientPortalUsers';
+import { getOwnerTypes } from '../../common/constants';
 
 type Props = {
-  renderBtn: (props: any) => JSX.Element;
+  renderButton: (props: any) => JSX.Element;
+  closeModal: () => void;
 };
+
 type State = {
   ownerType: string;
   ownerId: string;
   changeScore: number;
   campaignId?: string;
 };
+
 const campaignQuery = `
-query ScoreCampaigns {
-      scoreCampaigns {
-        _id,title
-      }
+  query ScoreCampaigns {
+    scoreCampaigns {
+      _id,title
     }
+  }
 `;
 
-const ScoreForm = ({ renderBtn }: Props) => {
+const ScoreForm = ({ renderButton, closeModal }: Props) => {
   const [{ ownerId, ownerType, changeScore, campaignId }, setState] = useState({
-    ownerType: "customer",
-    ownerId: "",
+    ownerType: 'customer',
+    ownerId: '',
     changeScore: 0,
-    campaignId: ""
+    campaignId: '',
   } as State);
 
   const handleOwnerType = (e) => {
@@ -54,7 +56,7 @@ const ScoreForm = ({ renderBtn }: Props) => {
       setState((prev) => ({ ...prev, ownerId: id }));
     };
 
-    if (ownerType === "customer") {
+    if (ownerType === 'customer') {
       return (
         <SelectCustomers
           label="Customer"
@@ -66,7 +68,7 @@ const ScoreForm = ({ renderBtn }: Props) => {
       );
     }
 
-    if (ownerType === "user") {
+    if (ownerType === 'user') {
       return (
         <SelectTeamMembers
           label="Team Member"
@@ -78,7 +80,7 @@ const ScoreForm = ({ renderBtn }: Props) => {
       );
     }
 
-    if (ownerType === "company") {
+    if (ownerType === 'company') {
       return (
         <SelectCompanies
           label="Compnay"
@@ -90,7 +92,7 @@ const ScoreForm = ({ renderBtn }: Props) => {
       );
     }
 
-    if (isEnabled("clientportal") && ownerType === "cpUser") {
+    if (isEnabled('clientportal') && ownerType === 'cpUser') {
       return (
         <SelectClientPortalUser
           label="Client Portal User"
@@ -110,17 +112,17 @@ const ScoreForm = ({ renderBtn }: Props) => {
       ...values,
       changeScore: Number(values?.changeScore || 0),
       ownerId,
-      campaignId: campaignId || undefined
+      campaignId: campaignId || undefined,
     };
   };
 
-  const Form = (formProps: IFormProps, closeModal: () => void) => {
+  const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
     return (
       <>
         <FormGroup>
-          <ControlLabel>{__("Owner type")}</ControlLabel>
+          <ControlLabel required>{__('Owner type')}</ControlLabel>
           <FormControl
             {...formProps}
             name="ownerType"
@@ -137,20 +139,20 @@ const ScoreForm = ({ renderBtn }: Props) => {
           </FormControl>
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Owner")}</ControlLabel>
+          <ControlLabel required>{__('Owner')}</ControlLabel>
           {renderOwner()}
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Score campaign")}</ControlLabel>
+          <ControlLabel>{`${__('Score campaign')} (optional)`}</ControlLabel>
           <SelectWithSearch
-            label={"Score Campaigns"}
+            label={'Score Campaigns'}
             queryName="scoreCampaigns"
-            name={"campaignId"}
+            name={'campaignId'}
             initialValue={campaignId}
             generateOptions={(list) =>
               list.map(({ _id, title }) => ({
                 value: _id,
-                label: title
+                label: title,
               }))
             }
             onSelect={(value, name) =>
@@ -160,7 +162,7 @@ const ScoreForm = ({ renderBtn }: Props) => {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Score")}</ControlLabel>
+          <ControlLabel required>{__('Score')}</ControlLabel>
           <FormControl
             {...formProps}
             name="changeScore"
@@ -174,36 +176,20 @@ const ScoreForm = ({ renderBtn }: Props) => {
         </FormGroup>
         <ModalFooter>
           <Button btnStyle="simple" icon="cancel-1" onClick={closeModal}>
-            {__("Close")}
+            {__('Close')}
           </Button>
-          {renderBtn({
-            name: "score",
+          {renderButton({
+            name: 'score',
             values: generateDoc(values),
             isSubmitted,
-            callback: closeModal
+            callback: closeModal,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  const trigger = <Button btnStyle="success">{__("Give Score")}</Button>;
-
-  const content = ({ closeModal }) => {
-    return (
-      <CommonForm renderContent={(formProps) => Form(formProps, closeModal)} />
-    );
-  };
-
-  return (
-    <ModalTrigger
-      title="Add Score"
-      trigger={trigger}
-      autoOpenKey="showVoucherModal"
-      content={content}
-      backDrop="static"
-    />
-  );
+  return <CommonForm renderContent={renderContent} />;
 };
 
 export default ScoreForm;

@@ -1,12 +1,26 @@
-import { commonParamsValue, commonParamsDef } from '../../common/graphq';
+import { commonParamsDef, commonParamsValue } from '../../common/graphq';
+
 const commonFields = `
-changeScore
-createdAt
-createdBy
-description
-owner
-ownerId
-ownerType
+  ownerId
+  ownerType
+  owner
+  scoreLogs {
+    action
+    changeScore
+    description
+    createdBy
+    createdAt
+    target
+    campaign {
+      _id
+      title
+      createdAt
+      fieldId
+      add
+      subtract
+    }
+    campaignId
+  }
 `;
 
 const getScoreLogs = `
@@ -21,6 +35,13 @@ query scoreLogList(${commonParamsDef},$fromDate: String,$orderType:String, $orde
 }
 `;
 
+const getScoreLogStatistics = `
+  query ScoreLogStatistics(${commonParamsDef},$fromDate: String,$orderType:String, $order: String, $toDate: String) {
+    scoreLogStatistics(${commonParamsValue},fromDate: $fromDate,orderType:$orderType, order: $order, toDate: $toDate)
+  }
+`;
+
 export default {
-  getScoreLogs
+  getScoreLogs,
+  getScoreLogStatistics,
 };

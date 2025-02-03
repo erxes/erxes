@@ -1,3 +1,5 @@
+import { IScoreCampaign } from '../../configs/scoreCampaign/types';
+
 export interface ICommonParams {
   page?: number;
   perPage?: number;
@@ -19,6 +21,8 @@ export interface IScoreLogParams {
   owner: Owner;
   ownerId: string;
   ownerType: string;
+  campaign: IScoreCampaign;
+  scoreLogs?: any[]
 }
 
 export interface Owner {
@@ -45,6 +49,7 @@ export interface Owner {
   __v: number;
   links: Links;
   username: string;
+  primaryPhone: string
 }
 
 export interface Details {

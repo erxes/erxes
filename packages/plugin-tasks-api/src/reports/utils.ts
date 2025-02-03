@@ -2044,10 +2044,10 @@ export const naturalSort = (as: any = null, bs: any = null) => {
     return 1;
   }
 
-  if (!as || as.trim() === "") {
+  if (!as || typeof as === 'string' && as.trim() === "") {
     return 1;
   }
-  if (!bs || bs.trim() === "") {
+  if (!bs || typeof bs === 'string' && bs.trim() === "") {
     return -1;
   }
 
