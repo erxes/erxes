@@ -9,8 +9,19 @@ import ReportForm from "./components/form"
 import Receipt from "./components/reciept"
 import { queries } from "./graphql"
 
+interface DailyReportResponse {
+  dailyReport: {
+    report: string;
+  };
+}
+
+interface ReportVariables {
+  posUserIds?: string[];
+  posNumber: string;
+}
+
 const Report = () => {
-  const [getReport, { loading, data }] = useLazyQuery(queries.report)
+  const [getReport, { loading, data }] = useLazyQuery<DailyReportResponse, ReportVariables>(queries.report)
   const { report } = data?.dailyReport || {}
   const isAdmin = useAtom(isAdminAtom)
 
