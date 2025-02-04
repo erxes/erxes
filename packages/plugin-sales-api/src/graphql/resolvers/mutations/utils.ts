@@ -882,7 +882,7 @@ export const doScoreCampaign = async (
     'paymentTypes.type': { $in: types }
   });
 
-  const target = {
+  const target:any = {
     paymentsData: Object.entries(doc.paymentsData).map(([type, obj]) => ({
       type,
       ...obj
@@ -894,10 +894,17 @@ export const doScoreCampaign = async (
     const [customerId] = (await getCustomerIds(subdomain, 'deal', _id)) || [];
 
     if (customerId) {
+
+      const scoreCampaignTypes = (pipeline?.paymentTypes || []).filter(({scoreCampaignId})=>!!scoreCampaignId)
+
+      target.exludeAmount = Object.entries(doc.paymentsData).filter(([type])=>!scoreCampaignTypes.includes(type)).map(([type, obj]) => ({
+        type,
+        ...obj
+      }))
       for (const type of types) {
-        const paymentType = (pipeline?.paymentTypes || []).find(
+        const paymentType = (scoreCampaignTypes).find(
           (paymentType) =>
-            paymentType.type === type && !!paymentType.scoreCampaignId
+            paymentType.type === type 
         );
         if (paymentType) {
           const { scoreCampaignId, title } = paymentType || {};

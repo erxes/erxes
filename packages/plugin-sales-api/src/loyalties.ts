@@ -4,7 +4,6 @@ const getPaymentsAttributes = async (subdomain) => {
   const models = await generateModels(subdomain);
 
   const paymentTypes = await models.Pipelines.find({
-    'paymentTypes.scoreCampaignId': { $exists: true }
   }).distinct('paymentTypes');
 
   return paymentTypes.map(({ type, title }) => ({
@@ -18,6 +17,7 @@ export default {
     return [
       { label: 'Sales Total Amount', value: 'totalAmount' },
       { label: 'Sales Cash Amount', value: 'paymentsData-cash-amount' },
+      { label: 'Exclude Sales Amount from campaign amount', value: 'excludeAmount' },
       ...(await getPaymentsAttributes(subdomain))
     ];
   }
