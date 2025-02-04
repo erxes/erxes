@@ -4,6 +4,7 @@ import {
   FormControl,
   FormGroup,
   Icon,
+  SelectWithSearch,
   Tip,
   __,
 } from '@erxes/ui/src';
@@ -23,6 +24,13 @@ export const SelectValue = styled.div`
   align-items: baseline;
   margin-left: -7px;
   padding-left: 25px;
+`;
+const campaignQuery = `
+  query ScoreCampaigns {
+      scoreCampaigns {
+        _id,title
+      }
+    }
 `;
 
 type Props = {
@@ -134,7 +142,7 @@ const PaymentsStep = (props: Props) => {
           <FormColumn>
             <FormGroup>
               <FormControl
-                name='type'
+                name="type"
                 maxLength={10}
                 defaultValue={paymentType.type || ''}
                 onChange={onChangeInput}
@@ -144,8 +152,8 @@ const PaymentsStep = (props: Props) => {
           <FormColumn>
             <FormGroup>
               <FormControl
-                name='title'
-                type='text'
+                name="title"
+                type="text"
                 defaultValue={paymentType.title || ''}
                 onChange={onChangeInput}
               />
@@ -154,10 +162,10 @@ const PaymentsStep = (props: Props) => {
           <FormColumn>
             <FormGroup>
               <Select
-                name='icon'
+                name="icon"
                 components={{ Option, SingleValue }}
                 value={iconOptions.find(
-                  o => o.value === (paymentType.icon || '')
+                  (o) => o.value === (paymentType.icon || '')
                 )}
                 onChange={onChangeSelect}
                 options={iconOptions}
@@ -169,19 +177,39 @@ const PaymentsStep = (props: Props) => {
             <FormGroup>
               <Tip text={getTipText(paymentType.type)}>
                 <FormControl
-                  name='config'
-                  type='text'
+                  name="config"
+                  type="text"
                   defaultValue={paymentType.config || ''}
                   onChange={onChangeInput}
                 />
               </Tip>
             </FormGroup>
           </FormColumn>
+          {isEnabled('loyalties') && (
+            <FormColumn>
+              <FormGroup>
+                <SelectWithSearch
+                  label={'Score Campaigns'}
+                  queryName="scoreCampaigns"
+                  name={'scoreCampaignId'}
+                  initialValue={paymentType?.scoreCampaignId}
+                  generateOptions={(list) =>
+                    list.map(({ _id, title }) => ({
+                      value: _id,
+                      label: title
+                    }))
+                  }
+                  onSelect={(value) => editPayment('scoreCampaignId', value)}
+                  customQuery={campaignQuery}
+                />
+              </FormGroup>
+            </FormColumn>
+          )}
           <FormColumn>
             <FormGroup>
               <Button
-                btnStyle='danger'
-                icon='trash'
+                btnStyle="danger"
+                icon="trash"
                 onClick={() => removePayment()}
               />
             </FormGroup>
@@ -197,15 +225,15 @@ const PaymentsStep = (props: Props) => {
         <>
           {loadDynamicComponent('selectPayments', {
             defaultValue: props.paymentIds || [],
-            onChange: (ids: string[]) => onChangePayments(ids),
+            onChange: (ids: string[]) => onChangePayments(ids)
           })}
 
           <div>
             <FormGroup>
               <ControlLabel>Erxes App Token:</ControlLabel>
               <FormControl
-                id='erxesAppToken'
-                type='text'
+                id="erxesAppToken"
+                type="text"
                 value={props.erxesAppToken || ''}
                 onChange={onChangeInput}
               />
@@ -249,14 +277,21 @@ const PaymentsStep = (props: Props) => {
                   <ControlLabel>Config</ControlLabel>
                 </FormGroup>
               </FormColumn>
+              {isEnabled('loyalties') && (
+                <FormColumn>
+                  <FormGroup>
+                    <ControlLabel>Score Campaign</ControlLabel>
+                  </FormGroup>
+                </FormColumn>
+              )}
               <FormColumn></FormColumn>
             </FormWrapper>
           </div>
-          {(props.paymentTypes || []).map(item => renderPaymentType(item))}
+          {(props.paymentTypes || []).map((item) => renderPaymentType(item))}
         </FormGroup>
         <Button
-          btnStyle='primary'
-          icon='plus-circle'
+          btnStyle="primary"
+          icon="plus-circle"
           onClick={onClickAddPayments}
         >
           Add payment

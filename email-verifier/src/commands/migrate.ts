@@ -29,7 +29,7 @@ for (const email of emails) {
     await Emails.updateOne({ _id: email._id }, { $set: { verifiedAt: email.created } });
   
 }
-  console.log(`Process finished at: ${new Date()}`);
+  console.debug(`Process finished at: ${new Date()}`);
 
   process.exit();
 };

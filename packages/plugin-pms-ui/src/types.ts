@@ -23,84 +23,59 @@ export const statusFilters = [
   { key: 'delete', value: 'Delete' }
 ];
 
-export type CheckSyncedDealsQueryResponse = {
-  deals: any[];
-} & QueryResponse;
-
-export type CheckSyncedDealsTotalCountQueryResponse = {
-  dealsTotalCount: number;
-} & QueryResponse;
-
-export type CheckSyncedMutationResponse = {
-  toMultiCheckSynced: (mutation: {
-    variables: { ids: string[]; type: string };
-  }) => Promise<any>;
-};
-
-export type ToSyncDealsMutationResponse = {
-  toMultiSyncDeals: (mutation: {
-    variables: { dealIds: string[]; configStageId: string; dateType: string };
-  }) => Promise<any>;
-};
-
-export type ToCheckProductsMutationResponse = {
-  toMultiCheckProducts: (mutation: {
-    variables: { brandId: string };
-  }) => Promise<any>;
-};
-
-export type ToCheckCategoriesMutationResponse = {
-  toMultiCheckCategories: (mutation: {
-    variables: { brandId: string };
-  }) => Promise<any>;
-};
-
-export type ToSyncCategoriesMutationResponse = {
-  toMultiSyncCategories: (mutation: {
-    variables: { brandId: string; action: string; categories: any[] };
-  }) => Promise<any>;
-};
-
-export type ToSyncProductsMutationResponse = {
-  toMultiSyncProducts: (mutation: {
-    variables: { brandId: string; action: string; products: any[] };
-  }) => Promise<any>;
-};
-
-export type CheckSyncedOrdersQueryResponse = {
-  posOrders: any[];
-} & QueryResponse;
-
-export type CheckSyncedOrdersTotalCountQueryResponse = {
-  posOrdersTotalCount: number;
-} & QueryResponse;
-
-export type ToSyncOrdersMutationResponse = {
-  toMultiSyncOrders: (mutation: {
-    variables: { orderIds: string[] };
-  }) => Promise<any>;
-};
-
-export type PosListQueryResponse = {
-  posList: any[];
-  loading: boolean;
+// queries
+export type PmsQueryResponse = {
+  tms: IPmsBranch[];
   refetch: () => void;
+  loading: boolean;
 };
 
-export type OrderDetailQueryResponse = {
-  posOrderDetail: any;
-  loading: boolean;
-  refetch: () => void;
+// mutations
+export type MutationVariables = {
+  _id?: string;
+  name: string;
+  createdAt?: Date;
+  expiryDate?: Date;
+  checked?: boolean;
+  type?: string;
+};
+export type AddMutationResponse = {
+  addMutation: (params: { variables: MutationVariables }) => Promise<any>;
 };
 
-export type SyncHistoriesQueryResponse = {
-  manySyncHistories: any[];
-  loading: boolean;
-  refetch: () => void;
+export type EditMutationResponse = {
+  editMutation: (params: { variables: MutationVariables }) => Promise<any>;
 };
 
-export type SyncHistoriesCountQueryResponse = {
-  manySyncHistoriesCount: number;
-  loading: boolean;
-  refetch: () => void;
+export type RemoveMutationResponse = {
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type EditTypeMutationResponse = {
+  typesEdit: (params: { variables: MutationVariables }) => Promise<any>;
+};
+
+export type RemoveTypeMutationResponse = {
+  typesRemove: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type IPmsBranch = {
+  _id?: string;
+  name?: string;
+  description?: string;
+  createdAt?: Date;
+  token?: string;
+  erxesAppToken?: string;
+  user1Ids?: [string];
+  user2Ids?: [string];
+  user3Ids?: [string];
+  user4Ids?: [string];
+  user5Ids?: [string];
+
+  paymentIds?: string[];
+  paymentTypes?: any[];
+  uiOptions?: any;
+  permissionConfig?: any;
+  user?: any;
+  pipelineConfig?: any;
 };
