@@ -1,10 +1,40 @@
 # Changelog
 
+## [2.5.0-rc.1](https://github.com/erxes/erxes/compare/2.4.1...2.5.0-rc.1) (2025-01-29)
+
+
+### Features
+
+* **bms:** url and ui options ([8a1155e](https://github.com/erxes/erxes/commit/8a1155ec32247154fa4e5aff4b9282677d060eaa))
+* **clientportal,cms:** add vercel integration ([20073eb](https://github.com/erxes/erxes/commit/20073eba8982127862575caf9e7a87af65123e4f))
+* **payment:** introduce khanbank as a payment ([#5892](https://github.com/erxes/erxes/issues/5892)) ([a795837](https://github.com/erxes/erxes/commit/a79583701cb3c9c68408ccebdb0d67d8adcb3915))
+
+
+### Bug Fixes
+
+* **cards:** department select bug and ui ([a44bf44](https://github.com/erxes/erxes/commit/a44bf444d8cdbfa70c6011d290a09508919a351c))
+* **cards:** show relations fields on deal-creation ([60581b8](https://github.com/erxes/erxes/commit/60581b8fc7688a5df14ada283fa60b3e92884b2d))
+* **cards:** subscriptions name change ([0f48639](https://github.com/erxes/erxes/commit/0f486395af487f25325428eb03a76970de4fc18f))
+* **clientportal:** type definition on cms plugin ([008859b](https://github.com/erxes/erxes/commit/008859b266058bbf0c454e029f1f8a02068c9369))
+* core products with has similarities rule refactor ([395224d](https://github.com/erxes/erxes/commit/395224d4dbeda24cf0ff2bdc40297a5805b446c3))
+* **export:** fix export cards & contacts ([278270a](https://github.com/erxes/erxes/commit/278270abc4b80a5c42aaff7de113476905e26474))
+* **pms:** settings ([721bf57](https://github.com/erxes/erxes/commit/721bf572496e2008caef5708d2d353787bb2f22f))
+* **tms:** filter on tours ([012f019](https://github.com/erxes/erxes/commit/012f019d22623fc5800b2da6dfebe649975faa6c))
+
+## [2.5.0-rc.0](https://github.com/erxes/erxes/compare/2.4.1...2.5.0-rc.1) (2025-01-19)
+
+
+### Features
+
+* **clientportal:** MessagePro sends an SMS to the customer's phone number. ([94c4a8b](https://github.com/erxes/erxes/commit/94c4a8b9faa47777e1fc7fb9ca5cdbe282676fd1))
+
+## [2.5.0-rc.0](https://github.com/erxes/erxes/compare/2.4.0...2.5.0-rc.0) (2025-01-19)
 ## [2.4.1](https://github.com/erxes/erxes/compare/2.4.0...2.4.1) (2025-01-22)
 
 
 ### Features
 
+* **clientportal:** MessagePro sends an SMS to the customer's phone number. ([94c4a8b](https://github.com/erxes/erxes/commit/94c4a8b9faa47777e1fc7fb9ca5cdbe282676fd1))
 * add loans research plugin ([#5862](https://github.com/erxes/erxes/issues/5862)) ([6fc7e5a](https://github.com/erxes/erxes/commit/6fc7e5a3da70c323d73e61ab5cf26637ec0ef363))
 
 

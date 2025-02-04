@@ -8,7 +8,7 @@ import {
   Button,
   Icon,
   Tip,
-  WithPermission,
+  WithPermission
 } from '@erxes/ui/src';
 import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';
 import { DateWrapper } from '@erxes/ui/src/styles/main';
@@ -22,14 +22,15 @@ type Props = {
   toggleBulk: (branch: IBmsBranch, checked: boolean) => void;
   remove: (posId: string) => void;
   showCode?: boolean;
+  tmsLink: string;
 };
 
 const Row = (props: Props) => {
-  const { branch, remove } = props;
+  const { branch, remove, tmsLink } = props;
 
   const createdUser = branch.user || {
     _id: '',
-    details: { fullName: '' },
+    details: { fullName: '' }
   };
 
   const manageAction = branch => {
@@ -61,19 +62,17 @@ const Row = (props: Props) => {
     );
   };
 
-  const renderCopyAction = object => {
+  const renderLink = () => {
     const onCopy = () => {
       Alert.success('Copied');
     };
 
     return (
-      <CopyToClipboard text={object.token} onCopy={onCopy}>
-        <Button btnStyle='link'>
-          <Tip text={__('Copy token')} placement='top'>
-            <Icon icon='copy' size={15} />
-          </Tip>
-        </Button>
-      </CopyToClipboard>
+      <Link to={tmsLink} target='_blank'>
+        <Tip text={__('link for the TMS')} placement='top'>
+          <Icon icon='link' size={15} />
+        </Tip>
+      </Link>
     );
   };
 
@@ -99,7 +98,7 @@ const Row = (props: Props) => {
       <td>
         <ActionButtons>
           {manageAction(branch)}
-          {renderCopyAction(branch)}
+          {tmsLink && renderLink()}
           {renderRemoveAction()}
         </ActionButtons>
       </td>
