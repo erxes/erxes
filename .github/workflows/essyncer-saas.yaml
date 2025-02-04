@@ -18,8 +18,8 @@ on:
       - dev
       - v1
     paths:
-      - "essyncer/**"
-      - ".github/workflows/essyncer.yaml"
+      - "essyncer-saas/**"
+      - ".github/workflows/essyncer-saas.yaml"
 
 jobs:
   essyncer:
