@@ -1,5 +1,29 @@
 # Changelog
 
+## [2.5.0](https://github.com/erxes/erxes/compare/2.5.0-rc.1...2.5.0) (2025-02-04)
+
+
+### Features
+
+* add essyncer saas ([d8f3f4c](https://github.com/erxes/erxes/commit/d8f3f4cb3743e509dc069f0b15f32d46917e234e))
+* customer, company and products filter by tags and excludeTags ([2a7c32c](https://github.com/erxes/erxes/commit/2a7c32cd6d21758628fa122b417cd1ff923152b9))
+* **forms:** implement clear cache toggle to lead forms ([9031b94](https://github.com/erxes/erxes/commit/9031b9418341de122803cb8938522736941cd796))
+* get plugins json from url essyncer-saas ([4d9d566](https://github.com/erxes/erxes/commit/4d9d5664a205ccf662a15ccf75d17755160af76f))
+* **payment:** mask sensitive payment credentials at the resolver level ([76540d3](https://github.com/erxes/erxes/commit/76540d385ee5ee8ac23f137f2d1f1c0228be721f))
+* update dockerfile for essyncer-saas ([2828e7b](https://github.com/erxes/erxes/commit/2828e7bd502c5eed9e61b2abf10c445759983d76))
+
+
+### Bug Fixes
+
+* calc Pre tax ebarimt ([#5902](https://github.com/erxes/erxes/issues/5902)) ([a8c62be](https://github.com/erxes/erxes/commit/a8c62be9898616dfbd3437737641cb07c5054d02))
+* essyncer-saas yaml ([616b042](https://github.com/erxes/erxes/commit/616b042b4faedef1c217e655bfe16bc1ed4c0c29))
+* **forms:** prevent contactsGathered & viewCount from being overwritten on edit ([4bf04fb](https://github.com/erxes/erxes/commit/4bf04fb5bada5b3041045d6aeeac7601a3adde64))
+* **loyalties:** can't get owner in automation ([90b450e](https://github.com/erxes/erxes/commit/90b450edae6830bdf16d26eea38b3c35e029cadf))
+* posclient products filter by hasImage ([63800fe](https://github.com/erxes/erxes/commit/63800fe6e0a7f5a3f4e643bfd76fe265fcc443d0))
+* posclient some filter ([f74c1f5](https://github.com/erxes/erxes/commit/f74c1f59604a08586c687136c2ab22fc84193574))
+* products form with vendor ([93553c6](https://github.com/erxes/erxes/commit/93553c68928cf4615347b4b5189164774266bf7d))
+* sales deal archive with permission ([be77f21](https://github.com/erxes/erxes/commit/be77f2177770d8f5fe5bdef451787ada67a52672))
+
 ## [2.5.0-rc.1](https://github.com/erxes/erxes/compare/2.4.1...2.5.0-rc.1) (2025-01-29)
 
 
