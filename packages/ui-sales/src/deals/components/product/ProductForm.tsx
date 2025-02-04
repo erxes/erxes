@@ -676,6 +676,7 @@ class ProductForm extends React.Component<Props, State> {
           calcChangePay={this.calcChangePay}
           changePayData={this.state.changePayData}
           pipelineDetail={this.props.pipelineDetail}
+          dealQuery={this.props.dealQuery}
         />
       );
     }

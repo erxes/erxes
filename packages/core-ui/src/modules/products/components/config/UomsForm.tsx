@@ -60,7 +60,7 @@ const BrandForm = (props: Props) => {
       ...values,
       isForSubscription,
       subscriptionConfig,
-      timely: timelyConfig?.timely || '',
+      timely: timelyConfig?.timely || undefined,
     };
 
     return (
