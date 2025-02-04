@@ -32,6 +32,13 @@ export const exchangeRatesMain = `
   }
 `;
 
+const configs = `
+  query configsGetValue($code: String!) {
+    configsGetValue(code: $code)
+  }
+`;
+
 export default {
   exchangeRatesMain,
+  configs,
 };

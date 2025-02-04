@@ -11,6 +11,7 @@ import {
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { FormLabel } from '@erxes/ui/src/components/form/styles';
 import React, { useState } from 'react';
+import Select from 'react-select';
 import Datetime from '@nateradebaugh/react-datetime';
 import { DateContainer, FormColumn } from '@erxes/ui/src/styles/main';
 import { IExchangeRate } from '../types';
@@ -19,6 +20,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   exchangeRate?: IExchangeRate;
   closeModal: () => void;
+  currencies: string[];
 };
 
 const ExchangeRateForm = (props: Props) => {
@@ -26,6 +28,7 @@ const ExchangeRateForm = (props: Props) => {
     exchangeRate = {} as IExchangeRate,
     closeModal,
     renderButton,
+    currencies,
   } = props;
 
   const [date, setDate] = useState<Date>(exchangeRate?.date);
@@ -56,6 +59,13 @@ const ExchangeRateForm = (props: Props) => {
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
+    const generateOptions = () => {
+      return currencies.map((item) => ({
+        label: item,
+        value: item,
+      }));
+    };
+
     return (
       <>
         <FormWrapper>
@@ -78,19 +88,29 @@ const ExchangeRateForm = (props: Props) => {
 
             <FormGroup>
               <ControlLabel>{'Main Currency'}</ControlLabel>
-              <FormControl
-                name="mainCurrency"
-                value={mainCurrency}
-                onChange={(e: any) => setMainCurrency(e.target.value)}
+              <Select
+                {...formProps}
+                placeholder={__('Choose a main currency')}
+                value={generateOptions().find(
+                  (option) => option.value === mainCurrency
+                )}
+                options={generateOptions()}
+                isClearable={true}
+                onChange={(option: any) => setMainCurrency(option.value)}
               />
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>{'Rate Currency'}</ControlLabel>
-              <FormControl
-                name="rateCurrency"
-                value={rateCurrency}
-                onChange={(e: any) => setRateCurrency(e.target.value)}
+              <Select
+                {...formProps}
+                placeholder={__('Choose a rate currency')}
+                value={generateOptions().find(
+                  (option) => option.value === rateCurrency
+                )}
+                options={generateOptions()}
+                isClearable={true}
+                onChange={(option: any) => setRateCurrency(option.value)}
               />
             </FormGroup>
 

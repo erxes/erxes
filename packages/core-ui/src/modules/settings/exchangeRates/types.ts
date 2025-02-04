@@ -13,3 +13,15 @@ export type MainQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type IConfig = {
+  _id: string;
+  code: string;
+  value: any;
+};
+
+export type ConfigsQueryResponse = {
+  configsGetValue: IConfig;
+  loading: boolean;
+  refetch: () => void;
+};
