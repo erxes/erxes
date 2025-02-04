@@ -46,7 +46,7 @@ const mutations = {
       },
     };
 
-    if (config.vercelProjectId) {
+    if (!config.vercelProjectId) {
       update.$set.vercelProjectId = vercelResult.projectId;
     }
 

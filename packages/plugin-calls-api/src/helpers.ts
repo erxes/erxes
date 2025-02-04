@@ -37,7 +37,7 @@ export const callsCreateIntegration = async (
     ...docData,
   });
 
-  if (ENDPOINT_URL) {
+  if (ENDPOINT_URL && subdomain !== 'os') {
     // send domain to core endpoints
     try {
       await fetch(`${ENDPOINT_URL}/register-endpoint`, {

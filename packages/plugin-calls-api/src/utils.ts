@@ -251,7 +251,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       const extension = queue.find((queueItem) =>
         queueItem.members.split(',').includes(extentionNumber),
       )?.extension;
-      const tz = 'Asia/Shanghai' || momentTz.tz.guess();
+      const tz = 'Asia/Ulaanbaatar' || momentTz.tz.guess();
       const startDate = (
         momentTz(callStartTime).tz(tz) || momentTz(callStartTime)
       ).format('YYYY-MM-DD');
