@@ -236,9 +236,7 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
     other: "debtAmount"
   };
 
-  let sumSaleAmount = details.reduce((predet, detail) => {
-    return { amount: predet.amount + detail.amount };
-  }).amount;
+  let sumSaleAmount = details.reduce((sumAmount, detail) => (sumAmount + detail.amount), 0);
 
   for (const paymentKind of Object.keys(deal.paymentsData || []).filter(pay => !preTaxPaymentTypes.includes(pay))) {
     const payment = deal.paymentsData[paymentKind];
