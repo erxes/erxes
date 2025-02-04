@@ -9,40 +9,61 @@ import { IContext } from '../../../connectionResolver';
 const queries = {
   cmsPages: async (parent: any, args: any, context: IContext) => {
     const { models } = context;
-    const {
-      page,
-      perPage,
-    } = args;
+    const { page, perPage, searchValue } = args;
+    const clientPortalId = context.clientPortalId || args.clientPortalId;
 
-    const query: any = {
-      clientPortalId: args.clientPortalId,
-    };
-
-
-    if (page && perPage) {
-      return paginate(
-        models.Pages.find(query).sort({ createdAt: 1 }),
-        { page, perPage }
-      );
+    if (!clientPortalId) {
+      throw new Error('clientPortalId is required');
     }
-
-    return models.Pages.find(query).sort({ createdAt: 1 });
-  },
-
-  cmsPageList: async (parent: any, args: any, {models}: IContext) => {
-    const {
-      page = 1,
-      perPage = 20,
-      sortField = 'createdAt',
-      sortDirection = 'desc',
-      clientPortalId
-    } = args;
 
     const query: any = {
       clientPortalId,
     };
 
-  
+    if (searchValue) {
+      query.$or = [
+        { name: { $regex: searchValue, $options: 'i' } },
+        { slug: { $regex: searchValue, $options: 'i' } },
+      ];
+    }
+
+    if (page && perPage) {
+      return paginate(models.Pages.find(query).sort({ createdAt: 1 }), {
+        page,
+        perPage,
+      });
+    }
+
+    return models.Pages.find(query).sort({ createdAt: 1 });
+  },
+
+  cmsPageList: async (parent: any, args: any, context: IContext) => {
+    const { models } = context;
+    const {
+      page = 1,
+      perPage = 20,
+      sortField = 'createdAt',
+      sortDirection = 'desc',
+      searchValue,
+    } = args;
+
+    const clientPortalId = context.clientPortalId || args.clientPortalId;
+
+    if (!clientPortalId) {
+      throw new Error('clientPortalId is required');
+    }
+
+    const query: any = {
+      clientPortalId,
+    };
+
+    if (searchValue) {
+      query.$or = [
+        { name: { $regex: searchValue, $options: 'i' } },
+        { slug: { $regex: searchValue, $options: 'i' } },
+      ];
+    }
+
     const totalCount = await models.Pages.find(query).countDocuments();
 
     const pages = await paginate(
@@ -56,10 +77,18 @@ const queries = {
   },
 
   cmsPage: async (parent: any, args: any, context: IContext) => {
-    const { models } = context;
-    const { _id } = args;
+    const { models, clientPortalId } = context;
+    const { _id, slug } = args;
 
-    return models.Pages.findOne({ $or: [{ _id }, { slug: _id }] });
+    if (!_id && !slug) {
+      return null;
+    }
+
+    if (slug) {
+      return models.Pages.findOne({ slug, clientPortalId });
+    }
+
+    return models.Pages.findOne({ _id });
   },
 };
 

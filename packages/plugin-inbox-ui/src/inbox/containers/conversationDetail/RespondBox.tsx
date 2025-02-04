@@ -2,7 +2,9 @@ import * as compose from 'lodash.flowright';
 
 import {
   AddMessageMutationVariables,
+  EditMessageMutationVariables,
   IConversation,
+  IMessage,
 } from '@erxes/ui-inbox/src/inbox/types';
 import { gql, useLazyQuery } from '@apollo/client';
 import { readFile, withProps } from '@erxes/ui/src/utils';
@@ -24,13 +26,15 @@ type Props = {
   disableInternalState: boolean;
   setAttachmentPreview: (attachmentPreview: IAttachmentPreview) => void;
   addMessage: (doc: {
-    variables: AddMessageMutationVariables;
+    variables: AddMessageMutationVariables & EditMessageMutationVariables;
     optimisticResponse: any;
     kind: string;
     callback: (error: Error) => void;
   }) => void;
   refetchMessages: () => void;
   refetchDetail: () => void;
+  editMessage?: IMessage;
+  onEditMessageId?: (id: string) => void;
 };
 
 type FinalProps = {
@@ -87,41 +91,64 @@ const RespondBoxContainer = (props: FinalProps) => {
   };
 
   const sendMessage = (
-    variables: AddMessageMutationVariables,
+    variables: AddMessageMutationVariables & EditMessageMutationVariables,
     callback: (error: Error) => void,
   ) => {
-    const { conversationId, content, attachments, internal, contentType } =
-      variables;
+    const { content, attachments, internal, contentType } = variables;
+
+    // Type guard to check if variables is of type EditMessageMutationVariables
+    const isEditMessage = (vars: typeof variables) => {
+      return (vars as EditMessageMutationVariables)._id !== undefined;
+    };
+
+    const _id = isEditMessage(variables) ? variables._id : undefined;
 
     let optimisticResponse;
 
-    optimisticResponse = {
-      __typename: 'Mutation',
-      conversationMessageAdd: {
-        __typename: 'ConversationMessage',
-        _id: (Math.random() + '' + Date.now()).slice(2),
-        content,
-        contentType,
-        attachments,
-        internal,
-        mentionedUserIds: [],
-        conversationId,
-        customerId: (Math.random() + '' + Date.now()).slice(2),
-        userId: currentUser._id,
-        createdAt: new Date(),
-        messengerAppData: null,
-        isCustomerRead: false,
-        fromBot: false,
-        formWidgetData: null,
-        botData: null,
-        mailData: null,
-        user: null,
-        customer: null,
-        videoCallData: null,
-        mid: Math.random().toString(),
-      },
+    const generateId = () =>
+      Date.now().toString(36) + Math.random().toString(36).slice(2);
+
+    const baseMessageProps = {
+      __typename: 'ConversationMessage',
+      content,
+      contentType,
+      attachments,
+      internal,
+      mentionedUserIds: [],
+      userId: currentUser._id,
+      customerId: generateId(),
+      createdAt: new Date(),
+      messengerAppData: null,
+      isCustomerRead: false,
+      fromBot: false,
+      formWidgetData: null,
+      botData: null,
+      mailData: null,
+      user: null,
+      customer: null,
+      videoCallData: null,
+      mid: generateId(),
     };
 
+    const mutation = _id
+      ? {
+          conversationMessageEdit: {
+            ...baseMessageProps,
+            _id,
+            updatedAt: new Date(),
+          },
+        }
+      : {
+          conversationMessageAdd: {
+            ...baseMessageProps,
+            conversationId: variables.conversationId,
+          },
+        };
+
+    optimisticResponse = {
+      __typename: 'Mutation',
+      ...mutation,
+    };
     addMessage({
       variables,
       optimisticResponse,

@@ -15,8 +15,12 @@ import {
       args: any,
       context: IContext
     ): Promise<any> => {
-      const { models } = context;
+      const { models, clientPortalId } = context;
       const { input } = args;
+      
+      if (clientPortalId) {
+        input.clientPortalId = clientPortalId;
+      }
   
       return models.PostTags.createTag(input);
     },

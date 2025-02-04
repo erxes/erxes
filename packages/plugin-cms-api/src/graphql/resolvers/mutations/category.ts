@@ -5,7 +5,6 @@ import {
 
 import { IContext } from '../../../connectionResolver';
 
-
 const mutations = {
   /**
    * Cms category add
@@ -15,8 +14,12 @@ const mutations = {
     args: any,
     context: IContext
   ): Promise<any> => {
-    const { models } = context;
+    const { models, clientPortalId } = context;
     const { input } = args;
+
+    if (clientPortalId) {
+      input.clientPortalId = clientPortalId;
+    }
 
     return models.Categories.createCategory(input);
   },
@@ -29,8 +32,12 @@ const mutations = {
     args: any,
     context: IContext
   ): Promise<any> => {
-    const { models } = context;
+    const { models, clientPortalId } = context;
     const { _id, input } = args;
+
+    if (clientPortalId) {
+      input.clientPortalId = clientPortalId;
+    }
 
     return models.Categories.updateCategory(_id, input);
   },
@@ -61,8 +68,7 @@ const mutations = {
     const { _id } = args;
 
     return models.Categories.toggleStatus(_id);
-
-  }
+  },
 };
 
 requireLogin(mutations, 'cmsCategoriesAdd');
@@ -73,7 +79,11 @@ requireLogin(mutations, 'cmsCategoriesToggleStatus');
 checkPermission(mutations, 'cmsCategoriesAdd', 'cmsCategoriesAdd', []);
 checkPermission(mutations, 'cmsCategoriesEdit', 'cmsCategoriesEdit', []);
 checkPermission(mutations, 'cmsCategoriesRemove', 'cmsCategoriesRemove', []);
-checkPermission(mutations, 'cmsCategoriesToggleStatus', 'cmsCategoriesEdit', []);
+checkPermission(
+  mutations,
+  'cmsCategoriesToggleStatus',
+  'cmsCategoriesEdit',
+  []
+);
 
 export default mutations;
-

@@ -2,13 +2,13 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { setupMessageConsumers } from './messageBroker';
-import webhookReceiver from './webhook';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
 import reports from './reports/reports';
 import * as permissions from './permissions';
 import cronjobs from './cronjobs/calls';
+import initApp from './initApp';
 
 export default {
   name: 'calls',
@@ -38,18 +38,17 @@ export default {
     cronjobs,
   },
 
-  postHandlers: [{ path: '/webhook', method: webhookReceiver }],
-
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
-
     context.subdomain = subdomain;
     context.models = models;
 
     return context;
   },
 
-  onServerInit: async () => {},
+  onServerInit: async () => {
+    await initApp();
+  },
   setupMessageConsumers,
 };

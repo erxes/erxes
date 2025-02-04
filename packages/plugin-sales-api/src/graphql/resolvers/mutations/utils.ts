@@ -1,4 +1,4 @@
-import resolvers from '..';
+import resolvers from "..";
 import {
   destroyBoardItemRelations,
   getCollection,
@@ -6,26 +6,26 @@ import {
   getCustomerIds,
   getItem,
   getNewOrder
-} from '../../../models/utils';
+} from "../../../models/utils";
 import {
   IItemCommonFields,
   IItemDragCommonFields,
   IStageDocument
-} from '../../../models/definitions/boards';
+} from "../../../models/definitions/boards";
 import {
   BOARD_STATUSES,
   PROBABILITY
-} from '../../../models/definitions/constants';
-import { IDeal, IDealDocument } from '../../../models/definitions/deals';
+} from "../../../models/definitions/constants";
+import { IDeal, IDealDocument } from "../../../models/definitions/deals";
 
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import {
   putActivityLog,
   putCreateLog,
   putDeleteLog,
   putUpdateLog
-} from '../../../logUtils';
-import { checkUserIds } from '@erxes/api-utils/src';
+} from "../../../logUtils";
+import { can, checkUserIds } from "@erxes/api-utils/src";
 import {
   copyChecklists,
   copyPipelineLabels,
@@ -33,15 +33,15 @@ import {
   IBoardNotificationParams,
   prepareBoardItemDoc,
   sendNotifications
-} from '../../utils';
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import { generateModels, IModels } from '../../../connectionResolver';
+} from "../../utils";
+import { IUserDocument } from "@erxes/api-utils/src/types";
+import { generateModels, IModels } from "../../../connectionResolver";
 import {
   sendCoreMessage,
   sendLoyaltiesMessage,
   sendNotificationsMessage
-} from '../../../messageBroker';
-import { debugError } from '@erxes/api-utils/src/debuggers';
+} from "../../../messageBroker";
+import { debugError } from "@erxes/api-utils/src/debuggers";
 
 export const itemResolver = async (
   models: IModels,
@@ -50,11 +50,11 @@ export const itemResolver = async (
   type: string,
   item: IItemCommonFields
 ) => {
-  let resolverType = '';
+  let resolverType = "";
 
   switch (type) {
-    case 'deal':
-      resolverType = 'Deal';
+    case "deal":
+      resolverType = "Deal";
       break;
   }
 
@@ -111,7 +111,7 @@ export const itemsAdd = async (
     // clean custom field values
     extendedDoc.customFieldsData = await sendCoreMessage({
       subdomain,
-      action: 'fields.prepareCustomFieldsData',
+      action: "fields.prepareCustomFieldsData",
       data: extendedDoc.customFieldsData,
       isRPC: true,
       defaultValue: []
@@ -156,7 +156,7 @@ export const itemsAdd = async (
     salesPipelinesChanged: {
       _id: stage.pipelineId,
       proccessId: doc.proccessId,
-      action: 'itemAdd',
+      action: "itemAdd",
       data: {
         item,
         aboveItemId: doc.aboveItemId,
@@ -186,12 +186,12 @@ export const changeItemStatus = async (
     stage: IStageDocument;
   }
 ) => {
-  if (status === 'archived') {
+  if (status === "archived") {
     graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
       salesPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
-        action: 'itemRemove',
+        action: "itemRemove",
         data: {
           item,
           oldStageId: item.stageId
@@ -213,7 +213,7 @@ export const changeItemStatus = async (
     .sort({ order: -1 })
     .limit(1);
 
-  const aboveItemId = aboveItems[0]?._id || '';
+  const aboveItemId = aboveItems[0]?._id || "";
 
   // maybe, recovered order includes to oldOrders
   await collection.updateOne(
@@ -233,7 +233,7 @@ export const changeItemStatus = async (
     salesPipelinesChanged: {
       _id: stage.pipelineId,
       proccessId,
-      action: 'itemAdd',
+      action: "itemAdd",
       data: {
         item: {
           ...item._doc,
@@ -272,14 +272,22 @@ export const itemsEdit = async (
     canEditMemberIds.length > 0 &&
     !canEditMemberIds.includes(user._id)
   ) {
-    throw new Error('Permission denied');
+    throw new Error("Permission denied");
+  }
+
+  if (
+    doc.status === "archived" &&
+    oldItem.status === "active" &&
+    !(await can(subdomain, "dealsArchive", user))
+  ) {
+    throw new Error("Permission denied");
   }
 
   if (extendedDoc.customFieldsData) {
     // clean custom field values
     extendedDoc.customFieldsData = await sendCoreMessage({
       subdomain,
-      action: 'fields.prepareCustomFieldsData',
+      action: "fields.prepareCustomFieldsData",
       data: extendedDoc.customFieldsData,
       isRPC: true
     });
@@ -299,14 +307,14 @@ export const itemsEdit = async (
   };
 
   if (doc.status && oldItem.status && oldItem.status !== doc.status) {
-    const activityAction = doc.status === 'active' ? 'activated' : 'archived';
+    const activityAction = doc.status === "active" ? "activated" : "archived";
 
     putActivityLog(subdomain, {
-      action: 'createArchiveLog',
+      action: "createArchiveLog",
       data: {
         item: updatedItem,
         contentType: type,
-        action: 'archive',
+        action: "archive",
         userId: user._id,
         createdBy: user._id,
         contentId: updatedItem._id,
@@ -333,13 +341,13 @@ export const itemsEdit = async (
     const activityContent = { addedUserIds, removedUserIds };
 
     putActivityLog(subdomain, {
-      action: 'createAssigneLog',
+      action: "createAssigneLog",
       data: {
         contentId: _id,
         userId: user._id,
         contentType: type,
         content: activityContent,
-        action: 'assignee',
+        action: "assignee",
         createdBy: user._id
       }
     });
@@ -352,8 +360,8 @@ export const itemsEdit = async (
 
   if (!notificationDoc.invitedUsers && !notificationDoc.removedUsers) {
     sendCoreMessage({
-      subdomain: 'os',
-      action: 'sendMobileNotification',
+      subdomain: "os",
+      action: "sendMobileNotification",
       data: {
         title: notificationDoc?.item?.name,
         body: `${
@@ -400,7 +408,7 @@ export const itemsEdit = async (
       salesPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
-        action: 'itemRemove',
+        action: "itemRemove",
         data: {
           item: oldItem,
           oldStageId: stage._id
@@ -411,13 +419,13 @@ export const itemsEdit = async (
       salesPipelinesChanged: {
         _id: updatedStage.pipelineId,
         proccessId,
-        action: 'itemAdd',
+        action: "itemAdd",
         data: {
           item: {
             ...updatedItem._doc,
             ...(await itemResolver(models, subdomain, user, type, updatedItem))
           },
-          aboveItemId: '',
+          aboveItemId: "",
           destinationStageId: updatedStage._id
         }
       }
@@ -427,7 +435,7 @@ export const itemsEdit = async (
       salesPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
-        action: 'itemUpdate',
+        action: "itemUpdate",
         data: {
           item: {
             ...updatedItem._doc,
@@ -500,14 +508,14 @@ const itemMover = async (
     };
 
     await putActivityLog(subdomain, {
-      action: 'createBoardItemMovementLog',
+      action: "createBoardItemMovementLog",
       data: {
         item,
         contentType,
         userId,
         activityLogContent,
         link,
-        action: 'moved',
+        action: "moved",
         contentId: item._id,
         createdBy: userId,
         content: activityLogContent
@@ -516,7 +524,7 @@ const itemMover = async (
 
     sendNotificationsMessage({
       subdomain,
-      action: 'batchUpdate',
+      action: "batchUpdate",
       data: {
         selector: { contentType, contentTypeId: item._id },
         modifier: { $set: { link } }
@@ -536,7 +544,7 @@ export const checkMovePermission = (
     stage.canMoveMemberIds.length > 0 &&
     !stage.canMoveMemberIds.includes(user._id)
   ) {
-    throw new Error('Permission denied');
+    throw new Error("Permission denied");
   }
 };
 
@@ -599,8 +607,8 @@ export const itemsChange = async (
 
   if (item?.assignedUserIds && item?.assignedUserIds?.length > 0) {
     sendCoreMessage({
-      subdomain: 'os',
-      action: 'sendMobileNotification',
+      subdomain: "os",
+      action: "sendMobileNotification",
       data: {
         title: `${item.name}`,
         body: `${user?.details?.fullName || user?.details?.shortName} ${action + content}`,
@@ -636,7 +644,7 @@ export const itemsChange = async (
     salesPipelinesChanged: {
       _id: stage.pipelineId,
       proccessId,
-      action: 'orderUpdated',
+      action: "orderUpdated",
       data: {
         item: {
           ...item._doc,
@@ -673,8 +681,8 @@ export const itemsRemove = async (
 
   if (item?.assignedUserIds && item?.assignedUserIds?.length > 0) {
     sendCoreMessage({
-      subdomain: 'os',
-      action: 'sendMobileNotification',
+      subdomain: "os",
+      action: "sendMobileNotification",
       data: {
         title: `${item.name}`,
         body: `${user?.details?.fullName || user?.details?.shortName} deleted the ${type}`,
@@ -745,7 +753,7 @@ export const itemsCopy = async (
     salesPipelinesChanged: {
       _id: stage.pipelineId,
       proccessId,
-      action: 'itemAdd',
+      action: "itemAdd",
       data: {
         item: {
           ...clone._doc,
@@ -789,15 +797,15 @@ export const itemsArchive = async (
 
   for (const item of items) {
     await putActivityLog(subdomain, {
-      action: 'createArchiveLog',
+      action: "createArchiveLog",
       data: {
         item,
         contentType: type,
-        action: 'archive',
+        action: "archive",
         userId: user._id,
         createdBy: user._id,
         contentId: item._id,
-        content: 'archived'
+        content: "archived"
       }
     });
 
@@ -805,7 +813,7 @@ export const itemsArchive = async (
       salesPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
-        action: 'itemsRemove',
+        action: "itemsRemove",
         data: {
           item,
           destinationStageId: stage._id
@@ -814,7 +822,7 @@ export const itemsArchive = async (
     });
   }
 
-  return 'ok';
+  return "ok";
 };
 
 export const publishHelperItemsConformities = async (
@@ -825,7 +833,7 @@ export const publishHelperItemsConformities = async (
     salesPipelinesChanged: {
       _id: stage.pipelineId,
       proccessId: Math.random().toString(),
-      action: 'itemOfConformitiesUpdate',
+      action: "itemOfConformitiesUpdate",
       data: {
         item: {
           ...item
@@ -878,11 +886,11 @@ export const doScoreCampaign = async (
 
   const pipeline = await models.Pipelines.findOne({
     _id: stage?.pipelineId,
-    'paymentTypes.scoreCampaignId': { $exists: true },
-    'paymentTypes.type': { $in: types }
+    "paymentTypes.scoreCampaignId": { $exists: true },
+    "paymentTypes.type": { $in: types }
   });
 
-  const target:any = {
+  const target: any = {
     paymentsData: Object.entries(doc.paymentsData).map(([type, obj]) => ({
       type,
       ...obj
@@ -891,20 +899,22 @@ export const doScoreCampaign = async (
   };
 
   if (pipeline) {
-    const [customerId] = (await getCustomerIds(subdomain, 'deal', _id)) || [];
+    const [customerId] = (await getCustomerIds(subdomain, "deal", _id)) || [];
 
     if (customerId) {
+      const scoreCampaignTypes = (pipeline?.paymentTypes || []).filter(
+        ({ scoreCampaignId }) => !!scoreCampaignId
+      );
 
-      const scoreCampaignTypes = (pipeline?.paymentTypes || []).filter(({scoreCampaignId})=>!!scoreCampaignId)
-
-      target.exludeAmount = Object.entries(doc.paymentsData).filter(([type])=>!scoreCampaignTypes.includes(type)).map(([type, obj]) => ({
-        type,
-        ...obj
-      }))
+      target.exludeAmount = Object.entries(doc.paymentsData)
+        .filter(([type]) => !scoreCampaignTypes.includes(type))
+        .map(([type, obj]) => ({
+          type,
+          ...obj
+        }));
       for (const type of types) {
-        const paymentType = (scoreCampaignTypes).find(
-          (paymentType) =>
-            paymentType.type === type 
+        const paymentType = scoreCampaignTypes.find(
+          (paymentType) => paymentType.type === type
         );
         if (paymentType) {
           const { scoreCampaignId, title } = paymentType || {};
@@ -913,9 +923,9 @@ export const doScoreCampaign = async (
           }
           await sendLoyaltiesMessage({
             subdomain,
-            action: 'checkScoreAviableSubtract',
+            action: "checkScoreAviableSubtract",
             data: {
-              ownerType: 'customer',
+              ownerType: "customer",
               ownerId: customerId,
               campaignId: scoreCampaignId,
               target,
@@ -924,7 +934,7 @@ export const doScoreCampaign = async (
             isRPC: true,
             defaultValue: false
           }).catch((error) => {
-            if (error.message === 'There has no enough score to subtract') {
+            if (error.message === "There has no enough score to subtract") {
               throw new Error(
                 `There has no enough score to subtract using ${title}`
               );
@@ -933,14 +943,14 @@ export const doScoreCampaign = async (
           });
           await sendLoyaltiesMessage({
             subdomain,
-            action: 'doScoreCampaign',
+            action: "doScoreCampaign",
             data: {
-              ownerType: 'customer',
+              ownerType: "customer",
               ownerId: customerId,
               campaignId: scoreCampaignId,
               target,
-              actionMethod: 'subtract',
-              serviceName: 'sales',
+              actionMethod: "subtract",
+              serviceName: "sales",
               targetId: _id
             },
             isRPC: true

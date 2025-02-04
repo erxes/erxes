@@ -13,6 +13,7 @@ export interface IPost {
   categoryIds?: string[];
   status?: 'draft' | 'published' | 'scheduled' | 'archived';
   tagIds?: string[];
+  authorKind?: 'user' | 'clientPortalUser'
   authorId?: string;
   featured?: boolean;
   featuredDate?: Date | null;
@@ -52,6 +53,7 @@ export const postSchema = new Schema<IPostDocument>(
     categoryIds: { type: [String], ref: 'PostCategory' },
     status: { type: String, default: 'draft', enum: ['draft', 'published', 'scheduled', 'archived'] },
     tagIds: { type: [String]},
+    authorKind: { type: String, default: 'user', enum: ['user', 'clientPortalUser'] },
     authorId: { type: String, ref: 'User' },
     viewCount: { type: Number, default: 0 },
     publishedDate: { type: Date },

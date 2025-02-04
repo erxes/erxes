@@ -8,7 +8,12 @@ import { IContext } from '../../../connectionResolver';
 const queries = {
   cmsMenuList: async (_parent: any, args: any, context: IContext) => {
     const { models } = context;
-    const { clientPortalId, kind } = args;
+    const { kind } = args;
+    const clientPortalId = context.clientPortalId || args.clientPortalId;
+
+    if (!clientPortalId) {
+      throw new Error('clientPortalId is required');
+    }
 
     const query: any = {
       clientPortalId,

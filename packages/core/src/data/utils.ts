@@ -300,16 +300,15 @@ export const initFirebase = async (
   if (customConfig) {
     codeString = customConfig;
   } else {
-    const config = await models.Configs.findOne({
-      code: "GOOGLE_APPLICATION_CREDENTIALS_JSON",
-    });
-
-    if (!config) {
+    const GOOGLE_APPLICATION_CREDENTIALS_JSON = await getConfig(
+      'GOOGLE_APPLICATION_CREDENTIALS_JSON',"",models
+    );
+    if (!GOOGLE_APPLICATION_CREDENTIALS_JSON) {
       throw new Error(
-        "Cannot find google application credentials JSON configuration",
+        'Cannot find google application credentials JSON configuration'
       );
     }
-    codeString = config.value;
+    codeString = GOOGLE_APPLICATION_CREDENTIALS_JSON;
   }
 
   if (codeString[0] === "{" && codeString[codeString.length - 1] === "}") {
@@ -643,8 +642,9 @@ export const uploadFileCloudflare = async (
     (CLOUDFLARE_USE_CDN === "true" || CLOUDFLARE_USE_CDN === true) &&
     detectedType &&
     isImage(detectedType.mime) &&
-    !["image/heic", "image/heif"].includes(detectedType.mime)
+    !["image/heic", "image/heif", "image/x-icon", "image/vnd.microsoft.icon"].includes(detectedType.mime)
   ) {
+    console.log("uploading to cf images");
     return uploadToCFImages(fileObj, forcePrivate, models);
   }
 

@@ -6,6 +6,7 @@ import { graphql } from '@apollo/client/react/hoc';
 import { IDeal, IProductData } from '../../types';
 import { isEnabled, withProps } from '@erxes/ui/src/utils/core';
 import { mutations } from '../../graphql';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   advancedView?: boolean;
@@ -21,6 +22,7 @@ type Props = {
   onChangeDiscount: (id: string, discount: number) => void;
   dealQuery: IDeal;
   confirmLoyalties?: any;
+  currentUser: IUser
 };
 
 class ProductItemContainer extends React.Component<Props> {

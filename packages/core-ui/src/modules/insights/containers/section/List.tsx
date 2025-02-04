@@ -28,7 +28,7 @@ type Props = {
 };
 
 const SectionListContainer = (props: Props) => {
-  const { queryParamName } = props;
+  const { queryParamName, section } = props;
   const entityType = queryParamName.split(/(?=[A-Z])/)[0].toLowerCase();
 
   const [sectionRemoveMutation] = useMutation<SectionRemoveMutationResponse>(
@@ -59,6 +59,10 @@ const SectionListContainer = (props: Props) => {
         });
     });
   };
+
+  if(!section?.list?.length) {
+    return null
+  }
 
   const updatedProps = {
     ...props,
