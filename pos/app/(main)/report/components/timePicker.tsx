@@ -42,17 +42,9 @@ export function TimePicker({ value, onChange }: Readonly<TimePickerProps>) {
     if (!Number.isNaN(hourNumber)) {
       let hour24;
       if (period === "PM") {
-        if (hourNumber === 12) {
-          hour24 = 12;
-        } else {
-          hour24 = hourNumber + 12;
-        }
+        hour24 = hourNumber === 12 ? 12 : hourNumber + 12;
       } else {
-        if (hourNumber === 12) {
-          hour24 = 0;
-        } else {
-          hour24 = hourNumber;
-        }
+        hour24 = hourNumber === 12 ? 0 : hourNumber;
       }
       onChange(`${hour24.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`);
     }
