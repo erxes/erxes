@@ -1,10 +1,10 @@
 import dynamic from "next/dynamic"
 import { modeAtom, orderCollapsibleAtom } from "@/store"
-import { openCancelDialogAtom } from "@/store/order.store"
 import {
   activeOrderIdAtom,
   orderNumberAtom,
   setInitialAtom,
+  openCancelDialogAtom
 } from "@/store/order.store"
 import { useAtomValue, useSetAtom } from "jotai"
 
