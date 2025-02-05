@@ -1,7 +1,16 @@
 import fetch from 'node-fetch';
 import { sendCoreMessage } from '../messageBroker';
 
-export const syncExchangeRate = async (subdomain: string, config) => {
+interface ExchangeRateConfig {
+  apiUrl: string;
+  username: string;
+  password: string;
+}
+
+export const syncExchangeRate = async (
+  subdomain: string,
+  config: ExchangeRateConfig
+) => {
   console.log('starting to create exchange rates');
 
   if (!config.apiUrl || !config.username || !config.password) {

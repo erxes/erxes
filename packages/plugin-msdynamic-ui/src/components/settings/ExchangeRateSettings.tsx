@@ -63,6 +63,7 @@ const ExchangeRateSettings: React.FC<Props> = ({ save, configsMap }: Props) => {
         <FormGroup>
           <ControlLabel>{'Password'}</ControlLabel>
           <FormControl
+            type="password"
             defaultValue={currentMap.password}
             onChange={onChangeInput.bind(this, 'password')}
           />

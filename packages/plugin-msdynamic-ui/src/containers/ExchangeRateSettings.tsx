@@ -8,12 +8,10 @@ import { mutations, queries } from '../graphql';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
-type Props = {};
-
 type FinalProps = {
   configsQuery: ConfigsQueryResponse;
   updateConfigs: (configsMap: IConfigsMap) => Promise<void>;
-} & Props;
+};
 
 const ExchangeRateSettingsContainer = (props: FinalProps) => {
   const { updateConfigs, configsQuery } = props;
@@ -49,9 +47,9 @@ const ExchangeRateSettingsContainer = (props: FinalProps) => {
   return <List {...updatedProps} />;
 };
 
-export default withProps<Props>(
+export default withProps<FinalProps>(
   compose(
-    graphql<Props, ConfigsQueryResponse>(gql(queries.configs), {
+    graphql<FinalProps, ConfigsQueryResponse>(gql(queries.configs), {
       name: 'configsQuery',
       options: () => ({
         variables: {

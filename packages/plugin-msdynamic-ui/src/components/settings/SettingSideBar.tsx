@@ -7,11 +7,7 @@ import {
 } from '@erxes/ui/src/layout';
 import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 
-type Props = {};
-
-const SettingSideBar = (props: Props) => {
-  const {} = props;
-
+const SettingSideBar = () => {
   const renderListItem = (url: string, text: string) => {
     return (
       <li>
@@ -27,10 +23,10 @@ const SettingSideBar = (props: Props) => {
 
   return (
     <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
-      <List id="SettingsSidebar">
+      <List id="GeneralConfigSidebar">
         {renderListItem('/msdynamics', 'General config')}
       </List>
-      <List id="SettingsSidebar">
+      <List id="ExchangeRateConfigSidebar">
         {renderListItem('/msdynamic-exchangeRates', 'Exchange Rate config')}
       </List>
     </LeftSidebar>
