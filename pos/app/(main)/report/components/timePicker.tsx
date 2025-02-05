@@ -14,7 +14,7 @@ interface TimePickerProps {
   onChange: (value: string) => void;
 }
 
-export function TimePicker({ value, onChange }: TimePickerProps) {
+export function TimePicker({ value, onChange }: Readonly<TimePickerProps>) {
     const isValidTime = (time: string) => {
             if (!/^(\d{2}):(\d{2})$/.test(time)) {
               return false;
@@ -27,19 +27,33 @@ export function TimePicker({ value, onChange }: TimePickerProps) {
   const hours = Number.parseInt(parsedValue.split(":")[0]);
   const minutes = Number.parseInt(parsedValue.split(":")[1]);
   const period = hours >= 12 ? "PM" : "AM";
-  const hour12 = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+  let hour12;
+  if (hours === 0) {
+      hour12 = 12;
+  } else if (hours > 12) {
+      hour12 = hours - 12;
+  } else {
+      hour12 = hours;
+  }
+  
 
   const handleHourChange = (newHour: string) => {
     const hourNumber = Number.parseInt(newHour);
     if (!Number.isNaN(hourNumber)) {
-      const hour24 =
-        period === "PM"
-          ? hourNumber === 12
-            ? 12
-            : hourNumber + 12
-          : hourNumber === 12
-          ? 0
-          : hourNumber;
+      let hour24;
+      if (period === "PM") {
+        if (hourNumber === 12) {
+          hour24 = 12;
+        } else {
+          hour24 = hourNumber + 12;
+        }
+      } else {
+        if (hourNumber === 12) {
+          hour24 = 0;
+        } else {
+          hour24 = hourNumber;
+        }
+      }
       onChange(`${hour24.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`);
     }
   };
@@ -53,7 +67,12 @@ export function TimePicker({ value, onChange }: TimePickerProps) {
 
   const handlePeriodChange = (newPeriod: string) => {
     if (newPeriod === "AM" || newPeriod === "PM") {
-      const hour24 = newPeriod === "PM" ? (hour12 === 12 ? 12 : hour12 + 12) : hour12 === 12 ? 0 : hour12;
+      let hour24;
+      if (newPeriod === "PM") {
+        hour24 = hour12 === 12 ? 12 : hour12 + 12;
+      } else {
+        hour24 = hour12 === 12 ? 0 : hour12;
+      }
       onChange(`${hour24.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`);
     }
   };

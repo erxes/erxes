@@ -6,12 +6,13 @@ export const combineDateTime = (date: Date | null, timeString: string | null): D
   }
   if (!isValid(date)) {
     return null;
-  };
-  const timeRegex = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/;
-  const match = timeString.trim().match(timeRegex);
+  }
+
+  const timeRegex = /^([0-1]?\d|2[0-3]):([0-5]\d)$/;
+  const match = timeRegex.exec(timeString.trim());
   if (!match) {
     return null;
-  };
+  }
 
   const hours = parseInt(match[1], 10);
   const minutes = parseInt(match[2], 10);
