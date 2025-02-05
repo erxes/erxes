@@ -2817,6 +2817,8 @@ select.form-control:focus,
 }
 .bot-message img {
   max-width: 100%;
+  height: 130px;
+  object-fit: cover;
   display: inherit;
 }
 .bot-message .image-message {
