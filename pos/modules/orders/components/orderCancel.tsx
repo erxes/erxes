@@ -51,7 +51,7 @@ export const CheckoutCancel = ({ order }: { order: IOrder | null }) => {
   const { _id, number } = order || {};
   if (!_id) return null;
 
-  return (<OrderCancel _id={_id} number={number || ""} refetchQueries={['ActiveOrders']} />);
+  return (<OrderCancel _id={_id} number={number ?? ""} refetchQueries={['ActiveOrders']} />);
 };
 
 export const useOrderCancel = (order
@@ -61,9 +61,9 @@ export const useOrderCancel = (order
   const changeOpen = useSetAtom(openCancelDialogAtom)
 
   const paidTotal =
-    (cashAmount || 0) +
-    (mobileAmount || 0) +
-    (paidAmounts?.reduce((total, el) => el.amount + total, 0) || 0)
+    (cashAmount ?? 0) +
+    (mobileAmount ?? 0) +
+    (paidAmounts?.reduce((total, el) => el.amount + total, 0) ?? 0)
   
   return {
     changeOpen,
