@@ -4,7 +4,7 @@ import { Alert, confirm } from '@erxes/ui/src/utils';
 import { Spinner } from '@erxes/ui/src';
 import { mutations, queries } from '../graphql';
 
-import MainListCompoenent from '../components/ExchangeRates';
+import MainListComponent from '../components/ExchangeRates';
 import React from 'react';
 import client from '@erxes/ui/src/apolloClient';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
@@ -36,9 +36,12 @@ class MainList extends React.Component<FinalProps> {
     const { list = [], totalCount = 0 } = listQuery?.exchangeRatesMain || {};
 
     const deleteExchangeRates = (rateIds: string[], callback: () => void) => {
-      confirm('This will permanently delete are you absolutely sure?', {
-        hasDeleteConfirm: true,
-      }).then(() => {
+      confirm(
+        'This will permanently delete the selected exchange rate(s). Are you sure you want to proceed?',
+        {
+          hasDeleteConfirm: true,
+        }
+      ).then(() => {
         client
           .mutate({
             mutation: gql(mutations.exchangeRateRemove),
@@ -55,7 +58,7 @@ class MainList extends React.Component<FinalProps> {
       });
     };
     return (
-      <MainListCompoenent
+      <MainListComponent
         {...this.props}
         rateList={list}
         totalCount={totalCount}

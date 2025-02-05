@@ -37,5 +37,5 @@ export const exchangeRateSchema = new Schema({
     label: 'Created at',
     esType: 'date',
   }),
-  modifiedAt: field({ type: Date, label: 'Modified at, esType: "date"' }),
+  modifiedAt: field({ type: Date, label: 'Modified at', esType: 'date' }),
 });

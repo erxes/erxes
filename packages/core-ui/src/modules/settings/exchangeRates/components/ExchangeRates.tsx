@@ -137,7 +137,7 @@ const MainList = (props: Props) => {
           <ActionButtons>
             <ModalTrigger
               key={exchangeRate._id}
-              title="Edit Branch"
+              title="Edit Exchange Rate"
               content={({ closeModal }) => (
                 <ExchangeRateForm
                   exchangeRate={exchangeRate}

@@ -24,20 +24,23 @@ export const loadExchangeRateClass = (models: IModels, subdomain: string) => {
      */
 
     public static async getExchangeRate(selector: any) {
-      const exchangeRateing =
-        await models.ExchangeRates.findOne(selector).lean();
+      const exchangeRate = await models.ExchangeRates.findOne(selector).lean();
 
-      if (!exchangeRateing) {
-        throw new Error('ExchangeRateing not found');
+      if (!exchangeRate) {
+        throw new Error('ExchangeRate not found');
       }
 
-      return exchangeRateing;
+      return exchangeRate;
     }
 
     /**
      * Create a exchangeRateing
      */
     public static async createExchangeRate(doc: IExchangeRate) {
+      if (!doc) {
+        throw new Error('Exchange rate document is required');
+      }
+
       return models.ExchangeRates.create({ ...doc, createdAt: new Date() });
     }
 

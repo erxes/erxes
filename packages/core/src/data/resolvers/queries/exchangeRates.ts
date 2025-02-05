@@ -17,8 +17,8 @@ const generateFilter = async (
   // search =========
   if (searchValue) {
     filter.$or = [
-      { mainCurrency: { $regex: new RegExp(searchValue) } },
-      { rateCurrency: { $regex: new RegExp(searchValue) } },
+      { mainCurrency: { $regex: new RegExp(searchValue, 'i') } },
+      { rateCurrency: { $regex: new RegExp(searchValue, 'i') } },
     ];
   }
 
@@ -27,7 +27,7 @@ const generateFilter = async (
 
 const exchangeRateQueries = {
   /**
-   * loan Research for only main list
+   * Retrieve exchange rates with pagination and search
    */
 
   exchangeRatesMain: async (
