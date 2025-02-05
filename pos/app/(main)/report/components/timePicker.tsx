@@ -27,7 +27,7 @@ export function TimePicker({ value, onChange }: Readonly<TimePickerProps>) {
   const hours = Number.parseInt(parsedValue.split(":")[0]);
   const minutes = Number.parseInt(parsedValue.split(":")[1]);
   const period = hours >= 12 ? "PM" : "AM";
-  let hour12;
+  let hour12:number; 
   if (hours === 0) {
       hour12 = 12;
   } else if (hours > 12) {
