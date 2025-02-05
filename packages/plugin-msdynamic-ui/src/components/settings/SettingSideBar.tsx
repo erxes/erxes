@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Sidebar as LeftSidebar,
-  SidebarList as List
+  SidebarList as List,
 } from '@erxes/ui/src/layout';
 import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 
@@ -29,6 +29,9 @@ const SettingSideBar = (props: Props) => {
     <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
       <List id="SettingsSidebar">
         {renderListItem('/msdynamics', 'General config')}
+      </List>
+      <List id="SettingsSidebar">
+        {renderListItem('/msdynamic-exchangeRates', 'Exchange Rate config')}
       </List>
     </LeftSidebar>
   );

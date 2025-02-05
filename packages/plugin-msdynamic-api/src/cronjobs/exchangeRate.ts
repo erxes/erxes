@@ -1,23 +1,26 @@
 import fetch from 'node-fetch';
 import { sendCoreMessage } from '../messageBroker';
 
-export const syncExchangeRate = async (subdomain: string, models) => {
+export const syncExchangeRate = async (subdomain: string, config) => {
   console.log('starting to create exchange rates');
 
+  if (!config.apiUrl || !config.username || !config.password) {
+    throw new Error('MS Dynamic config not found.');
+  }
+
+  const { apiUrl, username, password } = config;
+
   try {
-    const response = await fetch(
-      "https://bc.erpmsm.mn:7048/MSM-DATA/ODataV4/Company('MSM Group LLC')/Exchange_Rate_API?$filter=Code eq  'PREPAID'",
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Accept: 'application/json',
-          Authorization: `Basic ${Buffer.from(`MSM\\MSMIT:Tsonh$2h@@`).toString(
-            'base64'
-          )}`,
-        },
-        timeout: 180000,
-      }
-    ).then((res) => res.json());
+    const response = await fetch(`${apiUrl}?$filter=Code eq  'PREPAID'`, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+          'base64'
+        )}`,
+      },
+      timeout: 180000,
+    }).then((res) => res.json());
 
     const latestByCurrency: { [key: string]: any } = {};
 

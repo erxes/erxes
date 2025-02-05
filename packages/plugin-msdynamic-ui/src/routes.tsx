@@ -1,57 +1,68 @@
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation } from 'react-router-dom';
 
-import React from "react";
-import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
-import queryString from "query-string";
+import React from 'react';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import queryString from 'query-string';
 
 const GeneralSettings = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "List - Msdynamics" */ "./containers/GeneralSettings"
+      /* webpackChunkName: "List - Msdynamics" */ './containers/GeneralSettings'
+    )
+);
+
+const ExchangeRateSettings = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - ExchangeRate" */ './containers/ExchangeRateSettings'
     )
 );
 
 const SyncHistoryList = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "CheckSyncedDeals" */ "./containers/SyncHistoryList"
+      /* webpackChunkName: "CheckSyncedDeals" */ './containers/SyncHistoryList'
     )
 );
 
 const InventoryProducts = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "InventoryProducts" */ "./containers/InventoryProducts"
+      /* webpackChunkName: "InventoryProducts" */ './containers/InventoryProducts'
     )
 );
 
 const InventoryPrices = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "InventoryProducts" */ "./containers/InventoryPrice"
+      /* webpackChunkName: "InventoryProducts" */ './containers/InventoryPrice'
     )
 );
 
 const InventoryCategory = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "InventoryProducts" */ "./containers/InventoryCategory"
+      /* webpackChunkName: "InventoryProducts" */ './containers/InventoryCategory'
     )
 );
 const Customers = asyncComponent(
   () =>
-    import(/* webpackChunkName: "InventoryProducts" */ "./containers/Customers")
+    import(/* webpackChunkName: "InventoryProducts" */ './containers/Customers')
 );
 
 const CheckSyncedOrders = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "CheckSyncedOrders" */ "./containers/CheckSyncedOrders"
+      /* webpackChunkName: "CheckSyncedOrders" */ './containers/CheckSyncedOrders'
     )
 );
 
 const Msdynamics = () => {
   return <GeneralSettings />;
+};
+
+const ExchangeRate = () => {
+  return <ExchangeRateSettings />;
 };
 
 const SyncHistoryListComponent = () => {
@@ -99,6 +110,7 @@ const routes = () => {
   return (
     <Routes>
       <Route path="/msdynamics/" element={<Msdynamics />} />
+      <Route path="/msdynamic-exchangeRates/" element={<ExchangeRate />} />
       <Route
         key="/sync-msdynamic-history"
         path="/sync-msdynamic-history"
