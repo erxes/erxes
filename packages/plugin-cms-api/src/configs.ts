@@ -7,6 +7,7 @@ import * as session from 'express-session';
 import app from '@erxes/api-utils/src/app';
 import * as permissions from './permissions';
 import forms from './forms';
+import clientPortalMiddleware from './clientPortalMiddleware';
 
 export default {
   name: 'cms',
@@ -14,13 +15,15 @@ export default {
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
   meta: {
     permissions,
-    forms
+    forms,
   },
+
+  middlewares: [clientPortalMiddleware],
 
   apolloServerContext: async (context, req, res) => {
     const subdomain = getSubdomain(req);
@@ -39,6 +42,10 @@ export default {
     context.res = res;
     context.session = req.session;
 
+    if (req.clientPortalId) {
+      context.clientPortalId = req.clientPortalId;
+    }
+
     return context;
   },
 
@@ -53,9 +60,9 @@ export default {
           httpOnly: true,
           maxAge: 1000 * 60 * 60 * 24,
           secure: process.env.NODE_ENV === 'production',
-        }
+        },
       })
-    )
+    );
   },
   setupMessageConsumers,
 };

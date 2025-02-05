@@ -24,9 +24,15 @@ import {
 import {
   queries as fieldConfigQueries,
   types as fieldConfigTypes,
-  mutations as fieldConfigMutations
-} from "./schema/fieldConfigs";
-import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+  mutations as fieldConfigMutations,
+} from './schema/fieldConfigs';
+
+import {
+  queries as vercelQueries,
+  mutations as vercelMutations,
+} from './schema/vercel';
+
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 const typeDefs = async () => {
   const kbAvailable = isEnabled("knowledgebase");
@@ -82,6 +88,7 @@ const typeDefs = async () => {
      ${notificationQueries}
      ${commentQueries}
      ${fieldConfigQueries}
+     ${vercelQueries}
     }
 
     extend type Mutation {
@@ -89,6 +96,7 @@ const typeDefs = async () => {
       ${clientPortalUserMutations(cmsAvailable)}
       ${notificationMutations}
       ${fieldConfigMutations}
+      ${vercelMutations}
     }
   `;
 };

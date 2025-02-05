@@ -164,7 +164,7 @@ import { ILeadData } from "../../../types";
             </ControlLabel>
             <p>{__("Verification button would be added to the email.")}</p>
             <Toggle
-              id="saveAsCustomer"
+              id="verifyEmail"
               checked={this.props.verifyEmail || false}
               onChange={(e: any) => {
                 this.onChangeFunction("verifyEmail", e.target.checked);

@@ -10,6 +10,7 @@ import {
 import { generateModels } from '../connectionResolver';
 import redis from '../redlock';
 import { getOrganizations } from '@erxes/api-utils/src/saas/saas';
+import * as momentTz from 'moment-timezone';
 
 function arraysEqual(arr1: any[], arr2: any[]): boolean {
   if (arr1.length !== arr2.length) return false;
@@ -207,44 +208,98 @@ export default {
 
   handleHourlyJob: async ({ subdomain }) => {
     const VERSION = getEnv({ name: 'VERSION' });
+    console.log('Starting hourly job...');
 
-    if (VERSION && VERSION === 'os') {
-      const models = await generateModels(subdomain);
-      const integrations = await models.Integrations.find({}).lean();
+    // Common processing function for both versions
+    const processIntegrations = async (models, subdomain) => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000);
 
+      const integrations = await models.Integrations.find({
+        inboxId: { $exists: true },
+      }).lean();
       for (const integration of integrations) {
-        if (integration.inboxId) {
+        try {
+          // Process missing record URLs
           const noUrlHistories = await models.CallHistory.find({
             inboxIntegrationId: integration.inboxId,
             callStatus: 'connected',
-            $or: [{ recordUrl: { $exists: false } }, { recordUrl: '' }],
+            recordUrl: { $in: [null, '', 'invalid file type'] },
             createdAt: { $gte: today },
           }).lean();
+          console.log(noUrlHistories, 'noUrlHistories');
 
-          for (const history of noUrlHistories) {
-            const callRecordUrl = await getRecordUrl(
-              { ...history, isCronRunning: true },
-              '',
-              models,
-              subdomain,
-            );
-            if (callRecordUrl) {
-              await models.CallHistory.updateOne(
-                { _id: history?._id },
-                { $set: { recordUrl: callRecordUrl } },
+          await Promise.all(
+            noUrlHistories.map(async (history) => {
+              const callRecordUrl = await getRecordUrl(
+                { ...history, isCronRunning: true },
+                '',
+                models,
+                subdomain,
               );
-            }
-          }
+
+              if (callRecordUrl) {
+                await models.CallHistory.updateOne(
+                  { _id: history._id },
+                  { $set: { recordUrl: callRecordUrl } },
+                );
+              }
+            }),
+          );
+
+          // Batch update stale active calls
+          await models.CallHistory.updateMany(
+            {
+              inboxIntegrationId: integration.inboxId,
+              callStatus: 'active',
+              createdAt: {
+                $gte: today,
+                $lte: threeHoursAgo,
+              },
+            },
+            { $set: { callStatus: 'connected' } },
+          );
+        } catch (e) {
+          console.error(`Error processing integration ${integration._id}:`, e);
         }
       }
+    };
+
+    // OS Version Handler
+    const handleOsVersion = async () => {
+      const models = await generateModels(subdomain);
+      await processIntegrations(models, subdomain);
+    };
+
+    // SaaS Version Handler
+    const handleSaasVersion = async () => {
+      const orgs = await getOrganizations();
+      await Promise.all(
+        orgs.map(async (org) => {
+          try {
+            const models = await generateModels(org.subdomain);
+            await processIntegrations(models, org.subdomain); // Use org subdomain
+          } catch (e) {
+            console.error(`Error processing org ${org._id}:`, e);
+          }
+        }),
+      );
+    };
+
+    try {
+      if (VERSION === 'os') {
+        await handleOsVersion();
+      } else if (VERSION === 'saas') await handleSaasVersion();
+      console.log('Successfully ran hourly job');
+    } catch (e) {
+      console.error('Error in main job execution:', e);
     }
   },
 
   handle10MinutelyJob: async ({ subdomain }) => {
     const VERSION = getEnv({ name: 'VERSION' });
-
+    //save forwarded operator data
     const processCdrData = async (
       models,
       operator,

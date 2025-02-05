@@ -10,7 +10,7 @@ if (!MONGO_URL) {
 
 const client = new MongoClient(MONGO_URL);
 
-console.log('Connected to ', MONGO_URL);
+console.debug('Connected to ', MONGO_URL);
 
 let db;
 
@@ -66,7 +66,7 @@ const command = async () => {
     }
   }
 
-  console.log(`Process finished at: ${new Date()}`);
+  console.debug(`Process finished at: ${new Date()}`);
 
   process.exit();
 };

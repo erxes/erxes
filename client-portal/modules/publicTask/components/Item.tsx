@@ -11,12 +11,15 @@ import PriorityIndicator from "../../common/PriorityIndicator";
 import React from "react";
 import dayjs from "dayjs";
 import { useRouter } from "next/router";
+import { IUser } from '../../types';
+import { Alert } from '../../utils';
 
 type Props = {
   tasks: any;
+  currentUser: IUser;
 };
 
-function ItemContainer({ tasks }: Props) {
+function ItemContainer({ tasks, currentUser }: Props) {
   const router = useRouter();
   const { stageId } = router.query as any;
 
@@ -30,11 +33,17 @@ function ItemContainer({ tasks }: Props) {
 
   return (
     <Wrapper>
-      {tasks.map((task) => (
-        <ItemWrapper
+      {tasks.map((task) => {
+
+        if(!task) {
+          return <></>
+        }
+
+        return (
+          <ItemWrapper
           key={task._id}
           onClick={() =>
-            router.push(`/publicTasks?stageId=${stageId}&itemId=${task._id}`)
+            currentUser ? router.push(`/publicTasks?stageId=${stageId}&itemId=${task._id}`) : Alert.error("Log in first to see task")
           }
         >
           <Content>
@@ -49,7 +58,9 @@ function ItemContainer({ tasks }: Props) {
             <Right>{renderDate(task.modifiedAt)}</Right>
           </ItemFooter>
         </ItemWrapper>
-      ))}
+        )
+
+      })}
     </Wrapper>
   );
 }

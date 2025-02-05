@@ -259,6 +259,9 @@ ${
     keywords: String
     copyright: String
     externalLinks: JSON
+    googleAnalytics: String
+    facebookPixel: String
+    googleTagManager: String
   }
 
   type Styles {
@@ -376,6 +379,9 @@ ${
     keywords: String
     copyright: String
     externalLinks: JSON
+    googleAnalytics: String
+    facebookPixel: String
+    googleTagManager: String
   }
 
   enum UserCardEnum {
@@ -441,9 +447,9 @@ export const queries = (enabledPlugins) => `
     enabledPlugins.tasks
       ? `
     clientPortalGetTaskStages: [TasksStage]
-    clientPortalGetTasks(stageId: String!): [TasksStage]
+    clientPortalGetTasks(stageId: String!): [Task]
     clientPortalUserTasks(userId: String): [TasksStage]
-    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TasksItemDate): [TasksStage]
+    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TasksItemDate): [Task]
         `
       : ''
   } 
@@ -506,7 +512,7 @@ export const mutations = `
       ): JSON
       clientPortalCommentsAdd(type: String!, typeId: String!, content: String! userType: String!): ClientPortalComment
       clientPortalCommentsRemove(_id: String!): String
-      clientPortalParticipantEdit(    _id: String!,
+      clientPortalParticipantEdit(_id: String!,
         contentType: UserCardEnum,
         contentTypeId: String,
         cpUserId: String,

@@ -59,6 +59,7 @@ const IncomingCallContainer = (props: IProps, context) => {
         variables: {
           inboxIntegrationId: inboxId,
           primaryPhone: phoneNumber,
+          queueName: call.groupName || ''
         },
       })
         .then(({ data }: any) => {

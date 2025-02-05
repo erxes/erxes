@@ -15,9 +15,13 @@ import {
       args: any,
       context: IContext
     ): Promise<any> => {
-      const { models, user } = context;
+      const { models, user, clientPortalId } = context;
       const { input } = args;
       input.createdUserId = user._id;
+
+      if (clientPortalId) {
+        input.clientPortalId = clientPortalId;
+      }
 
       return models.Pages.createPage(input);
     },
@@ -30,8 +34,12 @@ import {
       args: any,
       context: IContext
     ): Promise<any> => {
-      const { models } = context;
+      const { models, clientPortalId } = context;
       const { _id, input } = args;
+
+      if (clientPortalId) {
+        input.clientPortalId = clientPortalId;
+      }
   
       return models.Pages.updatePage(_id, input);
     },

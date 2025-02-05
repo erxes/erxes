@@ -4,6 +4,7 @@ import clientPOrtalUserPost from './clientPortalUserPost';
 import clientPortalMutations from './clientPortalNotifications';
 import comment from './comment';
 import fieldConfig from './fieldConfig';
+import vercel from './vercel';
 
 export default {
   ...clientPortal,
@@ -12,4 +13,5 @@ export default {
   ...comment,
   ...fieldConfig,
   ...clientPOrtalUserPost,
+  ...vercel
 };

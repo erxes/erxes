@@ -16,8 +16,15 @@ const queries = {
     context: IContext
   ): Promise<any> {
     const { models } = context;
-    const {clientPortalId, searchValue, status, page = 1, perPage = 20, sortField = 'name', sortDirection = 'asc' } = args;
-
+    const {
+      searchValue,
+      status,
+      page = 1,
+      perPage = 20,
+      sortField = 'name',
+      sortDirection = 'asc',
+    } = args;
+    const clientPortalId = args.clientPortalId || context.clientPortalId;
     const query = {
       clientPortalId,
       ...(status && { status }),
@@ -30,17 +37,28 @@ const queries = {
       ];
     }
 
-    return paginate(models.Categories.find(query).sort({ [sortField]: sortDirection }), { page, perPage });
+    return paginate(
+      models.Categories.find(query).sort({ [sortField]: sortDirection }),
+      { page, perPage }
+    );
   },
 
   /**
    * Cms category
    */
   async cmsCategory(_parent: any, args: any, context: IContext): Promise<any> {
-    const { models } = context;
-    const { _id } = args;
+    const { models, clientPortalId } = context;
+    const { _id, slug } = args;
 
-    return models.Categories.findOne({ $or: [{ _id }, { slug: _id }] });
+    if (!_id && !slug) {
+      return null;
+    }
+
+    if (slug) {
+      return models.Categories.findOne({ slug, clientPortalId });
+    }
+
+    return models.Categories.findOne({ _id });
   },
 };
 

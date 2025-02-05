@@ -1,19 +1,19 @@
-import app from '@erxes/api-utils/src/app';
-import { getSubdomain } from '@erxes/api-utils/src/core';
-import telnyx from './api/telnyx';
-import automations from './automations';
-import { generateModels } from './connectionResolver';
-import resolvers from './graphql/resolvers/index';
-import typeDefs from './graphql/typeDefs';
-import logs from './logUtils';
-import { setupMessageConsumers } from './messageBroker';
-import * as permissions from './permissions';
-import tags from './tags';
-import { engageTracker } from './trackers/engageTracker';
-import webhooks from './webhooks';
+import app from "@erxes/api-utils/src/app";
+import { getSubdomain } from "@erxes/api-utils/src/core";
+import telnyx from "./api/telnyx";
+import automations from "./automations";
+import { generateModels } from "./connectionResolver";
+import resolvers from "./graphql/resolvers/index";
+import typeDefs from "./graphql/typeDefs";
+import logs from "../src/logUtils";
+import { setupMessageConsumers } from "./messageBroker";
+import * as permissions from "./permissions";
+import tags from "./tags";
+import { engageTracker } from "./trackers/engageTracker";
+import webhooks from "./webhooks";
 
 export default {
-  name: 'engages',
+  name: "engages",
   permissions,
   graphql: async () => {
     return {
@@ -25,7 +25,7 @@ export default {
   hasSubscriptions: false,
   meta: {
     tags,
-    logs: { consumers: logs },
+    logs: { consumers: logs, providesActivityLog: true },
     webhooks,
     permissions,
     automations
@@ -43,7 +43,7 @@ export default {
   },
   onServerInit: async () => {
     // Insert routes below
-    app.use('/telnyx', telnyx);
+    app.use("/telnyx", telnyx);
   },
   setupMessageConsumers
 };

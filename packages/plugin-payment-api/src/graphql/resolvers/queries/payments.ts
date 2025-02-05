@@ -41,6 +41,10 @@ const queries = {
       filter.status = args.status;
     }
 
+    if (args.kind) {
+      filter.kind = args.kind;
+    }
+
     return models.PaymentMethods.find(filter).sort({ type: 1 }).lean();
   },
 
