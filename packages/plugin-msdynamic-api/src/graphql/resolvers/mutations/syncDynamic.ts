@@ -81,13 +81,9 @@ const msdynamicSyncMutations = {
     const error: any[] = [];
     const deletePrices: any[] = [];
     const matchPrices: any[] = [];
+    let exchangeRates: any[] = [];
 
-    if (
-      !config.priceApi ||
-      !config.exchangeRateApi ||
-      !config.username ||
-      !config.password
-    ) {
+    if (!config.priceApi || !config.username || !config.password) {
       throw new Error('MS Dynamic config not found.');
     }
 
@@ -125,7 +121,9 @@ const msdynamicSyncMutations = {
         filterSection += `Sales_Code eq '${price}' or `;
       }
 
-      const exchangeRates = await getExchangeRates(config);
+      if (config.exchangeRateApi) {
+        exchangeRates = await getExchangeRates(config);
+      }
 
       const response = await fetch(
         `${priceApi}?$filter=${filterSection} Sales_Code eq ''`,
@@ -168,7 +166,7 @@ const msdynamicSyncMutations = {
       for (const Item_No in groupedItems) {
         const resProds = groupedItems[Item_No];
         try {
-          const { resPrice, resProd, resCurrencyCode } = await getPrice(
+          const { resPrice, resProd } = await getPrice(
             resProds,
             pricePriority,
             exchangeRates
@@ -188,7 +186,7 @@ const msdynamicSyncMutations = {
                 action: 'products.updateProduct',
                 data: {
                   _id: foundProduct._id,
-                  doc: { unitPrice: resPrice || 0, currency: resCurrencyCode },
+                  doc: { unitPrice: resPrice || 0, currency: 'MNT' },
                 },
                 isRPC: true,
               });

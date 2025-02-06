@@ -459,7 +459,7 @@ const getPriceForList = (prods, exchangeRates) => {
     convertedPrice *= exchangeRateData.Special_Curr_Exch_Rate;
   }
 
-  return { resPrice: convertedPrice, resProd, resCurrencyCode };
+  return { resPrice: convertedPrice, resProd };
 };
 
 export const getPrice = async (resProds, pricePriority, exchangeRates) => {
@@ -492,7 +492,7 @@ export const getPrice = async (resProds, pricePriority, exchangeRates) => {
     });
 
     if (!activeProds.length) {
-      return { resPrice: 0, resProd: {}, resCurrencyCode: '' };
+      return { resPrice: 0, resProd: {} };
     }
 
     for (const sortStr of sorts) {
@@ -506,13 +506,13 @@ export const getPrice = async (resProds, pricePriority, exchangeRates) => {
     const otherFilter = resProds.filter((p) => !sorts.includes(p.Sales_Code));
 
     if (!otherFilter.length) {
-      return { resPrice: 0, resProd: {}, resCurrencyCode: '' };
+      return { resPrice: 0, resProd: {} };
     }
 
     return getPriceForList(otherFilter, exchangeRates);
   } catch (e) {
     console.log(e, 'error');
-    return { resPrice: 0, resProd: {}, resCurrencyCode: '' };
+    return { resPrice: 0, resProd: {} };
   }
 };
 
