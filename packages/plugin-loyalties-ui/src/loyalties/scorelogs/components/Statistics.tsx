@@ -61,7 +61,7 @@ const CardContent = styledTS(styled.div)`
 
 const STATISTIC_MAP = {
   totalPointEarned: { label: 'Total Point Earned', icon: 'file-search-alt' },
-  pointBalance: { label: 'Points Balance', icon: 'calender' },
+  totalPointBalance: { label: 'Points Balance', icon: 'calender' },
   activeLoyaltyMembers: { label: 'Active Loyalty Members', icon: 'user' },
   redemptionRate: { label: 'Redemption Rates', icon: 'chart-line' },
   mostRedeemedProductCategory: {
@@ -76,10 +76,12 @@ type Props = {
 };
 
 const Statistics = ({ statistics }: Props) => {
-  const [expand, setExpand] = useState<boolean>(true);
+  const [expand, setExpand] = useState<boolean>(false);
 
   const onClick = () => {
-    setExpand(!expand);
+    if (Object.keys(statistics)?.length) {
+      setExpand(!expand);
+    }
   };
 
   const renderContent = () => {
