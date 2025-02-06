@@ -5,13 +5,13 @@ import {
   Step,
   Steps,
   Wrapper,
-  __,
+  __
 } from '@erxes/ui/src';
 import { Content, LeftContent } from '../styles';
 import {
   ControlWrapper,
   Indicator,
-  StepWrapper,
+  StepWrapper
 } from '@erxes/ui/src/components/step/styles';
 import { IBmsBranch } from '../types';
 import GeneralStep from './step/GeneralStep';
@@ -19,6 +19,7 @@ import { Link } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import PermissionStep from './step/Permission';
 import PaymentsStep from './step/PaymentsStep';
+import Appearance from './step/Appearance';
 
 type Props = {
   branch?: IBmsBranch;
@@ -33,18 +34,13 @@ const BranchEdit = (props: Props) => {
   const [state, setState] = useState<any>({
     uiOptions: branch.uiOptions || {
       colors: {
-        bodyColor: '#FFFFFF',
-        headerColor: '#6569DF',
-        footerColor: '#3CCC38',
+        primary: '#FFFFFF',
+        secondary: '#6569DF',
+        third: '#3CCC38'
       },
       logo: '',
-      bgImage: '',
-      favIcon: '',
-      receiptIcon: '',
-      kioskHeaderImage: '',
-      mobileAppImage: '',
-      qrCodeImage: '',
-    },
+      texts: {}
+    }
   });
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,7 +66,7 @@ const BranchEdit = (props: Props) => {
       paymentIds: state.paymentIds || [],
       paymentTypes: state.paymentTypes || [],
       uiOptions: state.uiOptions,
-      permissionConfig: state.permissionConfig || {},
+      permissionConfig: state.permissionConfig || {}
     };
 
     save(doc);
@@ -89,7 +85,7 @@ const BranchEdit = (props: Props) => {
       case 2:
         carousel = state.isSkip ? 'form' : 'callout';
         break;
-      case 7:
+      case 3:
         carousel = 'success';
         break;
       default:
@@ -127,7 +123,10 @@ const BranchEdit = (props: Props) => {
     );
   };
 
-  const breadcrumb = [{ title: 'TMS List', link: `/tms` }, { title: 'Create' }];
+  const breadcrumb = [
+    { title: 'TMS List', link: `/tms` },
+    { title: branch._id ? 'Edit' : 'Create' }
+  ];
   useEffect(() => {
     setState(v => ({ ...branch, ...v }));
   }, [branch]);
@@ -136,7 +135,7 @@ const BranchEdit = (props: Props) => {
       <Wrapper.Header title={__('Bms')} breadcrumb={breadcrumb} />
       <Content>
         <LeftContent>
-          <Steps maxStep={9}>
+          <Steps maxStep={3}>
             <Step
               img='/images/icons/erxes-12.svg'
               title={`General`}
@@ -157,6 +156,17 @@ const BranchEdit = (props: Props) => {
               onClick={onStepClick}
             >
               <PermissionStep onChange={onChange} branch={state} />
+            </Step>
+            <Step
+              img='/images/icons/erxes-04.svg'
+              title={__('Appearance')}
+              onClick={onStepClick}
+            >
+              <Appearance
+                onChange={onChange}
+                uiOptions={state.uiOptions}
+                logoPreviewUrl={state.uiOptions.logo}
+              />
             </Step>
           </Steps>
           <ControlWrapper>

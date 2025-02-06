@@ -12,7 +12,7 @@ import { PAYMENTCONFIGS } from './constants';
 import { Box, PaymentItem, Ribbon, Type } from './styles';
 import ConfigForm from './forms/ConfigForm';
 import QuickQrForm from './forms/QuickQrForm';
-import Khanbank from '../containers/forms/Khanbank';
+import Khanbank from '../components/forms/Khanbank';
 
 type Props = {
   payment: any;

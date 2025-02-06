@@ -65,12 +65,16 @@ class GeneralSettings extends React.Component<Props, State> {
   delete = (currentConfigKey: string) => {
     confirm("This Action will delete this config are you sure?").then(() => {
       const { configsMap } = this.state;
-      delete configsMap.stageInIncomeConfig[currentConfigKey];
-      delete configsMap.stageInIncomeConfig.newStageInIncomeConfig;
 
-      this.setState({ configsMap });
+      const stageInIncomeConfig = { ...configsMap.stageInIncomeConfig };
+      delete stageInIncomeConfig[currentConfigKey];
+      delete stageInIncomeConfig.newStageInIncomeConfig;
 
-      this.props.save(configsMap);
+      this.setState({
+        configsMap: { ...configsMap, stageInIncomeConfig },
+      });
+
+      this.props.save({ ...configsMap, stageInIncomeConfig });
     });
   };
 

@@ -274,7 +274,9 @@ export default {
   },
 
   async tags(purchase: IPurchaseDocument) {
-    return (purchase.tagIds || []).map(_id => ({ __typename: "Tag", _id }));
+    return (purchase.tagIds || [])
+      .filter(_id => !!_id)
+      .map(_id => ({ __typename: "Tag", _id }));
   },
 
   createdUser(purchase: IPurchaseDocument) {

@@ -225,7 +225,7 @@ export default {
           const noUrlHistories = await models.CallHistory.find({
             inboxIntegrationId: integration.inboxId,
             callStatus: 'connected',
-            recordUrl: { $in: [null, ''] },
+            recordUrl: { $in: [null, '', 'invalid file type'] },
             createdAt: { $gte: today },
           }).lean();
           console.log(noUrlHistories, 'noUrlHistories');

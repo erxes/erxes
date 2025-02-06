@@ -1,12 +1,6 @@
-const callsIntegrationUpdate: string = `
-mutation CallsIntegrationUpdate($configs: CallIntegrationConfigs) {
-  callsIntegrationUpdate(configs: $configs)
-}
-`;
-
 const customersAdd = `
-  mutation CallAddCustomer($inboxIntegrationId: String, $primaryPhone: String) {
-    callAddCustomer(inboxIntegrationId: $inboxIntegrationId, primaryPhone: $primaryPhone) {
+  mutation CallAddCustomer($inboxIntegrationId: String, $primaryPhone: String, $queueName: String) {
+    callAddCustomer(inboxIntegrationId: $inboxIntegrationId, primaryPhone: $primaryPhone, queueName: $queueName) {
       channels {
         _id
         name
@@ -150,7 +144,6 @@ const callTransfer = `
 }`;
 
 export default {
-  callsIntegrationUpdate,
   customersAdd,
   conversationMessageAdd,
   addActiveSession,

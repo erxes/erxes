@@ -15,6 +15,7 @@ export interface IIntegration {
   operators: [Operator];
   token: String;
   queues: [String];
+  queueNames: [String];
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {}
@@ -27,4 +28,8 @@ export const integrationSchema = new Schema({
   operators: field({ type: Object, label: 'Operator maps' }),
   token: field({ type: String, label: 'token' }),
   queues: field({ type: [String], label: 'queues' }),
+  queueNames: field({ type: [String], label: 'queue names' }),
+
 });
+
+integrationSchema.index({ wsServer: 1, queues: 1 }, { unique: true });

@@ -16,6 +16,7 @@ import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import { pluginsOfPaymentForm } from 'coreui/pluginUtils';
 import { selectConfigOptions } from '../../utils';
+import { gql, useQuery } from '@apollo/client';
 
 type Props = {
   total: { [currency: string]: number };
@@ -25,11 +26,35 @@ type Props = {
   calcChangePay: () => void;
   changePayData: { [currency: string]: number };
   pipelineDetail: any;
+  dealQuery:IDeal
 };
 
 type State = {
   paymentsData: IPaymentsData;
 };
+
+const scoreCampaignQuery = `
+  query Query($ownerId: String, $ownerType: String, $campaignId: String) {
+    checkOwnerScore(ownerId: $ownerId, ownerType: $ownerType, campaignId: $campaignId)
+  }
+`
+
+const OwnerScoreCampaignScore = ({type,dealQuery}:{type:any,dealQuery:IDeal}) =>{
+  if(!type?.scoreCampaignId || !(dealQuery?.customers ||[])?.length){
+    return null
+  }
+
+  const [customer] = dealQuery.customers || []
+
+  const {data} = useQuery(gql(scoreCampaignQuery),{variables:{ownerType:"customer",ownerId:customer._id,campaignId:type.scoreCampaignId}})
+
+  const {checkOwnerScore} = data || {}
+
+  return <div>
+    {`/Avaible score campaign score: ${checkOwnerScore}/`}
+  </div>
+
+}
 
 class PaymentForm extends React.Component<Props, State> {
   constructor(props) {
@@ -141,7 +166,9 @@ class PaymentForm extends React.Component<Props, State> {
       <Flex key={type.name}>
         <ContentColumn>
           <ControlLabel>{__(type.title)}</ControlLabel>
+        <OwnerScoreCampaignScore type={type} dealQuery={this.props.dealQuery}/>
         </ContentColumn>
+
         <ContentColumn>
           <FormControl
             value={paymentsData[NAME] ? paymentsData[NAME].amount : ''}
