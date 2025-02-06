@@ -122,7 +122,7 @@ const msdynamicSyncMutations = {
       }
 
       if (config.exchangeRateApi) {
-        exchangeRates = (await getExchangeRates(config)) as any[];
+        exchangeRates = (await getExchangeRates(config)) ?? [];
       }
 
       const response = await fetch(
