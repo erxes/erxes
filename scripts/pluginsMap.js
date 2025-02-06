@@ -846,6 +846,10 @@ module.exports = {
             {
               "name": "dealUpdateTimeTracking",
               "description": "Update time tracking"
+            },
+            {
+              "name": "dealUpdateProductsData",
+              "description": "Update products data"
             }
           ]
         }
