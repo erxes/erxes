@@ -44,11 +44,19 @@ export interface IMessengerDataMessagesItem {
 export interface IMessageDataMessages {
   [key: string]: IMessengerDataMessagesItem;
 }
-
+type BotPersistentMenuType = {
+  _id: string;
+  type: string;
+  text: string;
+  link: string;
+  isEditing?: boolean;
+};
 export interface IMessengerData {
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
   botCheck?: boolean;
+  botGreetMessage?: string;
+  persistentMenus?: BotPersistentMenuType[];
   skillData?: {
     typeId: string;
     options: Array<{
@@ -184,6 +192,14 @@ const messengerOnlineHoursSchema = new Schema(
   { _id: false }
 );
 
+const persistentMenuSchema = new Schema({
+  _id: { type: String },
+  text: { type: String },
+  type: { type: String },
+  link: { type: String, optional: true },
+  isEditing: { type: Boolean }
+});
+
 // subdocument schema for MessengerData
 const messengerDataSchema = new Schema(
   {
@@ -191,6 +207,8 @@ const messengerDataSchema = new Schema(
     botEndpointUrl: field({ type: String }),
     botShowInitialMessage: field({ type: Boolean }),
     botCheck: field({ type: Boolean }),
+    botGreetMessage: field({ type: String }),
+    persistentMenus: field({ type: [persistentMenuSchema] }), // Corrected to an array
     supporterIds: field({ type: [String] }),
     notifyCustomer: field({ type: Boolean }),
     availabilityMethod: field({

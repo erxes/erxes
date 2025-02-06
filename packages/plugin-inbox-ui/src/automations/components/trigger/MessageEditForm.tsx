@@ -8,7 +8,7 @@ import DirectMessageForm from "./DirectMessage";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import Icon from "@erxes/ui/src/components/Icon";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
-// import PersistentMenu from './PersistentMenu';
+import PersistentMenu from "./PersistentMenu";
 import { __ } from "@erxes/ui/src/utils/core";
 import colors from "@erxes/ui/src/styles/colors";
 
@@ -45,17 +45,16 @@ function EditForm({
       ...config,
       onChange
     };
-
     switch (type) {
       case "direct":
         return <DirectMessageForm {...updatedProps} />;
       case "persistentMenu":
-      // return (
-      //   <PersistentMenu
-      //     {...updatedProps}
-      //     botId={botId}
-      //   />
-      // );
+        return (
+          <PersistentMenu
+            {...updatedProps}
+            botId={botId}
+          />
+        );
 
       default:
         return null;

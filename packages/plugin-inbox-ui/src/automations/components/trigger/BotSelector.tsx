@@ -34,7 +34,6 @@ type FinalProps = {
 } & Props;
 
 function BotSelector({ botId, bots, onSelect }) {
-  console.log(bots, "bots");
   const [selectedBotId, setBotId] = useState(botId || "");
   const [isOpen, setOpen] = useState(!botId || false);
 

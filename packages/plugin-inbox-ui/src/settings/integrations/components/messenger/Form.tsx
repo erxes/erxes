@@ -26,6 +26,7 @@ import AddOns from "../../containers/messenger/AddOns";
 import Button from "@erxes/ui/src/components/Button";
 import CommonPreview from "./widgetPreview/CommonPreview";
 import Connection from "./steps/Connection";
+import BotSelector from "./steps/BotSelector";
 import { IBrand } from "@erxes/ui/src/brands/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import { LANGUAGES } from "@erxes/ui-settings/src/general/constants";
@@ -52,11 +53,20 @@ type Props = {
   isLoading: boolean;
 };
 
+type IBotPersistentMenuType = {
+  _id: string;
+  type: string;
+  text: string;
+  link: string;
+};
+
 type State = {
   title: string;
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
   botCheck?: boolean;
+  botGreetMessage?: string;
+  persistentMenus?: IBotPersistentMenuType[];
   skillData?: ISkillData;
   brandId: string;
   channelIds: string[];
@@ -109,7 +119,9 @@ class CreateMessenger extends React.Component<Props, State> {
       showVideoCallRequest: false,
       botEndpointUrl: "",
       botShowInitialMessage: false,
-      botCheck: false
+      botCheck: false,
+      botGreetMessage: "",
+      persistentMenus: [] as IBotPersistentMenuType[]
     };
     const links = configData.links || {};
     const externalLinks = configData.externalLinks || [];
@@ -122,6 +134,8 @@ class CreateMessenger extends React.Component<Props, State> {
       title: integration.name,
       botEndpointUrl: configData.botEndpointUrl,
       botCheck: configData.botCheck,
+      botGreetMessage: configData.botGreetMessage,
+      persistentMenus: configData.persistentMenus,
       botShowInitialMessage: configData.botShowInitialMessage,
       skillData: configData.skillData,
       brandId: integration.brandId || "",
@@ -190,6 +204,10 @@ class CreateMessenger extends React.Component<Props, State> {
     this.setState({ externalLinks: newExternalLinks });
   };
 
+  onChangePersistent = (persistentMenus: IBotPersistentMenuType[]) => {
+    this.setState({ persistentMenus: persistentMenus });
+  };
+
   handleMessengerApps = (messengerApps: IMessengerApps) => {
     this.setState({ messengerApps });
   };
@@ -203,6 +221,8 @@ class CreateMessenger extends React.Component<Props, State> {
       botShowInitialMessage,
       brandId,
       botCheck,
+      botGreetMessage,
+      persistentMenus,
       languageCode,
       channelIds,
       messages,
@@ -286,6 +306,8 @@ class CreateMessenger extends React.Component<Props, State> {
         botEndpointUrl,
         botShowInitialMessage,
         botCheck,
+        botGreetMessage,
+        persistentMenus,
         notifyCustomer: this.state.notifyCustomer,
         availabilityMethod: this.state.availabilityMethod,
         isOnline: this.state.isOnline,
@@ -363,6 +385,8 @@ class CreateMessenger extends React.Component<Props, State> {
       botEndpointUrl,
       botShowInitialMessage,
       botCheck,
+      botGreetMessage,
+      persistentMenus,
       supporterIds,
       isOnline,
       availabilityMethod,
@@ -490,7 +514,18 @@ class CreateMessenger extends React.Component<Props, State> {
                   showVideoCallRequest={showVideoCallRequest}
                 />
               </Step>
-
+              <Step
+                img='/images/icons/erxes-24.svg'
+                title={__("Bot Setup")}
+                onClick={this.onStepClick.bind(null, "bot")}>
+                <BotSelector
+                  title={title}
+                  botCheck={botCheck}
+                  botGreetMessage={botGreetMessage}
+                  persistentMenus={persistentMenus}
+                  onChange={this.onChange as any} // Explicitly cast
+                />
+              </Step>
               <Step
                 img='/images/icons/erxes-16.svg'
                 title={__("Integration Setup")}
@@ -505,7 +540,6 @@ class CreateMessenger extends React.Component<Props, State> {
                   onChange={this.onChange}
                 />
               </Step>
-
               <Step
                 img='/images/icons/erxes-15.svg'
                 title={__("Add Ons")}

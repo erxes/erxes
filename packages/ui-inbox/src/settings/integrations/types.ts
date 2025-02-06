@@ -233,10 +233,19 @@ export interface ISkillData {
     skillId: string;
   }>;
 }
+type BotPersistentMenuType = {
+  _id: string;
+  type: string;
+  text: string;
+  link: string;
+};
 
 export interface IMessengerData {
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
+  botCheck?: boolean;
+  botGreetMessage?: string;
+  persistentMenus?: BotPersistentMenuType[];
   skillData?: ISkillData;
   messages?: IMessages;
   notifyCustomer?: boolean;
