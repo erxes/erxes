@@ -16,9 +16,8 @@ import {
 import OrderNotificationCarousel from "./components/orderNotfModal/orderNotfModal.main";
 import useFullOrders from "./hooks/useFullOrders";
 import { queries } from "./graphql";
-import { activeOrderIdAtom, setInitialAtom } from "@/store/order.store";
+import { activeOrderIdAtom, setInitialAtom , openCancelDialogAtom } from "@/store/order.store";
 import { selectedTabAtom, orderCollapsibleAtom, orderNotificationEnabledAtom } from "@/store";
-import { openCancelDialogAtom } from "@/store/order.store";
 
 interface Subscription {
   unsubscribe: () => void;
