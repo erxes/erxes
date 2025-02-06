@@ -40,7 +40,8 @@ class GeneralSettings extends React.Component<Props, State> {
       configsMap: {
         ...configsMap,
         DYNAMIC: {
-          ...configsMap.DYNAMIC, newDYNAMIC: {
+          ...configsMap.DYNAMIC,
+          newDYNAMIC: {
             title: 'New MSDynamic Config',
             brandId: '',
             itemApi: '',
@@ -50,6 +51,7 @@ class GeneralSettings extends React.Component<Props, State> {
             customerApi: '',
             salesApi: '',
             salesLineApi: '',
+            exchangeRateApi: '',
             username: '',
             password: '',
             genBusPostingGroup: '',
@@ -64,9 +66,9 @@ class GeneralSettings extends React.Component<Props, State> {
             billType: '',
             dealType: '',
             syncType: '',
-          }
-        }
-      }
+          },
+        },
+      },
     });
   };
 
@@ -74,11 +76,11 @@ class GeneralSettings extends React.Component<Props, State> {
     confirm('This Action will delete this config are you sure?').then(() => {
       const { configsMap } = this.state;
       const tempDynamic = {};
-      Object.keys(configsMap?.DYNAMIC || {}).forEach(key => {
+      Object.keys(configsMap?.DYNAMIC || {}).forEach((key) => {
         if (key !== currentConfigKey) {
-          tempDynamic[key] = configsMap?.DYNAMIC[key]
+          tempDynamic[key] = configsMap?.DYNAMIC[key];
         }
-      })
+      });
 
       this.setState({ configsMap: { ...configsMap, DYNAMIC: tempDynamic } });
 

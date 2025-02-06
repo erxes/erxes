@@ -15,6 +15,7 @@ export const KEY_LABELS = {
   customerApi: 'customer api',
   salesApi: 'sales api',
   salesLineApi: 'sales line api',
+  exchangeRateApi: 'exchange rate api',
   username: 'username',
   password: 'password',
   genBusPostingGroup: 'Gen_Bus_Posting_Group',

@@ -26,9 +26,6 @@ const SettingSideBar = () => {
       <List id="GeneralConfigSidebar">
         {renderListItem('/msdynamics', 'General config')}
       </List>
-      <List id="ExchangeRateConfigSidebar">
-        {renderListItem('/msdynamic-exchangeRates', 'Exchange Rate config')}
-      </List>
     </LeftSidebar>
   );
 };

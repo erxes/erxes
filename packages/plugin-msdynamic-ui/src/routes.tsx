@@ -11,13 +11,6 @@ const GeneralSettings = asyncComponent(
     )
 );
 
-const ExchangeRateSettings = asyncComponent(
-  () =>
-    import(
-      /* webpackChunkName: "List - ExchangeRate" */ './containers/ExchangeRateSettings'
-    )
-);
-
 const SyncHistoryList = asyncComponent(
   () =>
     import(
@@ -59,10 +52,6 @@ const CheckSyncedOrders = asyncComponent(
 
 const Msdynamics = () => {
   return <GeneralSettings />;
-};
-
-const ExchangeRate = () => {
-  return <ExchangeRateSettings />;
 };
 
 const SyncHistoryListComponent = () => {
@@ -110,7 +99,6 @@ const routes = () => {
   return (
     <Routes>
       <Route path="/msdynamics/" element={<Msdynamics />} />
-      <Route path="/msdynamic-exchangeRates/" element={<ExchangeRate />} />
       <Route
         key="/sync-msdynamic-history"
         path="/sync-msdynamic-history"

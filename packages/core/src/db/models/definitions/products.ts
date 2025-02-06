@@ -114,7 +114,7 @@ export interface IProduct {
   subUoms?: ISubUom[];
   sameMasks?: string[];
   sameDefault?: string[];
-  currency: string;
+  currency?: string;
 
   pdfAttachment?: IPdfAttachment;
 }
