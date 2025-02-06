@@ -1,16 +1,14 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useSetAtom } from "jotai";
 import { Bell, AlertCircle } from "lucide-react";
 import {
   activeOrderIdAtom,
   setInitialAtom,
 } from "@/store/order.store";
-import { totalAmountAtom } from "@/store/cart.store";
-import { selectedTabAtom, slotFilterAtom } from "@/store";
+import { selectedTabAtom , orderCollapsibleAtom } from "@/store";
 import { openCancelDialogAtom } from "@/store/history.store";
-import { orderCollapsibleAtom } from "@/store";
 import { ORDER_STATUSES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,10 +31,8 @@ interface Subscription {
 
 const OrderNotf = () => {
   const { ALL } = ORDER_STATUSES;
-  const total = useAtomValue(totalAmountAtom);
   const setSelectedTab = useSetAtom(selectedTabAtom);
   const setActiveOrderId = useSetAtom(activeOrderIdAtom);
-  const setSlotCode = useSetAtom(slotFilterAtom);
   const changeCancel = useSetAtom(openCancelDialogAtom);
   const setInitialStates = useSetAtom(setInitialAtom);
   const setOpenCollapsible = useSetAtom(orderCollapsibleAtom);

@@ -1,7 +1,6 @@
 "use client"
 
 import { Check, X } from 'lucide-react'
-import { useAtomValue, useSetAtom } from 'jotai'
 import { Button } from "@/components/ui/button"
 import { IOrder } from '@/types/order.types'
 import { 
@@ -20,8 +19,6 @@ import {
   CardTitle 
 } from "@/components/ui/card"
 import OrderCancel from "@/app/(main)/(orders)/components/history/orderCancel"
-import { activeOrderIdAtom } from '@/store/order.store'
-import { nextOrderIdAtom } from '@/store'
 import { useState } from 'react'
 
 interface OrderNotificationCarouselProps {
@@ -48,10 +45,19 @@ const OrderNotificationCarousel: React.FC<OrderNotificationCarouselProps> = ({
   orderNumber,
   onCancelComplete
 }) => {
-  const activeOrder = useAtomValue(activeOrderIdAtom)
-  const setNextOrder = useSetAtom(nextOrderIdAtom)
 
   const [error, setError] = useState<string | null>(null)
+  let buttonText: string;
+
+  if (error) {
+    buttonText = "Error loading orders";
+  } else if (loading) {
+    buttonText = "Loading...";
+  } else {
+    buttonText = `Load More (${fullOrders.length} / ${totalCount})`;
+  }
+  
+
 
   const handleLoadMoreWithErrorHandling = async () => {
     try {
@@ -122,7 +128,7 @@ const handleOrderReject = (order: IOrder): void => {
           className="w-full mt-4"
           onClick={handleLoadMoreWithErrorHandling}
         >
-          {error ? 'Error loading orders' : loading ? 'Loading...' : `Load More (${fullOrders.length} / ${totalCount})`}
+          {buttonText}
         </Button>
       )}
 
