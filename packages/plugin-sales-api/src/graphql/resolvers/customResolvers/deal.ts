@@ -270,7 +270,9 @@ export default {
   },
 
   async tags(deal: IDealDocument) {
-    return (deal.tagIds || []).map(_id => ({ __typename: "Tag", _id }));
+    return (deal.tagIds || [])
+      .filter(_id => !!_id)
+      .map(_id => ({ __typename: "Tag", _id }));
   },
 
   createdUser(deal: IDealDocument) {

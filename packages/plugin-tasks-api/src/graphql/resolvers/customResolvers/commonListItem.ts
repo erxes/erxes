@@ -29,11 +29,11 @@ export default {
   async customPropertiesData(
     item: IItemCommonFields,
     _args,
-    { user, subdomain }
+    { user, subdomain },
   ) {
     const customFieldsData = (item?.customFieldsData as any[]) || [];
 
-    const fieldIds = customFieldsData.map((customField) => customField.field);
+    const fieldIds = customFieldsData.map(customField => customField.field);
 
     if (!fieldIds?.length) {
       return customFieldsData;
@@ -50,7 +50,7 @@ export default {
     });
 
     for (const customFieldData of customFieldsData) {
-      const field = fields.find((field) => field._id === customFieldData.field);
+      const field = fields.find(field => field._id === customFieldData.field);
       if (field) {
         customFieldData.type = field.type;
       }
@@ -62,6 +62,8 @@ export default {
     return item?.userId ? item.userId : null;
   },
   async tags(task: ITaskDocument) {
-    return (task.tagIds || []).map((_id) => ({ __typename: 'Tag', _id }));
+    return (task.tagIds || [])
+      .filter(_id => !!_id)
+      .map(_id => ({ __typename: 'Tag', _id }));
   },
 };
