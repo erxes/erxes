@@ -109,7 +109,8 @@ const getOwner = async ({
       "sales:deal",
       "tickets:ticket",
       "purchases:purchase"
-    ].includes(execution.triggerType)
+    ].some(type => execution.triggerType === type || execution.triggerType.startsWith(type))
+    
   ) {
     const customerIds = await sendCoreMessage({
       subdomain,
@@ -140,6 +141,7 @@ const getOwner = async ({
       }
     }
   }
+
   return { ownerType, ownerId };
 };
 
@@ -547,7 +549,7 @@ const actionCreate = async ({ subdomain, action, execution }) => {
   const { config = {}, type } = action;
   const { triggerType } = execution || {};
 
-  const [serviceName, contentType] = triggerType.split(":");
+  const [serviceName, contentType] = triggerType.split(/[:.]/);
   try {
     switch (type) {
       case "loyalties:score.create":

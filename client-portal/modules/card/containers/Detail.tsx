@@ -5,7 +5,7 @@ import { mutations, queries } from '../graphql';
 import Detail from '../components/Detail';
 import React from 'react';
 import Spinner from '../../common/Spinner';
-import { capitalize } from '../../common/utils';
+import { capitalize, getType } from '../../common/utils';
 import { confirm } from '../../utils';
 
 type Props = {
@@ -32,7 +32,7 @@ function DetailContainer({ _id, type, publicTask, ...props }: Props) {
   );
 
   const { data: checklistsQuery, loading: checklistsQueryLoading } = useQuery(
-    gql(queries.checklists),
+    gql(queries[`${type}Checklists`]),
     {
       variables: { contentType: type, contentTypeId: _id },
       skip: !_id,
@@ -124,7 +124,7 @@ function DetailContainer({ _id, type, publicTask, ...props }: Props) {
     ...props,
     item,
     type,
-    checklists: checklistsQuery?.checklists,
+    checklists: checklistsQuery?.[`${getType(type)}sChecklists`],
     comments,
     handleSubmit,
     handleRemoveComment

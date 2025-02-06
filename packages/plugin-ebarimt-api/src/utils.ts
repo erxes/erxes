@@ -20,20 +20,11 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
 };
 
 export const validCompanyCode = async (config, companyCode) => {
-  let result = "";
-
-  const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/giu;
-
-  if (re.test(companyCode)) {
-    const response = await fetch(
-      config.checkCompanyUrl + "?" + new URLSearchParams({ regno: companyCode })
-    ).then(r => r.json());
-
-    if (response.found) {
-      result = response.name;
-    }
+  const resp = await getCompanyInfo({ checkTaxpayerUrl: config.checkTaxpayerUrl, no: companyCode });
+  if (resp.status !== 'checked' || !resp.tin) {
+    return "";
   }
-  return result;
+  return resp.result?.data?.name
 };
 
 export const companyCheckCode = async (params, subdomain) => {
@@ -45,8 +36,8 @@ export const companyCheckCode = async (params, subdomain) => {
 
   if (
     !config ||
-    !config.checkCompanyUrl ||
-    !config.checkCompanyUrl.includes("http")
+    !config.checkTaxpayerUrl ||
+    !config.checkTaxpayerUrl.includes("http")
   ) {
     return params;
   }
@@ -384,7 +375,51 @@ const calcProductsTaxRule = async (subdomain: string, models: IModels, config, p
   }
 }
 
-export const getPostData = async (subdomain, models: IModels, config, deal) => {
+export const mathRound = (value, p = 2) => {
+  if (!value || isNaN(Number(value))) {
+    return 0;
+  }
+
+  let converter = 10 ** p;
+  return Math.round(value * converter) / converter;
+};
+
+const calcPreTaxPercentage = (paymentTypes, deal) => {
+  let itemAmountPrePercent = 0;
+  const preTaxPaymentTypes: string[] = (paymentTypes || []).filter(p =>
+    (p.config || '').includes('preTax: true')
+  ).map(p => p.type);
+
+  if (
+    preTaxPaymentTypes.length &&
+    deal.paymentsData &&
+    Object.keys(deal.paymentsData).length
+  ) {
+    let preSentAmount = 0;
+    for (const preTaxPaymentType of preTaxPaymentTypes) {
+      const matchOrderPayKeys = Object.keys(deal.paymentsData).filter(
+        pa => pa === preTaxPaymentType
+      );
+
+      if (matchOrderPayKeys.length) {
+        for (const key of matchOrderPayKeys) {
+          const matchOrderPay = deal.paymentsData[key]
+          preSentAmount += Number(matchOrderPay.amount);
+        }
+      }
+    }
+    const values: any[] = Object.values(deal.paymentsData);
+    const dealTotalPay = (values).map(p => p.amount).reduce((sum, cur) => sum + cur, 0);
+
+    if (preSentAmount && preSentAmount <= dealTotalPay) {
+      itemAmountPrePercent = (preSentAmount / dealTotalPay) * 100;
+    }
+  }
+
+  return { itemAmountPrePercent, preTaxPaymentTypes }
+}
+
+export const getPostData = async (subdomain, models: IModels, config, deal, paymentTypes) => {
   const { type, customerCode, customerName, customerTin } = await checkBillType(
     subdomain,
     config,
@@ -402,7 +437,8 @@ export const getPostData = async (subdomain, models: IModels, config, deal) => {
     defaultValue: []
   });
 
-  const productsById = await calcProductsTaxRule(subdomain, models, config, firstProducts)
+  const productsById = await calcProductsTaxRule(subdomain, models, config, firstProducts);
+  const { itemAmountPrePercent, preTaxPaymentTypes } = calcPreTaxPercentage(paymentTypes, deal);
 
   return {
     contentType: "deal",
@@ -422,15 +458,20 @@ export const getPostData = async (subdomain, models: IModels, config, deal) => {
         if (!product) {
           return;
         }
+
+        const tempAmount = prData.amount;
+        const minusAmount = (tempAmount / 100) * itemAmountPrePercent;
+        const totalAmount = mathRound(tempAmount - minusAmount, 4);
+
         return {
           product,
           quantity: prData.quantity,
+          totalDiscount: (prData.discountAmount ?? 0) + minusAmount,
           unitPrice: prData.unitPrice,
-          totalDiscount: prData.discount,
-          totalAmount: prData.amount
+          totalAmount
         };
       }),
-    nonCashAmounts: Object.keys(deal.paymentsData || {}).map(pay => ({
+    nonCashAmounts: Object.keys(deal.paymentsData || {}).filter(pay => !preTaxPaymentTypes.includes(pay)).map(pay => ({
       amount: deal.paymentsData[pay].amount
     }))
   };

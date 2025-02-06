@@ -447,9 +447,9 @@ export const queries = (enabledPlugins) => `
     enabledPlugins.tasks
       ? `
     clientPortalGetTaskStages: [TasksStage]
-    clientPortalGetTasks(stageId: String!): [TasksStage]
+    clientPortalGetTasks(stageId: String!): [Task]
     clientPortalUserTasks(userId: String): [TasksStage]
-    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TasksItemDate): [TasksStage]
+    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TasksItemDate): [Task]
         `
       : ''
   } 

@@ -296,6 +296,35 @@ export const getTotalAmount = (items: IOrderItemInput[] = []): number => {
   return Number(total.toFixed(2));
 };
 
+const calcPreTaxPercentage = (paymentTypes, order) => {
+  let itemAmountPrePercent = 0;
+  const preTaxPaymentTypes: string[] = (paymentTypes || []).filter(p =>
+    (p.config || '').includes('preTax: true')
+  ).map(p => p.type);
+
+  if (
+    preTaxPaymentTypes.length &&
+    order.paidAmounts?.length
+  ) {
+    let preSentAmount = 0;
+    for (const preTaxPaymentType of preTaxPaymentTypes) {
+      const matchOrderPays = order.paidAmounts.filter(
+        pa => pa.type === preTaxPaymentType
+      );
+      if (matchOrderPays.length) {
+        for (const matchOrderPay of matchOrderPays) {
+          preSentAmount += matchOrderPay.amount;
+        }
+      }
+    }
+
+    if (preSentAmount && preSentAmount <= order.totalAmount) {
+      itemAmountPrePercent = (preSentAmount / order.totalAmount) * 100;
+    }
+  }
+  return { itemAmountPrePercent, preTaxPaymentTypes }
+}
+
 const mathRound = (value, p = 2) => {
   if (!value || isNaN(Number(value))) {
     return 0;
@@ -309,9 +338,10 @@ export const prepareEbarimtData = async (
   models: IModels,
   order: IOrderDocument,
   config: IEbarimtConfig,
-  items: IOrderItemDocument[] = [],
+  items: IOrderItemDocument[],
+  paymentTypes: any[],
   orderBillType?: string,
-  registerNumber?: string
+  registerNumber?: string,
 ) => {
   const billType = orderBillType || order.billType || BILL_TYPES.CITIZEN;
   let type: string = billType === "3" ? "B2B_RECEIPT" : "B2C_RECEIPT";
@@ -332,6 +362,8 @@ export const prepareEbarimtData = async (
       customerName = resp.result?.data?.name;
     }
   }
+
+  const { itemAmountPrePercent, preTaxPaymentTypes } = calcPreTaxPercentage(paymentTypes, order);
 
   const productIds = items.map(item => item.productId);
   const products: IProductDocument[] = await models.Products.find({
@@ -361,17 +393,21 @@ export const prepareEbarimtData = async (
       })
       .map(item => {
         const product: IProductDocument = productsById[item.productId];
+        const tempAmount = (item.count ?? 0) * (item.unitPrice ?? 0);
+        const minusAmount = (tempAmount / 100) * itemAmountPrePercent;
+        const totalAmount = mathRound(tempAmount - minusAmount, 4);
+
         return {
           recId: item._id,
           product,
           quantity: item.count,
           unitPrice: item.unitPrice ?? 0,
-          totalDiscount: item.discountAmount,
-          totalAmount: mathRound(item.count * (item.unitPrice ?? 0), 4)
+          totalDiscount: (item.discountAmount ?? 0) + minusAmount,
+          totalAmount
         };
       }),
     nonCashAmounts: [
-      ...(order.paidAmounts || []),
+      ...(order.paidAmounts || []).filter(pa => !preTaxPaymentTypes.includes(pa.type)),
       ...(order.mobileAmounts || [])
     ].map(pay => ({ amount: pay.amount }))
   };
@@ -469,8 +505,8 @@ export const prepareOrderDoc = async (
     const fixedUnitPrice = Number(
       Number(
         ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
-          item.unitPrice ||
-          0
+        item.unitPrice ||
+        0
       ).toFixed(2)
     );
 

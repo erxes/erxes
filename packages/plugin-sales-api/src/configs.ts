@@ -1,36 +1,37 @@
-import * as serverTiming from "server-timing";
+import * as serverTiming from 'server-timing';
 
-import typeDefs from "./graphql/typeDefs";
-import resolvers from "./graphql/resolvers";
+import typeDefs from './graphql/typeDefs';
+import resolvers from './graphql/resolvers';
 
-import { setupMessageConsumers } from "./messageBroker";
-import * as permissions from "./permissions";
-import { routeErrorHandling } from "@erxes/api-utils/src/requests";
-import { buildFile } from "./exporterByUrl";
-import segments from "./segments";
-import forms from "./forms";
-import logs from "./logUtils";
-import { generateModels } from "./connectionResolver";
-import imports from "./imports";
-import internalNotes from "./internalNotes";
-import automations from "./automations";
-import search from "./search";
-import { getSubdomain } from "@erxes/api-utils/src/core";
-import webhooks from "./webhooks";
-import documents from "./documents";
-import tags from "./tags";
-import exporter from "./exporter";
-import cronjobs from "./cronjobs/common";
-import dashboards from "./dashboards";
-import payment from "./payment";
-import reports from "./reports/reports";
-import app from "@erxes/api-utils/src/app";
+import { setupMessageConsumers } from './messageBroker';
+import * as permissions from './permissions';
+import { routeErrorHandling } from '@erxes/api-utils/src/requests';
+import { buildFile } from './exporterByUrl';
+import segments from './segments';
+import forms from './forms';
+import logs from './logUtils';
+import { generateModels } from './connectionResolver';
+import imports from './imports';
+import internalNotes from './internalNotes';
+import automations from './automations';
+import search from './search';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import webhooks from './webhooks';
+import documents from './documents';
+import tags from './tags';
+import exporter from './exporter';
+import cronjobs from './cronjobs/common';
+import dashboards from './dashboards';
+import payment from './payment';
+import reports from './reports/reports';
+import app from '@erxes/api-utils/src/app';
 
-import { NOTIFICATION_MODULES } from "./constants";
-import templates from "./templates";
+import { NOTIFICATION_MODULES } from './constants';
+import templates from './templates';
+import loyalties from './loyalties';
 
 export default {
-  name: "sales",
+  name: 'sales',
   permissions,
   graphql: async () => {
     return {
@@ -39,10 +40,10 @@ export default {
     };
   },
   hasSubscriptions: true,
-  subscriptionPluginPath: require("path").resolve(
+  subscriptionPluginPath: require('path').resolve(
     __dirname,
-    "graphql",
-    "subscriptionPlugin.js"
+    'graphql',
+    'subscriptionPlugin.js'
   ),
 
   meta: {
@@ -63,7 +64,8 @@ export default {
     dashboards,
     notificationModules: NOTIFICATION_MODULES,
     payment,
-    templates
+    templates,
+    loyalties
   },
 
   apolloServerContext: async (context, req, res) => {
@@ -83,7 +85,7 @@ export default {
   middlewares: [(serverTiming as any)()],
   onServerInit: async () => {
     app.get(
-      "/file-export",
+      '/file-export',
       routeErrorHandling(async (req: any, res) => {
         const { query } = req;
 
@@ -98,7 +100,7 @@ export default {
       })
     );
 
-    console.log("Debug ....");
+    console.log('Debug ....');
   },
   setupMessageConsumers
 };
