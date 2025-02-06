@@ -557,7 +557,7 @@ export const getExchangeRates = async (config: ExchangeRateConfig) => {
 
     const filteredArray = Object.values(latestByCurrency);
     return filteredArray;
-  } catch (error) {
-    console.error('Failed to fetch exchange rates:', error);
+  } catch (e) {
+    console.error('Failed to fetch exchange rates:', e);
   }
 };
