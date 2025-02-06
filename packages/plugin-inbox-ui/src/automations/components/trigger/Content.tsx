@@ -1,11 +1,10 @@
 import React from "react";
 import { TriggerItem } from "../../styles";
-// import PersistentMenu from "./PersistentMenu";
+import PersistentMenu from "./PersistentMenu";
 import { Column, Flex, MenuDivider } from "@erxes/ui/src/styles/main";
 import { CustomChip, OPERATOR_TYPES } from "./DirectMessage";
 import { colors } from "@erxes/ui/src/styles";
 import { __ } from "@erxes/ui/src/utils/core";
-// import { Post } from "./PostSelector";
 
 const renderDirectMessageContent = ({ conditions }) => {
   if (!conditions?.length) {
@@ -39,14 +38,14 @@ const MessagesContent = ({ constant, config }) => {
   const { conditions: conditionsConstant } = constant || {};
 
   const renderPersistentMenuContent = ({ persistentMenuIds }) => {
-    // return (
-    //   <PersistentMenu
-    //     botId={botId}
-    //     onChange={() => {}}
-    //     persistentMenuIds={persistentMenuIds}
-    //     displaySelectedContent
-    //   />
-    // );
+    return (
+      <PersistentMenu
+        botId={botId}
+        onChange={() => {}}
+        persistentMenuIds={persistentMenuIds}
+        displaySelectedContent
+      />
+    );
   };
 
   const renderConditionContent = (type, cond) => {
@@ -55,7 +54,6 @@ const MessagesContent = ({ constant, config }) => {
         return renderPersistentMenuContent(cond);
       case "direct":
         return renderDirectMessageContent(cond);
-
       default:
         return null;
     }
@@ -77,7 +75,7 @@ const MessagesContent = ({ constant, config }) => {
           <label>{label}</label>
           <p>{description}</p>
           <MenuDivider />
-          {/* {renderConditionContent(cond.type, cond)} */}
+          {renderConditionContent(cond.type, cond)}
         </div>
       </TriggerItem>
     );
@@ -93,10 +91,6 @@ export default function TriggerContent({ triggerType, constant, config = {} }) {
   if (triggerType.includes("messages")) {
     return <MessagesContent {...updatedProps} />;
   }
-
-  // if (triggerType.includes('comments')) {
-  //   return <CommentContent {...updatedProps} />;
-  // }
 
   return <></>;
 }

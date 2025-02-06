@@ -570,7 +570,8 @@ const widgetMutations = {
       customerId,
       attachments,
       contentType,
-      content: message
+      content: message,
+      botId: botId
     });
 
     await models.Conversations.updateOne(

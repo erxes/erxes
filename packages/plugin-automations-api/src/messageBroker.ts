@@ -77,6 +77,26 @@ export const setupMessageConsumers = async () => {
     }
   });
 
+  consumeRPCQueue("automations:trigger.find", async ({ subdomain, data }) => {
+    debugInfo(`Receiving queue data: ${JSON.stringify(data)}`);
+    const models = await generateModels(subdomain);
+    try {
+      const result = await models.Automations.find({
+        "triggers.type": data.query.triggerType,
+        "triggers.config.botId": data.query.botId,
+        status: "active"
+      }).lean();
+      return {
+        status: "success",
+        data: result
+      };
+    } catch (error) {
+      return {
+        status: "error",
+        errorMessage: error?.message || "error"
+      };
+    }
+  });
   consumeRPCQueue("automations:find.count", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

@@ -36,12 +36,14 @@ export interface IMessage {
   visitorId?: string;
   userId?: string;
   fromBot?: boolean;
+  getStarted?:Boolean
   isCustomerRead?: boolean;
   formWidgetData?: any;
   botData?: any;
   messengerAppData?: any;
   engageData?: IEngageData;
   contentType?: string;
+  botId?: string;
 }
 
 export interface IResolveAllConversationParam {
@@ -104,6 +106,7 @@ export const messageSchema = new Schema({
     label: "unique visitor id on logger database"
   }),
   fromBot: field({ type: Boolean }),
+  getStarted: field({ type: Boolean }),
   userId: field({ type: String, index: true }),
   createdAt: field({ type: Date, index: true }),
   isCustomerRead: field({ type: Boolean }),
@@ -115,5 +118,6 @@ export const messageSchema = new Schema({
     type: String,
     enum: MESSAGE_TYPES.ALL,
     default: MESSAGE_TYPES.TEXT
-  })
+  }),
+  botId: field({ type: String })
 });
