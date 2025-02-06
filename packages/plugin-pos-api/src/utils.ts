@@ -1,7 +1,7 @@
-import { sendMessage } from "@erxes/api-utils/src/messageBroker";
-import * as lodash from "lodash";
-import redis from "@erxes/api-utils/src/redis";
-import { generateModels, IModels } from "./connectionResolver";
+import { sendMessage } from '@erxes/api-utils/src/messageBroker';
+import * as lodash from 'lodash';
+import redis from '@erxes/api-utils/src/redis';
+import { generateModels, IModels } from './connectionResolver';
 import {
   sendAutomationsMessage,
   sendSalesMessage,
@@ -12,16 +12,16 @@ import {
   sendPosclientHealthCheck,
   sendPosclientMessage,
   sendSyncerkhetMessage
-} from "./messageBroker";
-import { IPosOrder, IPosOrderDocument } from "./models/definitions/orders";
-import { IPosDocument } from "./models/definitions/pos";
-import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
-import { debugError } from "./debugger";
+} from './messageBroker';
+import { IPosOrder, IPosOrderDocument } from './models/definitions/orders';
+import { IPosDocument } from './models/definitions/pos';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { debugError } from './debugger';
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
   return await sendCoreMessage({
     subdomain,
-    action: "getConfig",
+    action: 'getConfig',
     data: { code, defaultValue },
     isRPC: true
   });
@@ -30,26 +30,26 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
 export const getChildCategories = async (subdomain: string, categoryIds) => {
   const childs = await sendCoreMessage({
     subdomain,
-    action: "categories.withChilds",
+    action: 'categories.withChilds',
     data: { ids: categoryIds },
     isRPC: true,
     defaultValue: []
   });
 
-  const catIds: string[] = (childs || []).map(ch => ch._id) || [];
+  const catIds: string[] = (childs || []).map((ch) => ch._id) || [];
   return Array.from(new Set(catIds));
 };
 
 const getChildTags = async (subdomain: string, tagIds) => {
   const childs = await sendCoreMessage({
     subdomain,
-    action: "tagWithChilds",
+    action: 'tagWithChilds',
     data: { query: { _id: { $in: tagIds } }, fields: { _id: 1 } },
     isRPC: true,
     defaultValue: []
   });
 
-  const foundTagIds: string[] = (childs || []).map(ch => ch._id) || [];
+  const foundTagIds: string[] = (childs || []).map((ch) => ch._id) || [];
   return Array.from(new Set(foundTagIds));
 };
 
@@ -61,7 +61,7 @@ export const getBranchesUtil = async (
   const pos = await models.Pos.findOne({ token: posToken }).lean();
 
   if (!pos) {
-    return { error: "not found pos" };
+    return { error: 'not found pos' };
   }
 
   const allowsPos = await models.Pos.find({
@@ -75,8 +75,8 @@ export const getBranchesUtil = async (
 
   const { ALL_AUTO_INIT } = process.env;
 
-  if ([true, "true", "True", "1"].includes(ALL_AUTO_INIT || "")) {
-    healthyBranchIds = allowsPos.map(p => p.branchId);
+  if ([true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '')) {
+    healthyBranchIds = allowsPos.map((p) => p.branchId);
   } else {
     for (const allowPos of allowsPos) {
       if (healthyBranchIds.includes(allowPos.branchId)) {
@@ -88,7 +88,7 @@ export const getBranchesUtil = async (
         pos: allowPos
       });
 
-      if (response && response.healthy === "ok") {
+      if (response && response.healthy === 'ok') {
         healthyBranchIds.push(allowPos.branchId);
       }
     }
@@ -96,7 +96,7 @@ export const getBranchesUtil = async (
 
   return await sendCoreMessage({
     subdomain,
-    action: "branches.find",
+    action: 'branches.find',
     data: {
       query: { _id: { $in: healthyBranchIds } },
       fields: {
@@ -142,20 +142,19 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
         try {
           await sendLoyaltiesMessage({
             subdomain,
-            action: "doScoreCampaign",
+            action: 'doScoreCampaign',
             data: {
-              ownerType: order.customerType || "customer",
+              ownerType: order.customerType || 'customer',
               ownerId: order.customerId,
               campaignId: paymentType.scoreCampaignId,
               target: order,
-              actionMethod: "subtract",
-              serviceName: "pos",
+              actionMethod: 'subtract',
+              serviceName: 'pos',
               targetId: (order as any)?._id
             },
             isRPC: true
           });
         } catch (error) {
-          console.error({ error });
           debugError(error);
           throw new Error(error.message);
         }
@@ -163,7 +162,7 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
     }
   }
 
-  const confirmItems = (order.items || []).filter(i => i.bonusCount) || [];
+  const confirmItems = (order.items || []).filter((i) => i.bonusCount) || [];
 
   if (!confirmItems.length) {
     return;
@@ -180,7 +179,7 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
   try {
     await sendLoyaltiesMessage({
       subdomain,
-      action: "confirmLoyalties",
+      action: 'confirmLoyalties',
       data: {
         checkInfo
       }
@@ -191,27 +190,27 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
 };
 
 const otherPlugins = async (subdomain, newOrder, oldOrder?, userId?) => {
-  const value = await redis.get("afterMutations");
-  const afterMutations = JSON.parse(value || "{}");
+  const value = await redis.get('afterMutations');
+  const afterMutations = JSON.parse(value || '{}');
 
   if (
-    afterMutations["pos:order"] &&
-    afterMutations["pos:order"]["synced"] &&
-    afterMutations["pos:order"]["synced"].length
+    afterMutations['pos:order'] &&
+    afterMutations['pos:order']['synced'] &&
+    afterMutations['pos:order']['synced'].length
   ) {
     const user = await sendCoreMessage({
       subdomain,
-      action: "users.findOne",
+      action: 'users.findOne',
       data: { _id: userId },
       isRPC: true
     });
 
-    for (const service of afterMutations["pos:order"]["synced"]) {
+    for (const service of afterMutations['pos:order']['synced']) {
       await sendMessage(`${service}:afterMutation`, {
         subdomain,
         data: {
-          type: "pos:order",
-          action: "synced",
+          type: 'pos:order',
+          action: 'synced',
           object: oldOrder || newOrder,
           updatedDocument: newOrder,
           newData: newOrder,
@@ -233,13 +232,13 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
     saveInfo
   } = deliveryInfo;
 
-  const customerType = doneOrder.customerType || "customer";
+  const customerType = doneOrder.customerType || 'customer';
   if (
     saveInfo &&
     doneOrder.customerId &&
-    ["customer", "company"].includes(customerType)
+    ['customer', 'company'].includes(customerType)
   ) {
-    const moduleTxt = customerType === "company" ? "companies" : "customers";
+    const moduleTxt = customerType === 'company' ? 'companies' : 'customers';
 
     const pushInfo: any = {};
 
@@ -251,7 +250,7 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
       pushInfo.addresses = {
         id: `${marker.longitude || marker.lng}_${marker.latitude || marker.lat}`,
         location: {
-          type: "Point",
+          type: 'Point',
           coordinates: [
             marker.longitude || marker.lng,
             marker.latitude || marker.lat
@@ -295,14 +294,14 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     name: `Delivery: ${doneOrder.number}`,
     startDate: doneOrder.createdAt,
     closeDate: doneOrder.dueDate,
-    description: `<p>${doneOrder.description || ""}</p> <p>${description || ""}</p>`,
+    description: `<p>${doneOrder.description || ''}</p> <p>${description || ''}</p>`,
     stageId: deliveryConfig.stageId,
     assignedUserIds: deliveryConfig.assignedUserIds,
     watchedUserIds: deliveryConfig.watchedUserIds,
-    productsData: doneOrder.items.map(i => ({
+    productsData: doneOrder.items.map((i) => ({
       productId: i.productId,
-      uom: "PC",
-      currency: "MNT",
+      uom: 'PC',
+      currency: 'MNT',
       quantity: i.count,
       unitPrice: i.unitPrice,
       amount: i.count * i.unitPrice,
@@ -328,9 +327,9 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     // }
     dealsData.customFieldsData = [
       {
-        field: deliveryConfig.mapCustomField.replace("customFieldsData.", ""),
+        field: deliveryConfig.mapCustomField.replace('customFieldsData.', ''),
         locationValue: {
-          type: "Point",
+          type: 'Point',
           coordinates: [
             marker.longitude || marker.lng,
             marker.latitude || marker.lat
@@ -339,7 +338,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
         value: {
           lat: marker.latitude || marker.lat,
           lng: marker.longitude || marker.lng,
-          description: "location"
+          description: 'location'
         },
         stringValue: `${marker.longitude || marker.lng},${marker.latitude || marker.lat}`
       }
@@ -349,7 +348,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
   if ((doneOrder.deliveryInfo || {}).dealId) {
     const deal = await sendSalesMessage({
       subdomain,
-      action: "deals.updateOne",
+      action: 'deals.updateOne',
       data: {
         selector: { _id: doneOrder.deliveryInfo.dealId },
         modifier: dealsData
@@ -360,10 +359,10 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
 
     await sendSalesMessage({
       subdomain,
-      action: "salesPipelinesChanged",
+      action: 'salesPipelinesChanged',
       data: {
         pipelineId: deliveryConfig.pipelineId,
-        action: "itemUpdate",
+        action: 'itemUpdate',
         data: {
           item: deal,
           destinationStageId: deliveryConfig.stageId
@@ -373,7 +372,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
   } else {
     const deal = await sendSalesMessage({
       subdomain,
-      action: "deals.create",
+      action: 'deals.create',
       data: dealsData,
       isRPC: true,
       defaultValue: {}
@@ -382,15 +381,15 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     if (
       doneOrder.customerId &&
       deal._id &&
-      ["customer", "company"].includes(doneOrder.customerType || "customer")
+      ['customer', 'company'].includes(doneOrder.customerType || 'customer')
     ) {
       await sendCoreMessage({
         subdomain,
-        action: "conformities.addConformity",
+        action: 'conformities.addConformity',
         data: {
-          mainType: "deal",
+          mainType: 'deal',
           mainTypeId: deal._id,
-          relType: doneOrder.customerType || "customer",
+          relType: doneOrder.customerType || 'customer',
           relTypeId: doneOrder.customerId
         },
         isRPC: true
@@ -399,10 +398,10 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
 
     await sendSalesMessage({
       subdomain,
-      action: "salesPipelinesChanged",
+      action: 'salesPipelinesChanged',
       data: {
         pipelineId: deliveryConfig.pipelineId,
-        action: "itemAdd",
+        action: 'itemAdd',
         data: {
           item: deal,
           destinationStageId: deliveryConfig.stageId
@@ -460,13 +459,13 @@ export const statusToDone = async ({
     if (toPos) {
       await sendPosclientMessage({
         subdomain,
-        action: "erxes-posclient-to-pos-api",
+        action: 'erxes-posclient-to-pos-api',
         data: {
           order: {
             ...doneOrder,
             posToken: doneOrder.posToken,
             subToken: toPos.token,
-            status: "reDoing"
+            status: 'reDoing'
           }
         },
         pos: toPos
@@ -475,7 +474,7 @@ export const statusToDone = async ({
   }
 
   return {
-    status: "success"
+    status: 'success'
   };
 };
 
@@ -494,7 +493,7 @@ const createDealPerOrder = async ({
   const { cardsConfig } = pos;
 
   const currentCardsConfig: any = (Object.values(cardsConfig || {}) || []).find(
-    c =>
+    (c) =>
       (c || ({} as any)).branchId && (c as any).branchId === newOrder.branchId
   );
 
@@ -503,13 +502,13 @@ const createDealPerOrder = async ({
     if (newOrder.cashAmount) {
       paymentsData.cash = {
         amount: newOrder.cashAmount,
-        currency: "MNT"
+        currency: 'MNT'
       };
     }
     if (newOrder.mobileAmount) {
       paymentsData.bank = {
         amount: newOrder.cashAmount,
-        currency: "MNT"
+        currency: 'MNT'
       };
     }
     if (newOrder.paidAmounts?.length) {
@@ -522,23 +521,23 @@ const createDealPerOrder = async ({
           (sum, curr) => curr.amount + sum,
           0
         ),
-        currency: "MNT"
+        currency: 'MNT'
       };
     }
 
     const cardDeal = await sendSalesMessage({
       subdomain,
-      action: "deals.create",
+      action: 'deals.create',
       data: {
         name: `Cards: ${newOrder.number}`,
         startDate: newOrder.createdAt,
         description: `<p>${newOrder.description}</p>`,
         stageId: currentCardsConfig.stageId,
         assignedUserIds: currentCardsConfig.assignedUserIds,
-        productsData: (newOrder.items || []).map(i => ({
+        productsData: (newOrder.items || []).map((i) => ({
           productId: i.productId,
-          uom: "PC",
-          currency: "MNT",
+          uom: 'PC',
+          currency: 'MNT',
           quantity: i.count,
           unitPrice: i.unitPrice,
           amount: i.count * (i.unitPrice || 0),
@@ -553,11 +552,11 @@ const createDealPerOrder = async ({
     if (newOrder.customerId && cardDeal._id) {
       await sendCoreMessage({
         subdomain,
-        action: "conformities.addConformity",
+        action: 'conformities.addConformity',
         data: {
-          mainType: "deal",
+          mainType: 'deal',
           mainTypeId: cardDeal._id,
-          relType: newOrder.customerType || "customer",
+          relType: newOrder.customerType || 'customer',
           relTypeId: newOrder.customerId
         },
         isRPC: true
@@ -566,10 +565,10 @@ const createDealPerOrder = async ({
 
     await sendSalesMessage({
       subdomain,
-      action: "salesPipelinesChanged",
+      action: 'salesPipelinesChanged',
       data: {
         pipelineId: currentCardsConfig.pipelineId,
-        action: "itemAdd",
+        action: 'itemAdd',
         data: {
           item: cardDeal,
           destinationStageId: currentCardsConfig.stageId
@@ -598,10 +597,10 @@ const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
     return;
   }
 
-  if (newOrder.status === "return") {
+  if (newOrder.status === 'return') {
     resp = await sendSyncerkhetMessage({
       subdomain,
-      action: "returnOrder",
+      action: 'returnOrder',
       data: {
         pos,
         order: newOrder
@@ -613,7 +612,7 @@ const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
   } else {
     resp = await sendSyncerkhetMessage({
       subdomain,
-      action: "toOrder",
+      action: 'toOrder',
       data: {
         pos,
         order: newOrder
@@ -648,7 +647,7 @@ const syncInventoriesRem = async ({
   }
 
   let multiplier = 1;
-  if (newOrder.status === "return") {
+  if (newOrder.status === 'return') {
     multiplier = -1;
   }
 
@@ -660,11 +659,11 @@ const syncInventoriesRem = async ({
       ) {
         sendInventoriesMessage({
           subdomain,
-          action: "remainders.updateMany",
+          action: 'remainders.updateMany',
           data: {
             branchId: newOrder.branchId,
             departmentId: newOrder.departmentId,
-            productsData: (newOrder.items || []).map(item => ({
+            productsData: (newOrder.items || []).map((item) => ({
               productId: item.productId,
               uom: item.uom,
               diffSoonOut: item.count * multiplier
@@ -676,11 +675,11 @@ const syncInventoriesRem = async ({
       if (oldBranchId && oldBranchId !== newOrder.branchId) {
         sendInventoriesMessage({
           subdomain,
-          action: "remainders.updateMany",
+          action: 'remainders.updateMany',
           data: {
             branchId: oldBranchId,
             departmentId: newOrder.departmentId,
-            productsData: (newOrder.items || []).map(item => ({
+            productsData: (newOrder.items || []).map((item) => ({
               productId: item.productId,
               uom: item.uom,
               diffSoonOut: -1 * item.count * multiplier
@@ -702,11 +701,11 @@ const syncInventoriesRem = async ({
   ) {
     sendInventoriesMessage({
       subdomain,
-      action: "remainders.updateMany",
+      action: 'remainders.updateMany',
       data: {
         branchId: newOrder.branchId,
         departmentId: newOrder.departmentId,
-        productsData: (newOrder.items || []).map(item => ({
+        productsData: (newOrder.items || []).map((item) => ({
           productId: item.productId,
           uom: item.uom,
           diffCount: -1 * item.count * multiplier,
@@ -719,11 +718,11 @@ const syncInventoriesRem = async ({
   if (oldBranchId && oldBranchId !== newOrder.branchId) {
     sendInventoriesMessage({
       subdomain,
-      action: "remainders.updateMany",
+      action: 'remainders.updateMany',
       data: {
         branchId: oldBranchId,
         departmentId: newOrder.departmentId,
-        productsData: (newOrder.items || []).map(item => ({
+        productsData: (newOrder.items || []).map((item) => ({
           productId: item.productId,
           uom: item.uom,
           diffCount: item.count * multiplier,
@@ -752,14 +751,14 @@ export const syncOrderFromClient = async ({
   responses;
 }) => {
   const oldOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
-  const oldBranchId = oldOrder ? oldOrder.branchId : "";
+  const oldBranchId = oldOrder ? oldOrder.branchId : '';
 
-  if (await isEnabled("ebarimt")) {
+  if (await isEnabled('ebarimt')) {
     for (const response of responses || []) {
       if (response && response._id) {
         await sendEbarimtMessage({
           subdomain,
-          action: "putresponses.createOrUpdate",
+          action: 'putresponses.createOrUpdate',
           data: { _id: response._id, doc: { ...response, posToken } },
           isRPC: true
         });
@@ -790,13 +789,13 @@ export const syncOrderFromClient = async ({
 
   let convertDealId;
   if (newOrder.paidDate) {
-    if (newOrder.customerId && (await isEnabled("automations"))) {
+    if (newOrder.customerId && (await isEnabled('automations'))) {
       try {
         await sendAutomationsMessage({
           subdomain,
-          action: "trigger",
+          action: 'trigger',
           data: {
-            type: "pos:posOrder",
+            type: 'pos:posOrder',
             targets: [newOrder]
           }
         });
@@ -841,7 +840,7 @@ export const syncOrderFromClient = async ({
     if (toPos) {
       await sendPosclientMessage({
         subdomain,
-        action: "erxes-posclient-to-pos-api",
+        action: 'erxes-posclient-to-pos-api',
         data: {
           order: { ...newOrder, convertDealId, posToken, subToken: toPos.token }
         },
@@ -863,7 +862,7 @@ export const syncOrderFromClient = async ({
       if (toCancelPos) {
         await sendPosclientMessage({
           subdomain,
-          action: "erxes-posclient-to-pos-api-remove",
+          action: 'erxes-posclient-to-pos-api-remove',
           data: {
             order: { ...newOrder, posToken, subToken: toCancelPos.token }
           },
@@ -890,21 +889,21 @@ export const syncOrderFromClient = async ({
   const syncedResponseIds = (
     (await sendEbarimtMessage({
       subdomain,
-      action: "putresponses.find",
+      action: 'putresponses.find',
       data: {
-        query: { _id: { $in: (responses || []).map(resp => resp._id) } }
+        query: { _id: { $in: (responses || []).map((resp) => resp._id) } }
       },
       isRPC: true,
       defaultValue: []
     })) || []
-  ).map(r => r._id);
+  ).map((r) => r._id);
 
   // return info saved
   await sendPosclientMessage({
     subdomain,
     action: `updateSynced`,
     data: {
-      status: "ok",
+      status: 'ok',
       posToken,
       responseIds: syncedResponseIds,
       orderId: newOrder._id,
@@ -916,7 +915,7 @@ export const syncOrderFromClient = async ({
 
 const checkProductsByRule = async (subdomain, products, rule) => {
   let filterIds: string[] = [];
-  const productIds = products.map(p => p._id)
+  const productIds = products.map((p) => p._id);
 
   if (rule.productCategoryIds?.length) {
     const includeCatIds = await getChildCategories(
@@ -924,22 +923,29 @@ const checkProductsByRule = async (subdomain, products, rule) => {
       rule.productCategoryIds
     );
 
-    const includeProductIdsCat = products.filter(p => includeCatIds.includes(p.categoryId)).map(p => p._id);
-    filterIds = filterIds.concat(lodash.intersection(includeProductIdsCat, productIds));
+    const includeProductIdsCat = products
+      .filter((p) => includeCatIds.includes(p.categoryId))
+      .map((p) => p._id);
+    filterIds = filterIds.concat(
+      lodash.intersection(includeProductIdsCat, productIds)
+    );
   }
 
   if (rule.tagIds?.length) {
-    const includeTagIds = await getChildTags(
-      subdomain,
-      rule.tagIds
-    );
+    const includeTagIds = await getChildTags(subdomain, rule.tagIds);
 
-    const includeProductIdsTag = products.filter(p => lodash.intersection(includeTagIds, (p.tagIds || [])).length).map(p => p._id);
-    filterIds = filterIds.concat(lodash.intersection(includeProductIdsTag, productIds));
+    const includeProductIdsTag = products
+      .filter((p) => lodash.intersection(includeTagIds, p.tagIds || []).length)
+      .map((p) => p._id);
+    filterIds = filterIds.concat(
+      lodash.intersection(includeProductIdsTag, productIds)
+    );
   }
 
   if (rule.productIds?.length) {
-    filterIds = filterIds.concat(lodash.intersection(rule.productIds, productIds));
+    filterIds = filterIds.concat(
+      lodash.intersection(rule.productIds, productIds)
+    );
   }
 
   if (!filterIds.length) {
@@ -947,50 +953,61 @@ const checkProductsByRule = async (subdomain, products, rule) => {
   }
 
   // found an special products
-  const filterProducts = products.filter(p => filterIds.includes(p._id));
+  const filterProducts = products.filter((p) => filterIds.includes(p._id));
   if (rule.excludeCatIds?.length) {
     const excludeCatIds = await getChildCategories(
       subdomain,
       rule.excludeCatIds
     );
 
-    const excProductIdsCat = filterProducts.filter(p => excludeCatIds.includes(p.categoryId)).map(p => p._id);
-    filterIds = filterIds.filter(f => !excProductIdsCat.includes(f));
+    const excProductIdsCat = filterProducts
+      .filter((p) => excludeCatIds.includes(p.categoryId))
+      .map((p) => p._id);
+    filterIds = filterIds.filter((f) => !excProductIdsCat.includes(f));
   }
 
   if (rule.excludeTagIds?.length) {
-    const excludeTagIds = await getChildTags(
-      subdomain,
-      rule.excludeTagIds
-    );
+    const excludeTagIds = await getChildTags(subdomain, rule.excludeTagIds);
 
-    const excProductIdsTag = filterProducts.filter(p => lodash.intersection(excludeTagIds, (p.tagIds || [])).length).map(p => p._id);
-    filterIds = filterIds.filter(f => !excProductIdsTag.includes(f))
+    const excProductIdsTag = filterProducts
+      .filter((p) => lodash.intersection(excludeTagIds, p.tagIds || []).length)
+      .map((p) => p._id);
+    filterIds = filterIds.filter((f) => !excProductIdsTag.includes(f));
   }
 
   if (rule.excludeProductIds?.length) {
-    filterIds = filterIds.filter(f => !rule.excludeProductIds.includes(f));
+    filterIds = filterIds.filter((f) => !rule.excludeProductIds.includes(f));
   }
 
   return filterIds;
-}
+};
 
-export const calcProductsTaxRule = async (subdomain: string, config, products) => {
-  const vatRules = config?.reverseVatRules?.length && await sendEbarimtMessage({
-    subdomain,
-    action: 'productRules.find',
-    data: { _id: { $in: config.reverseVatRules } },
-    isRPC: true,
-    defaultValue: []
-  }) || [];
+export const calcProductsTaxRule = async (
+  subdomain: string,
+  config,
+  products
+) => {
+  const vatRules =
+    (config?.reverseVatRules?.length &&
+      (await sendEbarimtMessage({
+        subdomain,
+        action: 'productRules.find',
+        data: { _id: { $in: config.reverseVatRules } },
+        isRPC: true,
+        defaultValue: []
+      }))) ||
+    [];
 
-  const ctaxRules = config?.reverseCtaxRules?.length && await sendEbarimtMessage({
-    subdomain,
-    action: 'productRules.find',
-    data: { _id: { $in: config.reverseCtaxRules } },
-    isRPC: true,
-    defaultValue: []
-  }) || [];
+  const ctaxRules =
+    (config?.reverseCtaxRules?.length &&
+      (await sendEbarimtMessage({
+        subdomain,
+        action: 'productRules.find',
+        data: { _id: { $in: config.reverseCtaxRules } },
+        isRPC: true,
+        defaultValue: []
+      }))) ||
+    [];
 
   const productsById = {};
   for (const product of products) {
@@ -999,7 +1016,11 @@ export const calcProductsTaxRule = async (subdomain: string, config, products) =
 
   if (vatRules.length) {
     for (const rule of vatRules) {
-      const productIdsByRule = await checkProductsByRule(subdomain, products, rule);
+      const productIdsByRule = await checkProductsByRule(
+        subdomain,
+        products,
+        rule
+      );
 
       for (const pId of productIdsByRule) {
         if (!productsById[pId].taxRule) {
@@ -1014,7 +1035,11 @@ export const calcProductsTaxRule = async (subdomain: string, config, products) =
 
   if (ctaxRules.length) {
     for (const rule of ctaxRules) {
-      const productIdsByRule = await checkProductsByRule(subdomain, products, rule);
+      const productIdsByRule = await checkProductsByRule(
+        subdomain,
+        products,
+        rule
+      );
 
       for (const pId of productIdsByRule) {
         if (!productsById[pId].taxRule) {
@@ -1027,5 +1052,5 @@ export const calcProductsTaxRule = async (subdomain: string, config, products) =
     }
   }
 
-  return productsById
-}
+  return productsById;
+};

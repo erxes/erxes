@@ -3,15 +3,9 @@ import Component from "../components/List";
 import { Alert, Bulk, confirm } from "@erxes/ui/src";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import queries from "../graphql/queries";
-import { QueryResponse } from "@erxes/ui/src/types";
-import { IScoreCampaign } from "../types";
+import { ScoreCampaignsQueryResponse } from "../types";
 import mutations from "../graphql/mutations";
 import { IBulkContentProps } from "@erxes/ui/src/components/Bulk";
-
-export type ScoreCampaignsQueryResponse = {
-  scoreCampaigns: IScoreCampaign[];
-  scoreCampaignsTotalCount: number;
-} & QueryResponse;
 
 export default function List(props) {
   const { data, loading, refetch } = useQuery<ScoreCampaignsQueryResponse>(

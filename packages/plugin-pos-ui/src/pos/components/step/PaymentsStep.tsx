@@ -34,7 +34,7 @@ type Props = {
 };
 
 const campaignQuery = `
-query ScoreCampaigns {
+    query ScoreCampaigns {
       scoreCampaigns {
         _id,title
       }

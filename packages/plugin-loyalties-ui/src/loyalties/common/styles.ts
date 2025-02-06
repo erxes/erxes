@@ -119,7 +119,6 @@ const SidebarListItem = styledTS<{ $isActive: boolean }>(styled.li)`
 `;
 
 const SidebarFilters = styledTS(styled.div)`
-  overflow: hidden;
   padding: 5px 15px 30px 15px;
 `;
 

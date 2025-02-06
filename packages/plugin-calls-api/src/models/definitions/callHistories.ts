@@ -18,6 +18,7 @@ export interface ICallHistory {
   acceptedUserId: string;
   recordUrl: string;
   endedBy: string;
+  queueName: string
 }
 
 export interface ICallHistoryDocument extends ICallHistory, Document {
