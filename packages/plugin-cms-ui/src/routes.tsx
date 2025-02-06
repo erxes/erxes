@@ -1,13 +1,9 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
 import React from 'react';
 import {
-  Navigate,
   Route,
   Routes,
-  useLocation,
-  useNavigate,
-  useParams,
+  useParams
 } from 'react-router-dom';
 
 const CategoryList = asyncComponent(
@@ -31,19 +27,6 @@ const PostForm = asyncComponent(
     )
 );
 
-const Cms = asyncComponent(
-  () =>
-    import(
-      /* webpackChunkName: "List - Cms" */ './modules/clientportal/containers/Header'
-    )
-);
-
-const Redirect = asyncComponent(
-  () =>
-    import(
-      /* webpackChunkName: "List - Cms" */ './modules/clientportal/containers/Redirect'
-    )
-);
 
 const Tags = asyncComponent(
   () =>
@@ -67,10 +50,6 @@ const TagsComponent = () => {
   return <Tags />;
 };
 
-const RedirectComponent = () => {
-  return <Redirect />;
-};
-
 const PostsComponent = () => {
   // const { cpId = '' } = useParams();
 
@@ -79,25 +58,19 @@ const PostsComponent = () => {
 
 const PostAddComponent = () => {
   return <PostForm />;
-}
+};
 
 const PostEditComponent = () => {
   const { id } = useParams();
   return <PostForm id={id} />;
 };
 
-const CmsComponent = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  return <Cms location={location} navigate={navigate} />;
-};
 
 const PagesComponent = () => {
   const { cpId = '' } = useParams();
 
   return <Pages clientPortalId={cpId} />;
 };
-
 
 const routes = () => (
   <Routes>
@@ -111,48 +84,15 @@ const routes = () => (
 
     <Route key='/cms/tags' path='/cms/tags' element={<TagsComponent />} />
 
-    <Route
-      key='/cms/pages'
-      path='/cms/pages'
-      element={<PagesComponent />}
-    />
+    <Route key='/cms/pages' path='/cms/pages' element={<PagesComponent />} />
 
-    <Route
-      key='/cms/posts/:cpId'
-      path='/cms/posts/:cpId'
-      element={<PostsComponent />}
-    />
-
-    <Route
-      key='/cms/posts/new'
-      path='/cms/posts/new'
-      element={<PostForm />}
-    />
+    <Route key='/cms/posts/new' path='/cms/posts/new' element={<PostForm />} />
 
     <Route
       key='/cms/posts/edit/:id'
       path='/cms/posts/edit/:id'
       element={<PostEditComponent />}
     />
-
-    <Route
-      key='/cms/categories/:cpId'
-      path='/cms/categories/:cpId'
-      element={<CategoriesComponent />}
-    />
-
-    <Route
-      key='/cms/tags/:cpId'
-      path='/cms/tags/:cpId'
-      element={<TagsComponent />}
-    />
-
-    <Route
-      key='/cms/pages/:cpId'
-      path='/cms/pages/:cpId'
-      element={<PagesComponent />}
-    />
-
   </Routes>
 );
 
