@@ -846,6 +846,10 @@ module.exports = {
             {
               "name": "dealUpdateTimeTracking",
               "description": "Update time tracking"
+            },
+            {
+              "name": "dealUpdateProductsData",
+              "description": "Update products data"
             }
           ]
         }
@@ -1705,7 +1709,8 @@ module.exports = {
       "scope": "engages",
       "exposes": {
         "./routes": "./src/routes.tsx",
-        "./automation": "./src/automation.tsx"
+        "./automation": "./src/automation.tsx",
+        "./activityLog": "./src/ActivityLog.tsx"
       },
       "routes": {
         "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-engages-ui/remoteEntry.js",
@@ -1713,6 +1718,7 @@ module.exports = {
         "module": "./routes"
       },
       "automation": "./automation",
+      "activityLog": "./activityLog",
       "menus": [
         {
           "text": "Broadcast",
@@ -4653,12 +4659,9 @@ module.exports = {
       "menus": [
         {
           "text": "PMS config",
-          "to": "/settings/pms/general",
+          "to": "/pms",
           "image": "/images/icons/erxes-04.svg",
-          "location": "settings",
-          "scope": "pms",
-          "action": "pmsConfig",
-          "permission": "pmsConfig"
+          "location": "settings"
         }
       ],
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-pms-ui/remoteEntry.js"
