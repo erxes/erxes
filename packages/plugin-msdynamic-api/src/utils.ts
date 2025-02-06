@@ -523,33 +523,41 @@ export const getExchangeRates = async (config: ExchangeRateConfig) => {
 
   const { exchangeRateApi, username, password } = config;
 
-  const response = await fetch(
-    `${exchangeRateApi}?$filter=Code eq  'PREPAID'`,
-    {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Accept: 'application/json',
-        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-          'base64'
-        )}`,
-      },
-      timeout: 180000,
+  try {
+    const response = await fetch(
+      `${exchangeRateApi}?$filter=Code eq  'PREPAID'`,
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/json',
+          Authorization: `Basic ${Buffer.from(
+            `${username}:${password}`
+          ).toString('base64')}`,
+        },
+        timeout: 180000,
+      }
+    ).then((res) => res.json());
+
+    if (!response.value || !Array.isArray(response.value)) {
+      throw new Error('Invalid response format from exchange rate API');
     }
-  ).then((res) => res.json());
 
-  const latestByCurrency: { [key: string]: any } = {};
+    const latestByCurrency: { [key: string]: any } = {};
 
-  response.value.forEach((item) => {
-    const currency = item.Currency_Code;
-    if (
-      !latestByCurrency[currency] ||
-      new Date(item.Starting_Date) >
-        new Date(latestByCurrency[currency].Starting_Date)
-    ) {
-      latestByCurrency[currency] = item;
-    }
-  });
+    response.value.forEach((item) => {
+      const currency = item.Currency_Code;
+      if (
+        !latestByCurrency[currency] ||
+        new Date(item.Starting_Date) >
+          new Date(latestByCurrency[currency].Starting_Date)
+      ) {
+        latestByCurrency[currency] = item;
+      }
+    });
 
-  const filteredArray = Object.values(latestByCurrency);
-  return filteredArray;
+    const filteredArray = Object.values(latestByCurrency);
+    return filteredArray;
+  } catch (error) {
+    console.error('Failed to fetch exchange rates:', error);
+  }
 };
