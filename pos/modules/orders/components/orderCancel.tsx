@@ -32,13 +32,13 @@ export const HistoryOrderCancelTrigger = ({
 }) => {
   const paymentDetail =
     useAtomValue(paymentDetailAtom)
-  const { changeOpen, notPaid } = useOrderCancel(paymentDetail)
+  const { changeOpen, lessZero } = useOrderCancel(paymentDetail)
 
   return (
     <DropdownMenuItem
       className="text-destructive focus:text-destructive"
       onClick={() => changeOpen(_id)}
-      disabled={loading || notPaid}
+      disabled={loading || lessZero}
     >
       Устгах
     </DropdownMenuItem>
@@ -67,7 +67,7 @@ export const useOrderCancel = (order
   
   return {
     changeOpen,
-    notPaid: paidTotal <= 0,
+    lessZero: paidTotal <= 0,
   }
 }
 
