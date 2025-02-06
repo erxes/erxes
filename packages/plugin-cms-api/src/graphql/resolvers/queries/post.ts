@@ -36,6 +36,10 @@ export const queryBuilder = (args: any) => {
     query.authorId = args.authorId;
   }
 
+  if (args.featured) {
+    query.featured = args.featured;
+  }
+
   return query;
 };
 
