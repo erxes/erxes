@@ -1,14 +1,6 @@
-"use client";
-
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useSetAtom } from "jotai";
-import { Bell, AlertCircle } from "lucide-react";
-import {
-  activeOrderIdAtom,
-  setInitialAtom,
-} from "@/store/order.store";
-import { selectedTabAtom , orderCollapsibleAtom } from "@/store";
-import { openCancelDialogAtom } from "@/store/history.store";
+import { useSetAtom, useAtomValue } from "jotai";
+import { Bell } from "lucide-react";
 import { ORDER_STATUSES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,18 +16,21 @@ import {
 import OrderNotificationCarousel from "./components/orderNotfModal/orderNotfModal.main";
 import useFullOrders from "./hooks/useFullOrders";
 import { queries } from "./graphql";
+import { activeOrderIdAtom, setInitialAtom } from "@/store/order.store";
+import { selectedTabAtom, orderCollapsibleAtom, orderNotificationEnabledAtom } from "@/store";
+import { openCancelDialogAtom } from "@/store/history.store";
 
 interface Subscription {
   unsubscribe: () => void;
 }
 
 const OrderNotf = () => {
-  const { ALL } = ORDER_STATUSES;
   const setSelectedTab = useSetAtom(selectedTabAtom);
   const setActiveOrderId = useSetAtom(activeOrderIdAtom);
   const changeCancel = useSetAtom(openCancelDialogAtom);
   const setInitialStates = useSetAtom(setInitialAtom);
   const setOpenCollapsible = useSetAtom(orderCollapsibleAtom);
+  const isNotificationEnabled = useAtomValue(orderNotificationEnabledAtom);
 
   const [isOpen, setIsOpen] = useState(false);
   const previousOrderCountRef = useRef(0);
@@ -54,7 +49,7 @@ const OrderNotf = () => {
       sortDirection: -1,
       sortField: "createdAt",
       isPaid: false,
-      statuses: ALL,
+      statuses: ORDER_STATUSES.ALL,
     },
     query: queries.activeOrders,
     onCompleted(orders) {
@@ -66,8 +61,10 @@ const OrderNotf = () => {
   });
 
   const subToOrderStatusesMemoized = useCallback((): Subscription | void => {
-    return subToOrderStatuses(ORDER_STATUSES.ALL);
-  }, [subToOrderStatuses]);
+    if (isNotificationEnabled) {
+      return subToOrderStatuses(ORDER_STATUSES.ALL);
+    }
+  }, [subToOrderStatuses, isNotificationEnabled]);
 
   useEffect(() => {
     try {
@@ -84,14 +81,14 @@ const OrderNotf = () => {
 
   useEffect(() => {
     try {
-      if (totalCount > previousOrderCountRef.current) {
-        setIsOpen(true);
-      }
-      previousOrderCountRef.current = totalCount;
-    } catch (error) {
-      console.error("Error updating order notifications:", error);
+    if (isNotificationEnabled && totalCount > previousOrderCountRef.current) {
+      setIsOpen(true);
     }
-  }, [totalCount]);
+    previousOrderCountRef.current = totalCount;
+  } catch (error) {
+      console.error("Error updating order notifications:", error);
+    } 
+  }, [totalCount, isNotificationEnabled]);
 
   const handleOrderClick = (orderId: string) => {
     setActiveOrderId(orderId);
@@ -111,15 +108,17 @@ const OrderNotf = () => {
     setIsOpen(false);
     refetch();
   };
+  
+  if (!isNotificationEnabled) {
+    return null;
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="icon" className="relative">
-          {totalCount > 0 ? (
-            <AlertCircle className="h-5 w-5 text-orange-500" />
-          ) : (
-            <Bell className="h-5 w-5" />
+          {totalCount > 0 && (
+            <Bell className="h-5 w-5 text-orange-500" />
           )}
           {totalCount > 0 && (
             <Badge
