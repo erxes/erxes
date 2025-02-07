@@ -38,6 +38,10 @@ const scoreLogQueries = {
   async scoreLogList(_root, params: IScoreParams, { models }: IContext) {
     const result = models.ScoreLogs.getScoreLogs(params);
     return result;
+  },
+  async scoreLogStatistics(_root, params: IScoreParams, { models }: IContext) {
+    const result = models.ScoreLogs.getStatistic(params);
+    return result;
   }
 };
 

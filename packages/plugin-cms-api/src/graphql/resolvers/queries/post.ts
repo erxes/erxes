@@ -36,6 +36,10 @@ export const queryBuilder = (args: any) => {
     query.authorId = args.authorId;
   }
 
+  if (args.featured) {
+    query.featured = args.featured;
+  }
+
   return query;
 };
 
@@ -55,8 +59,9 @@ const queries = {
       sortField = 'publishedDate',
       sortDirection = 'asc',
     } = args;
+    const clientPortalId = context.clientPortalId || args.clientPortalId;
 
-    const query = queryBuilder(args);
+    const query = queryBuilder({ ...args, clientPortalId });
 
     return paginate(
       models.Posts.find(query).sort({ [sortField]: sortDirection }),
@@ -68,10 +73,20 @@ const queries = {
    * Cms post
    */
   cmsPost: async (_parent: any, args: any, context: IContext): Promise<any> => {
-    const { models } = context;
-    const { _id } = args;
+    const { models, clientPortalId } = context;
+    const { _id, slug } = args;
 
-    const post = await  models.Posts.findOne({ $or: [{ _id }, { slug: _id }] });
+    if (!_id && !slug) {
+      return null;
+    }
+
+    if (slug) {
+      return models.Posts.findOne({ slug, clientPortalId });
+    }
+
+    const post = await models.Posts.findOne({
+      _id,
+    });
 
     return post;
   },
@@ -91,8 +106,9 @@ const queries = {
       sortField = 'publishedDate',
       sortDirection = 'desc',
     } = args;
+    const clientPortalId = context.clientPortalId || args.clientPortalId;
 
-    const query = queryBuilder(args);
+    const query = queryBuilder({ ...args, clientPortalId });
 
     const totalCount = await models.Posts.find(query).countDocuments();
 

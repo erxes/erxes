@@ -202,7 +202,7 @@ export default class CardDetail extends React.Component<
 
     if (checklists) {
       return checklists.map((c) => (
-        <CheckListDetail key={c._id} checklist={c} {...updatedProps} />
+        <CheckListDetail key={c._id} checklist={c} {...updatedProps} type={type} />
       ));
     }
   }

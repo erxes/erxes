@@ -2,15 +2,19 @@ import gql from 'graphql-tag';
 import {
   mutations as configMutations,
   queries as configQueries,
-  types as configTypes,
+  types as configTypes
 } from './schema/configs';
 
 import {
   mutations as cleanMutations,
   queries as cleanQueries,
-  types as cleanTypes,
+  types as cleanTypes
 } from './schema/cleaning';
-
+import {
+  types as branchTypes,
+  queries as branchQueries,
+  mutations as branchMutations
+} from './schema/tmsbranch';
 const typeDefs = async () => {
   return gql`
     scalar JSON
@@ -29,14 +33,18 @@ const typeDefs = async () => {
 
     ${configTypes}
     ${cleanTypes}
+    ${branchTypes()}
+
     extend type Mutation {
       ${configMutations}
       ${cleanMutations}
+      ${branchMutations}
     }
 
     extend type Query {
       ${configQueries}
       ${cleanQueries}
+      ${branchQueries}
     }
   `;
 };

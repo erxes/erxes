@@ -68,6 +68,9 @@ type State = {
   theme: string;
   isRequireOnce?: boolean;
   saveAsCustomer?: boolean;
+  clearCacheAfterSave?: boolean;
+  contactsGathered?: number;
+  viewCount?: number;
   isSkip?: boolean;
   color: string;
   logoPreviewStyle?: { opacity?: string };
@@ -155,6 +158,7 @@ class Lead extends React.Component<Props, State> {
       theme: leadData.themeColor || '#6569DF',
       isRequireOnce: leadData.isRequireOnce,
       saveAsCustomer: leadData.saveAsCustomer,
+      clearCacheAfterSave: leadData.clearCacheAfterSave,
       logo: callout.featuredImage,
       calloutImgSize: callout.calloutImgSize || '50%',
       isSkip: callout.skip && true,
@@ -169,6 +173,8 @@ class Lead extends React.Component<Props, State> {
       successPreviewStyle: {},
       departmentIds: form.departmentIds || [],
       visibility: form.visibility || 'public',
+      contactsGathered: leadData.contactsGathered || 0,
+      viewCount: leadData.viewCount || 0,
     };
   }
 
@@ -238,10 +244,13 @@ class Lead extends React.Component<Props, State> {
         rules: (rules || []).filter((rule) => rule.condition && rule.value),
         isRequireOnce: this.state.isRequireOnce,
         saveAsCustomer: this.state.saveAsCustomer,
+        clearCacheAfterSave: this.state.clearCacheAfterSave,
         css: this.state.css,
         successImage: this.state.successImage,
         successImageSize: this.state.successImageSize,
         verifyEmail: this.state.verifyEmail,
+        contactsGathered: this.state.contactsGathered,
+        viewCount: this.state.viewCount,
       },
     };
 
@@ -333,6 +342,7 @@ class Lead extends React.Component<Props, State> {
       formData,
       isRequireOnce,
       saveAsCustomer,
+      clearCacheAfterSave,
       channelIds,
       css,
       calloutImgSize,
@@ -426,6 +436,7 @@ class Lead extends React.Component<Props, State> {
                   formData={this.state.formData}
                   isRequireOnce={isRequireOnce}
                   saveAsCustomer={saveAsCustomer}
+                  clearCacheAfterSave={clearCacheAfterSave}
                   channelIds={channelIds}
                   visibility={visibility}
                   departmentIds={departmentIds}
