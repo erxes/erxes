@@ -6,7 +6,6 @@ export const syncExchangeRate = async (subdomain: string, config: any) => {
   console.log(`${config.title} starting to create exchange rates`);
 
   let exchangeRates: any[] = [];
-  const updatePrices: any[] = [];
 
   if (
     !config.priceApi ||
@@ -112,7 +111,6 @@ export const syncExchangeRate = async (subdomain: string, config: any) => {
               },
               isRPC: true,
             });
-            updatePrices.push(resProd);
           }
         }
       } catch (e) {
