@@ -1024,7 +1024,7 @@ const widgetMutations = {
       conversationMessageInserted: msg
     });
 
-    if (type === BOT_MESSAGE_TYPES.SAY_SOMETHING) {
+    if (payload) {
       await handleAutomation(subdomain, {
         conversationMessage: msg, // Pass msg as conversationMessage
         payload: {

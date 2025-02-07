@@ -75,9 +75,14 @@ export const generateBotData = (
     botData.push({
       type: "custom",
       component: "QuickReplies",
-      quick_replies: quickReplies.map(({ text }) => ({
-        title: text
-      }))
+      quick_replies: [
+        { mainTitle: quickReplies[0]?.text || "Default Title" }, // First object with "mainTitle"
+        ...quickReplies.map(({ _id, text, type }) => ({
+          title: text,
+          type: type,
+          payload: _id
+        }))
+      ]
     });
   }
 
