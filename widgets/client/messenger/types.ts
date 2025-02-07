@@ -3,7 +3,7 @@ import {
   IIntegrationMessengerData,
   IIntegrationUiOptions,
   IParticipator,
-  IUser,
+  IUser
 } from "../types";
 import { ICarouselItem } from "./components/bot/Carousel";
 
@@ -137,8 +137,10 @@ export interface IBotData {
   elements?: ICarouselItem[];
   quick_replies?: [
     {
+      mainTitle: string;
       title: string;
       payload: string;
+      type: string;
     }
   ];
   wrapped?: {
