@@ -109,6 +109,11 @@ const conversationDetailQuery = (isDailycoEnabled: boolean) => `
 
       operatorStatus
       isOnline
+      persistentMenus
+      fromBot
+      botData
+      botGreetMessage
+      getStarted
       supporters {
         _id
         details {

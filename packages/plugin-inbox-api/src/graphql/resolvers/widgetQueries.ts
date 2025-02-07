@@ -1,12 +1,11 @@
 import * as momentTz from "moment-timezone";
 
-import { IIntegrationDocument } from "../../models/definitions/integrations";
-
-import { getOrCreateEngageMessage } from "../../widgetUtils";
+import { IContext, IModels } from "../../connectionResolver";
+import { sendCoreMessage, sendKnowledgeBaseMessage } from "../../messageBroker";
 
 import { IBrowserInfo } from "@erxes/api-utils/src/definitions/common";
-import { sendCoreMessage, sendKnowledgeBaseMessage } from "../../messageBroker";
-import { IContext, IModels } from "../../connectionResolver";
+import { IIntegrationDocument } from "../../models/definitions/integrations";
+import { getOrCreateEngageMessage } from "../../widgetUtils";
 import { sendAutomationsMessage } from "../../../src/messageBroker";
 
 const isMessengerOnline = async (
@@ -124,7 +123,7 @@ export default {
         throw error;
       });
       const getStartedCondition =
-        getStarted[0].triggers[0].config.conditions.find(
+        (getStarted[0]?.triggers[0]?.config?.conditions || []).find(
           (condition) => condition.type === "getStarted"
         );
       const messengerData = integration.messengerData || {
