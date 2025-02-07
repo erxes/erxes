@@ -63,11 +63,12 @@ function DateFilters(props: IProps) {
   };
 
   const onChangeFilters = () => {
+    router.removeParams(navigate, location, 'page');
+    
     router.setParams(navigate, location, {
       dateFilters: JSON.stringify(filterParams),
     });
 
-    router.removeParams(navigate, location, 'page');
   };
 
   const data = (

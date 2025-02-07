@@ -12,7 +12,10 @@ import {
   IItemDragCommonFields,
   IStageDocument
 } from "../../../models/definitions/boards";
-import { BOARD_STATUSES } from "../../../models/definitions/constants";
+import {
+  BOARD_STATUSES,
+  PROBABILITY
+} from "../../../models/definitions/constants";
 import { IDeal, IDealDocument } from "../../../models/definitions/deals";
 
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
@@ -35,8 +38,10 @@ import { IUserDocument } from "@erxes/api-utils/src/types";
 import { generateModels, IModels } from "../../../connectionResolver";
 import {
   sendCoreMessage,
+  sendLoyaltiesMessage,
   sendNotificationsMessage
 } from "../../../messageBroker";
+import { debugError } from "@erxes/api-utils/src/debuggers";
 
 export const itemResolver = async (
   models: IModels,
@@ -270,7 +275,11 @@ export const itemsEdit = async (
     throw new Error("Permission denied");
   }
 
-  if (doc.status === "archived" && oldItem.status === 'active' && !(await can(subdomain, 'dealsArchive', user))) {
+  if (
+    doc.status === "archived" &&
+    oldItem.status === "active" &&
+    !(await can(subdomain, "dealsArchive", user))
+  ) {
     throw new Error("Permission denied");
   }
 
@@ -369,7 +378,7 @@ export const itemsEdit = async (
 
   // exclude [null]
   if (doc.tagIds && doc.tagIds.length) {
-    doc.tagIds = doc.tagIds.filter(ti => ti);
+    doc.tagIds = doc.tagIds.filter((ti) => ti);
   }
 
   putUpdateLog(
@@ -845,4 +854,112 @@ export const publishHelper = async (
 
   const stage = await models.Stages.getStage(item.stageId);
   await publishHelperItemsConformities(item, stage);
+};
+
+export const generateTotalAmount = (productsData) => {
+  let totalAmount = 0;
+
+  (productsData || []).forEach((product) => {
+    if (product.tickUsed) {
+      return;
+    }
+
+    totalAmount += product?.amount || 0;
+  });
+
+  return totalAmount;
+};
+
+export const doScoreCampaign = async (
+  subdomain: string,
+  models: IModels,
+  _id: string,
+  doc: IDeal
+) => {
+  if (!doc.paymentsData) {
+    return;
+  }
+
+  const types = Object.keys(doc.paymentsData);
+
+  const stage = await models.Stages.findOne({ _id: doc.stageId });
+
+  const pipeline = await models.Pipelines.findOne({
+    _id: stage?.pipelineId,
+    "paymentTypes.scoreCampaignId": { $exists: true },
+    "paymentTypes.type": { $in: types }
+  });
+
+  const target: any = {
+    paymentsData: Object.entries(doc.paymentsData).map(([type, obj]) => ({
+      type,
+      ...obj
+    })),
+    totalAmount: generateTotalAmount(doc.productsData)
+  };
+
+  if (pipeline) {
+    const [customerId] = (await getCustomerIds(subdomain, "deal", _id)) || [];
+
+    if (customerId) {
+      const scoreCampaignTypes = (pipeline?.paymentTypes || []).filter(
+        ({ scoreCampaignId }) => !!scoreCampaignId
+      );
+
+      target.exludeAmount = Object.entries(doc.paymentsData)
+        .filter(([type]) => !scoreCampaignTypes.includes(type))
+        .map(([type, obj]) => ({
+          type,
+          ...obj
+        }));
+      for (const type of types) {
+        const paymentType = scoreCampaignTypes.find(
+          (paymentType) => paymentType.type === type
+        );
+        if (paymentType) {
+          const { scoreCampaignId, title } = paymentType || {};
+          if (!scoreCampaignId) {
+            continue;
+          }
+          await sendLoyaltiesMessage({
+            subdomain,
+            action: "checkScoreAviableSubtract",
+            data: {
+              ownerType: "customer",
+              ownerId: customerId,
+              campaignId: scoreCampaignId,
+              target,
+              targetId: _id
+            },
+            isRPC: true,
+            defaultValue: false
+          }).catch((error) => {
+            if (error.message === "There has no enough score to subtract") {
+              throw new Error(
+                `There has no enough score to subtract using ${title}`
+              );
+            }
+            throw new Error(error.message);
+          });
+          await sendLoyaltiesMessage({
+            subdomain,
+            action: "doScoreCampaign",
+            data: {
+              ownerType: "customer",
+              ownerId: customerId,
+              campaignId: scoreCampaignId,
+              target,
+              actionMethod: "subtract",
+              serviceName: "sales",
+              targetId: _id
+            },
+            isRPC: true
+          }).catch((error) => {
+            debugError(error);
+            throw new Error(error.message);
+          });
+        }
+      }
+    }
+  }
 };

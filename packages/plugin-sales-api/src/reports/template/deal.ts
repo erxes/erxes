@@ -2980,6 +2980,16 @@ export const dealCharts = [
                 multi: true,
                 fieldLabel: 'Select tags',
             },
+            // PRODUCT CATEGORY FILTER
+            {
+                fieldName: 'productCategoryIds',
+                fieldType: 'select',
+                fieldQuery: 'productCategories',
+                fieldValueVariable: '_id',
+                fieldLabelVariable: 'name',
+                multi: true,
+                fieldLabel: 'Select product category',
+            },
             // PRODUCT FILTER
             {
                 fieldName: 'productIds',
