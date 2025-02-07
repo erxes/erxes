@@ -1,7 +1,7 @@
 import { Document, Schema } from "mongoose";
 import {
-  attachmentSchema,
   IRule,
+  attachmentSchema,
   ruleSchema
 } from "@erxes/api-utils/src/definitions/common";
 import {
@@ -9,7 +9,6 @@ import {
   LEAD_SUCCESS_ACTIONS,
   MESSENGER_DATA_AVAILABILITY
 } from "./constants";
-
 import { field, schemaHooksWrapper } from "./utils";
 
 export interface ISubmission extends Document {
