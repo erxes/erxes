@@ -197,12 +197,12 @@ const checkSend = async (
       },
       body: JSON.stringify(sendData),
     });
-  } catch (error) {
+  } catch (e) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
       {
         $set: {
-          error: error.message,
+          error: e.message,
         },
       }
     );
