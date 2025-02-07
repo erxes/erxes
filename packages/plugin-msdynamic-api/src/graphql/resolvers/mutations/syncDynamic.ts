@@ -81,7 +81,7 @@ const msdynamicSyncMutations = {
     const error: any[] = [];
     const deletePrices: any[] = [];
     const matchPrices: any[] = [];
-    let exchangeRates: any[] = [];
+    let exchangeRates: any = {};
 
     if (!config.priceApi || !config.username || !config.password) {
       throw new Error('MS Dynamic config not found.');
@@ -122,7 +122,7 @@ const msdynamicSyncMutations = {
       }
 
       if (config.exchangeRateApi) {
-        exchangeRates = (await getExchangeRates(config)) ?? [];
+        exchangeRates = await getExchangeRates(config);
       }
 
       const response = await fetch(
@@ -177,6 +177,7 @@ const msdynamicSyncMutations = {
           }
 
           const foundProduct = productsByCode[Item_No];
+
           if (foundProduct) {
             if (foundProduct.unitPrice === resPrice) {
               matchPrices.push(resProd);

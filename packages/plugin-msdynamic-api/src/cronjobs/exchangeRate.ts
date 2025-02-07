@@ -5,7 +5,7 @@ import { getExchangeRates, getPrice } from '../utils';
 export const syncExchangeRate = async (subdomain: string, config: any) => {
   console.log(`${config.title} starting to create exchange rates`);
 
-  let exchangeRates: any[] = [];
+  let exchangeRates: any = {};
 
   if (
     !config.priceApi ||
@@ -51,7 +51,7 @@ export const syncExchangeRate = async (subdomain: string, config: any) => {
     }
 
     if (config.exchangeRateApi) {
-      exchangeRates = (await getExchangeRates(config)) ?? [];
+      exchangeRates = (await getExchangeRates(config)) ?? {};
     }
 
     const response = await fetch(
@@ -93,7 +93,7 @@ export const syncExchangeRate = async (subdomain: string, config: any) => {
     for (const Item_No in groupedItems) {
       const resProds = groupedItems[Item_No];
       try {
-        const { resPrice, resProd } = await getPrice(
+        const { resPrice } = await getPrice(
           resProds,
           pricePriority,
           exchangeRates

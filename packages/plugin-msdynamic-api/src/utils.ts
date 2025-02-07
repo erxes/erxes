@@ -449,14 +449,10 @@ const getPriceForList = (prods, exchangeRates) => {
     }
   }
 
-  // Find exchange rate for the selected currency
-  const exchangeRateData = exchangeRates.find(
-    (rate) => rate.Currency_Code === resCurrencyCode
-  );
-
   let convertedPrice = resPrice;
-  if (exchangeRateData) {
-    convertedPrice *= exchangeRateData.Special_Curr_Exch_Rate;
+
+  if (exchangeRates[resCurrencyCode]) {
+    convertedPrice *= exchangeRates[resCurrencyCode];
   }
 
   return { resPrice: convertedPrice, resProd };
@@ -555,8 +551,14 @@ export const getExchangeRates = async (config: ExchangeRateConfig) => {
       }
     });
 
-    const filteredArray = Object.values(latestByCurrency);
-    return filteredArray;
+    const result = Object.fromEntries(
+      Object.entries(latestByCurrency).map(([key, value]) => [
+        key,
+        value.Special_Curr_Exch_Rate,
+      ])
+    );
+
+    return result;
   } catch (e) {
     console.error('Failed to fetch exchange rates:', e);
   }
