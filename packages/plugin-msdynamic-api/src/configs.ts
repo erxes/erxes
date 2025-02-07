@@ -6,6 +6,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import afterMutations from './afterMutations';
 import cpCustomerHandle from './cpCustomerHandle';
+import cronjobs from './cronjobs';
 
 export default {
   name: 'msdynamic',
@@ -16,10 +17,7 @@ export default {
     };
   },
 
-  meta: {
-    afterMutations,
-    cpCustomerHandle,
-  },
+  meta: { cronjobs, afterMutations, cpCustomerHandle },
 
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);

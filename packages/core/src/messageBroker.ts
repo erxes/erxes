@@ -1275,6 +1275,37 @@ export const setupMessageConsumers = async (): Promise<void> => {
       };
     }
   );
+
+  // exchange rates
+  consumeRPCQueue('core:exchangeRates.create', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.ExchangeRates.createExchangeRate(data),
+      status: 'success',
+    };
+  });
+
+  consumeRPCQueue(
+    'core:exchangeRates.update',
+    async ({ subdomain, data: { selector, modifier } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.ExchangeRates.updateOne(selector, modifier),
+        status: 'success',
+      };
+    }
+  );
+
+  consumeRPCQueue('core:exchangeRates.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.ExchangeRates.findOne(data).lean(),
+      status: 'success',
+    };
+  });
 };
 
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {

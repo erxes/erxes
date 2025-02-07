@@ -17,6 +17,7 @@ const productParamsDef = `
   $scopeBrandIds: [String]
   $uom: String,
   $subUoms: JSON,
+  $currency: String,
 `;
 
 const productCategoryParamsDef = `
@@ -53,6 +54,7 @@ const productParams = `
   scopeBrandIds: $scopeBrandIds,
   uom: $uom,
   subUoms: $subUoms,
+  currency: $currency
 `;
 
 const productCategoryParams = `
@@ -120,5 +122,5 @@ export default {
   productsRemove,
   productCategoryAdd,
   productCategoryEdit,
-  productsConfigsUpdate
+  productsConfigsUpdate,
 };

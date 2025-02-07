@@ -1,33 +1,33 @@
-import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
+import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
 import {
   ContentBox,
   FlexRow,
   ImageWrapper,
-  Title
-} from "@erxes/ui-settings/src/styles";
+  Title,
+} from '@erxes/ui-settings/src/styles';
 import {
   FILE_MIME_TYPES,
   KEY_LABELS,
-  LANGUAGES
-} from "@erxes/ui-settings/src/general/constants";
-import { __, readFile, uploadHandler } from "modules/common/utils";
+  LANGUAGES,
+} from '@erxes/ui-settings/src/general/constants';
+import { __, readFile, uploadHandler } from 'modules/common/utils';
 
-import Button from "modules/common/components/Button";
-import CURRENCIES from "@erxes/ui/src/constants/currencies";
-import CollapseContent from "modules/common/components/CollapseContent";
-import ControlLabel from "modules/common/components/form/Label";
-import { FormControl } from "modules/common/components/form";
-import FormGroup from "modules/common/components/form/Group";
-import Header from "@erxes/ui-settings/src/general/components/Header";
-import { IConfigsMap } from "@erxes/ui-settings/src/general/types";
-import Icon from "modules/common/components/Icon";
-import Info from "modules/common/components/Info";
-import Popover from "@erxes/ui/src/components/Popover";
-import React from "react";
-import Select from "react-select";
-import { SelectTeamMembers } from "@erxes/ui/src";
-import TwitterPicker from "react-color/lib/Twitter";
-import Wrapper from "modules/layout/components/Wrapper";
+import Button from 'modules/common/components/Button';
+import CURRENCIES from '@erxes/ui/src/constants/currencies';
+import CollapseContent from 'modules/common/components/CollapseContent';
+import ControlLabel from 'modules/common/components/form/Label';
+import { FormControl } from 'modules/common/components/form';
+import FormGroup from 'modules/common/components/form/Group';
+import Header from '@erxes/ui-settings/src/general/components/Header';
+import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
+import Icon from 'modules/common/components/Icon';
+import Info from 'modules/common/components/Info';
+import Popover from '@erxes/ui/src/components/Popover';
+import React from 'react';
+import Select from 'react-select';
+import { SelectTeamMembers } from '@erxes/ui/src';
+import TwitterPicker from 'react-color/lib/Twitter';
+import Wrapper from 'modules/layout/components/Wrapper';
 
 type Props = {
   isWhiteLabel?: boolean;
@@ -51,11 +51,11 @@ class GeneralSettings extends React.Component<Props, State> {
     this.state = {
       configsMap: props.configsMap,
       language: props.currentLanguage,
-      isSaved: false
+      isSaved: false,
     };
   }
 
-  save = e => {
+  save = (e) => {
     e.preventDefault();
 
     const { configsMap, language } = this.state;
@@ -79,7 +79,7 @@ class GeneralSettings extends React.Component<Props, State> {
     let value = values;
 
     if (Array.isArray(values)) {
-      value = values.map(el => el.value);
+      value = values.map((el) => el.value);
     }
 
     this.onChangeConfig(code, value);
@@ -93,7 +93,7 @@ class GeneralSettings extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  onLanguageChange = language => {
+  onLanguageChange = (language) => {
     this.setState({ language: language.value });
   };
 
@@ -115,19 +115,19 @@ class GeneralSettings extends React.Component<Props, State> {
   renderItem = (key: string) => {
     const { configsMap } = this.state;
 
-    const mimeTypeOptions = FILE_MIME_TYPES.map(item => ({
+    const mimeTypeOptions = FILE_MIME_TYPES.map((item) => ({
       value: item.value,
-      label: `${item.label} (${item.extension})`
+      label: `${item.label} (${item.extension})`,
     }));
     const mimeTypeDesc =
-      "Comma-separated list of media types. Leave it blank for accepting all media types";
+      'Comma-separated list of media types. Leave it blank for accepting all media types';
 
     return (
       <FormGroup>
         <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
         {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
         <Select
-          value={mimeTypeOptions.filter(o =>
+          value={mimeTypeOptions.filter((o) =>
             (configsMap.WIDGETS_UPLOAD_FILE_TYPES || []).includes(o.value)
           )}
           options={mimeTypeOptions}
@@ -150,7 +150,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <FlexRow $justifyContent={actionComponent ? "space-between" : ""}>
+        <FlexRow $justifyContent={actionComponent ? 'space-between' : ''}>
           <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
 
           {actionComponent ? actionComponent : null}
@@ -169,7 +169,7 @@ class GeneralSettings extends React.Component<Props, State> {
     this.onChangeConfig(field, e.hex);
   };
 
-  renderColorPicker = field => {
+  renderColorPicker = (field) => {
     const { configsMap } = this.state;
     const value = configsMap[field];
 
@@ -207,7 +207,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
       afterRead: ({ result }) => {
         return;
-      }
+      },
     });
   };
 
@@ -240,7 +240,7 @@ class GeneralSettings extends React.Component<Props, State> {
     let value = configsMap[kind];
 
     if (!value || value.length === 0) {
-      value = defaultValues[kind] || "";
+      value = defaultValues[kind] || '';
     }
 
     return (
@@ -261,8 +261,8 @@ class GeneralSettings extends React.Component<Props, State> {
     const { configsMap, language } = this.state;
 
     const breadcrumb = [
-      { title: __("Settings"), link: "/settings" },
-      { title: __("General system config") }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('General system config') },
     ];
 
     const actionButtons = (
@@ -277,10 +277,10 @@ class GeneralSettings extends React.Component<Props, State> {
     );
 
     const content = (
-      <ContentBox id={"GeneralSettingsMenu"}>
+      <ContentBox id={'GeneralSettingsMenu'}>
         <CollapseContent
           transparent={true}
-          title={__("General settings")}
+          title={__('General settings')}
           beforeTitle={<Icon icon="settings" />}
         >
           <FormGroup>
@@ -291,7 +291,19 @@ class GeneralSettings extends React.Component<Props, State> {
               onChange={this.onLanguageChange}
               isSearchable={false}
               isClearable={false}
-              placeholder={__("Select")}
+              placeholder={__('Select')}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Main Currency</ControlLabel>
+            <Select
+              options={CURRENCIES}
+              value={CURRENCIES.filter((o) =>
+                configsMap.mainCurrency?.includes(o.value)
+              )}
+              onChange={this.onChangeSingleCombo.bind(this, 'mainCurrency')}
+              isMulti={false}
             />
           </FormGroup>
 
@@ -299,22 +311,22 @@ class GeneralSettings extends React.Component<Props, State> {
             <ControlLabel>Currency</ControlLabel>
             <Select
               options={CURRENCIES}
-              value={CURRENCIES.filter(o =>
+              value={CURRENCIES.filter((o) =>
                 configsMap.dealCurrency?.includes(o.value)
               )}
-              onChange={this.onChangeMultiCombo.bind(this, "dealCurrency")}
+              onChange={this.onChangeMultiCombo.bind(this, 'dealCurrency')}
               isMulti={true}
             />
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>{__("with team member restrictions")}</ControlLabel>
+            <ControlLabel>{__('with team member restrictions')}</ControlLabel>
             <FormControl
               componentclass="checkbox"
               checked={configsMap.CHECK_TEAM_MEMBER_SHOWN}
-              onChange={e =>
+              onChange={(e) =>
                 this.onChangeConfig(
-                  "CHECK_TEAM_MEMBER_SHOWN",
+                  'CHECK_TEAM_MEMBER_SHOWN',
                   (e.target as any).checked
                 )
               }
@@ -325,7 +337,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <>
               <FormGroup>
                 <ControlLabel>
-                  {__("Team members who can access every branches")}
+                  {__('Team members who can access every branches')}
                 </ControlLabel>
                 <SelectTeamMembers
                   name="BRANCHES_MASTER_TEAM_MEMBERS_IDS"
@@ -336,7 +348,7 @@ class GeneralSettings extends React.Component<Props, State> {
               </FormGroup>
               <FormGroup>
                 <ControlLabel>
-                  {__("Team members who can access every departments")}
+                  {__('Team members who can access every departments')}
                 </ControlLabel>
                 <SelectTeamMembers
                   name="DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS"
@@ -351,7 +363,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent
           transparent={true}
-          title={__("File upload")}
+          title={__('File upload')}
           beforeTitle={<Icon icon="file-upload-alt" />}
         >
           <Info>
@@ -360,20 +372,20 @@ class GeneralSettings extends React.Component<Props, State> {
               href="https://docs.erxes.io/conversations"
               rel="noopener noreferrer"
             >
-              {__("Learn how to set file uploading") + "."}
+              {__('Learn how to set file uploading') + '.'}
             </a>
           </Info>
-          {this.renderItem("UPLOAD_FILE_TYPES")}
+          {this.renderItem('UPLOAD_FILE_TYPES')}
         </CollapseContent>
 
         <CollapseContent
           transparent={true}
-          title={__("Constants")}
+          title={__('Constants')}
           beforeTitle={<Icon icon="link-1" />}
         >
-          {this.renderConstant("sex_choices")}
-          {this.renderConstant("company_industry_types")}
-          {this.renderConstant("social_links")}
+          {this.renderConstant('sex_choices')}
+          {this.renderConstant('company_industry_types')}
+          {this.renderConstant('social_links')}
         </CollapseContent>
 
         <CollapseContent
@@ -382,8 +394,8 @@ class GeneralSettings extends React.Component<Props, State> {
           beforeTitle={<Icon icon="comment-alt-verify" />}
         >
           <FlexRow $alignItems="flex-start" $justifyContent="space-between">
-            {this.renderItemInput("MESSAGE_PRO_API_KEY")}
-            {this.renderItemInput("MESSAGE_PRO_PHONE_NUMBER")}
+            {this.renderItemInput('MESSAGE_PRO_API_KEY')}
+            {this.renderItemInput('MESSAGE_PRO_PHONE_NUMBER')}
           </FlexRow>
         </CollapseContent>
       </ContentBox>
@@ -393,7 +405,7 @@ class GeneralSettings extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__("System Configuration")}
+            title={__('System Configuration')}
             breadcrumb={breadcrumb}
           />
         }
@@ -402,14 +414,14 @@ class GeneralSettings extends React.Component<Props, State> {
             title="System configuration"
             description={
               __(
-                "Set up your initial account settings so that things run smoothly in unison"
-              ) + "."
+                'Set up your initial account settings so that things run smoothly in unison'
+              ) + '.'
             }
           />
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__("System Configuration")}</Title>}
+            left={<Title>{__('System Configuration')}</Title>}
             right={actionButtons}
           />
         }
