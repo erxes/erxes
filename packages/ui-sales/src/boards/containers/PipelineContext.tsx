@@ -20,7 +20,7 @@ import {
   updateItemInfo
 } from "../utils";
 import { mutations, queries, subscriptions } from "../graphql";
-
+import { queries as queriesLogs } from "@erxes/ui-log/src/activityLogs/graphql";
 import InvisibleItemInUrl from "./InvisibleItemInUrl";
 import React from "react";
 import { UserDetailQueryResponse } from "@erxes/ui/src/auth/types";
@@ -376,6 +376,16 @@ class PipelineProviderInner extends React.Component<Props, State> {
     };
   };
 
+  refetchQueryLogs = (itemId: string) => {
+    return {
+      query: gql(queriesLogs.activityLogs),
+      variables: {
+        contentId: itemId,
+        contentType: "sales:deal"
+      }
+    };
+  };
+
   refetchStagesQueryBuild = (pipelineId: string) => {
     return {
       query: gql(queries.stages),
@@ -395,7 +405,10 @@ class PipelineProviderInner extends React.Component<Props, State> {
     const { itemId, aboveItemId, destinationStageId, sourceStageId } = args;
 
     const { options } = this.props;
-    const refetchQueries = [this.refetchQueryBuild(destinationStageId)];
+    const refetchQueries = [
+      this.refetchQueryBuild(destinationStageId),
+      this.refetchQueryLogs(itemId)
+    ];
 
     if (sourceStageId) {
       refetchQueries.unshift(this.refetchQueryBuild(sourceStageId));
