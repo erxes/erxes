@@ -60,7 +60,7 @@ export const types = `
     _id: String
     name: String
   }
-  input BotPersistentMenuType {
+  input BotPersistentMenuTypeMessenger {
     _id: String
     type: String
     text: String
@@ -94,7 +94,7 @@ export const types = `
     botCheck: Boolean
     botGreetMessage: String
     getStarted: Boolean
-    persistentMenus: [BotPersistentMenuType]
+    persistentMenus: [BotPersistentMenuTypeMessenger]
     availabilityMethod: String
     isOnline: Boolean,
     onlineHours: [MessengerOnlineHoursSchema]

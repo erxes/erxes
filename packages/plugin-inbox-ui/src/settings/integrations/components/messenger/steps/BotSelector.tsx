@@ -14,7 +14,7 @@ import HelpPopover from "@erxes/ui/src/components/HelpPopover";
 import ButtonsGenerator from "../action/ButtonGenerator";
 import React, { useState, useEffect } from "react";
 
-type BotPersistentMenuType = {
+type BotPersistentMenuTypeMessenger = {
   _id: string;
   type: string;
   text: string;
@@ -23,7 +23,7 @@ type BotPersistentMenuType = {
 
 type OnChangeHandler = (
   name: string,
-  value: boolean | string | BotPersistentMenuType[]
+  value: boolean | string | BotPersistentMenuTypeMessenger[]
 ) => void;
 
 type Props = {
@@ -31,19 +31,19 @@ type Props = {
   title?: string;
   botCheck?: boolean;
   botGreetMessage?: string;
-  persistentMenus?: BotPersistentMenuType[];
+  persistentMenus?: BotPersistentMenuTypeMessenger[];
 };
 
 const BotSelector: React.FC<Props> = (props) => {
   const { onChange, botGreetMessage, persistentMenus = [], botCheck } = props;
 
-  const [doc, setDoc] = useState<BotPersistentMenuType[]>(persistentMenus);
+  const [doc, setDoc] = useState<BotPersistentMenuTypeMessenger[]>(persistentMenus);
 
   useEffect(() => {
     setDoc(persistentMenus);
   }, [persistentMenus]);
 
-  const handleBot = (name: string, value: BotPersistentMenuType[]) => {
+  const handleBot = (name: string, value: BotPersistentMenuTypeMessenger[]) => {
     setDoc(value);
     onChange(name, value);
   };

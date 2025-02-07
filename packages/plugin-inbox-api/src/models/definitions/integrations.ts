@@ -44,7 +44,7 @@ export interface IMessengerDataMessagesItem {
 export interface IMessageDataMessages {
   [key: string]: IMessengerDataMessagesItem;
 }
-type BotPersistentMenuType = {
+type BotPersistentMenuTypeMessenger = {
   _id: string;
   type: string;
   text: string;
@@ -56,7 +56,7 @@ export interface IMessengerData {
   botShowInitialMessage?: boolean;
   botCheck?: boolean;
   botGreetMessage?: string;
-  persistentMenus?: BotPersistentMenuType[];
+  persistentMenus?: BotPersistentMenuTypeMessenger[];
   skillData?: {
     typeId: string;
     options: Array<{

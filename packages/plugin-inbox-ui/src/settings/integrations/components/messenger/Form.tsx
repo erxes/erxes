@@ -53,7 +53,7 @@ type Props = {
   isLoading: boolean;
 };
 
-type IBotPersistentMenuType = {
+type BotPersistentMenuTypeMessenger = {
   _id: string;
   type: string;
   text: string;
@@ -66,7 +66,7 @@ type State = {
   botShowInitialMessage?: boolean;
   botCheck?: boolean;
   botGreetMessage?: string;
-  persistentMenus?: IBotPersistentMenuType[];
+  persistentMenus?: BotPersistentMenuTypeMessenger[];
   skillData?: ISkillData;
   brandId: string;
   channelIds: string[];
@@ -121,7 +121,7 @@ class CreateMessenger extends React.Component<Props, State> {
       botShowInitialMessage: false,
       botCheck: false,
       botGreetMessage: "",
-      persistentMenus: [] as IBotPersistentMenuType[]
+      persistentMenus: [] as BotPersistentMenuTypeMessenger[]
     };
     const links = configData.links || {};
     const externalLinks = configData.externalLinks || [];
@@ -204,7 +204,7 @@ class CreateMessenger extends React.Component<Props, State> {
     this.setState({ externalLinks: newExternalLinks });
   };
 
-  onChangePersistent = (persistentMenus: IBotPersistentMenuType[]) => {
+  onChangePersistent = (persistentMenus: BotPersistentMenuTypeMessenger[]) => {
     this.setState({ persistentMenus: persistentMenus });
   };
 

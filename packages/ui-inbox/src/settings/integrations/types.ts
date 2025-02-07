@@ -233,7 +233,7 @@ export interface ISkillData {
     skillId: string;
   }>;
 }
-type BotPersistentMenuType = {
+type BotPersistentMenuTypeMessenger = {
   _id: string;
   type: string;
   text: string;
@@ -245,7 +245,7 @@ export interface IMessengerData {
   botShowInitialMessage?: boolean;
   botCheck?: boolean;
   botGreetMessage?: string;
-  persistentMenus?: BotPersistentMenuType[];
+  persistentMenus?: BotPersistentMenuTypeMessenger[];
   skillData?: ISkillData;
   messages?: IMessages;
   notifyCustomer?: boolean;
