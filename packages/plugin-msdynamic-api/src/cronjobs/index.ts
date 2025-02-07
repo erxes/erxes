@@ -3,8 +3,10 @@ import { syncExchangeRate } from './exchangeRate';
 
 export default {
   handleDailyJob: async ({ subdomain }) => {
-    const config = await getConfig(subdomain, 'DYNAMIC_EXCHANGE_RATE', {});
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
 
-    await syncExchangeRate(subdomain, config);
+    for (const config of Object.values(configs)) {
+      await syncExchangeRate(subdomain, config);
+    }
   },
 };

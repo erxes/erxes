@@ -1,93 +1,127 @@
 import fetch from 'node-fetch';
 import { sendCoreMessage } from '../messageBroker';
+import { getExchangeRates, getPrice } from '../utils';
 
-interface ExchangeRateConfig {
-  apiUrl: string;
-  username: string;
-  password: string;
-}
+export const syncExchangeRate = async (subdomain: string, config: any) => {
+  console.log(`${config.title} starting to create exchange rates`);
 
-export const syncExchangeRate = async (
-  subdomain: string,
-  config: ExchangeRateConfig
-) => {
-  console.log('starting to create exchange rates');
+  let exchangeRates: any[] = [];
+  const updatePrices: any[] = [];
 
-  if (!config.apiUrl || !config.username || !config.password) {
+  if (
+    !config.priceApi ||
+    !config.username ||
+    !config.password ||
+    !config.brandId
+  ) {
     throw new Error('MS Dynamic config not found.');
   }
 
-  const { apiUrl, username, password } = config;
+  const { priceApi, username, password, pricePriority, brandId } = config;
+
+  const productQry: any = { status: { $ne: 'deleted' } };
+
+  if (brandId && brandId !== 'noBrand') {
+    productQry.scopeBrandIds = { $in: [brandId] };
+  } else {
+    productQry.$or = [
+      { scopeBrandIds: { $exists: false } },
+      { scopeBrandIds: { $size: 0 } },
+    ];
+  }
 
   try {
-    const response = await fetch(`${apiUrl}?$filter=Code eq  'PREPAID'`, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Accept: 'application/json',
-        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-          'base64'
-        )}`,
+    const products = await sendCoreMessage({
+      subdomain,
+      action: 'products.find',
+      data: {
+        query: productQry,
       },
-      timeout: 180000,
-    }).then((res) => res.json());
-
-    const latestByCurrency: { [key: string]: any } = {};
-
-    response.value.forEach((item) => {
-      const currency = item.Currency_Code;
-      if (
-        !latestByCurrency[currency] ||
-        new Date(item.Starting_Date) >
-          new Date(latestByCurrency[currency].Starting_Date)
-      ) {
-        latestByCurrency[currency] = item;
-      }
+      isRPC: true,
     });
 
-    const filteredArray = Object.values(latestByCurrency);
+    const salesCodeFilter = pricePriority
+      .replace(', ', ',')
+      .split(',')
+      .filter((p) => p);
 
-    for (const data of filteredArray || []) {
-      const exchangeRate = await sendCoreMessage({
-        subdomain,
-        action: 'exchangeRates.findOne',
-        data: { rateCurrency: data.Currency_Code },
-        isRPC: true,
-        defaultValue: {},
-      });
+    let filterSection = '';
 
-      const document = {
-        date: new Date(data.Starting_Date),
-        mainCurrency: 'MNT',
-        rateCurrency: data.Currency_Code,
-        rate: data.Special_Curr_Exch_Rate,
-      };
+    for (const price of salesCodeFilter) {
+      filterSection += `Sales_Code eq '${price}' or `;
+    }
 
-      if (exchangeRate) {
-        await sendCoreMessage({
-          subdomain,
-          action: 'exchangeRates.update',
-          data: {
-            selector: {
-              rateCurrency: data.Currency_Code,
-            },
-            modifier: {
-              $set: { ...document },
-            },
-          },
-          isRPC: true,
-        });
-      } else {
-        await sendCoreMessage({
-          subdomain,
-          action: 'exchangeRates.create',
-          data: { ...document },
-          isRPC: true,
-        });
+    if (config.exchangeRateApi) {
+      exchangeRates = (await getExchangeRates(config)) ?? [];
+    }
+
+    const response = await fetch(
+      `${priceApi}?$filter=${filterSection} Sales_Code eq ''`,
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/json',
+          Authorization: `Basic ${Buffer.from(
+            `${username}:${password}`
+          ).toString('base64')}`,
+        },
+      }
+    ).then((res) => res.json());
+
+    const groupedItems = {};
+
+    if (response && response.value.length > 0) {
+      for (const item of response.value) {
+        const { Item_No } = item;
+
+        if (!groupedItems[Item_No]) {
+          groupedItems[Item_No] = [];
+        }
+
+        groupedItems[Item_No].push({ ...item });
       }
     }
 
-    console.log('ending to create exchange rates');
+    const productsByCode = {};
+    // delete price
+    for (const product of products) {
+      if (groupedItems[product.code]) {
+        productsByCode[product.code] = product;
+      }
+    }
+
+    // update price
+    for (const Item_No in groupedItems) {
+      const resProds = groupedItems[Item_No];
+      try {
+        const { resPrice, resProd } = await getPrice(
+          resProds,
+          pricePriority,
+          exchangeRates
+        );
+
+        const foundProduct = productsByCode[Item_No];
+        if (foundProduct) {
+          if (foundProduct.unitPrice !== resPrice) {
+            await sendCoreMessage({
+              subdomain,
+              action: 'products.updateProduct',
+              data: {
+                _id: foundProduct._id,
+                doc: { unitPrice: resPrice || 0, currency: 'MNT' },
+              },
+              isRPC: true,
+            });
+            updatePrices.push(resProd);
+          }
+        }
+      } catch (e) {
+        console.log(e, 'error');
+      }
+    }
   } catch (e) {
     console.log(e, 'error');
   }
+
+  console.log(`${config.title} ending to create exchange rates`);
 };
