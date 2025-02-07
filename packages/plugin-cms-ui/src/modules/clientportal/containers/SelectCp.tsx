@@ -44,22 +44,15 @@ export default (props: {
     withCustomStyle,
   } = props;
   const defaultValue = queryParams ? queryParams[name] : initialValue;
+  const initialRef = React.useRef(initialValue);
 
   // get user options for react-select
-  function generateOptions(array: any[] = []): IOption[] {
-    return array.map((item) => {
-      const cp = item;
-
-      const generateLabel =
-        (cp.name || 'Business Portal') 
-        + '\t' + (cp.url || cp.domain);
-
-      return {
-        value: cp._id,
-        label: generateLabel,
-      };
-    });
-  }
+  const generateOptions = React.useCallback((array: any[] = []): IOption[] => {
+    return array.map((item) => ({
+      value: item._id,
+      label: `${item.name || 'Business Portal'}\t${item.url || item.domain}`,
+    }));
+  }, []);
 
   const customStyles = {
     menuPortal: (base) => ({ ...base, zIndex: 9999 }),
@@ -73,7 +66,7 @@ export default (props: {
       queryName='clientPortalGetConfigs'
       name={name}
       filterParams={filterParams}
-      initialValue={defaultValue}
+      initialValue={initialRef.current}
       generateOptions={generateOptions}
       onSelect={props.onSelect}
       customQuery={QUERY}

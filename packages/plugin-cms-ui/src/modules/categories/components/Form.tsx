@@ -20,7 +20,9 @@ type Props = {
 };
 
 const ProductForm = (props: Props) => {
-  const [clientPortalId, setClientPortalId] = React.useState(props.clientPortalId || '');
+  const [clientPortalId, setClientPortalId] = React.useState(
+    props.clientPortalId || ''
+  );
   const [category, setCategory] = React.useState<any>(
     props.category || {
       slug: '',
@@ -31,8 +33,7 @@ const ProductForm = (props: Props) => {
     }
   );
 
-  React.useEffect(() => {
-  }, [clientPortalId]);
+  React.useEffect(() => {}, [clientPortalId]);
 
   const generateDoc = () => {
     const finalValues: any = {};
@@ -165,18 +166,20 @@ const ProductForm = (props: Props) => {
 
     return (
       <>
-      <FormGroup>
-      <ControlLabel>{__('Client Portal')}</ControlLabel>
-        <SelectCp
-          onSelect={(cpID) => {
-            setClientPortalId(cpID);
-          }}
-          initialValue={clientPortalId}
-          label={'Client Portal'}
-          name='selectedCp'
-          multi={false}
-        />
-      </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Client Portal')}</ControlLabel>
+          <SelectCp
+            onSelect={(cpID) => {
+              if (cpID !== clientPortalId) {
+                setClientPortalId(cpID);
+              }
+            }}
+            initialValue={clientPortalId}
+            label={'Client Portal'}
+            name='selectedCp'
+            multi={false}
+          />
+        </FormGroup>
         {renderFormFields()}
       </>
     );
