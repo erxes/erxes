@@ -184,26 +184,29 @@ const checkSend = async (
     }
   );
 
-  const responseCustomerData = await fetch(customerApi, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-        'base64'
-      )}`,
-    },
-    body: JSON.stringify(sendData),
-  }).then((r) => r.json());
+  let responseCustomerData;
 
-  await models.SyncLogs.updateOne(
-    { _id: syncLog._id },
-    {
-      $set: {
-        responseData: responseCustomerData,
-        responseStr: JSON.stringify(responseCustomerData),
+  try {
+    responseCustomerData = await fetch(customerApi, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+          'base64'
+        )}`,
       },
-    }
-  );
+      body: JSON.stringify(sendData),
+    });
+  } catch (error) {
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: {
+          error: error.message,
+        },
+      }
+    );
+  }
 
   return responseCustomerData;
 };
