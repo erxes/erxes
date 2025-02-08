@@ -4,7 +4,7 @@
  <img src="https://github.com/erxes/erxes/assets/1748857/53a70732-7385-475d-9cb5-efd0ec801db5" alt="erxes logo" width="20%" />
 </p>
 
-<p align="center">Welcome to erxes, the source available experience management infrastructure. Pioneering the future of experiences through XOS (Experience Operating System), a term coined by us. erxes serves as an alternative to the combined functionalities of Hubspot (CRM & Marketing automation) and Qualtrics (Experience management)</p>
+<p align="center">Welcome to erxes, the source available experience management infrastructure. Pioneering the future of experiences through XOS (Experience Operating System), a concept we coined. erxes serves as an alternative to the combined functionalities of Hubspot (CRM & Marketing automation) and Qualtrics (Experience management)</p>
 
 <p align="center">
   <a href="https://erxes.io/">Website</a>
@@ -68,7 +68,7 @@ erxes is composed of 2 main components: **XOS** & **Plugins**
 **XOS:** It contains the project's core. You can find the admin panel and the code that runs different plugins. The operating system comes with utility features that allow users to customize, improve speed, and enhance the experience along with plugins/features. 
 
 
-**Plugins:** erxes comes with a set of plugins that allow you to create unique customer experiences. Below is a list of some plugins you can choose from our **<a href="https://erxes.io/marketplace" >marketplace</a>** after you’ve finished installing erxes XOS:
+**Plugins:** erxes comes with a set of plugins that allow you to create unique customer experiences. Below is a list of some plugins you can choose from our **<a href="https://erxes.io/marketplace">marketplace</a>** after you’ve finished installing erxes XOS:
 
 - **Team Inbox** - Combine real-time client and team communication with in-app messaging, live chat, email, and form, so your customers can reach you, however, and whenever they want.<img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">  
 - **Messenger** - Enable businesses to capture every single customer feedback and educate customers through knowledge-base right from the erxes Messenger.
@@ -77,24 +77,24 @@ erxes is composed of 2 main components: **XOS** & **Plugins**
 - **Engage** - Start converting your prospects into potential customers through email, SMS, messenger, or more interactions to drive them to a successful close.
 - **Contact Management** - Access our all-in-one CRM system in one go, so it’s easier to coordinate and manage your customer interactions.
 - **Knowledgebase** - Educate your customers and staff by creating a help center related to your brands, products, and services to reach a higher level of satisfaction.
-- **Task Management** - Create a more collaborative, self-reliant and cross-linked team. **<a href="https://erxes.io/marketplace" >See more on our website</a>**.
+- **Task Management** - Create a more collaborative, self-reliant and cross-linked team. **<a href="https://erxes.io/marketplace">See more on our website</a>**.
  
 ## Getting Started
 
-Read **<a href="https://erxes.io/docs" >the documentation<a>** to install erxes locally.
+Read **<a href="https://erxes.io/docs">the documentation<a>** to install erxes locally.
 
 **🖐 Requirements**
 
-Complete installation requirements can be found in the documentation under **<a href="https://erxes.io/docs" >installation requirements</a>**.
+Complete installation requirements can be found in the documentation under **<a href="https://erxes.io/docs">installation requirements</a>**.
 
 Supported operating systems:
 
-- Ubuntu v20.04 or higher
-- macOS Mojave or higher
+- Ubuntu v20.04 or later
+- macOS Mojave or later
 
 Node:
 
-- NodeJS v12.0 or higher
+- NodeJS v12.0 or later
 - NPM >= 6.x
 
 Database:
@@ -120,19 +120,19 @@ Let’s start growing together. Join our **<a href="https://discord.com/invite/a
 
 ## Contributing 
 
-Please read our **<a href="https://github.com/erxes/erxes/blob/master/CONTRIBUTING.md" >contributing guide<a>** before submitting a Pull Request to the project.
+Please read our **<a href="https://github.com/erxes/erxes/blob/master/CONTRIBUTING.md">contributing guide<a>** before submitting a Pull Request to the project.
 
 ## Community support
 
 
 For general help using erxes, please refer to the erxes documentation. For additional help, you can use one of these channels to ask a question:
 
-- **<a href="https://discord.com/invite/aaGzy3gQK5" > Discord</a>** For live discussion with the community
-- **<a href="https://github.com/erxes/erxes" > GitHub</a>** Bug reports, contributions
-- **<a href="https://github.com/erxes/erxes/issues" > Feedback section</a>** Roadmap, feature requests & bugs
-- **<a href="https://twitter.com/erxesHQ" > Twitter</a>** Get the news fast
+- **<a href="https://discord.com/invite/aaGzy3gQK5"> Discord</a>** For live discussion with the community
+- **<a href="https://github.com/erxes/erxes"> GitHub</a>** Bug reports, contributions
+- **<a href="https://github.com/erxes/erxes/issues"> Feedback section</a>** Roadmap, feature requests & bugs
+- **<a href="https://twitter.com/erxesHQ"> Twitter</a>** Get the news fast
 
  
 ## License
-See the <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" >**LICENSE**</a> file for licensing information.
+See the <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md">**LICENSE**</a> file for licensing information.
 
