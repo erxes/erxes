@@ -1,7 +1,7 @@
 import {
   pdfAttachmentType,
-  pdfAttachmentInput,
-} from '@erxes/api-utils/src/commonTypeDefs';
+  pdfAttachmentInput
+} from "@erxes/api-utils/src/commonTypeDefs";
 
 const productFields = `
     _id: String!
@@ -27,7 +27,6 @@ const productFields = `
     scopeBrandIds: [String]
     uom: String
     subUoms: JSON
-    currency: String
 
     category: ProductCategory
     vendor: Company
@@ -103,7 +102,6 @@ const productParams = `
   scopeBrandIds: [String]
   uom: String,
   subUoms: JSON,
-  currency: String
   pdfAttachment: PdfAttachmentInput
 `;
 
