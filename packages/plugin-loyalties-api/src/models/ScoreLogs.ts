@@ -124,48 +124,6 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     public static async getStatistic(doc: IScoreParams) {
       const filter = generateFilter(doc);
 
-      const campaignFieldIds = await models.ScoreCampaigns.find({})
-        .distinct('fieldId')
-        .exec();
-
-      let totalCount = 0;
-
-      const customers = await sendCoreMessage({
-        subdomain,
-        action: 'customers.find',
-        data: { 'customFieldsData.field': { $in: campaignFieldIds } },
-        isRPC: true,
-        defaultValue: [],
-      });
-
-      const companies = await sendCoreMessage({
-        subdomain,
-        action: 'companies.find',
-        data: { 'customFieldsData.field': { $in: campaignFieldIds } },
-        isRPC: true,
-        defaultValue: [],
-      });
-
-      const users = await sendCoreMessage({
-        subdomain,
-        action: 'users.find',
-        data: {
-          query: { 'customFieldsData.field': { $in: campaignFieldIds } },
-        },
-        isRPC: true,
-        defaultValue: [],
-      });
-
-      [...customers, ...companies, ...users]?.map((owner) => {
-        const { customFieldsData } = owner;
-
-        for (const customFieldData of customFieldsData) {
-          if (campaignFieldIds.includes(customFieldData.field)) {
-            totalCount += customFieldData.value;
-          }
-        }
-      });
-
       const pipeline = [
         { $match: { ...(filter || {}) } },
         {
@@ -174,8 +132,17 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
             totalPointEarned: {
               $sum: {
                 $cond: {
-                  if: { $eq: ['$action', 'add'] },
+                  if: {$or: [{ $eq: ['$action', 'add'] }, { $gt: ['$changeScore', 0] }]},
                   then: '$changeScore',
+                  else: 0,
+                },
+              },
+            },
+            totalPointRedeemed: {
+              $sum: {
+                $cond: {
+                  if: {$or: [{ $eq: ['$action', 'subtract'] }, { $lt: ['$changeScore', 0] }]},
+                  then: {$abs: '$changeScore'},
                   else: 0,
                 },
               },
@@ -199,15 +166,16 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         {
           $project: {
             _id: 0,
-            pointRedeemed: { $subtract: ['$totalPointEarned', totalCount] },
             totalPointEarned: 1,
+            totalPointRedeemed: 1,
+            totalPointBalance: { $subtract: ['$totalPointEarned', '$totalPointRedeemed'] },
             activeLoyaltyMembers: { $size: '$activeLoyaltyMembers' },
           },
         },
       ];
 
-      const currentMonthStart = dayjs().startOf('month').toDate();
-      const currentMonthEnd = dayjs().endOf('month').toDate();
+      const currentMonthStart = dayjs().subtract(1, 'month').toDate();
+      const currentMonthEnd = dayjs().toDate();
 
       const monthlyActiveUsersPipeline = [
         {
@@ -295,13 +263,9 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       );
 
       return {
-        totalPointEarned: statistic.totalPointEarned,
-        pointBalance: totalCount,
-        activeLoyaltyMembers: statistic.activeLoyaltyMembers,
-        redemptionRate:
-          (statistic.pointRedeemed / statistic.totalPointEarned) * 100,
-        mostRedeemedProductCategory:
-          mostRedeemedProductCategory?.productCategory?.name || '',
+        ...statistic,
+        redemptionRate: statistic?.totalPointEarned ? ((statistic.totalPointRedeemed ?? 0) / statistic.totalPointEarned) * 100 : 0,
+        mostRedeemedProductCategory: mostRedeemedProductCategory?.productCategory?.name || '',
         monthlyActiveUsers: monthlyActiveUsers?.count || 0,
       };
     }

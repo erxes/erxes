@@ -67,7 +67,7 @@ export const loadPostClass = (models: IModels) => {
         doc.slug = await this.generateUniqueSlug(doc.title);
       }
 
-      if (doc.content) {
+      if (doc.content && !doc.excerpt) {
         doc.excerpt = prepareExcerpt(doc.content);
       }
 
@@ -84,14 +84,14 @@ export const loadPostClass = (models: IModels) => {
         doc.slug = await this.generateUniqueSlug(doc.title);
       }
 
-      if (doc.content) {
-        doc.excerpt = prepareExcerpt(doc.content);
-      }
-
       const post = await models.Posts.findOne({ _id });
 
       if (!post) {
         throw new Error('Post not found');
+      }
+
+      if (doc.content && !doc.excerpt && !post.excerpt) {
+        doc.excerpt = prepareExcerpt(doc.content);
       }
 
       if (doc.status === 'published' && !post.publishedDate) {
