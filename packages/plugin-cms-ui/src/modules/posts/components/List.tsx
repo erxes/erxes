@@ -9,8 +9,6 @@ import React from 'react';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 
 import PostForm from '../containers/Form';
-// import { tumentechMenu } from '../list/CarsList';
-
 import { menu } from '../../../routes';
 import Row from './Row';
 import CPHeader from '../../clientportal/containers/Header';
@@ -55,7 +53,9 @@ const List = (props: Props) => {
         size='small'
         icon='plus-circle'
         onClick={() => {
-          navigate(`/cms/posts/new?web=${props.clientPortalId}`, { replace: true });
+          navigate(`/cms/posts/new?web=${props.clientPortalId}`, {
+            replace: true,
+          });
         }}
       >
         Add post

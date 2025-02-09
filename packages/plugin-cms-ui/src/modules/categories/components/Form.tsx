@@ -8,6 +8,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
+import SelectCp from '../../clientportal/containers/SelectCp';
 import SelectCategory from '../containers/SelectCategory';
 
 type Props = {
@@ -19,6 +20,7 @@ type Props = {
 };
 
 const ProductForm = (props: Props) => {
+  const [clientPortalId, setClientPortalId] = React.useState(props.clientPortalId || '');
   const [category, setCategory] = React.useState<any>(
     props.category || {
       slug: '',
@@ -29,7 +31,8 @@ const ProductForm = (props: Props) => {
     }
   );
 
-  React.useEffect(() => {}, [category]);
+  React.useEffect(() => {
+  }, [clientPortalId]);
 
   const generateDoc = () => {
     const finalValues: any = {};
@@ -86,73 +89,95 @@ const ProductForm = (props: Props) => {
       );
     };
 
+    const renderFormFields = () => {
+      if (!clientPortalId || !clientPortalId.length) {
+        return null;
+      }
+      return (
+        <>
+          {renderInput('name', 'text', category.name, 'Name', true)}
+          {renderInput('slug', 'text', category.slug, 'Slug', true)}
+          {renderInput(
+            'description',
+            'text',
+            category.description,
+            'Description'
+          )}
+          <FormGroup>
+            <ControlLabel>{__('Parent Category')}</ControlLabel>
+            <SelectCategory
+              clientPortalId={clientPortalId}
+              value={category.parentId}
+              onChange={(catId) => {
+                setCategory({
+                  ...category,
+                  parentId: catId,
+                });
+              }}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>{__('Status')}</ControlLabel>
+            <FormControl
+              name='status'
+              componentclass='select'
+              placeholder={__('Select status')}
+              defaultValue={category.status || 'inactive'}
+              required={true}
+              onChange={(e: any) => {
+                setCategory({
+                  ...category,
+                  status: e.target.value,
+                });
+              }}
+            >
+              {['active', 'inactive'].map((op) => (
+                <option key={op} value={op}>
+                  {op}
+                </option>
+              ))}
+            </FormControl>
+          </FormGroup>
+
+          <ModalFooter>
+            <Button btnStyle='simple' onClick={closeModal} icon='times-circle'>
+              Close
+            </Button>
+
+            {renderButton({
+              name: 'category',
+              values: generateDoc(),
+              isSubmitted,
+              callback: () => {
+                if (props.refetch) {
+                  props.refetch();
+                }
+
+                closeModal();
+              },
+              object: category,
+            })}
+          </ModalFooter>
+        </>
+      );
+    };
+
     return (
       <>
-        {renderInput('name', 'text', category.name, 'Name', true)}
-        {renderInput('slug', 'text', category.slug, 'Slug', true)}
-        {renderInput(
-          'description',
-          'text',
-          category.description,
-          'Description'
-        )}
-        <FormGroup>
-          <ControlLabel>{__('Parent Category')}</ControlLabel>
-          <SelectCategory
-            clientPortalId={props.clientPortalId}
-            value={category.parentId}
-            onChange={(catId) => {
-              setCategory({
-                ...category,
-                parentId: catId,
-              });
-            }}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>{__('Status')}</ControlLabel>
-
-          <FormControl
-            name='status'
-            componentclass='select'
-            placeholder={__('Select status')}
-            defaultValue={category.status || 'inactive'}
-            required={true}
-            onChange={(e: any) => {
-              setCategory({
-                ...category,
-                status: e.target.value,
-              });
-            }}
-          >
-            {['active', 'inactive'].map((op) => (
-              <option key={op} value={op}>
-                {op}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
-
-        <ModalFooter>
-          <Button btnStyle='simple' onClick={closeModal} icon='times-circle'>
-            Close
-          </Button>
-
-          {renderButton({
-            name: 'category',
-            values: generateDoc(),
-            isSubmitted,
-            callback: () => {
-              if (props.refetch) {
-                props.refetch();
-              }
-
-              closeModal();
-            },
-            object: category,
-          })}
-        </ModalFooter>
+      <FormGroup>
+      <ControlLabel>{__('Client Portal')}</ControlLabel>
+        <SelectCp
+          onSelect={(cpID) => {
+            setClientPortalId(cpID);
+          }}
+          initialValue={clientPortalId}
+          label={'Client Portal'}
+          name='selectedCp'
+          multi={false}
+        />
+      </FormGroup>
+        {renderFormFields()}
       </>
     );
   };

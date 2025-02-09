@@ -74,6 +74,18 @@ const TripSection = (props: Props) => {
                   />
                 </FormGroup>
                 <FormGroup>
+                  <ControlLabel>Description</ControlLabel>
+                  <FormControl
+                    id='excerpt'
+                    componentclass='textarea'
+                    value={post.excerpt || ''}
+                    placeholder='Description'
+                    onChange={(e: any) => {
+                      onChange('excerpt', e.target.value);
+                    }}
+                  />
+                </FormGroup>
+                <FormGroup>
                   <ControlLabel>Featured</ControlLabel>
                   <p>Turn this post into a featured post</p>
 
