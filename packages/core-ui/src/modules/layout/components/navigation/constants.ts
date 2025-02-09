@@ -77,12 +77,6 @@ export const GENERAL_SETTINGS = [
     icon: 'icon-mail-alt',
     url: '/settings/email-templates',
   },
-  {
-    name: 'General Settings',
-    text: 'Exchange Rates',
-    icon: 'icon-mail-alt',
-    url: '/settings/exchangeRates',
-  },
 ];
 
 export const ACTIONS = [

@@ -33,7 +33,6 @@ import dashboards from './dashboard';
 import reports from './report';
 import sections from './section';
 import insights from './insight';
-import exchangeRates from './exchangeRates';
 
 export default {
   ...users,
@@ -67,5 +66,4 @@ export default {
   ...reports,
   ...sections,
   ...insights,
-  ...exchangeRates,
 };

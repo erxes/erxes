@@ -131,12 +131,6 @@ import {
   mutations as InsightMutations,
 } from './insight';
 
-import {
-  types as RateTypes,
-  queries as RateQueries,
-  mutations as RateMutations,
-} from './exchangeRates';
-
 export let types = ({ inboxEnabled }) => {
   return `
   scalar JSON
@@ -191,7 +185,6 @@ export let types = ({ inboxEnabled }) => {
   ${UomTypes}
   ${EmailTemplatesTypes}
   ${InsightTypes}
-  ${RateTypes}
   `;
 };
 
@@ -223,7 +216,6 @@ export let queries = `
   ${UomQueries}
   ${EmailTemplatesQueries}
   ${InsightQueries}
-  ${RateQueries}
 `;
 
 export let mutations = `
@@ -249,7 +241,6 @@ export let mutations = `
   ${UomMutations}
   ${EmailTemplatesMutations}
   ${InsightMutations}
-  ${RateMutations}
 `;
 
 export let subscriptions = `

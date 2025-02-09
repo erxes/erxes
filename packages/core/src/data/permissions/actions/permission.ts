@@ -502,24 +502,4 @@ export const moduleObjects = {
       },
     ],
   },
-
-  exchangeRates: {
-    name: 'exchangeRates',
-    description: 'ExchangeRates',
-    actions: [
-      {
-        name: 'exchangeRatesAll',
-        description: 'All',
-        use: ['showExchangeRates', 'manageExchangeRates'],
-      },
-      {
-        name: 'manageExchangeRates',
-        description: 'Manage exchange rates',
-      },
-      {
-        name: 'showExchangeRates',
-        description: 'Show exchange rates',
-      },
-    ],
-  },
 };
