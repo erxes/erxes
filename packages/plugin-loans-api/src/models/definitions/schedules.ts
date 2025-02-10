@@ -13,9 +13,11 @@ export interface ISchedule {
   contractId: string;
   version: string;
   createdAt: Date;
-  status: 'pending' | 'done' | 'skipped' | 'pre' | 'less' | 'expired' | 'give';
+  status: 'pending' | 'done' | 'skipped' | 'pre' | 'less' | 'expired' | 'give';  
   payDate: Date;
   interestRate: number;
+  firstPayment?: number;
+  firstTotal?: number;
 
   balance: number;
   unUsedBalance: number;
@@ -43,10 +45,6 @@ export interface ISchedule {
   didTotal: number;
   freezeAmount?: number;
   surplus?: number;
-
-  scheduleDidPayment?: number;
-  scheduleDidInterest?: number;
-  scheduleDidStatus?: 'done' | 'less' | 'pending' | 'pre';
 
   transactionIds?: string[];
   isDefault: boolean;

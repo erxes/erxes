@@ -7,7 +7,7 @@ import {
 } from "../../messageBroker";
 import { SCHEDULE_STATUS } from "../../models/definitions/constants";
 import { IContract, IContractDocument } from "../../models/definitions/contracts";
-import { getCalcedAmountsOnDate } from "../../models/utils/calcUtils";
+import { getCalcedAmountsOnDate } from "../../models/utils/calcHelpers";
 import {
   getDiffDay,
   getFullDate,

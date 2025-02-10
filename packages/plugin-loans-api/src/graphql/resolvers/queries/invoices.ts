@@ -2,7 +2,7 @@ import { getFullDate, getRandomNumber } from '../../../models/utils/utils';
 import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { getConfig } from '../../../messageBroker';
-import { getCalcedAmountsOnDate } from '../../../models/utils/calcUtils';
+import { getCalcedAmountsOnDate } from '../../../models/utils/calcHelpers';
 
 const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
