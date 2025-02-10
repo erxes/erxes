@@ -3,6 +3,7 @@ import { IModels } from './connectionResolver';
 import { sendCoreMessage, sendPosMessage } from './messageBroker';
 import { ISyncLogDocument } from './models/definitions/dynamic';
 import { getMsdCustomerInfo } from './utilsCustomer';
+import { putCreateLog, putDeleteLog, putUpdateLog } from './logUtils';
 
 interface ExchangeRateConfig {
   exchangeRateApi: string;
@@ -19,7 +20,13 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
   });
 };
 
-export const consumeInventory = async (subdomain, config, doc, action) => {
+export const consumeInventory = async (
+  subdomain,
+  config,
+  doc,
+  action,
+  user
+) => {
   const updateCode = action === 'delete' ? doc.code : doc.No;
 
   const product = await sendCoreMessage({
@@ -57,24 +64,50 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
     };
 
     if (product) {
-      await sendCoreMessage({
+      const updated = await sendCoreMessage({
         subdomain,
         action: 'products.updateProduct',
         data: { _id: product._id, doc: { ...document } },
         isRPC: true,
       });
+
+      await putUpdateLog(
+        subdomain,
+        {
+          type: 'product',
+          object: product,
+          newData: {
+            ...doc,
+            status: 'active',
+          },
+          updatedDocument: updated,
+        },
+        user
+      );
     } else {
-      await sendCoreMessage({
+      const create = await sendCoreMessage({
         subdomain,
         action: 'products.createProduct',
         data: { doc: { ...document } },
         isRPC: true,
       });
+
+      await putCreateLog(
+        subdomain,
+        {
+          type: 'product',
+          newData: {
+            ...doc,
+          },
+          object: create,
+        },
+        user
+      );
     }
   } else if (action === 'delete' && product) {
     const anotherBrandIds = brandIds.filter((b) => b && b !== config.brandId);
     if (anotherBrandIds.length) {
-      await sendCoreMessage({
+      const updated = await sendCoreMessage({
         subdomain,
         action: 'products.updateProduct',
         data: {
@@ -83,6 +116,20 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
         },
         isRPC: true,
       });
+
+      await putUpdateLog(
+        subdomain,
+        {
+          type: 'product',
+          object: product,
+          newData: {
+            ...doc,
+            status: 'active',
+          },
+          updatedDocument: updated,
+        },
+        user
+      );
     } else {
       await sendCoreMessage({
         subdomain,
@@ -90,6 +137,8 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
         data: { _ids: [product._id] },
         isRPC: true,
       });
+
+      await putDeleteLog(subdomain, { type: 'product', object: product }, user);
     }
   }
 };
