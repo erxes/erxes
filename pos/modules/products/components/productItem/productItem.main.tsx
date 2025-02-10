@@ -1,6 +1,6 @@
-import { mobileTabAtom, modeAtom } from "@/store"
-import { addToCartAtom } from "@/store/cart.store"
 import { useAtomValue, useSetAtom } from "jotai"
+import { mobileTabAtom, modeAtom , remainderNotificationEnabledAtom } from "@/store"
+import { addToCartAtom } from "@/store/cart.store"
 
 import { IProduct } from "@/types/product.types"
 import { formatNum } from "@/lib/utils"
@@ -31,12 +31,17 @@ const ProductItem = ({
   const addToCart = useSetAtom(addToCartAtom)
   const mode = useAtomValue(modeAtom)
   const setTab = useSetAtom(mobileTabAtom)
+  const isRemainderFilterEnabled = useAtomValue(remainderNotificationEnabledAtom);
+
+  if (isRemainderFilterEnabled && remainder === 0) {
+    return null;
+  }
 
   return (
     <div
       className="relative rounded-lg border p-3 text-center "
       onClick={() => {
-        addToCart({ name, _id, unitPrice })
+        addToCart({ name, _id, unitPrice });
         mode === "mobile" &&
           toast({
             variant: "default",
@@ -49,12 +54,12 @@ const ProductItem = ({
                 Сагс руу очих
               </ToastAction>
             ),
-          })
+          });
       }}
     >
       <Image
         src={(attachment || {}).url || ""}
-        alt=""
+        alt={name}
         width={200}
         height={100}
         className="mb-3 aspect-[4/3] h-auto w-full object-contain px-3"
@@ -62,7 +67,7 @@ const ProductItem = ({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="mb-1 h-8 overflow-hidden  text-ellipsis text-sm leading-4 ">
+            <div className="mb-1 h-8 overflow-hidden text-ellipsis text-sm leading-4 ">
               <small>{`${code} - ${name}`}</small>
             </div>
           </TooltipTrigger>
@@ -100,7 +105,7 @@ const ProductItem = ({
           ))}
       </p>
     </div>
-  )
-}
+  );
+};
 
-export default ProductItem
+export default ProductItem;

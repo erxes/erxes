@@ -13,6 +13,7 @@ import { useAtomValue } from "jotai"
 
 import Image from "@/components/ui/image"
 import ActivateOrder from "@/modules/settings/components/activateOrder"
+import CheckRemainder from "@/modules/settings/components/checkRemainder"
 
 const Settings = () => {
   const { details, email } = useAtomValue(currentUserAtom) || {}
@@ -40,6 +41,7 @@ const Settings = () => {
       <ScrollerWidth />
       <PrintItemStatus />
       <ActivateOrder/>
+      <CheckRemainder/>
       <CategoriesToPrint />
       <StatusExplain />
     </>

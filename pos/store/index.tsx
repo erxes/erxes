@@ -50,6 +50,13 @@ export const orderNotificationEnabledAtom = atomWithStorage<boolean>(
   false
 )
 
+// remainder 
+
+export const remainderNotificationEnabledAtom = atomWithStorage<boolean>(
+  "remainderNotificationEnabled",
+  false
+)
+
 // dialog
 
 export const checkoutModalViewAtom = atom<string>("")
