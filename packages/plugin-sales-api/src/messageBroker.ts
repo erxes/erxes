@@ -20,7 +20,7 @@ import {
   createBoardItem,
   updateName
 } from "./models/utils";
-import { getCardItem } from "./utils";
+import { getCardItem, convertNestedDate } from "./utils";
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import {
   consumeQueue,
@@ -279,7 +279,14 @@ export const setupMessageConsumers = async () => {
         .lean()
     };
   });
+  consumeRPCQueue("sales:deals.aggregate", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
 
+    return {
+      status: "success",
+      data: await models.Deals.aggregate(convertNestedDate(data))
+    };
+  });
   consumeRPCQueue("sales:deals.count", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
