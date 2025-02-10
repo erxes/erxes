@@ -32,7 +32,7 @@ export const putCreateLog = async (subdomain: string, logDoc, user) => {
   );
 };
 
-export const putUpdateLog = async (subdomain: string, logDoc, user) => {
+export const putUpdateLog = async (subdomain: string, logDoc, user?) => {
   const { description, extraDesc } = await gatherDescriptions({
     ...logDoc,
     action: LOG_ACTIONS.UPDATE,
