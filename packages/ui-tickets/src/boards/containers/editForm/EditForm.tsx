@@ -74,15 +74,15 @@ class EditFormContainer extends React.Component<FinalProps> {
         prev,
         {
           subscriptionData: {
-            data: { pipelinesChanged }
+            data: { ticketsPipelinesChanged }
           }
         }
       ) => {
-        if (!pipelinesChanged || !pipelinesChanged.data) {
+        if (!ticketsPipelinesChanged || !ticketsPipelinesChanged.data) {
           return;
         }
 
-        const { proccessId } = pipelinesChanged;
+        const { proccessId } = ticketsPipelinesChanged;
 
         if (proccessId === localStorage.getItem("proccessId")) {
           return;

@@ -76,7 +76,7 @@ const LoansResearchForm = (props: Props) => {
   );
 
   useEffect(() => {
-    if (queryParams && queryParams.itemId) {
+    if (queryParams && queryParams?.itemId) {
       setDealId(queryParams.itemId);
     }
   }, [queryParams]);
@@ -138,7 +138,7 @@ const LoansResearchForm = (props: Props) => {
         setCustomerType('Business');
       }
 
-      setAverageSalaryIncome(salarySum);
+      setAverageSalaryIncome(salarySum / incomes.length);
       setAverageBusinessIncome(businessSum);
     }
   }, [incomes]);

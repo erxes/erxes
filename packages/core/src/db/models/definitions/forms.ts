@@ -60,6 +60,7 @@ export interface ILeadData {
   contactsGathered?: number;
   isRequireOnce?: boolean;
   saveAsCustomer?: boolean;
+  clearCacheAfterSave?: boolean;
   templateId?: string;
   attachments?: IAttachment[];
   css?: string;
@@ -248,6 +249,11 @@ export const leadDataSchema = new Schema(
       optional: true,
       label: 'Verify email',
     }),
+    clearCacheAfterSave: field({
+      type: Boolean,
+      optional: true,
+      label: 'Clear cache after save',
+    })
   },
   { _id: false }
 );
@@ -280,11 +286,25 @@ export const formSchema = schemaWrapper(
     brandId: field({ type: String, optional: true, label: 'Brand' }),
 
     leadData: field({ type: leadDataSchema, label: 'Lead data' }),
-    departmentIds: field({ type: [String], optional: true, label: 'Departments' }),
+    departmentIds: field({
+      type: [String],
+      optional: true,
+      label: 'Departments',
+    }),
     languageCode: field({ type: String, optional: true, label: 'Language' }),
     visibility: field({ type: String, optional: true, label: 'Visibility' }),
     tagIds: field({ type: [String], optional: true, label: 'Tags' }),
-    status: field({ type: String, optional: true, label: 'Status', enum: ['active', 'archived'], default:'active' }),
-    integrationId: field({ type: String, optional: true, label: 'Integration' }),
+    status: field({
+      type: String,
+      optional: true,
+      label: 'Status',
+      enum: ['active', 'archived'],
+      default: 'active',
+    }),
+    integrationId: field({
+      type: String,
+      optional: true,
+      label: 'Integration',
+    }),
   })
 );

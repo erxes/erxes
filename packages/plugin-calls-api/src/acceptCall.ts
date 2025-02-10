@@ -1,6 +1,7 @@
 import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
+import { findIntegration } from './utils';
 
 const acceptCall = async (
   models: IModels,
@@ -9,14 +10,9 @@ const acceptCall = async (
   user,
   type?: string,
 ) => {
-  const integration = await models.Integrations.findOne({
-    inboxId: params.inboxIntegrationId,
-  }).lean();
+ const integration = await findIntegration(subdomain, params);
 
-  if (!integration) {
-    throw new Error('Integration not found');
-  }
-  const operator = integration.operators.find(
+  const operator = integration.operators?.find(
     (operator) => operator.userId === user?._id,
   );
   params.operatorPhone = integration.phone;
@@ -29,7 +25,6 @@ const acceptCall = async (
     callType,
     callStatus,
     timeStamp,
-    inboxIntegrationId,
     queueName,
   } = params;
 
@@ -50,7 +45,7 @@ const acceptCall = async (
       callStartTime,
       callType,
       callStatus,
-      inboxIntegrationId,
+      inboxIntegrationId: integration.inboxId,
       createdAt: new Date(),
       createdBy: user._id,
       updatedBy: user._id,
@@ -86,7 +81,7 @@ const acceptCall = async (
   }
   if (!customer || !customer.erxesApiId) {
     customer = await getOrCreateCustomer(models, subdomain, {
-      inboxIntegrationId: params.inboxIntegrationId,
+      inboxIntegrationId: integration.inboxId,
       primaryPhone: params.customerPhone,
     });
   }

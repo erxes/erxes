@@ -22,8 +22,8 @@ export const inputs = `
 `;
 
 export const queries = `
-    cmsTags(clientPortalId: String!, searchValue: String, page: Int, perPage: Int, sortField: String, sortDirection: SortDirection): [PostTag]
-    cmsTag(_id: String!): PostTag
+    cmsTags(clientPortalId: String, searchValue: String, page: Int, perPage: Int, sortField: String, sortDirection: SortDirection): [PostTag]
+    cmsTag(_id: String, slug: String): PostTag
 `;
 
 export const mutations = `

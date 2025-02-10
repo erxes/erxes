@@ -44,6 +44,7 @@ export interface ILeadData {
   form?: IForm;
   isRequireOnce?: boolean;
   saveAsCustomer?: boolean;
+  clearCacheAfterSave?: boolean;
   templateId?: string;
   attachments?: IAttachment[];
   css?: string;

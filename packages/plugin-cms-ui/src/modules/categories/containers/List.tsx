@@ -44,11 +44,6 @@ export default function ListContainer(props: Props) {
     return tree;
   }
   
-
-  React.useEffect(() => {
-
-  }, [clientPortalId]);
-
   const { data, loading, refetch } = useQuery(queries.GET_CATEGORIES, {
     variables: {
       ...router.generatePaginationParams(props.queryParams || {}),
@@ -68,7 +63,7 @@ export default function ListContainer(props: Props) {
 
     confirm(message).then(() => {
       removeMutation({
-        variables: { _id: id },
+        variables: { id },
       })
         .then(() => {
           refetch();
@@ -79,8 +74,6 @@ export default function ListContainer(props: Props) {
         });
     });
   };
-
-  const totalCount = data?.insuranceCategoryList?.totalCount || 0;
 
   const categoryTree = buildCategoryTree(data?.cmsCategories || []);
 

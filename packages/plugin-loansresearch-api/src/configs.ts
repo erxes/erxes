@@ -4,6 +4,7 @@ import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import resolvers from './graphql/resolvers';
 import * as permissions from './permissions';
+import afterMutations from './afterMutations';
 
 export default {
   name: 'loansresearch',
@@ -25,5 +26,5 @@ export default {
 
   onServerInit: async () => {},
   setupMessageConsumers,
-  meta: { permissions },
+  meta: { permissions, afterMutations },
 };

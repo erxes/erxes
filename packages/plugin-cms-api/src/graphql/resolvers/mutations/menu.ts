@@ -3,14 +3,21 @@ import { IContext } from '../../../connectionResolver';
 
 const mutations = {
   cmsAddMenu(_parent: any, args: any, context: IContext) {
-    const { models } = context;
+    const { models, clientPortalId } = context;
     const { input } = args;
+    if (clientPortalId) {
+      input.clientPortalId = clientPortalId;
+    }
 
     return models.MenuItems.createMenuItem(input);
   },
   cmsEditMenu(_parent: any, args: any, context: IContext) {
-    const { models } = context;
+    const { models,clientPortalId } = context;
     const { _id, input } = args;
+
+    if (clientPortalId) {
+      input.clientPortalId = clientPortalId;
+    }
 
     return models.MenuItems.updateMenuItem(_id, input);
   },

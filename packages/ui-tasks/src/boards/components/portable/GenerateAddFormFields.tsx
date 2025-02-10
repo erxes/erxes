@@ -11,6 +11,7 @@ import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
 
 type Props = {
   object: any;
@@ -104,8 +105,8 @@ function GenerateAddFormFields(props: Props) {
               <FormGroup>
                 <ControlLabel>Branches</ControlLabel>
                 <SelectBranches
-                  label="Choose branch"
-                  name="branches"
+                  label='Choose branch'
+                  name='branches'
                   initialValue={[]}
                   multi={true}
                   onSelect={branchIds => {
@@ -121,8 +122,8 @@ function GenerateAddFormFields(props: Props) {
               <FormGroup>
                 <ControlLabel>Departments</ControlLabel>
                 <SelectDepartments
-                  label="Choose department"
-                  name="departments"
+                  label='Choose department'
+                  name='departments'
                   initialValue={[]}
                   multi={true}
                   onSelect={departmentIds => {
@@ -132,7 +133,21 @@ function GenerateAddFormFields(props: Props) {
               </FormGroup>
             );
           }
-
+          if (field.field === 'tagIds') {
+            return (
+              <FormGroup>
+                <ControlLabel>Tags</ControlLabel>
+                <SelectTags
+                  tagsType='tasks:task'
+                  name='tagIds'
+                  label='Choose tags'
+                  initialValue={[]}
+                  onSelect={tags => onChangeField('tagIds', tags)}
+                  multi={true}
+                />
+              </FormGroup>
+            );
+          }
           return (
             <GenerateField
               field={field}

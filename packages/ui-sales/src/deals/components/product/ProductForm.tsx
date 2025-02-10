@@ -9,24 +9,25 @@ import {
 import { IDeal, IPaymentsData, IProductData } from "../../types";
 import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 
-import Button from "@erxes/ui/src/components/Button";
-import EmptyState from "@erxes/ui/src/components/EmptyState";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import { IProduct } from "@erxes/ui-products/src/types";
-import { IProductCategory } from "@erxes/ui-products/src/types";
-import Icon from "@erxes/ui/src/components/Icon";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
-import PaymentForm from "./PaymentForm";
-import ProductCategoryChooser from "@erxes/ui-products/src/components/ProductCategoryChooser";
-import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
-import ProductItem from "../../containers/product/ProductItem";
-import ProductTotal from "./ProductTotal";
-import React from "react";
-import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
-import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
-import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
-import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
-import styled from "styled-components";
+import Button from '@erxes/ui/src/components/Button';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IProduct } from '@erxes/ui-products/src/types';
+import { IProductCategory } from '@erxes/ui-products/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import PaymentForm from './PaymentForm';
+import ProductCategoryChooser from '@erxes/ui-products/src/components/ProductCategoryChooser';
+import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
+import ProductItem from '../../containers/product/ProductItem';
+import ProductTotal from './ProductTotal';
+import React from 'react';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import styled from 'styled-components';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 const TableWrapper = styled.div`
   overflow: auto;
@@ -72,6 +73,7 @@ type Props = {
   categories: IProductCategory[];
   loading: boolean;
   pipelineDetail: any;
+  currentUser: IUser;
 };
 
 type State = {
@@ -242,7 +244,7 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { productsData, onChangeProductsData, currentProduct, dealQuery } =
+    const { productsData, onChangeProductsData, currentProduct, dealQuery, currentUser } =
       this.props;
 
     if (productsData.length === 0) {
@@ -345,6 +347,7 @@ class ProductForm extends React.Component<Props, State> {
                 onChangeDiscount={this.setDiscount}
                 calculatePerProductAmount={this.calculatePerProductAmount}
                 dealQuery={dealQuery}
+                currentUser={currentUser}
               />
             ))}
           </tbody>
@@ -674,6 +677,7 @@ class ProductForm extends React.Component<Props, State> {
           calcChangePay={this.calcChangePay}
           changePayData={this.state.changePayData}
           pipelineDetail={this.props.pipelineDetail}
+          dealQuery={this.props.dealQuery}
         />
       );
     }

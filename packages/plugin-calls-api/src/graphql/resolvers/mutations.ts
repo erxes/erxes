@@ -1,4 +1,4 @@
-import { generateToken, getRecordUrl, sendToGrandStream } from '../../utils';
+import { findIntegration, generateToken, getRecordUrl, sendToGrandStream } from '../../utils';
 import { IContext, IModels } from '../../connectionResolver';
 
 import acceptCall from '../../acceptCall';
@@ -32,13 +32,8 @@ const callsMutations = {
   },
 
   async callAddCustomer(_root, args, { models, subdomain }: IContext) {
-    const integration = await models.Integrations.findOne({
-      inboxId: args.inboxIntegrationId,
-    }).lean();
 
-    if (!integration) {
-      throw new Error('Integration not found');
-    }
+    const integration = await findIntegration(subdomain, args)
     const customer = await getOrCreateCustomer(models, subdomain, args);
 
     const channels = await sendInboxMessage({
@@ -233,10 +228,7 @@ const callsMutations = {
       if (cancelledCall) {
         return 'Already exists this history';
       }
-      const integration = await models.Integrations.findOne({
-        inboxId: doc.inboxIntegrationId,
-      }).lean();
-      if (!integration) throw new Error('Integration not found');
+      const integration = await findIntegration(subdomain, {inboxIntegrationId: doc.inboxIntegrationId, queueName: doc.queueName})
 
       const operator = integration.operators.find(
         (operator) => operator.userId === user?._id,

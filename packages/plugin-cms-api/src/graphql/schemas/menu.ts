@@ -17,7 +17,7 @@ export const types = `
 export const inputs = `
   input MenuItemInput {
     parentId: String
-    clientPortalId: String!
+    clientPortalId: String
     label: String
     contentType: String
     contentTypeID: String
@@ -29,7 +29,7 @@ export const inputs = `
 `
 
 export const queries = `
-    cmsMenuList(clientPortalId: String! kind: String): [MenuItem]
+    cmsMenuList(clientPortalId: String, kind: String): [MenuItem]
     cmsMenu(_id: String!): MenuItem
 `
 

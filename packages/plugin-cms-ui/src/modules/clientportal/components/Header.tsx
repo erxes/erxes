@@ -26,7 +26,7 @@ const MainContainer = (props: Props) => {
   return (
     <div style={{ minWidth: 200 }}>
       <SelectCp
-        label={'a'}
+        label={'Client Portal'}
         name='selectedCp'
         multi={false}
         initialValue={currentConfigId}

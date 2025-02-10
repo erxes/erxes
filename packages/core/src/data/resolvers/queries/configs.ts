@@ -24,6 +24,23 @@ const configQueries = {
     return models.Configs.find({});
   },
 
+  async configsByCode(_root, { codes, pattern }: { codes: string[], pattern: string }, { models }: IContext) {
+
+    const query: any = {
+      $or: []
+    };
+
+    if (codes?.length) {
+      query.$or.push({ code: { $in: codes } });
+    }
+  
+    if (pattern) {
+      query.$or.push({ code: { $regex: pattern, $options: 'i' } });
+    }
+
+    return models.Configs.find(query);
+  },
+
   async configsGetVersion(_root, { releaseNotes }) {
     const result = {
       version: "-",

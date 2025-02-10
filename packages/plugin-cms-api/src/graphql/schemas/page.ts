@@ -11,7 +11,7 @@ export const types = `
 
     type Page {
         _id: String!
-        clientPortalId: String
+        clientPortalId: String!
         name: String
         description: String
         coverImage: String
@@ -60,9 +60,9 @@ export const inputs = `
 `
 
 export const queries = `
-    cmsPage(_id: String): Page
-    cmsPages(clientPortalId: String!, page: Int, perPage: Int, searchValue: String): [Page]
-    cmsPageList(clientPortalId: String!, page: Int, perPage: Int, searchValue: String): PageList
+    cmsPage(_id: String, slug: String): Page
+    cmsPages(clientPortalId: String, page: Int, perPage: Int, searchValue: String): [Page]
+    cmsPageList(clientPortalId: String, page: Int, perPage: Int, searchValue: String): PageList
 `   
 
 

@@ -10,9 +10,9 @@ import type { RequestInit, HeadersInit } from 'node-fetch';
 import { generateModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
+import { IIntegrationDocument } from './models/definitions/integrations';
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET || 'secret';
-const CALL_API_EXPIRY = 60 * 60; // 1 hour
 const MAX_RETRY_COUNT = 3;
 
 export const generateToken = async (integrationId, username?, password?) => {
@@ -71,7 +71,7 @@ export const sendToGrandStream = async (models, args, user) => {
     ? extension
     : operator?.gsUsername || '1001';
 
-  let cookie = await getOrSetCallCookie(wsServer);
+  let cookie = await getOrSetCallCookie(wsServer, isCronRunning || false);
   if (!cookie) {
     throw new Error('Cookie not found');
   }
@@ -133,26 +133,50 @@ export const sendToGrandStream = async (models, args, user) => {
   }
 };
 
-export const getOrSetCallCookie = async (wsServer) => {
-  const { CALL_API_USER, CALL_API_PASSWORD } = process.env;
+export const getOrSetCallCookie = async (wsServer, isCron) => {
+  const {
+    CALL_API_USER,
+    CALL_API_PASSWORD,
+    CALL_CRON_API_USER,
+    CALL_CRON_API_PASSWORD,
+    CALL_API_EXPIRY = '86400', // Default 24h for regular users
+    CALL_CRON_API_EXPIRY = '604800', // Default 7d for cron
+  } = process.env;
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-  if (!CALL_API_USER || !CALL_API_PASSWORD) {
-    throw new Error('Required API credentials missing!');
+  // Validate credentials
+  if (!isCron && (!CALL_API_USER || !CALL_API_PASSWORD)) {
+    throw new Error('Regular API credentials missing!');
+  }
+  if (isCron && (!CALL_CRON_API_USER || !CALL_CRON_API_PASSWORD)) {
+    throw new Error('Cron API credentials missing!');
   }
 
-  let callCookie = await redis.get('callCookie');
+  // Create unique cookie keys
+  const cookieKey = `${isCron ? 'cronCallCookie' : 'callCookie'}`;
+  const apiUser = isCron ? CALL_CRON_API_USER : CALL_API_USER;
+  const apiPassword = isCron ? CALL_CRON_API_PASSWORD : CALL_API_PASSWORD;
+  const expiry = isCron ? CALL_CRON_API_EXPIRY : CALL_API_EXPIRY;
+
+  // Check existing cookie
+  let callCookie = await redis.get(cookieKey);
   if (callCookie) {
+    console.log(
+      `Using existing ${isCron ? 'cron' : 'regular'} cookie:`,
+      callCookie,
+    );
     return callCookie;
   }
+
   try {
+    // Authentication logic
     const challengeResponse = await sendRequest(`https://${wsServer}/api`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         request: {
           action: 'challenge',
-          user: CALL_API_USER,
+          user: apiUser,
           version: '1.0.20.23',
         },
       }),
@@ -162,7 +186,7 @@ export const getOrSetCallCookie = async (wsServer) => {
     const { challenge } = data?.response;
     const hashedPassword = crypto
       .createHash('md5')
-      .update(challenge + CALL_API_PASSWORD)
+      .update(challenge + apiPassword)
       .digest('hex');
 
     const loginResponse = await sendRequest(`https://${wsServer}/api`, {
@@ -171,29 +195,33 @@ export const getOrSetCallCookie = async (wsServer) => {
       body: JSON.stringify({
         request: {
           action: 'login',
-          user: CALL_API_USER,
+          user: apiUser,
           token: hashedPassword,
         },
       }),
     });
 
     const loginData = await loginResponse.json();
-    const { cookie } = loginData.response;
     if (loginData.status === 0) {
-      await redis.set('callCookie', cookie, 'EX', CALL_API_EXPIRY);
-      console.log(cookie, 'successfully cookie');
+      const { cookie } = loginData.response;
+      await redis.set(cookieKey, cookie, 'EX', expiry);
+      console.log(`Stored new ${isCron ? 'cron' : 'regular'} cookie:`, cookie);
       return cookie;
-    } else if (errorList.hasOwnProperty(loginData.status)) {
-      console.log(
+    }
+
+    // Error handling
+    if (errorList[loginData.status]) {
+      console.error(
+        `Auth failed for ${isCron ? 'cron' : 'regular'} user:`,
         errorList[loginData.status],
-        CALL_API_USER,
-        'Login:',
-        CALL_API_PASSWORD,
+        'apiUser:',
+        apiUser,
       );
       throw new Error(errorList[loginData.status]);
     }
+    throw new Error('Unknown authentication error');
   } catch (error) {
-    console.error('Error in getOrSetCallCookie:', error);
+    console.error(`Error in ${isCron ? 'cron' : 'regular'} auth:`, error);
     throw error;
   }
 };
@@ -251,7 +279,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       const extension = queue.find((queueItem) =>
         queueItem.members.split(',').includes(extentionNumber),
       )?.extension;
-      const tz = 'Asia/Shanghai' || momentTz.tz.guess();
+      const tz = 'Asia/Ulaanbaatar';
       const startDate = (
         momentTz(callStartTime).tz(tz) || momentTz(callStartTime)
       ).format('YYYY-MM-DD');
@@ -669,6 +697,143 @@ export const getDomain = (subdomain) => {
   });
 
   return DOMAIN.replace('<subdomain>', subdomain);
+};
+
+interface FindIntegrationArgs {
+  queueName?: string;
+  inboxIntegrationId?: string;
+}
+
+export const findIntegration = async (subdomain: string,args: FindIntegrationArgs): Promise<IIntegrationDocument> => {
+  let integration: IIntegrationDocument | null = null;
+  const models = await generateModels(subdomain);
+
+  if (args.queueName) {
+    // Try to find integration by queueName first
+    integration = await models.Integrations.findOne({
+      queueNames: { $in: [args.queueName] },
+    });
+
+    // If not found, try to find by inboxId
+    if (!integration && args.inboxIntegrationId) {
+      integration = await models.Integrations.findOne({
+        inboxId: args.inboxIntegrationId,
+      }).lean();
+    }
+  } else if (args.inboxIntegrationId) {
+    // If queueName is not provided, directly search by inboxId
+    integration = await models.Integrations.findOne({
+      inboxId: args.inboxIntegrationId,
+    }).lean();
+  }
+
+  if (!integration) {
+    throw new Error('Integration not found');
+  }
+
+  return integration;
+};
+
+export const  checkForExistingIntegrations = async (subdomain,details, integrationId) =>{
+  const queues = typeof details?.queues === 'string' 
+    ? details.queues.split(',').flatMap(q => q.trim().split(/\s+/)) 
+    : (details?.queues || []).flatMap(q => typeof q === 'string' ? q.trim().split(/\s+/) : q);
+
+  const models = await generateModels(subdomain);
+
+  // Check for existing integrations with the same wsServer and overlapping queues
+  const existingIntegrations = await models.Integrations.find({
+    wsServer: details.wsServer,  // Match same wsServer
+    queues: { $in: queues },     // Check if any queue already exists
+  }).lean();
+
+  if (existingIntegrations.length > 0) {
+    existingIntegrations.forEach(existingIntegration => {
+      if (existingIntegration.inboxId.toString() !== integrationId.toString()) {
+        throw new Error('One or more queues already exist in the integration with the same wsServer.');
+      }
+    });
+  }
+
+  details.queues = queues;
+  return details || {}
+}
+
+export const updateIntegrationQueues = async (subdomain, integrationId, details) => {
+  try {
+    const models = await generateModels(subdomain);
+
+    // Normalize and clean queue list
+    const checkedIntegration = await checkForExistingIntegrations(subdomain, details, integrationId);
+    const { queues } = checkedIntegration;
+
+    // Prepare update data
+    const updateData = { $set: { queues, ...details } };
+
+    // Update the integration
+    const integration = await models.Integrations.findOneAndUpdate(
+      { inboxId: integrationId },
+      updateData,
+    );
+
+    return integration?.queues || queues;
+  } catch (error) {
+    console.error('Error updating integration queues:', error.message);
+    throw error;
+  }
+};
+
+export const updateIntegrationQueueNames = async (subdomain, integrationId, queues) => {
+  try {
+    const models = await generateModels(subdomain);
+    const queueNames: string[] = [];
+
+    if (queues?.length > 0) {
+      await Promise.all(queues.map(async (queue) => {
+        try {
+          const { response } = await sendToGrandStream(
+            models,
+            {
+              path: 'api',
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              data: { request: { action: 'getQueue', queue } },
+              integrationId: integrationId,
+              retryCount: 1,
+              isConvertToJson: true,
+              isGetExtension: true,
+            },
+            {},
+          );
+
+          const q = response?.response?.queue || response?.queue;
+          if (q?.queue_name) {
+            queueNames.push(q.queue_name);
+          }
+        } catch (e) {
+          console.error('getQueue error:', e.message);
+          throw new Error(`getQueue error: ${e.message}`);
+        }
+      }));
+    }
+    if (queueNames.length > 0) {
+
+    // Prepare update data
+    const updateData = { $set: { queueNames } };
+
+    // Update the integration
+    const integration = await models.Integrations.findOneAndUpdate(
+      { inboxId: integrationId },
+      updateData,
+    );
+
+    return integration?.queueNames || queueNames;}
+
+    return []
+  } catch (error) {
+    console.error('Error updating integration queue names:', error.message);
+    throw error;
+  }
 };
 
 type ErrorList = {

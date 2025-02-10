@@ -164,7 +164,9 @@ export default {
   },
 
   async tags(task: ITaskDocument) {
-    return (task.tagIds || []).map(_id => ({ __typename: "Tag", _id }));
+    return (task.tagIds || [])
+      .filter(_id => !!_id)
+      .map(_id => ({ __typename: "Tag", _id }));
   },
 
   async labels(
