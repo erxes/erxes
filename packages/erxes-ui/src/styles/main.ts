@@ -680,7 +680,7 @@ const ProductFormContainer = styled.div`
   }
 
   thead th {
-    z-index: 0;
+    z-index: 0 !important;
   }
 `;
 

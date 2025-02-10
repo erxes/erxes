@@ -124,7 +124,6 @@ export default class ProductSectionComponent extends React.Component<
     const { products, productsData, paymentsData } = this.state;
 
     const pDataChange = (pData) => this.onChangeField("productsData", pData);
-    // const prsChange = (prs) => this.onChangeField("products", prs); //onChangeProducts
     const payDataChange = (payData) =>
       this.onChangeField("paymentsData", payData);
 
