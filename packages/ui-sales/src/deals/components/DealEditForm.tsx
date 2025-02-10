@@ -34,7 +34,7 @@ type Props = {
   saveItem: (doc: IDealParams, callback?: (item) => void) => void;
   copyItem: (itemId: string, callback: () => void) => void;
   onUpdate: (item, prevStageId?: string) => void;
-  removeItem: (itemId: string, callback: () => void) => void;
+  removeItem: (itemId: string, callback?: () => void) => void;
   beforePopupClose: (afterPopupClose?: () => void) => void;
   sendToBoard?: (item: any) => void;
   updateTimeTrack: (

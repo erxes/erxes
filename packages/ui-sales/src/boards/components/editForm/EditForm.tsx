@@ -17,8 +17,10 @@ import Comment from "../../../comment/containers/Comment";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import Watch from "../../containers/editForm/Watch";
+import { currentUser } from "@erxes/ui/src/auth/graphql";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
@@ -35,6 +37,7 @@ type Props = {
   hideHeader?: boolean;
   sendToBoard?: (item: any) => void;
   refresh: boolean;
+  currentUser: IUser;
 };
 
 function EditForm(props: Props) {
@@ -48,6 +51,7 @@ function EditForm(props: Props) {
     beforePopupClose,
     refresh,
     sendToBoard,
+    currentUser,
     isPopupVisible,
   } = props;
 
@@ -210,6 +214,7 @@ function EditForm(props: Props) {
                     saveItem={saveItem}
                     sendToBoard={sendToBoard}
                     onChangeStage={onChangeStage}
+                    currentUser={currentUser}
                   />
                 </ActionItem>
               </li>
