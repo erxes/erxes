@@ -27,7 +27,6 @@ type Props = {
 
 const Row = (props: Props) => {
   const { branch, remove, link } = props;
-  console.log("link", link);
   const createdUser = branch.user || {
     _id: "",
     details: { fullName: "" }
