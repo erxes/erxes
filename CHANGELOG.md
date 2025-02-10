@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.5.1](https://github.com/erxes/erxes/compare/2.5.0...2.5.1) (2025-02-10)
+
+### Bug Fixes
+
+* **cards:** cards loading cause of null tag ([b4764ae](https://github.com/erxes/erxes/commit/b4764ae775bd894cad3e8546765249d6e6e6936a))
+* company code check tax payer ([3ca34f8](https://github.com/erxes/erxes/commit/3ca34f89ddd49dfa8831c37fa647fe494fd3ebcb))
+* create deal then to syncerkhet ([85462ab](https://github.com/erxes/erxes/commit/85462ab6a549b1fc25fe374f52259c5248d344a8))
+* MSDynamic plugin improve with exchangeRate ([#5904](https://github.com/erxes/erxes/issues/5904)) ([dc4b4cf](https://github.com/erxes/erxes/commit/dc4b4cf14f58603bf569ada184e172af69b1b278))
+* **payment:** fix khanbank payment form ([4a28abc](https://github.com/erxes/erxes/commit/4a28abcd27b7fc3eff5ddb3b97a3ad15aaf32d1f))
+* syncerkhet config remove ([ecda3a5](https://github.com/erxes/erxes/commit/ecda3a56e97248b7c20fa752f7e02de90ad85bc1))
+
 ## [2.5.0](https://github.com/erxes/erxes/compare/2.5.0-rc.1...2.5.0) (2025-02-04)
 
 
