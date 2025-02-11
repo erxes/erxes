@@ -1,19 +1,21 @@
-import { __, Button, Icon, ModalTrigger } from '@erxes/ui/src';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Box from '@erxes/ui/src/components/Box';
-import React from 'react';
+import { Button, Icon, ModalTrigger, __ } from "@erxes/ui/src";
 
-import { ILoanResearch } from '../types';
-import { List } from '../styles';
-import LoansResearchFormContainer from '../containers/LoansResearchForm';
+import Box from "@erxes/ui/src/components/Box";
+import DynamicComponentContent from "@erxes/ui/src/components/dynamicComponent/Content";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { ILoanResearch } from "../types";
+import { List } from "../styles";
+import LoansResearchFormContainer from "../containers/LoansResearchForm";
+import React from "react";
 
 type Props = {
   loansResearch: ILoanResearch;
   queryParams: any;
+  showType?: string;
 };
 
 const LoansResearchSidebar = (props: Props) => {
-  const { loansResearch, queryParams } = props;
+  const { loansResearch, queryParams, showType } = props;
 
   const renderForm = ({
     closeModal,
@@ -51,15 +53,19 @@ const LoansResearchSidebar = (props: Props) => {
     return (
       <List>
         <li>
-          <div>{__('Customer Type')}: </div>{' '}
-          <span>{loansResearch?.customerType || ''}</span>
+          <div>{__("Customer Type")}: </div>{" "}
+          <span>{loansResearch?.customerType || ""}</span>
         </li>
         <li>
-          <div>{__('Deal')}: </div> <span>{loansResearch?.dealId || ''}</span>
+          <div>{__("Deal")}: </div> <span>{loansResearch?.dealId || ""}</span>
         </li>
       </List>
     );
   };
+
+  if (showType && showType === "list") {
+    return <DynamicComponentContent>{content()}</DynamicComponentContent>;
+  }
 
   return (
     <Box

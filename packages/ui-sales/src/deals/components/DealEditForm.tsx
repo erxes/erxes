@@ -155,21 +155,6 @@ export default class DealEditForm extends React.Component<Props, State> {
   };
 
   renderDetail = (saveItem) => {
-    const { item, options } = this.props;
-
-    return (
-      <>
-        <SidebarConformity
-          options={options}
-          item={item}
-          saveItem={saveItem}
-          renderItems={this.renderItems}
-        />
-      </>
-    );
-  };
-
-  renderProperties = () => {
     const { item, options, updateTimeTrack } = this.props;
 
     const timeTrack = item.timeTrack || {
@@ -179,7 +164,12 @@ export default class DealEditForm extends React.Component<Props, State> {
 
     return (
       <>
-        <CustomFieldsSection item={item} options={options} />
+        <SidebarConformity
+          options={options}
+          item={item}
+          saveItem={saveItem}
+          renderItems={this.renderItems}
+        />
 
         <TaskTimer
           taskId={item._id}
@@ -199,6 +189,16 @@ export default class DealEditForm extends React.Component<Props, State> {
           },
           true
         )}
+      </>
+    );
+  };
+
+  renderProperties = () => {
+    const { item, options } = this.props;
+
+    return (
+      <>
+        <CustomFieldsSection item={item} options={options} />
       </>
     );
   };
