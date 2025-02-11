@@ -1,7 +1,8 @@
+import * as RTG from "react-transition-group";
 import * as React from "react";
 import * as classNames from "classnames";
 
-import { IBotData, IConversation, IMessage } from "../types";
+import { IBotData, IMessage } from "../types";
 import {
   IIntegrationMessengerData,
   IIntegrationMessengerDataMessagesItem,
@@ -34,7 +35,6 @@ type Props = {
   ) => void;
   isLoggedIn: () => boolean;
   getColor?: string;
-  conversationDetail: IConversation;
   onSelectSkill: (skillId: string) => void;
   toggleVideoCall: () => void;
   replyAutoAnswer: (message: string, payload: string, type: string) => void;
@@ -76,9 +76,8 @@ const MessagesList: React.FC<Props> = (props) => {
     selectedSkill,
     errorMessage,
     isLoading,
-    conversationDetail,
   } = props;
-  const { getStarted } = conversationDetail || {};
+  const { getStarted } = messengerData || {};
 
   const backgroundClass = classNames("erxes-messages-background", {
     [`bg-${uiOptions.wallpaper}`]: uiOptions.wallpaper,
@@ -97,7 +96,7 @@ const MessagesList: React.FC<Props> = (props) => {
       messages.length === 0 &&
       (!conversationId || (conversationId || "").length === 0);
 
-    if (messengerData.botShowInitialMessage && newConversation) {
+    if (messengerData.botGreetMessage && newConversation) {
       getBotInitialMessage((initialMessage) => {
         setInitialMessage(initialMessage);
       });
@@ -166,11 +165,14 @@ const MessagesList: React.FC<Props> = (props) => {
   const renderBotGreetingMessage = (
     messengerData: IIntegrationMessengerData
   ) => {
-    if (!messengerData.botShowInitialMessage || !initialMessage) {
+    if (!messengerData.botGreetMessage) {
       return null;
     }
 
-    return renderSingleMessage(initialMessage);
+    return renderSingleMessage({
+      content: messengerData.botGreetMessage,
+      user: {},
+    });
   };
 
   const renderAwayMessage = (messengerData: IIntegrationMessengerData) => {
@@ -332,7 +334,7 @@ const MessagesList: React.FC<Props> = (props) => {
       ...message,
     };
 
-    const showBotMessage = message.botData !== null;
+    const showBotMessage = message.botData && message.botData !== null;
     const content = showBotMessage ? (
       <MessageBot
         color={color}
@@ -346,13 +348,13 @@ const MessagesList: React.FC<Props> = (props) => {
 
     if (_id < 0) {
       return (
-        // <RTG.CSSTransition
-        //   key={message._id}
-        //   timeout={500}
-        //   classNames="slide-in"
-        // >
-        { content }
-        // </RTG.CSSTransition>
+        <RTG.CSSTransition
+          key={message._id}
+          timeout={500}
+          classNames="slide-in"
+        >
+          {content}
+        </RTG.CSSTransition>
       );
     }
 
@@ -361,9 +363,9 @@ const MessagesList: React.FC<Props> = (props) => {
 
   const renderMessages = () => {
     return (
-      // <RTG.TransitionGroup component={null}>
-      messages.map(renderSingleMessage)
-      // </RTG.TransitionGroup>
+      <RTG.TransitionGroup component={null}>
+        {messages.map(renderSingleMessage)}
+      </RTG.TransitionGroup>
     );
   };
 

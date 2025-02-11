@@ -1,7 +1,6 @@
 import * as React from "react";
 import * as classNames from "classnames";
 
-import { IConversation, IMessage } from "../types";
 import { IParticipator, IUser } from "../../types";
 import { IconCamera, IconMore, IconPhone, iconClose } from "../../icons/Icons";
 import { getMessengerData, getUiOptions } from "../utils/util";
@@ -10,6 +9,7 @@ import Button from "./common/Button";
 import Container from "./common/Container";
 import ConversationHeadContent from "./ConversationHeadContent";
 import Dropdown from "./common/Dropdown";
+import { IMessage } from "../types";
 import { MESSAGE_TYPES } from "../constants";
 import MessageSender from "../containers/MessageSender";
 import MessagesList from "../containers/MessagesList";
@@ -27,7 +27,6 @@ type Props = {
   isOnline: boolean;
   color?: string;
   loading?: boolean;
-  conversationDetail: IConversation;
   refetchConversationDetail?: () => void;
   errorMessage: string;
   showTimezone?: boolean;
@@ -47,7 +46,6 @@ const ConversationDetail: React.FC<Props> = ({
   supporters,
   goToConversationList,
   refetchConversationDetail,
-  conversationDetail,
   operatorStatus,
   isOnline,
   loading,
@@ -208,7 +206,6 @@ const ConversationDetail: React.FC<Props> = ({
               operatorStatus={operatorStatus}
               errorMessage={errorMessage}
               isLoading={isLoading}
-              conversationDetail={conversationDetail}
             />
 
             <MessageSender

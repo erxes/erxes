@@ -1,8 +1,8 @@
 import * as React from "react";
 
-import { IConversation, IMessage } from "../types";
 import { getColor, getMessengerData, getUiOptions } from "../utils/util";
 
+import { IMessage } from "../types";
 import MessagesList from "../components/MessagesList";
 import { useConfig } from "../context/Config";
 import { useConversation } from "../context/Conversation";
@@ -18,7 +18,6 @@ type Props = {
   operatorStatus?: string;
   errorMessage: string;
   isLoading: boolean;
-  conversationDetail: IConversation;
 };
 
 export default (props: Props) => {
