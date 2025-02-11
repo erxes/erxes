@@ -25,7 +25,7 @@ export default function CustomMessage({
   if (component !== BOT_CUSTOM_TYPES.QUICK_REPLY) {
     return null;
   }
-  console.log("mmm", message);
+
   const { quick_replies } = message;
 
   const onSelectReply = (title: string, payload: string) => {
