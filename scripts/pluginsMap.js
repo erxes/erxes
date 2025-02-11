@@ -3978,10 +3978,6 @@ module.exports = {
         "title": "Xyp",
         "component": "./customerSidebar"
       },
-      "dealRightSidebarTab": {
-        "title": "Xyp tab",
-        "component": "./customerSidebar"
-      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-xyp-ui/remoteEntry.js"
     },
     "api": {
@@ -4977,7 +4973,10 @@ module.exports = {
           "permission": "showLoanResearch"
         }
       ],
-      "dealRightSidebarSection": "./loansResearchSidebar",
+      "dealRightSidebarSection": {
+        "title": "Loan Search",
+        "component": "./loansResearchSidebar"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loansresearch-ui/remoteEntry.js"
     },
     "api": {
