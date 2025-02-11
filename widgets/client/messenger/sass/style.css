@@ -2911,6 +2911,10 @@ select.form-control:focus,
   background: #faf9fb;
   cursor: pointer;
 }
+.get-started {
+  display: flex;
+  flex-wrap: wrap;
+}
 
 .quick-replies {
   display: flex;

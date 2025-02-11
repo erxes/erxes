@@ -138,9 +138,12 @@ const ConversationDetailContainer: React.FC<PropsWithConsumer> = (props) => {
   let state: boolean = isOnline || false;
   let operatorStatus;
   let refetchConversationDetail;
+  let conversationDetailData;
 
   if (data && data.widgetsConversationDetail) {
     const conversationDetail = data.widgetsConversationDetail;
+
+    conversationDetailData = conversationDetail;
     messages = conversationDetail.messages;
     participators = conversationDetail.participatedUsers || [];
     state = conversationDetail.isOnline;
@@ -169,6 +172,7 @@ const ConversationDetailContainer: React.FC<PropsWithConsumer> = (props) => {
       goToConversationList={goToConversationList}
       supporters={props.supporters}
       errorMessage={errorMessage}
+      conversationDetail={conversationDetailData}
       operatorStatus={operatorStatus}
       messages={messages}
       isOnline={state}
