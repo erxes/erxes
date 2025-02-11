@@ -62,11 +62,16 @@ class GeneralSettings extends React.Component<Props, State> {
   delete = (currentConfigKey: string) => {
     confirm("This Action will delete this config are you sure?").then(() => {
       const { configsMap } = this.state;
-      delete configsMap.remainderConfig[currentConfigKey];
-      delete configsMap.remainderConfig.newPipelineConfig;
-      this.setState({ configsMap });
 
-      this.props.save(configsMap);
+      const remainderConfig = { ...configsMap.remainderConfig };
+      delete remainderConfig[currentConfigKey];
+      delete remainderConfig.newPipelineConfig;
+
+      this.setState({
+        configsMap: { ...configsMap, remainderConfig },
+      });
+
+      this.props.save({ ...configsMap, remainderConfig });
     });
   };
 

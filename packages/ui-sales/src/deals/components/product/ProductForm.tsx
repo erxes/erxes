@@ -27,6 +27,7 @@ import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import styled from 'styled-components';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 const TableWrapper = styled.div`
   overflow: auto;
@@ -72,6 +73,7 @@ type Props = {
   categories: IProductCategory[];
   loading: boolean;
   pipelineDetail: any;
+  currentUser: IUser;
 };
 
 type State = {
@@ -242,7 +244,7 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { productsData, onChangeProductsData, currentProduct, dealQuery } =
+    const { productsData, onChangeProductsData, currentProduct, dealQuery, currentUser } =
       this.props;
 
     if (productsData.length === 0) {
@@ -344,6 +346,7 @@ class ProductForm extends React.Component<Props, State> {
                 onChangeDiscount={this.setDiscount}
                 calculatePerProductAmount={this.calculatePerProductAmount}
                 dealQuery={dealQuery}
+                currentUser={currentUser}
               />
             ))}
           </tbody>
@@ -673,6 +676,7 @@ class ProductForm extends React.Component<Props, State> {
           calcChangePay={this.calcChangePay}
           changePayData={this.state.changePayData}
           pipelineDetail={this.props.pipelineDetail}
+          dealQuery={this.props.dealQuery}
         />
       );
     }

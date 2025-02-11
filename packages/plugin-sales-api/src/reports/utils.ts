@@ -1374,7 +1374,8 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     dueDateRange,
     integrationTypes,
     subFields,
-    stageProbability
+    stageProbability,
+    productCategoryIds
   } = filter;
 
   const matchfilter = {};
@@ -1488,11 +1489,33 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     matchfilter['integration._id'] = { $in: integrationIds };
   }
 
+  if (productCategoryIds?.length) {
+    
+    const products = await sendCoreMessage({
+      subdomain,
+      action: 'products.find',
+      data: {
+        query: { categoryId: { $in: productCategoryIds } },
+      },
+      isRPC: true,
+      defaultValue: []
+    })
+
+    if (products?.length) {
+      const categoryProductIds = products.map(product => product._id);
+  
+      matchfilter['productsData.productId'] = {
+        $in: [...(matchfilter['productsData.productId']?.$in || []), ...categoryProductIds]
+      };
+    }
+  }
+  
   // PRODUCTS FILTER
   if (productIds?.length) {
-    matchfilter['productsData.productId'] = { $in: productIds };
+    matchfilter['productsData.productId'] = {
+      $in: [...(matchfilter['productsData.productId']?.$in || []), ...productIds]
+    };
   }
-
   // TAG FILTER
   if (tagIds?.length) {
 
