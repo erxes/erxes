@@ -2,7 +2,7 @@ import * as RTG from "react-transition-group";
 import * as React from "react";
 import * as classNames from "classnames";
 
-import { IBotData, IMessage } from "../types";
+import { BotPersistentMenuTypeMessenger, IBotData, IMessage } from "../types";
 import {
   IIntegrationMessengerData,
   IIntegrationMessengerDataMessagesItem,
@@ -173,6 +173,43 @@ const MessagesList: React.FC<Props> = (props) => {
       content: messengerData.botGreetMessage,
       user: {},
     });
+  };
+
+  const renderButton = (button: BotPersistentMenuTypeMessenger) => {
+    const { type, _id, text, link } = button;
+
+    if (type === "link") {
+      return (
+        <a className="card-action p-menu" target="_blank" href={link}>
+          {text}
+        </a>
+      );
+    }
+
+    const handleClick = () => {
+      replyAutoAnswer(text, _id, "say_something");
+      scrollBottom();
+    };
+
+    return (
+      <div key={_id} className="p-menu" onClick={handleClick}>
+        {text}
+      </div>
+    );
+  };
+
+  const renderPersistentMenu = (messengerData: IIntegrationMessengerData) => {
+    const { persistentMenus = [] } = messengerData || {};
+
+    if (!persistentMenus || persistentMenus.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="persistent-menus">
+        {persistentMenus.map((pMenu) => renderButton(pMenu))}
+      </div>
+    );
   };
 
   const renderAwayMessage = (messengerData: IIntegrationMessengerData) => {
@@ -460,6 +497,7 @@ const MessagesList: React.FC<Props> = (props) => {
           <>
             {renderBotGreetingMessage(messengerData)}
             {renderWelcomeMessage(messengerData)}
+            {renderPersistentMenu(messengerData)}
             {renderSkillOptionsMessage(messengerData)}
             {renderSkillResponse()}
             {renderCallRequest()}

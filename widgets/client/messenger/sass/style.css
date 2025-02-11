@@ -2915,6 +2915,26 @@ select.form-control:focus,
   display: flex;
   flex-wrap: wrap;
 }
+.persistent-menus {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.persistent-menus .p-menu {
+  text-decoration: none;
+  color: #333;
+  padding: 5px 15px;
+  border: 1px solid #6569df;
+  margin: 4px;
+  border-radius: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  background: #fafafa;
+  font-size: 14px;
+}
 
 .quick-replies {
   display: flex;
