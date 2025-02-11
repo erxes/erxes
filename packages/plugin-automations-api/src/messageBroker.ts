@@ -47,7 +47,7 @@ export const setupMessageConsumers = async () => {
 
     const models = await generateModels(subdomain);
     const { type, actionType, targets } = data;
-
+    console.log(data, "data");
     const waitingExecution = await await checkWaitingResponseAction(
       models,
       type,
