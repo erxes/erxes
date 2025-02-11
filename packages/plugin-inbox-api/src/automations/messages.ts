@@ -181,7 +181,6 @@ export const checkMessageTrigger = async (subdomain, { target, config }) => {
 
     return false;
   }
-
   for (const {
     isSelected,
     type,

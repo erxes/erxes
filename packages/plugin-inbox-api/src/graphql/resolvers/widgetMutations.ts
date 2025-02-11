@@ -37,6 +37,7 @@ import {
   sendIntegrationsMessage
 } from "../../messageBroker";
 import fetch from "node-fetch";
+import { compileFunction } from "vm";
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -1004,6 +1005,9 @@ const widgetMutations = {
     const integration =
       (await models.Integrations.findOne({ _id: integrationId })) ||
       ({} as any);
+    if (!integration) {
+      throw new Error("Integration not found");
+    }
 
     if (visitorId && !customerId) {
       const customer = await createVisitor(subdomain, visitorId);
@@ -1017,24 +1021,21 @@ const widgetMutations = {
     const msg = await models.ConversationMessages.createMessage({
       conversationId,
       customerId,
-      content: message
+      content: message,
+      botId: integrationId
     });
 
     graphqlPubsub.publish(`conversationMessageInserted:${msg.conversationId}`, {
       conversationMessageInserted: msg
     });
 
-    if (payload) {
+    const key = type.includes("persistentMenu") ? "persistentMenuId" : "btnId";
+    if (key) {
       await handleAutomation(subdomain, {
-        conversationMessage: msg, // Pass msg as conversationMessage
-        payload: {
-          btnId: payload,
-          conversationId: conversationId,
-          customerId: customerId
-        }
+        conversationMessage: msg,
+        payload: { [key]: payload, conversationId, customerId }
       });
     }
-
     return msg;
   },
 

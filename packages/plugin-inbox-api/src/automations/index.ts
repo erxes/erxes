@@ -139,7 +139,6 @@ export default {
   },
   checkCustomTrigger: async ({ subdomain, data }) => {
     const { collectionType } = data;
-
     switch (collectionType) {
       case "messages":
         const result = await checkMessageTrigger(subdomain, data);

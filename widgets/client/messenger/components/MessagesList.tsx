@@ -6,7 +6,7 @@ import { BotPersistentMenuTypeMessenger, IBotData, IMessage } from "../types";
 import {
   IIntegrationMessengerData,
   IIntegrationMessengerDataMessagesItem,
-  IIntegrationUiOptions,
+  IIntegrationUiOptions
 } from "../../types";
 import { __, makeClickableLink, scrollTo } from "../../utils";
 import { iconCall, iconVideo } from "../../icons/Icons";
@@ -75,12 +75,12 @@ const MessagesList: React.FC<Props> = (props) => {
     botTyping,
     selectedSkill,
     errorMessage,
-    isLoading,
+    isLoading
   } = props;
   const { getStarted } = messengerData || {};
 
   const backgroundClass = classNames("erxes-messages-background", {
-    [`bg-${uiOptions.wallpaper}`]: uiOptions.wallpaper,
+    [`bg-${uiOptions.wallpaper}`]: uiOptions.wallpaper
   });
 
   const nodeRef = useRef<HTMLDivElement>(null);
@@ -171,7 +171,7 @@ const MessagesList: React.FC<Props> = (props) => {
 
     return renderSingleMessage({
       content: messengerData.botGreetMessage,
-      user: {},
+      user: {}
     });
   };
 
@@ -180,19 +180,25 @@ const MessagesList: React.FC<Props> = (props) => {
 
     if (type === "link") {
       return (
-        <a className="card-action p-menu" target="_blank" href={link}>
+        <a
+          className='card-action p-menu'
+          target='_blank'
+          href={link}>
           {text}
         </a>
       );
     }
 
     const handleClick = () => {
-      replyAutoAnswer(text, _id, "say_something");
+      replyAutoAnswer(text, _id, "persistentMenuId");
       scrollBottom();
     };
 
     return (
-      <div key={_id} className="p-menu" onClick={handleClick}>
+      <div
+        key={_id}
+        className='p-menu'
+        onClick={handleClick}>
         {text}
       </div>
     );
@@ -206,7 +212,7 @@ const MessagesList: React.FC<Props> = (props) => {
     }
 
     return (
-      <div className="persistent-menus">
+      <div className='persistent-menus'>
         {persistentMenus.map((pMenu) => renderButton(pMenu))}
       </div>
     );
@@ -221,7 +227,7 @@ const MessagesList: React.FC<Props> = (props) => {
     }
 
     return (
-      <li className="erxes-spacial-message right away">{messages.away}</li>
+      <li className='erxes-spacial-message right away'>{messages.away}</li>
     );
   };
 
@@ -235,14 +241,14 @@ const MessagesList: React.FC<Props> = (props) => {
         messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
 
       return (
-        <li className="erxes-spacial-message with-background">
+        <li className='erxes-spacial-message with-background'>
           <span> {messages.thank || __("Thank you") + "."}</span>
         </li>
       );
     }
 
     return (
-      <li className="erxes-spacial-message with-background auth">
+      <li className='erxes-spacial-message with-background auth'>
         <AccquireInformation
           save={onNotify}
           color={getColor}
@@ -260,7 +266,7 @@ const MessagesList: React.FC<Props> = (props) => {
       return null;
     }
 
-    return <li className="erxes-spacial-message right">{messages.welcome}</li>;
+    return <li className='erxes-spacial-message right'>{messages.welcome}</li>;
   };
 
   const renderSkillOptionsMessage = (
@@ -282,7 +288,7 @@ const MessagesList: React.FC<Props> = (props) => {
     }
 
     return (
-      <div className="skill-content">
+      <div className='skill-content'>
         {options.map((option, index) => {
           const handleClick = () =>
             handleSkillSelect(option.skillId, option.response);
@@ -290,10 +296,9 @@ const MessagesList: React.FC<Props> = (props) => {
           return (
             <div key={index}>
               <div
-                className="skill-card erxes-button"
+                className='skill-card erxes-button'
                 onClick={handleClick}
-                style={{ background: color, color: textColor }}
-              >
+                style={{ background: color, color: textColor }}>
                 {option.label}
               </div>
             </div>
@@ -309,8 +314,8 @@ const MessagesList: React.FC<Props> = (props) => {
     }
 
     return (
-      <li className="from-customer">
-        <div className="erxes-message from-customer gray">{skillResponse}</div>
+      <li className='from-customer'>
+        <div className='erxes-message from-customer gray'>{skillResponse}</div>
       </li>
     );
   };
@@ -328,27 +333,24 @@ const MessagesList: React.FC<Props> = (props) => {
 
     return (
       <div
-        className="app-message-box call-request"
-        style={{ borderColor: color }}
-      >
+        className='app-message-box call-request'
+        style={{ borderColor: color }}>
         <h5>{__("Audio and video call")}</h5>
         <p>{__("You can contact the operator by voice or video!")}</p>
-        <div className="call-buttons">
+        <div className='call-buttons'>
           <button
-            className="erxes-button"
+            className='erxes-button'
             style={{ background: color }}
-            onClick={sendCallRequest}
-          >
+            onClick={sendCallRequest}>
             {iconCall(textColor)}
             <span style={{ background: color, color: textColor }}>
               {__("Audio call")}
             </span>
           </button>
           <button
-            className="erxes-button"
+            className='erxes-button'
             style={{ background: color }}
-            onClick={sendCallRequest}
-          >
+            onClick={sendCallRequest}>
             {iconVideo(textColor)}
             <span style={{ color: textColor }}>Video call</span>
           </button>
@@ -368,7 +370,7 @@ const MessagesList: React.FC<Props> = (props) => {
       toggleVideo: toggleVideoCall,
       sendTypingInfo,
       replyAutoAnswer,
-      ...message,
+      ...message
     };
 
     const showBotMessage = message.botData && message.botData !== null;
@@ -380,7 +382,10 @@ const MessagesList: React.FC<Props> = (props) => {
         scrollBottom={scrollBottom}
       />
     ) : (
-      <Message key={message._id} {...messageProps} />
+      <Message
+        key={message._id}
+        {...messageProps}
+      />
     );
 
     if (_id < 0) {
@@ -388,8 +393,7 @@ const MessagesList: React.FC<Props> = (props) => {
         <RTG.CSSTransition
           key={message._id}
           timeout={500}
-          classNames="slide-in"
-        >
+          classNames='slide-in'>
           {content}
         </RTG.CSSTransition>
       );
@@ -416,13 +420,12 @@ const MessagesList: React.FC<Props> = (props) => {
     }
 
     return (
-      <div className="bot-message">
-        <div className="quick-replies">
+      <div className='bot-message'>
+        <div className='quick-replies'>
           <div
-            className="reply-button"
+            className='reply-button'
             onClick={handleOperatorStatus}
-            style={{ borderColor: getColor }}
-          >
+            style={{ borderColor: getColor }}>
             {__("Contact with Operator")}
           </div>
         </div>
@@ -436,9 +439,9 @@ const MessagesList: React.FC<Props> = (props) => {
     }
 
     return (
-      <div className="get-started">
+      <div className='get-started'>
         <Button onClick={handleGetStarted}>
-          <span className="font-semibold">{__("Get started")}</span>
+          <span className='font-semibold'>{__("Get started")}</span>
         </Button>
       </div>
     );
@@ -452,8 +455,8 @@ const MessagesList: React.FC<Props> = (props) => {
     return (
       <li>
         <Bot />
-        <div className="erxes-message top">
-          <div className="bot-indicator">
+        <div className='erxes-message top'>
+          <div className='bot-indicator'>
             <span />
             <span />
             <span />
@@ -469,12 +472,11 @@ const MessagesList: React.FC<Props> = (props) => {
     }
 
     return (
-      <li className="from-customer">
+      <li className='from-customer'>
         <div
-          className="app-message-box spaced flexible"
-          style={{ borderColor: "red" }}
-        >
-          <div className="user-info horizontal">{errorMessage}</div>
+          className='app-message-box spaced flexible'
+          style={{ borderColor: "red" }}>
+          <div className='user-info horizontal'>{errorMessage}</div>
         </div>
       </li>
     );
@@ -489,10 +491,14 @@ const MessagesList: React.FC<Props> = (props) => {
   };
 
   return (
-    <div className={backgroundClass} ref={nodeRef}>
-      <ul id="erxes-messages" className="erxes-messages-list slide-in">
+    <div
+      className={backgroundClass}
+      ref={nodeRef}>
+      <ul
+        id='erxes-messages'
+        className='erxes-messages-list slide-in'>
         {isLoading ? (
-          <div className="loader" />
+          <div className='loader' />
         ) : (
           <>
             {renderBotGreetingMessage(messengerData)}
