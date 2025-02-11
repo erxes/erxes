@@ -1,4 +1,8 @@
-import { IOrder, IOrderDocument } from "../../models/definitions/orders";
+import {
+  IOrder,
+  IOrderDocument,
+  IPaidAmount
+} from "../../models/definitions/orders";
 import { IModels } from "../../connectionResolver";
 import { IPayment } from "../resolvers/mutations/orders";
 import { IOrderInput, IOrderItemInput } from "../types";
@@ -24,17 +28,9 @@ import { checkRemainders } from "./products";
 import { getPureDate } from "@erxes/api-utils/src";
 import { checkDirectDiscount } from "./directDiscount";
 import { IPosUserDocument } from "../../models/definitions/posUsers";
-import { sendCoreMessage } from "../../messageBroker";
+import { sendCoreMessage, sendLoyaltiesMessage } from "../../messageBroker";
 import { nanoid } from "nanoid";
 import { getCompanyInfo } from "../../models/PutData";
-
-interface IDetailItem {
-  count: number;
-  amount: number;
-  inventoryCode: string;
-  barcode: string;
-  productId: string;
-}
 
 export const generateOrderNumber = async (
   models: IModels,
@@ -42,19 +38,23 @@ export const generateOrderNumber = async (
 ): Promise<string> => {
   const todayStr = moment().format("YYYYMMDD").toString();
 
-  const beginNumber =
-    (config && config.beginNumber && `${config.beginNumber}.`) || "";
-
+  let beginNumber = "";
+  let regexSuffix = "[0-9]*$";
   let suffix = "0001";
-  let number = `${todayStr}_${beginNumber}${suffix}`;
-
   let latestOrder;
+
+  if (config?.beginNumber) {
+    beginNumber = `${config.beginNumber}.`;
+    regexSuffix = `${config.beginNumber}\.[0-9]*$`;
+  }
+
+  let number = `${todayStr}_${beginNumber}${suffix}`;
 
   const latestOrders = await models.Orders.aggregate([
     {
       $match: {
         posToken: config.token,
-        number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) }
+        number: { $regex: new RegExp(`^${todayStr}_${regexSuffix}`) }
       }
     },
     {
@@ -106,12 +106,17 @@ const validDueDate = (doc: IOrderInput, order?: IOrderDocument) => {
     return true;
   }
 
-  if (order && order.isPre && order.dueDate && getPureDate(order.dueDate) !== getPureDate(doc.dueDate)) {
+  if (
+    order &&
+    order.isPre &&
+    order.dueDate &&
+    getPureDate(order.dueDate) !== getPureDate(doc.dueDate)
+  ) {
     return true;
   }
 
   return false;
-}
+};
 
 export const validateOrder = async (
   subdomain: string,
@@ -126,7 +131,7 @@ export const validateOrder = async (
     throw new Error("Products missing in order. Please add products");
   }
 
-  if (!await validDueDate(doc, order)) {
+  if (!(await validDueDate(doc, order))) {
     throw new Error(
       "The due date of the pre-order must be recorded in the future"
     );
@@ -257,7 +262,7 @@ export const updateOrderItems = async (
     const doc = {
       productId: item.productId,
       count: item.count,
-      unitPrice: item.unitPrice,
+      unitPrice: item.unitPrice || 0,
       discountPercent: item.discountPercent,
       discountAmount: item.discountAmount,
       bonusCount: item.bonusCount,
@@ -266,7 +271,8 @@ export const updateOrderItems = async (
       isTake: item.isTake,
       manufacturedDate: item.manufacturedDate,
       description: item.description,
-      attachment: item.attachment
+      attachment: item.attachment,
+      byDevice: item.byDevice
     };
 
     if (itemIds.includes(item._id)) {
@@ -290,6 +296,35 @@ export const getTotalAmount = (items: IOrderItemInput[] = []): number => {
   return Number(total.toFixed(2));
 };
 
+const calcPreTaxPercentage = (paymentTypes, order) => {
+  let itemAmountPrePercent = 0;
+  const preTaxPaymentTypes: string[] = (paymentTypes || []).filter(p =>
+    (p.config || '').includes('preTax: true')
+  ).map(p => p.type);
+
+  if (
+    preTaxPaymentTypes.length &&
+    order.paidAmounts?.length
+  ) {
+    let preSentAmount = 0;
+    for (const preTaxPaymentType of preTaxPaymentTypes) {
+      const matchOrderPays = order.paidAmounts.filter(
+        pa => pa.type === preTaxPaymentType
+      );
+      if (matchOrderPays.length) {
+        for (const matchOrderPay of matchOrderPays) {
+          preSentAmount += matchOrderPay.amount;
+        }
+      }
+    }
+
+    if (preSentAmount && preSentAmount <= order.totalAmount) {
+      itemAmountPrePercent = (preSentAmount / order.totalAmount) * 100;
+    }
+  }
+  return { itemAmountPrePercent, preTaxPaymentTypes }
+}
+
 const mathRound = (value, p = 2) => {
   if (!value || isNaN(Number(value))) {
     return 0;
@@ -303,9 +338,10 @@ export const prepareEbarimtData = async (
   models: IModels,
   order: IOrderDocument,
   config: IEbarimtConfig,
-  items: IOrderItemDocument[] = [],
+  items: IOrderItemDocument[],
+  paymentTypes: any[],
   orderBillType?: string,
-  registerNumber?: string
+  registerNumber?: string,
 ) => {
   const billType = orderBillType || order.billType || BILL_TYPES.CITIZEN;
   let type: string = billType === "3" ? "B2B_RECEIPT" : "B2C_RECEIPT";
@@ -326,6 +362,8 @@ export const prepareEbarimtData = async (
       customerName = resp.result?.data?.name;
     }
   }
+
+  const { itemAmountPrePercent, preTaxPaymentTypes } = calcPreTaxPercentage(paymentTypes, order);
 
   const productIds = items.map(item => item.productId);
   const products: IProductDocument[] = await models.Products.find({
@@ -355,17 +393,21 @@ export const prepareEbarimtData = async (
       })
       .map(item => {
         const product: IProductDocument = productsById[item.productId];
+        const tempAmount = (item.count ?? 0) * (item.unitPrice ?? 0);
+        const minusAmount = (tempAmount / 100) * itemAmountPrePercent;
+        const totalAmount = mathRound(tempAmount - minusAmount, 4);
+
         return {
           recId: item._id,
           product,
           quantity: item.count,
           unitPrice: item.unitPrice ?? 0,
-          totalDiscount: item.discountAmount,
-          totalAmount: mathRound(item.count * (item.unitPrice ?? 0), 4)
+          totalDiscount: (item.discountAmount ?? 0) + minusAmount,
+          totalAmount
         };
       }),
     nonCashAmounts: [
-      ...(order.paidAmounts || []),
+      ...(order.paidAmounts || []).filter(pa => !preTaxPaymentTypes.includes(pa.type)),
       ...(order.mobileAmounts || [])
     ].map(pay => ({ amount: pay.amount }))
   };
@@ -462,9 +504,7 @@ export const prepareOrderDoc = async (
   for (const item of items) {
     const fixedUnitPrice = Number(
       Number(
-        (
-          (productsOfId[item.productId] || {}).prices || {}
-        )[config.token] ||
+        ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
         item.unitPrice ||
         0
       ).toFixed(2)
@@ -529,7 +569,7 @@ export const prepareOrderDoc = async (
     }
   }
 
-  const hasTakeItems = items.filter(i => i.isTake);
+  const hasTakeItems = [ORDER_TYPES.DELIVERY, ORDER_TYPES.TAKE].includes(doc.type) && items || items.filter(i => i.isTake);
 
   if (hasTakeItems.length > 0 && catProdMappings.length > 0) {
     const toAddProducts = {};
@@ -667,6 +707,67 @@ export const checkOrderAmount = (order: IOrderDocument, amount: number) => {
     paidAmount + amount > order.totalAmount
   ) {
     throw new Error("Amount exceeds total amount");
+  }
+};
+
+export const checkScoreAviableSubtractScoreCampaign = async (
+  subdomain: string,
+  models: IModels,
+  order: IOrderDocument,
+  paidAmounts?: IPaidAmount[]
+) => {
+  if (!paidAmounts?.length) {
+    return;
+  }
+
+  const config = await models.Configs.findOne({
+    paymentTypes: {
+      $elemMatch: {
+        type: { $in: paidAmounts.map(({ type }) => type) },
+        scoreCampaignId: { $exists: true }
+      }
+    },
+    token: order.posToken
+  });
+
+  if (!config) {
+    return;
+  }
+
+  const { paymentTypes = [] } = config;
+
+  for (const { type } of paidAmounts || []) {
+    const paymentType = paymentTypes.find(
+      paymentType => paymentType.type === type && !!paymentType.scoreCampaignId
+    );
+
+    if (paymentType) {
+      const { scoreCampaignId, title } = paymentType || {};
+
+      if (!scoreCampaignId) {
+        continue;
+      }
+
+      await sendLoyaltiesMessage({
+        subdomain,
+        action: "checkScoreAviableSubtract",
+        data: {
+          ownerType: order.customerType || "customer",
+          ownerId: order.customerId,
+          campaignId: scoreCampaignId,
+          target: { ...order, paidAmounts }
+        },
+        isRPC: true,
+        defaultValue: false
+      }).catch(error => {
+        if (error.message === "There has no enough score to subtract") {
+          throw new Error(
+            `There has no enough score to subtract using ${title}`
+          );
+        }
+        throw new Error(error.message);
+      });
+    }
   }
 };
 

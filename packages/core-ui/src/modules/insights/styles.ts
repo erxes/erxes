@@ -730,6 +730,10 @@ const ChartTable = styled(Table)`
     top: 0;
   }
 
+  th:first-child {
+    padding-left: 15px;
+  }
+
   th:last-child {
     display: flex;
     justify-content: end;

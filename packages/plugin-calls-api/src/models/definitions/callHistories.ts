@@ -18,6 +18,7 @@ export interface ICallHistory {
   acceptedUserId: string;
   recordUrl: string;
   endedBy: string;
+  queueName: string
 }
 
 export interface ICallHistoryDocument extends ICallHistory, Document {
@@ -44,7 +45,7 @@ export const callHistorySchema = new Schema({
       'rejected',
       'cancelled',
       'active',
-      'transfered',
+      'transferred',
       'cancelledToAnswered',
     ],
     default: 'missed',

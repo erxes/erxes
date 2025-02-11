@@ -70,7 +70,7 @@ export const sendRequest = async (
     }
   } catch (e) {
     if ((e.code === 'ECONNREFUSED' || e.code === 'ENOTFOUND') && retries > 0) {
-      console.log('Retrying request...');
+      console.debug('Retrying request...');
       return sendRequest(
         { url, method, headers, body },
         errorMessage,
@@ -207,8 +207,7 @@ export const verifyOnClearout = async (email: string, hostname: string) => {
     ).then((r) => r.json());
 
     if (response.status !== 'success') {
-      debugBase(`Error occured during single clearout validation`, email);
-
+      
       body = {
         email: { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN },
         source: EMAIL_VALIDATION_SOURCES.CLEAROUT,
@@ -218,8 +217,7 @@ export const verifyOnClearout = async (email: string, hostname: string) => {
     const { data } = response;
 
     if (data.status === 'valid') {
-      debugBase(`successfully clearout:`, email, ' status: ', data.status);
-
+      
       body = {
         email: { email, status: EMAIL_VALIDATION_STATUSES.VALID },
         source: EMAIL_VALIDATION_SOURCES.CLEAROUT,
@@ -227,8 +225,7 @@ export const verifyOnClearout = async (email: string, hostname: string) => {
     }
 
     if (['unknown', 'invalid'].includes(data.status)) {
-      debugBase(`successfully clearout:`, email, ' status: ', data.status);
-
+      
       body = {
         email: { email, status: data.status },
         source: EMAIL_VALIDATION_SOURCES.CLEAROUT,
@@ -280,8 +277,7 @@ export const verifyOnMailsso = async (email: string, hostname: string) => {
     console.log("Ressss ",res)
 
     if (res.result !== 'deliverable') {
-      debugBase(`successfully clearout:`, email, ' status: ', res.result);
-
+      
       body = {
         email: { email, status: EMAIL_VALIDATION_STATUSES.INVALID },
         source: EMAIL_VALIDATION_SOURCES.MAILSSO,
@@ -289,8 +285,7 @@ export const verifyOnMailsso = async (email: string, hostname: string) => {
 
       status = EMAIL_VALIDATION_STATUSES.INVALID;
     } else {
-      debugBase(`successfully verified:`, email, ' status: ', res.result);
-
+      
       body = {
         email: { email, status: EMAIL_VALIDATION_STATUSES.VALID },
         source: EMAIL_VALIDATION_SOURCES.MAILSSO,
@@ -393,8 +388,7 @@ export const bulkClearOut = async (emails: string[], hostname: string) => {
 
     await sendFile(url, CLEAR_OUT_API_KEY, tmpFile.name, hostname, redisKey);
   } catch (e) {
-    debugBase(`Error occured during bulk email validation ${e.message}`);
-    throw e;
+        throw e;
   }
 };
 
@@ -461,8 +455,7 @@ export const getResult = async (listId: string, hostname: string) => {
       }
     }
 
-    debugBase(`Sending bulk email validation result to erxes-api`);
-
+    
     await sendRequest({
       url: `${hostname}/verifier/webhook`,
       method: 'POST',

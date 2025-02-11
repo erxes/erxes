@@ -1,13 +1,13 @@
 import {
   ILeadData,
   ILeadIntegration,
-  IWebhookData,
-} from '@erxes/ui-leads/src/types';
+  IWebhookData
+} from "@erxes/ui-leads/src/types";
 
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { IForm } from '@erxes/ui-forms/src/forms/types';
-import { IProductCategory } from '@erxes/ui-products/src/types';
-import { QueryResponse } from '@erxes/ui/src/types';
+import { IBrand } from "@erxes/ui/src/brands/types";
+import { IForm } from "@erxes/ui-forms/src/forms/types";
+import { IProductCategory } from "@erxes/ui-products/src/types";
+import { QueryResponse } from "@erxes/ui/src/types";
 
 interface IFacebookCustomer {
   _id: string;
@@ -77,8 +77,9 @@ export interface IAccount {
 }
 
 // query types
-export type IntegrationTypes = 'facebook';
-export type IntegrationTypesInstagram = 'instagram';
+export type IntegrationTypes = "facebook";
+export type IntegrationTypesInstagram = "instagram";
+export type IntegrationTypesWhatsapp = "whatsapp";
 export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
 } & QueryResponse;
@@ -143,7 +144,9 @@ export type RemoveMutationResponse = {
 };
 
 export type RepairMutationResponse = {
-  repairIntegration: (params: { variables: { _id: string, kind: string } }) => Promise<any>;
+  repairIntegration: (params: {
+    variables: { _id: string; kind: string };
+  }) => Promise<any>;
 };
 
 export type RemoveAccountMutationResponse = {
@@ -197,6 +200,7 @@ export interface ILink {
   twitter?: string;
   facebook?: string;
   instagram?: string;
+  whatsapp?: string;
   youtube?: string;
 }
 export interface IExternalLink {

@@ -146,6 +146,7 @@ export const articlesQuery = `
           avatar
         }
       }
+      publishedAt
     }
   }
 `;

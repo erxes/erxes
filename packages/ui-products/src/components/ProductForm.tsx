@@ -8,10 +8,11 @@ import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
+  IPdfAttachment,
 } from "@erxes/ui/src/types";
 import { IProduct, IProductCategory, IUom, IVariant } from "../types";
 import React, { useEffect, useState } from "react";
-import { TAX_TYPES, TYPES } from "../constants";
+import { TYPES } from "../constants";
 import { __, router } from "@erxes/ui/src/utils/core";
 
 import ActionButtons from "@erxes/ui/src/components/ActionButtons";
@@ -34,6 +35,7 @@ import Uploader from "@erxes/ui/src/components/Uploader";
 import { extractAttachment } from "@erxes/ui/src/utils";
 import { queries } from "../graphql";
 import { useLocation } from "react-router-dom";
+import PdfUploader from "@erxes/ui/src/components/PdfUploader";
 
 type Props = {
   product?: IProduct;
@@ -50,12 +52,11 @@ type State = {
   barcodeDescription: string;
   attachment?: IAttachment;
   attachmentMore?: IAttachment[];
+  pdfAttachment?: IPdfAttachment;
   vendorId: string;
   description: string;
   uom: string;
   subUoms: { _id: string; uom: string; ratio: number }[];
-  taxType: string;
-  taxCode: string;
   scopeBrandIds: string[];
   categoryId: string;
   code: string;
@@ -77,8 +78,6 @@ const Form = (props: Props) => {
     description,
     uom,
     subUoms,
-    taxType,
-    taxCode,
     scopeBrandIds,
     code,
     categoryId,
@@ -103,12 +102,11 @@ const Form = (props: Props) => {
     description: description || "",
     uom: uom || "",
     subUoms: subUoms || [],
-    taxType: taxType || "",
-    taxCode: taxCode || "",
     scopeBrandIds,
     code: code || "",
     categoryId: categoryId || paramCategoryId,
     type: product.type || "",
+    pdfAttachment: product.pdfAttachment || undefined,
   });
 
   useEffect(() => {
@@ -181,7 +179,7 @@ const Form = (props: Props) => {
       subUoms,
       scopeBrandIds,
       code,
-      categoryId,
+      categoryId
     } = state;
 
     if (product) {
@@ -189,6 +187,24 @@ const Form = (props: Props) => {
     }
 
     finalValues.attachment = attachment;
+
+    const pdfAttachment: any = { ...state.pdfAttachment };
+
+    if (pdfAttachment && pdfAttachment.__typename) {
+      delete pdfAttachment.__typename;
+    }
+
+    if (pdfAttachment.pdf && pdfAttachment.pdf.__typename) {
+      delete pdfAttachment.pdf.__typename;
+    }
+
+    pdfAttachment.pages = pdfAttachment.pages?.map((p) => {
+      const page = { ...p };
+      if (page && page.__typename) {
+        delete page.__typename;
+      }
+      return page;
+    });
 
     return {
       ...product,
@@ -203,6 +219,7 @@ const Form = (props: Props) => {
       barcodeDescription,
       vendorId,
       description,
+      pdfAttachment,
       uom,
       subUoms: (subUoms || [])
         .filter((su) => su.uom)
@@ -328,7 +345,7 @@ const Form = (props: Props) => {
         value = e.target.value;
     }
 
-    setState({ [variable]: value } as any);
+    setState((prevState) => ({ ...prevState, [variable]: value }));
   };
 
   const onChangeUom = ({ selectedOption }) => {
@@ -408,16 +425,6 @@ const Form = (props: Props) => {
       ...prevState,
       barcodes: state.barcodes.filter((b) => b !== value),
     }));
-  };
-
-  const onTaxChange = (e) => {
-    setState(
-      (prevState) =>
-        ({
-          ...prevState,
-          [e.target.name]: e.target.value,
-        }) as any
-    );
   };
 
   const onChangeCateogry = (option) => {
@@ -573,8 +580,6 @@ const Form = (props: Props) => {
       vendorId,
       description,
       barcodeDescription,
-      taxType,
-      taxCode,
       scopeBrandIds,
       code,
       categoryId,
@@ -597,7 +602,7 @@ const Form = (props: Props) => {
               <Row>
                 <Select
                   {...formProps}
-                  placeholder={__("Choose a category")}
+                  placeholder={__('Choose a category')}
                   value={generateOptions().find(
                     (option) => option.value === categoryId
                   )}
@@ -619,13 +624,13 @@ const Form = (props: Props) => {
               </p>
               <FormControl
                 {...formProps}
-                name="code"
+                name='code'
                 value={code}
                 required={true}
                 onChange={(e: any) => {
                   setState((prevState) => ({
                     ...prevState,
-                    code: e.target.value.replace(/\*/g, ""),
+                    code: e.target.value.replace(/\*/g, ''),
                   }));
                 }}
               />
@@ -635,7 +640,7 @@ const Form = (props: Props) => {
               <ControlLabel required={true}>Name</ControlLabel>
               <FormControl
                 {...formProps}
-                name="name"
+                name='name'
                 defaultValue={object.name}
                 autoFocus={true}
                 required={true}
@@ -646,7 +651,7 @@ const Form = (props: Props) => {
               <ControlLabel required={true}>Short name</ControlLabel>
               <FormControl
                 {...formProps}
-                name="shortName"
+                name='shortName'
                 defaultValue={object.shortName}
                 required={false}
               />
@@ -656,8 +661,8 @@ const Form = (props: Props) => {
               <ControlLabel required={true}>Type</ControlLabel>
               <FormControl
                 {...formProps}
-                name="type"
-                componentclass="select"
+                name='type'
+                componentclass='select'
                 defaultValue={object.type}
                 required={true}
                 onChange={(e) =>
@@ -668,7 +673,7 @@ const Form = (props: Props) => {
                 }
               >
                 {Object.keys(TYPES)
-                  .filter((type) => type !== "ALL")
+                  .filter((type) => type !== 'ALL')
                   .map((typeName, index) => (
                     <option key={index} value={TYPES[typeName]}>
                       {typeName}
@@ -685,14 +690,14 @@ const Form = (props: Props) => {
             <FormGroup>
               <ControlLabel required={true}>Unit price</ControlLabel>
               <p>
-                Please ensure you have set the default currency in the{" "}
-                <a href="/settings/general"> {"General Settings"}</a> of the
+                Please ensure you have set the default currency in the{' '}
+                <a href='/settings/general'> {'General Settings'}</a> of the
                 System Configuration.
               </p>
               <FormControl
                 {...formProps}
-                type="number"
-                name="unitPrice"
+                type='number'
+                name='unitPrice'
                 defaultValue={object.unitPrice}
                 required={true}
                 min={0}
@@ -701,41 +706,12 @@ const Form = (props: Props) => {
             <FormGroup>
               <ControlLabel>Vendor</ControlLabel>
               <SelectCompanies
-                label="Choose an vendor"
-                name="vendorId"
-                customOption={{ value: "", label: "No vendor chosen" }}
+                label='Choose an vendor'
+                name='vendorId'
+                customOption={{ value: '', label: 'No vendor chosen' }}
                 initialValue={vendorId}
-                onSelect={onComboEvent.bind(this, "vendorId")}
+                onSelect={onComboEvent.bind(this, 'vendorId')}
                 multi={false}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Tax Type</ControlLabel>
-              <FormControl
-                {...formProps}
-                name="taxType"
-                componentclass="select"
-                onChange={onTaxChange}
-                defaultValue={taxType}
-                options={[
-                  { value: "", label: "default" },
-                  ...Object.keys(TAX_TYPES).map((type) => ({
-                    value: type,
-                    label: TAX_TYPES[type].label,
-                  })),
-                ]}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Tax Code</ControlLabel>
-
-              <FormControl
-                {...formProps}
-                name="taxCode"
-                componentclass="select"
-                onChange={onTaxChange}
-                defaultValue={taxCode}
-                options={(TAX_TYPES[taxType || ""] || {}).options || []}
               />
             </FormGroup>
           </FormColumn>
@@ -743,11 +719,11 @@ const Form = (props: Props) => {
             <FormGroup>
               <ControlLabel>Brand</ControlLabel>
               <SelectBrands
-                label={__("Choose brands")}
+                label={__('Choose brands')}
                 onSelect={(brandIds) => onChangeBrand(brandIds as string[])}
                 initialValue={scopeBrandIds}
                 multi={true}
-                name="selectedBrands"
+                name='selectedBrands'
               />
             </FormGroup>
             <FormGroup>
@@ -771,19 +747,32 @@ const Form = (props: Props) => {
             </FormGroup>
 
             <FormGroup>
+              <ControlLabel>PDF</ControlLabel>
+              <PdfUploader
+                attachment={state.pdfAttachment}
+                onChange={(attachment?: IPdfAttachment) => {
+                  setState((prevState) => ({
+                    ...prevState,
+                    pdfAttachment: attachment,
+                  }));
+                }}
+              />
+            </FormGroup>
+
+            <FormGroup>
               <ControlLabel>Barcodes</ControlLabel>
               <Row>
                 <FormControl
                   {...formProps}
-                  name="barcodes"
+                  name='barcodes'
                   value={state.barcodeInput}
-                  autoComplete="off"
+                  autoComplete='off'
                   onChange={onChangeBarcodeInput}
                   onKeyDown={onKeyDownBarcodeInput}
                 />
                 <Button
-                  btnStyle="primary"
-                  icon="plus-circle"
+                  btnStyle='primary'
+                  icon='plus-circle'
                   onClick={() => updateBarcodes()}
                 >
                   Add barcode
@@ -801,14 +790,14 @@ const Form = (props: Props) => {
                 isSubmitted={formProps.isSaved}
                 name={`product_barcode_description_${barcodeDescription}`}
                 toolbar={[
-                  "bold",
-                  "italic",
-                  "orderedList",
-                  "bulletList",
-                  "link",
-                  "unlink",
-                  "|",
-                  "image",
+                  'bold',
+                  'italic',
+                  'orderedList',
+                  'bulletList',
+                  'link',
+                  'unlink',
+                  '|',
+                  'image',
                 ]}
               />
             </FormGroup>
@@ -818,17 +807,17 @@ const Form = (props: Props) => {
                 <AutoCompletionSelect
                   defaultValue={state.uom}
                   defaultOptions={getUoms(uoms)}
-                  autoCompletionType="uoms"
-                  placeholder="Enter an uom"
-                  queryName="uoms"
+                  autoCompletionType='uoms'
+                  placeholder='Enter an uom'
+                  queryName='uoms'
                   query={queries.uoms}
                   onChange={onChangeUom}
                   required={true}
                 />
                 <Button
-                  btnStyle="primary"
+                  btnStyle='primary'
                   uppercase={false}
-                  icon="plus-circle"
+                  icon='plus-circle'
                   onClick={onClickAddSub}
                 >
                   Add sub
@@ -842,16 +831,16 @@ const Form = (props: Props) => {
 
         <ModalFooter>
           <Button
-            btnStyle="simple"
+            btnStyle='simple'
             onClick={closeModal}
-            icon="times-circle"
+            icon='times-circle'
             uppercase={false}
           >
             Close
           </Button>
 
           {renderButton({
-            name: "product and service",
+            name: 'product and service',
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,

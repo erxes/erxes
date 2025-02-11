@@ -10,15 +10,17 @@ const queries = {
   ) {
     const totalCount = await models.KhanbankConfigs.find({}).countDocuments();
 
+    const query = paginate(
+      models.KhanbankConfigs.find({}).sort({ createdAt: -1 }),
+      { page: page || 1, perPage: perPage || 20 }
+    );
+
+    const configs = await query;
+    const list = await configs.map((config) => config.toJSON());
+
     return {
-      list: await paginate(
-        models.KhanbankConfigs.find({}).sort({ createdAt: -1 }).lean(),
-        {
-          page: page || 1,
-          perPage: perPage || 20
-        }
-      ),
-      totalCount
+      list,
+      totalCount,
     };
   },
 
@@ -27,14 +29,16 @@ const queries = {
     { page, perPage }: { page: number; perPage: number },
     { models }: IContext
   ) {
-    const response = await models.KhanbankConfigs.find({}).sort({
-      createdAt: -1
-    });
+    const query = paginate(
+      models.KhanbankConfigs.find({}).sort({ createdAt: -1 }),
+      { page: page || 1, perPage: perPage || 20 }
+    );
 
-    return await paginate(response, {
-      page: page || 1,
-      perPage: perPage || 20
-    });
+    // Execute the query to get the Mongoose documents
+    const configs = await query;
+
+    // Apply `toJSON()` transformation manually for each document
+    return configs.map((config) => config.toJSON());
   },
 
   async khanbankConfigsDetail(
@@ -42,8 +46,8 @@ const queries = {
     { _id }: { _id: string },
     { models }: IContext
   ) {
-    return models.KhanbankConfigs.getConfig({ _id });
-  }
+    return (await models.KhanbankConfigs.getConfig({ _id })).toJSON();
+  },
 };
 
 requireLogin(queries, 'khanbankConfigs');

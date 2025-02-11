@@ -1,32 +1,32 @@
-import { ISectionDocument } from "../../db/models/definitions/insight";
-import { IContext } from "../../connectionResolver";
+import { IContext } from '../../connectionResolver';
+import { ISectionDocument } from '../../db/models/definitions/insight';
 
 export default {
-  async list(section: ISectionDocument, {}, { models }: IContext) {
+  async list(section: ISectionDocument, {}, { models, user }: IContext) {
     try {
       const { _id, type } = section;
 
-      if (type === "dashboard") {
-        return models.Dashboards.find({ sectionId: _id });
+      if (type === 'dashboard') {
+        return models.Dashboards.getDashboards({ sectionId: _id }, user);
       }
 
-      if (type === "report") {
-        return models.Reports.find({ sectionId: _id });
+      if (type === 'report') {
+        return models.Reports.getReports({ sectionId: _id }, user);
       }
     } catch (error) {
       return new Error(`Invalid ${error.path}: ${error.value}`);
     }
   },
-  async listCount(section: ISectionDocument, {}, { models }: IContext) {
+  async listCount(section: ISectionDocument, {}, { models, user }: IContext) {
     try {
       const { _id, type } = section;
 
-      if (type === "dashboard") {
-        return models.Dashboards.find({ sectionId: _id }).countDocuments();
+      if (type === 'dashboard') {
+        return models.Dashboards.getDashboardsCount({ sectionId: _id }, user);
       }
 
-      if (type === "report") {
-        return models.Reports.find({ sectionId: _id }).countDocuments();
+      if (type === 'report') {
+        return models.Reports.getReportsCount({ sectionId: _id }, user);
       }
     } catch (error) {
       return new Error(`Invalid ${error.path}: ${error.value}`);
@@ -37,5 +37,5 @@ export default {
   },
   async updatedBy(section: ISectionDocument, _params, { models }: IContext) {
     return models.Users.findOne({ _id: section.updatedBy });
-  }
+  },
 };

@@ -1,34 +1,35 @@
-import { IContext } from "../../../connectionResolver";
-import { sendCoreMessage } from "../../../messageBroker";
-import { IItemCommonFields } from "../../../models/definitions/boards";
+import { IContext } from '../../../connectionResolver';
+import { sendCoreMessage } from '../../../messageBroker';
+import { IItemCommonFields } from '../../../models/definitions/boards';
+import { ITaskDocument } from '../../../models/definitions/tasks';
 
 export default {
   async branches(item: IItemCommonFields, args, { subdomain }: IContext) {
     return sendCoreMessage({
       subdomain,
-      action: "branches.find",
+      action: 'branches.find',
       data: {
-        query: { _id: { $in: item.branchIds } }
+        query: { _id: { $in: item.branchIds } },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
   },
   async departments(item: IItemCommonFields, args, { subdomain }: IContext) {
     return sendCoreMessage({
       subdomain,
-      action: "departments.find",
+      action: 'departments.find',
       data: {
-        _id: { $in: item.departmentIds }
+        _id: { $in: item.departmentIds },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
   },
   async customPropertiesData(
     item: IItemCommonFields,
     _args,
-    { user, subdomain }
+    { user, subdomain },
   ) {
     const customFieldsData = (item?.customFieldsData as any[]) || [];
 
@@ -40,12 +41,12 @@ export default {
 
     const fields = await sendCoreMessage({
       subdomain,
-      action: "fields.find",
+      action: 'fields.find',
       data: {
-        query: { _id: { $in: fieldIds } }
+        query: { _id: { $in: fieldIds } },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const customFieldData of customFieldsData) {
@@ -59,5 +60,10 @@ export default {
   },
   createdUserId(item: { _id: string } & IItemCommonFields) {
     return item?.userId ? item.userId : null;
-  }
+  },
+  async tags(task: ITaskDocument) {
+    return (task.tagIds || [])
+      .filter(_id => !!_id)
+      .map(_id => ({ __typename: 'Tag', _id }));
+  },
 };

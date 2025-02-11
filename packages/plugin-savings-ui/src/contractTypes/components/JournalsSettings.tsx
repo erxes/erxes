@@ -43,9 +43,7 @@ const GeneralSettings = (props: Props) => {
   };
 
   const onChangeConfig = (code: string, value) => {
-    currentMap[code] = value;
-
-    setCurrentMap({ ...currentMap });
+    setCurrentMap({ ...currentMap, [code]: value });
   };
 
   const onChangeInput = (code: string, e) => {

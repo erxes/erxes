@@ -47,7 +47,7 @@ type State = {
   products: (IProduct & { quantity?: number })[];
   productsData: any;
   paymentsData: IPaymentsData;
-  changePayData: IPaymentsData;
+  changePayData: { [currency: string]: number };
   updatedItem?: IItem;
   refresh: boolean;
 };
@@ -303,6 +303,7 @@ export default class DealEditForm extends React.Component<Props, State> {
             addItem={addItem}
             onChangeStage={onChangeStage}
             onChangeRefresh={this.onChangeRefresh}
+            currentUser={currentUser}
           />
           <Sidebar
             options={options}

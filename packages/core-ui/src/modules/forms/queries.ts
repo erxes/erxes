@@ -66,6 +66,7 @@ query Forms($page: Int, $perPage: Int, $type: String, $brandId: String, $tagId: 
     name
     title
     status
+    type
     tagIds
     tags {
       _id

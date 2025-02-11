@@ -55,7 +55,8 @@ class TicketItem extends React.PureComponent<Props> {
       closeDate,
       startDate,
       isComplete,
-      customProperties
+      customProperties,
+      tags,
     } = item;
 
     return (
@@ -67,6 +68,7 @@ class TicketItem extends React.PureComponent<Props> {
 
         <Details color="#F7CE53" items={customers || []} />
         <Details color="#EA475D" items={companies || []} />
+        <Details color="#FF6600" items={tags || []} />
         <Details
           color={colors.colorCoreOrange}
           items={customProperties || []}

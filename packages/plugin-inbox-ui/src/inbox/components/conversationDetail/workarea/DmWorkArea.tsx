@@ -22,7 +22,7 @@ import React from 'react';
 import RespondBox from '../../../containers/conversationDetail/RespondBox';
 import TypingIndicator from './TypingIndicator';
 import { __ } from 'coreui/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   queryParams?: any;
@@ -30,6 +30,7 @@ type Props = {
   currentConversationId?: string;
   currentConversation: IConversation;
   conversationMessages: IMessage[];
+  currentUser: IUser;
   loading: boolean;
   typingInfo?: string;
   loadMoreMessages: () => void;
@@ -51,6 +52,7 @@ type Props = {
 
 type State = {
   attachmentPreview: IAttachmentPreview;
+  editMessageId?: string;
 };
 
 export default class WorkArea extends React.Component<Props, State> {
@@ -61,6 +63,7 @@ export default class WorkArea extends React.Component<Props, State> {
 
     this.state = {
       attachmentPreview: null,
+      editMessageId: '',
     };
 
     this.node = React.createRef();
@@ -145,6 +148,10 @@ export default class WorkArea extends React.Component<Props, State> {
     return null;
   };
 
+  onEditMessageId = (id) => {
+    this.setState({ editMessageId: id });
+  };
+
   renderMessages(messages: IMessage[], conversationFirstMessage: IMessage) {
     const rows: React.ReactNode[] = [];
 
@@ -161,6 +168,8 @@ export default class WorkArea extends React.Component<Props, State> {
           conversationFirstMessage={conversationFirstMessage}
           message={message}
           key={message._id}
+          onEditMessageId={this.onEditMessageId}
+          currentUserId={this.props.currentUser?._id}
         />,
       );
 
@@ -237,6 +246,7 @@ export default class WorkArea extends React.Component<Props, State> {
       typingInfo,
       refetchMessages,
       refetchDetail,
+      conversationMessages,
     } = this.props;
 
     const { kind } = currentConversation.integration;
@@ -252,6 +262,21 @@ export default class WorkArea extends React.Component<Props, State> {
       <TypingIndicator>{typingInfo}</TypingIndicator>
     ) : null;
 
+    let editMessage;
+    if (showInternal && this.state.editMessageId) {
+      const messages = (conversationMessages || []).slice();
+      editMessage = messages.find(
+        (message) => message._id === this.state.editMessageId,
+      );
+    }
+
+    const onAddMessage = (props) => {
+      if (kind === 'calls' && showInternal && editMessage) {
+        this.onEditMessageId('');
+      }
+      addMessage({ ...props });
+    };
+
     const respondBox = () => {
       const data = (
         <RespondBox
@@ -259,9 +284,11 @@ export default class WorkArea extends React.Component<Props, State> {
           disableInternalState={showInternal ? true : false}
           conversation={currentConversation}
           setAttachmentPreview={this.setAttachmentPreview}
-          addMessage={addMessage}
+          addMessage={onAddMessage}
           refetchMessages={refetchMessages}
           refetchDetail={refetchDetail}
+          editMessage={editMessage}
+          onEditMessageId={this.onEditMessageId}
         />
       );
 

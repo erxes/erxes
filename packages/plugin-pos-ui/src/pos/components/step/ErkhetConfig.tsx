@@ -35,11 +35,11 @@ const ErkhetConfig = (props: Props) => {
     pos && pos.erkhetConfig
       ? pos.erkhetConfig
       : {
-          isSyncErkhet: false,
-          userEmail: "",
-          defaultPay: "",
-          getRemainder: false,
-        }
+        isSyncErkhet: false,
+        userEmail: "",
+        defaultPay: "",
+        getRemainder: false,
+      }
   );
 
   const [checkRemainder, setCheckRemainder] = useState<boolean>(
@@ -159,7 +159,7 @@ const ErkhetConfig = (props: Props) => {
                   label={__("Choose branch")}
                   name="branchId"
                   initialValue={branchId}
-                  onSelect={() => {}}
+                  onSelect={() => { }}
                   multi={false}
                 />
               </FormGroup>
@@ -174,12 +174,12 @@ const ErkhetConfig = (props: Props) => {
 
   const renderSelectType = (key, value) => {
     const options = [
-      { value: "debtAmount", label: "debt Amount" },
-      { value: "cashAmount", label: "cash Amount" },
-      { value: "cardAmount", label: "card Amount" },
-      { value: "card2Amount", label: "card2 Amount" },
-      { value: "mobileAmount", label: "mobile Amount" },
-      { value: "debtBarterAmount", label: "barter Amount" },
+      { value: "debtAmount", label: "Зээлийн данс" },
+      { value: "cashAmount", label: "Бэлэн мөнгө данс" },
+      { value: "cardAmount", label: "Картын данс" },
+      { value: "card2Amount", label: "Картын данс нэмэлт" },
+      { value: "mobileAmount", label: "Мобайл данс" },
+      { value: "debtBarterAmount", label: "Бартер данс" },
     ];
     return (
       <Select

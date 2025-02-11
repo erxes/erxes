@@ -1,6 +1,6 @@
 import {
   attachmentInput,
-  attachmentType
+  attachmentType,
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = ({ contacts, dailyco, calls, cloudflareCalls }) => `
@@ -287,6 +287,15 @@ export const queries = () => `
 export const mutations = `
   conversationMessageAdd(
     conversationId: String,
+    content: String,
+    mentionedUserIds: [String],
+    internal: Boolean,
+    attachments: [AttachmentInput],
+    contentType: String
+    extraInfo: JSON
+  ): ConversationMessage
+  conversationMessageEdit(
+    _id: String!,
     content: String,
     mentionedUserIds: [String],
     internal: Boolean,

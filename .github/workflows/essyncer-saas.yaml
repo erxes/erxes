@@ -1,0 +1,37 @@
+name: Essyncer CI
+
+on:
+  push:
+    branches:
+      - master
+      - rc
+      - dev
+      - v2
+    paths:
+      - "essyncer-saas/**"
+      - ".github/workflows/essyncer.yaml"
+
+  pull_request:
+    branches:
+      - master
+      - rc
+      - dev
+      - v1
+    paths:
+      - "essyncer-saas/**"
+      - ".github/workflows/essyncer-saas.yaml"
+
+jobs:
+  essyncer:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build docker image
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/v2' || github.ref == 'refs/heads/v2' )
+        run: |
+          cd essyncer-saas
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker build -t erxes/essyncer-saas:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker push erxes/essyncer-saas:${GITHUB_REF#refs/heads/}

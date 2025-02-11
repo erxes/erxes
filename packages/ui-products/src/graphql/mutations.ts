@@ -12,12 +12,11 @@ const productParamsDef = `
   $customFieldsData: JSON,
   $attachment: AttachmentInput,
   $attachmentMore: [AttachmentInput],
+  $pdfAttachment: PdfAttachmentInput
   $vendorId: String,
   $scopeBrandIds: [String]
   $uom: String,
   $subUoms: JSON,
-  $taxType: String,
-  $taxCode: String
 `;
 
 const productCategoryParamsDef = `
@@ -49,12 +48,11 @@ const productParams = `
   customFieldsData: $customFieldsData,
   attachment: $attachment,
   attachmentMore: $attachmentMore,
+  pdfAttachment: $pdfAttachment,
   vendorId: $vendorId,
   scopeBrandIds: $scopeBrandIds,
   uom: $uom,
   subUoms: $subUoms,
-  taxType: $taxType,
-  taxCode: $taxCode
 `;
 
 const productCategoryParams = `

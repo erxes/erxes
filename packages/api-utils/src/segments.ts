@@ -58,12 +58,18 @@ export const gatherDependentServicesType = async (
     const dependentServices = segmentMeta.dependentServices || [];
     const contentTypes = segmentMeta.contentTypes || [];
 
+
     for (const dService of dependentServices) {
       if (dService.name !== serviceName || !dService.twoWay) {
         continue;
       }
 
+      
       for (const contentType of contentTypes) {
+        if(!!dService?.types?.length && !(dService?.types || []).includes(contentType?.type)){
+          continue
+        }
+        
         gatherTypes(contentType, sName, dService);
       }
     }
@@ -137,6 +143,6 @@ const gatherServicesAssociatedTypes = async (
       continue;
     }
 
-    associatedTypes.push(`${serviceName}:${contentType.type}`);
+    associatedTypes.push(`${serviceName}:${contentType.type}`); 
   }
 };

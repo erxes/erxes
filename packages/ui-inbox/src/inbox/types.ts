@@ -218,11 +218,27 @@ export type AddMessageMutationVariables = {
   attachments?: any;
 };
 
+export type EditMessageMutationVariables = {
+  _id: string;
+  content: string;
+  contentType?: string;
+  mentionedUserIds?: string[];
+  internal?: boolean;
+  attachments?: any;
+};
+
 export type AddMessageMutationResponse = {
   addMessageMutation: (doc: {
     variables: AddMessageMutationVariables;
     optimisticResponse: any;
     update: any;
+  }) => Promise<any>;
+};
+
+export type EditMessageMutationResponse = {
+  editMessageMutation: (doc: {
+    variables: EditMessageMutationVariables;
+    optimisticResponse: any;
   }) => Promise<any>;
 };
 

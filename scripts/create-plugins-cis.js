@@ -10,6 +10,7 @@ const filePath = pathName => {
 };
 
 var workflowsPath = fileName => filePath(`./.github/workflows/${fileName}`);
+var workflowsSamplePath = fileName => filePath(`./scripts/sample/${fileName}`);
 
 var plugins = [
   { name: "inbox", ui: true, api: true },
@@ -69,19 +70,26 @@ var plugins = [
   { name: "syncpolaris", api: true, ui: true },
   { name: "reports", api: true, ui: true },
   { name: "instagram", api: true, ui: true },
+  { name: "whatsapp", api: true, ui: true },
   { name: "burenscoring", api: true, ui: true },
   { name: "golomtbank", api: true, ui: true },
-  { name: "template", api: true, ui: true }
+  { name: "accountings", api: true, ui: true },
+  { name: "pms", api: true, ui: true },
+  { name: "bm", api: true, ui: true },
+  { name: "template", api: true, ui: true },
+  { name: "cms", api: true, ui: true },
+  { name: "activedirectory", api: true, ui: true },
+  { name: "loansresearch", api: true, ui: true },
 ];
 
 const pluginsMap = {};
 
 var main = async () => {
   const uiContentBuffer = fs.readFileSync(
-    workflowsPath("plugin-sample-ui.yaml")
+    workflowsSamplePath("plugin-sample-ui.yaml")
   );
   const apiContentBuffer = fs.readFileSync(
-    workflowsPath("plugin-sample-api.yaml")
+    workflowsSamplePath("plugin-sample-api.yaml")
   );
 
   permissionCheckers = [];
@@ -205,9 +213,7 @@ var main = async () => {
 
   fs.writeFileSync(
     filePath("./scripts/pluginsMap.js"),
-    `
-    module.exports = ${JSON.stringify(pluginsMap)}
-  `
+    `module.exports = ${JSON.stringify(pluginsMap, null, 2)}\n`
   );
 };
 

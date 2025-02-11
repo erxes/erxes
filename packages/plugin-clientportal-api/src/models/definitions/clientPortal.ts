@@ -63,7 +63,7 @@ export interface IClientPortal {
   tokenExpiration?: number;
   refreshTokenExpiration?: number;
   tokenPassMethod?: 'cookie' | 'header';
-
+  erxesAppToken?: string;
   otpConfig?: IOTPConfig;
   twoFactorConfig?: TwoFactorConfig;
 
@@ -114,6 +114,21 @@ export interface IClientPortal {
 
   vendorParentProductCategoryId?: string;
   language?: string;
+  slug?: string;
+  template?: string;
+  templateId?: string;
+  keywords?: string;
+  copyright?: string;
+
+  externalLinks?: {
+    [key: string]: string;
+  }
+
+  googleAnalytics?: string;
+  facebookPixel?: string;
+  googleTagManager?: string;
+  vercelProjectId?: string;
+  lastVercelDeploymentId?: string;
 }
 
 interface IStyles {
@@ -196,6 +211,17 @@ const mailConfigSchema = new Schema(
     subject: field({ type: String, optional: true }),
     invitationContent: field({ type: String, optional: true }),
     registrationContent: field({ type: String, optional: true }),
+  },
+  { _id: false }
+);
+
+const navigationMenuSchema = new Schema(
+  {
+    label: field({ type: String }),
+    url: field({ type: String }),
+    icon: field({ type: String, optional: true }),
+    children: field({ type: [Object], optional: true }),
+    order: field({ type: Number, optional: true }),
   },
   { _id: false }
 );
@@ -340,4 +366,15 @@ export const clientPortalSchema = new Schema({
     optional: true,
   }),
   language: field({ type: String, optional: true }),
+  slug: field({ type: String, optional: true }),
+  template: field({ type: String, optional: true }),
+  templateId: field({ type: String, optional: true }),
+  keywords: field({ type: String, optional: true }),
+  copyright: field({ type: String, optional: true }),
+  externalLinks: field({ type: Object, optional: true }),
+  googleAnalytics: field({ type: String, optional: true }),
+  facebookPixel: field({ type: String, optional: true }),
+  googleTagManager: field({ type: String, optional: true }),
+  vercelProjectId: field({ type: String, optional: true }),
+  lastVercelDeploymentId: field({ type: String, optional: true }),
 });

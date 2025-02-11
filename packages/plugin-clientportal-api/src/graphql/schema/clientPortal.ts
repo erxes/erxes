@@ -105,7 +105,6 @@ ${
       _id: String! @external
     }
 
-
   type OTPConfig {
     content: String
     codeLength: Int
@@ -114,6 +113,7 @@ ${
     expireAfter: Int
     emailSubject: String
   }
+
   type TwoFactorConfig {
     content: String
     codeLength: Int
@@ -185,6 +185,7 @@ ${
   type ClientPortal {
     _id: String!
     name: String!
+    slug: String
     kind: BusinessPortalKind!
     description: String
     url: String
@@ -252,6 +253,15 @@ ${
 
     socialpayConfig: SocialpayConfig
     language: String
+
+    template: String
+    templateId: String
+    keywords: String
+    copyright: String
+    externalLinks: JSON
+    googleAnalytics: String
+    facebookPixel: String
+    googleTagManager: String
   }
 
   type Styles {
@@ -298,6 +308,7 @@ ${
   input ClientPortalConfigInput {
     _id: String
     name: String!
+    slug: String
     kind: BusinessPortalKind!
     description: String
     url: String
@@ -362,6 +373,15 @@ ${
     vendorParentProductCategoryId: String
     socialpayConfig: JSON
     language: String
+
+    template: String
+    templateId: String
+    keywords: String
+    copyright: String
+    externalLinks: JSON
+    googleAnalytics: String
+    facebookPixel: String
+    googleTagManager: String
   }
 
   enum UserCardEnum {
@@ -370,6 +390,7 @@ ${
     ticket
     purchase
   }
+    
   enum UserCardStatusEnum {
     participating
     invited
@@ -401,7 +422,7 @@ ${
 `;
 
 export const queries = (enabledPlugins) => `
-  clientPortalGetConfigs(kind:BusinessPortalKind, page: Int, perPage: Int): [ClientPortal]
+  clientPortalGetConfigs(kind:BusinessPortalKind, search: String, page: Int, perPage: Int): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
   clientPortalGetConfigByDomain(clientPortalName: String): ClientPortal
   clientPortalGetLast(kind: BusinessPortalKind): ClientPortal
@@ -426,9 +447,9 @@ export const queries = (enabledPlugins) => `
     enabledPlugins.tasks
       ? `
     clientPortalGetTaskStages: [TasksStage]
-    clientPortalGetTasks(stageId: String!): [TasksStage]
+    clientPortalGetTasks(stageId: String!): [Task]
     clientPortalUserTasks(userId: String): [TasksStage]
-    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TasksItemDate): [TasksStage]
+    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TasksItemDate): [Task]
         `
       : ''
   } 
@@ -469,8 +490,6 @@ export const mutations = `
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON
-
-
   clientPortalCreateCard(
         type: String!
         stageId: String!
@@ -493,7 +512,7 @@ export const mutations = `
       ): JSON
       clientPortalCommentsAdd(type: String!, typeId: String!, content: String! userType: String!): ClientPortalComment
       clientPortalCommentsRemove(_id: String!): String
-      clientPortalParticipantEdit(    _id: String!,
+      clientPortalParticipantEdit(_id: String!,
         contentType: UserCardEnum,
         contentTypeId: String,
         cpUserId: String,

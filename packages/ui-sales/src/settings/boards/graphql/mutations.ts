@@ -51,7 +51,14 @@ const commonPipelineParamsDef = `
   $numberSize: String
   $nameConfig: String
   $departmentIds: [String],
-  $tagId: String
+  $branchIds: [String],
+  $tagId: String,
+  $initialCategoryIds: [String],
+  $excludeCategoryIds: [String],
+  $excludeProductIds: [String],
+  $paymentIds: [String],
+  $paymentTypes: JSON,
+  $erxesAppToken: String
 `;
 
 const commonPipelineParams = `
@@ -74,8 +81,15 @@ const commonPipelineParams = `
   numberConfig: $numberConfig
   numberSize: $numberSize
   nameConfig: $nameConfig
+  branchIds: $branchIds
   departmentIds: $departmentIds
   tagId: $tagId
+  initialCategoryIds: $initialCategoryIds
+  excludeCategoryIds: $excludeCategoryIds
+  excludeProductIds: $excludeProductIds
+  paymentIds: $paymentIds
+  paymentTypes: $paymentTypes
+  erxesAppToken: $erxesAppToken
 `;
 
 const pipelineAdd = `
@@ -140,5 +154,5 @@ export default {
   pipelinesArchive,
   pipelinesCopied,
   pipelineRemove,
-  pipelinesUpdateOrder,
+  pipelinesUpdateOrder
 };

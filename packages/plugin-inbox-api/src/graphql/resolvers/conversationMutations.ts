@@ -7,7 +7,10 @@ import {
 } from "@erxes/api-utils/src/permissions";
 import { IUserDocument } from "@erxes/api-utils/src/types";
 
-import { IMessageDocument } from "../../models/definitions/conversationMessages";
+import {
+  IMessage,
+  IMessageDocument
+} from "../../models/definitions/conversationMessages";
 import { IConversationDocument } from "../../models/definitions/conversations";
 import { AUTO_BOT_MESSAGES } from "../../models/definitions/constants";
 import { debugError } from "@erxes/api-utils/src/debuggers";
@@ -29,6 +32,7 @@ import { isServiceRunning } from "../../utils";
 import { IIntegrationDocument } from "../../models/definitions/integrations";
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import { sendToWebhook } from "@erxes/api-utils/src";
+import { MODULE_NAMES } from "../../constants";
 
 export interface IConversationMessageAdd {
   conversationId: string;
@@ -38,6 +42,9 @@ export interface IConversationMessageAdd {
   attachments?: any;
   userId?: string;
   extraInfo?: any;
+}
+interface IEditMessage extends IMessage {
+  _id: string;
 }
 
 interface IAttachment {
@@ -408,6 +415,34 @@ const conversationMutations = {
     publishMessage(models, dbMessage, conversation.customerId);
 
     return dbMessage;
+  },
+
+  async conversationMessageEdit(
+    _root,
+    { _id, ...fields }: IEditMessage,
+    { user, models, subdomain }: IContext
+  ) {
+    const message = await models.ConversationMessages.getMessage(_id);
+    if (message.internal && user._id === message.userId) {
+      const updated = await models.ConversationMessages.updateMessage(
+        _id,
+        fields
+      );
+      await putUpdateLog(
+        models,
+        subdomain,
+        {
+          type: MODULE_NAMES.CONVERSATION_MESSAGE,
+          object: { ...message, name: "message" },
+          newData: fields,
+          updatedDocument: updated
+        },
+        user
+      );
+
+      return updated;
+    }
+    throw new Error(`You cannot edit`);
   },
 
   /**

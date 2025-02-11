@@ -11,6 +11,11 @@ interface IDashboardEdit extends IDashboard {
   _id: string;
 }
 
+const SERVICE_MAP = {
+  'contacts': 'core:contacts',
+  'forms': 'core:forms',
+}
+
 const getChartTemplatesForService = async (serviceName, charts) => {
   const service = await getService(serviceName);
   const chartTemplates = service.config?.meta?.reports?.chartTemplates;
@@ -29,7 +34,7 @@ const addChartsForDashboard = async (
   if (chartTemplates) {
     await models.Charts.insertMany(
       chartTemplates.map(c => ({
-        serviceName,
+        serviceName: SERVICE_MAP[c.serviceType] || serviceName,
         chartType: c.chartTypes[0],
         contentId,
         contentType: "core:dashboard",

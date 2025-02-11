@@ -3,19 +3,20 @@ import {
   ContentRowTitle,
   Divider,
   WrongLess,
-} from "../../styles";
-import Select, { components } from "react-select";
+} from '../../styles';
+import Select, { components } from 'react-select';
 
-import CURRENCIES from "@erxes/ui/src/constants/currencies";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { Flex } from "@erxes/ui/src/styles/main";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import { IPaymentsData } from "../../types";
-import { PAYMENT_TYPES } from "../../constants";
-import React from "react";
-import { __ } from "@erxes/ui/src/utils";
-import { pluginsOfPaymentForm } from "coreui/pluginUtils";
-import { selectConfigOptions } from "../../utils";
+import CURRENCIES from '@erxes/ui/src/constants/currencies';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Flex } from '@erxes/ui/src/styles/main';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IDeal, IPaymentsData } from '../../types';
+import { PAYMENT_TYPES } from '../../constants';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
+import { pluginsOfPaymentForm } from 'coreui/pluginUtils';
+import { selectConfigOptions } from '../../utils';
+import { gql, useQuery } from '@apollo/client';
 
 type Props = {
   total: { [currency: string]: number };
@@ -23,12 +24,37 @@ type Props = {
   currencies: string[];
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
   calcChangePay: () => void;
-  changePayData: { currency?: string; amount?: number };
+  changePayData: { [currency: string]: number };
+  pipelineDetail: any;
+  dealQuery:IDeal
 };
 
 type State = {
   paymentsData: IPaymentsData;
 };
+
+const scoreCampaignQuery = `
+  query Query($ownerId: String, $ownerType: String, $campaignId: String) {
+    checkOwnerScore(ownerId: $ownerId, ownerType: $ownerType, campaignId: $campaignId)
+  }
+`
+
+const OwnerScoreCampaignScore = ({type,dealQuery}:{type:any,dealQuery:IDeal}) =>{
+  if(!type?.scoreCampaignId || !(dealQuery?.customers ||[])?.length){
+    return null
+  }
+
+  const [customer] = dealQuery.customers || []
+
+  const {data} = useQuery(gql(scoreCampaignQuery),{variables:{ownerType:"customer",ownerId:customer._id,campaignId:type.scoreCampaignId}})
+
+  const {checkOwnerScore} = data || {}
+
+  return <div>
+    {`/Avaible score campaign score: ${checkOwnerScore}/`}
+  </div>
+
+}
 
 class PaymentForm extends React.Component<Props, State> {
   constructor(props) {
@@ -53,7 +79,7 @@ class PaymentForm extends React.Component<Props, State> {
   }
 
   renderTotal(value) {
-    return Object.keys(value).map((key) => (
+    return Object.keys(value).map(key => (
       <div key={key}>
         {this.renderAmount(value[key])} <b>{key}</b>
       </div>
@@ -64,18 +90,16 @@ class PaymentForm extends React.Component<Props, State> {
     const { onChangePaymentsData, calcChangePay } = this.props;
     const { paymentsData } = this.state;
 
-    if (!paymentsData[name]) {
-      paymentsData[name] = {};
-    }
-    paymentsData[name][kind] = value;
+    const newPaymentData = { ...paymentsData, [name]: { ...paymentsData[name], [kind]: value } }
 
-    calcChangePay();
-    this.setState({ paymentsData });
-    onChangePaymentsData(paymentsData);
+    onChangePaymentsData(newPaymentData);
+    this.setState({ paymentsData: newPaymentData }, () => {
+      calcChangePay();
+    });
   };
 
-  selectOption = (option) => (
-    <div className="simple-option">
+  selectOption = option => (
+    <div className='simple-option' key={option.label}>
       <span>{option.label}</span>
     </div>
   );
@@ -83,46 +107,44 @@ class PaymentForm extends React.Component<Props, State> {
   renderPaymentsByType(type) {
     const { currencies, changePayData } = this.props;
     const { paymentsData } = this.state;
+    const NAME = type.name || type.type;
 
-    const onChange = (e) => {
+    const onChange = e => {
       if (
-        (!paymentsData[type.name] || !paymentsData[type.name].currency) &&
+        (!paymentsData[NAME] || !paymentsData[NAME].currency) &&
         currencies.length > 0
       ) {
-        this.paymentStateChange("currency", type.name, currencies[0]);
+        this.paymentStateChange('currency', NAME, currencies[0]);
       }
 
       this.paymentStateChange(
-        "amount",
-        type.name,
-        parseFloat((e.target as HTMLInputElement).value || "0")
+        'amount',
+        NAME,
+        parseFloat((e.target as HTMLInputElement).value || '0'),
       );
     };
 
-    const currencyOnChange = (currency) => {
-      this.paymentStateChange(
-        "currency",
-        type.name,
-        currency ? currency.value : ""
-      );
+    const currencyOnChange = currency => {
+      this.paymentStateChange('currency', NAME, currency ? currency.value : '');
     };
 
     const onClick = () => {
-      Object.keys(changePayData).forEach((key) => {
+      Object.keys(changePayData).forEach(key => {
         if (
           changePayData[key] > 0 &&
-          (!paymentsData[type.name] || !paymentsData[type.name].amount)
+          (!paymentsData[NAME] || !paymentsData[NAME].amount)
         ) {
-          if (!paymentsData[type.name]) {
-            paymentsData[type.name] = {};
+          if (!paymentsData[NAME]) {
+            paymentsData[NAME] = {};
           }
 
-          paymentsData[type.name].amount = changePayData[key];
-          paymentsData[type.name].currency = key;
+          paymentsData[NAME].amount = changePayData[key];
+          paymentsData[NAME].currency = key;
 
           changePayData[key] = 0;
 
           this.setState({ paymentsData });
+
           this.props.onChangePaymentsData(paymentsData);
 
           return;
@@ -130,9 +152,9 @@ class PaymentForm extends React.Component<Props, State> {
       });
     };
 
-    const Option = (props) => {
+    const Option = props => {
       return (
-        <components.Option {...props}>
+        <components.Option {...props} key={type}>
           {this.selectOption(props.data)}
         </components.Option>
       );
@@ -144,16 +166,16 @@ class PaymentForm extends React.Component<Props, State> {
       <Flex key={type.name}>
         <ContentColumn>
           <ControlLabel>{__(type.title)}</ControlLabel>
+        <OwnerScoreCampaignScore type={type} dealQuery={this.props.dealQuery}/>
         </ContentColumn>
+
         <ContentColumn>
           <FormControl
-            value={
-              paymentsData[type.name] ? paymentsData[type.name].amount : ""
-            }
-            type="number"
-            placeholder={__("Type amount")}
+            value={paymentsData[NAME] ? paymentsData[NAME].amount : ''}
+            type='number'
+            placeholder={__('Type amount')}
             min={0}
-            name={type.name}
+            name={NAME}
             onChange={onChange}
             onClick={onClick}
           />
@@ -161,11 +183,11 @@ class PaymentForm extends React.Component<Props, State> {
         <ContentColumn>
           <Select
             name={type.name}
-            placeholder={__("Choose currency")}
+            placeholder={__('Choose currency')}
             value={selectOptions.find(
-              (option) =>
+              option =>
                 option.value ===
-                (paymentsData[type.name] ? paymentsData[type.name].currency : 0)
+                (paymentsData[NAME] ? paymentsData[NAME].currency : 0),
             )}
             onChange={currencyOnChange}
             components={{ Option }}
@@ -178,7 +200,19 @@ class PaymentForm extends React.Component<Props, State> {
   }
 
   renderPayments() {
-    return PAYMENT_TYPES.map((type) => this.renderPaymentsByType(type));
+    const pipelinePayments = this.props.pipelineDetail?.paymentTypes || [];
+
+    const keys = [
+      ...PAYMENT_TYPES.map(t => t.type),
+      ...pipelinePayments.map(paymentType => paymentType.type)
+    ];
+    const alreadyNotExistsTypes = Object.keys(this.props.payments || {}).filter(
+      name => !keys.includes(name)
+    ).map(name => ({ type: name, title: name }));
+
+    return [...PAYMENT_TYPES, ...pipelinePayments, ...alreadyNotExistsTypes].map(type => (
+      this.renderPaymentsByType(type)
+    ));
   }
 
   render() {
@@ -199,7 +233,7 @@ class PaymentForm extends React.Component<Props, State> {
         <Divider />
 
         {this.renderPayments()}
-        {pluginsOfPaymentForm((type) => this.renderPaymentsByType(type))}
+        {pluginsOfPaymentForm(type => this.renderPaymentsByType(type))}
       </>
     );
   }

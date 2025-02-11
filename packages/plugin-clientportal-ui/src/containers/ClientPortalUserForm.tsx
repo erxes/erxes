@@ -25,11 +25,13 @@ type FinalProps = {
 const ClientPortalUserFormContainer: React.FC<FinalProps> = (
   props: FinalProps
 ) => {
-  const { closeModal, kind } = props;
+  const { closeModal, kind, clientPortalUser } = props;
 
   const clientPortalConfigsQuery = useQuery(gql(queries.getConfigs), {
     fetchPolicy: "network-only",
-    variables: { kind },
+    variables: {
+      kind: clientPortalUser ? clientPortalUser?.clientPortal?.kind : kind,
+    },
   });
 
   if (clientPortalConfigsQuery.loading) {

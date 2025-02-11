@@ -25,6 +25,30 @@ const conversationMessageAdd = `
   }
 `;
 
+const conversationMessageEdit = `
+  mutation conversationMessageEdit(
+    $content: String,
+    $contentType: String,
+    $mentionedUserIds: [String],
+    $internal: Boolean,
+    $attachments: [AttachmentInput],
+    $extraInfo: JSON
+    $_id: String!
+  ) {
+    conversationMessageEdit(
+      content: $content,
+      contentType: $contentType,
+      mentionedUserIds: $mentionedUserIds,
+      internal: $internal,
+      attachments: $attachments,
+      extraInfo: $extraInfo,
+      _id: $_id
+    ) {
+      ${messageFields}
+    }
+  }
+`;
+
 const markAsRead = `
   mutation conversationMarkAsRead(
     $_id: String
@@ -105,6 +129,7 @@ const createVideoChatRoom = `
 
 export default {
   conversationMessageAdd,
+  conversationMessageEdit,
   conversationsChangeStatus,
   conversationsAssign,
   conversationsUnassign,
@@ -112,5 +137,5 @@ export default {
   markAsRead,
   resolveAll,
   editCustomFields,
-  createVideoChatRoom
+  createVideoChatRoom,
 };

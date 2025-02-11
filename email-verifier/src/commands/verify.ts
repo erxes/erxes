@@ -28,9 +28,8 @@ export const getArray = async (key) => {
 };
 
 export const bulkMailsso = async (emails: string[], hostname?: string) => {
-  console.log('bulkMailsso', emails);
   const MAILS_SO_KEY = process.env.MAILS_SO_KEY;
-  console.log('MAILS_SO_KEY', MAILS_SO_KEY);
+
   const body = { emails };
   const redisKey = 'erxes_email_verifier_list_ids';
 

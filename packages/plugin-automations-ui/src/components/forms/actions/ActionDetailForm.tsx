@@ -10,6 +10,7 @@ type Props = {
   addAction: (action: IAction, actionId?: string, config?: any) => void;
   closeModal: () => void;
   actionsConst: any[];
+  triggersConst: any[];
   propertyTypesConst: any[];
 };
 

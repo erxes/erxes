@@ -1,6 +1,6 @@
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { Model } from 'mongoose';
-
+import { getEnv } from '@erxes/api-utils/src/core';
 import { IModels } from '../connectionResolver';
 import redisUtils from '../redisUtils';
 import {
@@ -17,22 +17,62 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
     invoiceId,
     paymentId,
     amount,
-    apiDomain,
+    subdomain,
     description,
-    details
+    details,
   }: {
     invoiceId: string;
     paymentId: string;
     amount: number;
-    apiDomain: string;
+    subdomain: string;
     description?: string;
     details?: any;
   }): Promise<ITransactionDocument>;
   updateTransaction(_id: string, doc: any): Promise<ITransactionDocument>;
   cancelTransaction(_id: string): Promise<string>;
-
+  checkTransaction(_id: string): Promise<string>;
   removeTransactions(_ids: string[]): Promise<any>;
 }
+
+const generateCode = async (models: IModels) => {
+  const currentDate = new Date();
+  const year = currentDate.getFullYear().toString().slice(-2);
+  const month = ('0' + (currentDate.getMonth() + 1)).slice(-2);
+  const day = ('0' + currentDate.getDate()).slice(-2);
+  const currentDateString = `${year}${month}${day}`;
+
+  const last = await models.Transactions.findOne(
+    {},
+    {},
+    { sort: { createdAt: -1 } }
+  );
+
+  let code = `${currentDateString}-0001`;
+  if (!last || !last.code) {
+    code = `${currentDateString}-0001`;
+  } else {
+    const lastInvoiceDate = last.code.split('-')[0];
+    const lastValue = Number(last.code.split('-')[1] || '0000');
+
+    if (lastInvoiceDate === currentDateString) {
+      const newIncrementalValue = lastValue + 1;
+      const formattedIncrementalValue = ('0000' + newIncrementalValue).slice(
+        -4
+      );
+      code = `${currentDateString}-${formattedIncrementalValue}`;
+    } else {
+      code = `${currentDateString}-0001`;
+    }
+  }
+
+  const codeExists = await models.Transactions.findOne({ code });
+
+  if (codeExists) {
+    code = await generateCode(models);
+  }
+
+  return code;
+};
 
 export const loadTransactionClass = (models: IModels) => {
   class Transactions {
@@ -49,6 +89,7 @@ export const loadTransactionClass = (models: IModels) => {
     }
 
     public static async createTransaction(doc: any) {
+      const { subdomain } = doc;
       if (!doc.amount && doc.amount === 0) {
         throw new Error('Amount is required');
       }
@@ -61,11 +102,12 @@ export const loadTransactionClass = (models: IModels) => {
         ...doc,
         paymentKind: paymentMethod.kind,
         status: 'pending',
+        code: await generateCode(models),
       };
 
       const transaction = await models.Transactions.create(updatedDoc);
 
-      const api = new ErxesPayment(paymentMethod, doc.apiDomain);
+      const api = new ErxesPayment(paymentMethod, subdomain);
 
       try {
         const reponse = await api.createInvoice(transaction);

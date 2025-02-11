@@ -1,8 +1,10 @@
+import * as lodash from "lodash";
 import fetch from "node-fetch";
 import {
   sendCoreMessage,
   sendNotificationsMessage
 } from "./messageBroker";
+import { IModels } from "./connectionResolver";
 
 export const sendNotification = (subdomain: string, data) => {
   return sendNotificationsMessage({ subdomain, action: "send", data });
@@ -18,20 +20,11 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
 };
 
 export const validCompanyCode = async (config, companyCode) => {
-  let result = "";
-
-  const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/giu;
-
-  if (re.test(companyCode)) {
-    const response = await fetch(
-      config.checkCompanyUrl + "?" + new URLSearchParams({ regno: companyCode })
-    ).then(r => r.json());
-
-    if (response.found) {
-      result = response.name;
-    }
+  const resp = await getCompanyInfo({ checkTaxpayerUrl: config.checkTaxpayerUrl, no: companyCode });
+  if (resp.status !== 'checked' || !resp.tin) {
+    return "";
   }
-  return result;
+  return resp.result?.data?.name
 };
 
 export const companyCheckCode = async (params, subdomain) => {
@@ -43,8 +36,8 @@ export const companyCheckCode = async (params, subdomain) => {
 
   if (
     !config ||
-    !config.checkCompanyUrl ||
-    !config.checkCompanyUrl.includes("http")
+    !config.checkTaxpayerUrl ||
+    !config.checkTaxpayerUrl.includes("http")
   ) {
     return params;
   }
@@ -256,15 +249,187 @@ const checkBillType = async (subdomain, config, deal) => {
   return { type, customerCode, customerName, customerTin };
 };
 
-export const getPostData = async (subdomain, config, deal) => {
+const getChildCategories = async (subdomain: string, categoryIds) => {
+  const childs = await sendCoreMessage({
+    subdomain,
+    action: "categories.withChilds",
+    data: { ids: categoryIds },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const catIds: string[] = (childs || []).map(ch => ch._id) || [];
+  return Array.from(new Set(catIds));
+};
+
+const getChildTags = async (subdomain: string, tagIds) => {
+  const childs = await sendCoreMessage({
+    subdomain,
+    action: "tagWithChilds",
+    data: { query: { _id: { $in: tagIds } }, fields: { _id: 1 } },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const foundTagIds: string[] = (childs || []).map(ch => ch._id) || [];
+  return Array.from(new Set(foundTagIds));
+};
+
+const checkProductsByRule = async (subdomain, products, rule) => {
+  let filterIds: string[] = [];
+  const productIds = products.map(p => p._id)
+
+  if (rule.productCategoryIds?.length) {
+    const includeCatIds = await getChildCategories(
+      subdomain,
+      rule.productCategoryIds
+    );
+
+    const includeProductIdsCat = products.filter(p => includeCatIds.includes(p.categoryId)).map(p => p._id);
+    filterIds = filterIds.concat(lodash.intersection(includeProductIdsCat, productIds));
+  }
+
+  if (rule.tagIds?.length) {
+    const includeTagIds = await getChildTags(
+      subdomain,
+      rule.tagIds
+    );
+
+    const includeProductIdsTag = products.filter(p => lodash.intersection(includeTagIds, (p.tagIds || [])).length).map(p => p._id);
+    filterIds = filterIds.concat(lodash.intersection(includeProductIdsTag, productIds));
+  }
+
+  if (rule.productIds?.length) {
+    filterIds = filterIds.concat(lodash.intersection(rule.productIds, productIds));
+  }
+
+  if (!filterIds.length) {
+    return [];
+  }
+
+  // found an special products
+  const filterProducts = products.filter(p => filterIds.includes(p._id));
+  if (rule.excludeCatIds?.length) {
+    const excludeCatIds = await getChildCategories(
+      subdomain,
+      rule.excludeCatIds
+    );
+
+    const excProductIdsCat = filterProducts.filter(p => excludeCatIds.includes(p.categoryId)).map(p => p._id);
+    filterIds = filterIds.filter(f => !excProductIdsCat.includes(f));
+  }
+
+  if (rule.excludeTagIds?.length) {
+    const excludeTagIds = await getChildTags(
+      subdomain,
+      rule.excludeTagIds
+    );
+
+    const excProductIdsTag = filterProducts.filter(p => lodash.intersection(excludeTagIds, (p.tagIds || [])).length).map(p => p._id);
+    filterIds = filterIds.filter(f => !excProductIdsTag.includes(f))
+  }
+
+  if (rule.excludeProductIds?.length) {
+    filterIds = filterIds.filter(f => !rule.excludeProductIds.includes(f));
+  }
+
+  return filterIds;
+}
+
+const calcProductsTaxRule = async (subdomain: string, models: IModels, config, products) => {
+  try {
+    const vatRules = await models.ProductRules.find({ _id: { $in: config.reverseVatRules || [] } }).lean();
+    const ctaxRules = await models.ProductRules.find({ _id: { $in: config.reverseCtaxRules || [] } }).lean();
+
+    const productsById = {};
+    for (const product of products) {
+      productsById[product._id] = product;
+    }
+
+    if (vatRules.length) {
+      for (const rule of vatRules) {
+        const productIdsByRule = await checkProductsByRule(subdomain, products, rule);
+
+        for (const pId of productIdsByRule) {
+          productsById[pId].taxCode = rule.taxCode;
+          productsById[pId].taxType = rule.taxType;
+        }
+      }
+    }
+
+    if (ctaxRules.length) {
+      for (const rule of ctaxRules) {
+        const productIdsByRule = await checkProductsByRule(subdomain, products, rule);
+
+        for (const pId of productIdsByRule) {
+          productsById[pId].citytaxCode = rule.taxCode;
+          productsById[pId].citytaxPercent = rule.taxPercent;
+        }
+      }
+    }
+
+    return productsById
+  } catch (error) {
+    console.error('Error calculating product tax rules:', error);
+    throw error;
+  }
+}
+
+export const mathRound = (value, p = 2) => {
+  if (!value || isNaN(Number(value))) {
+    return 0;
+  }
+
+  let converter = 10 ** p;
+  return Math.round(value * converter) / converter;
+};
+
+const calcPreTaxPercentage = (paymentTypes, deal) => {
+  let itemAmountPrePercent = 0;
+  const preTaxPaymentTypes: string[] = (paymentTypes || []).filter(p =>
+    (p.config || '').includes('preTax: true')
+  ).map(p => p.type);
+
+  if (
+    preTaxPaymentTypes.length &&
+    deal.paymentsData &&
+    Object.keys(deal.paymentsData).length
+  ) {
+    let preSentAmount = 0;
+    for (const preTaxPaymentType of preTaxPaymentTypes) {
+      const matchOrderPayKeys = Object.keys(deal.paymentsData).filter(
+        pa => pa === preTaxPaymentType
+      );
+
+      if (matchOrderPayKeys.length) {
+        for (const key of matchOrderPayKeys) {
+          const matchOrderPay = deal.paymentsData[key]
+          preSentAmount += Number(matchOrderPay.amount);
+        }
+      }
+    }
+    const values: any[] = Object.values(deal.paymentsData);
+    const dealTotalPay = (values).map(p => p.amount).reduce((sum, cur) => sum + cur, 0);
+
+    if (preSentAmount && preSentAmount <= dealTotalPay) {
+      itemAmountPrePercent = (preSentAmount / dealTotalPay) * 100;
+    }
+  }
+
+  return { itemAmountPrePercent, preTaxPaymentTypes }
+}
+
+export const getPostData = async (subdomain, models: IModels, config, deal, paymentTypes) => {
   const { type, customerCode, customerName, customerTin } = await checkBillType(
     subdomain,
     config,
     deal
   );
 
-  const productsIds = deal.productsData.map(item => item.productId);
-  const products = await sendCoreMessage({
+  const activeProductsData = deal.productsData.filter(prData => prData.tickUsed);
+  const productsIds = activeProductsData.map(item => item.productId);
+
+  const firstProducts = await sendCoreMessage({
     subdomain,
     action: "products.find",
     data: { query: { _id: { $in: productsIds } }, limit: productsIds.length },
@@ -272,10 +437,8 @@ export const getPostData = async (subdomain, config, deal) => {
     defaultValue: []
   });
 
-  const productsById = {};
-  for (const product of products) {
-    productsById[product._id] = product;
-  }
+  const productsById = await calcProductsTaxRule(subdomain, models, config, firstProducts);
+  const { itemAmountPrePercent, preTaxPaymentTypes } = calcPreTaxPercentage(paymentTypes, deal);
 
   return {
     contentType: "deal",
@@ -289,22 +452,26 @@ export const getPostData = async (subdomain, config, deal) => {
     customerName,
     customerTin,
 
-    details: deal.productsData
-      .filter(prData => prData.tickUsed)
+    details: activeProductsData
       .map(prData => {
         const product = productsById[prData.productId];
         if (!product) {
           return;
         }
+
+        const tempAmount = prData.amount;
+        const minusAmount = (tempAmount / 100) * itemAmountPrePercent;
+        const totalAmount = mathRound(tempAmount - minusAmount, 4);
+
         return {
           product,
           quantity: prData.quantity,
+          totalDiscount: (prData.discountAmount ?? 0) + minusAmount,
           unitPrice: prData.unitPrice,
-          totalDiscount: prData.discount,
-          totalAmount: prData.amount
+          totalAmount
         };
       }),
-    nonCashAmounts: Object.keys(deal.paymentsData || {}).map(pay => ({
+    nonCashAmounts: Object.keys(deal.paymentsData || {}).filter(pay => !preTaxPaymentTypes.includes(pay)).map(pay => ({
       amount: deal.paymentsData[pay].amount
     }))
   };

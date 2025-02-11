@@ -118,31 +118,6 @@ const FlexRow = styled.div`
   }
 `;
 
-const UploadBtn = styled.div`
-  position: relative;
-  min-height: 30px;
-  margin-top: 10px;
-  label {
-    padding: 7px 15px;
-    background: ${rgba(colors.colorCoreDarkBlue, 0.05)};
-    border-radius: 4px;
-    font-weight: 500;
-    transition: background 0.3s ease;
-    display: inline-block;
-    &:hover {
-      background: ${rgba(colors.colorCoreDarkBlue, 0.1)};
-      cursor: pointer;
-    }
-  }
-  input[type='file'] {
-    display: none;
-  }
-`;
-
-const AttachmentContainer = styled.div`
-  margin-top: 20px;
-`;
-
 const PageImage = styled.img`
   width: 100px; // Set appropriate width
   height: auto; // Maintain aspect ratio
@@ -168,8 +143,6 @@ export {
   FillContent,
   FlexRow,
   Forms,
-  UploadBtn,
-  AttachmentContainer,
   PageImage,
   DeleteButton,
 };

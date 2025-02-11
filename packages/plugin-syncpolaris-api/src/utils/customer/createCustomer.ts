@@ -1,12 +1,9 @@
 import { ISyncLogDocument } from "../../models/definitions/syncLog";
 import { customFieldToObject, updateCustomer, fetchPolaris, genObjectOfRule } from "../utils";
-import { getCustomerDetailByRegister } from "./getCustomerDetailByRegister";
 import { IPolarisCustomer } from "./types";
 import { validateObject } from "./validator";
 
-export const createCustomer = async (subdomain: string, models, polarisConfig, syncLog: ISyncLogDocument, params) => {
-  const customer = params.updatedDocument || params.object;
-
+export const createCustomer = async (subdomain: string, models, polarisConfig, syncLog: ISyncLogDocument, customer) => {
   const data = await customFieldToObject(subdomain, "core:customer", customer);
 
   const dataOfRules = await genObjectOfRule(
@@ -34,7 +31,6 @@ export const createCustomer = async (subdomain: string, models, polarisConfig, s
     birthPlaceId: data.birthPlaceId,
     shortName: data.shortName,
     registerMaskCode: data.registerMaskCode || "3",
-    registerCode: data.registerCode,
     countryCode: data.countryCode || "496",
     industryName: data.industryName ?? "",
     catId: data.catId ?? "",
@@ -47,7 +43,8 @@ export const createCustomer = async (subdomain: string, models, polarisConfig, s
     fax: data.fax ?? "",
     isBl: data.isBl ?? "0",
     isPolitical: data.isPolitical ?? "0",
-    ...dataOfRules
+    ...dataOfRules,
+    registerCode: customer.registerCode,
   };
 
   await validateObject(sendData);
@@ -59,30 +56,29 @@ export const createCustomer = async (subdomain: string, models, polarisConfig, s
     models,
     polarisConfig,
     syncLog
-  }).catch(async e => {
-    //check register number duplicated
-    if (e.message.includes("41020330")) {
-      let customerData = await getCustomerDetailByRegister(subdomain, {
-        register: sendData.registerCode
-      });
-
-      if (customerData) {
-        await updateCustomer(
-          subdomain,
-          { _id: customer._id },
-          { code: customerData.custCode }
-        );
-      }
-    } else {
-      throw new Error(e.message);
-    }
   });
 
   if (customerCode) {
+    const data: any = {};
+
+    if (polarisConfig.codeField.propType) {
+      data[polarisConfig.codeField.propType] = customerCode;
+    } else {
+      const customDatas = customer.customFieldsData.filter(cfd => cfd.field !== polarisConfig.codeField.fieldId);
+      data.customFieldsData = [
+        ...customDatas,
+        {
+          field: polarisConfig.codeField.fieldId,
+          value: customerCode,
+          stringValue: customerCode
+        }
+      ]
+    }
+
     await updateCustomer(
       subdomain,
       { _id: customer._id },
-      { code: customerCode }
+      data
     );
   }
 

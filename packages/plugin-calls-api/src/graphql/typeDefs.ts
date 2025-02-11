@@ -99,7 +99,7 @@ const commonHistoryFields = `
   callStatus: String
   timeStamp: Float
   inboxIntegrationId: String
-  transferedCallStatus: String
+  transferredCallStatus: String
   endedBy: String
 `;
 
@@ -135,7 +135,7 @@ const queries = `
 
 const mutations = `
   callsIntegrationUpdate(configs: CallIntegrationConfigs): JSON
-  callAddCustomer(inboxIntegrationId: String, primaryPhone: String): CallConversationDetail
+  callAddCustomer(inboxIntegrationId: String, primaryPhone: String, queueName: String): CallConversationDetail
   callUpdateActiveSession: JSON
   callTerminateSession: JSON
   callDisconnect: String

@@ -1,17 +1,18 @@
-import { Model } from 'mongoose';
-import * as strip from 'strip';
-import { IModels } from '../connectionResolver';
-import { MESSAGE_TYPES } from './definitions/constants';
+import { Model } from "mongoose";
+import * as strip from "strip";
+import { IModels } from "../connectionResolver";
+import { MESSAGE_TYPES } from "./definitions/constants";
 import {
   IMessage,
   IMessageDocument,
   messageSchema
-} from './definitions/conversationMessages';
+} from "./definitions/conversationMessages";
 
 export interface IMessageModel extends Model<IMessageDocument> {
   getMessage(_id: string): Promise<IMessageDocument>;
   createMessage(doc: IMessage): Promise<IMessageDocument>;
   addMessage(doc: IMessage, userId?: string): Promise<IMessageDocument>;
+  updateMessage(_id: string, fields: IMessage): Promise<IMessageDocument>;
   getNonAsnweredMessage(conversationId: string);
   getAdminMessages(conversationId: string);
   widgetsGetUnreadMessagesCount(conversationId: string): Promise<number>;
@@ -31,7 +32,7 @@ export const loadClass = (models: IModels) => {
       const message = await models.ConversationMessages.findOne({ _id }).lean();
 
       if (!message) {
-        throw new Error('Conversation message not found');
+        throw new Error("Conversation message not found");
       }
 
       return message;
@@ -99,7 +100,7 @@ export const loadClass = (models: IModels) => {
       }
 
       // normalize content, attachments
-      const content = doc.content || '';
+      const content = doc.content || "";
       const attachments = doc.attachments || [];
 
       doc.content = content;
@@ -107,7 +108,7 @@ export const loadClass = (models: IModels) => {
 
       // <img> tags wrapped inside empty <p> tag should be allowed
       const contentValid =
-        content.indexOf('<img') !== -1 ? true : strip(content);
+        content.indexOf("<img") !== -1 ? true : strip(content);
 
       // if there is no attachments and no content then throw content required error
       if (
@@ -115,7 +116,7 @@ export const loadClass = (models: IModels) => {
         attachments.length === 0 &&
         !contentValid
       ) {
-        throw new Error('Content is required');
+        throw new Error("Content is required");
       }
 
       // setting conversation's content to last message & first responded user
@@ -140,6 +141,18 @@ export const loadClass = (models: IModels) => {
       );
 
       return this.createMessage({ ...doc, userId });
+    }
+
+    public static async updateMessage(_id: string, fields: IMessage) {
+      if (fields.internal) {
+        await models.ConversationMessages.updateOne(
+          { _id },
+          { $set: { ...fields } }
+        );
+
+        return models.ConversationMessages.findOne({ _id }).lean();
+      }
+      return "";
     }
 
     /**
@@ -202,7 +215,7 @@ export const loadClass = (models: IModels) => {
         {
           customerId,
           engageData: { $exists: true },
-          'engageData.engageKind': { $ne: 'auto' },
+          "engageData.engageKind": { $ne: "auto" },
           isCustomerRead: { $ne: true }
         },
         { $set: { isCustomerRead: true } }
@@ -218,7 +231,7 @@ export const loadClass = (models: IModels) => {
           visitorId,
           engageData: { $exists: true }
         },
-        { $set: { customerId, visitorId: '' } }
+        { $set: { customerId, visitorId: "" } }
       );
     }
   }

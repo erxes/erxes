@@ -648,6 +648,13 @@ export default class SipProvider extends React.Component<
             callCounterpart:
               foundUri.substring(0, toDelimiterPosition) || foundUri,
           });
+
+          rtcSession.connection.ontrack = (event) => {
+            const mediaStream = new MediaStream();
+            mediaStream.addTrack(event.track);
+            this.remoteAudio.autoplay = true;
+            this.remoteAudio.srcObject = mediaStream;
+          };
         } else if (originator === 'remote') {
           const foundUri = rtcRequest.from.toString();
           const delimiterPosition = foundUri.indexOf(';') || null;
@@ -679,15 +686,6 @@ export default class SipProvider extends React.Component<
           return;
         }
         this.setState({ rtcSession });
-        rtcSession.on('progress', (e) => {
-          if (
-            e.originator === 'remote' &&
-            e.response.status_code >= 180 &&
-            e.response.status_code <= 189
-          ) {
-            this.playRingbackTone();
-          }
-        });
 
         rtcSession.on('failed', (e) => {
           this.stopRingbackTone();
@@ -699,12 +697,6 @@ export default class SipProvider extends React.Component<
           const { updateHistory } = this.props;
           const { rtcSession: session } = this.state;
 
-          if (e.message?.status_code === 603) {
-            this.playUnavailableAudio();
-          }
-          if ([480, 486, 606, 607, 608].includes(e.message?.status_code)) {
-            this.playBusyAudio();
-          }
           if (this.state.callDirection) {
             direction = this.state.callDirection.split('/')[1];
             direction = direction?.toLowerCase();
@@ -851,8 +843,10 @@ export default class SipProvider extends React.Component<
               this.state.groupName,
             );
           }
-          [this.remoteAudio.srcObject] =
-            rtcSession.connection.getRemoteStreams();
+          if (originator === 'remote') {
+            [this.remoteAudio.srcObject] =
+              rtcSession.connection.getRemoteStreams();
+          }
 
           const played = this.remoteAudio.play();
 

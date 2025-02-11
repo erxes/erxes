@@ -1,6 +1,7 @@
 import * as moment from 'moment';
-import { IEbarimt, IEbarimtConfig, IEbarimtFull } from './definitions/ebarimt';
-import { getCompanyInfo } from '../utils';
+import { IEbarimt, IEbarimtFull } from './definitions/ebarimt';
+import { IEbarimtConfig } from './definitions/configs';
+import { getCompanyInfo, mathRound } from '../utils';
 
 export interface IDoc {
   contentType: string;
@@ -28,8 +29,11 @@ export interface IDoc {
       code: string;
       status?: string;
       uom?: string;
+
       taxType?: string;
       taxCode?: string;
+      citytaxCode?: string;
+      citytaxPercent?: number;
     };
     barcode?: string;
     quantity: number;
@@ -176,13 +180,26 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
       continue
     }
 
-    const totalVAT = detail.totalAmount / totalPercent * vatPercent;
-    const totalCityTax = detail.totalAmount / totalPercent * cityTaxPercent;
-    ableAmount += detail.totalAmount;
-    ableVATAmount += totalVAT;
-    ableCityTaxAmount += totalCityTax;
+    if (!config.hasCitytax && config.reverseCtaxRules?.length && product.citytaxCode) {
+      // when has a reverseCtitytax
+      const pCtaxPercent = Number(product.citytaxPercent) || 0; // productCitytaxPercent per
+      const pTotalPercent = vatPercent + pCtaxPercent + 100;
 
-    details.push({ ...stock, totalVAT, totalCityTax });
+      const totalVAT = detail.totalAmount / pTotalPercent * vatPercent;
+      const totalCityTax = detail.totalAmount / pTotalPercent * pCtaxPercent;
+      ableAmount += detail.totalAmount;
+      ableVATAmount += totalVAT;
+      ableCityTaxAmount += totalCityTax;
+      details.push({ ...stock, totalVAT, totalCityTax });
+    } else {
+      // when a main
+      const totalVAT = detail.totalAmount / totalPercent * vatPercent;
+      const totalCityTax = detail.totalAmount / totalPercent * cityTaxPercent;
+      ableAmount += detail.totalAmount;
+      ableVATAmount += totalVAT;
+      ableCityTaxAmount += totalCityTax;
+      details.push({ ...stock, totalVAT, totalCityTax });
+    }
   }
 
   return {
@@ -190,12 +207,12 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
     detailsFree,
     details0,
     detailsInner,
-    ableAmount,
-    freeAmount,
-    zeroAmount,
-    innerAmount,
-    ableVATAmount,
-    ableCityTaxAmount,
+    ableAmount: mathRound(ableAmount, 4),
+    freeAmount: mathRound(freeAmount, 4),
+    zeroAmount: mathRound(zeroAmount, 4),
+    innerAmount: mathRound(innerAmount, 4),
+    ableVATAmount: mathRound(ableVATAmount, 4),
+    ableCityTaxAmount: mathRound(ableCityTaxAmount, 4),
   }
 }
 
@@ -242,9 +259,9 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
       contentType: doc.contentType,
       contentId: doc.contentId,
 
-      totalAmount: ableAmount + freeAmount + zeroAmount,
-      totalVAT: ableVATAmount,
-      totalCityTax: ableCityTaxAmount,
+      totalAmount: mathRound(ableAmount + freeAmount + zeroAmount, 4),
+      totalVAT: mathRound(ableVATAmount),
+      totalCityTax: mathRound(ableCityTaxAmount),
       districtCode: config.districtCode,
       branchNo: config.branchNo,
       merchantTin: config.merchantTin,
@@ -290,24 +307,24 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     }
 
     // payments
-    let cashAmount: number = mainData.totalAmount ?? 0;
+    let cashAmount: number = mathRound(mainData.totalAmount) ?? 0;
     for (const payment of doc.nonCashAmounts) {
       mainData.payments?.push({
         code: 'PAYMENT_CARD',
         exchangeCode: '',
         status: 'PAID',
-        paidAmount: payment.amount,
+        paidAmount: mathRound(payment.amount),
       });
 
-      cashAmount -= payment.amount;
+      cashAmount -= mathRound(payment.amount);
     }
 
-    if (cashAmount) {
+    if (mathRound(cashAmount)) {
       mainData.payments?.push({
         code: 'CASH',
         exchangeCode: '',
         status: 'PAID',
-        paidAmount: cashAmount,
+        paidAmount: mathRound(cashAmount),
       });
     }
   }

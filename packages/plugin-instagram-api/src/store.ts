@@ -1,12 +1,12 @@
-import { debugError } from './debuggers';
-import { sendInboxMessage } from './messageBroker';
-import { getInstagramUser } from './utils';
-import { IModels } from './connectionResolver';
-import { getPostLink } from './utils';
-import { IIntegrationDocument } from './models/Integrations';
-import { ICustomerDocument } from './models/definitions/customers';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { INTEGRATION_KINDS } from './constants';
+import { debugError } from "./debuggers";
+import { sendInboxMessage, sendAutomationsMessage } from "./messageBroker";
+import { getInstagramUser } from "./utils";
+import { IModels } from "./connectionResolver";
+import { getPostLink } from "./utils";
+import { IIntegrationDocument } from "./models/Integrations";
+import { ICustomerDocument } from "./models/definitions/customers";
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
+import { INTEGRATION_KINDS } from "./constants";
 
 export const getOrCreatePostConversation = async (
   models: IModels,
@@ -26,12 +26,12 @@ export const getOrCreatePostConversation = async (
     });
 
     if (!integration) {
-      throw new Error('Integration not found');
+      throw new Error("Integration not found");
     }
     const { accountId } = integration;
     const account = await models.Accounts.findOne({ _id: accountId });
     if (!account) {
-      throw new Error('account not found');
+      throw new Error("account not found");
     }
 
     const getPostDetail = await getPostLink(account.token, postId);
@@ -64,15 +64,15 @@ export const getOrCreateComment = async (
   });
 
   if (!post) {
-    throw new Error('Post not found');
+    throw new Error("Post not found");
   }
   let attachments: any[] = [];
   if (commentParams.photo) {
     attachments = [
       {
-        name: 'Photo',
+        name: "Photo",
         url: commentParams.photo,
-        type: 'image'
+        type: "image"
       }
     ];
   }
@@ -117,14 +117,14 @@ export const getOrCreateComment = async (
     });
   }
   if (!conversation) {
-    throw new Error('Conversation not found');
+    throw new Error("Conversation not found");
   }
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
-      action: 'integrations.receive',
+      action: "integrations.receive",
       data: {
-        action: 'create-or-update-conversation',
+        action: "create-or-update-conversation",
         payload: JSON.stringify({
           customerId: customer.erxesApiId,
           integrationId: integration.erxesApiId,
@@ -146,7 +146,7 @@ export const getOrCreateComment = async (
   try {
     await sendInboxMessage({
       subdomain,
-      action: 'conversationClientMessageInserted',
+      action: "conversationClientMessageInserted",
       data: {
         ...conversation?.toObject(),
         conversationId: conversation.erxesApiId
@@ -166,6 +166,18 @@ export const getOrCreateComment = async (
       `Failed to update the database with the Erxes API response for this conversation.`
     );
   }
+
+  if (conversation) {
+    await sendAutomationsMessage({
+      subdomain,
+      action: "trigger",
+      data: {
+        type: `instagram:comments`,
+        targets: [conversation?.toObject()]
+      },
+      defaultValue: null
+    }).catch((err) => debugError(err.message));
+  }
 };
 
 export const getOrCreateCustomer = async (
@@ -181,7 +193,7 @@ export const getOrCreateCustomer = async (
     $and: [{ instagramPageId: { $in: pageId } }, { kind }]
   });
   if (!integration) {
-    throw new Error('Instagram Integration not found ');
+    throw new Error("Instagram Integration not found ");
   }
   let customer = await models.Customers.findOne({ userId });
   if (customer) {
@@ -198,7 +210,7 @@ export const getOrCreateCustomer = async (
   try {
     instagramUser = await getInstagramUser(
       userId,
-      facebookPageId || '',
+      facebookPageId || "",
       facebookPageTokensMap
     );
     if (instagramUser) {
@@ -217,8 +229,8 @@ export const getOrCreateCustomer = async (
       });
     } catch (e) {
       throw new Error(
-        e.message.includes('duplicate')
-          ? 'Concurrent request: customer duplication'
+        e.message.includes("duplicate")
+          ? "Concurrent request: customer duplication"
           : e.message
       );
     }
@@ -227,9 +239,9 @@ export const getOrCreateCustomer = async (
     try {
       const apiCustomerResponse = await sendInboxMessage({
         subdomain,
-        action: 'integrations.receive',
+        action: "integrations.receive",
         data: {
-          action: 'get-create-update-customer',
+          action: "get-create-update-customer",
           payload: JSON.stringify({
             integrationId: integration.erxesApiId,
             firstName: firstName,
@@ -269,17 +281,17 @@ export const customerCreated = async (
     });
   } catch (e) {
     throw new Error(
-      e.message.includes('duplicate')
-        ? 'Concurrent request: customer duplication'
+      e.message.includes("duplicate")
+        ? "Concurrent request: customer duplication"
         : e.message
     );
   }
   try {
     const apiCustomerResponse = await sendInboxMessage({
       subdomain,
-      action: 'integrations.receive',
+      action: "integrations.receive",
       data: {
-        action: 'get-create-update-customer',
+        action: "get-create-update-customer",
         payload: JSON.stringify({
           integrationId: integration.erxesApiId,
           firstName: firstName,

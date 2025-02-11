@@ -7,6 +7,7 @@ import {
   InterMessage,
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
+import { formatDateToYYYYMMDD } from './khanbank/utils';
 
 export const setupMessageConsumers = async () => {
   /**
@@ -193,6 +194,146 @@ export const setupMessageConsumers = async () => {
   });
 
   /**
+   * get latest record number
+   * @param {string} configId - config id
+   * @param {string} accountNumber - account number
+   * @return {number} - Returns a number
+   */
+  consumeRPCQueue('khanbank:accountInfo', async ({ subdomain, data }) => {
+    const { configId, accountNumber } = data;
+
+    if (!configId || !accountNumber) {
+      return {
+        status: 'error',
+        errorMessage: 'Config id and account number is required',
+      };
+    }
+
+    const models = await generateModels(subdomain);
+
+    const config = await models.KhanbankConfigs.findOne({ _id: configId });
+
+    if (!config) {
+      return {
+        status: 'error',
+        errorMessage: 'Config not found',
+      };
+    }
+
+    const api = new Khanbank(config);
+    const now = Date.now();
+    const previousDate = new Date(now - 24 * 60 * 60 * 1000);
+
+    const startDate = formatDateToYYYYMMDD(previousDate);
+    const endDate = formatDateToYYYYMMDD(new Date());
+    try {
+      const response = await api.statements.list({
+        accountNumber,
+        startDate,
+        endDate,
+      });
+
+      const count = response.total.count || 0;
+
+      if (count === 0) {
+        return {
+          status: 'success',
+          data: {
+            lastRecord: 0,
+            accountName: response.customerName,
+            currency: response.currency,
+          },
+        };
+      }
+
+      const latestTransaction = response.transactions[count - 1];
+
+      return {
+        status: 'success',
+        data: {
+          lastRecord: latestTransaction.record,
+          accountName: response.customerName,
+          currency: response.currency,
+        },
+      };
+    } catch (e) {
+      return {
+        status: 'error',
+        errorMessage: e.message,
+      };
+    }
+  });
+
+  /**
+   * find transaction
+   * @param {string} configId - config id
+   * @param {string} accountNumber - account number
+   * @param {number} record - record number
+   * @param {string} description - description
+   * @param {string} type - type
+   * @return {object} - Returns a response object
+   */
+  consumeRPCQueue('khanbank:findTransaction', async ({ subdomain, data }) => {
+    const { configId, accountNumber, record, description, type } = data;
+
+    if (!configId || !accountNumber || !record || !description) {
+      return {
+        status: 'error',
+        errorMessage: 'Config id, account number, record, and description are required',
+      };
+    }
+
+    const models = await generateModels(subdomain);
+
+    const config = await models.KhanbankConfigs.findOne({ _id: configId });
+
+    if (!config) {
+      return {
+        status: 'error',
+        errorMessage: 'Config not found',
+      };
+    }
+
+    const api = new Khanbank(config);
+    try {
+      const response = await api.statements.record(accountNumber, record);
+
+      const transactions = response.transactions.filter((transaction) => {
+        const normalizedDesc = transaction.description.toLowerCase();
+        const searchDesc = description.toLowerCase();
+        if (type === 'income') {
+          return (
+            transaction.amount > 0 && normalizedDesc.includes(searchDesc)
+          );
+        } else {
+          return (
+            transaction.amount < 0 && normalizedDesc.includes(searchDesc)
+          );
+        }
+      });
+
+      if (transactions.length === 0) {
+        return {
+          status: 'error',
+          errorMessage: 'Transaction not found',
+        };
+      }
+
+      const transaction = transactions[0];
+
+      return {
+        status: 'success',
+        data: transaction,
+      };
+    } catch (e) {
+      return {
+        status: 'error',
+        errorMessage: e.message,
+      };
+    }
+  });
+
+  /**
    * make transfer from khanbank to khanbank
    * @param {string} configId - config id
    * @param {TransferParams} transferParams - transfer params
@@ -298,7 +439,7 @@ export const setupMessageConsumers = async () => {
 };
 
 export const sendCommonMessage = async (
-  args: MessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string }
 ) => {
   return sendMessage({
     ...args,

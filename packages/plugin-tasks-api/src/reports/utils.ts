@@ -1385,7 +1385,7 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
 
     if (userType === "closedBy") {
 
-      const stageIds = await getStageIds({ ...filter, stageProbability: PROBABILITY_CLOSED[type] }, type, model)
+      const stageIds = await getStageIds({ ...filter, stageProbability: PROBABILITY_CLOSED }, type, model)
 
       const logs = await sendCoreMessage({
         subdomain,
@@ -1536,7 +1536,7 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
   if (status) {
 
     if (status === 'closed') {
-      const stageIds = await getStageIds({ ...filter, stageProbability: PROBABILITY_CLOSED[type] }, type, model)
+      const stageIds = await getStageIds({ ...filter, stageProbability: PROBABILITY_CLOSED }, type, model)
       matchfilter['stageId'] = { $in: stageIds };
 
     } else if (status === 'open') {
@@ -1592,7 +1592,10 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     matchfilter['customFieldsData.field'] = { $in: fieldIds };
 
     if (subFields?.length) {
-      matchfilter['customFieldValues'] = { $in: subFields };
+      matchfilter['customFieldValues'] = {
+        $regex: subFields.map(field => `(?:^|,|\\s)${field}(?:,|$|\\s)`).join('|'),
+        $options: 'i'
+      };
     }
   }
 
@@ -2026,12 +2029,12 @@ const rx = /(\d+)|(\D+)/g;
 const rd = /\d/;
 const rz = /^0/;
 
-export const naturalSort = (as: any, bs: any) => {
+export const naturalSort = (as: any = null, bs: any = null) => {
   if (bs !== null && as === null) {
-    return -1;
+    return 1;
   }
   if (as !== null && bs === null) {
-    return 1;
+    return -1;
   }
 
   if (typeof as === 'boolean') {
@@ -2041,10 +2044,10 @@ export const naturalSort = (as: any, bs: any) => {
     return 1;
   }
 
-  if (!as || as.trim() === "") {
+  if (!as || typeof as === 'string' && as.trim() === "") {
     return 1;
   }
-  if (!bs || bs.trim() === "") {
+  if (!bs || typeof bs === 'string' && bs.trim() === "") {
     return -1;
   }
 

@@ -48,7 +48,7 @@ const TypeForm = (props: Props) => {
     return (
       <>
         {actionBar}
-        <Table $whiteSpace="nowrap" $bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true}>
           <thead>
             <tr>
               <th>

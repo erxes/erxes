@@ -94,7 +94,6 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
 
   if (action === 'create-or-update-conversation') {
     const { conversationId, content, owner, updatedAt } = doc;
-
     let user;
 
     if (owner) {

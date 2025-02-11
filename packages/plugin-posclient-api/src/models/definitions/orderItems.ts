@@ -12,7 +12,7 @@ export interface IOrderItem {
   createdAt?: Date;
   productId: string;
   count: number;
-  unitPrice?: number;
+  unitPrice: number;
   discountAmount?: number;
   discountPercent?: number;
   bonusCount?: number;
@@ -30,6 +30,7 @@ export interface IOrderItem {
 export interface IOrderItemDocument extends Document, IOrderItem {
   _id: string;
   productName?: string;
+  byDevice?: { [deviceId: string]: number }
 }
 
 export const orderItemSchema = schemaHooksWrapper(
@@ -38,6 +39,7 @@ export const orderItemSchema = schemaHooksWrapper(
     createdAt: getDateFieldDefinition('Created at'),
     productId: field({ type: String, label: 'Product' }),
     productName: field({ type: String, label: 'Product Name if subtoken' }),
+    byDevice: field({ type: Object, optional: true, label: 'Device By count' }), // if qrMenu set
     count: getNumberFieldDefinition({ label: 'Count', positive: true }),
     unitPrice: getNumberFieldDefinition({
       label: 'Unit price',

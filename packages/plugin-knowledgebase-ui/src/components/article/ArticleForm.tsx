@@ -1,7 +1,6 @@
 import {
   IArticle,
   IErxesForm,
-  IPdfAttachment,
   ITopic,
 } from '@erxes/ui-knowledgeBase/src/types';
 import { FILE_MIME_TYPES } from '@erxes/ui-settings/src/general/constants';
@@ -10,7 +9,6 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { Formgroup } from '@erxes/ui/src/components/form/styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import Uploader from '@erxes/ui/src/components/Uploader';
@@ -21,14 +19,16 @@ import {
   IButtonMutateProps,
   IFormProps,
   IOption,
+  IPdfAttachment,
 } from '@erxes/ui/src/types';
 import dayjs from 'dayjs';
 import { __, extractAttachment } from 'coreui/utils';
 import React from 'react';
 import Select, { OnChangeValue } from 'react-select';
 import { articleReactions } from '../../icons.constant';
-import PdfUploader from './PdfUploader';
+
 import { FlexRow, Forms, ReactionItem } from './styles';
+import PdfUploader from '@erxes/ui/src/components/PdfUploader';
 
 type Props = {
   article: IArticle;
@@ -114,7 +114,6 @@ class ArticleForm extends React.Component<Props, State> {
       erxesForms,
       isPrivate,
       scheduledDate,
-      pdfAttachment,
     } = this.state;
 
     const finalValues = values;
@@ -122,6 +121,24 @@ class ArticleForm extends React.Component<Props, State> {
     if (article) {
       finalValues._id = article._id;
     }
+
+    const pdfAttachment: any = { ...this.state.pdfAttachment };
+
+    if (pdfAttachment && pdfAttachment.__typename) {
+      delete pdfAttachment.__typename;
+    }
+
+    if (pdfAttachment.pdf && pdfAttachment.pdf.__typename) {
+      delete pdfAttachment.pdf.__typename;
+    }
+
+    pdfAttachment.pages = pdfAttachment.pages?.map((p) => {
+      const page = { ...p };
+      if (page && page.__typename) {
+        delete page.__typename;
+      }
+      return page;
+    });
 
     return {
       _id: finalValues._id,
@@ -501,15 +518,15 @@ class ArticleForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <Formgroup>
-          <ControlLabel>{__('PDF')}</ControlLabel>
+        <FormGroup>
+          <ControlLabel>PDF</ControlLabel>
           <PdfUploader
             attachment={this.state.pdfAttachment}
             onChange={(attachment?: IPdfAttachment) => {
               return this.setState({ pdfAttachment: attachment });
             }}
           />
-        </Formgroup>
+        </FormGroup>
 
         <FlexContent>
           <FlexItem count={2} hasSpace={true}>

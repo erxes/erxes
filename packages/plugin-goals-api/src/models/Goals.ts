@@ -35,7 +35,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       });
 
       if (!goal) {
-        throw new Error("goal not found");
+        throw new Error('goal not found');
       }
       return goal;
     }
@@ -84,7 +84,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         return data === true ? true : false;
       } catch (error) {
         // Handle the error appropriately
-        console.error("Error fetching progress IDs goals:", error);
+        console.error('Error fetching progress IDs goals:', error);
         return []; // Return an empty array or handle the error accordingly
       }
     }
@@ -243,7 +243,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
           const cIds = await sendCoreMessage({
             isRPC: true,
             subdomain,
-            action: "fetchSegment",
+            action: 'fetchSegment',
             data: { segmentId: segment }
           });
 
@@ -364,9 +364,9 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
             }
           );
         } catch (error) {
-          console.error("Error updating goals:", error);
+          console.error('Error updating goals:', error);
         }
-      } else if (item.metric === "Count") {
+      } else if (item.metric === 'Count') {
         function calculateProgressAndCurrent(filteredGoals: Goal[]): Goal[] {
           return filteredGoals.map((goal) => {
             let current = 0;
@@ -419,7 +419,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
             { $set: { specificPeriodGoals: result } }
           );
         } catch (error) {
-          console.error("Error updating goals:", error);
+          console.error('Error updating goals:', error);
         }
       }
 

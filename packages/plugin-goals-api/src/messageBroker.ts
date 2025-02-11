@@ -1,35 +1,35 @@
-import { consumeRPCQueue } from "@erxes/api-utils/src/messageBroker";
-import { generateModels } from "./connectionResolver";
-import { sendMessage } from "@erxes/api-utils/src/core";
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
+import { generateModels } from './connectionResolver';
+import { sendMessage } from '@erxes/api-utils/src/core';
 import type {
   MessageArgs,
   MessageArgsOmitService
-} from "@erxes/api-utils/src/core";
+} from '@erxes/api-utils/src/core';
 
 export const setupMessageConsumers = async () => {
-  consumeRPCQueue("goals:find", async ({ subdomain, data }) => {
+  consumeRPCQueue('goals:find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       data: await models.Goals.find(data).lean(),
-      status: "success"
+      status: 'success'
     };
   });
 
-  consumeRPCQueue("goals:findOne", async ({ subdomain, data }) => {
+  consumeRPCQueue('goals:findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       data: await models.Goals.findOne(data).lean(),
-      status: "success"
+      status: 'success'
     };
   });
 
-  consumeRPCQueue("goals:createGoal", async ({ subdomain, data }) => {
+  consumeRPCQueue('goals:createGoal', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: "success",
+      status: 'success',
       data: await models.Goals.createGoal(data)
     };
   });
@@ -39,7 +39,7 @@ export const sendCoreMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "core",
+    serviceName: 'core',
     ...args
   });
 };
@@ -48,7 +48,7 @@ export const sendSalesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "sales",
+    serviceName: 'sales',
     ...args
   });
 };

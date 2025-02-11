@@ -377,6 +377,7 @@ export const prepareSettlePayment = async (
         order,
         ebarimtConfig,
         items,
+        config.paymentTypes,
         billType,
         registerNumber
       );
@@ -384,7 +385,8 @@ export const prepareSettlePayment = async (
       try {
         const { putData, innerData } = await models.PutResponses.putData(
           { ...ebarimtData },
-          ebarimtConfig
+          ebarimtConfig,
+          config.token
         );
         putData && ebarimtResponses.push(putData);
         innerData && ebarimtResponses.push(innerData);

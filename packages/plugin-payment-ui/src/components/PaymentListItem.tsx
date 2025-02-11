@@ -14,8 +14,8 @@ import { getGqlString, getRefetchQueries } from '../containers/utils';
 import { mutations } from '../graphql';
 import { IPaymentDocument } from '../types';
 import { PAYMENTCONFIGS } from './constants';
-import QuickQrForm from './form/QuickQrForm';
-import ConfigForm from './form/ConfigForm';
+import QuickQrForm from './forms/QuickQrForm';
+import ConfigForm from './forms/ConfigForm';
 
 type Props = {
   _id?: string;
