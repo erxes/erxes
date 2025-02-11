@@ -6,7 +6,7 @@ import { Label } from "@radix-ui/react-label";
 import { Checkbox } from "@/components/ui/checkbox";
 
 
-const ActivateOrder = () => {
+const ActivateOrderQr = () => {
   const [isEnabled, setIsEnabled] = useAtom(orderNotificationEnabledAtom);
   const handleCheckboxChange = (checked: boolean) => {
     setIsEnabled(checked);
@@ -27,4 +27,4 @@ const ActivateOrder = () => {
   );
 };
 
-export default ActivateOrder;
+export default ActivateOrderQr;

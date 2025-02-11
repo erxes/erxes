@@ -3,6 +3,9 @@
 import { Check, X } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { IOrder } from '@/types/order.types'
+import { orderIdAtom , orderNumberAtom , isShowAtom  , activeOrderIdAtom , openCancelDialogAtom } from '@/store/order.store'
+import { selectedTabAtom } from '@/store'
+import { useAtom , useSetAtom } from 'jotai'
 import { 
   Carousel, 
   CarouselContent, 
@@ -23,58 +26,58 @@ import { useState } from 'react'
 
 interface OrderNotificationCarouselProps {
   fullOrders: IOrder[];
-  onOrderApprove: (orderId: string) => void;
-  onOrderReject: (order: { _id: string; number: string }) => void;
   totalCount: number;
   loading: boolean;
-  handleLoadMore: () => void;
-  orderId: string | null;
-  orderNumber: string | null;
+  handleLoadMore: () => void
   onCancelComplete: () => void;
 }
 
 
 const OrderNotificationCarousel: React.FC<OrderNotificationCarouselProps> = ({
   fullOrders,
-  onOrderApprove,
-  onOrderReject,
   totalCount,
   loading,
   handleLoadMore,
-  orderId,
-  orderNumber,
   onCancelComplete
 }) => {
+  const [isShow, setIsShow] = useAtom(isShowAtom);
+  const [orderId, setOrderId] = useAtom(orderIdAtom);
+  const [orderNumber, setOrderNumber] = useAtom(orderNumberAtom);
+  const setActiveOrderId = useSetAtom(activeOrderIdAtom);
+  const changeCancel = useSetAtom(openCancelDialogAtom);
+  const setSelectedTab = useSetAtom(selectedTabAtom);
 
   const [error, setError] = useState<string | null>(null)
-  let buttonText: string;
 
-  if (error) {
-    buttonText = "Error loading orders";
-  } else if (loading) {
-    buttonText = "Loading...";
-  } else {
-    buttonText = `Load More (${fullOrders.length} / ${totalCount})`;
-  }
+  const buttonText = error
+  ? "Error loading orders"
+  : loading
+  ? "Loading..."
+  : `Load More (${fullOrders.length} / ${totalCount})`;
 
 
+  const handleLoadMoreWithErrorHandling = () => {
+      handleLoadMore()
+  };
 
-  const handleLoadMoreWithErrorHandling = async () => {
-    try {
-      await handleLoadMore()
-      setError(null) 
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load more orders. Please try again later.')
+  const handleOrderClick = (orderId: string) => {
+    setActiveOrderId(orderId);
+    setSelectedTab("products");
+    setIsShow(false);
+  };
+
+  const handleReject = (orderToReject: { _id: string; number?: string }) => {
+    if (!orderToReject.number) {
+      console.error('Order number is missing:', orderToReject);
+      setError('Order number is missing.');
+      return;
     }
-  }
-const handleOrderReject = (order: IOrder): void => {
-    if (!order.number) {
-        console.error('Order number is missing:', order);
-        setError('Order number is missing.');
-        return;
-    }
-    onOrderReject({ _id: order._id, number: order.number });
-};
+  
+    setOrderId(orderToReject._id);
+    setOrderNumber(orderToReject.number);
+    changeCancel(orderToReject._id);
+  };
+  
 
   return (
     <>
@@ -97,14 +100,17 @@ const handleOrderReject = (order: IOrder): void => {
           </CardContent>
           <CardFooter className="flex justify-between">
             <Button 
-              onClick={() => onOrderApprove(order._id)} 
+               onClick={() => {
+                handleOrderClick(order._id);
+                setIsShow(false); 
+              }}
               variant="outline" 
               size="sm"
             >
               <Check className="mr-2 h-4 w-4" /> Approve
             </Button>
             <Button 
-             onClick={() => handleOrderReject(order)}
+              onClick={() => handleReject(order)}
               variant="outline" 
               size="sm"
             >

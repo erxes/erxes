@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { useSetAtom, useAtomValue } from "jotai";
+import { useEffect, useCallback, useRef } from "react";
+import { useSetAtom, useAtomValue , useAtom } from "jotai";
 import { Bell } from "lucide-react";
 import { ORDER_STATUSES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import {
 import OrderNotificationCarousel from "./components/orderNotfModal/orderNotfModal.main";
 import useFullOrders from "./hooks/useFullOrders";
 import { queries } from "./graphql";
-import { activeOrderIdAtom, setInitialAtom , openCancelDialogAtom } from "@/store/order.store";
+import { activeOrderIdAtom, setInitialAtom , isShowAtom , } from "@/store/order.store";
 import { selectedTabAtom, orderCollapsibleAtom, orderNotificationEnabledAtom } from "@/store";
 
 interface Subscription {
@@ -26,15 +26,12 @@ interface Subscription {
 const OrderNotf = () => {
   const setSelectedTab = useSetAtom(selectedTabAtom);
   const setActiveOrderId = useSetAtom(activeOrderIdAtom);
-  const changeCancel = useSetAtom(openCancelDialogAtom);
   const setInitialStates = useSetAtom(setInitialAtom);
   const setOpenCollapsible = useSetAtom(orderCollapsibleAtom);
   const isNotificationEnabled = useAtomValue(orderNotificationEnabledAtom);
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isShow, setIsShow] = useAtom(isShowAtom);
   const previousOrderCountRef = useRef(0);
-  const [orderId, setOrderId] = useState<string | null>(null);
-  const [orderNumber, setOrderNumber] = useState<string | null>(null);
 
   const {
     fullOrders,
@@ -81,30 +78,19 @@ const OrderNotf = () => {
   useEffect(() => {
     try {
     if (isNotificationEnabled && totalCount > previousOrderCountRef.current) {
-      setIsOpen(true);
+      setIsShow(true);
     }
     previousOrderCountRef.current = totalCount;
   } catch (error) {
       console.error("Error updating order notifications:", error);
     } 
-  }, [totalCount, isNotificationEnabled]);
+  }, [totalCount, isNotificationEnabled , setIsShow]);
 
-  const handleOrderClick = (orderId: string) => {
-    setActiveOrderId(orderId);
-    setSelectedTab("products");
-    setIsOpen(false);
-  };
-
-  const handleReject = (orderToReject: { _id: string; number: string }) => {
-    setOrderId(orderToReject._id);
-    setOrderNumber(orderToReject.number);
-    changeCancel(orderToReject._id);
-  };
 
   const handleCancelComplete = () => {
     setInitialStates();
     setOpenCollapsible(false);
-    setIsOpen(false);
+    setIsShow(false);
     refetch();
   };
 
@@ -113,7 +99,7 @@ const OrderNotf = () => {
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isShow} onOpenChange={setIsShow}>
       <DialogTrigger asChild>
         <Button variant="outline" size="icon" className="relative">
           {totalCount > 0 && (
@@ -140,13 +126,9 @@ const OrderNotf = () => {
 
         <OrderNotificationCarousel
           fullOrders={fullOrders}
-          onOrderApprove={handleOrderClick}
-          onOrderReject={handleReject}
           totalCount={totalCount}
           loading={loading}
           handleLoadMore={handleLoadMore}
-          orderId={orderId}
-          orderNumber={orderNumber}
           onCancelComplete={handleCancelComplete}
         />
       </DialogContent>

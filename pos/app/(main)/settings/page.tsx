@@ -12,7 +12,7 @@ import { configAtom, currentUserAtom } from "@/store/config.store"
 import { useAtomValue } from "jotai"
 
 import Image from "@/components/ui/image"
-import ActivateOrder from "@/modules/settings/components/activateOrder"
+import ActivateOrderQr from "@/modules/settings/components/activateOrder"
 
 const Settings = () => {
   const { details, email } = useAtomValue(currentUserAtom) || {}
@@ -39,7 +39,7 @@ const Settings = () => {
       <ProductSimilarityConfig />
       <ScrollerWidth />
       <PrintItemStatus />
-      <ActivateOrder/>
+      <ActivateOrderQr/>
       <CategoriesToPrint />
       <StatusExplain />
     </>
