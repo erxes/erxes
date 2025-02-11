@@ -57,11 +57,7 @@ const callsQueries = {
 
     return customer;
   },
-  async cloudflareCallsActiveSession(_root, {}, { models, user }: IContext) {
-    const activeSession = models.ActiveSessions.getActiveSession(user._id);
 
-    return activeSession;
-  },
   async cloudflareCallsHistories(
     _root,
     params: IHistoryArgs,

@@ -136,7 +136,6 @@ const queries = `
   cloudflareCallsIntegrationDetail(integrationId: String!): CloudflareCallsIntegrationDetailResponse
   cloudflareCallsUserIntegrations: [CloudflareCallsIntegrationDetailResponse]
   cloudflareCallsCustomerDetail(customerPhone: String): Customer
-  cloudflareCallsActiveSession: CallActiveSession
   cloudflareCallsHistories(${filterParams}, skip: Int): [CallHistory]
   cloudflareCallsHistoriesTotalCount(${filterParams}, skip: Int): Int
   cloudflareCallsGetConfigs: JSON
