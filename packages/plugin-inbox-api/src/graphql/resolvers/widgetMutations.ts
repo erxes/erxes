@@ -1027,22 +1027,29 @@ const widgetMutations = {
       throw new Error("Integration not found");
     }
 
-    if (visitorId && !customerId) {
-      const customer = await createVisitor(subdomain, visitorId);
-      customerId = customer._id;
+    let msg;
+    if (conversationId) {
+      msg = await models.ConversationMessages.createMessage({
+        conversationId,
+        customerId,
+        content: message,
+        botId: integrationId
+      });
+    } else {
+      let conversation = await models.Conversations.createConversation({
+        botId: integrationId,
+        customerId,
+        integrationId,
+        status: CONVERSATION_STATUSES.OPEN,
+        content: message
+      });
+      msg = await models.ConversationMessages.createMessage({
+        conversationId: conversation._id,
+        customerId,
+        content: message,
+        botId: integrationId
+      });
     }
-
-    if (!conversationId) {
-      return;
-    }
-
-    const msg = await models.ConversationMessages.createMessage({
-      conversationId,
-      customerId,
-      content: message,
-      botId: integrationId
-    });
-
     graphqlPubsub.publish(`conversationMessageInserted:${msg.conversationId}`, {
       conversationMessageInserted: msg
     });
