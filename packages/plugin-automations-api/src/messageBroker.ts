@@ -1,20 +1,21 @@
-import { sendMessage } from "@erxes/api-utils/src/core";
 import type {
-  MessageArgsOmitService,
-  MessageArgs
+  MessageArgs,
+  MessageArgsOmitService
 } from "@erxes/api-utils/src/core";
-import { playWait } from "./actions";
 import {
   checkWaitingResponseAction,
   doWaitingResponseAction
 } from "./actions/wait";
-import { generateModels } from "./connectionResolver";
-import { executePrevAction, receiveTrigger } from "./utils";
 import {
   consumeQueue,
   consumeRPCQueue
 } from "@erxes/api-utils/src/messageBroker";
+import { executePrevAction, receiveTrigger } from "./utils";
+
 import { debugInfo } from "@erxes/api-utils/src/debuggers";
+import { generateModels } from "./connectionResolver";
+import { playWait } from "./actions";
+import { sendMessage } from "@erxes/api-utils/src/core";
 
 export const setupMessageConsumers = async () => {
   consumeQueue("automations:trigger", async ({ subdomain, data }) => {
@@ -47,7 +48,7 @@ export const setupMessageConsumers = async () => {
 
     const models = await generateModels(subdomain);
     const { type, actionType, targets } = data;
-    console.log(data, "data");
+  
     const waitingExecution = await await checkWaitingResponseAction(
       models,
       type,
