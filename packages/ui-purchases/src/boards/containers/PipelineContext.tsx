@@ -76,6 +76,7 @@ interface IStore {
   onAddItem: (stageId: string, item: IItem, aboveItemId?: string) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
   onUpdateItem: (item: IItem, prevStageId?: string) => void;
+  synchSingleCard: (itemId: string) => void;
   isShowLabel: boolean;
   toggleLabels: () => void;
 }
@@ -247,6 +248,26 @@ class PipelineProviderInner extends React.Component<Props, State> {
       }
     });
   }
+
+  synchSingleCard = (itemId: string) => {
+    setTimeout(() => {
+      client
+        .query({
+          query: gql(this.props.options.queries.detailQuery),
+          fetchPolicy: "network-only",
+          variables: {
+            _id: itemId
+          }
+        })
+        .then(({ data }) => {
+          const refetchedItem =
+            data[this.props.options.queriesName.detailQuery];
+          this.setState({
+            itemMap: updateItemInfo(this.state, refetchedItem)
+          });
+        });
+    }, 1000);
+  };
 
   findItemIndex = (stageId: string, aboveItemId: string) => {
     const { itemMap } = this.state;
@@ -681,6 +702,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
             onAddItem: this.onAddItem,
             onRemoveItem: this.onRemoveItem,
             onUpdateItem: this.onUpdateItem,
+            synchSingleCard: this.synchSingleCard,
             itemMap,
             stageLoadMap,
             stageIds,
