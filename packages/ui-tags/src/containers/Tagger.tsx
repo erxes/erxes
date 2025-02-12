@@ -9,8 +9,7 @@ import { mutations, queries } from '../graphql';
 
 import React from 'react';
 import Tagger from '../components/Tagger';
-import { gql } from '@apollo/client';
-import { useQuery, useMutation } from '@apollo/client';
+import { gql, useQuery, useMutation } from '@apollo/client';
 
 type Props = {
   // targets can be conversation, customer, company etc ...
