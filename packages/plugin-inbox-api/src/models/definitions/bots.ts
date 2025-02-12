@@ -16,6 +16,7 @@ export interface IBot {
   status: string;
   persistentMenus?: IPersistentMenusBot[];
   botGreetMessage?: string;
+  getStarted?: boolean;
   tag?: string;
   isEnabledBackBtn?: boolean;
   backButtonText?: string;
@@ -41,6 +42,7 @@ export const botSchema = new Schema({
   persistentMenus: { type: [persistentMenuSchema] },
   botGreetMessage: { type: String, optional: true },
   tag: { type: String, optional: true },
+  getStarted: field({ type: Boolean }),
   createdAt: { type: Date, default: Date.now() },
   isEnabledBackBtn: { type: Boolean, optional: true },
   backButtonText: { type: String, optional: true }

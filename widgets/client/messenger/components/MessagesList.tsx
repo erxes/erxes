@@ -159,7 +159,7 @@ const MessagesList: React.FC<Props> = (props) => {
   };
 
   const handleGetStarted = () => {
-    replyAutoAnswer("getStarted", "", "say_something");
+    replyAutoAnswer("Get Started", "", "getStarted");
   };
 
   const renderBotGreetingMessage = (

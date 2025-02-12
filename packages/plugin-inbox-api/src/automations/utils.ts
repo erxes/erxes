@@ -42,7 +42,6 @@ export const generateBotData = (
   { type, buttons, text, cards, quickReplies, image }
 ) => {
   let botData: any[] = [];
-
   const generateButtons = (buttons: any[]) => {
     return buttons.map((btn: any) => ({
       title: btn.text,
@@ -76,7 +75,7 @@ export const generateBotData = (
       type: "custom",
       component: "QuickReplies",
       quick_replies: [
-        { mainTitle: quickReplies[0]?.text || "Default Title" }, // First object with "mainTitle"
+        { mainTitle: text || "Default Title" }, // First object with "mainTitle"
         ...quickReplies.map(({ _id, text, type }) => ({
           title: text,
           type: type,
