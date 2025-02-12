@@ -56,6 +56,7 @@ export interface IMessengerData {
   botCheck?: boolean;
   botGreetMessage?: string;
   persistentMenus?: BotPersistentMenuTypeMessenger[];
+  getStarted?: boolean;
   skillData?: {
     typeId: string;
     options: Array<{
@@ -205,6 +206,7 @@ const messengerDataSchema = new Schema(
     skillData: field({ type: Object, optional: true }),
     botEndpointUrl: field({ type: String }),
     botShowInitialMessage: field({ type: Boolean }),
+    getStarted: field({ type: Boolean }),
     botCheck: field({ type: Boolean }),
     botGreetMessage: field({ type: String }),
     persistentMenus: field({ type: [persistentMenuSchema] }), // Corrected to an array

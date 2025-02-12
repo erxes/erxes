@@ -121,7 +121,7 @@ export const types = ({ contacts, dailyco, calls }) => `
     userId: String
     createdAt: Date
     isCustomerRead: Boolean
-    engageData: EngageData
+    engageData: EngageData 
     formWidgetData: JSON
     messengerAppData: JSON
     botGreetMessage: String

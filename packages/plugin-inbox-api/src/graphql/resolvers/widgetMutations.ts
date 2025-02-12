@@ -125,7 +125,8 @@ export const pConversationClientMessageInserted = async (
 
 export const getMessengerData = async (
   models: IModels,
-  integration: IIntegrationDocument
+  integration: IIntegrationDocument,
+  subdomain
 ) => {
   let messagesByLanguage: IMessengerDataMessagesItem | null = null;
   let messengerData = integration.messengerData;
@@ -179,9 +180,26 @@ export const getMessengerData = async (
     kind: "website",
     "credentials.integrationId": integration._id
   });
+  const getStarted = await sendAutomationsMessage({
+    subdomain,
+    action: "trigger.find",
+    data: {
+      query: {
+        triggerType: "inbox:messages",
+        botId: integration._id
+      }
+    },
+    isRPC: true
+  }).catch((error) => {
+    throw error;
+  });
+  const getStartedCondition = (
+    getStarted[0]?.triggers[0]?.config?.conditions || []
+  ).find((condition) => condition.type === "getStarted");
 
   return {
     ...(messengerData || {}),
+    getStarted: getStartedCondition ? getStartedCondition.isSelected : false,
     messages: messagesByLanguage,
     knowledgeBaseTopicId: topicId,
     websiteApps,
@@ -426,7 +444,7 @@ const widgetMutations = {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
-      messengerData: await getMessengerData(models, integration),
+      messengerData: await getMessengerData(models, integration, subdomain),
       customerId: customer && customer._id,
       visitorId: customer ? null : visitorId,
       brand

@@ -122,10 +122,9 @@ export default {
       }).catch((error) => {
         throw error;
       });
-      const getStartedCondition =
-        (getStarted[0]?.triggers[0]?.config?.conditions || []).find(
-          (condition) => condition.type === "getStarted"
-        );
+      const getStartedCondition = (
+        getStarted[0]?.triggers[0]?.config?.conditions || []
+      ).find((condition) => condition.type === "getStarted");
       const messengerData = integration.messengerData || {
         supporterIds: [],
         persistentMenus: [],
