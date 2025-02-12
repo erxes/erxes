@@ -68,6 +68,24 @@ const iconEmoji = (
   </svg>
 );
 
+const iconMenu = (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M4 6H20M4 12H20M4 18H20"
+      stroke="#8F9195"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
+);
+
 const iconMore = (color) => (
   <svg
     {...attrs}
@@ -814,6 +832,7 @@ export {
   iconExit,
   iconAttach,
   iconEmoji,
+  iconMenu,
   iconClose,
   iconMore,
   iconSearch,

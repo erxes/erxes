@@ -2662,6 +2662,42 @@ select.form-control:focus,
     cursor: pointer;
   }
 }
+
+.persistent-menu-wrapper {
+  position: relative;
+}
+
+.persistent-menu-wrapper ul {
+  position: absolute;
+  bottom: 2rem;
+  right: 0;
+  background: #fafafa;
+  box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  list-style: none;
+  padding: 0;
+  min-width: 200px;
+}
+
+.persistent-menu-wrapper ul .p-menu {
+  padding: 8px 10px;
+  border-bottom: 1px solid #ddd;
+  background: none;
+  cursor: pointer;
+  transition: all ease 0.3s;
+  text-decoration: none;
+  color: #444;
+  display: block;
+}
+
+.persistent-menu-wrapper ul .p-menu:last-child {
+  border: 0;
+}
+
+.persistent-menu-wrapper ul .p-menu:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
 .emoji-picker-wrapper {
   position: relative;
   > div {
