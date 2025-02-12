@@ -40,7 +40,7 @@ const OrderNotificationCarousel: React.FC<OrderNotificationCarouselProps> = ({
   handleLoadMore,
   onCancelComplete
 }) => {
-  const [isShow, setIsShow] = useAtom(isShowAtom);
+  const [,setIsShow] = useAtom(isShowAtom);
   const [orderId, setOrderId] = useAtom(orderIdAtom);
   const [orderNumber, setOrderNumber] = useAtom(orderNumberAtom);
   const setActiveOrderId = useSetAtom(activeOrderIdAtom);
@@ -49,16 +49,23 @@ const OrderNotificationCarousel: React.FC<OrderNotificationCarouselProps> = ({
 
   const [error, setError] = useState<string | null>(null)
 
-  const buttonText = error
-  ? "Error loading orders"
-  : loading
-  ? "Loading..."
-  : `Load More (${fullOrders.length} / ${totalCount})`;
+  const getButtonText = () => {
+    if (error) return "Error loading orders";
+    if (loading) return "Loading...";
+    return `Load More (${fullOrders.length} / ${totalCount})`;
+  };
+  
+  const buttonText = getButtonText();  
 
 
   const handleLoadMoreWithErrorHandling = () => {
-      handleLoadMore()
+    try {
+      handleLoadMore();
+    } catch (error) {
+      console.error("Error loading more data:", error);
+    }
   };
+  
 
   const handleOrderClick = (orderId: string) => {
     setActiveOrderId(orderId);
@@ -102,7 +109,6 @@ const OrderNotificationCarousel: React.FC<OrderNotificationCarouselProps> = ({
             <Button 
                onClick={() => {
                 handleOrderClick(order._id);
-                setIsShow(false); 
               }}
               variant="outline" 
               size="sm"
