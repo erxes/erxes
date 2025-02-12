@@ -41,7 +41,7 @@ export default function CustomMessage({
       return (
         <div
           key={index}
-          className="reply-button"
+          className="reply-button quick_reply_text"
           style={{ backgroundColor: color, borderColor: color }}
         >
           {item.mainTitle}

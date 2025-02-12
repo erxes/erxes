@@ -2977,13 +2977,20 @@ select.form-control:focus,
   flex-wrap: wrap;
   margin-left: -4px;
 }
+
+.quick-replies .quick_reply_text {
+  width: 100%;
+  font-size: 16px !important;
+}
 .quick-replies .reply-button {
   padding: 5px 15px;
   border: 1px solid #673fbd;
+  background: #fafafa;
   margin: 4px;
   border-radius: 20px;
   font-weight: 500;
   color: #333;
+  font-size: 14px;
 }
 .quick-replies .reply-button:hover {
   opacity: 0.8;
