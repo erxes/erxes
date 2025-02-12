@@ -56,6 +56,7 @@ const PersistentMenu: React.FC<Props> = ({ messengerData }) => {
 
     const handleClick = () => {
       replyAutoAnswer(text, _id, "persistentMenuId");
+      hidePicker();
     };
 
     return (
@@ -72,6 +73,7 @@ const PersistentMenu: React.FC<Props> = ({ messengerData }) => {
 
     const handleGetStarted = () => {
       replyAutoAnswer("Get Started", "", "getStarted");
+      hidePicker();
     };
 
     return (
