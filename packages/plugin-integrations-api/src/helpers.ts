@@ -82,6 +82,7 @@ export const removeAccount = async (
         );
         erxesApiIds.push(response);
       } catch (e) {
+        console.log("Error: ", e)
         throw e;
       }
     }
