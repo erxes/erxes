@@ -65,12 +65,15 @@ class GeneralSettings extends React.Component<Props, State> {
   delete = (currentConfigKey: string) => {
     confirm("This Action will delete this config are you sure?").then(() => {
       const { configsMap } = this.state;
-      delete configsMap.returnEbarimtConfig[currentConfigKey];
-      delete configsMap.returnEbarimtConfig.newEbarimtConfig;
+      const returnEbarimtConfig = { ...configsMap.returnebarimtConfig };
+      delete returnEbarimtConfig[currentConfigKey];
+      delete returnEbarimtConfig.newEbarimtConfig;
 
-      this.setState({ configsMap });
+      this.setState({
+        configsMap: { ...configsMap, returnEbarimtConfig },
+      });
 
-      this.props.save(configsMap);
+      this.props.save({ ...configsMap, returnEbarimtConfig });
     });
   };
 

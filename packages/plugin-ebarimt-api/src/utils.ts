@@ -20,20 +20,11 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
 };
 
 export const validCompanyCode = async (config, companyCode) => {
-  let result = "";
-
-  const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/giu;
-
-  if (re.test(companyCode)) {
-    const response = await fetch(
-      config.checkCompanyUrl + "?" + new URLSearchParams({ regno: companyCode })
-    ).then(r => r.json());
-
-    if (response.found) {
-      result = response.name;
-    }
+  const resp = await getCompanyInfo({ checkTaxpayerUrl: config.checkTaxpayerUrl, no: companyCode });
+  if (resp.status !== 'checked' || !resp.tin) {
+    return "";
   }
-  return result;
+  return resp.result?.data?.name
 };
 
 export const companyCheckCode = async (params, subdomain) => {
@@ -45,8 +36,8 @@ export const companyCheckCode = async (params, subdomain) => {
 
   if (
     !config ||
-    !config.checkCompanyUrl ||
-    !config.checkCompanyUrl.includes("http")
+    !config.checkTaxpayerUrl ||
+    !config.checkTaxpayerUrl.includes("http")
   ) {
     return params;
   }

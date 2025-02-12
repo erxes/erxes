@@ -15,6 +15,18 @@ const SubTable = styled(Table)`
   > tbody > tr > td {
     padding: 8px !important;
     text-align: left !important;
+
+    > i {
+      margin-left: 5px;
+    }
+
+    .icon-arrow-down {
+      color: #FF0000
+    }
+
+    .icon-arrow-up {
+      color: #00FF00
+    }
   }
 
   th:last-child,
@@ -46,12 +58,13 @@ const AdditionalRow = ({ scoreLogs }: { scoreLogs: IScoreLogParams[] }) => {
           </td>
           <td rowSpan={items?.length || 1}>{scoreLog.target?.number || '-'}</td>
           <td>{type || '-'}</td>
-          <td>{firstItem?.unitPrice * (firstItem?.count || 1) || '-'}</td>
+          <td>{firstItem?.unitPrice || '-'}</td>
+          <td>{firstItem?.count || '-'}</td>
           <td rowSpan={items?.length || 1}>
-            {(scoreLog.action === 'add' && scoreLog.changeScore) || '-'}
+            {(scoreLog.action === 'add' || !scoreLog.action && scoreLog.changeScore > 0) && <>{scoreLog.changeScore} <Icon icon='arrow-up' /></> || '-'}
           </td>
           <td rowSpan={items?.length || 1}>
-            {(scoreLog.action === 'subtract' && scoreLog.changeScore) || '-'}
+            {(scoreLog.action === 'subtract' || !scoreLog.action && scoreLog.changeScore < 0) && <>{Math.abs(scoreLog.changeScore)} <Icon icon='arrow-down'/></> || '-'}
           </td>
           <td rowSpan={items?.length || 1}>
             {scoreLog.campaign?.title || '-'}
@@ -60,7 +73,8 @@ const AdditionalRow = ({ scoreLogs }: { scoreLogs: IScoreLogParams[] }) => {
         {restItem?.map((item) => (
           <tr key={item._id} className='additional-row'>
             <td>{type || '-'}</td>
-            <td>{item.unitPrice * (item?.count || 1) || '-'}</td>
+            <td>{item.unitPrice || '-'}</td>
+            <td>{item.count || '-'}</td>
           </tr>
         ))}
       </>
@@ -75,6 +89,7 @@ const AdditionalRow = ({ scoreLogs }: { scoreLogs: IScoreLogParams[] }) => {
           <th>Transation ID</th>
           <th>Type</th>
           <th>Amount</th>
+          <th>Quantity</th>
           <th>Points Earned</th>
           <th>Points Spent</th>
           <th>Campaign</th>
@@ -164,12 +179,10 @@ const Row = (props: Props) => {
     }
   };
 
-  const score = (owner, scoreLogs) => {
-    const { customFieldsData } = owner;
-
+  const score = ( scoreLogs) => {
     let totalScore = 0;
 
-    if (scoreLogs?.length && customFieldsData?.length) {
+    if (scoreLogs?.length) {
       for (const scoreLog of scoreLogs) {
         const { action, changeScore } = scoreLog;
 
@@ -191,7 +204,7 @@ const Row = (props: Props) => {
         <td>{email(scoreLog.ownerType, scoreLog.owner)}</td>
         <td>{phone(scoreLog.ownerType, scoreLog.owner)}</td>
         <td>{scoreLog.ownerType}</td>
-        <td>{score(scoreLog.owner, scoreLog.scoreLogs)}</td>
+        <td>{score(scoreLog.scoreLogs)}</td>
         <td>
           <ActionButtons>
             <Link

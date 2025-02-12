@@ -8,8 +8,29 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 
+import { gql, useLazyQuery, useQuery } from '@apollo/client';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import { IPaymentDocument } from '../../types';
 import { SettingsContent } from './styles';
+
+const CONFIGS_QUERY = gql`
+  query KhanbankConfigs($page: Int, $perPage: Int) {
+    khanbankConfigs(page: $page, perPage: $perPage) {
+      _id
+      name
+    }
+  }
+`;
+
+const ACCOUNTS_QUERY = gql`
+  query KhanbankAccounts($configId: String!) {
+    khanbankAccounts(configId: $configId) {
+      name
+      number
+      currency
+    }
+  }
+`;
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -25,94 +46,105 @@ type State = {
   configMap: any;
 };
 
-const ConfigForm: React.FC<Props> = ({
-  renderButton,
-  closeModal,
-  payment,
-  configs,
-  accounts,
-  onSelectConfig,
-}) => {
-  const { name = '', config = {} } = payment || ({} as IPaymentDocument);
-
-  const [state, setState] = useState<State>({
-    paymentName: name,
-    configMap: config,
+const ConfigForm: React.FC<Props> = ({ renderButton, closeModal, payment }) => {
+  const { loading, error, data } = useQuery(CONFIGS_QUERY, {
+    variables: { page: 1, perPage: 999 },
   });
 
-  const generateDoc = (values: { paymentName: string; configMap: any }) => {
+  const [getAccounts, { data: accountsData, loading: accountsLoading }] =
+    useLazyQuery(ACCOUNTS_QUERY, {
+      fetchPolicy: 'network-only',
+    });
+
+  const [paymentName, setPaymentName] = useState(payment?.name || '');
+  const [configId, setConfigId] = useState(payment?.config?.configId || '');
+  const [accountNumber, setAccountNumber] = useState(
+    payment?.config?.accountNumber || ''
+  );
+
+  React.useEffect(() => {
+    if (configId) {
+      getAccounts({ variables: { configId } });
+    }
+  }, [configId, getAccounts]);
+
+  if (loading) {
+    return <Spinner />;
+  }
+
+  const configs = data?.khanbankConfigs || [];
+  const accounts = accountsData?.khanbankAccounts || [];
+
+  // React.useEffect(() => {
+  //   if (payment) {
+  //     setPaymentName(payment.name);
+  //     setConfigId(payment.config?.configId || '');
+  //     setAccountNumber(payment.config?.accountNumber || '');
+  //   }
+  // }, [payment]);
+
+  const generateDoc = () => {
     const generatedValues = {
-      name: values.paymentName,
+      name: paymentName,
       kind: 'khanbank',
       status: 'active',
-      config: values.configMap,
+      config: {
+        configId,
+        accountNumber,
+      },
     };
 
     return payment ? { ...generatedValues, id: payment._id } : generatedValues;
   };
 
-  const onChangeConfig = (
-    code: string,
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (code === 'paymentName') {
-      return setState((prevState) => ({
-        ...prevState,
-        paymentName: e.target.value,
-      }));
+  const renderAccounts = (formProps) => {
+    if (!configId || configId.length === 0) {
+      return null;
     }
 
-    setState((prevState) => ({
-      ...prevState,
-      configMap: {
-        ...prevState.configMap,
-        [code]: e.target.value,
-      },
-    }));
-  };
-
-  const renderItem = (
-    key: string,
-    title: string,
-    type?: string,
-    description?: string
-  ) => {
-    let value;
-
-    if (key === 'paymentName') {
-      value = state[key as keyof State];
-    } else {
-      value = state.configMap[key];
-    }
     return (
-      <FormGroup key={key}>
-        <ControlLabel>{title}</ControlLabel>
-        {description && <p>{description}</p>}
-        <FormControl
-          defaultValue={value}
-          onChange={(e: any) => onChangeConfig(key, e)}
-          value={value}
-          type={type || 'text'}
-        />
+      <FormGroup>
+        <ControlLabel required={true}>Account</ControlLabel>
+        {accountsLoading ? (
+          <Spinner />
+        ) : (
+          <FormControl
+            {...formProps}
+            id='accountSelect'
+            name='accountNumber'
+            componentclass='select'
+            required={true}
+            defaultValue={accountNumber}
+            onChange={(e: any) => setAccountNumber(e.target.value)}
+            errors={formProps.errors}
+          >
+            <option value=''>{__('Select a Account')}</option>
+            {accounts.map((c) => (
+              <option key={c.number} value={c.number}>
+                {`${c.name} - ${c.number}`}
+              </option>
+            ))}
+          </FormControl>
+        )}
       </FormGroup>
     );
   };
 
   const renderContent = (formProps: IFormProps) => {
     const { isSubmitted } = formProps;
-    const { paymentName } = state;
-
-    const values = {
-      paymentName,
-      configMap: state.configMap,
-    };
 
     return (
       <>
         <SettingsContent title={__('General settings')}>
-          {renderItem('paymentName', 'Name', 'text')}
+          <FormGroup>
+            <ControlLabel>{__('Name')}</ControlLabel>
 
-
+            <FormControl
+              defaultValue={paymentName}
+              onChange={(e: any) => setPaymentName(e.target.value)}
+              value={paymentName}
+            />
+          </FormGroup>
           <FormGroup>
             <ControlLabel required={true}>Config</ControlLabel>
             <FormControl
@@ -121,18 +153,13 @@ const ConfigForm: React.FC<Props> = ({
               name='config'
               componentclass='select'
               required={true}
-              defaultValue={state.configMap.configId}
-              onChange={(e: any) => (
-                onSelectConfig(e.target.value),
-                setState((prevState) => ({
-                  ...prevState,
-                  configMap: {
-                    ...prevState.configMap,
-                    configId: e.target.value,
-                    accountNumber: '',
-                  },
-                }))
-              )}
+              // defaultValue={configId}
+              value={configId}
+              onChange={(e: any) => {
+                const selectedConfigId = e.target.value;
+                console.log(selectedConfigId);
+                setConfigId(selectedConfigId);
+              }}
               errors={formProps.errors}
             >
               <option value=''>
@@ -146,36 +173,7 @@ const ConfigForm: React.FC<Props> = ({
             </FormControl>
           </FormGroup>
 
-          {state.configMap.configId && (
-            <FormGroup>
-              <ControlLabel required={true}>Account</ControlLabel>
-              <FormControl
-                {...formProps}
-                id='accountSelect'
-                name='accountNumber'
-                componentclass='select'
-                required={true}
-                defaultValue={state.configMap.accountNumber}
-                onChange={(e: any) =>
-                  setState((prevState) => ({
-                    ...prevState,
-                    configMap: {
-                      ...prevState.configMap,
-                      accountNumber: e.target.value,
-                    },
-                  }))
-                }
-                errors={formProps.errors}
-              >
-                <option value=''>{__('Select a Account')}</option>
-                {accounts.map((c) => (
-                  <option key={c.number} value={c.number}>
-                    {`${c.name} - ${c.number}`}
-                  </option>
-                ))}
-              </FormControl>
-            </FormGroup>
-          )}
+          {renderAccounts(formProps)}
 
           <a
             href={
@@ -199,7 +197,7 @@ const ConfigForm: React.FC<Props> = ({
           </Button>
           {renderButton({
             passedName: 'payment',
-            values: generateDoc(values),
+            values: generateDoc(),
             isSubmitted,
             callback: closeModal,
           })}

@@ -13,7 +13,7 @@ import { sendSalesMessage } from "./messageBroker";
 
 const allowTypes = {
   "core:user": ["create", "update"],
-  "sales:deal": ["update"],
+  "sales:deal": ["create", "update"],
   "purchases:purchase": ["update"],
   "core:productCategory": ["create", "update", "delete"],
   "core:product": ["create", "update", "delete"],
@@ -187,6 +187,75 @@ export const afterMutationHandlers = async (subdomain, params) => {
             const txt = JSON.stringify({
               message: response.message,
               error: response.error
+            });
+            if (config.responseField) {
+              await sendCardInfo(subdomain, deal, config, txt);
+            } else {
+              console.log(txt);
+            }
+          }
+          return;
+        }
+        return;
+      }
+
+      if (action === 'create') {
+        const deal = params.object;
+        if (!deal.productsData?.filter(pd => pd.tickUsed).length) {
+          return;
+        }
+
+        const destinationStageId = deal.stageId || "";
+        if (!destinationStageId) {
+          return;
+        }
+
+        const mainConfig = await getConfig(subdomain, "ERKHET", {});
+        if (
+          !mainConfig ||
+          !mainConfig.apiKey ||
+          !mainConfig.apiSecret ||
+          !mainConfig.apiToken
+        ) {
+          return;
+        }
+
+        const configs = await getConfig(subdomain, "ebarimtConfig", {});
+
+        if (Object.keys(configs).includes(destinationStageId)) {
+          syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+          const config = {
+            ...configs[destinationStageId],
+            ...(await getConfig(subdomain, "ERKHET", {}))
+          };
+
+          const cpipeline = await sendSalesMessage({
+            subdomain,
+            action: 'pipelines.findOne',
+            data: { stageId: destinationStageId },
+            isRPC: true,
+            defaultValue: {}
+          });
+
+          const postData = await getPostData(subdomain, config, deal, cpipeline.paymentTypes);
+
+          const cresponse = await sendRPCMessage(
+            models,
+            syncLog,
+            "rpc_queue:erxes-automation-erkhet",
+            {
+              action: "get-response-send-order-info",
+              isEbarimt: false,
+              payload: JSON.stringify(postData),
+              isJson: true,
+              thirdService: true
+            }
+          );
+
+          if (cresponse && (cresponse.message || cresponse.error)) {
+            const txt = JSON.stringify({
+              message: cresponse.message,
+              error: cresponse.error
             });
             if (config.responseField) {
               await sendCardInfo(subdomain, deal, config, txt);
