@@ -502,6 +502,10 @@ const getPriceForList = (prods, exchangeRates) => {
 
   if (exchangeRates[resCurrencyCode]) {
     convertedPrice *= exchangeRates[resCurrencyCode];
+
+    convertedPrice = Math.round(
+      parseFloat(convertedPrice.toString().replace(/,/g, ''))
+    );
   }
 
   return { resPrice: convertedPrice, resProd };
