@@ -11,7 +11,6 @@ type Props = {
 };
 
 const PersistentMenu: React.FC<Props> = ({ messengerData }) => {
-  console.log("mm", messengerData);
   const [isVisible, setIsVisible] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
 
