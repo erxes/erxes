@@ -71,7 +71,7 @@ class CategoryMask extends React.Component<Props, State> {
       this.setState({ activePerVal: perVal });
     };
     return (
-      <td colSpan={perVal.len || 1} key={Math.random()}>
+      <td colSpan={perVal.len || 1} key={perVal.id}>
         {perVal.static || (
           <>
             {(idEdit && (
@@ -138,7 +138,7 @@ class CategoryMask extends React.Component<Props, State> {
     }
 
     return field.options.map((o) => (
-      <FormWrapper>
+      <FormWrapper key={field._id}>
         <FormColumn>
           <ControlLabel>{o}</ControlLabel>
         </FormColumn>
