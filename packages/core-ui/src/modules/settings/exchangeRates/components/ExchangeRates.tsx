@@ -27,7 +27,8 @@ type Props = {
 };
 
 const MainList = (props: Props) => {
-  const { rateList, loading, totalCount, deleteExchangeRates, queryParams } = props;
+  const { rateList, loading, totalCount, deleteExchangeRates, queryParams } =
+    props;
 
   let timer;
   const navigate = useNavigate();
@@ -98,6 +99,30 @@ const MainList = (props: Props) => {
     );
   };
 
+  const renderEditAction = (exchangeRate: IExchangeRate) => {
+    const editTrigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Edit')} placement="top">
+          <Icon icon="edit-3" />
+        </Tip>
+      </Button>
+    );
+
+    return (
+      <ModalTrigger
+        key={exchangeRate._id}
+        title="Edit Exchange Rate"
+        content={({ closeModal }) => (
+          <ExchangeRateForm
+            exchangeRate={exchangeRate}
+            closeModal={closeModal}
+          />
+        )}
+        trigger={editTrigger}
+      />
+    );
+  };
+
   const renderRow = (exchangeRate) => {
     const handleSelect = () => {
       setSelectedItems((prev) =>
@@ -110,14 +135,6 @@ const MainList = (props: Props) => {
     const onclick = (e) => {
       e.stopPropagation();
     };
-
-    const trigger = (
-      <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="top">
-          <Icon icon="edit-3" />
-        </Tip>
-      </Button>
-    );
 
     return (
       <tr key={exchangeRate._id}>
@@ -134,17 +151,8 @@ const MainList = (props: Props) => {
         <td>{exchangeRate?.rate || 0}</td>
         <td>
           <ActionButtons>
-            <ModalTrigger
-              key={exchangeRate._id}
-              title="Edit Exchange Rate"
-              content={({ closeModal }) => (
-                <ExchangeRateForm
-                  exchangeRate={exchangeRate}
-                  closeModal={closeModal}
-                />
-              )}
-              trigger={trigger}
-            />
+            {renderEditAction(exchangeRate)}
+
             <Tip text={__('Delete')} placement="top">
               <Button
                 btnStyle="link"
