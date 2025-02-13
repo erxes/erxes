@@ -30,7 +30,7 @@ export type AccountingsConfigsByCodeQueryResponse = {
 };
 
 export type GetRateQueryResponse = {
-  accountingsGetRate: IRate;
+  exchangeGetRate: IRate;
   loading: boolean;
   refetch: () => void;
 };

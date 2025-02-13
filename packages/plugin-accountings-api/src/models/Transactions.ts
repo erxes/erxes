@@ -133,7 +133,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
           }
 
           if (!parentId) {
-            const firstTrs = await commonCreate(models, { ...doc, ptrId });
+            const firstTrs = await commonCreate(subdomain, models, { ...doc, ptrId });
             parentId = firstTrs.mainTr.parentId;
             transactions.push(firstTrs.mainTr);
             if (firstTrs.otherTrs?.length) {
@@ -142,7 +142,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
               }
             }
           } else {
-            const trs = await commonCreate(models, { ...doc, ptrId, parentId });
+            const trs = await commonCreate(subdomain, models, { ...doc, ptrId, parentId });
             transactions.push(trs.mainTr);
             if (trs.otherTrs?.length) {
               for (const otherTr of trs.otherTrs) {
@@ -208,7 +208,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       session.startTransaction();
       try {
         for (const doc of editTrDocs) {
-          const trs = await commonUpdate(models, { ...doc, ptrId, parentId }, oldTrs.find(ot => ot._id === doc._id));
+          const trs = await commonUpdate(subdomain, models, { ...doc, ptrId, parentId }, oldTrs.find(ot => ot._id === doc._id));
           transactions.push(trs.mainTr);
           if (trs.otherTrs?.length) {
             for (const otherTr of trs.otherTrs) {
@@ -218,7 +218,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
         }
 
         for (const doc of addTrDocs) {
-          const trs = await commonCreate(models, { ...doc, ptrId, parentId })
+          const trs = await commonCreate(subdomain, models, { ...doc, ptrId, parentId })
           transactions.push(trs.mainTr);
           if (trs.otherTrs?.length) {
             for (const otherTr of trs.otherTrs) {

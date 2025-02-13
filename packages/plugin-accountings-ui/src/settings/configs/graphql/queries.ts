@@ -15,8 +15,8 @@ const configsByCode = `
 `;
 
 const getRate = `
-  query accountingsGetRate ($currency: String, $date: Date) {
-    accountingsGetRate (currency: $currency, date: $date) {
+  query exchangeGetRate ($currency: String, $date: Date) {
+    exchangeGetRate (currency: $currency, date: $date) {
       _id
       createdAt
       modifiedAt

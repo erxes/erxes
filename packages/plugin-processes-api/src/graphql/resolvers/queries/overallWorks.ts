@@ -129,7 +129,7 @@ const generateFilter = async (
     const category = await models.JobCategories.findOne({
       _id: jobCategoryId,
     }).lean();
-    if(!category) {
+    if (!category) {
       throw new Error(`JobCategory ${jobCategoryId} not found`);
     }
     const categories = await models.JobCategories.find(
@@ -148,8 +148,8 @@ const generateFilter = async (
 
   if (!Object.keys(selector).length) {
     const dueQry: any = {};
-    dueQry.$gte = getPureDate(getToday(getPureDate(new Date(), -1)));
-    dueQry.$lte = getPureDate(getTomorrow(getPureDate(new Date(), -1)));
+    dueQry.$gte = getPureDate(new Date());
+    dueQry.$lte = getTomorrow((new Date()));
 
     if (Object.keys(dueQry).length) {
       selector.dueDate = dueQry;
