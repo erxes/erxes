@@ -334,7 +334,7 @@ export const sendCoreMessage = async (
   });
 };
 
-export const getConfig = async (subdomain: string, code: string, defaultValue?: any): (Promise<any>) => {
+export const getConfig = async (subdomain: string, code: string, defaultValue?: any) => {
   return sendCoreMessage({
     subdomain,
     action: 'getConfig',
