@@ -31,7 +31,7 @@ const ExchangeRateForm = (props: Props) => {
     currencies,
   } = props;
 
-  const [date, setDate] = useState<Date>(exchangeRate?.date);
+  const [date, setDate] = useState<Date>(exchangeRate?.date || new Date());
   const [mainCurrency, setMainCurrency] = useState<string>(
     exchangeRate?.mainCurrency || ''
   );
@@ -74,10 +74,10 @@ const ExchangeRateForm = (props: Props) => {
               <FormLabel>{__('Start Date')}</FormLabel>
               <DateContainer>
                 <Datetime
-                  dateFormat="MM/DD/YYYY"
+                  dateFormat="YYYY-MM-DD"
                   closeOnSelect={true}
                   utc={true}
-                  timeFormat={true}
+                  timeFormat={false}
                   defaultValue={date}
                   onChange={(e: any) =>
                     setDate(new Date(e.getTime() || new Date()))

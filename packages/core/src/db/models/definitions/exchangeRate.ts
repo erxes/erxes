@@ -3,7 +3,6 @@ import { field } from './utils';
 
 export interface IExchangeRate {
   date: Date;
-
   mainCurrency: string;
   rateCurrency: string;
   rate: number;
@@ -19,23 +18,12 @@ export interface IExchangeRateDocument extends IExchangeRate, Document {
 
 export const exchangeRateSchema = new Schema({
   _id: field({ pkey: true }),
-  date: field({ type: Date, optional: true, label: 'Date' }),
-  mainCurrency: field({
-    type: String,
-    optional: true,
-    label: 'Main Currency',
-  }),
-  rateCurrency: field({
-    type: String,
-    optional: true,
-    label: 'Rate Currency',
-  }),
-  rate: field({ type: Number, optional: true, label: 'Rate' }),
-  createdAt: field({
-    type: Date,
-    default: new Date(),
-    label: 'Created at',
-    esType: 'date',
-  }),
-  modifiedAt: field({ type: Date, label: 'Modified at', esType: 'date' }),
+  date: field({ type: Date, label: 'Date', index: true }),
+  mainCurrency: field({ type: String, label: 'Main Currency', }),
+  rateCurrency: field({ type: String, label: 'Rate Currency', }),
+  rate: field({ type: Number, label: 'Rate' }),
+  createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
+  modifiedAt: field({ type: Date, optional: true, label: 'Modified at' }),
 });
+
+exchangeRateSchema.index({ mainCurrency: 1, rateCurrency: 1, date: 1 });

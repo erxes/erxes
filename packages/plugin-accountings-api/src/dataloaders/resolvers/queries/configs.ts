@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
-import * as moment from 'moment';
 import { IContext } from '../../../connectionResolver';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import { getConfig, sendCoreMessage } from '../../../messageBroker';
 
 dotenv.config();
 
@@ -17,13 +17,6 @@ const configQueries = {
     const { codes } = params
     return models.AccountingConfigs.getConfigs(codes);
   },
-
-  async accountingsGetRate(_root, args: { currency: string, date: Date }, { models }: IContext) {
-    const { date, currency } = args;
-    const mainCurrency = await models.AccountingConfigs.getConfig('MainCurrency', 'MNT');
-
-    return await models.ExchangeRates.findOne({ mainCurrency, rateCurrency: currency, date: moment(date).format('YYYY-MM-DD') }).lean()
-  }
 };
 
 moduleRequireLogin(configQueries);

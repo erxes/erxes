@@ -48,6 +48,11 @@ const exchangeRateQueries = {
       totalCount: await models.ExchangeRates.find(filter).countDocuments(),
     };
   },
+
+  async exchangeGetRate(_root, args: { currency: string, date: Date, mainCurrency?: string }, { models }: IContext) {
+    const { date, currency, mainCurrency } = args;
+    return await models.ExchangeRates.getActiveRate({ date, rateCurrency: currency, mainCurrency });
+  }
 };
 
 checkPermission(exchangeRateQueries, 'exchangeRatesMain', 'showExchangeRates');
