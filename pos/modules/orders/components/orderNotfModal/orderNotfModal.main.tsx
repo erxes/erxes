@@ -1,6 +1,6 @@
 "use client"
 
-import { Check, X } from 'lucide-react'
+import { Check, X , Loader2 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { IOrder } from '@/types/order.types'
 import { orderIdAtom , orderNumberAtom , isShowAtom  , activeOrderIdAtom , openCancelDialogAtom } from '@/store/order.store'
@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/card"
 import OrderCancel from '../orderCancel'
 import { useState } from 'react'
-import { Loader2 } from 'lucide-react';
 
 interface OrderNotificationCarouselProps {
   fullOrders: IOrder[];
