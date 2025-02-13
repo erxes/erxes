@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/card"
 import OrderCancel from '../orderCancel'
 import { useState } from 'react'
+import { Loader2 } from 'lucide-react';
 
 interface OrderNotificationCarouselProps {
   fullOrders: IOrder[];
@@ -50,8 +51,8 @@ const OrderNotificationCarousel: React.FC<OrderNotificationCarouselProps> = ({
   const [error, setError] = useState<string | null>(null)
 
   const getButtonText = () => {
+    if (loading) return <Loader2 className="animate-spin mr-2 h-4 w-4" />;
     if (error) return "Error loading orders";
-    if (loading) return "Loading...";
     return `Load More (${fullOrders.length} / ${totalCount})`;
   };
   
