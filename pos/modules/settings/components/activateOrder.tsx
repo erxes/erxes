@@ -22,7 +22,7 @@ const ActivateOrderQr = () => {
         checked={isEnabled}
         onCheckedChange={handleCheckboxChange}
       />
-        Зөвхөн QR мэню
+        QR мэню идэвхтэй
     </Label>
   );
 };
