@@ -1,7 +1,7 @@
 import * as moment from "moment";
 import { IModels } from "../connectionResolver";
 import { debugError } from "../debuggers";
-import { sendCoreMessage } from "../messageBroker";
+import { sendCoreMessage, sendAutomationsMessage } from "../messageBroker";
 import { IConversation } from "../models/definitions/conversations";
 import {
   checkContentConditions,
@@ -152,15 +152,52 @@ export const generateMessages = async (
 
   return generatedMessages;
 };
+
 export const checkMessageTrigger = async (subdomain, { target, config }) => {
   const { conditions = [], botId } = config;
 
+  if (target.botId !== botId) {
+    return;
+  }
+  const payload = target?.payload || {};
+  const { persistentMenuId, isBackBtn } = payload;
+
+  if (persistentMenuId && isBackBtn) {
+    await sendAutomationsMessage({
+      subdomain,
+      action: "excutePrevActionExecution",
+      data: {
+        query: {
+          triggerType: "inbox:messages",
+          "target.botId": botId,
+          "target.conversationId": target.conversationId,
+          "target.customerId": target.customerId
+        }
+      },
+      isRPC: true
+    }).catch((error) => {
+      debugError(error.message);
+    });
+
+    return false;
+  }
   for (const {
     isSelected,
     type,
+    persistentMenuIds,
     conditions: directMessageCondtions = []
   } of conditions) {
     if (isSelected) {
+      if (type === "getStarted" && target.content === "Get Started") {
+        return true;
+      }
+
+      if (type === "persistentMenu" && payload) {
+        if ((persistentMenuIds || []).includes(String(persistentMenuId))) {
+          return true;
+        }
+      }
+
       if (type === "direct") {
         if (directMessageCondtions?.length > 0) {
           return !!checkContentConditions(
@@ -175,7 +212,6 @@ export const checkMessageTrigger = async (subdomain, { target, config }) => {
     continue;
   }
 };
-
 const generateObjectToWait = ({
   messages = [],
   optionalConnects = [],

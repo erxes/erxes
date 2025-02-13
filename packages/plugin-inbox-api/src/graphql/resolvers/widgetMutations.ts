@@ -37,6 +37,7 @@ import {
   sendIntegrationsMessage
 } from "../../messageBroker";
 import fetch from "node-fetch";
+import { compileFunction } from "vm";
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -124,7 +125,8 @@ export const pConversationClientMessageInserted = async (
 
 export const getMessengerData = async (
   models: IModels,
-  integration: IIntegrationDocument
+  integration: IIntegrationDocument,
+  subdomain
 ) => {
   let messagesByLanguage: IMessengerDataMessagesItem | null = null;
   let messengerData = integration.messengerData;
@@ -178,9 +180,26 @@ export const getMessengerData = async (
     kind: "website",
     "credentials.integrationId": integration._id
   });
+  const getStarted = await sendAutomationsMessage({
+    subdomain,
+    action: "trigger.find",
+    data: {
+      query: {
+        triggerType: "inbox:messages",
+        botId: integration._id
+      }
+    },
+    isRPC: true
+  }).catch((error) => {
+    throw error;
+  });
+  const getStartedCondition = (
+    getStarted[0]?.triggers[0]?.config?.conditions || []
+  ).find((condition) => condition.type === "getStarted");
 
   return {
     ...(messengerData || {}),
+    getStarted: getStartedCondition ? getStartedCondition.isSelected : false,
     messages: messagesByLanguage,
     knowledgeBaseTopicId: topicId,
     websiteApps,
@@ -425,7 +444,7 @@ const widgetMutations = {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
-      messengerData: await getMessengerData(models, integration),
+      messengerData: await getMessengerData(models, integration, subdomain),
       customerId: customer && customer._id,
       visitorId: customer ? null : visitorId,
       brand
@@ -570,7 +589,8 @@ const widgetMutations = {
       customerId,
       attachments,
       contentType,
-      content: message
+      content: message,
+      botId: botId
     });
 
     await models.Conversations.updateOne(
@@ -1003,37 +1023,44 @@ const widgetMutations = {
     const integration =
       (await models.Integrations.findOne({ _id: integrationId })) ||
       ({} as any);
-
-    if (visitorId && !customerId) {
-      const customer = await createVisitor(subdomain, visitorId);
-      customerId = customer._id;
+    if (!integration) {
+      throw new Error("Integration not found");
     }
 
-    if (!conversationId) {
-      return;
+    let msg;
+    if (conversationId) {
+      msg = await models.ConversationMessages.createMessage({
+        conversationId,
+        customerId,
+        content: message,
+        botId: integrationId
+      });
+    } else {
+      let conversation = await models.Conversations.createConversation({
+        botId: integrationId,
+        customerId,
+        integrationId,
+        status: CONVERSATION_STATUSES.OPEN,
+        content: message
+      });
+      msg = await models.ConversationMessages.createMessage({
+        conversationId: conversation._id,
+        customerId,
+        content: message,
+        botId: integrationId
+      });
     }
-
-    const msg = await models.ConversationMessages.createMessage({
-      conversationId,
-      customerId,
-      content: message
-    });
-
     graphqlPubsub.publish(`conversationMessageInserted:${msg.conversationId}`, {
       conversationMessageInserted: msg
     });
 
-    if (type === BOT_MESSAGE_TYPES.SAY_SOMETHING) {
+    const key = type.includes("persistentMenu") ? "persistentMenuId" : "btnId";
+    if (key) {
       await handleAutomation(subdomain, {
-        conversationMessage: msg, // Pass msg as conversationMessage
-        payload: {
-          btnId: payload,
-          conversationId: conversationId,
-          customerId: customerId
-        }
+        conversationMessage: msg,
+        payload: { [key]: payload, conversationId, customerId }
       });
     }
-
     return msg;
   },
 

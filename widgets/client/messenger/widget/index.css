@@ -50,11 +50,11 @@
 
 .erxes-messenger-shown {
   position: fixed;
-  height: min(690px, 100% - 20px);
+  height: min(660px, 100% - 100px);
   min-height: 80px;
   /* 400px width of messenger + scrollbar width */
   width: 408px;
-  max-height: 720px;
+  max-height: 660px;
   border-radius: 1rem;
   right: 16px;
   bottom: 92px;
