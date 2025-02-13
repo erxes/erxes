@@ -1,6 +1,6 @@
-import CopyToClipboard from 'react-copy-to-clipboard';
-import dayjs from 'dayjs';
-import React from 'react';
+import CopyToClipboard from "react-copy-to-clipboard";
+import dayjs from "dayjs";
+import React from "react";
 import {
   __,
   ActionButtons,
@@ -9,12 +9,12 @@ import {
   Icon,
   Tip,
   WithPermission
-} from '@erxes/ui/src';
-import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';
-import { DateWrapper } from '@erxes/ui/src/styles/main';
-import { IBmsBranch } from '../types';
-import { Link } from 'react-router-dom';
-import { RowTitle } from '../styles';
+} from "@erxes/ui/src";
+import { Capitalize } from "@erxes/ui-settings/src/permissions/styles";
+import { DateWrapper } from "@erxes/ui/src/styles/main";
+import { IBmsBranch } from "../types";
+import { Link } from "react-router-dom";
+import { RowTitle } from "../styles";
 
 type Props = {
   branch: IBmsBranch;
@@ -22,23 +22,23 @@ type Props = {
   toggleBulk: (branch: IBmsBranch, checked: boolean) => void;
   remove: (posId: string) => void;
   showCode?: boolean;
-  tmsLink: string;
+  link: string;
 };
 
 const Row = (props: Props) => {
-  const { branch, remove, tmsLink } = props;
+  const { branch, remove, link } = props;
 
   const createdUser = branch.user || {
-    _id: '',
-    details: { fullName: '' }
+    _id: "",
+    details: { fullName: "" }
   };
 
   const manageAction = branch => {
     return (
       <Link to={`/tms/edit/${branch._id}`}>
-        <Button btnStyle='link'>
-          <Tip text={__('Manage')} placement='top'>
-            <Icon icon='edit-3' />
+        <Button btnStyle="link">
+          <Tip text={__("Manage")} placement="top">
+            <Icon icon="edit-3" />
           </Tip>
         </Button>
       </Link>
@@ -51,12 +51,12 @@ const Row = (props: Props) => {
     };
 
     return (
-      <Tip text={__('Delete')} placement='top'>
+      <Tip text={__("Delete")} placement="top">
         <Button
-          id='integrationDelete'
-          btnStyle='link'
+          id="integrationDelete"
+          btnStyle="link"
           onClick={onClick}
-          icon='times-circle'
+          icon="times-circle"
         />
       </Tip>
     );
@@ -64,13 +64,13 @@ const Row = (props: Props) => {
 
   const renderLink = () => {
     const onCopy = () => {
-      Alert.success('Copied');
+      Alert.success("Copied");
     };
 
     return (
-      <Link to={tmsLink} target='_blank'>
-        <Tip text={__('link for the TMS')} placement='top'>
-          <Icon icon='link' size={15} />
+      <Link to={link} target="_blank">
+        <Tip text={__("link for the TMS")} placement="top">
+          <Icon icon="link" size={15} />
         </Tip>
       </Link>
     );
@@ -91,14 +91,14 @@ const Row = (props: Props) => {
         </div>
       </td>
       <td>
-        <Icon icon='calender' />{' '}
-        <DateWrapper>{dayjs(branch.createdAt).format('ll')}</DateWrapper>
+        <Icon icon="calender" />{" "}
+        <DateWrapper>{dayjs(branch.createdAt).format("ll")}</DateWrapper>
       </td>
 
       <td>
         <ActionButtons>
           {manageAction(branch)}
-          {tmsLink && renderLink()}
+          {link && renderLink()}
           {renderRemoveAction()}
         </ActionButtons>
       </td>
