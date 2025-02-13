@@ -40,6 +40,9 @@ export const activeOrderIdAtom = atomWithStorage<string | null>(
 )
 export const orderNumberAtom = atom<string>("")
 export const buttonTypeAtom = atom<string | null>(null)
+export const isShowAtom = atom(false);
+export const orderIdAtom = atom<string | null>(null);
+export const previousOrderCountRefAtom = atom(0);
 
 // customer
 export const customerAtom = atom<Customer | null>(null)
@@ -167,6 +170,8 @@ export const askSaveAtom = atom((get) =>
 
 // cashier
 export const orderUserAtom = atom<IOrderUser | null>(null)
+
+
 
 // reset
 export const setInitialAtom = atom(

@@ -43,6 +43,13 @@ export const refetchUserAtom = atom<boolean>(false)
 
 export const refetchOrderAtom = atomWithStorage<boolean>("refetchOrder", false)
 
+// order
+
+export const orderNotificationEnabledAtom = atomWithStorage<boolean>(
+  "orderNotificationEnabled",
+  false
+)
+
 // dialog
 
 export const checkoutModalViewAtom = atom<string>("")
@@ -78,6 +85,7 @@ export const resetAtom = atom(
     set(activeCategoryAtom, "")
     set(refetchUserAtom, true)
     set(nextOrderIdAtom, "-")
+    set(orderNotificationEnabledAtom, false)
   }
 )
 
