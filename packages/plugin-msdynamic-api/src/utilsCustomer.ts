@@ -1,7 +1,6 @@
 import fetch from 'node-fetch';
 import { IModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
-import { getConfig } from './utils';
 import { ISyncLogDocument } from './models/definitions/dynamic';
 
 const getCustomer = async (
@@ -131,7 +130,7 @@ const checkSend = async (
   const { customerApi, username, password } = config;
 
   const responseChecker = await fetch(
-    `${customerApi}?$top=1$filter=${filterStr}`,
+    `${customerApi}?$top=1&$filter=${filterStr}`,
     {
       headers: {
         'Content-Type': 'application/json',
