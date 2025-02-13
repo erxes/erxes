@@ -1,47 +1,46 @@
-import { BarcodeItem, TableBarcode } from '../styles';
+import { BarcodeItem, TableBarcode } from "../styles";
 import {
   FormColumn,
   FormWrapper,
   ModalFooter,
-} from '@erxes/ui/src/styles/main';
+} from "@erxes/ui/src/styles/main";
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
   IPdfAttachment,
-} from '@erxes/ui/src/types';
-import { IProduct, IProductCategory, IUom, IVariant } from '../types';
-import React, { useEffect, useState } from 'react';
-import { TYPES } from '../constants';
-import { __, router } from '@erxes/ui/src/utils/core';
+} from "@erxes/ui/src/types";
+import { IProduct, IProductCategory, IUom, IVariant } from "../types";
+import React, { useEffect, useState } from "react";
+import { TYPES } from "../constants";
+import { __, router } from "@erxes/ui/src/utils/core";
 
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import AutoCompletionSelect from '@erxes/ui/src/components/AutoCompletionSelect';
-import Button from '@erxes/ui/src/components/Button';
-import CategoryForm from '../containers/CategoryForm';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
-import { Row } from '../styles';
-import Select from 'react-select';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import Tip from '@erxes/ui/src/components/Tip';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import { extractAttachment } from '@erxes/ui/src/utils';
-import { queries } from '../graphql';
-import { useLocation } from 'react-router-dom';
-import PdfUploader from '@erxes/ui/src/components/PdfUploader';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import AutoCompletionSelect from "@erxes/ui/src/components/AutoCompletionSelect";
+import Button from "@erxes/ui/src/components/Button";
+import CategoryForm from "../containers/CategoryForm";
+import CommonForm from "@erxes/ui/src/components/form/Form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
+import { Row } from "../styles";
+import Select from "react-select";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import Tip from "@erxes/ui/src/components/Tip";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import { extractAttachment } from "@erxes/ui/src/utils";
+import { queries } from "../graphql";
+import { useLocation } from "react-router-dom";
+import PdfUploader from "@erxes/ui/src/components/PdfUploader";
 
 type Props = {
   product?: IProduct;
   productCategories: IProductCategory[];
   uoms?: IUom[];
-  currencies: string[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -64,7 +63,6 @@ type State = {
   category?: IProductCategory;
   maskStr?: string;
   type: string;
-  currency: string;
 };
 
 const Form = (props: Props) => {
@@ -83,10 +81,9 @@ const Form = (props: Props) => {
     scopeBrandIds,
     code,
     categoryId,
-    currency,
   } = product;
 
-  const paramCategoryId = router.getParam(location, 'categoryId');
+  const paramCategoryId = router.getParam(location, "categoryId");
   const fixVariants = {};
 
   for (const barcode of barcodes || []) {
@@ -97,19 +94,18 @@ const Form = (props: Props) => {
     ...product,
     barcodes: barcodes || [],
     variants: fixVariants,
-    barcodeInput: '',
-    barcodeDescription: barcodeDescription || '',
+    barcodeInput: "",
+    barcodeDescription: barcodeDescription || "",
     attachment: attachment,
     attachmentMore: attachmentMore,
-    vendorId: vendorId || '',
-    description: description || '',
-    uom: uom || '',
+    vendorId: vendorId || "",
+    description: description || "",
+    uom: uom || "",
     subUoms: subUoms || [],
     scopeBrandIds,
-    code: code || '',
+    code: code || "",
     categoryId: categoryId || paramCategoryId,
-    type: product.type || '',
-    currency: product.currency || '',
+    type: product.type || "",
     pdfAttachment: product.pdfAttachment || undefined,
   });
 
@@ -127,7 +123,7 @@ const Form = (props: Props) => {
     const { productCategories } = props;
 
     const category = productCategories.find((pc) => pc._id === categoryId);
-    let maskStr = '';
+    let maskStr = "";
 
     if (category && category.maskType && category.mask) {
       const maskList: any[] = [];
@@ -137,15 +133,15 @@ const Form = (props: Props) => {
           continue;
         }
 
-        if (value.type === 'char') {
+        if (value.type === "char") {
           maskList.push(value.char);
         }
 
-        if (value.type === 'customField' && value.matches) {
-          maskList.push(`(${Object.values(value.matches).join('|')})`);
+        if (value.type === "customField" && value.matches) {
+          maskList.push(`(${Object.values(value.matches).join("|")})`);
         }
       }
-      maskStr = `${maskList.join('')}\w+`;
+      maskStr = `${maskList.join("")}\w+`;
 
       if (maskList.length && !code) {
         setState((prevState) => ({ ...prevState, code: maskList[0] }));
@@ -183,8 +179,7 @@ const Form = (props: Props) => {
       subUoms,
       scopeBrandIds,
       code,
-      categoryId,
-      currency,
+      categoryId
     } = state;
 
     if (product) {
@@ -232,7 +227,6 @@ const Form = (props: Props) => {
           ...su,
           ratio: Math.abs(Number(su.ratio)) || 1,
         })),
-      currency,
     };
   };
 
@@ -265,23 +259,21 @@ const Form = (props: Props) => {
 
         setState((prevState) => ({
           ...prevState,
-          subUoms: subUoms.map((su) =>
-            su._id === subUom._id ? { ...subUom, [key]: value } : su
-          ),
+          subUoms: subUoms.map((su) => (su._id === subUom._id ? { ...subUom, [key]: value } : su)),
         }));
       };
 
       const onChangeUom = ({ selectedOption }) => {
-        updateUoms('uom', selectedOption);
+        updateUoms("uom", selectedOption);
       };
 
       const onChangeRatio = (e) => {
         const name = e.currentTarget.name;
         let value = e.currentTarget.value;
-        if (name === 'inverse') {
+        if (name === "inverse") {
           value = Number((1 / e.currentTarget.value || 1).toFixed(13));
         }
-        updateUoms('ratio', value);
+        updateUoms("ratio", value);
       };
 
       return (
@@ -343,10 +335,10 @@ const Form = (props: Props) => {
   };
 
   const onComboEvent = (variable: string, e) => {
-    let value = '';
+    let value = "";
 
     switch (variable) {
-      case 'vendorId':
+      case "vendorId":
         value = e;
         break;
       default:
@@ -361,12 +353,12 @@ const Form = (props: Props) => {
   };
 
   const updateBarcodes = (barcode?: string) => {
-    const value = barcode || state.barcodeInput || '';
+    const value = barcode || state.barcodeInput || "";
     if (!value) {
       return;
     }
 
-    const tempBarcodes = [...(state.barcodes || [])];
+    const tempBarcodes = [...state.barcodes || []]
 
     if (barcodes.includes(value)) {
       return;
@@ -374,17 +366,13 @@ const Form = (props: Props) => {
 
     tempBarcodes.unshift(value);
 
-    setState((prevState) => ({
-      ...prevState,
-      barcodes: tempBarcodes,
-      barcodeInput: '',
-    }));
+    setState((prevState) => ({ ...prevState, barcodes: tempBarcodes, barcodeInput: "" }));
   };
 
   const onClickAddSub = () => {
     const subUoms = [...(state.subUoms || [])];
 
-    subUoms.push({ uom: '', ratio: 1, _id: Math.random().toString() });
+    subUoms.push({ uom: "", ratio: 1, _id: Math.random().toString() });
     setState((prevState) => ({ ...prevState, subUoms }));
   };
 
@@ -425,7 +413,7 @@ const Form = (props: Props) => {
   };
 
   const onKeyDownBarcodeInput = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
 
       updateBarcodes();
@@ -446,15 +434,6 @@ const Form = (props: Props) => {
       ...prevState,
       categoryId: value,
       category: getMaskStr(value),
-    }));
-  };
-
-  const onChangeCurrency = (option) => {
-    const value = option.value;
-
-    setState((prevState) => ({
-      ...prevState,
-      currency: value,
     }));
   };
 
@@ -503,7 +482,7 @@ const Form = (props: Props) => {
               <td>
                 <FormControl
                   name="name"
-                  value={(variants[item] || {}).name || ''}
+                  value={(variants[item] || {}).name || ""}
                   onChange={(e) =>
                     setState((prevState) => ({
                       ...prevState,
@@ -522,11 +501,11 @@ const Form = (props: Props) => {
                 <FormControl
                   name="image"
                   componentclass="select"
-                  value={((variants[item] || {}).image || {}).url || ''}
+                  value={((variants[item] || {}).image || {}).url || ""}
                   onChange={onChangePerImage.bind(this, item)}
                 >
                   <option key={Math.random()} value="">
-                    {' '}
+                    {" "}
                   </option>
                   {(attachmentMore || []).map((img) => (
                     <option key={img.url} value={img.url}>
@@ -538,7 +517,7 @@ const Form = (props: Props) => {
               <td>
                 <ActionButtons>
                   <Button btnStyle="link" onClick={() => onClickBarcode(item)}>
-                    <Tip text={__('Delete')} placement="bottom">
+                    <Tip text={__("Delete")} placement="bottom">
                       <Icon icon="trash" />
                     </Tip>
                   </Button>
@@ -552,7 +531,7 @@ const Form = (props: Props) => {
   };
 
   const renderEditorField = (formProps: IFormProps, addinitionalProps) => {
-    const { _id, description } = addinitionalProps;
+    const { _id, description } = addinitionalProps
 
     const finalProps = {
       content: description,
@@ -560,30 +539,25 @@ const Form = (props: Props) => {
       height: 150,
       isSubmitted: formProps.isSaved,
       toolbar: [
-        'bold',
-        'italic',
-        'orderedList',
-        'bulletList',
-        'link',
-        'unlink',
-        '|',
-        'image',
+        "bold",
+        "italic",
+        "orderedList",
+        "bulletList",
+        "link",
+        "unlink",
+        "|",
+        "image",
       ],
-      name: `product_description_${_id || 'create'}`,
-    };
+      name: `product_description_${_id || 'create'}`
+    }
 
-    return <RichTextEditor {...finalProps} />;
-  };
+    return (
+      <RichTextEditor {...finalProps} />
+    )
+  }
 
   const renderContent = (formProps: IFormProps) => {
-    let {
-      renderButton,
-      closeModal,
-      product,
-      productCategories,
-      uoms,
-      currencies,
-    } = props;
+    let { renderButton, closeModal, product, productCategories, uoms } = props;
     const { values, isSubmitted } = formProps;
     const object = product || ({} as IProduct);
 
@@ -610,20 +584,12 @@ const Form = (props: Props) => {
       code,
       categoryId,
       maskStr,
-      currency,
     } = state;
 
     const generateOptions = () => {
       return productCategories.map((item) => ({
         label: item.name,
         value: item._id,
-      }));
-    };
-
-    const generateCurrencyOptions = () => {
-      return currencies.map((item) => ({
-        label: item,
-        value: item,
       }));
     };
 
@@ -658,7 +624,7 @@ const Form = (props: Props) => {
               </p>
               <FormControl
                 {...formProps}
-                name="code"
+                name='code'
                 value={code}
                 required={true}
                 onChange={(e: any) => {
@@ -674,7 +640,7 @@ const Form = (props: Props) => {
               <ControlLabel required={true}>Name</ControlLabel>
               <FormControl
                 {...formProps}
-                name="name"
+                name='name'
                 defaultValue={object.name}
                 autoFocus={true}
                 required={true}
@@ -685,7 +651,7 @@ const Form = (props: Props) => {
               <ControlLabel required={true}>Short name</ControlLabel>
               <FormControl
                 {...formProps}
-                name="shortName"
+                name='shortName'
                 defaultValue={object.shortName}
                 required={false}
               />
@@ -695,8 +661,8 @@ const Form = (props: Props) => {
               <ControlLabel required={true}>Type</ControlLabel>
               <FormControl
                 {...formProps}
-                name="type"
-                componentclass="select"
+                name='type'
+                componentclass='select'
                 defaultValue={object.type}
                 required={true}
                 onChange={(e) =>
@@ -725,36 +691,23 @@ const Form = (props: Props) => {
               <ControlLabel required={true}>Unit price</ControlLabel>
               <p>
                 Please ensure you have set the default currency in the{' '}
-                <a href="/settings/general"> {'General Settings'}</a> of the
+                <a href='/settings/general'> {'General Settings'}</a> of the
                 System Configuration.
               </p>
               <FormControl
                 {...formProps}
-                type="number"
-                name="unitPrice"
+                type='number'
+                name='unitPrice'
                 defaultValue={object.unitPrice}
                 required={true}
                 min={0}
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>Currency</ControlLabel>
-              <Select
-                {...formProps}
-                placeholder={__('Choose a currency')}
-                value={generateCurrencyOptions().find(
-                  (option) => option.value === currency
-                )}
-                options={generateCurrencyOptions()}
-                isClearable={true}
-                onChange={onChangeCurrency}
-              />
-            </FormGroup>
-            <FormGroup>
               <ControlLabel>Vendor</ControlLabel>
               <SelectCompanies
-                label="Choose an vendor"
-                name="vendorId"
+                label='Choose an vendor'
+                name='vendorId'
                 customOption={{ value: '', label: 'No vendor chosen' }}
                 initialValue={vendorId}
                 onSelect={onComboEvent.bind(this, 'vendorId')}
@@ -770,7 +723,7 @@ const Form = (props: Props) => {
                 onSelect={(brandIds) => onChangeBrand(brandIds as string[])}
                 initialValue={scopeBrandIds}
                 multi={true}
-                name="selectedBrands"
+                name='selectedBrands'
               />
             </FormGroup>
             <FormGroup>
@@ -811,15 +764,15 @@ const Form = (props: Props) => {
               <Row>
                 <FormControl
                   {...formProps}
-                  name="barcodes"
+                  name='barcodes'
                   value={state.barcodeInput}
-                  autoComplete="off"
+                  autoComplete='off'
                   onChange={onChangeBarcodeInput}
                   onKeyDown={onKeyDownBarcodeInput}
                 />
                 <Button
-                  btnStyle="primary"
-                  icon="plus-circle"
+                  btnStyle='primary'
+                  icon='plus-circle'
                   onClick={() => updateBarcodes()}
                 >
                   Add barcode
@@ -854,17 +807,17 @@ const Form = (props: Props) => {
                 <AutoCompletionSelect
                   defaultValue={state.uom}
                   defaultOptions={getUoms(uoms)}
-                  autoCompletionType="uoms"
-                  placeholder="Enter an uom"
-                  queryName="uoms"
+                  autoCompletionType='uoms'
+                  placeholder='Enter an uom'
+                  queryName='uoms'
                   query={queries.uoms}
                   onChange={onChangeUom}
                   required={true}
                 />
                 <Button
-                  btnStyle="primary"
+                  btnStyle='primary'
                   uppercase={false}
-                  icon="plus-circle"
+                  icon='plus-circle'
                   onClick={onClickAddSub}
                 >
                   Add sub
@@ -878,9 +831,9 @@ const Form = (props: Props) => {
 
         <ModalFooter>
           <Button
-            btnStyle="simple"
+            btnStyle='simple'
             onClick={closeModal}
-            icon="times-circle"
+            icon='times-circle'
             uppercase={false}
           >
             Close

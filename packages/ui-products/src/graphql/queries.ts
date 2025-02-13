@@ -90,7 +90,6 @@ const productFields = `
     }
   uom
   subUoms
-  currency
 `;
 
 const products = `
@@ -207,12 +206,6 @@ const productsConfigs = `
   }
 `;
 
-const configs = `
-  query configsGetValue($code: String!) {
-    configsGetValue(code: $code)
-  }
-`;
-
 export default {
   productFields,
   products,
@@ -221,5 +214,4 @@ export default {
   productsConfigs,
   uoms,
   uomsTotalCount,
-  configs,
 };
