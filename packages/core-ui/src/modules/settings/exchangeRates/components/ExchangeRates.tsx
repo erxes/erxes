@@ -108,16 +108,16 @@ const MainList = (props: Props) => {
       </Button>
     );
 
+    const renderForm = ({ closeModal }) => {
+      return (
+        <ExchangeRateForm exchangeRate={exchangeRate} closeModal={closeModal} />
+      );
+    };
+
     return (
       <ModalTrigger
-        key={exchangeRate._id}
         title="Edit Exchange Rate"
-        content={({ closeModal }) => (
-          <ExchangeRateForm
-            exchangeRate={exchangeRate}
-            closeModal={closeModal}
-          />
-        )}
+        content={({ closeModal }) => renderForm({ closeModal })}
         trigger={editTrigger}
       />
     );
