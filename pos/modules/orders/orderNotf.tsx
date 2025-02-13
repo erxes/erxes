@@ -1,5 +1,5 @@
-import { useEffect, useCallback, useRef } from "react";
-import { useSetAtom, useAtomValue , useAtom } from "jotai";
+import { useEffect, useCallback } from "react";
+import { useSetAtom, useAtomValue, useAtom } from "jotai";
 import { Bell } from "lucide-react";
 import { ORDER_STATUSES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import {
 import OrderNotificationCarousel from "./components/orderNotfModal/orderNotfModal.main";
 import useFullOrders from "./hooks/useFullOrders";
 import { queries } from "./graphql";
-import { activeOrderIdAtom, setInitialAtom , isShowAtom , } from "@/store/order.store";
+import { activeOrderIdAtom, setInitialAtom, isShowAtom , previousOrderCountRefAtom } from "@/store/order.store";
 import { selectedTabAtom, orderCollapsibleAtom, orderNotificationEnabledAtom } from "@/store";
 
 interface Subscription {
@@ -29,9 +29,8 @@ const OrderNotf = () => {
   const setInitialStates = useSetAtom(setInitialAtom);
   const setOpenCollapsible = useSetAtom(orderCollapsibleAtom);
   const isNotificationEnabled = useAtomValue(orderNotificationEnabledAtom);
-
   const [isShow, setIsShow] = useAtom(isShowAtom);
-  const previousOrderCountRef = useRef(0);
+  const [previousOrderCount, setPreviousOrderCount] = useAtom(previousOrderCountRefAtom);
 
   const {
     fullOrders,
@@ -77,15 +76,14 @@ const OrderNotf = () => {
 
   useEffect(() => {
     try {
-    if (isNotificationEnabled && totalCount > previousOrderCountRef.current) {
-      setIsShow(true);
-    }
-    previousOrderCountRef.current = totalCount;
-  } catch (error) {
+      if (isNotificationEnabled && totalCount > previousOrderCount) {
+        setIsShow(true);
+      }
+      setPreviousOrderCount(totalCount);
+    } catch (error) {
       console.error("Error updating order notifications:", error);
-    } 
-  }, [totalCount, isNotificationEnabled , setIsShow]);
-
+    }
+  }, [totalCount, isNotificationEnabled, setIsShow, previousOrderCount, setPreviousOrderCount]);
 
   const handleCancelComplete = () => {
     setInitialStates();
