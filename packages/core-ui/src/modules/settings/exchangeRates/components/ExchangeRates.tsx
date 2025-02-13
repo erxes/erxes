@@ -125,11 +125,12 @@ const MainList = (props: Props) => {
 
   const renderRow = (exchangeRate) => {
     const handleSelect = () => {
-      setSelectedItems((prev) =>
-        prev.includes(exchangeRate._id)
+      setSelectedItems((prev) => {
+        const isSelected = prev.includes(exchangeRate._id);
+        return isSelected
           ? prev.filter((item) => item !== exchangeRate._id)
-          : [...prev, exchangeRate._id]
-      );
+          : [...prev, exchangeRate._id];
+      });
     };
 
     const onclick = (e) => {
