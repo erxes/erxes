@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv';
 import { IContext } from '../../../connectionResolver';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
-import { getConfig, sendCoreMessage } from '../../../messageBroker';
 
 dotenv.config();
 
