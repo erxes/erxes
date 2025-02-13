@@ -123,16 +123,14 @@ const MainList = (props: Props) => {
     );
   };
 
-  const renderRow = (exchangeRate) => {
-    const handleSelect = () => {
-      setSelectedItems((prev) => {
-        const isSelected = prev.includes(exchangeRate._id);
-        return isSelected
-          ? prev.filter((item) => item !== exchangeRate._id)
-          : [...prev, exchangeRate._id];
-      });
-    };
+  const handleSelect = (id: string) => {
+    setSelectedItems((prev) => {
+      const isSelected = prev.includes(id);
+      return isSelected ? prev.filter((item) => item !== id) : [...prev, id];
+    });
+  };
 
+  const renderRow = (exchangeRate) => {
     const onclick = (e) => {
       e.stopPropagation();
     };
@@ -143,7 +141,7 @@ const MainList = (props: Props) => {
           <FormControl
             componentclass="checkbox"
             checked={selectedItems.includes(exchangeRate._id)}
-            onClick={handleSelect}
+            onClick={() => handleSelect(exchangeRate._id)}
           />
         </td>
         <td>{dayjs(exchangeRate.date).format('YYYY-MM-DD')}</td>
