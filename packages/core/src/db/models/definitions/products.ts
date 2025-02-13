@@ -3,11 +3,11 @@ import {
   customFieldSchema,
   IAttachment,
   ICustomField,
-  IPdfAttachment,
+  IPdfAttachment
 } from "@erxes/api-utils/src/types";
 import { Schema, Document } from "mongoose";
 
-import { field, schemaWrapper } from "./utils";
+import { field, schemaWrapper } from './utils';
 
 export interface IProductsConfig {
   code: string;
@@ -225,7 +225,7 @@ export const productSchema = schemaWrapper(
     sameMasks: field({ type: [String] }),
     sameDefault: field({ type: [String] }),
 
-    pdfAttachment: field({ type: Object, optional: true, label: 'PDF attachment', }),
+    pdfAttachment: field({ type: Object, optional: true, label: 'PDF attachment' }),
   })
 );
 
