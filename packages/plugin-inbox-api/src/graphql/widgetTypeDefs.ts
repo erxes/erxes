@@ -50,7 +50,10 @@ export const types = ({ products, knowledgeBase }) => `
     participatedUsers: [User]
     readUsers: [User]
     botData:JSON
+    persistentMenus:JSON
+    botGreetMessage:String
     fromBot:Boolean
+    getStarted:Boolean
     isOnline: Boolean
     supporters: [User]
   }

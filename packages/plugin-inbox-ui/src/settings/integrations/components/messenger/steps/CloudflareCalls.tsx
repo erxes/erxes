@@ -1,43 +1,44 @@
-import React, { useState } from 'react';
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { __ } from 'coreui/utils';
-import {
-  OperatorRemoveBtn,
-  OperatorFormView,
-} from '@erxes/ui-inbox/src/settings/integrations/styles';
-import Button from '@erxes/ui/src/components/Button';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
 import {
   ICallData,
   IDepartment,
-} from '@erxes/ui-inbox/src/settings/integrations/types';
+} from "@erxes/ui-inbox/src/settings/integrations/types";
+import {
+  OperatorFormView,
+  OperatorRemoveBtn,
+} from "@erxes/ui-inbox/src/settings/integrations/styles";
+import React, { useState } from "react";
+
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import { __ } from "coreui/utils";
 
 type Props = {
-  onChange: (name: string, value: any) => void;
+  onChange: (name: any, value: any) => void;
   callData?: ICallData;
 };
 
 const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
   const [departments, setDepartments] = useState<IDepartment[]>(
-    callData?.departments || [],
+    callData?.departments || []
   );
   const [isCallReceive, setIsCallReceive] = useState(
-    Boolean(callData?.isReceiveWebCall) || false,
+    Boolean(callData?.isReceiveWebCall) || false
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const isDepartmentNameUnique = (
     name: string,
-    excludeName?: string,
+    excludeName?: string
   ): boolean => {
     const lowerCaseName = name.toLowerCase();
     return !departments.some(
       (dept) =>
-        dept.name.toLowerCase() === lowerCaseName && dept.name !== excludeName,
+        dept.name.toLowerCase() === lowerCaseName && dept.name !== excludeName
     );
   };
 
@@ -45,18 +46,18 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
     if (!isDepartmentNameUnique(value, name)) {
       setErrors((prev) => ({
         ...prev,
-        [name]: __('Department name must be unique'),
+        [name]: __("Department name must be unique"),
       }));
       return;
     }
-    setErrors((prev) => ({ ...prev, [name]: '' }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
     const updatedDepartments = departments.map((dept) =>
-      dept.name === name ? { ...dept, name: value } : dept,
+      dept.name === name ? { ...dept, name: value } : dept
     );
 
     setTimeout(() => {
       setDepartments(updatedDepartments);
-      onChange('callData', {
+      onChange("callData", {
         departments: updatedDepartments,
         isReceiveWebCall: isCallReceive,
       });
@@ -64,7 +65,7 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
   };
 
   const addDepartment = () => {
-    const newDepartment = { name: '', operators: [] };
+    const newDepartment = { name: "", operators: [] };
     setDepartments((prev) => [...prev, newDepartment]);
   };
 
@@ -74,10 +75,10 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
         dept.name === departmentName
           ? {
               ...dept,
-              operators: [...dept.operators, { userId: '', name: '' }],
+              operators: [...dept.operators, { userId: "", name: "" }],
             }
-          : dept,
-      ),
+          : dept
+      )
     );
   };
 
@@ -88,10 +89,10 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
             ...dept,
             operators: dept?.operators?.filter((_, i) => i !== index),
           }
-        : dept,
+        : dept
     );
     setDepartments(updatedDepartments);
-    onChange('callData', {
+    onChange("callData", {
       departments: updatedDepartments,
       isReceiveWebCall: isCallReceive,
     });
@@ -100,10 +101,10 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
   // Add this function to remove a department
   const removeDepartment = (departmentName: string) => {
     const updatedDepartments = departments.filter(
-      (dept) => dept.name !== departmentName,
+      (dept) => dept.name !== departmentName
     );
     setDepartments(updatedDepartments);
-    onChange('callData', {
+    onChange("callData", {
       departments: updatedDepartments,
       isReceiveWebCall: isCallReceive,
     });
@@ -112,7 +113,7 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
   const handleToggleWebCall = (e) => {
     const isChecked = e.target.checked;
     setIsCallReceive(isChecked);
-    onChange('callData', {
+    onChange("callData", {
       departments: departments,
       isReceiveWebCall: isChecked,
     });
@@ -121,20 +122,20 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
   const handleOperatorChange = (
     departmentName: string,
     index: number,
-    userId: string,
+    userId: string
   ) => {
     const updatedDepartments = departments.map((dept) =>
       dept.name === departmentName
         ? {
             ...dept,
             operators: dept.operators?.map((op, i) =>
-              i === index ? { ...op, userId } : op,
+              i === index ? { ...op, userId } : op
             ),
           }
-        : dept,
+        : dept
     );
     setDepartments(updatedDepartments);
-    onChange('callData', {
+    onChange("callData", {
       departments: updatedDepartments,
       isReceiveWebCall: isCallReceive,
     });
@@ -145,19 +146,19 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
       <LeftItem>
         {departments.map(({ name, operators }) => (
           <div key={name}>
-            <ControlLabel required>{__('Name')}</ControlLabel>
-            <p>{__('Department name')}</p>
+            <ControlLabel required>{__("Name")}</ControlLabel>
+            <p>{__("Department name")}</p>
             <FormControl
               required
               onChange={(e) =>
                 updateDepartmentName(
                   name,
-                  (e.currentTarget as HTMLInputElement).value,
+                  (e.currentTarget as HTMLInputElement).value
                 )
               }
               defaultValue={name}
             />
-            {errors[name] && <p style={{ color: 'red' }}>{errors[name]}</p>}
+            {errors[name] && <p style={{ color: "red" }}>{errors[name]}</p>}
             {operators?.map((operator, index) => (
               <OperatorFormView key={index}>
                 <OperatorRemoveBtn>
@@ -187,7 +188,7 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
                 size="medium"
                 onClick={() => addOperator(name)}
               >
-                {__('Add Operator')}
+                {__("Add Operator")}
               </Button>
             </FormGroup>
             {/* Add a button to remove the department */}
@@ -198,7 +199,7 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
                 size="medium"
                 onClick={() => removeDepartment(name)}
               >
-                {__('Remove Department')}
+                {__("Remove Department")}
               </Button>
             </FormGroup>
           </div>
@@ -210,18 +211,18 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
             size="medium"
             onClick={addDepartment}
           >
-            {__('Add Department')}
+            {__("Add Department")}
           </Button>
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Turn on Cloudflare Calls')}</ControlLabel>
-          <p>{__('If turned on, possible to receive web calls')}</p>
+          <ControlLabel>{__("Turn on Cloudflare Calls")}</ControlLabel>
+          <p>{__("If turned on, possible to receive web calls")}</p>
           <Toggle
             checked={isCallReceive || false}
             onChange={handleToggleWebCall}
             icons={{
-              checked: <span>{__('Yes')}</span>,
-              unchecked: <span>{__('No')}</span>,
+              checked: <span>{__("Yes")}</span>,
+              unchecked: <span>{__("No")}</span>,
             }}
           />
         </FormGroup>

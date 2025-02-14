@@ -2,7 +2,6 @@ import React from "react";
 import * as compose from "lodash.flowright";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
-// import { queries } from "../../bots/graphql";
 import { withProps } from "@erxes/ui/src/utils/core";
 import { QueryResponse } from "@erxes/ui/src/types";
 import FormControl from "@erxes/ui/src/components/form/Control";
@@ -10,7 +9,8 @@ import Spinner from "@erxes/ui/src/components/Spinner";
 import { ListItem } from "../../styles";
 import colors from "@erxes/ui/src/styles/colors";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
-
+import { IntegrationDetailQueryResponse } from "@erxes/ui-inbox/src/settings/integrations/types";
+import { queries as integrationQueries } from "@erxes/ui-inbox/src/settings/integrations/graphql";
 type Props = {
   botId?: string;
   onChange: (name: string, value: any) => void;
@@ -19,7 +19,7 @@ type Props = {
 };
 
 type FinalProps = {
-  botQueryResponse: { whatsappBootMessengerBot: any } & QueryResponse;
+  botQueryResponse: { integrationDetail: any } & QueryResponse;
 } & Props;
 
 const renderSelectedMenus = (persistentMenus: any[], ids: string[]) => {
@@ -39,14 +39,14 @@ function PersistentMenuSelector({
   onChange,
   displaySelectedContent
 }: FinalProps) {
-  const { whatsappBootMessengerBot, loading } = botQueryResponse || {};
+  const { integrationDetail, loading } = botQueryResponse || {};
 
   if (loading) {
     return <Spinner objective />;
   }
 
-  const { persistentMenus = [] } = whatsappBootMessengerBot || {};
-
+  const { messengerData = {} } = integrationDetail || {}; // Ensure messengerData exists
+  const { persistentMenus = [] } = messengerData; // Destructure persistentMenus
   if (displaySelectedContent) {
     return renderSelectedMenus(persistentMenus, persistentMenuIds);
   }
@@ -85,14 +85,17 @@ function PersistentMenuSelector({
   );
 }
 
-// export default withProps<Props>(
-//   compose(
-//     graphql<Props>(gql(queries.detail), {
-//       name: "botQueryResponse",
-//       options: ({ botId }) => ({
-//         variables: { _id: botId }
-//       }),
-//       skip: ({ botId }) => !botId
-//     })
-//   )(PersistentMenuSelector)
-// );
+export default withProps<Props>(
+  compose(
+    graphql<Props, IntegrationDetailQueryResponse>(
+      gql(integrationQueries.integrationDetail),
+      {
+        name: "botQueryResponse",
+        options: ({ botId }) => ({
+          variables: { _id: botId || "" }
+        }),
+        skip: ({ botId }) => !botId
+      }
+    )
+  )(PersistentMenuSelector)
+);

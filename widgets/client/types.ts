@@ -1,5 +1,6 @@
+import { BotPersistentMenuTypeMessenger, IAttachment, IBotData, IWebsiteApp } from "./messenger/types";
+
 import { ICallout } from "./form/types";
-import { IAttachment, IWebsiteApp } from "./messenger/types";
 
 export type ENV = {
   ROOT_URL: string;
@@ -138,6 +139,11 @@ export interface IIntegrationMessengerData {
   messages?: IIntegrationMessengerDataMessagesItem;
   links?: IIntegrationLink;
   externalLinks?: IIntegrationExternalLink[];
+  botGreetMessage?: string;
+  persistentMenus?: BotPersistentMenuTypeMessenger[];
+  fromBot?: boolean;
+  botData?: IBotData;
+  getStarted?: boolean;
 }
 
 export interface ILeadData {

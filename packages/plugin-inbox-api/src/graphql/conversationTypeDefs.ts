@@ -137,14 +137,16 @@ export const types = ({ contacts, dailyco, calls, cloudflareCalls }) => `
     conversationId: String
     internal: Boolean
     fromBot: Boolean
+    getStarted:Boolean
     botData: JSON
     customerId: String
     userId: String
     createdAt: Date
     isCustomerRead: Boolean
-    engageData: EngageData
+    engageData: EngageData 
     formWidgetData: JSON
     messengerAppData: JSON
+    botGreetMessage: String
     user: User
     customer: Customer
     mailData: MailData

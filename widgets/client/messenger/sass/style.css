@@ -2662,6 +2662,42 @@ select.form-control:focus,
     cursor: pointer;
   }
 }
+
+.persistent-menu-wrapper {
+  position: relative;
+}
+
+.persistent-menu-wrapper ul {
+  position: absolute;
+  bottom: 2rem;
+  right: 0;
+  background: #fafafa;
+  box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  list-style: none;
+  padding: 0;
+  min-width: 200px;
+}
+
+.persistent-menu-wrapper ul .p-menu {
+  padding: 8px 10px;
+  border-bottom: 1px solid #ddd;
+  background: none;
+  cursor: pointer;
+  transition: all ease 0.3s;
+  text-decoration: none;
+  color: #444;
+  display: block;
+}
+
+.persistent-menu-wrapper ul .p-menu:last-child {
+  border: 0;
+}
+
+.persistent-menu-wrapper ul .p-menu:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
 .emoji-picker-wrapper {
   position: relative;
   > div {
@@ -2817,6 +2853,8 @@ select.form-control:focus,
 }
 .bot-message img {
   max-width: 100%;
+  height: 130px;
+  object-fit: cover;
   display: inherit;
 }
 .bot-message .image-message {
@@ -2909,19 +2947,50 @@ select.form-control:focus,
   background: #faf9fb;
   cursor: pointer;
 }
+.get-started {
+  display: flex;
+  flex-wrap: wrap;
+}
+.persistent-menus {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.persistent-menus .p-menu {
+  text-decoration: none;
+  color: #333;
+  padding: 5px 15px;
+  border: 1px solid #6569df;
+  margin: 4px;
+  border-radius: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  background: #fafafa;
+  font-size: 14px;
+}
 
 .quick-replies {
   display: flex;
   flex-wrap: wrap;
   margin-left: -4px;
 }
+
+.quick-replies .quick_reply_text {
+  width: 100%;
+  font-size: 16px !important;
+}
 .quick-replies .reply-button {
   padding: 5px 15px;
   border: 1px solid #673fbd;
+  background: #fafafa;
   margin: 4px;
   border-radius: 20px;
   font-weight: 500;
   color: #333;
+  font-size: 14px;
 }
 .quick-replies .reply-button:hover {
   opacity: 0.8;

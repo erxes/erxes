@@ -27,7 +27,6 @@ export const handleAutomation = async (
   }
 ) => {
   const target = { ...conversationMessage.toObject() };
-
   let type = "inbox:messages";
   if (payload) {
     // Check if payload is a string before parsing
