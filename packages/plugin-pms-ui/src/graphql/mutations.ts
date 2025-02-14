@@ -1,4 +1,4 @@
-import { branchCommonFields } from './queries';
+import { branchCommonFields } from "./queries";
 const commonFields = `
   $name: String
   $description: String
@@ -16,6 +16,8 @@ const commonFields = `
   $pipelineConfig: JSON
   $extraProductCategories: JSON
   $roomCategories: JSON
+  $discount: JSON
+  $time: String
 `;
 
 const commonVariables = `
@@ -35,19 +37,21 @@ const commonVariables = `
   pipelineConfig: $pipelineConfig
   extraProductCategories: $extraProductCategories
   roomCategories: $roomCategories
+  discount: $discount
+  time: $time
 `;
 
 const tmsBranchAdd = `
-  mutation tmsBranchAdd(${commonFields}) {
-    tmsBranchAdd(${commonVariables}){
+  mutation pmsBranchAdd(${commonFields}) {
+    pmsBranchAdd(${commonVariables}){
       ${branchCommonFields}
     }
   }
 `;
 
 const tmsBranchEdit = `
-  mutation tmsBranchEdit($_id: String!, ${commonFields}) {
-    tmsBranchEdit(_id: $_id, ${commonVariables}){
+  mutation pmsBranchEdit($_id: String!, ${commonFields}) {
+    pmsBranchEdit(_id: $_id, ${commonVariables}){
       ${branchCommonFields}
     }
   }

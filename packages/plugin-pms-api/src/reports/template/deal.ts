@@ -1,6 +1,6 @@
-import * as dayjs from 'dayjs';
-import { IModels } from '../../connectionResolver';
-import { sendProductsMessage, sendSalesMessage } from '../../messageBroker';
+import * as dayjs from "dayjs";
+import { IModels } from "../../connectionResolver";
+import { sendProductsMessage, sendSalesMessage } from "../../messageBroker";
 import {
   AMOUNT_RANGE_ATTRIBUTES,
   ATTACHMENT_TYPES,
@@ -13,106 +13,106 @@ import {
   PRIORITY,
   PROBABILITY_DEAL,
   STATUS_TYPES,
-  USER_TYPES,
-} from '../constants';
+  USER_TYPES
+} from "../constants";
 import {
   buildMatchFilter,
   buildPipeline,
   buildData,
-  buildOptions,
-} from '../utils';
-const util = require('util');
+  buildOptions
+} from "../utils";
+const util = require("util");
 
 const MEASURE_OPTIONS = [
-  { label: 'Total Count', value: 'count' },
-  { label: 'Total Amount', value: 'totalAmount' },
-  { label: 'Average Amount', value: 'averageAmount' },
-  { label: 'Unused Amount', value: 'unusedAmount' },
-  { label: 'Forecast', value: 'forecastAmount' },
+  { label: "Total Count", value: "count" },
+  { label: "Total Amount", value: "totalAmount" },
+  { label: "Average Amount", value: "averageAmount" },
+  { label: "Unused Amount", value: "unusedAmount" },
+  { label: "Forecast", value: "forecastAmount" }
 ];
 
 const DIMENSION_OPTIONS = [
-  { label: 'Departments', value: 'department' },
-  { label: 'Branches', value: 'branch' },
-  { label: 'Companies', value: 'company' },
-  { label: 'Customers', value: 'customer' },
-  { label: 'Products', value: 'product' },
-  { label: 'Boards', value: 'board' },
-  { label: 'Pipelines', value: 'pipeline' },
-  { label: 'Stages', value: 'stage' },
-  { label: 'Probability', value: 'probability' },
-  { label: 'Card', value: 'card' },
-  { label: 'Tags', value: 'tag' },
-  { label: 'Labels', value: 'label' },
-  { label: 'Frequency (day, week, month)', value: 'frequency' },
-  { label: 'Status', value: 'status' },
-  { label: 'Priority', value: 'priority' },
-  { label: 'Description', value: 'description' },
-  { label: 'Is Complete', value: 'isComplete' },
-  { label: 'Created by', value: 'createdBy' },
-  { label: 'Modified by', value: 'modifiedBy' },
-  { label: 'Assigned to', value: 'assignedTo' },
-  { label: 'Created at', value: 'createdAt' },
-  { label: 'Modified at', value: 'modifiedAt' },
-  { label: 'Stage changed at', value: 'stageChangedDate' },
-  { label: 'Start Date', value: 'startDate' },
-  { label: 'Close Date', value: 'closeDate' },
-  { label: 'Custom Propertry', value: 'field' },
+  { label: "Departments", value: "department" },
+  { label: "Branches", value: "branch" },
+  { label: "Companies", value: "company" },
+  { label: "Customers", value: "customer" },
+  { label: "Products", value: "product" },
+  { label: "Boards", value: "board" },
+  { label: "Pipelines", value: "pipeline" },
+  { label: "Stages", value: "stage" },
+  { label: "Probability", value: "probability" },
+  { label: "Card", value: "card" },
+  { label: "Tags", value: "tag" },
+  { label: "Labels", value: "label" },
+  { label: "Frequency (day, week, month)", value: "frequency" },
+  { label: "Status", value: "status" },
+  { label: "Priority", value: "priority" },
+  { label: "Description", value: "description" },
+  { label: "Is Complete", value: "isComplete" },
+  { label: "Created by", value: "createdBy" },
+  { label: "Modified by", value: "modifiedBy" },
+  { label: "Assigned to", value: "assignedTo" },
+  { label: "Created at", value: "createdAt" },
+  { label: "Modified at", value: "modifiedAt" },
+  { label: "Stage changed at", value: "stageChangedDate" },
+  { label: "Start Date", value: "startDate" },
+  { label: "Close Date", value: "closeDate" },
+  { label: "Custom Propertry", value: "field" }
 ];
 
 export const dealCharts = [
   {
-    templateType: 'roomVacancy',
-    serviceType: 'room',
-    name: 'Total room Vacancy',
+    templateType: "roomVacancy",
+    serviceType: "room",
+    name: "Total room Vacancy",
     chartTypes: [
-      'bar',
-      'line',
-      'pie',
-      'doughnut',
-      'radar',
-      'polarArea',
-      'table',
+      "bar",
+      "line",
+      "pie",
+      "doughnut",
+      "radar",
+      "polarArea",
+      "table"
     ],
     getChartResult: async (
       models: IModels,
       filter: any,
       chartType: string,
-      subdomain: string,
+      subdomain: string
     ) => {
       const matchFilter: any = await buildMatchFilter(
         filter,
-        'deal',
+        "deal",
         subdomain,
-        models,
+        models
       );
 
       const pipeline = [
         {
-          $unwind: '$productsData',
+          $unwind: "$productsData"
         },
         {
           $match: {
-            ...matchFilter,
-          },
+            ...matchFilter
+          }
         },
         {
           $project: {
             _id: 0, // Exclude _id if not needed
             startDate: 1,
             closeDate: 1,
-            productsData: '$productsData',
-          },
-        },
+            productsData: "$productsData"
+          }
+        }
       ];
       console.log(JSON.stringify(matchFilter));
       // const deals = await models.Deals.aggregate(pipeline)
       const deals = await sendSalesMessage({
         subdomain,
-        action: 'deals.aggregate',
+        action: "deals.aggregate",
         data: pipeline,
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       const totalCount = (deals || []).reduce(
@@ -125,27 +125,27 @@ export const dealCharts = [
           }
           return acc;
         },
-        {},
+        {}
       );
 
       const data = Object.values(totalCount);
       const productIds = Object.keys(totalCount);
       const rooms = await sendProductsMessage({
         subdomain,
-        action: 'products.find',
+        action: "products.find",
         data: {
           query: {
-            _id: { $in: productIds },
-          },
+            _id: { $in: productIds }
+          }
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
-      const start = dayjs(matchFilter?.startDate.$gte).format('YYYY-MM-DD');
-      const end = dayjs(matchFilter?.startDate.$lte).format('YYYY-MM-DD');
+      const start = dayjs(matchFilter?.startDate.$gte).format("YYYY-MM-DD");
+      const end = dayjs(matchFilter?.startDate.$lte).format("YYYY-MM-DD");
       const diffInDays = dayjs(matchFilter?.startDate.$lte).diff(
         dayjs(matchFilter?.startDate.$gte),
-        'day',
+        "day"
       );
 
       const title = matchFilter?.startDate
@@ -156,7 +156,7 @@ export const dealCharts = [
         name: rooms.find(d => d._id === x).name,
         available: diffInDays,
         occupied: totalCount[x],
-        unOccupied: diffInDays - totalCount[x],
+        unOccupied: diffInDays - totalCount[x]
       }));
 
       // title: 'Total Deals Count',
@@ -169,18 +169,18 @@ export const dealCharts = [
       return {
         title,
         data: data2,
-        headers: ['name', 'available', 'occupied', 'unOccupied'],
+        headers: ["name", "available", "occupied", "unOccupied"]
       };
     },
     filterTypes: [
       // USER TYPE FILTER
       {
-        fieldName: 'userType',
-        fieldType: 'select',
+        fieldName: "userType",
+        fieldType: "select",
         multi: false,
-        fieldDefaultValue: 'userId',
+        fieldDefaultValue: "userId",
         fieldOptions: USER_TYPES,
-        fieldLabel: 'Select user type',
+        fieldLabel: "Select user type"
       },
       // USER FILTER
       //   {
@@ -239,40 +239,50 @@ export const dealCharts = [
       //   },
       // PRODUCT FILTER
       {
-        fieldName: 'productIds',
-        fieldType: 'select',
-        fieldQuery: 'products',
+        fieldName: "productIds",
+        fieldType: "select",
+        fieldQuery: "products",
         multi: true,
-        fieldLabel: 'Select products',
+        fieldLabel: "Select products"
       },
+      {
+        fieldName: "productCategory",
+        fieldType: "select",
+        fieldQuery: "productCategories",
+        fieldValueVariable: "_id",
+        fieldLabelVariable: "name",
+        multi: true,
+        fieldLabel: "Select product categories"
+      },
+
       // BOARD FILTER
       {
-        fieldName: 'boardId',
-        fieldType: 'select',
+        fieldName: "boardId",
+        fieldType: "select",
         multi: false,
-        fieldQuery: 'salesBoards',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldRequiredQueryParams: ['type'],
+        fieldQuery: "salesBoards",
+        fieldValueVariable: "_id",
+        fieldLabelVariable: "name",
+        fieldRequiredQueryParams: ["type"],
         fieldQueryVariables: `{"type": "deal"}`,
-        fieldLabel: 'Select board',
+        fieldLabel: "Select board"
       },
       // PIPELINE FILTER
       {
-        fieldName: 'pipelineIds',
-        fieldType: 'select',
+        fieldName: "pipelineIds",
+        fieldType: "select",
         multi: true,
-        fieldQuery: 'salesPipelines',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
+        fieldQuery: "salesPipelines",
+        fieldValueVariable: "_id",
+        fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
         logics: [
           {
-            logicFieldName: 'boardId',
-            logicFieldVariable: 'boardId',
-          },
+            logicFieldName: "boardId",
+            logicFieldVariable: "boardId"
+          }
         ],
-        fieldLabel: 'Select pipelines',
+        fieldLabel: "Select pipelines"
       },
       //   // STAGE PROBABILITY FILTER
       //   {
@@ -283,21 +293,21 @@ export const dealCharts = [
       //   },
       // STAGE FILTER
       {
-        fieldName: 'stageIds',
-        fieldType: 'select',
-        fieldQuery: 'salesStages',
+        fieldName: "stageIds",
+        fieldType: "select",
+        fieldQuery: "salesStages",
         multi: true,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldParentVariable: 'pipelineId',
-        fieldParentQuery: 'salesPipelines',
+        fieldValueVariable: "_id",
+        fieldLabelVariable: "name",
+        fieldParentVariable: "pipelineId",
+        fieldParentQuery: "salesPipelines",
         logics: [
           {
-            logicFieldName: 'pipelineIds',
-            logicFieldVariable: 'pipelineIds',
-          },
+            logicFieldName: "pipelineIds",
+            logicFieldVariable: "pipelineIds"
+          }
         ],
-        fieldLabel: 'Select stages',
+        fieldLabel: "Select stages"
       },
       //   // LABEL FILTER
       //   {
@@ -372,14 +382,14 @@ export const dealCharts = [
       //   },
       //   // DATERANGE FILTER
       {
-        fieldName: 'dateRange',
-        fieldType: 'select',
+        fieldName: "dateRange",
+        fieldType: "select",
         multi: true,
-        fieldQuery: 'date',
+        fieldQuery: "date",
         fieldOptions: DATERANGE_TYPES,
-        fieldLabel: 'Select date range',
-        fieldDefaultValue: 'all',
-      },
+        fieldLabel: "Select date range",
+        fieldDefaultValue: "all"
+      }
       // DATERANGE TYPE FILTER
       // {
       //   fieldName: "dateRangeType",
@@ -390,6 +400,6 @@ export const dealCharts = [
       //   fieldLabel: "Select date range type",
       //   fieldDefaultValue: "createdAt"
       // }
-    ],
-  },
+    ]
+  }
 ];
