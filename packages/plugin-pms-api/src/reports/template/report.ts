@@ -5,7 +5,7 @@ const reportTemplates = [
     serviceName: "pms",
     serviceLabel: "Pms",
     description: "Property management charts",
-    charts: ["roomVacancy", "roomVacancyByType", "roomVacancyByType2"],
+    charts: ["roomVacancy", "roomVacancyCategory", "roomVacancyByType2"],
     img: "https://sciter.com/wp-content/uploads/2022/08/chart-js.png"
   }
 ];
