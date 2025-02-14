@@ -1,26 +1,8 @@
 import * as dayjs from "dayjs";
 import { IModels } from "../../connectionResolver";
 import { sendProductsMessage, sendSalesMessage } from "../../messageBroker";
-import {
-  AMOUNT_RANGE_ATTRIBUTES,
-  ATTACHMENT_TYPES,
-  CUSTOM_DATE_FREQUENCY_TYPES,
-  DATERANGE_BY_TYPES,
-  DATERANGE_TYPES,
-  DUE_DATERANGE_TYPES,
-  DUE_TYPES,
-  MONTH_NAMES,
-  PRIORITY,
-  PROBABILITY_DEAL,
-  STATUS_TYPES,
-  USER_TYPES
-} from "../constants";
-import {
-  buildMatchFilter,
-  buildPipeline,
-  buildData,
-  buildOptions
-} from "../utils";
+import { DATERANGE_TYPES, USER_TYPES } from "../constants";
+import { buildMatchFilter } from "../utils";
 const util = require("util");
 
 const MEASURE_OPTIONS = [
@@ -65,15 +47,7 @@ export const dealCharts = [
     templateType: "roomVacancy",
     serviceType: "room",
     name: "Total room Vacancy",
-    chartTypes: [
-      "bar",
-      "line",
-      "pie",
-      "doughnut",
-      "radar",
-      "polarArea",
-      "table"
-    ],
+    chartTypes: ["table"],
     getChartResult: async (
       models: IModels,
       filter: any,
@@ -159,13 +133,6 @@ export const dealCharts = [
         unOccupied: diffInDays - totalCount[x]
       }));
 
-      // title: 'Total Deals Count',
-      //  data: [
-      //     { product: 'room1', stage: 'Checked out', totalAmount: 20000 },
-      //     { product: 'room2', stage: 'Checked out', totalAmount: 75000 },
-      //     { total: 2, totalAmount: 95000 }
-      //  ],
-      //  headers: [ 'product', 'stage', 'totalAmount' ],
       return {
         title,
         data: data2,
@@ -182,62 +149,7 @@ export const dealCharts = [
         fieldOptions: USER_TYPES,
         fieldLabel: "Select user type"
       },
-      // USER FILTER
-      //   {
-      //     fieldName: "userIds",
-      //     fieldType: "select",
-      //     multi: true,
-      //     fieldQuery: "users",
-      //     fieldLabel: "Select users"
-      //   },
-      //   // BRANCH FILTER
-      //   {
-      //     fieldName: "branchIds",
-      //     fieldType: "select",
-      //     multi: true,
-      //     fieldQuery: "branches",
-      //     fieldLabel: "Select branches"
-      //   },
-      //   // DEPARTMENT FILTER
-      //   {
-      //     fieldName: "departmentIds",
-      //     fieldType: "select",
-      //     multi: true,
-      //     fieldQuery: "departments",
-      //     fieldLabel: "Select departments"
-      //   },
-      //   // COMPANY FILTER
-      //   {
-      //     fieldName: "companyIds",
-      //     fieldType: "select",
-      //     fieldQuery: "companies",
-      //     multi: true,
-      //     fieldValueVariable: "_id",
-      //     fieldLabelVariable: "primaryName",
-      //     fieldQueryVariables: `{"conformityMainType": "deal", "conformityRelType": "company"}`,
-      //     fieldLabel: "Select companies"
-      //   },
-      //   // CUSTOMER FILTER
-      //   {
-      //     fieldName: "customerIds",
-      //     fieldType: "select",
-      //     fieldQuery: "customers",
-      //     multi: true,
-      //     fieldQueryVariables: `{"conformityMainType": "deal", "conformityRelType": "customer"}`,
-      //     fieldLabel: "Select customers"
-      //   },
-      //   // TAG FILTER
-      //   {
-      //     fieldName: "tagIds",
-      //     fieldType: "select",
-      //     fieldQuery: "tags",
-      //     fieldValueVariable: "_id",
-      //     fieldLabelVariable: "name",
-      //     fieldQueryVariables: `{"type": "sales:deal", "perPage": 1000}`,
-      //     multi: true,
-      //     fieldLabel: "Select tags"
-      //   },
-      // PRODUCT FILTER
+
       {
         fieldName: "productIds",
         fieldType: "select",
@@ -284,14 +196,7 @@ export const dealCharts = [
         ],
         fieldLabel: "Select pipelines"
       },
-      //   // STAGE PROBABILITY FILTER
-      //   {
-      //     fieldName: "stageProbability",
-      //     fieldType: "select",
-      //     fieldOptions: PROBABILITY_DEAL,
-      //     fieldLabel: "Select Probability"
-      //   },
-      // STAGE FILTER
+
       {
         fieldName: "stageIds",
         fieldType: "select",
@@ -309,78 +214,7 @@ export const dealCharts = [
         ],
         fieldLabel: "Select stages"
       },
-      //   // LABEL FILTER
-      //   {
-      //     fieldName: "labelIds",
-      //     fieldType: "select",
-      //     fieldQuery: "salesPipelineLabels",
-      //     multi: true,
-      //     fieldValueVariable: "_id",
-      //     fieldLabelVariable: "name",
-      //     fieldParentVariable: "pipelineId",
-      //     fieldParentQuery: "salesPipelines",
-      //     logics: [
-      //       {
-      //         logicFieldName: "pipelineIds",
-      //         logicFieldVariable: "pipelineIds"
-      //       }
-      //     ],
-      //     fieldLabel: "Select labels"
-      //   },
-      //   // PRIORITY FILTER
-      //   {
-      //     fieldName: "status",
-      //     fieldType: "select",
-      //     fieldOptions: STATUS_TYPES,
-      //     fieldLabel: "Select status"
-      //   },
-      //   // PRIORITY FILTER
-      //   {
-      //     fieldName: "priority",
-      //     fieldType: "select",
-      //     fieldOptions: PRIORITY,
-      //     fieldLabel: "Select priority"
-      //   },
-      //   // ATTACHMENT FILTER
-      //   {
-      //     fieldName: "attachment",
-      //     fieldType: "select",
-      //     fieldOptions: ATTACHMENT_TYPES,
-      //     fieldLabel: "Select attachment"
-      //   },
-      //   // CUSTOM PROPERTIES FILTER
-      //   {
-      //     fieldName: "groupIds",
-      //     fieldType: "select",
-      //     fieldQuery: "fieldsGroups",
-      //     fieldValueVariable: "_id",
-      //     fieldLabelVariable: "name",
-      //     fieldQueryVariables: `{"contentType": "sales:deal"}`,
-      //     multi: true,
-      //     fieldLabel: "Select field group"
-      //   },
-      //   // CUSTOM PROPERTIES FIELD FILTER
-      //   {
-      //     fieldName: "fieldIds",
-      //     fieldType: "select",
-      //     fieldQuery: "fields",
-      //     fieldValueVariable: "_id",
-      //     fieldLabelVariable: "text",
-      //     fieldParentVariable: "groupId",
-      //     fieldParentQuery: "fieldsGroups",
-      //     fieldRequiredQueryParams: ["contentType"],
-      //     fieldQueryVariables: `{"contentType": "sales:deal"}`,
-      //     logics: [
-      //       {
-      //         logicFieldName: "groupIds",
-      //         logicFieldVariable: "groupIds",
-      //         logicFieldExtraVariable: `{"contentType": "sales:deal"}`
-      //       }
-      //     ],
-      //     multi: true,
-      //     fieldLabel: "Select field"
-      //   },
-      //   // DATERANGE FILTER
+
       {
         fieldName: "dateRange",
         fieldType: "select",
@@ -390,16 +224,6 @@ export const dealCharts = [
         fieldLabel: "Select date range",
         fieldDefaultValue: "all"
       }
-      // DATERANGE TYPE FILTER
-      // {
-      //   fieldName: "dateRangeType",
-      //   fieldType: "select",
-      //   multi: false,
-      //   fieldQuery: "date",
-      //   fieldOptions: DATERANGE_BY_TYPES,
-      //   fieldLabel: "Select date range type",
-      //   fieldDefaultValue: "createdAt"
-      // }
     ]
   }
 ];
