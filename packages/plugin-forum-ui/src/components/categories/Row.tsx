@@ -88,7 +88,7 @@ class Row extends React.Component<Props, State> {
           </td>
         </tr>
         {(categories || []).map((cat: ICategory, index: number) => {
-          return <RowContainer category={cat} key={index} />;
+          return <RowContainer category={cat} key={cat._id} />;
         })}
       </>
     );
