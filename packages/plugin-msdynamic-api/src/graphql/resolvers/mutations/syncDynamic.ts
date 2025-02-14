@@ -111,10 +111,7 @@ const msdynamicSyncMutations = {
         isRPC: true,
       });
 
-      const salesCodeFilter = pricePriority
-        .replace(', ', ',')
-        .split(',')
-        .filter((p) => p);
+      const salesCodeFilter = pricePriority.replace(/, /g, ',').split(',');
 
       let filterSection = '';
 

@@ -486,6 +486,7 @@ const getPriceForList = (prods, exchangeRates) => {
 
       resPrice = prod.Price_Inc_CityTax_and_VAT || prod.Unit_Price;
       resProd = prod;
+      resCurrencyCode = prod.Currency_Code;
     }
   } else {
     for (const prod of prods) {
@@ -495,6 +496,7 @@ const getPriceForList = (prods, exchangeRates) => {
 
       resPrice = prod.Price_Inc_CityTax_and_VAT || prod.Unit_Price;
       resProd = prod;
+      resCurrencyCode = prod.Currency_Code;
     }
   }
 
@@ -513,10 +515,7 @@ const getPriceForList = (prods, exchangeRates) => {
 
 export const getPrice = async (resProds, pricePriority, exchangeRates) => {
   try {
-    const sorts = pricePriority
-      .replace(', ', ',')
-      .split(',')
-      .filter((s) => s);
+    const sorts = pricePriority.replace(/, /g, ',').split(',');
 
     const currentDate = new Date();
 
@@ -552,7 +551,9 @@ export const getPrice = async (resProds, pricePriority, exchangeRates) => {
       }
     }
 
-    const otherFilter = resProds.filter((p) => !sorts.includes(p.Sales_Code));
+    const otherFilter = activeProds.filter(
+      (p) => !sorts.includes(p.Sales_Code)
+    );
 
     if (!otherFilter.length) {
       return { resPrice: 0, resProd: {} };
