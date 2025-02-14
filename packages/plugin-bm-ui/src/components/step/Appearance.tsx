@@ -94,6 +94,10 @@ const Appearance = (props: Props) => {
     );
   };
 
+  useEffect(() => {
+    setUiOptions(props.uiOptions || { colors: {}, logo: "", texts: {} });
+  }, [props.uiOptions]);
+
   const renderPicker = (group, key, title, colour) => {
     const onChangeColor = e => {
       const newUiOptions = {
@@ -109,10 +113,6 @@ const Appearance = (props: Props) => {
       uiOptions[group] && uiOptions[group][key]
         ? uiOptions[group][key]
         : colour;
-
-    useEffect(() => {
-      setUiOptions(props.uiOptions || { colors: {}, logo: "", texts: {} });
-    }, [props.uiOptions]);
 
     return (
       <FormGroup>
