@@ -144,6 +144,8 @@ import {
   IReportDocument,
   ISectionDocument
 } from "./db/models/definitions/insight";
+import { IClientModel, loadClientClass } from "./db/models/Client";
+import { IClientDocument } from "./db/models/definitions/client";
 
 export interface IModels {
   Users: IUserModel;
@@ -184,6 +186,7 @@ export interface IModels {
   Sections: ISectionModel;
   Charts: IChartModel;
   Reports: IReportModel;
+  Clients: IClientModel;
 }
 
 export interface IContext extends IMainContext {
@@ -361,6 +364,11 @@ export const loadClasses = (
   models.Sections = db.model<ISectionDocument, ISectionModel>(
     "sections",
     loadSectionClass(models, subdomain)
+  );
+
+  models.Clients = db.model<IClientDocument, IClientModel>(
+    "clients",
+    loadClientClass(models)
   );
 
   return models;

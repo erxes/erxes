@@ -33,5 +33,15 @@ export default {
     await models.Users.deleteOne({ appId: app._id });
 
     return models.Apps.removeApp(_id);
-  }
+  },
+
+  // clientsAdd(name: String!, whiteListedIps: [String], permissions: [String]): Client
+  // clientsEdit(_id: String!, name: String, whiteListedIps: [String], permissions: [String]): Client
+  // clientsRemove(_id: String!): JSON
+
+  async clientsAdd(_root, params: any, { models }: IContext) {
+    const client = await models.Clients.createClient(params);
+
+    return { clientId: client.clientId, clientSecret: client.clientSecret };
+  },
 };

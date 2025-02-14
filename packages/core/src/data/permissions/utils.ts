@@ -49,6 +49,7 @@ export const getPermissionModules = async () => {
 
     const permissions =
       service.config.meta?.permissions || service.config.permissions;
+      console.log(JSON.stringify(permissions, null, 2));
 
     if (!permissions) continue;
 

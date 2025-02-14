@@ -25,9 +25,15 @@ export const GENERAL_SETTINGS = [
   },
   {
     name: "General Settings",
-    text: "Apps",
+    text: "Apps (legacy)",
     icon: "icon-apps",
     url: "/settings/apps"
+  },
+  {
+    name: "General Settings",
+    text: "Apps",
+    icon: "icon-apps",
+    url: "/settings/clients"
   },
   {
     name: "General Settings",
