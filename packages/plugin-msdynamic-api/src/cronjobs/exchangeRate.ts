@@ -40,10 +40,7 @@ export const syncExchangeRate = async (subdomain: string, config: any) => {
       isRPC: true,
     });
 
-    const salesCodeFilter = pricePriority
-      .replace(', ', ',')
-      .split(',')
-      .filter((p) => p);
+    const salesCodeFilter = pricePriority.replace(/, /g, ',').split(',');
 
     let filterSection = '';
 
