@@ -60,7 +60,13 @@ export const types = `
     _id: String
     name: String
   }
-
+  input BotPersistentMenuTypeMessenger {
+    _id: String
+    type: String
+    text: String
+    link: String
+    isEditing: Boolean
+  }
   input MessengerOnlineHoursSchema {
     _id: String
     day: String
@@ -85,6 +91,10 @@ export const types = `
     botEndpointUrl: String
     skillData: JSON
     botShowInitialMessage: Boolean
+    botCheck: Boolean
+    botGreetMessage: String
+    getStarted: Boolean
+    persistentMenus: [BotPersistentMenuTypeMessenger]
     availabilityMethod: String
     isOnline: Boolean,
     onlineHours: [MessengerOnlineHoursSchema]

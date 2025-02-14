@@ -1,6 +1,6 @@
+import { BotPersistentMenuTypeMessenger, IAttachment, IBotData, IWebsiteApp } from "./messenger/types";
 
-import { ICallout } from './form/types';
-import { IAttachment, IWebsiteApp } from './messenger/types';
+import { ICallout } from "./form/types";
 
 export type ENV = {
   ROOT_URL: string;
@@ -98,7 +98,7 @@ export interface IIntegrationLink {
 }
 
 export interface IIntegrationExternalLink {
-  url: string
+  url: string;
 }
 
 export interface IIntegrationMessengerDataMessagesItem {
@@ -118,6 +118,7 @@ export interface IIntegrationMessengerData {
     }>;
   };
   botEndpointUrl?: string;
+  botCheck?: boolean;
   botShowInitialMessage?: boolean;
   supporterIds: string[];
   notifyCustomer: boolean;
@@ -138,6 +139,11 @@ export interface IIntegrationMessengerData {
   messages?: IIntegrationMessengerDataMessagesItem;
   links?: IIntegrationLink;
   externalLinks?: IIntegrationExternalLink[];
+  botGreetMessage?: string;
+  persistentMenus?: BotPersistentMenuTypeMessenger[];
+  fromBot?: boolean;
+  botData?: IBotData;
+  getStarted?: boolean;
 }
 
 export interface ILeadData {
@@ -228,4 +234,4 @@ export interface ICountry {
   name: string;
   dialCode: string;
   emoji: string;
-};
+}

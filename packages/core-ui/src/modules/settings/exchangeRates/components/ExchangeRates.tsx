@@ -99,20 +99,8 @@ const MainList = (props: Props) => {
     );
   };
 
-  const renderRow = (exchangeRate) => {
-    const handleSelect = () => {
-      setSelectedItems((prev) =>
-        prev.includes(exchangeRate._id)
-          ? prev.filter((item) => item !== exchangeRate._id)
-          : [...prev, exchangeRate._id]
-      );
-    };
-
-    const onclick = (e) => {
-      e.stopPropagation();
-    };
-
-    const trigger = (
+  const renderEditAction = (exchangeRate: IExchangeRate) => {
+    const editTrigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')} placement="top">
           <Icon icon="edit-3" />
@@ -120,13 +108,40 @@ const MainList = (props: Props) => {
       </Button>
     );
 
+    const renderForm = ({ closeModal }) => {
+      return (
+        <ExchangeRateForm exchangeRate={exchangeRate} closeModal={closeModal} />
+      );
+    };
+
+    return (
+      <ModalTrigger
+        title="Edit Exchange Rate"
+        content={({ closeModal }) => renderForm({ closeModal })}
+        trigger={editTrigger}
+      />
+    );
+  };
+
+  const handleSelect = (id: string) => {
+    setSelectedItems((prev) => {
+      const isSelected = prev.includes(id);
+      return isSelected ? prev.filter((item) => item !== id) : [...prev, id];
+    });
+  };
+
+  const renderRow = (exchangeRate) => {
+    const onclick = (e) => {
+      e.stopPropagation();
+    };
+
     return (
       <tr key={exchangeRate._id}>
         <td onClick={onclick}>
           <FormControl
             componentclass="checkbox"
             checked={selectedItems.includes(exchangeRate._id)}
-            onClick={handleSelect}
+            onClick={() => handleSelect(exchangeRate._id)}
           />
         </td>
         <td>{dayjs(exchangeRate.date).format('YYYY-MM-DD')}</td>
@@ -135,17 +150,8 @@ const MainList = (props: Props) => {
         <td>{exchangeRate?.rate || 0}</td>
         <td>
           <ActionButtons>
-            <ModalTrigger
-              key={exchangeRate._id}
-              title="Edit Exchange Rate"
-              content={({ closeModal }) => (
-                <ExchangeRateForm
-                  exchangeRate={exchangeRate}
-                  closeModal={closeModal}
-                />
-              )}
-              trigger={trigger}
-            />
+            {renderEditAction(exchangeRate)}
+
             <Tip text={__('Delete')} placement="top">
               <Button
                 btnStyle="link"

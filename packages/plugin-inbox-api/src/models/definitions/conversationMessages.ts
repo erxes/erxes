@@ -1,7 +1,7 @@
-import { Document, Schema } from 'mongoose';
-import { MESSAGE_TYPES } from './constants';
-import { field } from './utils';
-
+import { Document, Schema } from "mongoose";
+import { MESSAGE_TYPES } from "./constants";
+import { field } from "./utils";
+import { attachmentSchema } from "@erxes/api-utils/src/definitions/common";
 interface IEngageDataRules {
   kind: string;
   text: string;
@@ -36,12 +36,14 @@ export interface IMessage {
   visitorId?: string;
   userId?: string;
   fromBot?: boolean;
+  getStarted?:Boolean
   isCustomerRead?: boolean;
   formWidgetData?: any;
   botData?: any;
   messengerAppData?: any;
   engageData?: IEngageData;
   contentType?: string;
+  botId?: string;
 }
 
 export interface IResolveAllConversationParam {
@@ -56,15 +58,15 @@ export interface IMessageDocument extends IMessage, Document {
   createdAt: Date;
 }
 
-const attachmentSchema = new Schema(
-  {
-    url: field({ type: String }),
-    name: field({ type: String }),
-    size: field({ type: Number }),
-    type: field({ type: String })
-  },
-  { _id: false }
-);
+// const attachmentSchema = new Schema(
+//   {
+//     url: field({ type: String }),
+//     name: field({ type: String }),
+//     size: field({ type: Number }),
+//     type: field({ type: String })
+//   },
+//   { _id: false }
+// );
 
 const engageDataRuleSchema = new Schema(
   {
@@ -101,9 +103,10 @@ export const messageSchema = new Schema({
   visitorId: field({
     type: String,
     index: true,
-    label: 'unique visitor id on logger database'
+    label: "unique visitor id on logger database"
   }),
   fromBot: field({ type: Boolean }),
+  getStarted: field({ type: Boolean }),
   userId: field({ type: String, index: true }),
   createdAt: field({ type: Date, index: true }),
   isCustomerRead: field({ type: Boolean }),
@@ -116,4 +119,5 @@ export const messageSchema = new Schema({
     enum: MESSAGE_TYPES.ALL,
     default: MESSAGE_TYPES.TEXT
   }),
+  botId: field({ type: String })
 });

@@ -17,11 +17,9 @@ const exchangeRateMutations = {
     doc: IExchangeRate,
     { docModifier, models }: IContext
   ) {
-    const exchangeRate = await models.ExchangeRates.createExchangeRate(
+    return await models.ExchangeRates.createExchangeRate(
       docModifier({ ...doc, createdAt: new Date() })
     );
-
-    return exchangeRate;
   },
 
   /**
@@ -34,12 +32,10 @@ const exchangeRateMutations = {
     { _id, ...doc }: IExchangeRateEdit,
     { models }: IContext
   ) {
-    const updated = await models.ExchangeRates.updateExchangeRate(_id, {
+    return await models.ExchangeRates.updateExchangeRate(_id, {
       ...doc,
       modifiedAt: new Date(),
     });
-
-    return updated;
   },
 
   /**
@@ -51,9 +47,7 @@ const exchangeRateMutations = {
     { rateIds }: { rateIds: string[] },
     { models }: IContext
   ) {
-    const response = await models.ExchangeRates.removeExchangeRates(rateIds);
-
-    return response;
+    return await models.ExchangeRates.removeExchangeRates(rateIds);
   },
 };
 

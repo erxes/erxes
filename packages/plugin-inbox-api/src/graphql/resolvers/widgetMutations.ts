@@ -32,10 +32,12 @@ import { VERIFY_EMAIL_TRANSLATIONS } from "../../constants";
 import { trackViewPageEvent } from "../../events";
 import {
   sendAutomationsMessage,
+  handleAutomation,
   sendCoreMessage,
   sendIntegrationsMessage
 } from "../../messageBroker";
 import fetch from "node-fetch";
+import { compileFunction } from "vm";
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -123,7 +125,8 @@ export const pConversationClientMessageInserted = async (
 
 export const getMessengerData = async (
   models: IModels,
-  integration: IIntegrationDocument
+  integration: IIntegrationDocument,
+  subdomain
 ) => {
   let messagesByLanguage: IMessengerDataMessagesItem | null = null;
   let messengerData = integration.messengerData;
@@ -177,9 +180,26 @@ export const getMessengerData = async (
     kind: "website",
     "credentials.integrationId": integration._id
   });
+  const getStarted = await sendAutomationsMessage({
+    subdomain,
+    action: "trigger.find",
+    data: {
+      query: {
+        triggerType: "inbox:messages",
+        botId: integration._id
+      }
+    },
+    isRPC: true
+  }).catch((error) => {
+    throw error;
+  });
+  const getStartedCondition = (
+    getStarted[0]?.triggers[0]?.config?.conditions || []
+  ).find((condition) => condition.type === "getStarted");
 
   return {
     ...(messengerData || {}),
+    getStarted: getStartedCondition ? getStartedCondition.isSelected : false,
     messages: messagesByLanguage,
     knowledgeBaseTopicId: topicId,
     websiteApps,
@@ -209,11 +229,7 @@ const createVisitor = async (subdomain: string, visitorId: string) => {
   return customer;
 };
 
-
 const widgetMutations = {
-
-
-
   async widgetsLeadIncreaseViewCount(
     _root,
     { formId }: { formId: string },
@@ -428,7 +444,7 @@ const widgetMutations = {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
-      messengerData: await getMessengerData(models, integration),
+      messengerData: await getMessengerData(models, integration, subdomain),
       customerId: customer && customer._id,
       visitorId: customer ? null : visitorId,
       brand
@@ -448,6 +464,7 @@ const widgetMutations = {
       skillId?: string;
       attachments?: any[];
       contentType: string;
+      payload: string;
     },
     { models, subdomain }: IContext
   ) {
@@ -458,7 +475,8 @@ const widgetMutations = {
       message,
       skillId,
       attachments,
-      contentType
+      contentType,
+      payload
     } = args;
 
     if (contentType === MESSAGE_TYPES.VIDEO_CALL_REQUEST) {
@@ -490,7 +508,7 @@ const widgetMutations = {
         }
 
         const timeDelay = integrationConfigs.find(
-          config => config.code === "VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS"
+          (config) => config.code === "VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS"
         ) || { value: "0" };
 
         const timeDelayIntValue = parseInt(timeDelay.value || "0", 10);
@@ -501,7 +519,7 @@ const widgetMutations = {
           const defaultValue = "Video call request has already sent";
 
           const messageForDelay = integrationConfigs.find(
-            config => config.code === "VIDEO_CALL_MESSAGE_FOR_TIME_DELAY"
+            (config) => config.code === "VIDEO_CALL_MESSAGE_FOR_TIME_DELAY"
           ) || { value: defaultValue };
 
           throw new Error(messageForDelay.value || defaultValue);
@@ -527,15 +545,17 @@ const widgetMutations = {
       (await models.Integrations.findOne({ _id: integrationId })) ||
       ({} as any);
     const messengerData = integration.messengerData || {};
-    const { botEndpointUrl, botShowInitialMessage } = messengerData;
-
+    const { botEndpointUrl, botShowInitialMessage, botCheck } = messengerData;
+    let botId;
+    if (botCheck === true) {
+      botId = integration?._id;
+    }
     const HAS_BOTENDPOINT_URL = (botEndpointUrl || "").length > 0;
 
     if (conversationId) {
       conversation = await models.Conversations.findOne({
         _id: conversationId
       }).lean();
-
       conversation = await models.Conversations.findByIdAndUpdate(
         conversationId,
         {
@@ -550,6 +570,8 @@ const widgetMutations = {
       // create conversation
     } else {
       conversation = await models.Conversations.createConversation({
+        botId,
+        isBot: !!botId,
         customerId,
         integrationId,
         operatorStatus: HAS_BOTENDPOINT_URL
@@ -562,13 +584,13 @@ const widgetMutations = {
     }
 
     // create message
-
     const msg = await models.ConversationMessages.createMessage({
       conversationId: conversation._id,
       customerId,
       attachments,
       contentType,
-      content: message
+      content: message,
+      botId: botId
     });
 
     await models.Conversations.updateOne(
@@ -603,9 +625,13 @@ const widgetMutations = {
     });
 
     await pConversationClientMessageInserted(models, subdomain, msg);
-
     graphqlPubsub.publish(`conversationMessageInserted:${msg.conversationId}`, {
       conversationMessageInserted: msg
+    });
+
+    await handleAutomation(subdomain, {
+      conversationMessage: msg, // Pass msg as conversationMessage
+      payload: payload
     });
 
     // bot message ================
@@ -635,7 +661,7 @@ const widgetMutations = {
             }),
             headers: { "Content-Type": "application/json" }
           }
-        ).then(r => r.json());
+        ).then((r) => r.json());
 
         const { responses } = botRequest;
 
@@ -903,7 +929,7 @@ const widgetMutations = {
     let mailAttachment: any = [];
 
     if (attachments.length > 0) {
-      mailAttachment = attachments.map(file => {
+      mailAttachment = attachments.map((file) => {
         return {
           filename: file.name || "",
           path: file.url || ""
@@ -989,7 +1015,7 @@ const widgetMutations = {
       visitorId?: string;
       integrationId: string;
       message: string;
-      payload: string;
+      payload: String;
       type: string;
     },
     { models, subdomain }: IContext
@@ -997,99 +1023,45 @@ const widgetMutations = {
     const integration =
       (await models.Integrations.findOne({ _id: integrationId })) ||
       ({} as any);
-    const { botEndpointUrl } = integration.messengerData;
-
-    if (visitorId && !customerId) {
-      const customer = await createVisitor(subdomain, visitorId);
-      customerId = customer._id;
+    if (!integration) {
+      throw new Error("Integration not found");
     }
 
-    let sessionId: string | null | undefined = conversationId;
-
-    if (!conversationId) {
-      sessionId = await redis.get(
-        `bot_initial_message_session_id_${integrationId}`
-      );
-
-      const conversation = await models.Conversations.createConversation({
+    let msg;
+    if (conversationId) {
+      msg = await models.ConversationMessages.createMessage({
+        conversationId,
+        customerId,
+        content: message,
+        botId: integrationId
+      });
+    } else {
+      let conversation = await models.Conversations.createConversation({
+        botId: integrationId,
         customerId,
         integrationId,
-        operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT,
-        status: CONVERSATION_STATUSES.CLOSED
+        status: CONVERSATION_STATUSES.OPEN,
+        content: message
       });
-
-      conversationId = conversation._id;
-
-      const initialMessageBotData = await redis.get(
-        `bot_initial_message_${integrationId}`
-      );
-
-      await models.ConversationMessages.createMessage({
+      msg = await models.ConversationMessages.createMessage({
         conversationId: conversation._id,
         customerId,
-        botData: JSON.parse(initialMessageBotData || "{}")
+        content: message,
+        botId: integrationId
       });
     }
-
-    // create customer message
-    const msg = await models.ConversationMessages.createMessage({
-      conversationId,
-      customerId,
-      content: message
-    });
-
     graphqlPubsub.publish(`conversationMessageInserted:${msg.conversationId}`, {
       conversationMessageInserted: msg
     });
 
-    let botMessage;
-    let botData;
-
-    if (type !== BOT_MESSAGE_TYPES.SAY_SOMETHING) {
-      const botRequest = await fetch(`${botEndpointUrl}/${sessionId}`, {
-        method: "POST",
-        body: JSON.stringify({
-          type: "text",
-          text: payload
-        }),
-        headers: { "Content-Type": "application/json" }
-      }).then(r => r.json());
-
-      const { responses } = botRequest;
-
-      botData =
-        responses.length !== 0
-          ? responses
-          : [
-              {
-                type: "text",
-                text: AUTO_BOT_MESSAGES.NO_RESPONSE
-              }
-            ];
-    } else {
-      botData = [
-        {
-          type: "text",
-          text: payload
-        }
-      ];
+    const key = type.includes("persistentMenu") ? "persistentMenuId" : "btnId";
+    if (key) {
+      await handleAutomation(subdomain, {
+        conversationMessage: msg,
+        payload: { [key]: payload, conversationId, customerId }
+      });
     }
-
-    // create bot message
-    botMessage = await models.ConversationMessages.createMessage({
-      conversationId,
-      customerId,
-      botData
-    });
-
-    graphqlPubsub.publish(
-      `conversationMessageInserted:${botMessage.conversationId}`,
-      {
-        conversationMessageInserted: botMessage
-      }
-    );
-
-    return botMessage;
+    return msg;
   },
 
   async widgetGetBotInitialMessage(
@@ -1116,7 +1088,7 @@ const widgetMutations = {
         text: "getStarted"
       }),
       headers: { "Content-Type": "application/json" }
-    }).then(r => r.json());
+    }).then((r) => r.json());
 
     await redis.set(
       `bot_initial_message_${integrationId}`,
@@ -1124,7 +1096,7 @@ const widgetMutations = {
     );
 
     return { botData: botRequest.responses };
-  },
+  }
 };
 
 export default widgetMutations;

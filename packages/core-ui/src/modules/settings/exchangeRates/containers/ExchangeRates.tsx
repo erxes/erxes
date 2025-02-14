@@ -22,10 +22,6 @@ type FinalProps = {
 } & Props;
 
 class MainList extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { listQuery } = this.props;
 

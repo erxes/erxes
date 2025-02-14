@@ -320,7 +320,7 @@ export const getDayPlanValues = async ({
     return { planCount: 0, values: [] };
   }
 
-  const pureDate = getPureDate(date, -1);
+  const pureDate = getPureDate(date);
 
   const month = pureDate.getMonth() + 1;
   const key = MONTH_NUMBERS[month];

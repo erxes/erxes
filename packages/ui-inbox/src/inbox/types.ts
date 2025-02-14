@@ -1,12 +1,12 @@
 import {
   IFacebookComment,
-  IIntegration,
-} from '@erxes/ui-inbox/src/settings/integrations/types';
+  IIntegration
+} from "@erxes/ui-inbox/src/settings/integrations/types";
 
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { ITag } from '@erxes/ui-tags/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { QueryResponse } from '@erxes/ui/src/types';
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { ITag } from "@erxes/ui-tags/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { QueryResponse } from "@erxes/ui/src/types";
 
 export interface IVideoCallData {
   url: string;
@@ -148,7 +148,7 @@ export interface IBotData {
     {
       title: string;
       payload: string;
-    },
+    }
   ];
   wrapped?: {
     type: string;
