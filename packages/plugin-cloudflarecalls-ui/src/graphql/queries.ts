@@ -15,7 +15,11 @@ const callUserIntegrations: any = `
     cloudflareCallsUserIntegrations {
       _id
       erxesApiId
-      operators
+      departments{
+        _id
+        operators
+        name
+      }
     }
   }
 `;
@@ -91,7 +95,6 @@ const customers = `
   }
 `;
 
-
 const callHistories = `
   query cloudflareCallsHistories($limit: Int, $callStatus: String, $callType: String, $startDate: String, $endDate: String, $skip: Int, $integrationId: String, $searchValue: String) {
     cloudflareCallsHistories(limit: $limit, callStatus: $callStatus, callType: $callType, startDate: $startDate, endDate: $endDate, skip: $skip, integrationId: $integrationId, searchValue: $searchValue) {
@@ -141,7 +144,6 @@ const callsGetConfigs = `
     cloudflareCallsGetConfigs
   }
 `;
-
 
 export default {
   callsIntegrationDetail,

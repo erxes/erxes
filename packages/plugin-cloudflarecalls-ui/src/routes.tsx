@@ -9,11 +9,6 @@ const RoomProvider = asyncComponent(
   () => import(/* webpackChunkName: "Widget - Calls" */ './containers/Room'),
 );
 
-const Dashboard = asyncComponent(() => import('./components/Dashboard'));
-const DashboardDetail = asyncComponent(
-  () => import('./containers/switchboard/Detail'),
-);
-
 const CreateConnection = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
@@ -22,34 +17,10 @@ const CreateConnection = () => {
   return <RoomProvider typeId={type} />;
 };
 
-const ShowDashboard = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  const queryParams = queryString.parse(location.search);
-
-  return (
-    <Dashboard
-      queryParams={queryParams}
-      location={localStorage}
-      navigate={navigate}
-    />
-  );
-};
-
-const ShowDashboardDetail = (queueList) => {
-  return <DashboardDetail queueList={queueList} />;
-};
-
 const routes = () => {
   return (
     <Routes>
       <Route path="/cloudflarecalls/" element={<CreateConnection />} />
-      <Route path="/cloudflarecalls/switchboard" element={<ShowDashboard />} />
-      <Route
-        path="/cloudflarecalls/switchboard/:queue"
-        element={<ShowDashboardDetail />}
-      />
     </Routes>
   );
 };

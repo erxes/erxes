@@ -26,6 +26,7 @@ export const setupMessageConsumers = async () => {
         await models
       ).Integrations.create({
         erxesApiId: integrationId,
+        status: 'active',
         ...docData,
       });
 
@@ -45,7 +46,7 @@ export const setupMessageConsumers = async () => {
 
       const integration = await models.Integrations.findOne({
         erxesApiId: integrationId,
-      });
+      }).lean();
 
       if (!integration) {
         return {
@@ -57,7 +58,10 @@ export const setupMessageConsumers = async () => {
       if (action === 'getDetails') {
         return {
           status: 'success',
-          data: integration,
+          data: {
+            ...integration,
+            isReceiveWebCall: Boolean(integration.status || false),
+          },
         };
       }
 
@@ -99,6 +103,29 @@ export const setupMessageConsumers = async () => {
       const updatedIntegration = await models.Integrations.findOne({
         erxesApiId: integrationId,
       });
+
+      if (updatedIntegration) {
+        return {
+          status: 'success',
+        };
+      } else {
+        return {
+          status: 'error',
+          errorMessage: 'Integration not found.',
+        };
+      }
+    },
+  );
+
+  consumeRPCQueue(
+    'cloudflarecalls:createOrUpdateIntegration',
+    async ({ subdomain, data: { integrationId, doc } }) => {
+      const details = JSON.parse(JSON.stringify(doc.data));
+      const models = await generateModels(subdomain);
+      const updatedIntegration =
+        await models.Integrations.createOrUpdateIntegration(integrationId, {
+          ...details,
+        });
 
       if (updatedIntegration) {
         return {

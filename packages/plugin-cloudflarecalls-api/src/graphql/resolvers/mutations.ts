@@ -2,6 +2,7 @@ import { IContext } from '../../connectionResolver';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { updateConfigs } from '../../helpers';
 import receiveCall from '../../receiveCall';
+import { Department } from '../../models/definitions/integrations';
 export interface ISession {
   sessionCode: string;
 }
@@ -14,14 +15,17 @@ const callsMutations = {
       roomState,
       audioTrack,
       integrationId,
+      departmentId,
     }: {
       callerNumber: string;
       roomState: string;
       audioTrack: string;
       integrationId: string;
+      departmentId: string;
     },
     { user, models, subdomain }: IContext,
   ) {
+    // Receive the call
     await receiveCall(
       models,
       subdomain,
@@ -40,7 +44,16 @@ const callsMutations = {
     if (!integration) {
       throw new Error('Integration not found');
     }
-    integration.operators.map((operator) => {
+
+    const department = integration.departments?.find(
+      (dept: Department) => dept._id === departmentId,
+    );
+
+    if (!department) {
+      throw new Error(`Department not found`);
+    }
+
+    department.operators.forEach((operator) => {
       graphqlPubsub.publish('cloudflareReceiveCall', {
         cloudflareReceiveCall: {
           callerNumber,

@@ -121,13 +121,17 @@ const IncomingCallContainer = (props: IProps) => {
       });
   }, [phoneNumber]);
 
-  if (leaveCall?.cloudflareReceiveCall) {
-    if (!context || !context?.peer) return;
-    if (userMedia?.audioStreamTrack) {
-      context.peer.closeTrack(userMedia?.audioStreamTrack);
+  useEffect(() => {
+    if (leaveCall?.cloudflareReceiveCall) {
+      if (!context?.peer) return;
+
+      if (userMedia?.audioStreamTrack) {
+        context.peer.closeTrack(userMedia.audioStreamTrack);
+      }
+
+      setIsCallReceive?.(false);
     }
-    if (setIsCallReceive) setIsCallReceive(false);
-  }
+  }, [leaveCall, context, userMedia?.audioStreamTrack, setIsCallReceive]);
   return (
     <IncomingCall
       leaveCall={stopCall}

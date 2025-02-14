@@ -30,7 +30,15 @@ export const loadCallHistoryClass = (models: IModels) => {
       if (!integration) {
         throw new Error('Integration not found');
       }
-      const operator = integration.operators.find(
+
+      const department = integration.departments?.find(
+        (dept) => dept._id === selector.departmentId,
+      );
+
+      if (!department) {
+        throw new Error(`Department not found`);
+      }
+      const operator = department.operators.find(
         (operator) => operator.userId === user?._id,
       );
       if (!operator) {
@@ -70,9 +78,18 @@ export const loadCallHistoryClass = (models: IModels) => {
       if (!integration) {
         throw new Error('Integration not found');
       }
-      const operator = integration.operators.find(
+
+      const department = integration.departments?.find(
+        (dept) => dept._id === selector.departmentId,
+      );
+
+      if (!department) {
+        throw new Error(`Department not found`);
+      }
+      const operator = department.operators.find(
         (operator) => operator.userId === user?._id,
       );
+
       if (!operator) {
         throw new Error('Operator not found');
       }

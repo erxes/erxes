@@ -12,6 +12,10 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
     userId: string,
     integrationId?: string,
   ): Promise<IIntegrationDocument>;
+  createOrUpdateIntegration(
+    _id: string,
+    doc: IIntegration,
+  ): Promise<IIntegrationDocument>;
 }
 
 export const loadIntegrationClass = (models: IModels) => {
@@ -21,7 +25,7 @@ export const loadIntegrationClass = (models: IModels) => {
       integrationId?: string,
     ) {
       let integrations = await models.Integrations.find({
-        'operators.userId': userId,
+        'departments.operators.userId': userId,
       }).lean();
 
       if (!integrations) {
@@ -29,7 +33,7 @@ export const loadIntegrationClass = (models: IModels) => {
       }
 
       if (integrationId) {
-        const a = integrations.map((integration: IIntegration) => {
+        integrations.map((integration: IIntegration) => {
           return integration.erxesApiId === integrationId;
         });
       }
@@ -37,11 +41,7 @@ export const loadIntegrationClass = (models: IModels) => {
       const filteredIntegration = integrations.map((item: IIntegration) => {
         let integration = item;
 
-        const filteredOperators = integration.operators.filter(
-          (operator) => operator.userId === userId,
-        );
-
-        return { ...integration, operators: filteredOperators };
+        return { ...integration };
       });
 
       return filteredIntegration;
@@ -53,6 +53,34 @@ export const loadIntegrationClass = (models: IModels) => {
       });
 
       return integration;
+    }
+
+    public static async createOrUpdateIntegration(
+      _id: string,
+      doc: IIntegration,
+    ) {
+      const integration = await models.Integrations.findOne({
+        erxesApiId: _id,
+      });
+      if (integration) {
+        await models.Integrations.updateOne(
+          { erxesApiId: _id },
+          {
+            $set: {
+              departments: doc.departments,
+              status: Boolean(doc.isReceiveWebCall || false),
+            },
+          },
+        );
+
+        return models.Integrations.findOne({ erxesApiId: _id });
+      }
+
+      return models.Integrations.create({
+        departments: doc.departments,
+        erxesApiId: _id,
+        status: Boolean(doc.isReceiveWebCall || false),
+      });
     }
   }
 

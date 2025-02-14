@@ -34,7 +34,9 @@ const callsQueries = {
   },
 
   async cloudflareCallsGetIntegrations(_root, _args, { models }: IContext) {
-    const integrations = await models.Integrations.find({});
+    const integrations = await models.Integrations.find({
+      status: { $ne: 'inactive' },
+    });
 
     return integrations;
   },

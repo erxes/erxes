@@ -3,10 +3,15 @@ import gql from 'graphql-tag';
 const integrationCommonFields = `
     _id: String
     erxesApiId: String
-    operators: JSON
 `;
 
 const types = `
+
+  type CloudflareCallDepartment {
+    _id: String!
+    name: String!
+    operators: JSON
+  }
 
   extend type Customer @key(fields: "_id") {
     _id: String! @external
@@ -16,8 +21,10 @@ const types = `
     _id: String! @external
   }
 
-  type CloudflareCallsIntegrationDetailResponse {
+  type CloudflareCallsIntegrationDetailResponse @key(fields: "_id") {
     ${integrationCommonFields}
+    departments: [CloudflareCallDepartment]
+    isReceiveWebCall: Boolean
   }
 
   input CallIntegrationConfigs {

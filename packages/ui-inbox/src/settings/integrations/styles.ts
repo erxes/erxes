@@ -426,6 +426,23 @@ const LogoWrapper = styledTS<{ backgroundColor?: string }>(styled.div)`
   }
 `;
 
+const OperatorFormView = styled.div`
+  position: relative;
+  background: ${colors.bgActive};
+  padding: 5px ${dimensions.unitSpacing}px;
+  margin-bottom: ${dimensions.unitSpacing}px;
+  border-radius: 4px;
+`;
+
+const OperatorRemoveBtn = styled.div`
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  > button {
+    padding: 3px 5px;
+  }
+`;
+
 export {
   AccountBox,
   AccountItem,
@@ -460,4 +477,6 @@ export {
   TextWrapper,
   ToolBar,
   Uploading,
+  OperatorFormView,
+  OperatorRemoveBtn,
 };
