@@ -22,22 +22,26 @@ export const branchCommonFields = `
   uiOptions
   permissionConfig
   pipelineConfig
+  extraProductCategories
+  roomCategories
+  discount
+  time
 `;
 
-const tmsBranchDetail = `
-  query tmsBranchDetail($_id: String!) {
-    tmsBranchDetail(_id: $_id) {
+const pmsBranchDetail = `
+  query pmsBranchDetail($_id: String!) {
+    pmsBranchDetail(_id: $_id) {
       ${branchCommonFields}
     }
   }
 `;
 
-const tmBranchList = `
-  query tmsBranchList(
+const pmBranchList = `
+  query pmsBranchList(
     $sortField: String
     $sortDirection: Int
   ) {
-    tmsBranchList(
+    pmsBranchList(
       sortField: $sortField
       sortDirection: $sortDirection
     ) {
@@ -47,6 +51,6 @@ const tmBranchList = `
 `;
 
 export default {
-  tmBranchList,
-  tmsBranchDetail
+  pmBranchList,
+  pmsBranchDetail
 };
