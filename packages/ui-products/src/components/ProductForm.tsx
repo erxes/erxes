@@ -83,7 +83,6 @@ const Form = (props: Props) => {
     scopeBrandIds,
     code,
     categoryId,
-    currency,
   } = product;
 
   const paramCategoryId = router.getParam(location, 'categoryId');
