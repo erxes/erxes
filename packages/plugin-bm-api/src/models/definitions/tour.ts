@@ -1,8 +1,8 @@
-import { ICustomField } from '@erxes/api-utils/src/definitions/common';
-import { Schema, Document } from 'mongoose';
-import { CAR_SELECT_OPTIONS } from './constants';
-import { field, schemaHooksWrapper } from './utils';
-import { ILocation, locationSchema } from './itinerary';
+import { ICustomField } from "@erxes/api-utils/src/definitions/common";
+import { Schema, Document } from "mongoose";
+import { CAR_SELECT_OPTIONS } from "./constants";
+import { field, schemaHooksWrapper } from "./utils";
+import { ILocation, locationSchema } from "./itinerary";
 
 export interface IGuideItem {
   guideId: string;
@@ -33,10 +33,10 @@ export interface ITourDocument extends ITour, Document {
 }
 
 const STATUS_TYPES = [
-  { label: 'running', value: 'running' },
-  { label: 'compeleted', value: 'compeleted' },
-  { label: 'scheduled', value: 'scheduled' },
-  { label: 'cancelled', value: 'cancelled' },
+  { label: "running", value: "running" },
+  { label: "compeleted", value: "compeleted" },
+  { label: "scheduled", value: "scheduled" },
+  { label: "cancelled", value: "cancelled" }
 ];
 
 const getEnum = (): string[] => {
@@ -46,42 +46,42 @@ const getEnum = (): string[] => {
 export const guideItemSchema = new Schema(
   {
     guideId: field({ type: String, optional: true }),
-    type: field({ type: String, optional: true }),
+    type: field({ type: String, optional: true })
   },
-  { _id: false },
+  { _id: false }
 );
 export const tourSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    createdAt: field({ type: Date, label: 'Created at' }),
-    modifiedAt: field({ type: Date, label: 'Modified at' }),
-    refNumber: field({ type: String, optional: true, label: 'refnumber' }),
-    name: field({ type: String, optional: true, label: 'name' }),
-    content: field({ type: String, optional: true, label: 'content' }),
-    duration: field({ type: Number, optional: true, label: 'number' }),
+    createdAt: field({ type: Date, label: "Created at" }),
+    modifiedAt: field({ type: Date, label: "Modified at" }),
+    refNumber: field({ type: String, optional: true, label: "refnumber" }),
+    name: field({ type: String, optional: true, label: "name" }),
+    content: field({ type: String, optional: true, label: "content" }),
+    duration: field({ type: Number, optional: true, label: "number" }),
     location: field({
       type: [locationSchema],
       optional: true,
-      label: 'location',
+      label: "location"
     }),
-    itineraryId: field({ type: String, optional: true, label: 'initeraryId' }),
-    startDate: field({ type: Date, optional: true, label: 'date' }),
-    endDate: field({ type: Date, optional: true, label: 'date' }),
-    groupSize: field({ type: Number, optional: true, label: 'group size' }),
-    guides: field({ type: [guideItemSchema], optional: true, label: 'guides' }),
+    itineraryId: field({ type: String, optional: true, label: "initeraryId" }),
+    startDate: field({ type: Date, optional: true, label: "date" }),
+    endDate: field({ type: Date, optional: true, label: "date" }),
+    groupSize: field({ type: Number, optional: true, label: "group size" }),
+    guides: field({ type: [guideItemSchema], optional: true, label: "guides" }),
     status: field({
       type: String,
       enum: getEnum(),
-      default: '',
+      default: "",
       optional: true,
-      label: 'status',
-      esType: 'keyword',
-      selectOptions: STATUS_TYPES,
+      label: "status",
+      esType: "keyword",
+      selectOptions: STATUS_TYPES
     }),
-    cost: field({ type: Number, optional: true, label: 'cost' }),
-    tags: field({ type: [String], optional: true, label: 'tags' }),
-    viewCount: field({ type: Number, optional: true, label: 'viewCount' }),
-    branchId: field({ type: String, optional: true, label: 'branchId' }),
+    cost: field({ type: Number, optional: true, label: "cost" }),
+    tags: field({ type: [String], optional: true, label: "tags" }),
+    viewCount: field({ type: Number, optional: true, label: "viewCount" }),
+    branchId: field({ type: String, optional: true, label: "branchId" })
   }),
-  'erxes_tours',
+  "erxes_tours"
 );
