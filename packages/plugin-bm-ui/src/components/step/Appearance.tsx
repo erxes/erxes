@@ -49,7 +49,6 @@ const Appearance = (props: Props) => {
       texts: {}
     }
   );
-  console.log("uiOptions", uiOptions);
   const onChangeFunction = (name: any, value: any) => {
     onChange(name, value);
   };
@@ -60,7 +59,6 @@ const Appearance = (props: Props) => {
   };
 
   const renderUploadImage = (id, title, desc) => {
-    console.log("pisda", uiOptions[id]);
     return (
       <LogoWrapper>
         <FormGroup>

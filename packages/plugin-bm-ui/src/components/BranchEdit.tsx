@@ -43,7 +43,6 @@ const BranchEdit = (props: Props) => {
       texts: {}
     }
   });
-  console.log("uiOptions ss ", state);
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
