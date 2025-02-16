@@ -25,7 +25,7 @@ type Props = {
 
 const Detail = ({ invoice }: Props) => {
   const renderStatus = () => {
-    let labelStyle = 'danger';
+    let labelStyle;
 
     switch (invoice.status) {
       case 'paid':
