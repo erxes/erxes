@@ -1,6 +1,7 @@
 import { generateModels } from "./connectionResolver";
 import { IMPORT_EXPORT_TYPES } from "./constants";
 import { sendCoreMessage } from "./messageBroker";
+import { createConformity } from './graphql/utils';
 
 export default {
   importExportTypes: IMPORT_EXPORT_TYPES,
@@ -20,6 +21,21 @@ export default {
       }
 
       objects = await model.insertMany(docs);
+
+      (docs || []).forEach((doc, index) => {
+        const { customers } = doc || {};
+
+        if ((customers || []).length) {
+          const { _id } = objects[index] || {};
+
+          createConformity(subdomain, {
+            mainType: contentType,
+            mainTypeId: _id,
+            customerIds: customers,
+          });
+        }
+      });
+
       return { objects, updated: 0 };
     } catch (e) {
       return { error: e.message };
@@ -78,15 +94,50 @@ export default {
             stageName = value;
             break;
 
-          case "labels":
-            const label = await models.PipelineLabels.findOne({
-              name: value
-            });
+          case 'labelIds':
+            {
+              const values = (value || '').trim().split(/\s*,\s*/);
 
-            doc.labelIds = label ? [label._id] : "";
+              const pipeline = pipelineName
+                ? await models.Pipelines.findOne({ name: pipelineName })
+                : null;
+
+              const labels = await models.PipelineLabels.find({
+                name: { $in: values },
+                ...(pipeline && { pipelineId: pipeline._id }),
+              });
+
+              doc[property.name] = labels?.map((l) => l._id) || [];
+            }
 
             break;
 
+          case 'customers':
+            {
+              const values = (value || '').trim().split(/\s*,\s*/);
+
+              const customers = await sendCoreMessage({
+                subdomain,
+                action: 'customers.find',
+                data: {
+                  $expr: {
+                    $or: [
+                      { $in: ['$primaryEmail', values] },
+                      { $in: ['$primaryPhone', values] },
+                      { $in: ['$emails', values] },
+                      { $in: ['$phones', values] },
+                      { $in: ['$code', values] },
+                    ],
+                  },
+                },
+                isRPC: true,
+                defaultValue: [],
+              });
+
+              doc[property.name] = customers?.map((c) => c._id) || [];
+            }
+            break;
+  
           case "assignedUserEmail":
             {
               const assignedUser = await sendCoreMessage({
