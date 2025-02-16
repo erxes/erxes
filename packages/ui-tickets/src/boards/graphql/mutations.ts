@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 export const commonMutationVariables = `
   $parentId: String,
@@ -105,14 +105,13 @@ export const commonFields = `
     }
   }
   boardId
-    ... @defer {
+
       companies {
         _id
         primaryName
         links
       }
-    }
-    ... @defer {
+  
       customers {
         _id
         firstName
@@ -122,7 +121,7 @@ export const commonFields = `
         primaryPhone
         visitorContactInfo
       }
-    }
+    
   tags {
     _id
     name
@@ -314,5 +313,5 @@ export default {
   pipelineLabelsLabel,
   boardItemsSaveForGanttTimeline,
   stagesUpdateOrder,
-  conversationConvertToCard,
+  conversationConvertToCard
 };

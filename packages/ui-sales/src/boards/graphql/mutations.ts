@@ -117,14 +117,13 @@ export const commonFields = `
     }
   }
   boardId
-    ... @defer {
+
       companies {
         _id
         primaryName
         links
       }
-    }
-    ... @defer {
+    
       customers {
         _id
         firstName
@@ -134,7 +133,7 @@ export const commonFields = `
         primaryPhone
         visitorContactInfo
       }
-    }
+    
 
   tags {
     _id
@@ -329,5 +328,5 @@ export default {
   pipelineLabelsLabel,
   boardItemsSaveForGanttTimeline,
   stagesUpdateOrder,
-  conversationConvertToCard,
+  conversationConvertToCard
 };

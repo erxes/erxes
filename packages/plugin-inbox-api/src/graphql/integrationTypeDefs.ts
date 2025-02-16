@@ -85,6 +85,7 @@ export const types = `
     botEndpointUrl: String
     skillData: JSON
     botShowInitialMessage: Boolean
+    botCheck: Boolean
     availabilityMethod: String
     isOnline: Boolean,
     onlineHours: [MessengerOnlineHoursSchema]

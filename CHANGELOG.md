@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.6.0-rc.0](https://github.com/erxes/erxes/compare/2.5.0...2.6.0-rc.0) (2025-02-04)
+
+
+### Features
+
+* **messenger:** add bot functionality to Erxes Messenger widget ([71b9b92](https://github.com/erxes/erxes/commit/71b9b92abaee4cd23456eb93c5b25137d6409776))
 ## [2.5.1](https://github.com/erxes/erxes/compare/2.5.0...2.5.1) (2025-02-10)
 
 ### Bug Fixes
