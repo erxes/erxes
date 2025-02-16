@@ -111,7 +111,7 @@ export const fieldsTypes = `
 export const fieldsQueries = `
   fieldsGetTypes: [JSON]
   getFieldsInputTypes:[JSON]
-  fields(contentType: String!, contentTypeId: String, isVisible: Boolean, searchable: Boolean, isVisibleToCreate: Boolean, pipelineId: String, groupIds: [String]): [Field]
+  fields(contentType: String!, contentTypeId: String, isVisible: Boolean, searchable: Boolean, isVisibleToCreate: Boolean, pipelineId: String, groupIds: [String],isDefinedByErxes:Boolean): [Field]
   fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, config: JSON, onlyDates: Boolean): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
   fieldsGetRelations(contentType: String!, isVisibleToCreate: Boolean): [Field]
