@@ -63,7 +63,7 @@ function ManageRoom(props: Props) {
           createVideoRoom();
         }
       }}
-      tabIndex={0} // This makes the element focusable
+       // This makes the element focusable
     >
       <Tip text={__("Invite to video call")}>
         {loading ? <SmallLoader /> : <Icon icon="video" />}

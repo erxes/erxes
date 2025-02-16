@@ -90,7 +90,7 @@ const mutations = {
         { privacy: 'private' },
         subdomain
       );
-      if (!roomResponse || !roomResponse.name || !roomResponse.domain_name) {
+      if (!roomResponse && !roomResponse.name || !roomResponse.domain_name) {
         throw new Error(
           'Failed to create room or missing required data in response'
         );
@@ -107,7 +107,7 @@ const mutations = {
         },
         subdomain
       );
-      if (!tokenResponse || !tokenResponse.token) {
+      if (!tokenResponse && !tokenResponse.token) {
         throw new Error(
           'Failed to generate meeting token or missing token in response'
         );
