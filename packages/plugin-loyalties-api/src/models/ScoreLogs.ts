@@ -95,12 +95,6 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           } as any,
         },
         {
-          $skip: (page - 1) * perPage,
-        },
-        {
-          $limit: perPage,
-        },
-        {
           $group: {
             _id: '$ownerId',
             ownerType: { $first: '$ownerType' },
@@ -114,6 +108,12 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
             ownerType: 1,
             scoreLogs: 1,
           },
+        },
+        {
+          $skip: (page - 1) * perPage,
+        },
+        {
+          $limit: perPage,
         },
       ]);
 

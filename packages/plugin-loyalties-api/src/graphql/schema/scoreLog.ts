@@ -13,7 +13,7 @@ export const types = `
     campaignId: String
     target: JSON
     action: String
-
+    type: String
     campaign: ScoreCampaign
   }
 
