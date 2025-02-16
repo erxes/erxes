@@ -144,6 +144,11 @@ import {
   IReportDocument,
   ISectionDocument,
 } from './db/models/definitions/insight';
+import {
+  IExchangeRateModel,
+  loadExchangeRateClass,
+} from './db/models/ExchangeRates';
+import { IExchangeRateDocument } from './db/models/definitions/exchangeRate';
 
 export interface IModels {
   Users: IUserModel;
@@ -184,6 +189,7 @@ export interface IModels {
   Sections: ISectionModel;
   Charts: IChartModel;
   Reports: IReportModel;
+  ExchangeRates: IExchangeRateModel;
 }
 
 export interface IContext extends IMainContext {
@@ -361,6 +367,11 @@ export const loadClasses = (
   models.Sections = db.model<ISectionDocument, ISectionModel>(
     'sections',
     loadSectionClass(models, subdomain)
+  );
+
+  models.ExchangeRates = db.model<IExchangeRateDocument, IExchangeRateModel>(
+    'exchange_rates',
+    loadExchangeRateClass(models, subdomain)
   );
 
   return models;

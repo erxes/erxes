@@ -10,10 +10,14 @@ export const getOrCreateCustomer = async (
   userInfo: any,
   integration: IIntegrationDocument
 ) => {
+
   const waId = userInfo[0]?.wa_id;
   const name = userInfo[0]?.profile?.name;
   const integrationId = integration.erxesApiId;
   let customer = await models.Customers.findOne({ userId });
+  console.log(waId,'waId')
+  console.log(name,'name')
+  console.log(customer,'customer')
   if (customer) {
     return customer;
   }
