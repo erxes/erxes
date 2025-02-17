@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import { withProps } from "@erxes/ui/src/utils/core";
 import React, { useState } from "react";
 import * as compose from "lodash.flowright";
@@ -36,7 +34,6 @@ type FinalProps = {
 } & Props;
 
 function BotSelector({ botId, bots, onSelect }) {
-  console.log(bots, "bots");
   const [selectedBotId, setBotId] = useState(botId || "");
   const [isOpen, setOpen] = useState(!botId || false);
 
@@ -111,4 +108,3 @@ export default withProps<Props>(
     })
   )(BotSelectorContainer)
 );
->>>>>>> 25a5a9e3a74e3ab14900bb174a08c4f152a614c6

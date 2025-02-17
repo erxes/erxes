@@ -8,7 +8,7 @@ import {
 } from "@erxes/ui/src/styles/main";
 import React, { useEffect, useMemo, useState } from 'react';
 import SelectAccount from '../../../settings/accounts/containers/SelectAccount';
-import { IConfigsMap, GetRateQueryResponse } from '../../../settings/configs/types';
+import { GetRateQueryResponse, IConfigsMap } from '../../../settings/configs/types';
 import { ITransaction } from '../../types';
 import { gql, useLazyQuery } from '@apollo/client';
 import { queries as configsQueries } from '../../../settings/configs/graphql'
@@ -68,7 +68,7 @@ const CurrencyFields = (props: Props) => {
         date: trDoc.date || new Date(), currency: detail.account?.currency
       }
     }).then((data) => {
-      setSpotRate(data?.data?.accountingsGetRate?.rate || 0)
+      setSpotRate(data?.data?.exchangeGetRate?.rate || 0)
     })
   }, [trDoc.date, detail.account]);
 

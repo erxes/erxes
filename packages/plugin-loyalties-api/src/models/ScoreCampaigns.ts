@@ -3,7 +3,7 @@ import {
   IScoreCampaign,
   IScoreCampaignDocuments,
   SCORE_CAMPAIGN_STATUSES,
-  scoreCampaignSchema
+  scoreCampaignSchema,
 } from './definitions/scoreCampaigns';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../logUtils';
 import { IModels } from '../connectionResolver';
@@ -66,32 +66,52 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       user: IUserDocument
     ) {
       if (doc.fieldGroupId) {
-        if (!doc?.fieldName) {
-          throw new Error('Please provide a field name that for score field');
+        if (doc.fieldId) {
+          const field = await sendCoreMessage({
+            subdomain,
+            action: 'fields.findOne',
+            data: {
+              query: { _id: doc.fieldId },
+            },
+            defaultValue: null,
+            isRPC: true,
+          });
+
+          if (!field) {
+            throw new Error('Cannot find field from database');
+          }
+
+          if (!field.isDefinedByErxes || !field.isDisabled) {
+            throw new Error('Somehing went wrong field is not supported');
+          }
+        } else {
+          if (!doc?.fieldName) {
+            throw new Error('Please provide a field name that for score field');
+          }
+
+          const field = await sendCoreMessage({
+            subdomain,
+            action: 'fields.create',
+            data: {
+              text: doc.fieldName,
+              groupId: doc.fieldGroupId,
+              type: 'input',
+              validation: 'number',
+              contentType: `core:${doc.ownerType}`,
+              isDefinedByErxes: true,
+              isDisabled: true,
+            },
+            defaultValue: null,
+            isRPC: true,
+          });
+
+          doc.fieldId = field._id;
         }
-
-        const field = await sendCoreMessage({
-          subdomain,
-          action: 'fields.create',
-          data: {
-            text: doc.fieldName,
-            groupId: doc.fieldGroupId,
-            type: 'input',
-            validation: 'number',
-            contentType: `core:${doc.ownerType}`,
-            isDefinedByErxes: true,
-            isDisabled: true
-          },
-          defaultValue: null,
-          isRPC: true
-        });
-
-        doc.fieldId = field._id;
       }
 
       const result = await models.ScoreCampaigns.create({
         ...doc,
-        createdUserId: user._id
+        createdUserId: user._id,
       });
       await putCreateLog(
         models,
@@ -99,7 +119,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         {
           type: 'scoreCampaign',
           newData: doc,
-          object: doc
+          object: doc,
         },
         user
       );
@@ -126,7 +146,10 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         modifiedFieldData.groupId = scoreCampaign.fieldGroupId;
       }
 
-      if (doc.fieldName !== scoreCampaign.fieldName) {
+      if (
+        doc.fieldName !== scoreCampaign.fieldName &&
+        doc.fieldId !== scoreCampaign.fieldId
+      ) {
         modifiedFieldData.text = scoreCampaign.fieldName;
       }
 
@@ -136,9 +159,9 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
           action: 'fields.updateOne',
           data: {
             selector: { _id: scoreCampaign.fieldId },
-            modifier: { $set: modifiedFieldData }
+            modifier: { $set: modifiedFieldData },
           },
-          isRPC: true
+          isRPC: true,
         });
       }
       await putUpdateLog(
@@ -147,7 +170,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         {
           type: 'scoreCampaign',
           newData: doc,
-          object: scoreCampaign.toObject()
+          object: scoreCampaign.toObject(),
         },
         user
       );
@@ -166,7 +189,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         subdomain,
         {
           type: 'scoreCampaign',
-          object: scoreCampaign
+          object: scoreCampaign,
         },
         user
       );
@@ -198,7 +221,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
 
       const campaign = await models.ScoreCampaigns.findOne({
         _id: campaignId,
-        status: 'published'
+        status: 'published',
       });
 
       if (!campaign) {
@@ -270,7 +293,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         target,
         actionMethod,
         serviceName,
-        targetId
+        targetId,
       } = data;
 
       if (!ownerType || !ownerId) {
@@ -285,7 +308,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
 
       const campaign = await models.ScoreCampaigns.findOne({
         _id: campaignId,
-        status: 'published'
+        status: 'published',
       });
 
       if (!campaign) {
@@ -355,7 +378,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         action: 'fields.prepareCustomFieldsData',
         data: [{ field: campaign.fieldId, value: newScore }],
         defaultValue: [],
-        isRPC: true
+        isRPC: true,
       });
 
       if (
@@ -366,7 +389,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       ) {
         updatedCustomFieldsData = [
           ...(customFieldsData || []),
-          preparedCustomFieldsData
+          preparedCustomFieldsData,
         ];
       } else {
         updatedCustomFieldsData = customFieldsData.map((customFieldData) =>
@@ -379,7 +402,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       const actionsObj = {
         user: 'users.updateOne',
         customer: 'customers.updateOne',
-        company: 'companies.updateOne'
+        company: 'companies.updateOne',
       };
 
       await sendCoreMessage({
@@ -387,10 +410,10 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         action: actionsObj[ownerType],
         data: {
           selector: { _id: ownerId },
-          modifier: { $set: { customFieldsData: updatedCustomFieldsData } }
+          modifier: { $set: { customFieldsData: updatedCustomFieldsData } },
         },
         isRPC: true,
-        defaultValue: null
+        defaultValue: null,
       });
 
       return await models.ScoreLogs.create({
@@ -401,7 +424,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         campaignId: campaign._id,
         serviceName,
         targetId,
-        action: actionMethod
+        action: actionMethod,
       });
     }
   }

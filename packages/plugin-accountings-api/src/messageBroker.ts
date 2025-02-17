@@ -334,6 +334,15 @@ export const sendCoreMessage = async (
   });
 };
 
+export const getConfig = async (subdomain: string, code: string, defaultValue?: any) => {
+  return sendCoreMessage({
+    subdomain,
+    action: 'getConfig',
+    data: { code, defaultValue },
+    isRPC: true
+  });
+}
+
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,

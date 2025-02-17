@@ -1,6 +1,6 @@
 // SETTINGS
 
-import { QueryResponse } from '@erxes/ui/src/types';
+import { QueryResponse } from "@erxes/ui/src/types";
 
 export type IConfigsMap = { [key: string]: any };
 
@@ -18,9 +18,9 @@ export type ConfigsQueryResponse = {
 };
 
 export const statusFilters = [
-  { key: 'create', value: 'Create' },
-  { key: 'update', value: 'Update' },
-  { key: 'delete', value: 'Delete' }
+  { key: "create", value: "Create" },
+  { key: "update", value: "Update" },
+  { key: "delete", value: "Delete" }
 ];
 
 // queries
@@ -78,4 +78,8 @@ export type IPmsBranch = {
   permissionConfig?: any;
   user?: any;
   pipelineConfig?: any;
+  roomCategories?: string[];
+  extraProductCategories?: string[];
+  time?: string;
+  discount?: any;
 };
