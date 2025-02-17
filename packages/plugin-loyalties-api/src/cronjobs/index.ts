@@ -3,8 +3,9 @@ import { sendCommonMessage, sendCoreMessage } from '../messageBroker';
 
 export default {
   handleMinutelyJob: async ({ subdomain }) => {
-    const NOW_MONTH = new Date().getMonth() + 1;
-    const NOW_DAY = new Date().getDate();
+    const NOW = new Date();
+    const NOW_MONTH = NOW.getMonth() + 1;
+    const NOW_DAY = NOW.getDate();
 
     const customers = await sendCoreMessage({
       subdomain,

@@ -2,8 +2,8 @@ import redis from '@erxes/api-utils/src/redis';
 import * as mongoose from 'mongoose';
 import { sendCommonMessage } from './messageBroker';
 
-const getSubdomain = (url) => {
-  const hostname = url.replace(/^(https?:\/\/)/, '');
+const getSubdomain = (domain: string) => {
+  const hostname = domain.replace(/^(https?:\/\/)/, '');
   
   const firstPart = hostname.split('.')[0];
   

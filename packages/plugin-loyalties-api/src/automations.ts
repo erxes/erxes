@@ -81,7 +81,38 @@ const checkBirthDateTrigger = async (subdomain, data) => {
 
   const { appliesTo = [] } = config || {};
 
-  console.log('data', data)
+  if (!appliesTo?.length || !target?.birthDate) return false;
+
+  const today = new Date();
+  const birthDate = new Date(target.birthDate);
+
+  const startOfYear = new Date(today.getFullYear(), 0, 1);
+  const endOfYear = new Date(today.getFullYear() + 1, 0, 1);
+
+  const executions = await sendCoreMessage({
+    subdomain,
+    action: 'automations',
+    data: {
+      triggerType: 'loyalties:promotion',
+      'triggerConfig.promotionType': 'birthday',
+      targetId: target._id,
+      status: 'complete',
+      createdAt: {
+        $gte: startOfYear,
+        $lt: endOfYear,
+      },
+    },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  if (
+    executions.length === 0 &&
+    birthDate.getMonth() === today.getMonth() &&
+    birthDate.getDate() === today.getDate()
+  ) {
+    return true;
+  }
 
   return false;
 };
@@ -92,15 +123,17 @@ const checkRegistrationTrigger = async (subdomain, data) => {
   const { appliesTo = [] } = config || {};
 
   if (appliesTo.includes('customer')) {
+    const { _id, createdAt } = target;
 
-    const {_id, createdAt} = target;
-
-    let isToday: boolean = false
+    let isToday: boolean = false;
 
     const today = new Date();
     const targetDate = new Date(createdAt);
-  
-    isToday = targetDate.getDate() === today.getDate() && targetDate.getMonth() === today.getMonth() && targetDate.getFullYear() === today.getFullYear()
+
+    isToday =
+      targetDate.getDate() === today.getDate() &&
+      targetDate.getMonth() === today.getMonth() &&
+      targetDate.getFullYear() === today.getFullYear();
 
     const conformities = await sendCoreMessage({
       subdomain,
@@ -646,6 +679,11 @@ const actionCreate = async ({ subdomain, action, execution }) => {
   const { triggerType } = execution || {};
 
   const [serviceName, contentType] = triggerType.split(/[:.]/);
+
+  console.log('triggerType', triggerType);
+  console.log('serviceName', serviceName);
+  console.log('contentType', contentType);
+
   try {
     switch (type) {
       case 'loyalties:score.create':
