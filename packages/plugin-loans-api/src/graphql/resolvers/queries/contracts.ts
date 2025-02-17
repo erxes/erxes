@@ -1,9 +1,13 @@
 import { getFullDate } from "../../../models/utils/utils";
 import { checkPermission, paginate } from "@erxes/api-utils/src";
 import { IContext } from "../../../connectionResolver";
-import { sendMessageBroker } from "../../../messageBroker";
+import { sendMessageBroker, sendSalesMessage } from "../../../messageBroker";
 import { customFieldToObject } from "../utils";
 import { getCloseInfo } from "../../../models/utils/closeUtils";
+import { generateSchedules } from "../../../models/utils/scheduleUtils";
+import { IContractDocument } from "../../../models/definitions/contracts";
+import * as moment from "moment";
+import { REPAYMENT } from "../../../models/definitions/constants";
 
 const generateFilter = async (params, commonQuerySelector) => {
   let filter: any = commonQuerySelector;
@@ -30,7 +34,7 @@ const generateFilter = async (params, commonQuerySelector) => {
 
   filter.status = { $ne: "Deleted" };
   if (statuses?.length) {
-    filter.status = {$in: statuses}
+    filter.status = { $in: statuses }
   }
 
   if (ids?.length) {
@@ -279,6 +283,63 @@ const contractQueries = {
     );
 
     return await customFieldToObject(models, subdomain, mapping.customFieldType, object)
+  },
+
+  dealLoanContract: async (_root, params: {
+    dealId?: string,
+    args?: any
+  }, { subdomain, models }: IContext) => {
+    const { dealId, args } = params;
+
+    let fakeContract: IContractDocument = {
+      _id: 'tempFakeContract',
+      firstPayDate: new Date(),
+      startDate: moment(new Date()).add(1, 'day'),
+      endDate: moment(new Date).add(args?.tenor || 1, 'M'),
+      tenor: 1,
+      scheduleDays: [new Date().getDate()],
+      interestRate: 0,
+      repayment: REPAYMENT.FIXED,
+      ...(args || {})
+    }
+
+    if (dealId) {
+      const contract = await models.Contracts.findOne({ dealId }).lean();
+      if (contract?._id) {
+        return {
+          contract,
+          schedules: await models.Schedules.find({ contractId: contract._id }),
+          firstSchedules: await models.FirstSchedules.find({ contractId: contract._id }),
+        };
+      }
+
+      const deal = await sendSalesMessage({
+        subdomain,
+        action: 'deals.findOne',
+        data: { _id: dealId },
+        isRPC: true,
+      });
+
+      if (!deal?._id) {
+        throw new Error('deal not found')
+      }
+
+      const contractData = await customFieldToObject(models, subdomain, 'sales:deal', deal)
+
+      fakeContract = {
+        ...fakeContract,
+        endDate: moment(new Date).add(contractData.tenor || 1, 'M'),
+        ...contractData,
+      }
+    }
+    const bulkEntries = await generateSchedules(subdomain, models, fakeContract);
+
+    return {
+      contract: { ...fakeContract },
+      schedules: [],
+      firstSchedules: bulkEntries,
+    }
+
   }
 };
 

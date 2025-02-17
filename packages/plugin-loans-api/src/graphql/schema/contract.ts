@@ -6,7 +6,7 @@ const commonFields = `
   relContractId: String
   dealId: String
   currency: String
-  
+
   status: String
   statusChangedDate: Date
 
@@ -94,9 +94,9 @@ export const types = () => `
 
   type LoanContract {
     _id: String
-    
+
     ${commonFields}
-    
+
     contractType: ContractType
     relContract: RecContract
     customer: Customer
@@ -112,7 +112,7 @@ export const types = () => `
     storeInterest: JSON
     storedInterest: Float
     lastStoredDate: Date
-    
+
     commitmentInterest: Float
     mustPayDate: Date
     unUsedBalance: Float
@@ -203,6 +203,7 @@ export const queries = `
   closeInfo(contractId: String, date: Date): CloseInfo
   contractsAlert(date: Date): [LoanAlert]
   convertToContract(id: String!, contentType: String): JSON
+  dealLoanContract(dealId: String, args: JSON): JSON
 `;
 
 const interestCorrectionFields = `

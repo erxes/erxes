@@ -78,6 +78,40 @@ const selectContractFields = `
   classification
 `;
 
+const scheduleFields = `
+  _id
+  contractId
+  version
+  createdAt
+  status
+  payDate
+
+  balance
+  loss
+  interest
+  interestEve
+  interestNonce
+  commitmentInterest
+  payment
+  insurance
+  debt
+  total
+  giveAmount
+
+  didLoss
+  didInterest
+  didInterestEve
+  didInterestNonce
+  didCommitmentInterest
+  didPayment
+  didInsurance
+  didDebt
+  didTotal
+  surplus
+
+  isDefault
+  transactionIds
+`;
 const listParamsDef = `
   $page: Int
   $perPage: Int
@@ -321,38 +355,7 @@ export const contractDetail = `
 export const schedules = `
   query schedules($contractId: String!, $isFirst: Boolean, $year: Float) {
     schedules(contractId: $contractId, isFirst: $isFirst, year: $year) {
-      _id
-      contractId
-      version
-      createdAt
-      status
-      payDate
-
-      balance
-      loss
-      interest
-      interestEve
-      interestNonce
-      commitmentInterest
-      payment
-      insurance
-      debt
-      total
-      giveAmount
-
-      didLoss
-      didInterest
-      didInterestEve
-      didInterestNonce
-      didCommitmentInterest
-      didPayment
-      didInsurance
-      didDebt
-      didTotal
-      surplus
-
-      isDefault
-      transactionIds
+      ${scheduleFields}
     }
   }
 `;
@@ -410,14 +413,21 @@ const contractsAlert = `
 `;
 
 const getPolarisData = `
-  query Query($method: String, $data: JSON) {
+  query getPolarisData($method: String, $data: JSON) {
     getPolarisData(method: $method, data: $data)
   }
 `;
+
+const dealContract = `
+  query dealLoanContract($dealId: String, $args: JSON) {
+    dealLoanContract(dealId: $dealId, args: $args)
+  }
+`
 export default {
   contracts,
   selectContracts,
   contractsMain,
+  dealContract,
   contractDetail,
   schedules,
   scheduleYears,

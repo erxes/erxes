@@ -1,12 +1,4 @@
 export const types = () => `
-  type VirtualSchedule {
-    index: Float
-    loanBalance: Float
-    loanPayment: Float
-    calcedInterest: Float
-    totalPayment: Float
-  }
-
   type LoanSchedule {
     _id: String
     contractId: String
@@ -47,19 +39,10 @@ export const types = () => `
   }
 `;
 
-const virtualScheduleParams = `
-  leaseAmount: Float
-  tenor: Float
-  interestRate: Float
-  repayment: String
-`;
-
 export const queries = `
-  virtualSchedules(${virtualScheduleParams}): [VirtualSchedule]
   cpSchedules(contractId: String!, status: String): [LoanSchedule]
   schedules(contractId: String!, isFirst: Boolean, year: Float): [LoanSchedule]
   scheduleYears(contractId: String!): [ScheduleYear]
-  getGraphicValue(contract:JSON):[LoanSchedule]
 `;
 
 export const mutations = `
