@@ -1,8 +1,9 @@
 import { generateModels } from './connectionResolver';
-import { salaryToResearch } from './utils';
+import { salaryToResearch, scoreToResearch } from './utils';
 
 const allowTypes = {
   'xyp:xyp': ['create'],
+  'burenscoring:burenscoring': ['create'],
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
@@ -21,7 +22,16 @@ export const afterMutationHandlers = async (subdomain, params) => {
   try {
     if (type === 'xyp:xyp' && action === 'create') {
       await salaryToResearch(
-        subdomain,
+        object,
+        object.customerId || object.contentTypeId,
+        models
+      );
+
+      return;
+    }
+
+    if (type === 'burenscoring:burenscoring' && action === 'create') {
+      await scoreToResearch(
         object,
         object.customerId || object.contentTypeId,
         models

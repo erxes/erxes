@@ -1,11 +1,6 @@
 import { IModels } from './connectionResolver';
 
-export const salaryToResearch = async (
-  subdomain,
-  params,
-  customerId,
-  models: IModels
-) => {
+export const salaryToResearch = async (params, customerId, models: IModels) => {
   const salaryData = params.data.find(
     (d) => d.serviceName === 'WS100501_getCitizenSalaryInfo'
   );
@@ -41,5 +36,36 @@ export const salaryToResearch = async (
         }
       );
     }
+  }
+};
+
+export const scoreToResearch = async (params, customerId, models: IModels) => {
+  const loanInquiries = params?.restInquiryResponse?.inquiry || [];
+
+  if (loanInquiries?.length) {
+    const transformedData = loanInquiries.map((item) => ({
+      loanType: 'Loan',
+      loanLocation: item.LOANTYPE,
+      startDate: new Date(item.STARTEDDATE),
+      closeDate: new Date(item.EXPDATE),
+      loanAmount: item.BALANCE,
+    }));
+
+    const loanSum = loanInquiries.reduce(
+      (accumulator, loan) => accumulator + (loan.BALANCE || 0),
+      0
+    );
+
+    await models.LoansResearch.updateOne(
+      { customerId },
+      {
+        $set: {
+          monthlyLoanAmount: loanSum,
+          totalPaymentAmount: loanSum,
+          loans: transformedData,
+          modifiedAt: new Date(),
+        },
+      }
+    );
   }
 };
