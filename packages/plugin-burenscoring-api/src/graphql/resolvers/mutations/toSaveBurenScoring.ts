@@ -38,7 +38,6 @@ const burenScoringMutations = {
     }
     const models = await generateModels(subdomain);
 
-    await otherPlugins(subdomain, doc);
     return await models.BurenScorings.createBurenScoring(subdomain, data);
   },
 
@@ -97,6 +96,7 @@ const burenScoringMutations = {
       };
       const models = await generateModels(subdomain);
 
+      await otherPlugins(subdomain, data);
       return await models.BurenScorings.createBurenScoring(subdomain, data);
     } else {
       throw new Error(scoring.message);
