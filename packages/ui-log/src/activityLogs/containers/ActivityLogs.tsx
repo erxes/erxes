@@ -37,7 +37,7 @@ class Container extends React.Component<FinalProps, {}> {
       document: gql(subscriptions.activityLogsChanged),
       updateQuery: () => {
         this.props.activityLogQuery.refetch();
-      },
+      }
     });
   }
 
@@ -57,7 +57,7 @@ class Container extends React.Component<FinalProps, {}> {
       activityLogQuery,
       extraTabs,
       onChangeActivityTab,
-      activityRenderItem,
+      activityRenderItem
     } = this.props;
 
     const props = {
@@ -67,7 +67,7 @@ class Container extends React.Component<FinalProps, {}> {
       activityLogs: activityLogQuery.activityLogs || [],
       onTabClick: onChangeActivityTab,
       extraTabs,
-      activityRenderItem,
+      activityRenderItem
     };
 
     return (
@@ -95,10 +95,11 @@ const WithData = withProps<WithDataProps>(
             variables: {
               contentId,
               contentType,
-              activityType,
+              activityType
             },
+            fetchPolicy: "cache-and-network"
           };
-        },
+        }
       }
     )
   )(withCurrentUser(Container))
@@ -112,7 +113,7 @@ export default class Wrapper extends React.Component<
     super(props);
 
     this.state = {
-      activityType: "",
+      activityType: ""
     };
   }
 

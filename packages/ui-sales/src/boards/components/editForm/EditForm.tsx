@@ -22,6 +22,7 @@ type Props = {
   options: IOptions;
   item: IItem;
   addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
+  synchSingleCard: (itemId: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   copyItem: (itemId: string, callback: () => void, msg?: string) => void;
   beforePopupClose: (afterPopupClose?: () => void) => void;
@@ -116,9 +117,10 @@ function EditForm(props: Props) {
         localStorage.removeItem(`${updatedItem._id}Name`);
       }
 
-      if (updatedItem && props.onUpdate) {
-        props.onUpdate(updatedItem, prevStageId);
-      }
+      props.synchSingleCard(updatedItem._id);
+      // if (updatedItem && props.onUpdate) {
+      //   props.onUpdate(updatedItem, prevStageId);
+      // }
     });
   };
 
