@@ -138,6 +138,7 @@ export interface IContract {
 
   holidayType?: HolidayType;
   weekends?: number[];
+  overPaymentIsNext?: boolean;
 }
 
 export interface IContractDocument extends IContract, Document {
@@ -278,9 +279,9 @@ export const contractSchema = schemaHooksWrapper(
     savingContractId: field({ type: String, optional: true, label: "Saving contract Id" }),
     depositAccountId: field({ type: String, optional: true, label: "Deposit Account" }),
 
-
     holidayType: field({ type: String, label: "Holiday type" }),
     weekends: field({ type: [Number], label: "weekend" }),
+    overPaymentIsNext: field({ type: Boolean, label: 'Over Payment is next schedule', default: false, optional: true }),
   }),
   "erxes_contractSchema"
 );

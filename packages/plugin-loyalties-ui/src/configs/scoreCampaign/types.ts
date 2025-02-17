@@ -1,3 +1,5 @@
+import { QueryResponse } from '@erxes/ui/src/types';
+
 export type IScoreCampaign = {
   _id: string;
   title: string;
@@ -14,4 +16,11 @@ export type IScoreCampaign = {
   createdUserId: string;
   ownerType: string;
   status: "published" | "draft" | "archived";
+
+  fieldId: string
 };
+
+export type ScoreCampaignsQueryResponse = {
+  scoreCampaigns: IScoreCampaign[];
+  scoreCampaignsTotalCount: number;
+} & QueryResponse;

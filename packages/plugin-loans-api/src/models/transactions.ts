@@ -21,7 +21,8 @@ import {
   scheduleFixAfterCurrent
 } from "./utils/scheduleFixUtils";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
-import { getCalcedAmountsOnDate, trInSchedule } from "./utils/calcUtils";
+import { getCalcedAmountsOnDate } from "./utils/calcHelpers";
+import { trInSchedule } from "./utils/calcUtils";
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: FilterQuery<ITransactionDocument>);

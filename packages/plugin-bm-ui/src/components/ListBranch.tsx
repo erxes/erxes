@@ -6,14 +6,14 @@ import {
   SortHandler,
   Table,
   Wrapper,
-  __,
-} from '@erxes/ui/src';
+  __
+} from "@erxes/ui/src";
 
-import { IBmsBranch } from '../types';
-import { Link } from 'react-router-dom';
-import React from 'react';
-import Row from './RowPos';
-import { Title } from '@erxes/ui-settings/src/styles';
+import { IBmsBranch } from "../types";
+import { Link } from "react-router-dom";
+import React from "react";
+import Row from "./RowPos";
+import { Title } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   branchList: IBmsBranch[];
@@ -29,6 +29,7 @@ type Props = {
   remove: (posId: string) => void;
   refetch?: () => void;
   counts: any; //*checkType
+  link: string;
 };
 
 const List = (props: Props) => {
@@ -41,12 +42,13 @@ const List = (props: Props) => {
     bulk,
     toggleBulk,
     toggleAll,
+    link
   } = props;
 
   queryParams.loadingMainQuery = loading;
 
   const onChange = () => {
-    toggleAll(branchList, 'posList');
+    toggleAll(branchList, "posList");
   };
 
   const renderRow = () => {
@@ -57,16 +59,17 @@ const List = (props: Props) => {
         toggleBulk={toggleBulk}
         branch={branch}
         remove={remove}
+        link={link}
       />
     ));
   };
 
   const renderActionBar = () => {
-    const actionBarLeft = <Title>{__('Tms')}</Title>;
+    const actionBarLeft = <Title>{__("Tms")}</Title>;
 
     const actionBarRight = (
       <Link to={`/tms/create`}>
-        <Button btnStyle='success' icon='plus-circle'>
+        <Button btnStyle="success" icon="plus-circle">
           Create Branch
         </Button>
       </Link>
@@ -76,24 +79,24 @@ const List = (props: Props) => {
       <Wrapper.ActionBar
         right={actionBarRight}
         left={actionBarLeft}
-        background='colorWhite'
+        background="colorWhite"
       />
     );
   };
 
   const renderContent = () => {
     return (
-      <Table $whiteSpace='nowrap' $hover={true}>
+      <Table $whiteSpace="nowrap" $hover={true}>
         <thead>
           <tr>
             <th>
-              <SortHandler sortField={'name'} label={__('Name')} />
+              <SortHandler sortField={"name"} label={__("Name")} />
             </th>
-            <th>{__('Created by')}</th>
+            <th>{__("Created by")}</th>
             <th>
-              <SortHandler sortField={'createdDate'} label={__('Created at')} />
+              <SortHandler sortField={"createdDate"} label={__("Created at")} />
             </th>
-            <th>{__('Actions')}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>{renderRow()}</tbody>
@@ -105,10 +108,10 @@ const List = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Tms')}
+          title={__("Tms")}
           breadcrumb={[
-            { title: 'Settings', link: '/settings' },
-            { title: __('Branch list') },
+            { title: "Settings", link: "/settings" },
+            { title: __("Branch list") }
           ]}
           queryParams={queryParams}
         />
@@ -123,18 +126,18 @@ const List = (props: Props) => {
           emptyContent={
             <EmptyContent
               content={{
-                title: __('Getting Started with erxes TMS'),
-                description: __('replace description text'),
+                title: __("Getting Started with erxes TMS"),
+                description: __("replace description text"),
                 steps: [
                   {
-                    title: __('Create branch'),
-                    description: __('Fill out the details and create your TMS'),
+                    title: __("Create branch"),
+                    description: __("Fill out the details and create your TMS"),
                     url: `/tms/create`,
-                    urlText: 'Create TMS',
-                  },
-                ],
+                    urlText: "Create TMS"
+                  }
+                ]
               }}
-              maxItemWidth='360px'
+              maxItemWidth="360px"
             />
           }
         />

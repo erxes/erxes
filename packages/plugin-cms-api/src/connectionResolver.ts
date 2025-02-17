@@ -25,6 +25,7 @@ export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
   session: any;
+  clientPortalId?: string;
 }
 
 export const loadClasses = (db: mongoose.Connection): IModels => {

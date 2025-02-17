@@ -118,11 +118,11 @@ class PipelineProviderInner extends React.Component<Props, State> {
         prev,
         {
           subscriptionData: {
-            data: { pipelinesChanged }
+            data: { tasksPipelinesChanged }
           }
         }
       ) => {
-        if (!pipelinesChanged || !pipelinesChanged.data) {
+        if (!tasksPipelinesChanged || !tasksPipelinesChanged.data) {
           return;
         }
 
@@ -130,7 +130,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
           data: { item, aboveItemId, destinationStageId, oldStageId },
           action,
           proccessId
-        } = pipelinesChanged;
+        } = tasksPipelinesChanged;
 
         if (proccessId !== localStorage.getItem("proccessId")) {
           if (action === "orderUpdated") {
@@ -285,7 +285,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
     }
   }
 
-  onDragStart = (_start) => {
+  onDragStart = _start => {
     const { isDragEnabled } = this.state;
     if (!isDragEnabled) {
       throw new Error("Not ready to move...");
@@ -449,13 +449,13 @@ class PipelineProviderInner extends React.Component<Props, State> {
    */
   onLoadStage = (stageId: string, items: IItem[]) => {
     const { itemMap, stageLoadMap, itemIds } = this.state;
-    const task = PipelineProviderInner.tasks.find((t) => t.stageId === stageId);
+    const task = PipelineProviderInner.tasks.find(t => t.stageId === stageId);
 
     if (task) {
       task.isComplete = true;
     }
 
-    const newItemIds = [...itemIds, ...items.map((item) => item._id)];
+    const newItemIds = [...itemIds, ...items.map(item => item._id)];
 
     this.setState({
       itemIds: Array.from(new Set(newItemIds)),
@@ -550,7 +550,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
     const aboveIndex = this.findItemIndex(stageId, aboveItemId);
 
     if (aboveIndex !== undefined) {
-      const newArray = items.map((item) => Object.assign({}, item));
+      const newArray = items.map(item => Object.assign({}, item));
       newArray.splice(aboveIndex + 1, 0, { ...item });
 
       this.setState({
@@ -568,9 +568,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
   onRemoveItem = (itemId: string, stageId: string) => {
     const { itemMap } = this.state;
 
-    const items = (itemMap[stageId] || []).filter(
-      (item) => item._id !== itemId
-    );
+    const items = (itemMap[stageId] || []).filter(item => item._id !== itemId);
 
     this.setState({
       itemMap: { ...itemMap, [stageId]: items }
@@ -616,7 +614,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
       });
     } else {
       const items = [...itemMap[stageId]];
-      const index = items.findIndex((d) => d._id === item._id);
+      const index = items.findIndex(d => d._id === item._id);
 
       items[index] = item;
 

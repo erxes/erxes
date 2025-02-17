@@ -192,6 +192,7 @@ export const scheduleHelper = async (
         interestRate: perMonth.interestRate,
         balance: balance,
         payment,
+        firstPayment: payment,
         interestEve: perMonth.calcedInterestEve,
         interestNonce: perMonth.calcedInterestNonce,
         total: perMonth.totalPayment,
@@ -236,6 +237,7 @@ export const scheduleHelper = async (
         interestEve: perMonth.calcedInterestEve,
         interestNonce: perMonth.calcedInterestNonce,
         total,
+        firstTotal: total,
         unUsedBalance,
         commitmentInterest: perMonth.commitmentInterest,
         isDefault: true

@@ -1,5 +1,9 @@
 import { IContext } from '../../../connectionResolver';
-import { getDomains, getDomainConfig } from '../../../vercel/util';
+import {
+  getDomains,
+  getDomainConfig,
+  getDeploymentEvents,
+} from '../../../vercel/util';
 
 const queries = {
   async clientPortalGetVercelDomains(
@@ -49,6 +53,34 @@ const queries = {
       console.error(e);
       throw new Error(e);
     }
+  },
+
+  async clientPortalGetVercelDeploymentStatus(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    const config = await models.ClientPortals.findOne({ _id });
+
+    if (!config || !config.lastVercelDeploymentId) {
+      throw new Error('Config not found or has not been deployed to Vercel');
+    }
+
+    const events = await getDeploymentEvents(config.lastVercelDeploymentId);
+
+    if (events.length === 0) {
+      throw new Error('No events found');
+    }
+
+    const complete = events.find(
+      (event) => event.text === 'Deployment completed'
+    );
+
+    if (complete) {
+      return complete;
+    }
+
+    return events[events.length - 1];
   },
 };
 

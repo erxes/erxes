@@ -625,7 +625,10 @@ module.exports = {
       ],
       "customerRightSidebarSection": "./customerSidebar",
       "companyRightSidebarSection": "./companySidebar",
-      "dealRightSidebarSection": "./dealSidebar",
+      "dealRightSidebarSection": {
+        "title": "Cars",
+        "component": "./dealSidebar"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-cars-ui/remoteEntry.js"
     },
     "api": {
@@ -846,6 +849,10 @@ module.exports = {
             {
               "name": "dealUpdateTimeTracking",
               "description": "Update time tracking"
+            },
+            {
+              "name": "dealUpdateProductsData",
+              "description": "Update products data"
             }
           ]
         }
@@ -1587,7 +1594,10 @@ module.exports = {
       ],
       "taskRightSidebarSection": "./Section",
       "ticketRightSidebarSection": "./Section",
-      "dealRightSidebarSection": "./Section",
+      "dealRightSidebarSection": {
+        "title": "Kind",
+        "component": "./Section"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-clientportal-ui/remoteEntry.js"
     },
     "api": {
@@ -2565,7 +2575,10 @@ module.exports = {
           ]
         }
       ],
-      "dealRightSidebarSection": "./invoiceSection",
+      "dealRightSidebarSection": {
+        "title": "Invoices",
+        "component": "./invoiceSection"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-payment-ui/remoteEntry.js"
     },
     "api": {
@@ -2842,7 +2855,10 @@ module.exports = {
           ]
         }
       ],
-      "dealRightSidebarSection": "./cardSideBarSection",
+      "dealRightSidebarSection": {
+        "title": "Risk Assessment",
+        "component": "./cardSideBarSection"
+      },
       "ticketRightSidebarSection": "./cardSideBarSection",
       "taskRightSidebarSection": "./cardSideBarSection",
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-riskassessment-ui/remoteEntry.js"
@@ -3364,7 +3380,10 @@ module.exports = {
           ]
         }
       ],
-      "dealRightSidebarSection": "./fileChooserSection",
+      "dealRightSidebarSection": {
+        "title": "File manager",
+        "component": "./fileChooserSection"
+      },
       "ticketRightSidebarSection": "./fileChooserSection",
       "taskRightSidebarSection": "./fileChooserSection",
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-filemanager-ui/remoteEntry.js"
@@ -3598,7 +3617,10 @@ module.exports = {
           "scope": "grants"
         }
       ],
-      "dealRightSidebarSection": "./cardSideBarSection",
+      "dealRightSidebarSection": {
+        "title": "Grants",
+        "component": "./cardSideBarSection"
+      },
       "ticketRightSidebarSection": "./cardSideBarSection",
       "taskRightSidebarSection": "./cardSideBarSection",
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-grants-ui/remoteEntry.js"
@@ -3690,7 +3712,10 @@ module.exports = {
       ],
       "customerRightSidebarSection": "./contractSection",
       "companyRightSidebarSection": "./contractSection",
-      "dealRightSidebarSection": "./contractSection",
+      "dealRightSidebarSection": {
+        "title": "Loan contract",
+        "component": "./contractSection"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loans-ui/remoteEntry.js"
     },
     "api": {
@@ -3913,7 +3938,10 @@ module.exports = {
           "location": "mainNavigation"
         }
       ],
-      "dealRightSidebarSection": "./meetingSideBarSection",
+      "dealRightSidebarSection": {
+        "title": "Meeting",
+        "component": "./meetingSideBarSection"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-meetings-ui/remoteEntry.js"
     }
   },
@@ -3946,7 +3974,10 @@ module.exports = {
       ],
       "customerRightSidebarSection": "./customerSidebar",
       "carRightSidebarSection": "./customerSidebar",
-      "dealRightSidebarSection": "./customerSidebar",
+      "dealRightSidebarSection": {
+        "title": "Xyp",
+        "component": "./customerSidebar"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-xyp-ui/remoteEntry.js"
     },
     "api": {
@@ -4655,12 +4686,9 @@ module.exports = {
       "menus": [
         {
           "text": "PMS config",
-          "to": "/settings/pms/general",
+          "to": "/pms",
           "image": "/images/icons/erxes-04.svg",
-          "location": "settings",
-          "scope": "pms",
-          "action": "pmsConfig",
-          "permission": "pmsConfig"
+          "location": "settings"
         }
       ],
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-pms-ui/remoteEntry.js"
@@ -4927,7 +4955,8 @@ module.exports = {
       "name": "loansresearch",
       "scope": "loansresearch",
       "exposes": {
-        "./routes": "./src/routes.tsx"
+        "./routes": "./src/routes.tsx",
+        "./loansResearchSidebar": "./src/containers/LoansResearchSidebar.tsx"
       },
       "routes": {
         "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loansresearch-ui/remoteEntry.js",
@@ -4944,6 +4973,10 @@ module.exports = {
           "permission": "showLoanResearch"
         }
       ],
+      "dealRightSidebarSection": {
+        "title": "Loan Search",
+        "component": "./loansResearchSidebar"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loansresearch-ui/remoteEntry.js"
     },
     "api": {

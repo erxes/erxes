@@ -93,14 +93,8 @@ export const saveLead = (params: {
   userId?: string;
   saveCallback: (response: ISaveFormResponse) => void;
 }) => {
-  const {
-    doc,
-    browserInfo,
-    integrationId,
-    formId,
-    saveCallback,
-    userId,
-  } = params;
+  const { doc, browserInfo, integrationId, formId, saveCallback, userId } =
+    params;
 
   const submissions = Object.keys(doc).map((fieldId) => {
     const {
@@ -132,6 +126,8 @@ export const saveLead = (params: {
     };
   });
 
+  const { leadData } = connection?.data?.form;
+
   const cachedCustomerId = connection.customerId
     ? connection.customerId
     : getLocalStorageItem('customerId');
@@ -141,7 +137,7 @@ export const saveLead = (params: {
     formId,
     browserInfo,
     submissions: submissions.filter((e) => e),
-    cachedCustomerId,
+    cachedCustomerId: leadData.clearCacheAfterSave ? null : cachedCustomerId,
     userId,
   };
 
@@ -211,7 +207,7 @@ export const generatePaymentLink = async (
       mutation: gql(generateInvoiceUrl),
       variables: {
         customerId,
-        customerType:"customer",
+        customerType: 'customer',
         amount,
         contentType: 'inbox:conversations',
         contentTypeId: conversationId,

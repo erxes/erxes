@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 export const types = () => `
   extend type User @key(fields: "_id") {
@@ -72,7 +72,7 @@ export const types = () => `
 `;
 
 export const queries = `
-  bmTours( page:Int, perPage:Int, status: STATUS_TOUR, innerDate: Date,branchId: String, tags: [String]): ListTour
+  bmTours( page:Int, perPage:Int, status: STATUS_TOUR, innerDate: Date,branchId: String, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date): ListTour
   bmTourDetail(_id:String!,branchId: String): Tour
   bmOrders( tourId:String, customerId:String ,branchId: String):ListBmsOrder
 `;
