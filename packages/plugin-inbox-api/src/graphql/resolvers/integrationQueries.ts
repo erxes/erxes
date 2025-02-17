@@ -300,7 +300,7 @@ const integrationQueries = {
   },
 };
 
-// moduleRequireLogin(integrationQueries);
+moduleRequireLogin(integrationQueries);
 
 checkPermission(integrationQueries, 'integrations', 'showIntegrations', []);
 

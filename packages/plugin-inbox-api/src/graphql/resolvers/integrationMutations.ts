@@ -309,7 +309,6 @@ const integrationMutations = {
     }: { _id: string; messengerData: IMessengerData; callData: any },
     { models, subdomain }: IContext,
   ) {
-
     await sendCommonMessage({
       serviceName: 'cloudflarecalls',
       subdomain,
@@ -808,11 +807,11 @@ checkPermission(
   'integrationsSaveMessengerAppearanceData',
   'integrationsSaveMessengerAppearanceData',
 );
-// checkPermission(
-//   integrationMutations,
-//   'integrationsSaveMessengerConfigs',
-//   'integrationsSaveMessengerConfigs',
-// );
+checkPermission(
+  integrationMutations,
+  'integrationsSaveMessengerConfigs',
+  'integrationsSaveMessengerConfigs',
+);
 checkPermission(
   integrationMutations,
   'integrationsCreateLeadIntegration',
