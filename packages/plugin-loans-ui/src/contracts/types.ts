@@ -269,6 +269,12 @@ export type MainQueryResponse = {
   refetch: () => void;
 };
 
+export type DealContractQueryResponse = {
+  dealLoanContract: { contract: IContract; schedules: ISchedule[], firstSchedules: ISchedule[] };
+  loading: boolean;
+  refetch: () => void;
+};
+
 export type SchedulesQueryResponse = {
   schedules: ISchedule[];
   loading: boolean;

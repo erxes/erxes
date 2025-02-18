@@ -1,5 +1,4 @@
 import { IContractDocument } from '../definitions/contracts';
-import { IDefaultScheduleParam } from '../definitions/schedules';
 import { IModels } from '../../connectionResolver';
 import { sendMessageBroker } from '../../messageBroker';
 import { BigNumber } from 'bignumber.js'
@@ -19,25 +18,6 @@ export const calcInterest = ({
 }): number => {
   const interest = new BigNumber(interestRate).div(100).div(365)
   return new BigNumber(balance).multipliedBy(interest).multipliedBy(dayOfMonth).dp(fixed, BigNumber.ROUND_HALF_UP).toNumber()
-};
-
-export const calcPerVirtual = (doc: IDefaultScheduleParam) => {
-  const loanPayment = doc.leaseAmount / doc.tenor;
-  const loanBalance = doc.leaseAmount - loanPayment;
-
-  const calcedInterest = calcInterest({
-    balance: doc.leaseAmount,
-    interestRate: doc.interestRate
-  });
-
-  const totalPayment = loanPayment + calcedInterest;
-
-  return {
-    loanBalance,
-    loanPayment,
-    calcedInterest,
-    totalPayment
-  };
 };
 
 export const getDaysInMonth = (date: Date) => {
@@ -147,7 +127,7 @@ export const calcPerMonthEqual = async ({
   skipInterestCalcDate?: Date,
   skipAmountCalcDate?: Date,
 }) => {
-  // Хүү тооцохгүй огнооноос урагш бол үндсэн төлөлт л хийхнь 
+  // Хүү тооцохгүй огнооноос урагш бол үндсэн төлөлт л хийхнь
   if (skipInterestCalcDate && getDiffDay(nextDate, skipInterestCalcDate) >= 0) {
     // Үндсэн төлөлт ч хийхгүй хүү ч тооцохгүй бол юу ч төлөхгүй
     if (skipAmountCalcDate && getDiffDay(nextDate, skipAmountCalcDate) >= 0) {

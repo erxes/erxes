@@ -172,7 +172,7 @@ export const scheduleHelper = async (
       const perMonth = await calcPerMonthEqual({
         currentDate,
         balance,
-        interestRate,
+        interestRate: interestRate ?? 0,
         payment,
         nextDate: payDate,
         calculationFixed,
@@ -189,7 +189,7 @@ export const scheduleHelper = async (
         contractId,
         version: '0',
         payDate: currentDate,
-        interestRate: perMonth.interestRate,
+        interestRate: perMonth.interestRate ?? 0,
         balance: balance,
         payment,
         firstPayment: payment,
@@ -204,7 +204,7 @@ export const scheduleHelper = async (
   } else {
     let total = await getEqualPay({
       startDate,
-      interestRate: interestRate,
+      interestRate: interestRate ?? 0,
       leaseAmount: balance,
       paymentDates,
       calculationFixed
@@ -214,7 +214,7 @@ export const scheduleHelper = async (
       const perMonth = await calcPerMonthFixed({
         currentDate,
         balance,
-        interestRate,
+        interestRate: interestRate ?? 0,
         total,
         nextDate: payDate,
         calculationFixed,
