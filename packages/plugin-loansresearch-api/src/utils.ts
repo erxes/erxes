@@ -1,4 +1,5 @@
 import { IModels } from './connectionResolver';
+import { randomUUID } from 'crypto';
 
 export const salaryToResearch = async (params, customerId, models: IModels) => {
   const salaryData = params.data.find(
@@ -10,7 +11,7 @@ export const salaryToResearch = async (params, customerId, models: IModels) => {
     const totalMonth = salaryInfos.length;
 
     const transformedData = salaryInfos.map((item) => ({
-      _id: Math.random().toString(),
+      _id: randomUUID(),
       incomeType: 'Salary',
       totalSalaryIncome: item.salaryAmount,
       totalMonth: 1,
@@ -50,7 +51,7 @@ export const scoreToResearch = async (params, customerId, models: IModels) => {
 
   if (loanInquiries?.length) {
     const transformedData = loanInquiries.map((item) => ({
-      _id: Math.random().toString(),
+      _id: randomUUID(),
       loanType: 'Loan',
       loanLocation: item.LOANTYPE,
       startDate: new Date(item.STARTEDDATE),

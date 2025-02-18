@@ -20,7 +20,7 @@ import { FlexRow } from '../../styles';
 import { LOAN_TYPES } from '../../constants';
 
 const getEmptyIncome = () => ({
-  _id: Math.random().toString(),
+  _id: crypto.randomUUID(),
   startDate: '',
   closeDate: '',
   files: [],

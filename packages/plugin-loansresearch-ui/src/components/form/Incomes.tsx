@@ -16,7 +16,7 @@ import { INCOME_TYPES } from '../../constants';
 import { FlexRow, MarginTop } from '../../styles';
 
 const getEmptyIncome = () => ({
-  _id: Math.random().toString(),
+  _id: crypto.randomUUID(),
   incomeType: '',
   files: [],
 });
