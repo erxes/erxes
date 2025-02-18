@@ -8,7 +8,7 @@ export interface IConfig {
   code: string;
   isLocalUser: string;
   userDN: string;
-  baseDN: String;
+  baseDN: string;
   createdAt: Date;
   modifiedAt: Date;
 }
