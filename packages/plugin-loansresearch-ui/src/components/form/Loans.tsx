@@ -227,10 +227,16 @@ const LoanForm = (props: Props) => {
                   multiple={true}
                   single={false}
                 />
+
+                {loan.loanType === 'Cost' && (
+                  <Button
+                    btnStyle="danger"
+                    onClick={() => removeFeature(loan._id)}
+                  >
+                    X
+                  </Button>
+                )}
               </FormGroup>
-              <Button btnStyle="danger" onClick={() => removeFeature(loan._id)}>
-                X
-              </Button>
             </MarginTop>
           );
         })}

@@ -10,6 +10,7 @@ export const salaryToResearch = async (params, customerId, models: IModels) => {
     const totalMonth = salaryInfos.length;
 
     const transformedData = salaryInfos.map((item) => ({
+      _id: Math.random().toString(),
       incomeType: 'Salary',
       totalSalaryIncome: item.salaryAmount,
       totalMonth: 1,
@@ -40,10 +41,16 @@ export const salaryToResearch = async (params, customerId, models: IModels) => {
 };
 
 export const scoreToResearch = async (params, customerId, models: IModels) => {
+  let ratio;
+  let increaseAmount;
+
+  const findResearch = await models.LoansResearch.findOne({ customerId });
+
   const loanInquiries = params?.restInquiryResponse?.inquiry || [];
 
   if (loanInquiries?.length) {
     const transformedData = loanInquiries.map((item) => ({
+      _id: Math.random().toString(),
       loanType: 'Loan',
       loanLocation: item.LOANTYPE,
       startDate: new Date(item.STARTEDDATE),
@@ -56,16 +63,31 @@ export const scoreToResearch = async (params, customerId, models: IModels) => {
       0
     );
 
-    await models.LoansResearch.updateOne(
-      { customerId },
-      {
-        $set: {
-          monthlyLoanAmount: loanSum,
-          totalPaymentAmount: loanSum,
-          loans: transformedData,
-          modifiedAt: new Date(),
-        },
+    if (findResearch) {
+      if (findResearch.totalIncome) {
+        ratio = (loanSum / findResearch.totalIncome) * 100;
       }
-    );
+      if (findResearch.customerType === 'Salary') {
+        increaseAmount = findResearch.averageSalaryIncome * 0.8 - loanSum;
+      }
+
+      if (findResearch.customerType === 'Business') {
+        increaseAmount = findResearch.averageBusinessIncome * 0.7 - loanSum;
+      }
+
+      await models.LoansResearch.updateOne(
+        { customerId },
+        {
+          $set: {
+            monthlyLoanAmount: loanSum,
+            totalPaymentAmount: loanSum,
+            loans: transformedData,
+            debtIncomeRatio: ratio,
+            increaseMonthlyPaymentAmount: increaseAmount,
+            modifiedAt: new Date(),
+          },
+        }
+      );
+    }
   }
 };
