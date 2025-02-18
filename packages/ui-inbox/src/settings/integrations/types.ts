@@ -246,6 +246,12 @@ export interface IMessengerData {
   botCheck?: boolean;
   botGreetMessage?: string;
   persistentMenus?: BotPersistentMenuTypeMessenger[];
+  name?: string;
+  ticketLabel?: string;
+  ticketStageId?: string;
+  ticketPipelineId?: string;
+  ticketBoardId?: string;
+  ticketToggle?: boolean;
   skillData?: ISkillData;
   messages?: IMessages;
   notifyCustomer?: boolean;

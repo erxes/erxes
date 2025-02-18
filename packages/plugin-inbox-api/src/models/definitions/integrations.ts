@@ -56,6 +56,11 @@ export interface IMessengerData {
   botCheck?: boolean;
   botGreetMessage?: string;
   persistentMenus?: BotPersistentMenuTypeMessenger[];
+  ticketLabel?: string;
+  ticketStageId?: string;
+  ticketPipelineId?: string;
+  ticketBoardId?: string;
+  ticketToggle?: boolean;
   getStarted?: boolean;
   skillData?: {
     typeId: string;
@@ -209,7 +214,11 @@ const messengerDataSchema = new Schema(
     getStarted: field({ type: Boolean }),
     botCheck: field({ type: Boolean }),
     botGreetMessage: field({ type: String }),
-    persistentMenus: field({ type: [persistentMenuSchema] }), // Corrected to an array
+    persistentMenus: field({ type: [persistentMenuSchema] }),
+    ticketLabel: field({ type: String, optional: true }),
+    ticketStageId: field({ type: String }),
+    ticketPipelineId: field({ type: String }),
+    ticketBoardId: field({ type: String }),
     supporterIds: field({ type: [String] }),
     notifyCustomer: field({ type: Boolean }),
     availabilityMethod: field({

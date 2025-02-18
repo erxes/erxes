@@ -21,7 +21,6 @@ export const types = `
     formId: String
     tagIds: [String]
     createdAt: Date
-
     tags: [Tag]
   
     leadData: JSON
@@ -95,6 +94,11 @@ export const types = `
     botGreetMessage: String
     getStarted: Boolean
     persistentMenus: [BotPersistentMenuTypeMessenger]
+    ticketLabel: String
+    ticketToggle: Boolean,
+    ticketStageId: String
+    ticketPipelineId: String
+    ticketBoardId: String
     availabilityMethod: String
     isOnline: Boolean,
     onlineHours: [MessengerOnlineHoursSchema]

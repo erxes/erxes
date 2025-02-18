@@ -51,6 +51,11 @@ export const types = ({ products, knowledgeBase }) => `
     readUsers: [User]
     botData:JSON
     persistentMenus:JSON
+    ticketLabel: String
+    ticketToggle: Boolean,
+    ticketStageId: String
+    ticketPipelineId: String
+    ticketBoardId: String
     botGreetMessage:String
     fromBot:Boolean
     getStarted:Boolean
