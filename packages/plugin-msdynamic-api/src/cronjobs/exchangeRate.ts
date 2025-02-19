@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import { sendCoreMessage } from '../messageBroker';
 import { getExchangeRates, getPrice } from '../utils';
+import { putUpdateLog } from '../logUtils';
 
 export const syncExchangeRate = async (subdomain: string, config: any) => {
   console.log(`${config.title} starting to create exchange rates`);
@@ -39,10 +40,7 @@ export const syncExchangeRate = async (subdomain: string, config: any) => {
       isRPC: true,
     });
 
-    const salesCodeFilter = pricePriority
-      .replace(', ', ',')
-      .split(',')
-      .filter((p) => p);
+    const salesCodeFilter = pricePriority.replace(/, /g, ',').split(',');
 
     let filterSection = '';
 
@@ -102,7 +100,7 @@ export const syncExchangeRate = async (subdomain: string, config: any) => {
         const foundProduct = productsByCode[Item_No];
         if (foundProduct) {
           if (foundProduct.unitPrice !== resPrice) {
-            await sendCoreMessage({
+            const updated = await sendCoreMessage({
               subdomain,
               action: 'products.updateProduct',
               data: {
@@ -110,6 +108,17 @@ export const syncExchangeRate = async (subdomain: string, config: any) => {
                 doc: { unitPrice: resPrice || 0, currency: 'MNT' },
               },
               isRPC: true,
+            });
+
+            await putUpdateLog(subdomain, {
+              type: 'product',
+              object: foundProduct,
+              newData: {
+                unitPrice: resPrice || 0,
+                currency: 'MNT',
+                status: 'active',
+              },
+              updatedDocument: updated,
             });
           }
         }

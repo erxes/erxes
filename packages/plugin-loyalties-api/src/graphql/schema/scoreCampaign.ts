@@ -26,6 +26,7 @@ const COMMON_MUTATION_FIELDS = `
     status:String,
     fieldGroupId:String
     fieldName: String
+    fieldId: String
 `;
 const COMMON_QUERIES_FIELDS = `
     page: Int,

@@ -24,20 +24,20 @@ export const bindUser = async (
 
 export const adSync = async (subdomain, params) => {
   const models = await generateModels(subdomain);
-  const configs = await models.AdConfig.findOne({ code: 'ACTIVEDIRECTOR' });
+  const config = await models.AdConfig.findOne({ code: 'ACTIVEDIRECTOR' });
 
-  if (!configs?.apiUrl) {
+  if (!config?.apiUrl) {
     return { status: true, error: 'First login for AD' };
   }
 
-  const client = new Client({ url: configs.apiUrl });
+  const client = new Client({ url: config.apiUrl });
 
-  if (!configs.isLocalUser) {
+  if (!config.isLocalUser) {
     const getBind = await bindUser(
       client,
       params.email,
       params.password,
-      configs.userDN
+      config.userDN
     );
 
     if (getBind) {
@@ -45,10 +45,10 @@ export const adSync = async (subdomain, params) => {
     }
   }
 
-  if (configs.isLocalUser) {
-    await bindUser(client, configs.adminDN, configs.adminPassword);
+  if (config.isLocalUser) {
+    await bindUser(client, config.adminDN, config.adminPassword);
 
-    const searchBase = 'DC=light,DC=local'; // Base DN for searching
+    const searchBase = String(config.baseDN); // Base DN for searching
     const searchOptions: SearchOptions = {
       scope: 'sub', // Search entire subtree
       filter: `(&(objectClass=user)(mail=${params.email}))`, // Filter for users

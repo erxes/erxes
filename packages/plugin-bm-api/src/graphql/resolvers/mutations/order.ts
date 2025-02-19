@@ -1,8 +1,8 @@
 import {
   checkPermission,
-  requireLogin,
-} from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
+  requireLogin
+} from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
 
 const orderMutations = {
   bmOrderAdd: async (
@@ -10,7 +10,6 @@ const orderMutations = {
     doc,
     { user, docModifier, models, subdomain }: IContext
   ) => {
-    console.log('doc', doc);
     const order = await models.Orders.createOrder(
       docModifier(doc?.order),
       user
@@ -35,7 +34,7 @@ const orderMutations = {
     await models.Orders.removeOrder(ids);
 
     return ids;
-  },
+  }
 };
 
 export default orderMutations;

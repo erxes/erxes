@@ -1,5 +1,41 @@
 # Changelog
 
+## [2.6.0](https://github.com/erxes/erxes/compare/2.5.1...2.6.0) (2025-02-16)
+
+### Features
+
+* add customers & labels to cards import ([d5cc4f7](https://github.com/erxes/erxes/commit/d5cc4f74e2d7a8b07ca86103d876b2dcd748d2a7))
+* msdynamic ([eb8ee2f](https://github.com/erxes/erxes/commit/eb8ee2f782de5bfcb861515181648530660d1940))
+* **pms:** insight ([116d5f0](https://github.com/erxes/erxes/commit/116d5f075a911d221f7a818238c4d6dbf8c1c2b0))
+
+### Bug Fixes
+
+* **cards:** activityLog refetch in stages moving ([0037bc3](https://github.com/erxes/erxes/commit/0037bc3b2c78bb91d2286675e57d63e985453868))
+* **cards:** deal loading cause of null tag ([c246b02](https://github.com/erxes/erxes/commit/c246b026950af4e216f76f74812f5ff4600dd604))
+* **cards:** the same data between list and detail views ([9f94c0f](https://github.com/erxes/erxes/commit/9f94c0f1b3ce5a71d8959c37f51429091c2b5dc7))
+* **logs:** can't display changes in ui ([1d95866](https://github.com/erxes/erxes/commit/1d958668fe35707b7bd3bd768b1ed128dd60a351))
+* **pms:** clear codes ([c537d0a](https://github.com/erxes/erxes/commit/c537d0a08cf391000ebdfa879eb087605f5acf50))
+* **pms:** logo in admin ([fa5140a](https://github.com/erxes/erxes/commit/fa5140a68a7d292f4bb635ade5e476f2e010123c))
+* **pms:** names ([333a882](https://github.com/erxes/erxes/commit/333a882060b73799ea55308cd30bd4a1cd20d7ab))
+* **pms:** names ([88b265e](https://github.com/erxes/erxes/commit/88b265ea642650002a7847f65d45f82f223a51e8))
+* **pms:** room category ([dfc5303](https://github.com/erxes/erxes/commit/dfc5303ab56ea9bfa7be1791d54a89d708c7da0d))
+* **tms,pms:** discount & some fields ([b9d3437](https://github.com/erxes/erxes/commit/b9d34374908b99987fb7db37d394fb241f90b943))
+* **tms,pms:** report & config ([bb475c4](https://github.com/erxes/erxes/commit/bb475c40f904662a49a0c97407a65066e23825d5))
+* **tms:** code quality ([21693b6](https://github.com/erxes/erxes/commit/21693b6077567370ef6069c9d723675db5a21a2a))
+* **tms:** filter ([9b990b9](https://github.com/erxes/erxes/commit/9b990b92dcc9d3871d086cf4d4550fe5583a58f9))
+* **tms:** logo in admin ([a43c378](https://github.com/erxes/erxes/commit/a43c378052397c4ad153867165d72a0fad176a9d))
+## [2.6.0-rc.0](https://github.com/erxes/erxes/compare/2.5.1...2.6.0) (2025-02-04)
+
+### Features
+
+* **messenger:** add bot functionality to Erxes Messenger widget ([71b9b92](https://github.com/erxes/erxes/commit/71b9b92abaee4cd23456eb93c5b25137d6409776))
+
+### Bug Fixes
+
+* **cards:** make customerName visible in documents ([d0e5b9e](https://github.com/erxes/erxes/commit/d0e5b9ebc0af24a9a70399b660356e9b49c03508))
+* **pms:** cleaning default ([076d1bb](https://github.com/erxes/erxes/commit/076d1bb65ddcd82c7237718028674d9815a7947c))
+* **pms:** product category settings ([9b9c343](https://github.com/erxes/erxes/commit/9b9c3432abf0fb38ffb4d55f3ea81120784e9f6a))
+
 ## [2.6.0-rc.0](https://github.com/erxes/erxes/compare/2.5.0...2.6.0-rc.0) (2025-02-04)
 
 

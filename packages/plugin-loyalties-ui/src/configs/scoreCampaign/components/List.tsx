@@ -1,4 +1,4 @@
-import { FilterContainer, FlexRow, Title } from "@erxes/ui-settings/src/styles";
+import { FilterContainer, FlexRow, Title } from '@erxes/ui-settings/src/styles';
 import {
   __,
   Button,
@@ -7,23 +7,23 @@ import {
   ModalTrigger,
   Pagination,
   router,
-  Table
-} from "@erxes/ui/src";
-import { Wrapper } from "@erxes/ui/src/layout";
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import Sidebar from "../../general/components/Sidebar";
-import { IScoreCampaign } from "../types";
-import Form from "./Form";
-import Row from "./Row";
+  Table,
+} from '@erxes/ui/src';
+import { Wrapper } from '@erxes/ui/src/layout';
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import Sidebar from '../../general/components/Sidebar';
+import { IScoreCampaign } from '../types';
+import Form from './Form';
+import Row from './Row';
 
 const breadcrumb = [
-  { title: __("Settings"), link: "/settings" },
+  { title: __('Settings'), link: '/settings' },
   {
-    title: __("Loyalties Config"),
-    link: "/erxes-plugin-loyalty/settings/general"
+    title: __('Loyalties Config'),
+    link: '/erxes-plugin-loyalty/settings/general',
   },
-  { title: __("Score Campaign") }
+  { title: __('Score Campaign') },
 ];
 
 type Props = {
@@ -37,7 +37,7 @@ type Props = {
   totalCount: number;
   refetch: () => void;
   onRemove: () => void;
-  onChangeStatus: (_id: string, status: "published" | "draft") => void;
+  onChangeStatus: (_id: string, status: 'published' | 'draft') => void;
 };
 
 export default function List({
@@ -50,12 +50,12 @@ export default function List({
   totalCount,
   onRemove,
   refetch,
-  onChangeStatus
+  onChangeStatus,
 }: Props) {
   let timer;
 
   const [searchValue, setSearchValue] = useState(
-    queryParams?.searchValue || ""
+    queryParams?.searchValue || ''
   );
 
   const location = useLocation();
@@ -71,7 +71,7 @@ export default function List({
     setSearchValue(searchValue);
 
     timer = setTimeout(() => {
-      router.removeParams(navigate, location, "page");
+      router.removeParams(navigate, location, 'page');
       router.setParams(navigate, location, { searchValue });
     }, 500);
   };
@@ -79,7 +79,7 @@ export default function List({
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
-    e.target.value = "";
+    e.target.value = '';
     e.target.value = tmpValue;
   };
 
@@ -108,18 +108,20 @@ export default function List({
         <FlexRow>
           <FormControl
             type="text"
-            placeholder={__("Type to search")}
+            placeholder={__('Type to search')}
             onChange={search}
             value={searchValue}
             autoFocus={true}
             onFocus={moveCursorAtTheEnd}
           />
           <ModalTrigger
-            size={"lg"}
-            title={__("Add score campaign")}
+            size={'lg'}
+            title={__('Add score campaign')}
             trigger={trigger}
             autoOpenKey="showProductModal"
-            content={({ closeModal }) => <Form closeModal={closeModal} />}
+            content={({ closeModal }) => (
+              <Form refetch={refetch} closeModal={closeModal} />
+            )}
           />
         </FlexRow>
       </FilterContainer>
@@ -129,7 +131,7 @@ export default function List({
   const onChange = () => {
     toggleAll(
       campaigns.map(({ _id }) => _id),
-      "campaigns"
+      'campaigns'
     );
   };
 
@@ -144,10 +146,10 @@ export default function List({
               onChange={onChange}
             />
           </th>
-          <th>{__("Title")}</th>
-          <th>{__("Owner Type")}</th>
-          <th>{__("Status")}</th>
-          <th>{__("Action")}</th>
+          <th>{__('Title')}</th>
+          <th>{__('Owner Type')}</th>
+          <th>{__('Status')}</th>
+          <th>{__('Action')}</th>
         </tr>
       </thead>
       <tbody>
@@ -167,11 +169,11 @@ export default function List({
   return (
     <Wrapper
       header={
-        <Wrapper.Header title={__("Score Campaign")} breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__('Score Campaign')} breadcrumb={breadcrumb} />
       }
       actionBar={
         <Wrapper.ActionBar
-          left={<Title $capitalize={true}>{__("Score Campaign")}</Title>}
+          left={<Title $capitalize={true}>{__('Score Campaign')}</Title>}
           right={actionBarRight()}
         />
       }

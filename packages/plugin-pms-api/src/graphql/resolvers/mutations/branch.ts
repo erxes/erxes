@@ -1,13 +1,13 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
-import { ITmsBranch } from '../../../models/definitions/tmsbranch';
+import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
+import { ITmsBranch } from "../../../models/definitions/tmsbranch";
 
 interface IBmsBranchEdit extends ITmsBranch {
   _id: string;
 }
 
 const mutations = {
-  tmsBranchAdd: async (
+  pmsBranchAdd: async (
     _root,
     params: ITmsBranch,
     { models, user, subdomain }: IContext
@@ -16,7 +16,7 @@ const mutations = {
     return branch;
   },
 
-  tmsBranchEdit: async (
+  pmsBranchEdit: async (
     _root,
     { _id, ...doc }: IBmsBranchEdit,
     { models, subdomain }: IContext
@@ -25,7 +25,7 @@ const mutations = {
     return updatedDocument;
   },
 
-  tmsBranchRemove: async (
+  pmsBranchRemove: async (
     _root,
     { _id }: { _id: string },
     { models, subdomain }: IContext
