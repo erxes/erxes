@@ -6,7 +6,7 @@ export const getOrCreateCustomer = async (
   subdomain: string,
   callAccount: any,
 ) => {
-  const { inboxIntegrationId, primaryPhone } = callAccount;
+  const { inboxIntegrationId, primaryPhone, email } = callAccount;
   let customer = await models.Customers.findOne({
     primaryPhone,
     status: 'completed',
@@ -35,6 +35,7 @@ export const getOrCreateCustomer = async (
           payload: JSON.stringify({
             integrationId: inboxIntegrationId,
             primaryPhone: primaryPhone,
+            primaryEmail: email,
             firstName: primaryPhone,
             isUser: true,
             phone: [primaryPhone],

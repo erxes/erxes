@@ -150,9 +150,9 @@ const queries = `
   `;
 
 const mutations = `
-  cloudflareMakeCall(callerNumber: String!, roomState: String!, audioTrack: String!, integrationId: String!, departmentId: String!): String
-  cloudflareAnswerCall(roomState: String!, audioTrack: String!, customerAudioTrack: String!): CloudflareCall
-  cloudflareLeaveCall(roomState: String!, originator: String, duration: Int, audioTrack: String!): CloudflareCall
+  cloudflareMakeCall(callerNumber: String!,callerEmail: String, roomState: String!, audioTrack: String!, integrationId: String!, departmentId: String!): String
+  cloudflareAnswerCall(roomState: String!, audioTrack: String!, customerAudioTrack: String!): String
+  cloudflareLeaveCall(roomState: String!, originator: String, duration: Int, audioTrack: String!): String
   cloudflareCallsUpdateConfigs(configsMap: JSON!): JSON
 `;
 

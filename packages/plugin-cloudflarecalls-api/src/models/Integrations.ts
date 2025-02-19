@@ -68,7 +68,7 @@ export const loadIntegrationClass = (models: IModels) => {
           {
             $set: {
               departments: doc.departments,
-              status: Boolean(doc.isReceiveWebCall || false),
+              status: doc.status,
             },
           },
         );
@@ -79,7 +79,7 @@ export const loadIntegrationClass = (models: IModels) => {
       return models.Integrations.create({
         departments: doc.departments,
         erxesApiId: _id,
-        status: Boolean(doc.isReceiveWebCall || false),
+        status: doc.status,
       });
     }
   }

@@ -8,7 +8,8 @@ const receiveCall = async (
   params,
   user,
 ) => {
-  const { callerNumber, audioTrack, integrationId } = params;
+  const { callerNumber, callerEmail, audioTrack, integrationId, departmentId } =
+    params;
 
   const integration = await models.Integrations.findOne({
     erxesApiId: integrationId,
@@ -35,9 +36,11 @@ const receiveCall = async (
       createdBy: user?._id,
       updatedBy: user?._id,
       customerPhone: callerNumber,
+      customerEmail: callerEmail,
       customerAudioTrack: audioTrack,
       callStatus: 'ringing',
       callDuration: 0,
+      departmentId,
     };
 
     history = new models.CallHistory(historyData);
@@ -60,6 +63,7 @@ const receiveCall = async (
     customer = await getOrCreateCustomer(models, subdomain, {
       inboxIntegrationId: integrationId,
       primaryPhone: params.callerNumber,
+      email: params.callerEmail,
     });
   }
   //save on api

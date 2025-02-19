@@ -122,9 +122,14 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data: { integrationId, doc } }) => {
       const details = JSON.parse(JSON.stringify(doc.data));
       const models = await generateModels(subdomain);
+      let status = 'inactive';
+      if (details.isReceiveWebCall) {
+        status = 'active';
+      }
       const updatedIntegration =
         await models.Integrations.createOrUpdateIntegration(integrationId, {
           ...details,
+          status: status,
         });
 
       if (updatedIntegration) {

@@ -12,12 +12,14 @@ const callsMutations = {
     _root,
     {
       callerNumber,
+      callerEmail,
       roomState,
       audioTrack,
       integrationId,
       departmentId,
     }: {
       callerNumber: string;
+      callerEmail: string;
       roomState: string;
       audioTrack: string;
       integrationId: string;
@@ -33,6 +35,8 @@ const callsMutations = {
         callerNumber,
         audioTrack,
         integrationId,
+        departmentId,
+        callerEmail,
       },
       user,
     );
@@ -46,7 +50,7 @@ const callsMutations = {
     }
 
     const department = integration.departments?.find(
-      (dept: Department) => dept._id === departmentId,
+      (dept: Department) => dept._id.toString() === departmentId,
     );
 
     if (!department) {
@@ -64,7 +68,7 @@ const callsMutations = {
       });
     });
 
-    return '';
+    return 'Success';
   },
   async cloudflareAnswerCall(
     _root,
@@ -90,7 +94,7 @@ const callsMutations = {
       },
     });
 
-    return '';
+    return 'success';
   },
 
   async cloudflareLeaveCall(
