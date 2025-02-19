@@ -108,8 +108,8 @@ export const inputs = `
 
 export const queries = `
     cmsPost(_id: String, slug: String): Post
-    cmsPosts(clientPortalId: String, featured: Boolean, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: SortDirection): [Post]
-    cmsPostList(clientPortalId: String, featured: Boolean, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: SortDirection): PostList
+    cmsPosts(clientPortalId: String, featured: Boolean, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: String): [Post]
+    cmsPostList(clientPortalId: String, featured: Boolean, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: String): PostList
 `;
 
 export const mutations = `
