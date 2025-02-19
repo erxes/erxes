@@ -150,7 +150,7 @@ const queries = `
   `;
 
 const mutations = `
-  cloudflareMakeCall(callerNumber: String!, roomState: String!, audioTrack: String!, integrationId: String!): String
+  cloudflareMakeCall(callerNumber: String!, roomState: String!, audioTrack: String!, integrationId: String!, departmentId: String!): String
   cloudflareAnswerCall(roomState: String!, audioTrack: String!, customerAudioTrack: String!): CloudflareCall
   cloudflareLeaveCall(roomState: String!, originator: String, duration: Int, audioTrack: String!): CloudflareCall
   cloudflareCallsUpdateConfigs(configsMap: JSON!): JSON
