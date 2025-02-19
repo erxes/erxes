@@ -4,7 +4,7 @@ export const types = `
         inactive
     }
 
-    enum SortDirection @shareable {
+    enum SortDirection {
         asc
         desc
     }
