@@ -162,18 +162,7 @@ export const queries = `
 export const mutations = `
   accTransactionsCreate(trDocs: [TransactionInput]): [AccCommonTransaction]
   accTransactionsUpdate(parentId: String, trDocs: [TransactionInput]): [AccCommonTransaction]
-  accMainTrAdd(${mainTrParams}): [AccCommonTransaction]
-  accMainTrEdit(_id: String!, ${mainTrParams}): [AccCommonTransaction]
-  accMainTrRemove(_id: String!): String
-
-  accPtrRemove(_id: String!): String
+  accTransactionsRemove(parentId: String, ptrId: String): JSON
 
   accTransactionsLink(trIds: [String], ptrId: String): [AccCommonTransaction]
-
-  accCashTrAdd(${mainTrParams}): [AccCommonTransaction]
-  accCashTrEdit(_id: String!, ${mainTrParams}): [AccCommonTransaction]
-  accFundTrAdd(${mainTrParams}): [AccCommonTransaction]
-  accFundTrEdit(_id: String!, ${mainTrParams}): [AccCommonTransaction]
-  accDebtTrAdd(${mainTrParams}): [AccCommonTransaction]
-  accDebtTrEdit(_id: String!, ${mainTrParams}): [AccCommonTransaction]
 `;

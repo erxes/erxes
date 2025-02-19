@@ -131,6 +131,15 @@ export type EditTransactionsMutationResponse = {
   }) => Promise<ITransaction[]>;
 };
 
+export type RemoveTransactionsMutationResponse = {
+  transactionsRemove: (params: {
+    variables: {
+      parentId: string,
+      ptrId: string
+    };
+  }) => Promise<any>;
+};
+
 
 export type AddMainTrMutationResponse = {
   addMainTrMutation: (params: { variables: ITrInput }) => Promise<ITransaction>;
