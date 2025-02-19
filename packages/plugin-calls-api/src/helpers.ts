@@ -22,7 +22,6 @@ export const callsCreateIntegration = async (
   args: any,
 ): Promise<{ status; errorMessage? }> => {
   const { data } = args;
-  
   const { integrationId } = args;
   const docData = JSON.parse(data);
   const token = await generateToken(integrationId);
