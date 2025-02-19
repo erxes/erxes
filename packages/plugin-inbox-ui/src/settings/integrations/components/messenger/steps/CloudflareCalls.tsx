@@ -1,18 +1,21 @@
+import {
+  CallRouting,
+  CallRoutingRemove,
+  OperatorFormView,
+  OperatorRemoveBtn,
+} from "@erxes/ui-inbox/src/settings/integrations/styles";
 import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
 import {
   ICallData,
   IDepartment,
 } from "@erxes/ui-inbox/src/settings/integrations/types";
-import {
-  OperatorFormView,
-  OperatorRemoveBtn,
-} from "@erxes/ui-inbox/src/settings/integrations/styles";
 import React, { useState } from "react";
 
 import Button from "@erxes/ui/src/components/Button";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import Toggle from "@erxes/ui/src/components/Toggle";
 import { __ } from "coreui/utils";
@@ -26,42 +29,21 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
   const [departments, setDepartments] = useState<IDepartment[]>(
     callData?.departments || []
   );
+  const [routingName, setRoutingName] = useState("");
   const [isCallReceive, setIsCallReceive] = useState(
     Boolean(callData?.isReceiveWebCall) || false
   );
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const isDepartmentNameUnique = (
-    name: string,
-    excludeName?: string
-  ): boolean => {
-    const lowerCaseName = name.toLowerCase();
-    return !departments.some(
-      (dept) =>
-        dept.name.toLowerCase() === lowerCaseName && dept.name !== excludeName
-    );
-  };
-
-  const updateDepartmentName = (name: string, value: string) => {
-    if (!isDepartmentNameUnique(value, name)) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: __("Department name must be unique"),
-      }));
-      return;
-    }
-    setErrors((prev) => ({ ...prev, [name]: "" }));
+  const updateDepartmentName = (name: string) => {
     const updatedDepartments = departments.map((dept) =>
-      dept.name === name ? { ...dept, name: value } : dept
+      dept.name === name ? { ...dept, name: routingName } : dept
     );
+    setDepartments(updatedDepartments);
 
-    setTimeout(() => {
-      setDepartments(updatedDepartments);
-      onChange("callData", {
-        departments: updatedDepartments,
-        isReceiveWebCall: isCallReceive,
-      });
-    }, 500);
+    onChange("callData", {
+      departments: updatedDepartments,
+      isReceiveWebCall: isCallReceive,
+    });
   };
 
   const addDepartment = () => {
@@ -134,6 +116,7 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
           }
         : dept
     );
+
     setDepartments(updatedDepartments);
     onChange("callData", {
       departments: updatedDepartments,
@@ -141,77 +124,77 @@ const CloudflareCalls: React.FC<Props> = ({ onChange, callData }) => {
     });
   };
 
-  return (
-    <FlexItem>
-      <LeftItem>
-        {departments.map(({ name, operators }) => (
-          <div key={name}>
-            <ControlLabel required>{__("Name")}</ControlLabel>
-            <p>{__("Department name")}</p>
-            <FormControl
-              required
-              onChange={(e) =>
-                updateDepartmentName(
-                  name,
-                  (e.currentTarget as HTMLInputElement).value
-                )
-              }
-              defaultValue={name}
-            />
-            {errors[name] && <p style={{ color: "red" }}>{errors[name]}</p>}
-            {operators?.map((operator, index) => (
-              <OperatorFormView key={index}>
-                <OperatorRemoveBtn>
-                  <Button
-                    onClick={() => removeOperator(name, index)}
-                    btnStyle="danger"
-                    icon="times"
-                  />
-                </OperatorRemoveBtn>
-                <FormGroup>
-                  <SelectTeamMembers
-                    label={`Choose operator ${index + 1}`}
-                    name="selectedMembers"
-                    multi={false}
-                    initialValue={operator.userId}
-                    onSelect={(value) =>
-                      handleOperatorChange(name, index, value as string)
-                    }
-                  />
-                </FormGroup>
-              </OperatorFormView>
-            ))}
-            <FormGroup>
+  const renderCallRouting = () => {
+    return departments.map(({ name, operators }) => (
+      <CallRouting key={name}>
+        <ControlLabel required>{__("Call routing name")}</ControlLabel>
+        <FormControl
+          className="routing-name"
+          required
+          onChange={(e) =>
+            setRoutingName((e.currentTarget as HTMLInputElement).value)
+          }
+          onBlur={(e) => updateDepartmentName(name)}
+          defaultValue={name}
+        />
+        {operators?.map((operator, index) => (
+          <OperatorFormView key={index}>
+            <OperatorRemoveBtn>
               <Button
-                btnStyle="simple"
-                icon="plus-1"
-                size="medium"
-                onClick={() => addOperator(name)}
-              >
-                {__("Add Operator")}
-              </Button>
-            </FormGroup>
-            {/* Add a button to remove the department */}
-            <FormGroup>
-              <Button
+                onClick={() => removeOperator(name, index)}
                 btnStyle="danger"
                 icon="times"
-                size="medium"
-                onClick={() => removeDepartment(name)}
-              >
-                {__("Remove Department")}
-              </Button>
+              />
+            </OperatorRemoveBtn>
+            <FormGroup>
+              <SelectTeamMembers
+                label={`Choose operator ${index + 1}`}
+                name="selectedMembers"
+                multi={false}
+                initialValue={operator.userId}
+                onSelect={(value) =>
+                  handleOperatorChange(name, index, value as string)
+                }
+              />
             </FormGroup>
-          </div>
+          </OperatorFormView>
         ))}
         <FormGroup>
           <Button
             btnStyle="simple"
             icon="plus-1"
             size="medium"
+            onClick={() => addOperator(name)}
+          >
+            {__("Add Operator")}
+          </Button>
+        </FormGroup>
+        {/* Add a button to remove the department */}
+        <CallRoutingRemove onClick={() => removeDepartment(name)}>
+          <Icon icon="times" size={16} />
+        </CallRoutingRemove>
+      </CallRouting>
+    ));
+  };
+
+  return (
+    <FlexItem>
+      <LeftItem>
+        <FormGroup>
+          <ControlLabel>{__("Call Routing")}</ControlLabel>
+          <p>
+            {__(
+              "The visitor chooses a department, group, or team. The system directs the call to that group."
+            )}
+          </p>
+          {renderCallRouting()}
+          <Button
+            btnStyle="link"
+            icon="plus-1"
+            size="medium"
             onClick={addDepartment}
           >
-            {__("Add Department")}
+            {__("Add Call Routing")}
           </Button>
         </FormGroup>
         <FormGroup>

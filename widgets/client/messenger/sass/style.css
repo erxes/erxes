@@ -3253,29 +3253,21 @@ select.form-control:focus,
     overflow: hidden;
   }
 }
+
 .call-container {
   padding: 1.25rem 2.25rem;
-  .detail-info {
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-    gap: 0.5rem;
-    h2 {
-      color: #000;
-      font-size: 1.5rem;
-      font-weight: 600;
-      letter-spacing: 0.045rem;
-      margin: 0;
-      width: 85%;
-    }
-    p {
-      color: #000;
-      font-size: 0.875rem;
-      font-weight: 500;
-      margin: 0;
-      width: 95%;
-    }
-  }
+  width: 100%;
+}
+.call-container .control-label {
+  font-size: 14px;
+}
+.call-container .form-control {
+  background: none;
+  box-shadow: none;
+  font-size: 15px;
+  height: 50px;
+  border-radius: 10px;
+  color: #444;
 }
 .conversation-list-empty-container {
   display: flex;
@@ -3441,6 +3433,9 @@ select.form-control:focus,
 .justify-between {
   justify-content: space-between;
 }
+.justify-center {
+  justify-content: center;
+}
 .gap-2 {
   gap: 0.625rem;
 }
@@ -3454,18 +3449,27 @@ select.form-control:focus,
 .mb-0 {
   margin-bottom: 0;
 }
+.mb-10 {
+  margin-bottom: 10px;
+}
+
 .phone-input-wrapper {
   display: flex;
+  align-items: center;
   gap: 0.7rem;
-  input {
-    outline: none;
-    border: none;
-    font-size: 1.125rem;
-    ::placeholder {
-      color: #9d9ea1;
-    }
-  }
 }
+
+.phone-input-wrapper input {
+  border: 0;
+  width: 100%;
+  height: 30px;
+  font-size: 15px;
+  border-left: 1px solid #eee;
+  padding-left: 10px;
+  outline: 0;
+  color: #444;
+}
+
 .country-select {
   -webkit-appearance: none;
   -moz-appearance: none;
