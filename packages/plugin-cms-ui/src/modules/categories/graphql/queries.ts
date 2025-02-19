@@ -8,7 +8,7 @@ const GET_CATEGORIES = gql`
     $page: Int
     $perPage: Int
     $sortField: String
-    $sortDirection: SortDirection
+    $sortDirection: String
   ) {
     cmsCategories(
       clientPortalId: $clientPortalId

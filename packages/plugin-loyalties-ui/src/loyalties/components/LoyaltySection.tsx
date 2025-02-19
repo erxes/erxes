@@ -1,10 +1,10 @@
-import { Box, Icon } from '@erxes/ui/src/components';
+import { Box, Icon, Tip } from '@erxes/ui/src/components';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 import { __ } from '@erxes/ui/src/utils';
-import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-
+import { BoxContainer, FilterContainer } from '../../styles';
 import { IDonate } from '../donates/types';
 import { ILottery } from '../lotteries/types';
 import { ISpin } from '../spins/types';
@@ -17,9 +17,52 @@ type IProps = {
   spins: ISpin[];
   donates: IDonate[];
   lotteries: ILottery[];
+  scoreLogs: any;
 };
 
-class LoyaltySection extends React.Component<IProps, {}> {
+interface State {
+  currentTab: string;
+  availableTabs: { value: string; label: string; icon: string }[];
+}
+
+const LOYALTY_TABS = [
+  { value: 'voucher', label: 'Voucher', icon: 'ticket' },
+  { value: 'spin', label: 'Spin', icon: 'process' },
+  { value: 'donate', label: 'Donate', icon: 'heart-2' },
+  { value: 'lottery', label: 'Lottery', icon: 'swatchbook' },
+  { value: 'score', label: 'Score', icon: 'star-1' },
+];
+
+class LoyaltySection extends React.Component<IProps, State> {
+  constructor(props) {
+    super(props);
+
+    const { vouchers, spins, donates, lotteries, scoreLogs } = props;
+
+    const tabConditions = {
+      voucher: vouchers,
+      spin: spins,
+      donate: donates,
+      lottery: lotteries,
+      score: scoreLogs,
+    };
+
+    const availableTabs = LOYALTY_TABS.filter(
+      (tab) => tabConditions[tab.value]?.length,
+    );
+
+    this.state = {
+      currentTab: availableTabs.length ? availableTabs[0].value : '',
+      availableTabs,
+    };
+  }
+
+  setCurrentTab(tab) {
+    this.setState({
+      currentTab: tab,
+    });
+  }
+
   renderVouchers() {
     const { ownerId, ownerType, vouchers } = this.props;
     if (!vouchers.length) {
@@ -27,12 +70,15 @@ class LoyaltySection extends React.Component<IProps, {}> {
     }
 
     return (
-      <SectionBodyItem>
+      <BoxContainer className="no-link">
         <Link to={`/vouchers?ownerId=${ownerId}&ownerType=${ownerType}`}>
-          <Icon icon="star" />
-          {`Vouchers`} ({vouchers.length})
+          <li>
+            {' '}
+            <Icon icon="star" />
+            {`Vouchers`} ({vouchers.length})
+          </li>
         </Link>
-      </SectionBodyItem>
+      </BoxContainer>
     );
   }
 
@@ -43,12 +89,15 @@ class LoyaltySection extends React.Component<IProps, {}> {
     }
 
     return (
-      <SectionBodyItem>
+      <BoxContainer className="no-link">
         <Link to={`/spins?ownerId=${ownerId}&ownerType=${ownerType}`}>
-          <Icon icon="star" />
-          {`Spins`} ({spins.length})
+          <li>
+            {' '}
+            <Icon icon="star" />
+            {`Spins`} ({spins.length})
+          </li>
         </Link>
-      </SectionBodyItem>
+      </BoxContainer>
     );
   }
 
@@ -59,12 +108,14 @@ class LoyaltySection extends React.Component<IProps, {}> {
     }
 
     return (
-      <SectionBodyItem>
+      <BoxContainer className="no-link">
         <Link to={`/lotteries?ownerId=${ownerId}&ownerType=${ownerType}`}>
-          <Icon icon="star" />
-          {`Lotteries`} ({lotteries.length})
+          <li>
+            <Icon icon="star" />
+            {`Lotteries`} ({lotteries.length})
+          </li>
         </Link>
-      </SectionBodyItem>
+      </BoxContainer>
     );
   }
 
@@ -75,12 +126,53 @@ class LoyaltySection extends React.Component<IProps, {}> {
     }
 
     return (
-      <SectionBodyItem>
+      <BoxContainer className="no-link">
         <Link to={`/donates?ownerId=${ownerId}&ownerType=${ownerType}`}>
-          <Icon icon="star" />
-          {`Donates`} ({donates.length})
+          <li>
+            <Icon icon="star" />
+            {`Donates`} ({donates.length})
+          </li>
         </Link>
-      </SectionBodyItem>
+      </BoxContainer>
+    );
+  }
+
+  renderScoreLog() {
+    const { ownerId, ownerType, scoreLogs } = this.props;
+
+    if (!scoreLogs.length) {
+      return '';
+    }
+
+    const status = {
+      earned: 0,
+      redeemed: 0,
+      balance: 0,
+    };
+
+    (scoreLogs || []).forEach((scoreLog) => {
+      const { action, changeScore } = scoreLog;
+
+      const finalAction = action ?? (changeScore > 0 ? 'add' : 'subtract');
+
+      if (finalAction === 'add') {
+        status.earned += Math.abs(changeScore);
+      } else if (finalAction === 'subtract') {
+        status.redeemed += Math.abs(changeScore);
+      }
+    });
+
+    status.balance = status.earned - status.redeemed;
+
+    return (
+      <BoxContainer className="no-link">
+        <li>Earned: {status.earned}</li>
+        <li>Redeemed: {status.redeemed}</li>
+        <li>Balance: {status.balance}</li>
+        <Link to={`/score?ownerId=${ownerId}&ownerType=${ownerType}`}>
+          <li>See more</li>
+        </Link>
+      </BoxContainer>
     );
   }
 
@@ -99,14 +191,49 @@ class LoyaltySection extends React.Component<IProps, {}> {
     return '';
   }
 
+  renderTabContent() {
+    const { currentTab } = this.state;
+
+    switch (currentTab) {
+      case 'voucher':
+        return this.renderVouchers();
+      case 'lottery':
+        return this.renderLotteries();
+      case 'spin':
+        return this.renderSpins();
+      case 'donate':
+        return this.renderDonates();
+      case 'score':
+        return this.renderScoreLog();
+      default:
+        return <></>
+    }
+  }
+
   render() {
+    const { availableTabs, currentTab } = this.state;
+
+    if (!availableTabs?.length) {
+      return this.renderEmpty();
+    }
+
     return (
       <Box title={__('Loyalty')} name="Loyalties" isOpen={true}>
-        {this.renderEmpty()}
-        {this.renderVouchers()}
-        {this.renderLotteries()}
-        {this.renderSpins()}
-        {this.renderDonates()}
+        <FilterContainer style={{ paddingTop: 0 }}>
+          <Tabs full={true}>
+            {availableTabs.map((tab) => (
+              <Tip text={tab.label} key={tab.value} placement="top">
+                <TabTitle
+                  onClick={() => this.setCurrentTab(tab.value)}
+                  className={`compact ${currentTab === tab.value ? 'active' : ''}`}
+                >
+                  <Icon icon={tab.icon} />
+                </TabTitle>
+              </Tip>
+            ))}
+          </Tabs>
+          {this.renderTabContent()}
+        </FilterContainer>
       </Box>
     );
   }

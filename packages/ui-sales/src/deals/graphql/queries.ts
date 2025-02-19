@@ -215,8 +215,8 @@ const productDetail = `
 `;
 
 const checkDiscount = `
-  query salesCheckDiscount($_id: String!, $products: [SalesProductField]) {
-    salesCheckDiscount(_id: $_id, products: $products)
+  query checkDiscount($_id: String!, $products: [SalesProductField]) {
+    checkDiscount(_id: $_id, products: $products)
   }
 `;
 
