@@ -2,7 +2,7 @@ import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { sendCommonMessage, sendCoreMessage } from '../messageBroker';
 
 export default {
-  handleMinutelyJob: async ({ subdomain }) => {
+  handleDailyJob: async ({ subdomain }) => {
     const NOW = new Date();
     const NOW_MONTH = NOW.getMonth() + 1;
     const NOW_DAY = NOW.getDate();
