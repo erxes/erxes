@@ -339,7 +339,6 @@ const contractQueries = {
       schedules: [],
       firstSchedules: bulkEntries,
     }
-
   }
 };
 

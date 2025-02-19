@@ -134,7 +134,7 @@ function Component({
         {contract._id === 'tempFakeContract' &&
           (<SchedulesList
             contractId={contract._id}
-            schedules={firstSchedules}
+            schedules={firstSchedules.map(fs => ({ ...fs, interest: (fs.storedInterest || 0) + (fs.interestEve || 0) + (fs.interestNonce || 0) }))}
             loading={false}
             scheduleYears={scheduleYears}
             currentYear={new Date().getFullYear()}
