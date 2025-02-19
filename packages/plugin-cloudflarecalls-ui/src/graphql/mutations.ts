@@ -150,19 +150,12 @@ const callTransfer = `
 }`;
 const cloudflareAnswerCall = `
 mutation CloudflareAnswerCall($roomState: String!, $audioTrack: String!, $customerAudioTrack: String!) {
-  cloudflareAnswerCall(roomState: $roomState, audioTrack: $audioTrack, customerAudioTrack: $customerAudioTrack) {
-    callerNumber
-    roomState
-    sessionId
-    trackName
-  }
+  cloudflareAnswerCall(roomState: $roomState, audioTrack: $audioTrack, customerAudioTrack: $customerAudioTrack)
 }`;
 
 const cloudflareLeaveCall = `
   mutation CloudflareLeaveCall($roomState: String!, $originator: String, $duration: Int, $audioTrack: String!) {
-    cloudflareLeaveCall(roomState: $roomState, originator: $originator, duration: $duration, audioTrack: $audioTrack) {
-      callerNumber
-    }
+    cloudflareLeaveCall(roomState: $roomState, originator: $originator, duration: $duration, audioTrack: $audioTrack) 
   }
 `;
 export default {

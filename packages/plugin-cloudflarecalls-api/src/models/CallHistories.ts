@@ -7,6 +7,7 @@ import {
   ICallHistory,
   ICallHistoryDocument,
 } from './definitions/callHistories';
+import { Department } from './definitions/integrations';
 
 export interface ICallHistoryModel extends Model<ICallHistoryDocument> {
   getCallHistory(history: ICallHistory): Promise<ICallHistoryDocument>;
@@ -32,7 +33,7 @@ export const loadCallHistoryClass = (models: IModels) => {
       }
 
       const department = integration.departments?.find(
-        (dept) => dept._id === selector.departmentId,
+        (dept: Department) => dept._id.toString() === selector.departmentId,
       );
 
       if (!department) {
@@ -80,7 +81,7 @@ export const loadCallHistoryClass = (models: IModels) => {
       }
 
       const department = integration.departments?.find(
-        (dept) => dept._id === selector.departmentId,
+        (dept: Department) => dept._id.toString() === selector.departmentId,
       );
 
       if (!department) {
