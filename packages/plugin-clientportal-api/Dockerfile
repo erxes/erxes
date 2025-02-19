@@ -5,9 +5,9 @@ WORKDIR /erxes
 # Ensure permissions
 RUN chown -R node:node /erxes
 
-# Install required dependencies including Git
+# Install required dependencies including Git and CA certificates
 RUN apt-get update -y \
-    && apt-get install -y --no-install-recommends curl git \
+    && apt-get install -y --no-install-recommends curl git ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy project files
