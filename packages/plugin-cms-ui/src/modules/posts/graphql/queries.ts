@@ -11,7 +11,7 @@ const POST_LIST = gql`
     $perPage: Int
     $tagIds: [String]
     $sortField: String
-    $sortDirection: SortDirection
+    $sortDirection: String
   ) {
     cmsPostList(
       clientPortalId: $clientPortalId
