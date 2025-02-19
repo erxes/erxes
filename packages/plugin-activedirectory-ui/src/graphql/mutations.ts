@@ -1,19 +1,21 @@
 const commonFields = `
-  $apiUrl: String,
-  $isLocalUser: Boolean,
-  $userDN: String,
+  $apiUrl: String
+  $isLocalUser: Boolean
+  $userDN: String
+  $baseDN: String
   $adminDN: String
   $adminPassword: String
-  $code: String,
+  $code: String
 `;
 
 const commonVariables = `
-  apiUrl: $apiUrl,
-  isLocalUser: $isLocalUser,
-  userDN: $userDN,
+  apiUrl: $apiUrl
+  isLocalUser: $isLocalUser
+  userDN: $userDN
+  baseDN: $baseDN
   adminDN: $adminDN
   adminPassword: $adminPassword
-  code: $code,
+  code: $code
 `;
 
 const adConfigUpdate = `

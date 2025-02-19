@@ -58,11 +58,11 @@ const ticketQueries = {
   async ticketDetail(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const ticket = await models.Tickets.getTicket(_id);
 
-    return checkItemPermByUser(models, user, ticket);
+    return checkItemPermByUser(subdomain, models, user, ticket);
   }
 };
 
