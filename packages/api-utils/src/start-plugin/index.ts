@@ -419,10 +419,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     }
   } // end configs.meta if
 
-  if (configs.changeStream) {
-    configs.changeStream()
-  }
-
   await join({
     name: configs.name,
     port: PORT || '',

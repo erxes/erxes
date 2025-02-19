@@ -55,6 +55,5 @@ export default {
       }),
     );
   },
-  changeStream,
   setupMessageConsumers,
 };
