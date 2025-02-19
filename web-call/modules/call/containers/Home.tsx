@@ -34,10 +34,11 @@ const HomeContainer = (props: IProps) => {
 
     call({
       variables: {
-        integrationId,
+        integrationId: "4SxJ9drjH_yucWcDApUHT",
         callerNumber: phoneNumber,
         audioTrack: pushedTracks?.audio,
         roomState: "ready",
+        departmentId: "67b30a294c046b44347df2d4",
       },
     })
   }

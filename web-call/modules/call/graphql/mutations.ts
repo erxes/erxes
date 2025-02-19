@@ -6,12 +6,14 @@ const call = gql`
     $roomState: String!
     $audioTrack: String!
     $integrationId: String!
+    $departmentId: String!
   ) {
     cloudflareMakeCall(
       callerNumber: $callerNumber
       roomState: $roomState
       audioTrack: $audioTrack
       integrationId: $integrationId
+      departmentId: $departmentId
     )
   }
 `

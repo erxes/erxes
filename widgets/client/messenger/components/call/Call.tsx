@@ -1,16 +1,21 @@
 import * as React from "react";
 
-import Button from "./common/Button";
-import Container from "./common/Container";
-import CountrySelect from "./common/CountrySelect";
-import { __ } from "../../utils";
+import Button from "../common/Button";
+import Container from "../common/Container";
+import CountrySelect from "../common/CountrySelect";
+import { __ } from "../../../utils";
 
 type Props = {
-  isSubmitted?: boolean;
-  handleSubmit?: () => void;
+  isSubmitted: boolean;
+  handleSubmit: () => void;
+  handleNextButton: () => void;
 };
 
-const Call: React.FC<Props> = () => {
+const Call: React.FC<Props> = ({
+  handleSubmit,
+  isSubmitted,
+  handleNextButton,
+}) => {
   return (
     <Container title={__("Call")} withBottomNavBar={false}>
       <div className="call-container">
@@ -45,7 +50,7 @@ const Call: React.FC<Props> = () => {
               </select>
             </div>
           </div>
-          <Button full>
+          <Button full onClick={handleNextButton}>
             <span className="font-semibold">{__("Call")}</span>
           </Button>
         </div>
