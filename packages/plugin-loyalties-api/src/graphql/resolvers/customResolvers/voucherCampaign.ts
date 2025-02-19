@@ -10,5 +10,14 @@ export default {
     return models.Vouchers.find({
       campaignId: voucherCampaign._id
     }).countDocuments();
+  },
+  async codesCount(
+    voucherCampaign: IVoucherCampaignDocument,
+    _args,
+    { models }: IContext
+  ) {
+    return models.VoucherCodes.find({
+      campaignId: voucherCampaign._id
+    }).countDocuments();
   }
 };

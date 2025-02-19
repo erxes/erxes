@@ -26,6 +26,7 @@ import {
   Assignments as AssignmentMutations,
   AssignmentCampaigns as AssignmentCampaignMutations,
   ScoreCampaigns as scoreCampaignMutations,
+  voucherCodes as voucherCodeMutations,
 } from './mutations';
 import {
   Donates as DonateQueries,
@@ -70,6 +71,7 @@ const resolvers: any = async serviceDiscovery => ({
     ...AssignmentMutations,
     ...AssignmentCampaignMutations,
     ...scoreCampaignMutations,
+    ...voucherCodeMutations
   },
   Query: {
     ...loyaltyConfigQueries,

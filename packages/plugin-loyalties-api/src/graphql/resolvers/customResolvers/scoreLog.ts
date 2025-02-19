@@ -4,7 +4,8 @@ import { IScoreLog } from '../../../models/definitions/scoreLog';
 import { getOwner } from '../../../models/utils';
 
 const TARGET_ACTIONS = {
-  pos: 'orders.find',
+  pos: {action: 'orders.find', field: 'items'},
+  sales: {action: 'deals.find', field: 'productsData'},
 };
 
 const fetchTarget = async ({
@@ -16,14 +17,17 @@ const fetchTarget = async ({
   serviceName: string;
   subdomain: string;
 }) => {
-  if (!targetId || !serviceName) {
+
+  const {action, field} = TARGET_ACTIONS[serviceName] || {}
+
+  if (!targetId || !serviceName || !TARGET_ACTIONS[serviceName]) {
     return [];
   }
 
-  const target = await sendCommonMessage({
+  const [target] = await sendCommonMessage({
     subdomain,
     serviceName,
-    action: TARGET_ACTIONS[serviceName],
+    action,
     data: {
       _id: targetId,
     },
@@ -31,7 +35,7 @@ const fetchTarget = async ({
     defaultValue: [],
   });
 
-  return target;
+  return target[field]
 };
 
 export default {
@@ -52,7 +56,7 @@ export default {
     for (const scoreLog of scoreLogs) {
       const { campaignId, targetId, serviceName } = scoreLog;
 
-      const [target] = await fetchTarget({ targetId, serviceName, subdomain });
+      const target = await fetchTarget({ targetId, serviceName, subdomain });
 
       const campaign = scoreCampaigns.find(
         (scoreCampaign) => scoreCampaign._id === campaignId,
@@ -61,6 +65,7 @@ export default {
       updatedScoreLogs.push({
         ...scoreLog,
         target,
+        type: serviceName,
         campaign,
       });
     }

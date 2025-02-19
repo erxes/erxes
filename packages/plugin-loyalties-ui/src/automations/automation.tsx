@@ -1,10 +1,11 @@
 import React from 'react';
-import LoyaltyForm from './containers/LoyaltyForm';
+import PromotionForm from './components/PromotionForm';
 import ScoreForm from './components/ScoreForm';
 import SpinForm from './components/SpinForm';
+import LoyaltyForm from './containers/LoyaltyForm';
 
-const Automations = props => {
-  const { componentType, activeAction } = props;
+const Automations = (props) => {
+  const { componentType, activeAction, activeTrigger } = props;
 
   if (componentType === 'historyActionResult') {
     return <>{'-'}</>;
@@ -31,6 +32,16 @@ const Automations = props => {
   if (componentType === 'historyActionResult') {
     const { result } = props;
     return <>{result}</>;
+  }
+
+  if (componentType === 'triggerForm') {
+    const [_serviceName, contentType] = activeTrigger?.type.split(':');
+
+    if (contentType === 'promotion') {
+      return <PromotionForm {...props} />;
+    }
+
+    return null;
   }
 };
 
