@@ -27,6 +27,7 @@ type Props = {
   options: IOptions;
   item: IItem;
   addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
+  synchSingleCard: (itemId: string) => void;
   removeItem: (itemId: string, callback?: () => void) => void;
   copyItem: (itemId: string, callback: () => void, msg?: string) => void;
   beforePopupClose: (afterPopupClose?: () => void) => void;
@@ -132,25 +133,27 @@ function EditForm(props: Props) {
     }
   };
 
-  const onHideModal = (event) => {
+  const onHideModal = () => {
     if (refresh) {
       routerUtils.setParams(navigate, location, { key: Math.random() });
     }
 
-    if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
-      closeModal(() => {
-        if (updatedItem) {
-          const itemName = localStorage.getItem(`${updatedItem._id}Name`) || "";
-          if (itemName && updatedItem.name !== itemName) {
-            saveItemHandler({ itemName });
-          }
-          localStorage.removeItem(`${updatedItem._id}Name`);
+    closeModal(() => {
+      if (updatedItem) {
+        const itemName = localStorage.getItem(`${updatedItem._id}Name`) || "";
+
+        if (itemName && updatedItem.name !== itemName) {
+          saveItemHandler({ itemName });
         }
-        if (updatedItem && props.onUpdate) {
-          props.onUpdate(updatedItem, prevStageId);
-        }
-      });
-    }
+
+        localStorage.removeItem(`${updatedItem._id}Name`);
+      }
+
+      props.synchSingleCard(updatedItem._id);
+      // if (updatedItem && props.onUpdate) {
+      //   props.onUpdate(updatedItem, prevStageId);
+      // }
+    });
   };
 
   const renderArchiveStatus = () => {

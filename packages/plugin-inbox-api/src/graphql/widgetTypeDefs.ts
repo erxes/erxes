@@ -10,7 +10,7 @@ export const types = ({ products, knowledgeBase }) => `
       _id: String! @external
     }
     `
-      : ''
+      : ""
   }
 
     extend type Field @key(fields: "_id") {
@@ -30,7 +30,7 @@ export const types = ({ products, knowledgeBase }) => `
       _id: String! @external
     }
     `
-      : ''
+      : ""
   }
 
   type MessengerConnectResponse {
@@ -49,6 +49,8 @@ export const types = ({ products, knowledgeBase }) => `
     operatorStatus: String
     participatedUsers: [User]
     readUsers: [User]
+    botData:JSON
+    fromBot:Boolean
     isOnline: Boolean
     supporters: [User]
   }
@@ -81,7 +83,7 @@ export const queries = ({ products, knowledgeBase }) => `
       widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
       widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
     `
-      : ''
+      : ""
   }
 
 
@@ -113,6 +115,7 @@ export const mutations = () => `
   widgetsInsertMessage(
     integrationId: String!
     customerId: String
+    payload: String
     visitorId: String
     conversationId: String
     message: String,
@@ -123,11 +126,11 @@ export const mutations = () => `
 
   widgetBotRequest(
     customerId: String
+    payload: String
     visitorId: String
     conversationId: String
     integrationId: String!,
     message: String!
-    payload: String!
     type: String!
     ): JSON
 

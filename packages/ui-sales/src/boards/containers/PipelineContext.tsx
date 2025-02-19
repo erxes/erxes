@@ -27,6 +27,7 @@ import { UserDetailQueryResponse } from "@erxes/ui/src/auth/types";
 import client from "@erxes/ui/src/apolloClient";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
+import { queries as queriesLogs } from "@erxes/ui-log/src/activityLogs/graphql";
 import { requestIdleCallback } from "request-idle-callback";
 import { setTimeout } from "timers";
 
@@ -75,6 +76,7 @@ interface IStore {
   onAddItem: (stageId: string, item: IItem, aboveItemId?: string) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
   onUpdateItem: (item: IItem, prevStageId?: string) => void;
+  synchSingleCard: (itemId: string) => void;
   isShowLabel: boolean;
   toggleLabels: () => void;
 }
@@ -118,8 +120,8 @@ class PipelineProviderInner extends React.Component<Props, State> {
         prev,
         {
           subscriptionData: {
-            data: { salesPipelinesChanged }
-          }
+            data: { salesPipelinesChanged },
+          },
         }
       ) => {
         if (!salesPipelinesChanged || !salesPipelinesChanged.data) {
@@ -129,7 +131,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
         const {
           data: { item, aboveItemId, destinationStageId, oldStageId },
           action,
-          proccessId
+          proccessId,
         } = salesPipelinesChanged;
 
         if (proccessId !== localStorage.getItem("proccessId")) {
@@ -195,14 +197,14 @@ class PipelineProviderInner extends React.Component<Props, State> {
             });
           }
 
-          if (action === "itemOfConformitiesUpdate" && item._id) {
+          if (action === "itemOfConformitiesUpdate" && item?._doc?._id) {
             setTimeout(() => {
               client
                 .query({
                   query: gql(this.props.options.queries.detailQuery),
                   fetchPolicy: "network-only",
                   variables: {
-                    _id: item._id,
+                    _id: item?._doc?._id,
                   },
                 })
                 .then(({ data }) => {
@@ -247,6 +249,26 @@ class PipelineProviderInner extends React.Component<Props, State> {
     });
   }
 
+  synchSingleCard = (itemId: string) => {
+    setTimeout(() => {
+      client
+        .query({
+          query: gql(this.props.options.queries.detailQuery),
+          fetchPolicy: "network-only",
+          variables: {
+            _id: itemId,
+          },
+        })
+        .then(({ data }) => {
+          const refetchedItem =
+            data[this.props.options.queriesName.detailQuery];
+          this.setState({
+            itemMap: updateItemInfo(this.state, refetchedItem),
+          });
+        });
+    }, 1000);
+  };
+
   findItemIndex = (stageId: string, aboveItemId: string) => {
     const { itemMap } = this.state;
 
@@ -285,7 +307,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
     }
   }
 
-  onDragStart = _start => {
+  onDragStart = (_start) => {
     const { isDragEnabled } = this.state;
     if (!isDragEnabled) {
       throw new Error("Not ready to move...");
@@ -376,6 +398,16 @@ class PipelineProviderInner extends React.Component<Props, State> {
     };
   };
 
+  refetchQueryLogs = (itemId: string) => {
+    return {
+      query: gql(queriesLogs.activityLogs),
+      variables: {
+        contentId: itemId,
+        contentType: "sales:deal",
+      },
+    };
+  };
+
   refetchStagesQueryBuild = (pipelineId: string) => {
     return {
       query: gql(queries.stages),
@@ -395,7 +427,10 @@ class PipelineProviderInner extends React.Component<Props, State> {
     const { itemId, aboveItemId, destinationStageId, sourceStageId } = args;
 
     const { options } = this.props;
-    const refetchQueries = [this.refetchQueryBuild(destinationStageId)];
+    const refetchQueries = [
+      this.refetchQueryBuild(destinationStageId),
+      this.refetchQueryLogs(itemId),
+    ];
 
     if (sourceStageId) {
       refetchQueries.unshift(this.refetchQueryBuild(sourceStageId));
@@ -449,13 +484,13 @@ class PipelineProviderInner extends React.Component<Props, State> {
    */
   onLoadStage = (stageId: string, items: IItem[]) => {
     const { itemMap, stageLoadMap, itemIds } = this.state;
-    const task = PipelineProviderInner.tasks.find(t => t.stageId === stageId);
+    const task = PipelineProviderInner.tasks.find((t) => t.stageId === stageId);
 
     if (task) {
       task.isComplete = true;
     }
 
-    const newItemIds = [...itemIds, ...items.map(item => item._id)];
+    const newItemIds = [...itemIds, ...items.map((item) => item._id)];
 
     this.setState({
       itemIds: Array.from(new Set(newItemIds)),
@@ -550,7 +585,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
     const aboveIndex = this.findItemIndex(stageId, aboveItemId);
 
     if (aboveIndex !== undefined) {
-      const newArray = items.map(item => Object.assign({}, item));
+      const newArray = items.map((item) => Object.assign({}, item));
       newArray.splice(aboveIndex + 1, 0, { ...item });
       this.setState({
         itemMap: {
@@ -567,7 +602,9 @@ class PipelineProviderInner extends React.Component<Props, State> {
   onRemoveItem = (itemId: string, stageId: string) => {
     const { itemMap } = this.state;
 
-    const items = (itemMap[stageId] || []).filter(item => item._id !== itemId);
+    const items = (itemMap[stageId] || []).filter(
+      (item) => item._id !== itemId
+    );
 
     this.setState({
       itemMap: { ...itemMap, [stageId]: items },
@@ -613,7 +650,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
       });
     } else {
       const items = [...itemMap[stageId]];
-      const index = items.findIndex(d => d._id === item._id);
+      const index = items.findIndex((d) => d._id === item._id);
 
       items[index] = item;
 
@@ -667,6 +704,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
             onAddItem: this.onAddItem,
             onRemoveItem: this.onRemoveItem,
             onUpdateItem: this.onUpdateItem,
+            synchSingleCard: this.synchSingleCard,
             itemMap,
             stageLoadMap,
             stageIds,

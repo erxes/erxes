@@ -150,7 +150,7 @@ export const loadClass = (models: IModels) => {
           { $set: { ...fields } },
         );
 
-        return models.ConversationMessages.findOne({ _id }).lean();
+        return await models.ConversationMessages.findOne({ _id }).lean();
       }
       return '';
     }
@@ -158,8 +158,8 @@ export const loadClass = (models: IModels) => {
     /**
      * User's last non answered question
      */
-    public static getNonAsnweredMessage(conversationId: string) {
-      return models.ConversationMessages.findOne({
+    public static async getNonAsnweredMessage(conversationId: string) {
+      return await models.ConversationMessages.findOne({
         conversationId,
         customerId: { $exists: true },
       })
