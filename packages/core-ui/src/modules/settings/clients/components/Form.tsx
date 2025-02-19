@@ -32,6 +32,7 @@ const ClientForm = (props: Props) => {
   const [clientObject, setClientObject] = useState<any | undefined>(client);
 
   const generateDoc = () => {
+    console.log('clientObject', clientObject);
     const finalValues: any = {};
 
     if (client) {
@@ -88,15 +89,14 @@ const ClientForm = (props: Props) => {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)', // 3 columns
-          gap: '20px', // Space between columns
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '20px',
         }}
       >
         {modules.map((module) => (
           <div key={module.name} style={{ border: '1px solid #ddd', padding: '10px', borderRadius: '4px' }}>
-            <h4>{module.name}</h4>
-            <p>{module.description}</p>
-            {module.actions.map((action) => (
+            <h4>{module.description}</h4>
+            {module.actions.filter((a) => a.description !== 'All').map((action) => (
               <FormGroup key={action.name}>
                 <ControlLabel>
                   <FormControl
@@ -112,7 +112,7 @@ const ClientForm = (props: Props) => {
                       );
                     }}
                   />
-                  {action.name} - {action.description}
+                  &nbsp;{action.description}
                 </ControlLabel>
               </FormGroup>
             ))}

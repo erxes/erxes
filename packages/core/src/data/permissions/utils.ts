@@ -41,6 +41,7 @@ export const getPermissionModules = async () => {
   const modules: IModuleMap[] = [];
 
   const services = await getServices();
+  console.log(JSON.stringify(services, null, 2));
 
   for (const name of services) {
     const service = await getService(name);
@@ -49,7 +50,6 @@ export const getPermissionModules = async () => {
 
     const permissions =
       service.config.meta?.permissions || service.config.permissions;
-      console.log(JSON.stringify(permissions, null, 2));
 
     if (!permissions) continue;
 
@@ -62,7 +62,7 @@ export const getPermissionModules = async () => {
     }
   }
 
-  return modules;
+  return modules.sort((a, b) => a.name.localeCompare(b.name));
 };
 
 export const getPermissionActions = async () => {
