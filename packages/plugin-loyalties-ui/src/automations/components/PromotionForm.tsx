@@ -52,8 +52,6 @@ type Config = {
 const PromotionForm = (props: Props) => {
   const { activeTrigger, addConfig, closeModal } = props;
 
-  console.log('props', props);
-
   const [config, setConfig] = useState<Config>(activeTrigger?.config || {});
 
   const onChangeConfig = (name: string, value: any) => {

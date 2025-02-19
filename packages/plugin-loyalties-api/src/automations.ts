@@ -494,8 +494,6 @@ const addScore = async ({
     let attributes = generateAttributes(config?.attribution || '');
 
     if (attributes.includes('triggerExecutor')) {
-      console.log(5);
-
       const { ownerType, ownerId } = await getOwner({
         models,
         subdomain,
@@ -679,10 +677,6 @@ const actionCreate = async ({ subdomain, action, execution }) => {
   const { triggerType } = execution || {};
 
   const [serviceName, contentType] = triggerType.split(/[:.]/);
-
-  console.log('triggerType', triggerType);
-  console.log('serviceName', serviceName);
-  console.log('contentType', contentType);
 
   try {
     switch (type) {

@@ -393,6 +393,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         createdAt: new Date(),
         description,
         createdBy,
+        campaignId,
         action: "add"
       });
     }
