@@ -2,6 +2,7 @@ import styled, { css } from "styled-components";
 import styledTS from "styled-components-ts";
 import { colors, dimensions } from "@erxes/ui/src/styles/";
 import { rgba } from "@erxes/ui/src/styles/ecolor";
+import { SidebarList } from '@erxes/ui/src/layout/styles';
 
 export const CustomRangeContainer = styled.div`
   display: flex;
@@ -36,6 +37,20 @@ export const ExtraButtons = styled.div`
 
   > div {
     cursor: pointer;
+  }
+`;
+
+export const BoxContainer = styled(SidebarList)`
+
+  padding-top: 10px;
+
+  > li, > a > li {
+    padding: 6px 0 !important;
+  };
+
+  > a {
+    padding: 0;
+    font-weight: 500;
   }
 `;
 

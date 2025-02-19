@@ -59,8 +59,33 @@ const voucherCampaignsRemove = `
   }
 `;
 
+const voucherGenerateCodes = `
+  mutation generateVoucherCodes(
+    $campaignId: String, 
+    $prefix: String, 
+    $suffix: String, 
+    $codeLength: Int, 
+    $usageLimit: Int, 
+    $quantity: Int,
+    $staticCode: String,
+    $allowRepeatRedemption: Boolean
+  ) {
+    generateVoucherCodes(
+      campaignId: $campaignId, 
+      prefix: $prefix, 
+      suffix: $suffix, 
+      codeLength: $codeLength, 
+      usageLimit: $usageLimit, 
+      quantity: $quantity,
+      staticCode: $staticCode,
+      allowRepeatRedemption: $allowRepeatRedemption
+    )
+  }
+`;
+
 export default {
   voucherCampaignsAdd,
   voucherCampaignsEdit,
-  voucherCampaignsRemove
+  voucherCampaignsRemove,
+  voucherGenerateCodes,
 };

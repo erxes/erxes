@@ -33,6 +33,7 @@ export const setupMessageConsumers = async () => {
   consumeRPCQueue("loyalties:checkLoyalties", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { ownerType, ownerId, products } = data;
+
     return {
       data: await checkVouchersSale(
         models,
@@ -48,6 +49,7 @@ export const setupMessageConsumers = async () => {
   consumeQueue("loyalties:confirmLoyalties", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { checkInfo } = data;
+
     return {
       data: await confirmVoucherSale(models, checkInfo),
       status: "success"
