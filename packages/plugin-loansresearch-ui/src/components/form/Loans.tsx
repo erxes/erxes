@@ -20,7 +20,7 @@ import { FlexRow } from '../../styles';
 import { LOAN_TYPES } from '../../constants';
 
 const getEmptyIncome = () => ({
-  _id: Math.random().toString(),
+  _id: crypto.randomUUID(),
   startDate: '',
   closeDate: '',
   files: [],
@@ -227,10 +227,16 @@ const LoanForm = (props: Props) => {
                   multiple={true}
                   single={false}
                 />
+
+                {loan.loanType === 'Cost' && (
+                  <Button
+                    btnStyle="danger"
+                    onClick={() => removeFeature(loan._id)}
+                  >
+                    X
+                  </Button>
+                )}
               </FormGroup>
-              <Button btnStyle="danger" onClick={() => removeFeature(loan._id)}>
-                X
-              </Button>
             </MarginTop>
           );
         })}

@@ -1,12 +1,12 @@
-import { DetailQueryResponse, ILoanResearch } from "../types";
-import { gql, useQuery } from "@apollo/client";
+import { DetailQueryResponse, ILoanResearch } from '../types';
+import { gql, useQuery } from '@apollo/client';
 
-import LoansResearchSidebar from "../components/LoansResearchSidebar";
-import React from "react";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import { queries } from "../graphql";
-import queryString from "query-string";
-import { useLocation } from "react-router-dom";
+import LoansResearchSidebar from '../components/LoansResearchSidebar';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { queries } from '../graphql';
+import queryString from 'query-string';
+import { useLocation } from 'react-router-dom';
 
 type Props = {
   showType?: string;
@@ -20,7 +20,7 @@ const LoansResearchSidebarContainer = ({ showType }: Props) => {
     gql(queries.loanResearchDetail),
     {
       variables: {
-        dealId: queryParams?.itemId || "",
+        dealId: queryParams?.itemId || '',
       },
     }
   );

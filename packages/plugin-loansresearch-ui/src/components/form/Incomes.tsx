@@ -16,7 +16,7 @@ import { INCOME_TYPES } from '../../constants';
 import { FlexRow, MarginTop } from '../../styles';
 
 const getEmptyIncome = () => ({
-  _id: Math.random().toString(),
+  _id: crypto.randomUUID(),
   incomeType: '',
   files: [],
 });
@@ -202,12 +202,15 @@ const IncomeForm = (props: Props) => {
                   single={false}
                 />
               </FormGroup>
-              <Button
-                btnStyle="danger"
-                onClick={() => removeFeature(income._id)}
-              >
-                X
-              </Button>
+
+              {income.incomeType === 'Business' && (
+                <Button
+                  btnStyle="danger"
+                  onClick={() => removeFeature(income._id)}
+                >
+                  X
+                </Button>
+              )}
             </MarginTop>
           );
         })}
