@@ -117,7 +117,6 @@ export const loadCallHistoryClass = (models: IModels) => {
 
   callHistorySchema.loadClass(CallHistory);
   callHistorySchema.index({ customerAudioTrack: 1 }, { unique: true });
-  callHistorySchema.index({ operatorAudioTrack: 1 }, { unique: true });
 
   return callHistorySchema;
 };
