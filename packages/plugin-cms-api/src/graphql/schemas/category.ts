@@ -4,11 +4,6 @@ export const types = `
         inactive
     }
 
-    enum SortDirection {
-        asc
-        desc
-    }
-
     type PostCategory {
         _id: String!
         clientPortalId: String!
@@ -37,7 +32,7 @@ export const inputs = `
 `;
 
 export const queries = `
-    cmsCategories(clientPortalId: String, searchValue: String, status: CategoryStatus, page: Int, perPage: Int, sortField: String, sortDirection: SortDirection): [PostCategory]
+    cmsCategories(clientPortalId: String, searchValue: String, status: CategoryStatus, page: Int, perPage: Int, sortField: String, sortDirection: String): [PostCategory]
     cmsCategory(_id: String, slug: String): PostCategory
 `;
 
