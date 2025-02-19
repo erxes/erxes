@@ -71,9 +71,9 @@ const TransactionForm = (props: Props) => {
     transactions?.length
       ? transactions.filter((tr) => !tr.originId)
       : (defaultJournal && [
-          journalConfigMaps[defaultJournal || ""]?.defaultData(state.date),
-        ]) ||
-          []
+        journalConfigMaps[defaultJournal || ""]?.defaultData(state.date),
+      ]) ||
+      []
   );
 
   const [followTrDocs, setFollowTrDocs] = useState<ITransaction[]>(
@@ -81,21 +81,21 @@ const TransactionForm = (props: Props) => {
   );
 
   useEffect(() => {
+    const leastSavingTr = transactions?.find(tr => !tr._id?.includes('temp'))
+    if (!leastSavingTr) {
+      return;
+    }
+
     setTrDocs(
-      transactions?.length
-        ? transactions.filter((tr) => !tr.originId)
-        : (defaultJournal && [
-            journalConfigMaps[defaultJournal || ""]?.defaultData(state.date),
-          ]) ||
-            []
+      (transactions || []).filter((tr) => !tr.originId)
     );
     setFollowTrDocs(
-      (transactions?.length && transactions.filter((tr) => tr.originId)) || []
+      (transactions || []).filter((tr) => tr.originId)
     );
   }, [transactions]);
 
   const [currentTransaction, setCurrentTransaction] = useState(
-    trDocs && (trDocs.find((tr) => tr._id === queryParams.trId) || trDocs[0])
+    queryParams.trId && trDocs.find((tr) => tr._id === queryParams.trId) || trDocs[0]
   );
 
   const balance: { dt: number; ct: number; diff?: number; side?: string } =
