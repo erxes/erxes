@@ -36,6 +36,7 @@ export interface IProduct {
   variants: IVariant;
   barcodeDescription: string;
   code: string;
+  currency: string;
   unitPrice: number;
   customFieldsData?: any;
   createdAt: Date;
@@ -138,6 +139,18 @@ export type IProductsConfig = {
 
 export type ProductsConfigsQueryResponse = {
   productsConfigs: IProductsConfig[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type IConfig = {
+  _id: string;
+  code: string;
+  value: any;
+};
+
+export type ConfigsQueryResponse = {
+  configsGetValue: IConfig;
   loading: boolean;
   refetch: () => void;
 };

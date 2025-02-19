@@ -112,22 +112,24 @@ class CreateMessenger extends React.Component<Props, State> {
 
     const integration = props.integration || ({} as IIntegration);
     const languageCode = integration.languageCode || "en";
-    const configData = integration.messengerData || {
-      skillData: undefined,
-      notifyCustomer: false,
-      requireAuth: true,
-      showChat: true,
-      showLauncher: true,
-      hideWhenOffline: false,
-      forceLogoutWhenResolve: false,
-      showVideoCallRequest: false,
-      botEndpointUrl: "",
-      botShowInitialMessage: false,
-      botCheck: false,
-      isReceiveWebCall: false,
-      botGreetMessage: "",
-      persistentMenus: [] as BotPersistentMenuTypeMessenger[],
-    };
+    const configData =
+      integration.messengerData ||
+      ({
+        skillData: undefined,
+        notifyCustomer: false,
+        requireAuth: true,
+        showChat: true,
+        showLauncher: true,
+        hideWhenOffline: false,
+        forceLogoutWhenResolve: false,
+        showVideoCallRequest: false,
+        botEndpointUrl: "",
+        botShowInitialMessage: false,
+        botCheck: false,
+        isReceiveWebCall: false,
+        botGreetMessage: "",
+        persistentMenus: [] as BotPersistentMenuTypeMessenger[],
+      } as IMessengerData);
     const callData = integration.callData;
     const links = configData.links || {};
     const externalLinks = configData.externalLinks || [];

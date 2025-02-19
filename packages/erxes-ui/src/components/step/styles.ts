@@ -80,6 +80,11 @@ const StepItem = styledTS<{
   &:last-child::after {
     content: none;
   }
+
+  @media (max-width: 1500px) {
+    width: ${(props) => (props.$show ? '100%' : '40px')};
+    width: ${(props) => props.direction === 'vertical' && '100%'};
+  }
 `;
 
 const TitleContainer = styled.div`
@@ -255,6 +260,15 @@ const ShortStep = styledTS<{
   &:last-child::after {
     content: none;
   }
+
+  @media (max-width: 1500px) {
+    width: ${(props) =>
+      props.direction === 'vertical'
+        ? '100%'
+        : props.direction === 'horizontal'
+          ? '200px'
+          : '40px'};
+  }
 `;
 
 const StepCount = styledTS<{ $active?: boolean; direction?: string }>(
@@ -377,7 +391,7 @@ const FlexPad = styled(FlexItem)`
 const LeftItem = styledTS<{ $deactive?: boolean }>(styled.div)`
   overflow: auto;
   flex: 1;
-  min-width: 43.33333%;
+  min-width: 41.33333%;
   padding: ${dimensions.coreSpacing + 5}px;
   opacity: ${(props) => props.$deactive && '0.3'};
   cursor: ${(props) => props.$deactive && 'not-allowed'};

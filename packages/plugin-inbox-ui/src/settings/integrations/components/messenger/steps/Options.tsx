@@ -1,6 +1,5 @@
 import { Alert, __ } from "coreui/utils";
 import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
-import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
 
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { Description } from "@erxes/ui-inbox/src/settings/integrations/styles";
@@ -11,6 +10,7 @@ import Select from "react-select";
 import Toggle from "@erxes/ui/src/components/Toggle";
 import client from "@erxes/ui/src/apolloClient";
 import { gql } from "@apollo/client";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 import { queries } from "@erxes/ui-inbox/src/settings/integrations/graphql";
 
 type Props = {

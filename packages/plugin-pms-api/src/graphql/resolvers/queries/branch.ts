@@ -1,9 +1,9 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IContext, IModels } from '../../../connectionResolver';
-import { paginate } from '@erxes/api-utils/src/core';
+import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { IContext, IModels } from "../../../connectionResolver";
+import { paginate } from "@erxes/api-utils/src/core";
 
 const queries = {
-  tmsBranchList: async (
+  pmsBranchList: async (
     _root,
     params,
     {
@@ -15,7 +15,7 @@ const queries = {
     return list;
   },
 
-  tmsBranchDetail: async (_root, { _id }, { models }: { models: IModels }) => {
+  pmsBranchDetail: async (_root, { _id }, { models }: { models: IModels }) => {
     return await models.TmsBranch.get({ $or: [{ _id }, { token: _id }] });
   }
 };

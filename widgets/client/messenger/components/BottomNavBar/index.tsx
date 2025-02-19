@@ -1,29 +1,30 @@
-import * as React from 'react';
-import { m } from 'framer-motion';
-import Item from './Item';
+import * as React from "react";
+
 import {
   IconChat,
   IconHome,
   IconPhone,
   IconQuestionMark,
   IconTicket,
-} from './Icons';
-import { useRouter } from '../../context/Router';
+} from "./Icons";
+
+import Item from "./Item";
+import { useRouter } from "../../context/Router";
 
 const items = [
   {
-    label: 'Home',
+    label: "Home",
     icon: IconHome,
-    route: 'home',
+    route: "home",
   },
-  { icon: IconChat, route: 'allConversations' },
-  // { icon: IconPhone, route: 'call' },
+  { icon: IconChat, route: "allConversations" },
+  { icon: IconPhone, route: "call" },
   // { icon: IconTicket, route: 'ticket' },
   {
-    label: 'Help',
+    label: "Help",
     icon: IconQuestionMark,
-    route: 'faqCategories',
-    additionalRoutes: ['faqCategory', 'faqArticle'],
+    route: "faqCategories",
+    additionalRoutes: ["faqCategory", "faqArticle"],
   },
 ];
 
@@ -46,7 +47,6 @@ function BottomNavBar() {
   };
 
   return (
-    // <m.div style={{ transition: '1s ease-out', transitionProperty: 'all' }}>
     <ul className="nav-container nav-list">
       {items.map((item) => {
         const { route } = item;
@@ -61,7 +61,6 @@ function BottomNavBar() {
         );
       })}
     </ul>
-    // </m.div>
   );
 }
 

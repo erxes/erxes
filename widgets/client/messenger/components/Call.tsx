@@ -1,8 +1,9 @@
-import * as React from 'react';
-import Button from './common/Button';
-import CountrySelect from './common/CountrySelect';
-import Container from './common/Container';
-import { __ } from '../../utils';
+import * as React from "react";
+
+import Button from "./common/Button";
+import Container from "./common/Container";
+import CountrySelect from "./common/CountrySelect";
+import { __ } from "../../utils";
 
 type Props = {
   isSubmitted?: boolean;
@@ -11,25 +12,41 @@ type Props = {
 
 const Call: React.FC<Props> = () => {
   return (
-    <Container title={__('Call')} withBottomNavBar={false}>
+    <Container title={__("Call")} withBottomNavBar={false}>
       <div className="call-container">
-        <div className="h-full flex flex-col justify-between">
-          <div className="flex flex-col gap-4">
-            <div className="detail-info">
-              <h2>{__('What’s your mobile phone number')}</h2>
-              <p>
-                {__(
-                  'We help you business grow by connecting you to your customers.'
-                )}
-              </p>
+        <div className="h-full flex flex-col justify-center">
+          <div className="flex flex-col gap-4 mb-10">
+            <div className="form-group">
+              <label className="control-label" htmlFor={`field-name`}>
+                Phone number
+              </label>
+              <div className="phone-input-wrapper form-control">
+                <CountrySelect />
+                <input autoFocus placeholder="Enter phone number" />
+              </div>
             </div>
-            <div className="phone-input-wrapper">
-              <CountrySelect />
-              <input autoFocus placeholder="(201) 555-0123" />
+
+            <div className="form-group">
+              <label className="control-label" htmlFor={`field-name`}>
+                Email
+              </label>
+              <input className="form-control" placeholder="Enter your email" />
+            </div>
+
+            <div className="form-group">
+              <label className="control-label" htmlFor={`field-name`}>
+                Who would you like to contact?
+              </label>
+              <select
+                className="form-control"
+                // value={attrs.value || options[0]}
+              >
+                <option value="aa">erfer</option>
+              </select>
             </div>
           </div>
           <Button full>
-            <span className="font-semibold">{__('Continue')}</span>
+            <span className="font-semibold">{__("Call")}</span>
           </Button>
         </div>
       </div>
