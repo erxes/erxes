@@ -98,6 +98,15 @@ export const setupMessageConsumers = async () => {
       };
     }
   );
+
+  consumeRPCQueue("automations:executions.find", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: "success",
+      data: await models.Executions.find(data)
+    };
+  });
 };
 
 export const sendCommonMessage = async (

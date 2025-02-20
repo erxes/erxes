@@ -60,5 +60,6 @@ jobs:
         run: |
           cd dist/erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker buildx build -t erxes/plugin-bm-api:${GITHUB_REF#refs/heads/} -f Dockerfile .
-          docker push erxes/plugin-bm-api:${GITHUB_REF#refs/heads/}
+          COMMIT_ID=$(git rev-parse --short HEAD)
+          docker buildx build -t erxes/plugin-bm-api:${GITHUB_REF#refs/heads/}.${COMMIT_ID} -f Dockerfile .
+          docker push erxes/plugin-bm-api:${GITHUB_REF#refs/heads/}.${COMMIT_ID}

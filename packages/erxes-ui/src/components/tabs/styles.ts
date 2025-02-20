@@ -40,6 +40,10 @@ const TabCaption = styledTS<{ direction?: string; }>(styled.span)`
     margin-right: 3px;
   }
 
+  &.compact {
+    padding: 15px;
+  }
+
   &.active {
     color: ${colors.textPrimary};
     font-weight: 500;

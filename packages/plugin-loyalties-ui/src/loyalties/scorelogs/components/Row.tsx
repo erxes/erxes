@@ -21,11 +21,11 @@ const SubTable = styled(Table)`
     }
 
     .icon-arrow-down {
-      color: #FF0000
+      color: #ff0000;
     }
 
     .icon-arrow-up {
-      color: #00FF00
+      color: #00ff00;
     }
   }
 
@@ -46,35 +46,48 @@ type Props = {
 
 const AdditionalRow = ({ scoreLogs }: { scoreLogs: IScoreLogParams[] }) => {
   const renderContent = (scoreLog) => {
-    const { items = [], type } = scoreLog.target || {};
+    const { target = [], type } = scoreLog || {};
 
-    const [firstItem, ...restItem] = items;
+    const [firstItem, ...restItem] = target;
 
     return (
       <>
         <tr>
-          <td rowSpan={items?.length || 1}>
+          <td rowSpan={target?.length || 1}>
             {dayjs(scoreLog.createdAt).format('YYYY/MM/DD') || '-'}
           </td>
-          <td rowSpan={items?.length || 1}>{scoreLog.target?.number || '-'}</td>
-          <td>{type || '-'}</td>
+          <td rowSpan={target?.length || 1}>
+            {scoreLog.target?.number || '-'}
+          </td>
+          <td rowSpan={target?.length || 1}>{type || '-'}</td>
           <td>{firstItem?.unitPrice || '-'}</td>
-          <td>{firstItem?.count || '-'}</td>
-          <td rowSpan={items?.length || 1}>
-            {(scoreLog.action === 'add' || !scoreLog.action && scoreLog.changeScore > 0) && <>{scoreLog.changeScore} <Icon icon='arrow-up' /></> || '-'}
+          <td>{firstItem?.count || firstItem?.quantity || '-'}</td>
+          <td rowSpan={target?.length || 1}>
+            {((scoreLog.action === 'add' ||
+              (!scoreLog.action && scoreLog.changeScore > 0)) && (
+              <>
+                {scoreLog.changeScore} <Icon icon="arrow-up" />
+              </>
+            )) ||
+              '-'}
           </td>
-          <td rowSpan={items?.length || 1}>
-            {(scoreLog.action === 'subtract' || !scoreLog.action && scoreLog.changeScore < 0) && <>{Math.abs(scoreLog.changeScore)} <Icon icon='arrow-down'/></> || '-'}
+          <td rowSpan={target?.length || 1}>
+            {((scoreLog.action === 'subtract' ||
+              (!scoreLog.action && scoreLog.changeScore < 0)) && (
+              <>
+                {Math.abs(scoreLog.changeScore)} <Icon icon="arrow-down" />
+              </>
+            )) ||
+              '-'}
           </td>
-          <td rowSpan={items?.length || 1}>
+          <td rowSpan={target?.length || 1}>
             {scoreLog.campaign?.title || '-'}
           </td>
         </tr>
         {restItem?.map((item) => (
-          <tr key={item._id} className='additional-row'>
-            <td>{type || '-'}</td>
+          <tr key={item._id} className="additional-row">
             <td>{item.unitPrice || '-'}</td>
-            <td>{item.count || '-'}</td>
+            <td>{item.count || item.quantity || '-'}</td>
           </tr>
         ))}
       </>
@@ -179,7 +192,7 @@ const Row = (props: Props) => {
     }
   };
 
-  const score = ( scoreLogs) => {
+  const score = (scoreLogs) => {
     let totalScore = 0;
 
     if (scoreLogs?.length) {
