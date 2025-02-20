@@ -1,68 +1,178 @@
-import { generateModels, IModels } from "./connectionResolver";
+import { generateModels, IModels } from './connectionResolver';
 import {
   sendClientPortalMessage,
   sendCommonMessage,
-  sendCoreMessage
-} from "./messageBroker";
+  sendCoreMessage,
+} from './messageBroker';
 
 export default {
   constants: {
+    triggers: [
+      {
+        type: 'loyalties:promotion',
+        img: 'automation3.svg',
+        icon: 'gift',
+        label: 'Promotion',
+        description:
+          'Start with a blank workflow that enrolls and is triggered off promotions',
+        isCustom: true,
+      },
+    ],
     actions: [
       {
-        type: "loyalties:voucher.create",
-        icon: "file-plus",
-        label: "Create voucher",
-        description: "Create voucher",
-        isAvailable: true
+        type: 'loyalties:voucher.create',
+        icon: 'file-plus',
+        label: 'Create voucher',
+        description: 'Create voucher',
+        isAvailable: true,
       },
       {
-        type: "loyalties:score.create",
-        icon: "file-plus",
-        label: "Change Score",
-        description: "Change Score",
-        isAvailable: true
+        type: 'loyalties:score.create',
+        icon: 'file-plus',
+        label: 'Change Score',
+        description: 'Change Score',
+        isAvailable: true,
       },
       {
-        type: "loyalties:spin.create",
-        icon: "file-plus",
-        label: "Create Spin",
-        description: "Create Spin",
-        isAvailable: true
-      }
-    ]
+        type: 'loyalties:spin.create',
+        icon: 'file-plus',
+        label: 'Create Spin',
+        description: 'Create Spin',
+        isAvailable: true,
+      },
+    ],
   },
   receiveActions: async ({
     subdomain,
-    data: { action, execution, actionType }
+    data: { action, execution, actionType },
   }) => {
     const models = await generateModels(subdomain);
 
-    if (actionType === "create") {
+    if (actionType === 'create') {
       return actionCreate({ subdomain, action, execution });
     }
 
     return;
+  },
+  checkCustomTrigger: async ({ subdomain, data }) => {
+    const { collectionType, config } = data;
+
+    const models = await generateModels(subdomain);
+
+    const { promotionType } = config;
+
+    if (collectionType === 'promotion') {
+      switch (promotionType) {
+        case 'birthday':
+          return await checkBirthDateTrigger(subdomain, data);
+        case 'registration':
+          return await checkRegistrationTrigger(subdomain, data);
+        default:
+          return false;
+      }
+    }
+
+    return false;
+  },
+};
+
+const checkBirthDateTrigger = async (subdomain, data) => {
+  const { target, config } = data || {};
+
+  const { appliesTo = [] } = config || {};
+
+  if (!appliesTo?.length || !target?.birthDate) return false;
+
+  const today = new Date();
+  const birthDate = new Date(target.birthDate);
+
+  const startOfYear = new Date(today.getFullYear(), 0, 1);
+  const endOfYear = new Date(today.getFullYear() + 1, 0, 1);
+
+  const executions = await sendCoreMessage({
+    subdomain,
+    action: 'automations',
+    data: {
+      triggerType: 'loyalties:promotion',
+      'triggerConfig.promotionType': 'birthday',
+      targetId: target._id,
+      status: 'complete',
+      createdAt: {
+        $gte: startOfYear,
+        $lt: endOfYear,
+      },
+    },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  if (
+    executions.length === 0 &&
+    birthDate.getMonth() === today.getMonth() &&
+    birthDate.getDate() === today.getDate()
+  ) {
+    return true;
   }
+
+  return false;
 };
 
-const generateAttributes = value => {
-  const matches = (value || "").match(/\{\{\s*([^}]+)\s*\}\}/g);
-  return matches.map(match => match.replace(/\{\{\s*|\s*\}\}/g, ""));
+const checkRegistrationTrigger = async (subdomain, data) => {
+  const { target, config } = data || {};
+
+  const { appliesTo = [] } = config || {};
+
+  if (appliesTo.includes('customer')) {
+    const { _id, createdAt } = target;
+
+    let isToday: boolean = false;
+
+    const today = new Date();
+    const targetDate = new Date(createdAt);
+
+    isToday =
+      targetDate.getDate() === today.getDate() &&
+      targetDate.getMonth() === today.getMonth() &&
+      targetDate.getFullYear() === today.getFullYear();
+
+    const conformities = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.filterConformity',
+      data: {
+        mainType: 'customer',
+        mainTypeIds: [_id],
+        relType: 'deal',
+      },
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    if (!conformities?.length && isToday) {
+      return true;
+    }
+  }
+
+  return false;
 };
 
-const generateIds = async value => {
+const generateAttributes = (value) => {
+  const matches = (value || '').match(/\{\{\s*([^}]+)\s*\}\}/g);
+  return matches.map((match) => match.replace(/\{\{\s*|\s*\}\}/g, ''));
+};
+
+const generateIds = async (value) => {
   if (
     Array.isArray(value) &&
-    (value || []).every(value => typeof value === "string")
+    (value || []).every((value) => typeof value === 'string')
   ) {
     return [...new Set(value)];
   }
 
-  if (typeof value === "string" && value.includes(", ")) {
-    return [...new Set(value.split(", "))];
+  if (typeof value === 'string' && value.includes(', ')) {
+    return [...new Set(value.split(', '))];
   }
 
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     return [value];
   }
 
@@ -74,7 +184,7 @@ const getOwner = async ({
   subdomain,
   execution,
   contentType,
-  config
+  config,
 }: {
   models: IModels;
   subdomain: string;
@@ -86,8 +196,8 @@ const getOwner = async ({
   let ownerId;
 
   if (
-    ["core:customer", "core:user", "core:company"].includes(
-      execution.triggerType
+    ['core:customer', 'core:user', 'core:company'].includes(
+      execution.triggerType,
     )
   ) {
     ownerType = contentType;
@@ -95,50 +205,57 @@ const getOwner = async ({
   }
 
   if (
-    ["inbox:conversation", "pos:posOrder"].some(type =>
-      execution.triggerType.includes(type)
+    ['inbox:conversation', 'pos:posOrder'].some((type) =>
+      execution.triggerType.includes(type),
     )
   ) {
-    ownerType = "customer";
+    ownerType = 'customer';
     ownerId = execution.target.customerId;
   }
 
   if (
-    [
-      "tasks:task",
-      "sales:deal",
-      "tickets:ticket",
-      "purchases:purchase"
-    ].some(type => execution.triggerType === type || execution.triggerType.startsWith(type))
-    
+    ['tasks:task', 'sales:deal', 'tickets:ticket', 'purchases:purchase'].some(
+      (type) =>
+        execution.triggerType === type ||
+        execution.triggerType.startsWith(type),
+    )
   ) {
     const customerIds = await sendCoreMessage({
       subdomain,
-      action: "conformities.savedConformity",
+      action: 'conformities.savedConformity',
       data: {
         mainType: contentType,
         mainTypeId: execution.targetId,
-        relTypes: ["customer"]
+        relTypes: ['customer'],
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     if (customerIds.length) {
       const customers = await sendCoreMessage({
         subdomain,
-        action: "customers.find",
+        action: 'customers.find',
         data: {
-          _id: { $in: customerIds }
+          _id: { $in: customerIds },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       if (customers.length) {
-        ownerType = "customer";
+        ownerType = 'customer';
         ownerId = customers[0]._id;
       }
+    }
+  }
+
+  if (['loyalties:promotion'].includes(execution.triggerType)) {
+    const { appliesTo = [] } = execution.triggerConfig || {};
+
+    if (appliesTo.includes('customer')) {
+      ownerType = 'customer';
+      ownerId = execution.targetId;
     }
   }
 
@@ -150,7 +267,7 @@ const createVoucher = async ({
   subdomain,
   execution,
   contentType,
-  config
+  config,
 }: {
   models: IModels;
   subdomain: string;
@@ -162,61 +279,70 @@ const createVoucher = async ({
   let ownerId;
 
   if (
-    ["core:customer", "core:user", "core:company"].includes(
-      execution.triggerType
+    ['core:customer', 'core:user', 'core:company'].includes(
+      execution.triggerType,
     )
   ) {
     ownerType = contentType;
     ownerId = execution.targetId;
   }
 
-  if (["inbox:conversation", "pos:posOrder"].includes(execution.triggerType)) {
-    ownerType = "customer";
+  if (['inbox:conversation', 'pos:posOrder'].includes(execution.triggerType)) {
+    ownerType = 'customer';
     ownerId = execution.target.customerId;
   }
 
   if (
     [
-      "tasks:task",
-      "sales:deal",
-      "tickets:ticket",
-      "purchases:purchase"
+      'tasks:task',
+      'sales:deal',
+      'tickets:ticket',
+      'purchases:purchase',
     ].includes(execution.triggerType)
   ) {
     const customerIds = await sendCoreMessage({
       subdomain,
-      action: "conformities.savedConformity",
+      action: 'conformities.savedConformity',
       data: {
         mainType: contentType,
         mainTypeId: execution.targetId,
-        relTypes: ["customer"]
+        relTypes: ['customer'],
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     if (customerIds.length) {
       const customers = await sendCoreMessage({
         subdomain,
-        action: "customers.find",
+        action: 'customers.find',
         data: {
-          _id: { $in: customerIds }
+          _id: { $in: customerIds },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       if (customers.length) {
-        ownerType = "customer";
+        ownerType = 'customer';
         ownerId = customers[0]._id;
       }
+    }
+  }
+
+  if (['loyalties:promotion'].includes(execution.triggerType)) {
+    const { appliesTo = [] } = execution.triggerConfig || {};
+
+    if (appliesTo.includes('customer')) {
+      ownerType = 'customer';
+      ownerId = execution.targetId;
     }
   }
 
   return await models.Vouchers.createVoucher({
     campaignId: config.voucherCampaignId,
     ownerType,
-    ownerId
+    ownerId,
   });
 };
 
@@ -224,16 +350,16 @@ const replaceContent = async ({ serviceName, subdomain, data }) => {
   const replacedContent = await sendCommonMessage({
     serviceName,
     subdomain,
-    action: "automations.replacePlaceHolders",
+    action: 'automations.replacePlaceHolders',
     data,
     isRPC: true,
-    defaultValue: {}
+    defaultValue: {},
   });
 
   return replacedContent?.scoreString || 0;
 };
 
-const evalPlaceHolder = placeholder => {
+const evalPlaceHolder = (placeholder) => {
   if (placeholder.match(/[+\-*/]/)) {
     try {
       return eval(placeholder);
@@ -249,7 +375,7 @@ const generateScore = async ({
   serviceName,
   subdomain,
   target,
-  config
+  config,
 }: {
   models: IModels;
   subdomain: string;
@@ -260,23 +386,23 @@ const generateScore = async ({
   let { campaignId, action, scoreString } = (config || {}) as {
     scoreString: string;
     campaignId: string;
-    action: "add" | "subtract";
+    action: 'add' | 'subtract';
   };
   if (!scoreString && !campaignId) {
-    throw new Error("Please provide score config");
+    throw new Error('Please provide score config');
   }
 
   if (campaignId) {
-    if (!["add", "subtract"].includes(action)) {
-      throw new Error("Please select action that add or subtract");
+    if (!['add', 'subtract'].includes(action)) {
+      throw new Error('Please select action that add or subtract');
     }
 
     const scoreCampaign = await models.ScoreCampaigns.findOne({
-      _id: campaignId
+      _id: campaignId,
     });
 
     if (!scoreCampaign) {
-      throw new Error("Not found score campaign");
+      throw new Error('Not found score campaign');
     }
 
     const actionConfig = scoreCampaign[action];
@@ -287,9 +413,9 @@ const generateScore = async ({
       data: {
         target,
         config: {
-          scoreString: actionConfig.placeholder
-        }
-      }
+          scoreString: actionConfig.placeholder,
+        },
+      },
     });
     console.log({ placeholder });
 
@@ -306,9 +432,9 @@ const generateScore = async ({
       data: {
         target,
         config: {
-          scoreString
-        }
-      }
+          scoreString,
+        },
+      },
     });
   }
 
@@ -328,7 +454,7 @@ const addScore = async ({
   execution,
   serviceName,
   contentType,
-  config
+  config,
 }: {
   models: IModels;
   subdomain: string;
@@ -343,7 +469,7 @@ const addScore = async ({
       subdomain,
       contentType,
       execution,
-      config
+      config,
     });
   }
 
@@ -352,7 +478,7 @@ const addScore = async ({
     models,
     subdomain,
     target: execution.target,
-    config
+    config,
   });
 
   if (!!config?.ownerType && !!config?.ownerIds?.length) {
@@ -360,86 +486,86 @@ const addScore = async ({
       ownerType: config.ownerType,
       ownerIds: config.ownerIds,
       changeScore: score,
-      description: "from automation"
+      description: 'from automation',
     });
   }
 
   if (config?.attribution) {
-    let attributes = generateAttributes(config?.attribution || "");
+    let attributes = generateAttributes(config?.attribution || '');
 
-    if (attributes.includes("triggerExecutor")) {
+    if (attributes.includes('triggerExecutor')) {
       const { ownerType, ownerId } = await getOwner({
         models,
         subdomain,
         execution,
         contentType,
-        config
+        config,
       });
 
       await models.ScoreLogs.changeOwnersScore({
         ownerType,
         ownerIds: [ownerId],
         changeScore: score,
-        description: "from automation"
+        description: 'from automation',
       });
       attributes = attributes.filter(
-        attribute => attribute !== "triggerExecutor"
+        (attribute) => attribute !== 'triggerExecutor',
       );
     }
 
     if (!attributes?.length) {
-      return "done";
+      return 'done';
     }
     const data = {
       target: {
         ...execution?.target,
         customers: null,
         companies: null,
-        type: contentType.includes(".")
-          ? contentType.split(".")[0]
-          : contentType
+        type: contentType.includes('.')
+          ? contentType.split('.')[0]
+          : contentType,
       },
       config: {},
-      relatedValueProps: {}
+      relatedValueProps: {},
     };
 
     for (const attribute of attributes) {
       data.config[attribute] = `{{ ${attribute} }}`;
       data.relatedValueProps[attribute] = {
-        key: "_id"
+        key: '_id',
       };
     }
 
     const replacedContent = await sendCommonMessage({
       subdomain,
       serviceName,
-      action: "automations.replacePlaceHolders",
+      action: 'automations.replacePlaceHolders',
       data,
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
     });
 
-    if (replacedContent["customers"]) {
+    if (replacedContent['customers']) {
       await models.ScoreLogs.changeOwnersScore({
-        ownerType: "customer",
-        ownerIds: await generateIds(replacedContent["customers"]),
+        ownerType: 'customer',
+        ownerIds: await generateIds(replacedContent['customers']),
         changeScore: score,
-        description: "from automation"
+        description: 'from automation',
       });
     }
 
-    if (replacedContent["companies"]) {
+    if (replacedContent['companies']) {
       await models.ScoreLogs.changeOwnersScore({
-        ownerType: "company",
-        ownerIds: await generateIds(replacedContent["companies"]),
+        ownerType: 'company',
+        ownerIds: await generateIds(replacedContent['companies']),
         changeScore: score,
-        description: "from automation"
+        description: 'from automation',
       });
     }
     const replacedContentKeys = Object.keys(replacedContent);
 
     const teamMemberKeys = replacedContentKeys.filter(
-      key => !["customers", "companies"].includes(key)
+      (key) => !['customers', 'companies'].includes(key),
     );
 
     let teamMemberIds: string[] = [];
@@ -447,24 +573,25 @@ const addScore = async ({
     for (const key of teamMemberKeys) {
       teamMemberIds = [
         ...teamMemberIds,
-        ...(await generateIds(replacedContent[key]))
+        ...(await generateIds(replacedContent[key])),
       ];
     }
 
     if (!teamMemberIds?.length) {
-      return "done";
+      return 'done';
     }
 
     await models.ScoreLogs.changeOwnersScore({
-      ownerType: "user",
+      ownerType: 'user',
       ownerIds: teamMemberIds || [],
       changeScore: score,
-      description: "from automation"
+      description: 'from automation',
     });
-    return "done";
+
+    return 'done';
   }
 
-  return { error: "Not Selected Action configuration" };
+  return { error: 'Not Selected Action configuration' };
 };
 
 const addSpin = async ({
@@ -472,7 +599,7 @@ const addSpin = async ({
   subdomain,
   execution,
   contentType,
-  config
+  config,
 }: {
   models: IModels;
   subdomain: string;
@@ -485,30 +612,30 @@ const addSpin = async ({
     subdomain,
     execution,
     contentType,
-    config
+    config,
   });
 
-  if (ownerType === "customer") {
+  if (ownerType === 'customer') {
     const customerRelatedClientPortalUser = await sendClientPortalMessage({
       subdomain,
-      action: "clientPortalUsers.findOne",
+      action: 'clientPortalUsers.findOne',
       data: {
-        erxesCustomerId: ownerId
+        erxesCustomerId: ownerId,
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
 
     if (customerRelatedClientPortalUser) {
       ownerId = customerRelatedClientPortalUser._id;
-      ownerType = "cpUser";
+      ownerType = 'cpUser';
     }
   }
 
   return await models.Spins.createSpin({
     ownerId,
     ownerType,
-    campaignId: config.spinCampaignId
+    campaignId: config.spinCampaignId,
   });
 };
 
@@ -517,7 +644,7 @@ const docScoreCampaign = async ({
   subdomain,
   contentType,
   execution,
-  config
+  config,
 }: {
   models: IModels;
   subdomain: string;
@@ -530,7 +657,7 @@ const docScoreCampaign = async ({
     subdomain,
     execution,
     contentType,
-    config
+    config,
   });
 
   return await models.ScoreCampaigns.doCampaign({
@@ -540,7 +667,7 @@ const docScoreCampaign = async ({
     actionMethod: config.action,
     ownerId,
     ownerType,
-    target: execution.target
+    target: execution.target,
   });
 };
 
@@ -550,33 +677,34 @@ const actionCreate = async ({ subdomain, action, execution }) => {
   const { triggerType } = execution || {};
 
   const [serviceName, contentType] = triggerType.split(/[:.]/);
+
   try {
     switch (type) {
-      case "loyalties:score.create":
+      case 'loyalties:score.create':
         return await addScore({
           models,
           subdomain,
           serviceName,
           contentType,
           execution,
-          config
+          config,
         });
 
-      case "loyalties:voucher.create":
+      case 'loyalties:voucher.create':
         return createVoucher({
           models,
           subdomain,
           execution,
           contentType,
-          config
+          config,
         });
-      case "loyalties:spin.create":
+      case 'loyalties:spin.create':
         return addSpin({
           models,
           subdomain,
           execution,
           contentType,
-          config
+          config,
         });
       default:
         return {};
