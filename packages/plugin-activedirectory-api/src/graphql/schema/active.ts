@@ -10,6 +10,7 @@ export const types = () => `
     apiUrl: String
     isLocalUser: Boolean
     userDN: String
+    baseDN: String
     adminDN: String
     adminPassword: String
     code: String
@@ -24,6 +25,7 @@ const commonFields = `
   apiUrl: String
   isLocalUser: Boolean
   userDN: String
+  baseDN: String
   adminDN: String
   adminPassword: String
   code: String

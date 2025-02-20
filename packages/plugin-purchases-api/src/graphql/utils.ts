@@ -29,8 +29,7 @@ export const sendNotification = (subdomain: string, data) => {
   return sendNotificationsMessage({
     subdomain,
     action: "send",
-    data,
-    isRPC: true
+    data
   });
 };
 
@@ -299,7 +298,7 @@ export const copyPipelineLabels = async (
   for (const label of oldLabels) {
     const exists =
       existingLabelsByUnique[
-      JSON.stringify({ name: label.name, colorCode: label.colorCode })
+        JSON.stringify({ name: label.name, colorCode: label.colorCode })
       ];
     if (!exists) {
       notExistingLabels.push({

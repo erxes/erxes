@@ -9,7 +9,7 @@ const getEnum = (): string[] => {
 };
 const STATUS_TYPES = [
   { label: 'published', value: 'published' },
-  { label: 'draft', value: 'draft' },
+  { label: 'draft', value: 'draft' }
 ];
 
 export interface ILocation {
@@ -38,10 +38,6 @@ export interface IItinerary {
   images: string[];
   status: string;
   color?: string;
-  info1?: string;
-  info2?: string;
-  info3?: string;
-  info4?: string;
   branchId?: string;
 }
 
@@ -58,16 +54,16 @@ export const locationSchema = new Schema(
     lat: field({ type: Number, esType: 'lat' }),
     lng: field({ type: Number, esType: 'lng' }),
     name: field({ type: String, label: 'name' }),
-    mapId: field({ type: String, label: 'mapId' }),
+    mapId: field({ type: String, label: 'mapId' })
   },
-  { _id: false },
+  { _id: false }
 );
 const elementOfItinerarySchema = new Schema(
   {
     elementId: field({ type: String, label: 'elementId' }),
-    orderOfDay: field({ type: Number, label: 'orderOfDay' }),
+    orderOfDay: field({ type: Number, label: 'orderOfDay' })
   },
-  { _id: false },
+  { _id: false }
 );
 
 const groupDay = new Schema(
@@ -76,8 +72,12 @@ const groupDay = new Schema(
     images: field({ type: [String], label: 'images' }),
     content: field({ type: String, label: 'content' }),
     elements: field({ type: [elementOfItinerarySchema], label: 'elements' }),
+    elementsQuick: field({
+      type: [elementOfItinerarySchema],
+      label: 'elements'
+    })
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const initnarySchema = schemaHooksWrapper(
@@ -93,12 +93,12 @@ export const initnarySchema = schemaHooksWrapper(
     groupDays: field({
       type: [groupDay],
       optional: true,
-      label: 'days',
+      label: 'days'
     }),
     location: field({
       type: [locationSchema],
       optional: true,
-      label: 'location',
+      label: 'location'
     }),
     images: field({ type: [String], optional: true, label: 'images' }),
     status: field({
@@ -108,14 +108,18 @@ export const initnarySchema = schemaHooksWrapper(
       optional: true,
       label: 'status',
       esType: 'keyword',
-      selectOptions: STATUS_TYPES,
+      selectOptions: STATUS_TYPES
     }),
     color: field({ type: String, optional: true, label: 'color' }),
-    info1: field({ type: String, optional: true, label: 'info' }),
-    info2: field({ type: String, optional: true, label: 'info' }),
-    info3: field({ type: String, optional: true, label: 'info' }),
-    info4: field({ type: String, optional: true, label: 'info' }),
+
     branchId: field({ type: String, optional: true, label: 'branchId' }),
+
+    driverCost: field({ type: Number, label: 'cost', optional: true }),
+    guideCost: field({ type: Number, label: 'cost', optional: true }),
+    guideCostExtra: field({ type: Number, label: 'cost', optional: true }),
+    foodCost: field({ type: Number, label: 'cost', optional: true }),
+    gasCost: field({ type: Number, label: 'cost', optional: true }),
+    personCost: field({ type: Object, label: 'cost', optional: true })
   }),
-  'erxes_itineraries',
+  'erxes_itineraries'
 );

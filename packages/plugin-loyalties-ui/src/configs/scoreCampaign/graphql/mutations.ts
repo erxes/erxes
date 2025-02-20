@@ -9,6 +9,7 @@ const mutationParams = `
     $ownerType: String
     $fieldGroupId:String
     $fieldName: String
+    $fieldId: String
 `;
 const mutationParamsDef = `
     title: $title,
@@ -21,6 +22,7 @@ const mutationParamsDef = `
     ownerType: $ownerType
     fieldGroupId: $fieldGroupId
     fieldName: $fieldName
+    fieldId: $fieldId
 `;
 
 const add = `
@@ -51,5 +53,5 @@ export default {
   add,
   update,
   remove,
-  removeCampaigns
+  removeCampaigns,
 };
