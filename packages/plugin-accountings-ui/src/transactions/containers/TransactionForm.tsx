@@ -155,8 +155,7 @@ const TransactionFormContainer = (props: Props) => {
           setLoading(false);
         } else {
           Alert.success("You successfully updated transactions");
-          // trDetailQuery.refetch();
-          navigate('/accountings/transaction/edit/jYsjxFi6RbFxH7RhjziYl');
+          trDetailQuery.refetch();
           setLoading(false);
         }
       })
