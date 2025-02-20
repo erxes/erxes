@@ -18,14 +18,19 @@ export const types = `
     userGroupName: String
   }
 
+  type ClientPermission {
+    module: String
+    actions: [String]
+  }
+
   type Client {
     _id: String
     name: String
-    appId: String
-    appSecret: String
+    clientId: String
+    clientSecret: String
     refreshToken: String
     whiteListedIps: [String]
-    permissions: [Permission]
+    permissions: [ClientPermission]
     createdAt: Date
   }
 
@@ -38,6 +43,11 @@ export const types = `
     list: [Client]
     totalCount: Int
   }
+
+  input ClientPermissionInput {
+    module: String
+    actions: [String] 
+  }
 `;
 
 export const mutations = `
@@ -45,8 +55,8 @@ export const mutations = `
   appsEdit(_id: String!, ${commonFields}): App
   appsRemove(_id: String!): JSON
 
-  clientsAdd(name: String!, whiteListedIps: [String], permissions: [String]): AuthCredentials
-  clientsEdit(_id: String!, name: String, whiteListedIps: [String], permissions: [String]): Client
+  clientsAdd(name: String!, whiteListedIps: [String], permissions: [ClientPermissionInput]): AuthCredentials
+  clientsEdit(_id: String!, name: String, whiteListedIps: [String], permissions: [ClientPermissionInput]): Client
   clientsRemove(_id: String!): JSON
 `;
 

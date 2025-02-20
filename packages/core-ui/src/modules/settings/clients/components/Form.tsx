@@ -19,72 +19,130 @@ interface IPermissionModule {
   actions: IAction[];
 }
 
+interface IClientPermission {
+  module: string;
+  actions: string[];
+}
+
+interface IClient {
+  name: string;
+  clientId?: string;
+
+  whiteListedIps: string[];
+  permissions: IClientPermission[];
+}
+
 type Props = {
-  client?: any;
+  _id?: string;
+  client?: IClient;
   modules: IPermissionModule[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  refetch?: () => void;
 };
 
 const ClientForm = (props: Props) => {
-  const { client } = props;
+  console.log('client form', props);
+  const { client, _id } = props;
 
-  const [clientObject, setClientObject] = useState<any | undefined>(client);
+  const [clientObject, setClientObject] = useState<IClient>(
+    client || { name: '', permissions: [], whiteListedIps: [] }
+  );
 
   const generateDoc = () => {
     console.log('clientObject', clientObject);
     const finalValues: any = {};
 
-    if (client) {
-      finalValues._id = client._id;
+    if (_id) {
+      finalValues._id = _id;
     }
 
-    if (clientObject) {
-      finalValues.name = clientObject.name;
+    if (clientObject.permissions) {
+      finalValues.permissions = clientObject.permissions.map((perm) => {
+        return {
+          module: perm.module,
+          actions: perm.actions,
+        };
+      });
+    }
+
+    if (clientObject.whiteListedIps) {
+      finalValues.whiteListedIps = clientObject.whiteListedIps;
     }
 
     return {
       ...finalValues,
+      name: clientObject.name,
     };
   };
 
-  const onChangeInput = (e) => {
-    const { id, value } = e.target;
 
-    const obj: any = clientObject || {};
-
-    obj[id] = value;
-
-    setClientObject(obj);
-  };
 
   const renderModulesSelect = () => {
     const { modules } = props;
-  
+
     const handleActionChange = (
       moduleName: string,
       actionName: string,
       isChecked: boolean
     ) => {
       setClientObject((prev) => {
-        const current = prev || { permissions: {} };
-        const permissions = current.permissions ? { ...current.permissions } : {};
-        const moduleActions = permissions[moduleName] || [];
-  
-        const newActions = isChecked
-          ? [...moduleActions, actionName]
-          : moduleActions.filter((action) => action !== actionName);
-  
+        const permissions = prev.permissions || [];
+
+        const module = permissions.find((perm) => perm.module === moduleName);
+
+        if (!module) {
+          return {
+            ...prev,
+            permissions: [...permissions, { module: moduleName, actions: [] }],
+          };
+        }
+
+        if (isChecked) {
+          return {
+            ...prev,
+            permissions: permissions.map((perm) => {
+              if (perm.module === moduleName) {
+                return {
+                  ...perm,
+                  actions: [...perm.actions, actionName],
+                };
+              }
+
+              return perm;
+            }),
+          };
+        }
+
         return {
-          ...current,
-          permissions: {
-            ...permissions,
-            [moduleName]: newActions,
-          },
+          ...prev,
+          permissions: permissions.map((perm) => {
+            if (perm.module === moduleName) {
+              return {
+                ...perm,
+                actions: perm.actions.filter((a) => a !== actionName),
+              };
+            }
+
+            return perm;
+          }),
         };
       });
     };
-  
+
+    const isChecked = (moduleName: string, actionName: string) => {
+      const permissions = clientObject.permissions || [];
+
+      const module = permissions.find((perm) => perm.module === moduleName);
+      console.log('module', module);
+
+      if (!module) {
+        return false;
+      }
+
+      return module.actions.includes(actionName);
+    };
+
     return (
       <div
         style={{
@@ -94,28 +152,35 @@ const ClientForm = (props: Props) => {
         }}
       >
         {modules.map((module) => (
-          <div key={module.name} style={{ border: '1px solid #ddd', padding: '10px', borderRadius: '4px' }}>
+          <div
+            key={module.name}
+            style={{
+              border: '1px solid #ddd',
+              padding: '10px',
+              borderRadius: '4px',
+            }}
+          >
             <h4>{module.description}</h4>
-            {module.actions.filter((a) => a.description !== 'All').map((action) => (
-              <FormGroup key={action.name}>
-                <ControlLabel>
-                  <FormControl
-                    componentclass='checkbox'
-                    checked={(
-                      clientObject?.permissions?.[module.name] || []
-                    ).includes(action.name)}
-                    onChange={(e: any) => {
-                      handleActionChange(
-                        module.name,
-                        action.name,
-                        (e.target as HTMLInputElement).checked
-                      );
-                    }}
-                  />
-                  &nbsp;{action.description}
-                </ControlLabel>
-              </FormGroup>
-            ))}
+            {module.actions
+              .filter((a) => a.description !== 'All')
+              .map((action) => (
+                <FormGroup key={action.name}>
+                  <ControlLabel>
+                    <FormControl
+                      componentclass='checkbox'
+                      checked={isChecked(module.name, action.name)}
+                      onChange={(e: any) => {
+                        handleActionChange(
+                          module.name,
+                          action.name,
+                          (e.target as HTMLInputElement).checked
+                        );
+                      }}
+                    />
+                    &nbsp;{action.description}
+                  </ControlLabel>
+                </FormGroup>
+              ))}
           </div>
         ))}
       </div>
@@ -136,9 +201,23 @@ const ClientForm = (props: Props) => {
             name={'name'}
             required={true}
             defaultValue={clientObject?.name}
-            onChange={onChangeInput}
+            onChange={(e: any) => {
+              setClientObject({ ...clientObject, name: e.target.value });
+            }}
           />
         </FormGroup>
+        {/* 
+        <FormGroup>
+          <ControlLabel>{__('White Listed Ips')}</ControlLabel>
+          <p>{__('Comma separated list of white listed ips')}</p>
+          <FormControl
+            {...formProps}
+            id={'whiteListedIps'}
+            name={'whiteListedIps'}
+            defaultValue={clientObject?.whiteListedIps?.join(', ')}
+            onChange={onChangeInput}
+          />
+        </FormGroup> */}
 
         {renderModulesSelect()}
 
@@ -151,7 +230,13 @@ const ClientForm = (props: Props) => {
             name: 'clients',
             values: generateDoc(),
             isSubmitted,
-            callback: closeModal,
+            callback: () => {
+              if (props.refetch) {
+                props.refetch();
+              }
+
+              closeModal();
+            },
             object: client,
           })}
         </ModalFooter>

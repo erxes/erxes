@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
-import crypto from 'crypto';
-import bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
+import * as bcrypt from 'bcryptjs';
 import { Model } from 'mongoose';
 import { IModels } from '../../connectionResolver';
 import { clientSchema, IClient, IClientDocument } from './definitions/client';
@@ -18,9 +18,24 @@ export interface IClientModel extends Model<IClientDocument> {
     permissions: IPermission[];
     whiteListedIps: string[];
   }): IClientDocument;
-  updateClient(_id: string, fields: IClient): IClientDocument;
+  updateClient({
+    _id,
+    name,
+    whiteListedIps,
+    permissions,
+  }: {
+    _id: string;
+    name?: string;
+    whiteListedIps?: string[];
+    permissions?: IClientPermission[];
+  }): IClientDocument;
   removeClient(_id: string): IClientDocument;
   resetSecret(_id: string): IClientDocument;
+}
+
+interface IClientPermission {
+  module: string;
+  actions: string[];
 }
 
 export const loadClientClass = (models: IModels) => {
@@ -46,7 +61,7 @@ export const loadClientClass = (models: IModels) => {
       whiteListedIps,
     }: {
       name: string;
-      permissions: IPermission[];
+      permissions: IClientPermission[];
       whiteListedIps: string[];
     }) {
       const maxRetries = 5;
@@ -59,16 +74,16 @@ export const loadClientClass = (models: IModels) => {
       }
 
       while (retries < maxRetries) {
-        const clientID = crypto.randomBytes(16).toString('hex');
+        const clientId = crypto.randomBytes(16).toString('hex');
         const clientSecret = crypto.randomBytes(32).toString('hex');
         const hashedSecret = await bcrypt.hash(clientSecret, 10);
 
         try {
           const client = await models.Clients.create({
             name,
-            clientID,
+            clientId,
             clientSecret: hashedSecret,
-            permissions,
+            whiteListedIps,
           });
 
           const systemUser = await models.Users.create({
@@ -82,12 +97,19 @@ export const loadClientClass = (models: IModels) => {
             },
           });
 
-          const appPermissions = permissions.map((permission) => ({
-            userId: systemUser._id,
-            ...permission,
-          }));
+          await Promise.all(
+            permissions.map(async (permission) => {
+              const appPermission = await models.Permissions.createPermission({
+                userIds: [systemUser._id],
+                actions: permission.actions,
+                allowed: true,
+                module: permission.module,
+              });
 
-          await models.Permissions.insertMany(appPermissions);
+              return appPermission;
+            })
+          );
+
           return client;
         } catch (error: any) {
           if (error.code === 11000 && error.keyPattern?.appId) {
@@ -107,9 +129,64 @@ export const loadClientClass = (models: IModels) => {
       );
     }
 
-    public static async updateClient(_id: string, fields: IClient) {
-      await models.Clients.updateOne({ _id }, { $set: { ...fields } });
-      return models.Clients.findOne({ _id });
+    public static async updateClient({
+      _id,
+      name,
+      whiteListedIps,
+      permissions,
+    }: {
+      _id: string;
+      name?: string;
+      whiteListedIps?: string[];
+      permissions?: IClientPermission[];
+    }) {
+      try {
+        const user = await models.Users.findOne({ appId: _id });
+        if (!user) {
+          throw new Error('User not found');
+        }
+        const client = await models.Clients.findOne({ _id });
+
+        if (!client) {
+          throw new Error('Client not found');
+        }
+
+        let doc: any = {};
+
+        if (name) {
+          user.username = name;
+          if (user.details) {
+            user.details.fullName = name;
+          }
+          await models.Users.updateOne({ appId: _id }, { $set: user });
+          doc.name = name;
+        }
+
+        if (whiteListedIps) {
+          doc.whiteListedIps = whiteListedIps;
+        }
+
+        if (permissions) {
+          await models.Permissions.deleteMany({ userId: user._id });
+          await Promise.all(
+            permissions.map(async (permission) => {
+              const appPermission = await models.Permissions.createPermission({
+                userIds: [user._id],
+                actions: permission.actions,
+                allowed: true,
+                module: permission.module,
+              });
+
+              return appPermission;
+            })
+          );
+        }
+
+        await models.Clients.updateOne({ _id }, { $set: doc });
+      } catch (e) {
+        console.error(e);
+        throw new Error(e);
+      }
     }
 
     public static async removeClient(_id) {
@@ -117,6 +194,12 @@ export const loadClientClass = (models: IModels) => {
 
       if (!clientObj) {
         throw new Error(`Client not found with id ${_id}`);
+      }
+
+      const user = await models.Users.findOneAndDelete({ appId: _id });
+
+      if (user) {
+        await models.Permissions.deleteMany({ userId: user._id });
       }
 
       return clientObj;

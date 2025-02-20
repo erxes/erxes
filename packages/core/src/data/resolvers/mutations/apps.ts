@@ -44,4 +44,15 @@ export default {
 
     return { clientId: client.clientId, clientSecret: client.clientSecret };
   },
+
+  async clientsEdit(_root, params: any, { models }: IContext) {
+    return models.Clients.updateClient(params);
+  },
+
+
+  async clientsRemove(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Clients.removeClient(_id);
+  },
+
+
 };

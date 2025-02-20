@@ -7,7 +7,6 @@ export interface IClient {
   clientSecret: string;
   refreshToken: string;
   whiteListedIps: string[];
-
 }
 
 export interface IClientDocument extends IClient, Document {

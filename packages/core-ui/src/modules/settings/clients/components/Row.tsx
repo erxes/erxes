@@ -6,12 +6,14 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import React from 'react';
+import { FlexRow } from '../../importExport/styles';
 import Form from '../containers/Form';
 
 type Props = {
   index: number;
   client: any;
   remove: (id: string) => void;
+  refetch?: any;
 };
 
 const Row = (props: Props) => {
@@ -34,7 +36,13 @@ const Row = (props: Props) => {
     );
   };
 
-  const formContent = (props) => <Form {...props} client={client} />;
+  const formContent = (formProps) => (
+    <Form
+      {...formProps}
+      _id={client._id}
+      refetch={props.refetch}
+    />
+  );
 
   const dateFormat = 'YYYY-MM-DD HH:mm:ss';
   return (
@@ -44,7 +52,25 @@ const Row = (props: Props) => {
       </td>
 
       <td key={Math.random()}>
-        <RowTitle>{client.appId || '-'}</RowTitle>
+        <FlexRow>
+          <RowTitle>{client.clientId || '-'}</RowTitle>
+          <Button
+            btnStyle='link'
+            icon='copy-1'
+            onClick={() => navigator.clipboard.writeText(client.clientId)}
+          />
+        </FlexRow>
+      </td>
+
+      <td key={Math.random()}>
+        <FlexRow>
+          <RowTitle>*********</RowTitle>
+          <Button
+            btnStyle='link'
+            icon='copy-1'
+            onClick={() => navigator.clipboard.writeText(client.clientSecret)}
+          />
+        </FlexRow>
       </td>
 
       <td>{dayjs(client.createdAt).format(dateFormat)}</td>

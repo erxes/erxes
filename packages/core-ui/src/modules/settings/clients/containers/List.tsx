@@ -10,7 +10,8 @@ const QUERY = gql`
     clientList(page: $page, perPage: $perPage, searchValue: $searchValue) {
       list {
         _id
-        appId
+        clientId
+        clientSecret
         name
         createdAt
       }
@@ -41,7 +42,7 @@ const List = (props: Props) => {
   const [deleteMutation] = useMutation(DELETE);
 
   const removeClient = (id: string) => {
-    const message = 'Are you sure want to remove this city ?';
+    const message = 'Are you sure want to remove this app ?';
 
     confirm(message).then(() => {
       deleteMutation({
@@ -50,7 +51,7 @@ const List = (props: Props) => {
         .then(() => {
           refetch();
 
-          Alert.success('You successfully deleted a city.');
+          Alert.success('You successfully deleted a app.');
         })
         .catch((e) => {
           Alert.error(e.message);

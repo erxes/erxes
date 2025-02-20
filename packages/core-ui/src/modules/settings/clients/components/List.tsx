@@ -7,10 +7,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
-
 import Form from '../containers/Form';
-
-// import { ICity } from '../types';
 import Row from './Row';
 
 type Props = {
@@ -20,17 +17,17 @@ type Props = {
   loading: boolean;
   page: number;
   perPage: number;
-  remove: (cityId: string) => void;
-  refetch?: () => void;
+  remove: (id: string) => void;
+  refetch?: any;
 };
 
 const breadcrumb = [
-  { title: "Settings", link: "/settings" },
-  { title: __("Apps") },
+  { title: 'Settings', link: '/settings' },
+  { title: __('Apps') },
 ];
 
 const List = (props: Props) => {
-  const { totalCount, queryParams, loading, clients, remove } = props;
+  const { totalCount, queryParams, loading, clients, remove, refetch } = props;
 
   const renderRow = () => {
     const { clients } = props;
@@ -40,6 +37,7 @@ const List = (props: Props) => {
         key={client._id}
         client={client}
         remove={remove}
+        refetch={refetch}
       />
     ));
   };
@@ -53,7 +51,7 @@ const List = (props: Props) => {
     </Button>
   );
 
-  const formContent = props => <Form {...props} />;
+  const formContent = (formProps) => <Form {...formProps} refetch={refetch} />;
 
   const righActionBar = (
     <ModalTrigger
@@ -75,6 +73,7 @@ const List = (props: Props) => {
         <tr>
           <th>{__('name')}</th>
           <th>{__('App ID')}</th>
+          <th>{__('Secret')}</th>
           <th>{__('Created at')}</th>
           <th>{__('Action')}</th>
         </tr>

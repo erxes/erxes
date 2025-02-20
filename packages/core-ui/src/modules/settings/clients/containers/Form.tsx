@@ -6,35 +6,29 @@ import ClientForm from '../components/Form';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
+  _id?: string;
+  refetch?: () => void;
   closeModal: () => void;
 };
 
 const ADD = `
-  mutation ClientsAdd(
-    $name: String!
-    $whiteListedIps: [String]
-    $permissions: [String]
-  ) {
-    clientsAdd(
-      name: $name
-      whiteListedIps: $whiteListedIps
-      permissions: $permissions
-    ) {
-      clientId
-      clientSecret
-    }
+mutation ClientsAdd($name: String!, $whiteListedIps: [String], $permissions: [ClientPermissionInput]) {
+  clientsAdd(name: $name, whiteListedIps: $whiteListedIps, permissions: $permissions) {
+    clientSecret
+    clientId
   }
+}
 `;
 
 const EDIT = `
   mutation ClientsEdit(
-    $id: String!
+    $_id: String!
     $name: String
     $whiteListedIps: [String]
-    $permissions: [String]
+    $permissions: [ClientPermissionInput]
   ) {
     clientsEdit(
-      _id: $id
+      _id: $_id
       name: $name
       whiteListedIps: $whiteListedIps
       permissions: $permissions
@@ -58,11 +52,31 @@ const PERMISSION_MODULES = gql`
   }
 `;
 
+const DETAIL_QUERY = gql`
+  query ClientDetail($id: String) {
+    clientDetail(_id: $id) {
+      _id
+      name
+      permissions {
+        module
+        
+        actions
+      }
+      whiteListedIps
+    }
+  }
+`;
+
 const ClientFormContainer = (props: Props) => {
+  const { data, loading } = useQuery(PERMISSION_MODULES);
+  const { data: detailData, loading: detailLoading } = useQuery(DETAIL_QUERY, {
+    variables: {
+      id: props._id,
+    },
+    skip: !props._id,
+  });
 
-  const {data, loading} = useQuery(PERMISSION_MODULES);
-
-  if (loading) {
+  if (loading || detailLoading) {
     return <Spinner />;
   }
 
@@ -79,7 +93,6 @@ const ClientFormContainer = (props: Props) => {
         mutation={mutation}
         variables={values}
         callback={callback}
-        // refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         type='submit'
         icon='check-circle'
@@ -92,22 +105,16 @@ const ClientFormContainer = (props: Props) => {
 
   const modules = data?.permissionModules || [];
 
+  const client = detailData?.clientDetail || {};
+
   const updatedProps = {
     ...props,
     modules,
+    client,
     renderButton,
   };
 
   return <ClientForm {...updatedProps} />;
 };
-
-// const getRefetchQueries = () => {
-//   return [
-//     {
-//       query: gql(queries.listQuery),
-//       fetchPolicy: 'network-only',
-//     },
-//   ];
-// };
 
 export default ClientFormContainer;
