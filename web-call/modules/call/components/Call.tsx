@@ -1,9 +1,5 @@
-import React from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
 import * as z from "zod"
 
-import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -12,15 +8,19 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
 
-const Call = ({
-  loading = false,
-  setPhoneNumber,
-}: {
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import React from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+
+type Props = {
   loading?: boolean
   setPhoneNumber: (phone: string) => void
-}) => {
+}
+
+const Call = ({ loading = false, setPhoneNumber }: Props) => {
   const FormSchema = z.object({
     phone: z
       .string({

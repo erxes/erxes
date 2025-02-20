@@ -9,6 +9,7 @@ import {
 } from "./Icons";
 
 import Item from "./Item";
+import { getCallData } from "../../utils/util";
 import { useRouter } from "../../context/Router";
 
 const items = [
@@ -30,6 +31,7 @@ const items = [
 
 function BottomNavBar() {
   const { setActiveRoute, activeRoute } = useRouter();
+  const callData = getCallData();
 
   const handleItemClick = (route: string) => (e: React.MouseEvent) => {
     setActiveRoute(route);
@@ -50,6 +52,10 @@ function BottomNavBar() {
     <ul className="nav-container nav-list">
       {items.map((item) => {
         const { route } = item;
+
+        if (route === "call" && callData && !callData.isReceiveWebCall) {
+          return null;
+        }
 
         return (
           <Item

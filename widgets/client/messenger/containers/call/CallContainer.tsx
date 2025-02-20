@@ -1,27 +1,22 @@
 import * as React from "react";
 
-import Call from "../../components/call/Call";
-import { useRouter } from "../../context/Router";
+import Call from "./Call";
+import { useEffect } from "react";
+import { usePeerConnection } from "./hooks/usePeerConnection";
+import { useRoomContext } from "./RoomContext";
 
 const CallContainer = () => {
-  const { setRoute } = useRouter();
-  const [isSubmitted, setIsSubmitted] = React.useState(false);
+  const { setIceConnectionState, setPeerConnection } = useRoomContext();
+  const { peer, iceConnectionState } = usePeerConnection({
+    iceServers: [{ urls: "stun:stun.cloudflare.com:3478" }],
+  });
 
-  const onSubmit = () => {
-    setIsSubmitted(true);
-  };
+  useEffect(() => {
+    setPeerConnection(peer);
+    setIceConnectionState(iceConnectionState);
+  }, [peer, iceConnectionState]);
 
-  const onButtonClick = () => {
-    setRoute("home");
-  };
-
-  return (
-    <Call
-      isSubmitted={isSubmitted}
-      handleSubmit={onSubmit}
-      handleNextButton={onButtonClick}
-    />
-  );
+  return <Call />;
 };
 
 export default CallContainer;

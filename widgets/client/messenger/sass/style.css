@@ -3269,6 +3269,60 @@ select.form-control:focus,
   border-radius: 10px;
   color: #444;
 }
+
+.call-container .detail-info {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.5rem;
+  margin-bottom: 20px;
+}
+
+.call-container .detail-info h2 {
+  color: #000;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.025rem;
+  margin: 0;
+}
+
+.call-container .detail-info p {
+  color: #444;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0;
+  width: 95%;
+}
+
+.call-container .list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.call-container .list-item {
+  background: rgba(79, 51, 175, 0.2);
+  border-radius: 12px;
+  color: #4f33af;
+  padding: 10px 20px;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-transform: capitalize;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid #eee;
+  transition: all ease 0.3s;
+}
+
+.call-container .list-item:hover,
+.call-container .list-item.active {
+  border-color: #aba0ce;
+}
+
 .conversation-list-empty-container {
   display: flex;
   flex-direction: column;
