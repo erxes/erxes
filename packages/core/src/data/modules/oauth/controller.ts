@@ -1,12 +1,7 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { generateModels } from '../../../connectionResolver';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
-import * as dotenv from 'dotenv';
-import client from '../../resolvers/client';
-import { IClientDocument } from '../../../db/models/definitions/client';
-
-dotenv.config();
+import { generateModels } from '../../../connectionResolver';
 
 const { JWT_TOKEN_SECRET = '' } = process.env;
 
