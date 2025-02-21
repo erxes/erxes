@@ -164,10 +164,11 @@ function Sidebar({
       );
     };
     const renderData = (type: string, key: string) => {
-      if (type?.toLowerCase()?.includes("byte")) {
+      console.log(type, key, 'kkkkkkkkkkkk')
+      if (type?.toLowerCase()?.includes("byte") || key.includes('image')) {
         return <img height={80} src={`data:image/png;base64,${i[key]}`} />;
       }
-      if (type?.toLowerCase()?.includes("date")) {
+      if (type?.toLowerCase()?.includes("date") || key.includes('date')) {
         return moment(i[key]).format("YYYY-MM-DD");
       }
 
