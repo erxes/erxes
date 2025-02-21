@@ -230,7 +230,7 @@ const ClientForm = (props: Props) => {
           </Button>
         </div>
         <Info type='warning'>
-          Save the following credentials in a safe place !
+          Save the following credentials in a safe place!
         </Info>
       </>
     );
@@ -261,8 +261,7 @@ const ClientForm = (props: Props) => {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('White Listed Ips')}</ControlLabel>
-          <p>{__('Comma separated list of white listed ips')}</p>
+          <ControlLabel>{__('White Listed IPs')}</ControlLabel>
           <IpInput
             initialIps={clientObject?.whiteListedIps}
             onChange={(ips: string[]) => {
