@@ -36,10 +36,6 @@ const mutations = {
     return models.Apps.removeApp(_id);
   },
 
-  // clientsAdd(name: String!, whiteListedIps: [String], permissions: [String]): Client
-  // clientsEdit(_id: String!, name: String, whiteListedIps: [String], permissions: [String]): Client
-  // clientsRemove(_id: String!): JSON
-
   async clientsAdd(_root, params: any, { models }: IContext) {
     if (!params.permissions || params.permissions.length === 0) {
       throw new Error('Please select at least one permission');
