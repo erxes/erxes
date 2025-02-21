@@ -7,7 +7,7 @@ const GET_TAGS = gql`
     $page: Int
     $perPage: Int
     $sortField: String
-    $sortDirection: SortDirection
+    $sortDirection: String
   ) {
     cmsTags(
       clientPortalId: $clientPortalId

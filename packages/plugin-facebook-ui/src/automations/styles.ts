@@ -66,6 +66,7 @@ export const BottomBarActionsContainer = styled.div`
 export const BottomBarAction = styled.div`
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
   border: ${colors.bgGray} solid 1px;
   border-radius: 5px;
   height: 35px;
@@ -75,6 +76,11 @@ export const BottomBarAction = styled.div`
   cursor: pointer;
   margin-left: 5px;
   margin-bottom: 5px;
+  > div {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+  }
 `;
 
 export const ContentWrapper = styled.div`

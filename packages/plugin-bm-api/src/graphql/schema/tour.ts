@@ -1,16 +1,10 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 export const types = () => `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
 
-  enum STATUS_TOUR {
-    running
-    compeleted
-    scheduled
-    cancelled
-  }
   type GuideItem {
     guideId: String
     guide: User
@@ -38,6 +32,10 @@ export const types = () => `
     modifiedAt: Date
     viewCount: Int
     tags: [String]
+    info1: String
+    info2: String
+    info3: String
+    info4: String
   }
 
   type BmsOrder {
@@ -72,7 +70,7 @@ export const types = () => `
 `;
 
 export const queries = `
-  bmTours( page:Int, perPage:Int, status: STATUS_TOUR, innerDate: Date,branchId: String, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date): ListTour
+  bmTours( page:Int, perPage:Int, status: String, innerDate: Date,branchId: String, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date): ListTour
   bmTourDetail(_id:String!,branchId: String): Tour
   bmOrders( tourId:String, customerId:String ,branchId: String):ListBmsOrder
 `;
@@ -86,13 +84,17 @@ const params = `
   endDate: Date,
   groupSize: Int,
   duration: Int,
-  status: STATUS_TOUR,
+  status: String,
   cost: Float,
   location: [BMSLocationInput],
   guides:[GuideItemInput],
   refNumber: String,
   tags:[String],
-  viewCount: Int
+  viewCount: Int,
+  info1: String,
+  info2: String,
+  info3: String,
+  info4: String,
 `;
 
 export const mutations = `

@@ -8,6 +8,7 @@ export interface IConfig {
   code: string;
   isLocalUser: string;
   userDN: string;
+  baseDN: string;
   createdAt: Date;
   modifiedAt: Date;
 }
@@ -33,6 +34,7 @@ export const configSchema = schemaWrapper(
     apiUrl: field({ type: String, optional: true, label: 'apiUrl' }),
     isLocalUser: field({ type: Boolean, label: 'isLocalUser' }),
     userDN: field({ type: String, optional: true, label: 'userDN' }),
+    baseDN: field({ type: String, optional: true, label: 'baseDN' }),
     adminDN: field({ type: String, optional: true, label: 'adminDN' }),
     adminPassword: field({
       type: String,
