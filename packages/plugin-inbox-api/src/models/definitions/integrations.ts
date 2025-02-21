@@ -56,11 +56,6 @@ export interface IMessengerData {
   botCheck?: boolean;
   botGreetMessage?: string;
   persistentMenus?: BotPersistentMenuTypeMessenger[];
-  ticketLabel?: string;
-  ticketStageId?: string;
-  ticketPipelineId?: string;
-  ticketBoardId?: string;
-  ticketToggle?: boolean;
   getStarted?: boolean;
   skillData?: {
     typeId: string;
@@ -88,9 +83,24 @@ export interface IMessengerData {
   forceLogoutWhenResolve?: boolean;
   showVideoCallRequest?: boolean;
 }
+export interface ITicketData {
+  ticketLabel?: String;
+  ticketToggle?: Boolean;
+  ticketStageId?: String;
+  ticketPipelineId?: String;
+  ticketBoardId?: String;
+}
 
 export interface IMessengerDataDocument extends IMessengerData, Document {}
+// export interface ITicketDataDocument extends ITicketData, Document {}
 
+export interface ITicketDataDocument extends Document {
+  ticketLabel?: String;
+  ticketToggle?: Boolean;
+  ticketStageId?: String;
+  ticketPipelineId?: String;
+  ticketBoardId?: String;
+}
 export interface ICallout extends Document {
   title?: string;
   body?: string;
@@ -164,6 +174,7 @@ export interface IIntegration {
   formId?: string;
   leadData?: ILeadData;
   messengerData?: IMessengerData;
+  ticketData?: ITicketData;
   uiOptions?: IUiOptions;
   isActive?: boolean;
   isConnected?: boolean;
@@ -183,6 +194,7 @@ export interface IIntegrationDocument extends IIntegration, Document {
   formData?: ILeadData;
   leadData?: ILeadDataDocument;
   messengerData?: IMessengerDataDocument;
+  ticketData?: ITicketDataDocument;
   webhookData?: IWebhookData;
   uiOptions?: IUiOptionsDocument;
 }
@@ -276,6 +288,17 @@ export const calloutSchema = new Schema(
       label: "Featured image"
     }),
     skip: field({ type: Boolean, optional: true, label: "Skip" })
+  },
+  { _id: false }
+);
+
+const ticketSchema = new Schema(
+  {
+    ticketLabel: { type: String, required: true },
+    ticketToggle: { type: Boolean, required: true },
+    ticketStageId: { type: String, required: true },
+    ticketPipelineId: { type: String, required: true },
+    ticketBoardId: { type: String, required: true }
   },
   { _id: false }
 );
@@ -467,6 +490,7 @@ export const integrationSchema = schemaHooksWrapper(
     // TODO: remove
     formData: field({ type: leadDataSchema }),
     messengerData: field({ type: messengerDataSchema }),
+    ticketData: field({ type: ticketSchema }),
     uiOptions: field({ type: uiOptionsSchema })
   }),
   "erxes_integrations"

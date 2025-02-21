@@ -6,7 +6,8 @@ import {
   MessengerAppsQueryResponse,
   SaveMessengerAppearanceMutationResponse,
   SaveMessengerAppsMutationResponse,
-  SaveMessengerConfigsMutationResponse
+  SaveMessengerConfigsMutationResponse,
+  SaveMessengerTicketMutationResponse
 } from "@erxes/ui-inbox/src/settings/integrations/types";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import {
@@ -81,7 +82,9 @@ const EditMessenger = (props: Props) => {
         ]
       }
     );
-
+  const [saveTicketData] = useMutation<SaveMessengerTicketMutationResponse>(
+    gql(mutations.integrationsSaveMessengerTicketData)
+  );
   const [saveAppearanceMutation] =
     useMutation<SaveMessengerAppearanceMutationResponse>(
       gql(mutations.integrationsSaveMessengerAppearance),
@@ -127,11 +130,11 @@ const EditMessenger = (props: Props) => {
   const topics = topicsData?.knowledgeBaseTopics || [];
   const apps = messengerAppsData?.messengerApps || {};
 
-  const deleteTypeName = datas => {
+  const deleteTypeName = (datas) => {
     return (datas || []).map(({ __typename, ...item }) => item);
   };
 
-  const save = doc => {
+  const save = (doc) => {
     const {
       name,
       brandId,
@@ -139,7 +142,8 @@ const EditMessenger = (props: Props) => {
       languageCode,
       messengerData,
       uiOptions,
-      messengerApps
+      messengerApps,
+      ticketData
     } = doc;
 
     setIsLoading(true);
@@ -162,7 +166,9 @@ const EditMessenger = (props: Props) => {
       })
       .then(({ data = {} as any }) => {
         const id = data.integrationsSaveMessengerConfigs._id;
-
+        saveTicketData({
+          variables: { _id: integrationId, ticketData }
+        });
         return saveAppearanceMutation({
           variables: { _id: id, uiOptions }
         });
@@ -186,7 +192,7 @@ const EditMessenger = (props: Props) => {
         console.log("here11");
         navigate("/settings/integrations?refetch=true");
       })
-      .catch(error => {
+      .catch((error) => {
         console.log("here22", error);
         if (error.message.includes("Duplicated messenger for single brand")) {
           return Alert.warning(

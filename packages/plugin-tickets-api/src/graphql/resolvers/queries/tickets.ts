@@ -12,7 +12,7 @@ import {
   getItemList,
   IArchiveArgs
 } from "./utils";
-
+import { sendCoreMessage } from "../../../messageBroker";
 const ticketQueries = {
   /**
    * Tickets list
@@ -69,12 +69,62 @@ const ticketQueries = {
     { number }: { number: string },
     { user, models }: IContext
   ) {
-    const ticket = await models.Tickets.findOne({ number: number });
+    const ticket = await models.Tickets.findOne({
+      number: number
+    });
 
     if (!ticket) {
       throw new Error("Ticket not found");
     }
     return await checkItemPermByUser(models, user, ticket);
+  },
+
+  async ticketCheckProgressForget(
+    _root,
+    { email, phoneNumber }: { email: string; phoneNumber: string },
+    { user, models, subdomain }: IContext
+  ) {
+    let users;
+
+    if (email) {
+      users = await sendCoreMessage({
+        subdomain,
+        action: "users.findOne",
+        data: { email },
+        isRPC: true,
+        defaultValue: null
+      });
+    } else if (phoneNumber) {
+      users = await sendCoreMessage({
+        subdomain,
+        action: "users.findOne",
+        data: { "details.operatorPhone": phoneNumber },
+        isRPC: true,
+        defaultValue: null
+      });
+    }
+
+    if (!users || !users._id) {
+      throw new Error("User not found");
+    }
+
+    const tickets = await models.Tickets.find({
+      userId: users._id,
+      number: { $exists: true, $ne: null }
+    });
+    if (!tickets.length) {
+      return null; // No tickets found, return null
+    }
+
+    // Get the most recent ticket based on createdAt
+    const formattedTickets = tickets.map((ticket) => ({
+      userId: ticket.userId,
+      name: ticket.name,
+      stageId: ticket.stageId,
+      number: ticket.number
+    }));
+
+    return formattedTickets;
   }
 };
 

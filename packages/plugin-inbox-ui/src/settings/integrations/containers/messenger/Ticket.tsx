@@ -16,7 +16,6 @@ type Props = {
   ticketPipelineId: string;
   ticketBoardId: string;
   ticketStageId: string;
-  ticketLabel?: string; // Add this line
 };
 
 function GeneralContainer(props: Props) {

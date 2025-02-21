@@ -193,7 +193,7 @@ const integrationQueries = {
       ...(await generateFilterQuery(subdomain, args, models))
     };
 
-    const count = async query => {
+    const count = async (query) => {
       return models.Integrations.findAllIntegrations(query).countDocuments();
     };
 

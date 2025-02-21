@@ -18,7 +18,8 @@ import {
   IMessengerApps,
   IMessengerData,
   ISkillData,
-  IUiOptions
+  IUiOptions,
+  ITicketTypeMessenger
 } from "@erxes/ui-inbox/src/settings/integrations/types";
 import { Step, Steps } from "@erxes/ui/src/components/step";
 
@@ -36,6 +37,7 @@ import { SmallLoader } from "@erxes/ui/src/components/ButtonMutate";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { linkify } from "@erxes/ui-inbox/src/inbox/utils";
 import TicketSelect from "../../containers/messenger/Ticket";
+
 type Props = {
   teamMembers: IUser[];
   integration?: IIntegration;
@@ -47,6 +49,7 @@ type Props = {
     languageCode: string;
     channelIds?: string[];
     messengerData: IMessengerData;
+    ticketData: ITicketTypeMessenger;
     uiOptions: IUiOptions;
     messengerApps: IMessengerApps;
   }) => void;
@@ -67,7 +70,6 @@ type State = {
   botCheck?: boolean;
   botGreetMessage?: string;
   persistentMenus?: BotPersistentMenuTypeMessenger[];
-  ticketLabel?: string;
   ticketStageId?: string;
   ticketPipelineId?: string;
   ticketBoardId?: string;
@@ -126,16 +128,13 @@ class CreateMessenger extends React.Component<Props, State> {
       botShowInitialMessage: false,
       botCheck: false,
       botGreetMessage: "",
-      persistentMenus: [] as BotPersistentMenuTypeMessenger[],
-      ticketStageId: "",
-      ticketPipelineId: "",
-      ticketBoardId: "",
-      ticketToggle: false
+      persistentMenus: [] as BotPersistentMenuTypeMessenger[]
     };
     const links = configData.links || {};
     const externalLinks = configData.externalLinks || [];
     const messages = configData.messages || {};
     const uiOptions = integration.uiOptions || {};
+    const ticketData = integration.ticketData || {};
     const channels = integration.channels || [];
     const messengerApps = props.messengerApps || {};
 
@@ -145,10 +144,10 @@ class CreateMessenger extends React.Component<Props, State> {
       botCheck: configData.botCheck,
       botGreetMessage: configData.botGreetMessage,
       persistentMenus: configData.persistentMenus,
-      ticketStageId: configData.ticketStageId,
-      ticketPipelineId: configData.ticketPipelineId,
-      ticketBoardId: configData.ticketBoardId,
-      ticketToggle: configData.ticketToggle,
+      ticketStageId: ticketData.ticketStageId || "",
+      ticketPipelineId: ticketData.ticketPipelineId || "",
+      ticketBoardId: ticketData.ticketBoardId || "",
+      ticketToggle: ticketData.ticketToggle || false,
       botShowInitialMessage: configData.botShowInitialMessage,
       skillData: configData.skillData,
       brandId: integration.brandId || "",
@@ -332,10 +331,6 @@ class CreateMessenger extends React.Component<Props, State> {
         botCheck,
         botGreetMessage,
         persistentMenus,
-        ticketStageId,
-        ticketPipelineId,
-        ticketBoardId,
-        ticketToggle,
         notifyCustomer: this.state.notifyCustomer,
         availabilityMethod: this.state.availabilityMethod,
         isOnline: this.state.isOnline,
@@ -357,6 +352,12 @@ class CreateMessenger extends React.Component<Props, State> {
         showVideoCallRequest,
         links,
         externalLinks
+      },
+      ticketData: {
+        ticketStageId: ticketStageId,
+        ticketPipelineId: ticketPipelineId,
+        ticketBoardId: ticketBoardId,
+        ticketToggle: ticketToggle
       },
       uiOptions: {
         color: this.state.color,
@@ -447,11 +448,9 @@ class CreateMessenger extends React.Component<Props, State> {
       skillData,
       messengerApps,
       externalLinks,
-      ticketBoardId,
-      ticketLabel,
-      ticketPipelineId,
       ticketStageId,
-      ticketToggle
+      ticketPipelineId,
+      ticketBoardId
     } = this.state;
 
     const { integration } = this.props;
@@ -566,10 +565,9 @@ class CreateMessenger extends React.Component<Props, State> {
                 noButton={true}>
                 <TicketSelect
                   handleFormChange={this.handleFormChange}
-                  ticketLabel={ticketLabel}
-                  ticketPipelineId={ticketPipelineId || ""} // Provide default value
-                  ticketBoardId={ticketBoardId || ""} // Provide default value
-                  ticketStageId={ticketStageId || ""} // Provide default value
+                  ticketPipelineId={ticketPipelineId || ""}
+                  ticketBoardId={ticketBoardId || ""}
+                  ticketStageId={ticketStageId || ""}
                 />
               </Step>
               <Step

@@ -25,6 +25,7 @@ export const types = `
   
     leadData: JSON
     messengerData: JSON
+    ticketData :JSON
     uiOptions: JSON
     isActive: Boolean
     isConnected: Boolean
@@ -83,6 +84,14 @@ export const types = `
   input IntegrationExternalLinks {
     url: String
   }
+  
+   input TicketData {
+      ticketLabel: String
+      ticketToggle: Boolean
+      ticketStageId: String
+      ticketPipelineId: String
+      ticketBoardId: String
+  }
 
   input IntegrationMessengerData {
     _id: String
@@ -94,11 +103,6 @@ export const types = `
     botGreetMessage: String
     getStarted: Boolean
     persistentMenus: [BotPersistentMenuTypeMessenger]
-    ticketLabel: String
-    ticketToggle: Boolean,
-    ticketStageId: String
-    ticketPipelineId: String
-    ticketBoardId: String
     availabilityMethod: String
     isOnline: Boolean,
     onlineHours: [MessengerOnlineHoursSchema]
@@ -188,8 +192,13 @@ export const mutations = `
 
   integrationsSaveMessengerConfigs(
     _id: String!,
-    messengerData: IntegrationMessengerData): Integration
+    messengerData: IntegrationMessengerData,
+    ): Integration
 
+  integrationsSaveMessengerTicketData(
+    _id: String!,
+    ticketData: TicketData): Integration
+    
   integrationsCreateExternalIntegration(
     kind: String!,
     name: String!,

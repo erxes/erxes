@@ -124,7 +124,11 @@ export type SaveMessengerConfigsMutationResponse = {
     variables: { _id: string; messengerData: IMessengerData };
   }) => any;
 };
-
+export type SaveMessengerTicketMutationResponse = {
+  saveConfigsMutation: (params: {
+    variables: { _id: string; ticketData: ITicketTypeMessenger };
+  }) => any;
+};
 export type EditMessengerMutationVariables = {
   _id: string;
   name: string;
@@ -247,11 +251,6 @@ export interface IMessengerData {
   botGreetMessage?: string;
   persistentMenus?: BotPersistentMenuTypeMessenger[];
   name?: string;
-  ticketLabel?: string;
-  ticketStageId?: string;
-  ticketPipelineId?: string;
-  ticketBoardId?: string;
-  ticketToggle?: boolean;
   skillData?: ISkillData;
   messages?: IMessages;
   notifyCustomer?: boolean;
@@ -311,6 +310,13 @@ interface IIntegartionHealthStatus {
   error: string;
 }
 
+export interface ITicketTypeMessenger {
+  ticketToggle?: boolean;
+  ticketStageId?: string;
+  ticketPipelineId?: string;
+  ticketBoardId?: string;
+}
+
 export interface IIntegration {
   _id: string;
   kind: string;
@@ -321,6 +327,7 @@ export interface IIntegration {
   languageCode?: string;
   createUrl: string;
   messengerData?: IMessengerData;
+  ticketData?: ITicketTypeMessenger;
   form: IForm;
   uiOptions?: IUiOptions;
   leadData: ILeadData;
