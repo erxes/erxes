@@ -97,8 +97,13 @@ export const loadClientClass = (models: IModels) => {
             },
           });
 
+          const prohibitedModules = ['users', 'usersGroups', 'permissions', 'clients', 'logs', 'generalSettings'];
+
+          const filteredPermissions = permissions.filter((permission) => {
+            return !prohibitedModules.includes(permission.module);
+          })
           await Promise.all(
-            permissions.map(async (permission) => {
+            filteredPermissions.map(async (permission) => {
               const appPermission = await models.Permissions.createPermission({
                 userIds: [systemUser._id],
                 actions: permission.actions,
