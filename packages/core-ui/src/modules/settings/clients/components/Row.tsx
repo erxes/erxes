@@ -14,6 +14,7 @@ import { FlexRow } from '../../importExport/styles';
 import Form from '../containers/Form';
 import Alert from '../../../common/utils/Alert';
 import Icon from '@erxes/ui/src/components/Icon';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 const RESET_SECRET_MUTATION = gql`
   mutation ClientsResetSecret($id: String!) {
@@ -96,13 +97,17 @@ const Row = (props: Props) => {
       <td key={Math.random()}>
         <FlexRow>
           <RowTitle>*********</RowTitle>
-          <Tip text={'Reset secret'}>
-            <Button
-              btnStyle='link'
-              icon='refresh-1'
-              onClick={handleResetSecret}
-            />
-          </Tip>
+          {loading ? (
+            <p>{__('Aqcuiring new secret')}...</p>
+          ) : (
+            <Tip text={__("Reset secret")}>
+              <Button
+                btnStyle='link'
+                icon='refresh-1'
+                onClick={handleResetSecret}
+              />
+            </Tip>
+          )}
         </FlexRow>
       </td>
 
@@ -127,8 +132,9 @@ const Row = (props: Props) => {
       >
         <Modal.Header closeButton>
           <Modal.Title>
-          <Icon icon='key-skeleton-alt' /> 
-            New credentials</Modal.Title>
+            <Icon icon='key-skeleton-alt' />
+            New credentials
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <>

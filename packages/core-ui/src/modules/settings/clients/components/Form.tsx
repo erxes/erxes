@@ -185,7 +185,6 @@ const ClientForm = (props: Props) => {
   };
 
   const renderCredentials = () => {
-    console.log('clientCredentials', clientCredentials);
     if (!clientCredentials) {
       return null;
     }
