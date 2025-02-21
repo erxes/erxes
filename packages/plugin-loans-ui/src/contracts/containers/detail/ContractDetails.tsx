@@ -32,7 +32,16 @@ const ContractDetailsContainer = (props: FinalProps) => {
       variables: {
         _id: id,
       },
-    },
+    }
+  );
+
+  const customerDetailQuery = useQuery<DetailQueryResponse>(
+    gql(queries.customerDetail),
+    {
+      variables: {
+        _id: contractDetailQuery?.data?.contractDetail?.customerId || '',
+      },
+    }
   );
 
   useEffect(() => {
@@ -40,9 +49,9 @@ const ContractDetailsContainer = (props: FinalProps) => {
       document: gql(subscriptions.loansContractChanged),
       variables: { ids: [id] },
       updateQuery: (prev) => {
-        contractDetailQuery.refetch();        
-        return prev
-      }
+        contractDetailQuery.refetch();
+        return prev;
+      },
     });
   }, []);
 
@@ -50,21 +59,21 @@ const ContractDetailsContainer = (props: FinalProps) => {
     gql(mutations.contractsEdit),
     {
       refetchQueries: ['contractDetail'],
-    },
+    }
   );
 
   const [regenSchedules] = useMutation<RegenSchedulesMutationResponse>(
     gql(mutations.regenSchedules),
     {
       refetchQueries: ['schedules', 'scheduleYears'],
-    },
+    }
   );
 
   const [fixSchedules] = useMutation<RegenSchedulesMutationResponse>(
     gql(mutations.fixSchedules),
     {
       refetchQueries: ['schedules', 'scheduleYears'],
-    },
+    }
   );
 
   const saveItem = (doc: IContractDoc, callback: (item) => void) => {
