@@ -59,7 +59,7 @@ const DETAIL_QUERY = gql`
       name
       permissions {
         module
-        
+
         actions
       }
       whiteListedIps
@@ -105,11 +105,24 @@ const ClientFormContainer = (props: Props) => {
 
   const modules = data?.permissionModules || [];
 
+  const prohibitedModules = [
+    'users',
+    'usersGroups',
+    'permissions',
+    'clients',
+    'logs',
+    'generalSettings',
+  ];
+
+  const filteredModules = modules.filter(
+    (module) => !prohibitedModules.includes(module.name)
+  );
+
   const client = detailData?.clientDetail || undefined;
 
   const updatedProps = {
     ...props,
-    modules,
+    modules: filteredModules,
     client,
     renderButton,
   };
