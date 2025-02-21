@@ -51,7 +51,7 @@ const List = (props: Props) => {
         .then(() => {
           refetch();
 
-          Alert.success('You successfully deleted a app.');
+          Alert.success('You successfully deleted an app.');
         })
         .catch((e) => {
           Alert.error(e.message);
