@@ -58,6 +58,7 @@ export const mutations = `
   clientsAdd(name: String!, whiteListedIps: [String], permissions: [ClientPermissionInput]!): AuthCredentials
   clientsEdit(_id: String!, name: String, whiteListedIps: [String], permissions: [ClientPermissionInput]): Client
   clientsRemove(_id: String!): JSON
+  clientsResetSecret(_id: String!): AuthCredentials
 `;
 
 export const queries = `

@@ -71,8 +71,8 @@ const List = (props: Props) => {
     <Table $whiteSpace='nowrap' $hover={true}>
       <thead>
         <tr>
-          <th>{__('name')}</th>
-          <th>{__('App ID')}</th>
+          <th>{__('App name')}</th>
+          <th>{__('Client ID')}</th>
           <th>{__('Secret')}</th>
           <th>{__('Created at')}</th>
           <th>{__('Action')}</th>

@@ -110,7 +110,7 @@ export const loadClientClass = (models: IModels) => {
             })
           );
 
-          return {clientId, clientSecret};
+          return { clientId, clientSecret };
         } catch (error: any) {
           if (error.code === 11000 && error.keyPattern?.appId) {
             retries++;
@@ -203,6 +203,25 @@ export const loadClientClass = (models: IModels) => {
       }
 
       return clientObj;
+    }
+
+    public static async resetSecret(_id: string) {
+      const client = await models.Clients.findOne({ _id });
+      console.log(client);
+      if (!client) {
+        throw new Error('Client not found');
+      }
+
+      const newSecret = crypto.randomBytes(32).toString('hex');
+      const hashedSecret = await bcrypt.hash(newSecret, 10);
+
+      client.clientSecret = hashedSecret;
+      await client.save();
+
+      return {
+        clientId: client.clientId,
+        clientSecret: newSecret,
+      };
     }
   }
 

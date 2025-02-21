@@ -60,4 +60,8 @@ export default {
   },
 
 
+  async clientsResetSecret(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Clients.resetSecret(_id);
+  },
+
 };

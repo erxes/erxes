@@ -193,7 +193,7 @@ const ClientForm = (props: Props) => {
     return (
       <>
         <h3>
-          <Icon icon='key' /> Credentials
+          <Icon icon='key-skeleton-alt' /> Credentials
         </h3>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <p>

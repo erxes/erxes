@@ -1,13 +1,28 @@
+import { gql, useMutation } from '@apollo/client';
 import { RowTitle } from '@erxes/ui-engage/src/styles';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
+import Info from '@erxes/ui/src/components/Info';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils/core';
+import copy from 'copy-text-to-clipboard';
 import dayjs from 'dayjs';
 import React from 'react';
+import { Modal } from 'react-bootstrap';
 import { FlexRow } from '../../importExport/styles';
 import Form from '../containers/Form';
+import Alert from '../../../common/utils/Alert';
+import Icon from '@erxes/ui/src/components/Icon';
+
+const RESET_SECRET_MUTATION = gql`
+  mutation ClientsResetSecret($id: String!) {
+    clientsResetSecret(_id: $id) {
+      clientId
+      clientSecret
+    }
+  }
+`;
 
 type Props = {
   index: number;
@@ -18,6 +33,26 @@ type Props = {
 
 const Row = (props: Props) => {
   const { client, remove } = props;
+
+  console.log('client', client);
+
+  const [showModal, setShowModal] = React.useState(false);
+  const [newSecret, setNewSecret] = React.useState('');
+
+  const [resetSecret, { loading }] = useMutation(RESET_SECRET_MUTATION, {
+    onCompleted: (data) => {
+      setNewSecret(data.clientsResetSecret.clientSecret);
+      setShowModal(true);
+    },
+    onError: (error) => {
+      console.error('Reset Secret Error:', error);
+      alert('Failed to reset secret. Please try again.');
+    },
+  });
+
+  const handleResetSecret = () => {
+    resetSecret({ variables: { id: client._id } });
+  };
 
   const renderRemoveAction = () => {
     const onClick = () => {
@@ -37,11 +72,7 @@ const Row = (props: Props) => {
   };
 
   const formContent = (formProps) => (
-    <Form
-      {...formProps}
-      _id={client._id}
-      refetch={props.refetch}
-    />
+    <Form {...formProps} _id={client._id} refetch={props.refetch} />
   );
 
   const dateFormat = 'YYYY-MM-DD HH:mm:ss';
@@ -65,11 +96,13 @@ const Row = (props: Props) => {
       <td key={Math.random()}>
         <FlexRow>
           <RowTitle>*********</RowTitle>
-          <Button
-            btnStyle='link'
-            icon='copy-1'
-            onClick={() => navigator.clipboard.writeText(client.clientSecret)}
-          />
+          <Tip text={'Reset secret'}>
+            <Button
+              btnStyle='link'
+              icon='refresh-1'
+              onClick={handleResetSecret}
+            />
+          </Tip>
         </FlexRow>
       </td>
 
@@ -86,6 +119,60 @@ const Row = (props: Props) => {
           {renderRemoveAction()}
         </ActionButtons>
       </td>
+      <Modal
+        size='xl'
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+          <Icon icon='key-skeleton-alt' /> 
+            New credentials</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <p>
+                <strong>Client ID:</strong> {client.clientId}
+              </p>
+
+              <Button
+                btnStyle='link'
+                size='small'
+                icon='copy'
+                onClick={() => {
+                  copy(client.clientId);
+                  Alert.success(__('Client ID has been copied to clipboard'));
+                }}
+              >
+                Copy Client ID
+              </Button>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <p>
+                <strong>Secret:</strong> {newSecret}
+              </p>
+
+              <Button
+                btnStyle='link'
+                size='small'
+                icon='copy'
+                onClick={() => {
+                  copy(newSecret);
+                  Alert.success(__('Secret has been copied to clipboard'));
+                }}
+              >
+                Copy Secret
+              </Button>
+            </div>
+            <Info type='warning'>
+              Save the following credentials in a safe place !
+            </Info>
+          </>
+        </Modal.Body>
+      </Modal>
     </tr>
   );
 };
