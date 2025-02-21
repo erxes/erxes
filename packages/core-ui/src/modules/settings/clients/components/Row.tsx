@@ -174,7 +174,7 @@ const Row = (props: Props) => {
               </Button>
             </div>
             <Info type='warning'>
-              Save the following credentials in a safe place !
+              Save the following credentials in a safe place!
             </Info>
           </>
         </Modal.Body>
