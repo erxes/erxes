@@ -45,6 +45,11 @@ import {
   loadScoreCampaignClass,
 } from './models/ScoreCampaigns';
 import { IScoreCampaignDocuments } from './models/definitions/scoreCampaigns';
+import {
+  IVoucherCodeModel,
+  loadVoucherCodeClass,
+} from './models/VoucherCodes';
+import { IVoucherCodeDocument } from './models/definitions/voucherCodes';
 
 export interface IModels {
   LoyaltyConfigs: ILoyaltyConfigModel;
@@ -60,6 +65,7 @@ export interface IModels {
   Lotteries: ILotteryModel;
   ScoreLogs: IScoreLogModel;
   ScoreCampaigns: IScoreCampaignModel;
+  VoucherCodes: IVoucherCodeModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -125,6 +131,11 @@ export const loadClasses = (
     IScoreCampaignDocuments,
     IScoreCampaignModel
   >('score_campaigns', loadScoreCampaignClass(models, subdomain));
+
+  models.VoucherCodes = db.model<
+    IVoucherCodeDocument,
+    IVoucherCodeModel
+  >('voucher_codes', loadVoucherCodeClass(models, subdomain));
 
   return models;
 };

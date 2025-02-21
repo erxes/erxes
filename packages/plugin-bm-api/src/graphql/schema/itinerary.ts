@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 export const types = () => `
   
@@ -12,6 +12,7 @@ export const types = () => `
     images: [String]
     content: String
     elements: [ElementItem]
+    elementsQuick: [ElementItem]
   }
   type Itinerary {
     _id: String!
@@ -25,17 +26,14 @@ export const types = () => `
     images: [String]
     status: String
     color: String
-    info1: String
-    info2: String
-    info3: String
-    info4: String
+
     
     foodCost:Float
     personCost: JSON
     gasCost: Float
     driverCost: Float
     guideCost:Float
-
+    guideCostExtra: Float
     createdAt: Date
     modifiedAt: Date
   }
@@ -48,6 +46,7 @@ export const types = () => `
     images: [String]
     content: String
     elements: [ElementItemInput]
+    elementsQuick: [ElementItemInput]
   }
 
 
@@ -77,15 +76,12 @@ const params = `
   images: [String],
   status: STATUS,
   color: String,
-  info1: String,
-  info2: String,
-  info3: String,
-  info4: String,
   foodCost:Float,
   personCost: JSON,
   gasCost: Float,
   driverCost: Float,
-  guideCost:Float
+  guideCost:Float,
+  guideCostExtra:Float
 `;
 
 export const mutations = `

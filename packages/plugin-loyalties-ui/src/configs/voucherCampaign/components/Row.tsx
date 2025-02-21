@@ -3,13 +3,17 @@ import {
   Icon,
   ModalTrigger,
   TextInfo,
-} from "@erxes/ui/src/components";
-
-import Form from "../containers/Form";
-import { IVoucherCampaign } from "../types";
-import { Link } from "react-router-dom";
-import React from "react";
-import { VOUCHER_TYPES } from "../../../constants";
+} from '@erxes/ui/src/components';
+import Button from '@erxes/ui/src/components/Button';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { VOUCHER_TYPES } from '../../../constants';
+import Form from '../containers/Form';
+import { IVoucherCampaign } from '../types';
+import ConfigForm from '../containers/ConfigForm';
+import { getEnv } from '@erxes/ui/src';
+import queryString from "query-string";
 
 type Props = {
   voucherCampaign: IVoucherCampaign;
@@ -27,6 +31,52 @@ class Row extends React.Component<Props> {
     };
 
     return <Form {...updatedProps} />;
+  };
+
+  exportOrderRecords = (campaignId) => {
+    const { REACT_APP_API_URL } = getEnv();
+    const params = {campaignId};
+
+    const stringified = queryString.stringify({
+      ...params,
+    });
+
+    window.open(
+      `${REACT_APP_API_URL}/pl:loyalties/file-export?${stringified}`,
+      "_blank"
+    );
+  };
+
+  renderForm = () => {
+
+    const { voucherCampaign } = this.props;
+
+    const {
+      _id,
+      codesCount,
+      voucherType
+    } = voucherCampaign;
+
+    if(voucherType !== 'coupon') {
+      return <></>
+    }
+
+    if(codesCount) {
+      return <Button btnStyle='link' icon='download-3' onClick={() => this.exportOrderRecords(_id)}/>
+    }
+
+    const content = (formProps) => <ConfigForm campaignId={_id} {...formProps} />;
+
+    const trigger = <Button btnStyle='link' icon='refresh-1' onClick={(e) => e.preventDefault()}/>;
+
+    return (
+      <ModalTrigger
+        title="Generate Code"
+        trigger={trigger}
+        autoOpenKey="codeGenerate"
+        content={content}
+      />
+    );
   };
 
   render() {
@@ -70,16 +120,19 @@ class Row extends React.Component<Props> {
           <TextInfo>{status}</TextInfo>
         </td>
         <td onClick={onClick}>
-          <Link to={`/vouchers?campaignId=${_id}`}>
-            <Icon icon="list-2" />
-          </Link>
+          <ActionButtons>
+            {this.renderForm()}
+            <Link to={`/vouchers?campaignId=${_id}`}>
+              <Button btnStyle='link' icon='list-2' />
+            </Link>
+          </ActionButtons>
         </td>
       </tr>
     );
 
     return (
       <ModalTrigger
-        size={"lg"}
+        size={'lg'}
         title="Edit voucher campaign"
         trigger={trigger}
         autoOpenKey="showProductModal"
