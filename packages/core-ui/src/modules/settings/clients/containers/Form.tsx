@@ -98,7 +98,7 @@ const ClientFormContainer = (props: Props) => {
         icon='check-circle'
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
-        } a app`}
+        } an app`}
       />
     );
   };
