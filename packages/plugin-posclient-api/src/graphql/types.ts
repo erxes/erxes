@@ -69,4 +69,5 @@ export interface IOrderInput {
   subscriptionId?: string;
   isSingle?: boolean;
   deviceId?: string;
+  campaignIds: string[]
 }

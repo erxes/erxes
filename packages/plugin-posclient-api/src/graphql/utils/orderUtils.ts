@@ -768,7 +768,7 @@ export const checkScoreAviableSubtractScoreCampaign = async (
         throw new Error(error.message);
       });
     }
-  }
+  } 
 };
 
 export const reverseItemStatus = async (
@@ -865,3 +865,24 @@ export const fakePutData = async (
     payments: [{}]
   };
 };
+
+export const redeemVoucher = async (  subdomain: string,
+  models: IModels,
+  order: IOrderDocument,
+  paidAmounts?: IPaidAmount[]) => {
+
+    const {customerId, customerType} = order
+
+  const response = await sendLoyaltiesMessage({
+    subdomain,
+    action: "redeemVoucher",
+    data: {
+      ownerType: customerType,
+      ownerId: customerId,
+      // voucherId,
+    },
+    defaultValue: false
+  })
+
+  
+}

@@ -2,7 +2,6 @@ import { paginate } from '@erxes/api-utils/src/core';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { ICommonParams } from '../../../models/definitions/common';
-import { CAMPAIGN_STATUS } from '../../../models/definitions/constants';
 
 const generateFilter = (params: ICommonParams) => {
   const filter: any = {};
@@ -33,35 +32,42 @@ const voucherQueries = {
 
   async ownerVouchers(
     _root,
-    { ownerId }: { ownerId: string },
+    {
+      ownerId,
+      status,
+    }: { ownerId: string; status?: 'new' | 'in_use' | 'used' | 'expired' },
     { models }: IContext,
   ) {
+    const query = {
+      ownerId,
+    };
 
-    const NOW = new Date();
-    
-    const campaignIds = await models.Vouchers.find({
-      ownerId, 
-      status: CAMPAIGN_STATUS.ACTIVE,
-      startDate: { $lte: NOW },
-      endDate: { $gte: NOW }
-    }).distinct('campaignId');
+    if (status) {
+      query['status'] = status;
+    }
 
-    const campaigns = await models.VoucherCampaigns.find({
-      _id: {$in: campaignIds}
-    })
+    const vouchers = await models.Vouchers.find(query);
 
     const voucherMap = new Map();
 
-    for (const campaign of campaigns) {
-      const key = campaign._id.toString();
-  
+    for (const voucher of vouchers) {
+      const { campaignId } = voucher;
+
+      const key = campaignId.toString();
+
       if (voucherMap.has(key)) {
-        voucherMap.get(key).count += 1;
+        const entry = voucherMap.get(key);
+        entry.vouchers.push(voucher);
+        entry.count += 1;
       } else {
-        voucherMap.set(key, { campaign, count: 1 });
+        const campaign = await models.VoucherCampaigns.findOne({
+          _id: campaignId,
+        }).lean();
+
+        voucherMap.set(key, { campaign, vouchers: [voucher], count: 1 });
       }
     }
-  
+
     return Array.from(voucherMap.values());
   },
 

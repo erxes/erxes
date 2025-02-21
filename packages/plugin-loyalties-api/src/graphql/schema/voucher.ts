@@ -14,7 +14,15 @@ export const types = `
 
   type OwnerVoucher {
     campaign: VoucherCampaign,
+    vouchers: [Voucher],
     count: Int
+  }
+
+  enum VoucherStatus {
+    new
+    in_use
+    used
+    expired
   }
 `;
 
@@ -22,7 +30,7 @@ export const queries = `
   vouchersMain(${commonFilters}): VoucherMain
   vouchers(${commonFilters}): [Voucher]
   voucherDetail(_id: String!): Voucher
-  ownerVouchers(ownerId: String!): [OwnerVoucher]
+  ownerVouchers(ownerId: String!, status: VoucherStatus): [OwnerVoucher]
 `;
 
 const VoucherDoc = `

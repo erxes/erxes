@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import { customAlphabet } from 'nanoid';
 import { IModels } from '../connectionResolver';
 import { ICodeConfig } from './definitions/common';
+import { CODE_STATUS } from './definitions/constants';
 import {
   IVoucherCodeDocument,
   voucherCodeSchema,
@@ -14,7 +15,16 @@ export interface IVoucherCodeModel extends Model<IVoucherCodeDocument> {
   }: {
     code: string;
     ownerId: string;
-  }): boolean;
+  }): string;
+  redeemVoucherCode({
+    code,
+    ownerId,
+    ownerType,
+  }: {
+    code: string;
+    ownerId: string;
+    ownerType: string;
+  }): string;
   generateVoucherCodes(config: ICodeConfig): void;
 }
 
@@ -82,6 +92,63 @@ export const loadVoucherCodeClass = (models: IModels, subdomain: string) => {
       }
 
       return voucherCampaign._id;
+    }
+
+    public static async redeemVoucherCode({
+      code,
+      ownerId,
+      ownerType,
+    }: {
+      code: string;
+      ownerId: string;
+      ownerType: string;
+    }) {
+      const isValid = await this.checkVoucherCode({
+        code,
+        ownerId,
+      });
+
+      if (!isValid) {
+        throw new Error('Invalid voucher code');
+      }
+
+      const voucherCode = await models.VoucherCodes.findOne({ code });
+
+      if (!voucherCode) {
+        throw new Error('Voucher not found');
+      }
+
+      const usageCount = voucherCode.usageCount + 1;
+      const status =
+        usageCount >= voucherCode.usageLimit
+          ? CODE_STATUS.DONE
+          : CODE_STATUS.LOSS;
+      const usedBy = [
+        ...voucherCode.usedBy,
+        { usedAt: new Date(), ownerId, ownerType },
+      ];
+
+      try {
+        await models.VoucherCodes.updateOne(
+          { code },
+          {
+            $set: {
+              usageCount,
+              status,
+              usedBy,
+            },
+          },
+        );
+
+        return {
+          success: true,
+          message: `Voucher code ${code} successfully redeemed`,
+          status,
+          usageCount,
+        };
+      } catch (error) {
+        throw new Error(`Error occured while redeeming voucher code ${error}`);
+      }
     }
 
     public static async generateVoucherCodes(config: ICodeConfig) {

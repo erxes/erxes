@@ -75,6 +75,7 @@ const addEditParams = `
   isPre: Boolean,
   isSingle: Boolean,
   deviceId: String,
+  campaignIds: [String]
 `;
 
 export const types = `

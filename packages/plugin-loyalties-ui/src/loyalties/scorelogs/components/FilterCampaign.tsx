@@ -55,19 +55,20 @@ const FilterCampaign = (props: Props) => {
     if (!value && field === 'ownerType') {
       return clearCategoryFilter(['ownerType', 'ownerId']);
     }
-
+    
     if (!value && field === 'orderType') {
       return clearCategoryFilter(['orderType', 'order']);
     }
-
+    
     if (!value) {
       return clearCategoryFilter([field]);
     }
-
+    
     if (field === 'fromDate' || field === 'toDate') {
       value = dayjs(value).format('YYYY/MM/DD');
     }
-
+    
+    router.removeParams(navigate, location, 'page', 'perPage');
     router.setParams(navigate, location, { [field]: value });
   };
 

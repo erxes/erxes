@@ -90,6 +90,18 @@ export const setupMessageConsumers = async () => {
     }
   );
 
+  consumeRPCQueue(
+    "loyalties:redeemVoucher",
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.VoucherCodes.redeemVoucherCode(data),
+        status: "success"
+      };
+    }
+  );
+
   consumeRPCQueue("loyalties:doScoreCampaign", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

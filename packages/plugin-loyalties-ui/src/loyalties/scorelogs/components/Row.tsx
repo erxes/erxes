@@ -54,7 +54,7 @@ const AdditionalRow = ({ scoreLogs }: { scoreLogs: IScoreLogParams[] }) => {
       <>
         <tr>
           <td rowSpan={target?.length || 1}>
-            {dayjs(scoreLog.createdAt).format('YYYY/MM/DD') || '-'}
+            {dayjs(scoreLog.createdAt).format('YYYY/MM/DD hh:mm:ss') || '-'}
           </td>
           <td rowSpan={target?.length || 1}>
             {scoreLog.target?.number || '-'}

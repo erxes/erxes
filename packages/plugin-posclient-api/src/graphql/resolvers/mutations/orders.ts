@@ -6,7 +6,8 @@ import {
   sendSalesMessage,
   sendCoreMessage,
   sendInboxMessage,
-  sendPosMessage
+  sendPosMessage,
+  sendCommonMessage
 } from "../../../messageBroker";
 import { IConfig, IConfigDocument } from "../../../models/definitions/configs";
 import {
@@ -28,6 +29,7 @@ import {
   getTotalAmount,
   prepareEbarimtData,
   prepareOrderDoc,
+  redeemVoucher,
   reverseItemStatus,
   updateOrderItems,
   validateOrder,
@@ -36,6 +38,7 @@ import {
 import { checkSlotStatus } from "../../utils/slots";
 import { prepareSettlePayment } from "../../../utils";
 import { IDoc } from "../../../models/PutData";
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 interface IPaymentBase {
   billType: string;
@@ -736,6 +739,13 @@ const orderMutations = {
     checkOrderStatus(order);
     checkOrderAmount(order, amount);
     await checkScoreAviableSubtractScoreCampaign(
+      subdomain,
+      models,
+      order,
+      paidAmounts
+    );
+
+    await redeemVoucher(
       subdomain,
       models,
       order,

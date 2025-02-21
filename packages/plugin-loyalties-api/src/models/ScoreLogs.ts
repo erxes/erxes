@@ -117,7 +117,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         },
       ]);
 
-      const total = await models.ScoreLogs.find(filter).countDocuments();
+      const total = list?.length || 0;
       return { list, total };
     }
 
