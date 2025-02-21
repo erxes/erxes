@@ -12,6 +12,7 @@ import React, { useState } from 'react';
 
 import { Alert, __ } from 'modules/common/utils';
 import IpInput from '../ui/IpInput';
+import { CredentialsRow } from '../styles';
 
 interface IAction {
   name: string;
@@ -194,7 +195,7 @@ const ClientForm = (props: Props) => {
         <h3>
           <Icon icon='key-skeleton-alt' /> Credentials
         </h3>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <CredentialsRow>
           <p>
             <strong>Client ID:</strong> {clientCredentials.clientId}
           </p>
@@ -210,9 +211,9 @@ const ClientForm = (props: Props) => {
           >
             Copy Client ID
           </Button>
-        </div>
+        </CredentialsRow>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <CredentialsRow>
           <p>
             <strong>Secret:</strong> {clientCredentials.clientSecret}
           </p>
@@ -228,7 +229,7 @@ const ClientForm = (props: Props) => {
           >
             Copy Secret
           </Button>
-        </div>
+        </CredentialsRow>
         <Info type='warning'>
           Save the following credentials in a safe place!
         </Info>

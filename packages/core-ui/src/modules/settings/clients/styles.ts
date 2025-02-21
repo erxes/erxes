@@ -30,7 +30,7 @@ const IpItem = styled.li`
 
 const CredentialsRow = styled.div`
   display: flex;
-  justifycontent: space-between;
+  justify-content: space-between;
 `;
 
 export { Card, InputContainer, IpList, IpItem, CredentialsRow };

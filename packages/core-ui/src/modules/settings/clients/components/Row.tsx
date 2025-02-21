@@ -15,6 +15,7 @@ import Form from '../containers/Form';
 import Alert from '../../../common/utils/Alert';
 import Icon from '@erxes/ui/src/components/Icon';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import { CredentialsRow } from '../styles';
 
 const RESET_SECRET_MUTATION = gql`
   mutation ClientsResetSecret($id: String!) {
@@ -100,7 +101,7 @@ const Row = (props: Props) => {
           {loading ? (
             <p>{__('Aqcuiring new secret')}...</p>
           ) : (
-            <Tip text={__("Reset secret")}>
+            <Tip text={__('Reset secret')}>
               <Button
                 btnStyle='link'
                 icon='refresh-1'
@@ -138,7 +139,7 @@ const Row = (props: Props) => {
         </Modal.Header>
         <Modal.Body>
           <>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <CredentialsRow>
               <p>
                 <strong>Client ID:</strong> {client.clientId}
               </p>
@@ -154,9 +155,9 @@ const Row = (props: Props) => {
               >
                 Copy Client ID
               </Button>
-            </div>
+            </CredentialsRow>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <CredentialsRow>
               <p>
                 <strong>Secret:</strong> {newSecret}
               </p>
@@ -172,7 +173,7 @@ const Row = (props: Props) => {
               >
                 Copy Secret
               </Button>
-            </div>
+            </CredentialsRow>
             <Info type='warning'>
               Save the following credentials in a safe place!
             </Info>
