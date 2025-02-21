@@ -14,7 +14,7 @@ import { FlexRow } from '../../importExport/styles';
 import Form from '../containers/Form';
 import Alert from '../../../common/utils/Alert';
 import Icon from '@erxes/ui/src/components/Icon';
-import Spinner from '@erxes/ui/src/components/Spinner';
+
 import { CredentialsRow } from '../styles';
 
 const RESET_SECRET_MUTATION = gql`
@@ -47,8 +47,7 @@ const Row = (props: Props) => {
       setShowModal(true);
     },
     onError: (error) => {
-      console.error('Reset Secret Error:', error);
-      alert('Failed to reset secret. Please try again.');
+      Alert.error(error.message);
     },
   });
 
