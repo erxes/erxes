@@ -38,11 +38,18 @@ export const types = ({ products, knowledgeBase }) => `
     uiOptions: JSON
     languageCode: String
     messengerData: JSON
+    ticketData: JSON
     customerId: String
     visitorId: String
     brand: Brand
   }
-
+  type TicketTypeMessenger {
+    ticketLabel: String
+    ticketToggle: Boolean,
+    ticketStageId: String
+    ticketPipelineId: String
+    ticketBoardId: String
+  }
   type ConversationDetailResponse {
     _id: String
     messages: [ConversationMessage]
