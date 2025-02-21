@@ -145,7 +145,6 @@ export default async function userMiddleware(
   }
 
   const authHeader = req.headers['authorization'];
-  console.log("------------- authHeader ------------", authHeader);
 
   if (authHeader) {
     const token = authHeader.split(' ')[1];
@@ -155,12 +154,9 @@ export default async function userMiddleware(
         process.env.JWT_TOKEN_SECRET || ''
       );
 
-      console.log("------------- decoded ------------", decoded);
       const client = await models.Clients.findOne({
         clientId: decoded.clientId,
       });
-
-      console.log('------------- client ------------', client);
 
       if (!client) {
         return next();
@@ -177,8 +173,6 @@ export default async function userMiddleware(
         role: USER_ROLES.SYSTEM,
         appId: client._id,
       });
-
-      console.log('------------- systemUser ------------', systemUser);
 
       if (!systemUser) {
         return next();
@@ -249,8 +243,6 @@ export default async function userMiddleware(
       console.error(e);
     }
   }
-
-
 
   setUserHeader(req.headers, req.user);
 
