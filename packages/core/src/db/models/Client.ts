@@ -207,7 +207,7 @@ export const loadClientClass = (models: IModels) => {
 
     public static async resetSecret(_id: string) {
       const client = await models.Clients.findOne({ _id });
-      console.log(client);
+
       if (!client) {
         throw new Error('Client not found');
       }

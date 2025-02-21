@@ -41,7 +41,6 @@ export const getPermissionModules = async () => {
   const modules: IModuleMap[] = [];
 
   const services = await getServices();
-  console.log(JSON.stringify(services, null, 2));
 
   for (const name of services) {
     const service = await getService(name);

@@ -116,7 +116,7 @@ const command = async () => {
       FieldGroups.updateOne({ _id: doc._id }, { $set: { contentType } });
     });
 
-    console.log("migrating fields");
+    console.debug("migrating fields");
 
     await Fields.find({}).forEach(doc => {
       const contentType = switchContentType(doc.contentType);
@@ -124,7 +124,7 @@ const command = async () => {
       Fields.updateOne({ _id: doc._id }, { $set: { contentType } });
     });
 
-    console.log("migrating tags");
+    console.debug("migrating tags");
 
     await Tags.find({}).forEach(doc => {
       const contentType = switchContentType(doc.type);
@@ -132,7 +132,7 @@ const command = async () => {
       Tags.updateOne({ _id: doc._id }, { $set: { type: contentType } });
     });
 
-    console.log("migrating internal notes");
+    console.debug("migrating internal notes");
 
     await InternalNotes.find({}).forEach(doc => {
       const contentType = switchContentType(doc.contentType);
@@ -140,7 +140,7 @@ const command = async () => {
       InternalNotes.updateOne({ _id: doc._id }, { $set: { contentType } });
     });
 
-    console.log("migrating webhooks");
+    console.debug("migrating webhooks");
 
     await Webhooks.find({}).forEach(webhook => {
       const actions = webhook.actions || [];
@@ -165,7 +165,7 @@ const command = async () => {
       );
     });
 
-    console.log("migrating logs");
+    console.debug("migrating logs");
 
     await Logs.find({}).forEach(doc => {
       const contentType = switchContentType(doc.contentType);
@@ -173,7 +173,7 @@ const command = async () => {
       Logs.updateOne({ _id: doc._id }, { $set: { contentType } });
     });
 
-    console.log("migrating charts");
+    console.debug("migrating charts");
 
     await Charts.updateMany(
       { templateType: { $regex: new RegExp("Deal") } },
@@ -212,7 +212,7 @@ const command = async () => {
       ]
     );
 
-    console.log("migrating reports");
+    console.debug("migrating reports");
 
     await Reports.updateMany(
       { serviceType: "task" },

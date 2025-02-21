@@ -947,7 +947,7 @@ export const loadUserClass = (models: IModels) => {
       try {
         models.Users.find(filter, options).lean();
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
 
       return models.Users.find(filter, options).lean();

@@ -29,8 +29,6 @@ export default {
         }, {} as Record<string, string[]>)
       ).map(([module, actions]) => ({ module, actions }));
 
-    console.log('modules', groupedPermissions);
-
     return groupedPermissions;
   },
 };

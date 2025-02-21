@@ -110,7 +110,7 @@ app.use(helmet({ frameguard: { action: 'sameorigin' } }));
 app.get(
   '/initial-setup',
   routeErrorHandling(async (req: any, res) => {
-    console.log('initial setup');
+    console.debug('initial setup');
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
@@ -159,7 +159,7 @@ app.get(
 app.get(
   '/v3/initial-setup',
   routeErrorHandling(async (req: any, res) => {
-    console.log('initial setup');
+    console.debug('initial setup');
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
@@ -338,7 +338,7 @@ app.get(
       try {
         models.Segments.removeSegment(segment);
       } catch (e) {
-        console.log((e as Error).message);
+        console.error((e as Error).message);
       }
     }
 
@@ -533,7 +533,7 @@ process.stdin.resume(); // so the program will not close instantly
 async function closeMongooose() {
   try {
     await mongoose.connection.close();
-    console.log('Mongoose connection disconnected ');
+    console.debug('Mongoose connection disconnected ');
   } catch (e) {
     console.error(e);
   }
@@ -542,7 +542,7 @@ async function closeMongooose() {
 async function leaveServiceDiscovery() {
   try {
     await leave('core', PORT);
-    console.log('Left from service discovery');
+    console.debug('Left from service discovery');
   } catch (e) {
     console.error(e);
   }
