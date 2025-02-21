@@ -69,7 +69,7 @@ const assetCategoriesMutations = {
     const assetCategory = await models.AssetCategories.getAssetCategory({
       _id
     });
-    const removed = await models.AssetCategories.assetCategoryRemove(_id);
+    const removed = models.AssetCategories.assetCategoryRemove(_id);
 
     await putDeleteLog(
       models,
