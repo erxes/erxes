@@ -164,7 +164,6 @@ function Sidebar({
       );
     };
     const renderData = (type: string, key: string) => {
-      console.log(type, key, 'kkkkkkkkkkkk')
       if (type?.toLowerCase()?.includes("byte") || key.includes('image')) {
         return <img height={80} src={`data:image/png;base64,${i[key]}`} />;
       }
