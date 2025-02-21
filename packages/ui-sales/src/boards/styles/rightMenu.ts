@@ -1,5 +1,7 @@
 import { TabCaption, TabContainer } from "@erxes/ui/src/components/tabs/styles";
-import { colors } from "@erxes/ui/src/styles";
+import { colors, dimensions } from "@erxes/ui/src/styles";
+
+import { rgba } from "@erxes/ui/src/styles/ecolor";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
 
@@ -86,6 +88,20 @@ export const RightMenuContainer = styled.div`
   }
 `;
 
+const RightDrawerContainer = styledTS<{ width?: string } & any>(
+  styled(RightMenuContainer),
+)`
+  background: ${colors.colorWhite};
+  width: ${(props) =>
+    props.width ? props.width : '500px'};
+  z-index: 10;
+  top: 0;
+`;
+
+const EditFormContent = styled.div`
+  height: 100%;
+`;
+
 export const TabContent = styled.div`
   padding: 15px 20px 20px 20px;
   overflow-y: auto;
@@ -158,6 +174,47 @@ const BoardItem = styled.div`
   font-weight: 500;
 `;
 
+const TopHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: ${dimensions.unitSpacing}px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+
+  > span {
+    color: ${colors.colorCoreBlueGray};
+    font-weight: 700;
+  }
+
+  .right {
+    display: flex;
+    gap: ${dimensions.unitSpacing}px;
+
+    .menuWidthFit {
+      right: ${dimensions.unitSpacing}px;
+
+      button {
+        padding: 0;
+      }
+    }
+  }
+`;
+
+const TopHeaderButton = styled.div`
+  width: 30px;
+  height: 30px;
+  background: ${rgba(colors.colorBlack, 0.3)};
+  line-height: 30px;
+  border-radius: 15px;
+  text-align: center;
+  color: ${colors.colorWhite};
+
+  &:hover {
+    background: ${rgba(colors.colorBlack, 0.4)};
+    cursor: pointer;
+  }
+`;
+
 export {
   FilterBox,
   FilterButton,
@@ -168,4 +225,8 @@ export {
   CustomRangeContainer,
   BoardItem,
   ArchiveWrapper,
+  RightDrawerContainer,
+  EditFormContent,
+  TopHeader,
+  TopHeaderButton,
 };

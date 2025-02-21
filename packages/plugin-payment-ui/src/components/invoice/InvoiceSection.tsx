@@ -1,21 +1,24 @@
 import Box from "@erxes/ui/src/components/Box";
+import Dialog from "@erxes/ui/src/components/Dialog";
+import DynamicComponentContent from "@erxes/ui/src/components/dynamicComponent/Content";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { IInvoice } from "../../types";
 import Icon from "@erxes/ui/src/components/Icon";
+import InvoiceDetail from "../../containers/invoice/Detail";
 import Label from "@erxes/ui/src/components/Label";
+import React from "react";
 import Table from "@erxes/ui/src/components/table";
 import { __ } from "@erxes/ui/src/utils/core";
-import React from "react";
-import Dialog from "@erxes/ui/src/components/Dialog";
-import InvoiceDetail from "../../containers/invoice/Detail";
-import { IInvoice } from "../../types";
 
 export type Props = {
   invoices: IInvoice[];
   onReload: () => void;
+  title?: string;
+  showType?: string;
 };
 
 export default function Component(props: Props) {
-  const { invoices, onReload } = props;
+  const { invoices, onReload, showType } = props;
   const [showModal, setShowModal] = React.useState(false);
   const [currentInvoiceId, setCurrentInvoiceId] = React.useState<
     string | undefined
@@ -95,6 +98,10 @@ export default function Component(props: Props) {
       </div>
     );
   };
+
+  if (showType && showType === "list") {
+    return <DynamicComponentContent>{renderBody()}</DynamicComponentContent>;
+  }
 
   return (
     <Box

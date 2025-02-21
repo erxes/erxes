@@ -7,11 +7,10 @@ import { MarginTop } from '../../styles';
 
 type Props = {
   dealId: string;
-  setDealId: (dealId: string) => void;
   customerId: string;
-  setCustomerId: (dealId: string) => void;
   customerType: string;
-  setCustomerType: (dealId: string) => void;
+  totalIncome: number;
+  totalPaymentAmount: number;
   debtIncomeRatio: number;
   increaseMonthlyPaymentAmount: number;
 };
@@ -19,56 +18,57 @@ type Props = {
 const DealForm = (props: Props) => {
   const {
     dealId,
-    setDealId,
     customerId,
-    setCustomerId,
     customerType,
-    setCustomerType,
+    totalIncome,
+    totalPaymentAmount,
     debtIncomeRatio,
     increaseMonthlyPaymentAmount,
   } = props;
-
-  const onChangeDealId = (e) => {
-    setDealId(e.target.value);
-  };
-
-  const onChangeCustomerId = (e) => {
-    setCustomerId(e.target.value);
-  };
-
-  const onCustomerTypeChange = (option) => {
-    setCustomerType(option.value);
-  };
 
   return (
     <MarginTop>
       <FormGroup>
         <ControlLabel>{'Deal'}</ControlLabel>
-        <FormControl name="dealId" onChange={onChangeDealId} value={dealId} />
+        <FormControl name="dealId" value={dealId} disabled={true} />
       </FormGroup>
 
       <FormGroup>
         <ControlLabel>{'Customer'}</ControlLabel>
-        <FormControl
-          name="customerId"
-          value={customerId}
-          onChange={onChangeCustomerId}
-        />
+        <FormControl name="customerId" value={customerId} disabled={true} />
       </FormGroup>
 
       <FormGroup>
         <ControlLabel>Customer type</ControlLabel>
         <Select
           value={CUSTOMER_TYPES.find((o) => o.value === customerType)}
-          onChange={onCustomerTypeChange}
+          isDisabled={true}
           options={CUSTOMER_TYPES}
           isClearable={false}
         />
       </FormGroup>
 
       <FormGroup>
+        <ControlLabel>Average income</ControlLabel>
+        <FormControl type="number" defaultValue={totalIncome} disabled={true} />
+      </FormGroup>
+
+      <FormGroup>
+        <ControlLabel>Monthly payment</ControlLabel>
+        <FormControl
+          type="number"
+          defaultValue={totalPaymentAmount}
+          disabled={true}
+        />
+      </FormGroup>
+
+      <FormGroup>
         <ControlLabel>Dept income ratio</ControlLabel>
-        <FormControl type="number" defaultValue={debtIncomeRatio} />
+        <FormControl
+          type="number"
+          defaultValue={debtIncomeRatio}
+          disabled={true}
+        />
       </FormGroup>
 
       <FormGroup>
@@ -76,6 +76,7 @@ const DealForm = (props: Props) => {
         <FormControl
           type="number"
           defaultValue={increaseMonthlyPaymentAmount}
+          disabled={true}
         />
       </FormGroup>
     </MarginTop>

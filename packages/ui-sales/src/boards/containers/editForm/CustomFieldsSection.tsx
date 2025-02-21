@@ -10,13 +10,13 @@ import Spinner from "@erxes/ui/src/components/Spinner";
 import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import { renderWithProps } from "@erxes/ui/src/utils";
 
 type Props = {
   item: IItem;
   options: IOptions;
   loading?: boolean;
+  showType?: string;
 };
 
 type FinalProps = {
@@ -39,12 +39,12 @@ const CustomFieldsSection = (props: FinalProps) => {
 
   const save = (data, callback) => {
     editMutation({
-      variables: { _id, ...data }
+      variables: { _id, ...data },
     })
       .then(() => {
         callback();
       })
-      .catch(e => {
+      .catch((e) => {
         callback(e);
       });
   };
@@ -56,7 +56,8 @@ const CustomFieldsSection = (props: FinalProps) => {
     object: item,
     customFieldsData: item.customFieldsData,
     fieldsGroups: fieldsGroupsQuery ? fieldsGroupsQuery.fieldsGroups : [],
-    doc: item
+    doc: item,
+    showType: props.showType,
   };
 
   return <GenerateCustomFields {...updatedProps} />;
@@ -79,15 +80,15 @@ export default (props: Props) => {
             contentType: `sales:${options.type}`,
             config: {
               boardId: item.boardId || "",
-              pipelineId: item.pipeline._id || ""
-            }
-          }
-        })
+              pipelineId: item.pipeline._id || "",
+            },
+          },
+        }),
       }),
       graphql<Props, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),
         {
-          name: "editMutation"
+          name: "editMutation",
         }
       )
     )(CustomFieldsSection)

@@ -19,13 +19,13 @@ const allowTypes = {
   "core:customer": ["create", "update"],
   "core:company": ["create", "update"],
   //deposit
-  "savings:transaction": ["create"],
+  // "savings:transaction": ["create"],
   //saving
-  "savings:contract": ["create", "update"],
+  // "savings:contract": ["create", "update"],
   //loan
-  "loans:contract": ["create", "update"],
-  "loans:classification": ["create"],
-  "loans:transaction": ["create"]
+  // "loans:contract": ["create", "update"],
+  // "loans:classification": ["create"],
+  // "loans:transaction": ["create"]
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {

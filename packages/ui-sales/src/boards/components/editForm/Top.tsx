@@ -1,39 +1,25 @@
-import {
-  HeaderContent,
-  HeaderContentSmall,
-  HeaderRow,
-  TitleRow,
-} from "../../styles/item";
 import { IItem, IOptions } from "../../types";
-import React, { useEffect, useState } from "react";
 
-import CloseDate from "./CloseDate";
-import { ControlLabel } from "@erxes/ui/src/components/form";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import Icon from "@erxes/ui/src/components/Icon";
+import DueDateChooser from "./DueDateChooser";
+import Header from "./Header";
+import { HeaderContent } from "../../styles/item";
 import Move from "../../containers/editForm/Move";
-import StartDate from "./StartDate";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   item: IItem;
   options: IOptions;
   stageId: string;
-  saveItem: (doc: { [key: string]: any }) => void;
+  saveItem: (doc: { [key: string]: any }, callback?: (item) => void) => void;
   onChangeStage?: (stageId: string) => void;
+  onUpdate: (item: IItem, prevStageId?: string) => void;
   amount?: () => React.ReactNode;
 };
 
 function Top(props: Props) {
-  const { item } = props;
-
-  const [name, setName] = useState(item.name);
-
-  useEffect(() => {
-    setName(item.name);
-  }, [item.name]);
-
   function renderMove() {
-    const { stageId, options, onChangeStage } = props;
+    const { stageId, options, onChangeStage, item } = props;
 
     return (
       <Move
@@ -45,91 +31,13 @@ function Top(props: Props) {
     );
   }
 
-  const { saveItem, amount } = props;
-
-  const onNameBlur = () => {
-    if (item.name !== name) {
-      saveItem({ name });
-    }
-  };
-
-  const onCloseDateFieldsChange = (key: string, value: any) => {
-    saveItem({ [key]: value });
-  };
-
-  const onChangeName = (e) => {
-    const itemName = (e.target as HTMLInputElement).value;
-
-    setName(itemName);
-    localStorage.setItem(`${props.item._id}Name`, itemName);
-  };
-
-  const renderScore = () => {
-    const { score } = item;
-
-    if (!score) {
-      return null;
-    }
-
-    return (
-      <HeaderContentSmall>
-        <ControlLabel>Score</ControlLabel>
-        <p>{score.toLocaleString()}</p>
-      </HeaderContentSmall>
-    );
-  };
-
-  const renderNumber = () => {
-    const { number } = item;
-
-    if (!number) {
-      return null;
-    }
-
-    return (
-      <HeaderContentSmall>
-        <ControlLabel>Number</ControlLabel>
-        <p>{number}</p>
-      </HeaderContentSmall>
-    );
-  };
+  const { saveItem, amount, onUpdate, item } = props;
 
   return (
     <React.Fragment>
-      <HeaderRow>
-        <HeaderContent>
-          <TitleRow>
-            <Icon icon="atm-card" />
-            <FormControl
-              componentclass="textarea"
-              value={name}
-              required={true}
-              onBlur={onNameBlur}
-              onChange={onChangeName}
-            />
-          </TitleRow>
-        </HeaderContent>
-        {renderNumber()}
-        {renderScore()}
-        {amount && amount()}
-      </HeaderRow>
-
-      <HeaderRow>
-        <HeaderContent>{renderMove()}</HeaderContent>
-        <StartDate
-          onChangeField={onCloseDateFieldsChange}
-          startDate={item.startDate}
-          reminderMinute={item.reminderMinute}
-        />
-        <CloseDate
-          onChangeField={onCloseDateFieldsChange}
-          closeDate={item.closeDate}
-          isCheckDate={item.pipeline.isCheckDate}
-          createdDate={item.createdAt}
-          reminderMinute={item.reminderMinute}
-          isComplete={item.isComplete}
-        />
-      </HeaderRow>
+      <Header item={item} saveItem={saveItem} amount={amount} />
+      <HeaderContent>{renderMove()}</HeaderContent>
+      <DueDateChooser item={item} saveItem={saveItem} onUpdate={onUpdate} />
     </React.Fragment>
   );
 }

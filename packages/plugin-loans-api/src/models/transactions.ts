@@ -1,8 +1,7 @@
 import { ITransaction, transactionSchema } from "./definitions/transactions";
-import { INVOICE_STATUS, SCHEDULE_STATUS } from "./definitions/constants";
+import { INVOICE_STATUS } from "./definitions/constants";
 import { findContractOfTr } from "./utils/findUtils";
 import {
-  getCalcedAmounts,
   removeTrAfterSchedule,
   trAfterSchedule,
   transactionRule
@@ -22,6 +21,8 @@ import {
   scheduleFixAfterCurrent
 } from "./utils/scheduleFixUtils";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+import { getCalcedAmountsOnDate } from "./utils/calcHelpers";
+import { trInSchedule } from "./utils/calcUtils";
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: FilterQuery<ITransactionDocument>);
@@ -77,6 +78,8 @@ export const loadTransactionClass = (models: IModels) => {
         ...doc
       }: ITransaction
     ) {
+      const tr = await models.Transactions.create({ ...doc });
+
       const periodLock = await models.PeriodLocks.findOne({
         date: { $gte: doc.payDate }
       })
@@ -123,42 +126,10 @@ export const loadTransactionClass = (models: IModels) => {
         if (config.loanGiveLimit < doc.total) {
           throw new Error("The limit is exceeded");
         }
-
-        doc.give = doc.total;
-        doc.contractReaction = contract;
-
-        const schedule = await models.Schedules.create({
-          contractId: contract._id,
-          status: SCHEDULE_STATUS.GIVE,
-          payDate: getFullDate(doc.payDate),
-          balance: new BigNumber(doc.total || 0)
-            .plus(contract?.loanBalanceAmount || 0)
-            .toNumber(),
-          interestNonce: 0,
-          payment: 0,
-          total: doc.total
-        });
-
-        await models.Contracts.updateOne(
-          { _id: contract._id },
-          { $inc: { givenAmount: doc.total, loanBalanceAmount: doc.total } }
-        );
-
-        doc.reactions = [
-          {
-            scheduleId: schedule._id
-          }
-        ];
-
-        const tr = await models.Transactions.create({ ...doc });
-
-        return tr;
       }
 
       doc.payDate = getFullDate(doc.payDate);
       doc.contractReaction = contract;
-
-      const tr = await models.Transactions.create({ ...doc });
 
       if ((tr.calcInterest || 0) > 0 && isEnabled("savings") && contract.depositAccountId) {
         await sendMessageBroker(
@@ -180,32 +151,11 @@ export const loadTransactionClass = (models: IModels) => {
         );
       }
 
-      await createTransactionSchedule(contract, tr.payDate, tr, models, config);
-
-      await scheduleFixAfterCurrent(contract, tr.payDate, models, config);
+      await trInSchedule(subdomain, models, contract, tr);
 
       const contractType = await models.ContractTypes.findOne({
         _id: contract.contractTypeId
       });
-
-      let updateContractInc = {};
-
-      if (doc.storedInterest && doc.storedInterest > 0)
-        updateContractInc = { storedInterest: doc.storedInterest * -1 };
-
-      if (doc.payment && doc.payment > 0)
-        updateContractInc = {
-          ...updateContractInc,
-          loanBalanceAmount: doc.payment * -1
-        };
-
-      await models.Contracts.updateOne(
-        {
-          _id: tr.contractId
-        },
-        { $inc: updateContractInc },
-        { $set: { lastStoredDate: doc.payDate } }
-      );
 
       if (
         contractType?.config?.isAutoSendEBarimt === true ||
@@ -412,47 +362,8 @@ export const loadTransactionClass = (models: IModels) => {
 
       const config: IConfig = await getConfig("loansConfig", subdomain);
 
-      const paymentInfo = await getCalcedAmounts(
-        models,
-        subdomain,
-        {
-          contractId: id,
-          payDate: today
-        },
-        config
-      );
-
-      let {
-        payment = 0,
-        loss = 0,
-        insurance = 0,
-        debt = 0,
-        balance = 0,
-        commitmentInterest = 0,
-        storedInterest = 0,
-        calcInterest = 0
-      } = paymentInfo;
-
-      paymentInfo.total = new BigNumber(payment)
-        .plus(loss)
-        .plus(calcInterest)
-        .plus(storedInterest)
-        .plus(insurance)
-        .plus(debt)
-        .plus(commitmentInterest)
-        .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
-        .toNumber();
-
-      paymentInfo.closeAmount = new BigNumber(balance)
-        .plus(loss)
-        .plus(calcInterest)
-        .plus(storedInterest)
-        .plus(insurance)
-        .plus(debt)
-        .plus(commitmentInterest)
-        .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
-        .toNumber();
-
+      const contract = await models.Contracts.getContract({ _id: id });
+      const paymentInfo = await getCalcedAmountsOnDate(models, contract, today, config.calculationFixed);
       return paymentInfo;
     }
 

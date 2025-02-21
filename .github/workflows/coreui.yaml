@@ -6,9 +6,9 @@ on:
       - dev
       - master
       - rc
-      - staging
       - build-test
       - v1
+      - staging
     paths:
       - "packages/erxes-ui/**"
       - "packages/ui-plugin-template/**"

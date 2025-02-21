@@ -7,25 +7,43 @@ const commonFields = `
   $status: String,
   $number: String,
   $vacancy: Float,
-  $lossPercent: Float,
-  $lossCalcType:String
-  $useMargin: Boolean
-  $useDebt: Boolean
-  $useSkipInterest:Boolean
-  $useManualNumbering:Boolean
-  $useFee:Boolean
-  $leaseType: String
-  $commitmentInterest: Float
-  $createdAt: Date,
-  $config: JSON,
+  $leaseType: String,
   $currency: String,
-  $savingPlusLoanInterest:Float,
-  $savingUpperPercent:Float,
-  $usePrePayment:Boolean
-  $invoiceDay:String
-  $customFieldsData: JSON
-  $productId: String
-  $productType: String
+
+  $defaultInterest: Float,
+  $useSkipInterest: Boolean,
+  $skipInterestDay: Float,
+  $skipInterestMonth: Float,
+  $skipPaymentDay: Float,
+  $skipPaymentMonth: Float,
+
+  $lossPercent: Float,
+  $lossCalcType: String,
+  $skipLossDay: Float,
+  $allowLateDay: Float,
+
+  $allowPartOfLease: Boolean,
+  $limitIsCurrent: Boolean,
+  $commitmentInterest: Float,
+
+  $useMargin: Boolean,
+  $useDebt: Boolean,
+  $useManualNumbering: Boolean,
+
+  $savingPlusLoanInterest: Float,
+  $savingUpperPercent: Float,
+
+  $config: JSON,
+  $productId: String,
+  $productType: String,
+
+  $feePercent: Float,
+  $defaultFee: Float,
+  $useCollateral: Boolean,
+  $minPercentMargin: Float,
+
+  $overPaymentIsNext: Boolean,
+  $collectivelyRule: String,
 `;
 
 const commonVariables = `
@@ -35,25 +53,43 @@ const commonVariables = `
   status: $status,
   number: $number,
   vacancy: $vacancy,
-  lossPercent: $lossPercent
-  lossCalcType: $lossCalcType
-  useMargin: $useMargin
-  useDebt: $useDebt
-  useSkipInterest: $useSkipInterest
-  useManualNumbering: $useManualNumbering
-  useFee: $useFee
-  leaseType: $leaseType
-  commitmentInterest: $commitmentInterest
-  createdAt: $createdAt,
-  config: $config,
+  leaseType: $leaseType,
   currency: $currency,
+
+  defaultInterest: $defaultInterest,
+  useSkipInterest: $useSkipInterest,
+  skipInterestDay: $skipInterestDay,
+  skipInterestMonth: $skipInterestMonth,
+  skipPaymentDay: $skipPaymentDay,
+  skipPaymentMonth: $skipPaymentMonth,
+
+  lossPercent: $lossPercent,
+  lossCalcType: $lossCalcType,
+  skipLossDay: $skipLossDay,
+  allowLateDay: $allowLateDay,
+
+  allowPartOfLease: $allowPartOfLease,
+  limitIsCurrent: $limitIsCurrent,
+  commitmentInterest: $commitmentInterest,
+
+  useMargin: $useMargin,
+  useDebt: $useDebt,
+  useManualNumbering: $useManualNumbering,
+
   savingPlusLoanInterest: $savingPlusLoanInterest,
   savingUpperPercent: $savingUpperPercent,
-  usePrePayment: $usePrePayment,
-  invoiceDay: $invoiceDay,
-  customFieldsData: $customFieldsData,
+
+  config: $config,
   productId: $productId,
-  productType: $productType
+  productType: $productType,
+
+  feePercent: $feePercent,
+  defaultFee: $defaultFee,
+  useCollateral: $useCollateral,
+  minPercentMargin: $minPercentMargin,
+
+  overPaymentIsNext: $overPaymentIsNext,
+  collectivelyRule: $collectivelyRule,
 `;
 
 const contractTypesAdd = `

@@ -79,7 +79,9 @@ const getProductInfo = async (models: IModels, type, object) => {
     }
 
     const contractType = await models.ContractTypes.findOne({ productId: { $in: productsData.map(p => p.productId) }, productType: 'public' }).lean();
-    return { contractTypeId: contractType?._id }
+    const leaseAmount = (productsData || []).reduce((sum, pd) => Number(sum) + Number(pd.unitPrice * pd.quantity), 0)
+
+    return { contractTypeId: contractType?._id, leaseAmount, interestRate: contractType?.defaultInterest }
   }
   return {};
 }

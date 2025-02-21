@@ -7,28 +7,48 @@ export const types = () => `
     status: String
     number: String
     vacancy: Float
+    leaseType: String
+    currency: String
+
+    defaultInterest: Float
+    useSkipInterest: Boolean
+    skipInterestDay: Float
+    skipInterestMonth: Float
+    skipPaymentDay: Float
+    skipPaymentMonth: Float
+
     lossPercent: Float
     lossCalcType: String
+    skipLossDay: Float
+    allowLateDay: Float
+
+    allowPartOfLease: Boolean
+    limitIsCurrent: Boolean
+    commitmentInterest: Float
+
     useMargin: Boolean
-    useSkipInterest: Boolean
     useDebt: Boolean
     useManualNumbering: Boolean
-    useFee: Boolean
-    leaseType: String
-    commitmentInterest: Float
-    createdAt: Date
-    productId: String
-    productType: String
-    config: JSON
-    
-    currency: String
+
     savingPlusLoanInterest: Float
     savingUpperPercent: Float
-    usePrePayment: Boolean
-    invoiceDay: String
-    customFieldsData: JSON
+
+    config: JSON
+    productId: String
+    productType: String
+
+    createdAt: Date
+    modifiedAt: Date
 
     product: Product
+
+    feePercent: Float
+    defaultFee: Float
+    useCollateral: Boolean
+    minPercentMargin: Float
+
+    overPaymentIsNext: Boolean
+    collectivelyRule: String
   }
 
   type ContractTypesListResponse {
@@ -68,25 +88,43 @@ const commonFields = `
   status: String
   number: String
   vacancy: Float
-  lossPercent: Float 
-  lossCalcType: String
-  useMargin: Boolean
-  useSkipInterest: Boolean
-  useManualNumbering: Boolean
-  useDebt: Boolean
-  useFee: Boolean
   leaseType: String
-  commitmentInterest: Float
-  createdAt: Date
-  productId: String
-  productType: String
-  config: JSON
   currency: String
+
+  defaultInterest: Float
+  useSkipInterest: Boolean
+  skipInterestDay: Float
+  skipInterestMonth: Float
+  skipPaymentDay: Float
+  skipPaymentMonth: Float
+
+  lossPercent: Float
+  lossCalcType: String
+  skipLossDay: Float
+  allowLateDay: Float
+
+  allowPartOfLease: Boolean
+  limitIsCurrent: Boolean
+  commitmentInterest: Float
+
+  useMargin: Boolean
+  useDebt: Boolean
+  useManualNumbering: Boolean
+
   savingPlusLoanInterest: Float
   savingUpperPercent: Float
-  usePrePayment: Boolean
-  invoiceDay: String
-  customFieldsData: JSON
+
+  config: JSON
+  productId: String
+  productType: String
+
+  feePercent: Float
+  defaultFee: Float
+  useCollateral: Boolean
+  minPercentMargin: Float
+
+  overPaymentIsNext: Boolean
+  collectivelyRule: String
 `;
 
 export const mutations = `

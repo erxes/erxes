@@ -1,3 +1,4 @@
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import {
   ILoanResearch,
@@ -38,5 +39,21 @@ const loanResearchMutations = {
     return loanResearchIds;
   },
 };
+
+checkPermission(
+  loanResearchMutations,
+  'loansResearchAdd',
+  'manageLoanResearch'
+);
+checkPermission(
+  loanResearchMutations,
+  'loansResearchEdit',
+  'manageLoanResearch'
+);
+checkPermission(
+  loanResearchMutations,
+  'loansResearchRemove',
+  'manageLoanResearch'
+);
 
 export default loanResearchMutations;

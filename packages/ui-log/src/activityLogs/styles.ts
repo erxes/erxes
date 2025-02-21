@@ -21,6 +21,22 @@ const Timeline = styled.div`
   }
 `;
 
+const ActivityHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: ${dimensions.coreSpacing}px;
+  position: relative;
+
+  h5 {
+    margin: 0;
+  }
+
+  i {
+    cursor: pointer;
+  }
+`;
+
 const ActivityTitle = styled.h4`
   margin: 0;
   padding: ${dimensions.coreSpacing * 1.5}px 0 ${dimensions.coreSpacing}px;
@@ -404,6 +420,7 @@ export {
   ShowMore,
   Timeline,
   ActivityTitle,
+  ActivityHeader,
   ActivityRow,
   ActivityIcon,
   AvatarWrapper,

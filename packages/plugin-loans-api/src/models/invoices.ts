@@ -7,8 +7,8 @@ import { Model, FilterQuery } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { CONTRACT_STATUS, LEASE_TYPES } from './definitions/constants';
 import { getFullDate } from './utils/utils';
-import { getCalcedAmounts } from './utils/transactionUtils';
 import { getConfig } from '../messageBroker';
+import { getCalcedAmountsOnDate } from './utils/calcHelpers';
 export interface IInvoiceModel extends Model<IInvoiceDocument> {
   getInvoice(selector: FilterQuery<IInvoiceDocument>);
   createCreditMassInvoice(subdomain, date);
@@ -51,13 +51,12 @@ export const loadInvoiceClass = (models: IModels) => {
      * Create a invoice
      */
     public static async createCreditMassInvoice(subdomain, date = new Date()) {
+      const config = await getConfig('loansConfig', subdomain, {});
       const contracts = await models.Contracts.find({
         leaseType: LEASE_TYPES.CREDIT,
         status: CONTRACT_STATUS.NORMAL
       });
       const nowDate = getFullDate(date);
-
-      const config = await getConfig('loansConfig', subdomain);
 
       for await (let contract of contracts) {
         const lastSchedule = await models.Schedules.findOne({
@@ -84,18 +83,12 @@ export const loadInvoiceClass = (models: IModels) => {
           invoiceDate <= contract.startDate
         )
           continue;
-        const calcInfo: any = getCalcedAmounts(
-          models,
-          subdomain,
-          {
-            contractId: contract._id,
-            payDate: nowDate
-          },
-          config
-        );
+
+        const calcInfo: any = await getCalcedAmountsOnDate(models, contract, nowDate, config.calculationFixed);
+
         calcInfo.payment = payAmount;
         calcInfo.payDate = invoiceDate;
-        calcInfo.interestEve = contract.storedInterest;
+        calcInfo.interestEve = 0; //contract.storedInterest;
 
         calcInfo.contractId = contract._id;
         calcInfo.total =

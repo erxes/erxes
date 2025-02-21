@@ -26,7 +26,7 @@ import {
   IInsuranceTypeModel
 } from './models/insuranceTypes';
 import { loadInvoiceClass, IInvoiceModel } from './models/invoices';
-import { loadScheduleClass, IScheduleModel } from './models/schedules';
+import { loadScheduleClass, IScheduleModel, loadFirstScheduleClass, IFirstScheduleModel } from './models/schedules';
 import { loadTransactionClass, ITransactionModel } from './models/transactions';
 import { IGeneralModel, loadGeneralClass } from './models/general';
 import { loadPurposeClass, IPurposeModel } from './models/loanPurpose';
@@ -67,7 +67,7 @@ export interface IModels {
   InsuranceTypes: IInsuranceTypeModel;
   Invoices: IInvoiceModel;
   Schedules: IScheduleModel;
-  FirstSchedules: IScheduleModel;
+  FirstSchedules: IFirstScheduleModel;
   Transactions: ITransactionModel;
   General: IGeneralModel;
   Classification: IClassificationModel;
@@ -122,9 +122,9 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadScheduleClass(models)
   );
 
-  models.FirstSchedules = db.model<IScheduleDocument, IScheduleModel>(
+  models.FirstSchedules = db.model<IScheduleDocument, IFirstScheduleModel>(
     'loan_first_schedules',
-    loadScheduleClass(models)
+    loadFirstScheduleClass(models)
   );
 
   models.Transactions = db.model<ITransactionDocument, ITransactionModel>(

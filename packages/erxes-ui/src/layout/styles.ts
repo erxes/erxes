@@ -327,10 +327,14 @@ const SidebarList = styledTS<{
   $capitalize?: boolean;
   $noTextColor?: boolean;
   $noBackground?: boolean;
+  $isGrid?: boolean;
 }>(styled.ul)`
   margin: 0;
   padding: 0;
   list-style: none;
+  display: ${props => props.$isGrid && 'grid'};
+  grid-template-columns: 1fr 1fr;
+
   li.child-segment {
     border-bottom: none;
     background-color: ${colors.bgLight};

@@ -8,7 +8,6 @@ import {
 import Alert from "@erxes/ui/src/utils/Alert";
 import Button from "@erxes/ui/src/components/Button";
 import ContractTypeForm from "../containers/ContractTypeForm";
-import ContractTypesCustomFields from "./ContractTypesCustomFields";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import { IContractTypeDetail } from "../types";
@@ -82,7 +81,7 @@ const DetailInfo = (props: Props) => {
           <ModalTrigger
             title={__("Edit basic info")}
             trigger={<Icon icon="edit" />}
-            size="lg"
+            size="xl"
             content={content}
           />
         </InfoWrapper>
@@ -115,18 +114,6 @@ const DetailInfo = (props: Props) => {
 
             {renderRow("Leasing Type", contractType.leaseType)}
             <li>
-              <FieldStyle>{__(`Allow categories`)}</FieldStyle>
-            </li>
-            <ul>
-              {(contractType.productCategories || []).map((cat) => {
-                return (
-                  <li key={cat?._id}>
-                    {cat?.code} - {cat?.name}
-                  </li>
-                );
-              })}
-            </ul>
-            <li>
               <FieldStyle>{__(`Description`)}</FieldStyle>
             </li>
             <Description
@@ -137,8 +124,6 @@ const DetailInfo = (props: Props) => {
           </SidebarList>
         </Section>
       </Sidebar.Section>
-
-      <ContractTypesCustomFields contractType={props.contractType} isDetail />
     </Sidebar>
   );
 };

@@ -20,5 +20,8 @@ module.exports = {
       location: "mainNavigation",
     },
   ],
-  dealRightSidebarSection: "./meetingSideBarSection",
+  dealRightSidebarSection: {
+    title: "Meeting",
+    component: "./meetingSideBarSection",
+  },
 };

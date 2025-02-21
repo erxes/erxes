@@ -12,7 +12,7 @@ export async function storeInterestNonBalance(
   await models.StoredInterest.create({
     description: 'nonBalance store interest',
     invDate: storeDate,
-    prevStoredDate: contract.lastStoredDate,
+    // prevStoredDate: contract.lastStoredDate,
     amount: amount,
     contractId: contract._id,
     type: 'nonBalance'

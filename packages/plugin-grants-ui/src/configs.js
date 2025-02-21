@@ -27,7 +27,11 @@ module.exports = {
       scope: "grants",
     },
   ],
-  dealRightSidebarSection: "./cardSideBarSection",
+  dealRightSidebarSection: {
+    title: "Grants",
+    component: "./cardSideBarSection",
+  },
+
   ticketRightSidebarSection: "./cardSideBarSection",
   taskRightSidebarSection: "./cardSideBarSection",
 };

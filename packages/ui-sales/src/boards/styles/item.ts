@@ -102,8 +102,16 @@ export const StageColumn = styled.td`
   }
 `;
 
-export const HeaderRow = styled(Flex)`
-  margin-bottom: 30px;
+export const HeaderRow = styledTS<{ type?: string }>(styled(Flex))`
+  margin-bottom: ${dimensions.coreSpacing}px;
+  flex-direction: ${props => props.type === "column" ? "column" : "row"};
+`;
+
+export const ChooseDates = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${dimensions.unitSpacing}px;
+  margin-top: ${dimensions.unitSpacing}px;
 `;
 
 export const HeaderContent = styled.div`
@@ -175,13 +183,11 @@ export const TitleRow = styled.div`
   display: flex;
   align-items: center;
   font-size: 16px;
+  
   i {
     margin-right: 8px;
   }
-  label {
-    font-size: 13px;
-    text-transform: initial;
-  }
+
   input {
     font-weight: bold;
   }
@@ -218,8 +224,8 @@ export const MetaInfo = styled.div`
   }
 `;
 
-export const HeaderContentSmall = styled.div`
-  text-align: right;
+export const HeaderContentSmall = styledTS<{ $align?: string }>(styled.div)`
+  text-align: ${props => props.$align ? props.$align : 'right'};
   margin-left: 20px;
   min-width: 160px;
   flex-shrink: 0;
@@ -259,12 +265,17 @@ export const SpaceContent = styled(Flex)`
 `;
 
 export const LeftContainer = styled.div`
-  margin-right: ${dimensions.coreSpacing}px;
   flex: 1;
-  width: 60%;
+  
   textarea {
     resize: none;
   }
+`;
+
+export const GridContainer = styledTS<{ $isFull?: boolean }>(styled.div)`
+  display: ${props => props.$isFull ? 'block' : 'grid'};
+  grid-template-columns: 1fr 1fr;
+  gap: ${dimensions.coreSpacing}px;
 `;
 
 export const WatchIndicator = styled.span`
@@ -330,6 +341,7 @@ export const MoveContainerWidth = styled(Flex)`
 
 export const ActionContainer = styled(MoveContainer)`
   flex-wrap: wrap;
+  margin-top: ${dimensions.unitSpacing}px;
   > div {
     margin: 0 ${dimensions.unitSpacing / 2}px ${dimensions.unitSpacing / 2}px 0;
   }
@@ -375,7 +387,7 @@ export const Stages = styled.ul`
   padding: 0;
 `;
 
-export const StageItem = styledTS<{ $isPass: boolean }>(styled.li)`
+export const StageItem = styledTS<{ $isPass: boolean, $hasGreyBackground?: boolean }>(styled.li)`
   text-align: right;
   position: relative;
   margin-left: 10px;
@@ -414,7 +426,7 @@ export const StageItem = styledTS<{ $isPass: boolean }>(styled.li)`
     position: relative;
     z-index: 10;
     cursor: pointer;
-    background: ${colors.colorWhite};
+    background: ${props => props.$hasGreyBackground ? colors.bgLight : colors.colorWhite};
     display: inline-block;
   }
   

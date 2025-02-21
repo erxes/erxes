@@ -10,9 +10,10 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Alert from '@erxes/ui/src/utils/Alert';
 import confirm from '@erxes/ui/src/utils/confirmation/confirm';
 import { can } from '@erxes/ui/src/utils/core';
+import { IContract } from '../../types';
 
 type Props = {
-  contractId: string;
+  contract: IContract;
   isFirst: boolean;
   regenSchedules: (contractId: string) => void;
   fixSchedules?: (contractId: string) => void;
@@ -22,7 +23,7 @@ type Props = {
 };
 
 function ScheduleSection({
-  contractId,
+  contract,
   isFirst,
   leaseType,
   regenSchedules,
@@ -33,37 +34,41 @@ function ScheduleSection({
 
   const onRegenSchedules = () =>
     confirm(__('Are you sure Regenerate Schedule?'))
-      .then(() => regenSchedules(contractId))
+      .then(() => regenSchedules(contract._id))
       .catch((error) => {
         Alert.error(error.message);
       });
 
   const onFixSchedules = () =>
     confirm(__('Are you sure Fix Schedule?'))
-      .then(() => fixSchedules && fixSchedules(contractId))
+      .then(() => fixSchedules && fixSchedules(contract._id))
       .catch((error) => {
         Alert.error(error.message);
       });
 
   const renderExtraButton = () => {
-    if (isFirst) {
+    if (contract.repayment !== 'custom') {
+      if (isFirst) {
+        return (
+          <button onClick={onRegenSchedules} title="create schedule">
+            <Icon icon="refresh-1" />
+          </button>
+        );
+      }
+
+      if (hasTransaction)
+        return (
+          <button onClick={onFixSchedules} title={'fix schedule'}>
+            <Icon icon="refresh-1" />
+          </button>
+        );
+
       return (
-        <button onClick={onRegenSchedules} title="create schedule">
-          <Icon icon="refresh-1" />
-        </button>
+        null
       );
     }
+    return 
 
-    if (hasTransaction)
-      return (
-        <button onClick={onFixSchedules} title={'fix schedule'}>
-          <Icon icon="refresh-1" />
-        </button>
-      );
-
-    return (
-      null
-    );
   };
   return (
     <Box
@@ -74,7 +79,7 @@ function ScheduleSection({
     >
       <ScrollTableColls>
         <SchedulesList
-          contractId={contractId}
+          contractId={contract._id}
           isFirst={isFirst}
           leaseType={leaseType}
         ></SchedulesList>

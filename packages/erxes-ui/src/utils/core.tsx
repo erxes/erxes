@@ -2,24 +2,24 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
-import * as router from './router';
+import * as router from "./router";
 
-import { IUser, IUserDoc } from '../auth/types';
+import { IUser, IUserDoc } from "../auth/types";
+import React, { act, useEffect, useState } from "react";
 
-import ErrorBoundary from '../components/ErrorBoundary';
-import { IAttachment } from '../types';
-import { Limited } from '../styles/main';
-import React from 'react';
-import T from 'i18n-react';
-import Tip from '../components/Tip';
-import dayjs from 'dayjs';
-import urlParser from './urlParser';
+import ErrorBoundary from "../components/ErrorBoundary";
+import { IAttachment } from "../types";
+import { Limited } from "../styles/main";
+import T from "i18n-react";
+import Tip from "../components/Tip";
+import dayjs from "dayjs";
+import urlParser from "./urlParser";
 
 export { urlParser, router };
 export const loadComponent = (scope, module) => {
   return async () => {
     // Initializes the share scope. This fills it with known provided modules from this build and all remotes
-    await __webpack_init_sharing__('default');
+    await __webpack_init_sharing__("default");
 
     const container = window[scope]; // or get the container somewhere else
 
@@ -34,6 +34,7 @@ export const loadComponent = (scope, module) => {
     return Module;
   };
 };
+
 export const loadDynamicComponent = (
   componentName: string,
   injectedProps?: any,
@@ -42,12 +43,20 @@ export const loadDynamicComponent = (
 ): any => {
   const plugins: any[] = (window as any).plugins || [];
 
-  const filteredPlugins = plugins.filter(plugin => plugin[componentName]);
+  const filteredPlugins = plugins.filter((plugin) =>
+    plugin[componentName] && plugin[componentName].component
+      ? plugin[componentName].component
+      : plugin[componentName]
+  );
   const renderDynamicComp = (plugin: any) => (
     <ErrorBoundary key={plugin.scope}>
       <RenderDynamicComponent
         scope={plugin.scope}
-        component={plugin[componentName]}
+        component={
+          plugin[componentName] && plugin[componentName].component
+            ? plugin[componentName].component
+            : plugin[componentName]
+        }
         injectedProps={injectedProps ? injectedProps : {}}
       />
     </ErrorBoundary>
@@ -56,16 +65,228 @@ export const loadDynamicComponent = (
     return null;
   }
   if (multi) {
-    return filteredPlugins.map(plugin => renderDynamicComp(plugin));
+    return filteredPlugins.map((plugin) => renderDynamicComp(plugin));
   }
   if (pluginName) {
     const withPluginName = filteredPlugins.filter(
-      plugin => plugin.name === pluginName
+      (plugin) => plugin.name === pluginName
     );
     return renderDynamicComp(withPluginName[0]);
   }
   return renderDynamicComp(filteredPlugins[0]);
 };
+
+export const loadDynamicTabTitle = (
+  componentName: string,
+  injectedProps?: any,
+  multi?: boolean,
+  pluginName?: string
+): any => {
+  const plugins: any[] = (window as any).plugins || [];
+  const filteredPlugins = plugins.filter((plugin) => plugin[componentName]);
+  const [currentTitle, setCurrentTitle] = useState(
+    localStorage.getItem("dealDynamicTab") || ""
+  );
+
+  const onTitleClick = (key) => {
+    localStorage.setItem("dealDynamicTab", key);
+    setCurrentTitle(key);
+    window.dispatchEvent(new Event("storage"));
+  };
+
+  const renderDynamicComp = (plugin: any) => {
+    return (
+      <ErrorBoundary key={plugin.scope}>
+        <span
+          className={`custom-tab ${currentTitle === `${plugin.scope}:${plugin[componentName].title}` ? "active" : ""}`}
+          onClick={() =>
+            onTitleClick(`${plugin.scope}:${plugin[componentName].title}`)
+          }
+        >
+          {plugin[componentName].title}
+        </span>
+      </ErrorBoundary>
+    );
+  };
+  if (filteredPlugins && filteredPlugins.length === 0) {
+    return null;
+  }
+  if (multi) {
+    return filteredPlugins.map((plugin) => renderDynamicComp(plugin));
+  }
+  if (pluginName) {
+    const withPluginName = filteredPlugins.filter(
+      (plugin) => plugin.name === pluginName
+    );
+    return renderDynamicComp(withPluginName[0]);
+  }
+  return renderDynamicComp(filteredPlugins[0]);
+};
+
+export const loadDynamicTabContent = (
+  componentName: string,
+  injectedProps?: any,
+  multi?: boolean,
+  pluginName?: string
+): any => {
+  const plugins: any[] = (window as any).plugins || [];
+  const filteredPlugins = plugins.filter((plugin) => plugin[componentName]);
+
+  const [activeComponent, setActiveComponent] = useState(
+    localStorage.getItem("dealDynamicTab") || ""
+  );
+
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      setActiveComponent(localStorage.getItem("dealDynamicTab") || "");
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+
+  const renderDynamicComp = (plugin: any) => {
+    const pluginCustomName = `${plugin.scope}:${plugin[componentName].title}`;
+
+    if (activeComponent !== pluginCustomName) {
+      return null;
+    }
+
+    return (
+      <ErrorBoundary key={plugin.scope}>
+        <RenderDynamicComponent
+          scope={plugin.scope}
+          component={plugin[componentName].component}
+          injectedProps={injectedProps ? injectedProps : {}}
+        />
+      </ErrorBoundary>
+    );
+  };
+
+  if (filteredPlugins && filteredPlugins.length === 0) {
+    return null;
+  }
+  if (multi) {
+    return filteredPlugins.map((plugin) => renderDynamicComp(plugin));
+  }
+  if (pluginName) {
+    const withPluginName = filteredPlugins.filter(
+      (plugin) => plugin.name === pluginName
+    );
+    return renderDynamicComp(withPluginName[0]);
+  }
+  return renderDynamicComp(filteredPlugins[0]);
+};
+
+export const loadDynamicComponentTitle = (
+  componentName: string,
+  injectedProps?: any,
+  multi?: boolean,
+  pluginName?: string
+): any => {
+  const plugins: any[] = (window as any).plugins || [];
+  const filteredPlugins = plugins.filter((plugin) => plugin[componentName]);
+  const [currentTitle, setCurrentTitle] = useState(
+    localStorage.getItem("dealDynamicActiveComponent") || ""
+  );
+
+  const onTitleClick = (key) => {
+    localStorage.setItem("dealDynamicActiveComponent", key);
+    setCurrentTitle(key);
+    window.dispatchEvent(new Event("storage"));
+  };
+
+  const renderDynamicComp = (plugin: any) => {
+    return (
+      <ErrorBoundary key={plugin.scope}>
+        <div
+          className={`custom-title ${currentTitle === `${plugin.scope}:${plugin[componentName].title}` ? "active" : ""}`}
+          onClick={() =>
+            onTitleClick(`${plugin.scope}:${plugin[componentName].title}`)
+          }
+        >
+          {plugin[componentName].title}
+        </div>
+      </ErrorBoundary>
+    );
+  };
+  if (filteredPlugins && filteredPlugins.length === 0) {
+    return null;
+  }
+  if (multi) {
+    return filteredPlugins.map((plugin) => renderDynamicComp(plugin));
+  }
+  if (pluginName) {
+    const withPluginName = filteredPlugins.filter(
+      (plugin) => plugin.name === pluginName
+    );
+    return renderDynamicComp(withPluginName[0]);
+  }
+  return renderDynamicComp(filteredPlugins[0]);
+};
+
+export const loadDynamicComponentWithTitle = (
+  componentName: string,
+  injectedProps?: any,
+  multi?: boolean,
+  pluginName?: string
+): any => {
+  const plugins: any[] = (window as any).plugins || [];
+  const filteredPlugins = plugins.filter((plugin) => plugin[componentName]);
+
+  const [activeComponent, setActiveComponent] = useState(
+    localStorage.getItem("dealDynamicActiveComponent") || ""
+  );
+
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      setActiveComponent(
+        localStorage.getItem("dealDynamicActiveComponent") || ""
+      );
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+
+  const renderDynamicComp = (plugin: any) => {
+    const pluginCustomName = `${plugin.scope}:${plugin[componentName].title}`;
+
+    if (activeComponent !== pluginCustomName) {
+      return null;
+    }
+
+    return (
+      <ErrorBoundary key={plugin.scope}>
+        <RenderDynamicComponent
+          scope={plugin.scope}
+          component={plugin[componentName].component}
+          injectedProps={injectedProps ? injectedProps : {}}
+        />
+      </ErrorBoundary>
+    );
+  };
+  if (filteredPlugins && filteredPlugins.length === 0) {
+    return null;
+  }
+  if (multi) {
+    return filteredPlugins.map((plugin) => renderDynamicComp(plugin));
+  }
+  if (pluginName) {
+    const withPluginName = filteredPlugins.filter(
+      (plugin) => plugin.name === pluginName
+    );
+    return renderDynamicComp(withPluginName[0]);
+  }
+  return renderDynamicComp(filteredPlugins[0]);
+};
+
 export class RenderDynamicComponent extends React.Component<
   { scope: string; component: any; injectedProps: any },
   { showComponent: boolean }
@@ -93,8 +314,9 @@ export class RenderDynamicComponent extends React.Component<
       this.Component = React.lazy(loadComponent(scope, component));
       Comp = this.Component;
     }
+
     return (
-      <React.Suspense fallback=''>
+      <React.Suspense fallback="">
         <Comp {...injectedProps} />
       </React.Suspense>
     );
@@ -103,6 +325,7 @@ export class RenderDynamicComponent extends React.Component<
     return this.renderComponent();
   }
 }
+
 export const getPluginConfig = ({ pluginName, configName }) => {
   const plugins: any[] = (window as any).plugins || [];
   let result;
@@ -117,13 +340,13 @@ export const getPluginConfig = ({ pluginName, configName }) => {
 export const renderFullName = (data, noPhone?: boolean) => {
   if (data.firstName || data.lastName || data.middleName || data.primaryPhone) {
     return (
-      (data.firstName || '') +
-      ' ' +
-      (data.middleName || '') +
-      ' ' +
-      (data.lastName || '') +
-      ' ' +
-      ((!noPhone && data.primaryPhone) || '')
+      (data.firstName || "") +
+      " " +
+      (data.middleName || "") +
+      " " +
+      (data.lastName || "") +
+      " " +
+      ((!noPhone && data.primaryPhone) || "")
     );
   }
 
@@ -132,33 +355,33 @@ export const renderFullName = (data, noPhone?: boolean) => {
   }
 
   if (data.emails && data.emails.length > 0) {
-    return data.emails[0] || 'Unknown';
+    return data.emails[0] || "Unknown";
   }
 
   const { visitorContactInfo } = data;
 
   if (visitorContactInfo) {
-    return visitorContactInfo.phone || visitorContactInfo.email || 'Unknown';
+    return visitorContactInfo.phone || visitorContactInfo.email || "Unknown";
   }
 
-  return 'Unknown';
+  return "Unknown";
 };
 
-export const renderUserFullName = data => {
+export const renderUserFullName = (data) => {
   const { details } = data;
   if (details && details.fullName) {
     return details.fullName;
   }
 
   if (details && (details.firstName || details.lastName)) {
-    return (data.firstName || '') + ' ' + (data.lastName || '');
+    return (data.firstName || "") + " " + (data.lastName || "");
   }
 
   if (data.email || data.username) {
     return data.email || data.username;
   }
 
-  return 'Unknown';
+  return "Unknown";
 };
 
 export const setTitle = (title: string, force: boolean) => {
@@ -168,7 +391,7 @@ export const setTitle = (title: string, force: boolean) => {
 };
 
 export const setBadge = (count: number, title: string) => {
-  const favicon = document.getElementById('favicon') as HTMLAnchorElement;
+  const favicon = document.getElementById("favicon") as HTMLAnchorElement;
 
   if (favicon) {
     if (count) {
@@ -176,10 +399,10 @@ export const setBadge = (count: number, title: string) => {
         setTitle(`(${count}) ${title}`, true);
       }
 
-      favicon.href = '/favicon-unread.png';
+      favicon.href = "/favicon-unread.png";
     } else {
       setTitle(title, true);
-      favicon.href = '/favicon.png';
+      favicon.href = "/favicon.png";
     }
   }
 };
@@ -196,10 +419,10 @@ export const reorder = (
 export const generateRandomColorCode = () => {
   return `#${Math.random().toString(16).slice(2, 8)}`;
 };
-const isNumeric = n => {
+const isNumeric = (n) => {
   return !isNaN(parseFloat(n)) && isFinite(n);
 };
-export const isTimeStamp = timestamp => {
+export const isTimeStamp = (timestamp) => {
   const newTimestamp = new Date(timestamp).getTime();
   return isNumeric(newTimestamp);
 };
@@ -209,15 +432,15 @@ export const range = (start: number, stop: number) => {
 };
 // Return the list of values that are the intersection of two arrays
 export const intersection = (array1: any[], array2: any[]) => {
-  return array1.filter(n => array2.includes(n));
+  return array1.filter((n) => array2.includes(n));
 };
 // Computes the union of the passed-in arrays: the list of unique items
 export const union = (array1: any[], array2: any[]) => {
-  return array1.concat(array2.filter(n => !array1.includes(n)));
+  return array1.concat(array2.filter((n) => !array1.includes(n)));
 };
 // Similar to without, but returns the values from array that are not present in the other arrays.
 export const difference = (array1: any[], array2: any[]) => {
-  return array1.filter(n => !array2.includes(n));
+  return array1.filter((n) => !array2.includes(n));
 };
 export const can = (actionName: string, currentUser: IUser): boolean => {
   if (!currentUser) {
@@ -236,14 +459,14 @@ export const __ = (key: string, options?: any) => {
   const translation = T.translate(key, options);
 
   if (!translation) {
-    return '';
+    return "";
   }
 
   return translation.toString();
 };
 export const isEnabled = (service: string) => {
   const enabledServices = JSON.parse(
-    localStorage.getItem('enabledServices') || '{}'
+    localStorage.getItem("enabledServices") || "{}"
   );
   return enabledServices[service];
 };
@@ -260,8 +483,8 @@ export const readFile = (
   if (
     !value ||
     urlParser.isValidURL(value) ||
-    (typeof value === 'string' && value.includes('http')) ||
-    (typeof value === 'string' && value.startsWith('/'))
+    (typeof value === "string" && value.includes("http")) ||
+    (typeof value === "string" && value.startsWith("/"))
   ) {
     return value;
   }
@@ -279,13 +502,13 @@ export const readFile = (
 };
 export const getUserAvatar = (user: IUserDoc, width?: number) => {
   if (!user) {
-    return '';
+    return "";
   }
 
   const details = user.details;
 
   if (!details || !details.avatar) {
-    return '/images/avatar-colored.svg';
+    return "/images/avatar-colored.svg";
   }
 
   return readFile(details.avatar, width);
@@ -305,7 +528,7 @@ export function renderWithProps<Props>(
 ) {
   return <Wrapped {...props} />;
 }
-export const isValidDate = date => {
+export const isValidDate = (date) => {
   const parsedDate = Date.parse(date);
   // Checking if it is date
   if (isNaN(date) && !isNaN(parsedDate)) {
@@ -315,13 +538,13 @@ export const isValidDate = date => {
 };
 export const extractAttachment = (attachments: IAttachment[]) => {
   return attachments
-    .filter(file => file)
-    .map(file => ({
+    .filter((file) => file)
+    .map((file) => ({
       name: file.name,
       type: file.type,
       url: file.url,
       size: file.size,
-      duration: file.duration
+      duration: file.duration,
     }));
 };
 
@@ -331,12 +554,12 @@ export const setCookie = (cname: string, cvalue: string, exdays = 100) => {
   const expires = `expires=${d.toUTCString()}`;
   document.cookie = `${cname}=${cvalue};${expires};path=/`;
 };
-export const getCookie = cname => {
+export const getCookie = (cname) => {
   const name = `${cname}=`;
-  const ca = document.cookie.split(';');
+  const ca = document.cookie.split(";");
 
   for (let c of ca) {
-    while (c.charAt(0) === ' ') {
+    while (c.charAt(0) === " ") {
       c = c.substring(1);
     }
     if (c.indexOf(name) === 0) {
@@ -344,16 +567,16 @@ export const getCookie = cname => {
     }
   }
 
-  return '';
+  return "";
 };
 
 /**
  * Generate random string
  */
 export const generateRandomString = (len: number = 10) => {
-  const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  const charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-  let randomString = '';
+  let randomString = "";
 
   for (let i = 0; i < len; i++) {
     const position = Math.floor(Math.random() * charSet.length);
@@ -381,12 +604,12 @@ export const sendDesktopNotification = (doc: {
     }
     const notification = new Notification(doc.title, {
       body: doc.content,
-      icon: '/favicon.png',
-      dir: 'ltr'
+      icon: "/favicon.png",
+      dir: "ltr",
     });
 
     // notify by sound
-    const audio = new Audio('/sound/notify.mp3');
+    const audio = new Audio("/sound/notify.mp3");
     audio.play();
 
     notification.onclick = () => {
@@ -396,27 +619,27 @@ export const sendDesktopNotification = (doc: {
   };
 
   // Browser doesn't support Notification api
-  if (!('Notification' in window)) {
+  if (!("Notification" in window)) {
     return;
   }
 
-  if (Notification.permission === 'granted') {
+  if (Notification.permission === "granted") {
     return notify();
   }
 
-  if (Notification.permission !== 'denied') {
-    Notification.requestPermission(permission => {
-      if (!('permission' in Notification)) {
+  if (Notification.permission !== "denied") {
+    Notification.requestPermission((permission) => {
+      if (!("permission" in Notification)) {
         (Notification as any).permission = permission;
       }
 
-      if (permission === 'granted') {
+      if (permission === "granted") {
         return notify();
       }
     });
   }
 };
-export const roundToTwo = value => {
+export const roundToTwo = (value) => {
   if (!value) {
     return 0;
   }
@@ -430,74 +653,74 @@ export const calculatePercentage = (total: number, done: number) => {
 };
 
 function createLinkFromUrl(url) {
-  if (!url.includes('http')) {
-    url = 'http://' + url;
+  if (!url.includes("http")) {
+    url = "http://" + url;
   }
-  const onClick = e => {
+  const onClick = (e) => {
     e.stopPropagation();
     window.open(url);
   };
   return (
-    <a href='#website' onClick={onClick}>
+    <a href="#website" onClick={onClick}>
       {urlParser.extractRootDomain(url)}
     </a>
   );
 }
 
 export function formatValue(value) {
-  if (typeof value === 'boolean') {
+  if (typeof value === "boolean") {
     return value.toString();
   }
   if (urlParser.isValidURL(value)) {
     return createLinkFromUrl(value);
   }
 
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     if (
       dayjs(value).isValid() &&
-      (value.includes('/') || value.includes('-'))
+      (value.includes("/") || value.includes("-"))
     ) {
       return (
-        <Tip text={dayjs(value).format('D MMM YYYY, HH:mm')} placement='top'>
-          <time>{dayjs(value).format('L')}</time>
+        <Tip text={dayjs(value).format("D MMM YYYY, HH:mm")} placement="top">
+          <time>{dayjs(value).format("L")}</time>
         </Tip>
       );
     }
     return <Limited>{value}</Limited>;
   }
 
-  if (value && typeof value === 'object') {
+  if (value && typeof value === "object") {
     return value.toString();
   }
 
-  return value || '-';
+  return value || "-";
 }
 
-export function numberFormatter(value = '', fixed) {
+export function numberFormatter(value = "", fixed) {
   if (
     fixed &&
-    `${value}`.includes('.') &&
-    `${value}`.split('.')?.[1]?.length > fixed
+    `${value}`.includes(".") &&
+    `${value}`.split(".")?.[1]?.length > fixed
   ) {
     value = Number(value).toFixed(fixed);
   }
 
-  return `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 export function numberParser(value, fixed) {
-  if (value === '-') {
-    return '-';
+  if (value === "-") {
+    return "-";
   }
-  if (RegExp('-', 'g').test(value)) {
-    value = value.replace(RegExp('-', 'g'), '');
+  if (RegExp("-", "g").test(value)) {
+    value = value.replace(RegExp("-", "g"), "");
     value = `-${value}`;
   }
 
-  value = value!.replace(/(,*)/g, '');
+  value = value!.replace(/(,*)/g, "");
 
-  if (value?.includes('.')) {
-    const numberValues = value.split('.');
+  if (value?.includes(".")) {
+    const numberValues = value.split(".");
     numberValues[0] = Number(numberValues[0]);
     if (fixed && numberValues[1].length > fixed) {
       numberValues[1] = numberValues[1].substring(0, fixed);
@@ -524,16 +747,16 @@ export const getConstantFromStore = (
   isMap?: boolean,
   isFlat?: boolean
 ) => {
-  const constant = JSON.parse(localStorage.getItem(`config:${key}`) || '[]');
+  const constant = JSON.parse(localStorage.getItem(`config:${key}`) || "[]");
 
   if (isFlat) {
-    return constant.map(element => element.value);
+    return constant.map((element) => element.value);
   }
   if (!isMap) {
     return constant;
   }
   const map = {};
-  constant.forEach(element => {
+  constant.forEach((element) => {
     map[element.value] = element.label;
   });
   return map;
@@ -541,7 +764,7 @@ export const getConstantFromStore = (
 // Most basic frontend solution for click-jack defense
 export const bustIframe = () => {
   if (window.self === window.top) {
-    const antiClickjack = document.getElementById('anti-clickjack');
+    const antiClickjack = document.getElementById("anti-clickjack");
 
     if (antiClickjack && antiClickjack.parentNode) {
       antiClickjack.parentNode.removeChild(antiClickjack);
@@ -552,7 +775,7 @@ export const bustIframe = () => {
 };
 export const getSubdomain = () => {
   const env = (window as any).erxesEnv || {};
-  return env.subdomain || 'localhost';
+  return env.subdomain || "localhost";
 };
 
 export const getVersion = () => {
@@ -563,12 +786,12 @@ export const getVersion = () => {
     envMapsDic[map.name] = map.processValue;
   }
 
-  const getItem = name => env[name] || envMapsDic[name] || '';
+  const getItem = (name) => env[name] || envMapsDic[name] || "";
 
-  const VERSION = getItem('REACT_APP_VERSION');
+  const VERSION = getItem("REACT_APP_VERSION");
 
   const result = {
-    VERSION
+    VERSION,
   };
   return result;
 };
@@ -581,11 +804,11 @@ export const getEnv = () => {
     envMapsDic[map.name] = map.processValue;
   }
 
-  const getItem = name => env[name] || envMapsDic[name] || '';
+  const getItem = (name) => env[name] || envMapsDic[name] || "";
 
-  const VERSION = getItem('REACT_APP_VERSION');
+  const VERSION = getItem("REACT_APP_VERSION");
 
-  if (!VERSION || VERSION !== 'saas') {
+  if (!VERSION || VERSION !== "saas") {
     const envs = {} as any;
 
     for (const envMap of (window as any).envMaps) {
@@ -594,53 +817,53 @@ export const getEnv = () => {
     return envs;
   }
 
-  const domainFormat = getItem('REACT_APP_DOMAIN_FORMAT') || '';
+  const domainFormat = getItem("REACT_APP_DOMAIN_FORMAT") || "";
   const subdomain = getSubdomain();
-  const API_URL = `${domainFormat.replace('<subdomain>', subdomain)}`;
+  const API_URL = `${domainFormat.replace("<subdomain>", subdomain)}`;
   const API_SUBSCRIPTION_URL = `${domainFormat
-    .replace('<subdomain>', subdomain)
-    .replace('http', 'ws')}/graphql`;
-  const CDN_HOST = `${getItem('REACT_APP_CDN_HOST').replace(
-    '<subdomain>',
+    .replace("<subdomain>", subdomain)
+    .replace("http", "ws")}/graphql`;
+  const CDN_HOST = `${getItem("REACT_APP_CDN_HOST").replace(
+    "<subdomain>",
     subdomain
   )}`;
 
   const result = {
     VERSION,
-    STRIPE_KEY: getItem('REACT_APP_STRIPE_KEY'),
-    CORE_URL: getItem('REACT_APP_CORE_URL'),
-    FILE_UPLOAD_MAX_SIZE: getItem('REACT_APP_FILE_UPLOAD_MAX_SIZE'),
+    STRIPE_KEY: getItem("REACT_APP_STRIPE_KEY"),
+    CORE_URL: getItem("REACT_APP_CORE_URL"),
+    FILE_UPLOAD_MAX_SIZE: getItem("REACT_APP_FILE_UPLOAD_MAX_SIZE"),
     API_URL,
     REACT_APP_API_URL: API_URL,
     API_SUBSCRIPTION_URL,
     REACT_APP_API_SUBSCRIPTION_URL: API_SUBSCRIPTION_URL,
     CDN_HOST,
     REACT_APP_CDN_HOST: CDN_HOST,
-    REACT_APP_DASHBOARD_URL: `${getItem('REACT_APP_DASHBOARD_URL').replace(
-      '<subdomain>',
+    REACT_APP_DASHBOARD_URL: `${getItem("REACT_APP_DASHBOARD_URL").replace(
+      "<subdomain>",
       subdomain
     )}`,
-    REACT_APP_SENTRY_URL: getItem('REACT_APP_SENTRY_URL'),
-    REACT_APP_SENTRY_PROJECT_NAME: getItem('REACT_APP_SENTRY_PROJECT_NAME'),
-    REACT_APP_RELEASE: getItem('REACT_APP_RELEASE'),
-    REACT_APP_PUBLIC_POSTHOG_KEY: getItem('REACT_APP_PUBLIC_POSTHOG_KEY'),
-    REACT_APP_PUBLIC_POSTHOG_HOST: getItem('REACT_APP_PUBLIC_POSTHOG_HOST'),
-    REACT_APP_FARO_COLLECTOR_URL: getItem('REACT_APP_FARO_COLLECTOR_URL'),
-    REACT_APP_FARO_APP_NAME: getItem('REACT_APP_FARO_APP_NAME')
+    REACT_APP_SENTRY_URL: getItem("REACT_APP_SENTRY_URL"),
+    REACT_APP_SENTRY_PROJECT_NAME: getItem("REACT_APP_SENTRY_PROJECT_NAME"),
+    REACT_APP_RELEASE: getItem("REACT_APP_RELEASE"),
+    REACT_APP_PUBLIC_POSTHOG_KEY: getItem("REACT_APP_PUBLIC_POSTHOG_KEY"),
+    REACT_APP_PUBLIC_POSTHOG_HOST: getItem("REACT_APP_PUBLIC_POSTHOG_HOST"),
+    REACT_APP_FARO_COLLECTOR_URL: getItem("REACT_APP_FARO_COLLECTOR_URL"),
+    REACT_APP_FARO_APP_NAME: getItem("REACT_APP_FARO_APP_NAME"),
   };
 
   return result;
 };
 
 export const cleanIntegrationKind = (name: string) => {
-  if (name.includes('nylas')) {
-    name = name.replace('nylas-', '');
+  if (name.includes("nylas")) {
+    name = name.replace("nylas-", "");
   }
-  if (name.includes('smooch')) {
-    name = name.replace('smooch-', '');
+  if (name.includes("smooch")) {
+    name = name.replace("smooch-", "");
   }
-  if (name === 'lead') {
-    name = 'forms';
+  if (name === "lead") {
+    name = "forms";
   }
   return name;
 };
@@ -658,11 +881,11 @@ export const generateTree = (
   parentId,
   callback,
   level = -1,
-  parentKey = 'parentId'
+  parentKey = "parentId"
 ) => {
-  const filtered = list.filter(c => {
+  const filtered = list.filter((c) => {
     if (!parentId) {
-      return c[parentKey] === null || c[parentKey] === '';
+      return c[parentKey] === null || c[parentKey] === "";
     } else {
       return c[parentKey] === parentId;
     }
@@ -676,7 +899,7 @@ export const generateTree = (
     return [
       ...tree,
       callback(node, level),
-      ...generateTree(list, node._id, callback, level, parentKey)
+      ...generateTree(list, node._id, callback, level, parentKey),
     ];
   }, []);
 };
@@ -686,27 +909,27 @@ export const removeTypename = (obj?: any[] | any) => {
     return rest;
   };
   if (Array.isArray(obj)) {
-    return obj.map(item => deleteType(item));
+    return obj.map((item) => deleteType(item));
   }
   return deleteType(obj);
 };
-export const publicUrl = path => {
+export const publicUrl = (path) => {
   const { REACT_APP_PUBLIC_PATH } = window.env || {};
 
-  let prefix = '';
+  let prefix = "";
 
   if (REACT_APP_PUBLIC_PATH) {
     prefix = `${REACT_APP_PUBLIC_PATH}/`;
   }
   return `${prefix}${path}`;
 };
-export const getThemeItem = code => {
+export const getThemeItem = (code) => {
   const configs = JSON.parse(
-    localStorage.getItem('erxes_theme_configs') || '[]'
+    localStorage.getItem("erxes_theme_configs") || "[]"
   );
-  const config = configs.find(c => c.code === `THEME_${code.toUpperCase()}`);
+  const config = configs.find((c) => c.code === `THEME_${code.toUpperCase()}`);
 
-  return config ? config.value : '';
+  return config ? config.value : "";
 };
 
 const DATE_OPTIONS = {
@@ -714,7 +937,7 @@ const DATE_OPTIONS = {
   h: 1000 * 60 * 60,
   m: 1000 * 60,
   s: 1000,
-  ms: 1
+  ms: 1,
 };
 const CHARACTERS =
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@#$%^&*()-=+{}[]<>.,:;"`|/?';
@@ -722,14 +945,14 @@ const BEGIN_DIFF = 1577836800000; // new Date('2020-01-01').getTime();
 export const dateToShortStr = (
   date?: Date | string | number,
   scale?: 10 | 16 | 62 | 92 | number,
-  kind?: 'd' | 'h' | 'm' | 's' | 'ms'
+  kind?: "d" | "h" | "m" | "s" | "ms"
 ) => {
   date = new Date(date || new Date());
   if (!scale) {
     scale = 62;
   }
   if (!kind) {
-    kind = 'd';
+    kind = "d";
   }
 
   const divider = DATE_OPTIONS[kind];
@@ -737,7 +960,7 @@ export const dateToShortStr = (
 
   let intgr = Math.round((date.getTime() - BEGIN_DIFF) / divider);
 
-  let short = '';
+  let short = "";
 
   while (intgr > 0) {
     const preInt = intgr;
@@ -750,14 +973,14 @@ export const dateToShortStr = (
 export const shortStrToDate = (
   shortStr: string,
   scale?: 10 | 16 | 62 | 92 | number,
-  kind?: 'd' | 'h' | 'm' | 's' | 'ms',
-  resultType?: 'd' | 'n'
+  kind?: "d" | "h" | "m" | "s" | "ms",
+  resultType?: "d" | "n"
 ) => {
   if (!scale) {
     scale = 62;
   }
   if (!kind) {
-    kind = 'd';
+    kind = "d";
   }
   const chars = CHARACTERS.substring(0, scale);
   const multiplier = DATE_OPTIONS[kind];
@@ -771,12 +994,12 @@ export const shortStrToDate = (
 
   intgr = intgr * multiplier + BEGIN_DIFF;
 
-  if (resultType === 'd') {
+  if (resultType === "d") {
     return new Date(intgr);
   }
   return intgr;
 };
-export const getGqlString = doc => {
+export const getGqlString = (doc) => {
   return doc.loc && doc.loc.source.body;
 };
 
@@ -787,7 +1010,7 @@ export const clearTypename = (doc: any) => {
   const removeTypename = (obj: any) => {
     if (Array.isArray(obj)) {
       obj.forEach(removeTypename);
-    } else if (typeof obj === 'object' && obj !== null) {
+    } else if (typeof obj === "object" && obj !== null) {
       delete obj.__typename;
       Object.values(obj).forEach(removeTypename);
     }

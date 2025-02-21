@@ -2,6 +2,7 @@ import {
   conformityQueryFieldDefs,
   conformityQueryFields
 } from "@erxes/ui-sales/src/conformity";
+import { contractTypeFields } from "../../contractTypes/graphql/queries";
 
 export const contractFields = `
   _id
@@ -22,25 +23,19 @@ export const contractFields = `
   startDate
   firstPayDate
   scheduleDays
+  stepRules
   debt
   debtTenor
   debtLimit
   insuranceAmount
-  salvageAmount
-  salvagePercent
-  salvageTenor
   customerId
   customerType
   relationExpertId
   leasingExpertId
   riskExpertId
+  holidayType
   weekends
-  useHoliday
-  useMargin
-  useSkipInterest
-  useDebt
   relContractId
-  skipInterestCalcMonth
   dealId
   currency
   classification
@@ -49,9 +44,9 @@ export const contractFields = `
   storedInterest
   lastStoredDate
   useManualNumbering
-  useFee
   loanPurpose
-  givenAmount
+  loanDestination
+  unUsedBalance
   leaseType
   commitmentInterest
   endDate
@@ -76,13 +71,47 @@ const selectContractFields = `
   startDate
   firstPayDate
   scheduleDays
-  givenAmount
   leaseType
   commitmentInterest
+  unUsedBalance
   endDate
   classification
 `;
 
+const scheduleFields = `
+  _id
+  contractId
+  version
+  createdAt
+  status
+  payDate
+
+  balance
+  loss
+  interest
+  interestEve
+  interestNonce
+  commitmentInterest
+  payment
+  insurance
+  debt
+  total
+  giveAmount
+
+  didLoss
+  didInterest
+  didInterestEve
+  didInterestNonce
+  didCommitmentInterest
+  didPayment
+  didInsurance
+  didDebt
+  didTotal
+  surplus
+
+  isDefault
+  transactionIds
+`;
 const listParamsDef = `
   $page: Int
   $perPage: Int
@@ -252,13 +281,14 @@ export const contractsMain = `
     contractsMain(${listParamsMainValue}) {
       list {
         ${contractFields}
-        customers {
+        customer {
           code
           firstName
           lastName
         }
         contractType {
           name
+
         }
       }
       totalCount
@@ -268,31 +298,22 @@ export const contractsMain = `
 
 export const contractDetailFields = `
   branchId
-  downPayment
-  skipAmountCalcMonth
-  customPayment
-  customInterest
   invoices
   storeInterest
   loanTransactionHistory
   depositAccountId
+  nextPayment
+  payedAmountSum
   contractType {
-    code
-    name
-    leaseType
+    ${contractTypeFields}
   }
 
-  customers {
+  customer {
     _id
     firstName
     lastName
     primaryEmail
     primaryPhone
-  }
-  companies {
-    _id
-    primaryName
-    website
   }
 
   collateralsData
@@ -327,8 +348,6 @@ export const contractDetail = `
     contractDetail(_id: $_id) {
       ${contractFields}
       ${contractDetailFields}
-      nextPayment
-      payedAmountSum
     }
   }
 `;
@@ -336,37 +355,7 @@ export const contractDetail = `
 export const schedules = `
   query schedules($contractId: String!, $isFirst: Boolean, $year: Float) {
     schedules(contractId: $contractId, isFirst: $isFirst, year: $year) {
-      _id
-      contractId
-      version
-      createdAt
-      status
-      payDate
-
-      balance
-      loss
-      interest
-      interestEve
-      interestNonce
-      commitmentInterest
-      payment
-      insurance
-      debt
-      total
-
-      didLoss
-      didInterest
-      didInterestEve
-      didInterestNonce
-      didCommitmentInterest
-      didPayment
-      didInsurance
-      didDebt
-      didTotal
-      surplus
-
-      isDefault
-      transactionIds
+      ${scheduleFields}
     }
   }
 `;
@@ -424,14 +413,21 @@ const contractsAlert = `
 `;
 
 const getPolarisData = `
-  query Query($method: String, $data: JSON) {
+  query getPolarisData($method: String, $data: JSON) {
     getPolarisData(method: $method, data: $data)
   }
 `;
+
+const dealContract = `
+  query dealLoanContract($dealId: String, $args: JSON) {
+    dealLoanContract(dealId: $dealId, args: $args)
+  }
+`
 export default {
   contracts,
   selectContracts,
   contractsMain,
+  dealContract,
   contractDetail,
   schedules,
   scheduleYears,
