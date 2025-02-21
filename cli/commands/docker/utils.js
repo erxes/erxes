@@ -958,8 +958,10 @@ const update = async ({ serviceNames, noimage, uis }) => {
           ? `${pluginConfig.registry}/`
           : "";
 
+        const dockerRepo = pluginConfig?.dockerRepo;
+
         await execCommand(
-          `docker service update erxes_plugin-${name}-api --image ${registry}erxes/plugin-${name}-api:${tag} --with-registry-auth`
+          `docker service update erxes_plugin-${name}-api --image ${dockerRepo ? `${dockerRepo}:${tag}` : `${registry}erxes/plugin-${name}-api:${tag} --with-registry-auth`}`
         );
       } else {
         console.error("No plugin found");

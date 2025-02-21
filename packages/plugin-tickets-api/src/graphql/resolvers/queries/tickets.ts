@@ -58,7 +58,7 @@ const ticketQueries = {
   async ticketDetail(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const ticket = await models.Tickets.getTicket(_id);
 
@@ -113,7 +113,7 @@ const ticketQueries = {
       number: { $exists: true, $ne: null }
     });
     if (!tickets.length) {
-      return null; // No tickets found, return null
+      return null; 
     }
 
     // Get the most recent ticket based on createdAt
@@ -125,6 +125,8 @@ const ticketQueries = {
     }));
 
     return formattedTickets;
+
+
   }
 };
 

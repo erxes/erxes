@@ -4,6 +4,7 @@ query adConfigs($code: String!) {
     apiUrl
     isLocalUser
     userDN
+    baseDN
     adminDN
     adminPassword
   }

@@ -9,6 +9,17 @@ export interface IBuyParams {
   count?: number;
 }
 
+export interface ICodeConfig {
+  campaignId: string;
+  prefix?: string;
+  suffix?: string;
+  codeLength: number;
+  usageLimit: number;
+  quantity: number;
+  allowRepeatRedemption: boolean;
+  staticCode: string;
+}
+
 export interface ICommonCampaignFields {
   title: string;
   description?: string;
