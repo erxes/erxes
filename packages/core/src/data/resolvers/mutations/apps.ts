@@ -1,3 +1,4 @@
+import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { IApp } from '../../../db/models/definitions/apps';
 import { debugError } from '../../../debuggers';
@@ -6,7 +7,7 @@ interface IEditParams extends IApp {
   _id: string;
 }
 
-export default {
+const mutations = {
   async appsAdd(_root, params: IApp, { models }: IContext) {
     try {
       const app = await models.Apps.createApp(params);
@@ -44,7 +45,6 @@ export default {
       throw new Error('Please select at least one permission');
     }
 
-
     const client = await models.Clients.createClient(params);
 
     return { clientId: client.clientId, clientSecret: client.clientSecret };
@@ -54,14 +54,22 @@ export default {
     return models.Clients.updateClient(params);
   },
 
-
   async clientsRemove(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Clients.removeClient(_id);
   },
 
-
-  async clientsResetSecret(_root, { _id }: { _id: string }, { models }: IContext) {
+  async clientsResetSecret(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
     return models.Clients.resetSecret(_id);
   },
-
 };
+
+checkPermission(mutations, 'clientsAdd', 'manageClients');
+checkPermission(mutations, 'clientsEdit', 'manageClients');
+checkPermission(mutations, 'clientsRemove', 'removeClients');
+checkPermission(mutations, 'clientsResetSecret', 'manageClients');
+
+export default mutations;

@@ -1,7 +1,8 @@
+import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { paginate } from '../../utils';
 
-export default {
+const queries = {
   async apps(_root, args, { models }: IContext) {
     const { searchValue } = args;
     const qry: any = {};
@@ -49,3 +50,13 @@ export default {
     return { list, totalCount };
   },
 };
+
+
+requireLogin(queries, 'clientDetail');
+requireLogin(queries, 'clientList');
+
+
+checkPermission(queries, 'clientList', 'showClients', {});
+checkPermission(queries, 'clientDetail', 'showClients', {});
+
+export default queries;
