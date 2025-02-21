@@ -10,7 +10,7 @@ export default {
     );
   },
 
-  async relatedMessage(chatMessage, {}, { models }) {
+  async relatedMessage(chatMessage, _, { models }) {
     if (!chatMessage.relatedId) {
       return null;
     }
@@ -18,7 +18,7 @@ export default {
     return models.ChatMessages.findOne({ _id: chatMessage.relatedId });
   },
 
-  async reactions(chatMessage, {}, { models }: IContext) {
+  async reactions(chatMessage, _, { models }: IContext) {
     return models.ChatMessageReactions.find({ chatMessageId: chatMessage._id });
   },
 };
