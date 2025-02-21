@@ -11,6 +11,7 @@ const commonFields = `
     createdBy
     createdAt
     target
+    type
     campaign {
       _id
       title
