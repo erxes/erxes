@@ -227,6 +227,7 @@ export const checkPermission = async (
     context: { user?: IUser; [x: string]: any; subdomain: string },
     info: any,
   ) => {
+    console.log('user in context', context.user);
     const { user, subdomain } = context;
 
     checkLogin(user);

@@ -45,7 +45,7 @@ export const types = `
   }
 
   input ClientPermissionInput {
-    module: String
+    module: String!
     actions: [String] 
   }
 `;
@@ -55,7 +55,7 @@ export const mutations = `
   appsEdit(_id: String!, ${commonFields}): App
   appsRemove(_id: String!): JSON
 
-  clientsAdd(name: String!, whiteListedIps: [String], permissions: [ClientPermissionInput]): AuthCredentials
+  clientsAdd(name: String!, whiteListedIps: [String], permissions: [ClientPermissionInput]!): AuthCredentials
   clientsEdit(_id: String!, name: String, whiteListedIps: [String], permissions: [ClientPermissionInput]): Client
   clientsRemove(_id: String!): JSON
 `;

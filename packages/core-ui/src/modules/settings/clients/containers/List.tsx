@@ -28,7 +28,7 @@ const DELETE = gql`
 type Props = { queryParams: any };
 
 const List = (props: Props) => {
-  console.log('clients list', props);
+  
   const { queryParams } = props;
 
   const { data, loading, refetch } = useQuery(QUERY, {
@@ -37,7 +37,7 @@ const List = (props: Props) => {
       searchValue: queryParams.searchValue,
     },
   });
-  console.log(data);
+  
 
   const [deleteMutation] = useMutation(DELETE);
 

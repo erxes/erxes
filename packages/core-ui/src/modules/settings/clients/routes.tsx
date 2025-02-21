@@ -15,7 +15,7 @@ const Element = () => {
 };
 
 const routes = () => {
-  console.log(' clients routes');
+  
   return (
     <Routes>
       <Route path='/settings/clients/' element={<Element />} />

@@ -12,10 +12,10 @@ type Props = {
 };
 
 const ADD = `
-mutation ClientsAdd($name: String!, $whiteListedIps: [String], $permissions: [ClientPermissionInput]) {
-  clientsAdd(name: $name, whiteListedIps: $whiteListedIps, permissions: $permissions) {
-    clientSecret
+mutation ClientsAdd($name: String!, $permissions: [ClientPermissionInput]!, $whiteListedIps: [String]) {
+  clientsAdd(name: $name, permissions: $permissions, whiteListedIps: $whiteListedIps) {
     clientId
+    clientSecret
   }
 }
 `;
@@ -86,7 +86,7 @@ const ClientFormContainer = (props: Props) => {
     callback,
     object,
   }: IButtonMutateProps) => {
-    const mutation = object ? EDIT : ADD;
+    const mutation = props._id ? EDIT : ADD;
 
     return (
       <ButtonMutate
@@ -105,7 +105,7 @@ const ClientFormContainer = (props: Props) => {
 
   const modules = data?.permissionModules || [];
 
-  const client = detailData?.clientDetail || {};
+  const client = detailData?.clientDetail || undefined;
 
   const updatedProps = {
     ...props,

@@ -3,10 +3,15 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Icon from '@erxes/ui/src/components/Icon';
+import Info from '@erxes/ui/src/components/Info';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React, { useEffect, useState } from 'react';
-import { __ } from '../../../common/utils';
+import copy from 'copy-text-to-clipboard';
+import React, { useState } from 'react';
+
+import { Alert, __ } from 'modules/common/utils';
+import IpInput from '../ui/IpInput';
 
 interface IAction {
   name: string;
@@ -42,41 +47,34 @@ type Props = {
 };
 
 const ClientForm = (props: Props) => {
-  console.log('client form', props);
   const { client, _id } = props;
 
   const [clientObject, setClientObject] = useState<IClient>(
     client || { name: '', permissions: [], whiteListedIps: [] }
   );
 
+  const [clientCredentials, setClientCredentials] = useState<{
+    clientId: string;
+    clientSecret: string;
+  } | null>(null);
+
   const generateDoc = () => {
-    console.log('clientObject', clientObject);
-    const finalValues: any = {};
+    const finalValues: any = { ...clientObject };
 
     if (_id) {
       finalValues._id = _id;
     }
 
-    if (clientObject.permissions) {
-      finalValues.permissions = clientObject.permissions.map((perm) => {
-        return {
-          module: perm.module,
-          actions: perm.actions,
-        };
-      });
-    }
-
-    if (clientObject.whiteListedIps) {
-      finalValues.whiteListedIps = clientObject.whiteListedIps;
-    }
-
     return {
       ...finalValues,
-      name: clientObject.name,
+      permissions: finalValues.permissions.map((perm) => {
+        return {
+          module: perm.module,
+          actions: perm.actions
+        };
+      })
     };
   };
-
-
 
   const renderModulesSelect = () => {
     const { modules } = props;
@@ -134,7 +132,6 @@ const ClientForm = (props: Props) => {
       const permissions = clientObject.permissions || [];
 
       const module = permissions.find((perm) => perm.module === moduleName);
-      console.log('module', module);
 
       if (!module) {
         return false;
@@ -187,7 +184,64 @@ const ClientForm = (props: Props) => {
     );
   };
 
-  const renderContent = (formProps: IFormProps) => {
+  const renderCredentials = () => {
+    console.log('clientCredentials', clientCredentials);
+    if (!clientCredentials) {
+      return null;
+    }
+
+    return (
+      <>
+        <h3>
+          <Icon icon='key' /> Credentials
+        </h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <p>
+            <strong>Client ID:</strong> {clientCredentials.clientId}
+          </p>
+
+          <Button
+            btnStyle='link'
+            size='small'
+            icon='copy'
+            onClick={() => {
+              copy(clientCredentials.clientId);
+              Alert.success(__('Client ID has been copied to clipboard'));
+            }}
+          >
+            Copy Client ID
+          </Button>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <p>
+            <strong>Secret:</strong> {clientCredentials.clientSecret}
+          </p>
+
+          <Button
+            btnStyle='link'
+            size='small'
+            icon='copy'
+            onClick={() => {
+              copy(clientCredentials.clientSecret);
+              Alert.success(__('Secret has been copied to clipboard'));
+            }}
+          >
+            Copy Secret
+          </Button>
+        </div>
+        <Info type='warning'>
+          Save the following credentials in a safe place !
+        </Info>
+      </>
+    );
+  };
+
+  const renderForm = (formProps: IFormProps) => {
+    if (clientCredentials) {
+      return <>{renderCredentials()}</>;
+    }
+
     const { closeModal, renderButton } = props;
     const { isSubmitted } = formProps;
 
@@ -206,18 +260,17 @@ const ClientForm = (props: Props) => {
             }}
           />
         </FormGroup>
-        {/* 
+
         <FormGroup>
           <ControlLabel>{__('White Listed Ips')}</ControlLabel>
           <p>{__('Comma separated list of white listed ips')}</p>
-          <FormControl
-            {...formProps}
-            id={'whiteListedIps'}
-            name={'whiteListedIps'}
-            defaultValue={clientObject?.whiteListedIps?.join(', ')}
-            onChange={onChangeInput}
+          <IpInput
+            initialIps={clientObject?.whiteListedIps}
+            onChange={(ips: string[]) => {
+              setClientObject({ ...clientObject, whiteListedIps: ips });
+            }}
           />
-        </FormGroup> */}
+        </FormGroup>
 
         {renderModulesSelect()}
 
@@ -230,12 +283,19 @@ const ClientForm = (props: Props) => {
             name: 'clients',
             values: generateDoc(),
             isSubmitted,
-            callback: () => {
+            callback: (data) => {
+              if (data.clientsAdd) {
+                const { clientId, clientSecret } = data.clientsAdd;
+
+                setClientCredentials({ clientId, clientSecret });
+              }
               if (props.refetch) {
                 props.refetch();
               }
 
-              closeModal();
+              if (props._id) {
+                closeModal();
+              }
             },
             object: client,
           })}
@@ -244,7 +304,7 @@ const ClientForm = (props: Props) => {
     );
   };
 
-  return <Form renderContent={renderContent} />;
+  return <Form renderContent={renderForm} />;
 };
 
 export default ClientForm;

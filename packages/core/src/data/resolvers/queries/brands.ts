@@ -30,7 +30,8 @@ const brandQueries = {
   /**
    * Brands list
    */
-  async brands(_root, args: IListArgs, { brandIdSelector, models }: IContext) {
+  async brands(_root, args: IListArgs, { brandIdSelector, models, user }: IContext) {
+    console.log("user", user);
     const selector = queryBuilder(args, brandIdSelector);
 
     return models.Brands.find(selector).sort({ createdAt: -1 });

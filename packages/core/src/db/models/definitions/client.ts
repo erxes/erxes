@@ -18,7 +18,7 @@ export interface IClientDocument extends IClient, Document {
 
 export const clientSchema = new Schema({
   _id: field({ pkey: true }),
-  name: field({ type: String, label: 'Name', unique: true }),
+  name: field({ type: String, label: 'Name', unique: true, required: true }),
   clientId: field({ type: String, label: 'Client id', unique: true }),
   clientSecret: field({ type: String, label: 'Client secret' }),
   refreshToken: field({ type: String, label: 'Refresh token' }),

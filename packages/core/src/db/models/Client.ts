@@ -110,7 +110,7 @@ export const loadClientClass = (models: IModels) => {
             })
           );
 
-          return client;
+          return {clientId, clientSecret};
         } catch (error: any) {
           if (error.code === 11000 && error.keyPattern?.appId) {
             retries++;

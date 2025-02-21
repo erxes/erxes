@@ -51,7 +51,7 @@ const List = (props: Props) => {
     </Button>
   );
 
-  const formContent = (formProps) => <Form {...formProps} refetch={refetch} />;
+  const formContent = (formProps) => <Form {...formProps} refetch={refetch}/>;
 
   const righActionBar = (
     <ModalTrigger

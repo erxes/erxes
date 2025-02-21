@@ -40,6 +40,11 @@ export default {
   // clientsRemove(_id: String!): JSON
 
   async clientsAdd(_root, params: any, { models }: IContext) {
+    if (!params.permissions || params.permissions.length === 0) {
+      throw new Error('Please select at least one permission');
+    }
+
+
     const client = await models.Clients.createClient(params);
 
     return { clientId: client.clientId, clientSecret: client.clientSecret };
