@@ -24,16 +24,22 @@ export const GENERAL_SETTINGS = [
     url: '/settings/structure',
   },
   {
-    name: 'General Settings',
-    text: 'Apps',
-    icon: 'icon-apps',
-    url: '/settings/apps',
+    name: "General Settings",
+    text: "Apps (legacy)",
+    icon: "icon-apps",
+    url: "/settings/apps"
   },
   {
-    name: 'General Settings',
-    text: 'Brands',
-    icon: 'icon-settings',
-    url: '/settings/brands',
+    name: "General Settings",
+    text: "Apps",
+    icon: "icon-apps",
+    url: "/settings/clients"
+  },
+  {
+    name: "General Settings",
+    text: "Brands",
+    icon: "icon-settings",
+    url: "/settings/brands"
   },
   {
     name: 'General Settings',

@@ -502,4 +502,28 @@ export const moduleObjects = {
       },
     ],
   },
+
+  clients: {
+    name: 'clients',
+    description: 'Clients',
+    actions: [
+      {
+        name: 'clientsAll',
+        description: 'All',
+        use: ['showClients', 'manageClients', 'removeClients'],
+      },
+      {
+        name: 'manageClients',
+        description: 'Manage clients',
+      },
+      {
+        name: 'removeClients',
+        description: 'Remove clients',
+      },
+      {
+        name: 'showClients',
+        description: 'Show clients',
+      },
+    ],
+  },
 };

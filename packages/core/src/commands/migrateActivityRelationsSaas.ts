@@ -66,7 +66,7 @@ const command = async () => {
 
   for (const org of organizations) {
     try {
-      console.log(MONGO_URL, org._id);
+      console.debug(MONGO_URL, org._id);
       const client = new MongoClient(
         MONGO_URL.replace("<organizationId>", org._id)
       );
@@ -83,16 +83,16 @@ const command = async () => {
           Actitivylogs.updateOne({ _id: doc._id }, { $set: { contentType } });
         });
       } catch (e) {
-        console.log(`Error occurred: ${e.message}`);
+        console.error(`Error occurred: ${e.message}`);
       }
 
-      console.log("migrated", org.subdomain);
+      console.debug("migrated", org.subdomain);
     } catch (e) {
       console.error(e.message);
     }
   }
 
-  console.log(`Process finished at: ${new Date()}`);
+  console.debug(`Process finished at: ${new Date()}`);
 
   process.exit();
 };
