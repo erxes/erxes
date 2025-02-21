@@ -21,7 +21,6 @@ const getContentType = (mainType) => {
 };
 
 const CustomerSidebarContainer = (props: Props) => {
-  console.log("here", props);
   const contentType = getContentType(props.mainType);
   const xypDatasQuery = useQuery(gql(queries.xypDataByObject), {
     variables: {
