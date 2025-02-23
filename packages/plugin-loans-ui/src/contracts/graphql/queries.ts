@@ -316,6 +316,13 @@ export const contractDetailFields = `
     primaryPhone
   }
 
+  company {
+    _id
+    primaryName
+    primaryEmail
+    primaryPhone
+  }
+
   collateralsData
   collaterals
   insurancesData
@@ -423,18 +430,6 @@ const dealContract = `
     dealLoanContract(dealId: $dealId, args: $args)
   }
 `;
-const customerDetail = `
-  query customerDetail($_id: String!) {
-    customerDetail(_id: $_id) {
-      _id
-      firstName
-      middleName
-      lastName
-      primaryEmail
-      primaryPhone
-    }
-  }
-`;
 
 export default {
   contracts,
@@ -450,5 +445,4 @@ export default {
   savingContracts,
   getPolarisData,
   convertToContract,
-  customerDetail,
 };

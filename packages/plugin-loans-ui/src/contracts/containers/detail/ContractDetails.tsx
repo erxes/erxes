@@ -35,15 +35,6 @@ const ContractDetailsContainer = (props: FinalProps) => {
     }
   );
 
-  const customerDetailQuery = useQuery<DetailQueryResponse>(
-    gql(queries.customerDetail),
-    {
-      variables: {
-        _id: contractDetailQuery?.data?.contractDetail?.customerId || '',
-      },
-    }
-  );
-
   useEffect(() => {
     contractDetailQuery.subscribeToMore({
       document: gql(subscriptions.loansContractChanged),
