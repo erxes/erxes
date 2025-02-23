@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js';
 import { IContext } from '../../connectionResolver';
 import {
   getConfig,
@@ -358,7 +357,7 @@ const Contracts = {
   },
   async loanBalanceAmount(
     contract: IContractDocument,
-    {},
+    _unused: {},
     { models }: IContext
   ) {
     const lastHasDidBalanceSchedule = await models.Schedules.findOne({
