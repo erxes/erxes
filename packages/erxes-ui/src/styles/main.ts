@@ -681,6 +681,7 @@ const DynamicContentRight = styledTS<{ overflow?: boolean }>(styled.div)`
 const DynamicTableWrapper = styled.div`
   background: ${colors.colorWhite};
   overflow-x: auto;
+  border-radius: 4px;
 
   > div, #hurData > div {
     padding: 0;
@@ -698,7 +699,18 @@ const DynamicTableWrapper = styled.div`
 `;
 
 const DynamicServiceItem = styled.div`
+  position: realtive;
+`;
 
+const XypTitle = styled.div`
+  display: flex;
+  padding: ${dimensions.unitSpacing - 5}px ${dimensions.coreSpacing}px;
+  transition: all ease .3s;
+  cursor: pointer;
+
+  &:hover {
+    background: ${colors.bgLight};
+  }
 `;
 
 const DynamicComponentList = styledTS<{$hasMargin?: boolean}>(styled.div)`
@@ -820,4 +832,5 @@ export {
   DynamicContentRight,
   DynamicContentLeftButtonWrapper,
   ProductFormContainer,
+  XypTitle
 };

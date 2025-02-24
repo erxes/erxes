@@ -4,6 +4,7 @@ import {
   DynamicServiceItem,
   DynamicTableWrapper,
   ModalFooter,
+  XypTitle,
 } from "@erxes/ui/src/styles/main";
 import React, { useState } from "react";
 import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
@@ -219,29 +220,6 @@ function Sidebar({
         ?.output as any) || [];
 
     if (d.data?.list?.length || d.data?.listData?.length) {
-      const renderListItems = (listItem: any, index: number) => {
-        const title = `${
-          listItem["name"] ||
-          listItem["code"] ||
-          listItem["title"] ||
-          listItem["month"] ||
-          listItem["markName"] ||
-          ""
-        } ${
-          listItem["modelName"] || d?.serviceDescription || d?.serviceName || ""
-        }`;
-        return (
-          <CollapseContent
-            title={__(title)}
-            compact={true}
-            open={false}
-            key={index}
-          >
-            {renderServiceItem(listItem, output)}
-          </CollapseContent>
-        );
-      };
-
       return (
         <DynamicServiceItem id="hurData" key={d?.serviceDescription}>
           {(d.data.list || d.data.listData || []).map(
@@ -282,12 +260,14 @@ function Sidebar({
 
     return (
       <ModalTrigger
-        title={`${moment(xypContent.createdAt).format("YYYY-MM-DD")} - ${xypData.serviceName}`}
+        title={`${moment(xypContent.createdAt).format("YYYY-MM-DD")} - ${XYP_TITLES[xypData.serviceName]}`}
         trigger={
-          <ul key={`${xypContent._id} ${xypData.serviceName}`}>
-            <span>{moment(xypContent.createdAt).format("YYYY-MM-DD")}:</span>
-            <li>{xypData.serviceName}</li>
-          </ul>
+          <XypTitle
+            key={`${xypContent._id} ${XYP_TITLES[xypData.serviceName]}`}
+          >
+            {moment(xypContent.createdAt).format("YYYY-MM-DD")}:{" "}
+            {XYP_TITLES[xypData.serviceName]}
+          </XypTitle>
         }
         size="xl"
         content={(props) => modalContent(props, xypContent, xypData)}
@@ -303,7 +283,6 @@ function Sidebar({
   };
 
   const content = () => {
-    console.log("xypDatas", xypDatas);
     if (showType && showType === "list") {
       return (
         <SidebarList className="no-link">
