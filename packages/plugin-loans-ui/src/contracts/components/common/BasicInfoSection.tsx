@@ -115,7 +115,9 @@ const BasicInfoSection = (props: Props) => {
         },
         {
           title: 'Change relCustomers',
-          trigger: <a href="#toClose">{__('Change relCustomers')}</a>,
+          trigger: (
+            <a href="#changeRelCustomers">{__('Change relCustomers')}</a>
+          ),
           content: relCustomersForm,
           additionalModalProps: { size: 'lg' },
         },
