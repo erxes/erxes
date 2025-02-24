@@ -24,6 +24,7 @@ import { gql } from '@apollo/client';
 import { queries } from '../../graphql';
 import withConsumer from '../../../withConsumer';
 import TransactionForm from '../../../transactions/containers/TransactionForm';
+import RelCustomersForm from '../../containers/detail/RelCustomersForm';
 
 type Props = {
   contract: IContract;
@@ -49,7 +50,7 @@ const BasicInfoSection = (props: Props) => {
       client
         .mutate({
           mutation: gql(queries.documents),
-          variables: { contentType: 'loans' }
+          variables: { contentType: 'loans' },
         })
         .then(({ data }) => {
           setDocuments(data.documents);
@@ -58,17 +59,32 @@ const BasicInfoSection = (props: Props) => {
 
     const onPrint = (mur) => {
       window.open(
-        `${getEnv().REACT_APP_API_URL}/pl:documents/print?_id=${mur._id
+        `${getEnv().REACT_APP_API_URL}/pl:documents/print?_id=${
+          mur._id
         }&contractId=${contract?._id}`
       );
     };
 
     const closeForm = (props) => <CloseForm {...props} contract={contract} />;
     const giveTrForm = (props) => {
-      return <TransactionForm {...props} type="give" contractId={contract._id} lockContract={true} />;
+      return (
+        <TransactionForm
+          {...props}
+          type="give"
+          contractId={contract._id}
+          lockContract={true}
+        />
+      );
     };
     const repaymentTrForm = (props) => {
-      return <TransactionForm {...props} type="repayment" contractId={contract._id} lockContract={true} />;
+      return (
+        <TransactionForm
+          {...props}
+          type="repayment"
+          contractId={contract._id}
+          lockContract={true}
+        />
+      );
     };
 
     const interestChangeForm = (props) => (
@@ -79,27 +95,37 @@ const BasicInfoSection = (props: Props) => {
       <ContractForm change={true} {...props} contract={contract} />
     );
 
+    const relCustomersForm = (props) => (
+      <RelCustomersForm change={true} {...props} contract={contract} />
+    );
+
     const menuItems = () => {
       let result: any[] = [
         {
           title: 'Interest correction',
           trigger: <a href="#toClose">{__('Interest correction')}</a>,
           content: interestChangeForm,
-          additionalModalProps: { size: 'lg' }
+          additionalModalProps: { size: 'lg' },
         },
         {
           title: 'Change contract',
           trigger: <a href="#changeContract">{__('Change contract')}</a>,
           content: contractForm,
-          additionalModalProps: { size: 'lg' }
-        }
+          additionalModalProps: { size: 'lg' },
+        },
+        {
+          title: 'Change relCustomers',
+          trigger: <a href="#toClose">{__('Change relCustomers')}</a>,
+          content: relCustomersForm,
+          additionalModalProps: { size: 'lg' },
+        },
       ];
       if (can('contractsClose', currentUser))
         result.push({
           title: 'To Close Contract',
           trigger: <a href="#toClose">{__('To Close Contract')}</a>,
           content: closeForm,
-          additionalModalProps: { size: 'lg' }
+          additionalModalProps: { size: 'lg' },
         });
 
       if (contract.unUsedBalance) {
@@ -107,15 +133,15 @@ const BasicInfoSection = (props: Props) => {
           title: 'Give transaction',
           trigger: <a href="#toClose">{__('Give transaction')}</a>,
           content: giveTrForm,
-          additionalModalProps: { size: 'lg' }
-        })
+          additionalModalProps: { size: 'lg' },
+        });
       } else {
         result.unshift({
           title: 'Repayment Transaction',
           trigger: <a href="#toClose">{__('Repayment Transaction')}</a>,
           content: repaymentTrForm,
-          additionalModalProps: { size: 'lg' }
-        })
+          additionalModalProps: { size: 'lg' },
+        });
       }
       return result;
     };

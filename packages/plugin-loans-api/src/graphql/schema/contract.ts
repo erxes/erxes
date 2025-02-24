@@ -45,7 +45,7 @@ const commonFields = `
 
   customerType: String
   customerId: String
-  relCustomers: JSON
+  relCustomers: [JSON]
 
   relationExpertId: String
   leasingExpertId: String

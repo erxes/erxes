@@ -343,6 +343,7 @@ export const contractDetailFields = `
     closeDate
     closeType
   }
+  relCustomers
   hasTransaction
   nextPayment
   customFieldsData
