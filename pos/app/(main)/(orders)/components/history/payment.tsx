@@ -63,8 +63,19 @@ const Payment = ({
               <TableCell />
             </TableRow>
             {(paymentTypes || []).map((type) => {
-              const pa = paidAmounts.find((pt) => pt.type === type.type)
-              return (
+              const pAmounts = paidAmounts.filter((pt) => pt.type === type.type)
+              if (!pAmounts.length) {
+                <TableRow className="border-b" key={type._id}>
+                  <TableCell className="h-8">{type.title}</TableCell>
+                  <TableCell className="h-8">
+                    {(0).toLocaleString()}
+                  </TableCell>
+                  <TableCell className="h-8">
+                    {"-"}
+                  </TableCell>
+                </TableRow>
+              }
+              return pAmounts.map(pa => (
                 <TableRow className="border-b" key={type._id}>
                   <TableCell className="h-8">{type.title}</TableCell>
                   <TableCell className="h-8">
@@ -74,7 +85,7 @@ const Payment = ({
                     {!!pa?.info ? <div /> : "-"}
                   </TableCell>
                 </TableRow>
-              )
+              ))
             })}
           </TableBody>
         </Table>
