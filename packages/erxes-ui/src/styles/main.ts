@@ -678,11 +678,35 @@ const DynamicContentRight = styledTS<{ overflow?: boolean }>(styled.div)`
   overflow: ${props => props.overflow ? 'auto' : 'initial'}
 `;
 
-const DynamicPropertiesList = styled.div`
+const DynamicTableWrapper = styled.div`
+  background: ${colors.colorWhite};
+  overflow-x: auto;
+
+  > div, #hurData > div {
+    padding: 0;
+
+    > table td:first-child {
+      padding-left: ${dimensions.coreSpacing}px;
+    }
+  }
+
+  #hurData > h4 {
+    margin: 0;
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+    font-size: 15px;
+  }
+`;
+
+const DynamicServiceItem = styled.div`
+
+`;
+
+const DynamicComponentList = styledTS<{$hasMargin?: boolean}>(styled.div)`
   border-radius: ${dimensions.unitSpacing + 2}px;
   background: #F2F4F7;
   color: ${colors.textPrimary};
   box-shadow: 0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06);
+  margin: ${props => props.$hasMargin && `${dimensions.coreSpacing}px 0`};
   padding: ${dimensions.unitSpacing - 5}px;
 
   > h4 {
@@ -758,7 +782,7 @@ export {
   HomeContainer,
   DateWrapper,
   CloseModal,
-  DynamicPropertiesList,
+  DynamicComponentList,
   ScrollWrapper,
   DateContainer,
   TabContent,
@@ -784,10 +808,12 @@ export {
   ImageWrapper,
   TextWrapper,
   DialogWrapper,
+  DynamicTableWrapper,
   DialogContent,
   PopoverPanel,
   TipContent,
   UploadBtn,
+  DynamicServiceItem,
   AttachmentContainer,
   DynamicContent,
   DynamicContentLeft,

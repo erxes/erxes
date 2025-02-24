@@ -1,10 +1,10 @@
 import { Divider, SidebarContent, SidebarFooter } from "../styles";
 import {
+  DynamicComponentList,
   DynamicContent,
   DynamicContentLeft,
   DynamicContentLeftButtonWrapper,
   DynamicContentRight,
-  DynamicPropertiesList,
   FlexCenter,
 } from "@erxes/ui/src/styles/main";
 import { IField, ILocationOption } from "@erxes/ui/src/types";
@@ -724,10 +724,10 @@ class GenerateGroups extends React.Component<
 
       if (showType === "list") {
         return (
-          <DynamicPropertiesList>
+          <DynamicComponentList>
             <h4>{fieldGroup.name}</h4>
             {content}
-          </DynamicPropertiesList>
+          </DynamicComponentList>
         );
       }
 
