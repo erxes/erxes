@@ -18,7 +18,6 @@ export const validateSingle = async (
     defaultValue: "http://localhost:4100"
   });
 
-  console.log("EMAIL_VERIFIER_ENDPOINT", EMAIL_VERIFIER_ENDPOINT);
   if (!EMAIL_VERIFIER_ENDPOINT) {
     return;
   }
@@ -30,7 +29,7 @@ export const validateSingle = async (
   const domain = DOMAIN.replace("<subdomain>", subdomain);
 
   const callback_url = `${domain}/pl:core`;
-  console.log("callback_url",callback_url)
+
   let body = {};
 
   phone
@@ -170,9 +169,7 @@ export const updateContactsValidationStatus = async (
   models: IModels,
   type: string,
   data: Array<{ email?: string; phone?: string; status: string }>
-) => {
-  console.log(data);
-  
+) => {  
   if (type === "email") {
     try {
       const bulkOps: Array<{
@@ -197,7 +194,7 @@ export const updateContactsValidationStatus = async (
         await models.Customers.bulkWrite(bulkOps);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
 

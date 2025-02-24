@@ -11,7 +11,7 @@ const DNS_STATUS = {
 
 export default {
   handle10MinutelyJob: async () => {
-    console.log("minutely job is working");
+    console.debug("minutely job is working");
 
     const organizations = await coreModelOrganizations
       .find({
@@ -86,7 +86,7 @@ export default {
           await coreModelOrganizations.updateOne({ _id }, { $set: doc });
         }
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     }
   }

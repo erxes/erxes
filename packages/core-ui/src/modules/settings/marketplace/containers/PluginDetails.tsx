@@ -47,7 +47,7 @@ class PluginDetailsContainer extends React.Component<FinalProps, State> {
         this.setState({ plugin });
       })
       .catch(e => {
-        console.log(e);
+        console.error(e);
       });
 
     const pluginsUrl =
@@ -62,7 +62,7 @@ class PluginDetailsContainer extends React.Component<FinalProps, State> {
         this.setState({ plugins });
       })
       .catch(e => {
-        console.log(e, 'error');
+        console.error(e, 'error');
       });
   }
 

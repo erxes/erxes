@@ -56,7 +56,7 @@ export const configNginx = async (subdomain: string, hostname: string) => {
       }
     })
     .catch(err => {
-      console.log(err);
+      console.error(err);
       throw new Error(err);
     });
 };
