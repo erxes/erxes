@@ -1,4 +1,4 @@
-import { contractDetailFields } from "./queries";
+import { contractDetailFields } from './queries';
 
 const commonFields = `
   $contractTypeId: String
@@ -47,7 +47,7 @@ const commonFields = `
 
   $customerType: String
   $customerId: String
-  $relCustomers: JSON
+  $relCustomers: [JSON]
 
   $relationExpertId: String
   $leasingExpertId: String
@@ -255,5 +255,5 @@ export default {
   changeClassification,
   stopInterest,
   interestChange,
-  interestReturn
+  interestReturn,
 };

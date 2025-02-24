@@ -1,16 +1,15 @@
 /* transaction logic */
 //#region  import
-import BigNumber from 'bignumber.js';
 import { IModels } from '../../connectionResolver';
 import {
   INVOICE_STATUS,
   LEASE_TYPES,
-  SCHEDULE_STATUS
+  SCHEDULE_STATUS,
 } from '../definitions/constants';
 import { ISchedule, IScheduleDocument } from '../definitions/schedules';
 import {
   ICalcTrParams,
-  ITransactionDocument
+  ITransactionDocument,
 } from '../definitions/transactions';
 import { getFullDate } from './utils';
 import { IConfig } from '../../interfaces/config';
@@ -41,8 +40,8 @@ export const getAOESchedules = async (
       $in:
         contract.leaseType === LEASE_TYPES.LINEAR
           ? [SCHEDULE_STATUS.PENDING]
-          : [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PRE]
-    }
+          : [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PRE],
+    },
   })
     .sort({ payDate: -1 })
     .lean<IScheduleDocument & any>();
@@ -50,7 +49,7 @@ export const getAOESchedules = async (
   const nextSchedule = await models.Schedules.findOne({
     contractId: contract._id,
     status: { $in: [SCHEDULE_STATUS.PENDING] },
-    payDate: { $gte: trDate }
+    payDate: { $gte: trDate },
   })
     .sort({ payDate: 1 })
     .lean<IScheduleDocument & any>();
@@ -103,7 +102,7 @@ export const transactionRule = async (
     storedInterest: 0,
     calcInterest: 0,
     calcedInfo: undefined,
-    commitmentInterest: 0
+    commitmentInterest: 0,
   };
 
   if (!doc.contractId) {
@@ -112,7 +111,12 @@ export const transactionRule = async (
 
   const config = await getConfig('loansConfig', subdomain, {});
   const contract = await models.Contracts.getContract({ _id: doc.contractId });
-  result.calcedInfo = await getCalcedAmountsOnDate(models, contract, doc.payDate, config.calculationFixed);
+  result.calcedInfo = await getCalcedAmountsOnDate(
+    models,
+    contract,
+    doc.payDate,
+    config.calculationFixed
+  );
 
   const {
     payment = 0,
@@ -212,13 +216,13 @@ export const trAfterSchedule = async (
   const trDate = getFullDate(tr.payDate);
 
   const contract = await models.Contracts.getContract({
-    _id: tr.contractId
+    _id: tr.contractId,
   });
 
   // with skipped of done
   let schedule = await models.Schedules.findOne({
     contractId: contract._id,
-    payDate: trDate
+    payDate: trDate,
   });
 
   if (schedule) {
@@ -231,8 +235,8 @@ export const trAfterSchedule = async (
           didLoss: tr.loss ?? 0,
           didDebt: tr.debt ?? 0,
           didCommitmentInterest: tr.commitmentInterest ?? 0,
-          didTotal: tr.total ?? 0
-        }
+          didTotal: tr.total ?? 0,
+        },
       }
     );
   } else {
@@ -253,7 +257,7 @@ export const trAfterSchedule = async (
       version: '',
       createdAt: new Date(),
       status: 'done',
-      unUsedBalance: 0
+      unUsedBalance: 0,
     };
 
     await models.Schedules.create(schedule);
@@ -281,7 +285,7 @@ export const removeTrAfterSchedule = async (
 
   const nextTrsCount = await models.Transactions.countDocuments({
     contractId: tr.contractId,
-    payDate: { $gt: tr.payDate }
+    payDate: { $gt: tr.payDate },
   }).lean();
 
   if (nextTrsCount > 0) {
@@ -308,13 +312,11 @@ export const removeTrAfterSchedule = async (
       bulkOps.unshift({
         updateOne: {
           filter: { _id: reaction.scheduleId },
-          update: { $set: { ...reaction.preData } }
-        }
+          update: { $set: { ...reaction.preData } },
+        },
       });
     }
   }
-
-
 
   if (bulkOps && bulkOps.length) {
     await models.Schedules.bulkWrite(bulkOps);
@@ -323,13 +325,18 @@ export const removeTrAfterSchedule = async (
   if (delIds.length) {
     await models.Schedules.deleteMany({
       _id: { $in: delIds },
-      isDefault: { $ne: true }
+      isDefault: { $ne: true },
     });
   }
 
   if (tr.contractReaction) {
     const { _id, ...otherData } = tr.contractReaction;
     await models.Contracts.updateOne({ _id: _id }, { $set: otherData });
-    await scheduleFixAfterCurrent(tr.contractReaction, tr.payDate, models, config)
+    await scheduleFixAfterCurrent(
+      tr.contractReaction,
+      tr.payDate,
+      models,
+      config
+    );
   }
 };

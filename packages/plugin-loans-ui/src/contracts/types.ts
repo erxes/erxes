@@ -1,6 +1,6 @@
 import {
   IActivityLog,
-  IActivityLogForMonth
+  IActivityLogForMonth,
 } from '@erxes/ui-log/src/activityLogs/types';
 
 import { IContractTypeDoc } from '../contractTypes/types';
@@ -32,6 +32,23 @@ export interface IInsuranceData {
   insuranceType: IInsuranceType;
   currency: string;
   amount: number;
+}
+
+export interface IStepRules {
+  scheduleDays?: number[];
+  tenor: number; // loan duration month
+  interestRate?: number;
+
+  firstPayDate: Date;
+
+  mainPayPerMonth?: number; // undsen tulultuus sardaa udiig tuluhuur
+  totalMainAmount?: number; // niitdee ene heseg hugatsaand udiig tuluhuur
+  salvageAmount?: number; // ene heseg udaagiin tulultiin daraa udii uldeheer
+
+  skipInterestCalcMonth?: number;
+  skipInterestCalcDay?: number;
+  skipAmountCalcMonth?: number;
+  skipAmountCalcDay?: number;
 }
 
 export interface IContract {
@@ -68,7 +85,7 @@ export interface IContract {
   firstPayDate: Date;
   endDate: Date;
   scheduleDays: number[];
-  stepRules?: any[]
+  stepRules?: IStepRules[];
 
   insuranceAmount?: number;
   debt?: number;
@@ -270,7 +287,11 @@ export type MainQueryResponse = {
 };
 
 export type DealContractQueryResponse = {
-  dealLoanContract: { contract: IContract; schedules: ISchedule[], firstSchedules: ISchedule[] };
+  dealLoanContract: {
+    contract: IContract;
+    schedules: ISchedule[];
+    firstSchedules: ISchedule[];
+  };
   loading: boolean;
   refetch: () => void;
 };

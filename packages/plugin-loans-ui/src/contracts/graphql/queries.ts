@@ -1,8 +1,8 @@
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields
-} from "@erxes/ui-sales/src/conformity";
-import { contractTypeFields } from "../../contractTypes/graphql/queries";
+  conformityQueryFields,
+} from '@erxes/ui-sales/src/conformity';
+import { contractTypeFields } from '../../contractTypes/graphql/queries';
 
 export const contractFields = `
   _id
@@ -316,6 +316,13 @@ export const contractDetailFields = `
     primaryPhone
   }
 
+  company {
+    _id
+    primaryName
+    primaryEmail
+    primaryPhone
+  }
+
   collateralsData
   collaterals
   insurancesData
@@ -336,6 +343,7 @@ export const contractDetailFields = `
     closeDate
     closeType
   }
+  relCustomers
   hasTransaction
   nextPayment
   customFieldsData
@@ -372,7 +380,7 @@ export const convertToContract = `
   query convertToContract($id: String!, $contentType: String) {
     convertToContract(id: $id, contentType: $contentType)
   }
-`
+`;
 
 export const closeInfo = `
   query closeInfo($contractId: String, $date: Date) {
@@ -422,7 +430,8 @@ const dealContract = `
   query dealLoanContract($dealId: String, $args: JSON) {
     dealLoanContract(dealId: $dealId, args: $args)
   }
-`
+`;
+
 export default {
   contracts,
   selectContracts,
@@ -436,5 +445,5 @@ export default {
   contractsAlert,
   savingContracts,
   getPolarisData,
-  convertToContract
+  convertToContract,
 };
