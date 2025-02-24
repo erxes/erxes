@@ -23,7 +23,7 @@ module.exports = {
     },
   ],
   dealRightSidebarSection: {
-    title: "Loan Search",
+    title: "Loan Research",
     component: "./loansResearchSidebar",
   },
 };
