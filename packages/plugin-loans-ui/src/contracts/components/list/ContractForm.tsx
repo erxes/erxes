@@ -28,10 +28,11 @@ import { LEASE_TYPES } from '../../../contractTypes/constants';
 import SelectContractType from '../../../contractTypes/containers/SelectContractType';
 import { IContractType, IContractTypeDoc } from '../../../contractTypes/types';
 import { RelType } from '../../containers/ContractForm';
-import { IContract, IContractDoc } from '../../types';
+import { IContract, IContractDoc, IStepRules } from '../../types';
 import SelectSavingContract, {
   Contracts,
 } from '../collaterals/SelectSavingContract';
+import StepRulesForm from './StepRulesForm';
 
 const onFieldClick = (e) => {
   e.target.select();
@@ -98,6 +99,10 @@ function ContractForm(props: Props) {
 
   const [contractType, setContractType] = useState<IContractTypeDoc>(
     props.contract?.contractType || {}
+  );
+
+  const [stepRules, setStepRules] = useState<IStepRules[]>(
+    props.contract?.stepRules || []
   );
 
   const generateDoc = (values: { _id: string } & IContractDoc) => {
@@ -802,6 +807,8 @@ function ContractForm(props: Props) {
               </FormGroup>
             </FormColumn>
           </FormWrapper>
+
+          {<StepRulesForm stepRules={stepRules} setStepRules={setStepRules} />}
         </ScrollWrapper>
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
