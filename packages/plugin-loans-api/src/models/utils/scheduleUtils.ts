@@ -156,7 +156,7 @@ export const scheduleHelper = async (
 
   const paymentDates = dateRanges.filter(date => {
     if (
-      date < startDate || date >= endDate
+      date <= startDate || date > endDate
     )
       return false;
     return true;
