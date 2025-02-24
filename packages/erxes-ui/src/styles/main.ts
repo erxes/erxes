@@ -2,6 +2,8 @@ import { colors, dimensions, typography } from '../styles';
 import styled, { css, keyframes } from 'styled-components';
 
 import { Popover } from '@headlessui/react';
+import { SelectWrapper } from '../components/form/styles';
+import { SidebarContent } from '@erxes/ui-forms/src/settings/properties/styles';
 import { rgba } from '../styles/ecolor';
 import styledTS from 'styled-components-ts';
 
@@ -667,9 +669,58 @@ const DynamicContentLeft = styled.div`
   }
 `;
 
+const DynamicContentLeftButtonWrapper = styled.div`
+  margin-top: ${dimensions.unitSpacing}px;
+`;
+
 const DynamicContentRight = styledTS<{ overflow?: boolean }>(styled.div)`
   height: calc(100% - 25px);
   overflow: ${props => props.overflow ? 'auto' : 'initial'}
+`;
+
+const DynamicPropertiesList = styled.div`
+  border-radius: ${dimensions.unitSpacing + 2}px;
+  background: #F2F4F7;
+  color: ${colors.textPrimary};
+  box-shadow: 0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06);
+  padding: ${dimensions.unitSpacing - 5}px;
+
+  > h4 {
+    margin: 0;
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+    color: #666;
+    font-size: 15px;
+  }
+
+  ${SidebarContent} {
+    background: ${colors.colorWhite};
+    border-radius: 8px;
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+
+    ${SelectWrapper} {
+      border: 0;
+      border-radius: 4px;
+      height: auto;
+
+      select {
+        padding: 0 ${dimensions.unitSpacing}px;
+      }
+    }
+
+    input, select, textarea {
+      background: #F2F4F7;
+      border-radius: 4px;
+      border-bottom: 0;
+      padding: ${dimensions.unitSpacing}px;
+      margin-top: 5px;
+    }
+
+    label {
+      text-transform: initial;
+      font-size: 13px;
+      color: ${colors.colorCoreGray};
+    }
+  }
 `;
 
 const ProductFormContainer = styled.div`
@@ -707,6 +758,7 @@ export {
   HomeContainer,
   DateWrapper,
   CloseModal,
+  DynamicPropertiesList,
   ScrollWrapper,
   DateContainer,
   TabContent,
@@ -740,5 +792,6 @@ export {
   DynamicContent,
   DynamicContentLeft,
   DynamicContentRight,
+  DynamicContentLeftButtonWrapper,
   ProductFormContainer,
 };

@@ -196,11 +196,7 @@ export default class DealEditForm extends React.Component<Props, State> {
   renderProperties = () => {
     const { item, options } = this.props;
 
-    return (
-      <>
-        <CustomFieldsSection item={item} options={options} />
-      </>
-    );
+    return <CustomFieldsSection item={item} options={options} />;
   };
 
   renderActivity = () => {
@@ -333,7 +329,7 @@ export default class DealEditForm extends React.Component<Props, State> {
               onClick={this.tabOnClick.bind(this, "detail")}
             >
               <Icon size={16} icon={"file-info-alt"} />
-              {__("Detail")}
+              {__("Details")}
             </TabTitle>
             <TabTitle
               direction="vertical"

@@ -94,7 +94,7 @@ const FullEditForm = (props: Props) => {
           className={currentTab === "detail" ? "active" : ""}
           onClick={() => setCurrentTab("detail")}
         >
-          {__("Detail")}
+          {__("Details")}
         </TabTitle>
         <TabTitle
           className={currentTab === "properties" ? "active" : ""}
