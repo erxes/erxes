@@ -31,6 +31,7 @@ import Dashboard from "./dashboard";
 import Report from "./report";
 import Section from "./section";
 import Insight from "./insight";
+import Client from "./client";
 
 const resolvers: any = {
   ...customScalars,
@@ -50,6 +51,7 @@ const resolvers: any = {
   Unit,
   Branch,
   App,
+  Client,
   UserMovement,
   Position,
   InternalNote,
