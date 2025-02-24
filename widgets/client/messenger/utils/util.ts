@@ -33,6 +33,10 @@ export const getMessengerData = (): IIntegrationMessengerData => {
   return connection.data.messengerData || {};
 };
 
+export const getIntegrationId = () => {
+  return connection.data.integrationId
+}
+
 export const getCallData = (): IIntegrationMessengerData => {
   return connection.data.callData || {};
 };

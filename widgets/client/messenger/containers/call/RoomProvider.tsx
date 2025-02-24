@@ -1,15 +1,16 @@
-import React, { ReactNode, useState } from "react"
+import * as React from "react";
 
-import RoomContext, { RoomContextType } from "./RoomContext"
+import { ReactNode, useState } from "react";
+import RoomContext, { RoomContextType } from "./RoomContext";
 
 type RoomProviderProps = {
-  children: ReactNode
-}
+  children: ReactNode;
+};
 
 export const RoomProvider = ({ children }: RoomProviderProps) => {
-  const [pushedAudioTrack, setPushedAudioTrack] = useState("")
-  const [peer, setPeerConnection] = useState() as any
-  const [iceConnectionState, setIceConnectionState] = useState() as any
+  const [pushedAudioTrack, setPushedAudioTrack] = useState("");
+  const [peer, setPeerConnection] = useState() as any;
+  const [iceConnectionState, setIceConnectionState] = useState() as any;
 
   const contextValue: RoomContextType = {
     peer: peer || null,
@@ -20,9 +21,9 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
     setPushedAudioTrack,
     setPeerConnection,
     setIceConnectionState,
-  }
+  };
 
   return (
     <RoomContext.Provider value={contextValue}>{children}</RoomContext.Provider>
-  )
-}
+  );
+};

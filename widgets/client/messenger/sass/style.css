@@ -3323,6 +3323,41 @@ select.form-control:focus,
   border-color: #aba0ce;
 }
 
+.call-container .outgoing-call {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  height: 100%;
+}
+.call-container .outgoing-call > div {
+  text-align: center;
+}
+.call-container .outgoing-call h2 {
+  text-transform: capitalize;
+  margin: 0 0 10px;
+}
+.call-container .outgoing-call span {
+  color: #888;
+  font-size: 16px;
+}
+.call-container .cancel-call-btn {
+  transition: all ease 0.3s;
+  background-color: red;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  border: none;
+  border-radius: 60px;
+  cursor: pointer;
+  width: 60px;
+  height: 60px;
+}
+.call-container .cancel-call-btn:hover {
+  background-color: darkred;
+}
+
 .conversation-list-empty-container {
   display: flex;
   flex-direction: column;

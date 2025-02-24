@@ -6,7 +6,6 @@ import CountrySelect from "../common/CountrySelect";
 import { __ } from "../../../utils";
 
 type Props = {
-  isSubmitted: boolean;
   setPhoneNumber: (phoneNumber: string) => void;
   setEmail: (email: string) => void;
   setIsCalling: (isCalling: boolean) => void;
@@ -22,6 +21,14 @@ const Call: React.FC<Props> = ({
   phoneNumber,
   email,
 }) => {
+  const onContinue = () => {
+    if (!phoneNumber || !email) {
+      return alert("Please fill in both phone number and email!");
+    }
+
+    return setIsCalling(true);
+  };
+
   return (
     <Container title={__("Call")} withBottomNavBar={false}>
       <div className="call-container">
@@ -46,6 +53,7 @@ const Call: React.FC<Props> = ({
                   placeholder="Enter phone number"
                   type="number"
                   value={phoneNumber}
+                  required
                   onChange={(e) => setPhoneNumber(e.target.value)}
                 />
               </div>
@@ -60,11 +68,12 @@ const Call: React.FC<Props> = ({
                 placeholder="Enter your email"
                 type="email"
                 value={email}
+                required
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
           </div>
-          <Button full onClick={() => setIsCalling(true)}>
+          <Button full onClick={() => onContinue()}>
             <span className="font-semibold">{__("Continue")}</span>
           </Button>
         </div>

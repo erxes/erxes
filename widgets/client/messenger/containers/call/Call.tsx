@@ -6,7 +6,9 @@ import { useEffect, useState } from "react";
 import AcceptedCallContainer from "./AcceptedCallContainer";
 import { CLOUDFLARE_CALL_RECEIVED } from "../../graphql/subscriptions";
 import { CLOUDFLARE_LEAVE_CALL } from "../../graphql/mutations";
+import { CloudflareCallDataDepartment } from "../../../types";
 import Home from "./Home";
+import { getCallData } from "../../utils/util";
 import { useRoomContext } from "./RoomContext";
 import { useRouter } from "../../context/Router";
 import useUserMedia from "./hooks/useUserMedia";
@@ -15,7 +17,18 @@ const CallContainer = () => {
   const { peer, pushedTracks } = useRoomContext();
   const { setRoute } = useRouter();
 
+  const callData = getCallData();
+
+  const { departments = [] } = callData;
+
   const [remoteAudioTracks, setRemoteAudioTracks] = useState([]) as any;
+  const [departmentId, setDepartmentId] = useState(
+    departments ? departments[0]._id : ""
+  );
+
+  const activeDepartment = departments.find(
+    (department) => department._id === departmentId
+  ) as CloudflareCallDataDepartment;
 
   const { audioStreamTrack, stopAllTracks } = useUserMedia();
 
@@ -86,20 +99,26 @@ const CallContainer = () => {
   };
 
   if (loadingLeaveCall) {
-    return <div>Loading..</div>;
+    return <div className="loader bigger" />;
   }
 
   return remoteAudioTracks && remoteAudioTracks.length > 0 ? (
     <AcceptedCallContainer
       stopCall={stopCall}
       remoteAudioTracks={remoteAudioTracks}
+      activeDepartment={activeDepartment}
     />
   ) : (
-    <Home stopCall={stopCall} audioStreamTrack={audioStreamTrack} />
+    <Home
+      stopCall={stopCall}
+      audioStreamTrack={audioStreamTrack}
+      setDepartmentId={setDepartmentId}
+      departmentId={departmentId}
+      departments={departments}
+      activeDepartment={activeDepartment}
+    />
   );
 };
-
-export type IHandleCall = (params: { integrationId: string }) => void;
 
 export type IHandleStopCall = (params: { seconds: number }) => void;
 

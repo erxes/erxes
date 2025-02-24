@@ -2,11 +2,17 @@ import * as React from "react";
 
 import { useEffect, useState } from "react";
 
-const AcceptedCallComponent = ({
-  stopCall,
-}: {
+import { CloudflareCallDataDepartment } from "../../../types";
+import Container from "../common/Container";
+import { IconCallEnd } from "../../../icons/Icons";
+import { __ } from "../../../utils";
+
+type Props = {
   stopCall: (seconds: number) => void;
-}) => {
+  activeDepartment: CloudflareCallDataDepartment;
+};
+
+const AcceptedCallComponent = ({ stopCall, activeDepartment }: Props) => {
   const [seconds, setSeconds] = useState(0);
 
   useEffect(() => {
@@ -27,47 +33,21 @@ const AcceptedCallComponent = ({
   };
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.heading}>Call in Progress</h2>
-      <p style={styles.duration}>Duration: {formatTime()}</p>
-      <button onClick={() => stop()} style={styles.endCallButton}>
-        {/* <FiPhoneOff size={24} color="white" /> */}
-        phone icon
-      </button>
-    </div>
+    <Container title={__("Call")} withBottomNavBar={false}>
+      <div className="call-container">
+        <div className="outgoing-call">
+          <div>
+            <h2>{activeDepartment && activeDepartment.name}</h2>
+            <span>Call in Progress</span>
+            <p className="call-duration">Duration: {formatTime()}</p>
+          </div>
+          <button onClick={() => stop()} className="cancel-call-btn">
+            <IconCallEnd size="35px" />
+          </button>
+        </div>
+      </div>
+    </Container>
   );
-};
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100vh",
-    textAlign: "center",
-  },
-  heading: {
-    fontSize: "24px",
-    color: "#0077ff",
-    marginBottom: "10px",
-  },
-  duration: {
-    fontSize: "18px",
-    color: "#555",
-    marginBottom: "20px",
-  },
-  endCallButton: {
-    backgroundColor: "red",
-    border: "none",
-    borderRadius: "50%",
-    width: "60px",
-    height: "60px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer",
-  },
 };
 
 export default AcceptedCallComponent;

@@ -18,8 +18,8 @@ import type {
 import Ewma from "./ewma"
 import invariant from "tiny-invariant"
 
-const CALLS_APP_ID = ''
-const CALLS_APP_SECRET = ''
+const CALLS_APP_ID = '9cff137bba2aca5bb3c5040d801f58e5'
+const CALLS_APP_SECRET = 'f412b1c3d83aee023eb6cb14ec1ed2797ed07f8d8987e300e4eb35a376cffc5e'
 
 const iceGathertingTimeout = 1500 /* ms */
 const newTrackTimeout = 10000

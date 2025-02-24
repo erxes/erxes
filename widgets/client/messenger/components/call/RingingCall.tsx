@@ -1,13 +1,21 @@
 import * as React from "react";
 
+import { CloudflareCallDataDepartment } from "../../../types";
 import Container from "../common/Container";
+import { IconCallEnd } from "../../../icons/Icons";
 import { __ } from "../../../utils";
 
 type IProps = {
   stopCall: ({ seconds }: { seconds: number }) => void;
+  onBack: (isCalling: boolean) => void;
+  activeDepartment: CloudflareCallDataDepartment;
 };
 
-const RingingCallComponent: React.FC<IProps> = ({ stopCall }) => {
+const RingingCallComponent: React.FC<IProps> = ({
+  stopCall,
+  onBack,
+  activeDepartment,
+}) => {
   const stop = () => {
     if (stopCall) {
       stopCall({ seconds: 0 });
@@ -15,38 +23,20 @@ const RingingCallComponent: React.FC<IProps> = ({ stopCall }) => {
   };
 
   return (
-    <Container title={__("Call")} withBottomNavBar={false}>
+    <Container
+      title={__("Ongoing call")}
+      withBottomNavBar={false}
+      onBackButton={() => onBack(false)}
+    >
       <div className="call-container">
         <div className="outgoing-call">
-          <h2>Calling...</h2>
+          <div>
+            <h2>{activeDepartment && activeDepartment.name}</h2>
+            <span>Calling...</span>
+          </div>
           <button onClick={() => stop()} className="cancel-call-btn">
-            Cancel
+            <IconCallEnd size="35px" />
           </button>
-          <style>{`
-        .outgoing-call {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          height: 100vh;
-        }
-        h2 {
-          font-size: 24px;
-          margin-bottom: 20px;
-        }
-        .cancel-call-btn {
-          background-color: red;
-          color: white;
-          margin: 10px;
-          padding: 10px 20px;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-        .cancel-call-btn:hover {
-          background-color: darkred;
-        }
-      `}</style>
         </div>
       </div>
     </Container>
