@@ -4,7 +4,6 @@ const commonParamsDef = `
   $languageCode: String,
   $channelIds: [String]
 `;
-
 const commonParams = `
   name: $name,
   brandId: $brandId,
@@ -112,6 +111,13 @@ const integrationsSaveMessengerConfigs = `
   }
 `;
 
+const integrationsSaveMessengerTicketData = `
+  mutation integrationsSaveMessengerTicketData($_id: String!, $ticketData: TicketData) {
+    integrationsSaveMessengerTicketData(_id: $_id, ticketData: $ticketData) {
+      _id
+    }
+  }
+`;
 const integrationsSaveMessengerAppearance = `
   mutation integrationsSaveMessengerAppearanceData($_id: String!, $uiOptions: MessengerUiOptions) {
     integrationsSaveMessengerAppearanceData(
@@ -187,5 +193,6 @@ export default {
   removeAccount,
   imapSendMail,
   integrationsSendSms,
-  messengerAppSave
+  messengerAppSave,
+  integrationsSaveMessengerTicketData
 };
