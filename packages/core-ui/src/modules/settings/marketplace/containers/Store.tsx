@@ -29,7 +29,7 @@ class StoreContainer extends React.Component<{}, State> {
         this.setState({ plugins });
       })
       .catch(e => {
-        console.log(e, 'error');
+        console.error(e, 'error');
       });
   }
 
