@@ -303,7 +303,6 @@ function Sidebar({
   };
 
   const content = () => {
-    console.log("xypDatas", xypDatas);
     if (showType && showType === "list") {
       return (
         <SidebarList className="no-link">

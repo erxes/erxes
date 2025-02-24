@@ -681,6 +681,7 @@ const DynamicContentRight = styledTS<{ overflow?: boolean }>(styled.div)`
 const DynamicTableWrapper = styled.div`
   background: ${colors.colorWhite};
   overflow-x: auto;
+  border-radius: 4px;
 
   > div, #hurData > div {
     padding: 0;
