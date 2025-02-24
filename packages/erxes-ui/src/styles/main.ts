@@ -699,7 +699,18 @@ const DynamicTableWrapper = styled.div`
 `;
 
 const DynamicServiceItem = styled.div`
+  position: realtive;
+`;
 
+const XypTitle = styled.div`
+  display: flex;
+  padding: ${dimensions.unitSpacing - 5}px ${dimensions.coreSpacing}px;
+  transition: all ease .3s;
+  cursor: pointer;
+
+  &:hover {
+    background: ${colors.bgLight};
+  }
 `;
 
 const DynamicComponentList = styledTS<{$hasMargin?: boolean}>(styled.div)`
@@ -821,4 +832,5 @@ export {
   DynamicContentRight,
   DynamicContentLeftButtonWrapper,
   ProductFormContainer,
+  XypTitle
 };
