@@ -124,11 +124,19 @@ export const setupMessageConsumers = async () => {
     const models = await generateModels(subdomain);
     const deal = await models.Deals.createDeal(data);
 
-    const { customerId = "" } = data;
+    const { customerId = "", companyId = "" } = data;
 
     if (customerId) {
       await createConformity(subdomain, {
         customerIds: [customerId],
+        mainType: "deal",
+        mainTypeId: deal._id
+      });
+    }
+
+    if (companyId) {
+      await createConformity(subdomain, {
+        companyIds: [companyId],
         mainType: "deal",
         mainTypeId: deal._id
       });
