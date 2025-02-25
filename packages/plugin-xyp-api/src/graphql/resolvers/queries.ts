@@ -38,6 +38,35 @@ const generateFilterRules = (params) => {
   }
   return filter;
 }
+
+const aggregation = async (models, match) => {
+  const data = await models.XypData.aggregate([
+    {
+      $match: { ...match }
+    },
+    { $sort: { createdAt: -1 } },
+    { $unwind: "$data" },
+    {
+      $group: {
+        _id: "$data.serviceName",
+        obj: { $first: '$$ROOT' }
+      }
+    },
+    {
+      $replaceRoot: {
+        newRoot: '$obj'
+      }
+    }
+  ]);
+
+
+  return data.map(d => ({
+    ...d,
+    _id: `${d._id}${d.data?.serviceName}`,
+    data: [d.data]
+  }));
+}
+
 const xypQueries = {
   async xypDataList(_root, { contentType, contentTypeIds }, { models }: IContext) {
     let query: any = {};
@@ -57,7 +86,9 @@ const xypQueries = {
     { contentType, contentTypeId },
     { models, subdomain }: IContext,
   ) {
-    const datas = await models.XypData.find({ contentType, contentTypeId }).lean();
+    const datas = await aggregation(models, {
+      contentType, contentTypeId
+    });
 
     if (contentType === 'sales:deal' && !datas.length) {
       const conformitiesCustomerIds = await sendCoreMessage({
@@ -70,7 +101,10 @@ const xypQueries = {
         isRPC: true, defaultValue: []
       })
       if (conformitiesCustomerIds.length) {
-        return await models.XypData.find({ contentType: 'core:customer', contentTypeId: { $in: conformitiesCustomerIds } }).lean();
+        return await aggregation(models, {
+          contentType: 'core:customer',
+          contentTypeId: { $in: conformitiesCustomerIds }
+        })
       }
 
       const conformitiesCompanyIds = await sendCoreMessage({
@@ -83,7 +117,10 @@ const xypQueries = {
         isRPC: true, defaultValue: []
       })
       if (conformitiesCustomerIds.length) {
-        return await models.XypData.find({ contentType: 'core:company', contentTypeId: { $in: conformitiesCompanyIds } }).lean();
+        return await aggregation(models, {
+          contentType: 'core:company',
+          contentTypeId: { $in: conformitiesCompanyIds }
+        })
       }
     }
     return datas;
