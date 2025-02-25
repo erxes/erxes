@@ -50,6 +50,7 @@ export const contractFields = `
   leaseType
   commitmentInterest
   endDate
+  contractDate
 `;
 
 const selectContractFields = `

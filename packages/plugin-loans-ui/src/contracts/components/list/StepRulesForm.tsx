@@ -55,13 +55,19 @@ function StepRulesForm(props: Props) {
   };
 
   const onSelectScheduleDays = (_id: string, key: string, value: any) => {
-    setStepRules((prev) =>
-      prev.map((rule) =>
-        rule._id === _id
-          ? { ...rule, [key]: value.map((val) => val.value) }
-          : rule
-      )
-    );
+    const updatedRules = updateStepRules(_id, key, value);
+    setStepRules(updatedRules);
+  };
+
+  const updateStepRules = (_id: string, key: string, value: any) => {
+    return stepRules.map((rule) => updateRule(rule, _id, key, value));
+  };
+
+  const updateRule = (rule: any, _id: string, key: string, value: any) => {
+    if (rule._id === _id) {
+      return { ...rule, [key]: value.map((val: any) => val.value) };
+    }
+    return rule;
   };
 
   const onChangeDate = (_id: string, key: string, date: any) => {
@@ -90,7 +96,7 @@ function StepRulesForm(props: Props) {
       <>
         {(stepRules || []).map((stepRule) => {
           return (
-            <FormWrapper>
+            <FormWrapper key={stepRule._id}>
               <FormColumn>
                 <FormGroup>
                   <ControlLabel required={true}>

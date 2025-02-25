@@ -144,6 +144,7 @@ function ContractForm(props: Props) {
       holidayType: contract.holidayType,
       depositAccountId: contract.depositAccountId,
       firstPayDate: contract.firstPayDate,
+      contractDate: contract.contractDate,
       stepRules,
     };
 
