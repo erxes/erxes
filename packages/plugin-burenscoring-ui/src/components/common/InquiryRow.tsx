@@ -1,6 +1,4 @@
 import dayjs from 'dayjs';
-import { __ } from 'coreui/utils';
-import _ from 'lodash';
 import React from 'react';
 
 import { ExtraRow } from '../../styles';
