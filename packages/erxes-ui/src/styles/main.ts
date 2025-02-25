@@ -683,8 +683,29 @@ const DynamicTableWrapper = styled.div`
   overflow-x: auto;
   border-radius: 4px;
 
+  .empty {
+    padding: ${dimensions.coreSpacing}px;
+  }
+
   > div, #hurData > div {
     padding: 0;
+
+    .salary {
+      color: ${colors.colorCoreRed};
+
+      &.paid {
+        color: ${colors.colorCoreGreen};
+      }
+    }
+
+    .salary-center {
+      th {
+        text-transform: inherit;
+        font-size: 12px;
+        line-height: 12px;
+        text-align: center;
+      }
+    }
 
     > table td:first-child {
       padding-left: ${dimensions.coreSpacing}px;
@@ -696,10 +717,6 @@ const DynamicTableWrapper = styled.div`
     padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
     font-size: 15px;
   }
-`;
-
-const DynamicServiceItem = styled.div`
-  position: realtive;
 `;
 
 const XypTitle = styled.div`
@@ -825,7 +842,6 @@ export {
   PopoverPanel,
   TipContent,
   UploadBtn,
-  DynamicServiceItem,
   AttachmentContainer,
   DynamicContent,
   DynamicContentLeft,

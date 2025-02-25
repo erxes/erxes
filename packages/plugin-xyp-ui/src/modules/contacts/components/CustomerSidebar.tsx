@@ -1,7 +1,6 @@
 import {
   ButtonRelated,
   DynamicComponentList,
-  DynamicServiceItem,
   DynamicTableWrapper,
   ModalFooter,
   XypTitle,
@@ -213,7 +212,7 @@ function Sidebar({
   };
 
   const modalContent = (props, xd, d: any) => {
-    if (!d.data) return <div>мэдээлэл байхгүй</div>;
+    if (!d.data) return <div className="empty">мэдээлэл байхгүй</div>;
 
     const output =
       (xypServiceList.find((x) => x.wsOperationName === d?.serviceName)
@@ -221,7 +220,7 @@ function Sidebar({
 
     if (d.data?.list?.length || d.data?.listData?.length) {
       return (
-        <DynamicServiceItem id="hurData" key={d?.serviceDescription}>
+        <div id="hurData" key={d?.serviceDescription}>
           {(d.data.list || d.data.listData || []).map(
             (listItem, index: number) => (
               <React.Fragment key={index}>
@@ -232,11 +231,57 @@ function Sidebar({
               </React.Fragment>
             )
           )}
-        </DynamicServiceItem>
+        </div>
       );
     }
 
     return renderServiceItem(d.data, output);
+  };
+
+  const renderSalaryRows = (item) => {
+    return (
+      <tr>
+        <td>{item.year}</td>
+        <td>{item.month}</td>
+        <td>{item.orgName}</td>
+        <td>{item.salaryAmount.toLocaleString("en-US")}</td>
+        <td>{item.salaryFee.toLocaleString("en-US")}</td>
+        <td>{item.domName}</td>
+        <td className={`salary ${item.paid ? "paid" : ""}`}>
+          <b>{item.paid ? "Төлсөн" : "Төлөөгүй"}</b>
+        </td>
+      </tr>
+    );
+  };
+
+  const renderSalaryTable = (xypData) => {
+    if (!xypData.data || !xypData.data.list || xypData.data.list.length === 0)
+      return <div className="empty">Одоогоор мэдээлэл байхгүй байна!</div>;
+
+    return (
+      <Table $striped $bordered $responsive>
+        <thead className="salary-center">
+          <tr>
+            <th>НДШ төлсөн он</th>
+            <th>НДШ төлсөн сар</th>
+            <th>Ажил олгогч</th>
+            <th>Цалин</th>
+            <th>НДШ-ийн дүн</th>
+            <th>Ажил олгогчийн дүүрэг</th>
+            <th>НДШ төлөгдсөн эсэх</th>
+          </tr>
+        </thead>
+        <tbody id="hurData">
+          {(xypData.data.list || xypData.data.listData || []).map(
+            (listItem, index: number) => (
+              <React.Fragment key={index}>
+                {renderSalaryRows(listItem)}
+              </React.Fragment>
+            )
+          )}
+        </tbody>
+      </Table>
+    );
   };
 
   const renderContent = (xypContent, xypData) => {
@@ -252,7 +297,9 @@ function Sidebar({
             {xypData && xypData.length}
           </h4>
           <DynamicTableWrapper>
-            {modalContent("", xypContent, xypData)}
+            {xypData.serviceName === "WS100501_getCitizenSalaryInfo"
+              ? renderSalaryTable(xypData)
+              : modalContent("", xypContent, xypData)}
           </DynamicTableWrapper>
         </DynamicComponentList>
       );
@@ -270,7 +317,11 @@ function Sidebar({
           </XypTitle>
         }
         size="xl"
-        content={(props) => modalContent(props, xypContent, xypData)}
+        content={(props) =>
+          xypData.serviceName === "WS100501_getCitizenSalaryInfo"
+            ? renderSalaryTable(xypData)
+            : modalContent(props, xypContent, xypData)
+        }
         key={xypData.serviceName}
       />
     );
@@ -321,6 +372,7 @@ function Sidebar({
             </TabTitle>
           </Tabs>
           {renderXypContent()}
+          {relQuickButtons}
         </SidebarList>
       );
     }
