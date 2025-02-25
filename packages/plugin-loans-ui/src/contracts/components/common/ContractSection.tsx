@@ -162,6 +162,7 @@ function Component({
       <DynamicComponentContent>
         <DynamicComponentList>
           <h4>{__("Loan Contracts")}</h4>
+          {quickButtons}
           <DynamicTableWrapper>{content}</DynamicTableWrapper>
         </DynamicComponentList>
       </DynamicComponentContent>
