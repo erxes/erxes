@@ -142,16 +142,12 @@ const generateFilter = async (params, commonQuerySelector) => {
 };
 
 export const sortBuilder = (params) => {
-  const sortField = params.sortField;
-  const sortDirection = params.sortDirection || 0;
-
-  let sortOptions = {};
+  const { sortField, sortDirection } = params;
+  let sortOptions: any = { createdAt: -1 }; // Default sort by newest date as secondary
 
   if (sortField) {
-    sortOptions[sortField] = sortDirection; // Primary sort field
+    sortOptions[sortField] = sortDirection || 1;
   }
-
-  sortOptions['createdAt'] = -1; // Always sort by newest date as secondary
 
   return sortOptions;
 };
