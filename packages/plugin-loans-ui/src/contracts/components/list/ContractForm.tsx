@@ -143,6 +143,7 @@ function ContractForm(props: Props) {
       endDate: contract.endDate,
       holidayType: contract.holidayType,
       depositAccountId: contract.depositAccountId,
+      firstPayDate: contract.firstPayDate,
     };
 
     return result;
@@ -156,6 +157,71 @@ function ContractForm(props: Props) {
         (contract.leaseAmount / 100) * (contractType?.feePercent ?? 0),
     });
   }, [contractType, contract.leaseAmount]);
+
+  useEffect(() => {
+    if (
+      !contract.startDate ||
+      !Array.isArray(contract.scheduleDays) ||
+      contract.scheduleDays.length === 0 ||
+      contract.tenor === null
+    ) {
+      return;
+    }
+
+    const startDate = new Date(contract.startDate); // Convert to Date object
+    const selectedDays = [...(contract.scheduleDays || [])].sort(
+      (a, b) => a - b
+    ); // Ensure ascending order
+
+    let firstPayDate: Date | null = null;
+    const startDay = startDate.getDate();
+    const startMonth = startDate.getMonth();
+    const startYear = startDate.getFullYear();
+
+    // Find the next available day in the same month
+    for (let day of selectedDays) {
+      if (day >= startDay) {
+        firstPayDate = new Date(startYear, startMonth, day);
+        break;
+      }
+    }
+
+    // If no valid day is found, move to the next month with the earliest selected day
+    if (!firstPayDate) {
+      const nextMonth = startMonth + 1;
+      const nextYear = nextMonth > 11 ? startYear + 1 : startYear;
+      const finalMonth = nextMonth % 12;
+
+      const firstDayOfNextMonth = selectedDays[0];
+
+      // Get last valid day of the next month
+      const lastDayOfNextMonth = new Date(
+        nextYear,
+        finalMonth + 1,
+        0
+      ).getDate();
+      const validDay = Math.min(firstDayOfNextMonth, lastDayOfNextMonth);
+
+      firstPayDate = new Date(nextYear, finalMonth, validDay);
+    }
+
+    // 📌 Calculate the End Date based on `tenor` (how many times rent will be paid)
+    let endDate = new Date(startDate);
+
+    if (contract.scheduleDays.length === 1) {
+      // If there's only 1 day in scheduleDays, rent is paid once per month
+      endDate.setMonth(startDate.getMonth() + Math.ceil(contract.tenor)); // End date is `tenor` months later
+    } else if (contract.scheduleDays.length > 1) {
+      // If there are multiple days in scheduleDays, rent is paid twice per month
+      endDate.setMonth(startDate.getMonth() + Math.ceil(contract.tenor / 2)); // 2 months later
+    }
+
+    setContract({
+      ...contract,
+      firstPayDate,
+      endDate,
+    });
+  }, [contract.startDate, contract.scheduleDays, contract.tenor]);
 
   const renderFormGroup = (label, props) => {
     if (!label) return <FormControl {...props} />;
@@ -393,6 +459,22 @@ function ContractForm(props: Props) {
                   onChange: onChangeField,
                   onClick: onFieldClick,
                 })}
+              <FormGroup>
+                <ControlLabel required={true}>{__('Loan Type')}</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="loanDestination"
+                  componentclass="select"
+                  value={contract.loanDestination}
+                  onChange={onChangeField}
+                >
+                  {LoanPurpose.destination.map((type) => (
+                    <option key={type.code} value={type.code}>
+                      {__(type.name)}
+                    </option>
+                  ))}
+                </FormControl>
+              </FormGroup>
             </FormColumn>
             <FormColumn>
               <FormGroup>
@@ -420,6 +502,31 @@ function ContractForm(props: Props) {
                 onChange: onChangeField,
                 onClick: onFieldClick,
               })}
+
+              <FormGroup>
+                <ControlLabel required={true}>
+                  {__('Loan Purpose')}
+                </ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="loanPurpose"
+                  componentclass="select"
+                  value={contract.loanPurpose}
+                  onChange={onChangeField}
+                >
+                  {LoanPurpose.purpose
+                    .filter((a) =>
+                      contract.loanDestination
+                        ? a.parent === contract.loanDestination
+                        : true
+                    )
+                    .map((type) => (
+                      <option key={type.name} value={type.name}>
+                        {__(type.name)}
+                      </option>
+                    ))}
+                </FormControl>
+              </FormGroup>
 
               {contractType.useMargin &&
                 renderFormGroup('Margin Amount', {
@@ -469,46 +576,7 @@ function ContractForm(props: Props) {
                   multi={false}
                 />
               </FormGroup>
-              <FormGroup>
-                <ControlLabel required={true}>{__('Loan Type')}</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="loanDestination"
-                  componentclass="select"
-                  value={contract.loanDestination}
-                  onChange={onChangeField}
-                >
-                  {LoanPurpose.destination.map((type) => (
-                    <option key={type.code} value={type.code}>
-                      {__(type.name)}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel required={true}>
-                  {__('Loan Purpose')}
-                </ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="loanPurpose"
-                  componentclass="select"
-                  value={contract.loanPurpose}
-                  onChange={onChangeField}
-                >
-                  {LoanPurpose.purpose
-                    .filter((a) =>
-                      contract.loanDestination
-                        ? a.parent === contract.loanDestination
-                        : true
-                    )
-                    .map((type) => (
-                      <option key={type.name} value={type.name}>
-                        {__(type.name)}
-                      </option>
-                    ))}
-                </FormControl>
-              </FormGroup>
+
               {contract.leaseType === LEASE_TYPES.SAVING && contractType && (
                 <FormGroup>
                   <ControlLabel required={true}>
@@ -668,6 +736,34 @@ function ContractForm(props: Props) {
                 errors: checkValidation(),
                 onChange: onChangeField,
               })}
+              {renderFormGroup('Tenor /duration month/', {
+                type: 'number',
+                name: 'tenor',
+                useNumberFormat: true,
+                value: contract.tenor || 0,
+                errors: checkValidation(),
+                required: true,
+                max: contractType?.config?.maxTenor,
+                onChange: onChangeField,
+              })}
+              <FormGroup>
+                <ControlLabel required={true}>
+                  {__('Holiday type')}
+                </ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="holidayType"
+                  componentclass="select"
+                  value={contract.holidayType}
+                  onChange={onChangeField}
+                >
+                  {['before', 'exact', 'after'].map((typeName, index) => (
+                    <option key={typeName} value={typeName}>
+                      {__(typeName + 'Method')}
+                    </option>
+                  ))}
+                </FormControl>
+              </FormGroup>
             </FormColumn>
             <FormColumn>
               <FormGroup>
@@ -681,7 +777,6 @@ function ContractForm(props: Props) {
                     name="firstPayDate"
                     dateFormat="YYYY/MM/DD"
                     value={contract.firstPayDate}
-                    onChange={onChangeFirstPayDate}
                     isValidDate={(date) => {
                       const startDate = new Date(contract.startDate);
                       const maxDate = moment(startDate).add(45, 'day').toDate();
@@ -711,15 +806,16 @@ function ContractForm(props: Props) {
                 </FormControl>
               </FormGroup>
 
-              {renderFormGroup('Tenor /duration month/', {
+              {renderFormGroup('Interest Rate in Year', {
+                ...formProps,
                 type: 'number',
-                name: 'tenor',
                 useNumberFormat: true,
-                value: contract.tenor || 0,
+                fixed: 2,
+                name: 'interestRate',
+                value: contract.interestRate || 0,
                 errors: checkValidation(),
-                required: true,
-                max: contractType?.config?.maxTenor,
                 onChange: onChangeField,
+                onClick: onFieldClick,
               })}
 
               {contract.leaseType === LEASE_TYPES.LINEAR &&
@@ -764,17 +860,6 @@ function ContractForm(props: Props) {
                 </DateContainer>
               </FormGroup>
 
-              {renderFormGroup('Interest Rate in Year', {
-                ...formProps,
-                type: 'number',
-                useNumberFormat: true,
-                fixed: 2,
-                name: 'interestRate',
-                value: contract.interestRate || 0,
-                errors: checkValidation(),
-                onChange: onChangeField,
-                onClick: onFieldClick,
-              })}
               {renderFormGroup('Interest rate in Month', {
                 ...formProps,
                 name: 'interestRateInMonth',
@@ -786,25 +871,6 @@ function ContractForm(props: Props) {
                     interestRate: (e.target as any).value * 12,
                   }),
               })}
-
-              <FormGroup>
-                <ControlLabel required={true}>
-                  {__('Holiday type')}
-                </ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="holidayType"
-                  componentclass="select"
-                  value={contract.holidayType}
-                  onChange={onChangeField}
-                >
-                  {['before', 'exact', 'after'].map((typeName, index) => (
-                    <option key={typeName} value={typeName}>
-                      {__(typeName + 'Method')}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
             </FormColumn>
           </FormWrapper>
 
