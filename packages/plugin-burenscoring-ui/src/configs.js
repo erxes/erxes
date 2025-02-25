@@ -6,25 +6,31 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './burenSection': './src/containers/BurenSection.tsx',
+    './burenScoreSidebar': './src/containers/DealBurenSection.tsx',
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
     scope: 'burenscoring',
-    module: './routes'
+    module: './routes',
   },
   menus: [
     {
-      text: "BurenScorings",
-      url: "/burenscorings", "icon": "icon-star",
-      location: "mainNavigation"
+      text: 'BurenScorings',
+      url: '/burenscorings',
+      icon: 'icon-star',
+      location: 'mainNavigation',
     },
     {
       text: 'scoring config',
       to: '/erxes-plugin-burenscoring/config/Settings',
       image: '/images/icons/erxes-04.svg',
-      location: "settings",
-      scope: "burenscoring"
-    }
+      location: 'settings',
+      scope: 'burenscoring',
+    },
   ],
-  customerRightSidebarSection: './burenSection'
+  customerRightSidebarSection: './burenSection',
+  dealRightSidebarSection: {
+    title: 'Buren Score',
+    component: './burenScoreSidebar',
+  },
 };
