@@ -1,43 +1,43 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import * as cors from 'cors';
-import * as bodyParser from 'body-parser';
-import * as express from 'express';
-import { filterXSS } from 'xss';
-import { buildSubgraphSchema } from '@apollo/subgraph';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
-import * as cookieParser from 'cookie-parser';
-import { debugInfo, debugError } from '../debuggers';
-import * as http from 'http';
-import { connectToMessageBroker } from '@erxes/api-utils/src/messageBroker';
+import { buildSubgraphSchema } from '@apollo/subgraph';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { connectToMessageBroker } from '@erxes/api-utils/src/messageBroker';
+import * as bodyParser from 'body-parser';
+import * as cookieParser from 'cookie-parser';
+import * as cors from 'cors';
+import * as express from 'express';
+import * as http from 'http';
 import * as path from 'path';
 import * as ws from 'ws';
+import { filterXSS } from 'xss';
+import { debugError, debugInfo } from '../debuggers';
 
+import app from '@erxes/api-utils/src/app';
 import {
   getServices,
   join,
   leave,
 } from '@erxes/api-utils/src/serviceDiscovery';
-import { applyInspectorEndpoints } from '../inspect';
-import app from '@erxes/api-utils/src/app';
-import { consumeQueue, consumeRPCQueue } from '../messageBroker';
-import { extractUserFromHeader } from '../headers';
+import { automationsCunsomers } from '../consumers/automations';
+import { cronjobCunsomers } from '../consumers/cronjobs';
+import { documentsCunsomer } from '../consumers/documents';
 import { formConsumers } from '../consumers/forms';
-import { tagConsumers } from '../consumers/tags';
+import { importExportCunsomers } from '../consumers/importExport';
 import { internalNoteConsumers } from '../consumers/internalNotes';
 import { logConsumers } from '../consumers/logs';
-import { importExportCunsomers } from '../consumers/importExport';
-import { automationsCunsomers } from '../consumers/automations';
-import { documentsCunsomer } from '../consumers/documents';
-import { cronjobCunsomers } from '../consumers/cronjobs';
-import { searchCunsomers } from '../consumers/search';
-import { templatesCunsomers } from '../consumers/templates';
-import { segmentsCunsomers } from '../consumers/segments';
 import { reportsCunsomers } from '../consumers/reports';
+import { searchCunsomers } from '../consumers/search';
+import { segmentsCunsomers } from '../consumers/segments';
+import { tagConsumers } from '../consumers/tags';
+import { templatesCunsomers } from '../consumers/templates';
+import { extractUserFromHeader } from '../headers';
+import { applyInspectorEndpoints } from '../inspect';
+import { consumeQueue, consumeRPCQueue } from '../messageBroker';
 
 const { PORT, USE_BRAND_RESTRICTIONS } = process.env;
 
@@ -222,11 +222,11 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         return context;
       },
-    })
+    }),
   );
 
   await new Promise<void>((resolve) =>
-    httpServer.listen({ port: PORT }, resolve)
+    httpServer.listen({ port: PORT }, resolve),
   );
 
   if (configs.freeSubscriptions) {
@@ -239,7 +239,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   }
 
   console.log(
-    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`
+    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`,
   );
 
   await connectToMessageBroker(configs.setupMessageConsumers);
@@ -385,7 +385,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await payment.transactionCallback(args),
-          })
+          }),
         );
       }
     }
@@ -406,7 +406,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await loyalties.getScoreCampaingAttributes(args),
-          })
+          }),
         );
       }
     }

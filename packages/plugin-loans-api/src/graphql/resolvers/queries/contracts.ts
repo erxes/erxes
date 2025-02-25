@@ -293,9 +293,9 @@ const contractQueries = {
 
     let fakeContract: IContractDocument = {
       _id: 'tempFakeContract',
-      firstPayDate: new Date(),
-      startDate: moment(new Date()).add(1, 'day'),
-      endDate: moment(new Date).add(args?.tenor || 1, 'M'),
+      contractDate: new Date(),
+      startDate: new Date(),
+      endDate: new Date(moment(new Date).add(args?.tenor || 1, 'M').format('YYYY-MM-DD')),
       tenor: 1,
       scheduleDays: [new Date().getDate()],
       interestRate: 0,

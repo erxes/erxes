@@ -31,7 +31,7 @@ function DealDynamicComponent({ item }: Props) {
           true
         )}
       </DynamicContentLeft>
-      <DynamicContentRight>
+      <DynamicContentRight overflow={true}>
         {loadDynamicComponentWithTitle(
           "dealRightSidebarSection",
           {

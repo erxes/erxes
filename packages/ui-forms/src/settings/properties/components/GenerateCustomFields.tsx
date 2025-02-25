@@ -1,13 +1,15 @@
 import { Divider, SidebarContent, SidebarFooter } from "../styles";
 import {
+  DynamicComponentList,
   DynamicContent,
   DynamicContentLeft,
+  DynamicContentLeftButtonWrapper,
   DynamicContentRight,
   FlexCenter,
 } from "@erxes/ui/src/styles/main";
 import { IField, ILocationOption } from "@erxes/ui/src/types";
 import { IFieldGroup, LogicParams } from "../types";
-import { getConfig, setConfig } from "@erxes/ui/src/utils/core";
+import { __, getConfig, setConfig } from "@erxes/ui/src/utils/core";
 
 import { Alert } from "@erxes/ui/src/utils";
 import Box from "@erxes/ui/src/components/Box";
@@ -701,7 +703,7 @@ class GenerateGroups extends React.Component<
         }
       }
 
-      return (
+      const content = (
         <GenerateGroup
           isDetail={isDetail}
           key={fieldGroup._id}
@@ -719,6 +721,17 @@ class GenerateGroups extends React.Component<
           onValuesChange={this.props.onValuesChange}
         />
       );
+
+      if (showType === "list") {
+        return (
+          <DynamicComponentList>
+            <h4>{fieldGroup.name}</h4>
+            {content}
+          </DynamicComponentList>
+        );
+      }
+
+      return content;
     });
   };
 
@@ -770,6 +783,11 @@ class GenerateGroups extends React.Component<
                 </div>
               );
             })}
+            <DynamicContentLeftButtonWrapper>
+              <Button btnStyle="simple" icon="settings" block>
+                {__("Manage properties")}
+              </Button>
+            </DynamicContentLeftButtonWrapper>
           </DynamicContentLeft>
           <DynamicContentRight overflow={true}>
             {this.renderGroups(activeGroups)}

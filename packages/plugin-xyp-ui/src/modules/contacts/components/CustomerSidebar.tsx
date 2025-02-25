@@ -1,26 +1,30 @@
 import {
-  Button,
-  ControlLabel,
-  DataWithLoader,
-  ErrorMsg,
-  Form,
-  ModalTrigger,
-  Spinner,
-} from "@erxes/ui/src/components";
-import { ButtonRelated, ModalFooter } from "@erxes/ui/src/styles/main";
+  ButtonRelated,
+  DynamicComponentList,
+  DynamicServiceItem,
+  DynamicTableWrapper,
+  ModalFooter,
+  XypTitle,
+} from "@erxes/ui/src/styles/main";
 import React, { useState } from "react";
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 
 import Box from "@erxes/ui/src/components/Box";
+import Button from "@erxes/ui/src/components/Button";
 import CollapseContent from "@erxes/ui/src/components/CollapseContent";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
 import DynamicComponentContent from "@erxes/ui/src/components/dynamicComponent/Content";
+import ErrorMsg from "@erxes/ui/src/components/ErrorMsg";
 import { Footer } from "@erxes/ui/src/styles/chooser";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IOperation } from "../types";
-import { ItemContent } from "@erxes/ui/src/components/empty/styles";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import Select from "react-select";
 import { SidebarList } from "@erxes/ui/src/layout/styles";
+import Spinner from "@erxes/ui/src/components/Spinner";
 import Table from "@erxes/ui/src/components/table";
+import { XYP_TITLES } from "../constants";
 import { __ } from "@erxes/ui/src/utils/core";
 import moment from "moment";
 
@@ -44,6 +48,7 @@ function Sidebar({
   showType,
 }: Props) {
   const [params, setParams] = useState({});
+  const [currentTab, setCurrentTab] = useState("WS100101_getCitizenIDCardInfo");
   const [operation, setOperation] = useState<IOperation>({
     orgName: "",
     wsOperationDetail: "",
@@ -163,11 +168,12 @@ function Sidebar({
         }
       );
     };
+
     const renderData = (type: string, key: string) => {
-      if (type?.toLowerCase()?.includes("byte")) {
+      if (type?.toLowerCase()?.includes("byte") || key.includes("image")) {
         return <img height={80} src={`data:image/png;base64,${i[key]}`} />;
       }
-      if (type?.toLowerCase()?.includes("date")) {
+      if (type?.toLowerCase()?.includes("date") || key.includes("date")) {
         return moment(i[key]).format("YYYY-MM-DD");
       }
 
@@ -208,69 +214,120 @@ function Sidebar({
 
   const modalContent = (props, xd, d: any) => {
     if (!d.data) return <div>мэдээлэл байхгүй</div>;
+
     const output =
       (xypServiceList.find((x) => x.wsOperationName === d?.serviceName)
         ?.output as any) || [];
 
     if (d.data?.list?.length || d.data?.listData?.length) {
-      const renderListItems = (listItem: any, index: number) => {
-        const title = `${
-          listItem["name"] ||
-          listItem["code"] ||
-          listItem["title"] ||
-          listItem["month"] ||
-          listItem["markName"] ||
-          ""
-        } ${
-          listItem["modelName"] || d?.serviceDescription || d?.serviceName || ""
-        }`;
-        return (
-          <CollapseContent
-            title={__(title)}
-            compact={true}
-            open={false}
-            key={index}
-          >
-            {renderServiceItem(listItem, output)}
-          </CollapseContent>
-        );
-      };
-
       return (
-        <Table $striped $bordered $responsive key={d?.serviceDescription}>
-          <tbody id="hurData">
-            {(d.data.list || d.data.listData || []).map(
-              (listItem, index: number) => renderListItems(listItem, index)
-            )}
-          </tbody>
-        </Table>
+        <DynamicServiceItem id="hurData" key={d?.serviceDescription}>
+          {(d.data.list || d.data.listData || []).map(
+            (listItem, index: number) => (
+              <React.Fragment key={index}>
+                <h4>
+                  #{index + 1} {XYP_TITLES[d?.serviceName]}
+                </h4>
+                {renderServiceItem(listItem, output)}
+              </React.Fragment>
+            )
+          )}
+        </DynamicServiceItem>
       );
     }
+
     return renderServiceItem(d.data, output);
   };
 
+  const renderContent = (xypContent, xypData) => {
+    if (showType && showType === "list") {
+      if (xypData.serviceName !== currentTab) {
+        return null;
+      }
+
+      return (
+        <DynamicComponentList $hasMargin={true}>
+          <h4>
+            {moment(xypContent.createdAt).format("YYYY-MM-DD")}{" "}
+            {xypData && xypData.length}
+          </h4>
+          <DynamicTableWrapper>
+            {modalContent("", xypContent, xypData)}
+          </DynamicTableWrapper>
+        </DynamicComponentList>
+      );
+    }
+
+    return (
+      <ModalTrigger
+        title={`${moment(xypContent.createdAt).format("YYYY-MM-DD")} - ${XYP_TITLES[xypData.serviceName]}`}
+        trigger={
+          <XypTitle
+            key={`${xypContent._id} ${XYP_TITLES[xypData.serviceName]}`}
+          >
+            {moment(xypContent.createdAt).format("YYYY-MM-DD")}:{" "}
+            {XYP_TITLES[xypData.serviceName]}
+          </XypTitle>
+        }
+        size="xl"
+        content={(props) => modalContent(props, xypContent, xypData)}
+        key={xypData.serviceName}
+      />
+    );
+  };
+
+  const renderXypContent = () => {
+    return (xypDatas || []).map((xd) =>
+      (xd.data || []).map((d) => renderContent(xd, d))
+    );
+  };
+
   const content = () => {
+    if (showType && showType === "list") {
+      return (
+        <SidebarList className="no-link">
+          <Tabs full>
+            <TabTitle
+              className={
+                currentTab === "WS100101_getCitizenIDCardInfo" ? "active" : ""
+              }
+              onClick={() => setCurrentTab("WS100101_getCitizenIDCardInfo")}
+            >
+              {__("Иргэний үнэмлэхний мэдээлэл")}
+            </TabTitle>
+            <TabTitle
+              className={
+                currentTab === "WS100501_getCitizenSalaryInfo" ? "active" : ""
+              }
+              onClick={() => setCurrentTab("WS100501_getCitizenSalaryInfo")}
+            >
+              {__("Цалингийн мэдээлэл")}
+            </TabTitle>
+            <TabTitle
+              className={
+                currentTab === "WS100202_getPropertyList" ? "active" : ""
+              }
+              onClick={() => setCurrentTab("WS100202_getPropertyList")}
+            >
+              {__("Хөрөнгийн мэдээлэл")}
+            </TabTitle>
+            <TabTitle
+              className={
+                currentTab === "WS100406_getCitizenVehicleList" ? "active" : ""
+              }
+              onClick={() => setCurrentTab("WS100406_getCitizenVehicleList")}
+            >
+              {__("Тээврийн хэрэгслийн мэдээлэл")}
+            </TabTitle>
+          </Tabs>
+          {renderXypContent()}
+        </SidebarList>
+      );
+    }
+
     return (
       <>
-        <SidebarList className="no-link">
-          {/* {loading && <DataWithLoader data="This is data" loading objective />} */}
-          {(xypDatas || []).map((xd) =>
-            (xd.data || []).map((d) => (
-              <ModalTrigger
-                title={`${moment(xd.createdAt).format("YYYY-MM-DD")} - ${d?.serviceName}`}
-                trigger={
-                  <ul key={`${xd._id} ${d?.serviceName}`}>
-                    <span>{moment(xd.createdAt).format("YYYY-MM-DD")}:</span>
-                    <li>{d?.serviceName}</li>
-                  </ul>
-                }
-                size="xl"
-                content={(props) => modalContent(props, xd, d)}
-                key={d?.serviceName}
-              />
-            ))
-          )}
-        </SidebarList>
+        <SidebarList className="no-link">{renderXypContent()}</SidebarList>
         {relQuickButtons}
       </>
     );
