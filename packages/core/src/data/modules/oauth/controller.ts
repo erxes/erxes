@@ -1,7 +1,8 @@
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomain, userActionsMap } from '@erxes/api-utils/src/core';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { generateModels } from '../../../connectionResolver';
+import redis from '@erxes/api-utils/src/redis';
 
 const { JWT_TOKEN_SECRET = '' } = process.env;
 
@@ -19,6 +20,12 @@ export const authorizeClient = async (req: any, res: any) => {
 
   if (!client) {
     return res.status(400).json({ error: 'Invalid client id' });
+  }
+
+  const user = await models.Users.findOne({ appId: client._id });
+
+  if (!user) {
+    return res.status(400).json({ error: 'Not found' });
   }
 
   if (
@@ -50,6 +57,15 @@ export const authorizeClient = async (req: any, res: any) => {
     `${JWT_TOKEN_SECRET}_refresh`,
     { expiresIn: '7d' }
   );
+
+  // put permission map in redis, so that other services can use it
+  const userPermissions = await models.Permissions.find({
+    userId: user._id,
+  });
+
+  const actionMap = await userActionsMap(userPermissions, [], user);
+
+  await redis.set(`user_permissions_${user._id}`, JSON.stringify(actionMap));
 
   await models.Clients.updateOne(
     { _id: client._id },
@@ -102,14 +118,12 @@ export const refreshAccessToken = async (req: any, res: any) => {
       { $set: { refreshToken: newRefreshToken } }
     );
 
-    return res
-      .status(200)
-      .json({
-        accessToken,
-        refreshToken: newRefreshToken,
-        type: 'Bearer',
-        expiresIn: 3600,
-      });
+    return res.status(200).json({
+      accessToken,
+      refreshToken: newRefreshToken,
+      type: 'Bearer',
+      expiresIn: 3600,
+    });
   } catch (error) {
     return res.status(400).json({ error: 'Invalid refresh token' });
   }
