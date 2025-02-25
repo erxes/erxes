@@ -17,6 +17,7 @@ export interface IInsurancesData extends Document {
 }
 
 export interface IStepRules extends Document {
+  _id: string;
   scheduleDays?: number[];
   tenor: number; // loan duration month
   interestRate?: number;

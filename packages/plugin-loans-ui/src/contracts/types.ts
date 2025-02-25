@@ -35,6 +35,7 @@ export interface IInsuranceData {
 }
 
 export interface IStepRules {
+  _id: string;
   scheduleDays?: number[];
   tenor: number; // loan duration month
   interestRate?: number;

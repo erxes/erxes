@@ -8,19 +8,35 @@ import {
 } from '@erxes/ui/src/styles/eindex';
 import { IFormProps } from '@erxes/ui/src/types';
 import { __ } from 'coreui/utils';
-import React, { useState } from 'react';
-import { IContract, IStepRules } from '../../types';
+import React from 'react';
+import { IStepRules } from '../../types';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
+import Select from 'react-select';
+
+const getEmptyRules = () => ({
+  _id: crypto.randomUUID(),
+  scheduleDays: [],
+  tenor: '',
+  interestRate: '',
+  firstPayDate: '',
+  mainPayPerMonth: '',
+  totalMainAmount: '',
+  salvageAmount: '',
+  skipInterestCalcMonth: '',
+  skipInterestCalcDay: '',
+  skipAmountCalcMonth: '',
+  skipAmountCalcDay: '',
+});
 
 type Props = {
-  stepRules?: IStepRules[];
+  stepRules: IStepRules[];
   setStepRules: (stepRules) => void;
 };
 
 function StepRulesForm(props: Props) {
-  const { stepRules } = props;
+  const { stepRules, setStepRules } = props;
 
   const renderFormGroup = (label, props) => {
     if (!label) return <FormControl {...props} />;
@@ -32,12 +48,49 @@ function StepRulesForm(props: Props) {
     );
   };
 
+  const onChangeItem = (_id: string, key: string, value: any) => {
+    setStepRules((prev) =>
+      prev.map((rule) => (rule._id === _id ? { ...rule, [key]: value } : rule))
+    );
+  };
+
+  const onSelectScheduleDays = (_id: string, key: string, value: any) => {
+    setStepRules((prev) =>
+      prev.map((rule) =>
+        rule._id === _id
+          ? { ...rule, [key]: value.map((val) => val.value) }
+          : rule
+      )
+    );
+  };
+
+  const onChangeDate = (_id: string, key: string, date: any) => {
+    setStepRules((prev) =>
+      prev.map((rule) => (rule._id === _id ? { ...rule, [key]: date } : rule))
+    );
+  };
+
+  const onChangeFeature = () => {
+    setStepRules([...stepRules, getEmptyRules()]);
+  };
+
+  const removeFeature = (_id?: string) => {
+    const modifiedStepRules = stepRules.filter((f) => f._id !== _id);
+
+    setStepRules(modifiedStepRules);
+  };
+
+  const scheduleOptions = new Array(31).fill(1).map((row, index) => ({
+    value: row + index,
+    label: row + index,
+  }));
+
   const renderStepRuleForm = (formProps) => {
     return (
-      <FormWrapper>
+      <>
         {(stepRules || []).map((stepRule) => {
           return (
-            <>
+            <FormWrapper>
               <FormColumn>
                 <FormGroup>
                   <ControlLabel required={true}>
@@ -50,7 +103,9 @@ function StepRulesForm(props: Props) {
                       name="firstPayDate"
                       dateFormat="YYYY/MM/DD"
                       value={stepRule.firstPayDate}
-                      // onChange={onChangeStartDate}
+                      onChange={(e: any) =>
+                        onChangeDate(stepRule._id, 'firstPayDate', e.getTime())
+                      }
                     />
                   </DateContainer>
                 </FormGroup>
@@ -59,25 +114,26 @@ function StepRulesForm(props: Props) {
                   ...formProps,
                   name: 'tenor',
                   type: 'number',
-                  value: stepRule.tenor || 0,
-                  // onChange: (e) =>
-                  //   setContract({
-                  //     ...stepRule,
-                  //     interestRate: (e.target as any).value * 12,
-                  //   }),
+                  value: stepRule.tenor,
+                  onChange: (e) =>
+                    onChangeItem(stepRule._id, 'tenor', Number(e.target.value)),
                 })}
 
-                {renderFormGroup('Schedule Days', {
-                  ...formProps,
-                  name: 'scheduleDays',
-                  type: 'number',
-                  value: stepRule.scheduleDays || 0,
-                  // onChange: (e) =>
-                  //   setContract({
-                  //     ...stepRule,
-                  //     interestRate: (e.target as any).value * 12,
-                  //   }),
-                })}
+                <FormGroup>
+                  <ControlLabel required>{__('Schedule Days')}</ControlLabel>
+                  <Select
+                    className="flex-item"
+                    placeholder={__('Choose an schedule Days')}
+                    value={scheduleOptions.filter((o) =>
+                      stepRule.scheduleDays?.includes(o.value)
+                    )}
+                    onChange={(item: any) =>
+                      onSelectScheduleDays(stepRule._id, 'scheduleDays', item)
+                    }
+                    isMulti={true}
+                    options={scheduleOptions}
+                  />
+                </FormGroup>
               </FormColumn>
 
               <FormColumn>
@@ -85,48 +141,52 @@ function StepRulesForm(props: Props) {
                   ...formProps,
                   name: 'interestRate',
                   type: 'number',
-                  value: stepRule.interestRate || 0,
-                  // onChange: (e) =>
-                  //   setContract({
-                  //     ...stepRule,
-                  //     interestRate: (e.target as any).value * 12,
-                  //   }),
+                  value: stepRule.interestRate,
+                  onChange: (e) =>
+                    onChangeItem(
+                      stepRule._id,
+                      'interestRate',
+                      Number(e.target.value)
+                    ),
                 })}
 
                 {renderFormGroup('Main Pay Per Month', {
                   ...formProps,
                   name: 'mainPayPerMonth',
                   type: 'number',
-                  value: stepRule.mainPayPerMonth || 0,
-                  // onChange: (e) =>
-                  //   setContract({
-                  //     ...stepRule,
-                  //     interestRate: (e.target as any).value * 12,
-                  //   }),
+                  value: stepRule.mainPayPerMonth,
+                  onChange: (e) =>
+                    onChangeItem(
+                      stepRule._id,
+                      'mainPayPerMonth',
+                      Number(e.target.value)
+                    ),
                 })}
 
                 {renderFormGroup('Total Main Amount', {
                   ...formProps,
                   name: 'totalMainAmount',
                   type: 'number',
-                  value: stepRule.totalMainAmount || 0,
-                  // onChange: (e) =>
-                  //   setContract({
-                  //     ...stepRule,
-                  //     interestRate: (e.target as any).value * 12,
-                  //   }),
+                  value: stepRule.totalMainAmount,
+                  onChange: (e) =>
+                    onChangeItem(
+                      stepRule._id,
+                      'totalMainAmount',
+                      Number(e.target.value)
+                    ),
                 })}
 
                 {renderFormGroup('Salvage Amount', {
                   ...formProps,
                   name: 'salvageAmount',
                   type: 'number',
-                  value: stepRule.salvageAmount || 0,
-                  // onChange: (e) =>
-                  //   setContract({
-                  //     ...stepRule,
-                  //     interestRate: (e.target as any).value * 12,
-                  //   }),
+                  value: stepRule.salvageAmount,
+                  onChange: (e) =>
+                    onChangeItem(
+                      stepRule._id,
+                      'salvageAmount',
+                      Number(e.target.value)
+                    ),
                 })}
               </FormColumn>
 
@@ -135,66 +195,76 @@ function StepRulesForm(props: Props) {
                   ...formProps,
                   name: 'skipInterestCalcMonth',
                   type: 'number',
-                  value: stepRule.skipInterestCalcMonth || 0,
-                  // onChange: (e) =>
-                  //   setContract({
-                  //     ...stepRule,
-                  //     interestRate: (e.target as any).value * 12,
-                  //   }),
+                  value: stepRule.skipInterestCalcMonth,
+                  onChange: (e) =>
+                    onChangeItem(
+                      stepRule._id,
+                      'skipInterestCalcMonth',
+                      Number(e.target.value)
+                    ),
                 })}
 
                 {renderFormGroup('Skip Interest Calc Day', {
                   ...formProps,
                   name: 'skipInterestCalcDay',
                   type: 'number',
-                  value: stepRule.skipInterestCalcDay || 0,
-                  // onChange: (e) =>
-                  //   setContract({
-                  //     ...stepRule,
-                  //     interestRate: (e.target as any).value * 12,
-                  //   }),
+                  value: stepRule.skipInterestCalcDay,
+                  onChange: (e) =>
+                    onChangeItem(
+                      stepRule._id,
+                      'skipInterestCalcDay',
+                      Number(e.target.value)
+                    ),
                 })}
 
                 {renderFormGroup('Skip Amount Calc Month', {
                   ...formProps,
                   name: 'skipAmountCalcMonth',
                   type: 'number',
-                  value: stepRule.skipAmountCalcMonth || 0,
-                  // onChange: (e) =>
-                  //   setContract({
-                  //     ...stepRule,
-                  //     interestRate: (e.target as any).value * 12,
-                  //   }),
+                  value: stepRule.skipAmountCalcMonth,
+                  onChange: (e) =>
+                    onChangeItem(
+                      stepRule._id,
+                      'skipAmountCalcMonth',
+                      Number(e.target.value)
+                    ),
                 })}
 
                 {renderFormGroup('skipAmountCalcDay', {
                   ...formProps,
                   name: 'skipAmountCalcDay',
                   type: 'number',
-                  value: stepRule.skipAmountCalcDay || 0,
-                  // onChange: (e) =>
-                  //   setContract({
-                  //     ...stepRule,
-                  //     interestRate: (e.target as any).value * 12,
-                  //   }),
+                  value: stepRule.skipAmountCalcDay,
+                  onChange: (e) =>
+                    onChangeItem(
+                      stepRule._id,
+                      'skipAmountCalcDay',
+                      Number(e.target.value)
+                    ),
                 })}
+                <Button
+                  btnStyle="danger"
+                  size="small"
+                  onClick={() => removeFeature(stepRule._id)}
+                >
+                  X Remove Step Rule
+                </Button>
               </FormColumn>
-            </>
+            </FormWrapper>
           );
         })}
-      </FormWrapper>
+      </>
     );
   };
 
   const renderContent = (formProps: IFormProps) => {
-    const { values, isSubmitted } = formProps;
-
     return (
       <>
-        {/* onClick={() => onChangeFeature()} */}
         <FormGroup>
           <ControlLabel>Step Rules</ControlLabel>
-          <Button size="small">+ Add Step Rules</Button>
+          <Button size="small" onClick={() => onChangeFeature()}>
+            + Add Step Rules
+          </Button>
         </FormGroup>
 
         {renderStepRuleForm(formProps)}
