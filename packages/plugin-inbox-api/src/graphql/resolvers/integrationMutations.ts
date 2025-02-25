@@ -7,6 +7,7 @@ import {
   IIntegration,
   IIntegrationDocument,
   IMessengerData,
+  ITicketData,
   IUiOptions
 } from "../../models/definitions/integrations";
 
@@ -297,13 +298,29 @@ const integrationMutations = {
   ) {
     return models.Integrations.saveMessengerAppearanceData(_id, uiOptions);
   },
+  async integrationsSaveMessengerTicketData(
+    _root,
+    { _id, ticketData }: { _id: string; ticketData: ITicketData },
+    { models }: IContext
+  ) {
+    return models.Integrations.integrationsSaveMessengerTicketData(
+      _id,
+      ticketData
+    );
+  },
 
   /**
    * Update/save messenger data
    */
   async integrationsSaveMessengerConfigs(
     _root,
-    { _id, messengerData }: { _id: string; messengerData: IMessengerData },
+    {
+      _id,
+      messengerData
+    }: {
+      _id: string;
+      messengerData: IMessengerData;
+    },
     { models }: IContext
   ) {
     return models.Integrations.saveMessengerConfigs(_id, messengerData);
@@ -728,7 +745,7 @@ const integrationMutations = {
       user._id
     );
 
-    const fields = sourceFields.map(e => ({
+    const fields = sourceFields.map((e) => ({
       options: e.options,
       isVisible: e.isVisible,
       contentType: e.contentType,
