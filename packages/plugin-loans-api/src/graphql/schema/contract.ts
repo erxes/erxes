@@ -45,7 +45,7 @@ const commonFields = `
 
   customerType: String
   customerId: String
-  relCustomers: JSON
+  relCustomers: [JSON]
 
   relationExpertId: String
   leasingExpertId: String
@@ -100,6 +100,7 @@ export const types = () => `
     contractType: ContractType
     relContract: RecContract
     customer: Customer
+    company: Company
     givenAmount: Float
 
     hasTransaction: Boolean

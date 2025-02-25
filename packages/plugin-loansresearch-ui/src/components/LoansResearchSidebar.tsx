@@ -17,12 +17,9 @@ import { ILoanResearch } from '../types';
 import { FlexRow, List } from '../styles';
 import LoansResearchFormContainer from '../containers/LoansResearchForm';
 import React, { useState } from 'react';
-import { DateContainer, DynamicComponentList } from '@erxes/ui/src/styles/main';
+import { DynamicComponentList } from '@erxes/ui/src/styles/main';
 import { SidebarContent } from '@erxes/ui-forms/src/settings/properties/styles';
 import Select from 'react-select';
-import { INCOME_TYPES, LOAN_TYPES } from '../constants';
-import { FormLabel } from '@erxes/ui/src/components/form/styles';
-import Datetime from '@nateradebaugh/react-datetime';
 
 type Props = {
   loansResearch: ILoanResearch;
@@ -33,8 +30,6 @@ type Props = {
 const LoansResearchSidebar = (props: Props) => {
   const { loansResearch, queryParams, showType } = props;
   const [currentTab, setCurrentTab] = useState('deals');
-  const [incomes] = useState(loansResearch?.incomes || []);
-  const [loans] = useState(loansResearch?.loans || []);
 
   const renderForm = ({
     closeModal,
@@ -90,6 +85,14 @@ const LoansResearchSidebar = (props: Props) => {
         {renderFormGroup('CustomerId', loansResearch?.customerId || '')}
         {renderFormGroup('Customer Type', loansResearch?.customerType || '')}
         {renderFormGroup(
+          'Average Salary Income',
+          loansResearch?.averageSalaryIncome || 0
+        )}
+        {renderFormGroup(
+          'Total Payment Amount',
+          loansResearch?.totalPaymentAmount || 0
+        )}
+        {renderFormGroup(
           'Debt Income Ratio',
           loansResearch?.debtIncomeRatio || 0
         )}
@@ -115,42 +118,6 @@ const LoansResearchSidebar = (props: Props) => {
           )}
           {renderFormGroup('Total Income', loansResearch?.totalIncome || '')}
         </FlexRow>
-        {incomes.map((income) => (
-          <>
-            {renderFormGroup(
-              'Income type',
-              INCOME_TYPES.find((o) => o.value === income.incomeType),
-              true
-            )}
-            {income.incomeType === 'Salary' && (
-              <>
-                {renderFormGroup(
-                  'Total Salary Income',
-                  income?.totalSalaryIncome || 0
-                )}
-                {renderFormGroup('Total Month', income?.totalMonth || 0)}
-              </>
-            )}
-
-            {income.incomeType === 'Business' && (
-              <>
-                {renderFormGroup('Business Line', income?.businessLine || '')}
-                {renderFormGroup(
-                  'Business Details',
-                  income?.businessDetails || ''
-                )}
-                {renderFormGroup(
-                  'Business Profile',
-                  income?.businessProfile || ''
-                )}
-                {renderFormGroup(
-                  'Business Income',
-                  income?.businessIncome || 0
-                )}
-              </>
-            )}
-          </>
-        ))}
       </SidebarContent>
     );
   };
@@ -172,57 +139,6 @@ const LoansResearchSidebar = (props: Props) => {
             loansResearch?.totalPaymentAmount || 0
           )}
         </FlexRow>
-        {loans.map((loan) => (
-          <>
-            {renderFormGroup(
-              'Loan type',
-              LOAN_TYPES.find((o) => o.value === loan.loanType),
-              true
-            )}
-            {loan.loanType === 'Loan' && (
-              <>
-                {renderFormGroup('Loan Name', loan?.loanName || '')}
-                {renderFormGroup('Loan Location', loan?.loanLocation || '')}
-                {renderFormGroup('Loan Location', loan?.loanLocation || '')}
-
-                <FlexRow>
-                  <FormGroup>
-                    <FormLabel>{__('Start Date')}</FormLabel>
-                    <DateContainer>
-                      <Datetime
-                        dateFormat="MM/DD/YYYY"
-                        closeOnSelect={true}
-                        utc={true}
-                        timeFormat={true}
-                        defaultValue={loan?.startDate}
-                      />
-                    </DateContainer>
-                  </FormGroup>
-
-                  <FormGroup>
-                    <FormLabel>{__('Close Date')}</FormLabel>
-                    <DateContainer>
-                      <Datetime
-                        dateFormat="MM/DD/YYYY"
-                        closeOnSelect={true}
-                        utc={true}
-                        timeFormat={true}
-                        defaultValue={loan?.closeDate}
-                      />
-                    </DateContainer>
-                  </FormGroup>
-                </FlexRow>
-                {renderFormGroup('Loan Amount', loan?.loanAmount || 0)}
-              </>
-            )}
-            {loan.loanType === 'Cost' && (
-              <>
-                {renderFormGroup('Cost Name', loan?.costName || '')}
-                {renderFormGroup('Monthly Cost Amount', loan?.costAmount || '')}
-              </>
-            )}
-          </>
-        ))}
       </SidebarContent>
     );
   };
@@ -283,7 +199,6 @@ const LoansResearchSidebar = (props: Props) => {
             {__('Loans')}
           </TabTitle>
         </Tabs>
-        {extraButtons}
         {renderContent()}
       </SidebarList>
     );
