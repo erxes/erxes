@@ -12,6 +12,7 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from 'coreui/utils';
 import React, { useState } from 'react';
 import { IContract, IContractDoc } from '../../types';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -35,22 +36,18 @@ function RelCustomersForm(props: Props) {
     return result;
   };
 
-  const onSelectCustomer = (selectedCustomerId: string | string[]) => {
-    let data;
+  const onSelectCustomer = (
+    selectedCustomerId: string | string[],
+    customerType: 'customer' | 'company'
+  ) => {
+    const newData = Array.isArray(selectedCustomerId)
+      ? selectedCustomerId.map((cId) => ({ customerId: cId, customerType }))
+      : [{ customerId: selectedCustomerId, customerType }];
 
-    if (Array.isArray(selectedCustomerId)) {
-      data = selectedCustomerId.map((cId) => ({
-        customerId: cId,
-        customerType: 'customer',
-      }));
-    } else {
-      data = {
-        customerId: selectedCustomerId,
-        customerType: 'customer',
-      };
-    }
-
-    setRelCustomers(data);
+    setRelCustomers((prev) => [
+      ...prev.filter((item) => item.customerType !== customerType), // Keep other types
+      ...newData, // Add new selections
+    ]);
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -68,7 +65,19 @@ function RelCustomersForm(props: Props) {
                 name="customerId"
                 initialValue={relCustomers?.map((relC) => relC.customerId)}
                 onSelect={(selectedId: string | string[]) =>
-                  onSelectCustomer(selectedId)
+                  onSelectCustomer(selectedId, 'customer')
+                }
+                multi={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('RelCompanies')}</ControlLabel>
+              <SelectCompanies
+                label={__('Choose relCompanies')}
+                name="customerId"
+                initialValue={relCustomers?.map((relC) => relC.customerId)}
+                onSelect={(selectedId: string | string[]) =>
+                  onSelectCustomer(selectedId, 'company')
                 }
                 multi={true}
               />

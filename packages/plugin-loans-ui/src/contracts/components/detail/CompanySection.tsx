@@ -1,7 +1,6 @@
 import { __, urlParser } from '@erxes/ui/src/utils';
 
 import Box from '@erxes/ui/src/components/Box';
-import { ButtonRelated } from '@erxes/ui/src/styles/main';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
@@ -35,8 +34,8 @@ function CompanySection(this: any, { companies = [], title, contract }: Props) {
 
   const content = (
     <div>
-      {companies.map((company, index) => (
-        <SectionBodyItem key={index}>
+      {companies.map((company) => (
+        <SectionBodyItem>
           <Link to={`/companies/details/${company._id}`}>
             {company.primaryName || 'Unknown'}
           </Link>

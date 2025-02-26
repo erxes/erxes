@@ -25,8 +25,8 @@ function CustomerSection({ customers = [], title = '', contract }: Props) {
     }
     return (
       <div>
-        {customersObj.map((customer, index) => (
-          <SectionBodyItem key={index}>
+        {customersObj.map((customer) => (
+          <SectionBodyItem>
             <Link to={`/contacts/details/${customer._id}`}>
               {renderFullName(customer)}
             </Link>

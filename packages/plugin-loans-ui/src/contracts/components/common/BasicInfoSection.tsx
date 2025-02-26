@@ -24,7 +24,6 @@ import { gql } from '@apollo/client';
 import { queries } from '../../graphql';
 import withConsumer from '../../../withConsumer';
 import TransactionForm from '../../../transactions/containers/TransactionForm';
-import RelCustomersForm from '../../containers/detail/RelCustomersForm';
 
 type Props = {
   contract: IContract;
@@ -95,10 +94,6 @@ const BasicInfoSection = (props: Props) => {
       <ContractForm change={true} {...props} contract={contract} />
     );
 
-    const relCustomersForm = (props) => (
-      <RelCustomersForm change={true} {...props} contract={contract} />
-    );
-
     const menuItems = () => {
       let result: any[] = [
         {
@@ -111,14 +106,6 @@ const BasicInfoSection = (props: Props) => {
           title: 'Change contract',
           trigger: <a href="#changeContract">{__('Change contract')}</a>,
           content: contractForm,
-          additionalModalProps: { size: 'lg' },
-        },
-        {
-          title: 'Change relCustomers',
-          trigger: (
-            <a href="#changeRelCustomers">{__('Change relCustomers')}</a>
-          ),
-          content: relCustomersForm,
           additionalModalProps: { size: 'lg' },
         },
       ];
