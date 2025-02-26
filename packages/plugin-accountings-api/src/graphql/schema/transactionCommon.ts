@@ -131,6 +131,7 @@ const trsQueryParams = `
   accountJournal: String,
 
   brandId: String,
+  isTemp: Boolean,
   isOutBalance: Boolean,
   branchId: String,
   departmentId: String,
