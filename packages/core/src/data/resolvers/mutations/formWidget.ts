@@ -337,15 +337,44 @@ const mutations = {
 
     if (saveAsCustomer) {
       customerQry = {
-        $or: [
-          { primaryEmail: customerDoc.email },
-          { phones: customerDoc.phone },
-          { _id: args.cachedCustomerId },
-        ],
+        $or: [{ _id: args.cachedCustomerId }],
       };
+
+      if (customerDoc.email) {
+        customerQry.$or.push({ primaryEmail: customerDoc.email });
+      }
+      if (customerDoc.phone) {
+        customerQry.$or.push({ primaryPhone: customerDoc.phone });
+      }
+
+      if (!customerDoc.email && !customerDoc.phone && !args.cachedCustomerId) {
+        customerQry = null;
+      }
     }
 
-    let customer = await models.Customers.findOne(customerQry);
+    if (form.leadData?.clearCacheAfterSave) {
+      customerQry = {
+        $or: [],
+      };
+
+      if (customerDoc.email) {
+        customerQry.$or.push({ primaryEmail: customerDoc.email });
+      }
+      if (customerDoc.phone) {
+        customerQry.$or.push({ primaryPhone: customerDoc.phone });
+      }
+
+      if (customerQry.$or.length === 0) {
+        customerQry = null;
+      }
+    }
+
+    let customer: any = null;
+
+    if (customerQry) {
+      customer = await models.Customers.findOne(customerQry);
+    }
+
     if (!customer) {
       customer = await models.Customers.createCustomer({
         ...customerDoc,
