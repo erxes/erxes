@@ -120,7 +120,7 @@ function Sidebar({
               <Button
                 btnStyle="simple"
                 uppercase={false}
-                onClick={() => {}}
+                onClick={() => { }}
                 icon="times-circle"
               >
                 Cancel
@@ -128,7 +128,7 @@ function Sidebar({
               <Button
                 btnStyle="success"
                 onClick={() => {
-                  fetchData(operation, params, {}, () => {});
+                  fetchData(operation, params, {}, () => { });
                 }}
                 icon="check-circle"
                 uppercase={false}
