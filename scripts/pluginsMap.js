@@ -4514,7 +4514,8 @@ module.exports = {
       "scope": "burenscoring",
       "exposes": {
         "./routes": "./src/routes.tsx",
-        "./burenSection": "./src/containers/BurenSection.tsx"
+        "./burenSection": "./src/containers/BurenSection.tsx",
+        "./burenScoreSidebar": "./src/containers/DealBurenSection.tsx"
       },
       "routes": {
         "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-burenscoring-ui/remoteEntry.js",
@@ -4537,6 +4538,10 @@ module.exports = {
         }
       ],
       "customerRightSidebarSection": "./burenSection",
+      "dealRightSidebarSection": {
+        "title": "Buren Score",
+        "component": "./burenScoreSidebar"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-burenscoring-ui/remoteEntry.js"
     }
   },
@@ -4974,7 +4979,7 @@ module.exports = {
         }
       ],
       "dealRightSidebarSection": {
-        "title": "Loan Search",
+        "title": "Loan Research",
         "component": "./loansResearchSidebar"
       },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loansresearch-ui/remoteEntry.js"
