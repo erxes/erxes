@@ -6,6 +6,8 @@ import { IModels } from '../../connectionResolver';
 import { clientSchema, IClient, IClientDocument } from './definitions/client';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import { IPermission } from './definitions/permissions';
+import { userActionsMap } from '@erxes/api-utils/src/core';
+import redis from '@erxes/api-utils/src/redis';
 
 export interface IClientModel extends Model<IClientDocument> {
   getClient(doc: any): Promise<IClientDocument>;
@@ -185,6 +187,14 @@ export const loadClientClass = (models: IModels) => {
               return appPermission;
             })
           );
+
+          const userPermissions = await models.Permissions.find({
+            userId: user._id,
+          });
+        
+          const actionMap = await userActionsMap(userPermissions, [], user);
+        
+          await redis.set(`user_permissions_${user._id}`, JSON.stringify(actionMap));
         }
 
         await models.Clients.updateOne({ _id }, { $set: doc });
