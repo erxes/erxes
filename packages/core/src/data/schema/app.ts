@@ -23,7 +23,7 @@ export const types = `
     actions: [String]
   }
 
-  type Client {
+  type Client @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
     name: String
     clientId: String
