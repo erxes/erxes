@@ -39,8 +39,8 @@ export default function RightSidebar(props: Props) {
   const renderBody = (relCustomers) => {
     return (
       <div>
-        {relCustomers.map((customer, index) => (
-          <SectionBodyItem key={index}>
+        {relCustomers.map((customer) => (
+          <SectionBodyItem key={customer._id}>
             <Link to={`/contacts/details/${customer._id}`}>
               {renderFullName(customer)}
             </Link>

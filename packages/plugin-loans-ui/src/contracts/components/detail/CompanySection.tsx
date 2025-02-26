@@ -35,7 +35,7 @@ function CompanySection(this: any, { companies = [], title, contract }: Props) {
   const content = (
     <div>
       {companies.map((company) => (
-        <SectionBodyItem>
+        <SectionBodyItem key={company._id}>
           <Link to={`/companies/details/${company._id}`}>
             {company.primaryName || 'Unknown'}
           </Link>
