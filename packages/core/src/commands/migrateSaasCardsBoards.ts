@@ -93,7 +93,7 @@ const command = async () => {
               try {
                 TARGET_COLLECTION.insertOne(item);
               } catch (e) {
-                console.log(e);
+                console.error(e);
               }
             });
           } else {
@@ -101,7 +101,7 @@ const command = async () => {
               try {
                 TARGET_COLLECTION.insertOne(item);
               } catch (e) {
-                console.log(e);
+                console.error(e);
               }
             });
           }
