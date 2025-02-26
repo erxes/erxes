@@ -78,7 +78,7 @@ const command = async () => {
         { $set: { googleMapPath: path } },
       );
     } catch (e) {
-      console.log(e);
+      console.error(e);
       continue;
     }
   }

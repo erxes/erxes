@@ -27,12 +27,12 @@ export default async function userMiddleware(
         method: 'POST',
         headers: {
           'erxes-core-token': erxesCoreToken,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          url
-        })
-      }).then(r => r.text());
+          url,
+        }),
+      }).then((r) => r.text());
 
       if (response === 'ok') {
         req.user = {
@@ -41,19 +41,19 @@ export default async function userMiddleware(
             {
               action: 'showIntegrations',
               allowed: true,
-              requiredActions: []
+              requiredActions: [],
             },
             {
               action: 'showKnowledgeBase',
               allowed: true,
-              requiredActions: []
+              requiredActions: [],
             },
             {
               action: 'showScripts',
               allowed: true,
-              requiredActions: []
-            }
-          ]
+              requiredActions: [],
+            },
+          ],
         };
       }
     } catch (e) {
@@ -86,13 +86,13 @@ export default async function userMiddleware(
         if (appInDb) {
           const permissions = await models.Permissions.find({
             groupId: appInDb.userGroupId,
-            allowed: true
+            allowed: true,
           }).lean();
 
           const user = await models.Users.findOne({
             role: USER_ROLES.SYSTEM,
             groupIds: { $in: [app.userGroupId] },
-            appId: app._id
+            appId: app._id,
           }).lean();
 
           if (user) {
@@ -104,10 +104,10 @@ export default async function userMiddleware(
               (cachedPermissions && cachedPermissions === '{}')
             ) {
               const userPermissions = await models.Permissions.find({
-                userId: user._id
+                userId: user._id,
               });
               const groupPermissions = await models.Permissions.find({
-                groupId: { $in: user.groupIds }
+                groupId: { $in: user.groupIds },
               });
 
               const actionMap = await userActionsMap(
@@ -124,16 +124,61 @@ export default async function userMiddleware(
               ...user,
               role: USER_ROLES.SYSTEM,
               isOwner: appInDb.allowAllPermission || false,
-              customPermissions: permissions.map(p => ({
+              customPermissions: permissions.map((p) => ({
                 action: p.action,
                 allowed: p.allowed,
-                requiredActions: p.requiredActions
-              }))
+                requiredActions: p.requiredActions,
+              })),
             };
           }
         }
       }
 
+      setUserHeader(req.headers, req.user);
+
+      return next();
+    } catch (e) {
+      console.error(e);
+
+      return next();
+    }
+  }
+
+  const authHeader = req.headers['authorization'];
+
+  if (authHeader) {
+    const token = authHeader.split(' ')[1];
+    try {
+      const decoded: any = jwt.verify(
+        token,
+        process.env.JWT_TOKEN_SECRET || ''
+      );
+
+      const client = await models.Clients.findOne({
+        clientId: decoded.clientId,
+      });
+
+      if (!client) {
+        return next();
+      }
+
+      if (
+        client.whiteListedIps?.length > 0 &&
+        !client.whiteListedIps.includes(req.ip)
+      ) {
+        return next();
+      }
+
+      const systemUser = await models.Users.findOne({
+        role: USER_ROLES.SYSTEM,
+        appId: client._id,
+      });
+
+      if (!systemUser) {
+        return next();
+      }
+
+      req.user = systemUser;
       setUserHeader(req.headers, req.user);
 
       return next();

@@ -148,6 +148,8 @@ const renderRoutes = currentUser => {
       }
     }
 
+    console.log("settings routes", SettingsRoutes);
+
     return (
       <MainLayout currentUser={currentUser}>
         <SettingsRoutes />
