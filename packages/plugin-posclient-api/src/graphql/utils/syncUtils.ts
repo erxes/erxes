@@ -178,17 +178,18 @@ export const importProducts = async (
               $set: {
                 ...product,
                 [`prices.${token}`]: product.unitPrice,
-                [`taxRules.${token}`]: product.taxRule,
+                [`taxRules.${token}`]: product.taxRule || null,
                 uom: product.uom || 'ш',
                 attachment: attachmentUrlChanger(product.attachment),
                 attachmentMore: (product.attachmentMore || []).map(a =>
                   attachmentUrlChanger(a)
                 ),
-                [`isCheckRems.${token}`]: product.isCheckRem
+                [`isCheckRems.${token}`]: product.isCheckRem,
+                sameDefault: product.sameDefault || null,
+                sameMasks: product.sameMasks || null,
               },
               $addToSet: { tokens: token },
-              sameDefault: product.sameDefault || undefined,
-              sameMasks: product.sameMasks || undefined,
+
             },
             upsert: true
           }
@@ -346,10 +347,10 @@ export const receiveProduct = async (models: IModels, data) => {
         ...info,
         [`prices.${token}`]: info.unitPrice,
         [`isCheckRems.${token}`]: info.isCheckRem,
-        [`taxRules.${token}`]: info.taxRule,
+        [`taxRules.${token}`]: info.taxRule || null,
         tokens,
-        sameDefault: info.sameDefault || undefined,
-        sameMasks: info.sameMasks || undefined,
+        sameDefault: info.sameDefault || null,
+        sameMasks: info.sameMasks || null,
       },
       { upsert: true }
     );
