@@ -30,5 +30,5 @@ export const queries = `
 
 export const mutations = `
   pmsConfigsUpdate(${params}): [PmsConfig]
-  pmsRoomChangeByUser(password:String!):JSON
+  pmsRoomChangeByUser(userId:String!, password:String!):JSON
 `;

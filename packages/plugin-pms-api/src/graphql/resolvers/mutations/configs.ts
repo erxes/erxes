@@ -35,20 +35,29 @@ const configMutations = {
   },
   async pmsRoomChangeByUser(
     _root,
-    { password }: { email: string; password: string },
+    { password, userId }: { userId: string; password: string },
     { user, models, subdomain }: IContext
   ) {
-    const result = await sendCoreMessage({
+    const manager = await sendCoreMessage({
       subdomain,
-      action: "users.checkLoginAuth",
-      data: { email: user.email, password },
+      action: "users.findOne",
+      data: { _id: userId },
       isRPC: true
     });
 
-    if (result._id) {
-      return "correct";
-    }
-    return "failed";
+    if (manager) {
+      const result = await sendCoreMessage({
+        subdomain,
+        action: "users.checkLoginAuth",
+        data: { email: manager.email, password },
+        isRPC: true
+      });
+      if (result._id) {
+        return "correct";
+      } else {
+        return "wrong password";
+      }
+    } else return "user not found";
   }
 };
 // users.checkLoginAuth
