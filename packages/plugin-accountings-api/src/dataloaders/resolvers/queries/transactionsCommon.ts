@@ -26,6 +26,7 @@ interface IQueryParams {
   accountCategoryId?: string;
   accountSearchValue?: string;
   accountBrand?: string;
+  accountIsTemp?: boolean,
   accountIsOutBalance?: boolean,
   accountBranchId: string;
   accountDepartmentId: string;

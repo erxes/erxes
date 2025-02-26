@@ -364,7 +364,7 @@ const TransactionForm = (props: Props) => {
                   className={currentTransaction?._id === tr._id ? "active" : ""}
                   onClick={() => setCurrentTransaction(tr)}
                 >
-                  {TRS[tr.journal].value} - {(tr.details || [])[0]?.side}
+                  {TRS[tr.journal]?.value} - {(tr.details || [])[0]?.side}
                   <DeleteIcon onClick={(e) => e.stopPropagation()}>
                     <Tip text={__("Delete")}>
                       <Icon
