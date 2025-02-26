@@ -13,6 +13,7 @@ import { __ } from 'coreui/utils';
 import React, { useState } from 'react';
 import { IContract, IContractDoc } from '../../types';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import FormControl from '@erxes/ui/src/components/form/Control';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -20,34 +21,30 @@ type Props = {
   closeModal: () => void;
 };
 
-function RelCustomersForm(props: Props) {
+function ContactsForm(props: Props) {
   const { contract } = props;
-  const [relCustomers, setRelCustomers] = useState<
-    { customerId: string; customerType: string }[]
-  >(contract?.relCustomers || []);
+  const [customerId, setCustomerId] = useState(contract?.customerId || '');
+  const [customerType, setCustomerType] = useState(
+    contract?.customerType || ''
+  );
 
   const generateDoc = (values: { _id: string } & IContractDoc) => {
     const result = {
       ...contract,
       ...values,
-      relCustomers,
+      customerId,
+      customerType,
     };
 
     return result;
   };
 
-  const onSelectCustomer = (
-    selectedCustomerId: string | string[],
-    customerType: 'customer' | 'company'
-  ) => {
-    const newData = Array.isArray(selectedCustomerId)
-      ? selectedCustomerId.map((cId) => ({ customerId: cId, customerType }))
-      : [{ customerId: selectedCustomerId, customerType }];
+  const onSelectCustomer = (value) => {
+    setCustomerId(value);
+  };
 
-    setRelCustomers((prev) => [
-      ...prev.filter((item) => item.customerType !== customerType), // Keep other types
-      ...newData, // Add new selections
-    ]);
+  const onCheckCustomerType = (isChecked) => {
+    setCustomerType(isChecked ? 'company' : 'customer');
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -59,29 +56,40 @@ function RelCustomersForm(props: Props) {
         <FormWrapper>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>{__('RelCustomers')}</ControlLabel>
-              <SelectCustomers
-                label={__('Choose relCustomers')}
-                name="customerId"
-                initialValue={relCustomers?.map((relC) => relC.customerId)}
-                onSelect={(selectedId: string | string[]) =>
-                  onSelectCustomer(selectedId, 'customer')
-                }
-                multi={true}
+              <ControlLabel>{__('Is Organization')}</ControlLabel>
+              <FormControl
+                className="flex-item"
+                type="checkbox"
+                componentclass="checkbox"
+                name="customerType"
+                checked={customerType === 'company'}
+                onChange={(e: any) => onCheckCustomerType(e.target.checked)}
               />
             </FormGroup>
-            <FormGroup>
-              <ControlLabel>{__('RelCompanies')}</ControlLabel>
-              <SelectCompanies
-                label={__('Choose relCompanies')}
-                name="customerId"
-                initialValue={relCustomers?.map((relC) => relC.customerId)}
-                onSelect={(selectedId: string | string[]) =>
-                  onSelectCustomer(selectedId, 'company')
-                }
-                multi={true}
-              />
-            </FormGroup>
+
+            {(customerType === 'customer' && (
+              <FormGroup>
+                <ControlLabel>{__('Customer')}</ControlLabel>
+                <SelectCustomers
+                  label={__('Choose Customer')}
+                  name="customerId"
+                  initialValue={customerId}
+                  onSelect={onSelectCustomer}
+                  multi={false}
+                />
+              </FormGroup>
+            )) || (
+              <FormGroup>
+                <ControlLabel>{__('Company')}</ControlLabel>
+                <SelectCompanies
+                  label={__('Choose Company')}
+                  name="customerId"
+                  initialValue={customerId}
+                  onSelect={onSelectCustomer}
+                  multi={false}
+                />
+              </FormGroup>
+            )}
           </FormColumn>
         </FormWrapper>
 
@@ -104,4 +112,4 @@ function RelCustomersForm(props: Props) {
   return <Form renderContent={renderContent} />;
 }
 
-export default RelCustomersForm;
+export default ContactsForm;
