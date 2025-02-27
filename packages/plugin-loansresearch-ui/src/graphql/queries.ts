@@ -69,6 +69,19 @@ export const loansResearchFields = `
     }
   }
 
+  customer {
+    _id
+    firstName
+    lastName
+    primaryEmail
+    primaryPhone
+  }
+
+  deal {
+    _id
+    name
+  }
+
   createdAt
 `;
 
@@ -84,8 +97,8 @@ const loansResearchMain = `
 `;
 
 const loanResearchDetail = `
-query loanResearchDetail($dealId: String!) {
-  loanResearchDetail(dealId: $dealId) {
+query loanResearchDetail($dealId: String, $customerId: String) {
+  loanResearchDetail(dealId: $dealId, customerId: $customerId) {
     ${loansResearchFields}
   }
 }

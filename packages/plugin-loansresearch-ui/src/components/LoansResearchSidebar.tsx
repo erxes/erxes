@@ -153,6 +153,7 @@ const LoansResearchSidebar = (props: Props) => {
         return (
           <DynamicComponentList>
             <h4>{__('Deals')}</h4>
+            {extraButtons}
             {renderDealData()}
           </DynamicComponentList>
         );
@@ -206,7 +207,12 @@ const LoansResearchSidebar = (props: Props) => {
 
   const content = () => {
     if (!loansResearch) {
-      return <EmptyState icon="building" text="No research" />;
+      return (
+        <>
+          {extraButtons}
+          <EmptyState icon="building" text="No research" />
+        </>
+      );
     }
 
     if (showType && showType === 'list') {

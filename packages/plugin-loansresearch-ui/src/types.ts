@@ -1,3 +1,4 @@
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IAttachment } from '@erxes/ui/src/types';
 
 export type IIncome = {
@@ -44,6 +45,9 @@ export type ILoanResearch = {
   monthlyLoanAmount: number;
   totalPaymentAmount: number;
   loans: ILoan[];
+
+  customer: ICustomer;
+  deal: any;
 
   createdAt: Date;
   modifiedAt: Date;

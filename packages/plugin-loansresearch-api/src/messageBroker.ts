@@ -21,6 +21,15 @@ export const sendCoreMessage = async (
   });
 };
 
+export const sendSalesMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'sales',
+    ...args,
+  });
+};
+
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,
