@@ -1,21 +1,21 @@
 // @ts-ignore
-import * as telemetry from 'erxes-telemetry';
-import * as jwt from 'jsonwebtoken';
-import { NextFunction, Request, Response } from 'express';
-import redis from '@erxes/api-utils/src/redis';
-import { IModels, generateModels } from '../connectionResolver';
-import { getSubdomain, userActionsMap } from '@erxes/api-utils/src/core';
-import { USER_ROLES } from '@erxes/api-utils/src/constants';
-import fetch from 'node-fetch';
-import { sanitizeHeaders, setUserHeader } from '@erxes/api-utils/src/headers';
+import * as telemetry from "erxes-telemetry";
+import * as jwt from "jsonwebtoken";
+import { NextFunction, Request, Response } from "express";
+import redis from "@erxes/api-utils/src/redis";
+import { IModels, generateModels } from "../connectionResolver";
+import { getSubdomain, userActionsMap } from "@erxes/api-utils/src/core";
+import { USER_ROLES } from "@erxes/api-utils/src/constants";
+import fetch from "node-fetch";
+import { setUserHeader } from "@erxes/api-utils/src/headers";
 
 export default async function userMiddleware(
   req: Request & { user?: any },
   res: Response,
   next: NextFunction
 ) {
-  const url = req.headers['erxes-core-website-url'];
-  const erxesCoreToken = req.headers['erxes-core-token'];
+  const url = req.headers["erxes-core-website-url"];
+  const erxesCoreToken = req.headers["erxes-core-token"];
 
   if (Array.isArray(erxesCoreToken)) {
     return res.status(400).json({ error: `Multiple erxes-core-tokens found` });
@@ -23,37 +23,37 @@ export default async function userMiddleware(
 
   if (erxesCoreToken && url) {
     try {
-      const response = await fetch('https://erxes.io/check-website', {
-        method: 'POST',
+      const response = await fetch("https://erxes.io/check-website", {
+        method: "POST",
         headers: {
-          'erxes-core-token': erxesCoreToken,
-          'Content-Type': 'application/json',
+          "erxes-core-token": erxesCoreToken,
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          url,
-        }),
-      }).then((r) => r.text());
+          url
+        })
+      }).then(r => r.text());
 
-      if (response === 'ok') {
+      if (response === "ok") {
         req.user = {
-          _id: 'userId',
+          _id: "userId",
           customPermissions: [
             {
-              action: 'showIntegrations',
+              action: "showIntegrations",
               allowed: true,
-              requiredActions: [],
+              requiredActions: []
             },
             {
-              action: 'showKnowledgeBase',
+              action: "showKnowledgeBase",
               allowed: true,
-              requiredActions: [],
+              requiredActions: []
             },
             {
-              action: 'showScripts',
+              action: "showScripts",
               allowed: true,
-              requiredActions: [],
-            },
-          ],
+              requiredActions: []
+            }
+          ]
         };
       }
     } catch (e) {
@@ -63,7 +63,7 @@ export default async function userMiddleware(
     return next();
   }
 
-  const appToken = (req.headers['erxes-app-token'] || '').toString();
+  const appToken = (req.headers["erxes-app-token"] || "").toString();
   const subdomain = getSubdomain(req);
 
   let models: IModels;
@@ -77,7 +77,7 @@ export default async function userMiddleware(
     try {
       const { app }: any = jwt.verify(
         appToken,
-        process.env.JWT_TOKEN_SECRET || ''
+        process.env.JWT_TOKEN_SECRET || ""
       );
 
       if (app && app._id) {
@@ -86,13 +86,13 @@ export default async function userMiddleware(
         if (appInDb) {
           const permissions = await models.Permissions.find({
             groupId: appInDb.userGroupId,
-            allowed: true,
+            allowed: true
           }).lean();
 
           const user = await models.Users.findOne({
             role: USER_ROLES.SYSTEM,
             groupIds: { $in: [app.userGroupId] },
-            appId: app._id,
+            appId: app._id
           }).lean();
 
           if (user) {
@@ -101,13 +101,13 @@ export default async function userMiddleware(
 
             if (
               !cachedPermissions ||
-              (cachedPermissions && cachedPermissions === '{}')
+              (cachedPermissions && cachedPermissions === "{}")
             ) {
               const userPermissions = await models.Permissions.find({
-                userId: user._id,
+                userId: user._id
               });
               const groupPermissions = await models.Permissions.find({
-                groupId: { $in: user.groupIds },
+                groupId: { $in: user.groupIds }
               });
 
               const actionMap = await userActionsMap(
@@ -120,15 +120,15 @@ export default async function userMiddleware(
             }
 
             req.user = {
-              _id: user._id || 'userId',
+              _id: user._id || "userId",
               ...user,
               role: USER_ROLES.SYSTEM,
               isOwner: appInDb.allowAllPermission || false,
-              customPermissions: permissions.map((p) => ({
+              customPermissions: permissions.map(p => ({
                 action: p.action,
                 allowed: p.allowed,
-                requiredActions: p.requiredActions,
-              })),
+                requiredActions: p.requiredActions
+              }))
             };
           }
         }
@@ -144,18 +144,18 @@ export default async function userMiddleware(
     }
   }
 
-  const authHeader = req.headers['authorization'];
+  const authHeader = req.headers["authorization"];
 
   if (authHeader) {
-    const token = authHeader.split(' ')[1];
+    const token = authHeader.split(" ")[1];
     try {
       const decoded: any = jwt.verify(
         token,
-        process.env.JWT_TOKEN_SECRET || ''
+        process.env.JWT_TOKEN_SECRET || ""
       );
 
       const client = await models.Clients.findOne({
-        clientId: decoded.clientId,
+        clientId: decoded.clientId
       });
 
       if (!client) {
@@ -171,7 +171,7 @@ export default async function userMiddleware(
 
       const systemUser = await models.Users.findOne({
         role: USER_ROLES.SYSTEM,
-        appId: client._id,
+        appId: client._id
       });
 
       if (!systemUser) {
@@ -189,7 +189,7 @@ export default async function userMiddleware(
     }
   }
 
-  const token = req.cookies['auth-token'];
+  const token = req.cookies["auth-token"];
 
   if (!token) {
     return next();
@@ -197,12 +197,12 @@ export default async function userMiddleware(
 
   try {
     // verify user token and retrieve stored user information
-    const decoded: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
+    const decoded: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || "");
     const user = decoded.user;
 
     const userDoc = await models.Users.findOne(
       { _id: user._id },
-      '_id email details isOwner groupIds brandIds username code departmentIds'
+      "_id email details isOwner groupIds brandIds username code departmentIds"
     ).lean();
 
     if (!userDoc) {
@@ -219,23 +219,23 @@ export default async function userMiddleware(
     // save user in request
     req.user = userDoc;
     req.user.loginToken = token;
-    req.user.sessionCode = req.headers.sessioncode || '';
+    req.user.sessionCode = req.headers.sessioncode || "";
 
     const currentDate = new Date();
     const machineId: string = telemetry.getMachineId();
 
-    const lastLoginDate = new Date((await redis.get(machineId)) || '');
+    const lastLoginDate = new Date((await redis.get(machineId)) || "");
 
     if (lastLoginDate.getDay() !== currentDate.getDay()) {
       redis.set(machineId, currentDate.toJSON());
 
-      telemetry.trackCli('last_login', { updatedAt: currentDate });
+      telemetry.trackCli("last_login", { updatedAt: currentDate });
     }
 
-    const hostname = await redis.get('hostname');
+    const hostname = await redis.get("hostname");
 
     if (!hostname) {
-      redis.set('hostname', process.env.DOMAIN || 'http://localhost:3000');
+      redis.set("hostname", process.env.DOMAIN || "http://localhost:3000");
     }
   } catch (e) {
     if (e instanceof jwt.TokenExpiredError) {
