@@ -43,7 +43,7 @@ class List extends React.Component<Props, {}> {
       formSubmissions,
       formId  
     } = this.props;
-    console.log("formid", formId)
+    
 
     queryParams.loadingMainQuery = loading;
     const { REACT_APP_API_URL } = getEnv();
