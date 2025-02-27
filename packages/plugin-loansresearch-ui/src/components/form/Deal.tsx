@@ -1,10 +1,4 @@
-import {
-  __,
-  ControlLabel,
-  FormControl,
-  FormGroup,
-  SectionBodyItem,
-} from '@erxes/ui/src';
+import { ControlLabel, FormControl, FormGroup } from '@erxes/ui/src';
 import React from 'react';
 import Select from 'react-select';
 

@@ -16,7 +16,7 @@ const loanResearch = {
     });
   },
 
-  async deal(contract: ILoanResearch, {}, { subdomain }: IContext) {
+  async deal(contract: ILoanResearch, _, { subdomain }: IContext) {
     if (!contract.dealId) {
       return null;
     }
