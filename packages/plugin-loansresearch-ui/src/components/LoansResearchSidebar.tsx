@@ -20,6 +20,7 @@ import React, { useState } from 'react';
 import { DynamicComponentList } from '@erxes/ui/src/styles/main';
 import { SidebarContent } from '@erxes/ui-forms/src/settings/properties/styles';
 import Select from 'react-select';
+import { renderBody } from '../utils';
 
 type Props = {
   loansResearch: ILoanResearch;
@@ -81,8 +82,14 @@ const LoansResearchSidebar = (props: Props) => {
   const renderDealData = () => {
     return (
       <SidebarContent>
-        {renderFormGroup('Deal', loansResearch?.dealId || '')}
-        {renderFormGroup('CustomerId', loansResearch?.customerId || '')}
+        <FormGroup>
+          <ControlLabel>{'Deal'}</ControlLabel>
+          {renderBody(loansResearch?.deal || 'Unknown', 'deal')}
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{'Customer'}</ControlLabel>
+          {renderBody(loansResearch?.customer || 'Unknown')}
+        </FormGroup>
         {renderFormGroup('Customer Type', loansResearch?.customerType || '')}
         {renderFormGroup(
           'Average Salary Income',
@@ -153,6 +160,7 @@ const LoansResearchSidebar = (props: Props) => {
         return (
           <DynamicComponentList>
             <h4>{__('Deals')}</h4>
+            {extraButtons}
             {renderDealData()}
           </DynamicComponentList>
         );
@@ -206,7 +214,12 @@ const LoansResearchSidebar = (props: Props) => {
 
   const content = () => {
     if (!loansResearch) {
-      return <EmptyState icon="building" text="No research" />;
+      return (
+        <>
+          {extraButtons}
+          <EmptyState icon="building" text="No research" />
+        </>
+      );
     }
 
     if (showType && showType === 'list') {

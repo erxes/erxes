@@ -31,8 +31,12 @@ const lsQueries = {
     };
   },
 
-  loanResearchDetail: async (_root, { dealId }, { models }: IContext) => {
-    return models.LoansResearch.getLoanResearch({ dealId });
+  loanResearchDetail: async (
+    _root,
+    { dealId, customerId },
+    { models }: IContext
+  ) => {
+    return models.LoansResearch.getLoanResearch(dealId, customerId);
   },
 };
 

@@ -7,7 +7,7 @@ import { Model, FilterQuery } from 'mongoose';
 import { IModels } from '../connectionResolver';
 
 export interface ILoansResearchModel extends Model<ILoanResearchDocument> {
-  getLoanResearch(selector: FilterQuery<ILoanResearchDocument>);
+  getLoanResearch(dealId: string, customerId: string);
   createLoansResearch(doc: ILoanResearch);
   updateLoansResearch(_id: string, doc: ILoanResearch);
   removeLoansResearches(_ids: string[]);
@@ -15,10 +15,13 @@ export interface ILoansResearchModel extends Model<ILoanResearchDocument> {
 
 export const loadLoansResearchClass = (models: IModels) => {
   class LoanResearch {
-    public static async getLoanResearch(
-      selector: FilterQuery<ILoanResearchDocument>
-    ) {
-      const loanResearch = await models.LoansResearch.findOne(selector);
+    public static async getLoanResearch(dealId: string, customerId: string) {
+      if (!dealId && !customerId) {
+        throw new Error('Either dealId or customerId must be provided');
+      }
+
+      const query = dealId ? { dealId } : { customerId };
+      const loanResearch = await models.LoansResearch.findOne(query);
 
       if (!loanResearch) {
         throw new Error('Loan Research not found');

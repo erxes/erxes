@@ -37,6 +37,12 @@ export const types = () => `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
+  extend type Customer @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type Deal @key(fields: "_id") {
+    _id: String! @external
+  }   
 
   type Income {
     ${commonIncomeTypes}
@@ -66,6 +72,9 @@ export const types = () => `
     monthlyLoanAmount: Float
     totalPaymentAmount: Float
     loans: [Loan]
+
+    customer: Customer
+    deal: Deal
     
     createdAt: Date
     modifiedAt: Date
@@ -99,7 +108,7 @@ const queryParams = `
 
 export const queries = `
   loansResearchMain(${queryParams}): LoansResearchListResponse
-  loanResearchDetail(dealId: String!): LoansResearch
+  loanResearchDetail(dealId: String, customerId: String): LoansResearch
 `;
 
 const commonFields = `

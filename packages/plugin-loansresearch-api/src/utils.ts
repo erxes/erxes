@@ -6,6 +6,8 @@ export const salaryToResearch = async (params, customerId, models: IModels) => {
     (d) => d.serviceName === 'WS100501_getCitizenSalaryInfo'
   );
 
+  const findResearch = await models.LoansResearch.findOne({ customerId });
+
   if (salaryData) {
     const salaryInfos = salaryData?.data?.list;
     const totalMonth = salaryInfos.length;
@@ -17,14 +19,14 @@ export const salaryToResearch = async (params, customerId, models: IModels) => {
       totalMonth: 1,
     }));
 
-    if (totalMonth) {
-      const salarySum = salaryInfos.reduce(
-        (accumulator, income) => accumulator + (income.salaryAmount || 0),
-        0
-      );
+    const salarySum = salaryInfos.reduce(
+      (accumulator, income) => accumulator + (income.salaryAmount || 0),
+      0
+    );
 
-      const averageSalary = salarySum / totalMonth;
+    const averageSalary = salarySum / totalMonth;
 
+    if (findResearch) {
       await models.LoansResearch.updateOne(
         { customerId },
         {
@@ -37,6 +39,17 @@ export const salaryToResearch = async (params, customerId, models: IModels) => {
           },
         }
       );
+    }
+
+    if (!findResearch) {
+      await models.LoansResearch.create({
+        customerId,
+        customerType: 'Salary',
+        averageSalaryIncome: averageSalary,
+        totalIncome: averageSalary,
+        incomes: transformedData,
+        createdAt: new Date(),
+      });
     }
   }
 };
@@ -89,6 +102,16 @@ export const scoreToResearch = async (params, customerId, models: IModels) => {
           },
         }
       );
+    }
+
+    if (!findResearch) {
+      await models.LoansResearch.create({
+        customerId,
+        monthlyLoanAmount: loanSum,
+        totalPaymentAmount: loanSum,
+        loans: transformedData,
+        createdAt: new Date(),
+      });
     }
   }
 };

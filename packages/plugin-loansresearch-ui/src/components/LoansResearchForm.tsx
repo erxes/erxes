@@ -41,6 +41,8 @@ const LoansResearchForm = (props: Props) => {
   const [customerId, setCustomerId] = useState<string>(
     loansResearch?.customerId || ''
   );
+  const [customerData] = useState(loansResearch?.customer || {});
+  const [dealData] = useState(loansResearch?.deal || {});
 
   const [debtIncomeRatio, setDebtIncomeRatio] = useState<number>(
     loansResearch?.debtIncomeRatio || 0
@@ -203,9 +205,9 @@ const LoansResearchForm = (props: Props) => {
     if (currentTab === 'Deals') {
       return (
         <DealForm
-          dealId={dealId}
+          customerData={customerData}
+          dealData={dealData}
           customerType={customerType}
-          customerId={customerId}
           totalIncome={totalIncome}
           totalPaymentAmount={totalPaymentAmount}
           debtIncomeRatio={debtIncomeRatio}
