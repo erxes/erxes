@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 export const types = () => `
   extend type User @key(fields: "_id") {
@@ -36,6 +36,7 @@ export const types = () => `
     info2: String
     info3: String
     info4: String
+    extra: JSON
   }
 
   type BmsOrder {
@@ -95,6 +96,7 @@ const params = `
   info2: String,
   info3: String,
   info4: String,
+  extra: JSON,
 `;
 
 export const mutations = `
