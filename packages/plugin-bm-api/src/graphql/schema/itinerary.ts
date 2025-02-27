@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 export const types = () => `
   
@@ -30,6 +30,7 @@ export const types = () => `
     
     foodCost:Float
     personCost: JSON
+    extra: JSON
     gasCost: Float
     driverCost: Float
     guideCost:Float
@@ -82,6 +83,7 @@ const params = `
   driverCost: Float,
   guideCost:Float,
   guideCostExtra:Float
+  extra: JSON
 `;
 
 export const mutations = `
