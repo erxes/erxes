@@ -1,6 +1,9 @@
 import { gql, useQuery } from '@apollo/client';
 import { queries } from './graphql';
 import { DetailQueryResponse, ILoanResearch } from './types';
+import { SectionBodyItem, renderFullName } from '@erxes/ui/src';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 export const useHasDetail = (dealId: string) => {
   // First query: Check if deal has details
@@ -40,4 +43,26 @@ export const useHasDetail = (dealId: string) => {
       loansResearch || (customerLoanData?.loanResearchDetail as ILoanResearch),
     loading: dealLoading || customerLoading || customerLoanLoading,
   };
+};
+
+export const renderBody = (obj: any, type?: string) => {
+  if (!obj) {
+    return null;
+  }
+
+  if (type === 'deal') {
+    return (
+      <div>
+        <SectionBodyItem>{obj.name}</SectionBodyItem>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <SectionBodyItem>
+        <Link to={`/contacts/details/${obj._id}`}>{renderFullName(obj)}</Link>
+      </SectionBodyItem>
+    </div>
+  );
 };

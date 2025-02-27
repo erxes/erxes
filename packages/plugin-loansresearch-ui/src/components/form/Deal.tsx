@@ -1,13 +1,20 @@
-import { __, ControlLabel, FormControl, FormGroup } from '@erxes/ui/src';
+import {
+  __,
+  ControlLabel,
+  FormControl,
+  FormGroup,
+  SectionBodyItem,
+} from '@erxes/ui/src';
 import React from 'react';
 import Select from 'react-select';
 
 import { CUSTOMER_TYPES } from '../../constants';
 import { MarginTop } from '../../styles';
+import { renderBody } from '../../utils';
 
 type Props = {
-  dealId: string;
-  customerId: string;
+  customerData: any;
+  dealData: any;
   customerType: string;
   totalIncome: number;
   totalPaymentAmount: number;
@@ -17,8 +24,8 @@ type Props = {
 
 const DealForm = (props: Props) => {
   const {
-    dealId,
-    customerId,
+    customerData,
+    dealData,
     customerType,
     totalIncome,
     totalPaymentAmount,
@@ -30,12 +37,12 @@ const DealForm = (props: Props) => {
     <MarginTop>
       <FormGroup>
         <ControlLabel>{'Deal'}</ControlLabel>
-        <FormControl name="dealId" value={dealId} disabled={true} />
+        {renderBody(dealData, 'deal')}
       </FormGroup>
 
       <FormGroup>
         <ControlLabel>{'Customer'}</ControlLabel>
-        <FormControl name="customerId" value={customerId} disabled={true} />
+        {renderBody(customerData)}
       </FormGroup>
 
       <FormGroup>

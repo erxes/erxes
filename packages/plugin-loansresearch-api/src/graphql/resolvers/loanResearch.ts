@@ -1,10 +1,10 @@
 import { IContext } from '../../connectionResolver';
-import { sendCoreMessage } from '../../messageBroker';
+import { sendCoreMessage, sendSalesMessage } from '../../messageBroker';
 import { ILoanResearch } from '../../models/definitions/loansResearch';
 
 const loanResearch = {
   async customer(contract: ILoanResearch, _, { subdomain }: IContext) {
-    if (contract.customerType !== 'customer') {
+    if (!contract.customerId) {
       return null;
     }
 
@@ -16,12 +16,12 @@ const loanResearch = {
     });
   },
 
-  async deal(contract: ILoanResearch, _, { subdomain }: IContext) {
-    if (contract.dealId) {
+  async deal(contract: ILoanResearch, {}, { subdomain }: IContext) {
+    if (!contract.dealId) {
       return null;
     }
 
-    return await sendCoreMessage({
+    return await sendSalesMessage({
       subdomain,
       action: 'deals.findOne',
       data: { _id: contract.dealId },
