@@ -28,6 +28,6 @@ export const KEY_LABELS = {
   locationCode: 'Location Code',
   responsibilityCenter: 'Responsibility center',
   billType: 'Bill Type',
-  dealType: 'Deal type',
+  dealType: 'Deal type code',
   syncType: 'Sync type',
 };
