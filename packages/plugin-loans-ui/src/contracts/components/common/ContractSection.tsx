@@ -13,7 +13,8 @@ import { useMutation, useQuery } from "@apollo/client";
 
 import Alert from "@erxes/ui/src/utils/Alert";
 import Box from "@erxes/ui/src/components/Box";
-import { MainStyleButtonRelated as ButtonRelated } from "@erxes/ui/src/styles/eindex";
+import Button from "@erxes/ui/src/components/Button";
+import { ButtonWrapper } from "../../styles";
 import ContractChooser from "../../containers/ContractChooser";
 import DynamicComponentContent from "@erxes/ui/src/components/dynamicComponent/Content";
 import { IUser } from "@erxes/ui/src/auth/types";
@@ -100,16 +101,14 @@ function Component({
     );
   };
 
-  const contractTrigger = (
-    <ButtonRelated>
-      <span>{__("Apply contract")}</span>
-    </ButtonRelated>
-  );
-
   const quickButtons = can("contractsDealEdit", currentUser) && (
     <ModalTrigger
       title={__("Associate")}
-      trigger={contractTrigger}
+      trigger={
+        <Button btnStyle="simple" size="small">
+          {__("Apply Contract")}
+        </Button>
+      }
       size="lg"
       content={renderContractChooser}
     />
@@ -153,7 +152,9 @@ function Component({
           ></SchedulesList>
         )}
       </SectionBodyItem>
-      {contract._id === "tempFakeContract" && quickButtons}
+      <ButtonWrapper>
+        {contract._id === "tempFakeContract" && quickButtons}
+      </ButtonWrapper>
     </>
   );
 
@@ -162,7 +163,6 @@ function Component({
       <DynamicComponentContent>
         <DynamicComponentList>
           <h4>{__("Loan Contracts")}</h4>
-          {quickButtons}
           <DynamicTableWrapper>{content}</DynamicTableWrapper>
         </DynamicComponentList>
       </DynamicComponentContent>
