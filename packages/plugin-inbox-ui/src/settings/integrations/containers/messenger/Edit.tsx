@@ -1,4 +1,4 @@
-import { Alert, __ } from 'coreui/utils';
+import { Alert, __ } from "coreui/utils";
 import {
   EditMessengerMutationResponse,
   EditMessengerMutationVariables,
@@ -7,22 +7,22 @@ import {
   SaveMessengerAppearanceMutationResponse,
   SaveMessengerAppsMutationResponse,
   SaveMessengerConfigsMutationResponse,
-} from '@erxes/ui-inbox/src/settings/integrations/types';
-import { gql, useMutation, useQuery } from '@apollo/client';
+} from "@erxes/ui-inbox/src/settings/integrations/types";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import {
   mutations,
   queries,
-} from '@erxes/ui-inbox/src/settings/integrations/graphql';
+} from "@erxes/ui-inbox/src/settings/integrations/graphql";
 
-import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
-import Form from '../../components/messenger/Form';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
-import { useNavigate } from 'react-router-dom';
+import { BrandsQueryResponse } from "@erxes/ui/src/brands/types";
+import Form from "../../components/messenger/Form";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { TopicsQueryResponse } from "@erxes/ui-knowledgebase/src/types";
+import { UsersQueryResponse } from "@erxes/ui/src/auth/types";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { queries as kbQueries } from "@erxes/ui-knowledgebase/src/graphql";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   integrationId: string;
@@ -31,10 +31,10 @@ type Props = {
 function removeTypename(obj) {
   if (Array.isArray(obj)) {
     return obj.map(removeTypename);
-  } else if (obj && typeof obj === 'object') {
+  } else if (obj && typeof obj === "object") {
     const cleanedObj = {};
     for (const key in obj) {
-      if (key !== '__typename') {
+      if (key !== "__typename") {
         cleanedObj[key] = removeTypename(obj[key]);
       }
     }
@@ -51,23 +51,23 @@ const EditMessenger = (props: Props) => {
     useQuery<UsersQueryResponse>(gql(queries.users));
   const { data: brandsData, loading: brandsLoading } =
     useQuery<BrandsQueryResponse>(gql(queries.brands), {
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
     });
   const { data: topicsData } = useQuery<TopicsQueryResponse>(
     gql(kbQueries.knowledgeBaseTopicsShort),
     {
-      skip: !isEnabled('knowledgebase') ? true : false,
-    },
+      skip: !isEnabled("knowledgebase") ? true : false,
+    }
   );
   const { data: integrationDetailData, loading: integrationDetailLoading } =
     useQuery<IntegrationDetailQueryResponse>(gql(queries.integrationDetail), {
       variables: { _id: integrationId },
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
     });
   const { data: messengerAppsData, loading: messengerAppsLoading } =
     useQuery<MessengerAppsQueryResponse>(gql(queries.messengerApps), {
       variables: { integrationId },
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
     });
 
   const [editMessengerMutation] = useMutation<
@@ -78,7 +78,7 @@ const EditMessenger = (props: Props) => {
       {
         query: gql(queries.integrationDetail),
         variables: { _id: integrationId },
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
       },
     ],
   });
@@ -91,10 +91,10 @@ const EditMessenger = (props: Props) => {
           {
             query: gql(queries.integrationDetail),
             variables: { _id: integrationId },
-            fetchPolicy: 'network-only',
+            fetchPolicy: "network-only",
           },
         ],
-      },
+      }
     );
 
   const [saveAppearanceMutation] =
@@ -105,10 +105,10 @@ const EditMessenger = (props: Props) => {
           {
             query: gql(queries.integrationDetail),
             variables: { _id: integrationId },
-            fetchPolicy: 'network-only',
+            fetchPolicy: "network-only",
           },
         ],
-      },
+      }
     );
 
   const [messengerAppSaveMutation] =
@@ -119,10 +119,10 @@ const EditMessenger = (props: Props) => {
           {
             query: gql(queries.integrationDetail),
             variables: { _id: integrationId },
-            fetchPolicy: 'network-only',
+            fetchPolicy: "network-only",
           },
         ],
-      },
+      }
     );
 
   const [isLoading, setIsLoading] = React.useState(false);
@@ -192,7 +192,7 @@ const EditMessenger = (props: Props) => {
           knowledgebases: deleteTypeName(messengerApps.knowledgebases),
           leads: deleteTypeName(messengerApps.leads),
         };
-        console.log('here', messengerAppsWithoutTypename);
+
         return messengerAppSaveMutation({
           variables: {
             integrationId,
@@ -201,18 +201,17 @@ const EditMessenger = (props: Props) => {
         });
       })
       .then(() => {
-        Alert.success('You successfully updated a messenger');
-        console.log('here11');
-        navigate('/settings/integrations?refetch=true');
+        Alert.success("You successfully updated a messenger");
+
+        navigate("/settings/integrations?refetch=true");
       })
       .catch((error) => {
-        console.log('here22', error);
-        if (error.message.includes('Duplicated messenger for single brand')) {
+        if (error.message.includes("Duplicated messenger for single brand")) {
           return Alert.warning(
             __(
-              "You've already created a messenger for the brand you've selected. Please choose a different brand or edit the previously created messenger",
+              "You've already created a messenger for the brand you've selected. Please choose a different brand or edit the previously created messenger"
             ),
-            6000,
+            6000
           );
         }
 
