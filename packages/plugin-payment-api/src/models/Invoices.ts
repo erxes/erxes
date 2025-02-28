@@ -72,6 +72,8 @@ export const loadInvoiceClass = (models: IModels) => {
           throw new Error(`Error creating invoice: ${e.message}`);
         }
       }
+
+      return invoice;
     }
 
     public static async updateInvoice(_id: string, doc: any) {

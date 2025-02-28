@@ -89,6 +89,51 @@ export class StorePayAPI extends BaseAPI {
     this.domain = domain;
   }
 
+  async authorize() {
+    const { username, password, app_password, app_username } = this;
+    const data = {
+      username,
+      password,
+    };
+    try {
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          Authorization: `Basic ${Buffer.from(
+            `${app_username}:${app_password}`
+          ).toString('base64')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      const res = await fetch(
+        'http://service-merchant.storepay.mn:7701/oauth/token?' +
+          new URLSearchParams({
+            grant_type: 'password',
+            username,
+            password,
+          }),
+        requestOptions
+      ).then((res) => res.json());
+
+      if (res.error) {
+        if (res.error === 'invalid_client') {
+          throw new Error(
+            'Invalid credentials!!! Please check your credentials'
+          );
+        }
+
+        if (res.error_description) {
+          throw new Error(res.error_description);
+        }
+        throw new Error(res.error);
+      }
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  }
+
   async getHeaders() {
     const { username, password, app_password, app_username, store_id } = this;
     const data = {

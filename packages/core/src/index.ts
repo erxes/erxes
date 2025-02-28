@@ -227,7 +227,7 @@ app.get("/get-frontend-plugins", async (_req, res) => {
 
   plugins.push({
     name: "inbox",
-    url: "https://plugins.erxes.io/v1.0.0/plugin_inbox/remoteEntry.js"
+    url: "https://plugins.erxes.io/latest/inbox_ui/remoteEntry.js"
   });
 
   return res.json({ plugins });
