@@ -3975,7 +3975,7 @@ module.exports = {
       "customerRightSidebarSection": "./customerSidebar",
       "carRightSidebarSection": "./customerSidebar",
       "dealRightSidebarSection": {
-        "title": "Xyp",
+        "title": "ДАН",
         "component": "./customerSidebar"
       },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-xyp-ui/remoteEntry.js"
@@ -4539,7 +4539,7 @@ module.exports = {
       ],
       "customerRightSidebarSection": "./burenSection",
       "dealRightSidebarSection": {
-        "title": "Buren Score",
+        "title": "ЗМС",
         "component": "./burenScoreSidebar"
       },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-burenscoring-ui/remoteEntry.js"
