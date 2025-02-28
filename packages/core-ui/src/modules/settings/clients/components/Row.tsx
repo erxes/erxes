@@ -36,7 +36,7 @@ type Props = {
 const Row = (props: Props) => {
   const { client, remove } = props;
 
-  console.log('client', client);
+  
 
   const [showModal, setShowModal] = React.useState(false);
   const [newSecret, setNewSecret] = React.useState('');
