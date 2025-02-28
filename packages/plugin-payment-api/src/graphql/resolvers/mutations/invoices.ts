@@ -35,10 +35,10 @@ const mutations = {
     return `${domain}/pl:payment/invoice/${invoice._id}`;
   },
 
-  async invoiceCreate(_root, params: IInvoice, { models }: IContext) {
+  async invoiceCreate(_root, params: IInvoice, { models, subdomain }: IContext) {
     const invoice = await models.Invoices.createInvoice({
       ...params,
-    });
+    }, subdomain);
     return invoice;
   },
 
