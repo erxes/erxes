@@ -3,7 +3,7 @@ import * as classNames from "classnames";
 
 import { IParticipator, IUser } from "../../types";
 import { IconCamera, IconMore, IconPhone, iconClose } from "../../icons/Icons";
-import { getMessengerData, getUiOptions } from "../utils/util";
+import { getCallData, getMessengerData, getUiOptions } from "../utils/util";
 
 import Button from "./common/Button";
 import Container from "./common/Container";
@@ -17,6 +17,7 @@ import { __ } from "../../utils";
 import { connection } from "../connection";
 import { useConversation } from "../context/Conversation";
 import { useMessage } from "../context/Message";
+import { useRouter } from "../context/Router";
 
 type Props = {
   messages: IMessage[];
@@ -61,18 +62,11 @@ const ConversationDetail: React.FC<Props> = ({
   const textColor = getUiOptions().textColor || "#fff";
   const isChat = Boolean(!connection.setting.email);
 
-  const [isModalOpen, setIsModalOpen] = React.useState(true);
-  const [isVisibleDropdown, setIsVisibleDropdown] = React.useState(true);
   const [isFocused, setIsFocused] = React.useState(true);
-  const [isExpanded, setIsExpanded] = React.useState(true);
   const [isMinimizeVideoCall, setIsMinimizeVideoCall] = React.useState(true);
 
   const toggleVideoCall = () => {
     setIsMinimizeVideoCall(!isMinimizeVideoCall);
-  };
-
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
   };
 
   const inputFocus = () => {
@@ -87,11 +81,21 @@ const ConversationDetail: React.FC<Props> = ({
     toggle(true);
   };
 
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
-  };
-
   const renderCallButtons = () => {
+    const callData = getCallData();
+    const { setActiveRoute } = useRouter();
+
+    if (callData.isReceiveWebCall) {
+      return (
+        <Button
+          title="Audio call"
+          icon={<IconPhone size="1.4375rem" />}
+          onClick={() => setActiveRoute("call")}
+          className="bg-none"
+        />
+      );
+    }
+
     if (
       !(isOnline && getMessengerData().showVideoCallRequest) ||
       !connection.enabledServices.dailyco
@@ -101,12 +105,12 @@ const ConversationDetail: React.FC<Props> = ({
 
     return (
       <>
-        <Button
+        {/* <Button
           title="Audio call"
           icon={<IconPhone size="1.4375rem" />}
           onClick={() => sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, "")}
           className="bg-none"
-        />
+        /> */}
 
         <Button
           title="Video call"
@@ -158,17 +162,17 @@ const ConversationDetail: React.FC<Props> = ({
     ? __("Send a message")
     : `${__("Write a reply")}...`;
 
-  const handleLeftClick = (e: React.FormEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    goToConversationList();
+  // const handleLeftClick = (e: React.FormEvent<HTMLButtonElement>) => {
+  //   e.preventDefault();
+  //   goToConversationList();
 
-    // leave video call if you are in
-    const videoIframe = document.getElementById("erxes-video-iframe");
+  //   // leave video call if you are in
+  //   const videoIframe = document.getElementById("erxes-video-iframe");
 
-    if (videoIframe) {
-      videoIframe.remove();
-    }
-  };
+  //   if (videoIframe) {
+  //     videoIframe.remove();
+  //   }
+  // };
 
   return (
     <Container

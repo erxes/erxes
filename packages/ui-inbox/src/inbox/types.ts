@@ -31,6 +31,20 @@ export interface ICallHistory {
   recordUrl: string;
 }
 
+export interface ICloudflareCallHistory {
+  customerPhone: string;
+  callDuration: number;
+  callStartTime: Date;
+  callEndTime: Date;
+  callType: string;
+  callStatus: string;
+  updatedAt: Date;
+  createdAt: Date;
+  createdBy: string;
+  updatedBy: string;
+  recordUrl: string;
+}
+
 export interface IConversation {
   _id: string;
   content?: string;
@@ -63,6 +77,7 @@ export interface IConversation {
   callProAudio?: string;
   videoCallData?: IVideoCallData;
   callHistory?: ICallHistory;
+  cloudflareCallsHistory?: ICloudflareCallHistory;
 
   customFieldsData?: {
     [key: string]: any;

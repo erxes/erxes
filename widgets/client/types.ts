@@ -108,6 +108,18 @@ export interface IIntegrationMessengerDataMessagesItem {
   welcome?: string;
 }
 
+export interface ICloudflareCallDataOperator {
+  _id: string;
+ name: string;
+ userId: string
+}
+
+export interface CloudflareCallDataDepartment {
+  _id: string;
+ name: string;
+ operators: ICloudflareCallDataOperator[];
+}
+
 export interface IIntegrationMessengerData {
   skillData?: {
     typeId: string;
@@ -144,6 +156,8 @@ export interface IIntegrationMessengerData {
   fromBot?: boolean;
   botData?: IBotData;
   getStarted?: boolean;
+  isReceiveWebCall?: boolean;
+  departments?: CloudflareCallDataDepartment[];
 }
 
 export interface ILeadData {

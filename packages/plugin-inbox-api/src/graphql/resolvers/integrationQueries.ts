@@ -1,19 +1,19 @@
 import {
   checkPermission,
-  moduleRequireLogin
-} from "@erxes/api-utils/src/permissions";
+  moduleRequireLogin,
+} from '@erxes/api-utils/src/permissions';
 
-import { sendCoreMessage, sendIntegrationsMessage } from "../../messageBroker";
-import { paginate } from "@erxes/api-utils/src";
-import { IContext } from "../../connectionResolver";
-import { getIntegrationsKinds } from "../../utils";
+import { sendCoreMessage, sendIntegrationsMessage } from '../../messageBroker';
+import { paginate } from '@erxes/api-utils/src';
+import { IContext } from '../../connectionResolver';
+import { getIntegrationsKinds } from '../../utils';
 /**
  * Common helper for integrations & integrationsTotalCount
  */
 const generateFilterQuery = async (
   subdomain,
   { kind, channelId, brandId, searchValue, tag, status, formLoadType },
-  models
+  models,
 ) => {
   const query: any = {};
 
@@ -33,25 +33,25 @@ const generateFilterQuery = async (
   }
 
   if (searchValue) {
-    query.name = new RegExp(`.*${searchValue}.*`, "i");
+    query.name = new RegExp(`.*${searchValue}.*`, 'i');
   }
 
   // filtering integrations by tag
   if (tag) {
     const object = await sendCoreMessage({
       subdomain,
-      action: "tagFindOne",
+      action: 'tagFindOne',
       data: {
-        _id: tag
+        _id: tag,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     query.tagIds = { $in: [tag, ...(object?.relatedIds || [])] };
   }
 
   if (status) {
-    query.isActive = status === "active" ? true : false;
+    query.isActive = status === 'active' ? true : false;
   }
 
   return query;
@@ -77,11 +77,11 @@ const integrationQueries = {
       sortField: string;
       sortDirection: number;
     },
-    { singleBrandIdSelector, models, subdomain, user }: IContext
+    { singleBrandIdSelector, models, subdomain, user }: IContext,
   ) {
     let query = {
       ...singleBrandIdSelector,
-      ...(await generateFilterQuery(subdomain, args, models))
+      ...(await generateFilterQuery(subdomain, args, models)),
     };
 
     if (!user.isOwner) {
@@ -89,29 +89,29 @@ const integrationQueries = {
         ...query,
         $or: [
           { visibility: { $exists: null } },
-          { visibility: "public" },
+          { visibility: 'public' },
           {
             $and: [
-              { visibility: "private" },
+              { visibility: 'private' },
               {
                 $or: [
                   { createdUserId: user._id },
-                  { departmentIds: { $in: user?.departmentIds || [] } }
-                ]
-              }
-            ]
-          }
-        ]
+                  { departmentIds: { $in: user?.departmentIds || [] } },
+                ],
+              },
+            ],
+          },
+        ],
       };
     }
 
-    if (args.kind === "lead") {
+    if (args.kind === 'lead') {
       return models.Integrations.findLeadIntegrations(query, args);
     }
 
     const integrations = paginate(
       models.Integrations.findAllIntegrations(query),
-      args
+      args,
     );
 
     return integrations.sort({ name: 1 });
@@ -123,11 +123,11 @@ const integrationQueries = {
   async allLeadIntegrations(
     _root,
     _args,
-    { singleBrandIdSelector, models }: IContext
+    { singleBrandIdSelector, models }: IContext,
   ) {
     const query = {
       ...singleBrandIdSelector,
-      kind: "lead"
+      kind: 'lead',
     };
 
     return models.Integrations.findAllIntegrations(query).sort({ name: 1 });
@@ -143,7 +143,7 @@ const integrationQueries = {
     for (const kind of Object.keys(kindMap)) {
       if (
         (await models.Integrations.findIntegrations({
-          kind
+          kind,
         }).countDocuments()) > 0
       ) {
         usedTypes.push({ _id: kind, name: kindMap[kind] });
@@ -159,7 +159,7 @@ const integrationQueries = {
   async integrationDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Integrations.findOne({ _id });
   },
@@ -178,7 +178,7 @@ const integrationQueries = {
       status: string;
       formLoadType: string;
     },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const counts = {
       total: 0,
@@ -186,26 +186,26 @@ const integrationQueries = {
       byChannel: {},
       byBrand: {},
       byKind: {},
-      byStatus: { active: 0, archived: 0 }
+      byStatus: { active: 0, archived: 0 },
     };
 
     const qry = {
-      ...(await generateFilterQuery(subdomain, args, models))
+      ...(await generateFilterQuery(subdomain, args, models)),
     };
 
-    const count = async query => {
+    const count = async (query) => {
       return models.Integrations.findAllIntegrations(query).countDocuments();
     };
 
     // Counting integrations by tag
     const tags = await sendCoreMessage({
       subdomain,
-      action: "tagFind",
+      action: 'tagFind',
       data: {
-        type: "inbox:integration"
+        type: 'inbox:integration',
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const tag of tags) {
@@ -236,7 +236,7 @@ const integrationQueries = {
     for (const channel of channels) {
       const countQueryResult = await count({
         _id: { $in: channel.integrationIds },
-        ...qry
+        ...qry,
       });
 
       counts.byChannel[channel._id] = !args.channelId
@@ -249,12 +249,12 @@ const integrationQueries = {
     // Counting integrations by brand
     const brands = await sendCoreMessage({
       subdomain,
-      action: "brands.find",
+      action: 'brands.find',
       data: {
-        query: {}
+        query: {},
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const brand of brands) {
@@ -270,7 +270,7 @@ const integrationQueries = {
     counts.byStatus.archived = await count({ isActive: false, ...qry });
 
     if (args.status) {
-      if (args.status === "active") {
+      if (args.status === 'active') {
         counts.byStatus.archived = 0;
       } else {
         counts.byStatus.active = 0;
@@ -286,22 +286,22 @@ const integrationQueries = {
   async integrationGetLineWebhookUrl(
     _root,
     { _id }: { _id: string },
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     return sendIntegrationsMessage({
       subdomain,
-      action: "api_to_integrations",
+      action: 'api_to_integrations',
       data: {
-        action: "line-webhook",
-        _id
+        action: 'line-webhook',
+        _id,
       },
-      isRPC: true
+      isRPC: true,
     });
-  }
+  },
 };
 
 moduleRequireLogin(integrationQueries);
 
-checkPermission(integrationQueries, "integrations", "showIntegrations", []);
+checkPermission(integrationQueries, 'integrations', 'showIntegrations', []);
 
 export default integrationQueries;
