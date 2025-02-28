@@ -28,7 +28,7 @@ function BurenSectionContainer(props: Props) {
     gql(queries.getCustomerScore),
     {
       variables: {
-        customerId: customersQuery?.data?.customers[0]._id || '',
+        customerId: customersQuery?.data?.customers[0]?._id || '',
       },
       fetchPolicy: 'network-only',
     }
