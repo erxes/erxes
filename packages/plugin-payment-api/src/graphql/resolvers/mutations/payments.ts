@@ -10,6 +10,7 @@ import { QPayQuickQrAPI } from '../../../api/qpayQuickqr/api';
 import { IContext } from '../../../connectionResolver';
 import { IPayment } from '../../../models/definitions/payments';
 import { StripeAPI } from '../../../api/stripe/api';
+import ErxesPayment from '../../../api/ErxesPayment';
 
 const mutations = {
   async paymentAdd(_root, doc: IPayment, { models, subdomain }: IContext) {
@@ -20,7 +21,7 @@ const mutations = {
     const domain = DOMAIN.replace('<subdomain>', subdomain);
     const acceptedCurrencies = PAYMENTS[doc.kind].acceptedCurrencies;
     doc.acceptedCurrencies = acceptedCurrencies;
-    
+
     if (doc.kind === 'qpayQuickqr') {
       const api = new QPayQuickQrAPI(doc.config);
 
@@ -43,7 +44,7 @@ const mutations = {
     }
 
     const payment = await models.PaymentMethods.createPayment(doc);
-    console.debug("payment", payment);
+    console.debug('payment', payment);
     if (doc.kind === 'pocket') {
       const pocketApi = new PocketAPI(doc.config, domain);
       try {
@@ -62,6 +63,15 @@ const mutations = {
         await models.PaymentMethods.removePayment(payment._id);
         throw new Error(`Error while registering stripe webhook: ${e.message}`);
       }
+    }
+
+    const api = new ErxesPayment(payment);
+
+    try {
+      await api.authorize(payment);
+    } catch (e) {
+      await models.PaymentMethods.removePayment(payment._id);
+      throw new Error(`Error while authorizing payment: ${e.message}`);
     }
 
     return payment;
@@ -84,8 +94,8 @@ const mutations = {
     }: { _id: string; name: string; status: string; kind: string; config: any },
     { models }: IContext
   ) {
-    const {acceptedCurrencies} = PAYMENTS[kind];
-   
+    const { acceptedCurrencies } = PAYMENTS[kind];
+
     if (kind === 'qpayQuickqr') {
       const api = new QPayQuickQrAPI(config);
 
@@ -112,7 +122,7 @@ const mutations = {
       status,
       kind,
       config,
-      acceptedCurrencies
+      acceptedCurrencies,
     });
   },
 };
