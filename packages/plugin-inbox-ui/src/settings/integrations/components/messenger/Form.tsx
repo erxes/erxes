@@ -24,11 +24,9 @@ import {
 import { Step, Steps } from "@erxes/ui/src/components/step";
 
 import AddOns from "../../containers/messenger/AddOns";
-import BotSelector from "./steps/BotSelector";
 import Button from "@erxes/ui/src/components/Button";
-import CloudflareCalls from "./steps/CloudflareCalls";
 import CommonPreview from "./widgetPreview/CommonPreview";
-import Connection from "./steps/Connection";
+import ConfigSetup from "./steps/ConfigSetup";
 import { IBrand } from "@erxes/ui/src/brands/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import { LANGUAGES } from "@erxes/ui-settings/src/general/constants";
@@ -528,39 +526,21 @@ class CreateMessenger extends React.Component<Props, State> {
                 />
               </Step>
               <Step
-                img="/images/icons/phoneCall.svg"
-                title={__("Cloudflare Calls Setup")}
+                img="/images/icons/erxes-24.svg"
+                title={__("Config Setup")}
                 onClick={this.onStepClick.bind(null, "cfCall")}
               >
-                <CloudflareCalls onChange={this.onChange} callData={callData} />
-              </Step>
-
-              <Step
-                img="/images/icons/erxes-24.svg"
-                title={__("Bot Setup")}
-                onClick={this.onStepClick.bind(null, "bot")}
-              >
-                <BotSelector
+                <ConfigSetup
+                  onChange={this.onChange}
+                  callData={callData}
                   title={title}
                   botCheck={botCheck}
                   botGreetMessage={botGreetMessage}
                   persistentMenus={persistentMenus}
-                  onChange={this.onChange as any} // Explicitly cast
-                />
-              </Step>
-              <Step
-                img="/images/icons/erxes-16.svg"
-                title={__("Integration Setup")}
-                onClick={this.onStepClick.bind(null, "setup")}
-              >
-                <Connection
-                  title={title}
                   botEndpointUrl={botEndpointUrl}
                   botShowInitialMessage={botShowInitialMessage}
-                  botCheck={botCheck}
                   channelIds={channelIds}
                   brandId={brandId}
-                  onChange={this.onChange}
                 />
               </Step>
               <Step
