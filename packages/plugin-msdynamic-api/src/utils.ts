@@ -276,10 +276,12 @@ export const dealToDynamic = async (
     }
 
     const sendData: any = {
-      Sell_to_Customer_No: msdCustomer?.No || '',
+      Sell_to_Customer_No: msdCustomer?.No
+        ? msdCustomer?.No
+        : config.defaultUserCode,
       Sell_to_Phone_No: customer?.primaryPhone || '',
       Sell_to_E_Mail: customer?.primaryEmail || '',
-      External_Document_No: order.number,
+      External_Document_No: `${order.number}TEST`,
       Responsibility_Center: config.responsibilityCenter || '',
       Sync_Type: config.syncType || '',
       Mobile_Phone_No: customer?.primaryPhone || '',
@@ -290,6 +292,11 @@ export const dealToDynamic = async (
       Prices_Including_VAT: true,
       BillType: config.billType || 'Receipt',
       Location_Code: config.locationCode || '',
+      Deal_Type_Code: config.dealType || 'NORMAL',
+      Salesperson_Code:
+        config.title === 'Beverage'
+          ? msdCustomer?.Salesperson_Code || '3144'
+          : '',
       CustomerNo:
         customer?.customFieldsDataByFieldCode?.vatCustomer?.value ||
         customer?.customFieldsDataByFieldCode?.vatCompany?.value,

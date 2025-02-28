@@ -142,14 +142,17 @@ class PerSettings extends React.Component<Props, State> {
               {this.renderInput('customerPricingGroup')}
               {this.renderInput('customerDiscGroup')}
               {this.renderInput('syncType')}
+              {this.renderInput('defaultUserCode')}
             </FormColumn>
             <FormColumn>
               {this.renderInput('locationCode')}
+              {this.renderInput('reminderCode')}
               {this.renderInput('responsibilityCenter')}
               {this.renderInput('billType')}
               {this.renderInput('dealType')}
               {this.renderInput('paymentTermsCode')}
               {this.renderInput('paymentMethodCode')}
+              {this.renderInput('defaultCompanyCode')}
             </FormColumn>
           </FormWrapper>
         </CollapseContent>
