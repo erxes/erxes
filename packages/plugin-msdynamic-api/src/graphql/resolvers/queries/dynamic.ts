@@ -63,7 +63,9 @@ const generateFilter = (params) => {
 const msdynamicQueries = {
   async syncMsdHistories(_root, params, { models }: IContext) {
     const selector = generateFilter(params);
-    return paginate(models.SyncLogs.find(selector), params);
+    return paginate(models.SyncLogs.find(selector), params).sort({
+      createdAt: -1,
+    });
   },
 
   async syncMsdHistoriesCount(_root, params, { models }: IContext) {
@@ -114,13 +116,13 @@ const msdynamicQueries = {
       throw new Error('MS Dynamic config not found.');
     }
 
-    const { itemApi, username, password, locationCode } = config;
+    const { itemApi, username, password, reminderCode } = config;
 
     let filterSection = productCodes
       .map((code) => `No eq '${code}'`)
       .join(' or ');
 
-    const locationCodes = locationCode.split(',').map((loc) => loc.trim());
+    const locationCodes = reminderCode.split(',').map((loc) => loc.trim());
 
     let locationFilterSection = locationCodes
       .map((loc) => `Location_Filter eq '${loc}'`)
