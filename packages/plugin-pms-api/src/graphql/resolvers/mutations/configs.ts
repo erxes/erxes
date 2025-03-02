@@ -1,6 +1,7 @@
-import { IContext } from '../../../connectionResolver';
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { putCreateLog, putUpdateLog } from '../../../logUtils';
+import { IContext } from "../../../connectionResolver";
+import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { putCreateLog, putUpdateLog } from "../../../logUtils";
+import { sendCoreMessage } from "../../../messageBroker";
 
 type ConfigInput = {
   value: string;
@@ -26,14 +27,40 @@ const configMutations = {
       await models.Configs.createOrUpdateConfig(item);
       const one = await models.Configs.findOne({
         code: item.code,
-        pipelineId: item.pipelineId,
+        pipelineId: item.pipelineId
       });
       response.push(one);
     }
     return response;
   },
-};
+  async pmsRoomChangeByUser(
+    _root,
+    { password, userId }: { userId: string; password: string },
+    { user, models, subdomain }: IContext
+  ) {
+    const manager = await sendCoreMessage({
+      subdomain,
+      action: "users.findOne",
+      data: { _id: userId },
+      isRPC: true
+    });
 
+    if (manager) {
+      const result = await sendCoreMessage({
+        subdomain,
+        action: "users.checkLoginAuth",
+        data: { email: manager.email, password },
+        isRPC: true
+      });
+      if (result._id) {
+        return "correct";
+      } else {
+        return "wrong password";
+      }
+    } else return "user not found";
+  }
+};
+// users.checkLoginAuth
 // checkPermission(configMutations, 'pmsConfigsUpdate', 'manageGeneralSettings');
 
 export default configMutations;

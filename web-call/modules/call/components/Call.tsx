@@ -14,13 +14,12 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 
-const Call = ({
-  loading = false,
-  setPhoneNumber,
-}: {
+type Props = {
   loading?: boolean
   setPhoneNumber: (phone: string) => void
-}) => {
+}
+
+const Call = ({ loading = false, setPhoneNumber }: Props) => {
   const FormSchema = z.object({
     phone: z
       .string({

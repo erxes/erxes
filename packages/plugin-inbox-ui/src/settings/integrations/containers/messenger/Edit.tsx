@@ -192,7 +192,6 @@ const EditMessenger = (props: Props) => {
           knowledgebases: deleteTypeName(messengerApps.knowledgebases),
           leads: deleteTypeName(messengerApps.leads),
         };
-        console.log('here', messengerAppsWithoutTypename);
         return messengerAppSaveMutation({
           variables: {
             integrationId,
@@ -202,11 +201,10 @@ const EditMessenger = (props: Props) => {
       })
       .then(() => {
         Alert.success('You successfully updated a messenger');
-        console.log('here11');
+
         navigate('/settings/integrations?refetch=true');
       })
       .catch((error) => {
-        console.log('here22', error);
         if (error.message.includes('Duplicated messenger for single brand')) {
           return Alert.warning(
             __(

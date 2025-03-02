@@ -6,13 +6,12 @@ import {
 } from '@erxes/api-utils/src/messageBroker';
 
 export const setupMessageConsumers = async () => {
-  consumeRPCQueue('multierkhet:getConfig', async ({ subdomain, data }) => {
-    const { code, defaultValue } = data;
+  consumeRPCQueue('pms:branch.count', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-
+    const count = await models.TmsBranch.countDocuments();
     return {
       status: 'success',
-      data: models.Configs.getConfig(code, defaultValue),
+      data: count,
     };
   });
 };
