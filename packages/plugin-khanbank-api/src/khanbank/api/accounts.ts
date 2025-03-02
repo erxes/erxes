@@ -21,9 +21,12 @@ export class AccountsApi extends BaseApi {
         path: "accounts"
       });
 
+      console.log (res);
+
       const accounts: KhanbankAccount[] = res.accounts.map(account => {
         return {
           number: account.number,
+          ibanAcctNo: account.ibanAcctNo,
           type: account.type,
           currency: account.currency,
           status: account.status,

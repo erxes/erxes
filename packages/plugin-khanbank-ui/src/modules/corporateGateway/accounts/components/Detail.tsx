@@ -101,7 +101,7 @@ const Detail = (props: Props) => {
             />
           </FormGroup>
 
-          <WithPermission action="khanbankTransfer">
+     
             <FormGroup>
               <ModalTrigger
                 size="lg"
@@ -111,7 +111,7 @@ const Detail = (props: Props) => {
                 content={transactionFormContent}
               />
             </FormGroup>
-          </WithPermission>
+   
         </BlockRow>
       </Block>
     );

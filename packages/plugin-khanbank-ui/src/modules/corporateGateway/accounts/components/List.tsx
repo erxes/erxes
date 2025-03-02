@@ -39,7 +39,9 @@ const List = (props: any) => {
         >
           <Link to={`?_id=${props._id}&account=${account.number}`}>
             <FieldStyle>
-              {account.number}
+              Данс:{account.number}
+              <br/>
+              IBAN:{account.ibanAcctNo}
               <Description>{account.name}</Description>
             </FieldStyle>
           </Link>

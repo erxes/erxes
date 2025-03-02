@@ -8,6 +8,7 @@ import { useQuery, useLazyQuery, useMutation } from '@apollo/client';
 import TransactionForm from '../components/Form';
 import { mutations, queries } from '../graphql';
 import { IKhanbankTransactionInput } from '../types';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   configId: string;
@@ -17,11 +18,18 @@ type Props = {
 
 const TransactionFormContainer = (props: Props) => {
   const { configId } = props;
+  console.log(configId);
 
-  const { data } = useQuery(gql(queries.accountsQuery), {
+  const { data, loading } = useQuery(gql(queries.accountsQuery), {
     fetchPolicy: 'network-only',
     variables: { perPage: 9999, configId }
   });
+
+  if (loading) {
+    return <Spinner objective />;
+  }
+
+
 
   const [transferMutation] = useMutation(gql(mutations.transferMutation), {
     refetchQueries: getRefetchQueries()
@@ -62,7 +70,7 @@ const TransactionFormContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    accounts: (data && data.khanbankAccounts) || [],
+    accounts: data?.khanbankAccounts || [],
     accountHolder,
     getAccountHolder,
     submit
