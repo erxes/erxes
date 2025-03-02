@@ -30,6 +30,21 @@ export interface ICallHistory {
   updatedBy: string;
   recordUrl: string;
 }
+export interface ICallCdrData {
+  _id: string;
+  src?: string;
+  dst?: string;
+  billsec?: number;
+  start?: Date;
+  end?: Date;
+  disposition?: string;
+  modifiedAt?: Date;
+  createdAt?: Date;
+  createdBy?: string;
+  modifiedBy?: string;
+  recordUrl?: string;
+  userfield?: string;
+}
 
 export interface IConversation {
   _id: string;
@@ -63,6 +78,7 @@ export interface IConversation {
   callProAudio?: string;
   videoCallData?: IVideoCallData;
   callHistory?: ICallHistory;
+  callCdr: ICallCdrData;
 
   customFieldsData?: {
     [key: string]: any;

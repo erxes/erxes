@@ -24,6 +24,8 @@ import {
 } from './models/Configs';
 import { IOperatorDocuments } from './models/definitions/operators';
 import { IOperatorModel, loadOperatorClass } from './models/Operators';
+import { ICdrModel, loadCdrClass } from './models/Cdr';
+import { ICallCdrDocument } from './models/definitions/cdr';
 export interface IModels {
   Integrations: IIntegrationModel;
   Customers: ICustomerModel;
@@ -31,6 +33,7 @@ export interface IModels {
   CallHistory: ICallHistoryModel;
   Configs: IConfigModel;
   Operators: IOperatorModel;
+  Cdr: ICdrModel;
 }
 
 export interface IContext extends IMainContext {
@@ -64,6 +67,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Operators = db.model<IOperatorDocuments, IOperatorModel>(
     'calls_operators',
     loadOperatorClass(models),
+  );
+  models.Cdr = db.model<ICallCdrDocument, ICdrModel>(
+    'calls_cdr',
+    loadCdrClass(models),
   );
 
   return models;

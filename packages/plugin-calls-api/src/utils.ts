@@ -243,7 +243,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
 
   const history = await getCallHistory(models, _id);
   const { inboxIntegrationId = '' } = history;
-
+  console.log(history, 'history');
   let operator = operatorPhone || history.operatorPhone;
   const fetchRecordUrl = async (retryCount) => {
     try {
@@ -271,12 +271,12 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         user,
       );
 
-      const queue = response?.response?.queue || response?.queue;
-      if (!queue) {
+      const queues = response?.response?.queue || response?.queue;
+      if (!queues) {
         throw new Error('Queue not found');
       }
 
-      const extension = queue.find((queueItem) =>
+      const extension = queues.find((queueItem) =>
         queueItem.members.split(',').includes(extentionNumber),
       )?.extension;
       const tz = 'Asia/Ulaanbaatar';
@@ -305,7 +305,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       const endTime = isCronRunning
         ? getPureDate(callEndTime, 10)
         : `${endDate}T23:59:59`;
-
+      console.log('jjjj:', caller, callee, startTime, endTime);
       const cdrData = await sendToGrandStream(
         models,
         {
@@ -350,7 +350,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         (a, b) =>
           new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
       );
-
+      console.log(sortedCdr, 'sortedCdr');
       let lastCreatedObject = sortedCdr[sortedCdr.length - 1];
       if (!lastCreatedObject) {
         console.log(
@@ -364,7 +364,11 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         );
         throw new Error('Not found cdr');
       }
-
+      console.log(
+        'lastCreatedObjectlastCreatedObjectlastCreatedObject:',
+        lastCreatedObject,
+        'lastCreatedObject',
+      );
       const transferCall = findTransferCall(lastCreatedObject);
       const answeredCall = findAnsweredCall(lastCreatedObject);
 
@@ -432,7 +436,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
   return fetchRecordUrl(MAX_RETRY_COUNT);
 };
 
-const cfRecordUrl = async (params, user, models, subdomain) => {
+export const cfRecordUrl = async (params, user, models, subdomain) => {
   const { fileDir, recordfiles, inboxIntegrationId, retryCount } = params;
   const parts = recordfiles?.split('/');
   const fileNameWithoutExtension = parts?.[1]?.split('@')[0];
@@ -536,7 +540,7 @@ export const getPureDate = (date: Date, updateTime) => {
 
 export const saveCdrData = async (subdomain, cdrData, result) => {
   const models = await generateModels(subdomain);
-
+  console.log(cdrData, 'cdrData');
   try {
     for (const cdr of cdrData) {
       const history = createHistoryObject(cdr, result);
@@ -704,7 +708,10 @@ interface FindIntegrationArgs {
   inboxIntegrationId?: string;
 }
 
-export const findIntegration = async (subdomain: string,args: FindIntegrationArgs): Promise<IIntegrationDocument> => {
+export const findIntegration = async (
+  subdomain: string,
+  args: FindIntegrationArgs,
+): Promise<IIntegrationDocument> => {
   let integration: IIntegrationDocument | null = null;
   const models = await generateModels(subdomain);
 
@@ -734,37 +741,54 @@ export const findIntegration = async (subdomain: string,args: FindIntegrationArg
   return integration;
 };
 
-export const  checkForExistingIntegrations = async (subdomain,details, integrationId) =>{
-  const queues = typeof details?.queues === 'string' 
-    ? details.queues.split(',').flatMap(q => q.trim().split(/\s+/)) 
-    : (details?.queues || []).flatMap(q => typeof q === 'string' ? q.trim().split(/\s+/) : q);
+export const checkForExistingIntegrations = async (
+  subdomain,
+  details,
+  integrationId,
+) => {
+  const queues =
+    typeof details?.queues === 'string'
+      ? details.queues.split(',').flatMap((q) => q.trim().split(/\s+/))
+      : (details?.queues || []).flatMap((q) =>
+          typeof q === 'string' ? q.trim().split(/\s+/) : q,
+        );
 
   const models = await generateModels(subdomain);
 
   // Check for existing integrations with the same wsServer and overlapping queues
   const existingIntegrations = await models.Integrations.find({
-    wsServer: details.wsServer,  // Match same wsServer
-    queues: { $in: queues },     // Check if any queue already exists
+    wsServer: details.wsServer, // Match same wsServer
+    queues: { $in: queues }, // Check if any queue already exists
   }).lean();
 
   if (existingIntegrations.length > 0) {
-    existingIntegrations.forEach(existingIntegration => {
+    existingIntegrations.forEach((existingIntegration) => {
       if (existingIntegration.inboxId.toString() !== integrationId.toString()) {
-        throw new Error('One or more queues already exist in the integration with the same wsServer.');
+        throw new Error(
+          'One or more queues already exist in the integration with the same wsServer.',
+        );
       }
     });
   }
 
   details.queues = queues;
-  return details || {}
-}
+  return details || {};
+};
 
-export const updateIntegrationQueues = async (subdomain, integrationId, details) => {
+export const updateIntegrationQueues = async (
+  subdomain,
+  integrationId,
+  details,
+) => {
   try {
     const models = await generateModels(subdomain);
 
     // Normalize and clean queue list
-    const checkedIntegration = await checkForExistingIntegrations(subdomain, details, integrationId);
+    const checkedIntegration = await checkForExistingIntegrations(
+      subdomain,
+      details,
+      integrationId,
+    );
     const { queues } = checkedIntegration;
 
     // Prepare update data
@@ -783,53 +807,59 @@ export const updateIntegrationQueues = async (subdomain, integrationId, details)
   }
 };
 
-export const updateIntegrationQueueNames = async (subdomain, integrationId, queues) => {
+export const updateIntegrationQueueNames = async (
+  subdomain,
+  integrationId,
+  queues,
+) => {
   try {
     const models = await generateModels(subdomain);
     const queueNames: string[] = [];
 
     if (queues?.length > 0) {
-      await Promise.all(queues.map(async (queue) => {
-        try {
-          const { response } = await sendToGrandStream(
-            models,
-            {
-              path: 'api',
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              data: { request: { action: 'getQueue', queue } },
-              integrationId: integrationId,
-              retryCount: 1,
-              isConvertToJson: true,
-              isGetExtension: true,
-            },
-            {},
-          );
+      await Promise.all(
+        queues.map(async (queue) => {
+          try {
+            const { response } = await sendToGrandStream(
+              models,
+              {
+                path: 'api',
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                data: { request: { action: 'getQueue', queue } },
+                integrationId: integrationId,
+                retryCount: 1,
+                isConvertToJson: true,
+                isGetExtension: true,
+              },
+              {},
+            );
 
-          const q = response?.response?.queue || response?.queue;
-          if (q?.queue_name) {
-            queueNames.push(q.queue_name);
+            const q = response?.response?.queue || response?.queue;
+            if (q?.queue_name) {
+              queueNames.push(q.queue_name);
+            }
+          } catch (e) {
+            console.error('getQueue error:', e.message);
+            throw new Error(`getQueue error: ${e.message}`);
           }
-        } catch (e) {
-          console.error('getQueue error:', e.message);
-          throw new Error(`getQueue error: ${e.message}`);
-        }
-      }));
+        }),
+      );
     }
     if (queueNames.length > 0) {
+      // Prepare update data
+      const updateData = { $set: { queueNames } };
 
-    // Prepare update data
-    const updateData = { $set: { queueNames } };
+      // Update the integration
+      const integration = await models.Integrations.findOneAndUpdate(
+        { inboxId: integrationId },
+        updateData,
+      );
 
-    // Update the integration
-    const integration = await models.Integrations.findOneAndUpdate(
-      { inboxId: integrationId },
-      updateData,
-    );
+      return integration?.queueNames || queueNames;
+    }
 
-    return integration?.queueNames || queueNames;}
-
-    return []
+    return [];
   } catch (error) {
     console.error('Error updating integration queue names:', error.message);
     throw error;
@@ -873,4 +903,17 @@ const errorList: ErrorList = {
   [-71]: "The username doesn't exist",
   [-90]: 'The conference is busy, cannot be edited or deleted',
   [-98]: 'There are currently digital calls. Failed to apply configuration',
+};
+
+export const toCamelCase = (obj) => {
+  const camelCaseObj = {};
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const camelCaseKey = key.replace(/_([a-z])/g, (_, letter) =>
+        letter.toUpperCase(),
+      );
+      camelCaseObj[camelCaseKey] = obj[key];
+    }
+  }
+  return camelCaseObj;
 };

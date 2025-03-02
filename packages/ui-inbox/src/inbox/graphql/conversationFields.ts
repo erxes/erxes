@@ -89,7 +89,22 @@ export default `
     createdBy
     modifiedBy
     recordUrl
-  }`
+  }
+  callCdr {
+    src
+    dst
+    billsec
+    start
+    end
+    disposition
+    userfield
+    modifiedAt
+    createdAt
+    createdBy
+    modifiedBy
+    recordUrl
+  }
+  `
         : ''
     }
 

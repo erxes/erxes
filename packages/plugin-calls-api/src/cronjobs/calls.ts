@@ -10,7 +10,7 @@ import {
 import { generateModels } from '../connectionResolver';
 import redis from '../redlock';
 import { getOrganizations } from '@erxes/api-utils/src/saas/saas';
-import * as momentTz from 'moment-timezone';
+
 
 function arraysEqual(arr1: any[], arr2: any[]): boolean {
   if (arr1.length !== arr2.length) return false;
@@ -297,7 +297,7 @@ export default {
     }
   },
 
-  handle10MinutelyJob: async ({ subdomain }) => {
+  handleMinutelyJob: async ({ subdomain }) => {
     const VERSION = getEnv({ name: 'VERSION' });
     //save forwarded operator data
     const processCdrData = async (
@@ -309,6 +309,7 @@ export default {
       subdomain,
     ) => {
       const fetchAndSaveCdr = async (direction, operatorField) => {
+        console.log({[direction]: operator[operatorField]}, 'hhahahha')
         const cdrData = await sendToGrandStream(
           models,
           {
@@ -341,9 +342,9 @@ export default {
     };
 
     const processResults = async (models, results, subdomain) => {
-      const startTime = getPureDate(new Date(), -600);
+      const startTime = getPureDate(new Date(), -10600);
       const endTime = getPureDate(new Date(), 10);
-
+      console.log(startTime,'startTime',endTime)
       for (const result of results) {
         for (const operator of result.operators) {
           if (operator.gsForwardAgent) {
@@ -376,6 +377,9 @@ export default {
         const results = await models.Integrations.find({
           'operators.gsForwardAgent': true,
         });
+
+        console.log(results,'results');
+
         await processResults(models, results, org.subdomain);
       }
     };
@@ -383,7 +387,7 @@ export default {
     if (VERSION === 'os') {
       await handleOsVersion();
     } else if (VERSION === 'saas') {
-      // await handleSaasVersion();
+      await handleSaasVersion();
     }
   },
 };

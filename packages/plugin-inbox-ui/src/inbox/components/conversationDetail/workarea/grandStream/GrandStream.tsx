@@ -5,7 +5,11 @@ import {
   StatusContent,
   StatusIcon,
 } from './styles';
-import { ICallHistory, IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import {
+  ICallHistory,
+  IConversation,
+  ICallCdrData,
+} from '@erxes/ui-inbox/src/inbox/types';
 import {
   MessageBody,
   MessageItem,
@@ -39,11 +43,22 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
     customerPhone,
     operatorPhone,
   } = conversation.callHistory || ({} as ICallHistory);
+  const {
+    end,
+    start,
+    disposition,
+    billsec,
+    userfield,
+    // createdAt,
+    recordUrl: cdrRecordUrl,
+    dst,
+    src,
+  } = conversation.callCdr || ({} as ICallCdrData);
 
   const audioTitle =
-    `operatorPhone:${operatorPhone}-` +
-    `customerPhone:${customerPhone}-` +
-    `${callType}:${callStatus}` +
+    `operatorPhone:${src || operatorPhone}-` +
+    `customerPhone:${dst || customerPhone}-` +
+    `${disposition || callType}:${userfield || callStatus}` +
     dayjs(createdAt).format('YYYY-MM-DD HH:mm');
 
   const handleDownload = () => {
@@ -79,11 +94,12 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
   };
 
   const renderAudio = () => {
+    const url = cdrRecordUrl || recordUrl;
     return (
       can('showCallRecord', currentUser) && (
         <Audio>
           <ReactAudioPlayer
-            src={readFile(recordUrl)}
+            src={readFile(url)}
             controls
             controlsList="nodownload"
           />
@@ -93,11 +109,15 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
   };
 
   const renderIcon = () => {
-    switch (callStatus) {
+    switch (userfield || callStatus) {
       case 'connected':
         return 'missed-call';
       case 'missed':
         return 'missed-call';
+      case 'Inbound':
+        return 'Call ended';
+      case 'Outbound':
+        return 'Outgoing call';
       case 'cancelled':
         return 'phone-times';
       default:
@@ -106,11 +126,15 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
   };
 
   const renderCallStatus = () => {
-    switch (callStatus) {
+    switch (userfield || callStatus) {
       case 'connected':
         return 'Call ended';
       case 'missed':
         return 'Missed call';
+      case 'Inbound':
+        return 'Call ended';
+      case 'Outbound':
+        return 'Outgoing call';
       case 'cancelled':
         return 'Call cancelled';
       default:
@@ -126,22 +150,22 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
         <CallWrapper>
           <StatusContent>
             <div>
-              <StatusIcon type={callStatus}>
+              <StatusIcon type={userfield || callStatus}>
                 <Icon icon={renderIcon()} size={16} />
               </StatusIcon>
               <div>
                 <h5>
-                  {__(renderCallStatus())} ({callType})
+                  {__(renderCallStatus())} ({disposition || callType})
                 </h5>
-                <span>Call duration: {callDuration}s</span>
+                <span>Call duration: {billsec || callDuration || 0}s</span>
               </div>
             </div>
             <div>{renderDownloadAudio()}</div>
           </StatusContent>
-          {recordUrl && renderAudio()}
+          {(cdrRecordUrl || recordUrl) && renderAudio()}
         </CallWrapper>
-        <Tip text={dayjs(createdAt).format('lll')}>
-          <footer>{dayjs(createdAt).format('LT')}</footer>
+        <Tip text={dayjs(start || createdAt).format('lll')}>
+          <footer>{dayjs(start || createdAt).format('LT')}</footer>
         </Tip>
       </MessageBody>
     </MessageItem>

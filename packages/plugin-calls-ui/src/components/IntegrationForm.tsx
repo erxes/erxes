@@ -11,6 +11,7 @@ import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers
 import { __ } from '@erxes/ui/src/utils/core';
 import OperatorForm from './OperatorForm';
 import { Operator } from '../types';
+import { can } from '@erxes/ui/src/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -37,6 +38,8 @@ const IntegrationForm: React.FC<Props> = ({
         wsServer: values.wsServer,
         operators,
         queues: values.queues,
+        srcTrunk: values.srcTrunk,
+        dstTrunk: values.dstTrunk,
       },
     };
   };
@@ -112,6 +115,17 @@ const IntegrationForm: React.FC<Props> = ({
         {renderField({
           label: 'Queues',
           fieldName: 'queues',
+          formProps,
+        })}
+        {renderField({
+          label: 'Source Trunk',
+          fieldName: 'srcTrunk',
+          formProps,
+        })}
+
+        {renderField({
+          label: 'Destination Trunk',
+          fieldName: 'dstTrunk',
           formProps,
         })}
 

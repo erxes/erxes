@@ -52,6 +52,10 @@ export const loadIntegrationClass = (models: IModels) => {
         'operators.userId': userId,
       });
 
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
+
       return integration;
     }
   }

@@ -3,6 +3,9 @@ import * as bodyParser from 'body-parser';
 import systemStatus from './systemStatus';
 import app from '@erxes/api-utils/src/app';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import { generateModels } from './connectionResolver';
+import receiveCall from './receiveCall';
 
 const rawBodySaver = (req, _res, buf, encoding) => {
   if (buf && buf.length) {
@@ -80,6 +83,23 @@ const initApp = async () => {
   // Error handling middleware
   app.use((error, _req, res, _next) => {
     res.status(500).send(error.message);
+  });
+  // init bots
+  app.post('/call/cdrReceive', async (req, res) => {
+    try {
+      // console.log(req, 'req');
+      const data = JSON.parse(JSON.stringify(req.body));
+      const subdomain = getSubdomain(req);
+
+      const models = await generateModels(subdomain);
+
+      await receiveCall(models, subdomain, data);
+
+      res.status(200).json({ message: 'Call cdr received successfully' });
+    } catch (error) {
+      console.log('call cdr error:', error.message);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
   });
 };
 

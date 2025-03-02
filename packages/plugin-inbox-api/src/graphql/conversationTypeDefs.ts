@@ -55,6 +55,21 @@ export const types = ({ contacts, dailyco, calls }) => `
         modifiedBy: String
         recordUrl: String
       }
+      type CallCdrData {
+        _id: String!
+        src: String
+        dst: String
+        billsec: Int
+        start: Date
+        end: Date
+        disposition: String
+        modifiedAt: Date
+        createdAt: Date
+        createdBy: String
+        modifiedBy: String
+        recordUrl: String
+        userfield: String
+      }
     `
       : ''
   }
@@ -94,6 +109,7 @@ export const types = ({ contacts, dailyco, calls }) => `
     participatorCount: Int
     ${dailyco ? 'videoCallData: VideoCallData' : ''}
     ${calls ? 'callHistory: CallHistoryData' : ''}
+    ${calls ? 'callCdr: CallCdrData' : ''}
     customFieldsData: JSON
   }
 

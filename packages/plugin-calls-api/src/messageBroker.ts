@@ -3,7 +3,13 @@ import type {
   MessageArgs,
   MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
-import { checkForExistingIntegrations, generateToken, getDomain, sendToGrandStream, updateIntegrationQueueNames, updateIntegrationQueues } from './utils';
+import {
+  checkForExistingIntegrations,
+  generateToken,
+  getDomain,
+  updateIntegrationQueueNames,
+  updateIntegrationQueues,
+} from './utils';
 import { generateModels } from './connectionResolver';
 import {
   consumeQueue,
@@ -20,47 +26,94 @@ export const setupMessageConsumers = async () => {
     'calls:createIntegration',
     async (args: InterMessage): Promise<any> => {
       const { subdomain, data } = args;
+
+      const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
+      const domain = getDomain(subdomain);
+
       const { integrationId, doc } = data;
       const models = generateModels(subdomain);
       try {
-      
         const docData = JSON.parse(doc.data);
-  
+        console.log(docData, 'docData');
         const token = await generateToken(integrationId);
-  
+
         const updateData = {
           inboxId: integrationId,
           token,
           ...docData,
         };
-        const checkedIntegration = await checkForExistingIntegrations(subdomain, updateData, integrationId)
-        const {queues} = checkedIntegration;
-        if(checkedIntegration){
-            const integration = await (
-              await models
-        ).Integrations.create({
-          ...checkedIntegration
-        });
-        try {
-          await updateIntegrationQueueNames(subdomain, integration?.inboxId, integration.queues);
-        } catch (error) {
-          console.error('Failed to update queue names:', error.message);
+        const checkedIntegration = await checkForExistingIntegrations(
+          subdomain,
+          updateData,
+          integrationId,
+        );
+        console.log(checkedIntegration, 'checkedIntegration');
+        if (checkedIntegration) {
+          const integration = await (
+            await models
+          ).Integrations.create({
+            ...checkedIntegration,
+          });
+          try {
+            await updateIntegrationQueueNames(
+              subdomain,
+              integration?.inboxId,
+              integration.queues,
+            );
+          } catch (error) {
+            console.error('Failed to update queue names:', error.message);
+          }
+
+          if (ENDPOINT_URL && !['os', 'localhost'].includes(subdomain)) {
+            // send domain to core endpoints
+            try {
+              const requestBody = {
+                domain,
+                erxesApiId: integration._id,
+                subdomain,
+              } as any;
+
+              if (integration.srcTrunk) {
+                requestBody.srcTrunk = integration.srcTrunk;
+              }
+              if (integration.dstTrunk) {
+                requestBody.dstTrunk = integration.dstTrunk;
+              }
+              if (integration) {
+                requestBody.callQueues = integration.queues;
+              }
+              await fetch(`${ENDPOINT_URL}/register-endpoint`, {
+                method: 'POST',
+                body: JSON.stringify({
+                  ...requestBody,
+                }),
+                headers: { 'Content-Type': 'application/json' },
+              });
+            } catch (e) {
+              await (
+                await models
+              ).Integrations.deleteOne({ _id: integration._id });
+              throw e;
+            }
+          }
         }
-      }
+
         return { status: 'success' };
       } catch (error) {
         await (await models).Integrations.deleteOne({ inboxId: integrationId });
-
         return {
           status: 'error',
-          errorMessage: error.code === 11000
+          errorMessage: error.keyPattern.wsServer
             ? 'Duplicate queue detected. Queues must be unique across integrations.'
-            : `Error creating integration: ${error.message}`,
+            : error.keyPattern.srcTrunk
+              ? 'Duplicate srcTrunk detected.'
+              : error.keyPattern.dstTrunk
+                ? 'Duplicate dstTrunk detected.'
+                : `Error creating integration: ${error.message}`,
         };
       }
-    }
+    },
   );
-  
 
   consumeRPCQueue(
     'calls:api_to_integrations',
@@ -100,57 +153,86 @@ export const setupMessageConsumers = async () => {
       try {
         const details = JSON.parse(doc.data);
         const models = await generateModels(subdomain);
-  
-        const integration = await models.Integrations.findOne({ inboxId: integrationId }).lean();
+
+        const integration = await models.Integrations.findOne({
+          inboxId: integrationId,
+        }).lean();
         if (!integration) {
           return { status: 'error', errorMessage: 'Integration not found.' };
         }
-  
-        // Update queues
-        const updatedQueues = await updateIntegrationQueues(subdomain, integrationId, details);
 
-        // Update queue names this function role is detect which incoming call queue 
-        await updateIntegrationQueueNames(subdomain, integrationId, updatedQueues);
+        // Update queues
+        const updatedQueues = await updateIntegrationQueues(
+          subdomain,
+          integrationId,
+          details,
+        );
+
+        // Update queue names this function role is detect which incoming call queue
+        await updateIntegrationQueueNames(
+          subdomain,
+          integrationId,
+          updatedQueues,
+        );
 
         // Notify external endpoint if necessary
         const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
         const domain = getDomain(subdomain);
-        if (ENDPOINT_URL && !['os', 'localhost'].includes(subdomain)) {
+        if (ENDPOINT_URL) {
           try {
+            const requestBody = {
+              domain,
+              erxesApiId: integration._id,
+              subdomain,
+            } as any;
+
+            if (details.srcTrunk) {
+              requestBody.srcTrunk = details.srcTrunk;
+            }
+            if (details.dstTrunk) {
+              requestBody.dstTrunk = details.dstTrunk;
+            }
+            if (updatedQueues) {
+              requestBody.callQueues = updatedQueues;
+            }
+
             await fetch(`${ENDPOINT_URL}/update-endpoint`, {
               method: 'POST',
-              body: JSON.stringify({
-                domain,
-                callQueues: updatedQueues,
-                erxesApiId: integration._id,
-                subdomain,
-              }),
+              body: JSON.stringify(requestBody),
               headers: { 'Content-Type': 'application/json' },
             });
           } catch (e) {
             console.error('Failed to update endpoint:', e.message);
           }
         }
-  
+
         // Verify the update
-        const updatedIntegration = await models.Integrations.findOne({ inboxId: integrationId });
+        const updatedIntegration = await models.Integrations.findOne({
+          inboxId: integrationId,
+        });
         if (!updatedIntegration) {
-          return { status: 'error', errorMessage: 'Integration not found after update.' };
+          return {
+            status: 'error',
+            errorMessage: 'Integration not found after update.',
+          };
         }
-  
+
         return { status: 'success' };
       } catch (error) {
         console.error('Error in consumeRPCQueue:', error.message);
         return {
           status: 'error',
-          errorMessage: error.code === 11000
+          errorMessage: error.keyPattern.wsServer
             ? 'Duplicate queue detected. Queues must be unique across integrations.'
-            : `Error updating integration: ${error.message}`,
+            : error.keyPattern.srcTrunk
+              ? 'Duplicate srcTrunk detected.'
+              : error.keyPattern.dstTrunk
+                ? 'Duplicate dstTrunk detected.'
+                : `Error creating integration: ${error.message}`,
         };
       }
-    }
+    },
   );
-  
 
   consumeRPCQueue(
     'calls:removeIntegrations',
@@ -259,6 +341,36 @@ export const setupMessageConsumers = async () => {
         return {
           status: 'error',
           errorMessage: 'Error processing call history:' + error,
+        };
+      }
+    },
+  );
+  consumeRPCQueue(
+    'calls:getCallCdr',
+    async (args: InterMessage): Promise<any> => {
+      try {
+        const { subdomain, data } = args;
+        const models = await generateModels(subdomain);
+        const { erxesApiConversationId } = data;
+
+        if (!erxesApiConversationId) {
+          return {
+            status: 'error',
+            errorMessage: 'Conversation id not found.',
+          };
+        }
+
+        const history = await models.Cdr.findOne({
+          conversationId: erxesApiConversationId,
+        });
+        return {
+          status: 'success',
+          data: history,
+        };
+      } catch (error) {
+        return {
+          status: 'error',
+          errorMessage: 'Error processing call cdr:' + error,
         };
       }
     },

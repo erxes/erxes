@@ -88,6 +88,8 @@ const IntegrationEditForm = (props: IProps) => {
       {renderInput('wsServer', 'Web socket server', details.wsServer)}
       {renderInput('queues', 'Queues', details.queues)}
 
+      {renderInput('srcTrunk', 'Source Trunk', details?.srcTrunk)}
+      {renderInput('dstTrunk', 'Destination Trunk', details?.dstTrunk)}
       <>
         {operators?.map((operator, index) => (
           <OperatorForm

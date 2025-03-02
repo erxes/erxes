@@ -8,6 +8,8 @@ const integrationCommonFields = `
     operators: JSON
     token: String
     queues: [String]
+    srcTrunk: String
+    dstTrunk: String
 `;
 
 const types = `

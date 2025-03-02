@@ -1,4 +1,4 @@
-import { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 import { field } from './utils';
 
 export interface Operator {
@@ -9,13 +9,15 @@ export interface Operator {
 }
 
 export interface IIntegration {
-  inboxId: String;
-  wsServer: String;
-  phone: String;
+  inboxId: string;
+  wsServer: string;
+  phone: string;
   operators: [Operator];
-  token: String;
-  queues: [String];
-  queueNames: [String];
+  token: string;
+  queues: [string];
+  queueNames: [string];
+  srcTrunk: string;
+  dstTrunk: string;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {}
@@ -29,7 +31,10 @@ export const integrationSchema = new Schema({
   token: field({ type: String, label: 'token' }),
   queues: field({ type: [String], label: 'queues' }),
   queueNames: field({ type: [String], label: 'queue names' }),
-
+  srcTrunk: field({ type: String, label: 'inbound trunk name' }),
+  dstTrunk: field({ type: String, label: 'outbound trunk name' }),
 });
 
 integrationSchema.index({ wsServer: 1, queues: 1 }, { unique: true });
+integrationSchema.index({ srcTrunk: 1 }, { unique: true });
+integrationSchema.index({ dstTrunk: 1 }, { unique: true });

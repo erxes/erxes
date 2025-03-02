@@ -133,6 +133,18 @@ const CallIntegrationForm = (props: IProps) => {
           formProps,
         )}
         {renderInput('queues', 'Queues', integration?.queues, formProps)}
+        {renderInput(
+          'srcTrunk',
+          'Source Trunk',
+          integration?.srcTrunk,
+          formProps,
+        )}
+        {renderInput(
+          'dstTrunk',
+          'Destination Trunk',
+          integration?.dstTrunk,
+          formProps,
+        )}
 
         {integration?.operators.map((operator: any, index: number) => {
           return (
