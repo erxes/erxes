@@ -117,11 +117,14 @@ export const generateFilter = async (
   }
 
   if (code) {
-    filter.code = code
+    filter.code = new RegExp(
+      `^${code.replace(/\*/g, '.').replace(/_/g, '.')}$`,
+      'igu',
+    );
   }
 
   if (name) {
-    filter.name = name
+    filter.name = new RegExp(`.*${escapeRegExp(name)}.*`, 'i');
   }
 
   if (currency) {

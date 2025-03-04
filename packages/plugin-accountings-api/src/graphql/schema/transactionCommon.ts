@@ -124,6 +124,7 @@ const trsQueryParams = `
   accountCategoryId: String,
   accountSearchValue: String,
   accountBrand: String,
+  accountIsTemp: Boolean,
   accountIsOutBalance: Boolean,
   accountBranchId: String,
   accountDepartmentId: String,
