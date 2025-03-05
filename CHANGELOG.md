@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.7.0-rc.0](https://github.com/erxes/erxes/compare/2.6.0...2.7.0-rc.0) (2025-02-16)
+
+### Features
+
+* add TimePicker component and combineDateTime utility for improved time handling ([#5903](https://github.com/erxes/erxes/issues/5903)) ([f2b1449](https://github.com/erxes/erxes/commit/f2b1449546ce48fb95a6197030666a45ee450f58))
+* added orderNotf on pos ([#5919](https://github.com/erxes/erxes/issues/5919)) ([807781f](https://github.com/erxes/erxes/commit/807781ffc0efbd9aa994d61b5de672a72e35083b))
+* Exchange rates ([#5932](https://github.com/erxes/erxes/issues/5932)) ([c6ffbb9](https://github.com/erxes/erxes/commit/c6ffbb9b1a91e50f499309350c5e611811ed7c30))
+
+### Bug Fixes
+
+* improvement for pos ([#5909](https://github.com/erxes/erxes/issues/5909)) ([d5d082f](https://github.com/erxes/erxes/commit/d5d082ff279592a2507d72641f49fdec1d511575))
+* **messenger:** add get-started ([8bdeb07](https://github.com/erxes/erxes/commit/8bdeb077df264dc8a561b04b97027de1d6cbb8dd))
+* **messenger:** add persistent menu in bot ([b5e7c5e](https://github.com/erxes/erxes/commit/b5e7c5e3d6ea037874c0fc84dd92e4c5b4495a10))
+
+### Performance Improvements
+
+* **messenger:** hide menu when clicked on persistent ([9a66ca3](https://github.com/erxes/erxes/commit/9a66ca3daca65ea41d1fedb11ab2c4c325b6fb32))
+* **messenger:** move getStarted and persistent menu in message sender ([3ca0ae6](https://github.com/erxes/erxes/commit/3ca0ae6ecd06d5cd005ba116500e66dd0368090f))
+* **messenger:** update messenger bot ([d80cbd7](https://github.com/erxes/erxes/commit/d80cbd7140a2cd39413849956d00b98ad40e3f1d))
+
 ## [2.6.0](https://github.com/erxes/erxes/compare/2.5.1...2.6.0) (2025-02-16)
 
 ### Features

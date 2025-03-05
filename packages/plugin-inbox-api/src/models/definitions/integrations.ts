@@ -1,7 +1,7 @@
 import { Document, Schema } from "mongoose";
 import {
-  attachmentSchema,
   IRule,
+  attachmentSchema,
   ruleSchema
 } from "@erxes/api-utils/src/definitions/common";
 import {
@@ -9,7 +9,6 @@ import {
   LEAD_SUCCESS_ACTIONS,
   MESSENGER_DATA_AVAILABILITY
 } from "./constants";
-
 import { field, schemaHooksWrapper } from "./utils";
 
 export interface ISubmission extends Document {
@@ -44,11 +43,20 @@ export interface IMessengerDataMessagesItem {
 export interface IMessageDataMessages {
   [key: string]: IMessengerDataMessagesItem;
 }
-
+type BotPersistentMenuTypeMessenger = {
+  _id: string;
+  type: string;
+  text: string;
+  link: string;
+  isEditing?: boolean;
+};
 export interface IMessengerData {
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
   botCheck?: boolean;
+  botGreetMessage?: string;
+  persistentMenus?: BotPersistentMenuTypeMessenger[];
+  getStarted?: boolean;
   skillData?: {
     typeId: string;
     options: Array<{
@@ -184,13 +192,24 @@ const messengerOnlineHoursSchema = new Schema(
   { _id: false }
 );
 
+const persistentMenuSchema = new Schema({
+  _id: { type: String },
+  text: { type: String },
+  type: { type: String },
+  link: { type: String, optional: true },
+  isEditing: { type: Boolean }
+});
+
 // subdocument schema for MessengerData
 const messengerDataSchema = new Schema(
   {
     skillData: field({ type: Object, optional: true }),
     botEndpointUrl: field({ type: String }),
     botShowInitialMessage: field({ type: Boolean }),
+    getStarted: field({ type: Boolean }),
     botCheck: field({ type: Boolean }),
+    botGreetMessage: field({ type: String }),
+    persistentMenus: field({ type: [persistentMenuSchema] }), // Corrected to an array
     supporterIds: field({ type: [String] }),
     notifyCustomer: field({ type: Boolean }),
     availabilityMethod: field({

@@ -25,6 +25,7 @@ import dashboards from './dashboard';
 import reports from './report';
 import sections from './section';
 import charts from './chart';
+import exchangeRates from './exchangeRates';
 
 import {
   fieldMutations as fields,
@@ -59,4 +60,5 @@ export default {
   ...reports,
   ...sections,
   ...charts,
+  ...exchangeRates,
 };
