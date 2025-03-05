@@ -1,21 +1,22 @@
-import '@nateradebaugh/react-datetime/scss/styles.scss';
-import * as React from 'react';
-import DumbApp from '../components/App';
-import '../sass/style.min.css';
-// import '../sass/style.css';
+import "@nateradebaugh/react-datetime/scss/styles.scss";
+import "../sass/style.min.css";
 
-import * as dayjs from 'dayjs';
-import * as localizedFormat from 'dayjs/plugin/localizedFormat';
-import * as relativeTime from 'dayjs/plugin/relativeTime';
-import client from '../../apollo-client';
-import { getMessengerData } from '../utils/util';
-import { ConversationProvider } from '../context/Conversation';
-import MessageHandler from '../components/MessageHandler';
-import { ConfigProvider } from '../context/Config';
-import { RouterProvider } from '../context/Router';
-import { MessageProvider } from '../context/Message';
-import { ApolloProvider } from '@apollo/client';
-import { AnimateSharedLayout } from 'framer-motion';
+import * as React from "react";
+import * as dayjs from "dayjs";
+import * as localizedFormat from "dayjs/plugin/localizedFormat";
+import * as relativeTime from "dayjs/plugin/relativeTime";
+
+import { ApolloProvider } from "@apollo/client";
+import { ConfigProvider } from "../context/Config";
+import { ConversationProvider } from "../context/Conversation";
+import DumbApp from "../components/App";
+import MessageHandler from "../components/MessageHandler";
+import { MessageProvider } from "../context/Message";
+import { RoomProvider } from "./call/RoomProvider";
+import { RouterProvider } from "../context/Router";
+import client from "../../apollo-client";
+import { getMessengerData } from "../utils/util";
+// import '../sass/style.css';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
@@ -30,7 +31,9 @@ const App = () => {
           <ConversationProvider>
             <MessageHandler>
               <MessageProvider>
-                <DumbApp showLauncher={showLauncher} />
+                <RoomProvider>
+                  <DumbApp showLauncher={showLauncher} />
+                </RoomProvider>
               </MessageProvider>
             </MessageHandler>
           </ConversationProvider>
