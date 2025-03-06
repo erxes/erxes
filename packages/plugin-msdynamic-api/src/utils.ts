@@ -281,7 +281,7 @@ export const dealToDynamic = async (
         : config.defaultUserCode,
       Sell_to_Phone_No: customer?.primaryPhone || '',
       Sell_to_E_Mail: customer?.primaryEmail || '',
-      External_Document_No: `${order.number}TEST`,
+      External_Document_No: order.number,
       Responsibility_Center: config.responsibilityCenter || '',
       Sync_Type: config.syncType || '',
       Mobile_Phone_No: customer?.primaryPhone || '',
