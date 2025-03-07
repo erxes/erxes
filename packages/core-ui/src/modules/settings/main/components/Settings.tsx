@@ -193,6 +193,14 @@ class Settings extends React.PureComponent {
             )}
 
             {this.renderBox(
+              'Exchange Rates',
+              '/images/icons/erxes-25.png',
+              '/settings/exchangeRates',
+              'exchangeRatesAll',
+              ['showExchangeRates', 'manageExchangeRates']
+            )}
+
+            {this.renderBox(
               'System Logs',
               '/images/icons/erxes-33.png',
               '/settings/logs',

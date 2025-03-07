@@ -14,7 +14,6 @@ import {
   loadAccountingConfigClass,
 } from './models/Configs';
 import { ICtaxRowModel, loadCtaxRowClass } from './models/CtaxRows';
-import { IExchangeRateModel, loadExchangeRateClass } from './models/ExchangeRates';
 import {
   ITransactionModel,
   loadTransactionClass,
@@ -28,7 +27,6 @@ import {
 } from './models/definitions/accountCategory';
 import { IAccountingConfigDocument } from './models/definitions/config';
 import { ICtaxRowDocument } from './models/definitions/ctaxRow';
-import { IExchangeRateDocument } from './models/definitions/exchangeRate';
 import {
   ITransactionDocument,
 } from './models/definitions/transaction';
@@ -43,7 +41,6 @@ export interface IModels {
   AccountingConfigs: IAccountingConfigModel;
   VatRows: IVatRowModel;
   CtaxRows: ICtaxRowModel;
-  ExchangeRates: IExchangeRateModel;
   Permissions: IPermissionModel;
 }
 export interface IContext extends IMainContext {
@@ -70,11 +67,6 @@ export const loadClasses = (
     IAccountCategoryDocument,
     IAccountCategoryModel
   >('account_categories', loadAccountCategoryClass(models));
-
-  models.ExchangeRates = db.model<IExchangeRateDocument, IExchangeRateModel>(
-    'exchange_rates',
-    loadExchangeRateClass(models, subdomain),
-  );
 
   models.Permissions = db.model<IPermissionDocument, IPermissionModel>(
     'accounting_permissions',
