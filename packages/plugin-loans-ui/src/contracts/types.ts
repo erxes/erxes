@@ -144,6 +144,7 @@ export interface ISchedule {
 
   balance: number;
   loss?: number;
+  storedInterest?: number;
   interestEve?: number;
   interestNonce?: number;
   payment?: number;

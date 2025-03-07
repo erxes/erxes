@@ -82,7 +82,9 @@ function Component({
         {...props}
         data={{
           name,
-          contracts: [contract],
+          contracts: (
+            contract?._id && contract?._id === 'tempFakeContract'
+          ) ? [] : [contract],
           mainType,
           mainTypeId: mainTypeId || id,
         }}
@@ -148,7 +150,7 @@ function Component({
             loading={false}
             scheduleYears={scheduleYears}
             currentYear={new Date().getFullYear()}
-            onClickYear={() => {}}
+            onClickYear={() => { }}
           ></SchedulesList>
         )}
       </SectionBodyItem>
