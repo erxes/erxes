@@ -251,6 +251,14 @@ const connect = `
       cachedCustomerId: $cachedCustomerId, visitorId: $visitorId) {
       integrationId,
       messengerData,
+      callData {
+        departments {
+          _id
+          name
+          operators
+        }
+        isReceiveWebCall
+      }
       languageCode,
       uiOptions,
       customerId,

@@ -1,4 +1,4 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const users = `
   query users {
@@ -41,6 +41,15 @@ const integrationDetail = `
       ${commonFields}
       messengerData,
       ticketData,
+      messengerData
+      callData {
+        departments {
+          _id
+          name
+          operators
+        }
+        isReceiveWebCall
+      }
       uiOptions
       websiteMessengerApps {
         credentials
@@ -225,5 +234,5 @@ export default {
   integrationsGetTwitterAccount,
   integrationsGetFbPages,
   integrationsVideoCallUsageStatus,
-  imapIntegrations
+  imapIntegrations,
 };

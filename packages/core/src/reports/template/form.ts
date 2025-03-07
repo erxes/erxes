@@ -74,7 +74,7 @@ const formTemplates = [
             const matchFilter = await buildMatchFilter({ ...filter, dateRangeType: 'createdDate' }, subdomain, 'form');
 
             const pipeline = await buildFormPipeline(filter, matchFilter, 'form')
-            console.log('form', util.inspect(pipeline, false, null, true /* enable colors */))
+            console.debug('form', util.inspect(pipeline, false, null, true /* enable colors */))
             const forms = await models.Forms.aggregate(pipeline)
 
             const title = "Total Form Count";
@@ -225,7 +225,7 @@ const formTemplates = [
             const matchFilter = await buildMatchFilter(filter, subdomain, 'submission');
 
             const pipeline = await buildFormPipeline(filter, matchFilter, 'submission')
-            console.log('submission', util.inspect(pipeline, false, null, true /* enable colors */))
+            console.debug('submission', util.inspect(pipeline, false, null, true /* enable colors */))
             const submissions = await models.FormSubmissions.aggregate(pipeline)
 
             const title = "Total Submission Count";

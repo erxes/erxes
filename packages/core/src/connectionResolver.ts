@@ -149,6 +149,8 @@ import {
   loadExchangeRateClass,
 } from './db/models/ExchangeRates';
 import { IExchangeRateDocument } from './db/models/definitions/exchangeRate';
+import { IClientModel, loadClientClass } from "./db/models/Client";
+import { IClientDocument } from "./db/models/definitions/client";
 
 export interface IModels {
   Users: IUserModel;
@@ -189,6 +191,7 @@ export interface IModels {
   Sections: ISectionModel;
   Charts: IChartModel;
   Reports: IReportModel;
+  Clients: IClientModel;
   ExchangeRates: IExchangeRateModel;
 }
 
@@ -367,6 +370,11 @@ export const loadClasses = (
   models.Sections = db.model<ISectionDocument, ISectionModel>(
     'sections',
     loadSectionClass(models, subdomain)
+  );
+
+  models.Clients = db.model<IClientDocument, IClientModel>(
+    "clients",
+    loadClientClass(models)
   );
 
   models.ExchangeRates = db.model<IExchangeRateDocument, IExchangeRateModel>(

@@ -2,7 +2,7 @@ import * as momentTz from "moment-timezone";
 
 import { IContext, IModels } from "../../connectionResolver";
 import { sendCoreMessage, sendKnowledgeBaseMessage } from "../../messageBroker";
-
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import { IBrowserInfo } from "@erxes/api-utils/src/definitions/common";
 import { IIntegrationDocument } from "../../models/definitions/integrations";
 import { getOrCreateEngageMessage } from "../../widgetUtils";
@@ -109,22 +109,28 @@ export default {
       ]);
 
       if (!integration) return null;
-      const getStarted = await sendAutomationsMessage({
-        subdomain,
-        action: "trigger.find",
-        data: {
-          query: {
-            triggerType: "inbox:messages",
-            botId: integration._id
-          }
-        },
-        isRPC: true
-      }).catch((error) => {
-        throw error;
-      });
-      const getStartedCondition = (
-        getStarted[0]?.triggers[0]?.config?.conditions || []
-      ).find((condition) => condition.type === "getStarted");
+      let getStartedCondition: { isSelected?: boolean } | false = false;
+
+      if (isEnabled("automations")) {
+        const getStarted = await sendAutomationsMessage({
+          subdomain,
+          action: "trigger.find",
+          data: {
+            query: {
+              triggerType: "inbox:messages",
+              botId: integration._id
+            }
+          },
+          isRPC: true
+        }).catch((error) => {
+          throw error;
+        });
+
+        getStartedCondition = (
+          getStarted[0]?.triggers[0]?.config?.conditions || []
+        ).find((condition) => condition.type === "getStarted");
+      }
+
       const messengerData = integration.messengerData || {
         supporterIds: [],
         persistentMenus: [],

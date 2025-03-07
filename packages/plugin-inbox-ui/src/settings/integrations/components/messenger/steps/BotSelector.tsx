@@ -11,7 +11,6 @@ import { FlexRow } from "@erxes/ui-settings/src/styles";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import HelpPopover from "@erxes/ui/src/components/HelpPopover";
-import { IMessages } from "@erxes/ui-inbox/src/settings/integrations/types";
 import Toggle from "@erxes/ui/src/components/Toggle";
 import { __ } from "coreui/utils";
 

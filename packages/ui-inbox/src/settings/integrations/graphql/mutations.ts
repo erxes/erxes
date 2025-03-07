@@ -104,8 +104,8 @@ const integrationsEditMessenger = `
 `;
 
 const integrationsSaveMessengerConfigs = `
-  mutation integrationsSaveMessengerConfigs($_id: String!, $messengerData: IntegrationMessengerData) {
-    integrationsSaveMessengerConfigs(_id: $_id, messengerData: $messengerData) {
+  mutation integrationsSaveMessengerConfigs($_id: String!, $messengerData: IntegrationMessengerData, $callData: IntegrationCallData) {
+    integrationsSaveMessengerConfigs(_id: $_id, messengerData: $messengerData, callData: $callData) {
       _id
     }
   }

@@ -12,6 +12,7 @@ import {
   StepWrapper
 } from "@erxes/ui/src/components/step/styles";
 import {
+  ICallData,
   IExternalLink,
   IIntegration,
   IMessages,
@@ -24,10 +25,9 @@ import {
 import { Step, Steps } from "@erxes/ui/src/components/step";
 
 import AddOns from "../../containers/messenger/AddOns";
-import BotSelector from "./steps/BotSelector";
 import Button from "@erxes/ui/src/components/Button";
 import CommonPreview from "./widgetPreview/CommonPreview";
-import Connection from "./steps/Connection";
+import ConfigSetup from "./steps/ConfigSetup";
 import { IBrand } from "@erxes/ui/src/brands/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import { LANGUAGES } from "@erxes/ui-settings/src/general/constants";
@@ -52,6 +52,7 @@ type Props = {
     ticketData: ITicketTypeMessenger;
     uiOptions: IUiOptions;
     messengerApps: IMessengerApps;
+    callData: ICallData;
   }) => void;
   isLoading: boolean;
 };
@@ -107,6 +108,7 @@ type State = {
   showVideoCallRequest?: boolean;
   messengerApps: IMessengerApps;
   externalLinks: IExternalLink[];
+  callData?: ICallData;
 };
 
 class CreateMessenger extends React.Component<Props, State> {
@@ -115,6 +117,7 @@ class CreateMessenger extends React.Component<Props, State> {
 
     const integration = props.integration || ({} as IIntegration);
     const languageCode = integration.languageCode || "en";
+
     const configData = integration.messengerData || {
       skillData: undefined,
       notifyCustomer: false,
@@ -130,6 +133,27 @@ class CreateMessenger extends React.Component<Props, State> {
       botGreetMessage: "",
       persistentMenus: [] as BotPersistentMenuTypeMessenger[]
     };
+
+    const configData =
+      integration.messengerData ||
+      ({
+        skillData: undefined,
+        notifyCustomer: false,
+        requireAuth: true,
+        showChat: true,
+        showLauncher: true,
+        hideWhenOffline: false,
+        forceLogoutWhenResolve: false,
+        showVideoCallRequest: false,
+        botEndpointUrl: "",
+        botShowInitialMessage: false,
+        botCheck: false,
+        isReceiveWebCall: false,
+        botGreetMessage: "",
+        persistentMenus: [] as BotPersistentMenuTypeMessenger[],
+      } as IMessengerData);
+    const callData = integration.callData;
+
     const links = configData.links || {};
     const externalLinks = configData.externalLinks || [];
     const messages = configData.messages || {};
@@ -182,7 +206,9 @@ class CreateMessenger extends React.Component<Props, State> {
       youtube: links.youtube || "",
       messages: { ...this.generateMessages(messages) },
       messengerApps,
-      externalLinks
+      externalLinks,
+      callData: callData,
+
     };
   }
 
@@ -261,7 +287,10 @@ class CreateMessenger extends React.Component<Props, State> {
       showVideoCallRequest,
       messengerApps,
       skillData,
-      externalLinks
+
+      externalLinks,
+      callData,
+
     } = this.state;
 
     if (!languageCode) {
@@ -365,7 +394,9 @@ class CreateMessenger extends React.Component<Props, State> {
         wallpaper: this.state.wallpaper,
         logo: this.state.logo
       },
-      messengerApps
+      messengerApps,
+      callData: callData || {},
+
     });
   };
 
@@ -451,6 +482,7 @@ class CreateMessenger extends React.Component<Props, State> {
       ticketStageId,
       ticketPipelineId,
       ticketBoardId
+      callData,
     } = this.state;
 
     const { integration } = this.props;
@@ -547,10 +579,18 @@ class CreateMessenger extends React.Component<Props, State> {
                 />
               </Step>
               <Step
+
                 img='/images/icons/erxes-24.svg'
                 title={__("Bot Setup")}
                 onClick={this.onStepClick.bind(null, "bot")}>
                 <BotSelector
+                img="/images/icons/erxes-24.svg"
+                title={__("Config Setup")}
+                onClick={this.onStepClick.bind(null, "cfCall")}
+              >
+                <ConfigSetup
+                  onChange={this.onChange}
+                  callData={callData}
                   title={title}
                   botCheck={botCheck}
                   botGreetMessage={botGreetMessage}
@@ -568,6 +608,12 @@ class CreateMessenger extends React.Component<Props, State> {
                   ticketPipelineId={ticketPipelineId || ""}
                   ticketBoardId={ticketBoardId || ""}
                   ticketStageId={ticketStageId || ""}
+
+                  botEndpointUrl={botEndpointUrl}
+                  botShowInitialMessage={botShowInitialMessage}
+                  channelIds={channelIds}
+                  brandId={brandId}
+
                 />
               </Step>
               <Step
