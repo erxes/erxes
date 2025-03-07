@@ -60,7 +60,7 @@ const queryParams = `
 `;
 
 export const queries = `
-  programs(${queryParams}): [ProgramListResponse]
+  programs(${queryParams}): ProgramListResponse
   programDetail(_id: String!): Program
   programCategories(parentId: String, searchValue: String): [ProgramCategory]
   programCategoriesTotalCount: Int

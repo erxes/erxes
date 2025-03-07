@@ -1,4 +1,4 @@
-export interface ICurriculum {
+export interface IProgram {
   _id: string;
   name?: string;
   createdAt?: Date;
@@ -15,8 +15,8 @@ export interface IType {
 }
 
 // queries
-export type CurriculumQueryResponse = {
-  programs: ICurriculum[];
+export type ProgramQueryResponse = {
+  programs: IProgram[];
   refetch: () => void;
   loading: boolean;
 };

@@ -13,7 +13,7 @@ import {
 } from "./models/definitions/programs";
 
 export interface IModels {
-  Program: IProgramModel;
+  Programs: IProgramModel;
   ProgramCategories: IProgramCategoryModel;
 }
 
@@ -28,15 +28,15 @@ export const loadClasses = (
 ): IModels => {
   const models = {} as IModels;
 
-  models.Program = db.model<IProgramDocument, IProgramModel>(
-    "program",
+  models.Programs = db.model<IProgramDocument, IProgramModel>(
+    "programs",
     loadProgramClass(models)
   );
 
   models.ProgramCategories = db.model<
     IProgramCategoryDocument,
     IProgramCategoryModel
-  >("program_categories", loadProgramCategoryClass(models));
+  >("programs_categories", loadProgramCategoryClass(models));
 
   return models;
 };

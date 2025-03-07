@@ -1,3 +1,3 @@
-import Program from "./program";
+import Programs from "./programs";
 
-export { Program };
+export { Programs };

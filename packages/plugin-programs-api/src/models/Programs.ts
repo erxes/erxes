@@ -34,7 +34,7 @@ export interface IProgramCategoryModel extends Model<IProgramCategoryDocument> {
 export const loadProgramClass = (models) => {
   class Program {
     static async checkCodeDuplication(code: string) {
-      const program = await models.Program.findOne({
+      const program = await models.Programs.findOne({
         code,
       });
 
@@ -46,7 +46,7 @@ export const loadProgramClass = (models) => {
      * Retreives program
      */
     public static async getProgram(_id: string) {
-      const program = await models.Program.findOne({ _id });
+      const program = await models.Programs.findOne({ _id });
 
       if (!program) {
         throw new Error("Program not found");
@@ -64,7 +64,7 @@ export const loadProgramClass = (models) => {
         .replace(/_/g, "")
         .replace(/ /g, "");
       await this.checkCodeDuplication(doc.code);
-      const program = await models.Program.create({
+      const program = await models.Programs.create({
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
@@ -77,15 +77,15 @@ export const loadProgramClass = (models) => {
      * Update program
      */
     public static async updateProgram(_id, doc) {
-      const searchText = models.Program.fillSearchText(
-        Object.assign(await models.Program.getProgram(_id), doc)
+      const searchText = models.Programs.fillSearchText(
+        Object.assign(await models.Programs.getProgram(_id), doc)
       );
-      await models.Program.updateOne(
+      await models.Programs.updateOne(
         { _id },
         { $set: { ...doc, searchText, modifiedAt: new Date() } }
       );
 
-      return models.Program.findOne({ _id });
+      return models.Programs.findOne({ _id });
     }
   }
   programSchema.loadClass(Program);
@@ -178,7 +178,7 @@ export const loadProgramCategoryClass = (models) => {
     public static async removeProgramCategory(_id) {
       await models.ProgramCategories.getProgramCatogery({ _id });
 
-      let count = await models.Program.countDocuments({ categoryId: _id });
+      let count = await models.Programs.countDocuments({ categoryId: _id });
 
       count += await models.ProgramCategories.countDocuments({
         parentId: _id,

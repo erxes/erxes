@@ -20,15 +20,15 @@ type Props = {
 };
 
 type FinalProps = {
-  listCurriculumTypeQuery: TypeQueryResponse;
+  listProgramTypeQuery: TypeQueryResponse;
 } & Props &
   RemoveTypeMutationResponse &
   EditTypeMutationResponse;
 
 const TypesListContainer = (props: FinalProps) => {
-  const { listCurriculumTypeQuery, typesEdit, typesRemove, history } = props;
+  const { listProgramTypeQuery, typesEdit, typesRemove, history } = props;
 
-  if (listCurriculumTypeQuery.loading) {
+  if (listProgramTypeQuery.loading) {
     return <Spinner />;
   }
 
@@ -50,7 +50,7 @@ const TypesListContainer = (props: FinalProps) => {
         successMessage={`You successfully ${
           object ? "updated" : "added"
         } a ${passedName}`}
-        refetchQueries={["listCurriculumTypeQuery"]}
+        refetchQueries={["listProgramTypeQuery"]}
       />
     );
   };
@@ -69,8 +69,8 @@ const TypesListContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    types: listCurriculumTypeQuery.programTypes || [],
-    loading: listCurriculumTypeQuery.loading,
+    types: listProgramTypeQuery.programTypes || [],
+    loading: listProgramTypeQuery.loading,
     remove,
     renderButton,
   };
@@ -80,8 +80,8 @@ const TypesListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql(gql(queries.listCurriculumTypes), {
-      name: "listCurriculumTypeQuery",
+    graphql(gql(queries.listProgramTypes), {
+      name: "listProgramTypeQuery",
       options: () => ({
         fetchPolicy: "network-only",
       }),
@@ -89,7 +89,7 @@ export default withProps<Props>(
     graphql(gql(mutations.removeType), {
       name: "typesRemove",
       options: () => ({
-        refetchQueries: ["listCurriculumTypeQuery"],
+        refetchQueries: ["listProgramTypeQuery"],
       }),
     })
   )(TypesListContainer)

@@ -15,8 +15,8 @@ const list = `
   }
 `;
 
-const listCurriculumTypes = `
-  query listCurriculumTypeQuery{
+const listProgramTypes = `
+  query listProgramTypeQuery{
     programTypes{
       _id
       name
@@ -33,5 +33,5 @@ const totalCount = `
 export default {
   list,
   totalCount,
-  listCurriculumTypes,
+  listProgramTypes,
 };

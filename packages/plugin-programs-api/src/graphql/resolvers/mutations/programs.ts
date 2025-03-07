@@ -5,8 +5,12 @@ const programMutations = {
   /**
    * Creates a new program
    */
-  programsAdd: async (_root, doc, { user, docModifier, models, subdomain }) => {
-    const program = await models.Program.createProgram(docModifier(doc), user);
+  programsAdd: async (
+    _root,
+    doc,
+    { user, docModifier, models, subdomain }: IContext
+  ) => {
+    const program = await models.Programs.createProgram(docModifier(doc), user);
 
     await putCreateLog(
       subdomain,
@@ -26,8 +30,8 @@ const programMutations = {
    * Edits a new program
    */
   programsEdit: async (_root, { _id, ...doc }, { models, user, subdomain }) => {
-    const program = await models.Program.getProgram(_id);
-    const updated = await models.Program.updateProgram(_id, doc);
+    const program = await models.Programs.getProgram(_id);
+    const updated = await models.Programs.updateProgram(_id, doc);
 
     await putUpdateLog(
       subdomain,
@@ -52,11 +56,11 @@ const programMutations = {
     { programIds }: { programIds: string[] },
     { models, user, subdomain }: IContext
   ) => {
-    const programs = await models.Program.find({
+    const programs = await models.Programs.find({
       _id: { $in: programIds },
     }).lean();
 
-    await models.Program.removeActivities(programIds);
+    await models.Programs.removeActivities(programIds);
 
     for (const program of programs) {
       await putDeleteLog(

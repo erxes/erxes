@@ -8,16 +8,16 @@ import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { __ } from "@erxes/ui/src/utils";
 import React from "react";
-import { ICurriculum } from "../types";
+import { IProgram } from "../types";
 import Form from "./Form";
 import Row from "./Row";
 
 type Props = {
-  programs: ICurriculum[];
+  programs: IProgram[];
   typeId?: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  remove: (program: ICurriculum) => void;
-  edit: (program: ICurriculum) => void;
+  remove: (program: IProgram) => void;
+  edit: (program: IProgram) => void;
   loading: boolean;
 };
 
@@ -31,8 +31,8 @@ function List({
   edit,
 }: Props) {
   const trigger = (
-    <Button id={"AddCurriculumButton"} btnStyle="success" icon="plus-circle">
-      Add Curriculum
+    <Button id={"AddProgramButton"} btnStyle="success" icon="plus-circle">
+      Add Program
     </Button>
   );
 
@@ -54,7 +54,7 @@ function List({
     />
   );
 
-  const title = <Title capitalize={true}>{__("Curriculum")}</Title>;
+  const title = <Title capitalize={true}>{__("Program")}</Title>;
 
   const actionBar = (
     <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing />

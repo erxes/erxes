@@ -5,19 +5,19 @@ import { Alert } from "@erxes/ui/src/utils";
 import React from "react";
 import List from "../components/List";
 import { mutations, queries } from "../graphql";
-import { CurriculumQueryResponse, TypeQueryResponse } from "../types";
+import { ProgramQueryResponse, TypeQueryResponse } from "../types";
 
 type Props = {
   queryParams: any;
 };
 
 const ListContainer = (props: Props) => {
-  const listQuery = useQuery<CurriculumQueryResponse>(gql(queries.list), {
+  const listQuery = useQuery<ProgramQueryResponse>(gql(queries.list), {
     variables: {},
   });
 
   const typesQuery = useQuery<TypeQueryResponse>(
-    gql(queries.listCurriculumTypes),
+    gql(queries.listProgramTypes),
     {
       variables: {},
     }

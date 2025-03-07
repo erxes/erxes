@@ -10,17 +10,15 @@ import { __ } from "@erxes/ui/src/utils";
 import React from "react";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
-import { ICurriculum, IType } from "../types";
+import { IProgram, IType } from "../types";
 import Form from "./Form";
 
-const CurriculumNameStyled = styledTS<{ checked: boolean }>(styled.div).attrs(
-  {}
-)`
+const ProgramNameStyled = styledTS<{ checked: boolean }>(styled.div).attrs({})`
     color: ${colors.colorCoreBlack};
     text-decoration: ${(props) => (props.checked ? "line-through" : "none")}
     `;
 
-export const CurriculumWrapper = styledTS<{ space: number }>(
+export const ProgramWrapper = styledTS<{ space: number }>(
   styled.div
 )`padding-left: ${(props) => props.space * 20}px;
   display:inline-flex;
@@ -33,12 +31,12 @@ const Margin = styledTS(styled.div)`
 `;
 
 type Props = {
-  program: ICurriculum;
+  program: IProgram;
   space: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  programs: ICurriculum[];
-  remove: (program: ICurriculum) => void;
-  edit: (program: ICurriculum) => void;
+  programs: IProgram[];
+  remove: (program: IProgram) => void;
+  edit: (program: IProgram) => void;
   types?: IType[];
 };
 
@@ -49,13 +47,11 @@ type State = {
 class Row extends React.Component<Props, State> {
   Activities({ program, checked }) {
     return (
-      <CurriculumNameStyled checked={checked}>
-        {program.name}
-      </CurriculumNameStyled>
+      <ProgramNameStyled checked={checked}>{program.name}</ProgramNameStyled>
     );
   }
 
-  removeCurriculum = () => {
+  removeProgram = () => {
     const { remove, program } = this.props;
 
     remove(program);
@@ -95,7 +91,7 @@ class Row extends React.Component<Props, State> {
     return (
       <tr>
         <td>
-          <CurriculumWrapper space={space}>
+          <ProgramWrapper space={space}>
             <FormControl
               componentclass="checkbox"
               onChange={this.toggleCheck}
@@ -108,7 +104,7 @@ class Row extends React.Component<Props, State> {
                 checked={program.checked || false}
               />
             </Margin>
-          </CurriculumWrapper>
+          </ProgramWrapper>
         </td>
         <td>{extractDate}</td>
         <td>
@@ -122,7 +118,7 @@ class Row extends React.Component<Props, State> {
             <Tip text={__("Delete")} placement="top">
               <Button
                 btnStyle="link"
-                onClick={this.removeCurriculum}
+                onClick={this.removeProgram}
                 icon="times-circle"
               />
             </Tip>

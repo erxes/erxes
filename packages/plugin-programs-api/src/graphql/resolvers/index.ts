@@ -1,12 +1,12 @@
-import { Program as ProgramMutations } from "./mutations";
-import { Program as ProgramQueries } from "./queries";
+import { Programs as ProgramsMutations } from "./mutations";
+import { Programs as ProgramsQueries } from "./queries";
 
 const resolvers: any = async () => ({
   Mutation: {
-    ...ProgramMutations,
+    ...ProgramsMutations,
   },
   Query: {
-    ...ProgramQueries,
+    ...ProgramsQueries,
   },
 });
 

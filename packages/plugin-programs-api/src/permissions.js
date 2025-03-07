@@ -1,27 +1,27 @@
 module.exports = {
   automations: {
-    name: "program",
-    description: "Program",
+    name: "programs",
+    description: "Programs",
     actions: [
       {
-        name: "ProgramAll",
+        name: "programsAll",
         description: "All",
-        use: ["showProgram", "programAdd", "programEdit", "programRemove"],
+        use: ["showPrograms", "programsAdd", "programsEdit", "programsRemove"],
       },
       {
-        name: "showProgram",
+        name: "showPrograms",
         description: "Show program",
       },
       {
-        name: "programAdd",
+        name: "programsAdd",
         description: "Add program",
       },
       {
-        name: "programEdit",
+        name: "programsEdit",
         description: "Edit program",
       },
       {
-        name: "programRemove",
+        name: "programsRemove",
         description: "Remove program",
       },
     ],

@@ -3,9 +3,11 @@ import { generateModels } from "./connectionResolver";
 import resolvers from "./graphql/resolvers";
 import typeDefs from "./graphql/typeDefs";
 import { setupMessageConsumers } from "./messageBroker";
+import permissions from "./permissions";
 
 export default {
-  name: "program",
+  name: "programs",
+  permissions,
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),

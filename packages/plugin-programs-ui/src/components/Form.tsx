@@ -10,14 +10,14 @@ import { __ } from "@erxes/ui/src/utils";
 import Datetime from "@nateradebaugh/react-datetime";
 import dayjs from "dayjs";
 import React from "react";
-import { ICurriculum, IType } from "../types";
+import { IProgram, IType } from "../types";
 
 type Props = {
   closeModal?: () => void;
   afterSave: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  program?: ICurriculum;
-  programs?: ICurriculum[];
+  program?: IProgram;
+  programs?: IProgram[];
   types?: IType[];
 } & ICommonFormProps;
 
@@ -81,7 +81,7 @@ class FormComponent extends React.Component<Props & ICommonFormProps, State> {
     const { expiryDate } = this.state;
     const { program, types, afterSave, closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
-    const object = program || ({} as ICurriculum);
+    const object = program || ({} as IProgram);
     return (
       <>
         <FormGroup>

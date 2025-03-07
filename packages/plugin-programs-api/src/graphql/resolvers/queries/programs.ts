@@ -24,25 +24,44 @@ const generateFilter = async (
   return filter;
 };
 
+export const sortBuilder = (params) => {
+  const sortField = params.sortField;
+  const sortDirection = params.sortDirection || 0;
+
+  if (sortField) {
+    return { [sortField]: sortDirection };
+  }
+
+  return {};
+};
+
 const programQueries = {
   programs: async (
     _root,
     params,
     { subdomain, commonQuerySelector, models }: IContext
   ) => {
-    return paginate(
-      models.Program.find(
-        await generateFilter(subdomain, params, commonQuerySelector, models)
-      ),
-      {
-        page: params.page,
-        perPage: params.perPage,
-      }
+    const filter = await generateFilter(
+      subdomain,
+      params,
+      commonQuerySelector,
+      models
     );
+
+    return {
+      list: await paginate(
+        models.Programs.find(filter).sort(sortBuilder(params)),
+        {
+          page: params.page,
+          perPage: params.perPage,
+        }
+      ),
+      totalCount: await models.Programs.find(filter).countDocuments(),
+    };
   },
 
   programDetail: async (_root, { _id }, { models }: IContext) => {
-    return models.Program.getProgram(_id);
+    return models.Programs.getProgram(_id);
   },
 
   programCategories: async (
