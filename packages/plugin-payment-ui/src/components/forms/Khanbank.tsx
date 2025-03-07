@@ -157,7 +157,7 @@ const ConfigForm: React.FC<Props> = ({ renderButton, closeModal, payment }) => {
               value={configId}
               onChange={(e: any) => {
                 const selectedConfigId = e.target.value;
-                console.log(selectedConfigId);
+  
                 setConfigId(selectedConfigId);
               }}
               errors={formProps.errors}

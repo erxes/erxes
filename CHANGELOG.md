@@ -1,5 +1,44 @@
 # Changelog
 
+## [2.8.0-rc.0](https://github.com/erxes/erxes/compare/2.7.0...2.8.0-rc.0) (2025-03-05)
+
+### Features
+
+* **cloudflare call:** Add cloudflare call in widget and web call ([#5960](https://github.com/erxes/erxes/issues/5960)) ([19cbfbf](https://github.com/erxes/erxes/commit/19cbfbf7967527f7997a0dff04c9aa7a527a7f10))
+
+### Bug Fixes
+
+* **inbox:** minor query adjustment for getStarted condition ([#5938](https://github.com/erxes/erxes/issues/5938)) ([3a2cd16](https://github.com/erxes/erxes/commit/3a2cd161579e738ec4f798bbbf5cca281d7a7237))
+
+### Reverts
+
+* release.yaml to rc ([d7e04db](https://github.com/erxes/erxes/commit/d7e04db7f495c5e085a5fcb956b60b2da6832236))
+
+## [2.7.0](https://github.com/erxes/erxes/compare/2.7.0-rc.0...2.7.0) (2025-03-05)
+
+### Features
+
+* add cms _id in plugin pages items field ([7c693f1](https://github.com/erxes/erxes/commit/7c693f193100d3936505560913d58210c0201d8e))
+* **core:** introduce OAuth 2.0 client management ([#5949](https://github.com/erxes/erxes/issues/5949)) ([18328f0](https://github.com/erxes/erxes/commit/18328f002fce6918887d836d6c710d290f38bc32))
+* **payment:** add wechat and add authorization in payments ([#5958](https://github.com/erxes/erxes/issues/5958)) ([72ddff6](https://github.com/erxes/erxes/commit/72ddff6db8d17ae49ec64f1133b531ff2cca8b37))
+* **payment:** create payment transaction if paymentId is present in invoice ([6f2c238](https://github.com/erxes/erxes/commit/6f2c238ee3ff38b9405337c46fdee694e7364fa3))
+
+### Bug Fixes
+
+* **bm:** add ability set image tag on commit id ([aab150e](https://github.com/erxes/erxes/commit/aab150e6345f8470ac0da24282e5d689b12f81a8))
+* **cards:** checklists subscriptions ([e5f9ef9](https://github.com/erxes/erxes/commit/e5f9ef92d7e12ef76af2606a77f45e3aca46e706))
+* **cards:** department supervisor permission on cards ([9e4eaa6](https://github.com/erxes/erxes/commit/9e4eaa63d2942ab77fc73f5babbf83165bc9abd0))
+* **pms:** room change permission ([09288a8](https://github.com/erxes/erxes/commit/09288a80e2d8a830393a78d1be55fafad3d5853c))
+* **pms:** room change permission ([c21d3a0](https://github.com/erxes/erxes/commit/c21d3a0808ca3db79b0d8f32e6f4f6c7c2b6f7f2))
+* **pms:** ui numbers ([e9bcd69](https://github.com/erxes/erxes/commit/e9bcd69f3bf2dfec6b9f874ce1b5c3eff62bf62a))
+* pos order history on detail payments ([5866405](https://github.com/erxes/erxes/commit/586640523a64e44867d49df8159c6459161a7445))
+* posclient product sync allow null taxRule ([f510674](https://github.com/erxes/erxes/commit/f510674084e0c9ca1a40f4c5633e4a6fc5433a74))
+* poscProducts totalCount query ([946830c](https://github.com/erxes/erxes/commit/946830cf4a952d3a3ec903150407d89ecc5f8d2b))
+* similiraties products sort ([fd3e80a](https://github.com/erxes/erxes/commit/fd3e80ae534a67d4406c94afec601043c3571cbe))
+* **tms,pms:** saas configs ([c732eac](https://github.com/erxes/erxes/commit/c732eac67fcb5257e66180a34cbff1936a3e7166))
+* **tms:** config & fields channged ([d4a8367](https://github.com/erxes/erxes/commit/d4a8367b9333bf6e0d8eb03ed468d31caa699ec1))
+* **tms:** fields ([1d1358a](https://github.com/erxes/erxes/commit/1d1358ad30100cee58bc9a5bebd2e1e2f1be71c2))
+
 ## [2.7.0-rc.0](https://github.com/erxes/erxes/compare/2.6.0...2.7.0-rc.0) (2025-02-16)
 
 ### Features

@@ -144,10 +144,10 @@ export default async function userMiddleware(
     }
   }
 
-  const authHeader = req.headers["authorization"];
+  const clientToken = req.headers["x-app-token"];
 
-  if (authHeader) {
-    const token = authHeader.split(" ")[1];
+  if (clientToken) {
+    const token = String(clientToken);
     try {
       const decoded: any = jwt.verify(
         token,
