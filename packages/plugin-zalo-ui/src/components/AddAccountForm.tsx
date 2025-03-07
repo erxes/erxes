@@ -24,11 +24,7 @@ const AddAccountForm = (props: Props) => {
 
   const [appID, setAppID] = useState('');
 
-  const connectURL = useMemo(
-    () =>
-      `https://oauth.zaloapp.com/v4/oa/permission?app_id=${appID}&redirect_uri=http%3A%2F%2Flocalhost%2F`,
-    [appID]
-  );
+  
 
   const renderField = ({
     label,
