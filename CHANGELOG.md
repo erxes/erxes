@@ -1,5 +1,50 @@
 # Changelog
 
+## [2.7.0](https://github.com/erxes/erxes/compare/2.7.0-rc.0...2.7.0) (2025-03-05)
+
+### Features
+
+* add cms _id in plugin pages items field ([7c693f1](https://github.com/erxes/erxes/commit/7c693f193100d3936505560913d58210c0201d8e))
+* **core:** introduce OAuth 2.0 client management ([#5949](https://github.com/erxes/erxes/issues/5949)) ([18328f0](https://github.com/erxes/erxes/commit/18328f002fce6918887d836d6c710d290f38bc32))
+* **payment:** add wechat and add authorization in payments ([#5958](https://github.com/erxes/erxes/issues/5958)) ([72ddff6](https://github.com/erxes/erxes/commit/72ddff6db8d17ae49ec64f1133b531ff2cca8b37))
+* **payment:** create payment transaction if paymentId is present in invoice ([6f2c238](https://github.com/erxes/erxes/commit/6f2c238ee3ff38b9405337c46fdee694e7364fa3))
+
+### Bug Fixes
+
+* **bm:** add ability set image tag on commit id ([aab150e](https://github.com/erxes/erxes/commit/aab150e6345f8470ac0da24282e5d689b12f81a8))
+* **cards:** checklists subscriptions ([e5f9ef9](https://github.com/erxes/erxes/commit/e5f9ef92d7e12ef76af2606a77f45e3aca46e706))
+* **cards:** department supervisor permission on cards ([9e4eaa6](https://github.com/erxes/erxes/commit/9e4eaa63d2942ab77fc73f5babbf83165bc9abd0))
+* **pms:** room change permission ([09288a8](https://github.com/erxes/erxes/commit/09288a80e2d8a830393a78d1be55fafad3d5853c))
+* **pms:** room change permission ([c21d3a0](https://github.com/erxes/erxes/commit/c21d3a0808ca3db79b0d8f32e6f4f6c7c2b6f7f2))
+* **pms:** ui numbers ([e9bcd69](https://github.com/erxes/erxes/commit/e9bcd69f3bf2dfec6b9f874ce1b5c3eff62bf62a))
+* pos order history on detail payments ([5866405](https://github.com/erxes/erxes/commit/586640523a64e44867d49df8159c6459161a7445))
+* posclient product sync allow null taxRule ([f510674](https://github.com/erxes/erxes/commit/f510674084e0c9ca1a40f4c5633e4a6fc5433a74))
+* poscProducts totalCount query ([946830c](https://github.com/erxes/erxes/commit/946830cf4a952d3a3ec903150407d89ecc5f8d2b))
+* similiraties products sort ([fd3e80a](https://github.com/erxes/erxes/commit/fd3e80ae534a67d4406c94afec601043c3571cbe))
+* **tms,pms:** saas configs ([c732eac](https://github.com/erxes/erxes/commit/c732eac67fcb5257e66180a34cbff1936a3e7166))
+* **tms:** config & fields channged ([d4a8367](https://github.com/erxes/erxes/commit/d4a8367b9333bf6e0d8eb03ed468d31caa699ec1))
+* **tms:** fields ([1d1358a](https://github.com/erxes/erxes/commit/1d1358ad30100cee58bc9a5bebd2e1e2f1be71c2))
+
+## [2.7.0-rc.0](https://github.com/erxes/erxes/compare/2.6.0...2.7.0-rc.0) (2025-02-16)
+
+### Features
+
+* add TimePicker component and combineDateTime utility for improved time handling ([#5903](https://github.com/erxes/erxes/issues/5903)) ([f2b1449](https://github.com/erxes/erxes/commit/f2b1449546ce48fb95a6197030666a45ee450f58))
+* added orderNotf on pos ([#5919](https://github.com/erxes/erxes/issues/5919)) ([807781f](https://github.com/erxes/erxes/commit/807781ffc0efbd9aa994d61b5de672a72e35083b))
+* Exchange rates ([#5932](https://github.com/erxes/erxes/issues/5932)) ([c6ffbb9](https://github.com/erxes/erxes/commit/c6ffbb9b1a91e50f499309350c5e611811ed7c30))
+
+### Bug Fixes
+
+* improvement for pos ([#5909](https://github.com/erxes/erxes/issues/5909)) ([d5d082f](https://github.com/erxes/erxes/commit/d5d082ff279592a2507d72641f49fdec1d511575))
+* **messenger:** add get-started ([8bdeb07](https://github.com/erxes/erxes/commit/8bdeb077df264dc8a561b04b97027de1d6cbb8dd))
+* **messenger:** add persistent menu in bot ([b5e7c5e](https://github.com/erxes/erxes/commit/b5e7c5e3d6ea037874c0fc84dd92e4c5b4495a10))
+
+### Performance Improvements
+
+* **messenger:** hide menu when clicked on persistent ([9a66ca3](https://github.com/erxes/erxes/commit/9a66ca3daca65ea41d1fedb11ab2c4c325b6fb32))
+* **messenger:** move getStarted and persistent menu in message sender ([3ca0ae6](https://github.com/erxes/erxes/commit/3ca0ae6ecd06d5cd005ba116500e66dd0368090f))
+* **messenger:** update messenger bot ([d80cbd7](https://github.com/erxes/erxes/commit/d80cbd7140a2cd39413849956d00b98ad40e3f1d))
+
 ## [2.6.0](https://github.com/erxes/erxes/compare/2.5.1...2.6.0) (2025-02-16)
 
 ### Features

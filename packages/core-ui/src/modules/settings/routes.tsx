@@ -13,6 +13,7 @@ import LogsRoutes from "./logs/routes";
 import EmailDeliveriesRoutes from "./emailDelivery/routes";
 import EmailTemplatesRoutes from "../emailtemplates/routes";
 import ClientRoutes from "./clients/routes";
+import ExchangeRatesRoutes from './exchangeRates/routes';
 
 const SettingsRoute = () => (
   <>
@@ -30,6 +31,7 @@ const SettingsRoute = () => (
     <LogsRoutes key="Logs" />
     <EmailDeliveriesRoutes key="EmailDeliveries" />
     <EmailTemplatesRoutes key="EmailTemplates" />
+    <ExchangeRatesRoutes key="exchangeRates" />
   </>
 );
 
