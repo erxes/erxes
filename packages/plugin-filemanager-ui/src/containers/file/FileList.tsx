@@ -4,7 +4,6 @@ import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import {
   FilemanagerFilesQueryResponse,
   FilemanagerFoldersQueryResponse,
-  IFolder,
   RemoveFileMutationResponse
 } from '../../types';
 import { mutations, queries } from '../../graphql';
