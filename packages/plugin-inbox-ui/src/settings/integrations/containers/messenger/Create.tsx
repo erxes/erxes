@@ -5,6 +5,26 @@ import {
   SaveMessengerConfigsMutationResponse,
   SaveMessengerMutationResponse,
   SaveMessengerMutationVariables,
+  SaveMessengerTicketMutationResponse
+} from "@erxes/ui-inbox/src/settings/integrations/types";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import {
+  mutations,
+  queries
+} from "@erxes/ui-inbox/src/settings/integrations/graphql";
+
+import { BrandsQueryResponse } from "@erxes/ui/src/brands/types";
+import Form from "../../components/messenger/Form";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { TopicsQueryResponse } from "@erxes/ui-knowledgebase/src/types";
+import { UsersQueryResponse } from "@erxes/ui/src/auth/types";
+import { queries as brandQueries } from "@erxes/ui/src/brands/graphql";
+import { integrationsListParams } from "@erxes/ui-inbox/src/settings/integrations/containers/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { queries as kbQueries } from "@erxes/ui-knowledgebase/src/graphql";
+import { useNavigate } from "react-router-dom";
+
 } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import {
@@ -24,6 +44,7 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
 import { useNavigate } from 'react-router-dom';
 
+
 type Props = {
   queryParams: any;
   integrationId?: string;
@@ -38,12 +59,15 @@ const CreateMessenger = (props: Props) => {
   const { data: brandsData, loading: brandsLoading } =
     useQuery<BrandsQueryResponse>(gql(brandQueries.brands), {
       fetchPolicy: 'network-only',
+
     });
   const { data: topicsData } = useQuery<TopicsQueryResponse>(
     gql(kbQueries.knowledgeBaseTopics),
     {
-      skip: !isEnabled('knowledgebase') ? true : false,
-    },
+
+      skip: !isEnabled("knowledgebase") ? true : false
+    }
+
   );
 
   const [saveMessengerMutation] = useMutation<
@@ -53,10 +77,10 @@ const CreateMessenger = (props: Props) => {
     refetchQueries: [
       {
         query: gql(queries.integrations),
-        variables: integrationsListParams(queryParams),
+        variables: integrationsListParams(queryParams)
       },
-      { query: gql(queries.integrationTotalCount) },
-    ],
+      { query: gql(queries.integrationTotalCount) }
+    ]
   });
 
   const [saveConfigsMutation] =
@@ -66,11 +90,18 @@ const CreateMessenger = (props: Props) => {
         refetchQueries: [
           {
             query: gql(queries.integrationDetail),
+            variables: { _id: integrationId || "" },
+            fetchPolicy: "network-only"
+          }
+        ]
+      }
+
             variables: { _id: integrationId || '' },
             fetchPolicy: 'network-only',
           },
         ],
       },
+
     );
 
   const [saveAppearanceMutation] =
@@ -80,13 +111,25 @@ const CreateMessenger = (props: Props) => {
         refetchQueries: [
           {
             query: gql(queries.integrationDetail),
-            variables: { _id: integrationId || '' },
-            fetchPolicy: 'network-only',
-          },
-        ],
-      },
+            variables: { _id: integrationId || "" },
+            fetchPolicy: "network-only"
+          }
+        ]
+      }
     );
 
+  const [saveTicketData] = useMutation<SaveMessengerTicketMutationResponse>(
+    gql(mutations.integrationsSaveMessengerTicketData),
+    {
+      refetchQueries: [
+        {
+          query: gql(queries.integrationDetail),
+          variables: { _id: integrationId || "" },
+          fetchPolicy: "network-only"
+        }
+      ]
+    }
+  );
   const [messengerAppSaveMutation] =
     useMutation<SaveMessengerAppsMutationResponse>(
       gql(mutations.messengerAppSave),
@@ -94,11 +137,11 @@ const CreateMessenger = (props: Props) => {
         refetchQueries: [
           {
             query: gql(queries.integrationDetail),
-            variables: { _id: integrationId || '' },
-            fetchPolicy: 'network-only',
-          },
-        ],
-      },
+            variables: { _id: integrationId || "" },
+            fetchPolicy: "network-only"
+          }
+        ]
+      }
     );
 
   const [isLoading, setIsLoading] = React.useState(false);
@@ -117,15 +160,20 @@ const CreateMessenger = (props: Props) => {
       brandId,
       languageCode,
       messengerData,
+      ticketData,
       uiOptions,
       channelIds,
+      messengerApps
+    } = doc;
+    console.log(doc, "doc");
+    let id = "";
       messengerApps,
       callData,
     } = doc;
-
     let id = '';
+
     saveMessengerMutation({
-      variables: { name, brandId, languageCode, channelIds },
+      variables: { name, brandId, languageCode, channelIds }
     })
       .then(({ data = {} as any }) => {
         setIsLoading(true);
@@ -134,20 +182,25 @@ const CreateMessenger = (props: Props) => {
         id = integrationId;
         return saveConfigsMutation({
           variables: { _id: integrationId, messengerData, callData },
+
         });
       })
       .then(({ data = {} as any }) => {
         const integrationId = data.integrationsSaveMessengerConfigs._id;
-
+        saveTicketData({
+          variables: { _id: integrationId, ticketData }
+        });
         return saveAppearanceMutation({
-          variables: { _id: integrationId, uiOptions },
+          variables: { _id: integrationId, uiOptions }
         });
       })
       .then(({ data = {} as any }) => {
         const integrationId = data.integrationsSaveMessengerAppearanceData._id;
-
+        ({
+          variables: { _id: integrationId, uiOptions }
+        });
         return messengerAppSaveMutation({
-          variables: { integrationId, messengerApps },
+          variables: { integrationId, messengerApps }
         });
       })
       .then(() => {
@@ -176,7 +229,7 @@ const CreateMessenger = (props: Props) => {
     brands,
     save,
     topics,
-    isLoading,
+    isLoading
   };
 
   return <Form {...updatedProps} />;

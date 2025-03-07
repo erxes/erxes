@@ -39,6 +39,8 @@ const integrationDetail = `
   query integrationDetail($_id: String!) {
     integrationDetail(_id: $_id) {
       ${commonFields}
+      messengerData,
+      ticketData,
       messengerData
       callData {
         departments {
