@@ -79,7 +79,6 @@ export const getOrCreateCdr = async (
   }
 
   const camelCase = toCamelCase(cdrParams);
-
   const createdCdr = new models.Cdr({
     ...camelCase,
     inboxIntegrationId: inboxId,
@@ -104,13 +103,7 @@ export const getOrCreateCdr = async (
         owner: operatorPhone || '',
       };
 
-      console.log('conversationPayload:', conversationPayload);
       if (oldCdr) {
-        if (oldCdr?.conversationId) {
-          console.log('oldCdr?.conversationId:', oldCdr?.conversationId);
-        }
-        console.log('oldCdr:', oldCdr?.conversationId);
-
         await models.Cdr.updateOne(
           { _id: oldCdr._id, conversationId: { $exists: true, $ne: '' } },
           { $set: { conversationId: '' } },
@@ -143,6 +136,10 @@ export const getOrCreateCdr = async (
         (createdCdr.recordfiles ||
           (await fetchRecordUrl(models, inboxId, cdrParams)));
 
+      if (!recordUrl) {
+        console.log('recordUrl baihgui', createdCdr.AcctId);
+      }
+
       if (recordUrl) {
         const fileDir =
           ['QUEUE', 'TRANSFER'].some((substring) =>
@@ -150,6 +147,8 @@ export const getOrCreateCdr = async (
           ) && cdrParams.userfield !== 'Inbound'
             ? 'queue'
             : 'monitor';
+
+        console.log('record url:', recordUrl);
         const recordPath = await cfRecordUrl(
           {
             fileDir,
@@ -182,6 +181,8 @@ export const getOrCreateCdr = async (
 
 const fetchRecordUrl = async (models, inboxIntegrationId, params) => {
   const { src, dst, start, end } = params;
+  const startTime = start?.replace(' ', 'T') || new Date(start);
+  const endTime = start?.replace(' ', 'T') || new Date(end);
 
   const cdrData = await sendToGrandStream(
     models,
@@ -196,8 +197,8 @@ const fetchRecordUrl = async (models, inboxIntegrationId, params) => {
           caller: src,
           callee: dst,
           numRecords: '10',
-          startTime: start?.replace(' ', 'T'),
-          endTime: end?.replace(' ', 'T'),
+          startTime,
+          endTime,
         },
       },
       integrationId: inboxIntegrationId,
@@ -209,7 +210,6 @@ const fetchRecordUrl = async (models, inboxIntegrationId, params) => {
   );
 
   const cdrRoot = cdrData.response?.cdr_root || cdrData.cdr_root;
-  console.log(cdrRoot, 'cdrRoot');
   const recordFiles = getRecordFiles(cdrRoot);
   console.log(recordFiles[0], 'recordFile');
   return recordFiles[0];

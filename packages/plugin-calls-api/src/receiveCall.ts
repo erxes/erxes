@@ -5,7 +5,11 @@ import { getOrCreateCustomer, getOrCreateCdr } from './store';
 import { cfRecordUrl, sendToGrandStream } from './utils';
 
 const receiveCall = async (models, subdomain, params) => {
-  console.log(params.src_trunk_name, 'params.src_trunk_name');
+  console.log(
+    params.src_trunk_name,
+    'params.src_trunk_name:',
+    params.dst_trunk_name,
+  );
 
   const integration = await models.Integrations.findOne({
     $or: [
