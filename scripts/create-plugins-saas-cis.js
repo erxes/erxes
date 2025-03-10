@@ -47,7 +47,7 @@ var plugins = [
   // { name: 'zalo', ui: true, api: true },
   { name: 'facebook', ui: true, api: true },
   // { name: 'filemanager', ui: true, api: true },
-  // { name: 'khanbank', ui: true, api: true },
+  { name: 'khanbank', ui: true, api: true },
   // { name: 'productplaces', ui: true, api: true },
   { name: 'ecommerce', api: true },
   // { name: 'grants', api: true, ui: true },
