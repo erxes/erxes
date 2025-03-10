@@ -100,7 +100,9 @@ const IncomeForm = (props: Props) => {
                     <ControlLabel>total Salary Income</ControlLabel>
                     <FormControl
                       type="number"
-                      defaultValue={income?.totalSalaryIncome || 0}
+                      value={income?.totalSalaryIncome || 0}
+                      useNumberFormat={true}
+                      fixed={2}
                       onChange={(e: any) =>
                         onChangeIncomeItem(
                           income._id,
@@ -175,7 +177,9 @@ const IncomeForm = (props: Props) => {
                     <ControlLabel>business income</ControlLabel>
                     <FormControl
                       type="number"
-                      defaultValue={income.businessIncome || 0}
+                      useNumberFormat={true}
+                      fixed={2}
+                      value={income.businessIncome || 0}
                       onChange={(e: any) =>
                         onChangeIncomeItem(
                           income._id,
@@ -225,8 +229,10 @@ const IncomeForm = (props: Props) => {
           <ControlLabel>Average Salary Income</ControlLabel>
           <FormControl
             type="number"
-            defaultValue={averageSalaryIncome}
+            value={averageSalaryIncome}
             disabled={true}
+            useNumberFormat={true}
+            fixed={2}
           />
         </FormGroup>
 
@@ -235,8 +241,10 @@ const IncomeForm = (props: Props) => {
           <FormControl
             type="number"
             name="averageBusinessIncome"
-            defaultValue={averageBusinessIncome}
+            value={averageBusinessIncome}
             disabled={true}
+            useNumberFormat={true}
+            fixed={2}
           />
         </FormGroup>
 
@@ -244,8 +252,10 @@ const IncomeForm = (props: Props) => {
           <ControlLabel>Total Income</ControlLabel>
           <FormControl
             type="number"
-            defaultValue={totalIncome}
+            value={totalIncome}
             disabled={true}
+            useNumberFormat={true}
+            fixed={2}
           />
         </FormGroup>
       </FlexRow>

@@ -172,7 +172,9 @@ const LoanForm = (props: Props) => {
                     <ControlLabel>loan amount</ControlLabel>
                     <FormControl
                       type="number"
-                      defaultValue={loan?.loanAmount || 0}
+                      value={loan?.loanAmount || 0}
+                      useNumberFormat={true}
+                      fixed={2}
                       onChange={(e: any) =>
                         onChangeLoanItem(
                           loan._id,
@@ -201,7 +203,9 @@ const LoanForm = (props: Props) => {
                     <ControlLabel>monthly cost amount</ControlLabel>
                     <FormControl
                       type="number"
-                      defaultValue={loan?.costAmount || 0}
+                      value={loan?.costAmount || 0}
+                      useNumberFormat={true}
+                      fixed={2}
                       onChange={(e: any) =>
                         onChangeLoanItem(
                           loan._id,
@@ -251,8 +255,10 @@ const LoanForm = (props: Props) => {
           <ControlLabel>Monthly Loan Amount</ControlLabel>
           <FormControl
             type="number"
-            defaultValue={monthlyLoanAmount}
+            value={monthlyLoanAmount}
             disabled={true}
+            useNumberFormat={true}
+            fixed={2}
           />
         </FormGroup>
 
@@ -261,8 +267,10 @@ const LoanForm = (props: Props) => {
 
           <FormControl
             type="number"
-            defaultValue={monthlyCostAmount}
+            value={monthlyCostAmount}
             disabled={true}
+            useNumberFormat={true}
+            fixed={2}
           />
         </FormGroup>
 
@@ -270,8 +278,10 @@ const LoanForm = (props: Props) => {
           <ControlLabel>Total Payment Amount</ControlLabel>
           <FormControl
             type="number"
-            defaultValue={totalPaymentAmount}
+            value={totalPaymentAmount}
             disabled={true}
+            useNumberFormat={true}
+            fixed={2}
           />
         </FormGroup>
       </FlexRow>

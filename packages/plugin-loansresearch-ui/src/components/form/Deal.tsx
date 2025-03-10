@@ -51,15 +51,23 @@ const DealForm = (props: Props) => {
 
       <FormGroup>
         <ControlLabel>Average income</ControlLabel>
-        <FormControl type="number" defaultValue={totalIncome} disabled={true} />
+        <FormControl
+          type="number"
+          value={totalIncome}
+          disabled={true}
+          useNumberFormat={true}
+          fixed={2}
+        />
       </FormGroup>
 
       <FormGroup>
         <ControlLabel>Monthly payment</ControlLabel>
         <FormControl
           type="number"
-          defaultValue={totalPaymentAmount}
+          value={totalPaymentAmount}
           disabled={true}
+          useNumberFormat={true}
+          fixed={2}
         />
       </FormGroup>
 
@@ -76,8 +84,10 @@ const DealForm = (props: Props) => {
         <ControlLabel>Increase Monthly Payment Amount</ControlLabel>
         <FormControl
           type="number"
-          defaultValue={increaseMonthlyPaymentAmount}
+          value={increaseMonthlyPaymentAmount}
           disabled={true}
+          useNumberFormat={true}
+          fixed={2}
         />
       </FormGroup>
     </MarginTop>
