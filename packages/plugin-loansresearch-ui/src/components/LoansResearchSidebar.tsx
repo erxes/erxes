@@ -19,7 +19,6 @@ import LoansResearchFormContainer from '../containers/LoansResearchForm';
 import React, { useState } from 'react';
 import { DynamicComponentList } from '@erxes/ui/src/styles/main';
 import { SidebarContent } from '@erxes/ui-forms/src/settings/properties/styles';
-import Select from 'react-select';
 import { renderBody } from '../utils';
 
 type Props = {
@@ -61,20 +60,12 @@ const LoansResearchSidebar = (props: Props) => {
     />
   );
 
-  const renderFormGroup = (label, value, select?) => {
-    if (select) {
-      return (
-        <FormGroup>
-          <ControlLabel>{__(label)}</ControlLabel>
-          <Select value={value} />
-        </FormGroup>
-      );
-    }
-
+  const renderFormGroup = (label, props) => {
+    if (!label) return <FormControl {...props} />;
     return (
       <FormGroup>
         <ControlLabel>{__(label)}</ControlLabel>
-        <FormControl defaultValue={value} disabled={true} />
+        <FormControl {...props} />
       </FormGroup>
     );
   };
@@ -90,23 +81,35 @@ const LoansResearchSidebar = (props: Props) => {
           <ControlLabel>{'Customer'}</ControlLabel>
           {renderBody(loansResearch?.customer || 'Unknown')}
         </FormGroup>
-        {renderFormGroup('Customer Type', loansResearch?.customerType || '')}
-        {renderFormGroup(
-          'Average Salary Income',
-          loansResearch?.averageSalaryIncome || 0
-        )}
-        {renderFormGroup(
-          'Total Payment Amount',
-          loansResearch?.totalPaymentAmount || 0
-        )}
-        {renderFormGroup(
-          'Debt Income Ratio',
-          loansResearch?.debtIncomeRatio || 0
-        )}
-        {renderFormGroup(
-          'Increase Monthly Payment Amount',
-          loansResearch?.increaseMonthlyPaymentAmount || 0
-        )}
+        {renderFormGroup('Customer Type', {
+          value: loansResearch?.customerType || '',
+          disabled: true,
+        })}
+        {renderFormGroup('Average Salary Income', {
+          type: 'number',
+          value: loansResearch?.averageSalaryIncome || 0,
+          useNumberFormat: true,
+          fixed: 2,
+          disabled: true,
+        })}
+        {renderFormGroup('Total Payment Amount', {
+          type: 'number',
+          value: loansResearch?.totalPaymentAmount || 0,
+          useNumberFormat: true,
+          fixed: 2,
+          disabled: true,
+        })}
+        {renderFormGroup('Debt Income Ratio', {
+          type: 'number',
+          value: loansResearch?.debtIncomeRatio || 0,
+        })}
+        {renderFormGroup('Increase Monthly Payment Amount', {
+          type: 'number',
+          value: loansResearch?.increaseMonthlyPaymentAmount || 0,
+          useNumberFormat: true,
+          fixed: 2,
+          disabled: true,
+        })}
       </SidebarContent>
     );
   };
@@ -115,15 +118,27 @@ const LoansResearchSidebar = (props: Props) => {
     return (
       <SidebarContent>
         <FlexRow>
-          {renderFormGroup(
-            'Average Salary Income',
-            loansResearch?.averageSalaryIncome || 0
-          )}
-          {renderFormGroup(
-            'Average Business Income',
-            loansResearch?.averageBusinessIncome || 0
-          )}
-          {renderFormGroup('Total Income', loansResearch?.totalIncome || '')}
+          {renderFormGroup('Average Salary Income', {
+            type: 'number',
+            value: loansResearch?.averageSalaryIncome || 0,
+            useNumberFormat: true,
+            fixed: 2,
+            disabled: true,
+          })}
+          {renderFormGroup('Average Business Income', {
+            type: 'number',
+            value: loansResearch?.averageBusinessIncome || 0,
+            useNumberFormat: true,
+            fixed: 2,
+            disabled: true,
+          })}
+          {renderFormGroup('Total Income', {
+            type: 'number',
+            value: loansResearch?.totalIncome || '',
+            useNumberFormat: true,
+            fixed: 2,
+            disabled: true,
+          })}
         </FlexRow>
       </SidebarContent>
     );
@@ -133,18 +148,27 @@ const LoansResearchSidebar = (props: Props) => {
     return (
       <SidebarContent>
         <FlexRow>
-          {renderFormGroup(
-            'Monthly Loan Amount',
-            loansResearch?.monthlyLoanAmount || 0
-          )}
-          {renderFormGroup(
-            'Monthly Cost Amount',
-            loansResearch?.monthlyCostAmount || 0
-          )}
-          {renderFormGroup(
-            'Total Payment Amount',
-            loansResearch?.totalPaymentAmount || 0
-          )}
+          {renderFormGroup('Monthly Loan Amount', {
+            type: 'number',
+            value: loansResearch?.monthlyLoanAmount || 0,
+            useNumberFormat: true,
+            fixed: 2,
+            disabled: true,
+          })}
+          {renderFormGroup('Monthly Cost Amount', {
+            type: 'number',
+            value: loansResearch?.monthlyCostAmount || 0,
+            useNumberFormat: true,
+            fixed: 2,
+            disabled: true,
+          })}
+          {renderFormGroup('Total Payment Amount', {
+            type: 'number',
+            value: loansResearch?.totalPaymentAmount || 0,
+            useNumberFormat: true,
+            fixed: 2,
+            disabled: true,
+          })}
         </FlexRow>
       </SidebarContent>
     );
