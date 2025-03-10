@@ -1,11 +1,12 @@
-import { useLocation } from 'react-router-dom';
-import queryString from 'query-string';
-import { gql, useQuery } from '@apollo/client';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import React from 'react';
-import Section from '../components/common/DealBurenSection';
-import { queries } from '../graphql';
-import { DetailQueryResponse } from '../types';
+import { gql, useQuery } from "@apollo/client";
+
+import { DetailQueryResponse } from "../types";
+import React from "react";
+import Section from "../components/common/DealBurenSection";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { queries } from "../graphql";
+import queryString from "query-string";
+import { useLocation } from "react-router-dom";
 
 type Props = {
   showType?: string;
@@ -17,9 +18,9 @@ function BurenSectionContainer(props: Props) {
 
   const customersQuery = useQuery(gql(queries.customers), {
     variables: {
-      mainType: 'deal',
-      mainTypeId: queryParams?.itemId || '',
-      relType: 'customer',
+      mainType: "deal",
+      mainTypeId: queryParams?.itemId || "",
+      relType: "customer",
       isSaved: true,
     },
   });
@@ -28,17 +29,13 @@ function BurenSectionContainer(props: Props) {
     gql(queries.getCustomerScore),
     {
       variables: {
-        customerId: customersQuery?.data?.customers[0]?._id || '',
+        customerId: customersQuery?.data?.customers[0]?._id || "",
       },
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
     }
   );
 
-  if (customersQuery.loading) {
-    return <Spinner />;
-  }
-
-  if (customerScore.loading) {
+  if (customersQuery.loading || customerScore.loading) {
     return <Spinner />;
   }
 
@@ -46,6 +43,7 @@ function BurenSectionContainer(props: Props) {
 
   const updatedProps = {
     ...props,
+    customerId: customersQuery?.data?.customers[0]?._id || "",
     burenCustomerScoring: data,
   };
   return <Section {...updatedProps} />;

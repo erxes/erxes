@@ -352,15 +352,15 @@ const TabContent = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
 `;
 
-const ButtonRelated = styled.div`
+const ButtonRelated = styledTS<{ type?: string }>(styled.div)`
   text-align: center;
   padding: 16px 0;
   font-size: 12px;
 
   span {
-    background: rgba(0, 0, 0, 0.06);
+    background: ${props => props.type === "primary" ? colors.colorSecondary : "rgba(0, 0, 0, 0.06)"};
     padding: 4px 16px;
-    color: ${colors.colorCoreGray};
+    color: ${props => props.type === "primary" ? colors.colorWhite : colors.colorCoreGray};
     border-radius: 25px;
     transition: all 0.3s ease;
 
