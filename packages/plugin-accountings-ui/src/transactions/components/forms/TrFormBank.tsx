@@ -212,7 +212,6 @@ const TrFormBank = (props: Props) => {
       </FormWrapper>
       <TaxFields
         {...props}
-        onChangeDetail={onChangeDetail}
         side={getTrSide(detail.side, true)}
         isWithTax={true}
       />
