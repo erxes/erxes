@@ -346,6 +346,8 @@ export const dealToDynamic = async (
         productById[product._id] = product;
       }
 
+      let totalDiscount = 0;
+
       for (const item of order.items) {
         let lineUrlP = '';
         let linePostMethod = 'POST';
@@ -379,8 +381,8 @@ export const dealToDynamic = async (
             ? productById[item.productId].code
             : '',
           Quantity: item.count || 0,
-          Unit_Price: item.unitPrice || 0,
-          Location_Code: config.locationCode || 'BEV-01',
+          // Unit_Price: item.unitPrice || 0,
+          Location_Code: config.locationCode,
         };
 
         if (lineNo) {
@@ -414,9 +416,8 @@ export const dealToDynamic = async (
             { _id: syncLog._id },
             {
               $set: {
-                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${
-                  responseSaleLine.error.message
-                }`,
+                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${responseSaleLine.error.message
+                  }`,
               },
             }
           );
@@ -431,6 +432,39 @@ export const dealToDynamic = async (
           }
         );
         lineNoById[item._id] = lineNo || responseSaleLine.Line_No;
+        totalDiscount += item.discountAmount ?? 0;
+      }
+
+      const soapApiUrl = config.discountSoapApi // "https://bc.erpmsm.mn:7047/MSM-Data/WS/Betastar%20LLC/Codeunit/PictureService";
+
+      if (soapApiUrl && totalDiscount) {
+        const soapHeaders = {
+          "Content-Type": "text/xml",
+          SOAPAction: "urn:microsoft-dynamics-schemas/codeunit/PictureService:ReCalculateSalesOrderDiscount",
+          Authorization: `Basic ${Buffer.from(
+            `${username}:${password}`
+          ).toString('base64')}`,
+        }
+
+        const soapDiscountSendData = `
+          <?xml version="1.0"?>
+          <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                    xmlns:tns="urn:microsoft-dynamics-schemas/codeunit/PictureService">
+          <soapenv:Header/>
+          <soapenv:Body>
+            <tns:ReCalculateSalesOrderDiscount>
+              <tns:code>${responseSale.No}</tns:code>
+              <tns:invoiceDiscountAmount>${totalDiscount}</tns:invoiceDiscountAmount>
+            </tns:ReCalculateSalesOrderDiscount>
+          </soapenv:Body>
+          </soapenv:Envelope>
+        `;
+
+        await fetch(`${soapApiUrl}`, {
+          method: 'POST',
+          headers: soapHeaders,
+          body: soapDiscountSendData,
+        });
       }
     }
 
@@ -606,7 +640,7 @@ export const getExchangeRates = async (config: ExchangeRateConfig) => {
       if (
         !latestByCurrency[currency] ||
         new Date(item.Starting_Date) >
-          new Date(latestByCurrency[currency].Starting_Date)
+        new Date(latestByCurrency[currency].Starting_Date)
       ) {
         latestByCurrency[currency] = item;
       }
