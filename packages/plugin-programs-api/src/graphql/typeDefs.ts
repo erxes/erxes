@@ -1,19 +1,31 @@
 import gql from "graphql-tag";
-import { mutations, queries, types } from "./schema/programs";
+import {
+  mutations as CommentsMutations,
+  queries as CommentsQueries,
+  types as CommentsTypes,
+} from "./schema/comments";
+import {
+  mutations as ProgramsMutations,
+  queries as ProgramsQueries,
+  types as ProgramsTypes,
+} from "./schema/programs";
 
 const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date
 
-    ${types()}
+    ${ProgramsTypes()}
+    ${CommentsTypes()}
     
     extend type Query {
-      ${queries}
+      ${ProgramsQueries}
+      ${CommentsQueries}
     }
     
     extend type Mutation {
-      ${mutations}
+      ${ProgramsMutations}
+      ${CommentsMutations}
     }
   `;
 };

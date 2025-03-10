@@ -22,10 +22,10 @@ export interface IProgram {
   type?: string;
   attachment?: any;
   status?: string;
-  startDate: Date;
-  endDate: Date;
-  deadline: Date;
-  unitPrice?: number;
+  startDate?: Date;
+  endDate?: Date;
+  deadline?: Date;
+  unitPrice: number;
 }
 
 export interface IProgramDocument extends IProgram, Document {
@@ -93,6 +93,9 @@ export const programSchema = new Schema({
     optional: true,
     label: "Attachment",
   }),
+
+  searchText: field({ type: String, optional: true, index: true }),
+
   status: field({
     type: String,
     enum: PROGRAM_STATUSES.ALL,

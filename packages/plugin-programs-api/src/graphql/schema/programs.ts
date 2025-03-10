@@ -40,6 +40,10 @@ export const types = () => `
     programCount: Int
     attachment: Attachment
   }
+  enum StatusType {
+    active
+    draft
+  }
 `;
 
 const programCategoryParams = `
@@ -59,6 +63,7 @@ const queryParams = `
   sortField: String
   sortDirection: Int
   categoryId: String
+  statuses : [String]
 `;
 
 export const queries = `
@@ -72,7 +77,7 @@ const mutationParams = `
   name: String!,
   code: String!,
   type: String,
-  categoryId: String,
+  categoryId: String!,
   description: String,
   duration : String,
   attachment: AttachmentInput,
@@ -87,6 +92,7 @@ export const mutations = `
   programsAdd(${mutationParams}): Program
   programsRemove(programIds: [String]): JSON
   programsEdit(_id:String!, ${mutationParams}): Program
+  changeProgramStatus(_id:String!, status : StatusType): Program
   
   programCategoriesAdd(${programCategoryParams}): ProgramCategory
   programCategoriesEdit(_id: String!, ${programCategoryParams}): ProgramCategory

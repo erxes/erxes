@@ -17,6 +17,10 @@ const generateFilter = async (
     filter.searchText = { $in: [new RegExp(`.*${params.searchValue}.*`, "i")] };
   }
 
+  if (params.statuses) {
+    filter.status = { $in: params.statuses };
+  }
+
   if (params.ids) {
     filter._id = { $in: params.ids };
   }

@@ -1,3 +1,4 @@
+import { validSearchText } from "@erxes/api-utils/src";
 import { Model } from "mongoose";
 import {
   IProgram,
@@ -12,7 +13,7 @@ export interface IProgramModel extends Model<IProgramDocument> {
   createProgram(doc: IProgram, user: any): Promise<IProgramDocument>;
   getProgram(_id: string): Promise<IProgramDocument>;
   updateProgram(_id: string, doc: IProgram): Promise<IProgramDocument>;
-  removeActivities(programIds: string[]): Promise<IProgramDocument>;
+  removePrograms(programIds: string[]): Promise<IProgramDocument>;
 }
 
 export interface IProgramCategoryModel extends Model<IProgramCategoryDocument> {
@@ -42,6 +43,13 @@ export const loadProgramClass = (models) => {
         throw new Error("Code must be unique");
       }
     }
+    public static fillSearchText(doc) {
+      return validSearchText([
+        doc.name || "",
+        doc.description || "",
+        doc.code || "",
+      ]);
+    }
     /**
      * Retreives program
      */
@@ -68,9 +76,17 @@ export const loadProgramClass = (models) => {
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
+        searchText: models.Programs.fillSearchText(doc),
       });
 
       return program;
+    }
+
+    /**
+     * Remove program
+     */
+    public static async removePrograms(programIds) {
+      return models.Programs.deleteMany({ _id: { $in: programIds } });
     }
 
     /**

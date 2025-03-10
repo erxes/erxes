@@ -49,7 +49,7 @@ const programMutations = {
     return updated;
   },
   /**
-   * Removes a single program
+   * Removes programs
    */
   programsRemove: async (
     _root,
@@ -60,7 +60,7 @@ const programMutations = {
       _id: { $in: programIds },
     }).lean();
 
-    await models.Programs.removeActivities(programIds);
+    await models.Programs.removePrograms(programIds);
 
     for (const program of programs) {
       await putDeleteLog(
@@ -76,6 +76,21 @@ const programMutations = {
     }
 
     return programIds;
+  },
+  /**
+   * Change a status of program
+   */
+  changeProgramStatus: async (
+    _root,
+    { _id, status }: { _id: string; status: string },
+    { models, user, subdomain }: IContext
+  ) => {
+    const updated = await models.Programs.findOneAndUpdate(
+      { _id },
+      { $set: { status } },
+      { new: true }
+    );
+    return updated;
   },
   /**
    * Create a program category
