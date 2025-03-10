@@ -2,6 +2,7 @@ import { IAccount } from "../settings/accounts/types"
 import { QueryResponse } from '@erxes/ui/src/types';
 import { IVatRow } from "../settings/vatRows/types";
 import { ICtaxRow } from "../settings/ctaxRows/types";
+import { IProduct } from "@erxes/ui-products/src/types";
 
 export interface ITrInput {
   ptrId: string
@@ -46,6 +47,7 @@ export interface ITrDetail {
   unitPrice?: number;
 
   account?: IAccount;
+  product?: IProduct;
 };
 
 export interface ITransaction {
