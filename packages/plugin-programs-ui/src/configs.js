@@ -15,9 +15,9 @@ module.exports = {
     {
       text: "Programs",
       url: "/programs",
-      icon: "icon-followers",
+      icon: "icon-list",
       location: "mainNavigation",
-      scope: "programs",
+      permission: "showPrograms",
     },
   ],
 };

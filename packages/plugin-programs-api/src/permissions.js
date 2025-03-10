@@ -1,5 +1,5 @@
 module.exports = {
-  automations: {
+  programs: {
     name: "programs",
     description: "Programs",
     actions: [

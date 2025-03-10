@@ -1,10 +1,6 @@
 import { Document, Schema } from "mongoose";
-import { ACTIVITY_SELECT_OPTIONS } from "./constants";
+import { PROGRAM_STATUSES, PROGRAM_TYPES } from "./constants";
 import { field } from "./utils";
-
-const getEnum = (fieldName: string): string[] => {
-  return ACTIVITY_SELECT_OPTIONS[fieldName].map((option) => option.value);
-};
 
 const attachmentSchema = new Schema(
   {
@@ -23,12 +19,13 @@ export interface IProgram {
   category: IProgramCategory;
   description?: string;
   createdAt?: Date;
-  studyMode?: string;
+  type?: string;
   attachment?: any;
   status?: string;
   startDate: Date;
   endDate: Date;
-  finishDate: Date;
+  deadline: Date;
+  unitPrice?: number;
 }
 
 export interface IProgramDocument extends IProgram, Document {
@@ -83,7 +80,14 @@ export const programSchema = new Schema({
   category: field({ type: Object, optional: true, label: "Category" }),
   description: field({ type: String, optional: true, label: "Description" }),
   createdAt: field({ type: Date, default: new Date(), label: "Created At" }),
-  studyMode: field({ type: String, optional: true, label: "Study Mode" }),
+  type: field({
+    type: String,
+    enum: PROGRAM_TYPES.ALL,
+    default: PROGRAM_TYPES.ACTIVITY,
+    optional: true,
+    label: "Type",
+  }),
+  duration: field({ type: String, label: "Duration" }),
   attachment: field({
     type: attachmentSchema,
     optional: true,
@@ -91,12 +95,13 @@ export const programSchema = new Schema({
   }),
   status: field({
     type: String,
-    enum: getEnum("STATUSES"),
-    default: "Open",
+    enum: PROGRAM_STATUSES.ALL,
+    default: PROGRAM_STATUSES.ACTIVE,
     optional: true,
     label: "Status",
-    esType: "keyword",
-    selectOptions: ACTIVITY_SELECT_OPTIONS.STATUSES,
-    index: true,
   }),
+  startDate: field({ type: Date, label: "Start Date" }),
+  endDate: field({ type: Date, label: "End Date" }),
+  deadline: field({ type: Date, label: "Use Finsh Date" }),
+  unitPrice: field({ type: Number, optional: true, label: "Unit price" }),
 });

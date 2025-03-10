@@ -3,7 +3,7 @@ import { generateModels } from "./connectionResolver";
 import resolvers from "./graphql/resolvers";
 import typeDefs from "./graphql/typeDefs";
 import { setupMessageConsumers } from "./messageBroker";
-import permissions from "./permissions";
+import * as permissions from "./permissions";
 
 export default {
   name: "programs",
@@ -26,4 +26,5 @@ export default {
 
   onServerInit: async () => {},
   setupMessageConsumers,
+  meta: { permissions },
 };

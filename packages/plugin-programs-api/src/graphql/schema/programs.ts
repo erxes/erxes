@@ -14,12 +14,14 @@ export const types = () => `
     category: ProgramCategory
     description: String
     createdAt: Date
-    studyMode: String
+    type: String
+    duration: String,
     attachment: Attachment
-    status : String
+    status: String
     startDate: Date,
     endDate: Date,
-    finishDate: Date,
+    deadline: Date,
+    unitPrice: Float,
   }
 
   type ProgramListResponse {
@@ -69,13 +71,24 @@ export const queries = `
 const mutationParams = `
   name: String!,
   code: String!,
+  type: String,
+  categoryId: String,
   description: String,
+  duration : String,
   attachment: AttachmentInput,
+  startDate: Date,
+  endDate: Date,
+  deadline: Date,
+  unitPrice: Float!,
+  status: String
 `;
 
 export const mutations = `
   programsAdd(${mutationParams}): Program
-  programsRemove(_id: String!): JSON
+  programsRemove(programIds: [String]): JSON
   programsEdit(_id:String!, ${mutationParams}): Program
+  
   programCategoriesAdd(${programCategoryParams}): ProgramCategory
+  programCategoriesEdit(_id: String!, ${programCategoryParams}): ProgramCategory
+  programCategoriesRemove(_id: String!): JSON
 `;
