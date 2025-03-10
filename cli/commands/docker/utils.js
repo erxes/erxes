@@ -107,6 +107,7 @@ const generatePluginBlock = (configs, plugin) => {
   const mongo_url = plugin.mongo_url || mongoEnv(configs, plugin);
   const image_tag = plugin.image_tag || configs.image_tag || "federation";
   const registry = plugin.registry ? `${plugin.registry}/` : "";
+  const docker_image_tag = plugin?.docker_image_tag;
 
   const extra_hosts = [];
 
@@ -123,7 +124,9 @@ const generatePluginBlock = (configs, plugin) => {
   }
 
   const conf = {
-    image: `${registry}erxes/plugin-${plugin.name}-api:${image_tag}`,
+    image:
+      docker_image_tag ||
+      `${registry}erxes/plugin-${plugin.name}-api:${image_tag}`,
     environment: {
       OTEL_SERVICE_NAME: plugin.name,
       SERVICE_NAME: plugin.name,
@@ -958,10 +961,10 @@ const update = async ({ serviceNames, noimage, uis }) => {
           ? `${pluginConfig.registry}/`
           : "";
 
-        const dockerRepo = pluginConfig?.dockerRepo;
+        const docker_image_tag = pluginConfig?.docker_image_tag;
 
         await execCommand(
-          `docker service update erxes_plugin-${name}-api --image ${dockerRepo ? `${dockerRepo}:${tag}` : `${registry}erxes/plugin-${name}-api:${tag} --with-registry-auth`}`
+          `docker service update erxes_plugin-${name}-api --image ${docker_image_tag ? `${docker_image_tag}` : `${registry}erxes/plugin-${name}-api:${tag}`} --with-registry-auth`
         );
       } else {
         console.error("No plugin found");
