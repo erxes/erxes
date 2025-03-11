@@ -88,7 +88,6 @@ export const getOrCreateCdr = async (
 
   if (cdrParams?.lastapp !== 'ForkCDR') {
     try {
-      console.log(createdCdr._id, 'createdCdr._id');
       const oldCdr = await models.Cdr.findOne({
         uniqueid: cdrParams.uniqueid,
         conversationId: { $exists: true, $ne: '' },
@@ -136,10 +135,6 @@ export const getOrCreateCdr = async (
         (createdCdr.recordfiles ||
           (await fetchRecordUrl(models, inboxId, cdrParams)));
 
-      if (!recordUrl) {
-        console.log('recordUrl baihgui', createdCdr.AcctId);
-      }
-
       if (recordUrl) {
         const fileDir =
           ['QUEUE', 'TRANSFER'].some((substring) =>
@@ -148,7 +143,6 @@ export const getOrCreateCdr = async (
             ? 'queue'
             : 'monitor';
 
-        console.log('record url:', recordUrl);
         const recordPath = await cfRecordUrl(
           {
             fileDir,
@@ -160,7 +154,6 @@ export const getOrCreateCdr = async (
           models,
           subdomain,
         );
-
         if (recordPath?.includes('wav')) {
           await models.Cdr.updateOne(
             { _id: createdCdr?._id?.toString() },
@@ -211,7 +204,7 @@ const fetchRecordUrl = async (models, inboxIntegrationId, params) => {
 
   const cdrRoot = cdrData.response?.cdr_root || cdrData.cdr_root;
   const recordFiles = getRecordFiles(cdrRoot);
-  console.log(recordFiles[0], 'recordFile');
+
   return recordFiles[0];
 };
 

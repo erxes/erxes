@@ -437,11 +437,23 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
 };
 
 export const cfRecordUrl = async (params, user, models, subdomain) => {
-  const { fileDir, recordfiles, inboxIntegrationId, retryCount } = params;
-  const parts = recordfiles?.split('/');
-  const fileNameWithoutExtension = parts?.[1]?.split('@')[0];
-  if (fileNameWithoutExtension) {
-    const records = await sendToGrandStream(
+  try {
+    const { fileDir, recordfiles, inboxIntegrationId, retryCount } = params;
+
+    if (!recordfiles) {
+      throw new Error('Missing required parameter: recordfiles');
+    }
+
+    const filePathParts = recordfiles.split('/');
+    const rawFileName = filePathParts[1]?.split('@')[0];
+
+    if (!rawFileName) {
+      console.warn('Could not extract filename from recordfiles path');
+      return;
+    }
+
+    // Fetch file buffer from GrandStream API
+    const grandStreamResponse = await sendToGrandStream(
       models,
       {
         path: 'api',
@@ -451,7 +463,7 @@ export const cfRecordUrl = async (params, user, models, subdomain) => {
           request: {
             action: 'recapi',
             filedir: fileDir,
-            filename: fileNameWithoutExtension,
+            filename: rawFileName,
           },
         },
         integrationId: inboxIntegrationId,
@@ -460,30 +472,41 @@ export const cfRecordUrl = async (params, user, models, subdomain) => {
       },
       user,
     );
-    if (records) {
-      const buffer = await records?.arrayBuffer();
-      if (buffer) {
-        const uploadUrl = getUrl(subdomain);
-        console.log('uploadUrl:', uploadUrl);
-        const removePlusSign =
-          fileNameWithoutExtension.replace(/\+/, '') ||
-          fileNameWithoutExtension;
 
-        const formData = new FormData();
-        formData.append('file', Buffer.from(buffer), {
-          filename: removePlusSign,
-        });
-
-        const rec = await fetch(uploadUrl, {
-          method: 'POST',
-          body: formData,
-        });
-        return await rec.text();
-      }
+    if (!grandStreamResponse) {
+      throw new Error('Failed to get response from GrandStream API');
     }
-    return;
+
+    const fileBuffer = await grandStreamResponse.arrayBuffer();
+    if (!fileBuffer) {
+      throw new Error('Received empty buffer from GrandStream API');
+    }
+
+    // Prepare file upload
+    const uploadUrl = getUrl(subdomain);
+    const sanitizedFileName = rawFileName.replace(/\+/g, '_'); // Sanitize filename
+
+    const formData = new FormData();
+    formData.append('file', Buffer.from(fileBuffer), {
+      filename: sanitizedFileName,
+    });
+
+    // Upload file to destination
+    const uploadResponse = await fetch(uploadUrl, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!uploadResponse.ok) {
+      throw new Error(`Upload failed: ${uploadResponse.statusText}`);
+    }
+
+    const responseText = await uploadResponse.text();
+    return responseText;
+  } catch (error) {
+    console.error('Error in cfRecordUrl:', error);
+    throw error; // Re-throw after logging to maintain error propagation
   }
-  return;
 };
 
 function findTransferCall(data: any): any {
