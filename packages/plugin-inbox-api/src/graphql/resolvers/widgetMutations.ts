@@ -199,7 +199,6 @@ export const getMessengerData = async (
     getStartedCondition = (
       getStarted[0]?.triggers[0]?.config?.conditions || []
     ).find((condition) => condition.type === "getStarted");
-
   }
 
   return {
@@ -444,11 +443,11 @@ const widgetMutations = {
         }
       });
     }
-
     return {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
+      ticketData: integration.ticketData,
       messengerData: await getMessengerData(models, integration, subdomain),
       customerId: customer && customer._id,
       visitorId: customer ? null : visitorId,
@@ -639,7 +638,6 @@ const widgetMutations = {
         payload: payload
       });
     }
-
 
     // bot message ================
     if (
@@ -1070,7 +1068,7 @@ const widgetMutations = {
         });
       }
     }
-   
+
     return msg;
   },
 
