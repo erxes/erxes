@@ -126,6 +126,13 @@ const createVideoChatRoom = `
     }
   }
 `;
+const syncCallRecordFile = `
+  mutation callsSyncRecordFile($_id: String!) {
+    callsSyncRecordFile(_id: $_id) {
+      url
+    }
+  }
+`;
 
 export default {
   conversationMessageAdd,
@@ -138,4 +145,5 @@ export default {
   resolveAll,
   editCustomFields,
   createVideoChatRoom,
+  syncCallRecordFile,
 };

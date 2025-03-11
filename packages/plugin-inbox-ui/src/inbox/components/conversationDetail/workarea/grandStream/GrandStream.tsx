@@ -26,6 +26,7 @@ import { can } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import { readFile } from '@erxes/ui/src/utils/core';
 import ReactAudioPlayer from 'react-audio-player';
+import Button from '@erxes/ui/src/components/Button';
 
 type Props = {
   conversation: IConversation;
@@ -81,7 +82,7 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
   };
 
   const renderDownloadAudio = () => {
-    if (!can('showCallRecord', currentUser) || !recordUrl) {
+    if (!can('showCallRecord', currentUser) || (!cdrRecordUrl && !recordUrl)) {
       return null;
     }
     return (
@@ -97,13 +98,19 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
     const url = cdrRecordUrl || recordUrl;
     return (
       can('showCallRecord', currentUser) && (
-        <Audio>
-          <ReactAudioPlayer
-            src={readFile(url)}
-            controls
-            controlsList="nodownload"
-          />
-        </Audio>
+        <>
+          <Audio>
+            <ReactAudioPlayer
+              src={readFile(url)}
+              controls
+              controlsList="nodownload"
+            />
+          </Audio>
+          <Button id="cdrRecordUrl" btnStyle="warning" size="small">
+            <Icon icon="sync" />
+            {__('sync record file')}
+          </Button>
+        </>
       )
     );
   };

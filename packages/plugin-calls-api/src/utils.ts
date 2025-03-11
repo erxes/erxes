@@ -243,7 +243,6 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
 
   const history = await getCallHistory(models, _id);
   const { inboxIntegrationId = '' } = history;
-  console.log(history, 'history');
   let operator = operatorPhone || history.operatorPhone;
   const fetchRecordUrl = async (retryCount) => {
     try {
@@ -305,7 +304,6 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       const endTime = isCronRunning
         ? getPureDate(callEndTime, 10)
         : `${endDate}T23:59:59`;
-      console.log('jjjj:', caller, callee, startTime, endTime);
       const cdrData = await sendToGrandStream(
         models,
         {
@@ -364,11 +362,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         );
         throw new Error('Not found cdr');
       }
-      console.log(
-        'lastCreatedObjectlastCreatedObjectlastCreatedObject:',
-        lastCreatedObject,
-        'lastCreatedObject',
-      );
+
       const transferCall = findTransferCall(lastCreatedObject);
       const answeredCall = findAnsweredCall(lastCreatedObject);
 
@@ -563,7 +557,6 @@ export const getPureDate = (date: Date, updateTime) => {
 
 export const saveCdrData = async (subdomain, cdrData, result) => {
   const models = await generateModels(subdomain);
-  console.log(cdrData, 'cdrData');
   try {
     for (const cdr of cdrData) {
       const history = createHistoryObject(cdr, result);
