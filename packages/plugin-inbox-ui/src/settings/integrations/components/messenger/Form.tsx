@@ -18,12 +18,12 @@ import {
   IMessages,
   IMessengerApps,
   IMessengerData,
+  ITicketTypeMessenger,
   ISkillData,
-  IUiOptions,
-  ITicketTypeMessenger
+  IUiOptions
 } from "@erxes/ui-inbox/src/settings/integrations/types";
 import { Step, Steps } from "@erxes/ui/src/components/step";
-
+import TicketSelect from "../../containers/messenger/Ticket";
 import AddOns from "../../containers/messenger/AddOns";
 import Button from "@erxes/ui/src/components/Button";
 import CommonPreview from "./widgetPreview/CommonPreview";
@@ -36,7 +36,6 @@ import React from "react";
 import { SmallLoader } from "@erxes/ui/src/components/ButtonMutate";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { linkify } from "@erxes/ui-inbox/src/inbox/utils";
-import TicketSelect from "../../containers/messenger/Ticket";
 
 type Props = {
   teamMembers: IUser[];
@@ -65,16 +64,16 @@ type BotPersistentMenuTypeMessenger = {
 };
 
 type State = {
+  ticketStageId?: string;
+  ticketPipelineId?: string;
+  ticketBoardId?: string;
+  ticketToggle?: boolean;
   title: string;
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
   botCheck?: boolean;
   botGreetMessage?: string;
   persistentMenus?: BotPersistentMenuTypeMessenger[];
-  ticketStageId?: string;
-  ticketPipelineId?: string;
-  ticketBoardId?: string;
-  ticketToggle?: boolean;
   skillData?: ISkillData;
   brandId: string;
   channelIds: string[];
@@ -117,23 +116,6 @@ class CreateMessenger extends React.Component<Props, State> {
 
     const integration = props.integration || ({} as IIntegration);
     const languageCode = integration.languageCode || "en";
-
-    const configData = integration.messengerData || {
-      skillData: undefined,
-      notifyCustomer: false,
-      requireAuth: true,
-      showChat: true,
-      showLauncher: true,
-      hideWhenOffline: false,
-      forceLogoutWhenResolve: false,
-      showVideoCallRequest: false,
-      botEndpointUrl: "",
-      botShowInitialMessage: false,
-      botCheck: false,
-      botGreetMessage: "",
-      persistentMenus: [] as BotPersistentMenuTypeMessenger[]
-    };
-
     const configData =
       integration.messengerData ||
       ({
@@ -150,10 +132,9 @@ class CreateMessenger extends React.Component<Props, State> {
         botCheck: false,
         isReceiveWebCall: false,
         botGreetMessage: "",
-        persistentMenus: [] as BotPersistentMenuTypeMessenger[],
+        persistentMenus: [] as BotPersistentMenuTypeMessenger[]
       } as IMessengerData);
     const callData = integration.callData;
-
     const links = configData.links || {};
     const externalLinks = configData.externalLinks || [];
     const messages = configData.messages || {};
@@ -168,14 +149,14 @@ class CreateMessenger extends React.Component<Props, State> {
       botCheck: configData.botCheck,
       botGreetMessage: configData.botGreetMessage,
       persistentMenus: configData.persistentMenus,
-      ticketStageId: ticketData.ticketStageId || "",
-      ticketPipelineId: ticketData.ticketPipelineId || "",
-      ticketBoardId: ticketData.ticketBoardId || "",
-      ticketToggle: ticketData.ticketToggle || false,
       botShowInitialMessage: configData.botShowInitialMessage,
       skillData: configData.skillData,
       brandId: integration.brandId || "",
       languageCode,
+      ticketStageId: ticketData.ticketStageId || "",
+      ticketPipelineId: ticketData.ticketPipelineId || "",
+      ticketBoardId: ticketData.ticketBoardId || "",
+      ticketToggle: ticketData.ticketToggle || false,
       channelIds: channels.map((item) => item._id) || [],
       color: uiOptions.color || "#6569DF",
       textColor: uiOptions.textColor || "#fff",
@@ -207,8 +188,7 @@ class CreateMessenger extends React.Component<Props, State> {
       messages: { ...this.generateMessages(messages) },
       messengerApps,
       externalLinks,
-      callData: callData,
-
+      callData: callData
     };
   }
 
@@ -249,14 +229,12 @@ class CreateMessenger extends React.Component<Props, State> {
   handleMessengerApps = (messengerApps: IMessengerApps) => {
     this.setState({ messengerApps });
   };
-
   handleFormChange = (name: string, value: string | object | boolean) => {
     this.setState((prevState) => ({
       ...prevState,
       [name]: value
     }));
   };
-
   save = (e) => {
     e.preventDefault();
 
@@ -268,10 +246,6 @@ class CreateMessenger extends React.Component<Props, State> {
       botCheck,
       botGreetMessage,
       persistentMenus,
-      ticketStageId,
-      ticketPipelineId,
-      ticketBoardId,
-      ticketToggle,
       languageCode,
       channelIds,
       messages,
@@ -287,10 +261,12 @@ class CreateMessenger extends React.Component<Props, State> {
       showVideoCallRequest,
       messengerApps,
       skillData,
-
       externalLinks,
       callData,
-
+      ticketStageId,
+      ticketPipelineId,
+      ticketBoardId,
+      ticketToggle
     } = this.state;
 
     if (!languageCode) {
@@ -395,8 +371,7 @@ class CreateMessenger extends React.Component<Props, State> {
         logo: this.state.logo
       },
       messengerApps,
-      callData: callData || {},
-
+      callData: callData || {}
     });
   };
 
@@ -479,10 +454,11 @@ class CreateMessenger extends React.Component<Props, State> {
       skillData,
       messengerApps,
       externalLinks,
+      callData,
       ticketStageId,
       ticketPipelineId,
-      ticketBoardId
-      callData,
+      ticketBoardId,
+      ticketToggle
     } = this.state;
 
     const { integration } = this.props;
@@ -579,15 +555,9 @@ class CreateMessenger extends React.Component<Props, State> {
                 />
               </Step>
               <Step
-
                 img='/images/icons/erxes-24.svg'
-                title={__("Bot Setup")}
-                onClick={this.onStepClick.bind(null, "bot")}>
-                <BotSelector
-                img="/images/icons/erxes-24.svg"
                 title={__("Config Setup")}
-                onClick={this.onStepClick.bind(null, "cfCall")}
-              >
+                onClick={this.onStepClick.bind(null, "cfCall")}>
                 <ConfigSetup
                   onChange={this.onChange}
                   callData={callData}
@@ -595,7 +565,10 @@ class CreateMessenger extends React.Component<Props, State> {
                   botCheck={botCheck}
                   botGreetMessage={botGreetMessage}
                   persistentMenus={persistentMenus}
-                  onChange={this.onChange as any} // Explicitly cast
+                  botEndpointUrl={botEndpointUrl}
+                  botShowInitialMessage={botShowInitialMessage}
+                  channelIds={channelIds}
+                  brandId={brandId}
                 />
               </Step>
               <Step
@@ -608,12 +581,6 @@ class CreateMessenger extends React.Component<Props, State> {
                   ticketPipelineId={ticketPipelineId || ""}
                   ticketBoardId={ticketBoardId || ""}
                   ticketStageId={ticketStageId || ""}
-
-                  botEndpointUrl={botEndpointUrl}
-                  botShowInitialMessage={botShowInitialMessage}
-                  channelIds={channelIds}
-                  brandId={brandId}
-
                 />
               </Step>
               <Step
@@ -633,20 +600,6 @@ class CreateMessenger extends React.Component<Props, State> {
                     integration && integration.knowledgeBaseMessengerApps
                   }
                   handleMessengerApps={this.handleMessengerApps}
-                />
-              </Step>
-              <Step
-                img='/images/icons/erxes-16.svg'
-                title={__("Integration Setup")}
-                onClick={this.onStepClick.bind(null, "setup")}>
-                <Connection
-                  title={title}
-                  botEndpointUrl={botEndpointUrl}
-                  botShowInitialMessage={botShowInitialMessage}
-                  botCheck={botCheck}
-                  channelIds={channelIds}
-                  brandId={brandId}
-                  onChange={this.onChange}
                 />
               </Step>
             </Steps>

@@ -62,12 +62,12 @@ const ticketQueries = {
   ) {
     const ticket = await models.Tickets.getTicket(_id);
 
-    return checkItemPermByUser(models, user, ticket);
+    return checkItemPermByUser(subdomain, models, user, ticket);
   },
   async ticketCheckProgress(
     _root,
     { number }: { number: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const ticket = await models.Tickets.findOne({
       number: number
@@ -76,7 +76,7 @@ const ticketQueries = {
     if (!ticket) {
       throw new Error("Ticket not found");
     }
-    return await checkItemPermByUser(models, user, ticket);
+    return await checkItemPermByUser(subdomain, models, user, ticket);
   },
 
   async ticketCheckProgressForget(
@@ -113,7 +113,7 @@ const ticketQueries = {
       number: { $exists: true, $ne: null }
     });
     if (!tickets.length) {
-      return null; 
+      return null;
     }
 
     // Get the most recent ticket based on createdAt
@@ -125,8 +125,6 @@ const ticketQueries = {
     }));
 
     return formattedTickets;
-
-
   }
 };
 
