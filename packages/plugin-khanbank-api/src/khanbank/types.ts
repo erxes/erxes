@@ -12,7 +12,6 @@ export type TransferParams = {
 
 export type KhanbankAccount = {
   number: string;
-  ibanAcctNo: string;
   type: string;
   currency: string;
   status: string;

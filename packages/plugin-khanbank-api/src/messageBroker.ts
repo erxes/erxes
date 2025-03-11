@@ -276,11 +276,10 @@ export const setupMessageConsumers = async () => {
   consumeRPCQueue('khanbank:findTransaction', async ({ subdomain, data }) => {
     const { configId, accountNumber, record, description, type } = data;
 
-    if (!configId || !accountNumber || !description) {
+    if (!configId || !accountNumber || !record || !description) {
       return {
         status: 'error',
-        errorMessage:
-          'Config id, account number, record, and description are required',
+        errorMessage: 'Config id, account number, record, and description are required',
       };
     }
 
@@ -297,30 +296,19 @@ export const setupMessageConsumers = async () => {
 
     const api = new Khanbank(config);
     try {
-      const formatDate = (date) => {
-        return date.toISOString().slice(0, 10).replace(/-/g, '');
-      };
-
-      const today = new Date();
-      const twoDaysAgo = new Date();
-      twoDaysAgo.setDate(today.getDate() - 2);
-
-      const startDate = formatDate(twoDaysAgo);
-      const endDate = formatDate(today);
-
-      const response = await api.statements.list({
-        accountNumber,
-        startDate,
-        endDate,
-      });
+      const response = await api.statements.record(accountNumber, record);
 
       const transactions = response.transactions.filter((transaction) => {
         const normalizedDesc = transaction.description.toLowerCase();
         const searchDesc = description.toLowerCase();
         if (type === 'income') {
-          return transaction.amount > 0 && normalizedDesc.includes(searchDesc);
+          return (
+            transaction.amount > 0 && normalizedDesc.includes(searchDesc)
+          );
         } else {
-          return transaction.amount < 0 && normalizedDesc.includes(searchDesc);
+          return (
+            transaction.amount < 0 && normalizedDesc.includes(searchDesc)
+          );
         }
       });
 

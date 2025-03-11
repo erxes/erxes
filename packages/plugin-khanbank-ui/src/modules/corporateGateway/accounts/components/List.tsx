@@ -32,16 +32,14 @@ const List = (props: any) => {
     <>
 
         <SidebarListItem
-          id={account.ibanAcctNo}
-          key={account.ibanAcctNo}
+          id={account.number}
+          key={account.number}
           onClick={onClickRow}
-          $isActive={queryParams.account === account.ibanAcctNo}
+          $isActive={queryParams.account === account.number}
         >
-          <Link to={`?_id=${props._id}&account=${account.ibanAcctNo}`}>
+          <Link to={`?_id=${props._id}&account=${account.number}`}>
             <FieldStyle>
-              Данс:{account.number}
-              <br/>
-              IBAN:{account.ibanAcctNo}
+              {account.number}
               <Description>{account.name}</Description>
             </FieldStyle>
           </Link>

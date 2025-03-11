@@ -2,14 +2,15 @@ import { Block, BlockRow } from "../../../../styles";
 
 import Button from "@erxes/ui/src/components/Button";
 import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IKhanbankAccount } from "../types";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Toggle from "@erxes/ui/src/components/Toggle";
-import { __ } from "@erxes/ui/src/utils/core";
 import React from "react";
-import { getCurrencySymbol } from "../../../../utils";
+import Toggle from "@erxes/ui/src/components/Toggle";
 import TransactionForm from "../../transactions/containers/Form";
 import Transactions from "../../transactions/containers/List";
-import { IKhanbankAccount } from "../types";
+import WithPermission from "@erxes/ui/src/components/WithPermission";
+import { __ } from "@erxes/ui/src/utils/core";
+import { getCurrencySymbol } from "../../../../utils";
 
 type Props = {
   queryParams: any;
@@ -18,7 +19,6 @@ type Props = {
 
 const Detail = (props: Props) => {
   const { account, queryParams } = props;
-
   const accountNumber = queryParams.account;
 
   const defaultAccount = JSON.parse(
@@ -30,7 +30,7 @@ const Detail = (props: Props) => {
   );
 
   React.useEffect(() => {
-    setIsChecked(defaultAccount.ibanAcctNo === accountNumber);
+    setIsChecked(defaultAccount.accountNumber === accountNumber);
   }, [queryParams.account]);
 
   const toggleChange = (e) => {
@@ -101,7 +101,7 @@ const Detail = (props: Props) => {
             />
           </FormGroup>
 
-     
+          <WithPermission action="khanbankTransfer">
             <FormGroup>
               <ModalTrigger
                 size="lg"
@@ -111,7 +111,7 @@ const Detail = (props: Props) => {
                 content={transactionFormContent}
               />
             </FormGroup>
-   
+          </WithPermission>
         </BlockRow>
       </Block>
     );
