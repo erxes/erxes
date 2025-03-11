@@ -374,11 +374,11 @@ const FlexPad = styled(FlexItem)`
   padding: ${dimensions.coreSpacing}px;
 `;
 
-const LeftItem = styledTS<{ $deactive?: boolean }>(styled.div)`
+const LeftItem = styledTS<{ $deactive?: boolean, $noPadding?: boolean; }>(styled.div)`
   overflow: auto;
   flex: 1;
-  min-width: 43.33333%;
-  padding: ${dimensions.coreSpacing + 5}px;
+  min-width: 41.33333%;
+  padding: ${props => props.$noPadding ? '0' : '25px'};
   opacity: ${(props) => props.$deactive && '0.3'};
   cursor: ${(props) => props.$deactive && 'not-allowed'};
   input:disabled {
