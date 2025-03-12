@@ -14,7 +14,9 @@ function ScheduleRow({ inquiry }: Props) {
       <td>{inquiry?.LOANTYPE || ''}</td>
       <td>{inquiry?.BALANCE || ''}</td>
       <td>{inquiry?.ADVAMOUNT || ''}</td>
+      <td>{dayjs(inquiry?.STARTEDDATE).format('YYYY-MM-DD')}</td>
       <td>{dayjs(inquiry?.EXPDATE).format('YYYY-MM-DD')}</td>
+      <td>{dayjs(inquiry?.PAID_DATE).format('YYYY-MM-DD')}</td>
       <td>{inquiry?.ORGNAME || ''}</td>
     </ExtraRow>
   );
