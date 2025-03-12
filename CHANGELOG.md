@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.7.1](https://github.com/erxes/erxes/compare/2.7.0...2.7.1) (2025-03-10)
+
+### Features
+
+* core login mutation improve for activedirector ([171ba02](https://github.com/erxes/erxes/commit/171ba026d0b525f252aec8133509569f47564a42))
+* **khanbank:** implement IBAN ([#5963](https://github.com/erxes/erxes/issues/5963)) ([afa5cc7](https://github.com/erxes/erxes/commit/afa5cc73ccf572805bc78e9c28119062796339a6))
+
+### Bug Fixes
+
+* **calls:** date format ([82c5c8a](https://github.com/erxes/erxes/commit/82c5c8a6043acf35c695fc18e50f4d8efe9a7838))
+* msdynamic with discount soap ([6cfb71c](https://github.com/erxes/erxes/commit/6cfb71c20dacd5eb0a7b283387e068bc2aca9512))
+
 ## [2.7.0](https://github.com/erxes/erxes/compare/2.7.0-rc.0...2.7.0) (2025-03-05)
 
 ### Features

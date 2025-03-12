@@ -1,5 +1,6 @@
-import gql from "graphql-tag";
 import { MESSAGE_FIELDS, USER_DETAIL_FIELD } from "./fields";
+
+import gql from "graphql-tag";
 
 const GET_UNREAD_COUNT = gql`
   query widgetsUnreadCount($conversationId: String) {
@@ -64,9 +65,20 @@ const GET_FAQ_TOPIC = gql`
   }
 `;
 
+const GET_CLOUDFLARE_CALL_INTEGRATION = gql`
+  query CloudflareCallsGetIntegrations {
+    cloudflareCallsGetIntegrations {
+      _id
+      erxesApiId
+      name
+    }
+  }
+`
+
 export {
   GET_UNREAD_COUNT,
   GET_CONVERSATION_DETAIL,
   GET_WIDGET_EXPORT_MESSENGER_DATA,
-  GET_FAQ_TOPIC
+  GET_FAQ_TOPIC,
+  GET_CLOUDFLARE_CALL_INTEGRATION
 };

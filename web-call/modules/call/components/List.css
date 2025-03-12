@@ -1,0 +1,50 @@
+/* List container styles */
+.list-container {
+    width: 100%;
+    margin: 20px auto;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 2px solid hsl(257, 63%, 44%);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Header styles */
+  .list-container h2 {
+    text-align: center;
+    color: hsl(257, 63%, 44%);
+    font-family: Arial, sans-serif;
+  }
+  
+  /* List styles */
+  .list {
+    list-style-type: none;
+    padding: 0;
+    margin: 10px 0;
+  }
+  
+  .list-item {
+    padding: 8px 12px;
+    margin: 5px 0;
+    background-color: hsl(257, 63%, 34%);
+    color: white;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    border-radius: 8px;
+    transition: transform 0.2s, background-color 0.2s;
+    text-align: center;
+  }
+  
+  /* Hover effect for list items */
+  .list-item:hover {
+    background-color: hsl(257, 63%, 24%); /* Darker shade for hover */
+    transform: scale(1.05);
+  }
+  
+  .list-item.active {
+    background-color: hsl(257, 63%, 44%);
+    color: white;
+    font-weight: bold;
+    transform: scale(1.05);
+  }
+  
