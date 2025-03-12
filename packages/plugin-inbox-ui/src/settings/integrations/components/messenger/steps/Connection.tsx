@@ -78,42 +78,6 @@ class Connection extends React.Component<Props, State> {
             isRequired={true}
             onChange={this.channelOnChange}
           />
-
-          <FormGroup>
-            <ControlLabel>Bot Press Endpoint URL</ControlLabel>
-            <p>{__("Please enter your Bot Press endpoint URL")}</p>
-
-            <FormControl
-              required={false}
-              onChange={this.changeBotEndpointUrl}
-              defaultValue={this.props.botEndpointUrl}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Bot show initial message</ControlLabel>
-            <p>{__("Please build initial message in BotPress builder")}</p>
-
-            <Toggle
-              checked={this.props.botShowInitialMessage}
-              onChange={this.handleToggle}
-              icons={{
-                checked: <span>{__("Yes")}</span>,
-                unchecked: <span>{__("No")}</span>
-              }}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Generate Messenger Bots</ControlLabel>
-            <p>{__("Please check messenger bot")}</p>
-            <Toggle
-              checked={this.props.botCheck}
-              onChange={this.handleToggleBot}
-              icons={{
-                checked: <span>{__("Yes")}</span>,
-                unchecked: <span>{__("No")}</span>
-              }}
-            />
-          </FormGroup>
         </LeftItem>
       </FlexItem>
     );

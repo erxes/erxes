@@ -23,6 +23,7 @@ import Customer from './customer';
 import Script from './script';
 import ScriptMutations from './scriptMutations';
 import ScriptQueries from './scriptQueries';
+import MessengerConnectResponse from './widget';
 
 const resolvers: any = {
   ...customScalars,
@@ -33,6 +34,7 @@ const resolvers: any = {
   ConversationMessage,
   Script,
   ResponseTemplate,
+  MessengerConnectResponse,
   Mutation: {
     ...ConversationMutations,
     ...IntegrationMutations,
@@ -42,7 +44,7 @@ const resolvers: any = {
     ...skillsMutations,
     ...WidgetMutations,
     ...MessengerAppMutations,
-    ...ScriptMutations
+    ...ScriptMutations,
   },
   Query: {
     ...ChannelQueries,
@@ -53,8 +55,8 @@ const resolvers: any = {
     ...ResponseTemplateQueries,
     ...WidgetQueries,
     ...ConversationQueries,
-    ...ScriptQueries
-  }
+    ...ScriptQueries,
+  },
 };
 
 export default resolvers;

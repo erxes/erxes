@@ -1,13 +1,13 @@
 import {
   ILeadData,
   ILeadIntegration,
-  IWebhookData
-} from "@erxes/ui-leads/src/types";
+  IWebhookData,
+} from '@erxes/ui-leads/src/types';
 
-import { IBrand } from "@erxes/ui/src/brands/types";
-import { IForm } from "@erxes/ui-forms/src/forms/types";
-import { IProductCategory } from "@erxes/ui-products/src/types";
-import { QueryResponse } from "@erxes/ui/src/types";
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IForm } from '@erxes/ui-forms/src/forms/types';
+import { IProductCategory } from '@erxes/ui-products/src/types';
+import { QueryResponse } from '@erxes/ui/src/types';
 
 interface IFacebookCustomer {
   _id: string;
@@ -77,9 +77,9 @@ export interface IAccount {
 }
 
 // query types
-export type IntegrationTypes = "facebook";
-export type IntegrationTypesInstagram = "instagram";
-export type IntegrationTypesWhatsapp = "whatsapp";
+export type IntegrationTypes = 'facebook';
+export type IntegrationTypesInstagram = 'instagram';
+export type IntegrationTypesWhatsapp = 'whatsapp';
 export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
 } & QueryResponse;
@@ -121,7 +121,11 @@ export type SaveMessengerAppsMutationResponse = {
 
 export type SaveMessengerConfigsMutationResponse = {
   saveConfigsMutation: (params: {
-    variables: { _id: string; messengerData: IMessengerData };
+    variables: {
+      _id: string;
+      messengerData: IMessengerData;
+      callData: ICallData;
+    };
   }) => any;
 };
 
@@ -233,10 +237,19 @@ export interface ISkillData {
     skillId: string;
   }>;
 }
+type BotPersistentMenuTypeMessenger = {
+  _id: string;
+  type: string;
+  text: string;
+  link: string;
+};
 
 export interface IMessengerData {
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
+  botCheck?: boolean;
+  botGreetMessage?: string;
+  persistentMenus?: BotPersistentMenuTypeMessenger[];
   skillData?: ISkillData;
   messages?: IMessages;
   notifyCustomer?: boolean;
@@ -322,6 +335,7 @@ export interface IIntegration {
   visibility?: string;
   departmentIds?: string[];
   details?: any;
+  callData?: ICallData;
 }
 
 export type QueryVariables = {
@@ -423,3 +437,18 @@ export type IntegrationsCountQueryResponse = {
   integrationsTotalCount: IntegrationsCount;
   loading: boolean;
 };
+
+export interface IOperator {
+  userId: string;
+  name?: string;
+}
+
+export interface IDepartment {
+  name: string;
+  operators: IOperator[];
+}
+
+export interface ICallData {
+  departments?: IDepartment[];
+  isReceiveWebCall?: boolean;
+}

@@ -1,10 +1,14 @@
-import * as React from 'react';
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { iconAttach, IconSend, iconVideo } from '../../icons/Icons';
-import { __ } from '../../utils';
-import { MESSAGE_TYPES } from '../constants';
-import { connection } from '../connection';
-import EmojiPicker from './EmojiPicker';
+import * as React from "react";
+
+import { IconSend, iconAttach, iconVideo } from "../../icons/Icons";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import EmojiPicker from "./EmojiPicker";
+import { MESSAGE_TYPES } from "../constants";
+import PersistentMenu from "./PersistentMenu";
+import { __ } from "../../utils";
+import { connection } from "../connection";
+import { getMessengerData } from "../utils/util";
 
 type Props = {
   placeholder?: string;
@@ -24,7 +28,7 @@ type Props = {
 let inputTimeoutInstance: any;
 
 const MessageSender: React.FC<Props> = (props) => {
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -63,7 +67,7 @@ const MessageSender: React.FC<Props> = (props) => {
     return () => clearTimeoutInstance();
   }, []);
 
-  const setHeight = (height?: number | 'auto') => {
+  const setHeight = (height?: number | "auto") => {
     const textarea = textareaRef.current;
     const form = formRef.current;
 
@@ -72,15 +76,15 @@ const MessageSender: React.FC<Props> = (props) => {
     }
 
     // Reset textarea height to calculate scrollHeight correctly
-    textarea.style.height = '0';
+    textarea.style.height = "0";
 
     let formHeight;
     let textareaHeight;
 
-    if (height === 'auto') {
-      formHeight = 'auto';
-      textareaHeight = 'auto';
-    } else if (typeof height === 'number') {
+    if (height === "auto") {
+      formHeight = "auto";
+      textareaHeight = "auto";
+    } else if (typeof height === "number") {
       const heightInPx = `${height}px`;
       formHeight = heightInPx;
       textareaHeight = heightInPx;
@@ -97,14 +101,14 @@ const MessageSender: React.FC<Props> = (props) => {
 
   const sendMessage = () => {
     props.sendMessage(MESSAGE_TYPES.TEXT, message);
-    setMessage('');
-    setHeight('auto');
+    setMessage("");
+    setHeight("auto");
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if ((conversationId || '').length === 0 && inputDisabled) {
+    if ((conversationId || "").length === 0 && inputDisabled) {
       return;
     }
 
@@ -136,11 +140,11 @@ const MessageSender: React.FC<Props> = (props) => {
 
   const handleKeyPress = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
+      if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         props.sendMessage(MESSAGE_TYPES.TEXT, message);
-        setMessage('');
-        setHeight('auto');
+        setMessage("");
+        setHeight("auto");
       }
     },
     [message, sendMessage]
@@ -148,7 +152,7 @@ const MessageSender: React.FC<Props> = (props) => {
 
   const handleBlur = useCallback(() => {
     if (conversationId) {
-      sendTypingInfo(conversationId, '');
+      sendTypingInfo(conversationId, "");
     }
     onTextInputBlur();
   }, [conversationId, onTextInputBlur, sendTypingInfo]);
@@ -173,7 +177,7 @@ const MessageSender: React.FC<Props> = (props) => {
   }, [collapseHead]);
 
   const sendVideoCallRequest = useCallback(() => {
-    props.sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '');
+    props.sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, "");
   }, [sendMessage]);
 
   const renderFileUploader = () => {
@@ -219,7 +223,7 @@ const MessageSender: React.FC<Props> = (props) => {
         onBlur={handleBlur}
         onClick={handleClick}
         onKeyDown={handleKeyPress}
-        disabled={(conversationId || '').length > 0 ? false : inputDisabled}
+        disabled={(conversationId || "").length > 0 ? false : inputDisabled}
       />
       <div className="messenger-action-buttons">
         <EmojiPicker
@@ -229,6 +233,7 @@ const MessageSender: React.FC<Props> = (props) => {
           }}
         />
         {renderFileUploader()}
+        <PersistentMenu messengerData={getMessengerData()} />
         {renderSendButton()}
       </div>
     </form>

@@ -28,6 +28,21 @@ type Props = {
   integrationId: string;
 };
 
+function removeTypename(obj) {
+  if (Array.isArray(obj)) {
+    return obj.map(removeTypename);
+  } else if (obj && typeof obj === "object") {
+    const cleanedObj = {};
+    for (const key in obj) {
+      if (key !== "__typename") {
+        cleanedObj[key] = removeTypename(obj[key]);
+      }
+    }
+    return cleanedObj;
+  }
+  return obj;
+}
+
 const EditMessenger = (props: Props) => {
   const { integrationId } = props;
   const navigate = useNavigate();
@@ -126,7 +141,6 @@ const EditMessenger = (props: Props) => {
   const integration = integrationDetailData?.integrationDetail || {};
   const topics = topicsData?.knowledgeBaseTopics || [];
   const apps = messengerAppsData?.messengerApps || {};
-
   const deleteTypeName = (datas) => {
     return (datas || []).map(({ __typename, ...item }) => item);
   };
@@ -140,6 +154,7 @@ const EditMessenger = (props: Props) => {
       messengerData,
       uiOptions,
       messengerApps,
+      callData,
     } = doc;
 
     setIsLoading(true);
@@ -157,7 +172,11 @@ const EditMessenger = (props: Props) => {
         const id = data.integrationsEditMessengerIntegration._id;
 
         return saveConfigsMutation({
-          variables: { _id: id, messengerData },
+          variables: {
+            _id: id,
+            messengerData,
+            callData: removeTypename(callData),
+          },
         });
       })
       .then(({ data = {} as any }) => {

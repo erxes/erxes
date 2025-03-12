@@ -353,6 +353,18 @@ class GeneralSettings extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
+            <ControlLabel>Main Currency</ControlLabel>
+            <Select
+              options={CURRENCIES}
+              value={CURRENCIES.filter((o) =>
+                configsMap.mainCurrency?.includes(o.value)
+              )}
+              onChange={this.onChangeSingleCombo.bind(this, 'mainCurrency')}
+              isMulti={false}
+            />
+          </FormGroup>
+
+          <FormGroup>
             <ControlLabel>Currency</ControlLabel>
             <Select
               options={CURRENCIES}

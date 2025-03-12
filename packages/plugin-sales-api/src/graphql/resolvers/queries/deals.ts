@@ -1,6 +1,6 @@
 import {
   checkPermission,
-  moduleRequireLogin,
+  moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
 import dealResolvers from '../customResolvers/deal';
 import { IListParams } from './boards';
@@ -10,13 +10,10 @@ import {
   checkItemPermByUser,
   generateDealCommonFilters,
   getItemList,
-  IArchiveArgs,
+  IArchiveArgs
 } from './utils';
 import { IContext } from '../../../connectionResolver';
-import {
-  sendCoreMessage,
-  sendLoyaltiesMessage
-} from '../../../messageBroker';
+import { sendCoreMessage, sendLoyaltiesMessage } from '../../../messageBroker';
 
 interface IDealListParams extends IListParams {
   productIds?: [string];
@@ -32,12 +29,12 @@ const dealQueries = {
     { user, models, subdomain, serverTiming }: IContext
   ) {
     const filter = {
-      ...(await generateDealCommonFilters(models, subdomain, user._id, args)),
+      ...(await generateDealCommonFilters(models, subdomain, user._id, args))
     };
 
     const getExtraFields = async (item: any) => ({
       amount: await dealResolvers.amount(item),
-      unUsedAmount: await dealResolvers.unUsedAmount(item),
+      unUsedAmount: await dealResolvers.unUsedAmount(item)
     });
 
     const deals = await getItemList(
@@ -68,11 +65,11 @@ const dealQueries = {
       action: 'products.find',
       data: {
         query: {
-          _id: { $in: [...new Set(dealProductIds)] },
-        },
+          _id: { $in: [...new Set(dealProductIds)] }
+        }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     serverTiming.endTime('sendCoreMessage');
@@ -96,7 +93,7 @@ const dealQueries = {
 
         deal.products.push({
           ...(typeof pData.toJSON === 'function' ? pData.toJSON() : pData),
-          product: products.find(p => p._id === pData.productId) || {},
+          product: products.find(p => p._id === pData.productId) || {}
         });
       }
 
@@ -104,8 +101,8 @@ const dealQueries = {
       if (deal.productsData.length > pd.length) {
         deal.products.push({
           product: {
-            name: '...More',
-          },
+            name: '...More'
+          }
         });
       }
     }
@@ -156,7 +153,7 @@ const dealQueries = {
 
     const amountList = await models.Deals.aggregate([
       {
-        $match: filter,
+        $match: filter
       },
       {
         $lookup: {
@@ -166,9 +163,9 @@ const dealQueries = {
             {
               $match: {
                 $expr: {
-                  $eq: ['$_id', '$$letStageId'],
-                },
-              },
+                  $eq: ['$_id', '$$letStageId']
+                }
+              }
             },
             {
               $project: {
@@ -177,57 +174,57 @@ const dealQueries = {
                     if: {
                       $or: [
                         { $eq: ['$probability', 'Won'] },
-                        { $eq: ['$probability', 'Lost'] },
-                      ],
+                        { $eq: ['$probability', 'Lost'] }
+                      ]
                     },
                     then: '$probability',
-                    else: 'In progress',
-                  },
+                    else: 'In progress'
+                  }
                 },
-                probabilityOld: '$probability',
-              },
-            },
+                probabilityOld: '$probability'
+              }
+            }
           ],
-          as: 'stageProbability',
-        },
+          as: 'stageProbability'
+        }
       },
       {
-        $unwind: '$productsData',
+        $unwind: '$productsData'
       },
       {
-        $unwind: '$stageProbability',
+        $unwind: '$stageProbability'
       },
       {
         $project: {
           amount: '$productsData.amount',
           currency: '$productsData.currency',
           type: '$stageProbability.probabilityOld',
-          tickUsed: '$productsData.tickUsed',
-        },
+          tickUsed: '$productsData.tickUsed'
+        }
       },
       {
-        $match: { tickUsed: true },
+        $match: { tickUsed: true }
       },
       {
         $group: {
           _id: { currency: '$currency', type: '$type' },
 
           amount: {
-            $sum: '$amount',
-          },
-        },
+            $sum: '$amount'
+          }
+        }
       },
       {
         $group: {
           _id: '$_id.type',
           currencies: {
-            $push: { amount: '$amount', name: '$_id.currency' },
-          },
-        },
+            $push: { amount: '$amount', name: '$_id.currency' }
+          }
+        }
       },
       {
-        $sort: { _id: -1 },
-      },
+        $sort: { _id: -1 }
+      }
     ]);
 
     const forecastedTotal = {};
@@ -261,7 +258,7 @@ const dealQueries = {
     const inProgress = {
       _id: Math.random(),
       name: 'In progress',
-      currencies: currencies,
+      currencies: currencies
     };
     currencies = [];
     for (const [key, value] of Object.entries(forecastedTotal)) {
@@ -270,7 +267,7 @@ const dealQueries = {
     const forecasted = {
       _id: Math.random(),
       name: 'forecasted 10-90%',
-      currencies: currencies,
+      currencies: currencies
     };
     amountList.filter(type => ['Won', 'Lost'].includes(type._id));
 
@@ -280,7 +277,7 @@ const dealQueries = {
         return {
           _id: Math.random(),
           name: type._id,
-          currencies: type.currencies,
+          currencies: type.currencies
         };
       });
 
@@ -295,7 +292,7 @@ const dealQueries = {
   async dealDetail(
     _root,
     { _id, clientPortalCard }: { _id: string; clientPortalCard: boolean },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const deal = await models.Deals.getDeal(_id);
 
@@ -304,14 +301,14 @@ const dealQueries = {
       return deal;
     }
 
-    return checkItemPermByUser(models, user, deal);
+    return checkItemPermByUser(subdomain, models, user, deal);
   },
 
   async checkDiscount(
     _root,
     {
       _id,
-      products,
+      products
     }: {
       _id: string;
       products: Array<{ productId: string; quantity: number }>;
@@ -326,10 +323,10 @@ const dealQueries = {
       data: {
         mainType: 'deal',
         mainTypeId: _id,
-        relTypes: ['customer'],
+        relTypes: ['customer']
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     if (customerIds.length) {
@@ -344,10 +341,10 @@ const dealQueries = {
         data: {
           mainType: 'deal',
           mainTypeId: _id,
-          relTypes: ['company'],
+          relTypes: ['company']
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
       if (companyIds.length) {
         ownerId = companyIds[0];
@@ -365,11 +362,11 @@ const dealQueries = {
       data: {
         ownerType,
         ownerId,
-        products,
+        products
       },
-      isRPC: true,
+      isRPC: true
     });
-  },
+  }
 };
 
 moduleRequireLogin(dealQueries);

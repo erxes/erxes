@@ -502,4 +502,48 @@ export const moduleObjects = {
       },
     ],
   },
+
+  exchangeRates: {
+    name: 'exchangeRates',
+    description: 'ExchangeRates',
+    actions: [
+      {
+        name: 'exchangeRatesAll',
+        description: 'All',
+        use: ['showExchangeRates', 'manageExchangeRates'],
+      },
+      {
+        name: 'manageExchangeRates',
+        description: 'Manage exchange rates',
+      },
+      {
+        name: 'showExchangeRates',
+        description: 'Show exchange rates',
+      },
+    ],
+  },
+
+  clients: {
+    name: 'clients',
+    description: 'Clients',
+    actions: [
+      {
+        name: 'clientsAll',
+        description: 'All',
+        use: ['showClients', 'manageClients', 'removeClients'],
+      },
+      {
+        name: 'manageClients',
+        description: 'Manage clients',
+      },
+      {
+        name: 'removeClients',
+        description: 'Remove clients',
+      },
+      {
+        name: 'showClients',
+        description: 'Show clients',
+      },
+    ],
+  },
 };

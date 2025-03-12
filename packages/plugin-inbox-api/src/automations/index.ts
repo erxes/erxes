@@ -54,6 +54,18 @@ export default {
         isCustom: true,
         conditions: [
           {
+            type: "getStarted",
+            label: "Get Started",
+            icon: "messenger",
+            description: "User click on get started on the messenger"
+          },
+          {
+            type: "persistentMenu",
+            label: "Persistent menu",
+            icon: "menu-2",
+            description: "User click on persistent menu on the messenger"
+          },
+          {
             type: "direct",
             icon: "messenger",
             label: "Direct Message",

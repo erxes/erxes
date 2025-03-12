@@ -1,12 +1,12 @@
 import {
   IFacebookComment,
-  IIntegration,
-} from '@erxes/ui-inbox/src/settings/integrations/types';
+  IIntegration
+} from "@erxes/ui-inbox/src/settings/integrations/types";
 
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { ITag } from '@erxes/ui-tags/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { QueryResponse } from '@erxes/ui/src/types';
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { ITag } from "@erxes/ui-tags/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { QueryResponse } from "@erxes/ui/src/types";
 
 export interface IVideoCallData {
   url: string;
@@ -24,6 +24,20 @@ export interface ICallHistory {
   callType: string;
   callStatus: string;
   sessionId: string;
+  updatedAt: Date;
+  createdAt: Date;
+  createdBy: string;
+  updatedBy: string;
+  recordUrl: string;
+}
+
+export interface ICloudflareCallHistory {
+  customerPhone: string;
+  callDuration: number;
+  callStartTime: Date;
+  callEndTime: Date;
+  callType: string;
+  callStatus: string;
   updatedAt: Date;
   createdAt: Date;
   createdBy: string;
@@ -63,6 +77,7 @@ export interface IConversation {
   callProAudio?: string;
   videoCallData?: IVideoCallData;
   callHistory?: ICallHistory;
+  cloudflareCallsHistory?: ICloudflareCallHistory;
 
   customFieldsData?: {
     [key: string]: any;
@@ -148,7 +163,7 @@ export interface IBotData {
     {
       title: string;
       payload: string;
-    },
+    }
   ];
   wrapped?: {
     type: string;
