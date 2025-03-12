@@ -7,7 +7,7 @@ export const ACCOUNT_KINDS = {
 export const ACCOUNT_JOURNALS = {
   MAIN: 'main',
   CASH: 'cash',
-  FUND: 'bank',
+  BANK: 'bank',
   DEBT: 'debt',
   INVENTORY: 'inventory',
   FIXED_ASSET: 'fixedAsset',
