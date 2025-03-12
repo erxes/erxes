@@ -3,13 +3,13 @@ import { Appearance, Availability, Greeting, Intro, Options } from "./steps";
 import {
   Content,
   LeftContent,
-  MessengerPreview
+  MessengerPreview,
 } from "@erxes/ui-inbox/src/settings/integrations/styles";
 import {
   ControlWrapper,
   Indicator,
   Preview,
-  StepWrapper
+  StepWrapper,
 } from "@erxes/ui/src/components/step/styles";
 import {
   ICallData,
@@ -18,12 +18,12 @@ import {
   IMessages,
   IMessengerApps,
   IMessengerData,
-  ITicketTypeMessenger,
   ISkillData,
-  IUiOptions
+  ITicketTypeMessenger,
+  IUiOptions,
 } from "@erxes/ui-inbox/src/settings/integrations/types";
 import { Step, Steps } from "@erxes/ui/src/components/step";
-import TicketSelect from "../../containers/messenger/Ticket";
+
 import AddOns from "../../containers/messenger/AddOns";
 import Button from "@erxes/ui/src/components/Button";
 import CommonPreview from "./widgetPreview/CommonPreview";
@@ -34,6 +34,7 @@ import { LANGUAGES } from "@erxes/ui-settings/src/general/constants";
 import { Link } from "react-router-dom";
 import React from "react";
 import { SmallLoader } from "@erxes/ui/src/components/ButtonMutate";
+import TicketSelect from "../../containers/messenger/Ticket";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { linkify } from "@erxes/ui-inbox/src/inbox/utils";
 
@@ -132,7 +133,7 @@ class CreateMessenger extends React.Component<Props, State> {
         botCheck: false,
         isReceiveWebCall: false,
         botGreetMessage: "",
-        persistentMenus: [] as BotPersistentMenuTypeMessenger[]
+        persistentMenus: [] as BotPersistentMenuTypeMessenger[],
       } as IMessengerData);
     const callData = integration.callData;
     const links = configData.links || {};
@@ -175,7 +176,7 @@ class CreateMessenger extends React.Component<Props, State> {
       showTimezone: configData.showTimezone || false,
       onlineHours: (configData.onlineHours || []).map((h) => ({
         _id: Math.random(),
-        ...h
+        ...h,
       })),
       showVideoCallRequest: configData.showVideoCallRequest,
       logo: uiOptions.logo || "",
@@ -188,7 +189,7 @@ class CreateMessenger extends React.Component<Props, State> {
       messages: { ...this.generateMessages(messages) },
       messengerApps,
       externalLinks,
-      callData: callData
+      callData: callData,
     };
   }
 
@@ -203,11 +204,11 @@ class CreateMessenger extends React.Component<Props, State> {
           title:
             message && message.greetings ? message.greetings.title || "" : "",
           message:
-            message && message.greetings ? message.greetings.message || "" : ""
+            message && message.greetings ? message.greetings.message || "" : "",
         },
         welcome: message.welcome || "",
         away: message.away || "",
-        thank: message.thank || ""
+        thank: message.thank || "",
       };
     });
 
@@ -232,7 +233,7 @@ class CreateMessenger extends React.Component<Props, State> {
   handleFormChange = (name: string, value: string | object | boolean) => {
     this.setState((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
   };
   save = (e) => {
@@ -266,7 +267,7 @@ class CreateMessenger extends React.Component<Props, State> {
       ticketStageId,
       ticketPipelineId,
       ticketBoardId,
-      ticketToggle
+      ticketToggle,
     } = this.state;
 
     if (!languageCode) {
@@ -321,7 +322,7 @@ class CreateMessenger extends React.Component<Props, State> {
       facebook: linkify(facebook),
       instagram: linkify(instagram),
       twitter: linkify(twitter),
-      youtube: linkify(youtube)
+      youtube: linkify(youtube),
     };
 
     this.props.save({
@@ -345,7 +346,7 @@ class CreateMessenger extends React.Component<Props, State> {
         onlineHours: (this.state.onlineHours || []).map((oh) => ({
           day: oh.day,
           from: oh.from,
-          to: oh.to
+          to: oh.to,
         })),
         supporterIds: this.state.supporterIds,
         messages,
@@ -356,22 +357,22 @@ class CreateMessenger extends React.Component<Props, State> {
         forceLogoutWhenResolve,
         showVideoCallRequest,
         links,
-        externalLinks
+        externalLinks,
       },
       ticketData: {
         ticketStageId: ticketStageId,
         ticketPipelineId: ticketPipelineId,
         ticketBoardId: ticketBoardId,
-        ticketToggle: ticketToggle
+        ticketToggle: ticketToggle,
       },
       uiOptions: {
         color: this.state.color,
         textColor: this.state.textColor,
         wallpaper: this.state.wallpaper,
-        logo: this.state.logo
+        logo: this.state.logo,
       },
       messengerApps,
-      callData: callData || {}
+      callData: callData || {},
     });
   };
 
@@ -382,7 +383,7 @@ class CreateMessenger extends React.Component<Props, State> {
         name === "hours" ||
         name === "addon"
       ),
-      activeStep: name
+      activeStep: name,
     });
   };
 
@@ -390,10 +391,8 @@ class CreateMessenger extends React.Component<Props, State> {
     const { isLoading } = this.props;
 
     const cancelButton = (
-      <Link to='/settings/integrations'>
-        <Button
-          btnStyle='simple'
-          icon='times-circle'>
+      <Link to="/settings/integrations">
+        <Button btnStyle="simple" icon="times-circle">
           Cancel
         </Button>
       </Link>
@@ -404,9 +403,10 @@ class CreateMessenger extends React.Component<Props, State> {
         {cancelButton}
         <Button
           disabled={isLoading}
-          btnStyle='success'
+          btnStyle="success"
           icon={isLoading ? undefined : "check-circle"}
-          onClick={this.save}>
+          onClick={this.save}
+        >
           {isLoading && <SmallLoader />}
           Save
         </Button>
@@ -458,7 +458,7 @@ class CreateMessenger extends React.Component<Props, State> {
       ticketStageId,
       ticketPipelineId,
       ticketBoardId,
-      ticketToggle
+      ticketToggle,
     } = this.state;
 
     const { integration } = this.props;
@@ -467,22 +467,20 @@ class CreateMessenger extends React.Component<Props, State> {
     const breadcrumb = [
       { title: __("Settings"), link: "/settings" },
       { title: __("Integrations"), link: "/settings/integrations" },
-      { title: __("Messenger") }
+      { title: __("Messenger") },
     ];
 
     return (
       <StepWrapper>
-        <Wrapper.Header
-          title={__("Messenger")}
-          breadcrumb={breadcrumb}
-        />
+        <Wrapper.Header title={__("Messenger")} breadcrumb={breadcrumb} />
         <Content>
           <LeftContent>
             <Steps>
               <Step
-                img='/images/icons/erxes-04.svg'
-                title='Appearance'
-                onClick={this.onStepClick.bind(null, "appearance")}>
+                img="/images/icons/erxes-04.svg"
+                title="Appearance"
+                onClick={this.onStepClick.bind(null, "appearance")}
+              >
                 <Appearance
                   onChange={this.onChange}
                   color={color}
@@ -493,9 +491,10 @@ class CreateMessenger extends React.Component<Props, State> {
               </Step>
 
               <Step
-                img='/images/icons/erxes-09.svg'
-                title='Greeting'
-                onClick={this.onStepClick.bind(null, "greeting")}>
+                img="/images/icons/erxes-09.svg"
+                title="Greeting"
+                onClick={this.onStepClick.bind(null, "greeting")}
+              >
                 <Greeting
                   teamMembers={this.props.teamMembers}
                   onChange={this.onChange}
@@ -512,9 +511,10 @@ class CreateMessenger extends React.Component<Props, State> {
               </Step>
 
               <Step
-                img='/images/icons/erxes-07.svg'
-                title='Intro'
-                onClick={this.onStepClick.bind(null, "intro")}>
+                img="/images/icons/erxes-07.svg"
+                title="Intro"
+                onClick={this.onStepClick.bind(null, "intro")}
+              >
                 <Intro
                   skillData={skillData}
                   onChange={this.onChange}
@@ -524,9 +524,10 @@ class CreateMessenger extends React.Component<Props, State> {
               </Step>
 
               <Step
-                img='/images/icons/erxes-03.svg'
+                img="/images/icons/erxes-03.svg"
                 title={__("Hours & Availability")}
-                onClick={this.onStepClick.bind(null, "hours")}>
+                onClick={this.onStepClick.bind(null, "hours")}
+              >
                 <Availability
                   onChange={this.onChange}
                   isOnline={isOnline}
@@ -540,9 +541,10 @@ class CreateMessenger extends React.Component<Props, State> {
               </Step>
 
               <Step
-                img='/images/icons/erxes-06.svg'
-                title='Default Settings'
-                onClick={this.onStepClick.bind(null, "default")}>
+                img="/images/icons/erxes-06.svg"
+                title="Default Settings"
+                onClick={this.onStepClick.bind(null, "default")}
+              >
                 <Options
                   onChange={this.onChange}
                   notifyCustomer={notifyCustomer}
@@ -555,9 +557,10 @@ class CreateMessenger extends React.Component<Props, State> {
                 />
               </Step>
               <Step
-                img='/images/icons/erxes-24.svg'
+                img="/images/icons/erxes-24.svg"
                 title={__("Config Setup")}
-                onClick={this.onStepClick.bind(null, "cfCall")}>
+                onClick={this.onStepClick.bind(null, "cfCall")}
+              >
                 <ConfigSetup
                   onChange={this.onChange}
                   callData={callData}
@@ -569,14 +572,6 @@ class CreateMessenger extends React.Component<Props, State> {
                   botShowInitialMessage={botShowInitialMessage}
                   channelIds={channelIds}
                   brandId={brandId}
-                />
-              </Step>
-              <Step
-                img='/images/icons/erxes-25.png'
-                title={__("Ticket Setup")}
-                onClick={this.onStepClick.bind(null, "addon")}
-                noButton={true}>
-                <TicketSelect
                   handleFormChange={this.handleFormChange}
                   ticketPipelineId={ticketPipelineId || ""}
                   ticketBoardId={ticketBoardId || ""}
@@ -584,10 +579,11 @@ class CreateMessenger extends React.Component<Props, State> {
                 />
               </Step>
               <Step
-                img='/images/icons/erxes-15.svg'
+                img="/images/icons/erxes-15.svg"
                 title={__("Add Ons")}
                 onClick={this.onStepClick.bind(null, "addon")}
-                noButton={true}>
+                noButton={true}
+              >
                 <AddOns
                   selectedBrand={brandId}
                   websiteMessengerApps={

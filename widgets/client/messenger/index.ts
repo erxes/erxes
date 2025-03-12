@@ -43,9 +43,10 @@ widgetConnect({
     }
 
     const isCallEnabled = connection.enabledServices.calls && connection.enabledServices.cloudflarecalls;
-  
+    const isTicketEnabled = connection.enabledServices.tickets;
+
     return client.mutate({
-      mutation: gql(graphqTypes.connect(isCallEnabled)),
+      mutation: gql(graphqTypes.connect(isCallEnabled, isTicketEnabled)),
       variables: {
         brandCode: setting.brand_id,
         email: setting.email,
