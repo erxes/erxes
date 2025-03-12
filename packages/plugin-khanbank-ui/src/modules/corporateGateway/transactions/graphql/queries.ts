@@ -41,7 +41,6 @@ const accountsQuery = `
 query KhanbankAccounts($configId: String!) {
   khanbankAccounts(configId: $configId) {
     number
-    ibanAcctNo
     type
     currency
     balance
