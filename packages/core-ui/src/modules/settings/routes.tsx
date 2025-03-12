@@ -1,4 +1,3 @@
-import ExchangeRatesRoutes from './exchangeRates/routes';
 import AppRoutes from "./apps/routes";
 import BrandsRoutes from "./brands/routes";
 import General from "./general/routes";
@@ -14,6 +13,7 @@ import LogsRoutes from "./logs/routes";
 import EmailDeliveriesRoutes from "./emailDelivery/routes";
 import EmailTemplatesRoutes from "../emailtemplates/routes";
 import ClientRoutes from "./clients/routes";
+import ExchangeRatesRoutes from './exchangeRates/routes';
 
 const SettingsRoute = () => (
   <>

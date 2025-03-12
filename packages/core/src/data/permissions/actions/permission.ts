@@ -522,6 +522,7 @@ export const moduleObjects = {
       },
     ],
   },
+
   clients: {
     name: 'clients',
     description: 'Clients',
