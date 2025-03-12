@@ -46,7 +46,8 @@ class PropertyListContationer extends React.Component<FinalProps, {}> {
       // radio button options
       choiceOptions: item.options || [],
       validation: item.validation || '',
-      selectionConfig: item?.selectionConfig
+      selectionConfig: item?.selectionConfig,
+      groupDetail: item?.groupDetail
     }));
 
     return (
