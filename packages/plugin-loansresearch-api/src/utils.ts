@@ -66,7 +66,7 @@ export const scoreToResearch = async (params, customerId, models: IModels) => {
 
   const userMonthlyRepayment =
     externalScoringResponse?.creditSummary?.monthlyLoanRepayment
-      ?.userMonthlyRepayment;
+      ?.userMonthlyRepayment ?? 0;
 
   if (loanInquiries?.length) {
     const transformedData = loanInquiries.map((item) => ({
@@ -80,7 +80,10 @@ export const scoreToResearch = async (params, customerId, models: IModels) => {
 
     if (findResearch) {
       if (findResearch.totalIncome) {
-        ratio = (userMonthlyRepayment / findResearch.totalIncome) * 100;
+        ratio =
+          userMonthlyRepayment && findResearch.totalIncome
+            ? (userMonthlyRepayment / findResearch.totalIncome) * 100
+            : 0;
       }
       if (findResearch.customerType === 'Salary') {
         increaseAmount =
