@@ -35,5 +35,8 @@ module.exports = {
       permissions: ["showPayments"],
     },
   ],
-  dealRightSidebarSection: "./invoiceSection",
+  dealRightSidebarSection: {
+    title: "Invoices",
+    component: "./invoiceSection",
+  },
 };

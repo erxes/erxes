@@ -1,13 +1,14 @@
-import { IFolder, IRelatedFiles } from '../../types';
+import { IFolder, IRelatedFiles } from "../../types";
 
-import Box from '@erxes/ui/src/components/Box';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FileChooser from '../../containers/file/FileChooser';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
+import Box from "@erxes/ui/src/components/Box";
+import DynamicComponentContent from "@erxes/ui/src/components/dynamicComponent/Content";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FileChooser from "../../containers/file/FileChooser";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import { SectionBodyItem } from "@erxes/ui/src/layout/styles";
 
 type Props = {
   folderId: string;
@@ -15,6 +16,7 @@ type Props = {
   relatedFiles: IRelatedFiles[];
   mainType: string;
   mainTypeId: string;
+  showType?: string;
 };
 
 type State = {
@@ -26,18 +28,18 @@ class CardFileChooser extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      folderId: props.folderId || ''
+      folderId: props.folderId || "",
     };
   }
 
-  onChangeFolder = folderId => {
+  onChangeFolder = (folderId) => {
     this.setState({ folderId });
   };
 
   renderExtraButtons = () => {
     const { folders, mainType, mainTypeId, relatedFiles } = this.props;
 
-    const renderFileChooser = props => {
+    const renderFileChooser = (props) => {
       return (
         <FileChooser
           {...props}
@@ -73,16 +75,22 @@ class CardFileChooser extends React.Component<Props, State> {
       return <EmptyState icon="file-alt" text="No files" />;
     }
 
-    return ((relatedFiles[0] || {}).files || []).map(file => (
+    return ((relatedFiles[0] || {}).files || []).map((file) => (
       <SectionBodyItem key={file._id}>
         <Link to={`/filemanager/details/${file.folderId}/${file._id}`}>
-          {file.name || 'Unknown'}
+          {file.name || "Unknown"}
         </Link>
       </SectionBodyItem>
     ));
   }
 
   render() {
+    if (this.props.showType && this.props.showType === "list") {
+      return (
+        <DynamicComponentContent>{this.renderFiles()}</DynamicComponentContent>
+      );
+    }
+
     return (
       <Box
         title="File manager"

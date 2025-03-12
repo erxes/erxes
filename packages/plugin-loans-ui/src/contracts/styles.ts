@@ -1,11 +1,14 @@
-import colors from '@erxes/ui/src/styles/colors';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
-import dimensions from '@erxes/ui/src/styles/dimensions';
 import * as animations from '@erxes/ui/src/utils/animations';
-import typography from '@erxes/ui/src/styles/typography';
-import { Input } from '@erxes/ui/src/components/form/styles';
-import styledTS from 'styled-components-ts';
+
 import styled, { css } from 'styled-components';
+
+import { Input } from '@erxes/ui/src/components/form/styles';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+import colors from '@erxes/ui/src/styles/colors';
+import dimensions from '@erxes/ui/src/styles/dimensions';
+import styledTS from 'styled-components-ts';
+import typography from '@erxes/ui/src/styles/typography';
+
 const ContractsTableWrapper = styled.div`
   td {
     max-width: 250px;
@@ -508,12 +511,20 @@ const ScheduleYears = styled.div`
   margin-bottom: 5px;
 `;
 
+const ButtonWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: ${dimensions.unitSpacing}px !important;
+`;
+
 export {
   TrNumberCols,
   TrRows,
   InfoTitle,
   InfoDetail,
   Info,
+  ButtonWrapper,
   Action,
   Name,
   ContractsTableWrapper,
