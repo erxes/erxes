@@ -41,8 +41,11 @@ export default class CurrencyTr {
 
     this.spotRate = await sendCoreMessage({
       subdomain: this.subdomain,
-      action: 'getActiveRate',
-      data: { date: moment(this.doc.date).format('YYYY-MM-DD'), rateCurrency: account.currency, mainCurrency },
+      action: 'exchangeRates.getActiveRate',
+      data: {
+        date: moment(this.doc.date).format('YYYY-MM-DD'),
+        rateCurrency: account.currency, mainCurrency
+      },
       isRPC: true,
       defaultValue: {}
     });
@@ -111,16 +114,26 @@ export default class CurrencyTr {
     if (oldFollowInfo) {
       const oldCurrencyTr = await this.models.Transactions.findOne({ _id: oldFollowInfo.id });
       if (oldCurrencyTr) {
-        await this.models.Transactions.updateTransaction(oldCurrencyTr._id, { ...this.currencyDiffTrDoc, originId: transaction._id });
+        await this.models.Transactions.updateTransaction(oldCurrencyTr._id, {
+          ...this.currencyDiffTrDoc,
+          originId: transaction._id,
+          parentId: transaction.parentId
+        });
         currencyTr = this.models.Transactions.findOne({ _id: oldCurrencyTr._id });
 
       } else {
-        currencyTr = await this.models.Transactions.createTransaction({ ...this.currencyDiffTrDoc, originId: transaction._id });
+        currencyTr = await this.models.Transactions.createTransaction({
+          ...this.currencyDiffTrDoc,
+          originId: transaction._id,
+          parentId: transaction.parentId
+        });
+
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
           $pull: {
             follows: { ...oldFollowInfo }
           }
-        })
+        });
+
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
           $set: { 'details.0.amount': amount },
           $addToSet: {
@@ -133,7 +146,12 @@ export default class CurrencyTr {
       }
 
     } else {
-      currencyTr = await this.models.Transactions.createTransaction({ ...this.currencyDiffTrDoc, originId: transaction._id });
+      currencyTr = await this.models.Transactions.createTransaction({
+        ...this.currencyDiffTrDoc,
+        originId: transaction._id,
+        parentId: transaction.parentId
+      });
+
       await this.models.Transactions.updateOne({ _id: transaction._id }, {
         $set: { 'details.0.amount': amount },
         $addToSet: {

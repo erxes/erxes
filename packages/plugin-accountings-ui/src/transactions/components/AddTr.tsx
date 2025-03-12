@@ -54,7 +54,7 @@ const AddTransactionLink = (props: FinalProps) => {
             </div>
             <div>
               <h3>Бараа материал</h3>
-              <li>Орлого</li>
+              <li onClick={onClick.bind(this, "inv_income")}>Орлого</li>
               <li>Хангамжийн зарлага</li>
               <li>Борлуулалт (байнгын)</li>
               <li>Борлуулалт (ажил үйлчилгээ)</li>

@@ -30,6 +30,7 @@ const PtrListContainer = (props: Props) => {
   const transactionsQuery = useQuery<TransactionsQueryResponse>(
     gql(queries.transactions),
     {
+      fetchPolicy: 'network-only',
       variables: variables
     }
   );
@@ -37,6 +38,7 @@ const PtrListContainer = (props: Props) => {
   const transactionsCountQuery = useQuery<TransactionsCountQueryResponse>(
     gql(queries.transactionsCount),
     {
+      fetchPolicy: 'network-only',
       variables: variables
     }
   );
@@ -46,17 +48,19 @@ const PtrListContainer = (props: Props) => {
   ];
 
   const [removeAccountMutation] = useMutation<RemoveMainTrMutationResponse>(
-    gql(mutations.ptrRemove),
+    gql(mutations.transactionsRemove),
     {
       refetchQueries
     }
   );
+
   const remove = (accountIds: string[], emptyBulk) => {
     const message = 'Are you sure?';
 
     confirm(message).then(() => {
       removeAccountMutation({
-        variables: { accountIds },
+        variables: { accountIds, _id: 'LmNv9veWKr59oZDbpxhTX' },
+
       })
         .then((removeStatus) => {
           // refresh queries
