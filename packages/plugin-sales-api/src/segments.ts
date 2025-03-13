@@ -1,39 +1,44 @@
-import { fetchByQueryWithScroll } from "@erxes/api-utils/src/elasticsearch";
-import { generateModels } from "./connectionResolver";
-import { sendCommonMessage, sendCoreMessage } from "./messageBroker";
-import { generateConditionStageIds } from "./utils";
+import { fetchByQueryWithScroll } from '@erxes/api-utils/src/elasticsearch';
+import { generateModels } from './connectionResolver';
+import { sendCommonMessage, sendCoreMessage } from './messageBroker';
+import { generateConditionStageIds } from './utils';
 import {
   gatherAssociatedTypes,
   getEsIndexByContentType,
   getName,
-  getServiceName
-} from "@erxes/api-utils/src/segments";
+  getServiceName,
+} from '@erxes/api-utils/src/segments';
 
 export default {
   dependentServices: [
     {
-      name: "core",
-      types: ["company", "customer", "lead"],
+      name: 'core',
+      types: ['company', 'customer', 'lead'],
       twoWay: true,
-      associated: true
+      associated: true,
     },
-    { name: "tickets", twoWay: true, associated: true },
-    { name: "tasks", twoWay: true, associated: true },
-    { name: "purchases", twoWay: true, associated: true },
-    { name: "inbox", twoWay: true }
+    { name: 'tickets', twoWay: true, associated: true },
+    { name: 'tasks', twoWay: true, associated: true },
+    { name: 'purchases', twoWay: true, associated: true },
+    { name: 'inbox', twoWay: true },
+    {
+      name: 'cars',
+      twoWay: true,
+      associated: true,
+    },
   ],
 
   contentTypes: [
     {
-      type: "deal",
-      description: "Deal",
-      esIndex: "deals"
-    }
+      type: 'deal',
+      description: 'Deal',
+      esIndex: 'deals',
+    },
   ],
 
   propertyConditionExtender: async ({
     subdomain,
-    data: { condition, ...rest }
+    data: { condition, ...rest },
   }) => {
     const models = await generateModels(subdomain);
 
@@ -42,33 +47,33 @@ export default {
 
     const stageIds = await generateConditionStageIds(models, {
       boardId: condition.boardId,
-      pipelineId: condition.pipelineId
+      pipelineId: condition.pipelineId,
     });
 
     if (stageIds.length > 0) {
       positive = {
         terms: {
-          stageId: stageIds
-        }
+          stageId: stageIds,
+        },
       };
     }
 
-    if (condition.propertyName === "stageProbability") {
+    if (condition.propertyName === 'stageProbability') {
       const { propertyType, propertyValue } = condition || {};
 
-      const [_serviceName, contentType] = propertyType.split(":");
+      const [_serviceName, contentType] = propertyType.split(':');
 
       const stageIds = await models.Stages.find({
         type: contentType,
-        probability: propertyValue
+        probability: propertyValue,
       })
-        .distinct("_id")
+        .distinct('_id')
         .lean();
 
       positive = {
         terms: {
-          stageId: stageIds
-        }
+          stageId: stageIds,
+        },
       };
       ignoreThisPostiveQuery = true;
     }
@@ -80,23 +85,23 @@ export default {
     if (productIds.length > 0) {
       positive = {
         bool: {
-          should: productIds.map(productId => ({
-            match: { "productsData.productId": productId }
-          }))
-        }
+          should: productIds.map((productId) => ({
+            match: { 'productsData.productId': productId },
+          })),
+        },
       };
 
-      if (condition.propertyName == "productsData.categoryId") {
+      if (condition.propertyName == 'productsData.categoryId') {
         ignoreThisPostiveQuery = true;
       }
     }
 
-    return { data: { positive, ignoreThisPostiveQuery }, status: "success" };
+    return { data: { positive, ignoreThisPostiveQuery }, status: 'success' };
   },
 
   associationFilter: async ({
     subdomain,
-    data: { mainType, propertyType, positiveQuery, negativeQuery }
+    data: { mainType, propertyType, positiveQuery, negativeQuery },
   }) => {
     const associatedTypes: string[] = await gatherAssociatedTypes(mainType);
 
@@ -107,47 +112,47 @@ export default {
         subdomain,
         index: await getEsIndexByContentType(propertyType),
         positiveQuery,
-        negativeQuery
+        negativeQuery,
       });
 
       ids = await sendCoreMessage({
         subdomain,
-        action: "conformities.filterConformity",
+        action: 'conformities.filterConformity',
         data: {
           mainType: getName(propertyType),
           mainTypeIds,
-          relType: getName(mainType)
+          relType: getName(mainType),
         },
-        isRPC: true
+        isRPC: true,
       });
     } else {
       const serviceName = getServiceName(propertyType);
 
-      if (serviceName === "sales") {
-        return { data: [], status: "error" };
+      if (serviceName === 'sales') {
+        return { data: [], status: 'error' };
       }
 
       ids = [];
       await sendCommonMessage({
         serviceName,
         subdomain,
-        action: "segments.associationFilter",
+        action: 'segments.associationFilter',
         data: {
           mainType,
           propertyType,
           positiveQuery,
-          negativeQuery
+          negativeQuery,
         },
         defaultValue: [],
-        isRPC: true
+        isRPC: true,
       });
     }
 
-    return { data: ids, status: "success" };
+    return { data: ids, status: 'success' };
   },
 
   esTypesMap: async () => {
-    return { data: { typesMap: {} }, status: "success" };
+    return { data: { typesMap: {} }, status: 'success' };
   },
 
   initialSelector: async ({ subdomain, data: { segment, options } }) => {
@@ -160,36 +165,36 @@ export default {
     const stageIds = await generateConditionStageIds(models, {
       boardId: config.boardId,
       pipelineId: config.pipelineId,
-      options
+      options,
     });
 
     if (stageIds.length > 0) {
       positive = { terms: { stageId: stageIds } };
     }
 
-    return { data: { positive }, status: "success" };
-  }
+    return { data: { positive }, status: 'success' };
+  },
 };
 
 const generateProductsCategoryProductIds = async (subdomain, condition) => {
   let productCategoryIds: string[] = [];
 
   const { propertyName, propertyValue } = condition;
-  if (propertyName === "productsData.categoryId") {
+  if (propertyName === 'productsData.categoryId') {
     productCategoryIds.push(propertyValue);
 
     const products = await sendCoreMessage({
       subdomain,
-      action: "products.find",
+      action: 'products.find',
       data: {
         categoryIds: [...new Set(productCategoryIds)],
-        fields: { _id: 1 }
+        fields: { _id: 1 },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
-    const productIds = products.map(product => product._id);
+    const productIds = products.map((product) => product._id);
 
     return productIds;
   }
