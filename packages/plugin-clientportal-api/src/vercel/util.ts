@@ -23,6 +23,7 @@ const buildConfigs = (
   }
 
   const json = {
+    cpId: config._id,
     template: config.template,
     templateId: config.templateId,
     meta: {

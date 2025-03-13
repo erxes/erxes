@@ -70,21 +70,31 @@ const PagesComponent = () => {
 
 const WebBuilderRedirect = () => {
   const { VERSION } = getVersion();
+  const { REACT_APP_WEBBUILDER_URL } = getEnv();
+
   useEffect(() => {
     if (VERSION === 'saas') {
       const currentHost = window.location.hostname;
-
-      const subdomain = currentHost.split('.')[0]; 
+      const subdomain = currentHost.split('.')[0];
 
       if (subdomain) {
-        const webbuilderUrl = `https://${subdomain}.webbuilder.erxes.io`;
-        window.location.href = webbuilderUrl;
+        window.location.href = `https://${subdomain}.webbuilder.erxes.io`;
       }
     } else {
-      const { REACT_APP_WEBBUILDER_URL } = getEnv();
-      window.location.href = REACT_APP_WEBBUILDER_URL;
+      if (REACT_APP_WEBBUILDER_URL) {
+        window.location.href = REACT_APP_WEBBUILDER_URL;
+      }
     }
-  }, []);
+  }, [VERSION, REACT_APP_WEBBUILDER_URL]);
+
+  if (VERSION !== 'saas' && !REACT_APP_WEBBUILDER_URL) {
+    return (
+      <div>
+        <h3>Web Builder URL not found</h3>
+        <p>Make sure REACT_APP_WEBBUILDER_URL is defined in environment variables</p>
+      </div>
+    );
+  }
 
   return null;
 };
