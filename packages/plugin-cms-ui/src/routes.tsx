@@ -89,7 +89,7 @@ const WebBuilderRedirect = () => {
 
   if (VERSION !== 'saas' && !REACT_APP_WEBBUILDER_URL) {
     return (
-      <div>
+      <div style={{ textAlign: 'center', margin: '100px 0' }}>
         <h3>Web Builder URL not found</h3>
         <p>Make sure REACT_APP_WEBBUILDER_URL is defined in environment variables</p>
       </div>
