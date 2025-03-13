@@ -59,7 +59,6 @@ export const setupMessageConsumers = async () => {
       });
       const closeInfo = await getCloseInfo(
         models,
-        subdomain,
         contract,
         data.closeDate
       );
@@ -221,25 +220,26 @@ export const getConfig = async (
   code:
     | "loansConfig"
     | "holidayConfig"
+    | "lossConfig"
     | "MESSAGE_PRO_API_KEY"
     | "MESSAGE_PRO_PHONE_NUMBER"
     | "creditScore",
   subdomain: string,
-  defaultValue: IConfig = { calculationFixed: 2 }
+  defaultValue?: any
 ) => {
-  const configs = await sendCoreMessage({
-    subdomain,
-    action: "getConfigs",
-    data: {},
-    isRPC: true,
-    defaultValue: []
-  });
-
-  if (!configs[code]) {
-    return defaultValue;
+  if (!defaultValue) {
+    if (code === 'loansConfig') {
+      defaultValue = { calculationFixed: 2 }
+    }
   }
 
-  return configs[code];
+  return await sendCoreMessage({
+    subdomain,
+    action: "getConfig",
+    data: { code, defaultValue },
+    isRPC: true,
+    defaultValue
+  });
 };
 
 export const sendSms = async (

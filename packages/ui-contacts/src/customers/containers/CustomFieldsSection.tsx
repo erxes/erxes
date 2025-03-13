@@ -16,6 +16,7 @@ import { withProps } from "@erxes/ui/src/utils";
 type Props = {
   customer: ICustomer;
   loading?: boolean;
+  showType?: string;
   isDetail: boolean;
   collapseCallback?: () => void;
 };
@@ -32,7 +33,8 @@ const CustomFieldsSection = (props: FinalProps) => {
     fieldsGroupsQuery,
     loading,
     isDetail,
-    collapseCallback
+    showType,
+    collapseCallback,
   } = props;
 
   if (fieldsGroupsQuery && fieldsGroupsQuery.loading) {
@@ -47,12 +49,12 @@ const CustomFieldsSection = (props: FinalProps) => {
 
   const save = (variables, callback) => {
     customersEdit({
-      variables: { _id, ...variables }
+      variables: { _id, ...variables },
     })
       .then(() => {
         callback();
       })
-      .catch(e => {
+      .catch((e) => {
         callback(e);
       });
   };
@@ -63,8 +65,9 @@ const CustomFieldsSection = (props: FinalProps) => {
     customFieldsData: customer.customFieldsData,
     fieldsGroups: fieldsGroupsQuery ? fieldsGroupsQuery.fieldsGroups : [],
     isDetail,
+    showType,
     object: customer,
-    collapseCallback
+    collapseCallback,
   };
 
   return <GenerateCustomFields {...updatedProps} />;
@@ -79,9 +82,9 @@ export default withProps<Props>(
         options: () => ({
           variables: {
             contentType: "core:customer",
-            isDefinedByErxes: false
-          }
-        })
+            isDefinedByErxes: false,
+          },
+        }),
       }
     ),
 
@@ -91,8 +94,8 @@ export default withProps<Props>(
       {
         name: "customersEdit",
         options: () => ({
-          refetchQueries: ["customerDetail"]
-        })
+          refetchQueries: ["customerDetail"],
+        }),
       }
     )
   )(CustomFieldsSection)

@@ -1,9 +1,25 @@
-import { Alert, Button, ButtonMutate, Icon, Wrapper, __ } from "@erxes/ui/src";
+import { EmptyContent } from "@erxes/ui-log/src/activityLogs/styles";
+import { Alert, Button, Icon, Wrapper, __ } from "@erxes/ui/src";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Spinner from "@erxes/ui/src/components/Spinner";
 import {
-  ContentHeader,
-  HeaderContent,
-  HeaderItems,
-} from "@erxes/ui/src/layout/styles";
+  ControlWrapper,
+  Indicator,
+} from "@erxes/ui/src/components/step/styles";
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
+import Tip from "@erxes/ui/src/components/Tip";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+import { IQueryParams } from "@erxes/ui/src/types";
+import React, { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { TR_SIDES } from "../../constants";
+import { IConfigsMap } from "../../settings/configs/types";
+import { Box } from "../../styles";
+import AddTransactionLink from "../components/AddTr";
 import {
   ContentWrapper,
   DeleteIcon,
@@ -11,32 +27,10 @@ import {
   FormContentHeader,
   TransactionLinkWrapper,
 } from "../styles";
-import {
-  ControlWrapper,
-  Indicator,
-} from "@erxes/ui/src/components/step/styles";
-import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
-import React, { useEffect, useMemo, useState } from "react";
-import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
-
-import AddTransactionLink from "../components/AddTr";
-import { Box } from "../../styles";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import DateControl from "@erxes/ui/src/components/form/DateControl";
-import { EmptyContent } from "@erxes/ui-log/src/activityLogs/styles";
-import EmptyState from "@erxes/ui/src/components/EmptyState";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IConfigsMap } from "../../settings/configs/types";
-import { IQueryParams } from "@erxes/ui/src/types";
 import { ITransaction } from "../types";
-import { Link } from "react-router-dom";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import { TRS } from "../utils/transactions";
-import { TR_SIDES } from "../../constants";
-import Tip from "@erxes/ui/src/components/Tip";
-import TrFormTBalance from "./TrFormTBalance";
 import { journalConfigMaps } from "../utils/maps";
+import { TRS } from "../utils/transactions";
+import TrFormTBalance from "./TrFormTBalance";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -44,7 +38,9 @@ type Props = {
   defaultJournal?: string;
   loading?: boolean;
   save: (params: any) => void;
+  deletePtr: () => void;
   queryParams: IQueryParams;
+  parentId?: string;
 };
 
 type State = {
@@ -54,12 +50,14 @@ type State = {
 
 const TransactionForm = (props: Props) => {
   const {
+    parentId,
     configsMap,
     queryParams,
     transactions,
     defaultJournal,
     loading,
     save,
+    deletePtr,
   } = props;
 
   const [state, setState] = useState<State>({
@@ -71,9 +69,9 @@ const TransactionForm = (props: Props) => {
     transactions?.length
       ? transactions.filter((tr) => !tr.originId)
       : (defaultJournal && [
-          journalConfigMaps[defaultJournal || ""]?.defaultData(state.date),
-        ]) ||
-          []
+        journalConfigMaps[defaultJournal || ""]?.defaultData(state.date),
+      ]) ||
+      []
   );
 
   const [followTrDocs, setFollowTrDocs] = useState<ITransaction[]>(
@@ -81,21 +79,21 @@ const TransactionForm = (props: Props) => {
   );
 
   useEffect(() => {
+    const leastSavingTr = transactions?.find(tr => !tr._id?.includes('temp'))
+    if (!leastSavingTr) {
+      return;
+    }
+
     setTrDocs(
-      transactions?.length
-        ? transactions.filter((tr) => !tr.originId)
-        : (defaultJournal && [
-            journalConfigMaps[defaultJournal || ""]?.defaultData(state.date),
-          ]) ||
-            []
+      (transactions || []).filter((tr) => !tr.originId)
     );
     setFollowTrDocs(
-      (transactions?.length && transactions.filter((tr) => tr.originId)) || []
+      (transactions || []).filter((tr) => tr.originId)
     );
   }, [transactions]);
 
   const [currentTransaction, setCurrentTransaction] = useState(
-    trDocs && (trDocs.find((tr) => tr._id === queryParams.trId) || trDocs[0])
+    queryParams.trId && trDocs.find((tr) => tr._id === queryParams.trId) || trDocs[0]
   );
 
   const balance: { dt: number; ct: number; diff?: number; side?: string } =
@@ -128,6 +126,11 @@ const TransactionForm = (props: Props) => {
       return { ...result, side: TR_SIDES.DEBIT, diff: -1 * diff };
     }, [trDocs]);
 
+  const handleDelete = (e) => {
+    e.preventDefault();
+    deletePtr();
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -146,6 +149,17 @@ const TransactionForm = (props: Props) => {
     return (
       <Button.Group>
         {cancelButton}
+
+        {parentId && (
+          <Button
+            btnStyle="danger"
+            icon={"trash-alt"}
+            size="small"
+            onClick={handleDelete}
+          >
+            Delete
+          </Button>
+        )}
 
         <Button
           btnStyle="success"
@@ -350,7 +364,7 @@ const TransactionForm = (props: Props) => {
                   className={currentTransaction?._id === tr._id ? "active" : ""}
                   onClick={() => setCurrentTransaction(tr)}
                 >
-                  {TRS[tr.journal].value} - {(tr.details || [])[0]?.side}
+                  {TRS[tr.journal]?.value} - {(tr.details || [])[0]?.side}
                   <DeleteIcon onClick={(e) => e.stopPropagation()}>
                     <Tip text={__("Delete")}>
                       <Icon
