@@ -84,7 +84,7 @@ export const consumeUser = async (subdomain, doc, action) => {
   if (action === 'update' || action === 'create') {
     const document: any = {
       isActive: true,
-      email: doc?.mail || '',
+      email: doc?.mail.length === 0 ? undefined : doc?.mail,
       username: doc.sAMAccountName,
       details: { firstName: doc.givenName, lastName: doc.sn },
       notUsePassword: true,
