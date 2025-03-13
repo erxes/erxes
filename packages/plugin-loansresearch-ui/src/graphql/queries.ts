@@ -23,6 +23,7 @@ export const loansResearchFields = `
   customerType
   customerId
   debtIncomeRatio
+  updatedRatio
   increaseMonthlyPaymentAmount
 
   averageSalaryIncome

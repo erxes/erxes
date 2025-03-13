@@ -35,6 +35,7 @@ export interface ILoanResearch {
   customerType: string;
   customerId: string;
   debtIncomeRatio: number;
+  updatedRatio: number;
   increaseMonthlyPaymentAmount: number;
 
   averageSalaryIncome: number;
@@ -155,6 +156,11 @@ export const loanResearchSchema = schemaWrapper(
       type: Number,
       optional: true,
       label: 'debt to income ratio',
+    }),
+    updatedRatio: field({
+      type: Number,
+      optional: true,
+      label: 'updated debt to income ratio',
     }),
     increaseMonthlyPaymentAmount: field({
       type: Number,

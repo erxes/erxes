@@ -14,6 +14,7 @@ type Props = {
   totalPaymentAmount: number;
   debtIncomeRatio: number;
   increaseMonthlyPaymentAmount: number;
+  updatedRatio: number;
 };
 
 const DealForm = (props: Props) => {
@@ -25,6 +26,7 @@ const DealForm = (props: Props) => {
     totalPaymentAmount,
     debtIncomeRatio,
     increaseMonthlyPaymentAmount,
+    updatedRatio,
   } = props;
 
   return (
@@ -88,6 +90,15 @@ const DealForm = (props: Props) => {
           disabled={true}
           useNumberFormat={true}
           fixed={2}
+        />
+      </FormGroup>
+
+      <FormGroup>
+        <ControlLabel>After Dept income ratio</ControlLabel>
+        <FormControl
+          type="number"
+          defaultValue={updatedRatio}
+          disabled={true}
         />
       </FormGroup>
     </MarginTop>

@@ -110,6 +110,10 @@ const LoansResearchSidebar = (props: Props) => {
           fixed: 2,
           disabled: true,
         })}
+        {renderFormGroup('After Debt Income Ratio', {
+          type: 'number',
+          value: loansResearch?.updatedRatio || 0,
+        })}
       </SidebarContent>
     );
   };

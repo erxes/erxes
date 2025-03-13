@@ -49,6 +49,9 @@ const LoansResearchForm = (props: Props) => {
   );
   const [increaseMonthlyPaymentAmount, setIncreaseMonthlyPaymentAmount] =
     useState<number>(loansResearch?.increaseMonthlyPaymentAmount || 0);
+  const [updatedRatio, setUpdatedRatio] = useState<number>(
+    loansResearch?.updatedRatio || 0
+  );
 
   // income state
   const [incomes, setIncomes] = useState<IIncome[]>(
@@ -94,6 +97,9 @@ const LoansResearchForm = (props: Props) => {
 
     const ratio = (totalPaymentAmount / totalIncome) * 100;
 
+    const updatedRatio =
+      ((totalPaymentAmount + increaseMonthlyPaymentAmount) / totalIncome) * 100;
+
     if (customerType === 'Salary') {
       increaseAmount = averageSalaryIncome * 0.8 - totalPaymentAmount;
     }
@@ -107,6 +113,7 @@ const LoansResearchForm = (props: Props) => {
     }
 
     setDebtIncomeRatio(ratio);
+    setUpdatedRatio(updatedRatio);
     setIncreaseMonthlyPaymentAmount(increaseAmount);
   }, [
     averageSalaryIncome,
@@ -198,6 +205,7 @@ const LoansResearchForm = (props: Props) => {
       totalPaymentAmount,
       debtIncomeRatio,
       increaseMonthlyPaymentAmount,
+      updatedRatio,
     };
   };
 
@@ -212,6 +220,7 @@ const LoansResearchForm = (props: Props) => {
           totalPaymentAmount={totalPaymentAmount}
           debtIncomeRatio={debtIncomeRatio}
           increaseMonthlyPaymentAmount={increaseMonthlyPaymentAmount}
+          updatedRatio={updatedRatio}
         />
       );
     }
