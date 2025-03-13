@@ -82,6 +82,8 @@
     "react-dropzone": "^14.2.3",
     "react-modal": "^3.12.1",
     "react-transition-group": "^2.4.0",
+    "react-use": "^17.5.1",
+    "tiny-invariant": "^1.3.3",
     "sass": "^1.77.6",
     "sass-loader": "^6.0.6",
     "source-map-loader": "^0.2.3",
@@ -93,6 +95,7 @@
     "webpack": "^5.92.1",
     "webpack-cli": "^5.1.4",
     "webpack-merge": "^6.0.1",
+    "webrtc-adapter": "^9.0.1",
     "xss": "1.0.14"
   },
   "devDependencies": {
