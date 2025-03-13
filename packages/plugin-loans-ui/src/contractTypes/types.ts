@@ -1,4 +1,4 @@
-import { IProduct } from "@erxes/ui-products/src/types";
+import { IProduct } from '@erxes/ui-products/src/types';
 
 export interface IContractConfig {
   receivable?: string;
@@ -64,6 +64,8 @@ export interface IContractConfig {
   requirements?: string[];
   customerDocuments?: string[];
   companyDocuments?: string[];
+
+  danRule?: string;
 }
 
 export interface IContractTypeDoc {
@@ -100,7 +102,7 @@ export interface IContractTypeDoc {
   savingUpperPercent?: number;
 
   config?: IContractConfig;
-  productId?: string
+  productId?: string;
   productType?: string;
 
   feePercent?: number;
@@ -114,11 +116,10 @@ export interface IContractTypeDoc {
 
 export interface IContractType extends IContractTypeDoc {
   _id: string;
-  product?: IProduct
+  product?: IProduct;
 }
 
-export interface IContractTypeDetail extends IContractType {
-}
+export interface IContractTypeDetail extends IContractType {}
 
 // mutation types
 
