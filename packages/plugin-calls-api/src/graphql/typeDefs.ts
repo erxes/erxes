@@ -148,6 +148,7 @@ const mutations = `
   callsUpdateConfigs(configsMap: JSON!): JSON
   callsPauseAgent(status: String!, integrationId: String!): String
   callTransfer(extensionNumber: String!, integrationId: String!, direction: String): String
+  callSyncRecordFile(acctId: String!, inboxId: String!): String
 
 `;
 

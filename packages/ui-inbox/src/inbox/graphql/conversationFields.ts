@@ -91,6 +91,7 @@ export default `
     recordUrl
   }
   callCdr {
+    acctId
     src
     dst
     billsec

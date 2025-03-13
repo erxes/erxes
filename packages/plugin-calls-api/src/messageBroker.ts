@@ -360,7 +360,7 @@ export const setupMessageConsumers = async () => {
           };
         }
 
-        const history = await models.Cdr.findOne({
+        const history = await models.Cdrs.findOne({
           conversationId: erxesApiConversationId,
         });
         return {

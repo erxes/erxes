@@ -1,49 +1,36 @@
-import * as compose from 'lodash.flowright';
-import { IConversation, IMessage } from '@erxes/ui-inbox/src/inbox/types';
-import Post from '../../../components/conversationDetail/workarea/Post';
 import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import { gql, useMutation } from '@apollo/client';
 import { mutations, queries } from '@erxes/ui-inbox/src/inbox/graphql';
-import { withProps } from '@erxes/ui/src/utils';
-import Spinner from '@erxes/ui/src/components/Spinner';
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import GrandStream from '../../../components/conversationDetail/workarea/grandStream/GrandStream';
+import { IConversation, IMessage } from '@erxes/ui-inbox/src/inbox/types';
 
 type Props = {
   conversation: IConversation;
-  conversationMessage: IMessage;
 };
 
-type FinalProps = {
-  conversationMessage: any;
-} & Props;
+const GrandStreamContainer: React.FC<Props> = (props) => {
+  const [callSyncRecordFile] = useMutation(gql(mutations.syncCallRecordFile), {
+    refetchQueries: [
+      {
+        query: gql(queries.conversationDetail),
+        variables: { _id: props.conversation._id },
+      },
+    ],
+  });
 
-class PostInfoContainer extends React.Component<FinalProps> {
-  render() {
-    const { postQuery } = this.props;
-
-    if (postQuery.loading) {
-      return <Spinner />;
+  const syncRecord = async (acctId: string, inboxId: string) => {
+    console.log('wqahhahahha:', acctId);
+    try {
+      if (acctId && inboxId)
+        await callSyncRecordFile({ variables: { acctId, inboxId } });
+      console.log('Successfully synced record file');
+    } catch (e: any) {
+      Alert.error(e.message);
     }
-    if (postQuery.facebookGetPost !== null) {
-      const updatedProps = {
-        ...this.props,
-        PostInfo: postQuery.facebookGetPost || [],
-      };
+  };
 
-      return <Post {...updatedProps} />;
-    } else {
-      return null;
-    }
-  }
-}
+  return <GrandStream {...props} syncRecordFile={syncRecord} />;
+};
 
-export default withProps<Props>(
-  compose(
-    graphql(gql(mutations.syncCallRecordFile), {
-      name: 'syncCallRecordFile',
-      options: ({ acctId }: Props) => ({
-        variables: { acctId: acctId },
-      }),
-    }),
-  )(PostInfoContainer),
-);
+export default GrandStreamContainer;

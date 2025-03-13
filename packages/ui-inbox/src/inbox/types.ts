@@ -31,6 +31,7 @@ export interface ICallHistory {
   recordUrl: string;
 }
 export interface ICallCdrData {
+  acctId: string;
   _id: string;
   src?: string;
   dst?: string;
@@ -202,6 +203,10 @@ export interface IMessage {
 // mutation types
 export type MarkAsReadMutationResponse = {
   markAsReadMutation: (doc: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type callSyncRecordFileMutationResponse = {
+  callSyncRecordFile: (doc: { variables: { acctId: string } }) => Promise<any>;
 };
 
 export type ReplyMutationResponse = {

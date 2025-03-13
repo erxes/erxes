@@ -31,9 +31,14 @@ import Button from '@erxes/ui/src/components/Button';
 type Props = {
   conversation: IConversation;
   currentUser: IUser;
+  syncRecordFile: (acctId: string, inboxId: string) => void;
 };
 
-const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
+const GrandStream: React.FC<Props> = ({
+  conversation,
+  currentUser,
+  syncRecordFile,
+}) => {
   const audioRef = useRef(null) as any;
   const {
     callDuration,
@@ -45,15 +50,14 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
     operatorPhone,
   } = conversation.callHistory || ({} as ICallHistory);
   const {
-    end,
     start,
     disposition,
     billsec,
     userfield,
-    // createdAt,
     recordUrl: cdrRecordUrl,
     dst,
     src,
+    acctId,
   } = conversation.callCdr || ({} as ICallCdrData);
 
   const audioTitle =
@@ -106,7 +110,14 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
               controlsList="nodownload"
             />
           </Audio>
-          <Button id="cdrRecordUrl" btnStyle="warning" size="small">
+          <Button
+            id="cdrRecordUrl"
+            btnStyle="warning"
+            size="small"
+            onClick={() => {
+              syncRecordFile(acctId, conversation?.integration?._id);
+            }}
+          >
             <Icon icon="sync" />
             {__('sync record file')}
           </Button>
@@ -179,7 +190,10 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
   );
 };
 
-const WithConsumer = (props: { conversation: IConversation }) => {
+const WithConsumer = (props: {
+  conversation: IConversation;
+  syncRecordFile;
+}) => {
   return (
     <AppConsumer>
       {({ currentUser }) => (

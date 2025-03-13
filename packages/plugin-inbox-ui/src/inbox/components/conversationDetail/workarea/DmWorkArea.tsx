@@ -21,6 +21,7 @@ import RespondBox from '../../../containers/conversationDetail/RespondBox';
 import TypingIndicator from './TypingIndicator';
 import { __ } from 'coreui/utils';
 import { IUser } from '@erxes/ui/src/auth/types';
+import GrandStreamContainer from '../../../containers/conversationDetail/workarea/GrandStream';
 
 type Props = {
   queryParams?: any;
@@ -220,7 +221,7 @@ export default class WorkArea extends React.Component<Props, State> {
     if (kind === 'calls') {
       return (
         <>
-          <GrandStream conversation={currentConversation} />
+          <GrandStreamContainer conversation={currentConversation} />
           {this.renderMessages(messages, firstMessage)}
         </>
       );

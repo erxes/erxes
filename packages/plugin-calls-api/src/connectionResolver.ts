@@ -33,7 +33,7 @@ export interface IModels {
   CallHistory: ICallHistoryModel;
   Configs: IConfigModel;
   Operators: IOperatorModel;
-  Cdr: ICdrModel;
+  Cdrs: ICdrModel;
 }
 
 export interface IContext extends IMainContext {
@@ -68,7 +68,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'calls_operators',
     loadOperatorClass(models),
   );
-  models.Cdr = db.model<ICallCdrDocument, ICdrModel>(
+  models.Cdrs = db.model<ICallCdrDocument, ICdrModel>(
     'calls_cdr',
     loadCdrClass(models),
   );

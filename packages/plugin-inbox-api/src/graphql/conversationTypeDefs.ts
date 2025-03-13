@@ -69,6 +69,7 @@ export const types = ({ contacts, dailyco, calls }) => `
         modifiedBy: String
         recordUrl: String
         userfield: String
+        acctId: String
       }
     `
       : ''

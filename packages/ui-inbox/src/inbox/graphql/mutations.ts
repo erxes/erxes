@@ -127,10 +127,8 @@ const createVideoChatRoom = `
   }
 `;
 const syncCallRecordFile = `
-  mutation callsSyncRecordFile($_id: String!) {
-    callsSyncRecordFile(_id: $_id) {
-      url
-    }
+  mutation callSyncRecordFile($acctId: String!, $inboxId: String!) {
+    callSyncRecordFile(acctId: $acctId, inboxId: $inboxId)
   }
 `;
 

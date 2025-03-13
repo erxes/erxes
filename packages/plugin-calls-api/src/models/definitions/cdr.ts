@@ -56,7 +56,7 @@ export interface ICallCdr {
   createdBy: string;
   updatedBy: string;
   conversationId: string;
-  AcctId: string;
+  acctId: string;
   src: string;
   dst: string;
   dcontext: string;
@@ -102,6 +102,7 @@ export interface ICallCdr {
   newSrc: string;
   sn: string;
   recordUrl: string;
+  oldRecordUrl: string;
 }
 
 export interface ICallCdrDocument extends ICallCdr, Document {}
@@ -113,7 +114,7 @@ export const CDRSchema = new Schema({
   updatedAt: { type: Date },
   createdBy: { type: String },
   updatedBy: { type: String },
-  AcctId: { type: String },
+  acctId: { type: String, unique: true },
   src: { type: String },
   dst: { type: String },
   dcontext: { type: String },
@@ -159,4 +160,7 @@ export const CDRSchema = new Schema({
   newSrc: { type: String },
   sn: { type: String },
   recordUrl: { type: String },
+  oldRecordUrl: { type: String },
 });
+
+CDRSchema.index({ acctId: 1 }, { unique: true });

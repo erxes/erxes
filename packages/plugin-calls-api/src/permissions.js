@@ -8,7 +8,8 @@ module.exports = {
                 description: 'All',
                 use: [
                     'showCallRecord',
-                    'showCallDashboard'
+                    'showCallDashboard',
+                    'syncCallRecordFile'
                 ]
             },
             {
@@ -18,6 +19,10 @@ module.exports = {
             {
                 name: 'showCallDashboard',
                 description: 'Show call dashboard'
+            },
+            {
+                name: "syncCallRecordFile",
+                description: "sync recoden file"
             }
         ]
     },

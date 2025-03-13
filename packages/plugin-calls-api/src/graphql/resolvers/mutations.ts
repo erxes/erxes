@@ -1,4 +1,9 @@
-import { findIntegration, generateToken, getRecordUrl, sendToGrandStream } from '../../utils';
+import {
+  findIntegration,
+  generateToken,
+  getRecordUrl,
+  sendToGrandStream,
+} from '../../utils';
 import { IContext, IModels } from '../../connectionResolver';
 
 import acceptCall from '../../acceptCall';
@@ -7,9 +12,10 @@ import { IUserDocument } from '@erxes/api-utils/src/types';
 import { ICallHistory } from '../../models/definitions/callHistories';
 import { sendInboxMessage } from '../../messageBroker';
 import { updateConfigs } from '../../helpers';
-import { getOrCreateCustomer } from '../../store';
+import { saveRecordUrl, getOrCreateCustomer } from '../../store';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { redlock } from '../../redlock';
+import { checkPermission } from '@erxes/api-utils/src';
 
 export interface ISession {
   sessionCode: string;
@@ -32,8 +38,7 @@ const callsMutations = {
   },
 
   async callAddCustomer(_root, args, { models, subdomain }: IContext) {
-
-    const integration = await findIntegration(subdomain, args)
+    const integration = await findIntegration(subdomain, args);
     const customer = await getOrCreateCustomer(models, subdomain, args);
 
     const channels = await sendInboxMessage({
@@ -228,7 +233,10 @@ const callsMutations = {
       if (cancelledCall) {
         return 'Already exists this history';
       }
-      const integration = await findIntegration(subdomain, {inboxIntegrationId: doc.inboxIntegrationId, queueName: doc.queueName})
+      const integration = await findIntegration(subdomain, {
+        inboxIntegrationId: doc.inboxIntegrationId,
+        queueName: doc.queueName,
+      });
 
       const operator = integration.operators.find(
         (operator) => operator.userId === user?._id,
@@ -502,6 +510,22 @@ const callsMutations = {
 
     return 'failed';
   },
+  async callSyncRecordFile(
+    _root,
+    { acctId, inboxId },
+    { models, user, subdomain }: IContext,
+  ) {
+    const cdr = await models.Cdrs.findOne({ acctId });
+    if (cdr) {
+      await models.Cdrs.updateOne({ acctId }, { oldRecordUrl: cdr.recordUrl });
+
+      await saveRecordUrl(cdr, models, inboxId, subdomain);
+      return 'successfully updated';
+    }
+    throw new Error('Cannot sync record file');
+  },
 };
+
+checkPermission(callsMutations, 'callSyncRecordFile', 'syncCallRecordFile');
 
 export default callsMutations;

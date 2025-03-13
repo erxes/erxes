@@ -84,7 +84,6 @@ const callsQueries = {
     if (!integration) {
       throw new Error('Integration not found');
     }
-    console.log(integration, 'integration');
     const queueData = (await sendToGrandStream(
       models,
       {

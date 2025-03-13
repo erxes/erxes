@@ -2,7 +2,12 @@ import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 import { IOrignalCallCdr } from './models/definitions/cdr';
 import { ICustomer } from './models/definitions/customers';
-import { cfRecordUrl, sendToGrandStream, toCamelCase } from './utils';
+import {
+  cfRecordUrl,
+  getPureDate,
+  sendToGrandStream,
+  toCamelCase,
+} from './utils';
 
 export const getOrCreateCustomer = async (
   models: IModels,
@@ -64,31 +69,40 @@ export const getOrCreateCdr = async (
   customer: ICustomer,
   operatorPhone: string,
 ) => {
-  const { AcctId } = cdrParams;
-
-  if (!AcctId) {
+  const { AcctId: acctId } = cdrParams;
+  if (!acctId) {
     throw new Error('AcctId is required');
   }
 
-  let cdr = await models.Cdr.findOne({
-    AcctId,
+  let cdr = await models.Cdrs.findOne({
+    acctId,
   });
 
   if (cdr) {
+    if (
+      cdr.recordUrl &&
+      !['null', '', 'invalid file type'].includes(cdr.recordUrl)
+    ) {
+      await saveRecordUrl(cdr, models, inboxId, subdomain);
+      console.log('updated record url:', cdr.acctId);
+      return 'successfully saved record url';
+    }
     return cdr;
   }
 
   const camelCase = toCamelCase(cdrParams);
-  const createdCdr = new models.Cdr({
-    ...camelCase,
+  const { AcctId, ...filteredCamelCase } = camelCase as any;
+
+  const createdCdr = new models.Cdrs({
+    acctId,
+    ...filteredCamelCase,
     inboxIntegrationId: inboxId,
     createdAt: new Date(),
   });
   await createdCdr.save();
-
   if (cdrParams?.lastapp !== 'ForkCDR') {
     try {
-      const oldCdr = await models.Cdr.findOne({
+      const oldCdr = await models.Cdrs.findOne({
         uniqueid: cdrParams.uniqueid,
         conversationId: { $exists: true, $ne: '' },
       });
@@ -103,7 +117,7 @@ export const getOrCreateCdr = async (
       };
 
       if (oldCdr) {
-        await models.Cdr.updateOne(
+        await models.Cdrs.updateOne(
           { _id: oldCdr._id, conversationId: { $exists: true, $ne: '' } },
           { $set: { conversationId: '' } },
         );
@@ -130,40 +144,9 @@ export const getOrCreateCdr = async (
           conversationId: createdCdr.conversationId,
         },
       });
-      let recordUrl =
-        createdCdr.disposition === 'ANSWERED' &&
-        (createdCdr.recordfiles ||
-          (await fetchRecordUrl(models, inboxId, cdrParams)));
-
-      if (recordUrl) {
-        const fileDir =
-          ['QUEUE', 'TRANSFER'].some((substring) =>
-            cdrParams.action_type?.includes(substring),
-          ) && cdrParams.userfield !== 'Inbound'
-            ? 'queue'
-            : 'monitor';
-
-        const recordPath = await cfRecordUrl(
-          {
-            fileDir,
-            recordfiles: recordUrl,
-            inboxIntegrationId: inboxId,
-            retryCount: 1,
-          },
-          '',
-          models,
-          subdomain,
-        );
-        if (recordPath?.includes('wav')) {
-          await models.Cdr.updateOne(
-            { _id: createdCdr?._id?.toString() },
-            { $set: { recordUrl: recordPath } },
-            { upsert: true },
-          );
-        }
-      }
+      await saveRecordUrl(createdCdr, models, inboxId, subdomain);
     } catch (error) {
-      await models.Cdr.deleteOne({ _id: createdCdr._id });
+      await models.Cdrs.deleteOne({ _id: createdCdr._id });
 
       throw new Error(`Failed to update conversation: ${error.message}`);
     }
@@ -172,10 +155,60 @@ export const getOrCreateCdr = async (
   return createdCdr;
 };
 
+export async function saveRecordUrl(createdCdr, models, inboxId, subdomain) {
+  let recordUrl =
+    createdCdr.disposition === 'ANSWERED' &&
+    (createdCdr.recordfiles ||
+      (await fetchRecordUrl(models, inboxId, createdCdr)));
+
+  if (recordUrl) {
+    let fileDir =
+      ['QUEUE', 'TRANSFER'].some((substring) =>
+        createdCdr.actionType?.includes(substring),
+      ) && createdCdr.userfield === 'Inbound'
+        ? 'queue'
+        : 'monitor';
+
+    if (createdCdr?.action_type?.includes('FOLLOWME')) {
+      if (createdCdr?.userfield === 'Inbound') {
+        fileDir = 'monitor';
+      }
+      if (createdCdr?.userfield === 'Outbound') {
+        fileDir = 'queue';
+      }
+    }
+    const recordPath = await cfRecordUrl(
+      {
+        fileDir,
+        recordfiles: recordUrl,
+        inboxIntegrationId: inboxId,
+        retryCount: 1,
+      },
+      '',
+      models,
+      subdomain,
+    );
+
+    if (recordPath?.includes('wav')) {
+      await models.Cdrs.updateOne(
+        { _id: createdCdr?._id?.toString() },
+        { $set: { recordUrl: recordPath } },
+        { upsert: true },
+      );
+    }
+  }
+}
+
 const fetchRecordUrl = async (models, inboxIntegrationId, params) => {
   const { src, dst, start, end } = params;
-  const startTime = start?.replace(' ', 'T') || new Date(start);
-  const endTime = start?.replace(' ', 'T') || new Date(end);
+  const startTime =
+    typeof start === 'string' && start.includes(' ')
+      ? start.replace(' ', 'T')
+      : getPureDate(start, 0);
+  const endTime =
+    typeof end === 'string' && end.includes(' ')
+      ? end.replace(' ', 'T')
+      : getPureDate(end, 0);
 
   const cdrData = await sendToGrandStream(
     models,
@@ -204,14 +237,12 @@ const fetchRecordUrl = async (models, inboxIntegrationId, params) => {
 
   const cdrRoot = cdrData.response?.cdr_root || cdrData.cdr_root;
   const recordFiles = getRecordFiles(cdrRoot);
-
-  return recordFiles[0];
+  return recordFiles?.[0] || '';
 };
 
 function getRecordFiles(data) {
   let results = [] as any;
-
-  data.forEach((record: any) => {
+  data?.forEach((record: any) => {
     // Check in main_cdr
     if (
       record.main_cdr?.recordfiles &&
@@ -221,7 +252,7 @@ function getRecordFiles(data) {
     }
 
     // Check in sub_cdr_X
-    Object.keys(record).forEach((key) => {
+    Object.keys(record)?.forEach((key) => {
       if (
         key.startsWith('sub_cdr_') &&
         record[key]?.recordfiles &&

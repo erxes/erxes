@@ -636,6 +636,7 @@ export default class SipProvider extends React.Component<
     ua.on(
       'newRTCSession',
       ({ originator, session: rtcSession, request: rtcRequest }) => {
+        console.log(rtcRequest, 'rtcRequest');
         if (!this || this.ua !== ua) {
           return;
         }

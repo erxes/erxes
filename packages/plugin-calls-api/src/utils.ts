@@ -59,7 +59,7 @@ export const sendToGrandStream = async (models, args, user) => {
   if (retryCount <= 0) {
     throw new Error('Retry limit exceeded.');
   }
-
+  console.log(integrationId, 'integrationIdintegrationIdintegrationId');
   const integration = await models.Integrations.findOne({
     inboxId: integrationId,
   }).lean();
@@ -479,7 +479,7 @@ export const cfRecordUrl = async (params, user, models, subdomain) => {
     // Prepare file upload
     const uploadUrl = getUrl(subdomain);
     const sanitizedFileName = rawFileName.replace(/\+/g, '_'); // Sanitize filename
-
+    console.log(sanitizedFileName, 'sanitizedFileName*********');
     const formData = new FormData();
     formData.append('file', Buffer.from(fileBuffer), {
       filename: sanitizedFileName,
