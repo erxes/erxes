@@ -298,7 +298,7 @@ const contractQueries = {
     const { dealId, args } = params;
 
     const { contract, schedules, firstSchedules } = await dealContract(
-      dealId ? dealId : '',
+      dealId || '',
       args,
       models,
       subdomain
