@@ -80,7 +80,9 @@ const DealForm = (props: Props) => {
             <ControlLabel>Dept income ratio</ControlLabel>
             <FormControl
               type="number"
-              defaultValue={debtIncomeRatio.toFixed(2)}
+              defaultValue={
+                debtIncomeRatio != null ? debtIncomeRatio.toFixed(2) : '0.00'
+              }
               disabled={true}
             />
           </FormGroup>
@@ -100,7 +102,9 @@ const DealForm = (props: Props) => {
             <ControlLabel>After Dept income ratio</ControlLabel>
             <FormControl
               type="number"
-              defaultValue={updatedRatio.toFixed(2)}
+              defaultValue={
+                updatedRatio != null ? updatedRatio.toFixed(2) : '0.00'
+              }
               disabled={true}
             />
           </FormGroup>
