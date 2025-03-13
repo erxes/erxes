@@ -4,6 +4,13 @@ import { Route, Routes, useParams } from 'react-router-dom';
 import { getEnv } from '@erxes/ui/src/utils';
 import { getVersion } from '@erxes/ui/src/utils/core';
 
+const WebList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - Webs" */ './modules/web/containers/List'
+    )
+);
+
 const CategoryList = asyncComponent(
   () =>
     import(
@@ -91,7 +98,9 @@ const WebBuilderRedirect = () => {
     return (
       <div style={{ textAlign: 'center', margin: '100px 0' }}>
         <h3>Web Builder URL not found</h3>
-        <p>Make sure REACT_APP_WEBBUILDER_URL is defined in environment variables</p>
+        <p>
+          Make sure REACT_APP_WEBBUILDER_URL is defined in environment variables
+        </p>
       </div>
     );
   }
@@ -101,6 +110,7 @@ const WebBuilderRedirect = () => {
 
 const routes = () => (
   <Routes>
+    <Route key='/' path='/cms' element={<WebList />}/>
     <Route
       key='/cms/categories'
       path='/cms/categories'
