@@ -351,6 +351,56 @@ export const calcPerMonthFixed = async ({
   };
 };
 
+export const calcAllMonthLast = async ({
+  currentDate,
+  balance,
+  interestRate,
+  endDate,
+  calculationFixed,
+  unUsedBalance,
+}: {
+  currentDate: Date,
+  balance: number,
+  interestRate: number,
+  endDate: Date,
+  calculationFixed: number,
+  unUsedBalance?: number,
+}) => {
+  const diffDay = getDiffDay(currentDate, endDate)
+  const interest = calcInterest({
+    balance,
+    interestRate: interestRate,
+    dayOfMonth: diffDay,
+    fixed: calculationFixed
+  });
+
+  const { diffEve } = getDatesDiffMonth(currentDate, endDate);
+  const calcedInterestEve = calcInterest({
+    balance,
+    interestRate: interestRate,
+    dayOfMonth: diffEve,
+    fixed: calculationFixed
+  });
+
+  const calcedInterestNonce = new BigNumber(interest).minus(calcedInterestEve).dp(calculationFixed, BigNumber.ROUND_HALF_UP).toNumber()
+
+  const commitmentInterest = calcInterest({
+    balance: unUsedBalance ?? 0,
+    interestRate: interestRate,
+    dayOfMonth: diffDay,
+    fixed: calculationFixed
+  });
+
+  return {
+    interestRate,
+    interest,
+    calcedInterestEve,
+    calcedInterestNonce,
+    unUsedBalance,
+    commitmentInterest,
+  };
+}
+
 export const generateRandomString = (len: number = 10) => {
   const charSet =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
