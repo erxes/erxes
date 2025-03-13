@@ -1,5 +1,6 @@
 const commonFields = `
 number
+ibanAcctNo
 type
 currency
 status
