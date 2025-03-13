@@ -97,7 +97,7 @@ const LoanForm = (props: Props) => {
           return (
             <MarginTop borderBottom={true}>
               <FormGroup>
-                <ControlLabel>Income type</ControlLabel>
+                <ControlLabel>Loan type</ControlLabel>
                 <Select
                   value={LOAN_TYPES.find((o) => o.value === loan.loanType)}
                   onChange={(item: any) =>
@@ -232,14 +232,12 @@ const LoanForm = (props: Props) => {
                   single={false}
                 />
 
-                {loan.loanType === 'Cost' && (
-                  <Button
-                    btnStyle="danger"
-                    onClick={() => removeFeature(loan._id)}
-                  >
-                    X
-                  </Button>
-                )}
+                <Button
+                  btnStyle="danger"
+                  onClick={() => removeFeature(loan._id)}
+                >
+                  X
+                </Button>
               </FormGroup>
             </MarginTop>
           );

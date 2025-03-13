@@ -53,7 +53,7 @@ const lsQueries = {
         {
           $set: {
             increaseMonthlyPaymentAmount:
-              loansContracts && loansContracts?.firstSchedules[0].total,
+              (loansContracts && loansContracts?.firstSchedules[0]?.total) || 0,
             modifiedAt: new Date(),
           },
         }
