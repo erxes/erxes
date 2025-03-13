@@ -5,6 +5,7 @@ import Select from 'react-select';
 import { CUSTOMER_TYPES } from '../../constants';
 import { MarginTop } from '../../styles';
 import { renderBody } from '../../utils';
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 
 type Props = {
   customerData: any;
@@ -40,67 +41,71 @@ const DealForm = (props: Props) => {
         <ControlLabel>{'Customer'}</ControlLabel>
         {renderBody(customerData)}
       </FormGroup>
+      <FormWrapper>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel>Customer type</ControlLabel>
+            <Select
+              value={CUSTOMER_TYPES.find((o) => o.value === customerType)}
+              isDisabled={true}
+              options={CUSTOMER_TYPES}
+              isClearable={false}
+            />
+          </FormGroup>
 
-      <FormGroup>
-        <ControlLabel>Customer type</ControlLabel>
-        <Select
-          value={CUSTOMER_TYPES.find((o) => o.value === customerType)}
-          isDisabled={true}
-          options={CUSTOMER_TYPES}
-          isClearable={false}
-        />
-      </FormGroup>
+          <FormGroup>
+            <ControlLabel>Average income</ControlLabel>
+            <FormControl
+              type="number"
+              value={totalIncome}
+              disabled={true}
+              useNumberFormat={true}
+              fixed={2}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Monthly payment</ControlLabel>
+            <FormControl
+              type="number"
+              value={totalPaymentAmount}
+              disabled={true}
+              useNumberFormat={true}
+              fixed={2}
+            />
+          </FormGroup>
+        </FormColumn>
 
-      <FormGroup>
-        <ControlLabel>Average income</ControlLabel>
-        <FormControl
-          type="number"
-          value={totalIncome}
-          disabled={true}
-          useNumberFormat={true}
-          fixed={2}
-        />
-      </FormGroup>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel>Dept income ratio</ControlLabel>
+            <FormControl
+              type="number"
+              defaultValue={debtIncomeRatio.toFixed(2)}
+              disabled={true}
+            />
+          </FormGroup>
 
-      <FormGroup>
-        <ControlLabel>Monthly payment</ControlLabel>
-        <FormControl
-          type="number"
-          value={totalPaymentAmount}
-          disabled={true}
-          useNumberFormat={true}
-          fixed={2}
-        />
-      </FormGroup>
+          <FormGroup>
+            <ControlLabel>Increase Monthly Payment Amount</ControlLabel>
+            <FormControl
+              type="number"
+              value={increaseMonthlyPaymentAmount}
+              disabled={true}
+              useNumberFormat={true}
+              fixed={2}
+            />
+          </FormGroup>
 
-      <FormGroup>
-        <ControlLabel>Dept income ratio</ControlLabel>
-        <FormControl
-          type="number"
-          defaultValue={debtIncomeRatio}
-          disabled={true}
-        />
-      </FormGroup>
-
-      <FormGroup>
-        <ControlLabel>Increase Monthly Payment Amount</ControlLabel>
-        <FormControl
-          type="number"
-          value={increaseMonthlyPaymentAmount}
-          disabled={true}
-          useNumberFormat={true}
-          fixed={2}
-        />
-      </FormGroup>
-
-      <FormGroup>
-        <ControlLabel>After Dept income ratio</ControlLabel>
-        <FormControl
-          type="number"
-          defaultValue={updatedRatio}
-          disabled={true}
-        />
-      </FormGroup>
+          <FormGroup>
+            <ControlLabel>After Dept income ratio</ControlLabel>
+            <FormControl
+              type="number"
+              defaultValue={updatedRatio.toFixed(2)}
+              disabled={true}
+            />
+          </FormGroup>
+        </FormColumn>
+      </FormWrapper>
     </MarginTop>
   );
 };

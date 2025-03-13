@@ -207,14 +207,12 @@ const IncomeForm = (props: Props) => {
                 />
               </FormGroup>
 
-              {income.incomeType === 'Business' && (
-                <Button
-                  btnStyle="danger"
-                  onClick={() => removeFeature(income._id)}
-                >
-                  X
-                </Button>
-              )}
+              <Button
+                btnStyle="danger"
+                onClick={() => removeFeature(income._id)}
+              >
+                X
+              </Button>
             </MarginTop>
           );
         })}
