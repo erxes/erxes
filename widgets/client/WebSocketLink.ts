@@ -4,7 +4,8 @@
 
 import { Client, ClientOptions, createClient, WebSocket } from 'graphql-ws';
 import { print } from 'graphql';
-import { ApolloLink, FetchResult, Observable, Operation } from 'apollo-link';
+import { ApolloLink, Operation, FetchResult } from '@apollo/client';
+import Observable from 'zen-observable';
 
 interface RestartableClient extends Client {
   restart(): void;
@@ -62,29 +63,36 @@ export default class WebSocketLink extends ApolloLink {
   }
 
   public request(operation: Operation): Observable<FetchResult> {
-    return new Observable(sink => {
+    return new Observable((sink) => {
       return this.client.subscribe<FetchResult>(
         { ...operation, query: print(operation.query) },
         {
-          next: sink.next.bind(sink),
+          next: (result) => {
+            // Transform the result to match FetchResult
+            const fetchResult: FetchResult = {
+              data: result.data,
+              errors: result.errors,
+            };
+            sink.next(fetchResult);
+          },
           complete: sink.complete.bind(sink),
-          error: err => {
+          error: (err) => {
             if (Array.isArray(err))
               // GraphQLError[]
               return sink.error(
-                new Error(err.map(({ message }) => message).join(', '))
+                new Error(err.map(({ message }) => message).join(', ')),
               );
 
             if (err instanceof CloseEvent)
               return sink.error(
                 new Error(
-                  `Socket closed with event ${err.code} ${err.reason || ''}` // reason will be available on clean closes only
-                )
+                  `Socket closed with event ${err.code} ${err.reason || ''}`, // reason will be available on clean closes only
+                ),
               );
 
             return sink.error(err);
-          }
-        }
+          },
+        },
       );
     });
   }
