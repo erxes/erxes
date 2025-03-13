@@ -3,6 +3,7 @@ const commonFields = `
   $customerType: String
   $customerId: String
   $debtIncomeRatio: Float
+  $updatedRatio: Float
   $increaseMonthlyPaymentAmount: Float
 
   $averageSalaryIncome: Float
@@ -21,6 +22,7 @@ const commonVariables = `
   customerType: $customerType
   customerId: $customerId
   debtIncomeRatio: $debtIncomeRatio
+  updatedRatio: $updatedRatio
   increaseMonthlyPaymentAmount: $increaseMonthlyPaymentAmount
 
   averageSalaryIncome: $averageSalaryIncome

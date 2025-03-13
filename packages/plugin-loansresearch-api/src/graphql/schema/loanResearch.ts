@@ -61,6 +61,7 @@ export const types = () => `
     customerType: String
     customerId: String
     debtIncomeRatio: Float
+    updatedRatio: Float
     increaseMonthlyPaymentAmount: Float
 
     averageSalaryIncome: Float
@@ -116,6 +117,7 @@ const commonFields = `
   customerType: String
   customerId: String
   debtIncomeRatio: Float
+  updatedRatio: Float
   increaseMonthlyPaymentAmount: Float
 
   averageSalaryIncome: Float

@@ -34,6 +34,7 @@ export type ILoanResearch = {
   customerType: string;
   customerId: string;
   debtIncomeRatio: number;
+  updatedRatio: number;
   increaseMonthlyPaymentAmount: number;
 
   averageSalaryIncome: number;
