@@ -63,6 +63,10 @@ import {
 import { buildFile } from "./exporterByUrl";
 import reports from "./reports/reports";
 import { getOrganizationDetail } from "@erxes/api-utils/src/saas/saas";
+import {
+  authorizeClient,
+  refreshAccessToken
+} from "./data/modules/oauth/controller";
 
 const {
   JWT_TOKEN_SECRET,
@@ -90,8 +94,8 @@ app.use(cookieParser());
 const corsOptions = {
   credentials: true,
   origin: [
-    DOMAIN ? DOMAIN : "http://localhost:3000",
-    WIDGETS_DOMAIN ? WIDGETS_DOMAIN : "http://localhost:3200",
+    DOMAIN || "http://localhost:3000",
+    WIDGETS_DOMAIN || "http://localhost:3200",
     ...(CLIENT_PORTAL_DOMAINS || "").split(","),
     ...(process.env.ALLOWED_ORIGINS || "").split(",").map(c => c && RegExp(c))
   ]
@@ -104,7 +108,7 @@ app.use(helmet({ frameguard: { action: "sameorigin" } }));
 app.get(
   "/initial-setup",
   routeErrorHandling(async (req: any, res) => {
-    console.log("initial setup");
+    console.debug("initial setup");
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
@@ -153,7 +157,7 @@ app.get(
 app.get(
   "/v3/initial-setup",
   routeErrorHandling(async (req: any, res) => {
-    console.log("initial setup");
+    console.debug("initial setup");
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
@@ -217,6 +221,17 @@ app.get(
     return res.json(organizationInfo);
   })
 );
+
+app.get("/get-frontend-plugins", async (_req, res) => {
+  const plugins: { name: string; url: string }[] = [];
+
+  plugins.push({
+    name: "inbox",
+    url: "https://plugins.erxes.io/latest/inbox_ui/remoteEntry.js"
+  });
+
+  return res.json({ plugins });
+});
 
 // app.post('/webhooks/:id', webhookMiddleware);
 
@@ -332,7 +347,7 @@ app.get(
       try {
         models.Segments.removeSegment(segment);
       } catch (e) {
-        console.log((e as Error).message);
+        console.error((e as Error).message);
       }
     }
 
@@ -360,6 +375,9 @@ app.post(
     return res.send("success");
   })
 );
+
+app.post("/oauth/token", authorizeClient);
+app.post("/oauth/refresh", refreshAccessToken);
 
 app.get("/verify", async (req, res) => {
   const { p } = req.query;
@@ -524,7 +542,7 @@ process.stdin.resume(); // so the program will not close instantly
 async function closeMongooose() {
   try {
     await mongoose.connection.close();
-    console.log("Mongoose connection disconnected ");
+    console.debug("Mongoose connection disconnected ");
   } catch (e) {
     console.error(e);
   }
@@ -533,7 +551,7 @@ async function closeMongooose() {
 async function leaveServiceDiscovery() {
   try {
     await leave("core", PORT);
-    console.log("Left from service discovery");
+    console.debug("Left from service discovery");
   } catch (e) {
     console.error(e);
   }

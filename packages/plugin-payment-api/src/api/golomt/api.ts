@@ -5,6 +5,7 @@ import { ITransactionDocument } from '../../models/definitions/transactions';
 import { BaseAPI } from '../base';
 import { PAYMENTS, PAYMENT_STATUS } from '../constants';
 import { IGolomtInvoice } from '../types';
+import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 
 export const hmac256 = (key, message) => {
   const hash = crypto.createHmac('sha256', key).update(message);
@@ -60,6 +61,40 @@ export class GolomtAPI extends BaseAPI {
     this.key = config.key;
     this.apiUrl = PAYMENTS.golomt.apiUrl;
     this.domain = domain;
+  }
+
+  async authorize() {
+    const callback = `${this.domain}/pl-payment/callback/golomt`;
+    const transactionId = randomAlphanumeric(10);
+
+    const data: IGolomtInvoice = {
+      amount: '1',
+      checksum: hmac256(this.key, transactionId + 1 + 'GET' + callback),
+      transactionId: transactionId,
+      genToken: 'N',
+      socialDeeplink: 'Y',
+      callback,
+      returnType: 'GET',
+    };
+
+    try {
+      const res = await this.request({
+        path: PAYMENTS.golomt.actions.invoice,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + this.token,
+        },
+        data,
+      }).then((r) => r.json());
+
+      if (res.status !== 200) {
+        throw new Error(res.message);
+      }
+      return { success: true, message: 'Authorized' };
+    } catch (e) {
+      throw new Error(e.message);
+    }
   }
 
   async createInvoice(transaction: ITransactionDocument) {

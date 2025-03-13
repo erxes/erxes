@@ -171,6 +171,10 @@ const checkSend = async (
     return msdValues;
   }
 
+  if (!responseChecker.value?.length) {
+    return customer;
+  }
+
   const sendData = await getSendDataCustomer(subdomain, customer, config);
 
   await models.SyncLogs.updateOne(
@@ -435,7 +439,7 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
     const document: any = {
       primaryName: doc?.Name || 'default',
       code: doc.No,
-      primaryPhone: doc?.Mobile_Phone_No,
+      primaryPhone: doc?.Phone_No || doc?.Mobile_Phone_No,
       phones: [doc?.Phone_No],
       location: doc?.Country_Region_Code === 'MN' ? 'Mongolia' : '',
       businessType: doc?.Partner_Type === 'Person' ? 'Customer' : 'Partner',

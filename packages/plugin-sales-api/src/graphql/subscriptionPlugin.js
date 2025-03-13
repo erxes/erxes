@@ -20,7 +20,7 @@ module.exports = {
           return gatewayDataSource.queryAndMergeMissingData({
             payload,
             info,
-            queryVariables: { _id: payload.checklistsChanged._id },
+            queryVariables: { _id: payload.salesChecklistsChanged._id },
             buildQueryUsingSelections: selections => `
               query Subscription_SalesGetChecklist($_id: String!) {
                 salesChecklistDetail(_id: $_id) {

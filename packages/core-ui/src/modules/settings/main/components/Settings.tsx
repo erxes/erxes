@@ -163,17 +163,24 @@ class Settings extends React.PureComponent {
               ['importHistories', 'removeImportHistories', 'importXlsFile']
             )}
             {this.renderBox(
-              'Apps',
-              '/images/icons/erxes-20.svg',
-              '/settings/apps',
-              '',
+              "Apps (legacy)",
+              "/images/icons/erxes-20.svg",
+              "/settings/apps",
+              "",
               []
             )}
             {this.renderBox(
-              'Structure',
-              '/images/icons/erxes-15.svg',
-              '/settings/structure',
-              'usersAll',
+              "Apps",
+              "/images/icons/erxes-20.svg",
+              "/settings/clients",
+              "",
+              []
+            )}
+            {this.renderBox(
+              "Structure",
+              "/images/icons/erxes-15.svg",
+              "/settings/structure",
+              "usersAll",
               teamPermissions
             )}
 
@@ -183,6 +190,14 @@ class Settings extends React.PureComponent {
               '/settings/tags',
               'tagsAll',
               ['showTags', 'manageTags']
+            )}
+
+            {this.renderBox(
+              'Exchange Rates',
+              '/images/icons/erxes-25.png',
+              '/settings/exchangeRates',
+              'exchangeRatesAll',
+              ['showExchangeRates', 'manageExchangeRates']
             )}
 
             {this.renderBox(

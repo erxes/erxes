@@ -62,6 +62,25 @@ export class MinuPayAPI extends BaseAPI {
     this.apiUrl = PAYMENTS.minupay.apiUrl;
   }
 
+  async authorize() {
+    try {
+      const res = await this.request({
+        method: 'POST',
+        path: PAYMENTS.minupay.actions.login,
+        data: {
+          username: this.username,
+          password: this.password,
+        },
+      }).then((r) => r.json());
+
+      if (res.status !== '000') {
+        throw new Error(res.message || 'Invalid credentials');
+      }
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  }
+
   async getHeaders() {
     const token = await redis.get(`minupay_token_${this.username}`);
 

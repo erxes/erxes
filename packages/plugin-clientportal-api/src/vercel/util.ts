@@ -23,6 +23,7 @@ const buildConfigs = (
   }
 
   const json = {
+    cpId: config._id,
     template: config.template,
     templateId: config.templateId,
     meta: {
@@ -264,6 +265,14 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
         ERXES_CP_ID: "${config._id}",
         ERXES_APP_TOKEN: "${config.erxesAppToken}",
       },
+      images: {
+        remotePatterns: [
+          {
+            protocol: "https",
+            hostname: "${subdomain}.app.erxes.io",
+          },
+        ]
+      }
     };`;
 
     // const layout = layoutConfig(config);

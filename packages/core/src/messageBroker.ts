@@ -105,7 +105,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
   );
 
   consumeQueue('core:runCrons', async () => {
-    console.log('Running crons ........');
+    console.debug('Running crons ........');
   });
 
   consumeRPCQueue('core:permissions.find', async ({ subdomain, data }) => {
@@ -1275,6 +1275,46 @@ export const setupMessageConsumers = async (): Promise<void> => {
       };
     }
   );
+
+  // exchange rates
+  consumeRPCQueue('core:exchangeRates.create', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.ExchangeRates.createExchangeRate(data),
+      status: 'success',
+    };
+  });
+
+  consumeRPCQueue(
+    'core:exchangeRates.update',
+    async ({ subdomain, data: { selector, modifier } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.ExchangeRates.updateOne(selector, modifier),
+        status: 'success',
+      };
+    }
+  );
+
+  consumeRPCQueue('core:exchangeRates.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.ExchangeRates.findOne(data).lean(),
+      status: 'success',
+    };
+  });
+
+  consumeRPCQueue('core:exchangeRates.getActiveRate', async ({ subdomain, data: { date, rateCurrency, mainCurrency } }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.ExchangeRates.getActiveRate({ date, rateCurrency, mainCurrency }),
+      status: 'success',
+    };
+  });
 };
 
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
@@ -1396,9 +1436,9 @@ export const getContentTypeDetail = async (
 
   return enabled
     ? sendRPCMessage(`${serviceName}:logs.getContentTypeDetail`, {
-        subdomain,
-        data: activityLog,
-      })
+      subdomain,
+      data: activityLog,
+    })
     : null;
 };
 

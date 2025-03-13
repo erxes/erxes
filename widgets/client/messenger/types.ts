@@ -3,8 +3,9 @@ import {
   IIntegrationMessengerData,
   IIntegrationUiOptions,
   IParticipator,
-  IUser,
+  IUser
 } from "../types";
+
 import { ICarouselItem } from "./components/bot/Carousel";
 
 export interface IWebsiteApp {
@@ -61,6 +62,13 @@ export type EngageMessageQueryResponse = {
   widgetsGetEngageMessage: IMessage;
 };
 
+export type BotPersistentMenuTypeMessenger = {
+  _id: string;
+  type: string;
+  text: string;
+  link: string;
+};
+
 export interface IConversation {
   _id: string;
   content: string;
@@ -70,6 +78,11 @@ export interface IConversation {
   messages: IMessage[];
   isOnline: boolean;
   supporters?: IUser[];
+  botGreetMessage?: string;
+  persistentMenus?: BotPersistentMenuTypeMessenger[];
+  fromBot?: boolean;
+  botData?: IBotData;
+  getStarted?: boolean;
 }
 
 export interface IConnectResponse {
@@ -137,8 +150,10 @@ export interface IBotData {
   elements?: ICarouselItem[];
   quick_replies?: [
     {
+      mainTitle: string;
       title: string;
       payload: string;
+      type: string;
     }
   ];
   wrapped?: {

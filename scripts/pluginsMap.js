@@ -4782,6 +4782,13 @@ module.exports = {
           "icon": "icon-star",
           "location": "mainNavigation",
           "scope": "cms"
+        },
+        {
+          "text": "Web builder",
+          "url": "/cms/web-builder",
+          "icon": "icon-web-grid-alt",
+          "location": "mainNavigation",
+          "scope": "cms"
         }
       ],
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-cms-ui/remoteEntry.js"
