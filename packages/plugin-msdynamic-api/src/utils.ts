@@ -379,7 +379,6 @@ export const dealToDynamic = async (
             ? productById[item.productId].code
             : '',
           Quantity: item.count || 0,
-          Unit_Price: item.unitPrice || 0,
           Location_Code: config.locationCode || 'BEV-01',
         };
 
