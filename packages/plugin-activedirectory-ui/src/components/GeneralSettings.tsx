@@ -77,7 +77,7 @@ const GeneralSettings = (props: Props) => {
             <FormControl value={baseDN} onChange={onChangeBaseDN} />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{'use disquinshed name'}</ControlLabel>
+            <ControlLabel>{'use distinguished name'}</ControlLabel>
             <FormControl
               componentclass="checkbox"
               checked={useDN}
