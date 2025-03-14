@@ -128,11 +128,18 @@ export const getDate = (date: Date, day: number): Date => {
 };
 
 export const getToday = (date: Date): Date => {
-  return getPureDate(date)
+  return getFullDate(date)
 };
 
-export const getPureDate = (date: Date) => {
+export const getFullDate = (date: Date) => {
   return new Date(moment(date).format('YYYY-MM-DD'));
+};
+
+export const getPureDate = (date: Date, multiplier = 1) => {
+  const ndate = new Date(date);
+  const diffTimeZone =
+    multiplier * Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
+  return new Date(ndate.getTime() - diffTimeZone);
 };
 
 export const getTomorrow = (date: Date) => {
