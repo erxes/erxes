@@ -47,7 +47,7 @@ var plugins = [
   // { name: 'zalo', ui: true, api: true },
   { name: 'facebook', ui: true, api: true },
   // { name: 'filemanager', ui: true, api: true },
-  // { name: 'khanbank', ui: true, api: true },
+  { name: 'khanbank', ui: true, api: true },
   // { name: 'productplaces', ui: true, api: true },
   { name: 'ecommerce', api: true },
   // { name: 'grants', api: true, ui: true },
@@ -64,7 +64,8 @@ var plugins = [
   // { name: 'reports', api: true, ui: true },
   { name: 'instagram', api: true, ui: true },
   { name: 'cms', api: true, ui: true },
-  { name: 'bm', api: true, ui: true }
+  { name: 'bm', api: true, ui: true },
+  { name: 'pms', api: true, ui: true },
   // { name: 'burenscoring', api: true, ui: true },
   // { name: 'golomtbank', api: true, ui: true },
   // { name: 'template', api: true, ui: true }

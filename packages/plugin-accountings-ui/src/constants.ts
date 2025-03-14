@@ -23,7 +23,7 @@ export const ACCOUNT_KINDS = [
 export const ACCOUNT_JOURNALS = [
   { label: 'MAIN', value: 'main' },
   { label: 'CASH', value: 'cash' },
-  { label: 'BANK', value: 'fund' },
+  { label: 'BANK', value: 'bank' },
   { label: 'DEBT', value: 'debt' },
   { label: 'INVENTORY', value: 'inventory' },
   { label: 'FIXED_ASSET', value: 'fixedAsset' },

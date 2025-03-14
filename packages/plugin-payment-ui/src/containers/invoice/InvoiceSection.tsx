@@ -1,14 +1,14 @@
-import Spinner from '@erxes/ui/src/components/Spinner';
-import React from 'react';
-import { useQuery } from '@apollo/client';
-
-import InvoiceSection from '../../components/invoice/InvoiceSection';
-import { queries } from '../../graphql';
-import { InvoicesQueryResponse } from '../../types';
+import InvoiceSection from "../../components/invoice/InvoiceSection";
+import { InvoicesQueryResponse } from "../../types";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { queries } from "../../graphql";
+import { useQuery } from "@apollo/client";
 
 type Props = {
   contentType: string;
   contentTypeId: string;
+  showType?: string;
 };
 
 function InvoiceSecitonContainer(props: Props) {
@@ -20,7 +20,7 @@ function InvoiceSecitonContainer(props: Props) {
 
   const invoicesQuery = useQuery<InvoicesQueryResponse>(queries.invoices, {
     variables: { contentType, contentTypeId },
-    fetchPolicy: 'network-only'
+    fetchPolicy: "network-only",
   });
 
   if (invoicesQuery.loading) {
@@ -36,16 +36,17 @@ function InvoiceSecitonContainer(props: Props) {
   const updatedProps = {
     ...props,
     invoices,
-    onReload
+    onReload,
   };
 
   return <InvoiceSection {...updatedProps} />;
 }
 
-export default args => {
+export default (args) => {
   let { contentTypeId, contentType } = args;
-  const { mainType, mainTypeId } = args;
-  if (['deal', 'task', 'company'].includes(mainType)) {
+  const { mainType, mainTypeId, showType } = args;
+
+  if (["deal", "task", "company"].includes(mainType)) {
     contentType = `cards:${mainType}s`;
     contentTypeId = mainTypeId;
   }
@@ -54,6 +55,7 @@ export default args => {
     <InvoiceSecitonContainer
       contentTypeId={contentTypeId}
       contentType={contentType}
+      showType={showType}
     />
   );
 };

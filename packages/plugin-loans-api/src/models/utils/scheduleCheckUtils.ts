@@ -9,9 +9,9 @@ export async function checkCurrentDateSchedule(
   contract: IContractDocument,
   currentDate: Date,
   models: IModels,
-  config:IConfig
+  config: IConfig
 ): Promise<IScheduleDocument | null | undefined> {
-  
+
   const lastSchedule = await models.Schedules.findOne({
     contractId: contract._id,
     payDate: { $lt: currentDate }
@@ -30,7 +30,8 @@ export async function checkCurrentDateSchedule(
   ) {
     await models.Schedules.updateOne(
       { _id: lastSchedule._id },
-      { $set: { status: SCHEDULE_STATUS.EXPIRED ,balance:contract.loanBalanceAmount} }
+      // { $set: { status: SCHEDULE_STATUS.EXPIRED, balance: contract.loanBalanceAmount } }
+      { $set: { status: SCHEDULE_STATUS.EXPIRED, balance: 0 } }
     );
   }
 
