@@ -6,7 +6,7 @@ import {
   exchangeRateSchema,
 } from './definitions/exchangeRate';
 import { getConfig } from '../../data/utils';
-import { getPureDate } from '@erxes/api-utils/src';
+import { getFullDate } from '@erxes/api-utils/src';
 
 export interface IExchangeRateModel extends Model<IExchangeRateDocument> {
   getActiveRate({ date, rateCurrency, mainCurrency }: { date: Date, rateCurrency: string, mainCurrency?: string }): Promise<IExchangeRateDocument>;
@@ -41,7 +41,7 @@ export const loadExchangeRateClass = (models: IModels, subdomain: string) => {
         mainCurrency = await getConfig('mainCurrency', '', models)
       }
 
-      return await models.ExchangeRates.findOne({ mainCurrency, rateCurrency, date: { $lte: getPureDate(date) } }).sort({ date: -1 }).lean()
+      return await models.ExchangeRates.findOne({ mainCurrency, rateCurrency, date: { $lte: getFullDate(date) } }).sort({ date: -1 }).lean()
     }
 
     /**
@@ -52,7 +52,7 @@ export const loadExchangeRateClass = (models: IModels, subdomain: string) => {
         throw new Error('Exchange rate document is required');
       }
 
-      return models.ExchangeRates.create({ ...doc, date: getPureDate(doc.date), createdAt: new Date() });
+      return models.ExchangeRates.create({ ...doc, date: getFullDate(doc.date), createdAt: new Date() });
     }
 
     /**
@@ -61,7 +61,7 @@ export const loadExchangeRateClass = (models: IModels, subdomain: string) => {
     public static async updateExchangeRate(_id: string, doc: IExchangeRate) {
       await models.ExchangeRates.getExchangeRate({ _id });
 
-      await models.ExchangeRates.updateOne({ _id }, { $set: { ...doc, date: getPureDate(doc.date), modifiedAt: new Date(), } });
+      await models.ExchangeRates.updateOne({ _id }, { $set: { ...doc, date: getFullDate(doc.date), modifiedAt: new Date(), } });
 
       return await models.ExchangeRates.findOne({ _id }).lean();
     }
