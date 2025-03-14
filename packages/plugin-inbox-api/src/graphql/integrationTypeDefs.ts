@@ -3,10 +3,6 @@ export const types = `
     _id: String! @external
   }
 
-  extend type CloudflareCallsIntegrationDetailResponse @key(fields: "_id") {
-    _id: String! @external
-  }
-    
   input InputRule {
     _id : String!,
     kind: String!,

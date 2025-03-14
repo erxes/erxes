@@ -9,6 +9,7 @@ import List from '../components/List';
 import { queries } from '../graphql';
 import { StatementQueryResponse } from '../types';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
+import { getRawAccountNumber } from '../../../../utils';
 
 type Props = {
   queryParams: any;
@@ -40,12 +41,12 @@ export default function ListContainer(props: Props) {
       variables: {
         page,
         perPage,
-        accountNumber: queryParams.account,
+        accountNumber: getRawAccountNumber(queryParams.account),
         configId: queryParams._id,
         startDate,
-        endDate
+        endDate,
       },
-      fetchPolicy: 'network-only'
+      fetchPolicy: 'network-only',
     }
   );
 
@@ -66,7 +67,7 @@ export default function ListContainer(props: Props) {
   const extendedProps = {
     ...props,
     loading: !statement.transactions ? false : loading,
-    statement
+    statement,
   };
 
   return <List {...extendedProps} />;
