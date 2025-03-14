@@ -32,31 +32,31 @@ const POST_LIST = gql`
         _id
         authorKind
         author {
-        ... on User {
-          _id
-          username
-          email
-          details {
+          ... on User {
+            _id
+            username
+            email
+            details {
+              fullName
+              shortName
+              avatar
+              firstName
+              lastName
+              middleName
+            }
+          }
+          ... on ClientPortalUser {
+            _id
             fullName
-            shortName
-            avatar
             firstName
             lastName
-            middleName
+            email
+            username
+            customer {
+              avatar
+            }
           }
         }
-        ... on ClientPortalUser {
-          _id
-          fullName
-          firstName
-          lastName
-          email
-          username
-          customer {
-            avatar
-          }
-        }
-      }
         categoryIds
         categories {
           _id
@@ -84,68 +84,68 @@ const POST_LIST = gql`
 `;
 
 const POST = gql`
-query Post($id: String) {
-  cmsPost(_id: $id) {
-    _id
-    clientPortalId
-    title
-    slug
-    content
-    excerpt
-    categoryIds
-    status
-    tagIds
-    authorId
-    featured
-    featuredDate
-    scheduledDate
-    autoArchiveDate
-    reactions
-    reactionCounts
-    thumbnail {
-      url
-      type
-      name
-    }
-    images {
-      url
-      type
-      name
-    }
-    video {
-      url
-      type
-      name
-    }
-    audio {
-      url
-      type
-      name
-    }
-    documents {
-      url
-      type
-      name
-    }
-    attachments {
-      url
-      type
-      name
-    }
-    pdfAttachment {
-      pages {
+  query Post($id: String) {
+    cmsPost(_id: $id) {
+      _id
+      clientPortalId
+      title
+      slug
+      content
+      excerpt
+      categoryIds
+      status
+      tagIds
+      authorId
+      featured
+      featuredDate
+      scheduledDate
+      autoArchiveDate
+      reactions
+      reactionCounts
+      thumbnail {
         url
-        name
         type
-        size
-        duration
+        name
       }
-    }
-    videoUrl
-    createdAt
-    updatedAt
-    authorKind
-        author {
+      images {
+        url
+        type
+        name
+      }
+      video {
+        url
+        type
+        name
+      }
+      audio {
+        url
+        type
+        name
+      }
+      documents {
+        url
+        type
+        name
+      }
+      attachments {
+        url
+        type
+        name
+      }
+      pdfAttachment {
+        pages {
+          url
+          name
+          type
+          size
+          duration
+        }
+      }
+      videoUrl
+      createdAt
+      updatedAt
+      authorKind
+      author {
         ... on User {
           _id
           username
@@ -171,21 +171,23 @@ query Post($id: String) {
           }
         }
       }
-    categories {
-      _id
-      name
-      slug
+      categories {
+        _id
+        name
+        slug
+      }
+      tags {
+        _id
+        name
+      }
+      customFieldsData
     }
-    tags {
-      _id
-      name
-    }
-    customFieldsData
   }
-}
 `;
+
+
 
 export default {
   POST_LIST,
-  POST
+  POST,
 };
