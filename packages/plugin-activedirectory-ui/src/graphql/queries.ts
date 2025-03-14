@@ -2,8 +2,7 @@ const adConfigs = `
 query adConfigs($code: String!) {
   adConfigs(code: $code) {
     apiUrl
-    isLocalUser
-    userDN
+    useDN
     baseDN
     adminDN
     adminPassword
