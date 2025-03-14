@@ -12,6 +12,7 @@ import { menu } from '../../../routes';
 import { IWebSite } from '../../../types';
 import PostForm from '../containers/Form';
 import Row from './Row';
+import { EmptyState, EmptyText, EmptyTitle } from '../../../styles';
 
 type Props = {
   website: IWebSite;
@@ -94,7 +95,7 @@ const List = (props: Props) => {
   );
 
   const breadcrumb = [
-    { title: props.website.name, link: '/cms' },
+    { title: props.website?.name, link: '/cms' },
     { title: __('Posts') },
   ];
 
@@ -117,17 +118,11 @@ const List = (props: Props) => {
             data={content}
             loading={loading}
             count={totalCount}
-            
             emptyContent={
-              <h3
-                style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                no data
-              </h3>
+              <EmptyState>
+                <EmptyTitle>No Posts Yet</EmptyTitle>
+                <EmptyText>Create your first post</EmptyText>
+              </EmptyState>
             }
           />
         }

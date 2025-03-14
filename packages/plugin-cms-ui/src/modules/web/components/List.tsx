@@ -1,5 +1,5 @@
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
-import { IWebSite } from '../../../types';
 import {
   Container,
   EmptyState,
@@ -7,17 +7,16 @@ import {
   EmptyTitle,
   Grid,
   Header,
-  IconWrapper,
   Main,
   PageContainer,
   Subtitle,
-  Title,
+  Title
 } from '../../../styles';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { IWebSite } from '../../../types';
 
-import { WebsiteCard } from './WebsiteCard';
 import Button from '@erxes/ui/src/components/Button';
 import WebsiteForm from './Form';
+import { WebsiteCard } from './WebsiteCard';
 
 type Props = {
   websites: IWebSite[];
@@ -68,21 +67,17 @@ const List = (props: Props) => {
               ))}
             </Grid>
           ) : (
-            <EmptyState>
+            <EmptyState $border={true}>
               <EmptyTitle>No Websites Yet</EmptyTitle>
               <EmptyText>
                 Create your first website to start building your web presence.
               </EmptyText>
-              {/* <Button variant="apple" onClick={() => setIsCreateModalOpen(true)} className="flex items-center">
-              <Plus className="mr-1 h-4 w-4" />
-              Create Your First Website
-            </Button> */}
 
               <ModalTrigger
                 size='lg'
-                title='Add page'
+                title='Add website'
                 autoOpenKey='showAppAddModal'
-                trigger={trigger}
+                trigger={<Button icon='plus-circle'>Add website</Button>}
                 content={formContent}
               />
             </EmptyState>

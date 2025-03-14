@@ -1,8 +1,9 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import React, { useEffect } from 'react';
-import { Route, Routes, useParams } from 'react-router-dom';
+import { Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { getEnv } from '@erxes/ui/src/utils';
 import { getVersion } from '@erxes/ui/src/utils/core';
+import queryString from "query-string";
 
 const WebList = asyncComponent(
   () =>
@@ -47,20 +48,26 @@ const Pages = asyncComponent(
 );
 
 const CategoriesComponent = () => {
-  return <CategoryList />;
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
+  return <CategoryList queryParams={queryParams} />;
 };
 
 const TagsComponent = () => {
-  return <Tags />;
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
+  return <Tags queryParams={queryParams} />;
 };
 
 const PostsComponent = () => {
   // const { cpId = '' } = useParams();
-
-  return <PostList />;
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
+  return <PostList queryParams={queryParams} />;
 };
 
 const PostAddComponent = () => {
+  
   return <PostForm />;
 };
 
@@ -165,7 +172,7 @@ const routes = () => (
 
 export const menu = (clientPortalId: string) => [
   { title: 'Posts', link: '/cms/website/' + clientPortalId + '/posts' },
-  { title: 'Category', link: '/cms/website/' + clientPortalId + '/categories' },
+  { title: 'Categories', link: '/cms/website/' + clientPortalId + '/categories' },
   { title: 'Tags', link: '/cms/website/' + clientPortalId + '/tags' },
   { title: 'Pages', link: '/cms/website/' + clientPortalId + '/pages' },
 ];

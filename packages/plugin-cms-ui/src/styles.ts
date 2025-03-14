@@ -50,9 +50,9 @@ const Grid = styled.div`
   }
 `;
 
-const EmptyState = styled.div`
+const EmptyState = styled.div<{ $border?: boolean }>`
   background: white;
-  border: 1px solid #e5e7eb;
+  border:${({ $border }) => ($border ? '1px solid #e5e7eb' : 'none')};
   border-radius: 8px;
   padding: 3rem;
   text-align: center;

@@ -6,7 +6,7 @@ import React from 'react';
 import { mutations, queries } from '../graphql';
 
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import List from '../components/List';
 import { WEB_DETAIL } from '../../web/queries';
 
@@ -17,6 +17,7 @@ type Props = {
 
 export default function ListContainer(props: Props) {
   const { cpId = '' } = useParams<{ cpId: string }>();
+  const location = useLocation();
 
   const { data: webData, loading: webLoading } = useQuery(WEB_DETAIL, {
     variables: {
