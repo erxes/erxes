@@ -18,6 +18,13 @@ module.exports = {
       icon: 'icon-star',
       location: 'mainNavigation',
       scope: 'cms',
+    },
+    {
+      text: 'Web builder',
+      url:"/cms/web-builder",
+      icon: 'icon-web-grid-alt',
+      location: 'mainNavigation',
+      scope: 'cms',
     }
   ],
 };
