@@ -25,8 +25,8 @@ const adConfigUpdate = `
 `;
 
 const toCheckUsers = `
-  mutation toCheckAdUsers($userName: String, $userPass: String) {
-    toCheckAdUsers(userName: $userName, userPass: $userPass)
+  mutation toCheckAdUsers {
+    toCheckAdUsers
   }
 `;
 
