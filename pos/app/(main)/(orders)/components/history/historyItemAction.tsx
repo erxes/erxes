@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import OrderCancel from "./orderCancel"
+import OrderCancel from "@/modules/orders/components/orderCancel"
 import OrderReturn from "./orderReturn"
 import PaymentDetail from "./paymentDetail"
 

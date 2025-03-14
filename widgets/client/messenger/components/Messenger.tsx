@@ -1,20 +1,21 @@
-import * as React from 'react';
-import { IUser } from '../../types';
-import asyncComponent from '../../AsyncComponent';
-import FaqCategories from './faq/FaqCategories';
-import { getMessengerData } from '../utils/util';
-import TicketContainer from '../containers/TicketContainer';
-import CallContainer from '../containers/CallContainer';
-import AccquireInformationContainer from '../containers/AccquireInformation';
-import ConversationListContainer from '../containers/ConversationList';
-import ConversationDetailContainer from '../containers/ConversationDetail';
-import CategoryDetail from '../containers/faq/CategoryDetail';
-import ArticleDetailContainer from '../containers/faq/ArticleDetail';
-import WebsiteAppDetailContainer from '../containers/websiteApp/WebsiteAppDetail';
-import Home from '../containers/Home';
+import * as React from "react";
+
+import AccquireInformationContainer from "../containers/AccquireInformation";
+import ArticleDetailContainer from "../containers/faq/ArticleDetail";
+import CallContainer from "../containers/call/CallContainer";
+import CategoryDetail from "../containers/faq/CategoryDetail";
+import ConversationDetailContainer from "../containers/ConversationDetail";
+import ConversationListContainer from "../containers/ConversationList";
+import FaqCategories from "./faq/FaqCategories";
+import Home from "../containers/Home";
+import { IUser } from "../../types";
+import TicketContainer from "../containers/TicketContainer";
+import WebsiteAppDetailContainer from "../containers/websiteApp/WebsiteAppDetail";
+import asyncComponent from "../../AsyncComponent";
+import { getMessengerData } from "../utils/util";
 
 type Props = {
-  activeRoute: string | '';
+  activeRoute: string | "";
   supporters: IUser[];
   loading: boolean;
   isOnline?: boolean;
@@ -41,32 +42,33 @@ function Messenger({
 
   const renderSwitch = () => {
     switch (activeRoute) {
-      case 'allConversations':
+      case "allConversations":
         return <ConversationListContainer loading={loading} />;
-      case 'conversationDetail':
-      case 'conversationCreate':
+      case "conversationDetail":
+      case "conversationCreate":
         return WithSupporters(ConversationDetailContainer);
 
       // get user's contact information
-      case 'accquireInformation':
+      case "accquireInformation":
         return <AccquireInformationContainer loading={loading} />;
 
-      case 'faqCategory':
+      case "faqCategory":
         return <CategoryDetail loading={loading} />;
 
-      case 'faqArticle':
+      case "faqArticle":
         return <ArticleDetailContainer loading={loading} />;
 
-      case 'websiteApp':
+      case "websiteApp":
         return <WebsiteAppDetailContainer loading={loading} />;
 
-      case 'faqCategories':
+      case "faqCategories":
         return <FaqCategories topicId={topicId} loading={loading} />;
 
-      case 'ticket':
+      case "ticket":
         return <TicketContainer />;
-      case 'call':
+      case "call":
         return <CallContainer />;
+
       // case 'faqCategories':
       //   return (
       //     <Home

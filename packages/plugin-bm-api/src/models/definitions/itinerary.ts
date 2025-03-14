@@ -38,10 +38,6 @@ export interface IItinerary {
   images: string[];
   status: string;
   color?: string;
-  info1?: string;
-  info2?: string;
-  info3?: string;
-  info4?: string;
   branchId?: string;
 }
 
@@ -75,7 +71,11 @@ const groupDay = new Schema(
     day: field({ type: Number, label: "day" }),
     images: field({ type: [String], label: "images" }),
     content: field({ type: String, label: "content" }),
-    elements: field({ type: [elementOfItinerarySchema], label: "elements" })
+    elements: field({ type: [elementOfItinerarySchema], label: "elements" }),
+    elementsQuick: field({
+      type: [elementOfItinerarySchema],
+      label: "elements"
+    })
   },
   { _id: false }
 );
@@ -111,17 +111,16 @@ export const initnarySchema = schemaHooksWrapper(
       selectOptions: STATUS_TYPES
     }),
     color: field({ type: String, optional: true, label: "color" }),
-    info1: field({ type: String, optional: true, label: "info" }),
-    info2: field({ type: String, optional: true, label: "info" }),
-    info3: field({ type: String, optional: true, label: "info" }),
-    info4: field({ type: String, optional: true, label: "info" }),
+
     branchId: field({ type: String, optional: true, label: "branchId" }),
 
     driverCost: field({ type: Number, label: "cost", optional: true }),
     guideCost: field({ type: Number, label: "cost", optional: true }),
+    guideCostExtra: field({ type: Number, label: "cost", optional: true }),
     foodCost: field({ type: Number, label: "cost", optional: true }),
     gasCost: field({ type: Number, label: "cost", optional: true }),
-    personCost: field({ type: Object, label: "cost", optional: true })
+    personCost: field({ type: Object, label: "cost", optional: true }),
+    extra: field({ type: Object, label: "extra", optional: true })
   }),
   "erxes_itineraries"
 );

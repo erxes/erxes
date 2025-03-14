@@ -68,9 +68,7 @@ export class MonpayAPI extends BaseAPI {
     this.apiUrl = PAYMENTS.monpay.apiUrl;
     this.domain = domain;
     this.headers = {
-      Authorization:
-        'Basic ' +
-        Buffer.from(`${this.username}:${this.accountId}`).toString('base64'),
+      Authorization: 'Basic ' + Buffer.from(`${this.username}:${this.accountId}`).toString('base64'),
       'Content-Type': 'application/json',
       Accept: 'application/json',
     };

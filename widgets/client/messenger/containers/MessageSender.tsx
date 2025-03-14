@@ -1,11 +1,12 @@
-import * as React from 'react';
-import MessageSender from '../components/MessageSender';
-import { useConfig } from '../context/Config';
-import { useConversation } from '../context/Conversation';
-import { useMessage } from '../context/Message';
-import { MESSAGE_TYPES } from '../constants';
-import useHelpers from '../hooks/useHelpers';
-import { getMessengerData } from '../utils/util';
+import * as React from "react";
+
+import { MESSAGE_TYPES } from "../constants";
+import MessageSender from "../components/MessageSender";
+import { getMessengerData } from "../utils/util";
+import { useConfig } from "../context/Config";
+import { useConversation } from "../context/Conversation";
+import useHelpers from "../hooks/useHelpers";
+import { useMessage } from "../context/Message";
 
 type Props = {
   placeholder?: string;
@@ -15,7 +16,7 @@ type Props = {
   collapseHead: () => void;
 };
 
-const Container = (props: Props) => {
+const MessageSenderContainer = (props: Props) => {
   const { isAttachingFile, isInputDisabled } = useConfig();
   const { activeConversationId, sendTypingInfo, readMessages } =
     useConversation();
@@ -44,4 +45,4 @@ const Container = (props: Props) => {
   );
 };
 
-export default Container;
+export default MessageSenderContainer;

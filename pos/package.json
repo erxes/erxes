@@ -42,6 +42,7 @@
     "clsx": "^1.2.1",
     "cmdk": "^0.2.0",
     "date-fns": "^2.30.0",
+    "embla-carousel-react": "^8.5.2",
     "framer-motion": "^10.12.16",
     "graphql": "^16.6.0",
     "graphql-ws": "^5.13.1",

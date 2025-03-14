@@ -1,20 +1,23 @@
-import * as classNames from 'classnames';
-import * as React from 'react';
-import { IParticipator, IUser } from '../../types';
-import { __ } from '../../utils';
-import MessageSender from '../containers/MessageSender';
-import MessagesList from '../containers/MessagesList';
-import { IMessage } from '../types';
-import ConversationHeadContent from './ConversationHeadContent';
-import Container from './common/Container';
-import { useConversation } from '../context/Conversation';
-import { getMessengerData, getUiOptions } from '../utils/util';
-import { connection } from '../connection';
-import { IconCamera, IconMore, IconPhone, iconClose } from '../../icons/Icons';
-import Dropdown from './common/Dropdown';
-import Button from './common/Button';
-import { useMessage } from '../context/Message';
-import { MESSAGE_TYPES } from '../constants';
+import * as React from "react";
+import * as classNames from "classnames";
+
+import { IParticipator, IUser } from "../../types";
+import { IconCamera, IconMore, IconPhone, iconClose } from "../../icons/Icons";
+import { getCallData, getMessengerData, getUiOptions } from "../utils/util";
+
+import Button from "./common/Button";
+import Container from "./common/Container";
+import ConversationHeadContent from "./ConversationHeadContent";
+import Dropdown from "./common/Dropdown";
+import { IMessage } from "../types";
+import { MESSAGE_TYPES } from "../constants";
+import MessageSender from "../containers/MessageSender";
+import MessagesList from "../containers/MessagesList";
+import { __ } from "../../utils";
+import { connection } from "../connection";
+import { useConversation } from "../context/Conversation";
+import { useMessage } from "../context/Message";
+import { useRouter } from "../context/Router";
 
 type Props = {
   messages: IMessage[];
@@ -56,21 +59,14 @@ const ConversationDetail: React.FC<Props> = ({
   const { sendMessage } = useMessage();
 
   const { color } = getUiOptions();
-  const textColor = getUiOptions().textColor || '#fff';
+  const textColor = getUiOptions().textColor || "#fff";
   const isChat = Boolean(!connection.setting.email);
 
-  const [isModalOpen, setIsModalOpen] = React.useState(true);
-  const [isVisibleDropdown, setIsVisibleDropdown] = React.useState(true);
   const [isFocused, setIsFocused] = React.useState(true);
-  const [isExpanded, setIsExpanded] = React.useState(true);
   const [isMinimizeVideoCall, setIsMinimizeVideoCall] = React.useState(true);
 
   const toggleVideoCall = () => {
     setIsMinimizeVideoCall(!isMinimizeVideoCall);
-  };
-
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
   };
 
   const inputFocus = () => {
@@ -85,11 +81,21 @@ const ConversationDetail: React.FC<Props> = ({
     toggle(true);
   };
 
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
-  };
-
   const renderCallButtons = () => {
+    const callData = getCallData();
+    const { setActiveRoute } = useRouter();
+
+    if (callData.isReceiveWebCall) {
+      return (
+        <Button
+          title="Audio call"
+          icon={<IconPhone size="1.4375rem" />}
+          onClick={() => setActiveRoute("call")}
+          className="bg-none"
+        />
+      );
+    }
+
     if (
       !(isOnline && getMessengerData().showVideoCallRequest) ||
       !connection.enabledServices.dailyco
@@ -99,17 +105,17 @@ const ConversationDetail: React.FC<Props> = ({
 
     return (
       <>
-        <Button
+        {/* <Button
           title="Audio call"
           icon={<IconPhone size="1.4375rem" />}
-          onClick={() => sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '')}
+          onClick={() => sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, "")}
           className="bg-none"
-        />
+        /> */}
 
         <Button
           title="Video call"
           icon={<IconCamera size="1.6875rem" />}
-          onClick={() => sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '')}
+          onClick={() => sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, "")}
           className="bg-none"
         />
       </>
@@ -133,12 +139,12 @@ const ConversationDetail: React.FC<Props> = ({
         <Dropdown
           trigger={<IconMore size="1.5rem" />}
           menu={[
-            <button onClick={endConversation}>{__('End conversation')}</button>,
-            <button onClick={toggleLauncher}>{__('Close')}</button>,
+            <button onClick={endConversation}>{__("End conversation")}</button>,
+            <button onClick={toggleLauncher}>{__("Close")}</button>,
             ...(activeConversationId
               ? [
                   <button onClick={exportConversation}>
-                    {__('Export conversation')}
+                    {__("Export conversation")}
                   </button>,
                 ]
               : []),
@@ -148,30 +154,30 @@ const ConversationDetail: React.FC<Props> = ({
     );
   };
 
-  const rootClasses = classNames('erxes-content-wrapper', {
-    'mini-video': isMinimizeVideoCall,
+  const rootClasses = classNames("erxes-content-wrapper", {
+    "mini-video": isMinimizeVideoCall,
   });
 
   const placeholder = !messages.length
-    ? __('Send a message')
-    : `${__('Write a reply')}...`;
+    ? __("Send a message")
+    : `${__("Write a reply")}...`;
 
-  const handleLeftClick = (e: React.FormEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    goToConversationList();
+  // const handleLeftClick = (e: React.FormEvent<HTMLButtonElement>) => {
+  //   e.preventDefault();
+  //   goToConversationList();
 
-    // leave video call if you are in
-    const videoIframe = document.getElementById('erxes-video-iframe');
+  //   // leave video call if you are in
+  //   const videoIframe = document.getElementById("erxes-video-iframe");
 
-    if (videoIframe) {
-      videoIframe.remove();
-    }
-  };
+  //   if (videoIframe) {
+  //     videoIframe.remove();
+  //   }
+  // };
 
   return (
     <Container
       withBottomNavBar={false}
-      containerStyle={{ padding: '1.12rem 0' }}
+      containerStyle={{ padding: "1.12rem 0" }}
       title={
         isLoading ? (
           <div className="loader" />
@@ -207,7 +213,7 @@ const ConversationDetail: React.FC<Props> = ({
             />
 
             <MessageSender
-              placeholder={placeholder ? placeholder.toString() : ''}
+              placeholder={placeholder ? placeholder.toString() : ""}
               isParentFocused={isFocused}
               onTextInputBlur={onTextInputBlur}
               collapseHead={inputFocus}

@@ -1,11 +1,12 @@
 import { Document, Schema } from "mongoose";
 import { field } from "./utils";
 
-interface IPersistentMenus {
-  _id: number;
+interface IPersistentMenusBot {
+  _id: string;
   text: string;
   type: string;
   link?: string;
+  isEditing?: boolean;
 }
 export interface IBot {
   name: string;
@@ -13,8 +14,9 @@ export interface IBot {
   uid: string;
   token: string;
   status: string;
-  persistentMenus: IPersistentMenus[];
-  greetText?: string;
+  persistentMenus?: IPersistentMenusBot[];
+  botGreetMessage?: string;
+  getStarted?: boolean;
   tag?: string;
   isEnabledBackBtn?: boolean;
   backButtonText?: string;
@@ -38,8 +40,9 @@ export const botSchema = new Schema({
   uid: { type: String },
   token: { type: String },
   persistentMenus: { type: [persistentMenuSchema] },
-  greetText: { type: String, optional: true },
+  botGreetMessage: { type: String, optional: true },
   tag: { type: String, optional: true },
+  getStarted: field({ type: Boolean }),
   createdAt: { type: Date, default: Date.now() },
   isEnabledBackBtn: { type: Boolean, optional: true },
   backButtonText: { type: String, optional: true }

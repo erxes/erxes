@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import * as moment from 'moment'
 import * as strip from 'strip';
 import { IUserDocument } from './types';
 import { IPermissionDocument } from './definitions/permissions';
@@ -127,27 +128,15 @@ export const getDate = (date: Date, day: number): Date => {
 };
 
 export const getToday = (date: Date): Date => {
-  return new Date(
-    Date.UTC(
-      date.getUTCFullYear(),
-      date.getUTCMonth(),
-      date.getUTCDate(),
-      0,
-      0,
-      0,
-    ),
-  );
+  return getPureDate(date)
 };
 
-export const getPureDate = (date: Date, multiplier = 1) => {
-  const ndate = new Date(date);
-  const diffTimeZone =
-    multiplier * Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
-  return new Date(ndate.getTime() - diffTimeZone);
+export const getPureDate = (date: Date) => {
+  return new Date(moment(date).format('YYYY-MM-DD'));
 };
 
 export const getTomorrow = (date: Date) => {
-  return getToday(new Date(date.getTime() + 24 * 60 * 60 * 1000));
+  return new Date(moment(date).add(1, 'day').format('YYYY-MM-dd'))
 };
 
 export const getNextMonth = (date: Date): { start: number; end: number } => {

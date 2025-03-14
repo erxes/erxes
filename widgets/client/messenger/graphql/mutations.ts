@@ -1,5 +1,5 @@
-import gql from "graphql-tag";
 import { MESSAGE_FIELDS } from "./fields";
+import gql from "graphql-tag";
 
 const WIDGETS_INSERT_MESSAGE_MUTATION = ({
   queryVariables,
@@ -96,6 +96,42 @@ mutation widgetsSaveBrowserInfo($customerId: String $visitorId: String $browserI
   }
 }
 `;
+
+const CLOUDFLARE_CALL = gql`
+  mutation cloudflareMakeCall(
+    $callerNumber: String!
+    $callerEmail: String
+    $roomState: String!
+    $audioTrack: String!
+    $integrationId: String!
+    $departmentId: String!
+  ) {
+    cloudflareMakeCall(
+      callerNumber: $callerNumber
+      callerEmail: $callerEmail
+      roomState: $roomState
+      audioTrack: $audioTrack
+      integrationId: $integrationId
+      departmentId: $departmentId
+    )
+  }
+`
+const CLOUDFLARE_LEAVE_CALL = gql`
+  mutation CloudflareLeaveCall(
+    $roomState: String!
+    $originator: String
+    $duration: Int
+    $audioTrack: String!
+  ) {
+    cloudflareLeaveCall(
+      roomState: $roomState
+      originator: $originator
+      duration: $duration
+      audioTrack: $audioTrack
+    ) 
+  }
+`
+
 export {
   WIDGETS_INSERT_MESSAGE_MUTATION,
   WIDGET_GET_BOT_INTIAL_MESSAGE,
@@ -104,5 +140,7 @@ export {
   SEND_TYPING_INFO_MUTATION,
   CHANGE_CONVERSATION_OPERATOR,
   WIDGETS_SAVE_CUSTOMER_GET_NOTIFIED,
-  SAVE_BROWSER_INFO
+  SAVE_BROWSER_INFO,
+  CLOUDFLARE_CALL,
+  CLOUDFLARE_LEAVE_CALL
 };

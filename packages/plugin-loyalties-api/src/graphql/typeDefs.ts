@@ -75,6 +75,10 @@ import {
   types as scoreCampaignTypes,
 } from './schema/scoreCampaign';
 
+import {
+  mutations as voucherCodeMutations
+} from './schema/voucherCode';
+
 const typeDefs = async () => {
   return gql`
     scalar JSON
@@ -141,6 +145,7 @@ const typeDefs = async () => {
       ${assignmentMutations}
       ${assignmentCampaignMutations}
       ${scoreCampaignMutations}
+      ${voucherCodeMutations}
     }
   `;
 };
