@@ -6,7 +6,7 @@ export interface IConfig {
   adminDN: string;
   adminPassword: string;
   code: string;
-  useDN: string;
+  useDN: boolean;
   baseDN: string;
   createdAt: Date;
   modifiedAt: Date;
