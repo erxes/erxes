@@ -38,7 +38,7 @@
     "migrateCardsRelations": "node_modules/.bin/ts-node src/commands/migrateRelations.ts",
     "migrateCardsBoards": "node_modules/.bin/ts-node src/commands/migrateCardsBoards.ts",
     "migrateCardName": "node_modules/.bin/ts-node src/commands/migrateCardName.ts",
-    "migrateForms": "node_modules/.bin/ts-node src/commands/migrateLeadForms.ts",
+    "migrateForms": "node_modules/.bin/ts-node src/commands/migrateFormNames.ts",
     "migrateAutomations": "node_modules/.bin/ts-node src/commands/migrateAutomations.ts",
     "migrateCompaniesSearchText": "node_modules/.bin/ts-node src/commands/migrateCompaniesSearchText.ts",
     "migrateCustomersSearchText": "node_modules/.bin/ts-node src/commands/migrateCustomersSearchText.ts",

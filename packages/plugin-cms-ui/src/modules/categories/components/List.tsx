@@ -94,7 +94,7 @@ const List = (props: Props) => {
           <Wrapper.Header
             title={__('Category')}
             queryParams={queryParams}
-            submenu={menu}
+            submenu={menu(props.clientPortalId)}
           />
         }
         actionBar={actionBar}

@@ -13,8 +13,11 @@ import {
   Subtitle,
   Title,
 } from '../../../styles';
-import { Button } from '@erxes/ui';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+
 import { WebsiteCard } from './WebsiteCard';
+import Button from '@erxes/ui/src/components/Button';
+import WebsiteForm from './Form';
 
 type Props = {
   websites: IWebSite[];
@@ -23,6 +26,17 @@ type Props = {
 const List = (props: Props) => {
   const { websites } = props;
   const handleDelete = (id: string) => {};
+
+  const trigger = (
+    <Button btnStyle='success' size='small' icon='plus-circle'>
+      New website
+    </Button>
+  );
+
+  const formContent = (formProps) => {
+    return <WebsiteForm {...formProps} />;
+  };
+
   return (
     <Container>
       <Main>
@@ -34,13 +48,12 @@ const List = (props: Props) => {
                 Select a website to manage or create a new one
               </Subtitle>
             </div>
-            <Button
-              id='directionEdit'
-              btnStyle='link'
-              onClick={() => {
-                console.log('Edit website');
-              }}
-              icon='plus'
+            <ModalTrigger
+              size='lg'
+              title='New Website'
+              autoOpenKey='showWebsiteAddModal'
+              trigger={trigger}
+              content={formContent}
             />
           </Header>
 
@@ -59,19 +72,18 @@ const List = (props: Props) => {
               <EmptyTitle>No Websites Yet</EmptyTitle>
               <EmptyText>
                 Create your first website to start building your web presence.
-                Each website can have its own posts, categories, and pages.
               </EmptyText>
               {/* <Button variant="apple" onClick={() => setIsCreateModalOpen(true)} className="flex items-center">
               <Plus className="mr-1 h-4 w-4" />
               Create Your First Website
             </Button> */}
-              <Button
-                id='directionEdit'
-                btnStyle='link'
-                onClick={() => {
-                  console.log('Edit website');
-                }}
-                icon='plus'
+
+              <ModalTrigger
+                size='lg'
+                title='Add page'
+                autoOpenKey='showAppAddModal'
+                trigger={trigger}
+                content={formContent}
               />
             </EmptyState>
           )}

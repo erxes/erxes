@@ -110,7 +110,7 @@ const WebBuilderRedirect = () => {
 
 const routes = () => (
   <Routes>
-    <Route key='/' path='/cms' element={<WebList />}/>
+    <Route key='/cms' path='/cms' element={<WebList />} />
     <Route
       key='/cms/categories'
       path='/cms/categories'
@@ -136,14 +136,38 @@ const routes = () => (
       path='/cms/web-builder'
       element={<WebBuilderRedirect />}
     />
+
+    <Route
+      key='/cms/website/:cpId/posts'
+      path='/cms/website/:cpId/posts'
+      element={<PostsComponent />}
+    />
+
+    <Route
+      key='/cms/website/:cpId/pages'
+      path='/cms/website/:cpId/pages'
+      element={<PagesComponent />}
+    />
+
+    <Route
+      key='/cms/website/:cpId/categories'
+      path='/cms/website/:cpId/categories'
+      element={<CategoriesComponent />}
+    />
+
+    <Route
+      key='/cms/website/:cpId/tags'
+      path='/cms/website/:cpId/tags'
+      element={<TagsComponent />}
+    />
   </Routes>
 );
 
-export const menu = [
-  { title: 'Posts', link: '/cms/posts' },
-  { title: 'Category', link: '/cms/categories' },
-  { title: 'Tags', link: '/cms/tags' },
-  { title: 'Pages', link: '/cms/pages' },
+export const menu = (clientPortalId: string) => [
+  { title: 'Posts', link: '/cms/website/' + clientPortalId + '/posts' },
+  { title: 'Category', link: '/cms/website/' + clientPortalId + '/categories' },
+  { title: 'Tags', link: '/cms/website/' + clientPortalId + '/tags' },
+  { title: 'Pages', link: '/cms/website/' + clientPortalId + '/pages' },
 ];
 
 export default routes;

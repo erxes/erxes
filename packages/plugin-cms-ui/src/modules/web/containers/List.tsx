@@ -1,7 +1,7 @@
 import React from 'react';
 import Component from '../components/List';
 import { gql, useQuery } from '@apollo/client';
-import { Spinner } from '@erxes/ui/src/components';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {};
 
@@ -12,7 +12,8 @@ const LIST_QUERY = gql`
       name
       description
       domain
-
+      createdAt
+      kind
       url
     }
   }
@@ -26,7 +27,7 @@ const List = (props: Props) => {
   }
 
   const websites = data?.clientPortalGetConfigs || [];
-
+  //   return <div>hi</div>
   return <Component websites={websites} />;
 };
 

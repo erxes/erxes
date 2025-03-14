@@ -8,6 +8,7 @@ export interface IWebSite {
   url?: string;
   icon?: string;
   createdAt?: Date;
+  kind: string;
 }
 
 export interface IPostDocument {

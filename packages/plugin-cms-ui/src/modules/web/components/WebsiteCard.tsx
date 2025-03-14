@@ -5,22 +5,26 @@ import { IWebSite } from '../../../types';
 import React from 'react';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
+import { ActionButton } from '@erxes/ui/src/components/ActionButtons';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils/core';
+import { useNavigate } from 'react-router-dom';
 
 interface WebsiteCardProps {
   website: IWebSite;
   deleteWebsite: (id: string) => void;
 }
 
-const Card = styled.div<{ isSelected: boolean }>`
+const Card = styled.div`
+  padding: 16px;
   position: relative;
   overflow: hidden;
   border-radius: 8px;
-  border: 1px solid ${({ isSelected }) => (isSelected ? '#3b82f6' : '#e5e7eb')};
-  background: ${({ isSelected }) => (isSelected ? '#eff6ff' : '#ffffff')};
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
   transition: all 0.2s;
   cursor: pointer;
-  box-shadow: ${({ isSelected }) =>
-    isSelected ? '0 0 0 2px rgba(59, 130, 246, 0.5)' : 'none'};
+  box-shadow: none;
 
   &:hover {
     transform: translateY(-4px);
@@ -40,6 +44,7 @@ const Title = styled.h3`
   font-weight: 500;
   color: #111827;
   margin-bottom: 4px;
+  overflow: hidden;
 `;
 
 const Description = styled.p`
@@ -64,11 +69,7 @@ const Footer = styled.div`
 
 export function WebsiteCard({ website, deleteWebsite }: WebsiteCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  //   const { selectedWebsiteId, setSelectedWebsiteId } = useSelectedWebsite();
-  const [selectedWebsiteId, setSelectedWebsiteId] = useState('');
-  //   const { deleteWebsite } = useStore();
-
-  const isSelected = selectedWebsiteId === website._id;
+  const navigate = useNavigate();
 
   const handleDelete = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -83,59 +84,63 @@ export function WebsiteCard({ website, deleteWebsite }: WebsiteCardProps) {
     }
   };
 
-  const handleSelect = () => {
-    if (!isSelected) {
-      setSelectedWebsiteId(website._id);
-    }
-  };
-
   return (
     <Card
-      isSelected={isSelected}
-      onClick={handleSelect}
+      // isSelected={isSelected}
+      onClick={() => {
+        navigate(`/cms/website/${website._id}/posts`);
+      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className='p-5'>
-        <Header>
-          <Title>{website.name}</Title>
-          <div
-            style={{
-              display: isHovered || isSelected ? 'flex' : 'none',
-              gap: '4px',
-            }}
-          >
-            <Button
-              id='directionEdit'
-              btnStyle='link'
-              onClick={() => {
-                console.log('Edit website');
-              }}
-              icon='edit'
-            />
-            <Button
-              id='directionEdit'
-              btnStyle='link'
-              onClick={() => {}}
-              icon='trash-alt'
-            />
-          </div>
-        </Header>
-        <Description>
-          {website.description || 'No description provided'}
-        </Description>
-        <Footer>
-          <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-            Created: {new Date(website.createdAt || '').toLocaleDateString()}
-          </span>
-          <Link
-            to={`/website/${website._id}/posts`}
-            style={{ fontSize: '0.75rem', fontWeight: 500, color: '#3b82f6' }}
-          >
-            Manage <Icon icon="comment-plus" />
-          </Link>
-        </Footer>
-      </div>
+      <Header>
+        <Title>{website.name}</Title>
+        <div
+          style={{
+            display: isHovered ? 'flex' : 'none',
+            //   gap: '4px',
+            justifyContent: 'flex-end',
+          }}
+        >
+          <ActionButton>
+            <Tip text={__('Edit')} placement='top'>
+              <Button
+                id='websiteEdit'
+                btnStyle='link'
+                onClick={() => {
+                  // http://localhost:3000/settings/business-portal/client?_id=kWKLaHhRFgX9Sje0dAfsp
+                  navigate(
+                    `/settings/business-portal/${website.kind}?_id=${website._id}`
+                  );
+                }}
+                icon='edit'
+              />
+            </Tip>
+            <Tip text={__('Delete')} placement='top'>
+              <Button
+                id='websiteDelete'
+                btnStyle='link'
+                onClick={() => {}}
+                icon='trash-alt'
+              />
+            </Tip>
+          </ActionButton>
+        </div>
+      </Header>
+      <Description>
+        {website.description || 'No description provided'}
+      </Description>
+      <Footer>
+        <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+          Created: {new Date(website.createdAt || '').toLocaleDateString()}
+        </span>
+        <Link
+          to={`/cms/website/${website._id}/posts`}
+          style={{ fontSize: '0.75rem', fontWeight: 500, color: '#3b82f6' }}
+        >
+          Manage <Icon icon='edit-3' />
+        </Link>
+      </Footer>
     </Card>
   );
 }
