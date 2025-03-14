@@ -1,31 +1,35 @@
 export interface IProgram {
   _id: string;
   name?: string;
+  code: string;
+  category?: IProgramCategory;
+  unitPrice: number;
+  type?: string;
   createdAt?: Date;
-  expiryDate?: Date;
-  totalObjectCount?: number;
-  checked?: boolean;
-  typeId?: string;
-  currentType?: IType;
+  commentCount?: number;
 }
 
-export interface IType {
+export interface IProgramCategory {
   _id: string;
   name: string;
 }
 
 // queries
 export type ProgramQueryResponse = {
-  programs: IProgram[];
+  programs: { list: IProgram[]; totalCount: number };
   refetch: () => void;
   loading: boolean;
 };
-export type TypeQueryResponse = {
-  programTypes: IType[];
-  refetch: () => void;
+export type ProgramCategoriesQueryResponse = {
+  programCategories: IProgramCategory[];
   loading: boolean;
+  refetch: () => void;
 };
-
+export type ProgramCategoriesCountQueryResponse = {
+  programCategoriesTotalCount: number;
+  loading: boolean;
+  refetch: () => void;
+};
 // mutations
 export type MutationVariables = {
   _id?: string;
@@ -34,6 +38,11 @@ export type MutationVariables = {
   expiryDate?: Date;
   checked?: boolean;
   type?: string;
+};
+export type ProgramCategoryRemoveMutationResponse = {
+  programCategoryRemove: (mutation: {
+    variables: { _id: string };
+  }) => Promise<any>;
 };
 export type AddMutationResponse = {
   addMutation: (params: { variables: MutationVariables }) => Promise<any>;
@@ -45,12 +54,4 @@ export type EditMutationResponse = {
 
 export type RemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
-};
-
-export type EditTypeMutationResponse = {
-  typesEdit: (params: { variables: MutationVariables }) => Promise<any>;
-};
-
-export type RemoveTypeMutationResponse = {
-  typesRemove: (params: { variables: { _id: string } }) => Promise<any>;
 };

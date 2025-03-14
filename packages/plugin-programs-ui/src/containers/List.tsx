@@ -1,68 +1,77 @@
-import { gql, useQuery } from "@apollo/client";
-import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
-import { IButtonMutateProps } from "@erxes/ui/src/types";
-import { Alert } from "@erxes/ui/src/utils";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { Alert, Bulk, router } from "@erxes/ui/src";
 import React from "react";
-import List from "../components/List";
+import { useNavigate } from "react-router-dom";
+import ProgramsList from "../components/program/ProgramsList";
 import { mutations, queries } from "../graphql";
-import { ProgramQueryResponse, TypeQueryResponse } from "../types";
+import { ProgramQueryResponse, RemoveMutationResponse } from "../types";
 
 type Props = {
   queryParams: any;
 };
 
 const ListContainer = (props: Props) => {
-  const listQuery = useQuery<ProgramQueryResponse>(gql(queries.list), {
-    variables: {},
+  const navigate = useNavigate();
+  const { queryParams } = props;
+
+  const programsQuery = useQuery<ProgramQueryResponse>(gql(queries.programs), {
+    variables: {
+      ...router.generatePaginationParams(queryParams || {}),
+      ids: queryParams.ids,
+      categoryId: queryParams.categoryId,
+      searchValue: queryParams.searchValue,
+      sortField: queryParams.sortField,
+      sortDirection: queryParams.sortDirection,
+    },
   });
 
-  const typesQuery = useQuery<TypeQueryResponse>(
-    gql(queries.listProgramTypes),
-    {
-      variables: {},
-    }
+  const [programsRemove] = useMutation<RemoveMutationResponse>(
+    gql(mutations.programsRemove),
+    generateOptions()
   );
 
-  const renderButton = ({
-    passedName,
-    values,
-    isSubmitted,
-    callback,
-    object,
-  }: IButtonMutateProps) => {
-    return (
-      <ButtonMutate
-        mutation={object ? mutations.edit : mutations.add}
-        variables={values}
-        callback={callback}
-        isSubmitted={isSubmitted}
-        type="submit"
-        successMessage={`You successfully ${
-          object ? "updated" : "added"
-        } a ${passedName}`}
-        refetchQueries={["listQuery"]}
-      />
-    );
+  const removeCars = ({ programIds }, emptyBulk) => {
+    programsRemove({
+      variables: { programIds },
+    })
+      .then(() => {
+        emptyBulk();
+        Alert.success("You successfully deleted a programs");
+      })
+      .catch((e) => {
+        Alert.error(e.message);
+      });
   };
 
-  const remove = (program) => {
-    Alert.success("Successfully deleted an item");
+  const carsList = (bulkProps) => {
+    const searchValue = queryParams.searchValue || "";
+    const { list = [], totalCount = 0 } = programsQuery?.data?.programs || {};
+
+    const updatedProps = {
+      ...props,
+      totalCount,
+      searchValue,
+      programs: list,
+      loading: programsQuery.loading,
+      remove: removeCars,
+    };
+
+    return <ProgramsList {...updatedProps} {...bulkProps} />;
   };
 
-  const edit = (program) => {
-    Alert.success("Successfully updated an item");
+  const refetch = () => {
+    programsQuery.refetch();
   };
 
-  const updatedProps = {
-    ...props,
-    programs: listQuery.data?.programs || [],
-    loading: listQuery.loading,
-    remove,
-    edit,
-    renderButton,
-    types: typesQuery?.data?.programTypes || [],
-  };
-  return <List {...updatedProps} />;
+  return <Bulk content={carsList} refetch={refetch} />;
 };
 
 export default ListContainer;
+
+const generateOptions = () => ({
+  refetchQueries: [
+    "programs",
+    "programCategories",
+    "programCategoriesTotalCount",
+  ],
+});

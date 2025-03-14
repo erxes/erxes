@@ -17,7 +17,7 @@ export interface IProgramModel extends Model<IProgramDocument> {
 }
 
 export interface IProgramCategoryModel extends Model<IProgramCategoryDocument> {
-  getProgramCatogery(selector: any): Promise<IProgramCategoryDocument>;
+  getProgramCategory(selector: any): Promise<IProgramCategoryDocument>;
   createProgramCategory(
     doc: IProgramCategory
   ): Promise<IProgramCategoryDocument>;
@@ -116,7 +116,7 @@ export const loadProgramCategoryClass = (models) => {
      * Get Program Cagegory
      */
 
-    public static async getProgramCatogery(selector: any) {
+    public static async getProgramCategory(selector: any) {
       const programCategory = await models.ProgramCategories.findOne(selector);
 
       if (!programCategory) {
@@ -158,7 +158,7 @@ export const loadProgramCategoryClass = (models) => {
       // Generatingg  order
       doc.order = await this.generateOrder(parentCategory, doc);
 
-      const programCategory = await models.ProgramCategories.getProgramCatogery(
+      const programCategory = await models.ProgramCategories.getProgramCategory(
         {
           _id,
         }
@@ -192,7 +192,7 @@ export const loadProgramCategoryClass = (models) => {
      * Remove Program category
      */
     public static async removeProgramCategory(_id) {
-      await models.ProgramCategories.getProgramCatogery({ _id });
+      await models.ProgramCategories.getProgramCategory({ _id });
 
       let count = await models.Programs.countDocuments({ categoryId: _id });
 

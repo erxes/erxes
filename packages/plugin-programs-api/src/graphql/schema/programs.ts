@@ -22,6 +22,7 @@ export const types = () => `
     endDate: Date,
     deadline: Date,
     unitPrice: Float,
+    commentCount: Int
   }
 
   type ProgramListResponse {

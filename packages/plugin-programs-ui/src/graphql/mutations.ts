@@ -9,11 +9,17 @@ const add = `
   }
 `;
 
-const remove = `
-  mutation programsRemove($_id: String!){
-    programsRemove(_id: $_id)
+const programsRemove = `
+  mutation programsRemove($programIds: [String]) {
+    programsRemove(programIds: $programIds)
   }
-  `;
+`;
+
+const programCategoryRemove = `
+  mutation programCategoryRemove($_id: String!) {
+    programCategoryRemove(_id: $_id)
+  }
+`;
 
 const edit = `
   mutation programsEdit($_id: String!, $name:String, $expiryDate:Date, $checked:Boolean, $typeId:String){
@@ -48,7 +54,8 @@ const editType = `
 
 export default {
   add,
-  remove,
+  programsRemove,
+  programCategoryRemove,
   edit,
   addType,
   removeType,

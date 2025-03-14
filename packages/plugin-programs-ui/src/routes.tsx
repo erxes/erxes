@@ -1,18 +1,18 @@
 import queryString from "query-string";
 import React from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
-import List from "./containers/List";
+import ProgramList from "./containers/List";
 
-const Activities = () => {
+const List = () => {
   const location = useLocation();
 
-  return <List queryParams={queryString.parse(location.search)} />;
+  return <ProgramList queryParams={queryString.parse(location.search)} />;
 };
 
 const routes = () => {
   return (
     <Routes>
-      <Route key="/programs" path="/programs" element={<Activities />} />
+      <Route key="/programs" path="/programs" element={<List />} />
     </Routes>
   );
 };

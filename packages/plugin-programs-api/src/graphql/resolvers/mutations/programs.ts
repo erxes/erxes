@@ -27,7 +27,7 @@ const programMutations = {
     return program;
   },
   /**
-   * Edits a new program
+   * Edit a program
    */
   programsEdit: async (_root, { _id, ...doc }, { models, user, subdomain }) => {
     const program = await models.Programs.getProgram(_id);
@@ -118,6 +118,37 @@ const programMutations = {
     return programCategory;
   },
   /**
+   * Edits a program category
+   */
+  programCategoriesEdit: async (
+    _root,
+    { _id, ...doc },
+    { models, user, subdomain }
+  ) => {
+    const programCategory = await models.ProgramCategories.getProgramCategory({
+      _id,
+    });
+    const updated = await models.ProgramCategories.updateProgramCategory(
+      _id,
+      doc
+    );
+
+    await putUpdateLog(
+      subdomain,
+      {
+        type: "programs:program-category",
+        object: programCategory,
+        newData: doc,
+        updatedDocument: updated,
+        description: `"${programCategory.name}" has been updated`,
+        extraParams: { models },
+      },
+      user
+    );
+
+    return updated;
+  },
+  /**
    * Delete a program category
    */
   programCategoriesRemove: async (
@@ -125,7 +156,7 @@ const programMutations = {
     { _id }: { _id: string },
     { models, subdomain, user }: IContext
   ) => {
-    const programCategory = await models.ProgramCategories.getProgramCatogery({
+    const programCategory = await models.ProgramCategories.getProgramCategory({
       _id,
     });
     const removed = await models.ProgramCategories.removeProgramCategory(_id);
