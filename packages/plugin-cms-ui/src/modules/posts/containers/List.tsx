@@ -8,6 +8,7 @@ import { mutations, queries } from '../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { useParams } from 'react-router-dom';
 import List from '../components/List';
+import { WEB_DETAIL } from '../../web/queries';
 
 type Props = {
   refetch: () => void;
