@@ -4,18 +4,19 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-
+import { EmptyState, EmptyText, EmptyTitle } from '../../../styles';
 import TagForm from '../containers/Form';
-// import { tumentechMenu } from '../list/CarsList';
 
+import Submenu from '@erxes/ui/src/components/subMenu/Submenu';
 import { menu } from '../../../routes';
+import { IWebSite } from '../../../types';
 import Row from './Row';
-import CPHeader from '../../clientportal/containers/Header';
 
 type Props = {
+  website: IWebSite;
   clientPortalId: string;
   tags: any[];
   totalCount: number;
@@ -36,9 +37,6 @@ const List = (props: Props) => {
       </React.Fragment>
     ));
   };
-
-  //   queryParams.loadingMainQuery = loading;
-  //   const actionBarLeft: React.ReactNode;
 
   const trigger = (
     <Button btnStyle='success' size='small' icon='plus-circle'>
@@ -62,9 +60,14 @@ const List = (props: Props) => {
     </BarItems>
   );
 
+  const breadcrumb = [
+    { title: props.website?.name, link: '/cms' },
+    { title: __('Tags') },
+  ];
+
   const leftActionBar = (
     <BarItems>
-      <CPHeader />
+      <Submenu items={menu(props.clientPortalId)} />
     </BarItems>
   );
 
@@ -94,9 +97,10 @@ const List = (props: Props) => {
           <Wrapper.Header
             title={__('Tag')}
             queryParams={queryParams}
-            submenu={menu}
+            breadcrumb={breadcrumb}
           />
         }
+        hasBorder
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
         content={
@@ -105,15 +109,10 @@ const List = (props: Props) => {
             loading={loading}
             count={props.totalCount}
             emptyContent={
-              <h3
-                style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                no data
-              </h3>
+              <EmptyState>
+              <EmptyTitle>No Tags Yet</EmptyTitle>
+              <EmptyText>Create your first tag</EmptyText>
+            </EmptyState>
             }
           />
         }
