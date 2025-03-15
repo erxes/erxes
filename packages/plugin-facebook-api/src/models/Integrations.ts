@@ -1,7 +1,7 @@
-import { Document, Model, Schema } from 'mongoose';
+import { Document, Model, Schema } from "mongoose";
 
-import { IModels } from '../connectionResolver';
-import { field } from './definitions/utils';
+import { IModels } from "../connectionResolver";
+import { field } from "./definitions/utils";
 
 export interface IIntegration {
   kind: string;
@@ -27,7 +27,7 @@ export const integrationSchema = new Schema({
   emailScope: String,
   facebookPageIds: field({
     type: [String],
-    label: 'Facebook page ids',
+    label: "Facebook page ids",
     optional: true
   }),
   email: String,
@@ -50,7 +50,7 @@ export const loadIntegrationClass = (models: IModels) => {
       const integration = await models.Integrations.findOne(selector);
 
       if (!integration) {
-        throw new Error('Integration not found');
+        throw new Error("Integration not found");
       }
 
       return integration;
