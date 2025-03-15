@@ -114,14 +114,13 @@ const chatQueries = {
         seenInfos.push(seenInfo);
 
         updated = true;
-      } else {
-        if (seenInfo.lastSeenMessageId !== lastMessage._id) {
+      } else if (seenInfo.lastSeenMessageId !== lastMessage._id) {
           seenInfo.lastSeenMessageId = lastMessage._id;
           seenInfo.seenDate = new Date();
 
           updated = true;
         }
-      }
+      
 
       if (updated) {
         await models.Chats.updateOne(
@@ -172,14 +171,13 @@ const chatQueries = {
         seenInfos.push(seenInfo);
 
         updated = true;
-      } else {
-        if (seenInfo.lastSeenMessageId !== lastMessage._id) {
+      } else if (seenInfo.lastSeenMessageId !== lastMessage._id) {
           seenInfo.lastSeenMessageId = lastMessage._id;
           seenInfo.seenDate = new Date();
 
           updated = true;
         }
-      }
+      
 
       if (updated) {
         graphqlPubsub.publish(`chatUnreadCountChanged:${user._id}`, {
@@ -312,7 +310,7 @@ const chatQueries = {
     return chat._id;
   },
 
-  getUnreadChatCount: async (_root, {}, { models, user }) => {
+  getUnreadChatCount: async (_root, _, { models, user }) => {
     const chats = await models.Chats.find({
       participantIds: { $in: user._id },
     });
