@@ -2,14 +2,11 @@ import * as compose from 'lodash.flowright';
 
 import {
   AckRequestMutationResponse,
-  ConfirmRequestMutationResponse,
-  RequestAccessMutationResponse
 } from '../../types';
 import { mutations, queries } from '../../graphql';
 
 import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
-import RequestAccessForm from '../../components/file/RequestAccessForm';
 import RequestedFileList from '../../components/file/RequestedFilesList';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
