@@ -1,10 +1,8 @@
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { gql, useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import Alert from '@erxes/ui/src/utils/Alert';
-import { gql } from '@apollo/client';
 import React from 'react';
-import { useQuery, useLazyQuery, useMutation } from '@apollo/client';
 
+import Spinner from '@erxes/ui/src/components/Spinner';
 import TransactionForm from '../components/Form';
 import { mutations, queries } from '../graphql';
 import { IKhanbankTransactionInput } from '../types';
@@ -18,16 +16,18 @@ type Props = {
 const TransactionFormContainer = (props: Props) => {
   const { configId } = props;
 
-  const { data } = useQuery(gql(queries.accountsQuery), {
+  const { data, loading } = useQuery(gql(queries.accountsQuery), {
     fetchPolicy: 'network-only',
-    variables: { perPage: 9999, configId }
+    variables: { perPage: 9999, configId },
   });
 
-  const [transferMutation] = useMutation(gql(mutations.transferMutation), {
-    refetchQueries: getRefetchQueries()
-  });
+  const [transferMutation] = useMutation(gql(mutations.transferMutation));
 
   const [getHolderInfo, qryRes] = useLazyQuery(gql(queries.accountHolderQuery));
+
+  if (loading) {
+    return <Spinner objective />;
+  }
 
   const getAccountHolder = (accountNumber: string, bankCode?: string) => {
     getHolderInfo({ variables: { accountNumber, configId, bankCode } });
@@ -37,14 +37,14 @@ const TransactionFormContainer = (props: Props) => {
     transferMutation({
       variables: {
         transfer,
-        configId
+        configId,
       },
     })
       .then(() => {
         props.closeModal();
         window.location.reload();
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -53,7 +53,7 @@ const TransactionFormContainer = (props: Props) => {
     number: null,
     custLastName: '',
     custFirstName: '',
-    currency: ''
+    currency: '',
   };
 
   if (qryRes.error) {
@@ -62,21 +62,14 @@ const TransactionFormContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    accounts: (data && data.khanbankAccounts) || [],
+    accounts: data?.khanbankAccounts || [],
     accountHolder,
+    accountLoading: qryRes.loading,
     getAccountHolder,
-    submit
+    submit,
   };
 
   return <TransactionForm {...updatedProps} />;
-};
-
-const getRefetchQueries = () => {
-  return [
-    {
-      query: gql(queries.transactionsQuery)
-    }
-  ];
 };
 
 export default TransactionFormContainer;
