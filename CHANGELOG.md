@@ -1,6 +1,11 @@
 # Changelog
 
 ## [2.9.0-rc.0](https://github.com/erxes/erxes/compare/2.8.0...2.9.0-rc.0) (2025-03-16)
+## [2.8.1](https://github.com/erxes/erxes/compare/2.8.0...2.8.1) (2025-03-16)
+
+### Reverts
+
+* release.yaml ([276288e](https://github.com/erxes/erxes/commit/276288e94d5c7d7f156b329ef59da96f5ae4247d))
 
 ## [2.8.0](https://github.com/erxes/erxes/compare/2.8.0-rc.0...2.8.0) (2025-03-16)
 
