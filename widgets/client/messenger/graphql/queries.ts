@@ -75,10 +75,33 @@ const GET_CLOUDFLARE_CALL_INTEGRATION = gql`
   }
 `
 
+const TICKET_CHECK_PROGRESS = gql`
+  query TicketCheckProgress($number: String!) {
+    ticketCheckProgress(number: $number) {
+      _id
+      name
+      number
+      status
+      stage {
+        name
+        _id
+      }
+    }
+  }
+`
+
+const TICKET_CHECK_PROGRESS_FORGET = gql`
+  query ticketCheckProgressForget($email: String, $phoneNumber: String) {
+    ticketCheckProgressForget(email: $email, phoneNumber: $phoneNumber)
+  }
+`
+
 export {
   GET_UNREAD_COUNT,
   GET_CONVERSATION_DETAIL,
   GET_WIDGET_EXPORT_MESSENGER_DATA,
   GET_FAQ_TOPIC,
-  GET_CLOUDFLARE_CALL_INTEGRATION
+  GET_CLOUDFLARE_CALL_INTEGRATION,
+  TICKET_CHECK_PROGRESS,
+  TICKET_CHECK_PROGRESS_FORGET
 };

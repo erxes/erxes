@@ -6,9 +6,13 @@ import { __ } from "../../../utils";
 
 type Props = {
   handleButtonClick: () => void;
+  setNumber: (number: string) => void;
 };
 
-const TicketCheckProgress: React.FC<Props> = ({ handleButtonClick }) => {
+const TicketCheckProgress: React.FC<Props> = ({
+  handleButtonClick,
+  setNumber,
+}) => {
   const renderForm = () => {
     return (
       <form id="ticket-form">
@@ -18,6 +22,7 @@ const TicketCheckProgress: React.FC<Props> = ({ handleButtonClick }) => {
               id="ticket-number"
               label="Enter ticket number"
               placeholder="Ticket number"
+              onChange={(e) => setNumber(e.target.value)}
             />
           </div>
           <Button
