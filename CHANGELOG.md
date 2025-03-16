@@ -1,5 +1,7 @@
 # Changelog
 
+## [2.9.0-rc.0](https://github.com/erxes/erxes/compare/2.8.0...2.9.0-rc.0) (2025-03-16)
+
 ## [2.8.0](https://github.com/erxes/erxes/compare/2.8.0-rc.0...2.8.0) (2025-03-16)
 
 ### Features
