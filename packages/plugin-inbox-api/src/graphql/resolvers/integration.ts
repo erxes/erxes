@@ -208,7 +208,7 @@ export default {
         });
 
         const isReceiveWebCall =
-          integrationDetails.status === 'true' ? true : false;
+          integrationDetails.status === 'active' ? true : false;
 
         return (
           {

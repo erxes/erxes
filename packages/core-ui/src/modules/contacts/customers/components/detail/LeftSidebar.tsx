@@ -1,7 +1,7 @@
 import {
   DevicePropertiesSection,
   TaggerSection,
-  TrackedDataSection
+  TrackedDataSection,
 } from "../common";
 
 import BasicInfoSection from "../common/BasicInfoSection";
@@ -12,7 +12,6 @@ import { IFieldsVisibility } from "@erxes/ui-contacts/src/customers/types";
 import React from "react";
 import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 import WebsiteActivity from "@erxes/ui-contacts/src/customers/components/common/WebsiteActivity";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   customer: ICustomer;
@@ -33,7 +32,7 @@ export default class LeftSidebar extends React.Component<Props> {
       fields,
       wide,
       taggerRefetchQueries,
-      deviceFieldsVisibility
+      deviceFieldsVisibility,
     } = this.props;
     return (
       <Sidebar wide={wide}>

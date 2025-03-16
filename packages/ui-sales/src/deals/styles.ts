@@ -299,6 +299,57 @@ const VoucherCard = styled.div`
   }
 `;
 
+const LeftSide = styled.div`
+  flex: 1;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  width: 80%;
+  overflow: auto;
+  height: calc(100% - 70px);
+`;
+
+const RightSide = styled.div`
+  width: 80px;
+  border-left: 1px solid ${colors.borderPrimary};
+`;
+
+const EditFormContent = styled.div`
+  display: flex;
+  height: 100%;
+`;
+
+const FullContainer = styled.div`
+  display: flex;
+  height: 100%;
+`;
+
+const FullLeftSide = styled.div`
+  width: 70%;
+  flex: 1;
+  border-right: 1px solid ${colors.borderPrimary};
+`;
+
+const FullRightSide = styled.div`
+  width: 30%;
+  padding: ${dimensions.coreSpacing}px;
+  overflow: auto;
+  height: calc(100% - 70px);
+`;
+
+const HeaderContainer = styled.div`
+  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
+`;
+
+const LeftBody = styled.div`
+  height: 100%;
+`;
+
+const LeftBodyContent = styled.div`
+  background: ${colors.bgLight};
+  height: calc(100% - 180px);
+  overflow: auto;
+  padding: ${dimensions.coreSpacing}px;
+`;
+
 export {
   ProductName,
   FormContainer,
@@ -309,6 +360,7 @@ export {
   ItemText,
   Amount,
   ProductItemContainer,
+  HeaderContainer,
   ContentRowTitle,
   ItemRow,
   ContentColumn,
@@ -321,5 +373,13 @@ export {
   VoucherCard,
   RemoveRow,
   VoucherContainer,
-  FlexRowGap
+  FlexRowGap,
+  LeftSide,
+  RightSide,
+  EditFormContent,
+  FullContainer,
+  FullLeftSide,
+  FullRightSide,
+  LeftBody,
+  LeftBodyContent
 };

@@ -13,14 +13,14 @@ import SelectDepartment from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
-import { TR_CUSTOMER_TYPES, TR_SIDES } from '../../constants';
-import SelectAccount from '../../settings/accounts/containers/SelectAccount';
-import { IAccount } from '../../settings/accounts/types';
-import { IConfigsMap } from '../../settings/configs/types';
-import { ITransaction } from '../types';
-import CurrencyFields from './helpers/CurrencyFields';
-import TaxFields from './helpers/TaxFields';
-import { getTrSide } from '../utils/utils';
+import { TR_CUSTOMER_TYPES, TR_SIDES } from '../../../constants';
+import SelectAccount from '../../../settings/accounts/containers/SelectAccount';
+import { IAccount } from '../../../settings/accounts/types';
+import { IConfigsMap } from '../../../settings/configs/types';
+import { ITransaction } from '../../types';
+import CurrencyFields from '../helpers/CurrencyFields';
+import TaxFields from '../helpers/TaxFields';
+import { getTrSide } from '../../utils/utils';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -31,7 +31,7 @@ type Props = {
   setTrDoc: (trDoc: ITransaction, fTrDocs?: ITransaction[]) => void;
 };
 
-const TrFormCash = (props: Props) => {
+const TrFormReceivable = (props: Props) => {
   const { trDoc, setTrDoc, followTrDocs } = props;
   const detail = trDoc?.details && trDoc?.details[0] || {};
 
@@ -107,7 +107,7 @@ const TrFormCash = (props: Props) => {
               initialValue={detail.accountId || ''}
               label='Account'
               name='accountId'
-              filterParams={{ journals: ['cash'] }}
+              filterParams={{ journals: ['debt'], kind: 'active' }}
               onSelect={(accountId, obj) => { onAccountChange(accountId, obj) }}
             />
           </FormGroup>
@@ -119,7 +119,7 @@ const TrFormCash = (props: Props) => {
               componentclass='select'
               name="side"
               value={detail.side || TR_SIDES.DEBIT}
-              options={TR_SIDES.FUND_OPTIONS}
+              options={TR_SIDES.RECEIVABLE_OPTIONS}
               onChange={e => onChangeDetail('side', (e.target as any).value)}
             />
           </FormGroup>
@@ -212,7 +212,6 @@ const TrFormCash = (props: Props) => {
       </FormWrapper>
       <TaxFields
         {...props}
-        onChangeDetail={onChangeDetail}
         side={getTrSide(detail.side, true)}
         isWithTax={true}
       />
@@ -220,4 +219,4 @@ const TrFormCash = (props: Props) => {
   );
 };
 
-export default TrFormCash;
+export default TrFormReceivable;
