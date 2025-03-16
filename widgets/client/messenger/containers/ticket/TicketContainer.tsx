@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import Ticket from "../../components/ticket/Ticket";
+import TicketCheckProgressContainer from "./TicketCheckProgress";
 import { useRouter } from "../../context/Router";
 
 type Props = {
@@ -17,7 +18,7 @@ const TicketContainer = (props: Props) => {
   };
 
   const onButtonClick = () => {
-    !isCheck && setRoute(activeRoute);
+    activeRoute === "check" ? setIsCheck(true) : setRoute(activeRoute);
   };
 
   const renderCheckForm = () => {
@@ -26,7 +27,7 @@ const TicketContainer = (props: Props) => {
         <div className="line-wrapper">
           <div className="line" />
         </div>
-        hi
+        <TicketCheckProgressContainer />
       </div>
     );
   };
@@ -40,7 +41,10 @@ const TicketContainer = (props: Props) => {
         setIsCheck={setIsCheck}
         handleButtonClick={onButtonClick}
       />
-      <div className="ticket-overlay"></div>
+      <div
+        className="ticket-overlay"
+        onClick={() => setIsCheck(!isCheck)}
+      ></div>
       {renderCheckForm()}
     </div>
   );

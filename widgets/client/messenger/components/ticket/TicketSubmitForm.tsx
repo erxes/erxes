@@ -11,13 +11,17 @@ type Props = {
   loading: boolean;
   isSubmitted: boolean;
   handleSubmit: () => void;
+  handleChange: (e: any) => void;
   handleButtonClick: () => void;
+  handleFiles: (files: any) => void;
 };
 
 const TicketSubmitForm: React.FC<Props> = ({
   handleSubmit,
   isSubmitted,
   loading,
+  handleChange,
+  handleFiles,
   handleButtonClick,
 }) => {
   const submitText = __("Submit");
@@ -40,21 +44,50 @@ const TicketSubmitForm: React.FC<Props> = ({
       <form id="ticket-form" onSubmit={handleSubmit}>
         <div className="form-container">
           <div className="ticket-form-item">
-            <Input id="name" label="Name" placeholder="First name" />
-            <Input placeholder="Last name" />
+            <Input
+              id="firstName"
+              label="Name"
+              onChange={handleChange}
+              placeholder="First name"
+            />
+            <Input
+              id="lastName"
+              placeholder="Last name"
+              onChange={handleChange}
+            />
           </div>
           <div className="ticket-form-item">
-            <Input id="department" label="Department" />
+            <Input
+              id="phone"
+              label="Phone number, Email"
+              placeholder="Phone number"
+              onChange={handleChange}
+            />
+            <Input id="email" placeholder="Email" onChange={handleChange} />
           </div>
           <div className="ticket-form-item">
-            <Input id="computer_id" label="Computer ID" />
+            <div className="input-container">
+              <label htmlFor="type">{__("Ticket type")}</label>
+              <select id="ticketType" value="request" onChange={handleChange}>
+                <option value="">Choose type...</option>
+                <option value="reuqest">Request</option>
+                <option value="complaint">Complaint</option>
+              </select>
+            </div>
           </div>
-          <FileUploader />
+          <div className="input-container">
+            <label htmlFor="type">{__("Attachments")}</label>
+            <FileUploader handleFiles={handleFiles} />
+          </div>
+          <div className="ticket-form-item">
+            <Input id="title" label="Ticket title" onChange={handleChange} />
+          </div>
           <div className="ticket-form-item">
             <Input
               textArea
-              id="problem_description"
+              id="description"
               label="Describe the problem"
+              onChange={handleChange}
             />
           </div>
         </div>

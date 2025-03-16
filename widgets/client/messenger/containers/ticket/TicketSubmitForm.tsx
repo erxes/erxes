@@ -1,6 +1,9 @@
 import * as React from "react";
 
+import { TICKET_ADD } from "../../graphql/mutations";
 import TicketSubmitForm from "../../components/ticket/TicketSubmitForm";
+import { getTicketData } from "../../utils/util";
+import { useMutation } from "@apollo/client";
 import { useRouter } from "../../context/Router";
 
 type Props = {
@@ -9,10 +12,56 @@ type Props = {
 
 const TicketSubmitContainer = (props: Props) => {
   const { setRoute } = useRouter();
+  const [files, setFiles] = React.useState<
+    {
+      path: string | null | undefined;
+      preview: string;
+    }[]
+  >([]);
+  const ticketData = getTicketData();
   const [isSubmitted, setIsSubmitted] = React.useState(false);
+  const [formData, setFormData] = React.useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+    ticketType: "",
+    title: "",
+    description: "",
+  });
+
+  const [ticketAdd, { loading }] = useMutation(TICKET_ADD, {
+    onCompleted() {
+      return setIsSubmitted(true);
+    },
+    onError(error) {
+      return console.log(error.message);
+    },
+  });
+
+  const handleChange = (e: any) => {
+    const { id, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
 
   const onSubmit = () => {
-    setIsSubmitted(true);
+    const transformedFiles = files.map((file) => ({
+      url: file.path, // Saving "path" as "url"
+      name: file.preview, // Saving "preview" as "name"
+    }));
+
+    ticketAdd({
+      variables: {
+        name: formData.title,
+        attachments: transformedFiles,
+        stageId: ticketData.ticketStageId,
+        ...formData,
+      },
+    });
   };
 
   const onButtonClick = () => {
@@ -22,9 +71,11 @@ const TicketSubmitContainer = (props: Props) => {
   return (
     <TicketSubmitForm
       isSubmitted={isSubmitted}
-      loading={props.loading}
+      loading={loading}
       handleSubmit={onSubmit}
+      handleChange={handleChange}
       handleButtonClick={onButtonClick}
+      handleFiles={setFiles}
     />
   );
 };

@@ -23,11 +23,6 @@ const Ticket: React.FC<Props> = ({
 }) => {
   const continueText = __("Continue");
 
-  const onCheck = () => {
-    handleSubmit("check");
-    setIsCheck(true);
-  };
-
   const renderSubmitForm = () => {
     return (
       <div className="type-choose-container">
@@ -40,7 +35,7 @@ const Ticket: React.FC<Props> = ({
         </div>
         <div
           className={`${activeRoute === "check" ? "active" : ""} ticket-box`}
-          onClick={() => onCheck()}
+          onClick={() => handleSubmit("check")}
         >
           <IconCheckTicket size="30px" />
           <span>Check ticket progress</span>
