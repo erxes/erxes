@@ -57,6 +57,7 @@ export interface IItemCommonFields {
   branchIds?: string[];
   departmentIds?: string[];
   parentId?: string;
+  type?:string;
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -186,6 +187,7 @@ const relationSchema = new Schema(
 export const commonItemFieldsSchema = {
   _id: field({ pkey: true }),
   parentId: field({ type: String, optional: true, label: "Parent Id" }),
+  type: field({ type: String, optional: true, label: "type" }),
   userId: field({ type: String, optional: true, esType: "keyword" }),
   createdAt: field({ type: Date, label: "Created at", esType: "date" }),
   order: field({ type: Number, index: true }),
