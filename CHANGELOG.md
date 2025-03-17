@@ -1,5 +1,53 @@
 # Changelog
 
+## [2.9.0-rc.0](https://github.com/erxes/erxes/compare/2.8.0...2.9.0-rc.0) (2025-03-16)
+## [2.8.1](https://github.com/erxes/erxes/compare/2.8.0...2.8.1) (2025-03-16)
+
+### Reverts
+
+* release.yaml ([276288e](https://github.com/erxes/erxes/commit/276288e94d5c7d7f156b329ef59da96f5ae4247d))
+
+## [2.8.0](https://github.com/erxes/erxes/compare/2.8.0-rc.0...2.8.0) (2025-03-16)
+
+### Features
+
+* **cloudflare call:** Add cloudflare call in widget and web call ([b052383](https://github.com/erxes/erxes/commit/b0523830458e593c229c9f0f5098626932a1dc0b))
+* Unit_Price remove from sendSalesLine on msm ([8105816](https://github.com/erxes/erxes/commit/81058160f7b4e11e0888b5a6155d8a42b4a72505))
+
+### Bug Fixes
+
+* can't filter by segment customers & can't display custom property group name in segment property list ([f597c94](https://github.com/erxes/erxes/commit/f597c9449f28eda58cfc7c68410933331fdaab40))
+* core utils add getFullDate and return getPureDate is clean timeZone ([bac9df3](https://github.com/erxes/erxes/commit/bac9df3a80206b745dd2a5d8754317c849f4aca1))
+* pos cover end date ([5edd6ce](https://github.com/erxes/erxes/commit/5edd6cebaa4f1c3dae4898efecfa5f2c18ca292a))
+
+### Reverts
+
+* lost code from commit id: b052383 ([9e9170b](https://github.com/erxes/erxes/commit/9e9170b4fbbc20010f66026c78dfedf954ef178c))
+## [2.8.0-rc.0](https://github.com/erxes/erxes/compare/2.8.0-rc.0...2.8.0) (2025-03-05)
+
+### Features
+
+* **cloudflare call:** Add cloudflare call in widget and web call ([#5960](https://github.com/erxes/erxes/issues/5960)) ([19cbfbf](https://github.com/erxes/erxes/commit/19cbfbf7967527f7997a0dff04c9aa7a527a7f10))
+
+### Bug Fixes
+
+* **inbox:** minor query adjustment for getStarted condition ([#5938](https://github.com/erxes/erxes/issues/5938)) ([3a2cd16](https://github.com/erxes/erxes/commit/3a2cd161579e738ec4f798bbbf5cca281d7a7237))
+
+### Reverts
+
+* release.yaml to rc ([d7e04db](https://github.com/erxes/erxes/commit/d7e04db7f495c5e085a5fcb956b60b2da6832236))
+## [2.7.1](https://github.com/erxes/erxes/compare/2.8.0-rc.0...2.8.0) (2025-03-10)
+
+### Features
+
+* core login mutation improve for activedirector ([171ba02](https://github.com/erxes/erxes/commit/171ba026d0b525f252aec8133509569f47564a42))
+* **khanbank:** implement IBAN ([#5963](https://github.com/erxes/erxes/issues/5963)) ([afa5cc7](https://github.com/erxes/erxes/commit/afa5cc73ccf572805bc78e9c28119062796339a6))
+
+### Bug Fixes
+
+* **calls:** date format ([82c5c8a](https://github.com/erxes/erxes/commit/82c5c8a6043acf35c695fc18e50f4d8efe9a7838))
+* msdynamic with discount soap ([6cfb71c](https://github.com/erxes/erxes/commit/6cfb71c20dacd5eb0a7b283387e068bc2aca9512))
+
 ## [2.8.0-rc.0](https://github.com/erxes/erxes/compare/2.7.0...2.8.0-rc.0) (2025-03-05)
 
 ### Features
