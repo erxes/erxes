@@ -13,11 +13,17 @@ import {
   IProgramCategoryDocument,
   IProgramDocument,
 } from "./models/definitions/programs";
+import { IAttendancesModel, loadAttendancesClass } from "./models/Attendances";
+import { IAttendancesDocument } from "./models/definitions/attendances";
+import { IClassesModel, loadClassesClass } from "./models/Classes";
+import { IClassesDocument } from "./models/definitions/classes";
 
 export interface IModels {
   Programs: IProgramModel;
   ProgramCategories: IProgramCategoryModel;
   Comments: ICommentModel;
+  Attendances: IAttendancesModel;
+  Classes: IClassesModel;
 }
 
 export interface IContext extends IMainContext {
@@ -25,10 +31,7 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export const loadClasses = (
-  db: mongoose.Connection,
-  subdomain: string
-): IModels => {
+export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
 
   models.Programs = db.model<IProgramDocument, IProgramModel>(
@@ -44,6 +47,16 @@ export const loadClasses = (
   models.Comments = db.model<ICommentDocument, ICommentModel>(
     "programs_comments",
     loadCommentClass(models)
+  );
+
+  models.Attendances = db.model<IAttendancesDocument, IAttendancesModel>(
+    "programs_attendances",
+    loadAttendancesClass(models)
+  );
+
+  models.Classes = db.model<IClassesDocument, IClassesModel>(
+    "programs_classes",
+    loadClassesClass(models)
   );
 
   return models;

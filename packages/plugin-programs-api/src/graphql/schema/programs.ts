@@ -6,6 +6,9 @@ import {
 export const types = () => `
   ${attachmentType}
   ${attachmentInput}
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
   type Program {
     _id: String!
     name: String
@@ -15,7 +18,6 @@ export const types = () => `
     description: String
     createdAt: Date
     type: String
-    duration: String,
     attachment: Attachment
     status: String
     startDate: Date,
@@ -23,6 +25,8 @@ export const types = () => `
     deadline: Date,
     unitPrice: Float,
     commentCount: Int
+    primaryTeacher: User
+    teachers : [User]
   }
 
   type ProgramListResponse {

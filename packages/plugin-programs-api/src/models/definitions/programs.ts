@@ -99,7 +99,7 @@ export const programSchema = new Schema({
   status: field({
     type: String,
     enum: PROGRAM_STATUSES.ALL,
-    default: PROGRAM_STATUSES.ACTIVE,
+    default: PROGRAM_STATUSES.DRAFT,
     optional: true,
     label: "Status",
   }),

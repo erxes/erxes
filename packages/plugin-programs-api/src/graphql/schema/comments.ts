@@ -1,7 +1,4 @@
 export const types = () => `
-  extend type User @key(fields: "_id") {
-    _id: String! @external
-  }
   type Comment {
     _id: String
     contentId: String

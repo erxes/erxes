@@ -11,3 +11,10 @@ export const PROGRAM_TYPES = {
   TRAINING: "training",
   ALL: ["activity", "mentor", "training"],
 };
+
+export const ATTENDANCE_TYPES = {
+  PRESENT: "present",
+  ABSENT: "absent",
+  LATE: "late",
+  ALL: ["present", "absent", "late"],
+};
