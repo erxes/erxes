@@ -116,6 +116,7 @@ export const queries = `
 
 const ticketMutationParams = `
   source: String,
+  type: String,
 `;
 
 export const mutations = `
