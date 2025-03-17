@@ -34,8 +34,16 @@ module.exports = {
         description: 'Merge accounts'
       },
       {
+        name: 'showVatRows',
+        description: 'show Vat Rows'
+      },
+      {
         name: 'manageVatRows',
         description: 'manage Vat Rows'
+      },
+      {
+        name: 'showCtaxRows',
+        description: 'show CTAX Rows'
       },
       {
         name: 'manageCtaxRows',
