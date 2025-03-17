@@ -7,8 +7,12 @@ import {
   IIntegration,
   IIntegrationDocument,
   IMessengerData,
+  ITicketData,
+  IUiOptions
+} from "../../models/definitions/integrations";
   IUiOptions,
 } from '../../models/definitions/integrations';
+
 
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
@@ -296,6 +300,16 @@ const integrationMutations = {
   ) {
     return models.Integrations.saveMessengerAppearanceData(_id, uiOptions);
   },
+  async integrationsSaveMessengerTicketData(
+    _root,
+    { _id, ticketData }: { _id: string; ticketData: ITicketData },
+    { models }: IContext
+  ) {
+    return models.Integrations.integrationsSaveMessengerTicketData(
+      _id,
+      ticketData
+    );
+  },
 
   /**
    * Update/save messenger data
@@ -304,6 +318,12 @@ const integrationMutations = {
     _root,
     {
       _id,
+      messengerData
+    }: {
+      _id: string;
+      messengerData: IMessengerData;
+    },
+    { models }: IContext
       messengerData,
       callData,
     }: { _id: string; messengerData: IMessengerData; callData: any },
