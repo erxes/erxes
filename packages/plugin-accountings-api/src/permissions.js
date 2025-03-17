@@ -11,8 +11,10 @@ module.exports = {
           'manageAccounts',
           'accountsMerge',
           'removeAccounts',
+          'showVatRows',
           'manageVatRows',
-          'manageCtaxRows'
+          'showCtaxRows',
+          'manageCtaxRows',
         ]
       },
       {
