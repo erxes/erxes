@@ -30,6 +30,48 @@ export const types = `
     attachment: JSON
   }
 
+  type PosPutResponse {
+    _id: String
+    createdAt: Date
+    modifiedAt: Date
+
+    id: String
+    posId: Float
+    status: String
+    message: String
+    qrData: String
+    lottery: String
+    date: String
+    number: String
+
+    contentType: String
+    contentId: String
+    posToken: String
+
+    totalAmount: Float
+    totalVAT: Float
+    totalCityTax: Float
+    districtCode: String
+    branchNo: String
+    merchantTin: String
+    posNo: String
+    customerTin: String
+    customerName: String
+    consumerNo: String
+    type: String
+    inactiveId: String
+    invoiceId: String
+    reportMonth: String
+    data: JSON
+    receipts: JSON
+    payments: JSON
+
+    easy: Boolean
+
+    sendInfo: JSON
+    state: String
+  }
+
   type PosCustomer {
     _id: String!
     code: String
