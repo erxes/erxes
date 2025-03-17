@@ -3179,11 +3179,26 @@ select.form-control:focus,
   font-weight: 400;
 }
 .ticket-container .success-wrapper .message p {
-  margin: 0;
-  margin-top: 0.75rem;
-  color: #333;
+  margin: 20px;
+  color: #aaa;
   text-align: center;
-  font-size: 0.875rem;
+}
+.ticket-container .success-wrapper .message p b {
+  display: block;
+  font-size: 20px;
+  color: #4f33af;
+  margin-top: 5px;
+}
+.ticket-container .success-wrapper .message .copy {
+  background: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  border: 1px solid #27272d;
+  cursor: pointer;
+  transition: all ease 0.3s;
+}
+.ticket-container .success-wrapper .message .copy:hover {
+  background-color: #eee;
 }
 .ticket-container form {
   flex: 1;
@@ -3280,6 +3295,9 @@ select.form-control:focus,
   input {
     flex: 1;
   }
+}
+.input-container .required {
+  color: red;
 }
 .font-semibold {
   font-weight: 600;

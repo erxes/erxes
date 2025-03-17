@@ -1,6 +1,7 @@
 import * as React from "react";
 
-import { TICKET_ADD } from "../../graphql/mutations";
+import { CUSTOMER_ADD, TICKET_ADD } from "../../graphql/mutations";
+
 import TicketSubmitForm from "../../components/ticket/TicketSubmitForm";
 import { getTicketData } from "../../utils/util";
 import { useMutation } from "@apollo/client";
@@ -20,6 +21,7 @@ const TicketSubmitContainer = (props: Props) => {
   >([]);
   const ticketData = getTicketData();
   const [isSubmitted, setIsSubmitted] = React.useState(false);
+  const [ticketNumber, setTicketNumber] = React.useState("");
   const [formData, setFormData] = React.useState({
     firstName: "",
     lastName: "",
@@ -31,13 +33,49 @@ const TicketSubmitContainer = (props: Props) => {
   });
 
   const [ticketAdd, { loading }] = useMutation(TICKET_ADD, {
-    onCompleted() {
-      return setIsSubmitted(true);
+    onCompleted(data) {
+      const { ticketsAdd } = data || {};
+
+      return (
+        <>
+          {setTicketNumber(ticketsAdd.number || "")}
+          {setIsSubmitted(true)}
+        </>
+      );
     },
     onError(error) {
-      return console.log(error.message);
+      return alert(error.message);
     },
   });
+
+  const [customerAdd, { loading: customerAddLoading }] = useMutation(
+    CUSTOMER_ADD,
+    {
+      fetchPolicy: "no-cache",
+      onCompleted(data) {
+        const { customersAdd } = data || {};
+        const customerId = customersAdd._id || "";
+
+        const transformedFiles = files.map((file) => ({
+          url: file.path, // Saving "path" as "url"
+          name: file.preview, // Saving "preview" as "name"
+        }));
+
+        return ticketAdd({
+          variables: {
+            name: formData.title,
+            description: formData.description,
+            attachments: transformedFiles,
+            stageId: ticketData.ticketStageId,
+            customerIds: [customerId],
+          },
+        });
+      },
+      onError(error) {
+        return alert(error.message);
+      },
+    }
+  );
 
   const handleChange = (e: any) => {
     const { id, value } = e.target;
@@ -48,18 +86,15 @@ const TicketSubmitContainer = (props: Props) => {
     }));
   };
 
-  const onSubmit = () => {
-    const transformedFiles = files.map((file) => ({
-      url: file.path, // Saving "path" as "url"
-      name: file.preview, // Saving "preview" as "name"
-    }));
+  const onSubmit = (e: any) => {
+    e.preventDefault();
 
-    ticketAdd({
+    return customerAdd({
       variables: {
-        name: formData.title,
-        attachments: transformedFiles,
-        stageId: ticketData.ticketStageId,
-        ...formData,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        primaryEmail: formData.email,
+        primaryPhone: formData.phone,
       },
     });
   };
@@ -72,10 +107,12 @@ const TicketSubmitContainer = (props: Props) => {
     <TicketSubmitForm
       isSubmitted={isSubmitted}
       loading={loading}
+      ticketNumber={ticketNumber}
       handleSubmit={onSubmit}
       handleChange={handleChange}
       handleButtonClick={onButtonClick}
       handleFiles={setFiles}
+      customerAddLoading={customerAddLoading}
     />
   );
 };

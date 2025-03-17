@@ -2,6 +2,7 @@ import * as React from "react";
 
 import Button from "../common/Button";
 import Container from "../common/Container";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 import FileUploader from "../common/FileUploader";
 import { IconCheckInCircle } from "../../../icons/Icons";
 import Input from "../common/Input";
@@ -10,7 +11,9 @@ import { __ } from "../../../utils";
 type Props = {
   loading: boolean;
   isSubmitted: boolean;
-  handleSubmit: () => void;
+  ticketNumber: string;
+  customerAddLoading: boolean;
+  handleSubmit: (e: any) => void;
   handleChange: (e: any) => void;
   handleButtonClick: () => void;
   handleFiles: (files: any) => void;
@@ -20,6 +23,8 @@ const TicketSubmitForm: React.FC<Props> = ({
   handleSubmit,
   isSubmitted,
   loading,
+  ticketNumber,
+  customerAddLoading,
   handleChange,
   handleFiles,
   handleButtonClick,
@@ -27,13 +32,34 @@ const TicketSubmitForm: React.FC<Props> = ({
   const submitText = __("Submit");
   const continueText = __("Continue");
 
+  const [copied, setCopied] = React.useState(false);
+
+  const onCopy = (number: string) => {
+    if (number) {
+      return setCopied(true);
+    }
+  };
+
   const renderSubmitted = () => {
     return (
       <div className="success-wrapper">
         <div className="message">
           <IconCheckInCircle />
-          <h3>{__("Your message has been sent")}</h3>
-          <p>{__("Thank you for sharing your thoughts")}</p>
+          <h3>{__("Your ticket has been submitted")}</h3>
+          {ticketNumber && (
+            <p>
+              {__("Your ticket number is:")}
+              <b>{ticketNumber}</b>
+            </p>
+          )}
+          <CopyToClipboard
+            text={ticketNumber}
+            onCopy={() => onCopy(ticketNumber)}
+          >
+            <button className="copy">
+              {copied ? "Copied" : "Copy or save your ticket number"}
+            </button>
+          </CopyToClipboard>
         </div>
       </div>
     );
@@ -49,11 +75,13 @@ const TicketSubmitForm: React.FC<Props> = ({
               label="Name"
               onChange={handleChange}
               placeholder="First name"
+              required={true}
             />
             <Input
               id="lastName"
               placeholder="Last name"
               onChange={handleChange}
+              required={true}
             />
           </div>
           <div className="ticket-form-item">
@@ -62,8 +90,16 @@ const TicketSubmitForm: React.FC<Props> = ({
               label="Phone number, Email"
               placeholder="Phone number"
               onChange={handleChange}
+              type="number"
+              required={true}
             />
-            <Input id="email" placeholder="Email" onChange={handleChange} />
+            <Input
+              id="email"
+              placeholder="Email"
+              type="email"
+              required={true}
+              onChange={handleChange}
+            />
           </div>
           <div className="ticket-form-item">
             <div className="input-container">
@@ -103,7 +139,11 @@ const TicketSubmitForm: React.FC<Props> = ({
       persistentFooter={
         !isSubmitted ? (
           <Button form="ticket-form" type="submit" full>
-            <span className="font-semibold">{submitText}</span>
+            {customerAddLoading ? (
+              <div className="loader" />
+            ) : (
+              <span className="font-semibold">{submitText}</span>
+            )}
           </Button>
         ) : (
           <Button full onClick={handleButtonClick}>

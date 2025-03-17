@@ -134,10 +134,21 @@ const CLOUDFLARE_LEAVE_CALL = gql`
 `
 
 const TICKET_ADD = gql`
-  mutation TicketsAdd($name: String!, $description: String, $attachments: [AttachmentInput], $stageId: String) {
-    ticketsAdd(name: $name, description: $description, attachments: $attachments, stageId: $stageId) {
+  mutation TicketsAdd($name: String!, $description: String, $attachments: [AttachmentInput], $stageId: String, $customerIds: [String]) {
+    ticketsAdd(name: $name, description: $description, attachments: $attachments, stageId: $stageId, customerIds: $customerIds) {
       _id
       name
+      number
+    }
+  }
+`;
+
+const CUSTOMER_ADD = gql`
+  mutation customersAdd($firstName: String, $lastName: String, $primaryEmail: String, $primaryPhone: String) {
+    customersAdd(firstName: $firstName, lastName: $lastName, primaryEmail: $primaryEmail, primaryPhone: $primaryPhone) {
+      _id
+      email
+      createdAt
     }
   }
 `;
@@ -153,5 +164,6 @@ export {
   SAVE_BROWSER_INFO,
   CLOUDFLARE_CALL,
   CLOUDFLARE_LEAVE_CALL,
-  TICKET_ADD
+  TICKET_ADD,
+  CUSTOMER_ADD
 };
