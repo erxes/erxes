@@ -83,7 +83,7 @@ const callsQueries = {
     const appId = getEnv({ name: 'CLOUDFLARE_CALLS_APP_ID' });
     const appSecret = getEnv({ name: 'CLOUDFLARE_CALLS_APP_SECRET' });
 
-    if (version === 'os') {
+    if (version === 'saas') {
       return [
         { code: 'APP_ID', value: appId },
         {
