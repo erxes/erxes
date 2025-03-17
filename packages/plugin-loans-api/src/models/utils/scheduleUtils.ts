@@ -206,7 +206,42 @@ export const scheduleHelper = async (
 
       break;
 
-    case 'fixed':
+    case 'last':
+      const calcedOne = await calcAllMonthLast({
+        currentDate,
+        balance,
+        interestRate,
+        endDate,
+        calculationFixed,
+        unUsedBalance
+      });
+
+      const totalAmount = balance + calcedOne.interest
+
+      bulkEntries = [{
+        createdAt: new Date(),
+        contractId,
+        version: '0',
+        payDate: endDate,
+        interestRate: calcedOne.interestRate,
+        balance: 0,
+        payment: balance,
+
+        interestEve: calcedOne.calcedInterestEve,
+        interestNonce: calcedOne.calcedInterestNonce,
+        total: totalAmount,
+        unUsedBalance: calcedOne.unUsedBalance,
+        commitmentInterest: calcedOne.commitmentInterest,
+        isDefault: true,
+        firstTotal: totalAmount,
+      }];
+      balance = 0;
+      currentDate = endDate;
+
+      break;
+
+    // case 'fixed':
+    default:
       let total = await getEqualPay({
         startDate,
         interestRate: interestRate ?? 0,
@@ -250,50 +285,16 @@ export const scheduleHelper = async (
       }
 
       break;
-
-    case 'last':
-      const calcedOne = await calcAllMonthLast({
-        currentDate,
-        balance,
-        interestRate,
-        endDate,
-        calculationFixed,
-        unUsedBalance
-      });
-
-      const totalAmount = balance + calcedOne.interest
-
-      bulkEntries = [{
-        createdAt: new Date(),
-        contractId,
-        version: '0',
-        payDate: endDate,
-        interestRate: calcedOne.interestRate,
-        balance: 0,
-        payment: balance,
-
-        interestEve: calcedOne.calcedInterestEve,
-        interestNonce: calcedOne.calcedInterestNonce,
-        total: totalAmount,
-        unUsedBalance: calcedOne.unUsedBalance,
-        commitmentInterest: calcedOne.commitmentInterest,
-        isDefault: true,
-        firstTotal: totalAmount,
-      }];
-      balance = 0;
-      currentDate = endDate;
-
-      break
-    default:
-      break
   }
 
-  const tempBalance = balance - (salvageAmount || 0);
   const lastEntry = bulkEntries[bulkEntries.length - 1];
-  lastEntry.total = lastEntry.total + tempBalance;
-  lastEntry.balance = salvageAmount || 0;
-  lastEntry.payment = lastEntry.payment + tempBalance;
-  bulkEntries[bulkEntries.length - 1] = lastEntry;
+  if (lastEntry) {
+    const tempBalance = balance - (salvageAmount || 0);
+    lastEntry.total = lastEntry.total + tempBalance;
+    lastEntry.balance = salvageAmount || 0;
+    lastEntry.payment = lastEntry.payment + tempBalance;
+    bulkEntries[bulkEntries.length - 1] = lastEntry;
+  }
 
   return bulkEntries;
 };

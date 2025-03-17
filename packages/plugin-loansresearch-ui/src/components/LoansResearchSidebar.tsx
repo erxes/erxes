@@ -110,7 +110,10 @@ const LoansResearchSidebar = (props: Props) => {
           <FormColumn>
             {renderFormGroup('Debt Income Ratio', {
               type: 'number',
-              value: loansResearch?.debtIncomeRatio.toFixed(2) || 0,
+              value:
+                loansResearch?.debtIncomeRatio != null
+                  ? loansResearch.debtIncomeRatio.toFixed(2)
+                  : '0.00',
             })}
             {renderFormGroup('Increase Monthly Payment Amount', {
               type: 'number',
@@ -121,7 +124,10 @@ const LoansResearchSidebar = (props: Props) => {
             })}
             {renderFormGroup('After Debt Income Ratio', {
               type: 'number',
-              value: loansResearch?.updatedRatio.toFixed(2) || 0,
+              value:
+                loansResearch?.updatedRatio != null
+                  ? loansResearch.updatedRatio.toFixed(2)
+                  : '0.00',
             })}
           </FormColumn>
         </FormWrapper>
