@@ -41,8 +41,7 @@ export const types = ({ products, knowledgeBase, cloudflareCalls }) => `
     customerId: String
     visitorId: String
     brand: Brand
-    ${cloudflareCalls ? 'callData: CloudflareCallsData' : ''}
-  }
+    ${cloudflareCalls ? 'callData: CloudflareCallsData' : ''}  }
 
   type ConversationDetailResponse {
     _id: String
