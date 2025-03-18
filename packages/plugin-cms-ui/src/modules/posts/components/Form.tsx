@@ -97,7 +97,7 @@ const PostForm = (props: Props) => {
   const breadcrumb = [
     {
       title: __('Post'),
-      link: `/cms/${props.clientPortalId}/posts`,
+      link: `/cms/website/${props.clientPortalId}/posts`,
     },
   ];
 
