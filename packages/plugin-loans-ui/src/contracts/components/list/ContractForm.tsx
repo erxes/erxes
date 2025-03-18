@@ -394,7 +394,7 @@ function ContractForm(props: Props) {
       isGreaterNumber(contract.skipInterestCalcMonth, contract?.tenor)
     )
       errors.skipInterestCalcMonth = errorWrapper(
-        `${__('must less than tenor')} ${Number(contract?.skipInterestCalcMonth ?? '0')}`
+        `${__('must be less than tenor')} ${Number(contract?.tenor ?? '0')}`
       );
 
     if (
@@ -402,7 +402,7 @@ function ContractForm(props: Props) {
       isGreaterNumber(contract.skipAmountCalcMonth, contract?.tenor)
     )
       errors.skipAmountCalcMonth = errorWrapper(
-        `${__('must less than tenor')} ${Number(contract?.skipAmountCalcMonth ?? '0')}`
+        `${__('must be less than tenor')} ${Number(contract?.tenor ?? '0')}`
       );
 
     return errors;
