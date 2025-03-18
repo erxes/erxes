@@ -12,6 +12,7 @@ const TicketContainer = (props: Props) => {
   const { setRoute } = useRouter();
   const [activeRoute, handleActiveRoute] = React.useState("ticket-submit");
   const [isCheck, setIsCheck] = React.useState(false);
+  const [isForget, setIsForget] = React.useState(false);
 
   const onSubmit = (name: string) => {
     handleActiveRoute(name);
@@ -23,11 +24,14 @@ const TicketContainer = (props: Props) => {
 
   const renderCheckForm = () => {
     return (
-      <div className="ticket-check-container">
+      <div className={`ticket-check-container ${isForget ? "forgotten" : ""}`}>
         <div className="line-wrapper">
           <div className="line" />
         </div>
-        <TicketCheckProgressContainer />
+        <TicketCheckProgressContainer
+          isForget={isForget}
+          setIsForget={setIsForget}
+        />
       </div>
     );
   };

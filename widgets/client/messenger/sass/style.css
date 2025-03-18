@@ -3115,6 +3115,13 @@ select.form-control:focus,
   transition: bottom 0.5s ease-in-out;
   border-radius: 12px;
 }
+.ticket-main-container .forget-form .input-container {
+  margin-bottom: 10px;
+}
+.ticket-main-container .ticket-check-container.forgotten {
+  bottom: -350px;
+  height: 350px;
+}
 .ticket-main-container .ticket-check-container .line-wrapper {
   display: flex;
   align-items: center;
@@ -3147,6 +3154,15 @@ select.form-control:focus,
 }
 .ticket-check-content button {
   margin-top: 20px;
+}
+.ticket-check-content .forget {
+  font-size: 14px;
+  cursor: pointer;
+  color: #2196f3;
+  font-weight: 500;
+  margin-top: 10px;
+  display: block;
+  text-align: center;
 }
 .ticket-container {
   width: 100%;
