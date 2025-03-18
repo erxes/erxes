@@ -55,9 +55,7 @@ const List = (props: Props) => {
         size='small'
         icon='plus-circle'
         onClick={() => {
-          navigate(`/cms/posts/new?web=${props.clientPortalId}`, {
-            replace: true,
-          });
+          navigate(`${location.pathname}/new`, { replace: true });
         }}
       >
         Add post

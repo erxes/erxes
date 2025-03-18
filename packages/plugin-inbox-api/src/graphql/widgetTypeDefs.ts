@@ -1,4 +1,4 @@
-export const types = ({ products, knowledgeBase }) => `
+export const types = ({ products, knowledgeBase, cloudflareCalls }) => `
   ${
     products
       ? `
@@ -41,8 +41,7 @@ export const types = ({ products, knowledgeBase }) => `
     customerId: String
     visitorId: String
     brand: Brand
-    callData: CloudflareCallsData
-  }
+    ${cloudflareCalls ? 'callData: CloudflareCallsData' : ''}  }
 
   type ConversationDetailResponse {
     _id: String

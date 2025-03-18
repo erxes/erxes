@@ -1,3 +1,4 @@
+import { getEnv } from '@erxes/api-utils/src/core';
 import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
 
@@ -78,7 +79,20 @@ const callsQueries = {
   },
 
   async cloudflareCallsGetConfigs(_root, _args, { models }: IContext) {
-    return models.Configs.find({}).lean();
+    const version = getEnv({ name: 'VERSION' });
+    const appId = getEnv({ name: 'CLOUDFLARE_CALLS_APP_ID' });
+    const appSecret = getEnv({ name: 'CLOUDFLARE_CALLS_APP_SECRET' });
+
+    if (version === 'saas') {
+      return [
+        { code: 'APP_ID', value: appId },
+        {
+          code: 'APP_SECRET',
+          value: appSecret,
+        },
+      ];
+    }
+    return await models.Configs.find({}).lean();
   },
 };
 

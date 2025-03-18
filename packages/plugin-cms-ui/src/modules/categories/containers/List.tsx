@@ -5,7 +5,7 @@ import React from 'react';
 import { mutations, queries } from '../graphql';
 
 import List from '../components/List';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { WEB_DETAIL } from '../../web/queries';
 
 type Props = {
