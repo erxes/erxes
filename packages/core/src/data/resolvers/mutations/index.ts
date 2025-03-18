@@ -26,6 +26,7 @@ import reports from './report';
 import sections from './section';
 import charts from './chart';
 import exchangeRates from './exchangeRates';
+import bundle from './bundle';
 
 import {
   fieldMutations as fields,
@@ -61,4 +62,5 @@ export default {
   ...sections,
   ...charts,
   ...exchangeRates,
+  ...bundle,
 };

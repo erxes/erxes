@@ -149,8 +149,18 @@ import {
   loadExchangeRateClass,
 } from './db/models/ExchangeRates';
 import { IExchangeRateDocument } from './db/models/definitions/exchangeRate';
-import { IClientModel, loadClientClass } from "./db/models/Client";
-import { IClientDocument } from "./db/models/definitions/client";
+import { IClientModel, loadClientClass } from './db/models/Client';
+import { IClientDocument } from './db/models/definitions/client';
+import {
+  IBundleConditionModel,
+  IBundleRuleModel,
+  loadBundleConditionClass,
+  loadBundleRuleClass,
+} from './db/models/Bundle';
+import {
+  IBundleConditionDocument,
+  IBundleRuleDocument,
+} from './db/models/definitions/bundle';
 
 export interface IModels {
   Users: IUserModel;
@@ -193,6 +203,8 @@ export interface IModels {
   Reports: IReportModel;
   Clients: IClientModel;
   ExchangeRates: IExchangeRateModel;
+  BundleCondition: IBundleConditionModel;
+  BundleRule: IBundleRuleModel;
 }
 
 export interface IContext extends IMainContext {
@@ -373,7 +385,7 @@ export const loadClasses = (
   );
 
   models.Clients = db.model<IClientDocument, IClientModel>(
-    "clients",
+    'clients',
     loadClientClass(models)
   );
 
@@ -381,7 +393,15 @@ export const loadClasses = (
     'exchange_rates',
     loadExchangeRateClass(models, subdomain)
   );
+  models.BundleCondition = db.model<
+    IBundleConditionDocument,
+    IBundleConditionModel
+  >('bundle_conditions', loadBundleConditionClass(models, subdomain));
 
+  models.BundleRule = db.model<IBundleRuleDocument, IBundleRuleModel>(
+    'bundle_rules',
+    loadBundleRuleClass(models, subdomain)
+  );
   return models;
 };
 

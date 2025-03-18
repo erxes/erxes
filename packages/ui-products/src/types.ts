@@ -21,6 +21,34 @@ export interface IUom {
   timely?: string;
 }
 
+export interface IBundleCondition {
+  _id: string;
+  name: string;
+  code: string;
+  description?: string;
+  isDefault?: boolean;
+}
+
+export interface IBundleRuleItem {
+  code: string;
+  quantity: number;
+  productIds: string[];
+  products: IProduct[];
+  priceValue: number;
+  percent: number;
+  priceType: string;
+  priceAdjustType: string;
+  priceAdjustFactor: number;
+  allowSkip: boolean;
+  __typename?: string;
+}
+export interface IBundleRule {
+  _id: string;
+  name: string;
+  code: string;
+  description?: string;
+  rules: IBundleRuleItem[];
+}
 export interface IVariant {
   [code: string]: { name?: string; image?: any };
 }
@@ -128,6 +156,15 @@ export type UomsQueryResponse = {
 } & QueryResponse;
 
 // SETTINGS
+
+// Bundle Conditions
+export type BundleConditionQueryResponse = {
+  bundleConditions: IBundleCondition[];
+} & QueryResponse;
+
+export type BundleRulesQueryResponse = {
+  bundleRules: IBundleRule[];
+} & QueryResponse;
 
 export type IConfigsMap = { [key: string]: any };
 

@@ -79,8 +79,54 @@ const uomsRemove = `
   }
 `;
 
-// Settings
+const bundleConditionAdd = `
+  mutation BundleConditionAdd($name: String!, $description: String, $code: String) {
+  bundleConditionAdd(name: $name, description: $description, code: $code) {
+    name
+    description
+    _id
+    code
+    createdAt
+    userId
+  }
+}
+`;
+const bundleConditionRemove = `
+mutation BundleConditionRemove($id: String!) {
+  bundleConditionRemove(_id: $id)
+}
+`;
+const bundleConditionDefault = `
+mutation BundleConditionDefault($id: String!) {
+  bundleConditionDefault(_id: $id)
+}
+`;
 
+const bundleConditionEdit = `
+mutation BundleConditionEdit($id: String!, $description: String, $code: String, $name: String!) {
+  bundleConditionEdit(_id: $id, description: $description, code: $code, name: $name) {
+    _id
+  }
+}`;
+
+const bundleRuleAdd = `
+mutation BundleRulesAdd($name: String!, $description: String, $code: String, $rules: [BundleRuleItemInput]) {
+  bundleRulesAdd(name: $name, description: $description, code: $code, rules: $rules) {
+    _id
+  }
+}
+`;
+const bundleRuleRemove = `
+mutation BundleRulesRemove($id: String!) {
+  bundleRulesRemove(_id: $id)
+}
+`;
+const bundleRuleEdit = `
+mutation BundleRulesEdit($_id: String!, $description: String, $code: String, $rules: [BundleRuleItemInput], $name: String!) {
+  bundleRulesEdit(_id: $_id, description: $description, code: $code, rules: $rules, name: $name) {
+    _id
+  }
+}`;
 const productsConfigsUpdate = productMutations.productsConfigsUpdate;
 
 export default {
@@ -97,4 +143,12 @@ export default {
   uomsRemove,
 
   productsConfigsUpdate,
+  bundleConditionAdd,
+  bundleConditionRemove,
+  bundleConditionEdit,
+  bundleConditionDefault,
+
+  bundleRuleAdd,
+  bundleRuleRemove,
+  bundleRuleEdit,
 };
