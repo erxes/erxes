@@ -118,25 +118,6 @@ const WebBuilderRedirect = () => {
 const routes = () => (
   <Routes>
     <Route key='/cms' path='/cms' element={<WebList />} />
-    <Route
-      key='/cms/categories'
-      path='/cms/categories'
-      element={<CategoriesComponent />}
-    />
-
-    <Route key='/cms/posts' path='/cms/posts' element={<PostsComponent />} />
-
-    <Route key='/cms/tags' path='/cms/tags' element={<TagsComponent />} />
-
-    <Route key='/cms/pages' path='/cms/pages' element={<PagesComponent />} />
-
-    <Route key='/cms/posts/new' path='/cms/posts/new' element={<PostForm />} />
-
-    <Route
-      key='/cms/posts/edit/:id'
-      path='/cms/posts/edit/:id'
-      element={<PostEditComponent />}
-    />
 
     <Route
       key='/cms/web-builder'
@@ -179,6 +160,9 @@ const routes = () => (
       path='/cms/website/:cpId/tags'
       element={<TagsComponent />}
     />
+
+    
+
   </Routes>
 );
 
@@ -187,6 +171,8 @@ export const menu = (clientPortalId: string) => [
   { title: 'Categories', link: '/cms/website/' + clientPortalId + '/categories' },
   { title: 'Tags', link: '/cms/website/' + clientPortalId + '/tags' },
   { title: 'Pages', link: '/cms/website/' + clientPortalId + '/pages' },
+  { title: 'Custom Fields', link: '/cms/website/' + clientPortalId + '/custom-fields' },
+  { title: 'Custom Post Types', link: '/cms/website/' + clientPortalId + '/custom-post-types' },
 ];
 
 export default routes;
