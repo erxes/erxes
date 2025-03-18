@@ -1,51 +1,87 @@
 import * as React from "react";
 
+import { IAttachment, ITicketActivityLog } from "../../types";
+
 import Button from "../common/Button";
 import Container from "../common/Container";
-import FileUploader from "../common/FileUploader";
-import { IconCheckInCircle } from "../../../icons/Icons";
 import Input from "../common/Input";
+import TicketActivity from "./TicketAcitvity";
 import { __ } from "../../../utils";
+import { useTicket } from "../../context/Ticket";
 
 type Props = {
-  loading: boolean;
-  isSubmitted: boolean;
+  activityLogs: ITicketActivityLog[];
+  setComment: (comment: string) => void;
   handleSubmit: () => void;
-  handleButtonClick: () => void;
 };
 
 const TicketShowProgress: React.FC<Props> = ({
   handleSubmit,
-  isSubmitted,
-  loading,
-  handleButtonClick,
+  setComment,
+  activityLogs,
 }) => {
-  const submitText = __("Submit");
-  const continueText = __("Continue");
+  const { ticketData } = useTicket();
+  const { ticketCheckProgress } = ticketData || {};
 
-  const renderSubmitted = () => {
+  const renderAttachments = (attachments: IAttachment[]) => {
+    return attachments.map((attachment, index) => (
+      <div key={attachment.url} className="ticket-attachment">
+        <img
+          src={attachment.name}
+          alt={`ticket-image-${index}`}
+          onLoad={() => {
+            URL.revokeObjectURL(attachment.name);
+          }}
+        />
+      </div>
+    ));
+  };
+
+  const renderTicketIssue = () => {
+    const { name, type, description, attachments } = ticketCheckProgress;
+
     return (
-      <div className="success-wrapper">
-        <div className="message">
-          <IconCheckInCircle />
-          <h3>{__("Your message has been sent")}</h3>
-          <p>{__("Thank you for sharing your thoughts")}</p>
+      <div className="ticket-progress-content">
+        <div className="content-header">
+          <b>{name}</b>
+          <span>{type}</span>
         </div>
+        {description && <p>{description}</p>}
+        {attachments && attachments.length !== 0 && (
+          <div className="ticket-attachments">
+            {renderAttachments(attachments)}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderTicketLogs = () => {
+    return (
+      <div className="ticket-progress-logs">
+        <span>{__("Ticket log")}</span>
+        {activityLogs.map((log, index) => (
+          <TicketActivity key={index} activity={log} />
+        ))}
       </div>
     );
   };
 
   const renderContent = () => {
+    const { number, stage } = ticketCheckProgress;
+
     return (
       <>
         <div className="ticket-lbl">
           <label>Ticket number:</label>
-          <span>10201248</span>
+          <span>{number}</span>
         </div>
         <div className="ticket-lbl">
           <label>Ticket status:</label>
-          <span className="lbl">Fixing</span>
+          <span className="lbl">{stage?.name}</span>
         </div>
+        {renderTicketIssue()}
+        {renderTicketLogs()}
       </>
     );
   };
@@ -56,18 +92,23 @@ const TicketShowProgress: React.FC<Props> = ({
       title={__("Ticket progress")}
       backRoute="ticket"
       persistentFooter={
-        !isSubmitted ? (
-          <Button form="ticket-form" type="submit" full>
-            <span className="font-semibold">{submitText}</span>
-          </Button>
-        ) : (
-          <Button full onClick={handleButtonClick}>
-            <span className="font-semibold">{continueText}</span>
-          </Button>
-        )
+        <Button full onClick={() => handleSubmit()}>
+          <span className="font-semibold">{__("Send comment")}</span>
+        </Button>
       }
     >
-      <div className="ticket-container">{renderContent()}</div>
+      <div className="ticket-progress-container">
+        <div className="ticket-progress-main-content">{renderContent()}</div>
+        <div className="ticket-comment-form">
+          <div className="ticket-form-item">
+            <Input
+              id="comment"
+              label="Add a comment"
+              onChange={(e) => setComment(e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
     </Container>
   );
 };

@@ -104,9 +104,9 @@ const TicketSubmitForm: React.FC<Props> = ({
           <div className="ticket-form-item">
             <div className="input-container">
               <label htmlFor="type">{__("Ticket type")}</label>
-              <select id="ticketType" value="request" onChange={handleChange}>
+              <select id="ticketType" onChange={handleChange}>
                 <option value="">Choose type...</option>
-                <option value="reuqest">Request</option>
+                <option value="request">Request</option>
                 <option value="complaint">Complaint</option>
               </select>
             </div>

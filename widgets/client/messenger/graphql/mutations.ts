@@ -134,11 +134,17 @@ const CLOUDFLARE_LEAVE_CALL = gql`
 `
 
 const TICKET_ADD = gql`
-  mutation TicketsAdd($name: String!, $description: String, $attachments: [AttachmentInput], $stageId: String, $customerIds: [String]) {
-    ticketsAdd(name: $name, description: $description, attachments: $attachments, stageId: $stageId, customerIds: $customerIds) {
+  mutation TicketsAdd($name: String!, $description: String, $attachments: [AttachmentInput], $stageId: String, $customerIds: [String], $type: String) {
+    ticketsAdd(name: $name, description: $description, attachments: $attachments, stageId: $stageId, customerIds: $customerIds, type: $type) {
       _id
       name
       number
+      description
+      attachments {
+        name
+        url
+      }
+      type
     }
   }
 `;
@@ -153,6 +159,16 @@ const CUSTOMER_ADD = gql`
   }
 `;
 
+const TICKET_COMMENTS_ADD = gql`
+mutation clientPortalCommentsAdd($type: String!, $typeId: String!, $content: String!, $userType: String!) {
+  clientPortalCommentsAdd(type: $type, typeId: $typeId, content: $content, userType: $userType) {
+    _id
+    type
+    createdAt
+  }
+}
+`;
+
 export {
   WIDGETS_INSERT_MESSAGE_MUTATION,
   WIDGET_GET_BOT_INTIAL_MESSAGE,
@@ -165,5 +181,6 @@ export {
   CLOUDFLARE_CALL,
   CLOUDFLARE_LEAVE_CALL,
   TICKET_ADD,
-  CUSTOMER_ADD
+  CUSTOMER_ADD,
+  TICKET_COMMENTS_ADD
 };

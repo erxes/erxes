@@ -4,6 +4,7 @@ import { TICKET_CHECK_PROGRESS } from "../../graphql/queries";
 import TicketCheckProgress from "../../components/ticket/TicketCheckProgress";
 import { useQuery } from "@apollo/client";
 import { useRouter } from "../../context/Router";
+import { useTicket } from "../../context/Ticket";
 
 type Props = {
   loading?: boolean;
@@ -11,7 +12,9 @@ type Props = {
 
 const TicketCheckProgressContainer = (props: Props) => {
   const { setRoute } = useRouter();
+  const { setTicketData } = useTicket();
   const [number, setNumber] = React.useState("");
+
   const { data, loading, error } = useQuery(TICKET_CHECK_PROGRESS, {
     variables: {
       number,
@@ -20,6 +23,7 @@ const TicketCheckProgressContainer = (props: Props) => {
   });
 
   const onButtonClick = () => {
+    setTicketData(data);
     data && setRoute("ticket-progress");
   };
 

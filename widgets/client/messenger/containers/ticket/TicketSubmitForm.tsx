@@ -59,6 +59,7 @@ const TicketSubmitContainer = (props: Props) => {
         const transformedFiles = files.map((file) => ({
           url: file.path, // Saving "path" as "url"
           name: file.preview, // Saving "preview" as "name"
+          type: "image",
         }));
 
         return ticketAdd({
@@ -67,6 +68,7 @@ const TicketSubmitContainer = (props: Props) => {
             description: formData.description,
             attachments: transformedFiles,
             stageId: ticketData.ticketStageId,
+            type: formData.ticketType,
             customerIds: [customerId],
           },
         });

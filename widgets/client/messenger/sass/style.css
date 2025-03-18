@@ -3256,6 +3256,102 @@ select.form-control:focus,
 .ticket-container .type-choose-container .ticket-box svg {
   margin-top: 25px;
 }
+.ticket-progress-container {
+  width: 100%;
+  padding: 1.25rem;
+  padding-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.ticket-progress-container .ticket-progress-main-content {
+  height: 78%;
+  overflow: auto;
+}
+.ticket-progress-container .ticket-lbl {
+  margin-bottom: 10px;
+}
+.ticket-progress-container .ticket-lbl label {
+  color: #444;
+  font-weight: 600;
+  margin-right: 10px;
+}
+.ticket-progress-container .ticket-lbl span {
+  color: #4f33af;
+  font-weight: 600;
+}
+.ticket-progress-container .ticket-lbl span.lbl {
+  background: rgba(79, 51, 175, 0.15);
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+.ticket-progress-container .ticket-progress-content {
+  background: #eee;
+  margin: 20px 0;
+  padding: 20px;
+  border-radius: 10px;
+}
+.ticket-progress-container .ticket-progress-content .content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.ticket-progress-container .ticket-progress-content .content-header span {
+  background: rgba(0, 0, 0, 0.15);
+  text-transform: capitalize;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+.ticket-progress-container .ticket-progress-content .ticket-attachments {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  overflow: auto;
+}
+.ticket-progress-container .ticket-progress-content .ticket-attachments img {
+  width: 280px;
+  height: 180px;
+  object-fit: cover;
+}
+.ticket-progress-container .ticket-comment-form {
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+  width: 90%;
+  position: fixed;
+  bottom: 80px;
+}
+.ticket-progress-logs > span {
+  color: #888;
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: block;
+  font-size: 15px;
+}
+.ticket-progress-logs .user {
+  width: 40px;
+  height: 40px;
+  background: #eee;
+  flex-shrink: 0;
+  border-radius: 40px;
+}
+.ticket-progress-logs .ticket-progress-log {
+  margin-bottom: 10px;
+  display: flex;
+}
+.ticket-progress-logs .ticket-progress-log > span {
+  background: #eee;
+  margin-left: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #666;
+}
+.ticket-progress-logs .ticket-progress-log > span strong {
+  margin-right: 5px;
+}
 
 .input-container {
   display: flex;
