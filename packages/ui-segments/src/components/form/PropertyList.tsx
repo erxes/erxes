@@ -40,12 +40,12 @@ class PropertyList extends React.Component<Props, {}> {
     }, {});
   };
 
-  onClickProperty = (field) => {
+  onClickProperty = field => {
     this.props.onClickProperty(field);
   };
 
-  renderFields = (fields) => {
-    return fields.map((field) => {
+  renderFields = fields => {
+    return fields.map(field => {
       return (
         <FormControl
           key={Math.random()}
@@ -61,11 +61,20 @@ class PropertyList extends React.Component<Props, {}> {
   render() {
     const objects = this.groupByType();
 
-    return Object.keys(objects).map((key) => {
+    return Object.keys(objects).map(key => {
+      let groupName = key;
+      const groupDetail = (objects[key] || []).find(
+        ({ group }) => group === key
+      )?.groupDetail;
+
+      if (groupDetail) {
+        groupName = groupDetail?.name || key;
+      }
+
       return (
         <OperatorList key={Math.random()}>
           <FormGroup>
-            <b>{key}</b>
+            <b>{groupName}</b>
             {this.renderFields(objects[key])}
           </FormGroup>
         </OperatorList>

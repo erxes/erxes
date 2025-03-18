@@ -4,6 +4,7 @@ import redis from '@erxes/api-utils/src/redis';
 import { BaseAPI } from '../base';
 import { PAYMENTS, PAYMENT_STATUS } from '../constants';
 import { IQpayInvoice } from '../types';
+import { IPaymentDocument } from '../../models/definitions/payments';
 
 export const qpayCallbackHandler = async (models: IModels, data: any) => {
   const { _id } = data;
@@ -16,7 +17,6 @@ export const qpayCallbackHandler = async (models: IModels, data: any) => {
     $or: [{ _id }, { code: _id }],
   });
 
-
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
 
   if (payment.kind !== 'qpay') {
@@ -26,7 +26,7 @@ export const qpayCallbackHandler = async (models: IModels, data: any) => {
   try {
     const api = new QpayAPI(payment.config);
     const status = await api.checkInvoice(transaction);
-  
+
     if (status !== PAYMENT_STATUS.PAID) {
       return transaction;
     }
@@ -65,6 +65,36 @@ export class QpayAPI extends BaseAPI {
     this.branchCode = config.branchCode;
     this.domain = domain;
     this.apiUrl = PAYMENTS.qpay.apiUrl;
+  }
+
+  async authorize() {
+    try {
+      const res = await this.request({
+        method: 'POST',
+        path: PAYMENTS.qpay.actions.getToken,
+        headers: {
+          Authorization:
+            'Basic ' +
+            Buffer.from(
+              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`
+            ).toString('base64'),
+        },
+      }).then((r) => r.json());
+
+      if (res.error) {
+
+        if (res.error === 'NO_CREDENDIALS')  {
+          throw new Error('Invalid credentials!!! Please check your credentials');
+        }
+
+        throw new Error(res.error);
+      }
+
+      return { success: true, message: 'Authorized' };
+    } catch (e) {
+      console.error('error', e);
+      throw new Error(e.message);
+    }
   }
 
   async getHeaders() {
@@ -113,7 +143,8 @@ export class QpayAPI extends BaseAPI {
     try {
       const data: IQpayInvoice = {
         invoice_code: qpayInvoiceCode,
-        sender_invoice_no: transaction.details?.sender_invoice_no || transaction.code,
+        sender_invoice_no:
+          transaction.details?.sender_invoice_no || transaction.code,
         invoice_receiver_code: 'terminal',
         invoice_description: transaction.description || 'test invoice',
         // sender_branch_code: this.branchCode, TODO: renable after proper branch code config

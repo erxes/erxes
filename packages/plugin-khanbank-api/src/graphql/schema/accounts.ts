@@ -8,6 +8,7 @@ type KhanbankAccountHolder {
 
   type KhanbankAccount {
     number: String
+    ibanAcctNo: String
     type: String
     currency: String
     status: String

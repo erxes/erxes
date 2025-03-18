@@ -74,7 +74,7 @@ export const authorizeClient = async (req: any, res: any) => {
 
   return res
     .status(200)
-    .json({ accessToken, refreshToken, type: 'Bearer', expiresIn: 3600 });
+    .json({ accessToken, refreshToken, expiresIn: 3600 });
 };
 
 export const refreshAccessToken = async (req: any, res: any) => {
@@ -121,7 +121,6 @@ export const refreshAccessToken = async (req: any, res: any) => {
     return res.status(200).json({
       accessToken,
       refreshToken: newRefreshToken,
-      type: 'Bearer',
       expiresIn: 3600,
     });
   } catch (error) {

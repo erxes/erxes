@@ -26,6 +26,7 @@ interface IQueryParams {
   accountCategoryId?: string;
   accountSearchValue?: string;
   accountBrand?: string;
+  accountIsTemp?: boolean,
   accountIsOutBalance?: boolean,
   accountBranchId: string;
   accountDepartmentId: string;
@@ -55,6 +56,7 @@ const getAccountIds = async (models: IModels, commonQuerySelector, params: IQuer
     accountCategoryId,
     accountSearchValue,
     accountBrand,
+    accountIsTemp,
     accountIsOutBalance,
     accountBranchId,
     accountDepartmentId,
@@ -70,6 +72,7 @@ const getAccountIds = async (models: IModels, commonQuerySelector, params: IQuer
     categoryId: accountCategoryId,
     searchValue: accountSearchValue,
     brand: accountBrand,
+    isTemp: accountIsTemp,
     isOutBalance: accountIsOutBalance,
     branchId: accountBranchId,
     departmentId: accountDepartmentId,
@@ -132,7 +135,7 @@ const generateFilter = async (
   if (ptrStatus) {
     filter.ptrStatus = ptrStatus;
   }
-  
+
   if (status) {
     filter.status = status;
   }

@@ -1,22 +1,17 @@
 import { IField } from '@erxes/ui-segments/src/types';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import {
-  IAttachment,
-  IButtonMutateProps,
-  ILocationOption,
+  IAttachment
 } from '@erxes/ui/src/types';
 import { __, clearTypename } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import LeftSideBar from './LeftSidebar';
 
+import { Button } from '@erxes/ui/src/components';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IPost, IPostDocument } from '../../../types';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Button, Uploader } from '@erxes/ui/src/components';
 import RightSidebar from './RightSidebar';
 
 type Props = {
@@ -102,7 +97,7 @@ const PostForm = (props: Props) => {
   const breadcrumb = [
     {
       title: __('Post'),
-      link: '/cms/posts',
+      link: `/cms/website/${props.clientPortalId}/posts`,
     },
   ];
 

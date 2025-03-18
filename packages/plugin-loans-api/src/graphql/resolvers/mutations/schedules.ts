@@ -28,41 +28,18 @@ const scheduleMutations = {
     { contractId }: { contractId: string },
     { models, subdomain }: IContext,
   ) => {
-    const doneSchedules = await models.Schedules.find({
-      contractId,
-      status: {
-        $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PRE],
-      },
-    }).lean();
-    if (doneSchedules && doneSchedules.length) {
-      const trs = await models.Transactions.find({ contractId }).lean();
-      if (trs && trs.length) {
-        throw new Error('Schedule has related transaction');
-      }
-    }
-
-    const holidayConfig: any = await getConfig('holidayConfig', subdomain);
-
-    const loansConfig: IConfig = await getConfig('loansConfig', subdomain);
-
-    const perHolidays = !holidayConfig?.value
-      ? []
-      : Object.keys(holidayConfig.value).map((key) => ({
-        month: Number(holidayConfig.value[key].month) - 1,
-        day: Number(holidayConfig.value[key].day),
-      }));
-
     const contract = await models.Contracts.getContract({
       _id: contractId,
     });
 
-    await reGenerateSchedules(models, contract, perHolidays, loansConfig);
+    await reGenerateSchedules(subdomain, models, contract);
     await loansSchedulesChanged(contractId);
 
-    if (isEnabled('syncpolaris')) {
+    if (isEnabled('syncpolaris') && contract.foreignNumber) {
       const schedules = await models.FirstSchedules.find({
         contractId,
       }).lean();
+
       if (schedules.length > 0) {
         await sendMessageBroker(
           { action: 'changeSchedule', subdomain, data: contract, isRPC: true },
@@ -78,6 +55,7 @@ const scheduleMutations = {
 
     return 'ok';
   },
+
   fixSchedules: async (
     _root,
     { contractId }: { contractId: string },

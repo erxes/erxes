@@ -93,7 +93,24 @@ export default `
         : ''
     }
 
-
+${
+  isEnabled('cloudflarecalls')
+        ? `
+  cloudflareCallsHistory {
+    customerPhone
+    callDuration
+    callStartTime
+    callEndTime
+    callType
+    callStatus
+    modifiedAt
+    createdAt
+    createdBy
+    modifiedBy
+    recordUrl
+  }`
+        : ''
+    }
   readUserIds
   readUsers {
     _id

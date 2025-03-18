@@ -1,24 +1,16 @@
 import { IItem, IOptions } from "../../types";
+import { __, loadDynamicComponent } from "@erxes/ui/src/utils";
 
 import { ActionContainer } from "../../styles/item";
 import { ArchiveBtn } from "./ArchiveBtn";
 import ChecklistAdd from "../../../checklists/components/AddButton";
 import { ColorButton } from "../../styles/common";
-import Icon from "@erxes/ui/src/components/Icon";
-import LabelChooser from "../../containers/label/LabelChooser";
-import { PRIORITIES } from "../../constants";
-import { PopoverButton } from "@erxes/ui-inbox/src/inbox/styles";
-import PriorityIndicator from "./PriorityIndicator";
-import React from "react";
-import SelectItem from "../../components/SelectItem";
-import { TAG_TYPES } from "@erxes/ui-tags/src/constants";
-import TaggerPopover from "@erxes/ui-tags/src/components/TaggerPopover";
-import Tags from "@erxes/ui/src/components/Tags";
-import Watch from "../../containers/editForm/Watch";
 import Comment from "../../../comment/containers/Comment";
-import { loadDynamicComponent, __ } from "@erxes/ui/src/utils";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import Watch from "../../containers/editForm/Watch";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   item: IItem;
@@ -34,16 +26,6 @@ type Props = {
 };
 
 class Actions extends React.Component<Props> {
-  onPriorityChange = (value: string) => {
-    const { onUpdate, saveItem } = this.props;
-
-    if (saveItem) {
-      saveItem({ priority: value }, (updatedItem) => {
-        onUpdate(updatedItem);
-      });
-    }
-  };
-
   render() {
     const {
       item,
@@ -57,53 +39,8 @@ class Actions extends React.Component<Props> {
       currentUser,
     } = this.props;
 
-    const onLabelChange = (labels) => saveItem({ labels });
-
-    const tags = item.tags || [];
-    const pipelineTagId = item.pipeline.tagId || "";
-
-    const priorityTrigger = (
-      <ColorButton>
-        {item.priority ? (
-          <PriorityIndicator value={item.priority} />
-        ) : (
-          <Icon icon="sort-amount-up" />
-        )}
-        {item.priority ? item.priority : __("Priority")}
-      </ColorButton>
-    );
-
-    const TAG_TYPE = TAG_TYPES.DEAL;
-
-    const tagTrigger = (
-      <PopoverButton id="conversationTags">
-        {tags.length ? (
-          <>
-            <Tags tags={tags} limit={1} /> <Icon icon="angle-down" />
-          </>
-        ) : (
-          <ColorButton>
-            <Icon icon="tag-alt" /> No tags
-          </ColorButton>
-        )}
-      </PopoverButton>
-    );
-
     return (
       <ActionContainer>
-        <SelectItem
-          items={PRIORITIES}
-          selectedItems={item.priority}
-          onChange={this.onPriorityChange}
-          trigger={priorityTrigger}
-        />
-
-        <LabelChooser
-          item={item}
-          onSelect={onLabelChange}
-          onChangeRefresh={onChangeRefresh}
-        />
-
         <ChecklistAdd itemId={item._id} type={options.type} />
 
         <Watch item={item} options={options} isSmall={true} />
@@ -121,22 +58,13 @@ class Actions extends React.Component<Props> {
           currentUser={currentUser}
         />
 
-        <TaggerPopover
-          type={TAG_TYPE}
-          trigger={tagTrigger}
-          refetchQueries={["dealDetail"]}
-          targets={[item]}
-          parentTagId={pipelineTagId}
-          singleSelect={false}
-        />
-
         {loadDynamicComponent(
           "cardDetailAction",
           {
             item,
             contentType: "sales",
             subType: item.stage?.type,
-            path: `stageId=${item.stageId}`
+            path: `stageId=${item.stageId}`,
           },
           true
         )}

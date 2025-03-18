@@ -43,6 +43,7 @@ export interface IChannelData {
     payload: { url: string };
   }>;
   message: {
+    text?: string;
     mid: string;
     quick_reply?: any;
     payload?: any;

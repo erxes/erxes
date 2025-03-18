@@ -2,13 +2,23 @@ export const types = `
   extend type Form @key(fields: "_id") {
     _id: String! @external
   }
-    
+
   input InputRule {
     _id : String!,
     kind: String!,
     text: String!,
     condition: String!,
     value: String,
+  }
+
+  type CloudflareCallDataDepartment {
+    _id: String
+    name: String
+    operators: JSON
+  }
+  type CloudflareCallsData {
+    departments: [CloudflareCallDataDepartment]
+    isReceiveWebCall: Boolean
   }
 
   type Integration @key(fields: "_id") {
@@ -45,7 +55,9 @@ export const types = `
     departmentIds: [String]
 
     details: JSON
+    callData: CloudflareCallsData
   }
+  
 
   type integrationsTotalCount {
     total: Int
@@ -120,6 +132,23 @@ export const types = `
     logo: String
     textColor: String
   }
+
+  input OperatorInput {
+    _id: String
+    userId: String
+    name: String
+  }
+
+  input DepartmentInput {
+    _id: String
+    name: String
+    operators: [OperatorInput]
+  }
+
+  input IntegrationCallData {
+    departments: [DepartmentInput]
+    isReceiveWebCall: Boolean
+  }
 `;
 
 export const queries = `
@@ -184,7 +213,9 @@ export const mutations = `
 
   integrationsSaveMessengerConfigs(
     _id: String!,
-    messengerData: IntegrationMessengerData): Integration
+    messengerData: IntegrationMessengerData,
+    callData: IntegrationCallData
+    ): Integration
 
   integrationsCreateExternalIntegration(
     kind: String!,

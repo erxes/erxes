@@ -13,6 +13,8 @@ import {
 import ActionBar from './ActionBar';
 import CallPro from './callpro/Callpro';
 import GrandStream from './grandStream/GrandStream';
+import CloudflareCalls from './cloudflareCalls/CloudflareCalls';
+
 import { IAttachmentPreview } from '@erxes/ui/src/types';
 import MailConversation from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/MailConversation';
 import Message from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/Message';
@@ -221,6 +223,14 @@ export default class WorkArea extends React.Component<Props, State> {
       return (
         <>
           <GrandStream conversation={currentConversation} />
+          {this.renderMessages(messages, firstMessage)}
+        </>
+      );
+    }
+    if (['cloudflarecalls', 'messenger'].includes(kind)) {
+      return (
+        <>
+          <CloudflareCalls conversation={currentConversation} />
           {this.renderMessages(messages, firstMessage)}
         </>
       );

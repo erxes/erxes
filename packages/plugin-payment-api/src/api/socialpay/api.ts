@@ -68,6 +68,43 @@ export class SocialPayAPI extends BaseAPI {
     this.apiUrl = PAYMENTS.socialpay.apiUrl;
   }
 
+  async authorize() {
+    const invoiceId = randomAlphanumeric(10);
+    try {
+      const data: ISocialPayInvoice = {
+        amount: '0',
+        checksum: hmac256(
+          this.inStoreSPKey,
+          this.inStoreSPTerminal + invoiceId + 0
+        ),
+        invoice: invoiceId,
+        terminal: this.inStoreSPTerminal,
+      };
+
+      const { header, body } = await this.request({
+        path: PAYMENTS.socialpay.actions.invoiceQr,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data,
+      }).then((r) => r.json());
+
+      if (header.code !== 200) {
+        throw new Error(body.error.errorDesc);
+      }
+
+      if (body.error.errorDesc) {
+        throw new Error(body.error.errorDesc);
+      }
+
+      return {
+        success: true,
+        message: 'Authorized',
+      };
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  }
+
   async createInvoice(invoice: ITransactionDocument) {
     const amount = invoice.amount.toString();
     const details = invoice.details || {};
@@ -102,7 +139,7 @@ export class SocialPayAPI extends BaseAPI {
         headers: { 'Content-Type': 'application/json' },
         data,
       }).then((r) => r.json());
-      
+
       if (header.code !== 200) {
         return { error: body.error.errorDesc };
       }

@@ -5,13 +5,10 @@ import { sendCoreMessage } from './messageBroker';
 export const bindUser = async (
   client: any,
   mailOrAdminDN: string,
-  password: string,
-  userDn?: string
+  password: string
 ) => {
-  const updateDN = userDn ? `CN=${mailOrAdminDN},${userDn}` : mailOrAdminDN;
-
   try {
-    await client.bind(updateDN, password);
+    await client.bind(mailOrAdminDN, password);
     console.log('Connected to Active Directory');
 
     return true;
@@ -32,44 +29,42 @@ export const adSync = async (subdomain, params) => {
 
   const client = new Client({ url: config.apiUrl });
 
-  if (!config.isLocalUser) {
-    const getBind = await bindUser(
-      client,
-      params.email,
-      params.password,
-      config.userDN
-    );
+  await bindUser(client, config.adminDN, config.adminPassword);
 
-    if (getBind) {
-      return { status: true, error: 'successful bind user' };
+  const searchBase = String(config.baseDN); // Base DN for searching
+  const searchOptions: SearchOptions = {
+    scope: 'sub', // Search entire subtree
+    filter: `(mail=${params.email})`, // Filter for users
+    attributes: ['userPrincipalName', 'distinguishedName'], // Specify attributes to retrieve
+  };
+
+  try {
+    const { searchEntries } = await client.search(searchBase, searchOptions);
+
+    console.log(searchEntries, 'searchEntries');
+
+    if (searchEntries.length === 0) {
+      console.error('User not found');
+      return { success: false, error: 'User not found' };
     }
-  }
 
-  if (config.isLocalUser) {
-    await bindUser(client, config.adminDN, config.adminPassword);
+    const userDN = searchEntries[0].distinguishedName as string;
+    const userPrincipal = searchEntries[0].userPrincipalName as string;
+    console.log(`Found User DN: ${userDN}`);
+    console.log(`Found User Principal: ${userPrincipal}`);
 
-    const searchBase = String(config.baseDN); // Base DN for searching
-    const searchOptions: SearchOptions = {
-      scope: 'sub', // Search entire subtree
-      filter: `(&(objectClass=user)(mail=${params.email}))`, // Filter for users
-      attributes: ['cn', 'sn', 'mail', 'samAccountName'], // Specify attributes to retrieve
-    };
+    if (userDN) {
+      const loginIdentifier = config?.useDN ? userDN : userPrincipal;
 
-    try {
-      const { searchEntries } = await client.search(searchBase, searchOptions);
+      await client.bind(loginIdentifier, params.password);
 
-      const found = (searchEntries || []).find(
-        (data) => data.mail === params.email
-      );
-
-      if (found) {
-        return { status: true, error: 'successful find user' }; // Return true if match is found
-      } else {
-        return { status: false, error: 'Error during search user on AD' }; // Return false if no match is found
-      }
-    } catch (err) {
-      return { status: false, error: `Error during search: ${err}` };
+      console.log('User authenticated successfully');
+      return { status: true, error: 'successful find user' }; // Return true if match is found
+    } else {
+      return { status: false, error: 'Error during search user on AD' }; // Return false if no match is found
     }
+  } catch (err) {
+    return { status: false, error: `Error during search: ${err}` };
   }
 };
 
@@ -84,7 +79,7 @@ export const consumeUser = async (subdomain, doc, action) => {
   if (action === 'update' || action === 'create') {
     const document: any = {
       isActive: true,
-      email: doc?.mail || '',
+      email: doc?.mail.length === 0 ? undefined : doc?.mail,
       username: doc.sAMAccountName,
       details: { firstName: doc.givenName, lastName: doc.sn },
       notUsePassword: true,

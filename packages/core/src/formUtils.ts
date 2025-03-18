@@ -37,14 +37,14 @@ const getGroupWithCache = async (models, groupId, cache) => {
   if (cache.has(groupId)) return cache.get(groupId);
   const group = await getFieldGroup(models, groupId);
   if (!group) {
-    return null
-  };
+    return null;
+  }
   cache.set(groupId, group);
   return group;
 };
 
 // prepare select options
-const generateSelectOptions = (options) => {
+const generateSelectOptions = options => {
   if (!options || options.length === 0) return [];
   return options.map(option => ({
     value: option,
@@ -86,7 +86,9 @@ export const fieldsCombinedByContentType = async (
     validation = "date";
   }
 
-  const type = ["core:visitor", "core:lead", "core:customer"].includes(contentType)
+  const type = ["core:visitor", "core:lead", "core:customer"].includes(
+    contentType
+  )
     ? "core:customer"
     : contentType;
 
@@ -95,8 +97,12 @@ export const fieldsCombinedByContentType = async (
   const groupCache = new Map();
 
   const customFieldsWithGroups = await Promise.all(
-    customFields.map(async (customField) => {
-      const group = await getGroupWithCache(models, customField.groupId || "", groupCache);
+    customFields.map(async customField => {
+      const group = await getGroupWithCache(
+        models,
+        customField.groupId || "",
+        groupCache
+      );
       return { customField, group };
     })
   );
@@ -113,18 +119,22 @@ export const fieldsCombinedByContentType = async (
       type: customField.type,
       group: group._id,
       code: customField.code,
-      fieldId: customField._id
+      fieldId: customField._id,
+      groupDetail: group
+        ? {
+            _id: group._id,
+            name: group.name,
+            contentType: group.contentType,
+            code: group.code,
+            description: group.description
+          }
+        : undefined
     }));
 
   fields = [...fields, ...extendedFields];
 
   return fields.filter(field => !(excludedNames || []).includes(field.name));
 };
-
-
-
-
-
 
 export const formSubmissionsQuery = async (
   subdomain,

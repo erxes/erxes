@@ -1,6 +1,6 @@
 import {
   IActivityLog,
-  IActivityLogForMonth
+  IActivityLogForMonth,
 } from '@erxes/ui-log/src/activityLogs/types';
 
 import { IContractTypeDoc } from '../contractTypes/types';
@@ -34,78 +34,95 @@ export interface IInsuranceData {
   amount: number;
 }
 
+export interface IStepRules {
+  _id: string;
+  scheduleDays?: number[];
+  tenor: number; // loan duration month
+  interestRate?: number;
+
+  firstPayDate: Date;
+
+  mainPayPerMonth?: number; // undsen tulultuus sardaa udiig tuluhuur
+  totalMainAmount?: number; // niitdee ene heseg hugatsaand udiig tuluhuur
+  salvageAmount?: number; // ene heseg udaagiin tulultiin daraa udii uldeheer
+
+  skipInterestCalcMonth?: number;
+  skipInterestCalcDay?: number;
+  skipAmountCalcMonth?: number;
+  skipAmountCalcDay?: number;
+}
+
 export interface IContract {
   _id: string;
   contractTypeId: string;
   number: string;
-  branchId: string;
-  classification: string;
+  useManualNumbering: boolean;
+  foreignNumber?: string;
+  relContractId?: string;
+  dealId?: string;
+  currency: string;
   status: string;
+  statusChangedDate?: Date;
+
+  classification: string;
+  branchId: string;
   description: string;
   createdBy: string;
   createdAt: Date;
-  marginAmount: number;
+  modifiedBy?: string;
+  modifiedAt?: Date;
+
+  marginAmount?: number;
   leaseAmount: number;
-  loanBalanceAmount: number;
-  givenAmount: number;
-  feeAmount: number;
+  feeAmount?: number;
   tenor: number;
-  interestRate: number;
-  interestMonth: number;
   repayment: string;
+  interestRate: number;
+  lossPercent?: number;
+  lossCalcType?: string;
+
+  contractDate: Date;
   startDate: Date;
+  firstPayDate: Date;
+  endDate: Date;
   scheduleDays: number[];
-  collateralsData?: ICollateralData[];
-  insurancesData?: IInsuranceData[];
-  ownerId?: string;
-  owner?: IUser;
-  debt?: number;
+  stepRules?: IStepRules[];
+
   insuranceAmount?: number;
-  salvageAmount?: number;
-  salvagePercent?: number;
-  salvageTenor?: number;
-  relationExpertId: string;
-  leasingExpertId: string;
-  riskExpertId: string;
-  customerId: string;
-  customerType: string;
-  lossPercent: number;
-  lossCalcType: string;
-  leaseType: string;
-  commitmentInterest: number;
-  storedInterest: number;
-  contractType?: IContractTypeDoc;
-  weekends: number[];
-  useHoliday: boolean;
-  dealId?: string;
-  hasTransaction?: boolean;
-  currency: string;
-  expiredDays?: number;
-  endDate?: any;
-  firstPayDate?: Date;
-  lastStoredDate?: Date;
-  interestNounce?: any;
-  contractDate?: Date;
-  loanPurpose?: any;
-  loanDestination?: any;
-  loanSubPurpose?: any;
+  debt?: number;
   debtTenor?: number;
   debtLimit?: number;
-  skipInterestCalcMonth?: number;
-  useDebt?: any;
-  useMargin?: any;
-  useSkipInterest?: any;
-  relContractId?: string;
-  isPayFirstMonth?: boolean;
-  skipAmountCalcMonth?: any;
-  downPayment?: number;
-  customPayment?: number;
-  customInterest?: number;
-  useManualNumbering?: any;
-  useFee?: any;
-  savingContractId?: any;
-  customFieldsData?: any;
-  holidayType: string;
+
+  collateralsData?: ICollateralData[];
+  insurancesData?: IInsuranceData[];
+
+  customerType?: string;
+  customerId?: string;
+  relCustomers?: [{ customerId: string; customerType: string }];
+
+  relationExpertId?: string;
+  leasingExpertId?: string;
+  riskExpertId?: string;
+
+  closeDate?: Date;
+  closeType?: string;
+  closeDescription?: string;
+
+  loanPurpose?: string;
+  loanDestination?: string;
+  leaseType: string;
+
+  customFieldsData?: any[];
+  savingContractId?: string;
+  depositAccountId?: string;
+
+  holidayType?: string;
+  weekends?: number[];
+
+  contractType?: IContractTypeDoc;
+  unUsedBalance?: number;
+  commitmentInterest: number;
+  storedInterest: number;
 }
 
 export interface IContractGql {
@@ -127,6 +144,7 @@ export interface ISchedule {
 
   balance: number;
   loss?: number;
+  storedInterest?: number;
   interestEve?: number;
   interestNonce?: number;
   payment?: number;
@@ -266,6 +284,16 @@ type ListConfig = {
 
 export type MainQueryResponse = {
   contractsMain: { list: IContract[]; totalCount: number };
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type DealContractQueryResponse = {
+  dealLoanContract: {
+    contract: IContract;
+    schedules: ISchedule[];
+    firstSchedules: ISchedule[];
+  };
   loading: boolean;
   refetch: () => void;
 };
