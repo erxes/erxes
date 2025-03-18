@@ -51,7 +51,7 @@ const FormContainer = (props: Props) => {
         
         setTimeout(() => {
           
-          navigate(`/cms/web/${cpId}/posts`, {
+          navigate(`/cms/website/${cpId}/posts`, {
             replace: true,
           });
         }, 1500);
@@ -66,7 +66,7 @@ const FormContainer = (props: Props) => {
         Alert.success('You successfully added a post', 1500);
 
         setTimeout(() => {
-          navigate(`/cms/web/${cpId}/posts`, {
+          navigate(`/cms/website/${cpId}/posts`, {
             replace: true,
           });
         }, 1500);
