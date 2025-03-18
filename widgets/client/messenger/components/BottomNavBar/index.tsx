@@ -7,9 +7,9 @@ import {
   IconQuestionMark,
   IconTicket,
 } from "./Icons";
+import { getCallData, getTicketData } from "../../utils/util";
 
 import Item from "./Item";
-import { getCallData } from "../../utils/util";
 import { useRouter } from "../../context/Router";
 
 const items = [
@@ -20,7 +20,7 @@ const items = [
   },
   { icon: IconChat, route: "allConversations" },
   { icon: IconPhone, route: "call" },
-  // { icon: IconTicket, route: 'ticket' },
+  { icon: IconTicket, route: "ticket" },
   {
     label: "Help",
     icon: IconQuestionMark,
@@ -32,6 +32,7 @@ const items = [
 function BottomNavBar() {
   const { setActiveRoute, activeRoute } = useRouter();
   const callData = getCallData();
+  const ticketData = getTicketData();
 
   const handleItemClick = (route: string) => (e: React.MouseEvent) => {
     setActiveRoute(route);
@@ -54,6 +55,10 @@ function BottomNavBar() {
         const { route } = item;
 
         if (route === "call" && callData && !callData.isReceiveWebCall) {
+          return null;
+        }
+
+        if (!ticketData) {
           return null;
         }
 

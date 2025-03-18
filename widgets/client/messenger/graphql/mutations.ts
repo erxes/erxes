@@ -8,29 +8,30 @@ const WIDGETS_INSERT_MESSAGE_MUTATION = ({
   queryVariables: string;
   queryParams: string;
 }) => gql`
-                mutation widgetsInsertMessage(
-                  ${queryVariables}
-                  $message: String
-                  $contentType: String
-                  $conversationId: String
-                  $attachments: [AttachmentInput]
-                  $skillId: String
-                  $payload: String
-                ) {
-    
-                widgetsInsertMessage(
-                  ${queryParams}
-                  contentType: $contentType
-                  message: $message
-                  conversationId: $conversationId
-                  attachments: $attachments
-                  skillId: $skillId
-                  payload: $payload
+    mutation widgetsInsertMessage(
+      ${queryVariables}
+      $message: String
+      $contentType: String
+      $conversationId: String
+      $attachments: [AttachmentInput]
+      $skillId: String
+      $payload: String
+    ) {
 
-                ) {
-                  ${MESSAGE_FIELDS}
-                }
-              }`;
+    widgetsInsertMessage(
+      ${queryParams}
+      contentType: $contentType
+      message: $message
+      conversationId: $conversationId
+      attachments: $attachments
+      skillId: $skillId
+      payload: $payload
+
+    ) {
+      ${MESSAGE_FIELDS}
+    }
+  }`;
+
 const WIDGET_BOT_REQUEST_MUTATION = gql`
   mutation widgetBotRequest(
     $message: String!
@@ -132,6 +133,42 @@ const CLOUDFLARE_LEAVE_CALL = gql`
   }
 `
 
+const TICKET_ADD = gql`
+  mutation TicketsAdd($name: String!, $description: String, $attachments: [AttachmentInput], $stageId: String, $customerIds: [String], $type: String) {
+    ticketsAdd(name: $name, description: $description, attachments: $attachments, stageId: $stageId, customerIds: $customerIds, type: $type) {
+      _id
+      name
+      number
+      description
+      attachments {
+        name
+        url
+      }
+      type
+    }
+  }
+`;
+
+const CUSTOMER_ADD = gql`
+  mutation customersAdd($firstName: String, $lastName: String, $primaryEmail: String, $primaryPhone: String) {
+    customersAdd(firstName: $firstName, lastName: $lastName, primaryEmail: $primaryEmail, primaryPhone: $primaryPhone) {
+      _id
+      email
+      createdAt
+    }
+  }
+`;
+
+const TICKET_COMMENTS_ADD = gql`
+mutation clientPortalCommentsAdd($type: String!, $typeId: String!, $content: String!, $userType: String!) {
+  clientPortalCommentsAdd(type: $type, typeId: $typeId, content: $content, userType: $userType) {
+    _id
+    type
+    createdAt
+  }
+}
+`;
+
 export {
   WIDGETS_INSERT_MESSAGE_MUTATION,
   WIDGET_GET_BOT_INTIAL_MESSAGE,
@@ -142,5 +179,8 @@ export {
   WIDGETS_SAVE_CUSTOMER_GET_NOTIFIED,
   SAVE_BROWSER_INFO,
   CLOUDFLARE_CALL,
-  CLOUDFLARE_LEAVE_CALL
+  CLOUDFLARE_LEAVE_CALL,
+  TICKET_ADD,
+  CUSTOMER_ADD,
+  TICKET_COMMENTS_ADD
 };

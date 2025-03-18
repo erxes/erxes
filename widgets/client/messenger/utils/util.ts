@@ -41,6 +41,10 @@ export const getCallData = (): IIntegrationMessengerData => {
   return connection.data.callData || {};
 };
 
+export const getTicketData = (): any => {
+  return connection.data.ticketData || {};
+};
+
 export const isOnline = () => {
   return getMessengerData().isOnline;
 };
