@@ -151,6 +151,18 @@ const routes = () => (
     />
 
     <Route
+      key='/cms/website/:cpId/posts/new'
+      path='/cms/website/:cpId/posts/new'
+      element={<PostAddComponent />}
+    />
+
+    <Route
+      key='/cms/website/:cpId/posts/edit/:id'
+      path='/cms/website/:cpId/posts/edit/:id'
+      element={<PostEditComponent />}
+    />
+
+    <Route
       key='/cms/website/:cpId/pages'
       path='/cms/website/:cpId/pages'
       element={<PagesComponent />}

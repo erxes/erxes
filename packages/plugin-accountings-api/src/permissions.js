@@ -6,7 +6,16 @@ module.exports = {
       {
         name: 'accountsAll',
         description: 'All',
-        use: ['showAccounts', 'manageAccounts', 'accountsMerge', 'removeAccounts']
+        use: [
+          'showAccounts',
+          'manageAccounts',
+          'accountsMerge',
+          'removeAccounts',
+          'showVatRows',
+          'manageVatRows',
+          'showCtaxRows',
+          'manageCtaxRows',
+        ]
       },
       {
         name: 'manageAccounts',
@@ -23,7 +32,23 @@ module.exports = {
       {
         name: 'accountsMerge',
         description: 'Merge accounts'
-      }
+      },
+      {
+        name: 'showVatRows',
+        description: 'show Vat Rows'
+      },
+      {
+        name: 'manageVatRows',
+        description: 'manage Vat Rows'
+      },
+      {
+        name: 'showCtaxRows',
+        description: 'show CTAX Rows'
+      },
+      {
+        name: 'manageCtaxRows',
+        description: 'manage CTAX Rows'
+      },
     ]
   },
   accountingsTransaction: {

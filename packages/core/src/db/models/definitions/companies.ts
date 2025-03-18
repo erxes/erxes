@@ -206,7 +206,7 @@ export const companySchema = schemaWrapper(
       label: "Tracked Data"
     }),
     searchText: field({ type: String, optional: true, index: true }),
-    code: field({ type: String, label: "Code", optional: true }),
+    code: field({ type: String, label: "Code", index: true, optional: true }),
     location: field({ type: String, optional: true, label: "Location" }),
     score: field({
       type: Number,
