@@ -107,7 +107,7 @@ const ticketQueries = {
     if (!users || !users._id) {
       throw new Error("User not found");
     }
-
+    console.log(users,'users')
     const tickets = await models.Tickets.find({
       userId: users._id,
       number: { $exists: true, $ne: null }
@@ -121,7 +121,8 @@ const ticketQueries = {
       userId: ticket.userId,
       name: ticket.name,
       stageId: ticket.stageId,
-      number: ticket.number
+      number: ticket.number,
+      type: ticket.type
     }));
 
     return formattedTickets;
