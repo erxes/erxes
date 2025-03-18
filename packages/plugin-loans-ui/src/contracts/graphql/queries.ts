@@ -24,6 +24,10 @@ export const contractFields = `
   firstPayDate
   scheduleDays
   stepRules
+  skipInterestCalcMonth
+  skipInterestCalcDay
+  skipAmountCalcMonth
+  skipAmountCalcDay
   debt
   debtTenor
   debtLimit

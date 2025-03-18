@@ -146,6 +146,10 @@ function ContractForm(props: Props) {
       firstPayDate: contract.firstPayDate,
       contractDate: contract.contractDate,
       stepRules,
+      skipInterestCalcMonth: Number(contract.skipInterestCalcMonth),
+      skipInterestCalcDay: Number(contract.skipInterestCalcDay),
+      skipAmountCalcMonth: Number(contract.skipAmountCalcMonth),
+      skipAmountCalcDay: Number(contract.skipAmountCalcDay),
     };
 
     return result;
@@ -383,6 +387,22 @@ function ContractForm(props: Props) {
     )
       errors.interestRate = errorWrapper(
         `${__('Interest must less than')} ${Number(contractType.config.maxInterest ?? '0').toFixed(0)}`
+      );
+
+    if (
+      contract?.skipInterestCalcMonth &&
+      isGreaterNumber(contract.skipInterestCalcMonth, contract?.tenor)
+    )
+      errors.skipInterestCalcMonth = errorWrapper(
+        `${__('must less than tenor')} ${Number(contract?.skipInterestCalcMonth ?? '0')}`
+      );
+
+    if (
+      contract?.skipAmountCalcMonth &&
+      isGreaterNumber(contract.skipAmountCalcMonth, contract?.tenor)
+    )
+      errors.skipAmountCalcMonth = errorWrapper(
+        `${__('must less than tenor')} ${Number(contract?.skipAmountCalcMonth ?? '0')}`
       );
 
     return errors;
@@ -779,6 +799,7 @@ function ContractForm(props: Props) {
                     name="firstPayDate"
                     dateFormat="YYYY/MM/DD"
                     value={contract.firstPayDate}
+                    onChange={onChangeFirstPayDate}
                     isValidDate={(date) => {
                       const startDate = new Date(contract.startDate);
                       const maxDate = moment(startDate).add(45, 'day').toDate();
@@ -818,6 +839,23 @@ function ContractForm(props: Props) {
                 errors: checkValidation(),
                 onChange: onChangeField,
                 onClick: onFieldClick,
+              })}
+
+              {renderFormGroup('Skip Interest Calc Month', {
+                type: 'number',
+                name: 'skipInterestCalcMonth',
+                useNumberFormat: true,
+                value: contract.skipInterestCalcMonth || 0,
+                errors: checkValidation(),
+                onChange: onChangeField,
+              })}
+
+              {renderFormGroup('Skip Interest Calc Day', {
+                type: 'number',
+                name: 'skipInterestCalcDay',
+                useNumberFormat: true,
+                value: contract.skipInterestCalcDay || 0,
+                onChange: onChangeField,
               })}
 
               {contract.leaseType === LEASE_TYPES.LINEAR &&
@@ -872,6 +910,23 @@ function ContractForm(props: Props) {
                     ...contract,
                     interestRate: (e.target as any).value * 12,
                   }),
+              })}
+
+              {renderFormGroup('Skip Amount Calc Month', {
+                type: 'number',
+                name: 'skipAmountCalcMonth',
+                useNumberFormat: true,
+                value: contract.skipAmountCalcMonth || 0,
+                errors: checkValidation(),
+                onChange: onChangeField,
+              })}
+
+              {renderFormGroup('Skip Amount Calc Day', {
+                type: 'number',
+                name: 'skipAmountCalcDay',
+                useNumberFormat: true,
+                value: contract.skipAmountCalcDay || 0,
+                onChange: onChangeField,
               })}
             </FormColumn>
           </FormWrapper>
