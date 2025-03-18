@@ -68,6 +68,9 @@ export const types = `
         categories: [PostCategory]
         tags: [Tag]
         customFieldsData: JSON
+
+        customPostTypeId: String
+        customPostType: CustomPostType
     }
 
     type PostList {
@@ -103,6 +106,10 @@ export const inputs = `
         pdfAttachment: PdfAttachmentInput
         videoUrl: String
         customFieldsData: JSON
+
+        customPostTypeId: String
+
+        customFields: JSON
     }
 `;
 

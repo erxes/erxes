@@ -5,6 +5,7 @@ import {
 import { generateModels, IModels } from './connectionResolver';
 import { queryBuilder } from './graphql/resolvers/queries/post';
 import { paginate } from '@erxes/api-utils/src';
+import { MessageArgs, sendMessage } from "@erxes/api-utils/src/core";
 
 export const setupMessageConsumers = async () => {
   consumeQueue('cms:addPages', async ({ subdomain, data }) => {
@@ -186,5 +187,12 @@ export const setupMessageConsumers = async () => {
       status: 'success',
       data: post,
     };
+  });
+};
+
+
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
+  return sendMessage({
+    ...args
   });
 };

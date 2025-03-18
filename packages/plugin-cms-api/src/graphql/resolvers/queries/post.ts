@@ -121,6 +121,76 @@ const queries = {
 
     return { totalCount, totalPages, currentPage: page, posts };
   },
+
+  cmsCustomPostTypeList: async (
+    _parent: any,
+    args: any,
+    context: IContext
+  ): Promise<any> => {
+    const { models } = context;
+    const { page = 1, perPage = 20, searchValue } = args;
+    const clientPortalId = context.clientPortalId || args.clientPortalId;
+
+    const query: any = {
+      clientPortalId,
+    };
+
+    if (searchValue) {
+      query.$or = [
+        { name: { $regex: searchValue, $options: 'i' } },
+        { label: { $regex: searchValue, $options: 'i' } },
+      ];
+    }
+
+    const totalCount =
+      await models.CustomPostTypes.find(query).countDocuments();
+
+    const list = await paginate(models.CustomPostTypes.find(query), {
+      page,
+      perPage,
+    });
+
+    const totalPages = Math.ceil(totalCount / perPage);
+
+    return { totalCount, totalPages, currentPage: page, list };
+  },
+
+  cmsCustomPostTypes: async (
+    _parent: any,
+    args: any,
+    context: IContext
+  ): Promise<any> => {
+    const { models } = context;
+    const { page = 1, perPage = 20, searchValue } = args;
+    const clientPortalId = context.clientPortalId || args.clientPortalId;
+
+    const query: any = {
+      clientPortalId,
+    };
+
+    if (searchValue) {
+      query.$or = [
+        { name: { $regex: searchValue, $options: 'i' } },
+        { label: { $regex: searchValue, $options: 'i' } },
+      ];
+    }
+
+    return paginate(models.CustomPostTypes.find(query), {
+      page,
+      perPage,
+    });
+  },
+
+  cmsPostType: async (
+    _parent: any,
+    args: any,
+    context: IContext
+  ): Promise<any> => {
+    const { models } = context;
+    const { _id } = args;
+
+    return models.CustomPostTypes.findOne({ _id });
+  },
 };
 
 requireLogin(queries, 'cmsPosts');
