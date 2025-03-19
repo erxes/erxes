@@ -1,12 +1,14 @@
 import * as dayjs from 'dayjs';
 import * as isoWeek from 'dayjs/plugin/isoWeek';
 import * as localizedFormat from "dayjs/plugin/localizedFormat"
+import * as utc from "dayjs/plugin/utc"
 import { CALL_STATUS_LABELS } from './constants';
 import { IUser } from '@erxes/api-utils/src/types';
-import { sendToGrandStream } from '../utils';
+import { getPureDate, sendToGrandStream } from '../utils';
 
 dayjs.extend(localizedFormat)
 dayjs.extend(isoWeek);
+dayjs.extend(utc);
 
 export const buildDateRange = (
   dateRange: string,
@@ -526,8 +528,10 @@ export const formatData = (data, frequencyType) => {
 
     if (item.hasOwnProperty('createdAt')) {
       const createdAt = item['createdAt'];
-        
-      item['createdAt'] = dayjs(createdAt).format('YYYY/MM/DD LT');
+
+      const date = getPureDate(createdAt, 0)
+
+      item['createdAt'] = dayjs(date).format('YYYY/MM/DD h:mm A');
     }
 
     ['totalDuration', 'averageDuration'].forEach(key => {
