@@ -21,6 +21,23 @@ export const types = `
         currentPage: Int
   }
 
+  type CustomFieldGroup {
+    _id: String!
+    clientPortalId: String!
+    label: String!
+    code: String
+    order: Int
+    createdAt: Date
+
+    fields: [Field]
+  }
+
+  type CustomFieldGroupResponse {
+        list: [CustomFieldGroup]
+        totalCount: Int
+        totalPages: Int
+        currentPage: Int
+  }
   
 `;
 
@@ -34,16 +51,31 @@ export const inputs = `
 
     clientPortalId: String!
   }
+
+  input CustomFieldGroupInput {
+    label: String!
+    code: String
+    order: Int
+    clientPortalId: String!
+  }
 `;
 
 export const queries = `
-  cmsCustomPostTypeList(clientPortalId: String, searchValue: String, page: Int, perPage: Int): CustomPostTypeResponse
+  cmsCustomPostTypeList(clientPortalId: String, searchValue: String, page: Int, perPage: Int): CustomFieldGroupResponse
   cmsCustomPostTypes(clientPortalId: String, searchValue: String, page: Int, perPage: Int): [CustomPostType]
   cmsCustomPostType(_id: String): CustomPostType
+
+  cmsCustomFieldGroupList(clientPortalId: String!, searchValue: String, page: Int, perPage: Int): CustomFieldGroupResponse
+  cmsCustomFieldGroups(clientPortalId: String!, searchValue: String, page: Int, perPage: Int): [CustomFieldGroup]
+  cmsCustomFieldGroup(_id: String): CustomFieldGroup
 `;
 
 export const mutations = `
   cmsCustomPostTypesAdd(input: CustomPostTypeInput!): CustomPostType
   cmsCustomPostTypesEdit(_id: String!, input: CustomPostTypeInput!): CustomPostType
   cmsCustomPostTypesRemove(_id: String!): JSON
+
+  cmsCustomFieldGroupsAdd(input: CustomFieldGroupInput!): CustomFieldGroup
+  cmsCustomFieldGroupsEdit(_id: String!, input: CustomFieldGroupInput!): CustomFieldGroup
+  cmsCustomFieldGroupsRemove(_id: String!): JSON
 `;

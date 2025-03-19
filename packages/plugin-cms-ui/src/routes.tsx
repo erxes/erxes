@@ -47,6 +47,13 @@ const Pages = asyncComponent(
     )
 );
 
+const CustomFields = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - CustomFields" */ './modules/fieldGroups/components/List'
+    )
+)
+
 const CategoriesComponent = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
@@ -161,7 +168,13 @@ const routes = () => (
       element={<TagsComponent />}
     />
 
-    
+
+  {/* {field group} */}
+      <Route
+      key='/cms/website/:cpId/custom-fields'
+      path='/cms/website/:cpId/custom-fields'
+      element={<CustomFields />}
+    />
 
   </Routes>
 );
