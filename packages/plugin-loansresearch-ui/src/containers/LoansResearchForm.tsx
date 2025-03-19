@@ -54,7 +54,7 @@ const LoansResearchFormContainer = (props: Props) => {
       variables: { customerId, type },
     })
       .then(() => {
-        Alert.success('You successfully refetch a research');
+        Alert.success('You successfully refetched the research');
       })
       .catch((e) => {
         Alert.error(e.message);

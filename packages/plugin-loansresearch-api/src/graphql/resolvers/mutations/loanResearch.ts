@@ -50,8 +50,6 @@ const loanResearchMutations = {
     { customerId, type }: { customerId: string; type: string },
     { models, subdomain }: IContext
   ) => {
-    let update;
-
     if (type === 'income') {
       const incomeDate = await sendXypMessage({
         subdomain,
@@ -62,7 +60,7 @@ const loanResearchMutations = {
       });
 
       if (incomeDate) {
-        update = await salaryToResearch(incomeDate, customerId, models);
+        await salaryToResearch(incomeDate, customerId, models);
       }
     }
 
@@ -76,7 +74,7 @@ const loanResearchMutations = {
       });
 
       if (loanData) {
-        update = await scoreToResearch(loanData, customerId, models);
+        await scoreToResearch(loanData, customerId, models);
       }
     }
 
