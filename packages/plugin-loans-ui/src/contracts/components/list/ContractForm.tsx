@@ -146,10 +146,7 @@ function ContractForm(props: Props) {
       firstPayDate: contract.firstPayDate,
       contractDate: contract.contractDate,
       stepRules,
-      skipInterestCalcMonth: Number(contract.skipInterestCalcMonth),
-      skipInterestCalcDay: Number(contract.skipInterestCalcDay),
       skipAmountCalcMonth: Number(contract.skipAmountCalcMonth),
-      skipAmountCalcDay: Number(contract.skipAmountCalcDay),
     };
 
     return result;
@@ -387,14 +384,6 @@ function ContractForm(props: Props) {
     )
       errors.interestRate = errorWrapper(
         `${__('Interest must less than')} ${Number(contractType.config.maxInterest ?? '0').toFixed(0)}`
-      );
-
-    if (
-      contract?.skipInterestCalcMonth &&
-      isGreaterNumber(contract.skipInterestCalcMonth, contract?.tenor)
-    )
-      errors.skipInterestCalcMonth = errorWrapper(
-        `${__('must be less than tenor')} ${Number(contract?.tenor ?? '0')}`
       );
 
     if (
@@ -841,23 +830,6 @@ function ContractForm(props: Props) {
                 onClick: onFieldClick,
               })}
 
-              {renderFormGroup('Skip Interest Calc Month', {
-                type: 'number',
-                name: 'skipInterestCalcMonth',
-                useNumberFormat: true,
-                value: contract.skipInterestCalcMonth || 0,
-                errors: checkValidation(),
-                onChange: onChangeField,
-              })}
-
-              {renderFormGroup('Skip Interest Calc Day', {
-                type: 'number',
-                name: 'skipInterestCalcDay',
-                useNumberFormat: true,
-                value: contract.skipInterestCalcDay || 0,
-                onChange: onChangeField,
-              })}
-
               {contract.leaseType === LEASE_TYPES.LINEAR &&
                 renderFormGroup('Commitment interest', {
                   ...formProps,
@@ -918,14 +890,6 @@ function ContractForm(props: Props) {
                 useNumberFormat: true,
                 value: contract.skipAmountCalcMonth || 0,
                 errors: checkValidation(),
-                onChange: onChangeField,
-              })}
-
-              {renderFormGroup('Skip Amount Calc Day', {
-                type: 'number',
-                name: 'skipAmountCalcDay',
-                useNumberFormat: true,
-                value: contract.skipAmountCalcDay || 0,
                 onChange: onChangeField,
               })}
             </FormColumn>
