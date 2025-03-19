@@ -18,6 +18,7 @@ import LoanForm from './form/Loans';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  refetchResearch: (customerId: string, type: string) => void;
   loansResearch: ILoanResearch;
   closeModal: () => void;
   queryParams: any;
@@ -29,6 +30,7 @@ const LoansResearchForm = (props: Props) => {
     loansResearch = {} as ILoanResearch,
     closeModal,
     renderButton,
+    refetchResearch,
     queryParams,
     customer,
   } = props;
@@ -87,7 +89,7 @@ const LoansResearchForm = (props: Props) => {
   }, [queryParams]);
 
   useEffect(() => {
-    if (customer) {
+    if (customer?._id) {
       setCustomerId(customer._id);
     }
   }, [customer]);
@@ -233,6 +235,8 @@ const LoansResearchForm = (props: Props) => {
           averageSalaryIncome={averageSalaryIncome}
           totalIncome={totalIncome}
           averageBusinessIncome={averageBusinessIncome}
+          refetchResearch={refetchResearch}
+          customerId={customerId}
         />
       );
     }
@@ -245,6 +249,8 @@ const LoansResearchForm = (props: Props) => {
           monthlyCostAmount={monthlyCostAmount}
           monthlyLoanAmount={monthlyLoanAmount}
           totalPaymentAmount={totalPaymentAmount}
+          refetchResearch={refetchResearch}
+          customerId={customerId}
         />
       );
     }

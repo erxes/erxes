@@ -29,9 +29,11 @@ const getEmptyIncome = () => ({
 type Props = {
   loans: ILoan[];
   setLoans: (loans) => void;
+  refetchResearch: (customerId: string, type: string) => void;
   monthlyCostAmount: number;
   monthlyLoanAmount: number;
   totalPaymentAmount: number;
+  customerId: string;
 };
 
 const LoanForm = (props: Props) => {
@@ -41,6 +43,8 @@ const LoanForm = (props: Props) => {
     monthlyCostAmount,
     monthlyLoanAmount,
     totalPaymentAmount,
+    refetchResearch,
+    customerId,
   } = props;
 
   const onChangeLoanItem = (_id: string, key: string, value: any) => {
@@ -82,6 +86,10 @@ const LoanForm = (props: Props) => {
 
   const onChangeFeature = () => {
     setLoans([...loans, getEmptyIncome()]);
+  };
+
+  const onChangeRefetch = () => {
+    refetchResearch(customerId, 'loan');
   };
 
   const removeFeature = (_id?: string) => {
@@ -288,6 +296,13 @@ const LoanForm = (props: Props) => {
         <ControlLabel>Loans</ControlLabel>
         <Button size="small" onClick={() => onChangeFeature()}>
           + Add Loans
+        </Button>
+        <Button
+          size="small"
+          btnStyle="warning"
+          onClick={() => onChangeRefetch()}
+        >
+          Refetch Loans
         </Button>
       </FormGroup>
 

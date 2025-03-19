@@ -135,4 +135,5 @@ export const mutations = `
   loansResearchAdd(${commonFields}): LoansResearch
   loansResearchEdit(_id: String!, ${commonFields}): LoansResearch
   loansResearchRemove(loanResearchIds: [String]): [String]
+  loansResearchRefetch(customerId: String!, type: String!): LoansResearch
 `;

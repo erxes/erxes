@@ -58,8 +58,17 @@ const loansResearchRemove = `
   }
 `;
 
+const loansResearchRefetch = `
+  mutation loansResearchRefetch($customerId: String!, $type: String!) {
+    loansResearchRefetch(customerId: $customerId, type: $type) {
+      _id
+    }
+  }
+`;
+
 export default {
   loansResearchAdd,
   loansResearchEdit,
   loansResearchRemove,
+  loansResearchRefetch,
 };
