@@ -584,3 +584,13 @@ export const sendCallsMessage = (
     ...args
   });
 };
+
+export const sendCloudflareCallsMessage = (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'cloudflarecalls',
+    ...args,
+  });
+};
+

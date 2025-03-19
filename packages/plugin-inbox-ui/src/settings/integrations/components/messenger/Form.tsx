@@ -12,6 +12,7 @@ import {
   StepWrapper,
 } from "@erxes/ui/src/components/step/styles";
 import {
+  ICallData,
   IExternalLink,
   IIntegration,
   IMessages,
@@ -23,10 +24,9 @@ import {
 import { Step, Steps } from "@erxes/ui/src/components/step";
 
 import AddOns from "../../containers/messenger/AddOns";
-import BotSelector from "./steps/BotSelector";
 import Button from "@erxes/ui/src/components/Button";
 import CommonPreview from "./widgetPreview/CommonPreview";
-import Connection from "./steps/Connection";
+import ConfigSetup from "./steps/ConfigSetup";
 import { IBrand } from "@erxes/ui/src/brands/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import { LANGUAGES } from "@erxes/ui-settings/src/general/constants";
@@ -49,6 +49,7 @@ type Props = {
     messengerData: IMessengerData;
     uiOptions: IUiOptions;
     messengerApps: IMessengerApps;
+    callData: ICallData;
   }) => void;
   isLoading: boolean;
 };
@@ -100,6 +101,7 @@ type State = {
   showVideoCallRequest?: boolean;
   messengerApps: IMessengerApps;
   externalLinks: IExternalLink[];
+  callData?: ICallData;
 };
 
 class CreateMessenger extends React.Component<Props, State> {
@@ -108,21 +110,25 @@ class CreateMessenger extends React.Component<Props, State> {
 
     const integration = props.integration || ({} as IIntegration);
     const languageCode = integration.languageCode || "en";
-    const configData = integration.messengerData || {
-      skillData: undefined,
-      notifyCustomer: false,
-      requireAuth: true,
-      showChat: true,
-      showLauncher: true,
-      hideWhenOffline: false,
-      forceLogoutWhenResolve: false,
-      showVideoCallRequest: false,
-      botEndpointUrl: "",
-      botShowInitialMessage: false,
-      botCheck: false,
-      botGreetMessage: "",
-      persistentMenus: [] as BotPersistentMenuTypeMessenger[],
-    };
+    const configData =
+      integration.messengerData ||
+      ({
+        skillData: undefined,
+        notifyCustomer: false,
+        requireAuth: true,
+        showChat: true,
+        showLauncher: true,
+        hideWhenOffline: false,
+        forceLogoutWhenResolve: false,
+        showVideoCallRequest: false,
+        botEndpointUrl: "",
+        botShowInitialMessage: false,
+        botCheck: false,
+        isReceiveWebCall: false,
+        botGreetMessage: "",
+        persistentMenus: [] as BotPersistentMenuTypeMessenger[],
+      } as IMessengerData);
+    const callData = integration.callData;
     const links = configData.links || {};
     const externalLinks = configData.externalLinks || [];
     const messages = configData.messages || {};
@@ -171,6 +177,7 @@ class CreateMessenger extends React.Component<Props, State> {
       messages: { ...this.generateMessages(messages) },
       messengerApps,
       externalLinks,
+      callData: callData,
     };
   }
 
@@ -239,6 +246,7 @@ class CreateMessenger extends React.Component<Props, State> {
       messengerApps,
       skillData,
       externalLinks,
+      callData,
     } = this.state;
 
     if (!languageCode) {
@@ -337,6 +345,7 @@ class CreateMessenger extends React.Component<Props, State> {
         logo: this.state.logo,
       },
       messengerApps,
+      callData: callData || {},
     });
   };
 
@@ -418,6 +427,7 @@ class CreateMessenger extends React.Component<Props, State> {
       skillData,
       messengerApps,
       externalLinks,
+      callData,
     } = this.state;
 
     const { integration } = this.props;
@@ -517,30 +527,20 @@ class CreateMessenger extends React.Component<Props, State> {
               </Step>
               <Step
                 img="/images/icons/erxes-24.svg"
-                title={__("Bot Setup")}
-                onClick={this.onStepClick.bind(null, "bot")}
+                title={__("Config Setup")}
+                onClick={this.onStepClick.bind(null, "cfCall")}
               >
-                <BotSelector
+                <ConfigSetup
+                  onChange={this.onChange}
+                  callData={callData}
                   title={title}
                   botCheck={botCheck}
                   botGreetMessage={botGreetMessage}
                   persistentMenus={persistentMenus}
-                  onChange={this.onChange as any} // Explicitly cast
-                />
-              </Step>
-              <Step
-                img="/images/icons/erxes-16.svg"
-                title={__("Integration Setup")}
-                onClick={this.onStepClick.bind(null, "setup")}
-              >
-                <Connection
-                  title={title}
                   botEndpointUrl={botEndpointUrl}
                   botShowInitialMessage={botShowInitialMessage}
-                  botCheck={botCheck}
                   channelIds={channelIds}
                   brandId={brandId}
-                  onChange={this.onChange}
                 />
               </Step>
               <Step

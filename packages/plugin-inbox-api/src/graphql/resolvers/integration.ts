@@ -25,7 +25,7 @@ export default {
   async form(
     integration: IIntegrationDocument,
     _args,
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     return sendCommonMessage({
       serviceName: 'core',
@@ -39,7 +39,11 @@ export default {
     });
   },
 
-  async channels(integration: IIntegrationDocument, _args, { models }: IContext) {
+  async channels(
+    integration: IIntegrationDocument,
+    _args,
+    { models }: IContext,
+  ) {
     return models.Channels.find({
       integrationIds: { $in: [integration._id] },
     });
@@ -171,6 +175,46 @@ export default {
         });
 
         return a;
+      } catch (e) {
+        console.error('error', e);
+
+        return null;
+      }
+    }
+  },
+
+  async callData(
+    integration: IIntegrationDocument,
+    _args,
+    { subdomain }: IContext,
+  ) {
+    const inboxId: string = integration._id;
+
+    if (integration.kind !== 'messenger') {
+      return null;
+    }
+
+    const serviceRunning = await isServiceRunning('cloudflarecalls');
+
+    if (serviceRunning) {
+      try {
+        const integrationDetails = await sendCommonMessage({
+          serviceName: 'cloudflarecalls',
+          subdomain,
+          action: 'api_to_integrations',
+          data: { inboxId, integrationId: inboxId, action: 'getDetails' },
+          isRPC: true,
+          defaultValue: null,
+        });
+        const isReceiveWebCall =
+          integrationDetails.status === 'active' ? true : false;
+
+        return (
+          {
+            departments: integrationDetails.departments,
+            isReceiveWebCall,
+          } || {}
+        );
       } catch (e) {
         console.error('error', e);
 
