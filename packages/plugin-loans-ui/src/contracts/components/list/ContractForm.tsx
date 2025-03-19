@@ -146,6 +146,7 @@ function ContractForm(props: Props) {
       firstPayDate: contract.firstPayDate,
       contractDate: contract.contractDate,
       stepRules,
+      skipAmountCalcMonth: Number(contract.skipAmountCalcMonth),
     };
 
     return result;
@@ -383,6 +384,14 @@ function ContractForm(props: Props) {
     )
       errors.interestRate = errorWrapper(
         `${__('Interest must less than')} ${Number(contractType.config.maxInterest ?? '0').toFixed(0)}`
+      );
+
+    if (
+      contract?.skipAmountCalcMonth &&
+      isGreaterNumber(contract.skipAmountCalcMonth, contract?.tenor)
+    )
+      errors.skipAmountCalcMonth = errorWrapper(
+        `${__('must be less than tenor')} ${Number(contract?.tenor ?? '0')}`
       );
 
     return errors;
@@ -779,6 +788,7 @@ function ContractForm(props: Props) {
                     name="firstPayDate"
                     dateFormat="YYYY/MM/DD"
                     value={contract.firstPayDate}
+                    onChange={onChangeFirstPayDate}
                     isValidDate={(date) => {
                       const startDate = new Date(contract.startDate);
                       const maxDate = moment(startDate).add(45, 'day').toDate();
@@ -872,6 +882,15 @@ function ContractForm(props: Props) {
                     ...contract,
                     interestRate: (e.target as any).value * 12,
                   }),
+              })}
+
+              {renderFormGroup('Skip Amount Calc Month', {
+                type: 'number',
+                name: 'skipAmountCalcMonth',
+                useNumberFormat: true,
+                value: contract.skipAmountCalcMonth || 0,
+                errors: checkValidation(),
+                onChange: onChangeField,
               })}
             </FormColumn>
           </FormWrapper>

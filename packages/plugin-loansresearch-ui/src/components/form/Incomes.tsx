@@ -24,9 +24,11 @@ const getEmptyIncome = () => ({
 type Props = {
   incomes: IIncome[];
   setIncomes: (incomes) => void;
+  refetchResearch: (customerId: string, type: string) => void;
   averageSalaryIncome: number;
   totalIncome: number;
   averageBusinessIncome: number;
+  customerId: string;
 };
 
 const IncomeForm = (props: Props) => {
@@ -36,6 +38,8 @@ const IncomeForm = (props: Props) => {
     averageSalaryIncome,
     totalIncome,
     averageBusinessIncome,
+    refetchResearch,
+    customerId,
   } = props;
 
   const onChangeIncomeItem = (_id: string, key: string, value: any) => {
@@ -66,6 +70,10 @@ const IncomeForm = (props: Props) => {
 
   const onChangeFeature = () => {
     setIncomes([...incomes, getEmptyIncome()]);
+  };
+
+  const onChangeRefetch = () => {
+    refetchResearch(customerId, 'income');
   };
 
   const removeFeature = (_id?: string) => {
@@ -262,6 +270,13 @@ const IncomeForm = (props: Props) => {
         <ControlLabel>Incomes</ControlLabel>
         <Button size="small" onClick={() => onChangeFeature()}>
           + Add Incomes
+        </Button>
+        <Button
+          size="small"
+          btnStyle="warning"
+          onClick={() => onChangeRefetch()}
+        >
+          Refetch Incomes
         </Button>
       </FormGroup>
 

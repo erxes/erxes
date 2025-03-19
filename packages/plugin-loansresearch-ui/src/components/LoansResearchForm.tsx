@@ -18,6 +18,7 @@ import LoanForm from './form/Loans';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  refetchResearch: (customerId: string, type: string) => void;
   loansResearch: ILoanResearch;
   closeModal: () => void;
   queryParams: any;
@@ -29,6 +30,7 @@ const LoansResearchForm = (props: Props) => {
     loansResearch = {} as ILoanResearch,
     closeModal,
     renderButton,
+    refetchResearch,
     queryParams,
     customer,
   } = props;
@@ -87,7 +89,7 @@ const LoansResearchForm = (props: Props) => {
   }, [queryParams]);
 
   useEffect(() => {
-    if (customer) {
+    if (customer?._id) {
       setCustomerId(customer._id);
     }
   }, [customer]);
@@ -102,19 +104,21 @@ const LoansResearchForm = (props: Props) => {
 
     if (customerType === 'Salary') {
       increaseAmount = averageSalaryIncome * 0.8 - totalPaymentAmount;
+      setIncreaseMonthlyPaymentAmount(increaseAmount);
     }
 
     if (customerType === 'Business') {
       increaseAmount = averageBusinessIncome * 0.7 - totalPaymentAmount;
+      setIncreaseMonthlyPaymentAmount(increaseAmount);
     }
 
     if (customerType === 'Salary+Business') {
       increaseAmount = totalIncome * 0.7 - totalPaymentAmount;
+      setIncreaseMonthlyPaymentAmount(increaseAmount);
     }
 
     setDebtIncomeRatio(ratio);
     setUpdatedRatio(updatedRatio);
-    setIncreaseMonthlyPaymentAmount(increaseAmount);
   }, [
     averageSalaryIncome,
     averageBusinessIncome,
@@ -220,6 +224,7 @@ const LoansResearchForm = (props: Props) => {
           totalPaymentAmount={totalPaymentAmount}
           debtIncomeRatio={debtIncomeRatio}
           increaseMonthlyPaymentAmount={increaseMonthlyPaymentAmount}
+          setIncreaseMonthlyPaymentAmount={setIncreaseMonthlyPaymentAmount}
           updatedRatio={updatedRatio}
         />
       );
@@ -233,6 +238,8 @@ const LoansResearchForm = (props: Props) => {
           averageSalaryIncome={averageSalaryIncome}
           totalIncome={totalIncome}
           averageBusinessIncome={averageBusinessIncome}
+          refetchResearch={refetchResearch}
+          customerId={customerId}
         />
       );
     }
@@ -245,6 +252,8 @@ const LoansResearchForm = (props: Props) => {
           monthlyCostAmount={monthlyCostAmount}
           monthlyLoanAmount={monthlyLoanAmount}
           totalPaymentAmount={totalPaymentAmount}
+          refetchResearch={refetchResearch}
+          customerId={customerId}
         />
       );
     }

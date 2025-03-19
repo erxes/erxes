@@ -1,11 +1,11 @@
-import { ButtonMutate, Spinner } from '@erxes/ui/src';
+import { Alert, ButtonMutate, Spinner } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery, useMutation } from '@apollo/client';
 
 import { mutations, queries } from '../graphql';
 import LoansResearchForm from '../components/LoansResearchForm';
-import { ILoanResearch } from '../types';
+import { ILoanResearch, RefetchMutationResponse } from '../types';
 
 type Props = {
   loansResearch: ILoanResearch;
@@ -15,6 +15,13 @@ type Props = {
 
 const LoansResearchFormContainer = (props: Props) => {
   const { queryParams } = props;
+
+  const [loanResearchRefetch] = useMutation<RefetchMutationResponse>(
+    gql(mutations.loansResearchRefetch),
+    {
+      refetchQueries: ['loanResearchDetail'],
+    }
+  );
 
   const deepCleanTypename = (obj: any): any => {
     if (Array.isArray(obj)) {
@@ -41,6 +48,18 @@ const LoansResearchFormContainer = (props: Props) => {
   if (customersQuery.loading) {
     return <Spinner />;
   }
+
+  const refetchResearch = (customerId, type) => {
+    loanResearchRefetch({
+      variables: { customerId, type },
+    })
+      .then(() => {
+        Alert.success('You successfully refetched the research');
+      })
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+  };
 
   const renderButton = ({
     name,
@@ -71,6 +90,7 @@ const LoansResearchFormContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     renderButton,
+    refetchResearch,
     customer: customersQuery?.data?.customers[0] || {},
   };
   return <LoansResearchForm {...updatedProps} />;

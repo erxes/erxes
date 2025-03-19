@@ -70,3 +70,9 @@ export type RemoveMutationResponse = {
     variables: { loanResearchIds: string[] };
   }) => Promise<any>;
 };
+
+export type RefetchMutationResponse = {
+  loansResearchRefetch: (params: {
+    variables: { customerId: string; type: string };
+  }) => Promise<any>;
+};
