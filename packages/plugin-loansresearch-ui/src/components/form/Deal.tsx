@@ -15,6 +15,7 @@ type Props = {
   totalPaymentAmount: number;
   debtIncomeRatio: number;
   increaseMonthlyPaymentAmount: number;
+  setIncreaseMonthlyPaymentAmount: (increaseMonthlyPaymentAmount) => void;
   updatedRatio: number;
 };
 
@@ -27,8 +28,13 @@ const DealForm = (props: Props) => {
     totalPaymentAmount,
     debtIncomeRatio,
     increaseMonthlyPaymentAmount,
+    setIncreaseMonthlyPaymentAmount,
     updatedRatio,
   } = props;
+
+  const onChange = (e) => {
+    setIncreaseMonthlyPaymentAmount(Number(e.target.value));
+  };
 
   return (
     <MarginTop>
@@ -92,7 +98,7 @@ const DealForm = (props: Props) => {
             <FormControl
               type="number"
               value={increaseMonthlyPaymentAmount}
-              disabled={true}
+              onChange={(e: any) => onChange(e)}
               useNumberFormat={true}
               fixed={2}
             />

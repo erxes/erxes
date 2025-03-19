@@ -104,19 +104,21 @@ const LoansResearchForm = (props: Props) => {
 
     if (customerType === 'Salary') {
       increaseAmount = averageSalaryIncome * 0.8 - totalPaymentAmount;
+      setIncreaseMonthlyPaymentAmount(increaseAmount);
     }
 
     if (customerType === 'Business') {
       increaseAmount = averageBusinessIncome * 0.7 - totalPaymentAmount;
+      setIncreaseMonthlyPaymentAmount(increaseAmount);
     }
 
     if (customerType === 'Salary+Business') {
       increaseAmount = totalIncome * 0.7 - totalPaymentAmount;
+      setIncreaseMonthlyPaymentAmount(increaseAmount);
     }
 
     setDebtIncomeRatio(ratio);
     setUpdatedRatio(updatedRatio);
-    setIncreaseMonthlyPaymentAmount(increaseAmount);
   }, [
     averageSalaryIncome,
     averageBusinessIncome,
@@ -222,6 +224,7 @@ const LoansResearchForm = (props: Props) => {
           totalPaymentAmount={totalPaymentAmount}
           debtIncomeRatio={debtIncomeRatio}
           increaseMonthlyPaymentAmount={increaseMonthlyPaymentAmount}
+          setIncreaseMonthlyPaymentAmount={setIncreaseMonthlyPaymentAmount}
           updatedRatio={updatedRatio}
         />
       );
