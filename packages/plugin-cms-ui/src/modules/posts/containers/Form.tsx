@@ -1,15 +1,12 @@
-import { useQuery, useMutation } from '@apollo/client';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { getGqlString } from '@erxes/ui/src/utils/core';
+import { useMutation, useQuery } from '@apollo/client';
 import React from 'react';
 
 import Spinner from '@erxes/ui/src/components/Spinner';
 import PostForm from '../components/Form';
 import { mutations, queries } from '../graphql';
 
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Alert from '@erxes/ui/src/utils/Alert';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 type Props = {
   id?: string;
@@ -18,10 +15,8 @@ type Props = {
 
 const FormContainer = (props: Props) => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [searchParams] = useSearchParams();
 
-  let clientPortalId = searchParams.get('web') || '';
+  const { cpId = '' } = useParams<{ cpId: string }>();
   const postId = props.id;
 
   const { data, loading } = useQuery(queries.POST, {
@@ -31,6 +26,7 @@ const FormContainer = (props: Props) => {
     fetchPolicy: 'network-only',
     skip: !postId,
   });
+  
 
   const [addMutation] = useMutation(mutations.POST_ADD);
 
@@ -41,9 +37,7 @@ const FormContainer = (props: Props) => {
   }
 
   const post = postId ? data.cmsPost : null;
-  if (post?.clientPortalId) {
-    clientPortalId = post.clientPortalId;
-  }
+
 
   const onSubmit = (doc: any) => {
     if (postId) {
@@ -57,7 +51,7 @@ const FormContainer = (props: Props) => {
         
         setTimeout(() => {
           
-          navigate(`/cms/posts?web=${clientPortalId}`, {
+          navigate(`/cms/website/${cpId}/posts`, {
             replace: true,
           });
         }, 1500);
@@ -69,11 +63,10 @@ const FormContainer = (props: Props) => {
         },
       }).then((res: any) => {
         
-        const postId = res.data.postsAdd._id;
         Alert.success('You successfully added a post', 1500);
 
         setTimeout(() => {
-          navigate(`/cms/posts?web=${clientPortalId}`, {
+          navigate(`/cms/website/${cpId}/posts`, {
             replace: true,
           });
         }, 1500);
@@ -83,7 +76,7 @@ const FormContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    clientPortalId,
+    clientPortalId:cpId,
     post,
     onSubmit,
   };

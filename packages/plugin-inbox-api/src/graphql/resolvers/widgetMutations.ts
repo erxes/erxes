@@ -13,7 +13,7 @@ import {
 } from "../../models/definitions/integrations";
 
 import { debugError, debugInfo } from "@erxes/api-utils/src/debuggers";
-
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 import redis from "@erxes/api-utils/src/redis";
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 
@@ -180,6 +180,7 @@ export const getMessengerData = async (
     kind: "website",
     "credentials.integrationId": integration._id
   });
+<<<<<<< HEAD
   const getStarted = await sendAutomationsMessage({
     subdomain,
     action: "trigger.find",
@@ -196,6 +197,28 @@ export const getMessengerData = async (
   const getStartedCondition = (
     getStarted[0]?.triggers[0]?.config?.conditions || []
   ).find((condition) => condition.type === "getStarted");
+=======
+  let getStartedCondition: { isSelected?: boolean } | false = false;
+  if (isEnabled("automations")) {
+    const getStarted = await sendAutomationsMessage({
+      subdomain,
+      action: "trigger.find",
+      data: {
+        query: {
+          triggerType: "inbox:messages",
+          botId: integration._id
+        }
+      },
+      isRPC: true
+    }).catch((error) => {
+      throw error;
+    });
+
+    getStartedCondition = (
+      getStarted[0]?.triggers[0]?.config?.conditions || []
+    ).find((condition) => condition.type === "getStarted");
+  }
+>>>>>>> 3ee3131708798147cba9319a8b7cf8469c99a05a
 
   return {
     ...(messengerData || {}),
@@ -439,11 +462,11 @@ const widgetMutations = {
         }
       });
     }
-
     return {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
+      ticketData: integration.ticketData,
       messengerData: await getMessengerData(models, integration, subdomain),
       customerId: customer && customer._id,
       visitorId: customer ? null : visitorId,
@@ -628,11 +651,12 @@ const widgetMutations = {
     graphqlPubsub.publish(`conversationMessageInserted:${msg.conversationId}`, {
       conversationMessageInserted: msg
     });
-
-    await handleAutomation(subdomain, {
-      conversationMessage: msg, // Pass msg as conversationMessage
-      payload: payload
-    });
+    if (isEnabled("automations")) {
+      await handleAutomation(subdomain, {
+        conversationMessage: msg, // Pass msg as conversationMessage
+        payload: payload
+      });
+    }
 
     // bot message ================
     if (
@@ -1055,12 +1079,15 @@ const widgetMutations = {
     });
 
     const key = type.includes("persistentMenu") ? "persistentMenuId" : "btnId";
-    if (key) {
-      await handleAutomation(subdomain, {
-        conversationMessage: msg,
-        payload: { [key]: payload, conversationId, customerId }
-      });
+    if (isEnabled("automations")) {
+      if (key) {
+        await handleAutomation(subdomain, {
+          conversationMessage: msg,
+          payload: { [key]: payload, conversationId, customerId }
+        });
+      }
     }
+
     return msg;
   },
 

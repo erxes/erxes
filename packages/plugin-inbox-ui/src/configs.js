@@ -65,6 +65,7 @@ module.exports = {
         "integrationsEditMessengerIntegration",
         "integrationsSaveMessengerAppearanceData",
         "integrationsSaveMessengerConfigs",
+        "integrationsSaveMessengerTicketData",
         "integrationsCreateLeadIntegration",
         "integrationsEditLeadIntegration",
         "integrationsRemove",

@@ -9,9 +9,10 @@ import ConversationListContainer from "../containers/ConversationList";
 import FaqCategories from "./faq/FaqCategories";
 import Home from "../containers/Home";
 import { IUser } from "../../types";
-import TicketContainer from "../containers/TicketContainer";
+import TicketContainer from "../containers/ticket/TicketContainer";
+import TicketShowProgressContainer from "../containers/ticket/TicketShowProgress";
+import TicketSubmitContainer from "../containers/ticket/TicketSubmitForm";
 import WebsiteAppDetailContainer from "../containers/websiteApp/WebsiteAppDetail";
-import asyncComponent from "../../AsyncComponent";
 import { getMessengerData } from "../utils/util";
 
 type Props = {
@@ -63,9 +64,12 @@ function Messenger({
 
       case "faqCategories":
         return <FaqCategories topicId={topicId} loading={loading} />;
-
       case "ticket":
-        return <TicketContainer />;
+        return <TicketContainer loading={loading} />;
+      case "ticket-submit":
+        return <TicketSubmitContainer loading={loading} />;
+      case "ticket-progress":
+        return <TicketShowProgressContainer loading={loading} />;
       case "call":
         return <CallContainer />;
 

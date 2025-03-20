@@ -241,7 +241,7 @@ const readConversationMessages = `
   }
 `;
 
-const connect = `
+const connect = (isCloudFlareEnabled?: boolean, isTicketEnabled?: boolean) => `
   mutation connect($brandCode: String!, $email: String, $phone: String, $code: String
     $isUser: Boolean, $data: JSON,
     $companyData: JSON, $cachedCustomerId: String $visitorId: String) {
@@ -251,14 +251,20 @@ const connect = `
       cachedCustomerId: $cachedCustomerId, visitorId: $visitorId) {
       integrationId,
       messengerData,
-      callData {
-        departments {
-          _id
-          name
-          operators
-        }
-        isReceiveWebCall
-      }
+      ${isCloudFlareEnabled ? `
+        callData {
+          departments {
+            _id
+            name
+            operators
+          }
+          isReceiveWebCall
+        },
+      ` : ""}
+      ${isTicketEnabled ? `
+        ticketData
+      ` : ``}
+      ticketData,
       languageCode,
       uiOptions,
       customerId,
