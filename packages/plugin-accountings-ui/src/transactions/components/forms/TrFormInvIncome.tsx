@@ -38,7 +38,9 @@ type Props = {
 
 const TrFormInvIncome = (props: Props) => {
   const { trDoc, setTrDoc, followTrDocs } = props;
-  const detail = trDoc?.details && trDoc?.details[0] || {};
+  const detail = trDoc?.details && trDoc?.details[0] || {
+    _id: Math.random().toString(),
+  };
 
   const onChange = (key, value) => {
     setTrDoc({ ...trDoc, [key]: value }, followTrDocs);
@@ -58,6 +60,7 @@ const TrFormInvIncome = (props: Props) => {
 
     setTrDoc({
       ...trDoc, details: [...oldDetails, {
+        _id: Math.random().toString(),
         accountId: prevDetail?.accountId,
         account: prevDetail?.account,
         side: TR_SIDES.DEBIT,
@@ -251,7 +254,7 @@ const TrFormInvIncome = (props: Props) => {
                       required={true}
                       onChange={e => {
                         const value = (e.target as any).value;
-                        onChangeDetail(det._id, { unitPrice: value, amount: value * (det.unitPrice ?? 0) })
+                        onChangeDetail(det._id, { unitPrice: value, amount: value * (det.count ?? 0) })
                       }}
                     />
                   </td>
