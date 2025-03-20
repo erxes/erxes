@@ -14,7 +14,7 @@ const LIST = gql`
       _id
       clientPortalId
       code
-      
+      label
       order
       createdAt
       fields {

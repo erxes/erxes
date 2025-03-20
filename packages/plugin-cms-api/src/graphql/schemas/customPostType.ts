@@ -24,6 +24,7 @@ export const types = `
   type CustomFieldGroup {
     _id: String!
     clientPortalId: String!
+    parentId: String
     label: String!
     code: String
     order: Int
@@ -47,6 +48,7 @@ export const inputs = `
     label: String!
     pluralLabel: String!
     code: String!
+    
     description: String
 
     clientPortalId: String!
@@ -56,6 +58,7 @@ export const inputs = `
     label: String!
     code: String
     order: Int
+    parentId: String
     clientPortalId: String!
   }
 `;

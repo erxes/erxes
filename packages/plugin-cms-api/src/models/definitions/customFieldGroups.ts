@@ -6,6 +6,7 @@ export interface ICustomFieldGroup {
   label: string;
   code: string;
   order: number;
+  parentId?: string;
 }
 
 export interface ICustomFieldGroupDocument extends ICustomFieldGroup, Document {
@@ -20,6 +21,7 @@ export const fieldGroupSchema = new Schema<ICustomFieldGroupDocument>(
     clientPortalId: { type: String, required: true },
     label: { type: String, required: true },
     code: { type: String, unique: true },
+    parentId: { type: String },
     order: { type: Number},
   },
   { timestamps: true }

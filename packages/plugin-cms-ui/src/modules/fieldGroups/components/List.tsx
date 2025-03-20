@@ -26,7 +26,7 @@ import GroupForm from './GroupForm';
 
 const FieldGroupsList = () => {
   const { cpId = '' } = useParams<{ cpId: string }>();
-  const { data, loading } = useQuery(queries.LIST, {
+  const { data, loading, refetch } = useQuery(queries.LIST, {
     variables: { clientPortalId: cpId },
   });
 
@@ -107,7 +107,9 @@ const FieldGroupsList = () => {
   const formContent = (formProps) => (
     <GroupForm
       {...formProps}
-   
+      clientPortalId={cpId}
+      refetch={refetch}
+      groups={data?.cmsCustomFieldGroups || []}
     />
   );
 
