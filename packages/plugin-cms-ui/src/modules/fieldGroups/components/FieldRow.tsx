@@ -20,25 +20,34 @@ import SortableList from '@erxes/ui/src/components/SortableList';
 import { IField } from '@erxes/ui/src/types';
 import { __, Alert, confirm } from '@erxes/ui/src/utils';
 import React, { useEffect, useState } from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import GroupForm from './GroupForm';
+import FieldForm from './FieldForm';
 
 type Props = {
+  clientPortalId: string;
   group: any;
+  groups: any[];
   groupsWithParents: any[];
   queryParams: any;
   removePropertyGroup: (data: { _id: string }) => any;
   removeProperty: (data: { _id: string }) => void;
   updateFieldOrder: (fields: IField[]) => any;
   updateGroupOrder: (groups: IFieldGroup[]) => void;
+  refetch?: () => void;
 };
 
 const PropertyRow: React.FC<Props> = ({
   group,
+  groups,
   groupsWithParents: initialGroupsWithParents,
   queryParams,
+  clientPortalId,
   removePropertyGroup,
   removeProperty,
   updateFieldOrder,
   updateGroupOrder,
+  refetch,
 }) => {
   const [collapse, setCollapse] = useState(!group.parentId);
   const [fields, setFields] = useState(group.fields || []);
@@ -78,16 +87,41 @@ const PropertyRow: React.FC<Props> = ({
           Alert.error(e.message);
         });
 
+    const formContent = (formProps) => (
+      <GroupForm
+        {...formProps}
+        group={group}
+        clientPortalId={clientPortalId}
+        refetch={refetch}
+        groups={groups}
+      />
+    );
+
+    const fieldFormContent = (formProps) => (
+      <FieldForm {...formProps} groups={groups} groupId={group._id} refetch={refetch} />
+    );
+
     return (
       <ActionButtons>
-        <Button btnStyle='link' icon='plus-circle'></Button>
-        <ModalTrigger
-          title={isGroup ? 'Edit group' : 'Edit field'}
-          trigger={<Button btnStyle='link' icon='edit-3' />}
-          content={content}
-        />
-
-        <Button btnStyle='link' icon='times-circle' onClick={onClick} />
+        <Tip text={__('Add field')} placement='bottom'>
+          <ModalTrigger
+            size='sm'
+            title={isGroup ? 'Edit group' : 'Edit field'}
+            trigger={<Button btnStyle='link' icon='plus-circle' />}
+            content={fieldFormContent}
+          />
+        </Tip>
+        <Tip text={__('Edit group')} placement='bottom'>
+          <ModalTrigger
+            size='sm'
+            title={isGroup ? 'Edit group' : 'Edit field'}
+            trigger={<Button btnStyle='link' icon='edit-3' />}
+            content={formContent}
+          />
+        </Tip>
+        <Tip text={__('Delete group')} placement='bottom'>
+          <Button btnStyle='link' icon='times-circle' onClick={onClick} />
+        </Tip>
       </ActionButtons>
     );
   };
@@ -185,6 +219,8 @@ const PropertyRow: React.FC<Props> = ({
         <PropertyRow
           key={childGroup._id}
           group={childGroup}
+          groups={groups}
+          clientPortalId={clientPortalId}
           groupsWithParents={fieldsGroupsWithParent}
           queryParams={queryParams}
           removePropertyGroup={removePropertyGroup}

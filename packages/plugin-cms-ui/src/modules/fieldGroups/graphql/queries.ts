@@ -16,6 +16,7 @@ const LIST = gql`
       code
       label
       order
+      parentId
       createdAt
       fields {
         _id

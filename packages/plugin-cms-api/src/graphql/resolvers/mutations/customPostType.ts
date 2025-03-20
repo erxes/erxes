@@ -16,7 +16,7 @@ const mutations = {
   async cmsCustomFieldGroupsAdd(_parent: any, args: any, context: IContext) {
     const { models } = context;
     const { input } = args;
-
+    console.log(input);
     return models.CustomFieldGroups.createFieldGroup(input);
   },
 
