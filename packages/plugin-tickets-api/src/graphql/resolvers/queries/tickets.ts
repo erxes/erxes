@@ -69,6 +69,10 @@ const ticketQueries = {
     { number }: { number: string },
     { user, models, subdomain }: IContext
   ) {
+    if(!number ){
+      return null
+
+    }
     const ticket = await models.Tickets.findOne({
       number: number
     });
@@ -82,50 +86,70 @@ const ticketQueries = {
   async ticketCheckProgressForget(
     _root,
     { email, phoneNumber }: { email: string; phoneNumber: string },
-    { user, models, subdomain }: IContext
+    { models, subdomain }: IContext
   ) {
-    let users;
-
+    if(!email && !phoneNumber){
+      return null
+    }
+    let customer;
     if (email) {
-      users = await sendCoreMessage({
+      customer = await sendCoreMessage({
         subdomain,
-        action: "users.findOne",
-        data: { email },
+        action: "customers.findOne",
+        data: { primaryEmail:email },
         isRPC: true,
         defaultValue: null
       });
     } else if (phoneNumber) {
-      users = await sendCoreMessage({
+      customer = await sendCoreMessage({
         subdomain,
-        action: "users.findOne",
-        data: { "details.operatorPhone": phoneNumber },
+        action: "customers.findOne",
+        data: {primaryPhone: phoneNumber },
         isRPC: true,
         defaultValue: null
       });
     }
+    if (customer) {
+      const customerIds = [customer._id]; 
+      const mainTypeIds = await sendCoreMessage({
+        subdomain,
+        action: "conformities.findConformities",
+        data: {
+          mainType: "ticket",
+          relType: 'customer',
+          relTypeId:  customerIds,
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+      
+      if (!mainTypeIds.length) {
+        return;
+      }
+      const ticketIds = mainTypeIds.map((mainType) => mainType.mainTypeId);
 
-    if (!users || !users._id) {
-      throw new Error("User not found");
+      const tickets = await models.Tickets.find({
+        _id: { $in: ticketIds },
+        number: { $exists: true, $ne: null }
+      });
+      if (!tickets.length) {
+        return null;
+      }
+
+      const formattedTickets = tickets.map((ticket) => ({
+        userId: ticket.userId,
+        name: ticket.name,
+        stageId: ticket.stageId,
+        number: ticket.number,
+        type: ticket.type
+      }));
+  
+      return formattedTickets;
+   
+    } else {
+      throw new Error("No user found.");
     }
-    console.log(users,'users')
-    const tickets = await models.Tickets.find({
-      userId: users._id,
-      number: { $exists: true, $ne: null }
-    });
-    if (!tickets.length) {
-      return null;
-    }
-
-    // Get the most recent ticket based on createdAt
-    const formattedTickets = tickets.map((ticket) => ({
-      userId: ticket.userId,
-      name: ticket.name,
-      stageId: ticket.stageId,
-      number: ticket.number,
-      type: ticket.type
-    }));
-
-    return formattedTickets;
+    
   }
 };
 

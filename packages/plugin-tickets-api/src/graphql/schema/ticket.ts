@@ -101,7 +101,7 @@ const archivedTicketsParams = `
 export const queries = `
   ticketDetail(_id: String!): Ticket
   ticketCheckProgress(number: String!): Ticket
- ticketCheckProgressForget(email: String, phoneNumber: String): JSON
+  ticketCheckProgressForget(email: String, phoneNumber: String): JSON
   tickets(${listQueryParams}): [TicketListItem]
   ticketsTotalCount(${listQueryParams}): Int
   archivedTickets(
