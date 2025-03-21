@@ -83,6 +83,8 @@ export const postSchema = new Schema<IPostDocument>(
     pdfAttachment: { type: Object, optional: true, label: 'PDF attachment' },
     videoUrl: { type: String, label: 'Video URL' },
 
+    customFieldsData: { type: [customFieldSchema], optional: true },
+
   },
   { timestamps: true }
 );

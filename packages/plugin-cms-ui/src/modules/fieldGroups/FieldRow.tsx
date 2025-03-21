@@ -4,7 +4,7 @@ import {
   PropertyListTable,
   PropertyTableHeader,
   PropertyTableRow,
-  RowField
+  RowField,
 } from '@erxes/ui-forms/src/settings/properties/styles';
 import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
@@ -29,8 +29,8 @@ type Props = {
   queryParams: any;
   removePropertyGroup: (data: { _id: string }) => any;
   removeProperty: (data: { _id: string }) => void;
-  updateFieldOrder: (fields: IField[]) => any;
-  updateGroupOrder: (groups: IFieldGroup[]) => void;
+  updateFieldOrder?: (fields: IField[]) => any;
+  updateGroupOrder?: (groups: IFieldGroup[]) => void;
   refetch?: () => void;
 };
 
@@ -66,7 +66,9 @@ const PropertyRow: React.FC<Props> = ({
 
   const onChangeFields = (newFields: IField[]) => {
     setFields(newFields);
-    updateFieldOrder(newFields);
+    if (updateFieldOrder) {
+      updateFieldOrder(newFields);
+    }
   };
 
   const renderActionButtons = (data: any, remove: any, isGroup: boolean) => {
@@ -101,7 +103,6 @@ const PropertyRow: React.FC<Props> = ({
     const fieldFormContent = (formProps) => (
       <FieldForm
         {...formProps}
-      
         groups={groups}
         groupId={group._id}
         refetch={refetch}
@@ -207,7 +208,10 @@ const PropertyRow: React.FC<Props> = ({
 
     const onChangeFieldGroups = (newGroupsWithParents: IFieldGroup[]) => {
       setGroupsWithParents(newGroupsWithParents);
-      updateGroupOrder(newGroupsWithParents);
+
+      if (updateGroupOrder) {
+        updateGroupOrder(newGroupsWithParents);
+      }
     };
 
     const renderChildGroupRow = (childGroup: IFieldGroup) => {
@@ -251,9 +255,10 @@ const PropertyRow: React.FC<Props> = ({
             <DropIcon $isOpen={collapse} />
             {group.label}
           </div>
-        
+
           <p style={{ fontSize: '12px', color: 'gray' }}>
-          Types:({group.customPostTypes.map((item: any) => item.label).join(', ')})
+            Types:(
+            {group.customPostTypes.map((item: any) => item.label).join(', ')})
           </p>
         </div>
         {renderActionButtons(group, removePropertyGroup, true)}

@@ -48,7 +48,7 @@ const FieldGroupsList = () => {
         groupsWithParents={[]}
         queryParams={{}}
         refetch={refetch}
-        updateGroupOrder={(e) => console.log(e)}
+     
         removePropertyGroup={() => {
           removeGroup({
             variables: {
@@ -67,7 +67,7 @@ const FieldGroupsList = () => {
             refetch();
           });
         }}
-        updateFieldOrder={(e) => console.log(e)}
+   
       />
     );
   };
@@ -81,7 +81,7 @@ const FieldGroupsList = () => {
               fields={data.cmsCustomFieldGroups || []}
               child={(group) => renderRow(group)}
               onChangeFields={(e) => {
-                console.log(e);
+                
               }}
               isModal={true}
               showDragHandler={false}

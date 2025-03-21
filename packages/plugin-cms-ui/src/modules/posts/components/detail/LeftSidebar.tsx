@@ -5,7 +5,7 @@ import CategorySection from './sections/CategorySection';
 import CustomFieldsSection from './sections/CustomFieldsSection';
 import MainSection from './sections/MainSection';
 import TagsSection from './sections/TagsSection';
-import CustomPostTypeFields from '../../../fieldGroups/CustomPostTypeFields';
+import CustomPostTypeGroup from '../../../fieldGroups/CustomPostTypeGroup';
 
 type Props = {
   clientPortalId: string;
@@ -19,7 +19,7 @@ const LeftSidebar: React.FC<Props> = (props: Props) => (
     <CategorySection {...props} />
     <TagsSection {...props} />
     <CustomFieldsSection {...props} isDetail={true} />
-    <CustomPostTypeFields {...props} />
+    <CustomPostTypeGroup {...props} />
   </Sidebar>
 );
 

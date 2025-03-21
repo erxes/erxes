@@ -5,17 +5,25 @@ export default {
     return models.Posts.findOne({ _id });
   },
 
-  async author({ authorKind, authorId }, { models }: IContext) {
-    if (authorKind === 'user') {
+  async author(post: any, _params, { models }: IContext) {
+    if (post.authorKind === 'user') {
       return {
-        _id: authorId,
+        _id: post.authorId,
         __typename: 'User',
       };
-    } else if (authorKind === 'clientPortalUser') {
+    } else if (post.authorKind === 'clientPortalUser') {
       return {
-        _id: authorId,
+        _id: post.authorId,
         __typename: 'ClientPortalUser',
-      }
+      };
     }
+  },
+
+  async tags(post: any, _params, { models }: IContext) {
+    return models.PostTags.find({ _id: { $in: post.tagIds } }).lean();
+  },
+
+  async categories(post: any, _params, { models }: IContext) {
+    return models.Categories.find({ _id: { $in: post.categoryIds } }).lean();
   },
 };

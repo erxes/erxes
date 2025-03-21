@@ -7,7 +7,7 @@ import {
 import { IContext, IModels } from '../../../connectionResolver';
 
 export const queryBuilder = async (args: any, models: IModels) => {
-  console.log(args);
+
   let query: any = {
     clientPortalId: args.clientPortalId,
   };
@@ -50,13 +50,12 @@ export const queryBuilder = async (args: any, models: IModels) => {
       clientPortalId: args.clientPortalId,
       code: args.type,
     }).lean()
-    
+
     if (type) {
       query.type = type._id;
     }
   }
 
-  console.log(query);
 
   return query;
 };

@@ -155,7 +155,7 @@ const GroupForm = (props: Props) => {
                 ) || []
               }
               onChange={(options) => {
-                console.log(options);
+                
                 setDoc({
                   ...doc,
                   customPostTypeIds: options.map((o) => o.value),

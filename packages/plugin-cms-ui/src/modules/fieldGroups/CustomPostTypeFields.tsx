@@ -9,51 +9,19 @@ import Button from '@erxes/ui/src/components/Button';
 
 type Props = {
   clientPortalId: string;
-  post: any;
+  customFieldsData: any;
+  group: any;
   onChange: (field: string, value: any) => void;
 };
 
 const CustomPostTypeFields = (props: Props) => {
-  const customFieldsData = props.post?.customFieldsData || [];
-  const [initialData, setInitialData] = React.useState(customFieldsData);
   const [hasChanges, setHasChanges] = React.useState(false);
+  const { customFieldsData, group } = props;
+  const [initialData, setInitialData] = React.useState(customFieldsData);
 
-  // Update initial data when post changes
   React.useEffect(() => {
     setInitialData(customFieldsData);
-  }, [props.post]);
-
-  // Check for changes whenever customFieldsData updates
-  React.useEffect(() => {
-    const changesExist =
-      JSON.stringify(customFieldsData) !== JSON.stringify(initialData);
-    setHasChanges(changesExist);
-  }, [customFieldsData, initialData]);
-
-  const handleCancel = () => {
-    props.onChange('customFieldsData', initialData);
-  };
-
-  const handleSave = () => {
-    setInitialData(customFieldsData);
-  };
-  if (props.post?.type === 'post') {
-    return null;
-  }
-
-  const { data, loading: fieldsGroupsQueryLoading } = useQuery(queries.LIST, {
-    variables: {
-      clientPortalId: props.clientPortalId,
-      postType: props.post?.type,
-    },
-    skip: props.post?.type === 'post',
-  });
-
-  if (fieldsGroupsQueryLoading) {
-    return <Spinner />;
-  }
-
-  const fieldGroups: any[] = data?.cmsCustomFieldGroups || [];
+  }, [customFieldsData]);
 
   const onChangeValue = ({ _id, value }: { _id: string; value: any }) => {
     const fieldIndex = customFieldsData.findIndex((c) => c.field === _id);
@@ -70,56 +38,44 @@ const CustomPostTypeFields = (props: Props) => {
         },
       ]);
     }
+
+    setHasChanges(true);
+  };
+
+  const handleCancel = () => {
+    props.onChange('customFieldsData', initialData);
+    setHasChanges(false);
   };
 
   return (
-    <>
-      {fieldGroups.map((group) => {
-        const groupHasChanges = group.fields.some((field) => {
-          const current = customFieldsData.find(
-            (c) => c.field === field._id
-          )?.value;
-          const initial = initialData.find((c) => c.field === field._id)?.value;
-          return current !== initial;
-        });
+    <SidebarContent>
+      {group.fields.map((field: any, index) => (
+        <GenerateField
+          field={field}
+          key={index}
+          onValueChange={onChangeValue}
+          defaultValue={
+            customFieldsData.find((c) => c.field === field._id)?.value
+          }
+        />
+      ))}
 
-        return (
-          <Box key={group._id} title={group.label} name='showCustomData'>
-            <SidebarContent>
-              {group.fields.map((field: any, index) => (
-                <GenerateField
-                  field={field}
-                  key={index}
-                  onValueChange={onChangeValue}
-                  defaultValue={
-                    customFieldsData.find((c) => c.field === field._id)?.value
-                  }
-                />
-              ))}
-            </SidebarContent>
-
-            {groupHasChanges && (
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '10px',
-                  padding: '10px',
-                  borderTop: '1px solid #eee',
-                  marginTop: '10px',
-                }}
-              >
-                <Button btnStyle='simple' onClick={handleCancel}>
-                  Cancel
-                </Button>
-                <Button btnStyle='success' onClick={handleSave}>
-                  Save
-                </Button>
-              </div>
-            )}
-          </Box>
-        );
-      })}
-    </>
+      {hasChanges && (
+        <div
+          style={{
+            display: 'flex',
+            gap: '10px',
+            padding: '10px',
+            borderTop: '1px solid #eee',
+            marginTop: '10px',
+          }}
+        >
+          <Button btnStyle='simple' onClick={handleCancel}>
+            Cancel
+          </Button>
+        </div>
+      )}
+    </SidebarContent>
   );
 };
 

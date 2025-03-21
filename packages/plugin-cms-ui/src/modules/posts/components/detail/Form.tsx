@@ -1,9 +1,7 @@
 import { IField } from '@erxes/ui-segments/src/types';
 import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import {
-  IAttachment
-} from '@erxes/ui/src/types';
+import { IAttachment } from '@erxes/ui/src/types';
 import { __, clearTypename } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import LeftSideBar from './LeftSidebar';
@@ -23,7 +21,6 @@ type Props = {
 };
 
 const PostForm = (props: Props) => {
-
   const { clientPortalId } = props;
   const defaultPost: IPostDocument = {
     type: 'post',
@@ -96,19 +93,15 @@ const PostForm = (props: Props) => {
     props.onSubmit(clearTypename(doc));
   };
 
-  // const breadcrumb = [
-  //   {
-  //     title: __('Post'),
-  //     link: `/cms/website/${props.clientPortalId}/posts`,
-  //   },
-  // ];
-
-    const breadcrumb = [
-      { title: 'Websites', link: '/cms' },
-      { title: props.website.name, link: '/cms/website/' + props.website._id + '/posts' },
-      { title: 'Posts', link: '/cms/website/' + clientPortalId + '/posts' },
-      { title: __('Post') },
-    ];
+  const breadcrumb = [
+    { title: 'Websites', link: '/cms' },
+    {
+      title: props.website.name,
+      link: '/cms/website/' + props.website._id + '/posts',
+    },
+    { title: 'Posts', link: '/cms/website/' + clientPortalId + '/posts' },
+    { title: __('Post') },
+  ];
 
   const content = (
     <div style={{ padding: '10px 15px' }}>

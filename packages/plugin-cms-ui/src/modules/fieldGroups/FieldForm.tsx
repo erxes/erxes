@@ -59,7 +59,7 @@ const FieldForm = (props: Props) => {
         regexValidation,
       };
 
-      console.log('variables', variables);
+      
 
       Object.keys(doc).forEach((key) => {
         if (keysToDelete.indexOf(key) === -1) {
@@ -71,7 +71,7 @@ const FieldForm = (props: Props) => {
         variables._id = field._id;
       }
 
-      console.log('variables after', variables);
+      
 
       if (field) {
         edit({

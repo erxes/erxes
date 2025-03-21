@@ -67,7 +67,7 @@ export const types = `
 
         
         categories: [PostCategory]
-        tags: [Tag]
+        tags: [PostTag]
         customFieldsData: JSON
     }
 
