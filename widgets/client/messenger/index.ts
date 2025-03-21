@@ -42,7 +42,7 @@ widgetConnect({
       visitorId = await getVisitorId();
     }
 
-    const isCallEnabled = connection.enabledServices.calls && connection.enabledServices.cloudflarecalls;
+    const isCallEnabled = connection.enabledServices.cloudflarecalls;
     const isTicketEnabled = connection.enabledServices.tickets;
 
     return client.mutate({

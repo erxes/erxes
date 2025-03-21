@@ -3,10 +3,10 @@ import * as React from "react";
 import {
   TICKET_CHECK_PROGRESS,
   TICKET_CHECK_PROGRESS_FORGET,
-} from "../../graphql/queries";
+} from "../../graphql/mutations";
 
 import TicketCheckProgress from "../../components/ticket/TicketCheckProgress";
-import { useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { useRouter } from "../../context/Router";
 import { useTicket } from "../../context/Ticket";
 
@@ -23,39 +23,56 @@ const TicketCheckProgressContainer = ({ isForget, setIsForget }: Props) => {
   const [email, setEmail] = React.useState("");
   const [phoneNumber, setPhone] = React.useState("");
 
-  const { data, loading, error } = useQuery(TICKET_CHECK_PROGRESS, {
-    variables: {
-      number,
-    },
-    fetchPolicy: "network-only",
-  });
+  const [ticketCheck, { loading: ticketCheckLoading }] = useMutation(
+    TICKET_CHECK_PROGRESS,
+    {
+      fetchPolicy: "no-cache",
+      onCompleted(data) {
+        setTicketData(data.ticketCheckProgress);
+        data && setRoute("ticket-progress");
+      },
+      onError(error) {
+        return alert(error.message);
+      },
+    }
+  );
 
-  const {
-    data: forgetData,
-    loading: forgetLoading,
-    error: forgetError,
-  } = useQuery(TICKET_CHECK_PROGRESS_FORGET, {
-    variables: {
-      email,
-      phoneNumber,
-    },
-    fetchPolicy: "network-only",
-  });
+  const [ticketForget, { loading: forgetLoading }] = useMutation(
+    TICKET_CHECK_PROGRESS_FORGET,
+    {
+      fetchPolicy: "no-cache",
+      onCompleted(data) {
+        setTicketData(data.ticketCheckProgressForget);
+        data && setRoute("ticket-forget");
+      },
+      onError(error) {
+        return alert(error.message);
+      },
+    }
+  );
 
   const onButtonClick = () => {
-    setTicketData(data);
-    data && setRoute("ticket-progress");
+    return ticketCheck({
+      variables: {
+        number,
+      },
+      fetchPolicy: "network-only",
+    });
   };
 
   const onForget = () => {
-    if (forgetError) {
-      alert(forgetError);
-    }
+    return ticketForget({
+      variables: {
+        email,
+        phoneNumber,
+      },
+      fetchPolicy: "network-only",
+    });
   };
 
-  // if (loading || forgetLoading) {
-  //   return <div className="loader" />;
-  // }
+  if (ticketCheckLoading || forgetLoading) {
+    return <div className="loader" />;
+  }
 
   return (
     <TicketCheckProgress

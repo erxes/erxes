@@ -20,8 +20,7 @@ const TicketShowProgress: React.FC<Props> = ({
   setComment,
   activityLogs,
 }) => {
-  const { ticketData } = useTicket();
-  const { ticketCheckProgress } = ticketData || {};
+  const { ticketData = {} } = useTicket();
 
   const renderAttachments = (attachments: IAttachment[]) => {
     return attachments.map((attachment, index) => (
@@ -38,7 +37,7 @@ const TicketShowProgress: React.FC<Props> = ({
   };
 
   const renderTicketIssue = () => {
-    const { name, type, description, attachments } = ticketCheckProgress;
+    const { name, type, description, attachments } = ticketData;
 
     return (
       <div className="ticket-progress-content">
@@ -68,7 +67,7 @@ const TicketShowProgress: React.FC<Props> = ({
   };
 
   const renderContent = () => {
-    const { number, stage } = ticketCheckProgress;
+    const { number, stage } = ticketData;
 
     return (
       <>

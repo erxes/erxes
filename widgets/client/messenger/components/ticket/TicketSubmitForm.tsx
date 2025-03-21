@@ -2,10 +2,9 @@ import * as React from "react";
 
 import Button from "../common/Button";
 import Container from "../common/Container";
-import { CopyToClipboard } from "react-copy-to-clipboard";
 import FileUploader from "../common/FileUploader";
-import { IconCheckInCircle } from "../../../icons/Icons";
 import Input from "../common/Input";
+import SuccessForm from "./SuccessForm";
 import { __ } from "../../../utils";
 
 type Props = {
@@ -31,39 +30,6 @@ const TicketSubmitForm: React.FC<Props> = ({
 }) => {
   const submitText = __("Submit");
   const continueText = __("Continue");
-
-  const [copied, setCopied] = React.useState(false);
-
-  const onCopy = (number: string) => {
-    if (number) {
-      return setCopied(true);
-    }
-  };
-
-  const renderSubmitted = () => {
-    return (
-      <div className="success-wrapper">
-        <div className="message">
-          <IconCheckInCircle />
-          <h3>{__("Your ticket has been submitted")}</h3>
-          {ticketNumber && (
-            <p>
-              {__("Your ticket number is:")}
-              <b>{ticketNumber}</b>
-            </p>
-          )}
-          <CopyToClipboard
-            text={ticketNumber}
-            onCopy={() => onCopy(ticketNumber)}
-          >
-            <button className="copy">
-              {copied ? "Copied" : "Copy or save your ticket number"}
-            </button>
-          </CopyToClipboard>
-        </div>
-      </div>
-    );
-  };
 
   const renderForm = () => {
     return (
@@ -156,7 +122,7 @@ const TicketSubmitForm: React.FC<Props> = ({
         {loading ? (
           <div className="loader" />
         ) : isSubmitted ? (
-          renderSubmitted()
+          <SuccessForm ticketNumber={ticketNumber} />
         ) : (
           renderForm()
         )}
