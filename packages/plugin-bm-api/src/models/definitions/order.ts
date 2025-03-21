@@ -10,6 +10,9 @@ export interface IOrder {
   status: string;
   note: string;
   branchId?: string;
+  numberOfPeople: number;
+  type?: string;
+  additionalCustomers?: string;
 }
 
 export interface IOrderDocument extends IOrder, Document {
@@ -46,6 +49,17 @@ export const orderSchema = schemaHooksWrapper(
       selectOptions: STATUS_TYPES,
     }),
     branchId: field({ type: String, optional: true, label: 'branchId' }),
+    numberOfPeople: field({
+      type: Number,
+      optional: true,
+      label: 'numberOfPeople',
+    }),
+    type: field({ type: String, optional: true, label: 'type' }),
+    additionalCustomers: field({
+      type: String,
+      optional: true,
+      label: 'additionalCustomers',
+    }),
   }),
-  'erxes_bm_orders',
+  'erxes_bm_orders'
 );

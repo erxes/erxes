@@ -44,7 +44,11 @@ export default {
             isRPC: true,
             defaultValue: null,
           });
-
+          console.log(
+            integrationDetails.status,
+            'integrationDetails.status',
+            typeof integrationDetails.status,
+          );
           const isReceiveWebCall =
             integrationDetails.status === 'active' ? true : false;
 

@@ -266,13 +266,14 @@ export const deploy = async (subdomain, config: IClientPortalDocument) => {
         ERXES_APP_TOKEN: "${config.erxesAppToken}",
       },
       images: {
+        unoptimized: true,
         remotePatterns: [
           {
             protocol: "https",
             hostname: "${subdomain}.app.erxes.io",
           },
         ]
-      }
+      },
     };`;
 
     // const layout = layoutConfig(config);
