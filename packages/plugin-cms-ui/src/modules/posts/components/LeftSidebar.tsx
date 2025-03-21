@@ -1,6 +1,6 @@
 import { Sidebar } from '@erxes/ui/src';
 import React from 'react';
-import TypeFilter from './filters/TypeFIlter';
+import TypeFilter from './filters/TypeFilter';
 
 
 type Props = {
