@@ -180,24 +180,6 @@ export const getMessengerData = async (
     kind: "website",
     "credentials.integrationId": integration._id
   });
-<<<<<<< HEAD
-  const getStarted = await sendAutomationsMessage({
-    subdomain,
-    action: "trigger.find",
-    data: {
-      query: {
-        triggerType: "inbox:messages",
-        botId: integration._id
-      }
-    },
-    isRPC: true
-  }).catch((error) => {
-    throw error;
-  });
-  const getStartedCondition = (
-    getStarted[0]?.triggers[0]?.config?.conditions || []
-  ).find((condition) => condition.type === "getStarted");
-=======
   let getStartedCondition: { isSelected?: boolean } | false = false;
   if (isEnabled("automations")) {
     const getStarted = await sendAutomationsMessage({
@@ -218,7 +200,6 @@ export const getMessengerData = async (
       getStarted[0]?.triggers[0]?.config?.conditions || []
     ).find((condition) => condition.type === "getStarted");
   }
->>>>>>> 3ee3131708798147cba9319a8b7cf8469c99a05a
 
   return {
     ...(messengerData || {}),
