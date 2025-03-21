@@ -12,7 +12,6 @@ import {
   getItemList,
   IArchiveArgs
 } from "./utils";
-import { sendCoreMessage } from "../../../messageBroker";
 const ticketQueries = {
   /**
    * Tickets list
@@ -64,93 +63,7 @@ const ticketQueries = {
 
     return checkItemPermByUser(subdomain, models, user, ticket);
   },
-  async ticketCheckProgress(
-    _root,
-    { number }: { number: string },
-    { user, models, subdomain }: IContext
-  ) {
-    if(!number ){
-      return null
 
-    }
-    const ticket = await models.Tickets.findOne({
-      number: number
-    });
-
-    if (!ticket) {
-      throw new Error("Ticket not found");
-    }
-    return await checkItemPermByUser(subdomain, models, user, ticket);
-  },
-
-  async ticketCheckProgressForget(
-    _root,
-    { email, phoneNumber }: { email: string; phoneNumber: string },
-    { models, subdomain }: IContext
-  ) {
-    if(!email && !phoneNumber){
-      return null
-    }
-    let customer;
-    if (email) {
-      customer = await sendCoreMessage({
-        subdomain,
-        action: "customers.findOne",
-        data: { primaryEmail:email },
-        isRPC: true,
-        defaultValue: null
-      });
-    } else if (phoneNumber) {
-      customer = await sendCoreMessage({
-        subdomain,
-        action: "customers.findOne",
-        data: {primaryPhone: phoneNumber },
-        isRPC: true,
-        defaultValue: null
-      });
-    }
-    if (customer) {
-      const customerIds = [customer._id]; 
-      const mainTypeIds = await sendCoreMessage({
-        subdomain,
-        action: "conformities.findConformities",
-        data: {
-          mainType: "ticket",
-          relType: 'customer',
-          relTypeId:  customerIds,
-        },
-        isRPC: true,
-        defaultValue: []
-      });
-      
-      if (!mainTypeIds.length) {
-        return;
-      }
-      const ticketIds = mainTypeIds.map((mainType) => mainType.mainTypeId);
-
-      const tickets = await models.Tickets.find({
-        _id: { $in: ticketIds },
-        number: { $exists: true, $ne: null }
-      });
-      if (!tickets.length) {
-        return null;
-      }
-
-      const formattedTickets = tickets.map((ticket) => ({
-        userId: ticket.userId,
-        name: ticket.name,
-        stageId: ticket.stageId,
-        number: ticket.number,
-        type: ticket.type
-      }));
-  
-      return formattedTickets;
-   
-    } else {
-      throw new Error("No user found.");
-    }
-    
-  }
 };
 
 moduleRequireLogin(ticketQueries);
