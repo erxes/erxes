@@ -160,9 +160,9 @@ const FieldForm = (props: Props) => {
               required={true}
             >
               <option />
-              {data?.getFieldsInputTypes?.map((inputType) => {
+              {data?.getFieldsInputTypes?.map((inputType, index) => {
                 return (
-                  <option value={inputType.value} key={Math.random()}>
+                  <option value={inputType.value} key={index}>
                     {inputType.label}
                   </option>
                 );

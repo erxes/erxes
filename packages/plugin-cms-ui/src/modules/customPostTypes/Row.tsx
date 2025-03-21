@@ -76,15 +76,15 @@ const Row = (props: Props) => {
 
   return (
     <tr>
-      <td key={Math.random()}>
+      <td key={postType._id}>
         <RowTitle>{label()}</RowTitle>
       </td>
 
-      <td key={Math.random()}>
+      <td key={postType._id + 'description'}>
         <RowTitle>{postType.description || '-'} </RowTitle>
       </td>
 
-      <td key={Math.random()}>
+      <td key={postType._id + 'code'}>
         <RowTitle>{postType.code || '-'}</RowTitle>
       </td>
 

@@ -110,9 +110,9 @@ const TripSection = (props: Props) => {
                       required={true}
                     >
                 
-                      {data?.cmsCustomPostTypes?.map((postType) => {
+                      {data?.cmsCustomPostTypes?.map((postType, index) => {
                         return (
-                          <option value={postType._id} key={Math.random()}>
+                          <option value={postType._id} key={index}>
                             {postType.label}
                           </option>
                         );

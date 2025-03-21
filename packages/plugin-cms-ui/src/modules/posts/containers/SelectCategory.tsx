@@ -31,9 +31,9 @@ const Container = (props: Props) => {
     });
   };
 
-  const categories = (data && data.insuranceCategories) || [];
+  const categories = (data && data.cmsCategories) || [];
   const allCategories =
-    (categoriesQuery.data && categoriesQuery.data.insuranceCategories) || [];
+    (categoriesQuery.data && categoriesQuery.data.cmsCategories) || [];
 
   return (
     <SelectCategory
