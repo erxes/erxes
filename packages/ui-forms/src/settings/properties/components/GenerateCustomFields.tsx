@@ -614,8 +614,6 @@ class GenerateGroups extends React.Component<GroupsProps> {
       collapseCallback,
     } = this.props;
 
-    console.log("fieldsGroups",fieldsGroups)
-
     const groups = fieldsGroups.filter((gro) => !gro.parentId);
     const groupsWithParents = fieldsGroups.filter((gro) => !!gro.parentId);
 
