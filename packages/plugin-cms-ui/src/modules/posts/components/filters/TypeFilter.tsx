@@ -15,7 +15,7 @@ type Props = {
   clientPortalId: string;
 };
 
-const TypeFIlter = (props: Props) => {
+const TypeFilter = (props: Props) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -71,4 +71,4 @@ const TypeFIlter = (props: Props) => {
   );
 };
 
-export default TypeFIlter;
+export default TypeFilter;
