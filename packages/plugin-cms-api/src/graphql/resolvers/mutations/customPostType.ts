@@ -33,29 +33,33 @@ const mutations = {
 
     return models.CustomFieldGroups.deleteFieldGroup(_id);
   },
+
+
+  cmsCustomPostTypesAdd(_parent: any, args: any, context: IContext) {
+    const { models } = context;
+    const { input } = args;
+
+    return models.CustomPostTypes.createCustomPostType(input);
+  },
+
+  cmsCustomPostTypesEdit(_parent: any, args: any, context: IContext) {
+    const { models } = context;
+    const { _id, input } = args;
+
+    return models.CustomPostTypes.updateCustomPostType(_id, input);
+  },
+
+  cmsCustomPostTypesRemove(_parent: any, args: any, context: IContext) {
+    const { models } = context;
+    const { _id } = args;
+
+    return models.CustomPostTypes.removeCustomPostType(_id);
+  },
 };
 
 requireLogin(mutations, 'cmsCustomPostTypesAdd');
 requireLogin(mutations, 'cmsCustomPostTypesEdit');
 requireLogin(mutations, 'cmsCustomPostTypesRemove');
 
-checkPermission(
-  mutations,
-  'cmsCustomPostTypesAdd',
-  'cmsCustomPostTypesAdd',
-  []
-);
-checkPermission(
-  mutations,
-  'cmsCustomPostTypesEdit',
-  'cmsCustomPostTypesEdit',
-  []
-);
-checkPermission(
-  mutations,
-  'cmsCustomPostTypesRemove',
-  'cmsCustomPostTypesRemove',
-  []
-);
 
 export default mutations;

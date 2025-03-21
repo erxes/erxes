@@ -5,11 +5,13 @@ const LIST = gql`
     $clientPortalId: String!
     $page: Int
     $perPage: Int
+    $postType: String
   ) {
     cmsCustomFieldGroups(
       clientPortalId: $clientPortalId
       page: $page
       perPage: $perPage
+      postType: $postType
     ) {
       _id
       clientPortalId
@@ -18,6 +20,11 @@ const LIST = gql`
       order
       parentId
       createdAt
+      customPostTypeIds
+      customPostTypes {
+        _id
+        label
+      }
       fields {
         _id
         code

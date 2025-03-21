@@ -7,6 +7,7 @@ export interface ICustomFieldGroup {
   code: string;
   order: number;
   parentId?: string;
+  customPostTypeIds?: string[];
 }
 
 export interface ICustomFieldGroupDocument extends ICustomFieldGroup, Document {
@@ -23,6 +24,7 @@ export const fieldGroupSchema = new Schema<ICustomFieldGroupDocument>(
     code: { type: String, unique: true },
     parentId: { type: String },
     order: { type: Number},
+    customPostTypeIds: { type: [String] },
   },
   { timestamps: true }
 );

@@ -27,7 +27,7 @@ const List = (props: Props) => {
   const handleDelete = (id: string) => {};
 
   const trigger = (
-    <Button btnStyle='success' size='small' icon='plus-circle'>
+    <Button btnStyle='primary' size='small' icon='plus-circle'>
       New website
     </Button>
   );

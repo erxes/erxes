@@ -1,7 +1,7 @@
 import React from 'react';
-import { gql, useQuery, useLazyQuery } from '@apollo/client';
+import { useQuery, useLazyQuery } from '@apollo/client';
 import SelectCategory from '../components/SelectCategory';
-import { queries } from '../graphql';
+import queries from '../../categories/graphql/queries';
 
 type Props = {
   value: string | string[];

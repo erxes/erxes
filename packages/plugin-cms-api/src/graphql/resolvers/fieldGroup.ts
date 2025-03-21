@@ -21,6 +21,16 @@ const CustomFieldGroup = {
       return field;
     });
   },
+
+  async customPostTypes(group: any, _params, { models, subdomain }: IContext) {
+    if (!group.customPostTypeIds || group.customPostTypeIds.length === 0) {
+      return [];
+    }
+
+    return await models.CustomPostTypes.find({
+      _id: { $in: group.customPostTypeIds },
+    });
+  },
 };
 
 export { CustomFieldGroup };

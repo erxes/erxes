@@ -35,6 +35,7 @@ export const types = `
 
     type Post @key(fields: "_id") @cacheControl(maxAge: 3) {
         _id: String!
+        type: String
         authorKind: PostAuthorKind
         authorId: String
         author: Author
@@ -68,9 +69,6 @@ export const types = `
         categories: [PostCategory]
         tags: [Tag]
         customFieldsData: JSON
-
-        customPostTypeId: String
-        customPostType: CustomPostType
     }
 
     type PostList {
@@ -107,16 +105,14 @@ export const inputs = `
         videoUrl: String
         customFieldsData: JSON
 
-        customPostTypeId: String
-
-        customFields: JSON
+        type: String
     }
 `;
 
 export const queries = `
     cmsPost(_id: String, slug: String): Post
-    cmsPosts(clientPortalId: String, featured: Boolean, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: String): [Post]
-    cmsPostList(clientPortalId: String, featured: Boolean, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: String): PostList
+    cmsPosts(clientPortalId: String, featured: Boolean,type: String, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: String): [Post]
+    cmsPostList(clientPortalId: String, featured: Boolean, type: String, categoryId: String, searchValue: String, status: PostStatus, page: Int, perPage: Int, tagIds: [String], sortField: String, sortDirection: String): PostList
 `;
 
 export const mutations = `

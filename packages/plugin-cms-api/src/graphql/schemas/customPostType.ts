@@ -6,7 +6,6 @@ export const types = `
   type CustomPostType {
     _id: String!
     clientPortalId: String!
-    name: String!
     code: String!
     label: String!
     pluralLabel: String!
@@ -30,6 +29,9 @@ export const types = `
     order: Int
     createdAt: Date
 
+    customPostTypeIds: [String]
+    customPostTypes: [CustomPostType]
+
     fields: [Field]
   }
 
@@ -44,7 +46,6 @@ export const types = `
 
 export const inputs = `
   input CustomPostTypeInput {
-    name: String!
     label: String!
     pluralLabel: String!
     code: String!
@@ -60,16 +61,17 @@ export const inputs = `
     order: Int
     parentId: String
     clientPortalId: String!
+    customPostTypeIds: [String]
   }
 `;
 
 export const queries = `
-  cmsCustomPostTypeList(clientPortalId: String, searchValue: String, page: Int, perPage: Int): CustomFieldGroupResponse
+  cmsCustomPostTypeList(clientPortalId: String, searchValue: String, page: Int, perPage: Int): CustomPostTypeResponse
   cmsCustomPostTypes(clientPortalId: String, searchValue: String, page: Int, perPage: Int): [CustomPostType]
   cmsCustomPostType(_id: String): CustomPostType
 
   cmsCustomFieldGroupList(clientPortalId: String!, searchValue: String, page: Int, perPage: Int): CustomFieldGroupResponse
-  cmsCustomFieldGroups(clientPortalId: String!, searchValue: String, page: Int, perPage: Int): [CustomFieldGroup]
+  cmsCustomFieldGroups(clientPortalId: String!, postType: String, searchValue: String, page: Int, perPage: Int): [CustomFieldGroup]
   cmsCustomFieldGroup(_id: String): CustomFieldGroup
 `;
 

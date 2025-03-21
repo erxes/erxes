@@ -107,6 +107,10 @@ const Row = (props: Props) => {
       </td>
 
       <td key={Math.random()}>
+        <RowTitle>{post.type || '-'}</RowTitle>
+      </td>
+
+      <td key={Math.random()}>
         <RowTitle>{categories.map((e) => e.name).join(', ') || '-'} </RowTitle>
       </td>
 

@@ -9,8 +9,9 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
-import { mutations } from '../graphql';
+import { mutations } from './graphql';
 import { queries as formQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
+import { stringToRegex } from '@erxes/ui-forms/src/settings/properties/utils';
 
 type Props = {
   groupId: string;
@@ -23,17 +24,69 @@ type Props = {
 
 const FieldForm = (props: Props) => {
   const { groups, field } = props;
+  const [doc, setDoc] = React.useState<any>(props.field || {});
+  const [add] = useMutation(mutations.ADD_FIELD);
+  const [edit] = useMutation(mutations.EDIT_FIELD);
+
   const [inputType, setInputType] = React.useState('input');
+  const [validation, setValidation] = React.useState('');
+  const [regexValidation, setRegexValidation] = React.useState('');
 
   const { data, loading: typesLoading } = useQuery(
     gql(formQueries.getFieldsInputTypes)
   );
 
-  const renderContent = (formProps: IFormProps) => {
-    const { values } = formProps;
+  const onChangeRegex = (e: any) => {
+    if (e.target.value.length === 0) {
+      // this.setState({ regexValidation: "" });
+      setRegexValidation('');
+      return;
+    }
 
+    const regexValidation = stringToRegex(e.target.value);
+    setRegexValidation(regexValidation);
+  };
+
+  const renderContent = (formProps: IFormProps) => {
     const submit = () => {
-      props.refetch?.();
+      const keysToDelete = ['_id', '__typename', 'createdAt'];
+
+      const variables: any = {
+        groupId: props.groupId,
+        contentType: 'cms:post',
+        type: inputType,
+        validation,
+        regexValidation,
+      };
+
+      console.log('variables', variables);
+
+      Object.keys(doc).forEach((key) => {
+        if (keysToDelete.indexOf(key) === -1) {
+          variables[key] = doc[key];
+        }
+      });
+
+      if (field) {
+        variables._id = field._id;
+      }
+
+      console.log('variables after', variables);
+
+      if (field) {
+        edit({
+          variables,
+        }).then(() => {
+          props.refetch?.();
+        });
+      } else {
+        add({
+          variables,
+        }).then(() => {
+          props.refetch?.();
+        });
+      }
+
       props.closeModal();
     };
 
@@ -43,11 +96,12 @@ const FieldForm = (props: Props) => {
           <ControlLabel>{__('Label')}</ControlLabel>
           <FormControl
             {...formProps}
-            id={'label'}
-            name={'label'}
+            id={'text'}
+            name={'text'}
             type={'text'}
             required={true}
             defaultValue={field?.text}
+            onChange={(e: any) => setDoc({ ...doc, text: e.target.value })}
           />
         </FormGroup>
         <FormGroup>
@@ -57,10 +111,11 @@ const FieldForm = (props: Props) => {
             name='description'
             componentclass='textarea'
             defaultValue={field?.description || ''}
+            onChange={(e: any) => setDoc({ ...doc, description: e.target.value })}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('code')}</ControlLabel>
+          <ControlLabel>{__('Key')}</ControlLabel>
           <FormControl
             {...formProps}
             id={'code'}
@@ -68,6 +123,7 @@ const FieldForm = (props: Props) => {
             type={'text'}
             required={true}
             defaultValue={field?.code}
+            onChange={(e: any) => setDoc({ ...doc, code: e.target.value })}
           />
         </FormGroup>
 
@@ -78,6 +134,7 @@ const FieldForm = (props: Props) => {
             name='groupId'
             componentclass='select'
             defaultValue={props.groupId || field?.groupId}
+            onChange={(e: any) => setDoc({ ...doc, groupId: e.target.value })}
           >
             <option value='' />
             {groups.map((g) => {
@@ -114,6 +171,46 @@ const FieldForm = (props: Props) => {
           </FormGroup>
         )}
 
+        {inputType === 'input' && (
+          <FormGroup>
+            <ControlLabel>Validation:</ControlLabel>
+            <FormControl
+              {...formProps}
+              componentclass='select'
+              name='validation'
+              defaultValue={props.field?.validation || ''}
+              onChange={(e: any) => {
+                setDoc({ ...doc, validation: e.target.value });
+              
+              }}
+            >
+              <option />
+              <option value='email'>Email</option>
+              <option value='number'>Number</option>
+              <option value='date'>Date</option>
+              <option value='datetime'>Date Time</option>
+              <option value='regex'>Regular Expression</option>
+            </FormControl>
+          </FormGroup>
+        )}
+
+        {validation === 'regex' && (
+          <FormGroup>
+            <ControlLabel htmlFor='validation'>
+              Regular Expression:
+            </ControlLabel>
+            <p>{__('Setup regular expression')}</p>
+
+            <FormControl
+              id='regex'
+              placeholder='Enter sample text here'
+              componentclass='input'
+              onChange={onChangeRegex}
+            />
+            {regexValidation && <p>RegexPattern: {regexValidation || ''}</p>}
+          </FormGroup>
+        )}
+
         <ModalFooter>
           <Button
             btnStyle='simple'
@@ -123,13 +220,7 @@ const FieldForm = (props: Props) => {
             Close
           </Button>
 
-          <Button
-            btnStyle='primary'
-            icon='save'
-            onClick={() => {
-              submit();
-            }}
-          >
+          <Button btnStyle='success' type='submit' icon='save' onClick={submit}>
             Save
           </Button>
         </ModalFooter>

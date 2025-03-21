@@ -50,7 +50,14 @@ const Pages = asyncComponent(
 const CustomFields = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "List - CustomFields" */ './modules/fieldGroups/components/List'
+      /* webpackChunkName: "List - CustomFields" */ './modules/fieldGroups/List'
+    )
+)
+
+const CustomPostTypes = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - CustomPostTypes" */ './modules/customPostTypes/List'
     )
 )
 
@@ -88,6 +95,7 @@ const PagesComponent = () => {
 
   return <Pages clientPortalId={cpId} />;
 };
+
 
 const WebBuilderRedirect = () => {
   const { VERSION } = getVersion();
@@ -176,6 +184,12 @@ const routes = () => (
       element={<CustomFields />}
     />
 
+    <Route
+      key='/cms/website/:cpId/custom-post-types'
+      path='/cms/website/:cpId/custom-post-types'
+      element={<CustomPostTypes />}
+    />
+
   </Routes>
 );
 
@@ -184,8 +198,9 @@ export const menu = (clientPortalId: string) => [
   { title: 'Categories', link: '/cms/website/' + clientPortalId + '/categories' },
   { title: 'Tags', link: '/cms/website/' + clientPortalId + '/tags' },
   { title: 'Pages', link: '/cms/website/' + clientPortalId + '/pages' },
-  { title: 'Custom Fields', link: '/cms/website/' + clientPortalId + '/custom-fields' },
   { title: 'Custom Post Types', link: '/cms/website/' + clientPortalId + '/custom-post-types' },
+  { title: 'Custom Fields', link: '/cms/website/' + clientPortalId + '/custom-fields' },
+  
 ];
 
 export default routes;

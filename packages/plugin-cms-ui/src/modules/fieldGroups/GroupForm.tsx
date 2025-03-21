@@ -1,7 +1,7 @@
 import { IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 
-import { useMutation } from '@apollo/client';
+import { useMutation, gql, useQuery } from '@apollo/client';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
@@ -9,7 +9,9 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
-import { mutations } from '../graphql';
+import { mutations } from './graphql';
+import queries from '../customPostTypes/graphql/queries';
+import Select from 'react-select';
 
 type Props = {
   clientPortalId: string;
@@ -22,17 +24,25 @@ type Props = {
 
 const GroupForm = (props: Props) => {
   const [doc, setDoc] = React.useState<any>(props.group || {});
+  const { data, loading: typesLoading } = useQuery(queries.CUSTOM_TYPES, {
+    variables: {
+      clientPortalId: props.clientPortalId,
+    },
+  });
 
   const [add] = useMutation(mutations.ADD);
   const [edit] = useMutation(mutations.EDIT);
 
   const submit = () => {
-    const keysToDelete = ['_id', '__typename', 'createdAt', 'fields'];
+    const keysToDelete = [
+      '_id',
+      '__typename',
+      'createdAt',
+      'fields',
+      'customPostTypes',
+    ];
 
-
-
-    const input:any = {
-   
+    const input: any = {
       clientPortalId: props.clientPortalId,
     };
 
@@ -41,8 +51,6 @@ const GroupForm = (props: Props) => {
         input[key] = doc[key];
       }
     });
-
-    
 
     if (props.group) {
       edit({
@@ -70,6 +78,13 @@ const GroupForm = (props: Props) => {
     }
   };
 
+  const typeOptions = React.useMemo(() => {
+    return (data?.cmsCustomPostTypes || []).map((type: any) => ({
+      value: type._id,
+      label: type.label,
+    }));
+  }, [data]);
+
   const renderContent = (formProps: IFormProps) => {
     return (
       <>
@@ -86,7 +101,7 @@ const GroupForm = (props: Props) => {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('code')}</ControlLabel>
+          <ControlLabel>{__('Key')}</ControlLabel>
           <FormControl
             {...formProps}
             id={'code'}
@@ -123,6 +138,33 @@ const GroupForm = (props: Props) => {
             </FormControl>
           </FormGroup>
         )}
+
+        {typesLoading ? (
+          <p>Loading...</p>
+        ) : (
+          <FormGroup>
+            <ControlLabel>{__('Custom Post Types')}</ControlLabel>
+            <p>{__('Select allowed custom post types for this group')}</p>
+            <Select
+              placeholder={__('Select custom post types')}
+              isMulti={true}
+              options={typeOptions}
+              value={
+                typeOptions.filter((o) =>
+                  doc.customPostTypeIds?.includes(o.value)
+                ) || []
+              }
+              onChange={(options) => {
+                console.log(options);
+                setDoc({
+                  ...doc,
+                  customPostTypeIds: options.map((o) => o.value),
+                });
+              }}
+            />
+          </FormGroup>
+        )}
+
         <ModalFooter>
           <Button
             btnStyle='simple'
@@ -133,7 +175,7 @@ const GroupForm = (props: Props) => {
           </Button>
 
           <Button
-            btnStyle='primary'
+            btnStyle='success'
             icon='save'
             onClick={() => {
               submit();

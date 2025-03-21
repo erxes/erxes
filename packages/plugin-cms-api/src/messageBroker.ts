@@ -161,7 +161,7 @@ export const setupMessageConsumers = async () => {
       sortDirection = 'desc',
     } = data;
 
-    const query = queryBuilder(data);
+    const query = await queryBuilder(data,models);
 
     const totalCount = await models.Posts.find(query).countDocuments();
 
@@ -186,6 +186,15 @@ export const setupMessageConsumers = async () => {
     return {
       status: 'success',
       data: post,
+    };
+  });
+
+  consumeRPCQueue('cms:posts.find', async ({ data, subdomain }) => {
+    const models = await generateModels(subdomain);
+    const posts = await models.Posts.find(data).lean();
+    return {
+      status: 'success',
+      data: posts,
     };
   });
 };

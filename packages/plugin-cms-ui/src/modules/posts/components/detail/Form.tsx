@@ -11,11 +11,12 @@ import LeftSideBar from './LeftSidebar';
 import { Button } from '@erxes/ui/src/components';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IPost, IPostDocument } from '../../../types';
+import { IPost, IPostDocument, IWebSite } from '../../../../types';
 import RightSidebar from './RightSidebar';
 
 type Props = {
   clientPortalId: string;
+  website: IWebSite;
   post?: IPost;
   fields?: IField[];
   onSubmit: (doc: any) => void;
@@ -25,6 +26,7 @@ const PostForm = (props: Props) => {
 
   const { clientPortalId } = props;
   const defaultPost: IPostDocument = {
+    type: 'post',
     clientPortalId,
     title: '',
     slug: '',
@@ -94,12 +96,19 @@ const PostForm = (props: Props) => {
     props.onSubmit(clearTypename(doc));
   };
 
-  const breadcrumb = [
-    {
-      title: __('Post'),
-      link: `/cms/website/${props.clientPortalId}/posts`,
-    },
-  ];
+  // const breadcrumb = [
+  //   {
+  //     title: __('Post'),
+  //     link: `/cms/website/${props.clientPortalId}/posts`,
+  //   },
+  // ];
+
+    const breadcrumb = [
+      { title: 'Websites', link: '/cms' },
+      { title: props.website.name, link: '/cms/website/' + props.website._id + '/posts' },
+      { title: 'Posts', link: '/cms/website/' + clientPortalId + '/posts' },
+      { title: __('Post') },
+    ];
 
   const content = (
     <div style={{ padding: '10px 15px' }}>

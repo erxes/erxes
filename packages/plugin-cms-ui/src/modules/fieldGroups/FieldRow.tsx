@@ -1,13 +1,10 @@
-import PropertyForm from '@erxes/ui-forms/src/settings/properties/containers/PropertyForm';
-import PropertyGroupForm from '@erxes/ui-forms/src/settings/properties/containers/PropertyGroupForm';
 import {
   CollapseRow,
   DropIcon,
-  FieldType,
   PropertyListTable,
   PropertyTableHeader,
   PropertyTableRow,
-  RowField,
+  RowField
 } from '@erxes/ui-forms/src/settings/properties/styles';
 import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
@@ -17,12 +14,12 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import SortableList from '@erxes/ui/src/components/SortableList';
+import Tip from '@erxes/ui/src/components/Tip';
 import { IField } from '@erxes/ui/src/types';
 import { __, Alert, confirm } from '@erxes/ui/src/utils';
 import React, { useEffect, useState } from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import GroupForm from './GroupForm';
 import FieldForm from './FieldForm';
+import GroupForm from './GroupForm';
 
 type Props = {
   clientPortalId: string;
@@ -72,12 +69,7 @@ const PropertyRow: React.FC<Props> = ({
     updateFieldOrder(newFields);
   };
 
-  const renderActionButtons = (
-    data: any,
-    remove: any,
-    content: any,
-    isGroup: boolean
-  ) => {
+  const renderActionButtons = (data: any, remove: any, isGroup: boolean) => {
     const onClick = () =>
       confirm()
         .then(() => {
@@ -97,29 +89,53 @@ const PropertyRow: React.FC<Props> = ({
       />
     );
 
+    const fieldEditFormContent = (formProps) => (
+      <FieldForm
+        {...formProps}
+        field={data}
+        groups={groups}
+        groupId={group._id}
+        refetch={refetch}
+      />
+    );
     const fieldFormContent = (formProps) => (
-      <FieldForm {...formProps} groups={groups} groupId={group._id} refetch={refetch} />
+      <FieldForm
+        {...formProps}
+      
+        groups={groups}
+        groupId={group._id}
+        refetch={refetch}
+      />
     );
 
     return (
       <ActionButtons>
-        <Tip text={__('Add field')} placement='bottom'>
-          <ModalTrigger
-            size='sm'
-            title={isGroup ? 'Edit group' : 'Edit field'}
-            trigger={<Button btnStyle='link' icon='plus-circle' />}
-            content={fieldFormContent}
-          />
-        </Tip>
-        <Tip text={__('Edit group')} placement='bottom'>
+        {isGroup && (
+          <Tip text={__('Add field')} placement='bottom'>
+            <ModalTrigger
+              size='sm'
+              title={'Add field'}
+              trigger={<Button btnStyle='link' icon='plus-circle' />}
+              content={fieldFormContent}
+            />
+          </Tip>
+        )}
+
+        <Tip
+          text={__(isGroup ? 'Edit group' : 'Edit field')}
+          placement='bottom'
+        >
           <ModalTrigger
             size='sm'
             title={isGroup ? 'Edit group' : 'Edit field'}
             trigger={<Button btnStyle='link' icon='edit-3' />}
-            content={formContent}
+            content={isGroup ? formContent : fieldEditFormContent}
           />
         </Tip>
-        <Tip text={__('Delete group')} placement='bottom'>
+        <Tip
+          text={__(isGroup ? 'Delete group' : 'Delete field')}
+          placement='bottom'
+        >
           <Button btnStyle='link' icon='times-circle' onClick={onClick} />
         </Tip>
       </ActionButtons>
@@ -127,34 +143,17 @@ const PropertyRow: React.FC<Props> = ({
   };
 
   const renderTableRow = (field: IField) => {
-    const { lastUpdatedUser, contentType } = field;
-
-    const hasLogic = field.logics && field.logics.length > 0;
-
     return (
       <PropertyTableRow key={field._id}>
-        <RowField>
-          {field.text}
-          <FieldType>{field.type}</FieldType>
-        </RowField>
-        <RowField>
-          {lastUpdatedUser && lastUpdatedUser.details
-            ? lastUpdatedUser.details.fullName
-            : 'Erxes'}
-        </RowField>
+        <RowField>{field.text}</RowField>
+        <RowField>{field.code}</RowField>
 
-        <RowField>{hasLogic ? 'Yes' : 'No'}</RowField>
+        <RowField>{field.type}</RowField>
         <RowField>
           {renderActionButtons(
             field,
             removeProperty,
-            (props) => (
-              <PropertyForm
-                {...props}
-                field={field}
-                queryParams={queryParams}
-              />
-            ),
+
             false
           )}
         </RowField>
@@ -186,9 +185,10 @@ const PropertyRow: React.FC<Props> = ({
     return (
       <PropertyListTable>
         <PropertyTableHeader>
-          <ControlLabel>{__('Name')}</ControlLabel>
-          <ControlLabel>{__('Last Updated By')}</ControlLabel>
-          <ControlLabel>{__('Has logic')}</ControlLabel>
+          <ControlLabel>{__('Label')}</ControlLabel>
+          <ControlLabel>{__('Key')}</ControlLabel>
+          <ControlLabel>{__('Type')}</ControlLabel>
+
           <ControlLabel>{__('Actions')}</ControlLabel>
         </PropertyTableHeader>
         <div>{renderListRow}</div>
@@ -246,22 +246,17 @@ const PropertyRow: React.FC<Props> = ({
   return (
     <li key={group._id}>
       <CollapseRow $isChild={!!group.parentId}>
-        <div style={{ flex: 1 }} onClick={handleCollapse}>
-          <DropIcon $isOpen={collapse} />
-          {group.label}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1 }} onClick={handleCollapse}>
+            <DropIcon $isOpen={collapse} />
+            {group.label}
+          </div>
+        
+          <p style={{ fontSize: '12px', color: 'gray' }}>
+          Types:({group.customPostTypes.map((item: any) => item.label).join(', ')})
+          </p>
         </div>
-        {renderActionButtons(
-          group,
-          removePropertyGroup,
-          (props) => (
-            <PropertyGroupForm
-              {...props}
-              group={group}
-              queryParams={queryParams}
-            />
-          ),
-          true
-        )}
+        {renderActionButtons(group, removePropertyGroup, true)}
       </CollapseRow>
       <Collapse show={collapse}>
         <div>

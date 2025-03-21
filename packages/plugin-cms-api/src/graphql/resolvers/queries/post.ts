@@ -4,9 +4,10 @@ import {
   requireLogin,
 } from '@erxes/api-utils/src/permissions';
 
-import { IContext } from '../../../connectionResolver';
+import { IContext, IModels } from '../../../connectionResolver';
 
-export const queryBuilder = (args: any) => {
+export const queryBuilder = async (args: any, models: IModels) => {
+  console.log(args);
   let query: any = {
     clientPortalId: args.clientPortalId,
   };
@@ -40,6 +41,23 @@ export const queryBuilder = (args: any) => {
     query.featured = args.featured;
   }
 
+  if (args.type === 'post') {
+    query.type = 'post';
+  }
+
+  if (args.type && args.type !== 'post') {
+    const type = await models.CustomPostTypes.findOne({
+      clientPortalId: args.clientPortalId,
+      code: args.type,
+    }).lean()
+    
+    if (type) {
+      query.type = type._id;
+    }
+  }
+
+  console.log(query);
+
   return query;
 };
 
@@ -61,7 +79,7 @@ const queries = {
     } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
 
-    const query = queryBuilder({ ...args, clientPortalId });
+    const query =  await queryBuilder({ ...args, clientPortalId }, models);
 
     return paginate(
       models.Posts.find(query).sort({ [sortField]: sortDirection }),
@@ -108,7 +126,7 @@ const queries = {
     } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
 
-    const query = queryBuilder({ ...args, clientPortalId });
+    const query = await queryBuilder({ ...args, clientPortalId }, models);
 
     const totalCount = await models.Posts.find(query).countDocuments();
 
@@ -120,76 +138,6 @@ const queries = {
     const totalPages = Math.ceil(totalCount / perPage);
 
     return { totalCount, totalPages, currentPage: page, posts };
-  },
-
-  cmsCustomPostTypeList: async (
-    _parent: any,
-    args: any,
-    context: IContext
-  ): Promise<any> => {
-    const { models } = context;
-    const { page = 1, perPage = 20, searchValue } = args;
-    const clientPortalId = context.clientPortalId || args.clientPortalId;
-
-    const query: any = {
-      clientPortalId,
-    };
-
-    if (searchValue) {
-      query.$or = [
-        { name: { $regex: searchValue, $options: 'i' } },
-        { label: { $regex: searchValue, $options: 'i' } },
-      ];
-    }
-
-    const totalCount =
-      await models.CustomPostTypes.find(query).countDocuments();
-
-    const list = await paginate(models.CustomPostTypes.find(query), {
-      page,
-      perPage,
-    });
-
-    const totalPages = Math.ceil(totalCount / perPage);
-
-    return { totalCount, totalPages, currentPage: page, list };
-  },
-
-  cmsCustomPostTypes: async (
-    _parent: any,
-    args: any,
-    context: IContext
-  ): Promise<any> => {
-    const { models } = context;
-    const { page = 1, perPage = 20, searchValue } = args;
-    const clientPortalId = context.clientPortalId || args.clientPortalId;
-
-    const query: any = {
-      clientPortalId,
-    };
-
-    if (searchValue) {
-      query.$or = [
-        { name: { $regex: searchValue, $options: 'i' } },
-        { label: { $regex: searchValue, $options: 'i' } },
-      ];
-    }
-
-    return paginate(models.CustomPostTypes.find(query), {
-      page,
-      perPage,
-    });
-  },
-
-  cmsPostType: async (
-    _parent: any,
-    args: any,
-    context: IContext
-  ): Promise<any> => {
-    const { models } = context;
-    const { _id } = args;
-
-    return models.CustomPostTypes.findOne({ _id });
   },
 };
 
