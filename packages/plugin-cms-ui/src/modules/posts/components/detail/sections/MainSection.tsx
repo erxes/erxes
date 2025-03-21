@@ -1,28 +1,37 @@
+import { useQuery } from '@apollo/client';
 import {
   __,
   FieldStyle,
   Sidebar,
   SidebarCounter,
   SidebarList,
+  Spinner,
   Toggle,
 } from '@erxes/ui/src';
-import React from 'react';
-import Button from '@erxes/ui/src/components/Button';
+import Box from '@erxes/ui/src/components/Box';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Box from '@erxes/ui/src/components/Box';
 import dayjs from 'dayjs';
+import React from 'react';
+import queries from '../../../../customPostTypes/graphql/queries';
 
 type Props = {
+  clientPortalId: string;
   post: any;
   onChange: (field: string, value: any) => void;
 };
 
 const TripSection = (props: Props) => {
+  const { data, loading: typesLoading } = useQuery(queries.CUSTOM_TYPES, {
+    variables: {
+      clientPortalId: props.clientPortalId,
+    },
+  });
+
   const { Section } = Sidebar;
   const { post, onChange } = props;
+
   const [autoArchiveEnabled, setAutoArchiveEnabled] = React.useState(false);
 
   const formatDate = (date: Date) => {
@@ -84,6 +93,31 @@ const TripSection = (props: Props) => {
                       onChange('excerpt', e.target.value);
                     }}
                   />
+                </FormGroup>
+                <FormGroup>
+                  <ControlLabel>Type</ControlLabel>
+                  {typesLoading ? (
+                    <Spinner objective size={20} />
+                  ) : (
+                    <FormControl
+                      name='type'
+                      componentclass='select'
+                      value={post.type}
+                      onChange={(e: any) => {
+                        onChange('type', e.target.value);
+                      }}
+                      required={true}
+                    >
+                      {data?.cmsCustomPostTypes?.map((postType, index) => {
+                        return (
+                          <option value={postType._id} key={index}>
+                            {postType.label.charAt(0).toUpperCase() +
+                              postType.label.slice(1)}
+                          </option>
+                        );
+                      })}
+                    </FormControl>
+                  )}
                 </FormGroup>
                 <FormGroup>
                   <ControlLabel>Featured</ControlLabel>

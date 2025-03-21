@@ -13,6 +13,7 @@ export interface IWebSite {
 
 export interface IPostDocument {
   clientPortalId: string;
+  type: string;
   title: string;
   slug: string;
   content?: string;
