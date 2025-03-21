@@ -33,6 +33,11 @@ const POST_LIST = gql`
       posts {
         _id
         type
+        customPostType {
+          _id
+          code
+          label
+        }
         authorKind
         author {
           ... on User {

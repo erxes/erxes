@@ -62,4 +62,17 @@ export default {
 
     return jsonMap;
   },
+
+  async customPostType(post: any, _params, { models }: IContext) {
+    if (!post.type || post.type === 'post') {
+      return {
+        _id: 'post',
+        code: 'post',
+        label: 'Post',
+        pluralLabel: 'Posts',
+        __typename: 'CustomPostType',
+      };
+    }
+    return await models.CustomPostTypes.findOne({ _id: post.type });
+  },
 };

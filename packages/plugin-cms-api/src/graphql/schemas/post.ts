@@ -36,6 +36,7 @@ export const types = `
     type Post @key(fields: "_id") @cacheControl(maxAge: 3) {
         _id: String!
         type: String
+        customPostType: CustomPostType
         authorKind: PostAuthorKind
         authorId: String
         author: Author

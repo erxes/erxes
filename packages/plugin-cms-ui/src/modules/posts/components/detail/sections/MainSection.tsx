@@ -23,7 +23,6 @@ type Props = {
 };
 
 const TripSection = (props: Props) => {
-  
   const { data, loading: typesLoading } = useQuery(queries.CUSTOM_TYPES, {
     variables: {
       clientPortalId: props.clientPortalId,
@@ -109,11 +108,11 @@ const TripSection = (props: Props) => {
                       }}
                       required={true}
                     >
-                
                       {data?.cmsCustomPostTypes?.map((postType, index) => {
                         return (
                           <option value={postType._id} key={index}>
-                            {postType.label}
+                            {postType.label.charAt(0).toUpperCase() +
+                              postType.label.slice(1)}
                           </option>
                         );
                       })}

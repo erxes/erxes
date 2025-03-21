@@ -106,7 +106,7 @@ const Row = (props: Props) => {
       </td>
 
       <td key={post._id + 'type'}>
-        <RowTitle>{post.type || '-'}</RowTitle>
+        <RowTitle>{post.customPostType.label || '-'}</RowTitle>
       </td>
 
       <td key={post._id + 'categories'}>
