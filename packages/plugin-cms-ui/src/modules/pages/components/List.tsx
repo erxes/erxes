@@ -4,7 +4,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
+import { BarItems, Contents } from '@erxes/ui/src/layout/styles';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { EmptyState, EmptyText, EmptyTitle } from '../../../styles';
@@ -41,7 +41,7 @@ const List = (props: Props) => {
   //   const actionBarLeft: React.ReactNode;
 
   const trigger = (
-    <Button btnStyle='success' size='small' icon='plus-circle'>
+    <Button btnStyle='primary' size='small' icon='plus-circle'>
       Add page
     </Button>
   );
@@ -67,7 +67,11 @@ const List = (props: Props) => {
   );
 
   const breadcrumb = [
-    { title: props.website?.name, link: '/cms' },
+    { title: 'Websites', link: '/cms' },
+    {
+      title: props.website?.name,
+      link: '/cms/website/' + props.clientPortalId + '/pages',
+    },
     { title: __('Pages') },
   ];
 
@@ -82,18 +86,22 @@ const List = (props: Props) => {
   );
 
   const content = (
-    <Table $whiteSpace='nowrap' $hover={true}>
-      <thead>
-        <tr>
-          <th>{__('Name')}</th>
-          <th>{__('Path')}</th>
-          <th>{__('Last modified date')}</th>
-          <th>{__('Last modified by')}</th>
-          <th>{__('Actions')}</th>
-        </tr>
-      </thead>
-      <tbody>{renderRow()}</tbody>
-    </Table>
+    <Contents $hasBorder={true}>
+      <div style={{ flex: 1 }}>
+        <Table $whiteSpace='nowrap' $hover={true}>
+          <thead>
+            <tr>
+              <th>{__('Name')}</th>
+              <th>{__('Path')}</th>
+              <th>{__('Last modified date')}</th>
+              <th>{__('Last modified by')}</th>
+              <th>{__('Actions')}</th>
+            </tr>
+          </thead>
+          <tbody>{renderRow()}</tbody>
+        </Table>
+      </div>
+    </Contents>
   );
   return (
     <>
@@ -106,7 +114,6 @@ const List = (props: Props) => {
             breadcrumb={breadcrumb}
           />
         }
-        hasBorder
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
         content={
@@ -116,9 +123,9 @@ const List = (props: Props) => {
             count={props.totalCount}
             emptyContent={
               <EmptyState>
-              <EmptyTitle>No Pages Yet</EmptyTitle>
-              <EmptyText>Create your first page</EmptyText>
-            </EmptyState>
+                <EmptyTitle>No Pages Yet</EmptyTitle>
+                <EmptyText>Create your first page</EmptyText>
+              </EmptyState>
             }
           />
         }
