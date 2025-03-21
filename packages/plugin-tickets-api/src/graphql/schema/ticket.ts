@@ -100,8 +100,6 @@ const archivedTicketsParams = `
 
 export const queries = `
   ticketDetail(_id: String!): Ticket
-  ticketCheckProgress(number: String!): Ticket
- ticketCheckProgressForget(email: String, phoneNumber: String): JSON
   tickets(${listQueryParams}): [TicketListItem]
   ticketsTotalCount(${listQueryParams}): Int
   archivedTickets(
@@ -120,6 +118,8 @@ const ticketMutationParams = `
 `;
 
 export const mutations = `
+  ticketCheckProgress(number: String!): Ticket
+  ticketCheckProgressForget(email: String, phoneNumber: String): JSON
   ticketsAdd(name: String!, ${copyParams}, ${ticketMutationParams}, ${commonMutationParams}): Ticket
   ticketsEdit(_id: String!, name: String, ${ticketMutationParams}, ${commonMutationParams}): Ticket
   ticketsChange(${commonDragParams}): Ticket
