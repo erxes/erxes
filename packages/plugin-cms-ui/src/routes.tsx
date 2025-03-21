@@ -47,6 +47,20 @@ const Pages = asyncComponent(
     )
 );
 
+const CustomFields = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - CustomFields" */ './modules/fieldGroups/List'
+    )
+)
+
+const CustomPostTypes = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - CustomPostTypes" */ './modules/customPostTypes/List'
+    )
+)
+
 const CategoriesComponent = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
@@ -81,6 +95,7 @@ const PagesComponent = () => {
 
   return <Pages clientPortalId={cpId} />;
 };
+
 
 const WebBuilderRedirect = () => {
   const { VERSION } = getVersion();
@@ -118,25 +133,6 @@ const WebBuilderRedirect = () => {
 const routes = () => (
   <Routes>
     <Route key='/cms' path='/cms' element={<WebList />} />
-    <Route
-      key='/cms/categories'
-      path='/cms/categories'
-      element={<CategoriesComponent />}
-    />
-
-    <Route key='/cms/posts' path='/cms/posts' element={<PostsComponent />} />
-
-    <Route key='/cms/tags' path='/cms/tags' element={<TagsComponent />} />
-
-    <Route key='/cms/pages' path='/cms/pages' element={<PagesComponent />} />
-
-    <Route key='/cms/posts/new' path='/cms/posts/new' element={<PostForm />} />
-
-    <Route
-      key='/cms/posts/edit/:id'
-      path='/cms/posts/edit/:id'
-      element={<PostEditComponent />}
-    />
 
     <Route
       key='/cms/web-builder'
@@ -179,6 +175,21 @@ const routes = () => (
       path='/cms/website/:cpId/tags'
       element={<TagsComponent />}
     />
+
+
+  {/* {field group} */}
+      <Route
+      key='/cms/website/:cpId/custom-fields'
+      path='/cms/website/:cpId/custom-fields'
+      element={<CustomFields />}
+    />
+
+    <Route
+      key='/cms/website/:cpId/custom-post-types'
+      path='/cms/website/:cpId/custom-post-types'
+      element={<CustomPostTypes />}
+    />
+
   </Routes>
 );
 
@@ -187,6 +198,9 @@ export const menu = (clientPortalId: string) => [
   { title: 'Categories', link: '/cms/website/' + clientPortalId + '/categories' },
   { title: 'Tags', link: '/cms/website/' + clientPortalId + '/tags' },
   { title: 'Pages', link: '/cms/website/' + clientPortalId + '/pages' },
+  { title: 'Custom Post Types', link: '/cms/website/' + clientPortalId + '/custom-post-types' },
+  { title: 'Custom Fields', link: '/cms/website/' + clientPortalId + '/custom-fields' },
+  
 ];
 
 export default routes;

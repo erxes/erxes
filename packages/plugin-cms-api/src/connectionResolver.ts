@@ -11,14 +11,25 @@ import { IPostTagModel, loadPostTagClass } from './models/Tags';
 import { IPostTagDocument } from './models/definitions/tags';
 import { IMenuItemModel, loadMenuItemClass } from './models/Menu';
 import { IMenuItemDocument } from './models/definitions/menu';
+import {
+  ICustomPostTypeModel,
+  loadCustomPostTypeClass,
+} from './models/CustomPostType';
+import { ICustomPostTypeDocument } from './models/definitions/customPostTypes';
+import {
+  ICustomFieldGroupModel,
+  loadCustomFieldGroupClass,
+} from './models/FieldGroups';
+import { ICustomFieldGroupDocument } from './models/definitions/customFieldGroups';
 
 export interface IModels {
-
+  CustomPostTypes: ICustomPostTypeModel;
   Categories: ICategoryModel;
   Posts: IPostModel;
   Pages: IPageModel;
   PostTags: IPostTagModel;
   MenuItems: IMenuItemModel;
+  CustomFieldGroups: ICustomFieldGroupModel;
 }
 
 export interface IContext extends IMainContext {
@@ -55,6 +66,16 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'cms_menu',
     loadMenuItemClass(models)
   );
+
+  models.CustomPostTypes = db.model<
+    ICustomPostTypeDocument,
+    ICustomPostTypeModel
+  >('cms_custom_post_types', loadCustomPostTypeClass(models));
+
+  models.CustomFieldGroups = db.model<
+    ICustomFieldGroupDocument,
+    ICustomFieldGroupModel
+  >('cms_custom_field_groups', loadCustomFieldGroupClass(models));
 
   return models;
 };
