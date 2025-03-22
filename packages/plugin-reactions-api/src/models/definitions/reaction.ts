@@ -6,13 +6,13 @@ const CONTENT_TYPES = {
 };
 
 export interface IComment {
-  contentType: String;
-  contentId: String;
-  parentId: String;
-  comment: String;
-  createdBy: String;
+  contentType: string;
+  contentId: string;
+  parentId: string;
+  comment: string;
+  createdBy: string;
   createdAt: Date;
-  updatedBy: String;
+  updatedBy: string;
   updatedAt: Date;
 }
 export interface ICommentDocument extends IComment, Document {
@@ -20,16 +20,16 @@ export interface ICommentDocument extends IComment, Document {
 }
 
 export interface IEmoji {
-  type: String;
-  contentType: String;
-  contentId: String;
-  userId: String;
+  type: string;
+  contentType: string;
+  contentId: string;
+  userId: string;
   createdAt: Date;
-  updatedBy: String;
+  updatedBy: string;
   updatedAt: Date;
 }
 export interface IEmojiDocument extends IEmoji, Document {
-  _id: String;
+  _id: string;
 }
 export const commentSchema = new Schema({
   _id: field({ pkey: true }),

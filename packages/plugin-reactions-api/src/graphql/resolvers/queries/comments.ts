@@ -31,7 +31,7 @@ const commentQueries = {
 
   commentCount: async (
     _root,
-    doc: { contentId: String; contentType: String },
+    doc: { contentId: string; contentType: string },
     { models }
   ) => {
     return models.Comments.find(doc).countDocuments();
