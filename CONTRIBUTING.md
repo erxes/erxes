@@ -5,8 +5,8 @@ Thank you for considering to contribute to erxes! This document will outline how
 **Prerequisites**
 
 - You have to be familiar with GitHub Issues and Pull Requests
-- You should to read the <a href="https://docs.erxes.io/" target="_blank">docs</a>.
-- You make sure you set up a test project with erxes
+- You should read the <a href="https://docs.erxes.io/" target="_blank">docs</a>.
+- You have to make sure you set up a test project with erxes
 
 **Issues before PRs**
 
