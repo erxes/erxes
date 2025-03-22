@@ -35,16 +35,15 @@ const Accounts = (props: Props) => {
     });
   };
 
-  const renderAccountAction = () => {
-    const AddButton = (
+  const renderAccountAction = () => (
       <Button btnStyle="primary" icon="plus-circle" onClick={onAdd}>
         Add Account
       </Button>
     );
 
-    const content = (props) => (
+    const AddAccountFormContent = (props) => (
       <AddAccountForm {...props} renderButton={renderButton} onAdd={onAdd} />
-    );
+    );    
 
     return (
       <Button btnStyle="primary" icon="plus-circle" onClick={onAdd}>
