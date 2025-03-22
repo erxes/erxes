@@ -1,0 +1,15 @@
+{
+    "Block" : "Блоклох",
+    "Balance" : "Тэнцвэр",
+    "Verify" : "Баталгаажуулах",
+    "Total Balance" : "Нийт үлдэгдэл",
+    "Add package" : "Багц нэмэх",
+    "Name": "Нэр",
+    "Description": "Тодорхойлолт",
+    "Actions": "Үйлдлүүд",
+    "There is no block" : "Блок байхгүй",
+    "Edit" : "Засварлах",
+    "Delete" : "Устгах",
+    "Packages" : "Багцууд",
+    "Edit item" : "Зүйлийг засах"
+}
