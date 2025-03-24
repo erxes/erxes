@@ -1,4 +1,8 @@
-import { getLocalStorageItem, initStorage, setLocalStorageItem } from '../common';
+import {
+  getLocalStorageItem,
+  initStorage,
+  setLocalStorageItem,
+} from '../common';
 
 import { IConnectResponse } from './types';
 import asyncComponent from '../AsyncComponent';
@@ -10,9 +14,9 @@ import graphqTypes from './graphql';
 import { setLocale } from '../utils';
 import widgetConnect from '../widgetConnect';
 
-const App = asyncComponent(() =>
-  import( /* webpackChunkName: "MessengerApp" */'./containers/App')
-)
+const App = asyncComponent(
+  () => import(/* webpackChunkName: "MessengerApp" */ './containers/App'),
+);
 
 widgetConnect({
   connectMutation: async (event: MessageEvent) => {
@@ -22,16 +26,18 @@ widgetConnect({
 
     initStorage(storage);
 
-    client.query({
-      query: gql(enabledServicesQuery),
-      fetchPolicy: "network-only"
-    }).then((res: any) => {
-      if (res.data.enabledServices) {
-        const { enabledServices } = res.data;
-        connection.enabledServices = enabledServices;
-      }
-    });
+    try {
+      const res = await client.query({
+        query: gql(enabledServicesQuery),
+        fetchPolicy: 'network-only',
+      });
 
+      if (res.data.enabledServices) {
+        connection.enabledServices = res.data.enabledServices;
+      }
+    } catch (error) {
+      console.error('Error fetching enabledServices:', error);
+    }
     const cachedCustomerId = getLocalStorageItem('customerId');
 
     let visitorId;
@@ -42,7 +48,7 @@ widgetConnect({
       visitorId = await getVisitorId();
     }
 
-    const isCallEnabled = connection.enabledServices.calls && connection.enabledServices.cloudflarecalls;
+    const isCallEnabled = connection.enabledServices.cloudflarecalls;
     const isTicketEnabled = connection.enabledServices.tickets;
 
     return client.mutate({
@@ -60,7 +66,7 @@ widgetConnect({
         name: setting.name,
         data: setting.data,
         companyData: setting.companyData,
-      }
+      },
     });
   },
 
@@ -86,11 +92,11 @@ widgetConnect({
 
     // WebSocketLink will send this data to the server when subscribing or sending requests.
     // Server will save given
-    // data to corresponding socket that handles this clients connection. 
+    // data to corresponding socket that handles this clients connection.
     // So when connection is closed, we will use
     // customerId to mark customer as not active
     setLocalStorageItem('messengerDataJson', JSON.stringify(messengerData));
   },
 
-  AppContainer: App
+  AppContainer: App,
 });

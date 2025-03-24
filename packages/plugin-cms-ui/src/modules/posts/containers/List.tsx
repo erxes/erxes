@@ -6,9 +6,9 @@ import React from 'react';
 import { mutations, queries } from '../graphql';
 
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { useLocation, useParams } from 'react-router-dom';
-import List from '../components/List';
+import { useParams } from 'react-router-dom';
 import { WEB_DETAIL } from '../../web/queries';
+import List from '../components/List';
 
 type Props = {
   refetch: () => void;
@@ -17,8 +17,7 @@ type Props = {
 
 export default function ListContainer(props: Props) {
   const { cpId = '' } = useParams<{ cpId: string }>();
-  const location = useLocation();
-
+ 
   const { data: webData, loading: webLoading } = useQuery(WEB_DETAIL, {
     variables: {
       id: cpId,
@@ -29,6 +28,7 @@ export default function ListContainer(props: Props) {
     variables: {
       ...router.generatePaginationParams(props.queryParams || {}),
       clientPortalId: cpId,
+      type: props.queryParams?.type,
     },
     fetchPolicy: 'network-only',
   });

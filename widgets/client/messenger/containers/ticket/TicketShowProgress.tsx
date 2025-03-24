@@ -5,7 +5,6 @@ import { useMutation, useQuery } from "@apollo/client";
 
 import { TICKET_COMMENTS_ADD } from "../../graphql/mutations";
 import TicketShowProgress from "../../components/ticket/TicketShowPropgress";
-import { useRouter } from "../../context/Router";
 import { useTicket } from "../../context/Ticket";
 
 type Props = {
@@ -14,8 +13,6 @@ type Props = {
 
 const TicketShowProgressContainer = (props: Props) => {
   const { ticketData } = useTicket();
-  const { ticketCheckProgress } = ticketData || {};
-
   const [comment, setComment] = React.useState("");
 
   const {
@@ -25,7 +22,7 @@ const TicketShowProgressContainer = (props: Props) => {
     refetch: commentQueryRefetch,
   } = useQuery(TICKET_COMMENTS, {
     variables: {
-      typeId: ticketCheckProgress._id,
+      typeId: ticketData._id,
       type: "ticket",
     },
     fetchPolicy: "network-only",
@@ -47,7 +44,7 @@ const TicketShowProgressContainer = (props: Props) => {
   } = useQuery(TICKET_ACTIVITY_LOGS, {
     variables: {
       contentType: "tickets:ticket",
-      contentId: ticketCheckProgress._id,
+      contentId: ticketData._id,
     },
     fetchPolicy: "network-only",
   });
@@ -56,7 +53,7 @@ const TicketShowProgressContainer = (props: Props) => {
     return commentsAdd({
       variables: {
         type: "ticket",
-        typeId: ticketCheckProgress._id,
+        typeId: ticketData._id,
         content: comment,
         userType: "client",
       },

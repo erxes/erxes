@@ -115,7 +115,6 @@ const TicketActivity: React.FC<Props> = ({ activity }) => {
         return <div />;
     }
   };
-  console.log("aaa", activity);
 
   return <div className="ticket-progress-log">{renderContent()}</div>;
 };

@@ -169,6 +169,33 @@ mutation clientPortalCommentsAdd($type: String!, $typeId: String!, $content: Str
 }
 `;
 
+const TICKET_CHECK_PROGRESS = gql`
+  mutation TicketCheckProgress($number: String!) {
+    ticketCheckProgress(number: $number) {
+      _id
+      name
+      number
+      status
+      stage {
+        name
+        _id
+      }
+      attachments {
+        url
+        name
+      }
+      description
+      type
+    }
+  }
+`
+
+const TICKET_CHECK_PROGRESS_FORGET = gql`
+  mutation ticketCheckProgressForget($email: String, $phoneNumber: String) {
+    ticketCheckProgressForget(email: $email, phoneNumber: $phoneNumber)
+  }
+`
+
 export {
   WIDGETS_INSERT_MESSAGE_MUTATION,
   WIDGET_GET_BOT_INTIAL_MESSAGE,
@@ -182,5 +209,7 @@ export {
   CLOUDFLARE_LEAVE_CALL,
   TICKET_ADD,
   CUSTOMER_ADD,
-  TICKET_COMMENTS_ADD
+  TICKET_COMMENTS_ADD,
+  TICKET_CHECK_PROGRESS,
+  TICKET_CHECK_PROGRESS_FORGET,
 };

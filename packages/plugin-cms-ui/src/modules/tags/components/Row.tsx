@@ -47,11 +47,11 @@ const Row = (props: Props) => {
 
   return (
     <tr>
-      <td key={Math.random()}>
+      <td key={tag._id + 'name'}>
         <RowTitle>{ tag.name || 'Undefined'}</RowTitle>
       </td>
 
-      <td key={Math.random()}>
+      <td key={tag._id + 'slug'}>
         <RowTitle>{tag.slug || 'Undefined'} </RowTitle>
       </td>
 

@@ -1,7 +1,7 @@
 import { __, Sidebar, SidebarList } from '@erxes/ui/src';
 import Box from '@erxes/ui/src/components/Box';
 import React from 'react';
-import SelectTag from '../../../tags/containers/SelectTag';
+import SelectTag from '../../../../tags/containers/SelectTag';
 
 type Props = {
   clientPortalId: string;
