@@ -4,9 +4,10 @@ import {
   requireLogin,
 } from '@erxes/api-utils/src/permissions';
 
-import { IContext } from '../../../connectionResolver';
+import { IContext, IModels } from '../../../connectionResolver';
 
-export const queryBuilder = (args: any) => {
+export const queryBuilder = async (args: any, models: IModels) => {
+
   let query: any = {
     clientPortalId: args.clientPortalId,
   };
@@ -40,6 +41,22 @@ export const queryBuilder = (args: any) => {
     query.featured = args.featured;
   }
 
+  if (args.type === 'post') {
+    query.type = 'post';
+  }
+
+  if (args.type && args.type !== 'post') {
+    const type = await models.CustomPostTypes.findOne({
+      clientPortalId: args.clientPortalId,
+      code: args.type,
+    }).lean()
+
+    if (type) {
+      query.type = type._id;
+    }
+  }
+
+
   return query;
 };
 
@@ -61,7 +78,7 @@ const queries = {
     } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
 
-    const query = queryBuilder({ ...args, clientPortalId });
+    const query =  await queryBuilder({ ...args, clientPortalId }, models);
 
     return paginate(
       models.Posts.find(query).sort({ [sortField]: sortDirection }),
@@ -108,7 +125,7 @@ const queries = {
     } = args;
     const clientPortalId = context.clientPortalId || args.clientPortalId;
 
-    const query = queryBuilder({ ...args, clientPortalId });
+    const query = await queryBuilder({ ...args, clientPortalId }, models);
 
     const totalCount = await models.Posts.find(query).countDocuments();
 

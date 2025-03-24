@@ -29,13 +29,7 @@ const leaveCall = gql`
       originator: $originator
       duration: $duration
       audioTrack: $audioTrack
-    ) {
-      callerNumber
-      roomState
-      sessionId
-      trackName
-      audioTrack
-    }
+    )
   }
 `
 export default {

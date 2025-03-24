@@ -152,7 +152,7 @@ export const fieldsMutations = `
 `;
 
 export const fieldsGroupsTypes = `
-  type FieldsGroup {
+  type FieldsGroup @key(fields: "_id") {
     _id: String!
     name: String
     contentType: String

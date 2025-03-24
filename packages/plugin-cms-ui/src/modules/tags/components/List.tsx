@@ -4,7 +4,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
+import { BarItems, Contents } from '@erxes/ui/src/layout/styles';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { EmptyState, EmptyText, EmptyTitle } from '../../../styles';
@@ -30,7 +30,6 @@ const List = (props: Props) => {
   const { totalCount, queryParams, loading, tags, remove } = props;
 
   const renderRow = () => {
-
     return tags.map((tag) => (
       <React.Fragment key={tag._id}>
         <Row tag={tag} remove={remove} />
@@ -39,13 +38,17 @@ const List = (props: Props) => {
   };
 
   const trigger = (
-    <Button btnStyle='success' size='small' icon='plus-circle'>
+    <Button btnStyle='primary' size='small' icon='plus-circle'>
       Add tag
     </Button>
   );
 
   const formContent = (formProps) => (
-    <TagForm {...formProps} clientPortalId={props.clientPortalId} refetch={props.refetch} />
+    <TagForm
+      {...formProps}
+      clientPortalId={props.clientPortalId}
+      refetch={props.refetch}
+    />
   );
 
   const righActionBar = (
@@ -61,7 +64,11 @@ const List = (props: Props) => {
   );
 
   const breadcrumb = [
-    { title: props.website?.name, link: '/cms' },
+    { title: 'Websites', link: '/cms' },
+    {
+      title: props.website?.name,
+      link: '/cms/website/' + props.clientPortalId + '/tags',
+    },
     { title: __('Tags') },
   ];
 
@@ -76,18 +83,22 @@ const List = (props: Props) => {
   );
 
   const content = (
-    <Table $whiteSpace='nowrap' $hover={true}>
-      <thead>
-        <tr>
-          <th>{__('Name')}</th>
-          <th>{__('Slug')}</th>
-          <th>{__('Last modified date')}</th>
-          <th>{__('Last modified by')}</th>
-          <th>{__('Actions')}</th>
-        </tr>
-      </thead>
-      <tbody>{renderRow()}</tbody>
-    </Table>
+    <Contents $hasBorder={true}>
+      <div style={{ flex: 1 }}>
+        <Table $hover={true} $bordered={true} $striped={true}>
+          <thead>
+            <tr>
+              <th>{__('Name')}</th>
+              <th>{__('Slug')}</th>
+              <th>{__('Last modified date')}</th>
+              <th>{__('Last modified by')}</th>
+              <th>{__('Actions')}</th>
+            </tr>
+          </thead>
+          <tbody>{renderRow()}</tbody>
+        </Table>
+      </div>
+    </Contents>
   );
   return (
     <>
@@ -100,7 +111,6 @@ const List = (props: Props) => {
             breadcrumb={breadcrumb}
           />
         }
-        hasBorder
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
         content={
@@ -110,9 +120,9 @@ const List = (props: Props) => {
             count={props.totalCount}
             emptyContent={
               <EmptyState>
-              <EmptyTitle>No Tags Yet</EmptyTitle>
-              <EmptyText>Create your first tag</EmptyText>
-            </EmptyState>
+                <EmptyTitle>No Tags Yet</EmptyTitle>
+                <EmptyText>Create your first tag</EmptyText>
+              </EmptyState>
             }
           />
         }
