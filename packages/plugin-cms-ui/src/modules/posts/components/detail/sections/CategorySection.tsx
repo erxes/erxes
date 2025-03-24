@@ -7,7 +7,7 @@ import {
   SidebarCounter,
   SidebarList,
 } from '@erxes/ui/src';
-import SelectCategory from '../../../categories/containers/SelectCategory';
+import SelectCategory from '../../../../categories/containers/SelectCategory';
 
 type Props = {
   clientPortalId: string;

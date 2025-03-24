@@ -5,6 +5,7 @@ import {
 import { generateModels, IModels } from './connectionResolver';
 import { queryBuilder } from './graphql/resolvers/queries/post';
 import { paginate } from '@erxes/api-utils/src';
+import { MessageArgs, sendMessage } from "@erxes/api-utils/src/core";
 
 export const setupMessageConsumers = async () => {
   consumeQueue('cms:addPages', async ({ subdomain, data }) => {
@@ -160,7 +161,7 @@ export const setupMessageConsumers = async () => {
       sortDirection = 'desc',
     } = data;
 
-    const query = queryBuilder(data);
+    const query = await queryBuilder(data,models);
 
     const totalCount = await models.Posts.find(query).countDocuments();
 
@@ -186,5 +187,21 @@ export const setupMessageConsumers = async () => {
       status: 'success',
       data: post,
     };
+  });
+
+  consumeRPCQueue('cms:posts.find', async ({ data, subdomain }) => {
+    const models = await generateModels(subdomain);
+    const posts = await models.Posts.find(data).lean();
+    return {
+      status: 'success',
+      data: posts,
+    };
+  });
+};
+
+
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
+  return sendMessage({
+    ...args
   });
 };

@@ -1,6 +1,6 @@
 var { resolve } = require('path');
 var fs = require('fs-extra');
-const filePath = (pathName) => {
+const filePath = pathName => {
   if (pathName) {
     return resolve(__dirname, '..', pathName);
   }
@@ -66,6 +66,7 @@ var plugins = [
   { name: 'cms', api: true, ui: true },
   { name: 'bm', api: true, ui: true },
   { name: 'pms', api: true, ui: true },
+  { name: 'cloudflarecalls', api: true, ui: true }
   // { name: 'burenscoring', api: true, ui: true },
   // { name: 'golomtbank', api: true, ui: true },
   // { name: 'template', api: true, ui: true }
@@ -211,7 +212,7 @@ var main = async () => {
       }
     }
   }
-  const actions = permissionCheckers.map((action) => action.name);
+  const actions = permissionCheckers.map(action => action.name);
   const dups = actions.filter((item, index) => actions.indexOf(item) !== index);
   if (dups.length) {
     console.log(`warning: duplicated actions names ==> ${dups.join(', ')}`);
