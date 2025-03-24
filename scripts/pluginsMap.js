@@ -4981,8 +4981,8 @@ module.exports = {
       "inboxIntegrationSettings": "./inboxIntegrationSettings",
       "inboxIntegrations": [
         {
-          "name": "Cloudflare calls",
-          "description": "Configure Cloudflare Calls",
+          "name": "Web call",
+          "description": "Configure Web Call",
           "isAvailable": true,
           "kind": "cloudflarecalls",
           "logo": "/images/integrations/cloudflarecall.png",
