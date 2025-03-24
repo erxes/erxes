@@ -69,6 +69,7 @@ module.exports = {
             "integrationsEditMessengerIntegration",
             "integrationsSaveMessengerAppearanceData",
             "integrationsSaveMessengerConfigs",
+            "integrationsSaveMessengerTicketData",
             "integrationsCreateLeadIntegration",
             "integrationsEditLeadIntegration",
             "integrationsRemove",
@@ -182,6 +183,7 @@ module.exports = {
                 "integrationsCreateMessengerIntegration",
                 "integrationsEditMessengerIntegration",
                 "integrationsSaveMessengerAppearanceData",
+                "integrationsSaveMessengerTicketData",
                 "integrationsSaveMessengerConfigs",
                 "integrationsCreateLeadIntegration",
                 "integrationsEditLeadIntegration",
@@ -205,6 +207,10 @@ module.exports = {
             {
               "name": "integrationsSaveMessengerAppearanceData",
               "description": "Save messenger appearance data"
+            },
+            {
+              "name": "integrationsSaveMessengerTicketData",
+              "description": "Save messenger ticket data"
             },
             {
               "name": "integrationsSaveMessengerConfigs",
@@ -5065,8 +5071,8 @@ module.exports = {
       "inboxIntegrationSettings": "./inboxIntegrationSettings",
       "inboxIntegrations": [
         {
-          "name": "Cloudflare calls",
-          "description": "Configure Cloudflare Calls",
+          "name": "Web call",
+          "description": "Configure Web Call",
           "isAvailable": true,
           "kind": "cloudflarecalls",
           "logo": "/images/integrations/cloudflarecall.png",
