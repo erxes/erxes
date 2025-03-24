@@ -4,17 +4,19 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { BarItems, Contents } from '@erxes/ui/src/layout/styles';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-
+import { EmptyState, EmptyText, EmptyTitle } from '../../../styles';
 import PageForm from '../containers/Form';
 
+import Submenu from '@erxes/ui/src/components/subMenu/Submenu';
 import { menu } from '../../../routes';
+import { IWebSite } from '../../../types';
 import Row from './Row';
-import CPHeader from '../../clientportal/containers/Header';
 
 type Props = {
+  website: IWebSite;
   clientPortalId: string;
   pages: any[];
   totalCount: number;
@@ -28,10 +30,9 @@ const List = (props: Props) => {
   const { totalCount, queryParams, loading, pages, remove } = props;
 
   const renderRow = () => {
-
     return pages.map((page) => (
       <React.Fragment key={page._id}>
-        <Row page={page} remove={remove}  />
+        <Row page={page} remove={remove} />
       </React.Fragment>
     ));
   };
@@ -40,13 +41,17 @@ const List = (props: Props) => {
   //   const actionBarLeft: React.ReactNode;
 
   const trigger = (
-    <Button btnStyle='success' size='small' icon='plus-circle'>
+    <Button btnStyle='primary' size='small' icon='plus-circle'>
       Add page
     </Button>
   );
 
   const formContent = (formProps) => (
-    <PageForm {...formProps} clientPortalId={props.clientPortalId} refetch={props.refetch} />
+    <PageForm
+      {...formProps}
+      clientPortalId={props.clientPortalId}
+      refetch={props.refetch}
+    />
   );
 
   const righActionBar = (
@@ -61,9 +66,18 @@ const List = (props: Props) => {
     </BarItems>
   );
 
+  const breadcrumb = [
+    { title: 'Websites', link: '/cms' },
+    {
+      title: props.website?.name,
+      link: '/cms/website/' + props.clientPortalId + '/pages',
+    },
+    { title: __('Pages') },
+  ];
+
   const leftActionBar = (
     <BarItems>
-      <CPHeader />
+      <Submenu items={menu(props.clientPortalId)} />
     </BarItems>
   );
 
@@ -72,18 +86,22 @@ const List = (props: Props) => {
   );
 
   const content = (
-    <Table $whiteSpace='nowrap' $hover={true}>
-      <thead>
-        <tr>
-          <th>{__('Name')}</th>
-          <th>{__('Path')}</th>
-          <th>{__('Last modified date')}</th>
-          <th>{__('Last modified by')}</th>
-          <th>{__('Actions')}</th>
-        </tr>
-      </thead>
-      <tbody>{renderRow()}</tbody>
-    </Table>
+    <Contents $hasBorder={true}>
+      <div style={{ flex: 1 }}>
+        <Table $whiteSpace='nowrap' $hover={true}>
+          <thead>
+            <tr>
+              <th>{__('Name')}</th>
+              <th>{__('Path')}</th>
+              <th>{__('Last modified date')}</th>
+              <th>{__('Last modified by')}</th>
+              <th>{__('Actions')}</th>
+            </tr>
+          </thead>
+          <tbody>{renderRow()}</tbody>
+        </Table>
+      </div>
+    </Contents>
   );
   return (
     <>
@@ -93,7 +111,7 @@ const List = (props: Props) => {
           <Wrapper.Header
             title={__('Page')}
             queryParams={queryParams}
-            submenu={menu}
+            breadcrumb={breadcrumb}
           />
         }
         actionBar={actionBar}
@@ -104,15 +122,10 @@ const List = (props: Props) => {
             loading={loading}
             count={props.totalCount}
             emptyContent={
-              <h3
-                style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                no data
-              </h3>
+              <EmptyState>
+                <EmptyTitle>No Pages Yet</EmptyTitle>
+                <EmptyText>Create your first page</EmptyText>
+              </EmptyState>
             }
           />
         }

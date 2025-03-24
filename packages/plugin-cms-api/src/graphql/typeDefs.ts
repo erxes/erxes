@@ -34,6 +34,14 @@ import {
   mutations as menuMutations,
 } from './schemas/menu';
 
+import {
+  types as customPostTypeTypes,
+  inputs as customPostTypeInputs,
+  queries as customPostTypeQueries,
+  mutations as customPostTypeMutations,
+} from './schemas/customPostType';
+
+
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 const typeDefs = async () => {
@@ -70,7 +78,7 @@ const typeDefs = async () => {
     ${categoryTypes}
     ${postTypes}
     ${pageTypes}
-
+    ${customPostTypeTypes}
     ${menuTypes}
 
     ${tagTypes}
@@ -80,7 +88,7 @@ const typeDefs = async () => {
     ${pageInputs}
     ${tagInputs}
     ${menuInputs}
-    
+    ${customPostTypeInputs}
 
     extend type Query {
       ${categoryQueries}
@@ -88,6 +96,7 @@ const typeDefs = async () => {
       ${pageQueries}
       ${tagQueries}
       ${menuQueries}
+      ${customPostTypeQueries}
     }
     
     extend type Mutation {
@@ -96,6 +105,7 @@ const typeDefs = async () => {
       ${pageMutations}
       ${tagMutations}
       ${menuMutations}
+      ${customPostTypeMutations}
     }
   `;
 };

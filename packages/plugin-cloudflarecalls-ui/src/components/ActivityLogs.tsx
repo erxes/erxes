@@ -97,19 +97,19 @@ const ActivityItem = (props: Props) => {
   const { history = {}, conversationMessages = [] } = contentTypeDetail;
   const { createdAt = '', recordUrl = '' } = history;
 
-  const renderAudio = () => {
-    return (
-      can('showCallRecord', currentUser) && (
-        <Audio>
-          <ReactAudioPlayer
-            src={readFile(recordUrl)}
-            controls
-            controlsList="nodownload"
-          />
-        </Audio>
-      )
-    );
-  };
+  // const renderAudio = () => {
+  //   return (
+  //     can('showCallRecord', currentUser) && (
+  //       <Audio>
+  //         <ReactAudioPlayer
+  //           src={readFile(recordUrl)}
+  //           controls
+  //           controlsList="nodownload"
+  //         />
+  //       </Audio>
+  //     )
+  //   );
+  // };
 
   const renderWhom = (contentTypeDetail) => {
     const { recordUrl, callType, callDuration } = contentTypeDetail;
@@ -123,7 +123,7 @@ const ActivityItem = (props: Props) => {
               <span>Call duration: {callDuration}s</span>
             </div>
           </StatusContent>
-          {recordUrl && renderAudio()}
+          {/* {recordUrl && renderAudio()} */}
         </CallWrapper>
       </MessageBody>
     );

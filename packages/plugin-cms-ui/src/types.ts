@@ -1,7 +1,19 @@
 import { IAttachment } from "@erxes/ui/src/types";
 
+export interface IWebSite {
+  _id: string;
+  name: string;
+  description?: string;
+  domain?: string;
+  url?: string;
+  icon?: string;
+  createdAt?: Date;
+  kind: string;
+}
+
 export interface IPostDocument {
   clientPortalId: string;
+  type: string;
   title: string;
   slug: string;
   content?: string;

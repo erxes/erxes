@@ -9,14 +9,12 @@ import {
 } from '@erxes/ui/src/components';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Row from './InventoryUsersRow';
-import CheckForm from './CheckForm';
 
 type Props = {
   queryParams: any;
   loading: boolean;
-  toCheckUsers: (usercode: string, userpass: string) => void;
+  toCheckUsers: () => void;
   toSyncUsers: (action: string, users: any[]) => void;
   items: any;
 };
@@ -28,30 +26,18 @@ const InventoryUsers = ({
   toCheckUsers,
   toSyncUsers,
 }: Props) => {
-  const onClick = (username, userpass) => {
-    toCheckUsers(username, userpass);
-  };
-
-  const checkTrigger = (
-    <Button btnStyle="warning" size="small" icon="check-1">
-      check
-    </Button>
-  );
-
-  const checkForm = ({ closeModal }) => (
-    <CheckForm save={onClick} closeModal={closeModal} />
-  );
-
   const checkButton = (
     <BarItems>
       <span>{items && items.matched && `Matched: ${items.matched.count}`}</span>
 
-      <ModalTrigger
-        title="Check user"
-        trigger={checkTrigger}
-        content={checkForm}
-        backDrop="static"
-      />
+      <Button
+        btnStyle="warning"
+        size="small"
+        icon="check-1"
+        onClick={toCheckUsers}
+      >
+        check
+      </Button>
     </BarItems>
   );
 

@@ -48,7 +48,7 @@ const coverQueries = {
     { _id, endDate }: { _id: string; endDate: Date },
     { models, posUser, config }: IContext
   ) {
-    endDate = new Date(endDate);
+    endDate = getPureDate(endDate);
 
     if (endDate > new Date()) {
       throw new Error('Must be a date forward from now');
