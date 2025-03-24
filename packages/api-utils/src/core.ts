@@ -143,7 +143,7 @@ export const getPureDate = (date: Date, multiplier = 1) => {
 };
 
 export const getTomorrow = (date: Date) => {
-  return new Date(moment(date).add(1, 'day').format('YYYY-MM-dd'))
+  return new Date(moment(date).add(1, 'day').format('YYYY-MM-DD'))
 };
 
 export const getNextMonth = (date: Date): { start: number; end: number } => {
