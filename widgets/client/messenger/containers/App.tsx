@@ -14,8 +14,10 @@ import MessageHandler from "../components/MessageHandler";
 import { MessageProvider } from "../context/Message";
 import { RoomProvider } from "./call/RoomProvider";
 import { RouterProvider } from "../context/Router";
+import { TicketProvider } from "../context/Ticket";
 import client from "../../apollo-client";
 import { getMessengerData } from "../utils/util";
+
 // import '../sass/style.css';
 
 dayjs.extend(localizedFormat);
@@ -32,7 +34,9 @@ const App = () => {
             <MessageHandler>
               <MessageProvider>
                 <RoomProvider>
-                  <DumbApp showLauncher={showLauncher} />
+                  <TicketProvider>
+                    <DumbApp showLauncher={showLauncher} />
+                  </TicketProvider>
                 </RoomProvider>
               </MessageProvider>
             </MessageHandler>
