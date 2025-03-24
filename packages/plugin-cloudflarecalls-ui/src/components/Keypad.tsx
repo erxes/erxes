@@ -17,8 +17,6 @@ import { useNavigate } from 'react-router-dom';
 
 type Props = {
   addCustomer: (erxesApiId: string, phoneNumber: string) => void;
-  callUserIntegrations: any;
-  setConfig: any;
   customer: ICustomer;
   phoneNumber: string;
   currentCallConversationId: string;
@@ -27,7 +25,7 @@ type Props = {
 const KeyPad = (props: Props) => {
   const navigate = useNavigate();
 
-  const { setConfig, phoneNumber, currentCallConversationId } = props;
+  const { phoneNumber, currentCallConversationId } = props;
 
   const [showTrigger, setShowTrigger] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -62,7 +60,6 @@ const KeyPad = (props: Props) => {
       }),
     );
     setConnected(!isConnected);
-    setConfig({ isAvailable: !isConnected });
   };
 
   const onBack = () => setShowTrigger(false);
