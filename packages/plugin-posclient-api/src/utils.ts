@@ -235,6 +235,14 @@ export const updateMobileAmount = async (
   const { posToken } = firstData.data;
   const orderSelector = { _id: contentTypeId, posToken };
 
+  const conf = await models.Configs.findOne({ token: posToken });
+  if (!conf) {
+    debugError(
+      `Error occurred while sending data to erxes: config not found`
+    );
+    return;
+  }
+
   for (const payData of paymentParams) {
     const { contentTypeId, amount, _id } = payData;
     const { posToken } = payData.data;
@@ -272,7 +280,19 @@ export const updateMobileAmount = async (
     throw new Error(`Order not found`);
   }
 
-  const { billType, totalAmount, registerNumber, _id } = order;
+  const { totalAmount, registerNumber, _id } = order;
+  let billType = order.billType;
+
+  const ebarimtConfig: any = conf.ebarimtConfig;
+  if (
+    !ebarimtConfig ||
+    !Object.keys(ebarimtConfig) ||
+    !ebarimtConfig.districtCode ||
+    !ebarimtConfig.companyRD ||
+    !ebarimtConfig.merchantTin
+  ) {
+    billType = BILL_TYPES.INNER;
+  }
 
   if (Math.round(totalAmount) === Math.round(sumMobileAmount)) {
     if (
@@ -280,14 +300,6 @@ export const updateMobileAmount = async (
       billType === BILL_TYPES.CITIZEN ||
       billType === BILL_TYPES.INNER
     ) {
-      const conf = await models.Configs.findOne({ token: posToken });
-      if (!conf) {
-        debugError(
-          `Error occurred while sending data to erxes: config not found`
-        );
-        return;
-      }
-
       await prepareSettlePayment(subdomain, models, order, conf, {
         _id,
         billType,
