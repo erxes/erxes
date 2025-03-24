@@ -25,7 +25,11 @@ export const loadIntegrationClass = (models: IModels) => {
       integrationId?: string,
     ) {
       let integrations = await models.Integrations.find({
-        'departments.operators.userId': userId,
+        $or: [
+          { 'departments.operators.userId': userId },
+          { 'operators.userId': userId },
+        ],
+        status: 'active',
       }).lean();
 
       if (!integrations) {

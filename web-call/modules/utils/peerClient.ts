@@ -269,7 +269,7 @@ export default class Peer {
   ) {
     const transceiver = this.pc.addTransceiver(track, {
       direction: "sendonly",
-      // sendEncodings,
+      sendEncodings,
     })
     this.transceivers.push(transceiver)
     return transceiver
