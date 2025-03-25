@@ -6,11 +6,6 @@ import { CALL_STATUS_LABELS } from './constants';
 import { IUser } from '@erxes/api-utils/src/types';
 import { sendToGrandStream } from '../utils';
 
-import timezone from 'dayjs/plugin/timezone';
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
-
 dayjs.extend(localizedFormat);
 dayjs.extend(isoWeek);
 dayjs.extend(utc);
