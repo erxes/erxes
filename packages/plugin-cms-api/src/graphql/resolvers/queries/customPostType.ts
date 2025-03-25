@@ -1,16 +1,4 @@
-// cmsCustomPostTypeList(clientPortalId: String, searchValue: String, page: Int, perPage: Int): CustomFieldGroupResponse
-// cmsCustomPostTypes(clientPortalId: String, searchValue: String, page: Int, perPage: Int): [CustomPostType]
-// cmsCustomPostType(_id: String): CustomPostType
-
-// cmsCustomFieldGroupList(clientPortalId: String!, searchValue: String, page: Int, perPage: Int): CustomFieldGroupResponse
-// cmsCustomFieldGroups(clientPortalId: String!, searchValue: String, page: Int, perPage: Int): [CustomFieldGroup]
-// cmsCustomFieldGroup(_id: String): CustomFieldGroup
-
 import { paginate } from '@erxes/api-utils/src';
-import {
-  checkPermission,
-  requireLogin,
-} from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../../connectionResolver';
 
@@ -173,9 +161,5 @@ const queries = {
     return models.CustomPostTypes.findOne({ _id });
   },
 };
-
-requireLogin(queries, 'cmsCustomPostTypes');
-requireLogin(queries, 'cmsCustomPostType');
-checkPermission(queries, 'cmsCustomPostTypes', 'showCmsCustomPostTypes', []);
 
 export default queries;

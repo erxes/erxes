@@ -50,7 +50,7 @@ export const commonUpdate = async (subdomain: string, models: IModels, doc: ITra
       break;
     }
     case 'invIncome': {
-      const taxTrsClass = new TaxTrs(models, doc, 'dt', true);
+      const taxTrsClass = new TaxTrs(models, doc, 'dt', false);
       taxTrsClass.checkTaxValidation();
 
       const transaction =

@@ -11,6 +11,7 @@ export interface IMenuItem {
   url: string;
   parentId?: string;
   order?: number;
+  target?: string;
 }
 
 export interface IMenuItemDocument extends IMenuItem, Document {
@@ -29,6 +30,7 @@ export const menuItemSchema = new Schema<IMenuItemDocument>(
     url: { type: String },
     parentId: { type: String },
     order: { type: Number , required: true },
+    target: { type: String, default: '_self' },
   },
   { timestamps: true }
 );

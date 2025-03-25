@@ -34,8 +34,8 @@ requireLogin(mutations, 'cmsAddMenu');
 requireLogin(mutations, 'cmsEditMenu');
 requireLogin(mutations, 'cmsRemoveMenu');
 
-checkPermission(mutations, 'cmsAddMenu', 'cmsAddMenu', []);
-checkPermission(mutations, 'cmsEditMenu', 'cmsEditMenu', []);
-checkPermission(mutations, 'cmsRemoveMenu', 'cmsRemoveMenu', []);
+checkPermission(mutations, 'cmsAddMenu', 'manageCms', []);
+checkPermission(mutations, 'cmsEditMenu', 'manageCms', []);
+checkPermission(mutations, 'cmsRemoveMenu', 'manageCms', []);
 
 export default mutations;
