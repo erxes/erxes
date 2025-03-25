@@ -5,6 +5,7 @@ const webCallReceived = `
       callerNumber
       roomState
       audioTrack
+      conversationId
     }
   }`;
 

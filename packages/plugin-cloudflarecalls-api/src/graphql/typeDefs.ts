@@ -90,6 +90,7 @@ const types = `
     sessionId: String
     trackName: String
     audioTrack: String
+    conversationId: String
   }
 
   type CloudflareIntegrationDetail {

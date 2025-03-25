@@ -922,8 +922,8 @@ const CallWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  bottom: 200px;
-  right: 12px;
+  bottom: 145px;
+  right: 15px;
 `;
 const MessageContent = styledTS<{ $internal?: boolean; $staff?: boolean }>(
   styled.div,
