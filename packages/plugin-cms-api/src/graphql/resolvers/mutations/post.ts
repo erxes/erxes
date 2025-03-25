@@ -112,10 +112,10 @@ requireLogin(mutations, 'cmsPostsRemove');
 requireLogin(mutations, 'cmsPostsChangeStatus');
 requireLogin(mutations, 'cmsPostsToggleFeatured');
 
-checkPermission(mutations, 'cmsPostsAdd', 'cmsPostsAdd', []);
-checkPermission(mutations, 'cmsPostsEdit', 'cmsPostsEdit', []);
-checkPermission(mutations, 'cmsPostsRemove', 'cmsPostsRemove', []);
-checkPermission(mutations, 'cmsPostsChangeStatus', 'cmsPostsEdit', []);
-checkPermission(mutations, 'cmsPostsToggleFeatured', 'cmsPostsEdit', []);
+checkPermission(mutations, 'cmsPostsAdd', 'manageCms', []);
+checkPermission(mutations, 'cmsPostsEdit', 'manageCms', []);
+checkPermission(mutations, 'cmsPostsRemove', 'manageCms', []);
+checkPermission(mutations, 'cmsPostsChangeStatus', 'manageCms', []);
+checkPermission(mutations, 'cmsPostsToggleFeatured', 'manageCms', []);
 
 export default mutations;

@@ -1,8 +1,4 @@
 import { paginate } from '@erxes/api-utils/src';
-import {
-  checkPermission,
-  requireLogin,
-} from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../../connectionResolver';
 
@@ -57,10 +53,5 @@ const queries = {
     return models.PostTags.findOne({ _id });
   },
 };
-
-requireLogin(queries, 'cmsTags');
-requireLogin(queries, 'cmsTag');
-checkPermission(queries, 'cmsTags', 'showCmsTags', []);
-checkPermission(queries, 'cmsTag', 'showCmsTags', []);
 
 export default queries;
