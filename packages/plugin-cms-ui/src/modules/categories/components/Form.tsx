@@ -30,7 +30,6 @@ const ProductForm = (props: Props) => {
     }
   );
 
-
   const generateDoc = () => {
     const finalValues: any = {};
 
@@ -92,7 +91,32 @@ const ProductForm = (props: Props) => {
       }
       return (
         <>
-          {renderInput('name', 'text', category.name, 'Name', true)}
+          <FormGroup>
+            <ControlLabel>{__('Name')}</ControlLabel>
+            <FormControl
+              {...formProps}
+              id={'name'}
+              name={'name'}
+              required={true}
+              defaultValue={category.name}
+              value={category.name}
+              onChange={(e: any) => {
+                const nameValue = e.target.value;
+                const slugValue = nameValue
+                  .toLowerCase()
+                  .trim()
+                  .replace(/\s+/g, '-')
+                  .replace(/[^a-z0-9-]+/g, '')
+                  .replace(/-+/g, '-');
+
+                setCategory({
+                  ...category,
+                  name: nameValue,
+                  slug: slugValue,
+                });
+              }}
+            />
+          </FormGroup>
           {renderInput('slug', 'text', category.slug, 'Slug', true)}
           {renderInput(
             'description',
@@ -160,11 +184,7 @@ const ProductForm = (props: Props) => {
       );
     };
 
-    return (
-      <>
-        {renderFormFields()}
-      </>
-    );
+    return <>{renderFormFields()}</>;
   };
 
   return <Form renderContent={renderContent} />;
