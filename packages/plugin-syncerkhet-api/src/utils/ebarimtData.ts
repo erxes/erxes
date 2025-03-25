@@ -224,48 +224,51 @@ export const getPostData = async (subdomain, config, deal, paymentTypes, dateTyp
 
   // debit payments coll
   const payments = {};
-  const configure = {
-    ...config,
-    prepay: "preAmount",
-    cash: "cashAmount",
-    bank: "mobileAmount",
-    pos: "cardAmount",
-    wallet: "debtAmount",
-    barter: "debtBarterAmount",
-    after: "debtAmount",
-    other: "debtAmount"
-  };
 
-  let sumSaleAmount = details.reduce((sumAmount, detail) => (sumAmount + detail.amount), 0);
-
-  for (const paymentKind of Object.keys(deal.paymentsData || []).filter(pay => !preTaxPaymentTypes.includes(pay))) {
-    const payment = deal.paymentsData[paymentKind];
-    payments[configure[paymentKind]] =
-      (payments[configure[paymentKind]] || 0) + payment.amount;
-    sumSaleAmount = sumSaleAmount - payment.amount;
-  }
-
-  // if payments is less sum sale amount then create debt
-  if (sumSaleAmount > 0.005) {
-    payments[config.defaultPay] =
-      (payments[config.defaultPay] || 0) + sumSaleAmount;
-  } else if (sumSaleAmount < -0.005) {
-    if ((payments[config.defaultPay] || 0) > 0.005) {
-      payments[config.defaultPay] = payments[config.defaultPay] + sumSaleAmount;
-    } else {
-      for (const key of Object.keys(payments)) {
-        if (payments[key] > 0.005) {
-          if (payments[key] > -1 * sumSaleAmount) {
-            payments[key] = payments[key] + sumSaleAmount;
-            break;
-          } else {
-            sumSaleAmount = payments[key] + sumSaleAmount;
-            payments[key] = 0;
+  if (config.defaultPay) {
+    const configure = {
+      ...config,
+      prepay: "preAmount",
+      cash: "cashAmount",
+      bank: "mobileAmount",
+      pos: "cardAmount",
+      wallet: "debtAmount",
+      barter: "debtBarterAmount",
+      after: "debtAmount",
+      other: "debtAmount"
+    };
+  
+    let sumSaleAmount = details.reduce((sumAmount, detail) => (sumAmount + detail.amount), 0);
+  
+    for (const paymentKind of Object.keys(deal.paymentsData || []).filter(pay => !preTaxPaymentTypes.includes(pay))) {
+      const payment = deal.paymentsData[paymentKind];
+      payments[configure[paymentKind]] =
+        (payments[configure[paymentKind]] || 0) + payment.amount;
+      sumSaleAmount = sumSaleAmount - payment.amount;
+    }
+  
+    // if payments is less sum sale amount then create debt
+    if (sumSaleAmount > 0.005) {
+      payments[config.defaultPay] =
+        (payments[config.defaultPay] || 0) + sumSaleAmount;
+    } else if (sumSaleAmount < -0.005) {
+      if ((payments[config.defaultPay] || 0) > 0.005) {
+        payments[config.defaultPay] = payments[config.defaultPay] + sumSaleAmount;
+      } else {
+        for (const key of Object.keys(payments)) {
+          if (payments[key] > 0.005) {
+            if (payments[key] > -1 * sumSaleAmount) {
+              payments[key] = payments[key] + sumSaleAmount;
+              break;
+            } else {
+              sumSaleAmount = payments[key] + sumSaleAmount;
+              payments[key] = 0;
+            }
           }
         }
       }
     }
-  }
+  }  
 
   let date = new Date().toISOString().slice(0, 10);
   let checkDate = false;
