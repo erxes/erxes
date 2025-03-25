@@ -193,6 +193,7 @@ class PerSettings extends React.Component<Props, State> {
       { value: "debtBarterAmount", label: "Бартер данс" },
       { value: "preAmount", label: "Урьдчилгаа данс" },
     ];
+    const payOptionsWithNull = [{ value: "", label: "Өрөөсөн баримтаар" }, ...payOptions];
     const responseFieldOptions = (this.state.fieldsCombined || []).map(f => ({
       value: f.name,
       label: f.label
@@ -287,10 +288,10 @@ class PerSettings extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>{"defaultPay"}</ControlLabel>
             <Select
-              value={payOptions.find(o => o.value === config.defaultPay) || ""}
+              value={payOptionsWithNull.find(o => o.value === config.defaultPay) || ""}
               onChange={option => this.onChangeCombo(option, 'defaultPay')}
               isClearable={true}
-              options={[{ value: "", label: "Өрөөсөн баримтаар" }, ...payOptions]}
+              options={payOptionsWithNull}
             />
           </FormGroup>
           {config.defaultPay && (this.state.pipeline?.paymentTypes || []).map((payType) => (
