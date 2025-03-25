@@ -55,10 +55,10 @@ const TrFormTBalance = (props: Props) => {
         <td>
           {data.description}
         </td>
-        <td>
+        <td style={{ textAlign: 'right' }}>
           {(data.debit).toLocaleString()}
         </td>
-        <td>
+        <td style={{ textAlign: 'right' }}>
           {(data.credit).toLocaleString()}
         </td>
         <td>
@@ -95,8 +95,8 @@ const TrFormTBalance = (props: Props) => {
           <td>Нийт</td>
           <td></td>
           <td></td>
-          <td>{balance.dt.toLocaleString()}</td>
-          <td>{balance.ct.toLocaleString()}</td>
+          <td style={{ textAlign: 'right' }}>{balance.dt.toLocaleString()}</td>
+          <td style={{ textAlign: 'right' }}>{balance.ct.toLocaleString()}</td>
           <td></td>
         </tr>
       </tbody>
