@@ -76,13 +76,13 @@ requireLogin(mutations, 'cmsCategoriesEdit');
 requireLogin(mutations, 'cmsCategoriesRemove');
 requireLogin(mutations, 'cmsCategoriesToggleStatus');
 
-checkPermission(mutations, 'cmsCategoriesAdd', 'cmsCategoriesAdd', []);
-checkPermission(mutations, 'cmsCategoriesEdit', 'cmsCategoriesEdit', []);
-checkPermission(mutations, 'cmsCategoriesRemove', 'cmsCategoriesRemove', []);
+checkPermission(mutations, 'cmsCategoriesAdd', 'manageCms', []);
+checkPermission(mutations, 'cmsCategoriesEdit', 'manageCms', []);
+checkPermission(mutations, 'cmsCategoriesRemove', 'manageCms', []);
 checkPermission(
   mutations,
   'cmsCategoriesToggleStatus',
-  'cmsCategoriesEdit',
+  'manageCms',
   []
 );
 
