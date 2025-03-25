@@ -28,7 +28,7 @@ const callsMutations = {
     { user, models, subdomain }: IContext,
   ) {
     // Receive the call
-    await receiveCall(
+    const history = await receiveCall(
       models,
       subdomain,
       {
@@ -56,7 +56,6 @@ const callsMutations = {
     if (!department) {
       throw new Error(`Department not found`);
     }
-
     department.operators.forEach((operator) => {
       graphqlPubsub.publish('cloudflareReceiveCall', {
         cloudflareReceiveCall: {
@@ -64,6 +63,7 @@ const callsMutations = {
           roomState: 'ready',
           audioTrack,
           userId: operator.userId,
+          conversationId: history?.conversationId || '',
         },
       });
     });

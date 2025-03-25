@@ -27,6 +27,7 @@ const IncomingCallContainer = (props: IProps) => {
   const context = useRoomContext();
 
   const [hasMicrophone, setHasMicrophone] = useState(false);
+  const [callStartTime, setCallStartTime] = useState<number | null>(null); // Store call start time
 
   const {
     callUserIntegrations,
@@ -44,9 +45,12 @@ const IncomingCallContainer = (props: IProps) => {
 
   const [answerCallMutation] = useMutation(gql(mutations.cloudflareAnswerCall));
   const [stopCallMutation] = useMutation(gql(mutations.cloudflareLeaveCall));
+
   const userMedia = useUserMedia();
 
   const answerCall = () => {
+    setCallStartTime(Date.now()); // Store the timestamp when the call starts
+
     answerCallMutation({
       variables: {
         roomState: 'answered',
@@ -59,13 +63,19 @@ const IncomingCallContainer = (props: IProps) => {
         Alert.error(e.message);
       });
   };
-  const stopCall = (seconds: number) => {
+
+  const stopCall = () => {
+    const endTime = Date.now();
+    const duration = callStartTime
+      ? Math.floor((endTime - callStartTime) / 1000)
+      : 0;
+
     stopCallMutation({
       variables: {
         roomState: 'leave',
         originator: 'erxes',
         audioTrack,
-        duration: seconds,
+        duration,
       },
     })
       .then(() => {
@@ -78,14 +88,15 @@ const IncomingCallContainer = (props: IProps) => {
       .catch((e) => {
         Alert.error(e.message);
       });
+
+    setCallStartTime(null); 
   };
 
   const { data: leaveCall } = useSubscription(
     gql(subscriptions.webCallReceived),
     {
-      variables: {
-        roomState: 'leave',
-      },
+      variables: { roomState: 'leave' },
+      fetchPolicy: 'network-only', 
     },
   );
 
@@ -116,7 +127,6 @@ const IncomingCallContainer = (props: IProps) => {
           .replace('DOMException:', '')
           .replace('NotFoundError: ', '');
         setHasMicrophone(false);
-
         Alert.error(errorMessage);
       });
   }, [phoneNumber]);
@@ -132,6 +142,23 @@ const IncomingCallContainer = (props: IProps) => {
       setIsCallReceive?.(false);
     }
   }, [leaveCall, context, userMedia?.audioStreamTrack, setIsCallReceive]);
+
+  useEffect(() => {
+    const handleRefresh = (event: BeforeUnloadEvent) => {
+      if (!context?.peer) return;
+
+      stopCall();
+
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleRefresh);
+    return () => {
+      window.removeEventListener('beforeunload', handleRefresh);
+    };
+  }, [context, stopCall]);
+
   return (
     <IncomingCall
       leaveCall={stopCall}

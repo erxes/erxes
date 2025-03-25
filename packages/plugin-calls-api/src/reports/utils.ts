@@ -1,12 +1,12 @@
 import * as dayjs from 'dayjs';
 import * as isoWeek from 'dayjs/plugin/isoWeek';
-import * as localizedFormat from "dayjs/plugin/localizedFormat"
-import * as utc from "dayjs/plugin/utc"
+import * as localizedFormat from 'dayjs/plugin/localizedFormat';
+import * as utc from 'dayjs/plugin/utc';
 import { CALL_STATUS_LABELS } from './constants';
 import { IUser } from '@erxes/api-utils/src/types';
-import { getPureDate, sendToGrandStream } from '../utils';
+import { sendToGrandStream } from '../utils';
 
-dayjs.extend(localizedFormat)
+dayjs.extend(localizedFormat);
 dayjs.extend(isoWeek);
 dayjs.extend(utc);
 
@@ -201,7 +201,7 @@ export const buildPipeline = (filter: any, matchFilter: any) => {
     dimension: dimensions,
     measure: measures,
     frequencyType = '%m',
-    sortBy
+    sortBy,
   } = filter;
 
   const pipeline: any = [];
@@ -342,8 +342,12 @@ export const buildPipeline = (filter: any, matchFilter: any) => {
     };
   }
 
-  if (((dimensions || []).includes('frequency') && frequencyType === '%Y-%m-%d %H:%M:%S') || (dimensions || []).includes('record')) {
-    groupStage.$group.doc = { $first: "$$ROOT" };
+  if (
+    ((dimensions || []).includes('frequency') &&
+      frequencyType === '%Y-%m-%d %H:%M:%S') ||
+    (dimensions || []).includes('record')
+  ) {
+    groupStage.$group.doc = { $first: '$$ROOT' };
   }
 
   pipeline.push(groupStage);
@@ -489,7 +493,11 @@ export const buildPipeline = (filter: any, matchFilter: any) => {
     projectStage.$project['record'] = '$_id.record';
   }
 
-  if (((dimensions || []).includes('frequency') && frequencyType === '%Y-%m-%d %H:%M:%S') || (dimensions || []).includes('record')) {
+  if (
+    ((dimensions || []).includes('frequency') &&
+      frequencyType === '%Y-%m-%d %H:%M:%S') ||
+    (dimensions || []).includes('record')
+  ) {
     projectStage.$project['conversationId'] = '$doc.conversationId';
   }
 
@@ -528,13 +536,15 @@ export const formatData = (data, frequencyType) => {
 
     if (item.hasOwnProperty('createdAt')) {
       const createdAt = item['createdAt'];
+      const timeZoneOffset = Number(process.env.TIMEZONE || 8);
 
-      const date = getPureDate(createdAt, 0)
-
-      item['createdAt'] = dayjs(date).format('YYYY/MM/DD h:mm A');
+      item['createdAt'] = dayjs
+        .utc(createdAt)
+        .add(timeZoneOffset, 'hour')
+        .format('YYYY/MM/DD h:mm A');
     }
 
-    ['totalDuration', 'averageDuration'].forEach(key => {
+    ['totalDuration', 'averageDuration'].forEach((key) => {
       if (item.hasOwnProperty(key) && [key]) {
         item[key] = item[key] * 1000;
       }
@@ -547,9 +557,13 @@ export const formatData = (data, frequencyType) => {
       }
     });
 
-    if ((item.hasOwnProperty('frequency') && item.hasOwnProperty('conversationId')) || item.hasOwnProperty('record')) {
+    if (
+      (item.hasOwnProperty('frequency') &&
+        item.hasOwnProperty('conversationId')) ||
+      item.hasOwnProperty('record')
+    ) {
       item.url = `/inbox/index?_id=${item.conversationId}`;
-      delete item['conversationId']
+      delete item['conversationId'];
     }
   });
 
@@ -603,8 +617,8 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
       });
     }
 
-    if (item.hasOwnProperty("url")) {
-      order.url = item.url || ''
+    if (item.hasOwnProperty('url')) {
+      order.url = item.url || '';
     }
 
     return order;
@@ -614,7 +628,6 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
 
   if (measures?.length) {
     total = data.reduce((acc, item) => {
-
       acc['total'] = dimensions.length;
 
       (measures || []).forEach((measure) => {
@@ -627,7 +640,10 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
     }, {});
   }
 
-  return { data: [...reorderedData, total], headers: [...dimensions, ...measures] };
+  return {
+    data: [...reorderedData, total],
+    headers: [...dimensions, ...measures],
+  };
 };
 
 export const getGrandStreamData = async (models, user) => {
