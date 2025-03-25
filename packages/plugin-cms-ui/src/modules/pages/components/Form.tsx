@@ -106,10 +106,18 @@ const ProductForm = (props: Props) => {
             defaultValue={page.name}
             value={page.name}
             onChange={(e: any) => {
+              const nameValue = e.target.value;
+              const slugValue = nameValue
+                .toLowerCase()
+                .trim()
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-]+/g, '')
+                .replace(/-+/g, '-');
+
               setPage({
                 ...page,
-                name: e.target.value,
-                slug: e.target.value,
+                name: nameValue,
+                slug: slugValue,
               });
             }}
           />
