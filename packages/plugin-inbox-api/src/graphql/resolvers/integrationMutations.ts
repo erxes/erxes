@@ -545,6 +545,20 @@ const integrationMutations = {
         }
       }
     }
+    const isEnabledCloudflareCalls = await isServiceRunning('cloudflarecalls');
+
+    if (isEnabledCloudflareCalls) {
+      await sendCommonMessage({
+        serviceName: 'cloudflarecalls',
+        subdomain,
+        action: 'removeIntegrations',
+        data: {
+          kind: 'cloudflarecalls',
+          integrationId: _id,
+        },
+        isRPC: true,
+      });
+    }
 
     await putDeleteLog(
       models,

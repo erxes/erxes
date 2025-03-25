@@ -140,33 +140,6 @@ export const callActions = (
   );
 };
 
-export const setLocalStorage = (isRegistered, isAvailable) => {
-  localStorage.setItem(
-    'callInfo',
-    JSON.stringify({
-      isRegistered,
-    }),
-  );
-
-  const callConfig = JSON.parse(
-    localStorage.getItem('config:call_integrations') || '{}',
-  );
-
-  callConfig &&
-    localStorage.setItem(
-      'config:call_integrations',
-      JSON.stringify({
-        erxesApiId: callConfig.erxesApiId,
-        phone: callConfig.phone,
-        wsServer: callConfig.wsServer,
-        token: callConfig.token,
-        operators: callConfig.operators,
-        isAvailable,
-        queues: callConfig.queues || [],
-      }),
-    );
-};
-
 export const calculateTimeElapsed = (startedMoment) => {
   const now = moment(new Date());
   return now.diff(startedMoment, 'seconds');

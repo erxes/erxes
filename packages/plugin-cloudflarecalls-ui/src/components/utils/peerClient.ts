@@ -184,9 +184,7 @@ export default class Peer {
 
     const baseUrl = `https://rtc.live.cloudflare.com/v1/apps/${this.params.callsAppId}`;
 
-    this.transceivers.push(
-      this.pc.addTransceiver('audio', { direction: 'inactive' }),
-    );
+    this.transceivers.push(this.pc.addTransceiver('audio'));
 
     // Set up connection state change logging
     this.pc.onconnectionstatechange = () => {};
