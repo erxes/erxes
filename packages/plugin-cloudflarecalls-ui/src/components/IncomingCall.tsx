@@ -206,7 +206,7 @@ const IncomingCall = (props: Props) => {
     );
   }
 
-  if (status === 'accepted' && !hideIncomingCall) {
+  if (status === 'accepted') {
     const renderContent = () => (
       <>
         {renderUserInfo('incall')}
