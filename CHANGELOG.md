@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.8.3](https://github.com/erxes/erxes/compare/2.8.2...2.8.3) (2025-03-26)
+
+### Bug Fixes
+
+* temp sales to erkhet without debit ([bb4ab11](https://github.com/erxes/erxes/commit/bb4ab117054965bed07694c29a30809444b56b07))
+
 ## [2.8.2](https://github.com/erxes/erxes/compare/2.8.1...2.8.2) (2025-03-24)
 
 ### Features
