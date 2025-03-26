@@ -8,7 +8,7 @@ import {
   FormGroup,
   Toggle,
   Button,
-  Tip
+  Tip,
 } from "@erxes/ui/src";
 import { IPmsBranch } from "../../types";
 import { LeftItem } from "@erxes/ui/src/components/step/styles";
@@ -17,7 +17,7 @@ import {
   BlockRow,
   FlexColumn,
   FlexItem,
-  Description
+  Description,
 } from "../../styles";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 
@@ -28,17 +28,29 @@ type Props = {
   onChange: (name: string, value: any) => void;
   branch: IPmsBranch;
 };
-
+const times = Array.from(
+  { length: 24 },
+  (_, hour) => `${hour.toString().padStart(2, "0")}:00`
+);
 const GeneralStep = (props: Props) => {
   const { branch, onChange } = props;
 
   let name = "PMS name";
   let description: any = "description";
   let time: string = "";
+
+  let checkintime: string = "";
+  let checkouttime: string = "";
+  let checkinamount: number = 0;
+  let checkoutamount: number = 0;
   if (branch) {
     name = branch.name || "";
     description = branch.description;
     time = branch.time || "";
+    checkintime = branch.checkintime || "";
+    checkouttime = branch.checkouttime || "";
+    checkinamount = branch.checkinamount || 0;
+    checkoutamount = branch.checkoutamount || 0;
   }
 
   const onChangeFunction = (name: any, value: any) => {
@@ -56,7 +68,7 @@ const GeneralStep = (props: Props) => {
       _id: Math.random().toString(),
       type: "",
       title: "",
-      icon: ""
+      icon: "",
     });
 
     onChange("discount", discountTypes);
@@ -137,6 +149,7 @@ const GeneralStep = (props: Props) => {
       </div>
     );
   };
+
   return (
     <FlexItem>
       <FlexColumn>
@@ -187,6 +200,8 @@ const GeneralStep = (props: Props) => {
           </Block>
 
           <Block>
+            <h4>{__("Time Check-in & Check-out")}</h4>
+
             <FormGroup>
               <ControlLabel>Time</ControlLabel>
               <FormControl
@@ -195,40 +210,90 @@ const GeneralStep = (props: Props) => {
                 onChange={onChangeInput}
               />
             </FormGroup>
-            <Block>
-              <h4>{__("Discounts")}</h4>
+          </Block>
+          <Block>
+            <h5>{__("Check-in")}</h5>
+            <BlockRow>
               <FormGroup>
-                <div key={Math.random()}>
-                  <FormWrapper>
-                    <FormColumn>
-                      <FormGroup>
-                        <ControlLabel>Type</ControlLabel>
-                      </FormGroup>
-                    </FormColumn>
-                    <FormColumn>
-                      <FormGroup>
-                        <ControlLabel>Title</ControlLabel>
-                      </FormGroup>
-                    </FormColumn>
-                    <FormColumn>
-                      <FormGroup>
-                        <ControlLabel>Config</ControlLabel>
-                      </FormGroup>
-                    </FormColumn>
-
-                    <FormColumn></FormColumn>
-                  </FormWrapper>
-                </div>
-                {(branch.discount || []).map(item => renderPaymentType(item))}
+                <ControlLabel>Check in</ControlLabel>
+                <Select
+                  options={times.map(x => ({ value: x, label: x }))}
+                  id="checkintime"
+                  value={{ value: checkintime, label: checkintime }}
+                  onChange={x => {
+                    onChange("checkintime", x?.value);
+                  }}
+                />
               </FormGroup>
-              <Button
-                btnStyle="primary"
-                icon="plus-circle"
-                onClick={onClickAddPayments}
-              >
-                Add another
-              </Button>
-            </Block>
+              <FormGroup>
+                <ControlLabel required={false}>Check in Amount</ControlLabel>
+                <FormControl
+                  id="checkinamount"
+                  type="text"
+                  value={checkinamount}
+                  onChange={onChangeInput}
+                />
+              </FormGroup>
+            </BlockRow>
+          </Block>
+          <Block>
+            <h5>{__("Check-out")}</h5>
+            <BlockRow>
+              <FormGroup>
+                <ControlLabel>Check out</ControlLabel>
+                <Select
+                  options={times.map(x => ({ value: x, label: x }))}
+                  id="checkouttime"
+                  value={{ value: checkouttime, label: checkouttime }}
+                  onChange={x => {
+                    onChange("checkouttime", x?.value);
+                  }}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel required={false}>Check out Amount</ControlLabel>
+                <FormControl
+                  id="checkoutamount"
+                  type="text"
+                  value={checkoutamount}
+                  onChange={onChangeInput}
+                />
+              </FormGroup>
+            </BlockRow>
+          </Block>
+          <Block>
+            <h4>{__("Discounts")}</h4>
+            <FormGroup>
+              <div key={Math.random()}>
+                <FormWrapper>
+                  <FormColumn>
+                    <FormGroup>
+                      <ControlLabel>Type</ControlLabel>
+                    </FormGroup>
+                  </FormColumn>
+                  <FormColumn>
+                    <FormGroup>
+                      <ControlLabel>Title</ControlLabel>
+                    </FormGroup>
+                  </FormColumn>
+                  <FormColumn>
+                    <FormGroup>
+                      <ControlLabel>Config</ControlLabel>
+                    </FormGroup>
+                  </FormColumn>
+
+                  <FormColumn></FormColumn>
+                </FormWrapper>
+              </div>
+              {(branch.discount || []).map(item => renderPaymentType(item))}
+            </FormGroup>
+            <Button
+              btnStyle="primary"
+              icon="plus-circle"
+              onClick={onClickAddPayments}
+            >
+              Add another
+            </Button>
           </Block>
         </LeftItem>
       </FlexColumn>
