@@ -13,20 +13,14 @@ import React, { useEffect, useState } from 'react';
 import { FormControl } from '@erxes/ui/src/components/form';
 import { ICustomer } from '../types';
 import Icon from '@erxes/ui/src/components/Icon';
-import { useNavigate } from 'react-router-dom';
 
 type Props = {
   addCustomer: (erxesApiId: string, phoneNumber: string) => void;
   customer: ICustomer;
   phoneNumber: string;
-  currentCallConversationId: string;
 };
 
 const KeyPad = (props: Props) => {
-  const navigate = useNavigate();
-
-  const { phoneNumber, currentCallConversationId } = props;
-
   const [showTrigger, setShowTrigger] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [isConnected, setConnected] = useState(
@@ -89,9 +83,9 @@ const KeyPad = (props: Props) => {
   }
 
   const gotoDetail = () => {
-    navigate(`/inbox/index?_id=${currentCallConversationId}`, {
-      replace: true,
-    });
+    // navigate(`/inbox/index?_id=${currentCallConversationId}`, {
+    //   replace: true,
+    // });
   };
 
   return (

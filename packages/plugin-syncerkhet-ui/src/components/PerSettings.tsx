@@ -79,7 +79,7 @@ class PerSettings extends React.Component<Props, State> {
       })
       .then(({ data }) => {
         this.setState({
-          fieldsCombined: data ? data.fieldsCombinedByContentType : [] || []
+          fieldsCombined: data?.fieldsCombinedByContentType || []
         });
       });
   }
@@ -123,8 +123,8 @@ class PerSettings extends React.Component<Props, State> {
     this.props.delete(this.props.currentConfigKey);
   };
 
-  onChangeCombo = (option, code?) => {
-    this.onChangeConfig(code || "defaultPay", option.value);
+  onChangeCombo = (option, code) => {
+    this.onChangeConfig(code, option.value);
   };
 
   onChangeCheckbox = (code: string, e) => {
@@ -193,6 +193,7 @@ class PerSettings extends React.Component<Props, State> {
       { value: "debtBarterAmount", label: "Бартер данс" },
       { value: "preAmount", label: "Урьдчилгаа данс" },
     ];
+    const payOptionsWithNull = [{ value: "", label: "Өрөөсөн баримтаар" }, ...payOptions];
     const responseFieldOptions = (this.state.fieldsCombined || []).map(f => ({
       value: f.name,
       label: f.label
@@ -287,14 +288,13 @@ class PerSettings extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>{"defaultPay"}</ControlLabel>
             <Select
-              value={payOptions.find(o => o.value === config.defaultPay)}
-              onChange={this.onChangeCombo}
-              isClearable={false}
-              required={true}
-              options={payOptions}
+              value={payOptionsWithNull.find(o => o.value === config.defaultPay) || ""}
+              onChange={option => this.onChangeCombo(option, 'defaultPay')}
+              isClearable={true}
+              options={payOptionsWithNull}
             />
           </FormGroup>
-          {(this.state.pipeline?.paymentTypes || []).map((payType) => (
+          {config.defaultPay && (this.state.pipeline?.paymentTypes || []).map((payType) => (
             <FormGroup>
               <ControlLabel>{payType.title}</ControlLabel>
               <Select

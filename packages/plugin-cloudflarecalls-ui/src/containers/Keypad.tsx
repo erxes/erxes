@@ -7,11 +7,10 @@ import KeyPad from '../components/Keypad';
 
 type IProps = {
   phoneNumber: any;
-  currentCallConversationId: string;
 };
 
 const KeyPadContainer = (props: IProps) => {
-  const { phoneNumber, currentCallConversationId } = props;
+  const { phoneNumber } = props;
 
   const [customer, setCustomer] = useState<any>(undefined);
   const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
@@ -37,7 +36,6 @@ const KeyPadContainer = (props: IProps) => {
       key={1}
       customer={customer}
       phoneNumber={phoneNumber || ''}
-      currentCallConversationId={currentCallConversationId}
     />
   );
 };
