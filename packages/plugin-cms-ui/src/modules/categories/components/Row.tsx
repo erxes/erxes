@@ -44,7 +44,7 @@ const Row = (props: Props) => {
   };
 
   const formContent = (formProps) => (
-    <CategoryForm {...formProps} category={category} />
+    <CategoryForm {...formProps} category={category} clientPortalId={category.clientPortalId} />
   );
 
   return (
