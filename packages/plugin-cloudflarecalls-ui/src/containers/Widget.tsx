@@ -5,7 +5,6 @@ type Props = {
   callUserIntegrations: any;
   setHideIncomingCall?: (isHide: boolean) => void;
   hideIncomingCall?: boolean;
-  currentCallConversationId: string;
 };
 
 const WidgetContainer = (props: Props) => {

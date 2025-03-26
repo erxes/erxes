@@ -8,19 +8,13 @@ import { extractPhoneNumberFromCounterpart } from '../utils';
 
 type Props = {
   autoOpenTab: string;
-  currentCallConversationId: string;
 };
 
-const WidgetPopover = ({ currentCallConversationId }: Props) => {
+const WidgetPopover = (props: Props) => {
   const [phoneNumber] = useState('');
 
   const renderContent = () => {
-    return (
-      <KeyPadContainer
-        phoneNumber={phoneNumber}
-        currentCallConversationId={currentCallConversationId}
-      />
-    );
+    return <KeyPadContainer phoneNumber={phoneNumber} />;
   };
 
   return <>{/* <TabContent>{renderContent()}</TabContent> */}</>;
