@@ -26,6 +26,8 @@ const GET_CATEGORIES = gql`
       name
       slug
       status
+      customFieldsData
+      
       parent {
         _id
         name

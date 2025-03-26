@@ -20,6 +20,11 @@ export interface ITmsBranch {
   roomCategories?: string[];
   time?: string;
   discount?: any;
+
+  checkintime?: string;
+  checkouttime?: string;
+  checkinamount?: number;
+  checkoutamount?: number;
 }
 export interface ITmsBranchDocument extends ITmsBranch, Document {
   _id: string;
@@ -47,16 +52,20 @@ export const tmsBranchSchema = schemaHooksWrapper(
     permissionConfig: field({
       type: Object,
       optional: true,
-      label: "Permission"
+      label: "Permission",
     }),
     status: field({ type: String, label: "Status", optional: true }),
     time: field({ type: String, label: "time", optional: true }),
     discount: field({ type: Object, label: "object", optional: true }),
     extraProductCategories: field({
       type: [String],
-      label: " extraProductCategories ids"
+      label: " extraProductCategories ids",
     }),
-    roomCategories: field({ type: [String], label: " roomCategories ids" })
+    roomCategories: field({ type: [String], label: " roomCategories ids" }),
+    checkintime: field({ type: String, label: "checkintime" }),
+    checkouttime: field({ type: String, label: "checkouttime" }),
+    checkinamount: field({ type: Number, label: "checkinamount" }),
+    checkoutamount: field({ type: Number, label: "checkoutamount" }),
   }),
   "pms_branch"
 );

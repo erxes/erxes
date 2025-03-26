@@ -1,11 +1,7 @@
-import React from 'react';
-import { useQuery } from '@apollo/client';
-import queries from './graphql/queries';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Box from '@erxes/ui/src/components/Box';
 import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
 import { SidebarContent } from '@erxes/ui-forms/src/settings/properties/styles';
 import Button from '@erxes/ui/src/components/Button';
+import React from 'react';
 
 type Props = {
   clientPortalId: string;
