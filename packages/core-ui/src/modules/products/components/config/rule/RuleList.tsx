@@ -4,7 +4,7 @@ import {
   HeaderDescription,
   ModalTrigger,
   Pagination,
-  Table
+  Table,
 } from "@erxes/ui/src/components";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import Form from "./Form";
@@ -34,8 +34,9 @@ const RuleList: React.FC<Props> = props => {
         <Table>
           <thead>
             <tr>
-              <th>{__("code")}</th>
               <th>{__("Name")}</th>
+              <th>{__("Description")}</th>
+
               <th>{__("actions")}</th>
             </tr>
           </thead>
@@ -60,7 +61,7 @@ const RuleList: React.FC<Props> = props => {
 
   const breadcrumb = [
     { title: __("Settings"), link: "/settings" },
-    { title: __("Bundle Rules"), link: "/settings/bundle-rule" }
+    { title: __("Bundle Rules"), link: "/settings/bundle-rule" },
   ];
 
   const addBrand = (

@@ -1,4 +1,4 @@
-import { mutations as productMutations } from '@erxes/ui-products/src/graphql';
+import { mutations as productMutations } from "@erxes/ui-products/src/graphql";
 
 const productAdd = productMutations.productAdd;
 
@@ -81,15 +81,20 @@ const uomsRemove = `
 
 const bundleConditionAdd = `
   mutation BundleConditionAdd($name: String!, $description: String, $code: String) {
-  bundleConditionAdd(name: $name, description: $description, code: $code) {
-    name
-    description
-    _id
-    code
-    createdAt
-    userId
+    bundleConditionAdd(name: $name, description: $description, code: $code) {
+      name
+      description
+      _id
+      code
+      createdAt
+      userId
+    } 
   }
-}
+`;
+const bundleConditionSetBulk = `
+  mutation BundleConditionSetBulk($productIds: [String], $bundleId: String!) {
+    bundleConditionSetBulk(productIds: $productIds, bundleId: $bundleId)
+  }
 `;
 const bundleConditionRemove = `
 mutation BundleConditionRemove($id: String!) {
@@ -151,4 +156,5 @@ export default {
   bundleRuleAdd,
   bundleRuleRemove,
   bundleRuleEdit,
+  bundleConditionSetBulk,
 };

@@ -1,11 +1,12 @@
-import * as DataLoader from "dataloader";
-import { IModels } from "../../connectionResolver";
-import * as _ from "underscore";
-import user from "./user";
-import company from "./company";
-import productCategory from "./productCategory";
-import uom from "./uom";
-import tag from "./tag";
+import * as DataLoader from 'dataloader';
+import { IModels } from '../../connectionResolver';
+import * as _ from 'underscore';
+import user from './user';
+import company from './company';
+import productCategory from './productCategory';
+import uom from './uom';
+import tag from './tag';
+import bundle from './bundle';
 
 export interface IDataLoaders {
   user: DataLoader<string, any>;
@@ -13,6 +14,7 @@ export interface IDataLoaders {
   tag: DataLoader<string, any>;
   company: DataLoader<string, any>;
   uom: DataLoader<string, any>;
+  bundle: DataLoader<string, any>;
 }
 
 export function generateAllDataLoaders(models: IModels): IDataLoaders {
@@ -21,6 +23,7 @@ export function generateAllDataLoaders(models: IModels): IDataLoaders {
     productCategory: productCategory(models),
     tag: tag(models),
     company: company(models),
-    uom: uom(models)
+    uom: uom(models),
+    bundle: bundle(models)
   };
 }

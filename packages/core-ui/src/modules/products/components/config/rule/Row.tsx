@@ -60,8 +60,8 @@ const Row: React.FC<Props> = props => {
 
   return (
     <tr>
-      <td>{item.code || ""}</td>
       <td>{item.name || ""}</td>
+      <td>{item.description || ""}</td>
       <td>
         <ActionButtons>
           {renderEditAction(item)}

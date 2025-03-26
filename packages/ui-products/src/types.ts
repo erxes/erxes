@@ -1,6 +1,6 @@
-import { ICompany } from '@erxes/ui-contacts/src/companies/types';
-import { ITag } from '@erxes/ui-tags/src/types';
-import { IPdfAttachment, QueryResponse } from '@erxes/ui/src/types';
+import { ICompany } from "@erxes/ui-contacts/src/companies/types";
+import { ITag } from "@erxes/ui-tags/src/types";
+import { IPdfAttachment, QueryResponse } from "@erxes/ui/src/types";
 
 export interface IProductDoc {
   _id?: string;
@@ -48,6 +48,7 @@ export interface IBundleRule {
   code: string;
   description?: string;
   rules: IBundleRuleItem[];
+  selectedBy?: string;
 }
 export interface IVariant {
   [code: string]: { name?: string; image?: any };
@@ -58,6 +59,8 @@ export interface IProduct {
   shortName: string;
   type: string;
   categoryId: string;
+  bundleId?: string;
+  bundle: IBundleRule;
   description: string;
   getTags?: ITag[];
   barcodes: string[];

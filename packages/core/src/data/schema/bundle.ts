@@ -76,7 +76,7 @@ export const mutations = `
   bundleConditionEdit(_id: String! ${mutationParams}): BundleCondition
   bundleConditionRemove(_id: String!): JSON
   bundleConditionDefault(_id: String!): JSON
-
+  bundleConditionSetBulk(productIds:[String],bundleId:String!): JSON
   bundleRulesAdd(${mutationParamsBundleRule}): BundleRule
   bundleRulesEdit(_id: String! ${mutationParamsBundleRule}): BundleRule
   bundleRulesRemove(_id: String!): JSON
