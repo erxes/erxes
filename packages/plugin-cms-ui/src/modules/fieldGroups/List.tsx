@@ -111,7 +111,7 @@ const FieldGroupsList = () => {
   const righActionBar = (
     <BarItems>
       <ModalTrigger
-        size='sm'
+        size='lg'
         title='Add Group'
         autoOpenKey='showAppAddModal'
         trigger={trigger}

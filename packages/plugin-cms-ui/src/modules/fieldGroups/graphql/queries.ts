@@ -6,12 +6,16 @@ const LIST = gql`
     $page: Int
     $perPage: Int
     $postType: String
+    $pageId: String
+    $categoryId: String
   ) {
     cmsCustomFieldGroups(
       clientPortalId: $clientPortalId
       page: $page
       perPage: $perPage
       postType: $postType
+      pageId: $pageId
+      categoryId: $categoryId
     ) {
       _id
       clientPortalId
@@ -35,6 +39,9 @@ const LIST = gql`
         options
         optionsValues
       }
+
+      enabledCategoryIds
+      enabledPageIds
     }
   }
 `;
