@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { gql, useQuery, useSubscription } from '@apollo/client';
 import { queries, subscriptions } from '../graphql';
 
@@ -10,12 +10,10 @@ import IncomingCallContainer from './IncomingCall';
 import WidgetContainer from './Widget';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
-const SipProviderContainer = (props) => {
+const CallProviderContainer = (props) => {
   const { currentUser } = props;
-
   const [hideIncomingCall, setHideIncomingCall] = useState(false);
-  const [currentCallConversationId, setCurrentCallConversationId] =
-    useState('');
+
   const [isCallReceive, setIsCallReceive] = useState(false);
   const [callInfo, setCallInfo] = useState({}) as any;
   const { data, loading, error } = useQuery(gql(queries.callUserIntegrations));
@@ -69,10 +67,9 @@ const SipProviderContainer = (props) => {
         {...props}
         setHideIncomingCall={setHideIncomingCall}
         hideIncomingCall={hideIncomingCall}
-        currentCallConversationId={currentCallConversationId || ''}
       />
     </CallWrapper>
   );
 };
 
-export default withCurrentUser(SipProviderContainer);
+export default withCurrentUser(CallProviderContainer);

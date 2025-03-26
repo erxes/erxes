@@ -10,7 +10,6 @@ import { useRoomContext } from '../RoomContext';
 
 import useUserMedia from '../components/hooks/useUserMedia';
 import usePushedTrack from '../components/hooks/usePushedTrack';
-
 interface IProps {
   closeModal?: () => void;
   callUserIntegrations: any;
@@ -27,7 +26,7 @@ const IncomingCallContainer = (props: IProps) => {
   const context = useRoomContext();
 
   const [hasMicrophone, setHasMicrophone] = useState(false);
-  const [callStartTime, setCallStartTime] = useState<number | null>(null); // Store call start time
+  const [callStartTime, setCallStartTime] = useState<number | null>(null);
 
   const {
     callUserIntegrations,
@@ -84,19 +83,21 @@ const IncomingCallContainer = (props: IProps) => {
           context.peer.closeTrack(userMedia?.audioStreamTrack);
         }
         if (setIsCallReceive) setIsCallReceive(false);
+        setPushedAudioTrack('');
+        context.setIceConnectionState('closed');
       })
       .catch((e) => {
         Alert.error(e.message);
       });
 
-    setCallStartTime(null); 
+    setCallStartTime(null);
   };
 
   const { data: leaveCall } = useSubscription(
     gql(subscriptions.webCallReceived),
     {
       variables: { roomState: 'leave' },
-      fetchPolicy: 'network-only', 
+      fetchPolicy: 'network-only',
     },
   );
 
@@ -140,6 +141,7 @@ const IncomingCallContainer = (props: IProps) => {
       }
 
       setIsCallReceive?.(false);
+      setPushedAudioTrack('');
     }
   }, [leaveCall, context, userMedia?.audioStreamTrack, setIsCallReceive]);
 
