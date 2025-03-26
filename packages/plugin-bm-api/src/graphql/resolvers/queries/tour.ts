@@ -15,7 +15,9 @@ const tourQueries = {
       startDate1,
       endDate1,
       startDate2,
-      endDate2
+      endDate2,
+      sortField = "createdAt",
+      sortDirection = -1,
     },
     { models }: IContext
   ) {
@@ -69,16 +71,20 @@ const tourQueries = {
       if (!selector.endDate) selector.endDate = {};
       selector.endDate["$gte"] = endDate1;
     }
-    const list = await models.Tours.find(selector).limit(perPage).skip(skip);
+    const list = await models.Tours.find(selector)
+      .limit(perPage)
+      .skip(skip)
+      .sort({ [sortField]: sortDirection === -1 ? sortDirection : 1 });
     const total = await models.Tours.find(selector).countDocuments();
+
     return {
       list,
-      total
+      total,
     };
   },
   async bmTourDetail(_root, { _id }, { models }: IContext) {
     return await models.Tours.findById(_id);
-  }
+  },
 };
 
 export default tourQueries;
