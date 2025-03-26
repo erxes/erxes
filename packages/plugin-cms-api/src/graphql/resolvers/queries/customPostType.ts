@@ -37,7 +37,7 @@ const queries = {
   },
   async cmsCustomFieldGroups(_parent: any, args: any, context: IContext) {
     const { models } = context;
-    const { clientPortalId, searchValue } = args;
+    const { clientPortalId, searchValue, pageId, categoryId } = args;
 
     const query: any = {
       clientPortalId,
@@ -50,8 +50,16 @@ const queries = {
       ];
     }
 
-    if(args.postType) {
-      query.customPostTypeIds = args.postType
+    if (args.postType) {
+      query.customPostTypeIds = args.postType;
+    }
+
+    if (pageId) {
+      query.enabledPageIds = pageId;
+    }
+
+    if (categoryId) {
+      query.enabledCategoryIds = categoryId;
     }
 
     if (args.page && args.perPage) {
@@ -123,14 +131,29 @@ const queries = {
       ];
     }
 
-    const defaultType: any = {
-      _id: 'post',
-      clientPortalId,
-
-      label: 'Post',
-      pluralLabel: 'Posts',
-      code: 'post',
-    };
+    const defaultTypes: any = [
+      {
+        _id: 'post',
+        clientPortalId,
+        label: 'Post',
+        pluralLabel: 'Posts',
+        code: 'post',
+      },
+      {
+        _id: 'page',
+        clientPortalId,
+        label: 'Page',
+        pluralLabel: 'Pages',
+        code: 'page',
+      },
+      {
+        _id: 'category',
+        clientPortalId,
+        label: 'Category',
+        pluralLabel: 'Categories',
+        code: 'category',
+      },
+    ];
 
     if (args.page && args.perPage) {
       const list = await paginate(models.CustomPostTypes.find(query), {
@@ -138,14 +161,18 @@ const queries = {
         perPage: args.perPage,
       });
 
-      list.unshift(defaultType);
+      defaultTypes.forEach((type) => {
+        list.unshift(type);
+      });
 
       return list;
     }
 
     const list = await models.CustomPostTypes.find(query).lean();
 
-    list.unshift(defaultType);
+    defaultTypes.forEach((type) => {
+      list.unshift(type);
+    });
 
     return list;
   },

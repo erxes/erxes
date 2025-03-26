@@ -1,7 +1,16 @@
-import { useQuery } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import React from 'react';
 import Select from 'react-select';
 import { queries } from '../graphql';
+
+const PAGES_QUERY = gql`
+query CmsPages($clientPortalId: String, $searchValue: String) {
+  cmsPages(clientPortalId: $clientPortalId, searchValue: $searchValue) {
+    _id
+    name
+  }
+}
+`
 
 type Props = {
   clientPortalId: string;
@@ -15,7 +24,7 @@ const Container = (props: Props) => {
   const [searchValue, setSearchValue] = React.useState<string>('');
   const [options, setOptions] = React.useState<any[]>([]);
 
-  const { data, loading } = useQuery(queries.GET_CATEGORIES, {
+  const { data, loading } = useQuery(PAGES_QUERY, {
     variables: {
       clientPortalId: props.clientPortalId,
       searchValue,
@@ -25,9 +34,9 @@ const Container = (props: Props) => {
   React.useEffect(() => {
     if (data) {
       setOptions(
-        data.cmsCategories.map((category: any) => ({
-          value: category._id,
-          label: category.name,
+        data.cmsPages.map((page: any) => ({
+          value: page._id,
+          label: page.name,
         }))
       );
     }
