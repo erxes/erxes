@@ -58,7 +58,7 @@ function BottomNavBar() {
           return null;
         }
 
-        if (!ticketData) {
+        if (route === "ticket" && ticketData && !ticketData._id) {
           return null;
         }
 
