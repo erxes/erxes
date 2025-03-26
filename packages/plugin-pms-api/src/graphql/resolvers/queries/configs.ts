@@ -1,8 +1,8 @@
-import { requireLogin } from '@erxes/api-utils/src/permissions';
+import { requireLogin } from "@erxes/api-utils/src/permissions";
 
-import * as dotenv from 'dotenv';
-import { IContext } from '../../../connectionResolver';
-import { sendProductsMessage, sendSalesMessage } from '../../../messageBroker';
+import * as dotenv from "dotenv";
+import { IContext } from "../../../connectionResolver";
+import { sendProductsMessage, sendSalesMessage } from "../../../messageBroker";
 
 dotenv.config();
 
@@ -30,18 +30,22 @@ const configQueries = {
       startDate1,
       startDate2,
       pipelineId,
+      perPage = 50,
+      page = 1,
     }: {
       startDate1: Date;
       startDate2: Date;
       endDate1: Date;
       endDate2: Date;
       pipelineId: string;
+      perPage: number;
+      page: number;
     },
     { models, subdomain }: IContext
   ) {
     const stages = await sendSalesMessage({
       subdomain,
-      action: 'stages.find',
+      action: "stages.find",
       data: {
         pipelineId: pipelineId,
       },
@@ -50,26 +54,29 @@ const configQueries = {
     const stageIds = stages.map(x => x._id) || [];
     const deals = await sendSalesMessage({
       subdomain,
-      action: 'deals.find',
+      action: "deals.find",
       data: {
-        stageId: { $in: stageIds },
-        productsData: {
-          $elemMatch: {
-            startDate: {
-              $gte: new Date(startDate1),
-              $lte: new Date(startDate2),
-            },
-            endDate: {
-              $gte: new Date(endDate1),
-              $lte: new Date(endDate2),
+        query: {
+          stageId: { $in: stageIds },
+          productsData: {
+            $elemMatch: {
+              startDate: {
+                $gte: new Date(startDate1),
+                $lte: new Date(startDate2),
+              },
+              endDate: {
+                $gte: new Date(endDate1),
+                $lte: new Date(endDate2),
+              },
             },
           },
         },
+        skip: (page - 1) * perPage,
+        limit: perPage,
       },
       isRPC: true,
     });
-    console.log('deals');
-    console.log(deals);
+
     return deals;
   },
   async pmsCheckRooms(
@@ -89,7 +96,7 @@ const configQueries = {
   ) {
     const stages = await sendSalesMessage({
       subdomain,
-      action: 'stages.find',
+      action: "stages.find",
       data: {
         pipelineId: pipelineId,
       },
@@ -98,7 +105,7 @@ const configQueries = {
     const stageIds = stages.map(x => x._id) || [];
     const deals = await sendSalesMessage({
       subdomain,
-      action: 'deals.find',
+      action: "deals.find",
       data: {
         stageId: { $in: stageIds },
         productsData: {
