@@ -1,4 +1,4 @@
-import { queries as productQueries } from '@erxes/ui-products/src/graphql';
+import { queries as productQueries } from "@erxes/ui-products/src/graphql";
 
 const productCategories = productQueries.productCategories;
 
@@ -100,7 +100,64 @@ const documents = `
     }
   }
 `;
+const bundleConditions = `
+ query bundleConditions($searchValue: String, $perPage: Int, $page: Int){
+  bundleConditions(searchValue: $searchValue, perPage: $perPage, page: $page) {
+    _id
+    userId
+    name
+    description
+    createdAt
+    code
+    isDefault
+  }
+}
+`;
 
+const bundleConditionDetail = `
+query BundleConditionDetail($id: String!) {
+  bundleConditionDetail(_id: $id) {
+    userId
+    name
+    description
+    createdAt
+    code
+    _id
+  }
+}
+`;
+
+const bundleConditionTotalCount = `
+query bundleConditionTotalCount{
+  bundleConditionTotalCount
+}
+`;
+const bundleRules = `
+query BundleRules {
+  bundleRules {
+    userId
+    name
+    description
+    createdAt
+    code
+    _id
+    rules {
+      quantity
+      productIds
+      products {
+        _id
+        name
+      }
+      priceValue
+      priceType
+      priceAdjustType
+      priceAdjustFactor
+      percent
+      code
+      allowSkip
+    }
+  }
+}`;
 export default {
   products,
   productDetail,
@@ -113,5 +170,9 @@ export default {
   uoms,
   uomsTotalCount,
   productsConfigs,
-  documents
+  documents,
+  bundleConditions,
+  bundleConditionDetail,
+  bundleConditionTotalCount,
+  bundleRules
 };
