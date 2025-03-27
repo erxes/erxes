@@ -32,7 +32,7 @@ export const setupMessageConsumers = async () => {
 
   consumeRPCQueue("loyalties:checkLoyalties", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-    const { ownerType, ownerId, products } = data;
+    const { ownerType, ownerId, products, couponCode } = data;
 
     return {
       data: await checkVouchersSale(
@@ -40,7 +40,8 @@ export const setupMessageConsumers = async () => {
         subdomain,
         ownerType,
         ownerId,
-        products
+        products,
+        couponCode
       ),
       status: "success"
     };
@@ -48,10 +49,10 @@ export const setupMessageConsumers = async () => {
 
   consumeQueue("loyalties:confirmLoyalties", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-    const { checkInfo } = data;
+    const { checkInfo, extraInfo } = data;
 
     return {
-      data: await confirmVoucherSale(models, checkInfo),
+      data: await confirmVoucherSale(models, checkInfo, extraInfo),
       status: "success"
     };
   });
@@ -85,6 +86,18 @@ export const setupMessageConsumers = async () => {
 
       return {
         data: await models.ScoreCampaigns.checkScoreAviableSubtract(data),
+        status: "success"
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "loyalties:checkCoupon",
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.Coupons.checkCoupon(data),
         status: "success"
       };
     }

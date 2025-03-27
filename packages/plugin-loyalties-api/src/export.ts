@@ -2,6 +2,8 @@ import { IColumnLabel } from '@erxes/api-utils/src';
 import * as dayjs from 'dayjs';
 import * as xlsxPopulate from 'xlsx-populate';
 import { IModels } from './connectionResolver';
+import { fetchTarget } from './graphql/resolvers/customResolvers/coupon';
+import { getOwner } from './models/utils';
 
 export const createXlsFile = async () => {
   // Generating blank workbook
@@ -44,15 +46,42 @@ export const buildFile = async (
 
   const { campaignId } = params;
 
-  const campaign = await models.VoucherCampaigns.findOne({ _id: campaignId });
+  const campaign = await models.CouponCampaigns.findOne({ _id: campaignId });
+
   if (!campaign) {
-    throw new Error('No voucher campaign found');
+    throw new Error('No coupon campaign found');
   }
 
-  const data = await models.VoucherCodes.find(
-    { campaignId: campaign._id },
-    { _id: 0, __v: 0 },
-  );
+  const filter: any = {};
+
+  if (params.status) {
+    filter.status = params.status;
+  }
+
+  if (params.ownerType) {
+    filter.ownerType = params.ownerType;
+  }
+
+  if (params.ownerId) {
+    filter.ownerId = params.ownerId;
+  }
+
+  if (params.campaignId) {
+    filter.campaignId = params.campaignId;
+  }
+
+  if (params.fromDate) {
+    filter.createdAt = { $gte: new Date(params.fromDate) };
+  }
+
+  if (params.toDate) {
+    filter.createdAt = {
+      ...(filter.createdAt || {}),
+      $lt: new Date(params.toDate),
+    };
+  }
+
+  const data = await models.Coupons.find(filter, { _id: 0, __v: 0 });
 
   const headers = [
     { name: 'campaignId', label: 'Campaign', width: 20 },
@@ -60,9 +89,11 @@ export const buildFile = async (
     { name: 'status', label: 'Status', width: 10 },
     { name: 'usageCount', label: 'Usage', width: 10 },
     { name: 'usageLimit', label: 'Limit', width: 10 },
+    { name: 'targetId', label: 'Target', width: 30 },
+    { name: 'targetType', label: 'Type', width: 30 },
     { name: 'ownerId', label: 'Owner', width: 30 },
     { name: 'ownerType', label: 'Owner Type', width: 15 },
-    { name: 'usedAt', label: 'Used At', width: 20 },
+    { name: 'usedDate', label: 'Used Date', width: 20 },
   ];
 
   const columnNames: string[] = headers.map((h) => h.name);
@@ -80,13 +111,13 @@ export const buildFile = async (
       border: true,
       horizontalAlignment: 'center',
       verticalAlignment: 'center',
-    })
+    });
   }
 
   rowIndex++;
 
   for (const item of data) {
-    const rowSpan = item.usedBy?.length || 1;
+    const rowSpan = item.usageLogs?.length || 1;
     const startRow = rowIndex;
 
     let colIndex = 1;
@@ -102,7 +133,9 @@ export const buildFile = async (
 
       if (
         rowSpan > 1 &&
-        !['ownerId', 'ownerType', 'usedAt'].includes(column.name)
+        !['targetId', 'targetType', 'ownerId', 'ownerType', 'usedDate'].includes(
+          column.name,
+        )
       ) {
         sheet
           .range(
@@ -135,13 +168,31 @@ export const buildFile = async (
       colIndex++;
     }
 
-    if (item.usedBy?.length) {
-      for (const [index, usedBy] of item.usedBy.entries()) {
+    if (item.usageLogs?.length) {
+      for (const [index, usedBy] of item.usageLogs.entries()) {
         const currentRow = startRow + index;
 
+        const target = await fetchTarget({targetId: usedBy.targetId, serviceName: usedBy.targetType, subdomain})
+        const {primaryEmail, email, details} = await getOwner(subdomain, usedBy.ownerType, usedBy.ownerId) || {};
+        const { firstName, lastName, fullName } = details || {}
+
+        addCell(
+          { name: 'targetId', label: 'Target' },
+          target || '',
+          sheet,
+          columnNames,
+          currentRow,
+        );
+        addCell(
+          { name: 'targetType', label: 'Type' },
+          usedBy.targetType || '',
+          sheet,
+          columnNames,
+          currentRow,
+        );
         addCell(
           { name: 'ownerId', label: 'Owner' },
-          usedBy.ownerId || '',
+          primaryEmail || email || firstName || lastName || fullName || '',
           sheet,
           columnNames,
           currentRow,
@@ -154,8 +205,10 @@ export const buildFile = async (
           currentRow,
         );
         addCell(
-          { name: 'usedAt', label: 'Used At' },
-          usedBy.usedAt ? dayjs(usedBy.usedAt).format('YYYY-MM-DD HH:mm') : '',
+          { name: 'usedDate', label: 'Used Date' },
+          usedBy.usedDate
+            ? dayjs(usedBy.usedDate).format('YYYY-MM-DD HH:mm')
+            : '',
           sheet,
           columnNames,
           currentRow,

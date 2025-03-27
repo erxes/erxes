@@ -1,3 +1,4 @@
+import * as dayjs from 'dayjs';
 import { generateModels, IModels } from './connectionResolver';
 import {
   sendClientPortalMessage,
@@ -57,8 +58,6 @@ export default {
   checkCustomTrigger: async ({ subdomain, data }) => {
     const { collectionType, config } = data;
 
-    const models = await generateModels(subdomain);
-
     const { promotionType } = config;
 
     if (collectionType === 'promotion') {
@@ -79,19 +78,60 @@ export default {
 const checkBirthDateTrigger = async (subdomain, data) => {
   const { target, config } = data || {};
 
-  const { appliesTo = [] } = config || {};
+  const { appliesTo = [], applyRule } = config || {};
 
   if (!appliesTo?.length || !target?.birthDate) return false;
 
-  const today = new Date();
-  const birthDate = new Date(target.birthDate);
+  if (appliesTo.includes('cpUser')) {
+    const cpUser = await sendClientPortalMessage({
+      subdomain,
+      action: 'clientPortalUsers.findOne',
+      data: {
+        erxesCustomerId: target._id,
+      },
+      isRPC: true,
+      defaultValue: null,
+    });
 
-  const startOfYear = new Date(today.getFullYear(), 0, 1);
-  const endOfYear = new Date(today.getFullYear() + 1, 0, 1);
+    if (!cpUser) return false;
+  }
 
-  const executions = await sendCoreMessage({
+  const { birthdayRule, startOffset, endOffset } = applyRule || {};
+
+  const today = dayjs();
+  const birthDate = dayjs(target.birthDate);
+
+  if (birthdayRule) {
+    switch (birthdayRule) {
+      case 'day':
+        if (!birthDate.isSame(today, 'day')) return false;
+        break;
+      case 'week':
+        if (!birthDate.isSame(today, 'week')) return false;
+        break;
+      case 'month':
+        if (!birthDate.isSame(today, 'month')) return false;
+        break;
+      case 'custom':
+        {
+          const startDate = birthDate.add(startOffset, 'days');
+          const endDate = birthDate.add(endOffset, 'days');
+
+          if (today.isBefore(startDate) || today.isAfter(endDate)) return false;
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
+  const startOfYear = dayjs().startOf('year');
+  const endOfYear = dayjs().add(1, 'year').startOf('year');
+
+  const executions = await sendCommonMessage({
     subdomain,
-    action: 'automations',
+    serviceName: 'automations',
+    action: 'executions.find',
     data: {
       triggerType: 'loyalties:promotion',
       'triggerConfig.promotionType': 'birthday',
@@ -106,15 +146,7 @@ const checkBirthDateTrigger = async (subdomain, data) => {
     defaultValue: [],
   });
 
-  if (
-    executions.length === 0 &&
-    birthDate.getMonth() === today.getMonth() &&
-    birthDate.getDate() === today.getDate()
-  ) {
-    return true;
-  }
-
-  return false;
+  return executions?.length === 0;
 };
 
 const checkRegistrationTrigger = async (subdomain, data) => {
@@ -122,34 +154,49 @@ const checkRegistrationTrigger = async (subdomain, data) => {
 
   const { appliesTo = [] } = config || {};
 
-  if (appliesTo.includes('customer')) {
-    const { _id, createdAt } = target;
+  if (!appliesTo?.length) return false;
 
-    let isToday: boolean = false;
+  const { _id: targetId, createdAt } = target;
 
-    const today = new Date();
-    const targetDate = new Date(createdAt);
+  if (!targetId || !createdAt) return false;
 
-    isToday =
-      targetDate.getDate() === today.getDate() &&
-      targetDate.getMonth() === today.getMonth() &&
-      targetDate.getFullYear() === today.getFullYear();
+  const today = new Date();
+  const targetDate = new Date(createdAt);
 
-    const conformities = await sendCoreMessage({
+  if (targetDate.setHours(0, 0, 0, 0) !== today.setHours(0, 0, 0, 0)) {
+    return false;
+  }
+
+  let customerId = targetId;
+
+  if (appliesTo.includes('cpUser')) {
+    const cpUser = await sendClientPortalMessage({
       subdomain,
-      action: 'conformities.filterConformity',
+      action: 'clientPortalUsers.findOne',
       data: {
-        mainType: 'customer',
-        mainTypeIds: [_id],
-        relType: 'deal',
+        erxesCustomerId: customerId,
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: null,
     });
 
-    if (!conformities?.length && isToday) {
-      return true;
-    }
+    if (!cpUser) return false;
+  }
+
+  const conformities = await sendCoreMessage({
+    subdomain,
+    action: 'conformities.filterConformity',
+    data: {
+      mainType: 'customer',
+      mainTypeIds: [customerId],
+      relType: 'deal',
+    },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  if (conformities?.length === 0) {
+    return true;
   }
 
   return false;
