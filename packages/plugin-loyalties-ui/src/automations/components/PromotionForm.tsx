@@ -1,9 +1,13 @@
 import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import { ITrigger } from '@erxes/ui-segments/src/types';
-import { ControlLabel, FormGroup } from '@erxes/ui/src';
+import { ControlLabel, FormControl, FormGroup } from '@erxes/ui/src';
 import Button from '@erxes/ui/src/components/Button';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils/core';
+import {
+  FormColumn,
+  FormWrapper,
+  ModalFooter,
+} from '@erxes/ui/src/styles/main';
+import { __, isEnabled } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import Select from 'react-select';
 
@@ -16,25 +20,22 @@ const PROMOTION_TYPE_OPTIONS = [
     label: 'Registration',
     value: 'registration',
   },
-  {
-    label: 'Reward',
-    value: 'reward',
-  },
+];
+
+const BIRTHDAY_SCOPE_OPTIONS = [
+  { label: 'Month', value: 'month' },
+  { label: 'Week', value: 'week' },
+  { label: 'Day', value: 'day' },
+  { label: 'Custom', value: 'custom' },
 ];
 
 const APPLIES_TO_OPTIONS = [
-  {
-    label: 'Team members',
-    value: 'users',
-  },
-  {
-    label: 'Customers',
-    value: 'customer',
-  },
-  {
-    label: 'Companies',
-    value: 'company',
-  },
+  { label: 'Team Members', value: 'user' },
+  { label: 'Customers', value: 'customer' },
+  { label: 'Companies', value: 'company' },
+  ...(isEnabled('clientportal')
+    ? [{ label: 'Client Portal Users', value: 'cpUser' }]
+    : []),
 ];
 
 type Props = {
@@ -47,6 +48,7 @@ type Props = {
 type Config = {
   promotionType?: string;
   appliesTo?: string[];
+  applyRule?: any;
 };
 
 const PromotionForm = (props: Props) => {
@@ -56,6 +58,10 @@ const PromotionForm = (props: Props) => {
 
   const onChangeConfig = (name: string, value: any) => {
     setConfig({ ...config, [name]: value });
+  };
+
+  const onChangeRule = (name: string, value: any) => {
+    onChangeConfig('applyRule', { ...config.applyRule, [name]: value });
   };
 
   const onSave = () => {
@@ -78,6 +84,53 @@ const PromotionForm = (props: Props) => {
           onChange={(option) => onChangeConfig('promotionType', option?.value)}
         />
       </FormGroup>
+
+      {config.promotionType === 'birthday' && (
+        <>
+          <FormGroup>
+            <ControlLabel>Birthday Rule</ControlLabel>
+            <Select
+              value={BIRTHDAY_SCOPE_OPTIONS.find(
+                (opt) => opt.value === config.applyRule?.birthdayRule,
+              )}
+              options={BIRTHDAY_SCOPE_OPTIONS}
+              onChange={(option) => onChangeRule('birthdayRule', option?.value)}
+            />
+          </FormGroup>
+
+          {config.applyRule?.birthdayRule === 'custom' && (
+            <FormWrapper>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>Start Offset (days before)</ControlLabel>
+                  <FormControl
+                    type="number"
+                    placeholder="E.g., 7 (for 7 days before birthday)"
+                    value={config.applyRule?.startOffset || 0}
+                    onChange={(e: any) =>
+                      onChangeRule('startOffset', Number(e.target.value))
+                    }
+                  />
+                </FormGroup>
+              </FormColumn>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>End Offset (days after)</ControlLabel>
+                  <FormControl
+                    type="number"
+                    placeholder="E.g., 3 (for 3 days after birthday)"
+                    value={config.applyRule?.endOffset || 0}
+                    onChange={(e: any) =>
+                      onChangeRule('endOffset', Number(e.target.value))
+                    }
+                  />
+                </FormGroup>
+              </FormColumn>
+            </FormWrapper>
+          )}
+        </>
+      )}
+
       <FormGroup>
         <ControlLabel>Applies To</ControlLabel>
         <Select
@@ -85,7 +138,13 @@ const PromotionForm = (props: Props) => {
             config.appliesTo?.includes(option.value),
           )}
           isMulti={true}
-          options={APPLIES_TO_OPTIONS}
+          options={
+            config.promotionType === 'birthday'
+              ? APPLIES_TO_OPTIONS.filter(
+                  (option) => option.value !== 'company',
+                )
+              : APPLIES_TO_OPTIONS
+          }
           onChange={(options) =>
             onChangeConfig(
               'appliesTo',

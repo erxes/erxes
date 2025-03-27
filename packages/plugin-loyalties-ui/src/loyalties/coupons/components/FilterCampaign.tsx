@@ -18,11 +18,10 @@ import {
   ExtraButtons,
   FilterContainer,
 } from '../../../styles';
-import { filterOptions } from '../constants';
+import { FILTER_OPTIONS } from '../constants';
 
 type Props = {
   queryParams: any;
-  refetch: (variable: any) => void;
 };
 
 const FilterCampaign = (props: Props) => {
@@ -55,19 +54,19 @@ const FilterCampaign = (props: Props) => {
     if (!value && field === 'ownerType') {
       return clearCategoryFilter(['ownerType', 'ownerId']);
     }
-    
+
     if (!value && field === 'orderType') {
       return clearCategoryFilter(['orderType', 'order']);
     }
-    
+
     if (!value) {
       return clearCategoryFilter([field]);
     }
-    
+
     if (field === 'fromDate' || field === 'toDate') {
       value = dayjs(value).format('YYYY/MM/DD');
     }
-    
+
     router.removeParams(navigate, location, 'page', 'perPage');
     router.setParams(navigate, location, { [field]: value });
   };
@@ -188,24 +187,22 @@ const FilterCampaign = (props: Props) => {
       >
         {child || (
           <SidebarList>
-            {filterOptions[field].map(
-              ({ value, label }: { value: string; label: string }) => {
-                return (
-                  <li key={Math.random()}>
-                    <a
-                      href="#filter"
-                      tabIndex={0}
-                      className={
-                        queryParams[field] === String(value) ? 'active' : ''
-                      }
-                      onClick={() => handleOnChange(field, value)}
-                    >
-                      <FieldStyle>{label}</FieldStyle>
-                    </a>
-                  </li>
-                );
-              },
-            )}
+            {FILTER_OPTIONS[field].map(({ value, label }) => {
+              return (
+                <li key={Math.random()}>
+                  <a
+                    href="#filter"
+                    tabIndex={0}
+                    className={
+                      queryParams[field] === String(value) ? 'active' : ''
+                    }
+                    onClick={() => handleOnChange(field, value)}
+                  >
+                    <FieldStyle>{label}</FieldStyle>
+                  </a>
+                </li>
+              );
+            })}
 
             {queryParams['ownerType'] && field === 'ownerType' && (
               <FilterContainer>{renderOwner()}</FilterContainer>
@@ -221,6 +218,7 @@ const FilterCampaign = (props: Props) => {
       {renderOptions('ownerType', 'Owner Type')}
       {renderOptions('orderType', 'Order Type')}
       {queryParams['orderType'] && renderOptions('order', 'Order')}
+      {renderOptions('status', 'Status')}
       {renderOptions('date', 'Date', renderDateRange())}
     </>
   );

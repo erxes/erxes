@@ -6,7 +6,8 @@ export const menuLoyalties = [
   { title: 'Spins', link: '/spins' },
   { title: 'Donates', link: '/donates' },
   { title: 'Score', link: '/score' },
-  { title: 'Assignments', link: '/assignments' }
+  { title: 'Assignments', link: '/assignments' },
+  { title: 'Coupons', link: '/coupons' }
 ];
 
 export const getOwnerTypes = () => {
