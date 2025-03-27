@@ -47,6 +47,7 @@ type State = {
   products: (IProduct & { quantity?: number })[];
   productsData: any;
   paymentsData: IPaymentsData;
+  extraData?: any;
   changePayData: { [currency: string]: number };
   updatedItem?: IItem;
   refresh: boolean;
@@ -123,12 +124,14 @@ export default class DealEditForm extends React.Component<Props, State> {
   };
 
   saveProductsData = () => {
-    const { productsData, paymentsData } = this.state;
+    const { productsData, paymentsData, extraData } = this.state;
     const { saveItem } = this.props;
     const products: IProduct[] = [];
     const amount: any = {};
     const unUsedAmount: any = {};
     const filteredProductsData: any = [];
+
+    console.log('this.state', this.state)
 
     productsData.forEach(data => {
       // products
@@ -170,10 +173,11 @@ export default class DealEditForm extends React.Component<Props, State> {
         products,
         amount,
         unUsedAmount,
-        paymentsData
+        paymentsData,
+        extraData
       },
       () => {
-        saveItem({ productsData, paymentsData }, updatedItem => {
+        saveItem({ productsData, paymentsData, extraData }, updatedItem => {
           this.setState({ updatedItem });
         });
       }
@@ -204,12 +208,18 @@ export default class DealEditForm extends React.Component<Props, State> {
     const prsChange = prs => this.onChangeField("products", prs);
     const payDataChange = payData =>
       this.onChangeField("paymentsData", payData);
+    const extraDataChange = xData =>
+    {
+      console.log('xData', xData)
+      this.onChangeField("extraData", xData);
+    }
 
     return (
       <ProductSection
         onChangeProductsData={pDataChange}
         onChangeProducts={prsChange}
         onChangePaymentsData={payDataChange}
+        onChangeExtraData={extraDataChange}
         productsData={productsData}
         paymentsData={paymentsData}
         products={products}
@@ -321,6 +331,9 @@ export default class DealEditForm extends React.Component<Props, State> {
   };
 
   render() {
+
+    console.log('this.state', this.state)
+
     const extendedProps = {
       ...this.props,
       sidebar: this.renderProductSection,

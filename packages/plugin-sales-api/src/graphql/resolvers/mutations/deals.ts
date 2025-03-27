@@ -4,6 +4,7 @@ import { IDeal, IProductData } from '../../../models/definitions/deals';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { checkUserIds } from '@erxes/api-utils/src';
 import {
+  confirmLoyalties,
   doScoreCampaign,
   generateTotalAmount,
   itemResolver,
@@ -98,6 +99,7 @@ const dealMutations = {
     }
 
     await doScoreCampaign(subdomain, models, _id, doc);
+    await confirmLoyalties(subdomain, _id, doc);
 
     return itemsEdit(
       models,

@@ -308,10 +308,12 @@ const dealQueries = {
     _root,
     {
       _id,
-      products
+      products,
+      couponCode
     }: {
       _id: string;
-      products: Array<{ productId: string; quantity: number }>;
+      products: Array<{ productId: string; quantity: number, unitPrice?: number }>;
+      couponCode?: string,
     },
     { subdomain }: IContext
   ) {
@@ -362,7 +364,8 @@ const dealQueries = {
       data: {
         ownerType,
         ownerId,
-        products
+        products,
+        couponCode
       },
       isRPC: true
     });
