@@ -38,7 +38,9 @@ type Props = {
 
 const TrFormInvIncome = (props: Props) => {
   const { trDoc, setTrDoc, followTrDocs } = props;
-  const detail = trDoc?.details && trDoc?.details[0] || {};
+  const detail = trDoc?.details && trDoc?.details[0] || {
+    _id: Math.random().toString(),
+  };
 
   const onChange = (key, value) => {
     setTrDoc({ ...trDoc, [key]: value }, followTrDocs);
@@ -58,6 +60,7 @@ const TrFormInvIncome = (props: Props) => {
 
     setTrDoc({
       ...trDoc, details: [...oldDetails, {
+        _id: Math.random().toString(),
         accountId: prevDetail?.accountId,
         account: prevDetail?.account,
         side: TR_SIDES.DEBIT,
@@ -200,8 +203,14 @@ const TrFormInvIncome = (props: Props) => {
               <td>Account</td>
               <td>Inventory</td>
               <td>quantity</td>
-              <td>unitPrice</td>
+              <td>unit price</td>
               <td>amount</td>
+              {(trDoc.hasVat || trDoc.hasCtax) && (
+                <>
+                  <td>Unit with tax</td>
+                  <td>amount with Tax</td>
+                </>
+              )}
               <td></td>
             </tr>
           </thead>
@@ -251,7 +260,7 @@ const TrFormInvIncome = (props: Props) => {
                       required={true}
                       onChange={e => {
                         const value = (e.target as any).value;
-                        onChangeDetail(det._id, { unitPrice: value, amount: value * (det.unitPrice ?? 0) })
+                        onChangeDetail(det._id, { unitPrice: value, amount: value * (det.count ?? 0) })
                       }}
                     />
                   </td>
@@ -269,6 +278,38 @@ const TrFormInvIncome = (props: Props) => {
                       }}
                     />
                   </td>
+                  {(trDoc.hasVat || trDoc.hasCtax) && (
+                    <>
+                      <td>
+                        <FormControl
+                          type='number'
+                          name="taxUnitPrice"
+                          fixed={3}
+                          useNumberFormat={true}
+                          value={(det.unitPrice ?? 0) / 100 * (100 + ((trDoc.vatRow?.percent ?? 0) + (trDoc.ctaxRow?.percent ?? 0)))}
+                          required={true}
+                          onChange={e => {
+                            const value = (e.target as any).value;
+                            onChangeDetail(det._id, { unitPrice: value, amount: value * (det.count ?? 0) })
+                          }}
+                        />
+                      </td>
+                      <td>
+                        <FormControl
+                          type='number'
+                          name="taxAmount"
+                          fixed={3}
+                          useNumberFormat={true}
+                          value={(det.unitPrice ?? 0) * (det.count ?? 0) / 100 * (100 + ((trDoc.vatRow?.percent ?? 0) + (trDoc.ctaxRow?.percent ?? 0)))}
+                          required={true}
+                          onChange={e => {
+                            const value = (e.target as any).value;
+                            onChangeDetail(det._id, { amount: value, unitPrice: value / (det.count || 1) })
+                          }}
+                        />
+                      </td>
+                    </>
+                  )}
                   <td>
                     <ActionButtons>
                       <Button btnStyle="link" icon="trash" onClick={onRemoveDetail.bind(det._id)} />
@@ -383,8 +424,8 @@ const TrFormInvIncome = (props: Props) => {
       </FormWrapper>
       <TaxFields
         {...props}
-        side={getTrSide(detail.side, true)}
-        isWithTax={true}
+        side={'dt'}
+        isWithTax={false}
       />
 
       {renderItems()}

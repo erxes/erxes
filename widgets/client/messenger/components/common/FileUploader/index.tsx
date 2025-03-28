@@ -1,14 +1,19 @@
-import * as React from 'react';
-import { useDropzone } from 'react-dropzone';
-import { IconUpload } from '../../../../icons/Icons';
+import * as React from "react";
+
+import { IconUpload } from "../../../../icons/Icons";
+import { useDropzone } from "react-dropzone";
 
 const img = {
-  display: 'block',
-  width: '100px',
-  height: '100%',
+  display: "block",
+  width: "100px",
+  height: "100%",
 };
 
-const FileUploader = () => {
+const FileUploader = ({
+  handleFiles,
+}: {
+  handleFiles?: (files: any) => void;
+}) => {
   const [files, setFiles] = React.useState<
     {
       name: string | null | undefined;
@@ -17,7 +22,7 @@ const FileUploader = () => {
   >([]);
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      'image/*': [],
+      "image/*": [],
     },
     onDrop: (acceptedFiles) => {
       setFiles(
@@ -50,9 +55,13 @@ const FileUploader = () => {
     return () => files.forEach((file) => URL.revokeObjectURL(file.preview));
   }, []);
 
+  React.useEffect(() => {
+    return handleFiles && handleFiles(files);
+  }, [files]);
+
   return (
     <section className="dropzone-container">
-      <div {...getRootProps({ className: 'dropzone' })}>
+      <div {...getRootProps({ className: "dropzone" })}>
         <input {...getInputProps()} />
         <div className="dropzone-field-description">
           <IconUpload />

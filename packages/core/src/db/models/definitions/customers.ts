@@ -347,7 +347,7 @@ export const customerSchema = schemaWrapper(
 
     deviceTokens: field({ type: [String], default: [] }),
     searchText: field({ type: String, optional: true, index: true }),
-    code: field({ type: String, label: "Code", optional: true }),
+    code: field({ type: String, label: "Code", index: true, optional: true }),
 
     isOnline: field({
       type: Boolean,

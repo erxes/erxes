@@ -261,8 +261,12 @@ class ProductForm extends React.Component<Props, State> {
       filteredProductsData = filteredProductsData.filter(
         (p) =>
           p.product &&
-          (p.product.name.includes(filterValues.search) ||
-            p.product.code.includes(filterValues.search))
+          (
+            p.product.name.includes(filterValues.search) ||
+            p.product.code.includes(filterValues.search) ||
+            p.product.shortName.includes(filterValues.search) ||
+            p.product.barcodes.includes(filterValues.search)
+          )
       );
     }
 

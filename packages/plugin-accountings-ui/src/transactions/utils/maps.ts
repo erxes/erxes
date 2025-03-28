@@ -114,11 +114,11 @@ export const journalConfigMaps: {
     },
     generateDoc: () => { },
   },
-  'inv_income': {
+  'invIncome': {
     component: TrFormInvIncome,
     title: '',
     defaultData: (date, diff) => {
-      const data = { ...commonData('inv_income', date, 'dt') };
+      const data = { ...commonData('invIncome', date, 'dt') };
       data.details[0].side = TR_SIDES.DEBIT;
       return data;
     },

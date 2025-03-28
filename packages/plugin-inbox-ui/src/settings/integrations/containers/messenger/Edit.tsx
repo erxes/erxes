@@ -7,11 +7,12 @@ import {
   SaveMessengerAppearanceMutationResponse,
   SaveMessengerAppsMutationResponse,
   SaveMessengerConfigsMutationResponse,
+  SaveMessengerTicketMutationResponse
 } from "@erxes/ui-inbox/src/settings/integrations/types";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import {
   mutations,
-  queries,
+  queries
 } from "@erxes/ui-inbox/src/settings/integrations/graphql";
 
 import { BrandsQueryResponse } from "@erxes/ui/src/brands/types";
@@ -51,23 +52,23 @@ const EditMessenger = (props: Props) => {
     useQuery<UsersQueryResponse>(gql(queries.users));
   const { data: brandsData, loading: brandsLoading } =
     useQuery<BrandsQueryResponse>(gql(queries.brands), {
-      fetchPolicy: "network-only",
+      fetchPolicy: "network-only"
     });
   const { data: topicsData } = useQuery<TopicsQueryResponse>(
     gql(kbQueries.knowledgeBaseTopicsShort),
     {
-      skip: !isEnabled("knowledgebase") ? true : false,
+      skip: !isEnabled("knowledgebase") ? true : false
     }
   );
   const { data: integrationDetailData, loading: integrationDetailLoading } =
     useQuery<IntegrationDetailQueryResponse>(gql(queries.integrationDetail), {
       variables: { _id: integrationId },
-      fetchPolicy: "network-only",
+      fetchPolicy: "network-only"
     });
   const { data: messengerAppsData, loading: messengerAppsLoading } =
     useQuery<MessengerAppsQueryResponse>(gql(queries.messengerApps), {
       variables: { integrationId },
-      fetchPolicy: "network-only",
+      fetchPolicy: "network-only"
     });
 
   const [editMessengerMutation] = useMutation<
@@ -78,9 +79,9 @@ const EditMessenger = (props: Props) => {
       {
         query: gql(queries.integrationDetail),
         variables: { _id: integrationId },
-        fetchPolicy: "network-only",
-      },
-    ],
+        fetchPolicy: "network-only"
+      }
+    ]
   });
 
   const [saveConfigsMutation] =
@@ -91,12 +92,14 @@ const EditMessenger = (props: Props) => {
           {
             query: gql(queries.integrationDetail),
             variables: { _id: integrationId },
-            fetchPolicy: "network-only",
-          },
-        ],
+            fetchPolicy: "network-only"
+          }
+        ]
       }
     );
-
+  const [saveTicketData] = useMutation<SaveMessengerTicketMutationResponse>(
+    gql(mutations.integrationsSaveMessengerTicketData)
+  );
   const [saveAppearanceMutation] =
     useMutation<SaveMessengerAppearanceMutationResponse>(
       gql(mutations.integrationsSaveMessengerAppearance),
@@ -105,9 +108,9 @@ const EditMessenger = (props: Props) => {
           {
             query: gql(queries.integrationDetail),
             variables: { _id: integrationId },
-            fetchPolicy: "network-only",
-          },
-        ],
+            fetchPolicy: "network-only"
+          }
+        ]
       }
     );
 
@@ -119,9 +122,9 @@ const EditMessenger = (props: Props) => {
           {
             query: gql(queries.integrationDetail),
             variables: { _id: integrationId },
-            fetchPolicy: "network-only",
-          },
-        ],
+            fetchPolicy: "network-only"
+          }
+        ]
       }
     );
 
@@ -141,6 +144,7 @@ const EditMessenger = (props: Props) => {
   const integration = integrationDetailData?.integrationDetail || {};
   const topics = topicsData?.knowledgeBaseTopics || [];
   const apps = messengerAppsData?.messengerApps || {};
+
   const deleteTypeName = (datas) => {
     return (datas || []).map(({ __typename, ...item }) => item);
   };
@@ -154,7 +158,8 @@ const EditMessenger = (props: Props) => {
       messengerData,
       uiOptions,
       messengerApps,
-      callData,
+      ticketData,
+      callData
     } = doc;
 
     setIsLoading(true);
@@ -165,8 +170,8 @@ const EditMessenger = (props: Props) => {
         name,
         brandId,
         languageCode,
-        channelIds,
-      },
+        channelIds
+      }
     })
       .then(({ data = {} as any }) => {
         const id = data.integrationsEditMessengerIntegration._id;
@@ -175,29 +180,31 @@ const EditMessenger = (props: Props) => {
           variables: {
             _id: id,
             messengerData,
-            callData: removeTypename(callData),
-          },
+            callData: removeTypename(callData)
+          }
         });
       })
       .then(({ data = {} as any }) => {
         const id = data.integrationsSaveMessengerConfigs._id;
-
+        saveTicketData({
+          variables: { _id: integrationId, ticketData }
+        });
         return saveAppearanceMutation({
-          variables: { _id: id, uiOptions },
+          variables: { _id: id, uiOptions }
         });
       })
       .then(() => {
         const messengerAppsWithoutTypename = {
           websites: deleteTypeName(messengerApps.websites),
           knowledgebases: deleteTypeName(messengerApps.knowledgebases),
-          leads: deleteTypeName(messengerApps.leads),
+          leads: deleteTypeName(messengerApps.leads)
         };
 
         return messengerAppSaveMutation({
           variables: {
             integrationId,
-            messengerApps: messengerAppsWithoutTypename,
-          },
+            messengerApps: messengerAppsWithoutTypename
+          }
         });
       })
       .then(() => {
@@ -206,6 +213,8 @@ const EditMessenger = (props: Props) => {
         navigate("/settings/integrations?refetch=true");
       })
       .catch((error) => {
+        console.log("here22", error);
+
         if (error.message.includes("Duplicated messenger for single brand")) {
           return Alert.warning(
             __(
@@ -227,7 +236,7 @@ const EditMessenger = (props: Props) => {
     topics,
     integration: integration || ({} as any),
     messengerApps: apps,
-    isLoading,
+    isLoading
   };
 
   return <Form {...updatedProps} />;

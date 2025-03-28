@@ -45,6 +45,7 @@ export interface ITrDetail {
   productId?: string;
   count?: number;
   unitPrice?: number;
+  tempAmount?: number;
 
   account?: IAccount;
   product?: IProduct;

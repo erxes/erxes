@@ -179,16 +179,7 @@ const Home: React.FC<Props> = ({
         <div className="gradient-bg" style={style}>
           <div className="absorbed" />
         </div>
-        <div className="home-header-wrapper">
-          {/* <div className="header-top">
-            {logo ? (
-              <img alt="head-logo" src={readFile(logo, 90)} />
-            ) : (
-              <IconErxes />
-            )}
-          </div> */}
-          {renderGreetings()}
-        </div>
+        <div className="home-header-wrapper">{renderGreetings()}</div>
         {renderHead()}
       </div>
     </Container>

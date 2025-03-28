@@ -41,6 +41,25 @@ export const commonCreate = async (subdomain: string, models: IModels, doc: ITra
       }
       break;
     }
+    case 'invIncome': {
+      const taxTrsClass = new TaxTrs(models, doc, 'dt', false);
+      taxTrsClass.checkTaxValidation();
+
+      const transaction =
+        await models.Transactions.createTransaction({ ...doc });
+
+      mainTr = transaction;
+
+      const taxTrs = await taxTrsClass.doTaxTrs(transaction)
+
+      if (taxTrs?.length) {
+        for (const taxTr of taxTrs) {
+          otherTrs.push(taxTr)
+        }
+      }
+      break;
+    }
+
   }
 
   if (!mainTr) {

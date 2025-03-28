@@ -13,33 +13,53 @@ type Props = {
 const TrFormTBalance = (props: Props) => {
   const { transactions, balance } = props;
 
-  const ptrIdByTr: { [ptrId: string]: ITransaction[] } = {}
+  const ptrIdByTr: any = {}// { [ptrId: string]: ITransaction[] } = {}
+  let trIndex = 1;
   for (const tr of transactions) {
+    trIndex += trIndex ? -1 : 1;
     if (!Object.keys(ptrIdByTr).includes(tr.ptrId || '')) {
-      ptrIdByTr[tr.ptrId || ''] = [];
+      ptrIdByTr[tr.ptrId || ''] = {};
     }
 
-    ptrIdByTr[tr.ptrId || ''].push(tr)
+    for (const detail of tr.details) {
+      const accountId = detail.accountId || '';
+      if (!Object.keys(ptrIdByTr[tr.ptrId || '']).includes(accountId)) {
+        ptrIdByTr[tr.ptrId || ''][accountId] = {
+          _id: tr._id,
+          trIndex,
+          number: tr.number,
+          description: tr.description,
+          account: detail.account,
+          debit: 0,
+          credit: 0,
+        };
+      }
+
+      if (detail.side === TR_SIDES.DEBIT) {
+        ptrIdByTr[tr.ptrId || ''][accountId].debit += detail.amount;
+      } else {
+        ptrIdByTr[tr.ptrId || ''][accountId].credit += detail.amount;
+      }
+    }
   }
 
-  const renderTrRow = (tr) => {
-    const account = tr.details[0].account;
+  const renderTrRow = (data) => {
     return (
-      <tr key={tr._id}>
+      <tr key={data._id} style={{ background: data.trIndex ? "#fbfbfb" : "" }}>
         <td>
-          {account?.code} - {account?.name}
+          {data.account?.code} - {data.account?.name}
         </td>
         <td>
-          {tr.number}
+          {data.number}
         </td>
         <td>
-          {tr.description}
+          {data.description}
         </td>
-        <td>
-          {(tr.details[0].side === TR_SIDES.DEBIT && tr.details[0].amount || 0).toLocaleString()}
+        <td style={{ textAlign: 'right' }}>
+          {(data.debit).toLocaleString()}
         </td>
-        <td>
-          {(tr.details[0].side === TR_SIDES.CREDIT && tr.details[0].amount || 0).toLocaleString()}
+        <td style={{ textAlign: 'right' }}>
+          {(data.credit).toLocaleString()}
         </td>
         <td>
 
@@ -64,14 +84,19 @@ const TrFormTBalance = (props: Props) => {
         {Object.keys(ptrIdByTr).map((ptrId) => {
           const perTrs = ptrIdByTr[ptrId];
 
-          return (perTrs.map(tr => renderTrRow(tr)));
+          const accountIds = Object.keys(perTrs);
+
+          return accountIds.map(accountId => {
+            const perAccount = perTrs[accountId]
+            return renderTrRow(perAccount)
+          })
         })}
         <tr>
           <td>Нийт</td>
           <td></td>
           <td></td>
-          <td>{balance.dt.toLocaleString()}</td>
-          <td>{balance.ct.toLocaleString()}</td>
+          <td style={{ textAlign: 'right' }}>{balance.dt.toLocaleString()}</td>
+          <td style={{ textAlign: 'right' }}>{balance.ct.toLocaleString()}</td>
           <td></td>
         </tr>
       </tbody>
