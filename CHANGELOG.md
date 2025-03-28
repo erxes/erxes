@@ -1,6 +1,26 @@
 # Changelog
 
 ## [2.9.0-rc.0](https://github.com/erxes/erxes/compare/2.8.0...2.9.0-rc.0) (2025-03-16)
+## [2.8.3](https://github.com/erxes/erxes/compare/2.8.2...2.8.3) (2025-03-26)
+
+### Bug Fixes
+
+* temp sales to erkhet without debit ([bb4ab11](https://github.com/erxes/erxes/commit/bb4ab117054965bed07694c29a30809444b56b07))
+
+## [2.8.2](https://github.com/erxes/erxes/compare/2.8.1...2.8.2) (2025-03-24)
+
+### Features
+
+* **cms:** Introduce custom post types and field groups ([#5982](https://github.com/erxes/erxes/issues/5982)) ([adfd12d](https://github.com/erxes/erxes/commit/adfd12dbbf1b36193ba000f59f208e8f21da5045))
+
+### Bug Fixes
+
+* **calls:** check timezone ([0ab4c38](https://github.com/erxes/erxes/commit/0ab4c3870fc4c2e8abdafcaa0d2150f6b8d4266b))
+* **payment:** trigger payment success callback on manual status check ([#5983](https://github.com/erxes/erxes/issues/5983)) ([277d493](https://github.com/erxes/erxes/commit/277d4939f8cfa5571ce3ded0cedff6584084881b))
+* posclient from payment settlement, when hasnt ebarimt ([16e840a](https://github.com/erxes/erxes/commit/16e840a1abec32f7e3b9c76a078d4e1308c95127))
+* posclient types ([04b9589](https://github.com/erxes/erxes/commit/04b9589b7d0f7a404ffa94835745dee324cf1ef4))
+* **tms:** tour images and order fields ([00013c6](https://github.com/erxes/erxes/commit/00013c69e44fc97b080c39e9bc53616aca07e342))
+
 ## [2.8.1](https://github.com/erxes/erxes/compare/2.8.0...2.8.1) (2025-03-16)
 
 ### Reverts

@@ -37,6 +37,7 @@ export const types = () => `
     guideCostExtra: Float
     createdAt: Date
     modifiedAt: Date
+    tours: [Tour]
   }
   input ElementItemInput {
     elementId: String
@@ -62,7 +63,7 @@ export const types = () => `
 `;
 
 export const queries = `
-  bmItineraries( page:Int, perPage:Int,branchId: String): ListItinerary
+  bmItineraries(sortField:String, sortDirection:Int, page:Int, perPage:Int,branchId: String): ListItinerary
   bmItineraryDetail(_id:String!, branchId: String): Itinerary
 `;
 

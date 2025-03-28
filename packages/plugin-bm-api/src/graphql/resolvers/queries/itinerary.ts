@@ -1,11 +1,18 @@
-import { skip } from 'node:test';
-import { IContext } from '../../../connectionResolver';
+import { skip } from "node:test";
+import { IContext } from "../../../connectionResolver";
 
 const itineraryQueries = {
   async bmItineraries(
     _root,
-    { categories, page = 1, perPage = 10, branchId },
-    { models }: IContext,
+    {
+      categories,
+      page = 1,
+      perPage = 10,
+      branchId,
+      sortField = "createdAt",
+      sortDirection = -1,
+    },
+    { models }: IContext
   ) {
     const selector: any = {};
     if (branchId) {
@@ -18,7 +25,8 @@ const itineraryQueries = {
 
     const list = await models.Itineraries.find(selector)
       .limit(perPage)
-      .skip(skip);
+      .skip(skip)
+      .sort({ [sortField]: sortDirection === -1 ? sortDirection : 1 });
     const total = await models.Itineraries.countDocuments();
     return {
       list,
