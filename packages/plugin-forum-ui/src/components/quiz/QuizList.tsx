@@ -32,7 +32,7 @@ type Props = {
 
 class List extends React.Component<Props> {
   renderRow() {
-    const { quizzes, remove, bulk, toggleBulk, emptyBulk } = this.props;
+    const { quizzes, remove, bulk, toggleBulk } = this.props;
 
     return quizzes.map((quiz) => (
       <Row
