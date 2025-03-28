@@ -11,7 +11,7 @@ const typeDefs = async () => {
     scalar JSON
     scalar Date
     
-    ${await chatTypes()}
+    ${chatTypes()}
     
     extend type Query {
 
