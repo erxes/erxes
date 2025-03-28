@@ -15,8 +15,8 @@ class Message extends SimpleMessage {
       return null;
     }
 
-    return attachments.map((attachment, index) => {
-      return <Attachment key={index} attachment={attachment} simple={true} />;
+    return attachments.map((attachment) => {
+      return <Attachment key={attachment.id} attachment={attachment} simple={true} />;
     });
   }
 }
