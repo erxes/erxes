@@ -187,8 +187,8 @@ export const repairIntegrations = async (
         method: "POST",
         body: JSON.stringify({
           domain: `${DOMAIN}/gateway/pl:instagram`,
-          facebookPageId: integration.facebookPageId,
-          fbPageIds: integration.facebookPageId
+          instagramPageId: integration.instagramPageId,
+          igPageId: integration.instagramPageId
         }),
         headers: { "Content-Type": "application/json" }
       });
@@ -283,9 +283,10 @@ export const instagramCreateIntegration = async (
     throw new Error("Account not found");
   }
   const instagramPageIds = JSON.parse(data).pageIds;
-  const instagramPageId = Array.isArray(instagramPageIds)
-    ? instagramPageIds[0]
-    : instagramPageIds;
+
+  const instagramPageId = instagramPageIds.shift();
+
+
   const facebookPageIds = await getFacebookPageIdsForInsta(
     account.token,
     instagramPageId
@@ -296,8 +297,8 @@ export const instagramCreateIntegration = async (
       kind,
       accountId,
       erxesApiId: integrationId,
-      instagramPageId: instagramPageId.toString(),
-      facebookPageId: facebookPageIds.toString() // Ensure it's a string
+      instagramPageId: instagramPageId,
+      facebookPageId: facebookPageIds // Ensure it's a string
     });
 
     const ENDPOINT_URL = getEnv({ name: "ENDPOINT_URL" });
