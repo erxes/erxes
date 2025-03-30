@@ -1,24 +1,27 @@
-import React from 'react';
 import { useQuery } from '@apollo/client';
-import queries from './graphql/queries';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import Box from '@erxes/ui/src/components/Box';
-import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import React from 'react';
+import queries from './graphql/queries';
 
-import Button from '@erxes/ui/src/components/Button';
 import Group from './CustomPostTypeFields';
 type Props = {
   clientPortalId: string;
-  post: any;
+  post?: any;
+  customFieldsData?: any[];
+  category?: any;
+  page?: any;
   onChange: (field: string, value: any) => void;
 };
 
 const CustomPostTypeGroup = (props: Props) => {
-  const customFieldsData = props.post?.customFieldsData || [];
+  const customFieldsData = props.customFieldsData || [];
   const { data, loading: fieldsGroupsQueryLoading } = useQuery(queries.LIST, {
     variables: {
       clientPortalId: props.clientPortalId,
       postType: props.post?.type,
+      categoryId: props.category?._id,
+      pageId: props.page?._id,
     },
     skip: props.post?.type === 'post',
   });
