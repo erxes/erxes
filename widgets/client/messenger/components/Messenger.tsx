@@ -74,8 +74,6 @@ function Messenger({
         return <TicketForget />;
       case 'ticket-progress':
         return <TicketShowProgressContainer loading={loading} />;
-      case 'call':
-        return <CallContainer />;
 
       case 'call':
         const callData = getCallData();
