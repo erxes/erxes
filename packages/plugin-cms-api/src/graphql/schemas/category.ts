@@ -15,6 +15,10 @@ export const types = `
         parent: PostCategory
         createdAt: Date
         updatedAt: Date
+
+        customFieldsData: JSON
+
+        customFieldsMap: JSON
     }
 `;
 
@@ -27,6 +31,7 @@ export const inputs = `
         parentId: String
         status: String
         clientPortalId: String
+        customFieldsData: JSON
     }
 
 `;
