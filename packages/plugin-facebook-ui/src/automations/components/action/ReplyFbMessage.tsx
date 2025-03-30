@@ -48,7 +48,6 @@ export const TabAction = styled.div`
   }
 `;
 
-
 const checkIsAbleAddMessage = (messages, type) => {
   if (
     type === "input" &&
@@ -79,9 +78,8 @@ function ReplyFbMessage({
   triggerType,
 }: Props) {
   const [config, setConfig] = useState(activeAction?.config || {});
-  const [error,setError] = useState(false)
+  const [error, setError] = useState(false);
   const { messages = [] as Message[] } = config;
-
 
   const handleChange = (_id, name, value) => {
     const updateMessages = messages.map((message) =>
@@ -94,21 +92,21 @@ function ReplyFbMessage({
   const renderText = ({ _id, text, buttons }) => {
     const limit = buttons.length ? 640 : 2000;
     const onChange = ({ text }) => {
-        handleChange(_id, "text", text);
+      handleChange(_id, "text", text);
     };
 
-    useEffect(()=>{
-      if (text.length >limit) {
-        setError(true)
-      }else if (!!error && text.length < limit) {
+    useEffect(() => {
+      if (text.length > limit) {
+        setError(true);
+      } else if (!!error && text.length < limit) {
         setError(false);
       }
-    },[buttons,text])
+    }, [buttons, text]);
 
     return (
       <Column>
         <ControlLabel>
-          {__('Text')}
+          {__("Text")}
           <FieldInfo
             error={text.length > limit}
           >{`${text?.length}/${limit}`}</FieldInfo>
@@ -169,8 +167,8 @@ function ReplyFbMessage({
     const handleChangeInput = (e) => {
       const { value } = e.currentTarget as HTMLInputElement;
 
-      if(value?.length > 640){
-        return 
+      if (value?.length > 640) {
+        return;
       }
 
       handleChange(_id, "text", value);
@@ -194,6 +192,7 @@ function ReplyFbMessage({
           onChange={handleChangeQuickReplies}
           hideMenu
           addButtonLabel="Add Quick Reply"
+          type="quickReplies"
           limit={13}
         />
       </div>
@@ -254,7 +253,10 @@ function ReplyFbMessage({
     return (
       <div>
         <FormGroup>
-          <ControlLabel>{__("Text")}<FieldInfo>{`${input?.text?.length || 0}/2000`}</FieldInfo></ControlLabel>
+          <ControlLabel>
+            {__("Text")}
+            <FieldInfo>{`${input?.text?.length || 0}/2000`}</FieldInfo>
+          </ControlLabel>
           <FormControl
             defaultValue={input.text || ""}
             onChange={(e) =>
@@ -264,7 +266,7 @@ function ReplyFbMessage({
         </FormGroup>
         <Flex>
           <FlexCenter>
-            <ControlLabel>{__("User Input expires in:   ")}</ControlLabel>
+            <ControlLabel>{__("User Input expires in:")}</ControlLabel>
             <TimeSetter input={input} onChange={onChange} />
           </FlexCenter>
         </Flex>
@@ -378,7 +380,7 @@ function ReplyFbMessage({
             onClick={onSave}
             disabled={error}
           >
-            {__('Save')}
+            {__("Save")}
           </Button>
         </ModalFooter>
       </BottomBarContainer>
