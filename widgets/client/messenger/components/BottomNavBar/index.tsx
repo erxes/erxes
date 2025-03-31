@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 
 import {
   IconChat,
@@ -6,26 +6,26 @@ import {
   IconPhone,
   IconQuestionMark,
   IconTicket,
-} from "./Icons";
-import { getCallData, getTicketData } from "../../utils/util";
+} from './Icons';
+import { getCallData, getTicketData } from '../../utils/util';
 
-import Item from "./Item";
-import { useRouter } from "../../context/Router";
+import Item from './Item';
+import { useRouter } from '../../context/Router';
 
 const items = [
   {
-    label: "Home",
+    label: 'Home',
     icon: IconHome,
-    route: "home",
+    route: 'home',
   },
-  { icon: IconChat, route: "allConversations" },
-  { icon: IconPhone, route: "call" },
-  { icon: IconTicket, route: "ticket" },
+  { icon: IconChat, route: 'allConversations' },
+  { icon: IconPhone, route: 'call' },
+  { icon: IconTicket, route: 'ticket' },
   {
-    label: "Help",
+    label: 'Help',
     icon: IconQuestionMark,
-    route: "faqCategories",
-    additionalRoutes: ["faqCategory", "faqArticle"],
+    route: 'faqCategories',
+    additionalRoutes: ['faqCategory', 'faqArticle'],
   },
 ];
 
@@ -54,11 +54,11 @@ function BottomNavBar() {
       {items.map((item) => {
         const { route } = item;
 
-        if (route === "call" && callData && !callData.isReceiveWebCall) {
+        if (route === 'call' && callData && !callData.isReceiveWebCall) {
           return null;
         }
 
-        if (route === "ticket" && ticketData && !ticketData._id) {
+        if (route === 'ticket' && ticketData && !ticketData.ticketStageId) {
           return null;
         }
 

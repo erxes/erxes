@@ -1,4 +1,4 @@
-import { connection } from "./connection";
+import { connection } from './connection';
 
 const userDetailFields = `
   avatar
@@ -104,7 +104,7 @@ const conversationDetailQuery = (isDailycoEnabled: boolean) => `
           url
           status
         }`
-            : ""
+            : ''
         }
       }
 
@@ -157,7 +157,7 @@ const conversationMessageInserted = (isDailycoEnabled: boolean) => `
         url
         status
       }`
-          : ""
+          : ''
       }
     }
   }
@@ -251,7 +251,9 @@ const connect = (isCloudFlareEnabled?: boolean, isTicketEnabled?: boolean) => `
       cachedCustomerId: $cachedCustomerId, visitorId: $visitorId) {
       integrationId,
       messengerData,
-      ${isCloudFlareEnabled ? `
+      ${
+        isCloudFlareEnabled
+          ? `
         callData {
           departments {
             _id
@@ -260,11 +262,16 @@ const connect = (isCloudFlareEnabled?: boolean, isTicketEnabled?: boolean) => `
           }
           isReceiveWebCall
         },
-      ` : ""}
-      ${isTicketEnabled ? `
+      `
+          : ''
+      }
+      ${
+        isTicketEnabled
+          ? `
         ticketData
-      ` : ``}
-      ticketData,
+      `
+          : ``
+      }
       languageCode,
       uiOptions,
       customerId,
@@ -372,6 +379,6 @@ export default {
   integrationsFetchApi,
   conversationBotTypingStatus,
   getEngageMessage,
-  MESSAGE_FIELDS
+  MESSAGE_FIELDS,
 };
 export { MESSAGE_FIELDS };
