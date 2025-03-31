@@ -17,7 +17,7 @@ import dayjs from "dayjs";
 import queryString from "query-string";
 import { renderText } from "modules/settings/importExport/utils";
 import { IImportHistory } from "../../../types";
-import { IUser } from 'modules/auth/types';
+import { IUser } from "modules/auth/types";
 
 type Props = {
   history: IImportHistory;
@@ -103,7 +103,12 @@ class HistoryRow extends React.Component<Props> {
 
         return (
           <li key={Math.random()}>
-            <a rel="noopener noreferrer" href={reqUrl} target="_blank">
+            <a
+              rel="noopener noreferrer"
+              href={reqUrl}
+              target="_blank"
+              onClick={(e) => e.stopPropagation()}
+            >
               {__(`Download ${renderText(value.contentType)} errors`)}
             </a>
           </li>
