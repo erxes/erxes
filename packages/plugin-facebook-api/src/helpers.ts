@@ -156,7 +156,7 @@ export const repairIntegrations = async (
   for (const pageId of integration.facebookPageIds || []) {
     const pageTokens = await refreshPageAccesToken(models, pageId, integration);
 
-    await subscribePage(pageId, pageTokens[pageId]);
+    await subscribePage(models,pageId, pageTokens[pageId]);
 
     await models.Integrations.deleteMany({
       erxesApiId: { $ne: integrationId },
@@ -318,7 +318,7 @@ export const facebookCreateIntegration = async (
       facebookPageTokensMap[pageId] = pageAccessToken;
 
       try {
-        await subscribePage(pageId, pageAccessToken);
+        await subscribePage(models,pageId, pageAccessToken);
         debugFacebook(`Successfully subscribed page ${pageId}`);
       } catch (e) {
         debugError(

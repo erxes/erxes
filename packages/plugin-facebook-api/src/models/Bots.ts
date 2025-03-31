@@ -3,6 +3,7 @@ import { IModels } from "../connectionResolver";
 import { debugError } from "../debuggers";
 import { getPageAccessToken, graphRequest } from "../utils";
 import { IBotDocument, botSchema } from "./definitions/bots";
+import { BOT_SUBSCRIcBE_FIELDS } from "../constants";
 
 const validateDoc = async (models: IModels, doc: any, isUpdate?: boolean) => {
   if (!doc.name) {
@@ -243,11 +244,7 @@ export const loadBotClass = (models: IModels) => {
       }
 
       await graphRequest.post("/me/subscribed_apps", pageAccessToken, {
-        subscribed_fields: [
-          "messages",
-          "messaging_postbacks"
-          // "messaging_referrals"
-        ]
+        subscribed_fields: BOT_SUBSCRIcBE_FIELDS
       });
 
       let doc: any = {

@@ -84,11 +84,6 @@ const List = (props: Props) => {
           )}
         </PageContainer>
       </Main>
-
-      {/* <CreateWebsiteModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-      /> */}
     </Container>
   );
 };

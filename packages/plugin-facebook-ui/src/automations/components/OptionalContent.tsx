@@ -58,8 +58,22 @@ function OptionalContent({ action, handle }: Props) {
         {image && <img src={readFile(image)} alt={image} />}
         <p>{text || title}</p>
         <span>{subtitle}</span>
-        {buttons.map(({ _id, text, link }) => (
+        {buttons.map(({ _id, text, link, image_url }) => (
           <li key={`${_id}-right`} className="optional-connect">
+            {image_url ? (
+              <img
+                style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  marginRight: '10px',
+                }}
+                src={readFile(image_url)}
+                alt={image_url}
+              />
+            ) : (
+              <></>
+            )}
             {text}
             {link ? (
               <LinkIcon href={link} target="_blank">
@@ -74,7 +88,7 @@ function OptionalContent({ action, handle }: Props) {
     );
   };
   const renderCards = (cards = []) => {
-    return <>{cards.map((card) => renderCard(card))}</>;
+    return <>{cards.map(card => renderCard(card))}</>;
   };
 
   const renderMessage = ({
@@ -90,8 +104,7 @@ function OptionalContent({ action, handle }: Props) {
     input,
   }: any) => {
     const botId = automation?.triggers.find(
-      (trigger) =>
-        trigger?.type?.includes('facebook') && !!trigger?.config?.botId,
+      trigger => trigger?.type?.includes('facebook') && !!trigger?.config?.botId
     )?.config?.botId;
 
     switch (type) {
@@ -126,7 +139,7 @@ function OptionalContent({ action, handle }: Props) {
 
   return (
     <>
-      {messages.map((message) => (
+      {messages.map(message => (
         <div key={message?._id}>{renderMessage(message)}</div>
       ))}
     </>
