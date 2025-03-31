@@ -13,6 +13,7 @@ import { IAttachment, IAttachmentMessage } from "./types";
 import { getFileUploadConfigs } from "./messageBroker";
 import { randomAlphanumeric } from "@erxes/api-utils/src/random";
 import { getSubdomain } from "@erxes/api-utils/src/core";
+import { BOT_SUBSCRIcBE_FIELDS } from "./constants";
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
@@ -138,17 +139,27 @@ export const getPageAccessTokenFromMap = (
 };
 
 export const subscribePage = async (
+  models:IModels,
   pageId,
   pageToken
 ): Promise<{ success: true } | any> => {
+
+  let subscribed_fields= [
+    "conversations",
+    "feed",
+    "messages",
+    "standby",
+    "messaging_handovers"
+  ]
+
+  const bot = await models.Bots.findOne({pageId})
+
+  if(!bot){
+    subscribed_fields = [...new Set([...subscribed_fields,...BOT_SUBSCRIcBE_FIELDS])]
+  }
+
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
-    subscribed_fields: [
-      "conversations",
-      "feed",
-      "messages",
-      "standby",
-      "messaging_handovers"
-    ]
+    subscribed_fields
   });
 };
 
