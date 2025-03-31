@@ -2,6 +2,7 @@ const dotenv = require('dotenv');
 const fetch = require('node-fetch');
 const http = require('http');
 const { MongoClient } = require('mongodb');
+const moment = require('moment');
 
 dotenv.config();
 
@@ -147,8 +148,9 @@ const command = async () => {
 
   console.log(`Process start at: ${new Date()}`);
   // const customerFilter = { code: { $exists: true } };
-  const customerFilter = { code: 'CIF-13000098' };
+  const customerFilter = { code: 'CIF-13000112' };
   // CIF-13000098
+  // CIF-13000112
 
   const customersCount = await Customers.countDocuments(customerFilter);
 
@@ -156,138 +158,134 @@ const command = async () => {
   let per = 10000;
   const schedules = [];
 
-  // const haha = await fetchPolaris('13610210', ['CIF-13000112', 0, 1]);
+  // const zeel = await fetchPolaris('13610210', ['CIF-13000112', 0, 10]);
 
-  // console.log(haha, 'haha');
+  // console.log(zeel, 'zeel');
 
-  // const gg = await fetchPolaris('13610203', ['130013000560']);
+  // const filteredContracts = zeel.filter(
+  //   (contract) => contract.statusName !== 'Хаасан'
+  // );
 
-  // console.log(gg, 'gg');
+  // console.log(filteredContracts);
 
-  // const jj = await fetchPolaris('13610250', [
-  //   {
-  //     txnAcntCode: '130013000251',
-  //     txnAmount: 100,
-  //     rate: 1,
-  //     rateTypeId: '16',
-  //     // contAcntCode: 'contAcntCode',
-  //     contAmount: 100,
-  //     contRate: 1,
-  //     sourceType: 'OI',
-  //     isPreview: 0,
-  //     isPreviewFee: 0,
-  //     isTmw: 1,
-  //   },
+  // const tololtHuvaari = await fetchPolaris('13610203', ['130013000562']);
+
+  // console.log(tololtHuvaari, 'tololtHuvaari');
+
+  // const ha = moment(zeel[0].startDate).format('YYYY-MM-DD');
+  // const he = moment(zeel[0].endDate).format('YYYY-MM-DD');
+
+  // console.log(ha, he);
+
+  // const huulga = await fetchPolaris('13610201', [
+  //   '130013000562',
+  //   '2025-03-28',
+  //   '2025-07-28',
+  //   0,
+  //   100,
   // ]);
 
-  // console.log(jj, 'jj');
+  // console.log(huulga, 'huulga');
 
-  const jj = await fetchPolaris('13610201', [
-    '130013000560',
-    '2024-04-18',
-    '2025-01-18',
-    0,
-    100,
-  ]);
-
-  console.log(jj, 'jj');
-
-  // const hadgalamj = await fetchPolaris('13610312', ['CIF-13000112', 0, 10]);
+  // const hadgalamj = await fetchPolaris('13610100', ['130011000031', '0']);
 
   // console.log(hadgalamj, 'hadgalamj');
 
-  // while (step * per < customersCount) {
-  //   const skip = step * per;
-  //   const customers = await Customers.find(customerFilter)
-  //     .sort({ code: 1 })
-  //     .skip(skip)
-  //     .limit(per)
-  //     .toArray();
+  while (step * per < customersCount) {
+    const skip = step * per;
+    const customers = await Customers.find(customerFilter)
+      .sort({ code: 1 })
+      .skip(skip)
+      .limit(per)
+      .toArray();
 
-  //   let bulkOps = [];
+    let bulkOps = [];
 
-  //   for (const customer of customers) {
-  //     if (!customer.code) {
-  //       continue;
-  //     }
+    for (const customer of customers) {
+      if (!customer.code) {
+        continue;
+      }
 
-  //     const pLoanContracts = await fetchPolaris('13610210', [
-  //       customer.code,
-  //       0,
-  //       0,
-  //     ]);
+      const pLoanContracts = await fetchPolaris('13610210', [
+        customer.code,
+        0,
+        10,
+      ]);
 
-  //     console.log(pLoanContracts, 'pLoanContracts');
+      console.log(pLoanContracts.length, 'pLoanContracts');
 
-  //     for (const pLoanContract of pLoanContracts) {
-  //       console.log('---------------------------------------------');
-  //       const contractType = await LoanContractTypes.findOne({
-  //         code: pLoanContract.prodCode,
-  //       });
+      for (const pLoanContract of pLoanContracts) {
+        console.log('---------------------------------------------');
+        const contractType = await LoanContractTypes.findOne({
+          code: pLoanContract.prodCode,
+        });
 
-  //       if (contractType) {
-  //         const document = {
-  //           _id: nanoid(),
-  //           contractTypeId: contractType._id,
-  //           number: await getNumber(LoanContracts, contractType),
-  //           repayment: 'fixed',
-  //           leaseType: 'finance',
-  //           currency: pLoanContract.curCode,
-  //           customerType: pLoanContract.custType === 0 ? 'customer' : 'company',
-  //           customerId: customer._id,
-  //           tenor: pLoanContract.termLen,
-  //           startDate: new Date(pLoanContract.startDate),
-  //           contractDate: new Date(pLoanContract.approvDate),
-  //           endDate: new Date(pLoanContract.endDate),
-  //           createdAt: new Date(),
-  //         };
+        if (contractType) {
+          const document = {
+            _id: nanoid(),
+            contractTypeId: contractType._id,
+            number: await getNumber(LoanContracts, contractType),
+            repayment: 'fixed',
+            leaseType: 'finance',
+            currency: pLoanContract.curCode,
+            customerType: pLoanContract.custType === 0 ? 'customer' : 'company',
+            customerId: customer._id,
+            tenor: pLoanContract.termLen,
+            startDate: new Date(pLoanContract.startDate),
+            contractDate: new Date(pLoanContract.approvDate),
+            endDate: new Date(pLoanContract.endDate),
+            createdAt: new Date(),
+          };
 
-  //         const loanContract = await LoanContracts.insertOne({ ...document });
+          const loanContract = await LoanContracts.insertOne({ ...document });
 
-  //         const pLoanSchedules = await fetchPolaris('13610203', [
-  //           pLoanContract.acntCode,
-  //         ]);
+          const pLoanSchedules = await fetchPolaris('13610203', [
+            pLoanContract.acntCode,
+          ]);
 
-  //         for (const schedule of pLoanSchedules) {
-  //           schedules.push({
-  //             _id: nanoid(),
-  //             contractId: loanContract.insertedId.toString(),
-  //             status: 'pending',
-  //             payDate: new Date(schedule.schdDate),
-  //             balance: schedule.totalAmount,
-  //             interestNonce: schedule.intAmount,
-  //             payment: schedule.totalAmount,
-  //             total: schedule.totalAmount,
-  //           });
-  //         }
+          // for (const schedule of pLoanSchedules) {
+          //   schedules.push({
+          //     _id: nanoid(),
+          //     contractId: loanContract.insertedId.toString(),
+          //     status: 'pending',
+          //     payDate: new Date(schedule.schdDate),
+          //     balance: schedule.totalAmount,
+          //     interestNonce: schedule.intAmount,
+          //     payment: schedule.totalAmount,
+          //     total: schedule.totalAmount,
+          //   });
+          // }
 
-  //         await LoanFirstSchedules.insertMany(schedules);
+          const schedules = pLoanSchedules.map((schedule) => ({
+            _id: nanoid(), // Ensures truly unique IDs
+            contractId: loanContract.insertedId.toString(),
+            status: 'pending',
+            payDate: new Date(schedule.schdDate),
+            balance: schedule.totalAmount,
+            interestNonce: schedule.intAmount,
+            payment: schedule.totalAmount,
+            total: schedule.totalAmount,
+          }));
 
-  //         await LoanContracts.updateOne(
-  //           { _id: loanContract.insertedId },
-  //           {
-  //             $set: {
-  //               firstPayDate: new Date(pLoanSchedules[0].schdDate),
-  //               scheduleDays: [await getMostFrequentPaymentDay(pLoanSchedules)],
-  //             },
-  //           }
-  //         );
+          console.log(schedules, 'schedules');
 
-  //         const pLoanAccountStatement = await fetchPolaris('13610201', [
-  //           pLoanContract.acntCode,
-  //           '2024-04-18',
-  //           '2025-01-18',
-  //           0,
-  //           100,
-  //         ]);
+          await LoanFirstSchedules.insertMany(schedules);
 
-  //         console.log(pLoanAccountStatement, 'pLoanAccountStatement');
-  //       }
-  //     }
-  //   }
+          await LoanContracts.updateOne(
+            { _id: loanContract.insertedId },
+            {
+              $set: {
+                firstPayDate: new Date(pLoanSchedules[0].schdDate),
+                scheduleDays: [await getMostFrequentPaymentDay(pLoanSchedules)],
+              },
+            }
+          );
+        }
+      }
+    }
 
-  //   step++;
-  // }
+    step++;
+  }
 
   console.log(`Process finished at: ${new Date()}`);
 
