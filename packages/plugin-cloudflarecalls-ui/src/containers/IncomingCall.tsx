@@ -96,7 +96,7 @@ const IncomingCallContainer = (props: IProps) => {
   const { data: leaveCall } = useSubscription(
     gql(subscriptions.webCallReceived),
     {
-      variables: { roomState: 'leave' },
+      variables: { roomState: 'leave', audioTrack },
       fetchPolicy: 'network-only',
     },
   );
@@ -133,7 +133,7 @@ const IncomingCallContainer = (props: IProps) => {
   }, [phoneNumber]);
 
   useEffect(() => {
-    if (leaveCall?.cloudflareReceiveCall) {
+    if (leaveCall?.cloudflareReceiveCall && audioTrack) {
       if (!context?.peer) return;
 
       if (userMedia?.audioStreamTrack) {

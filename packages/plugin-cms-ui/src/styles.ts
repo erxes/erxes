@@ -8,6 +8,9 @@ const Container = styled.div`
 `;
 
 const Main = styled.main`
+  flex: 1;
+  overflow-y: auto;
+  max-height: 100vh;
   flex-grow: 1;
   padding-bottom: 4rem;
   animation: fade-in 0.3s ease-in-out;

@@ -3,8 +3,8 @@ var { withFilter } = require('graphql-subscriptions');
 module.exports = {
   name: 'cloudflarecalls',
   typeDefs: `
-      cloudflareReceiveCall(roomState: String, userId: String): CloudflareCall
-      cloudflareReceivedCall(roomState: String): CloudflareCall
+      cloudflareReceiveCall(roomState: String, userId: String, audioTrack: String): CloudflareCall
+      cloudflareReceivedCall(roomState: String, audioTrack: String): CloudflareCall
 `,
   generateResolvers: (graphqlPubsub) => {
     return {
@@ -12,7 +12,7 @@ module.exports = {
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator('cloudflareReceiveCall'),
           (payload,variables) => {
-            return payload.cloudflareReceiveCall.roomState === variables.roomState && payload.cloudflareReceiveCall.userId === variables.userId;
+            return payload.cloudflareReceiveCall.userId === variables.userId && 'leave' !== variables.roomState || 'leave' === variables.roomState && payload.cloudflareReceiveCall.audioTrack === variables.audioTrack;
           }
         )
       },
@@ -20,7 +20,7 @@ module.exports = {
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator('cloudflareReceivedCall'),
           (payload,variables) => {
-            return payload.cloudflareReceivedCall.roomState === variables.roomState;
+            return 'leave' !== variables.roomState || payload.cloudflareReceivedCall.audioTrack === variables.audioTrack && variables.roomState === 'leave';
           }
         )
       }
