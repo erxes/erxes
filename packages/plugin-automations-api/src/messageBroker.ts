@@ -49,7 +49,7 @@ export const setupMessageConsumers = async () => {
     const models = await generateModels(subdomain);
     const { type, actionType, targets } = data;
   
-    const waitingExecution = await await checkWaitingResponseAction(
+    const waitingExecution = await checkWaitingResponseAction(
       models,
       type,
       actionType,

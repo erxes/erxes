@@ -154,8 +154,8 @@ mutation CloudflareAnswerCall($roomState: String!, $audioTrack: String!, $custom
 }`;
 
 const cloudflareLeaveCall = `
-  mutation CloudflareLeaveCall($roomState: String!, $originator: String, $duration: Int, $audioTrack: String!) {
-    cloudflareLeaveCall(roomState: $roomState, originator: $originator, duration: $duration, audioTrack: $audioTrack) 
+  mutation CloudflareLeaveCall( $originator: String, $duration: Int, $audioTrack: String!) {
+    cloudflareLeaveCall( originator: $originator, duration: $duration, audioTrack: $audioTrack) 
   }
 `;
 export default {
