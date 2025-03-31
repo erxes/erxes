@@ -100,12 +100,10 @@ const callsMutations = {
   async cloudflareLeaveCall(
     _root,
     {
-      roomState,
       originator,
       duration,
       audioTrack,
     }: {
-      roomState: string;
       originator: string;
       duration: number;
       audioTrack: string;
@@ -133,6 +131,7 @@ const callsMutations = {
       await graphqlPubsub.publish('cloudflareReceiveCall', {
         cloudflareReceiveCall: {
           roomState: 'leave',
+          audioTrack,
         },
       });
       return 'success';
@@ -158,6 +157,7 @@ const callsMutations = {
       await graphqlPubsub.publish('cloudflareReceivedCall', {
         cloudflareReceivedCall: {
           roomState: 'leave',
+          audioTrack,
         },
       });
       return 'success';

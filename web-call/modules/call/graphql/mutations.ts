@@ -19,13 +19,11 @@ const call = gql`
 `
 const leaveCall = gql`
   mutation CloudflareLeaveCall(
-    $roomState: String!
     $originator: String
     $duration: Int
     $audioTrack: String!
   ) {
     cloudflareLeaveCall(
-      roomState: $roomState
       originator: $originator
       duration: $duration
       audioTrack: $audioTrack
