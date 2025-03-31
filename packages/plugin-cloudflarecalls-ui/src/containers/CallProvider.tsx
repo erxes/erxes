@@ -20,6 +20,7 @@ const CallProviderContainer = (props) => {
 
   useSubscription(gql(subscriptions.webCallReceived), {
     variables: { roomState: 'ready', userId: currentUser?._id },
+    skip: isCallReceive,
     onSubscriptionData: (data) => {
       if (
         data &&

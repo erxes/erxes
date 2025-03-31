@@ -1,9 +1,9 @@
-import { MESSAGE_FIELDS } from "./fields";
-import gql from "graphql-tag";
+import { MESSAGE_FIELDS } from './fields';
+import gql from 'graphql-tag';
 
 const WIDGETS_INSERT_MESSAGE_MUTATION = ({
   queryVariables,
-  queryParams
+  queryParams,
 }: {
   queryVariables: string;
   queryParams: string;
@@ -116,26 +116,38 @@ const CLOUDFLARE_CALL = gql`
       departmentId: $departmentId
     )
   }
-`
+`;
 const CLOUDFLARE_LEAVE_CALL = gql`
   mutation CloudflareLeaveCall(
-    $roomState: String!
     $originator: String
     $duration: Int
     $audioTrack: String!
   ) {
     cloudflareLeaveCall(
-      roomState: $roomState
       originator: $originator
       duration: $duration
       audioTrack: $audioTrack
-    ) 
+    )
   }
-`
+`;
 
 const TICKET_ADD = gql`
-  mutation TicketsAdd($name: String!, $description: String, $attachments: [AttachmentInput], $stageId: String, $customerIds: [String], $type: String) {
-    ticketsAdd(name: $name, description: $description, attachments: $attachments, stageId: $stageId, customerIds: $customerIds, type: $type) {
+  mutation TicketsAdd(
+    $name: String!
+    $description: String
+    $attachments: [AttachmentInput]
+    $stageId: String
+    $customerIds: [String]
+    $type: String
+  ) {
+    ticketsAdd(
+      name: $name
+      description: $description
+      attachments: $attachments
+      stageId: $stageId
+      customerIds: $customerIds
+      type: $type
+    ) {
       _id
       name
       number
@@ -150,8 +162,18 @@ const TICKET_ADD = gql`
 `;
 
 const CUSTOMER_ADD = gql`
-  mutation customersAdd($firstName: String, $lastName: String, $primaryEmail: String, $primaryPhone: String) {
-    customersAdd(firstName: $firstName, lastName: $lastName, primaryEmail: $primaryEmail, primaryPhone: $primaryPhone) {
+  mutation customersAdd(
+    $firstName: String
+    $lastName: String
+    $primaryEmail: String
+    $primaryPhone: String
+  ) {
+    customersAdd(
+      firstName: $firstName
+      lastName: $lastName
+      primaryEmail: $primaryEmail
+      primaryPhone: $primaryPhone
+    ) {
       _id
       email
       createdAt
@@ -160,13 +182,23 @@ const CUSTOMER_ADD = gql`
 `;
 
 const TICKET_COMMENTS_ADD = gql`
-mutation clientPortalCommentsAdd($type: String!, $typeId: String!, $content: String!, $userType: String!) {
-  clientPortalCommentsAdd(type: $type, typeId: $typeId, content: $content, userType: $userType) {
-    _id
-    type
-    createdAt
+  mutation clientPortalCommentsAdd(
+    $type: String!
+    $typeId: String!
+    $content: String!
+    $userType: String!
+  ) {
+    clientPortalCommentsAdd(
+      type: $type
+      typeId: $typeId
+      content: $content
+      userType: $userType
+    ) {
+      _id
+      type
+      createdAt
+    }
   }
-}
 `;
 
 const TICKET_CHECK_PROGRESS = gql`
@@ -188,13 +220,13 @@ const TICKET_CHECK_PROGRESS = gql`
       type
     }
   }
-`
+`;
 
 const TICKET_CHECK_PROGRESS_FORGET = gql`
   mutation ticketCheckProgressForget($email: String, $phoneNumber: String) {
     ticketCheckProgressForget(email: $email, phoneNumber: $phoneNumber)
   }
-`
+`;
 
 export {
   WIDGETS_INSERT_MESSAGE_MUTATION,

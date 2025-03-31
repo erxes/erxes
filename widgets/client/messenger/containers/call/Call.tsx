@@ -56,7 +56,7 @@ const CallContainer = () => {
   });
 
   const { data: leftCall } = useSubscription(gql(CLOUDFLARE_CALL_RECEIVED), {
-    variables: { roomState: 'leave' },
+    variables: { roomState: 'leave', audioTrack: pushedTracks?.audio },
     fetchPolicy: 'network-only',
   });
 
@@ -65,7 +65,8 @@ const CallContainer = () => {
   useEffect(() => {
     if (
       receiveCall?.cloudflareReceivedCall?.audioTrack &&
-      receiveCall?.cloudflareReceivedCall?.roomState !== 'leave'
+      receiveCall?.cloudflareReceivedCall?.roomState !== 'leave' &&
+      remoteAudioTracks.length === 0
     ) {
       setRemoteAudioTracks([receiveCall.cloudflareReceivedCall.audioTrack]);
 
@@ -102,7 +103,6 @@ const CallContainer = () => {
 
       leaveCall({
         variables: {
-          roomState: 'leave',
           originator: 'web',
           duration,
           audioTrack: pushedTracks?.audio,
