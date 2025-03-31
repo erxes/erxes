@@ -11,16 +11,7 @@ type IProps = {
 };
 
 function ListContainer(props: IProps) {
-  const defaultCallIntegration = localStorage.getItem(
-    'config:call_integrations',
-  );
-
-  const inboxId = JSON.parse(defaultCallIntegration || '{}')?.inboxId;
-
   const { data, loading } = useQuery(gql(queries.callQueueList), {
-    variables: {
-      integrationId: inboxId,
-    },
     nextFetchPolicy: 'network-only',
   });
 

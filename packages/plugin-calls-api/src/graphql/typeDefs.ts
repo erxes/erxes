@@ -127,7 +127,7 @@ const queries = `
   callsGetConfigs: JSON
   callGetAgentStatus: String
   callExtensionList(integrationId: String!): JSON
-  callQueueList(integrationId: String!): JSON
+  callQueueList: JSON
   callWaitingList(queue: String!): String
   callProceedingList(queue: String!): String
   callQueueMemberList(integrationId: String!, queue: String!): JSON
