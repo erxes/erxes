@@ -17,17 +17,11 @@ interface ICommonFields {
   order?: number;
   type: string;
 }
-interface IComment {
+export interface IComment {
   _id: string;
   userId: string;
   content: string;
   createdAt: Date;
-}
-
-export interface ICommentDocument extends Document {
-  number: string;
-  description: string;
-  comments: IComment[]; // Add this line to define the comments array
 }
 
 export interface IItemCommonFields {
@@ -62,6 +56,7 @@ export interface IItemCommonFields {
     startDate?: string;
   };
   customFieldsData?: ICustomField[];
+  comments?:IComment[]
   score?: number;
   number?: string;
   data?: any;
@@ -236,7 +231,6 @@ export const commonItemFieldsSchema = {
   assignedUserIds: field({ type: [String], esType: "keyword" }),
   watchedUserIds: field({ type: [String], esType: "keyword" }),
   labelIds: field({ type: [String], esType: "keyword" }),
-  comments: field({ type: [commentSchema], label: "comments" }),
   attachments: field({ type: [attachmentSchema], label: "Attachments" }),
   stageId: field({ type: String, index: true }),
   initialStageId: field({
@@ -271,6 +265,7 @@ export const commonItemFieldsSchema = {
     optional: true,
     label: "Custom fields data"
   }),
+  comments: field({ type: [commentSchema], label: "comments" }),
   score: field({
     type: Number,
     optional: true,

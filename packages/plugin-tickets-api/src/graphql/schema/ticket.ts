@@ -119,7 +119,7 @@ const ticketMutationParams = `
 
 export const mutations = `
   ticketCheckProgress(number: String!): Ticket
-  ticketcCommentAdd(
+  ticketCommentAdd(
     number: String!
     content: String!
   ): Ticket

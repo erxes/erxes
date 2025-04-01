@@ -14,7 +14,12 @@ const ruleFields = `
 export const types = `
   ${attachmentType}
   ${attachmentInput}
-
+  type Comment { 
+    content: String
+    userId: String
+    createdAt: Date
+    createdUser: User
+  }
   type TicketsRule {
     ${ruleFields}
   }
@@ -27,7 +32,6 @@ export const types = `
   input TicketsInputRule {
     ${ruleFields}
   }
-
   type TicketsTimeTrack {
     status: String,
     timeSpent: Int,
@@ -74,6 +78,7 @@ export const commonTypes = `
   pipeline: TicketsPipeline
   createdUser: User
   customFieldsData: JSON
+  comments: [Comment]
   score: Float
   timeTrack: TicketsTimeTrack
   number: String

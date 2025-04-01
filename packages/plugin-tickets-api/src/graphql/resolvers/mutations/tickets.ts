@@ -34,12 +34,12 @@ const ticketMutations = {
       user
     );
   },
-  async ticketcCommentAdd(
+  async ticketCommentAdd(
     _root,
-    { number, content }: { number: string; content: string },
+    { number, content, }: { number: string; content: string },
     { user, models, subdomain }: IContext
   ) {
-    return models.Tickets.createTicketComment(number, content);
+    return models.Tickets.createTicketComment(number, content,user);
   },
 
   /**

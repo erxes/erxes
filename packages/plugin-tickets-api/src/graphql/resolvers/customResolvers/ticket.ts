@@ -8,6 +8,8 @@ import { ITicketDocument } from "../../../models/definitions/tickets";
 import { boardId } from "../../utils";
 
 export default {
+
+  
   async __resolveReference({ _id }, { models }: IContext) {
     return models.Tickets.findOne({ _id });
   },
@@ -176,12 +178,14 @@ export default {
   },
 
   createdUser(ticket: ITicketDocument) {
+    console.log("hahahahhs")
     if (!ticket.userId) {
       return;
     }
 
     return { __typename: "User", _id: ticket.userId };
   },
+
   async vendorCustomers(
     ticket: ITicketDocument,
     _args,
