@@ -18,7 +18,7 @@ export const types = `
     content: String
     userId: String
     createdAt: Date
-    createdUser: User
+    createdCustomer: Customer
   }
   type TicketsRule {
     ${ruleFields}
@@ -78,7 +78,6 @@ export const commonTypes = `
   pipeline: TicketsPipeline
   createdUser: User
   customFieldsData: JSON
-  comments: [Comment]
   score: Float
   timeTrack: TicketsTimeTrack
   number: String

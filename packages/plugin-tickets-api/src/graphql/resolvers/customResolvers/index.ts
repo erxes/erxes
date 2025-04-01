@@ -1,10 +1,9 @@
-import TicketsBoard from "./board";
-import TicketsPipeline from "./pipeline";
-import TicketsStage from "./stage";
-import Ticket from "./ticket";
-import TicketsChecklist from "./checklists";
-import { default as TicketListItem } from "./commonListItem";
-import Comment from "./createdUser";
+import TicketsBoard from './board';
+import TicketsPipeline from './pipeline';
+import TicketsStage from './stage';
+import Ticket from './ticket';
+import TicketsChecklist from './checklists';
+import { default as TicketListItem } from './commonListItem';
 export {
   TicketsBoard,
   TicketsPipeline,
@@ -12,5 +11,4 @@ export {
   Ticket,
   TicketsChecklist,
   TicketListItem,
-  Comment
 };
