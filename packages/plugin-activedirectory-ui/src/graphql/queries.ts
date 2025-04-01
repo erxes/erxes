@@ -1,8 +1,7 @@
 const adConfigs = `
 query adConfigs($code: String!) {
   adConfigs(code: $code) {
-    apiUrl
-    useDN
+    apiUrl    
     baseDN
     adminDN
     adminPassword
