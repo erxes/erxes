@@ -1,23 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { IFieldLogic } from "../../types";
-import { IFilterType } from "../../containers/chart/ChartFormField";
-import { ControlRange } from "../../styles";
-import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
-import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
-import SelectClientPortal from "../utils/SelectClientPortal";
 import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
-import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
-import SelectLeads from "../utils/SelectLeads";
 import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
-import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import SelectDate from "../utils/SelectDate";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
 import { FormControl } from "@erxes/ui/src/components/form";
-import CustomSelect from "../utils/CustomSelect";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import Select from "react-select";
+import { IFilterType } from "../../containers/chart/ChartFormField";
+import { ControlRange } from "../../styles";
+import { IFieldLogic } from "../../types";
 import { generateInitialOptions } from "../../utils";
-import Select from 'react-select'
+import CustomSelect from "../utils/CustomSelect";
+import SelectClientPortal from "../utils/SelectClientPortal";
+import SelectDate from "../utils/SelectDate";
 
 type Props = {
   fieldType: string;
@@ -27,8 +26,9 @@ type Props = {
   fieldOptions: any[];
   subOptions?: any[];
   initialValue?: any;
-  fieldAttributes?: any[]
+  fieldAttributes?: any[];
   onChange: (input: any, name?: string) => void;
+  onInputChange: (searchValue: string) => void;
   setFilter?: (fieldName: string, value: any) => void;
   startDate?: Date;
   endDate?: Date;
@@ -36,7 +36,7 @@ type Props = {
   fieldLogics?: IFieldLogic[];
   fieldDefaultValue?: any;
   filterType: IFilterType;
-  fieldValueOptions?: any[]
+  fieldValueOptions?: any[];
 };
 
 const ChartFormField = (props: Props) => {
@@ -50,13 +50,14 @@ const ChartFormField = (props: Props) => {
     initialValue,
     multi,
     onChange,
+    onInputChange,
     setFilter,
     startDate,
     endDate,
     fieldValues,
     fieldDefaultValue,
     filterType,
-    fieldValueOptions
+    fieldValueOptions,
   } = props;
 
   const { fieldQueryVariables } = filterType;
@@ -73,16 +74,17 @@ const ChartFormField = (props: Props) => {
   }, [fieldDefaultValue]);
 
   const onSelect = (selectedOption: any, value?: string) => {
-
     if (selectedOption === undefined || selectedOption === null) {
       setFieldValue("");
       onChange("");
 
-      return
+      return;
     }
 
     if (multi && Array.isArray(selectedOption)) {
-      const selectedValues = (selectedOption || []).map(option => option.value);
+      const selectedValues = (selectedOption || []).map(
+        (option) => option.value
+      );
 
       const modifiedOptions = value
         ? selectedOption.map(({ [value]: ommited, ...rest }) => rest)
@@ -114,17 +116,27 @@ const ChartFormField = (props: Props) => {
       clearTimeout(timerRef.current);
     }
 
-    const { name, value } = e.target
+    const { name, value } = e.target;
 
     const newFieldValues = fieldValue ? { ...fieldValue } : {};
-    newFieldValues[name] = value
+    newFieldValues[name] = value;
 
     setFieldValue(newFieldValues);
 
     timerRef.current = window.setTimeout(() => {
       onChange(newFieldValues);
-    }, 500)
-  }
+    }, 500);
+  };
+
+  const handleSelectInput = (value) => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
+    timerRef.current = window.setTimeout(() => {
+      onInputChange(value);
+    }, 500);
+  };
 
   switch (fieldQuery) {
     case "users":
@@ -250,7 +262,7 @@ const ChartFormField = (props: Props) => {
           onSelect={onSelect}
           startDate={startDate}
           endDate={endDate}
-          onSaveButton={handleDateRange} 
+          onSaveButton={handleDateRange}
         />
       );
 
@@ -259,30 +271,29 @@ const ChartFormField = (props: Props) => {
   }
 
   const renderSubSelect = () => {
-
     if (!subOptions?.length) {
-      return <></>
+      return <></>;
     }
 
     return (
       <div>
         <ControlLabel>{`${fieldLabel} Options`}</ControlLabel>
         <Select
-          value={generateInitialOptions(subOptions, fieldValues['subFields'])}
+          value={generateInitialOptions(subOptions, fieldValues["subFields"])}
           isMulti={true}
           options={subOptions}
           onChange={(selectedOptions: any) => {
-
             const values = Array.isArray(selectedOptions)
-              ? selectedOptions.map(option => option.value)
+              ? selectedOptions.map((option) => option.value)
               : selectedOptions.value;
 
-            onChange(values, 'subFields');
+            onChange(values, "subFields");
           }}
+          onInputChange={handleSelectInput}
         />
       </div>
-    )
-  }
+    );
+  };
 
   switch (fieldType) {
     case "select":
@@ -295,6 +306,7 @@ const ChartFormField = (props: Props) => {
               value={fieldValue}
               multi={multi}
               onSelect={onSelect}
+              onInputChange={handleSelectInput}
               options={fieldOptions}
               fieldLabel={fieldLabel}
               fieldValueOptions={fieldValueOptions}
@@ -311,7 +323,7 @@ const ChartFormField = (props: Props) => {
             {fieldAttributes?.map((attributes, index) => (
               <FormControl
                 value={fieldValue?.[attributes.name]}
-                onChange={e => handleInput(e)}
+                onChange={(e) => handleInput(e)}
                 {...attributes}
               />
             ))}

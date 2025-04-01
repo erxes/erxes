@@ -9,8 +9,10 @@ import {
 } from '@erxes/ui/src';
 
 import { Title } from '@erxes/ui-settings/src/styles';
+import { IUser } from '@erxes/ui/src/auth/types';
 import { Wrapper } from '@erxes/ui/src/layout';
 import { SimpleButton } from '@erxes/ui/src/styles/main';
+import { can } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import { menuLoyalties } from '../../common/constants';
 import Sidebar from '../components/Sidebar';
@@ -25,6 +27,7 @@ type Props = {
   scoreLogs: IScoreLogParams[];
   statistics: any;
   total: number;
+  currentUser: IUser
   refetch: (variables: any) => void;
 };
 
@@ -38,13 +41,18 @@ const tablehead = [
 ];
 
 const ScoreLogsListComponent = (props: Props) => {
-  const { loading, queryParams, scoreLogs, statistics, total, refetch } = props;
+  const { loading, queryParams, scoreLogs, statistics, total, currentUser, refetch } = props;
 
   const [toggleSidebar, setToggleSidebar] = useState<boolean>(false);
 
   const modalContent = (props) => <Form {...props} />;
 
   const renderForm = () => {
+
+    if (!can('adjustLoyaltyScore', currentUser)) {
+      return null
+    }
+
     const trigger = <Button btnStyle="success">{__('Give Score')}</Button>;
 
     return (
