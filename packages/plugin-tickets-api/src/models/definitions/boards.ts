@@ -17,6 +17,18 @@ interface ICommonFields {
   order?: number;
   type: string;
 }
+interface IComment {
+  _id: string;
+  userId: string;
+  content: string;
+  createdAt: Date;
+}
+
+export interface ICommentDocument extends Document {
+  number: string;
+  description: string;
+  comments: IComment[]; // Add this line to define the comments array
+}
 
 export interface IItemCommonFields {
   name?: string;
@@ -57,7 +69,7 @@ export interface IItemCommonFields {
   branchIds?: string[];
   departmentIds?: string[];
   parentId?: string;
-  type?:string;
+  type?: string;
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -133,6 +145,20 @@ export interface IStageDocument extends IStage, Document {
 
 // Not mongoose document, just stage shaped plain object
 export type IPipelineStage = IStage & { _id: string };
+
+export const USER_TYPES = {
+  TEAM: "team",
+  CLIENT: "client",
+  ALL: ["team", "client"]
+};
+
+const commentSchema = new Schema({
+  number: { type: String, required: true },
+  userId: { type: String, required: true },
+  content: { type: String, required: true },
+  parentId: field({ type: String, label: "Parent Id" }),
+  createdAt: { type: Date, default: Date.now }
+});
 
 export const attachmentSchema = new Schema(
   {
@@ -210,6 +236,7 @@ export const commonItemFieldsSchema = {
   assignedUserIds: field({ type: [String], esType: "keyword" }),
   watchedUserIds: field({ type: [String], esType: "keyword" }),
   labelIds: field({ type: [String], esType: "keyword" }),
+  comments: field({ type: [commentSchema], label: "comments" }),
   attachments: field({ type: [attachmentSchema], label: "Attachments" }),
   stageId: field({ type: String, index: true }),
   initialStageId: field({

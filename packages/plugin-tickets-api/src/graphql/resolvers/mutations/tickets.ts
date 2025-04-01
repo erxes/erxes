@@ -11,7 +11,7 @@ import {
 } from "./utils";
 import { IContext } from "../../../connectionResolver";
 import { sendCoreMessage } from "../../../messageBroker";
-import {checkItemPermByUser} from "../queries/utils"
+import { checkItemPermByUser } from "../queries/utils";
 interface ITicketsEdit extends ITicket {
   _id: string;
 }
@@ -33,6 +33,13 @@ const ticketMutations = {
       models.Tickets.createTicket,
       user
     );
+  },
+  async ticketcCommentAdd(
+    _root,
+    { number, content }: { number: string; content: string },
+    { user, models, subdomain }: IContext
+  ) {
+    return models.Tickets.createTicketComment(number, content);
   },
 
   /**
@@ -127,9 +134,8 @@ const ticketMutations = {
     { number }: { number: string },
     { user, models, subdomain }: IContext
   ) {
-    if(!number ){
-      return null
-
+    if (!number) {
+      return null;
     }
     const ticket = await models.Tickets.findOne({
       number: number
@@ -146,15 +152,15 @@ const ticketMutations = {
     { email, phoneNumber }: { email: string; phoneNumber: string },
     { models, subdomain }: IContext
   ) {
-    if(!email && !phoneNumber){
-      return null
+    if (!email && !phoneNumber) {
+      return null;
     }
     let customer;
     if (email) {
       customer = await sendCoreMessage({
         subdomain,
         action: "customers.findOne",
-        data: { primaryEmail:email },
+        data: { primaryEmail: email },
         isRPC: true,
         defaultValue: null
       });
@@ -162,25 +168,25 @@ const ticketMutations = {
       customer = await sendCoreMessage({
         subdomain,
         action: "customers.findOne",
-        data: {primaryPhone: phoneNumber },
+        data: { primaryPhone: phoneNumber },
         isRPC: true,
         defaultValue: null
       });
     }
     if (customer) {
-      const customerIds = [customer._id]; 
+      const customerIds = [customer._id];
       const mainTypeIds = await sendCoreMessage({
         subdomain,
         action: "conformities.findConformities",
         data: {
           mainType: "ticket",
-          relType: 'customer',
-          relTypeId:  customerIds,
+          relType: "customer",
+          relTypeId: customerIds
         },
         isRPC: true,
         defaultValue: []
       });
-      
+
       if (!mainTypeIds.length) {
         return;
       }
@@ -201,13 +207,11 @@ const ticketMutations = {
         number: ticket.number,
         type: ticket.type
       }));
-  
+
       return formattedTickets;
-   
     } else {
       throw new Error("No user found.");
     }
-    
   }
 };
 

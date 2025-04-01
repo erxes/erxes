@@ -119,6 +119,10 @@ const ticketMutationParams = `
 
 export const mutations = `
   ticketCheckProgress(number: String!): Ticket
+  ticketcCommentAdd(
+    number: String!
+    content: String!
+  ): Ticket
   ticketCheckProgressForget(email: String, phoneNumber: String): JSON
   ticketsAdd(name: String!, ${copyParams}, ${ticketMutationParams}, ${commonMutationParams}): Ticket
   ticketsEdit(_id: String!, name: String, ${ticketMutationParams}, ${commonMutationParams}): Ticket
