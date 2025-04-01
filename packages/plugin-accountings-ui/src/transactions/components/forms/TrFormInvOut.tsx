@@ -17,13 +17,12 @@ import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartment from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { IQueryParams } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
+import React from 'react';
 import { TR_CUSTOMER_TYPES, TR_SIDES } from '../../../constants';
 import SelectAccount from '../../../settings/accounts/containers/SelectAccount';
 import { IAccount } from '../../../settings/accounts/types';
 import { IConfigsMap } from '../../../settings/configs/types';
 import { ITransaction } from '../../types';
-import TaxFields from '../helpers/TaxFields';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 
 type Props = {
@@ -35,13 +34,11 @@ type Props = {
   setTrDoc: (trDoc: ITransaction, fTrDocs?: ITransaction[]) => void;
 };
 
-const TrFormInvIncome = (props: Props) => {
+const TrFormInvOut = (props: Props) => {
   const { trDoc, setTrDoc, followTrDocs } = props;
   const detail = trDoc?.details && trDoc?.details[0] || {
     _id: Math.random().toString(),
   };
-
-  const [showCost, setShowCost] = useState<boolean>(false);
 
   const onChange = (key, value) => {
     setTrDoc({ ...trDoc, [key]: value }, followTrDocs);
@@ -52,12 +49,6 @@ const TrFormInvIncome = (props: Props) => {
       ...trDoc, details: trDoc.details.map(det => (
         det._id === _id ? { ...det, ...args } : det
       ))
-    }, followTrDocs);
-  }
-
-  const onChangeExtra = (key, value) => {
-    setTrDoc({
-      ...trDoc, extraData: { ...trDoc.extraData, [key]: value }
     }, followTrDocs);
   }
 
@@ -201,48 +192,6 @@ const TrFormInvIncome = (props: Props) => {
     )
   }
 
-  const renderCost = () => {
-    if (!showCost) {
-      return <ActionButtons>
-        <Button btnStyle="link" icon="search-plus" onClick={setShowCost.bind(this, true)} >Show Cost</Button>
-      </ActionButtons>;
-    }
-    return (
-      <>
-        <Table>
-          <thead>
-            <tr>
-              <td>Cost</td>
-              <td>Rule</td>
-              <td>Amount</td>
-              <td>Transaction</td>
-              <td>Actions</td>
-            </tr>
-          </thead>
-          <tbody>
-            {(trDoc.extraData?.invIncomeCost || []).map(c => (
-              <tr>
-                <td>{c.costCode} - {c.costTitle}</td>
-                <td>{c.rule}</td>
-                <td>{c.amount}</td>
-                <td></td>
-                <td>
-                  <ActionButtons>
-                    <Button btnStyle="link" icon="trash" onClick={onRemoveDetail.bind(c._id)} />
-                  </ActionButtons>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-        <ActionButtons>
-          <Button btnStyle="link" icon="search-minus" onClick={setShowCost.bind(this, false)} >Hide Cost</Button>
-          <Button btnStyle="link" icon="add"  >Add Cost</Button>
-        </ActionButtons>
-      </>
-    );
-  }
-
   const renderItems = () => {
     return (
       <>
@@ -254,12 +203,6 @@ const TrFormInvIncome = (props: Props) => {
               <td>quantity</td>
               <td>unit price</td>
               <td>amount</td>
-              {(trDoc.hasVat || trDoc.hasCtax) && (
-                <>
-                  <td>Unit with tax</td>
-                  <td>amount with Tax</td>
-                </>
-              )}
               <td></td>
             </tr>
           </thead>
@@ -327,38 +270,6 @@ const TrFormInvIncome = (props: Props) => {
                       }}
                     />
                   </td>
-                  {(trDoc.hasVat || trDoc.hasCtax) && (
-                    <>
-                      <td>
-                        <FormControl
-                          type='number'
-                          name="taxUnitPrice"
-                          fixed={3}
-                          useNumberFormat={true}
-                          value={(det.unitPrice ?? 0) / 100 * (100 + ((trDoc.vatRow?.percent ?? 0) + (trDoc.ctaxRow?.percent ?? 0)))}
-                          required={true}
-                          onChange={e => {
-                            const value = (e.target as any).value;
-                            onChangeDetail(det._id, { unitPrice: value, amount: value * (det.count ?? 0) })
-                          }}
-                        />
-                      </td>
-                      <td>
-                        <FormControl
-                          type='number'
-                          name="taxAmount"
-                          fixed={3}
-                          useNumberFormat={true}
-                          value={(det.unitPrice ?? 0) * (det.count ?? 0) / 100 * (100 + ((trDoc.vatRow?.percent ?? 0) + (trDoc.ctaxRow?.percent ?? 0)))}
-                          required={true}
-                          onChange={e => {
-                            const value = (e.target as any).value;
-                            onChangeDetail(det._id, { amount: value, unitPrice: value / (det.count || 1) })
-                          }}
-                        />
-                      </td>
-                    </>
-                  )}
                   <td>
                     <ActionButtons>
                       <Button btnStyle="link" icon="trash" onClick={onRemoveDetail.bind(det._id)} />
@@ -471,15 +382,9 @@ const TrFormInvIncome = (props: Props) => {
           </FormGroup>
         </FormColumn>
       </FormWrapper>
-      <TaxFields
-        {...props}
-        side={'dt'}
-        isWithTax={false}
-      />
-      {renderCost()}
       {renderItems()}
     </>
   );
 };
 
-export default TrFormInvIncome;
+export default TrFormInvOut;

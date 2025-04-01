@@ -1,19 +1,9 @@
-export const PRODUCT_TYPE_CHOISES = {
-  product: 'Product',
-  service: 'Service',
-  unique: 'Unique',
-};
+import { __ } from "@erxes/ui/src/utils";
 
-export const PRODUCT_CATEGORIES_STATUS = ['active', 'disabled', 'archived'];
-export const PRODUCT_CATEGORIES_STATUS_FILTER = {
-  disabled: 'Disabled',
-  archived: 'Archived',
-  deleted: 'Deleted',
-};
-
-export const CONFIGS_KEY_LABELS = {
-  isRequireUOM: 'is required UOM',
-};
+export const AccountingsSubMenus = [
+  { title: `${__('Transactions')}`, link: '/accountings/ptrs' },
+  { title: `${__('Adjusting')}`, link: '/accountings/adjusting' },
+];
 
 export const ACCOUNT_KINDS = [
   { label: 'ACTIVE', value: 'active' },
@@ -97,7 +87,7 @@ export const JOURNALS = {
   CTAX: 'ctax',
   INV_FB: 'inv_fb',
   INV_INCOME: 'invIncome',
-  INV_OUT: 'inv_out',
+  INV_OUT: 'invOut',
   INV_MOVE: 'inv_move',
   INV_ADJUST: 'inv_adjust',
   INV_CONVERT: 'inv_convert',
@@ -107,7 +97,7 @@ export const JOURNALS = {
   INV_SALE_RETURN: 'inv_sale_return',
   ALL: [
     'main', 'cash', 'bank', 'receivable', 'payable',
-    'inv_fb', 'invIncome', 'inv_out', 'inv_move', 'inv_adjust', 'inv_convert',
+    'inv_fb', 'invIncome', 'invOut', 'inv_move', 'inv_adjust', 'inv_convert',
     'inv_sale', 'inv_cost',
     'inv_in_return', 'inv_sale_return',
     'expense', 'vat', 'ctax',

@@ -97,6 +97,8 @@ export interface ITransaction {
   ctaxAmount?: number;
   ctaxRow?: ICtaxRow;
 
+  extraData?: any;
+
   sumDt: number;
   sumCt: number;
   permission?: string;

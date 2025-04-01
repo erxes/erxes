@@ -8,6 +8,7 @@ import TrFormPayable from '../components/forms/TrFormPayable';
 import TrFormReceivable from '../components/forms/TrFormReceivable';
 import { getTempId } from "./utils";
 import TrFormInvIncome from "../components/forms/TrFormInvIncome";
+import TrFormInvOut from "../components/forms/TrFormInvOut";
 
 export const commonData = (journal, date?, side?): ITransaction => {
   return {
@@ -120,6 +121,16 @@ export const journalConfigMaps: {
     defaultData: (date, diff) => {
       const data = { ...commonData('invIncome', date, 'dt') };
       data.details[0].side = TR_SIDES.DEBIT;
+      return data;
+    },
+    generateDoc: () => { },
+  },
+  'invOut': {
+    component: TrFormInvOut,
+    title: '',
+    defaultData: (date, diff) => {
+      const data = { ...commonData('invOut', date, 'ct') };
+      data.details[0].side = TR_SIDES.CREDIT;
       return data;
     },
     generateDoc: () => { },
