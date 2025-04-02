@@ -1,18 +1,28 @@
-import { generateModels } from "./connectionResolver";
-import { sendMessage } from "@erxes/api-utils/src/core";
 import type {
+  MessageArgs,
   MessageArgsOmitService,
-  MessageArgs
 } from "@erxes/api-utils/src/core";
+import { sendMessage } from "@erxes/api-utils/src/core";
+import { consumeRPCQueue } from "@erxes/api-utils/src/messageBroker";
+import { generateModels } from "./connectionResolver";
 
-export const setupMessageConsumers = async () => {};
+export const setupMessageConsumers = async () => {
+  consumeRPCQueue("cars:cars.find", async ({ subdomain, data: { query } }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: "success",
+      data: await models.Cars.find(query).lean(),
+    };
+  });
+};
 
 export const sendInboxMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: "inbox",
-    ...args
+    ...args,
   });
 };
 
@@ -21,7 +31,7 @@ export const sendCoreMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "core",
-    ...args
+    ...args,
   });
 };
 
@@ -30,13 +40,13 @@ export const sendInternalNotesMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "internalnotes",
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    ...args
+    ...args,
   });
 };
 
@@ -50,5 +60,5 @@ export const fetchSegment = (
     subdomain,
     action: "fetchSegment",
     data: { segmentId, options, segmentData },
-    isRPC: true
+    isRPC: true,
   });

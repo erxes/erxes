@@ -211,6 +211,8 @@ export default {
 
         return (
           {
+            header: integrationDetails.header || '',
+            description: integrationDetails.description || '',
             departments: integrationDetails.departments,
             isReceiveWebCall,
           } || {}
