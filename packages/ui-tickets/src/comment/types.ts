@@ -110,6 +110,19 @@ export type IClientPortalComment = {
   type: string;
 };
 
+export type IWidgetsComment = {
+    _id:string;
+    createdAt:string;
+    content:string;
+    createdCustomer:{
+      avatar:string,
+      fullName:string,
+      _id:string;
+      firstName:string;
+      lastName:string;
+    }
+};
+
 export type ClientPortalCommentQueryResponse = {
   clientPortalComments: IClientPortalComment[];
 } & QueryResponse;

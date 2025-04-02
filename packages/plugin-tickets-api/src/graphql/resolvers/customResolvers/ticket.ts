@@ -9,26 +9,28 @@ import { boardId } from '../../utils';
 
 export default {
   async comments({ comments }, {}, { subdomain }: IContext) {
-    if (!Array.isArray(comments)) return [];
+  if (!Array.isArray(comments)) return [];
+  const plainComments = comments.map((comment) =>
+    comment.toObject ? comment.toObject() : comment
+  );
+  const uniqueUserIds = [...new Set(plainComments.map(comment => comment.userId))];
 
-    const plainComments = comments.map((comment) =>
-      comment.toObject ? comment.toObject() : comment,
-    );
+  const customers = await sendCoreMessage({
+    subdomain,
+    action: 'customers.find',
+    data: { _id: { $in: uniqueUserIds } },  
+    isRPC: true,
+    defaultValue: [],
+  });
 
-    for (let comment of plainComments) {
-      if (!comment || !comment.userId) continue;
-      const customer = await sendCoreMessage({
-        subdomain,
-        action: 'customers.findOne',
-        data: { _id: comment.userId },
-        isRPC: true,
-        defaultValue: {},
-      });
-      comment.createdCustomer = customer || null;
-    }
+  const customerMap = new Map(customers.map(customer => [customer._id, customer]));
 
-    return plainComments;
-  },
+  for (let comment of plainComments) {
+    if (!comment || !comment.userId) continue;
+    comment.createdCustomer = customerMap.get(comment.userId) || null;
+  }
+  return plainComments;
+},
 
   async __resolveReference({ _id }, { models }: IContext) {
     return models.Tickets.findOne({ _id });
@@ -198,7 +200,6 @@ export default {
   },
 
   createdUser(ticket: ITicketDocument) {
-    console.log('hahahahhs');
     if (!ticket.userId) {
       return;
     }

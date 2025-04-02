@@ -15,6 +15,7 @@ export const types = `
   ${attachmentType}
   ${attachmentInput}
   type Comment { 
+    _id :String
     content: String
     userId: String
     createdAt: Date

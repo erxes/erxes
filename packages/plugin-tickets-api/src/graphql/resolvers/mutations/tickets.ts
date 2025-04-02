@@ -34,14 +34,6 @@ const ticketMutations = {
       user
     );
   },
-  async ticketCommentAdd(
-    _root,
-    { number, content, }: { number: string; content: string },
-    { user, models, subdomain }: IContext
-  ) {
-    return models.Tickets.createTicketComment(number, content,user);
-  },
-
   /**
    * Edit ticket
    */
@@ -212,7 +204,14 @@ const ticketMutations = {
     } else {
       throw new Error("No user found.");
     }
-  }
+  },
+   async ticketCommentAdd(
+    _root,
+    { number, content, }: { number: string; content: string },
+    { user, models, subdomain }: IContext
+  ) {
+    return models.Tickets.createTicketComment(number, content,user);
+  },
 };
 
 checkPermission(ticketMutations, "ticketsAdd", "ticketsAdd");
