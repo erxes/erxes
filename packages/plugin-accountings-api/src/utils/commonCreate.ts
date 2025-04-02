@@ -59,6 +59,13 @@ export const commonCreate = async (subdomain: string, models: IModels, doc: ITra
       }
       break;
     }
+    case 'invOut': {
+      const transaction =
+        await models.Transactions.createTransaction({ ...doc });
+
+      mainTr = transaction;
+      break;
+    }
 
   }
 
