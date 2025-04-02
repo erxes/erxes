@@ -48,13 +48,11 @@ export const adSync = async (subdomain, params) => {
       return { success: false, error: 'User not found' };
     }
 
-    const userDN = searchEntries[0].distinguishedName as string;
     const userPrincipal = searchEntries[0].userPrincipalName as string;
-    console.log(`Found User DN: ${userDN}`);
     console.log(`Found User Principal: ${userPrincipal}`);
 
-    if (userDN) {
-      const loginIdentifier = config?.useDN ? userDN : userPrincipal;
+    if (userPrincipal) {
+      const loginIdentifier = userPrincipal;
 
       await client.bind(loginIdentifier, params.password);
 

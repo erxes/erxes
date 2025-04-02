@@ -98,7 +98,6 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
               type: 'input',
               validation: 'number',
               contentType: `core:${doc.ownerType}`,
-              isDefinedByErxes: true,
               isDisabled: true,
             },
             defaultValue: null,
@@ -143,14 +142,14 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       const modifiedFieldData: any = {};
 
       if (doc.fieldGroupId !== scoreCampaign.fieldGroupId) {
-        modifiedFieldData.groupId = scoreCampaign.fieldGroupId;
+        modifiedFieldData.groupId = doc.fieldGroupId;
       }
 
       if (
         doc.fieldName !== scoreCampaign.fieldName &&
-        doc.fieldId !== scoreCampaign.fieldId
+        doc.fieldId === scoreCampaign.fieldId
       ) {
-        modifiedFieldData.text = scoreCampaign.fieldName;
+        modifiedFieldData.text = doc.fieldName;
       }
 
       if (Object.keys(modifiedFieldData).length > 0) {
