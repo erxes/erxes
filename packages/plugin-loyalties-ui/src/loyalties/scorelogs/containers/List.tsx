@@ -4,9 +4,12 @@ import { gql, useQuery } from '@apollo/client';
 import React from 'react';
 import ScoreLogsListComponent from '../components/List';
 import { queries } from '../graphql';
+import { withCurrentUser } from '@erxes/ui/src';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   queryParams: any;
+  currentUser: IUser
 };
 
 const generateParams = ({ queryParams }: { queryParams: any }) => ({
@@ -48,4 +51,4 @@ const ScoreLogsListContainer = (props: Props) => {
   return <ScoreLogsListComponent {...updatedProps} />;
 };
 
-export default ScoreLogsListContainer;
+export default withCurrentUser(ScoreLogsListContainer);

@@ -1,6 +1,5 @@
 const commonFields = `
   $apiUrl: String
-  $useDN: Boolean
   $baseDN: String
   $adminDN: String
   $adminPassword: String
@@ -9,7 +8,6 @@ const commonFields = `
 
 const commonVariables = `
   apiUrl: $apiUrl
-  useDN: $useDN
   baseDN: $baseDN
   adminDN: $adminDN
   adminPassword: $adminPassword

@@ -85,7 +85,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       } = doc;
       const filter = generateFilter(doc);
 
-      const list = await models.ScoreLogs.aggregate([
+      const aggregation = [
         {
           $match: { ...(filter || {}) },
         },
@@ -109,15 +109,21 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
             scoreLogs: 1,
           },
         },
-        {
-          $skip: (page - 1) * perPage,
-        },
-        {
-          $limit: perPage,
-        },
+      ];
+    
+      const totalResult = await models.ScoreLogs.aggregate([
+        ...aggregation,
+        { $count: 'total' },
       ]);
-
-      const total = await models.ScoreLogs.find(filter).countDocuments();
+    
+      const total = totalResult.length > 0 ? totalResult[0].total : 0;
+    
+      const list = await models.ScoreLogs.aggregate([
+        ...aggregation,
+        { $skip: (page - 1) * perPage },
+        { $limit: perPage },
+      ]);
+    
       return { list, total };
     }
 

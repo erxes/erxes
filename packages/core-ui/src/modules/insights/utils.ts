@@ -1,5 +1,4 @@
-import _ from 'lodash';
-import { DEFAULT_GRID_DIMENSIONS } from './constants';
+import { DEFAULT_GRID_DIMENSIONS } from "./constants";
 
 export const deserializeItem = (i) => {
   return {
@@ -53,7 +52,7 @@ export const filterChartTemplates = (chartTemplates, reportTemplates, item) => {
     if (item && item.charts && item.charts.length) {
       const service = getService(item.charts[0], reportTemplates);
 
-      serviceType = service?.serviceType || '';
+      serviceType = service?.serviceType || "";
     }
   }
 
@@ -62,39 +61,38 @@ export const filterChartTemplates = (chartTemplates, reportTemplates, item) => {
     .flatMap((template) => template.charts);
 
   const filteredChartTemplates = chartTemplates.filter((template) =>
-    reportChartTypes.includes(template.templateType),
+    reportChartTypes.includes(template.templateType)
   );
 
   return filteredChartTemplates;
 };
 
 export const getValue = (obj, path) => {
-  const keys = path?.split('.');
+  const keys = path?.split(".");
 
   if (!keys) {
-    return {}
+    return {};
   }
 
   return keys.reduce(
-    (acc, key) => (acc && acc[key] !== 'undefined' ? acc[key] : undefined),
-    obj,
+    (acc, key) => (acc && acc[key] !== "undefined" ? acc[key] : undefined),
+    obj
   );
 };
 
 export const extractData = (data: any) => {
-
-  if ((data || {}).hasOwnProperty('list')) {
-    return (data as any || {}).list || []
+  if ((data || {}).hasOwnProperty("list")) {
+    return ((data as any) || {}).list || [];
   }
 
-  return data
-}
+  return data;
+};
 
 export const generateOptions = (data, parentData, filterType) => {
+  const { fieldValueVariable, fieldLabelVariable, fieldParentVariable } =
+    filterType;
 
-  const { fieldValueVariable, fieldLabelVariable, fieldParentVariable } = filterType
-
-  const extractedData = extractData(data)
+  const extractedData = extractData(data);
 
   const options = (extractedData || []).map((item) => ({
     value: getValue(item, fieldValueVariable),
@@ -102,13 +100,12 @@ export const generateOptions = (data, parentData, filterType) => {
     ...(fieldParentVariable && {
       parent: getValue(item, fieldParentVariable),
     }),
-  }))
+  }));
 
-  if (fieldParentVariable === 'contentType' && options?.length) {
+  if (fieldParentVariable === "contentType" && options?.length) {
     const groupedOptions = Object.entries(
       options.reduce((acc, { label, value, parent }) => {
-
-        const contentType = parent.split(':').pop();
+        const contentType = parent.split(":").pop();
         if (!acc[contentType]) {
           acc[contentType] = [];
         }
@@ -119,15 +116,17 @@ export const generateOptions = (data, parentData, filterType) => {
       }, {})
     ).map(([label, options]) => ({ label, options }));
 
-    return groupedOptions
+    return groupedOptions;
   }
 
   if (fieldParentVariable && parentData?.length && options?.length) {
-    const groupedOptions = (parentData || []).map(parent => {
-      const children = (options || []).filter(option => option.parent === parent._id).map(option => ({
-        value: option.value,
-        label: option.label,
-      }));
+    const groupedOptions = (parentData || []).map((parent) => {
+      const children = (options || [])
+        .filter((option) => option.parent === parent._id)
+        .map((option) => ({
+          value: option.value,
+          label: option.label,
+        }));
 
       return {
         label: parent.name,
@@ -135,39 +134,39 @@ export const generateOptions = (data, parentData, filterType) => {
       };
     });
 
-    return groupedOptions
+    return groupedOptions;
   }
 
-  return options
-}
+  return options;
+};
 
 export const generateSubOptions = (data, fieldValues, filterType) => {
   const { fieldName, fieldLabelVariable, fieldExtraVariables } = filterType;
 
   if (!fieldExtraVariables?.length) return [];
 
-  const filteredData = (data || []).filter(item =>
+  const filteredData = (data || []).filter((item) =>
     (fieldValues[fieldName] || []).includes(item._id)
   );
 
-  return filteredData.map(item => ({
+  return filteredData.map((item) => ({
     label: item[fieldLabelVariable],
-    options: item.options.map(optionValue => ({
+    options: item.options.map((optionValue) => ({
       label: optionValue,
-      value: optionValue
-    }))
+      value: optionValue,
+    })),
   }));
 };
 
 export const getVariables = (fieldValues, filterType) => {
-
-  const { logics, fieldQueryVariables } = filterType
+  const { logics, fieldQueryVariables } = filterType;
 
   const logicFieldVariables = {};
 
   if (logics) {
     for (const logic of logics) {
-      const { logicFieldName, logicFieldVariable, logicFieldExtraVariable } = logic;
+      const { logicFieldName, logicFieldVariable, logicFieldExtraVariable } =
+        logic;
 
       if (logicFieldExtraVariable) {
         Object.assign(logicFieldVariables, JSON.parse(logicFieldExtraVariable));
@@ -183,11 +182,11 @@ export const getVariables = (fieldValues, filterType) => {
   }
 
   if (Object.values(logicFieldVariables).length) {
-    return logicFieldVariables
+    return logicFieldVariables;
   }
 
-  return fieldQueryVariables ? JSON.parse(fieldQueryVariables) : {}
-}
+  return fieldQueryVariables ? JSON.parse(fieldQueryVariables) : {};
+};
 
 export const commarizeNumbers = (number: number) => {
   if (!number) {
@@ -196,14 +195,13 @@ export const commarizeNumbers = (number: number) => {
 
   let strNum = number.toString();
 
-  let parts = strNum.split('.');
+  let parts = strNum.split(".");
   let integerPart = parts[0];
-  let decimalPart = parts.length > 1 ? '.' + parts[1] : '';
+  let decimalPart = parts.length > 1 ? "." + parts[1] : "";
 
-  integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-
-  return (integerPart + decimalPart.substring(0, 3))
+  return integerPart + decimalPart.substring(0, 3);
 };
 
 export const abbrevateNumbers = (number) => {
@@ -211,30 +209,29 @@ export const abbrevateNumbers = (number) => {
     return number;
   }
   if (number >= 1e3 && number < 1e6) {
-    return +(number / 1e3).toFixed(1) + 'K';
+    return +(number / 1e3).toFixed(1) + "K";
   }
   if (number >= 1e6 && number < 1e9) {
-    return +(number / 1e6).toFixed(1) + 'M';
+    return +(number / 1e6).toFixed(1) + "M";
   }
   if (number >= 1e9 && number < 1e12) {
-    return +(number / 1e9).toFixed(1) + 'B';
+    return +(number / 1e9).toFixed(1) + "B";
   }
   if (number >= 1e12) {
-    return +(number / 1e12).toFixed(1) + 'T';
+    return +(number / 1e12).toFixed(1) + "T";
   }
 };
 
 export const formatNumbers = (value: number, type?: string, axis?: string) => {
-
   if (!value) {
-    return "-"
+    return "-";
   }
 
   if (type === "time") {
-    return formatMillisecond(value, axis)
+    return formatMillisecond(value, axis);
   }
 
-  if (type === 'commarize') {
+  if (type === "commarize") {
     return commarizeNumbers(value);
   }
 
@@ -250,7 +247,7 @@ export const formatMillisecond = (milliseconds, axis) => {
   const msPerMonth = 30.44 * msPerDay;
   const msPerYear = 365.25 * msPerDay;
 
-  if (axis === 'y') {
+  if (axis === "y") {
     if (milliseconds >= msPerYear) {
       return `${Math.floor(milliseconds / msPerYear)}Y`;
     } else if (milliseconds >= msPerMonth) {
@@ -270,7 +267,7 @@ export const formatMillisecond = (milliseconds, axis) => {
 
   let result: string[] = [];
 
-  if (axis === 'x') {
+  if (axis === "x") {
     if (milliseconds >= msPerYear) {
       const years = Math.floor(milliseconds / msPerYear);
       result.push(`Years : ${years} `);
@@ -313,7 +310,7 @@ export const formatMillisecond = (milliseconds, axis) => {
 
 export const generateParentOptionsFromQuery = (
   queryFieldOptions: any[],
-  parentData: any[] = [],
+  parentData: any[] = []
 ) => {
   return parentData.reduce((acc, data) => {
     const options = queryFieldOptions
@@ -329,7 +326,7 @@ export const generateParentOptionsFromQuery = (
 
 export const generateParentOptionsFromField = (queryFieldOptions: any[]) => {
   return queryFieldOptions.reduce((acc, option) => {
-    const contentType = option.parent.split(':').pop() || option.parent;
+    const contentType = option.parent.split(":").pop() || option.parent;
     const existingContentType = acc.find((item) => item.label === contentType);
 
     if (existingContentType) {
@@ -348,19 +345,17 @@ export const generateParentOptionsFromField = (queryFieldOptions: any[]) => {
 };
 
 export const compareValues = (a: any, b: any, operator: string) => {
-
   switch (operator) {
-    case 'eq':
+    case "eq":
       return a === b;
-    case 'ne':
+    case "ne":
       return a !== b;
     default:
       return a === b;
   }
-}
+};
 
 export const hexToRgba = (hex: string, alpha: number) => {
-
   const bigint = parseInt(hex.slice(1), 16);
   const r = (bigint >> 16) & 255;
   const g = (bigint >> 8) & 255;
@@ -370,21 +365,19 @@ export const hexToRgba = (hex: string, alpha: number) => {
 };
 
 export const rgbaToHex = (rgba: string) => {
-
-  if (typeof rgba !== 'string') return null
+  if (typeof rgba !== "string") return null;
 
   const rgbaValues = rgba.match(/\d+/g);
   if (!rgbaValues || rgbaValues.length < 3) return null;
 
-  const r = parseInt(rgbaValues[0]).toString(16).padStart(2, '0');
-  const g = parseInt(rgbaValues[1]).toString(16).padStart(2, '0');
-  const b = parseInt(rgbaValues[2]).toString(16).padStart(2, '0');
+  const r = parseInt(rgbaValues[0]).toString(16).padStart(2, "0");
+  const g = parseInt(rgbaValues[1]).toString(16).padStart(2, "0");
+  const b = parseInt(rgbaValues[2]).toString(16).padStart(2, "0");
 
   return `#${r}${g}${b}`;
 };
 
 export const generateInitialOptions = (options, selectedValues) => {
-
   if (selectedValues === null || selectedValues === undefined) {
     selectedValues = [];
   }
@@ -393,41 +386,44 @@ export const generateInitialOptions = (options, selectedValues) => {
     selectedValues = [selectedValues];
   }
 
-  const selectedValueArray = selectedValues.map(item => {
-    if (typeof item === 'string' || typeof item === 'boolean') {
-      return { value: item };
-    }
+  const selectedValueArray = selectedValues
+    .map((item) => {
+      if (typeof item === "string" || typeof item === "boolean") {
+        return { value: item };
+      }
 
-    if (typeof item === 'object') {
-      return {
-        value: item.value,
-        extraValues: { ...item }
-      };
-    }
-  }).filter(item => item);
+      if (typeof item === "object") {
+        return {
+          value: item.value,
+          extraValues: { ...item },
+        };
+      }
+    })
+    .filter((item) => item);
 
-  return selectedValueArray.map(selectedValue => {
-    let matchedOption;
+  return selectedValueArray
+    .map((selectedValue) => {
+      let matchedOption;
 
-    options.some(option => {
-      if (option.options && Array.isArray(option.options)) {
+      options.some((option) => {
+        if (option.options && Array.isArray(option.options)) {
+          const nestedMatch = option.options.find(
+            (o) => o.value === selectedValue.value
+          );
 
-        const nestedMatch = option.options.find(o => o.value === selectedValue.value);
-
-        if (nestedMatch) {
-
-          matchedOption = { ...nestedMatch, ...selectedValue.extraValues };
+          if (nestedMatch) {
+            matchedOption = { ...nestedMatch, ...selectedValue.extraValues };
+            return true;
+          }
+        } else if (option.value === selectedValue.value) {
+          matchedOption = { ...option, ...selectedValue.extraValues };
           return true;
         }
+      });
 
-      } else if (option.value === selectedValue.value) {
-        matchedOption = { ...option, ...selectedValue.extraValues };
-        return true;
-      }
-    });
-
-    return matchedOption;
-  }).filter(item => item);
+      return matchedOption;
+    })
+    .filter((item) => item);
 };
 
 export const arrayMove = (array: any[], from: number, to: number) => {
@@ -438,16 +434,25 @@ export const arrayMove = (array: any[], from: number, to: number) => {
     slicedArray.splice(from, 1)[0]
   );
   return slicedArray;
-}
+};
 
-export const generateQuery = (fieldName, config, fieldValues?) => {
-  const { fieldQueryVariables, fieldValueVariable, fieldParentVariable, fieldLabelVariable, fieldInitialVariable, fieldRequiredQueryParams, fieldExtraVariables = [], logics } = config;
+export const generateQuery = ({ fieldName, config, fieldValues }: any) => {
+  const {
+    fieldQueryVariables,
+    fieldValueVariable,
+    fieldParentVariable,
+    fieldLabelVariable,
+    fieldInitialVariable,
+    fieldRequiredQueryParams,
+    fieldExtraVariables = [],
+    logics,
+  } = config;
 
   if (!fieldName || !fieldValueVariable || !fieldLabelVariable) {
-    return ''
+    return "";
   }
 
-  const variableDefinitions = JSON.parse(fieldQueryVariables || '{}');
+  const variableDefinitions = JSON.parse(fieldQueryVariables || "{}");
 
   if (logics && fieldValues) {
     for (const logic of logics) {
@@ -463,40 +468,48 @@ export const generateQuery = (fieldName, config, fieldValues?) => {
     }
   }
 
-  const params = Object.entries(variableDefinitions).map(([key, value]) => {
-    let graphqlType: string = typeof value;
+  const params = Object.entries(variableDefinitions)
+    .map(([key, value]) => {
+      let graphqlType: string = typeof value;
 
-    if (graphqlType === 'number') {
-      graphqlType = 'int'
-    }
+      if (graphqlType === "number") {
+        graphqlType = "int";
+      }
 
-    if (Array.isArray(value)) {
-      graphqlType = '[String]'
-    }
+      if (Array.isArray(value)) {
+        graphqlType = "[String]";
+      }
 
-    const isRequired = (fieldRequiredQueryParams || []).includes(key)
+      const isRequired = (fieldRequiredQueryParams || []).includes(key);
 
-    return `$${key}: ${String(graphqlType).charAt(0).toUpperCase() + String(graphqlType).slice(1)} ${isRequired && fieldValues ? '!' : ''}`;
-  }).join(', ');
+      return `$${key}: ${String(graphqlType).charAt(0).toUpperCase() + String(graphqlType).slice(1)} ${isRequired && fieldValues ? "!" : ""}`;
+    })
+    .join(", ");
 
-  const paramDeps = Object.entries(variableDefinitions).map(([key]) => {
-    return `${key}: $${key}`
-  }).join(',')
+  const paramDeps = Object.entries(variableDefinitions)
+    .map(([key]) => {
+      return `${key}: $${key}`;
+    })
+    .join(",");
 
-  const fields = fieldValues ? [
-    fieldValueVariable,
-    fieldLabelVariable,
-    fieldParentVariable,
-    ...fieldExtraVariables
-  ].filter(Boolean).join(' ') : '_id name';
+  const fields = fieldValues
+    ? [
+        fieldValueVariable,
+        fieldLabelVariable,
+        fieldParentVariable,
+        ...fieldExtraVariables,
+      ]
+        .filter(Boolean)
+        .join(" ")
+    : "_id name";
 
   const variableSection = fieldInitialVariable
     ? `${fieldInitialVariable} { ${fields} }`
     : fields;
 
   return `
-    query ${fieldName} ${params ? '(' + params + ')' : ''} {
-      ${fieldName} ${paramDeps ? '(' + paramDeps + ')' : ''} {
+    query ${fieldName} ${params ? "(" + params + ")" : ""} {
+      ${fieldName} ${paramDeps ? "(" + paramDeps + ")" : ""} {
         ${variableSection}
       }
     }
