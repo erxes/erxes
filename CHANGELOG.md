@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.0-rc.0](https://github.com/erxes/erxes/compare/2.9.0...2.10.0-rc.0) (2025-04-02)
+
+### Bug Fixes
+
+* accountings invIncome save and t balance improve ([3ee3131](https://github.com/erxes/erxes/commit/3ee3131708798147cba9319a8b7cf8469c99a05a))
+* deal products form filter by barcode ([2331133](https://github.com/erxes/erxes/commit/23311334115c73127db4e7510d9b583cd62f9527))
+
 ## [2.9.0](https://github.com/erxes/erxes/compare/2.8.3...2.9.0) (2025-04-02)
 
 ### Features
