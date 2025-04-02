@@ -115,8 +115,8 @@ const Row: React.FC<Props> = (props) => {
         <td>{number}</td>
         <td>{dayjs(date).format("YYYY-MM-DD")}</td>
         <td>{description}</td>
-        <td>{sumDt.toLocaleString()}</td>
-        <td>{sumCt.toLocaleString()}</td>
+        <td style={{textAlign: 'right'}}>{sumDt.toLocaleString()}</td>
+        <td style={{textAlign: 'right'}}>{sumCt.toLocaleString()}</td>
         <td>{branch?.title}</td>
         <td>{department?.title}</td>
         <td>{journal}</td>

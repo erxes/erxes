@@ -241,7 +241,7 @@ const readConversationMessages = `
   }
 `;
 
-const connect = (isCloudFlareEnabled?: boolean) => `
+const connect = (isCloudFlareEnabled?: boolean, isTicketEnabled?: boolean) => `
   mutation connect($brandCode: String!, $email: String, $phone: String, $code: String
     $isUser: Boolean, $data: JSON,
     $companyData: JSON, $cachedCustomerId: String $visitorId: String) {
@@ -254,18 +254,26 @@ const connect = (isCloudFlareEnabled?: boolean) => `
       ${
         isCloudFlareEnabled
           ? `
-      callData {
-        header
-        description
-        departments {
-          _id
-          name
-          operators
-        }
-        isReceiveWebCall
-      },
-    `
+        callData {
+          header
+          description
+          departments {
+            _id
+            name
+            operators
+          }
+          isReceiveWebCall
+        },
+      `
           : ''
+      }
+      
+      ${
+        isTicketEnabled
+          ? `
+        ticketData
+      `
+          : ``
       }
       languageCode,
       uiOptions,

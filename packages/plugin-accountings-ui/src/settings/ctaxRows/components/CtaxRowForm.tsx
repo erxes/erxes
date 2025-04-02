@@ -128,7 +128,7 @@ function VatRowForm(props: IProps): React.ReactNode {
                 name="kind"
                 value={kind || 'normal'}
                 options={[
-                  { value: '', label: 'normal' },
+                  { value: 'normal', label: 'normal' },
                   { value: 'formula', label: 'formula' },
                   { value: 'title', label: 'title' },
                   { value: 'hidden', label: 'hidden' },

@@ -84,9 +84,24 @@ export interface IMessengerData {
   showVideoCallRequest?: boolean;
   isReceiveWebCall?: boolean;
 }
+export interface ITicketData {
+  ticketLabel?: String;
+  ticketToggle?: Boolean;
+  ticketStageId?: String;
+  ticketPipelineId?: String;
+  ticketBoardId?: String;
+}
 
 export interface IMessengerDataDocument extends IMessengerData, Document {}
+// export interface ITicketDataDocument extends ITicketData, Document {}
 
+export interface ITicketDataDocument extends Document {
+  ticketLabel?: String;
+  ticketToggle?: Boolean;
+  ticketStageId?: String;
+  ticketPipelineId?: String;
+  ticketBoardId?: String;
+}
 export interface ICallout extends Document {
   title?: string;
   body?: string;
@@ -160,6 +175,7 @@ export interface IIntegration {
   formId?: string;
   leadData?: ILeadData;
   messengerData?: IMessengerData;
+  ticketData?: ITicketData;
   uiOptions?: IUiOptions;
   isActive?: boolean;
   isConnected?: boolean;
@@ -179,6 +195,7 @@ export interface IIntegrationDocument extends IIntegration, Document {
   formData?: ILeadData;
   leadData?: ILeadDataDocument;
   messengerData?: IMessengerDataDocument;
+  ticketData?: ITicketDataDocument;
   webhookData?: IWebhookData;
   uiOptions?: IUiOptionsDocument;
 }
@@ -210,7 +227,11 @@ const messengerDataSchema = new Schema(
     getStarted: field({ type: Boolean }),
     botCheck: field({ type: Boolean }),
     botGreetMessage: field({ type: String }),
-    persistentMenus: field({ type: [persistentMenuSchema] }), // Corrected to an array
+    persistentMenus: field({ type: [persistentMenuSchema] }),
+    ticketLabel: field({ type: String, optional: true }),
+    ticketStageId: field({ type: String }),
+    ticketPipelineId: field({ type: String }),
+    ticketBoardId: field({ type: String }),
     supporterIds: field({ type: [String] }),
     notifyCustomer: field({ type: Boolean }),
     availabilityMethod: field({
@@ -270,6 +291,17 @@ export const calloutSchema = new Schema(
     skip: field({ type: Boolean, optional: true, label: 'Skip' }),
   },
   { _id: false },
+);
+
+const ticketSchema = new Schema(
+  {
+    ticketLabel: { type: String, required: true },
+    ticketToggle: { type: Boolean, required: true },
+    ticketStageId: { type: String, required: true },
+    ticketPipelineId: { type: String, required: true },
+    ticketBoardId: { type: String, required: true }
+  },
+  { _id: false }
 );
 
 // TODO: remove
@@ -459,7 +491,10 @@ export const integrationSchema = schemaHooksWrapper(
     // TODO: remove
     formData: field({ type: leadDataSchema }),
     messengerData: field({ type: messengerDataSchema }),
-    uiOptions: field({ type: uiOptionsSchema }),
+
+    ticketData: field({ type: ticketSchema }),
+    uiOptions: field({ type: uiOptionsSchema })
+
   }),
   'erxes_integrations',
 );

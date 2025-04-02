@@ -51,8 +51,8 @@ const TaxFields = (props: Props) => {
   const vatFollowData = (trDoc.follows || []).find(f => f.type === 'vat');
   const ctaxFollowData = (trDoc.follows || []).find(f => f.type === 'ctax');
 
-  const sumVatAmount = trDoc?.details.filter(d => !d.excludeVat).reduce((sum, cur) => sum + (cur?.amount || 0), 0);
-  const sumCtaxAmount = trDoc?.details.filter(d => !d.excludeCtax).reduce((sum, cur) => sum + (cur?.amount || 0), 0);
+  const sumVatAmount = trDoc?.details.filter(d => !d.excludeVat).reduce((sum, cur) => sum + Number(cur?.amount || 0), 0);
+  const sumCtaxAmount = trDoc?.details.filter(d => !d.excludeCtax).reduce((sum, cur) => sum + Number(cur?.amount || 0), 0);
 
   const onVatRowChange = (vatRowId: string, obj?: IVatRow) => {
     setTrDoc({
@@ -108,7 +108,7 @@ const TaxFields = (props: Props) => {
       sumCt,
     };
 
-  }, [trDoc.hasVat, trDoc.afterVat, trDoc.vatAmount, trDoc.hasCtax, trDoc.ctaxAmount, (trDoc.details || [])[0]?.side]);
+  }, [trDoc.hasVat, trDoc.afterVat, trDoc.vatAmount, trDoc.hasCtax, trDoc.ctaxAmount, side]);
 
   const ctaxFollowTrDoc = useMemo(() => {
     if (!trDoc.hasCtax) {
@@ -142,7 +142,7 @@ const TaxFields = (props: Props) => {
       sumDt,
       sumCt,
     };
-  }, [trDoc.hasCtax, trDoc.ctaxAmount, trDoc.hasVat, trDoc.vatAmount, (trDoc.details || [])[0]?.side]);
+  }, [trDoc.hasCtax, trDoc.ctaxAmount, trDoc.hasVat, trDoc.vatAmount, side]);
 
   const getFollowTrDocs = () => {
     const vatCalced = checkFollowDocs(vatFollowTrDoc, 'vat', vatFollowData, followTrDocs, trDoc.follows);
@@ -160,7 +160,7 @@ const TaxFields = (props: Props) => {
       ftrDocs
     );
 
-  }, [trDoc.hasVat, trDoc.vatAmount, trDoc.hasCtax, trDoc.ctaxAmount, (trDoc.details || [])[0]?.side]);
+  }, [trDoc.hasVat, trDoc.vatAmount, trDoc.hasCtax, trDoc.ctaxAmount, side]);
 
   const setTrDocWrapper = (paramsTrDoc) => {
     setTrDoc({ ...trDoc, ...paramsTrDoc }, followTrDocs);

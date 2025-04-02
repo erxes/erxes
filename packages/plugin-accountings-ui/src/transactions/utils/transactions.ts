@@ -4,5 +4,6 @@ export const TRS = {
   payable: { value: "Өглөг" },
   main: { value: "Ерөнхий журнал" },
   bank: { value: "Харилцах" },
-  inv_income: { value: "БМ орлого" },
+  invIncome: { value: "БМ орлого" },
+  invOut: { value: "БМ зарлага" },
 };

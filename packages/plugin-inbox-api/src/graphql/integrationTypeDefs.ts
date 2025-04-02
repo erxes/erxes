@@ -33,11 +33,11 @@ export const types = `
     formId: String
     tagIds: [String]
     createdAt: Date
-
     tags: [Tag]
   
     leadData: JSON
     messengerData: JSON
+    ticketData :JSON
     uiOptions: JSON
     isActive: Boolean
     isConnected: Boolean
@@ -97,6 +97,14 @@ export const types = `
 
   input IntegrationExternalLinks {
     url: String
+  }
+  
+   input TicketData {
+      ticketLabel: String
+      ticketToggle: Boolean
+      ticketStageId: String
+      ticketPipelineId: String
+      ticketBoardId: String
   }
 
   input IntegrationMessengerData {
@@ -221,6 +229,10 @@ export const mutations = `
     callData: IntegrationCallData
     ): Integration
 
+  integrationsSaveMessengerTicketData(
+    _id: String!,
+    ticketData: TicketData): Integration
+    
   integrationsCreateExternalIntegration(
     kind: String!,
     name: String!,
