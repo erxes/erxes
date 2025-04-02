@@ -25,6 +25,8 @@ const fields = `
     fieldGroupId
     fieldName
     fieldId
+    serviceName
+    additionalConfig
 `;
 
 const scoreCampaigns = `
@@ -37,5 +39,5 @@ const scoreCampaigns = `
 `;
 
 export default {
-  scoreCampaigns
+  scoreCampaigns,
 };
