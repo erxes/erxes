@@ -445,6 +445,7 @@ export const itemsEdit = async (
       },
     });
   }
+  await doScoreCampaign(subdomain, models, _id, updatedItem);
 
   if (oldItem.stageId === updatedItem.stageId) {
     return updatedItem;
@@ -935,15 +936,12 @@ export const doScoreCampaign = async (
             isRPC: true,
           });
 
-          console.log({ scoreCampaign });
-
           if (scoreCampaign) {
             const { additionalConfig = [] } = scoreCampaign || {};
 
             const stageIds = additionalConfig.flatMap(
               ({ stageIds }) => stageIds
             );
-            console.log({ stageId: doc.stageId, stageIds, additionalConfig });
 
             if (stageIds.includes(doc.stageId)) {
               await sendLoyaltiesMessage({

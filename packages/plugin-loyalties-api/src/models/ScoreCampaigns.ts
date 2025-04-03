@@ -212,7 +212,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
     }
 
     public static async checkScoreAviableSubtract(data) {
-      const { ownerType, ownerId, campaignId, target } = data;
+      const { ownerType, ownerId, campaignId, target, targetId } = data;
 
       if (!ownerType || !ownerId) {
         throw new Error("You must provide a owner");
@@ -268,7 +268,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      const changeScore = (eval(placeholder) || 0) * Number(currencyRatio) || 0;
+      let changeScore = (eval(placeholder) || 0) * Number(currencyRatio) || 0;
 
       const { score = 0, customFieldsData = [] } = owner || {};
 
@@ -279,6 +279,16 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
           customFieldsData.find(({ field }) => field === campaign.fieldId)
             ?.value || 0;
         oldScore = fieldScore;
+        const scoreLog = await models.ScoreLogs.findOne({
+          ownerId,
+          ownerType,
+          targetId,
+          action: "subtract",
+        });
+
+        if (scoreLog) {
+          changeScore = changeScore - scoreLog?.changeScore;
+        }
       }
 
       const newScore = oldScore - changeScore;

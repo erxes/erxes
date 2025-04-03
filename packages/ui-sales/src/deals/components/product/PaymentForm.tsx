@@ -94,10 +94,10 @@ const OwnerScoreCampaignScore = ({
     confirm(
       "This action will refund all loyalty scores used on this card and deduct any retrieved scores before processing the refund.\n Are you sure ?"
     ).then(() => {
-      try {
-        refundLoyaltyScore().catch((error) => Alert.error(error.message));
-        refetch();
-      } catch (error) {}
+      refundLoyaltyScore()
+        .then(() => Alert.info("Loyalty Score refunded successfully"))
+        .catch((error) => Alert.error(error.message));
+      refetch();
     });
   };
   return (

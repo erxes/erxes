@@ -97,8 +97,6 @@ const dealMutations = {
       }
     }
 
-    await doScoreCampaign(subdomain, models, _id, doc);
-
     return itemsEdit(
       models,
       subdomain,
