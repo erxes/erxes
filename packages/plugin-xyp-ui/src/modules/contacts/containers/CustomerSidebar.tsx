@@ -1,18 +1,21 @@
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import Alert from "@erxes/ui/src/utils/Alert";
-import React from "react";
-import CustomerSidebar from "../components/CustomerSidebar";
 import { mutations, queries } from "../graphql";
+
+import Alert from "@erxes/ui/src/utils/Alert";
+import CustomerSidebar from "../components/CustomerSidebar";
 import { IOperation } from "../types";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
 
 type Props = {
   id: string;
   mainType: string;
+  showType?: string;
 };
 
 const getContentType = (mainType) => {
   if (mainType === "customer") return "core:customer";
+  if (mainType === "deal") return "sales:deal";
   if (mainType.includes(":")) return mainType;
   return `default:${mainType}`;
 };
@@ -22,21 +25,21 @@ const CustomerSidebarContainer = (props: Props) => {
   const xypDatasQuery = useQuery(gql(queries.xypDataByObject), {
     variables: {
       contentTypeId: props.id,
-      contentType
+      contentType,
     },
-    fetchPolicy: "network-only"
+    fetchPolicy: "network-only",
   });
 
   const xypDatas = xypDatasQuery.data?.xypDataByObject || [];
 
   const serviceChoosen = useQuery(gql(queries.serviceChoosen), {
-    fetchPolicy: "network-only"
+    fetchPolicy: "network-only",
   });
 
   const xypServiceList = useQuery(gql(queries.xypServiceList), {});
 
   const [xypRequest] = useLazyQuery(gql(queries.xypRequest), {
-    fetchPolicy: "network-only"
+    fetchPolicy: "network-only",
   });
 
   const [add] = useMutation(gql(mutations.add));
@@ -45,16 +48,16 @@ const CustomerSidebarContainer = (props: Props) => {
     xypRequest({
       variables: {
         wsOperationName: operation.wsOperationName,
-        params
-      }
+        params,
+      },
     }).then(({ data }) => {
       if (data?.xypRequest?.return?.resultCode === 0) {
         const xypData = [
           {
             serviceName: operation.wsOperationName,
             serviceDescription: operation.wsOperationDetail,
-            data: data?.xypRequest?.return?.response
-          }
+            data: data?.xypRequest?.return?.response,
+          },
         ];
 
         add({
@@ -71,7 +74,6 @@ const CustomerSidebarContainer = (props: Props) => {
             Alert.error("error");
           }
         });
-
       } else {
         Alert.error(`${data?.xypRequest?.return?.resultMessage}`);
       }
@@ -90,6 +92,7 @@ const CustomerSidebarContainer = (props: Props) => {
     serviceChoosenLoading: serviceChoosen.loading,
     list: serviceChoosen?.data?.xypServiceListChoosen,
     fetchData,
+    showType: props.showType,
   };
 
   return <CustomerSidebar {...updatedProps} />;

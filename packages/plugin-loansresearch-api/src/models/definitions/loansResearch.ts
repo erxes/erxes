@@ -4,30 +4,49 @@ import { IAttachment } from '@erxes/api-utils/src/types';
 
 export interface IIncome {
   _id: string;
-  incomeType: String;
-  files: IAttachment;
+  incomeType: string;
+  totalSalaryIncome: number;
+  totalMonth: number;
+
+  businessLine: string;
+  businessDetails: string;
+  businessProfile: string;
+  businessIncome: number;
+  files: IAttachment[];
 }
 
 export interface ILoan {
   _id: string;
+  loanType: string;
+
+  loanName: string;
+  loanLocation: string;
   startDate: Date;
   closeDate: Date;
-  files: IAttachment;
+  loanAmount: number;
+
+  costName: string;
+  costAmount: number;
+  files: IAttachment[];
 }
 
 export interface ILoanResearch {
   dealId: string;
   customerType: string;
   customerId: string;
-  incomes: IIncome[];
-  loans: ILoan[];
-  totalMonth: number;
-  totalIncome: number;
-  monthlyIncome: number;
-  totalLoanAmount: number;
-  monthlyPaymentAmount: number;
   debtIncomeRatio: number;
   increaseMonthlyPaymentAmount: number;
+
+  averageSalaryIncome: number;
+  averageBusinessIncome: number;
+  totalIncome: number;
+  incomes: IIncome[];
+
+  monthlyCostAmount: number;
+  monthlyLoanAmount: number;
+  totalPaymentAmount: number;
+  loans: ILoan[];
+
   createdAt: Date;
   modifiedAt: Date;
 }
@@ -35,6 +54,18 @@ export interface ILoanResearch {
 export interface ILoanResearchDocument extends ILoanResearch, Document {
   _id: string;
 }
+
+export const INCOME_TYPE = {
+  SALARY: 'Salary',
+  BUSINESS: 'Business',
+  ALL: ['Salary', 'Business'],
+};
+
+export const LOAN_TYPE = {
+  LOAN: 'Loan',
+  COST: 'Cost',
+  ALL: ['Loan', 'Cost'],
+};
 
 const attachmentSchema = new Schema(
   {
@@ -51,7 +82,22 @@ export const incomeSchema = schemaWrapper(
   new Schema(
     {
       _id: { type: String },
-      incomeType: { type: String },
+      incomeType: {
+        type: String,
+        enum: INCOME_TYPE.ALL,
+        default: 'Salary',
+        esType: 'keyword',
+        index: true,
+      },
+
+      totalSalaryIncome: { type: Number, optional: true },
+      totalMonth: { type: Number, optional: true },
+
+      businessLine: { type: String, optional: true },
+      businessDetails: { type: String, optional: true },
+      businessProfile: { type: String, optional: true },
+      businessIncome: { type: Number, optional: true },
+
       files: { type: [attachmentSchema] },
     },
     { _id: false }
@@ -62,15 +108,29 @@ export const loanSchema = schemaWrapper(
   new Schema(
     {
       _id: { type: String },
+      loanType: {
+        type: String,
+        enum: LOAN_TYPE.ALL,
+        default: 'Loan',
+        esType: 'keyword',
+        index: true,
+      },
+      loanName: { type: String, optional: true },
+      loanLocation: { type: String, optional: true },
+      loanAmount: { type: Number, optional: true },
       startDate: { type: Date, optional: true },
       closeDate: { type: Date, optional: true },
+
+      costName: { type: String, optional: true },
+      costAmount: { type: Number, optional: true },
+
       files: { type: [attachmentSchema] },
     },
     { _id: false }
   )
 );
 
-export const configSchema = schemaWrapper(
+export const loanResearchSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     createdAt: field({
@@ -91,28 +151,6 @@ export const configSchema = schemaWrapper(
       label: 'customer type',
     }),
     customerId: field({ type: String, optional: true, label: 'customer id' }),
-    incomes: field({ type: [incomeSchema], optional: true }),
-    loans: field({
-      type: [loanSchema],
-      optional: true,
-    }),
-    totalMonth: field({ type: Number, optional: true, label: 'total month' }),
-    totalIncome: field({ type: Number, optional: true, label: 'total income' }),
-    monthlyIncome: field({
-      type: Number,
-      optional: true,
-      label: 'monthly income',
-    }),
-    totalLoanAmount: field({
-      type: Number,
-      optional: true,
-      label: 'total loan amount',
-    }),
-    monthlyPaymentAmount: field({
-      type: Number,
-      optional: true,
-      label: 'monthly payment amount',
-    }),
     debtIncomeRatio: field({
       type: Number,
       optional: true,
@@ -122,6 +160,39 @@ export const configSchema = schemaWrapper(
       type: Number,
       optional: true,
       label: 'increase monthly payment amount',
+    }),
+
+    averageSalaryIncome: field({
+      type: Number,
+      optional: true,
+      label: 'average salary income',
+    }),
+    averageBusinessIncome: field({
+      type: Number,
+      optional: true,
+      label: 'average business income',
+    }),
+    totalIncome: field({ type: Number, optional: true, label: 'total income' }),
+    incomes: field({ type: [incomeSchema], optional: true }),
+
+    monthlyCostAmount: field({
+      type: Number,
+      optional: true,
+      label: 'monthly cost amount',
+    }),
+    monthlyLoanAmount: field({
+      type: Number,
+      optional: true,
+      label: 'monthly loan amount',
+    }),
+    totalPaymentAmount: field({
+      type: Number,
+      optional: true,
+      label: 'total payment amount',
+    }),
+    loans: field({
+      type: [loanSchema],
+      optional: true,
     }),
   })
 );

@@ -18,7 +18,7 @@ const CallProviderContainer = (props) => {
   const [callInfo, setCallInfo] = useState({}) as any;
   const { data, loading, error } = useQuery(gql(queries.callUserIntegrations));
 
-  useSubscription(gql(subscriptions.webCallReceived), {
+  useSubscription(gql(subscriptions.webCallReceive), {
     variables: { roomState: 'ready', userId: currentUser?._id },
     skip: isCallReceive,
     onSubscriptionData: (data) => {

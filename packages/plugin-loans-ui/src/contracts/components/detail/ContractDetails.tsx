@@ -116,7 +116,7 @@ const ContractDetails = (props: Props) => {
         component: (contract.leaseType === LEASE_TYPES.FINANCE ||
           contract.leaseType === LEASE_TYPES.SAVING) && (
           <ScheduleSection
-            contractId={contract._id}
+            contract={contract}
             isFirst={true}
             regenSchedules={props.regenSchedules}
           />
@@ -124,7 +124,7 @@ const ContractDetails = (props: Props) => {
       },
       {
         label: __(`Schedules`),
-        component: <ScheduleSection contractId={contract._id} isFirst={false} />
+        component: <ScheduleSection contract={contract} isFirst={false} />
       },
       {
         label: __(`Transaction`),

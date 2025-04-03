@@ -327,10 +327,31 @@ const SidebarList = styledTS<{
   $capitalize?: boolean;
   $noTextColor?: boolean;
   $noBackground?: boolean;
+  $isGrid?: boolean;
 }>(styled.ul)`
   margin: 0;
   padding: 0;
   list-style: none;
+  display: ${props => props.$isGrid && 'grid'};
+  grid-template-columns: 1fr 1fr;
+
+  .salary {
+    color: ${colors.colorCoreRed};
+
+    &.paid {
+      color: ${colors.colorCoreGreen};
+    }
+  }
+
+  .salary-center {
+    th {
+      text-transform: inherit;
+      font-size: 12px;
+      line-height: 12px;
+      text-align: center;
+    }
+  }
+  
   li.child-segment {
     border-bottom: none;
     background-color: ${colors.bgLight};

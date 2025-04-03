@@ -1,6 +1,6 @@
 import { IContext } from '../../connectionResolver';
 import { ISyncRule } from '../../models/definitions/syncRule';
-import { convertToPropertyData, syncData } from '../../utils';
+import { convertToPropertyData, otherPlugins, syncData } from '../../utils';
 
 const xypMutations = {
   /**
@@ -9,7 +9,9 @@ const xypMutations = {
   async xypDataAdd(_root, doc, { subdomain, models, user }: IContext) {
     const data = await models.XypData.createXypData(doc, user);
     await syncData(subdomain, models, data);
-    return data
+
+    await otherPlugins(subdomain, doc);
+    return data;
   },
 
   /**
@@ -30,15 +32,22 @@ const xypMutations = {
     return await models.SyncRules.createSyncRule(doc, user);
   },
 
-  async xypSyncRuleEdit(_root, { _id, ...doc }: ISyncRule & { _id: string }, { models, user }: IContext) {
+  async xypSyncRuleEdit(
+    _root,
+    { _id, ...doc }: ISyncRule & { _id: string },
+    { models, user }: IContext
+  ) {
     const rule = await models.SyncRules.getSyncRule(_id);
-    await models.SyncRules.updateSyncRule(_id, doc, user)
-
+    await models.SyncRules.updateSyncRule(_id, doc, user);
   },
 
-  async xypSyncRuleRemove(_root, { _id }: { _id: string }, { models }: IContext) {
+  async xypSyncRuleRemove(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
     return await models.SyncRules.deleteOne({ _id });
-  }
+  },
 };
 
 export default xypMutations;

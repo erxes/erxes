@@ -9,8 +9,6 @@ import {
   Accounts as MutationsAccount,
   VatRows as MutationsVatRow,
   CtaxRows as MutationsCtaxRow,
-  TransactionMain as MutationTrMain,
-  TransactionCash as MutationTrCash,
   Transactions as MutationsTransactions
 } from './mutations';
 import {
@@ -35,8 +33,6 @@ const resolvers: any = {
     ...MutationsVatRow,
     ...MutationsCtaxRow,
     ...MutationsTransactions,
-    ...MutationTrMain,
-    ...MutationTrCash,
   },
   Query: {
     ...QueriesAccount,

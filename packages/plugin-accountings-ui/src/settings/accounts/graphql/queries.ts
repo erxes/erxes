@@ -10,6 +10,7 @@ export const accountFields = `
   categoryId
   branchId
   departmentId
+  isTemp
   isOutBalance
   parentId
   createdAt
@@ -38,6 +39,7 @@ const accountsFilterParamDefs = `
   $brand: String,
   $ids: [String],
   $excludeIds: Boolean,
+  $isTemp: Boolean,
   $isOutBalance: Boolean,
   $branchId: String,
   $departmentId: String,
@@ -53,6 +55,7 @@ const accountsFilterParams = `
   brand: $brand,
   ids: $ids,
   excludeIds: $excludeIds,
+  isTemp: $isTemp,
   isOutBalance: $isOutBalance,
   branchId: $branchId,
   currency: $currency,

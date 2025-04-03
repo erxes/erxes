@@ -39,7 +39,7 @@ const initApp = async () => {
     try {
       const data = JSON.parse(JSON.stringify(req.body));
       const history = JSON.parse(JSON.stringify(data.history));
-
+      console.log('received waiting call:', history);
       graphqlPubsub.publish(`waitingCallReceived`, {
         waitingCallReceived: history,
       });
@@ -53,6 +53,7 @@ const initApp = async () => {
     try {
       const data = JSON.parse(JSON.stringify(req.body));
       const history = JSON.parse(JSON.stringify(data.history));
+      console.log('received talking call:', history);
       graphqlPubsub.publish(`talkingCallReceived`, {
         talkingCallReceived: history,
       });
@@ -67,9 +68,9 @@ const initApp = async () => {
     try {
       const data = JSON.parse(JSON.stringify(req.body));
       const history = JSON.parse(JSON.stringify(data.history));
-
+      console.log('received agent history:', history);
       graphqlPubsub.publish(`agentCallReceived`, {
-        agentCallReceived: JSON.parse(JSON.stringify(history)),
+        agentCallReceived: history,
       });
       res.status(200).json({ message: 'Call Agents received successfully' });
     } catch (error) {
