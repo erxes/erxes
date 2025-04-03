@@ -41,6 +41,28 @@ const getInsurancAmount = (
   }
   return result;
 };
+
+const contractValidations = (doc: IContract) => {
+  if (doc.stepRules?.length) {
+    let totalTenor = 0;
+    for (const stepRule of doc.stepRules) {
+      if (!stepRule.salvageAmount && !stepRule.totalMainAmount && !stepRule.mainPayPerMonth) {
+        throw new Error('yadaj neg utga buglugdsun baih yostoi')
+      }
+
+      if (stepRule.salvageAmount || 0 > doc.leaseAmount) {
+        throw new Error('uldeeh dun ni niit zeeliin dungees hetersen baina')
+      }
+
+      totalTenor += stepRule.tenor
+    }
+
+    if (totalTenor > doc.tenor) {
+      throw new Error(' durmuudiin urgeljleh hugatsaa ni niit urgeljleh hugatsaanaas hetersen baina')
+    }
+  }
+}
+
 export interface IContractModel extends Model<IContractDocument> {
   getContract(
     selector: FilterQuery<IContractDocument>
@@ -75,7 +97,7 @@ export const loadContractClass = (models: IModels) => {
     public static async getContract(
       selector: FilterQuery<IContractDocument>
     ): Promise<IContractDocument> {
-      const contract = await models.Contracts.findOne(selector);
+      const contract = await models.Contracts.findOne(selector).lean();
 
       if (!contract) {
         throw new Error("Contract not found");
@@ -92,9 +114,7 @@ export const loadContractClass = (models: IModels) => {
       subdomain: string
     ): Promise<IContractDocument> {
       doc.startDate = getFullDate(doc.startDate || new Date());
-      doc.lastStoredDate = getFullDate(doc.startDate || new Date());
       doc.firstPayDate = getFullDate(doc.firstPayDate);
-      doc.mustPayDate = getFullDate(doc.firstPayDate);
       doc.endDate =
         doc.endDate ?? addMonths(new Date(doc.startDate), doc.tenor);
       if (!doc.useManualNumbering || !doc.number)
@@ -105,29 +125,7 @@ export const loadContractClass = (models: IModels) => {
         doc.collateralsData || []
       );
 
-      if (doc.repayment === REPAYMENT.CUSTOM && !schedule) {
-        throw new Error("Custom graphic not exists");
-      }
-
       const contract = await models.Contracts.create(doc);
-
-      if (doc.repayment === REPAYMENT.CUSTOM && schedule.length > 0) {
-        const schedules = schedule.map((a) => {
-          return {
-            contractId: contract._id,
-            status: SCHEDULE_STATUS.PENDING,
-            payDate: a.payDate,
-
-            balance: a.balance,
-            interestNonce: a.interestNonce,
-            payment: a.payment,
-            total: a.total,
-          };
-        });
-
-        await models.FirstSchedules.insertMany(schedules);
-        await models.Schedules.insertMany(schedules);
-      }
 
       if (
         doc.leaseType === LEASE_TYPES.LINEAR ||
@@ -211,7 +209,6 @@ export const loadContractClass = (models: IModels) => {
 
       doc.startDate = getFullDate(doc.startDate || new Date());
       doc.firstPayDate = getFullDate(doc.firstPayDate);
-      doc.mustPayDate = getFullDate(doc.firstPayDate);
       doc.endDate =
         doc.endDate ?? addMonths(new Date(doc.startDate), doc.tenor);
       doc.insuranceAmount = getInsurancAmount(
@@ -219,29 +216,6 @@ export const loadContractClass = (models: IModels) => {
         doc.collateralsData || []
       );
       await models.Contracts.updateOne({ _id }, { $set: doc });
-
-      if (
-        doc.repayment === REPAYMENT.CUSTOM &&
-        schedule.length > 0
-      ) {
-        await models.FirstSchedules.deleteMany({ contractId: _id });
-        await models.Schedules.deleteMany({ contractId: _id });
-
-        const schedules = schedule.map((a) => {
-          return {
-            contractId: _id,
-            status: SCHEDULE_STATUS.PENDING,
-            payDate: getFullDate(a.payDate),
-            balance: a.balance,
-            interestNonce: a.interestNonce,
-            payment: a.payment,
-            total: a.interestNonce + a.payment,
-          };
-        });
-
-        await models.FirstSchedules.insertMany(schedules);
-        await models.Schedules.insertMany(schedules);
-      }
 
       const contract = await models.Contracts.findOne({ _id });
       return contract;
@@ -256,7 +230,6 @@ export const loadContractClass = (models: IModels) => {
       });
       const closeInfo = await getCloseInfo(
         models,
-        subdomain,
         contract,
         doc.closeDate
       );
@@ -322,7 +295,8 @@ export const loadContractClass = (models: IModels) => {
       const trDate = new Date();
       if (
         new BigNumber(contract.leaseAmount).toNumber() >=
-        new BigNumber(contract.loanBalanceAmount)
+        // new BigNumber(contract.loanBalanceAmount)
+        new BigNumber(0)
           .plus(requestParams.amount)
           .dp(config.calculationFixed)
           .toNumber()

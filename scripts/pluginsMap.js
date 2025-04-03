@@ -625,7 +625,10 @@ module.exports = {
       ],
       "customerRightSidebarSection": "./customerSidebar",
       "companyRightSidebarSection": "./companySidebar",
-      "dealRightSidebarSection": "./dealSidebar",
+      "dealRightSidebarSection": {
+        "title": "Cars",
+        "component": "./dealSidebar"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-cars-ui/remoteEntry.js"
     },
     "api": {
@@ -1591,7 +1594,10 @@ module.exports = {
       ],
       "taskRightSidebarSection": "./Section",
       "ticketRightSidebarSection": "./Section",
-      "dealRightSidebarSection": "./Section",
+      "dealRightSidebarSection": {
+        "title": "Kind",
+        "component": "./Section"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-clientportal-ui/remoteEntry.js"
     },
     "api": {
@@ -2569,7 +2575,10 @@ module.exports = {
           ]
         }
       ],
-      "dealRightSidebarSection": "./invoiceSection",
+      "dealRightSidebarSection": {
+        "title": "Invoices",
+        "component": "./invoiceSection"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-payment-ui/remoteEntry.js"
     },
     "api": {
@@ -2846,7 +2855,10 @@ module.exports = {
           ]
         }
       ],
-      "dealRightSidebarSection": "./cardSideBarSection",
+      "dealRightSidebarSection": {
+        "title": "Risk Assessment",
+        "component": "./cardSideBarSection"
+      },
       "ticketRightSidebarSection": "./cardSideBarSection",
       "taskRightSidebarSection": "./cardSideBarSection",
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-riskassessment-ui/remoteEntry.js"
@@ -3368,7 +3380,10 @@ module.exports = {
           ]
         }
       ],
-      "dealRightSidebarSection": "./fileChooserSection",
+      "dealRightSidebarSection": {
+        "title": "File manager",
+        "component": "./fileChooserSection"
+      },
       "ticketRightSidebarSection": "./fileChooserSection",
       "taskRightSidebarSection": "./fileChooserSection",
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-filemanager-ui/remoteEntry.js"
@@ -3602,7 +3617,10 @@ module.exports = {
           "scope": "grants"
         }
       ],
-      "dealRightSidebarSection": "./cardSideBarSection",
+      "dealRightSidebarSection": {
+        "title": "Grants",
+        "component": "./cardSideBarSection"
+      },
       "ticketRightSidebarSection": "./cardSideBarSection",
       "taskRightSidebarSection": "./cardSideBarSection",
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-grants-ui/remoteEntry.js"
@@ -3634,6 +3652,18 @@ module.exports = {
           "permission": "showContracts"
         },
         {
+          "text": "Loan config",
+          "image": "/images/icons/erxes-16.svg",
+          "to": "/erxes-plugin-loan/main-settings",
+          "action": "loanConfig",
+          "scope": "loans",
+          "location": "settings",
+          "permissions": [
+            "manageLoanConfigs"
+          ],
+          "permission": "manageLoanConfigs"
+        },
+        {
           "text": "Contract types",
           "image": "/images/icons/erxes-01.svg",
           "to": "/erxes-plugin-loan/contract-types/",
@@ -3656,18 +3686,6 @@ module.exports = {
             "manageInsuranceTypes"
           ],
           "permission": "manageInsuranceTypes"
-        },
-        {
-          "text": "Loan config",
-          "image": "/images/icons/erxes-16.svg",
-          "to": "/erxes-plugin-loan/holiday-settings/",
-          "action": "loanConfig",
-          "scope": "loans",
-          "location": "settings",
-          "permissions": [
-            "manageLoanConfigs"
-          ],
-          "permission": "manageLoanConfigs"
         },
         {
           "text": "Transaction",
@@ -3694,7 +3712,10 @@ module.exports = {
       ],
       "customerRightSidebarSection": "./contractSection",
       "companyRightSidebarSection": "./contractSection",
-      "dealRightSidebarSection": "./contractSection",
+      "dealRightSidebarSection": {
+        "title": "Loan contract",
+        "component": "./contractSection"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loans-ui/remoteEntry.js"
     },
     "api": {
@@ -3917,7 +3938,10 @@ module.exports = {
           "location": "mainNavigation"
         }
       ],
-      "dealRightSidebarSection": "./meetingSideBarSection",
+      "dealRightSidebarSection": {
+        "title": "Meeting",
+        "component": "./meetingSideBarSection"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-meetings-ui/remoteEntry.js"
     }
   },
@@ -3950,7 +3974,10 @@ module.exports = {
       ],
       "customerRightSidebarSection": "./customerSidebar",
       "carRightSidebarSection": "./customerSidebar",
-      "dealRightSidebarSection": "./customerSidebar",
+      "dealRightSidebarSection": {
+        "title": "ДАН",
+        "component": "./customerSidebar"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-xyp-ui/remoteEntry.js"
     },
     "api": {
@@ -4487,7 +4514,8 @@ module.exports = {
       "scope": "burenscoring",
       "exposes": {
         "./routes": "./src/routes.tsx",
-        "./burenSection": "./src/containers/BurenSection.tsx"
+        "./burenSection": "./src/containers/BurenSection.tsx",
+        "./burenScoreSidebar": "./src/containers/DealBurenSection.tsx"
       },
       "routes": {
         "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-burenscoring-ui/remoteEntry.js",
@@ -4510,6 +4538,10 @@ module.exports = {
         }
       ],
       "customerRightSidebarSection": "./burenSection",
+      "dealRightSidebarSection": {
+        "title": "ЗМС",
+        "component": "./burenScoreSidebar"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-burenscoring-ui/remoteEntry.js"
     }
   },
@@ -4935,7 +4967,8 @@ module.exports = {
       "name": "loansresearch",
       "scope": "loansresearch",
       "exposes": {
-        "./routes": "./src/routes.tsx"
+        "./routes": "./src/routes.tsx",
+        "./loansResearchSidebar": "./src/containers/LoansResearchSidebar.tsx"
       },
       "routes": {
         "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loansresearch-ui/remoteEntry.js",
@@ -4948,10 +4981,41 @@ module.exports = {
           "url": "/loansresearch",
           "icon": "icon-file-check-alt",
           "location": "mainNavigation",
-          "scope": "loansresearch"
+          "scope": "loansresearch",
+          "permission": "showLoanResearch"
         }
       ],
+      "dealRightSidebarSection": {
+        "title": "Loan Research",
+        "component": "./loansResearchSidebar"
+      },
       "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loansresearch-ui/remoteEntry.js"
+    },
+    "api": {
+      "permissions": {
+        "loansResearch": {
+          "name": "loansResearch",
+          "description": "LoansResearch",
+          "actions": [
+            {
+              "name": "loansResearchAll",
+              "description": "All",
+              "use": [
+                "showLoanResearch",
+                "manageLoanResearch"
+              ]
+            },
+            {
+              "name": "showLoanResearch",
+              "description": "Show loansresearch"
+            },
+            {
+              "name": "manageLoanResearch",
+              "description": "Manage loansresearch"
+            }
+          ]
+        }
+      }
     }
   },
   "cloudflarecalls": {

@@ -39,11 +39,11 @@ export default function ChartRendererContainer({
     return <ErrorMsg>{error.message}</ErrorMsg>;
   }
 
-  const items = data.itemsCountByAssignedUser.groups || [];
-  const assignees = data.itemsCountByAssignedUser.usersWithInfo || [];
+  const items = data.itemsCountByAssignedUser?.groups || [];
+  const assignees = data.itemsCountByAssignedUser?.usersWithInfo || [];
 
   if (items.length === 0) {
-    return <EmptyState text="No data" icon="piechart" />;
+    return <EmptyState text='No data' icon='piechart' />;
   }
 
   return (

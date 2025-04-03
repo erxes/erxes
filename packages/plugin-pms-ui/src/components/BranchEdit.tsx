@@ -5,13 +5,13 @@ import {
   Step,
   Steps,
   Wrapper,
-  __
+  __,
 } from "@erxes/ui/src";
 import { Content, LeftContent } from "../styles";
 import {
   ControlWrapper,
   Indicator,
-  StepWrapper
+  StepWrapper,
 } from "@erxes/ui/src/components/step/styles";
 import { IPmsBranch } from "../types";
 import GeneralStep from "./step/GeneralStep";
@@ -37,11 +37,11 @@ const BranchEdit = (props: Props) => {
       colors: {
         primary: "#FFFFFF",
         secondary: "#6569DF",
-        third: "#3CCC38"
+        third: "#3CCC38",
       },
       logo: "",
-      texts: {}
-    }
+      texts: {},
+    },
   });
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +76,11 @@ const BranchEdit = (props: Props) => {
       extraProductCategories: state.extraProductCategories || [],
       roomCategories: state.roomCategories || [],
       discount: state.discount || [],
-      time: state.time || ""
+      time: state.time || "",
+      checkintime: state.checkintime || "",
+      checkouttime: state.checkouttime || "",
+      checkinamount: Number(state.checkinamount) || 0,
+      checkoutamount: Number(state.checkoutamount) || 0,
     };
 
     save(doc);
@@ -135,7 +139,7 @@ const BranchEdit = (props: Props) => {
 
   const breadcrumb = [
     { title: "PMS List", link: `/pms` },
-    { title: branch._id ? "Edit" : "Create" }
+    { title: branch._id ? "Edit" : "Create" },
   ];
   useEffect(() => {
     setState(v => ({ ...branch, ...v }));

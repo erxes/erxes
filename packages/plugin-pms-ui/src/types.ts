@@ -20,7 +20,7 @@ export type ConfigsQueryResponse = {
 export const statusFilters = [
   { key: "create", value: "Create" },
   { key: "update", value: "Update" },
-  { key: "delete", value: "Delete" }
+  { key: "delete", value: "Delete" },
 ];
 
 // queries
@@ -82,4 +82,8 @@ export type IPmsBranch = {
   extraProductCategories?: string[];
   time?: string;
   discount?: any;
+  checkintime?: string;
+  checkouttime?: string;
+  checkinamount?: number;
+  checkoutamount?: number;
 };

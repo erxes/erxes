@@ -1,9 +1,5 @@
 import { Document, Schema } from 'mongoose';
 import { schemaHooksWrapper, field } from './utils';
-export interface ICalcDivideParams {
-  contractId?: string;
-  payDate: Date;
-}
 
 export interface ICalcTrParams {
   contractId: string;
@@ -22,7 +18,7 @@ export interface IBankTransaction {
   toOwner?: string;
 }
 
-export interface IEBarimt {}
+export interface IEBarimt { }
 
 export interface ITransaction {
   number?: string;
@@ -35,26 +31,26 @@ export interface ITransaction {
   payDate: Date;
   payment?: number;
   give?: number;
+  calcInterest?: number;
   interestEve?: number;
   interestNonce?: number;
+  storedInterest?: number;
+  commitmentInterest?: number;
   loss?: number;
   insurance?: number;
   debt?: number;
-  storedInterest?: number;
-  calcInterest?: number;
-  commitmentInterest?: number;
   total: number;
   surplus?: number;
   calcedInfo?: {
     payment?: number;
+    calcInterest?: number;
     interestEve?: number;
     interestNonce?: number;
+    storedInterest?: number;
+    commitmentInterest?: number;
     loss?: number;
     insurance?: number;
     debt?: number;
-    storedInterest?: number;
-    calcInterest?: number;
-    commitmentInterest?: number;
     total: number;
     surplus?: number;
   };
@@ -68,6 +64,7 @@ export interface ITransaction {
   isGetEBarimt?: boolean;
   isOrganization?: boolean;
   organizationRegister?: string;
+  scheduleId?: string;
 }
 
 export interface ITransactionDocument extends ITransaction, Document {
@@ -120,6 +117,11 @@ export const transactionSchema = schemaHooksWrapper(
     }),
     give: field({ type: Number, min: 0, optional: true, label: 'give' }),
     payment: field({ type: Number, min: 0, optional: true, label: 'payment' }),
+    calcInterest: field({
+      type: Number,
+      optional: true,
+      label: 'calc Interest'
+    }),
     interestEve: field({
       type: Number,
       min: 0,
@@ -131,6 +133,16 @@ export const transactionSchema = schemaHooksWrapper(
       min: 0,
       optional: true,
       label: 'interest nonce month'
+    }),
+    storedInterest: field({
+      type: Number,
+      optional: true,
+      label: 'Stored Interest'
+    }),
+    commitmentInterest: field({
+      type: Number,
+      optional: true,
+      label: 'commitment Interest'
     }),
     loss: field({ type: Number, min: 0, optional: true, label: 'loss' }),
     insurance: field({
@@ -151,13 +163,13 @@ export const transactionSchema = schemaHooksWrapper(
     calcedInfo: field({
       type: {
         payment: Number,
+        calcInterest: Number,
         interestEve: Number,
         interestNonce: Number,
+        storedInterest: Number,
+        commitmentInterest: Number,
         loss: Number,
         insurance: Number,
-        storedInterest: Number,
-        calcInterest: Number,
-        commitmentInterest: Number,
         debt: Number,
         total: Number,
         surplus: Number
@@ -195,20 +207,10 @@ export const transactionSchema = schemaHooksWrapper(
       optional: true,
       label: 'ebarimt'
     }),
-    storedInterest: field({
-      type: Number,
+    scheduleId: field({
+      type: String,
       optional: true,
-      label: 'Stored Interest'
-    }),
-    calcInterest: field({
-      type: Number,
-      optional: true,
-      label: 'calc Interest'
-    }),
-    commitmentInterest: field({
-      type: Number,
-      optional: true,
-      label: 'commitment Interest'
+      label: 'scheduleId'
     })
   }),
   'erxes_transactionSchema'

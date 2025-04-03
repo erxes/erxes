@@ -1,134 +1,141 @@
-import { contractDetailFields } from "./queries";
+import { contractDetailFields } from './queries';
 
 const commonFields = `
-  $contractTypeId: String,
-  $number: String,
-  $branchId: String,
-  $status: String,
-  $description: String,
-  $createdBy: String,
-  $createdAt: Date,
-  $marginAmount: Float,
-  $leaseAmount: Float,
-  $feeAmount: Float,
-  $tenor: Float,
-  $lossPercent: Float,
-  $lossCalcType: String,
-  $interestRate: Float,
-  $skipInterestCalcMonth: Float,
-  $repayment: String,
-  $startDate: Date,
-  $firstPayDate: Date,
-  $scheduleDays: [Float],
-  $customerId: String,
-  $customerType: String,
+  $contractTypeId: String
+  $number: String
+  $useManualNumbering: Boolean
+  $foreignNumber: String
+  $relContractId: String
+  $dealId: String
+  $currency: String
+  
+  $status: String
+  $statusChangedDate: Date
 
-  $collateralsData: JSON,
-  $schedule: JSON,
-  $insurancesData: JSON,
+  $classification: String
+  $branchId: String
+  $description: String
+  $createdBy: String
+  $createdAt: Date
+  $modifiedBy: String
+  $modifiedAt: Date
 
+  $marginAmount: Float
+  $leaseAmount: Float
+  $feeAmount: Float
+
+  $tenor: Float
+  $repayment: String
+  $interestRate: Float
+  $lossPercent: Float
+  $lossCalcType: String
+
+  $contractDate: Date
+  $startDate: Date
+  $firstPayDate: Date
+  $endDate: Date
+  $scheduleDays: [Int]
+  $stepRules: [JSON]
+
+  $insuranceAmount: Float
   $debt: Float
   $debtTenor: Float
   $debtLimit: Float
 
-  $salvageAmount: Float
-  $salvagePercent: Float
-  $salvageTenor: Float
+  $collateralsData: [JSON]
+  $insurancesData: [JSON]
+
+  $customerType: String
+  $customerId: String
+  $relCustomers: [JSON]
 
   $relationExpertId: String
   $leasingExpertId: String
   $riskExpertId: String
-  $weekends: [Int]
-  $useHoliday: Boolean
-  $useMargin: Boolean
-  $useSkipInterest: Boolean
-  $useDebt: Boolean
-  $dealId: String
 
-  $relContractId: String
-  $currency:String
-  $isPayFirstMonth: Boolean
-  $downPayment: Float
-  $skipAmountCalcMonth: Float
-  $customPayment: Float
-  $customInterest: Float
+  $closeDate: Date
+  $closeType: String
+  $closeDescription: String
 
-  $isBarter: Boolean
-  $useManualNumbering:Boolean
-  $useFee:Boolean
   $loanPurpose: String
+  $loanDestination: String
   $leaseType: String
-  $commitmentInterest: Float
-  $endDate: Date
-  $savingContractId: String
+
   $customFieldsData: JSON
-  $holidayType: String
+  $savingContractId: String
   $depositAccountId: String
+
+  $holidayType: String
+  $weekends: [Int]
 `;
 
 const commonVariables = `
-  contractTypeId: $contractTypeId,
-  number: $number,
-  branchId: $branchId,
-  status: $status,
-  description: $description,
-  createdBy: $createdBy,
-  createdAt: $createdAt,
-  marginAmount: $marginAmount,
-  leaseAmount: $leaseAmount,
-  feeAmount: $feeAmount,
-  tenor: $tenor,
-  lossPercent: $lossPercent,
-  lossCalcType: $lossCalcType,
-  skipInterestCalcMonth: $skipInterestCalcMonth,
-  interestRate: $interestRate,
-  repayment: $repayment,
-  startDate: $startDate,
-  firstPayDate: $firstPayDate,
-  scheduleDays: $scheduleDays,
-  customerId: $customerId,
-  customerType: $customerType,
+  contractTypeId: $contractTypeId
+  number: $number
+  useManualNumbering: $useManualNumbering
+  foreignNumber: $foreignNumber
+  relContractId: $relContractId
+  dealId: $dealId
+  currency: $currency
+  
+  status: $status
+  statusChangedDate: $statusChangedDate
 
-  collateralsData: $collateralsData,
-  schedule: $schedule,
-  insurancesData: $insurancesData,
+  classification: $classification
+  branchId: $branchId
+  description: $description
+  createdBy: $createdBy
+  createdAt: $createdAt
+  modifiedBy: $modifiedBy
+  modifiedAt: $modifiedAt
 
-  salvageAmount: $salvageAmount
-  salvagePercent: $salvagePercent
-  salvageTenor: $salvageTenor
+  marginAmount: $marginAmount
+  leaseAmount: $leaseAmount
+  feeAmount: $feeAmount
 
+  tenor: $tenor
+  repayment: $repayment
+  interestRate: $interestRate
+  lossPercent: $lossPercent
+  lossCalcType: $lossCalcType
+
+  contractDate: $contractDate
+  startDate: $startDate
+  firstPayDate: $firstPayDate
+  endDate: $endDate
+  scheduleDays: $scheduleDays
+  stepRules: $stepRules
+
+  insuranceAmount: $insuranceAmount
   debt: $debt
   debtTenor: $debtTenor
   debtLimit: $debtLimit
 
+  collateralsData: $collateralsData
+  insurancesData: $insurancesData
+
+  customerType: $customerType
+  customerId: $customerId
+  relCustomers: $relCustomers
+
   relationExpertId: $relationExpertId
   leasingExpertId: $leasingExpertId
   riskExpertId: $riskExpertId
-  weekends: $weekends
-  useHoliday: $useHoliday
-  useMargin: $useMargin
-  useSkipInterest: $useSkipInterest
-  useDebt: $useDebt
-  dealId: $dealId
 
-  relContractId: $relContractId
-  currency: $currency
-  isPayFirstMonth: $isPayFirstMonth
-  downPayment: $downPayment
-  skipAmountCalcMonth: $skipAmountCalcMonth
-  customPayment: $customPayment
-  customInterest: $customInterest
-  isBarter: $isBarter
-  useManualNumbering: $useManualNumbering
-  useFee: $useFee
+  closeDate: $closeDate
+  closeType: $closeType
+  closeDescription: $closeDescription
+
   loanPurpose: $loanPurpose
-  leaseType:$leaseType
-  commitmentInterest:$commitmentInterest
-  endDate:$endDate
-  savingContractId: $savingContractId
+  loanDestination: $loanDestination
+  leaseType: $leaseType
+
   customFieldsData: $customFieldsData
-  holidayType: $holidayType
+  savingContractId: $savingContractId
   depositAccountId: $depositAccountId
+
+  holidayType: $holidayType
+  weekends: $weekends
 `;
 
 const contractsAdd = `
@@ -248,5 +255,5 @@ export default {
   changeClassification,
   stopInterest,
   interestChange,
-  interestReturn
+  interestReturn,
 };

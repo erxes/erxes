@@ -49,7 +49,7 @@ const BasicInfoSection = (props: Props) => {
       client
         .mutate({
           mutation: gql(queries.documents),
-          variables: { contentType: 'loans' }
+          variables: { contentType: 'loans' },
         })
         .then(({ data }) => {
           setDocuments(data.documents);
@@ -58,17 +58,32 @@ const BasicInfoSection = (props: Props) => {
 
     const onPrint = (mur) => {
       window.open(
-        `${getEnv().REACT_APP_API_URL}/pl:documents/print?_id=${mur._id
+        `${getEnv().REACT_APP_API_URL}/pl:documents/print?_id=${
+          mur._id
         }&contractId=${contract?._id}`
       );
     };
 
     const closeForm = (props) => <CloseForm {...props} contract={contract} />;
     const giveTrForm = (props) => {
-      return <TransactionForm {...props} type="give" contractId={contract._id} lockContract={true} />;
+      return (
+        <TransactionForm
+          {...props}
+          type="give"
+          contractId={contract._id}
+          lockContract={true}
+        />
+      );
     };
     const repaymentTrForm = (props) => {
-      return <TransactionForm {...props} type="repayment" contractId={contract._id} lockContract={true} />;
+      return (
+        <TransactionForm
+          {...props}
+          type="repayment"
+          contractId={contract._id}
+          lockContract={true}
+        />
+      );
     };
 
     const interestChangeForm = (props) => (
@@ -85,37 +100,37 @@ const BasicInfoSection = (props: Props) => {
           title: 'Interest correction',
           trigger: <a href="#toClose">{__('Interest correction')}</a>,
           content: interestChangeForm,
-          additionalModalProps: { size: 'lg' }
+          additionalModalProps: { size: 'lg' },
         },
         {
           title: 'Change contract',
           trigger: <a href="#changeContract">{__('Change contract')}</a>,
           content: contractForm,
-          additionalModalProps: { size: 'lg' }
-        }
+          additionalModalProps: { size: 'lg' },
+        },
       ];
       if (can('contractsClose', currentUser))
         result.push({
           title: 'To Close Contract',
           trigger: <a href="#toClose">{__('To Close Contract')}</a>,
           content: closeForm,
-          additionalModalProps: { size: 'lg' }
+          additionalModalProps: { size: 'lg' },
         });
 
-      if (!contract.loanBalanceAmount && !contract.givenAmount) {
+      if (contract.unUsedBalance) {
         result.unshift({
           title: 'Give transaction',
           trigger: <a href="#toClose">{__('Give transaction')}</a>,
           content: giveTrForm,
-          additionalModalProps: { size: 'lg' }
-        })
+          additionalModalProps: { size: 'lg' },
+        });
       } else {
         result.unshift({
           title: 'Repayment Transaction',
           trigger: <a href="#toClose">{__('Repayment Transaction')}</a>,
           content: repaymentTrForm,
-          additionalModalProps: { size: 'lg' }
-        })
+          additionalModalProps: { size: 'lg' },
+        });
       }
       return result;
     };
@@ -166,9 +181,9 @@ const BasicInfoSection = (props: Props) => {
         <Name>{contract.number}</Name>
         {can('contractsEdit', currentUser) && (
           <ModalTrigger
-            title={__('Edit basic info')}
+            title={__('Edit contract info')}
             trigger={<Icon icon="edit" />}
-            size="lg"
+            size="xl"
             content={contractForm}
           />
         )}
