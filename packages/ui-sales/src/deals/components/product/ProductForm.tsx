@@ -264,9 +264,8 @@ class ProductForm extends React.Component<Props, State> {
           (
             p.product.name.includes(filterValues.search) ||
             p.product.code.includes(filterValues.search) ||
-            p.product.shortName.includes(filterValues.search) ||
             p.product.barcodes.includes(filterValues.search)
-          )
+          ) 
       );
     }
 
@@ -331,7 +330,6 @@ class ProductForm extends React.Component<Props, State> {
               <th style={avStyle}>{__("Department")}</th>
               <th style={avStyle}>{__("Unit price (global)")}</th>
               <th style={avStyle}>{__("Unit price percent")}</th>
-              <th />
               <th />
             </tr>
           </thead>
