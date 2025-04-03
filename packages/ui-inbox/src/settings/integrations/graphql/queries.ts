@@ -43,6 +43,8 @@ const integrationDetail = `
       ticketData,
       messengerData
       callData {
+        header
+        description
         departments {
           _id
           name
