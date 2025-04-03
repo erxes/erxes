@@ -2,7 +2,6 @@ export type LoanContract = {
   contractDate: Date;
   loanPurpose: string;
   loanDestination: string;
-  loanSubPurpose: string;
   contractTypeId: string;
   status: string;
   description: string;
@@ -17,6 +16,7 @@ export type LoanContract = {
   startDate: Date;
   firstPayDate: Date;
   scheduleDays: number[];
+  stepRules: any[];
   customerId: string;
   customerType: string;
   branchId: string;
@@ -26,9 +26,6 @@ export type LoanContract = {
   debt: number;
   debtTenor: number;
   debtLimit: number;
-  salvageAmount: number;
-  salvagePercent: number;
-  salvageTenor: number;
   skipAmountCalcMonth: number;
   relationExpertId: string;
   leasingExpertId: string;
@@ -38,7 +35,6 @@ export type LoanContract = {
   useSkipInterest: boolean;
   leaseType: string;
   weekends: number[];
-  useHoliday: boolean;
   relContractId?: string;
   isPayFirstMonth?: boolean;
   isBarter?: boolean;

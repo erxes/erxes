@@ -16,7 +16,7 @@ import { INCOME_TYPES } from '../../constants';
 import { FlexRow, MarginTop } from '../../styles';
 
 const getEmptyIncome = () => ({
-  _id: Math.random().toString(),
+  _id: crypto.randomUUID(),
   incomeType: '',
   files: [],
 });
@@ -24,34 +24,29 @@ const getEmptyIncome = () => ({
 type Props = {
   incomes: IIncome[];
   setIncomes: (incomes) => void;
-  totalMonth: number;
-  setTotalMonth: (totalMonth) => void;
+  averageSalaryIncome: number;
   totalIncome: number;
-  setTotalIncome: (totalIncome) => void;
-  monthlyIncome: number;
-  setMonthlyIncome: (monthlyIncome) => void;
+  averageBusinessIncome: number;
 };
 
 const IncomeForm = (props: Props) => {
   const {
     incomes,
     setIncomes,
-    totalMonth,
-    setTotalMonth,
+    averageSalaryIncome,
     totalIncome,
-    setTotalIncome,
-    monthlyIncome,
-    setMonthlyIncome,
+    averageBusinessIncome,
   } = props;
 
   const onChangeIncomeItem = (_id: string, key: string, value: any) => {
-    const income = incomes.find((f) => f._id === _id);
-
-    if (income) {
-      income[key] = value;
-
-      setIncomes([...incomes]);
-    }
+    setIncomes((prevIncomes) =>
+      prevIncomes.map(
+        (income) =>
+          income._id === _id
+            ? { ...income, [key]: value } // Update the specific key
+            : income // Leave other incomes unchanged
+      )
+    );
   };
 
   const onChangeAttachmentMore = (
@@ -59,13 +54,14 @@ const IncomeForm = (props: Props) => {
     key: string,
     files: IAttachment[]
   ) => {
-    const income = incomes.find((f) => f._id === _id);
-
-    if (income) {
-      income[key] = files;
-
-      setIncomes([...incomes]);
-    }
+    setIncomes((prevIncomes) =>
+      prevIncomes.map(
+        (income) =>
+          income._id === _id
+            ? { ...income, [key]: files } // Update the specific key
+            : income // Leave other incomes unchanged
+      )
+    );
   };
 
   const onChangeFeature = () => {
@@ -98,6 +94,104 @@ const IncomeForm = (props: Props) => {
                 />
               </FormGroup>
 
+              {income.incomeType === 'Salary' && (
+                <>
+                  <FormGroup>
+                    <ControlLabel>total Salary Income</ControlLabel>
+                    <FormControl
+                      type="number"
+                      value={income?.totalSalaryIncome || 0}
+                      useNumberFormat={true}
+                      fixed={2}
+                      onChange={(e: any) =>
+                        onChangeIncomeItem(
+                          income._id,
+                          'totalSalaryIncome',
+                          Number(e.target.value)
+                        )
+                      }
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>total month</ControlLabel>
+                    <FormControl
+                      type="number"
+                      defaultValue={income?.totalMonth || 0}
+                      onChange={(e: any) =>
+                        onChangeIncomeItem(
+                          income._id,
+                          'totalMonth',
+                          Number(e.target.value)
+                        )
+                      }
+                    />
+                  </FormGroup>
+                </>
+              )}
+
+              {income.incomeType === 'Business' && (
+                <>
+                  <FormGroup>
+                    <ControlLabel>business Line</ControlLabel>
+                    <FormControl
+                      type="text"
+                      defaultValue={income?.businessLine || ''}
+                      onChange={(e: any) =>
+                        onChangeIncomeItem(
+                          income._id,
+                          'businessLine',
+                          e.target.value
+                        )
+                      }
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>business Details</ControlLabel>
+                    <FormControl
+                      type="text"
+                      defaultValue={income?.businessDetails || ''}
+                      onChange={(e: any) =>
+                        onChangeIncomeItem(
+                          income._id,
+                          'businessDetails',
+                          e.target.value
+                        )
+                      }
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>business profile</ControlLabel>
+                    <FormControl
+                      type="text"
+                      defaultValue={income?.businessProfile || ''}
+                      onChange={(e: any) =>
+                        onChangeIncomeItem(
+                          income._id,
+                          'businessProfile',
+                          e.target.value
+                        )
+                      }
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>business income</ControlLabel>
+                    <FormControl
+                      type="number"
+                      useNumberFormat={true}
+                      fixed={2}
+                      value={income.businessIncome || 0}
+                      onChange={(e: any) =>
+                        onChangeIncomeItem(
+                          income._id,
+                          'businessIncome',
+                          Number(e.target.value)
+                        )
+                      }
+                    />
+                  </FormGroup>
+                </>
+              )}
+
               <FormGroup>
                 <ControlLabel>Files</ControlLabel>
 
@@ -112,12 +206,15 @@ const IncomeForm = (props: Props) => {
                   single={false}
                 />
               </FormGroup>
-              <Button
-                btnStyle="danger"
-                onClick={() => removeFeature(income._id)}
-              >
-                X
-              </Button>
+
+              {income.incomeType === 'Business' && (
+                <Button
+                  btnStyle="danger"
+                  onClick={() => removeFeature(income._id)}
+                >
+                  X
+                </Button>
+              )}
             </MarginTop>
           );
         })}
@@ -129,11 +226,25 @@ const IncomeForm = (props: Props) => {
     <MarginTop>
       <FlexRow>
         <FormGroup>
-          <ControlLabel>Total Month</ControlLabel>
+          <ControlLabel>Average Salary Income</ControlLabel>
           <FormControl
             type="number"
-            defaultValue={totalMonth}
-            onChange={(e: any) => setTotalMonth(Number(e.target.value))}
+            value={averageSalaryIncome}
+            disabled={true}
+            useNumberFormat={true}
+            fixed={2}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Average Business Income</ControlLabel>
+          <FormControl
+            type="number"
+            name="averageBusinessIncome"
+            value={averageBusinessIncome}
+            disabled={true}
+            useNumberFormat={true}
+            fixed={2}
           />
         </FormGroup>
 
@@ -141,18 +252,10 @@ const IncomeForm = (props: Props) => {
           <ControlLabel>Total Income</ControlLabel>
           <FormControl
             type="number"
-            defaultValue={totalIncome}
-            onChange={(e: any) => setTotalIncome(Number(e.target.value))}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Monthly Income</ControlLabel>
-          <FormControl
-            type="number"
-            name="monthlyIncome"
-            defaultValue={monthlyIncome}
-            onChange={(e: any) => setMonthlyIncome(Number(e.target.value))}
+            value={totalIncome}
+            disabled={true}
+            useNumberFormat={true}
+            fixed={2}
           />
         </FormGroup>
       </FlexRow>

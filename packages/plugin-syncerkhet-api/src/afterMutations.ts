@@ -86,7 +86,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
           const orderInfos = [
             {
               orderId: deal._id,
-              returnKind: returnConfig.returnType || "note"
+              returnKind: returnConfig.returnType || "note",
+              date: ['sale', 'full'].includes(returnConfig.returnType || '') ? new Date().toISOString().slice(0, 10) : undefined,
+              defaultPay: ['sale', 'full'].includes(returnConfig.returnType || '') ? returnConfig.defaultPay : 'debtAmount'
             }
           ];
 

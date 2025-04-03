@@ -149,13 +149,13 @@ const callTransfer = `
     callTransfer(extensionNumber: $extensionNumber, integrationId: $integrationId, direction: $direction)
 }`;
 const cloudflareAnswerCall = `
-mutation CloudflareAnswerCall($roomState: String!, $audioTrack: String!, $customerAudioTrack: String!) {
-  cloudflareAnswerCall(roomState: $roomState, audioTrack: $audioTrack, customerAudioTrack: $customerAudioTrack)
+mutation CloudflareAnswerCall($audioTrack: String!, $customerAudioTrack: String!) {
+  cloudflareAnswerCall(audioTrack: $audioTrack, customerAudioTrack: $customerAudioTrack)
 }`;
 
 const cloudflareLeaveCall = `
-  mutation CloudflareLeaveCall( $originator: String, $duration: Int, $audioTrack: String!) {
-    cloudflareLeaveCall( originator: $originator, duration: $duration, audioTrack: $audioTrack) 
+  mutation CloudflareLeaveCall($originator: String, $duration: Int, $audioTrack: String!, $roomState: String) {
+    cloudflareLeaveCall(originator: $originator, duration: $duration, audioTrack: $audioTrack, roomState: $roomState) 
   }
 `;
 export default {

@@ -13,34 +13,31 @@ import SelectDepartment from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
-import { TR_CUSTOMER_TYPES, TR_SIDES } from '../../constants';
-import SelectAccount from '../../settings/accounts/containers/SelectAccount';
-import { IAccount } from '../../settings/accounts/types';
-import { IConfigsMap } from '../../settings/configs/types';
-import { ITransaction } from '../types';
-import CurrencyFields from './helpers/CurrencyFields';
-import TaxFields from './helpers/TaxFields';
-import { getTrSide } from '../utils/utils';
+import { TR_CUSTOMER_TYPES, TR_SIDES } from '../../../constants';
+import SelectAccount from '../../../settings/accounts/containers/SelectAccount';
+import { IAccount } from '../../../settings/accounts/types';
+import { IConfigsMap } from '../../../settings/configs/types';
+import { ITransaction } from '../../types';
+
 
 type Props = {
   configsMap: IConfigsMap;
   transactions?: ITransaction[];
   trDoc: ITransaction;
-  followTrDocs: ITransaction[];
   queryParams: IQueryParams;
-  setTrDoc: (trDoc: ITransaction, fTrDocs?: ITransaction[]) => void;
+  setTrDoc: (trDoc: ITransaction) => void;
 };
 
-const TrFormPayable = (props: Props) => {
-  const { trDoc, setTrDoc, followTrDocs } = props;
+const TrFormMain = (props: Props) => {
+  const { trDoc, setTrDoc } = props;
   const detail = trDoc?.details && trDoc?.details[0] || {};
 
   const onChange = (key, value) => {
-    setTrDoc({ ...trDoc, [key]: value }, followTrDocs);
+    setTrDoc({ ...trDoc, [key]: value });
   }
 
   const onChangeDetail = (key, value) => {
-    setTrDoc({ ...trDoc, details: [{ ...detail, [key]: value }] }, followTrDocs);
+    setTrDoc({ ...trDoc, details: [{ ...detail, [key]: value }] });
   }
 
   const onAccountChange = (accountId, obj?: IAccount) => {
@@ -49,7 +46,7 @@ const TrFormPayable = (props: Props) => {
       branchId: obj?.branchId,
       departmentId: obj?.departmentId,
       details: [{ ...detail, accountId, account: obj }]
-    }, followTrDocs);
+    });
   }
 
   const renderCustomerChooser = () => {
@@ -107,7 +104,7 @@ const TrFormPayable = (props: Props) => {
               initialValue={detail.accountId || ''}
               label='Account'
               name='accountId'
-              filterParams={{ journals: ['debt'], kind: 'passive' }}
+              filterParams={{ journals: ['main'] }}
               onSelect={(accountId, obj) => { onAccountChange(accountId, obj) }}
             />
           </FormGroup>
@@ -119,7 +116,7 @@ const TrFormPayable = (props: Props) => {
               componentclass='select'
               name="side"
               value={detail.side || TR_SIDES.DEBIT}
-              options={TR_SIDES.PAYABLE_OPTIONS}
+              options={TR_SIDES.OPTIONS}
               onChange={e => onChangeDetail('side', (e.target as any).value)}
             />
           </FormGroup>
@@ -168,56 +165,40 @@ const TrFormPayable = (props: Props) => {
           </FormGroup>
         </FormColumn>
       </FormWrapper>
-      <CurrencyFields
-        {...props}
-        onChangeDetail={onChangeDetail}
-      />
       <FormWrapper>
         <FormColumn>
-          <FormGroup>
-            <ControlLabel required={true}>{__('Branch')}</ControlLabel>
-            <SelectBranches
-              multi={false}
-              initialValue={trDoc.branchId}
-              label='Branch'
-              name='branchId'
-              onSelect={(branchId) => onChange('branchId', branchId)}
-            />
-          </FormGroup>
+          <ControlLabel required={true}>{__('Branch')}</ControlLabel>
+          <SelectBranches
+            multi={false}
+            initialValue={trDoc.branchId}
+            label='Branch'
+            name='branchId'
+            onSelect={(branchId) => onChange('branchId', branchId)}
+          />
         </FormColumn>
         <FormColumn>
-          <FormGroup>
-            <ControlLabel required={true}>{__('Department')}</ControlLabel>
-            <SelectDepartment
-              multi={false}
-              initialValue={trDoc.departmentId}
-              label='Department'
-              name='departmentId'
-              onSelect={(departmentId) => onChange('departmentId', departmentId)}
-            />
-          </FormGroup>
+          <ControlLabel required={true}>{__('Department')}</ControlLabel>
+          <SelectDepartment
+            multi={false}
+            initialValue={trDoc.departmentId}
+            label='Department'
+            name='departmentId'
+            onSelect={(departmentId) => onChange('departmentId', departmentId)}
+          />
         </FormColumn>
         <FormColumn>
-          <FormGroup>
-            <ControlLabel>{__('Assigned')}</ControlLabel>
-            <SelectTeamMembers
-              multi={true}
-              initialValue={trDoc.assignedUserIds || []}
-              label='Assigned Users'
-              name='assignedUserIds'
-              onSelect={(userIds) => onChange('assignedUserIds', userIds)}
-            />
-          </FormGroup>
+          <ControlLabel>{__('Assigned')}</ControlLabel>
+          <SelectTeamMembers
+            multi={true}
+            initialValue={trDoc.assignedUserIds || []}
+            label='Assigned Users'
+            name='assignedUserIds'
+            onSelect={(userIds) => onChange('assignedUserIds', userIds)}
+          />
         </FormColumn>
       </FormWrapper>
-      <TaxFields
-        {...props}
-        onChangeDetail={onChangeDetail}
-        side={getTrSide(detail.side, true)}
-        isWithTax={true}
-      />
     </>
   );
 };
 
-export default TrFormPayable;
+export default TrFormMain;

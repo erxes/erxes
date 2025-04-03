@@ -73,7 +73,6 @@ const callsMutations = {
   async cloudflareAnswerCall(
     _root,
     {
-      roomState,
       audioTrack,
       customerAudioTrack,
     }: {
@@ -89,8 +88,16 @@ const callsMutations = {
     );
     await graphqlPubsub.publish('cloudflareReceivedCall', {
       cloudflareReceivedCall: {
-        roomState,
+        roomState: 'answered',
         audioTrack,
+        customerAudioTrack,
+      },
+    });
+    await graphqlPubsub.publish('cloudflareReceiveCall', {
+      cloudflareReceiveCall: {
+        roomState: 'answered',
+        audioTrack,
+        customerAudioTrack,
       },
     });
 
@@ -100,10 +107,12 @@ const callsMutations = {
   async cloudflareLeaveCall(
     _root,
     {
+      roomState,
       originator,
       duration,
       audioTrack,
     }: {
+      roomState: string;
       originator: string;
       duration: number;
       audioTrack: string;
@@ -156,7 +165,14 @@ const callsMutations = {
       }
       await graphqlPubsub.publish('cloudflareReceivedCall', {
         cloudflareReceivedCall: {
-          roomState: 'leave',
+          roomState: roomState,
+          customerAudioTrack: audioTrack,
+        },
+      });
+
+      await graphqlPubsub.publish('cloudflareReceiveCall', {
+        cloudflareReceiveCall: {
+          roomState,
           audioTrack,
         },
       });
