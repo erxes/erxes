@@ -44,15 +44,61 @@ const IncomingCallContainer = (props: IProps) => {
 
   const [answerCallMutation] = useMutation(gql(mutations.cloudflareAnswerCall));
   const [stopCallMutation] = useMutation(gql(mutations.cloudflareLeaveCall));
-
   const userMedia = useUserMedia();
+  const { peer, setPushedAudioTrack } = useRoomContext();
+
+  const { data: answeredCall } = useSubscription(
+    gql(subscriptions.webCallReceive),
+    {
+      variables: { roomState: 'answered', audioTrack: audioTrack },
+      fetchPolicy: 'network-only',
+    },
+  );
+  const { data: busyCall } = useSubscription(
+    gql(subscriptions.webCallReceive),
+    {
+      variables: { roomState: 'busy', audioTrack: audioTrack },
+      fetchPolicy: 'network-only',
+    },
+  );
+
+  useEffect(() => {
+    if (
+      answeredCall?.cloudflareReceiveCall?.roomState === 'answered' &&
+      answeredCall.cloudflareReceiveCall.audioTrack !==
+        context.pushedTracks?.audio
+    ) {
+      if (!context?.peer) return;
+
+      if (userMedia?.audioStreamTrack) {
+        context.peer.closeTrack(userMedia.audioStreamTrack);
+      }
+
+      setIsCallReceive?.(false);
+      setPushedAudioTrack('');
+    }
+  }, [answeredCall]);
+  useEffect(() => {
+    if (
+      busyCall?.cloudflareReceiveCall?.roomState === 'busy' &&
+      busyCall.cloudflareReceiveCall.audioTrack !== context.pushedTracks?.audio
+    ) {
+      if (!context?.peer) return;
+
+      if (userMedia?.audioStreamTrack) {
+        context.peer.closeTrack(userMedia.audioStreamTrack);
+      }
+
+      setIsCallReceive?.(false);
+      setPushedAudioTrack('');
+    }
+  }, [busyCall]);
 
   const answerCall = () => {
     setCallStartTime(Date.now()); // Store the timestamp when the call starts
 
     answerCallMutation({
       variables: {
-        roomState: 'answered',
         audioTrack: context.pushedTracks?.audio,
         customerAudioTrack: audioTrack,
       },
@@ -63,15 +109,16 @@ const IncomingCallContainer = (props: IProps) => {
       });
   };
 
-  const stopCall = () => {
+  const stopCall = ({ roomState }: { roomState?: string }) => {
     const endTime = Date.now();
     const duration = callStartTime
       ? Math.floor((endTime - callStartTime) / 1000)
       : 0;
 
+    const roomStatus = roomState ? roomState : 'leave';
     stopCallMutation({
       variables: {
-        roomState: 'leave',
+        roomState: roomStatus,
         originator: 'erxes',
         audioTrack,
         duration,
@@ -94,14 +141,12 @@ const IncomingCallContainer = (props: IProps) => {
   };
 
   const { data: leaveCall } = useSubscription(
-    gql(subscriptions.webCallReceived),
+    gql(subscriptions.webCallReceive),
     {
       variables: { roomState: 'leave', audioTrack },
       fetchPolicy: 'network-only',
     },
   );
-
-  const { peer, setPushedAudioTrack } = useRoomContext();
 
   const pushedAudioTrack =
     peer &&
@@ -149,7 +194,7 @@ const IncomingCallContainer = (props: IProps) => {
     const handleRefresh = (event: BeforeUnloadEvent) => {
       if (!context?.peer) return;
 
-      stopCall();
+      stopCall({ roomState: 'leave' });
 
       event.preventDefault();
       event.returnValue = '';
