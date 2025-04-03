@@ -135,11 +135,7 @@ const getAttributionEmails = async ({
     defaultValue: {},
   });
 
-  console.log({ replacedContent });
-
   const generatedEmails = generateEmails(replacedContent[key]);
-
-  console.log({ replacedContent });
 
   return [...emails, ...generatedEmails];
 };
@@ -259,10 +255,6 @@ export const generateDoc = async ({
 
   let fromUserEmail = version === "saas" ? DEFAULT_AWS_EMAIL : "";
 
-  console.log({ fromUserEmail });
-
-  console.log({ fromUserId });
-
   if (fromUserId) {
     const fromUser = await sendCoreMessage({
       subdomain,
@@ -276,7 +268,6 @@ export const generateDoc = async ({
 
     fromUserEmail = fromUser?.email;
   }
-  console.log({ fromUserEmail });
 
   let replacedContent = (template?.content || "").replace(
     new RegExp(`{{\\s*${type}\\.\\s*(.*?)\\s*}}`, "g"),
@@ -309,7 +300,7 @@ export const generateDoc = async ({
   });
 
   if (!toEmails?.length) {
-    return { error: "Recieving emails not found" };
+    throw new Error('"Recieving emails not found"');
   }
 
   return {
@@ -334,7 +325,9 @@ export const getRecipientEmails = async ({
 
   for (const key of Object.keys(config)) {
     if (reciepentTypeKeys.includes(key) && !!config[key]) {
-      const [serviceName, contentType] = triggerType.split(":");
+      const [serviceName, contentType] = triggerType
+        .replace(".", ":")
+        .split(":");
 
       const { type, ...reciepentType } = reciepentTypes.find(
         (rT) => rT.name === key
@@ -434,8 +427,6 @@ export const handleEmail = async ({
   if (!params) {
     return { error: "Something went wrong fetching data" };
   }
-
-  console.log({ params });
 
   try {
     const responses = await sendEmails({

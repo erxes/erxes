@@ -130,12 +130,8 @@ const getRelatedValue = async (
       defaultValue: [],
     });
 
-    console.log({ contactIds });
-
     const upperCasedTargetKey =
       targetKey.charAt(0).toUpperCase() + targetKey.slice(1);
-
-    console.log(`${targetKey}.findActive${upperCasedTargetKey}`);
 
     const activeContacts = await sendCoreMessage({
       subdomain,
@@ -144,8 +140,6 @@ const getRelatedValue = async (
       isRPC: true,
       defaultValue: [],
     });
-
-    console.log({ relatedValueProps });
 
     if (relatedValueProps && !!relatedValueProps[targetKey]) {
       const { key, filter } = relatedValueProps[targetKey] || {};
