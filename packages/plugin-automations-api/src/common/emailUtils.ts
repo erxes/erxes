@@ -120,6 +120,14 @@ const getAttributionEmails = async ({
     }
   }
 
+  console.log({
+    target: { ...target, type: contentType },
+    config: {
+      [key]: value,
+    },
+    relatedValueProps,
+  });
+
   const replacedContent = await sendCommonMessage({
     subdomain,
     serviceName,
@@ -134,6 +142,7 @@ const getAttributionEmails = async ({
     isRPC: true,
     defaultValue: {},
   });
+  console.log({ replacedContent });
 
   const generatedEmails = generateEmails(replacedContent[key]);
 
@@ -416,19 +425,19 @@ export const handleEmail = async ({
   triggerType,
   config,
 }) => {
-  const params = await generateDoc({
-    subdomain,
-    triggerType,
-    target,
-    config,
-    execution,
-  });
-
-  if (!params) {
-    return { error: "Something went wrong fetching data" };
-  }
-
   try {
+    const params = await generateDoc({
+      subdomain,
+      triggerType,
+      target,
+      config,
+      execution,
+    });
+
+    if (!params) {
+      return { error: "Something went wrong fetching data" };
+    }
+
     const responses = await sendEmails({
       subdomain,
       params,
