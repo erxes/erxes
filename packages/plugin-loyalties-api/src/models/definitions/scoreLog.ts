@@ -10,6 +10,8 @@ export interface IScoreLog {
   description: string;
   createdBy?: string;
   campaignId?: string;
+  serviceName?: string;
+  sourceScoreLogId?: string;
 }
 
 export interface IScoreLogDocument extends IScoreLog, Document {
@@ -33,5 +35,14 @@ export const scoreLogSchema = new Schema({
   description: field({ type: String, label: "Description" }),
   serviceName: field({ type: String, label: "Service name" }),
   targetId: field({ type: String, label: "Target" }),
-  action: field({ type: String, enum: ["add", "subtract"], label: "Action" }),
+  action: field({
+    type: String,
+    enum: ["add", "subtract", "refund"],
+    label: "Action",
+  }),
+  sourceScoreLogId: field({
+    type: String,
+    label: "Source Score Log",
+    optional: true,
+  }),
 });

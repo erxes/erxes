@@ -45,6 +45,7 @@ export const mutations = `
     scoreCampaignUpdate(_id:String,${COMMON_MUTATION_FIELDS}):JSON
     scoreCampaignRemove(_id:String):JSON
     scoreCampaignsRemove(_ids:[String]):JSON
+    refundLoyaltyScore(ownerId:String,ownerType:String,targetId:String):JSON
 `;
 export const queries = `
     scoreCampaigns(${COMMON_QUERIES_FIELDS}):[ScoreCampaign]

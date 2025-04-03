@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { gql, useQuery } from "@apollo/client";
 import Select from "react-select";
-import { Button } from "@erxes/ui/src";
+import { __, Button, ControlLabel, FormGroup } from "@erxes/ui/src";
 import { FlexRow } from "@erxes/ui-settings/src/styles";
 import { queries } from "@erxes/ui-sales/src/boards/graphql";
 import { LinkButton } from "@erxes/ui/src/styles/main";
@@ -61,47 +61,56 @@ const StageSelector = ({
 
   return (
     <FlexRow>
-      <Select
-        id="boards"
-        isLoading={boardsLoading}
-        value={boards.find(({ value }) => value === state.boardId)}
-        options={boards}
-        onChange={(selected) =>
-          onChange({ ...state, boardId: selected?.value }, index)
-        }
-        isClearable
-      />
-      <Select
-        id="pipelines"
-        isLoading={pipelinesLoading}
-        value={pipelines.find(({ value }) => value === state.pipelineId)}
-        options={pipelines}
-        onChange={(selected) =>
-          onChange({ ...state, pipelineId: selected?.value }, index)
-        }
-        isClearable
-      />
-      <Select
-        id="stages"
-        isLoading={stagesLoading}
-        value={stages.filter(({ value }) => state.stageIds?.includes(value))}
-        options={stages}
-        onChange={(selectedOptions) =>
-          onChange(
-            {
-              ...state,
-              stageIds: [
-                ...new Set([
-                  ...(selectedOptions?.map(({ value }) => value) || []),
-                ]),
-              ],
-            },
-            index
-          )
-        }
-        isClearable
-        isMulti
-      />
+      <FormGroup>
+        <ControlLabel>{__("Board")}</ControlLabel>
+        <Select
+          id="boards"
+          isLoading={boardsLoading}
+          value={boards.find(({ value }) => value === state.boardId)}
+          options={boards}
+          onChange={(selected) =>
+            onChange({ ...state, boardId: selected?.value }, index)
+          }
+          isClearable
+        />
+      </FormGroup>
+      <FormGroup>
+        <ControlLabel> {__("Pipeline")}</ControlLabel>
+        <Select
+          id="pipelines"
+          isLoading={pipelinesLoading}
+          value={pipelines.find(({ value }) => value === state.pipelineId)}
+          options={pipelines}
+          onChange={(selected) =>
+            onChange({ ...state, pipelineId: selected?.value }, index)
+          }
+          isClearable
+        />
+      </FormGroup>
+      <FormGroup>
+        <ControlLabel>{__("Stages")}</ControlLabel>
+        <Select
+          id="stages"
+          isLoading={stagesLoading}
+          value={stages.filter(({ value }) => state.stageIds?.includes(value))}
+          options={stages}
+          onChange={(selectedOptions) =>
+            onChange(
+              {
+                ...state,
+                stageIds: [
+                  ...new Set([
+                    ...(selectedOptions?.map(({ value }) => value) || []),
+                  ]),
+                ],
+              },
+              index
+            )
+          }
+          isClearable
+          isMulti
+        />
+      </FormGroup>
       <Button
         btnStyle="danger"
         icon="trash-alt"

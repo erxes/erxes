@@ -47,6 +47,12 @@ export interface IScoreCampaignModel extends Model<IScoreCampaignDocuments> {
     campaignId: string;
     target: any;
   }): Promise<boolean>;
+
+  refundLoyaltyScore(
+    targetId: string,
+    ownerType: string,
+    ownerId: string
+  ): Promise<boolean>;
 }
 
 export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
@@ -295,11 +301,6 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         targetId,
       } = data;
 
-      const actionsObj = {
-        user: "users.updateOne",
-        customer: "customers.updateOne",
-        company: "companies.updateOne",
-      };
       if (!ownerType || !ownerId) {
         throw new Error("You must provide a owner");
       }
@@ -365,24 +366,18 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         const prevChangeScore = scoreLog.changeScore;
         if (changeScore !== scoreLog.changeScore) {
           scoreLog.changeScore = changeScore;
-          await scoreLog.save();
 
           const scoreDifference = changeScore - prevChangeScore;
-          let updatedCustomFieldsData = [...owner.customFieldsData];
-
-          const fieldIndex = updatedCustomFieldsData.findIndex(
-            ({ field }) => field === campaign.fieldId
+          const updatedCustomFieldsData = (owner?.customFieldsData || []).map(
+            (customFieldData) =>
+              customFieldData.field === campaign.fieldId
+                ? {
+                    ...customFieldData,
+                    value: (customFieldData?.value || 0) + -scoreDifference,
+                  }
+                : customFieldData
           );
-          if (fieldIndex !== -1) {
-            updatedCustomFieldsData[fieldIndex].value =
-              Number(updatedCustomFieldsData[fieldIndex].value) +
-              scoreDifference;
-          } else {
-            updatedCustomFieldsData.push({
-              field: campaign.fieldId,
-              value: changeScore,
-            });
-          }
+
           const preparedCustomFieldsData = await sendCoreMessage({
             subdomain,
             action: "fields.prepareCustomFieldsData",
@@ -391,18 +386,13 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
             isRPC: true,
           });
 
-          await sendCoreMessage({
-            subdomain,
-            action: actionsObj[ownerType],
-            data: {
-              selector: { _id: ownerId },
-              modifier: {
-                $set: { customFieldsData: preparedCustomFieldsData },
-              },
-            },
-            isRPC: true,
-            defaultValue: null,
+          this.updateOwnerScore({
+            ownerId,
+            ownerType,
+            updatedCustomFieldsData: preparedCustomFieldsData,
           });
+
+          await scoreLog.save();
           return;
         }
 
@@ -457,16 +447,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         );
       }
 
-      await sendCoreMessage({
-        subdomain,
-        action: actionsObj[ownerType],
-        data: {
-          selector: { _id: ownerId },
-          modifier: { $set: { customFieldsData: updatedCustomFieldsData } },
-        },
-        isRPC: true,
-        defaultValue: null,
-      });
+      this.updateOwnerScore({ ownerId, ownerType, updatedCustomFieldsData });
 
       return await models.ScoreLogs.create({
         ownerId,
@@ -477,6 +458,128 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         serviceName,
         targetId,
         action: actionMethod,
+      });
+    }
+
+    public static async refundLoyaltyScore(
+      targetId: string,
+      ownerType: string,
+      ownerId: string
+    ) {
+      if (!targetId || !ownerId || !ownerType) {
+        throw new Error("Please provide owner & target");
+      }
+
+      const scoreLog = await models.ScoreLogs.findOne({
+        targetId,
+        ownerId,
+        action: "subtract",
+      });
+
+      if (!scoreLog) {
+        throw new Error("Cannot find score log on this target");
+      }
+      if (
+        await models.ScoreLogs.exists({
+          targetId,
+          ownerId,
+          action: "refund",
+          sourceScoreLogId: scoreLog._id,
+        })
+      ) {
+        throw new Error(
+          "Cannot refund loyalty score cause already refunded loyalty score"
+        );
+      }
+
+      let { changeScore, campaignId } = scoreLog;
+
+      const campaign = await models.ScoreCampaigns.findOne({ _id: campaignId });
+      if (!campaign) {
+        throw new Error(
+          "Error occurred while retrieving the score campaign from the score log for the target and owner."
+        );
+      }
+
+      const addedScoreLogs = await models.ScoreLogs.find({
+        targetId,
+        ownerId,
+        action: "add",
+      });
+
+      if (addedScoreLogs) {
+        const totalAddedScore = addedScoreLogs.reduce(
+          (acc, curr) => acc + curr.changeScore,
+          0
+        );
+        changeScore = changeScore - totalAddedScore;
+      }
+
+      const { fieldId } = campaign;
+
+      const owner = await getOwner(subdomain, ownerType, ownerId);
+
+      if (!owner) {
+        throw new Error("Cannot find owner");
+      }
+
+      const { customFieldsData = [] } = owner || {};
+
+      const updatedCustomFieldsData = customFieldsData.map((customFieldData) =>
+        customFieldData.field === fieldId
+          ? {
+              ...customFieldData,
+              value: (customFieldData?.value || 0) + changeScore,
+            }
+          : customFieldData
+      );
+
+      const preparedCustomFieldsData = await sendCoreMessage({
+        subdomain,
+        action: "fields.prepareCustomFieldsData",
+        data: updatedCustomFieldsData,
+        defaultValue: [],
+        isRPC: true,
+      });
+
+      await this.updateOwnerScore({
+        ownerId,
+        ownerType,
+        updatedCustomFieldsData: preparedCustomFieldsData,
+      });
+
+      return await models.ScoreLogs.create({
+        ownerId,
+        ownerType,
+        changeScore,
+        createdAt: new Date(),
+        campaignId: campaign._id,
+        serviceName: scoreLog.serviceName,
+        targetId,
+        action: "refund",
+        sourceScoreLogId: scoreLog._id,
+      });
+    }
+
+    static async updateOwnerScore({
+      ownerId,
+      ownerType,
+      updatedCustomFieldsData,
+    }) {
+      const actionsObj = {
+        user: "users.updateOne",
+        customer: "customers.updateOne",
+        company: "companies.updateOne",
+      };
+      return await sendCoreMessage({
+        subdomain,
+        action: actionsObj[ownerType],
+        data: {
+          selector: { _id: ownerId },
+          modifier: { $set: { customFieldsData: updatedCustomFieldsData } },
+        },
+        isRPC: true,
+        defaultValue: null,
       });
     }
   }

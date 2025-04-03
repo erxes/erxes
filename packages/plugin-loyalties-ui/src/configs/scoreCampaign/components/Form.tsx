@@ -289,7 +289,6 @@ const SelectField = ({ state, contentType, dispatch }) => {
           }}
           onSelect={(value) => dispatch({ fieldId: value })}
           generateOptions={(field) => {
-            console.log(field);
             return field.map(({ _id, text }) => ({ value: _id, label: text }));
           }}
         />
@@ -410,13 +409,11 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
   const generateDoc = (values) => {
     const object = { ...values, ...state };
     const prevFieldId = campaign?.fieldId;
-    console.log({ prevFieldId, s: state.fieldId });
     if (
       state.fieldId !== prevFieldId &&
       !!campaign?.fieldName &&
       currentFieldTab === "exists"
     ) {
-      console.log("dashdbas");
       object.fieldName = "";
     }
     if (
@@ -426,7 +423,6 @@ export default function Form({ campaign, closeModal, refetch }: Props) {
     ) {
       object.fieldId === "";
     }
-    console.log({ object });
 
     return object;
   };

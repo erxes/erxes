@@ -3,6 +3,8 @@ import {
   ContentRowTitle,
   Divider,
   WrongLess,
+  PaymentTypeScoreCampaign,
+  FlexRowGap,
 } from "../../styles";
 import Select, { components } from "react-select";
 
@@ -13,10 +15,14 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import { IDeal, IPaymentsData } from "../../types";
 import { PAYMENT_TYPES } from "../../constants";
 import React from "react";
-import { __ } from "@erxes/ui/src/utils";
+import { __, Alert, confirm } from "@erxes/ui/src/utils";
 import { pluginsOfPaymentForm } from "coreui/pluginUtils";
 import { selectConfigOptions } from "../../utils";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import Button from "@erxes/ui/src/components/Button";
+import Popover from "@erxes/ui/src/components/Popover";
+import Icon from "@erxes/ui/src/components/Icon";
+import { colors } from "@erxes/ui/src/styles";
 
 type Props = {
   total: { [currency: string]: number };
@@ -39,6 +45,11 @@ const scoreCampaignQuery = `
     checkOwnerScore(ownerId: $ownerId, ownerType: $ownerType, campaignId: $campaignId)
   }
 `;
+const refundScoreCampaignMutation = `
+    mutation RefundLoyaltyScore($ownerId: String, $ownerType: String, $targetId: String) {
+     refundLoyaltyScore(ownerId: $ownerId, ownerType: $ownerType, targetId: $targetId)
+    }
+`;
 
 const OwnerScoreCampaignScore = ({
   type,
@@ -55,13 +66,20 @@ const OwnerScoreCampaignScore = ({
 
   const [customer] = dealQuery.customers || [];
 
-  const { data } = useQuery(gql(scoreCampaignQuery), {
+  const { data, refetch } = useQuery(gql(scoreCampaignQuery), {
     variables: {
       ownerType: "customer",
       ownerId: customer._id,
       campaignId: type.scoreCampaignId,
     },
     fetchPolicy: "no-cache",
+  });
+  const [refundLoyaltyScore] = useMutation(gql(refundScoreCampaignMutation), {
+    variables: {
+      ownerId: customer._id,
+      ownerType: "customer",
+      targetId: dealQuery._id,
+    },
   });
 
   const { checkOwnerScore = 0 } = data || {};
@@ -72,7 +90,34 @@ const OwnerScoreCampaignScore = ({
     }
   }, [checkOwnerScore, onScoreFetched]);
 
-  return <div>{`/Avaible score campaign score: ${checkOwnerScore}/`}</div>;
+  const refundScore = () => {
+    confirm(
+      "This action will refund all loyalty scores used on this card and deduct any retrieved scores before processing the refund.\n Are you sure ?"
+    ).then(() => {
+      try {
+        refundLoyaltyScore().catch((error) => Alert.error(error.message));
+        refetch();
+      } catch (error) {}
+    });
+  };
+  return (
+    <Popover
+      trigger={<Icon icon="award" size={16} color={colors.colorCoreOrange} />}
+    >
+      <PaymentTypeScoreCampaign>
+        <p>{`Customer email: ${customer.primaryEmail}`}</p>
+        <span>{`Avaible score campaign score: ${checkOwnerScore}`}</span>
+        <Button
+          size="small"
+          btnStyle="warning"
+          icon="refresh-1"
+          onClick={refundScore}
+        >
+          {__("Return Score")}
+        </Button>
+      </PaymentTypeScoreCampaign>
+    </Popover>
+  );
 };
 
 class PaymentForm extends React.Component<Props, State> {
@@ -192,12 +237,14 @@ class PaymentForm extends React.Component<Props, State> {
     return (
       <Flex key={type.name}>
         <ContentColumn>
-          <ControlLabel>{__(type.title)}</ControlLabel>
-          <OwnerScoreCampaignScore
-            type={type}
-            dealQuery={this.props.dealQuery}
-            onScoreFetched={this.handleScoreFetched}
-          />
+          <FlexRowGap>
+            <ControlLabel>{__(type.title)}</ControlLabel>
+            <OwnerScoreCampaignScore
+              type={type}
+              dealQuery={this.props.dealQuery}
+              onScoreFetched={this.handleScoreFetched}
+            />
+          </FlexRowGap>
         </ContentColumn>
 
         <ContentColumn>
