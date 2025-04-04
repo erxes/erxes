@@ -4,13 +4,15 @@ import { field, schemaWrapper } from './utils';
 import { ICommonAdjusting } from './commonAdjusting';
 
 export interface IAdjInvDetail {
-  _id: string;
   productId: string;
   remainder: number;
   cost: number;
   unitCost: number;
-  soonInCount: number;
-  soonOutCount: number;
+  soonInCount?: number;
+  soonOutCount?: number;
+
+  error?: string;
+  warning?: string;
 }
 
 export interface IAdjustInventory extends ICommonAdjusting {
@@ -20,6 +22,8 @@ export interface IAdjustInventory extends ICommonAdjusting {
   departmentId: string;
   description: string;
   status: string;
+
+  checkedDate: Date;
   productIds?: string[];
   details?: IAdjInvDetail[];
 }
@@ -59,6 +63,7 @@ export const adjustInventoriesSchema = schemaWrapper(
     departmentId: field({ type: String, label: 'department' }),
     description: field({ type: String, label: 'description' }),
     status: field({ type: String, default: 'draft', enum: ADJ_INV_STATUSES.all, label: 'status' }),
+    checkedDate: field({ type: Date, label: 'date' }),
     productIds: field({ type: [String], label: 'products' }),
     details: field({ type: [adjInvDetailSchema], label: 'products' }),
     createdBy: field({ type: String, label: 'Created user' }),
