@@ -20,7 +20,7 @@ export const INTEGRATION_KINDS = {
 };
 
 
-export const BOT_SUBSCRIcBE_FIELDS=  [
+export const BOT_SUBSCRIBE_FIELDS=  [
   "messages",
   "messaging_postbacks",
   "messaging_referrals"
