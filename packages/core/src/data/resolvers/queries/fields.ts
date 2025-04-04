@@ -1,15 +1,15 @@
 import {
   checkPermission,
   requireLogin,
-} from '@erxes/api-utils/src/permissions';
+} from "@erxes/api-utils/src/permissions";
 import {
   fieldsCombinedByContentType,
   getContentTypes,
-} from '../../../formUtils';
+} from "../../../formUtils";
 
-import { fetchServiceForms } from '../../../messageBroker';
-import { IContext } from '../../../connectionResolver';
-import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { fetchServiceForms } from "../../../messageBroker";
+import { IContext } from "../../../connectionResolver";
+import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
 interface IFieldsDefaultColmns {
   [index: number]: { name: string; label: string; order: number } | {};
 }
@@ -22,6 +22,7 @@ export interface IFieldsQuery {
   searchable?: boolean;
   isVisibleToCreate?: boolean;
   groupId?: any;
+  isDisabled?: boolean;
 }
 
 const fieldQueries = {
@@ -51,22 +52,22 @@ const fieldQueries = {
   async getFieldsInputTypes() {
     const services = await getServices();
     const fieldInputTypes: Array<{ value: string; label: string }> = [
-      { value: 'input', label: 'Input' },
-      { value: 'list', label: 'String List' },
-      { value: 'objectList', label: 'Object List' },
-      { value: 'textarea', label: 'Text area' },
-      { value: 'select', label: 'Select' },
-      { value: 'multiSelect', label: 'Multiple select' },
-      { value: 'labelSelect', label: 'Label select' },
-      { value: 'check', label: 'Checkbox' },
-      { value: 'radio', label: 'Radio button' },
-      { value: 'file', label: 'File' },
-      { value: 'customer', label: 'Customer' },
-      { value: 'product', label: 'Product' },
-      { value: 'users', label: 'Team members' },
-      { value: 'branch', label: 'Branch' },
-      { value: 'department', label: 'Department' },
-      { value: 'map', label: 'Location/Map' },
+      { value: "input", label: "Input" },
+      { value: "list", label: "String List" },
+      { value: "objectList", label: "Object List" },
+      { value: "textarea", label: "Text area" },
+      { value: "select", label: "Select" },
+      { value: "multiSelect", label: "Multiple select" },
+      { value: "labelSelect", label: "Label select" },
+      { value: "check", label: "Checkbox" },
+      { value: "radio", label: "Radio button" },
+      { value: "file", label: "File" },
+      { value: "customer", label: "Customer" },
+      { value: "product", label: "Product" },
+      { value: "users", label: "Team members" },
+      { value: "branch", label: "Branch" },
+      { value: "department", label: "Department" },
+      { value: "map", label: "Location/Map" },
     ];
 
     for (const serviceName of services) {
@@ -102,6 +103,7 @@ const fieldQueries = {
       pipelineId,
       groupIds: inputGroupIds,
       isDefinedByErxes,
+      isDisabled,
     }: {
       contentType: string;
       contentTypeId: string;
@@ -111,15 +113,16 @@ const fieldQueries = {
       pipelineId: string;
       groupIds: string[];
       isDefinedByErxes: boolean;
+      isDisabled: boolean;
     },
     { models }: IContext
   ) {
     const query: IFieldsQuery = { contentType };
 
     if (contentType) {
-      const [serviceName, serviceType] = contentType.split(':');
+      const [serviceName, serviceType] = contentType.split(":");
 
-      if (serviceType === 'all') {
+      if (serviceType === "all") {
         const contentTypes: Array<string> = await getContentTypes(serviceName);
         query.contentType = { $in: contentTypes } as any;
       } else {
@@ -162,10 +165,13 @@ const fieldQueries = {
     if (isDefinedByErxes) {
       query.isDefinedByErxes = isDefinedByErxes;
     }
+    if (isDisabled) {
+      query.isDisabled = isDisabled;
+    }
 
     if (pipelineId) {
       const otherGroupIds = await models.FieldsGroups.find({
-        'config.boardsPipelines.pipelineIds': { $in: [pipelineId] },
+        "config.boardsPipelines.pipelineIds": { $in: [pipelineId] },
       })
         .select({ _id: 1 })
         .sort({ order: 1 });
@@ -195,6 +201,8 @@ const fieldQueries = {
       query.groupId = { $in: groupIds };
     }
 
+    console.log({ query });
+
     return models.Fields.find(query).sort({ order: 1 });
   },
 
@@ -216,7 +224,7 @@ const fieldQueries = {
     _root,
     { contentType }: { contentType: string }
   ): Promise<IFieldsDefaultColmns> {
-    const [serviceName, type] = contentType.split(':');
+    const [serviceName, type] = contentType.split(":");
     const service = await getService(serviceName);
 
     if (!service) {
@@ -267,11 +275,11 @@ const fieldQueries = {
   },
 };
 
-requireLogin(fieldQueries, 'fieldsCombinedByContentType');
-requireLogin(fieldQueries, 'fieldsDefaultColumnsConfig');
+requireLogin(fieldQueries, "fieldsCombinedByContentType");
+requireLogin(fieldQueries, "fieldsDefaultColumnsConfig");
 
-checkPermission(fieldQueries, 'fields', 'showForms', []);
-checkPermission(fieldQueries, 'fieldsGetDetail', 'showForms', []);
+checkPermission(fieldQueries, "fields", "showForms", []);
+checkPermission(fieldQueries, "fieldsGetDetail", "showForms", []);
 
 const fieldsGroupQueries = {
   /**
@@ -300,9 +308,9 @@ const fieldsGroupQueries = {
     query.contentType = contentType;
 
     if (contentType) {
-      const [serviceName, serviceType] = contentType.split(':');
+      const [serviceName, serviceType] = contentType.split(":");
 
-      if (serviceType === 'all') {
+      if (serviceType === "all") {
         const contentTypes: Array<string> = await getContentTypes(serviceName);
         query.contentType = { $in: contentTypes };
       } else {
@@ -314,7 +322,7 @@ const fieldsGroupQueries = {
       query = await fetchServiceForms(
         subdomain,
         contentType,
-        'groupsFilter',
+        "groupsFilter",
         { config, contentType },
         query
       );
@@ -347,6 +355,6 @@ const fieldsGroupQueries = {
   },
 };
 
-checkPermission(fieldsGroupQueries, 'fieldsGroups', 'showForms', []);
+checkPermission(fieldsGroupQueries, "fieldsGroups", "showForms", []);
 
 export { fieldQueries, fieldsGroupQueries };

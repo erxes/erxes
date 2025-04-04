@@ -10,6 +10,8 @@ const mutationParams = `
     $fieldGroupId:String
     $fieldName: String
     $fieldId: String
+    $serviceName:String,
+    $additionalConfig:JSON
 `;
 const mutationParamsDef = `
     title: $title,
@@ -23,6 +25,8 @@ const mutationParamsDef = `
     fieldGroupId: $fieldGroupId
     fieldName: $fieldName
     fieldId: $fieldId
+    serviceName:$serviceName
+    additionalConfig:$additionalConfig
 `;
 
 const add = `
