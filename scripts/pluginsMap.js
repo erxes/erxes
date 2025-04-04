@@ -680,7 +680,8 @@ module.exports = {
         "./automation": "./src/automations/automation.tsx",
         "./contactDetailRightSidebar": "./src/RightSidebar.tsx",
         "./selectRelation": "./src/common/SelectRelation.tsx",
-        "./invoiceDetailRightSection": "./src/common/Item.tsx"
+        "./invoiceDetailRightSection": "./src/common/Item.tsx",
+        "./scoreCampaignConfig": "./src/scoreCampaignConfig.tsx"
       },
       "routes": {
         "url": "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-sales-ui/remoteEntry.js",
@@ -694,6 +695,7 @@ module.exports = {
       "contactDetailRightSidebar": "./contactDetailRightSidebar",
       "invoiceDetailRightSection": "./invoiceDetailRightSection",
       "selectRelation": "./selectRelation",
+      "scoreCampaignConfig": "./scoreCampaignConfig",
       "menus": [
         {
           "text": "Sales Pipeline",
