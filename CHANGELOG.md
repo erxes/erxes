@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.9.1](https://github.com/erxes/erxes/compare/2.9.0...2.9.1) (2025-04-04)
+
+### Bug Fixes
+
+* add permission dealsRemoveProductsData and productsData filter by barcode ([e7d859a](https://github.com/erxes/erxes/commit/e7d859aa7c2f96b4dcb2298b8105b03a6097ab3c))
+* syncerkhet return with records ([caa532f](https://github.com/erxes/erxes/commit/caa532f37119cbbad1a86820fff621067f9dc56a))
+* update pluginsMap ([24f7a54](https://github.com/erxes/erxes/commit/24f7a54408a64995f74c0a0be557f15ed3e7de77))
+
 ## [2.9.0](https://github.com/erxes/erxes/compare/2.8.3...2.9.0) (2025-04-02)
 
 ### Features
