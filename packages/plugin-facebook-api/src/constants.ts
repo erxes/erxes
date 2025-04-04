@@ -21,7 +21,6 @@ export const INTEGRATION_KINDS = {
 
 
 export const BOT_SUBSCRIBE_FIELDS=  [
-  "messages",
   "messaging_postbacks",
   "messaging_referrals"
 ]
