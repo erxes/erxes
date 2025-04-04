@@ -82,7 +82,7 @@ const GeneralSettings = (props: Props) => {
 
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
-    { title: __('Places config') },
+    { title: __('Split config') },
   ];
 
   const actionButtons = (
@@ -94,12 +94,12 @@ const GeneralSettings = (props: Props) => {
   return (
     <Wrapper
       header={
-        <Wrapper.Header title={__('Places config')} breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__('Split config')} breadcrumb={breadcrumb} />
       }
       mainHead={<Header />}
       actionBar={
         <Wrapper.ActionBar
-          left={<Title>{__('Places configs')}</Title>}
+          left={<Title>{__('Split configs')}</Title>}
           right={actionButtons}
         />
       }

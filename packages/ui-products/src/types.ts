@@ -31,6 +31,7 @@ export interface IProduct {
   type: string;
   categoryId: string;
   description: string;
+  tagIds: string[];
   getTags?: ITag[];
   barcodes: string[];
   variants: IVariant;
