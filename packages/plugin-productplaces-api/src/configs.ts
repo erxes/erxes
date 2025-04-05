@@ -4,6 +4,7 @@ import { generateModels } from './connectionResolver';
 
 import { setupMessageConsumers } from './messageBroker';
 import afterMutations from './afterMutations';
+import beforeResolvers from './beforeResolvers';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 
@@ -31,10 +32,11 @@ export default {
     return context;
   },
 
-  onServerInit: async () => {},
+  onServerInit: async () => { },
   setupMessageConsumers,
   meta: {
     afterMutations,
+    beforeResolvers,
     permissions,
   },
 };
