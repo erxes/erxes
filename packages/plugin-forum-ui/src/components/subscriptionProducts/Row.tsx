@@ -46,8 +46,7 @@ class Row extends React.Component<Props> {
     );
 
     return (
-      <>
-        <tr>
+      <tr>
           <td>{name}</td>
           <td>{description}</td>
           <td>{multiplier}</td>
@@ -60,14 +59,10 @@ class Row extends React.Component<Props> {
           <td>
             <Label
               lblStyle={
-                userType === null
-                  ? 'success'
-                  : userType === 'customer'
-                  ? 'warning'
-                  : 'default'
+                userType === null && 'success' || userType === 'customer' && 'warning' || 'default'
               }
             >
-              {userType ? userType : 'All'}
+              {userType || 'All'}
             </Label>
           </td>
           <td>{listOrder.toLocaleString()}</td>
@@ -90,7 +85,6 @@ class Row extends React.Component<Props> {
             </ActionButtons>
           </td>
         </tr>
-      </>
     );
   }
 }

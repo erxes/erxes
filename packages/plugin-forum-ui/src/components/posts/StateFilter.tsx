@@ -17,14 +17,14 @@ function StateFilter({ emptyText }: IProps) {
 
   const data = (
     <SidebarList>
-      {stateFilters.map((state, index) => {
+      {stateFilters.map((state) => {
         const onClick = () => {
           router.setParams(navigate, location, { state: state.key });
           router.removeParams(navigate, location, "page");
         };
 
         return (
-          <li key={index}>
+          <li key={state.key}>
             <a
               href="#filter"
               tabIndex={0}
