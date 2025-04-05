@@ -22,7 +22,7 @@ type Props = {
   duplicateProduct: (_id: string) => void;
 };
 
-const Row: React.FC<Props> = (props) => {
+const Row: React.FC<Props> = props => {
   const { product, toggleBulk, isChecked, duplicateProduct } = props;
   const navigate = useNavigate();
 
@@ -36,13 +36,13 @@ const Row: React.FC<Props> = (props) => {
     </Button>
   );
 
-  const onChange = (e) => {
+  const onChange = e => {
     if (toggleBulk) {
       toggleBulk(product, e.target.checked);
     }
   };
 
-  const onClick = (e) => {
+  const onClick = e => {
     e.stopPropagation();
   };
 
@@ -50,9 +50,9 @@ const Row: React.FC<Props> = (props) => {
     navigate(`/settings/product-service/details/${product._id}`);
   };
 
-  const content = (props) => <ProductForm {...props} product={product} />;
+  const content = props => <ProductForm {...props} product={product} />;
 
-  const { _id, code, name, type, category, unitPrice } = product;
+  const { _id, code, name, type, category, unitPrice, bundle } = product;
 
   return (
     <tr onClick={onTrClick}>
@@ -73,6 +73,7 @@ const Row: React.FC<Props> = (props) => {
       <td>
         <Tags tags={tags} limit={2} />
       </td>
+      <td>{bundle?.name || ""}</td>
       <td onClick={onClick}>
         <ActionButtons>
           <ModalTrigger
