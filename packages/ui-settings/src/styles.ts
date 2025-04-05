@@ -1,8 +1,7 @@
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 
 import { DateContainer } from '@erxes/ui/src/styles/main';
-import { lighten } from '@erxes/ui/src/styles/ecolor';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
+import { lighten, rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
