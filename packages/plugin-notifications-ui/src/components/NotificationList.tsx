@@ -55,10 +55,10 @@ const NotificationList = (props: Props) => {
   const renderContent = () => {
     return (
       <NotifList>
-        {notifications.map((notif, key) => (
+        {notifications.map((notif) => (
           <NotificationRow
             notification={notif}
-            key={key}
+            key={notif._id}
             markAsRead={markAsRead}
             isList={true}
           />

@@ -15,7 +15,6 @@ type Props = {
 };
 
 const SelectPaymentsContainer = (props: ChildProps<Props>) => {
-  const [paymentIds, setPaymentIds] = React.useState<string[]>([]);
 
   const paymentsQuery = useQuery<PaymentsQueryResponse>(queries.payments, {
     variables: { status: 'active' },
