@@ -99,9 +99,10 @@ class FolderChooser extends React.Component<Props, State> {
 
   render() {
     const Option = (props) => {
+      const { data, renderOptions, ...rest } = props;
       return (
-        <components.Option {...props}>
-          {this.renderOptions(props.data)}
+        <components.Option {...rest}>
+          {renderOptions(data)}
         </components.Option>
       );
     };
