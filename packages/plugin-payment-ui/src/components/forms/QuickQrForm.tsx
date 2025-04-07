@@ -39,6 +39,7 @@ type State = {
   businessName: string;
   bankCode: string;
   bankAccount: string;
+  ibanNumber: string;
   bankAccountName: string;
   isFlat: boolean;
   merchantId: string;
@@ -80,6 +81,7 @@ const QuickQrForm = (props: Props) => {
         bankAccount: state.bankAccount,
         bankAccountName: state.bankAccountName,
         merchantId: state.merchantId,
+        ibanNumber: state.ibanNumber,
       },
     };
 
@@ -201,6 +203,7 @@ const QuickQrForm = (props: Props) => {
             ))}
           </FormControl>
         </FormGroup>
+        {renderItem('ibanNumber', 'IBAN Number')}
         {renderItem('bankAccountName', 'Account Name', 'Account holder name')}
       </div>
     );
