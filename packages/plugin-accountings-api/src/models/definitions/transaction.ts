@@ -32,6 +32,7 @@ export interface ITrDetail {
 export interface ITransaction {
   _id?: string;
   date: Date;
+  fullDate?: Date;
   description: string;
   status?: string;
   ptrId?: string;
@@ -163,6 +164,7 @@ export const transactionSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     date: field({ type: Date, label: 'Date' }),
+    fullDate: field({ type: Date, index: true, label: 'Date' }),
     description: field({ type: String, optional: true, label: 'Description' }),
     status: field({
       type: String,
