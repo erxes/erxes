@@ -4,10 +4,10 @@ import {
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
-  copyParams,
-} from './common';
+  copyParams
+} from "./common";
 
-export const types = ({ contacts }) => `
+export const types = ({ contacts, clientPortal }) => `
   type DealListItem @key(fields: "_id") {
     products: JSON
     unUsedAmount: JSON
@@ -28,7 +28,7 @@ export const types = ({ contacts }) => `
       companies: [Company]
       customers: [Customer]
       `
-        : ''
+        : ""
     }
 
     tags: [Tag]
@@ -36,6 +36,8 @@ export const types = ({ contacts }) => `
     products: JSON
     productsData: JSON
     paymentsData: JSON
+    ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ""}
+
     ${commonTypes}
   }
 
@@ -69,6 +71,7 @@ const commonQueryParams = `
   pipelineId: String
   pipelineIds: [String]
   customerIds: [String]
+  vendorCustomerIds: [String]
   companyIds: [String]
   assignedUserIds: [String]
   productIds: [String]
