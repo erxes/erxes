@@ -36,6 +36,18 @@ const PrintSetting = () => {
   );
 };
 
+const DefaultFilterSettings = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "DefaultFilterSettings" */ "./components/DefaultFilterSettings")
+);
+
+
+const DefaultFilterSetting = () => {
+  return (
+    <Settings component={DefaultFilterSettings} configCode="dealsProductsDefaultFilter" />
+  );
+};
+
 const routes = () => {
   return (
     <Routes>
@@ -53,6 +65,11 @@ const routes = () => {
         key="/erxes-plugin-product-places/settings/print"
         path="/erxes-plugin-product-places/settings/print"
         element={<PrintSetting />}
+      />
+      <Route
+        key="/erxes-plugin-product-places/settings/productFilter"
+        path="/erxes-plugin-product-places/settings/productFilter"
+        element={<DefaultFilterSetting />}
       />
     </Routes>
   );

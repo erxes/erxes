@@ -12,6 +12,8 @@ export const types = `
         fieldGroupId:String,
         fieldName:String,
         fieldId:String,
+        serviceName:String,
+        additionalConfig:JSON
     }
 `;
 
@@ -27,12 +29,15 @@ const COMMON_MUTATION_FIELDS = `
     fieldGroupId:String
     fieldName: String
     fieldId: String
+    serviceName:String
+    additionalConfig:JSON
 `;
 const COMMON_QUERIES_FIELDS = `
     page: Int,
     perPage: Int,
     searchValue:String,
     status:String
+    serviceName:String
 `;
 
 export const mutations = `
@@ -40,11 +45,13 @@ export const mutations = `
     scoreCampaignUpdate(_id:String,${COMMON_MUTATION_FIELDS}):JSON
     scoreCampaignRemove(_id:String):JSON
     scoreCampaignsRemove(_ids:[String]):JSON
+    refundLoyaltyScore(ownerId:String,ownerType:String,targetId:String):JSON
 `;
 export const queries = `
     scoreCampaigns(${COMMON_QUERIES_FIELDS}):[ScoreCampaign]
     scoreCampaignsTotalCount(${COMMON_QUERIES_FIELDS}):Int
     scoreCampaign(_id:String):ScoreCampaign
-    scoreCampaignAttributes:JSON
+    scoreCampaignAttributes(serviceName:String):JSON
+    scoreCampaignServices:JSON
     checkOwnerScore(ownerId:String,ownerType:String,campaignId:String,action:String):JSON
 `;

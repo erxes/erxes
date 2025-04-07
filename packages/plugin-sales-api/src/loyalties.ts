@@ -1,24 +1,30 @@
-import { generateModels } from './connectionResolver';
+import { generateModels } from "./connectionResolver";
 
 const getPaymentsAttributes = async (subdomain) => {
   const models = await generateModels(subdomain);
 
-  const paymentTypes = await models.Pipelines.find({
-  }).distinct('paymentTypes');
+  const paymentTypes = await models.Pipelines.find({}).distinct("paymentTypes");
 
   return paymentTypes.map(({ type, title }) => ({
     label: `Sales payment type ${title} amount`,
-    value: `paymentsData-${type}-amount`
+    value: `paymentsData-${type}-amount`,
   }));
 };
 
 export default {
+  name: "sales",
+  label: "Sales pipeline",
+  icon: "piggy-bank",
+  isAviableAdditionalConfig: true,
   getScoreCampaingAttributes: async ({ subdomain }) => {
     return [
-      { label: 'Sales Total Amount', value: 'totalAmount' },
-      { label: 'Sales Cash Amount', value: 'paymentsData-cash-amount' },
-      { label: 'Exclude Sales Amount from campaign amount', value: 'excludeAmount' },
-      ...(await getPaymentsAttributes(subdomain))
+      { label: "Sales Total Amount", value: "totalAmount" },
+      { label: "Sales Cash Amount", value: "paymentsData-cash-amount" },
+      {
+        label: "Exclude Sales Amount from campaign amount",
+        value: "excludeAmount",
+      },
+      ...(await getPaymentsAttributes(subdomain)),
     ];
-  }
+  },
 };
