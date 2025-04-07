@@ -236,6 +236,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
             account_bank_code: this.config.bankCode,
             account_number: this.config.bankAccount,
             account_name: this.config.bankAccountName,
+            iban_number: this.config.ibanNumber,
             is_default: true,
           },
         ],

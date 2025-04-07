@@ -12,7 +12,7 @@ module.exports = {
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator('cloudflareReceiveCall'),
           (payload,variables) => {
-            return payload.cloudflareReceiveCall.userId === variables.userId && 'leave' !== variables.roomState || 'leave' === variables.roomState && payload.cloudflareReceiveCall.audioTrack === variables.audioTrack;
+            return (payload.cloudflareReceiveCall.userId === variables.userId && 'ready' === variables.roomState) || 'leave' === variables.roomState && payload.cloudflareReceiveCall.audioTrack === variables.audioTrack || 'answered' === variables.roomState && payload.cloudflareReceiveCall.customerAudioTrack === variables.audioTrack || 'busy' === variables.roomState && payload.cloudflareReceiveCall.audioTrack === variables.audioTrack;
           }
         )
       },
@@ -20,7 +20,7 @@ module.exports = {
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator('cloudflareReceivedCall'),
           (payload,variables) => {
-            return 'leave' !== variables.roomState || payload.cloudflareReceivedCall.audioTrack === variables.audioTrack && variables.roomState === 'leave';
+            return payload.cloudflareReceivedCall.customerAudioTrack === variables.audioTrack;
           }
         )
       }

@@ -13,7 +13,7 @@ import { IAttachment, IAttachmentMessage } from "./types";
 import { getFileUploadConfigs } from "./messageBroker";
 import { randomAlphanumeric } from "@erxes/api-utils/src/random";
 import { getSubdomain } from "@erxes/api-utils/src/core";
-import { BOT_SUBSCRIcBE_FIELDS } from "./constants";
+import { BOT_SUBSCRIBE_FIELDS } from "./constants";
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
@@ -154,8 +154,8 @@ export const subscribePage = async (
 
   const bot = await models.Bots.findOne({pageId})
 
-  if(!bot){
-    subscribed_fields = [...new Set([...subscribed_fields,...BOT_SUBSCRIcBE_FIELDS])]
+  if(bot){
+    subscribed_fields = [...new Set([...subscribed_fields,...BOT_SUBSCRIBE_FIELDS])]
   }
 
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {

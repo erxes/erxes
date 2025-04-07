@@ -2,7 +2,7 @@ import styled, { css } from "styled-components";
 import styledTS from "styled-components-ts";
 import { colors, dimensions } from "@erxes/ui/src/styles/";
 import { rgba } from "@erxes/ui/src/styles/ecolor";
-import { SidebarList } from '@erxes/ui/src/layout/styles';
+import { SidebarList } from "@erxes/ui/src/layout/styles";
 
 export const CustomRangeContainer = styled.div`
   display: flex;
@@ -10,7 +10,7 @@ export const CustomRangeContainer = styled.div`
   > div {
     flex: 1;
     margin-right: 8px;
-    input[type='text'] {
+    input[type="text"] {
       border: none;
       width: 100%;
       height: 34px;
@@ -41,12 +41,12 @@ export const ExtraButtons = styled.div`
 `;
 
 export const BoxContainer = styled(SidebarList)`
-
   padding-top: 10px;
 
-  > li, > a > li {
+  > li,
+  > a > li {
     padding: 6px 0 !important;
-  };
+  }
 
   > a {
     padding: 0;
@@ -74,8 +74,8 @@ export const ContentBox = styled.div`
   text-align: center;
 `;
 
-export const PaddingTop = styled.div`
-  padding-top: ${dimensions.unitSpacing}px;
+export const PaddingTop = styledTS<{ padding?: number }>(styled.div)`
+  padding-top: ${({ padding }) => (padding ? `${padding + dimensions.unitSpacing}px` : `${dimensions.unitSpacing}px`)} ;
 `;
 
 export const TriggerTabs = styled.div`
@@ -213,13 +213,16 @@ export const FormFooter = styled.div`
   justify-content: flex-end;
 `;
 
-export const OwnerBox = styledTS<{ $isSelected?: boolean }>(styled.div)`
+export const OwnerBox = styledTS<{
+  $isSelected?: boolean;
+  isWithActions?: boolean;
+}>(styled.div)`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 5px;
   align-items: center;
+  padding: 4px 12px;
   color: ${colors.colorCoreGray};
-  padding: 10px 0;
   cursor: pointer;
   box-shadow: ${(props) =>
     props.$isSelected
@@ -227,17 +230,22 @@ export const OwnerBox = styledTS<{ $isSelected?: boolean }>(styled.div)`
       : `0 6px 10px 1px ${rgba(colors.colorCoreDarkGray, 0.08)}`} ;
   border-radius: ${dimensions.unitSpacing / 2 - 1}px;
   transition: all 0.25s ease;
-  border: 1px ${(props) => (props.$isSelected ? "solid" : "dashed")}
+  border: 1px solid
     ${(props) =>
       props.$isSelected ? colors.colorSecondary : "rgba(0, 0, 0, 0.12)"};
-
-  > i {
-    font-size: 28px;
-  }
-
+    
   > span {
-
+   font-weight: 600;
   }
+
+  ${({ isWithActions }) =>
+    isWithActions
+      ? `
+      > *:last-child {
+      margin-left: auto;
+    }
+    `
+      : ``}
 
 `;
 

@@ -36,7 +36,7 @@ type Props = {
   erxesApiId: string;
   currentCallConversationId: string;
   answerCall: () => void;
-  leaveCall: (seconds: number) => void;
+  leaveCall: ({ roomState }: { roomState?: string }) => void;
   audioTrack?: string;
 };
 
@@ -113,8 +113,8 @@ const IncomingCall = (props: Props) => {
   }, [status]);
 
   const endCall = useCallback(() => {
-    leaveCall(timeSpent);
-  }, [leaveCall, timeSpent]);
+    leaveCall({ roomState: 'leave' });
+  }, [leaveCall]);
 
   const onAcceptCall = useCallback(() => {
     if (audioRef.current) {
@@ -136,6 +136,7 @@ const IncomingCall = (props: Props) => {
     }
 
     setStatus('declined');
+    leaveCall({ roomState: 'busy' });
   }, []);
 
   const gotoDetail = useCallback(() => {

@@ -2,18 +2,18 @@ import { generateModels } from "./connectionResolver";
 import { sendMessage } from "@erxes/api-utils/src/core";
 import type {
   MessageArgs,
-  MessageArgsOmitService
+  MessageArgsOmitService,
 } from "@erxes/api-utils/src/core";
 
 import {
   checkVouchersSale,
   confirmVoucherSale,
   generateAttributes,
-  handleScore
+  handleScore,
 } from "./utils";
 import {
   consumeQueue,
-  consumeRPCQueue
+  consumeRPCQueue,
 } from "@erxes/api-utils/src/messageBroker";
 import { getOwner } from "./models/utils";
 
@@ -25,7 +25,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         data: await models.VoucherCampaigns.find(data).lean(),
-        status: "success"
+        status: "success",
       };
     }
   );
@@ -42,7 +42,7 @@ export const setupMessageConsumers = async () => {
         ownerId,
         products
       ),
-      status: "success"
+      status: "success",
     };
   });
 
@@ -52,7 +52,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       data: await confirmVoucherSale(models, checkInfo),
-      status: "success"
+      status: "success",
     };
   });
 
@@ -68,12 +68,12 @@ export const setupMessageConsumers = async () => {
         ownerType: data.collectionType,
         changeScore: data.setDoc[Object.keys(data.setDoc)[0]],
         createdAt: new Date(),
-        description: "Via automation"
+        description: "Via automation",
       });
 
       return {
         data: response,
-        status: "success"
+        status: "success",
       };
     }
   );
@@ -85,7 +85,19 @@ export const setupMessageConsumers = async () => {
 
       return {
         data: await models.ScoreCampaigns.checkScoreAviableSubtract(data),
-        status: "success"
+        status: "success",
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "loyalties:scoreCampaign.findOne",
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.ScoreCampaigns.findOne(data),
+        status: "success",
       };
     }
   );
@@ -95,7 +107,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       data: await models.ScoreCampaigns.doCampaign(data),
-      status: "success"
+      status: "success",
     };
   });
 
@@ -105,7 +117,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       data: null,
-      status: "success"
+      status: "success",
     };
   });
 };
@@ -115,7 +127,7 @@ export const sendCoreMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "core",
-    ...args
+    ...args,
   });
 };
 
@@ -124,7 +136,7 @@ export const sendNotificationsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "notifications",
-    ...args
+    ...args,
   });
 };
 
@@ -133,13 +145,13 @@ export const sendClientPortalMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "clientportal",
-    ...args
+    ...args,
   });
 };
 
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    ...args
+    ...args,
   });
 };
 

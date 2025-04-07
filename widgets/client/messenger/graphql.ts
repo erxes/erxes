@@ -255,6 +255,8 @@ const connect = (isCloudFlareEnabled?: boolean, isTicketEnabled?: boolean) => `
         isCloudFlareEnabled
           ? `
         callData {
+          header
+          description
           departments {
             _id
             name
@@ -265,6 +267,7 @@ const connect = (isCloudFlareEnabled?: boolean, isTicketEnabled?: boolean) => `
       `
           : ''
       }
+      
       ${
         isTicketEnabled
           ? `

@@ -51,12 +51,7 @@ const CallContainer = () => {
   );
 
   const { data: receiveCall } = useSubscription(gql(CLOUDFLARE_CALL_RECEIVED), {
-    variables: { roomState: 'answered' },
-    fetchPolicy: 'network-only', // Always fetch fresh data
-  });
-
-  const { data: leftCall } = useSubscription(gql(CLOUDFLARE_CALL_RECEIVED), {
-    variables: { roomState: 'leave', audioTrack: pushedTracks?.audio },
+    variables: { audioTrack: pushedTracks?.audio },
     fetchPolicy: 'network-only',
   });
 
@@ -65,7 +60,7 @@ const CallContainer = () => {
   useEffect(() => {
     if (
       receiveCall?.cloudflareReceivedCall?.audioTrack &&
-      receiveCall?.cloudflareReceivedCall?.roomState !== 'leave' &&
+      receiveCall?.cloudflareReceivedCall?.roomState === 'answered' &&
       remoteAudioTracks.length === 0
     ) {
       setRemoteAudioTracks([receiveCall.cloudflareReceivedCall.audioTrack]);
@@ -74,10 +69,10 @@ const CallContainer = () => {
         setCallStartTime(Date.now());
       }
     }
-  }, [receiveCall]);
-
-  useEffect(() => {
-    if (leftCall?.cloudflareReceivedCall?.roomState === 'leave') {
+    if (
+      receiveCall?.cloudflareReceivedCall?.roomState === 'leave' ||
+      receiveCall?.cloudflareReceivedCall?.roomState === 'busy'
+    ) {
       if (!peer) return;
       if (audioStreamTrack) {
         peer.closeTrack(audioStreamTrack);
@@ -86,7 +81,7 @@ const CallContainer = () => {
       setRemoteAudioTracks([]);
       setRoute('home');
     }
-  }, [leftCall]);
+  }, [receiveCall]);
 
   useEffect(() => {
     const handleRefresh = () => {

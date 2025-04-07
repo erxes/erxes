@@ -1,4 +1,5 @@
 import { Add, FlexRowGap, FooterInfo, FormContainer } from "../../styles";
+import lodash from "lodash";
 import { Alert, __ } from "@erxes/ui/src/utils";
 import {
   ControlLabel,
@@ -26,6 +27,7 @@ import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
 import styled from 'styled-components';
 import { IUser } from '@erxes/ui/src/auth/types';
 
@@ -168,8 +170,8 @@ class ProductForm extends React.Component<Props, State> {
         unitPrice: p.isVatApplied
           ? p.unitPrice
           : parseFloat(
-              ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
-            ),
+            ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
+          ),
       };
 
       this.calculatePerProductAmount("", pData, false);
@@ -283,6 +285,12 @@ class ProductForm extends React.Component<Props, State> {
       );
     }
 
+    if (filterValues.tags && filterValues.tags.length) {
+      filteredProductsData = filteredProductsData.filter(
+        (p) => p.product && lodash.intersection(filterValues.tags, p.product.tagIds)
+      );
+    }
+
     if (filterValues.brand) {
       filteredProductsData = filteredProductsData.filter(
         (p) =>
@@ -331,7 +339,6 @@ class ProductForm extends React.Component<Props, State> {
               <th style={avStyle}>{__("Department")}</th>
               <th style={avStyle}>{__("Unit price (global)")}</th>
               <th style={avStyle}>{__("Unit price percent")}</th>
-              <th />
               <th />
             </tr>
           </thead>
@@ -530,6 +537,17 @@ class ProductForm extends React.Component<Props, State> {
             initialValue={filterValues.vendors}
             multi={true}
             onSelect={(companyIds) => this.onFilter("vendors", companyIds)}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>By tag</ControlLabel>
+          <SelectTags
+            tagsType="core:product"
+            name="tags"
+            label="Choose tag"
+            initialValue={filterValues.tags}
+            onSelect={tagsIds => this.onFilter("tags", tagsIds)}
+            multi={true}
           />
         </FormGroup>
         <FormGroup>

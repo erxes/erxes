@@ -8,7 +8,6 @@ export const types = () => `
     createdAt: Date
     modifiedAt: Date
     apiUrl: String
-    useDN: Boolean
     baseDN: String
     adminDN: String
     adminPassword: String
@@ -22,7 +21,6 @@ export const queries = `
 
 const commonFields = `
   apiUrl: String
-  useDN: Boolean
   baseDN: String
   adminDN: String
   adminPassword: String

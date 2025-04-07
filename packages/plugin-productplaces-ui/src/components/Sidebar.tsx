@@ -36,6 +36,10 @@ const Sidebar = () => {
           '/erxes-plugin-product-places/settings/print',
           'Stage in products prints config',
         )}
+        {renderListItem(
+          '/erxes-plugin-product-places/settings/productFilter',
+          'Products default filter by Segment',
+        )}
       </List>
     </LeftSidebar>
   );
