@@ -2,6 +2,7 @@ import { IDealDocument } from "../../../models/definitions/deals";
 import { boardId } from "../../utils";
 import { IContext } from "../../../connectionResolver";
 import {
+  sendCommonMessage,
   sendCoreMessage,
   sendNotificationsMessage
 } from "../../../messageBroker";
@@ -281,5 +282,17 @@ export default {
     }
 
     return { __typename: "User", _id: deal.userId };
+  },
+  async vendorCustomers(deal: IDealDocument, _args, { subdomain }: IContext) {
+    return sendCommonMessage({
+      subdomain,
+      serviceName: "clientportal",
+      action: "clientPortalUserCards.users",
+      data: {
+        contentType: "deal",
+        contentTypeId: deal.id
+      },
+      isRPC: true
+    });
   }
 };
