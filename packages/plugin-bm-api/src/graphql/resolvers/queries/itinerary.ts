@@ -1,5 +1,5 @@
-import { skip } from "node:test";
-import { IContext } from "../../../connectionResolver";
+import { skip } from 'node:test';
+import { IContext } from '../../../connectionResolver';
 
 const itineraryQueries = {
   async bmItineraries(
@@ -9,8 +9,8 @@ const itineraryQueries = {
       page = 1,
       perPage = 10,
       branchId,
-      sortField = "createdAt",
-      sortDirection = -1,
+      sortField = 'createdAt',
+      sortDirection = -1
     },
     { models }: IContext
   ) {
@@ -30,12 +30,12 @@ const itineraryQueries = {
     const total = await models.Itineraries.countDocuments();
     return {
       list,
-      total,
+      total
     };
   },
   async bmItineraryDetail(_root, { _id }, { models }: IContext) {
     return await models.Itineraries.findById(_id);
-  },
+  }
 };
 
 export default itineraryQueries;
