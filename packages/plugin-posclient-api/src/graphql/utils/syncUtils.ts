@@ -195,6 +195,7 @@ export const importProducts = async (
           }
         });
       }
+      console.log(JSON.stringify(bulkOps))
 
       if (bulkOps.length) {
         await models.Products.bulkWrite(bulkOps);

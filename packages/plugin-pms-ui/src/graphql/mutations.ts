@@ -18,6 +18,11 @@ const commonFields = `
   $roomCategories: JSON
   $discount: JSON
   $time: String
+
+  $checkintime: String 
+  $checkouttime: String 
+  $checkinamount: Float
+  $checkoutamount: Float
 `;
 
 const commonVariables = `
@@ -39,6 +44,10 @@ const commonVariables = `
   roomCategories: $roomCategories
   discount: $discount
   time: $time
+  checkintime: $checkintime 
+  checkouttime: $checkouttime 
+  checkinamount: $checkinamount
+  checkoutamount: $checkoutamount
 `;
 
 const tmsBranchAdd = `
@@ -66,5 +75,5 @@ const tmsBranchRemove = `
 export default {
   tmsBranchAdd,
   tmsBranchEdit,
-  tmsBranchRemove
+  tmsBranchRemove,
 };

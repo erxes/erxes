@@ -64,6 +64,17 @@ const MainConfig = (props: Props) => {
           </FormControl>
         </FormGroup>
         <FormGroup>
+          <ControlLabel>{__('Days in the year')}</ControlLabel>
+          <FormControl
+            defaultValue={config['daysInYear']}
+            type="number"
+            min={12}
+            max={1000}
+            onChange={onChangeInputNumber.bind(this, 'daysInYear')}
+            required={true}
+          />
+        </FormGroup>
+        <FormGroup>
           <ControlLabel>{__('Calculation number fixed')}</ControlLabel>
           <FormControl
             defaultValue={config['calculationFixed']}

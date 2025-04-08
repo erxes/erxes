@@ -23,7 +23,6 @@ type Props = {
   isWithTax?: boolean;
   side: string;
   setTrDoc: (trDoc: ITransaction, fTrDocs?: ITransaction[]) => void;
-  onChangeDetail: (key: string, value: any) => void;
 };
 
 const checkFollowDocs = (currentFollowTrDoc, type, followData, checkFollowTrDocs, checkFollows) => {
@@ -48,7 +47,7 @@ const checkFollowDocs = (currentFollowTrDoc, type, followData, checkFollowTrDocs
 }
 
 const TaxFields = (props: Props) => {
-  const { trDoc, setTrDoc, followTrDocs, onChangeDetail, configsMap, isWithTax, side } = props;
+  const { trDoc, setTrDoc, followTrDocs, configsMap, isWithTax, side } = props;
   const vatFollowData = (trDoc.follows || []).find(f => f.type === 'vat');
   const ctaxFollowData = (trDoc.follows || []).find(f => f.type === 'ctax');
 
@@ -164,7 +163,7 @@ const TaxFields = (props: Props) => {
   }, [trDoc.hasVat, trDoc.vatAmount, trDoc.hasCtax, trDoc.ctaxAmount, (trDoc.details || [])[0]?.side]);
 
   const setTrDocWrapper = (paramsTrDoc) => {
-    setTrDoc({ ...paramsTrDoc }, followTrDocs);
+    setTrDoc({ ...trDoc, ...paramsTrDoc }, followTrDocs);
   }
 
   const renderVat = () => {
@@ -183,7 +182,7 @@ const TaxFields = (props: Props) => {
                 name="hasVat"
                 checked={trDoc.hasVat}
                 onChange={(e: any) => {
-                  setTrDocWrapper({ ...trDoc, hasVat: !trDoc.hasVat });
+                  setTrDocWrapper({ hasVat: !trDoc.hasVat });
                 }}
               />
             </FormGroup>
@@ -205,7 +204,7 @@ const TaxFields = (props: Props) => {
                     name="hasVat"
                     checked={trDoc.hasVat}
                     onChange={(e: any) => {
-                      setTrDocWrapper({ ...trDoc, hasVat: !trDoc.hasVat });
+                      setTrDocWrapper({ hasVat: !trDoc.hasVat });
                     }}
                   />
                 </FormGroup>
@@ -218,7 +217,7 @@ const TaxFields = (props: Props) => {
                     name="isHandleVat"
                     checked={trDoc.isHandleVat}
                     onChange={(e: any) => {
-                      setTrDocWrapper({ ...trDoc, isHandleVat: e.target.checked });
+                      setTrDocWrapper({ isHandleVat: e.target.checked });
                     }}
                   />
                 </FormGroup>
@@ -231,7 +230,7 @@ const TaxFields = (props: Props) => {
                     name="afterVat"
                     checked={trDoc.afterVat}
                     onChange={(e: any) => {
-                      setTrDocWrapper({ ...trDoc, afterVat: e.target.checked });
+                      setTrDocWrapper({ afterVat: e.target.checked });
                     }}
                   />
                 </FormGroup>
@@ -253,17 +252,19 @@ const TaxFields = (props: Props) => {
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel required={true}>{__('Amount')}</ControlLabel>
+              <ControlLabel required={true}>{__('Vat Amount')}</ControlLabel>
               <FormControl
                 type='number'
-                name="amount"
+                name="vatAmount"
                 value={
-                  isWithTax ?
-                    sumVatAmount / (100 + sumPercent) * (trDoc.vatRow?.percent || 0) :
-                    sumVatAmount / 100 * (trDoc.vatRow?.percent || 0) || 0
+                  trDoc.isHandleVat ? trDoc.vatAmount : (
+                    isWithTax ?
+                      sumVatAmount / (100 + sumPercent) * (trDoc.vatRow?.percent || 0) :
+                      sumVatAmount / 100 * (trDoc.vatRow?.percent || 0) || 0
+                  )
                 }
                 disabled={!trDoc.isHandleVat}
-                onChange={e => onChangeDetail('amount', (e.target as any).value)}
+                onChange={e => setTrDocWrapper({ vatAmount: (e.target as any).value })}
               />
             </FormGroup>
           </FormColumn>
@@ -297,7 +298,7 @@ const TaxFields = (props: Props) => {
                 name="hasCtax"
                 checked={trDoc.hasCtax}
                 onChange={(e: any) => {
-                  setTrDocWrapper({ ...trDoc, hasCtax: !trDoc.hasCtax });
+                  setTrDocWrapper({ hasCtax: !trDoc.hasCtax });
                 }}
               />
             </FormGroup>
@@ -319,7 +320,7 @@ const TaxFields = (props: Props) => {
                     name="hasCtax"
                     checked={trDoc.hasCtax}
                     onChange={(e: any) => {
-                      setTrDocWrapper({ ...trDoc, hasCtax: !trDoc.hasCtax });
+                      setTrDocWrapper({ hasCtax: !trDoc.hasCtax });
                     }}
                   />
                 </FormGroup>
@@ -332,7 +333,7 @@ const TaxFields = (props: Props) => {
                     name="isHandleCtax"
                     checked={trDoc.isHandleCtax}
                     onChange={(e: any) => {
-                      setTrDocWrapper({ ...trDoc, isHandleCtax: e.target.checked });
+                      setTrDocWrapper({ isHandleCtax: e.target.checked });
                     }}
                   />
                 </FormGroup>
@@ -357,14 +358,16 @@ const TaxFields = (props: Props) => {
               <ControlLabel required={true}>{__('Amount')}</ControlLabel>
               <FormControl
                 type='number'
-                name="amount"
+                name="ctaxAmount"
                 value={
-                  isWithTax ?
-                    sumCtaxAmount / (100 + sumPercent) * (trDoc.ctaxRow?.percent || 0) :
-                    sumCtaxAmount / 100 * (trDoc.ctaxRow?.percent || 0) || 0
+                  trDoc.isHandleCtax ? trDoc.ctaxAmount : (
+                    isWithTax ?
+                      sumCtaxAmount / (100 + sumPercent) * (trDoc.ctaxRow?.percent || 0) :
+                      sumCtaxAmount / 100 * (trDoc.ctaxRow?.percent || 0) || 0
+                  )
                 }
-                disabled={!trDoc.isHandleVat}
-                onChange={e => onChangeDetail('amount', (e.target as any).value)}
+                disabled={!trDoc.isHandleCtax}
+                onChange={e => setTrDocWrapper({ ctaxAmount: (e.target as any).value })}
               />
             </FormGroup>
           </FormColumn>

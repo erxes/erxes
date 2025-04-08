@@ -84,6 +84,7 @@ const PtrList: React.FC<IProps> = (props) => {
     }
     toggleAll(trs, "transactions");
   };
+
   const renderRows = () => {
     let preParentId = "";
     let prePtrId = "";
@@ -108,16 +109,6 @@ const PtrList: React.FC<IProps> = (props) => {
         />
       );
     });
-  };
-
-  const removeAccounts = (transactions) => {
-    const accountIds: string[] = [];
-
-    transactions.forEach((account) => {
-      accountIds.push(account._id);
-    });
-
-    remove(accountIds, emptyBulk);
   };
 
   const search = (e) => {
@@ -338,13 +329,13 @@ const PtrList: React.FC<IProps> = (props) => {
             autoFocus={true}
             onFocus={moveCursorAtTheEnd}
           />
-          <Button
+          {/* <Button
             btnStyle="danger"
             icon="cancel-1"
             onClick={removeAccounts.bind(this, bulk)}
           >
             Remove
-          </Button>
+          </Button> */}
         </BarItems>
       );
     }

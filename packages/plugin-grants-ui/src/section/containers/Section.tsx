@@ -1,13 +1,13 @@
-import React from 'react';
-import { gql } from '@apollo/client';
-import { queries } from '../graphql';
-import { RequestQueryResponse } from '../../common/type';
-import { Spinner, withCurrentUser } from '@erxes/ui/src';
+import { Spinner, withCurrentUser } from "@erxes/ui/src";
 
-import SectionComponent from '../components/Section';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { useQuery } from '@apollo/client';
-import { IGrantRequest } from '../../common/type';
+import { IGrantRequest } from "../../common/type";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import { RequestQueryResponse } from "../../common/type";
+import SectionComponent from "../components/Section";
+import { gql } from "@apollo/client";
+import { queries } from "../graphql";
+import { useQuery } from "@apollo/client";
 
 type Props = {
   history: any;
@@ -15,6 +15,7 @@ type Props = {
   mainType: string;
   mainTypeId: string;
   object: any;
+  showType?: string;
 };
 
 type FinalProps = {
@@ -29,7 +30,7 @@ const Section: React.FC<FinalProps> = (props) => {
     {
       variables: { contentType: mainType, contentTypeId: mainTypeId },
       skip: !mainTypeId || !mainType,
-    },
+    }
   );
   if (requestQuery?.loading) {
     return <Spinner />;

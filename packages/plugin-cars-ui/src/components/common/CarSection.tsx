@@ -1,24 +1,27 @@
 import {
   Box,
+  MainStyleButtonRelated as ButtonRelated,
   EmptyState,
   Icon,
   ModalTrigger,
-  MainStyleButtonRelated as ButtonRelated,
+  SectionBodyItem,
   __,
-  SectionBodyItem
 } from "@erxes/ui/src";
-import GetConformity from "@erxes/ui-sales/src/conformity/containers/GetConformity";
-import React from "react";
-import { Link } from "react-router-dom";
+
 import CarChooser from "../../containers/CarChooser";
-import { queries } from "../../graphql";
+import DynamicComponentContent from "@erxes/ui/src/components/dynamicComponent/Content";
+import GetConformity from "@erxes/ui-sales/src/conformity/containers/GetConformity";
 import { ICar } from "../../types";
+import { Link } from "react-router-dom";
+import React from "react";
+import { queries } from "../../graphql";
 
 type Props = {
   name: string;
   items?: ICar[];
   mainType?: string;
   mainTypeId?: string;
+  showType?: string;
   onSelect?: (cars: ICar[]) => void;
   collapseCallback?: () => void;
 };
@@ -30,11 +33,12 @@ function Component(
     items = [],
     mainType = "",
     mainTypeId = "",
+    showType,
     onSelect,
-    collapseCallback
+    collapseCallback,
   }: Props
 ) {
-  const renderCarChooser = props => {
+  const renderCarChooser = (props) => {
     return (
       <CarChooser
         {...props}
@@ -44,7 +48,7 @@ function Component(
     );
   };
 
-  const renderRelatedCarChooser = props => {
+  const renderRelatedCarChooser = (props) => {
     return (
       <CarChooser
         {...props}
@@ -109,6 +113,10 @@ function Component(
       </>
     );
   };
+
+  if (showType && showType === "list") {
+    return <DynamicComponentContent>{content()}</DynamicComponentContent>;
+  }
 
   return (
     <Box

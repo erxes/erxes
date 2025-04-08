@@ -1,14 +1,15 @@
-const webCallReceived = `
-  subscription cloudflareReceiveCall($roomState: String, $userId: String)
+const webCallReceive = `
+  subscription cloudflareReceiveCall($roomState: String, $userId: String, $audioTrack: String)
   {
-    cloudflareReceiveCall(roomState: $roomState, userId: $userId){
+    cloudflareReceiveCall(roomState: $roomState, userId: $userId, audioTrack: $audioTrack){
       callerNumber
       roomState
       audioTrack
       conversationId
+      customerAudioTrack
     }
   }`;
 
 export default {
-  webCallReceived,
+  webCallReceive,
 };

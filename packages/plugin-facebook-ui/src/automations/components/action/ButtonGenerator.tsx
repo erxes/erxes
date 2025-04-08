@@ -12,6 +12,7 @@ import Icon from "@erxes/ui/src/components/Icon";
 import LinkAction from "./LinkAction";
 import { Menu } from "@headlessui/react";
 import { __ } from "@erxes/ui/src/utils/core";
+import { QuickRepliesImgUploader } from "./QuickRepliesImageUploader";
 
 type Props = {
   _id: string;
@@ -20,6 +21,7 @@ type Props = {
   hideMenu?: boolean;
   addButtonLabel?: string;
   limit?: number;
+  type?: "quickReplies" | "buttons";
 };
 
 type Buttons = {
@@ -28,6 +30,7 @@ type Buttons = {
   isEditing?: boolean;
   type: string;
   link?: string;
+  image_url?: string;
 };
 
 function ButtonsGenerator({
@@ -36,7 +39,8 @@ function ButtonsGenerator({
   onChange,
   hideMenu,
   addButtonLabel,
-  limit
+  limit,
+  type,
 }: Props) {
   const [btns, setButtons] = useState(buttons as Buttons[]);
   const [error, setError] = useState(false);
@@ -49,36 +53,37 @@ function ButtonsGenerator({
     return btns.map(({ _id, text, link, type }) => ({ _id, text, link, type }));
   };
 
-  const onChangeButtons = buttons => {
+  const onChangeButtons = (buttons) => {
     onChange(_id, "buttons", buttons);
   };
 
-  const renderButton = button => {
+  const renderButton = (button) => {
     const onBtnChange = (name, value) => {
-      const updateButtons = btns.map(btn =>
+      const updateButtons = btns.map((btn) =>
         btn._id === button._id ? { ...btn, [name]: value } : btn
       );
 
       setButtons(updateButtons);
       onChangeButtons(
-        updateButtons.map(({ _id, text, type, link }) => ({
+        updateButtons.map(({ _id, text, type, link, image_url }) => ({
           _id,
           text,
           type,
-          link
+          link,
+          image_url,
         }))
       );
     };
 
     const onDoubleClick = () => {
       setButtons(
-        btns.map(btn =>
+        btns.map((btn) =>
           btn._id === button._id ? { ...btn, isEditing: true } : btn
         )
       );
     };
 
-    const onEdit = e => {
+    const onEdit = (e) => {
       const { value } = e.currentTarget as HTMLInputElement;
 
       if (value.length > 20) {
@@ -93,13 +98,13 @@ function ButtonsGenerator({
         setError(false);
       }
 
-      const updateButtons = btns.map(btn =>
+      const updateButtons = btns.map((btn) =>
         btn._id === button._id ? { ...btn, text: value } : btn
       );
       setButtons(updateButtons);
     };
 
-    const onSave = e => {
+    const onSave = (e) => {
       const { value } = e.currentTarget as HTMLInputElement;
 
       e.preventDefault();
@@ -112,7 +117,7 @@ function ButtonsGenerator({
 
     const onRemove = () => {
       const updateButtons = generateButtons().filter(
-        btn => btn._id !== button._id
+        (btn) => btn._id !== button._id
       );
 
       onChangeButtons(updateButtons);
@@ -124,9 +129,9 @@ function ButtonsGenerator({
       onBtnChange("type", type);
     };
 
-    const renderTrigger = type => {
+    const renderTrigger = (type) => {
       if (type === "link") {
-        const onChangeLink = e => {
+        const onChangeLink = (e) => {
           e.stopPropagation();
           const { value } = e.currentTarget as HTMLInputElement;
 
@@ -135,7 +140,7 @@ function ButtonsGenerator({
 
         return (
           <Row>
-            <div onClick={e => e.stopPropagation()}>
+            <div onClick={(e) => e.stopPropagation()}>
               <LinkAction
                 container={this}
                 onChange={onChangeLink}
@@ -170,7 +175,7 @@ function ButtonsGenerator({
               onChange={onEdit}
               value={button?.text || null}
               onBlur={onSave}
-              onKeyPress={e => e.key === "Enter" && onSave(e)}
+              onKeyPress={(e) => e.key === "Enter" && onSave(e)}
             />
           </FormContainer>
         );
@@ -182,8 +187,19 @@ function ButtonsGenerator({
       <ButtonRow
         key={button._id}
         onDoubleClick={onDoubleClick}
-        twoElement={hideMenu}
+        // twoElement={hideMenu}
+        columns={
+          hideMenu && type === "quickReplies" ? "3" : hideMenu ? "2" : undefined
+        }
       >
+        {type === "quickReplies" ? (
+          <QuickRepliesImgUploader
+            button={button}
+            onUpload={(img) => onBtnChange("image_url", img)}
+          />
+        ) : (
+          <></>
+        )}
         {renderInput()}
 
         {!hideMenu && (
@@ -194,25 +210,27 @@ function ButtonsGenerator({
             <Container>
               {[
                 { type: "btn", text: "Button" },
-                { type: "link", text: "Link" }
+                { type: "link", text: "Link" },
               ].map(({ text, type }) => (
                 <Menu.Item key={type}>
-                  <a onClick={e => onBtnTypeChange(e, type)}>{text}</a>
+                  <a onClick={(e) => onBtnTypeChange(e, type)}>{text}</a>
                 </Menu.Item>
               ))}
             </Container>
           </Dropdown>
         )}
 
-        <ActionButtons>
-          <Icon icon="times" onClick={onRemove} />
-        </ActionButtons>
+        <Icon
+          icon="times"
+          onClick={onRemove}
+          style={{ cursor: "pointer", textAlign: "center" }}
+        />
       </ButtonRow>
     );
   };
 
   const addButton = () => {
-    const newBtnCount = btns.filter(btn =>
+    const newBtnCount = btns.filter((btn) =>
       btn.text.includes("New Button #")
     ).length;
 
@@ -222,8 +240,8 @@ function ButtonsGenerator({
         _id: Math.random().toString(),
         text: `New Button #${newBtnCount + 1}`,
         type: "button",
-        isEditing: true
-      }
+        isEditing: true,
+      },
     ]);
   };
 
@@ -247,7 +265,7 @@ function ButtonsGenerator({
 
   return (
     <>
-      {btns.map(button => renderButton(button))}
+      {btns.map((button) => renderButton(button))}
       {renderAddButton()}
     </>
   );

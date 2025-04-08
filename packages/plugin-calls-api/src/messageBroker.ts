@@ -44,7 +44,7 @@ export const setupMessageConsumers = async () => {
           updateData,
           integrationId,
         );
-        const { queues } = checkedIntegration;
+
         if (checkedIntegration) {
           const integration = await (
             await models
@@ -139,12 +139,18 @@ export const setupMessageConsumers = async () => {
         // Notify external endpoint if necessary
         const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
         const domain = getDomain(subdomain);
+
+        let Domain = `${domain}/gateway/pl:calls`;
+
+        if (process.env.NODE_ENV !== 'production') {
+          Domain = `${domain}/pl:calls`;
+        }
         if (ENDPOINT_URL && !['os', 'localhost'].includes(subdomain)) {
           try {
             await fetch(`${ENDPOINT_URL}/update-endpoint`, {
               method: 'POST',
               body: JSON.stringify({
-                domain,
+                domain: Domain,
                 callQueues: updatedQueues,
                 erxesApiId: integration._id,
                 subdomain,

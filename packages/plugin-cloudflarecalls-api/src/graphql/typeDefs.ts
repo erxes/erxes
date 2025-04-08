@@ -91,6 +91,7 @@ const types = `
     trackName: String
     audioTrack: String
     conversationId: String
+    customerAudioTrack: String
   }
 
   type CloudflareIntegrationDetail {
@@ -108,8 +109,8 @@ const types = `
 `;
 
 export const subscriptions = `
-  cloudflareReceiveCall(roomState: String, userId: String): CloudflareCall
-  cloudflareReceivedCall(roomState: String): CloudflareCall
+  cloudflareReceiveCall(roomState: String, userId: String, audioTrack: String): CloudflareCall
+  cloudflareReceivedCall(roomState: String, audioTrack: String): CloudflareCall
   `;
 
 const commonHistoryFields = `
@@ -152,8 +153,8 @@ const queries = `
 
 const mutations = `
   cloudflareMakeCall(callerNumber: String!,callerEmail: String, roomState: String!, audioTrack: String!, integrationId: String!, departmentId: String!): String
-  cloudflareAnswerCall(roomState: String!, audioTrack: String!, customerAudioTrack: String!): String
-  cloudflareLeaveCall(roomState: String!, originator: String, duration: Int, audioTrack: String!): String
+  cloudflareAnswerCall(audioTrack: String!, customerAudioTrack: String!): String
+  cloudflareLeaveCall(roomState: String, originator: String, duration: Int, audioTrack: String!): String
   cloudflareCallsUpdateConfigs(configsMap: JSON!): JSON
 `;
 

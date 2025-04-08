@@ -1,9 +1,9 @@
-import { MESSAGE_FIELDS } from "./fields";
-import gql from "graphql-tag";
+import { MESSAGE_FIELDS } from './fields';
+import gql from 'graphql-tag';
 
 const WIDGETS_INSERT_MESSAGE_MUTATION = ({
   queryVariables,
-  queryParams
+  queryParams,
 }: {
   queryVariables: string;
   queryParams: string;
@@ -115,22 +115,20 @@ const CLOUDFLARE_CALL = gql`
       departmentId: $departmentId
     )
   }
-`
+`;
 const CLOUDFLARE_LEAVE_CALL = gql`
   mutation CloudflareLeaveCall(
-    $roomState: String!
     $originator: String
     $duration: Int
     $audioTrack: String!
   ) {
     cloudflareLeaveCall(
-      roomState: $roomState
       originator: $originator
       duration: $duration
       audioTrack: $audioTrack
-    ) 
+    )
   }
-`
+`;
 
 export {
   WIDGETS_INSERT_MESSAGE_MUTATION,
@@ -142,5 +140,5 @@ export {
   WIDGETS_SAVE_CUSTOMER_GET_NOTIFIED,
   SAVE_BROWSER_INFO,
   CLOUDFLARE_CALL,
-  CLOUDFLARE_LEAVE_CALL
+  CLOUDFLARE_LEAVE_CALL,
 };

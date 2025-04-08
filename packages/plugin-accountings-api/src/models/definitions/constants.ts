@@ -12,7 +12,7 @@ export const ACCOUNT_JOURNALS = {
   INVENTORY: 'inventory',
   FIXED_ASSET: 'fixedAsset',
   TAX: 'tax',
-  ALL: ['main', 'cash', 'fund', 'debt', 'inventory', 'fixedAsset', 'tax'],
+  ALL: ['main', 'cash', 'bank', 'debt', 'inventory', 'fixedAsset', 'tax'],
 };
 
 export const ACCOUNT_STATUSES = {

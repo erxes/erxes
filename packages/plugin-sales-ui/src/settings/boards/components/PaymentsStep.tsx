@@ -6,7 +6,7 @@ import {
   Icon,
   SelectWithSearch,
   Tip,
-  __
+  __,
 } from "@erxes/ui/src";
 import { LeftItem } from "@erxes/ui/src/components/step/styles";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
@@ -26,8 +26,8 @@ export const SelectValue = styled.div`
   padding-left: 25px;
 `;
 const campaignQuery = `
-  query ScoreCampaigns {
-      scoreCampaigns {
+    query ScoreCampaigns($serviceName:String) {
+      scoreCampaigns(serviceName:$serviceName) {
         _id,title
       }
     }
@@ -47,11 +47,11 @@ const PaymentsStep = (props: Props) => {
     onChange(name, value);
   };
 
-  const onChangePayments = ids => {
+  const onChangePayments = (ids) => {
     onChangeFunction("paymentIds", ids);
   };
 
-  const onChangeInput = e => {
+  const onChangeInput = (e) => {
     onChangeFunction(
       [e.target.id],
       (e.currentTarget as HTMLInputElement).value
@@ -65,7 +65,7 @@ const PaymentsStep = (props: Props) => {
       _id: Math.random().toString(),
       type: "",
       title: "",
-      icon: ""
+      icon: "",
     });
     onChange("paymentTypes", paymentTypes_);
   };
@@ -81,7 +81,7 @@ const PaymentsStep = (props: Props) => {
     return <SelectValue>{content(option)}</SelectValue>;
   };
 
-  const Option = props => {
+  const Option = (props) => {
     return (
       <components.Option {...props}>
         {selectItemRenderer(props.data)}
@@ -89,7 +89,7 @@ const PaymentsStep = (props: Props) => {
     );
   };
 
-  const SingleValue = props => (
+  const SingleValue = (props) => (
     <components.SingleValue {...props}>
       {selectItemRenderer(props.data)}
     </components.SingleValue>
@@ -98,29 +98,30 @@ const PaymentsStep = (props: Props) => {
   const renderPaymentType = (paymentType: any) => {
     const editPayment = (name, value) => {
       let paymentTypes = [...(props.paymentTypes || [])];
-      paymentTypes = (paymentTypes || []).map(p =>
+      paymentTypes = (paymentTypes || []).map((p) =>
         p._id === paymentType._id ? { ...p, [name]: value } : p
       );
       onChange("paymentTypes", paymentTypes);
     };
 
-    const onChangeInput = e => {
+    const onChangeInput = (e) => {
       const name = e.target.name;
       const value = e.target.value;
       editPayment(name, value);
     };
 
-    const onChangeSelect = option => {
+    const onChangeSelect = (option) => {
       editPayment("icon", option.value);
     };
 
     const removePayment = () => {
       const paymentTypes =
-        (props.paymentTypes || []).filter(m => m._id !== paymentType._id) || [];
+        (props.paymentTypes || []).filter((m) => m._id !== paymentType._id) ||
+        [];
       onChange("paymentTypes", paymentTypes);
     };
 
-    const getTipText = type => {
+    const getTipText = (type) => {
       if (type === "golomtCard") return "continue";
       if (type === "TDBCard" || type === "capitron")
         return 'must config: "{port: 8078}"';
@@ -129,10 +130,10 @@ const PaymentsStep = (props: Props) => {
       return "";
     };
 
-    const iconOptions = PAYMENT_TYPE_ICONS.map(icon => ({
+    const iconOptions = PAYMENT_TYPE_ICONS.map((icon) => ({
       value: icon,
       label: icon,
-      avatar: `${icon}`
+      avatar: `${icon}`,
     }));
 
     return (
@@ -164,7 +165,7 @@ const PaymentsStep = (props: Props) => {
                 name="icon"
                 components={{ Option, SingleValue }}
                 value={iconOptions.find(
-                  o => o.value === (paymentType.icon || "")
+                  (o) => o.value === (paymentType.icon || "")
                 )}
                 onChange={onChangeSelect}
                 options={iconOptions}
@@ -192,13 +193,14 @@ const PaymentsStep = (props: Props) => {
                   queryName="scoreCampaigns"
                   name={"scoreCampaignId"}
                   initialValue={paymentType?.scoreCampaignId}
-                  generateOptions={list =>
+                  filterParams={{ serviceName: "sales" }}
+                  generateOptions={(list) =>
                     list.map(({ _id, title }) => ({
                       value: _id,
-                      label: title
+                      label: title,
                     }))
                   }
-                  onSelect={value => editPayment("scoreCampaignId", value)}
+                  onSelect={(value) => editPayment("scoreCampaignId", value)}
                   customQuery={campaignQuery}
                 />
               </FormGroup>
@@ -224,7 +226,7 @@ const PaymentsStep = (props: Props) => {
         <>
           {loadDynamicComponent("selectPayments", {
             defaultValue: props.paymentIds || [],
-            onChange: (ids: string[]) => onChangePayments(ids)
+            onChange: (ids: string[]) => onChangePayments(ids),
           })}
 
           <div>
@@ -286,7 +288,7 @@ const PaymentsStep = (props: Props) => {
               <FormColumn></FormColumn>
             </FormWrapper>
           </div>
-          {(props.paymentTypes || []).map(item => renderPaymentType(item))}
+          {(props.paymentTypes || []).map((item) => renderPaymentType(item))}
         </FormGroup>
         <Button
           btnStyle="primary"

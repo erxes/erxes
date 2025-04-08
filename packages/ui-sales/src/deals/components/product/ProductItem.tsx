@@ -1,3 +1,4 @@
+import Select, { components } from "react-select";
 import {
   Amount,
   ProductButton,
@@ -6,26 +7,26 @@ import {
   VoucherContainer,
 } from "../../styles";
 import { IDeal, IDiscountValue, IProductData } from "../../types";
-import Select, { components } from "react-select";
 
-import CURRENCIES from "@erxes/ui/src/constants/currencies";
-import FormControl from "@erxes/ui/src/components/form/Control";
+import { gql } from "@apollo/client";
+import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
 import { IProduct } from "@erxes/ui-products/src/types";
+import client from "@erxes/ui/src/apolloClient";
+import { IUser } from '@erxes/ui/src/auth/types';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import FormControl from "@erxes/ui/src/components/form/Control";
 import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
-import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import CURRENCIES from "@erxes/ui/src/constants/currencies";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils";
-import client from "@erxes/ui/src/apolloClient";
-import { gql } from "@apollo/client";
 import { can, isEnabled } from "@erxes/ui/src/utils/core";
+import React from "react";
 import { queries } from "../../graphql";
 import { selectConfigOptions } from "../../utils";
-import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   advancedView?: boolean;
@@ -386,13 +387,12 @@ class ProductItem extends React.Component<Props, State> {
   };
 
   renderManageableField(control) {
-
-    const{ currentUser } = this.props
+    const { currentUser } = this.props
 
     const isManageable = can('dealUpdateProductsData', currentUser)
 
-    if(isManageable) {
-      return <FormControl {...control}/>
+    if (isManageable) {
+      return <FormControl {...control} />
     }
 
     const value = control?.value ?? control?.defaultValue;
@@ -411,6 +411,7 @@ class ProductItem extends React.Component<Props, State> {
       currencies,
       duplicateProductItem,
       removeProductItem,
+      currentUser,
     } = this.props;
 
     const avStyle = { display: advancedView ? "" : "none" };
@@ -471,31 +472,31 @@ class ProductItem extends React.Component<Props, State> {
         </td>
         <td>
           {this.renderManageableField({
-            value:productData.unitPrice || "",
-            type:"number",
-            placeholder:"0",
-            name:"unitPrice",
-            onChange:this.onChange
+            value: productData.unitPrice || "",
+            type: "number",
+            placeholder: "0",
+            name: "unitPrice",
+            onChange: this.onChange
           })}
         </td>
         <td>
           {this.renderManageableField({
-            value:productData.discountPercent || "",
-            type:"number",
-            min:0,
-            max:100,
-            placeholder:"0",
-            name:"discountPercent",
-            onChange:this.onChange
+            value: productData.discountPercent || "",
+            type: "number",
+            min: 0,
+            max: 100,
+            placeholder: "0",
+            name: "discountPercent",
+            onChange: this.onChange
           })}
         </td>
         <td>
           {this.renderManageableField({
-            value:productData.discount || "",
-            type:"number",
-            placeholder:"0",
-            name:"discount",
-            onChange:this.onChange
+            value: productData.discount || "",
+            type: "number",
+            placeholder: "0",
+            name: "discount",
+            onChange: this.onChange
           })}
         </td>
         <td style={avStyle}>
@@ -628,16 +629,18 @@ class ProductItem extends React.Component<Props, State> {
           />
         </td>
         <td>
-          <Icon
-            onClick={removeProductItem?.bind(this, productData._id)}
-            icon="times-circle"
-          />
-        </td>
-        <td>
-          <Icon
-            onClick={duplicateProductItem?.bind(this, productData._id)}
-            icon="copy-alt"
-          />
+          <ActionButtons>
+            <Icon
+              onClick={duplicateProductItem?.bind(this, productData._id)}
+              icon="copy-alt"
+            />
+            {can('dealRemoveProductsData', currentUser) && (
+              <Icon
+                onClick={removeProductItem?.bind(this, productData._id)}
+                icon="times-circle"
+              />
+            )}
+          </ActionButtons>
         </td>
       </tr>
     );

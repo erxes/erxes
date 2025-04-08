@@ -1,17 +1,17 @@
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { Alert, Spinner } from "@erxes/ui/src";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { queries as configsQueries } from "../../settings/configs/graphql";
+import { AccountingsConfigsQueryResponse } from "../../settings/configs/types";
+import TransactionForm from "../components/TransactionForm";
+import { mutations, queries } from "../graphql";
 import {
   AddTransactionsMutationResponse,
   EditTransactionsMutationResponse,
+  RemoveTransactionsMutationResponse,
   TransactionDetailQueryResponse,
 } from "../types";
-import { Alert, Spinner } from "@erxes/ui/src";
-import React, { useState } from "react";
-import { gql, useMutation, useQuery } from "@apollo/client";
-import { mutations, queries } from "../graphql";
-
-import { AccountingsConfigsQueryResponse } from "../../settings/configs/types";
-import TransactionForm from "../components/TransactionForm";
-import { queries as configsQueries } from "../../settings/configs/graphql";
-import { useNavigate } from "react-router-dom";
 
 type Props = {
   parentId?: string;
@@ -51,6 +51,10 @@ const TransactionFormContainer = (props: Props) => {
         refetchQueries: ["transactionDetail"],
       }
     );
+
+  const [removeTransactionsMutation] = useMutation<RemoveTransactionsMutationResponse>(
+    gql(mutations.transactionsRemove)
+  )
 
   if (
     (trDetailQuery && trDetailQuery.loading) ||
@@ -138,20 +142,17 @@ const TransactionFormContainer = (props: Props) => {
         trDocs: trDocs,
       },
     })
-      .then(() => {
+      .then((result) => {
         if (!parentId) {
-          const newParentId = (transactions || [])[0]?.parentId;
-          Alert.success("You successfully created transactions");
+          const newParentId = result.data?.accTransactionsCreate[0]?.parentId;
 
           const pathname = newParentId
             ? `/accountings/transaction/edit/${newParentId}`
             : "/accountings/ptrs";
 
-          {
-            navigate({
-              pathname,
-            });
-          }
+          Alert.success("You successfully created transactions");
+          navigate(pathname);
+          setLoading(false);
         } else {
           Alert.success("You successfully updated transactions");
           trDetailQuery.refetch();
@@ -167,12 +168,36 @@ const TransactionFormContainer = (props: Props) => {
       });
   };
 
+  const deletePtr = () => {
+    if (!parentId) {
+      return
+    }
+
+    return removeTransactionsMutation({
+      variables: {
+        parentId,
+      },
+    })
+      .then(() => {
+        Alert.success("You successfully updated transactions");
+        setLoading(false);
+        navigate('/accountings/ptrs');
+      })
+
+      .catch((error) => {
+        Alert.error(error.message);
+
+        setLoading(false);
+      });
+  }
+
   const updatedProps = {
     ...props,
     configsMap,
     parentId,
     transactions,
     save,
+    deletePtr,
     defaultJournal: queryParams.defaultJournal,
     loading,
   };

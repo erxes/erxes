@@ -1,5 +1,6 @@
-import { colors } from '@erxes/ui/src/styles';
 import { darken, lighten } from '@erxes/ui/src/styles/ecolor';
+
+import { colors } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -34,11 +35,12 @@ export const Button = styledTS<{
   padding: 5px 15px;
   background: ${(props) => buttonColor(props.colorname)};
   color: #fff;
-  border-radius: 16px;
+  border-radius: 5px;
   font-weight: 500;
   transition: background 0.3s ease;
   display: inline-block;
   text-align: center;
+  font-size: 12px;
 
   &:hover {
     background: ${(props) => darken(buttonColor(props.colorname), 10)};
@@ -46,6 +48,21 @@ export const Button = styledTS<{
   }
   
   ${(props) => props.extra && 'padding-left: 40px;'}
+`;
+
+export const ActionItem = styled.button`
+  width: 100%;
+  text-align: left;
+  min-width: 150px;
+  background: none;
+  outline: 0;
+  border: 0;
+  overflow: hidden;
+
+  > i {
+    color: ${colors.colorCoreGreen};
+    float: right;
+  }
 `;
 
 export const CloseDateLabel = styled(Button)`
@@ -74,9 +91,7 @@ export const CalenderWrapper = styled.div`
 `;
 
 export const CloseDateWrapper = styled.div`
-  margin-top: 6px;
   position: relative;
-  margin-left: 20px;
   flex-shrink: 0;
   display: flex;
 `;

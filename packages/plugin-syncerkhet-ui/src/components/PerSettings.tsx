@@ -20,6 +20,7 @@ import { FieldsCombinedByType } from "../../../ui-forms/src/settings/properties/
 import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 import { FlexRow } from "@erxes/ui-settings/src/styles";
+import { payOptions } from "../constants";
 
 const ebarimtProductRules = `
   query ebarimtProductRules(
@@ -184,15 +185,7 @@ class PerSettings extends React.Component<Props, State> {
 
   render() {
     const { config } = this.state;
-    const payOptions = [
-      { value: "debtAmount", label: "Зээлийн данс" },
-      { value: "cashAmount", label: "Бэлэн мөнгө данс" },
-      { value: "cardAmount", label: "Картын данс" },
-      { value: "card2Amount", label: "Картын данс нэмэлт" },
-      { value: "mobileAmount", label: "Мобайл данс" },
-      { value: "debtBarterAmount", label: "Бартер данс" },
-      { value: "preAmount", label: "Урьдчилгаа данс" },
-    ];
+
     const payOptionsWithNull = [{ value: "", label: "Өрөөсөн баримтаар" }, ...payOptions];
     const responseFieldOptions = (this.state.fieldsCombined || []).map(f => ({
       value: f.name,

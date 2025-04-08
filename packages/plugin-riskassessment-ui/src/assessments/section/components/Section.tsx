@@ -5,18 +5,20 @@ import {
   Icon,
   ModalTrigger,
   SectionBodyItem,
-} from '@erxes/ui/src';
-import { ColorBox, FormContainer, ProductName } from '../../../styles';
+} from "@erxes/ui/src";
+import { ColorBox, FormContainer, ProductName } from "../../../styles";
 
-import AssignedUsers from '../containers/AssignedUsers';
-import React from 'react';
-import { RiskAssessmentTypes } from '../../common/types';
-import SinglAddForm from '../containers/SingkeAddForm';
+import AssignedUsers from "../containers/AssignedUsers";
+import DynamicComponentContent from "@erxes/ui/src/components/dynamicComponent/Content";
+import React from "react";
+import { RiskAssessmentTypes } from "../../common/types";
+import SinglAddForm from "../containers/SingkeAddForm";
 
 type Props = {
   riskAssessments: RiskAssessmentTypes[];
   cardId: string;
   cardType: string;
+  showType?: string;
 };
 
 class Section extends React.Component<Props> {
@@ -62,7 +64,7 @@ class Section extends React.Component<Props> {
     return <AssignedUsers {...updatedProps} />;
   };
 
-  renderItem = riskAssessment => {
+  renderItem = (riskAssessment) => {
     const {
       status,
       statusColor,
@@ -74,23 +76,23 @@ class Section extends React.Component<Props> {
     } = riskAssessment as RiskAssessmentTypes;
 
     const renderName = () => {
-      if ([department, branch, operation].some(x => x)) {
-        return `${branch?.title || ''} ${
-          department?.title || ''
-        } ${operation?.name || ''}`;
+      if ([department, branch, operation].some((x) => x)) {
+        return `${branch?.title || ""} ${
+          department?.title || ""
+        } ${operation?.name || ""}`;
       }
 
       if (group) {
-        return group?.name || '';
+        return group?.name || "";
       }
       if (indicator) {
-        return indicator?.name || '';
+        return indicator?.name || "";
       }
 
       if (status) {
         return status;
       }
-      return '';
+      return "";
     };
 
     return (
@@ -117,7 +119,7 @@ class Section extends React.Component<Props> {
   };
 
   renderBulkAssessment(riskAssessments: RiskAssessmentTypes[]) {
-    return riskAssessments.map(assessment => (
+    return riskAssessments.map((assessment) => (
       <SectionBodyItem key={assessment._id}>
         {this.renderSingleAssessment(assessment)}
       </SectionBodyItem>
@@ -143,7 +145,7 @@ class Section extends React.Component<Props> {
   }
 
   render() {
-    const { riskAssessments } = this.props;
+    const { riskAssessments, showType } = this.props;
 
     const extraButton = (
       <BarItems>
@@ -154,6 +156,14 @@ class Section extends React.Component<Props> {
         )}
       </BarItems>
     );
+
+    if (showType && showType === "list") {
+      return (
+        <DynamicComponentContent>
+          {!!riskAssessments.length && this.renderAssignedUser()}
+        </DynamicComponentContent>
+      );
+    }
 
     return (
       <FormContainer $column padding="0 0 10px 0">

@@ -17,6 +17,8 @@ export const types = `
     operators: JSON
   }
   type CloudflareCallsData {
+    header: String
+    description: String
     departments: [CloudflareCallDataDepartment]
     isReceiveWebCall: Boolean
   }
@@ -146,6 +148,8 @@ export const types = `
   }
 
   input IntegrationCallData {
+    header: String
+    description: String
     departments: [DepartmentInput]
     isReceiveWebCall: Boolean
   }

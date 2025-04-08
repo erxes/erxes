@@ -1,6 +1,6 @@
 import {
   attachmentType,
-  attachmentInput
+  attachmentInput,
 } from "@erxes/api-utils/src/commonTypeDefs";
 
 const posCommonFields = `
@@ -24,6 +24,12 @@ const posCommonFields = `
   roomCategories: JSON
   time: String
   discount: JSON
+  checkintime: String
+  checkouttime: String
+  checkinamount: Float
+  checkoutamount: Float
+
+
 `;
 
 export const types = () => `

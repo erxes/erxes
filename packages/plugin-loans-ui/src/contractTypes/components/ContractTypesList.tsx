@@ -37,7 +37,7 @@ interface IProps {
 }
 
 const ContractTypesList = (props: IProps) => {
-  const timerRef = useRef<number | null>(null);
+  const timerRef = React.useRef<number | null>(null);
   const [searchValue, setSearchValue] = useState(props.searchValue);
 
   const {
@@ -66,7 +66,7 @@ const ContractTypesList = (props: IProps) => {
 
     setSearchValue(value);
 
-    timerRef.current = setTimeout(() => {
+    timerRef.current = window.setTimeout(() => {
       navigate(`/settings/contract-types?searchValue=${value}`);
     }, 500);
   };
@@ -113,8 +113,8 @@ const ContractTypesList = (props: IProps) => {
             <th>
               <SortHandler sortField={"number"} label={__("Start Number")} />
             </th>
-            <th>{__("Lease Type")}</th>
             <th>{__("After vacancy count")}</th>
+            <th>{__("Lease Type")}</th>
             <th>{__("Product")}</th>
             <th></th>
           </tr>
@@ -177,7 +177,7 @@ const ContractTypesList = (props: IProps) => {
 
       <ModalTrigger
         title={__("New contractType")}
-        size="lg"
+        size="xl"
         trigger={addTrigger}
         autoOpenKey="showContractTypeModal"
         content={contractTypeForm}

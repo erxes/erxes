@@ -41,6 +41,8 @@ const integrationDetail = `
       ${commonFields}
       messengerData
       callData {
+        header
+        description
         departments {
           _id
           name

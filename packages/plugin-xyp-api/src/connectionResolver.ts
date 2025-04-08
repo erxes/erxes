@@ -24,7 +24,7 @@ export const loadClasses = (
   const models = {} as IModels;
 
   models.XypData = db.model<IXypDataDocument, IXypDataModel>(
-    'xyp_data',
+    'xyp_datas',
     loadxypConfigClass(models),
   );
 

@@ -214,7 +214,7 @@ export const checkWaitingResponseAction = async (
     triggerType: type,
     status: EXECUTION_STATUS.WAITING,
     objToCheck: { $exists: true, $ne: null },
-    responseActionId: { $exists: true }
+    // responseActionId: { $exists: true }
   }).sort({ createdAt: -1 });
 
   for (const waitingExecution of waitingResponseExecution) {
@@ -226,12 +226,15 @@ export const checkWaitingResponseAction = async (
       const valueToCheck = accessNestedObject(target, propertyName.split('.'));
 
       if (generalKeys.every(key => target[key] === general[key])) {
-        for (const { actionConfig } of actions) {
+        for (const { actionConfig,actionId } of actions) {
           if (
             (actionConfig?.optionalConnects || []).some(
               ({ optionalConnectId }) => optionalConnectId == valueToCheck
             )
           ) {
+            if(waitingExecution.responseActionId !==actionId){
+              waitingExecution.responseActionId = actionId
+            }
             return waitingExecution;
           }
         }

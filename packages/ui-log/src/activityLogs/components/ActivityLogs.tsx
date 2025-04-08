@@ -1,10 +1,14 @@
-import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
-
+import { ACTIVITY_NAMES } from "../constants";
 import { ActivityContent } from "@erxes/ui/src/styles/main";
+import { ActivityHeader } from "../styles";
 import ActivityList from "./ActivityList";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import { IActivityLog } from "../types";
 import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Menu } from "@headlessui/react";
 import React from "react";
 import { __ } from "coreui/utils";
 import { hasAnyActivity } from "../utils";
@@ -31,7 +35,7 @@ class ActivityLogs extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      currentTab: "activity"
+      currentTab: "activity",
     };
   }
 
@@ -50,7 +54,7 @@ class ActivityLogs extends React.PureComponent<Props, State> {
       activityLogs,
       loadingLogs,
       target,
-      activityRenderItem
+      activityRenderItem,
     } = this.props;
 
     const hasActivity = hasAnyActivity(activityLogs);
@@ -76,19 +80,20 @@ class ActivityLogs extends React.PureComponent<Props, State> {
     );
   }
 
-  renderExtraTabs = () => {
+  renderExtraFilters = () => {
     const { currentTab } = this.state;
     const { extraTabs } = this.props;
 
     return extraTabs.map(({ name, label }) => {
       return (
-        <TabTitle
-          key={Math.random()}
-          className={currentTab === name ? "active" : ""}
-          onClick={this.onTabClick.bind(this, name)}
-        >
-          {__(label)}
-        </TabTitle>
+        <Menu.Item key={Math.random()}>
+          <a
+            className={currentTab === name ? "active" : ""}
+            onClick={this.onTabClick.bind(this, name)}
+          >
+            {__(label)}
+          </a>
+        </Menu.Item>
       );
     });
   };
@@ -98,21 +103,32 @@ class ActivityLogs extends React.PureComponent<Props, State> {
 
     return (
       <div>
-        <Tabs grayBorder={true}>
-          <TabTitle
-            className={currentTab === "activity" ? "active" : ""}
-            onClick={this.onTabClick.bind(this, "activity")}
+        <ActivityHeader>
+          <h5>{ACTIVITY_NAMES[currentTab]}</h5>
+          <Dropdown
+            as={DropdownToggle}
+            toggleComponent={<Icon icon="filter-1" size={18} />}
+            unmount={false}
           >
-            {__("Activity")}
-          </TabTitle>
-          <TabTitle
-            className={currentTab === "core:internalNote" ? "active" : ""}
-            onClick={this.onTabClick.bind(this, "core:internalNote")}
-          >
-            {__("Notes")}
-          </TabTitle>
-          {this.renderExtraTabs()}
-        </Tabs>
+            <Menu.Item>
+              <a
+                className={currentTab === "activity" ? "active" : ""}
+                onClick={this.onTabClick.bind(this, "activity")}
+              >
+                {__("Activity")}
+              </a>
+            </Menu.Item>
+            <Menu.Item>
+              <a
+                className={currentTab === "core:internalNote" ? "active" : ""}
+                onClick={this.onTabClick.bind(this, "core:internalNote")}
+              >
+                {__("Notes")}
+              </a>
+            </Menu.Item>
+            {this.renderExtraFilters()}
+          </Dropdown>
+        </ActivityHeader>
 
         {this.renderTabContent()}
       </div>

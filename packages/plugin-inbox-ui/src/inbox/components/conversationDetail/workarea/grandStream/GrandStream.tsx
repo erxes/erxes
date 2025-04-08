@@ -29,7 +29,7 @@ type Props = {
 };
 
 const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
-  const audioRef = useRef(null) as any;
+  const audioRef = useRef<ReactAudioPlayer | null>(null);
   const {
     callDuration,
     callStatus,
@@ -47,22 +47,29 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
     dayjs(createdAt).format('YYYY-MM-DD HH:mm');
 
   const handleDownload = () => {
-    const audioSrc = audioRef?.current?.querySelector('source').src;
+    const audioSrc = audioRef.current?.audioEl.current?.src; // Correct way to get audio src
 
-    fetch(audioSrc)
-      .then((response) => response.blob())
-      .then((blob) => {
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute('download', `${audioTitle}.wav`); // Set the desired file name here
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
-      })
-      .catch((error) =>
-        console.error('Error downloading the audio file:', error),
-      );
+    if (audioSrc) {
+      fetch(audioSrc)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.blob();
+        })
+        .then((blob) => {
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.setAttribute('download', `${audioTitle}.wav`);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(link.href);
+        })
+        .catch((error) =>
+          console.error('Error downloading the audio file:', error),
+        );
+    }
   };
 
   const renderDownloadAudio = () => {
@@ -83,6 +90,7 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
       can('showCallRecord', currentUser) && (
         <Audio>
           <ReactAudioPlayer
+            ref={audioRef}
             src={readFile(recordUrl)}
             controls
             controlsList="nodownload"

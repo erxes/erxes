@@ -27,5 +27,8 @@ module.exports = {
   ],
   customerRightSidebarSection: "./customerSidebar",
   companyRightSidebarSection: "./companySidebar",
-  dealRightSidebarSection: "./dealSidebar",
+  dealRightSidebarSection: {
+    title: "Cars",
+    component: "./dealSidebar",
+  },
 };

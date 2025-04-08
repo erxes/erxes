@@ -73,6 +73,8 @@ export const loadIntegrationClass = (models: IModels) => {
             $set: {
               departments: doc.departments,
               status: doc.status,
+              header: doc.header,
+              description: doc.description,
             },
           },
         );
@@ -84,6 +86,8 @@ export const loadIntegrationClass = (models: IModels) => {
         departments: doc.departments,
         erxesApiId: _id,
         status: doc.status,
+        header: doc.header,
+        description: doc.description,
       });
     }
   }

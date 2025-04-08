@@ -21,6 +21,7 @@ type Props = {
   fieldsVisibility: (key: string) => IFieldsVisibility;
   isDetail: boolean;
   fields: IField[];
+  isGrid?: boolean;
 };
 
 class DetailInfo extends React.PureComponent<Props> {
@@ -90,14 +91,14 @@ class DetailInfo extends React.PureComponent<Props> {
   }
 
   render() {
-    const { customer, fields } = this.props;
+    const { customer, fields, isGrid } = this.props;
 
     if (!fields || !fields.length) {
       return null;
     }
 
     return (
-      <SidebarList className="no-link">
+      <SidebarList className="no-link" $isGrid={isGrid}>
         {this.renderRow("code", customer.code)}
         {this.renderEmail(
           customer.emailValidationStatus,

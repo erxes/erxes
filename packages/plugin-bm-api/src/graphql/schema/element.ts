@@ -31,7 +31,7 @@ export const types = () => `
     categoriesObject: [ElementCategory]
     itineraryId: String
     location: BMSLocation
-
+    branchId: String
     createdAt: Date
     modifiedAt: Date
   }
@@ -48,7 +48,7 @@ export const types = () => `
 `;
 
 export const queries = `
-  bmElements(categories: [String],name: String, page:Int, perPage:Int,quick: Boolean,sortField:String, sortDirection:Int): ListElement
+  bmElements(branchId:String, categories: [String],name: String, page:Int, perPage:Int,quick: Boolean,sortField:String, sortDirection:Int): ListElement
   bmElementDetail(_id:String!): Element
   bmElementCategoryies(parentId:String): [ElementCategory]
   bmElementsInit: JSON
@@ -66,7 +66,8 @@ const params = `
   categories: [String],
   itineraryId: String,
   location: BMSLocationInput,
-  quick: Boolean
+  quick: Boolean,
+  branchId: String
 `;
 
 export const mutations = `

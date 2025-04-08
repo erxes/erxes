@@ -137,7 +137,7 @@ export default function RightMenu(props: Props) {
           label={__("Filter by contract type")}
           name="contractTypeId"
           queryParams={queryParams}
-          onSelect={onSelect}
+          onSelect={values => onSelect.bind(this, values)}
           multi={false}
         />
         <FormControl
