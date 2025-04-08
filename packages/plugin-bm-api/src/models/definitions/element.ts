@@ -17,6 +17,7 @@ export interface IElement {
   itineraryId?: string;
   location?: ILocation;
   categories?: string[];
+  branchId?: string;
 }
 
 export interface IElementDocument extends IElement, Document {
@@ -44,8 +45,8 @@ export const elementCategorySchema = schemaHooksWrapper(
     createdAt: field({
       type: Date,
       default: new Date(),
-      label: 'Created at',
-    }),
+      label: 'Created at'
+    })
   }),
   'erxes_elementCategory'
 );
@@ -66,11 +67,12 @@ export const elementSchema = schemaHooksWrapper(
     categories: field({ type: [String], optional: true, label: 'categories' }),
     images: field({ type: [String], optional: true, label: 'images' }),
     itineraryId: field({ type: String, optional: true, label: 'itineraryId' }),
+    branchId: field({ type: String, optional: true, label: 'branchId' }),
     location: field({
       type: locationSchema,
       optional: true,
-      label: 'location',
-    }),
+      label: 'location'
+    })
   }),
   'erxes_elements'
 );
