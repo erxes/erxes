@@ -47,16 +47,12 @@ export const isInSegment = async (
 ) => {
   await delay(15000);
 
-  console.log({ segmentId, idToCheck: targetId });
-
   const response = await sendSegmentsMessage({
     subdomain,
     action: 'isInSegment',
     data: { segmentId, idToCheck: targetId },
     isRPC: true
   });
-
-  console.log({ response });
 
   return response;
 };
