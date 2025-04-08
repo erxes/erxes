@@ -52,18 +52,17 @@ const adjustInventoryMutations = {
     };
 
     if (preAdjusting) {
-      trFilters.date = { $gt: preAdjusting.date, $lt: getTomorrow(adjusting.date) }
+      trFilters.fullDate = { $gt: preAdjusting.date, $lt: getTomorrow(adjusting.date) }
     }
 
+    // {$addFields: {dateStr: {$dateToString: {date:'$date', format: '%Y-%m-%d'}}}},
     const aggRecords = await models.Transactions.aggregate([
       { $match: trFilters },
       { $unwind: '$details' },
-      { $addFields: { detail: '$details' } },
-      { $project: { 'details': 0 } },
-      { $sort: { date: 1, 'detail.side': -1 } },
+      { $sort: { fullDate: 1, 'details.side': -1 } },
       {
         $group: {
-          _id: '$detail.productId',
+          _id: '$details.productId',
           records: { $push: '$$ROOT' }
         }
       }
@@ -85,11 +84,11 @@ const adjustInventoryMutations = {
       let warning = '';
 
       for (const rec of records) {
-        if (rec.detail.side === TR_SIDES.DEBIT) {
-          remainder += rec.detail.count;
+        if (rec.details.side === TR_SIDES.DEBIT) {
+          remainder += rec.details.count;
 
         } else {
-          remainder -= rec.detail.count;
+          remainder -= rec.details.count;
         }
 
         if (remainder < 0) {
@@ -145,8 +144,14 @@ const adjustInventoryMutations = {
     }
   },
 
-  async adjustCorrects(_root, { }, { models }: IContext) {
-    // {$addFields: {dateStr: {$dateToString: {date:'$date', format: '%Y-%m-%d'}}}},
+  async adjustInvCorrects(_root, { date }: { date: Date }, { models }: IContext) {
+    const lastAdjustInvs = await models.AdjustInventories.findOne({ status: ADJ_INV_STATUSES.PUBLISH }).sort({ date: -1 }).lean();
+
+    if (lastAdjustInvs && lastAdjustInvs.date > date) {
+      throw new Error('closed period')
+    }
+
+
   }
 };
 
