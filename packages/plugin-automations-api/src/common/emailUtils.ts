@@ -134,8 +134,11 @@ const getAttributionEmails = async ({
     isRPC: true,
     defaultValue: {},
   });
+  console.log({replacedContent})
 
   const generatedEmails = generateEmails(replacedContent[key]);
+
+  console.log({generatedEmails})
 
   return [...emails, ...generatedEmails];
 };
