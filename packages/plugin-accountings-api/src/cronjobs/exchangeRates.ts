@@ -1,6 +1,8 @@
 import { sendCoreMessage } from "../messageBroker";
 
-const mntRates = async (subdomain, NOW, rateCurrencies) => {
+const mntRates = async (
+  subdomain: string, NOW: Date, rateCurrencies: string[]
+): Promise<void> => {
   const BASE_URL = "https://www.mongolbank.mn/mn/currency-rates/data";
 
   try {
@@ -29,7 +31,7 @@ const mntRates = async (subdomain, NOW, rateCurrencies) => {
       }
 
       if (rateCurrencies.includes(rateCurrency)) {
-        sendCoreMessage({
+        await sendCoreMessage({
           subdomain,
           action: "exchangeRates.create",
           data: {
