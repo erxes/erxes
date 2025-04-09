@@ -106,7 +106,6 @@ const ClientFormContainer = (props: Props) => {
   const modules = data?.permissionModules || [];
 
   const prohibitedModules = [
-    'users',
     'usersGroups',
     'permissions',
     'clients',
