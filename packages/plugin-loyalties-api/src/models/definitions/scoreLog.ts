@@ -29,8 +29,8 @@ export const scoreLogSchema = new Schema({
     label: "Owner Type",
     enum: OWNER_TYPES.ALL,
   }),
-  campaignId: field({ type: String, label: "Campaign ID", optional: true }),
-  ownerId: field({ type: String }),
+  campaignId: field({ type: String, index: true, label: "Campaign ID", optional: true }),
+  ownerId: field({ type: String, index: true, label: "Owner" }),
   changeScore: field({ type: Number, label: "Changed Score" }),
   description: field({ type: String, label: "Description" }),
   serviceName: field({ type: String, label: "Service name" }),
@@ -46,3 +46,5 @@ export const scoreLogSchema = new Schema({
     optional: true,
   }),
 });
+
+scoreLogSchema.index({ ownerType: 1, ownerId: 1 });
