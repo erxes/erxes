@@ -23,7 +23,7 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from './logUtils';
 import { sendToWebhook } from './requests';
 import { updateUserScore, getScoringConfig } from './scoring';
 import { generateFieldsFromSchema } from './fieldUtils';
-import { toWord } from './numberUtils'
+import { numberToWord } from './numberUtils'
 
 import {
   can,
@@ -111,5 +111,5 @@ export default {
   afterQueryWrapper,
   dateToShortStr,
   shortStrToDate,
-  toWord
+  numberToWord
 };

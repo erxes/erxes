@@ -31,7 +31,7 @@ const SCALES = [
   { word: "их наяд" },
 ];
 
-const numberToWord = (num: number, usePrefix = false): string => {
+const runner = (num: number, usePrefix = false): string => {
   if (num === 0) return DIGITS[0].word;
 
   if (num < 10) {
@@ -73,7 +73,7 @@ const numberToWord = (num: number, usePrefix = false): string => {
     return `${quotient === 1
         ? DIGITS[quotient].word
         : DIGITS[quotient].prefix || DIGITS[quotient].word
-      } ${SCALES[0].prefix} ${numberToWord(remainder, usePrefix)}`;
+      } ${SCALES[0].prefix} ${runner(remainder, usePrefix)}`;
   }
 
   for (let i = SCALES.length - 1; i >= 1; i--) {
@@ -84,23 +84,23 @@ const numberToWord = (num: number, usePrefix = false): string => {
       const remainder = num % scaleValue;
 
       if (remainder === 0) {
-        return `${numberToWord(quotient, quotient !== 1)} ${SCALES[i].word}`;
+        return `${runner(quotient, quotient !== 1)} ${SCALES[i].word}`;
       }
 
-      return `${numberToWord(quotient, quotient !== 1)} ${SCALES[i].word
-        } ${numberToWord(remainder)}`;
+      return `${runner(quotient, quotient !== 1)} ${SCALES[i].word
+        } ${runner(remainder)}`;
     }
   }
 
   return "Number is too large";
 };
 
-const toWord = (num: number): string => {
+const numberToWord = (num: number): string => {
   if (num > 1_000_000_000_000_000) {
     throw new Error("Number is too large");
   }
 
-  return numberToWord(num, false);
+  return runner(num, false);
 };
 
-export { toWord };
+export { numberToWord };
