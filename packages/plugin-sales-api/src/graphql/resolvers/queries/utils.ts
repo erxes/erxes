@@ -10,6 +10,7 @@ import { getNextMonth, getToday, regexSearchText } from '@erxes/api-utils/src';
 import { IListParams } from './boards';
 import {
   fetchSegment,
+  sendCommonMessage,
   sendCoreMessage,
   sendNotificationsMessage
 } from '../../../messageBroker';
@@ -185,6 +186,7 @@ export const generateCommonFilters = async (
     closeDateType,
     assignedUserIds,
     customerIds,
+    vendorCustomerIds,
     companyIds,
     conformityMainType,
     conformityMainTypeId,
@@ -616,7 +618,28 @@ export const generateCommonFilters = async (
   if (number) {
     filter.number = { $regex: `${number}`, $options: 'mui' };
   }
+  if (vendorCustomerIds?.length > 0) {
+    const cards = await sendCommonMessage({
+      subdomain,
+      serviceName: 'clientportal',
+      action: 'clientPortalUserCards.find',
+      data: {
+        contentType: 'deal',
+        cpUserId: { $in: vendorCustomerIds }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
 
+    const cardIds = cards.map(d => d.contentTypeId);
+    if (filter._id) {
+      const ids = filter._id.$in;
+      const newIds = ids.filter(d => cardIds.includes(d));
+      filter._id = { $in: newIds };
+    } else {
+      filter._id = { $in: cardIds };
+    }
+  }
   if ((stageId || stageCodes) && resolvedDayBetween) {
     const [dayFrom, dayTo] = resolvedDayBetween;
     filter.$expr = {
