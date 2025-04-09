@@ -37,7 +37,7 @@ const runner = (num: number, usePrefix = false): string => {
   if (num < 10) {
     // 1, 2, 3, 4, 5, 6, 7, 8, 9
     return usePrefix
-      ? DIGITS[num].prefix || DIGITS[num].word
+      ? DIGITS[num].prefix ?? DIGITS[num].word
       : DIGITS[num].word;
   }
 
@@ -52,7 +52,7 @@ const runner = (num: number, usePrefix = false): string => {
     }
 
     return `${TENS[quotient - 1].prefix} ${usePrefix
-        ? DIGITS[remainder].prefix || DIGITS[remainder].word
+        ? DIGITS[remainder].prefix ?? DIGITS[remainder].word
         : DIGITS[remainder].word
       }`;
   }
@@ -66,13 +66,13 @@ const runner = (num: number, usePrefix = false): string => {
       // 100, 200, 300, 400, 500, 600, 700, 800, 900
       return `${quotient === 1
           ? DIGITS[quotient].word
-          : DIGITS[quotient].prefix || DIGITS[quotient].word
-        } ${usePrefix ? SCALES[0].prefix || SCALES[0].word : SCALES[0].word}`;
+          : DIGITS[quotient].prefix ?? DIGITS[quotient].word
+        } ${usePrefix ? SCALES[0].prefix ?? SCALES[0].word : SCALES[0].word}`;
     }
 
     return `${quotient === 1
         ? DIGITS[quotient].word
-        : DIGITS[quotient].prefix || DIGITS[quotient].word
+        : DIGITS[quotient].prefix ?? DIGITS[quotient].word
       } ${SCALES[0].prefix} ${runner(remainder, usePrefix)}`;
   }
 
