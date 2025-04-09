@@ -20,6 +20,7 @@ import TagFilter from "../../containers/TagFilter";
 import Tip from "@erxes/ui/src/components/Tip";
 import { pluginsOfProductCategoryActions } from "coreui/pluginUtils";
 import SaveTemplate from "@erxes/ui-template/src/components/SaveTemplate";
+import ConditionFilter from "modules/products/containers/config/ConditionFilter";
 
 interface IProps {
   queryParams: any;
@@ -81,20 +82,16 @@ const List: React.FC<IProps> = props => {
   };
 
   const renderTemplateModal = (category: IProductCategory) => {
-    const {
-      isRoot,
-      productCount,
-      ...productCategoryContent
-    } = category
+    const { isRoot, productCount, ...productCategoryContent } = category;
 
     const content = {
       content: JSON.stringify(productCategoryContent),
-      contentType: 'productCategories',
-      serviceName: 'core'
+      contentType: "productCategories",
+      serviceName: "core",
     };
 
     return <SaveTemplate as="icon" {...content} />;
-  }
+  };
 
   const onClick = (id: string) => {
     router.removeParams(navigate, location, "page");
@@ -102,14 +99,13 @@ const List: React.FC<IProps> = props => {
   };
 
   const renderAdditionalActions = (category: IProductCategory) => {
-
     return (
       <>
         {renderTemplateModal(category)}
         {pluginsOfProductCategoryActions(category)}
       </>
-    )
-  }
+    );
+  };
 
   const renderContent = () => {
     return (
@@ -157,6 +153,7 @@ const List: React.FC<IProps> = props => {
         loading={props.brandsLoading}
       />
       <TagFilter />
+      <ConditionFilter />
     </Sidebar>
   );
 };
