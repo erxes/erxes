@@ -1,17 +1,17 @@
-import * as dayjs from 'dayjs';
-import T from 'i18n-react';
-import { FieldValue } from './form/types';
-import { ENV, IBrowserInfo, IRule } from './types';
+import * as dayjs from "dayjs";
+import T from "i18n-react";
+import { FieldValue } from "./form/types";
+import { ENV, IBrowserInfo, IRule } from "./types";
 
 export const getSubdomain = (): string => {
-  const hostnameParts = window.location.hostname.split('.');
+  const hostnameParts = window.location.hostname.split(".");
 
   if (hostnameParts.length > 2) {
     return hostnameParts[0];
   }
 
   // return an empty string (for open-source environments with no subdomain)
-  return '';
+  return "";
 };
 
 // get env config from process.env or window.env
@@ -21,20 +21,20 @@ export const getEnv = () => {
   const subdomain = getSubdomain();
 
   const getItem = (name: string) => {
-    const value = wenv[name] || process.env[name] || '';
+    const value = wenv[name] || process.env[name] || "";
     // Only replace '<subdomain>' if it exists in the value
-    if (value.includes('<subdomain>')) {
-      return value.replace('<subdomain>', subdomain);
+    if (value.includes("<subdomain>")) {
+      return value.replace("<subdomain>", subdomain);
     }
 
     return value;
   };
 
   return {
-    API_URL: getItem('API_URL'),
-    API_SUBSCRIPTIONS_URL: getItem('API_SUBSCRIPTIONS_URL'),
-    CALLS_APP_ID: getItem('CALLS_APP_ID'),
-    CALLS_APP_SECRET: getItem('CALLS_APP_SECRET'),
+    API_URL: getItem("API_URL"),
+    API_SUBSCRIPTIONS_URL: getItem("API_SUBSCRIPTIONS_URL")
+    // CALLS_APP_ID: getItem('CALLS_APP_ID'),
+    // CALLS_APP_SECRET: getItem('CALLS_APP_SECRET'),
   };
 };
 
@@ -46,9 +46,9 @@ export const postMessage = (source: string, message: string, postData = {}) => {
       fromErxes: true,
       source,
       message,
-      ...postData,
+      ...postData
     },
-    '*',
+    "*"
   );
 };
 
@@ -70,18 +70,18 @@ export type LogicParams = {
 export const requestBrowserInfo = ({
   source,
   postData = {},
-  callback,
+  callback
 }: RequestBrowserInfoParams) => {
-  postMessage(source, 'requestingBrowserInfo', postData);
+  postMessage(source, "requestingBrowserInfo", postData);
 
-  window.addEventListener('message', (event: any) => {
+  window.addEventListener("message", (event: any) => {
     const data = event.data || {};
     const { fromPublisher, message, browserInfo } = data;
 
     if (
       fromPublisher &&
       source === data.source &&
-      message === 'sendingBrowserInfo'
+      message === "sendingBrowserInfo"
     ) {
       callback(browserInfo);
     }
@@ -89,16 +89,16 @@ export const requestBrowserInfo = ({
 };
 
 const setDayjsLocale = (code: string) => {
-  import('dayjs/locale/' + code + '.js')
+  import("dayjs/locale/" + code + ".js")
     .then(() => dayjs.locale(code))
-    .catch(() => dayjs.locale('en'));
+    .catch(() => dayjs.locale("en"));
 };
 
 export const setLocale = (code?: string, callBack?: () => void) => {
   import(`../locales/${code}.json`)
     .then((translations) => {
       T.setTexts(translations);
-      setDayjsLocale(code || 'en');
+      setDayjsLocale(code || "en");
 
       if (callBack) {
         callBack();
@@ -147,7 +147,7 @@ export const makeClickableLink = (selector: string) => {
   const nodes = Array.from(document.querySelectorAll(selector));
 
   nodes.forEach((node) => {
-    node.setAttribute('target', '__blank');
+    node.setAttribute("target", "__blank");
   });
 };
 
@@ -168,7 +168,7 @@ export const isValidURL = (url: string) => {
 export const readFile = (value: string, width?: number): string => {
   const { API_URL } = getEnv();
 
-  if (!value || isValidURL(value) || value.includes('http')) {
+  if (!value || isValidURL(value) || value.includes("http")) {
     return value;
   }
 
@@ -187,45 +187,45 @@ export const checkRule = (rule: IRule, browserInfo: IBrowserInfo) => {
 
   let valueToTest: any;
 
-  if (kind === 'browserLanguage') {
+  if (kind === "browserLanguage") {
     valueToTest = language;
   }
 
-  if (kind === 'currentPageUrl') {
+  if (kind === "currentPageUrl") {
     valueToTest = url;
   }
 
-  if (kind === 'city') {
+  if (kind === "city") {
     valueToTest = city;
   }
 
-  if (kind === 'country') {
+  if (kind === "country") {
     valueToTest = country;
   }
 
   // is
-  if (condition === 'is' && valueToTest !== ruleValue) {
+  if (condition === "is" && valueToTest !== ruleValue) {
     return false;
   }
 
   // isNot
-  if (condition === 'isNot' && valueToTest === ruleValue) {
+  if (condition === "isNot" && valueToTest === ruleValue) {
     return false;
   }
 
   // isUnknown
-  if (condition === 'isUnknown' && valueToTest) {
+  if (condition === "isUnknown" && valueToTest) {
     return false;
   }
 
   // hasAnyValue
-  if (condition === 'hasAnyValue' && !valueToTest) {
+  if (condition === "hasAnyValue" && !valueToTest) {
     return false;
   }
 
   // startsWith
   if (
-    condition === 'startsWith' &&
+    condition === "startsWith" &&
     valueToTest &&
     !valueToTest.startsWith(ruleValue)
   ) {
@@ -234,7 +234,7 @@ export const checkRule = (rule: IRule, browserInfo: IBrowserInfo) => {
 
   // endsWith
   if (
-    condition === 'endsWith' &&
+    condition === "endsWith" &&
     valueToTest &&
     !valueToTest.endsWith(ruleValue)
   ) {
@@ -243,7 +243,7 @@ export const checkRule = (rule: IRule, browserInfo: IBrowserInfo) => {
 
   // contains
   if (
-    condition === 'contains' &&
+    condition === "contains" &&
     valueToTest &&
     !valueToTest.includes(ruleValue)
   ) {
@@ -251,15 +251,15 @@ export const checkRule = (rule: IRule, browserInfo: IBrowserInfo) => {
   }
 
   // greaterThan
-  if (condition === 'greaterThan' && valueToTest < parseInt(ruleValue, 10)) {
+  if (condition === "greaterThan" && valueToTest < parseInt(ruleValue, 10)) {
     return false;
   }
 
-  if (condition === 'lessThan' && valueToTest > parseInt(ruleValue, 10)) {
+  if (condition === "lessThan" && valueToTest > parseInt(ruleValue, 10)) {
     return false;
   }
 
-  if (condition === 'doesNotContain' && valueToTest.includes(ruleValue)) {
+  if (condition === "doesNotContain" && valueToTest.includes(ruleValue)) {
     return false;
   }
 
@@ -268,7 +268,7 @@ export const checkRule = (rule: IRule, browserInfo: IBrowserInfo) => {
 
 export const checkRules = (
   rules: IRule[],
-  browserInfo: IBrowserInfo,
+  browserInfo: IBrowserInfo
 ): boolean => {
   let passedAllRules = true;
 
@@ -284,20 +284,20 @@ export const checkRules = (
 };
 
 export const striptags = (htmlString: string) => {
-  const _div = document.createElement('div');
-  let _text = '';
+  const _div = document.createElement("div");
+  let _text = "";
 
   _div.innerHTML = htmlString;
-  _text = _div.textContent ? _div.textContent.trim() : '';
-  _text = _text.replace(/\</g, '&lt;').replace(/\>/g, '&gt;');
+  _text = _div.textContent ? _div.textContent.trim() : "";
+  _text = _text.replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
   return _text;
 };
 
 export const fixErrorMessage = (msg: string) =>
-  msg.replace('GraphQL error: ', '');
+  msg.replace("GraphQL error: ", "");
 
 export const newLineToBr = (content: string) => {
-  return content.replace(/\r\n|\r|\n/g, '<br />');
+  return content.replace(/\r\n|\r|\n/g, "<br />");
 };
 
 export const urlify = (text: string) => {
@@ -310,7 +310,7 @@ export const urlify = (text: string) => {
   }
 
   return text.replace(urlRegex, (url) => {
-    if (url.startsWith('http')) {
+    if (url.startsWith("http")) {
       return `<a href="${url}" target="_blank">${url}</a>`;
     }
 
@@ -328,7 +328,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
     values[key] = false;
 
     // if fieldValue is set
-    if (operator === 'hasAnyValue') {
+    if (operator === "hasAnyValue") {
       if (fieldValue) {
         values[key] = true;
       } else {
@@ -337,7 +337,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
     }
 
     // if fieldValue is not set
-    if (operator === 'isUnknown') {
+    if (operator === "isUnknown") {
       if (!fieldValue) {
         values[key] = true;
       } else {
@@ -346,7 +346,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
     }
 
     // if fieldValue equals logic value
-    if (operator === 'is') {
+    if (operator === "is") {
       if (logicValue === fieldValue) {
         values[key] = true;
       } else {
@@ -355,7 +355,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
     }
 
     // if fieldValue not equal to logic value
-    if (operator === 'isNot') {
+    if (operator === "isNot") {
       if (logicValue !== fieldValue) {
         values[key] = true;
       } else {
@@ -363,9 +363,9 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
       }
     }
 
-    if (validation === 'number') {
+    if (validation === "number") {
       // if number value: is greater than
-      if (operator === 'greaterThan' && fieldValue) {
+      if (operator === "greaterThan" && fieldValue) {
         if (Number(fieldValue) > Number(logicValue)) {
           values[key] = true;
         } else {
@@ -374,7 +374,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
       }
 
       // if number value: is less than
-      if (operator === 'lessThan' && fieldValue) {
+      if (operator === "lessThan" && fieldValue) {
         if (Number(fieldValue) < Number(logicValue)) {
           values[key] = true;
         } else {
@@ -383,9 +383,9 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
       }
     }
 
-    if (typeof logicValue === 'string') {
+    if (typeof logicValue === "string") {
       // if string value contains logicValue
-      if (operator === 'contains') {
+      if (operator === "contains") {
         if (String(fieldValue).includes(logicValue)) {
           values[key] = true;
         } else {
@@ -394,7 +394,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
       }
 
       // if string value does not contain logicValue
-      if (operator === 'doesNotContain') {
+      if (operator === "doesNotContain") {
         if (!String(fieldValue).includes(logicValue)) {
           values[key] = true;
         } else {
@@ -403,7 +403,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
       }
 
       // if string value startsWith logicValue
-      if (operator === 'startsWith') {
+      if (operator === "startsWith") {
         if (String(fieldValue).startsWith(logicValue)) {
           values[key] = true;
         } else {
@@ -412,7 +412,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
       }
 
       // if string value endsWith logicValue
-      if (operator === 'endsWith') {
+      if (operator === "endsWith") {
         if (!String(fieldValue).endsWith(logicValue)) {
           values[key] = true;
         } else {
@@ -421,12 +421,12 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
       }
     }
 
-    if (validation && validation.includes('date')) {
+    if (validation && validation.includes("date")) {
       const dateValueToCheck = new Date(String(fieldValue));
       const logicDateValue = new Date(String(logicValue));
 
       // date is greather than
-      if (operator === 'dateGreaterThan') {
+      if (operator === "dateGreaterThan") {
         if (dateValueToCheck > logicDateValue) {
           values[key] = true;
         } else {
@@ -435,7 +435,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
       }
 
       // date is less than
-      if (operator === 'dateLessThan') {
+      if (operator === "dateLessThan") {
         if (logicDateValue > dateValueToCheck) {
           values[key] = true;
         } else {
@@ -444,13 +444,13 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
       }
     }
 
-    if (type === 'check') {
+    if (type === "check") {
       if (
         fieldValue &&
-        typeof fieldValue === 'string' &&
-        typeof logicValue === 'string'
+        typeof fieldValue === "string" &&
+        typeof logicValue === "string"
       ) {
-        if (operator === 'isNot') {
+        if (operator === "isNot") {
           if (!fieldValue.includes(logicValue)) {
             values[key] = true;
           } else {
@@ -458,7 +458,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
           }
         }
 
-        if (operator === 'is') {
+        if (operator === "is") {
           if (fieldValue.includes(logicValue)) {
             values[key] = true;
           } else {
@@ -484,13 +484,13 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
 
 export const loadMapApi = (apiKey: string, locale?: string) => {
   if (!apiKey) {
-    return '';
+    return "";
   }
 
   const mapsURL = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry,places&language=${
-    locale || 'en'
+    locale || "en"
   }&v=quarterly`;
-  const scripts: any = document.getElementsByTagName('script');
+  const scripts: any = document.getElementsByTagName("script");
   // Go through existing script tags, and return google maps api tag when found.
   for (const script of scripts) {
     if (script.src.indexOf(mapsURL) === 0) {
@@ -498,7 +498,7 @@ export const loadMapApi = (apiKey: string, locale?: string) => {
     }
   }
 
-  const googleMapScript = document.createElement('script');
+  const googleMapScript = document.createElement("script");
   googleMapScript.src = mapsURL;
   googleMapScript.async = true;
   googleMapScript.defer = true;

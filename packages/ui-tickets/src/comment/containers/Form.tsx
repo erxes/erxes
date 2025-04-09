@@ -57,7 +57,6 @@ class FormContainer extends React.Component<
 
   render() {
     const { contentType, contentTypeId } = this.props;
-
     return (
       <Form
         save={this.create}
