@@ -102,7 +102,6 @@ class ErxesPayment {
     const { payment } = this;
     const details = transaction.details || {};
 
-    // return { qrData: await QRCode.toDataURL('test') };
 
     const api = this[payment.kind];
 
