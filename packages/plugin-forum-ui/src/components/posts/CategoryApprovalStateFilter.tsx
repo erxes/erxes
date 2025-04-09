@@ -17,7 +17,7 @@ function CategoryApprovalStateFilter({ emptyText }: IProps) {
 
   const data = (
     <SidebarList>
-      {categoryApprovalStates.map((categoryApprovalState, index) => {
+      {categoryApprovalStates.map((categoryApprovalState) => {
         const onClick = () => {
           router.setParams(navigate, location, {
             categoryApprovalState: categoryApprovalState.key,
@@ -26,7 +26,7 @@ function CategoryApprovalStateFilter({ emptyText }: IProps) {
         };
 
         return (
-          <li key={index}>
+          <li key={categoryApprovalState.key}>
             <a
               href="#filter"
               tabIndex={0}
