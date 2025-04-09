@@ -51,11 +51,10 @@ const numberToWord = (num: number, usePrefix = false): string => {
       return usePrefix ? TENS[quotient - 1].prefix : TENS[quotient - 1].word;
     }
 
-    return `${TENS[quotient - 1].prefix} ${
-      usePrefix
+    return `${TENS[quotient - 1].prefix} ${usePrefix
         ? DIGITS[remainder].prefix || DIGITS[remainder].word
         : DIGITS[remainder].word
-    }`;
+      }`;
   }
 
   if (num < 1_000) {
@@ -65,18 +64,16 @@ const numberToWord = (num: number, usePrefix = false): string => {
 
     if (remainder === 0) {
       // 100, 200, 300, 400, 500, 600, 700, 800, 900
-      return `${
-        quotient === 1
+      return `${quotient === 1
           ? DIGITS[quotient].word
           : DIGITS[quotient].prefix || DIGITS[quotient].word
-      } ${usePrefix ? SCALES[0].prefix || SCALES[0].word : SCALES[0].word}`;
+        } ${usePrefix ? SCALES[0].prefix || SCALES[0].word : SCALES[0].word}`;
     }
 
-    return `${
-      quotient === 1
+    return `${quotient === 1
         ? DIGITS[quotient].word
         : DIGITS[quotient].prefix || DIGITS[quotient].word
-    } ${SCALES[0].prefix} ${numberToWord(remainder, usePrefix)}`;
+      } ${SCALES[0].prefix} ${numberToWord(remainder, usePrefix)}`;
   }
 
   for (let i = SCALES.length - 1; i >= 1; i--) {
@@ -90,9 +87,8 @@ const numberToWord = (num: number, usePrefix = false): string => {
         return `${numberToWord(quotient, quotient !== 1)} ${SCALES[i].word}`;
       }
 
-      return `${numberToWord(quotient, quotient !== 1)} ${
-        SCALES[i].word
-      } ${numberToWord(remainder)}`;
+      return `${numberToWord(quotient, quotient !== 1)} ${SCALES[i].word
+        } ${numberToWord(remainder)}`;
     }
   }
 
