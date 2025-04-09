@@ -8,7 +8,7 @@ import imports from './imports';
 import logs from './logUtils';
 import { setupMessageConsumers } from './messageBroker';
 import * as permissions from './permissions';
-import cronjobs from "./cronjobs/accountings"
+import cronjobs from "./cronjobs/exchangeRates"
 
 export default {
   name: 'accountings',
