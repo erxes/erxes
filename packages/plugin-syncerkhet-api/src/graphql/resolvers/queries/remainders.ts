@@ -3,17 +3,22 @@ import { getConfig } from "../../../utils/utils";
 import fetch from "node-fetch";
 import {
   sendSalesMessage,
-  sendCoreMessage
+  sendCoreMessage,
+  sendPosMessage
 } from "../../../messageBroker";
 import { getPureDate } from "@erxes/api-utils/src";
 
-const erkhetQueries = {
-  async erkhetRemainders(
-    _root,
-    { productIds, stageId, pipelineId },
-    { subdomain }: IContext
-  ) {
-    if (!pipelineId && stageId) {
+interface IArgs {
+  stageId?: string,
+  pipelineId?: string,
+  posId?: string,
+  accountCodes?: string,
+  locationCodes?: string
+}
+
+const getRemConfig = async (subdomain, { stageId, pipelineId, posId, accountCodes, locationCodes }: IArgs) => {
+  if (stageId || pipelineId) {
+    if (!pipelineId) {
       const pipeline = await sendSalesMessage({
         subdomain,
         action: "pipelines.findOne",
@@ -21,28 +26,75 @@ const erkhetQueries = {
         isRPC: true,
         defaultValue: {}
       });
-      pipelineId = pipeline._id;
+      pipelineId = pipeline?._id;
     }
 
+    if (!pipelineId) {
+      return {};
+    }
+
+    const remConfigs = await getConfig(subdomain, "remainderConfig");
+    const remConfig = remConfigs[pipelineId];
+
+    return {
+      account: remConfig?.account,
+      location: remConfig?.location
+    }
+  }
+
+  if (posId) {
+    const posConfig = await sendPosMessage({
+      subdomain,
+      action: "configs.findOne",
+      data: { _id: posId },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    const posErkhetConfig = await posConfig?.erkhetConfig
+    return {
+      account: posErkhetConfig?.account,
+      location: posErkhetConfig?.location
+    }
+  }
+
+  if (accountCodes?.length || locationCodes?.length) {
+    return {
+      account: accountCodes,
+      location: locationCodes
+    }
+  }
+
+  return {};
+}
+
+const erkhetQueries = {
+  async erkhetRemainders(
+    _root,
+    {
+      productIds, stageId, pipelineId, posId, accountCodes, locationCodes
+    }: {
+      productIds: string[]
+    } & IArgs,
+    { subdomain }: IContext
+  ) {
     const result: {
       _id: string;
       remainder: number;
+      remainders: any[];
     }[] = [];
 
+    if (!productIds?.length) {
+      return [];
+    }
+
     try {
+      const remConfig = await getRemConfig(subdomain, { stageId, pipelineId, posId, accountCodes, locationCodes });
+      if (!remConfig?.account || !remConfig?.location) {
+        return [];
+      }
+
       const configs = await getConfig(subdomain, "ERKHET");
-
-      const remConfigs = await getConfig(subdomain, "remainderConfig");
-
-      if (!Object.keys(remConfigs).includes(pipelineId)) {
-        return [];
-      }
-
-      const remConfig = remConfigs[pipelineId];
-
-      if (!remConfig || !Object.keys(remConfig).length) {
-        return [];
-      }
 
       const products = await sendCoreMessage({
         subdomain,
@@ -56,47 +108,54 @@ const erkhetQueries = {
 
       const response = await fetch(
         configs.getRemainderApiUrl +
-          "?" +
-          new URLSearchParams({
-            kind: "remainder",
-            api_key: configs.apiKey,
-            api_secret: configs.apiSecret,
-            check_relate: codes.length < 4 ? "1" : "",
-            accounts: remConfig.account,
-            locations: remConfig.location,
-            inventories: codes.join(",")
-          }),
+        "?" +
+        new URLSearchParams({
+          kind: "remainder",
+          api_key: configs.apiKey,
+          api_secret: configs.apiSecret,
+          check_relate: codes.length < 4 ? "1" : "",
+          accounts: remConfig.account,
+          locations: remConfig.location,
+          inventories: codes.join(",")
+        }),
         {
-          timeout: 8000
+          timeout: 9000
         }
       );
 
       const jsonRes = await response.json();
       let responseByCode = {};
 
-      if (remConfig.account && remConfig.location) {
-        const accounts = remConfig.account.split(",") || [];
-        const locations = remConfig.location.split(",") || [];
+      const accounts = remConfig.account.split(",") || [];
+      const locations = remConfig.location.split(",") || [];
 
-        for (const acc of accounts) {
-          for (const loc of locations) {
-            const resp = (jsonRes[acc] || {})[loc] || {};
-            for (const invCode of Object.keys(resp)) {
-              if (!Object.keys(responseByCode).includes(invCode)) {
-                responseByCode[invCode] = 0;
-              }
-              const remainder = Number(resp[invCode]) || 0;
-
-              responseByCode[invCode] = responseByCode[invCode] + remainder;
+      for (const acc of accounts) {
+        for (const loc of locations) {
+          const resp = (jsonRes[acc] || {})[loc] || {};
+          for (const invCode of Object.keys(resp)) {
+            if (!Object.keys(responseByCode).includes(invCode)) {
+              responseByCode[invCode] = { rem: 0, rems: [] };
             }
+            const remainder = Number(resp[invCode]) || 0;
+
+            responseByCode[invCode].rem =
+              responseByCode[invCode].rem + remainder;
+            responseByCode[invCode].rems.push({
+              account: acc,
+              location: loc,
+              remainder,
+            });
           }
         }
       }
 
       for (const r of products) {
+        const resp = responseByCode[r.code] || {};
+
         result.push({
           _id: r._id,
-          remainder: Number(responseByCode[r.code] || 0)
+          remainder: Number(resp.rem ?? 0),
+          remainders: resp.rems ?? []
         });
       }
     } catch (e) {
