@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.9.2](https://github.com/erxes/erxes/compare/2.9.1...2.9.2) (2025-04-08)
+
+### Bug Fixes
+
+* can't subscribe fields in facebook ([912e488](https://github.com/erxes/erxes/commit/912e488163c791b0eba6acd13601814057dfc7a3))
+* **facebook:** remove unnecessary field in fb ([e399e55](https://github.com/erxes/erxes/commit/e399e5557c9e243a66f1860ef6be61268d458deb))
+* products default filter by segment on per user config ([e68d0d6](https://github.com/erxes/erxes/commit/e68d0d6860af95c6dee82580ca20a05150947edd))
+* **tms:** element filter ([4f0cb78](https://github.com/erxes/erxes/commit/4f0cb7810db5a16d31955f119eebcb13268746c7))
+* update pluginsMap ([5ce0cd7](https://github.com/erxes/erxes/commit/5ce0cd760c0f2c4402e23046cc6ad726e7b2e390))
+
 ## [2.9.1](https://github.com/erxes/erxes/compare/2.9.0...2.9.1) (2025-04-04)
 
 ### Bug Fixes

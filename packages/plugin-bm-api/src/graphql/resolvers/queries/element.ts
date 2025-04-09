@@ -177,6 +177,7 @@ const elementQueries = {
     _root,
     {
       categories,
+      branchId,
       name,
       page = 1,
       perPage = 10,
@@ -212,7 +213,9 @@ const elementQueries = {
     if (typeof quick === 'boolean') {
       selector.quick = quick;
     }
-
+    if (branchId) {
+      selector.branchId = branchId;
+    }
     let sort: any = { number: 1 };
     if (sortField && sortDirection) {
       sort = {
