@@ -97,7 +97,7 @@ export const sendMessageEmail = async (subdomain: string) => {
 
       if (message.attachments.length !== 0) {
         for (const attachment of message.attachments) {
-          answer.content = answer.content.concat(
+          answer.content = (answer.content || '').concat(
             `<p><img src="${attachment.url}" alt="${attachment.name}"></p>`
           );
         }
