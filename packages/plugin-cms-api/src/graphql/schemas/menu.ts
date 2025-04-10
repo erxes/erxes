@@ -11,6 +11,7 @@ export const types = `
     icon: String
     url: String
     order: Int
+    target: String
   }
 `
 
@@ -25,6 +26,7 @@ export const inputs = `
     icon: String
     url: String
     order: Int
+    target: String
   }
 `
 

@@ -208,10 +208,12 @@ export default {
         });
 
         const isReceiveWebCall =
-          integrationDetails.status === 'true' ? true : false;
+          integrationDetails.status === 'active' ? true : false;
 
         return (
           {
+            header: integrationDetails.header || '',
+            description: integrationDetails.description || '',
             departments: integrationDetails.departments,
             isReceiveWebCall,
           } || {}

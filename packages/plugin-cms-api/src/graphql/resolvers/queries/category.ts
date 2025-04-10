@@ -1,8 +1,4 @@
 import { paginate } from '@erxes/api-utils/src';
-import {
-  checkPermission,
-  requireLogin,
-} from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../../connectionResolver';
 
@@ -61,10 +57,5 @@ const queries = {
     return models.Categories.findOne({ _id });
   },
 };
-
-requireLogin(queries, 'cmsCategories');
-requireLogin(queries, 'cmsCategory');
-checkPermission(queries, 'cmsCategories', 'showCmsCategories', []);
-checkPermission(queries, 'cmsCategory', 'showCmsCategories', []);
 
 export default queries;

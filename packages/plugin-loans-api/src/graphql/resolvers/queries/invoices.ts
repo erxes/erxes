@@ -1,8 +1,8 @@
 import { getFullDate, getRandomNumber } from '../../../models/utils/utils';
-import { getCalcedAmounts } from '../../../models/utils/transactionUtils';
 import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { getConfig } from '../../../messageBroker';
+import { getCalcedAmountsOnDate } from '../../../models/utils/calcHelpers';
 
 const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -112,17 +112,10 @@ const invoiceQueries = {
     { models, subdomain }: IContext
   ) => {
     const currentDate = getFullDate(payDate);
-    const config = await getConfig('loansConfig', subdomain);
+    const config = await getConfig('loansConfig', subdomain, {});
+    const contract = await models.Contracts.getContract({ _id: contractId });
     const { payment, loss, storedInterest, calcInterest, insurance, debt } =
-      await getCalcedAmounts(
-        models,
-        subdomain,
-        {
-          contractId,
-          payDate: currentDate
-        },
-        config
-      );
+      await getCalcedAmountsOnDate(models, contract, currentDate, config.calculationFixed);
 
     return {
       contractId: contractId,

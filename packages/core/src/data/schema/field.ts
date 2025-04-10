@@ -111,7 +111,7 @@ export const fieldsTypes = `
 export const fieldsQueries = `
   fieldsGetTypes: [JSON]
   getFieldsInputTypes:[JSON]
-  fields(contentType: String!, contentTypeId: String, isVisible: Boolean, searchable: Boolean, isVisibleToCreate: Boolean, pipelineId: String, groupIds: [String],isDefinedByErxes:Boolean): [Field]
+  fields(contentType: String!, contentTypeId: String, isVisible: Boolean, searchable: Boolean, isVisibleToCreate: Boolean, pipelineId: String, groupIds: [String],isDefinedByErxes:Boolean,isDisabled:Boolean): [Field]
   fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, config: JSON, onlyDates: Boolean): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
   fieldsGetRelations(contentType: String!, isVisibleToCreate: Boolean): [Field]
@@ -152,7 +152,7 @@ export const fieldsMutations = `
 `;
 
 export const fieldsGroupsTypes = `
-  type FieldsGroup {
+  type FieldsGroup @key(fields: "_id") {
     _id: String!
     name: String
     contentType: String

@@ -29,7 +29,9 @@ module.exports = {
           "dealsArchive",
           "dealsSort",
           "exportDeals",
-          "dealUpdateTimeTracking"
+          "dealUpdateTimeTracking",
+          'dealUpdateProductsData',
+          'dealRemoveProductsData',
         ]
       },
       {
@@ -123,6 +125,10 @@ module.exports = {
       {
         name: "dealUpdateProductsData",
         description: "Update products data"
+      },
+      {
+        name: "dealRemoveProductsData",
+        description: "Remove products data"
       }
     ]
   }

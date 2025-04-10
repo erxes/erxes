@@ -24,10 +24,6 @@ const GeneralSettings = (props: Props) => {
   const { config, saveConfig } = props;
 
   const [apiUrl, setApiUrl] = useState<string>(config.apiUrl || '');
-  const [isLocalUser, setIsLocalUser] = useState<boolean>(
-    config.isLocalUser || false
-  );
-  const [userDN, setUserDN] = useState<string>(config.userDN || '');
   const [baseDN, setBaseDN] = useState<string>(config.baseDN || '');
   const [adminDN, setAdminDN] = useState<string>(config.adminDN || '');
   const [adminPassword, setAdminPassword] = useState<string>(
@@ -39,8 +35,6 @@ const GeneralSettings = (props: Props) => {
 
     saveConfig({
       apiUrl,
-      isLocalUser,
-      userDN,
       baseDN,
       code: 'ACTIVEDIRECTOR',
       adminDN,
@@ -50,10 +44,6 @@ const GeneralSettings = (props: Props) => {
 
   const onChangeInput = (e) => {
     setApiUrl(e.target.value);
-  };
-
-  const onChangeUserDN = (e) => {
-    setUserDN(e.target.value);
   };
 
   const onChangeBaseDN = (e) => {
@@ -81,41 +71,22 @@ const GeneralSettings = (props: Props) => {
             <FormControl value={apiUrl} onChange={onChangeInput} />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{'user dn'}</ControlLabel>
-            <FormControl value={userDN} onChange={onChangeUserDN} />
-          </FormGroup>
-          <FormGroup>
             <ControlLabel>{'base dn'}</ControlLabel>
             <FormControl value={baseDN} onChange={onChangeBaseDN} />
           </FormGroup>
+
           <FormGroup>
-            <ControlLabel>{'is local user'}</ControlLabel>
+            <ControlLabel>{'admin dn'}</ControlLabel>
+            <FormControl value={adminDN} onChange={onChangeAdminDN} />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{'admin pass'}</ControlLabel>
             <FormControl
-              componentclass="checkbox"
-              checked={isLocalUser}
-              onChange={() => {
-                setIsLocalUser(!isLocalUser);
-              }}
+              type="password"
+              value={adminPassword}
+              onChange={onChangePass}
             />
           </FormGroup>
-          {isLocalUser ? (
-            <>
-              <FormGroup>
-                <ControlLabel>{'admin dn'}</ControlLabel>
-                <FormControl value={adminDN} onChange={onChangeAdminDN} />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>{'admin pass'}</ControlLabel>
-                <FormControl
-                  type="password"
-                  value={adminPassword}
-                  onChange={onChangePass}
-                />
-              </FormGroup>
-            </>
-          ) : (
-            ''
-          )}
         </CollapseContent>
       </ContentBox>
     );

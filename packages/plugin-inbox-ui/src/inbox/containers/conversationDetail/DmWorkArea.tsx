@@ -4,8 +4,6 @@ import {
   AddMessageMutationResponse,
   AddMessageMutationVariables,
   DmConfig,
-  EditMessageMutationResponse,
-  EditMessageMutationVariables,
   IConversation,
   IMessage,
   MessagesQueryResponse,
@@ -44,8 +42,7 @@ type FinalProps = {
   messagesQuery: any;
   messagesTotalCountQuery: any;
 } & Props &
-  AddMessageMutationResponse &
-  EditMessageMutationResponse;
+  AddMessageMutationResponse;
 
 type State = {
   loadingMessages: boolean;
@@ -213,87 +210,61 @@ class WorkArea extends React.Component<FinalProps, State> {
     optimisticResponse: any;
     callback?: (e?) => void;
   }) => {
-    const { addMessageMutation, editMessageMutation, currentId, dmConfig } =
-      this.props;
-
-    // Enhance optimisticResponse with conversationId from variables
-    const enhancedOptimisticResponse = { ...optimisticResponse };
-    if (optimisticResponse?.conversationMessageAdd) {
-      enhancedOptimisticResponse.conversationMessageAdd = {
-        ...optimisticResponse.conversationMessageAdd,
-        conversationId: variables.conversationId,
-      };
-    }
-    if (optimisticResponse?.conversationMessageEdit) {
-      enhancedOptimisticResponse.conversationMessageEdit = {
-        ...optimisticResponse.conversationMessageEdit,
-        conversationId: variables.conversationId,
-      };
-    }
-
-    const updateCache = (message: any, isEdit: boolean) => (cache) => {
-      let messagesQuery = queries.conversationMessages;
-      if (dmConfig) {
-        messagesQuery = getQueryString('messagesQuery', dmConfig);
-      }
-
-      const selector = {
-        query: gql(messagesQuery),
-        variables: {
-          conversationId: currentId,
-          limit: initialLimit,
-          skip: 0,
-        },
-      };
-
-      try {
-        cache.updateQuery(selector, (data) => {
-          const key = getQueryResultKey(data || {});
-          const messages = data ? data[key] : [];
-
-          // Check for existing message to avoid duplicates
-          const existingIndex = messages.findIndex(
-            (m) => m._id === message._id,
-          );
-          if (existingIndex !== -1) {
-            if (isEdit) {
-              const updatedMessages = [...messages];
-              updatedMessages[existingIndex] = message;
-              return { [key]: updatedMessages };
-            }
-            return data;
-          }
-
-          return { [key]: [...messages, message] };
-        });
-      } catch (e) {
-        console.error('Cache update error:', e);
-      }
-    };
-
+    const { addMessageMutation, currentId, dmConfig } = this.props;
+    // immediate ui update =======
     let update;
-    if (enhancedOptimisticResponse.conversationMessageAdd) {
-      update = updateCache(
-        enhancedOptimisticResponse.conversationMessageAdd,
-        false,
-      );
+
+    if (optimisticResponse) {
+      update = (cache, { data: { conversationMessageAdd } }) => {
+        const message = conversationMessageAdd;
+
+        let messagesQuery = queries.conversationMessages;
+
+        if (dmConfig) {
+          messagesQuery = getQueryString('messagesQuery', dmConfig);
+        }
+
+        const selector = {
+          query: gql(messagesQuery),
+          variables: {
+            conversationId: currentId,
+            limit: initialLimit,
+            skip: 0,
+          },
+        };
+
+        try {
+          cache.updateQuery(selector, (data) => {
+            const key = getQueryResultKey(data || {});
+            const messages = data ? data[key] : [];
+
+            // check duplications
+            if (messages.find((m) => m._id === message._id)) {
+              return {};
+            }
+
+            return { [key]: [...messages, message] };
+          });
+        } catch (e) {
+          console.error(e);
+          return;
+        }
+      };
     }
 
-    const mutation = enhancedOptimisticResponse.conversationMessageEdit
-      ? editMessageMutation
-      : addMessageMutation;
-
-    mutation({
-      variables,
-      optimisticResponse: enhancedOptimisticResponse,
-      update,
-    })
+    addMessageMutation({ variables, optimisticResponse, update })
       .then(() => {
-        callback?.();
-        localStorage.removeItem(currentId || '');
+        if (callback) {
+          callback();
+
+          // clear saved messages from storage
+          localStorage.removeItem(currentId || '');
+        }
       })
       .catch((e) => {
-        callback?.(e);
+        if (callback) {
+          callback(e);
+        }
       });
   };
 
@@ -428,12 +399,6 @@ const generateWithQuery = (props: Props) => {
         gql(mutations.conversationMessageAdd),
         {
           name: 'addMessageMutation',
-        },
-      ),
-      graphql<Props, EditMessageMutationResponse, EditMessageMutationVariables>(
-        gql(mutations.conversationMessageEdit),
-        {
-          name: 'editMessageMutation',
         },
       ),
     )(WorkArea),

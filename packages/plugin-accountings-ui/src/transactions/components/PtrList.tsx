@@ -20,6 +20,7 @@ import Table from "@erxes/ui/src/components/table";
 import { Title } from "@erxes/ui/src/styles/main";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { journalConfigMaps } from "../utils/maps";
+import { AccountingsSubMenus } from "../../constants";
 
 interface IProps {
   queryParams: any;
@@ -84,6 +85,7 @@ const PtrList: React.FC<IProps> = (props) => {
     }
     toggleAll(trs, "transactions");
   };
+
   const renderRows = () => {
     let preParentId = "";
     let prePtrId = "";
@@ -108,16 +110,6 @@ const PtrList: React.FC<IProps> = (props) => {
         />
       );
     });
-  };
-
-  const removeAccounts = (transactions) => {
-    const accountIds: string[] = [];
-
-    transactions.forEach((account) => {
-      accountIds.push(account._id);
-    });
-
-    remove(accountIds, emptyBulk);
   };
 
   const search = (e) => {
@@ -290,8 +282,6 @@ const PtrList: React.FC<IProps> = (props) => {
     );
   };
 
-  const breadcrumb = [{ title: __("Accountings"), link: "" }];
-
   const onChangeChecked = (e) => {
     const checked = e.target.checked;
 
@@ -338,13 +328,13 @@ const PtrList: React.FC<IProps> = (props) => {
             autoFocus={true}
             onFocus={moveCursorAtTheEnd}
           />
-          <Button
+          {/* <Button
             btnStyle="danger"
             icon="cancel-1"
             onClick={removeAccounts.bind(this, bulk)}
           >
             Remove
-          </Button>
+          </Button> */}
         </BarItems>
       );
     }
@@ -376,7 +366,7 @@ const PtrList: React.FC<IProps> = (props) => {
         <Wrapper.Header
           title={__("Perfect Transactions")}
           queryParams={queryParams}
-          breadcrumb={breadcrumb}
+          submenu={AccountingsSubMenus}
         />
       }
       mainHead={

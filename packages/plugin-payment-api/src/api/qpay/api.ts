@@ -144,7 +144,7 @@ export class QpayAPI extends BaseAPI {
       const data: IQpayInvoice = {
         invoice_code: qpayInvoiceCode,
         sender_invoice_no:
-          transaction.details?.sender_invoice_no || transaction.code,
+        transaction.details?.sender_invoice_no || transaction.code,
         invoice_receiver_code: 'terminal',
         invoice_description: transaction.description || 'test invoice',
         // sender_branch_code: this.branchCode, TODO: renable after proper branch code config

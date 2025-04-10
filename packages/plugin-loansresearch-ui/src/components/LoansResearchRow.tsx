@@ -51,7 +51,9 @@ function LoansResearchRow({ loansResearch, isChecked, toggleBulk }: Props) {
         />
       </td>
 
-      <td key={'dealId'}>{(loansResearch && loansResearch?.dealId) || ''} </td>
+      <td key={'deal'}>
+        {(loansResearch && loansResearch?.deal?.name) || ''}{' '}
+      </td>
       <td key={'customerType'}>
         {(loansResearch && loansResearch?.customerType) || ''}{' '}
       </td>

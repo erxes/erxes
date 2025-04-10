@@ -31,34 +31,45 @@ export const types = `
   }
 
   type PosPutResponse {
+    _id: String
     createdAt: Date
+    modifiedAt: Date
+
+    id: String
+    posId: Float
+    status: String
+    message: String
+    qrData: String
+    lottery: String
     date: String
+    number: String
+
     contentType: String
     contentId: String
-    amount: String
-    billType: String
-    cashAmount: String
-    nonCashAmount: String
-    customerNo: String
-    cityTax: String
-    vat: String
-    taxType: String
-    registerNo: String
-    billId: String
-    macAddress: String
-    lottery: String
-    qrData: String
-    success: String
+    posToken: String
+
+    totalAmount: Float
+    totalVAT: Float
+    totalCityTax: Float
+    districtCode: String
+    branchNo: String
+    merchantTin: String
+    posNo: String
+    customerTin: String
     customerName: String
-    modifiedAt: Date
+    consumerNo: String
+    type: String
+    inactiveId: String
+    invoiceId: String
+    reportMonth: String
+    data: JSON
+    receipts: JSON
+    payments: JSON
+
+    easy: Boolean
+
     sendInfo: JSON
-    internalCode: String
-    lotteryWarningMsg: String
-    errorCode: String
-    message: String
-    getInformation: String
-    returnBillId: String
-    stocks: JSON
+    state: String
   }
 
   type PosCustomer {

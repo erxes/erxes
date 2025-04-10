@@ -10,7 +10,6 @@ import { useRoomContext } from '../RoomContext';
 
 import useUserMedia from '../components/hooks/useUserMedia';
 import usePushedTrack from '../components/hooks/usePushedTrack';
-
 interface IProps {
   closeModal?: () => void;
   callUserIntegrations: any;
@@ -27,6 +26,7 @@ const IncomingCallContainer = (props: IProps) => {
   const context = useRoomContext();
 
   const [hasMicrophone, setHasMicrophone] = useState(false);
+  const [callStartTime, setCallStartTime] = useState<number | null>(null);
 
   const {
     callUserIntegrations,
@@ -45,11 +45,60 @@ const IncomingCallContainer = (props: IProps) => {
   const [answerCallMutation] = useMutation(gql(mutations.cloudflareAnswerCall));
   const [stopCallMutation] = useMutation(gql(mutations.cloudflareLeaveCall));
   const userMedia = useUserMedia();
+  const { peer, setPushedAudioTrack } = useRoomContext();
+
+  const { data: answeredCall } = useSubscription(
+    gql(subscriptions.webCallReceive),
+    {
+      variables: { roomState: 'answered', audioTrack: audioTrack },
+      fetchPolicy: 'network-only',
+    },
+  );
+  const { data: busyCall } = useSubscription(
+    gql(subscriptions.webCallReceive),
+    {
+      variables: { roomState: 'busy', audioTrack: audioTrack },
+      fetchPolicy: 'network-only',
+    },
+  );
+
+  useEffect(() => {
+    if (
+      answeredCall?.cloudflareReceiveCall?.roomState === 'answered' &&
+      answeredCall.cloudflareReceiveCall.audioTrack !==
+        context.pushedTracks?.audio
+    ) {
+      if (!context?.peer) return;
+
+      if (userMedia?.audioStreamTrack) {
+        context.peer.closeTrack(userMedia.audioStreamTrack);
+      }
+
+      setIsCallReceive?.(false);
+      setPushedAudioTrack('');
+    }
+  }, [answeredCall]);
+  useEffect(() => {
+    if (
+      busyCall?.cloudflareReceiveCall?.roomState === 'busy' &&
+      busyCall.cloudflareReceiveCall.audioTrack !== context.pushedTracks?.audio
+    ) {
+      if (!context?.peer) return;
+
+      if (userMedia?.audioStreamTrack) {
+        context.peer.closeTrack(userMedia.audioStreamTrack);
+      }
+
+      setIsCallReceive?.(false);
+      setPushedAudioTrack('');
+    }
+  }, [busyCall]);
 
   const answerCall = () => {
+    setCallStartTime(Date.now()); // Store the timestamp when the call starts
+
     answerCallMutation({
       variables: {
-        roomState: 'answered',
         audioTrack: context.pushedTracks?.audio,
         customerAudioTrack: audioTrack,
       },
@@ -59,13 +108,20 @@ const IncomingCallContainer = (props: IProps) => {
         Alert.error(e.message);
       });
   };
-  const stopCall = (seconds: number) => {
+
+  const stopCall = ({ roomState }: { roomState?: string }) => {
+    const endTime = Date.now();
+    const duration = callStartTime
+      ? Math.floor((endTime - callStartTime) / 1000)
+      : 0;
+
+    const roomStatus = roomState ? roomState : 'leave';
     stopCallMutation({
       variables: {
-        roomState: 'leave',
+        roomState: roomStatus,
         originator: 'erxes',
         audioTrack,
-        duration: seconds,
+        duration,
       },
     })
       .then(() => {
@@ -74,22 +130,23 @@ const IncomingCallContainer = (props: IProps) => {
           context.peer.closeTrack(userMedia?.audioStreamTrack);
         }
         if (setIsCallReceive) setIsCallReceive(false);
+        setPushedAudioTrack('');
+        context.setIceConnectionState('closed');
       })
       .catch((e) => {
         Alert.error(e.message);
       });
+
+    setCallStartTime(null);
   };
 
   const { data: leaveCall } = useSubscription(
-    gql(subscriptions.webCallReceived),
+    gql(subscriptions.webCallReceive),
     {
-      variables: {
-        roomState: 'leave',
-      },
+      variables: { roomState: 'leave', audioTrack },
+      fetchPolicy: 'network-only',
     },
   );
-
-  const { peer, setPushedAudioTrack } = useRoomContext();
 
   const pushedAudioTrack =
     peer &&
@@ -116,13 +173,12 @@ const IncomingCallContainer = (props: IProps) => {
           .replace('DOMException:', '')
           .replace('NotFoundError: ', '');
         setHasMicrophone(false);
-
         Alert.error(errorMessage);
       });
   }, [phoneNumber]);
 
   useEffect(() => {
-    if (leaveCall?.cloudflareReceiveCall) {
+    if (leaveCall?.cloudflareReceiveCall && audioTrack) {
       if (!context?.peer) return;
 
       if (userMedia?.audioStreamTrack) {
@@ -130,8 +186,26 @@ const IncomingCallContainer = (props: IProps) => {
       }
 
       setIsCallReceive?.(false);
+      setPushedAudioTrack('');
     }
   }, [leaveCall, context, userMedia?.audioStreamTrack, setIsCallReceive]);
+
+  useEffect(() => {
+    const handleRefresh = (event: BeforeUnloadEvent) => {
+      if (!context?.peer) return;
+
+      stopCall({ roomState: 'leave' });
+
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleRefresh);
+    return () => {
+      window.removeEventListener('beforeunload', handleRefresh);
+    };
+  }, [context, stopCall]);
+
   return (
     <IncomingCall
       leaveCall={stopCall}

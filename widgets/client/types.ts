@@ -1,11 +1,18 @@
-import { BotPersistentMenuTypeMessenger, IAttachment, IBotData, IWebsiteApp } from "./messenger/types";
+import {
+  BotPersistentMenuTypeMessenger,
+  IAttachment,
+  IBotData,
+  IWebsiteApp,
+} from './messenger/types';
 
-import { ICallout } from "./form/types";
+import { ICallout } from './form/types';
 
 export type ENV = {
   ROOT_URL: string;
   API_URL: string;
   API_SUBSCRIPTIONS_URL: string;
+  CALLS_APP_ID: string;
+  CALLS_APP_SECRET: string;
 };
 
 export interface IUserDetails {
@@ -110,14 +117,14 @@ export interface IIntegrationMessengerDataMessagesItem {
 
 export interface ICloudflareCallDataOperator {
   _id: string;
- name: string;
- userId: string
+  name: string;
+  userId: string;
 }
 
 export interface CloudflareCallDataDepartment {
   _id: string;
- name: string;
- operators: ICloudflareCallDataOperator[];
+  name: string;
+  operators: ICloudflareCallDataOperator[];
 }
 
 export interface IIntegrationMessengerData {

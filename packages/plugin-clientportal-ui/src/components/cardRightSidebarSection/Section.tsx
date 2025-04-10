@@ -5,6 +5,7 @@ import Box from "@erxes/ui/src/components/Box";
 import ClientPortalParticipantForm from "../../containers/ClientPortalParticipantForm";
 import ClientUserChooser from "../../containers/ClientUserChooser";
 import Detail from "./Detail";
+import DynamicComponentContent from "@erxes/ui/src/components/dynamicComponent/Content";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
 import Icon from "@erxes/ui/src/components/Icon";
 import { ItemContainer } from "@erxes/ui-sales/src/boards/styles/common";
@@ -21,6 +22,7 @@ export type Props = {
   mainType: string;
   mainTypeId: string;
   refetch: () => void;
+  showType?: string;
 };
 
 export default function Component({
@@ -28,7 +30,8 @@ export default function Component({
   kind,
   mainType,
   mainTypeId,
-  refetch
+  refetch,
+  showType,
 }: Props) {
   const renderBody = () => {
     if (!participants || !participants.length) {
@@ -63,7 +66,7 @@ export default function Component({
                 </ParticipantsWrapper>
               }
               autoOpenKey="showCardClientUserModal"
-              content={props => (
+              content={(props) => (
                 <ClientPortalParticipantForm
                   mainType={mainType}
                   mainTypeId={mainTypeId}
@@ -81,16 +84,16 @@ export default function Component({
     );
   };
 
-  const manageContent = props => (
+  const manageContent = (props) => (
     <ClientUserChooser
       onSelect={() => {}}
       closeModal={props.closeModal}
       refetch={refetch}
       data={{
-        users: participants.map(d => d.cpUser),
+        users: participants.map((d) => d.cpUser),
         kind,
         mainType,
-        mainTypeId
+        mainTypeId,
       }}
     />
   );
@@ -107,6 +110,10 @@ export default function Component({
       content={manageContent}
     />
   );
+
+  if (showType && showType === "list") {
+    return <DynamicComponentContent>{renderBody()}</DynamicComponentContent>;
+  }
 
   return (
     <Box

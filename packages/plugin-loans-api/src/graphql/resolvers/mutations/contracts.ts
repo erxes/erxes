@@ -239,11 +239,11 @@ const contractMutations = {
       isRPC: true
     });
 
-    const oldCollateralIds = contract.collateralsData.map(
+    const oldCollateralIds = (contract.collateralsData || []).map(
       item => item.collateralId
     );
 
-    const collateralsData: ICollateralData[] = contract.collateralsData;
+    const collateralsData: ICollateralData[] = contract.collateralsData || [];
 
     for (const deal of deals) {
       for (const data of deal.productsData) {

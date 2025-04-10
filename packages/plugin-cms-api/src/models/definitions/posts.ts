@@ -11,6 +11,7 @@ export interface IPost {
   content?: string;
   excerpt?: string;
   categoryIds?: string[];
+  type: string;
   status?: 'draft' | 'published' | 'scheduled' | 'archived';
   tagIds?: string[];
   authorKind?: 'user' | 'clientPortalUser'
@@ -40,6 +41,8 @@ export interface IPost {
 
 export interface IPostDocument extends IPost, Document {
   _id: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const postSchema = new Schema<IPostDocument>(
@@ -47,6 +50,7 @@ export const postSchema = new Schema<IPostDocument>(
     _id: { type: String, default: () => nanoid() },
     clientPortalId: { type: String, required: true },
     title: { type: String, required: true },
+    type: { type: String, required: true, default: 'post' },
     slug: { type: String, required: true, unique: true },
     content: { type: String },
     excerpt: { type: String, default: '', optional: true },
@@ -74,11 +78,9 @@ export const postSchema = new Schema<IPostDocument>(
     attachments: [{ type: attachmentSchema, label: 'Attachments' }],
     pdfAttachment: { type: Object, optional: true, label: 'PDF attachment' },
     videoUrl: { type: String, label: 'Video URL' },
-    customFieldsData: {
-      type: [customFieldSchema],
-      optional: true,
-      label: "Custom fields data"
-    },
+
+    customFieldsData: { type: [customFieldSchema], optional: true },
+
   },
   { timestamps: true }
 );

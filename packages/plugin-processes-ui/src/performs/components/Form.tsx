@@ -95,25 +95,25 @@ class Form extends React.Component<Props, State> {
         resultProductsData: perform.resultProducts,
         workIds: [],
       }) || {
-        _id: "",
-        key: {
-          type: "",
-          inBranchId: "",
-          inDepartmentId: "",
-          outBranchId: "",
-          outDepartmentId: "",
-        },
-        startAt,
-        dueDate: endAt,
+      _id: "",
+      key: {
         type: "",
-        assignedUserIds: [],
-        needProducts: [],
-        resultProducts: [],
-        count: 0,
-        needProductsData: [],
-        resultProductsData: [],
-        workIds: [],
-      };
+        inBranchId: "",
+        inDepartmentId: "",
+        outBranchId: "",
+        outDepartmentId: "",
+      },
+      startAt,
+      dueDate: endAt,
+      type: "",
+      assignedUserIds: [],
+      needProducts: [],
+      resultProducts: [],
+      count: 0,
+      needProductsData: [],
+      resultProductsData: [],
+      workIds: [],
+    };
 
     const overCount = overallWorkDet.count;
     let count = 1;
@@ -451,10 +451,18 @@ class Form extends React.Component<Props, State> {
     }
 
     document
-      .getElementsByClassName("canFocus")
-      [next].getElementsByTagName("input")[0]
+      .getElementsByClassName("canFocus")[next]
+      .getElementsByTagName("input")[0]
       .focus();
   };
+
+  deleteDetail = (stateName, productsData, removeId) => {
+    this.setStateWrapper({
+      [stateName]: productsData.filter((pd) =>
+        pd._id !== removeId
+      ),
+    } as any);
+  }
 
   renderProducts = (
     title: string,
@@ -487,6 +495,7 @@ class Form extends React.Component<Props, State> {
                   onEnter={(val) =>
                     this.focusNext(index, productsData.length, val)
                   }
+                  deleteDetail={this.deleteDetail}
                 />
               );
             })}
@@ -525,6 +534,7 @@ class Form extends React.Component<Props, State> {
                   onEnter={(val) =>
                     this.focusNext(index, productsData.length, val)
                   }
+                  deleteDetail={this.deleteDetail}
                 />
               );
             })}
@@ -856,7 +866,7 @@ class Form extends React.Component<Props, State> {
               <SelectCompanies
                 label={__("Choose company")}
                 name="companyId"
-                initialValue={perform ? perform.companyId : "" || ""}
+                initialValue={perform?.companyId || ""}
                 onSelect={(companyId) =>
                   this.setStateWrapper({ companyId: companyId as string })
                 }
@@ -874,7 +884,7 @@ class Form extends React.Component<Props, State> {
               <SelectCustomers
                 label={__("Choose company")}
                 name="customerId"
-                initialValue={perform ? perform.customerId : "" || ""}
+                initialValue={perform?.customerId || ""}
                 onSelect={(customerId) =>
                   this.setStateWrapper({ customerId: customerId as string })
                 }
@@ -1109,7 +1119,7 @@ class Form extends React.Component<Props, State> {
                   name: "Performance",
                   values: this.generateDoc(values),
                   isSubmitted,
-                  callback: () => {},
+                  callback: () => { },
                   disabled: !this.checkSave(),
                 })}
               {this.renderConfirmOrAbort()}

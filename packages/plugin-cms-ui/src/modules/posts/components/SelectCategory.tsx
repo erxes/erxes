@@ -6,15 +6,14 @@ import Select, {
   MultiValueProps,
 } from 'react-select';
 
-import { InsuranceCategory, Risk } from '../../../gql/types';
 
 type Props = {
   loading?: boolean;
-  filtered: InsuranceCategory[];
-  allCategories: InsuranceCategory[];
+  filtered: any[];
+  allCategories: any[];
   value: string | string[];
   onSearch: (value: string) => void;
-  onChange: (category: InsuranceCategory, risks: Risk[]) => void;
+  onChange: (category: any) => void;
 };
 
 const SelectCategory: React.FC<Props> = (props) => {
@@ -45,8 +44,7 @@ const SelectCategory: React.FC<Props> = (props) => {
     const selected = categories.find((cat) => cat._id === value.value);
 
     if (selected) {
-      const risks = (selected.risks || []) as Risk[];
-      props.onChange(selected, risks);
+      props.onChange(selected,);
     }
   };
 

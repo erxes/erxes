@@ -1,5 +1,3 @@
-import React from 'react';
-import { IGrantRequest } from '../../common/type';
 import {
   Box,
   Button,
@@ -9,12 +7,16 @@ import {
   NameCard,
   SectionBodyItem,
   colors,
-} from '@erxes/ui/src';
-import Form from '../containers/RequestForm';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { AssignedMemberCard } from '../../styles';
-import ResponseForm from '../containers/ResponseForm';
-import _loadash from 'lodash';
+} from "@erxes/ui/src";
+
+import { AssignedMemberCard } from "../../styles";
+import DynamicComponentContent from "@erxes/ui/src/components/dynamicComponent/Content";
+import Form from "../containers/RequestForm";
+import { IGrantRequest } from "../../common/type";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import ResponseForm from "../containers/ResponseForm";
+import _loadash from "lodash";
 
 type Props = {
   request: IGrantRequest;
@@ -22,18 +24,20 @@ type Props = {
   contentTypeId: string;
   object: any;
   currentUser: IUser;
+  showType?: string;
 };
 
 const Section: React.FC<Props> = (props) => {
-  const { currentUser, request, contentTypeId, contentType, object } = props;
+  const { currentUser, request, contentTypeId, contentType, object, showType } =
+    props;
 
   const renderForm = (user: { grantResponse?: string } & IUser) => {
     if (
       currentUser._id === user._id &&
       currentUser._id !== request.requesterId &&
       (request?.userIds || []).includes(currentUser._id) &&
-      request.status === 'waiting' &&
-      user.grantResponse === 'waiting'
+      request.status === "waiting" &&
+      user.grantResponse === "waiting"
     ) {
       const trigger = (
         <Button btnStyle="link">
@@ -61,29 +65,29 @@ const Section: React.FC<Props> = (props) => {
       );
     }
 
-    switch (user.grantResponse || '') {
-      case 'approved':
+    switch (user.grantResponse || "") {
+      case "approved":
         return (
           <Icon
             icon="like-1"
             color={colors.colorCoreGreen}
-            style={{ padding: '7px 20px' }}
+            style={{ padding: "7px 20px" }}
           />
         );
-      case 'declined':
+      case "declined":
         return (
           <Icon
             icon="dislike"
             color={colors.colorCoreRed}
-            style={{ padding: '7px 20px' }}
+            style={{ padding: "7px 20px" }}
           />
         );
-      case 'waiting':
+      case "waiting":
         return (
           <Icon
             icon="clock"
             color={colors.colorCoreBlue}
-            style={{ padding: '7px 20px' }}
+            style={{ padding: "7px 20px" }}
           />
         );
     }
@@ -113,7 +117,7 @@ const Section: React.FC<Props> = (props) => {
 
     const trigger = (
       <button>
-        <Icon icon={!!Object.keys(request).length ? 'edit-3' : 'plus-circle'} />
+        <Icon icon={!!Object.keys(request).length ? "edit-3" : "plus-circle"} />
       </button>
     );
 
@@ -136,6 +140,10 @@ const Section: React.FC<Props> = (props) => {
       />
     );
   };
+
+  if (showType && showType === "list") {
+    return <DynamicComponentContent>{renderContent()}</DynamicComponentContent>;
+  }
 
   return (
     <Box

@@ -1,93 +1,119 @@
 import { IProduct } from "@erxes/ui-products/src/types";
 
 export interface IContractConfig {
-  receivable: string;
-  temp: string;
-  giving: string;
-  tempDebt: string;
-  mainUserEmail: string;
-  mainHasVat: string;
-  mainHasCitytax: string;
-  mainIsEbarimt: string;
+  receivable?: string;
+  temp?: string;
+  giving?: string;
+  tempDebt?: string;
 
-  interestReceivable: string;
-  interestGiving: string;
-  interestCalcedReceive: string;
-  interestIncome: string;
+  mainUserEmail?: string;
+  mainHasVat?: string;
+  mainHasCitytax?: string;
+  mainIsEbarimt?: string;
 
-  extraInterestUserEmail: string;
-  extraInterestHasVat: string;
-  extraInterestHasCitytax: string;
-  extraInterestIsEbarimt: string;
+  districtName?: string;
+  isAmountUseEBarimt?: boolean;
+  isLossUseEBarimt?: boolean;
 
-  insuranceReceivable: string;
-  insuranceGiving: string;
+  interestReceivable?: string;
+  interestGiving?: string;
+  interestCalcedReceive?: string;
+  interestIncome?: string;
 
-  lossStock: string;
-  lossUserEmail: string;
-  lossHasVat: string;
-  lossHasCitytax: string;
-  lossIsEbarimt: string;
+  extraInterestUserEmail?: string;
+  extraInterestHasVat?: string;
+  extraInterestHasCitytax?: string;
+  extraInterestIsEbarimt?: string;
 
-  otherReceivable: string;
-  feeIncome: string;
-  defaultCustomer: string;
-  userEmail: string;
-  minInterest: number;
-  maxInterest: number;
-  defaultInterest: number;
-  minTenor: number;
-  maxTenor: number;
-  minAmount: number;
-  maxAmount: number;
-  normalExpirationDay: number;
-  expiredExpirationDay: number;
-  doubtExpirationDay: number;
-  negativeExpirationDay: number;
-  badExpirationDay: number;
-  minCommitmentInterest: number;
-  maxCommitmentInterest: number;
+  insuranceReceivable?: string;
+  insuranceGiving?: string;
 
-  districtName?: any;
-  isAmountUseEBarimt?: any;
-  isInterestUseEBarimt?: any;
-  isLossUseEBarimt?: any;
+  lossStock?: string;
+  lossUserEmail?: string;
+  lossHasVat?: string;
+  lossHasCitytax?: string;
+  lossIsEbarimt?: string;
+
+  otherReceivable?: string;
+  feeIncome?: string;
+  defaultCustomer?: string;
+  userEmail?: string;
+  repaymentTemp?: string;
+
+  isAutoSendEBarimt?: boolean;
+
+  normalExpirationDay?: number;
+  expiredExpirationDay?: number;
+  doubtExpirationDay?: number;
+  negativeExpirationDay?: number;
+  badExpirationDay?: number;
 
   boardId: string;
   pipelineId: string;
   stageId: string;
+
+  minInterest?: number;
+  maxInterest?: number;
+  minTenor?: number;
+  maxTenor?: number;
+  minAmount?: number;
+  maxAmount?: number;
+  minCommitmentInterest?: number;
+  maxCommitmentInterest?: number;
+
+  requirements?: string[];
+  customerDocuments?: string[];
+  companyDocuments?: string[];
 }
 
 export interface IContractTypeDoc {
-  code: string;
-  name: string;
-  description: string;
-  status: string;
-  number: string;
-  vacancy: number;
-  leaseType: string;
-  commitmentInterest: number;
-  createdAt: Date;
-  config: IContractConfig;
-  lossPercent: number;
-  lossCalcType: string;
-  useMargin: boolean;
-  useDebt: boolean;
-  useSkipInterest: boolean;
-  useManualNumbering: boolean;
-  useFee: boolean;
-  currency: string;
-  collateralType: string;
-  savingPlusLoanInterest: number;
-  savingUpperPercent: number;
-  usePrePayment: boolean;
-  invoiceDay: string;
+  code?: string;
+  name?: string;
+  description?: string;
+  status?: string;
+  number?: string;
+  vacancy?: number;
+  leaseType?: string;
+  currency?: string;
+
+  defaultInterest?: number;
+  useSkipInterest?: boolean;
+  skipInterestDay?: number;
+  skipInterestMonth?: number;
+  skipPaymentDay?: number;
+  skipPaymentMonth?: number;
+
+  lossPercent?: number;
+  lossCalcType?: string;
+  skipLossDay?: number;
+  allowLateDay?: number;
+
+  allowPartOfLease?: boolean;
+  limitIsCurrent?: boolean;
+  commitmentInterest?: number;
+
+  useMargin?: boolean;
+  useDebt?: boolean;
+  useManualNumbering?: boolean;
+
+  savingPlusLoanInterest?: number;
+  savingUpperPercent?: number;
+
+  config?: IContractConfig;
+  productId?: string
+  productType?: string;
+
+  feePercent?: number;
+  defaultFee?: number;
+  useCollateral?: boolean;
+  minPercentMargin?: number;
+
+  overPaymentIsNext?: boolean;
+  collectivelyRule?: string;
 }
 
 export interface IContractType extends IContractTypeDoc {
   _id: string;
-  productType?: any;
-  productId?: string;
   product?: IProduct
 }
 

@@ -6,8 +6,8 @@ on:
       - "dev"
       - master
       - rc
-      - "staging"
       - v2
+      - staging
     paths:
       - "packages/api-utils/**"
       - "packages/crons/**"
@@ -47,7 +47,7 @@ jobs:
           yarn build crons
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/v2' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/v2' || github.ref == 'refs/heads/staging')
         run: |
           cd dist/erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

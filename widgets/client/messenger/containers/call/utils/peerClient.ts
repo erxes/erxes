@@ -1,6 +1,6 @@
-import "webrtc-adapter";
+import 'webrtc-adapter';
 
-import { BulkRequestDispatcher, FIFOScheduler } from "./peerUtils";
+import { BulkRequestDispatcher, FIFOScheduler } from './peerUtils';
 import type {
   CallsRequest,
   CallsResponse,
@@ -13,13 +13,13 @@ import type {
   TrackObject,
   TracksRequest,
   TracksResponse,
-} from "./callTypes";
+} from './callTypes';
 
-import Ewma from "./ewma";
-import invariant from "tiny-invariant";
+import Ewma from './ewma';
+import invariant from 'tiny-invariant';
+import { getEnv } from '../../../../utils';
 
-const CALLS_APP_ID = process.env['CALLS_APP_ID'];
-const CALLS_APP_SECRET = process.env['CALLS_APP_SECRET'];
+const { CALLS_APP_ID, CALLS_APP_SECRET } = getEnv();
 
 const iceGathertingTimeout = 1500; /* ms */
 const newTrackTimeout = 10000;
@@ -27,7 +27,7 @@ const newTrackTimeout = 10000;
 const logCallsApiUsage = (message: string) => {
   console.debug(
     `%c 📞 Calls API: ${message}`,
-    "color: orange; background: black;"
+    'color: orange; background: black;',
   );
 };
 
@@ -48,17 +48,17 @@ type PushTrackRequestEntry = {
 
 export type PeerHistory =
   | {
-      type: "request";
+      type: 'request';
       endpoint: string;
       body: CallsRequest;
     }
   | {
-      type: "response";
+      type: 'response';
       endpoint: string;
       body: CallsResponse;
     };
 
-export type PeerDebugInfo = ReturnType<Peer["getDebugInfo"]>;
+export type PeerDebugInfo = ReturnType<Peer['getDebugInfo']>;
 
 const PullTrackBatchSizeLimit = 32;
 
@@ -88,8 +88,8 @@ export default class Peer {
 
   constructor(params: Partial<PeerParams> = {}) {
     this.pc = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.cloudflare.com:3478" }],
-      bundlePolicy: "max-bundle",
+      iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }],
+      bundlePolicy: 'max-bundle',
     });
 
     this.transceivers = [];
@@ -100,7 +100,7 @@ export default class Peer {
     this.taskScheduler = new FIFOScheduler();
     this.pushTrackDispatcher = new BulkRequestDispatcher();
     this.pullTrackDispatcher = new BulkRequestDispatcher(
-      PullTrackBatchSizeLimit
+      PullTrackBatchSizeLimit,
     );
     this.closeTrackDispatcher = new BulkRequestDispatcher();
     setInterval(() => this.checkStats(900), 1000);
@@ -109,7 +109,7 @@ export default class Peer {
   defaultParams(params: Partial<PeerParams>) {
     return {
       iceTrickleEnabled: false,
-      baseURL: "/api/calls",
+      baseURL: '/api/calls',
       onDisconnect: () => {},
       onConnect: () => {},
       ...params,
@@ -120,15 +120,15 @@ export default class Peer {
     method: string,
     request: CallsRequest,
     endpoint: string,
-    extraParams = "",
-    remainingAttempts = 2
+    extraParams = '',
+    remainingAttempts = 2,
   ): Promise<CallsResponse> {
     // const basePath = '';
     // const basePath = "https://rtc.live.cloudflare.com/v1"
     const prefixPath = `${endpoint}`;
     const url = new URL(endpoint, window.location.origin);
     const extraParamEntries = Array.from(
-      new URLSearchParams(extraParams).entries()
+      new URLSearchParams(extraParams).entries(),
     );
 
     extraParamEntries.forEach(([key, value]) => {
@@ -137,15 +137,15 @@ export default class Peer {
 
     const httpRequest: RequestInit = {
       method: method,
-      mode: "cors",
-      redirect: "manual",
+      mode: 'cors',
+      redirect: 'manual',
       headers: {
-        "content-type": "application/json",
+        'content-type': 'application/json',
         Authorization: `Bearer ${CALLS_APP_SECRET}`,
       },
       body: JSON.stringify(request),
     } as const;
-    logCallsApiUsage("Sending Calls request:");
+    logCallsApiUsage('Sending Calls request:');
     console.debug(httpRequest.method, endpoint);
     console.debug(httpRequest);
 
@@ -154,7 +154,7 @@ export default class Peer {
 
       // handle Access redirect
       if (response.status === 0) {
-        alert("Access session is expired, reloading page.");
+        alert('Access session is expired, reloading page.');
         location.reload();
       }
       const callsResponse = await response.json();
@@ -163,13 +163,13 @@ export default class Peer {
       if (remainingAttempts === 0) {
         throw error;
       } else {
-        console.error("Calls request failed, retrying...");
+        console.error('Calls request failed, retrying...');
         return Peer.sendRequest(
           method,
           request,
           endpoint,
           extraParams,
-          remainingAttempts - 1
+          remainingAttempts - 1,
         );
       }
     }
@@ -182,9 +182,7 @@ export default class Peer {
 
     const baseUrl = `https://rtc.live.cloudflare.com/v1/apps/${CALLS_APP_ID}`;
 
-    this.transceivers.push(
-      this.pc.addTransceiver("audio", { direction: "inactive" })
-    );
+    this.transceivers.push(this.pc.addTransceiver('audio'));
     this.pc.onicecandidate = (event) => {
       if (event.candidate) {
       }
@@ -194,7 +192,7 @@ export default class Peer {
     this.pc.onconnectionstatechange = () => {};
 
     this.pc.setLocalDescription(await this.pc.createOffer());
-    this.pc.addEventListener("iceconnectionstatechange", this.handleIceFailure);
+    this.pc.addEventListener('iceconnectionstatechange', this.handleIceFailure);
 
     this.pc.ontrack = (event) => {
       if (event.transceiver.mid === null) return;
@@ -203,13 +201,13 @@ export default class Peer {
         delete this.pendingTrackTransceivers[event.transceiver.mid];
         resolve(event.track);
       } else {
-        console.warn("No pending track for transceiver", event.transceiver);
+        console.warn('No pending track for transceiver', event.transceiver);
       }
     };
 
     let connectedState = new Promise((resolve, _) => {
-      this.pc.addEventListener("connectionstatechange", () => {
-        if (this.pc.connectionState == "connected") {
+      this.pc.addEventListener('connectionstatechange', () => {
+        if (this.pc.connectionState == 'connected') {
           resolve(true);
         }
       });
@@ -220,59 +218,59 @@ export default class Peer {
       setTimeout(() => resolve(true), iceGathertingTimeout);
       if (this.params.iceTrickleEnabled) {
         // if ice trickle enabled, gathering is ready when it gets the first candidate
-        this.pc.addEventListener("icecandidate", (_e) => {
+        this.pc.addEventListener('icecandidate', (_e) => {
           resolve(true);
           // send ICE trickle update here
         });
       }
       this.pc.onicegatheringstatechange = (_ev) => {
-        if (this.pc.iceGatheringState === "complete") {
+        if (this.pc.iceGatheringState === 'complete') {
           resolve(true);
         }
       };
     });
 
-    this.pc.addEventListener("connectionstatechange", (event) => {
+    this.pc.addEventListener('connectionstatechange', (event) => {
       switch (this.pc.connectionState) {
-        case "connected":
+        case 'connected':
           this.params.onConnect(this.pc.connectionState, event);
           break;
-        case "failed":
-        case "disconnected":
+        case 'failed':
+        case 'disconnected':
           this.params.onDisconnect(this.pc.connectionState, event);
       }
     });
 
     await gatheringReady;
     invariant(this.pc.localDescription);
-    logCallsApiUsage("Sending initial offer");
+    logCallsApiUsage('Sending initial offer');
     const response = (await Peer.sendRequest(
-      "POST",
+      'POST',
       {
         sessionDescription: {
-          type: "offer",
+          type: 'offer',
           sdp: this.pc.localDescription.sdp,
         } as SessionDescription,
       },
-      `${baseUrl}/sessions/new`
+      `${baseUrl}/sessions/new`,
     )) as NewSessionResponse;
     if (response.errorCode) {
       throw new Error(response.errorDescription);
     }
     this.sessionId = response.sessionId;
     await this.pc.setRemoteDescription(
-      new RTCSessionDescription(response.sessionDescription)
+      new RTCSessionDescription(response.sessionDescription),
     );
     await connectedState;
   }
 
   getTransceiverFor(
     track: MediaStreamTrack,
-    sendEncodings?: RTCRtpEncodingParameters[]
+    sendEncodings?: RTCRtpEncodingParameters[],
   ) {
     const transceiver = this.pc.addTransceiver(track, {
-      direction: "sendonly",
-      // sendEncodings,
+      direction: 'sendonly',
+      sendEncodings,
     });
     this.transceivers.push(transceiver);
     return transceiver;
@@ -280,7 +278,7 @@ export default class Peer {
 
   async replaceTrack(resourceID: string, track: MediaStreamTrack) {
     console.debug(`Peer.replaceTrack: ${resourceID} ${track.id}`);
-    const id = resourceID.split("/")[1];
+    const id = resourceID.split('/')[1];
     // need to find the sender based on the MID?
     const mid = this.trackToMid[id];
     invariant(mid, `mid for ${id} not found`);
@@ -297,10 +295,10 @@ export default class Peer {
     track: MediaStreamTrack,
     newParams: {
       encodings?: RTCRtpEncodingParameters[];
-    }
+    },
   ) {
     console.debug(`Peer.configureSender: ${resourceID} ${track.id}`);
-    const id = resourceID.split("/")[1];
+    const id = resourceID.split('/')[1];
     // need to find the sender based on the MID?
     const mid = this.trackToMid[id];
     invariant(mid, `mid for ${id} not found`);
@@ -318,7 +316,7 @@ export default class Peer {
   async pushTrack(
     trackName: string,
     track: MediaStreamTrack,
-    sendEncodings?: RTCRtpEncodingParameters[]
+    sendEncodings?: RTCRtpEncodingParameters[],
   ): Promise<TrackObject> {
     const baseUrl = `https://rtc.live.cloudflare.com/v1/apps/${CALLS_APP_ID}`;
 
@@ -339,53 +337,53 @@ export default class Peer {
           const request: TracksRequest = {
             tracks: batchCopy.map((trackEntry) => {
               return {
-                location: "local",
+                location: 'local',
                 mid: trackEntry.transceiver.mid,
                 trackName: trackEntry.trackName,
               };
             }),
             sessionDescription: {
               sdp: this.pc.localDescription.sdp,
-              type: "offer",
+              type: 'offer',
             },
           };
 
           // stage 0
           const response = (await Peer.sendRequest(
-            "POST",
+            'POST',
             request,
-            `${baseUrl}/sessions/${this.sessionId}/tracks/new`
+            `${baseUrl}/sessions/${this.sessionId}/tracks/new`,
             // this.params.apiExtraParams
           )) as TracksResponse;
           if (!response.errorCode) {
             // If everything went fine, we set the remote answer (once)
             await this.pc.setRemoteDescription(
-              new RTCSessionDescription(response.sessionDescription)
+              new RTCSessionDescription(response.sessionDescription),
             );
           }
           return response;
         });
-      }
+      },
     )) as TracksResponse;
     if (bulkResponse.errorCode) {
       throw new Error(bulkResponse.errorDescription);
     }
     const trackResponse = bulkResponse.tracks?.find(
-      (track) => track.trackName == trackName
+      (track) => track.trackName == trackName,
     );
     if (!trackResponse) {
       throw new Error(`No response for trackName=${trackName}`);
     }
     if (trackResponse?.errorCode) {
       throw new Error(
-        `${trackResponse.errorCode}: ${trackResponse.errorDescription}`
+        `${trackResponse.errorCode}: ${trackResponse.errorDescription}`,
       );
     }
     invariant(trackResponse.mid);
 
     this.trackToMid[track.id] = trackResponse.mid;
     return {
-      location: "remote",
+      location: 'remote',
       sessionId: this.sessionId,
       trackName: trackName,
     };
@@ -393,7 +391,7 @@ export default class Peer {
 
   resolveTrack(mid: string) {
     return new Promise<MediaStreamTrack>((resolve, reject) => {
-      setTimeout(reject, newTrackTimeout, "track resolving timed out");
+      setTimeout(reject, newTrackTimeout, 'track resolving timed out');
       this.pendingTrackTransceivers[mid] = (track: MediaStreamTrack) =>
         resolve(track);
     });
@@ -407,13 +405,13 @@ export default class Peer {
     const request: RenegotiateRequest = {
       sessionDescription: {
         sdp: this.pc.currentLocalDescription.sdp,
-        type: "answer",
+        type: 'answer',
       },
     };
     const response = (await Peer.sendRequest(
-      "PUT",
+      'PUT',
       request,
-      `${baseUrl}/sessions/${this.sessionId}/renegotiate`
+      `${baseUrl}/sessions/${this.sessionId}/renegotiate`,
       // this.params.apiExtraParams
     )) as RenegotiationResponse;
     if (response.errorCode) {
@@ -423,7 +421,7 @@ export default class Peer {
 
   async pullTrack(trackObject: TrackObject): Promise<MediaStreamTrack> {
     console.debug(
-      `Peer.pullTrack: ${trackObject.trackName} from peer ${trackObject.sessionId}`
+      `Peer.pullTrack: ${trackObject.trackName} from peer ${trackObject.sessionId}`,
     );
     const baseUrl = `https://rtc.live.cloudflare.com/v1/apps/${CALLS_APP_ID}`;
 
@@ -437,9 +435,9 @@ export default class Peer {
               tracks: batchCopy,
             };
             const response = (await Peer.sendRequest(
-              "POST",
+              'POST',
               request,
-              `${baseUrl}/sessions/${this.sessionId}/tracks/new`
+              `${baseUrl}/sessions/${this.sessionId}/tracks/new`,
               // this.params.apiExtraParams
             )) as TracksResponse;
             if (response.errorCode) {
@@ -456,7 +454,7 @@ export default class Peer {
             }); // todo: should this be filtered to remove undefined?
             if (response.requiresImmediateRenegotiation) {
               await this.pc.setRemoteDescription(
-                new RTCSessionDescription(response.sessionDescription)
+                new RTCSessionDescription(response.sessionDescription),
               );
               const answerSDP = await this.pc.createAnswer();
               await this.pc.setLocalDescription(answerSDP);
@@ -464,12 +462,12 @@ export default class Peer {
             }
             return { bulkResponse: response, trackPromises: trackPromises };
           });
-        }
+        },
       );
     const trackResponseIdx = bulkResponse.tracks?.findIndex(
       (track) =>
         track.sessionId == trackObject.sessionId &&
-        track.trackName == trackObject.trackName
+        track.trackName == trackObject.trackName,
     );
     if (
       !bulkResponse.tracks ||
@@ -477,13 +475,13 @@ export default class Peer {
       trackResponseIdx == -1
     ) {
       throw new Error(
-        `No response for sessionId=${trackObject.sessionId}, trackName=${trackObject.trackName}`
+        `No response for sessionId=${trackObject.sessionId}, trackName=${trackObject.trackName}`,
       );
     }
     const trackResponse = bulkResponse.tracks[trackResponseIdx];
     if (trackResponse?.errorCode) {
       throw new Error(
-        `${trackResponse.errorCode}: ${trackResponse.errorDescription}`
+        `${trackResponse.errorCode}: ${trackResponse.errorDescription}`,
       );
     }
     const trackPromise = trackPromises[trackResponseIdx];
@@ -501,7 +499,7 @@ export default class Peer {
 
     const mid = this.trackToMid[track.id];
     if (!mid) {
-      throw new Error("stream has no associated transceiver");
+      throw new Error('stream has no associated transceiver');
     }
     await this.initialization;
     const bulkResponse = await this.closeTrackDispatcher.doBulkRequest(
@@ -514,7 +512,7 @@ export default class Peer {
             invariant(t.mid);
             return batchCopy.includes(t.mid);
           });
-          transceivers.forEach((t) => (t.direction = "inactive"));
+          transceivers.forEach((t) => (t.direction = 'inactive'));
 
           await this.pc.setLocalDescription(await this.pc.createOffer());
           invariant(this.pc.localDescription);
@@ -524,14 +522,14 @@ export default class Peer {
             }),
             sessionDescription: {
               sdp: this.pc.localDescription.sdp,
-              type: "offer",
+              type: 'offer',
             },
             force: false,
           };
           const response = (await Peer.sendRequest(
-            "PUT",
+            'PUT',
             request,
-            `${baseUrl}/sessions/${this.sessionId}/tracks/close`
+            `${baseUrl}/sessions/${this.sessionId}/tracks/close`,
             // this.params.apiExtraParams
           )) as TracksResponse;
 
@@ -540,26 +538,26 @@ export default class Peer {
           }
 
           await this.pc.setRemoteDescription(
-            new RTCSessionDescription(response.sessionDescription)
+            new RTCSessionDescription(response.sessionDescription),
           );
           return response;
         });
-      }
+      },
     );
     const trackResponse = bulkResponse.tracks?.find(
-      (track) => track.mid === mid
+      (track) => track.mid === mid,
     );
     if (!trackResponse) {
       throw new Error(`No response for mid=${mid}`);
     }
     if (trackResponse?.errorCode) {
       throw new Error(
-        `${trackResponse.errorCode}: ${trackResponse.errorDescription}`
+        `${trackResponse.errorCode}: ${trackResponse.errorDescription}`,
       );
     }
     delete this.trackToMid[track.id];
     this.transceivers = this.transceivers.filter(
-      (transceiver) => transceiver.mid != mid
+      (transceiver) => transceiver.mid != mid,
     );
   }
 
@@ -574,17 +572,17 @@ export default class Peer {
 
     now.forEach((nowReport: Stats) => {
       if (
-        nowReport.type === "candidate-pair" &&
-        "availableOutgoingBitrate" in nowReport
+        nowReport.type === 'candidate-pair' &&
+        'availableOutgoingBitrate' in nowReport
       ) {
         this.availableOutboundBitrate.insert(
-          Number(nowReport.availableOutgoingBitrate)
+          Number(nowReport.availableOutgoingBitrate),
         );
       }
 
       if (
-        nowReport.type !== "remote-inbound-rtp" &&
-        nowReport.type !== "inbound-rtp"
+        nowReport.type !== 'remote-inbound-rtp' &&
+        nowReport.type !== 'inbound-rtp'
       )
         return;
       const baseReport = baseline.get(nowReport.id) as Stats;
@@ -593,11 +591,11 @@ export default class Peer {
       // For outbound-rtp, packetsLost might not be present. Consider it as 0 in such cases.
       const packetsLost = Math.max(
         (nowReport.packetsLost || 0) - (baseReport.packetsLost || 0),
-        0
+        0,
       );
 
       if (
-        nowReport.type === "remote-inbound-rtp" &&
+        nowReport.type === 'remote-inbound-rtp' &&
         nowReport.fractionLost !== undefined
       ) {
         this.outboundPacketLossPercentageEwma.insert(nowReport.fractionLost);
@@ -626,9 +624,9 @@ export default class Peer {
 
   handleIceFailure = async () => {
     const { iceConnectionState } = this.pc;
-    if (iceConnectionState === "closed" || iceConnectionState === "failed") {
+    if (iceConnectionState === 'closed' || iceConnectionState === 'failed') {
       alert(
-        `Oh no! It appears that your connection closed unexpectedly. We've copied your session id to your clipboard, and will now reload the page to reconnect!`
+        `Oh no! It appears that your connection closed unexpectedly. We've copied your session id to your clipboard, and will now reload the page to reconnect!`,
       );
       if (this.sessionId) {
         await navigator.clipboard.writeText(this.sessionId);
@@ -639,8 +637,8 @@ export default class Peer {
 
   destroy() {
     this.pc.removeEventListener(
-      "iceconnectionstatechange",
-      this.handleIceFailure
+      'iceconnectionstatechange',
+      this.handleIceFailure,
     );
     this.pc.close();
   }

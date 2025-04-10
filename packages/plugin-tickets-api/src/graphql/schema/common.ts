@@ -80,6 +80,7 @@ export const commonTypes = `
   stageChangedDate: Date
 
   customProperties: JSON
+  type: String
 `;
 
 export const commonMutationParams = `
@@ -136,6 +137,7 @@ export const commonListTypes = `
   stageChangedDate: Date
   tagIds: [String]
   customProperties: JSON
+  type: String
   status: String
   branchIds: [String]
   branches:[Branch]

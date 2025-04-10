@@ -7,22 +7,24 @@ import { useQuery } from '@apollo/client';
 import Detail from '../components/Detail';
 import queries from '../graphql/queries';
 import { AccountDetailQueryResponse } from '../types';
+import { getRawAccountNumber } from '../../../../utils';
 
 type Props = {
   queryParams: any;
-} ;
+};
 
 const DetailContainer = (props: Props) => {
   const { _id, account } = props.queryParams;
+
 
   const { data, loading, error } = useQuery<AccountDetailQueryResponse>(
     gql(queries.detailQuery),
     {
       variables: {
         configId: _id,
-        accountNumber: account
+        accountNumber: getRawAccountNumber(account),
       },
-      fetchPolicy: 'network-only'
+      fetchPolicy: 'network-only',
     }
   );
 
@@ -43,7 +45,7 @@ const DetailContainer = (props: Props) => {
   const extendedProps = {
     ...props,
     loading,
-    account: accountDetail
+    account: accountDetail,
   };
 
   return (

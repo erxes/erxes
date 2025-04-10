@@ -1,3 +1,8 @@
+import {
+  conformityQueryFieldDefs,
+  conformityQueryFields,
+} from '@erxes/ui-sales/src/conformity/graphql/queries';
+
 const listParamsDef = `
   $page: Int
   $perPage: Int
@@ -17,9 +22,23 @@ export const loansResearchFields = `
   dealId
   customerType
   customerId
+  debtIncomeRatio
+  increaseMonthlyPaymentAmount
+
+  averageSalaryIncome
+  averageBusinessIncome
+  totalIncome
   incomes {
     _id
     incomeType
+    totalSalaryIncome
+    totalMonth
+
+    businessLine
+    businessDetails
+    businessProfile
+    businessIncome
+
     files {
       url
       name
@@ -27,10 +46,21 @@ export const loansResearchFields = `
       type
     }
   }
+
+  monthlyCostAmount
+  monthlyLoanAmount
+  totalPaymentAmount
   loans {
     _id
+    loanType
+    loanName
+    loanLocation
     startDate
     closeDate
+    loanAmount
+
+    costName
+    costAmount
     files {
       url
       name
@@ -38,13 +68,20 @@ export const loansResearchFields = `
       type
     }
   }
-  totalMonth
-  totalIncome
-  monthlyIncome
-  totalLoanAmount
-  monthlyPaymentAmount
-  debtIncomeRatio
-  increaseMonthlyPaymentAmount
+
+  customer {
+    _id
+    firstName
+    lastName
+    primaryEmail
+    primaryPhone
+  }
+
+  deal {
+    _id
+    name
+  }
+
   createdAt
 `;
 
@@ -59,4 +96,23 @@ const loansResearchMain = `
   }
 `;
 
-export default { loansResearchMain };
+const loanResearchDetail = `
+query loanResearchDetail($dealId: String, $customerId: String) {
+  loanResearchDetail(dealId: $dealId, customerId: $customerId) {
+    ${loansResearchFields}
+  }
+}
+`;
+
+const customers = `
+  query customers(${conformityQueryFields}) {
+    customers(${conformityQueryFieldDefs}) {
+      _id
+      firstName
+      primaryPhone
+      primaryEmail
+    }
+  }
+`;
+
+export default { loansResearchMain, loanResearchDetail, customers };

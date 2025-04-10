@@ -9,6 +9,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
 import { useLocation, useNavigate } from 'react-router-dom';
+import CustomPostTypeGroup from '../../fieldGroups/CustomPostTypeGroup';
 
 type Props = {
   clientPortalId: string;
@@ -33,12 +34,12 @@ const ProductForm = (props: Props) => {
 
   const generateDoc = () => {
     const finalValues: any = {};
-
-    if (props.page) {
-      finalValues._id = props.page._id;
-    }
-
+    const keysToDelete = ['__typename', '_id', 'createdAt', 'createdUser', 'updatedAt','createdUserId'];
     Object.keys(page).forEach((key) => {
+      if (keysToDelete.indexOf(key) !== -1) {
+        return;
+      }
+
       if (page[key] !== undefined) {
         finalValues[key] = page[key];
       }
@@ -106,10 +107,18 @@ const ProductForm = (props: Props) => {
             defaultValue={page.name}
             value={page.name}
             onChange={(e: any) => {
+              const nameValue = e.target.value;
+              const slugValue = nameValue
+                .toLowerCase()
+                .trim()
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-]+/g, '')
+                .replace(/-+/g, '-');
+
               setPage({
                 ...page,
-                name: e.target.value,
-                slug: e.target.value,
+                name: nameValue,
+                slug: slugValue,
               });
             }}
           />
@@ -156,6 +165,25 @@ const ProductForm = (props: Props) => {
             ))}
           </FormControl>
         </FormGroup>
+
+        {props.page && (
+          <FormGroup>
+            <ControlLabel>{__('Custom Fields')}</ControlLabel>
+            <div style={{ paddingTop: 10 }}>
+              <CustomPostTypeGroup
+                clientPortalId={props.clientPortalId}
+                page={page}
+                customFieldsData={page.customFieldsData || []}
+                onChange={(field, value) => {
+                  setPage({
+                    ...page,
+                    [field]: value,
+                  });
+                }}
+              />
+            </div>
+          </FormGroup>
+        )}
 
         <ModalFooter>
           <Button btnStyle='simple' onClick={closeModal} icon='times-circle'>

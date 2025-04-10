@@ -9,12 +9,12 @@ import { DateWrapper } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import React from 'react';
-import { InsuranceCategory, InsuranceProduct, User } from '../../../gql/types';
+
 import CategoryForm from '../containers/Form';
 
 type Props = {
   level: number;
-  category: InsuranceCategory;
+  category: any;
   remove: (_id: string) => void;
 };
 
@@ -28,41 +28,41 @@ const Row = (props: Props) => {
     };
 
     return (
-      <Tip text={__('Delete')} placement="top">
+      <Tip text={__('Delete')} placement='top'>
         <Button
-          id="directionDelete"
-          btnStyle="link"
+          id='directionDelete'
+          btnStyle='link'
           onClick={onClick}
-          icon="times-circle"
+          icon='times-circle'
         />
       </Tip>
     );
   };
 
-  const getFullName = (doc: User) => {
+  const getFullName = (doc) => {
     return doc.details ? doc.details.fullName : 'Unknown';
   };
 
-  const formContent = formProps => (
-    <CategoryForm {...formProps} category={category} />
+  const formContent = (formProps) => (
+    <CategoryForm {...formProps} category={category} clientPortalId={category.clientPortalId} />
   );
 
   return (
     <tr>
-      <td key={Math.random()}>
-        <RowTitle>{`${"-".repeat(level)} ${category.name || 'Undefined'}`}</RowTitle>
+      <td key={category._id + 'name'}>
+        <RowTitle>{`${'-'.repeat(level)} ${category.name || 'Undefined'}`}</RowTitle>
       </td>
 
-      <td key={Math.random()}>
+      <td key={category._id + 'slug'}>
         <RowTitle>{category.slug || 'Undefined'} </RowTitle>
       </td>
 
-      <td key={Math.random()}>
+      <td key={category._id + 'description'}>
         <RowTitle>{category.description || 'Undefined'}</RowTitle>
       </td>
 
       <td>
-        <Icon icon="calender" />{' '}
+        <Icon icon='calender' />{' '}
         <DateWrapper>
           {dayjs(category.lastModifiedAt).format('lll')}
         </DateWrapper>
@@ -77,7 +77,7 @@ const Row = (props: Props) => {
         <ActionButtons>
           <ModalTrigger
             title={'Edit category'}
-            trigger={<Button btnStyle="link" icon="edit-3" />}
+            trigger={<Button btnStyle='link' icon='edit-3' />}
             content={formContent}
             size={'lg'}
           />

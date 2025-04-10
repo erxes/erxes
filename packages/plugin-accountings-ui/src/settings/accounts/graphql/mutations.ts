@@ -11,6 +11,7 @@ const accountInputParamsDefs = `
   $description: String,
   $branchId: String,
   $departmentId: String,
+  $isTemp: Boolean,
   $isOutBalance: Boolean,
   $scopeBrandIds: [String]
 `;
@@ -26,6 +27,7 @@ const accountInputParams = `
   description: $description,
   branchId: $branchId,
   departmentId: $departmentId,
+  isTemp: $isTemp,
   isOutBalance: $isOutBalance,
   scopeBrandIds: $scopeBrandIds
 `;

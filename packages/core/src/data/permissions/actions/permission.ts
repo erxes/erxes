@@ -525,7 +525,7 @@ export const moduleObjects = {
 
   clients: {
     name: 'clients',
-    description: 'Clients',
+    description: 'App Clients',
     actions: [
       {
         name: 'clientsAll',

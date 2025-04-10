@@ -1,11 +1,11 @@
-import { IContext } from '../../../connectionResolver';
-import { sendCommonMessage } from '../../../messageBroker';
-import { IScoreLog } from '../../../models/definitions/scoreLog';
-import { getOwner } from '../../../models/utils';
+import { IContext } from "../../../connectionResolver";
+import { sendCommonMessage } from "../../../messageBroker";
+import { IScoreLog } from "../../../models/definitions/scoreLog";
+import { getOwner } from "../../../models/utils";
 
 const TARGET_ACTIONS = {
-  pos: {action: 'orders.find', field: 'items'},
-  sales: {action: 'deals.find', field: 'productsData'},
+  pos: { action: "orders.find", field: "items" },
+  sales: { action: "deals.find", field: "productsData" },
 };
 
 const fetchTarget = async ({
@@ -17,8 +17,7 @@ const fetchTarget = async ({
   serviceName: string;
   subdomain: string;
 }) => {
-
-  const {action, field} = TARGET_ACTIONS[serviceName] || {}
+  const { action, field } = TARGET_ACTIONS[serviceName] || {};
 
   if (!targetId || !serviceName || !TARGET_ACTIONS[serviceName]) {
     return [];
@@ -35,7 +34,11 @@ const fetchTarget = async ({
     defaultValue: [],
   });
 
-  return target[field]
+  if (!target || !target[field]) {
+    return [];
+  }
+
+  return target[field];
 };
 
 export default {
@@ -59,7 +62,7 @@ export default {
       const target = await fetchTarget({ targetId, serviceName, subdomain });
 
       const campaign = scoreCampaigns.find(
-        (scoreCampaign) => scoreCampaign._id === campaignId,
+        (scoreCampaign) => scoreCampaign._id === campaignId
       );
 
       updatedScoreLogs.push({

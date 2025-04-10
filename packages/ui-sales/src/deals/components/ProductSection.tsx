@@ -23,6 +23,7 @@ type Props = {
   onChangeProducts: (prs: IProduct[]) => void;
   saveProductsData: () => void;
   dealQuery: IDeal;
+  isFullMode?: boolean;
 };
 
 function ProductSection({
@@ -33,6 +34,7 @@ function ProductSection({
   onChangePaymentsData,
   saveProductsData,
   dealQuery,
+  isFullMode,
 }: Props) {
   const contentWithId = (productId?: string) => {
     const content = (props) => (
@@ -126,6 +128,18 @@ function ProductSection({
       product._id
     );
   };
+
+  if (isFullMode) {
+    return (
+      <div>
+        {products.map((product, index) => (
+          <SectionBodyItem key={index}>
+            {renderProduct(product)}
+          </SectionBodyItem>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <Box

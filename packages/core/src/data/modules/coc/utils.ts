@@ -226,19 +226,34 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
   // filter by segment
   public async segmentFilter(segment: any, source?: string, segmentData?: any) {
+    const isSegmentEmpty = !Object.keys(segment).length;
+    const isContentTypeContact = ['lead', 'customer', 'company'].some(type =>
+      (segment?.contentType || '').includes(type)
+    );
+
+    const isSourceEngages = source === 'engages';
+
+    if (isSegmentEmpty && segmentData) {
+      segment = segmentData;
+    }
+
+    let options: any = { returnSelector: true };
+
+    if (isSourceEngages && isContentTypeContact) {
+      options = {
+        returnAssociated: {
+          mainType: segment.contentType,
+          relType: `core:${this.getRelType()}`,
+        },
+        returnSelector: true,
+      };
+    }
+
     const selector = await fetchSegment(
       this.models,
       this.subdomain,
       segment,
-      source === 'engages' && !segment.contentType.includes('contacts')
-        ? {
-          returnAssociated: {
-            mainType: segment.contentType,
-            relType: `core:${this.getRelType()}`,
-          },
-          returnSelector: true,
-        }
-        : { returnSelector: true }
+      options
     );
 
     this.positiveList = [...this.positiveList, selector];
@@ -262,14 +277,18 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   }
 
   // filter by tagId
-  public async tagsFilter(tags: string[], isExclude: boolean, withRelated?: boolean) {
+  public async tagsFilter(
+    tags: string[],
+    isExclude: boolean,
+    withRelated?: boolean
+  ) {
     let tagIds: string[] = tags;
 
     if (withRelated) {
       const tagObjs = await this.models.Tags.find({ _id: { $in: tagIds } });
       tagObjs.forEach(tag => {
-        tagIds = tagIds.concat(tag.relatedIds || [])
-      })
+        tagIds = tagIds.concat(tag.relatedIds || []);
+      });
     }
 
     if (isExclude) {
@@ -431,11 +450,19 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     }
 
     if (this.params.tags) {
-      await this.tagsFilter(this.params.tags, false, this.params.tagWithRelated)
+      await this.tagsFilter(
+        this.params.tags,
+        false,
+        this.params.tagWithRelated
+      );
     }
 
     if (this.params.excludeTags) {
-      await this.tagsFilter(this.params.excludeTags, true, this.params.tagWithRelated)
+      await this.tagsFilter(
+        this.params.excludeTags,
+        true,
+        this.params.tagWithRelated
+      );
     }
 
     // filter by leadStatus
@@ -459,9 +486,9 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     if (this.params.searchValue) {
       this.params.autoCompletion
         ? this.searchByAutoCompletionType(
-          this.params.searchValue,
-          this.params.autoCompletionType || ''
-        )
+            this.params.searchValue,
+            this.params.autoCompletionType || ''
+          )
         : this.searchFilter(this.params.searchValue);
     }
 

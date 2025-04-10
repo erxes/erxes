@@ -1,10 +1,11 @@
-import React from 'react';
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
-import Alert from '../utils/Alert';
-import Box from './Box';
-import Button from './Button';
-import Tip from './Tip';
+import styled, { css } from "styled-components";
+
+import Alert from "../utils/Alert";
+import Box from "./Box";
+import Button from "./Button";
+import React from "react";
+import Tip from "./Tip";
+import styledTS from "styled-components-ts";
 
 const Container = styledTS<{ $isComplete: boolean }>(styled.div)`
   padding: 15px 20px 20px 20px;
@@ -60,14 +61,14 @@ const ButtonContainer = styled.div`
 `;
 
 export const STATUS_TYPES = {
-  COMPLETED: 'completed',
-  STOPPED: 'stopped',
-  STARTED: 'started',
-  PAUSED: 'paused',
+  COMPLETED: "completed",
+  STOPPED: "stopped",
+  STARTED: "started",
+  PAUSED: "paused",
 };
 
 function formatNumber(n: number) {
-  return n.toLocaleString('en-US', {
+  return n.toLocaleString("en-US", {
     minimumIntegerDigits: 2,
     useGrouping: false,
   });
@@ -115,7 +116,7 @@ type Props = {
       timeSpent,
       startDate,
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
-    callback?: () => void,
+    callback?: () => void
   ) => void;
 };
 
@@ -177,7 +178,7 @@ class TaskTimer extends React.Component<Props, State> {
   };
 
   handleReset = () => {
-    Alert.info('Task reset!');
+    Alert.info("Task reset!");
 
     this.stopTimer();
 
@@ -204,7 +205,7 @@ class TaskTimer extends React.Component<Props, State> {
     const isComplete = status === STATUS_TYPES.COMPLETED;
 
     const handleComplete = () => {
-      Alert.info('Task completed!');
+      Alert.info("Task completed!");
 
       this.stopTimer();
 
@@ -214,10 +215,10 @@ class TaskTimer extends React.Component<Props, State> {
     };
 
     return (
-      <Tip text={isComplete ? 'Completed' : 'Complete'} placement="top">
+      <Tip text={isComplete ? "Completed" : "Complete"} placement="top">
         <Button
           disabled={isComplete}
-          btnStyle={isComplete ? 'success' : 'default'}
+          btnStyle={isComplete ? "success" : "default"}
           onClick={handleComplete}
           icon="check-1"
         />

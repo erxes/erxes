@@ -1,7 +1,5 @@
 const commonFields = `
   $apiUrl: String
-  $isLocalUser: Boolean
-  $userDN: String
   $baseDN: String
   $adminDN: String
   $adminPassword: String
@@ -10,8 +8,6 @@ const commonFields = `
 
 const commonVariables = `
   apiUrl: $apiUrl
-  isLocalUser: $isLocalUser
-  userDN: $userDN
   baseDN: $baseDN
   adminDN: $adminDN
   adminPassword: $adminPassword
@@ -27,8 +23,8 @@ const adConfigUpdate = `
 `;
 
 const toCheckUsers = `
-  mutation toCheckAdUsers($userName: String, $userPass: String) {
-    toCheckAdUsers(userName: $userName, userPass: $userPass)
+  mutation toCheckAdUsers {
+    toCheckAdUsers
   }
 `;
 

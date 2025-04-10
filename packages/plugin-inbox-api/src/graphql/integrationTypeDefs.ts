@@ -3,10 +3,6 @@ export const types = `
     _id: String! @external
   }
 
-  extend type CloudflareCallsIntegrationDetailResponse @key(fields: "_id") {
-    _id: String! @external
-  }
-    
   input InputRule {
     _id : String!,
     kind: String!,
@@ -21,6 +17,8 @@ export const types = `
     operators: JSON
   }
   type CloudflareCallsData {
+    header: String
+    description: String
     departments: [CloudflareCallDataDepartment]
     isReceiveWebCall: Boolean
   }
@@ -35,11 +33,11 @@ export const types = `
     formId: String
     tagIds: [String]
     createdAt: Date
-
     tags: [Tag]
   
     leadData: JSON
     messengerData: JSON
+    ticketData :JSON
     uiOptions: JSON
     isActive: Boolean
     isConnected: Boolean
@@ -100,6 +98,14 @@ export const types = `
   input IntegrationExternalLinks {
     url: String
   }
+  
+   input TicketData {
+      ticketLabel: String
+      ticketToggle: Boolean
+      ticketStageId: String
+      ticketPipelineId: String
+      ticketBoardId: String
+  }
 
   input IntegrationMessengerData {
     _id: String
@@ -150,6 +156,8 @@ export const types = `
   }
 
   input IntegrationCallData {
+    header: String
+    description: String
     departments: [DepartmentInput]
     isReceiveWebCall: Boolean
   }
@@ -221,6 +229,10 @@ export const mutations = `
     callData: IntegrationCallData
     ): Integration
 
+  integrationsSaveMessengerTicketData(
+    _id: String!,
+    ticketData: TicketData): Integration
+    
   integrationsCreateExternalIntegration(
     kind: String!,
     name: String!,

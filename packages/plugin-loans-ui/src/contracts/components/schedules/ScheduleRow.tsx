@@ -24,6 +24,10 @@ function ScheduleRow({ schedule, leaseType }: Props) {
       return <Icon icon={'thumbs-down'} color={'red'} />;
     }
 
+    if (status === 'give') {
+      return <Icon icon={'telegram-alt'} color={'purple'} />;
+    }
+
     return <Icon icon={'sync-exclamation'} color={'green'} />;
   };
   const renderCell = (name, didName) => {
@@ -50,7 +54,7 @@ function ScheduleRow({ schedule, leaseType }: Props) {
         <td>{renderCell('commitmentInterest', 'didCommitmentInterest')}</td>
       )}
       <td>{renderCell('loss', 'didLoss')}</td>
-      <td>{renderCell('total', 'didTotal')}</td>
+      <td>{schedule.status === 'give' ? `(${renderCell('giveAmount', '')})` : renderCell('total', 'didTotal')}</td>
     </ExtraRow>
   );
 }

@@ -112,6 +112,8 @@ export const commonTransactionFields = `
     ${ctaxRowFields}
   }
 
+  extraData
+  
   permission
 `;
 
@@ -129,6 +131,7 @@ const accountsFilterParamDefs = `
   $accountCategoryId: String,
   $accountSearchValue: String,
   $accountBrand: String,
+  $accountIsTemp: Boolean,
   $accountIsOutBalance: Boolean,
   $accountBranchId: String,
   $accountDepartmentId: String,
@@ -158,6 +161,7 @@ const accountsFilterParams = `
   accountCategoryId: $accountCategoryId,
   accountSearchValue: $accountSearchValue,
   accountBrand: $accountBrand,
+  accountIsTemp: $accountIsTemp,
   accountIsOutBalance: $accountIsOutBalance,
   accountBranchId: $accountBranchId,
   accountDepartmentId: $accountDepartmentId,

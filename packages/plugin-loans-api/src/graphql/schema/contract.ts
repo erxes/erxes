@@ -1,3 +1,72 @@
+const commonFields = `
+  contractTypeId: String
+  number: String
+  useManualNumbering: Boolean
+  foreignNumber: String
+  relContractId: String
+  dealId: String
+  currency: String
+
+  status: String
+  statusChangedDate: Date
+
+  classification: String
+  branchId: String
+  description: String
+  createdBy: String
+  createdAt: Date
+  modifiedBy: String
+  modifiedAt: Date
+
+  marginAmount: Float
+  leaseAmount: Float
+  feeAmount: Float
+
+  tenor: Float
+  repayment: String
+  interestRate: Float
+  lossPercent: Float
+  lossCalcType: String
+
+  contractDate: Date
+  startDate: Date
+  firstPayDate: Date
+  endDate: Date
+  scheduleDays: [Int]
+  stepRules: [JSON]
+
+  insuranceAmount: Float
+  debt: Float
+  debtTenor: Float
+  debtLimit: Float
+
+  collateralsData: [JSON]
+  insurancesData: [JSON]
+
+  customerType: String
+  customerId: String
+  relCustomers: [JSON]
+
+  relationExpertId: String
+  leasingExpertId: String
+  riskExpertId: String
+
+  closeDate: Date
+  closeType: String
+  closeDescription: String
+
+  loanPurpose: String
+  loanDestination: String
+  leaseType: String
+
+  customFieldsData: JSON
+  savingContractId: String
+  depositAccountId: String
+
+  holidayType: String
+  weekends: [Int]
+`;
+
 export const types = () => `
   type LoanCurrentSchedule {
     contractId: String
@@ -25,68 +94,15 @@ export const types = () => `
 
   type LoanContract {
     _id: String
-    contractTypeId: String
-    number: String
-    branchId: String
-    classification: String
-    status: String
-    description: String
-    createdBy: String
-    createdAt: Date
-    marginAmount: Float
-    leaseAmount: Float
-    givenAmount: Float
-    feeAmount: Float
-    tenor: Float
-    lossPercent: Float
-    lossCalcType: String
-    interestRate: Float
-    skipInterestCalcMonth: Float
-    repayment: String
-    startDate: Date
-    firstPayDate: Date
-    scheduleDays: [Float]
-    customerId: String
-    customerType: String
-    debt: Float
-    debtTenor: Float
-    debtLimit: Float
-    insuranceAmount: Float
-    salvageAmount: Float
-    salvagePercent: Float
-    salvageTenor: Float
 
-    relationExpertId: String
-    leasingExpertId: String
-    riskExpertId: String
-    relationExpert: JSON
-    leasingExpert: JSON
-    riskExpert: JSON
+    ${commonFields}
 
     contractType: ContractType
-    companies: Company
-    customers: Customer
-
-    insurances: JSON
-    collaterals: JSON
-    insurancesData: JSON
-    collateralsData: JSON
-    invoices: JSON
-    currentSchedule: LoanCurrentSchedule
-
-    weekends: [Int]
-    useHoliday: Boolean
-    useMargin: Boolean
-    useSkipInterest: Boolean
-    useDebt: Boolean
-
-    closeDate: Date
-    closeType: String
-    closeDescription: String
-
-    relContractId: String
     relContract: RecContract
-    dealId: String
+    customer: Customer
+    company: Company
+    givenAmount: Float
+
     hasTransaction: Boolean
     nextPaymentDate: Date
     nextPayment: Float
@@ -95,27 +111,19 @@ export const types = () => `
     expiredDays: Float
     loanTransactionHistory: JSON
     storeInterest: JSON
-    currency: String
     storedInterest: Float
     lastStoredDate: Date
-    isPayFirstMonth: Boolean
-    downPayment: Float
-    skipAmountCalcMonth: Float
-    customPayment: Float
-    customInterest: Float
-    isBarter: Boolean
-    useManualNumbering: Boolean
-    useFee: Boolean
-    loanPurpose: String
-    leaseType: String
+
     commitmentInterest: Float
-    endDate: Date
-    customFieldsData: JSON
-    savingContractId: String
-    holidayType: String
     mustPayDate: Date
-    depositAccountId: String
     unUsedBalance: Float
+    invoices: JSON
+    currentSchedule: LoanCurrentSchedule
+    insurances: JSON
+    collaterals: JSON
+    relationExpert: JSON
+    leasingExpert: JSON
+    riskExpert: JSON
   }
 
 
@@ -181,6 +189,7 @@ const queryParams = `
   status: String
   leaseType: String
   leaseTypes: [String]
+  statuses: [String]
 
   dealIds: [String]
 `;
@@ -195,68 +204,7 @@ export const queries = `
   closeInfo(contractId: String, date: Date): CloseInfo
   contractsAlert(date: Date): [LoanAlert]
   convertToContract(id: String!, contentType: String): JSON
-`;
-
-const commonFields = `
-  contractTypeId: String
-  number: String
-  branchId: String
-  classification: String
-  status: String
-  description: String
-  createdBy: String
-  createdAt: Date
-  marginAmount: Float
-  leaseAmount: Float
-  givenAmount: Float
-  feeAmount: Float
-  tenor: Float
-  lossPercent: Float
-  lossCalcType: String
-  interestRate: Float
-  repayment: String
-  startDate: Date
-  firstPayDate: Date
-  scheduleDays: [Float]
-  insurancesData: JSON
-  schedule: JSON
-  collateralsData: JSON
-  customerId: String
-  customerType: String
-  debt: Float
-  debtTenor: Float
-  debtLimit: Float
-  salvageAmount: Float
-  salvagePercent: Float
-  salvageTenor: Float
-  relationExpertId: String
-  leasingExpertId: String
-  riskExpertId: String
-  weekends: [Int]
-  useHoliday: Boolean
-  useMargin: Boolean
-  useSkipInterest: Boolean
-  useDebt: Boolean
-  relContractId: String
-  dealId: String
-  skipInterestCalcMonth: Float
-  currency: String
-  isPayFirstMonth: Boolean
-  downPayment: Float
-  skipAmountCalcMonth: Float
-  isBarter: Boolean
-  customPayment: Float
-  customInterest: Float
-  loanPurpose: String
-  useManualNumbering: Boolean
-  useFee: Boolean
-  leaseType: String
-  commitmentInterest: Float
-  endDate: Date
-  savingContractId: String
-  customFieldsData: JSON
-  holidayType: String
-  depositAccountId: String
+  dealLoanContract(dealId: String, args: JSON): JSON
 `;
 
 const interestCorrectionFields = `

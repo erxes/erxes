@@ -27,7 +27,6 @@ export const JOURNALS_KEY_LABELS = {
   badExpirationDay: "Bad classification begin day",
   minInterest: "Min interest of year",
   maxInterest: "Max interest of year",
-  defaultInterest: "Default interest of year",
   minTenor: "Min tenor",
   maxTenor: "Max tenor",
   minAmount: "Min amount",
@@ -38,25 +37,16 @@ export const JOURNALS_KEY_LABELS = {
   boardId: "Initial board",
   pipelineId: "Initial pipeline",
   stageId: "Initial stage",
+  requirementsTxt: "Requirements Txt",
+  customerDocumentsTxt: "Customer Documents Txt",
+  companyDocumentsTxt: "Company Documents Txt",
 };
 
 export const LEASE_TYPES = {
   FINANCE: "finance",
-  SALVAGE: "salvage",
   LINEAR: "linear",
   CREDIT: "credit",
   SAVING: "saving",
-  ALL: ["finance", "salvage", "linear", "credit", "saving"],
+  ALL: ["finance", "linear", "credit", "saving"],
 };
 
-export const COLLATERAL_TYPE = {
-  ALL: ["car", "saving", "realEstate", "other"],
-  CAR: "car",
-  SAVING: "saving",
-  REAL_ESTATE: "realEstate",
-  OTHER: "other",
-};
-
-// erkhet.role.cashAccount ==== journalConfig.repaymentTemp
-// erkhet.role.debAccount ==== journalConfig.tempDebt
-// erkhet.mainInventory.saleAccount ==== denchinDans |

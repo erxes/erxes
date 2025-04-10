@@ -12,7 +12,10 @@ export const usePeerConnection = (config: { iceServers?: RTCIceServer[] }) => {
     useState<RTCIceConnectionState>('new');
 
   useEffect(() => {
-    if (!peerRef.current && configs !== null) {
+    if (
+      (!peerRef.current && configs !== null) ||
+      iceConnectionState === 'closed'
+    ) {
       const p = new Peer({ ...config, ...configs });
       peerRef.current = p;
 
@@ -25,12 +28,12 @@ export const usePeerConnection = (config: { iceServers?: RTCIceServer[] }) => {
       );
       return () => {
         p.pc.removeEventListener(
-          'connectionstatechange',
+          'iceconnectionstatechange',
           iceConnectionStateChangeHandler,
         );
       };
     }
-  }, [config, configs]);
+  }, [config, configs, iceConnectionState]);
 
-  return { peer: peerRef.current, iceConnectionState };
+  return { peer: peerRef.current, iceConnectionState, setIceConnectionState };
 };

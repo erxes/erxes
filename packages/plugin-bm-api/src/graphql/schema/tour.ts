@@ -36,6 +36,9 @@ export const types = () => `
     info2: String
     info3: String
     info4: String
+    extra: JSON
+    images: [String]
+    imageThumbnail: String
   }
 
   type BmsOrder {
@@ -46,7 +49,11 @@ export const types = () => `
     amount: Float
     status: String
     note: String
+    numberOfPeople: Int
+    type: String
+    additionalCustomers: String
   }
+
   input BmsOrderInput {
     branchId: String
     customerId: String
@@ -54,6 +61,9 @@ export const types = () => `
     amount: Float
     status: String
     note: String
+    numberOfPeople: Int
+    type: String
+    additionalCustomers: String
   }
   input GuideItemInput {
     guideId: String
@@ -70,7 +80,7 @@ export const types = () => `
 `;
 
 export const queries = `
-  bmTours( page:Int, perPage:Int, status: String, innerDate: Date,branchId: String, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date): ListTour
+  bmTours(branchId:String, sortField:String, sortDirection:Int, page:Int, perPage:Int, status: String, innerDate: Date,branchId: String, tags: [String],startDate1:Date,startDate2:Date,endDate1:Date,endDate2:Date): ListTour
   bmTourDetail(_id:String!,branchId: String): Tour
   bmOrders( tourId:String, customerId:String ,branchId: String):ListBmsOrder
 `;
@@ -95,6 +105,9 @@ const params = `
   info2: String,
   info3: String,
   info4: String,
+  extra: JSON,
+  images: [String],
+  imageThumbnail: String
 `;
 
 export const mutations = `

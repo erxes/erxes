@@ -74,7 +74,7 @@ class PerSettings extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  renderInput = (key: string) => {
+  renderInput = (key: string, args?: any) => {
     const { config } = this.state;
 
     return (
@@ -83,6 +83,7 @@ class PerSettings extends React.Component<Props, State> {
         <FormControl
           defaultValue={config[key]}
           onChange={this.onChangeInput.bind(this, key)}
+          {...args}
         />
       </FormGroup>
     );
@@ -122,6 +123,7 @@ class PerSettings extends React.Component<Props, State> {
             {this.renderInput('priceApi')}
             {this.renderInput('pricePriority')}
             {this.renderInput('username')}
+            {this.renderInput('password', {type: 'password'})}
           </FormColumn>
 
           <FormColumn>
@@ -129,7 +131,7 @@ class PerSettings extends React.Component<Props, State> {
             {this.renderInput('salesApi')}
             {this.renderInput('salesLineApi')}
             {this.renderInput('exchangeRateApi')}
-            {this.renderInput('password')}
+            {this.renderInput('discountSoapApi')}
           </FormColumn>
         </FormWrapper>
 

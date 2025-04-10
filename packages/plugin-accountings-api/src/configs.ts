@@ -1,12 +1,14 @@
-import typeDefs from './graphql/typeDefs';
-import resolvers from './dataloaders/resolvers';
-
-import { setupMessageConsumers } from './messageBroker';
-import { generateAllDataLoaders } from './dataloaders';
-import { generateModels } from './connectionResolver';
-import logs from './logUtils';
-import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { generateModels } from './connectionResolver';
+import { generateAllDataLoaders } from './dataloaders';
+import resolvers from './dataloaders/resolvers';
+import forms from './forms';
+import typeDefs from './graphql/typeDefs';
+import imports from './imports';
+import logs from './logUtils';
+import { setupMessageConsumers } from './messageBroker';
+import * as permissions from './permissions';
+import cronjobs from "./cronjobs/exchangeRates"
 
 export default {
   name: 'accountings',
@@ -33,9 +35,12 @@ export default {
 
   meta: {
     logs: { consumers: logs },
+    imports,
+    forms,
+    cronjobs,
     permissions,
   },
 
-  onServerInit: async () => {},
+  onServerInit: async () => { },
   setupMessageConsumers,
 };

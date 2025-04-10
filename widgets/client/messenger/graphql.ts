@@ -1,4 +1,4 @@
-import { connection } from "./connection";
+import { connection } from './connection';
 
 const userDetailFields = `
   avatar
@@ -104,7 +104,7 @@ const conversationDetailQuery = (isDailycoEnabled: boolean) => `
           url
           status
         }`
-            : ""
+            : ''
         }
       }
 
@@ -157,7 +157,7 @@ const conversationMessageInserted = (isDailycoEnabled: boolean) => `
         url
         status
       }`
-          : ""
+          : ''
       }
     }
   }
@@ -241,7 +241,7 @@ const readConversationMessages = `
   }
 `;
 
-const connect = `
+const connect = (isCloudFlareEnabled?: boolean, isTicketEnabled?: boolean) => `
   mutation connect($brandCode: String!, $email: String, $phone: String, $code: String
     $isUser: Boolean, $data: JSON,
     $companyData: JSON, $cachedCustomerId: String $visitorId: String) {
@@ -251,13 +251,29 @@ const connect = `
       cachedCustomerId: $cachedCustomerId, visitorId: $visitorId) {
       integrationId,
       messengerData,
-      callData {
-        departments {
-          _id
-          name
-          operators
-        }
-        isReceiveWebCall
+      ${
+        isCloudFlareEnabled
+          ? `
+        callData {
+          header
+          description
+          departments {
+            _id
+            name
+            operators
+          }
+          isReceiveWebCall
+        },
+      `
+          : ''
+      }
+      
+      ${
+        isTicketEnabled
+          ? `
+        ticketData
+      `
+          : ``
       }
       languageCode,
       uiOptions,
@@ -366,6 +382,6 @@ export default {
   integrationsFetchApi,
   conversationBotTypingStatus,
   getEngageMessage,
-  MESSAGE_FIELDS
+  MESSAGE_FIELDS,
 };
 export { MESSAGE_FIELDS };

@@ -20,3 +20,11 @@ export const getCurrencySymbol = (currency: string) => {
       return '';
   }
 };
+
+
+export const getRawAccountNumber = (number: string) => {
+  if (number.includes('MN') || number.length === 20) {
+    // split account number by 10 return last 10 digits
+    return number.slice(-10);
+  }
+};

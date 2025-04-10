@@ -1,4 +1,4 @@
-export const types = ({ products, knowledgeBase }) => `
+export const types = ({ products, knowledgeBase, cloudflareCalls }) => `
   ${
     products
       ? `
@@ -38,12 +38,19 @@ export const types = ({ products, knowledgeBase }) => `
     uiOptions: JSON
     languageCode: String
     messengerData: JSON
+    ticketData: JSON
     customerId: String
     visitorId: String
     brand: Brand
-    callData: CloudflareCallsData
+    ${cloudflareCalls ? 'callData: CloudflareCallsData' : ''}
   }
-
+  type TicketTypeMessenger {
+    ticketLabel: String
+    ticketToggle: Boolean,
+    ticketStageId: String
+    ticketPipelineId: String
+    ticketBoardId: String
+  }
   type ConversationDetailResponse {
     _id: String
     messages: [ConversationMessage]

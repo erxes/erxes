@@ -129,6 +129,9 @@ const generateMessages = async (
         quick_replies: quickReplies.map(quickReply => ({
           content_type: "text",
           title: quickReply?.text || "",
+          image_url: quickReply?.image_url
+            ? getUrl(subdomain, quickReply?.image_url)
+            : "",
           payload: generatePayloadString(
             conversation,
             quickReply,

@@ -10,9 +10,10 @@ export async function storeInterestContract(
   storeDate: Date,
   models: IModels,
   periodLockId: string,
-  config:IConfig
+  config: IConfig
 ) {
-  const beginDate = getFullDate(contract.lastStoredDate);
+  // const beginDate = getFullDate(contract.lastStoredDate);
+  const beginDate = getFullDate(storeDate);
   const invDate = getFullDate(storeDate);
 
   const lastStoredInterest = await models.StoredInterest.findOne({
@@ -23,34 +24,33 @@ export async function storeInterestContract(
 
   if (invDate === lastStoredInterest?.invDate) return;
 
-  if (!contract.loanBalanceAmount) return;
-
   const diffDay = getDiffDay(beginDate, invDate);
 
   const storeInterestAmount = calcInterest({
-    balance: contract.loanBalanceAmount,
+    balance: 0, //contract.loanBalanceAmount,
     interestRate: contract.interestRate,
     dayOfMonth: diffDay,
-    fixed:config.calculationFixed
+    fixed: config.calculationFixed
   });
 
   if (storeInterestAmount > 0) {
 
-    const storeInterest:IStoredInterest = {
-      amount:storeInterestAmount,
+    const storeInterest: IStoredInterest = {
+      amount: storeInterestAmount,
       contractId: contract._id,
       invDate: invDate,
-      prevStoredDate: contract.lastStoredDate,
-      commitmentInterest:0,
+      prevStoredDate: new Date(),//contract.lastStoredDate,
+      commitmentInterest: 0,
       periodLockId,
       number: contract.number,
-      description:'',
-      type:''
+      description: '',
+      type: ''
     }
 
     await models.StoredInterest.create(storeInterest);
 
-    if (new BigNumber(contract.storedInterest).isGreaterThan(0))
+    // if (new BigNumber(contract.storedInterest).isGreaterThan(0))
+    if (new BigNumber(0).isGreaterThan(0))
       await models.Contracts.updateOne(
         { _id: contract._id },
         {

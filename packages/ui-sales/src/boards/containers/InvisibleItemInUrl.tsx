@@ -2,13 +2,13 @@ import * as compose from "lodash.flowright";
 import * as routerUtils from "@erxes/ui/src/utils/router";
 
 import { DetailQueryResponse, IOptions } from "../types";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { EditForm } from "./editForm";
 import React from "react";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { withProps } from "@erxes/ui/src/utils";
-import { useLocation, useNavigate } from "react-router-dom";
 
 type WrapperProps = {
   itemId: string;
@@ -23,7 +23,7 @@ const InvisibleItemInUrl = (props: FinalProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const beforePopupClose = () => {
-    routerUtils.removeParams(navigate, location, "itemId");
+    routerUtils.removeParams(navigate, location, "itemId", "isFull");
   };
 
   const { options, itemId, detailQuery } = props;

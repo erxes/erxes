@@ -753,14 +753,14 @@ export const loadUserClass = (models: IModels) => {
         isActive: true,
       });
 
-      if (!user || !user.password) {
-        // user with provided email not found
-        throw new Error('Invalid login');
-      }
-
       const services = await getServices();
 
       if (!services.includes('activedirectory')) {
+        if (!user || !user.password) {
+          // user with provided email not found
+          throw new Error('Invalid login');
+        }
+
         const valid = await this.comparePassword(password, user.password);
 
         if (!valid) {
@@ -798,6 +798,11 @@ export const loadUserClass = (models: IModels) => {
             );
           }
         }
+      }
+
+      if (!user) {
+        // user with provided email not found
+        throw new Error('Invalid login');
       }
 
       // create tokens

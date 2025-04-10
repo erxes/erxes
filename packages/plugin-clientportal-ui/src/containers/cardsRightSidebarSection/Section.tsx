@@ -5,6 +5,7 @@ import VendorSection from "./VendorSection";
 type Props = {
   mainType: string;
   mainTypeId: string;
+  showType?: string;
 };
 
 const Container = (props: Props) => {

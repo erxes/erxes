@@ -1,20 +1,21 @@
 export const REPAYMENT_TYPE = [
   { label: 'Equal Principal Payment', value: 'equal' }, // undsen tulbur tentsuu
   { label: 'Fixed Rate Payment', value: 'fixed' }, // niit tulbur tentsuu
-  { label: 'Custom Rate Payment', value: 'custom' } // duriin tulbur
+  { label: 'Last of date', value: 'last' }, // niit tulbur tentsuu
 ];
 
 export const REPAYMENT = {
   EQUAL: 'equal', // undsen tulbur tentsuu
   FIXED: 'fixed', // niit tulbur tentsuu
-  CUSTOM: 'custom' // duriin tulbur
+  LAST: 'last', // hugatsaanii etsest neg udaa
 };
 
 export const CONTRACT_STATUS = {
   DRAFT: 'draft',
   NORMAL: 'normal',
   CLOSED: 'closed',
-  ALL: ['draft', 'normal', 'closed']
+  PAUSE: 'pause',
+  ALL: ['draft', 'normal', 'closed', 'pause']
 };
 
 export const LOSS_CALC_TYPE = {
@@ -50,30 +51,33 @@ export const INVOICE_STATUS = {
 };
 
 export const SCHEDULE_STATUS = {
-  PENDING: 'pending',
-  EXPIRED: 'expired',
-  DONE: 'done',
-  SKIPPED: 'skipped',
-  LESS: 'less',
-  PRE: 'pre',
-  GIVE: 'give',
+  PENDING: 'pending', // ирээдүйнх
+  EXPIRED: 'expired', // хугацаа нь талийсан
+  DONE: 'done', // ок
+  SKIPPED: 'skipped', // алгассан
+  LESS: 'less', // дутуу
+  PRE: 'pre', // урьдчилж хийгдсэн
+  GIVE: 'give', // өгсөн талынх
+  COMPLETE: 'complete', // үлдэгдэлгүй болсон
 
-  ALL: ['pending', 'done', 'skipped', 'pre', 'less', 'expired', 'give']
+  ALL: ['pending', 'done', 'skipped', 'pre', 'less', 'expired', 'give', 'complete']
 };
 
 export const LEASE_TYPES = {
   FINANCE: 'finance',
-  SALVAGE: 'salvage',
   LINEAR: 'linear',
   CREDIT: 'credit',
   SAVING: 'saving',
 
-  ALL: ['finance', 'salvage', 'linear', 'credit', 'saving']
+  ALL: ['finance', 'linear', 'credit', 'saving']
 };
 
-export const STORED_INTEREST_TYPES = {
-  STORED_INTEREST: 'storedInterest',
-  OUT_BALANCE: 'outBalance'
+export const COLLECTIVELY_RULES = {
+  FREE: 'free',
+  MUST: 'must',
+  NOT: 'not',
+
+  ALL: ['free', 'must', 'not']
 };
 
 export const INTEREST_CORRECTION_TYPE = {
@@ -82,12 +86,3 @@ export const INTEREST_CORRECTION_TYPE = {
   INTEREST_CHANGE: 'interestChange',
   ALL: ['stopInterest', 'interestReturn', 'interestChange']
 };
-
-export const COLLATERAL_TYPE = {
-  MOVABLE_ASSETS:'movableAssets',
-  REAL_ESTATE:'realEstate',
-  SECURITIES_CONTRACTS:'securitiesContracts',
-  SAVING:'saving',
-  WARRANTY:'warranty',
-  OTHER:'other'
-}

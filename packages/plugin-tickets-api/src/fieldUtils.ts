@@ -136,6 +136,34 @@ const getPipelineLabelOptions = async (models: IModels, pipelineId) => {
   };
 };
 
+const generateTagOptions = async (
+  subdomain,
+  name: string,
+  label: string,
+  type: string
+) => {
+  const options = await sendCoreMessage({
+    subdomain,
+    action: 'tagFind',
+    data: {
+      type: 'tickets:ticket',
+    },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  return {
+    _id: Math.random(),
+    name,
+    label,
+    type,
+    selectOptions: options.map(({ _id, name }) => ({
+      value: _id,
+      label: name,
+    })),
+  };
+};
+
 export const generateFields = async ({ subdomain, data }) => {
   const models = await generateModels(subdomain);
   const { type, config = {}, segmentId, usageType } = data;
@@ -245,6 +273,13 @@ export const generateFields = async ({ subdomain, data }) => {
     { queryName: 'departments' }
   );
 
+  const tagsOptions = await generateTagOptions(
+    subdomain,
+    'tagIds',
+    'Tags',
+    'tags'
+  );
+
   fields = [
     ...fields,
     ...[
@@ -256,6 +291,7 @@ export const generateFields = async ({ subdomain, data }) => {
       companiesOptions,
       branchesOptions,
       departmentsOptions,
+      tagsOptions,
     ],
   ];
 

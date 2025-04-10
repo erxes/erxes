@@ -262,6 +262,8 @@ ${
     googleAnalytics: String
     facebookPixel: String
     googleTagManager: String
+
+    createdAt: Date
   }
 
   type Styles {

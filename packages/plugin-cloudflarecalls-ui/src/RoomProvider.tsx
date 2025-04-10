@@ -9,9 +9,13 @@ type RoomProviderProps = {
 
 export const RoomProvider = ({ children }: RoomProviderProps) => {
   const [pushedAudioTrack, setPushedAudioTrack] = useState('');
-  const { peer, iceConnectionState } = usePeerConnection({
-    iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }],
-  });
+
+  const { peer, iceConnectionState, setIceConnectionState } = usePeerConnection(
+    {
+      iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }],
+    },
+  );
+
   const contextValue: RoomContextType = {
     peer: peer || null,
     iceConnectionState,
@@ -19,6 +23,7 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
       audio: pushedAudioTrack,
     },
     setPushedAudioTrack,
+    setIceConnectionState,
   };
 
   return (

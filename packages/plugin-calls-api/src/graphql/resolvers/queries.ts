@@ -129,19 +129,18 @@ const callsQueries = {
     }
     return 'request failed';
   },
-  async callQueueList(_root, { integrationId }, { models, user }: IContext) {
+  async callQueueList(_root, _args, { models, user }: IContext) {
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
 
     const formattedDate = `${year}-${month}-${day}`;
-    const integration = await models.Integrations.getIntegration(
+    const integrations = (await models.Integrations.getIntegrations(
       user._id,
-      integrationId,
-    );
-    if (!integration) {
-      throw new Error('Integration not found');
+    )) as any;
+    if (!integrations) {
+      throw new Error('Integrations not found');
     }
     const queueData = (await sendToGrandStream(
       models,
@@ -155,7 +154,7 @@ const callsQueries = {
             endTime: formattedDate,
           },
         },
-        integrationId: integrationId,
+        integrationId: integrations[0]?.inboxId,
         retryCount: 3,
         isConvertToJson: false,
         isAddExtention: false,
@@ -186,14 +185,24 @@ const callsQueries = {
 
       const rootStatistics = jsonObject.root_statistics || {};
       const queues = rootStatistics.queue || [];
-      if (integration.queues) {
-        const matchedQueues = queues.filter((queue) =>
-          integration.queues.includes(queue.queue.toString()),
-        );
+      let userQueues = [] as any;
+      const seenQueues = new Set();
+      for (const integration of integrations) {
+        if (integration.queues) {
+          const matchedQueues = queues.filter((queue) =>
+            integration.queues.includes(queue.queue.toString()),
+          );
 
-        return matchedQueues;
+          for (const queue of matchedQueues) {
+            if (!seenQueues.has(queue.queue)) {
+              seenQueues.add(queue.queue);
+              userQueues.push(queue);
+            }
+          }
+        }
       }
-      return [];
+
+      return userQueues || [];
     } catch (error) {
       console.error('Error parsing response as XML:', error.message, xmlData);
       return [];

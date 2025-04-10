@@ -62,6 +62,7 @@ export interface IProduct {
   bundleId?: string;
   bundle: IBundleRule;
   description: string;
+  tagIds: string[];
   getTags?: ITag[];
   barcodes: string[];
   variants: IVariant;

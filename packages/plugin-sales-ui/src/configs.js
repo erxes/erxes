@@ -13,12 +13,13 @@ module.exports = {
     "./automation": "./src/automations/automation.tsx",
     "./contactDetailRightSidebar": "./src/RightSidebar.tsx",
     "./selectRelation": "./src/common/SelectRelation.tsx",
-    "./invoiceDetailRightSection": "./src/common/Item.tsx"
+    "./invoiceDetailRightSection": "./src/common/Item.tsx",
+    "./scoreCampaignConfig": "./src/scoreCampaignConfig.tsx",
   },
   routes: {
     url: "http://localhost:3020/remoteEntry.js",
     scope: "sales",
-    module: "./routes"
+    module: "./routes",
   },
   propertyGroupForm: "./propertyGroupForm",
   segmentForm: "./segmentForm",
@@ -27,13 +28,14 @@ module.exports = {
   contactDetailRightSidebar: "./contactDetailRightSidebar",
   invoiceDetailRightSection: "./invoiceDetailRightSection",
   selectRelation: "./selectRelation",
+  scoreCampaignConfig: "./scoreCampaignConfig",
   menus: [
     {
       text: "Sales Pipeline",
       url: "/deal",
       icon: "icon-piggy-bank",
       location: "mainNavigation",
-      permission: "showDeals"
+      permission: "showDeals",
     },
     {
       text: "Sales Pipelines",
@@ -55,8 +57,8 @@ module.exports = {
         "dealStagesAdd",
         "dealStagesEdit",
         "dealStagesUpdateOrder",
-        "dealStagesRemove"
-      ]
-    }
-  ]
+        "dealStagesRemove",
+      ],
+    },
+  ],
 };
