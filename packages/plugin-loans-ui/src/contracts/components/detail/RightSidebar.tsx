@@ -97,7 +97,7 @@ export default function RightSidebar(props: Props) {
         extraButtons={extraButtons}
         isOpen={true}
       >
-        {renderBody(contract?.relCustomers)}
+        {renderBody(contract?.relCustomers || [])}
       </Box>
 
       {isEnabled('sales') && <DealSection contract={contract} />}
